@@ -204,20 +204,62 @@ public final class Cursor implements XmlCursor
     // change from a phantom ref to a soft/weak ref so I can know what
     // to do when I dequeue from the old q.
     
+    public QName _getName ( )
+    {
+        // TODO - consider taking this out of the gateway
+        return _cur.getName();
+    }
+    
+    public void _setName ( QName name )
+    {
+        if (name == null)
+            throw new IllegalArgumentException( "Name is null" );
+
+        switch ( _cur.kind() )
+        {
+        case ELEM :
+        case ATTR :
+        {
+            validateLocalName( name.getLocalPart() );
+            break;
+        }
+                    
+        case PROCINST :
+        {
+            validatePrefix( name.getLocalPart() );
+
+            if (name.getNamespaceURI().length() > 0)
+                throw new IllegalArgumentException( "Procinst name must have no URI" );
+            
+            if (name.getPrefix().length() > 0)
+                throw new IllegalArgumentException( "Procinst name must have no prefix" );
+
+            break;
+        }
+
+        default :
+            throw
+                new IllegalStateException(
+                    "Can set name on element, atrtribute and procinst only" );
+        }
+
+        _cur.setName( name );
+    }
+    
     public TokenType _currentTokenType ( )
     {
         assert isValid();
         
         switch ( _cur.kind() )
         {
-        case   ROOT   : return TokenType.STARTDOC;
-        case - ROOT   : return TokenType.ENDDOC;
-        case   ELEM   : return TokenType.START;
-        case - ELEM   : return TokenType.END;
-        case   TEXT   : return TokenType.TEXT;
-        case ATTR     : return _cur.isXmlns() ? TokenType.NAMESPACE : TokenType.ATTR;
-        case COMMENT  : return TokenType.COMMENT;
-        case PROCINST : return TokenType.PROCINST;
+        case   ROOT     : return TokenType.STARTDOC;
+        case - ROOT     : return TokenType.ENDDOC;
+        case   ELEM     : return TokenType.START;
+        case - ELEM     : return TokenType.END;
+        case   TEXT     : return TokenType.TEXT;
+        case   ATTR     : return _cur.isXmlns() ? TokenType.NAMESPACE : TokenType.ATTR;
+        case   COMMENT  : return TokenType.COMMENT;
+        case   PROCINST : return TokenType.PROCINST;
 
         default :
             throw new IllegalStateException();
@@ -536,16 +578,6 @@ public final class Cursor implements XmlCursor
         throw new RuntimeException( "Not implemented" );
     }
     
-    public QName _getName ( )
-    {
-        throw new RuntimeException( "Not implemented" );
-    }
-    
-    public void _setName ( QName name )
-    {
-        throw new RuntimeException( "Not implemented" );
-    }
-    
     public String _namespaceForPrefix ( String prefix )
     {
         throw new RuntimeException( "Not implemented" );
@@ -603,12 +635,74 @@ public final class Cursor implements XmlCursor
     
     public boolean _toNextSibling ( )
     {
-        throw new RuntimeException( "Not implemented" );
+        assert isValid();
+
+        if (!_cur.hasParent())
+            return false;
+
+        Cur c = tempCur();
+        
+        int k = c.kind();
+
+        if (k == ATTR)
+            c.toParent();
+        else if (k == ELEM)
+        {
+            c.toEnd();
+            c.next();
+        }
+
+        while ( (k = c.kind()) > 0 && k != ELEM )
+            c.next();
+
+        if (k == ELEM)
+            _cur.moveToCur( c );
+
+        c.release();
+
+        return k == ELEM;
     }
     
     public boolean _toPrevSibling ( )
     {
-        throw new RuntimeException( "Not implemented" );
+        assert isValid();
+
+        if (!_cur.hasParent())
+            return false;
+
+        Cur c = tempCur();
+
+        boolean moved = false;
+        
+        int k = c.kind();
+
+        if (k != ATTR)
+        {
+            for ( ; ; )
+            {
+                if (!c.prev())
+                    break;
+
+                k = c.kind();
+
+                if (k == ROOT || k == ELEM)
+                    break;
+
+                if (c.kind() == -ELEM)
+                {
+                    c.toParent();
+
+                    _cur.moveToCur( c );
+                    moved = true;
+
+                    break;
+                }
+            }
+        }
+
+        c.release();
+
+        return moved;
     }
     
     public boolean _toLastChild ( )

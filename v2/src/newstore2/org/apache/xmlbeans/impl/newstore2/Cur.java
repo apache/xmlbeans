@@ -276,7 +276,9 @@ final class Cur
 
     void setName ( QName name )
     {
-        assert isNormal() && _xobj != null && _pos == 0 && (_xobj.isElem() || _xobj.isAttr());
+        assert isNormal() && _xobj != null && _pos == 0;
+        assert _xobj.isElem() || _xobj.isAttr() || _xobj.isProcinst();
+        
         assert name != null;
         _xobj._name = name;
         
@@ -393,6 +395,21 @@ final class Cur
     boolean toParentRaw ( )
     {
         return toParent( true );
+    }
+    
+    boolean hasParent ( )
+    {
+        assert isNormal() && _xobj != null;
+
+        if (_pos >= 1 && _pos <= _xobj.posEnd())
+            return true;
+
+        assert _pos == 0 || _xobj._parent != null;
+
+        if (_xobj._parent != null)
+            return true;
+        
+        return false;
     }
     
     boolean toParent ( boolean raw )
@@ -1609,6 +1626,7 @@ final class Cur
         final boolean isRoot      ( ) { return kind() == ROOT; }
         final boolean isAttr      ( ) { return kind() == ATTR; }
         final boolean isElem      ( ) { return kind() == ELEM; }
+        final boolean isProcinst  ( ) { return kind() == PROCINST; }
         final boolean isContainer ( ) { return kindIsContainer( kind() ); }
         
         boolean isNormalAttr ( ) { return isAttr() && !isXmlns(); }

@@ -44,24 +44,22 @@ abstract class Saver
     static final int PROCINST = Cur.PROCINST;
     static final int TEXT     = Cur.TEXT;
 
-    protected abstract boolean emitContainer (
-        SaveCur c, QName name, ArrayList attrNames, ArrayList attrValues );
-    
-    protected abstract void emitFinish    ( SaveCur c, QName name );
-    protected abstract void emitText      ( SaveCur c );
-    protected abstract void emitComment   ( SaveCur c );
-    protected abstract void emitProcinst  ( SaveCur c );
+    protected abstract boolean emitElement ( SaveCur c, ArrayList attrNames, ArrayList attrValues );
+    protected abstract void emitFinish     ( SaveCur c );
+    protected abstract void emitText       ( SaveCur c );
+    protected abstract void emitComment    ( SaveCur c );
+    protected abstract void emitProcinst   ( SaveCur c );
 
     protected void syntheticNamespace ( String prefix, String uri, boolean considerDefault ) { }
 
     Saver ( Cur c, XmlOptions options )
     {
         options = XmlOptions.maskNull( options );
+        
+        _cur = createSaveCur( c, options );
 
         _locale = c._locale;
         _version = _locale.version();
-
-        _cur = createSaveCur( c, options  );
 
         _namespaceStack = new ArrayList();
         _uriMap = new HashMap();
@@ -70,8 +68,8 @@ abstract class Saver
         _attrNames = new ArrayList();
         _attrValues = new ArrayList ();
 
-        // Stops the synthesis of this namspace and make for better
-        // roundtripping 
+        // Define implicit xml prefixed namespace
+        
         addMapping( "xml", Locale._xml1998Uri );
 
         if (options.hasOption( XmlOptions.SAVE_IMPLICIT_NAMESPACES ))
@@ -114,7 +112,7 @@ abstract class Saver
             _suggestedPrefixes = (Map) options.get( XmlOptions.SAVE_SUGGESTED_PREFIXES);
     }
 
-    private SaveCur createSaveCur ( Cur c, XmlOptions options )
+    private static SaveCur createSaveCur ( Cur c, XmlOptions options )
     {
         QName synthName = (QName) options.get( XmlOptions.SAVE_SYNTHETIC_DOCUMENT_ELEMENT );
 
@@ -244,7 +242,7 @@ abstract class Saver
         return cur;
     }
 
-    private void positionToInner ( Cur c, Cur start, Cur end )
+    private static void positionToInner ( Cur c, Cur start, Cur end )
     {
         assert c.isContainer();
 
@@ -371,12 +369,16 @@ abstract class Saver
 
         switch ( _cur.kind() )
         {
-            case   ROOT : case   ELEM : { _skipContainer = processContainer(); break; }
-            case - ROOT : case - ELEM : { processFinish(); _postPop = true;    break; }
-            case TEXT                 : { emitText( _cur );                    break; }
-            case COMMENT              : { emitComment( _cur );                 break; }
-            case PROCINST             : { emitProcinst( _cur );                break; }
+            case   ELEM     : { _skipContainer = processElement();   break; }
+            case - ELEM     : { emitFinish( _cur ); _postPop = true; break; }
+            case   TEXT     : { emitText( _cur );                    break; }
+            case   COMMENT  : { emitComment( _cur );                 break; }
+            case   PROCINST : { emitProcinst( _cur );                break; }
 
+            case   ROOT :
+            case - ROOT :
+                break;
+                
             default : throw new RuntimeException( "Unexpected kind" );
         }
 
@@ -385,15 +387,12 @@ abstract class Saver
         return true;
     }
 
-    private final boolean processContainer ( )
+    private final boolean processElement ( )
     {
-        assert _cur.isContainer();
-        assert !_cur.isRoot() || _cur.getName() == null;
+        assert _cur.isElem() && _cur.getName() != null;
 
         QName name = _cur.getName();
 
-        String nameUri = name == null ? null : name.getNamespaceURI();
-        
         // TODO - check for doctype to save out here
 
         ;
@@ -402,7 +401,7 @@ abstract class Saver
         // which has no namespace, then we must make sure that pushing
         // the mappings causes the default namespace to be empty
 
-        boolean ensureDefaultEmpty = name != null && nameUri.length() == 0;
+        boolean ensureDefaultEmpty = name.getNamespaceURI().length() == 0;
 
         pushMappings( _cur, ensureDefaultEmpty );
 
@@ -417,8 +416,7 @@ abstract class Saver
 
         // 1) The element name (not for starts)
 
-        if (name != null)
-            ensureMapping( nameUri, null, !ensureDefaultEmpty, false );
+        ensureMapping( name.getNamespaceURI(), name.getPrefix(), !ensureDefaultEmpty, false );
 
         //
         //
@@ -449,7 +447,7 @@ abstract class Saver
 
                 _attrValues.add( _cur.getAttrValue() );
                 
-                ensureMapping( attrName.getNamespaceURI(), null, false, true );
+                ensureMapping( attrName.getNamespaceURI(), attrName.getPrefix(), false, true );
             }
         }
         
@@ -460,33 +458,24 @@ abstract class Saver
         // we've computed.  Basically, I'm making sure the pre-computed
         // namespaces are mapped on the first container which has a name.
 
-        if (_preComputedNamespaces != null && name != null)
+        if (_preComputedNamespaces != null)
         {
             for ( Iterator i = _preComputedNamespaces.keySet().iterator() ; i.hasNext() ; )
             {
                 String uri = (String) i.next();
+                String prefix = (String) _preComputedNamespaces.get( uri );
+                boolean considerDefault = prefix.length() == 0 && !ensureDefaultEmpty;
                 
-                ensureMapping(
-                    uri, null,
-                    _preComputedNamespaces.get( uri ) != null && !ensureDefaultEmpty, false );
+                ensureMapping( uri, prefix, considerDefault, false );
             }
 
             // Set to null so we do this once at the top
             _preComputedNamespaces = null;
         }
 
-        return emitContainer( _cur, name, _attrNames, _attrValues );
+        return emitElement( _cur, _attrNames, _attrValues );
     }
 
-    private final void processFinish ( )
-    {
-        QName name = _cur.getName();
-        
-        emitFinish( _cur, name );
-        
-        _postPop = true;
-    }
-    
     //
     // Layout of namespace stack:
     //
@@ -728,7 +717,6 @@ abstract class Saver
         boolean considerCreatingDefault, boolean mustHavePrefix )
     {
         assert uri != null;
-        assert candidatePrefix == null || candidatePrefix.length() > 0;
 
         // Can be called for no-namespaced things
 
@@ -748,6 +736,9 @@ abstract class Saver
         //  3) The default mapping is allowed
         //  4) ns#++
         //
+        
+        if (candidatePrefix != null && candidatePrefix.length() == 0)
+            candidatePrefix = null;
         
         if (candidatePrefix == null || !tryPrefix( candidatePrefix ))
         {
@@ -832,13 +823,13 @@ abstract class Saver
         protected void syntheticNamespace (
             String prefix, String uri, boolean considerCreatingDefault )
         {
-            _synthNamespaces.put( uri, considerCreatingDefault ? "useDefault" : null );
+            _synthNamespaces.put( uri, considerCreatingDefault ? "" : prefix );
         }
         
-        protected boolean emitContainer (
-            SaveCur c, QName name, ArrayList attrNames, ArrayList attrValues ) { return false; }
+        protected boolean emitElement (
+            SaveCur c, ArrayList attrNames, ArrayList attrValues ) { return false; }
         
-        protected void emitFinish    ( SaveCur c, QName name ) { }
+        protected void emitFinish    ( SaveCur c ) { }
         protected void emitText      ( SaveCur c ) { }
         protected void emitComment   ( SaveCur c ) { }
         protected void emitProcinst  ( SaveCur c ) { }
@@ -869,51 +860,42 @@ abstract class Saver
             }
         }
         
-        protected boolean emitContainer (
-            SaveCur c, QName name, ArrayList attrNames, ArrayList attrValues )
+        protected boolean emitElement (
+            SaveCur c, ArrayList attrNames, ArrayList attrValues )
         {
-            boolean skipElem = false;
-            
-            if (c.isElem())
+            assert c.isElem();
+
+            emit( '<' );
+            emitName( c.getName() );
+
+            if (saveNamespacesFirst())
+                emitNamespacesHelper();
+
+            for ( int i = 0 ; i < attrNames.size() ; i++ )
+                emitAttrHelper( (QName) attrNames.get( i ), (String) attrValues.get( i ) );
+
+            if (!saveNamespacesFirst())
+                emitNamespacesHelper();
+
+            if (!c.hasChildren() && !c.hasText())
             {
-                emitContainerHelper( name, false, attrNames, attrValues );
-
-                assert c.isContainer();
-
-                if (!c.hasChildren() && !c.hasText())
-                {
-                    emit( '/' );
-                    skipElem = true;
-                }
-                
-                emit( '>' );
+                emit( "/>" );
+                return true;
             }
             else
             {
-                assert c.isRoot();
-
-                if (name != null)
-                    emitContainerHelper( name, true, attrNames, attrValues );
+                emit( '>' );
+                return false;
             }
-
-            return skipElem;
         }
         
-        protected void emitFinish ( SaveCur c, QName name )
+        protected void emitFinish ( SaveCur c )
         {
-            if (name != null)
-                emitFinishHelper( name );
-        }
-        
-        protected void emitFinishHelper ( QName name )
-        {
-            assert name != null;
-            
             emit( "</" );
-            emitName( name );
+            emitName( c.getName() );
             emit( '>' );
         }
-
+        
         protected void emitXmlns ( String prefix, String uri )
         {
             assert prefix != null;
@@ -956,27 +938,6 @@ abstract class Saver
             emit( '"' );
         }
 
-        private void emitContainerHelper (
-            QName name, boolean close, ArrayList attrNames, ArrayList attrValues )
-        {
-            assert name != null;
-
-            emit( '<' );
-            emitName( name );
-
-            if (saveNamespacesFirst())
-                emitNamespacesHelper();
-
-            for ( int i = 0 ; i < attrNames.size() ; i++ )
-                emitAttrHelper( (QName) attrNames.get( i ), (String) attrValues.get( i ) );
-
-            if (!saveNamespacesFirst())
-                emitNamespacesHelper();
-
-            if (close)
-                emit( '>' );
-        }
-        
         protected void emitText ( SaveCur c )
         {
             assert c.isText();
@@ -1042,7 +1003,11 @@ abstract class Saver
 
             if (uri.length() != 0)
             {
-                String prefix = getUriMapping( uri );
+                String prefix = name.getPrefix();
+                String mappedUri = getNamespaceForPrefix( prefix );
+
+                if (mappedUri == null || !mappedUri.equals( uri ))
+                    prefix = getUriMapping( uri );
 
                 if (prefix.length() > 0)
                 {
@@ -2212,9 +2177,11 @@ abstract class Saver
                     spaces( _sb, _newLine.length(), _prettyOffset + _prettyIndent * _depth );
                 }
 
-                if (prevKind != ROOT && !isLeaf)
+                if (!isLeaf)
                 {
-                    _sb.append( _newLine );
+                    if (prevKind != ROOT)
+                        _sb.append( _newLine );
+                    
                     int d = k < 0 ? _depth - 1 : _depth;
                     spaces( _sb, _sb.length(), _prettyOffset + _prettyIndent * d );
                 }
@@ -2317,7 +2284,7 @@ abstract class Saver
 
     private Map     _suggestedPrefixes;
     private boolean _useDefaultNamespace;
-    private HashMap _preComputedNamespaces;
+    private Map     _preComputedNamespaces;
     private boolean _saveNamespacesFirst;
 
     private ArrayList _attrNames;
