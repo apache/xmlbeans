@@ -317,7 +317,7 @@
                 <patternset id="src.dist.content.dirs"
                     includes="bin/** docs/** external/** samples/** src/**"/>
                 <patternset id="src.dist.content.files"
-                    includes="build.xml README.txt testbuild.xml xbeanenv.cmd xbeanenv.sh LICENSE.txt NOTICE.txt"/>
+                    includes="build.xml README.txt xbeanenv.cmd xbeanenv.sh LICENSE.txt NOTICE.txt"/>
            	    <patternset id="src.dist.content.tests"
                     includes=""/><!-- don't have tests part of the distribution yet -->
             </zipfileset>
