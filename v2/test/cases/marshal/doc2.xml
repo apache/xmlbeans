@@ -7,7 +7,9 @@
 <!--    xsi:type="n1:MyClass"-->
 
 
-    <n1:Myelt n1:Attrib="  5555.54321">
+<!--    <n1:Myelt n1:Attrib="  5555.54321">-->
+
+    <n1:Myelt>
 
         <SomeBool xmlns="java:com.mytest">1</SomeBool>
 
