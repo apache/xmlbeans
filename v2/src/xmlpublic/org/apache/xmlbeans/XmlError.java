@@ -76,6 +76,49 @@ public class XmlError implements java.io.Serializable
     }
 
     /**
+     * The static factory methods should be used instead of
+     * this constructor.
+     */
+    protected XmlError(String message, int severity, XmlCursor cursor)
+    {
+        String source = null;
+        int line = -1;
+        int column = -1;
+        int offset = -1;
+
+        if (cursor != null)
+        {
+            // Hunt down the line/column/offset
+            source = cursor.documentProperties().getSourceName();
+
+            XmlCursor c = cursor.newCursor();
+
+            XmlLineNumber ln =
+                (XmlLineNumber) c.getBookmark( XmlLineNumber.class );
+
+            if (ln == null)
+                ln = (XmlLineNumber) c.toPrevBookmark( XmlLineNumber.class );
+
+            if (ln != null)
+            {
+                line = ln.getLine();
+                column = ln.getColumn();
+                offset = ln.getOffset();
+            }
+
+            c.dispose();
+        }
+
+        _message = message;
+        _severity = severity;
+        _source = source;
+        _line = line;
+        _column = column;
+        _offset = offset;
+        _cursor = cursor;
+    }
+
+    /**
      * Returns an XmlError for the given message, with no location and {@link #SEVERITY_ERROR}.
      * @param message the error message
      */ 
@@ -203,36 +246,7 @@ public class XmlError implements java.io.Serializable
      */
     public static XmlError forCursor(String message, int severity, XmlCursor cursor)
     {
-        if (cursor == null)
-            return forMessage(message, severity);
-
-        // Hunt down the line/column/offset
-
-        int line = -1;
-        int column = -1;
-        int offset = -1;
-        String source = null;
-
-        source = cursor.documentProperties().getSourceName();
-
-        XmlCursor c = cursor.newCursor();
-
-        XmlLineNumber ln =
-            (XmlLineNumber) c.getBookmark( XmlLineNumber.class );
-
-        if (ln == null)
-            ln = (XmlLineNumber) c.toPrevBookmark( XmlLineNumber.class );
-
-        if (ln != null)
-        {
-            line = ln.getLine();
-            column = ln.getColumn();
-            offset = ln.getOffset();
-        }
-
-        c.dispose();
-
-        return new XmlError(message, severity, source, line, column, offset, cursor);
+        return new XmlError(message, severity, cursor);
     }
 
     /**
