@@ -326,11 +326,15 @@ public final class CharUtil
         if (posInsert == cch)
             return new CharJoin( srcInsert, offInsert, cchInsert, src, off, cch );
 
-        return
+        Object newSrc =
             new CharJoin( 
                 new CharJoin( src, off, posInsert, srcInsert, offInsert, cchInsert ),
                 0, posInsert + cchInsert,
                 src, off + posInsert, cch - posInsert );
+
+        assert isValid( newSrc, _offSrc, _cchSrc );
+
+        return newSrc;
     }
 
     public Object removeChars ( int posRemove, int cchRemove, Object src, int off, int cch )
@@ -370,6 +374,8 @@ public final class CharUtil
         _offSrc = newOff;
         _cchSrc = cch - cchRemove;
 
+        assert isValid( newSrc, _offSrc, _cchSrc );
+        
         return newSrc;
     }
 
@@ -449,6 +455,8 @@ public final class CharUtil
 
         _offSrc = offNew;
         _cchSrc = cchNew;
+        
+        assert isValid( srcNew, _offSrc, _cchSrc );
         
         return srcNew;
     }
