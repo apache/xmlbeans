@@ -56,67 +56,45 @@
 
 package org.apache.xmlbeans.impl.marshal;
 
-import org.apache.xmlbeans.BindingContext;
-import org.apache.xmlbeans.Marshaller;
-import org.apache.xmlbeans.Unmarshaller;
-import org.apache.xmlbeans.XmlException;
-import org.apache.xmlbeans.XmlOptions;
-import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
-import org.apache.xmlbeans.impl.common.XmlErrorWatcher;
+import org.apache.xmlbeans.XmlError;
+import org.apache.xmlbeans.XmlRuntimeException;
+import org.apache.xmlbeans.impl.marshal.util.collections.EmptyIterator;
 
-import java.util.Collection;
+import java.util.AbstractCollection;
+import java.util.Iterator;
 
-/**
- * Main entry point into marshalling framework.
- * Use the BindingContextFactory to create one
- */
-final class BindingContextImpl
-    implements BindingContext
+public class FailFastErrorHandler extends AbstractCollection
 {
-    private final BindingLoader bindingLoader;
-    private final RuntimeBindingTypeTable typeTable;
+    private static final FailFastErrorHandler INSTANCE =
+        new FailFastErrorHandler();
 
-    /* package protected -- use the factory */
-    BindingContextImpl(BindingLoader bindingLoader,
-                       RuntimeBindingTypeTable typeTable)
+    public static FailFastErrorHandler getInstance()
     {
-        this.bindingLoader = bindingLoader;
-        this.typeTable = typeTable;
+        return INSTANCE;
     }
 
-
-    public Unmarshaller createUnmarshaller(XmlOptions options)
-        throws XmlException
+    private FailFastErrorHandler()
     {
-        if (options == null) {
-            throw new IllegalArgumentException("options must not be null");
+    }
+
+    //TODO: this is pretty ugly in that we are throwing a Runtime Exception
+    //we really need to revisit the entire error propogation strategy.
+    public boolean add(Object obj)
+    {
+        if (obj instanceof XmlError) {
+            XmlError err = (XmlError)obj;
+            throw new XmlRuntimeException(err);
         }
-
-        return new UnmarshallerImpl(bindingLoader, typeTable, options);
+        throw new XmlRuntimeException("unknown error: " + obj);
     }
 
-
-    public Marshaller createMarshaller(XmlOptions options)
-        throws XmlException
+    public Iterator iterator()
     {
-        if (options == null) {
-            throw new IllegalArgumentException("options must not be null");
-        }
-
-        return new MarshallerImpl(EmptyNamespaceContext.getInstance(),
-                                  bindingLoader,
-                                  typeTable,
-                                  options);
+        return EmptyIterator.getInstance();
     }
 
-    static Collection extractErrorHandler(XmlOptions options)
+    public int size()
     {
-        Collection underlying = (Collection)options.get(XmlOptions.ERROR_LISTENER);
-        if (underlying != null)
-            return underlying;
-
-        return FailFastErrorHandler.getInstance();
+        return 0;
     }
-
-
 }
