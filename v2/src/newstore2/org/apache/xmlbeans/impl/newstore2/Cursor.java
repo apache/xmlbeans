@@ -483,6 +483,11 @@ public final class Cursor implements XmlCursor
         throw new RuntimeException( "Not implemented" );
     }
     
+    public Node _getDomNode ( )
+    {
+        return (Node) _cur.getDom();
+    }
+    
     public void _save ( ContentHandler ch, LexicalHandler lh, XmlOptions options ) throws SAXException
     {
         throw new RuntimeException( "Not implemented" );
@@ -1045,6 +1050,7 @@ public final class Cursor implements XmlCursor
     public InputStream newInputStream ( ) { if (_locale.noSync()) { _locale.enter(); try { return _newInputStream(); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _newInputStream(); } finally { _locale.exit(); } } }
     public Reader newReader ( ) { if (_locale.noSync()) { _locale.enter(); try { return _newReader(); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _newReader(); } finally { _locale.exit(); } } }
     public Node newDomNode ( ) { if (_locale.noSync()) { _locale.enter(); try { return _newDomNode(); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _newDomNode(); } finally { _locale.exit(); } } }
+    public Node getDomNode ( ) { if (_locale.noSync()) { _locale.enter(); try { return _getDomNode(); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _newDomNode(); } finally { _locale.exit(); } } }
     public void save ( ContentHandler ch, LexicalHandler lh ) throws SAXException { if (_locale.noSync()) { _locale.enter(); try { _save( ch, lh ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { _save( ch, lh ); } finally { _locale.exit(); } } }
     public void save ( File file ) throws IOException { if (_locale.noSync()) { _locale.enter(); try { _save( file ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { _save( file ); } finally { _locale.exit(); } } }
     public void save ( OutputStream os ) throws IOException { if (_locale.noSync()) { _locale.enter(); try { _save( os ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { _save( os ); } finally { _locale.exit(); } } }

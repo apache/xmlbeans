@@ -155,6 +155,9 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
     public Reader newReader(XmlOptions options)
         { XmlCursor cur = newCursorForce(); try { return cur.newReader(makeInnerOptions(options)); } finally { cur.dispose(); } }
 
+    public Node getDomNode()
+        { XmlCursor cur = newCursorForce(); try { return cur.getDomNode(); } finally { cur.dispose(); } }
+
     public Node newDomNode()
         { return newDomNode(null); }
 

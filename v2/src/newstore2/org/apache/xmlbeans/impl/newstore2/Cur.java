@@ -122,10 +122,10 @@ final class Cur
         return isRoot() && _xobj instanceof DocumentFragXobj;
     }
 
-    boolean isNonDomRoot ( )
-    {
-        return isRoot() && _xobj instanceof RootXobj;
-    }
+//    boolean isNonDomRoot ( )
+//    {
+//        return isRoot() && _xobj instanceof RootXobj;
+//    }
 
     private int cchRight ( )
     {
@@ -147,7 +147,8 @@ final class Cur
     
     void createRoot ( )
     {
-        set( new RootXobj( _locale ), 0 );
+        createDomDocFragRoot();
+//        set( new RootXobj( _locale ), 0 );
     }
     
     void createDomDocFragRoot ( )
@@ -1740,7 +1741,8 @@ final class Cur
         final Xobj ensureParent ( )
         {
             assert _parent != null || (!isRoot() && cchAfter() == 0);
-            return _parent == null ? new RootXobj( _locale ).appendXobj( this ) : _parent;
+            return _parent == null ? new DocumentFragXobj( _locale ).appendXobj( this ) : _parent;
+//            return _parent == null ? new RootXobj( _locale ).appendXobj( this ) : _parent;
         }
 
         final int cchRight ( int p )
@@ -1923,14 +1925,14 @@ final class Cur
         CharNode _charNodesAfter;
     }
 
-    private static class RootXobj extends Xobj
-    {
-        RootXobj ( Locale l ) { super( l, ROOT, 0 ); }
-        
-        Dom getDom ( ) { throw new IllegalStateException(); }
-        
-        Xobj newNode ( ) { return new RootXobj( _locale ); }
-    }
+//    private static class RootXobj extends Xobj
+//    {
+//        RootXobj ( Locale l ) { super( l, ROOT, 0 ); }
+//        
+//        Dom getDom ( ) { throw new IllegalStateException(); }
+//        
+//        Xobj newNode ( ) { return new RootXobj( _locale ); }
+//    }
 
     private abstract static class NodeXobj extends Xobj implements Dom, Node, NodeList
     {

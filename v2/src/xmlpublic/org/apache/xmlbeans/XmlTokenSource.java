@@ -160,14 +160,14 @@ public interface XmlTokenSource
      */
     Node newDomNode();
 
-//    /**
-//     * Returns a W3C DOM Node containing the XML represented by this source.
-//     * This is a live DOM node, not a copy.  Any changes made through this node
-//     * are immediately reflected in the document associated with this token
-//     * source.  Depending on the kind of token this XmlTokenSource represents,
-//     * an appropriate node will be returned.
-//     */
-//    Node getDomNode();
+    /**
+     * Returns a W3C DOM Node containing the XML represented by this source.
+     * This is a live DOM node, not a copy.  Any changes made through this node
+     * are immediately reflected in the document associated with this token
+     * source.  Depending on the kind of token this XmlTokenSource represents,
+     * an appropriate node will be returned.
+     */
+    Node getDomNode();
 
     /**
      * Writes the XML represented by this source to the given SAX content and
