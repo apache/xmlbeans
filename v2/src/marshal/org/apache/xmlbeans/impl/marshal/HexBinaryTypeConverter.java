@@ -56,23 +56,35 @@
 
 package org.apache.xmlbeans.impl.marshal;
 
+import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.impl.util.XsTypeConverter;
 
+import java.io.IOException;
 import java.io.InputStream;
 
 final class HexBinaryTypeConverter
     extends BaseSimpleTypeConverter
 {
-    protected Object getObject(UnmarshalResult context)
+    protected Object getObject(UnmarshalResult context) throws XmlException
     {
         final InputStream val = context.getHexBinaryValue();
-        return MarshalStreamUtils.inputStreamToBytes(val);
+        try {
+            return MarshalStreamUtils.inputStreamToBytes(val);
+        }
+        catch (IOException e) {
+            throw new XmlException(e);
+        }
     }
 
-    public Object unmarshalAttribute(UnmarshalResult context)
+    public Object unmarshalAttribute(UnmarshalResult context) throws XmlException
     {
         final InputStream val = context.getAttributeHexBinaryValue();
-        return MarshalStreamUtils.inputStreamToBytes(val);
+        try {
+            return MarshalStreamUtils.inputStreamToBytes(val);
+        }
+        catch (IOException e) {
+            throw new XmlException(e);
+        }
     }
 
     //non simple types can throw a runtime exception

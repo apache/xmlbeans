@@ -56,6 +56,7 @@
 
 package org.apache.xmlbeans.impl.marshal;
 
+import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.impl.util.XsTypeConverter;
 
 import javax.xml.namespace.QName;
@@ -71,6 +72,7 @@ final class SimpleTypeVisitor extends NamedXmlTypeVisitor
 
     public SimpleTypeVisitor(RuntimeBindingProperty property, Object obj,
                              MarshalResult result)
+        throws XmlException
     {
         super(obj, property, result);
         charVisitor = new CharacterVisitor(property, obj, result);
@@ -82,6 +84,7 @@ final class SimpleTypeVisitor extends NamedXmlTypeVisitor
     }
 
     protected int advance()
+        throws XmlException
     {
         final int newstate;
         switch (state) {
@@ -103,12 +106,14 @@ final class SimpleTypeVisitor extends NamedXmlTypeVisitor
     }
 
     public XmlTypeVisitor getCurrentChild()
+        throws XmlException
     {
         assert state == CHARS;
         return charVisitor;
     }
 
     protected void initAttributes()
+        throws XmlException
     {
         if (getParentObject() == null) {
             attributeName = fillPrefix(MarshalStreamUtils.XSI_NIL_QNAME);
@@ -116,6 +121,7 @@ final class SimpleTypeVisitor extends NamedXmlTypeVisitor
     }
 
     protected int getAttributeCount()
+        throws XmlException
     {
         //TODO: xsi:type for polymorphism
         return attributeName == null ? 0 : 1;

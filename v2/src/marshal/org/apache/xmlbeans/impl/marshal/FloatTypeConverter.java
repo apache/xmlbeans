@@ -56,13 +56,14 @@
 
 package org.apache.xmlbeans.impl.marshal;
 
+import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.impl.util.XsTypeConverter;
 
 final class FloatTypeConverter
     extends BaseSimpleTypeConverter
 {
 
-    public Object unmarshalAttribute(UnmarshalResult context)
+    public Object unmarshalAttribute(UnmarshalResult context) throws XmlException
     {
         float val = context.getAttributeFloatValue();
         return new Float(val);
@@ -75,7 +76,7 @@ final class FloatTypeConverter
         return XsTypeConverter.printFloat(val.floatValue());
     }
 
-    protected Object getObject(UnmarshalResult context)
+    protected Object getObject(UnmarshalResult context) throws XmlException
     {
         float val = context.getFloatValue();
         return new Float(val);

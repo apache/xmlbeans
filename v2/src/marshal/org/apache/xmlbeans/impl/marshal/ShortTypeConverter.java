@@ -56,18 +56,19 @@
 
 package org.apache.xmlbeans.impl.marshal;
 
+import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.impl.util.XsTypeConverter;
 
 final class ShortTypeConverter
     extends BaseSimpleTypeConverter
 {
-    protected Object getObject(UnmarshalResult context)
+    protected Object getObject(UnmarshalResult context) throws XmlException
     {
         short val = context.getShortValue();
         return new Short(val);
     }
 
-    public Object unmarshalAttribute(UnmarshalResult context)
+    public Object unmarshalAttribute(UnmarshalResult context) throws XmlException
     {
         short val = context.getAttributeShortValue();
         return new Short(val);

@@ -60,7 +60,6 @@ import org.apache.xmlbeans.Marshaller;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
-import org.apache.xmlbeans.XmlRuntimeException;
 import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
 import org.apache.xmlbeans.impl.binding.bts.BindingType;
 import org.apache.xmlbeans.impl.binding.bts.BindingTypeName;
@@ -108,7 +107,7 @@ final class MarshallerImpl
         if (root_elem_btype == null) {
             final String msg = "failed to find root " +
                 "element corresponding to " + jname;
-            throw new XmlRuntimeException(msg);
+            throw new XmlException(msg);
         }
 
         final XmlTypeName elem = root_elem_btype.getXmlName();
@@ -346,6 +345,7 @@ final class MarshallerImpl
                                          JavaTypeName java_type,
                                          XmlTypeName xml_type,
                                          BindingLoader loader)
+        throws XmlException
     {
         //look first for exact match
         {
@@ -369,7 +369,7 @@ final class MarshallerImpl
                     String e = "binding configuration inconsistency: found " +
                         btype_name + " defined for " + jname + " but failed " +
                         "to load the type";
-                    throw new XmlRuntimeException(e);
+                    throw new XmlException(e);
                 } else {
                     return binding_type; //success!
                 }

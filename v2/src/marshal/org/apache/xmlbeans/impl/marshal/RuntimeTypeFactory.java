@@ -56,6 +56,7 @@
 
 package org.apache.xmlbeans.impl.marshal;
 
+import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
 import org.apache.xmlbeans.impl.binding.bts.BindingType;
 import org.apache.xmlbeans.impl.binding.bts.ByNameBean;
@@ -85,6 +86,7 @@ final class RuntimeTypeFactory
     public RuntimeBindingType createRuntimeType(BindingType type,
                                                 RuntimeBindingTypeTable type_table,
                                                 BindingLoader binding_loader)
+        throws XmlException
     {
         RuntimeBindingType rtype = (RuntimeBindingType)initedTypeMap.get(type);
         if (rtype != null) return rtype;
@@ -105,6 +107,7 @@ final class RuntimeTypeFactory
     }
 
     private static RuntimeBindingType allocateType(BindingType type)
+        throws XmlException
     {
         //TODO: fix instanceof nastiness
         if (type instanceof ByNameBean) {

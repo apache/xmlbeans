@@ -56,6 +56,7 @@
 
 package org.apache.xmlbeans.impl.marshal;
 
+import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.impl.binding.bts.BindingType;
 
 import javax.xml.namespace.QName;
@@ -67,16 +68,21 @@ interface RuntimeBindingProperty
 
     QName getName();
 
-    TypeUnmarshaller getTypeUnmarshaller(UnmarshalResult context);
+    TypeUnmarshaller getTypeUnmarshaller(UnmarshalResult context)
+        throws XmlException;
 
-    void fill(Object inter, Object prop_obj);
+    void fill(Object inter, Object prop_obj)
+        throws XmlException;
 
     //non simple type props can throw some runtime exception.
-    CharSequence getLexical(Object parent, MarshalResult result);
+    CharSequence getLexical(Object parent, MarshalResult result)
+        throws XmlException;
 
-    Object getValue(Object parentObject, MarshalResult result);
+    Object getValue(Object parentObject, MarshalResult result)
+        throws XmlException;
 
-    boolean isSet(Object parentObject, MarshalResult result);
+    boolean isSet(Object parentObject, MarshalResult result)
+        throws XmlException;
 
     boolean isMultiple();
 

@@ -56,18 +56,21 @@
 
 package org.apache.xmlbeans.impl.marshal;
 
+import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.impl.util.XsTypeConverter;
 
 final class ByteTypeConverter
     extends BaseSimpleTypeConverter
 {
     protected Object getObject(UnmarshalResult context)
+        throws XmlException
     {
         byte val = context.getByteValue();
         return new Byte(val);
     }
 
     public Object unmarshalAttribute(UnmarshalResult context)
+        throws XmlException
     {
         byte val = context.getAttributeByteValue();
         return new Byte(val);

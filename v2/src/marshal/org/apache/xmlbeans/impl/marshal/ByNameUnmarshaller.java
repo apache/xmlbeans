@@ -56,6 +56,7 @@
 
 package org.apache.xmlbeans.impl.marshal;
 
+import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
 import org.apache.xmlbeans.impl.common.InvalidLexicalValueException;
 
@@ -69,6 +70,7 @@ final class ByNameUnmarshaller implements TypeUnmarshaller
     }
 
     public Object unmarshal(UnmarshalResult context)
+        throws XmlException
     {
         final Object inter = type.createIntermediary(context);
         deserializeAttributes(inter, context);
@@ -84,6 +86,7 @@ final class ByNameUnmarshaller implements TypeUnmarshaller
 
     //TODO: cleanup this code.  We are doing extra work for assertion checking
     private void deserializeContents(Object inter, UnmarshalResult context)
+        throws XmlException
     {
         assert context.isStartElement();
         final String ourStartUri = context.getNamespaceURI();
@@ -117,6 +120,7 @@ final class ByNameUnmarshaller implements TypeUnmarshaller
     private static void fillElementProp(RuntimeBindingProperty prop,
                                         UnmarshalResult context,
                                         Object inter)
+        throws XmlException
     {
         final TypeUnmarshaller um = prop.getTypeUnmarshaller(context);
         assert um != null;
@@ -135,6 +139,7 @@ final class ByNameUnmarshaller implements TypeUnmarshaller
     private static void fillAttributeProp(RuntimeBindingProperty prop,
                                           UnmarshalResult context,
                                           Object inter)
+        throws XmlException
     {
         final TypeUnmarshaller um = prop.getTypeUnmarshaller(context);
         assert um != null;
@@ -152,6 +157,7 @@ final class ByNameUnmarshaller implements TypeUnmarshaller
     }
 
     private void deserializeAttributes(Object inter, UnmarshalResult context)
+        throws XmlException
     {
         while (context.hasMoreAttributes()) {
             RuntimeBindingProperty prop = findMatchingAttributeProperty(context);

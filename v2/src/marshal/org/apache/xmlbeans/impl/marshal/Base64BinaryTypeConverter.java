@@ -56,23 +56,37 @@
 
 package org.apache.xmlbeans.impl.marshal;
 
+import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.impl.util.XsTypeConverter;
 
+import java.io.IOException;
 import java.io.InputStream;
 
 final class Base64BinaryTypeConverter
     extends BaseSimpleTypeConverter
 {
     protected Object getObject(UnmarshalResult context)
+        throws XmlException
     {
         final InputStream val = context.getBase64Value();
-        return MarshalStreamUtils.inputStreamToBytes(val);
+        try {
+            return MarshalStreamUtils.inputStreamToBytes(val);
+        }
+        catch (IOException e) {
+            throw new XmlException(e);
+        }
     }
 
     public Object unmarshalAttribute(UnmarshalResult context)
+        throws XmlException
     {
         final InputStream val = context.getAttributeBase64Value();
-        return MarshalStreamUtils.inputStreamToBytes(val);
+        try {
+            return MarshalStreamUtils.inputStreamToBytes(val);
+        }
+        catch (IOException e) {
+            throw new XmlException(e);
+        }
     }
 
     //non simple types can throw a runtime exception

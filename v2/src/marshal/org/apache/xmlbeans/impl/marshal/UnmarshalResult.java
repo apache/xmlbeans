@@ -62,7 +62,6 @@ import org.apache.xmlbeans.GDuration;
 import org.apache.xmlbeans.XmlCalendar;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlOptions;
-import org.apache.xmlbeans.XmlRuntimeException;
 import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
 import org.apache.xmlbeans.impl.binding.bts.BindingType;
 import org.apache.xmlbeans.impl.binding.bts.BindingTypeName;
@@ -193,6 +192,7 @@ final class UnmarshalResult
 
 
     private Object unmarshalBindingType(BindingType bindingType)
+        throws XmlException
     {
         TypeUnmarshaller um =
             typeTable.getOrCreateTypeUnmarshaller(bindingType, bindingLoader);
@@ -271,376 +271,376 @@ final class UnmarshalResult
 
     // ======================= xml access methods =======================
 
-    String getStringValue()
+    String getStringValue() throws XmlException
     {
         try {
             return baseReader.getStringValue();
         }
         catch (XMLStreamException e) {
-            throw new XmlRuntimeException(e);
+            throw new XmlException(e);
         }
     }
 
-    String getStringValue(int ws)
+    String getStringValue(int ws) throws XmlException
     {
         try {
             return baseReader.getStringValue(ws);
         }
         catch (XMLStreamException e) {
-            throw new XmlRuntimeException(e);
+            throw new XmlException(e);
         }
     }
 
-    boolean getBooleanValue()
+    boolean getBooleanValue() throws XmlException
     {
         try {
             return baseReader.getBooleanValue();
         }
         catch (XMLStreamException e) {
-            throw new XmlRuntimeException(e);
+            throw new XmlException(e);
         }
     }
 
-    byte getByteValue()
+    byte getByteValue() throws XmlException
     {
         try {
             return baseReader.getByteValue();
         }
         catch (XMLStreamException e) {
-            throw new XmlRuntimeException(e);
+            throw new XmlException(e);
         }
     }
 
-    short getShortValue()
+    short getShortValue() throws XmlException
     {
         try {
             return baseReader.getShortValue();
         }
         catch (XMLStreamException e) {
-            throw new XmlRuntimeException(e);
+            throw new XmlException(e);
         }
     }
 
-    int getIntValue()
+    int getIntValue() throws XmlException
     {
         try {
             return baseReader.getIntValue();
         }
         catch (XMLStreamException e) {
-            throw new XmlRuntimeException(e);
+            throw new XmlException(e);
         }
     }
 
-    long getLongValue()
+    long getLongValue() throws XmlException
     {
         try {
             return baseReader.getLongValue();
         }
         catch (XMLStreamException e) {
-            throw new XmlRuntimeException(e);
+            throw new XmlException(e);
         }
     }
 
-    BigInteger getBigIntegerValue()
+    BigInteger getBigIntegerValue() throws XmlException
     {
         try {
             return baseReader.getBigIntegerValue();
         }
         catch (XMLStreamException e) {
-            throw new XmlRuntimeException(e);
+            throw new XmlException(e);
         }
     }
 
-    BigDecimal getBigDecimalValue()
+    BigDecimal getBigDecimalValue() throws XmlException
     {
         try {
             return baseReader.getBigDecimalValue();
         }
         catch (XMLStreamException e) {
-            throw new XmlRuntimeException(e);
+            throw new XmlException(e);
         }
     }
 
-    float getFloatValue()
+    float getFloatValue() throws XmlException
     {
         try {
             return baseReader.getFloatValue();
         }
         catch (XMLStreamException e) {
-            throw new XmlRuntimeException(e);
+            throw new XmlException(e);
         }
     }
 
-    double getDoubleValue()
+    double getDoubleValue() throws XmlException
     {
         try {
             return baseReader.getDoubleValue();
         }
         catch (XMLStreamException e) {
-            throw new XmlRuntimeException(e);
+            throw new XmlException(e);
         }
     }
 
-    InputStream getHexBinaryValue()
+    InputStream getHexBinaryValue() throws XmlException
     {
         try {
             return baseReader.getHexBinaryValue();
         }
         catch (XMLStreamException e) {
-            throw new XmlRuntimeException(e);
+            throw new XmlException(e);
         }
     }
 
-    InputStream getBase64Value()
+    InputStream getBase64Value() throws XmlException
     {
         try {
             return baseReader.getBase64Value();
         }
         catch (XMLStreamException e) {
-            throw new XmlRuntimeException(e);
+            throw new XmlException(e);
         }
     }
 
-    XmlCalendar getCalendarValue()
+    XmlCalendar getCalendarValue() throws XmlException
     {
         try {
             return baseReader.getCalendarValue();
         }
         catch (XMLStreamException e) {
-            throw new XmlRuntimeException(e);
+            throw new XmlException(e);
         }
     }
 
-    String getAnyUriValue()
+    String getAnyUriValue() throws XmlException
     {
         try {
             return baseReader.getStringValue(XMLStreamReaderExt.WS_COLLAPSE);
         }
         catch (XMLStreamException e) {
-            throw new XmlRuntimeException(e);
+            throw new XmlException(e);
         }
     }
 
-    Date getDateValue()
+    Date getDateValue() throws XmlException
     {
         try {
             final GDate val = baseReader.getGDateValue();
             return val == null ? null : val.getDate();
         }
         catch (XMLStreamException e) {
-            throw new XmlRuntimeException(e);
+            throw new XmlException(e);
         }
     }
 
-    GDate getGDateValue()
+    GDate getGDateValue() throws XmlException
     {
         try {
             return baseReader.getGDateValue();
         }
         catch (XMLStreamException e) {
-            throw new XmlRuntimeException(e);
+            throw new XmlException(e);
         }
     }
 
-    GDuration getGDurationValue()
+    GDuration getGDurationValue() throws XmlException
     {
         try {
             return baseReader.getGDurationValue();
         }
         catch (XMLStreamException e) {
-            throw new XmlRuntimeException(e);
+            throw new XmlException(e);
         }
     }
 
-    QName getQNameValue()
+    QName getQNameValue() throws XmlException
     {
         try {
             return baseReader.getQNameValue();
         }
         catch (XMLStreamException e) {
-            throw new XmlRuntimeException(e);
+            throw new XmlException(e);
         }
     }
 
-    String getAttributeStringValue()
+    String getAttributeStringValue() throws XmlException
     {
         try {
             return baseReader.getAttributeStringValue(currentAttributeIndex);
         }
         catch (XMLStreamException e) {
-            throw new XmlRuntimeException(e);
+            throw new XmlException(e);
         }
     }
 
-    boolean getAttributeBooleanValue()
+    boolean getAttributeBooleanValue() throws XmlException
     {
         try {
             return baseReader.getAttributeBooleanValue(currentAttributeIndex);
         }
         catch (XMLStreamException e) {
-            throw new XmlRuntimeException(e);
+            throw new XmlException(e);
         }
     }
 
-    byte getAttributeByteValue()
+    byte getAttributeByteValue() throws XmlException
     {
         try {
             return baseReader.getAttributeByteValue(currentAttributeIndex);
         }
         catch (XMLStreamException e) {
-            throw new XmlRuntimeException(e);
+            throw new XmlException(e);
         }
     }
 
-    short getAttributeShortValue()
+    short getAttributeShortValue() throws XmlException
     {
         try {
             return baseReader.getAttributeShortValue(currentAttributeIndex);
         }
         catch (XMLStreamException e) {
-            throw new XmlRuntimeException(e);
+            throw new XmlException(e);
         }
     }
 
-    int getAttributeIntValue()
+    int getAttributeIntValue() throws XmlException
     {
         try {
             return baseReader.getAttributeIntValue(currentAttributeIndex);
         }
         catch (XMLStreamException e) {
-            throw new XmlRuntimeException(e);
+            throw new XmlException(e);
         }
     }
 
-    long getAttributeLongValue()
+    long getAttributeLongValue() throws XmlException
     {
         try {
             return baseReader.getAttributeLongValue(currentAttributeIndex);
         }
         catch (XMLStreamException e) {
-            throw new XmlRuntimeException(e);
+            throw new XmlException(e);
         }
     }
 
-    BigInteger getAttributeBigIntegerValue()
+    BigInteger getAttributeBigIntegerValue() throws XmlException
     {
         try {
             return baseReader.getAttributeBigIntegerValue(currentAttributeIndex);
         }
         catch (XMLStreamException e) {
-            throw new XmlRuntimeException(e);
+            throw new XmlException(e);
         }
     }
 
-    BigDecimal getAttributeBigDecimalValue()
+    BigDecimal getAttributeBigDecimalValue() throws XmlException
     {
         try {
             return baseReader.getAttributeBigDecimalValue(currentAttributeIndex);
         }
         catch (XMLStreamException e) {
-            throw new XmlRuntimeException(e);
+            throw new XmlException(e);
         }
     }
 
-    float getAttributeFloatValue()
+    float getAttributeFloatValue() throws XmlException
     {
         try {
             return baseReader.getAttributeFloatValue(currentAttributeIndex);
         }
         catch (XMLStreamException e) {
-            throw new XmlRuntimeException(e);
+            throw new XmlException(e);
         }
     }
 
-    double getAttributeDoubleValue()
+    double getAttributeDoubleValue() throws XmlException
     {
         try {
             return baseReader.getAttributeDoubleValue(currentAttributeIndex);
         }
         catch (XMLStreamException e) {
-            throw new XmlRuntimeException(e);
+            throw new XmlException(e);
         }
     }
 
-    String getAttributeAnyUriValue()
+    String getAttributeAnyUriValue() throws XmlException
     {
         try {
             return baseReader.getAttributeStringValue(currentAttributeIndex,
                                                       XMLStreamReaderExt.WS_COLLAPSE);
         }
         catch (XMLStreamException e) {
-            throw new XmlRuntimeException(e);
+            throw new XmlException(e);
         }
     }
 
-    InputStream getAttributeHexBinaryValue()
+    InputStream getAttributeHexBinaryValue() throws XmlException
     {
         try {
             return baseReader.getAttributeHexBinaryValue(currentAttributeIndex);
         }
         catch (XMLStreamException e) {
-            throw new XmlRuntimeException(e);
+            throw new XmlException(e);
         }
     }
 
-    InputStream getAttributeBase64Value()
+    InputStream getAttributeBase64Value() throws XmlException
     {
         try {
             return baseReader.getAttributeBase64Value(currentAttributeIndex);
         }
         catch (XMLStreamException e) {
-            throw new XmlRuntimeException(e);
+            throw new XmlException(e);
         }
     }
 
-    XmlCalendar getAttributeCalendarValue()
+    XmlCalendar getAttributeCalendarValue() throws XmlException
     {
         try {
             return baseReader.getAttributeCalendarValue(currentAttributeIndex);
         }
         catch (XMLStreamException e) {
-            throw new XmlRuntimeException(e);
+            throw new XmlException(e);
         }
     }
 
-    Date getAttributeDateValue()
+    Date getAttributeDateValue() throws XmlException
     {
         try {
             GDate val = baseReader.getAttributeGDateValue(currentAttributeIndex);
             return val == null ? null : val.getDate();
         }
         catch (XMLStreamException e) {
-            throw new XmlRuntimeException(e);
+            throw new XmlException(e);
         }
     }
 
-    GDate getAttributeGDateValue()
+    GDate getAttributeGDateValue() throws XmlException
     {
         try {
             return baseReader.getAttributeGDateValue(currentAttributeIndex);
         }
         catch (XMLStreamException e) {
-            throw new XmlRuntimeException(e);
+            throw new XmlException(e);
         }
     }
 
-    GDuration getAttributeGDurationValue()
+    GDuration getAttributeGDurationValue() throws XmlException
     {
         try {
             return baseReader.getAttributeGDurationValue(currentAttributeIndex);
         }
         catch (XMLStreamException e) {
-            throw new XmlRuntimeException(e);
+            throw new XmlException(e);
         }
     }
 
-    QName getAttributeQNameValue()
+    QName getAttributeQNameValue() throws XmlException
     {
         try {
             return baseReader.getAttributeQNameValue(currentAttributeIndex);
         }
         catch (XMLStreamException e) {
-            throw new XmlRuntimeException(e);
+            throw new XmlException(e);
         }
     }
 
@@ -649,7 +649,7 @@ final class UnmarshalResult
      * return the QName value found for xsi:type
      * or null if neither one was found
      */
-    QName getXsiType()
+    QName getXsiType() throws XmlException
     {
         if (!gotXsiAttributes) {
             getXsiAttributes();
@@ -658,7 +658,7 @@ final class UnmarshalResult
         return xsiAttributeHolder.xsiType;
     }
 
-    boolean hasXsiNil()
+    boolean hasXsiNil() throws XmlException
     {
         if (!gotXsiAttributes) {
             getXsiAttributes();
@@ -667,14 +667,14 @@ final class UnmarshalResult
         return xsiAttributeHolder.hasXsiNil;
     }
 
-    private void getXsiAttributes()
+    private void getXsiAttributes() throws XmlException
     {
         try {
             MarshalStreamUtils.getXsiAttributes(xsiAttributeHolder,
                                                 baseReader, errors);
         }
         catch (XMLStreamException e) {
-            throw new XmlRuntimeException(e);
+            throw new XmlException(e);
         }
         gotXsiAttributes = true;
     }
@@ -684,20 +684,33 @@ final class UnmarshalResult
      * @return  false if we hit an end element (any end element at all)
      */
     boolean advanceToNextStartElement()
+        throws XmlException
     {
-        boolean ret = MarshalStreamUtils.advanceToNextStartElement(baseReader);
+        final boolean ret;
+        try {
+            ret = MarshalStreamUtils.advanceToNextStartElement(baseReader);
+        }
+        catch (XMLStreamException e) {
+            throw new XmlException(e);
+        }
         updateAttributeState();
         return ret;
     }
 
 
     void advanceToFirstItemOfInterest()
+        throws XmlException
     {
         assert baseReader != null;
-        MarshalStreamUtils.advanceToFirstItemOfInterest(baseReader);
+        try {
+            MarshalStreamUtils.advanceToFirstItemOfInterest(baseReader);
+        }
+        catch (XMLStreamException e) {
+            throw new XmlException(e);
+        }
     }
 
-    int next()
+    int next() throws XmlException
     {
         try {
             final int new_state = baseReader.next();
@@ -705,17 +718,17 @@ final class UnmarshalResult
             return new_state;
         }
         catch (XMLStreamException e) {
-            throw new XmlRuntimeException(e);
+            throw new XmlException(e);
         }
     }
 
-    boolean hasNext()
+    boolean hasNext() throws XmlException
     {
         try {
             return baseReader.hasNext();
         }
         catch (XMLStreamException e) {
-            throw new XmlRuntimeException(e);
+            throw new XmlException(e);
         }
     }
 
@@ -765,8 +778,14 @@ final class UnmarshalResult
     }
 
     void skipElement()
+        throws XmlException
     {
-        MarshalStreamUtils.skipElement(baseReader);
+        try {
+            MarshalStreamUtils.skipElement(baseReader);
+        }
+        catch (XMLStreamException e) {
+            throw new XmlException(e);
+        }
         updateAttributeState();
     }
 

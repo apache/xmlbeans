@@ -56,6 +56,7 @@
 
 package org.apache.xmlbeans.impl.marshal;
 
+import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
 import org.apache.xmlbeans.impl.common.InvalidLexicalValueException;
 
@@ -73,6 +74,7 @@ abstract class BaseSimpleTypeConverter
     }
 
     public final Object unmarshal(UnmarshalResult context)
+        throws XmlException
     {
         try {
             return getObject(context);
@@ -82,11 +84,15 @@ abstract class BaseSimpleTypeConverter
             throw ilve;
         }
         finally {
-            assert context.isEndElement();
+            //Note that this assertion can be trigger by invalid xml input,
+            //so we've disabled it.
+            //assert context.isEndElement();
+
             if (context.hasNext()) context.next();
         }
     }
 
-    protected abstract Object getObject(UnmarshalResult context);
+    protected abstract Object getObject(UnmarshalResult context)
+        throws XmlException;
 
 }

@@ -56,6 +56,7 @@
 
 package org.apache.xmlbeans.impl.marshal;
 
+import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
 
 /**
@@ -72,6 +73,7 @@ interface RuntimeBindingType
      * @param bindingLoader
      */
     void initialize(RuntimeBindingTypeTable typeTable,
-                    BindingLoader bindingLoader);
+                    BindingLoader bindingLoader)
+        throws XmlException;
 
 }

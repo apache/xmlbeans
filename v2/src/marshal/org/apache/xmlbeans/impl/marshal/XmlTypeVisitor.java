@@ -56,6 +56,8 @@
 
 package org.apache.xmlbeans.impl.marshal;
 
+import org.apache.xmlbeans.XmlException;
+
 import javax.xml.namespace.QName;
 
 abstract class XmlTypeVisitor
@@ -96,19 +98,23 @@ abstract class XmlTypeVisitor
      *
      * @return  next state
      */
-    protected abstract int advance();
+    protected abstract int advance()
+        throws XmlException;
 
-    public abstract XmlTypeVisitor getCurrentChild();
+    public abstract XmlTypeVisitor getCurrentChild()
+        throws XmlException;
 
 
     protected abstract QName getName();
 
     //guaranteed to be called before any getAttribute* or getNamespace* method
     protected void initAttributes()
+        throws XmlException
     {
     }
 
-    protected abstract int getAttributeCount();
+    protected abstract int getAttributeCount() 
+        throws XmlException;
 
     protected abstract String getAttributeValue(int idx);
 
