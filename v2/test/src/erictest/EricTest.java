@@ -100,22 +100,31 @@ import javax.xml.stream.XMLStreamReader;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 
-
 import org.apache.xmlbeans.impl.newstore2.Public2;
 
 public class EricTest
 {
     public static void main ( String[] args ) throws Exception
     {
-        Document doc = Public2.parse( "<a>1234567890123456789012345678901234567890</a>" );;
-        doc.getDocumentElement().appendChild( doc.createTextNode( "a" ) );
+        XmlCursor c = Public2.newStore();
+
+        c.toNextToken();
+
+        c.beginElement( "foo" );
+
+
+//        Document doc = Public2.parse( "<a/>" );
+//
+//        Node n = doc.createCDATASection( "asas" );
+//        System.out.println( n.getNodeType() );
+//        System.out.println( n.getNodeName() );
+//
+//        doc.getDocumentElement().setAttributeNS( "moo", "xmlns", "boo" );
         
+//        Document doc = Public2.parse( "<a/>" );
 //        XmlOptions options = new XmlOptions();
 //        options.setSavePrettyPrint();
 //
-//
-//
-//        
 //        Document doc = Public2.parse( "<a><?moo foo?>\r\n<!--comment--></a>" );;
 //
 //        doc.getDocumentElement().setAttributeNS( "uri:foo.com", "a:b", "value" );

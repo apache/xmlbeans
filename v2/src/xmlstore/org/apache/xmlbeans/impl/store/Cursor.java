@@ -3693,6 +3693,8 @@ public final class Cursor implements XmlCursor, ChangeListener
             _cursor = start;
             _last = last;
             _didLast = false;
+                
+            _didLast = _cursor.isAtSamePositionAs( _last );
         }
 
         protected XmlCursor getCursor ( )
@@ -3718,13 +3720,12 @@ public final class Cursor implements XmlCursor, ChangeListener
             if (_didLast)
                 throw new IllegalStateException();
 
-            if (_cursor.isStart())
+            if (_cursor.isAtSamePositionAs( _last ))
+                _didLast = true;
+            else if (_cursor.isStart())
                 _cursor.toFirstContentToken();
             else
                 _cursor.toNextToken();
-
-            if (_cursor.isAtSamePositionAs( _last ))
-                _didLast = true;
 
             return getEventType();
         }

@@ -32,7 +32,7 @@ public class Jsr173
 {
     public static XMLStreamReader newXmlStreamReader ( Cur c, Object src, int off, int cch )
     {
-        XMLStreamReader xs = new XMLStreamReaderForString( c, src, off, cch );
+        XMLStreamReaderBase xs = new XMLStreamReaderForString( c, src, off, cch );
         
         if (c._locale.noSync())
             return new UnsyncedJsr173( c._locale, xs );
@@ -42,7 +42,7 @@ public class Jsr173
     
     public static XMLStreamReader newXmlStreamReader ( Cur c )
     {
-        XMLStreamReader xs;
+        XMLStreamReaderBase xs;
 
         int k = c.kind();
         
@@ -809,7 +809,7 @@ public class Jsr173
         }
 
         //
-        // Location and NamespaceContext methods
+        // Location methods do not need a gatway
         //
 
         public int    getCharacterOffset ( ) { return _offset; }
@@ -1016,10 +1016,10 @@ public class Jsr173
     //
     //
 
-    private static final class SyncedJsr173 implements XMLStreamReader
+    private static final class SyncedJsr173 implements XMLStreamReader, Location, NamespaceContext
     {
-        public SyncedJsr173 ( XMLStreamReader xs ) { _xs = xs; }
-        public SyncedJsr173 ( Locale l, XMLStreamReader xs ) { _l = l; _xs = xs; }
+//        public SyncedJsr173 ( XMLStreamReaderBase xs ) { _xs = xs; }
+        public SyncedJsr173 ( Locale l, XMLStreamReaderBase xs ) { _l = l; _xs = xs; }
         
         public Object getProperty ( java.lang.String name ) { synchronized ( _l ) { _l.enter(); try { return _xs.getProperty( name ); } finally { _l.exit(); } } }
         public int next ( ) throws XMLStreamException { synchronized ( _l ) { _l.enter(); try { return _xs.next(); } finally { _l.exit(); } } }
@@ -1066,14 +1066,22 @@ public class Jsr173
         public String getCharacterEncodingScheme ( ) { synchronized ( _l ) { _l.enter(); try { return _xs.getCharacterEncodingScheme(); } finally { _l.exit(); } } }
         public String getPITarget ( ) { synchronized ( _l ) { _l.enter(); try { return _xs.getPITarget(); } finally { _l.exit(); } } }
         public String getPIData ( ) { synchronized ( _l ) { _l.enter(); try { return _xs.getPIData(); } finally { _l.exit(); } } }
-
-        private Locale          _l;
-        private XMLStreamReader _xs;
+        public String getPrefix ( String namespaceURI ) { synchronized ( _l ) { _l.enter(); try { return _xs.getPrefix( namespaceURI ); } finally { _l.exit(); } } }
+        public Iterator getPrefixes ( String namespaceURI ) { synchronized ( _l ) { _l.enter(); try { return _xs.getPrefixes( namespaceURI ); } finally { _l.exit(); } } }
+        public int getCharacterOffset ( ) { synchronized ( _l ) { _l.enter(); try { return _xs.getCharacterOffset(); } finally { _l.exit(); } } }
+        public int getColumnNumber ( ) { synchronized ( _l ) { _l.enter(); try { return _xs.getColumnNumber(); } finally { _l.exit(); } } }
+        public int getLineNumber ( ) { synchronized ( _l ) { _l.enter(); try { return _xs.getLineNumber(); } finally { _l.exit(); } } }
+        public String getLocationURI ( ) { synchronized ( _l ) { _l.enter(); try { return _xs.getLocationURI(); } finally { _l.exit(); } } }
+        public String getPublicId() { synchronized ( _l ) { _l.enter(); try { return _xs.getPublicId(); } finally { _l.exit(); } } }
+        public String getSystemId() { synchronized ( _l ) { _l.enter(); try { return _xs.getSystemId(); } finally { _l.exit(); } } }
+        
+        private Locale              _l;
+        private XMLStreamReaderBase _xs;
     }
 
-    private static final class UnsyncedJsr173 implements XMLStreamReader
+    private static final class UnsyncedJsr173 implements XMLStreamReader, Location, NamespaceContext
     {
-        public UnsyncedJsr173 ( Locale l, XMLStreamReader xs ) { _l = l; _xs = xs; }
+        public UnsyncedJsr173 ( Locale l, XMLStreamReaderBase xs ) { _l = l; _xs = xs; }
         
         public Object getProperty ( java.lang.String name ) { try { _l.enter(); return _xs.getProperty( name ); } finally { _l.exit(); } }
         public int next ( ) throws XMLStreamException { try { _l.enter(); return _xs.next(); } finally { _l.exit(); } }
@@ -1120,9 +1128,17 @@ public class Jsr173
         public String getCharacterEncodingScheme ( ) { try { _l.enter(); return _xs.getCharacterEncodingScheme(); } finally { _l.exit(); } }
         public String getPITarget ( ) { try { _l.enter(); return _xs.getPITarget(); } finally { _l.exit(); } }
         public String getPIData ( ) { try { _l.enter(); return _xs.getPIData(); } finally { _l.exit(); } }
-
-        private Locale          _l;
-        private XMLStreamReader _xs;
+        public String getPrefix ( String namespaceURI ) { try { _l.enter(); return _xs.getPrefix( namespaceURI ); } finally { _l.exit(); } }
+        public Iterator getPrefixes ( String namespaceURI ) { try { _l.enter(); return _xs.getPrefixes( namespaceURI ); } finally { _l.exit(); } }
+        public int getCharacterOffset ( ) { try { _l.enter(); return _xs.getCharacterOffset(); } finally { _l.exit(); } }
+        public int getColumnNumber ( ) { try { _l.enter(); return _xs.getColumnNumber(); } finally { _l.exit(); } }
+        public int getLineNumber ( ) { synchronized ( _l ) { _l.enter(); try { return _xs.getLineNumber(); } finally { _l.exit(); } } }
+        public String getLocationURI ( ) { synchronized ( _l ) { _l.enter(); try { return _xs.getLocationURI(); } finally { _l.exit(); } } }
+        public String getPublicId() { synchronized ( _l ) { _l.enter(); try { return _xs.getPublicId(); } finally { _l.exit(); } } }
+        public String getSystemId() { synchronized ( _l ) { _l.enter(); try { return _xs.getSystemId(); } finally { _l.exit(); } } }
+        
+        private Locale              _l;
+        private XMLStreamReaderBase _xs;
     }
 }
 

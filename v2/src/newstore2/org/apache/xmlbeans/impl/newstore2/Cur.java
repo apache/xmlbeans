@@ -646,22 +646,6 @@ final class Cur
         return true;
     }
 
-    boolean nextNonAttr ( )
-    {
-        // TODO -- spedd this up
-        
-        if (!next())
-            return false;
-
-        while ( isAttr() )
-        {
-            boolean moved = next();
-            assert moved;
-        }
-
-        return true;
-    }
-
     void setCharNodes ( CharNode nodes )
     {
         Xobj x = getDenormal();
@@ -1627,6 +1611,7 @@ final class Cur
             return c;
         }
 
+        public void dump ( PrintStream o, Object ref ) { Cur.dump( o, (Xobj) this, ref ); }
         public void dump ( PrintStream o ) { Cur.dump( o, (Xobj) this ); }
         public void dump ( ) { dump( System.out ); }
 
@@ -2084,6 +2069,7 @@ final class Cur
         
         public void dump ( ) { dump( System.out ); }
         public void dump ( PrintStream o ) { _docXobj.dump( o ); }
+        public void dump ( PrintStream o, Object ref ) { _docXobj.dump( o, ref ); }
 
         public String name ( ) { return "#document"; }
         
@@ -2337,6 +2323,10 @@ final class Cur
         }
     }
 
+    static void dump ( PrintStream o, Dom d, Object ref )
+    {
+    }
+    
     static void dump ( PrintStream o, Dom d )
     {
         d.dump( o );
@@ -2390,13 +2380,20 @@ final class Cur
         }
     }
     
-    private static void dumpCharNodes ( PrintStream o, CharNode nodes )
+    private static void dumpCharNodes ( PrintStream o, CharNode nodes, Object ref )
     {
         for ( CharNode n = nodes ; n != null ; n = n._next )
-            o.print( " " + (n instanceof TextNode ? "TEXT" : "CDATA") + "[" + n._cch + "]" );
+        {
+            o.print( " " );
+            
+            if (n == ref)
+                o.print( "*" );
+            
+            o.print( (n instanceof TextNode ? "TEXT" : "CDATA") + "[" + n._cch + "]" );
+        }
     }
     
-    private static void dumpXobj ( PrintStream o, Xobj xo, int level, Xobj ref )
+    private static void dumpXobj ( PrintStream o, Xobj xo, int level, Object ref )
     {
         if (xo == null)
             return;
@@ -2427,16 +2424,18 @@ final class Cur
         if (xo._srcValue != null || xo._charNodesValue != null)
         {
             o.print( " Value( " );
-            CharUtil.dumpChars( o, xo._srcValue, xo._offValue, xo._cchValue );
-            dumpCharNodes( o, xo._charNodesValue );
+            o.print( "\"" + CharUtil.getString( xo._srcValue, xo._offValue, xo._cchValue ) + "\"" );
+//            CharUtil.dumpChars( o, xo._srcValue, xo._offValue, xo._cchValue );
+            dumpCharNodes( o, xo._charNodesValue, ref );
             o.print( " )" );
         }
 
         if (xo._srcAfter != null || xo._charNodesAfter != null)
         {
             o.print( " After( " );
-            CharUtil.dumpChars( o, xo._srcAfter, xo._offAfter, xo._cchAfter );
-            dumpCharNodes( o, xo._charNodesAfter );
+            o.print( "\"" + CharUtil.getString( xo._srcAfter, xo._offAfter, xo._cchAfter ) + "\"" );
+//            CharUtil.dumpChars( o, xo._srcAfter, xo._offAfter, xo._cchAfter );
+            dumpCharNodes( o, xo._charNodesAfter, ref );
             o.print( " )" );
         }
 
@@ -2466,6 +2465,12 @@ final class Cur
             dumpXobj( o, xo, level + 1, ref );
     }
     
+    public static void dump ( PrintStream o, Xobj xo, Object ref )
+    {
+        dumpXobj( o, xo, 0, ref );
+        o.println();
+    }
+    
     public static void dump ( PrintStream o, Xobj xo )
     {
         Xobj ref = xo;
@@ -2473,9 +2478,7 @@ final class Cur
         while ( xo._parent != null )
             xo = xo._parent;
 
-        dumpXobj( o, xo, 0, ref );
-
-        o.println();
+        dump( o, xo, (Object) ref );
     }
     
     //

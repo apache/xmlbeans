@@ -142,6 +142,52 @@ public final class Public2
         return s;
     }
     
+    public static String save ( XmlCursor c )
+    {
+        return save( c, null );
+    }
+    
+    public static String save ( XmlCursor xc, XmlOptions options )
+    {
+        Cursor cursor = (Cursor) xc;
+        
+        Locale l = cursor.locale();
+
+        if (l.noSync())         { l.enter(); try { return saveImpl( cursor, options ); } finally { l.exit(); } }
+        else synchronized ( l ) { l.enter(); try { return saveImpl( cursor, options ); } finally { l.exit(); } }
+    }
+    
+    private static String saveImpl ( Cursor cursor, XmlOptions options )
+    {
+        Cur c = cursor.tempCur();
+
+        String s = new TextSaver( c, options, null ).saveToString();
+        
+        c.release();
+
+        return s;
+    }
+    
+    public static XmlCursor newStore ( )
+    {
+        return newStore( null );
+    }
+    
+    public static XmlCursor newStore ( Saaj saaj )
+    {
+        Locale l = newLocale( saaj );
+
+        Cur c = l.permCur();
+
+        c.createRoot();
+
+        Cursor cursor = new Cursor( c );
+
+        c.release();
+
+        return cursor;
+    }
+
     public static XmlCursor getCursor ( Node n )
     {
         assert n instanceof Dom;

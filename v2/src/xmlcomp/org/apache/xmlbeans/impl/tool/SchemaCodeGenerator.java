@@ -352,12 +352,8 @@ public class SchemaCodeGenerator
         {
             super.close();
             
-            StringBuffer sb = getBuffer();
-
-            _repackager.repackage( sb );
-
             FileWriter fw = new FileWriter( _file );
-            fw.write( sb.toString() );
+            fw.write( _repackager.repackage( getBuffer() ).toString() );
             fw.close();
         }
 
