@@ -48,7 +48,9 @@ import org.apache.xmlbeans.XmlError;
 public class XMLBean extends MatchingTask
 {
     private ArrayList   schemas = new ArrayList();
-    
+
+    private Set         mdefnamespaces;
+
     private Path        classpath;
     
     private File        destfile,
@@ -218,6 +220,7 @@ public class XMLBean extends MatchingTask
             params.setDownload(download);
             params.setExtensions(extensions);
             params.setErrorListener(err);
+            params.setMdefNamespaces(mdefnamespaces);
             success = SchemaCompiler.compile(params);
 
             if (success && !srconly) {
@@ -562,6 +565,35 @@ public class XMLBean extends MatchingTask
         Extension e = new Extension();
         extensions.add(e);
         return e;
+    }
+
+    /**
+     * One or more namespaces in which duplicate definitions are to be ignored
+     * can be passed in via the &lt;ignoreDuplicatesInNamespaces> subelement.
+     */
+    public void setIgnoreDuplicatesInNamespaces(String namespaces) {
+        mdefnamespaces = new HashSet();
+        StringTokenizer st = new StringTokenizer(namespaces, ",");
+        while (st.hasMoreTokens())
+        {
+          String namespace = st.nextToken().trim();
+          mdefnamespaces.add(namespace);
+        }
+    }
+
+    public String getIgnoreDuplicatesInNamespaces() {
+        if (mdefnamespaces == null) {
+            return null;
+        }
+        StringBuffer buf = new StringBuffer();
+        Iterator i = mdefnamespaces.iterator();
+        while (i.hasNext()) {
+            buf.append((String)i.next());
+            if (i.hasNext()) {
+                buf.append(",");
+            }
+        }
+        return buf.toString();
     }
 
     /**
