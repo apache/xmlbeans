@@ -1184,7 +1184,7 @@ final class Cur
 
     void setCharNodes ( CharNode nodes )
     {
-        assert _locale == nodes._locale; // TODO - locales
+        assert nodes == null || _locale == nodes._locale; // TODO - locales
         assert isPositioned();
         assert !_xobj.isRoot() || _pos > 0;
         
