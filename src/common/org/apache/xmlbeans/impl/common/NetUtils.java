@@ -65,7 +65,7 @@ import java.util.Map;
  * utility methods
  *
  * @author <a href="mailto:stefano@apache.org">Stefano Mazzocchi</a>
- * @version CVS $Id: NetUtils.java,v 1.1.2.1 2004/06/19 03:07:39 daveremy Exp $
+ * @version CVS $Id$
  */
 
 public class NetUtils {
