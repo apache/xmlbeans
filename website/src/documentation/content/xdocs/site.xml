@@ -27,7 +27,7 @@ See http://xml.apache.org/forrest/linking.html for more info
     </download-tab>
     <documentation-tab label="Documentation" href="documentation/" tab="documentation">
         <index href="index.html"/>
-        <!--        <newuser label="New to XMLBeans" href="quickstart.html" description="Use a quick start to get acquainted."/> -->
+        <tutorial label="Tutorial: First Steps" href="tutorial_getstarted.html" description="Write some XMLBeans code."/>
         <faq label="FAQ" href="http://wiki.apache.org/xmlbeans/XmlBeansV1Faq" description="View Frequently Asked Questions"/>
         <userdoc label="User Guide" href="index.html#XMLBeans+Version+1+User+Documentation" description="Check out the user guide."/>
         <userdoc label="V1 Javadoc" href="../docs/reference/index.html" description="Look over references."/>
@@ -72,10 +72,10 @@ See http://xml.apache.org/forrest/linking.html for more info
         <index href="index.html"/>
         <learn label="Learn About XMLBeans">
             <index label="Overview" href="index.html" description="Welcome to XMLBeans"/>
-            <!--            <newuser label="New to XMLBeans" href="documentation/quickstart.html" description="Use a quick start to get acquainted."/> -->
             <faq label="FAQ" href="http://wiki.apache.org/xmlbeans/XmlBeansV1Faq" description="View Frequently Asked Questions"/>
-            <userdoc label="User Guide"
-                href="documentation/index.html#XMLBeans+Version+1+User+Documentation" description="Check out the user guide."/>
+            <userdoc label="Tutorial: First Steps"
+                href="documentation/tutorial_getstarted.html" description="Write some XMLBeans code."/>
+            <userdoc label="V1 Javadoc" href="docs/reference/index.html" description="Look over references."/>
             <userdoc label="V1 Javadoc" href="docs/reference/index.html" description="Look over references."/>
             <userdoc label="V2 Javadoc" href="docs/v2/reference/index.html" description="Look over references."/>
             <sample label="Samples" href="samples/index.html" description="See a list of samples for download."/>
