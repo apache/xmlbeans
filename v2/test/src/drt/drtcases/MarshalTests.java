@@ -39,6 +39,7 @@ import org.apache.xmlbeans.XmlError;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
+import org.apache.xmlbeans.GDuration;
 import org.apache.xmlbeans.impl.binding.compile.Schema2Java;
 import org.apache.xmlbeans.impl.common.XmlReaderToWriter;
 import org.apache.xmlbeans.impl.common.XmlStreamUtils;
@@ -131,7 +132,8 @@ public class MarshalTests extends TestCase
         testSimpleTypeUnmarshal(new BigDecimal("43434343342.233434342"), "decimal");
         testSimpleTypeUnmarshal(new Float(54.5423f), "float");
         testSimpleTypeUnmarshal(new Double(23432.43234), "double");
-        testSimpleTypeUnmarshal(new Double(23432.43234), "double");
+
+        testSimpleTypeUnmarshal(new GDuration("P1Y2M3DT10H30M"), "duration");
 
         testStringTypeUnmarshal("anySimpleType");
         testStringTypeUnmarshal("string");
@@ -184,6 +186,8 @@ public class MarshalTests extends TestCase
         testSimpleTypeMarshal(new Double(1231.444), "double");
         testSimpleTypeMarshal(new URI("http://www.apache.org/"), "anyURI");
 
+        testSimpleTypeMarshal(new GDuration("P1Y2M3DT10H30M"), "duration");
+
         testSimpleTypeMarshal("some text here", "string");
         testSimpleTypeMarshal("aToken", "token");
         testSimpleTypeMarshal("       ", "string");
@@ -230,6 +234,8 @@ public class MarshalTests extends TestCase
             bindingContext.createUnmarshaller();
 
         Object obj = umctx.unmarshal(xrdr, options);
+        reportErrors(errors, "SimpleType error. lexical="+lexval);
+        Assert.assertTrue(errors.isEmpty());
 
 
         //special case date/time tests.
@@ -248,10 +254,15 @@ public class MarshalTests extends TestCase
             Assert.assertEquals(expected, obj);
         }
 
-        Assert.assertTrue(errors.isEmpty());
-
-
 //        inform("OK for " + expected);
+    }
+
+    private void reportErrors(Collection errors, final String prefix)
+    {
+        for (Iterator itr = errors.iterator(); itr.hasNext();) {
+            XmlError xmlError = (XmlError)itr.next();
+            error(prefix + " " + xmlError);
+        }
     }
 
 
@@ -289,12 +300,7 @@ public class MarshalTests extends TestCase
         inform("==================OBJ: " + orig);
         dumpReader(reader);
 
-        if (!errors.isEmpty()) {
-            for (Iterator itr = errors.iterator(); itr.hasNext();) {
-                Object err = itr.next();
-                inform("Error: " + err);
-            }
-        }
+        reportErrors(errors, "simpleTypeMarshal");
 
         Assert.assertTrue(errors.isEmpty());
     }
@@ -337,13 +343,7 @@ public class MarshalTests extends TestCase
             Object out = um.unmarshalType(reader, schemaType, javaType, options);
             Assert.assertEquals(our_obj, out);
 
-            if (!errors.isEmpty()) {
-                for (Iterator itr = errors.iterator(); itr.hasNext();) {
-                    Object err = itr.next();
-                    inform("Error: " + err);
-                }
-            }
-
+            reportErrors(errors, "poly-marshal");
             Assert.assertTrue(errors.isEmpty());
         }
     }
@@ -415,6 +415,7 @@ public class MarshalTests extends TestCase
         inform("=======IN-OBJA: " + mc);
 
         dumpReader(reader);
+        reportErrors(errors, "byname-marshal");
         Assert.assertTrue(errors.isEmpty());
     }
 
@@ -445,10 +446,12 @@ public class MarshalTests extends TestCase
         inform("=======WRAPPED-ARRAY-OBJ: " + strs);
 
 //        dumpReader(reader);
+        reportErrors(errors, "wrapped-array");
         Assert.assertTrue(errors.isEmpty());
 
         final Unmarshaller um = bindingContext.createUnmarshaller();
         Object retval = um.unmarshalType(reader, schema_type, java_type, options);
+        reportErrors(errors, "wrapped-array2");
         Assert.assertTrue(errors.isEmpty());
 
         Assert.assertTrue("expected " + ArrayUtils.arrayToString(strs) +
@@ -494,6 +497,7 @@ public class MarshalTests extends TestCase
 
         inform("=======IN-OBJ: " + mc);
         inform("=======OUT-XML: " + PrettyPrinter.indent(sw.getBuffer().toString()));
+        reportErrors(errors, "byname-writer");
         Assert.assertTrue(errors.isEmpty());
     }
 
@@ -531,8 +535,10 @@ public class MarshalTests extends TestCase
             XMLInputFactory.newInstance().createXMLStreamReader(sr);
         Unmarshaller umctx = bindingContext.createUnmarshaller();
         Object out_obj = umctx.unmarshal(rdr, options);
-        Assert.assertEquals(mc, out_obj);
+        reportErrors(errors, "byname-doc-writer");
         Assert.assertTrue(errors.isEmpty());
+        Assert.assertEquals(mc, out_obj);
+
     }
 
     public void testByNameMarshalElementViaWriter()
@@ -574,10 +580,13 @@ public class MarshalTests extends TestCase
         XMLStreamReader rdr =
             XMLInputFactory.newInstance().createXMLStreamReader(sr);
         Unmarshaller umctx = bindingContext.createUnmarshaller();
-        while(!rdr.isStartElement()) {rdr.next();}
+        while (!rdr.isStartElement()) {
+            rdr.next();
+        }
         Object out_obj = umctx.unmarshalElement(rdr, elem_name,
                                                 mc.getClass().getName(),
                                                 options);
+        reportErrors(errors, "marsh-elem");
         Assert.assertEquals(mc, out_obj);
         Assert.assertTrue(errors.isEmpty());
     }
@@ -620,6 +629,7 @@ public class MarshalTests extends TestCase
         Unmarshaller umctx = bindingContext.createUnmarshaller();
         final ByteArrayInputStream bais = new ByteArrayInputStream(buf);
         Object out_obj = umctx.unmarshal(bais, options);
+        reportErrors(errors, "marsh-outstream");
         Assert.assertEquals(mc, out_obj);
         Assert.assertTrue(errors.isEmpty());
     }
@@ -708,6 +718,7 @@ public class MarshalTests extends TestCase
         final long after_millis = System.currentTimeMillis();
         final long diff = (after_millis - before_millis);
         inform(" perf_out_obj = " + top_obj);
+        reportErrors(errors, "perf");
         Assert.assertTrue(errors.isEmpty());
         Assert.assertEquals(top_obj, out_obj);
         inform("milliseconds: " + diff + " trials: " + trials);
@@ -791,6 +802,9 @@ public class MarshalTests extends TestCase
         final long after_millis = System.currentTimeMillis();
         final long diff = (after_millis - before_millis);
 //        inform(" perf_out_obj = " + top_obj);
+
+
+        reportErrors(errors, "thread-perf");
         Assert.assertTrue(errors.isEmpty());
         //Assert.assertEquals(top_obj, out_obj);
         inform("milliseconds: " + diff + " trials: " + trials +
@@ -941,7 +955,9 @@ public class MarshalTests extends TestCase
         Unmarshaller umctx =
             bindingContext.createUnmarshaller();
         out_obj = umctx.unmarshalType(reader, schemaType, javaType, options);
+
         inform(" out_obj = " + top_obj);
+        reportErrors(errors, "j2s2j");
         Assert.assertEquals(top_obj, out_obj);
         Assert.assertTrue(errors.isEmpty());
     }
@@ -1005,14 +1021,7 @@ public class MarshalTests extends TestCase
         Object obj = um_ctx.unmarshal(xrdr, options);
 
         inform("doc2-obj = " + obj);
-
-        for (Iterator itr = errors.iterator(); itr.hasNext();) {
-            XmlError xmlError = (XmlError)itr.next();
-
-            inform("doc2-ERROR: source=" + xmlError.getSourceName() +
-                   " " + xmlError);
-        }
-
+        reportErrors(errors, "byname-um");
         Assert.assertTrue(errors.isEmpty());
 
     }
@@ -1066,12 +1075,7 @@ public class MarshalTests extends TestCase
         Object obj = um_ctx.unmarshal(new FileInputStream(doc), options);
 
         inform("doc2-obj = " + obj);
-
-        for (Iterator itr = errors.iterator(); itr.hasNext();) {
-            XmlError xmlError = (XmlError)itr.next();
-            inform("doc2-ERROR: " + xmlError);
-        }
-
+        reportErrors(errors, "doc2-err");
         Assert.assertTrue(errors.isEmpty());
 
     }
@@ -1110,13 +1114,7 @@ public class MarshalTests extends TestCase
         MyClass mc = (MyClass)obj;
         MySubClass first = (MySubClass)mc.getMyelt().getMyClassArray()[0];
         Assert.assertEquals(DEFAULT_BIG_INT, first.getBigInt());
-
-
-        for (Iterator itr = errors.iterator(); itr.hasNext();) {
-            XmlError xmlError = (XmlError)itr.next();
-            inform("doc-ERROR: " + xmlError);
-        }
-
+        reportErrors(errors, "dco-err");
         Assert.assertTrue(errors.isEmpty());
     }
 
@@ -1307,5 +1305,10 @@ public class MarshalTests extends TestCase
     private static void inform(String msg)
     {
         if (VERBOSE) System.out.println(msg);
+    }
+
+    private static void error(String msg)
+    {
+        System.out.println(msg);
     }
 }

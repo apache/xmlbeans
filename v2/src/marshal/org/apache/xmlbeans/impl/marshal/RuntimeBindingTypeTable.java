@@ -17,6 +17,7 @@ package org.apache.xmlbeans.impl.marshal;
 
 import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.XmlException;
+import org.apache.xmlbeans.GDuration;
 import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
 import org.apache.xmlbeans.impl.binding.bts.BindingType;
 import org.apache.xmlbeans.impl.binding.bts.BindingTypeName;
@@ -245,9 +246,9 @@ final class RuntimeBindingTypeTable
                       java.net.URI.class,
                       new AnyUriToUriTypeConverter());
 
-        final StringTypeConverter string_conv = new StringTypeConverter();
         final Class str = String.class;
         addXsdBuiltin("anySimpleType", str, new AnySimpleTypeConverter());
+        final StringTypeConverter string_conv = new StringTypeConverter();
         addXsdBuiltin("string", str, string_conv);
         addXsdBuiltin("normalizedString", str, string_conv);
         addXsdBuiltin("token", str, string_conv);
@@ -259,27 +260,37 @@ final class RuntimeBindingTypeTable
         addXsdBuiltin("IDREF", str, string_conv);
         addXsdBuiltin("ENTITY", str, string_conv);
 
-        addXsdBuiltin("gDay", str, string_conv);
-        addXsdBuiltin("gMonth", str, string_conv);
-        addXsdBuiltin("gMonthDay", str, string_conv);
-        addXsdBuiltin("gYear", str, string_conv);
-        addXsdBuiltin("gYearMonth", str, string_conv);
+        final TypeConverter collapsing_string_conv =
+            CollapseStringTypeConverter.getInstance();
+
+        addXsdBuiltin("duration", str, collapsing_string_conv);
+        addXsdBuiltin("gDay", str, collapsing_string_conv);
+        addXsdBuiltin("gMonth", str, collapsing_string_conv);
+        addXsdBuiltin("gMonthDay", str, collapsing_string_conv);
+        addXsdBuiltin("gYear", str, collapsing_string_conv);
+        addXsdBuiltin("gYearMonth", str, collapsing_string_conv);
 
         addXsdBuiltin("anyURI",
                       str,
                       new AnyUriToStringTypeConverter());
 
         final Class str_array = (new String[0]).getClass();
+        final StringListArrayConverter string_list_array_conv =
+            new StringListArrayConverter();
         addXsdBuiltin("ENTITIES", str_array,
-                      new StringListArrayConverter());
+                      string_list_array_conv);
         addXsdBuiltin("IDREFS", str_array,
-                      new StringListArrayConverter());
+                      string_list_array_conv);
         addXsdBuiltin("NMTOKENS", str_array,
-                      new StringListArrayConverter());
+                      string_list_array_conv);
 
+        addXsdBuiltin("duration",
+                      GDuration.class,
+                      new DurationTypeConverter());
 
+        final Class calendar_class = java.util.Calendar.class;
         addXsdBuiltin("dateTime",
-                      java.util.Calendar.class,
+                      calendar_class,
                       new JavaCalendarTypeConverter(SchemaType.BTC_DATE_TIME));
 
         addXsdBuiltin("dateTime",
@@ -287,11 +298,11 @@ final class RuntimeBindingTypeTable
                       new JavaDateTypeConverter(SchemaType.BTC_DATE_TIME));
 
         addXsdBuiltin("time",
-                      java.util.Calendar.class,
+                      calendar_class,
                       new JavaCalendarTypeConverter(SchemaType.BTC_TIME));
 
         addXsdBuiltin("date",
-                      java.util.Calendar.class,
+                      calendar_class,
                       new JavaCalendarTypeConverter(SchemaType.BTC_DATE));
 
         addXsdBuiltin("date",
@@ -299,23 +310,23 @@ final class RuntimeBindingTypeTable
                       new JavaDateTypeConverter(SchemaType.BTC_DATE));
 
         addXsdBuiltin("gDay",
-                      java.util.Calendar.class,
+                      calendar_class,
                       new JavaCalendarTypeConverter(SchemaType.BTC_G_DAY));
 
         addXsdBuiltin("gMonth",
-                      java.util.Calendar.class,
+                      calendar_class,
                       new JavaCalendarTypeConverter(SchemaType.BTC_G_MONTH));
 
         addXsdBuiltin("gMonthDay",
-                      java.util.Calendar.class,
+                      calendar_class,
                       new JavaCalendarTypeConverter(SchemaType.BTC_G_MONTH_DAY));
 
         addXsdBuiltin("gYear",
-                      java.util.Calendar.class,
+                      calendar_class,
                       new JavaCalendarTypeConverter(SchemaType.BTC_G_YEAR));
 
         addXsdBuiltin("gYearMonth",
-                      java.util.Calendar.class,
+                      calendar_class,
                       new JavaCalendarTypeConverter(SchemaType.BTC_G_YEAR_MONTH));
 
 

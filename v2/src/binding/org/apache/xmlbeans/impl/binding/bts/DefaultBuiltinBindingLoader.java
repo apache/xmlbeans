@@ -57,6 +57,7 @@ public class DefaultBuiltinBindingLoader extends BuiltinBindingLoader {
     addPojoXml("ENTITIES", "java.lang.String[]");
 
     addPojoTwoWay("duration", "org.apache.xmlbeans.GDuration");
+    addPojo("duration", "java.lang.String");
 
     addPojoTwoWay("dateTime", "java.util.Calendar");
     addPojoJava("dateTime", "java.util.Date");
@@ -64,13 +65,18 @@ public class DefaultBuiltinBindingLoader extends BuiltinBindingLoader {
     addPojoXml("date", "java.util.Calendar");
     addPojo("date", "java.util.Date");
     addPojoXml("gYearMonth", "java.util.Calendar");
+    addPojo("gYearMonth", "java.lang.String");
     addPojoXml("gYear", "java.util.Calendar");
     addPojo("gYear", "int");
+    addPojo("gYear", "java.lang.String");
     addPojoXml("gMonthDay", "java.util.Calendar");
+    addPojo("gMonthDay", "java.lang.String");
     addPojoXml("gMonth", "java.util.Calendar");
     addPojo("gMonth", "int");
+    addPojo("gMonth", "java.lang.String");
     addPojoXml("gDay", "java.util.Calendar");
     addPojo("gDay", "int");
+    addPojo("gDay", "java.lang.String");
 
     addPojoTwoWay("boolean", "boolean");
     addPojoTwoWay("base64Binary", "byte[]");
