@@ -71,7 +71,7 @@ import java.io.PrintWriter;
  * the users' view of that data (which is write-only) from the provider's
  * view (which is read-only).</p>
  *
- * @author Patrick Calahan <pcal@bea.com>
+ * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
  */
 public interface JamServiceContext extends JamLogger {
 

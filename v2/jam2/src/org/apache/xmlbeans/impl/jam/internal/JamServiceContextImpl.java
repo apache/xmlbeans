@@ -37,7 +37,7 @@ import java.util.*;
  * <p>Takes settings from the user (through JamServiceParams) and exposes
  * them to the implementation (through JamServiceContext).</p>
  *
- * @author Patrick Calahan <pcal@bea.com>
+ * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
  */
 public class JamServiceContextImpl implements JamServiceContext,
   JamServiceParams, ElementContext

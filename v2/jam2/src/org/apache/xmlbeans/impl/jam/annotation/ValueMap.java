@@ -23,7 +23,7 @@ import java.util.Map;
  * <p>This is basically just read-only HashMap with typed accessor/converters
  * provided for convenience.</p>
  *
- * @author Patrick Calahan <pcal@bea.com>
+ * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
  */
 public class ValueMap {
 

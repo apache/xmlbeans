@@ -23,7 +23,7 @@ import org.apache.xmlbeans.impl.jam.editable.ESourcePosition;
 /**
  * <p>Implementation of JElement and EElement.</p>
  *
- * @author Patrick Calahan <pcal@bea.com>
+ * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
  */
 public abstract class ElementImpl implements EElement {
 

@@ -22,7 +22,7 @@ import java.net.URI;
 /**
  * <p>Implementation of JSourcePosition and ESourcePosition.</p>
  *
- * @author Patrick Calahan <pcal@bea.com>
+ * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
  */
 public final class SourcePositionImpl implements ESourcePosition {
 

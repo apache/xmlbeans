@@ -19,7 +19,7 @@ import org.apache.xmlbeans.impl.jam.editable.*;
 /**
  * <p>To be extended by classes which wish to traverse a set of JClasses.</p>
  *
- * @author Patrick Calahan <pcal@bea.com>
+ * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
  */
 public abstract class ElementVisitor {
 

@@ -30,7 +30,7 @@ import org.apache.xmlbeans.impl.jam.editable.*;
  *
  * I think this is going to include generics as well.
  *
- * @author Patrick Calahan <pcal@bea.com>
+ * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
  */
 public abstract class BuiltinClassImpl extends AnnotatedElementImpl
   implements EClass

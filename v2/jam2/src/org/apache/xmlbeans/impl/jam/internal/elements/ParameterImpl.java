@@ -26,7 +26,7 @@ import org.apache.xmlbeans.impl.jam.internal.classrefs.UnqualifiedJClassRef;
 /**
  * <p>Implementation of JParameter and EParameter.</p>
  *
- * @author Patrick Calahan <pcal@bea.com>
+ * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
  */
 public class ParameterImpl extends MemberImpl implements EParameter {
 

@@ -18,7 +18,7 @@ package org.apache.xmlbeans.impl.jam;
 /**
  * <p>Represents an exposed field on a Java class.</p>
  *
- * @author Patrick Calahan <pcal@bea.com>
+ * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
  */
 public interface JField extends JMember {
 

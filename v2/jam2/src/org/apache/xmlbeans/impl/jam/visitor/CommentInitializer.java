@@ -22,7 +22,7 @@ import java.util.*;
 
 /**
  *
- * @author Patrick Calahan <pcal@bea.com>
+ * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
  */
 public class CommentInitializer extends ElementVisitor {
 

@@ -22,7 +22,7 @@ import java.net.URI;
 /**
  * An editable description of a location in a source file.
  *
- * @author Patrick Calahan <pcal@bea.com>
+ * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
  */
 public interface ESourcePosition extends JSourcePosition {
 

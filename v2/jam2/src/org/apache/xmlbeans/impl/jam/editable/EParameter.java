@@ -20,7 +20,7 @@ import org.apache.xmlbeans.impl.jam.JParameter;
 
 /**
  *
- * @author Patrick Calahan <pcal@bea.com>
+ * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
  */
 public interface EParameter extends JParameter, EMember {
 

@@ -19,7 +19,7 @@ package org.apache.xmlbeans.impl.jam.annotation;
  * public methods on this class to initialize the proxy with annotation
  * values; those methods should not be called by user code.</p>
  *
- * @author Patrick Calahan <pcal@bea.com>
+ * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
  */
 public abstract class AnnotationProxy {
 

@@ -24,7 +24,7 @@ import java.lang.reflect.Method;
 
 /**
  *
- * @author Patrick Calahan <pcal@bea.com>
+ * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
  */
 public class ReflectingClassBuilder extends JamClassBuilder {
 

@@ -24,19 +24,27 @@ import java.io.IOException;
 import java.io.PrintWriter;
 
 /**
- * This is the normal entry point into the JAM subsystem.  JamServiceFactory
- * is a singleton factory which can create a new JamServiceParams and
- * JServices.  Here is a code sample that demonstrates how to use
- * JamServiceFactory.
+ * Start here!  This is the normal entry point into the JAM subsystem.
+ * JamServiceFactory is a singleton factory which can create a new
+ * JamServiceParams and JServices.  Here is a code sample that demonstrates
+ * how to use JamServiceFactory.
  *
  * <pre>
+ * // Get the factory singleton
  * JamServiceFactory factory = JamServiceFactory.getInstance();
+ *
+ * // Use the factory to create an object that we can use to specify what
+ * // java types we want to view
  * JamServiceParams params = factory.createServiceParams();
+ *
+ * // Include the classes under mypackage
  * params.includeSources(new File("c:/myproject/src","mypackage/*.java"));
+ *
+ * // Create a JamService, which will contain JClasses for the classes found in mypackage
  * JamService service = factory.createService(params);
  * </pre>
  *
- * @author Patrick Calahan <pcal@bea.com>
+ * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
  */
 public abstract class JamServiceFactory {
 

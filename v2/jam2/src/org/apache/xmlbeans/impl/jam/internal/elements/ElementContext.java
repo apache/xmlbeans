@@ -21,7 +21,7 @@ import org.apache.xmlbeans.impl.jam.provider.JamLogger;
 /**
  * <p>Context object required by every ElementImpl.</p>
  *
- * @author Patrick Calahan <pcal@bea.com>
+ * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
  */
 public interface ElementContext extends JamLogger {
 

@@ -18,7 +18,7 @@ package org.apache.xmlbeans.impl.jam;
 /**
  * Represents a method of a java class.
  *
- * @author Patrick Calahan <pcal@bea.com>
+ * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
  */
 public interface JMethod extends JInvokable {
 

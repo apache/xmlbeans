@@ -22,7 +22,7 @@ import org.apache.xmlbeans.impl.jam.JPackage;
  * <p>This is the JClass that is returned when a java type cannot be
  * resolved.  It has only a name.</p>
  *
- * @author Patrick Calahan <pcal@bea.com>
+ * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
  */
 public final class UnresolvedClassImpl extends BuiltinClassImpl {
 

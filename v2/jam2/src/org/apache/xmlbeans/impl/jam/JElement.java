@@ -27,7 +27,7 @@ import org.apache.xmlbeans.impl.jam.visitor.ElementVisitor;
  * nesting (as expressed by JSR175 nested structs or javadoc'ed
  * name-value pairs).</p>
  *
- * @author Patrick Calahan <pcal@bea.com>
+ * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
  */
 public abstract interface JElement {
 

@@ -24,7 +24,7 @@ import junit.framework.Assert;
  * Independent test structure representing a method.  Can be compared
  * to a JMethod.
  *
- * @author Patrick Calahan <pcal@bea.com>
+ * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
  */
 public class GoldenInvokable {
 

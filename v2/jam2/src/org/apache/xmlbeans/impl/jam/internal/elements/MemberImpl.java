@@ -23,7 +23,7 @@ import java.lang.reflect.Modifier;
 /**
  * <p>Implementation of JMember and EMenber.</p>
  *
- * @author Patrick Calahan <pcal@bea.com>
+ * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
  */
 public abstract class MemberImpl extends AnnotatedElementImpl implements EMember {
 

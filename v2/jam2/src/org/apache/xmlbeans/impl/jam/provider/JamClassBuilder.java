@@ -24,7 +24,7 @@ import org.apache.xmlbeans.impl.jam.internal.elements.ElementContext;
  * class.
  * </p>
  *
- * @author Patrick Calahan <pcal@bea.com>
+ * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
  */
 public abstract class JamClassBuilder {
 

@@ -27,7 +27,7 @@ package org.apache.xmlbeans.impl.jam;
  * <p>An array of JProperties for a given JClass can be retrieved
  * using the getProperties factory method.</p>
  *
- * @author Patrick Calahan <pcal@bea.com>
+ * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
  */
 public interface JProperty { //is it really an AnnotatedElement?
 
