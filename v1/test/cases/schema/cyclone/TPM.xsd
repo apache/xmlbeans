@@ -12,10 +12,10 @@
       WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
       See the License for the specific language governing permissions and
       limitations under the License.                      -->
-<!-- $Id: TPM.xsd,v 1.2 2004/02/14 07:13:39 cezar Exp $ -->
+<!-- $Id: TPM.xsd,v 1.3 2004/02/14 10:27:00 cezar Exp $ -->
 <xs:schema
-  targetNamespace="http://www.bea.com/2003/03/wli/tpm"
-  xmlns="http://www.bea.com/2003/03/wli/tpm"
+  targetNamespace="http://xml.apache.org/xmlbeans/2004/02/xmlbean/wli/tpm"
+  xmlns="http://xml.apache.org/xmlbeans/2004/02/xmlbean/wli/tpm"
   xmlns:xs="http://www.w3.org/2001/XMLSchema"
   xmlns:ds="http://www.w3.org/2000/09/xmldsig#"
   elementFormDefault="qualified">

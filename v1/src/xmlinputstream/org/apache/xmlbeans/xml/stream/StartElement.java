@@ -20,7 +20,7 @@ import java.util.Map;
  * The StartElement interface provides access to information about
  * start elements
  *
- * @since Weblogic XML Input Stream 1.0
+ *
  * @version 1.0
  * @see org.apache.xmlbeans.xml.stream.AttributeIterator
  */

@@ -18,7 +18,7 @@ package org.apache.xmlbeans.xml.stream;
 /**
  * This is the base element interface for handling markup events.
  *
- * @since Weblogic XML Input Stream 1.0
+ *
  * @version 1.0
  * @see org.apache.xmlbeans.xml.stream.CharacterData
  * @see org.apache.xmlbeans.xml.stream.ProcessingInstruction

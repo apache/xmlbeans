@@ -18,7 +18,7 @@ package org.apache.xmlbeans.xml.stream;
 /**
  * A marker interface for comment data
  *
- * @since Weblogic XML Input Stream 1.0
+ *
  * @version 1.0
  * @see org.apache.xmlbeans.xml.stream.XMLEvent
 */

@@ -18,7 +18,7 @@ package org.apache.xmlbeans.xml.stream;
 /**
  * An interface that contains information about an attribute
  *
- * @since Weblogic XML Input Stream 1.0
+ *
  * @version 1.0
  * @see org.apache.xmlbeans.xml.stream.XMLName
  * @see org.apache.xmlbeans.xml.stream.Attribute

@@ -19,7 +19,7 @@ package org.apache.xmlbeans.xml.stream;
  * This element returns whitespace characters to allow separate
  * handling by the application
  *
- * @since Weblogic XML Input Stream 1.0
+ *
  * @version 1.0
  */
 public interface Space extends CharacterData {
