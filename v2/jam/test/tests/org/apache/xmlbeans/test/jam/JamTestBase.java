@@ -58,16 +58,24 @@ package org.apache.xmlbeans.test.jam;
 import junit.framework.TestCase;
 import org.apache.xmlbeans.impl.jam.*;
 import org.apache.xmlbeans.impl.jam.xml.JamXmlWriter;
+import org.w3c.dom.Document;
 
 import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLInputFactory;
-import javax.xml.stream.XMLStreamReader;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.io.FileReader;
+import java.io.StringReader;
+import java.io.InputStream;
 import java.io.Writer;
 import java.util.*;
+
+import com.sun.org.apache.xml.internal.serialize.XMLSerializer;
+import com.sun.org.apache.xml.internal.serialize.OutputFormat;
 
 /**
  * <p>Abstract base class for basic jam test cases.  These test cases work
@@ -83,6 +91,7 @@ public abstract class JamTestBase extends TestCase {
   // ========================================================================
   // Constants
 
+  private static final boolean WRITE_MASTER_ON_FAIL = true;
 
   protected static final String
           DUMMY = "org.apache.xmlbeans.test.jam.dummyclasses";
@@ -90,6 +99,7 @@ public abstract class JamTestBase extends TestCase {
   //this array must contain the names of all of the test classes under
   //dummyclasses
   private static final String[] ALL_CLASSES = {
+    "DefaultPackageClass",
     DUMMY+".ejb.IEnv",
     DUMMY+".ejb.MyEjbException",
     DUMMY+".ejb.TraderEJB",
@@ -188,6 +198,8 @@ public abstract class JamTestBase extends TestCase {
 
   protected abstract boolean isCommentsAvailable();
 
+  protected abstract File getMasterDir();
+
   // ========================================================================
   // Utility methods
 
@@ -222,6 +234,7 @@ public abstract class JamTestBase extends TestCase {
     for(int i=0; i<classes.length; i++) {
       resolved(classes[i]);
       classNames.add(classes[i].getQualifiedName());
+      //System.out.println("-- "+classes[i].getQualifiedName());
     }
     List expected = Arrays.asList(ALL_CLASSES);
     assertTrue("result does not contain all expected classes",
@@ -233,7 +246,7 @@ public abstract class JamTestBase extends TestCase {
 
   public void test175Annotations() throws IOException, XMLStreamException {
     JClass clazz = resolved(mLoader.loadClass(DUMMY+".jsr175.AnnotatedClass"));
-    dump(clazz);
+    //dump(clazz);
   }
 
   public void testRecursiveResolve() {
@@ -347,7 +360,6 @@ public abstract class JamTestBase extends TestCase {
   public void testMultipleTags() {
     if (!isAnnotationsAvailable()) return;
     JClass mt = resolved(mLoader.loadClass(DUMMY+".MultipleTags"));
-    compare(mt,"testMultipleTags.xml");
     JMethod method = mt.getMethods()[0];
     assertTrue(method.getAllJavadocTags().length == 6);
     assertTrue(method.getAllJavadocTags("foo").length == 4);
@@ -355,6 +367,7 @@ public abstract class JamTestBase extends TestCase {
     assertTrue(method.getAllJavadocTags("bar").length == 1);
     assertTrue(method.getAllJavadocTags("bar")[0].getValue("x").asInt() == -4343);
     assertTrue(method.getAllJavadocTags("baz").length == 1);
+    compare(mt,"testMultipleTags.xml");
   }
 
 
@@ -363,7 +376,70 @@ public abstract class JamTestBase extends TestCase {
   // Private methods
 
   private void compare(JElement element, String masterName) {
-    dump(element);//FIXME
+    try {
+      String result = null;
+      {
+        StringWriter resultWriter = new StringWriter();
+        PrintWriter out = new PrintWriter(resultWriter,true);
+        JamXmlWriter jxw = null;
+        jxw = new JamXmlWriter(out);
+        jxw.write(element);
+        out.flush();
+        try {
+          System.out.println("--------------- "+resultWriter.toString());
+          result = prettyPrint(resultWriter.toString());
+        } catch(Exception e) {
+          e.printStackTrace();
+          System.err.flush();
+          System.out.println("Problem with result:");
+          System.out.println(resultWriter.toString());
+          System.out.flush();
+          fail("failed to parse result");
+          return;
+        }
+      }
+      File masterFile = new File(getMasterDir(),masterName);
+      FileReader inA = new FileReader(masterFile);
+      StringReader inB = new StringReader(result);
+      StringWriter diff = new StringWriter();
+      boolean same = JamDiffer.getInstance().diff(inA,inB,diff);
+      if (same) return;
+      if (WRITE_MASTER_ON_FAIL) {
+        File expected = new File(getMasterDir(),"expected-"+masterName);
+        FileWriter eout = new FileWriter(expected);
+        eout.write(result);
+        eout.close();
+      }
+      fail("Result did not match master at "+masterFile+":\n"+
+           diff.toString());
+    } catch(XMLStreamException xse) {
+      xse.printStackTrace();
+      fail(xse.getMessage());
+    } catch(IOException ioe) {
+      ioe.printStackTrace();
+      fail(ioe.getMessage());
+    }
+  }
+
+  private String prettyPrint(String xml) throws Exception {
+    return xml;//FIXME
+    //FIXME StringBufferInputStream is bad
+    //return prettyPrint(new StringBufferInputStream(xml));
+  }
+
+  //all this work just because the 173 RI won't pretty print
+  private String prettyPrint(InputStream in)  throws Exception {
+    StringWriter s = new StringWriter();
+    DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+    DocumentBuilder builder = factory.newDocumentBuilder();
+    Document doc = builder.parse(in);
+    OutputFormat format = new OutputFormat(doc);
+
+    //format.setIndenting(true);
+    //format.setIndent(2);
+    XMLSerializer serializer = new FixedXMLSerializer(s, format);
+    serializer.serialize(doc);
+    return s.toString();
   }
 
 
@@ -433,19 +509,23 @@ public abstract class JamTestBase extends TestCase {
                 a == null);
   }
 
-  private void dump(JElement j) {
-    Writer out = new PrintWriter(System.out,true);
-    JamXmlWriter jxw = null;
-    try {
-      jxw = new JamXmlWriter(out);
-      jxw.write(j);
-      out.flush();
-    } catch (IOException e) {
-      e.printStackTrace();
-    } catch (XMLStreamException e) {
-      e.printStackTrace();
-    }
+  private void dump(JElement j, PrintWriter out) throws XMLStreamException {
   }
 
+
+
+  //THIS IS A HACK to fix Sun's stupid bug for them
+  private class FixedXMLSerializer extends XMLSerializer {
+    public FixedXMLSerializer( Writer writer, OutputFormat format ) {
+      super(writer,format);
+    }
+
+    protected boolean getFeature(String feature){
+      if (fFeatures == null) return false;
+      Boolean b = (Boolean)fFeatures.get(feature);
+      if (b == null) return false;
+      return b.booleanValue();
+    }
+  }
 
 }

@@ -60,18 +60,19 @@ import org.apache.xmlbeans.impl.jam.JamServiceParams;
 import org.apache.xmlbeans.impl.jam.JamService;
 
 import java.io.IOException;
+import java.io.File;
 
 /**
  * Runs the JamTestBase cases by loading the types from source.
  *
  * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
  */
-public class ClassesJamTest extends JamTestBase {
+public class ReflectJamTest extends JamTestBase {
 
   // ========================================================================
   // Constructors
 
-  public ClassesJamTest(String name) {
+  public ReflectJamTest(String name) {
     super(name);
   }
 
@@ -94,4 +95,6 @@ public class ClassesJamTest extends JamTestBase {
   protected boolean isCommentsAvailable() {
     return false;
   }
+
+  protected File getMasterDir() { return new File("masters/reflect"); }
 }

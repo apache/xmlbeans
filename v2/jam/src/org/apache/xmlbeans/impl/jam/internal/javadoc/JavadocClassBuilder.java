@@ -145,16 +145,13 @@ public class JavadocClassBuilder extends JamClassBuilder {
     if (getLogger().isVerbose(this)) {
       getLogger().verbose("trying to build '"+packageName+"' '"+className+"'");
     }
-    String cn = packageName.trim();
-    if (cn.length() == 0) {
-      cn = className;
-    } else {
-      cn = packageName + "." +className;
-    }
-    ClassDoc cd = mRootDoc.classNamed(cn);
+    String loadme = (packageName.trim().length() > 0) ?
+      (packageName + '.'  + className) :
+      className;
+    ClassDoc cd = mRootDoc.classNamed(loadme);
     if (cd == null) {
-      if (getLogger().isVerbose(this)) {
-        mServiceContext.getLogger().verbose("no ClassDoc for "+cn);
+      if (true || getLogger().isVerbose(this)) {
+        getLogger().verbose("no ClassDoc for "+loadme);
       }
       return null;
     }
@@ -259,7 +256,11 @@ public class JavadocClassBuilder extends JamClassBuilder {
         out.write(primFd);
       } else {
         out.write("L");
-        out.write(t.asClassDoc().qualifiedName());
+        if (t.asClassDoc() != null) {
+          out.write(t.asClassDoc().qualifiedName());
+        } else {
+          out.write(t.qualifiedTypeName());
+        }
         out.write(";");
       }
       return out.toString();

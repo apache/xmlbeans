@@ -47,7 +47,8 @@ public final class UnresolvedClassImpl extends BuiltinClassImpl {
   // JClass elements
 
   public String getQualifiedName() {
-    return mPackageName+"."+getSimpleName();
+    return ((mPackageName.length() > 0) ? (mPackageName + '.') : "") +
+      mSimpleName;
   }
 
   public String getFieldDescriptor() { return getQualifiedName(); }

@@ -20,6 +20,7 @@ import org.apache.xmlbeans.impl.jam.JamServiceParams;
 import org.apache.xmlbeans.impl.jam.provider.JamServiceFactoryImpl;
 
 import java.io.IOException;
+import java.io.File;
 
 /**
  *
@@ -55,5 +56,9 @@ public class ParserJamTest extends JamTestBase {
 
   protected boolean isCommentsAvailable() {
     return true;
+  }
+
+  protected File getMasterDir() {
+    return new File("masters/parser");
   }
 }

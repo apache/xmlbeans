@@ -80,7 +80,7 @@ public class ClassImpl extends MemberImpl implements MClass,
                    String[] importSpecs) {
     super(ctx);
     super.setSimpleName(simpleName);
-    mPackageName = packageName;
+    mPackageName = packageName.trim();
     mImports = importSpecs;
   }
 
@@ -204,7 +204,15 @@ public class ClassImpl extends MemberImpl implements MClass,
   // MClass implementation
 
   public void setSuperclass(String qualifiedClassName) {
-    mSuperClassRef = QualifiedJClassRef.create(qualifiedClassName, this);
+    if (qualifiedClassName == null) {
+      mSuperClassRef = null;
+    } else {
+      if (qualifiedClassName.equals(getQualifiedName())) {
+        throw new IllegalArgumentException
+          ("A class cannot be it's own superclass: '"+qualifiedClassName+"'");
+      }
+      mSuperClassRef = QualifiedJClassRef.create(qualifiedClassName, this);
+    }
   }
 
   public void setSuperclassUnqualified(String unqualifiedClassName) {
@@ -221,12 +229,17 @@ public class ClassImpl extends MemberImpl implements MClass,
 
   public void addInterface(JClass interf) {
     if (interf == null) throw new IllegalArgumentException("null interf");
+
     addInterface(interf.getQualifiedName());
   }
 
-  public void addInterface(String qcname) {
+  public void addInterface(String qcName) {
     if (mInterfaceRefs == null) mInterfaceRefs = new ArrayList();
-    mInterfaceRefs.add(QualifiedJClassRef.create(qcname,this));
+    if (qcName.equals(getQualifiedName())) {
+      throw new IllegalArgumentException
+        ("A class cannot implement itself: '"+qcName+"'");
+    }
+    mInterfaceRefs.add(QualifiedJClassRef.create(qcName,this));
   }
 
   public void addInterfaceUnqualified(String ucname) {
@@ -332,7 +345,8 @@ public class ClassImpl extends MemberImpl implements MClass,
   public void setIsAnnotationType(boolean b) { mIsAnnotationType = b; }
 
   public String getQualifiedName() {
-    return mPackageName+ '.' +mSimpleName;
+    return ((mPackageName.length() > 0) ? (mPackageName + '.') : "") +
+      mSimpleName;
   }
 
   // ========================================================================
@@ -418,33 +432,26 @@ public class ClassImpl extends MemberImpl implements MClass,
     return false;
   }
 
-  private static void addFieldsRecursively(JClass clazz, Collection out) {
+  private void addFieldsRecursively(JClass clazz, Collection out) {
     JField[] fields = clazz.getDeclaredFields();
     for (int i = 0; i < fields.length; i++) out.add(fields[i]);
-    if (clazz.isInterface()) {
-      JClass[] ints = clazz.getInterfaces();
-      for (int i = 0; i < ints.length; i++) {
-        addFieldsRecursively(ints[i], out);
-      }
-    } else {
-      clazz = clazz.getSuperclass();
-      if (clazz != null) addFieldsRecursively(clazz, out);
+    JClass[] ints = clazz.getInterfaces();
+    for (int i = 0; i < ints.length; i++) {
+      addFieldsRecursively(ints[i], out);
     }
+    clazz = clazz.getSuperclass();
+    if (clazz != null) addFieldsRecursively(clazz, out);
   }
 
-  private static void addMethodsRecursively(JClass clazz, Collection out) {
+  private void addMethodsRecursively(JClass clazz, Collection out) {
     JMethod[] methods = clazz.getDeclaredMethods();
     for (int i = 0; i < methods.length; i++) out.add(methods[i]);
-    if (clazz.isInterface()) {
-      JClass[] ints = clazz.getInterfaces();
-      for (int i = 0; i < ints.length; i++) {
-        addMethodsRecursively(ints[i], out);
-      }
-    } else {
-      clazz = clazz.getSuperclass();
-      if (clazz != null) addMethodsRecursively(clazz, out);
+    JClass[] ints = clazz.getInterfaces();
+    for (int i = 0; i < ints.length; i++) {
+      addMethodsRecursively(ints[i], out);
     }
+    clazz = clazz.getSuperclass();
+    if (clazz != null) addMethodsRecursively(clazz, out);
   }
-
 
 }

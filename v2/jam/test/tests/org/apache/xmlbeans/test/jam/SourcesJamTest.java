@@ -59,7 +59,6 @@ import org.apache.xmlbeans.impl.jam.JamServiceFactory;
 import org.apache.xmlbeans.impl.jam.JamServiceParams;
 import org.apache.xmlbeans.impl.jam.JamService;
 import org.apache.xmlbeans.impl.jam.internal.javadoc.JavadocClassBuilder;
-import org.apache.xmlbeans.impl.jam.internal.javadoc.JavadocRunner;
 
 import java.io.IOException;
 import java.io.File;
@@ -86,6 +85,7 @@ public class SourcesJamTest extends JamTestBase {
     JamServiceParams params = jsf.createServiceParams();
 //    params.setVerbose(JavadocRunner.class);
 //    params.setVerbose(JavadocClassBuilder.class);
+//    params.setVerbose(DirectoryScanner.class);
 //    params.includeSourceFile(new File("x:\\xml-xmlbeans\\v2\\jam\\test\\dummyclasses\\org\\apache\\xmlbeans\\test\\jam\\dummyclasses\\MyException.java"));
     params.includeSourcePattern(getDummyclassesSourcepath(),"**/*.java");
 
@@ -104,4 +104,6 @@ public class SourcesJamTest extends JamTestBase {
   protected boolean isCommentsAvailable() {
     return true;
   }
+
+  protected File getMasterDir() { return new File("masters/javadoc"); }
 }

@@ -77,7 +77,10 @@ public class ReflectClassBuilder extends JamClassBuilder {
   {
     Class rclass;
     try {
-      rclass = mLoader.loadClass(packageName+"."+className);
+      String loadme = (packageName.trim().length() > 0) ?
+        (packageName + '.'  + className) :
+        className;
+      rclass = mLoader.loadClass(loadme);
     } catch(ClassNotFoundException cnfe) {
      getLogger().verbose(cnfe,this);
       return null;
