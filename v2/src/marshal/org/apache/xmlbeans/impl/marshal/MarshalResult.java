@@ -60,6 +60,7 @@ import org.apache.xmlbeans.impl.binding.bts.BindingType;
 import org.apache.xmlbeans.impl.binding.bts.ByNameBean;
 import org.apache.xmlbeans.impl.binding.bts.SimpleBindingType;
 import org.apache.xmlbeans.impl.binding.bts.BuiltinBindingType;
+import org.apache.xmlbeans.impl.common.XmlStreamUtils;
 
 import javax.xml.namespace.NamespaceContext;
 import javax.xml.namespace.QName;
@@ -108,83 +109,38 @@ final class MarshalResult implements XMLStreamReader
 
     public int next() throws XMLStreamException
     {
-        int retval = -1;
-
-        final int curr_state = currVisitor.getState();
-        switch (curr_state) {
+        switch (currVisitor.getState()) {
             case XmlTypeVisitor.START:
-                {
-                    final int next_state = currVisitor.advance();
-                    switch (next_state) {
-                        case XmlTypeVisitor.CONTENT:
-                            pushVisitor(currVisitor);
-                            currVisitor = currVisitor.getCurrentChild();
-                            retval = START_ELEMENT;
-                            break;
-                        case XmlTypeVisitor.CHARS:
-                            pushVisitor(currVisitor);
-                            currVisitor = currVisitor.getCurrentChild();
-                            retval = CHARACTERS;
-                            break;
-                        case XmlTypeVisitor.END:
-                            retval = END_ELEMENT;
-                            break;
-                        default:
-                            throw new AssertionError("bad state: " + curr_state);
-                    }
-                }
                 break;
             case XmlTypeVisitor.CHARS:
-                {
-                    currVisitor = popVisitor();
-                    final int next_state = currVisitor.advance();
-                    switch (next_state) {
-                        case XmlTypeVisitor.CONTENT:
-                            pushVisitor(currVisitor);
-                            currVisitor = currVisitor.getCurrentChild();
-                            retval = START_ELEMENT;
-                            break;
-                        case XmlTypeVisitor.CHARS:
-                            pushVisitor(currVisitor);
-                            currVisitor = currVisitor.getCurrentChild();
-                            retval = CHARACTERS;
-                        case XmlTypeVisitor.END:
-                            retval = END_ELEMENT;
-                            break;
-                        default:
-                            throw new AssertionError("bad state: " + curr_state);
-                    }
-                }
-                break;
             case XmlTypeVisitor.END:
-                {
-                    currVisitor = popVisitor();
-                    final int next_state = currVisitor.advance();
-                    switch (next_state) {
-                        case XmlTypeVisitor.CONTENT:
-                            pushVisitor(currVisitor);
-                            currVisitor = currVisitor.getCurrentChild();
-                            retval = START_ELEMENT;
-                            break;
-                        case XmlTypeVisitor.CHARS:
-                            pushVisitor(currVisitor);
-                            currVisitor = currVisitor.getCurrentChild();
-                            retval = CHARACTERS;
-                        case XmlTypeVisitor.END:
-                            retval = END_ELEMENT;
-                            break;
-                         default:
-                            throw new AssertionError("bad state: " + curr_state);
-                    }
-                }
+                currVisitor = popVisitor();
                 break;
             default:
-                throw new AssertionError("unknown state: " + curr_state);
+                throw new AssertionError("invalid: " + currVisitor.getState());
         }
 
-        assert retval != -1;
-        currentEventType = retval;
-        return retval;
+        return (currentEventType = advanceToNext());
+    }
+
+
+    private int advanceToNext()
+    {
+        final int next_state = currVisitor.advance();
+        switch (next_state) {
+            case XmlTypeVisitor.CONTENT:
+                pushVisitor(currVisitor);
+                currVisitor = currVisitor.getCurrentChild();
+                return START_ELEMENT;
+            case XmlTypeVisitor.CHARS:
+                pushVisitor(currVisitor);
+                currVisitor = currVisitor.getCurrentChild();
+                return CHARACTERS;
+            case XmlTypeVisitor.END:
+                return END_ELEMENT;
+            default:
+                throw new AssertionError("bad state: " + next_state);
+        }
     }
 
     private void pushVisitor(XmlTypeVisitor v)
@@ -240,12 +196,12 @@ final class MarshalResult implements XMLStreamReader
 
     public boolean isStartElement()
     {
-        throw new UnsupportedOperationException("UNIMPLEMENTED");
+        return currentEventType == START_ELEMENT;
     }
 
     public boolean isEndElement()
     {
-        throw new UnsupportedOperationException("UNIMPLEMENTED");
+        return currentEventType == END_ELEMENT;
     }
 
     public boolean isCharacters()
@@ -331,14 +287,13 @@ final class MarshalResult implements XMLStreamReader
 
     public String getText()
     {
-        throw new UnsupportedOperationException("UNIMPLEMENTED");
-
+        CharSequence seq = currVisitor.getCharData();
+        return seq.toString();
     }
 
     public char[] getTextCharacters()
     {
-        CharSequence seq = currVisitor.getCharData();
-        return seq.toString().toCharArray();
+        return getText().toCharArray();
     }
 
     public int getTextCharacters(int i, char[] chars, int i1, int i2)
@@ -428,9 +383,14 @@ final class MarshalResult implements XMLStreamReader
         throw new IllegalStateException();
     }
 
-
-    private void warn(String s)
+    public String toString()
     {
-        System.err.println("WARNING: " + s);
+        return "org.apache.xmlbeans.impl.marshal.MarshalResult{" +
+            "currentEvent=" + XmlStreamUtils.printEvent(this) +
+            ", visitorStack=" + (visitorStack == null ? null : "size:" + visitorStack.size() + visitorStack) +
+            ", currVisitor=" + currVisitor +
+            "}";
     }
+
+
 }

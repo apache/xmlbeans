@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<bin:binding-config xmlns:java="java:com.mytest" xmlns:bin="http://xmlbeans.apache.org/2003/09/binding-config">
+<bin:binding-config xmlns:java="java:com.mytest" xmlns:bin="http://xml.apache.org/xmlbeans/binding-config">
   <bin:bindings>
     <bin:binding-type xsi:type="bin:by-name-bean" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
       <bin:xmlcomponent>t=YourClass@java:com.mytest</bin:xmlcomponent>

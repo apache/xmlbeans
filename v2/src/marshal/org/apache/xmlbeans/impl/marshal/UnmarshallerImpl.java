@@ -99,7 +99,6 @@ class UnmarshallerImpl
         final BindingType bindingType = determineRootType(context);
 
         return unmarshalBindingType(bindingType, context);
-
     }
 
     private Object unmarshalBindingType(final BindingType bindingType,

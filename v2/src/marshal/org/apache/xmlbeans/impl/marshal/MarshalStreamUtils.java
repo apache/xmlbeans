@@ -169,8 +169,8 @@ final class MarshalStreamUtils
 
     /**
      * go to next start element.  if reader is sitting on a start element
-     * then no advancing will be done.  returns false if we hit and end element,
-     * otherwise returns true
+     * then no advancing will be done.  returns false if we hit an end element,
+     * or the end of the steam, otherwise returns true
      *
      * @param reader
      * @return
@@ -202,13 +202,14 @@ final class MarshalStreamUtils
             throw new XmlRuntimeException(e);
         }
 
-        throw new XmlRuntimeException("unexpected end of xml stream");
+        //end of the steam
+        return false;
     }
 
     /**
      * Skip current element node and all its contents.
      * Reader must be on start element.
-     * Skips to the matching end element (not past it).
+     * Skips just past the matching end element.
      * We are just counting start/end -- the parser is
      * dealing with well-formedness.
      *
@@ -231,6 +232,8 @@ final class MarshalStreamUtils
                         throw new XmlRuntimeException("unexpected end of xml document");
                     case XMLStreamReader.END_ELEMENT:
                         if (cnt == 0) {
+                            assert reader.hasNext();
+                            reader.next();
                             return;
                         } else {
                             cnt--;

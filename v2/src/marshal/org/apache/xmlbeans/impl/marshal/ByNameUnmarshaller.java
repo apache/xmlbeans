@@ -58,6 +58,12 @@ package org.apache.xmlbeans.impl.marshal;
 
 import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
 import org.apache.xmlbeans.impl.binding.bts.ByNameBean;
+import org.apache.xmlbeans.impl.common.XmlStreamUtils;
+import org.apache.xmlbeans.XmlRuntimeException;
+
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
+import javax.xml.namespace.QName;
 
 final class ByNameUnmarshaller implements TypeUnmarshaller
 {
@@ -82,14 +88,52 @@ final class ByNameUnmarshaller implements TypeUnmarshaller
         throw new UnsupportedOperationException();
     }
 
+    //TODO: cleanup this code.  We are doing extra work for assertion checking
     private void deserializeContents(Object inter, UnmarshalContext context)
     {
+        final XMLStreamReader xmlStream = context.getXmlStream();
+        assert xmlStream.isStartElement();
+        final QName ourStartName = xmlStream.getName();
+        try {
+            //move past our current start element
+            xmlStream.next();
+        }
+        catch (XMLStreamException e) {
+            throw new XmlRuntimeException(e);
+        }
+
         while (context.advanceToNextStartElement()) {
-            assert context.getXmlStream().isStartElement();
+            assert xmlStream.isStartElement();
 
             RuntimeBindingProperty prop = findMatchingElementProperty(context);
-            if (prop != null) fillElementProp(prop, context, inter);
+            if (prop == null) {
+                context.skipElement();
+            } else {
+                //TODO: implement first one wins?, this is last one wins
+                fillElementProp(prop, context, inter);
+            }
+
         }
+
+        assert xmlStream.isEndElement();
+        final QName ourEndName = xmlStream.getName();
+        assert ourStartName.equals(ourEndName) :
+            "expected=" + ourStartName + " got=" + ourEndName;
+
+        try {
+            if (xmlStream.hasNext()) xmlStream.next();
+        }
+        catch (XMLStreamException e) {
+            throw new XmlRuntimeException(e);
+        }
+    }
+
+    //debugging only method
+    private void dumpState(UnmarshalContext context, String str)
+    {
+        System.out.println(str + "=" +
+                           XmlStreamUtils.printEvent(context.getXmlStream()) +
+                           " THIS="+this);
     }
 
 
