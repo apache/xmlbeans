@@ -93,6 +93,7 @@ public class GlobalEltNillable extends BaseCase {
         GlobalEltNillableFixedDocument testElt = GlobalEltNillableFixedDocument
                 .Factory.parse("<GlobalEltNillableFixed" +
                 "   xmlns=\"http://xbean/scomp/element/GlobalEltNillable\"" +
+                "  xsi:nillable=\"true\"" +
                 "/>");
         assertTrue(!testElt.validate(validateOptions));
         assertEquals(1, errorList.size());

@@ -50,14 +50,7 @@
         </xsd:unique>
     </xsd:element>
 
-    <xsd:element name="KeyProductList" type="OtherProductListType">
-        <xsd:unique name="deptProdKey">
-            <xsd:selector xpath="con:product"/>
-            <xsd:field xpath="con:department/@con:name"/>
-            <xsd:field xpath="con:id"/>
-        </xsd:unique>
-    </xsd:element>
-
+    <xsd:element name="KeyProductList" type="OtherProductListType" />
 
     <xsd:complexType name="OrderType">
         <xsd:sequence>
@@ -65,8 +58,8 @@
             <xsd:sequence maxOccurs="unbounded">
                 <xsd:element name="item">
                     <xsd:complexType>
-                         <xsd:attribute name="SKU"/>
-                         <xsd:attribute name="deptId"/>
+                        <xsd:attribute name="SKU" type="xsd:token"/>
+                        <xsd:attribute name="deptId"/>
                     </xsd:complexType>
                 </xsd:element>
             </xsd:sequence>
@@ -79,16 +72,23 @@
             <xsd:sequence>
                 <xsd:element ref="KeyProductList"/>
                 <xsd:sequence maxOccurs="unbounded">
-                    <xsd:element name="order" type="OrderType">
-                        <xsd:keyref name="ProdRef" refer="deptProdKey">
-                            <xsd:selector xpath="con:item"/>
-                            <xsd:field xpath="@con:deptId"/>
-                            <xsd:field xpath="@con:SKU"/>
-                        </xsd:keyref>
-                    </xsd:element>
+                    <xsd:element name="order" type="OrderType" />
                 </xsd:sequence>
             </xsd:sequence>
         </xsd:complexType>
+
+        <xsd:keyref name="ProdRef" refer="deptProdKey">
+            <xsd:selector xpath="con:order/con:item"/>
+            <xsd:field xpath="@con:deptId"/>
+            <xsd:field xpath="@con:SKU"/>
+        </xsd:keyref>
+
+        <xsd:key name="deptProdKey">
+            <xsd:selector xpath="con:KeyProductList/con:product"/>
+            <xsd:field xpath="con:department/@con:name"/>
+            <xsd:field xpath="con:id"/>
+        </xsd:key>
+
     </xsd:element>
 
 

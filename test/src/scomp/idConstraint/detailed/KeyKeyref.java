@@ -206,7 +206,9 @@ public class KeyKeyref extends BaseCase {
 
     }
 
-    //ref non-existing key
+    // Invalid xml instance with 2 problems :
+    // a) the values for the key & key ref elems are not the same
+    // b) The keyref/key elems are duplicated
     public void testKeyRefIllegal() throws Throwable {
 
         String input =
@@ -216,21 +218,21 @@ public class KeyKeyref extends BaseCase {
                 " <con:department con:name=\"Marketing\"/>" +
                 " <con:id>FooBarChart</con:id>" +
                 "</con:product>" +
-                "<con:product>" +
-                " <con:department con:name=\"7345\"/>" +
+                " <con:product>" +
+                " <con:department con:name=\"Marketing\"/>" +
                 " <con:id>FooBarChart</con:id>" +
                 "</con:product>" +
                 "</con:KeyProductList>" +
                 "<con:order>" +
                 "   <con:customerName>Bozo</con:customerName>" +
                 "   <con:item con:deptId=\"7345\"" +
-                "   con:SKU=\"FooBarChart\">" +
+                "   con:SKU=\"ID1\">" +
                 "  </con:item>" +
                 "</con:order>" +
                 "<con:order>" +
-                "   <con:customerName>Marketing</con:customerName>" +
+                "   <con:customerName>Bozo</con:customerName>" +
                 "   <con:item con:deptId=\"7345\"" +
-                "   con:SKU=\"FooBarChart\">" +
+                "   con:SKU=\"ID1\">" +
                 "  </con:item>" +
                 "</con:order>" +
                 "</con:CompanyDB>";
@@ -239,7 +241,7 @@ public class KeyKeyref extends BaseCase {
         assertTrue(!doc.validate(validateOptions));
         showErrors();
         String[] errExpected = new String[]{
-            XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID
+            XmlErrorCodes.IDENTITY_CONSTRAINT_VALID$DUPLICATE_KEY
         };
         assertTrue(compareErrorCodes(errExpected));
 
