@@ -38,7 +38,7 @@
     <property name="xbeans.test.tools.src" value="${xbeans.test.tools}/src"/>
     <property name="build.dir.test.marshalling" value="${build.dir.test}/classes/marshal"/>
 
-    <property name="asserts" value="on"/>
+    <property name="asserts" value="off"/>
 
     <!-- End of testenv.properties -->
 
@@ -851,6 +851,7 @@
             </classpath>
 
             <jvmarg value="-Xmx256m"/>
+            <jvmarg value="${asserts.value}"/>
 
             <!-- For tests that need to access case files directly -->
             <sysproperty key="cases.location" path="${xbeans.test.cases.test.files}"/>
