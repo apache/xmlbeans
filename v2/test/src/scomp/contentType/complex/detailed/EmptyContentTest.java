@@ -36,9 +36,17 @@ public class EmptyContentTest extends BaseCase {
         elt.setEmptyAttr("foobar");
         assertTrue(elt.isSetEmptyAttr());
         assertEquals("foobar", elt.getEmptyAttr());
+
         XmlString expected=XmlString.Factory.newInstance();
         expected.setStringValue("foobar");
-        assertEquals( expected, elt.xgetEmptyAttr());
+
+        XmlString expected1=XmlString.Factory.newInstance();
+        expected1.setStringValue("foobar");
+
+        System.out.println( expected.equals(expected1));
+       //ERIC says this is a    BUG
+        assertEquals( expected , elt.xgetEmptyAttr());
+
         elt.unsetEmptyAttr();
         assertTrue(!elt.isSetEmptyAttr());
         assertTrue(elt.validate());     
