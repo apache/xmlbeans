@@ -7,11 +7,14 @@
   <target name="usage">
     <echo message="The following ant targets are defined:"/>
     <echo message="usage    - this help text"/>
-    <echo message="build    - builds our public interface jars so others can compile"/>
     <echo message="deploy   - builds our implementation jar (xbean.jar)"/>
     <echo message="clean    - cleans out the xbeans directories"/>
     <echo message="builddrt - builds, but does not run, the xbean drt"/>
     <echo message="drt      - runs the xbean drt"/>
+  </target>
+
+  <target name="java_version">
+    <echo message="${java.version}" />
   </target>
 
   <target name="clean">
