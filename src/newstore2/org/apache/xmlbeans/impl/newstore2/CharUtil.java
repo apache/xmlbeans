@@ -12,10 +12,10 @@
  *   See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
 package org.apache.xmlbeans.impl.newstore2;
 
 import java.io.PrintStream;
+import java.lang.ref.SoftReference;
 
 public final class CharUtil
 {
@@ -38,7 +38,14 @@ public final class CharUtil
 
     public static CharUtil getThreadLocalCharUtil ( )
     {
-        return (CharUtil) tl_charUtil.get();
+        SoftReference softRef = (SoftReference)tl_charUtil.get();
+        CharUtil charUtil = (CharUtil) softRef.get();
+        if (charUtil==null)
+        {
+            charUtil = new CharUtil( CHARUTIL_INITIAL_BUFSIZE );
+            tl_charUtil.set(new SoftReference(charUtil));
+        }
+        return charUtil;
     }
 
     public static void getString ( StringBuffer sb, Object src, int off, int cch )
@@ -890,9 +897,10 @@ public final class CharUtil
         private String _string;  // Cached leaf - either a char[] or a string
         private char[] _chars;
     }
-    
+
+    private static int CHARUTIL_INITIAL_BUFSIZE = 1024 * 32;
     private static ThreadLocal tl_charUtil =
-        new ThreadLocal() { protected Object initialValue() { return new CharUtil( 1024 * 32 ); } };
+        new ThreadLocal() { protected Object initialValue() { return new SoftReference(new CharUtil( CHARUTIL_INITIAL_BUFSIZE )); } };
 
     private CharIterator _charIter = new CharIterator();
 

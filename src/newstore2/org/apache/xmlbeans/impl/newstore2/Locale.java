@@ -33,6 +33,7 @@ import java.util.Map;
 import java.lang.ref.ReferenceQueue;
 import java.lang.ref.Reference;
 import java.lang.ref.PhantomReference;
+import java.lang.ref.SoftReference;
 
 import java.lang.reflect.Method;
 
@@ -97,8 +98,6 @@ import org.apache.xmlbeans.XmlBeans;
 import org.apache.xmlbeans.XmlError;
 import org.apache.xmlbeans.XmlRuntimeException;
 import org.apache.xmlbeans.XmlDocumentProperties;
-
-import javax.xml.namespace.QName;
 
 import org.apache.xmlbeans.impl.values.TypeStore;
 import org.apache.xmlbeans.impl.values.TypeStoreUser;
@@ -1620,13 +1619,20 @@ public final class Locale implements DOMImplementation, SaajCallback, XmlLocale
     }
 
     private static ThreadLocal tl_scrubBuffer =
-        new ThreadLocal ( ) { protected Object initialValue ( ) { return new ScrubBuffer(); } };
+        new ThreadLocal ( ) { protected Object initialValue ( ) { return new SoftReference(new ScrubBuffer()); } };
 
     static ScrubBuffer getScrubBuffer ( int wsr )
     {
-        ScrubBuffer sb = (ScrubBuffer) tl_scrubBuffer.get();
-        sb.init( wsr );
-        return sb;
+        SoftReference softRef = (SoftReference)tl_scrubBuffer.get();
+        ScrubBuffer scrubBuffer = (ScrubBuffer) (softRef).get();
+        if (scrubBuffer==null)
+        {
+            scrubBuffer = new ScrubBuffer();
+            tl_scrubBuffer.set(new SoftReference(scrubBuffer));
+        }
+
+        scrubBuffer.init( wsr );
+        return scrubBuffer;
     }
 
     static boolean pushToContainer ( Cur c )
@@ -2427,8 +2433,20 @@ public final class Locale implements DOMImplementation, SaajCallback, XmlLocale
     private static ThreadLocal tl_piccoloLoaders =
         new ThreadLocal ( )
         {
-            protected Object initialValue ( ) { return PiccoloSaxLoader.newInstance(); }
+            protected Object initialValue ( ) { return new SoftReference(PiccoloSaxLoader.newInstance()); }
         };
+
+    private static SaxLoader getPiccoloSaxLoader()
+    {
+        SoftReference softRef = (SoftReference)tl_piccoloLoaders.get();
+        SaxLoader piccoloLoader = (SaxLoader) (softRef).get();
+        if (piccoloLoader==null)
+        {
+            piccoloLoader = PiccoloSaxLoader.newInstance();
+            tl_piccoloLoaders.set(new SoftReference(piccoloLoader));
+        }
+        return piccoloLoader;
+    }
 
     private static SaxLoader getSaxLoader ( XmlOptions options )
     {
@@ -2465,7 +2483,7 @@ public final class Locale implements DOMImplementation, SaajCallback, XmlLocale
         }
         else
         {
-            sl = (PiccoloSaxLoader) tl_piccoloLoaders.get();
+            sl = getPiccoloSaxLoader();
 
             // Piccolo doesnot mind a null entity resolver ...
             

@@ -23,6 +23,7 @@ import org.apache.xmlbeans.XmlCursor;
 import java.util.ArrayList;
 import java.util.Map;
 import java.lang.reflect.Proxy;
+import java.lang.ref.SoftReference;
 
 import org.apache.xmlbeans.xml.stream.StartElement;
 
@@ -87,14 +88,26 @@ public class NamespaceContext implements PrefixResolver
         }
     }
 
-    private static ThreadLocal NamespaceContextStack = new ThreadLocal()
+    private static ThreadLocal tl_namespaceContextStack = new ThreadLocal()
     {
-        protected Object initialValue() { return new NamespaceContextStack(); }
+        protected Object initialValue() { return new SoftReference(new NamespaceContextStack()); }
     };
+
+    private static NamespaceContextStack getNamespaceContextStack()
+    {
+        SoftReference softRef = (SoftReference)tl_namespaceContextStack.get();
+        NamespaceContextStack namespaceContextStack = (NamespaceContextStack) (softRef).get();
+        if (namespaceContextStack==null)
+        {
+            namespaceContextStack = new NamespaceContextStack();
+            tl_namespaceContextStack.set(new SoftReference(namespaceContextStack));
+        }
+        return namespaceContextStack;
+    }
 
     public static void push(NamespaceContext next)
     {
-        ((NamespaceContextStack)NamespaceContextStack.get()).push(next);
+        getNamespaceContextStack().push(next);
     }
             
     public String getNamespaceForPrefix(String prefix)
@@ -144,12 +157,11 @@ public class NamespaceContext implements PrefixResolver
 
     public static PrefixResolver getCurrent()
     {
-        return ((NamespaceContextStack)NamespaceContextStack.get()).current;
+        return getNamespaceContextStack().current;
     }
     
     public static void pop()
     {
-        ((NamespaceContextStack)NamespaceContextStack.get()).pop();
+        getNamespaceContextStack().pop();
     }
-
 }
