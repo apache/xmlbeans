@@ -202,6 +202,9 @@ public abstract class FilterXmlObject implements XmlObject, SimpleValue
         return underlyingXmlObject().newCursor();
     }
 
+    /**
+     * @deprecated Superceded by JSR 173
+     */
     public XMLInputStream newXMLInputStream()
     {
         return underlyingXmlObject().newXMLInputStream();
@@ -247,6 +250,9 @@ public abstract class FilterXmlObject implements XmlObject, SimpleValue
         underlyingXmlObject().save(w);
     }
 
+    /**
+     * @deprecated Superceded by JSR 173
+     */
     public XMLInputStream newXMLInputStream(XmlOptions options)
     {
         return underlyingXmlObject().newXMLInputStream(options);
