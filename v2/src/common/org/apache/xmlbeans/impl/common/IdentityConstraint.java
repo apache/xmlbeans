@@ -229,6 +229,7 @@ public class IdentityConstraint {
             if (_constraint.getConstraintCategory() == SchemaIdentityConstraint.CC_KEYREF)
                 _values.add(fields);
             else if (_values.contains(fields)) 
+                // KHK: cvc-identity-constraint.4.1 or .4.2.2
                 emitError(e, "Duplicate key '" + fields + "' for key or unique constraint " + QNameHelper.pretty(_constraint.getName()));
             else
                 _values.add(fields);
@@ -300,6 +301,7 @@ public class IdentityConstraint {
                 XmlObjectList fields = (XmlObjectList)it.next();
                 if (fields.unfilled() < 0 && ! _keyValues.contains(fields))
                 {
+                    // KHK: cvc-identity-constraint.4.3 ?
                     emitError(e, "Key '" + fields + "' not found (keyRef " + QNameHelper.pretty(_constraint.getName()) + ")");
                     return;
                 }
@@ -334,6 +336,7 @@ public class IdentityConstraint {
                     // System.out.println("hit for element: " + e.getName());
 
                     if (!hasSimpleContent(st))
+                        // KHK: cvc-identity-constraint.3
                         emitError(e, "Identity constraint field must have simple content");
                     else
                         _needsValue[i] = true;
@@ -347,6 +350,7 @@ public class IdentityConstraint {
             for (int i = 0 ; i < _contexts.length ; i++) {
                 if (_needsValue[i])
                 {
+                    // KHK: cvc-identity-constraint.3
                     emitError(e, "Identity constraint field must have simple content");
                     _needsValue[i] = false;
                 }
@@ -356,6 +360,7 @@ public class IdentityConstraint {
                 if ( ( _contexts[i].element(e.getName()) & XPath.ExecutionContext.HIT) != 0 )
                 {
                     if (! hasSimpleContent(st))
+                        // KHK: cvc-identity-constraint.3
                         emitError(e, "Identity constraint field must have simple content");
                     else
                         _needsValue[i] = true;
@@ -377,6 +382,7 @@ public class IdentityConstraint {
 
                     boolean set = _value.set(o, i);
 
+                    // KHK: ?
                     if (! set)
                         emitError(e, "Multiple instances of field with xpath: '" 
                             + _selector._constraint.getFields()[i] + "' for a selector");
@@ -396,6 +402,7 @@ public class IdentityConstraint {
 
                     if (emptyContent || !hasSimpleContent(st))
                     {
+                        // KHK: cvc-identity-constraint.3
                         emitError(e, "Identity constraint field must have simple content");
                         return;
                     }
@@ -408,6 +415,7 @@ public class IdentityConstraint {
 
                     boolean set = _value.set(o, i);
 
+                    // KHK: ?
                     if (! set)
                         emitError(e, "Multiple instances of field with xpath: '" 
                             + _selector._constraint.getFields()[i] + "' for a selector");
@@ -433,6 +441,7 @@ public class IdentityConstraint {
             if (_selector._constraint.getConstraintCategory() == SchemaIdentityConstraint.CC_KEY &&
                 _value.unfilled() >= 0 )
             {
+                // KHK: cvc-identity-constraint.4.2.1 ?
                 // keys must have all values supplied
                 emitError(e, "Key " + QNameHelper.pretty(_selector._constraint.getName()) + " is missing field with xpath: '" + _selector._constraint.getFields()[_value.unfilled()] + "'");
             }
@@ -487,6 +496,7 @@ public class IdentityConstraint {
                 xmlValue.set(o, 0);
 
                 if (_values.contains(xmlValue))
+                    // KHK: cvc-id.2
                     emitError(e, "Duplicate ID value '" + value + "'");
                 else
                     _values.add(xmlValue);
@@ -570,6 +580,7 @@ public class IdentityConstraint {
                 Object o = it.next();
                 if (! _ids._values.contains(o))
                 {
+                    // KHK: cvc-id.1
                     emitError(e, "ID not found for IDRef value '" + o + "'");
                 }
             }

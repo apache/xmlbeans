@@ -43,6 +43,7 @@ public abstract class JavaFloatHolderEx extends JavaFloatHolder
     {
         float f = JavaFloatHolder.validateLexical(v, context);
 
+        // KHK: cvc-pattern-valid
         if (!sType.matchPatternFacet(v))
             context.invalid("Float (" + v + ") does not match pattern for " + QNameHelper.readable(sType));
         

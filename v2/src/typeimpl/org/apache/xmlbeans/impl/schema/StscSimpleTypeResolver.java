@@ -23,7 +23,7 @@ import javax.xml.namespace.QName;
 import org.apache.xmlbeans.impl.values.XmlValueOutOfRangeException;
 import org.apache.xmlbeans.impl.regex.RegularExpression;
 import org.apache.xmlbeans.impl.common.QNameHelper;
-import org.apache.xmlbeans.impl.common.XmlErrorContext;
+import org.apache.xmlbeans.XmlErrorCodes;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlInteger;
 import org.apache.xmlbeans.SchemaType;
@@ -66,14 +66,14 @@ public class StscSimpleTypeResolver
         {
             StscState.get().error(
                     "A simple type must define either a list, a union, or a restriction: more than one found.",
-                    XmlErrorContext.MALFORMED_SIMPLE_TYPE_DEFN,
+                    XmlErrorCodes.MALFORMED_SIMPLE_TYPE_DEFN,
                     parseSt);
             // recovery: treat it as the first of list, union, restr
         }
         else if (count < 1)
         {
             StscState.get().error("A simple type must define either a list, a union, or a restriction: none was found.",
-                    XmlErrorContext.MALFORMED_SIMPLE_TYPE_DEFN,
+                    XmlErrorCodes.MALFORMED_SIMPLE_TYPE_DEFN,
                     parseSt);
             // recovery: treat it as restriction of anySimpleType
             resolveErrorSimpleType(sImpl);
@@ -139,7 +139,8 @@ public class StscSimpleTypeResolver
 
         if (sImpl.isRedefinition())
         {
-            StscState.get().error("A type redefinition must restrict the original definition of the type.", XmlErrorContext.GENERIC_ERROR, parseList);
+            state.error(XmlErrorCodes.SCHEMA_REDEFINE$EXTEND_OR_RESTRICT,
+                new Object[] { "list" }, parseList);
             // recovery: oh well.
         }
         
@@ -148,10 +149,7 @@ public class StscSimpleTypeResolver
 
         if (itemName != null && parseInner != null)
         {
-            state.error("List type definitions provide either an itemType attribute " +
-                    "or contain a nested simpleType: both were found.",
-                    XmlErrorContext.REDUNDANT_NESTED_TYPE,
-                    parseList);
+            state.error(XmlErrorCodes.SCHEMA_SIMPLE_TYPE$LIST_HAS_BOTH_ITEM_OR_SIMPLE_TYPE, null, parseList);
             // recovery: ignore the inner simple type.
             parseInner = null;
         }
@@ -165,7 +163,7 @@ public class StscSimpleTypeResolver
             errorLoc = parseList.xgetItemType();
             if (itemImpl == null)
             {
-                state.notFoundError(itemName, XmlErrorContext.TYPE_NOT_FOUND, parseList.xgetItemType());
+                state.notFoundError(itemName, SchemaType.TYPE, parseList.xgetItemType());
                 // recovery: treat it as a list of anySimpleType
                 itemImpl = BuiltinSchemaTypeSystem.ST_ANY_SIMPLE;
             }
@@ -183,10 +181,7 @@ public class StscSimpleTypeResolver
         }
         else
         {
-            state.error("List type definitions provide either an itemType attribute " +
-                    "or contain a nested simpleType: neither was found.",
-                    XmlErrorContext.LIST_MISSING_ITEM,
-                    parseList);
+            state.error(XmlErrorCodes.SCHEMA_SIMPLE_TYPE$LIST_HAS_NEITHER_ITEM_OR_SIMPLE_TYPE, null, parseList);
             // recovery: treat it as an extension of anySimpleType
             resolveErrorSimpleType(sImpl);
             return;
@@ -194,15 +189,14 @@ public class StscSimpleTypeResolver
 
         // Verify final restrictions
         if (itemImpl.finalList())
-            state.error("Cannot derive by list a final type.", XmlErrorContext.CANNOT_DERIVE_FINAL, parseList);
+            state.error(XmlErrorCodes.SIMPLE_TYPE_PROPERTIES$LIST_FINAL, null, parseList);
 
         // Recursion...
         StscResolver.resolveType(itemImpl);
 
         if (!itemImpl.isSimpleType())
         {
-            state.error("Item type for this list type is not simple",
-                    XmlErrorContext.LIST_ITEM_NOT_SIMPLE, errorLoc);
+            state.error(XmlErrorCodes.SIMPLE_TYPE_RESTRICTION$LIST_ITEM_NOT_SIMPLE, null, errorLoc);
             // recovery: treat the item type as anySimpleType
             sImpl = BuiltinSchemaTypeSystem.ST_ANY_SIMPLE;
         }
@@ -210,14 +204,14 @@ public class StscSimpleTypeResolver
         switch (itemImpl.getSimpleVariety())
         {
             case SchemaType.LIST:
-                state.error("This item type is another list type; lists of lists are not allowed.", XmlErrorContext.LIST_OF_LIST, errorLoc);
+                state.error(XmlErrorCodes.SIMPLE_TYPE_RESTRICTION$LIST_ITEM_IS_LIST, null, errorLoc);
                 // recovery: treat the list as an anySimpleType
                 resolveErrorSimpleType(sImpl);
                 return;
             case SchemaType.UNION:
                 if (itemImpl.isUnionOfLists())
                 {
-                    state.error("This item type is a union containing a list; lists of lists are not allowed.", XmlErrorContext.LIST_OF_LIST, errorLoc);
+                    state.error(XmlErrorCodes.SIMPLE_TYPE_RESTRICTION$LIST_ITEM_IS_UNION_OF_LIST, null, errorLoc);
                     resolveErrorSimpleType(sImpl);
                     return;
                 }
@@ -252,7 +246,8 @@ public class StscSimpleTypeResolver
         
         if (sImpl.isRedefinition())
         {
-            StscState.get().error("A type redefinition must restrict the original definition of the type.", XmlErrorContext.GENERIC_ERROR, parseUnion);
+            state.error(XmlErrorCodes.SCHEMA_REDEFINE$EXTEND_OR_RESTRICT,
+                new Object[] { "union" }, parseUnion);
             // recovery: oh well.
         }
         
@@ -263,7 +258,7 @@ public class StscSimpleTypeResolver
         
         if (simpleTypes.length == 0 && (memberTypes == null || memberTypes.size() == 0))
         {
-            state.error("A union type must specify at least one member type", XmlErrorContext.UNION_MEMBER_NOT_SIMPLE, parseUnion);
+            state.error(XmlErrorCodes.SCHEMA_SIMPLE_TYPE$UNION_HAS_MEMBER_TYPES_OR_SIMPLE_TYPES, null, parseUnion);
             // recovery: oh well, zero member types is fine.
         }
 
@@ -275,7 +270,7 @@ public class StscSimpleTypeResolver
                 SchemaTypeImpl memberImpl = state.findGlobalType(mName, sImpl.getChameleonNamespace(), sImpl.getTargetNamespace());
                 if (memberImpl == null)
                     // recovery: skip member
-                    state.notFoundError(mName, XmlErrorContext.TYPE_NOT_FOUND, parseUnion.xgetMemberTypes());
+                    state.notFoundError(mName, SchemaType.TYPE, parseUnion.xgetMemberTypes());
                 else
                     memberImplList.add(memberImpl);
             }
@@ -301,10 +296,20 @@ public class StscSimpleTypeResolver
             SchemaTypeImpl mImpl = (SchemaTypeImpl)mImpls.next();
             if (!StscResolver.resolveType(mImpl))
             {
+                // KHK: review
+                String memberName = "";
+                XmlObject errorLoc;
                 if (mImpl.getOuterType().equals(sImpl))
-                    state.error("Member has a cyclic dependency on the containing union",  XmlErrorContext.CYCLIC_DEPENDENCY, mImpl.getParseObject());
+                {
+                    errorLoc = mImpl.getParseObject();
+                }
                 else
-                    state.error("Member " + QNameHelper.pretty(mImpl.getName()) + " has a cyclic dependency on the union", XmlErrorContext.CYCLIC_DEPENDENCY, parseUnion.xgetMemberTypes());
+                {
+                    memberName = QNameHelper.pretty(mImpl.getName()) + " ";
+                    errorLoc = parseUnion.xgetMemberTypes();
+                }
+
+                state.error(XmlErrorCodes.SCHEMA_SIMPLE_TYPE$CYCLIC_UNION, new Object[] { memberName }, errorLoc);
 
                 // recovery: ignore the errant union member
                 mImpls.remove();
@@ -321,10 +326,20 @@ public class StscSimpleTypeResolver
 
             if (!mImpl.isSimpleType())
             {
+                // KHK: review
+                String memberName = "";
+                XmlObject errorLoc;
                 if (mImpl.getOuterType() != null && mImpl.getOuterType().equals(sImpl))
-                    state.error("Member is not simple", XmlErrorContext.UNION_MEMBER_NOT_SIMPLE, mImpl.getParseObject());
+                {
+                    errorLoc = mImpl.getParseObject();
+                }
                 else
-                    state.error("Member " + QNameHelper.pretty(mImpl.getName()) + " is not simple", XmlErrorContext.UNION_MEMBER_NOT_SIMPLE, parseUnion.xgetMemberTypes());
+                {
+                    memberName = QNameHelper.pretty(mImpl.getName()) + " ";
+                    errorLoc = parseUnion.xgetMemberTypes();
+                }
+
+                state.error(XmlErrorCodes.SIMPLE_TYPE_RESTRICTION$UNION_MEMBER_NOT_SIMPLE, new Object[] { memberName }, errorLoc);
 
                 // recovery: ignore the errant union member
                 mImpls.remove();
@@ -341,7 +356,7 @@ public class StscSimpleTypeResolver
         {
             SchemaTypeImpl mImpl = (SchemaTypeImpl)memberImplList.get(i);
             if (mImpl.finalUnion())
-                state.error("Cannot derive by union a final type.", XmlErrorContext.CANNOT_DERIVE_FINAL, parseUnion);
+                state.error(XmlErrorCodes.SIMPLE_TYPE_PROPERTIES$UNION_FINAL, null, parseUnion);
         }
 
         sImpl.setUnionOfLists(isUnionOfLists);
@@ -363,10 +378,7 @@ public class StscSimpleTypeResolver
 
         if (baseName != null && parseInner != null)
         {
-            state.error("Simple type restrictions must name a base type " +
-                    "or contain a nested simple type: both were found.",
-                    XmlErrorContext.RESTRICTION_REDUNDANT_BASE,
-                    parseRestr);
+            state.error(XmlErrorCodes.SCHEMA_SIMPLE_TYPE$RESTRICTION_HAS_BOTH_BASE_OR_SIMPLE_TYPE, null, parseRestr);
             // recovery: ignore the inner simple type.
             parseInner = null;
         }
@@ -379,7 +391,14 @@ public class StscSimpleTypeResolver
             {
                 baseImpl = state.findRedefinedGlobalType(parseRestr.getBase(), sImpl.getChameleonNamespace(), sImpl);
                 if (baseImpl != null && !baseImpl.getName().equals(sImpl.getName()))
-                    state.error("A type redefinition must restrict the original type definition", XmlErrorContext.GENERIC_ERROR, parseRestr);
+                {
+                    state.error(XmlErrorCodes.SCHEMA_REDEFINE$SAME_TYPE,
+                        new Object[] { "<simpleType>",
+                                       QNameHelper.pretty(baseName), 
+                                       QNameHelper.pretty(sImpl.getName())
+                        },
+                        parseRestr);
+                }
             }
             else
             {
@@ -387,7 +406,7 @@ public class StscSimpleTypeResolver
             }
             if (baseImpl == null)
             {
-                state.notFoundError(baseName, XmlErrorContext.TYPE_NOT_FOUND, parseRestr.xgetBase());
+                state.notFoundError(baseName, SchemaType.TYPE, parseRestr.xgetBase());
                 // recovery: treat it as an extension of anySimpleType
                 baseImpl = BuiltinSchemaTypeSystem.ST_ANY_SIMPLE;
             }
@@ -396,7 +415,8 @@ public class StscSimpleTypeResolver
         {
             if (sImpl.isRedefinition())
             {
-                StscState.get().error("A type redefinition must restrict the original definition of the type.", XmlErrorContext.GENERIC_ERROR, parseInner);
+                StscState.get().error(XmlErrorCodes.SCHEMA_REDEFINE$EXTEND_OR_RESTRICT,
+                    new Object[] { "<simpleType>" }, parseInner);
                 // recovery: oh well.
             }
             
@@ -411,10 +431,7 @@ public class StscSimpleTypeResolver
         }
         else
         {
-            state.error("Simple type restrictions must name a base type " +
-                    "or contain a nested simple type: neither were found.",
-                    XmlErrorContext.RESTRICTION_MISSING_BASE,
-                    parseRestr);
+            state.error(XmlErrorCodes.SCHEMA_SIMPLE_TYPE$RESTRICTION_HAS_NEITHER_BASE_OR_SIMPLE_TYPE, null, parseRestr);
             // recovery: treat it as an extension of anySimpleType
             baseImpl = BuiltinSchemaTypeSystem.ST_ANY_SIMPLE;
         }
@@ -427,7 +444,7 @@ public class StscSimpleTypeResolver
         }
 
         if (baseImpl.finalRestriction())
-            state.error("Cannot restrict a final type", XmlErrorContext.CANNOT_DERIVE_FINAL, parseRestr);
+            state.error(XmlErrorCodes.SIMPLE_TYPE_PROPERTIES$RESTRICTION_FINAL, null, parseRestr);
 
         sImpl.setBaseTypeRef(baseImpl.getRef());
         sImpl.setBaseDepth(baseImpl.getBaseDepth() + 1);
@@ -435,9 +452,7 @@ public class StscSimpleTypeResolver
 
         if (!baseImpl.isSimpleType())
         {
-            state.error("Base type for this simple type restriction is not simple",
-                    XmlErrorContext.SIMPLE_RESTRICTION_NOT_SIMPLE,
-                    parseRestr.xgetBase());
+            state.error(XmlErrorCodes.SIMPLE_TYPE_RESTRICTION$ATOMIC_NOT_SIMPLE, null, parseRestr.xgetBase());
             // recovery: treat it as a restriction of anySimpleType
             resolveErrorSimpleType(sImpl);
             return;
@@ -481,7 +496,8 @@ public class StscSimpleTypeResolver
         if (textval.equals("replace"))
             return SchemaType.WS_REPLACE;
 
-        StscState.get().error("Unrecognized whitespace value \"" + textval + "\"", XmlErrorContext.FACET_VALUE_MALFORMED, value);
+        // KHK: s4s
+        StscState.get().error("Unrecognized whitespace value \"" + textval + "\"", XmlErrorCodes.FACET_VALUE_MALFORMED, value);
         return SchemaType.WS_UNSPECIFIED;
     }
 
@@ -639,12 +655,13 @@ public class StscSimpleTypeResolver
 
                 if (!facetAppliesToType(code, baseImpl))
                 {
-                    state.error("The facet " + facet.newCursor().getName().getLocalPart() + " does not apply to the base type " + baseImpl, XmlErrorContext.FACET_DOES_NOT_APPLY, facet);
+                    state.error(XmlErrorCodes.FACETS_APPLICABLE,
+                        new Object[] { facet.newCursor().getName().getLocalPart(), QNameHelper.pretty(baseImpl.getName()) }, facet);
                     continue;
                 }
                 if (seenFacet[code] && !isMultipleFacet(code))
                 {
-                    state.error("Facet specified multiple times", XmlErrorContext.FACET_DUPLICATED, facet);
+                    state.error(XmlErrorCodes.DATATYPE_SINGLE_FACET_VALUE, null, facet);
                     continue;
                 }
                 seenFacet[code] = true;
@@ -655,18 +672,19 @@ public class StscSimpleTypeResolver
                         if (myFacets[SchemaType.FACET_MIN_LENGTH] != null ||
                             myFacets[SchemaType.FACET_MAX_LENGTH] != null)
                         {
-                            state.error("Cannot specify length in addition to minLength or maxLength", XmlErrorContext.FACET_DUPLICATED, facet);
+                            state.error(XmlErrorCodes.DATATYPE_LENGTH, null, facet);
                             continue;
                         }
                         XmlInteger len = StscTranslator.buildNnInteger(facet.getValue());
                         if (len == null)
                         {
-                            state.error("Must be a nonnegative integer", XmlErrorContext.FACET_VALUE_MALFORMED, facet);
+                            // KHK: s4s
+                            state.error("Must be a nonnegative integer", XmlErrorCodes.FACET_VALUE_MALFORMED, facet);
                             continue;
                         }
                         if (fixedFacets[code] && !myFacets[code].valueEquals(len))
                         {
-                            state.error("This facet is fixed and cannot be overridden", XmlErrorContext.FACET_FIXED, facet);
+                            state.error(XmlErrorCodes.FACET_FIXED, null, facet);
                             continue;
                         }
                         myFacets[code] = len;
@@ -676,25 +694,25 @@ public class StscSimpleTypeResolver
                     case SchemaType.FACET_MAX_LENGTH:
                         if (myFacets[SchemaType.FACET_LENGTH] != null)
                         {
-                            state.error("Cannot specify minLength or maxLength in addition to length", XmlErrorContext.FACET_DUPLICATED, facet);
+                            state.error(XmlErrorCodes.DATATYPE_LENGTH, null, facet);
                             continue;
                         }
                         XmlInteger mlen = StscTranslator.buildNnInteger(facet.getValue());
                         if (mlen == null)
                         {
-                            state.error("Must be a nonnegative integer", XmlErrorContext.FACET_VALUE_MALFORMED, facet);
+                            state.error("Must be a nonnegative integer", XmlErrorCodes.FACET_VALUE_MALFORMED, facet);
                             continue;
                         }
                         if (fixedFacets[code] && !myFacets[code].valueEquals(mlen))
                         {
-                            state.error("This facet is fixed and cannot be overridden", XmlErrorContext.FACET_FIXED, facet);
+                            state.error(XmlErrorCodes.FACET_FIXED, null, facet);
                             continue;
                         }
                         if (myFacets[SchemaType.FACET_MAX_LENGTH] != null)
                         {
                             if (mlen.compareValue(myFacets[SchemaType.FACET_MAX_LENGTH]) > 0)
                             {
-                                state.error("Larger than prior maxLength", XmlErrorContext.FACET_VALUE_MALFORMED, facet);
+                                state.error(XmlErrorCodes.DATATYPE_MAX_LENGTH_RESTRICTION, null, facet);
                                 continue;
                             }
                         }
@@ -702,7 +720,7 @@ public class StscSimpleTypeResolver
                         {
                             if (mlen.compareValue(myFacets[SchemaType.FACET_MIN_LENGTH]) < 0)
                             {
-                                state.error("Smaller than prior minLength", XmlErrorContext.FACET_VALUE_MALFORMED, facet);
+                                state.error(XmlErrorCodes.DATATYPE_MIN_LENGTH_RESTRICTION, null, facet);
                                 continue;
                             }
                         }
@@ -715,23 +733,23 @@ public class StscSimpleTypeResolver
                         XmlInteger dig = StscTranslator.buildNnInteger(facet.getValue());
                         if (dig == null)
                         {
-                            state.error("Must be a nonnegative integer", XmlErrorContext.FACET_VALUE_MALFORMED, facet);
+                            state.error("Must be a nonnegative integer", XmlErrorCodes.FACET_VALUE_MALFORMED, facet);
                             break;
                         }
                         if (fixedFacets[code] && !myFacets[code].valueEquals(dig))
                         {
-                            state.error("This facet is fixed and cannot be overridden", XmlErrorContext.FACET_FIXED, facet);
+                            state.error(XmlErrorCodes.FACET_FIXED, null, facet);
                             continue;
                         }
                         if (myFacets[SchemaType.FACET_TOTAL_DIGITS] != null)
                         {
                             if (dig.compareValue(myFacets[SchemaType.FACET_TOTAL_DIGITS]) > 0)
-                                state.error("Larger than prior totalDigits", XmlErrorContext.FACET_VALUE_MALFORMED, facet);
+                                state.error(XmlErrorCodes.DATATYPE_TOTAL_DIGITS_RESTRICTION, null, facet);
                         }
                         if (!istotaldig && myFacets[SchemaType.FACET_FRACTION_DIGITS] != null)
                         {
                             if (dig.compareValue(myFacets[SchemaType.FACET_FRACTION_DIGITS]) > 0)
-                                state.error("Larger than prior fractionDigits", XmlErrorContext.FACET_VALUE_MALFORMED, facet);
+                                state.error(XmlErrorCodes.DATATYPE_FRACTION_DIGITS_RESTRICTION, null, facet);
                         }
                         myFacets[code] = dig;
                         break;
@@ -743,7 +761,7 @@ public class StscSimpleTypeResolver
 
                         if (seenFacet[other_similar_limit(code)])
                         {
-                            state.error("Cannot define both inclusive and exclusive limit in the same restriciton", XmlErrorContext.FACET_DUPLICATED, facet);
+                            state.error("Cannot define both inclusive and exclusive limit in the same restriciton", XmlErrorCodes.FACET_DUPLICATED, facet);
                             continue;
                         }
                         boolean ismin = (code == SchemaType.FACET_MIN_EXCLUSIVE || code == SchemaType.FACET_MIN_INCLUSIVE);
@@ -758,7 +776,7 @@ public class StscSimpleTypeResolver
                         {
                             // note: this guarantees that the limit is a valid number in the
                             // base data type!!
-                            state.error("Must be valid value in base type", XmlErrorContext.FACET_VALUE_MALFORMED, facet);
+                            state.error("Must be valid value in base type", XmlErrorCodes.FACET_VALUE_MALFORMED, facet);
 
                             // BUGBUG: if there are actual schemas that redefine min/maxExclusive,
                             // they will need this rule relaxed for them!!
@@ -766,7 +784,7 @@ public class StscSimpleTypeResolver
                         }
                         if (fixedFacets[code] && !myFacets[code].valueEquals(limit))
                         {
-                            state.error("This facet is fixed and cannot be overridden", XmlErrorContext.FACET_FIXED, facet);
+                            state.error(XmlErrorCodes.FACET_FIXED, null, facet);
                             continue;
                         }
                         if (myFacets[code] != null)
@@ -781,7 +799,7 @@ public class StscSimpleTypeResolver
                                         (isexclusive ?
                                             "Must be less than or equal to previous maxExclusive" :
                                             "Must be less than or equal to previous maxInclusive"),
-                                        XmlErrorContext.FACET_VALUE_MALFORMED, facet);
+                                        XmlErrorCodes.FACET_VALUE_MALFORMED, facet);
                                 continue;
                             }
                         }
@@ -794,7 +812,7 @@ public class StscSimpleTypeResolver
                         if (baseImpl.getWhiteSpaceRule() > wsr)
                         {
                             wsr = SchemaType.WS_UNSPECIFIED;
-                            state.error("Cannot apply this whitespace facet over the previous one", XmlErrorContext.FACET_VALUE_MALFORMED, facet);
+                            state.error(XmlErrorCodes.DATATYPE_WHITESPACE_RESTRICTION, null, facet);
                             continue;
                         }
                         myFacets[code] = StscState.build_wsstring(wsr).get();
@@ -810,7 +828,7 @@ public class StscSimpleTypeResolver
                         }
                         catch (XmlValueOutOfRangeException e)
                         {
-                            state.error("Enumerated value invalid in base type", XmlErrorContext.FACET_VALUE_MALFORMED, facet);
+                            state.error(XmlErrorCodes.DATATYPE_ENUM_RESTRICTION, null, facet);
                             continue;
                         }
                         if (enumeratedValues == null)
@@ -819,11 +837,11 @@ public class StscSimpleTypeResolver
                         break;
 
                     case SchemaType.FACET_PATTERN:
-                        org.apache.xmlbeans.impl.regex.RegularExpression p;
-                        try { p = new org.apache.xmlbeans.impl.regex.RegularExpression(facet.getValue().getStringValue(), "X"); }
+                        RegularExpression p;
+                        try { p = new RegularExpression(facet.getValue().getStringValue(), "X"); }
                         catch (org.apache.xmlbeans.impl.regex.ParseException e)
                         {
-                            state.error("Malformed regular expression", XmlErrorContext.FACET_VALUE_MALFORMED, facet);
+                            state.error(XmlErrorCodes.PATTERN_REGEX, new Object[] { facet.getValue().getStringValue(), e.getMessage() }, facet);
                             continue;
                         }
                         if (patterns == null)

@@ -17,6 +17,7 @@ package org.apache.xmlbeans.impl.schema;
 
 import org.apache.xmlbeans.SchemaTypeLoader;
 import org.apache.xmlbeans.XmlException;
+import org.apache.xmlbeans.XmlErrorCodes;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
 import org.apache.xmlbeans.SchemaTypeSystem;
@@ -34,7 +35,6 @@ import org.w3.x2001.xmlSchema.SchemaDocument.Schema;
 import org.w3.x2001.xmlSchema.SchemaDocument;
 import org.apache.xml.xmlbeans.x2004.x02.xbean.config.ConfigDocument.Config;
 import org.apache.xml.xmlbeans.x2004.x02.xbean.config.ConfigDocument;
-import org.apache.xmlbeans.impl.common.XmlErrorContext;
 import org.apache.xmlbeans.impl.common.XmlErrorWatcher;
 import org.apache.xmlbeans.impl.config.SchemaConfig;
 
@@ -333,7 +333,7 @@ public class SchemaTypeSystemCompiler
                     voptions.setErrorListener(StscState.get().getErrorListener());
                     if (!(xdoc instanceof SchemaDocument) || !xdoc.validate(voptions))
                     {
-                        StscState.get().error("Referenced document is not a valid schema, URL = " + url, XmlErrorContext.CANNOT_FIND_RESOURCE, null);
+                        StscState.get().error("Referenced document is not a valid schema, URL = " + url, XmlErrorCodes.CANNOT_FIND_RESOURCE, null);
                         continue;
                     }
 
@@ -343,17 +343,17 @@ public class SchemaTypeSystemCompiler
                 }
                 catch (java.net.MalformedURLException mfe)
                 {
-                    StscState.get().error("Malformed url while trying to load " + url + ": " + mfe.getMessage(), XmlErrorContext.CANNOT_LOAD_XSD_FILE, null);
+                    StscState.get().error("Malformed url while trying to load " + url + ": " + mfe.getMessage(), XmlErrorCodes.CANNOT_LOAD_XSD_FILE, null);
                     continue;
                 }
                 catch (java.io.IOException ioe)
                 {
-                    StscState.get().error("IOException while trying to load " + url + ": " + ioe.getMessage(), XmlErrorContext.CANNOT_LOAD_XSD_FILE, null);
+                    StscState.get().error("IOException while trying to load " + url + ": " + ioe.getMessage(), XmlErrorCodes.CANNOT_LOAD_XSD_FILE, null);
                     continue;
                 }
                 catch (XmlException xmle)
                 {
-                    StscState.get().error("XmlException while trying to load " + url + ": " + xmle.getMessage(), XmlErrorContext.CANNOT_LOAD_XSD_FILE, null);
+                    StscState.get().error("XmlException while trying to load " + url + ": " + xmle.getMessage(), XmlErrorCodes.CANNOT_LOAD_XSD_FILE, null);
                     continue;
                 }
             }

@@ -23,7 +23,7 @@ import org.w3.x2001.xmlSchema.*;
 import org.w3.x2001.xmlSchema.SchemaDocument.Schema;
 import org.w3.x2001.xmlSchema.AnyDocument.Any;
 import javax.xml.namespace.QName;
-import org.apache.xmlbeans.impl.common.XmlErrorContext;
+import org.apache.xmlbeans.XmlErrorCodes;
 import org.apache.xmlbeans.impl.common.QNameHelper;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.QNameSetBuilder;
@@ -207,10 +207,11 @@ public class StscComplexTypeResolver
                 (parseGroup != null ? 1 : 0);
         if (count > 1)
         {
+            // KHK: s4s should catch this?
             state.error("A complex type must define either a content model, " +
                       "or a simpleContent or complexContent derivation: " +
                       "more than one found.",
-                    XmlErrorContext.REDUNDANT_CONTENT_MODEL, parseCt);
+                    XmlErrorCodes.REDUNDANT_CONTENT_MODEL, parseCt);
             // recovery: treat it as the first of complexContent, simpleContent, model
             parseGroup = null;
             if (parseCc != null && parseSc != null)
@@ -219,8 +220,9 @@ public class StscComplexTypeResolver
         
         if (parseCc != null)
         {
+            // KHK: s4s should catch this?
             if (parseCc.getExtension() != null && parseCc.getRestriction() != null)
-                state.error("Restriction conflicts with extension", XmlErrorContext.REDUNDANT_CONTENT_MODEL, parseCc.getRestriction());
+                state.error("Restriction conflicts with extension", XmlErrorCodes.REDUNDANT_CONTENT_MODEL, parseCc.getRestriction());
             
             // Mixed can be specified in two places: the rules are that Cc wins over Ct if present
             // http://www.w3.org/TR/xmlschema-1/#c-mve
@@ -232,15 +234,17 @@ public class StscComplexTypeResolver
                 resolveCcRestriction(sImpl, parseCc.getRestriction(), mixed);
             else
             {
-                state.error("Missing restriction or extension", XmlErrorContext.MISSING_RESTRICTION_OR_EXTENSION, parseCc);
+                // KHK: s4s should catch this?
+                state.error("Missing restriction or extension", XmlErrorCodes.MISSING_RESTRICTION_OR_EXTENSION, parseCc);
                 resolveErrorType(sImpl);
             }
             return;
         }
         else if (parseSc != null)
         {
+            // KHK: s4s should catch this?
             if (parseSc.getExtension() != null && parseSc.getRestriction() != null)
-                state.error("Restriction conflicts with extension", XmlErrorContext.REDUNDANT_CONTENT_MODEL, parseSc.getRestriction());
+                state.error("Restriction conflicts with extension", XmlErrorCodes.REDUNDANT_CONTENT_MODEL, parseSc.getRestriction());
 
             if (parseSc.getExtension() != null)
                 resolveScExtension(sImpl, parseSc.getExtension());
@@ -248,7 +252,8 @@ public class StscComplexTypeResolver
                 resolveScRestriction(sImpl, parseSc.getRestriction());
             else
             {
-                state.error("Missing restriction or extension", XmlErrorContext.MISSING_RESTRICTION_OR_EXTENSION, parseSc);
+                // KHK: s4s should catch this?
+                state.error("Missing restriction or extension", XmlErrorCodes.MISSING_RESTRICTION_OR_EXTENSION, parseSc);
                 resolveErrorType(sImpl);
             }
             return;
@@ -282,7 +287,8 @@ public class StscComplexTypeResolver
 
         if (sImpl.isRedefinition())
         {
-            StscState.get().error("A type redefinition must extend or restrict the original definition of the type.", XmlErrorContext.GENERIC_ERROR, parseTree);
+            StscState.get().error(XmlErrorCodes.SCHEMA_REDEFINE$EXTEND_OR_RESTRICT,
+                new Object[] { "<complexType>" }, parseTree);
             // recovery: oh well.
         }
 
@@ -310,7 +316,7 @@ public class StscComplexTypeResolver
         {
             buildStateMachine(contentModel);
             if (!StscState.get().noUpa() && !((SchemaParticleImpl)contentModel).isDeterministic())
-                StscState.get().error("Content model violates the unique particle attribution rule", XmlErrorContext.NONDETERMINISTIC_MODEL, parseGroup);
+                StscState.get().error(XmlErrorCodes.UNIQUE_PARTICLE_ATTRIBUTION, null, parseGroup);
         }
 
         // build property model
@@ -350,7 +356,8 @@ public class StscComplexTypeResolver
         SchemaType baseType;
         if (parseTree.getBase() == null)
         {
-            state.error("A complexContent must define a base type", XmlErrorContext.MISSING_BASE, parseTree);
+            // KHK: s4s
+            state.error("A complexContent must define a base type", XmlErrorCodes.MISSING_BASE, parseTree);
             baseType = null; // recovery: no inheritance.
         }
         else
@@ -359,7 +366,14 @@ public class StscComplexTypeResolver
             {
                 baseType = state.findRedefinedGlobalType(parseTree.getBase(), sImpl.getChameleonNamespace(), sImpl);
                 if (baseType != null && !baseType.getName().equals(sImpl.getName()))
-                    state.error("A type redefinition must extend the original type definition", XmlErrorContext.GENERIC_ERROR, parseTree);
+                {
+                    state.error(XmlErrorCodes.SCHEMA_REDEFINE$SAME_TYPE,
+                        new Object[] { "<complexType>",
+                                       QNameHelper.pretty(baseType.getName()), 
+                                       QNameHelper.pretty(sImpl.getName())
+                        },
+                        parseTree);
+                }
             }
             else
             {
@@ -367,7 +381,7 @@ public class StscComplexTypeResolver
             }
             
             if (baseType == null)
-                state.notFoundError(parseTree.getBase(), XmlErrorContext.TYPE_NOT_FOUND, parseTree.xgetBase());
+                state.notFoundError(parseTree.getBase(), SchemaType.TYPE, parseTree.xgetBase());
         }
 
         if (baseType == null)
@@ -375,7 +389,9 @@ public class StscComplexTypeResolver
 
         if (baseType != null && baseType.finalRestriction())
         {
-            state.error("Cannot restrict a final type", XmlErrorContext.CANNOT_DERIVE_FINAL, parseTree.xgetBase());
+            state.error(XmlErrorCodes.COMPLEX_TYPE_RESTRICTION$FINAL,
+                new Object[] { QNameHelper.pretty(baseType.getName()), QNameHelper.pretty(sImpl.getName()) },
+                parseTree.xgetBase());
             // recovery: just keep going
         }
 
@@ -419,7 +435,7 @@ public class StscComplexTypeResolver
         {
             buildStateMachine(contentModel);
             if (!StscState.get().noUpa() && !((SchemaParticleImpl)contentModel).isDeterministic())
-                StscState.get().error("Content model violates the unique particle attribution rule", XmlErrorContext.NONDETERMINISTIC_MODEL, parseEg);
+                StscState.get().error(XmlErrorCodes.UNIQUE_PARTICLE_ATTRIBUTION, null, parseEg);
         }
 
         // build property model
@@ -469,7 +485,8 @@ public class StscComplexTypeResolver
 
         if (parseTree.getBase() == null)
         {
-            state.error("A complexContent must define a base type", XmlErrorContext.MISSING_BASE, parseTree);
+            // KHK: s4s
+            state.error("A complexContent must define a base type", XmlErrorCodes.MISSING_BASE, parseTree);
             baseType = null; // recovery: no inheritance.
         }
         else
@@ -478,14 +495,21 @@ public class StscComplexTypeResolver
             {
                 baseType = state.findRedefinedGlobalType(parseTree.getBase(), sImpl.getChameleonNamespace(), sImpl);
                 if (baseType != null && !baseType.getName().equals(sImpl.getName()))
-                    state.error("A type redefinition must extend the original type definition", XmlErrorContext.GENERIC_ERROR, parseTree);
+                {
+                    state.error(XmlErrorCodes.SCHEMA_REDEFINE$SAME_TYPE,
+                        new Object[] { "<complexType>",
+                                       QNameHelper.pretty(baseType.getName()), 
+                                       QNameHelper.pretty(sImpl.getName())
+                        },
+                        parseTree);
+                }
             }
             else
             {
                 baseType = state.findGlobalType(parseTree.getBase(), sImpl.getChameleonNamespace(), targetNamespace);
             }
             if (baseType == null)
-                state.notFoundError(parseTree.getBase(), XmlErrorContext.TYPE_NOT_FOUND, parseTree.xgetBase());
+                state.notFoundError(parseTree.getBase(), SchemaType.TYPE, parseTree.xgetBase());
         }
 
         // Recursion
@@ -497,13 +521,17 @@ public class StscComplexTypeResolver
 
         if (baseType != null && (baseType.isSimpleType() || baseType.getContentType() == SchemaType.SIMPLE_CONTENT))
         {
-            state.error("The specified base type is not a complex type with complex content.", XmlErrorContext.COMPLEX_BASE_NOT_COMPLEX, parseTree.xgetBase());
+            state.error(XmlErrorCodes.SCHEMA_COMPLEX_TYPE$COMPLEX_CONTENT,
+                new Object[] { QNameHelper.pretty(baseType.getName()) },
+                parseTree.xgetBase());
             baseType = null; // recovery: no inheritance.
         }
 
         if (baseType != null && baseType.finalExtension())
         {
-            state.error("Cannot extend a final type", XmlErrorContext.CANNOT_DERIVE_FINAL, parseTree.xgetBase());
+            state.error(XmlErrorCodes.COMPLEX_TYPE_EXTENSION$FINAL,
+                new Object[] { QNameHelper.pretty(baseType.getName()), QNameHelper.pretty(sImpl.getName()) },
+                parseTree.xgetBase());
             // recovery: just keep going
         }
         
@@ -528,14 +556,15 @@ public class StscComplexTypeResolver
         if (baseType != null && (baseType.getContentType() != SchemaType.EMPTY_CONTENT) &&
                 ((baseType.getContentType() == SchemaType.MIXED_CONTENT) != mixed))
         {
-            state.error("Cannot extend an element-only type with a mixed type or vice-versa", XmlErrorContext.INCONSISTENT_TYPE, parseTree.xgetBase());
+            state.error(XmlErrorCodes.COMPLEX_TYPE_EXTENSION$BOTH_ELEMEMENT_OR_MIXED, null, parseTree.xgetBase());
             // recovery: just keep going
         }
 
         // detect the "all" base case
         if (baseType != null && baseType.hasAllContent() && extensionModel != null)
         {
-            state.error("Cannot extend a type with 'all' content model", XmlErrorContext.CANNOT_EXTEND_ALL, parseTree.xgetBase());
+            // KHK: which rule? cos-particle-extend.2 or cos-all-limited.1.2.  I think the limited one.
+            state.error("Cannot extend a type with 'all' content model", XmlErrorCodes.CANNOT_EXTEND_ALL, parseTree.xgetBase());
             extensionModel = null; // recovery: drop extension
         }
 
@@ -562,7 +591,7 @@ public class StscComplexTypeResolver
         {
             buildStateMachine(contentModel);
             if (!StscState.get().noUpa() && !((SchemaParticleImpl)contentModel).isDeterministic())
-                StscState.get().error("Content model violates the unique particle attribution rule", XmlErrorContext.NONDETERMINISTIC_MODEL, parseEg);
+                StscState.get().error(XmlErrorCodes.UNIQUE_PARTICLE_ATTRIBUTION, null, parseEg);
         }
 
         // build property model
@@ -596,12 +625,12 @@ public class StscComplexTypeResolver
         boolean chameleon = (sImpl.getChameleonNamespace() != null);
         if (parseTree.getSimpleType() != null)
         {
-            state.warning("Nested simple types inside simple content restrictions are unsupported - ignoring", XmlErrorContext.ILLEGAL_RESTRICTION, parseTree);
+            state.warning("Nested simple types inside simple content restrictions are unsupported - ignoring", XmlErrorCodes.ILLEGAL_RESTRICTION, parseTree);
             // recovery: ignore the nested simple type element.
         }
         if (parseTree.getBase() == null)
         {
-            state.error("A simpleContent restriction must define a base type", XmlErrorContext.MISSING_BASE, parseTree);
+            state.error("A simpleContent restriction must define a base type", XmlErrorCodes.MISSING_BASE, parseTree);
             // recovery: extends ANY_SIMPLE type
             baseType = BuiltinSchemaTypeSystem.ST_ANY_SIMPLE;
         }
@@ -611,7 +640,14 @@ public class StscComplexTypeResolver
             {
                 baseType = state.findRedefinedGlobalType(parseTree.getBase(), sImpl.getChameleonNamespace(), sImpl);
                 if (baseType != null && !baseType.getName().equals(sImpl.getName()))
-                    state.error("A type redefinition must restrict the original type definition", XmlErrorContext.GENERIC_ERROR, parseTree);
+                {
+                    state.error(XmlErrorCodes.SCHEMA_REDEFINE$SAME_TYPE,
+                        new Object[] { "<simpleType>",
+                                       QNameHelper.pretty(baseType.getName()), 
+                                       QNameHelper.pretty(sImpl.getName())
+                        },
+                        parseTree);
+                }
             }
             else
             {
@@ -619,7 +655,7 @@ public class StscComplexTypeResolver
             }
             if (baseType == null)
             {
-                state.notFoundError(parseTree.getBase(), XmlErrorContext.TYPE_NOT_FOUND, parseTree.xgetBase());
+                state.notFoundError(parseTree.getBase(), SchemaType.TYPE, parseTree.xgetBase());
                 // recovery: extends ANY_SIMPLE type
                 baseType = BuiltinSchemaTypeSystem.ST_ANY_SIMPLE;
             }
@@ -630,21 +666,35 @@ public class StscComplexTypeResolver
 
         if (baseType.isSimpleType())
         {
-            state.error("Simple type '" + baseType.getName() + "' cannot be used as the base type of a simple content restriction. (Use extension instead.)", XmlErrorContext.SIMPLE_BASE_NOT_SIMPLE, parseTree);
+            // src-ct.2: complex types with simple content cannot restrict simple types
+            state.error(XmlErrorCodes.COMPLEX_TYPE_PROPERTIES$SIMPLE_TYPE_EXTENSION,
+                new Object[] { QNameHelper.pretty(baseType.getName()) },
+                parseTree);
             // recovery: extends ANY_SIMPLE type
             baseType = BuiltinSchemaTypeSystem.ST_ANY_SIMPLE;
         }
+        /*
         // BUGBUG: can restrict mixed content as long as all child elements are optional
         else if (baseType.getContentType() != SchemaType.SIMPLE_CONTENT)
+            state.error("The specified base type " + baseType.toString() + " does not have simple content.", XmlErrorCodes.SIMPLE_BASE_NOT_SIMPLE, parseTree);
+            // recovery: extends ANY_SIMPLE type
+            baseType = BuiltinSchemaTypeSystem.ST_ANY_SIMPLE;
+        }
+        */
+        else if (baseType.getContentType() == SchemaType.MIXED_CONTENT &&
+            baseType.getContentModel() != null && !baseType.getContentModel().isSkippable())
         {
-            state.error("The specified base type " + baseType.toString() + " does not have simple content.", XmlErrorContext.SIMPLE_BASE_NOT_SIMPLE, parseTree);
+            state.error(XmlErrorCodes.COMPLEX_TYPE_RESTRICTION$SC_AND_MIXED_EMPTIABLE,
+                null, parseTree);
             // recovery: extends ANY_SIMPLE type
             baseType = BuiltinSchemaTypeSystem.ST_ANY_SIMPLE;
         }
 
         if (baseType != null && baseType.finalRestriction())
         {
-            state.error("Cannot restrict a final type", XmlErrorContext.CANNOT_DERIVE_FINAL, parseTree.xgetBase());
+            state.error(XmlErrorCodes.COMPLEX_TYPE_RESTRICTION$FINAL,
+                    new Object[] { QNameHelper.pretty(baseType.getName()), QNameHelper.pretty(sImpl.getName()) },
+                    parseTree.xgetBase());
             // recovery: just keep going
         }
 
@@ -699,7 +749,7 @@ public class StscComplexTypeResolver
         boolean chameleon = (sImpl.getChameleonNamespace() != null);
         if (parseTree.getBase() == null)
         {
-            state.error("A simpleContent extension must define a base type", XmlErrorContext.MISSING_BASE, parseTree);
+            state.error("A simpleContent extension must define a base type", XmlErrorCodes.MISSING_BASE, parseTree);
             // recovery: extends ANY_SIMPLE type
             baseType = BuiltinSchemaTypeSystem.ST_ANY_SIMPLE;
         }
@@ -709,7 +759,14 @@ public class StscComplexTypeResolver
             {
                 baseType = state.findRedefinedGlobalType(parseTree.getBase(), sImpl.getChameleonNamespace(), sImpl);
                 if (baseType != null && !baseType.getName().equals(sImpl.getName()))
-                    state.error("A type redefinition must extend the original type definition", XmlErrorContext.GENERIC_ERROR, parseTree);
+                {
+                    state.error(XmlErrorCodes.SCHEMA_REDEFINE$SAME_TYPE,
+                        new Object[] { "<simpleType>",
+                                       QNameHelper.pretty(baseType.getName()), 
+                                       QNameHelper.pretty(sImpl.getName())
+                        },
+                        parseTree);
+                }
             }
             else
             {
@@ -717,7 +774,7 @@ public class StscComplexTypeResolver
             }
             if (baseType == null)
             {
-                state.notFoundError(parseTree.getBase(), XmlErrorContext.TYPE_NOT_FOUND, parseTree.xgetBase());
+                state.notFoundError(parseTree.getBase(), SchemaType.TYPE, parseTree.xgetBase());
                 // recovery: extends ANY_SIMPLE type
                 baseType = BuiltinSchemaTypeSystem.ST_ANY_SIMPLE;
             }
@@ -728,14 +785,19 @@ public class StscComplexTypeResolver
 
         if (!baseType.isSimpleType() && baseType.getContentType() != SchemaType.SIMPLE_CONTENT)
         {
-            state.error("The specified base type " + baseType.toString() + " does not have simple content.", XmlErrorContext.SIMPLE_BASE_NOT_SIMPLE, parseTree);
+            // src-ct.2: complex types with simple content can only extend simple types
+            state.error(XmlErrorCodes.SCHEMA_COMPLEX_TYPE$SIMPLE_CONTENT,
+                new Object[] { QNameHelper.pretty(baseType.getName()) } ,
+                parseTree);
             // recovery: extends ANY_SIMPLE type
             baseType = BuiltinSchemaTypeSystem.ST_ANY_SIMPLE;
         }
 
         if (baseType != null && baseType.finalExtension())
         {
-            state.error("Cannot extend a final type", XmlErrorContext.CANNOT_DERIVE_FINAL, parseTree.xgetBase());
+            state.error(XmlErrorCodes.COMPLEX_TYPE_EXTENSION$FINAL,
+                    new Object[] { QNameHelper.pretty(baseType.getName()), QNameHelper.pretty(sImpl.getName()) },
+                    parseTree.xgetBase());
             // recovery: just keep going
         }
 
@@ -863,7 +925,9 @@ public class StscComplexTypeResolver
 
                     if (seenAttributes.contains(sAttr.getName()))
                     {
-                        state.error("Attribute with the same name already defined ", XmlErrorContext.DUPLICATE_ATTRIBUTE_NAME, xsdattr.xgetName());
+                        state.error(XmlErrorCodes.COMPLEX_TYPE_PROPERTIES$DUPLICATE_ATTRIBUTE,
+                            new Object[] { QNameHelper.pretty(sAttr.getName()), QNameHelper.pretty(outerType.getName()) },
+                            xsdattr.xgetName());
                         continue; // ignore the duplicate attr
                     }
 
@@ -877,23 +941,26 @@ public class StscComplexTypeResolver
                             if (!extension)
                             {
                                 if (!baseModel.getWildcardSet().contains(sAttr.getName()))
-                                    state.error("A restriction cannot introduce a new attribute that would not be allowed in the base type.", XmlErrorContext.DUPLICATE_ATTRIBUTE_NAME, xsdattr);
+                                    state.error(XmlErrorCodes.COMPLEX_TYPE_RESTRICTION$ATTR_IN_BASE_WILDCARD_SET,
+                                        new Object[] { QNameHelper.pretty(sAttr.getName()), QNameHelper.pretty(outerType.getName()) }, xsdattr);
                             }
                         }
                         else
                         {
                             if (extension)
                             {
+                                // KHK: cos-ct-extends.1.2?
                                 if (sAttr.getUse() == SchemaLocalAttribute.PROHIBITED)
-                                    state.error("An extension cannot prohibit an attribute from the base type; use restriction instead.", XmlErrorContext.DUPLICATE_ATTRIBUTE_NAME, xsdattr.xgetUse());
+                                    state.error("An extension cannot prohibit an attribute from the base type; use restriction instead.", XmlErrorCodes.DUPLICATE_ATTRIBUTE_NAME, xsdattr.xgetUse());
                             }
                             else
                             {
                                 if (sAttr.getUse() != SchemaLocalAttribute.REQUIRED)
                                 {
                                     if (baseAttr.getUse() == SchemaLocalAttribute.REQUIRED)
-                                        state.error("A restriction cannot modify an attribute that is required in the base type to be prohibited or optional.", XmlErrorContext.DUPLICATE_ATTRIBUTE_NAME, xsdattr.xgetUse());
-                                    
+                                        state.error(XmlErrorCodes.COMPLEX_TYPE_RESTRICTION$ATTR_REQUIRED,
+                                            new Object[] { QNameHelper.pretty(sAttr.getName()), QNameHelper.pretty(outerType.getName()) }, xsdattr);
+
                                     if (sAttr.getUse() == SchemaLocalAttribute.PROHIBITED)
                                         result.removeProhibitedAttribute(sAttr.getName());
                                 }
@@ -907,7 +974,8 @@ public class StscComplexTypeResolver
                     if (sAttr.getDefaultText() != null && !sAttr.isFixed())
                     {
                         if (sAttr.getUse() != SchemaLocalAttribute.OPTIONAL)
-                            state.error("An attribute declaration must be optional in order to specify a default", XmlErrorContext.GENERIC_ERROR, xsdattr);
+                            state.error(XmlErrorCodes.SCHEMA_ATTR$DEFAULT_AND_USE_OPTIONAL,
+                                new Object[] { QNameHelper.pretty(sAttr.getName()) }, xsdattr);
                     }
                         
 
@@ -918,7 +986,8 @@ public class StscComplexTypeResolver
                     Wildcard xsdwc = (Wildcard)cur.getObject();
                     if (seenWildcard)
                     {
-                        state.error("Only one attribute wildcard allowed", XmlErrorContext.DUPLICATE_ANY_ATTRIBUTE, xsdwc);
+                        // KHK: ?
+                        state.error("Only one attribute wildcard allowed", XmlErrorCodes.DUPLICATE_ANY_ATTRIBUTE, xsdwc);
                         continue; // ignore the extra wildcard
                     }
                     seenWildcard = true;
@@ -934,12 +1003,13 @@ public class StscComplexTypeResolver
                     {
                         if (baseModel.getWildcardSet() == null)
                         {
-                            state.error("A restriction cannot add anyAttribute when the base type does not have anyAttribute", XmlErrorContext.DUPLICATE_ANY_ATTRIBUTE, xsdwc);
+                            state.error(XmlErrorCodes.COMPLEX_TYPE_RESTRICTION$BASE_HAS_ATTR_WILDCARD, null, xsdwc);
                             continue; // ignore the extra wildcard
                         }
                         else if (!baseModel.getWildcardSet().containsAll(wcset))
                         {
-                            state.error("The anyAttribute namespace='" + nsText + "' is not a subset of the base type anyAttribute", XmlErrorContext.DUPLICATE_ANY_ATTRIBUTE, xsdwc);
+                            state.error(XmlErrorCodes.COMPLEX_TYPE_RESTRICTION$ATTR_WILDCARD_SUBSET,
+                                new Object[] { nsText }, xsdwc);
                             continue; // ignore the restriction
                         }
                     }
@@ -971,7 +1041,8 @@ public class StscComplexTypeResolver
                     QName ref = xsdag.getRef();
                     if (ref == null)
                     {
-                        state.error("Attribute group reference must have a ref attribute", XmlErrorContext.ATTRIBUTE_GROUP_MISSING_REF, xsdag);
+                        // KHK: s4s
+                        state.error("Attribute group reference must have a ref attribute", XmlErrorCodes.ATTRIBUTE_GROUP_MISSING_REF, xsdag);
                         continue;
                     }
                     SchemaAttributeGroupImpl group;
@@ -982,7 +1053,8 @@ public class StscComplexTypeResolver
                             redefinitionFor.getName().equals(group.getName()))
                         {
                             if (seenRedefinition)
-                                state.error("An attribute group redefinition must include at most one reference to the original definition.", XmlErrorContext.GENERIC_ERROR, xsdag);
+                                state.error(XmlErrorCodes.SCHEMA_REDEFINE$ATTR_GROUP_SELF_REF,
+                                    new Object[] { QNameHelper.pretty(redefinitionFor.getName()) }, xsdag);
                             seenRedefinition = true;
                         }
                     }
@@ -992,12 +1064,13 @@ public class StscComplexTypeResolver
                     }
                     if (group == null)
                     {
-                        state.notFoundError(ref, XmlErrorContext.ATTRIBUTE_GROUP_NOT_FOUND, xsdag.xgetRef());
+                        state.notFoundError(ref, SchemaType.ATTRIBUTE_GROUP, xsdag.xgetRef());
                         continue;
                     }
                     if (state.isProcessing(group))
                     {
-                        state.error("Attribute group " + QNameHelper.pretty(group.getName()) + " references itself", XmlErrorContext.CYCLIC_DEPENDENCY, group.getParseObject());
+                        state.error(XmlErrorCodes.SCHEMA_ATTR_GROUP$SELF_REF,
+                            new Object[] { QNameHelper.pretty(group.getName()) },group.getParseObject());
                         continue;
                     }
                     String subTargetNamespace = targetNamespace;
@@ -1123,7 +1196,7 @@ public class StscComplexTypeResolver
         if (particleCode == SchemaParticle.ELEMENT)
         {
             if (!allowElt)
-                state.error("Must be a sequence, choice or all here", XmlErrorContext.EXPLICIT_GROUP_NEEDED, parseTree);
+                state.error("Must be a sequence, choice or all here", XmlErrorCodes.EXPLICIT_GROUP_NEEDED, parseTree);
 
             // TODO: detect substitution group for this element and construct a choice
 
@@ -1141,14 +1214,14 @@ public class StscComplexTypeResolver
             }
             else if (!sPart.getType().equals(oldType))
             {
-                state.error("Type of " + QNameHelper.pretty(sPart.getName()) + " is inconsistent with another element with the same name in this content model", XmlErrorContext.INCONSISTENT_TYPE, parseTree);
+                state.error(XmlErrorCodes.ELEM_CONSISTANT, new Object[] { QNameHelper.pretty(sPart.getName()) }, parseTree);
                 return null;
             }
         }
         else if (particleCode == SchemaParticle.WILDCARD)
         {
             if (!allowElt)
-                state.error("Must be a sequence, choice or all here", XmlErrorContext.EXPLICIT_GROUP_NEEDED, parseTree);
+                state.error("Must be a sequence, choice or all here", XmlErrorCodes.EXPLICIT_GROUP_NEEDED, parseTree);
             Any parseAny = (Any)parseTree;
             sPart = new SchemaParticleImpl();
             sPart.setParticleType(SchemaParticle.WILDCARD);
@@ -1177,7 +1250,8 @@ public class StscComplexTypeResolver
                 QName ref = parseGroup.getRef();
                 if (ref == null)
                 {
-                    state.error("Group reference must have a ref attribute", XmlErrorContext.GROUP_MISSING_REF, parseTree);
+                    // KHK: s4s
+                    state.error("Group reference must have a ref attribute", XmlErrorCodes.GROUP_MISSING_REF, parseTree);
                     return null;
                 }
                 
@@ -1187,9 +1261,11 @@ public class StscComplexTypeResolver
                     if (group != null && group.getName().equals(redefinitionFor.getGroup().getName()))
                     {
                         if (redefinitionFor.isSeenRedefinition())
-                            state.error("Group redefinition must refer to the original definition at most once", XmlErrorContext.GENERIC_ERROR, parseTree);
+                            state.error(XmlErrorCodes.SCHEMA_REDEFINE$GROUP_SELF_REF,
+                                new Object[] { QNameHelper.pretty(group.getName()) }, parseTree);
                         if (!BigInteger.ONE.equals(maxOccurs) || !BigInteger.ONE.equals(minOccurs))
-                            state.error("When referencing the original group definition in a redefinition, maxOccurs and minOccurs must be 1", XmlErrorContext.GENERIC_ERROR, parseTree);
+                            state.error(XmlErrorCodes.SCHEMA_REDEFINE$GROUP_SELF_REF_MIN_MAX_1,
+                                new Object[] { QNameHelper.pretty(group.getName()) }, parseTree);
                         redefinitionFor.setSeenRedefinition(true);
                     }
                 }
@@ -1199,12 +1275,13 @@ public class StscComplexTypeResolver
                 }
                 if (group == null)
                 {
-                    state.notFoundError(ref, XmlErrorContext.MODEL_GROUP_NOT_FOUND, ((Group)parseTree).xgetRef());
+                    state.notFoundError(ref, SchemaType.MODEL_GROUP, ((Group)parseTree).xgetRef());
                     return null;
                 }
                 if (state.isProcessing(group))
                 {
-                    state.error("Model group " + QNameHelper.pretty(group.getName()) + " references itself", XmlErrorContext.CYCLIC_DEPENDENCY, group.getParseObject());
+                    state.error(XmlErrorCodes.MODEL_GROUP_PROPERTIES$CIRCULAR,
+                        new Object[] { QNameHelper.pretty(group.getName()) }, group.getParseObject());
                     return null;
                 }
                 
@@ -1221,12 +1298,14 @@ public class StscComplexTypeResolver
                 }
                 if (particleCode == 0)
                 {
-                    state.error("Model group " + QNameHelper.pretty(group.getName()) + " is empty", XmlErrorContext.EXPLICIT_GROUP_NEEDED, group.getParseObject());
+                    // KHK: s4s
+                    state.error("Model group " + QNameHelper.pretty(group.getName()) + " is empty", XmlErrorCodes.EXPLICIT_GROUP_NEEDED, group.getParseObject());
                     return null;
                 }
                 if (particleCode != SchemaParticle.ALL && particleCode != SchemaParticle.SEQUENCE && particleCode != SchemaParticle.CHOICE)
                 {
-                    state.error("Model group " + QNameHelper.pretty(group.getName()) + " is not a sequence, all, or choice", XmlErrorContext.EXPLICIT_GROUP_NEEDED, group.getParseObject());
+                    // KHK: s4s
+                    state.error("Model group " + QNameHelper.pretty(group.getName()) + " is not a sequence, all, or choice", XmlErrorCodes.EXPLICIT_GROUP_NEEDED, group.getParseObject());
                 }
                 
                 String newTargetNamespace = group.getTargetNamespace();
@@ -1251,7 +1330,7 @@ public class StscComplexTypeResolver
 
         if (maxOccurs != null && minOccurs.compareTo(maxOccurs) > 0)
         {
-            state.error("maxOccurs must not be less than minOccurs", XmlErrorContext.MIN_MAX_OCCURS, parseTree);
+            state.error(XmlErrorCodes.PARTICLE_PROPERTIES$MIN_LTE_MAX, null, parseTree);
             maxOccurs = minOccurs; // remedy: pin max up to min
         }
 
@@ -1359,7 +1438,9 @@ public class StscComplexTypeResolver
             // http://www.w3.org/TR/xmlschema-1/#cos-all-limited
             if (part.getMaxOccurs() == null || part.getMaxOccurs().compareTo(BigInteger.ONE) > 0)
             {
-                StscState.get().error("An all group must have maxOccurs <= 1", XmlErrorContext.ALL_CONTENTS, parseTree);
+                // An all group must have maxOccurs <= 1
+                // KHK: review
+                StscState.get().error(XmlErrorCodes.ALL_GROUP_LIMITED$IN_MIN_MAX_1_PARTICLE, null, parseTree);
             }
         }
         
@@ -1368,11 +1449,15 @@ public class StscComplexTypeResolver
             SchemaParticle child = part.getParticleChild(i);
             if (child.getParticleType() == SchemaParticle.ALL)
             {
-                StscState.get().error("An all group is only allowed at the top level of the content model", XmlErrorContext.CANNOT_EXTEND_ALL, parseTree);
+                // An all group is only allowed at the top level of the content model
+                // KHK: review
+                StscState.get().error(XmlErrorCodes.ALL_GROUP_LIMITED$IN_COMPLEX_TYPE_DEF_PARTICLE, null, parseTree);
             }
             else if (isAll && (child.getParticleType() != SchemaParticle.ELEMENT || child.getMaxOccurs() == null || child.getMaxOccurs().compareTo(BigInteger.ONE) > 0))
             {
-                StscState.get().error("An all group can contain only element particles with maxOccurs <= 1", XmlErrorContext.ALL_CONTENTS, parseTree);
+                // An all group can contain only element particles with maxOccurs <= 1
+                // KHK: review
+                StscState.get().error(XmlErrorCodes.ALL_GROUP_LIMITED$CHILD_PARTICLES_MAX_LTE_1, null, parseTree);
             }
         }
         
@@ -1714,7 +1799,6 @@ public class StscComplexTypeResolver
                 break;
 
             default:
-                // wildcard, all cases nyi
                 throw new IllegalStateException("Unrecognized schema particle");
         }
 

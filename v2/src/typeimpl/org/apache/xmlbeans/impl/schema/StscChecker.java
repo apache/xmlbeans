@@ -26,7 +26,7 @@ import org.apache.xmlbeans.SchemaLocalAttribute;
 import org.apache.xmlbeans.SchemaGlobalElement;
 import org.apache.xmlbeans.XmlID;
 import org.apache.xmlbeans.XmlAnySimpleType;
-import org.apache.xmlbeans.impl.common.XmlErrorContext;
+import org.apache.xmlbeans.XmlErrorCodes;
 import org.apache.xmlbeans.impl.common.XBeanDebug;
 import org.apache.xmlbeans.impl.common.QNameHelper;
 
@@ -86,14 +86,24 @@ public class StscChecker
             QName idAttr = null;
             for (int i = 0; i < sAttrs.length; i++)
             {
+                XmlObject attrLocation = ((SchemaLocalAttributeImpl)sAttrs[i])._parseObject;
                 if (XmlID.type.isAssignableFrom(sAttrs[i].getType()))
                 {
                     if (idAttr == null)
+                    {
                         idAttr = sAttrs[i].getName();
+                    }
                     else
-                        StscState.get().error("Both " + QNameHelper.pretty(idAttr) + " and " + sAttrs[i].getName() + " are xs:ID attributes; only one ID attribute is allowed on a type.", XmlErrorContext.GENERIC_ERROR, location);
+                    {
+                        StscState.get().error(XmlErrorCodes.ATTR_GROUP_PROPERTIES$TWO_IDS,
+                            new Object[]{ QNameHelper.pretty(idAttr), sAttrs[i].getName() },
+                            attrLocation != null ? attrLocation : location);
+                    }
                     if (sAttrs[i].getDefaultText() != null)
-                        StscState.get().error("An attribute of type xs:ID is not allowed to have a default or fixed constraint.", XmlErrorContext.GENERIC_ERROR, location);
+                    {
+                        StscState.get().error(XmlErrorCodes.ATTR_PROPERTIES$ID_FIXED_OR_DEFAULT,
+                            null, attrLocation != null ? attrLocation : location);
+                    }
                 }
                 else
                 {
@@ -114,10 +124,17 @@ public class StscChecker
                         }
                         catch (Exception e)
                         {
-                            if (sAttrs[i].isFixed())
-                                StscState.get().error("The " + QNameHelper.pretty(sAttrs[i].getName()) + " element fixed value '" + valueConstraint + "' is not a valid value for " + QNameHelper.readable(sAttrs[i].getType()), XmlErrorContext.GENERIC_ERROR, location);
-                            else
-                                StscState.get().error("The " + QNameHelper.pretty(sAttrs[i].getName()) + " element default value '" + valueConstraint + "' is not a valid value for " + QNameHelper.readable(sAttrs[i].getType()), XmlErrorContext.GENERIC_ERROR, location);
+                            // move to 'fixed' or 'default' attribute on the attribute definition
+                            String constraintName = (sAttrs[i].isFixed() ? "fixed" : "default");
+                            XmlObject constraintLocation =
+                                (attrLocation == null ? location : attrLocation.selectAttribute("", constraintName));
+                                
+                            StscState.get().error(XmlErrorCodes.ATTR_PROPERTIES$CONSTRAINT_VALID,
+                                new Object[] { QNameHelper.pretty(sAttrs[i].getName()), 
+                                               constraintName,
+                                               valueConstraint,
+                                               QNameHelper.readable(sAttrs[i].getType()) },
+                                constraintLocation);
                         }
                     }
                 }
@@ -162,19 +179,35 @@ public class StscChecker
                         }
                         catch (Exception e)
                         {
-                            if (model.isFixed())
-                                StscState.get().error("The " + QNameHelper.pretty(model.getName()) + " element fixed value '" + valueConstraint + "' is not a valid value for " + QNameHelper.readable(model.getType()), XmlErrorContext.GENERIC_ERROR, location);
-                            else
-                                StscState.get().error("The " + QNameHelper.pretty(model.getName()) + " element default value '" + valueConstraint + "' is not a valid value for " + QNameHelper.readable(model.getType()), XmlErrorContext.GENERIC_ERROR, location);
+                            // move to 'fixed' or 'default' attribute on the element definition
+                            String constraintName = (model.isFixed() ? "fixed" : "default");
+                            XmlObject constraintLocation = location.selectAttribute("", constraintName);
+                            
+                            StscState.get().error(XmlErrorCodes.ELEM_PROPERTIES$CONSTRAINT_VALID,
+                                new Object[] { QNameHelper.pretty(model.getName()), 
+                                               constraintName,
+                                               valueConstraint,
+                                               QNameHelper.readable(model.getType()) },
+                                constraintLocation);
                         }
                     }
                     else if (model.getType().getContentType() == SchemaType.ELEMENT_CONTENT)
                     {
-                        StscState.get().error("The " + QNameHelper.pretty(model.getName()) + " element cannot have a default value '" + valueConstraint + "' because its type has element content only.", XmlErrorContext.GENERIC_ERROR, location);
+                        XmlObject constraintLocation = location.selectAttribute("", "default");
+                        StscState.get().error(XmlErrorCodes.ELEM_DEFAULT_VALID$SIMPLE_TYPE_OR_MIXED,
+                            new Object[] { QNameHelper.pretty(model.getName()),
+                                           valueConstraint,
+                                           "element" },
+                            constraintLocation);
                     }
                     else if (model.getType().getContentType() == SchemaType.EMPTY_CONTENT)
                     {
-                        StscState.get().error("The " + QNameHelper.pretty(model.getName()) + " element cannot have a default value '" + valueConstraint + "' because its type has empty content only.", XmlErrorContext.GENERIC_ERROR, location);
+                        XmlObject constraintLocation = location.selectAttribute("", "default");
+                        StscState.get().error(XmlErrorCodes.ELEM_DEFAULT_VALID$SIMPLE_TYPE_OR_MIXED,
+                            new Object[] { QNameHelper.pretty(model.getName()),
+                                           valueConstraint,
+                                           "empty" },
+                            constraintLocation);
                     }
                 }
                 break;
@@ -201,7 +234,9 @@ public class StscChecker
             SchemaType baseType = sType.getBaseType();
             if (baseType.isSimpleType())
             {
-                state.error("The base type of a complex type restriction must be a complex type.", XmlErrorContext.ILLEGAL_RESTRICTION, location);
+                state.error(XmlErrorCodes.SCHEMA_COMPLEX_TYPE$COMPLEX_CONTENT,
+                    new Object[] { QNameHelper.pretty(baseType.getName()) },
+                    location);
                 return false;
             }
             
@@ -221,13 +256,15 @@ public class StscChecker
                             // 5.1.2 The {base type definition} must be mixed and have a particle which is ·emptiable· as defined in Particle Emptiable (§3.9.6).
                             if (baseType.getContentModel() != null && !baseType.getContentModel().isSkippable())
                             {
-                                state.error("A type with a simple content model can only restrict a mixed content model that has skippable elements.", XmlErrorContext.ILLEGAL_RESTRICTION, location);
+                                state.error(XmlErrorCodes.COMPLEX_TYPE_RESTRICTION$SC_AND_MIXED_EMPTIABLE,
+                                    null, location);
                                 return false;
                             }
                             break;
                             
                         default:
-                            state.error("A type with a simple content model can only restrict a simple or mixed content model.", XmlErrorContext.ILLEGAL_RESTRICTION, location);
+                            state.error(XmlErrorCodes.COMPLEX_TYPE_RESTRICTION$SC_AND_SIMPLE_TYPE_OR_MIXED,
+                                null, location);
                             return false;
                     }
                     break;
@@ -244,12 +281,14 @@ public class StscChecker
                             // 5.2.2 The {content type} of the {base type definition} must be elementOnly or mixed and have a particle which is ·emptiable· as defined in Particle Emptiable (§3.9.6).
                             if (baseType.getContentModel() != null && !baseType.getContentModel().isSkippable())
                             {
-                                state.error("A type with an empty content model can only restrict a content model that has skippable elements.", XmlErrorContext.ILLEGAL_RESTRICTION, location);
+                                state.error(XmlErrorCodes.COMPLEX_TYPE_RESTRICTION$EMPTY_AND_ELEMENT_OR_MIXED_EMPTIABLE,
+                                    null, location);
                                 return false;
                             }
                             break;
                         default:                            
-                            state.error("A type with an empty content model cannot restrict a type with a simple content model.", XmlErrorContext.ILLEGAL_RESTRICTION, location);
+                            state.error(XmlErrorCodes.COMPLEX_TYPE_RESTRICTION$EMPTY_AND_NOT_SIMPLE,
+                                null, location);
                             return false;
                     }
                     break;
@@ -258,7 +297,8 @@ public class StscChecker
                     // 5.3 If the {content type} of the {base type definition} is mixed...
                     if (baseType.getContentType() != SchemaType.MIXED_CONTENT)
                     {
-                        state.error("A type with a mixed content model can only restrict another type with a mixed content model.", XmlErrorContext.ILLEGAL_RESTRICTION, location);
+                        state.error(XmlErrorCodes.COMPLEX_TYPE_RESTRICTION$ELEMENT_OR_MIXED_AND_MIXED,
+                            null, location);
                         return false;
                     }
                     
@@ -267,12 +307,14 @@ public class StscChecker
                     // 5.3 ... or the {content type} of the complex type definition itself is element-only,...
                     if (baseType.getContentType() == SchemaType.EMPTY_CONTENT)
                     {
-                        state.error("A type with element or mixed content cannot restrict an empty type.", XmlErrorContext.ILLEGAL_RESTRICTION, location);
+                        state.error(XmlErrorCodes.COMPLEX_TYPE_RESTRICTION$ELEMENT_OR_MIXED_AND_EMPTY,
+                            null, location);
                         return false;
                     }
                     if (baseType.getContentType() == SchemaType.SIMPLE_CONTENT)
                     {
-                        state.error("A type with element or mixed content cannot restrict a simple type.", XmlErrorContext.ILLEGAL_RESTRICTION, location);
+                        state.error(XmlErrorCodes.COMPLEX_TYPE_RESTRICTION$ELEMENT_OR_MIXED_AND_SIMPLE,
+                            null, location);
                         return false;
                     }
                     
@@ -283,7 +325,7 @@ public class StscChecker
                     if (baseModel == null || derivedModel == null)
                     {
                         XBeanDebug.logStackTrace("Null models that weren't caught by EMPTY_CONTENT: " + baseType + " (" + baseModel + "), " + sType + " (" + derivedModel + ")");
-                        state.error("Illegal restriction.", XmlErrorContext.ILLEGAL_RESTRICTION, location);
+                        state.error(XmlErrorCodes.COMPLEX_TYPE_RESTRICTION$ELEMENT_OR_MIXED_AND_VALID, null, location);
                         return false;
                     }
                     
@@ -296,9 +338,11 @@ public class StscChecker
                         // to the collection that it later changes its mind about, or it may (inadvertently)
                         // forget to describe an error into the collection....
                         if (errors.size() == 0)
-                            state.error("Invalid restriction.", XmlErrorContext.ILLEGAL_RESTRICTION, location);
+                            state.error(XmlErrorCodes.COMPLEX_TYPE_RESTRICTION$ELEMENT_OR_MIXED_AND_VALID, null, location);
                         else
                             state.getErrorListener().add(errors.get(errors.size() - 1));
+                            //state.getErrorListener().addAll(errors);
+                        return false; // KHK: should return false, right?
                     }
             }
         }
@@ -330,19 +374,23 @@ public class StscChecker
                             restrictionValid = nameAndTypeOK((SchemaLocalElement) baseModel, (SchemaLocalElement) derivedModel, errors, context);
                             break;
                         case SchemaParticle.WILDCARD:
-                            errors.add(XmlError.forObject(formatInvalidCombinationError(baseModel, derivedModel), context));
+                            errors.add(XmlError.forObject(XmlErrorCodes.PARTICLE_RESTRICTION$INVALID_RESTRICTION,
+                                new Object[] { printParticle(baseModel), printParticle(derivedModel) }, context));
                             restrictionValid = false;
                             break;
                         case SchemaParticle.ALL:
-                            errors.add(XmlError.forObject(formatInvalidCombinationError(baseModel, derivedModel), context));
+                            errors.add(XmlError.forObject(XmlErrorCodes.PARTICLE_RESTRICTION$INVALID_RESTRICTION,
+                                new Object[] { printParticle(baseModel), printParticle(derivedModel) }, context));
                             restrictionValid = false;
                             break;
                         case SchemaParticle.CHOICE:
-                            errors.add(XmlError.forObject(formatInvalidCombinationError(baseModel, derivedModel), context));
+                            errors.add(XmlError.forObject(XmlErrorCodes.PARTICLE_RESTRICTION$INVALID_RESTRICTION,
+                                new Object[] { printParticle(baseModel), printParticle(derivedModel) }, context));
                             restrictionValid = false;
                             break;
                         case SchemaParticle.SEQUENCE:
-                            errors.add(XmlError.forObject(formatInvalidCombinationError(baseModel, derivedModel), context));
+                            errors.add(XmlError.forObject(XmlErrorCodes.PARTICLE_RESTRICTION$INVALID_RESTRICTION,
+                                new Object[] { printParticle(baseModel), printParticle(derivedModel) }, context));
                             restrictionValid = false;
                             break;
                         default:
@@ -376,14 +424,16 @@ public class StscChecker
                             restrictionValid = recurseAsIfGroup(baseModel, derivedModel, errors, context);
                             break;
                         case SchemaParticle.WILDCARD:
-                            errors.add(XmlError.forObject(formatInvalidCombinationError(baseModel, derivedModel), context));
+                            errors.add(XmlError.forObject(XmlErrorCodes.PARTICLE_RESTRICTION$INVALID_RESTRICTION,
+                                new Object[] { printParticle(baseModel), printParticle(derivedModel) }, context));
                             restrictionValid = false;
                             break;
                         case SchemaParticle.ALL:
                             restrictionValid = recurse(baseModel, derivedModel, errors, context);
                             break;
                         case SchemaParticle.CHOICE:
-                            errors.add(XmlError.forObject(formatInvalidCombinationError(baseModel, derivedModel), context));
+                            errors.add(XmlError.forObject(XmlErrorCodes.PARTICLE_RESTRICTION$INVALID_RESTRICTION,
+                                new Object[] { printParticle(baseModel), printParticle(derivedModel) }, context));
                             restrictionValid = false;
                             break;
                         case SchemaParticle.SEQUENCE:
@@ -399,11 +449,13 @@ public class StscChecker
                             restrictionValid = recurseAsIfGroup(baseModel, derivedModel, errors, context);
                             break;
                         case SchemaParticle.WILDCARD:
-                            errors.add(XmlError.forObject(formatInvalidCombinationError(baseModel, derivedModel), context));
+                            errors.add(XmlError.forObject(XmlErrorCodes.PARTICLE_RESTRICTION$INVALID_RESTRICTION,
+                                new Object[] { printParticle(baseModel), printParticle(derivedModel) }, context));
                             restrictionValid = false;
                             break;
                         case SchemaParticle.ALL:
-                            errors.add(XmlError.forObject(formatInvalidCombinationError(baseModel, derivedModel), context));
+                            errors.add(XmlError.forObject(XmlErrorCodes.PARTICLE_RESTRICTION$INVALID_RESTRICTION,
+                                new Object[] { printParticle(baseModel), printParticle(derivedModel) }, context));
                             restrictionValid = false;
                             break;
                         case SchemaParticle.CHOICE:
@@ -422,15 +474,18 @@ public class StscChecker
                             restrictionValid = recurseAsIfGroup(baseModel, derivedModel, errors, context);
                             break;
                         case SchemaParticle.WILDCARD:
-                            errors.add(XmlError.forObject(formatInvalidCombinationError(baseModel, derivedModel), context));
+                            errors.add(XmlError.forObject(XmlErrorCodes.PARTICLE_RESTRICTION$INVALID_RESTRICTION,
+                                new Object[] { printParticle(baseModel), printParticle(derivedModel) }, context));
                             restrictionValid = false;
                             break;
                         case SchemaParticle.ALL:
-                            errors.add(XmlError.forObject(formatInvalidCombinationError(baseModel, derivedModel), context));
+                            errors.add(XmlError.forObject(XmlErrorCodes.PARTICLE_RESTRICTION$INVALID_RESTRICTION,
+                                new Object[] { printParticle(baseModel), printParticle(derivedModel) }, context));
                             restrictionValid = false;
                             break;
                         case SchemaParticle.CHOICE:
-                            errors.add(XmlError.forObject(formatInvalidCombinationError(baseModel, derivedModel), context));
+                            errors.add(XmlError.forObject(XmlErrorCodes.PARTICLE_RESTRICTION$INVALID_RESTRICTION,
+                                new Object[] { printParticle(baseModel), printParticle(derivedModel) }, context));
                             restrictionValid = false;
                             break;
                         case SchemaParticle.SEQUENCE:
@@ -487,8 +542,12 @@ public class StscChecker
             }
             if (!foundMatch) {
                 mapAndSumValid = false;
-                errors.add(XmlError.forObject(formatMappingError(), context));
-                break;
+                errors.add(XmlError.forObject(XmlErrorCodes.PARTICLE_DERIVATION_MAP_AND_SUM$MAP,
+                    new Object[] { printParticle(derivedParticle) },
+                    context));
+                // KHK: if we don't return false now, this error may get swallowed by an error produced below
+                return false;
+                //break;
             }
         }
 
@@ -512,32 +571,17 @@ public class StscChecker
 
         if (derivedRangeMin.compareTo(baseModel.getMinOccurs()) < 0) {
             mapAndSumValid = false;
-            errors.add(XmlError.forObject(formatOccurenceRangeMinErrorChoiceSequence(derivedRangeMin, baseModel), context));
+            errors.add(XmlError.forObject(XmlErrorCodes.PARTICLE_DERIVATION_MAP_AND_SUM$SUM_MIN_OCCURS_GTE_MIN_OCCURS,
+                new Object[] { derivedRangeMin.toString(), baseModel.getMinOccurs().toString() },
+                context));
         } else if (baseModel.getMaxOccurs() == UNBOUNDED || derivedRangeMax != UNBOUNDED && derivedRangeMax.compareTo(baseModel.getMaxOccurs()) > 0) {
             mapAndSumValid = false;
-            errors.add(XmlError.forObject(formatOccurenceRangeMaxErrorChoiceSequence(derivedRangeMax, baseModel), context));
+            errors.add(XmlError.forObject(XmlErrorCodes.PARTICLE_DERIVATION_MAP_AND_SUM$SUM_MAX_OCCURS_LTE_MAX_OCCURS,
+                new Object[] { derivedRangeMax.toString(), baseModel.getMaxOccurs().toString() },
+                context));
         }
 
         return mapAndSumValid;
-    }
-
-    private static String formatOccurenceRangeMinErrorChoiceSequence(BigInteger derivedRangeMin, SchemaParticle baseModel) {
-        return "Invalid Restriction.  The total minOccurs for the derived <sequence>'s elements: "
-                + derivedRangeMin.toString()
-                + "must not be less than the base <choice>'s minOccurs ("
-                + baseModel.getMinOccurs().toString() + ")";
-    }
-
-    private static String formatOccurenceRangeMaxErrorChoiceSequence(BigInteger derivedRangeMax, SchemaParticle baseModel) {
-        return "Invalid Restriction.  The total maxOccurs for the derived <sequence>'s elements ("
-                + derivedRangeMax.toString()
-                + ") must not be greater than the base <choice>'s maxOccurs ("
-                + printMaxOccurs(baseModel.getMaxOccurs()) + ")";
-       
-    }
-
-    private static String formatMappingError() {
-        return "Invalid Restriction.  At least one restricted type does not match.";
     }
 
     private static boolean recurseAsIfGroup(SchemaParticle baseModel, SchemaParticle derivedModel, Collection errors, XmlObject context) {
@@ -617,8 +661,11 @@ public class StscChecker
         //  particles must not match
         if (i < derivedParticleArray.length) {
             recurseLaxValid = false;
-            String message = "Found derived particles that are not matched in the base content model.";
-            errors.add(XmlError.forObject(formatDerivedMappingError(message, baseModel, derivedModel), context));
+            //String message = "Found derived particles that are not matched in the base content model.";
+            //errors.add(XmlError.forObject(formatDerivedMappingError(message, baseModel, derivedModel), context));
+            errors.add(XmlError.forObject(XmlErrorCodes.PARTICLE_DERIVATION_RECURSE_LAX$MAP,
+                new Object[] { printParticles(baseParticleArray, i) },
+                context));
         }
 
 
@@ -661,24 +708,29 @@ public class StscChecker
         // go thru the sequence (derived model's children) and check off from base particle map
         SchemaParticle[] derivedParticles = derivedModel.getParticleChildren();
         for (int i = 0; i < derivedParticles.length; i++) {
-            SchemaParticle matchedBaseParticle = (SchemaParticle) baseParticleMap.get(derivedParticles[i].getName());
-            if (matchedBaseParticle == null) {
+            Object baseParticle = baseParticleMap.get(derivedParticles[i].getName());
+            if (baseParticle == null) {
                 recurseUnorderedValid = false;
-                errors.add(XmlError.forObject(formatInvalidAllSeqMappingError(), context));
+                errors.add(XmlError.forObject(XmlErrorCodes.PARTICLE_DERIVATION_RECURSE_UNORDERED$MAP,
+                    new Object[] { printParticle(derivedParticles[i]) }, context ));
                 break;
             } else {
                 // got a match
-                if (matchedBaseParticle == MAPPED) {
+                if (baseParticle == MAPPED) {
                     // whoa, this base particle has already been matched (see 2.1 above)
                     recurseUnorderedValid = false;
-                    errors.add(XmlError.forObject(formatMappedMoreThanOnceError(baseModel, derivedModel), context));
+                    errors.add(XmlError.forObject(XmlErrorCodes.PARTICLE_DERIVATION_RECURSE_UNORDERED$MAP_UNIQUE,
+                        new Object[] { printParticle(derivedParticles[i]) }, context ));
                     break;
                 } else {
+                    SchemaParticle matchedBaseParticle = (SchemaParticle)baseParticle;
                     if (derivedParticles[i].getMaxOccurs() == null ||
                             derivedParticles[i].getMaxOccurs().compareTo(BigInteger.ONE) > 0) {
                         // no derived particles can have a max occurs greater than 1
                         recurseUnorderedValid = false;
-                        errors.add(XmlError.forObject(formatAllSeqMaxOccursGreaterThan1Error(derivedParticles[i]), context));
+                        errors.add(XmlError.forObject(XmlErrorCodes.PARTICLE_DERIVATION_RECURSE_UNORDERED$MAP_MAX_OCCURS_1,
+                            new Object[] { printParticle(derivedParticles[i]), printMaxOccurs(derivedParticles[i].getMinOccurs()) },
+                            context));
                         break;
                     }
                     if (!isParticleValidRestriction(matchedBaseParticle, derivedParticles[i], errors, context))
@@ -702,35 +754,14 @@ public class StscChecker
                 if (baseParticleMap.get(baseParticleQName) != MAPPED && !((SchemaParticle)baseParticleMap.get(baseParticleQName)).isSkippable()) {
                     // this base particle was not mapped and is not "particle emptiable" (skippable)
                     recurseUnorderedValid = false;
-                    errors.add(XmlError.forObject(formatGroupMappingError(baseModel, derivedModel), context));
+                    errors.add(XmlError.forObject(XmlErrorCodes.PARTICLE_DERIVATION_RECURSE_UNORDERED$UNMAPPED_ARE_EMPTIABLE,
+                        new Object[] { printParticle((SchemaParticle)baseParticleMap.get(baseParticleQName)) },
+                        context));
                 }
             }
         }
 
         return recurseUnorderedValid;
-    }
-
-    private static String formatAllSeqMaxOccursGreaterThan1Error(SchemaParticle derivedModel) {
-        return "Invalid Restriction.  The "
-                + printParticle(derivedModel)
-                + " has a maxOccurs great than 1 ("
-                + printMaxOccurs(derivedModel.getMaxOccurs())
-                + ").  When restricting an <all> with a <sequence>, no <element> can have a maxOccurs > 1";
-    }
-
-    private static String formatInvalidAllSeqMappingError() {
-        return "Invalid Restriction.  Each element in the derived content model must match an element in the base "
-                + "content model.";
-    }
-
-    private static String formatGroupMappingError(SchemaParticle baseModel, SchemaParticle derivedModel) {
-        return "Invalid Restriction.  The members of the derived content model must match the members of the base "
-                + " content model unless the member of the base content model is optional (particle emptiable).";
-    }
-
-    private static String formatMappedMoreThanOnceError(SchemaParticle baseModel, SchemaParticle derivedModel) {
-        return "Invalid Restriction.  When using a <sequence> to restrict an <all> the elements in the <all> can be mapped only once. "
-                + " Found element in the <sequence> that maps an element in the <all> more than once.";
     }
 
     private static boolean recurse(SchemaParticle baseModel, SchemaParticle derivedModel, Collection errors, XmlObject context) {
@@ -784,8 +815,10 @@ public class StscChecker
                 } else {
                     // whoa, particles are not valid restrictions and base is not skippable - ERROR
                     recurseValid = false;
-                    String message = "Found non-optional particle that is not mapped in base content model.";
-                    errors.add(XmlError.forObject(formatDerivedMappingError(message, baseModel, derivedModel), context));
+                    errors.add(XmlError.forObject(XmlErrorCodes.PARTICLE_DERIVATION_RECURSE$MAP_VALID,
+                        new Object[] { printParticle(derivedParticle), printParticle(derivedModel), 
+                                       printParticle(baseParticle), printParticle(baseModel) },
+                        context));
                     break;
                 }
             }
@@ -796,31 +829,29 @@ public class StscChecker
         //  particles must not match
         if (i < derivedParticleArray.length) {
             recurseValid = false;
-            String message = "Found derived particles that are not matched in the base content model.";
-            errors.add(XmlError.forObject(formatDerivedMappingError(message, baseModel, derivedModel), context));
+            errors.add(XmlError.forObject(XmlErrorCodes.PARTICLE_DERIVATION_RECURSE$MAP,
+                new Object[] { printParticle(derivedModel), printParticle(baseModel), printParticles(derivedParticleArray, i) },
+                context));
         } else {
             // if at end of derived particle array and not at end of base particle array then chck remaining
             //  base particles to assure they are skippable
             if (j < baseParticleArray.length) {
+                ArrayList particles = new ArrayList(baseParticleArray.length);
                 for (int k = j; k < baseParticleArray.length; k++) {
                     if (!baseParticleArray[k].isSkippable()) {
-                        recurseValid = false;
-                        String message = "Found trailing base particles that are not optional and are not " +
-                                "represented in the derived content model.";
-                        errors.add(XmlError.forObject(formatDerivedMappingError(message, baseModel, derivedModel), context));
+                        particles.add(baseParticleArray[k]);
                     }
-
+                }
+                if (particles.size() > 0)
+                {
+                    recurseValid = false;
+                    errors.add(XmlError.forObject(XmlErrorCodes.PARTICLE_DERIVATION_RECURSE$UNMAPPED_ARE_EMPTIABLE,
+                        new Object[] { printParticle(baseModel), printParticle(derivedModel), printParticles(particles)}, context));
                 }
             }
         }
 
         return recurseValid;
-    }
-
-    private static String formatDerivedMappingError(String message, SchemaParticle baseModel, SchemaParticle derivedModel) {
-        return "Invalid Restriction.  The derived (restricted) content model must match the base content model unless "
-                + "the part of the base content model that does not match is optional.  A mismatch found between a base " +
-                printParticle(baseModel) + " and a derived " + printParticle(derivedModel) + ".  " + message;
     }
 
     private static boolean nsRecurseCheckCardinality(SchemaParticle baseModel, SchemaParticle derivedModel, Collection errors, XmlObject context) {
@@ -908,7 +939,9 @@ public class StscChecker
         // derived min occurs is valid if its {min occurs} is greater than or equal to the other's {min occurs}.
         if (minRange.compareTo(baseModel.getMinOccurs()) < 0) {
             groupOccurrenceOK = false;
-            errors.add(XmlError.forObject(formatGroupMinOccursError(derivedModel, baseModel), context));
+            errors.add(XmlError.forObject(XmlErrorCodes.OCCURRENCE_RANGE$MIN_GTE_MIN,
+                new Object[] { printParticle(derivedModel), printParticle(baseModel) },
+                context));
         }
         // Check max occurs for validity
         // one of the following must be true:
@@ -918,31 +951,21 @@ public class StscChecker
         if (baseModel.getMaxOccurs() != UNBOUNDED) {
             if (maxRange == UNBOUNDED) {
                 groupOccurrenceOK = false;
-                errors.add(XmlError.forObject(formatGroupMaxOccursError(derivedModel, baseModel), context));
+                errors.add(XmlError.forObject(XmlErrorCodes.OCCURRENCE_RANGE$MAX_LTE_MAX,
+                    new Object[] { printParticle(derivedModel), printParticle(baseModel) },
+                    context));
             } else {
                 if (maxRange.compareTo(baseModel.getMaxOccurs()) > 0) {
                     groupOccurrenceOK = false;
-                    errors.add(XmlError.forObject(formatGroupMaxOccursError(derivedModel, baseModel), context));
+                    errors.add(XmlError.forObject(XmlErrorCodes.OCCURRENCE_RANGE$MAX_LTE_MAX,
+                        new Object[] { printParticle(derivedModel), printParticle(baseModel) },
+                        context));
                 }
             }
         }
         return groupOccurrenceOK;
     }
-
-    private static String formatGroupMaxOccursError(SchemaParticle derivedModel, SchemaParticle baseModel) {
-        return "Invalid Restriction.  The maxOccurs for the derived group "
-                + printParticle(derivedModel)
-                + " is great than the base maxOccurs of "
-                + printMaxOccurs(baseModel.getMaxOccurs());
-    }
-
-    private static String formatGroupMinOccursError(SchemaParticle derivedModel, SchemaParticle baseModel) {
-        return "Invalid Restriction.  The minOccurs for the derived group "
-                + printParticle(derivedModel)
-                + " is less than the base minOccurs of "
-                + baseModel.getMinOccurs();
-    }
-
+    
     private static BigInteger getEffectiveMaxRangeChoice(SchemaParticle derivedModel) {
         BigInteger maxRange = BigInteger.ZERO;
         BigInteger UNBOUNDED = null;
@@ -1201,11 +1224,13 @@ public class StscChecker
                 nsSubset = true;
             } else {
                 nsSubset = false;
-                errors.add(XmlError.forObject(formatNSIsNotSubsetError(baseModel, derivedModel), context));
+                errors.add(XmlError.forObject(XmlErrorCodes.PARTICLE_DERIVATION_NS_SUBST$WILDCARD_SUBSET,
+                    new Object[] { printParticle(derivedModel), printParticle(baseModel) }, context));
             }
         } else {
             nsSubset = false;
-            errors.add(XmlError.forObject(formatNSIsNotSubsetError(baseModel, derivedModel), context));
+            // error already produced by occurrenceRangeOK
+            //errors.add(XmlError.forObject(formatNSIsNotSubsetError(baseModel, derivedModel), context));
         }
 
 
@@ -1224,82 +1249,104 @@ public class StscChecker
             if (occurrenceRangeOK(baseModel, (SchemaParticle) derivedElement, errors, context)) {
                 nsCompat = true;
             } else {
-                errors.add(XmlError.forObject(formatOccurenceRangeMinError(baseModel, (SchemaParticle) derivedElement), context));
+                // error already produced by occurrenceRangeOK
+                //errors.add(XmlError.forObject(formatOccurenceRangeMinError(baseModel, (SchemaParticle) derivedElement), context));
             }
         } else {
             nsCompat = false;
-            errors.add(XmlError.forObject(formatNSIsNotSubsetError(baseModel, (SchemaParticle) derivedElement), context));
+            errors.add(XmlError.forObject(XmlErrorCodes.PARTICLE_DERIVATION_NS_COMPAT$WILDCARD_VALID,
+                new Object[] { printParticle((SchemaParticle)derivedElement), printParticle(baseModel) },
+                context));
         }
 
 
         return nsCompat;
     }
 
-    private static String formatNSIsNotSubsetError(SchemaParticle baseParticle, SchemaParticle derivedParticle) {
-        return "Invalid Restriction. The namespace(s) of the derived field: " + printParticle(derivedParticle)
-                + " are not a subset of the namespace(s) of the base field: " + printParticle(baseParticle);
-    }
-
-    private static String formatInvalidCombinationError(SchemaParticle baseModel, SchemaParticle derivedModel) {
-        return "Invalid Restriction.  The derived content model "
-                + printParticle(derivedModel)
-                + " cannot restrict base content model "
-                + printParticle(baseModel);
-    }
-
     private static boolean nameAndTypeOK(SchemaLocalElement baseElement, SchemaLocalElement derivedElement, Collection errors, XmlObject context) {
         // nameAndTypeOK called when base: ELEMENT and derived: ELEMENT
-        boolean nameAndTypeOK = false;
+        
         // Schema Component Constraint: Particle Restriction OK (Elt:Elt -- NameAndTypeOK)
         // 1 The declarations' {name}s and {target namespace}s are the same.
-        if (((SchemaParticle)baseElement).canStartWithElement(derivedElement.getName())) {
-            // 2 Either B's {nillable} is true or R's {nillable} is false.
-            if (baseElement.isNillable() || !derivedElement.isNillable()) {
-                // 3 R's occurrence range is a valid restriction of B's occurrence range as defined by Occurrence Range OK (§3.9.6).
-                if (occurrenceRangeOK((SchemaParticle) baseElement, (SchemaParticle) derivedElement, errors, context)) {
-                    // 4 either B's declaration's {value constraint} is absent, or is not fixed,
-                    // or R's declaration's {value constraint} is fixed with the same value.
-                    nameAndTypeOK = checkFixed(baseElement, derivedElement, errors, context);
-                    if (nameAndTypeOK) {
-                        // 5 R's declaration's {identity-constraint definitions} is a subset of B's declaration's {identity-constraint definitions}, if any.
-                        nameAndTypeOK = checkIdentityConstraints(baseElement, derivedElement, errors, context);
-                        if (nameAndTypeOK) {
-                            // 7 R's {type definition} is validly derived given {extension, list, union} from B's {type definition} as
-                            // defined by Type Derivation OK (Complex) (§3.4.6) or Type Derivation OK (Simple) (§3.14.6), as appropriate.
-                            nameAndTypeOK = typeDerivationOK(baseElement.getType(), derivedElement.getType(), errors, context);
-                            if (nameAndTypeOK) {
-                                // 6 R's declaration's {disallowed substitutions} is a superset of B's declaration's {disallowed substitutions}.
-                                nameAndTypeOK = blockSetOK(baseElement, derivedElement, errors, context);
-                            }
-                        }
-                    }
-                }
-            }
+        if (!((SchemaParticle)baseElement).canStartWithElement(derivedElement.getName())) {
+            errors.add(XmlError.forObject(XmlErrorCodes.PARTICLE_RESTRICTION_NAME_AND_TYPE$NAME,
+                new Object[] { printParticle((SchemaParticle)derivedElement), printParticle((SchemaParticle)baseElement) }, context));
+            return false;
         }
-        return nameAndTypeOK;
+        
+        // 2 Either B's {nillable} is true or R's {nillable} is false.
+        if (!baseElement.isNillable() && derivedElement.isNillable()) {
+            errors.add(XmlError.forObject(XmlErrorCodes.PARTICLE_RESTRICTION_NAME_AND_TYPE$NILLABLE,
+                new Object[] { printParticle((SchemaParticle)derivedElement), printParticle((SchemaParticle)baseElement) }, context));
+            return false;
+        }
+        
+        // 3 R's occurrence range is a valid restriction of B's occurrence range as defined by Occurrence Range OK (§3.9.6).
+        if (!occurrenceRangeOK((SchemaParticle) baseElement, (SchemaParticle) derivedElement, errors, context)) {
+            // error already produced
+            return false;
+        }
+        
+        // 4 either B's declaration's {value constraint} is absent, or is not fixed,
+        // or R's declaration's {value constraint} is fixed with the same value.
+        if (!checkFixed(baseElement, derivedElement, errors, context))
+        {
+            // error already produced
+            return false;
+        }
+        
+        // 5 R's declaration's {identity-constraint definitions} is a subset of B's declaration's {identity-constraint definitions}, if any.
+        if (!checkIdentityConstraints(baseElement, derivedElement, errors, context))
+        {
+            // error already produced
+            return false;
+        }
+        
+        // 7 R's {type definition} is validly derived given {extension, list, union} from B's {type definition} as
+        // defined by Type Derivation OK (Complex) (§3.4.6) or Type Derivation OK (Simple) (§3.14.6), as appropriate.
+        if (!typeDerivationOK(baseElement.getType(), derivedElement.getType(), errors, context))
+        {
+            // error already produced
+            return false;
+        }
+        
+        // 6 R's declaration's {disallowed substitutions} is a superset of B's declaration's {disallowed substitutions}.
+        if (!blockSetOK(baseElement, derivedElement, errors, context))
+        {
+            // error already produced
+            return false;    
+        }
+
+        return true;
     }
     
     private static boolean blockSetOK(SchemaLocalElement baseElement, SchemaLocalElement derivedElement, Collection errors, XmlObject context)
     {
         if (baseElement.blockRestriction() && !derivedElement.blockRestriction())
         {
-            errors.add(XmlError.forObject("Restriction Invalid.  Derived " + printParticle((SchemaParticle)derivedElement) + " does not block restriction as does the base " + printParticle((SchemaParticle)baseElement), context));
+            errors.add(XmlError.forObject(XmlErrorCodes.PARTICLE_RESTRICTION_NAME_AND_TYPE$DISALLOWED_SUBSTITUTIONS,
+                new Object[] { printParticle((SchemaParticle)derivedElement), "restriction", printParticle((SchemaParticle)baseElement) },
+                context));
             return false;
         }
         if (baseElement.blockExtension() && !derivedElement.blockExtension())
         {
-            errors.add(XmlError.forObject("Restriction Invalid.  Derived " + printParticle((SchemaParticle)derivedElement) + " does not block extension as does the base " + printParticle((SchemaParticle)baseElement), context));
+            errors.add(XmlError.forObject(XmlErrorCodes.PARTICLE_RESTRICTION_NAME_AND_TYPE$DISALLOWED_SUBSTITUTIONS,
+                new Object[] { printParticle((SchemaParticle)derivedElement), "extension", printParticle((SchemaParticle)baseElement) },
+                context));
             return false;
         }
         if (baseElement.blockSubstitution() && !derivedElement.blockSubstitution())
         {
-            errors.add(XmlError.forObject("Restriction Invalid.  Derived " + printParticle((SchemaParticle)derivedElement) + " does not block substitution as does the base " + printParticle((SchemaParticle)baseElement), context));
+            errors.add(XmlError.forObject(XmlErrorCodes.PARTICLE_RESTRICTION_NAME_AND_TYPE$DISALLOWED_SUBSTITUTIONS,
+                new Object[] { printParticle((SchemaParticle)derivedElement), "substitution", printParticle((SchemaParticle)baseElement) },
+                context));
             return false;
         }
         return true;    
     }
 
-    private static boolean typeDerivationOK(SchemaType baseType, SchemaType derivedType, Collection errors, XmlObject context) {
+    private static boolean typeDerivationOK(SchemaType baseType, SchemaType derivedType, Collection errors, XmlObject context){
         boolean typeDerivationOK = false;
         // 1 If B and D are not the same type definition, then the {derivation method} of D must not be in the subset.
         // 2 One of the following must be true:
@@ -1318,14 +1365,11 @@ public class StscChecker
         } else {
             // derived type is not a sub-type of base type
             typeDerivationOK = false;
-            errors.add(XmlError.forObject(formatDerivedTypeNotSubTypeError(baseType, derivedType), context));
+            errors.add(XmlError.forObject(XmlErrorCodes.PARTICLE_RESTRICTION_NAME_AND_TYPE$TYPE_VALID,
+                new Object[] { printType(derivedType), printType(baseType) }, context));
         }
 
         return typeDerivationOK;
-    }
-
-    private static String formatDerivedTypeNotSubTypeError(SchemaType baseType, SchemaType derivedType) {
-        return "Restriction Invalid.  Derived Type: " + printType(derivedType) + " is not a sub-type of Base Type: " + printType(baseType);
     }
 
     private static boolean checkAllDerivationsForRestriction(SchemaType baseType, SchemaType derivedType, Collection errors, XmlObject context) {
@@ -1339,17 +1383,12 @@ public class StscChecker
                 currentType = currentType.getBaseType();
             } else {
                 allDerivationsAreRestrictions = false;
-                errors.add(XmlError.forObject(formatAllDerivationsAreNotRestrictionsError(baseType, derivedType, currentType), context));
+                errors.add(XmlError.forObject(XmlErrorCodes.PARTICLE_RESTRICTION_NAME_AND_TYPE$TYPE_RESTRICTED,
+                    new Object[] { printType(derivedType), printType(baseType), printType(currentType) }, context));
                 break;
             }
         }
         return allDerivationsAreRestrictions;
-    }
-
-    private static String formatAllDerivationsAreNotRestrictionsError(SchemaType baseType, SchemaType derivedType, SchemaType currentType) {
-        return "Invalid Restriction.  The type " + printType(derivedType) + " derived from base type "
-                + printType(baseType) + " has an intermediary type " + printType(currentType)
-                + "that is not derived by restriction.";
     }
 
     private static boolean checkIdentityConstraints(SchemaLocalElement baseElement, SchemaLocalElement derivedElement, Collection errors, XmlObject context) {
@@ -1363,16 +1402,13 @@ public class StscChecker
             SchemaIdentityConstraint derivedConstraint = derivedConstraints[i];
             if (checkForIdentityConstraintExistence(baseConstraints, derivedConstraint)) {
                 identityConstraintsOK = false;
-                errors.add(XmlError.forObject(formatIdentityConstraintsNotSubsetError(baseElement, derivedElement), context));
+                errors.add(XmlError.forObject(XmlErrorCodes.PARTICLE_RESTRICTION_NAME_AND_TYPE$IDENTITY_CONSTRAINTS,
+                    new Object[] { printParticle((SchemaParticle)derivedElement), printParticle((SchemaParticle)baseElement) },
+                    context));
                 break;
             }
         }
         return identityConstraintsOK;
-    }
-
-    private static String formatIdentityConstraintsNotSubsetError(SchemaLocalElement baseElement, SchemaLocalElement derivedElement) {
-        return "Restriction Invalid.  The identity constraints for " + printParticle((SchemaParticle)derivedElement)
-                + " are not a subset of the identity constraints for " + printParticle((SchemaParticle)baseElement);
     }
 
     private static boolean checkForIdentityConstraintExistence(SchemaIdentityConstraint[] baseConstraints, SchemaIdentityConstraint derivedConstraint) {
@@ -1399,7 +1435,10 @@ public class StscChecker
                 checkFixed = true;
             } else {
                 // The derived element has a fixed value that is different than the base element
-                errors.add(XmlError.forObject(formatInvalidFixedError(baseModel, derivedModel), context));
+                errors.add(XmlError.forObject(XmlErrorCodes.PARTICLE_RESTRICTION_NAME_AND_TYPE$FIXED,
+                    new Object[] { printParticle((SchemaParticle)derivedModel), derivedModel.getDefaultText(),
+                                   printParticle((SchemaParticle)baseModel), baseModel.getDefaultText() },
+                    context));
                 checkFixed = false;
             }
         } else {
@@ -1407,17 +1446,6 @@ public class StscChecker
             checkFixed = true;
         }
         return checkFixed;
-    }
-
-    private static String formatInvalidFixedError(SchemaLocalElement baseModel, SchemaLocalElement derivedModel) {
-        return "The Derived Content Model on Element: '"
-                + printParticle((SchemaParticle)derivedModel)
-                + "' has a fixed value of: '"
-                + derivedModel.getDefaultText()
-                + "' which does not match the Base Content Model: '"
-                + printParticle((SchemaParticle)baseModel)
-                + "' what has a fixed value of: '"
-                + baseModel.getDefaultText() + "'";
     }
 
     private static boolean occurrenceRangeOK(SchemaParticle baseParticle, SchemaParticle derivedParticle, Collection errors, XmlObject context) {
@@ -1436,57 +1464,47 @@ public class StscChecker
                     occurrenceRangeOK = true;
                 } else {
                     occurrenceRangeOK = false;
-                    if (baseParticle.getName() == null || derivedParticle.getName() == null) {
-                        errors.add(XmlError.forObject(formatOccurenceRangeMaxErrorGroup(baseParticle, derivedParticle), context));
-                    } else {
-                        errors.add(XmlError.forObject(formatOccurenceRangeMaxError(baseParticle, derivedParticle), context));
-                    }
+                    errors.add(XmlError.forObject(XmlErrorCodes.OCCURRENCE_RANGE$MAX_LTE_MAX,
+                        new Object[] { printParticle(derivedParticle), printMaxOccurs(derivedParticle.getMaxOccurs()),
+                                       printParticle(baseParticle), printMaxOccurs(baseParticle.getMaxOccurs()) },
+                        context));
                 }
             }
         } else {
             occurrenceRangeOK = false;
-            if (baseParticle.getName() == null || derivedParticle.getName() == null) {
-                errors.add(XmlError.forObject(formatOccurenceRangeMinErrorGroup(baseParticle, derivedParticle), context));
-            } else {
-                errors.add(XmlError.forObject(formatOccurenceRangeMinError(baseParticle, derivedParticle), context));
-            }
+            errors.add(XmlError.forObject(XmlErrorCodes.OCCURRENCE_RANGE$MIN_GTE_MIN,
+                new Object[] { printParticle(derivedParticle), derivedParticle.getMinOccurs().toString(),
+                               printParticle(baseParticle), baseParticle.getMinOccurs().toString() },
+                context));
         }
         return occurrenceRangeOK;
     }
 
-    private static String formatOccurenceRangeMaxErrorGroup(SchemaParticle baseParticle, SchemaParticle derivedParticle) {
-        return "Invalid Restriction.  The maxOccurs for the "
-                + printParticle(derivedParticle)
-                + " (" + printMaxOccurs(derivedParticle.getMaxOccurs())
-                + ") is greater than than the maxOccurs for the base "
-                + printParticle(baseParticle)
-                + " (" + printMaxOccurs(baseParticle.getMaxOccurs()) + ")";
+    private static String printParticles(List parts)
+    {
+        return printParticles((SchemaParticle[])parts.toArray(new SchemaParticle[parts.size()]));
     }
-
-    private static String formatOccurenceRangeMinErrorGroup(SchemaParticle baseParticle, SchemaParticle derivedParticle) {
-        return "Invalid Restriction.  The minOccurs for the "
-                + printParticle(derivedParticle)
-                + " (" + derivedParticle.getMinOccurs().toString()
-                + ") is less than than the minOccurs for the base "
-                + printParticle(baseParticle)
-                + " (" + baseParticle.getMinOccurs().toString() + ")";
+    
+    private static String printParticles(SchemaParticle[] parts)
+    {
+        return printParticles(parts, 0, parts.length);
     }
-
-    private static String formatOccurenceRangeMinError(SchemaParticle baseField, SchemaParticle derivedField) {
-        return "Invalid Restriction.  The minOccurs for the element: '"
-                + printParticle(derivedField)
-                + "' (" + derivedField.getMinOccurs().toString()
-                + ") is less than than the minOccurs for the base element: '"
-                + printParticle(baseField)
-                + "' (" + baseField.getMinOccurs().toString() + ")";
+    
+    private static String printParticles(SchemaParticle[] parts, int start)
+    {
+        return printParticles(parts, start, parts.length);
     }
-
-    private static String formatOccurenceRangeMaxError(SchemaParticle baseField, SchemaParticle derivedField) {
-        return "Invalid Restriction.  The maxOccurs for the element: '"
-                + printParticle(derivedField)
-                + "' (" + printMaxOccurs(derivedField.getMaxOccurs())
-                + ") is greater than than the maxOccurs for the base element: '"
-                + printParticle(baseField) + "' (" + printMaxOccurs(baseField.getMaxOccurs()) + ")";
+    
+    private static String printParticles(SchemaParticle[] parts, int start, int end)
+    {
+        StringBuffer buf = new StringBuffer(parts.length * 30);
+        for (int i = start; i < end; )
+        {
+            buf.append(printParticle(parts[i]));
+            if (++i != end)
+                buf.append(", ");
+        }
+        return buf.toString();
     }
     
     private static String printParticle(SchemaParticle part)
@@ -1540,14 +1558,14 @@ public class StscChecker
                 {
                     state.error("Element " + QNameHelper.pretty(elt.getName()) +
                         " must have a type that is derived from the type of its substitution group.",
-                        XmlErrorContext.INCONSISTENT_TYPE, parseTree);
+                        XmlErrorCodes.INCONSISTENT_TYPE, parseTree);
                     
                 }
                 else if (head.finalExtension() && head.finalRestriction())
                 {
                     state.error("Element " + QNameHelper.pretty(elt.getName()) + 
                         " cannot be substituted for element with final='#all'",
-                        XmlErrorContext.CANNOT_DERIVE_FINAL, parseTree);
+                        XmlErrorCodes.CANNOT_DERIVE_FINAL, parseTree);
                 }
                 else if (! headType.equals(tailType))
                 {
@@ -1556,14 +1574,14 @@ public class StscChecker
                     {
                         state.error("Element " + QNameHelper.pretty(elt.getName()) + 
                             " cannot be substituted for element with final='extension'",
-                            XmlErrorContext.CANNOT_DERIVE_FINAL, parseTree);
+                            XmlErrorCodes.CANNOT_DERIVE_FINAL, parseTree);
                     }
                     else if (head.finalRestriction() &&
                              tailType.getDerivationType() == SchemaType.DT_RESTRICTION)
                     {
                         state.error("Element " + QNameHelper.pretty(elt.getName()) + 
                             " cannot be substituted for element with final='restriction'",
-                            XmlErrorContext.CANNOT_DERIVE_FINAL, parseTree);
+                            XmlErrorCodes.CANNOT_DERIVE_FINAL, parseTree);
                     }
                 }
             }

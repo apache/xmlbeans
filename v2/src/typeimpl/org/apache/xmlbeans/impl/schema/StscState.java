@@ -15,7 +15,7 @@
 
 package org.apache.xmlbeans.impl.schema;
 
-import org.apache.xmlbeans.impl.common.XmlErrorContext;
+import org.apache.xmlbeans.XmlErrorCodes;
 import org.apache.xmlbeans.impl.common.QNameHelper;
 import org.apache.xmlbeans.impl.common.ResolverUtil;
 import org.apache.xmlbeans.impl.config.SchemaConfig;
@@ -291,18 +291,25 @@ public class StscState
         { _errorListener = errorListener; }
 
     /**
-     * Passes an error on to the current XmlErrorContext.
+     * Passes an error on to the current XmlErrorCodes.
+     * KHK: remove this
      */
     public void error(String message, int code, XmlObject loc)
-        { addError(_errorListener, message, code, loc); }
+    { addError(_errorListener, message, code, loc); }
+    
+    /**
+     * Passes an error on to the current XmlErrorCodes.
+     */
+    public void error(String code, Object[] args, XmlObject loc)
+        { addError(_errorListener, code, args, loc); }
 
     /**
-     * Passes a warning on to the current XmlErrorContext.
+     * Passes a warning on to the current XmlErrorCodes.
      */
     public void warning(String message, int code, XmlObject loc)
     {
         // it's OK for XMLSchema.xsd itself to have reserved type names
-        if (code == XmlErrorContext.RESERVED_TYPE_NAME &&
+        if (code == XmlErrorCodes.RESERVED_TYPE_NAME &&
                 loc.documentProperties().getSourceName() != null &&
                 loc.documentProperties().getSourceName().indexOf("XMLSchema.xsd") > 0)
             return;
@@ -311,16 +318,28 @@ public class StscState
     }
 
     /**
-     * Passes a warning on to the current XmlErrorContext.
+     * Passes a warning on to the current XmlErrorCodes.
      */
     public void info(String message)
         { addInfo(_errorListener, message); }
 
+    // KHK: remove this
     public static void addError(Collection errorListener, String message, int code, XmlObject location)
     {
         XmlError err =
             XmlError.forObject(
-              message,
+                message,
+                XmlError.SEVERITY_ERROR,
+                location);
+        errorListener.add(err);
+    }
+    
+    public static void addError(Collection errorListener, String code, Object[] args, XmlObject location)
+    {
+        XmlError err =
+            XmlError.forObject(
+              code,
+              args,
               XmlError.SEVERITY_ERROR,
               location);
         errorListener.add(err);
@@ -645,7 +664,7 @@ public class StscState
                 if (_redefinedGlobalTypes.containsKey(redefined))
                 {
                     if (!ignoreMdef(name))
-                        error("Duplicate global type: " + QNameHelper.pretty(name), XmlErrorContext.DUPLICATE_GLOBAL_TYPE, null);
+                        error("Duplicate global type: " + QNameHelper.pretty(name), XmlErrorCodes.DUPLICATE_GLOBAL_TYPE, null);
                 }
                 else
                 {
@@ -658,7 +677,7 @@ public class StscState
                 if (_globalTypes.containsKey(name))
                 {
                     if (!ignoreMdef(name))
-                        error("Duplicate global type: " + QNameHelper.pretty(name), XmlErrorContext.DUPLICATE_GLOBAL_TYPE, null);
+                        error("Duplicate global type: " + QNameHelper.pretty(name), XmlErrorCodes.DUPLICATE_GLOBAL_TYPE, null);
                 }
                 else
                 {
@@ -703,7 +722,7 @@ public class StscState
         if (_documentTypes.containsKey(name))
         {
             if (!ignoreMdef(name))
-                error("Duplicate global element: " + QNameHelper.pretty(name), XmlErrorContext.DUPLICATE_GLOBAL_ELEMENT, null);
+                error("Duplicate global element: " + QNameHelper.pretty(name), XmlErrorCodes.DUPLICATE_GLOBAL_ELEMENT, null);
         }
         else
         {
@@ -739,7 +758,7 @@ public class StscState
         if (_attributeTypes.containsKey(name))
         {
             if (!ignoreMdef(name))
-                error("Duplicate global attribute: " + QNameHelper.pretty(name), XmlErrorContext.DUPLICATE_GLOBAL_ATTRIBUTE, null);
+                error("Duplicate global attribute: " + QNameHelper.pretty(name), XmlErrorCodes.DUPLICATE_GLOBAL_ATTRIBUTE, null);
         }
         else
         {
@@ -863,7 +882,7 @@ public class StscState
                 if (_redefinedAttributeGroups.containsKey(redefined))
                 {
                     if (!ignoreMdef(name))
-                        error("Duplicate attribute group: " + QNameHelper.pretty(name), XmlErrorContext.DUPLICATE_GLOBAL_TYPE, null);
+                        error("Duplicate attribute group: " + QNameHelper.pretty(name), XmlErrorCodes.DUPLICATE_GLOBAL_TYPE, null);
                 }
                 else
                 {
@@ -876,7 +895,7 @@ public class StscState
                 if (_attributeGroups.containsKey( name ))
                 {
                     if (!ignoreMdef(name))
-                        error("Duplicate attribute group: " + QNameHelper.pretty(name), XmlErrorContext.DUPLICATE_GLOBAL_TYPE, null);
+                        error("Duplicate attribute group: " + QNameHelper.pretty(name), XmlErrorCodes.DUPLICATE_GLOBAL_TYPE, null);
                 }
                 else
                 {
@@ -938,7 +957,7 @@ public class StscState
                 if (_redefinedModelGroups.containsKey(redefined))
                 {
                     if (!ignoreMdef(name))
-                        error("Duplicate model group: " + QNameHelper.pretty(name), XmlErrorContext.DUPLICATE_GLOBAL_TYPE, null);
+                        error("Duplicate model group: " + QNameHelper.pretty(name), XmlErrorCodes.DUPLICATE_GLOBAL_TYPE, null);
                 }
                 else
                 {
@@ -951,7 +970,7 @@ public class StscState
                 if (_modelGroups.containsKey(name))
                 {
                     if (!ignoreMdef(name))
-                        error("Duplicate model group: " + QNameHelper.pretty(name), XmlErrorContext.DUPLICATE_GLOBAL_TYPE, null);
+                        error("Duplicate model group: " + QNameHelper.pretty(name), XmlErrorCodes.DUPLICATE_GLOBAL_TYPE, null);
                 }
                 else
                 {
@@ -989,7 +1008,7 @@ public class StscState
             if (_idConstraints.containsKey(name))
             {
                 if (!ignoreMdef(name))
-                    warning("Duplicate identity constraint: " + QNameHelper.pretty(name), XmlErrorContext.DUPLICATE_IDENTITY_CONSTRAINT, null);
+                    warning("Duplicate identity constraint: " + QNameHelper.pretty(name), XmlErrorCodes.DUPLICATE_IDENTITY_CONSTRAINT, null);
             }
             else
             {
@@ -1150,35 +1169,38 @@ public class StscState
 
     public void notFoundError(QName itemName, int code, XmlObject loc)
     {
-        String basicMessage;
-
+        String expected;
+        String expectedName = QNameHelper.pretty(itemName);
+        String found = null;
+        String foundName = null;
+        String sourceName = null;
+        
         switch (code)
         {
-            case XmlErrorContext.TYPE_NOT_FOUND:
-                basicMessage = "Type " + QNameHelper.pretty(itemName) + " not found.";
+            case SchemaType.TYPE:
+                expected = "type";
                 break;
-            case XmlErrorContext.ELEMENT_REF_NOT_FOUND:
-                basicMessage = "Element " + QNameHelper.pretty(itemName) + " not found.";
+            case SchemaType.ELEMENT:
+                expected = "element";
                 break;
-            case XmlErrorContext.ATTRIBUTE_REF_NOT_FOUND:
-                basicMessage = "Attribute " + QNameHelper.pretty(itemName) + " not found.";
+            case SchemaType.ATTRIBUTE:
+                expected = "attribute";
                 break;
-            case XmlErrorContext.MODEL_GROUP_NOT_FOUND:
-                basicMessage = "Model group " + QNameHelper.pretty(itemName) + " not found.";
+            case SchemaType.MODEL_GROUP:
+                expected = "model group";
                 break;
-            case XmlErrorContext.ATTRIBUTE_GROUP_NOT_FOUND:
-                basicMessage = "Attribute group " + QNameHelper.pretty(itemName) + " not found.";
+            case SchemaType.ATTRIBUTE_GROUP:
+                expected = "attribute group";
                 break;
-            case XmlErrorContext.IDC_NOT_FOUND:
-                basicMessage = "Identity constraint '" + QNameHelper.pretty(itemName) + "' not found.";
+            case SchemaType.IDENTITY_CONSTRAINT:
+                expected = "identity constraint";
                 break;
             default:
                 assert(false);
-                basicMessage = "Definition " + QNameHelper.pretty(itemName) + " not found.";
+                expected = "definition";
                 break;
         }
 
-        String helpfulMessage = "";
         SchemaComponent foundComponent = findSpelling(itemName);
         QName name;
         if (foundComponent != null)
@@ -1186,72 +1208,62 @@ public class StscState
             name = foundComponent.getName();
             if (name != null)
             {
-                String sourceName = null;
                 switch (foundComponent.getComponentType())
                 {
                     case SchemaComponent.TYPE:
+                        found = "type";
                         sourceName = ((SchemaType)foundComponent).getSourceName();
                         break;
                     case SchemaComponent.ELEMENT:
+                        found = "element";
                         sourceName = ((SchemaGlobalElement)foundComponent).getSourceName();
                         break;
                     case SchemaComponent.ATTRIBUTE:
+                        found = "attribute";
                         sourceName = ((SchemaGlobalAttribute)foundComponent).getSourceName();
                         break;
-                }
-                String source = "";
-                if (sourceName != null)
-                {
-                    source = " (in " +  sourceName.substring(sourceName.lastIndexOf('/') + 1) + ")";
+                    case SchemaComponent.ATTRIBUTE_GROUP:
+                        found = "attribute group";
+                        break;
+                    case SchemaComponent.MODEL_GROUP:
+                        found = "model group";
+                        break;
                 }
                 
-                if (name.equals(itemName))
+                if (sourceName != null)
                 {
-                    switch (foundComponent.getComponentType())
-                    {
-                        case SchemaComponent.TYPE:
-                            helpfulMessage = "  Do you mean to refer to the type with that name" + source + "?";
-                            break;
-                        case SchemaComponent.ELEMENT:
-                            helpfulMessage = "  Do you mean to refer to the element with that name" + source + "?";
-                            break;
-                        case SchemaComponent.ATTRIBUTE:
-                            helpfulMessage = "  Do you mean to refer to the attribute with that name" + source + "?";
-                            break;
-                        case SchemaComponent.ATTRIBUTE_GROUP:
-                            helpfulMessage = "  Do you mean to refer to the attribute group with that name" + source + "?";
-                            break;
-                        case SchemaComponent.MODEL_GROUP:
-                            helpfulMessage = "  Do you mean to refer to the model group with that name" + source + "?";
-                            break;
-                    }
+                    sourceName = sourceName.substring(sourceName.lastIndexOf('/') + 1);
                 }
-                else
+                
+                if (!name.equals(itemName))
                 {
-                    switch (foundComponent.getComponentType())
-                    {
-                        case SchemaComponent.TYPE:
-                            helpfulMessage = "  Do you mean to refer to the type named " + QNameHelper.pretty(name) + source + "?";
-                            break;
-                        case SchemaComponent.ELEMENT:
-                            helpfulMessage = "  Do you mean to refer to the element named " + QNameHelper.pretty(name) + source + "?";
-                            break;
-                        case SchemaComponent.ATTRIBUTE:
-                            helpfulMessage = "  Do you mean to refer to the attribute named " + QNameHelper.pretty(name) + source + "?";
-                            break;
-                        case SchemaComponent.ATTRIBUTE_GROUP:
-                            helpfulMessage = "  Do you mean to refer to the attribute group named " + QNameHelper.pretty(name) + source + "?";
-                            break;
-                        case SchemaComponent.MODEL_GROUP:
-                            helpfulMessage = "  Do you mean to refer to the model group named " + QNameHelper.pretty(name) + source + "?";
-                            break;
-                    }
+                    foundName = QNameHelper.pretty(name);
                 }
             }
         }
 
-        error(basicMessage + helpfulMessage, code, loc);
+        if (found == null)
+        {
+            // error with no help
+            error(XmlErrorCodes.SCHEMA_QNAME_RESOLVE,
+                new Object[] { expected, expectedName }, loc);
+        }
+        else {
+            // error with help
+            error(XmlErrorCodes.SCHEMA_QNAME_RESOLVE$HELP,
+                new Object[] {
+                    expected,
+                    expectedName,
+                    found,
+                    (foundName == null ? new Integer(0) : new Integer(1)),
+                    foundName,
+                    (sourceName == null ? new Integer(0) : new Integer(1)),
+                    sourceName
+                },
+                loc);
+        }
     }
+    
 
     /**
      * Produces the "sourceName" (to be used within the schema project

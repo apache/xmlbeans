@@ -35,6 +35,7 @@ public abstract class JavaStringEnumerationHolderEx extends JavaStringHolderEx
     {
         StringEnumAbstractBase se = schemaType().enumForString(s);
         if (se == null)
+            // KHK: cvc-enumeration-valid
             throw new XmlValueOutOfRangeException("String '" + s + "' is not a valid enumerated value for " + schemaType());
 
         super.set_text(s);
@@ -51,6 +52,7 @@ public abstract class JavaStringEnumerationHolderEx extends JavaStringHolderEx
             {
                 if (context != null)
                 {
+                    // KHK: cvc-enumeration-valid
                     context.invalid("String '" + v + "' is not a valid enumerated value for " + QNameHelper.readable(sType));
                 }
             }

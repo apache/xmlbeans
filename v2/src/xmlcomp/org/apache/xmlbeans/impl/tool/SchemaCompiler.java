@@ -22,7 +22,7 @@ import org.apache.xmlbeans.impl.schema.StscState;
 import org.apache.xmlbeans.impl.schema.SchemaTypeLoaderImpl;
 import org.apache.xmlbeans.impl.common.XmlErrorPrinter;
 import org.apache.xmlbeans.impl.common.XmlErrorWatcher;
-import org.apache.xmlbeans.impl.common.XmlErrorContext;
+import org.apache.xmlbeans.XmlErrorCodes;
 import org.apache.xmlbeans.impl.common.ResolverUtil;
 import org.apache.xmlbeans.impl.common.IOUtil;
 import org.apache.xmlbeans.impl.values.XmlListImpl;
@@ -656,7 +656,7 @@ public class SchemaCompiler
                     XmlObject schemadoc = loader.parse(xsdFiles[i], null, options);
                     if (!(schemadoc instanceof SchemaDocument))
                     {
-                        StscState.addError(errorListener, "Document " + xsdFiles[i] + " is not a schema file", XmlErrorContext.CANNOT_LOAD_XSD_FILE, schemadoc);
+                        StscState.addError(errorListener, "Document " + xsdFiles[i] + " is not a schema file", XmlErrorCodes.CANNOT_LOAD_XSD_FILE, schemadoc);
                     }
                     else
                     {
@@ -672,7 +672,7 @@ public class SchemaCompiler
                 }
                 catch (Exception e)
                 {
-                    StscState.addError(errorListener, "Cannot load file " + xsdFiles[i] + ": " + e, XmlErrorContext.CANNOT_LOAD_XSD_FILE, xsdFiles[i]);
+                    StscState.addError(errorListener, "Cannot load file " + xsdFiles[i] + ": " + e, XmlErrorCodes.CANNOT_LOAD_XSD_FILE, xsdFiles[i]);
 e.printStackTrace();
                 }
             }
@@ -695,11 +695,11 @@ e.printStackTrace();
                     XmlObject wsdldoc = loader.parse(wsdlFiles[i], null, options);
 
                     if (!(wsdldoc instanceof org.apache.internal.xmlbeans.wsdlsubst.DefinitionsDocument))
-                        StscState.addError(errorListener, "Document " + wsdlFiles[i] + " is not a wsdl file", XmlErrorContext.CANNOT_LOAD_XSD_FILE, wsdldoc);
+                        StscState.addError(errorListener, "Document " + wsdlFiles[i] + " is not a wsdl file", XmlErrorCodes.CANNOT_LOAD_XSD_FILE, wsdldoc);
                     else
                     {
                         if (wsdlContainsEncoded(wsdldoc))
-                            StscState.addWarning(errorListener, "The WSDL " + wsdlFiles[i] + " uses SOAP encoding. SOAP encoding is not compatible with literal XML Schema.", XmlErrorContext.CANNOT_LOAD_XSD_FILE, wsdldoc);
+                            StscState.addWarning(errorListener, "The WSDL " + wsdlFiles[i] + " uses SOAP encoding. SOAP encoding is not compatible with literal XML Schema.", XmlErrorCodes.CANNOT_LOAD_XSD_FILE, wsdldoc);
                         StscState.addInfo(errorListener, "Loading wsdl file " + wsdlFiles[i]);
                         XmlObject[] types = ((org.apache.internal.xmlbeans.wsdlsubst.DefinitionsDocument)wsdldoc).getDefinitions().getTypesArray();
                         int count = 0;
@@ -723,7 +723,7 @@ e.printStackTrace();
                 }
                 catch (Exception e)
                 {
-                    StscState.addError(errorListener, "Cannot load file " + wsdlFiles[i] + ": " + e, XmlErrorContext.CANNOT_LOAD_XSD_FILE, wsdlFiles[i]);
+                    StscState.addError(errorListener, "Cannot load file " + wsdlFiles[i] + ": " + e, XmlErrorCodes.CANNOT_LOAD_XSD_FILE, wsdlFiles[i]);
 e.printStackTrace();
                 }
             }
@@ -746,7 +746,7 @@ e.printStackTrace();
 
                     XmlObject configdoc = loader.parse(configFiles[i], null, options);
                     if (!(configdoc instanceof ConfigDocument))
-                        StscState.addError(errorListener, "Document " + configFiles[i] + " is not an xsd config file", XmlErrorContext.CANNOT_LOAD_XSD_FILE, configdoc);
+                        StscState.addError(errorListener, "Document " + configFiles[i] + " is not an xsd config file", XmlErrorCodes.CANNOT_LOAD_XSD_FILE, configdoc);
                     else
                     {
                         StscState.addInfo(errorListener, "Loading config file " + configFiles[i]);
@@ -760,7 +760,7 @@ e.printStackTrace();
                 }
                 catch (Exception e)
                 {
-                    StscState.addError(errorListener, "Cannot load xsd config file " + configFiles[i] + ": " + e, XmlErrorContext.CANNOT_LOAD_XSD_CONFIG_FILE, configFiles[i]);
+                    StscState.addError(errorListener, "Cannot load xsd config file " + configFiles[i] + ": " + e, XmlErrorCodes.CANNOT_LOAD_XSD_CONFIG_FILE, configFiles[i]);
                 }
             }
         }
