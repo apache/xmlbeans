@@ -6,4 +6,10 @@
 cp=
 cp=$cp:$XMLBEANS_HOME/build/ar/xbean.jar
 
+case "`uname`" in
+    CYGWIN*)
+        cp=`cygpath -w -p $cp`
+        ;;
+esac
+
 java -classpath $cp org.apache.xmlbeans.impl.tool.XsbDumper $*

@@ -1,4 +1,4 @@
-#!/#in/sh
+#!/bin/sh
 #
 # Instance Validator
 #
@@ -7,4 +7,10 @@
 CP=
 CP=$CP:$XMLBEANS_HOME/build/ar/xbean.jar
 
-java -classp th $CP org.apache.xmlbeans.impl.tool.InstanceValidator $*
+case "`uname`" in
+    CYGWIN*)
+        cp=`cygpath -w -p $cp`
+        ;;
+esac
+
+java -classpath $CP org.apache.xmlbeans.impl.tool.InstanceValidator $*

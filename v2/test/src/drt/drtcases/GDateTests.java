@@ -486,6 +486,8 @@ public class GDateTests extends TestCase
     public static void testAPI() throws Exception
     {
         GDateBuilder builder = new GDateBuilder("1970-12-20T04:14:22Z");
+        builder.normalizeToTimeZone(1, 0, 0);
+        Assert.assertEquals("1970-12-20T04:14:22+00:00", builder.toString());
         builder.setTimeZone(615);
         Assert.assertEquals("1970-12-20T04:14:22+10:15", builder.toString());
         builder.setTimeZone(-345);
