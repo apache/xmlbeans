@@ -15,7 +15,7 @@
 
 package org.apache.xmlbeans.impl.jam.editable.impl;
 
-import org.apache.xmlbeans.impl.jam.editable.EServiceParams;
+import org.apache.xmlbeans.impl.jam.editable.EResultParams;
 import org.apache.xmlbeans.impl.jam.JAnnotationLoader;
 import org.apache.xmlbeans.impl.jam.JClassLoader;
 import org.apache.xmlbeans.impl.jam.JFactory;
@@ -27,7 +27,7 @@ import java.io.PrintWriter;
  *
  * @author Patrick Calahan <pcal@bea.com>
  */
-public class EServiceParamsImpl implements EServiceParams {
+public class EResultParamsImpl implements EResultParams {
 
   // ========================================================================
   // Variables
@@ -53,7 +53,7 @@ public class EServiceParamsImpl implements EServiceParams {
   }
 
   // ========================================================================
-  // EServiceParams implementation
+  // EResultParams implementation
 
   public void setAnnotationLoader(JAnnotationLoader ann) {
     mAnnLoader = ann;

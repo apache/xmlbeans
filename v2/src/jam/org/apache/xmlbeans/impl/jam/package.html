@@ -36,4 +36,173 @@ from any specific introspection mechanism such as javadoc or reflection.
 
 </ul>
 
+
+<h3>Comparison of Java Type Inspection Technologies</h3>
+
+
+
+<table border='1'>
+  <tr>
+    <td />
+    <td colspan='2' align='center'>JDK 1.4</td>
+    <td colspan='2' align='center'>JDK 1.5</td>
+  </tr>
+  <tr>
+    <td />
+    <td>Javadoc</td>
+    <td>Reflect</td>
+    <td>Javadoc</td>
+    <td>Reflect</td>
+    <td>JavaBeans</td>
+    <td>XDoclet</td>
+    <td>QDox</td>
+    <td>JAM</td>
+  </tr>
+
+  <tr>
+    <td>JSR-175 from sources</td>
+    <td>no</td>
+    <td>no</td>
+    <td bgcolor='#22DD22'>yes</td>
+    <td>no</td>
+    <td>no</td>
+    <td>no</td>
+    <td>no</td>
+    <td bgcolor='#22DD22'>yes</td>
+  </tr>
+
+  <tr>
+    <td>JSR-175 from classfiles</td>
+    <td>no</td>
+    <td>no</td>
+    <td>no</td>
+    <td bgcolor='#22DD22'>yes</td>
+    <td>no</td>
+    <td>no</td>
+    <td>no</td>
+    <td bgcolor='#22DD22'>yes</td>
+  </tr>
+
+  <tr>
+    <td>Javadoc-style metadata from source</td>
+    <td bgcolor='#22DD22'>yes</td>
+    <td>no</td>
+    <td>?</td>
+    <td>no</td>
+    <td>no</td>
+    <td>?</td>
+    <td>?</td>
+    <td bgcolor='#22DD22'>yes</td>
+  </tr>
+
+  <tr>
+    <td>Line/column number info</td>
+    <td bgcolor='#22DD22'>yes</td>
+    <td>no(1)</td>
+    <td bgcolor='#22DD22'>yes</td>
+    <td>no(1)</td>
+    <td>no(1)</td>
+    <td bgcolor='#22DD22'>yes</td>
+    <td bgcolor='#22DD22'>yes</td>
+    <td bgcolor='#22DD22'>yes</td>
+  </tr>
+
+  <tr>
+    <td>Retrieve comments from source</td>
+    <td bgcolor='#22DD22'>yes</td>
+    <td>no</td>
+    <td bgcolor='#22DD22'>yes</td>
+    <td>no</td>
+    <td>no</td>
+    <td bgcolor='#22DD22'>yes</td>
+    <td bgcolor='#22DD22'>yes</td>
+    <td bgcolor='#22DD22'>yes</td>
+  </tr>
+
+  <tr>
+    <td>Method parameter names</td>
+    <td bgcolor='#22DD22'>yes</td>
+    <td>no(1)</td>
+    <td bgcolor='#22DD22'>yes</td>
+    <td>no(1)</td>
+    <td>no(1)</td>
+    <td bgcolor='#22DD22'>yes</td>
+    <td bgcolor='#22DD22'>yes</td>
+    <td bgcolor='#22DD22'>yes</td>
+  </tr>
+
+  <tr>
+    <td>Overlay external metadata</td>
+    <td>no</td>
+    <td>no</td>
+    <td>no</td>
+    <td>no</td>
+    <td>no</td>
+    <td>no</td>
+    <td>no</td>
+    <td bgcolor='#22DD22'>yes</td>
+  </tr>
+
+  <tr>
+    <td>Full introspection of 175 annotation types<br>
+        (including default values)</td>
+    <td>no</td>
+    <td>no</td>
+    <td>no</td>
+    <td>no</td>
+    <td>no</td>
+    <td>no</td>
+    <td>no</td>
+    <td bgcolor='#22DD22'>yes</td>
+  </tr>
+
+
+  <tr>
+    <td>Parse invalid source files</td>
+    <td>no</td>
+    <td>no</td>
+    <td>no</td>
+    <td>no</td>
+    <td>no</td>
+    <td>no</td>
+    <td>no</td>
+    <td bgcolor='#22DD22'>yes</td>
+  </tr>
+
+  <tr>
+    <td>Extensibility/SPI</td>
+    <td>no</td>
+    <td>no</td>
+    <td>no</td>
+    <td>no</td>
+    <td>no</td>
+    <td>no</td>
+    <td>no</td>
+    <td bgcolor='#22DD22'>yes</td>
+  </tr>
+
+  <tr>
+    <td>Supports 'Property' abstraction</td>
+    <td>no</td>
+    <td>no</td>
+    <td>no</td>
+    <td>no</td>
+    <td bgcolor='#22DD22'>yes</td>
+    <td>no</td>
+    <td>no</td>
+    <td bgcolor='#22DD22'>yes</td>
+  </tr>
+
+  </table>
+
+<h4>notes</h4>
+<p>
+    (1) This information is embedded in the .class files when the -g debug
+        flag specified on javac so that it can be displayed in stack
+        traces.  However, there still is no API provided for retrieving 
+        this information at runtime.<br />
+</p>
+
+
+
 </body>

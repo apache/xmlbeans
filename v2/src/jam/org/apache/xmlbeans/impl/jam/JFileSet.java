@@ -22,7 +22,7 @@ import java.io.IOException;
  * <p>Describes a set of input source files which describe the java types to
  * be represented.  Instances of JFileSet are created by JFactory.</p>
  *
- * @deprecated Please us JServiceFactory instead.
+ * @deprecated Please us JResultFactory instead.
  *
  * @author Patrick Calahan <pcal@bea.com>
  */

@@ -171,7 +171,7 @@ options {
 
   private String mLastJavadoc = null;
   private String /*EPackage*/ mPackage;
-  private EService mService;
+  private EResult mResult;
   private List mErrors = null;
   private List mImports = new ArrayList();
   private List mClasses = new ArrayList();
@@ -182,12 +182,12 @@ options {
   // ========================================================================
   // Public methods
 
-  public void init(EService service, EClass clazz) {
-    mService = service;
+  public void init(EResult result, EClass clazz) {
+    mResult = result;
   }
 
-  public void setService(EService service) {
-    mService = service;
+  public void setService(EResult result) {
+    mResult = result;
   }
 
   public EClass[] getResults() {
@@ -240,7 +240,7 @@ options {
 
     private EClass newClass(String simpleName) {
     //FIXME more to do here
-      EClass clazz = mService.addNewClass(mPackage,simpleName/*,mImports*/);
+      EClass clazz = mResult.addNewClass(mPackage,simpleName/*,mImports*/);
       mClasses.add(clazz);
       return clazz;
     }

@@ -18,9 +18,9 @@ import org.apache.xmlbeans.impl.jam.internal.parser.generated.JavaLexer;
 import org.apache.xmlbeans.impl.jam.internal.parser.generated.JavaParser;
 import org.apache.xmlbeans.impl.jam.internal.JamPrinter;
 import org.apache.xmlbeans.impl.jam.editable.EClass;
-import org.apache.xmlbeans.impl.jam.editable.EService;
-import org.apache.xmlbeans.impl.jam.editable.EServiceFactory;
-import org.apache.xmlbeans.impl.jam.editable.EServiceParams;
+import org.apache.xmlbeans.impl.jam.editable.EResult;
+import org.apache.xmlbeans.impl.jam.editable.EResultFactory;
+import org.apache.xmlbeans.impl.jam.editable.EResultParams;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -52,7 +52,7 @@ public class JavaSourceParser {
   // ========================================================================
   // Public methods
 
-  public EClass[] parse(Reader in, EService service) throws Exception {
+  public EClass[] parse(Reader in, EResult service) throws Exception {
     JavaLexer lexer = new JavaLexer(in);
     JavaParser parser = new JavaParser(lexer);
     parser.setService(service);
@@ -61,9 +61,9 @@ public class JavaSourceParser {
   }
 
   public EClass[] parse(Reader in) throws Exception {
-    EServiceFactory esf = EServiceFactory.getInstance();
-    EServiceParams params = esf.createServiceParams();
-    EService defaultService = esf.createService(params);
+    EResultFactory esf = EResultFactory.getInstance();
+    EResultParams params = esf.createServiceParams();
+    EResult defaultService = esf.createService(params);
     JavaLexer lexer = new JavaLexer(in);
     JavaParser parser = new JavaParser(lexer);
     parser.setService(defaultService);
