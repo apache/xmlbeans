@@ -12,57 +12,102 @@ This file contains an outline of the site's information content.  It is used to:
 
 See http://xml.apache.org/forrest/linking.html for more info
 -->
-<site label="XMLBeans" href="" xmlns="http://apache.org/forrest/linkmap/1.0" tab="">
-	<about label="About">
-		<index label="Overview" href="index.html" description="Welcome to XMLBeans"/>
-		<newsAndEvents label="News and Events" href="index.html#News+and+events" description="XMLBeans News and Events"/>
-		<proposal label="Proposal" href="http://nagoya.apache.org/wiki/apachewiki.cgi?XmlBeansProposal" description="The original XMLBeans Project Proposal"/>
-		<todo label="To Do" href="http://nagoya.apache.org/wiki/apachewiki.cgi?XMLBeansToDo" description="Action items, mostly regarding incubation exit criteria"/>
-		<!--
-		<all_site label="Full HTML" href="site.html" />
-		<all_sitePDF label="Full PDF" href="site.pdf" />
-		-->
-	</about>
-	<sourceAndBinaries label="Source and Binaries" href="sourceAndBinaries/" tab="sourceAndBinaries">
-		<version1 label="Version 1 Binaries and Dev Kit" href="index.html#XMLBeans Version 1 Binary and Development Kit" description="XMLBeans Development Kit provides binaries as well as utilities and doc"/>
-		<source label="Source Access" href="index.html#XMLBeans+Source" description="Information on getting XMLBeans source"/>
-	</sourceAndBinaries>
-	<documentation label="Documentation" href="documentation/" tab="documentation">
-		<faq label="XMLBeans FAQ" href="index.html#FAQ" description="XMLBeans Frequently Asked Questions"/>
-		<userdoc label="Installing XMLBeans" href="conInstallGuide.html" description="Install XMLBeans"/>
-		<userdoc label="Version 1 User Documentation" href="index.html#XMLBeans+Version+1+User+Documentation" description="XMLBeans Version 1 User Documentation"/>
-		<userdoc label="Version 1 JavaDoc" href="index.html#XMLBeans+Version+1+JavaDoc" description="XMLBeans Version 1 JavaDoc"/>
-	</documentation>
-	<community label="Community" href="community/" tab="community">
-		<mailingLists label="Mailing Lists" href="index.html#Mailing+Lists" description="Mailing List Information"/>
-		<whoWeAre label="Who we are" href="index.html#Who+we+are" description="List of committers"/>
-	</community>
-	<projectManagement label="Project Managment" href="projectManagement/" tab="projectManagement">
-		<version1 label="Version 1 Project Management" href="index.html#XMLBeans+Version+1+Project+Management" description="Information on the progress of XMLBeans Version 1"/>
-		<version2 label="Version 2 Project Management" href="index.html#XMLBeans+Version+2+Project+Management" description="Information on the progress of XMLBeans Version 2"/>
-		<bugs label="XMLBeans Bug Tracking" href="index.html#XMLBeans+Bug+Tracking" description="Where to find or log bugs for XMLBeans"/>
-	</projectManagement>
-	<all>
-		<whole_site_html label="Whole Site HTML" href="site.html"/>
-		<whole_site_html label="Whole Site PDF" href="site.pdf"/>
-	</all>
-	<external-refs>
-		<xml.apache.org href="http://xml.apache.org/">
-			<forrest href="forrest/">
-				<validation href="validation.html"/>
-				<webapp href="your-project.html#webapp"/>
-				<document-v12 href="document-v12.html"/>
-			</forrest>
-			<cocoon href="cocoon/"/>
-		</xml.apache.org>
-		<mailsubuser label="XmlBeans User List Subscribe" href="mailto:xmlbeans-user-subscribe@xml.apache.org"/>
-		<mailunsubuser label="XmlBeans User List UnSubscribe" href="mailto:xmlbeans-user-unsubscribe@xml.apache.org"/>
-		<mailsubdev label="XmlBeans Dev List Subscribe" href="mailto:xmlbeans-dev-subscribe@xml.apache.org"/>
-		<mailunsubdev label="XmlBeans Dev List UnSubscribe" href="mailto:xmlbeans-dev-unsubscribe@xml.apache.org"/>
-		<mailsubcvs label="XmlBeans CVS List Subscribe" href="mailto:xmlbeans-cvs-subscribe@xml.apache.org"/>
-		<mailunsubcvs label="XmlBeans CVS List UnSubscribe" href="mailto:xmlbeans-cvs-unsubscribe@xml.apache.org"/>
-		<userlistarchive label="XmlBeams User List Archive" href="http://nagoya.apache.org/eyebrowse/SummarizeList?listId=152"/>
-		<devlistarchive label="XmlBeans Dev List Archive" href="http://nagoya.apache.org/eyebrowse/SummarizeList?listId=151"/>
-		<cvslistarchive label="XmlBeans CVS List Archive" href="http://nagoya.apache.org/eyebrowse/SummarizeList?listId=150"/>
-	</external-refs>
+<site label="XMLBeans" xmlns="http://apache.org/forrest/linkmap/1.0">
+    <main_index_file tab="home">
+        <index href="index.html"/>
+    </main_index_file>
+    <download-tab label="Download" href="sourceAndBinaries/" tab="download">
+        <index href="index.html"/>
+        <releases label="Releases" href="index.html#XMLBeans+Version+1.02+Binary+and+Development+Kit"
+            description="Download an XMLBeans release." tab="download"/>
+        <source label="Source Code" href="index.html#XMLBeans+Source"
+            description="Get the source code." tab="download"/>
+        <install label="Installing XMLBeans" href="../documentation/conInstallGuide.html" description="Install XMLBeans"/>
+    </download-tab>
+    <documentation-tab label="Documentation" href="documentation/" tab="documentation">
+        <index href="index.html"/>
+<!--        <newuser label="New to XMLBeans" href="quickstart.html" description="Use a quick start to get acquainted."/> -->
+        <faq label="FAQ" href="http://wiki.apache.org/xmlbeans/XmlBeansV1Faq" description="View Frequently Asked Questions"/>
+        <userdoc label="User Guide" href="index.html#XMLBeans+Version+1+User+Documentation" description="Check out the user guide."/>
+        <userdoc label="Javadoc" href="../docs/reference/index.html" description="Look over references."/>
+<!--        <samples label="Sample Code" href="samples.html" description="Download sample code."/> -->
+        <install label="Installing XMLBeans" href="conInstallGuide.html" description="Install XMLBeans"/>
+    </documentation-tab>
+    <community-tab label="Community" href="community/" tab="community">
+        <index href="index.html"/>
+        <whoWeAre label="Who We Are" href="index.html#Who+we+are" description="See the list of committers"/>
+        <mailingLists label="Mailing Lists" href="index.html#Mailing+Lists" description="Get mailing list information"/>
+    </community-tab>
+    <project-tab label="Project" href="projectManagement/" tab="project">
+        <index href="index.html"/>
+        <incubation label="Incubation Exit Criteria" href="index.html#Incubation+Exit+Criteria" description="Exiting from incubation"/>
+        <version1 label="About Version 1" href="index.html#XMLBeans+Version+1+Project+Management" description="Read a note on the progress of XMLBeans Version 1"/>
+        <version2 label="About Version 2 Plans"
+            href="index.html#XMLBeans+Version+2+Project+Management" description="Read information on the progress of XMLBeans Version 2"/>
+        <bugs label="Bug Tracking" href="index.html#XMLBeans+Bug+Lists" description="Find or log XMLBeans bugs"/>
+        <todo label="To Do" href="http://nagoya.apache.org/wiki/apachewiki.cgi?XMLBeansToDo" description="Read action items, mostly regarding incubation exit criteria"/>
+        <proposal label="Initial Proposal"
+            href="http://nagoya.apache.org/wiki/apachewiki.cgi?XmlBeansProposal" description="Read the original XMLBeans project proposal"/>
+        <roadmap label="XMLBeans Road Map"
+            href="http://nagoya.apache.org/wiki/apachewiki.cgi?XmlBeansRoadMap" description="Read ideas for future evolution"/>
+    </project-tab>
+    <home label="Home" href="" tab="home">
+        <index href="index.html"/>
+        <learn label="Learn About XMLBeans">
+            <index label="Overview" href="index.html" description="Welcome to XMLBeans"/>
+<!--            <newuser label="New to XMLBeans" href="documentation/quickstart.html" description="Use a quick start to get acquainted."/> -->
+            <faq label="FAQ" href="http://wiki.apache.org/xmlbeans/XmlBeansV1Faq" description="View Frequently Asked Questions"/>
+            <userdoc label="User Guide"
+                href="documentation/index.html#XMLBeans+Version+1+User+Documentation" description="Check out the user guide."/>
+            <userdoc label="Javadoc" href="docs/reference/index.html" description="Look over references."/>
+<!--            <samples label="Sample Code" href="documentation/samples.html" description="Download sample code."/> -->
+            <explanation label="An Explanation" href="http://nagoya.apache.org/wiki/apachewiki.cgi?XmlBeansExplanation" description="Read about the rationale for XMLBeans"/>
+        </learn>
+        <download label="Get XMLBeans">
+            <releases label="Releases"
+                href="sourceAndBinaries/index.html#XMLBeans+Version+1.02+Binary+and+Development+Kit" description="Download an XMLBeans release."/>
+            <source label="Source Code" href="sourceAndBinaries/index.html#XMLBeans+Source" description="Get the source code."/>
+            <install label="Installing XMLBeans" href="documentation/conInstallGuide.html" description="Install XMLBeans"/>
+        </download>
+        <projectinfo label="Get Project Information">
+            <whoWeAre label="Who We Are" href="community/index.html#Who+we+are" description="See the list of committers"/>
+            <mailingLists label="Mailing Lists" href="community/index.html#Mailing+Lists" description="Get mailing list information"/>
+<!--            <proposal label="Initial Proposal"
+                href="http://nagoya.apache.org/wiki/apachewiki.cgi?XmlBeansProposal" description="Read the original XMLBeans Project Proposal"/>
+-->
+            <bugs label="Bug Tracking" href="projectManagement/index.html#XMLBeans+Bug+Lists" description="Find or log XMLBeans bugs"/>
+<!--
+            <version1 label="About Version 1"
+                href="projectManagement/index.html#XMLBeans+Version+1+Project+Management" description="Read a note on the progress of XMLBeans Version 1"/>
+-->
+            <version2 label="Version 2 Plans"
+                href="projectManagement/index.html#XMLBeans+Version+2+Project+Management" description="Read about the progress of XMLBeans Version 2"/>
+<!--
+            <todo label="To Do" href="http://nagoya.apache.org/wiki/apachewiki.cgi?XMLBeansToDo" description="Read action items, mostly regarding incubation exit criteria"/>
+-->
+        </projectinfo>
+    </home>
+    <all>
+        <whole_site_html label="Whole Site HTML" href="site.html"/>
+        <whole_site_html label="Whole Site PDF" href="site.pdf"/>
+    </all>
+    <external-refs>
+        <xml.apache.org href="http://xml.apache.org/">
+            <forrest href="forrest/">
+                <validation href="validation.html"/>
+                <webapp href="your-project.html#webapp"/>
+                <document-v12 href="document-v12.html"/>
+            </forrest>
+            <cocoon href="cocoon/"/>
+        </xml.apache.org>
+        <mailsubuser label="XmlBeans User List Subscribe" href="mailto:xmlbeans-user-subscribe@xml.apache.org"/>
+        <mailunsubuser label="XmlBeans User List UnSubscribe" href="mailto:xmlbeans-user-unsubscribe@xml.apache.org"/>
+        <mailsubdev label="XmlBeans Dev List Subscribe" href="mailto:xmlbeans-dev-subscribe@xml.apache.org"/>
+        <mailunsubdev label="XmlBeans Dev List UnSubscribe" href="mailto:xmlbeans-dev-unsubscribe@xml.apache.org"/>
+        <mailsubcvs label="XmlBeans CVS List Subscribe" href="mailto:xmlbeans-cvs-subscribe@xml.apache.org"/>
+        <mailunsubcvs label="XmlBeans CVS List UnSubscribe" href="mailto:xmlbeans-cvs-unsubscribe@xml.apache.org"/>
+        <userlistarchive label="XmlBeams User List Archive" href="http://nagoya.apache.org/eyebrowse/SummarizeList?listId=152"/>
+        <devlistarchive label="XmlBeans Dev List Archive" href="http://nagoya.apache.org/eyebrowse/SummarizeList?listId=151"/>
+        <cvslistarchive label="XmlBeans CVS List Archive" href="http://nagoya.apache.org/eyebrowse/SummarizeList?listId=150"/>
+    </external-refs>
 </site>
