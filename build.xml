@@ -19,14 +19,13 @@
     <property name="javac.source" value="1.4"/>
     <property name="javac.target" value="1.4"/>
 
-    <property name="product.version" value="2.0.0-beta1"/>
+    <property name="version.base" value="2.0.0-beta1"/>
 
     <!-- manifest entries -->
     <property name="manifest.name" value="org/apache/xmlbeans/"/>
     <property name="manifest.title" value="org.apache.xmlbeans"/>
     <property name="manifest.vendor" value="Apache Software Foundation"/>
     <property name="manifest.url" value="http://xmlbeans.apache.org/"/>
-    <property name="manifest.comment" value="Apache XmlBeans version ${product.version}"/>
 
     <target name="usage">
         <echo message="The following ant targets are defined:"/>
@@ -175,6 +174,28 @@
         <mkdir dir="build/test/output"/>
     </target>
 
+    <target name="version">
+        <!-- svn must be on the path -->
+        <exec executable="svn" output="build/private/svninfo.properties">
+            <arg line="info ${basedir}"/>
+        </exec>
+        <replaceregexp file="build/private/svninfo.properties"
+            match="Last Changed Rev: (.*)"
+            replace="svn.last.rev=r\1"
+            byline="true"/>
+        <property file="build/private/svninfo.properties"/>
+
+        <!-- just in case svn info or regexp failed -->
+        <condition property="svn.last.rev" value="unknown">
+            <not><isset property="svn.last.rev"/></not>
+        </condition>
+
+        <property name="version.full" value="${version.base}-${svn.last.rev}"/>
+        <property name="manifest.comment" value="Apache XmlBeans version ${version.full}"/>
+
+        <echo message="${manifest.comment}"/>
+    </target>
+
     <target name="default" depends="deploy"/>
     <target name="redeploy" depends="clean, deploy"/>
 
@@ -243,7 +264,9 @@
         <property name="docs.dir" value="build/docs"/>
         <delete dir="${docs.dir}"/>
         <mkdir dir="${docs.dir}"/>
-        <javadoc packagenames="*" sourcepath="src/xmlpublic" classpath="${javadoc.path}" destdir="${docs.dir}/reference" windowtitle="XMLBeans Documentation" source="${javac.source}" stylesheetfile="docs/stylesheet.css">
+        <javadoc packagenames="*" sourcepath="src/xmlpublic"
+            classpath="${javadoc.path}" destdir="${docs.dir}/reference"
+            windowtitle="XMLBeans ${version.base} Documentation" source="${javac.source}" stylesheetfile="docs/stylesheet.css">
             <link href="http://xmlbeans.apache.org/${version.base}/docs/reference/index.html"/>
             <link href="http://java.sun.com/j2se/1.4.2/docs/api/"/>
             <link href="http://java.sun.com/j2ee/1.4/docs/api/"/>
@@ -266,38 +289,38 @@
     </target>
 
     <target name="dist-bin" depends="xbean, docs">
-        <delete dir="build/private/xmlbeans-${product.version}"/>
-        <delete file="build/private/xmlbeans-${product.version}.zip"/>
-        <delete file="build/private/xmlbeans-${product.version}.tgz"/>
+        <delete dir="build/private/xmlbeans-${version.full}"/>
+        <delete file="build/private/xmlbeans-${version.full}.zip"/>
+        <delete file="build/private/xmlbeans-${version.full}.tgz"/>
 
-        <mkdir dir="build/private/xmlbeans-${product.version}"/>
-        <copy todir="build/private/xmlbeans-${product.version}">
+        <mkdir dir="build/private/xmlbeans-${version.full}"/>
+        <copy todir="build/private/xmlbeans-${version.full}">
             <fileset dir="xkit"/>
             <fileset dir="." includes="bin/**"/>
             <fileset file="LICENSE.txt"/>
             <fileset file="NOTICE.txt"/>
         </copy>
-        <copy todir="build/private/xmlbeans-${product.version}/schemas/s4s">
+        <copy todir="build/private/xmlbeans-${version.full}/schemas/s4s">
             <fileset dir="src/xsdschema/schema" includes="XMLSchema.xsd"/>
             <fileset dir="src/xmlschema/schema" includes="XML.xsd"/>
         </copy>
-        <copy todir="build/private/xmlbeans-${product.version}/schemas">
+        <copy todir="build/private/xmlbeans-${version.full}/schemas">
             <fileset dir="test/cases/xbean/xmlobject"
                 includes="easypo.xsd,easypo.xsdconfig,numerals.xsd,nameworld.xsd"/>
         </copy>
 
-        <mkdir dir="build/private/xmlbeans-${product.version}/lib"/>
-        <copy todir="build/private/xmlbeans-${product.version}/lib">
+        <mkdir dir="build/private/xmlbeans-${version.full}/lib"/>
+        <copy todir="build/private/xmlbeans-${version.full}/lib">
             <fileset dir="build/lib" includes="xbean.jar,jsr173_api.jar"/>
         </copy>
 
-        <mkdir dir="build/private/xmlbeans-${product.version}/docs"/>
-        <copy todir="build/private/xmlbeans-${product.version}/docs">
+        <mkdir dir="build/private/xmlbeans-${version.full}/docs"/>
+        <copy todir="build/private/xmlbeans-${version.full}/docs">
             <fileset dir="build/docs"/>
         </copy>
         
-        <mkdir dir="build/private/xmlbeans-${product.version}/samples"/>
-        <copy todir="build/private/xmlbeans-${product.version}/samples">
+        <mkdir dir="build/private/xmlbeans-${version.full}/samples"/>
+        <copy todir="build/private/xmlbeans-${version.full}/samples">
             <fileset dir="samples">
                 <include name="MixedContent/**/*"/>
                 <include name="OrderMatters/**/*"/>
@@ -305,12 +328,12 @@
             </fileset>
         </copy>
 
-        <zip destfile="build/private/xmlbeans-${product.version}.zip"
+        <zip destfile="build/private/xmlbeans-${version.full}.zip"
             basedir="build/private"
-            includes="xmlbeans-${product.version}/**"/>
-        <tar destfile="build/private/xmlbeans-${product.version}.tgz"
+            includes="xmlbeans-${version.full}/**"/>
+        <tar destfile="build/private/xmlbeans-${version.full}.tgz"
             basedir="build/private"
-            includes="xmlbeans-${product.version}/**"
+            includes="xmlbeans-${version.full}/**"
             excludes="xmlbeans-${product.version}/bin/*"
             compression="gzip">
             <tarfileset dir="build/private">
@@ -324,11 +347,11 @@
     </target>
 
     <target name="dist-src" depends="clean, dirs">
-        <delete file="build/private/xmlbeans-${product.version}-src.zip"/>
-        <delete file="build/private/xmlbeans-${product.version}-src.tgz"/>
+        <delete file="build/private/xmlbeans-${version.full}-src.zip"/>
+        <delete file="build/private/xmlbeans-${version.full}-src.tgz"/>
 
-        <zip destfile="build/private/xmlbeans-${product.version}-src.zip">
-            <zipfileset dir="." prefix="xmlbeans-${product.version}">
+        <zip destfile="build/private/xmlbeans-${version.full}-src.zip">
+            <zipfileset dir="." prefix="xmlbeans-${version.full}">
                 <patternset id="src.dist.content.dirs"
                     includes="docs/** external/** samples/** src/**"/>
                 <patternset id="src.dist.content.dirs.bin"
@@ -339,9 +362,9 @@
                     includes=""/><!-- don't have tests part of the distribution yet -->
             </zipfileset>
         </zip>
-        <tar destfile="build/private/xmlbeans-${product.version}-src.tgz"
+        <tar destfile="build/private/xmlbeans-${version.full}-src.tgz"
             compression="gzip">
-            <tarfileset dir="." prefix="xmlbeans-${product.version}">
+            <tarfileset dir="." prefix="xmlbeans-${version.full}">
                 <patternset refid="src.dist.content.dirs"/>
                 <patternset refid="src.dist.content.files"/>
                 <patternset refid="src.dist.content.tests"/>
@@ -371,7 +394,8 @@
     <!-- previously in xbean.xml -->
 
     <target name="xbean.jar"
-        depends="dirs, xmlpublic.classes, typeholder.template, typestore.classes, common.classes,
+        depends="dirs, version, xmlpublic.classes,
+                 typeholder.template, typestore.classes, common.classes,
                  typeimpl.classes, xmlcomp.classes,
                  newstore2.classes, saaj_api.classes,
                  marshal.classes, xpath.classes, oldxbean.jar, xsdschema.classes,
@@ -402,7 +426,7 @@
                 <section name="${manifest.name}">
                     <attribute name="Comment" value="${manifest.comment}"/>
                     <attribute name="Implementation-Title" value="${manifest.title}"/>
-                    <attribute name="Implementation-Version" value="${product.version}"/>
+                    <attribute name="Implementation-Version" value="${version.full}"/>
                     <attribute name="Implementation-Vendor" value="${manifest.vendor}"/>
                     <attribute name="Implementation-URL" value="${manifest.url}"/>
                 </section>
@@ -440,7 +464,7 @@
         </copy>
     </target>
 
-    <target name="xmlpublic.jar" depends="dirs, xmlinputstream.classes, xmlpublic.classes, xmlschema.classes, xsdschema.classes">
+    <target name="xmlpublic.jar" depends="dirs, version, xmlinputstream.classes, xmlpublic.classes, xmlschema.classes, xsdschema.classes">
         <jar jarfile="build/lib/xmlpublic.jar" index="true">
             <fileset dir="build/classes/xmlpublic"/>
             <fileset dir="build/classes/xmlschema"/>
@@ -449,7 +473,7 @@
                 <section name="${manifest.name}">
                     <attribute name="Comment" value="${manifest.comment}"/>
                     <attribute name="Implementation-Title" value="${manifest.title}"/>
-                    <attribute name="Implementation-Version" value="${product.version}"/>
+                    <attribute name="Implementation-Version" value="${version.full}"/>
                     <attribute name="Implementation-Vendor" value="${manifest.vendor}"/>
                     <attribute name="Implementation-URL" value="${manifest.url}"/>
                 </section>
