@@ -46,7 +46,7 @@ public class JPropertyImpl implements JProperty {
   public static JProperty[] getProperties(JClass clazz)
   {
     Map name2prop = new HashMap();
-    JMethod[] methods = clazz.getMethods();
+    JMethod[] methods = clazz.getDeclaredMethods();
     for(int i=0; i<methods.length; i++) {
       String name = methods[i].getSimpleName();
       //
