@@ -30,6 +30,12 @@ public final class CharUtil
         return _charIter;
     }
     
+    public CharIterator getCharIterator ( Object src, int off, int cch, int start )
+    {
+        _charIter.init( src, off, cch, start );
+        return _charIter;
+    }
+
     public static CharUtil getThreadLocalCharUtil ( )
     {
         return (CharUtil) tl_charUtil.get();
@@ -204,7 +210,7 @@ public final class CharUtil
         
         if (cch > 0)
         {
-            for ( _charIter.init( src, off, cch, cch ) ; _charIter.hasPrev() ; cch++ )
+            for ( _charIter.init( src, off, cch, cch ) ; _charIter.hasPrev() ; cch-- )
                 if (!isWhiteSpace( _charIter.prev() ))
                     break;
 
@@ -358,6 +364,16 @@ public final class CharUtil
         assert isValid( newSrc, _offSrc, _cchSrc );
         
         return newSrc;
+    }
+
+    private static int sizeof ( Object src )
+    {
+        assert src == null || src instanceof String || src instanceof char[];
+        
+        if (src instanceof char[])
+            return ((char[]) src).length;
+
+        return src == null ? 0 : ((String) src).length();
     }
 
     private boolean canAllocate ( int cch )
@@ -592,32 +608,28 @@ public final class CharUtil
 
     public static boolean isValid ( Object src, int off, int cch )
     {
-        // Deep trees cause this to take forever
-        
-        return true;
-        
-//        if (cch < 0 || off < 0)
-//            return false;
-//
-//        if (src == null)
-//            return off == 0 && cch == 0;
-//
-//        if (src instanceof char[])
-//        {
-//            char[] c = (char[]) src;
-//            return off <= c.length && off + cch <= c.length;
-//        }
-//
-//        if (src instanceof String)
-//        {
-//            String s = (String) src;
-//            return off <= s.length() && off + cch <= s.length();
-//        }
-//
-//        if (src instanceof CharJoin)
-//            return ((CharJoin) src).isValid( off, cch );
-//
-//        return false;
+        if (cch < 0 || off < 0)
+            return false;
+
+        if (src == null)
+            return off == 0 && cch == 0;
+
+        if (src instanceof char[])
+        {
+            char[] c = (char[]) src;
+            return off <= c.length && off + cch <= c.length;
+        }
+
+        if (src instanceof String)
+        {
+            String s = (String) src;
+            return off <= s.length() && off + cch <= s.length();
+        }
+
+        if (src instanceof CharJoin)
+            return ((CharJoin) src).isValid( off, cch );
+
+        return false;
     }
 
     //
@@ -670,7 +682,12 @@ public final class CharUtil
         
         public boolean isValid ( int off, int cch )
         {
-//            assert _depth == depth();
+            // Deep trees cause this to take forever
+            
+            if (_depth > 2)
+                return true;
+
+            assert _depth == depth();
             
             if (off < 0 || cch < 0)
                 return false;
@@ -762,31 +779,26 @@ public final class CharUtil
         public void init ( Object src, int off, int cch, int startPos )
         {
             assert isValid( src, off, cch );
-            assert startPos >= 0 && startPos <= cch;
 
             release();
-
-            assert _src == null;
-
+            
             _srcRoot = src;
             _offRoot = off;
             _cchRoot = cch;
-            
-            _pos = 0;
-            _maxPos = cch;
-            _startPos = 0;
+
+            _minPos = _maxPos = -1;
             
             movePos( startPos );
         }
 
         public void release ( )
         {
-            _src = _srcRoot = null;
+            _srcRoot = null;
             _string = null;
             _chars = null;
         }
 
-        public boolean hasNext ( ) { return _pos < _maxPos; }
+        public boolean hasNext ( ) { return _pos < _cchRoot; }
         public boolean hasPrev ( ) { return _pos > 0;       }
         
         public char next ( )
@@ -811,86 +823,71 @@ public final class CharUtil
 
         public void movePos ( int newPos )
         {
-            assert newPos >= 0 && newPos <= _maxPos;
-            assert _src == null || !(_src instanceof CharJoin);
+            assert newPos >= 0 && newPos <= _cchRoot;
 
-            // See if the new position is already with in the current range
-
-            if (_src != null && newPos >= _startPos && newPos < _startPos + _cch)
+            if (newPos < _minPos || newPos > _maxPos)
             {
-                _pos = newPos;
-                return;
-            }
-
-            _src = _srcRoot;
-            _off = _offRoot + newPos;
-            _cch = _cchRoot - newPos;
-
-            while ( _src instanceof CharJoin )
-            {
-                CharJoin j = (CharJoin) _src;
-
-                if (_off < j._cchLeft)
+                Object src    = _srcRoot;
+                int    off    = _offRoot + newPos;
+                
+                for ( _offMin = _offRoot ; src instanceof CharJoin ; )
                 {
-                    _src = j._srcLeft;
-                    _cch = j._cchLeft - _off;
-                    _off = _off + j._offLeft;
+                    CharJoin j = (CharJoin) src;
+
+                    if (off < j._cchLeft)
+                    {
+                        src = j._srcLeft;
+                        off += (_offMin = j._offLeft);
+                    }
+                    else
+                    {
+                        src = j._srcRight;
+                        off -= j._cchLeft - (_offMin = j._offRight);
+                    }
                 }
+
+                _offMin = off - Math.min( off - _offMin, newPos );
+                _minPos = newPos - off + _offMin;
+                _maxPos = newPos + Math.min( _cchRoot - newPos, sizeof( src ) - off );
+
+                if (newPos < _cchRoot)
+                    _maxPos--;
+
+                // Cache the leaf src to avoid instanceof for every char
+                
+                _chars = null;
+                _string = null;
+
+                if (src instanceof char[])
+                    _chars = (char[]) src;
                 else
-                {
-                    _src = j._srcRight;
-                    _cch = _off - j._cchLeft + _cch;
-                    _off = _off - j._cchLeft + j._offRight;
-                }
+                    _string = (String) src;
+                
+                assert newPos >= _minPos && newPos <= _maxPos;
             }
 
-            cacheLeaf();
-            
-            _startPos = newPos;
             _pos = newPos;
-            
-            assert _src != null && newPos >= _startPos && newPos <= _startPos + _cch;
-        }
-
-        private void cacheLeaf ( )
-        {
-            assert _src == null || _src instanceof String || _src instanceof char[];
-            
-            if (_src == null)
-            {
-                _chars = null;
-                _string = null;
-            }
-            else if (_src instanceof char[])
-            {
-                _chars = (char[]) _src;
-                _string = null;
-            }
-            else
-            {
-                _string = (String) _src;
-                _chars = null;
-            }
         }
 
         private char currentChar ( )
         {
-            assert _src instanceof String || _src instanceof char[];
+            int i = _offMin + _pos - _minPos;
             
-            int index = _off + _pos - _startPos;
-            
-            return _chars == null ? _string.charAt( index ) : _chars[ index ];
+            return _chars == null ? _string.charAt( i ) : _chars[ i ];
         }
 
-        private Object _src, _srcRoot;
-        private int    _off, _offRoot;
-        private int    _cch, _cchRoot;
+        private Object _srcRoot; // Original triple
+        private int    _offRoot;
+        private int    _cchRoot;
 
-        private int    _pos;
-        private int    _startPos;
+        private int    _pos;     // Current position
+
+        private int    _minPos;  // Min/max poses for current cached leaf
         private int    _maxPos;
+
+        private int    _offMin;
         
-        private String _string;
+        private String _string;  // Cached leaf - either a char[] or a string
         private char[] _chars;
     }
     
