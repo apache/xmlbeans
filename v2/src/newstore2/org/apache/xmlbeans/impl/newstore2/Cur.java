@@ -54,6 +54,7 @@ import javax.xml.transform.Source;
 import java.io.PrintStream;
 
 import java.util.Iterator;
+import java.util.ArrayList;
 
 import org.apache.xmlbeans.impl.newstore2.Locale.LoadContext;
 
@@ -97,6 +98,7 @@ final class Cur
 
     boolean isRoot      ( ) { return kind() == ROOT; }
     boolean isElem      ( ) { return kind() == ELEM; }
+    boolean isEnd       ( ) { return kind() == -ELEM; }
     boolean isAttr      ( ) { return kind() == ATTR; }
     boolean isText      ( ) { return kind() == TEXT; }
     boolean isContainer ( ) { return kindIsContainer( kind() ); }
@@ -219,11 +221,16 @@ final class Cur
         return l._saaj == null ? new CommentXobj( l ) : new SaajCommentXobj( l );
     }
 
+    boolean isNormalAttr ( )
+    {
+        return isAttr() && !isXmlns();
+    }
+    
     boolean isXmlns ( )
     {
         assert isNormal() && _xobj != null && _pos == 0;
 
-        if (_xobj.kind( 0 ) != ATTR)
+        if (!isAttr())
             return false;
 
         String prefix = _xobj._name.getPrefix();
@@ -310,7 +317,69 @@ final class Cur
 
         set( d instanceof Xobj ? (Xobj) d : ((SoapPartDom) d)._docXobj, 0 );
     }
+
+    void addToSelection ( )
+    {
+        if (_selection == null)
+            _selection = new ArrayList();
+
+        _selection.add( permCur() );
+    }
     
+    void removeSelection ( int i )
+    {
+        assert i >= 0 && i < _selection.size();
+        
+        _selection.remove( i );
+    }
+
+    int selectionCount ( )
+    {
+        return _selection == null ? 0 : _selection.size();
+    }
+
+    void moveToSelection ( int i )
+    {
+        assert i >= 0 && i < _selection.size();
+
+        moveToCur( (Cur) _selection.get( i ) );
+    }
+
+    void clearSelection ( )
+    {
+        if (_selection != null)
+        {
+            for ( int i = 0 ; i < _selection.size() ; i++ )
+                ((Cur) _selection.get( i )).release();
+
+            _selection.clear();
+        }
+    }
+
+    void push ( )
+    {
+        // TODO - make this more efficient ....
+
+        if (_stack == null)
+            _stack = new ArrayList();
+
+        _stack.add( permCur() );
+    }
+
+    boolean pop ( )
+    {
+        if (_stack == null || _stack.size() == 0)
+            return false;
+        
+        Cur c = (Cur) _stack.remove( _stack.size() - 1 );
+
+        moveToCur( c );
+
+        c.release();
+
+        return true;
+    }
+
     boolean toParent ( )
     {
         return toParent( false );
@@ -355,6 +424,17 @@ final class Cur
         return true;
     }
 
+    boolean hasChildren ( )
+    {
+        assert _xobj != null && isNormal() && _pos == 0;
+        
+        for ( Xobj x = _xobj._firstChild ; x != null ; x = x._nextSibling )
+            if (!x.isAttr())
+                return true;
+
+        return false;
+    }
+    
     boolean toFirstChild ( )
     {
         assert _xobj != null && isNormal() && _pos == 0;
@@ -424,6 +504,18 @@ final class Cur
             return false;
         
         set( _xobj._nextSibling, 0 );
+
+        return true;
+    }
+    
+    boolean toPrevAttr ( )
+    {
+        assert _xobj != null && isNormal() && _pos == 0 && isAttr();
+        
+        if (_xobj._prevSibling == null || !_xobj._prevSibling.isAttr())
+            return false;
+        
+        set( _xobj._prevSibling, 0 );
 
         return true;
     }
@@ -544,6 +636,8 @@ final class Cur
 
     boolean nextNonAttr ( )
     {
+        // TODO -- spedd this up
+        
         if (!next())
             return false;
 
@@ -935,6 +1029,13 @@ final class Cur
         return _xobj.getChars( _pos, cch, this );
     }
     
+    Object getValueChars ( )
+    {
+        assert isNormal() && _xobj != null && _pos == 0;
+        
+        return _xobj.getChars( 1, -1, this );
+    }
+    
     void copyNode ( Cur cTo )
     {
         // TODO - make moveNode, moveChars, etc, deal with targeting different
@@ -1019,6 +1120,13 @@ final class Cur
     Cur tempCur ( )
     {
         Cur c = _locale.tempCur();
+        c.moveToCur( this );
+        return c;
+    }
+
+    Cur permCur ( )
+    {
+        Cur c = _locale.permCur();
         c.moveToCur( this );
         return c;
     }
@@ -1182,6 +1290,16 @@ final class Cur
             _locale = null;
             _state = DISPOSED;
         }
+
+        if (_stack != null)
+        {
+            for ( int i = 0 ; i < _stack.size() ; i++ )
+                ((Cur) _stack.get( i )).release();
+
+            _stack.clear();
+        }
+
+        clearSelection();
     }
 
     boolean isOnList ( Cur head )
@@ -2325,6 +2443,9 @@ final class Cur
     Cur _next, _prev;
     
     Object _obj;
+
+    ArrayList _stack;
+    ArrayList _selection;
     
     private int _posTemp;
     

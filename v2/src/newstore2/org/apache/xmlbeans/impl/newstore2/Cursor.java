@@ -26,7 +26,6 @@ import org.apache.xmlbeans.XmlCursor.TokenType;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
 import org.apache.xmlbeans.XmlDocumentProperties;
-import org.apache.xmlbeans.XmlDocumentProperties;
 
 import java.util.Map;
 import java.util.Collection;
