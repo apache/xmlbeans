@@ -102,6 +102,11 @@ final class ByNameRuntimeBindingType
         byNameBean = btype;
         try {
             javaClass = getJavaClass(btype, getClass().getClassLoader());
+            if (javaClass.isPrimitive() || javaClass.isArray()) {
+                final String msg = "invalid ByNameBean java type: " + javaClass +
+                    " found in " + btype;
+                throw new XmlRuntimeException(msg);
+            }
         }
         catch (ClassNotFoundException e) {
             final String msg = "failed to load " + btype.getName().getJavaName();
