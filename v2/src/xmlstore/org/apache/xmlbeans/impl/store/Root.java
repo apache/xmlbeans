@@ -696,10 +696,11 @@ public final class Root extends Finish implements XmlStore
                     xr.setProperty( "http://xml.org/sax/properties/lexical-handler", this );
                     xr.setContentHandler( this );
                     xr.setErrorHandler( this );
+                    
                     EntityResolver entRes = ResolverUtil.getGlobalEntityResolver();
-                    if (entRes==null)
-                        entRes = this;
-                    xr.setEntityResolver( entRes );
+                    
+                    if (entRes != null)
+                        xr.setEntityResolver( entRes );
                 }
                 catch ( Throwable e )
                 {
@@ -725,9 +726,28 @@ public final class Root extends Finish implements XmlStore
         public void load ( Root r, InputSource inputSource, XmlOptions options )
             throws IOException, XmlException
         {
-            EntityResolver er = (options==null ? null : (EntityResolver)options.get(XmlOptions.ENTITY_RESOLVER));
-            if (er!=null)
-                _xr.setEntityResolver(er);
+            options = XmlOptions.maskNull( options );
+            
+            boolean overrodeResolver = false;
+            EntityResolver oldResolver = _xr.getEntityResolver();
+            
+            EntityResolver er = (EntityResolver) options.get( XmlOptions.ENTITY_RESOLVER );
+
+            if (er == null)
+            {
+                if (!options.hasOption( XmlOptions.LOAD_USE_DEFAULT_RESOLVER ))
+                {
+                    overrodeResolver = true;
+                    _xr.setEntityResolver( this );
+                }
+            }
+            else
+            {
+                overrodeResolver = true;
+                oldResolver = _xr.getEntityResolver();
+                
+                _xr.setEntityResolver( er );
+            }
 
             LoadContext context = new LoadContext( r, options );
             
@@ -782,6 +802,9 @@ public final class Root extends Finish implements XmlStore
             finally
             {
                 assert r.enableStoreValidation();
+
+                if (overrodeResolver && oldResolver != null)
+                    _xr.setEntityResolver( oldResolver );
             }
         }
 

@@ -59,6 +59,7 @@ import org.apache.xmlbeans.impl.newstore2.DomImpl.CdataNode;
 import org.apache.xmlbeans.impl.newstore2.DomImpl.SaajTextNode;
 import org.apache.xmlbeans.impl.newstore2.DomImpl.SaajCdataNode;
 
+import org.apache.xmlbeans.XmlOptions;
 import org.apache.xmlbeans.QNameSet;
 import org.apache.xmlbeans.QNameCache;
 import org.apache.xmlbeans.XmlBeans;
@@ -118,6 +119,15 @@ final class Locale implements DOMImplementation, SaajCallback
             : _qnameFactory.getQName( uri, qname.substring( i + 1 ), qname.substring( 0, i ) );
     }
 
+    static private class DocProps extends XmlDocumentProperties
+    {
+        private HashMap _map = new HashMap();
+
+        public Object put    ( Object key, Object value ) { return _map.put( key, value ); }
+        public Object get    ( Object key )               { return _map.get( key ); }
+        public Object remove ( Object key )               { return _map.remove( key ); }
+    }
+
     static XmlDocumentProperties getDocProps ( Cur c, boolean ensure )
     {
         c.push();
@@ -125,13 +135,10 @@ final class Locale implements DOMImplementation, SaajCallback
         while ( c.toParent() )
             ;
 
-        XmlDocumentProperties props =
-            (XmlDocumentProperties) c.getBookmark( XmlDocumentProperties.class );
+        DocProps props = (DocProps) c.getBookmark( DocProps.class );
 
-//        if (props == null)
-//        {
-//            props = new XmlDocumentProperties
-//        }
+        if (props == null)
+            c.setBookmark( DocProps.class, props = new DocProps() );
 
         c.pop();
 
@@ -636,12 +643,41 @@ final class Locale implements DOMImplementation, SaajCallback
         
     }
 
-    private static ThreadLocal tl_saxLoaders =
+    private static ThreadLocal tl_saxLoadersDefaultResolver =
         new ThreadLocal ( ) { protected Object initialValue ( ) { return newSaxLoader(); } };
 
-    private static SaxLoader getSaxLoader ( )
+    private static ThreadLocal tl_saxLoaders =
+        new ThreadLocal ( ) { protected Object initialValue ( ) { return newSaxLoader(); } };
+    
+    private static SaxLoader getSaxLoader ( XmlOptions options )
     {
-        return (SaxLoader) tl_saxLoaders.get();
+        //
+        // XMLReader.setEntityResolver() cannot be passed null.
+        // Because of this, I cannot reset the entity resolver to be
+        // that which was default.  Thus, I need to cache two
+        // SaxLoaders.  One which uses the default entity resolver and
+        // one which I can change the resolve to whatever I want for a
+        // given parse.
+        //
+
+        options = XmlOptions.maskNull( options );
+
+        EntityResolver er = (EntityResolver) options.get( XmlOptions.ENTITY_RESOLVER );
+
+        if (er == null)
+            er = ResolverUtil.getGlobalEntityResolver();
+
+        if (er == null && options.hasOption( XmlOptions.LOAD_USE_DEFAULT_RESOLVER ))
+            return (SaxLoader) tl_saxLoadersDefaultResolver.get();
+
+        SaxLoader sl = (SaxLoader) tl_saxLoaders.get();
+
+        if (er == null)
+            er = sl;
+
+        sl.setEntityResolver( er );
+
+        return sl;
     }
 
     private static SaxLoader newSaxLoader ( )
@@ -740,18 +776,16 @@ final class Locale implements DOMImplementation, SaajCallback
                 _xr.setProperty( "http://xml.org/sax/properties/lexical-handler", this );
                 _xr.setContentHandler( this );
                 _xr.setErrorHandler( this );
-                
-                EntityResolver entRes = ResolverUtil.getGlobalEntityResolver();
-                
-                if (entRes == null)
-                    entRes = this;
-                
-                xr.setEntityResolver( entRes );
             }
             catch ( Throwable e )
             {
                 throw new RuntimeException( e.getMessage(), e );
             }
+        }
+
+        void setEntityResolver ( EntityResolver er )
+        {
+            _xr.setEntityResolver( er );
         }
 
         public Cur load ( Locale l, InputSource is )
@@ -955,24 +989,34 @@ final class Locale implements DOMImplementation, SaajCallback
         private Locator     _startLocator;
     }
 
-    private Dom load ( InputSource is )
+    private Dom load ( InputSource is, XmlOptions options )
     {
-        return getSaxLoader().load( this, is ).getDom();
+        return getSaxLoader( options ).load( this, is ).getDom();
     }
 
     public Dom load ( Reader r )
     {
-        return load( new InputSource( r ) );
+        return load( new InputSource( r ), null );
     }
 
     public Dom load ( String s )
     {
-        return load( new InputSource( new StringReader( s ) ) );
+        return load( new InputSource( new StringReader( s ) ), null );
     }
 
     public Dom load ( InputStream in )
     {
-        return load( new InputSource( in ) );
+        return load( in, null );
+    }
+
+    public Dom load ( InputStream in, XmlOptions options )
+    {
+        return load( new InputSource( in ), options );
+    }
+
+    public Dom load ( String s, XmlOptions options )
+    {
+        return load( new InputSource( new StringReader( s ) ), options );
     }
 
     //
@@ -992,8 +1036,7 @@ final class Locale implements DOMImplementation, SaajCallback
 
     public boolean hasFeature ( String feature, String version )
     {
-        throw new RuntimeException( "Not implemented" );
-//        return DomImpl._domImplementation_hasFeature( this, feature, version );
+        return DomImpl._domImplementation_hasFeature( this, feature, version );
     }
 
     public Object getFeature ( String feature, String version )

@@ -78,6 +78,18 @@ public final class Public2
         return (Document) d;
     }
     
+    public static Document parse ( String s, XmlOptions options )
+    {
+        Locale l = newLocale( null );
+
+        Dom d;
+
+        if (l.noSync())         { l.enter(); try { d = l.load( s, options ); } finally { l.exit(); } }
+        else synchronized ( l ) { l.enter(); try { d = l.load( s, options ); } finally { l.exit(); } }
+
+        return (Document) d;
+    }
+    
     public static Document parse ( String s, Saaj saaj )
     {
         Locale l = newLocale( saaj );
@@ -86,6 +98,18 @@ public final class Public2
 
         if (l.noSync())         { l.enter(); try { d = l.load( s ); } finally { l.exit(); } }
         else synchronized ( l ) { l.enter(); try { d = l.load( s ); } finally { l.exit(); } }
+
+        return (Document) d;
+    }
+    
+    public static Document parse ( InputStream is, XmlOptions options )
+    {
+        Locale l = newLocale( null );
+
+        Dom d;
+
+        if (l.noSync())         { l.enter(); try { d = l.load( is, options ); } finally { l.exit(); } }
+        else synchronized ( l ) { l.enter(); try { d = l.load( is, options ); } finally { l.exit(); } }
 
         return (Document) d;
     }
@@ -232,11 +256,6 @@ public final class Public2
         c.next();
         c.next();
 
-        c.dump();
-        
-        c.nextChars( -1 );
-//        c.next();
-        
         c.dump();
         
         c.release();

@@ -110,15 +110,12 @@ public class EricTest
 {
     public static void main ( String[] args ) throws Exception
     {
-//        XmlObject x = XmlObject.Factory.parse( "<a x='y'><b/></a>" );
-        XmlCursor c = Public2.getCursor( Public2.parse( "<a x='y'><b><c/></b></a>" ) );
+        Document doc = Public2.parse( "<a x='y'/>" );
+
+        Element e = doc.getDocumentElement();
+
+        Public2.dump( e.cloneNode( false ) );
         
-        c.toNextToken();
-        c.toNextToken();
-
-        Public2.dump( c );
-
-        System.out.println( c.toFirstChild() );
         
 //        XmlOptions options = new XmlOptions();
 //        options.setValidateOnSet();

@@ -413,6 +413,17 @@ public class XmlOptions implements java.io.Serializable
     }
 
     /**
+     * By default, XmlBeans does not resolve entities when parsing xml
+     * documents (unless an explicit entity resolver is specified).
+     * Use this option to turn on entity resolving by default.
+     * 
+     * @see XmlObject.Factory#parse(java.io.File, XmlOptions)
+     */
+    public XmlOptions setLoadUseDefaultResolver () { 
+        return set( LOAD_USE_DEFAULT_RESOLVER ); 
+    }
+
+    /**
      * If this option is set, then schema validation will be performed during
      * unmarshalling.  Errors will be added to error collection supplied
      * in this options instance
@@ -620,6 +631,8 @@ public class XmlOptions implements java.io.Serializable
     public static final String LOAD_ADDITIONAL_NAMESPACES      =  "LOAD_ADDITIONAL_NAMESPACES";
     /** @exclude */
     public static final String LOAD_MESSAGE_DIGEST             =  "LOAD_MESSAGE_DIGEST";
+    /** @exclude */
+    public static final String LOAD_USE_DEFAULT_RESOLVER       =  "LOAD_USE_DEFAULT_RESOLVER";
 
     /** @exclude */
     public static final String UNMARSHAL_VALIDATE              =  "UNMARSHAL_VALIDATE";

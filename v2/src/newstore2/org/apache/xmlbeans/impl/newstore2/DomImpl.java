@@ -391,6 +391,9 @@ final class DomImpl
 
     private static void removeNode ( Dom n )
     {
+        assert n.nodeType() != TEXT && n.nodeType() != CDATA;
+        assert parent( n ) != null;
+        
         Cur cTo = n.tempCur();
         Cur cFrom = n.tempCur();
 
@@ -552,6 +555,30 @@ final class DomImpl
         return doc;
     }
     
+    //////////////////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////////////////
+
+    public static boolean _domImplementation_hasFeature ( Locale l, String feature, String version )
+    {
+        if (feature == null)
+            return false;
+        
+        if (version != null && version.length() > 0 &&
+              !version.equals( "1.0" ) && !version.equals( "2.0" ))
+        {
+            return false;
+        }
+
+        if (feature.equalsIgnoreCase( "core" ))
+            return true;
+        
+        if (feature.equalsIgnoreCase( "xml" ))
+            return true;
+
+        return false;
+    }
+
     //////////////////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////////////////
@@ -1549,7 +1576,7 @@ final class DomImpl
 
     public static boolean _node_isSupported ( Dom n, String feature, String version )
     {
-        throw new RuntimeException( "Not implemented" );
+        return _domImplementation_hasFeature( n.locale(), feature, version );
     }
 
     //////////////////////////////////////////////////////////////////////////////////////
@@ -1558,7 +1585,100 @@ final class DomImpl
 
     public static void _node_normalize ( Dom n )
     {
-        throw new RuntimeException( "Not implemented" );
+        Locale l = n.locale();
+
+        if (l.noSync())         { l.enter(); try { node_normalize( n ); } finally { l.exit(); } }
+        else synchronized ( l ) { l.enter(); try { node_normalize( n ); } finally { l.exit(); } }
+    }
+    
+    public static void node_normalize ( Dom n )
+    {
+        switch ( n.nodeType() )
+        {
+            case TEXT :
+            case CDATA :
+            case PROCINST :
+            case COMMENT :
+                return;
+
+            case ENTITYREF :
+                throw new RuntimeException( "Not impl" );
+
+            case ENTITY :
+            case DOCTYPE :
+            case NOTATION :
+                throw new RuntimeException( "Not impl" );
+
+            case ELEMENT :
+            case DOCUMENT :
+            case DOCFRAG :
+            case ATTR :
+                break;
+        }
+        
+        Cur end = n.tempCur();
+        end.toEnd();
+
+        Cur c = n.tempCur();
+
+        ;
+        
+        for ( boolean justSawText = false ; !c.isSamePos( end ) ; justSawText = c.isText() )
+        {
+            if (c.isContainer() && c.toFirstAttr())
+            {
+                do
+                {
+                    c.next();
+                    normalizeTextNodes( c );
+                    c.toParent();
+                }
+                while ( c.toNextAttr() );
+
+                c.toParent();
+            }
+            
+            c.next();
+
+            if (!justSawText)
+                normalizeTextNodes( c );
+        }
+
+        c.release();
+        end.release();
+    }
+
+    private static void normalizeTextNodes ( Cur c )
+    {
+        CharNode cn = c.getCharNodes();
+
+        if (cn != null)
+        {
+            if (!c.isText())
+            {
+                while ( cn != null )
+                {
+                    cn._src = null;
+                    cn._off = 0;
+                    cn._cch = 0;
+                    
+                    cn = CharNode.remove( cn, cn );
+                }
+            }
+            else if (cn._next != null)
+            {
+                while ( cn._next != null )
+                {
+                    cn._src = null;
+                    cn._off = 0;
+                    cn._cch = 0;
+                    
+                    cn = CharNode.remove( cn, cn._next );
+                }
+            }
+            
+            c.setCharNodes( cn );
+        }
     }
 
     //////////////////////////////////////////////////////////////////////////////////////
@@ -1928,65 +2048,118 @@ final class DomImpl
 
         Dom c;
 
-        if (l.noSync())         { l.enter(); try { c = node_cloneNode( n, deep, n.locale() ); } finally { l.exit(); } }
-        else synchronized ( l ) { l.enter(); try { c = node_cloneNode( n, deep, n.locale() ); } finally { l.exit(); } }
+        if (l.noSync())         { l.enter(); try { c = node_cloneNode( n, deep ); } finally { l.exit(); } }
+        else synchronized ( l ) { l.enter(); try { c = node_cloneNode( n, deep ); } finally { l.exit(); } }
 
         return (Node) c;
     }
     
-    public static Dom node_cloneNode ( Dom n, boolean deep, Locale l )
+    public static Dom node_cloneNode ( Dom n, boolean deep )
     {
+        Locale l = n.locale();
+        
+        Dom clone = null;
+        
         if (!deep)
         {
-            throw new RuntimeException( "Not impl" );
+            Cur shallow = null;
+            
+            switch ( n.nodeType() )
+            {
+            case DOCUMENT :
+                shallow = l.tempCur();
+                shallow.createDomDocumentRoot();
+                break;
+                
+            case DOCFRAG :
+                shallow = l.tempCur();
+                shallow.createDomDocFragRoot();
+                break;
+                
+            case ELEMENT :
+            {
+                shallow = l.tempCur();
+                shallow.createElement( n.getQName() );
+
+                Element elem = (Element) shallow.getDom();
+                NamedNodeMap attrs = ((Element) n).getAttributes();
+                
+                for ( int i = 0 ; i < attrs.getLength() ; i++ )
+                    elem.setAttributeNodeNS( (Attr) attrs.item( i ).cloneNode( true ) );
+                
+                break;
+            }
+                
+            case ATTR :
+                shallow = l.tempCur();
+                shallow.createAttr( n.getQName() );
+                break;
+
+            case PROCINST :
+            case COMMENT :
+            case TEXT :
+            case CDATA :
+            case ENTITYREF :
+            case ENTITY :
+            case DOCTYPE :
+            case NOTATION :
+                break;
+            }
+
+            if (shallow != null)
+            {
+                clone = shallow.getDom();
+                shallow.release();
+            }
         }
 
-        Dom clone;
-        
-        switch ( n.nodeType() )
+        if (clone == null)
         {
-        case DOCUMENT :
-        case DOCFRAG :
-        case ATTR :
-        case ELEMENT :
-        case PROCINST :
-        case COMMENT :
-        {
-            Cur cClone = l.tempCur();
-            Cur cSrc = n.tempCur();
-            cSrc.copyNode( cClone );
-            clone = cClone.getDom();
-            cClone.release();
-            cSrc.release();
+            switch ( n.nodeType() )
+            {
+            case DOCUMENT :
+            case DOCFRAG :
+            case ATTR :
+            case ELEMENT :
+            case PROCINST :
+            case COMMENT :
+            {
+                Cur cClone = l.tempCur();
+                Cur cSrc = n.tempCur();
+                cSrc.copyNode( cClone );
+                clone = cClone.getDom();
+                cClone.release();
+                cSrc.release();
 
-            break;
-        }
+                break;
+            }
 
-        case TEXT :
-        case CDATA :
-        {
-            Cur c = n.tempCur();
-            
-            CharNode cn = n.nodeType() == TEXT ? l.createTextNode() : l.createCdataNode();
+            case TEXT :
+            case CDATA :
+            {
+                Cur c = n.tempCur();
 
-            cn._src = c.getChars( ((CharNode) n)._cch );
-            cn._off = c._offSrc;
-            cn._cch = c._cchSrc;
-                          
-            clone = cn;
-            
-            c.release();
-            
-            break;
-        }
-            
-        case ENTITYREF :
-        case ENTITY :
-        case DOCTYPE :
-        case NOTATION :
-            throw new RuntimeException( "Not impl" );
-            
-        default : throw new RuntimeException( "Unknown kind" );
+                CharNode cn = n.nodeType() == TEXT ? l.createTextNode() : l.createCdataNode();
+
+                cn._src = c.getChars( ((CharNode) n)._cch );
+                cn._off = c._offSrc;
+                cn._cch = c._cchSrc;
+
+                clone = cn;
+
+                c.release();
+
+                break;
+            }
+
+            case ENTITYREF :
+            case ENTITY :
+            case DOCTYPE :
+            case NOTATION :
+                throw new RuntimeException( "Not impl" );
+
+            default : throw new RuntimeException( "Unknown kind" );
+            }
         }
 
         return clone;
@@ -3388,7 +3561,7 @@ final class DomImpl
         case COMMENT :
         {
             Cur c = n.tempCur();
-            xs = Jsr173.newXmlStreamReader( c );
+            xs = Jsr173.newXmlStreamReader( c, null );
             c.release();
             break;
         }

@@ -463,6 +463,13 @@ final class Cur
         return _xobj.cchValue() > 0;
     }
     
+    boolean hasAttrs ( )
+    {
+        assert _xobj != null && isNormal() && _pos == 0;
+
+        return _xobj._firstChild != null && _xobj._firstChild.isAttr();
+    }
+    
     boolean hasChildren ( )
     {
         assert _xobj != null && isNormal() && _pos == 0;
