@@ -149,6 +149,11 @@ public final class Public2
         return (Document) d;
     }
     
+    public static Node getNode ( XMLStreamReader s )
+    {
+        return Jsr173.nodeFromStream( s );
+    }
+    
     public static XMLStreamReader getStream ( Node n )
     {
         assert n instanceof Dom;
