@@ -1,3 +1,59 @@
+/*
+* The Apache Software License, Version 1.1
+*
+*
+* Copyright (c) 2003 The Apache Software Foundation.  All rights
+* reserved.
+*
+* Redistribution and use in source and binary forms, with or without
+* modification, are permitted provided that the following conditions
+* are met:
+*
+* 1. Redistributions of source code must retain the above copyright
+*    notice, this list of conditions and the following disclaimer.
+*
+* 2. Redistributions in binary form must reproduce the above copyright
+*    notice, this list of conditions and the following disclaimer in
+*    the documentation and/or other materials provided with the
+*    distribution.
+*
+* 3. The end-user documentation included with the redistribution,
+*    if any, must include the following acknowledgment:
+*       "This product includes software developed by the
+*        Apache Software Foundation (http://www.apache.org/)."
+*    Alternately, this acknowledgment may appear in the software itself,
+*    if and wherever such third-party acknowledgments normally appear.
+*
+* 4. The names "Apache" and "Apache Software Foundation" must
+*    not be used to endorse or promote products derived from this
+*    software without prior written permission. For written
+*    permission, please contact apache@apache.org.
+*
+* 5. Products derived from this software may not be called "Apache
+*    XMLBeans", nor may "Apache" appear in their name, without prior
+*    written permission of the Apache Software Foundation.
+*
+* THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESSED OR IMPLIED
+* WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+* OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+* DISCLAIMED.  IN NO EVENT SHALL THE APACHE SOFTWARE FOUNDATION OR
+* ITS CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+* SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+* LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF
+* USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+* ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+* OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
+* OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+* SUCH DAMAGE.
+* ====================================================================
+*
+* This software consists of voluntary contributions made by many
+* individuals on behalf of the Apache Software Foundation and was
+* originally based on software copyright (c) 2000-2003 BEA Systems
+* Inc., <http://www.bea.com/>. For more information on the Apache Software
+* Foundation, please see <http://www.apache.org/>.
+*/
+
 package org.apache.xmlbeans.impl.richParser;
 
 import org.apache.xmlbeans.GDate;
@@ -9,6 +65,7 @@ import org.apache.xmlbeans.impl.common.XsTypeConverter;
 import org.apache.xmlbeans.impl.util.Base64;
 import org.apache.xmlbeans.impl.util.HexBin;
 import org.apache.xmlbeans.impl.common.InvalidLexicalValueException;
+import org.apache.xmlbeans.impl.common.XmlWhitespace;
 
 import javax.xml.namespace.NamespaceContext;
 import javax.xml.namespace.QName;
@@ -48,6 +105,13 @@ public class XMLStreamReaderExtImpl
         return _charSeq.toString();
     }
 
+    public String getStringValue(int wsStyle)
+        throws XMLStreamException
+    {
+        _charSeq.reload(CharSeqTrimWS.XMLWHITESPACE_PRESERVE);
+        return XmlWhitespace.collapse(_charSeq.toString(), wsStyle);
+    }
+
     public boolean getBooleanValue()
         throws XMLStreamException, InvalidLexicalValueException
     {
@@ -58,7 +122,7 @@ public class XMLStreamReaderExtImpl
         }
         catch(IllegalArgumentException e)
         {
-            throw new InvalidLexicalValueException(e);
+            throw new InvalidLexicalValueException(e, _charSeq.getLocation());
         }
     }
 
@@ -72,7 +136,7 @@ public class XMLStreamReaderExtImpl
         }
         catch(NumberFormatException e)
         {
-            throw new InvalidLexicalValueException(e);
+            throw new InvalidLexicalValueException(e, _charSeq.getLocation());
         }
     }
 
@@ -86,7 +150,7 @@ public class XMLStreamReaderExtImpl
         }
         catch(NumberFormatException e)
         {
-            throw new InvalidLexicalValueException(e);
+            throw new InvalidLexicalValueException(e, _charSeq.getLocation());
         }
     }
 
@@ -100,7 +164,7 @@ public class XMLStreamReaderExtImpl
         }
         catch(NumberFormatException e)
         {
-            throw new InvalidLexicalValueException(e);
+            throw new InvalidLexicalValueException(e, _charSeq.getLocation());
         }
     }
 
@@ -114,7 +178,7 @@ public class XMLStreamReaderExtImpl
         }
         catch(NumberFormatException e)
         {
-            throw new InvalidLexicalValueException(e);
+            throw new InvalidLexicalValueException(e, _charSeq.getLocation());
         }
     }
 
@@ -128,7 +192,7 @@ public class XMLStreamReaderExtImpl
         }
         catch(NumberFormatException e)
         {
-            throw new InvalidLexicalValueException(e);
+            throw new InvalidLexicalValueException(e, _charSeq.getLocation());
         }
     }
 
@@ -142,7 +206,7 @@ public class XMLStreamReaderExtImpl
         }
         catch(NumberFormatException e)
         {
-            throw new InvalidLexicalValueException(e);
+            throw new InvalidLexicalValueException(e, _charSeq.getLocation());
         }
     }
 
@@ -156,7 +220,7 @@ public class XMLStreamReaderExtImpl
         }
         catch(NumberFormatException e)
         {
-            throw new InvalidLexicalValueException(e);
+            throw new InvalidLexicalValueException(e, _charSeq.getLocation());
         }
     }
 
@@ -170,7 +234,7 @@ public class XMLStreamReaderExtImpl
         }
         catch(NumberFormatException e)
         {
-            throw new InvalidLexicalValueException(e);
+            throw new InvalidLexicalValueException(e, _charSeq.getLocation());
         }
     }
 
@@ -183,7 +247,7 @@ public class XMLStreamReaderExtImpl
         if (buf!=null)
             return new ByteArrayInputStream(buf);
         else
-            throw new InvalidLexicalValueException("invalid hexBinary value");
+            throw new InvalidLexicalValueException("invalid hexBinary value", _charSeq.getLocation());
     }
 
     public InputStream getBase64Value()
@@ -195,7 +259,7 @@ public class XMLStreamReaderExtImpl
         if (buf!=null)
             return new ByteArrayInputStream(buf);
         else
-            throw new InvalidLexicalValueException("invalid base64Binary value");
+            throw new InvalidLexicalValueException("invalid base64Binary value", _charSeq.getLocation());
     }
 
     public XmlCalendar getCalendarValue()
@@ -208,7 +272,7 @@ public class XMLStreamReaderExtImpl
         }
         catch( IllegalArgumentException e)
         {
-            throw new InvalidLexicalValueException(e);
+            throw new InvalidLexicalValueException(e, _charSeq.getLocation());
         }
     }
 
@@ -222,7 +286,7 @@ public class XMLStreamReaderExtImpl
         }
         catch(IllegalArgumentException e)
         {
-            throw new InvalidLexicalValueException(e);
+            throw new InvalidLexicalValueException(e, _charSeq.getLocation());
         }
     }
 
@@ -236,7 +300,7 @@ public class XMLStreamReaderExtImpl
         }
         catch(IllegalArgumentException e)
         {
-            throw new InvalidLexicalValueException(e);
+            throw new InvalidLexicalValueException(e, _charSeq.getLocation());
         }
     }
 
@@ -250,7 +314,7 @@ public class XMLStreamReaderExtImpl
         }
         catch(IllegalArgumentException e)
         {
-            throw new InvalidLexicalValueException(e);
+            throw new InvalidLexicalValueException(e, _charSeq.getLocation());
         }
     }
 
@@ -258,12 +322,24 @@ public class XMLStreamReaderExtImpl
         throws XMLStreamException, InvalidLexicalValueException
     {
         _charSeq.reload(CharSeqTrimWS.XMLWHITESPACE_TRIM);
-        return XsTypeConverter.lexQName(_charSeq, _xmlStream.getNamespaceContext());
+        try
+        {
+            return XsTypeConverter.lexQName(_charSeq, _xmlStream.getNamespaceContext());
+        }
+        catch(InvalidLexicalValueException e)
+        {
+            throw new InvalidLexicalValueException(e.getMessage(), _charSeq.getLocation());
+        }
     }
 
     public String getAttributeStringValue(int index) throws XMLStreamException
     {
         return _xmlStream.getAttributeValue(index);
+    }
+
+    public String getAttributeStringValue(int index, int wsStyle) throws XMLStreamException
+    {
+        return XmlWhitespace.collapse(_xmlStream.getAttributeValue(index), wsStyle);
     }
 
     public boolean getAttributeBooleanValue(int index) throws XMLStreamException
@@ -274,7 +350,7 @@ public class XMLStreamReaderExtImpl
         }
         catch(IllegalArgumentException e)
         {
-            throw new InvalidLexicalValueException(e);
+            throw new InvalidLexicalValueException(e, _charSeq.getLocation());
         }
     }
 
@@ -286,7 +362,7 @@ public class XMLStreamReaderExtImpl
         }
         catch(NumberFormatException e)
         {
-            throw new InvalidLexicalValueException(e);
+            throw new InvalidLexicalValueException(e, _charSeq.getLocation());
         }
     }
 
@@ -298,7 +374,7 @@ public class XMLStreamReaderExtImpl
         }
         catch(NumberFormatException e)
         {
-            throw new InvalidLexicalValueException(e);
+            throw new InvalidLexicalValueException(e, _charSeq.getLocation());
         }
     }
 
@@ -310,7 +386,7 @@ public class XMLStreamReaderExtImpl
         }
         catch(NumberFormatException e)
         {
-            throw new InvalidLexicalValueException(e);
+            throw new InvalidLexicalValueException(e, _charSeq.getLocation());
         }
     }
 
@@ -322,7 +398,7 @@ public class XMLStreamReaderExtImpl
         }
         catch(NumberFormatException e)
         {
-            throw new InvalidLexicalValueException(e);
+            throw new InvalidLexicalValueException(e, _charSeq.getLocation());
         }
     }
 
@@ -334,7 +410,7 @@ public class XMLStreamReaderExtImpl
         }
         catch(NumberFormatException e)
         {
-            throw new InvalidLexicalValueException(e);
+            throw new InvalidLexicalValueException(e, _charSeq.getLocation());
         }
     }
 
@@ -346,7 +422,7 @@ public class XMLStreamReaderExtImpl
         }
         catch(NumberFormatException e)
         {
-            throw new InvalidLexicalValueException(e);
+            throw new InvalidLexicalValueException(e, _charSeq.getLocation());
         }
     }
 
@@ -358,7 +434,7 @@ public class XMLStreamReaderExtImpl
         }
         catch(NumberFormatException e)
         {
-            throw new InvalidLexicalValueException(e);
+            throw new InvalidLexicalValueException(e, _charSeq.getLocation());
         }
     }
 
@@ -370,7 +446,7 @@ public class XMLStreamReaderExtImpl
         }
         catch(NumberFormatException e)
         {
-            throw new InvalidLexicalValueException(e);
+            throw new InvalidLexicalValueException(e, _charSeq.getLocation());
         }
     }
 
@@ -381,7 +457,7 @@ public class XMLStreamReaderExtImpl
         if (buf!=null)
             return new ByteArrayInputStream(buf);
         else
-            throw new InvalidLexicalValueException("invalid hexBinary value");
+            throw new InvalidLexicalValueException("invalid hexBinary value", _charSeq.getLocation());
     }
 
     public InputStream getAttributeBase64Value(int index) throws XMLStreamException
@@ -391,7 +467,7 @@ public class XMLStreamReaderExtImpl
         if (buf!=null)
             return new ByteArrayInputStream(buf);
         else
-            throw new InvalidLexicalValueException("invalid base64Binary value");
+            throw new InvalidLexicalValueException("invalid base64Binary value", _charSeq.getLocation());
     }
 
     public XmlCalendar getAttributeCalendarValue(int index) throws XMLStreamException
@@ -403,7 +479,7 @@ public class XMLStreamReaderExtImpl
         }
         catch(IllegalArgumentException e)
         {
-            throw new InvalidLexicalValueException(e);
+            throw new InvalidLexicalValueException(e, _charSeq.getLocation());
         }
     }
 
@@ -416,7 +492,7 @@ public class XMLStreamReaderExtImpl
         }
         catch(IllegalArgumentException e)
         {
-            throw new InvalidLexicalValueException(e);
+            throw new InvalidLexicalValueException(e, _charSeq.getLocation());
         }
     }
 
@@ -428,7 +504,7 @@ public class XMLStreamReaderExtImpl
         }
         catch(IllegalArgumentException e)
         {
-            throw new InvalidLexicalValueException(e);
+            throw new InvalidLexicalValueException(e, _charSeq.getLocation());
         }
     }
 
@@ -440,19 +516,31 @@ public class XMLStreamReaderExtImpl
         }
         catch(IllegalArgumentException e)
         {
-            throw new InvalidLexicalValueException(e);
+            throw new InvalidLexicalValueException(e, _charSeq.getLocation());
         }
     }
 
     public QName getAttributeQNameValue(int index) throws XMLStreamException
     {
-        return XsTypeConverter.lexQName(_charSeq.reloadAtt(index, CharSeqTrimWS.XMLWHITESPACE_TRIM),
-            _xmlStream.getNamespaceContext());
+        try
+        {
+            return XsTypeConverter.lexQName(_charSeq.reloadAtt(index, CharSeqTrimWS.XMLWHITESPACE_TRIM),
+                _xmlStream.getNamespaceContext());
+        }
+        catch(InvalidLexicalValueException e)
+        {
+            throw new InvalidLexicalValueException(e.getMessage(), _charSeq.getLocation());
+        }
     }
 
     public String getAttributeStringValue(String uri, String local) throws XMLStreamException
     {
         return _charSeq.reloadAtt(uri, local, CharSeqTrimWS.XMLWHITESPACE_PRESERVE).toString();
+    }
+
+    public String getAttributeStringValue(String uri, String local, int wsStyle) throws XMLStreamException
+    {
+        return XmlWhitespace.collapse(_xmlStream.getAttributeValue(uri, local), wsStyle);
     }
 
     public boolean getAttributeBooleanValue(String uri, String local) throws XMLStreamException
@@ -464,7 +552,7 @@ public class XMLStreamReaderExtImpl
         }
         catch(IllegalArgumentException e)
         {
-            throw new InvalidLexicalValueException(e);
+            throw new InvalidLexicalValueException(e, _charSeq.getLocation());
         }
     }
 
@@ -477,7 +565,7 @@ public class XMLStreamReaderExtImpl
         }
         catch(NumberFormatException e)
         {
-            throw new InvalidLexicalValueException(e);
+            throw new InvalidLexicalValueException(e, _charSeq.getLocation());
         }
     }
 
@@ -490,7 +578,7 @@ public class XMLStreamReaderExtImpl
         }
         catch(NumberFormatException e)
         {
-            throw new InvalidLexicalValueException(e);
+            throw new InvalidLexicalValueException(e, _charSeq.getLocation());
         }
     }
 
@@ -503,7 +591,7 @@ public class XMLStreamReaderExtImpl
         }
         catch(NumberFormatException e)
         {
-            throw new InvalidLexicalValueException(e);
+            throw new InvalidLexicalValueException(e, _charSeq.getLocation());
         }
     }
 
@@ -516,7 +604,7 @@ public class XMLStreamReaderExtImpl
         }
         catch(NumberFormatException e)
         {
-            throw new InvalidLexicalValueException(e);
+            throw new InvalidLexicalValueException(e, _charSeq.getLocation());
         }
     }
 
@@ -529,7 +617,7 @@ public class XMLStreamReaderExtImpl
         }
         catch(NumberFormatException e)
         {
-            throw new InvalidLexicalValueException(e);
+            throw new InvalidLexicalValueException(e, _charSeq.getLocation());
         }
     }
 
@@ -542,7 +630,7 @@ public class XMLStreamReaderExtImpl
         }
         catch(NumberFormatException e)
         {
-            throw new InvalidLexicalValueException(e);
+            throw new InvalidLexicalValueException(e, _charSeq.getLocation());
         }
     }
 
@@ -555,7 +643,7 @@ public class XMLStreamReaderExtImpl
         }
         catch(NumberFormatException e)
         {
-            throw new InvalidLexicalValueException(e);
+            throw new InvalidLexicalValueException(e, _charSeq.getLocation());
         }
     }
 
@@ -568,7 +656,7 @@ public class XMLStreamReaderExtImpl
         }
         catch(NumberFormatException e)
         {
-            throw new InvalidLexicalValueException(e);
+            throw new InvalidLexicalValueException(e, _charSeq.getLocation());
         }
     }
 
@@ -580,7 +668,7 @@ public class XMLStreamReaderExtImpl
         if (buf!=null)
             return new ByteArrayInputStream(buf);
         else
-            throw new InvalidLexicalValueException("invalid hexBinary value");
+            throw new InvalidLexicalValueException("invalid hexBinary value", _charSeq.getLocation());
     }
 
     public InputStream getAttributeBase64Value(String uri, String local) throws XMLStreamException
@@ -591,7 +679,7 @@ public class XMLStreamReaderExtImpl
         if (buf!=null)
             return new ByteArrayInputStream(buf);
         else
-            throw new InvalidLexicalValueException("invalid base64Binary value");
+            throw new InvalidLexicalValueException("invalid base64Binary value", _charSeq.getLocation());
     }
 
     public XmlCalendar getAttributeCalendarValue(String uri, String local) throws XMLStreamException
@@ -603,32 +691,59 @@ public class XMLStreamReaderExtImpl
         }
         catch(IllegalArgumentException e)
         {
-            throw new InvalidLexicalValueException(e);
+            throw new InvalidLexicalValueException(e, _charSeq.getLocation());
         }
     }
 
     public Date getAttributeDateValue(String uri, String local) throws XMLStreamException
     {
-        CharSequence cs = _charSeq.reloadAtt(uri, local, CharSeqTrimWS.XMLWHITESPACE_TRIM);
-        return new GDateBuilder(cs).getDate();
+        try
+        {
+            CharSequence cs = _charSeq.reloadAtt(uri, local, CharSeqTrimWS.XMLWHITESPACE_TRIM);
+            return new GDateBuilder(cs).getDate();
+        }
+        catch(IllegalArgumentException e)
+        {
+            throw new InvalidLexicalValueException(e, _charSeq.getLocation());
+        }
     }
 
     public GDate getAttributeGDateValue(String uri, String local) throws XMLStreamException
     {
-        CharSequence cs = _charSeq.reloadAtt(uri, local, CharSeqTrimWS.XMLWHITESPACE_TRIM);
-        return new GDate(cs);
+        try
+        {
+            CharSequence cs = _charSeq.reloadAtt(uri, local, CharSeqTrimWS.XMLWHITESPACE_TRIM);
+            return new GDate(cs);
+        }
+        catch(IllegalArgumentException e)
+        {
+            throw new InvalidLexicalValueException(e, _charSeq.getLocation());
+        }
     }
 
     public GDuration getAttributeGDurationValue(String uri, String local) throws XMLStreamException
     {
-        CharSequence cs = _charSeq.reloadAtt(uri, local, CharSeqTrimWS.XMLWHITESPACE_TRIM);
-        return new GDuration(cs);
+        try
+        {
+            return new GDuration(_charSeq.reloadAtt(uri, local, CharSeqTrimWS.XMLWHITESPACE_TRIM));
+        }
+        catch(IllegalArgumentException e)
+        {
+            throw new InvalidLexicalValueException(e, _charSeq.getLocation());
+        }
     }
 
     public QName getAttributeQNameValue(String uri, String local) throws XMLStreamException
     {
         CharSequence cs = _charSeq.reloadAtt(uri, local, CharSeqTrimWS.XMLWHITESPACE_TRIM);
-        return XsTypeConverter.lexQName(cs, _xmlStream.getNamespaceContext());
+        try
+        {
+            return XsTypeConverter.lexQName(cs, _xmlStream.getNamespaceContext());
+        }
+        catch (InvalidLexicalValueException e)
+        {
+            throw new InvalidLexicalValueException(e.getMessage(), _charSeq.getLocation());
+        }
     }
 
     /**
@@ -649,6 +764,7 @@ public class XMLStreamReaderExtImpl
         private String _toStringValue;
         private XMLStreamReader _xmlSteam;
         private boolean _supportForGetTextCharacters = true;
+        private Location _location;
 
         CharSeqTrimWS(XMLStreamReader xmlSteam)
         {
@@ -659,6 +775,7 @@ public class XMLStreamReaderExtImpl
             throws XMLStreamException
         {
             _toStringValue = null;
+            _location = null;
 
             fillBuffer();
 
@@ -700,8 +817,12 @@ public class XMLStreamReaderExtImpl
                 case XMLStreamReader.CDATA:
                 case XMLStreamReader.CHARACTERS:
                 case XMLStreamReader.SPACE:
+                    if (_location==null)
+                        _location = copyLocation(_xmlSteam.getLocation());
+
                     if (depth==0)
                         addTextToBuffer();
+
                     break;
 
                 case XMLStreamReader.ATTRIBUTE:
@@ -716,6 +837,9 @@ public class XMLStreamReaderExtImpl
                     break;
 
                 case XMLStreamReader.END_DOCUMENT:
+                    if (_location==null)
+                        _location = copyLocation(_xmlSteam.getLocation());
+
                     break loop;
 
                 case XMLStreamReader.END_ELEMENT:
@@ -725,12 +849,18 @@ public class XMLStreamReaderExtImpl
                     break;
 
                 case XMLStreamReader.ENTITY_REFERENCE:
+                    if (_location==null)
+                        _location = copyLocation(_xmlSteam.getLocation());
+
                     addEntityToBuffer();
                     break;
 
                 case XMLStreamReader.START_ELEMENT:
                     depth++;
                     error = "Unexpected element '" + _xmlSteam.getName() + "' in text content.";
+                    if (_location==null)
+                        _location = copyLocation(_xmlSteam.getLocation());
+
                     break;
                 }
                 eventType = _xmlSteam.next();
@@ -789,6 +919,7 @@ public class XMLStreamReaderExtImpl
         CharSequence reloadAtt(int index, int style)
             throws XMLStreamException
         {
+            _location = copyLocation(_xmlSteam.getLocation());
             String value = _xmlSteam.getAttributeValue(index);
             int length = value.length();
 
@@ -810,12 +941,14 @@ public class XMLStreamReaderExtImpl
                 else
                     return value.subSequence(nonWSStart, nonWSEnd);
             }
+
             throw new IllegalStateException("unknown style");
         }
 
         CharSequence reloadAtt(String uri, String local, int style)
             throws XMLStreamException
         {
+            _location = copyLocation(_xmlSteam.getLocation());
             String value = _xmlSteam.getAttributeValue(uri, local);
             int length = value.length();
 
@@ -825,18 +958,23 @@ public class XMLStreamReaderExtImpl
             }
             else if (style==XMLWHITESPACE_TRIM)
             {
-                for (_nonWSStart=0; _nonWSStart<_length; _nonWSStart++)
+                for (_nonWSStart=0; _nonWSStart<length; _nonWSStart++)
                     if (!XMLChar.isSpace(value.charAt(_nonWSStart)))
                         break;
-                for (_nonWSEnd=_length; _nonWSEnd>_nonWSStart; _nonWSEnd--)
+                for (_nonWSEnd=length; _nonWSEnd>_nonWSStart; _nonWSEnd--)
                     if (!XMLChar.isSpace(value.charAt(_nonWSEnd-1)))
                         break;
-                if (_nonWSStart==0 && _nonWSEnd==_length)
+                if (_nonWSStart==0 && _nonWSEnd==length)
                     return value;
                 else
                     return value.subSequence(_nonWSStart, _nonWSEnd);
             }
             throw new IllegalStateException("unknown style");
+        }
+
+        Location getLocation()
+        {
+            return _location;
         }
 
         public int length()
@@ -865,6 +1003,55 @@ public class XMLStreamReaderExtImpl
 
             _toStringValue = new String(_buf, _nonWSStart, _nonWSEnd - _nonWSStart);
             return _toStringValue;
+        }
+
+        private static class ExtLocation implements Location
+        {
+            private int _line;
+            private int _col;
+            private int _off;
+            private String _pid;
+            private String _sid;
+
+            ExtLocation(int ln, int cn, int co, String pid, String sid)
+            {
+                _line = ln;
+                _col = cn;
+                _off = co;
+                _pid = pid;
+                _sid = sid;
+            }
+
+            public int getLineNumber()
+            {
+                return _line;
+            }
+
+            public int getColumnNumber()
+            {
+                return _col;
+            }
+
+            public int getCharacterOffset()
+            {
+                return _off;
+            }
+
+            public String getPublicId()
+            {
+                return _pid;
+            }
+
+            public String getSystemId()
+            {
+                return _sid;
+            }
+        }
+
+        private static Location copyLocation(Location loc)
+        {
+            return new ExtLocation(loc.getLineNumber(), loc.getColumnNumber(), loc.getCharacterOffset(),
+                loc.getPublicId(), loc.getSystemId());
         }
     }
 
