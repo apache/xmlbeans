@@ -907,6 +907,48 @@ public final class DomImpl
     //////////////////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////////////////
 
+    public static NodeList _element_getElementsByTagName ( Dom e, String name )
+    {
+        Locale l = e.locale();
+
+        NodeList nl;
+
+        if (l.noSync())         { l.enter(); try { nl = element_getElementsByTagName( e, name ); } finally { l.exit(); } }
+        else synchronized ( l ) { l.enter(); try { nl = element_getElementsByTagName( e, name ); } finally { l.exit(); } }
+
+        return nl;
+
+    }
+    public static NodeList element_getElementsByTagName ( Dom e, String name )
+    {
+        return new ElementsByTagNameNodeList( e, name );
+    }
+
+    //////////////////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////////////////
+
+    public static NodeList _element_getElementsByTagNameNS ( Dom e, String uri, String local )
+    {
+        Locale l = e.locale();
+
+        NodeList nl;
+
+        if (l.noSync())         { l.enter(); try { nl = element_getElementsByTagNameNS( e, uri, local ); } finally { l.exit(); } }
+        else synchronized ( l ) { l.enter(); try { nl = element_getElementsByTagNameNS( e, uri, local ); } finally { l.exit(); } }
+
+        return nl;
+    }
+    
+    public static NodeList element_getElementsByTagNameNS ( Dom e, String uri, String local )
+    {
+        return new ElementsByTagNameNSNodeList( e, uri, local );
+    }
+
+    //////////////////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////////////////
+
     public static Node _node_removeChild ( Dom p, Node child )
     {
         Locale l = p.locale();
@@ -2601,6 +2643,48 @@ public final class DomImpl
     //////////////////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////////////////
 
+    public static NodeList _document_getElementsByTagName ( Dom d, String name )
+    {
+        Locale l = d.locale();
+
+        NodeList nl;
+
+        if (l.noSync())         { l.enter(); try { nl = document_getElementsByTagName( d, name ); } finally { l.exit(); } }
+        else synchronized ( l ) { l.enter(); try { nl = document_getElementsByTagName( d, name ); } finally { l.exit(); } }
+
+        return nl;
+    }
+    
+    public static NodeList document_getElementsByTagName ( Dom d, String name )
+    {
+        return new ElementsByTagNameNodeList( d, name );
+    }
+
+    //////////////////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////////////////
+
+    public static NodeList _document_getElementsByTagNameNS ( Dom d, String uri, String local )
+    {
+        Locale l = d.locale();
+
+        NodeList nl;
+
+        if (l.noSync())         { l.enter(); try { nl = document_getElementsByTagNameNS( d, uri, local ); } finally { l.exit(); } }
+        else synchronized ( l ) { l.enter(); try { nl = document_getElementsByTagNameNS( d, uri, local ); } finally { l.exit(); } }
+
+        return nl;
+    }
+    
+    public static NodeList document_getElementsByTagNameNS ( Dom d, String uri, String local )
+    {
+        return new ElementsByTagNameNSNodeList( d, uri, local );
+    }
+
+    //////////////////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////////////////
+
     public static void _characterData_appendData ( Dom cd, String arg )
     {
         // TODO - fix this *really* cheesy/bad/lousy perf impl
@@ -2828,42 +2912,6 @@ public final class DomImpl
     //////////////////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////////////////
 
-    public static NodeList _document_getElementsByTagName ( Dom d, String tagname )
-    {
-        throw new RuntimeException( "Not implemented" );
-    }
-
-    //////////////////////////////////////////////////////////////////////////////////////
-    //////////////////////////////////////////////////////////////////////////////////////
-    //////////////////////////////////////////////////////////////////////////////////////
-
-    public static NodeList _document_getElementsByTagNameNS ( Dom d, String namespaceURI, String localName )
-    {
-        throw new RuntimeException( "Not implemented" );
-    }
-
-    //////////////////////////////////////////////////////////////////////////////////////
-    //////////////////////////////////////////////////////////////////////////////////////
-    //////////////////////////////////////////////////////////////////////////////////////
-
-    public static NodeList _element_getElementsByTagName ( Dom e, String name )
-    {
-        throw new RuntimeException( "Not implemented" );
-    }
-
-    //////////////////////////////////////////////////////////////////////////////////////
-    //////////////////////////////////////////////////////////////////////////////////////
-    //////////////////////////////////////////////////////////////////////////////////////
-
-    public static NodeList _element_getElementsByTagNameNS ( Dom e, String namespaceURI, String localName )
-    {
-        throw new RuntimeException( "Not implemented" );
-    }
-
-    //////////////////////////////////////////////////////////////////////////////////////
-    //////////////////////////////////////////////////////////////////////////////////////
-    //////////////////////////////////////////////////////////////////////////////////////
-
     public static boolean _attr_getSpecified ( Dom a )
     {
         throw new RuntimeException( "Not implemented" );
@@ -2997,7 +3045,108 @@ public final class DomImpl
     //
     //
 
-    private static class EmptyNodeList implements NodeList
+    private abstract static class ElementsNodeList implements NodeList
+    {
+        ElementsNodeList ( Dom root )
+        {
+            assert root.nodeType() == DOCUMENT || root.nodeType() == ELEMENT;
+
+            _root = root;
+            _locale = _root.locale();
+            _version = 0;
+        }
+
+        public int getLength ( )
+        {
+            ensureElements();
+
+            return _elements.size();
+        }
+        
+        public Node item ( int i )
+        {
+            ensureElements();
+
+            return i < 0 || i >= _elements.size() ? (Node) null : (Node) _elements.get( i );
+        }
+        
+        private void ensureElements ( )
+        {
+            if (_version == _locale.version())
+                return;
+
+            _version = _locale.version();
+
+            _elements = new ArrayList();
+
+            Locale l = _locale;
+
+            if (l.noSync())         { l.enter(); try { addElements( _root ); } finally { l.exit(); } }
+            else synchronized ( l ) { l.enter(); try { addElements( _root ); } finally { l.exit(); } }
+        }
+
+        private void addElements ( Dom node )
+        {
+            for ( Dom c = firstChild( node ) ; c != null ; c = nextSibling( c ) )
+            {
+                if (c.nodeType() == ELEMENT)
+                {
+                    if (match( c ))
+                        _elements.add( c );
+
+                    addElements( c );
+                }
+            }
+        }
+
+        protected abstract boolean match ( Dom element );
+
+        private Dom       _root;
+        private Locale    _locale;
+        private long      _version;
+        private ArrayList _elements;
+    }
+
+    private static class ElementsByTagNameNodeList extends ElementsNodeList
+    {
+        ElementsByTagNameNodeList ( Dom root, String name )
+        {
+            super( root );
+
+            _name = name;
+        }
+
+        protected boolean match ( Dom element )
+        {
+            return _name.equals( "*" ) ? true : _node_getNodeName( element ).equals( _name );
+        }
+
+        private String _name;
+    }
+    
+    private static class ElementsByTagNameNSNodeList extends ElementsNodeList
+    {
+        ElementsByTagNameNSNodeList ( Dom root, String uri, String local )
+        {
+            super( root );
+
+            _uri = uri == null ? "" : uri;
+            _local = local;
+        }
+
+        protected boolean match ( Dom element )
+        {
+            if (!(_uri.equals( "*" ) ? true : _node_getNamespaceURI( element ).equals( _uri )))
+                return false;
+
+            return _local.equals( "*" ) ? true : _node_getLocalName( element ).equals( _local );
+        }
+
+        private String _uri;
+        private String _local;
+    }
+    
+    private static final class EmptyNodeList implements NodeList
     {
         public int getLength ( ) { return 0; }
         public Node item ( int i ) { return null; }

@@ -1060,6 +1060,9 @@ public final class Mcur extends Cur
             _locale = m;
             _frontier = _locale.createDocument();
             _after = false;
+            
+            _locale._versionAll++;
+            _locale._versionSansText++;
         }
 
         protected void start ( Xobj xo )
