@@ -55,6 +55,7 @@ public class JamServiceContextImpl extends JamLoggerImpl implements JamServiceCo
   // ========================================================================
   // Variables
 
+  private boolean m14WarningsEnabled = false;
   private Class mDefaultAnnotationProxyClass = null;
   private Properties mProperties = null;
   private Map mSourceRoot2Scanner = null;
@@ -109,6 +110,7 @@ public class JamServiceContextImpl extends JamLoggerImpl implements JamServiceCo
     }
     return mTagParser;
   }
+
 
   // ========================================================================
   // Constructors
@@ -398,6 +400,11 @@ public class JamServiceContextImpl extends JamLoggerImpl implements JamServiceCo
     mProperties.setProperty(name,value);
   }
 
+  public void set14WarningsEnabled(boolean b) {
+    m14WarningsEnabled = b;
+  }
+
+
   //public void setLogger(PrintWriter out) { mOut = out; }
 
 
@@ -443,6 +450,8 @@ public class JamServiceContextImpl extends JamLoggerImpl implements JamServiceCo
       return out;
     }
   }
+
+  public boolean is14WarningsEnabled() { return m14WarningsEnabled; }
 
   // ========================================================================
   // ElementContext implementation

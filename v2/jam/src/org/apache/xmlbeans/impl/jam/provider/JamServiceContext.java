@@ -128,6 +128,8 @@ public interface JamServiceContext extends JamLogger/*killme*/ {
 
   //public PrintWriter getOut();
 
+  public boolean is14WarningsEnabled();
+
 
   // ========================================================================
   // killme

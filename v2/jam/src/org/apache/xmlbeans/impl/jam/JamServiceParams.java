@@ -326,9 +326,17 @@ public interface JamServiceParams {
   public void setProperty(String name, String value);
 
   /**
+   * <p>Sets whether warnings should be displayed when running under
+   * JDK 1.4.  The default is true.</p>
+   */ 
+  public void set14WarningsEnabled(boolean b);
+
+  /**
    * @deprecated use setVerbose(Class).  This is the same as
    * setVerbose(Object.class).
    */
   public void setVerbose(boolean v);
+
+
 
 }
