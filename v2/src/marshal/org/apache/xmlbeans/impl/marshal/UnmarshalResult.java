@@ -148,9 +148,8 @@ final class UnmarshalResult
 
     void addError(String msg, Location location)
     {
-        MarshalStreamUtils.addError(errors, msg,
-                                    location,
-                                    "<unknown>");
+        assert location != null;
+        MarshalStreamUtils.addError(errors, msg, location);
     }
 
     Collection getErrors()

@@ -82,7 +82,7 @@ public class XMLStreamReaderExtImpl
         {
             return XsTypeConverter.lexBoolean(_charSeq);
         }
-        catch(IllegalArgumentException e)
+        catch(InvalidLexicalValueException e)
         {
             throw new InvalidLexicalValueException(e, _charSeq.getLocation());
         }
@@ -310,7 +310,7 @@ public class XMLStreamReaderExtImpl
         {
             return XsTypeConverter.lexBoolean(_charSeq.reloadAtt(index, CharSeqTrimWS.XMLWHITESPACE_TRIM));
         }
-        catch(IllegalArgumentException e)
+        catch(InvalidLexicalValueException e)
         {
             throw new InvalidLexicalValueException(e, _charSeq.getLocation());
         }
@@ -512,7 +512,7 @@ public class XMLStreamReaderExtImpl
         {
             return XsTypeConverter.lexBoolean(cs);
         }
-        catch(IllegalArgumentException e)
+        catch(InvalidLexicalValueException e)
         {
             throw new InvalidLexicalValueException(e, _charSeq.getLocation());
         }

@@ -28,7 +28,10 @@
         <n1:SomeBool>false</n1:SomeBool>
         <n1:SomeBool>true</n1:SomeBool>
         <n1:SomeBool>0</n1:SomeBool>
-        <n1:SomeBool>1</n1:SomeBool>
+
+        <n1:SomeBool
+            xsi:nil="false"
+            xmlns:xyz="pdq">1</n1:SomeBool>
 
         <n1:BooleanArray>
              true 

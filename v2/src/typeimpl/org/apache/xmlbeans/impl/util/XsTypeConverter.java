@@ -358,7 +358,7 @@ public final class XsTypeConverter
         {
             return lexBoolean(value);
         }
-        catch(IllegalArgumentException e)
+        catch(InvalidLexicalValueException e)
         {
             errors.add(XmlError.forMessage(e.getMessage()));
             return false;
