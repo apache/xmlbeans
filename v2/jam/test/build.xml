@@ -48,7 +48,7 @@
     </java>
 -->
 
-    <junit fork='yes'
+    <junit fork='yes' maxmemory="128m"
            dir='.'  
            haltonerror='yes'
            haltonfailure='yes'
@@ -60,8 +60,10 @@
       <formatter type='plain' usefile='false'/>
 
 
-      <!--<test name='org.apache.xmlbeans.test.jam.SourcesJamTest'/>-->
+      <test name='org.apache.xmlbeans.test.jam.SourcesJamTest'/>
       <test name='org.apache.xmlbeans.test.jam.ClassesJamTest'/>
+
+      <!--parser work is on hold for the moment-->
       <!--<test name='org.apache.xmlbeans.test.jam.ParserJamTest'/>-->
     </junit>
   </target>

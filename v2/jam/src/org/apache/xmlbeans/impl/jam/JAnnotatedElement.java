@@ -1,7 +1,5 @@
 package org.apache.xmlbeans.impl.jam;
 
-import org.apache.xmlbeans.impl.jam.annotation.ValueMap;
-
 /**
  * <p>Base abstraction for JElements which can carry annotations and comments.
  * The only JElements which cannot do this are JAnnotation and JComment.</p>
@@ -48,13 +46,10 @@ public abstract interface JAnnotatedElement extends JElement {
    * <p>Returns the annotation that represents the named 175 annotation
    * or javadoc tag on this elements.</p>
    */
-  public JAnnotation getAnnotation(String tagnameOr175typename);
+  public JAnnotation getAnnotation(String tagnameProxynameOr175typename);
 
-  /**
-  * <p>This method is simply a convenient shorthand for
-  * <code>getAnnotation(name).getValues()</code>.</p>
-  */
-  public ValueMap getAnnotationValues(String tagnameOr175typename);
+  //docme
+  public JAnnotationValue getAnnotationValue(String name);
 
   /**
    * <p>Returns the comment associated with this abstraction.

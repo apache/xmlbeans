@@ -2,14 +2,15 @@ package org.apache.xmlbeans.impl.jam.internal.elements;
 
 import org.apache.xmlbeans.impl.jam.JAnnotation;
 import org.apache.xmlbeans.impl.jam.JComment;
+import org.apache.xmlbeans.impl.jam.JAnnotationValue;
 import org.apache.xmlbeans.impl.jam.visitor.ElementVisitor;
 import org.apache.xmlbeans.impl.jam.annotation.AnnotationProxy;
-import org.apache.xmlbeans.impl.jam.annotation.ValueMap;
 import org.apache.xmlbeans.impl.jam.editable.EAnnotatedElement;
 import org.apache.xmlbeans.impl.jam.editable.EAnnotation;
 import org.apache.xmlbeans.impl.jam.editable.EComment;
 
 import java.util.Map;
+import java.util.HashMap;
 
 /**
  * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
@@ -50,11 +51,16 @@ public abstract class AnnotatedElementImpl extends ElementImpl
     return getEditableAnnotation(named);
   }
 
-  public ValueMap getAnnotationValues(String tagnameOr175typename) {
+  public JAnnotationValue getAnnotationValue(String valueName) {
     if (mName2Annotation == null) return null;
-    JAnnotation out = getAnnotation(tagnameOr175typename);
-    return (out == null) ? null : out.getValues();
+    int delim = valueName.indexOf('@');
+    if (delim == -1) {
+      throw new IllegalArgumentException("invalid value identifier '"+valueName);
+    }
+    JAnnotation out = getAnnotation(valueName.substring(0,delim));
+    return out.getValue(valueName.substring(delim+1));
   }
+
 
   public Object getAnnotationProxy(Class proxyClass) {
     return getEditableProxy(proxyClass);
@@ -99,7 +105,8 @@ public abstract class AnnotatedElementImpl extends ElementImpl
     } else {
       AnnotationProxy proxy = getContext().createProxyForTag(tagName);
       out = new AnnotationImpl(getContext(),proxy,tagName);
-      mName2Annotation.put(tagName,out);
+
+      getName2Annotation().put(tagName,out);
     }
     return out;
   }
@@ -113,9 +120,9 @@ public abstract class AnnotatedElementImpl extends ElementImpl
     } else {
       AnnotationProxy proxy = getContext().createProxyForTag(tagName);
       proxy.initFromJavadocTag(tagContents);
-      AnnotationImpl ann = new AnnotationImpl(getContext(),proxy,tagName);
-      ann.setArtifact(tagContents);
-      mName2Annotation.put(tagName,out);
+      out = new AnnotationImpl(getContext(),proxy,tagName);
+      out.setArtifact(tagContents);
+      getName2Annotation().put(tagName,out);
     }
     return out;
   }
@@ -136,7 +143,7 @@ public abstract class AnnotatedElementImpl extends ElementImpl
       proxy.initFromAnnotationInstance(jsr175annotationInstance);
       ann = new AnnotationImpl(getContext(),proxy,typename);
       setArtifact(jsr175annotationInstance);
-      mName2Annotation.put(typename,ann);
+      getName2Annotation().put(typename,ann);
     }
     return ann;
   }
@@ -148,7 +155,7 @@ public abstract class AnnotatedElementImpl extends ElementImpl
     AnnotationProxy proxy = getContext().
       createProxyForAnnotationType(jsr175annotationClassname);
     ann = new AnnotationImpl(getContext(),proxy,jsr175annotationClassname);
-    mName2Annotation.put(jsr175annotationClassname,ann);
+    getName2Annotation().put(jsr175annotationClassname,ann);
     return ann;
   }
 
@@ -158,7 +165,7 @@ public abstract class AnnotatedElementImpl extends ElementImpl
     EAnnotation ann = getEditableAnnotation(name);
     if (ann != null) return ann; //REVIEW weird case yet again
     ann = new AnnotationImpl(getContext(),proxy,name);
-    mName2Annotation.put(name,ann);
+    getName2Annotation().put(name,ann);
     return ann;
   }
 
@@ -180,6 +187,12 @@ public abstract class AnnotatedElementImpl extends ElementImpl
 
   // ========================================================================
   // Private methods
+
+
+  private Map getName2Annotation() {
+    if (mName2Annotation == null) mName2Annotation = new HashMap();
+    return mName2Annotation;
+  }
 
   private String getAnnotationTypeFor(/*Annotation*/ Object annotationInstance) {
     //FIXME this may be broken, not sure yet what the class of an annotation

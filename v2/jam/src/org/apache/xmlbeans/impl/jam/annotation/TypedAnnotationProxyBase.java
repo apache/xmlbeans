@@ -14,6 +14,8 @@
  */
 package org.apache.xmlbeans.impl.jam.annotation;
 
+import org.apache.xmlbeans.impl.jam.JAnnotationValue;
+
 import java.lang.reflect.Method;
 import java.lang.reflect.InvocationTargetException;
 
@@ -48,7 +50,7 @@ public abstract class TypedAnnotationProxyBase extends AnnotationProxy {
    * <p>Extending classes are free to override this method if different
    * behavior is required.</p>
    */
-  public void setMemberValue(String name, Object value) {
+  public void setValue(String name, Object value) {
     if (name == null) throw new IllegalArgumentException("null name");
     if (value == null) throw new IllegalArgumentException("null value");
     Method m = getSetterFor(name,value.getClass());
@@ -63,7 +65,7 @@ public abstract class TypedAnnotationProxyBase extends AnnotationProxy {
   }
 
   /**
-   * <p>Returns an untyped map of the annotation's values.  The map is built
+   * <p>Returns an untyped view of the annotation's values.  This is built
    * by searching for accessor methods on the extending class.  JSR175-style
    * accessors (sans 'get') and java bean getters (with 'get') are both
    * looked for.  If a given property has a method for each style, the
@@ -72,7 +74,7 @@ public abstract class TypedAnnotationProxyBase extends AnnotationProxy {
    * <p>Extending classes are free to override this method if different
    * behavior is required.</p>
    */
-  public ValueMap getValueMap() {
+  public JAnnotationValue[] getValues() {
     //FIXME build it up via reflection, i guess.  Or maybe we should
     //remember what got set via setMemberValue()?  I dunno, it's kind of
     //a weird thing for them to be asking for an untyped version of this

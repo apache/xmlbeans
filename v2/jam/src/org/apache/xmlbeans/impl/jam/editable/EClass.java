@@ -159,4 +159,8 @@ public interface EClass extends EMember, JClass {
   public JProperty addNewProperty(String name, EMethod getter, EMethod setter);
 
   public void removeProperty(JProperty prop);
+
+
+
+
 }

@@ -209,8 +209,11 @@ public class JamServiceContextImpl implements JamServiceContext,
     List initers = new ArrayList();
     initers.add((mCommentInitializer != null) ? mCommentInitializer :
                 new CommentInitializer());
+
     initers.add((mPropertyInitializer != null) ? mPropertyInitializer :
                 new PropertyInitializer());
+
+
     if (mOtherInitializers != null) initers.addAll(mOtherInitializers);
     // now go
     ElementVisitor[] inits = new ElementVisitor[initers.size()];
@@ -357,11 +360,25 @@ public class JamServiceContextImpl implements JamServiceContext,
   public JamClassLoader getClassLoader() { return mLoader; }
 
   public AnnotationProxy createProxyForTag(String tagname) {
-    return createProxy((Class)mTagname2proxyclass.get(tagname));
+    Class pc = null;
+    if (mTagname2proxyclass != null) {
+      pc = (Class)mTagname2proxyclass.get(tagname);
+      if (pc == null) pc = DefaultAnnotationProxy.class;
+    } else {
+      pc = DefaultAnnotationProxy.class;
+    }
+    return createProxy(pc);
   }
 
   public AnnotationProxy createProxyForAnnotationType(String jsr175typename) {
-    return createProxy((Class)m175type2proxyclass.get(jsr175typename));
+    Class pc = null;
+    if (m175type2proxyclass != null) {
+      pc = (Class)m175type2proxyclass.get(jsr175typename);
+      if (pc == null) pc = DefaultAnnotationProxy.class;
+    } else {
+      pc = DefaultAnnotationProxy.class;
+    }
+    return createProxy(pc);
   }
 
   // ========================================================================

@@ -67,6 +67,14 @@ public final class PrimitiveClassImpl extends BuiltinClassImpl {
   }
 
   /**
+   * Returns the field descriptor for an named primitive, e.g. 'I' for
+   * 'int', or null if the parameter does not name a primitive.
+   */
+  public static String getPrimitiveClassForName(String named) {
+    return (String)NAME_TO_FD.get(named);
+  }
+
+  /**
    * Returns a JClass representing the named primitive type.  The name
    * parameter can be a simple type name (e.g. 'int') or a field
    * descriptor (e.g. 'I').  Returns null if the parameter does not

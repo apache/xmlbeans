@@ -15,8 +15,6 @@
 
 package org.apache.xmlbeans.impl.jam;
 
-import org.apache.xmlbeans.impl.jam.annotation.ValueMap;
-
 /**
  * <p>Represents a metadata that is associated with a particular
  * JElement.  Note that JAnnoations are JElements, which means
@@ -48,10 +46,16 @@ public interface JAnnotation extends JElement {
   public Object getProxy();
 
   /**
-   * <p>Returns a structure which provides untyped, "by-name" access
-   * to this annotation's data members.</p>
+   * <p>Returns an array of this annotation's member values.</p>
    */
-  public ValueMap getValues();
+  public JAnnotationValue[] getValues();
+
+  /**
+   * <p>Returns a structure which provides untyped, "by-name" access to
+   * the value of the named annotation member.
+   */
+  public JAnnotationValue getValue(String named);
+
 
   // we're going to expose these with getArtifact() instead.
 
@@ -62,7 +66,7 @@ public interface JAnnotation extends JElement {
    * untrimmed contents of the tag.  Otherwise, returns null.  You
    * shouldn't use this method without a really good reason - you normally
    * should call one of the getMember() methods to get at the tag contents.
-   * You can call getMember(SINGLE_MEMBER_NAME) to get a JAnnotationMember
+   * You can call getMember(SINGLE_MEMBER_NAME) to get a JAnnotationValue
    * representing the contents of a simple javadoc tag (e.g. @mytag myvalue).
    * </p>
    */

@@ -60,14 +60,16 @@ public abstract class JamClassBuilder {
    * the builder is planning on setting any unqualified type references
    * on the class.
    */
-  protected EClass createClass(String packageName,
-                               String className,
-                               String[] importSpecs)
+  protected EClass createClassToBuild(String packageName,
+                                      String className,
+                                      String[] importSpecs)
   {
     if (mContext == null) throw new IllegalStateException("init not called");
     if (packageName == null) throw new IllegalArgumentException("null pkg");
     if (className == null) throw new IllegalArgumentException("null class");
-    return new ClassImpl(packageName,className,mContext,importSpecs);
+    ClassImpl out = new ClassImpl(packageName,className,mContext,importSpecs);
+    out.setState(out.BUILDING);
+    return out;
   }
 
   protected JamLogger getLogger() {

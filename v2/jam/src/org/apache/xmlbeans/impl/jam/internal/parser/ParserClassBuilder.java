@@ -17,8 +17,6 @@ package org.apache.xmlbeans.impl.jam.internal.parser;
 import org.apache.xmlbeans.impl.jam.JamClassLoader;
 import org.apache.xmlbeans.impl.jam.editable.EClass;
 import org.apache.xmlbeans.impl.jam.internal.JamPrinter;
-import org.apache.xmlbeans.impl.jam.internal.parser.generated.JavaLexer;
-import org.apache.xmlbeans.impl.jam.internal.parser.generated.JavaParser;
 import org.apache.xmlbeans.impl.jam.provider.JamClassBuilder;
 import org.apache.xmlbeans.impl.jam.provider.JamServiceContext;
 import org.apache.xmlbeans.impl.jam.provider.ResourcePath;
@@ -26,6 +24,10 @@ import org.apache.xmlbeans.impl.jam.provider.ResourcePath;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
+
+//FIXME uncomment when we get around to working on the parser again
+//import org.apache.xmlbeans.impl.jam.internal.parser.generated.JavaLexer;
+//import org.apache.xmlbeans.impl.jam.internal.parser.generated.JavaParser;
 
 /**
  *
@@ -98,11 +100,16 @@ public class ParserClassBuilder extends JamClassBuilder {
   private static EClass[] parse(Reader in, JamClassLoader loader) throws Exception {
     if (in == null) throw new IllegalArgumentException("null in");
     if (loader == null) throw new IllegalArgumentException("null loader");
+
+    //FIXME uncomment when we get around to working on the parser again
+    throw new IllegalStateException("temporarily NI");
+/*
     JavaLexer lexer = new JavaLexer(in);
     JavaParser parser = new JavaParser(lexer);
     parser.setClassLoader(loader);
     parser.start();
     return parser.getResults();
+    */
   }
 
   // ========================================================================

@@ -29,16 +29,12 @@ import java.util.HashMap;
 public class PropertyInitializer extends ElementVisitor {
 
   // ========================================================================
-  // Variables
-
-  private Map name2prop = new HashMap();
-
-  // ========================================================================
   // Element visitor implementation
 
   public void visit(EClass clazz) {
-    name2prop.clear();
+    Map name2prop = new HashMap();
     EMethod[] methods = clazz.getEditableMethods();
+
     for(int i=0; i<methods.length; i++) {
       String name = methods[i].getSimpleName();
       //
@@ -46,8 +42,8 @@ public class PropertyInitializer extends ElementVisitor {
       //
       if (name.startsWith("get") && name.length() > 3 ||
         name.startsWith("is") && name.length() > 2) {
-        JClass type = methods[i].getReturnType();
-        if (type == null) continue; // must have a type and have
+        JClass typ = methods[i].getReturnType();
+        if (typ == null) continue; // must have a typ and have
         if (methods[i].getParameters().length > 0) continue; //no params
         if (name.startsWith("get")) {
           name = name.substring(3);
@@ -59,11 +55,12 @@ public class PropertyInitializer extends ElementVisitor {
           prop = clazz.addNewProperty(name,methods[i],null);
           name2prop.put(name,prop);
         } else {
-          if (type.equals(prop.getType())) {
+          if (typ.equals(prop.getType())) {
             ((PropertyImpl)prop).setGetter(methods[i]); // cheater
           }
         }
       }
+
       //
       // process setters
       //

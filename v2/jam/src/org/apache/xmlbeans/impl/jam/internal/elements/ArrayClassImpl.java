@@ -36,6 +36,7 @@ public final class ArrayClassImpl extends BuiltinClassImpl {
   // ========================================================================
   // Factory methods
 
+
   /**
    * Creates an array JClass from a field descriptor as described in the JLS.
    * This is the nasty '[[[Lfoo.bar.Baz;'-style notation.
@@ -143,6 +144,7 @@ public final class ArrayClassImpl extends BuiltinClassImpl {
     }
     return out.toString();
   }
+
 
 
 }
