@@ -64,9 +64,6 @@ abstract class MarshalResult implements XMLStreamReader
     private AttributeHolder attributeHolder;
     private int prefixCnt = 0;
 
-    //used for some array types
-    private int currIndex;
-
     private static final String ATTRIBUTE_XML_TYPE = "CDATA";
     private static final String NSPREFIX = "n";
 
@@ -100,7 +97,6 @@ abstract class MarshalResult implements XMLStreamReader
         initedAttributes = false;
         if (attributeHolder != null) attributeHolder.clear();
         prefixCnt = 0;
-        currIndex = 0;
     }
 
     protected XmlTypeVisitor createInitialVisitor(RuntimeBindingProperty property,
@@ -623,16 +619,6 @@ abstract class MarshalResult implements XMLStreamReader
     public RuntimeBindingTypeTable getTypeTable()
     {
         return typeTable;
-    }
-
-    int getCurrIndex()
-    {
-        return currIndex;
-    }
-
-    void setCurrIndex(int currIndex)
-    {
-        this.currIndex = currIndex;
     }
 
     BindingLoader getBindingLoader()

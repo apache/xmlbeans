@@ -76,17 +76,17 @@ public class WrappedArrayTypeVisitor extends NamedXmlTypeVisitor
     private boolean currentItemHasValue()
         throws XmlException
     {
-        marshalResult.setCurrIndex(currIndex);
         return type.getElementProperty().isSet(getParentObject(),
-                                               marshalResult);
+                                               marshalResult,
+                                               currIndex);
     }
 
     private Object getCurrentValue()
         throws XmlException
     {
-        marshalResult.setCurrIndex(currIndex);
         return type.getElementProperty().getValue(getParentObject(),
-                                                  marshalResult);
+                                                  marshalResult,
+                                                  currIndex);
     }
 
     public XmlTypeVisitor getCurrentChild()
