@@ -40,6 +40,7 @@ import testDateAttribute.TestElementWithDateAttributeDocument;
 import testDateAttribute.TestDatewTZone;
 import misc.common.JiraTestBase;
 import dufourrault.DummyDocument;
+import dufourrault.Father;
 import net.orthogony.xml.sample.structure.ARootDocument;
 import net.orthogony.xml.sample.structure.ChildType;
 
@@ -603,9 +604,8 @@ public class JiraRegression50_100Test extends JiraTestBase
 
     }
 
-    /*
+    /**
     * [XMLBEANS-96]:XmlDocumentProperties missing version and encoding
-    *
     */
     public void test_jira_xmlbeans96() throws Exception {
         StringBuffer xmlstringbuf = new StringBuffer("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>");
@@ -619,8 +619,6 @@ public class JiraRegression50_100Test extends JiraTestBase
         Assert.assertEquals("test_jira_xmlbeans96() : Xml Encoding is not picked up", props.getEncoding(), "UTF-8");
 
     }
-
-
 
     /**
      * [XMLBEANS-98]   setSaveSuggestedPrefixes doesn't
@@ -714,10 +712,35 @@ public class JiraRegression50_100Test extends JiraTestBase
         xmlstringbuf.append("              </x:dummy>");
 
         try {
+            //From empty instance
+            DummyDocument newDoc = DummyDocument.Factory.newInstance();
+            DummyDocument.Dummy newDummy = newDoc.addNewDummy();
+            Node newNode = newDummy.newDomNode();
+            System.out.println("New Node = " + newNode);
+
+            //set Item
+            DummyDocument new2Doc = DummyDocument.Factory.newInstance();
+            DummyDocument.Dummy new2Dummy = new2Doc.addNewDummy();
+            Father newFather= Father.Factory.newInstance();
+            newFather.setSon("son");
+            new2Dummy.setFather(newFather);
+            Node new2Node = new2Dummy.newDomNode();
+            System.out.println("SetFather Node = " + new2Node);
+
+            //With Loaded instance Document
             DummyDocument doc = DummyDocument.Factory.parse(xmlstringbuf.toString());
-            //Node node = doc.getDummy().getFather().newDomNode();
             Node node = doc.newDomNode();
             System.out.println("node = " + node);
+            //Just Element Type Node
+            dufourrault.DummyDocument.Dummy dummy = doc.addNewDummy();
+            Node typeNode = dummy.newDomNode();
+            System.out.println("TypeNode = "+typeNode);
+
+            dufourrault.Father fatherType = Father.Factory.newInstance();
+            fatherType.setSon("son");
+            Node fatherTypeNode = fatherType.newDomNode();
+            System.out.println("New Father Type Node: "+ fatherTypeNode);
+
         } catch (NullPointerException npe) {
             Assert.fail("test_jira_xmlbeans99() : Null Pointer Exception when create Dom Node");
         } catch (Exception e) {

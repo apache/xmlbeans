@@ -34,14 +34,15 @@ public class InstanceValidator
 {
     public static void printUsage()
     {
-        System.out.println("Validates a schema defintion and instances within the schema.");
-        System.out.println("Usage: validate [switches] schema.jar schema.xsd instance.xml");
-        System.out.println("Switches:");
-        System.out.println("    -dl    enable network downloads for imports and includes");
-        System.out.println("    -nopvr disable particle valid (restriction) rule");
-        System.out.println("    -noupa diable unique particle attributeion rule");
-        System.out.println("    -partial allow partial schema type system");
-        System.out.println("    -license prints license information");
+        System.out.println("Validates the specified instance against the specified schema.");
+        System.out.println("Contrast with the svalidate tool, which validates using a stream.");
+        System.out.println("Usage: validate [-dl] [-nopvr] [-noupa] [-license] schema.xsd instance.xml");
+        System.out.println("Options:");
+        System.out.println("    -dl - permit network downloads for imports and includes (default is off)");
+        System.out.println("    -noupa - do not enforce the unique particle attribution rule");
+        System.out.println("    -nopvr - do not enforce the particle valid (restriction) rule");
+        System.out.println("    -partial - allow partial schema type system");
+        System.out.println("    -license - prints license information");
     }
 
     public static void main(String[] args)
@@ -59,7 +60,7 @@ public class InstanceValidator
 
         CommandLine cl = new CommandLine(args, flags, Collections.EMPTY_SET);
 
-        if (cl.getOpt("h") != null || cl.getOpt("help") != null || cl.getOpt("usage") != null)
+        if (cl.getOpt("h") != null || cl.getOpt("help") != null || cl.getOpt("usage") != null || args.length < 1)
         {
             printUsage();
             System.exit(0);
@@ -94,19 +95,19 @@ public class InstanceValidator
         {
             return;
         }
-        
+
         boolean dl = (cl.getOpt("dl") != null);
         boolean nopvr = (cl.getOpt("nopvr") != null);
         boolean noupa = (cl.getOpt("noupa") != null);
         boolean partial = (cl.getOpt("partial") != null);
-        
+
         File[] schemaFiles = cl.filesEndingWith(".xsd");
         File[] instanceFiles = cl.filesEndingWith(".xml");
         File[] jarFiles = cl.filesEndingWith(".jar");
-        
+
         List sdocs = new ArrayList();
-        
-        
+
+
         for (int i = 0; i < schemaFiles.length; i++)
         {
             try
@@ -135,10 +136,10 @@ public class InstanceValidator
             schemaOptions.setCompileNoUpaRule();
         if (partial)
             schemaOptions.put("COMPILE_PARTIAL_TYPESYSTEM");
-        
+
         if (jarFiles != null && jarFiles.length > 0)
             sLoader = XmlBeans.typeLoaderForResource(XmlBeans.resourceLoaderForPath(jarFiles));
-        
+
         try
         {
             if (schemas != null && schemas.length > 0)
@@ -155,7 +156,7 @@ public class InstanceValidator
                 System.out.println(i.next());
             return;
         }
-        
+
         // recovered from errors, print out errors
         if (partial && !compErrors.isEmpty())
         {
@@ -166,11 +167,11 @@ public class InstanceValidator
 
         if (sLoader == null)
             sLoader = XmlBeans.getContextTypeLoader();
-        
+
         for (int i = 0; i < instanceFiles.length; i++)
         {
             XmlObject xobj;
-            
+
             try
             {
                 xobj =

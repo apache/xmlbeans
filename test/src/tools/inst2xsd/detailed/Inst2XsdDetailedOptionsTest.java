@@ -349,7 +349,7 @@ public class Inst2XsdDetailedOptionsTest extends Inst2XsdTestBase {
         String stringContent = "<xs:schema attributeFormDefault =\"unqualified\" elementFormDefault=\"qualified\" " +
                 "targetNamespace=\"baseNamespace\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\">" +
                 "<xs:element name=\"a\" type=\"bas:aType\" xmlns:bas=\"baseNamespace\"/>" +
-                "<xs:complexType name=\"aType\" mixed=\"true\">" +
+                "<xs:complexType name=\"aType\">" +
                 "<xs:sequence>" +
                 "<xs:element type=\"xs:string\" name=\"b\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"/>" +
                 "<xs:element type=\"xs:string\" name=\"c\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"/>" +
@@ -397,7 +397,7 @@ public class Inst2XsdDetailedOptionsTest extends Inst2XsdTestBase {
 
         XmlObject exp = XmlObject.Factory.parse(common.base_expected_salami, common.getXmlOptions());
         Inst2Xsd.main(new String[]{"-validate", "-verbose",
-                                   "-design", "rd",
+                                   "-design", "ss",
                                    "-outDir", OPTION_CASES_DIR,
                                    "-outPrefix", "base",
                                    BASEXML});

@@ -65,20 +65,22 @@ public class Inst2XsdCommon {
             "</a>";
     public static String base_expected_russian = "<xs:schema attributeFormDefault=\"unqualified\" elementFormDefault=\"qualified\" " +
             "targetNamespace=\"baseNamespace\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\">" +
-            "<xs:element name=\"a\" type=\"bas:aType\" xmlns:bas=\"baseNamespace\"/>" +
-            "<xs:complexType name=\"aType\" mixed=\"true\">" +
+            "<xs:element name=\"a\">" +
+            "<xs:complexType>" +
             "<xs:sequence>" +
-            "<xs:element type=\"xs:string\" name=\"b\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"/>" +
-            "<xs:element type=\"xs:byte\" name=\"c\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"/>" +
-            "<xs:element type=\"xs:string\" name=\"d\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"/>" +
+            "<xs:element type=\"xs:string\" name=\"b\" />" +
+            "<xs:element type=\"xs:byte\" name=\"c\" />" +
+            "<xs:element type=\"xs:string\" name=\"d\" />" +
             "</xs:sequence>" +
             "</xs:complexType>" +
+            "</xs:element>" +
             "</xs:schema>";
 
     public static String base_expected_salami = "<xs:schema attributeFormDefault=\"unqualified\" elementFormDefault=\"qualified\" " +
             "targetNamespace=\"baseNamespace\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\">" +
+            "<xs:element name=\"c\" type=\"xs:byte\" />" +
             "<xs:element name=\"a\">" +
-            "<xs:complexType mixed=\"true\">" +
+            "<xs:complexType>" +
             "<xs:sequence>" +
             "<xs:element ref=\"bas:b\" xmlns:bas=\"baseNamespace\"/>" +
             "<xs:element ref=\"bas:c\" xmlns:bas=\"baseNamespace\"/>" +
@@ -86,15 +88,14 @@ public class Inst2XsdCommon {
             "</xs:sequence>" +
             "</xs:complexType>" +
             "</xs:element>" +
-            "<xs:element name=\"b\" type=\"xs:string\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"/>" +
-            "<xs:element name=\"c\" type=\"xs:byte\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"/>"+
-            "<xs:element name=\"d\" type=\"xs:string\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"/>" +
+            "<xs:element name=\"b\" type=\"xs:string\" />" +
+            "<xs:element name=\"d\" type=\"xs:string\" />" +
             "</xs:schema>";
 
     public static String base_expected_venetian = "<xs:schema attributeFormDefault=\"unqualified\" elementFormDefault=\"qualified\" " +
             "targetNamespace=\"baseNamespace\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\">" +
             "<xs:element name=\"a\" type=\"bas:aType\" xmlns:bas=\"baseNamespace\"/>" +
-            "<xs:complexType name=\"aType\" mixed=\"true\">" +
+            "<xs:complexType name=\"aType\" >" +
             "<xs:sequence>" +
             "<xs:element type=\"xs:string\" name=\"b\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"/>" +
             "<xs:element type=\"xs:byte\" name=\"c\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"/>" +

@@ -52,6 +52,7 @@ public class XmlObjectAbstractClassTest
                 copyTo(r , to));
         assertTrue("Could not compile SimpleXmlObject.java",
                 compileFile(to));
+        to.deleteOnExit();
     }
 
 

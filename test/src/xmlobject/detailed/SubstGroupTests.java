@@ -270,9 +270,30 @@ public class SubstGroupTests extends TestCase
         System.out.println("QNAme:" + ItemDocument.type.getName());
         System.out.println("QNAme:" + name);
         System.out.println("BEAN: " + item.xmlText());
-        ItemType xm = (ItemType) item.getItem().substitute(name, ItemType.type);
-        System.out.println(xm == item.getItem());
-        //ItemDocument xm_opts = (ItemDocument) bean.substitute(name, ItemDocument.type);
+        ItemType xm = null;
+
+
+        try{
+
+            XmlObject xObj = (ItemType) item.getItem().substitute(name, ItemType.type);
+            System.out.println("XObj: "+xObj.xmlText());
+        }catch(NullPointerException npe){
+            System.out.println("NPE Thrown: "+npe.getMessage());
+            npe.printStackTrace();
+        }
+            System.out.println("");
+        boolean npeThrown = false;
+        try{
+            System.out.println(xm == item.getItem());
+        }catch(XmlValueDisconnectedException xvdEx){
+            npeThrown = true;
+        }
+
+        if( !npeThrown ){
+            Assert.fail("Referencing Item  after " +
+                    "substitute did not throw the expected NPE");
+        }
+            //ItemDocument xm_opts = (ItemDocument) bean.substitute(name, ItemDocument.type);
         //Assert.assertTrue("Invalid substitute should result in null object);
         ArrayList err = new ArrayList();
         XmlOptions opts = new XmlOptions();

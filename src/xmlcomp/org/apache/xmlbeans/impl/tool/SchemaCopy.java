@@ -38,12 +38,21 @@ import org.apache.xmlbeans.impl.xb.xsdschema.IncludeDocument;
 
 public class SchemaCopy
 {
+    public static void printUsage()
+    {
+        System.out.println("Copies the XML schema at the specified URL to the specified file.");
+        System.out.println("Usage: scopy sourceurl [targetfile]");
+        System.out.println("    sourceurl - The URL at which the schema is located.");
+        System.out.println("    targetfile - The file to which the schema should be copied.");
+        System.out.println();
+
+    }
 
     public static void main(String[] args)
     {
         if (args.length < 1 || args.length > 2)
         {
-            System.out.println("Usage: schemacopy sourceurl [targetfile]");
+            printUsage();
             return;
         }
 
@@ -52,6 +61,11 @@ public class SchemaCopy
 
         try
         {
+            if(args[0].compareToIgnoreCase("-usage") == 0){
+                printUsage();
+                return;
+            }
+
             source = new URI(args[0]);
             source.toURL(); // to trigger exception
         }
@@ -167,10 +181,10 @@ public class SchemaCopy
 
         return result;
     }
-    
+
     private static final XmlOptions loadOptions = new XmlOptions().
             setLoadSubstituteNamespaces(Collections.singletonMap(
-                    "http://schemas.xmlsoap.org/wsdl/", "http://www.apache.org/internal/xmlbeans/wsdlsubst" 
+                    "http://schemas.xmlsoap.org/wsdl/", "http://www.apache.org/internal/xmlbeans/wsdlsubst"
             ));
 
     private static Map findRelativeInOne(URI source, URI target)
