@@ -27,8 +27,8 @@ import java.util.Set;
 public class SchemaGlobalElementImpl extends SchemaLocalElementImpl
         implements SchemaGlobalElement
 {
+    private static final QName[] EMPTY_QNAME_ARRAY = new QName[0];
     private Set _sgMembers = new LinkedHashSet();
-    private static final QName[] _namearray = new QName[0];
     private boolean _finalExt;
     private boolean _finalRest;
     private SchemaTypeSystem _typeSystem;
@@ -80,7 +80,9 @@ public class SchemaGlobalElementImpl extends SchemaLocalElementImpl
 
     public QName[] substitutionGroupMembers()
     {
-        return (QName[])_sgMembers.toArray(_namearray);
+        if (_sgMembers.size() == 0)
+            return EMPTY_QNAME_ARRAY;
+        return (QName[])_sgMembers.toArray(new QName[_sgMembers.size()]);
     }
 
     public void addSubstitutionGroupMember(QName name)

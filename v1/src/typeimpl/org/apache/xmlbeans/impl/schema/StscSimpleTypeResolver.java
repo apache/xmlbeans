@@ -813,8 +813,8 @@ public class StscSimpleTypeResolver
                         break;
 
                     case SchemaType.FACET_PATTERN:
-                        org.apache.xmlbeans.impl.regex.RegularExpression p;
-                        try { p = new org.apache.xmlbeans.impl.regex.RegularExpression(facet.getValue().getStringValue(), "X"); }
+                        RegularExpression p;
+                        try { p = new RegularExpression(facet.getValue().getStringValue(), "X"); }
                         catch (org.apache.xmlbeans.impl.regex.ParseException e)
                         {
                             state.error("Malformed regular expression", XmlErrorContext.FACET_VALUE_MALFORMED, facet);
@@ -857,11 +857,16 @@ public class StscSimpleTypeResolver
         }
 
         // store the pattern list
-        org.apache.xmlbeans.impl.regex.RegularExpression[] patternArray;
-        if (patterns != null)
-            patternArray = (org.apache.xmlbeans.impl.regex.RegularExpression[])patterns.toArray(EMPTY_REGEX_ARRAY);
+        RegularExpression[] patternArray;
+        if (patterns != null && patterns.size() != 0)
+        {
+            patternArray = new RegularExpression[patterns.size()];
+            patterns.toArray(patternArray);
+        }
         else
+        {
             patternArray = EMPTY_REGEX_ARRAY;
+        }
         sImpl.setPatternFacet((patternArray.length > 0 || baseImpl.hasPatternFacet()));
         sImpl.setPatterns(patternArray);
     }
@@ -874,7 +879,7 @@ public class StscSimpleTypeResolver
         return result;
     }
 
-    private static final org.apache.xmlbeans.impl.regex.RegularExpression[] EMPTY_REGEX_ARRAY = new org.apache.xmlbeans.impl.regex.RegularExpression[0];
+    private static final RegularExpression[] EMPTY_REGEX_ARRAY = new RegularExpression[0];
 
     private static boolean isDiscreteType(SchemaTypeImpl sImpl)
     {

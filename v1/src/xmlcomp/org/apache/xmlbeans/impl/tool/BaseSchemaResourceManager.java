@@ -125,7 +125,8 @@ public abstract class BaseSchemaResourceManager extends SchemaImportResolver
             syncCacheWithLocalXsdFiles(allFilenames, false);
 
         SchemaResource[] starters = (SchemaResource[])
-                _resourceForFilename.values().toArray(new SchemaResource[0]);
+                _resourceForFilename.values().toArray(
+                    new SchemaResource[_resourceForFilename.values().size()]);
 
         if (refresh)
             redownloadEntries(starters);
@@ -169,7 +170,7 @@ public abstract class BaseSchemaResourceManager extends SchemaImportResolver
         }
 
         SchemaResource[] starters = (SchemaResource[])
-               starterset.toArray(new SchemaResource[0]);
+               starterset.toArray(new SchemaResource[starterset.size()]);
 
         if (refresh)
             redownloadEntries(starters);

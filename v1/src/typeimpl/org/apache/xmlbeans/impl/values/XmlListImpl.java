@@ -123,7 +123,11 @@ public class XmlListImpl extends XmlObjectBase implements XmlAnySimpleType
             while (i < s.length() && XMLChar.isSpace(s.charAt(i)))
                 i += 1;
             if (i >= s.length())
-                return (String[])result.toArray(EMPTY_STRINGARRAY);
+            {
+                if (result.size() == 0)
+                    return EMPTY_STRINGARRAY;
+                return (String[])result.toArray(new String[result.size()]);
+            }
             start = i;
             while (i < s.length() && !XMLChar.isSpace(s.charAt(i)))
                 i += 1;

@@ -66,7 +66,11 @@ public class SchemaAttributeModelImpl implements SchemaAttributeModel
 
     public SchemaLocalAttribute[] getAttributes()
     {
-        return (SchemaLocalAttribute[])attrMap.values().toArray(EMPTY_SLA_ARRAY);
+        if (attrMap.values().size() == 0)
+            return EMPTY_SLA_ARRAY;
+
+        SchemaLocalAttribute[] data = new SchemaLocalAttribute[attrMap.values().size()];
+        return (SchemaLocalAttribute[])attrMap.values().toArray(data);
     }
 
     public SchemaLocalAttribute getAttribute(QName name)

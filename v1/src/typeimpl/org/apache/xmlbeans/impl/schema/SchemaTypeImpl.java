@@ -643,6 +643,8 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory
         List list = new ArrayList();
         list.addAll(_propertyModelByElementName.values());
         list.addAll(_propertyModelByAttributeName.values());
+        if (list.size()==0)
+            return NO_PROPERTIES;
         return (SchemaProperty[])list.toArray(new SchemaProperty[list.size()]);
     }
 
@@ -687,6 +689,8 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory
 
         }
 
+        if (results.size() == 0)
+            return NO_PROPERTIES;
         return (SchemaProperty[])results.toArray(new SchemaProperty[results.size()]);
     }
 
