@@ -78,7 +78,7 @@ import java.util.Collection;
  */
 public final class UnmarshalContext
 {
-    private final XMLStreamReader baseReader;
+    private XMLStreamReader baseReader;
     private final BindingLoader bindingLoader;
     private final RuntimeBindingTypeTable typeTable;
     private final Collection errors;
@@ -95,9 +95,24 @@ public final class UnmarshalContext
     }
 
 
-    XMLStreamReader getXmlStream()
+    UnmarshalContext(BindingLoader bindingLoader,
+                     RuntimeBindingTypeTable typeTable,
+                     Collection errors)
+    {
+        this.bindingLoader = bindingLoader;
+        this.errors = errors;
+        this.typeTable = typeTable;
+    }
+
+
+    public XMLStreamReader getXmlStream()
     {
         return baseReader;
+    }
+
+    public void setXmlStream(XMLStreamReader reader)
+    {
+        baseReader = reader;
     }
 
     RuntimeBindingTypeTable getTypeTable()

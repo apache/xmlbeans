@@ -93,6 +93,12 @@ public class BindingContext
         return new UnmarshalContext(reader, bindingLoader, typeTable, errors);
     }
 
+    //TODO: REVIEW: should error collection concept be exposed here?
+    public UnmarshalContext createUnmarshallContext(Collection errors)
+    {
+        return new UnmarshalContext(bindingLoader, typeTable, errors);
+    }
+
 
     public Marshaller createMarshaller()
     {

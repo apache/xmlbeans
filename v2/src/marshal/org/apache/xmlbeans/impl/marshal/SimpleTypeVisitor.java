@@ -72,8 +72,6 @@ final class SimpleTypeVisitor extends XmlTypeVisitor
         super(obj);
         this.property = property;
         this.context = context;
-
-
     }
 
     protected void advance()
@@ -93,13 +91,22 @@ final class SimpleTypeVisitor extends XmlTypeVisitor
 
     protected QName getName()
     {
+        //TODO: optimize this method (and related) 
         final QName pname = property.getName();
+        final String uri = pname.getNamespaceURI();
 
-        if (prefix == null) {
-            prefix = context.ensurePrefix(pname.getNamespaceURI());
+        assert uri != null;  //QName's should use "" for no namespace
+
+        if (uri.length() == 0) {
+            return new QName(pname.getLocalPart());
+        } else {
+
+            if (prefix == null) {
+                prefix = context.ensurePrefix(uri);
+            }
+
+            return new QName(uri, pname.getLocalPart(), prefix);
         }
-
-        return new QName(pname.getNamespaceURI(), pname.getLocalPart(), prefix);
     }
 
     protected boolean isCharacters()
