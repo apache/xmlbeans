@@ -727,6 +727,92 @@ public class JiraRegression50_100Test extends JiraTestBase
 
 
 
+    /**
+     * For Testing jira issue 84
+     */
+    public static class XPathThread extends TestThread
+    {
+        public XPathThread()
+        {
+            super();
+        }
+
+        public void run()
+        {
+
+            try {
+                for (int i = 0; i < ITERATION_COUNT; i++) {
+                    switch (i % 2) {
+                        case 0:
+                            runStatusXPath();
+                            break;
+                        case 1:
+                            runDocXPath();
+                            break;
+                        default:
+                            System.out.println("Val: " + i);
+                            break;
+                    }
+
+                }
+                _result = true;
+
+            } catch (Throwable t) {
+                _throwable = t;
+                t.printStackTrace();
+            }
+        }
+
+        public void runStatusXPath()
+        {
+            try {
+                System.out.println("Testing Status");
+                String statusDoc = "<statusreport xmlns=\"http://openuri.org/enumtest\">\n" +
+                        "  <status name=\"first\" target=\"all\">all</status>\n" +
+                        "  <status name=\"second\" target=\"all\">few</status>\n" +
+                        "  <status name=\"third\" target=\"none\">most</status>\n" +
+                        "  <status name=\"first\" target=\"none\">none</status>\n" +
+                        "</statusreport>";
+                XmlObject path = XmlObject.Factory.parse(statusDoc, xm);
+                XmlObject[] resSet = path.selectPath("//*:status");
+                Assert.assertTrue(resSet.length + "", resSet.length == 4);
+                resSet = path.selectPath("//*:status[@name='first']");
+                Assert.assertTrue(resSet.length == 2);
+
+            } catch (Throwable t) {
+                _throwable = t;
+                t.printStackTrace();
+            }
+        }
+
+        public void runDocXPath()
+        {
+            try {
+                System.out.println("Testing Doc");
+                String docDoc = "<?xml version=\"1.0\"?>\n" +
+                        "<doc xmlns:ext=\"http://somebody.elses.extension\">\n" +
+                        "  <a test=\"test\" />\n" +
+                        "  <b attr1=\"a1\" attr2=\"a2\"   \n" +
+                        "  xmlns:java=\"http://xml.apache.org/xslt/java\">\n" +
+                        "    <a>\n" +
+                        "    </a> \n" +
+                        "  </b>\n" +
+                        "</doc><!-- -->  ";
+                XmlObject path = XmlObject.Factory.parse(docDoc, xm);
+                XmlObject[] resSet = path.selectPath("//a");
+                Assert.assertTrue(resSet.length == 2);
+                resSet = path.selectPath("//b[@attr2]");
+                Assert.assertTrue(resSet.length == 1);
+
+            } catch (Throwable t) {
+                _throwable = t;
+                t.printStackTrace();
+            }
+        }
+    }
+
+
+
 
 
 }

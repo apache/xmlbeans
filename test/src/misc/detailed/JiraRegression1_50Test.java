@@ -17,10 +17,7 @@ package misc.detailed;
 import misc.common.JiraTestBase;
 
 import java.io.*;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.Collections;
+import java.util.*;
 
 import org.apache.xmlbeans.*;
 import org.apache.xmlbeans.impl.tool.SchemaCompiler;
@@ -493,6 +490,90 @@ public class JiraRegression1_50Test extends JiraTestBase {
             Assert.fail("test_jira_xmlbeans49() : Errors found when executing scomp");
         }
     }
+
+    /**
+     * For Testing jira issue 46
+     */
+    public static class RegexThread extends TestThread
+    {
+        private xmlbeans46.UsPhoneNumberDocument phone;
+        Random rand;
+
+        public RegexThread()
+        {
+            super();
+            phone = xmlbeans46.UsPhoneNumberDocument.Factory.newInstance();
+            rand = new Random();
+        }
+
+        /**
+         * Validates a type that uses the following pattern
+         * <xs:restriction base="xs:string">
+         * <xs:pattern value="\d{3}\-\d{3}\-\d{4}"/>
+         * </xs:restriction>
+         */
+        public void run()
+        {
+            try {
+
+                for (int i = 0; i < 9; i++) {
+                    int pre = rand.nextInt(999);
+                    int mid = rand.nextInt(999);
+                    int post = rand.nextInt(9999);
+                    String testVal = ((pre > 100) ? String.valueOf(pre) : "128") + "-" +
+                            ((mid > 100) ? String.valueOf(mid) : "256") + "-" +
+                            ((post > 1000) ? String.valueOf(post) : "1024");
+
+                    String xmlData = "<xb:usPhoneNumber xmlns:xb=\"http://xmlbeans_46\">" +
+                            testVal +
+                            "</xb:usPhoneNumber>";
+                    //cannot repro using this method
+                    //phone.setUsPhoneNumber(testVal);
+                    //if (!phone.validate(xm)) {
+                    //    _throwable = new Throwable("Multi Threaded Regular " +
+                    //            "Expression did not validate - " + testVal);
+                    //    if (errors != null && errors.size() > 0)
+                    //        System.err.println("ERROR: " + errors);
+                    //}
+
+                    boolean validated = parseAndValidate(xmlData);
+                    if (!validated) {
+                        System.out.println("Not Valid!!!");
+                    }
+                    System.out.println("Validated " + testVal + " successfully ");
+                }
+                _result = true;
+
+            } catch (Throwable t) {
+                _throwable = t;
+                t.printStackTrace();
+            }
+        }
+
+        private boolean parseAndValidate(String val) throws XmlException
+        {
+            xmlbeans46.UsPhoneNumberDocument xml = xmlbeans46.UsPhoneNumberDocument.Factory.parse(val);
+            return validate(xml);
+        }
+
+        private boolean validate(xmlbeans46.UsPhoneNumberDocument rdd)
+        {
+            Collection errors = new ArrayList();
+            XmlOptions validateOptions = new XmlOptions();
+            validateOptions.setErrorListener(errors);
+            boolean valid = rdd.validate(validateOptions);
+            if (!valid) {
+                for (Iterator iterator = errors.iterator(); iterator.hasNext();) {
+                    XmlError xmlError = (XmlError) iterator.next();
+                    System.out.println("XML Error - " + xmlError.getMessage() + " at\n" + xmlError.getCursorLocation().xmlText());
+                }
+
+            }
+            return valid;
+        }
+    }
+
+
 
 
 
