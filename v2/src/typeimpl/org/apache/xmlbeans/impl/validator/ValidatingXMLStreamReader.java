@@ -77,6 +77,8 @@ public class ValidatingXMLStreamReader
     private List _attValuesList;
     private SchemaType _xsiType;
 
+    private int _depth;
+
     /**
      * Default constructor. Use init(...) to set the params.
      * See {@link #init}
@@ -117,6 +119,7 @@ public class ValidatingXMLStreamReader
             _attValuesList.clear();
         }
         _xsiType = null;
+        _depth = 0;
 
         if (startWithCurrentEvent)
         {
@@ -403,7 +406,7 @@ public class ValidatingXMLStreamReader
     public int next() throws XMLStreamException
     {
         int evType = super.next();
-        //debugEvent(evType);
+//        debugEvent(evType);
 
         validate_event(evType);
 
@@ -415,9 +418,13 @@ public class ValidatingXMLStreamReader
         if (_state==STATE_ERROR)
             return;
 
+        if (_depth<0)
+            throw new IllegalArgumentException("ValidatingXMLStreamReader cannot go further than the subtree is was initialized on.");
+
         switch(evType)
         {
         case XMLEvent.START_ELEMENT:
+            _depth++;
             if (_state == STATE_ATTBUFFERING)
                 pushBufferedAttributes();
 
@@ -491,6 +498,7 @@ public class ValidatingXMLStreamReader
 
         case XMLEvent.END_ELEMENT:
         case XMLEvent.END_DOCUMENT:
+            _depth--;
             if (_state == STATE_ATTBUFFERING)
                 pushBufferedAttributes();
 
@@ -506,6 +514,9 @@ public class ValidatingXMLStreamReader
             {
                 if (_contentType==null)
                 {
+                    if (isWhiteSpace()) // hack/workaround for avoiding errors for parsers that do not generate XMLEvent.SPACE
+                        break;
+
                     addError("No content type provided for validation of a content model.");
                     _state = STATE_ERROR;
                     break;
@@ -518,6 +529,9 @@ public class ValidatingXMLStreamReader
             break;
 
         case XMLEvent.START_DOCUMENT:
+            _depth++;
+            break;
+
         case XMLEvent.COMMENT:
         case XMLEvent.DTD:
         case XMLEvent.ENTITY_DECLARATION:
@@ -723,9 +737,8 @@ public class ValidatingXMLStreamReader
 //            System.out.println("CDATA");
 //            break;
 //        case XMLEvent.CHARACTERS:
-//            Chars c = new Chars();
-//            _elemEvent.getText(c);
-//            System.out.println("TEXT     " + c.asString());
+//            String c = _elemEvent.getText();
+//            System.out.println("TEXT     " + c);
 //            break;
 //
 //        case XMLEvent.ATTRIBUTE:      // global attributes
