@@ -35,7 +35,7 @@ public class InstanceValidator
     public static void printUsage()
     {
         System.out.println("Validates a schema defintion and instances within the schema.");
-        System.out.println("Usage: validate [switches] schema.xsd instance.xml");
+        System.out.println("Usage: validate [switches] schema.jar schema.xsd instance.xml");
         System.out.println("Switches:");
         System.out.println("    -dl    enable network downloads for imports and includes");
         System.out.println("    -nopvr disable particle valid (restriction) rule");
@@ -102,6 +102,7 @@ public class InstanceValidator
         
         File[] schemaFiles = cl.filesEndingWith(".xsd");
         File[] instanceFiles = cl.filesEndingWith(".xml");
+        File[] jarFiles = cl.filesEndingWith(".jar");
         
         List sdocs = new ArrayList();
         
@@ -122,7 +123,7 @@ public class InstanceValidator
 
         XmlObject[] schemas = (XmlObject[])sdocs.toArray(new XmlObject[0]);
 
-        SchemaTypeLoader sLoader;
+        SchemaTypeLoader sLoader = null;
         Collection compErrors = new ArrayList();
         XmlOptions schemaOptions = new XmlOptions();
         schemaOptions.setErrorListener(compErrors);
@@ -135,9 +136,13 @@ public class InstanceValidator
         if (partial)
             schemaOptions.put("COMPILE_PARTIAL_TYPESYSTEM");
         
+        if (jarFiles != null && jarFiles.length > 0)
+            sLoader = XmlBeans.typeLoaderForResource(XmlBeans.resourceLoaderForPath(jarFiles));
+        
         try
         {
-            sLoader = XmlBeans.loadXsd(schemas, schemaOptions);
+            if (schemas != null && schemas.length > 0)
+                sLoader = XmlBeans.compileXsd(schemas, sLoader, schemaOptions);
         }
         catch (Exception e)
         {

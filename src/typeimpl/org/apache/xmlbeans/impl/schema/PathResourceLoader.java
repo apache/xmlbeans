@@ -15,6 +15,8 @@
 
 package org.apache.xmlbeans.impl.schema;
 
+import org.apache.xmlbeans.ResourceLoader;
+
 import java.io.InputStream;
 import java.io.File;
 import java.io.IOException;

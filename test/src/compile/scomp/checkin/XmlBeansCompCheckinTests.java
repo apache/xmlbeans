@@ -1,6 +1,7 @@
 package compile.scomp.checkin;
 
 import org.apache.xmlbeans.*;
+import org.apache.xmlbeans.impl.schema.SchemaTypeSystemImpl;
 import compile.scomp.common.mockobj.TestFiler;
 import compile.scomp.common.CompileCommon;
 import compile.scomp.common.CompileTestBase;
@@ -145,15 +146,18 @@ public class XmlBeansCompCheckinTests extends CompileTestBase
                     System.err.println(i.next());
             throw e;
         }
+        
+        Assert.assertTrue("Expected partial schema type system", ((SchemaTypeSystemImpl)sts).isPartial());
 
 
         //call some stupid methods on STS
         printSTS(sts);
 
         // Check using saveToDirectory on Partial SOM
+        File tempDir = null;
         try {
             //setUp outputDirectory
-            File tempDir = new File(CompileCommon.outputroot, "psom_save");
+            tempDir = new File(CompileCommon.outputroot, "psom_save");
             tempDir.mkdirs();
             tempDir.deleteOnExit();
             Assert.assertTrue("Output Directory Init needed to be empty",
@@ -161,46 +165,51 @@ public class XmlBeansCompCheckinTests extends CompileTestBase
 
             //This should not Work
             sts.saveToDirectory(tempDir);
-            tempDir.exists();
-            //make sure nothing was written
-            Assert.assertTrue("Partial SOM output dir needed to be empty",
-                    tempDir.listFiles().length == 0);
-
-        } catch (Exception e) {
-            throw e;
+            Assert.fail("Expected IllegalStateException");
+        } catch (IllegalStateException e) {
+            // ok
+            System.out.println("sts.saveToDirectory() threw IllegalStateException as expected");
         }
+        
+        //make sure nothing was written
+        Assert.assertTrue("Partial SOM output dir needed to be empty",
+            tempDir.listFiles().length == 0);
 
         // Check using save(Filer) on Partial SOM
+        TestFiler tf = null;
         try {
             //setUp outputDirectory
-            TestFiler tf = new TestFiler();
+            tf = new TestFiler();
             Assert.assertTrue("Filer Source should have been size 0",
                     tf.getBinFileVec().size() == 0);
 
             //This should not Work
             sts.save(tf);
-            //make sure nothing was written
-            Assert.assertTrue("Filer -Bin- Partial SOM " +
-                    "output dir needed to be empty",
-                    tf.getBinFileVec().size() == 0);
-            Assert.assertTrue("Filer -SRC- Partial SOM " +
-                    "output dir needed to be empty",
-                    tf.getSrcFileVec().size() == 0);
-
-            Assert.assertFalse("Filer Create Source File " +
-                    "method should not have been invoked",
-                    tf.isCreateSourceFile());
-
-            Assert.assertFalse("Filer Create Binary File " +
-                    "method should not have been invoked",
-                    tf.isCreateBinaryFile());
-        } catch (Exception e) {
-            throw e;
+            Assert.fail("Expected IllegalStateException");
+        } catch (IllegalStateException e) {
+            // ok
+            System.out.println("sts.save() threw IllegalStateException as expected");
         }
+        
+        //make sure nothing was written
+        Assert.assertTrue("Filer -Bin- Partial SOM " +
+            "output dir needed to be empty",
+            tf.getBinFileVec().size() == 0);
+        Assert.assertTrue("Filer -SRC- Partial SOM " +
+            "output dir needed to be empty",
+            tf.getSrcFileVec().size() == 0);
+        
+        Assert.assertFalse("Filer Create Source File " +
+            "method should not have been invoked",
+            tf.isCreateSourceFile());
+        
+        Assert.assertFalse("Filer Create Binary File " +
+            "method should not have been invoked",
+            tf.isCreateBinaryFile());
 
         // Check using filer in partial SOM compilation
         try {
-            TestFiler tf = new TestFiler();
+            tf = new TestFiler();
 
             Assert.assertTrue("Filer Source should have been size 0",
                     tf.getBinFileVec().size() == 0);

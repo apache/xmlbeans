@@ -21,6 +21,7 @@ import org.apache.xmlbeans.XmlBeans;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.SchemaTypeSystem;
 import org.apache.xmlbeans.SchemaType;
+import org.apache.xmlbeans.SchemaTypeLoader;
 import org.apache.xmlbeans.impl.common.QNameHelper;
 
 import java.util.Collections;
@@ -101,7 +102,8 @@ public class TypeHierarchyPrinter
         boolean noupa = (cl.getOpt("noupa") != null);
         boolean partial = (cl.getOpt("partial") != null);
         
-        File[] schemaFiles = cl.getFiles();
+        File[] schemaFiles = cl.filesEndingWith(".xsd");
+        File[] jarFiles = cl.filesEndingWith(".jar");
         
         // step 1: load all the files
         List sdocs = new ArrayList();
@@ -123,6 +125,7 @@ public class TypeHierarchyPrinter
         XmlObject[] schemas = (XmlObject[])sdocs.toArray(new XmlObject[0]);
         
         // step 2: compile all the schemas
+        SchemaTypeLoader linkTo = null;
         SchemaTypeSystem typeSystem;
         Collection compErrors = new ArrayList();
         XmlOptions schemaOptions = new XmlOptions();
@@ -135,9 +138,12 @@ public class TypeHierarchyPrinter
         if (partial)
             schemaOptions.put("COMPILE_PARTIAL_TYPESYSTEM");
         
+        if (jarFiles != null && jarFiles.length > 0)
+            linkTo = XmlBeans.typeLoaderForResource(XmlBeans.resourceLoaderForPath(jarFiles));
+        
         try
         {
-            typeSystem = XmlBeans.compileXsd(schemas, XmlBeans.getBuiltinTypeSystem(), schemaOptions);
+            typeSystem = XmlBeans.compileXsd(schemas, linkTo, schemaOptions);
         }
         catch (XmlException e)
         {

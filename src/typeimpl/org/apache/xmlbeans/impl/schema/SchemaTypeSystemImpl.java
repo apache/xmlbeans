@@ -39,6 +39,7 @@ import org.apache.xmlbeans.SimpleValue;
 import org.apache.xmlbeans.XmlAnySimpleType;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
+import org.apache.xmlbeans.ResourceLoader;
 import org.apache.xmlbeans.impl.common.NameUtil;
 import org.apache.xmlbeans.impl.common.QNameHelper;
 import org.apache.xmlbeans.impl.common.XBeanDebug;
@@ -1270,15 +1271,13 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
 
     public void saveToDirectory(File classDir)
     {
-        if (_partial)
-            return;
         save(new FilerImpl(classDir, null, null, false, false));
     }
 
     public void save(Filer filer)
     {
         if (_partial)
-            return;
+            throw new IllegalStateException("Partial SchemaTypeSystems cannot be saved.");
         
         if (filer == null)
             throw new IllegalArgumentException("filer must not be null");
@@ -1318,7 +1317,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
     public void saveGlobalElements(SchemaGlobalElement[] elts)
     {
         if (_partial)
-            return;
+            throw new IllegalStateException("Partial SchemaTypeSystems cannot be saved.");
         for (int i = 0; i < elts.length; i++)
         {
             saveGlobalElement(elts[i]);
@@ -1328,7 +1327,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
     public void saveGlobalAttributes(SchemaGlobalAttribute[] attrs)
     {
         if (_partial)
-            return;
+            throw new IllegalStateException("Partial SchemaTypeSystems cannot be saved.");
         for (int i = 0; i < attrs.length; i++)
         {
             saveGlobalAttribute(attrs[i]);
@@ -1338,7 +1337,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
     public void saveModelGroups(SchemaModelGroup[] groups)
     {
         if (_partial)
-            return;
+            throw new IllegalStateException("Partial SchemaTypeSystems cannot be saved.");
         for (int i = 0; i < groups.length; i++)
         {
             saveModelGroup(groups[i]);
@@ -1348,7 +1347,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
     public void saveAttributeGroups(SchemaAttributeGroup[] groups)
     {
         if (_partial)
-            return;
+            throw new IllegalStateException("Partial SchemaTypeSystems cannot be saved.");
         for (int i = 0; i < groups.length; i++)
         {
             saveAttributeGroup(groups[i]);
@@ -1358,7 +1357,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
     public void saveIdentityConstraints(SchemaIdentityConstraint[] idcs)
     {
         if (_partial)
-            return;
+            throw new IllegalStateException("Partial SchemaTypeSystems cannot be saved.");
         for (int i = 0; i < idcs.length; i++)
         {
             saveIdentityConstraint(idcs[i]);
@@ -1368,7 +1367,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
     public void saveGlobalElement(SchemaGlobalElement elt)
     {
         if (_partial)
-            return;
+            throw new IllegalStateException("Partial SchemaTypeSystems cannot be saved.");
         String handle = _localHandles.handleForElement(elt);
         XsbReader saver = new XsbReader(handle);
         saver.writeParticleData((SchemaParticle)elt);
@@ -1382,7 +1381,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
     public void saveGlobalAttribute(SchemaGlobalAttribute attr)
     {
         if (_partial)
-            return;
+            throw new IllegalStateException("Partial SchemaTypeSystems cannot be saved.");
         String handle = _localHandles.handleForAttribute(attr);
         XsbReader saver = new XsbReader(handle);
         saver.writeAttributeData(attr);
@@ -1396,7 +1395,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
     public void saveModelGroup(SchemaModelGroup grp)
     {
         if (_partial)
-            return;
+            throw new IllegalStateException("Partial SchemaTypeSystems cannot be saved.");
         String handle = _localHandles.handleForModelGroup(grp);
         XsbReader saver = new XsbReader(handle);
         saver.writeModelGroupData(grp);
@@ -1408,7 +1407,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
     public void saveAttributeGroup(SchemaAttributeGroup grp)
     {
         if (_partial)
-            return;
+            throw new IllegalStateException("Partial SchemaTypeSystems cannot be saved.");
         String handle = _localHandles.handleForAttributeGroup(grp);
         XsbReader saver = new XsbReader(handle);
         saver.writeAttributeGroupData(grp);
@@ -1420,7 +1419,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
     public void saveIdentityConstraint(SchemaIdentityConstraint idc)
     {
         if (_partial)
-            return;
+            throw new IllegalStateException("Partial SchemaTypeSystems cannot be saved.");
         String handle = _localHandles.handleForIdentityConstraint(idc);
         XsbReader saver = new XsbReader(handle);
         saver.writeIdConstraintData(idc);
