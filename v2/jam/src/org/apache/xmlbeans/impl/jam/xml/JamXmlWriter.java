@@ -14,7 +14,6 @@
  */
 package org.apache.xmlbeans.impl.jam.xml;
 
-import org.apache.xmlbeans.impl.jam.JPackage;
 import org.apache.xmlbeans.impl.jam.JClass;
 import org.apache.xmlbeans.impl.jam.JConstructor;
 import org.apache.xmlbeans.impl.jam.JField;
@@ -26,8 +25,6 @@ import org.apache.xmlbeans.impl.jam.JAnnotatedElement;
 import org.apache.xmlbeans.impl.jam.JInvokable;
 import org.apache.xmlbeans.impl.jam.JSourcePosition;
 import org.apache.xmlbeans.impl.jam.JAnnotationValue;
-import org.apache.xmlbeans.impl.jam.JElement;
-import org.apache.xmlbeans.impl.jam.visitor.JVisitor;
 
 import javax.xml.stream.XMLStreamWriter;
 import javax.xml.stream.XMLStreamException;
@@ -37,41 +34,14 @@ import java.io.Writer;
 /**
  * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
  */
-public class JamXmlWriter extends JVisitor {
-
-  // ========================================================================
-  // Constants
-
-  public static final String PACKAGE_ELEMENT = "package";
-
-  public static final String CLASS_ELEMENT = "class";
-  public static final String NAME_ELEMENT = "name";
-  public static final String ISINTERFACE_ELEMENT = "is-interface";
-  public static final String INTERFACE_ELEMENT = "interface";
-  public static final String SUPERCLASS_ELEMENT = "superclass";
-  public static final String MODIFIERS_ELEMENT = "modifiers";
-  public static final String PARAMETER_ELEMENT = "parameter";
-  public static final String TYPE_ELEMENT = "parameter";
-  public static final String CONSTRUCTOR_ELEMENT = "constructor";
-  public static final String METHOD_ELEMENT = "method";
-  public static final String FIELD_ELEMENT = "field";
-  public static final String RETURNTYPE_ELEMENT = "return-type";
-  public static final String COMMENT_ELEMENT = "comment";
-
-  public static final String SOURCEPOSITION_ELEMENT = "source-position";
-  public static final String LINE_ELEMENT = "line";
-  public static final String COLUMN_ELEMENT = "column";
-  public static final String SOURCEURI_ELEMENT = "source-uri";
-
-  public static final String VALUE_ELEMENT = "value";
-
-  public static final String ANNOTATION_ELEMENT = "annotation";
-  public static final String ANNOTATIONVALUE_ELEMENT = "annotation-value";
+/*package*/ class JamXmlWriter implements JamXmlElements {
 
   // ========================================================================
   // Variables
 
   private XMLStreamWriter mOut;
+  private boolean mInBody = false;
+  private boolean mWriteSourceURI = false;
 
   // ========================================================================
   // Constructors
@@ -89,30 +59,39 @@ public class JamXmlWriter extends JVisitor {
   // ========================================================================
   // Public methods
 
-  public void write(JElement element) throws XMLStreamException {
-    try {
-      element.accept(this);
-    } catch(TunnelledException te) {
-      throw te.getXMLStreamException();
-    }
+
+  public void begin() throws XMLStreamException {
+    if (mInBody) throw new XMLStreamException("begin() already called");
+    mOut.writeStartElement(JAMSERVICE);
+    mInBody = true;
   }
 
+  public void end() throws XMLStreamException {
+    if (!mInBody) throw new XMLStreamException("begin() never called");
+    mOut.writeEndElement();
+    mInBody = false;
+  }
+
+
+  /*
   public void write(JPackage pkg) throws XMLStreamException {
-    mOut.writeStartElement(PACKAGE_ELEMENT);
+    assertStarted();
+    mOut.writeStartElement(PACKAGE);
     JClass[] c = pkg.getClasses();
     for(int i=0; i<c.length; i++) write(c[i]);
     writeAnnotatedElement(pkg);
     mOut.writeEndElement();
-  }
+  }*/
 
   public void write(JClass clazz) throws XMLStreamException {
-    mOut.writeStartElement(CLASS_ELEMENT);
-    writeValueElement(NAME_ELEMENT,clazz.getQualifiedName());
-    writeValueElement(ISINTERFACE_ELEMENT,clazz.isInterface());
-    JClass sc = clazz.getSuperclass();
-    if (sc != null) writeValueElement(SUPERCLASS_ELEMENT,sc.getQualifiedName());
-    writeClassList(INTERFACE_ELEMENT,clazz.getInterfaces());
+    assertStarted();
+    mOut.writeStartElement(CLASS);
+    writeValueElement(CLASS_NAME,clazz.getQualifiedName());
+    writeValueElement(ISINTERFACE,clazz.isInterface());
     writeModifiers(clazz.getModifiers());
+    JClass sc = clazz.getSuperclass();
+    if (sc != null) writeValueElement(SUPERCLASS,sc.getQualifiedName());
+    writeClassList(INTERFACE,clazz.getInterfaces());
     {
       JField[] f = clazz.getDeclaredFields();
       for(int i=0; i<f.length; i++) write(f[i]);
@@ -128,107 +107,41 @@ public class JamXmlWriter extends JVisitor {
     mOut.writeEndElement();
   }
 
-  public void write(JMethod method) throws XMLStreamException {
-    mOut.writeStartElement(METHOD_ELEMENT);
-    writeValueElement(NAME_ELEMENT,method.getSimpleName());
-    writeValueElement(RETURNTYPE_ELEMENT,
+
+  // ========================================================================
+  // Private methods
+
+  private void write(JMethod method) throws XMLStreamException {
+    mOut.writeStartElement(METHOD);
+    writeValueElement(NAME,method.getSimpleName());
+    writeValueElement(RETURNTYPE,
                       method.getReturnType().getQualifiedName());
     writeInvokable(method);
     mOut.writeEndElement();
   }
 
-  public void write(JConstructor ctor) throws XMLStreamException {
-    mOut.writeStartElement(CONSTRUCTOR_ELEMENT);
+  private void write(JConstructor ctor) throws XMLStreamException {
+    mOut.writeStartElement(CONSTRUCTOR);
     writeInvokable(ctor);
     mOut.writeEndElement();
   }
 
-  public void write(JField field) throws XMLStreamException {
-    mOut.writeStartElement(FIELD_ELEMENT);
-    writeValueElement(NAME_ELEMENT,field.getSimpleName());
+  private void write(JField field) throws XMLStreamException {
+    mOut.writeStartElement(FIELD);
+    writeValueElement(NAME,field.getSimpleName());
     writeModifiers(field.getModifiers());
-    writeValueElement(TYPE_ELEMENT,field.getType().getQualifiedName());
+    writeValueElement(TYPE,field.getType().getQualifiedName());
     writeAnnotatedElement(field);
     mOut.writeEndElement();
   }
-
-  // ========================================================================
-  // JVistitor implementation
-
-  public void visit(JPackage foo) {
-    try {
-      write(foo);
-    } catch(XMLStreamException xse) {
-      throw new TunnelledException(xse);
-    }
-  }
-
-  public void visit(JClass foo) {
-    try {
-      write(foo);
-    } catch(XMLStreamException xse) {
-      throw new TunnelledException(xse);
-    }
-  }
-
-  public void visit(JConstructor foo) {
-    try {
-      write(foo);
-    } catch(XMLStreamException xse) {
-      throw new TunnelledException(xse);
-    }
-  }
-
-  public void visit(JField foo) {
-    try {
-      write(foo);
-    } catch(XMLStreamException xse) {
-      throw new TunnelledException(xse);
-    }
-  }
-
-  public void visit(JMethod foo) {
-    try {
-      write(foo);
-    } catch(XMLStreamException xse) {
-      throw new TunnelledException(xse);
-    }
-  }
-
-  public void visit(JParameter foo) {
-    try {
-      write(foo);
-    } catch(XMLStreamException xse) {
-      throw new TunnelledException(xse);
-    }
-  }
-
-  public void visit(JAnnotation foo) {
-    try {
-      write(foo);
-    } catch(XMLStreamException xse) {
-      throw new TunnelledException(xse);
-    }
-  }
-
-  public void visit(JComment foo) {
-    try {
-      write(foo);
-    } catch(XMLStreamException xse) {
-      throw new TunnelledException(xse);
-    }
-  }
-
-  // ========================================================================
-  // Private methods
 
   private void writeInvokable(JInvokable ji) throws XMLStreamException {
     writeModifiers(ji.getModifiers());
     JParameter[] params = ji.getParameters();
     for(int i=0; i<params.length; i++) {
-      mOut.writeStartElement(PARAMETER_ELEMENT);
-      writeValueElement(NAME_ELEMENT,params[i].getSimpleName());
-      writeValueElement(TYPE_ELEMENT,params[i].getType().getQualifiedName());
+      mOut.writeStartElement(PARAMETER);
+      writeValueElement(NAME,params[i].getSimpleName());
+      writeValueElement(TYPE,params[i].getType().getQualifiedName());
       writeAnnotatedElement(params[i]);
       mOut.writeEndElement();
     }
@@ -246,7 +159,7 @@ public class JamXmlWriter extends JVisitor {
   }
 
   private void writeModifiers(int mods) throws XMLStreamException {
-    mOut.writeStartElement(MODIFIERS_ELEMENT);
+    mOut.writeStartElement(MODIFIERS);
     mOut.writeCharacters(String.valueOf(mods));
     mOut.writeEndElement();
   }
@@ -288,7 +201,7 @@ public class JamXmlWriter extends JVisitor {
       if (text != null) {
         text = text.trim();
         if (text.length() > 0) {
-          mOut.writeStartElement(COMMENT_ELEMENT);
+          mOut.writeStartElement(COMMENT);
           mOut.writeCData(jc.getText());
           mOut.writeEndElement();
         }
@@ -296,22 +209,22 @@ public class JamXmlWriter extends JVisitor {
     }
     JSourcePosition pos = ae.getSourcePosition();
     if (pos != null) {
-      mOut.writeStartElement(SOURCEPOSITION_ELEMENT);
+      mOut.writeStartElement(SOURCEPOSITION);
       if (pos.getLine() != -1) {
-        writeValueElement(LINE_ELEMENT,pos.getLine());
+        writeValueElement(LINE,pos.getLine());
       }
       if (pos.getColumn() != -1) {
-        writeValueElement(COLUMN_ELEMENT,pos.getColumn());
+        writeValueElement(COLUMN,pos.getColumn());
       }
-      if (pos.getSourceURI() != null)
-        writeValueElement(SOURCEURI_ELEMENT,pos.getSourceURI().toString());
+      if (mWriteSourceURI && pos.getSourceURI() != null)
+        writeValueElement(SOURCEURI,pos.getSourceURI().toString());
       mOut.writeEndElement();
     }
   }
 
   private void writeAnnotation(JAnnotation ann) throws XMLStreamException {
-    mOut.writeStartElement(ANNOTATION_ELEMENT);
-    writeValueElement(NAME_ELEMENT,ann.getSimpleName());
+    mOut.writeStartElement(ANNOTATION);
+    writeValueElement(NAME,ann.getSimpleName());
     JAnnotationValue[] values = ann.getValues();
     for(int i=0; i<values.length; i++) {
       writeAnnotationValue(values[i]);
@@ -322,17 +235,22 @@ public class JamXmlWriter extends JVisitor {
   private void writeAnnotationValue(JAnnotationValue val)
     throws XMLStreamException
   {
-    mOut.writeStartElement(ANNOTATIONVALUE_ELEMENT);
-    writeValueElement(NAME_ELEMENT,val.getName());
-    writeValueElement(VALUE_ELEMENT,val.asString());
+    mOut.writeStartElement(ANNOTATIONVALUE);
+    writeValueElement(NAME,val.getName());
+    writeValueElement(VALUE,val.asString());
     mOut.writeEndElement();
     //FIXME what about asAnnotationArray?
 /*    JAnnotation nestedAnn = val.asAnnotation();
     if (nestedAnn != null) {
       writeAnnotation(nestedAnn);
     } else {
-      writeValueElement(VALUE_ELEMENT,val.asString());
+      writeValueElement(VALUE,val.asString());
     }
     */
   }
+
+  private void assertStarted() throws XMLStreamException {
+    if (!mInBody) throw new XMLStreamException("begin() not called");
+  }
+
 }

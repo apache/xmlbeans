@@ -68,7 +68,7 @@ public abstract class JamClassBuilder {
     if (packageName == null) throw new IllegalArgumentException("null pkg");
     if (className == null) throw new IllegalArgumentException("null class");
     ClassImpl out = new ClassImpl(packageName,className,mContext,importSpecs);
-    out.setState(out.BUILDING);
+    out.setState(ClassImpl.BUILDING);
     return out;
   }
 
