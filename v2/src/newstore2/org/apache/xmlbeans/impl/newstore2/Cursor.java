@@ -769,6 +769,16 @@ public final class Cursor implements XmlCursor, ChangeListener
             emitTextValue( c );
             _nodeCur.skip();
         }
+        
+        protected void emitDocType ( String docTypeName, String publicId, String systemId )
+        {
+            ensureDoc();
+
+            XmlDocumentProperties props = Locale.getDocProps( _nodeCur, true );
+            props.setDoctypeName(docTypeName);
+            props.setDoctypePublicId(publicId);
+            props.setDoctypeSystemId(systemId);
+        }
 
         private QName getQualifiedName ( SaveCur c, QName name )
         {

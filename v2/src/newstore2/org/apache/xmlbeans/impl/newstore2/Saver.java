@@ -59,6 +59,7 @@ abstract class Saver
     protected abstract void emitText       ( SaveCur c );
     protected abstract void emitComment    ( SaveCur c );
     protected abstract void emitProcinst   ( SaveCur c );
+    protected abstract void emitDocType    ( String docTypeName, String publicId, String systemId );
 
     protected void syntheticNamespace ( String prefix, String uri, boolean considerDefault ) { }
 
@@ -281,7 +282,7 @@ abstract class Saver
         
         switch ( _cur.kind() )
         {
-            case   ROOT     : {                                       break; }
+            case   ROOT     : { processRoot();                        break; }
             case   ELEM     : { processElement();                     break; }
             case - ELEM     : { processFinish ();                     break; }
             case   TEXT     : { emitText      ( _cur );               break; }
@@ -310,18 +311,44 @@ abstract class Saver
         emitFinish( _cur );
         popMappings();
     }
-    
+
+    private final void processRoot ( )
+    {
+        assert _cur.isRoot();
+
+        XmlDocumentProperties props = _cur.getDocProps();
+        String systemId = null;
+        String docTypeName = null;
+        if (props != null)
+        {
+            systemId = props.getDoctypeSystemId();
+            docTypeName = props.getDoctypeName();
+        }
+
+        if (systemId != null || docTypeName != null)
+        {
+            if (docTypeName == null)
+            {
+                _cur.push();
+                while (!_cur.isElem() && _cur.next())
+                    ;
+                if (_cur.isElem())
+                    docTypeName = _cur.getName().getLocalPart();
+                _cur.pop();
+            }
+
+            String publicId = props.getDoctypePublicId();
+
+            if (docTypeName != null)
+                emitDocType( docTypeName, publicId, systemId );
+        }
+    }
+
     private final void processElement ( )
     {
         assert _cur.isElem() && _cur.getName() != null;
 
         QName name = _cur.getName();
-
-        // TODO - check for doctype to save out here
-        // TODO - check for doctype to save out here
-        // TODO - check for doctype to save out here
-
-        ;
 
         // Add a new entry to the frontier.  If this element has a name
         // which has no namespace, then we must make sure that pushing
@@ -814,6 +841,8 @@ abstract class Saver
         protected void emitText      ( SaveCur c ) { }
         protected void emitComment   ( SaveCur c ) { }
         protected void emitProcinst  ( SaveCur c ) { }
+        protected void emitDocType   ( String docTypeName, String publicId, String systemId ) { }
+
     }
 
     //
@@ -970,6 +999,48 @@ abstract class Saver
             c.pop();
             
             emit( "?>" );
+        }
+
+        private void emitLiteral ( String literal )
+        {
+            // TODO: systemId production http://www.w3.org/TR/REC-xml/#NT-SystemLiteral
+            // TODO: publicId production http://www.w3.org/TR/REC-xml/#NT-PubidLiteral
+            if (literal.indexOf( "\"" ) < 0)
+            {
+                emit( "\"" );
+                emit( literal );
+                emit( "\"" );
+            }
+            else
+            {
+                emit( "'" );
+                emit( literal );
+                emit( "'" );
+            }
+        }
+
+        protected void emitDocType ( String docTypeName, String publicId, String systemId )
+        {
+            assert docTypeName != null;
+
+            emit( "<DOCTYPE " );
+            emit( docTypeName );
+
+            if (publicId == null && systemId != null)
+            {
+                emit( " SYSTEM " );
+                emitLiteral( systemId );
+            }
+            else if (publicId != null)
+            {
+                emit( " PUBLIC " );
+                emitLiteral( publicId );
+                emit( " " );
+                emitLiteral( systemId );
+            }
+
+            emit( ">" );
+            emit( _newLine );
         }
 
         //
@@ -2127,10 +2198,21 @@ abstract class Saver
             }
         }
 
-        // TODO - need to emit doc type !!!!!
-        // TODO - need to emit doc type !!!!!
-        // TODO - need to emit doc type !!!!!
-        // TODO - need to emit doc type !!!!!
+        protected void emitDocType ( String docTypeName, String publicId, String systemId )
+        {
+            if (_lexicalHandler != null)
+            {
+                try
+                {
+                    _lexicalHandler.startDTD( docTypeName, publicId, systemId );
+                    _lexicalHandler.endDTD();
+                }
+                catch ( SAXException e )
+                {
+                    throw new SaverSAXException( e );
+                }
+            }
+        }
 
         private ContentHandler _contentHandler;
         private LexicalHandler _lexicalHandler;
@@ -2183,6 +2265,7 @@ abstract class Saver
 
         abstract Object getChars ( );
         abstract List  getAncestorNamespaces ( );
+        abstract XmlDocumentProperties getDocProps ( );
 
         int _offSrc;
         int _cchSrc;
@@ -2237,6 +2320,8 @@ abstract class Saver
 
             return o;
         }
+
+        XmlDocumentProperties getDocProps ( ) { return Locale.getDocProps(_cur, false); }
 
         private Cur _cur;
     }
@@ -2305,6 +2390,8 @@ abstract class Saver
             return o;
         }
         
+        XmlDocumentProperties getDocProps ( ) { return _cur.getDocProps(); }
+
         private SaveCur _cur;
     }
 
@@ -2611,6 +2698,8 @@ abstract class Saver
             _state = _stateStack [ --_stateStackSize ];
         }
         
+        XmlDocumentProperties getDocProps ( ) { return Locale.getDocProps(_cur, false); }
+
         //
         //
         //
@@ -2790,6 +2879,8 @@ abstract class Saver
             return o;
         }
         
+        XmlDocumentProperties getDocProps ( ) { return _cur.getDocProps(); }
+
         final static void spaces ( StringBuffer sb, int offset, int count )
         {
             while ( count-- > 0 )
@@ -2850,7 +2941,7 @@ abstract class Saver
     private HashMap   _prefixMap;
     private String    _initialDefaultUri;
 
-    static String _newLine =
+    static final String _newLine =
         System.getProperty( "line.separator" ) == null
             ? "\n"
             : System.getProperty( "line.separator" );
