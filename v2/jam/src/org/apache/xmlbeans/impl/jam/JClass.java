@@ -355,6 +355,10 @@ public interface JClass extends JMember {
   //uncomment me please
 //  public boolean isEnumType();
 
+  //uncomment me please
+//  public boolean isGenericType();
+
+
   /**
    * <p>Returns the JamClassLoader which loaded this class.</p>
    */
