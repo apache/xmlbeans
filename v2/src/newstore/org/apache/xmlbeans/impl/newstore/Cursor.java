@@ -60,7 +60,7 @@ import javax.xml.namespace.QName;
 
 import javax.xml.stream.XMLStreamReader;
 
-import weblogic.xml.stream.XMLInputStream;
+import org.apache.xmlbeans.xml.stream.XMLInputStream;
 
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlCursor.TokenType;

@@ -54,25 +54,44 @@
 * Foundation, please see <http://www.apache.org/>.
 */
 
-package weblogic.xml.stream;
+package org.apache.xmlbeans.xml.stream;
 
-import weblogic.xml.stream.XMLInputStream;
-
+import java.util.Map;
 /**
- * This interface can be implemented to allow resolution of references
- * on a stream.  
+ * The StartElement interface provides access to information about
+ * start elements
+ *
+ * @since Weblogic XML Input Stream 1.0
+ * @version 1.0
+ * @see org.apache.xmlbeans.xml.stream.AttributeIterator
  */
-public interface ReferenceResolver {
-  /**
-   * Returns the xml pointed to by this idref as an XMLInputStream
-   * @param idref
-   */
-  XMLInputStream resolve(String idref)
-    throws XMLStreamException;
 
+public interface StartElement extends XMLEvent {
   /**
-   * Returns the id that corresponds to this idref
-   * @param idref
+   * Returns an AttributeIterator of non-namespace declared attributes
    */
-  String getId(String idref);
+  public AttributeIterator getAttributes();
+  /**
+   * Returns an AttributeIterator of namespaces declared in this element
+   */
+  public AttributeIterator getNamespaces();
+  /**
+   * Returns the union of declared attributes and namespaces
+   */
+  public AttributeIterator getAttributesAndNamespaces();
+  /**
+   * Returns the attribute referred to by this name
+   */
+  public Attribute getAttributeByName(XMLName name);
+  /**
+   * Gets the value that the prefix is bound to in the
+   * context of this element.  Returns null if 
+   * the prefix is not bound in this context
+   */
+  public String getNamespaceUri(String prefix);
+  /**
+   * Gets a java.util.Map from prefixes to URIs in scope for this
+   * element.
+   */
+  public Map getNamespaceMap();
 }

@@ -54,45 +54,27 @@
 * Foundation, please see <http://www.apache.org/>.
 */
 
-package weblogic.xml.stream;
+package org.apache.xmlbeans.xml.stream;
 
 /**
- * Encapsulates information about the Qualified Name of an XML event.
+ * This event signals that a prefix mapping has begun scope
  *
  * @since Weblogic XML Input Stream 1.0
  * @version 1.0
- * @see weblogic.xml.stream.StartElement
- * @see weblogic.xml.stream.XMLEvent
+ * @see org.apache.xmlbeans.xml.stream.EndPrefixMapping
+ * @see org.apache.xmlbeans.xml.stream.ChangePrefixMapping
  */
 
-public interface XMLName {
-  /*
-   * returns the uri of the prefix of this name
-   * 
-   * @return returns the uri, 
-   * empty string if the default namespace is bound to empty string 
-   * or null if the name does not have a namespace
+public interface StartPrefixMapping extends XMLEvent {
+  /* 
+   * Returns the uri of the prefix that is in scope for the following 
+   * element
+   * @return String value of the uri
    */
   public String getNamespaceUri();
-  /*
-   * returns the localname of the xml name
-   * 
-   * @return the localname, cannot be null
-   */
-  public String getLocalName();
-  /*
-   * returns the prefix of the xml name
-   * 
-   * @return the prefix of the xml name or null
+  /* 
+   * Returns the prefix that is now in scope
+   * @return String value of the prefix
    */
   public String getPrefix();
-
-  /*
-   * returns the prefix of the xml name + ':' + the local name
-   * if the prefix is not null
-   * returns the local name otherwise
-   * 
-   * @return the prefix plus the local name
-   */
-  public String getQualifiedName();
 }

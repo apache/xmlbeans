@@ -78,7 +78,7 @@ import junit.framework.Assert;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
-import weblogic.xml.stream.XMLInputStream;
+import org.apache.xmlbeans.xml.stream.XMLInputStream;
 import javax.xml.namespace.QName;
 
 public class ValidationTests extends TestCase

@@ -65,7 +65,7 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.lang.reflect.Proxy;
 
-import weblogic.xml.stream.StartElement;
+import org.apache.xmlbeans.xml.stream.StartElement;
 
 public class NamespaceContext implements PrefixResolver
 {

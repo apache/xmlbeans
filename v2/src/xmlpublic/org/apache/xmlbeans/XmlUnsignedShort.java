@@ -156,11 +156,11 @@ public interface XmlUnsignedShort extends XmlUnsignedInt
           return (XmlUnsignedShort) XmlBeans.getContextTypeLoader().parse( node, type, options ); }
         
         /** Parses a {@link XmlUnsignedShort} fragment from an XMLInputStream. */
-        public static XmlUnsignedShort parse(weblogic.xml.stream.XMLInputStream xis) throws org.apache.xmlbeans.XmlException, weblogic.xml.stream.XMLStreamException {
+        public static XmlUnsignedShort parse(org.apache.xmlbeans.xml.stream.XMLInputStream xis) throws org.apache.xmlbeans.XmlException, org.apache.xmlbeans.xml.stream.XMLStreamException {
           return (XmlUnsignedShort) XmlBeans.getContextTypeLoader().parse( xis, type, null ); }
         
         /** Parses a {@link XmlUnsignedShort} fragment from an XMLInputStream. */
-        public static XmlUnsignedShort parse(weblogic.xml.stream.XMLInputStream xis, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException, weblogic.xml.stream.XMLStreamException {
+        public static XmlUnsignedShort parse(org.apache.xmlbeans.xml.stream.XMLInputStream xis, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException, org.apache.xmlbeans.xml.stream.XMLStreamException {
           return (XmlUnsignedShort) XmlBeans.getContextTypeLoader().parse( xis, type, options ); }
         
         /** Parses a {@link XmlUnsignedShort} fragment from an XMLStreamReader. */
@@ -172,11 +172,11 @@ public interface XmlUnsignedShort extends XmlUnsignedInt
           return (XmlUnsignedShort) XmlBeans.getContextTypeLoader().parse( xsr, type, options ); }
         
         /** Returns a validating XMLInputStream. */
-        public static weblogic.xml.stream.XMLInputStream newValidatingXMLInputStream(weblogic.xml.stream.XMLInputStream xis) throws org.apache.xmlbeans.XmlException, weblogic.xml.stream.XMLStreamException {
+        public static org.apache.xmlbeans.xml.stream.XMLInputStream newValidatingXMLInputStream(org.apache.xmlbeans.xml.stream.XMLInputStream xis) throws org.apache.xmlbeans.XmlException, org.apache.xmlbeans.xml.stream.XMLStreamException {
           return XmlBeans.getContextTypeLoader().newValidatingXMLInputStream( xis, type, null ); }
         
         /** Returns a validating XMLInputStream. */
-        public static weblogic.xml.stream.XMLInputStream newValidatingXMLInputStream(weblogic.xml.stream.XMLInputStream xis, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException, weblogic.xml.stream.XMLStreamException {
+        public static org.apache.xmlbeans.xml.stream.XMLInputStream newValidatingXMLInputStream(org.apache.xmlbeans.xml.stream.XMLInputStream xis, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException, org.apache.xmlbeans.xml.stream.XMLStreamException {
           return XmlBeans.getContextTypeLoader().newValidatingXMLInputStream( xis, type, options ); }
         
         private Factory() { } // No instance of this class allowed

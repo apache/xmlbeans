@@ -57,8 +57,8 @@
 package org.apache.xmlbeans;
 
 import javax.xml.namespace.QName;
-import weblogic.xml.stream.XMLInputStream;
-import weblogic.xml.stream.XMLStreamException;
+import org.apache.xmlbeans.xml.stream.XMLInputStream;
+import org.apache.xmlbeans.xml.stream.XMLStreamException;
 
 import java.io.File;
 import java.io.InputStream;

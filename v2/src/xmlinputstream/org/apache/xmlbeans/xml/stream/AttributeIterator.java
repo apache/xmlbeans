@@ -54,34 +54,36 @@
 * Foundation, please see <http://www.apache.org/>.
 */
 
-package weblogic.xml.stream;
+package org.apache.xmlbeans.xml.stream;
 
 /**
- * An interface for the start document event
- *
+ * This interface specifies methods for iterating over attributes.
  * @since Weblogic XML Input Stream 1.0
  * @version 1.0
- * @see weblogic.xml.stream.XMLEvent
+ * @see org.apache.xmlbeans.xml.stream.Attribute
 */
-public interface StartDocument extends XMLEvent {
-  /* 
-   * Returns the system id of the stream
-   * @return the system id, defaults to ""
+
+public interface AttributeIterator {
+  /**
+   * Get the next Attribute on the stream
+   * @see org.apache.xmlbeans.xml.stream.Attribute
    */
-  public String getSystemId();
-  /* 
-   * Returns the encoding style of this XML stream
-   * @return the character encoding, defaults to "UTF-8"
+  public Attribute next();
+
+  /**
+   * Check if there are any attributes on the stream
    */
-  public String getCharacterEncodingScheme();
-  /* 
-   * Returns if this XML is standalone
-   * @return the version of XML, defaults to "yes"
+  public boolean hasNext();
+
+  /**
+   * Return the next element on the stream without shifting it
    */
-  public boolean isStandalone();
-  /* 
-   * Returns the version of XML of this XML stream
-   * @return the version of XML, defaults to "1.0"
+  public Attribute peek();
+
+
+  /**
+   * Skip the next element on the stream
    */
-  public String getVersion();
+  public void skip();
 }
+

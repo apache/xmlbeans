@@ -115,9 +115,9 @@ import javax.xml.parsers.SAXParserFactory;
 import org.w3.x2001.xmlSchema.*;
 import org.xml.sax.InputSource;
 import org.xml.sax.XMLReader;
-import weblogic.xml.stream.XMLEvent;
-import weblogic.xml.stream.XMLInputStream;
-import weblogic.xml.stream.XMLName;
+import org.apache.xmlbeans.xml.stream.XMLEvent;
+import org.apache.xmlbeans.xml.stream.XMLInputStream;
+import org.apache.xmlbeans.xml.stream.XMLName;
 import com.bea.x2002.x09.xbean.config.ConfigDocument;
 import javax.xml.stream.XMLStreamReader;
 

@@ -54,36 +54,19 @@
 * Foundation, please see <http://www.apache.org/>.
 */
 
-package weblogic.xml.stream;
+package org.apache.xmlbeans.xml.stream;
 
-import java.io.IOException;
 /**
- * Extends the XMLInputStream to allow marking and reseting of the stream.
+ * A marker interface for the end element event.
+ * The name is available in the getName method of
+ * org.apache.xmlbeans.xml.stream.XMLEvent interface.
  *
- * @since XMLInputStream 1.0
+ * @since Weblogic XML Input Stream 1.0
  * @version 1.0
- * @see weblogic.xml.stream.CharacterData
- * @see weblogic.xml.stream.ProcessingInstruction
- * @see weblogic.xml.stream.StartElement
- * @see weblogic.xml.stream.EndElement
- * @see weblogic.xml.stream.CharacterData
- * @see weblogic.xml.stream.XMLName
- */
-public interface BufferedXMLInputStream extends XMLInputStream {
+ * @see org.apache.xmlbeans.xml.stream.XMLEvent
+*/
+public interface EndElement extends XMLEvent {
   /**
-   * Sets the marks a point to return to in the stream,
-   * throws an exception if the stream does not support mark.
-   * This is only supported in BufferedStreams
+   * No methods are defined in this interface.  
    */
-  public void mark() throws XMLStreamException;
-  /**
-   * Resets the stream to the previous mark.
-   * throws an exception if the stream does not support mark;
-   */
-  public void reset() throws XMLStreamException;
 }
-
-
-
-
-

@@ -60,9 +60,9 @@ package streamtest;
 * Created by cezar@bea.com
 */
 
-import weblogic.xml.stream.XMLStreamException;
-import weblogic.xml.stream.XMLInputStream;
-import weblogic.xml.stream.XMLInputStreamFactory;
+import org.apache.xmlbeans.xml.stream.XMLStreamException;
+import org.apache.xmlbeans.xml.stream.XMLInputStream;
+import org.apache.xmlbeans.xml.stream.XMLInputStreamFactory;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;

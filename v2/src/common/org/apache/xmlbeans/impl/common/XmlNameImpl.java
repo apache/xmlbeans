@@ -56,7 +56,7 @@
 
 package org.apache.xmlbeans.impl.common;
 
-import weblogic.xml.stream.XMLName;
+import org.apache.xmlbeans.xml.stream.XMLName;
 
 public class XmlNameImpl implements XMLName {
 

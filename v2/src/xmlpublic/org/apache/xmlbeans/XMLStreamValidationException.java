@@ -56,7 +56,7 @@
 
 package org.apache.xmlbeans;
 
-import weblogic.xml.stream.XMLStreamException;
+import org.apache.xmlbeans.xml.stream.XMLStreamException;
 
 /**
  * An exception thrown from a validating XMLInputStream.
