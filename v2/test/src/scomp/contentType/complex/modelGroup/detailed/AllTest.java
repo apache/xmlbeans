@@ -37,10 +37,9 @@ public class AllTest extends BaseCase {
         elt.setChild2("doo");
         elt.setChild3(BigInteger.ONE);
         try {
-            assertTrue(doc.validate());
+            assertTrue(doc.validate(validateOptions));
         }
         catch (Throwable t) {
-            doc.validate(validateOptions);
             showErrors();
             throw t;
         }
@@ -59,10 +58,9 @@ public class AllTest extends BaseCase {
                 "</pre:AllElt>";
         doc = AllEltDocument.Factory.parse(input);
         try {
-            assertTrue(doc.validate());
+            assertTrue(doc.validate(validateOptions));
         }
         catch (Throwable t) {
-            doc.validate(validateOptions);
             showErrors();
             throw t;
         }
@@ -83,6 +81,9 @@ public class AllTest extends BaseCase {
         doc = AllEltDocument.Factory.parse(input);
         assertTrue(!doc.validate(validateOptions));
         showErrors();
+        String[] errExpected = new String[]{"cvc-attribute"};
+                   assertTrue(compareErrorCodes(errExpected));
+
     }
 
 

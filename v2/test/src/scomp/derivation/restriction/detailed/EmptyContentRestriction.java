@@ -30,14 +30,16 @@ public class EmptyContentRestriction extends BaseCase {
 
         RestrictedEmptyT elt = doc.addNewRestrictedEmptyElt();
         elt.setEmptyAttr("foobar");
-        assertTrue(!doc.validate());
+        assertTrue(!doc.validate(validateOptions));
         showErrors();
+        String[] errExpected = new String[]{"cvc-attribute"};
+                     assertTrue(compareErrorCodes(errExpected));
+
         elt.setEmptyAttr("myval");
         try {
-            assertTrue(doc.validate());
+            assertTrue(doc.validate(validateOptions));
         }
         catch (Throwable t) {
-            doc.validate(validateOptions);
             showErrors();
             throw t;
         }
@@ -49,8 +51,13 @@ public class EmptyContentRestriction extends BaseCase {
                 "<emt:RestrictedEmptyElt emptyAttr=\"myval\" " +
                 "xmlns:emt=\"http://xbean/scomp/derivation/Emtpy\"/>" +
                 "<foobar/></xml-fragment>", doc.xmlText());
-        assertTrue(!doc.validate());
+
+        clearErrors();
+        assertTrue(!doc.validate(validateOptions));
         showErrors();
+        errExpected = new String[]{"cvc-attribute"};
+                     assertTrue(compareErrorCodes(errExpected));
+
 
     }
 }

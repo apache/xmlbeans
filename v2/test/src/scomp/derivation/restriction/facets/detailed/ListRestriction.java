@@ -35,20 +35,26 @@ public class ListRestriction extends BaseCase {
         //this should be too short
         assertTrue(!doc.validate(validateOptions));
         showErrors();
+        String[] errExpected = new String[]{"cvc-attribute"};
+        assertTrue(compareErrorCodes(errExpected));
+
         vals.add("lstsmall");
         doc.setLengthElt(vals);
         try {
             assertTrue(doc.validate(validateOptions));
-        }
-        catch (Throwable t) {
+        } catch (Throwable t) {
             showErrors();
             throw t;
         }
         //this should be too long
         vals.add("lstsmall");
         doc.setLengthElt(vals);
+        clearErrors();
         assertTrue(!doc.validate(validateOptions));
         showErrors();
+        errExpected = new String[]{"cvc-attribute"};
+        assertTrue(compareErrorCodes(errExpected));
+
     }
 
     public void testMinLengthFacet() throws Throwable {
@@ -59,8 +65,7 @@ public class ListRestriction extends BaseCase {
         MinLengthEltDocument doc = MinLengthEltDocument.Factory.parse(input);
         try {
             assertTrue(doc.validate(validateOptions));
-        }
-        catch (Throwable t) {
+        } catch (Throwable t) {
             showErrors();
             throw t;
         }
@@ -81,6 +86,9 @@ public class ListRestriction extends BaseCase {
                 (String) doc.xgetMinLengthElt().getListValue().get(0));
         assertTrue(!doc.validate(validateOptions));
         showErrors();
+        String[] errExpected = new String[]{"cvc-attribute"};
+        assertTrue(compareErrorCodes(errExpected));
+
 
     }
 
@@ -92,6 +100,9 @@ public class ListRestriction extends BaseCase {
         MaxLengthEltDocument doc = MaxLengthEltDocument.Factory.parse(input);
         assertTrue(!doc.validate(validateOptions));
         showErrors();
+        String[] errExpected = new String[]{"cvc-attribute"};
+        assertTrue(compareErrorCodes(errExpected));
+
         MaxLengthFacet elt = MaxLengthFacet.Factory.newInstance();
         List vals = new ArrayList();
         vals.add("lstsmall");
@@ -101,16 +112,17 @@ public class ListRestriction extends BaseCase {
         doc.xsetMaxLengthElt(elt);
         try {
             assertTrue(doc.validate(validateOptions));
-        }
-        catch (Throwable t) {
+        } catch (Throwable t) {
             showErrors();
             throw t;
         }
     }
-   /**
-    * Walmsley, p. 215...
-    * @throws Throwable
-    */
+
+    /**
+     * Walmsley, p. 215...
+     *
+     * @throws Throwable
+     */
     public void testEnum() throws Throwable {
         EnumEltDocument doc = EnumEltDocument.Factory.newInstance();
         List vals = new ArrayList();
@@ -119,8 +131,7 @@ public class ListRestriction extends BaseCase {
         doc.setEnumElt(vals);
         try {
             assertTrue(doc.validate(validateOptions));
-        }
-        catch (Throwable t) {
+        } catch (Throwable t) {
             showErrors();
             throw t;
         }
@@ -130,8 +141,7 @@ public class ListRestriction extends BaseCase {
         doc.setEnumElt(vals);
         try {
             assertTrue(doc.validate(validateOptions));
-        }
-        catch (Throwable t) {
+        } catch (Throwable t) {
             showErrors();
             throw t;
         }
@@ -142,6 +152,9 @@ public class ListRestriction extends BaseCase {
         doc.setEnumElt(vals);
         assertTrue(!doc.validate(validateOptions));
         showErrors();
+        String[] errExpected = new String[]{"cvc-attribute"};
+        assertTrue(compareErrorCodes(errExpected));
+
     }
 
     public void testPattern() throws Throwable {
@@ -155,8 +168,7 @@ public class ListRestriction extends BaseCase {
         doc.setPatternElt(vals);
         try {
             assertTrue(doc.validate(validateOptions));
-        }
-        catch (Throwable t) {
+        } catch (Throwable t) {
             showErrors();
             throw t;
         }

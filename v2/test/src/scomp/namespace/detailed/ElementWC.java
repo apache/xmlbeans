@@ -45,6 +45,9 @@ public class ElementWC extends BaseCase {
                 "xmlns=\"http://xbean/scomp/namespace/ElementWC\" >" +
                 "<child/></AnyLax>");
         assertTrue(!doc.validate(validateOptions));
+        String[] errExpected = new String[]{"cvc-attribute"};
+        assertTrue(compareErrorCodes(errExpected));
+
     }
 
     public void testAnySkipLegal() throws Throwable {
@@ -68,8 +71,8 @@ public class ElementWC extends BaseCase {
                 " xmlns:ns=\"http://xbean/scomp/namespace/ElementWC\"" +
                 " xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" " +
                 " xmlns:elt=\"http://xbean/scomp/element/GlobalEltDefault\"" +
-               // " xsi:schemaLocation=\"http://xbean/scomp/element/GlobalEltDefault " +
-              //  "GlobalEltDefault.xsd\"
+                // " xsi:schemaLocation=\"http://xbean/scomp/element/GlobalEltDefault " +
+                //  "GlobalEltDefault.xsd\"
                 "> " +
                 "<elt:GlobalEltDefaultStr/></ns:AnyStrict>");
         if (!doc.validate(validateOptions))
@@ -85,6 +88,9 @@ public class ElementWC extends BaseCase {
                 "<foobar:child/></AnyStrict>");
         assertTrue(!doc.validate(validateOptions));
         showErrors();
+        String[] errExpected = new String[]{"cvc-attribute"};
+        assertTrue(compareErrorCodes(errExpected));
+
     }
 
     public void testOtherLaxLegal() throws Throwable {
@@ -137,7 +143,7 @@ public class ElementWC extends BaseCase {
                 .parse("<foo:OtherStrict xmlns:foo=\"http://xbean/scomp/namespace/ElementWC\"" +
                 "  xmlns:elt=\"http://xbean/scomp/attribute/GlobalEltDefault\">" +
                 "<elt:GlobalEltDefaultStr/></foo:OtherStrict>");
-           if (!doc.validate(validateOptions))
+        if (!doc.validate(validateOptions))
             showErrors();
         assertTrue(doc.validate(validateOptions));
 
@@ -219,6 +225,9 @@ public class ElementWC extends BaseCase {
                 " <at:child/></foo:ListStrict>");
         assertTrue(!doc.validate(validateOptions));
         showErrors();
+        String[] errExpected = new String[]{"cvc-attribute"};
+        assertTrue(compareErrorCodes(errExpected));
+
     }
 
     //replacement elements MAY be in the current target NS, not *must*
@@ -227,7 +236,7 @@ public class ElementWC extends BaseCase {
                 .parse("<foo:TargetLax " +
                 " xmlns:foo=\"http://xbean/scomp/namespace/ElementWC\">" +
                 " <child/></foo:TargetLax>");
-           if (!doc.validate(validateOptions))
+        if (!doc.validate(validateOptions))
             showErrors();
         assertTrue(doc.validate(validateOptions));
     }
@@ -240,6 +249,9 @@ public class ElementWC extends BaseCase {
                 " <at:child/></foo:TargetLax>");
         assertTrue(!doc.validate(validateOptions));
         showErrors();
+        String[] errExpected = new String[]{"cvc-attribute"};
+        assertTrue(compareErrorCodes(errExpected));
+
     }
 
     public void testTargetSkipLegal() throws Throwable {
@@ -260,6 +272,9 @@ public class ElementWC extends BaseCase {
                 " <child/></foo:TargetSkip>");
         assertTrue(!doc.validate(validateOptions));
         showErrors();
+        String[] errExpected = new String[]{"cvc-attribute"};
+        assertTrue(compareErrorCodes(errExpected));
+
     }
 
     public void testTargetStrictLegal() throws Throwable {
@@ -277,6 +292,9 @@ public class ElementWC extends BaseCase {
                 " <foo:child/></foo:TargetStrict>");
         assertTrue(!doc.validate(validateOptions));
         showErrors();
+        String[] errExpected = new String[]{"cvc-attribute"};
+        assertTrue(compareErrorCodes(errExpected));
+
     }
 
     public void testLocalLaxLegal() throws Throwable {
@@ -294,6 +312,9 @@ public class ElementWC extends BaseCase {
                 " <foo:child/></foo:LocalLax>");
         assertTrue(!doc.validate(validateOptions));
         showErrors();
+        String[] errExpected = new String[]{"cvc-attribute"};
+        assertTrue(compareErrorCodes(errExpected));
+
     }
 
     public void testLocalSkipLegal() throws Throwable {
@@ -314,6 +335,9 @@ public class ElementWC extends BaseCase {
                 " <child/></foo:LocalSkip>");
         assertTrue(!doc.validate(validateOptions));
         showErrors();
+        String[] errExpected = new String[]{"cvc-attribute"};
+        assertTrue(compareErrorCodes(errExpected));
+
     }
 
     public void testLocalStrictIllegal() throws Throwable {
@@ -323,6 +347,9 @@ public class ElementWC extends BaseCase {
                 " <child/></foo:LocalStrict>");
         assertTrue(!doc.validate(validateOptions));
         showErrors();
+        String[] errExpected = new String[]{"cvc-attribute"};
+        assertTrue(compareErrorCodes(errExpected));
+
     }
 
     public void testLocalStrictLegal() throws Throwable {

@@ -48,6 +48,9 @@ public class MixedContentExtension extends BaseCase {
         cur.insertChars("SOME CDATA HERE");
         assertTrue(!doc.validate(validateOptions));
         showErrors();
+        String[] errExpected = new String[]{"cvc-attribute"};
+                     assertTrue(compareErrorCodes(errExpected));
+
         System.err.println(doc.xmlText());
     }
 
@@ -70,10 +73,9 @@ public class MixedContentExtension extends BaseCase {
         cur.toEndToken();
          cur.insertChars("SOME CDATA HERE");
         try {
-            assertTrue( doc.validate() );
+            assertTrue( doc.validate(validateOptions) );
         }
         catch (Throwable t) {
-            doc.validate(validateOptions);
             showErrors();
             throw t;
         }

@@ -36,10 +36,8 @@ public class NestSequenceChoiceTest extends BaseCase {
         elt.setChildStr("foo");
 
         try {
-            assertTrue(doc.validate());
-        }
-        catch (Throwable t) {
-            doc.validate(validateOptions);
+            assertTrue(doc.validate(validateOptions));
+        } catch (Throwable t) {
             showErrors();
             throw t;
         }
@@ -57,10 +55,8 @@ public class NestSequenceChoiceTest extends BaseCase {
         elt.setOptchildDouble(1.4);
 
         try {
-            assertTrue(doc.validate());
-        }
-        catch (Throwable t) {
-            doc.validate(validateOptions);
+            assertTrue(doc.validate(validateOptions));
+        } catch (Throwable t) {
             showErrors();
             throw t;
         }
@@ -70,12 +66,13 @@ public class NestSequenceChoiceTest extends BaseCase {
         elt.setOptchildStr("boo");
         assertTrue(!doc.validate(validateOptions));
         showErrors();
+        String[] errExpected = new String[]{"cvc-attribute"};
+        assertTrue(compareErrorCodes(errExpected));
+
         elt.unsetOptchildDouble();
         try {
-            assertTrue(doc.validate());
-        }
-        catch (Throwable t) {
-            doc.validate(validateOptions);
+            assertTrue(doc.validate(validateOptions));
+        } catch (Throwable t) {
             showErrors();
             throw t;
         }
@@ -94,16 +91,17 @@ public class NestSequenceChoiceTest extends BaseCase {
         elt.setChildStr("foo");
 
         elt.setOptchildInt(2);
+        //optChildStr is missing
         assertTrue(!doc.validate(validateOptions));
         showErrors();
-        //optChildStr is missing
+        String[] errExpected = new String[]{"cvc-attribute"};
+        assertTrue(compareErrorCodes(errExpected));
+
 
         elt.setOptchildStr("boo");
         try {
-            assertTrue(doc.validate());
-        }
-        catch (Throwable t) {
-            doc.validate(validateOptions);
+            assertTrue(doc.validate(validateOptions));
+        } catch (Throwable t) {
             showErrors();
             throw t;
         }
@@ -126,6 +124,9 @@ public class NestSequenceChoiceTest extends BaseCase {
                 NestedChoiceInSequenceDocument.Factory.parse(input);
         assertTrue(!doc.validate(validateOptions));
         showErrors();
+        String[] errExpected = new String[]{"cvc-attribute"};
+        assertTrue(compareErrorCodes(errExpected));
+
 
     }
 

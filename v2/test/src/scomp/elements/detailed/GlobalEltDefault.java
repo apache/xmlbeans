@@ -26,9 +26,11 @@ import xbean.scomp.element.globalEltDefault.GlobalEltDefaultStrDocument;
  */
 public class GlobalEltDefault extends BaseCase {
     //empty string is OK considered , so default value is ignored
-    public void testStringType(){
-    GlobalEltDefaultStrDocument testDoc=GlobalEltDefaultStrDocument.Factory.newInstance();
+    public void testStringType()throws Throwable{
+    GlobalEltDefaultStrDocument testDoc=GlobalEltDefaultStrDocument
+            .Factory.newInstance();
      assertEquals(null,testDoc.getGlobalEltDefaultStr());
+       assertTrue(testDoc.validate());  
         }
 
     //default value is used
@@ -36,5 +38,6 @@ public class GlobalEltDefault extends BaseCase {
        GlobalEltDefaultIntDocument testDoc
                 =GlobalEltDefaultIntDocument.Factory.newInstance();
      assertEquals(0,testDoc.getGlobalEltDefaultInt());
+      assertTrue(testDoc.validate());
     }
 }

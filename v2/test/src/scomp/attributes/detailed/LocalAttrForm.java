@@ -55,6 +55,9 @@ public class LocalAttrForm extends BaseCase{
          assertTrue( !doc.validate(validateOptions) );
         System.out.println(doc.xmlText());
         showErrors();
+        String[] errExpected = new String[]{"cvc-attribute"};
+            assertTrue(compareErrorCodes(errExpected));
+        
 
 
     }

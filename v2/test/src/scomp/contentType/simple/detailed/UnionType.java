@@ -63,7 +63,9 @@ public class UnionType extends BaseCase {
         doc.setUnionElt(new Integer(5));
         assertTrue(!doc.validate(validateOptions));
         showErrors();
-        fail("Usability Bug: xsi:type attribute for validation");
+        String[] errExpected = new String[]{"cvc-attribute"};
+                    assertTrue(compareErrorCodes(errExpected));
+
     }
 
     /**
@@ -103,6 +105,9 @@ public class UnionType extends BaseCase {
         UnionEltDocument doc = UnionEltDocument.Factory.parse(input);
         assertTrue(!doc.validate(validateOptions));
         showErrors();
+        String[] errExpected = new String[]{"cvc-attribute"};
+                    assertTrue(compareErrorCodes(errExpected));
+
     }
 
     /**
@@ -159,6 +164,9 @@ public class UnionType extends BaseCase {
         assertTrue(!doc.validate(validateOptions));
 
         showErrors();
+        String[] errExpected = new String[]{"cvc-attribute"};
+                    assertTrue(compareErrorCodes(errExpected));
+
 
     }
 
@@ -207,6 +215,9 @@ public class UnionType extends BaseCase {
         doc.setUnionOfLists( vals );
         assertTrue(! doc.validate(validateOptions) );
         showErrors();
+        String[] errExpected = new String[]{"cvc-attribute"};
+                    assertTrue(compareErrorCodes(errExpected));
+
 
     }
 }

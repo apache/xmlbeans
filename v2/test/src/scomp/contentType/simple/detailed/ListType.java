@@ -48,13 +48,6 @@ public class ListType extends BaseCase {
         }
         values.set(0, new Integer(4));
         doc.setListEltToken(values);
-        try {
-            //Why is this not a type error?
-            fail("should not be OK for that ");
-        }
-        catch (XmlValueOutOfRangeException e) {
-            System.err.println(e);
-        }
 
     }
 
@@ -82,6 +75,13 @@ public class ListType extends BaseCase {
         List newList = new XmlSimpleList(arrayList);
         gst.setListValue(newList);
         doc.xsetListEltInt(gst);
+         try {
+            assertTrue(doc.validate(validateOptions));
+        }
+        catch (Throwable t) {
+            showErrors();
+            throw t;
+        }
     }
 
     public void testListofLists() {
@@ -113,14 +113,17 @@ public class ListType extends BaseCase {
 
     public void testListofUnionsIllegal() throws Throwable {
         String input =
-                "<ListEltInt xmlns=\"http://xbean/scomp/contentType/List\"" +
+                "<ListUnion xmlns=\"http://xbean/scomp/contentType/List\"" +
                 " xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" >" +
                 "small -3 11" +
-                "</ListEltInt>";
+                "</ListUnion>";
         ListUnionDocument doc =
                 ListUnionDocument.Factory.parse(input);
         assertTrue(!doc.validate(validateOptions));
         showErrors();
+        String[] errExpected = new String[]{"cvc-attribute"};
+        assertTrue(compareErrorCodes(errExpected));
+
     }
 
 

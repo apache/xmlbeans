@@ -28,7 +28,7 @@ import java.math.BigInteger;
  * Time: 12:43:40 PM
  */
 public class GlobalAttrType extends BaseCase {
-    public void testAllValid() throws Exception {
+    public void testAllValid() throws Throwable {
         GlobalAttrTypeT testDoc =
                 GlobalAttrTypeDocDocument.Factory.parse("<pre:GlobalAttrTypeDoc" +
                 " xmlns:pre=\"http://xbean/scomp/attribute/GlobalAttrType\" " +
@@ -36,25 +36,11 @@ public class GlobalAttrType extends BaseCase {
                 "pre:attAnyType=\" 1 \" " +
                 "pre:attAnonymous=\" 1 \" />").getGlobalAttrTypeDoc();
         try {
-            assertTrue(testDoc.validate());
+            assertTrue(testDoc.validate(validateOptions));
         }
         catch (Throwable t) {
-            XmlOptions validateOptions = new XmlOptions();
-            ArrayList errorList = new ArrayList();
-            validateOptions.setErrorListener(errorList);
-
-
-            if (!testDoc.validate(validateOptions)) {
-                for (int i = 0; i < errorList.size(); i++) {
-                    XmlError error = (XmlError) errorList.get(i);
-
-                    System.out.println("\n");
-                    System.out.println("Message: " + error.getMessage() + "\n");
-                    System.out.println("Location of invalid XML: " +
-                            error.getCursorLocation().xmlText() + "\n");
-                }
-
-            }
+          showErrors();
+          throw t;
         }
 
         assertTrue(testDoc.isSetAttSimple());

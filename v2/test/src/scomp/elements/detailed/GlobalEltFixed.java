@@ -24,56 +24,58 @@ import xbean.scomp.element.globalEltFixed.GlobalEltFixedStrDocument;
  * Date: Jul 14, 2004
  * Time: 4:49:35 PM
  */
-public class GlobalEltFixed extends BaseCase{
+public class GlobalEltFixed extends BaseCase {
 
-    public void testValidPresent()throws Exception{
-        GlobalEltFixedIntDocument testEltInt=GlobalEltFixedIntDocument.Factory.parse(
-                "<GlobalEltFixedInt " +
+    public void testValidPresent() throws Exception {
+        GlobalEltFixedIntDocument testEltInt = GlobalEltFixedIntDocument.Factory.parse("<GlobalEltFixedInt " +
                 "xmlns=\"http://xbean/scomp/element/GlobalEltFixed\"" +
-                "> +01 </GlobalEltFixedInt>"
-        );
-        GlobalEltFixedStrDocument testEltStr=GlobalEltFixedStrDocument.Factory.parse(
-                "<GlobalEltFixedStr " +
+                "> +01 </GlobalEltFixedInt>");
+        GlobalEltFixedStrDocument testEltStr = GlobalEltFixedStrDocument.Factory.parse("<GlobalEltFixedStr " +
                 "xmlns=\"http://xbean/scomp/element/GlobalEltFixed\"" +
-                ">XBean</GlobalEltFixedStr>"
-        );
+                ">XBean</GlobalEltFixedStr>");
         assertTrue(testEltInt.validate());
         assertTrue(testEltStr.validate());
     }
+
     //document should be valid even if the values are missing
-     public void testValidMissing()throws Exception{
-          GlobalEltFixedIntDocument testEltInt=GlobalEltFixedIntDocument
-                  .Factory.parse(
-                "<GlobalEltFixedInt " +
+    public void testValidMissing() throws Exception {
+        GlobalEltFixedIntDocument testEltInt = GlobalEltFixedIntDocument
+                .Factory.parse("<GlobalEltFixedInt " +
                 "xmlns=\"http://xbean/scomp/element/GlobalEltFixed\"" +
-                "/>"
-        );
+                "/>");
         assertTrue(testEltInt.validate());
-     }
-     public void testIntTypeInvalid()throws Exception{
-         GlobalEltFixedIntDocument testEltInt=GlobalEltFixedIntDocument.Factory.parse(
-                "<GlobalEltFixedInt " +
+    }
+
+    public void testIntTypeInvalid() throws Exception {
+        GlobalEltFixedIntDocument testEltInt = GlobalEltFixedIntDocument
+                .Factory.parse("<GlobalEltFixedInt " +
                 "xmlns=\"http://xbean/scomp/element/GlobalEltFixed\"" +
-                "> foobar </GlobalEltFixedInt>"
-        );
-        assertTrue( !testEltInt.validate() );
-     }
-     public void testIntValueInvalid()throws Exception{
-          GlobalEltFixedIntDocument testEltInt=GlobalEltFixedIntDocument.Factory.parse(
-                "<GlobalEltFixedInt " +
+                "> foobar </GlobalEltFixedInt>");
+        assertTrue(!testEltInt.validate(validateOptions));
+        String[] errExpected = new String[]{"cvc-elt3.3.4"};
+        assertTrue(compareErrorCodes(errExpected));
+
+    }
+
+    public void testIntValueInvalid() throws Exception {
+        GlobalEltFixedIntDocument testEltInt = GlobalEltFixedIntDocument.Factory.parse("<GlobalEltFixedInt " +
                 "xmlns=\"http://xbean/scomp/element/GlobalEltFixed\"" +
-                "> -1 </GlobalEltFixedInt>"
-        );
-        assertTrue( !testEltInt.validate(validateOptions) );
-          assertEquals(1,errorList.size());
-     }
-     public void testStrValueInvalid()throws Exception{
-           GlobalEltFixedStrDocument testEltStr=GlobalEltFixedStrDocument.Factory.parse(
-                "<GlobalEltFixedStr " +
+                "> -1 </GlobalEltFixedInt>");
+        assertTrue(!testEltInt.validate(validateOptions));
+        assertEquals(1, errorList.size());
+        String[] errExpected = new String[]{"cvc-elt3.3.4"};
+        assertTrue(compareErrorCodes(errExpected));
+
+    }
+
+    public void testStrValueInvalid() throws Exception {
+        GlobalEltFixedStrDocument testEltStr = GlobalEltFixedStrDocument.Factory.parse("<GlobalEltFixedStr " +
                 "xmlns=\"http://xbean/scomp/element/GlobalEltFixed\"" +
-                "> XBean </GlobalEltFixedStr>"
-        );
-           assertTrue( !testEltStr.validate(validateOptions) );
-          assertEquals(1,errorList.size());
-     }
+                "> XBean </GlobalEltFixedStr>");
+        assertTrue(!testEltStr.validate(validateOptions));
+        assertEquals(1, errorList.size());
+        String[] errExpected = new String[]{"cvc-elt3.3.4"};
+        assertTrue(compareErrorCodes(errExpected));
+
+    }
 }

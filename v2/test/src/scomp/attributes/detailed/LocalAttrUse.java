@@ -50,8 +50,7 @@ public class LocalAttrUse extends BaseCase {
 
         try {
             assertTrue(testDoc.validate(validateOptions));
-        }
-        catch (Throwable t) {
+        } catch (Throwable t) {
             showErrors();
             throw t;
         }
@@ -101,13 +100,16 @@ public class LocalAttrUse extends BaseCase {
                 " attRequired=\"34\"" +
                 " />").getLocalAttrUseDoc();
         //catch XML error and assert message here
-        assertFalse(testDoc.validate(validateOptions));
+        assertTrue(!testDoc.validate(validateOptions));
 
 
         //default required should not be explicitly needed?
         //assertEquals(1, errorList.size());
 
-          showErrors();
+        showErrors();
+        String[] errExpected = new String[]{"cvc-attribute"};
+        assertTrue(compareErrorCodes(errExpected));
+
 
     }
 
@@ -123,9 +125,15 @@ public class LocalAttrUse extends BaseCase {
                 "foo:attRequiredFixed=\"foobar\" " +
                 " />").getLocalAttrUseDoc();
         //catch XML error and assert message here
-        assertTrue(!testDoc.validate());
+        assertTrue(!testDoc.validate(validateOptions));
         assertEquals("foobar", testDoc.getAttRequiredFixed());
         showErrors();
+        //attr locally valid for fixed val
+        String[] errExpected = new String[]{
+            "cvc-attribute",
+            "cvc-attribute"};
+        assertTrue(compareErrorCodes(errExpected));
+
     }
 
     public void testRequiredDefault() throws XmlException {
@@ -138,6 +146,11 @@ public class LocalAttrUse extends BaseCase {
         assertTrue(!testDoc.validate(validateOptions));
         assertEquals("newval", testDoc.getAttRequiredDefault());
         showErrors();
+        String[] errExpected = new String[]{
+            "cvc-attribute",
+            "cvc-attribute"};
+        assertTrue(compareErrorCodes(errExpected));
+
     }
 
 
@@ -150,20 +163,22 @@ public class LocalAttrUse extends BaseCase {
         elt.setAttRequiredDefault("boo");
         try {
             assertTrue(elt.validate(validateOptions));
-        }
-        catch (Throwable t) {
+        } catch (Throwable t) {
             showErrors();
             throw t;
         }
         //use here is prohibited
         elt.setAttOpt("bla");
-        assertTrue(!elt.validate());
+        assertTrue(!elt.validate(validateOptions));
+        showErrors();
+        String[] errExpected = new String[]{"cvc-attribute"};
+        assertTrue(compareErrorCodes(errExpected));
+
 
         elt.unsetAttOpt();
         try {
             assertTrue(elt.validate(validateOptions));
-        }
-        catch (Throwable t) {
+        } catch (Throwable t) {
             showErrors();
             throw t;
         }

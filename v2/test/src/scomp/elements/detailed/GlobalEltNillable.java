@@ -36,6 +36,9 @@ public class GlobalEltNillable extends BaseCase {
                 " xsi:nil=\"false\"/>");
         assertTrue(!testElt.validate(validateOptions));
         assertEquals(1, errorList.size());
+        String[] errExpected = new String[]{"cvc-elt3.3.4"};
+             assertTrue(compareErrorCodes(errExpected));
+
 
     }
 
@@ -65,6 +68,9 @@ public class GlobalEltNillable extends BaseCase {
         assertTrue(!testElt.validate(validateOptions));
         assertEquals(1, errorList.size());
         showErrors();
+        String[] errExpected = new String[]{"cvc-elt3.3.4"};
+             assertTrue(compareErrorCodes(errExpected));
+
         fail("Why is the last setter not throwing an exception?");
     }
 
@@ -77,6 +83,10 @@ public class GlobalEltNillable extends BaseCase {
                 "/>");
         assertTrue(!testElt.validate(validateOptions));
         assertEquals(1, errorList.size());
+        showErrors();
+               String[] errExpected = new String[]{"cvc-elt3.3.4"};
+                    assertTrue(compareErrorCodes(errExpected));
+
 
     }
 
@@ -126,7 +136,11 @@ public class GlobalEltNillable extends BaseCase {
                 " xsi:nil=\"true\"><nestedElt/></GlobalEltComplex>");
         assertTrue(!testElt.validate(validateOptions));
         assertEquals(1, errorList.size());
+
         showErrors();
+        String[] errExpected = new String[]{"cvc-elt3.3.4"};
+             assertTrue(compareErrorCodes(errExpected));
+
         testElt = GlobalEltComplexDocument
                 .Factory.parse("<GlobalEltComplex" +
                 "   xmlns=\"http://xbean/scomp/element/GlobalEltNillable\"" +

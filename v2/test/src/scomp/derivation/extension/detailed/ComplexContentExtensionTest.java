@@ -48,13 +48,15 @@ public class ComplexContentExtensionTest extends BaseCase {
 
         assertTrue(!doc.validate(validateOptions));
               showErrors();
+        String[] errExpected = new String[]{"cvc-attribute"};
+                     assertTrue(compareErrorCodes(errExpected));
+
 
         elt.removeExtraEltInt(0);
         try {
-            doc.validate();
+            assertTrue(doc.validate(validateOptions));
         }
         catch (Throwable t) {
-            doc.validate(validateOptions);
             showErrors();
             throw t;
         }
@@ -78,10 +80,9 @@ public class ComplexContentExtensionTest extends BaseCase {
         elt.unsetChild1();
         elt.removeChild2(0);
         try {
-            doc.validate();
+            assertTrue(doc.validate(validateOptions));
         }
         catch (Throwable t) {
-            doc.validate(validateOptions);
             showErrors();
             throw t;
         }
@@ -97,10 +98,9 @@ public class ComplexContentExtensionTest extends BaseCase {
         assertTrue(!doc.validate());
         elt.removeExtraEltInt(0);
         try {
-            doc.validate();
+            assertTrue(doc.validate(validateOptions));
         }
         catch (Throwable t) {
-            doc.validate(validateOptions);
             showErrors();
             throw t;
         }

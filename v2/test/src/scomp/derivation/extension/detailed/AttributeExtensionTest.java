@@ -35,10 +35,9 @@ public class AttributeExtensionTest extends BaseCase{
        ExtendedElementDocument doc=ExtendedElementDocument.Factory.newInstance();
         ExtendedT elt=doc.addNewExtendedElement();
          try{
-            assertTrue(doc.validate());
+            assertTrue(doc.validate(validateOptions));
         }
         catch (Throwable t) {
-            doc.validate(validateOptions);
             showErrors();
            throw t;
         }
@@ -46,10 +45,9 @@ public class AttributeExtensionTest extends BaseCase{
         elt.setTestattribute2("bar");
         elt.setTestattributeInt(new BigInteger("10"));
           try{
-            assertTrue(doc.validate());
+            assertTrue(doc.validate(validateOptions));
         }
         catch (Throwable t) {
-            doc.validate(validateOptions);
             showErrors();
            throw t;
         }

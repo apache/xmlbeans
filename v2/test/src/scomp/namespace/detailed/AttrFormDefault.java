@@ -62,6 +62,8 @@ public class AttrFormDefault extends BaseCase {
                         " localAttr=\"foobar\"/>");
            assertTrue( ! doc.validate(validateOptions));
           showErrors();
+         String[] errExpected = new String[]{"cvc-attribute"};
+              assertTrue(compareErrorCodes(errExpected));
 
     }
 }

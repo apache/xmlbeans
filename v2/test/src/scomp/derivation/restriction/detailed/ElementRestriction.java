@@ -61,17 +61,19 @@ public class ElementRestriction extends BaseCase {
         elt.setC("foobar:123");
         assertTrue(!doc.validate(validateOptions));
         showErrors();
+        String[] errExpected = new String[]{"cvc-attribute"};
+                     assertTrue(compareErrorCodes(errExpected));
 
-        elt.removeA(2);               
+
+        elt.removeA(2);
         bValue.setStringValue("myval");
         elt.setB(bValue);
         assertEquals("myval",
                 ((XmlString)elt.getB()).getStringValue());
         try {
-            assertTrue(doc.validate());
+            assertTrue(doc.validate(validateOptions));
         }
         catch (Throwable t) {
-            doc.validate(validateOptions);
             showErrors();
             throw t;
         }

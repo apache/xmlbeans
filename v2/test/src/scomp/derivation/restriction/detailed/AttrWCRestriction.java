@@ -46,6 +46,9 @@ public class AttrWCRestriction extends BaseCase {
                  Any2ConcreteDocument.Factory.parse(input);
         assertTrue ( !doc.validate(validateOptions));
         showErrors();
+        String[] errExpected = new String[]{"cvc-attribute"};
+                     assertTrue(compareErrorCodes(errExpected));
+
     }
 
     /**
@@ -61,7 +64,12 @@ public class AttrWCRestriction extends BaseCase {
                 " testattribute=\"XBean\"/>";
          Any2LocalDocument doc=
                  Any2LocalDocument.Factory.parse(input);
+        try{
         assertTrue ( doc.validate(validateOptions));
+        }catch(Throwable t){
+            showErrors();
+            throw t;
+        }
 
         //a diff ns is not OK
          input="<foo:Any2Local " +
@@ -72,6 +80,9 @@ public class AttrWCRestriction extends BaseCase {
                  Any2LocalDocument.Factory.parse(input);
         assertTrue (! doc.validate(validateOptions));
         showErrors();
+        String[] errExpected = new String[]{"cvc-attribute"};
+                     assertTrue(compareErrorCodes(errExpected));
+
     }
 
     /**
@@ -88,6 +99,9 @@ public class AttrWCRestriction extends BaseCase {
                  List2SubsetDocument.Factory.parse(input);
         //this is a non-existing NS...strict should complain
         assertTrue ( !doc.validate(validateOptions));
+        String[] errExpected = new String[]{"cvc-attribute"};
+                     assertTrue(compareErrorCodes(errExpected));
+
 
         //invalid case: give the attr a bad value, make sure it's being validated
     }
@@ -115,5 +129,8 @@ public class AttrWCRestriction extends BaseCase {
                  Other2ListDocument.Factory.parse(input);
         assertTrue (! doc.validate(validateOptions));
         showErrors();
+        String[] errExpected = new String[]{"cvc-attribute"};
+                     assertTrue(compareErrorCodes(errExpected));
+
     }
 }

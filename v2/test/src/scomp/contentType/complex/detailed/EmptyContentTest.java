@@ -25,7 +25,8 @@ public class EmptyContentTest extends BaseCase {
         cur.beginElement("foobarElt");
         assertTrue(!elt.validate(validateOptions));
         showErrors();
-        //  fail("Assert correct error here");
+        String[] errExpected = new String[]{"cvc-attribute"};
+            assertTrue(compareErrorCodes(errExpected));
 
     }
 

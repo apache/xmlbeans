@@ -38,29 +38,43 @@ public class BaseCase extends TestCase {
         validateOptions.setErrorListener(errorList);
     }
 
+    protected void clearErrors() {
+        //reset error list for next time
+        errorList = new ArrayList();
+        validateOptions.setErrorListener(errorList);
+    }
+
     public void showErrors() {
         if (bVerbose)
             for (int i = 0; i < errorList.size(); i++) {
                 XmlError error = (XmlError) errorList.get(i);
                 System.out.println("\n");
                 System.out.println("Message: " + error.getMessage() + "\n");
-                if ( error.getCursorLocation() != null)
-                System.out.println("Location of invalid XML: " +
-                        error.getCursorLocation().xmlText() + "\n");
+                if (error.getCursorLocation() != null)
+                    System.out.println("Location of invalid XML: " +
+                            error.getCursorLocation().xmlText() + "\n");
             }
-        //reset error list for next time
-         errorList = new ArrayList();
-         validateOptions.setErrorListener(errorList);
+
     }
 
     //TODO: compare regardless of order
-    public  boolean compareErrorCodes(String [] expected){
-             for (int i = 0; i < errorList.size(); i++) {
-                XmlError error = (XmlError) errorList.get(i);
-                if (expected[i] != error.getErrorCode())
-                    return false;
-             }
+    public boolean compareErrorCodes(String[] expected) {
+       // if ( errorList.size() != expected.length)
+      //     return false;
+        StringBuffer errMessage=
+                new StringBuffer();
+        for (int i = 0; i < errorList.size(); i++) {
+            XmlError error = (XmlError) errorList.get(i);
+            if ( error.getErrorCode() == null )
+              errMessage.append("Kevin needs a code here "+error.getMessage()+"\n");
+
+            if (expected[i] != error.getErrorCode()){
+                if (errMessage.length() >0)
+                    System.err.println(errMessage);
+                return false;
+            }
+        }
         return true;
     }
 
-    }
+}

@@ -49,10 +49,9 @@ public class MixedContentTest extends BaseCase {
                 "<child3>1</child3></xml-fragment>",
                 testElt.xmlText());
         try {
-            assertTrue(testElt.validate());
+            assertTrue(testElt.validate(validateOptions));
         }
         catch (Throwable t) {
-            testElt.validate(validateOptions);
             showErrors();
             throw t;
         }
@@ -72,7 +71,11 @@ public class MixedContentTest extends BaseCase {
         assertEquals(null, testElt.xgetChild1());
         XmlCursor cur = testElt.newCursor();
         cur.insertChars("Random mixed content");
-        assertTrue( !testElt.validate() );
+        assertTrue( !testElt.validate(validateOptions) );
+        showErrors();
+        String[] errExpected = new String[]{"cvc-attribute"};
+            assertTrue(compareErrorCodes(errExpected));
+
 
     }
 
@@ -125,10 +128,9 @@ public class MixedContentTest extends BaseCase {
          cur.toNextToken();
         cur.insertChars("Random mixed content1");
         try {
-            assertTrue(testElt.validate());
+            assertTrue(testElt.validate(validateOptions));
         }
         catch (Throwable t) {
-            testElt.validate(validateOptions);
             showErrors();
             throw t;
         }

@@ -28,35 +28,39 @@ import java.math.BigInteger;
  */
 public class SequenceTest extends BaseCase {
 
-    public void testWrongOrder() throws Throwable{
-        SequenceEltDocument doc=SequenceEltDocument.Factory.parse(
-                "<SequenceElt xmlns=\"http://xbean/scomp/contentType/ModelGroup\">" +
+    public void testWrongOrder() throws Throwable {
+        SequenceEltDocument doc = SequenceEltDocument.Factory.parse("<SequenceElt xmlns=\"http://xbean/scomp/contentType/ModelGroup\">" +
                 "<child1>1</child1>" +
                 "<child3>2</child3>" +
                 "<child2>Foobar</child2>" +
                 "</SequenceElt>   ");
 
-            assertTrue (! doc.validate(validateOptions) );
-            showErrors();
-      
+        assertTrue(!doc.validate(validateOptions));
+        showErrors();
+        String[] errExpected = new String[]{"cvc-attribute"};
+        assertTrue(compareErrorCodes(errExpected));
+
+
     }
-    public void testWrongCardinality(){
-          SequenceEltDocument doc=SequenceEltDocument.Factory.newInstance();
-        SequenceT elt=doc.addNewSequenceElt();
-        XmlString valueStr=XmlString.Factory.newInstance();
+
+    public void testWrongCardinality() {
+        SequenceEltDocument doc = SequenceEltDocument.Factory.newInstance();
+        SequenceT elt = doc.addNewSequenceElt();
+        XmlString valueStr = XmlString.Factory.newInstance();
         valueStr.setStringValue("foobar");
-        BigInteger valueInt=new BigInteger("-3");
+        BigInteger valueInt = new BigInteger("-3");
         elt.xsetChild2Array(new XmlString[]{});
         elt.setChild3Array(new BigInteger[]{valueInt});
         elt.addChild3(valueInt);
-        elt.setChild3Array(1,new BigInteger("10"));
-            assertEquals("<xml-fragment><child3>-3</child3>" +
-                    "<child3>10</child3></xml-fragment>",elt.xmlText());
-        assertTrue( !elt.validate(validateOptions) );
-        assertEquals(3,errorList.size());
+        elt.setChild3Array(1, new BigInteger("10"));
+        assertEquals("<xml-fragment><child3>-3</child3>" +
+                "<child3>10</child3></xml-fragment>", elt.xmlText());
+        assertTrue(!elt.validate(validateOptions));
+        assertEquals(3, errorList.size());
 
         showErrors();
-        //assert each error individually here
+        String[] errExpected = new String[]{"cvc-attribute"};
+        assertTrue(compareErrorCodes(errExpected));
 
     }
 }

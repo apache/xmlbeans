@@ -62,6 +62,9 @@ public class AttributeWC extends BaseCase {
                 "attr1=\"val1\"/>");
         assertTrue(!doc.validate(validateOptions));
         showErrors();
+        String[] errExpected = new String[]{"cvc-attribute"};
+        assertTrue(compareErrorCodes(errExpected));
+
     }
 
     public void testOtherLaxLegal() throws Throwable {
@@ -86,12 +89,15 @@ public class AttributeWC extends BaseCase {
                 "attr1=\"val1\"/>");
         assertTrue(!doc.validate(validateOptions));
         showErrors();
+        String[] errExpected = new String[]{"cvc-attribute"};
+        assertTrue(compareErrorCodes(errExpected));
+
     }
 
     public void testOtherSkipLegal() throws Throwable {
         OtherSkipDocument doc = OtherSkipDocument.Factory
                 .parse("<foo:OtherSkip xmlns:foo=\"http://xbean/scomp/namespace/AttributeWC\" " +
-                 "xmlns:foobar=\"http:apache.org\" " +
+                "xmlns:foobar=\"http:apache.org\" " +
                 "foobar:attr1=\"val1\"/>");
         assertTrue(doc.validate(validateOptions));
     }
@@ -103,6 +109,9 @@ public class AttributeWC extends BaseCase {
                 " foo:attr1=\"val1\"/>");
         assertTrue(!doc.validate(validateOptions));
         showErrors();
+        String[] errExpected = new String[]{"cvc-attribute"};
+        assertTrue(compareErrorCodes(errExpected));
+
     }
 
     public void testOtherStrictLegal() throws Throwable {
@@ -121,6 +130,9 @@ public class AttributeWC extends BaseCase {
                 " at:test=\"val1\"/>");
         assertTrue(!doc.validate(validateOptions));
         showErrors();
+        String[] errExpected = new String[]{"cvc-attribute"};
+        assertTrue(compareErrorCodes(errExpected));
+
     }
 
     //no declaration for this attr, no error on Lax
@@ -140,6 +152,9 @@ public class AttributeWC extends BaseCase {
                 " at:test=\"val1\"/>");
         assertTrue(!doc.validate(validateOptions));
         showErrors();
+        String[] errExpected = new String[]{"cvc-attribute"};
+        assertTrue(compareErrorCodes(errExpected));
+
     }
 
 
@@ -160,6 +175,9 @@ public class AttributeWC extends BaseCase {
                 " at:testattribute=\"val1\"/>");
         assertTrue(!doc.validate(validateOptions));
         showErrors();
+        String[] errExpected = new String[]{"cvc-attribute"};
+        assertTrue(compareErrorCodes(errExpected));
+
     }
 
     public void testListStrictLegal() throws Throwable {
@@ -170,7 +188,7 @@ public class AttributeWC extends BaseCase {
                 " xmlns:foo=\"http://xbean/scomp/namespace/AttributeWC\"" +
                 "  xmlns:at=\"http://xbean/scomp/attribute/GlobalAttrDefault\"" +
                 " at:testattribute=\"val1\"/>");
-        if (  !doc.validate(validateOptions) ){
+        if (!doc.validate(validateOptions)) {
             showErrors();
             fail("testFailed");
         }
@@ -185,6 +203,9 @@ public class AttributeWC extends BaseCase {
                 " at:testattribute=\"val1\"/>");
         assertTrue(!doc.validate(validateOptions));
         showErrors();
+        String[] errExpected = new String[]{"cvc-attribute"};
+        assertTrue(compareErrorCodes(errExpected));
+
     }
 
     public void testTargetLaxLegal() throws Throwable {
@@ -203,6 +224,9 @@ public class AttributeWC extends BaseCase {
                 " at:testattributeInt=\"foo\"/>");
         assertTrue(!doc.validate(validateOptions));
         showErrors();
+        String[] errExpected = new String[]{"cvc-attribute"};
+        assertTrue(compareErrorCodes(errExpected));
+
     }
 
     public void testTargetSkipLegal() throws Throwable {
@@ -213,9 +237,9 @@ public class AttributeWC extends BaseCase {
         assertTrue(doc.validate(validateOptions));
     }
 
-   /**
-    * can a test ever be illegal here?
-    */
+    /**
+     * can a test ever be illegal here?
+     */
     public void testTargetSkipIllegal() throws Throwable {
         TargetSkipDocument doc = TargetSkipDocument.Factory
                 .parse("<foo:TargetSkip " +
@@ -223,6 +247,9 @@ public class AttributeWC extends BaseCase {
                 " foo:undeclAttr=\"val1\"/>");
         assertTrue(!doc.validate(validateOptions));
         showErrors();
+        String[] errExpected = new String[]{"cvc-attribute"};
+        assertTrue(compareErrorCodes(errExpected));
+
     }
 
     public void testTargetStrictLegal() throws Throwable {
@@ -237,9 +264,12 @@ public class AttributeWC extends BaseCase {
         TargetStrictDocument doc = TargetStrictDocument.Factory
                 .parse("<foo:TargetStrict " +
                 " xmlns:foo=\"http://xbean/scomp/namespace/AttributeWC\"" +
-                  " foo:LocalAttr=\"foo\"/>");
+                " foo:LocalAttr=\"foo\"/>");
         assertTrue(!doc.validate(validateOptions));
         showErrors();
+        String[] errExpected = new String[]{"cvc-attribute"};
+        assertTrue(compareErrorCodes(errExpected));
+
     }
 
     public void testLocalLaxLegal() throws Throwable {
@@ -257,6 +287,9 @@ public class AttributeWC extends BaseCase {
                 " foo:undeclAttr=\"val1\"/>");
         assertTrue(!doc.validate(validateOptions));
         showErrors();
+        String[] errExpected = new String[]{"cvc-attribute"};
+        assertTrue(compareErrorCodes(errExpected));
+
     }
 
     public void testLocalSkipLegal() throws Throwable {
@@ -268,8 +301,8 @@ public class AttributeWC extends BaseCase {
     }
 
     /**
-    * can a test ever be illegal here?
-    */
+     * can a test ever be illegal here?
+     */
     public void testLocalSkipIllegal() throws Throwable {
         LocalSkipDocument doc = LocalSkipDocument.Factory
                 .parse("<foo:LocalSkip " +
@@ -277,6 +310,9 @@ public class AttributeWC extends BaseCase {
                 " undeclAttr=\"val1\"/>");
         assertTrue(!doc.validate(validateOptions));
         showErrors();
+        String[] errExpected = new String[]{"cvc-attribute"};
+        assertTrue(compareErrorCodes(errExpected));
+
     }
 
     public void testLocalStrictIllegal() throws Throwable {
@@ -286,14 +322,17 @@ public class AttributeWC extends BaseCase {
                 " undeclAttr=\"val1\"/>");
         assertTrue(!doc.validate(validateOptions));
         showErrors();
+        String[] errExpected = new String[]{"cvc-attribute"};
+        assertTrue(compareErrorCodes(errExpected));
+
     }
 
     public void testLocalStrictLegal() throws Throwable {
         LocalStrictDocument doc = LocalStrictDocument.Factory
                 .parse("<foo:LocalStrict " +
                 " xmlns:foo=\"http://xbean/scomp/namespace/AttributeWC\"" +
-               " foo:LocalAttr=\"2\"/>");
-        if( !doc.validate(validateOptions)){
+                " foo:LocalAttr=\"2\"/>");
+        if (!doc.validate(validateOptions)) {
             showErrors();
             fail("test failed");
         }

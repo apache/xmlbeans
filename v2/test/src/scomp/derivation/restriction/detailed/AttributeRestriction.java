@@ -40,6 +40,9 @@ public class AttributeRestriction extends BaseCase {
         elt.setA(new BigInteger("-3"));
         assertTrue(!doc.validate(validateOptions));
         showErrors();
+       String[] errExpected = new String[]{"cvc-attribute"};
+                    assertTrue(compareErrorCodes(errExpected));
+
         assertEquals("b", elt.getB());
        XmlString expected=XmlString.Factory.newInstance();
        expected.setStringValue("c2");
@@ -55,14 +58,16 @@ public class AttributeRestriction extends BaseCase {
         assertEquals("a", elt.getD());
         assertTrue(!doc.validate(validateOptions));
         showErrors();
+        String[] errExpected = new String[]{"cvc-attribute"};
+                     assertTrue(compareErrorCodes(errExpected));
+
         elt.setD("d");
         elt.setE("e");
         elt.setF("foobar");
         try {
-            assertTrue(doc.validate());
+            assertTrue(doc.validate(validateOptions));
         }
         catch (Throwable t) {
-            doc.validate(validateOptions);
             showErrors();
             throw t;
         }
@@ -77,14 +82,16 @@ public class AttributeRestriction extends BaseCase {
         elt.setG("foobar");
         assertTrue(!doc.validate(validateOptions));
         showErrors();
+      String[] errExpected = new String[]{"cvc-attribute"};
+                   assertTrue(compareErrorCodes(errExpected));
+
         elt.setX("myval");
         elt.unsetG();
         elt.setF("foobar");
          try {
-            assertTrue(doc.validate());
+            assertTrue(doc.validate(validateOptions));
         }
         catch (Throwable t) {
-            doc.validate(validateOptions);
             showErrors();
             throw t;
         }

@@ -40,10 +40,9 @@ public class MixedContentRestriction extends BaseCase{
         assertTrue(cur.toNextSibling());
         cur.insertChars("My chars");
           try {
-            assertTrue( doc.validate());
+            assertTrue( doc.validate(validateOptions));
         }
         catch (Throwable t) {
-            doc.validate(validateOptions);
             showErrors();
             throw t;
         }
@@ -65,6 +64,9 @@ public class MixedContentRestriction extends BaseCase{
         cur.insertChars("My chars");
         assertTrue( !doc.validate(validateOptions));
         showErrors();
+        String[] errExpected = new String[]{"cvc-attribute"};
+                            assertTrue(compareErrorCodes(errExpected));
+
         //should be valid w/o the Text there
         cur.toPrevToken();
          assertEquals("<xml-fragment>" +
@@ -72,10 +74,9 @@ public class MixedContentRestriction extends BaseCase{
                 "</xml-fragment>", elt.xmlText());
        assertTrue(cur.removeXml());
         try {
-            assertTrue( doc.validate());
+            assertTrue( doc.validate(validateOptions));
         }
         catch (Throwable t) {
-            doc.validate(validateOptions);
             showErrors();
             throw t;
         }
@@ -94,12 +95,14 @@ public class MixedContentRestriction extends BaseCase{
         elt.setChild1(new BigInteger("10"));
          assertTrue( !doc.validate(validateOptions));
         showErrors();
+        String[] errExpected = new String[]{"cvc-attribute"};
+                            assertTrue(compareErrorCodes(errExpected));
+
         elt.unsetChild1();
          try {
-            assertTrue( doc.validate());
+            assertTrue( doc.validate(validateOptions));
         }
         catch (Throwable t) {
-            doc.validate(validateOptions);
             showErrors();
             throw t;
         }

@@ -89,6 +89,9 @@ public class ElementOnlyContentTest extends BaseCase {
         System.out.println(testElt.xmlText());
         assertTrue(!testElt.validate(validateOptions));
         showErrors();
+        String[] errExpected = new String[]{"cvc-attribute"};
+            assertTrue(compareErrorCodes(errExpected));
+
     }
 
 }

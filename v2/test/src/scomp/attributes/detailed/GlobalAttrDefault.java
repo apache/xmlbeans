@@ -74,9 +74,13 @@ public class GlobalAttrDefault extends BaseCase {
                 GlobalAttrDefaultDocDocument.Factory.parse("<pre:GlobalAttrDefaultDoc" +
                 " xmlns:pre=\"http://xbean/scomp/attribute/GlobalAttrDefault\" " +
                 "pre:testattributeInt=\"\"/>").getGlobalAttrDefaultDoc();
+        String[] errExpected=new String[]{"cvc-attr"};
         assertTrue(!testDoc.validate(validateOptions));
         assertEquals(1, errorList.size());
         showErrors();
+        assertTrue(compareErrorCodes(errExpected));
+
+
     }
 
 
