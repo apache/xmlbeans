@@ -499,6 +499,14 @@ public interface SchemaType extends SchemaComponent, SchemaAnnotated
 
 
     /**
+     * Returns a {@link SchemaTypeElementSequencer} object, which can then
+     * be used to validate complex content inside this element. This is useful
+     * for example for trying out different names and see which one would be
+     * valid as a child of this element.
+     */
+    SchemaTypeElementSequencer getElementSequencer();
+
+    /**
      * The array of inner (anonymous) types defined
      * within this type.
      */
