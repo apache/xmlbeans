@@ -225,7 +225,6 @@ public class JavadocClassBuilder extends JamClassBuilder {
   private String[] getJavadocArgs(JamServiceContext ctx) {
     String prop = ctx.getProperty(ARGS_PROPERTY);
     if (prop == null) return null;
-
     StringTokenizer t = new StringTokenizer(prop);
     String[] out = new String[t.countTokens()];
     int i = 0;

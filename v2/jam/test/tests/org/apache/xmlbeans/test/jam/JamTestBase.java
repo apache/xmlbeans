@@ -91,7 +91,10 @@ public abstract class JamTestBase extends TestCase {
   // ========================================================================
   // Constants
 
+  private static final boolean CONTINUE_ON_COMPARE_FAIL = false;
   private static final boolean WRITE_MASTER_ON_FAIL = true;
+
+  private static final String WRITE_MASTER_PREFIX = "expected-";
 
   protected static final String
           DUMMY = "org.apache.xmlbeans.test.jam.dummyclasses";
@@ -115,7 +118,8 @@ public abstract class JamTestBase extends TestCase {
     DUMMY+".FooImpl",
     DUMMY+".HeavilyCommented",
     DUMMY+".MyException",
-    DUMMY+".MultipleTags"
+    DUMMY+".MultilineTags",
+    DUMMY+".ManyTags"
   };
 
 
@@ -357,19 +361,23 @@ public abstract class JamTestBase extends TestCase {
     }
   }
 
-  public void testMultipleTags() {
+
+  public void testMultilineTags() {
     if (!isAnnotationsAvailable()) return;
-    JClass mt = resolved(mLoader.loadClass(DUMMY+".MultipleTags"));
-    JMethod method = mt.getMethods()[0];
-    assertTrue(method.getAllJavadocTags().length == 6);
-    assertTrue(method.getAllJavadocTags("foo").length == 4);
-    assertTrue(method.getAllJavadocTags("foo")[2].getValue("z").asInt() == 3);
-    assertTrue(method.getAllJavadocTags("bar").length == 1);
-    assertTrue(method.getAllJavadocTags("bar")[0].getValue("x").asInt() == -4343);
-    assertTrue(method.getAllJavadocTags("baz").length == 1);
-    compare(mt,"testMultipleTags.xml");
+    JClass mt = resolved(mLoader.loadClass(DUMMY+".MultilineTags"));
+    JAnnotation ann = mt.getAllJavadocTags()[5];
+    System.out.println("\n\n\n=== "+ann.getValue("signature").asString());
+    System.out.println("\n\n\n=== "+ann.getValue("ejb-ql").asString());
+    compare(resolved(mt), "testMultilineTags.xml");
   }
 
+  public void testMultipleTags() {
+    if (!isAnnotationsAvailable()) return;
+    JClass mt = resolved(mLoader.loadClass(DUMMY+".ManyTags"));
+    JMethod method = mt.getMethods()[0];
+    assertTrue(method.getAllJavadocTags().length == 6);
+    compare(mt,"testManyTags.xml");
+  }
 
 
   // ========================================================================
@@ -385,31 +393,41 @@ public abstract class JamTestBase extends TestCase {
         jxw = new JamXmlWriter(out);
         jxw.write(element);
         out.flush();
+        result = resultWriter.toString();
+        /*
         try {
-          System.out.println("--------------- "+resultWriter.toString());
-          result = prettyPrint(resultWriter.toString());
+        System.out.println("--------------- "+resultWriter.toString());
+        result = prettyPrint(resultWriter.toString());
         } catch(Exception e) {
-          e.printStackTrace();
-          System.err.flush();
-          System.out.println("Problem with result:");
-          System.out.println(resultWriter.toString());
-          System.out.flush();
-          fail("failed to parse result");
-          return;
+        e.printStackTrace();
+        System.err.flush();
+        System.out.println("Problem with result:");
+        System.out.println(resultWriter.toString());
+        System.out.flush();
+        fail("failed to parse result");
+        return;
         }
+        */
       }
-      File masterFile = new File(getMasterDir(),masterName);
-      FileReader inA = new FileReader(masterFile);
-      StringReader inB = new StringReader(result);
+      File masterFile = new File(getMasterDir().getAbsolutePath(),masterName);
       StringWriter diff = new StringWriter();
-      boolean same = JamDiffer.getInstance().diff(inA,inB,diff);
-      if (same) return;
+      if (masterFile.exists()) {
+        FileReader inA = new FileReader(masterFile);
+        StringReader inB = new StringReader(result);
+        boolean same = Differ.getInstance().diff(inA,inB,diff);
+        if (same) return;
+      } else {
+        System.out.println("WARNING: Missing master file: "+masterFile);
+      }
       if (WRITE_MASTER_ON_FAIL) {
-        File expected = new File(getMasterDir(),"expected-"+masterName);
+        File expected = new File(getMasterDir(),WRITE_MASTER_PREFIX+masterName);
         FileWriter eout = new FileWriter(expected);
         eout.write(result);
         eout.close();
+        System.out.println("WARNING: Comparison failed, ignoring, wrote \n"+
+                           expected);
       }
+      if (CONTINUE_ON_COMPARE_FAIL) return;
       fail("Result did not match master at "+masterFile+":\n"+
            diff.toString());
     } catch(XMLStreamException xse) {

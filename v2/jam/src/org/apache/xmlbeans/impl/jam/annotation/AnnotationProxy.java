@@ -22,6 +22,7 @@ import java.util.StringTokenizer;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.InvocationTargetException;
+import java.io.StringWriter;
 
 /**
  * <p>Provides a proxied view of some annotation artifact.  JAM calls the
@@ -56,6 +57,8 @@ public abstract class AnnotationProxy {
    * from a javadoc tag.</p>
    */
   private static final String DEFAULT_NVPAIR_DELIMS = "\n\r";
+
+  private static final String VALUE_QUOTE = "\"";
 
 
   // ========================================================================
@@ -180,8 +183,30 @@ public abstract class AnnotationProxy {
       int eq = pair.indexOf('=');
       if (eq <= 0) continue; // if not there or is first character
       String name = pair.substring(0, eq).trim();
-      String value = (eq < pair.length() - 1) ? pair.substring(eq + 1) : null;
-      if (value != null) setValue(name,value);
+      if (eq < pair.length() - 1) {
+        String value = pair.substring(eq + 1).trim();
+        if (value.startsWith(VALUE_QUOTE)) {
+          value = parseQuotedValue(value.substring(1),st);
+        }
+        setValue(name,value);
+      }
+    }
+  }
+
+  private String parseQuotedValue(String line, StringTokenizer st) {
+    StringWriter out = new StringWriter();
+    while(true) {
+      int endQuote = line.indexOf(VALUE_QUOTE);
+      if (endQuote == -1) {
+        out.write(line);
+        if (!st.hasMoreTokens()) return out.toString();
+        out.write('\n');
+        line = st.nextToken().trim();
+        continue;
+      } else {
+        out.write(line.substring(0,endQuote).trim());
+        return out.toString();
+      }
     }
   }
 
