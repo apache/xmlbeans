@@ -407,6 +407,7 @@
                             <then>
                                 <echo message="MATCH: ${curval} == ${build.area}"/>
                                 <property name="matchfound" value="true"/>
+                                <echo message="*****MATCHED****"/>
                                 <antcall target="build.area.${build.area}"/>
                             </then>
                         </if>
@@ -486,7 +487,7 @@
     <!-- =============================================================== -->
     <!-- START: Incremental build targets                                -->
 
-    <property name="area.names" value="xmlobject, dom, xpath, xmlcursor, saver,
+    <property name="area.names" value="xmlobject, dom, xpath, xmlcursor,
                             ValidatingXSRTests, checkin"/>
 
     <target name="unit.build" depends="init, copy.schemas, build.test.tools">
@@ -521,7 +522,7 @@
             <isset property="this.schema.standalone.dirs"/>
             <then>
                 <antcall target="uncompress"/>
-                <foreach list="${schema.standalone.files}"
+                <foreach list="${this.schema.standalone.dirs}"
                     target="scomp.single"
                     param="schemasrc" trim="true"/>
             </then>
@@ -533,9 +534,11 @@
             </then>
         </if>
         <antcall target="build.xmlcases"/>
+        <echo message="***EXCLUDE : ${excludes.from.compile}"/>
         <javac srcdir="${xbeans.test.src}"
             destdir="${build.dir.test.src}"
             includes="${includes.for.compile}"
+            excludes="${excludes.from.compile}"
             classpathref="test.run.classpath"
             optimize="on"
             verbose="false"
@@ -595,8 +598,17 @@
             ${schema.standalone}/SimpleRailCarrierWaybillInterchange_V40_LX.xsd,
             ${schema.standalone}/TerminalOperationsAndIntermodalRampActivity_V40_LX.xsd,"/>
         <property name="compile.extensions" value="true"/>
+
         <property name="includes.for.compile"
             value="**/xmlobject/**/*.java"/>
+         <property name="excludes.from.compile"
+            value="**/extensions/**"/>
+           <!--   <property name="includes.for.compile"
+              value="**/xmlobject/checkin/*.java,
+                    **/xmlobject/common/*.java,
+                    **/xmlobject/detailed/*.java,
+                    **/xmlobject/schematypes/*.java,
+                    **/xmlobject/xmlloader/*.java"/>-->
         <property name="testcasejar.update" value="true"/>
         <antcall target="unit.build"/>
        
@@ -605,9 +617,12 @@
     <target name="build.area.xmlcursor">
         <property name="this.schema.dirs"
             value="${build.dir.test.schemas}/xbean/xmlcursor"/>
+        <property name="this.schema.standalone.dirs"
+            value="${schema.standalone}/CarLocationMessage_40_LX.xsd"/>
         <property name="includes.for.compile"
             value="**/xmlcursor/**/*.java"/>
         <property name="testcasejar.update" value="true"/>
+        <echo message="SCHEMAS: ${this.schema.dirs}"/>
         <antcall target="unit.build"/>
     </target>
 
@@ -619,6 +634,7 @@
     </target>
 
 
+    <!--call make dir in case there was a clean before building this area-->
     <target name="build.area.xpath">
         <property name="includes.for.compile"
             value="**/xmlcursor/xpath/**/*.java,
@@ -627,13 +643,6 @@
         <antcall target="unit.build"/>
     </target>
 
-    <target name="build.area.saver">
-        <property name="includes.for.compile"
-            value="**/saver/**/*.java"/>
-
-        <property name="testcasejar.update" value="true"/>
-        <antcall target="unit.build"/>
-    </target>
 
     <target name="build.area.ValidatingXSRTests">
 
@@ -641,14 +650,23 @@
             value="${build.dir.test.schemas}/xbean/xmlcursor"/>
         <property name="includes.for.compile"
             value="**/xmlcursor/**/*.java"/>
+        <property name="this.schema.standalone.dirs"
+            value="${schema.standalone}/CarLocationMessage_40_LX.xsd"/>
         <property name="testcasejar.update" value="true"/>
         <antcall target="unit.build"/>
     </target>
 
+    <!--TODO: need to compile a subset of the schemas; figure out what and set a separate var-->
     <!-- FREQ Target -->
     <target name="build.area.checkin" depends="clean.tests">
         <property name="includes.for.compile"
             value="**/checkin/**/*.java, **/common/**/*.java"/>
+        <property name="excludes.from.compile"
+            value="**/extensions/**"/>
+         <property name="this.schema.dirs"
+            value="${schema.dirs}"/>
+         <property name="this.schema.standalone.dirs"
+            value="${schema.standalone}/CarLocationMessage_40_LX.xsd"/>
         <property name="testcasejar.update" value="true"/>
         <antcall target="unit.build"/>
     </target>
