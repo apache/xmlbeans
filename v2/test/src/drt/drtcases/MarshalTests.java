@@ -618,7 +618,7 @@ public class MarshalTests extends TestCase
         final Object obj =
             um.unmarshalType(xrdr, MYCLASS_NAME, MyClass.class.getName(), null);
 
-        inform("GOT OBJ"  + obj, true);
+        inform("GOT OBJ" + obj, true);
 
         xrdr.close();
     }
@@ -747,6 +747,35 @@ public class MarshalTests extends TestCase
         Assert.assertTrue("expected " + ArrayUtils.arrayToString(strs) +
                           " got " + ArrayUtils.arrayToString(retval),
                           ArrayUtils.arrayEquals(strs, retval));
+    }
+
+
+    public void DISABLED_testInitPerf()
+        throws Exception
+    {
+        final File conf = getBindingConfigDocument();
+
+        final int trials = 2;
+
+        final BindingContextFactory context_factory = BindingContextFactory.newInstance();
+
+        BindingContext bindingContext = null;
+
+        final long before_millis = System.currentTimeMillis();
+        for (int i = 0; i < trials; i++) {
+
+            bindingContext = ((BindingContextFactoryImpl)context_factory).
+                                    createBindingContextFromConfig(conf);
+
+            if (bindingContext == null) {
+                throw new Exception("bad news");
+            }
+        }
+        final long after_millis = System.currentTimeMillis();
+        final long diff = (after_millis - before_millis);
+        boolean verbose = true;
+        inform("INIT-milliseconds: " + diff + " trials: " + trials, verbose);
+        inform("INIT-milliseconds PER trial: " + (diff / (double)trials), verbose);
     }
 
 

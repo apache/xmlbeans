@@ -24,7 +24,7 @@ public interface BindingTypeVisitor
 
     void visit(ByNameBean byNameBean)
         throws XmlException;
-  
+
     void visit(SimpleContentBean simpleContentBean)
         throws XmlException;
 
@@ -38,6 +38,9 @@ public interface BindingTypeVisitor
         throws XmlException;
 
     void visit(WrappedArrayType wrappedArrayType)
+        throws XmlException;
+
+    void visit(SoapArrayType soapArrayType)
         throws XmlException;
 
     void visit(ListArrayType wrappedArrayType)

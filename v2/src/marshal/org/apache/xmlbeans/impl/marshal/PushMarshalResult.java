@@ -264,6 +264,12 @@ abstract class PushMarshalResult
         }
     }
 
+    public void visit(SoapArrayRuntimeBindingType soapArrayRuntimeBindingType)
+        throws XmlException
+    {
+        throw new AssertionError("UNIMP");
+    }
+
     public void visit(ListArrayRuntimeBindingType listArrayRuntimeBindingType)
         throws XmlException
     {

@@ -37,6 +37,9 @@ public interface RuntimeTypeVisitor
     void visit(WrappedArrayRuntimeBindingType wrappedArrayRuntimeBindingType)
         throws XmlException;
 
+    void visit(SoapArrayRuntimeBindingType soapArrayRuntimeBindingType)
+        throws XmlException;
+
     void visit(ListArrayRuntimeBindingType listArrayRuntimeBindingType)
         throws XmlException;
 }
