@@ -164,30 +164,26 @@ options {
   // ========================================================================
   // Constants
 
-  private static final boolean VERBOSE = false;
+  private static final boolean VERBOSE = true;
 
   // ========================================================================
   // Variables
 
   private String mLastJavadoc = null;
   private String /*EPackage*/ mPackage;
-  private EResult mResult;
   private List mErrors = null;
   private List mImports = new ArrayList();
   private List mClasses = new ArrayList();
 
   private List mParamList = new ArrayList();
   private List mExceptionList = new ArrayList();
+  private JClassLoader mLoader = null;
 
   // ========================================================================
   // Public methods
 
-  public void init(EResult result, EClass clazz) {
-    mResult = result;
-  }
-
-  public void setService(EResult result) {
-    mResult = result;
+  public void setClassLoader(JClassLoader l) {
+    mLoader = l;
   }
 
   public EClass[] getResults() {
@@ -240,7 +236,8 @@ options {
 
     private EClass newClass(String simpleName) {
     //FIXME more to do here
-      EClass clazz = mResult.addNewClass(mPackage,simpleName/*,mImports*/);
+      //EClass clazz = mResult.addNewClass(mPackage,simpleName/*,mImports*/);
+      EClass clazz = new EClassImpl(mPackage,simpleName,mLoader);
       mClasses.add(clazz);
       return clazz;
     }

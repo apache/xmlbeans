@@ -31,7 +31,7 @@ public interface EElement extends JElement {
 
   public ESourcePosition getEditableSourcePosition();
 
-  //public EAnnotation createAnnotation();
+  public EAnnotation addNewAnnotation();
 
-  //public void removeAnnotation(EAnnotation ann);
+  public void removeAnnotation(EAnnotation ann);
 }

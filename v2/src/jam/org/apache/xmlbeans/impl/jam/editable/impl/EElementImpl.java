@@ -20,6 +20,8 @@ import org.apache.xmlbeans.impl.jam.editable.ESourcePosition;
 import org.apache.xmlbeans.impl.jam.editable.EAnnotation;
 import org.apache.xmlbeans.impl.jam.*;
 
+import java.util.List;
+
 /**
  *
  * @author Patrick Calahan <pcal@bea.com>
@@ -32,6 +34,7 @@ public abstract class EElementImpl implements EElement {
   private String mSimpleName;
   private ESourcePosition mPosition = null;
   private JClassLoader mClassLoader;
+  private List mAnnotations = null;
 
   // ========================================================================
   // Constructors
@@ -43,6 +46,10 @@ public abstract class EElementImpl implements EElement {
     mSimpleName = simpleName;
     if (loader == null) throw new IllegalArgumentException("null loader");
     mClassLoader = loader;
+  }
+
+  public JElement getParent() {
+    throw new IllegalStateException("NYI");//FIXME
   }
 
   // ========================================================================
@@ -61,23 +68,16 @@ public abstract class EElementImpl implements EElement {
     return new JComment[0];
   }
 
-
-  //FIXME
   public JAnnotation[] getAnnotations() {
-    return new JAnnotation[0];
+    return getEditableAnnotations();
   }
 
-  //FIXME
   public JAnnotation[] getAnnotations(String named) {
-    return new JAnnotation[0];
+    return getAnnotations(); //FIXME remove this method please
   }
 
   public JAnnotation getAnnotation(String named) {
-    return null;
-  }
-
-  public JElement getParent() {
-    return null;
+    return getEditableAnnotation(named);
   }
 
   // ========================================================================
@@ -103,18 +103,27 @@ public abstract class EElementImpl implements EElement {
     return mPosition;
   }
 
+  public EAnnotation addNewAnnotation() {
+    return null;
+  }
+
   public void removeAnnotation(EAnnotation ann) {
   }
 
   public EAnnotation[] getEditableAnnotations() {
-    return null;
+    if (mAnnotations == null) return new EAnnotation[0];
+    EAnnotation[] out = new EAnnotation[mAnnotations.size()];
+    mAnnotations.toArray(out);
+    return out;
   }
 
   public EAnnotation getEditableAnnotation(String named) {
-    return null;
-  }
-
-  public EAnnotation[] getEditableAnnotations(String named) {
+    if (mAnnotations == null) return null;
+    //FIXME this is fairly gross
+    for(int i=0; i<mAnnotations.size(); i++) {
+      EAnnotation out = (EAnnotation)mAnnotations.get(i);
+      if (out.getSimpleName().equals(named)) return out;
+    }
     return null;
   }
 

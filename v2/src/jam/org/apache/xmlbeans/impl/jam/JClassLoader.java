@@ -72,5 +72,5 @@ public interface JClassLoader {
   /**
    * Returns this JClassLoaders's parent.
    */
-  public JClassLoader getParent();
+  //public JClassLoader getParent();
 }

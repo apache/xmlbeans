@@ -36,6 +36,7 @@ public class EClassImpl extends EMemberImpl
   // ========================================================================
   // Variables
 
+  private boolean mIsUnresolved = false;
   private String mPackageName = null;
 
   // name of the class we extend, or null
@@ -200,7 +201,7 @@ public class EClassImpl extends EMemberImpl
   }
 
   public boolean isUnresolved() {
-    return false;
+    return mIsUnresolved;
   }
 
   // ========================================================================
@@ -211,8 +212,7 @@ public class EClassImpl extends EMemberImpl
   }
 
   public void setSuperclassUnqualified(String unqualifiedClassName) {
-    //FIXME
-    setSuperclass(unqualifiedClassName);
+    mSuperClassRef = UnqualifiedJClassRef.create(unqualifiedClassName,this);
   }
 
   public void setSuperclass(JClass clazz) {
@@ -336,6 +336,10 @@ public class EClassImpl extends EMemberImpl
     mIsInterface = b;
   }
 
+  public void setIsUnresolved(boolean b) {
+    mIsUnresolved = b;
+  }
+
   public String getQualifiedName() {
     return mPackageName+ '.' +getSimpleName();
   }
@@ -350,6 +354,10 @@ public class EClassImpl extends EMemberImpl
 
   // ========================================================================
   // JClassRefContext implementation
+
+  public String getPackageName() {
+    return mPackageName;
+  }
 
   public String[] getImportSpecs() {
     if (mImports == null) return new String[0];

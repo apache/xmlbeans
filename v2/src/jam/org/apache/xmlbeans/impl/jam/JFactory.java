@@ -23,7 +23,8 @@ import org.apache.xmlbeans.impl.jam.internal.JFileSetImpl;
 import org.apache.xmlbeans.impl.jam.internal.JamPrinter;
 import org.apache.xmlbeans.impl.jam.internal.javadoc.JDClassLoader;
 import org.apache.xmlbeans.impl.jam.internal.javadoc.JDClassLoaderFactory;
-import org.apache.xmlbeans.impl.jam.internal.reflect.RClassLoader;
+import org.apache.xmlbeans.impl.jam.provider.ReflectionClassBuilder;
+
 
 /**
  * Start here! Entry point into the JAM subsystem.  JFactory is a singleton
@@ -65,7 +66,8 @@ public class JFactory {
   // Constants
 
   private JClassLoader SYSTEM_CL =
-    new RClassLoader(ClassLoader.getSystemClassLoader());
+          ReflectionClassBuilder.createRClassLoader
+          (ClassLoader.getSystemClassLoader());
   // REVIEW i think this needs to be even more special
 
   // ========================================================================
@@ -218,7 +220,7 @@ public class JFactory {
   public JClassLoader createClassLoader(ClassLoader cl,
                                         JClassLoader parent,
                                         JAnnotationLoader annLoader) {
-    return new RClassLoader(cl,parent);//FIXME
+    return ReflectionClassBuilder.createRClassLoader(cl);//FIXME
   }
 
   public JClassLoader getSystemClassLoader() { return SYSTEM_CL; }

@@ -107,7 +107,9 @@ public class GoldenMethod {
   public void compare(JMethod method, boolean compareParamNames, Assert a) {
     a.assertTrue("method names are different",
                  method.getSimpleName().equals(mName));
-    a.assertTrue("return types are different",
+    a.assertTrue("return types are different ["+
+                 method.getReturnType().getQualifiedName()+","+
+                 mReturnType+"]",
                  method.getReturnType().getQualifiedName().equals(mReturnType));
     a.assertTrue("modifiers are different on "+method.getSimpleName()+
                  "["+method.getModifiers()+","+mModifers+"]",
