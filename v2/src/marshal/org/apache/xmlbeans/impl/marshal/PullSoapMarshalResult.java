@@ -22,7 +22,7 @@ import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
 import javax.xml.namespace.NamespaceContext;
 import javax.xml.namespace.QName;
 
-abstract class SoapMarshalResult
+abstract class PullSoapMarshalResult
     extends PullMarshalResult
 {
     private final ObjectRefTable objectRefTable;
@@ -32,7 +32,7 @@ abstract class SoapMarshalResult
 
 
     //TODO: REVIEW: consider ways to reduce the number of parameters here
-    SoapMarshalResult(BindingLoader loader,
+    PullSoapMarshalResult(BindingLoader loader,
                       RuntimeBindingTypeTable tbl,
                       NamespaceContext root_nsctx,
                       RuntimeBindingProperty property,

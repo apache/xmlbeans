@@ -23,7 +23,7 @@ import javax.xml.namespace.NamespaceContext;
 import javax.xml.namespace.QName;
 
 final class Soap11MarshalResult
-    extends SoapMarshalResult
+    extends PullSoapMarshalResult
 {
 
     private static final QName ID_NAME = new QName("id");
