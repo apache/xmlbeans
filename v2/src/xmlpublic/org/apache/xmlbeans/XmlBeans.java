@@ -42,10 +42,16 @@ public final class XmlBeans
         XMLBEANS_VERSION = pkg.getImplementationVersion();
         XMLBEANS_VENDOR = pkg.getImplementationVendor();
 
-        /*
         if (XMLBEANS_TITLE == null || XMLBEANS_VERSION == null || XMLBEANS_VENDOR == null)
-            throw new RuntimeException("missing manifest information");
-        */
+        {
+            try {
+                throw new Exception("missing manifest information");
+            }
+            catch (Exception e) {
+                System.err.println("XMLBEANS DEBUG missing manifest information");
+                e.printStackTrace();
+            }
+        }
     }
 
     /**
