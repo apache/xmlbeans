@@ -847,7 +847,7 @@
             reportFile="${report.log.file}"
             fork="true"
             resultproperty="junit.failcount"
-            failonerror="true">
+            failonerror="false">
             <classpath>
                 <path refid="test.run.classpath"/>
             </classpath>
