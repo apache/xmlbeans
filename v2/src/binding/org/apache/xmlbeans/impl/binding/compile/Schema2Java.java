@@ -59,9 +59,10 @@ package org.apache.xmlbeans.impl.binding.compile;
 import org.apache.xmlbeans.impl.binding.bts.*;
 import org.apache.xmlbeans.impl.binding.tylar.TylarWriter;
 import org.apache.xmlbeans.impl.binding.tylar.TylarConstants;
-import org.apache.xmlbeans.impl.binding.joust.JavaOutputStream;
+import org.apache.xmlbeans.impl.binding.tylar.ExplodedTylarImpl;
 import org.apache.xmlbeans.impl.binding.joust.Variable;
 import org.apache.xmlbeans.impl.binding.joust.CompilingJavaOutputStream;
+import org.apache.xmlbeans.impl.binding.joust.JavaOutputStream;
 import org.apache.xmlbeans.impl.common.NameUtil;
 import org.apache.xmlbeans.*;
 import org.apache.xmlbeans.soap.SOAPArrayType;
@@ -100,7 +101,8 @@ public class Schema2Java extends BindingCompiler {
   private BindingLoader mLoader;
   private int structureCount;
   private BindingFile bindingFile = new BindingFile();
-  private CompilingJavaOutputStream mJoust;
+  private JavaOutputStream mJoust = null;
+  private CompilingJavaOutputStream mDefaultJoust = null;
 
   // ========================================================================
   // Constructors
@@ -110,8 +112,6 @@ public class Schema2Java extends BindingCompiler {
    */
   public Schema2Java(SchemaTypeSystem s) {
     setSchemaTypeSystem(s);
-    mJoust = new CompilingJavaOutputStream();
-    mJoust.setLogger(this);
   }
 
   /**
@@ -134,7 +134,7 @@ public class Schema2Java extends BindingCompiler {
    */
   public void setCompileJava(boolean b) {
     assertCompilationStarted(false);
-    mJoust.setDoCompile(b);
+    getDefaultJoust().setDoCompile(b);
   }
 
   /**
@@ -145,7 +145,7 @@ public class Schema2Java extends BindingCompiler {
    */
   public void setJavac(String javacPath) {
     assertCompilationStarted(false);
-    mJoust.setJavac(javacPath);
+    getDefaultJoust().setJavac(javacPath);
   }
 
   /**
@@ -156,7 +156,7 @@ public class Schema2Java extends BindingCompiler {
    */
   public void setJavacClasspath(File[] classpath) {
     assertCompilationStarted(false);
-    mJoust.setJavacClasspath(classpath);
+    getDefaultJoust().setJavacClasspath(classpath);
   }
 
   /**
@@ -168,28 +168,41 @@ public class Schema2Java extends BindingCompiler {
    */
   public void setKeepGeneratedJava(boolean b) {
     assertCompilationStarted(false);
-    mJoust.setKeepGenerated(b);
-  }
+    getDefaultJoust().setKeepGenerated(b);
+ }
 
   // ========================================================================
   // BindingCompiler implementation
 
-  public JavaOutputStream getJoust(File tylarDestDir) {
-    mJoust.setSourceDir(new File(tylarDestDir,TylarConstants.SRC_ROOT));
-    mJoust.setCompilationDir(tylarDestDir);
-    return mJoust;
+  /**
+   * We override this method because we need the bindAs... tylar to include
+   * the defaultJoust.
+   */
+  protected ExplodedTylarImpl createDefaultExplodedTylarImpl(File tylarDestDir)
+          throws IOException
+  {
+    CompilingJavaOutputStream joust = getDefaultJoust();
+    joust.setSourceDir(new File(tylarDestDir,TylarConstants.SRC_ROOT));
+    joust.setCompilationDir(tylarDestDir);
+    mJoust = joust;
+    return ExplodedTylarImpl.create(tylarDestDir,mJoust);
   }
 
   /**
-   * Computes the binding.
+   * Computes the binding.  Note that the given TylarWriter MUST provide
+   * a JavaOutputStream or an IllegalArgumentException will be thrown.  Note
+   * also that if you call this method, the various parameters on this object
+   * pertaining to java compilation (e.g. setJavacPath) will be ignored.
    */
   public void bind(TylarWriter writer) {
     if (sts == null) throw new IllegalStateException("SchemaTypeSystem not set");
-    super.notifyCompilationStarted();
-    if (writer.getJavaOutputStream() == null) {
+    if ((mJoust = writer.getJavaOutputStream()) == null) {
       //sanity check
-      throw new IllegalStateException("joust is null");
+      throw new IllegalArgumentException("The specified TylarWriter does not " +
+              "provide a JavaOutputStream, and so it cannot be used with "+
+              "schema2java.");
     }
+    super.notifyCompilationStarted();
     bind();
     try {
       writer.writeBindingFile(bindingFile);
@@ -203,7 +216,17 @@ public class Schema2Java extends BindingCompiler {
   // ========================================================================
   // Private methods
 
+  private CompilingJavaOutputStream getDefaultJoust() {
+    if (mDefaultJoust == null) {
+      mDefaultJoust = new CompilingJavaOutputStream();
+      mDefaultJoust.setLogger(this);
+    }
+    return mDefaultJoust;
+  }
+
   private void bind() {
+    //sanity check
+    if (mJoust == null) throw new IllegalStateException("joust not set");
 
     mLoader = super.getBaseBindingLoader();
 

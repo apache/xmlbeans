@@ -120,6 +120,7 @@ public class CompilingJavaOutputStream extends SourceJavaOutputStream
   // ========================================================================
   // Public methods
 
+  //REVIEW the naming this directory 'source' seems a little confusing
   /**
    * Sets the source directory to which files will be written.  This can
    * safely be changed mistream if desired.
@@ -179,7 +180,7 @@ public class CompilingJavaOutputStream extends SourceJavaOutputStream
   public Writer createWriter(String packageName, String className)
           throws IOException {
     if (mWriterFactoryDelegate == null) {
-      throw new IllegalStateException("setSourceDir never called on the "+
+      throw new IllegalStateException("delegate never set called on the "+
                                       "CompilingJavaOutputStream");
     }
     File out = mWriterFactoryDelegate.createFile(packageName,className);

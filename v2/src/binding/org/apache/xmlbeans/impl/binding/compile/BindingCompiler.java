@@ -117,10 +117,16 @@ public abstract class BindingCompiler extends BindingLogger
   public abstract void bind(TylarWriter writer);
 
   /**
-   * Should be overridden by subclasses which want a java output stream
-   * attached to TylarWriters.
+   * Creates the ExplodedTylarImpl/Writer to be used when one of the bindAs...
+   * methods is invoked.  This can be overridden by subclasses that need
+   * to do more than simply create an ExplodedTylarImpl (such as attach
+   * a JavaOutputStream).
    */
-  protected JavaOutputStream getJoust(File tylarDestDir) { return null; }
+  protected ExplodedTylarImpl createDefaultExplodedTylarImpl(File destDir)
+          throws IOException
+  {
+    return ExplodedTylarImpl.create(destDir,null);
+  }
 
   // ========================================================================
   // Public methods
@@ -132,7 +138,7 @@ public abstract class BindingCompiler extends BindingLogger
   public ExplodedTylar bindAsExplodedTylar(File tylarDestDir)  {
     ExplodedTylarImpl tylar;
     try {
-      tylar = ExplodedTylarImpl.create(tylarDestDir,getJoust(tylarDestDir));
+      tylar = createDefaultExplodedTylarImpl(tylarDestDir);
     } catch(IOException ioe) {
       logError(ioe);
       return null;
