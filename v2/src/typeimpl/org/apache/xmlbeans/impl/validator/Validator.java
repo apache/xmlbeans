@@ -1314,6 +1314,7 @@ public final class Validator
 
         SchemaType itemType = type.getListItemType();
         _listValue = new ArrayList();
+        _listTypes = new ArrayList();
 
         for ( i = 0 ; i < items.length ; i++ )
         {
@@ -1470,10 +1471,13 @@ public final class Validator
             _unionType = null;
         }
 
+        _listTypes.add(type);
+
         switch ( type.getPrimitiveType().getBuiltinTypeCode() )
         {
             case SchemaType.BTC_ANY_SIMPLE :
                 {
+                    _listValue.add(_stringValue);
                     break;
                 }
             case SchemaType.BTC_STRING :
@@ -1514,6 +1518,7 @@ public final class Validator
                 }
             case SchemaType.BTC_ANY_URI :
                 {
+                    _listTypes.add(_stringValue);
                     break;
                 }
             case SchemaType.BTC_DATE_TIME :
@@ -1593,6 +1598,7 @@ public final class Validator
     private GDuration _gdurationValue;
     private byte[] _byteArrayValue;
     private List _listValue;
+    private List _listTypes;
 
     private void resetValues()
     {
@@ -1608,6 +1614,7 @@ public final class Validator
         _gdurationValue = null;
         _byteArrayValue = null;
         _listValue = null;
+        _listTypes = null;
         _unionType = null;
         _localAttribute = null;
     }
@@ -1680,6 +1687,11 @@ public final class Validator
     public List getListValue()
     {
         return _listValue;
+    }
+
+    public List getListTypes()
+    {
+        return _listTypes;
     }
 
     public SchemaType getUnionType()
