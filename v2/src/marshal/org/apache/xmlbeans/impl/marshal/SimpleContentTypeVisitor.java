@@ -43,11 +43,6 @@ final class SimpleContentTypeVisitor
     }
 
 
-    protected CharSequence getCharData()
-    {
-        throw new IllegalStateException("not text: " + this);
-    }
-
     private int getMaxAttributePropCount()
     {
         return getParentObject() == null ? 0 : type.getAttributePropertyCount();
