@@ -54,15 +54,25 @@ public abstract class AnnotatedElementImpl extends ElementImpl
     return getMutableAnnotation(named);
   }
 
-  public JAnnotationValue getAnnotationValue(String valueName) {
+  public JAnnotationValue getAnnotationValue(String valueId) {
     if (mName2Annotation == null) return null;
-    int delim = valueName.indexOf('@');
-    if (delim == -1) {
-      throw new IllegalArgumentException("value identifiers must include an '@'"+
-                                         valueName);
+    valueId = valueId.trim();
+
+    int delim = valueId.indexOf('@');
+    if (delim == -1 || delim == valueId.length()-1) {
+          System.out.println("--- single   "+valueId);
+      JAnnotation ann = getAnnotation(valueId);
+      if (ann == null) return null;
+      return ann.getValue(JAnnotation.SINGLE_VALUE_NAME);
+    } else {
+      System.out.println("--- double '"+valueId.substring(0,delim)+"'   '"+
+                         valueId.substring(delim+1)+"'");
+      JAnnotation ann = getAnnotation(valueId.substring(0,delim));
+      System.out.println("    the ann is "+ann);
+      if (ann == null) return null;
+
+      return ann.getValue(valueId.substring(delim+1));
     }
-    JAnnotation out = getAnnotation(valueName.substring(0,delim));
-    return out.getValue(valueName.substring(delim+1));
   }
 
 

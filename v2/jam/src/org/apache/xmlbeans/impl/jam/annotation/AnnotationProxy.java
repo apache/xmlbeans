@@ -184,6 +184,8 @@ public abstract class AnnotationProxy {
 
   public void initFromJavadocTag(String tagline) {
     if (tagline == null) throw new IllegalArgumentException("null tagline");
+    tagline = tagline.trim();
+    if (tagline.length() == 0) return;
     Properties props = new Properties();
     parseAssignments(props,tagline);
     if (props.size() == 0) {

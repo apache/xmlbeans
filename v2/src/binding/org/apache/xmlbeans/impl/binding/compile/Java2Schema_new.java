@@ -18,6 +18,7 @@ package org.apache.xmlbeans.impl.binding.compile;
 import org.apache.xmlbeans.impl.binding.bts.*;
 import org.apache.xmlbeans.impl.binding.tylar.TylarWriter;
 import org.apache.xmlbeans.impl.jam.*;
+import org.apache.xmlbeans.impl.jam.visitor.MVisitor;
 import org.apache.xmlbeans.impl.common.XMLChar;
 import org.w3.x2001.xmlSchema.*;
 import javax.xml.namespace.QName;

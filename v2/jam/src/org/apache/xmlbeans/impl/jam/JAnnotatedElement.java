@@ -48,8 +48,17 @@ public abstract interface JAnnotatedElement extends JElement {
    */
   public JAnnotation getAnnotation(String tagnameProxynameOr175typename);
 
-  //docme
-  public JAnnotationValue getAnnotationValue(String name);
+
+  /**
+   * Shortcut method which returns a given annotation value.  The 'valueId'
+   * should be a string of the format 'annotation-name@value-name'.  The
+   * value-name may be ommitted; if it is, it defaults to
+   * JAnntoation.SINGLE_MEMBER_VALUE.
+   *
+   * @param valueId
+   * @return
+   */
+  public JAnnotationValue getAnnotationValue(String valueId);
 
   /**
    * <p>Returns the comment associated with this abstraction.
