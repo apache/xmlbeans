@@ -33,6 +33,8 @@ import javax.xml.soap.SOAPHeader;
 import javax.xml.soap.SOAPHeaderElement;
 import javax.xml.soap.SOAPPart;
 
+import javax.xml.stream.XMLStreamReader;
+
 import java.io.PrintStream;
 
 import java.util.ArrayList;
@@ -2780,6 +2782,33 @@ final class DomImpl
     //////////////////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////////////////
 
+    public static String _processingInstruction_getData ( Dom p )
+    {
+        throw new RuntimeException( "Not implemented" );
+    }
+
+    //////////////////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////////////////
+
+    public static String _processingInstruction_getTarget ( Dom p )
+    {
+        throw new RuntimeException( "Not implemented" );
+    }
+
+    //////////////////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////////////////
+
+    public static void _processingInstruction_setData ( Dom p, String data )
+    {
+        throw new RuntimeException( "Not implemented" );
+    }
+
+    //////////////////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////////////////
+
     public static boolean _attr_getSpecified ( Dom a )
     {
         // Can't tell the difference
@@ -2954,6 +2983,76 @@ final class DomImpl
         return (Text) t2;
     }
     
+    //////////////////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////////////////
+    
+    public static XMLStreamReader _getXmlStreamReader ( Dom n )
+    {
+        Locale l = n.locale();
+
+        if (l.noSync())         { l.enter(); try { return getXmlStreamReader( n ); } finally { l.exit(); } }
+        else synchronized ( l ) { l.enter(); try { return getXmlStreamReader( n ); } finally { l.exit(); } }
+    }
+    
+    public static XMLStreamReader getXmlStreamReader ( Dom n )
+    {
+        XMLStreamReader xs;
+        
+        switch ( n.nodeType() )
+        {
+        case DOCUMENT :
+        case DOCFRAG :
+        case ATTR :
+        case ELEMENT :
+        case PROCINST :
+        case COMMENT :
+        {
+            Cur c = n.tempCur();
+            xs = Jsr173.newXmlStreamReader( c );
+            c.release();
+            break;
+        }
+            
+        case TEXT :
+        case CDATA :
+        {
+            CharNode cn = (CharNode) n;
+
+            Cur c;
+
+            if ((c = cn.tempCur()) == null)
+            {
+                c = n.locale().tempCur();
+                
+                xs = Jsr173.newXmlStreamReader( c, cn._src, cn._off, cn._cch );
+            }
+            else
+            {
+                xs =
+                    Jsr173.newXmlStreamReader(
+                        c , c.getChars( cn._cch ), c._offSrc, c._cchSrc );
+                
+            }
+
+            c.release();
+            
+            break;
+        }
+            
+        case ENTITYREF :
+        case ENTITY :
+        case DOCTYPE :
+        case NOTATION :
+            throw new RuntimeException( "Not impl" );
+            
+        default : throw new RuntimeException( "Unknown kind" );
+        }
+
+        return xs;
+    }
+
+
     //////////////////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////////////////
@@ -3998,4 +4097,145 @@ final class DomImpl
         if (l.noSync())         { l.enter(); try { return l._saaj.soapPart_getNonMatchingMimeHeaders( sp, names ); } finally { l.exit(); } }
         else synchronized ( l ) { l.enter(); try { return l._saaj.soapPart_getNonMatchingMimeHeaders( sp, names ); } finally { l.exit(); } }
     }
+
+    //
+    // Saaj callback
+    //
+    
+    private static class SaajData
+    {
+        Object _obj;
+    }
+
+    public static void saajCallback_setSaajData ( Dom d, Object o )
+    {
+        Locale l = d.locale();
+
+        if (l.noSync())         { l.enter(); try { impl_saajCallback_setSaajData( d, o ); } finally { l.exit(); } }
+        else synchronized ( l ) { l.enter(); try { impl_saajCallback_setSaajData( d, o ); } finally { l.exit(); } }
+    }
+    
+    public static void impl_saajCallback_setSaajData ( Dom d, Object o )
+    {
+        Locale l = d.locale();
+
+        Cur c = l.tempCur();
+
+        c.moveToDom( d );
+
+        SaajData sd = null;
+
+        if (o != null)
+        {
+            sd = (SaajData) c.getBookmark( SaajData.class );
+
+            if (sd == null)
+                sd = new SaajData();
+
+            sd._obj = o;
+        }
+        
+        c.setBookmark( SaajData.class, sd );
+
+        c.release();
+    }
+
+    public static Object saajCallback_getSaajData ( Dom d )
+    {
+        Locale l = d.locale();
+
+        if (l.noSync())         { l.enter(); try { return impl_saajCallback_getSaajData( d ); } finally { l.exit(); } }
+        else synchronized ( l ) { l.enter(); try { return impl_saajCallback_getSaajData( d ); } finally { l.exit(); } }
+    }
+    
+    public static Object impl_saajCallback_getSaajData ( Dom d )
+    {
+        Locale l = d.locale();
+
+        Cur c = l.tempCur();
+
+        c.moveToDom( d );
+
+        SaajData sd = (SaajData) c.getBookmark( SaajData.class );
+
+        Object o = sd == null ? null : sd._obj;
+
+        c.release();
+
+        return o;
+    }
+
+    public static Element saajCallback_createSoapElement ( Dom d, QName name, QName parentName )
+    {
+        Locale l = d.locale();
+
+        Dom e;
+
+        if (l.noSync())         { l.enter(); try { e = impl_saajCallback_createSoapElement( d, name, parentName ); } finally { l.exit(); } }
+        else synchronized ( l ) { l.enter(); try { e = impl_saajCallback_createSoapElement( d, name, parentName ); } finally { l.exit(); } }
+
+        return (Element) e;
+    }
+    
+    public static Dom impl_saajCallback_createSoapElement ( Dom d, QName name, QName parentName )
+    {
+        Cur c = d.locale().tempCur();
+        
+        c.createElement( name, parentName );
+        
+        Dom e = c.getDom();
+        
+        c.release();
+        
+        return e;
+    }
+        
+    public static Element saajCallback_importSoapElement (
+        Dom d, Element elem, boolean deep, QName parentName )
+    {
+        Locale l = d.locale();
+
+        Dom e;
+
+        if (l.noSync())         { l.enter(); try { e = impl_saajCallback_importSoapElement( d, elem, deep, parentName ); } finally { l.exit(); } }
+        else synchronized ( l ) { l.enter(); try { e = impl_saajCallback_importSoapElement( d, elem, deep, parentName ); } finally { l.exit(); } }
+
+        return (Element) e;
+    }
+    
+    public static Dom impl_saajCallback_importSoapElement (
+        Dom d, Element elem, boolean deep, QName parentName )
+    {
+        // TODO -- need to rewrite DomImpl.document_importNode to use an Xcur
+        // to create the new tree.  Then, I can pass the parentName to the new
+        // fcn and use it to create the correct root parent
+        
+        throw new RuntimeException( "Not impl" );
+    }
+
+    
+    public static Text saajCallback_ensureSoapTextNode ( Dom d )
+    {
+        Locale l = d.locale();
+
+        if (l.noSync())         { l.enter(); try { return impl_saajCallback_ensureSoapTextNode( d ); } finally { l.exit(); } }
+        else synchronized ( l ) { l.enter(); try { return impl_saajCallback_ensureSoapTextNode( d ); } finally { l.exit(); } }
+    }
+    
+    public static Text impl_saajCallback_ensureSoapTextNode ( Dom d )
+    {
+//        if (!(d instanceof Text))
+//        {
+//            Xcur x = d.tempCur();
+//
+//            x.moveTo
+//
+//            x.release();
+//        }
+//        
+//        return (Text) d;
+
+        return null;
+    }
+    
 }

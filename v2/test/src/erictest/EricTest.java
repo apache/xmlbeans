@@ -113,17 +113,9 @@ public class EricTest
 {
     public static void main ( String[] args ) throws Exception
     {
-        DOMImplementation impl = Public2.getDomImplementation();
+        Document doc = Public2.parse( "<foo x='y'>asas<bar/>asas</foo>" );
 
-        Document doc = impl.createDocument( "", "foo", null );
-
-        Element elem = doc.getDocumentElement();
-
-        Element e = doc.createElement( "moo" );
-
-        elem.appendChild( e );
-
-        Public2.dump( elem );
+        Public2.dump( doc );
 
         
 
