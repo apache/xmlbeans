@@ -67,6 +67,7 @@ import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.SchemaParticle;
 import org.apache.xmlbeans.SchemaGlobalAttribute;
 import org.apache.xmlbeans.SchemaAttributeModel;
+import org.apache.xmlbeans.SchemaTypeElementSequencer;
 import org.apache.xmlbeans.SchemaTypeSystem;
 import org.apache.xmlbeans.SchemaProperty;
 import org.apache.xmlbeans.QNameSet;
@@ -426,6 +427,14 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory
 
     public void setComplexTypeVariety(int complexTypeVariety)
         { assertResolving(); _complexTypeVariety = complexTypeVariety; }
+
+    public SchemaTypeElementSequencer getElementSequencer()
+    {
+        if (_complexTypeVariety == NOT_COMPLEX_TYPE)
+            return new SequencerImpl(null);
+
+        return new SequencerImpl(new SchemaTypeVisitorImpl(_contentModel));
+    }
 
     /** Set the abstract and final flags for a complex type */
     void setAbstractFinal(
@@ -818,16 +827,18 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory
         }
         else
         {
-            if (!_typedWildcardElements.contains(eltName))
+            if (!_typedWildcardElements.contains(eltName) || wildcardTypeLoader == null)
                 return BuiltinSchemaTypeSystem.ST_NO_TYPE;
 
             SchemaGlobalElement elt = wildcardTypeLoader.findElement(eltName);
             if (elt == null)
                 return BuiltinSchemaTypeSystem.ST_NO_TYPE;
+            // According to http://www.w3.org/TR/xmlschema-1/#key-lva,
+            // the line above should return ST_ANY_TYPE.
             type = elt.getType();
         }
 
-        if (xsiType != null)
+        if (xsiType != null && wildcardTypeLoader != null)
         {
             SchemaType itype = wildcardTypeLoader.findType(xsiType);
 
@@ -855,7 +866,7 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory
         if (prop != null)
             return prop.getType();
 
-        if (!_typedWildcardAttributes.contains(attrName))
+        if (!_typedWildcardAttributes.contains(attrName) || wildcardTypeLoader == null)
             return BuiltinSchemaTypeSystem.ST_NO_TYPE;
 
         SchemaGlobalAttribute attr = wildcardTypeLoader.findAttribute(attrName);
@@ -1054,7 +1065,7 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory
 
     public SchemaType[] getUnionMemberTypes()
     {
-        SchemaType[] result = new SchemaType[_unionMemberTyperefs.length];
+        SchemaType[] result = new SchemaType[_unionMemberTyperefs ==null ? 0 : _unionMemberTyperefs.length];
         for (int i = 0; i < result.length; i++)
             result[i] = _unionMemberTyperefs[i].get();
         return result;
@@ -2003,4 +2014,32 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory
     public SchemaComponent.Ref getComponentRef()
         { return getRef(); }
 
+    /**
+     * Gives access to the internals of element validation
+     */
+    private static class SequencerImpl implements SchemaTypeElementSequencer
+    {
+        private SchemaTypeVisitorImpl _visitor;
+
+        private SequencerImpl(SchemaTypeVisitorImpl visitor)
+        {
+            _visitor = visitor;
+        }
+
+        public boolean next(QName elementName)
+        {
+            if (_visitor == null)
+                return false;
+
+            return _visitor.visit(elementName);
+        }
+
+        public boolean peek(QName elementName)
+        {
+            if (_visitor == null)
+                return false;
+
+            return _visitor.testValid(elementName);
+        }
+    }
 }

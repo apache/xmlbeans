@@ -54,47 +54,31 @@
 * Foundation, please see <http://www.apache.org/>.
 */
 
-package org.apache.xmlbeans.impl.values;
+package org.apache.xmlbeans;
 
-import org.apache.xmlbeans.SchemaType;
-import org.apache.xmlbeans.impl.common.ValidationContext;
-import org.apache.xmlbeans.impl.common.QNameHelper;
+import javax.xml.namespace.QName;
 
-
-
-public abstract class JavaBooleanHolderEx extends JavaBooleanHolder
+/**
+ * This class is used to programatically validate the contents of an
+ * XML element.Call to both {@link #next} and {@link #peek}
+ * will return true if the element
+ * with the provided name is allowed at the current position in the element
+ * content, the difference being that {@link #next} will advance
+ * the current position, while {@link #peek} won't.
+ *
+ * @see SchemaType#getElementSequencer
+ */
+public interface SchemaTypeElementSequencer
 {
-    private SchemaType _schemaType;
+    /**
+     * Returns true if the element with the given name is valid at the
+     * current position. Advances the current position.
+     */
+    boolean next(QName elementName);
 
-    public SchemaType schemaType()
-        { return _schemaType; }
-
-    public static boolean validateLexical(String v, SchemaType sType, ValidationContext context)
-    {
-        boolean b = JavaBooleanHolder.validateLexical(v, context);
-        validatePattern(v, sType, context);
-        return b;
-    }
-    
-    public static void validatePattern(String v, SchemaType sType, ValidationContext context)
-    {
-        // the only new facet that can apply to booleans is pattern!
-        if (!sType.matchPatternFacet(v))
-            context.invalid("Boolean (" + v + ") does not match pattern for " + QNameHelper.readable(sType));
-    }
-    
-    public JavaBooleanHolderEx(SchemaType type, boolean complex)
-        { _schemaType = type; initComplexType(complex, false); }
-
-    protected void set_text(String s)
-    {
-        if (_validateOnSet())
-            validatePattern(s, _schemaType, _voorVc);
-        super.set_text(s);
-    }
-
-    protected void validate_simpleval(String lexical, ValidationContext ctx)
-    {
-        validateLexical(lexical, schemaType(), ctx);
-    }
+    /**
+     * Return true if the element with the given name is valid at the
+     * current position. Does not advance the current position.
+     */
+    boolean peek(QName elementName);
 }
