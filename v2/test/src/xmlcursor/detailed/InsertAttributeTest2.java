@@ -56,13 +56,14 @@ public class InsertAttributeTest2 extends BasicCursorTestCase {
     public void testNormalCase(){
 	for (int i=0;i<50;i++){
 	    m_xc.insertAttribute("at"+i,"com.bea.foo");
-	    System.out.println(i);
+	    //System.out.println(i);
 	}
 	toPrevTokenOfType(m_xc, TokenType.ATTR);
 
 	int i=0;
 	do{
-	    i++;System.out.println(m_xc.xmlText());
+	    i++;
+        //System.out.println(m_xc.xmlText());
 	}while(m_xc.toPrevAttribute());
 
 	assertEquals(i,50);
@@ -122,7 +123,7 @@ public class InsertAttributeTest2 extends BasicCursorTestCase {
 	toPrevTokenOfType(m_xc,XmlCursor.TokenType.START);
 	m_xc.toFirstAttribute();
 	int i=1;
-	System.out.println(m_xc.xmlText());
+//	System.out.println(m_xc.xmlText());
 	while(m_xc.toNextAttribute()) i++;
 	assertEquals(i,2);
     }

@@ -176,7 +176,7 @@ clause 5.2.2.1 of
         assertTrue (! doc.validate(validateOptions));
         showErrors();
         String[] expected=new String[]
-        {XmlErrorCodes.ELEM_LOCALLY_VALID};
+        {XmlErrorCodes.ELEM_LOCALLY_VALID$FIXED_WITH_CONTENT};
         assertTrue(compareErrorCodes(expected));
 
     }

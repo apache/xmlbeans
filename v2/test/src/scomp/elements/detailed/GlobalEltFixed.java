@@ -84,4 +84,6 @@ public class GlobalEltFixed extends BaseCase {
         assertTrue(compareErrorCodes(errExpected));
 
     }
+
+   
 }

@@ -45,13 +45,13 @@ public class XmlObjectAbstractClassTest
         // create the source file
         //String src = JarUtil.getResourceFromJarasStream(Common.XMLCASES_JAR, "xbean/xmlobject/SimpleXmlObject.java.txt");
         File to = new File("SimpleXmlObject.java");
-        assertTrue("Could not create source file",
-                copyTo(
-                        new InputStreamReader(
+        InputStreamReader r=new InputStreamReader(
                                 JarUtil.getResourceFromJarasStream(
-                                        "xbean/xmlobject/SimpleXmlObject.java.txt")),
-                        to));
-        assertTrue("Could not compile SimpleXmlObject.java", compileFile(to));
+                                        "xbean/xmlobject/SimpleXmlObject.java.txt"));
+        assertTrue("Could not create source file",
+                copyTo(r , to));
+        assertTrue("Could not compile SimpleXmlObject.java",
+                compileFile(to));
     }
 
 

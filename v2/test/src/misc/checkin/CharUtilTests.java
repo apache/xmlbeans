@@ -39,7 +39,8 @@ public class CharUtilTests extends TestCase
     }
 
     private static class Triple
-    {
+    {                                 
+
         Triple ( Object src, int off, int cch )
         {
             _src = src;

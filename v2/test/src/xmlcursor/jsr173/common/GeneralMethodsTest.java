@@ -17,6 +17,8 @@ package xmlcursor.jsr173.common;
 
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.XmlOptions;
+import org.apache.xmlbeans.XmlDocumentProperties;
 
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.*;
@@ -47,7 +49,8 @@ import junit.framework.*;
  */
 public abstract class GeneralMethodsTest extends TestCase {
 
-     public abstract XMLStreamReader getStream(XmlCursor c)throws Exception;
+     public abstract XMLStreamReader getStream(XmlCursor c)
+             throws Exception;
     public void testClose() throws Exception {
         m_stream.close();
 
@@ -61,7 +64,11 @@ public abstract class GeneralMethodsTest extends TestCase {
           m_stream.next();
          m_stream.next();
         assertEquals("utf-8", m_stream.getCharacterEncodingScheme());
-        assertEquals("utf-8", m_stream.getEncoding());
+       //  Eric says this refers to actual encoding, not xml def
+        //  assertEquals("utf-8", m_stream.getEncoding());
+
+         assertEquals(null, m_stream1.getCharacterEncodingScheme());
+        assertEquals(null, m_stream1.getEncoding());
         //TODO: why is this still -1???
         Location l = m_stream.getLocation();
         assertEquals(-1, l.getCharacterOffset());
@@ -111,7 +118,12 @@ public abstract class GeneralMethodsTest extends TestCase {
         cur.insertProcInst("xml-stylesheet", "http://foobar");
 
         cur.toStartDoc();
-        m_stream = getStream( cur );;
+        XmlDocumentProperties opt=cur.documentProperties();
+
+        m_stream1 = getStream( cur );
+
+         opt.setEncoding("utf-8");
+        m_stream=  getStream( cur );
 
     }
 
@@ -121,7 +133,9 @@ public abstract class GeneralMethodsTest extends TestCase {
     }
 
     private XMLStreamReader m_stream;
+     private XMLStreamReader m_stream1;
     private XmlCursor cur;
+    private XmlOptions opt;
 
 
 }

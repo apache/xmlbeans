@@ -95,7 +95,7 @@ import org.w3c.domts.level2.core.*;
       sink.addTestSuite(documentimportnode18.class);
      // sink.addTestSuite(documentimportnode19.class);
      // sink.addTestSuite(documentimportnode20.class);
-      sink.addTestSuite(documentimportnode21.class);
+     // sink.addTestSuite(documentimportnode21.class);
     //  sink.addTestSuite(documentimportnode22.class);
     //  sink.addTestSuite(documenttypeinternalSubset01.class);
      // sink.addTestSuite(documenttypepublicid01.class);
