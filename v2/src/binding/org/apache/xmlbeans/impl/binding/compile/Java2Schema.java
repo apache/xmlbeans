@@ -253,7 +253,7 @@ public class Java2Schema extends BindingCompiler {
         if (annotatedType == null) {
           facade.setType(propType = props[i].getType());
         } else {
-          if (!props[i].getType().isArray()) {
+          if (props[i].getType().isArray()) {
             //THIS IS A QUICK GROSS HACK THAT SHOULD BE REMOVED.
             //IF SOMEONE WANTS TO AS TYPE AN ARRAY PROPERTY, THEY NEED
             //TO ASTYPE IT TO THE ARRAY TYPE THEMSELVES
