@@ -130,9 +130,25 @@ public class Jsr173
                 }
             }
 
-            assert _wholeDoc || !_cur.isSamePos( _end );
+            if (!_wholeDoc)
+            {
+                // Set the _done bit properly
+                
+                _cur.push();
+                
+                try
+                {
+                    next();
+                }
+                catch ( XMLStreamException e )
+                {
+                    throw new RuntimeException( e.getMessage(), e );
+                }
+                    
+                _cur.pop();
+            }
 
-            _done = false;
+            assert _wholeDoc || !_cur.isSamePos( _end );
         }
 
         protected Cur getCur ( )
@@ -196,9 +212,14 @@ public class Jsr173
                     _cur.toEnd();
                     _cur.next();
                 }
+                else if (kind == Cur.ROOT)
+                {
+                    if (!_cur.toFirstAttr())
+                        _cur.next();
+                }
                 else
                     _cur.next();
-
+                
                 _done = _end != null && _cur.isSamePos( _end );
             }
 
@@ -310,7 +331,7 @@ public class Jsr173
             Cur ca = c.tempCur();
             boolean match = false;
 
-            if (c.isContainer())
+            if (c.isElem())
             {
                 if (ca.toFirstAttr())
                 {
@@ -362,7 +383,7 @@ public class Jsr173
             Cur ca = c.tempCur();
             boolean match = false;
 
-            if (c.isContainer())
+            if (c.isElem())
             {
                 if (ca.toFirstAttr())
                 {
@@ -395,7 +416,7 @@ public class Jsr173
         {
             int n = 0;
             
-            if (_cur.isContainer())
+            if (_cur.isElem())
             {
                 Cur ca = _cur.tempCur();
                 
@@ -472,7 +493,7 @@ public class Jsr173
         {
             int n = 0;
 
-            if (_cur.isContainer())
+            if (_cur.isElem())
             {
                 Cur ca = _cur.tempCur();
 
@@ -504,7 +525,7 @@ public class Jsr173
             Cur ca = c.tempCur();
             boolean match = false;
 
-            if (c.isContainer())
+            if (c.isElem())
             {
                 if (ca.toFirstAttr())
                 {
