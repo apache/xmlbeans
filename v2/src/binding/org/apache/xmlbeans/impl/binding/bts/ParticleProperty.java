@@ -59,21 +59,24 @@ import org.apache.xmlbeans.impl.binding.bts.BindingProperty;
 
 /**
  * A property lined up by Schema particle.  Used by JaxbBean
- */ 
-public class ParticleProperty extends BindingProperty
-{
-    public ParticleProperty()
-    {
-        super();
-    }
+ */
+public class ParticleProperty extends BindingProperty {
 
-    public ParticleProperty(org.apache.xml.xmlbeans.bindingConfig.BindingProperty node)
-    {
-        super(node);
-    }
-    
-    public XmlTypeName getXmlName()
-    {
-        return getTypeName().getXmlName();
-    }
+  // ========================================================================
+  // Constructors
+
+  public ParticleProperty() {
+    super();
+  }
+
+  public ParticleProperty(org.apache.xml.xmlbeans.bindingConfig.BindingProperty node) {
+    super(node);
+  }
+
+  // ========================================================================
+  // Public methods
+
+  public XmlTypeName getXmlName() {
+    return getTypeName().getXmlName();
+  }
 }

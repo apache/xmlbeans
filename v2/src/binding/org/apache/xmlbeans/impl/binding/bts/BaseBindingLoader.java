@@ -62,92 +62,90 @@ import java.util.Collection;
 
 /**
  * Base class
- */ 
-public abstract class BaseBindingLoader implements BindingLoader
-{
-    private final Map bindingTypes = new LinkedHashMap();    // name-pair -> BindingType
-    private final Map xmlFromJava = new LinkedHashMap();     // javaName -> pair
-    private final Map xmlFromJavaElement = new LinkedHashMap(); // javaName -> pair (xml element)
-    private final Map javaFromXmlPojo = new LinkedHashMap(); // xmlName -> pair (pojo)
-    private final Map javaFromXmlObj = new LinkedHashMap();  // xmlName -> pair (xmlobj)
+ */
+public abstract class BaseBindingLoader implements BindingLoader {
 
-    public BindingType getBindingType(BindingTypeName btName)
-    {
-        return (BindingType)bindingTypes.get(btName);
-    }
+  // ========================================================================
+  // Variables
 
-    public BindingTypeName lookupPojoFor(XmlTypeName xName)
-    {
-        return (BindingTypeName)javaFromXmlPojo.get(xName);
-    }
+  private final Map bindingTypes = new LinkedHashMap();    // name-pair -> BindingType
+  private final Map xmlFromJava = new LinkedHashMap();     // javaName -> pair
+  private final Map xmlFromJavaElement = new LinkedHashMap(); // javaName -> pair (xml element)
+  private final Map javaFromXmlPojo = new LinkedHashMap(); // xmlName -> pair (pojo)
+  private final Map javaFromXmlObj = new LinkedHashMap();  // xmlName -> pair (xmlobj)
 
-    public BindingTypeName lookupXmlObjectFor(XmlTypeName xName)
-    {
-        return (BindingTypeName)javaFromXmlObj.get(xName);
-    }
+  // ========================================================================
+  // BindingLoader implementation
 
-    public BindingTypeName lookupTypeFor(JavaTypeName jName)
-    {
-        return (BindingTypeName)xmlFromJava.get(jName);
-    }
+  public BindingType getBindingType(BindingTypeName btName) {
+    return (BindingType) bindingTypes.get(btName);
+  }
 
-    public BindingTypeName lookupElementFor(JavaTypeName jName)
-    {
-        return (BindingTypeName)xmlFromJavaElement.get(jName);
-    }
-    
-    protected void addBindingType(BindingType bType)
-    {
-        bindingTypes.put(bType.getName(), bType);
-    }
-    
-    protected void addPojoFor(XmlTypeName xName, BindingTypeName btName)
-    {
-        assert(!btName.getJavaName().isXmlObject());
-        javaFromXmlPojo.put(xName, btName);
-    }
+  public BindingTypeName lookupPojoFor(XmlTypeName xName) {
+    return (BindingTypeName) javaFromXmlPojo.get(xName);
+  }
 
-    protected void addXmlObjectFor(XmlTypeName xName, BindingTypeName btName)
-    {
-        assert(btName.getJavaName().isXmlObject());
-        javaFromXmlObj.put(xName, btName);
-    }
+  public BindingTypeName lookupXmlObjectFor(XmlTypeName xName) {
+    return (BindingTypeName) javaFromXmlObj.get(xName);
+  }
 
-    protected void addTypeFor(JavaTypeName jName, BindingTypeName btName)
-    {
-        assert(btName.getXmlName().isSchemaType());
-        xmlFromJava.put(jName, btName);
-    }
+  public BindingTypeName lookupTypeFor(JavaTypeName jName) {
+    return (BindingTypeName) xmlFromJava.get(jName);
+  }
 
-    protected void addElementFor(JavaTypeName jName, BindingTypeName btName)
-    {
-        assert(btName.getXmlName().getComponentType() == XmlTypeName.ELEMENT) :
+  public BindingTypeName lookupElementFor(JavaTypeName jName) {
+    return (BindingTypeName) xmlFromJavaElement.get(jName);
+  }
+
+  // ========================================================================
+  // Other public methods
+
+  public Collection bindingTypes() {
+    return bindingTypes.values();
+  }
+
+  public Collection typeMappedJavaTypes() {
+    return xmlFromJava.keySet();
+  }
+
+  public Collection elementMappedJavaTypes() {
+    return xmlFromJavaElement.keySet();
+  }
+
+  public Collection pojoMappedXmlTypes() {
+    return javaFromXmlPojo.keySet();
+  }
+
+  public Collection xmlObjectMappedXmlTypes() {
+    return javaFromXmlObj.keySet();
+  }
+
+
+  // ========================================================================
+  // Protected methods
+
+  protected void addBindingType(BindingType bType) {
+    bindingTypes.put(bType.getName(), bType);
+  }
+
+  protected void addPojoFor(XmlTypeName xName, BindingTypeName btName) {
+    assert(!btName.getJavaName().isXmlObject());
+    javaFromXmlPojo.put(xName, btName);
+  }
+
+  protected void addXmlObjectFor(XmlTypeName xName, BindingTypeName btName) {
+    assert(btName.getJavaName().isXmlObject());
+    javaFromXmlObj.put(xName, btName);
+  }
+
+  protected void addTypeFor(JavaTypeName jName, BindingTypeName btName) {
+    assert(btName.getXmlName().isSchemaType());
+    xmlFromJava.put(jName, btName);
+  }
+
+  protected void addElementFor(JavaTypeName jName, BindingTypeName btName) {
+    assert(btName.getXmlName().getComponentType() == XmlTypeName.ELEMENT) :
             "not an element: " + btName;
-        xmlFromJavaElement.put(jName, btName);
-    }
-    
-    public Collection bindingTypes()
-    {
-        return bindingTypes.values();
-    }
-    
-    public Collection typeMappedJavaTypes()
-    {
-        return xmlFromJava.keySet();
-    }
-
-    public Collection elementMappedJavaTypes()
-    {
-        return xmlFromJavaElement.keySet();
-    }
-
-    public Collection pojoMappedXmlTypes()
-    {
-        return javaFromXmlPojo.keySet();
-    }
-
-    public Collection xmlObjectMappedXmlTypes()
-    {
-        return javaFromXmlObj.keySet();
-    }
+    xmlFromJavaElement.put(jName, btName);
+  }
 }

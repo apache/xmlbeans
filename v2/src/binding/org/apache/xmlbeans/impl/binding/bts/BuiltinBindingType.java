@@ -62,12 +62,14 @@ import org.apache.xmlbeans.impl.binding.bts.BindingType;
  * how the conversion works because it is assumed that the runtime
  * has builtin knowledge of how to make it happen.  Instances should
  * only be created by BuiltinBindingLoader.
- */ 
-public class BuiltinBindingType extends BindingType
-{
-    // note: only this one constructor; builtin binding types can't be loaded
-    public BuiltinBindingType(BindingTypeName btName)
-    {
-        super(btName);
-    }
+ */
+public class BuiltinBindingType extends BindingType {
+
+  // ========================================================================
+  // Constructors
+
+  // note: only this one constructor; builtin binding types can't be loaded
+  public BuiltinBindingType(BindingTypeName btName) {
+    super(btName);
+  }
 }

@@ -61,91 +61,101 @@ import org.apache.xmlbeans.SchemaType;
  * Represents a Java+XML component and a rule for getting between
  * them.
  */
-public abstract class BindingType
-{
-    private final BindingTypeName btName;
+public abstract class BindingType {
 
-    /**
-     * This kind of constructor is used when making a new one out of the blue.
-     *
-     * Subclasses should call super(..) when defining constructors that init new BindingTypes.
-     */
-    protected BindingType(BindingTypeName btName)
-    {
-        this.btName = btName;
-    }
+  // ========================================================================
+  // Variables
 
-    /**
-     * This constructor loads an instance from an XML file
-     *
-     * Subclasses should have ctors of the same signature and call super(..) first.
-     */
-    protected BindingType(org.apache.xml.xmlbeans.bindingConfig.BindingType node)
-    {
-        this.btName = BindingTypeName.forPair(
-                JavaTypeName.forString(node.getJavatype()),
-                XmlTypeName.forString(node.getXmlcomponent()));
-    }
+  private final BindingTypeName btName;
+
+  // ========================================================================
+  // Constructors
+
+  /**
+   * This kind of constructor is used when making a new one out of the blue.
+   *
+   * Subclasses should call super(..) when defining constructors that init new BindingTypes.
+   */
+  protected BindingType(BindingTypeName btName) {
+    this.btName = btName;
+  }
+
+  /**
+   * This constructor loads an instance from an XML file
+   *
+   * Subclasses should have ctors of the same signature and call super(..) first.
+   */
+  protected BindingType(org.apache.xml.xmlbeans.bindingConfig.BindingType node) {
+    this.btName = BindingTypeName.forPair(
+            JavaTypeName.forString(node.getJavatype()),
+            XmlTypeName.forString(node.getXmlcomponent()));
+  }
+
+
+  // ========================================================================
+  // Protected methods
 
   /**
    * This function copies an instance back out to the relevant part of the XML file.
    *
    * Subclasses should override and call super.write first.
    */
-  protected org.apache.xml.xmlbeans.bindingConfig.BindingType write(org.apache.xml.xmlbeans.bindingConfig.BindingType node)
+  protected org.apache.xml.xmlbeans.bindingConfig.BindingType write
+          (org.apache.xml.xmlbeans.bindingConfig.BindingType node)
   {
-      node = (org.apache.xml.xmlbeans.bindingConfig.BindingType)node.changeType(kinds.typeForClass(this.getClass()));
-      node.setJavatype(btName.getJavaName().toString());
-      node.setXmlcomponent(btName.getXmlName().toString());
-      return node;
+    node = (org.apache.xml.xmlbeans.bindingConfig.BindingType) node.changeType(kinds.typeForClass(this.getClass()));
+    node.setJavatype(btName.getJavaName().toString());
+    node.setXmlcomponent(btName.getXmlName().toString());
+    return node;
   }
 
-    public final BindingTypeName getName()
-    {
-        return btName;
+  // ========================================================================
+  // Public methods
+
+  public final BindingTypeName getName() {
+    return btName;
+  }
+
+  // ========================================================================
+  // Static initialization
+
+  /* REGISTRY OF SUBCLASSES */
+
+  private static final Class[] ctorArgs = new Class[]{org.apache.xml.xmlbeans.bindingConfig.BindingType.class};
+
+  public static BindingType loadFromBindingTypeNode(org.apache.xml.xmlbeans.bindingConfig.BindingType node) {
+    try {
+      Class clazz = kinds.classForType(node.schemaType());
+      return (BindingType) clazz.getConstructor(ctorArgs).newInstance(new Object[]{node});
+    } catch (Exception e) {
+      throw (IllegalStateException) new IllegalStateException("Cannot load class for " + node.schemaType() + ": should be registered.").initCause(e);
     }
+  }
 
-    /* REGISTRY OF SUBCLASSES */
+  /**
+   * Should only be called by BindingFile, when loading up bindingtypes
+   */
+  static KindRegistry kinds = new KindRegistry();
 
-    private static final Class[] ctorArgs = new Class[] {org.apache.xml.xmlbeans.bindingConfig.BindingType.class};
+  public static void registerClassAndType(Class clazz, SchemaType type) {
+    if (!BindingType.class.isAssignableFrom(clazz))
+      throw new IllegalArgumentException("Classes must inherit from BindingType");
+    if (!org.apache.xml.xmlbeans.bindingConfig.BindingType.type.isAssignableFrom(type))
+      throw new IllegalArgumentException("Schema types must inherit from binding-type");
+    kinds.registerClassAndType(clazz, type);
+  }
 
-    public static BindingType loadFromBindingTypeNode(org.apache.xml.xmlbeans.bindingConfig.BindingType node)
-    {
-        try
-        {
-            Class clazz = kinds.classForType(node.schemaType());
-            return (BindingType)clazz.getConstructor(ctorArgs).newInstance(new Object[] {node});
-        }
-        catch (Exception e)
-        {
-            throw (IllegalStateException)new IllegalStateException("Cannot load class for " + node.schemaType() + ": should be registered.").initCause(e);
-        }
-    }
+  static {
+    registerClassAndType(JaxbBean.class, org.apache.xml.xmlbeans.bindingConfig.JaxbBean.type);
+    registerClassAndType(ByNameBean.class, org.apache.xml.xmlbeans.bindingConfig.ByNameBean.type);
+    registerClassAndType(SimpleBindingType.class, org.apache.xml.xmlbeans.bindingConfig.SimpleType.type);
+    registerClassAndType(SimpleDocumentBinding.class, org.apache.xml.xmlbeans.bindingConfig.SimpleDocumentBinding.type);
+  }
 
-    /**
-     * Should only be called by BindingFile, when loading up bindingtypes
-     */
-    static KindRegistry kinds = new KindRegistry();
+  // ========================================================================
+  // Object implementation
 
-    public static void registerClassAndType(Class clazz, SchemaType type)
-    {
-        if (!BindingType.class.isAssignableFrom(clazz))
-            throw new IllegalArgumentException("Classes must inherit from BindingType");
-        if (!org.apache.xml.xmlbeans.bindingConfig.BindingType.type.isAssignableFrom(type))
-            throw new IllegalArgumentException("Schema types must inherit from binding-type");
-        kinds.registerClassAndType(clazz, type);
-    }
-
-    static
-    {
-        registerClassAndType(JaxbBean.class, org.apache.xml.xmlbeans.bindingConfig.JaxbBean.type);
-        registerClassAndType(ByNameBean.class, org.apache.xml.xmlbeans.bindingConfig.ByNameBean.type);
-        registerClassAndType(SimpleBindingType.class, org.apache.xml.xmlbeans.bindingConfig.SimpleType.type);
-        registerClassAndType(SimpleDocumentBinding.class, org.apache.xml.xmlbeans.bindingConfig.SimpleDocumentBinding.type);
-    }
-
-    public String toString()
-    {
-        return getClass().getName() + "[" + btName.getJavaName() + "; " + btName.getXmlName() + "]";
-    }
+  public String toString() {
+    return getClass().getName() + "[" + btName.getJavaName() + "; " + btName.getXmlName() + "]";
+  }
 }
