@@ -327,6 +327,7 @@ public class SchemaCompiler
         private boolean noPvr;
         private boolean noAnn;
         private boolean debug;
+        private boolean incrementalSrcGen;
         private String repackage;
         private List extensions = Collections.EMPTY_LIST;
         private Set mdefNamespaces = Collections.EMPTY_SET;
@@ -501,6 +502,16 @@ public class SchemaCompiler
         public void setNoAnn(boolean noAnn)
         {
             this.noAnn = noAnn;
+        }
+
+        public boolean isIncrementalSrcGen()
+        {
+            return incrementalSrcGen;
+        }
+
+        public void setIncrementalSrcGen(boolean incrSrcGen)
+        {
+            this.incrementalSrcGen = incrSrcGen;
         }
 
         public boolean isDebug()
@@ -814,6 +825,7 @@ public class SchemaCompiler
         boolean noUpa = params.isNoUpa();
         boolean noPvr = params.isNoPvr();
         boolean noAnn = params.isNoAnn();
+        boolean incrSrcGen = params.isIncrementalSrcGen();
         Collection outerErrorListener = params.getErrorListener();
         String repackage = params.getRepackage();
         SchemaCodePrinter codePrinter = params.getSchemaCodePrinter();
@@ -862,7 +874,7 @@ public class SchemaCompiler
             List sourcefiles = new ArrayList();
             result &= SchemaCodeGenerator.compileTypeSystem(system, srcDir, javaFiles, sourcesToCopyMap,
                 classpath, classesDir, outputJar, nojavac, errorListener, repackage, codePrinter, verbose,
-                sourcefiles, schemasDir);
+                sourcefiles, schemasDir, incrSrcGen);
             result &= !errorListener.hasError();
 
             if (result)
