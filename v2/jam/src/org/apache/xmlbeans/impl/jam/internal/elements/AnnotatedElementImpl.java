@@ -5,9 +5,9 @@ import org.apache.xmlbeans.impl.jam.JComment;
 import org.apache.xmlbeans.impl.jam.JAnnotationValue;
 import org.apache.xmlbeans.impl.jam.visitor.ElementVisitor;
 import org.apache.xmlbeans.impl.jam.annotation.AnnotationProxy;
-import org.apache.xmlbeans.impl.jam.editable.EAnnotatedElement;
-import org.apache.xmlbeans.impl.jam.editable.EAnnotation;
-import org.apache.xmlbeans.impl.jam.editable.EComment;
+import org.apache.xmlbeans.impl.jam.mutable.MAnnotatedElement;
+import org.apache.xmlbeans.impl.jam.mutable.MAnnotation;
+import org.apache.xmlbeans.impl.jam.mutable.MComment;
 
 import java.util.Map;
 import java.util.HashMap;
@@ -16,14 +16,14 @@ import java.util.HashMap;
  * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
  */
 public abstract class AnnotatedElementImpl extends ElementImpl
-  implements EAnnotatedElement
+  implements MAnnotatedElement
  {
 
   // ========================================================================
   // Variables
 
   private Map mName2Annotation = null;
-  private EComment mComment = null;
+  private MComment mComment = null;
 
   // ========================================================================
   // Constructors
@@ -69,37 +69,37 @@ public abstract class AnnotatedElementImpl extends ElementImpl
   public JComment getComment() { return getEditableComment(); }
 
   // ========================================================================
-  // EAnnotatedElement implementation
+  // MAnnotatedElement implementation
 
   public AnnotationProxy getEditableProxy(Class proxyClass) {
     if (mName2Annotation == null) return null;
-    EAnnotation out = getEditableAnnotation(proxyClass.getName());
+    MAnnotation out = getEditableAnnotation(proxyClass.getName());
     return (out == null) ? null : (AnnotationProxy)out.getProxy();
   }
 
-  public void removeAnnotation(EAnnotation ann) {
+  public void removeAnnotation(MAnnotation ann) {
     if (mName2Annotation != null) mName2Annotation.values().remove(ann);
   }
 
-  public EAnnotation[] getEditableAnnotations() {
-    if (mName2Annotation == null) return new EAnnotation[0];
-    EAnnotation[] out = new EAnnotation[mName2Annotation.values().size()];
+  public MAnnotation[] getEditableAnnotations() {
+    if (mName2Annotation == null) return new MAnnotation[0];
+    MAnnotation[] out = new MAnnotation[mName2Annotation.values().size()];
     mName2Annotation.values().toArray(out);
     return out;
   }
 
-  public EAnnotation getEditableAnnotation(String named) {
+  public MAnnotation getEditableAnnotation(String named) {
     if (mName2Annotation == null) return null;
-    return (EAnnotation)mName2Annotation.get(named);
+    return (MAnnotation)mName2Annotation.get(named);
   }
 
-  public EAnnotation getEditableAnnotation(Class proxyClass) {
+  public MAnnotation getEditableAnnotation(Class proxyClass) {
     if (mName2Annotation == null) return null;
-    return (EAnnotation)mName2Annotation.get(proxyClass.getName());
+    return (MAnnotation)mName2Annotation.get(proxyClass.getName());
   }
 
-  public EAnnotation addAnnotationForTag(String tagName) {
-    EAnnotation out = getEditableAnnotation(tagName);
+  public MAnnotation addAnnotationForTag(String tagName) {
+    MAnnotation out = getEditableAnnotation(tagName);
     if (out != null) {
       //REVIEW this is a weird case.  we'll just go with it for now.
     } else {
@@ -111,8 +111,8 @@ public abstract class AnnotatedElementImpl extends ElementImpl
     return out;
   }
 
-  public EAnnotation addAnnotationForTag(String tagName, String tagContents) {
-    EAnnotation out = getEditableAnnotation(tagName);
+  public MAnnotation addAnnotationForTag(String tagName, String tagContents) {
+    MAnnotation out = getEditableAnnotation(tagName);
     if (out != null) {
       //REVIEW this is a weird case where they add the same thing twice.
       // we'll just go with it for now.
@@ -127,12 +127,12 @@ public abstract class AnnotatedElementImpl extends ElementImpl
     return out;
   }
 
-  public EAnnotation addAnnotationForInstance(/*Annotation*/ Object jsr175annotationInstance) {
+  public MAnnotation addAnnotationForInstance(/*Annotation*/ Object jsr175annotationInstance) {
     if (jsr175annotationInstance == null) {
       throw new IllegalArgumentException("null instance");
     }
     String typename = getAnnotationTypeFor(jsr175annotationInstance);
-    EAnnotation ann = getEditableAnnotation(typename);
+    MAnnotation ann = getEditableAnnotation(typename);
     if (ann != null) {
       //REVIEW this is an extremely weird case where they add another instance
       // of the same annotation type.  We'll just go with it for now,
@@ -148,9 +148,9 @@ public abstract class AnnotatedElementImpl extends ElementImpl
     return ann;
   }
 
-  public EAnnotation addAnnotationForType(String jsr175annotationClassname) {
+  public MAnnotation addAnnotationForType(String jsr175annotationClassname) {
     ClassImpl.validateClassName(jsr175annotationClassname);
-    EAnnotation ann = getEditableAnnotation(jsr175annotationClassname);
+    MAnnotation ann = getEditableAnnotation(jsr175annotationClassname);
     if (ann != null) return ann; //REVIEW weird case again
     AnnotationProxy proxy = getContext().
       createProxyForAnnotationType(jsr175annotationClassname);
@@ -159,10 +159,10 @@ public abstract class AnnotatedElementImpl extends ElementImpl
     return ann;
   }
 
-  public EAnnotation addAnnotationForProxy(AnnotationProxy proxy) {
+  public MAnnotation addAnnotationForProxy(AnnotationProxy proxy) {
     if (proxy == null) throw new IllegalArgumentException("null proxy");
     String name = proxy.getClass().getName();
-    EAnnotation ann = getEditableAnnotation(name);
+    MAnnotation ann = getEditableAnnotation(name);
     if (ann != null) return ann; //REVIEW weird case yet again
     ann = new AnnotationImpl(getContext(),proxy,name);
     getName2Annotation().put(name,ann);
@@ -170,9 +170,9 @@ public abstract class AnnotatedElementImpl extends ElementImpl
   }
 
 
-  public EComment getEditableComment() { return mComment; }
+  public MComment getEditableComment() { return mComment; }
 
-  public EComment createComment() { return mComment = new CommentImpl(this); }
+  public MComment createComment() { return mComment = new CommentImpl(this); }
 
   public void removeComment() { mComment = null; }
 
@@ -180,7 +180,7 @@ public abstract class AnnotatedElementImpl extends ElementImpl
   // Protect methods
 
   protected void visitAnnotations(ElementVisitor visitor) {
-    EAnnotation[] anns = getEditableAnnotations();
+    MAnnotation[] anns = getEditableAnnotations();
     for(int i=0; i<anns.length; i++) visitor.visit(anns[i]);
     if (mComment != null) visitor.visit(mComment);
   }

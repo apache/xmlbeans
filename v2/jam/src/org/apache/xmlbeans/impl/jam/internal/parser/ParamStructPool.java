@@ -14,7 +14,7 @@
  */
 package org.apache.xmlbeans.impl.jam.internal.parser;
 
-import org.apache.xmlbeans.impl.jam.editable.EInvokable;
+import org.apache.xmlbeans.impl.jam.mutable.MInvokable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,7 +42,7 @@ public class ParamStructPool {
   // ========================================================================
   // Public methods
 
-  public void setParametersOn(EInvokable e) {
+  public void setParametersOn(MInvokable e) {
     for(int i=0; i<mLength; i++) {
       ParamStruct struct = (ParamStruct)mList.get(i);
       struct.createParameter(e);

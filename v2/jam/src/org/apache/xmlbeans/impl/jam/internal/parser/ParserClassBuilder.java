@@ -15,7 +15,7 @@
 package org.apache.xmlbeans.impl.jam.internal.parser;
 
 import org.apache.xmlbeans.impl.jam.JamClassLoader;
-import org.apache.xmlbeans.impl.jam.editable.EClass;
+import org.apache.xmlbeans.impl.jam.mutable.MClass;
 import org.apache.xmlbeans.impl.jam.internal.JamPrinter;
 import org.apache.xmlbeans.impl.jam.provider.JamClassBuilder;
 import org.apache.xmlbeans.impl.jam.provider.JamServiceContext;
@@ -60,7 +60,7 @@ public class ParserClassBuilder extends JamClassBuilder {
   // ========================================================================
   // BaseJClassLoader implementation
 
-  public EClass build(String pkg, String name) {
+  public MClass build(String pkg, String name) {
     if (pkg == null) throw new IllegalArgumentException("null pkg");
     if (name == null) throw new IllegalArgumentException("null name");
     String filespec = pkg.replace('.',File.separatorChar)+
@@ -82,7 +82,7 @@ public class ParserClassBuilder extends JamClassBuilder {
     }
     Reader rin = new InputStreamReader(in);
     try {
-      EClass[] clazz = null;//FIXME parse(rin,loader);
+      MClass[] clazz = null;//FIXME parse(rin,loader);
       if (clazz.length > 1) {
         System.out.println("WARNING: multiple classes per package are not "+
                            "handled correctly at the moment.  FIXME");
@@ -97,7 +97,7 @@ public class ParserClassBuilder extends JamClassBuilder {
   // ========================================================================
   // Private methods
 
-  private static EClass[] parse(Reader in, JamClassLoader loader) throws Exception {
+  private static MClass[] parse(Reader in, JamClassLoader loader) throws Exception {
     if (in == null) throw new IllegalArgumentException("null in");
     if (loader == null) throw new IllegalArgumentException("null loader");
 
@@ -171,7 +171,7 @@ public class ParserClassBuilder extends JamClassBuilder {
           mOut.println("-----------------------------------------");
         }
         mCount++;
-        EClass[] results = null;
+        MClass[] results = null;
         try {
           results = parser.parse(new FileReader(input),null);
           if (results == null) {

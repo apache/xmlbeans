@@ -13,15 +13,21 @@
  *  limitations under the License.
  */
 
-package org.apache.xmlbeans.impl.jam.editable;
+package org.apache.xmlbeans.impl.jam.mutable;
 
-import org.apache.xmlbeans.impl.jam.JMember;
+import org.apache.xmlbeans.impl.jam.JClass;
+import org.apache.xmlbeans.impl.jam.JParameter;
 
 /**
+ * <p>Mutable version of JParameter.</p>
  *
  * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
  */
-public interface EMember extends EAnnotatedElement, JMember {
+public interface MParameter extends JParameter, MMember {
 
-  public void setModifiers(int modifiers);
+  public void setType(String typeName);
+
+  public void setType(JClass type);
+
+  public void setUnqualifiedType(String ucname);
 }

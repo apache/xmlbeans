@@ -16,8 +16,8 @@ package org.apache.xmlbeans.impl.jam.visitor;
 
 import org.apache.xmlbeans.impl.jam.JProperty;
 import org.apache.xmlbeans.impl.jam.JClass;
-import org.apache.xmlbeans.impl.jam.editable.EClass;
-import org.apache.xmlbeans.impl.jam.editable.EMethod;
+import org.apache.xmlbeans.impl.jam.mutable.MClass;
+import org.apache.xmlbeans.impl.jam.mutable.MMethod;
 import org.apache.xmlbeans.impl.jam.internal.elements.PropertyImpl;
 
 import java.util.Map;
@@ -31,9 +31,9 @@ public class PropertyInitializer extends ElementVisitor {
   // ========================================================================
   // Element visitor implementation
 
-  public void visit(EClass clazz) {
+  public void visit(MClass clazz) {
     Map name2prop = new HashMap();
-    EMethod[] methods = clazz.getEditableMethods();
+    MMethod[] methods = clazz.getEditableMethods();
 
     for(int i=0; i<methods.length; i++) {
       String name = methods[i].getSimpleName();

@@ -17,7 +17,7 @@ package org.apache.xmlbeans.impl.jam.internal.elements;
 
 import org.apache.xmlbeans.impl.jam.JClass;
 import org.apache.xmlbeans.impl.jam.visitor.ElementVisitor;
-import org.apache.xmlbeans.impl.jam.editable.EMethod;
+import org.apache.xmlbeans.impl.jam.mutable.MMethod;
 import org.apache.xmlbeans.impl.jam.internal.classrefs.DirectJClassRef;
 import org.apache.xmlbeans.impl.jam.internal.classrefs.JClassRef;
 import org.apache.xmlbeans.impl.jam.internal.classrefs.QualifiedJClassRef;
@@ -26,14 +26,14 @@ import org.apache.xmlbeans.impl.jam.internal.classrefs.UnqualifiedJClassRef;
 import java.lang.reflect.Modifier;
 
 /**
- * <p>Standard implementation of EMethod.  It's probably bad inheritance to
+ * <p>Standard implementation of MMethod.  It's probably bad inheritance to
  * extend ConstructorImpl, but it's convenient and no one should ever care
  * since this is a private class; there is no inheritance between method and
  * constructor in the public API.</p>
  *
  * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
  */
-public final class MethodImpl extends InvokableImpl implements EMethod {
+public final class MethodImpl extends InvokableImpl implements MMethod {
 
   // ========================================================================
   // Variables
@@ -49,7 +49,7 @@ public final class MethodImpl extends InvokableImpl implements EMethod {
   }
 
   // ========================================================================
-  // EMethod implementation
+  // MMethod implementation
 
   public void setReturnType(String className) {
     mReturnTypeRef = QualifiedJClassRef.create

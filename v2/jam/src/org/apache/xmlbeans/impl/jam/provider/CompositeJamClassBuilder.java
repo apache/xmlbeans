@@ -14,7 +14,7 @@
  */
 package org.apache.xmlbeans.impl.jam.provider;
 
-import org.apache.xmlbeans.impl.jam.editable.EClass;
+import org.apache.xmlbeans.impl.jam.mutable.MClass;
 import org.apache.xmlbeans.impl.jam.internal.elements.ElementContext;
 
 /**
@@ -45,8 +45,8 @@ public class CompositeJamClassBuilder extends JamClassBuilder {
     for(int i=0; i<mBuilders.length; i++) mBuilders[i].init(ctx);
   }
 
-  public EClass build(String pkg, String cname) {
-    EClass out = null;
+  public MClass build(String pkg, String cname) {
+    MClass out = null;
     for(int i=0; i<mBuilders.length; i++) {
       out = mBuilders[i].build(pkg,cname);
       if (out != null) return out;

@@ -18,7 +18,7 @@ package org.apache.xmlbeans.impl.jam.internal.elements;
 
 import org.apache.xmlbeans.impl.jam.*;
 import org.apache.xmlbeans.impl.jam.visitor.ElementVisitor;
-import org.apache.xmlbeans.impl.jam.editable.*;
+import org.apache.xmlbeans.impl.jam.mutable.*;
 
 /**
  * <p>Base class for types that are 'built in' to the VM.  This includes
@@ -33,7 +33,7 @@ import org.apache.xmlbeans.impl.jam.editable.*;
  * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
  */
 public abstract class BuiltinClassImpl extends AnnotatedElementImpl
-  implements EClass
+  implements MClass
 {
 
   // ========================================================================
@@ -107,11 +107,11 @@ public abstract class BuiltinClassImpl extends AnnotatedElementImpl
   public JClass[] getImportedClasses() { return NO_CLASS; }
 
   // ========================================================================
-  // EClass implementation
+  // MClass implementation
 
-  public EField[] getEditableFields() { return NO_FIELD; }
-  public EConstructor[] getEditableConstructors() { return NO_CONSTRUCTOR; }
-  public EMethod[] getEditableMethods() { return NO_METHOD; }
+  public MField[] getEditableFields() { return NO_FIELD; }
+  public MConstructor[] getEditableConstructors() { return NO_CONSTRUCTOR; }
+  public MMethod[] getEditableMethods() { return NO_METHOD; }
 
   public void setSimpleName(String s) { nocando(); }
 
@@ -126,14 +126,14 @@ public abstract class BuiltinClassImpl extends AnnotatedElementImpl
   public void addInterface(JClass interf) { nocando(); }
   public void removeInterface(String className) { nocando(); }
   public void removeInterface(JClass interf) { nocando(); }
-  public EConstructor addNewConstructor() { nocando(); return null; }
-  public void removeConstructor(EConstructor constr) { nocando(); }
-  public EField addNewField() { nocando(); return null; }
-  public void removeField(EField field) { nocando(); }
-  public EMethod addNewMethod() { nocando(); return null; }
-  public void removeMethod(EMethod method) { nocando(); }
+  public MConstructor addNewConstructor() { nocando(); return null; }
+  public void removeConstructor(MConstructor constr) { nocando(); }
+  public MField addNewField() { nocando(); return null; }
+  public void removeField(MField field) { nocando(); }
+  public MMethod addNewMethod() { nocando(); return null; }
+  public void removeMethod(MMethod method) { nocando(); }
   public void setModifiers(int modifiers) { nocando(); }
-  public JProperty addNewProperty(String name, EMethod m, EMethod x) {
+  public JProperty addNewProperty(String name, MMethod m, MMethod x) {
     nocando();
     return null;
   }

@@ -17,7 +17,7 @@ package org.apache.xmlbeans.impl.jam.internal.elements;
 
 import org.apache.xmlbeans.impl.jam.JClass;
 import org.apache.xmlbeans.impl.jam.visitor.ElementVisitor;
-import org.apache.xmlbeans.impl.jam.editable.EPackage;
+import org.apache.xmlbeans.impl.jam.mutable.MPackage;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,7 +30,7 @@ import java.util.List;
  *
  * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
  */
-public class PackageImpl extends AnnotatedElementImpl implements EPackage {
+public class PackageImpl extends AnnotatedElementImpl implements MPackage {
 
   // ========================================================================
   // Variables

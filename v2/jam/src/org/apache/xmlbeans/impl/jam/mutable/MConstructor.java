@@ -13,17 +13,15 @@
  *  limitations under the License.
  */
 
-package org.apache.xmlbeans.impl.jam.editable;
+package org.apache.xmlbeans.impl.jam.mutable;
 
-import org.apache.xmlbeans.impl.jam.JAnnotation;
-import org.apache.xmlbeans.impl.jam.annotation.AnnotationProxy;
+import org.apache.xmlbeans.impl.jam.JConstructor;
 
 /**
+ * <p>Mutable version of JConstructor.</p>
  *
  * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
  */
-public interface EAnnotation extends JAnnotation, EElement {
-
-  public AnnotationProxy getEditableProxy();
+public interface MConstructor extends JConstructor, MInvokable {
 
 }

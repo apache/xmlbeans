@@ -17,15 +17,15 @@ package org.apache.xmlbeans.impl.jam.internal.elements;
 
 import org.apache.xmlbeans.impl.jam.*;
 import org.apache.xmlbeans.impl.jam.visitor.ElementVisitor;
-import org.apache.xmlbeans.impl.jam.editable.EElement;
-import org.apache.xmlbeans.impl.jam.editable.ESourcePosition;
+import org.apache.xmlbeans.impl.jam.mutable.MElement;
+import org.apache.xmlbeans.impl.jam.mutable.MSourcePosition;
 
 /**
- * <p>Implementation of JElement and EElement.</p>
+ * <p>Implementation of JElement and MElement.</p>
  *
  * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
  */
-public abstract class ElementImpl implements EElement {
+public abstract class ElementImpl implements MElement {
 
   // ========================================================================
   // Constants
@@ -48,7 +48,7 @@ public abstract class ElementImpl implements EElement {
 
   private ElementContext mContext;
   protected String mSimpleName;
-  private ESourcePosition mPosition = null;
+  private MSourcePosition mPosition = null;
   private Object mArtifact = null;
   private ElementImpl mParent;
 
@@ -86,14 +86,14 @@ public abstract class ElementImpl implements EElement {
   public Object getArtifact() { return mArtifact; }
 
   // ========================================================================
-  // EElement implementation
+  // MElement implementation
 
   public void setSimpleName(String name) {
     if (name == null) throw new IllegalArgumentException("null name");
     mSimpleName = name;
   }
 
-  public ESourcePosition createSourcePosition() {
+  public MSourcePosition createSourcePosition() {
     return mPosition = new SourcePositionImpl();
   }
 
@@ -101,7 +101,7 @@ public abstract class ElementImpl implements EElement {
     mPosition = null;
   }
 
-  public ESourcePosition getEditableSourcePosition() {
+  public MSourcePosition getEditableSourcePosition() {
     return mPosition;
   }
 

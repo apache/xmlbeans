@@ -13,17 +13,17 @@
  *  limitations under the License.
  */
 
-package org.apache.xmlbeans.impl.jam.editable;
+package org.apache.xmlbeans.impl.jam.mutable;
 
 import org.apache.xmlbeans.impl.jam.JClass;
 import org.apache.xmlbeans.impl.jam.JProperty;
 
 /**
- * Editable representation of a java class or interface.
+ * <p>Mutable version of JClass.</p>
  *
  * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
  */
-public interface EClass extends EMember, JClass {
+public interface MClass extends MMember, JClass {
 
   public void setIsInterface(boolean b);
 
@@ -103,60 +103,60 @@ public interface EClass extends EMember, JClass {
   /**
    * Creates a new constructor, adds it to this class, and returns it.
    */
-  public EConstructor addNewConstructor();
+  public MConstructor addNewConstructor();
 
   /**
    * Removes a constructor from this class.  Does nothing if the given
    * constructor is not on this class.
    */
-  public void removeConstructor(EConstructor constr);
+  public void removeConstructor(MConstructor constr);
 
   /**
    * Returns the constructors declared on this class.  This does not include
    * constructors from any base class or interface.  This is simply a more
    * strongly-typed version of getDeclaredConstructors().
    */
-  public EConstructor[] getEditableConstructors();
+  public MConstructor[] getEditableConstructors();
 
   /**
    * Creates a new field, adds it to this class, and returns it.
    * The type of the field must be qualified
    */
-  public EField addNewField();
+  public MField addNewField();
 
   /**
    * Removes the given field from this class.  Does nothing if this class
    * does not contain the field.
    */
-  public void removeField(EField field);
+  public void removeField(MField field);
 
   /**
    * Returns the fields declared on this class.  This does not include
    * fields from any base class or interface.  This is simply a more
    * strongly-typed version of getDeclaredFields().
    */
-  public EField[] getEditableFields();
+  public MField[] getEditableFields();
 
   /**
    * Creates a new method, adds it to this class, and returns it.
    */
-  public EMethod addNewMethod();
+  public MMethod addNewMethod();
 
   /**
    * Removes the given method from this class.  Does nothing if this class
    * does not contain the method.
    */
-  public void removeMethod(EMethod method);
+  public void removeMethod(MMethod method);
 
   /**
    * Returns the EditableMethods declared on this class.  This does not
    * include methods inherited from any base class or interface.  This is
    * simply a more strongly-typed version of getDeclaredMethods().
    */
-  public EMethod[] getEditableMethods();
+  public MMethod[] getEditableMethods();
 
 
-  public JProperty addNewProperty(String name, EMethod getter, EMethod setter);
+  public JProperty addNewProperty(String name, MMethod getter, MMethod setter);
 
   public void removeProperty(JProperty prop);
 

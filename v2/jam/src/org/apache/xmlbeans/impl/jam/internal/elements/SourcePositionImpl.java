@@ -15,16 +15,16 @@
 
 package org.apache.xmlbeans.impl.jam.internal.elements;
 
-import org.apache.xmlbeans.impl.jam.editable.ESourcePosition;
+import org.apache.xmlbeans.impl.jam.mutable.MSourcePosition;
 
 import java.net.URI;
 
 /**
- * <p>Implementation of JSourcePosition and ESourcePosition.</p>
+ * <p>Implementation of JSourcePosition and MSourcePosition.</p>
  *
  * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
  */
-public final class SourcePositionImpl implements ESourcePosition {
+public final class SourcePositionImpl implements MSourcePosition {
 
   // ========================================================================
   // Variables
@@ -39,7 +39,7 @@ public final class SourcePositionImpl implements ESourcePosition {
   /*package*/ SourcePositionImpl() {}
 
   // ========================================================================
-  // ESourcePosition implementation
+  // MSourcePosition implementation
 
   public void setColumn(int col) { mColumn = col; }
 

@@ -85,7 +85,7 @@ public abstract interface JElement {
    * <p>Calls accept() with the given visitor, and then recursively calls
    * acceptAndWalk for each of our component elements2, if any.  Calling this
    * on
-   * an EClass will cause the EClass to accept the visitor, and then
+   * an MClass will cause the MClass to accept the visitor, and then
    * all of it's declared fields constructors, and methods.  The parameter
    * for each constructor and method will also in turn be accepted.
    * Any annotations for each of these elements types will also be visited

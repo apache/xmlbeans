@@ -18,7 +18,7 @@ package org.apache.xmlbeans.impl.jam.internal.elements;
 import org.apache.xmlbeans.impl.jam.JClass;
 import org.apache.xmlbeans.impl.jam.JMember;
 import org.apache.xmlbeans.impl.jam.JElement;
-import org.apache.xmlbeans.impl.jam.editable.EMember;
+import org.apache.xmlbeans.impl.jam.mutable.MMember;
 
 import java.lang.reflect.Modifier;
 
@@ -27,7 +27,7 @@ import java.lang.reflect.Modifier;
  *
  * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
  */
-public abstract class MemberImpl extends AnnotatedElementImpl implements EMember {
+public abstract class MemberImpl extends AnnotatedElementImpl implements MMember {
 
   // ========================================================================
   // Variables
@@ -69,7 +69,7 @@ public abstract class MemberImpl extends AnnotatedElementImpl implements EMember
   public boolean isPublic() { return Modifier.isPublic(mModifiers); }
 
   // ========================================================================
-  // EMember implementation
+  // MMember implementation
 
   public void setModifiers(int modifiers) { mModifiers = modifiers; }
 

@@ -13,20 +13,34 @@
  *  limitations under the License.
  */
 
-package org.apache.xmlbeans.impl.jam.editable;
+package org.apache.xmlbeans.impl.jam.mutable;
 
-import org.apache.xmlbeans.impl.jam.JClass;
-import org.apache.xmlbeans.impl.jam.JParameter;
+import org.apache.xmlbeans.impl.jam.JSourcePosition;
+
+import java.net.URI;
 
 /**
+ * <p>Mutable version of JSourcePosition.</p>
  *
  * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
  */
-public interface EParameter extends JParameter, EMember {
+public interface MSourcePosition extends JSourcePosition {
 
-  public void setType(String typeName);
+  /**
+   * Sets the text column number for this source position.  Set to -1 if
+   * it is not known.
+   */
+  public void setColumn(int col);
 
-  public void setType(JClass type);
+  /**
+   * Sets the text line number for this source position.  Set to -1 if
+   * it is not known.
+   */
+  public void setLine(int line);
 
-  public void setUnqualifiedType(String ucname);
+  /**
+   * Sets the URI of the source file.  Set to null if it is not known.
+   */
+  public void setSourceURI(URI uri);
+
 }

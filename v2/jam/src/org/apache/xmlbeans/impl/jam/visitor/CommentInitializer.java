@@ -15,7 +15,7 @@
 package org.apache.xmlbeans.impl.jam.visitor;
 
 import org.apache.xmlbeans.impl.jam.JComment;
-import org.apache.xmlbeans.impl.jam.editable.*;
+import org.apache.xmlbeans.impl.jam.mutable.*;
 
 import java.io.*;
 import java.util.*;
@@ -54,22 +54,22 @@ public class CommentInitializer extends ElementVisitor {
   }
 
   // ========================================================================
-  // EElementVisitor implementation - nothing to see here
+  // MElementVisitor implementation - nothing to see here
 
-  public void visit(EClass clazz)       { visit((EAnnotatedElement)clazz); }
-  public void visit(EConstructor ctor)  { visit((EAnnotatedElement)ctor); }
-  public void visit(EField field)       { visit((EAnnotatedElement)field); }
-  public void visit(EMethod method)     { visit((EAnnotatedElement)method); }
-  public void visit(EParameter param)   { visit((EAnnotatedElement)param); }
+  public void visit(MClass clazz)       { visit((MAnnotatedElement)clazz); }
+  public void visit(MConstructor ctor)  { visit((MAnnotatedElement)ctor); }
+  public void visit(MField field)       { visit((MAnnotatedElement)field); }
+  public void visit(MMethod method)     { visit((MAnnotatedElement)method); }
+  public void visit(MParameter param)   { visit((MAnnotatedElement)param); }
 
-  public void visit(EAnnotation ann)          {}
-  public void visit(EComment param)           {}
+  public void visit(MAnnotation ann)          {}
+  public void visit(MComment param)           {}
 
   // ========================================================================
   // Protected methods
 
-  protected void visit(EAnnotatedElement element) {
-    EComment comment = element.getEditableComment();
+  protected void visit(MAnnotatedElement element) {
+    MComment comment = element.getEditableComment();
     if (comment != null) {
       String[] commentsAndTags = getCommentsAndTags(comment);
       if (commentsAndTags == null || commentsAndTags.length == 0) return;
@@ -113,13 +113,13 @@ public class CommentInitializer extends ElementVisitor {
     return out;
   }
 
-  protected void processComment(EAnnotatedElement commentedElement,
+  protected void processComment(MAnnotatedElement commentedElement,
                                 String trimmedComment) {
     commentedElement.getEditableComment().setText(trimmedComment);
   }
 
 
-  protected void processJavadocTag(EAnnotatedElement element, String tagtext) {
+  protected void processJavadocTag(MAnnotatedElement element, String tagtext) {
     tagtext = tagtext.trim();
     if (!tagtext.startsWith("@")) {
       throw new IllegalArgumentException("invalid tagtext '"+tagtext+"'");

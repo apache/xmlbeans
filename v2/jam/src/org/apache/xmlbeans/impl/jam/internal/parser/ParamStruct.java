@@ -14,8 +14,8 @@
  */
 package org.apache.xmlbeans.impl.jam.internal.parser;
 
-import org.apache.xmlbeans.impl.jam.editable.EInvokable;
-import org.apache.xmlbeans.impl.jam.editable.EParameter;
+import org.apache.xmlbeans.impl.jam.mutable.MInvokable;
+import org.apache.xmlbeans.impl.jam.mutable.MParameter;
 
 /**
  *
@@ -44,9 +44,9 @@ import org.apache.xmlbeans.impl.jam.editable.EParameter;
     mName = name;
   }
 
-  public EParameter createParameter(EInvokable e) {
+  public MParameter createParameter(MInvokable e) {
     if (e == null) throw new IllegalArgumentException("null invokable");
-    EParameter param = e.addNewParameter();
+    MParameter param = e.addNewParameter();
     param.setSimpleName(mName);
     param.setUnqualifiedType(mType);
     return param;
