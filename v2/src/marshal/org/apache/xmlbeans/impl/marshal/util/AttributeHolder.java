@@ -64,6 +64,10 @@ public final class AttributeHolder
 {
     private final StringList data;
 
+    private static final int LOCALNAME_OFFSET = 1;
+    private static final int PREFIX_OFFSET = 2;
+    private static final int VALUE_OFFSET = 3;
+
     public AttributeHolder(int initial_capacity)
     {
         data = new StringList(4 * initial_capacity);
@@ -111,15 +115,24 @@ public final class AttributeHolder
     {
         assert (data.getSize() % 4) == 0;
 
-        return data.get(3 + idx * 4);
+        return data.get(VALUE_OFFSET + idx * 4);
     }
 
     public QName getAttributeName(int idx)
     {
         //TODO: consider caching these values...
-        return new QName(getAttributeNamespace(idx),
-                         getAttributeLocalName(idx),
-                         getAttributePrefix(idx));
+
+        final String uri = getAttributeNamespace(idx);
+        if (uri == null || uri.length() == 0) {
+            return new QName(getAttributeLocalName(idx));
+        } else {
+            final String pfx = getAttributePrefix(idx);
+            assert pfx != null;
+            assert pfx.length() > 0;
+            return new QName(uri,
+                             getAttributeLocalName(idx),
+                             pfx);
+        }
     }
 
 
@@ -134,14 +147,14 @@ public final class AttributeHolder
     {
         assert (data.getSize() % 4) == 0;
 
-        return data.get(1 + i * 4);
+        return data.get(LOCALNAME_OFFSET + i * 4);
     }
 
     public String getAttributePrefix(int i)
     {
         assert (data.getSize() % 4) == 0;
 
-        return data.get(2 + i * 4);
+        return data.get(PREFIX_OFFSET + i * 4);
     }
 
     public boolean isAttributeSpecified(int i)
