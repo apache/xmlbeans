@@ -140,15 +140,6 @@ final class UnmarshallerImpl
         }
     }
 
-    /**
-     *
-     * @return  true if we have a non null XMLStreamReader
-     */
-    boolean hasXmlStream()
-    {
-        return (baseReader != null);
-    }
-
     RuntimeBindingTypeTable getTypeTable()
     {
         return typeTable;
@@ -229,10 +220,7 @@ final class UnmarshallerImpl
             throw new XmlException("failed to lookup unmarshaller for " + bindingType);
         }
 
-        if (!this.hasXmlStream()) {
-            throw new XmlException("UnmarshalContext must have a" +
-                                   " non null XMLStreamReader");
-        }
+        assert (baseReader != null);
 
         this.updateAttributeState();
 
@@ -278,6 +266,9 @@ final class UnmarshallerImpl
             SimpleDocumentBinding sd = (SimpleDocumentBinding)doc_binding_type;
             return getPojoBindingType(sd.getTypeOfElement());
         } else {
+            //TODO: we are too trusting of the xsi type -- if we don't know about
+            //that type we should just use the expected type for the element,
+            //add an error and keep going
             final XmlTypeName type_name = XmlTypeName.forTypeNamed(xsi_type);
             final BindingType pojoBindingType = getPojoBindingType(type_name);
             assert !(pojoBindingType instanceof SimpleDocumentBinding);
@@ -290,7 +281,8 @@ final class UnmarshallerImpl
     {
         final BindingTypeName btName = bindingLoader.lookupPojoFor(type_name);
         if (btName == null) {
-            throw new XmlException("failed to load pojo for " + type_name);
+            throw new XmlException("failed to load java type" +
+                                   " corresponding to " + type_name);
         }
 
         BindingType bt = bindingLoader.getBindingType(btName);
@@ -417,12 +409,22 @@ final class UnmarshallerImpl
 
     InputStream getHexBinaryValue()
     {
-        throw new AssertionError("unimp");
+        try {
+            return baseReader.getHexBinaryValue();
+        }
+        catch (XMLStreamException e) {
+            throw new XmlRuntimeException(e);
+        }
     }
 
     InputStream getBase64Value()
     {
-        throw new AssertionError("unimp");
+        try {
+            return baseReader.getBase64Value();
+        }
+        catch (XMLStreamException e) {
+            throw new XmlRuntimeException(e);
+        }
     }
 
     XmlCalendar getCalendarValue()
@@ -447,17 +449,33 @@ final class UnmarshallerImpl
 
     Date getDateValue()
     {
-        throw new AssertionError("unimp");
+        try {
+            final GDate val = baseReader.getGDateValue();
+            return val == null ? null : val.getDate();
+        }
+        catch (XMLStreamException e) {
+            throw new XmlRuntimeException(e);
+        }
     }
 
     GDate getGDateValue()
     {
-        throw new AssertionError("unimp");
+        try {
+            return baseReader.getGDateValue();
+        }
+        catch (XMLStreamException e) {
+            throw new XmlRuntimeException(e);
+        }
     }
 
     GDuration getGDurationValue()
     {
-        throw new AssertionError("unimp");
+        try {
+            return baseReader.getGDurationValue();
+        }
+        catch (XMLStreamException e) {
+            throw new XmlRuntimeException(e);
+        }
     }
 
     QName getQNameValue()
@@ -583,32 +601,63 @@ final class UnmarshallerImpl
 
     InputStream getAttributeHexBinaryValue()
     {
-        throw new AssertionError("unimp");
+        try {
+            return baseReader.getAttributeHexBinaryValue(currentAttributeIndex);
+        }
+        catch (XMLStreamException e) {
+            throw new XmlRuntimeException(e);
+        }
     }
 
     InputStream getAttributeBase64Value()
     {
-        throw new AssertionError("unimp");
+        try {
+            return baseReader.getAttributeBase64Value(currentAttributeIndex);
+        }
+        catch (XMLStreamException e) {
+            throw new XmlRuntimeException(e);
+        }
     }
 
     XmlCalendar getAttributeCalendarValue()
     {
-        throw new AssertionError("unimp");
+        try {
+            return baseReader.getAttributeCalendarValue(currentAttributeIndex);
+        }
+        catch (XMLStreamException e) {
+            throw new XmlRuntimeException(e);
+        }
     }
 
     Date getAttributeDateValue()
     {
-        throw new AssertionError("unimp");
+        try {
+            GDate val = baseReader.getAttributeGDateValue(currentAttributeIndex);
+            return val == null ? null : val.getDate();
+        }
+        catch (XMLStreamException e) {
+            throw new XmlRuntimeException(e);
+        }
     }
 
     GDate getAttributeGDateValue()
     {
-        throw new AssertionError("unimp");
+        try {
+            return baseReader.getAttributeGDateValue(currentAttributeIndex);
+        }
+        catch (XMLStreamException e) {
+            throw new XmlRuntimeException(e);
+        }
     }
 
     GDuration getAttributeGDurationValue()
     {
-        throw new AssertionError("unimp");
+        try {
+            return baseReader.getAttributeGDurationValue(currentAttributeIndex);
+        }
+        catch (XMLStreamException e) {
+            throw new XmlRuntimeException(e);
+        }
     }
 
     QName getAttributeQNameValue()

@@ -217,6 +217,8 @@ final class ByNameTypeVisitor extends NamedXmlTypeVisitor
             vals.add(XsTypeConverter.printBoolean(true));
         } else {
 
+            //TODO: this is too simple.  We also need to know if we
+            //have actually been used a polymorphic way
             if (type.isSubType()) {
                 QName aname = fillPrefix(MarshalStreamUtils.XSI_TYPE_QNAME);
                 names.add(aname);

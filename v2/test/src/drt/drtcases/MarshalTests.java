@@ -2,6 +2,7 @@ package drtcases;
 
 import com.mytest.MyClass;
 import com.mytest.MySubClass;
+import com.mytest.MySubSubClass;
 import junit.framework.Assert;
 import junit.framework.Test;
 import junit.framework.TestCase;
@@ -80,10 +81,29 @@ public class MarshalTests extends TestCase
         testSimpleTypeUnmarshal(new Integer(55434535), "int");
         testSimpleTypeUnmarshal(new Long(554345354445555555L), "long");
         testSimpleTypeUnmarshal(new BigInteger("55434535443332323245555555"), "integer");
+        testSimpleTypeUnmarshal(new BigInteger("55434535443332323245555555"), "positiveInteger");
+        testSimpleTypeUnmarshal(new BigInteger("55434535443332323245555555"), "nonNegativeInteger");
+        testSimpleTypeUnmarshal(new BigInteger("-55434535443332323245555555"), "negativeInteger");
+        testSimpleTypeUnmarshal(new BigInteger("-55434535443332323245555555"), "nonPositiveInteger");
+        testSimpleTypeUnmarshal(new BigInteger("5543453555"), "unsignedLong");
+        testSimpleTypeUnmarshal(new Long("5543453555"), "unsignedInt");
+        testSimpleTypeUnmarshal(new Integer("62121"), "unsignedShort");
+        testSimpleTypeUnmarshal(new Short("254"), "unsignedByte");
         testSimpleTypeUnmarshal(new BigDecimal("43434343342.233434342"), "decimal");
         testSimpleTypeUnmarshal(new Float(54.5423f), "float");
         testSimpleTypeUnmarshal(new Double(23432.43234), "double");
-        testSimpleTypeUnmarshal("random string", "string");
+
+        testStringTypeUnmarshal("string");
+        testStringTypeUnmarshal("normalizedString");
+        testStringTypeUnmarshal("token");
+        testStringTypeUnmarshal("language");
+        testStringTypeUnmarshal("Name");
+        testStringTypeUnmarshal("NCName");
+        testStringTypeUnmarshal("NMTOKEN");
+        testStringTypeUnmarshal("ID");
+        testStringTypeUnmarshal("IDREF");
+        testStringTypeUnmarshal("ENTITY");
+        testStringTypeUnmarshal("anyURI");
 
         Calendar c = Calendar.getInstance();
 
@@ -91,11 +111,17 @@ public class MarshalTests extends TestCase
 
     }
 
+    private void testStringTypeUnmarshal(String xsd_type)
+        throws Exception
+    {
+        testSimpleTypeUnmarshal("test_" + xsd_type, xsd_type);
+    }
+
 
     public void testManySimpleTypesMarshall()
         throws Exception
     {
-//        testSimpleTypeMarshal(Boolean.TRUE, "boolean");
+        testSimpleTypeMarshal(Boolean.TRUE, "boolean");
         testSimpleTypeMarshal(new Byte((byte)125), "byte");
         testSimpleTypeMarshal(new Short((short)5543), "short");
         testSimpleTypeMarshal(new Integer(55434535), "int");
@@ -105,9 +131,13 @@ public class MarshalTests extends TestCase
         testSimpleTypeMarshal(new Float(5555.5555f), "float");
         testSimpleTypeMarshal(new Double(1231.444), "double");
         testSimpleTypeMarshal("some text here", "string");
+        testSimpleTypeMarshal("aToken", "token");
         testSimpleTypeMarshal("       ", "string");
 
+        testSimpleTypeMarshal(Calendar.getInstance(), "dateTime");
+
         testSimpleTypeMarshal(new QName("someuri", "somelname"), "QName");
+
     }
 
 
@@ -161,7 +191,6 @@ public class MarshalTests extends TestCase
     }
 
 
-    //only works for values where .toString() is equivalent to marshalling
     public void testSimpleTypeMarshal(Object orig, String xsd_type)
         throws Exception
     {
@@ -212,7 +241,12 @@ public class MarshalTests extends TestCase
         mc.setMyelt(myelt);
 
         myelt.setStringArray(new String[]{"one", "two", "three"});
-        myelt.setMyClassArray(new MyClass[]{sub, new MyClass(), sub});
+
+        myelt.setMyClassArray(new MyClass[]{sub, new MyClass(),
+                                            //this type is not in our binding file,
+                                            //but we should then treat is as its the parent type
+                                            new MySubSubClass(),
+                                            sub});
 
         final File bcdoc = getBindingConfigDocument();
 

@@ -67,6 +67,8 @@ import java.util.Arrays;
 public class YourClass
 {
     private MyClass myClass;
+    private MySubClass mySubClass = new MySubClass();
+
     private float myFloat;
     private float attrib;
     private boolean someBool;
@@ -210,6 +212,16 @@ public class YourClass
         this.booleanArray = booleanArray;
     }
 
+
+    public MySubClass getMySubClass()
+    {
+        return mySubClass;
+    }
+
+    public void setMySubClass(MySubClass mySubClass)
+    {
+        this.mySubClass = mySubClass;
+    }
 
     public QName getQn()
     {
