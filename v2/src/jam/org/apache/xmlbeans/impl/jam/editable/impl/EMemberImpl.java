@@ -95,6 +95,7 @@ public abstract class EMemberImpl extends EElementImpl implements EMember {
   // Package methods
 
   /*package*/ void setContainingClass(EClassImpl c) {
+    if (c == null) throw new IllegalArgumentException("null class");
     mContainingClass = c;
   }
 

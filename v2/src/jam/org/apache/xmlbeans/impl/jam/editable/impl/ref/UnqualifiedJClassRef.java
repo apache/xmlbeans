@@ -48,12 +48,14 @@ public class UnqualifiedJClassRef implements JClassRef {
   // ========================================================================
   // Constructors
 
-  private UnqualifiedJClassRef(String unqualifiedClassname,
+  private UnqualifiedJClassRef(String ucname,
                                JClassRefContext ctx)
   {
+    if (ctx == null) throw new IllegalArgumentException("null ctx");
+    if (ucname == null) throw new IllegalArgumentException("null ucname");
     mContext = ctx;
-    mUnqualifiedClassname = unqualifiedClassname;
-    if (VERBOSE) System.out.println("[UnqualifiedJClassRef] "+unqualifiedClassname);
+    mUnqualifiedClassname = ucname;
+    if (VERBOSE) System.out.println("[UnqualifiedJClassRef] "+ucname);
   }
 
   // ========================================================================

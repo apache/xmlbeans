@@ -144,7 +144,7 @@ public class EClassImpl extends EMemberImpl
 
   public boolean isAssignableFrom(JClass arg) {
     if (isPrimitive() || arg.isPrimitive()) {
-      return this.equals(arg);
+      return getQualifiedName().equals(arg.getQualifiedName());
     }
     return isAssignableFromRecursively(arg);
   }
@@ -381,7 +381,7 @@ public class EClassImpl extends EMemberImpl
   // Private methods
 
   private boolean isAssignableFromRecursively(JClass arg) {
-    if (this.equals(arg)) return true;
+    if (this.getQualifiedName().equals(arg.getQualifiedName())) return true;
     // check all of arg's implemented interfaces, recursively
     JClass[] interfaces = arg.getInterfaces();
     if (interfaces != null) {

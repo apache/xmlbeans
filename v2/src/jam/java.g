@@ -164,7 +164,7 @@ options {
   // ========================================================================
   // Constants
 
-  private static final boolean VERBOSE = true;
+  private static final boolean VERBOSE = false;
 
   // ========================================================================
   // Variables
@@ -346,7 +346,10 @@ modifiedMember[EClass clazz, int modifiers]
 
 
 constructor[EClass clazz, int modifiers, String name]
-  : (LPAREN (parameterList[mParamList])? RPAREN (throwsClause[mExceptionList])? statement_block)
+{
+  List params = new ArrayList(); //FIXME try reuse this please
+}
+  : (LPAREN (parameterList[params])? RPAREN (throwsClause[mExceptionList])? statement_block)
 {
   if (!name.equals(clazz.getSimpleName())) {
     throw new IllegalArgumentException("FIXME not a constructor '"+
@@ -354,7 +357,8 @@ constructor[EClass clazz, int modifiers, String name]
   }
   EConstructorImpl constr = (EConstructorImpl)clazz.addNewConstructor();
   constr.setModifiers(modifiers);
-  constr.setParameters(mParamList);
+  System.out.println("============== Setting params "+params.size());
+  constr.setParameters(params);
   constr.setUnqualifiedThrows(mExceptionList);
   applyJavadocs(constr);
 
@@ -379,12 +383,15 @@ fieldOrMethod[EClass clazz, int modifiers, String type]
 	  )
 	  |
 	  (
-      (LPAREN (parameterList[mParamList])? RPAREN tweener (throwsClause[mExceptionList])? (statement_block | SEMI)) {
+	  { List params = new ArrayList();  //FIXME can we reuse this please?
+	  }
+      (LPAREN (parameterList[params])? RPAREN tweener (throwsClause[mExceptionList])? (statement_block | SEMI)) {
         if (VERBOSE) System.out.println("creating method "+name);
         EMethodImpl method = (EMethodImpl)clazz.addNewMethod();
         method.setSimpleName(name);
         method.setUnqualifiedReturnType(type);
         method.setModifiers(modifiers);
+        System.out.println("============== Setting params "+params.size());
         method.setParameters(mParamList);
         method.setUnqualifiedThrows(mExceptionList);
         applyJavadocs(method);
@@ -418,7 +425,7 @@ throwsClause[List out]
 
 
 // A list of formal parameters
-parameterList[Collection list] { list.clear(); }
+parameterList[Collection list] {}
 	:	(parameter[list] (COMMA parameter[list])*)
 ;
 
@@ -429,10 +436,13 @@ parameter[Collection list]
   String name;
 }
 : tweener ("final")? t:IDENT tweener n:IDENT tweener {
+
   EParameterImpl param = new EParameterImpl();
   param.setUnqualifiedType(t.getText());
   param.setSimpleName(n.getText());
   list.add(param);
+  System.out.println("\n\n\nadded to list!! "+list.size()+"\n\n\n");
+
 }
 ;
 

@@ -14,9 +14,7 @@
  */
 package org.apache.xmlbeans.test.jam;
 
-import org.apache.xmlbeans.impl.jam.JMethod;
-import org.apache.xmlbeans.impl.jam.JParameter;
-import org.apache.xmlbeans.impl.jam.JClass;
+import org.apache.xmlbeans.impl.jam.*;
 
 import java.util.StringTokenizer;
 
@@ -28,21 +26,33 @@ import junit.framework.Assert;
  *
  * @author Patrick Calahan <pcal@bea.com>
  */
-public class GoldenMethod {
+public class GoldenInvokable {
 
   // ========================================================================
   // Factory methods/static utils
 
-  public static GoldenMethod[] createArray(String[][] params) {
-    GoldenMethod[] out = new GoldenMethod[params.length];
+  public static GoldenInvokable[] createArray(String[][] params) {
+    GoldenInvokable[] out = new GoldenInvokable[params.length];
     for(int i=0; i<out.length; i++) {
-      out[i] = new GoldenMethod(params[i]);
+      out[i] = new GoldenInvokable(params[i]);
     }
     return out;
   }
 
   public static void doComparison(JMethod[] result,
-                                  GoldenMethod[] expected,
+                                  GoldenInvokable[] expected,
+                                  boolean compareParamNames,
+                                  Assert a) {
+    a.assertTrue("different number of methods ["+
+                 result.length+","+expected.length+"]",
+                 result.length == expected.length);
+    for(int i=0; i<result.length; i++) {
+      expected[i].compare(result[i],compareParamNames,a);
+    }
+  }
+
+  public static void doComparison(JConstructor[] result,
+                                  GoldenInvokable[] expected,
                                   boolean compareParamNames,
                                   Assert a) {
     a.assertTrue("different number of methods ["+
@@ -67,7 +77,7 @@ public class GoldenMethod {
   // ========================================================================
   // Constructors
 
-  public GoldenMethod(String[] modsTypeNameParams) {
+  public GoldenInvokable(String[] modsTypeNameParams) {
     this(modsTypeNameParams[0],
          modsTypeNameParams[1],
          modsTypeNameParams[2],
@@ -81,7 +91,7 @@ public class GoldenMethod {
    * @param name
    * @param paramString
    */
-  public GoldenMethod(String modiferString,
+  public GoldenInvokable(String modiferString,
                       String type,
                       String name,
                       String paramString,
@@ -121,33 +131,38 @@ public class GoldenMethod {
   }
 
   public void compare(JMethod method, boolean compareParamNames, Assert a) {
-    a.assertTrue("method names are different",
-                 method.getSimpleName().equals(mName));
+    compare((JInvokable)method,compareParamNames,a);
     a.assertTrue("return types are different ["+
                  method.getReturnType().getQualifiedName()+","+
                  mReturnType+"]",
                  method.getReturnType().getQualifiedName().equals(mReturnType));
-    a.assertTrue("modifiers are different on "+method.getSimpleName()+
-                 "["+method.getModifiers()+","+mModifers+"]",
-                 method.getModifiers() == mModifers);
+  }
+
+
+  public void compare(JInvokable invk, boolean compareParamNames, Assert a) {
+    a.assertTrue("invokable names are different",
+                 invk.getSimpleName().equals(mName));
+    a.assertTrue("modifiers are different on "+invk.getSimpleName()+
+                 "["+invk.getModifiers()+","+mModifers+"]",
+                 invk.getModifiers() == mModifers);
     {
-      JParameter[] params = method.getParameters();
+      JParameter[] params = invk.getParameters();
       a.assertTrue("parameter lists are of different lengths",
                    params.length == mParamTypes.length);
       for(int i=0; i<params.length; i++) {
-        a.assertTrue("parameter type is different on "+method.getSimpleName()+
+        a.assertTrue("parameter type is different on "+invk.getSimpleName()+
                      "["+params[i].getType().getQualifiedName()+","+mParamTypes[i]+"]",
                      params[i].getType().getQualifiedName().equals(mParamTypes[i]));
         if (compareParamNames) {
-          a.assertTrue("parameter names are different on "+method.getSimpleName(),
+          a.assertTrue("parameter names are different on "+invk.getSimpleName(),
                        params[i].getSimpleName().equals(mParamNames[i]));
         }
       }
     }
     {
-      JClass[] exceptions = method.getExceptionTypes();
+      JClass[] exceptions = invk.getExceptionTypes();
       for(int i=0; i<exceptions.length; i++) {
-        a.assertTrue("exceptions type is different on "+method.getSimpleName()+
+        a.assertTrue("exceptions type is different on "+invk.getSimpleName()+
                      "["+exceptions[i].getQualifiedName()+","+mExceptions[i]+"]",
                      exceptions[i].getQualifiedName().equals(mExceptions[i]));
       }

@@ -153,6 +153,7 @@ public class EInvokableImpl extends EMemberImpl implements EInvokable {
    * EParameterImpls.
    */
   public void setParameters(List paramList) {
+    System.out.println("\n\n\n\nSET PARAMETER LIST "+paramList.size());
     if (paramList == null || paramList.size() == 0) {
       mParameters = null;
       return;

@@ -790,6 +790,7 @@
 
   <target name='jam.clean'>
     <delete dir='build/classes/jam'/>
+    <delete dir='build/generatedsrc'/>
   </target>
 
   <target name="jam.parser.check">
