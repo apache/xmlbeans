@@ -980,8 +980,6 @@ public class BuiltinSchemaTypeSystem extends SchemaTypeLoaderBase implements Sch
         result.setDecimalSize(decimalSize);
         result.setAnonymousTypeRefs(EMPTY_SCHEMATYPEREF_ARRAY);
 
-        // TODO: set up patterns for NCNAME, language, etc.
-
         String pattern = null;
         boolean hasPattern = false;
 

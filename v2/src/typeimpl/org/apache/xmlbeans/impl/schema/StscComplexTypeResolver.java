@@ -1096,6 +1096,13 @@ public class StscComplexTypeResolver
                 }
             }
         }
+        // If this is restriction and no wildcard was present, then
+        // we have to erase the inherited wildcards
+        if (!extension && !seenWildcard)
+        {
+            result.setWildcardSet(null);
+            result.setWildcardProcess(SchemaAttributeModel.NONE);
+        }
     }
 
     static SchemaParticle extendContentModel(SchemaParticle baseContentModel, SchemaParticle extendedContentModel, XmlObject parseTree)
