@@ -528,7 +528,7 @@
                 <bin:javatype>java.lang.String</bin:javatype>
             </bin:item-type>
             <bin:item-nillable>true</bin:item-nillable>
-            <bin:ranks>2 2</bin:ranks>
+            <bin:ranks>4</bin:ranks>
         </bin:binding-type>
 
 

@@ -35,7 +35,7 @@ public class SoapArrayType extends BindingType
     private QName itemName;
     private BindingTypeName itemType;
     private boolean itemNillable;
-    private int[] ranks;
+    private int ranks;
 
     // ========================================================================
     // Constructors
@@ -64,22 +64,10 @@ public class SoapArrayType extends BindingType
         itemNillable = node.getItemNillable();
 
 
-        if (node.isSetRanks()) {
-            final java.util.List ranks_list = node.getRanks();
-            if (!ranks_list.isEmpty()) {
-                final int len = ranks_list.size();
-                int[] new_ranks = new int[len];
-                for (int i = 0; i < len; i++) {
-                    final int r = ((Integer)ranks_list.get(i)).intValue();
-                    if (r < 0) {
-                        String msg = "illegal negative array rank: " + ranks_list;
-                        throw new IllegalArgumentException(msg);
-                    }
-                    new_ranks[i] = r;
-                }
-                ranks = new_ranks;
-            }
-        }
+        if (node.isSetRanks())
+            ranks = node.getRanks();
+        else
+            ranks = -1;
     }
 
 
@@ -97,18 +85,8 @@ public class SoapArrayType extends BindingType
 
         wa.setItemNillable(itemNillable);
 
-        if (ranks != null) {
-            List rl = new ArrayList(ranks.length);
-            for (int i = 0, alen = ranks.length; i < alen; i++) {
-                final int rank = ranks[i];
-                if (rank < 0) {
-                    throw new IllegalStateException("negative rank at index " +
-                                                    i + ": " + rank);
-                }
-                rl.add(new Integer(rank));
-            }
-            wa.setRanks(rl);
-        }
+        if (ranks >= 0)
+            wa.setRanks(ranks);
 
         return wa;
     }
@@ -151,12 +129,12 @@ public class SoapArrayType extends BindingType
         this.itemNillable = nillable;
     }
 
-    public int[] getRanks()
+    public int getRanks()
     {
         return ranks;
     }
 
-    public void setRanks(int[] ranks)
+    public void setRanks(int ranks)
     {
         this.ranks = ranks;
     }

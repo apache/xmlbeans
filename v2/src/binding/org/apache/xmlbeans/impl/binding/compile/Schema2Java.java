@@ -55,6 +55,7 @@ public class Schema2Java extends BindingCompiler {
   // Variables
 
   private Set usedNames = new HashSet();
+  private Set duplicateNames = new HashSet();
   private SchemaTypeSystem sts = null;
   private Map scratchFromXmlName = new LinkedHashMap();
   private Map scratchFromSchemaType = new HashMap(); // for convenience
@@ -235,6 +236,21 @@ public class Schema2Java extends BindingCompiler {
     // 1. categorize and allocate Scratches
     createScratchArea();
 
+    // Compute the list of duplicate names for Java types
+    for (Iterator i = scratchIterator(); i.hasNext();) {
+      Scratch scratch = (Scratch) i.next();
+      if (scratch.getCategory() == Scratch.STRUCT_TYPE ||
+          scratch.getCategory() == Scratch.ENUM_TYPE)
+      {
+          SchemaType sType = scratch.getSchemaType();
+          String name = getDefaultJavaName(sType).toLowerCase();
+          if (usedNames.contains(name))
+              duplicateNames.add(name);
+          usedNames.add(name);
+      }
+    }
+    usedNames.clear();
+
     // 2. write or find java names for each xml type
     // 3. allocate binding types for each scratch (done in the same pass as 2)
     for (Iterator i = scratchIterator(); i.hasNext();) {
@@ -332,8 +348,9 @@ public class Schema2Java extends BindingCompiler {
       case Scratch.STRUCT_TYPE:
       case Scratch.ENUM_TYPE:
         {
+          JavaTypeName javaName = pickUniqueJavaName(scratch.getSchemaType(),
+              scratch.getCategory() == Scratch.ENUM_TYPE);
           structureCount += 1;
-          JavaTypeName javaName = pickUniqueJavaName(scratch.getSchemaType());
           scratch.setJavaName(javaName);
           scratchFromJavaNameString.put(javaName.toString(), scratch);
           return;
@@ -527,7 +544,7 @@ public class Schema2Java extends BindingCompiler {
         break;
 
       case Scratch.SOAPARRAY:
-        WrappedArrayType soapArray = new WrappedArrayType(btName);
+        SoapArrayType soapArray = new SoapArrayType(btName);
         scratch.setBindingType(soapArray);
         bindingFile.addBindingType(soapArray, shouldBeFromJavaDefault(btName), false);
         break;
@@ -725,38 +742,6 @@ public class Schema2Java extends BindingCompiler {
     BindingType scratchBindingType = scratch.getBindingType();
     if (scratchBindingType instanceof WrappedArrayType) {
       WrappedArrayType bType = (WrappedArrayType) scratchBindingType;
-      // todo: fix this
-      if (scratch.getCategory() == Scratch.SOAPARRAY) {
-        XmlTypeName typexName = scratch.getXmlName();
-        XmlTypeName itemxName = typexName.getOuterComponent();
-        Scratch itemxScratch = scratchForXmlName(itemxName);
-        BindingType itemxType;
-        if (itemxScratch == null)
-          itemxType = mLoader.getBindingType(mLoader.lookupPojoFor(itemxName));
-        else
-          itemxType = itemxScratch.getBindingType();
-        // The rule is: if the soap array type looks like a literal array
-        // then the name and nillability are the same as for literal arrays
-        // Otherwise, the name is not significant and nillability is false
-        if (getLiteralArrayItemType(scratch.getSchemaType()) == null) {
-          bType.setItemName(new QName("", "foo"));
-          bType.setItemNillable(false);
-        }
-        else {
-          SchemaProperty prop = scratch.getSchemaType().getProperties()[0];
-          bType.setItemName(prop.getName());
-          bType.setItemNillable(prop.hasNillable() != SchemaProperty.NEVER);
-        }
-
-        if (itemxType != null) {
-          if (bType.isItemNillable())
-            itemxType = findBoxedType(itemxType);
-          bType.setItemType(itemxType.getName());
-        }
-        else
-          bType.setItemType(bType.getName());
-        return;
-      }
       JavaTypeName itemName = scratch.getJavaName().getArrayItemType(1);
       assert(itemName != null);
       SchemaType sType = getLiteralArrayItemType(scratch.getSchemaType());
@@ -784,6 +769,39 @@ public class Schema2Java extends BindingCompiler {
         throw new IllegalStateException("Type " + sType.getName() +
           " not found in the type loader");
       bType.setItemType(itemType.getName());
+    }
+    else if (scratchBindingType instanceof SoapArrayType) {
+      SoapArrayType bType = (SoapArrayType) scratchBindingType;
+      XmlTypeName typexName = scratch.getXmlName();
+      XmlTypeName itemxName = typexName.getOuterComponent();
+      Scratch itemxScratch = scratchForXmlName(itemxName);
+      BindingType itemxType;
+      if (itemxScratch == null)
+        itemxType = mLoader.getBindingType(mLoader.lookupPojoFor(itemxName));
+      else
+        itemxType = itemxScratch.getBindingType();
+      // The rule is: if the soap array type looks like a literal array
+      // then the name and nillability are the same as for literal arrays
+      // Otherwise, the name is not significant and nillability is false
+      if (getLiteralArrayItemType(scratch.getSchemaType()) == null) {
+        bType.setItemNillable(false);
+      }
+      else {
+        SchemaProperty prop = scratch.getSchemaType().getProperties()[0];
+        bType.setItemName(prop.getName());
+        bType.setItemNillable(prop.hasNillable() != SchemaProperty.NEVER);
+      }
+
+      if (itemxType != null) {
+        if (bType.isItemNillable())
+          itemxType = findBoxedType(itemxType);
+        bType.setItemType(itemxType.getName());
+      }
+      SOAPArrayType aType = getWsdlArrayType(scratch.getSchemaType());
+      if (aType != null)
+        bType.setRanks(aType.getDimensions().length);
+
+      return;
     }
     else
       throw new IllegalStateException();
@@ -1018,10 +1036,7 @@ public class Schema2Java extends BindingCompiler {
    */
   private static XmlTypeName soapArrayTypeName(SchemaType sType) {
     // first, look for wsdl:arrayType default - this will help us with multidimensional arrays
-    SOAPArrayType defaultArrayType = null;
-    SchemaLocalAttribute attr = sType.getAttributeModel().getAttribute(arrayType);
-    if (attr != null)
-      defaultArrayType = ((SchemaWSDLArrayType) attr).getWSDLArrayType();
+    SOAPArrayType defaultArrayType = getWsdlArrayType(sType);
 
     // method 1: trust wsdl:arrayType
     if (defaultArrayType != null)
@@ -1037,6 +1052,13 @@ public class Schema2Java extends BindingCompiler {
       itemType = props[0].getType();
 
     return XmlTypeName.forNestedNumber(XmlTypeName.SOAP_ARRAY, 1, XmlTypeName.forSchemaType(itemType));
+  }
+
+  private static SOAPArrayType getWsdlArrayType(SchemaType sType) {
+    SchemaLocalAttribute attr = sType.getAttributeModel().getAttribute(arrayType);
+    if (attr != null)
+      return ((SchemaWSDLArrayType) attr).getWSDLArrayType();
+    return null;
   }
 
   /**
@@ -1094,7 +1116,30 @@ public class Schema2Java extends BindingCompiler {
    * Picks a unique fully-qualified Java class name for the given schema
    * type.  Uses and updates the "usedNames" set.
    */
-  private JavaTypeName pickUniqueJavaName(SchemaType sType) {
+    private JavaTypeName pickUniqueJavaName(SchemaType sType, boolean isEnum) {
+    String baseName = getDefaultJavaName(sType);
+
+    if (duplicateNames.contains(baseName.toLowerCase()))
+    {
+      if (isEnum)
+        baseName = baseName + "_Enumeration";
+      else if (sType.getContainerField() != null &&
+          !sType.getContainerField().isAttribute())
+        baseName = baseName + "_Element";
+      else if (sType.getName() != null)
+        baseName = baseName + "_Type";
+    }
+    String pickedName = baseName;
+
+    for (int i = 1; usedNames.contains(pickedName.toLowerCase()); i += 1)
+      pickedName = baseName + i;
+
+    usedNames.add(pickedName.toLowerCase());
+
+    return JavaTypeName.forString(pickedName);
+  }
+
+  private String getDefaultJavaName(SchemaType sType) {
     QName qname = null;
     while (qname == null) {
       if (sType.isDocumentType())
@@ -1111,15 +1156,7 @@ public class Schema2Java extends BindingCompiler {
       sType = sType.getOuterType();
     }
 
-    String baseName = NameUtil.getClassNameFromQName(qname, mJaxRpcRules);
-    String pickedName = baseName;
-
-    for (int i = 1; usedNames.contains(pickedName.toLowerCase()); i += 1)
-      pickedName = baseName + i;
-
-    usedNames.add(pickedName.toLowerCase());
-
-    return JavaTypeName.forString(pickedName);
+    return NameUtil.getClassNameFromQName(qname, mJaxRpcRules);
   }
 
   /**
@@ -1948,10 +1985,13 @@ public class Schema2Java extends BindingCompiler {
       for (int i = 0; i < xsds.length; i++) {
         xsds[i] = SchemaDocument.Factory.parse(new File(schemas[i]));
       }
+      SchemaTypeLoader soapencLoader = org.apache.xmlbeans.impl.schema.SoapEncSchemaTypeSystem.get();
+      SchemaTypeLoader xsdLoader = XmlBeans.getBuiltinTypeSystem();
       SchemaTypeSystem sts =
               XmlBeans.compileXsd(xsds,
-                                  XmlBeans.getBuiltinTypeSystem(),
-                                  null);
+                  XmlBeans.typeLoaderUnion
+                  (new SchemaTypeLoader[] {xsdLoader, soapencLoader}),
+                  null);
       Schema2Java s2j = new Schema2Java(sts);
       s2j.setVerbose(true);
       s2j.setJaxRpcRules(true);
