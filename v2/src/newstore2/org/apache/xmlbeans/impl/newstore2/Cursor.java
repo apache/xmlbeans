@@ -1040,7 +1040,7 @@ public final class Cursor implements XmlCursor, ChangeListener
     {
         validateLocalName( local );
 
-        return toChild( _cur._locale.makeQName( uri, local ), 0 );
+        return _toChild( _cur._locale.makeQName( uri, local ), 0 );
     }
     
     public boolean _toChild ( QName name, int index )

@@ -1840,24 +1840,12 @@ abstract class Xobj implements TypeStore
 
     public int count_elements ( QName name )
     {
-        int count = 0;
-
-        for ( Xobj x = _firstChild ; x != null ; x = x._nextSibling )
-            if (x.isElem() && x._name.equals( name ))
-                count++;
-
-        return count;
+        return _locale.count( this, name, null );
     }
 
     public int count_elements ( QNameSet names )
     {
-        int count = 0;
-
-        for ( Xobj x = _firstChild ; x != null ; x = x._nextSibling )
-            if (x.isElem() && names.contains( x._name ))
-                count++;
-
-        return count;
+        return _locale.count( this, null, names );
     }
 
     public TypeStoreUser find_element_user ( QName name, int i )
@@ -1919,11 +1907,17 @@ abstract class Xobj implements TypeStore
         if (!isContainer())
             throw new IllegalStateException();
 
-        for ( Xobj x = _firstChild ; x != null ; x = x._nextSibling )
-            if (x.isElem() && x._name.equals( name ) && --i < 0)
-                return insertElement( name, x, 0 );
+        Xobj x = _locale.findNthChildElem( this, name, null, i );
 
-        return add_element_user( name );
+        if (x == null)
+        {
+            if (i > _locale.count( this, name, null ) + 1)
+                throw new IndexOutOfBoundsException();
+
+            return add_element_user( name );
+        }
+                 
+        return insertElement( name, x, 0 );
     }
 
     public TypeStoreUser insert_element_user ( QNameSet names, QName name, int i )
@@ -1934,11 +1928,17 @@ abstract class Xobj implements TypeStore
         if (!isContainer())
             throw new IllegalStateException();
 
-        for ( Xobj x = _firstChild ; x != null ; x = x._nextSibling )
-            if (x.isElem() && names.contains( x._name ) && --i < 0)
-                return insertElement( name, x, 0 );
+        Xobj x = _locale.findNthChildElem( this, null, names, i );
 
-        return add_element_user( name );
+        if (x == null)
+        {
+            if (i > _locale.count( this, null, names ) + 1)
+                throw new IndexOutOfBoundsException();
+
+            return add_element_user( name );
+        }
+                 
+        return insertElement( name, x, 0 );
     }
 
     public TypeStoreUser add_element_user ( QName name )
