@@ -56,21 +56,19 @@
 
 package org.apache.xmlbeans.impl.jam.internal.reflect;
 
-import org.apache.xmlbeans.impl.jam.JClass;
-import org.apache.xmlbeans.impl.jam.JClassLoader;
-import org.apache.xmlbeans.impl.jam.JField;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import org.apache.xmlbeans.impl.jam.JClass;
+import org.apache.xmlbeans.impl.jam.JClassLoader;
+import org.apache.xmlbeans.impl.jam.JField;
 
 /**
  * Reflection-backed implementation of JClass.
  *
  * @author Patrick Calahan <pcal@bea.com>
  */
-/*package*/
-
-final class RField extends RMember implements JField {
+/*package*/ final class RField extends RMember implements JField {
 
   // ========================================================================
   // Variables
@@ -79,24 +77,24 @@ final class RField extends RMember implements JField {
 
   // ========================================================================
   // Constructors
-
+  
   public RField(Field f, JClassLoader loader) {
-    super(f, loader);
+    super(f,loader);
     mField = f;
   }
 
   // ========================================================================
   // JField implementation
 
-  public JClass getType() {
-    return getClassSafely(mField.getType().getName(), mLoader);
+  public JClass getType() { 
+    return RClassLoader.getClassFor(mField.getType(),mLoader);
   }
 
-  public boolean isVolatile() {
+  public boolean isVolatile() { 
     return Modifier.isVolatile(mField.getModifiers());
   }
 
-  public boolean isTransient() {
+  public boolean isTransient() { 
     return Modifier.isTransient(mField.getModifiers());
   }
 }

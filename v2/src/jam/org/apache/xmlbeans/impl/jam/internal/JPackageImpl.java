@@ -56,13 +56,12 @@
 
 package org.apache.xmlbeans.impl.jam.internal;
 
-import org.apache.xmlbeans.impl.jam.JClass;
-import org.apache.xmlbeans.impl.jam.JElement;
-import org.apache.xmlbeans.impl.jam.JSourcePosition;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import org.apache.xmlbeans.impl.jam.JClass;
+import org.apache.xmlbeans.impl.jam.JElement;
+import org.apache.xmlbeans.impl.jam.JSourcePosition;
 
 
 /**

@@ -56,18 +56,20 @@
 
 package org.apache.xmlbeans.impl.jam.internal.javadoc;
 
+
 import com.sun.javadoc.ProgramElementDoc;
+import com.sun.javadoc.Tag;
+import java.util.Collection;
 import org.apache.xmlbeans.impl.jam.*;
 import org.apache.xmlbeans.impl.jam.internal.BaseJElement;
-
-import java.util.Collection;
 
 /**
  * javadoc-backed implementation of JMember.
  *
  * @author Patrick Calahan <pcal@bea.com>
  */
-/*package*/ abstract class JDMember extends BaseJElement implements JMember {
+public abstract class JDMember extends BaseJElement implements JMember 
+{
 
   // ========================================================================
   // Variables
@@ -75,10 +77,11 @@ import java.util.Collection;
   protected JClassLoader mLoader;
   private ProgramElementDoc mPE;
   private JSourcePosition mPosition = null;
+  private JComment[] mLocalComments = null;
 
   // ========================================================================
   // Constructors
-
+  
   protected JDMember(ProgramElementDoc pe, JClassLoader loader) {
     mLoader = loader;
     mPE = pe;
@@ -87,13 +90,9 @@ import java.util.Collection;
   // ========================================================================
   // JElement implementation
 
-  public String getSimpleName() {
-    return mPE.name();
-  }
+  public String getSimpleName() { return mPE.name(); }
 
-  public String getQualifiedName() {
-    return mPE.qualifiedName();
-  }
+  public String getQualifiedName() { return mPE.qualifiedName(); }
 
   // ========================================================================
   // Partial BaseJElement implementation
@@ -101,8 +100,10 @@ import java.util.Collection;
   protected void getLocalAnnotations(Collection out) {
     com.sun.javadoc.Tag[] tags = mPE.tags();
     if (tags != null) {
-      for (int i = 0; i < tags.length; i++) {
-        out.add(new JDAnnotation(this, tags[i]));
+      for(int i=0; i<tags.length; i++) {
+        Tag t = tags[i];
+        JSourcePosition sp = JDFactory.getInstance().createSourcePosition(mPE.position());
+        out.add(JDFactory.getInstance().createAnnotation(this, t.name(), t.text(), sp));
       }
     }
   }
@@ -112,52 +113,41 @@ import java.util.Collection;
     if (txt == null) return;
     txt = txt.trim();
     if (txt.length() == 0) return;
-    out.add(new JDComment(mPE.commentText()));
+    out.add(JDFactory.getInstance().createComment(mPE.commentText()));
   }
 
   // ========================================================================
   // JElement implementation - overridden by some
 
   public JElement getParent() {
-    return JDClassLoader.getClassSafely(mPE.containingClass(), mLoader);
+    return JDClassLoader.getClassFor(mPE.containingClass(),mLoader);
   }
 
-  public JElement[] getChildren() {
-    return null;
-  } //FIXME
+  public JElement[] getChildren() { return null; } //FIXME
 
   // ========================================================================
   // JMember implementation
 
-  public int getModifiers() {
-    return mPE.modifierSpecifier();
-  }
+  public int getModifiers() { return mPE.modifierSpecifier(); }
 
-  public boolean isPackagePrivate() {
-    return mPE.isPackagePrivate();
-  }
+  public boolean isPackagePrivate() { return mPE.isPackagePrivate(); }
 
-  public boolean isProtected() {
-    return mPE.isProtected();
-  }
+  public boolean isProtected() { return mPE.isProtected(); }
 
-  public boolean isPublic() {
-    return mPE.isPublic();
-  }
+  public boolean isPublic() { return mPE.isPublic(); }
 
-  public boolean isPrivate() {
-    return mPE.isPrivate();
-  }
+  public boolean isPrivate() { return mPE.isPrivate(); }
 
-  public JSourcePosition getSourcePosition() {
+  public JSourcePosition getSourcePosition() { 
     if (mPosition == null) {
-      mPosition = new JDSourcePosition(mPE.position());
+      mPosition = JDFactory.getInstance().createSourcePosition(mPE.position());
     }
     return mPosition;
   }
-
+  
   public JClass getContainingClass() {
-    return JDClassLoader.getClassSafely(mPE.containingClass(), mLoader);
+    if (mPE.containingClass() == null) return null;
+    return JDClassLoader.getClassFor(mPE.containingClass(),mLoader);
   }
 
   // ========================================================================
@@ -165,12 +155,8 @@ import java.util.Collection;
   // attributes on abstractions where they don't make sense
   // (e.g. constructors), but we'll take advantage of that here
 
-  public boolean isFinal() {
-    return mPE.isFinal();
-  }
+  public boolean isFinal() { return mPE.isFinal(); }
 
-  public boolean isStatic() {
-    return mPE.isStatic();
-  }
+  public boolean isStatic() { return mPE.isStatic(); }
 
 }

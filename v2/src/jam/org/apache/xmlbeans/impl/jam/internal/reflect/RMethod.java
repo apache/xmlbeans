@@ -56,19 +56,18 @@
 
 package org.apache.xmlbeans.impl.jam.internal.reflect;
 
-import org.apache.xmlbeans.impl.jam.*;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import org.apache.xmlbeans.impl.jam.*;
 
 /**
  * Reflection-backed implementation of JClass.
  *
  * @author Patrick Calahan <pcal@bea.com>
  */
-/*package*/
-
-final class RMethod extends RMember implements JMethod {
+/*package*/ final class RMethod extends RMember implements JMethod 
+{
 
   // ========================================================================
   // Variables
@@ -77,43 +76,39 @@ final class RMethod extends RMember implements JMethod {
 
   // ========================================================================
   // Constructors
-
+  
   public RMethod(Method m, JClassLoader loader) {
-    super(m, loader);
+    super(m,loader);
     mMethod = m;
   }
 
   // ========================================================================
   // JElement implementation
 
-  public JElement[] getChildren() {
-    return getParameters();
-  }
+  public JElement[] getChildren() { return getParameters(); }
 
   // ========================================================================
   // JMethod implementation
 
   public JClass getReturnType() {
-    return getClassSafely(mMethod.getReturnType().getName(), mLoader);
+    return RClassLoader.getClassFor(mMethod.getReturnType(),mLoader);
   }
 
   public JParameter[] getParameters() {
     return RParameter.createParameters
-            (mMethod.getParameterTypes(), this, mLoader);
+      (mMethod.getParameterTypes(),this,mLoader);
   }
 
   public JClass[] getExceptionTypes() {
-    return RClass.getClasses(mMethod.getExceptionTypes(), mLoader);
+    return RClass.getClasses(mMethod.getExceptionTypes(),mLoader);
   }
 
-  public boolean isSynchronized() {
+  public boolean isSynchronized() { 
     return Modifier.isSynchronized(mMethod.getModifiers());
   }
 
-  public boolean isNative() {
+  public boolean isNative() { 
     return Modifier.isNative(mMethod.getModifiers());
   }
 
 }
-
-

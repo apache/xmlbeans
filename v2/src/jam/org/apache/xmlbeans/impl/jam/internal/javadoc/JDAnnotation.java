@@ -56,6 +56,7 @@
 
 package org.apache.xmlbeans.impl.jam.internal.javadoc;
 
+
 import org.apache.xmlbeans.impl.jam.JElement;
 import org.apache.xmlbeans.impl.jam.JSourcePosition;
 import org.apache.xmlbeans.impl.jam.internal.BaseJAnnotation;
@@ -65,31 +66,41 @@ import org.apache.xmlbeans.impl.jam.internal.BaseJAnnotation;
  *
  * @author Patrick Calahan <pcal@bea.com>
  */
-
-/*package*/ final class JDAnnotation extends BaseJAnnotation {
-
+public class JDAnnotation extends BaseJAnnotation
+{
   // ========================================================================
   // Variables
+  private JSourcePosition mSourcePosition = null;
 
-  private com.sun.javadoc.Tag mTag;
-
+//  private com.sun.javadoc.Tag mTag;
+  //
   // ========================================================================
   // Constructors
+  
+//  public JDAnnotation(JElement parent, String name, String value, JSourcePosition sp) {
+//    super(parent, name, value);
+//    mSourcePosition = sp;
+//  }
+//  
+//  public JDAnnotation(JElement parent,com.sun.javadoc.Tag tag) 
+//  {
+//    this(parent, tag, tag.name(), tag.text());
+//  }
+//
+//  public JDAnnotation(JElement parent, com.sun.javadoc.ParamTag tag) 
+//  {
+//    this(parent, tag, tag.name(), tag.parameterComment()); //REVIEW?
+//  }
 
-  public JDAnnotation(JElement parent, com.sun.javadoc.Tag tag) {
-    this(parent, tag, tag.name(), tag.text());
-  }
-
-  public JDAnnotation(JElement parent, com.sun.javadoc.ParamTag tag) {
-    this(parent, tag, tag.name(), tag.parameterComment()); //REVIEW?
-  }
-
-  private JDAnnotation(JElement parent,
-                       com.sun.javadoc.Tag tag,
-                       String name,
-                       String value) {
-    super(parent, trimAtSign(name), value);
-    mTag = tag;
+  public JDAnnotation(JElement parent,
+//		       com.sun.javadoc.Tag tag, 
+		       String name, 
+		       String value,
+           JSourcePosition sourcePosition) 
+  {
+    super(parent, trimAtSign(name),value);
+    mSourcePosition = sourcePosition;
+//    mTag = tag;
   }
 
   // ========================================================================
@@ -98,8 +109,9 @@ import org.apache.xmlbeans.impl.jam.internal.BaseJAnnotation;
   // we want to lazily instantiate these since they probably won't get
   // used often.
 
-  public JSourcePosition getSourcePosition() {
-    return new JDSourcePosition(mTag.position());
+  public JSourcePosition getSourcePosition() { 
+    return mSourcePosition;
+//    return JDFactory.getInstance().createSourcePosition(mTag.position());
     //FIXME but still want lazy instantiation
   }
 

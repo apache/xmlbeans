@@ -56,19 +56,18 @@
 
 package org.apache.xmlbeans.impl.jam.internal.javadoc;
 
+
 import com.sun.javadoc.ClassDoc;
 import com.sun.javadoc.RootDoc;
 import com.sun.javadoc.Type;
-import org.apache.xmlbeans.impl.jam.*;
-import org.apache.xmlbeans.impl.jam.internal.ArrayJClass;
-import org.apache.xmlbeans.impl.jam.internal.JPackageImpl;
-import org.apache.xmlbeans.impl.jam.internal.PrimitiveJClass;
-
 import java.io.StringWriter;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import org.apache.xmlbeans.impl.jam.*;
+import org.apache.xmlbeans.impl.jam.internal.ArrayJClass;
+import org.apache.xmlbeans.impl.jam.internal.PrimitiveJClass;
 
 
 /**
@@ -76,10 +75,12 @@ import java.util.Map;
  *
  * @author Patrick Calahan <pcal@bea.com>
  */
-public final class JDClassLoader implements JClassLoader {
+public class JDClassLoader implements JClassLoader
+{
   // ========================================================================
   // Variables
 
+  private RootDoc mRootDoc = null;
   private Map mName2Package = new HashMap();
   private Map mFd2Class = new HashMap();
   private JAnnotationLoader mAnnotationLoader = null;//FIXME
@@ -89,43 +90,51 @@ public final class JDClassLoader implements JClassLoader {
   // Constructor
 
   public JDClassLoader(RootDoc doc, JClassLoader loader) {
+    mRootDoc = doc;
     ClassDoc[] c = doc.classes();
     mParentLoader = (loader != null) ? loader :
-            JFactory.getInstance().getSystemClassLoader();
-    for (int i = 0; i < c.length; i++) {
+      JFactory.getInstance().getSystemClassLoader();
+    for(int i=0; i<c.length; i++) {
       //REVIEW kinda bad to be passing references to ourself around in
       //the constructor.  I think it's ok here, though.  No?
-      JDClass clazz = new JDClass(c[i], this);
-      mFd2Class.put(clazz.getFieldDescriptor(), clazz);
+      JClass clazz = JDFactory.getInstance().createClass(c[i],this);
+      mFd2Class.put(clazz.getFieldDescriptor(),clazz);
     }
   }
 
   // ========================================================================
   // JClassLoader implementation
 
-  public JClassLoader getParent() {
-    return mParentLoader;
-  }
+  public JClassLoader getParent() { return mParentLoader; }
 
-  public JClass loadClass(String fd) throws ClassNotFoundException {
+  public JClass loadClass(String fd)
+  {
     fd = fd.trim();//REVIEW is this paranoid?
     if (fd.startsWith("[")) {
-      return ArrayJClass.createClassFor(fd, this);
+      return ArrayJClass.createClassFor(fd,this);
     } else {
-      JClass out = (JClass) mFd2Class.get(fd);
-      return (out != null) ? out : mParentLoader.loadClass(fd);
+      if (fd.equals("java.lang.Object")) return mParentLoader.loadClass(fd);
+      JClass out = (JClass)mFd2Class.get(fd);
+      if (out != null) return out;
+      ClassDoc jc = mRootDoc.classNamed(fd);
+      if (jc != null) {
+	mFd2Class.put(fd,out = JDFactory.getInstance().createClass(jc,this));
+	return out;
+      } else {
+	return mParentLoader.loadClass(fd);
+      }
     }
   }
 
-  public JAnnotationLoader getAnnotationLoader() {
-    return mAnnotationLoader;
+  public JAnnotationLoader getAnnotationLoader() { 
+    return mAnnotationLoader; 
   }
 
   public JPackage getPackage(String named) {
-    JPackage out = (JPackage) mName2Package.get(named);
+    JPackage out = (JPackage)mName2Package.get(named);
     if (out == null) {
-      out = new JPackageImpl(named);
-      mName2Package.put(named, out);
+      out = JDFactory.getInstance().createPackage(named);
+      mName2Package.put(named,out);
     }
     return out;
   }
@@ -144,10 +153,8 @@ public final class JDClassLoader implements JClassLoader {
   // ========================================================================
   // Static utilities
 
-  /*package*/
-  static JClass getClassSafely(Type t, JClassLoader loader) {
-    return org.apache.xmlbeans.impl.jam.internal.BaseJElement.
-            getClassSafely(getFieldDescriptorFor(t), loader);
+  /*package*/ static JClass getClassFor(Type t, JClassLoader loader) {
+    return loader.loadClass(getFieldDescriptorFor(t));
   }
 
   /**
@@ -156,25 +163,24 @@ public final class JDClassLoader implements JClassLoader {
    * be used with Class.forName(), JRootContext.getClass(), or
    * JClass.forName().
    */
-  /*package*/
-  static String getFieldDescriptorFor(Type t) {
+  /*package*/ static String getFieldDescriptorFor(Type t) {
     String dim = t.dimension();
-    if (dim == null || dim.length() == 0) {
+    if (dim == null || dim.length() == 0) { 
       return t.qualifiedTypeName();
     } else {
       StringWriter out = new StringWriter();
-      for (int i = 0, iL = dim.length() / 2; i < iL; i++) out.write("[");
-      JClass primClass =
-              PrimitiveJClass.getPrimitiveClassForName(t.qualifiedTypeName());
+      for(int i=0, iL=dim.length()/2; i<iL; i++) out.write("[");
+      JClass primClass = 
+	PrimitiveJClass.getPrimitiveClassForName(t.qualifiedTypeName());
       if (primClass != null) { //i.e. if primitive
         out.write(primClass.getFieldDescriptor());
       } else {
         out.write("L");
         out.write(t.qualifiedTypeName());
         out.write(";");
-      }
+      } 
       return out.toString();
-    }
+    } 
   }
 
 }

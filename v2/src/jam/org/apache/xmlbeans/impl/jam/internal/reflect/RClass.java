@@ -53,14 +53,7 @@
 * Inc., <http://www.bea.com/>. For more information on the Apache Software
 * Foundation, please see <http://www.apache.org/>.
 */
-
 package org.apache.xmlbeans.impl.jam.internal.reflect;
-
-import org.apache.xmlbeans.impl.jam.*;
-import org.apache.xmlbeans.impl.jam.internal.BaseJElement;
-import org.apache.xmlbeans.impl.jam.internal.JClassHelper;
-import org.apache.xmlbeans.impl.jam.internal.JPropertyImpl;
-import org.apache.xmlbeans.impl.jam.internal.PrimitiveJClass;
 
 import java.io.StringWriter;
 import java.lang.reflect.Constructor;
@@ -68,6 +61,11 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.*;
+import org.apache.xmlbeans.impl.jam.*;
+import org.apache.xmlbeans.impl.jam.internal.BaseJElement;
+import org.apache.xmlbeans.impl.jam.internal.JClassHelper;
+import org.apache.xmlbeans.impl.jam.internal.JPropertyImpl;
+import org.apache.xmlbeans.impl.jam.internal.PrimitiveJClass;
 
 /**
  * Javadoc-backed implementation of JClass.
@@ -86,7 +84,7 @@ public class RClass extends BaseJElement implements JClass {
 
   // ========================================================================
   // Constructors
-
+  
   public RClass(Class c, JClassLoader loader) {
     mLoader = loader;
     mClass = c;
@@ -107,7 +105,7 @@ public class RClass extends BaseJElement implements JClass {
   public String getSimpleName() {
     String out = getQualifiedName();
     int lastDot = out.lastIndexOf('.');
-    return (lastDot == -1) ? out : out.substring(lastDot + 1);
+    return (lastDot == -1) ? out : out.substring(lastDot+1);
   }
 
   public String getQualifiedName() {
@@ -117,7 +115,7 @@ public class RClass extends BaseJElement implements JClass {
       StringWriter out = new StringWriter();
       out.write(getArrayComponentType().getQualifiedName());
       int dim = getArrayDimensions();
-      for (int i = 0; i < dim; i++) out.write("[]");
+      for(int i=0; i<dim; i++) out.write("[]");
       return out.toString();
     }
   }
@@ -128,31 +126,27 @@ public class RClass extends BaseJElement implements JClass {
   /**
    * We can't implement this until JSR175 is here.
    */
-  protected void getLocalAnnotations(Collection out) {
-  }
+  protected void getLocalAnnotations(Collection out) {}
 
   /**
    * We can't ever implement this.
    */
-  protected void getLocalComments(Collection out) {
-  }
+  protected void getLocalComments(Collection out) {}
 
   // ========================================================================
   // JClass implementation
 
-  public JClassLoader getClassLoader() {
-    return mLoader;
-  }
+  public JClassLoader getClassLoader() { return mLoader; }
 
-  public JClass forName(String fd) throws ClassNotFoundException {
+  public JClass forName(String fd) {
     return mLoader.loadClass(fd);
   }
-
+  
   public JClass getSuperclass() {
     if (isObject() || isInterface() || isPrimitive()) {
       return null;
     } else {
-      return getClassSafely(mClass.getSuperclass().getName(), mLoader);
+      return RClassLoader.getClassFor(mClass.getSuperclass(),mLoader);
     }
   }
 
@@ -189,10 +183,10 @@ public class RClass extends BaseJElement implements JClass {
       // let's not go defining new packages - just figure it out the
       // hard way.
       pkgName = !isArray() ? getQualifiedName() :
-              getArrayComponentType().getQualifiedName();
+        getArrayComponentType().getQualifiedName();
       int lastDot = pkgName.lastIndexOf(".");
-      if (lastDot != -1 && lastDot < pkgName.length() - 1) {
-        pkgName = pkgName.substring(0, lastDot);
+      if (lastDot != -1 && lastDot < pkgName.length()-1) {
+        pkgName = pkgName.substring(0,lastDot);
       }
     }
     return mLoader.getPackage(pkgName);
@@ -210,25 +204,21 @@ public class RClass extends BaseJElement implements JClass {
     return mClass.getName().equals("void");
   }
 
-  public boolean isObject() {
-    return mClass == Object.class;
+  public boolean isObject() { return mClass == Object.class; }
+
+  public boolean isAbstract() { 
+    return Modifier.isAbstract(mClass.getModifiers()); 
   }
 
-  public boolean isAbstract() {
-    return Modifier.isAbstract(mClass.getModifiers());
-  }
-
-  public boolean isArray() {
-    return mClass.isArray();
-  }
+  public boolean isArray() { return mClass.isArray(); }
 
   public JClass getArrayComponentType() {
     if (mClass.getComponentType() == null) {
       return null;
     } else {
       Class c = mClass.getComponentType();
-      while (c.getComponentType() != null) c = c.getComponentType();
-      return getClassSafely(c.getName(), mLoader);
+      while(c.getComponentType() != null) c = c.getComponentType();
+      return RClassLoader.getClassFor(c,mLoader);
     }
   }
 
@@ -236,7 +226,7 @@ public class RClass extends BaseJElement implements JClass {
   public int getArrayDimensions() {
     int out = 0;
     Class c = mClass;
-    while ((c = c.getComponentType()) != null) out++;
+    while((c = c.getComponentType()) != null) out++;
     return out;
   }
 
@@ -244,19 +234,17 @@ public class RClass extends BaseJElement implements JClass {
     return mClass.getName();
   }
 
-  public JClass[] getClasses() {
-    return getClasses(mClass.getClasses());
-  }
+  public JClass[] getClasses() { return getClasses(mClass.getClasses()); }
 
   public boolean isAssignableFrom(JClass clazz) {
     return mHelper.isAssignableFrom(clazz);
   }
 
-  public boolean isStatic() {
+  public boolean isStatic() { 
     return Modifier.isStatic(mClass.getModifiers());
   }
 
-  public boolean isFinal() {
+  public boolean isFinal() { 
     return Modifier.isFinal(mClass.getModifiers());
   }
 
@@ -266,22 +254,29 @@ public class RClass extends BaseJElement implements JClass {
     return JPropertyImpl.getProperties(this);
   }
 
+  public JPackage[] getImportedPackages() { return BaseJElement.NO_PACKAGE; }
+
+  public JClass[] getImportedClasses() { return BaseJElement.NO_CLASS; }
+
+  public boolean isUnresolved() { return false; }
+
   // ========================================================================
   // JMember implementation
 
   public JClass getContainingClass() {
-    return getClassSafely(mClass.getDeclaringClass().getName(), mLoader);
+    if (mClass.getDeclaringClass() == null) return null;
+    return RClassLoader.getClassFor(mClass.getDeclaringClass(),mLoader);
   }
 
-  public boolean isProtected() {
+  public boolean isProtected() { 
     return Modifier.isProtected(mClass.getModifiers());
   }
 
-  public boolean isPublic() {
+  public boolean isPublic() { 
     return Modifier.isPublic(mClass.getModifiers());
   }
 
-  public boolean isPrivate() {
+  public boolean isPrivate() { 
     return Modifier.isPrivate(mClass.getModifiers());
   }
 
@@ -289,20 +284,16 @@ public class RClass extends BaseJElement implements JClass {
     return !isPublic() && !isProtected() && !isPrivate();
   }
 
-  public int getModifiers() {
-    return mClass.getModifiers();
-  }
+  public int getModifiers() { return mClass.getModifiers(); }
 
-  public JSourcePosition getSourcePosition() {
-    return null;
-  }
+  public JSourcePosition getSourcePosition() { return null; }
 
   // ========================================================================
   // Object implementation
 
   public boolean equals(Object o) {
     if (o instanceof JClass) {
-      return ((JClass) o).getFieldDescriptor().equals(getFieldDescriptor());
+      return ((JClass)o).getFieldDescriptor().equals(getFieldDescriptor());
     }
     return false;
   }
@@ -316,7 +307,7 @@ public class RClass extends BaseJElement implements JClass {
 
   private JField[] getFields(Field[] fields) {
     List list = new ArrayList();
-    for (int i = 0; i < fields.length; i++) {
+    for(int i=0; i<fields.length; i++) {
       list.add(getField(fields[i]));
     }
     JField[] out = new JField[list.size()];
@@ -326,7 +317,7 @@ public class RClass extends BaseJElement implements JClass {
 
   private JMethod[] getMethods(Method[] methods) {
     List list = new ArrayList();
-    for (int i = 0; i < methods.length; i++) {
+    for(int i=0; i<methods.length; i++) {
       list.add(getMethod(methods[i]));
     }
     JMethod[] out = new JMethod[list.size()];
@@ -336,7 +327,7 @@ public class RClass extends BaseJElement implements JClass {
 
   private JConstructor[] getConstructors(Constructor[] constructors) {
     List list = new ArrayList();
-    for (int i = 0; i < constructors.length; i++) {
+    for(int i=0; i<constructors.length; i++) {
       list.add(getConstructor(constructors[i]));
     }
     JConstructor[] out = new JConstructor[list.size()];
@@ -345,36 +336,34 @@ public class RClass extends BaseJElement implements JClass {
   }
 
   private JField getField(Field f) {
-    JField out = (JField) mWrapperMap.get(f);
-    if (out == null) mWrapperMap.put(f, out = new RField(f, mLoader));
+    JField out = (JField)mWrapperMap.get(f);
+    if (out == null) mWrapperMap.put(f,out = new RField(f,mLoader));
     return out;
   }
 
   private JMethod getMethod(Method f) {
-    JMethod out = (JMethod) mWrapperMap.get(f);
-    if (out == null) mWrapperMap.put(f, out = new RMethod(f, mLoader));
+    JMethod out = (JMethod)mWrapperMap.get(f);
+    if (out == null) mWrapperMap.put(f,out = new RMethod(f,mLoader));
     return out;
   }
 
   private JConstructor getConstructor(Constructor f) {
-    JConstructor out = (JConstructor) mWrapperMap.get(f);
-    if (out == null) mWrapperMap.put(f, out = new RConstructor(f, mLoader));
+    JConstructor out = (JConstructor)mWrapperMap.get(f);
+    if (out == null) mWrapperMap.put(f,out = new RConstructor(f,mLoader));
     return out;
   }
 
-  private JClass[] getClasses(Class[] c) {
-    return getClasses(c, mLoader);
-  }
+  private JClass[] getClasses(Class[] c) { return getClasses(c,mLoader); }
 
   // ========================================================================
   // Package utility methods
 
-  /*package*/
-  static JClass[] getClasses(Class[] c, JClassLoader loader) {
+
+  /*package*/ static JClass[] getClasses(Class[] c, JClassLoader loader) {
     if (c == null) return null;
     JClass[] out = new JClass[c.length];
-    for (int i = 0; i < out.length; i++) {
-      out[i] = getClassSafely(c[i].getName(), loader);
+    for(int i=0; i<out.length; i++) {
+      out[i] = RClassLoader.getClassFor(c[i],loader);
     }
     return out;
   }

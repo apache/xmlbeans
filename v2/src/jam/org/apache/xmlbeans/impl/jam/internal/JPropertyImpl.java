@@ -56,10 +56,10 @@
 
 package org.apache.xmlbeans.impl.jam.internal;
 
-import org.apache.xmlbeans.impl.jam.*;
 
 import java.util.HashMap;
 import java.util.Map;
+import org.apache.xmlbeans.impl.jam.*;
 
 /**
  * <p>Implementation of JProperty.</p>
@@ -84,55 +84,59 @@ public class JPropertyImpl implements JProperty {
   /**
    * Returns an array of properties found on the given class.
    */
-  public static JProperty[] getProperties(JClass clazz) {
+  public static JProperty[] getProperties(JClass clazz)
+  {
     Map name2prop = new HashMap();
     JMethod[] methods = clazz.getMethods();
-    for (int i = 0; i < methods.length; i++) {
+    for(int i=0; i<methods.length; i++) {
       String name = methods[i].getSimpleName();
       //
       // process getters
       //
-      if (name.startsWith("get") && name.length() > 3) {
-        JClass type = methods[i].getReturnType();
-        if (type == null) continue; // must have a type and have
-        if (methods[i].getParameters().length > 0) continue; //no params
-        name = name.substring(3);
-        JPropertyImpl prop = (JPropertyImpl) name2prop.get(name);
-        if (prop == null) {
-          prop = new JPropertyImpl(name, methods[i], null, type);
-          name2prop.put(name, prop);
-        } else {
-          if (type.equals(prop.getType())) {
-            // if it's the same type, cool - just add the getter
-            prop.mGetter = methods[i];
-          } else {
-            // Otherwise, getter/setter types are mismatched and we
-            // don't have a property.  REVIEW ok?
-            name2prop.remove(name);
-          }
-        }
+      if (name.startsWith("get") && name.length() > 3 || name.startsWith("is") && name.length() > 2) {
+	JClass type = methods[i].getReturnType();
+	if (type == null) continue; // must have a type and have
+	if (methods[i].getParameters().length > 0) continue; //no params
+        if (name.startsWith("get"))
+          name = name.substring(3);
+        else
+          name = name.substring(2);
+	JPropertyImpl prop = (JPropertyImpl)name2prop.get(name);
+	if (prop == null) {
+	  prop = new JPropertyImpl(name,methods[i],null,type);
+	  name2prop.put(name,prop);
+	} else {
+	  if (type.equals(prop.getType())) {
+	    // if it's the same type, cool - just add the getter
+	    prop.mGetter = methods[i];
+	  } else {
+	    // Otherwise, getter/setter types are mismatched and we
+	    // don't have a property.  REVIEW ok?
+	    name2prop.remove(name);
+	  }
+	}
       }
       //
       // process setters
       //
       if (name.startsWith("set") && name.length() > 3) {
-        if (methods[i].getParameters().length != 1) continue; //1 param reqd
-        JClass type = methods[i].getParameters()[0].getType();
-        name = name.substring(3);
-        JPropertyImpl prop = (JPropertyImpl) name2prop.get(name);
-        if (prop == null) {
-          prop = new JPropertyImpl(name, null, methods[i], type);
-          name2prop.put(name, prop);
-        } else {
-          if (type.equals(prop.getType())) {
-            // if it's the same type, cool - just add the getter
-            prop.mSetter = methods[i];
-          } else {
-            // Otherwise, getter/setter types are mismatched and we
-            // don't have a property.  REVIEW ok?
-            name2prop.remove(name);
-          }
-        }
+	if (methods[i].getParameters().length != 1) continue; //1 param reqd
+	JClass type = methods[i].getParameters()[0].getType();
+	name = name.substring(3);
+	JPropertyImpl prop = (JPropertyImpl)name2prop.get(name);
+	if (prop == null) {
+	  prop = new JPropertyImpl(name,null,methods[i],type);
+	  name2prop.put(name,prop);
+	} else {
+	  if (type.equals(prop.getType())) {
+	    // if it's the same type, cool - just add the getter
+	    prop.mSetter = methods[i];
+	  } else {
+	    // Otherwise, getter/setter types are mismatched and we
+	    // don't have a property.  REVIEW ok?
+	    name2prop.remove(name);
+	  }
+	}
       }
     }
     JProperty[] out = new JProperty[name2prop.values().size()];
@@ -151,9 +155,10 @@ public class JPropertyImpl implements JProperty {
    * case.</p>
    */
   public JPropertyImpl(String name,
-                       JMethod getter,
-                       JMethod setter,
-                       JClass type) {
+		       JMethod getter,
+		       JMethod setter,
+		       JClass type)
+  {
     mName = name;
     mGetter = getter;
     mSetter = setter;
@@ -166,18 +171,14 @@ public class JPropertyImpl implements JProperty {
   /**
    * Returns a JClass which represents the type of this property.
    */
-  public JClass getType() {
-    return mType;
-  }
+  public JClass getType() { return mType; }
 
   /**
    * Returns the simple name of this property.  For example, for a
    * property manifest by getFoo() and setFoo(), this will return
    * 'foo'.
    */
-  public String getSimpleName() {
-    return mName;
-  }
+  public String getSimpleName() { return mName; }
 
 
   /**
@@ -186,24 +187,20 @@ public class JPropertyImpl implements JProperty {
    * 'foo'.
    */
   public String getQualifiedName() {
-    return getParent().getQualifiedName() + "." + getSimpleName(); //REVIEW
+    return getParent().getQualifiedName()+"."+getSimpleName(); //REVIEW
   }
 
   /**
    * Returns a JMethod which represents the setter for this property.
    * Returns null if this property is read-only.
    */
-  public JMethod getSetter() {
-    return mSetter;
-  }
+  public JMethod getSetter() { return mSetter; }
 
   /**
    * Returns a JMethod which represents the getter for this property.
    * Returns null if this property is write-only.
    */
-  public JMethod getGetter() {
-    return mGetter;
-  }
+  public JMethod getGetter() { return mGetter; }
 
   // ========================================================================
   // JElement implementation
@@ -214,9 +211,9 @@ public class JPropertyImpl implements JProperty {
    */
   public JAnnotation[] getAnnotations() {
     return combine((mGetter == null) ?
-            BaseJElement.NO_ANNOTATION : mGetter.getAnnotations(),
-            (mSetter == null) ?
-            BaseJElement.NO_ANNOTATION : mSetter.getAnnotations());
+		   BaseJElement.NO_ANNOTATION : mGetter.getAnnotations(),
+		   (mSetter == null) ?
+		   BaseJElement.NO_ANNOTATION : mSetter.getAnnotations());
   }
 
   /**
@@ -225,9 +222,9 @@ public class JPropertyImpl implements JProperty {
    */
   public JAnnotation[] getAnnotations(String named) {
     return combine((mGetter == null) ?
-            BaseJElement.NO_ANNOTATION : mGetter.getAnnotations(named),
-            (mSetter == null) ?
-            BaseJElement.NO_ANNOTATION : mSetter.getAnnotations(named));
+		   BaseJElement.NO_ANNOTATION : mGetter.getAnnotations(named),
+		   (mSetter == null) ?
+		   BaseJElement.NO_ANNOTATION : mSetter.getAnnotations(named));
   }
 
   /**
@@ -246,9 +243,9 @@ public class JPropertyImpl implements JProperty {
 
   public JComment[] getComments() {
     return combine((mGetter == null) ?
-            BaseJElement.NO_COMMENT : mGetter.getComments(),
-            (mSetter == null) ?
-            BaseJElement.NO_COMMENT : mSetter.getComments());
+		   BaseJElement.NO_COMMENT : mGetter.getComments(),
+		   (mSetter == null) ?
+		   BaseJElement.NO_COMMENT : mSetter.getComments());
   }
 
   public JElement getParent() {
@@ -257,15 +254,13 @@ public class JPropertyImpl implements JProperty {
 
   public JSourcePosition getSourcePosition() {
     return mGetter != null ?
-            mGetter.getSourcePosition() : mSetter.getSourcePosition();
+      mGetter.getSourcePosition() : mSetter.getSourcePosition();
   }
 
   // ========================================================================
   // Object implementation
 
-  public String toString() {
-    return getQualifiedName();
-  }
+  public String toString() { return getQualifiedName(); }
 
   // ========================================================================
   // Private methods
@@ -277,9 +272,9 @@ public class JPropertyImpl implements JProperty {
   private JAnnotation[] combine(JAnnotation[] a, JAnnotation[] b) {
     if (a.length == 0) return b;
     if (b.length == 0) return a;
-    JAnnotation[] out = new JAnnotation[a.length + b.length];
-    System.arraycopy(a, 0, out, 0, a.length);
-    System.arraycopy(b, 0, out, a.length, b.length);
+    JAnnotation[] out = new JAnnotation[a.length+b.length];
+    System.arraycopy(a,0,out,0,a.length);
+    System.arraycopy(b,0,out,a.length,b.length);
     return out;
   }
 
@@ -290,9 +285,9 @@ public class JPropertyImpl implements JProperty {
   private JComment[] combine(JComment[] a, JComment[] b) {
     if (a.length == 0) return b;
     if (b.length == 0) return a;
-    JComment[] out = new JComment[a.length + b.length];
-    System.arraycopy(a, 0, out, 0, a.length);
-    System.arraycopy(b, 0, out, a.length, b.length);
+    JComment[] out = new JComment[a.length+b.length];
+    System.arraycopy(a,0,out,0,a.length);
+    System.arraycopy(b,0,out,a.length,b.length);
     return out;
   }
 }

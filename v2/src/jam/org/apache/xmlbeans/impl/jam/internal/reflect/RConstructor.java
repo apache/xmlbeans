@@ -56,18 +56,17 @@
 
 package org.apache.xmlbeans.impl.jam.internal.reflect;
 
-import org.apache.xmlbeans.impl.jam.*;
 
 import java.lang.reflect.Constructor;
+import org.apache.xmlbeans.impl.jam.*;
 
 /**
  * Reflection-backed implementation of JClass.
  *
  * @author Patrick Calahan <pcal@bea.com>
  */
-/*package*/
-
-final class RConstructor extends RMember implements JConstructor {
+/*package*/ final class RConstructor extends RMember implements JConstructor 
+{
 
   // ========================================================================
   // Variables
@@ -76,31 +75,26 @@ final class RConstructor extends RMember implements JConstructor {
 
   // ========================================================================
   // Constructors
-
+  
   public RConstructor(Constructor m, JClassLoader loader) {
-    super(m, loader);
+    super(m,loader);
     mConstructor = m;
   }
 
   // ========================================================================
   // JElement implementation
 
-  public JElement[] getChildren() {
-    return getParameters();
-  }
+  public JElement[] getChildren() { return getParameters(); }
 
   // ========================================================================
   // JConstructor implementation
 
   public JParameter[] getParameters() {
     return RParameter.createParameters
-            (mConstructor.getParameterTypes(), this, mLoader);
+      (mConstructor.getParameterTypes(),this,mLoader);
   }
 
   public JClass[] getExceptionTypes() {
-    return RClass.getClasses(mConstructor.getExceptionTypes(), mLoader);
+    return RClass.getClasses(mConstructor.getExceptionTypes(),mLoader);
   }
-
 }
-
-

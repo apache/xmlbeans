@@ -347,9 +347,39 @@ public interface JClass extends JMember {
    */
   public JClassLoader getClassLoader();
 
-
   /**
    * Shorthand for myClass.getClassLoader().loadClass(name)
    */
-  public JClass forName(String name) throws ClassNotFoundException;
+  public JClass forName(String name);
+
+  /**
+   * Returns a list of classes that were imported by this class.  This
+   * includes packages imported via the '*' import notation as well as
+   * the packages which contain explicitly imported classes.
+   *
+   * Note that this is an optional operation; if the source for the
+   * class is not available (i.e. this JClass is backed by a
+   * java.lang.Class), then this method will return an array of length
+   * 0.
+   */
+  public JPackage[] getImportedPackages();
+
+  /**
+   * Returns a list of classes that were explicitly imported by this
+   * class.  Note that this is an optional operation; if the source
+   * for the class is not available (i.e. this JClass is backed by a
+   * java.lang.Class), then this method will return an array of length
+   * 0.
+   */
+  public JClass[] getImportedClasses();
+
+  /**
+   * Returns true if a backing entity for this class could not be
+   * resolved.  This will be true, for example, of the JClass which
+   * you get when requesting a method's return type when no class for
+   * that type can be found.  In this case, the JClass will be have
+   * only a name - all other properties will be null/empty.
+   */
+  public boolean isUnresolved();
+
 }

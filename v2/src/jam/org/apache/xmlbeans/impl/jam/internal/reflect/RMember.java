@@ -56,20 +56,18 @@
 
 package org.apache.xmlbeans.impl.jam.internal.reflect;
 
-import org.apache.xmlbeans.impl.jam.*;
-import org.apache.xmlbeans.impl.jam.internal.BaseJElement;
-
 import java.lang.reflect.Member;
 import java.lang.reflect.Modifier;
 import java.util.Collection;
+import org.apache.xmlbeans.impl.jam.*;
+import org.apache.xmlbeans.impl.jam.internal.BaseJElement;
 
 /**
  * Reflection-backed implementation of JMember.
  *
  * @author Patrick Calahan <pcal@bea.com>
  */
-/*package*/
-
+/*package*/ 
 abstract class RMember extends BaseJElement implements JMember {
 
   // ========================================================================
@@ -80,7 +78,7 @@ abstract class RMember extends BaseJElement implements JMember {
 
   // ========================================================================
   // Constructors
-
+  
   public RMember(Member m, JClassLoader loader) {
     mLoader = loader;
     mMember = m;
@@ -90,45 +88,39 @@ abstract class RMember extends BaseJElement implements JMember {
   // JElement implementation
 
   public JElement getParent() {
-    return getClassSafely(mMember.getDeclaringClass().getName(), mLoader);
+    return RClassLoader.getClassFor(mMember.getDeclaringClass(),mLoader);
   }
 
-  public JElement[] getChildren() {
-    return null;
-  }
+  public JElement[] getChildren() { return null; }
 
-  public String getSimpleName() {
-    return mMember.getName();
-  }
+  public String getSimpleName() { return mMember.getName(); }
 
-  public String getQualifiedName() {
-    return mMember.getName();
-  } //FIXME
+  public String getQualifiedName() { return mMember.getName(); } //FIXME
 
   // ========================================================================
   // JMember implementation
 
-  public boolean isFinal() {
+  public boolean isFinal() { 
     return Modifier.isFinal(mMember.getModifiers());
   }
 
-  public boolean isAbstract() {
+  public boolean isAbstract() { 
     return Modifier.isAbstract(mMember.getModifiers());
   }
 
-  public boolean isProtected() {
+  public boolean isProtected() { 
     return Modifier.isProtected(mMember.getModifiers());
   }
 
-  public boolean isPublic() {
+  public boolean isPublic() { 
     return Modifier.isPublic(mMember.getModifiers());
   }
 
-  public boolean isPrivate() {
+  public boolean isPrivate() { 
     return Modifier.isPrivate(mMember.getModifiers());
   }
 
-  public boolean isStatic() {
+  public boolean isStatic() { 
     return Modifier.isStatic(mMember.getModifiers());
   }
 
@@ -136,27 +128,21 @@ abstract class RMember extends BaseJElement implements JMember {
     return !isPublic() && !isProtected() && !isPrivate();
   }
 
-  public int getModifiers() {
-    return mMember.getModifiers();
-  }
+  public int getModifiers() { return mMember.getModifiers(); }
 
   /**
    * We're never going to know this.
    */
-  public JSourcePosition getSourcePosition() {
-    return null;
-  }
+  public JSourcePosition getSourcePosition() { return null; }
 
   // ========================================================================
   // JMember implementation
-
+  
   public JClass getContainingClass() {
-    return getClassSafely(mMember.getDeclaringClass().getName(), mLoader);
+    return RClassLoader.getClassFor(mMember.getDeclaringClass(),mLoader);
   }
 
-  public boolean isSynthetic() {
-    return false;
-  }//FIXME?
+  public boolean isSynthetic() { return false; }//FIXME?
 
   // ========================================================================
   // BaseJElement implementation
@@ -164,13 +150,11 @@ abstract class RMember extends BaseJElement implements JMember {
   /**
    * We can't implement this until JSR175 is here.
    */
-  protected void getLocalAnnotations(Collection out) {
-  }
+  protected  void getLocalAnnotations(Collection out) {}
 
   /**
    * We can't ever implement this.
    */
-  protected void getLocalComments(Collection out) {
-  }
+  protected  void getLocalComments(Collection out) {}
 
 }

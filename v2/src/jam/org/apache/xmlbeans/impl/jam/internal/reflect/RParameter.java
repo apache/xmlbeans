@@ -111,10 +111,10 @@
 
 package org.apache.xmlbeans.impl.jam.internal.reflect;
 
-import org.apache.xmlbeans.impl.jam.*;
-import org.apache.xmlbeans.impl.jam.internal.BaseJElement;
 
 import java.util.Collection;
+import org.apache.xmlbeans.impl.jam.*;
+import org.apache.xmlbeans.impl.jam.internal.BaseJElement;
 
 /**
  * <p>Reflection-backed implementation of JParameter.  Note that
@@ -124,23 +124,23 @@ import java.util.Collection;
  *
  * @author Patrick Calahan <pcal@bea.com>
  */
-/*package*/
-
-final class RParameter extends BaseJElement
-        implements JParameter {
+/*package*/ final class RParameter extends BaseJElement
+	      implements JParameter 
+{
 
   // ========================================================================
   // Factory
-
+  
   public static final JParameter[] createParameters
-          (Class[] types, JElement parent, JClassLoader loader) {
+    (Class[] types, JElement parent, JClassLoader loader) 
+  {
     JParameter[] out = new JParameter[types.length];
     //REVIEW maybe we want to expose an interface to make the naming
     //rule pluggable?
-    for (int i = 0; i < out.length; i++) {
-      out[i] = new RParameter("param" + i,
-              getClassSafely(types[i].getName(), loader),
-              parent);
+    for(int i=0; i<out.length; i++) {
+      out[i] = new RParameter("param"+i,
+			      RClassLoader.getClassFor(types[i],loader),
+			      parent);
     }
     return out;
   }
@@ -154,10 +154,10 @@ final class RParameter extends BaseJElement
 
   // ========================================================================
   // Constructors
-
+  
   private RParameter(String name,
-                     JClass type,
-                     JElement parent) {
+		     JClass type, 
+		     JElement parent) {
     mName = name;
     mType = type;
     mParent = parent;
@@ -166,25 +166,15 @@ final class RParameter extends BaseJElement
   // ========================================================================
   // JElement implementation
 
-  public JElement getParent() {
-    return mParent;
-  }
+  public JElement getParent() { return mParent; }
 
-  public JElement[] getChildren() {
-    return null;
-  }
+  public JElement[] getChildren() { return null; }
+  
+  public String getSimpleName() { return mName; }
 
-  public String getSimpleName() {
-    return mName;
-  }
+  public String getQualifiedName() { return mName; } //FIXME
 
-  public String getQualifiedName() {
-    return mName;
-  } //FIXME
-
-  public JSourcePosition getSourcePosition() {
-    return null;
-  }
+  public JSourcePosition getSourcePosition() { return null; }
 
   // ========================================================================
   // BaseJElement implementation
@@ -192,20 +182,15 @@ final class RParameter extends BaseJElement
   /**
    * We can't implement this until JSR175 is here.
    */
-  protected void getLocalAnnotations(Collection out) {
-  }
+  protected void getLocalAnnotations(Collection out) {}
 
   /**
    * We can't ever implement this.
    */
-  protected void getLocalComments(Collection out) {
-  }
+  protected void getLocalComments(Collection out) {}
 
   // ========================================================================
   // JParameter implementation
 
-  public JClass getType() {
-    return mType;
-  }
+  public JClass getType() { return mType; }
 }
-

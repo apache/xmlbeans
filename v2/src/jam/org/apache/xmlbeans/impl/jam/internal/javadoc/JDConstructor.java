@@ -56,6 +56,7 @@
 
 package org.apache.xmlbeans.impl.jam.internal.javadoc;
 
+
 import com.sun.javadoc.ConstructorDoc;
 import org.apache.xmlbeans.impl.jam.JClassLoader;
 import org.apache.xmlbeans.impl.jam.JConstructor;
@@ -65,16 +66,14 @@ import org.apache.xmlbeans.impl.jam.JConstructor;
  *
  * @author Patrick Calahan <pcal@bea.com>
  */
-
-/*package*/ final class JDConstructor extends JDExecutableMember
-        implements JConstructor {
+public class JDConstructor extends JDExecutableMember 
+	      implements JConstructor 
+{
 
   // ========================================================================
   // Constructors
-
+  
   public JDConstructor(ConstructorDoc f, JClassLoader loader) {
-    super(f, loader);
+    super(f,loader);
   }
 }
-
-

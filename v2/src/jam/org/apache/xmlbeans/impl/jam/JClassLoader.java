@@ -66,8 +66,8 @@ public interface JClassLoader {
 
   /**
    * <p>Returns a representation of the named class.  If the class is
-   * not under the same root as this JElement root, a representation of
-   * it will be synthesized via reflection (see note in class
+   * not under the same root as this JElement root, a representation
+   * of it will be synthesized via reflection (see note in class
    * comments).  The 'named' parameter must be a fully-qualified class
    * name in the classfile 'Field Descriptor' format, a simple
    * primitive name (e.g. 'long' or 'int'), or 'void'.</p>
@@ -79,11 +79,14 @@ public interface JClassLoader {
    * in secion 4.3.2 of the VM spec.  This is the same name format
    * that is returned by JClass.getFieldDescriptor.</p>
    *
-   * @throws ClassNotFoundException if no such class exists.
+   * <p>Note that this method always returns a class.  If neither a
+   * sourcefile not a classfile could be located for the named class,
+   * a stubbed-out JClass will be returned with the isUnresolved()
+   * flag set to true.  This JClass will have a name (as determined by
+   * the given descriptor), but no other information about it will be
+   * available.</p>
    */
-  public JClass loadClass(String fieldDescriptor)
-          throws ClassNotFoundException;
-
+  public JClass loadClass(String fieldDescriptor);
 
   public JPackage getPackage(String name);
 
@@ -98,11 +101,6 @@ public interface JClassLoader {
    * Returns this JClassLoaders's parent.
    */
   public JClassLoader getParent();
-
-  //REVIEW do we need to expose the parent JClassLoader here?  would
-  //rather not unless there is a good reason to
-
-  //  public JClass[] getResolvedClasses();
 
 
 }

@@ -56,12 +56,11 @@
 
 package org.apache.xmlbeans.impl.jam.internal;
 
-import org.apache.xmlbeans.impl.jam.*;
-
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import org.apache.xmlbeans.impl.jam.*;
 
 /**
  * Utility class for printing out a JAM.
