@@ -31,6 +31,9 @@ public interface SchemaCodePrinter
     public void printType(Writer writer, SchemaType sType)
         throws IOException;
     
+    /**
+     * @deprecated Obsoleted by functionality in {@link SchemaTypeSystem.save()}
+     */
     public void printLoader(Writer writer, SchemaTypeSystem system)
         throws IOException;
 }

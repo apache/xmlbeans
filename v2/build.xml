@@ -302,7 +302,7 @@
   <!-- previously in xbean.xml -->
 
   <target name="xbean.jar"
-        depends="dirs, xmlpublic.classes, typestore.classes, common.classes,
+        depends="dirs, xmlpublic.classes, typeholder.template, typestore.classes, common.classes,
                  typeimpl.classes, xmlcomp.classes,
                  newstore2.classes, saaj_api.classes,
                  marshal.classes, xpath.classes, oldxbean.jar, xsdschema.classes,
@@ -310,6 +310,7 @@
                  piccolo.classes, tools.classes">
     <jar jarfile="build/lib/xbean.jar" index="true">
       <fileset dir="build/classes/xmlpublic"/>
+      <fileset dir="build/classes/typeholder"/>
       <fileset dir="build/classes/typestore"/>
       <fileset dir="build/classes/common"/>
       <fileset dir="build/classes/typeimpl"/>
@@ -415,10 +416,36 @@
 
   </target>
 
+  <!-- typeholder target ================================================ -->
+
+  <property name="typeholder.name" value="org/apache/xmlbeans/impl/schema/TypeSystemHolder"/>
+
+  <target name="typeholder.check">
+    <condition property="typeholder.notRequired">
+        <uptodate property="typeholder.notRequired"
+          targetfile="build/classes/typeholder/${typeholder.name}.template">
+          <srcfiles dir="src/typeholder" includes="${typeholder.name}.java"/>
+        </uptodate>
+    </condition>
+  </target>
+
+  <target name="typeholder.template" depends="typeholder.check, xmlpublic.classes" unless="typeholder.notRequired">
+    <mkdir dir="build/classes/typeholder"/>
+    <javac destdir="build/classes/typeholder" source="${javac.source}" target="${javac.target}" debug="off">
+      <classpath>
+        <pathelement location="build/classes/xmlpublic"/>
+      </classpath>
+      <src location="src/typeholder"/>
+    </javac>
+    <move
+      file="build/classes/typeholder/${typeholder.name}.class"
+      tofile="build/classes/typeholder/${typeholder.name}.template"/>
+  </target>
+
   <!-- typeimpl target ============================================== -->
 
   <target name="typeimpl.classes" depends="dirs, newstore2.classes,
-      repackage.classes, xmlpublic.classes, typestore.classes, xsdschema.classes,
+      repackage.classes, xmlpublic.classes, typeholder.template, typestore.classes, xsdschema.classes,
       configschema.classes, toolschema.classes, jsr173_api.jar, jam">
     <mkdir dir="build/classes/typeimpl"/>
     <javac destdir="build/classes/typeimpl" source="${javac.source}" target="${javac.target}" debug="on">
@@ -432,6 +459,8 @@
         <pathelement location="build/classes/xmlconfig"/>
         <pathelement location="build/classes/configschema"/>
         <pathelement location="build/classes/xsdschema"/>
+        <pathelement location="build/classes/xmlschema"/>
+        <pathelement location="build/classes/toolschema"/>
         <pathelement location="${jam_classes_dir}"/>
         <pathelement location="build/lib/jsr173_api.jar"/>
       </classpath>

@@ -1030,7 +1030,7 @@ public class SchemaCompiler
                 options.setSchemaCodePrinter(codePrinter);
 
             // save .xsb files
-            result &= SchemaTypeSystemCompiler.saveTypeSystem(system, filer, options);
+            system.save(filer);
 
             // gen source files
             result &= SchemaTypeSystemCompiler.generateTypes(system, filer, options);
