@@ -18,12 +18,10 @@ import org.apache.xmlbeans.impl.jam.mutable.*;
 import org.apache.xmlbeans.impl.jam.provider.JamClassBuilder;
 import org.apache.xmlbeans.impl.jam.provider.JamServiceContext;
 import org.apache.xmlbeans.impl.jam.provider.JamLogger;
-import org.apache.xmlbeans.impl.jam.internal.javadoc.JavadocAnnotationExtractor;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.lang.annotation.Annotation;
 
 /**
  *

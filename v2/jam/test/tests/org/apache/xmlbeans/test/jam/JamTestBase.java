@@ -122,6 +122,7 @@ public abstract class JamTestBase extends TestCase {
     DUMMY+".Foo",
     DUMMY+".FooImpl",
     DUMMY+".HeavilyCommented",
+    DUMMY+".ImportsGalore",
     DUMMY+".MyException",
     DUMMY+".MultilineTags",
     DUMMY+".ManyTags",
@@ -183,10 +184,12 @@ public abstract class JamTestBase extends TestCase {
 
   public JamTestBase() {
     super("JamTestBase");
+    System.out.println("constructed JamTestBase");
   }
 
   public JamTestBase(String casename) {
     super(casename);
+    System.out.println("constructed JamTestBase "+casename);    
   }
 
   // ========================================================================
@@ -215,6 +218,8 @@ public abstract class JamTestBase extends TestCase {
   protected abstract boolean isParameterNamesKnown();
 
   protected abstract boolean isCommentsAvailable();
+
+  protected abstract boolean isImportsAvailable();
 
   protected abstract File getMasterDir();
 
@@ -414,6 +419,15 @@ public abstract class JamTestBase extends TestCase {
                               methods,isParameterNamesKnown(),this);
   }
 
+
+  public void testImports()
+  {
+    if (!isImportsAvailable()) return;
+    JClass clazz = resolved(mLoader.loadClass(DUMMY+".ImportsGalore"));
+    JClass[] imports = clazz.getImportedClasses();
+    assertTrue("class has "+imports.length+" imports",
+               imports.length == 3);
+  }
 
 
   public void testInterfaceIsAssignableFrom()

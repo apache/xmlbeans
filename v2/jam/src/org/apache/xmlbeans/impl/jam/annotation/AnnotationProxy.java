@@ -18,15 +18,11 @@ import org.apache.xmlbeans.impl.jam.provider.JamLogger;
 import org.apache.xmlbeans.impl.jam.provider.JamServiceContext;
 import org.apache.xmlbeans.impl.jam.JAnnotationValue;
 
-import java.util.StringTokenizer;
 import java.util.Properties;
-import java.util.Iterator;
 import java.util.Enumeration;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.annotation.Annotation;
-import java.io.StringWriter;
 
 /**
  * <p>Provides a proxied view of some annotation artifact.  JAM calls the

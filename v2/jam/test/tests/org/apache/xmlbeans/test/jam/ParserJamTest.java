@@ -46,9 +46,10 @@ public class ParserJamTest extends JamTestBase {
     return jsf.createService(params);
   }
 
-  protected boolean isAnnotationsAvailable() {
-    return false;//FIXME!!
+  protected boolean isAnnotationsAvailable() { return false;//FIXME!!
   }
+
+  protected boolean isImportsAvailable() { return false; }
 
   //kind of a quick hack for now, should remove this and make sure that
   //even the classes case make the annotations available using a special

@@ -86,9 +86,10 @@ public class ReflectJamTest extends JamTestBase {
     return jsf.createService(params);
   }
 
-  protected boolean isAnnotationsAvailable() {
-    return false;
-  }
+  protected boolean isAnnotationsAvailable() { return false; }
+
+  protected boolean isImportsAvailable() { return false; }  
+
 
   //kind of a quick hack for now, should remove this and make sure that
   //even the classes case make the annotations available using a special
