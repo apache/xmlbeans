@@ -2384,6 +2384,198 @@ public final class Locale
     //
     //
     //
+    
+    Dom findDomNthChild ( Dom parent, int n )
+    {
+        assert n >= 0;
+        
+        if (parent == null)
+            return null;
+        
+        int da = _domNthCache_A.distance( parent, n );
+        int db = _domNthCache_B.distance( parent, n );
+        
+        Dom x =
+            da <= db
+            ? _domNthCache_A.fetch( parent, n )
+            : _domNthCache_B.fetch( parent, n );
+        
+        if (da == db)
+        {
+            domNthCache temp = _domNthCache_A;
+            _domNthCache_A = _domNthCache_B;
+            _domNthCache_B = temp;
+        }
+        
+        return x;
+    }
+    
+    int domLength ( Dom parent )
+    {
+        if (parent == null)
+            return 0;
+        
+        int da = _domNthCache_A.distance( parent, 0 );
+        int db = _domNthCache_B.distance( parent, 0 );
+        
+        int len =
+            da <= db
+            ? _domNthCache_A.length( parent )
+            : _domNthCache_B.length( parent );
+        
+        if (da == db)
+        {
+            domNthCache temp = _domNthCache_A;
+            _domNthCache_A = _domNthCache_B;
+            _domNthCache_B = temp;
+        }
+        
+        return len;
+    }
+    
+    void invalidateDomCaches ( Dom d )
+    {
+        if (_domNthCache_A._parent == d)
+            _domNthCache_A._version = -1;
+        if (_domNthCache_B._parent == d)
+            _domNthCache_B._version = -1;
+    }
+    
+    boolean isDomCached ( Dom d )
+    {
+        return _domNthCache_A._parent == d || _domNthCache_B._parent == d;
+    }
+    
+    class domNthCache
+    {
+        
+        int distance ( Dom parent, int n )
+        {
+            assert n >= 0;
+            
+            if (_version != Locale.this.version())
+                return Integer.MAX_VALUE - 1;
+            
+            if (parent != _parent)
+                return Integer.MAX_VALUE;
+            
+            return n > _n ? n - _n : _n - n;
+        }
+        
+        int length ( Dom parent )
+        {
+            if (_version != Locale.this.version() || _parent != parent)
+            {
+                _parent = parent;
+                _version = Locale.this.version();
+                _child = null;
+                _n = -1;
+                _len = -1;
+            }
+            
+            if (_len == -1)
+            {
+                Dom x = null;
+                
+                if (_child != null && _n != -1)
+                {
+                    x = _child;
+                    _len = _n;
+                }
+                else
+                {
+                    x = DomImpl.firstChild(_parent);
+                    _len = 0;
+                    
+                    // cache the 0th child
+                    _child = x;
+                    _n = 0;
+                }
+                
+                for (; x != null; x = DomImpl.nextSibling(x) )
+                {
+                    _len++;
+                }
+            }
+            
+            
+            return _len;
+        }
+        
+        Dom fetch ( Dom parent, int n )
+        {
+            assert n >= 0;
+            
+            if (_version != Locale.this.version() || _parent != parent)
+            {
+                _parent = parent;
+                _version = Locale.this.version();
+                _child = null;
+                _n = -1;
+                _len = -1;
+                
+                for (Dom x = DomImpl.firstChild(_parent); x != null; x = DomImpl.nextSibling(x) )
+                {
+                    _n++;
+                    if (_child == null && n == _n )
+                    {
+                        _child = x;
+                        break;
+                    }
+                }
+                
+                return _child;
+            }
+            
+            if (_n < 0)
+                return null;
+            
+            if (n > _n)
+            {
+                while ( n > _n )
+                {
+                    for (Dom x = DomImpl.nextSibling(_child); ; x = DomImpl.nextSibling(x) )
+                    {
+                        if (x == null)
+                            return null;
+                        
+                        _child = x;
+                        _n++;
+                        
+                        break;
+                    }
+                }
+            }
+            else if (n < _n)
+            {
+                while ( n < _n )
+                {
+                    for (Dom x = DomImpl.prevSibling(_child); ; x = DomImpl.prevSibling(x) )
+                    {
+                        if (x == null)
+                            return null;
+                        
+                        _child = x;
+                        _n--;
+                        
+                        break;
+                    }
+                }
+            }
+            
+            return _child;
+        }
+        
+        private long  _version;
+        private Dom   _parent;
+        private Dom   _child;
+        private int   _n;
+        private int   _len;
+    }
+    
+    //
+    // 
+    //
 
     CharUtil getCharUtil()
     {
@@ -3412,4 +3604,7 @@ public final class Locale
 
     nthCache _nthCache_A = new nthCache();
     nthCache _nthCache_B = new nthCache();
+
+    domNthCache _domNthCache_A = new domNthCache();
+    domNthCache _domNthCache_B = new domNthCache();
 }

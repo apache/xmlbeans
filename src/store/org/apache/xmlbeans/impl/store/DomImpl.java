@@ -98,6 +98,7 @@ final class DomImpl
     static Dom parent      ( Dom d ) { return node_getParentNode ( d ); }
     static Dom firstChild  ( Dom d ) { return node_getFirstChild ( d ); }
     static Dom nextSibling ( Dom d ) { return node_getNextSibling( d ); }
+    static Dom prevSibling ( Dom d ) { return node_getPreviousSibling( d ); }
 
     public static Dom append ( Dom n, Dom p )
     {
@@ -1644,6 +1645,8 @@ final class DomImpl
         while ( ! c.isAtEndOfLastPush() );
 
         c.release();
+        
+        n.locale().invalidateDomCaches(n);
     }
 
     //////////////////////////////////////////////////////////////////////////////////////
@@ -2526,11 +2529,15 @@ final class DomImpl
 
         // *Really* inefficient impl for now
 
-        for ( Dom c = node_getFirstChild( n ) ; c != null ; c = node_getNextSibling( c ) )
-            if (i-- == 0)
-                return c;
-
-        return null;
+        //for ( Dom c = node_getFirstChild( n ) ; c != null ; c = node_getNextSibling( c ) )
+        //    if (i-- == 0)
+        //        return c;
+        //        
+        //return null;
+        
+        // TODO - optimize for the 0 and 1 child case
+        
+        return n.locale().findDomNthChild(n, i);
     }
 
     //////////////////////////////////////////////////////////////////////////////////////
@@ -2576,12 +2583,17 @@ final class DomImpl
 
         // *Really* inefficient impl for now
 
-        int len = 0;
+        //int len = 0;
 
-        for ( Dom c = node_getFirstChild( n ) ; c != null ; c = node_getNextSibling( c ) )
-            len++;
+        //for ( Dom c = node_getFirstChild( n ) ; c != null ; c = node_getNextSibling( c ) )
+        //    len++;
 
-        return len;
+        //return len;
+        
+        
+        // TODO - optimize for the 0 and 1 child case
+        
+        return n.locale().domLength(n);
     }
 
     //////////////////////////////////////////////////////////////////////////////////////
@@ -3397,8 +3409,11 @@ final class DomImpl
         Dom p = (Dom) _node_getParentNode( t );
 
         if (p != null)
+        {
             _node_insertBefore( p, (Text) t2, _node_getNextSibling( t ) );
-
+            t.locale().invalidateDomCaches(p);
+        }
+        
         return (Text) t2;
     }
     
