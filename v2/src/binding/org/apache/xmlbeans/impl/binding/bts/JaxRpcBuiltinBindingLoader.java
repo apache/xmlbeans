@@ -191,7 +191,7 @@ public class JaxRpcBuiltinBindingLoader extends BuiltinBindingLoader
         addSoapPojoXml("unsignedInt", Long.class.getName());
         addSoapPojoXml("unsignedShort", Integer.class.getName());
         addSoapPojoXml("unsignedByte", Short.class.getName());
-
+        addSoapPojoXml("Array", "java.lang.Object[]");
 
     }
 

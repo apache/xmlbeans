@@ -138,11 +138,7 @@
           <xs:element name="item-name" type="xs:QName" minOccurs="0"/>
           <xs:element name="item-type" type="tns:mapping" minOccurs="0"/>
           <xs:element name="item-nillable" type="xs:boolean" default="false" minOccurs="0"/>
-          <xs:element name="ranks" minOccurs="0">
-            <xs:simpleType>
-              <xs:list itemType="xs:int"/>
-            </xs:simpleType>
-          </xs:element>
+          <xs:element name="ranks" type="xs:int" minOccurs="0"/>
         </xs:sequence>
       </xs:extension>
     </xs:complexContent>
