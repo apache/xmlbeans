@@ -47,7 +47,7 @@ public abstract class JavaIntHolder extends XmlObjectBase
         _value = 0;
     }
     // numerics: fractional
-    public BigDecimal bigDecimalValue() { check_dated(); return new BigDecimal(_value); }
+    public BigDecimal bigDecimalValue() { check_dated(); return new BigDecimal((double) _value); }
     public BigInteger bigIntegerValue() { check_dated(); return BigInteger.valueOf(_value); }
     public long longValue() { check_dated(); return _value; }
     public int intValue() { check_dated(); return _value; }

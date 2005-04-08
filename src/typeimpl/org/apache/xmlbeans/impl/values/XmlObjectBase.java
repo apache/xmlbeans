@@ -540,6 +540,7 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
             prop.hasNillable() == SchemaProperty.VARIABLE)
             return;
 
+        _flags &= ~FLAGS_ELEMENT;
         _flags |=
             (prop.hasDefault() == SchemaProperty.NEVER ? 0 : TypeStore.HASDEFAULT) |
             (prop.hasFixed() == SchemaProperty.NEVER ? 0 : TypeStore.FIXED) |
