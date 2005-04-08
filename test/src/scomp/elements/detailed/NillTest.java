@@ -53,7 +53,7 @@ public class NillTest extends BaseCase {
         }
 
         // with validate turned off, this should to thro
-        Contact contactWithValidateOff = Contact.Factory.newInstance(options);
+        Contact contactWithValidateOff = Contact.Factory.newInstance();
         try{
             contactWithValidateOff.setFirstName(null);
         }
@@ -64,7 +64,7 @@ public class NillTest extends BaseCase {
         assertEquals("<firstName " +
                "xsi:nil=\"true\" " +
                "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"/>",
-               contact.xmlText());
+               contactWithValidateOff.xmlText());
 
     }
 
