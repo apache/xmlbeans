@@ -1240,7 +1240,8 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
             {
                 if (get_store().find_nil())
                 {
-                    if ((_flags & FLAG_NILLABLE) == 0)
+                    if ((_flags & FLAG_NILLABLE) == 0 &&
+                        (_flags & FLAG_VALIDATE_ON_SET) != 0)
                         throw new XmlValueOutOfRangeException(); // nil not allowed
 
                     // let the implementation know that we're nil now
