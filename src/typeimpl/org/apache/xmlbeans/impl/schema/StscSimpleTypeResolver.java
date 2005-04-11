@@ -208,14 +208,10 @@ public class StscSimpleTypeResolver
         }
         else if (parseInner != null)
         {
-            itemImpl = new SchemaTypeImpl(sImpl.getContainer());
+            itemImpl = StscTranslator.translateAnonymousSimpleType(parseInner,
+                sImpl.getTargetNamespace(), sImpl.getChameleonNamespace() != null,
+                sImpl.getElemFormDefault(), sImpl.getAttFormDefault(), anonTypes, sImpl);
             errorLoc = parseInner;
-            itemImpl.setSimpleType(true);
-            itemImpl.setParseContext(parseInner, sImpl.getTargetNamespace(), sImpl.getChameleonNamespace() != null, sImpl.getElemFormDefault(), sImpl.getAttFormDefault(), false);
-            itemImpl.setOuterSchemaTypeRef(sImpl.getRef());
-            SchemaAnnotationImpl ann = SchemaAnnotationImpl.getAnnotation(sImpl.getContainer(), parseInner);
-            itemImpl.setAnnotation(ann);
-            anonTypes.add(itemImpl);
         }
         else
         {
@@ -317,15 +313,11 @@ public class StscSimpleTypeResolver
         for (int i = 0; i < simpleTypes.length; i++)
         {
             // BUGBUG: see if non<simpleType> children can leak through
-            SchemaTypeImpl mImpl = new SchemaTypeImpl(sImpl.getContainer());
-            mImpl.setSimpleType(true);
-            mImpl.setParseContext(simpleTypes[i], sImpl.getTargetNamespace(), sImpl.getChameleonNamespace() != null, sImpl.getElemFormDefault(), sImpl.getAttFormDefault(), false);
+            SchemaTypeImpl mImpl = StscTranslator.translateAnonymousSimpleType(simpleTypes[i],
+                sImpl.getTargetNamespace(), sImpl.getChameleonNamespace() != null,
+                sImpl.getElemFormDefault(), sImpl.getAttFormDefault(), anonTypes, sImpl);
             memberImplList.add(mImpl);
-            mImpl.setOuterSchemaTypeRef(sImpl.getRef());
             mImpl.setAnonymousUnionMemberOrdinal(i + 1);
-            SchemaAnnotationImpl ann = SchemaAnnotationImpl.getAnnotation(sImpl.getContainer(), simpleTypes[i]);
-            mImpl.setAnnotation(ann);
-            anonTypes.add(mImpl);
         }
 
         // Recurse and resolve all member types
@@ -458,14 +450,9 @@ public class StscSimpleTypeResolver
                 // recovery: oh well.
             }
             
-            baseImpl = new SchemaTypeImpl(sImpl.getContainer());
-            baseImpl.setSimpleType(true);
-            baseImpl.setParseContext(parseInner, sImpl.getTargetNamespace(), sImpl.getChameleonNamespace() != null, sImpl.getElemFormDefault(), sImpl.getAttFormDefault(), false);
-            // baseImpl.setSkippedAnonymousType(true);
-            baseImpl.setOuterSchemaTypeRef(sImpl.getRef());
-            SchemaAnnotationImpl ann = SchemaAnnotationImpl.getAnnotation(sImpl.getContainer(), parseInner);
-            baseImpl.setAnnotation(ann);
-            anonTypes.add(baseImpl);
+            baseImpl = StscTranslator.translateAnonymousSimpleType(parseInner,
+                sImpl.getTargetNamespace(), sImpl.getChameleonNamespace() != null,
+                sImpl.getElemFormDefault(), sImpl.getAttFormDefault(), anonTypes, sImpl);
         }
         else
         {
