@@ -17,6 +17,7 @@ package org.apache.xmlbeans.impl.values;
 
 import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.XmlAnySimpleType;
 import org.apache.xmlbeans.impl.common.ValidationContext;
 import org.apache.xmlbeans.impl.common.QNameHelper;
 
@@ -102,6 +103,23 @@ public abstract class JavaStringHolderEx extends JavaStringHolder
                         "max length facet (" + m + ") for " + QNameHelper.readable(sType));
                 return;
             }
+        }
+
+        // enumeration
+        // NOTE: can't use .hasStringEnumValues() or .enumForString()
+        // here since we may be validating against a string enum value
+        // during StscSimpleTypeResolver.resolveFacets() and the string
+        // enum table hasn't been constructed yet.
+        XmlAnySimpleType[] vals = sType.getEnumerationValues();
+        if (vals != null)
+        {
+            for (int i = 0; i < vals.length; i++)
+            {
+                if (v.equals(vals[i].getStringValue()))
+                    return;
+            }
+            context.invalid("String value '" + v + "' is not a valid enumeration " +
+                "value for " + QNameHelper.readable(sType));
         }
     }
     

@@ -742,6 +742,11 @@ public class StscSimpleTypeResolver
                             if (fdig.compareValue(myFacets[SchemaType.FACET_FRACTION_DIGITS]) > 0)
                                 state.error("Larger than prior fractionDigits", XmlErrorContext.FACET_VALUE_MALFORMED, facet);
                         }
+                        if (myFacets[SchemaType.FACET_TOTAL_DIGITS] != null)
+                        {
+                            if (fdig.compareValue(myFacets[SchemaType.FACET_TOTAL_DIGITS]) > 0)
+                                state.error("Larget than prior totalDigits", XmlErrorContext.FACET_VALUE_MALFORMED, facet);
+                        }
                         myFacets[code] = fdig;
                         break;
 
@@ -761,13 +766,13 @@ public class StscSimpleTypeResolver
                         XmlAnySimpleType limit;
                         try
                         {
-                            limit = baseImpl.newValue(facet.getValue());
+                            limit = baseImpl.newValue(facet.getValue(), true);
                         }
                         catch (XmlValueOutOfRangeException e)
                         {
                             // note: this guarantees that the limit is a valid number in the
                             // base data type!!
-                            state.error("Must be valid value in base type", XmlErrorContext.FACET_VALUE_MALFORMED, facet);
+                            state.error("Must be valid value in base type" + e.getMessage(), XmlErrorContext.FACET_VALUE_MALFORMED, facet);
 
                             // BUGBUG: if there are actual schemas that redefine min/maxExclusive,
                             // they will need this rule relaxed for them!!
