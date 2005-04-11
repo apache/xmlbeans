@@ -68,12 +68,14 @@ import javax.xml.namespace.QName;
 public class SampleXmlUtil
 {
     private boolean _soapEnc;
+    private static final int MAX_ELEMENTS = 1000;
+    private int _nElements;
 
     private SampleXmlUtil(boolean soapEnc)
     {
         _soapEnc = soapEnc;
     }
-    
+
     public static String createSampleForType(SchemaType sType)
     {
         XmlObject object = XmlObject.Factory.newInstance();
@@ -967,7 +969,7 @@ public class SampleXmlUtil
             return minOccurs;
         
         int result = minOccurs;
-        if (result == 0)
+        if (result == 0 && _nElements < MAX_ELEMENTS)
             result = 1;
         
         if (sp.getParticleType() != SchemaParticle.ELEMENT)
@@ -1020,6 +1022,7 @@ public class SampleXmlUtil
             xmlc.insertElement(element.getName().getLocalPart()); // soap encoded? drop namespaces.
         else
             xmlc.insertElement(element.getName().getLocalPart(), element.getName().getNamespaceURI());
+        _nElements++;
         /// -> <elem>^</elem>
         xmlc.toPrevToken();
         // -> <elem>stuff^</elem>

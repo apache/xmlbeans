@@ -632,8 +632,16 @@ public class StscComplexTypeResolver
         StscState state = StscState.get();
         String targetNamespace = sImpl.getTargetNamespace();
         boolean chameleon = (sImpl.getChameleonNamespace() != null);
+        List anonymousTypes = new ArrayList();
         if (parseTree.getSimpleType() != null)
         {
+            LocalSimpleType typedef = parseTree.getSimpleType();
+            SchemaTypeImpl anonType = StscTranslator.
+                translateAnonymousSimpleType(typedef, targetNamespace, chameleon,
+                    sImpl.getElemFormDefault(), sImpl.getAttFormDefault(),
+                    anonymousTypes, sImpl);
+            // This effectively disables support for simple types inside...
+            anonymousTypes.clear();
             state.warning("Nested simple types inside simple content restrictions are unsupported - ignoring", XmlErrorCodes.ILLEGAL_RESTRICTION, parseTree);
             // recovery: ignore the nested simple type element.
         }
@@ -710,7 +718,6 @@ public class StscComplexTypeResolver
         }
 
         // build attr model and anonymous types
-        List anonymousTypes = new ArrayList();
         SchemaAttributeModelImpl attrModel;
         if (baseType == null)
             attrModel = new SchemaAttributeModelImpl();

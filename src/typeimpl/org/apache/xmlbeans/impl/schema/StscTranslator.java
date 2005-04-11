@@ -53,6 +53,7 @@ import org.apache.xmlbeans.impl.xb.xsdschema.NamedAttributeGroup;
 import org.apache.xmlbeans.impl.xb.xsdschema.NamedGroup;
 import org.apache.xmlbeans.impl.xb.xsdschema.RedefineDocument.Redefine;
 import org.apache.xmlbeans.impl.xb.xsdschema.SchemaDocument.Schema;
+import org.apache.xmlbeans.impl.xb.xsdschema.SimpleType;
 import org.apache.xmlbeans.impl.xb.xsdschema.TopLevelAttribute;
 import org.apache.xmlbeans.impl.xb.xsdschema.TopLevelComplexType;
 import org.apache.xmlbeans.impl.xb.xsdschema.TopLevelElement;
@@ -811,6 +812,22 @@ public class StscTranslator
         sType.setName(name);
         sType.setAnnotation(SchemaAnnotationImpl.getAnnotation(state.getContainer(targetNamespace), xsdType));
         sType.setUserData(getUserData(xsdType));
+        return sType;
+    }
+
+    /*package*/ static SchemaTypeImpl translateAnonymousSimpleType(SimpleType typedef,
+        String targetNamespace, boolean chameleon, String elemFormDefault,
+        String attFormDefault, List anonymousTypes, SchemaType outerType)
+    {
+        StscState state = StscState.get();
+        SchemaTypeImpl sType = new SchemaTypeImpl(state.getContainer(targetNamespace));
+        sType.setSimpleType(true);
+        sType.setParseContext(typedef, targetNamespace, chameleon,
+            elemFormDefault, attFormDefault, false);
+        sType.setOuterSchemaTypeRef(outerType.getRef());
+        sType.setAnnotation(SchemaAnnotationImpl.getAnnotation(state.getContainer(targetNamespace), typedef));
+        sType.setUserData(getUserData(typedef));
+        anonymousTypes.add(sType);
         return sType;
     }
 
