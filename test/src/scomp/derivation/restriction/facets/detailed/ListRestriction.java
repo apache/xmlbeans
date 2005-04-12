@@ -133,6 +133,7 @@ public class ListRestriction extends BaseCase {
         List vals = new ArrayList();
         vals.add("small");
         vals.add("medium");
+        vals.add("large");
         doc.setEnumElt(vals);
         try {
             assertTrue(doc.validate(validateOptions));
@@ -141,8 +142,9 @@ public class ListRestriction extends BaseCase {
             throw t;
         }
         vals.clear();
-        vals.add(new Integer(1));
+        vals.add(new Integer(2));
         vals.add(new Integer(3));
+        vals.add(new Integer(1));
         doc.setEnumElt(vals);
         try {
             assertTrue(doc.validate(validateOptions));
@@ -152,12 +154,14 @@ public class ListRestriction extends BaseCase {
         }
 
         vals.clear();
-        vals.add(new Integer("small"));
+        vals.add("small");
         vals.add(new Integer(10));
         doc.setEnumElt(vals);
         assertTrue(!doc.validate(validateOptions));
         showErrors();
-        String[] errExpected = new String[]{"cvc-attribute"};
+        String[] errExpected = new String[]{
+            XmlErrorCodes.DATATYPE_VALID$UNION
+        };
         assertTrue(compareErrorCodes(errExpected));
 
     }
