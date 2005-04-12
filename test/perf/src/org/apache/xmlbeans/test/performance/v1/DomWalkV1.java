@@ -45,18 +45,20 @@ public class DomWalkV1
     // get the xml cursor
     char[] chars = util.createXmlData(flavor, Constants.XML_SIZE);
     XmlObject doc = XmlObject.Factory.parse(new CharArrayReader(chars));
-    Node node = doc.newDomNode();
+    Node node ;
 
     // warm up the vm
     cputime = System.currentTimeMillis();
-    for(int i=0; i<iterations; i++){     
+    for(int i=0; i<iterations; i++){
+      node  = doc.newDomNode();
       hash += test.run(node);
     }
     cputime = System.currentTimeMillis() - cputime;
 
     // run it again for the real measurement
     cputime = System.currentTimeMillis();
-    for(int i=0; i<iterations; i++){     
+    for(int i=0; i<iterations; i++){
+      node  = doc.newDomNode();
       hash += test.run(node);
     }
     cputime = System.currentTimeMillis() - cputime;
