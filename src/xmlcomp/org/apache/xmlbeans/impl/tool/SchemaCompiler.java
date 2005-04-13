@@ -34,8 +34,8 @@ import org.apache.xmlbeans.impl.schema.SchemaTypeLoaderImpl;
 import org.apache.xmlbeans.impl.schema.SchemaTypeSystemCompiler;
 import org.apache.xmlbeans.impl.schema.SchemaTypeSystemImpl;
 import org.apache.xmlbeans.impl.schema.StscState;
-import org.apache.xmlbeans.impl.schema.FilerImpl;
 import org.apache.xmlbeans.impl.common.JarHelper;
+import org.apache.xmlbeans.impl.util.FilerImpl;
 import org.apache.xmlbeans.impl.values.XmlListImpl;
 import org.apache.xmlbeans.impl.xb.xmlconfig.ConfigDocument;
 import org.apache.xmlbeans.impl.xb.xsdschema.SchemaDocument;
@@ -1094,6 +1094,13 @@ public class SchemaCompiler
 
             // gen source files
             result &= SchemaTypeSystemCompiler.generateTypes(system, filer, options);
+
+            if (incrSrcGen)
+            {
+                // We have to delete extra source files that may be out of date
+                SchemaCodeGenerator.deleteObsoleteFiles(srcDir, srcDir,
+                    new HashSet(filer.getSourceFiles()));
+            }
 
             if (result)
             {

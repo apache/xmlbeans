@@ -15,7 +15,7 @@
 package compile.scomp.common.mockobj;
 
 import org.apache.xmlbeans.Filer;
-import org.apache.xmlbeans.impl.schema.FilerImpl;
+import org.apache.xmlbeans.impl.util.FilerImpl;
 
 import java.io.File;
 import java.io.OutputStream;
