@@ -46,12 +46,19 @@
 
 	<!-- benchmark directories -->
 	<property name="v2.dir" value="${v2.xmlbeans.root}"/>
-  <property name="v1.dir" value="${3rdparty.dir}/v1"/>
+  	<property name="v1.dir" value="${3rdparty.dir}/v1"/>
 	<property name="castor.dir" value="${3rdparty.dir}/castor"/>
 	<property name="jibx.dir" value="${3rdparty.dir}/jibx"/>
 	<property name="xerces.dir" value="${3rdparty.dir}/xerces"/>
 	<!-- can't download jaxb on the fly, so user has to setup this env var -->
 	<property name="jaxb.dir" value="${env.JAXB_LIBDIR}"/>
+
+	<!-- temp dirs for schema compilation outputs -->
+	<property name="v1.temp.dir" value="${temp.dir}/v1" />
+	<property name="v2.temp.dir" value="${temp.dir}/v2" />
+	<property name="castor.temp.dir" value="${temp.dir}/castor" />
+	<property name="jibx.temp.dir" value="${temp.dir}/jibx" />
+	<property name="jaxb.temp.dir" value="${temp.dir}/jaxb" />
 
 	<!-- castor -->
 	<property name="castor.jar" value="${castor.dir}/castor-0.9.5.4.jar"/>
@@ -60,7 +67,7 @@
 	<!-- jibx -->
 	<property name="jibx.zip" value="${jibx.dir}/jibx-beta3c.zip"/>
 	<property name="jibx.url" value="http://umn.dl.sourceforge.net/sourceforge/jibx/jibx-beta3c.zip"/>
-
+	
 	<!-- v1 -->
 	<property name="v1.zip" value="${v1.dir}/xmlbeans-1.0.3.zip"/>
 	<property name="v1.url" value="http://www.apache.org/dist/xml/xmlbeans/v1.0.3/bin/xmlbeans-1.0.3.zip"/>
@@ -131,12 +138,13 @@
 	<!-- used when building the schema jar -->
 	<path id="jibx.binding.classpath">
 		<fileset dir="${jibx.dir}/jibx/lib" includes="*.jar"/>
-		<pathelement path="${temp.dir}"/>
+		<pathelement path="${jibx.temp.dir}"/>
 	</path>
 
 	<path id="jaxb.classpath">
-		<fileset dir="${jaxb.dir}/endorsed" includes="*.jar"/>
-		<fileset dir="${jaxb.dir}" includes="*.jar"/>
+		<fileset dir="${jaxb.dir}/jaxb/lib" includes="*.jar"/>
+		<fileset dir="${jaxb.dir}/jaxp/lib/endorsed" includes="*.jar"/>
+		<fileset dir="${jaxb.dir}/jwsdp-shared/lib" includes="*.jar"/>
 		<pathelement path="${jaxb-purchase-order.jar}"/>
 		<pathelement path="${jaxb-primitives.jar}"/>
 		<pathelement path="${jaxb-non-primitives.jar}"/>
@@ -149,9 +157,9 @@
 	</path>
 
 	<!-- main build targets  -->
-	<target name="build.all" depends="build.schema.jars,build"/>
+	<target name="build.all" if="bootstrap.libdir.exists" depends="check.bootstrap.libs,build.schema.jars,build"/>
 	<target name="clean.all" depends="clean.schema.jars,clean"/>
-	<target name="rebuild.all" depends="rebuild.schema.jars,rebuild"/>
+	<target name="rebuild.all" if="bootstrap.libdir.exists" depends="check.bootstrap.libs,rebuild.schema.jars,rebuild"/>
 
 
 	<!-- conveinence src build targets  -->	
@@ -179,10 +187,18 @@
 	<target name="clean.bootstrap">
 		<delete dir="${3rdparty.dir}"/>
 	</target>
+
+	<target name="check.bootstrap.libs">
+	<echo message="Verifying 3rd Party libraries download ..." />
+		<available property="bootstrap.libdir.exists"
+			file="${3rdparty.dir}" type="dir" />
+		<fail message="3rd Party Libraries not found! Please run 'ant bootstrap' to download these first." unless="bootstrap.libdir.exists" />
+	</target>
+
 	<target name="bootstrap">
 		<mkdir dir="${castor.dir}"/>
 		<get src="${castor.url}" dest="${castor.jar}" verbose="true"/>
-		
+
 		<mkdir dir="${jibx.dir}"/>
 		<get src="${jibx.url}" dest="${jibx.zip}" verbose="true"/>
 		<unzip src="${jibx.zip}" dest="${jibx.dir}"/>
@@ -195,31 +211,14 @@
 		<get src="${xerces.url}" dest="${xerces.zip}" verbose="true"/>
 		<unzip src="${xerces.zip}" dest="${xerces.dir}"/>
 
-		<echo message="FOR JAXB SETUP, DONLOAD WSDP 1.5 AND PLACE THESE JAXB JARS IN ${jaxb.dir}"/>
-		<echo message="
-activation.jar
-commons-beanutils.jar
-commons-collections.jar
-commons-digester.jar
-commons-logging.jar
-jaas.jar
-jax-qname.jar
-jaxb-api.jar
-jaxb-impl.jar
-jaxb-libs.jar
-jaxb-xjc.jar
-jta-spec1_0_1.jar
-mail.jar
-namespace.jar
-relaxngDatatype.jar
-xsdlib.jar
-endorsed/dom.jar
-endorsed/sax.jar
-endorsed/xalan.jar
-endorsed/xercesImpl.jar
-endorsed/xsltc.jar
-"/>
-		<echo message="THEN SET JAXB_LIBDIR IN YOUR ENVIRONMENT TO POINT TO ${jaxb.dir}"/>
+		<echo message="FOR JAXB SETUP, DOWNLOAD AND INSTALL WSDP 1.5 IN [dir] (for ex c:\Sun\jwsdp-1.5)"/>
+		<echo message="THEN SET JAXB_LIBDIR IN YOUR ENVIRONMENT TO POINT TO [dir]"/>
+		<!--  All the required JAXB jars listed for reference
+		<echo message="activation.jar,commons-beanutils.jar,commons-collections.jar,commons-digester.jar
+			commons-logging.jar jaas.jar jax-qname.jar jaxb-api.jar jaxb-impl.jar jaxb-libs.jar jaxb-xjc.jar
+			jta-spec1_0_1.jar mail.jar namespace.jar relaxngDatatype.jar xsdlib.jar endorsed/dom.jar
+			endorsed/sax.jar endorsed/xalan.jar endorsed/xercesImpl.jar endorsed/xsltc.jar "/>
+		-->
 
 	</target>
 
@@ -362,19 +361,21 @@ endorsed/xsltc.jar
 	</target>
 
 	<target name="v2.schema.build" depends="os.init">
-		<echo message="starting"/>
-		<mkdir dir="${temp.dir}"/>
+		<echo message="starting schema compilation with XmlBeans v2"/>
+		<echo message="Schema source file : ${test.case.dir}/xsd/${xsd.name}"/>
+		<mkdir dir="${v2.temp.dir}"/>
 		<mkdir dir="${schema.jar.build.dir}"/>
 		<chmod file="${v2.xmlbeans.root}/bin/scomp" perm="755"/>
-		<exec	dir="${temp.dir}"
+		<exec	dir="${v2.temp.dir}"
 					executable="${scomp}" 
-					output="${temp.dir}/scomp_output.txt">
+					output="${v2.temp.dir}/scomp_output.txt">
 			<env key="XMLBEANS_HOME" value="${v2.xmlbeans.root}"/>
 			<arg line="-out ${jar.name}"/>
 			<arg line="${test.case.dir}/xsd/${xsd.name}"/>
 		</exec>
-		<copy file="${temp.dir}/${jar.name}" todir="${schema.jar.build.dir}"/>
-		<delete dir="${temp.dir}"/>
+		<copy file="${v2.temp.dir}/${jar.name}" todir="${schema.jar.build.dir}"/>
+		<echo message="Schema comp output jar file : ${schema.jar.build.dir}/${jar.name}"/>
+		<echo message="Schema comp output file : ${v2.temp.dir}/scomp_output.txt"/>
 		<echo message="done"/>
 	</target>
 
@@ -396,18 +397,19 @@ endorsed/xsltc.jar
 	</target>
 
 	<target name="v1.schema.build" depends="os.init">
-		<mkdir dir="${temp.dir}"/>
+		<echo message="starting schema compilation with XmlBeans v1"/>
+		<echo message="Schema source file : ${test.case.dir}/xsd/${xsd.name}"/>
+		<mkdir dir="${v1.temp.dir}"/>
 		<mkdir dir="${schema.jar.build.dir}"/>
 		<java classname="org.apache.xmlbeans.impl.tool.SchemaCompiler"
 					fork="true"
 					dir="${xmlbeans.perf.root}"
 					classpathref="v1.classpath">
-			<arg line="-out ${temp.dir}/${jar.name}"/>
-			<arg line="-d ${temp.dir}"/>
+			<arg line="-out ${v1.temp.dir}/${jar.name}"/>
 			<arg line="${test.case.dir}/xsd/${xsd.name}"/>
 		</java>
-		<copy file="${temp.dir}/${jar.name}" todir="${schema.jar.build.dir}"/>
-		<delete dir="${temp.dir}"/>
+		<copy file="${v1.temp.dir}/${jar.name}" todir="${schema.jar.build.dir}"/>
+		<echo message="Schema comp output jar file : ${schema.jar.build.dir}/${jar.name}"/>
 	</target>
 
 	<!-- castor schema jars -->
@@ -430,7 +432,8 @@ endorsed/xsltc.jar
 	</target>
 
 	<target name="castor.schema.build">
-		<mkdir dir="${temp.dir}"/>
+		<echo message="starting schema compilation with Castor"/>
+		<mkdir dir="${castor.temp.dir}"/>
 		<mkdir dir="${schema.jar.build.dir}"/>
 		<java classname="org.exolab.castor.builder.SourceGenerator"
 					fork="true"
@@ -438,12 +441,12 @@ endorsed/xsltc.jar
 					classpathref="castor.classpath">
 			<arg line="-i ${test.case.dir}/xsd/${xsd.name}"/>
 			<arg line="-package ${ns}"/>
-			<arg line="-dest ${temp.dir}"/>
+			<arg line="-dest ${castor.temp.dir}"/>
 			<arg line="-f"/>
 			<arg line="-verbose"/>
 		</java>
-		<javac srcdir="${temp.dir}"
-			destdir="${temp.dir}"
+		<javac srcdir="${castor.temp.dir}"
+			destdir="${castor.temp.dir}"
 			debug="on"
 			fork="true"
 			memoryMaximumSize="1000M"
@@ -452,17 +455,17 @@ endorsed/xsltc.jar
 			source="1.4"
 			classpathref="castor.classpath"/>
 		<jar destfile="${schema.jar.build.dir}/${jar.name}"
-				 basedir="${temp.dir}"/>
-		<delete dir="${temp.dir}"/>
+				 basedir="${castor.temp.dir}"/>
 	</target>
 
 
 	<!-- jibx schema jars -->
 	<target name="jibx.schema.jars">
-		<mkdir dir="${temp.dir}"/>
+		<echo message="starting schema compilation with jibx"/>
+		<mkdir dir="${jibx.temp.dir}"/>
 		<mkdir dir="${schema.jar.build.dir}"/>
 		<javac srcdir="${src.dir}"
-			destdir="${temp.dir}"
+			destdir="${jibx.temp.dir}"
 			debug="on"
 			fork="yes"
 			memoryMaximumSize="1000M"
@@ -481,8 +484,7 @@ endorsed/xsltc.jar
 			<arg line="${test.case.dir}/xsd/purchase-order-jibxbinding.xml"/>
 		</java>
 		<jar destfile="${jibx-purchase-order.jar}"
-				 basedir="${temp.dir}"/>
-		<delete dir="${temp.dir}"/>
+				 basedir="${jibx.temp.dir}"/>
 	</target>
 
 
@@ -508,21 +510,23 @@ endorsed/xsltc.jar
 	<target name="check.jaxb.libdir">
 		<available property="jaxb.libdir.exists"
 			file="${jaxb.dir}" type="dir" />
+		<fail message="Jaxb installaton directory ${jaxb.dir} not found! FOR JAXB SETUP, DOWNLOAD AND INSTALL WSDP 1.5 IN [dir] (for ex c:\Sun\jwsdp-1.5) AND SET JAXB_LIBDIR IN YOUR ENVIRONMENT TO POINT TO [dir]." unless="jaxb.libdir.exists"   />
 	</target>
 
 	<target name="jaxb.schema.build">
-		<mkdir dir="${temp.dir}"/>
+		<echo message="starting schema compilation with jaxb"/>
+		<mkdir dir="${jaxb.temp.dir}"/>
 		<mkdir dir="${schema.jar.build.dir}"/>
 		<java classname="com.sun.tools.xjc.Driver"
 					fork="true"
 					classpathref="jaxb.classpath"
 					failonerror="true">
 			<arg line="-p ${ns}"/>
-			<arg line="-d ${temp.dir}"/>
+			<arg line="-d ${jaxb.temp.dir}"/>
 			<arg line="${test.case.dir}/xsd/${xsd.name}"/>
 		</java>
-		<javac srcdir="${temp.dir}"
-			destdir="${temp.dir}"
+		<javac srcdir="${jaxb.temp.dir}"
+			destdir="${jaxb.temp.dir}"
 			debug="on"
 			fork="yes"
 			memoryMaximumSize="1000M"
@@ -532,8 +536,7 @@ endorsed/xsltc.jar
 			source="1.4">
 		</javac>
 		<jar destfile="${schema.jar.build.dir}/${jar.name}"
-				 basedir="${temp.dir}"/>
-		<delete dir="${temp.dir}"/>
+				 basedir="${jaxb.temp.dir}"/>
 	</target>
 
 
