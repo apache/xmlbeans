@@ -21,7 +21,7 @@ import org.apache.xmlbeans.impl.common.IOUtil;
 import org.apache.xmlbeans.impl.common.XmlErrorWatcher;
 import org.apache.xmlbeans.impl.schema.SchemaTypeCodePrinter;
 import org.apache.xmlbeans.impl.schema.SchemaTypeSystemCompiler;
-import org.apache.xmlbeans.impl.schema.FilerImpl;
+import org.apache.xmlbeans.impl.util.FilerImpl;
 import org.apache.xmlbeans.SchemaCodePrinter;
 import org.apache.xmlbeans.XmlOptions;
 import org.apache.xmlbeans.Filer;
@@ -64,7 +64,7 @@ public class SchemaCodeGenerator
         system.save(filer);
     }
 
-    private static void deleteObsoleteFiles(File rootDir, File srcDir, Set seenFiles)
+    static void deleteObsoleteFiles(File rootDir, File srcDir, Set seenFiles)
     {
         if (!(rootDir.isDirectory() && srcDir.isDirectory()))
             throw new IllegalArgumentException();

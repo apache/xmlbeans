@@ -1083,7 +1083,7 @@ public class StscComplexTypeResolver
                     }
                     if (group == null)
                     {
-                        state.notFoundError(ref, SchemaType.ATTRIBUTE_GROUP, xsdag.xgetRef(), false);
+                        state.notFoundError(ref, SchemaType.ATTRIBUTE_GROUP, xsdag.xgetRef(), true);
                         continue;
                     }
                     if (state.isProcessing(group))
@@ -1305,7 +1305,7 @@ public class StscComplexTypeResolver
                 }
                 if (group == null)
                 {
-                    state.notFoundError(ref, SchemaType.MODEL_GROUP, ((Group)parseTree).xgetRef(), false);
+                    state.notFoundError(ref, SchemaType.MODEL_GROUP, ((Group)parseTree).xgetRef(), true);
                     return null;
                 }
                 if (state.isProcessing(group))

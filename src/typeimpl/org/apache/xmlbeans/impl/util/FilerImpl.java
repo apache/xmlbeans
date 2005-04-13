@@ -13,7 +13,7 @@
 *  limitations under the License.
 */
 
-package org.apache.xmlbeans.impl.schema;
+package org.apache.xmlbeans.impl.util;
 
 import org.apache.xmlbeans.Filer;
 
@@ -21,7 +21,9 @@ import java.io.OutputStream;
 import java.io.IOException;
 import java.io.File;
 import java.io.Writer;
+import java.io.FileReader;
 import java.io.FileWriter;
+import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.FileOutputStream;
 import java.util.Set;
@@ -101,16 +103,20 @@ public class FilerImpl implements Filer
         if (verbose)
             System.err.println("created source: " + sourcefile.getAbsolutePath());
 
-        if (incrSrcGen && sourcefile.exists())
-        {
-            // KHK: ?
-        }
-
         sourceFiles.add(sourcefile);
 
-        return repackager == null
-            ? (Writer) new FileWriter( sourcefile )
-            : (Writer) new RepackagingWriter( sourcefile, repackager );
+        if (incrSrcGen && sourcefile.exists())
+        {
+            // Generate the file in a buffer and then compare it to the
+            // file already on disk
+            return new IncrFileWriter(sourcefile, repackager);
+        }
+        else
+        {
+            return repackager == null ?
+                (Writer) new FileWriter( sourcefile ) :
+                (Writer) new RepackagingWriter( sourcefile, repackager );
+        }
     }
 
     public List getSourceFiles()
@@ -121,6 +127,56 @@ public class FilerImpl implements Filer
     public Repackager getRepackager()
     {
         return repackager;
+    }
+
+    static class IncrFileWriter extends StringWriter
+    {
+        private File _file;
+        private Repackager _repackager;
+
+        public IncrFileWriter(File file, Repackager repackager)
+        {
+            _file = file;
+            _repackager = repackager;
+        }
+
+        public void close() throws IOException
+        {
+            super.close();
+
+            // This is where all the real work happens
+            StringBuffer sb = _repackager != null ?
+                _repackager.repackage(getBuffer()) :
+                getBuffer();
+            String str = sb.toString();
+            List diffs = new ArrayList();
+            StringReader sReader = new StringReader(str);
+            FileReader fReader = new FileReader(_file);
+
+            try
+            {
+                Diff.readersAsText(sReader, "<generated>",
+                    fReader, _file.getName(), diffs);
+            }
+            finally
+            {
+                sReader.close();
+                fReader.close();
+            }
+
+            if (diffs.size() > 0)
+            {
+                // Diffs encountered, replace the file on disk with text from
+                // the buffer
+                FileWriter fw = new FileWriter(_file);
+                try
+                {   fw.write(str); }
+                finally
+                {   fw.close(); }
+            }
+            else
+                ; // If no diffs, don't do anything
+        }
     }
 
     static class RepackagingWriter extends StringWriter
@@ -136,8 +192,10 @@ public class FilerImpl implements Filer
             super.close();
 
             FileWriter fw = new FileWriter( _file );
-            fw.write( _repackager.repackage( getBuffer() ).toString() );
-            fw.close();
+            try
+            { fw.write( _repackager.repackage( getBuffer() ).toString() ); }
+            finally
+            { fw.close(); }
         }
 
         private File _file;

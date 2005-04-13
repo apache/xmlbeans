@@ -334,28 +334,7 @@ public class Diff
         List diffs)
         throws IOException
     {
-        LineNumberReader reader1 = new LineNumberReader(r1);
-        LineNumberReader reader2 = new LineNumberReader(r2);
-        String line1 = reader1.readLine();
-        String line2 = reader2.readLine();
-        while (line1 != null && line2 != null)
-        {
-            if (!line1.equals(line2))
-            {
-                diffs.add("File \"" + name1 + "\" and file \"" +
-                    name2 + "\" differ at line " + reader1.getLineNumber() +
-                    ":" + "\n" + line1 + "\n========\n" + line2);
-                break;
-            }
-            line1 = reader1.readLine();
-            line2 = reader2.readLine();
-        }
-        if (line1 == null && line2 != null)
-            diffs.add("File \"" + name2 + "\" has extra lines at line " +
-                reader2.getLineNumber() + ":\n" + line2);
-        if (line1 != null && line2 == null)
-            diffs.add("File \"" + name1 + "\" has extra lines at line " +
-                reader1.getLineNumber() + ":\n" + line1);
+        org.apache.xmlbeans.impl.util.Diff.readersAsText(r1, name1, r2, name2, diffs);
     }
 
     private static class XsbFilenameFilter implements FilenameFilter

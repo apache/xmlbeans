@@ -43,6 +43,7 @@ import org.apache.xmlbeans.ResourceLoader;
 import org.apache.xmlbeans.impl.common.NameUtil;
 import org.apache.xmlbeans.impl.common.QNameHelper;
 import org.apache.xmlbeans.impl.common.XBeanDebug;
+import org.apache.xmlbeans.impl.util.FilerImpl;
 import org.apache.xmlbeans.impl.util.HexBin;
 import org.apache.xmlbeans.impl.values.XmlObjectBase;
 import org.apache.xmlbeans.impl.xb.xsdschema.AttributeGroupDocument;
