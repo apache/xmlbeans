@@ -68,6 +68,15 @@ public class SchemaCodeGenerator
     {
         if (!(rootDir.isDirectory() && srcDir.isDirectory()))
             throw new IllegalArgumentException();
+        String absolutePath = srcDir.getAbsolutePath();
+        // Do a sanity check to make sure we don't delete by mistake some important dir
+        if (absolutePath.length() <= 5)
+            return;
+        if (absolutePath.startsWith("/home/") &&
+            (absolutePath.indexOf("/", 6) >= absolutePath.length() - 1 ||
+                absolutePath.indexOf("/", 6) < 0))
+            return;
+
         // Go recursively starting with srcDir and delete all files that are
         // not in the given Set
         File[] files = srcDir.listFiles();
@@ -79,10 +88,16 @@ public class SchemaCodeGenerator
                 ;
             else
             {
-                files[i].delete();
+                deleteXmlBeansFile(files[i]);
                 deleteDirRecursively(rootDir, files[i].getParentFile());
             }
         }
+    }
+
+    private static void deleteXmlBeansFile(File file)
+    {
+        if (file.getName().endsWith(".java"))
+            file.delete();
     }
 
     private static void deleteDirRecursively(File root, File dir)
