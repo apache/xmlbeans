@@ -146,11 +146,12 @@ public class PartialSOMDetailedTest extends SomTestBase
         Assert.assertNotNull("Schema Type System created is Null.", modifiedSTS);
 
         // Recovered Errors, Test for saving of the SOM
+        printRecoveredErrors();
         Assert.assertFalse("SOM " + modifiedSTS.getName() + "Save Success - should fail!",
                 checkPSOMSave(modifiedSTS));
 
         // the tests - Walk thro the valid SOM
-        inspectSOM(modifiedSTS, 7, 0, 4, 1);
+        inspectSOM(modifiedSTS, 7, 0, 5, 0);
 
         // instance validation - should fail
         Assert.assertFalse("Validation against instance failed",
@@ -162,7 +163,7 @@ public class PartialSOMDetailedTest extends SomTestBase
                 getElementType(modifiedSTS, "ModelGrpTypeElem"));
         Assert.assertEquals("Elem Type  should be 'anyType'",
                 anyType,
-                getElementType(modifiedSTS, "AttributeGroupElem"));
+                getElementType(modifiedSTS, "AttrGrpTypeElem"));
 
         // step 3: create a PSOM with the original xsd
         SchemaTypeSystem finalSTS = createNewSTS("groups_added.xsd_",
@@ -394,12 +395,13 @@ public class PartialSOMDetailedTest extends SomTestBase
                 sBaseSourceName);
         Assert.assertNotNull("Schema Type System created is Null.", modifiedSTS);
 
-        // Recovered Errors, Test for saving of the SOM    - still a valid PSOM
-        Assert.assertTrue("SOM " + modifiedSTS.getName() + "Save Success - should fail!",
+        // Recovered Errors, Test for saving of the SOM  , invalid since grp definitions are commented out
+        printRecoveredErrors();
+        Assert.assertFalse("SOM " + modifiedSTS.getName() + "Save Success - should fail!",
                 checkPSOMSave(modifiedSTS));
 
         // the tests - Walk thro the valid SOM
-        inspectSOM(modifiedSTS, 7, 0, 5, 2);
+        inspectSOM(modifiedSTS, 7, 0, 5, 1);
 
         // instance validation - should fail
         Assert.assertFalse("Validation against instance failed",

@@ -19,6 +19,7 @@ import scomp.common.BaseCase;
 
 import java.util.List;
 import java.util.Iterator;
+import java.util.Collection;
 
 
 /**
@@ -30,91 +31,30 @@ public class Final extends BaseCase {
      * They are negative tests and test for #all, restriction, extenstion and 'extenstion restriction' values
      */
     public void testFinalAll() {
-        String inputXsd = constructInputXsdString("#all");
-        try {
-            XmlObject xobj = XmlObject.Factory.parse(inputXsd);
-            XmlObject[] compInput = new XmlObject[]{xobj};
-            XmlBeans.compileXmlBeans(null, null, compInput, null, XmlBeans.getBuiltinTypeSystem(), null, null);
-        }
-        catch (XmlException xme) {
-            assertEquals(2, xme.getErrors().size());
 
-            Iterator itr = xme.getErrors().iterator();
-            XmlError eacherr = (XmlError) itr.next();
-            System.out.println("Err:" + eacherr.getMessage());
-            assertNotNull(eacherr.getErrorCode());
-            assertEquals("cvc-3.4.6", eacherr.getErrorCode());
-
-            eacherr = (XmlError) itr.next();
-            System.out.println("Err:" + eacherr.getMessage());
-            assertNotNull(eacherr.getErrorCode());
-            assertEquals("cvc-3.4.6", eacherr.getErrorCode());
-        }
+        parseXsdDoc(constructInputXsdString("#all"));
 
     }
 
     public void testFinalExtRestr() {
-        String inputXsd = constructInputXsdString("extension restriction");
-        try {
-            XmlObject xobj = XmlObject.Factory.parse(inputXsd);
-            XmlObject[] compInput = new XmlObject[]{xobj};
-            XmlBeans.compileXmlBeans(null, null, compInput, null, XmlBeans.getBuiltinTypeSystem(), null, null);
-        }
-        catch (XmlException xme) {
-            assertEquals(2, xme.getErrors().size());
 
-            Iterator itr = xme.getErrors().iterator();
-            XmlError eacherr = (XmlError) itr.next();
-            System.out.println("Err:" + eacherr.getMessage());
-            assertNotNull(eacherr.getErrorCode());
-            assertEquals("cvc-3.4.6", eacherr.getErrorCode());
-
-            eacherr = (XmlError) itr.next();
-            System.out.println("Err:" + eacherr.getMessage());
-            assertNotNull(eacherr.getErrorCode());
-            assertEquals("cvc-3.4.6", eacherr.getErrorCode());
-        }
+        parseXsdDoc(constructInputXsdString("extension restriction"));
 
     }
 
     public void testFinalRestriction() {
-        String inputXsd = constructInputXsdString("restriction");
-        try {
-            XmlObject xobj = XmlObject.Factory.parse(inputXsd);
-            XmlObject[] compInput = new XmlObject[]{xobj};
-            XmlBeans.compileXmlBeans(null, null, compInput, null, XmlBeans.getBuiltinTypeSystem(), null, null);
-        }
-        catch (XmlException xme) {
-            assertEquals(1, xme.getErrors().size());
 
-            Iterator itr = xme.getErrors().iterator();
-            XmlError eacherr = (XmlError) itr.next();
-            System.out.println("Err:" + eacherr.getMessage());
-            assertNotNull(eacherr.getErrorCode());
-            assertEquals("cvc-3.4.6", eacherr.getErrorCode());
-        }
+        parseXsdDoc(constructInputXsdString("restriction"));
+
     }
 
     public void testFinalExtension() {
-        String inputXsd = constructInputXsdString("extension");
-        try {
-            XmlObject xobj = XmlObject.Factory.parse(inputXsd);
-            XmlObject[] compInput = new XmlObject[]{xobj};
-            XmlBeans.compileXmlBeans(null, null, compInput, null, XmlBeans.getBuiltinTypeSystem(), null, null);
-        }
-        catch (XmlException xme) {
-            assertEquals(1, xme.getErrors().size());
 
-            Iterator itr = xme.getErrors().iterator();
-            XmlError eacherr = (XmlError) itr.next();
-            System.out.println("Err:" + eacherr.getMessage());
-            assertNotNull(eacherr.getErrorCode());
-            assertEquals("cvc-3.4.6", eacherr.getErrorCode());
+        parseXsdDoc(constructInputXsdString("extension"));
 
-        }
     }
 
-
+    // helper function for this class
     private String constructInputXsdString(String sFinalAttributeValue) {
         return ("    <xsd:schema xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\">\n" +
                 "\n" +
@@ -153,6 +93,26 @@ public class Final extends BaseCase {
                 "        </xsd:complexType>\n" +
                 "\n" +
                 "    </xsd:schema>");
+    }
+
+    private void parseXsdDoc(String inputXsd)
+    {
+        try {
+            XmlObject xobj = XmlObject.Factory.parse(inputXsd);
+            XmlObject[] compInput = new XmlObject[]{xobj};
+            XmlBeans.compileXmlBeans(null, null, compInput, null, XmlBeans.getBuiltinTypeSystem(), null, null);
+        }
+        catch (XmlException xme) {
+            assertEquals(1,xme.getErrors().size());
+
+            Iterator itr = xme.getErrors().iterator();
+            XmlError eacherr = (XmlError) itr.next();
+            System.out.println("Err:" + eacherr.getMessage());
+            assertNotNull(eacherr.getErrorCode());
+            assertEquals(XmlErrorCodes.ELEM_PROPERTIES$SUBSTITUTION_FINAL, eacherr.getErrorCode());
+
+
+        }
     }
 }
 
