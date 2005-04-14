@@ -891,7 +891,7 @@ public final class Cursor implements XmlCursor, ChangeListener {
         push();
 
         try {
-            return toNextSelection();
+            return _toNextSelection();
         } finally {
             _currentSelection = curr;
             pop();
