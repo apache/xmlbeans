@@ -71,9 +71,9 @@ public abstract class Path
         return currentNodeVar;
     }
 
-    private static final int FORCE_XQRL = 0;
-    private static final int FORCE_XBEAN = 1;
-    private static final int FORCE_NEITHER = 2;
+    private static final int USE_XQRL = 0x02;
+    private static final int USE_XBEAN =0x01;
+    private static final int USE_SAXON =0x04;
 
     public static Path getCompiledPath(String pathExpr, XmlOptions options)
     {
@@ -81,81 +81,88 @@ public abstract class Path
 
         int force =
                 options.hasOption(_useXqrlForXpath)
-                ? FORCE_XQRL
+                ? USE_XQRL
                 : options.hasOption(_useXbeanForXpath)
-                ? FORCE_XBEAN
-                : FORCE_NEITHER;
+                ? USE_XBEAN
+                : USE_XBEAN|USE_XQRL|USE_SAXON; //set all bits
 
         return getCompiledPath(pathExpr, force, getCurrentNodeVar(options));
     }
 
-    static synchronized Path getCompiledPath(String pathExpr, int force, String currentVar)
+    static synchronized Path getCompiledPath(String pathExpr, int force,
+        String currentVar)
     {
-        if (force == FORCE_XQRL) {
-            Path path = (Path) _xqrlPathCache.get(pathExpr);
+        Path path = null;
+        Map namespaces = (force & USE_SAXON) != 0 ? new HashMap() : null;
 
-            if (path == null) {
-                path = createXqrlCompiledPath(pathExpr, currentVar);
-
-                if (path == null)
-                    throw new RuntimeException("Can't force XQRL: Can't find xqrl");
-
-                _xqrlPathCache.put(path._pathKey, path);
-            }
-
-            return path;
-        }
-        Map namespaces = new HashMap();
-        if (force == FORCE_XBEAN) {
-            Path path = (Path) _xbeanPathCache.get(pathExpr);
-
-            if (path == null) {
-                path = XbeanPath.create(pathExpr, currentVar, namespaces);
-
-                if (path == null)
-                    throw new XmlRuntimeException("Path too complex for XBean path engine: " + pathExpr);
-
-                _xbeanPathCache.put(path._pathKey, path);
-            }
-
-            return path;
-        }
-
-        assert force == FORCE_NEITHER;
-
-        Path path = (Path) _xbeanPathCache.get(pathExpr);
-
-        if (path == null)
+        if ((force & USE_XBEAN) != 0)
+            path = (Path) _xbeanPathCache.get(pathExpr);
+        if (path == null && (force & USE_XBEAN) != 0)
             path = (Path) _xqrlPathCache.get(pathExpr);
 
-        if (path == null) {
-            path = XbeanPath.create(pathExpr, currentVar, namespaces);
+        if (path != null)
+            return path;
 
-            if (path != null)
-                _xbeanPathCache.put(path._pathKey, path);
-            else if (! SaxonXBeansDelegate.bInstantiated ){
-                path = createXqrlCompiledPath(pathExpr, currentVar);
-                if (path != null)
-                    _xqrlPathCache.put(path._pathKey, path);
-            }
-            //XQRL is not on the path either; this has to be Saxon
-            if (path == null) {
-                int offset =
-                        namespaces.get(XPath._NS_BOUNDARY) == null ?
-                        0 :
-                        ((Integer) namespaces.get(XPath._NS_BOUNDARY)).intValue();
-                namespaces.remove(XPath._NS_BOUNDARY);
-                path = SaxonPathImpl.create(pathExpr.substring(offset),
-                        currentVar,
-                        namespaces);
-                if (path != null)
-                    _xbeanPathCache.put(path._pathKey, path);
-            }
-        }
+        if ((force & USE_XBEAN) != 0)
+            path = getCompiledPathXbean(pathExpr, currentVar, namespaces);
+        if (path == null && (force & USE_XQRL) != 0 &&
+            !SaxonXBeansDelegate.bInstantiated)
+            path = getCompiledPathXqrl(pathExpr, currentVar);
+        if (path == null && (force & USE_SAXON) != 0)
+            path = getCompiledPathSaxon(pathExpr, currentVar,
+                namespaces);
         if (path == null)
-            throw new RuntimeException("Path too complex for xmlbeans: " + pathExpr);
+        {
+            StringBuffer errMessage = new StringBuffer();
+            if ((force & USE_XBEAN) != 0)
+                errMessage.append(" Trying XBeans path engine...");
+            if ((force & USE_XQRL) != 0 && !SaxonXBeansDelegate.bInstantiated)
+                errMessage.append(" Trying XQRL...");
+            if ((force & USE_SAXON) != 0)
+                errMessage.append(" Trying Saxon...");
+            throw new RuntimeException(errMessage.toString()+" FAILED on "+pathExpr);
+        }
         return path;
     }
+
+    static private synchronized Path getCompiledPathXqrl(String pathExpr,
+        String currentVar)
+    {
+        Path path = createXqrlCompiledPath(pathExpr, currentVar);
+        if (path != null)
+            _xqrlPathCache.put(path._pathKey, path);
+        return path;
+    }
+
+    static private synchronized Path getCompiledPathXbean(String pathExpr,
+        String currentVar, Map namespaces)
+    {
+        Path path = XbeanPath.create(pathExpr, currentVar, namespaces);
+        if (path != null)
+            _xbeanPathCache.put(path._pathKey, path);
+        return path;
+    }
+
+    static private synchronized Path getCompiledPathSaxon(String pathExpr, String currentVar, Map namespaces)
+    {
+        Path path = null;
+        if ( namespaces == null )  namespaces = new HashMap();
+        try{
+            XPath.compileXPath(pathExpr, currentVar, namespaces);
+        }catch (XPath.XPathCompileException e){
+            //do nothing, this function is only called to populate the namespaces map
+        }
+        int offset =
+            namespaces.get(XPath._NS_BOUNDARY) == null ?
+            0 :
+            ((Integer) namespaces.get(XPath._NS_BOUNDARY)).intValue();
+        namespaces.remove(XPath._NS_BOUNDARY);
+        path = SaxonPathImpl.create(pathExpr.substring(offset),
+            currentVar,
+            namespaces);
+        return path;
+    }
+
 
     public static synchronized String compilePath(String pathExpr, XmlOptions options)
     {
@@ -196,8 +203,10 @@ public abstract class Path
             // attrs and elements.
 
             if (!c.isContainer() || _compiledPath.sawDeepDot())
-                return getCompiledPath(_pathKey, FORCE_XQRL, _currentVar).execute(c);
-
+            {
+                int force = USE_SAXON | USE_XQRL;
+                return getCompiledPath(_pathKey, force, _currentVar).execute(c);
+            }
             return new XbeanPathEngine(_compiledPath, c);
         }
 
