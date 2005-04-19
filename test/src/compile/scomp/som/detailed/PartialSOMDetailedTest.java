@@ -108,7 +108,7 @@ public class PartialSOMDetailedTest extends SomTestBase
 
         // Step 1: read in a clean XSD groups_added.xsd
         String sBaseSourceName = "testsourcename";
-        SchemaTypeSystem baseSTS = createNewSTS("groups_added.xsd_",
+        SchemaTypeSystem baseSTS = createNewSTS("reusable_grps_added.xsd_",
                 null,
                 "BaseSchemaTS",
                 sBaseSourceName);
@@ -119,7 +119,7 @@ public class PartialSOMDetailedTest extends SomTestBase
                 printRecoveredErrors());
 
         // the tests - Walk thro the valid SOM
-        inspectSOM(baseSTS, 7, 0, 5, 2);
+        inspectSOM(baseSTS, 7, 0, 5, 1);
 
         // Test for saving of the SOM - should go thro
         Assert.assertTrue("SOM " + baseSTS.getName() + "Save failed!",
@@ -130,9 +130,6 @@ public class PartialSOMDetailedTest extends SomTestBase
                 validateInstance(getTestCaseFile("instance_subst_grps_valid.xml"), baseSTS));
 
         // verify named model groups
-        Assert.assertEquals("Elem Type  should be 'ModelGrpType'",
-                "ModelGrpType",
-                getElementType(baseSTS, "ModelGrpTypeElem"));
         Assert.assertTrue("Attribute Group 'AttributeGroup' should exist",
                 getAttributeGroup(baseSTS, "AttributeGroup"));
         Assert.assertTrue("Model Group 'NamedModelGroup' should exist",
@@ -158,12 +155,10 @@ public class PartialSOMDetailedTest extends SomTestBase
                 validateInstance(getTestCaseFile("instance_subst_grps_valid.xml"), modifiedSTS));
 
         // named model groups
-        Assert.assertEquals("Elem Type  should be 'anyType'",
-                anyType,
-                getElementType(modifiedSTS, "ModelGrpTypeElem"));
-        Assert.assertEquals("Elem Type  should be 'anyType'",
-                anyType,
-                getElementType(modifiedSTS, "AttrGrpTypeElem"));
+        Assert.assertFalse("Attribute Group 'AttributeGroup' should not exist",
+                getAttributeGroup(modifiedSTS, "AttributeGroup"));
+        Assert.assertFalse("Model Group 'NamedModelGroup' should not exist",
+                getModelGroup(modifiedSTS, "NamedModelGroup"));
 
         // step 3: create a PSOM with the original xsd
         SchemaTypeSystem finalSTS = createNewSTS("groups_added.xsd_",
@@ -180,11 +175,10 @@ public class PartialSOMDetailedTest extends SomTestBase
                 validateInstance(getTestCaseFile("instance_subst_grps_valid.xml"), finalSTS));
 
         // verify named model groups types
-        Assert.assertEquals("Elem Type  should be 'ModelGrpType'",
-                "ModelGrpType",
-                getElementType(baseSTS, "ModelGrpTypeElem"));
-        Assert.assertTrue("Elem Type  should be 'AttributeGroup'",
+        Assert.assertTrue("Attribute Group 'AttributeGroup' should exist",
                 getAttributeGroup(baseSTS, "AttributeGroup"));
+        Assert.assertTrue("Model Group 'NamedModelGroup' should exist",
+                getModelGroup(baseSTS, "NamedModelGroup"));
 
         // compare this to the original schema here
         Assert.assertTrue(compareSavedSOMs("BaseSchemaTS","FinalSchemaTS"));
@@ -383,9 +377,9 @@ public class PartialSOMDetailedTest extends SomTestBase
                 validateInstance(getTestCaseFile("instance_subst_grps_valid.xml"), baseSTS));
 
         // verify named model groups
-        Assert.assertEquals("Elem Type  should be 'ModelGrpType'", "ModelGrpType",
-                getElementType(baseSTS, "ModelGrpTypeElem"));
-        Assert.assertTrue("Elem Type  should be 'AttributeGroup'",
+        Assert.assertTrue("Model Group 'NamedModelGroup' should exist ",
+                getModelGroup(baseSTS, "NamedModelGroup"));
+        Assert.assertTrue("Attribute Group 'AttributeGroup' should exist",
                 getAttributeGroup(baseSTS, "AttributeGroup"));
 
         // step2: load a modified xsd with type of head elem in subs grp changed
@@ -547,7 +541,7 @@ public class PartialSOMDetailedTest extends SomTestBase
         // Step 1: read in an xsd that imports from another xsd file providing file name only
         // The source name is not specified as this confuses the dereferecing of the location for the schemaLocation Attribute
         // The absolute rul specified in tbe basename (if specified) would also work.
-        
+
         //String sBaseSourceName = "file:/D:/SVNNEW/xmlbeans/trunk/test/cases/xbean/compile/som/";
         SchemaTypeSystem baseSTS = createNewSTS("namespaces_import_fileonly.xsd_",
                 null,
