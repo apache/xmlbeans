@@ -150,12 +150,16 @@ public interface SchemaTypeLoader
     public XmlObject parse ( Reader jior, SchemaType type, XmlOptions options ) throws XmlException, IOException;
     /** Parses an instance of the given type. */
     public XmlObject parse ( Node node, SchemaType type, XmlOptions options ) throws XmlException;
-    /** Parses an instance of the given type. */
+    /** Parses an instance of the given type.
+     * @deprecated Deprecated by XMLStreamReader from STaX - jsr173 API.
+     */
     public XmlObject parse ( XMLInputStream xis, SchemaType type, XmlOptions options ) throws XmlException, XMLStreamException;
     /** Returns an XmlSaxHandler that can parse an instance of the given type. */
     public XmlSaxHandler newXmlSaxHandler ( SchemaType type, XmlOptions options );
     /** Returns a DOMImplementation. */
     public DOMImplementation newDomImplementation ( XmlOptions options );
-    /** Returns a validating XMLInputStream that will throw an exception if the XML is not valid */
+    /** Returns a validating XMLInputStream that will throw an exception if the XML is not valid
+     * @deprecated Deprecated by XMLStreamReader from STaX - jsr173 API.
+     */
     public XMLInputStream newValidatingXMLInputStream ( XMLInputStream xis, SchemaType type, XmlOptions options ) throws XmlException, XMLStreamException;
 }

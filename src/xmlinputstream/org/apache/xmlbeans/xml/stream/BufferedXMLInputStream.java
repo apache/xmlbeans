@@ -27,6 +27,7 @@ import java.io.IOException;
  * @see org.apache.xmlbeans.xml.stream.EndElement
  * @see org.apache.xmlbeans.xml.stream.CharacterData
  * @see org.apache.xmlbeans.xml.stream.XMLName
+ * @deprecated XMLInputStream was deprecated by XMLStreamReader from STaX - jsr173 API.
  */
 public interface BufferedXMLInputStream extends XMLInputStream {
   /**

@@ -752,13 +752,15 @@ public interface XmlObject extends XmlTokenSource
         
         /**
          * Loads the given {@link XMLInputStream} into an XmlObject.
-         */ 
+         * @deprecated XMLInputStream was deprecated by XMLStreamReader from STaX - jsr173 API.
+         */
         public static XmlObject parse ( XMLInputStream xis ) throws XmlException, XMLStreamException {
           return XmlBeans.getContextTypeLoader().parse( xis, null, null ); }
         
         /**
          * Loads the given {@link XMLInputStream} into an XmlObject.
-         */ 
+         * @deprecated XMLInputStream was deprecated by XMLStreamReader from STaX - jsr173 API.
+         */
         public static XmlObject parse ( XMLInputStream xis, XmlOptions options ) throws XmlException, XMLStreamException {
           return XmlBeans.getContextTypeLoader().parse( xis, null, options ); }
 
@@ -788,7 +790,8 @@ public interface XmlObject extends XmlTokenSource
         
         /**
          * Returns a new validating {@link XMLInputStream} that throws exceptions when the input is not valid.
-         */ 
+         * @deprecated XMLInputStream was deprecated by XMLStreamReader from STaX - jsr173 API.
+         */
         public static XMLInputStream newValidatingXMLInputStream ( XMLInputStream xis ) throws XmlException, XMLStreamException {
           return XmlBeans.getContextTypeLoader().newValidatingXMLInputStream( xis, null, null ); }
         
@@ -810,7 +813,8 @@ public interface XmlObject extends XmlTokenSource
          * @param xis The basis for the new XMLInputStream.
          * @param options Options specifying root document type and/or an error listener.
          * @return A new validating XMLInputStream.
-         */ 
+         * @deprecated XMLInputStream was deprecated by XMLStreamReader from STaX - jsr173 API.
+         */
         public static XMLInputStream newValidatingXMLInputStream ( XMLInputStream xis, XmlOptions options ) throws XmlException, XMLStreamException {
           return XmlBeans.getContextTypeLoader().newValidatingXMLInputStream( xis, null, options ); }
         

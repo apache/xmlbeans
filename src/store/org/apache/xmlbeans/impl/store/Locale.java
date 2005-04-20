@@ -729,6 +729,9 @@ public final class Locale
     //
     //
 
+    /**
+     * @deprecated XMLInputStream was deprecated by XMLStreamReader from STaX - jsr173 API.
+     */
     public static XmlObject parseToXmlObject(SchemaTypeLoader stl,
         XMLInputStream xis, SchemaType type, XmlOptions options)
         throws XmlException, org.apache.xmlbeans.xml.stream.XMLStreamException
@@ -762,6 +765,9 @@ public final class Locale
             }
     }
 
+    /**
+     * @deprecated XMLInputStream was deprecated by XMLStreamReader from STaX - jsr173 API.
+     */
     public XmlObject parseToXmlObject(XMLInputStream xis, SchemaType type,
         XmlOptions options)
         throws XmlException, org.apache.xmlbeans.xml.stream.XMLStreamException
@@ -897,6 +903,9 @@ public final class Locale
 
     }
 
+    /**
+     * @deprecated XMLInputStream was deprecated by XMLStreamReader from STaX - jsr173 API.
+     */
     private Cur loadXMLInputStream(XMLInputStream xis, XmlOptions options)
         throws org.apache.xmlbeans.xml.stream.XMLStreamException
     {
@@ -2079,6 +2088,36 @@ public final class Locale
         c.popButStay();
 
         return true;
+
+/*        Xobj originalXobj = c._xobj;
+        int  originalPos  = c._pos;
+        boolean hasMoved = false;
+
+        // find the first container
+        while (!c.isContainer())
+        {
+            if (c.isFinish())
+            {
+                if (hasMoved)
+                    c.moveTo(originalXobj, originalPos);
+
+                return false;
+            }
+            c.next(false);
+            hasMoved = true;
+        }
+
+        // find first elem child
+        if ( !c.toFirstChild() )
+        {
+            if (hasMoved)
+                c.moveTo(originalXobj, originalPos);
+            
+            return false;
+        }
+
+        return true;
+*/
     }
 
     static boolean toLastChildElement(Cur c)
