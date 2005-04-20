@@ -152,6 +152,9 @@ public abstract class FilterXmlObject implements XmlObject, SimpleValue, Delegat
         return underlyingXmlObject().newCursor();
     }
 
+    /**
+     * @deprecated Deprecated by XMLStreamReader from STaX - jsr173 API.
+     */
     public XMLInputStream newXMLInputStream()
     {
         return underlyingXmlObject().newXMLInputStream();
@@ -207,6 +210,9 @@ public abstract class FilterXmlObject implements XmlObject, SimpleValue, Delegat
         underlyingXmlObject().save(w);
     }
 
+    /**
+     * @deprecated Deprecated by XMLStreamReader from STaX - jsr173 API.
+     */
     public XMLInputStream newXMLInputStream(XmlOptions options)
     {
         return underlyingXmlObject().newXMLInputStream(options);

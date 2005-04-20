@@ -200,6 +200,9 @@ public abstract class SchemaTypeLoaderBase implements SchemaTypeLoader
         return Locale.parseToXmlObject( this, xmlText, type, options );
     }
 
+    /**
+     * @deprecated XMLInputStream was deprecated by XMLStreamReader from STaX - jsr173 API.
+     */
     public XmlObject parse ( XMLInputStream xis, SchemaType type, XmlOptions options ) throws XmlException, XMLStreamException
     {
         XmlFactoryHook hook = XmlFactoryHook.ThreadContext.getHook();
@@ -374,6 +377,9 @@ public abstract class SchemaTypeLoaderBase implements SchemaTypeLoader
         return Locale.newDomImplementation( this, options );
     }
 
+    /**
+     * @deprecated XMLInputStream was deprecated by XMLStreamReader from STaX - jsr173 API.
+     */
     public XMLInputStream newValidatingXMLInputStream ( XMLInputStream xis, SchemaType type, XmlOptions options ) throws XmlException, XMLStreamException
     {
         return new ValidatingXMLInputStream( xis, this, type, options );

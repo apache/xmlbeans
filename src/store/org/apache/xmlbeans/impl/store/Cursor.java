@@ -479,7 +479,10 @@ public final class Cursor implements XmlCursor, ChangeListener {
     //
     // These simply delegate to the version of the method which takes XmlOptions
     //
-    
+
+    /**
+     * @deprecated XMLInputStream was deprecated by XMLStreamReader from STaX - jsr173 API.
+     */
     public XMLInputStream _newXMLInputStream() {
         return _newXMLInputStream(null);
     }
@@ -532,6 +535,9 @@ public final class Cursor implements XmlCursor, ChangeListener {
         return Jsr173.newXmlStreamReader(_cur, options);
     }
 
+    /**
+     * @deprecated XMLInputStream was deprecated by XMLStreamReader from STaX - jsr173 API.
+     */
     public XMLInputStream _newXMLInputStream(XmlOptions options) {
         throw new RuntimeException("Not implemented");
     }
@@ -2204,6 +2210,9 @@ public final class Cursor implements XmlCursor, ChangeListener {
         }
     }
 
+    /**
+     * @deprecated XMLInputStream was deprecated by XMLStreamReader from STaX - jsr173 API.
+     */
     public XMLInputStream newXMLInputStream() {
         if (preCheck()) {
             _cur._locale.enter();
@@ -2384,6 +2393,9 @@ public final class Cursor implements XmlCursor, ChangeListener {
         }
     }
 
+    /**
+     * @deprecated XMLInputStream was deprecated by XMLStreamReader from STaX - jsr173 API.
+     */
     public XMLInputStream newXMLInputStream(XmlOptions options) {
         if (preCheck()) {
             _cur._locale.enter();

@@ -76,7 +76,9 @@ public interface XmlFactoryHook
     public XmlObject parse ( SchemaTypeLoader loader, Reader jior, SchemaType type, XmlOptions options ) throws XmlException, IOException;
     /** Hooks Factory.parse calls */
     public XmlObject parse ( SchemaTypeLoader loader, Node node, SchemaType type, XmlOptions options ) throws XmlException;
-    /** Hooks Factory.parse calls */
+    /** Hooks Factory.parse calls
+      * @deprecated XMLInputStream was deprecated by XMLStreamReader from STaX - jsr173 API.
+      */
     public XmlObject parse ( SchemaTypeLoader loader, XMLInputStream xis, SchemaType type, XmlOptions options ) throws XmlException, XMLStreamException;
     /** Hooks Factory.newXmlSaxHandler calls */
     public XmlSaxHandler newXmlSaxHandler ( SchemaTypeLoader loader, SchemaType type, XmlOptions options );

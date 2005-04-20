@@ -116,11 +116,15 @@ public interface XmlAnySimpleType extends XmlObject
         public static XmlAnySimpleType parse(org.w3c.dom.Node node, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException {
           return (XmlAnySimpleType) XmlBeans.getContextTypeLoader().parse( node, type, options ); }
         
-        /** Parses a {@link XmlAnySimpleType} fragment from an XMLInputStream. */
+        /** Parses a {@link XmlAnySimpleType} fragment from an XMLInputStream.
+         * @deprecated Deprecated by XMLStreamReader from STaX - jsr173 API.
+         */
         public static XmlAnySimpleType parse(org.apache.xmlbeans.xml.stream.XMLInputStream xis) throws org.apache.xmlbeans.XmlException, org.apache.xmlbeans.xml.stream.XMLStreamException {
           return (XmlAnySimpleType) XmlBeans.getContextTypeLoader().parse( xis, type, null ); }
         
-        /** Parses a {@link XmlAnySimpleType} fragment from an XMLInputStream. */
+        /** Parses a {@link XmlAnySimpleType} fragment from an XMLInputStream.
+         * @deprecated XMLInputStream was deprecated by XMLStreamReader from STaX - jsr173 API.
+         */
         public static XmlAnySimpleType parse(org.apache.xmlbeans.xml.stream.XMLInputStream xis, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException, org.apache.xmlbeans.xml.stream.XMLStreamException {
           return (XmlAnySimpleType) XmlBeans.getContextTypeLoader().parse( xis, type, options ); }
         
@@ -132,11 +136,15 @@ public interface XmlAnySimpleType extends XmlObject
         public static XmlAnySimpleType parse(javax.xml.stream.XMLStreamReader xsr, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException{
           return (XmlAnySimpleType) XmlBeans.getContextTypeLoader().parse( xsr, type, options ); }
         
-        /** Returns a validating XMLInputStream. */
+        /** Returns a validating XMLInputStream.
+         * @deprecated XMLInputStream was deprecated by XMLStreamReader from STaX - jsr173 API.
+         */
         public static org.apache.xmlbeans.xml.stream.XMLInputStream newValidatingXMLInputStream(org.apache.xmlbeans.xml.stream.XMLInputStream xis) throws org.apache.xmlbeans.XmlException, org.apache.xmlbeans.xml.stream.XMLStreamException {
           return XmlBeans.getContextTypeLoader().newValidatingXMLInputStream( xis, type, null ); }
         
-        /** Returns a validating XMLInputStream. */
+        /** Returns a validating XMLInputStream.
+         * @deprecated XMLInputStream was deprecated by XMLStreamReader from STaX - jsr173 API.
+         */
         public static org.apache.xmlbeans.xml.stream.XMLInputStream newValidatingXMLInputStream(org.apache.xmlbeans.xml.stream.XMLInputStream xis, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException, org.apache.xmlbeans.xml.stream.XMLStreamException {
           return XmlBeans.getContextTypeLoader().newValidatingXMLInputStream( xis, type, options ); }
         

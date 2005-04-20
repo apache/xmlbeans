@@ -42,7 +42,9 @@ import org.apache.xmlbeans.xml.stream.XMLName;
 import org.apache.xmlbeans.xml.stream.XMLStreamException;
 import javax.xml.namespace.QName;
 
-
+/**
+ * @deprecated XMLInputStream was deprecated by XMLStreamReader from STaX - jsr173 API.
+ */
 public final class ValidatingXMLInputStream
     extends GenericXmlInputStream implements Event
 {

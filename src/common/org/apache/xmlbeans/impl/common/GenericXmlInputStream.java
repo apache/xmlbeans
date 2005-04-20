@@ -21,6 +21,9 @@ import org.apache.xmlbeans.xml.stream.XMLInputStream;
 import org.apache.xmlbeans.xml.stream.XMLName;
 import org.apache.xmlbeans.xml.stream.XMLStreamException;
 
+/**
+ * @deprecated XMLInputStream was deprecated by XMLStreamReader from STaX - jsr173 API.
+ */
 public class GenericXmlInputStream implements XMLInputStream
 {
     public GenericXmlInputStream ( )
@@ -34,7 +37,7 @@ public class GenericXmlInputStream implements XMLInputStream
         (_master = master).ensureInit();
         _nextEvent = master._nextEvent;
     }
-    
+
     //
     // The source for all events
     //
@@ -54,13 +57,13 @@ public class GenericXmlInputStream implements XMLInputStream
         {
             _event = e;
         }
-                   
+
         int     getType ( ) { return _event.getType(); }
         boolean hasName ( ) { return _event.hasName(); }
         XMLName getName ( ) { return _event.getName(); }
-        
+
         final XMLEvent _event;
-        
+
         EventItem _next;
     }
 
@@ -76,7 +79,7 @@ public class GenericXmlInputStream implements XMLInputStream
             {
                 throw new RuntimeException( e );
             }
-            
+
             _master._initialized = true;
         }
     }
@@ -91,7 +94,7 @@ public class GenericXmlInputStream implements XMLInputStream
     public XMLEvent next ( ) throws XMLStreamException
     {
         ensureInit();
-        
+
         EventItem currentEvent = _nextEvent;
 
         if (_nextEvent != null)
@@ -119,7 +122,7 @@ public class GenericXmlInputStream implements XMLInputStream
     public boolean hasNext ( ) throws XMLStreamException
     {
         ensureInit();
-        
+
         return _nextEvent != null;
     }
 
@@ -131,7 +134,7 @@ public class GenericXmlInputStream implements XMLInputStream
     public void skipElement ( ) throws XMLStreamException
     {
         ensureInit();
-        
+
         for ( ; _nextEvent != null ; next() )
         {
             if (_nextEvent.getType() == XMLEvent.START_ELEMENT)
@@ -154,14 +157,14 @@ public class GenericXmlInputStream implements XMLInputStream
     public XMLEvent peek ( ) throws XMLStreamException
     {
         ensureInit();
-        
+
         return _nextEvent._event;
     }
 
     public boolean skip ( int eventType ) throws XMLStreamException
     {
         ensureInit();
-        
+
         for ( ; _nextEvent != null ; next() )
         {
             if (_nextEvent.getType() == eventType)
@@ -174,7 +177,7 @@ public class GenericXmlInputStream implements XMLInputStream
     public boolean skip ( XMLName name ) throws XMLStreamException
     {
         ensureInit();
-        
+
         for ( ; _nextEvent != null ; next() )
         {
             if (_nextEvent.hasName() && _nextEvent.getName().equals( name ))
@@ -187,7 +190,7 @@ public class GenericXmlInputStream implements XMLInputStream
     public boolean skip ( XMLName name, int eventType ) throws XMLStreamException
     {
         ensureInit();
-        
+
         for ( ; _nextEvent != null ; next() )
         {
             if (_nextEvent.getType() == eventType &&
@@ -204,7 +207,7 @@ public class GenericXmlInputStream implements XMLInputStream
     public XMLInputStream getSubStream ( ) throws XMLStreamException
     {
         ensureInit();
-        
+
         GenericXmlInputStream subStream = new GenericXmlInputStream( this );
 
         subStream.skip( XMLEvent.START_ELEMENT );
@@ -222,14 +225,14 @@ public class GenericXmlInputStream implements XMLInputStream
     public ReferenceResolver getReferenceResolver ( )
     {
         ensureInit();
-        
+
         throw new RuntimeException( "Not impl" );
     }
 
     public void setReferenceResolver ( ReferenceResolver resolver )
     {
         ensureInit();
-        
+
         throw new RuntimeException( "Not impl" );
     }
 

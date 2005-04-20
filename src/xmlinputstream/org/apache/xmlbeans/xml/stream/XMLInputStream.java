@@ -39,6 +39,7 @@ package org.apache.xmlbeans.xml.stream;
  * @see org.apache.xmlbeans.xml.stream.EndElement
  * @see org.apache.xmlbeans.xml.stream.CharacterData
  * @see org.apache.xmlbeans.xml.stream.XMLName
+ * @deprecated XMLInputStream was deprecated by XMLStreamReader from STaX - jsr173 API.
  */
 
 // REVIEW pdapkus@bea.com 2002-Sep-13 -- while I like the convenience

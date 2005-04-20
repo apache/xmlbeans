@@ -19,12 +19,14 @@ import org.apache.xmlbeans.xml.stream.XMLInputStream;
 
 /**
  * This interface can be implemented to allow resolution of references
- * on a stream.  
+ * on a stream.
+ * @deprecated XMLInputStream was deprecated by XMLStreamReader from STaX - jsr173 API.
  */
 public interface ReferenceResolver {
   /**
    * Returns the xml pointed to by this idref as an XMLInputStream
    * @param idref
+   * @deprecated XMLInputStream was deprecated by XMLStreamReader from STaX - jsr173 API.
    */
   XMLInputStream resolve(String idref)
     throws XMLStreamException;

@@ -30,8 +30,8 @@ import java.math.BigDecimal;
 import java.util.List;
 
 /**
- * Extension of {@link ValidatingXMLInputStream} to provide Post Schema Validation Info
- * over an XMLSchemaReader.
+ * Extension of {@link ValidatingXMLStreamReader} to provide Post Schema Validation Info
+ * over an XMLStreamReader.
  *
  * @author Cezar Andrei (cezar.andrei at bea.com)
  *         Date: Aug 17, 2004
