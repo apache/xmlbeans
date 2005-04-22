@@ -257,8 +257,10 @@ public class FacetRestrictionTest extends BaseCase {
     }
 
     public void testPatternElt() throws Throwable {
+
+        // base pattern is (a[^bc]d){3}, derived pattern is (a[^ef]d){3}
         PatternEltDocument doc = PatternEltDocument.Factory.newInstance();
-        doc.setPatternElt("aedafd");
+        doc.setPatternElt("axdaydazd");
         try {
             assertTrue(doc.validate(validateOptions));
         } catch (Throwable t) {
@@ -268,7 +270,7 @@ public class FacetRestrictionTest extends BaseCase {
         String[] errExpected = new String[]{
             XmlErrorCodes.DATATYPE_VALID$PATTERN_VALID};
 
-        doc.setPatternElt("aedaedaed");
+        doc.setPatternElt("aedafdagd");
         assertTrue(!doc.validate(validateOptions));
         assertTrue(compareErrorCodes(errExpected));
 
