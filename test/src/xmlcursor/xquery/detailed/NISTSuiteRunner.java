@@ -26,13 +26,13 @@ import noNamespace.TestSuiteDocument;
 import noNamespace.TestCase;
 import xmlcursor.xquery.common.AbstractRunner;
 
-/**
- *
 
 public class NISTSuiteRunner extends AbstractRunner
 
 
 {
+/**
+ *
 
     public static Test suite()
         throws java.lang.Exception
@@ -100,5 +100,5 @@ public class NISTSuiteRunner extends AbstractRunner
         "testSuite/NIST/files/catalog.xml";
     TestSuiteDocument.TestSuite.TestGroup[] group;
 
-}
 */
+}
