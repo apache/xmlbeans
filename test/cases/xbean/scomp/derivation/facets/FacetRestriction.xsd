@@ -78,7 +78,7 @@
 
     <xs:simpleType name="PatternT">
            <xs:restriction base="base:PatternT">
-               <xs:pattern value="(a[^bc]d){2}"/>
+               <xs:pattern value="(a[^ef]d){3}"/>
            </xs:restriction>
        </xs:simpleType>
 
