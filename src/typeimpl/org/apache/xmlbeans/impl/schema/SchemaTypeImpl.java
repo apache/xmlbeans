@@ -1207,6 +1207,8 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory
 
     private void computeFlatUnionModel()
     {
+        if (getSimpleVariety() != SchemaType.UNION)
+            throw new IllegalStateException("Operation is only supported on union types");
         Set constituentMemberTypes = new LinkedHashSet();
         Set allSubTypes = new LinkedHashSet();
         SchemaType commonBaseType = null;

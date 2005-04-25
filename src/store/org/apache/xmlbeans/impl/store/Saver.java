@@ -1239,7 +1239,7 @@ abstract class Saver
                     char ch = _buf[ i ];
 
                     if (ch == '>' && secondToLastWasBracket && lastWasBracket)
-                        i = replace( i, "&gt;" );
+                        i = replace( i, "]]>><![CDATA[" );
                     else if (isBadChar( ch ))
                         i = replace( i, "?" );
                     else
@@ -1256,14 +1256,19 @@ abstract class Saver
             }
             else
             {
+                char ch = 0, ch_1 = 0, ch_2;
                 for ( int cch = _lastEmitCch ; cch > 0 ; cch-- )
                 {
-                    char ch = _buf[ i ];
+                    ch_2 = ch_1;
+                    ch_1 = ch;
+                    ch = _buf[ i ];
 
                     if (ch == '<')
                         i = replace( i, "&lt;" );
                     else if (ch == '&')
                         i = replace( i, "&amp;" );
+                    else if (ch == '>' && ch_1 == ']' && ch_2 == ']')
+                        i = replace( i, "&gt;" );
                     else if (isBadChar( ch ))
                         i = replace( i, "?" );
                     else
