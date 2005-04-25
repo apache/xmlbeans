@@ -40,7 +40,7 @@ public class JarHelper
   private byte[] mBuffer = new byte[BUFFER_SIZE];
   private int mByteCount = 0;
   private boolean mVerbose = false;
-  private String destJarName = "";
+  private String mDestJarName = "";
 
   // ========================================================================
   // Constructor
@@ -62,10 +62,7 @@ public class JarHelper
     if (dirOrFile2Jar == null || destJar == null)
         throw new IllegalArgumentException();
 
-    destJarName = destJar.getPath().replace(File.separatorChar, SEP);
-    if (destJarName.startsWith("./"))
-      destJarName = destJarName.substring(2);
-
+    mDestJarName = destJar.getCanonicalPath();
     FileOutputStream fout = new FileOutputStream(destJar);
     JarOutputStream jout = new JarOutputStream(fout);
     //jout.setLevel(0);
@@ -150,19 +147,13 @@ public class JarHelper
         jarDir(f,jos,subPath);
       }
     } else {
-      String filePath = dirOrFile2jar.getPath();
-      if (filePath.startsWith("/"))
-          filePath = filePath.substring(1);
-      else if (filePath.startsWith("./"))
-          filePath = filePath.substring(2);
-
-      if (filePath.equals("") || filePath.equals(destJarName))
+      if (dirOrFile2jar.getCanonicalPath().equals(mDestJarName))
       {
-        if (mVerbose) System.out.println("skipping " + filePath);
+        if (mVerbose) System.out.println("skipping " + dirOrFile2jar.getPath());
         return;
       }
 
-      if (mVerbose) System.out.println("adding " + filePath);
+      if (mVerbose) System.out.println("adding " + dirOrFile2jar.getPath());
       FileInputStream fis = new FileInputStream(dirOrFile2jar);
       try {
         JarEntry entry = new JarEntry(path+dirOrFile2jar.getName());
