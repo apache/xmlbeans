@@ -62,11 +62,17 @@
 
 	<!-- castor -->
 	<property name="castor.jar" value="${castor.dir}/castor-0.9.5.4.jar"/>
+	<!--
 	<property name="castor.url" value="ftp://ftp.exolab.org/pub/castor/castor_0.9.5.4/castor-0.9.5.4.jar"/>
+	-->
+	<property name="castor.url" value="http://dist.codehaus.org/castor/0.9.5.4/castor-0.9.5.4.jar"/>
 
 	<!-- jibx -->
 	<property name="jibx.zip" value="${jibx.dir}/jibx-beta3c.zip"/>
+	<!--
 	<property name="jibx.url" value="http://umn.dl.sourceforge.net/sourceforge/jibx/jibx-beta3c.zip"/>
+	-->
+	<property name="jibx.url" value="http://easynews.dl.sourceforge.net/sourceforge/jibx/jibx-beta3c.zip"/>	
 	
 	<!-- v1 -->
 	<property name="v1.zip" value="${v1.dir}/xmlbeans-1.0.3.zip"/>
