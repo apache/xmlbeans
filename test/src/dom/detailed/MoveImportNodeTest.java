@@ -48,7 +48,32 @@ public class MoveImportNodeTest extends TestCase{
 	super(name);
     }
 
-  
+    //insert a node from a ns into a non-ns
+    public void testMoveNodeNStoNoNS(){
+	Node toMove=m_docNS.getFirstChild().getFirstChild().getFirstChild(); //bar
+        assertEquals("myns:bar",toMove.getNodeName());
+	Element newParent=(Element)m_docNS.getFirstChild();
+        assertEquals("foo",newParent.getNodeName());
+	newParent.insertBefore(toMove,newParent.getFirstChild());
+
+	assertEquals(2,newParent.getChildNodes().getLength());
+	assertEquals(null,newParent.getElementsByTagNameNS("http://foo.org","bar"));
+	assertEquals(newParent.getElementsByTagName("bar"),newParent.getElementsByTagNameNS(null,"bar"));
+
+    }
+
+    //move node to a different namespace
+    public void testMoveDiffNS(){
+	Node toMove=m_docNS.getFirstChild().getFirstChild().getFirstChild(); //bar
+	Element newParent=(Element)m_docNS.getFirstChild();
+	newParent.insertBefore(toMove,newParent.getFirstChild());
+	newParent.getFirstChild().setPrefix("other");
+	assertEquals(2,newParent.getChildNodes().getLength());
+	assertEquals(null,(newParent).getElementsByTagNameNS(null,"bar"));
+	assertEquals(true,(toMove==newParent.getElementsByTagNameNS("other.org","bar")));
+    }
+
+
     //import to a doc where the given ns DNE
     public void testMoveDiffDoc(){
 	Node toMove=m_docNS.getFirstChild().getFirstChild().getFirstChild(); //bar

@@ -89,6 +89,7 @@ final class DomImpl
         int    nodeType ( );
         Cur    tempCur  ( );
         QName  getQName ( );
+        boolean nodeCanHavePrefixUri( );
 
         void   dump ( );
         void   dump ( PrintStream o );
@@ -546,7 +547,7 @@ final class DomImpl
                 return false;
 
             return _local.equals( "*" ) ? true : _node_getLocalName( element ).equals( _local );
-        }
+           }
 
         private String _uri;
         private String _local;
@@ -708,7 +709,7 @@ final class DomImpl
         Dom e = c.getDom();
 
         c.release();
-
+        ((Xobj.ElementXobj)e)._canHavePrefixUri = false;
         return e;
     }
 
@@ -739,9 +740,9 @@ final class DomImpl
         c.createElement( l.makeQualifiedQName( uri, qname ) );
 
         Dom e = c.getDom();
-        
+
         c.release();
-        
+
         return e;
     }
     
@@ -774,7 +775,7 @@ final class DomImpl
         Dom e = c.getDom();
 
         c.release();
-
+        ((Xobj.AttrXobj)e)._canHavePrefixUri = false;
         return e;
     }
 
@@ -2150,6 +2151,7 @@ final class DomImpl
 
     public static String _node_getLocalName ( Dom n )
     {
+        if (! n.nodeCanHavePrefixUri() ) return null;
         QName name = n.getQName();
         return name == null ? "" : name.getLocalPart();
     }
@@ -2160,9 +2162,12 @@ final class DomImpl
 
     public static String _node_getNamespaceURI ( Dom n )
     {
+        if (! n.nodeCanHavePrefixUri() ) return null;
         QName name = n.getQName();
         // TODO - should return the correct namespace for xmlns ...
-        return name == null ? "" : name.getNamespaceURI();
+        return name == null ? "":
+            //name.getNamespaceURI().equals("")? null:
+            name.getNamespaceURI();
     }
 
     //////////////////////////////////////////////////////////////////////////////////////
@@ -2209,8 +2214,10 @@ final class DomImpl
 
     public static String _node_getPrefix ( Dom n )
     {
+        if (! n.nodeCanHavePrefixUri() ) return null;
         QName name = n.getQName();
-        return name == null ? "" : name.getPrefix();
+        return name == null ? "" :
+            name.getPrefix();
     }
 
     //////////////////////////////////////////////////////////////////////////////////////
@@ -3786,6 +3793,11 @@ final class DomImpl
             }
 
             return newNodes;
+        }
+
+        public boolean nodeCanHavePrefixUri()
+        {
+            return false;
         }
 
         public void dump ( PrintStream o, Object ref )

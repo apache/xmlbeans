@@ -60,20 +60,20 @@ public abstract class NodeTest extends TestCase implements
 
     public void testPrefix() {
         assertFalse(m_node == null);
-        //assertEquals(null,m_node.getPrefix());
-        assertEquals("", m_node.getPrefix());
+        assertEquals(null,m_node.getPrefix());
+       // assertEquals("", m_node.getPrefix());
     }
 
     public void testNamespaceUri() {
         assertFalse(m_node == null);
-        //assertEquals(null,m_node.getNamespaceURI());
-        assertEquals("", m_node.getNamespaceURI());
+        assertEquals(null,m_node.getNamespaceURI());
+        //assertEquals("", m_node.getNamespaceURI());
     }
 
     public void testLocalName() {
         assertFalse(m_node == null);
-        //assertEquals(null,m_node.getLocalName());
-        assertEquals("", m_node.getLocalName());
+        assertEquals(null,m_node.getLocalName());
+       // assertEquals("", m_node.getLocalName());
     }
 
     //0 length list as of API
@@ -294,13 +294,20 @@ public abstract class NodeTest extends TestCase implements
     public abstract void testSetNodeValue();
 
     //$NOTE:override for element and attribute
-    public void testSetPrefix() {
+    public void testSetPrefix()
+    {
         //any prefix here is invalid
         String val = null;
-        val = ""; //Eric's default
-        String oldPrefix = m_node.getPrefix();
-        m_node.setPrefix(val);
-        assertEquals(val, m_node.getPrefix());
+        val = "blah"; //Eric's default
+        try
+        {
+            m_node.setPrefix(val);
+            fail(" set prefix only works for at/elt");
+        }
+        catch (DOMException de)
+        {
+            assertEquals(DOMException.NAMESPACE_ERR, de.code);
+        }
     }
 
     public static int getChildPos(Node node, Node child) {

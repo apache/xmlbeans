@@ -378,6 +378,21 @@ public class AttributeTest extends NodeWithChildrenTest {
         }
     }
 
+    public void testDomLevel1() {
+        Attr at = m_doc.createAttribute("foobar");
+        assertNull("L1 prefix null", at.getPrefix());
+        assertNull("L1 LocalName null", at.getLocalName());
+        assertNull("L1 Uri null", at.getNamespaceURI());
+        try
+        {
+            at.setPrefix("foo");
+            fail("L1 prefix null");
+        }
+        catch (DOMException de)
+        {
+            assertEquals(DOMException.NAMESPACE_ERR, de.code);
+        }
+    }
 
     public void moveToNode() {
         m_node = m_doc.getFirstChild();
