@@ -2457,7 +2457,8 @@ abstract class Xobj implements TypeStore
         public Node replaceChild ( Node newChild, Node oldChild ) { return DomImpl._node_replaceChild( this, newChild, oldChild ); }
         public void setNodeValue ( String nodeValue ) { DomImpl._node_setNodeValue( this, nodeValue ); }
         public void setPrefix ( String prefix ) { DomImpl._node_setPrefix( this, prefix ); }
-        
+        public boolean nodeCanHavePrefixUri( ){ return false; }
+            
         // DOM Level 3
         public Object getUserData ( String key ) { return DomImpl._node_getUserData( this, key ); }
         public Object setUserData ( String key, Object data, UserDataHandler handler ) { return DomImpl._node_setUserData( this, key, data, handler ); }
@@ -2471,7 +2472,7 @@ abstract class Xobj implements TypeStore
         public String getTextContent ( ) { return DomImpl._node_getTextContent( this ); }
         public short compareDocumentPosition ( Node other ) { return DomImpl._node_compareDocumentPosition( this, other ); }
         public String getBaseURI ( ) { return DomImpl._node_getBaseURI( this ); }
-    }
+      }
 
     final static class DocumentXobj extends NodeXobj implements Document
     {
@@ -2553,6 +2554,7 @@ abstract class Xobj implements TypeStore
         {
             super( l, ELEM, DomImpl.ELEMENT );
             _name = name;
+            _canHavePrefixUri = true;
         }
         
         Xobj newNode ( Locale l ) { return new ElementXobj( l, _name ); }
@@ -2585,13 +2587,14 @@ abstract class Xobj implements TypeStore
         public Attr setAttributeNode ( Attr newAttr ) { return DomImpl._element_setAttributeNode( this, newAttr ); }
         public Attr setAttributeNodeNS ( Attr newAttr ) { return DomImpl._element_setAttributeNodeNS( this, newAttr ); }
         public void setAttributeNS ( String namespaceURI, String qualifiedName, String value ) { DomImpl._element_setAttributeNS( this, namespaceURI, qualifiedName, value ); }
-        
+        public boolean nodeCanHavePrefixUri( ){ return _canHavePrefixUri; }
         // DOM Level 3
         public TypeInfo getSchemaTypeInfo ( ) { throw new RuntimeException( "DOM Level 3 Not implemented" ); }
         public void setIdAttribute ( String name, boolean isId ) { throw new RuntimeException( "DOM Level 3 Not implemented" ); }
         public void setIdAttributeNS ( String namespaceURI, String localName, boolean isId ) { throw new RuntimeException( "DOM Level 3 Not implemented" ); }
         public void setIdAttributeNode ( Attr idAttr, boolean isId ) { throw new RuntimeException( "DOM Level 3 Not implemented" ); }
 
+        boolean _canHavePrefixUri;
         private ElementAttributes _attributes;
     }
 
@@ -2601,6 +2604,7 @@ abstract class Xobj implements TypeStore
         {
             super( l, ATTR, DomImpl.ATTR );
             _name = name;
+            _canHavePrefixUri = true;
         }
 
         Xobj newNode ( Locale l ) { return new AttrXobj( l, _name ); }
@@ -2614,10 +2618,13 @@ abstract class Xobj implements TypeStore
         public boolean getSpecified ( ) { return DomImpl._attr_getSpecified( this ); }
         public String getValue ( ) { return DomImpl._node_getNodeValue( this ); }
         public void setValue ( String value ) { DomImpl._node_setNodeValue( this, value ); }
-        
+        public boolean nodeCanHavePrefixUri( ){ return _canHavePrefixUri; }
+
         // DOM Level 3
         public TypeInfo getSchemaTypeInfo ( ) { throw new RuntimeException( "DOM Level 3 Not implemented" ); }
         public boolean isId ( ) { throw new RuntimeException( "DOM Level 3 Not implemented" ); }
+
+        boolean _canHavePrefixUri;
     }
     
     static class CommentXobj extends NodeXobj implements Comment
@@ -2776,7 +2783,7 @@ abstract class Xobj implements TypeStore
         public void setMimeHeader ( String name, String value ) { DomImpl._soapPart_setMimeHeader( this, name, value ); }
         public Iterator getMatchingMimeHeaders ( String[] names ) { return DomImpl._soapPart_getMatchingMimeHeaders( this, names ); }
         public Iterator getNonMatchingMimeHeaders ( String[] names ) { return DomImpl._soapPart_getNonMatchingMimeHeaders( this, names ); }
-    
+        public boolean nodeCanHavePrefixUri( ){ return false; }
         SoapPartDocXobj _docXobj;
     }
 

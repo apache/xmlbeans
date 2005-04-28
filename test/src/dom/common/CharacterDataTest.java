@@ -363,13 +363,17 @@ public abstract class CharacterDataTest extends NodeTest {
     }
 
 
-    public void testSetPrefix() {
-        try {
+    public void testSetPrefix()
+    {
+        try
+        {
             m_node.setPrefix("foobar");
-        } catch (DOMException de) {
+            fail("Can't set prefix on node other than Element or Attribute");
+        }
+        catch (DOMException de)
+        {
             assertEquals(DOMException.NAMESPACE_ERR, de.code);
         }
-        assertEquals("", m_node.getPrefix());
 
     }
 }

@@ -93,7 +93,10 @@ public class ElementTest extends NodeWithChildrenTest {
         assertEquals("myns", m_node.getPrefix());
     }
 
-
+    public void testNamespaceUri() {
+        assertEquals("",m_node.getNamespaceURI());
+    }
+    
     public void testCloneNode() {
         super.testCloneNode();
     }
@@ -668,6 +671,23 @@ public class ElementTest extends NodeWithChildrenTest {
         super.testAppendChildExisting(child);
 
     }
+
+
+    public void testDomLevel1() {
+           Element elt = m_doc.createElement("foobar");
+           assertNull("L1 prefix null", elt.getPrefix());
+           assertNull("L1 LocalName null", elt.getLocalName());
+           assertNull("L1 Uri null", elt.getNamespaceURI());
+            try
+            {
+                elt.setPrefix("foo");
+                fail("L1 prefix null");
+            }
+            catch (DOMException de)
+            {
+                assertEquals(DOMException.NAMESPACE_ERR, de.code);
+            }
+       }
 
     public void moveToNode() {
         m_node = m_doc.getFirstChild().getFirstChild().getChildNodes().item(1);//zed node;

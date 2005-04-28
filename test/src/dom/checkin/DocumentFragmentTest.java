@@ -32,7 +32,8 @@ public class DocumentFragmentTest extends NodeWithChildrenTest {
     public DocumentFragmentTest(String s) {
         super(s);
         sXml =
-                "<foo at0=\"val0\" at1=\"val1\" at2=\"val2\" at3=\"val3\" at4=\"val4\"><bar bat0=\"val0\"/></foo>";
+                "<foo at0=\"val0\" a" +
+            "t1=\"val1\" at2=\"val2\" at3=\"val3\" at4=\"val4\"><bar bat0=\"val0\"/></foo>";
 
         sXmlNS =
                 "<foo xmlns:myns=\"uri:foo\" at0=\"val0\" myns:at0=\"val01\" at2=\"val2\" at3=\"val3\" at4=\"val4\"/>";
@@ -97,7 +98,7 @@ public class DocumentFragmentTest extends NodeWithChildrenTest {
         //if still the same, SOL
         super.testAppendChildExisting(child);
     }
-
+        
     public void moveToNode() {
         m_node = m_doc.createDocumentFragment();
         m_node.appendChild(m_doc.createElement("foo"));

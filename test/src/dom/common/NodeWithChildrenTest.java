@@ -376,6 +376,11 @@ public abstract class NodeWithChildrenTest extends NodeTest {
 
 
     public void testSetPrefixInvalid() {
+        //test only applies to Attrs and Elems
+        if (!(m_node.getNodeType() == Node.ATTRIBUTE_NODE
+            || m_node.getNodeType() == Node.ELEMENT_NODE))
+            return;
+
         //qualifiedName is malformed
         try {
             m_node.setPrefix("invalid<");
