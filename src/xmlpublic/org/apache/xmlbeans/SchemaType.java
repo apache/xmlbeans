@@ -458,6 +458,13 @@ public interface SchemaType extends SchemaComponent, SchemaAnnotated
 
 
     /**
+     * For complex types with simple content returns the base type for this
+     * type's content. In most cases, this is the same as the base type, but
+     * it can also be an anonymous type.
+     */
+    SchemaType getContentBasedOnType();
+
+    /**
      * Returns a {@link SchemaTypeElementSequencer} object, which can then
      * be used to validate complex content inside this element. This is useful
      * for example for trying out different names and see which one would be

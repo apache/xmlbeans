@@ -140,6 +140,9 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory
     private int _baseDepth; // how many inheritance steps to AnyType
     private int _derivationType;
 
+    // for complex types with simple content
+    private SchemaType.Ref _contentBasedOnTyperef;
+
     // facets
     private XmlValueRef[] _facetArray;
     private boolean[] _fixedFacetArray;
@@ -522,7 +525,8 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory
         { assertJavaizing(); _isCompiled = f; }
 
     public boolean isSkippedAnonymousType()
-        { return _outerSchemaTypeRef.get().getBaseType() == this; }
+        { return _outerSchemaTypeRef.get().getBaseType() == this ||
+                _outerSchemaTypeRef.get().getContentBasedOnType() == this; }
 
     public String getShortJavaName()
         { return _shortJavaName; }
@@ -1145,6 +1149,12 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory
 
     public void setBaseDepth(int depth)
         { assertResolving(); _baseDepth = depth; }
+
+    public SchemaType getContentBasedOnType()
+        { return _contentBasedOnTyperef == null ? null : _contentBasedOnTyperef.get(); }
+
+    public void setContentBasedOnTypeRef(SchemaType.Ref typeref)
+        { assertResolving(); _contentBasedOnTyperef = typeref; }
 
     public int getDerivationType()
         { return _derivationType; }
@@ -2220,9 +2230,11 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory
             prefix = "I=";
         else if (getOuterType().getSimpleVariety() == SchemaType.UNION)
             prefix = "M=" + getAnonymousUnionMemberOrdinal();
+        else if (getOuterType().getContentBasedOnType() == this)
+             prefix = "S=";
         else
             prefix = "strange=";
-
+        
         return prefix + "|" + getOuterType().toString();
     }
 

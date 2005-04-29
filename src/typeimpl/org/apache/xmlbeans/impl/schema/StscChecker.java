@@ -279,7 +279,21 @@ public class StscChecker
                     {
                         case SchemaType.SIMPLE_CONTENT:
                             // 5.1.1 The {content type} of the {base type definition} must be a simple type definition of which the {content type} is a ·valid restriction· as defined in Derivation Valid (Restriction, Simple) (§3.14.6).
-                            // todo: we don't allow the content type to be an "on the side" simple type, so nothing fancy to check here
+                            SchemaType cType = sType.getContentBasedOnType();
+                            if (cType != baseType)
+                            {
+                                // We have to check that the contentType is legally derived
+                                // from the base simple type in the hierarchy
+                                SchemaType bType = baseType;
+                                while (bType != null && !bType.isSimpleType())
+                                    bType = bType.getContentBasedOnType();
+                                if (bType != null && !bType.isAssignableFrom(cType))
+                                {
+                                    state.error(XmlErrorCodes.COMPLEX_TYPE_RESTRICTION$SC_NOT_DERIVED,
+                                        null, location);
+                                    return false;
+                                }
+                            }
                             break;
                             
                         case SchemaType.MIXED_CONTENT:

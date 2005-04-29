@@ -1180,16 +1180,16 @@ public abstract class XmlErrorCodes
     public static final String COMPLEX_TYPE_RESTRICTION$SC_AND_SIMPLE_TYPE_OR_MIXED = "derivation-ok-restriction.5.1";
 
     /**
-     * derivation-ok-restriction.5.1.1: See clause 5.1.1 of
-     * <a href="http://www.w3c.org/TR/xmlschema-1/#derivation-ok-restriction">XMLSchema Structures 1.0: Derivation Valid (Restriction, Complex)</a>
-     */
-    public static final String COMPLEX_TYPE_RESTRICTION$SC_AND_SIMPLE_TYPE_VALID = "derivation-ok-restriction.5.1.1";
-
-    /**
      * derivation-ok-restriction.5.1.2: See clause 5.1.2 of
      * <a href="http://www.w3c.org/TR/xmlschema-1/#derivation-ok-restriction">XMLSchema Structures 1.0: Derivation Valid (Restriction, Complex)</a>
      */
     public static final String COMPLEX_TYPE_RESTRICTION$SC_AND_MIXED_EMPTIABLE = "derivation-ok-restriction.5.1.2";
+
+    /**
+     * derivation-ok-restriction.5.2.2.1: See clause 5.2.2.1 of
+     * <a href="http://www.w3c.org/TR/xmlschema-1/#derivation-ok-restriction">XMLSchema Structures 1.0: Derivation Valid (Restriction, Complex)</a>
+     */
+    public static final String COMPLEX_TYPE_RESTRICTION$SC_NOT_DERIVED = "derivation-ok-restriction.5.2.2.1";
 
     /**
      * derivation-ok-restriction.5.2: See clause 5.2 of

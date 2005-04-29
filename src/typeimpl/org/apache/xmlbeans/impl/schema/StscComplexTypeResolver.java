@@ -629,6 +629,7 @@ public class StscComplexTypeResolver
     static void resolveScRestriction(SchemaTypeImpl sImpl, SimpleRestrictionType parseTree)
     {
         SchemaType baseType;
+        SchemaType contentType = null;
         StscState state = StscState.get();
         String targetNamespace = sImpl.getTargetNamespace();
         boolean chameleon = (sImpl.getChameleonNamespace() != null);
@@ -640,10 +641,7 @@ public class StscComplexTypeResolver
                 translateAnonymousSimpleType(typedef, targetNamespace, chameleon,
                     sImpl.getElemFormDefault(), sImpl.getAttFormDefault(),
                     anonymousTypes, sImpl);
-            // This effectively disables support for simple types inside...
-            anonymousTypes.clear();
-            state.warning("Nested simple types inside simple content restrictions are unsupported - ignoring", XmlErrorCodes.ILLEGAL_RESTRICTION, parseTree);
-            // recovery: ignore the nested simple type element.
+            contentType = anonType;
         }
         if (parseTree.getBase() == null)
         {
@@ -680,6 +678,10 @@ public class StscComplexTypeResolver
 
         // Recursion
         StscResolver.resolveType((SchemaTypeImpl)baseType);
+        if (contentType != null)
+            StscResolver.resolveType((SchemaTypeImpl)contentType);
+        else
+            contentType = baseType;
 
         if (baseType.isSimpleType())
         {
@@ -690,21 +692,9 @@ public class StscComplexTypeResolver
             // recovery: extends ANY_SIMPLE type
             baseType = BuiltinSchemaTypeSystem.ST_ANY_SIMPLE;
         }
-        // BUGBUG: can restrict mixed content as long as all child elements are optional
-        else if (baseType.getContentType() != SchemaType.SIMPLE_CONTENT)
+        else if (baseType.getContentType() != SchemaType.SIMPLE_CONTENT &&
+                 contentType == null)
         {
-            // src-ct.2: complex types with simple content can only extend simple types
-            state.error(XmlErrorCodes.SCHEMA_COMPLEX_TYPE$SIMPLE_CONTENT,
-                new Object[] { QNameHelper.pretty(baseType.getName()) } ,
-                parseTree);
-            // recovery: extends ANY_SIMPLE type
-            baseType = BuiltinSchemaTypeSystem.ST_ANY_SIMPLE;
-        }
-        else if (baseType.getContentType() == SchemaType.MIXED_CONTENT &&
-            baseType.getContentModel() != null && !baseType.getContentModel().isSkippable())
-        {
-            state.error(XmlErrorCodes.COMPLEX_TYPE_RESTRICTION$SC_AND_MIXED_EMPTIABLE,
-                null, parseTree);
             // recovery: extends ANY_SIMPLE type
             baseType = BuiltinSchemaTypeSystem.ST_ANY_SIMPLE;
         }
@@ -735,26 +725,27 @@ public class StscComplexTypeResolver
         // now fill in the actual schema type implementation
         sImpl.setBaseTypeRef(baseType.getRef());
         sImpl.setBaseDepth(((SchemaTypeImpl)baseType).getBaseDepth() + 1);
+        sImpl.setContentBasedOnTypeRef(contentType.getRef());
         sImpl.setDerivationType(SchemaType.DT_RESTRICTION);
         sImpl.setAnonymousTypeRefs(makeRefArray(anonymousTypes));
         sImpl.setWildcardSummary(QNameSet.EMPTY, false, wcAttr.typedWildcards, wcAttr.hasWildcards);
         sImpl.setComplexTypeVariety(SchemaType.SIMPLE_CONTENT);
         sImpl.setContentModel(null, attrModel, null, attributePropertyModel, false);
-        sImpl.setSimpleTypeVariety(baseType.getSimpleVariety());
-        sImpl.setPrimitiveTypeRef(baseType.getPrimitiveType() == null ? null : baseType.getPrimitiveType().getRef());
+        sImpl.setSimpleTypeVariety(contentType.getSimpleVariety());
+        sImpl.setPrimitiveTypeRef(contentType.getPrimitiveType() == null ? null : contentType.getPrimitiveType().getRef());
         switch (sImpl.getSimpleVariety())
         {
             case SchemaType.LIST:
-                sImpl.setListItemTypeRef(baseType.getListItemType().getRef());
+                sImpl.setListItemTypeRef(contentType.getListItemType().getRef());
                 break;
 
             case SchemaType.UNION:
-                sImpl.setUnionMemberTypeRefs(makeRefArray(Arrays.asList(baseType.getUnionMemberTypes())));
+                sImpl.setUnionMemberTypeRefs(makeRefArray(Arrays.asList(contentType.getUnionMemberTypes())));
                 break;
         }
 
         // deal with facets
-        StscSimpleTypeResolver.resolveFacets(sImpl, parseTree, (SchemaTypeImpl)baseType);
+        StscSimpleTypeResolver.resolveFacets(sImpl, parseTree, (SchemaTypeImpl) contentType);
 
         // now compute our intrinsic properties
         StscSimpleTypeResolver.resolveFundamentalFacets(sImpl);
@@ -835,6 +826,7 @@ public class StscComplexTypeResolver
         // now fill in the actual schema type implementation
         sImpl.setBaseTypeRef(baseType.getRef());
         sImpl.setBaseDepth(((SchemaTypeImpl)baseType).getBaseDepth() + 1);
+        sImpl.setContentBasedOnTypeRef(baseType.getRef());
         sImpl.setDerivationType(SchemaType.DT_EXTENSION);
         sImpl.setAnonymousTypeRefs(makeRefArray(anonymousTypes));
         sImpl.setWildcardSummary(QNameSet.EMPTY, false, wcAttr.typedWildcards, wcAttr.hasWildcards);

@@ -154,7 +154,7 @@ public class XsbDumper
 
     public static final int DATA_BABE = 0xDA7ABABE;
     public static final int MAJOR_VERSION = 2;
-    public static final int MINOR_VERSION = 22;
+    public static final int MINOR_VERSION = 23;
 
     public static final int FILETYPE_SCHEMAINDEX = 1;
     public static final int FILETYPE_SCHEMATYPE = 2;
@@ -891,6 +891,9 @@ public class XsbDumper
         {
             complexVariety = readShort();
             emit("Complex variety: " + complexVarietyString(complexVariety));
+
+            if (atLeast(2, 23, 0))
+                emit("Content based on type: " + readType());
 
             short attrCount = readShort();
             emit("Attribute model (" + attrCount + "):");
