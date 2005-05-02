@@ -41,6 +41,40 @@ import javax.xml.namespace.QName;
  * System.out.println(xobj.xmlText(
  *     new XmlOptions().setSavePrettyPrint().setSavePrettyPrintIndent(4)));
  * </pre>
+ *
+ * Table showing where each option gets used.
+ * Note that:
+ * <ul>
+ * <li>options available for <code>newInstance</code> methods will also
+ * apply for <code>parse</code> methods</li>
+ * <li>options used for <code>validate</code> methods are also used for
+ * <code>compile</code> methods, since compilation usually implies
+ * validation against Schema for Schemas</li>
+ * </ul>
+ *
+ * <table border="1">
+ * <tr>
+ *   <th align="center"><code>newInstance</code> methods</th>
+ *   <th align="center"><code>parse</code> methods</th>
+ *   <th align="center"><code>validate</code> methods</th>
+ *   <th align="center"><code>compile</code> methods</th>
+ *   <th align="center"><code>save</code> and <code>xmlText</code>methods</th>
+ * </tr>
+ * <tr>
+ *   <td align="center"><code>setDocumentType</code><br/>
+ *                      <code>setDocumentSourceName</code><br/>
+ *                      <code>setValidateOnSet</code></td>
+ *   <td align="center"><code>setLoad***</code><br/>
+ *                      <code>setEntityResolver</code></td>
+ *   <td align="center"><code>setErrorListener</code><br/>
+ *   <td align="center"><code>setErrorListener</code><br/>
+ *                      <code>setCompile***</code><br/>
+ *                      <code>setEntityResolver</code><br/>
+ *   <td align="center"><code>setSave***</code><br/>
+ *                      <code>setUseDefaultNamespace</code><br/>
+ *                      <code>setCharacterEncoding</code></td>
+ * </tr>
+ * </table>
  */
 public class XmlOptions implements java.io.Serializable
 {
