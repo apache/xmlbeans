@@ -899,9 +899,9 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory
                     }
                     sghead = sghead.substitutionGroup();
                 }
+                */
                 if (type == null)
                     return BuiltinSchemaTypeSystem.ST_NO_TYPE;
-                    */
             }
         }
 
@@ -2346,18 +2346,16 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory
 
     private static void computeWildcardSet(SchemaParticle model, QNameSetBuilder result)
     {
+        if (model.getParticleType() == SchemaParticle.WILDCARD)
+        {
+            QNameSet cws = model.getWildcardSet();
+            result.addAll(cws);
+            return;
+        }
         for (int i = 0; i < model.countOfParticleChild(); i++)
         {
             SchemaParticle child = model.getParticleChild(i);
-            if (child.getParticleType()==SchemaParticle.WILDCARD)
-            {
-                QNameSet cws = child.getWildcardSet();
-                result.addAll(cws);
-            }
-            else
-            {
-                computeWildcardSet(child, result);
-            }
+            computeWildcardSet(child, result);
         }
     }
 
