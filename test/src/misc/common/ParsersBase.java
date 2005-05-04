@@ -58,7 +58,7 @@ public class ParsersBase extends TestCase {
     // "javax.xml.parsers.DocumentBuilderFactory" system property
     public void parseXmlWithDOMAPI(String xmlInput, String parserName, String docbuilderfactory) {
 
-        System.setProperty("javax.xml.parsers.DocumentBuilderFactory",docbuilderfactory);
+        System.setProperty("javax.xml.parsers.DocumentBuilderFactory", docbuilderfactory);
         try {
             // Step 1: create a DocumentBuilderFactory and configure it
             DocumentBuilderFactory dbf =
@@ -81,9 +81,9 @@ public class ParsersBase extends TestCase {
             pce.printStackTrace();
         }
         catch (SAXParseException spe) {
-            System.out.println("parsing error with " + parserName  + " (DOM) for xml input string :'"+ xmlInput +"''");
+            System.out.println("parsing error with " + parserName + " (DOM) for xml input string :'" + xmlInput + "''");
             spe.printStackTrace();
-            fail("parsing error with " + parserName  + " (DOM) for xml input string :'"+ xmlInput +"''");
+            fail("parsing error with " + parserName + " (DOM) for xml input string :'" + xmlInput + "''");
         }
         catch (SAXException se) {
             se.printStackTrace();
@@ -99,8 +99,8 @@ public class ParsersBase extends TestCase {
         try {
 
             // Set the system props to pick the appropriate parser implementation
-            System.setProperty("org.xml.sax.driver",saxdriverprop);
-            System.setProperty("javax.xml.parsers.SAXParserFactory",saxparserfactoryprop);
+            System.setProperty("org.xml.sax.driver", saxdriverprop);
+            System.setProperty("javax.xml.parsers.SAXParserFactory", saxparserfactoryprop);
 
             SAXParserFactory saxparserfactory = SAXParserFactory.newInstance();
             saxparserfactory.setNamespaceAware(false);
@@ -112,9 +112,9 @@ public class ParsersBase extends TestCase {
             pce.printStackTrace();
         }
         catch (SAXParseException spe) {
-            System.out.println("parsing error with " + parserName + " (SAX) for xml input string :'"+ xmlInput +"'");
+            System.out.println("parsing error with " + parserName + " (SAX) for xml input string :'" + xmlInput + "'");
             spe.printStackTrace();
-            fail("parsing error with " + parserName + " for xml input string :'"+ xmlInput + "'");
+            fail("parsing error with " + parserName + " for xml input string :'" + xmlInput + "'");
         }
         catch (SAXException se) {
             se.printStackTrace();
@@ -122,8 +122,10 @@ public class ParsersBase extends TestCase {
         catch (IOException ioe) {
             ioe.printStackTrace();
         }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
     }
-
 
 
 }
