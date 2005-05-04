@@ -17,6 +17,13 @@
 package misc.detailed;
 
 import misc.common.ParsersBase;
+import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.XmlOptions;
+import org.apache.xmlbeans.XmlException;
+
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Iterator;
 
 public class CharEncodingTest extends ParsersBase {
 
@@ -58,6 +65,56 @@ public class CharEncodingTest extends ParsersBase {
                 "org.apache.xmlbeans.impl.piccolo.xml.Piccolo",
                 "org.apache.xmlbeans.impl.piccolo.xml.JAXPSAXParserFactory");
 
+    }
+
+    // Piccolo has an issue with handling external identifiers when the value is PUBLIC
+    // refer : http://cafeconleche.org/SAXTest/results/com.bluecast.xml.Piccolo/xmltest/valid/not-sa/009.xml.html
+    // results for the SAX conformance suite. This has been fixed in XBeans Piccolo code
+    public void testExternalPublicIdentifier() {
+        // repro using piccolo and other parsers via JAXP API
+        String netPubEntity = "<!DOCTYPE doc PUBLIC \"whatever\" \"http://www.w3.org/2001/XMLSchema.dtd\" [\n" +
+                "<!ATTLIST doc a2 CDATA \"v2\">\n" +
+                "]>\n" +
+                "<doc></doc>\n" +
+                "";
+
+        parseXmlWithSAXAPI(netPubEntity,
+                "Xerces",
+                "org.apache.xerces.parsers.SAXParser",
+                "org.apache.xerces.jaxp.SAXParserFactoryImpl");
+
+        parseXmlWithSAXAPI(netPubEntity,
+                "Piccolo",
+                "org.apache.xmlbeans.impl.piccolo.xml.Piccolo",
+                "org.apache.xmlbeans.impl.piccolo.xml.JAXPSAXParserFactory");
+
+        parseXmlWithSAXAPI(netPubEntity,
+                "Crimson",
+                "org.apache.crimson.parser.XmlReaderImpl",
+                "org.apache.crimson.jaxp.SAXParserFactoryImpl");
+
+
+        // parse same string using scomp
+        XmlOptions options = new XmlOptions();
+        List errors = new ArrayList();
+        options.setErrorListener(errors);
+        try {
+            XmlObject.Factory.parse(netPubEntity, options);
+        }
+        catch (XmlException xme) {
+            xme.printStackTrace();
+            fail("XML Exception when parsing external PUBLIC identifier");
+        }
+
+        boolean parseerr = false;
+        for (Iterator iterator = errors.iterator(); iterator.hasNext();) {
+            System.out.println("Parse Error:" + iterator.next());
+            parseerr = true;
+        }
+
+        if (parseerr) {
+            fail("Errors when parsing external PUBLIC identifier");
+        }
     }
 }
 

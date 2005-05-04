@@ -268,7 +268,7 @@ public class InstanceValidationTests extends TestCase
         Assert.assertEquals(XmlValidationError.INCORRECT_ELEMENT, xmlValError.getErrorType());
         Assert.assertEquals("personType", xmlValError.getBadSchemaType().getName().getLocalPart());
         // todo debug this Assert.assertEquals(xmlValError.getOffendingQName().getLocalPart(), "age");
-        Assert.assertEquals("Expected element 'name' at the end of the content in element person", xmlValError.getMessage());
+        Assert.assertEquals("Expected element 'name' before the end of the content in element person", xmlValError.getMessage());
     }
 
     public void testValidationElementNotAllowedError() throws XmlException
