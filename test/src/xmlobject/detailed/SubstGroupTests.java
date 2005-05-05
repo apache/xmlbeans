@@ -15,21 +15,19 @@
 
 package xmlobject.detailed;
 
-import junit.framework.TestCase;
 import junit.framework.Assert;
-import org.apache.xmlbeans.*;
-import org.apache.xmlbeans.impl.tool.Diff;
+import junit.framework.TestCase;
+import org.apache.xmlbeans.XmlError;
+import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.XmlOptions;
 import org.apache.xmlbeans.impl.values.XmlValueDisconnectedException;
+import tools.xml.XmlComparator;
 import xmlobject.substgroup.*;
 
 import javax.xml.namespace.QName;
-
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.Collection;
-import java.math.BigInteger;
-
-import tools.xml.XmlComparator;
 
 public class SubstGroupTests extends TestCase
 {
@@ -264,46 +262,43 @@ public class SubstGroupTests extends TestCase
 
     public void test_validSubstitute() throws Exception
     {
-        QName name = new QName(URI, "BeanBagType");
-        ItemDocument item = this.getItemDoc();
-        BeanBagDocument bean = this.getBeanBagDoc();
-        System.out.println("QNAme:" + ItemDocument.type.getName());
-        System.out.println("QNAme:" + name);
-        System.out.println("BEAN: " + item.xmlText());
-        ItemType xm = null;
+        QName name = new QName(URI, "beanBag");
+        // get an item
+        xmlobject.substgroup.OrderItem order = OrderItem.Factory.newInstance();
+        ItemType item = order.addNewItem();
+        item.setName("ItemForTest");
+        item.setSku(new BigInteger("12"));
 
+        // types and content before substitution
+        System.out.println("Before Substitution :\nQNAme Item doc    :" + ItemDocument.type.getName());
+        System.out.println("QNAme beanBag elem:" + name);
+        System.out.println("item type:" + item.getClass().getName());
+        System.out.println("item XMLText      : " + item.xmlText());
 
         try{
+            XmlObject xObj = item.substitute(name, BeanBagType.type);
+            System.out.println("After Substitution :\nSubstituted XObj text: "+xObj.xmlText());
+            System.out.println("Substituted XObj type: " + xObj.getClass().getName());
+            Assert.assertNotSame("Invalid Substitution. Xobj Types after substitution are the same.",xObj.getClass().getName(),item.getClass().getName() );
 
-            XmlObject xObj = (ItemType) item.getItem().substitute(name, ItemType.type);
-            System.out.println("XObj: "+xObj.xmlText());
         }catch(NullPointerException npe){
             System.out.println("NPE Thrown: "+npe.getMessage());
             npe.printStackTrace();
         }
-            System.out.println("");
-        boolean npeThrown = false;
+
+        boolean xvdThrown = false;
         try{
-            System.out.println(xm == item.getItem());
+            // invoke some operation on the original XmlObject, it should thrown an XmlValueDisconnectedException
+            item.xmlText();
         }catch(XmlValueDisconnectedException xvdEx){
-            npeThrown = true;
+            xvdThrown = true;
         }
 
-        if( !npeThrown ){
+        if( !xvdThrown ){
             Assert.fail("Referencing Item  after " +
-                    "substitute did not throw the expected NPE");
+                    "substitute did not throw the expected XmlValueDisconnectedException");
         }
-            //ItemDocument xm_opts = (ItemDocument) bean.substitute(name, ItemDocument.type);
-        //Assert.assertTrue("Invalid substitute should result in null object);
-        ArrayList err = new ArrayList();
-        XmlOptions opts = new XmlOptions();
-        opts.setErrorListener(err);
-        System.out.println("xm_opts:" + xm.xmlText());
-        xm.validate(opts);
-        for (Iterator iterator = err.iterator(); iterator.hasNext();) {
-            System.out.println(iterator.next());
 
-        }
     }
 
     /* public void test_item_downcasts_valid() throws Exception
