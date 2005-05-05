@@ -203,7 +203,7 @@ public class Repackage
             
             if (packageMatcher.find())
                 throw new RuntimeException( "Two package specifications found: " + name );
-            
+
             List filePath = Repackager.splitPath( name, File.separatorChar );
             String srcDir = Repackager.dirForPath( name );
             
@@ -236,10 +236,14 @@ public class Repackage
 
             int f = filePath.size() - 2;
 
+            if (f<0  ||  (filePath.size()-1)< pkgPath.size())
+                throw new RuntimeException("Package spec differs from file path: " + name);
+
             for ( int i = pkgPath.size() - 1 ; i >= 0 ; i-- )
             {
-                if (!pkgPath.get( i ).equals( filePath.get( f-- ) ))
+                if (!pkgPath.get( i ).equals( filePath.get( f ) ))
                     throw new RuntimeException( "Package spec differs from file path: " + name );
+                f--;
             }
 
             List changeTo = null;
