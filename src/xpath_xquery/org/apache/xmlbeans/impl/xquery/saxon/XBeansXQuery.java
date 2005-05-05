@@ -54,7 +54,7 @@ public class XBeansXQuery
                 _query.substring(0, this.boundary) +
                 "declare variable $" +
                 _contextVar + " external;" +
-                _query.substring(this.boundary + 1);
+                _query.substring(this.boundary);
         try {
             this._xquery = _stcContext.compileQuery(queryExp);
         }
