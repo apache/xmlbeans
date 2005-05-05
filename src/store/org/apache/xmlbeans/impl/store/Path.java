@@ -21,7 +21,6 @@ import java.lang.reflect.Method;
 import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
 
-import org.apache.xmlbeans.impl.common.SoftCache;
 import org.apache.xmlbeans.impl.common.XPath;
 import org.apache.xmlbeans.impl.common.XPath.XPathCompileException;
 import org.apache.xmlbeans.impl.common.XPath.ExecutionContext;
@@ -491,8 +490,8 @@ public abstract class Path
 
     protected final String _pathKey;
 
-    private static SoftCache _xbeanPathCache = new SoftCache();
-    private static SoftCache _xqrlPathCache = new SoftCache();
+    private static Map _xbeanPathCache = new HashMap();
+    private static Map _xqrlPathCache = new HashMap();
 
     private static Method _xqrlCompilePath;
 }

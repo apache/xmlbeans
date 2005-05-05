@@ -102,10 +102,10 @@ abstract class Xobj implements TypeStore
     static final int ATTR     = Cur.ATTR;
     static final int COMMENT  = Cur.COMMENT;
     static final int PROCINST = Cur.PROCINST;
-    
+
     static final int END_POS = Cur.END_POS;
     static final int NO_POS  = Cur.NO_POS;
-    
+
     Xobj ( Locale l, int kind, int domType )
     {
         assert kind == ROOT || kind == ELEM || kind == ATTR || kind == COMMENT || kind == PROCINST;
@@ -144,7 +144,7 @@ abstract class Xobj implements TypeStore
         ensureOccupancy();
         return hasTextNoEnsureOccupancy();
     }
-    
+
     final boolean hasTextNoEnsureOccupancy ( )
     {
         if (_cchValue > 0)
@@ -158,7 +158,7 @@ abstract class Xobj implements TypeStore
     final boolean hasAttrs    ( ) { return _firstChild != null &&  _firstChild.isAttr(); }
     final boolean hasChildren ( ) { return _lastChild  != null && !_lastChild .isAttr(); }
 
-    
+
     /**
      * this method is to speed up DomImpl
      * when underlying obj is an Xobj
@@ -263,19 +263,19 @@ abstract class Xobj implements TypeStore
     {
         if (isRoot() && p == 0)
             return 0;
-        
+
         Xobj x = getDenormal( p );
-        
+
         p = posTemp();
         int pa = x.posAfter();
-        
+
         return p - (p < pa ? 1 : pa);
     }
-    
+
     final int cchRight ( int p )
     {
         assert p < posMax();
-        
+
         if (p <= 0)
             return 0;
 
@@ -305,7 +305,7 @@ abstract class Xobj implements TypeStore
     final Cur getEmbedded ( )
     {
         _locale.embedCurs();
-        
+
         return _embedded;
     }
 
@@ -320,7 +320,7 @@ abstract class Xobj implements TypeStore
         // with the case where p is END_POS.
 
         int offset;
-        
+
         if (includeEnd)
         {
             // Can't denormalize at the beginning of the document
@@ -330,12 +330,12 @@ abstract class Xobj implements TypeStore
 
             xIn = xIn.getDenormal( pIn );
             pIn = xIn.posTemp();
-            
+
             offset = 1;
         }
         else
             offset = 0;
-        
+
         return xIn == this && pIn >= p && pIn < p + (cch < 0 ? cchRight( p ) : cch) + offset;
     }
 
@@ -346,10 +346,10 @@ abstract class Xobj implements TypeStore
         assert x.isNormal( p );
 
         // Get denormalize at the beginning of the doc
-        
+
         if (x.isRoot() && p == 0)
             return false;
-        
+
         return
             x == this
                 ? p == posAfter()
@@ -365,7 +365,7 @@ abstract class Xobj implements TypeStore
         {
             if (y == x)
                 return true;
-            
+
             if (y._parent == null)
             {
                 for ( ; ; x = x._parent )
@@ -386,14 +386,14 @@ abstract class Xobj implements TypeStore
 
         return contains( c._xobj, c._pos );
     }
-    
+
     final boolean contains ( Xobj x, int p )
     {
         assert x.isNormal( p );
-        
+
         if (this == x)
             return p == END_POS || (p > 0 && p < posAfter());
-        
+
         if (_firstChild == null)
             return false;
 
@@ -407,7 +407,7 @@ abstract class Xobj implements TypeStore
     final Bookmark setBookmark ( int p, Object key, Object value )
     {
         assert isNormal( p );
-        
+
         for ( Bookmark b = _bookmarks ; b != null ; b = b._next )
         {
             if (p == b._pos && key == b._key)
@@ -417,7 +417,7 @@ abstract class Xobj implements TypeStore
                     _bookmarks = b.listRemove( _bookmarks );
                     return null;
                 }
-                
+
                 b._value = value;
 
                 return b;
@@ -426,7 +426,7 @@ abstract class Xobj implements TypeStore
 
         if (value == null)
             return null;
-        
+
         Bookmark b = new Bookmark();
 
         b._xobj  = this;
@@ -515,6 +515,11 @@ abstract class Xobj implements TypeStore
             QName oldName = _name;
 
             _name = newName;
+            if (this instanceof Xobj.NamedNodeXobj)
+            {
+                NamedNodeXobj me = (NamedNodeXobj)this;
+                me._canHavePrefixUri = true;
+            }
 
             if (!isProcinst())
             {
@@ -552,7 +557,7 @@ abstract class Xobj implements TypeStore
     {
         if (_firstChild != null && _firstChild.isAttr())
             return _firstChild;
-        
+
         if (_nextSibling != null && _nextSibling.isAttr())
             return _nextSibling;
 
@@ -577,7 +582,7 @@ abstract class Xobj implements TypeStore
         assert p == END_POS || (p >= 0 && p <= posMax());
 
         Xobj x = this;
-        
+
         if (p == x.posMax())
         {
             if (x._nextSibling != null)
@@ -601,14 +606,14 @@ abstract class Xobj implements TypeStore
 
     // Can't denormalize a position at the very beginning of the document.  No where to go to the
     // left!
-    
+
     final Xobj getDenormal ( int p )
     {
         assert END_POS == -1;
         assert !isRoot() || p == END_POS || p > 0;
 
         Xobj x = this;
-        
+
         if (p == 0)
         {
             if (x._prevSibling == null)
@@ -653,7 +658,7 @@ abstract class Xobj implements TypeStore
         {
             if (isRoot())
                 return false;
-            
+
             if (_nextSibling != null && _nextSibling.isAttr())
                 return false;
 
@@ -846,7 +851,7 @@ abstract class Xobj implements TypeStore
             {
                 if (_parent != null)
                     _parent.disconnectNonRootUsers();
-                
+
                 if (newParent != null)
                     newParent.disconnectNonRootUsers();
             }
@@ -855,7 +860,7 @@ abstract class Xobj implements TypeStore
             {
                 if (_parent != null)
                     _parent.invalidateNil();
-                
+
                 if (newParent != null)
                     newParent.invalidateNil();
             }
@@ -870,7 +875,7 @@ abstract class Xobj implements TypeStore
     // on the same node.  Assertion of cursor normalization usually detects this problem.  Any of
     // the fcns it calls must also deal with these invalid conditions.  Try not to call so many
     // fcns from here.
-    
+
     final void removeCharsHelper (
         int p, int cchRemove, Xobj xTo, int pTo, boolean moveCurs, boolean invalidate )
     {
@@ -915,15 +920,15 @@ abstract class Xobj implements TypeStore
 
             if (c._xobj == this && c._pos >= p + cchRemove)
                 c._pos -= cchRemove;
-            
+
             c = next;
         }
-        
+
         // Here I move bookmarks in this text to the span of text at xTo/pTo.  The text at this/p
         // is going away, but a caller of this fcn who specifies xTo/pTo has copied the text to
         // xTo/pTo.  The caller has to make sure that if xTo/pTo is not specified, then there are
         // no bookmarks in the span of text to be removed.
-        
+
         for ( Bookmark b = _bookmarks ; b != null ; )
         {
             Bookmark next = b._next;
@@ -931,7 +936,7 @@ abstract class Xobj implements TypeStore
             // Similarly, as above, I can't call inChars here
 
             assert b._xobj == this;
-            
+
             if (b._pos >= p && b._pos < p + cchRemove)
             {
                 assert xTo != null;
@@ -940,7 +945,7 @@ abstract class Xobj implements TypeStore
 
             if (b._xobj == this && b._pos >= p + cchRemove)
                 b._pos -= cchRemove;
-            
+
             b = b._next;
         }
 
@@ -948,7 +953,7 @@ abstract class Xobj implements TypeStore
 
         int pa = posAfter();
         CharUtil cu = _locale.getCharUtil();
-        
+
         if (p < pa)
         {
             _srcValue = cu.removeChars( p - 1, cchRemove, _srcValue, _offValue, _cchValue );
@@ -982,7 +987,7 @@ abstract class Xobj implements TypeStore
         assert p >= posAfter() || isOccupied();
 
         int pa = posAfter();
-        
+
         // Here I shuffle bookmarks and cursors affected by the insertion of the new text.  Because
         // getting the embedded cursors is non-trivial, I avoid getting them if I don't need to.
         // Basically, I need to know if p is before any text in the node as a whole.  If it is,
@@ -993,7 +998,7 @@ abstract class Xobj implements TypeStore
             for ( Cur c = getEmbedded() ; c != null ; c = c._next )
                 if (c._pos >= p)
                     c._pos += cch;
-            
+
             for ( Bookmark b = _bookmarks ; b != null ; b = b._next )
                 if (b._pos >= p)
                     b._pos += cch;
@@ -1028,22 +1033,22 @@ abstract class Xobj implements TypeStore
                 _parent.invalidateUser();
         }
     }
-    
+
     Xobj copyNode ( Locale toLocale )
     {
         Xobj newParent = null;
         Xobj copy = null;
-            
+
         for ( Xobj x = this ; ; )
         {
             x.ensureOccupancy();
-            
+
             Xobj newX = x.newNode( toLocale );
 
             newX._srcValue = x._srcValue;
             newX._offValue = x._offValue;
             newX._cchValue = x._cchValue;
-            
+
             newX._srcAfter = x._srcAfter;
             newX._offAfter = x._offAfter;
             newX._cchAfter = x._cchAfter;
@@ -1089,14 +1094,14 @@ abstract class Xobj implements TypeStore
 
         if (wsr == Locale.WS_PRESERVE)
             return CharUtil.getString( src, _locale._offSrc, _locale._cchSrc );
-        
+
         Locale.ScrubBuffer scrub = Locale.getScrubBuffer( wsr );
 
         scrub.scrub( src, _locale._offSrc, _locale._cchSrc );
-        
+
         return scrub.getResultAsString();
     }
-    
+
     String getValueAsString ( int wsr )
     {
         if (!hasChildren())
@@ -1155,7 +1160,7 @@ abstract class Xobj implements TypeStore
             else
                 c.next();
         }
-        
+
         String s = scrub.getResultAsString();
 
         c.release();
@@ -1214,7 +1219,7 @@ abstract class Xobj implements TypeStore
     Object getFirstChars ( )
     {
         ensureOccupancy();
-        
+
         if (_cchValue > 0)
             return getChars( 1, -1 );
 
@@ -1224,7 +1229,7 @@ abstract class Xobj implements TypeStore
         {
             _locale._offSrc = 0;
             _locale._cchSrc = 0;
-            
+
             return null;
         }
 
@@ -1234,7 +1239,7 @@ abstract class Xobj implements TypeStore
     Object getChars ( int pos, int cch, Cur c )
     {
         Object src = getChars( pos, cch );
-        
+
         c._offSrc = _locale._offSrc;
         c._cchSrc = _locale._cchSrc;
 
@@ -1242,7 +1247,7 @@ abstract class Xobj implements TypeStore
     }
 
     // These return the remainder of the char triple that getChars starts
-    
+
     Object getChars ( int pos, int cch )
     {
         assert isNormal( pos );
@@ -1264,11 +1269,11 @@ abstract class Xobj implements TypeStore
     }
 
     // Assumes that there are chars to return, does not assume normal x/p
-    
+
     Object getCharsHelper ( int pos, int cch )
     {
         assert cch > 0 && cchRight( pos ) >= cch;
-        
+
         int pa = posAfter();
 
         Object src;
@@ -1290,7 +1295,7 @@ abstract class Xobj implements TypeStore
     }
 
     //
-    // 
+    //
     //
 
     final void setBit     ( int mask ) { _bits |=  mask; }
@@ -1347,11 +1352,11 @@ abstract class Xobj implements TypeStore
     // If a node does not have a user, then I don't need to walk its descendents.  NOte that
     // the doconnect happens in document order.  This may be a problem ... not sure ... May want
     // to disconnect in a bottom up manner.
-    
+
     void disconnectNonRootUsers ( )
     {
         Xobj next;
-        
+
         for ( Xobj x = this ; x != null ; x = next )
         {
             next = x.walk( this, x._user != null );
@@ -1364,7 +1369,7 @@ abstract class Xobj implements TypeStore
     void disconnectChildrenUsers ( )
     {
         Xobj next;
-        
+
         for ( Xobj x = walk( this, _user == null ) ; x != null ; x = next )
         {
             next = x.walk( this, x._user != null );
@@ -1424,10 +1429,10 @@ abstract class Xobj implements TypeStore
             ns = "";
 
         // special cases
-        
+
         if (ns.equals( Locale._xml1998Uri ))
             return "xml";
-        
+
         if (ns.equals( Locale._xmlnsUri ))
             return "xmlns";
 
@@ -1439,7 +1444,7 @@ abstract class Xobj implements TypeStore
             base = base.ensureParent();
 
         // Special handling for the no-namespace case
-        
+
         if (ns.length() == 0)
         {
             // Search for a namespace decl which defines the default namespace
@@ -1448,24 +1453,24 @@ abstract class Xobj implements TypeStore
 
             // If I did not find a default decl or the decl maps to the no namespace, then
             // the default namespace is mapped to ""
-            
+
             if (a == null || a.getXmlnsUri().length() == 0)
                 return "";
 
             // At this point, I've found a default namespace which is *not* the no-namespace.
             // If I can't modify the document to mape the desired no-namespace, I must fail.
-            
+
             if (!createIfMissing)
                 return null;
 
             // Ok, I need to make the default namespace on the nearest container map to ""
 
             base.setAttr( _locale.createXmlns( null ), "" );
-            
+
             return "";
         }
 
-        // Look for an exisiting mapping for the desired uri which has a visible prefix 
+        // Look for an exisiting mapping for the desired uri which has a visible prefix
 
         for ( Xobj c = base ; c != null ; c = c._parent )
             for ( Xobj a = c.firstAttr() ; a != null ; a = a.nextAttr() )
@@ -1492,9 +1497,9 @@ abstract class Xobj implements TypeStore
         if (suggestion == null)
         {
             String prefixBase = QNameHelper.suggestPrefix( ns );
-            
+
             suggestion = prefixBase;
-            
+
             for ( int i = 1 ; ; suggestion = prefixBase + i++ )
                 if (base.findXmlnsForPrefix( suggestion ) == null)
                     break;
@@ -1506,12 +1511,12 @@ abstract class Xobj implements TypeStore
 
         while ( !c.isRoot() && !c.ensureParent().isRoot() )
             c = c._parent;
-        
+
         base.setAttr( _locale.createXmlns( suggestion ), ns );
 
         return suggestion;
     }
-    
+
     final QName getValueAsQName ( )
     {
         assert !hasChildren();
@@ -1569,7 +1574,7 @@ abstract class Xobj implements TypeStore
     {
         return isUserNode() ?  (XmlObject) getUser() : null;
     }
-    
+
     final TypeStoreUser getUser ( )
     {
         assert isUserNode();
@@ -1599,7 +1604,7 @@ abstract class Xobj implements TypeStore
     {
         assert isValid();
         assert _user == null || isUserNode();
-        
+
         if (_user != null)
             _user.invalidate_value();
     }
@@ -1616,7 +1621,7 @@ abstract class Xobj implements TypeStore
             // value as occupied and remove the user to prohibit
             // further user invalidations
 
-            clearBit( VACANT ); 
+            clearBit( VACANT );
 
             TypeStoreUser user = _user;
             _user = null;
@@ -1633,7 +1638,7 @@ abstract class Xobj implements TypeStore
             c.insertString( value );
 
             assert saveVersionSansText == _locale._versionSansText;
-            
+
             _locale._versionAll = saveVersion;
 
             c.release();
@@ -1847,7 +1852,7 @@ abstract class Xobj implements TypeStore
         {
             assert _user == null;
             _user = user;
-            
+
             _locale.exit();
         }
     }
@@ -2038,7 +2043,7 @@ abstract class Xobj implements TypeStore
 
             return add_element_user( name );
         }
-                 
+
         return insertElement( name, x, 0 );
     }
 
@@ -2059,7 +2064,7 @@ abstract class Xobj implements TypeStore
 
             return add_element_user( name );
         }
-                 
+
         return insertElement( name, x, 0 );
     }
 
@@ -2070,7 +2075,7 @@ abstract class Xobj implements TypeStore
 
         QNameSet endSet = null;
         boolean  gotEndSet = false;
-        
+
         Xobj candidate = null;
 
         for ( Xobj x = _lastChild ; x != null ; x = x._prevSibling )
@@ -2177,7 +2182,7 @@ abstract class Xobj implements TypeStore
     public void remove_attribute ( QName name )
     {
         _locale.enter();
-        
+
         try
         {
             if (!removeAttr( name ))
@@ -2192,29 +2197,29 @@ abstract class Xobj implements TypeStore
     public TypeStoreUser copy_contents_from ( TypeStore source )
     {
         Xobj xSrc = (Xobj) source;
-        
+
         if (xSrc == this)
             return getUser();
 
         _locale.enter();
-        
+
         try
         {
             xSrc._locale.enter();
-            
+
             Cur c = tempCur();
-            
+
             try
             {
 
                 Map sourceNamespaces = Locale.getAllNamespaces( c, null );
-                
+
                 if (isAttr())
                 {
                     Cur cSrc = xSrc.tempCur();
                     String value = Locale.getTextValue( cSrc );
                     cSrc.release();
-                    
+
                     c.setValue( value );
                 }
                 else
@@ -2229,7 +2234,7 @@ abstract class Xobj implements TypeStore
                     setBit( INHIBIT_DISCONNECT );
 
                     QName xsiType = isContainer() ? getXsiTypeName() : null;
-                
+
                     Xobj copy = xSrc.copyNode( _locale );
 
                     Cur.moveNodeContents( this, null, true );
@@ -2239,7 +2244,7 @@ abstract class Xobj implements TypeStore
                     Cur.moveNodeContents( copy, c, true );
 
                     c.moveTo( this );
-                    
+
                     if (xsiType != null)
                         c.setXsiType( xsiType );
 
@@ -2251,7 +2256,7 @@ abstract class Xobj implements TypeStore
                 {
                     if (!c.isContainer())
                         c.toParent();
-                    
+
                     Locale.applyNamespaces( c, sourceNamespaces );
                 }
 
@@ -2259,7 +2264,7 @@ abstract class Xobj implements TypeStore
             finally
             {
                 c.release();
-                
+
                 xSrc._locale.exit();
             }
         }
@@ -2267,7 +2272,7 @@ abstract class Xobj implements TypeStore
         {
             _locale.exit();
         }
-        
+
         return getUser();
     }
 
@@ -2380,9 +2385,9 @@ abstract class Xobj implements TypeStore
         try
         {
             Cur c = tempCur();
-            
+
             XmlObject[] result = Query.objectExecQuery( c, queryExpr, options );
-            
+
             c.release();
 
             return result;
@@ -2428,7 +2433,7 @@ abstract class Xobj implements TypeStore
         //
         //
         //
-        
+
         public int getLength ( ) { return DomImpl._childNodes_getLength( this ); }
         public Node item ( int i ) { return DomImpl._childNodes_item( this, i ); }
 
@@ -2458,7 +2463,7 @@ abstract class Xobj implements TypeStore
         public void setNodeValue ( String nodeValue ) { DomImpl._node_setNodeValue( this, nodeValue ); }
         public void setPrefix ( String prefix ) { DomImpl._node_setPrefix( this, prefix ); }
         public boolean nodeCanHavePrefixUri( ){ return false; }
-            
+
         // DOM Level 3
         public Object getUserData ( String key ) { return DomImpl._node_getUserData( this, key ); }
         public Object setUserData ( String key, Object data, UserDataHandler handler ) { return DomImpl._node_setUserData( this, key, data, handler ); }
@@ -2472,7 +2477,7 @@ abstract class Xobj implements TypeStore
         public String getTextContent ( ) { return DomImpl._node_getTextContent( this ); }
         public short compareDocumentPosition ( Node other ) { return DomImpl._node_compareDocumentPosition( this, other ); }
         public String getBaseURI ( ) { return DomImpl._node_getBaseURI( this ); }
-      }
+    }
 
     final static class DocumentXobj extends NodeXobj implements Document
     {
@@ -2480,13 +2485,13 @@ abstract class Xobj implements TypeStore
         {
             super( l, ROOT, DomImpl.DOCUMENT );
         }
-        
+
         Xobj newNode ( Locale l ) { return new DocumentXobj( l ); }
-        
+
         //
         //
         //
-        
+
         public Attr createAttribute ( String name ) { return DomImpl._document_createAttribute( this, name ); }
         public Attr createAttributeNS ( String namespaceURI, String qualifiedName ) { return DomImpl._document_createAttributeNS( this, namespaceURI, qualifiedName ); }
         public CDATASection createCDATASection ( String data ) { return DomImpl._document_createCDATASection( this, data ); }
@@ -2525,7 +2530,7 @@ abstract class Xobj implements TypeStore
     static class DocumentFragXobj extends NodeXobj implements DocumentFragment
     {
         DocumentFragXobj ( Locale l ) { super( l, ROOT, DomImpl.DOCFRAG ); }
-        
+
         Xobj newNode ( Locale l ) { return new DocumentFragXobj( l ); }
     }
 
@@ -2535,7 +2540,7 @@ abstract class Xobj implements TypeStore
         {
             _elementXobj = elementXobj;
         }
-        
+
         public int getLength ( ) { return DomImpl._attributes_getLength( _elementXobj ); }
         public Node getNamedItem ( String name ) { return DomImpl._attributes_getNamedItem ( _elementXobj, name ); }
         public Node getNamedItemNS ( String namespaceURI, String localName ) { return DomImpl._attributes_getNamedItemNS ( _elementXobj, namespaceURI, localName ); }
@@ -2547,30 +2552,42 @@ abstract class Xobj implements TypeStore
 
         private ElementXobj _elementXobj;
     }
-    
-    static class ElementXobj extends NodeXobj implements Element
+
+    static abstract class NamedNodeXobj extends NodeXobj
+    {
+        NamedNodeXobj ( Locale l, int kind, int domType )
+        {
+            super( l, kind, domType );
+            _canHavePrefixUri = true;
+        }
+
+        public boolean nodeCanHavePrefixUri( ){ return _canHavePrefixUri; }
+
+        boolean _canHavePrefixUri;
+    }
+
+    static class ElementXobj extends NamedNodeXobj implements Element
     {
         ElementXobj ( Locale l, QName name )
         {
             super( l, ELEM, DomImpl.ELEMENT );
             _name = name;
-            _canHavePrefixUri = true;
         }
-        
+
         Xobj newNode ( Locale l ) { return new ElementXobj( l, _name ); }
-        
+
         //
         //
         //
-        
+
         public NamedNodeMap getAttributes ( )
         {
             if (_attributes == null)
                 _attributes = new ElementAttributes( this );
-            
+
             return _attributes;
         }
-        
+
         public String getAttribute ( String name ) { return DomImpl._element_getAttribute( this, name ); }
         public Attr getAttributeNode ( String name ) { return DomImpl._element_getAttributeNode( this, name ); }
         public Attr getAttributeNodeNS ( String namespaceURI, String localName ) { return DomImpl._element_getAttributeNodeNS( this, namespaceURI, localName ); }
@@ -2587,28 +2604,26 @@ abstract class Xobj implements TypeStore
         public Attr setAttributeNode ( Attr newAttr ) { return DomImpl._element_setAttributeNode( this, newAttr ); }
         public Attr setAttributeNodeNS ( Attr newAttr ) { return DomImpl._element_setAttributeNodeNS( this, newAttr ); }
         public void setAttributeNS ( String namespaceURI, String qualifiedName, String value ) { DomImpl._element_setAttributeNS( this, namespaceURI, qualifiedName, value ); }
-        public boolean nodeCanHavePrefixUri( ){ return _canHavePrefixUri; }
+
         // DOM Level 3
         public TypeInfo getSchemaTypeInfo ( ) { throw new RuntimeException( "DOM Level 3 Not implemented" ); }
         public void setIdAttribute ( String name, boolean isId ) { throw new RuntimeException( "DOM Level 3 Not implemented" ); }
         public void setIdAttributeNS ( String namespaceURI, String localName, boolean isId ) { throw new RuntimeException( "DOM Level 3 Not implemented" ); }
         public void setIdAttributeNode ( Attr idAttr, boolean isId ) { throw new RuntimeException( "DOM Level 3 Not implemented" ); }
 
-        boolean _canHavePrefixUri;
         private ElementAttributes _attributes;
     }
 
-    static class AttrXobj extends NodeXobj implements Attr
+    static class AttrXobj extends NamedNodeXobj implements Attr
     {
         AttrXobj ( Locale l, QName name )
         {
             super( l, ATTR, DomImpl.ATTR );
             _name = name;
-            _canHavePrefixUri = true;
         }
 
         Xobj newNode ( Locale l ) { return new AttrXobj( l, _name ); }
-        
+
         //
         //
         //
@@ -2618,23 +2633,20 @@ abstract class Xobj implements TypeStore
         public boolean getSpecified ( ) { return DomImpl._attr_getSpecified( this ); }
         public String getValue ( ) { return DomImpl._node_getNodeValue( this ); }
         public void setValue ( String value ) { DomImpl._node_setNodeValue( this, value ); }
-        public boolean nodeCanHavePrefixUri( ){ return _canHavePrefixUri; }
 
         // DOM Level 3
         public TypeInfo getSchemaTypeInfo ( ) { throw new RuntimeException( "DOM Level 3 Not implemented" ); }
         public boolean isId ( ) { throw new RuntimeException( "DOM Level 3 Not implemented" ); }
-
-        boolean _canHavePrefixUri;
     }
-    
+
     static class CommentXobj extends NodeXobj implements Comment
     {
         CommentXobj ( Locale l ) { super( l, COMMENT, DomImpl.COMMENT ); }
 
         Xobj newNode ( Locale l ) { return new CommentXobj( l ); }
-        
+
         public NodeList getChildNodes ( ) { return DomImpl._emptyNodeList; }
-        
+
         public void appendData ( String arg ) { DomImpl._characterData_appendData( this, arg ); }
         public void deleteData ( int offset, int count ) { DomImpl._characterData_deleteData( this, offset, count ); }
         public String getData ( ) { return DomImpl._characterData_getData( this ); }
@@ -2652,14 +2664,14 @@ abstract class Xobj implements TypeStore
             super( l, PROCINST, DomImpl.PROCINST );
             _name = _locale.makeQName( null, target );
         }
-        
+
         Xobj newNode ( Locale l ) { return new ProcInstXobj( l, _name.getLocalPart() ); }
-        
+
         public String getData ( ) { return DomImpl._processingInstruction_getData( this ); }
         public String getTarget ( ) { return DomImpl._processingInstruction_getTarget( this ); }
         public void setData ( String data ) { DomImpl._processingInstruction_setData( this, data ); }
     }
-    
+
     //
     // SAAJ objects
     //
@@ -2675,28 +2687,28 @@ abstract class Xobj implements TypeStore
         Dom getDom ( ) { return _soapPartDom; }
 
         Xobj newNode ( Locale l ) { return new SoapPartDocXobj( l ); }
-        
+
         SoapPartDom _soapPartDom;
     }
-    
+
     static class SoapPartDom extends SOAPPart implements Dom, Document, NodeList
     {
         SoapPartDom ( SoapPartDocXobj docXobj )
         {
             _docXobj = docXobj;
         }
-        
+
         public int    nodeType ( ) { return DomImpl.DOCUMENT;   }
         public Locale locale   ( ) { return _docXobj._locale;   }
         public Cur    tempCur  ( ) { return _docXobj.tempCur(); }
         public QName  getQName ( ) { return _docXobj._name;     }
-        
+
         public void dump ( ) { dump( System.out ); }
         public void dump ( PrintStream o ) { _docXobj.dump( o ); }
         public void dump ( PrintStream o, Object ref ) { _docXobj.dump( o, ref ); }
 
         public String name ( ) { return "#document"; }
-        
+
         public Node appendChild ( Node newChild ) { return DomImpl._node_appendChild( this, newChild ); }
         public Node cloneNode ( boolean deep ) { return DomImpl._node_cloneNode( this, deep ); }
         public NamedNodeMap getAttributes ( ) { return null; }
@@ -2722,7 +2734,7 @@ abstract class Xobj implements TypeStore
         public Node replaceChild ( Node newChild, Node oldChild ) { return DomImpl._node_replaceChild( this, newChild, oldChild ); }
         public void setNodeValue ( String nodeValue ) { DomImpl._node_setNodeValue( this, nodeValue ); }
         public void setPrefix ( String prefix ) { DomImpl._node_setPrefix( this, prefix ); }
-        
+
         // DOM Level 3
         public Object getUserData ( String key ) { return DomImpl._node_getUserData( this, key ); }
         public Object setUserData ( String key, Object data, UserDataHandler handler ) { return DomImpl._node_setUserData( this, key, data, handler ); }
@@ -2750,7 +2762,7 @@ abstract class Xobj implements TypeStore
         public void setStrictErrorChecking ( boolean strictErrorChecking ) { throw new RuntimeException( "DOM Level 3 Not implemented" ); }
         public void setXmlStandalone ( boolean xmlStandalone ) { throw new RuntimeException( "DOM Level 3 Not implemented" ); }
         public void setXmlVersion ( String xmlVersion ) { throw new RuntimeException( "DOM Level 3 Not implemented" ); }
-                
+
         public Attr createAttribute ( String name ) { return DomImpl._document_createAttribute( this, name ); }
         public Attr createAttributeNS ( String namespaceURI, String qualifiedName ) { return DomImpl._document_createAttributeNS( this, namespaceURI, qualifiedName ); }
         public CDATASection createCDATASection ( String data ) { return DomImpl._document_createCDATASection( this, data ); }
@@ -2783,7 +2795,9 @@ abstract class Xobj implements TypeStore
         public void setMimeHeader ( String name, String value ) { DomImpl._soapPart_setMimeHeader( this, name, value ); }
         public Iterator getMatchingMimeHeaders ( String[] names ) { return DomImpl._soapPart_getMatchingMimeHeaders( this, names ); }
         public Iterator getNonMatchingMimeHeaders ( String[] names ) { return DomImpl._soapPart_getNonMatchingMimeHeaders( this, names ); }
-        public boolean nodeCanHavePrefixUri( ){ return false; }
+
+        public boolean nodeCanHavePrefixUri( ){ return true; }
+
         SoapPartDocXobj _docXobj;
     }
 
@@ -2791,16 +2805,16 @@ abstract class Xobj implements TypeStore
         extends ElementXobj implements SOAPElement, javax.xml.soap.Node
     {
         SoapElementXobj ( Locale l, QName name ) { super( l, name ); }
-        
+
         Xobj newNode ( Locale l ) { return new SoapElementXobj( l, _name ); }
-        
+
         public void detachNode ( ) { DomImpl._soapNode_detachNode( this ); }
         public void recycleNode ( ) { DomImpl._soapNode_recycleNode( this ); }
         public String getValue ( ) { return DomImpl._soapNode_getValue( this ); }
         public void setValue ( String value ) { DomImpl._soapNode_setValue( this, value ); }
         public SOAPElement getParentElement ( ) { return DomImpl._soapNode_getParentElement( this ); }
         public void setParentElement ( SOAPElement p ) { DomImpl._soapNode_setParentElement( this, p ); }
-        
+
         public void removeContents ( ) { DomImpl._soapElement_removeContents( this ); }
         public String getEncodingStyle ( ) { return DomImpl._soapElement_getEncodingStyle( this ); }
         public void setEncodingStyle ( String encodingStyle ) { DomImpl._soapElement_setEncodingStyle( this, encodingStyle ); }
@@ -2823,13 +2837,13 @@ abstract class Xobj implements TypeStore
         public Iterator getVisibleNamespacePrefixes ( ) { return DomImpl._soapElement_getVisibleNamespacePrefixes( this ); }
         public boolean removeAttribute ( Name name ) { return DomImpl._soapElement_removeAttribute( this, name ); }
     }
-    
+
     static class SoapBodyXobj extends SoapElementXobj implements SOAPBody
     {
         SoapBodyXobj ( Locale l, QName name ) { super( l, name ); }
-        
+
         Xobj newNode ( Locale l ) { return new SoapBodyXobj( l, _name ); }
-        
+
         public boolean hasFault ( ) { return DomImpl.soapBody_hasFault( this ); }
         public SOAPFault addFault ( ) throws SOAPException { return DomImpl.soapBody_addFault( this ); }
         public SOAPFault getFault ( ) { return DomImpl.soapBody_getFault( this ); }
@@ -2838,20 +2852,20 @@ abstract class Xobj implements TypeStore
         public SOAPFault addFault ( Name name, String s ) throws SOAPException { return DomImpl.soapBody_addFault( this, name, s ); }
         public SOAPFault addFault ( Name faultCode, String faultString, java.util.Locale locale ) throws SOAPException { return DomImpl.soapBody_addFault( this, faultCode, faultString, locale ); }
     }
-    
+
     static class SoapBodyElementXobj extends SoapElementXobj implements SOAPBodyElement
     {
         SoapBodyElementXobj ( Locale l, QName name ) { super( l, name ); }
-        
+
         Xobj newNode ( Locale l ) { return new SoapBodyElementXobj( l, _name ); }
     }
-    
+
     static class SoapEnvelopeXobj extends SoapElementXobj implements SOAPEnvelope
     {
         SoapEnvelopeXobj ( Locale l, QName name ) { super( l, name ); }
-        
+
         Xobj newNode ( Locale l ) { return new SoapEnvelopeXobj( l, _name ); }
-        
+
         public SOAPBody addBody ( ) throws SOAPException { return DomImpl._soapEnvelope_addBody( this ); }
         public SOAPBody getBody ( ) throws SOAPException { return DomImpl._soapEnvelope_getBody( this ); }
         public SOAPHeader getHeader ( ) throws SOAPException { return DomImpl._soapEnvelope_getHeader( this ); }
@@ -2863,9 +2877,9 @@ abstract class Xobj implements TypeStore
     static class SoapHeaderXobj extends SoapElementXobj implements SOAPHeader
     {
         SoapHeaderXobj ( Locale l, QName name ) { super( l, name ); }
-        
+
         Xobj newNode ( Locale l ) { return new SoapHeaderXobj( l, _name ); }
-        
+
         public Iterator examineAllHeaderElements ( ) { return DomImpl.soapHeader_examineAllHeaderElements( this ); }
         public Iterator extractAllHeaderElements ( ) { return DomImpl.soapHeader_extractAllHeaderElements( this ); }
         public Iterator examineHeaderElements ( String actor ) { return DomImpl.soapHeader_examineHeaderElements( this, actor ); }
@@ -2873,23 +2887,23 @@ abstract class Xobj implements TypeStore
         public Iterator extractHeaderElements ( String actor ) { return DomImpl.soapHeader_extractHeaderElements( this, actor ); }
         public SOAPHeaderElement addHeaderElement ( Name name ) { return DomImpl.soapHeader_addHeaderElement( this, name ); }
     }
-    
+
     static class SoapHeaderElementXobj extends SoapElementXobj implements SOAPHeaderElement
     {
         SoapHeaderElementXobj ( Locale l, QName name ) { super( l, name ); }
-        
+
         Xobj newNode ( Locale l ) { return new SoapHeaderElementXobj( l, _name ); }
-        
+
         public void setMustUnderstand ( boolean mustUnderstand ) { DomImpl.soapHeaderElement_setMustUnderstand( this, mustUnderstand ); }
         public boolean getMustUnderstand ( ) { return DomImpl.soapHeaderElement_getMustUnderstand( this ); }
         public void setActor ( String actor ) { DomImpl.soapHeaderElement_setActor( this, actor ); }
         public String getActor ( ) { return DomImpl.soapHeaderElement_getActor( this ); }
     }
-    
+
     static class SoapFaultXobj extends SoapBodyElementXobj implements SOAPFault
     {
         SoapFaultXobj ( Locale l, QName name ) { super( l, name ); }
-        
+
         Xobj newNode ( Locale l ) { return new SoapFaultXobj( l, _name ); }
 
         public void setFaultString ( String faultString ) { DomImpl.soapFault_setFaultString( this, faultString ); }
@@ -2912,13 +2926,13 @@ abstract class Xobj implements TypeStore
 
         Xobj newNode ( Locale l ) { return new SoapFaultElementXobj( l, _name ); }
     }
-    
+
     static class DetailXobj extends SoapFaultElementXobj implements Detail
     {
         DetailXobj ( Locale l, QName name ) { super( l, name ); }
-        
+
         Xobj newNode ( Locale l ) { return new DetailXobj( l, _name ); }
-        
+
         public DetailEntry addDetailEntry ( Name name ) { return DomImpl.detail_addDetailEntry( this, name ); }
         public Iterator getDetailEntries ( ) { return DomImpl.detail_getDetailEntries( this ); }
     }
@@ -3006,7 +3020,7 @@ abstract class Xobj implements TypeStore
         //
         // XmlCursor.XmlMark method
         //
-        
+
         public XmlCursor createCursor ( )
         {
             if (_xobj == null)
@@ -3018,21 +3032,21 @@ abstract class Xobj implements TypeStore
 
             return Cursor.newCursor( _xobj, _pos );
         }
-        
+
         //
         //
         //
-        
+
         Xobj _xobj;
         int  _pos;
-        
+
         Bookmark _next;
         Bookmark _prev;
-    
+
         Object _key;
         Object _value;
     }
-    
+
     //
     //
     //
@@ -3041,7 +3055,7 @@ abstract class Xobj implements TypeStore
     QName _name;
 
     Cur _embedded;
-    
+
     Bookmark _bookmarks;
 
     int _bits;
