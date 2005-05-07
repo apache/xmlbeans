@@ -2226,12 +2226,12 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory
             return "noouter";
         else if (getOuterType().getBaseType() == this)
             prefix = "B=";
+        else if (getOuterType().getContentBasedOnType() == this)
+             prefix = "S=";
         else if (getOuterType().getSimpleVariety() == SchemaType.LIST)
             prefix = "I=";
         else if (getOuterType().getSimpleVariety() == SchemaType.UNION)
             prefix = "M=" + getAnonymousUnionMemberOrdinal();
-        else if (getOuterType().getContentBasedOnType() == this)
-             prefix = "S=";
         else
             prefix = "strange=";
         

@@ -201,7 +201,8 @@ public final class GDuration implements GDurationSpecification, java.io.Serializ
      * Constructs a GDuration with the specified sign,
      * year, month, day, hours, minutes, seconds, and optional
      * fractional seconds.
-     * @parameter sign +1 for a positive duration, -1 for a negative duration
+     * @param sign +1 for a positive duration, -1 for a negative duration
+     * @throws java.lang.IllegalArgumentException if the sign is not 1 or -1
      */
     public GDuration(
             int sign,
