@@ -1653,7 +1653,14 @@ public class StscTranslator
         c.dispose();
         if (arrayType != null)
         {
-            wat = new SOAPArrayType(arrayType, new NamespaceContext(xsdAttr));
+            try
+            {
+                wat = new SOAPArrayType(arrayType, new NamespaceContext(xsdAttr));
+            }
+            catch (XmlValueOutOfRangeException)
+            {
+                state.error(XmlErrorCodes.QNAME, null, xsdAttr);
+            }
         }
 
         SchemaAnnotationImpl ann = SchemaAnnotationImpl.getAnnotation(state.getContainer(targetNamespace), xsdAttr);

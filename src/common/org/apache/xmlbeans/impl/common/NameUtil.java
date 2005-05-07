@@ -519,6 +519,8 @@ public class NameUtil
         }
         if (buf.length() == 0)
             return "noNamespace";
+        if (useJaxRpcRules)
+            return buf.substring(0, buf.length() - 1).toLowerCase();
         return buf.substring(0, buf.length() - 1); // chop off extra dot
     }
 

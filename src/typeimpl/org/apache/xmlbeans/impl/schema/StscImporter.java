@@ -276,17 +276,20 @@ public class StscImporter
             // Sun's implementation of URI doesn't support references to the
             // parent directory ("/..") in the part after "!/" so we have to
             // remove these ourselves
-            int slashDotDotIndex = r.lastIndexOf("/..");
             int exclPointSlashIndex = r.lastIndexOf("!/");
-            while (slashDotDotIndex >= 0 && slashDotDotIndex > exclPointSlashIndex)
+            if (exclPointSlashIndex > 0)
             {
-                int prevSlashIndex = r.lastIndexOf("/", slashDotDotIndex - 1);
-                if (prevSlashIndex >= exclPointSlashIndex)
+                int slashDotDotIndex = r.indexOf("/..", exclPointSlashIndex);
+                while (slashDotDotIndex > 0)
                 {
-                    String temp = r.substring(slashDotDotIndex + 3);
-                    r = r.substring(0, prevSlashIndex).concat(temp);
+                    int prevSlashIndex = r.lastIndexOf("/", slashDotDotIndex - 1);
+                    if (prevSlashIndex >= exclPointSlashIndex)
+                    {
+                        String temp = r.substring(slashDotDotIndex + 3);
+                        r = r.substring(0, prevSlashIndex).concat(temp);
+                    }
+                    slashDotDotIndex = r.indexOf("/..", exclPointSlashIndex);
                 }
-                slashDotDotIndex = r.lastIndexOf("/..");
             }
             return URI.create(r);
         }
