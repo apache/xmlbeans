@@ -1657,7 +1657,7 @@ public class StscTranslator
             {
                 wat = new SOAPArrayType(arrayType, new NamespaceContext(xsdAttr));
             }
-            catch (XmlValueOutOfRangeException)
+            catch (XmlValueOutOfRangeException e)
             {
                 state.error(XmlErrorCodes.QNAME, null, xsdAttr);
             }
