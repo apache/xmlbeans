@@ -1057,7 +1057,7 @@
     <target name="piccolo.classes" depends="piccolo.classes.check, dirs, repackage.classes" unless="piccolo.classes.notRequired">
         <delete dir="build/private/piccolo"/>
         <mkdir dir="build/private/piccolo"/>
-        <unjar src="external/lib/piccolo_apache_dist_20040711_v2.jar" dest="build/private/piccolo"/>
+        <unjar src="external/lib/piccolo_apache_dist_20040629_v2.jar" dest="build/private/piccolo"/>
 
         <echo message="Re-packaging Piccolo"/>
 
