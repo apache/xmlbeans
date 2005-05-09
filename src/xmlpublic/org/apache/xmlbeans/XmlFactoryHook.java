@@ -23,6 +23,7 @@ import java.io.Reader;
 
 import org.apache.xmlbeans.xml.stream.XMLInputStream;
 import org.apache.xmlbeans.xml.stream.XMLStreamException;
+import java.lang.ref.SoftReference;
 
 /**
  * A hook for the XML Bean Factory mechanism.
@@ -87,7 +88,8 @@ public interface XmlFactoryHook
          */ 
         public static XmlFactoryHook getHook()
         {
-            return (XmlFactoryHook)threadHook.get();
+            SoftReference softRef = (SoftReference)threadHook.get();
+            return softRef==null ? null : (XmlFactoryHook)softRef.get();
         }
 
         /**
@@ -95,7 +97,7 @@ public interface XmlFactoryHook
          */ 
         public static void setHook(XmlFactoryHook hook)
         {
-            threadHook.set(hook);
+            threadHook.set(new SoftReference(hook));
         }
 
         // provided to prevent unwanted construction

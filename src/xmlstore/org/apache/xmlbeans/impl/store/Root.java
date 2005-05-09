@@ -16,6 +16,7 @@
 package org.apache.xmlbeans.impl.store;
 
 import java.lang.reflect.Method;
+import java.lang.ref.SoftReference;
 
 import org.apache.xmlbeans.impl.common.EncodingMap;
 import org.apache.xmlbeans.impl.common.QNameHelper;
@@ -583,21 +584,34 @@ public final class Root extends Finish implements XmlStore
         {
             protected Object initialValue()
             {
-                SaxLoader sl = PiccoloSaxLoader.newInstance();
-
-                if (sl == null)
-                    sl = DefaultSaxLoader.newInstance();
-
-                if (sl == null)
-                    throw new RuntimeException( "Can't find an XML parser" );
-
-                return sl;
+                return new SoftReference(createSaxLoader());
             }
         };
 
+    private static SaxLoader createSaxLoader ()
+    {
+        SaxLoader sl = PiccoloSaxLoader.newInstance();
+
+        if (sl == null)
+            sl = DefaultSaxLoader.newInstance();
+
+        if (sl == null)
+            throw new RuntimeException( "Can't find an XML parser" );
+
+        return sl;
+    }
+
     private static SaxLoader getSaxLoader ( )
     {
-        return (SaxLoader) tl_SaxLoaders.get();
+        SoftReference softRef = (SoftReference)tl_SaxLoaders.get();
+        SaxLoader saxLoader = (SaxLoader) softRef.get();
+        if (saxLoader==null)
+        {
+            saxLoader = createSaxLoader();
+            tl_SaxLoaders.set(new SoftReference(saxLoader));
+        }
+        return saxLoader;
+
     }
     
 

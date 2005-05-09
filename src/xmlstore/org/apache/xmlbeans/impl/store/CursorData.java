@@ -18,6 +18,7 @@ package org.apache.xmlbeans.impl.store;
 import org.apache.xmlbeans.impl.store.Splay.CursorGoober;
 
 import java.util.ArrayList;
+import java.lang.ref.SoftReference;
 
 public final class CursorData
 {
@@ -27,14 +28,22 @@ public final class CursorData
 
         CursorData cd;
 
-        if (dataCache.size() == 0)
-            cd = new CursorData( r );
-        else
+        SoftReference softRef;
+        while (dataCache.size() != 0)
         {
-            cd = (CursorData) dataCache.remove( dataCache.size() - 1 );
-            cd._goober.set( r );
+            softRef = (SoftReference)(dataCache.remove(dataCache.size()-1));
+            cd = (CursorData)softRef.get();
+            if (cd==null)
+                continue;
+            else
+            {
+                cd._goober.set( r );
+                return cd;
+            }
         }
-        
+
+        cd = new CursorData( r );
+
         return cd;
     }
 
@@ -43,9 +52,12 @@ public final class CursorData
         _goober = new CursorGoober( r );
     }
 
+
+
+
     private static ThreadLocal tl_CachedCursorData =
         new ThreadLocal() { protected Object initialValue() { return new ArrayList(); } };
-    
+
     protected void release ( boolean cache )
     {
         if (_goober.getSplay() != null)
@@ -62,7 +74,7 @@ public final class CursorData
                 ArrayList dataCache = (ArrayList) tl_CachedCursorData.get();
 
                 if (dataCache.size() < 128)
-                    dataCache.add( this );
+                    dataCache.add( new SoftReference (this) );
             }
         }
     }

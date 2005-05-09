@@ -19,6 +19,8 @@ import javax.xml.namespace.QName;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.ref.SoftReference;
+
 
 /**
  * Provides an assortment of utilities
@@ -80,7 +82,7 @@ public final class XmlBeans
         {
             protected Object initialValue()
             {
-                return new QNameCache( 32 );
+                return new SoftReference(new QNameCache( 32 ));
             }
         };
 
@@ -89,7 +91,14 @@ public final class XmlBeans
      */
     public static QNameCache getQNameCache ( )
     {
-        return (QNameCache) _threadLocalLoaderQNameCache.get();
+        SoftReference softRef = (SoftReference)_threadLocalLoaderQNameCache.get();
+        QNameCache qnameCache = (QNameCache) (softRef).get();
+        if (qnameCache==null)
+        {
+            qnameCache = new QNameCache( 32 );
+            _threadLocalLoaderQNameCache.set(new SoftReference(qnameCache));
+        }
+        return qnameCache;
     }
 
     /**

@@ -41,6 +41,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.ConcurrentModificationException;
+import java.lang.ref.SoftReference;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.DocumentBuilder;
@@ -4426,17 +4427,34 @@ public abstract class Saver implements NamespaceManager
         {
             protected Object initialValue()
             {
-                try
-                {
-                    return DocumentBuilderFactory.newInstance().newDocumentBuilder();
-                }
-                catch ( ParserConfigurationException e )
-                {
-                    throw new RuntimeException( e.getMessage(), e );
-                }
+                return new SoftReference(createDocumentBuilder());
             }
         };
-    
+
+    public static DocumentBuilder createDocumentBuilder()
+    {
+        try
+        {
+            return DocumentBuilderFactory.newInstance().newDocumentBuilder();
+        }
+        catch ( ParserConfigurationException e )
+        {
+            throw new RuntimeException( e.getMessage(), e );
+        }
+    }
+
+    public static DocumentBuilder getThreadLocalDocumentBuilder() {
+
+        SoftReference softRef = (SoftReference)_threadDocumentBuilderFactory.get();
+        DocumentBuilder documentBuilder = (DocumentBuilder) softRef.get();
+        if (documentBuilder==null)
+        {
+            documentBuilder = createDocumentBuilder();
+            _threadDocumentBuilderFactory.set(new SoftReference(documentBuilder));
+        }
+        return documentBuilder;
+    }
+
     static final class DomSaver extends Saver
     {
         DomSaver ( Root r, Splay s, int p, boolean createDoc, XmlOptions options )
@@ -4451,7 +4469,7 @@ public abstract class Saver implements NamespaceManager
             // TODO - add an options which specifies a Document with which
             // to create the fragment
 
-            _doc = ((DocumentBuilder) _threadDocumentBuilderFactory.get()).newDocument();
+            _doc = getThreadLocalDocumentBuilder().newDocument();
 
             Node result;
 
