@@ -21,6 +21,7 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 
 import javax.xml.namespace.QName;
 import org.apache.xmlbeans.impl.common.NameUtil;
@@ -286,7 +287,7 @@ public final class SchemaTypeCodePrinter
         }
         else
         {
-            SchemaProperty[] props = sType.getDerivedProperties();
+            SchemaProperty[] props = getDerivedProperties(sType);
             for (int i = 0; i < props.length; i++)
             {
                 SchemaProperty prop = props[i];
@@ -2160,7 +2161,8 @@ public final class SchemaTypeCodePrinter
                 // complex content type implementations derive from base type impls
                 // so derived property impls can be reused
                 
-                properties = sType.getDerivedProperties();
+                properties = getDerivedProperties(sType);
+                
             }
             
             Map qNameMap = printStaticFields(properties);
@@ -2214,6 +2216,31 @@ public final class SchemaTypeCodePrinter
         printNestedTypeImpls(sType, system);
 
         endBlock();
+    }
+
+    private SchemaProperty[] getDerivedProperties(SchemaType sType) {
+        // We have to see if this is redefined, because if it is we have
+        // to include all properties associated to its supertypes
+        QName name = sType.getName();
+        if (name != null && name.equals(sType.getBaseType().getName())) {
+            SchemaType sType2 = sType.getBaseType();
+            // Walk all the redefined types and record any properties
+            // not present in sType, because the redefined types do not
+            // have a generated class to represent them
+            SchemaProperty[] props = sType.getDerivedProperties();
+            Map propsByName = new LinkedHashMap();
+            for (int i = 0; i < props.length; i++)
+                propsByName.put(props[i].getName(), props[i]);
+            while (sType2 != null && name.equals(sType2.getName())) {
+                props = sType2.getDerivedProperties();
+                for (int i = 0; i < props.length; i++)
+                    if (!propsByName.containsKey(props[i].getName()))
+                        propsByName.put(props[i].getName(), props[i]);
+                sType2 = sType2.getBaseType();
+            }
+            return (SchemaProperty[]) propsByName.values().toArray(new SchemaProperty[0]);
+        } else
+            return sType.getDerivedProperties();
     }
 
     private void printExtensionImplMethods(SchemaType sType) throws IOException
