@@ -561,7 +561,7 @@ public final class CharUtil
     
     public static void dumpChars ( PrintStream p, Object src, int off, int cch )
     {
-        p.print( "cch=" + cch + ", off=" + off + ": " );
+        p.print( "off=" + off + ", cch=" + cch + ", " );
         
         if (src == null)
             p.print( "<null-src>" );
@@ -580,7 +580,7 @@ public final class CharUtil
                 }
             }
 
-            p.print( ": " );
+            //p.print( ": " );
             dumpText( p, s.substring( off, off + cch ) );
         }
         else if (src instanceof char[])
@@ -598,7 +598,7 @@ public final class CharUtil
                 }
             }
 
-            p.print( ": " );
+            //p.print( ": " );
             dumpText( p, new String( chars, off, cch ) );
         }
         else if (src instanceof CharJoin)
@@ -801,8 +801,8 @@ public final class CharUtil
         public void release ( )
         {
             _srcRoot = null;
-            _string = null;
-            _chars = null;
+            _srcLeafString = null;
+            _srcLeafChars = null;
         }
 
         public boolean hasNext ( ) { return _pos < _cchRoot; }
@@ -813,7 +813,7 @@ public final class CharUtil
             assert hasNext() ;
 
             char ch = currentChar();
-            
+
             movePos( _pos + 1 );
 
             return ch;
@@ -834,41 +834,48 @@ public final class CharUtil
 
             if (newPos < _minPos || newPos > _maxPos)
             {
-                Object src    = _srcRoot;
-                int    off    = _offRoot + newPos;
-                
-                for ( _offMin = _offRoot ; src instanceof CharJoin ; )
+                // if newPos out of cached leaf, recache new leaf
+                Object  src    = _srcRoot;
+                int     off    = _offRoot + newPos;
+                int     cch    = _cchRoot;
+
+                for ( _offLeaf = _offRoot ; src instanceof CharJoin ; )
                 {
                     CharJoin j = (CharJoin) src;
 
                     if (off < j._cchLeft)
                     {
                         src = j._srcLeft;
-                        off += (_offMin = j._offLeft);
+                        _offLeaf = j._offLeft;
+                        off = off + j._offLeft;
+                        cch = j._cchLeft;
                     }
                     else
                     {
                         src = j._srcRight;
-                        off -= j._cchLeft - (_offMin = j._offRight);
+                        _offLeaf = j._offRight;
+                        off = off - (j._cchLeft - j._offRight);
+                        cch = cch - j._cchLeft;
                     }
                 }
 
-                _offMin = off - Math.min( off - _offMin, newPos );
-                _minPos = newPos - off + _offMin;
-                _maxPos = newPos + Math.min( _cchRoot - newPos, sizeof( src ) - off );
+//                _offLeaf = off - Math.min( off - _offLeaf, newPos );
+                _minPos = newPos - (off - _offLeaf);
+//                _maxPos = newPos + Math.min( _cchRoot - newPos, sizeof( src ) - off );
+                _maxPos = _minPos + cch;
 
                 if (newPos < _cchRoot)
                     _maxPos--;
 
                 // Cache the leaf src to avoid instanceof for every char
                 
-                _chars = null;
-                _string = null;
+                _srcLeafChars = null;
+                _srcLeafString = null;
 
                 if (src instanceof char[])
-                    _chars = (char[]) src;
+                    _srcLeafChars = (char[]) src;
                 else
-                    _string = (String) src;
+                    _srcLeafString = (String) src;
                 
                 assert newPos >= _minPos && newPos <= _maxPos;
             }
@@ -878,9 +885,9 @@ public final class CharUtil
 
         private char currentChar ( )
         {
-            int i = _offMin + _pos - _minPos;
+            int i = _offLeaf + _pos - _minPos;
             
-            return _chars == null ? _string.charAt( i ) : _chars[ i ];
+            return _srcLeafChars == null ? _srcLeafString.charAt( i ) : _srcLeafChars[ i ];
         }
 
         private Object _srcRoot; // Original triple
@@ -892,10 +899,10 @@ public final class CharUtil
         private int    _minPos;  // Min/max poses for current cached leaf
         private int    _maxPos;
 
-        private int    _offMin;
+        private int    _offLeaf;
         
-        private String _string;  // Cached leaf - either a char[] or a string
-        private char[] _chars;
+        private String _srcLeafString;  // Cached leaf - either a char[] or a string
+        private char[] _srcLeafChars;
     }
 
     private static int CHARUTIL_INITIAL_BUFSIZE = 1024 * 32;
