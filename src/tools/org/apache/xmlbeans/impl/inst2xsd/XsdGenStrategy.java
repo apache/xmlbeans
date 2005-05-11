@@ -22,7 +22,7 @@ import org.apache.xmlbeans.impl.inst2xsd.Inst2XsdOptions;
  * Author: Cezar Andrei ( cezar.andrei at bea.com )
  * Date: Jul 26, 2004
  */
-interface XsdGenStrategy
+public interface XsdGenStrategy
 {
     void processDoc(XmlObject[] instances, Inst2XsdOptions options, TypeSystemHolder typeSystemHolder);
 }
