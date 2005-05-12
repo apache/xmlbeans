@@ -1159,7 +1159,14 @@ public class StscTranslator
         c.dispose();
         if (arrayType != null)
         {
-            wat = new SOAPArrayType(arrayType, new NamespaceContext(xsdElt));
+            try
+            {
+                wat = new SOAPArrayType(arrayType, new NamespaceContext(xsdElt));
+            }
+            catch (XmlValueOutOfRangeException e)
+            {
+                state.error(XmlErrorCodes.SOAPARRAY, new Object[] {arrayType}, xsdElt);
+            }
         }
         impl.setWsdlArrayType(wat);
 
@@ -1659,7 +1666,7 @@ public class StscTranslator
             }
             catch (XmlValueOutOfRangeException e)
             {
-                state.error(XmlErrorCodes.QNAME, null, xsdAttr);
+                state.error(XmlErrorCodes.SOAPARRAY, new Object[] {arrayType}, xsdAttr);
             }
         }
 
