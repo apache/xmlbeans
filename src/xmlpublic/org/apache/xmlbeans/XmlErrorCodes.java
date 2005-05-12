@@ -1815,6 +1815,11 @@ public abstract class XmlErrorCodes
     /**
      *
      */
+    public static final String SOAPARRAY = "soaparray";
+
+    /**
+     *
+     */
     public static final String FACET_FIXED = "facet-fixed";
 
     /**

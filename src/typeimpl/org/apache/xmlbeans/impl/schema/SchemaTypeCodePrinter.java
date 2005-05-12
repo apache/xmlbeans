@@ -1039,7 +1039,16 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
                 emit("java.util.List<" + wrappedType + "> get" + propertyName + "List();");
             }
 
-            printJavaDoc("Gets array of all " + propdesc + "s");
+            if (_useJava15)
+            {
+                emit("");
+                emit("/**");
+                emit(" * Gets array of all " + propdesc + "s");
+                emit(" * @deprecated");
+                emit(" */");
+            }
+            else
+                printJavaDoc("Gets array of all " + propdesc + "s");
             emit(type + "[] get" + arrayName + "();");
 
             printJavaDoc("Gets ith " + propdesc);
@@ -1053,7 +1062,16 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
                     emit("java.util.List<" + xtype + "> xget" + propertyName + "List();");
                 }
 
-                printJavaDoc("Gets (as xml) array of all " + propdesc + "s");
+                if (_useJava15)
+                {
+                    emit("");
+                    emit("/**");
+                    emit(" * Gets (as xml) array of all " + propdesc + "s");
+                    emit(" * @deprecated");
+                    emit(" */");
+                }
+                else
+                    printJavaDoc("Gets (as xml) array of all " + propdesc + "s");
                 emit(xtype + "[] xget" + arrayName + "();");
 
                 printJavaDoc("Gets (as xml) ith " + propdesc);
@@ -1127,7 +1145,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
             if (!xmltype)
             {
                 printJavaDoc("Sets (as xml) array of all " + propdesc);
-                emit("void xset" + arrayName + "(" + xtype + "[]" + safeVarName + "Array);");
+                emit("void xset" + arrayName + "(" + xtype + "[] " + safeVarName + "Array);");
 
                 printJavaDoc("Sets (as xml) ith " + propdesc);
                 emit("void xset" + arrayName + "(int i, " + xtype + " " + safeVarName + ");");
