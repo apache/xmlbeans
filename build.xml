@@ -88,8 +88,11 @@
 
     <target name="saxon8.jar" depends="check.saxon8.jar, dirs"
         unless="saxon8.jar.exists">
+	<!-- other saxon urls 
+		http://voxel.dl.sourceforge.net/sourceforge/saxon/saxonb8-1.zip
+	-->
         <get dest="external/lib/saxonb8-1.zip"
-            src="http://voxel.dl.sourceforge.net/sourceforge/saxon/saxonb8-1.zip"
+	    src="http://easynews.dl.sourceforge.net/sourceforge/saxon/saxonb8-1.zip"
             verbose="true" usetimestamp="true" ignoreerrors="true"/>
         <unzip src="external/lib/saxonb8-1.zip" dest="external/lib/">
             <patternset>
