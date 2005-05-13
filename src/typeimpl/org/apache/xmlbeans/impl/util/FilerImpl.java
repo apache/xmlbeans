@@ -17,15 +17,19 @@ package org.apache.xmlbeans.impl.util;
 
 import org.apache.xmlbeans.Filer;
 
-import java.io.OutputStream;
 import java.io.IOException;
 import java.io.File;
 import java.io.Writer;
 import java.io.FileReader;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.io.StringReader;
 import java.io.StringWriter;
-import java.io.FileOutputStream;
+import java.nio.charset.Charset;
+import java.nio.charset.CharsetEncoder;
+import java.nio.charset.CodingErrorAction;
 import java.util.Set;
 import java.util.HashSet;
 import java.util.List;
@@ -45,6 +49,18 @@ public class FilerImpl implements Filer
     private List sourceFiles;
     private boolean incrSrcGen;
     private Set seenTypes;
+    private static final Charset CHARSET;
+
+    static
+    {
+        Charset temp = null;
+        try
+        {
+            temp = Charset.forName(System.getProperty("file.encoding"));
+        }
+        catch (Exception e) {}
+        CHARSET = temp;
+    }
 
     public FilerImpl(File classdir, File srcdir, Repackager repackager, boolean verbose, boolean incrSrcGen)
     {
@@ -114,7 +130,7 @@ public class FilerImpl implements Filer
         else
         {
             return repackager == null ?
-                (Writer) new FileWriter( sourcefile ) :
+                (Writer) writerForFile( sourcefile ) :
                 (Writer) new RepackagingWriter( sourcefile, repackager );
         }
     }
@@ -127,6 +143,17 @@ public class FilerImpl implements Filer
     public Repackager getRepackager()
     {
         return repackager;
+    }
+
+    private static final Writer writerForFile(File f) throws IOException
+    {
+        if (CHARSET == null)
+            return new FileWriter(f);
+
+        FileOutputStream fileStream = new FileOutputStream(f);
+        CharsetEncoder ce = CHARSET.newEncoder();
+        ce.onUnmappableCharacter(CodingErrorAction.REPORT);
+        return new OutputStreamWriter(fileStream, ce);
     }
 
     static class IncrFileWriter extends StringWriter
@@ -168,7 +195,7 @@ public class FilerImpl implements Filer
             {
                 // Diffs encountered, replace the file on disk with text from
                 // the buffer
-                FileWriter fw = new FileWriter(_file);
+                Writer fw = writerForFile(_file);
                 try
                 {   fw.write(str); }
                 finally
@@ -191,7 +218,7 @@ public class FilerImpl implements Filer
         {
             super.close();
 
-            FileWriter fw = new FileWriter( _file );
+            Writer fw = writerForFile( _file );
             try
             { fw.write( _repackager.repackage( getBuffer() ).toString() ); }
             finally

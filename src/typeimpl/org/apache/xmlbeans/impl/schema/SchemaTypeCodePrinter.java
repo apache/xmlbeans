@@ -17,6 +17,9 @@ package org.apache.xmlbeans.impl.schema;
 
 import java.io.Writer;
 import java.io.IOException;
+import java.nio.charset.CharacterCodingException;
+import java.nio.charset.Charset;
+import java.nio.charset.CharsetEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Map;
@@ -171,11 +174,58 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
             indent = MAX_SPACES.length();
         
         _writer.write(MAX_SPACES.substring(0, indent));
-        _writer.write(s);
+        try
+        {
+            _writer.write(s);
+        }
+        catch (CharacterCodingException cce)
+        {
+            _writer.write(makeSafe(s));
+        }
         _writer.write(LINE_SEPARATOR);
         
         // System.out.print(MAX_SPACES.substring(0, indent));
         // System.out.println(s);
+    }
+
+    private static String makeSafe(String s)
+    {
+        Charset charset = Charset.forName(System.getProperty("file.encoding"));
+        if (charset == null)
+            throw new IllegalStateException("Default character set is null!");
+        CharsetEncoder cEncoder = charset.newEncoder();
+        StringBuffer result = new StringBuffer();
+        int i;
+        for (i = 0; i < s.length(); i++)
+        {
+            char c = s.charAt(i);
+            if (!cEncoder.canEncode(c))
+                break;
+        }
+        for (; i < s.length(); i++)
+        {
+            char c = s.charAt(i);
+            if (cEncoder.canEncode(c))
+                result.append(c);
+            else
+            {
+                String hexValue = Integer.toHexString((int) c);
+                switch (hexValue.length())
+                {
+                case 1:
+                    result.append("\\u000").append(hexValue); break;
+                case 2:
+                    result.append("\\u00").append(hexValue); break;
+                case 3:
+                    result.append("\\u0").append(hexValue); break;
+                case 4:
+                    result.append("\\u").append(hexValue); break;
+                default:
+                    throw new IllegalStateException();
+                }
+            }
+        }
+        return result.toString();
     }
 
     public void printType(Writer writer, SchemaType sType) throws IOException
