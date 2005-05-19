@@ -18,6 +18,7 @@ import junit.framework.TestCase;
 import org.apache.xmlbeans.XmlOptions;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlException;
+import org.apache.xmlbeans.XmlCursor;
 import org.openuri.bea.samples.workshop.CreditCardDataDocument;
 
 import javax.xml.stream.XMLInputFactory;
@@ -57,7 +58,7 @@ public class XmlStreamBeanReader extends TestCase{
                 " </cc:customer>\n" +
                 " </cc:credit-card-data>";
 
-    //from CR192525
+
     public void testXMLStreamReaderLoader () throws XMLStreamException, XmlException {
            XMLStreamReader reader = XMLInputFactory.newInstance().createXMLStreamReader(new ByteArrayInputStream(creditCardXmlwPrefix.getBytes()));
                 CreditCardDataDocument ccdoc = (CreditCardDataDocument) XmlObject.Factory.parse(reader, new XmlOptions().setDocumentType(CreditCardDataDocument.type));
@@ -65,5 +66,36 @@ public class XmlStreamBeanReader extends TestCase{
 
 
         }
+
+    // test for IllegalStateException thrown on using XmlStreamReader
+    public void testXmlStreamReaderException() {
+
+        XmlObject xo = XmlObject.Factory.newInstance();
+        XmlCursor xc = xo.newCursor();
+        xc.toNextToken();
+
+        xc.insertElementWithText("int", "http://openuri.org/testNumerals", "5");
+        xc.insertElementWithText("float", "http://openuri.org/testNumerals", "7.654321");
+
+        try {
+
+            XMLStreamReader xsr = xo.newXMLStreamReader();
+
+            while(xsr.hasNext())
+            {
+                xsr.next();
+            }
+        }
+        catch (XMLStreamException xse)
+        {
+            xse.printStackTrace();
+            fail("XMLStreamException thrown with XMLStreamReader usage");
+        }
+        catch (IllegalStateException ise)
+        {
+            ise.printStackTrace();
+            fail("IllegalStateException thrown with XMLStreamReader usage");
+        }
+    }
 
 }

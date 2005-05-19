@@ -183,18 +183,18 @@ public class ComplexContentExtensionTest extends BaseCase {
             XmlBeans.compileXmlBeans(null, null, compInput, null, XmlBeans.getBuiltinTypeSystem(), null, null);
         }
         catch (XmlException xme) {
-            //assertEquals(2, xme.getErrors().size());
+            assertEquals(2, xme.getErrors().size());
 
             Iterator itr = xme.getErrors().iterator();
             XmlError eacherr = (XmlError) itr.next();
-            System.out.println("Err:" + eacherr.getMessage());
+            System.out.println("Err:" + eacherr.getMessage() + "," + eacherr.getErrorCode());
             assertNotNull(eacherr.getErrorCode());
-            assertEquals("cvc-3.4.6", eacherr.getErrorCode());
+            assertEquals(XmlErrorCodes.COMPLEX_TYPE_EXTENSION$FINAL, eacherr.getErrorCode());
 
             eacherr = (XmlError) itr.next();
             System.out.println("Err:" + eacherr.getMessage());
             assertNotNull(eacherr.getErrorCode());
-            assertEquals("cvc-3.4.6", eacherr.getErrorCode());
+            assertEquals(XmlErrorCodes.COMPLEX_TYPE_RESTRICTION$FINAL, eacherr.getErrorCode());
 
         }
     }
@@ -231,7 +231,7 @@ public class ComplexContentExtensionTest extends BaseCase {
             XmlError eacherr = (XmlError) xme.getErrors().iterator().next();
             System.out.println("error:" + eacherr.getErrorCode());
             assertNotNull(eacherr.getErrorCode());
-            assertEquals("cvc-3.4.6", eacherr.getErrorCode());
+            assertEquals(XmlErrorCodes.COMPLEX_TYPE_EXTENSION$FINAL, eacherr.getErrorCode());
         }
     }
 
@@ -266,7 +266,7 @@ public class ComplexContentExtensionTest extends BaseCase {
             XmlError eacherr = (XmlError) xme.getErrors().iterator().next();
             System.out.println("Err:" + eacherr.getMessage());
             assertNotNull(eacherr.getErrorCode());
-            assertEquals("cvc-3.4.6", eacherr.getErrorCode());
+            assertEquals(XmlErrorCodes.COMPLEX_TYPE_RESTRICTION$FINAL, eacherr.getErrorCode());
         }
     }
 
@@ -311,14 +311,14 @@ public class ComplexContentExtensionTest extends BaseCase {
 
             Iterator itr = xme.getErrors().iterator();
             XmlError eacherr = (XmlError) itr.next();
-            System.out.println("Err:" + eacherr.getMessage());
+            System.out.println("Err:" + eacherr.getMessage() + "," + eacherr.getErrorCode());
             assertNotNull(eacherr.getErrorCode());
-            assertEquals("cvc-3.4.6", eacherr.getErrorCode());
+            assertEquals(XmlErrorCodes.COMPLEX_TYPE_EXTENSION$FINAL, eacherr.getErrorCode());
 
             eacherr = (XmlError) itr.next();
             System.out.println("Err:" + eacherr.getMessage());
             assertNotNull(eacherr.getErrorCode());
-            assertEquals("cvc-3.4.6", eacherr.getErrorCode());
+            assertEquals(XmlErrorCodes.COMPLEX_TYPE_RESTRICTION$FINAL, eacherr.getErrorCode());
         }
     }
 
