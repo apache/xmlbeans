@@ -12,7 +12,7 @@ import common.Common;
 public class JiraTestBase extends Common
 {
     //location of files under "cases folder"
-    public static String JIRA_CASES = XBEAN_CASE_ROOT + P + "xbean" + P + "misc" +
+    public static String JIRA_CASES = XBEAN_CASE_ROOT + P + "misc" +
                                         P + "jira" + P;
     public static File outputroot = new File(OUTPUTROOT+P+"jiraoutput");
 

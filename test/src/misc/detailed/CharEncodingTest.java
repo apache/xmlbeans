@@ -69,7 +69,7 @@ public class CharEncodingTest extends ParsersBase {
 
     // Piccolo has an issue with handling external identifiers when the value is PUBLIC
     // refer : http://cafeconleche.org/SAXTest/results/com.bluecast.xml.Piccolo/xmltest/valid/not-sa/009.xml.html
-    // results for the SAX conformance suite. This has been fixed in XBeans Piccolo code
+    // results for the SAX conformance suite. This has been fixed in newer versions of Piccolo
     public void testExternalPublicIdentifier() {
         // repro using piccolo and other parsers via JAXP API
         String netPubEntity = "<!DOCTYPE doc PUBLIC \"whatever\" \"http://www.w3.org/2001/XMLSchema.dtd\" [\n" +
