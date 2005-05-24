@@ -410,7 +410,7 @@
     <!-- previously in xbean.xml -->
 
     <target name="xbean.jar"
-        depends="dirs, xmlpublic.classes,
+        depends="dirs, version, xmlpublic.classes,
                  typeholder.template, typestore.classes, common.classes,
                  typeimpl.classes, xmlcomp.classes,
                  store.classes, saaj_api.classes,
