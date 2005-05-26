@@ -30,7 +30,7 @@ public class Mutex
     {
         while (tryToAcquire() == false)
         {
-            this.wait();
+            wait();
         }
     }
 

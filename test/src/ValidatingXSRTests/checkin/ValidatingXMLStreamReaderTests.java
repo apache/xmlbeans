@@ -35,10 +35,12 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 import org.apache.xmlbeans.impl.validator.ValidatingXMLStreamReader;
+import org.apache.xmlbeans.impl.xb.xsdschema.SchemaDocument;
 import org.apache.xmlbeans.XmlBeans;
 import org.apache.xmlbeans.XmlError;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlCursor;
+import org.apache.xmlbeans.XmlOptions;
 
 import org.openuri.testNumerals.DocDocument;
 
@@ -429,7 +431,7 @@ public class ValidatingXMLStreamReaderTests extends TestCase
 
     }
 
-    public void ____testValidateContent1() throws XMLStreamException
+    public void testValidateContent1() throws XMLStreamException
     {
         XmlObject xo = XmlObject.Factory.newInstance();
         XmlCursor xc = xo.newCursor();
@@ -442,16 +444,65 @@ public class ValidatingXMLStreamReaderTests extends TestCase
         Collection errors = new ArrayList();
 
         ValidatingXMLStreamReader valXsr = new ValidatingXMLStreamReader();
-        valXsr.init(xsr, false, DocDocument.Doc.type,
+        valXsr.init(xsr, true, DocDocument.Doc.type,
             XmlBeans.typeLoaderForClassLoader(ValidatingXMLStreamReader.class.getClassLoader()),
             null, errors);
 
-        while(valXsr.hasNext())
+        int depth = 0;
+
+        loop:   while(valXsr.hasNext())
         {
+            int evType = valXsr.getEventType();
+//            printState(valXsr);
+            if (evType==XMLEvent.END_ELEMENT)
+            {
+                depth++;
+                if (depth>=2)
+                {
+                    break loop;
+                }
+            }
             valXsr.next();
         }
         Assert.assertTrue("Content1 validation is broken.", valXsr.isValid());
     }
+
+    private static void printState(XMLStreamReader vxsr)
+    {
+        int et = vxsr.getEventType();
+        switch(et)
+        {
+            case XMLEvent.START_ELEMENT:
+                System.out.println("  SE " + vxsr.getName() + " atts: " + vxsr.getAttributeCount());
+                for (int i = 0; i < vxsr.getAttributeCount(); i++)
+                {
+                    System.out.println("    AT " + vxsr.getAttributeName(i) + " = '" + vxsr.getAttributeValue(i) + "'");
+                }
+                break;
+            case XMLEvent.END_ELEMENT:
+                System.out.println("  EE");
+                break;
+            case XMLEvent.START_DOCUMENT:
+                System.out.println("  SD");
+                break;
+            case XMLEvent.END_DOCUMENT:
+                System.out.println("  ED");
+                break;
+            case XMLEvent.CHARACTERS:
+            case XMLEvent.CDATA:
+            case XMLEvent.SPACE:
+                System.out.println("  TX " + vxsr.hasText() + " '" + (vxsr.hasText() ? vxsr.getText() : ""));
+                break;
+            case XMLEvent.ATTRIBUTE:
+            case XMLEvent.NAMESPACE:
+                System.out.println("  ATT " + vxsr.getName() + " '" + vxsr.getText() + "'");
+                break;
+            default:
+                System.out.println("  OTHER " + et + " '" + (vxsr.hasText() ? vxsr.getText() : ""));
+                break;
+        }
+    }
+
 
     public void testValidateContent2() throws XMLStreamException
     {
