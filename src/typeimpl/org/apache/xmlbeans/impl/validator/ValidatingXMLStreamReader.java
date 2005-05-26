@@ -66,7 +66,7 @@ public class ValidatingXMLStreamReader
     private final ElementEventImpl _elemEvent;
     private final AttributeEventImpl _attEvent;
     private final SimpleEventImpl _simpleEvent;
-//    private PackTextXmlStreamReader _packTextXmlStreamReader;
+    private PackTextXmlStreamReader _packTextXmlStreamReader;
 
     private int _state;
     private final int STATE_FIRSTEVENT = 0;
@@ -90,7 +90,7 @@ public class ValidatingXMLStreamReader
         _elemEvent = new ElementEventImpl();
         _attEvent = new AttributeEventImpl();
         _simpleEvent = new SimpleEventImpl();
-//        _packTextXmlStreamReader = new PackTextXmlStreamReader();
+        _packTextXmlStreamReader = new PackTextXmlStreamReader();
     }
 
     /**
@@ -105,16 +105,20 @@ public class ValidatingXMLStreamReader
     public void init(XMLStreamReader xsr, boolean startWithCurrentEvent, SchemaType contentType,
                      SchemaTypeLoader stl, XmlOptions options, Collection errorListener)
     {
-//        _packTextXmlStreamReader.init(xsr);
+        _packTextXmlStreamReader.init(xsr);
 
-        setParent(xsr);
+//        setParent(xsr);
+        setParent(_packTextXmlStreamReader);
         _contentType = contentType;
         _stl = stl;
         _options = options;
         _errorListener = errorListener;
-        _elemEvent.setXMLStreamReader(xsr);
-        _attEvent.setXMLStreamReader(xsr);
-        _simpleEvent.setXMLStreamReader(xsr);
+//        _elemEvent.setXMLStreamReader(xsr);
+//        _attEvent.setXMLStreamReader(xsr);
+//        _simpleEvent.setXMLStreamReader(xsr);
+        _elemEvent.setXMLStreamReader(_packTextXmlStreamReader);
+        _attEvent.setXMLStreamReader(_packTextXmlStreamReader);
+        _simpleEvent.setXMLStreamReader(_packTextXmlStreamReader);
         _validator = null;
         _state = STATE_FIRSTEVENT;
         if (_attNamesList!=null)
@@ -132,128 +136,129 @@ public class ValidatingXMLStreamReader
         }
     }
 
-//    private static class PackTextXmlStreamReader
-//        extends StreamReaderDelegate
-//        implements XMLStreamReader
-//    {
-//        private boolean _hasBufferedText;
-//        private StringBuffer _buffer = new StringBuffer();
-//        private int _textEventType;
-//
-//        void init(XMLStreamReader xmlstream)
-//        {
-//            setParent(xmlstream);
-//            _hasBufferedText = false;
-//            _buffer.delete(0, _buffer.length());
-//        }
-//
-//        public int next()
-//            throws XMLStreamException
-//        {
-//            if (_hasBufferedText)
-//            {
-//                clearBuffer();
-//                return super.getEventType();
-//            }
-//
-//            int evType = super.next();
-//
-//            if (evType == XMLEvent.CHARACTERS || evType == XMLEvent.CDATA || evType == XMLEvent.SPACE)
-//            {
-//                _textEventType = evType;
-//                bufferText();
-//            }
-//
-//            return evType;
-//        }
-//
-//        private void clearBuffer()
-//        {
-//            _buffer.delete(0, _buffer.length());
-//            _hasBufferedText = false;
-//        }
-//
-//        private void bufferText()
-//            throws XMLStreamException
-//        {
-//            assert super.hasText();
-//
-//            _buffer.append( super.getText());
-//
-//            while (hasNext())
-//            {
-//                int evType = super.next();
-//                _hasBufferedText = true;
-//
-//                switch (evType)
-//                {
-//                case XMLEvent.CHARACTERS:
-//                case XMLEvent.CDATA:
-//                case XMLEvent.SPACE:
-//                    _buffer.append(super.getText());
-//
-//                case XMLEvent.COMMENT:
-//                    //ignore
-//                    continue;
-//                default:
-//                    return;
-//                }
-//            }
-//        }
-//
-//        public String getText()
-//        {
-//            assert _hasBufferedText;
-//            return _buffer.toString();
-//        }
-//
-//        public int getTextLength()
-//        {
-//            assert _hasBufferedText;
-//            return _buffer.length();
-//        }
-//
-//        public int getTextStart()
-//        {
-//            assert _hasBufferedText;
-//            return 0;
-//        }
-//
-//        public char[] getTextCharacters()
-//        {
-//            assert _hasBufferedText;
-//            return _buffer.toString().toCharArray();
-//        }
-//
-//        public int getTextCharacters(int sourceStart, char[] target, int targetStart, int length)
-//        {
-//            assert _hasBufferedText;
-//            _buffer.getChars(sourceStart, sourceStart + length, target, targetStart);
-//            return length;
-//        }
-//
-//        public boolean isWhiteSpace()
-//        {
-//            assert _hasBufferedText;
-//            return XmlWhitespace.isAllSpace(_buffer);
-//        }
-//
-//        public boolean hasText()
-//        {
-//            if (_hasBufferedText)
-//                return true;
-//            else
-//                return super.hasText();
-//        }
-//
-//        public int getEventType()
-//        {
-//            if (_hasBufferedText)
-//                return _textEventType;
-//            else
-//                return super.getEventType();
-//        }
-//    }
+    private static class PackTextXmlStreamReader
+        extends StreamReaderDelegate
+        implements XMLStreamReader
+    {
+        private boolean _hasBufferedText;
+        private StringBuffer _buffer = new StringBuffer();
+        private int _textEventType;
+
+        void init(XMLStreamReader xmlstream)
+        {
+            setParent(xmlstream);
+            _hasBufferedText = false;
+            _buffer.delete(0, _buffer.length());
+        }
+
+        public int next()
+            throws XMLStreamException
+        {
+            if (_hasBufferedText)
+            {
+                clearBuffer();
+                return super.getEventType();
+            }
+
+            int evType = super.next();
+
+            if (evType == XMLEvent.CHARACTERS || evType == XMLEvent.CDATA || evType == XMLEvent.SPACE)
+            {
+                _textEventType = evType;
+                bufferText();
+            }
+
+            return evType;
+        }
+
+        private void clearBuffer()
+        {
+            _buffer.delete(0, _buffer.length());
+            _hasBufferedText = false;
+        }
+
+        private void bufferText()
+            throws XMLStreamException
+        {
+            if (super.hasText())
+                _buffer.append( super.getText());
+
+            _hasBufferedText = true;
+
+            while (hasNext())
+            {
+                int evType = super.next();
+
+                switch (evType)
+                {
+                case XMLEvent.CHARACTERS:
+                case XMLEvent.CDATA:
+                case XMLEvent.SPACE:
+                    if (super.hasText())
+                        _buffer.append(super.getText());
+
+                case XMLEvent.COMMENT:
+                    //ignore
+                    continue;
+                default:
+                    return;
+                }
+            }
+        }
+
+        public String getText()
+        {
+            assert _hasBufferedText;
+            return _buffer.toString();
+        }
+
+        public int getTextLength()
+        {
+            assert _hasBufferedText;
+            return _buffer.length();
+        }
+
+        public int getTextStart()
+        {
+            assert _hasBufferedText;
+            return 0;
+        }
+
+        public char[] getTextCharacters()
+        {
+            assert _hasBufferedText;
+            return _buffer.toString().toCharArray();
+        }
+
+        public int getTextCharacters(int sourceStart, char[] target, int targetStart, int length)
+        {
+            assert _hasBufferedText;
+            _buffer.getChars(sourceStart, sourceStart + length, target, targetStart);
+            return length;
+        }
+
+        public boolean isWhiteSpace()
+        {
+            assert _hasBufferedText;
+            return XmlWhitespace.isAllSpace(_buffer);
+        }
+
+        public boolean hasText()
+        {
+            if (_hasBufferedText)
+                return true;
+            else
+                return super.hasText();
+        }
+
+        public int getEventType()
+        {
+            if (_hasBufferedText)
+                return _textEventType;
+            else
+                return super.getEventType();
+        }
+    }
 
     private static class ElementEventImpl
         implements ValidatorListener.Event
@@ -309,8 +314,10 @@ public class ValidatingXMLStreamReader
         public QName getName()
         {
             // avoid construction of a new QName object after the bug in getName() is fixed.
-            QName qname = new QName(_xmlStream.getNamespaceURI(), _xmlStream.getLocalName());
-            return qname;
+            if (_xmlStream.hasName())
+                return new QName(_xmlStream.getNamespaceURI(), _xmlStream.getLocalName());
+            else
+                return null;
         }
 
         // On TEXT and ATTR
@@ -780,7 +787,7 @@ public class ValidatingXMLStreamReader
             source = location.getPublicId();
             if (source==null)
                 source = location.getSystemId();
-            
+
             _errorListener.add(XmlError.forLocation(msg, source, location));
         }
         else

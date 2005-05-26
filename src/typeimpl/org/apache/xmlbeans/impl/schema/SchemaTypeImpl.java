@@ -1686,9 +1686,10 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory
                 { _javaClass = Class.forName(getFullJavaName(), false, getTypeSystem().getClassLoader()); }
             catch (ClassNotFoundException e)
             {
-                System.err.println("Could not find class name " + getFullJavaName());
-                System.err.println("Searched in classloader " + getTypeSystem().getClassLoader());
-                e.printStackTrace(System.err);
+//                This is a legitimate use, when users get a SchemaTypeSystem without compiling classes
+//                System.err.println("Could not find class name " + getFullJavaName());
+//                System.err.println("Searched in classloader " + getTypeSystem().getClassLoader());
+//                e.printStackTrace(System.err);
                 _javaClass = null;
             }
         }
