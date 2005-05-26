@@ -37,6 +37,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 import java.math.BigInteger;
@@ -1421,15 +1422,14 @@ public class StscChecker
         SchemaType currentType = derivedType;
 
         // XMLBEANS-66: if baseType is a union, check restriction is of one of the constituant types
-        List possibleTypes;
+        Set possibleTypes = null;
         if (baseType.getSimpleVariety() == SchemaType.UNION)
-            possibleTypes = Arrays.asList(baseType.getUnionConstituentTypes());
-        else
-            possibleTypes = Arrays.asList(new SchemaType[] { baseType });
+            possibleTypes = new HashSet(Arrays.asList(baseType.getUnionConstituentTypes()));
 
         // run up the types hierarchy from derived Type to base Type and make sure that all are derived by
         //   restriction.  If any are not then this is not a valid restriction.
-        while (!possibleTypes.contains(currentType)) {
+        while (!baseType.equals(currentType) &&
+            possibleTypes != null && !possibleTypes.contains(currentType)) {
             if (currentType.getDerivationType() == SchemaType.DT_RESTRICTION) {
                 currentType = currentType.getBaseType();
             } else {
