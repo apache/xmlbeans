@@ -1347,8 +1347,9 @@ abstract class Saver
             // Because I have only replaced chars with single chars,
             // _lastEmitIn will still be ok
 
-            if (_buf[ _lastEmitIn + _lastEmitCch - 1 ] == '-')
-                i = replace( _lastEmitIn + _lastEmitCch - 1, " " );
+            int offset = (_lastEmitIn + _lastEmitCch - 1) % _buf.length;
+            if (_buf[ offset ] == '-')
+                i = replace( offset, " " );
         }
 
         private void entitizeProcinst ( )
