@@ -26,19 +26,16 @@ import org.apache.xmlbeans.impl.tool.SchemaCodeGenerator;
 import org.apache.xmlbeans.impl.tool.Diff;
 import org.apache.xmlbeans.impl.xb.xsdschema.SchemaDocument;
 import org.apache.xmlbeans.impl.xb.xsdschema.TopLevelComplexType;
+import org.apache.xmlbeans.impl.util.FilerImpl;
 import org.apache.xmlbeans.*;
 
-import java.io.File;
-import java.io.StringWriter;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Arrays;
-import java.util.Collections;
+import java.io.*;
+import java.util.*;
 
-import tools.util.TestRunUtil;
+//import tools.util.TestRunUtil;
 import compile.scomp.common.CompileCommon;
 import compile.scomp.common.CompileTestBase;
+import compile.scomp.common.mockobj.TestFiler;
 
 import javax.xml.namespace.QName;
 
@@ -268,6 +265,169 @@ public class IncrCompilationTests extends CompileTestBase {
         compareandPopErrors(out, outincr, errors);
         handleErrors(errors);
     }
+
+    // test regeneration of generated java files by the Filer
+    public void test_schemaFilesRegeneration_01() throws Exception {
+
+        // incremental compile with the same file again. There should be no regeneration of src files
+        XmlObject obj1 = XmlObject.Factory.parse(schemaFilesRegeneration_schema1);
+        XmlObject obj2 = XmlObject.Factory.parse(schemaFilesRegeneration_schema1);
+
+        XmlObject[] schemas = new XmlObject[]{obj1};
+        XmlObject[] schemas2 = new XmlObject[]{obj2};
+
+        // the source name should be set the same for incremental compile
+        schemas[0].documentProperties().setSourceName("obj1");
+        schemas2[0].documentProperties().setSourceName("obj1");
+
+        // create a new filer here with the incrCompile flag value set to 'true'
+        Filer filer = new FilerImpl(out, out, null, true, true);
+        SchemaTypeSystem base = XmlBeans.compileXmlBeans("teststs",null,schemas,null,builtin,filer,xm);
+        Assert.assertNotNull("Compilation failed during Incremental Compile.", base);
+        base.saveToDirectory(out);
+
+        // get timestamps for first compile
+        HashMap initialTimeStamps = new HashMap();
+        recordTimeStamps(out, initialTimeStamps);
+
+        // the incr compile - provide the same name for the STS as the initial compile
+        // note: providing a null or different name results in regeneration of generated Interface java src files
+        HashMap recompileTimeStamps = new HashMap();
+        Filer filer2 = new FilerImpl(out, out, null, true, true);
+        SchemaTypeSystem incr = XmlBeans.compileXmlBeans("teststs",base,schemas2,null,builtin,filer2,xm);
+        Assert.assertNotNull("Compilation failed during Incremental Compile.", incr);
+        incr.saveToDirectory(out);
+        recordTimeStamps(out, recompileTimeStamps);
+
+        // compare generated source timestamps here
+        assertEquals("Number of Files not equal for Incremental Schema Compilation using Filer",initialTimeStamps.size(), recompileTimeStamps.size());
+        Set keyset = initialTimeStamps.keySet();
+        for (Iterator iterator = keyset.iterator(); iterator.hasNext();) {
+            String eachFile = (String) iterator.next();
+            assertEquals("Mismatch for File " + eachFile,initialTimeStamps.get(eachFile),recompileTimeStamps.get(eachFile));
+        }
+
+        handleErrors(errors);
+    }
+
+
+    public void test_schemaFilesRegeneration_02() throws Exception {
+        // incremental compile with the changes. Specific files should be regenerated
+        XmlObject obj1 = XmlObject.Factory.parse(schemaFilesRegeneration_schema1);
+        XmlObject obj2 = XmlObject.Factory.parse(schemaFilesRegeneration_schema1_modified);
+
+        XmlObject[] schemas = new XmlObject[]{obj1};
+        XmlObject[] schemas2 = new XmlObject[]{obj2};
+
+        // the source name should be set the same for incremental compile
+        schemas[0].documentProperties().setSourceName("obj1");
+        schemas2[0].documentProperties().setSourceName("obj1");
+
+        // create a new filer here with the incrCompile flag value set to 'true'
+        Filer filer = new FilerImpl(out, out, null, true, true);
+        SchemaTypeSystem base = XmlBeans.compileXmlBeans("test",null,schemas,null,builtin,filer,xm);
+        Assert.assertNotNull("Compilation failed during Incremental Compile.", base);
+        base.saveToDirectory(out);
+
+        // get timestamps for first compile
+        HashMap initialTimeStamps = new HashMap();
+        recordTimeStamps(out, initialTimeStamps);
+
+        // the incr compile
+        HashMap recompileTimeStamps = new HashMap();
+        Filer filer2 = new FilerImpl(out, out, null, true, true);
+        SchemaTypeSystem incr = XmlBeans.compileXmlBeans("test",base,schemas2,null,builtin,filer2,xm);
+        Assert.assertNotNull("Compilation failed during Incremental Compile.", incr);
+        incr.saveToDirectory(out);
+        recordTimeStamps(out, recompileTimeStamps);
+
+        // compare generated source timestamps here
+        assertEquals("Number of Files not equal for Incremental Schema Compilation using Filer",initialTimeStamps.size(), recompileTimeStamps.size());
+        Set keyset = initialTimeStamps.keySet();
+
+        // Atype has been modified, BType has been removed
+        String modifiedFileName = out.getCanonicalFile() + "\\org\\openuri\\impl\\ATypeImpl.java";
+        String modifiedFileName2 = out.getCanonicalFile() + "\\org\\openuri\\AType.java";
+
+        for (Iterator iterator = keyset.iterator(); iterator.hasNext();) {
+            String eachFile = (String) iterator.next();
+
+            if(eachFile.equalsIgnoreCase(modifiedFileName)){
+                assertNotSame("File Should have been regenerated by Filer but has the same timestamp",initialTimeStamps.get(eachFile),recompileTimeStamps.get(eachFile));
+                continue;
+            }
+            if(eachFile.equalsIgnoreCase(modifiedFileName2)){
+                assertNotSame("File Should have been regenerated by Filer but has the same timestamp",initialTimeStamps.get(eachFile),recompileTimeStamps.get(eachFile));
+                continue;
+            }
+            assertEquals("Mismatch for File " + eachFile,initialTimeStamps.get(eachFile),recompileTimeStamps.get(eachFile));
+        }
+
+        handleErrors(errors);
+    }
+
+    public boolean recordTimeStamps(File inputDir, HashMap timeStampResults) throws Exception
+    {
+        if (timeStampResults == null){
+            return false;
+        }
+
+        if(inputDir == null)
+            return false;
+        if(!inputDir.exists())
+            return false;
+        if(inputDir.isFile())
+        {
+            //System.out.println("File:" + inputDir.getCanonicalPath() + "\t:" + inputDir.lastModified());
+            return true;
+        }
+
+        File[] child  = inputDir.listFiles();
+        for(int i=0;i<child.length;i++)
+        {
+            //System.out.println("Dir :"+ child[i].getCanonicalPath() + "\t:" + child[i].lastModified());
+            if(child[i].getName().endsWith(".java")){
+                timeStampResults.put(child[i].getCanonicalPath(),new Long(child[i].lastModified()));
+            }
+            recordTimeStamps(child[i], timeStampResults);
+        }
+
+        return true;
+    }
+
+    private static String schemaFilesRegeneration_schema1 = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
+                    "<xs:schema " +
+                    "attributeFormDefault=\"unqualified\" elementFormDefault=\"qualified\" " +
+                    "targetNamespace=\"http://openuri.org\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" >" +
+                    "<xs:element name=\"TestElement\" type=\"bas:aType\" xmlns:bas=\"http://openuri.org\" />" +
+                    "<xs:element name=\"NewTestElement\" type=\"bas:bType\" xmlns:bas=\"http://openuri.org\" />" +
+                    "<xs:complexType name=\"aType\">" +
+                    "<xs:simpleContent>" +
+                    "<xs:extension base=\"xs:string\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" >" +
+                    "<xs:attribute type=\"xs:string\" name=\"stringAttr\" />" +
+                    "</xs:extension>" +
+                    "</xs:simpleContent>" +
+                    "</xs:complexType>" +
+                    "<xs:complexType name=\"bType\">" +
+                    "<xs:simpleContent>" +
+                    "<xs:extension base=\"xs:integer\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" >" +
+                    "</xs:extension>" +
+                    "</xs:simpleContent>" +
+                    "</xs:complexType>" +
+                    "</xs:schema>";
+
+    private static String schemaFilesRegeneration_schema1_modified = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +                    "<xs:schema " +
+                    "attributeFormDefault=\"unqualified\" elementFormDefault=\"qualified\" " +
+                    "targetNamespace=\"http://openuri.org\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" >" +
+                    "<xs:element name=\"TestElement\" type=\"bas:aType\" xmlns:bas=\"http://openuri.org\" />" +
+                    "<xs:complexType name=\"aType\">" +
+                    "<xs:simpleContent>" +
+                    "<xs:extension base=\"xs:string\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" >" +
+                    "<xs:attribute type=\"xs:token\" name=\"tokenAttr\" />" +
+                    "</xs:extension>" +
+                    "</xs:simpleContent>" +
+                    "</xs:complexType>" +
+                    "</xs:schema>";
 
 
 }

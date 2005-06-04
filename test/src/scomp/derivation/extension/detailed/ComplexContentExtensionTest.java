@@ -22,6 +22,8 @@ import xbean.scomp.derivation.complexExtension.SequenceExtensionT;
 
 import java.math.BigInteger;
 import java.util.Iterator;
+import java.util.List;
+import java.util.ArrayList;
 
 import org.apache.xmlbeans.*;
 
@@ -177,26 +179,36 @@ public class ComplexContentExtensionTest extends BaseCase {
                 "    </xsd:complexType>    \n" +
                 "\n" +
                 "    </xsd:schema>";
+
+        XmlOptions options = new XmlOptions();
+        List errors = new ArrayList();
+        options.setErrorListener(errors);
+
         try {
             XmlObject xobj = XmlObject.Factory.parse(inputXsd);
             XmlObject[] compInput = new XmlObject[]{xobj};
-            XmlBeans.compileXmlBeans(null, null, compInput, null, XmlBeans.getBuiltinTypeSystem(), null, null);
+            XmlBeans.compileXmlBeans(null, null, compInput, null, XmlBeans.getBuiltinTypeSystem(), null, options);
         }
         catch (XmlException xme) {
-            assertEquals(2, xme.getErrors().size());
-
-            Iterator itr = xme.getErrors().iterator();
-            XmlError eacherr = (XmlError) itr.next();
-            System.out.println("Err:" + eacherr.getMessage() + "," + eacherr.getErrorCode());
-            assertNotNull(eacherr.getErrorCode());
-            assertEquals(XmlErrorCodes.COMPLEX_TYPE_EXTENSION$FINAL, eacherr.getErrorCode());
-
-            eacherr = (XmlError) itr.next();
-            System.out.println("Err:" + eacherr.getMessage());
-            assertNotNull(eacherr.getErrorCode());
-            assertEquals(XmlErrorCodes.COMPLEX_TYPE_RESTRICTION$FINAL, eacherr.getErrorCode());
-
+            // The convention is that the XmlException that gets thrown form XmlBeans.compile* methods always contains
+            // just the first error and if you need to see all errors you use XmlOptions.
+            // hence checking for error codes is now done with XmlOptions.
+            assertEquals(1, xme.getErrors().size());
         }
+
+        assertEquals(2, errors.size());
+
+        Iterator itr = errors.iterator();
+        XmlError eacherr = (XmlError) itr.next();
+        System.out.println("Err:" + eacherr.getMessage() + "," + eacherr.getErrorCode());
+        assertNotNull(eacherr.getErrorCode());
+        assertEquals(XmlErrorCodes.COMPLEX_TYPE_EXTENSION$FINAL, eacherr.getErrorCode());
+
+        eacherr = (XmlError) itr.next();
+        System.out.println("Err:" + eacherr.getMessage());
+        assertNotNull(eacherr.getErrorCode());
+        assertEquals(XmlErrorCodes.COMPLEX_TYPE_RESTRICTION$FINAL, eacherr.getErrorCode());
+
     }
 
     public void testFinalExtension() {
@@ -301,25 +313,35 @@ public class ComplexContentExtensionTest extends BaseCase {
                 "\n" +
                 "    </xsd:schema>";
 
+        XmlOptions options = new XmlOptions();
+        List errors = new ArrayList();
+        options.setErrorListener(errors);
+
         try {
             XmlObject xobj = XmlObject.Factory.parse(inputXsd);
             XmlObject[] compInput = new XmlObject[]{xobj};
-            XmlBeans.compileXmlBeans(null, null, compInput, null, XmlBeans.getBuiltinTypeSystem(), null, null);
+            XmlBeans.compileXmlBeans(null, null, compInput, null, XmlBeans.getBuiltinTypeSystem(), null, options);
         }
         catch (XmlException xme) {
-            assertEquals(2, xme.getErrors().size());
-
-            Iterator itr = xme.getErrors().iterator();
-            XmlError eacherr = (XmlError) itr.next();
-            System.out.println("Err:" + eacherr.getMessage() + "," + eacherr.getErrorCode());
-            assertNotNull(eacherr.getErrorCode());
-            assertEquals(XmlErrorCodes.COMPLEX_TYPE_EXTENSION$FINAL, eacherr.getErrorCode());
-
-            eacherr = (XmlError) itr.next();
-            System.out.println("Err:" + eacherr.getMessage());
-            assertNotNull(eacherr.getErrorCode());
-            assertEquals(XmlErrorCodes.COMPLEX_TYPE_RESTRICTION$FINAL, eacherr.getErrorCode());
+            // The convention is that the XmlException that gets thrown form XmlBeans.compile* methods always contains
+            // just the first error and if you need to see all errors you use XmlOptions.
+            // hence checking for error codes is now done with XmlOptions.
+            assertEquals(1, xme.getErrors().size());
         }
+
+        assertEquals(2, errors.size());
+
+        Iterator itr = errors.iterator();
+        XmlError eacherr = (XmlError) itr.next();
+        System.out.println("Err:" + eacherr.getMessage() + "," + eacherr.getErrorCode());
+        assertNotNull(eacherr.getErrorCode());
+        assertEquals(XmlErrorCodes.COMPLEX_TYPE_EXTENSION$FINAL, eacherr.getErrorCode());
+
+        eacherr = (XmlError) itr.next();
+        System.out.println("Err:" + eacherr.getMessage());
+        assertNotNull(eacherr.getErrorCode());
+        assertEquals(XmlErrorCodes.COMPLEX_TYPE_RESTRICTION$FINAL, eacherr.getErrorCode());
+
     }
 
 }
