@@ -33,11 +33,12 @@ import java.util.ArrayList;
  */
 public class CompileTestBase extends CompileCommon {
 
-    public static String outputDir = OUTPUTROOT+P+"compile" + P + "scomp" + P + "incr";
-    public static String outPath = P + outputDir + P + "out";
+    public static String outputDir = "compile" + P + "scomp" + P + "incr";
+    public static String outPath = "compile" + P + "scomp" + P + "incr" + P + "out";
 
-    public static String sanityPath = P + outputDir + P + "sanity";
-    public static String incrPath = P + outputDir + P + "outincr";
+    public static String sanityPath = "compile" + P + "scomp" + P + "incr"+ P + "sanity";
+    public static String incrPath = "compile" + P + "scomp" + P + "incr" + P + "outincr";
+
 
     public SchemaTypeSystem builtin = XmlBeans.getBuiltinTypeSystem();
     public File out;
