@@ -219,10 +219,18 @@ final class Cur
 
     static Xobj createDomDocumentRootXobj ( Locale l )
     {
+        return createDomDocumentRootXobj(l, false);
+    }
+
+    static Xobj createDomDocumentRootXobj ( Locale l , boolean fragment)
+    {
         Xobj xo;
 
         if (l._saaj == null)
-            xo = new Xobj.DocumentXobj( l );
+            if (fragment)
+                xo = new Xobj.DocumentFragXobj( l );
+            else
+                xo = new Xobj.DocumentXobj( l );
         else
             xo = new Xobj.SoapPartDocXobj( l );
 
@@ -419,14 +427,14 @@ final class Cur
 
         assert x == null || _locale == x._locale;
         assert x != null || p == NO_POS;
-        assert x == null || x.isNormal( p );
+        assert x == null || x.isNormal( p ) ||  ( x.isVacant() && x._cchValue==0 && x._user == null );
         assert _state == REGISTERED || _state == EMBEDDED;
         assert _state == EMBEDDED || (_xobj == null || !isOnList( _xobj._embedded ));
         assert _state == REGISTERED || (_xobj != null && isOnList( _xobj._embedded ));
 
         moveToNoCheck( x, p );
 
-        assert isNormal();
+        assert isNormal() ||  ( _xobj.isVacant() && _xobj._cchValue==0 && _xobj._user == null );
     }
 
     void moveToNoCheck ( Xobj x, int p )
@@ -1967,7 +1975,7 @@ final class Cur
 
     void moveNodeContents ( Cur to, boolean moveAttrs )
     {
-        assert isNode();
+        assert _pos==0;
         assert to == null || !to.isRoot();
 
         // By calling this helper, I do not have to deal with this Cur any longer.  Basically,
@@ -3203,6 +3211,15 @@ final class Cur
                                 break;
                         }
                     }
+
+                    c.moveTo(_frontier);
+                    _frontier = createDomDocumentRootXobj( _locale, true );
+
+                    Cur c2 = _frontier.tempCur();
+                    c2.next();
+                    c.moveNodeContents(c2, true);
+                    c.moveTo(_frontier);
+                    c2.release();
                 }
             }
 

@@ -66,7 +66,9 @@
     <target name="deploy" depends="xbean"/>
 
     <target name="sources" depends="dirs">
-        <zip destfile="build/ar/xbeansrc.zip" basedir="." excludes="build/**"/>
+        <zip destfile="build/ar/xbeansrc.zip"
+          basedir="."
+          excludes="build/**, test/perf/**"/>
     </target>
 
     <property environment="env"/>
@@ -88,7 +90,7 @@
 
     <target name="saxon8.jar" depends="check.saxon8.jar, dirs"
         unless="saxon8.jar.exists">
-	<!-- other saxon urls 
+	<!-- other saxon urls
 		http://voxel.dl.sourceforge.net/sourceforge/saxon/saxonb8-1.zip
 	-->
         <get dest="external/lib/saxonb8-1.zip"
@@ -334,7 +336,7 @@
         <copy todir="build/private/xmlbeans-${version.base}/docs">
             <fileset dir="build/docs"/>
         </copy>
-        
+
         <mkdir dir="build/private/xmlbeans-${version.base}/samples"/>
         <copy todir="build/private/xmlbeans-${version.base}/samples">
             <fileset dir="samples">
@@ -911,7 +913,7 @@
     <target name="xbean_xpath.jar" depends="dirs, xpath.classes">
         <jar jarfile="build/lib/xbean_xpath.jar" basedir="build/classes/xpath_xquery"/>
     </target>
- 
+
     <!-- TEST Targets ===================================================== -->
     <!-- All targets hook up into testbuild.xml -->
     <property name="testbuild.file" value="testbuild.xml"/>
@@ -1038,7 +1040,7 @@
 
         <delete dir="build/classes/jam"/>
         <mkdir dir="build/classes/jam"/>
-        <javac 
+        <javac
             destdir="build/classes/jam"
             source="1.4" target="1.4"
             debug="on">
