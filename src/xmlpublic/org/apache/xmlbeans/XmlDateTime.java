@@ -27,9 +27,13 @@ import java.util.Calendar;
  * <a target="_blank" href="http://www.w3.org/TR/xmlschema-2/#dateTime">xs:dateTime</a> type.
  * <p>
  * Convertible to {@link Calendar}, {@link Date}, and {@link GDate}.
- * 
+ *
+ * <p>
+ * The XmlDateTime class only encapsulates a schema DateTime value, if you need to perform operations
+ * on dates, see the GDate class
  * @see XmlCalendar
  * @see GDate
+ * @see GDuration
  */ 
 public interface XmlDateTime extends XmlAnySimpleType
 {
