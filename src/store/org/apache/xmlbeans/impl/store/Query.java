@@ -128,7 +128,8 @@ public abstract class Query
             return (Query) _xqrlCompileQuery.invoke(null, args);
         }
         catch (InvocationTargetException e) {
-            throw new RuntimeException(e.getMessage(), e);
+            Throwable t = e.getCause();
+            throw new RuntimeException(t.getMessage(), t);
         }
         catch (IllegalAccessException e) {
             throw new RuntimeException(e.getMessage(), e);

@@ -240,7 +240,8 @@ public abstract class Path
             return (Path) _xqrlCompilePath.invoke(null, args);
         }
         catch (InvocationTargetException e) {
-            throw new RuntimeException(e.getMessage(), e);
+            Throwable t = e.getCause();
+            throw new RuntimeException(t.getMessage(), t);
         }
         catch (IllegalAccessException e) {
             throw new RuntimeException(e.getMessage(), e);

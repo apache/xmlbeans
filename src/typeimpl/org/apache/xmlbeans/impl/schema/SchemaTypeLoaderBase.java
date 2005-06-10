@@ -91,8 +91,8 @@ public abstract class SchemaTypeLoaderBase implements SchemaTypeLoader
         }
         catch ( InvocationTargetException e )
         {
-            IllegalStateException ise = new IllegalStateException( e.getCause().getMessage() );
-            ise.initCause( e );
+            Throwable t = e.getCause();
+            IllegalStateException ise = new IllegalStateException( t.getMessage(), t );
             throw ise;
         }
         catch ( Exception e )
@@ -103,8 +103,15 @@ public abstract class SchemaTypeLoaderBase implements SchemaTypeLoader
         }
     }
 
-    private static String doCompilePath ( String pathExpr, XmlOptions options ) { return (String) invokeMethod( _pathCompiler, new Object[] { pathExpr, options } ); }
-    private static String doCompileQuery ( String queryExpr, XmlOptions options ) { return (String) invokeMethod( _queryCompiler, new Object[] { queryExpr, options } ); }
+    private static String doCompilePath ( String pathExpr, XmlOptions options )
+    {
+        return (String) invokeMethod( _pathCompiler, new Object[] { pathExpr, options } );
+    }
+
+    private static String doCompileQuery ( String queryExpr, XmlOptions options )
+    {
+        return (String) invokeMethod( _queryCompiler, new Object[] { queryExpr, options } );
+    }
 
     public SchemaType findType(QName name)
     {
