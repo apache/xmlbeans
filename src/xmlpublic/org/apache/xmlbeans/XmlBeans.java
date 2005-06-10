@@ -330,7 +330,8 @@ public final class XmlBeans
         }
         catch (InvocationTargetException e)
         {
-            throw causedException(new IllegalStateException(e.getMessage()), e.getCause());
+            Throwable t = e.getCause();
+            throw new IllegalStateException(t.getMessage(), t);
         }
     }
 
@@ -350,7 +351,8 @@ public final class XmlBeans
         }
         catch (InvocationTargetException e)
         {
-            throw causedException(new IllegalStateException(e.getMessage()), e.getCause());
+            Throwable t = e.getCause();
+            throw new IllegalStateException(t.getMessage(), t);
         }
     }
 
@@ -371,7 +373,8 @@ public final class XmlBeans
         }
         catch ( InvocationTargetException e )
         {
-            throw causedException( new IllegalStateException( e.getMessage() ), e.getCause() );
+            Throwable t = e.getCause();
+            throw new IllegalStateException(t.getMessage(), t);
         }
     }
 
@@ -392,7 +395,8 @@ public final class XmlBeans
         }
         catch ( InvocationTargetException e )
         {
-            throw causedException( new IllegalStateException( e.getMessage() ), e.getCause() );
+            Throwable t = e.getCause();
+            throw new IllegalStateException(t.getMessage(), t);
         }
     }
 
@@ -413,7 +417,8 @@ public final class XmlBeans
         }
         catch ( InvocationTargetException e )
         {
-            throw causedException( new IllegalStateException( e.getMessage() ), e.getCause() );
+            Throwable t = e.getCause();
+            throw new IllegalStateException(t.getMessage(), t);
         }
     }
 
@@ -434,7 +439,8 @@ public final class XmlBeans
         }
         catch ( InvocationTargetException e )
         {
-            throw causedException( new IllegalStateException( e.getMessage() ), e.getCause() );
+            Throwable t = e.getCause();
+            throw new IllegalStateException(t.getMessage(), t);
         }
     }
 
@@ -677,7 +683,8 @@ public final class XmlBeans
         }
         catch (InvocationTargetException e)
         {
-            throw causedException(new IllegalStateException(e.getMessage()), e.getCause());
+            Throwable t = e.getCause();
+            throw new IllegalStateException(t.getMessage(), t);
         }
     }
 
@@ -697,7 +704,8 @@ public final class XmlBeans
         }
         catch (InvocationTargetException e)
         {
-            throw causedException( new IllegalStateException(e.getMessage()), e );
+            Throwable t = e.getCause();
+            throw new IllegalStateException(t.getMessage(), t);
         }
     }
     
@@ -719,7 +727,8 @@ public final class XmlBeans
         }
         catch (InvocationTargetException e)
         {
-            throw causedException(new IllegalStateException(e.getMessage()), e);
+            Throwable t = e.getCause();
+            throw new IllegalStateException(t.getMessage(), t);
         }
     }
 
@@ -743,7 +752,8 @@ public final class XmlBeans
         }
         catch (InvocationTargetException e)
         {
-            throw causedException(new IllegalStateException(e.getMessage()), e);
+            Throwable t = e.getCause();
+            throw new IllegalStateException(t.getMessage(), t);
         }
     }
     
@@ -783,7 +793,8 @@ public final class XmlBeans
         }
         catch (InvocationTargetException e)
         {
-            throw causedException(new IllegalStateException(e.getMessage()), e.getCause());
+            Throwable t = e.getCause();
+            throw new IllegalStateException(t.getMessage(), t);
         }
     }
 
