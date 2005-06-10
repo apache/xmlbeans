@@ -331,7 +331,9 @@ public final class XmlBeans
         catch (InvocationTargetException e)
         {
             Throwable t = e.getCause();
-            throw new IllegalStateException(t.getMessage(), t);
+            IllegalStateException ise = new IllegalStateException(t.getMessage());
+            ise.initCause(t); // use initCause() to support Java 1.4
+            throw ise;
         }
     }
 
@@ -352,7 +354,9 @@ public final class XmlBeans
         catch (InvocationTargetException e)
         {
             Throwable t = e.getCause();
-            throw new IllegalStateException(t.getMessage(), t);
+            IllegalStateException ise = new IllegalStateException(t.getMessage());
+            ise.initCause(t); // use initCause() to support Java 1.4
+            throw ise;
         }
     }
 
@@ -374,7 +378,9 @@ public final class XmlBeans
         catch ( InvocationTargetException e )
         {
             Throwable t = e.getCause();
-            throw new IllegalStateException(t.getMessage(), t);
+            IllegalStateException ise = new IllegalStateException(t.getMessage());
+            ise.initCause(t); // use initCause() to support Java 1.4
+            throw ise;
         }
     }
 
@@ -396,7 +402,9 @@ public final class XmlBeans
         catch ( InvocationTargetException e )
         {
             Throwable t = e.getCause();
-            throw new IllegalStateException(t.getMessage(), t);
+            IllegalStateException ise = new IllegalStateException(t.getMessage());
+            ise.initCause(t); // use initCause() to support Java 1.4
+            throw ise;
         }
     }
 
@@ -418,7 +426,9 @@ public final class XmlBeans
         catch ( InvocationTargetException e )
         {
             Throwable t = e.getCause();
-            throw new IllegalStateException(t.getMessage(), t);
+            IllegalStateException ise = new IllegalStateException(t.getMessage());
+            ise.initCause(t); // use initCause() to support Java 1.4
+            throw ise;
         }
     }
 
@@ -440,7 +450,9 @@ public final class XmlBeans
         catch ( InvocationTargetException e )
         {
             Throwable t = e.getCause();
-            throw new IllegalStateException(t.getMessage(), t);
+            IllegalStateException ise = new IllegalStateException(t.getMessage());
+            ise.initCause(t); // use initCause() to support Java 1.4
+            throw ise;
         }
     }
 
@@ -684,7 +696,9 @@ public final class XmlBeans
         catch (InvocationTargetException e)
         {
             Throwable t = e.getCause();
-            throw new IllegalStateException(t.getMessage(), t);
+            IllegalStateException ise = new IllegalStateException(t.getMessage());
+            ise.initCause(t); // use initCause() to support Java 1.4
+            throw ise;
         }
     }
 
@@ -705,7 +719,9 @@ public final class XmlBeans
         catch (InvocationTargetException e)
         {
             Throwable t = e.getCause();
-            throw new IllegalStateException(t.getMessage(), t);
+            IllegalStateException ise = new IllegalStateException(t.getMessage());
+            ise.initCause(t); // use initCause() to support Java 1.4
+            throw ise;
         }
     }
     
@@ -728,7 +744,9 @@ public final class XmlBeans
         catch (InvocationTargetException e)
         {
             Throwable t = e.getCause();
-            throw new IllegalStateException(t.getMessage(), t);
+            IllegalStateException ise = new IllegalStateException(t.getMessage());
+            ise.initCause(t); // use initCause() to support Java 1.4
+            throw ise;
         }
     }
 
@@ -753,7 +771,9 @@ public final class XmlBeans
         catch (InvocationTargetException e)
         {
             Throwable t = e.getCause();
-            throw new IllegalStateException(t.getMessage(), t);
+            IllegalStateException ise = new IllegalStateException(t.getMessage());
+            ise.initCause(t); // use initCause() to support Java 1.4
+            throw ise;
         }
     }
     
@@ -794,7 +814,9 @@ public final class XmlBeans
         catch (InvocationTargetException e)
         {
             Throwable t = e.getCause();
-            throw new IllegalStateException(t.getMessage(), t);
+            IllegalStateException ise = new IllegalStateException(t.getMessage());
+            ise.initCause(t); // use initCause() to support Java 1.4
+            throw ise;
         }
     }
 

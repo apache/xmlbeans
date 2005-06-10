@@ -92,7 +92,8 @@ public abstract class SchemaTypeLoaderBase implements SchemaTypeLoader
         catch ( InvocationTargetException e )
         {
             Throwable t = e.getCause();
-            IllegalStateException ise = new IllegalStateException( t.getMessage(), t );
+            IllegalStateException ise = new IllegalStateException( t.getMessage() );
+            ise.initCause( t ); // need initCause() to support Java1.4
             throw ise;
         }
         catch ( Exception e )
