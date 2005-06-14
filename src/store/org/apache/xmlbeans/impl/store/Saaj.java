@@ -20,23 +20,23 @@ import javax.xml.namespace.QName;
 import java.util.Iterator;
 import java.util.Locale;
 
-import javax.xml.soap.Detail;
-import javax.xml.soap.DetailEntry;
-import javax.xml.soap.MimeHeaders;
-import javax.xml.soap.Name;
-import javax.xml.soap.SOAPBody;
-import javax.xml.soap.SOAPBodyElement;
-import javax.xml.soap.SOAPElement;
-import javax.xml.soap.SOAPEnvelope;
-import javax.xml.soap.SOAPException;
-import javax.xml.soap.SOAPFactory;
-import javax.xml.soap.SOAPFault;
-import javax.xml.soap.SOAPHeader;
-import javax.xml.soap.SOAPHeaderElement;
-import javax.xml.soap.SOAPPart;
 
 import javax.xml.transform.Source;
 
+import org.apache.xmlbeans.impl.soap.Detail;
+import org.apache.xmlbeans.impl.soap.DetailEntry;
+import org.apache.xmlbeans.impl.soap.MimeHeaders;
+import org.apache.xmlbeans.impl.soap.Name;
+import org.apache.xmlbeans.impl.soap.SOAPBody;
+import org.apache.xmlbeans.impl.soap.SOAPBodyElement;
+import org.apache.xmlbeans.impl.soap.SOAPElement;
+import org.apache.xmlbeans.impl.soap.SOAPEnvelope;
+import org.apache.xmlbeans.impl.soap.SOAPException;
+import org.apache.xmlbeans.impl.soap.SOAPFactory;
+import org.apache.xmlbeans.impl.soap.SOAPFault;
+import org.apache.xmlbeans.impl.soap.SOAPHeader;
+import org.apache.xmlbeans.impl.soap.SOAPHeaderElement;
+import org.apache.xmlbeans.impl.soap.SOAPPart;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.Element;
@@ -62,12 +62,12 @@ public interface Saaj
 
     Class identifyElement ( QName name, QName parentName );
     
-    void        soapNode_detachNode       ( javax.xml.soap.Node soapNode );
-    void        soapNode_recycleNode      ( javax.xml.soap.Node node );
-    String      soapNode_getValue         ( javax.xml.soap.Node node );
-    void        soapNode_setValue         ( javax.xml.soap.Node node, String value );
-    SOAPElement soapNode_getParentElement ( javax.xml.soap.Node node );
-    void        soapNode_setParentElement ( javax.xml.soap.Node node, SOAPElement soapElement );
+    void        soapNode_detachNode       ( org.apache.xmlbeans.impl.soap.Node soapNode );
+    void        soapNode_recycleNode      ( org.apache.xmlbeans.impl.soap.Node node );
+    String      soapNode_getValue         ( org.apache.xmlbeans.impl.soap.Node node );
+    void        soapNode_setValue         ( org.apache.xmlbeans.impl.soap.Node node, String value );
+    SOAPElement soapNode_getParentElement ( org.apache.xmlbeans.impl.soap.Node node );
+    void        soapNode_setParentElement ( org.apache.xmlbeans.impl.soap.Node node, SOAPElement soapElement );
 
     void        soapElement_removeContents              ( SOAPElement soapElement );
     String      soapElement_getEncodingStyle            ( SOAPElement soapElement );
@@ -143,7 +143,7 @@ public interface Saaj
     void    soapHeaderElement_setActor          ( SOAPHeaderElement soapHeaderElement, String actor );
     String  soapHeaderElement_getActor          ( SOAPHeaderElement soapHeaderElement );
 
-    boolean soapText_isComment ( javax.xml.soap.Text text );
+    boolean soapText_isComment ( org.apache.xmlbeans.impl.soap.Text text );
 
     DetailEntry detail_addDetailEntry   ( Detail detail, Name name );
     Iterator    detail_getDetailEntries ( Detail detail );

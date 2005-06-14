@@ -13,7 +13,7 @@
  *  limitations under the License.
  */
 
-package javax.xml.soap;
+package org.apache.xmlbeans.impl.soap;
 
 /** The definition of constants pertaining to the SOAP 1.1 protocol. */
 public interface SOAPConstants {

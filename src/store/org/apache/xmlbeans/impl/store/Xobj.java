@@ -38,21 +38,6 @@ import org.w3c.dom.UserDataHandler;
 import org.w3c.dom.DOMConfiguration;
 import org.w3c.dom.TypeInfo;
 
-import javax.xml.soap.Detail;
-import javax.xml.soap.DetailEntry;
-import javax.xml.soap.MimeHeaders;
-import javax.xml.soap.Name;
-import javax.xml.soap.SOAPBody;
-import javax.xml.soap.SOAPBodyElement;
-import javax.xml.soap.SOAPElement;
-import javax.xml.soap.SOAPEnvelope;
-import javax.xml.soap.SOAPException;
-import javax.xml.soap.SOAPFactory;
-import javax.xml.soap.SOAPFault;
-import javax.xml.soap.SOAPHeader;
-import javax.xml.soap.SOAPHeaderElement;
-import javax.xml.soap.SOAPPart;
-import javax.xml.soap.SOAPFaultElement;
 
 import javax.xml.transform.Source;
 
@@ -63,6 +48,21 @@ import java.util.Map;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.xmlbeans.impl.soap.Detail;
+import org.apache.xmlbeans.impl.soap.DetailEntry;
+import org.apache.xmlbeans.impl.soap.MimeHeaders;
+import org.apache.xmlbeans.impl.soap.Name;
+import org.apache.xmlbeans.impl.soap.SOAPBody;
+import org.apache.xmlbeans.impl.soap.SOAPBodyElement;
+import org.apache.xmlbeans.impl.soap.SOAPElement;
+import org.apache.xmlbeans.impl.soap.SOAPEnvelope;
+import org.apache.xmlbeans.impl.soap.SOAPException;
+import org.apache.xmlbeans.impl.soap.SOAPFactory;
+import org.apache.xmlbeans.impl.soap.SOAPFault;
+import org.apache.xmlbeans.impl.soap.SOAPFaultElement;
+import org.apache.xmlbeans.impl.soap.SOAPHeader;
+import org.apache.xmlbeans.impl.soap.SOAPHeaderElement;
+import org.apache.xmlbeans.impl.soap.SOAPPart;
 import org.apache.xmlbeans.impl.store.Locale.LoadContext;
 
 import org.apache.xmlbeans.impl.store.DomImpl.Dom;
@@ -2802,7 +2802,7 @@ abstract class Xobj implements TypeStore
     }
 
     static class SoapElementXobj
-        extends ElementXobj implements SOAPElement, javax.xml.soap.Node
+        extends ElementXobj implements SOAPElement, org.apache.xmlbeans.impl.soap.Node
     {
         SoapElementXobj ( Locale l, QName name ) { super( l, name ); }
 

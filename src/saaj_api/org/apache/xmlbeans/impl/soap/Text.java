@@ -13,14 +13,20 @@
  *  limitations under the License.
  */
 
-package javax.xml.soap;
+package org.apache.xmlbeans.impl.soap;
 
 /**
- * A representation of the contents in
- * a <code>SOAPFault</code> object.  The <code>Detail</code> interface
- * is a <code>SOAPFaultElement</code> object that has been defined.
- * <p>
- * Content is added to a <code>SOAPFaultElement</code> using the
- * <code>SOAPElement</code> method <code>addTextNode</code>.
+ * A representation of a node whose value is text. A <CODE>
+ *   Text</CODE> object may represent text that is content or text
+ *   that is a comment.
  */
-public interface SOAPFaultElement extends SOAPElement {}
+public interface Text extends Node, org.w3c.dom.Text {
+
+    /**
+     * Retrieves whether this <CODE>Text</CODE> object
+     * represents a comment.
+     * @return  <CODE>true</CODE> if this <CODE>Text</CODE> object is
+     *     a comment; <CODE>false</CODE> otherwise
+     */
+    public abstract boolean isComment();
+}
