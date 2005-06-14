@@ -13,7 +13,7 @@
  *  limitations under the License.
  */
 
-package javax.xml.soap;
+package org.apache.xmlbeans.impl.soap;
 
 /**
  * A representation of an XML name.  This interface provides methods for

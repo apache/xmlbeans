@@ -13,20 +13,13 @@
  *  limitations under the License.
  */
 
-package javax.xml.soap;
+package org.apache.xmlbeans.impl.soap;
 
 /**
- * A representation of a node whose value is text. A <CODE>
- *   Text</CODE> object may represent text that is content or text
- *   that is a comment.
+ * The content for a <code>Detail</code> object, giving details for
+ * a <code>SOAPFault</code> object.  A <code>DetailEntry</code> object,
+ * which carries information about errors related to the <code>SOAPBody</code>
+ * object that contains it, is application-specific.
+ * <P>
  */
-public interface Text extends Node, org.w3c.dom.Text {
-
-    /**
-     * Retrieves whether this <CODE>Text</CODE> object
-     * represents a comment.
-     * @return  <CODE>true</CODE> if this <CODE>Text</CODE> object is
-     *     a comment; <CODE>false</CODE> otherwise
-     */
-    public abstract boolean isComment();
-}
+public interface DetailEntry extends SOAPElement {}

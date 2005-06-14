@@ -36,22 +36,22 @@ import org.w3c.dom.DOMImplementation;
 // DOM Level 3
 import org.w3c.dom.UserDataHandler;
 
-import javax.xml.soap.Detail;
-import javax.xml.soap.DetailEntry;
-import javax.xml.soap.MimeHeaders;
-import javax.xml.soap.Name;
-import javax.xml.soap.SOAPBody;
-import javax.xml.soap.SOAPBodyElement;
-import javax.xml.soap.SOAPElement;
-import javax.xml.soap.SOAPEnvelope;
-import javax.xml.soap.SOAPException;
-import javax.xml.soap.SOAPFactory;
-import javax.xml.soap.SOAPFault;
-import javax.xml.soap.SOAPHeader;
-import javax.xml.soap.SOAPHeaderElement;
-import javax.xml.soap.SOAPPart;
 
 import org.apache.xmlbeans.impl.common.XMLChar;
+import org.apache.xmlbeans.impl.soap.Detail;
+import org.apache.xmlbeans.impl.soap.DetailEntry;
+import org.apache.xmlbeans.impl.soap.MimeHeaders;
+import org.apache.xmlbeans.impl.soap.Name;
+import org.apache.xmlbeans.impl.soap.SOAPBody;
+import org.apache.xmlbeans.impl.soap.SOAPBodyElement;
+import org.apache.xmlbeans.impl.soap.SOAPElement;
+import org.apache.xmlbeans.impl.soap.SOAPEnvelope;
+import org.apache.xmlbeans.impl.soap.SOAPException;
+import org.apache.xmlbeans.impl.soap.SOAPFactory;
+import org.apache.xmlbeans.impl.soap.SOAPFault;
+import org.apache.xmlbeans.impl.soap.SOAPHeader;
+import org.apache.xmlbeans.impl.soap.SOAPHeaderElement;
+import org.apache.xmlbeans.impl.soap.SOAPPart;
 
 import javax.xml.stream.XMLStreamReader;
 
@@ -3907,7 +3907,7 @@ final class DomImpl
         public String name ( ) { return "#cdata-section"; }
     }
     
-    static class SaajTextNode extends TextNode implements javax.xml.soap.Text
+    static class SaajTextNode extends TextNode implements org.apache.xmlbeans.impl.soap.Text
     {
         SaajTextNode ( Locale l )
         {
@@ -3924,7 +3924,7 @@ final class DomImpl
         public void setParentElement ( SOAPElement p ) { DomImpl._soapNode_setParentElement( this, p ); }
     }
     
-    static class SaajCdataNode extends CdataNode implements javax.xml.soap.Text
+    static class SaajCdataNode extends CdataNode implements org.apache.xmlbeans.impl.soap.Text
     {
         public SaajCdataNode ( Locale l )
         {
@@ -3949,7 +3949,7 @@ final class DomImpl
     {
         Locale l = n.locale();
 
-        javax.xml.soap.Text text = (javax.xml.soap.Text) n;
+        org.apache.xmlbeans.impl.soap.Text text = (org.apache.xmlbeans.impl.soap.Text) n;
 
         if (l.noSync())         { l.enter(); try { return l._saaj.soapText_isComment( text ); } finally { l.exit(); } }
         else synchronized ( l ) { l.enter(); try { return l._saaj.soapText_isComment( text ); } finally { l.exit(); } }
@@ -3963,7 +3963,7 @@ final class DomImpl
     {
         Locale l = n.locale();
 
-        javax.xml.soap.Node node = (javax.xml.soap.Node) n;
+        org.apache.xmlbeans.impl.soap.Node node = (org.apache.xmlbeans.impl.soap.Node) n;
 
         if (l.noSync())         { l.enter(); try { l._saaj.soapNode_detachNode( node ); } finally { l.exit(); } }
         else synchronized ( l ) { l.enter(); try { l._saaj.soapNode_detachNode( node ); } finally { l.exit(); } }
@@ -3973,7 +3973,7 @@ final class DomImpl
     {
         Locale l = n.locale();
 
-        javax.xml.soap.Node node = (javax.xml.soap.Node) n;
+        org.apache.xmlbeans.impl.soap.Node node = (org.apache.xmlbeans.impl.soap.Node) n;
 
         if (l.noSync())         { l.enter(); try { l._saaj.soapNode_recycleNode( node ); } finally { l.exit(); } }
         else synchronized ( l ) { l.enter(); try { l._saaj.soapNode_recycleNode( node ); } finally { l.exit(); } }
@@ -3983,7 +3983,7 @@ final class DomImpl
     {
         Locale l = n.locale();
 
-        javax.xml.soap.Node node = (javax.xml.soap.Node) n;
+        org.apache.xmlbeans.impl.soap.Node node = (org.apache.xmlbeans.impl.soap.Node) n;
 
         if (l.noSync())         { l.enter(); try { return l._saaj.soapNode_getValue( node ); } finally { l.exit(); } }
         else synchronized ( l ) { l.enter(); try { return l._saaj.soapNode_getValue( node ); } finally { l.exit(); } }
@@ -3993,7 +3993,7 @@ final class DomImpl
     {
         Locale l = n.locale();
 
-        javax.xml.soap.Node node = (javax.xml.soap.Node) n;
+        org.apache.xmlbeans.impl.soap.Node node = (org.apache.xmlbeans.impl.soap.Node) n;
 
         if (l.noSync())         { l.enter(); try { l._saaj.soapNode_setValue( node, value ); } finally { l.exit(); } }
         else synchronized ( l ) { l.enter(); try { l._saaj.soapNode_setValue( node, value ); } finally { l.exit(); } }
@@ -4003,7 +4003,7 @@ final class DomImpl
     {
         Locale l = n.locale();
 
-        javax.xml.soap.Node node = (javax.xml.soap.Node) n;
+        org.apache.xmlbeans.impl.soap.Node node = (org.apache.xmlbeans.impl.soap.Node) n;
 
         if (l.noSync())         { l.enter(); try { return l._saaj.soapNode_getParentElement( node ); } finally { l.exit(); } }
         else synchronized ( l ) { l.enter(); try { return l._saaj.soapNode_getParentElement( node ); } finally { l.exit(); } }
@@ -4013,7 +4013,7 @@ final class DomImpl
     {
         Locale l = n.locale();
 
-        javax.xml.soap.Node node = (javax.xml.soap.Node) n;
+        org.apache.xmlbeans.impl.soap.Node node = (org.apache.xmlbeans.impl.soap.Node) n;
 
         if (l.noSync())         { l.enter(); try { l._saaj.soapNode_setParentElement( node, p ); } finally { l.exit(); } }
         else synchronized ( l ) { l.enter(); try { l._saaj.soapNode_setParentElement( node, p ); } finally { l.exit(); } }

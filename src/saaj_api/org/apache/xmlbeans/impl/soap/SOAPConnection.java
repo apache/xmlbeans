@@ -13,7 +13,7 @@
  *  limitations under the License.
  */
 
-package javax.xml.soap;
+package org.apache.xmlbeans.impl.soap;
 
 /**
  * A point-to-point connection that a client can use for sending messages

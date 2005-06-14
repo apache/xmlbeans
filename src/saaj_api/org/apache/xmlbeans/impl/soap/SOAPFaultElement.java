@@ -13,13 +13,14 @@
  *  limitations under the License.
  */
 
-package javax.xml.soap;
+package org.apache.xmlbeans.impl.soap;
 
 /**
- * The content for a <code>Detail</code> object, giving details for
- * a <code>SOAPFault</code> object.  A <code>DetailEntry</code> object,
- * which carries information about errors related to the <code>SOAPBody</code>
- * object that contains it, is application-specific.
- * <P>
+ * A representation of the contents in
+ * a <code>SOAPFault</code> object.  The <code>Detail</code> interface
+ * is a <code>SOAPFaultElement</code> object that has been defined.
+ * <p>
+ * Content is added to a <code>SOAPFaultElement</code> using the
+ * <code>SOAPElement</code> method <code>addTextNode</code>.
  */
-public interface DetailEntry extends SOAPElement {}
+public interface SOAPFaultElement extends SOAPElement {}

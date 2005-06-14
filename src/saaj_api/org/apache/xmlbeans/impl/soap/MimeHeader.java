@@ -13,7 +13,7 @@
  *  limitations under the License.
  */
 
-package javax.xml.soap;
+package org.apache.xmlbeans.impl.soap;
 
 /**
  * An object that stores a MIME header name and its value. One

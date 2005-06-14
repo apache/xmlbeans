@@ -13,7 +13,7 @@
  *  limitations under the License.
  */
 
-package javax.xml.soap;
+package org.apache.xmlbeans.impl.soap;
 
 import java.io.IOException;
 import java.io.InputStream;
