@@ -213,7 +213,8 @@ public final class SchemaTypeCodePrinter
                 emit(" * This is a complex type.");
                 break;
             case SchemaType.ATOMIC:
-                emit(" * This is an atomic type that is a restriction of " + sType.getBaseType().getFullJavaName() + ".");
+                emit(" * This is an atomic type that is a restriction of " + getFullJavaName(sType) + ".");
+
                 break;
             case SchemaType.LIST:
                 emit(" * This is a list type whose items are " + sType.getListItemType().getFullJavaName() + ".");
@@ -292,7 +293,7 @@ public final class SchemaTypeCodePrinter
             {
                 SchemaProperty prop = props[i];
 
-                printPropertyGetters(
+                printPropertyGetters( sType,
                     prop.getName(),
                     prop.isAttribute(),
                     prop.getJavaPropertyName(),
@@ -678,11 +679,43 @@ public final class SchemaTypeCodePrinter
         emit("/** " + sentence + " */");
     }
 
-    static SchemaType findBaseEnumType(SchemaType sType)
-    {
-        while (sType.getBaseType().hasStringEnumValues())
-            sType = sType.getBaseType();
-        return sType;
+
+    // we need to account for all of these scenarios:
+    //
+    // 1. 
+    // BaseType
+    // DerivedType extends/restricts BaseType
+    // we need to return BaseType
+    //
+    // 2.
+    // BaseType
+    // RedefinedType redefines BaseType
+    // we need to return RedefinedType
+    //
+    // 3.
+    // BaseType
+    // DerivedType extends/restricts BaseType
+    // RedefinedType redefines DerivedType
+    // we need to return BaseType
+    static SchemaType findBaseEnumType(SchemaType sType) {
+      SchemaType original = sType;
+      SchemaTypeImpl originalImpl = (SchemaTypeImpl) sType;
+
+      // keep going until you're at the top of the redefinition -- the original type that has been redefined. 
+      // this may be an extension
+      while (((SchemaTypeImpl)sType).isRedefinition())
+        sType = sType.getBaseType();
+
+      // if it is an extension, the base type will have enumeration vals
+      while (sType.getBaseType().hasStringEnumValues())
+        sType = sType.getBaseType();
+
+      // if it is NOT an extension, we are at the original type that was redefined. the base will not have enum values,
+      // and the fullJavaName of the original redefined type will be null. in this case, we need to use the most redefined redefine.
+      if (((SchemaTypeImpl)original).isRedefinition() && sType.getFullJavaName() == null)
+        sType = original;
+      return sType;
+
     }
 
     public static String javaStringEscape(String str)
@@ -887,7 +920,7 @@ public final class SchemaTypeCodePrinter
                 return "java.util.Calendar";
 
             case SchemaProperty.JAVA_ENUM:
-                SchemaType sType = sProp.javaBasedOnType().getBaseEnumType();
+                SchemaType sType = findBaseEnumType(sProp.javaBasedOnType());
                 return findJavaType(sType).replace('$', '.') + ".Enum";
 
             case SchemaProperty.JAVA_OBJECT:
@@ -899,7 +932,7 @@ public final class SchemaTypeCodePrinter
         }
     }
 
-    void printPropertyGetters(QName qName, boolean isAttr,
+    void printPropertyGetters(SchemaType sType, QName qName, boolean isAttr,
                        String propertyName, int javaType,
                        String type, String xtype,
                        boolean nillable, boolean optional,
@@ -907,11 +940,12 @@ public final class SchemaTypeCodePrinter
        throws IOException
     {
         String propdesc = "\"" + qName.getLocalPart() + "\"" + (isAttr ? " attribute" : " element");
+
         boolean xmltype = (javaType == SchemaProperty.XML_OBJECT);
 
         if (singleton)
         {
-            printJavaDoc((several ? "Gets first " : "Gets the ") + propdesc);
+            printJavaDoc((several ? "Gets first " : "Gets the ") + propdesc + " for sType: " + sType.toString());
             emit(type + " get" + propertyName + "();");
 
             if (!xmltype)
@@ -2218,6 +2252,21 @@ public final class SchemaTypeCodePrinter
         endBlock();
     }
 
+    // We have to special case SchemaType.getFullJavaName if this type is a redefinition.
+    // In this case, the base type getFullJavaName will be null, and we need to use the fullJavaName
+    // from the redefined type.
+    private String getFullJavaName(SchemaType sType) {
+
+        SchemaTypeImpl sTypeI = (SchemaTypeImpl) sType;
+        String ret = sTypeI.getFullJavaName();
+
+        while (sTypeI.isRedefinition()) {
+          ret = sTypeI.getFullJavaName();
+          sTypeI = (SchemaTypeImpl) sTypeI.getBaseType();
+        }
+
+        return ret;
+    }
     private SchemaProperty[] getDerivedProperties(SchemaType sType) {
         // We have to see if this is redefined, because if it is we have
         // to include all properties associated to its supertypes
