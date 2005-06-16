@@ -270,9 +270,12 @@ public class SchemaTypeSystemCompiler
             // load all the xsd files into it
             if (validate)
             {
+                XmlOptions validateOptions = new XmlOptions().setErrorListener(errorWatcher);
+                if (options.hasOption(XmlOptions.VALIDATE_TREAT_LAX_AS_SKIP))
+                    validateOptions.setValidateTreatLaxAsSkip();
                 for (int i = 0; i < schemas.length; i++)
                 {
-                    if (schemas[i].validate(new XmlOptions().setErrorListener(errorWatcher)))
+                    if (schemas[i].validate(validateOptions))
                         validSchemas.add(schemas[i]);
                 }
             }
