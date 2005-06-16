@@ -19,7 +19,7 @@
     <property name="javac.source" value="1.4"/>
     <property name="javac.target" value="1.4"/>
 
-    <property name="version.base" value="2.0.0-beta1"/>
+    <property name="version.base" value="2.0.0"/>
 
     <!-- manifest entries -->
     <property name="manifest.name" value="org/apache/xmlbeans/"/>
