@@ -455,6 +455,7 @@ public class CompilationTests extends TestCase
     }
 
     public static void deltree(File dir)
+        throws InterruptedException
     {
         if (dir.exists())
         {
@@ -465,7 +466,25 @@ public class CompilationTests extends TestCase
                     deltree(new File(dir, list[i]));
             }
             if (!dir.delete())
-                throw new IllegalStateException("Could not delete " + dir);
+            {
+                for (int i=0; i<5; i++)
+                {
+                    try
+                    {
+                        System.out.println("Sleep 1s and try do delete it again: " + dir.getCanonicalPath());
+                    }
+                    catch (IOException e)
+                    {
+                        e.printStackTrace(System.out);
+                    }
+                    Thread.currentThread().sleep(1000);
+                    if (dir.delete())
+                        return;
+                }
+
+                if (!dir.delete())
+                    throw new IllegalStateException("Could not delete " + dir);
+            }
         }
     }
 }
