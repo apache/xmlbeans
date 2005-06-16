@@ -144,7 +144,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
      * There are two properties:
      *   METADATA_PACKAGE_GEN - used for generating metadata
      *   and METADATA_PACKAGE_LOAD - used for loading the metadata.
-     * Most of the time the have the same value, with one exception, during the
+     * Most of the time they have the same value, with one exception, during the
      * repackage process scomp needs to load from old package and generate into
      * a new package.
      */
@@ -157,14 +157,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
             SchemaTypeSystem.class.getName().substring(0, SchemaTypeSystem.class.getName().lastIndexOf(".")) :
             stsPackage.getName();
 
-        METADATA_PACKAGE_GEN = (
-        // next line should use String addition to avoid replacement by Repackager:  "org." + "apache." + "xmlbeans"
-        ("org." + "apache." + "xmlbeans").equals(stsPackageName) ?
-        // This is the original org apache xmlbeans package, to maintain backwards compatibility resource pathes must remain the same
-        "" :
-        // This is the private package XMLBeans, all the metadata will end up in a specific/private resource path
-        stsPackageName.replaceAll("\\.", "_")
-        );
+        METADATA_PACKAGE_GEN = stsPackageName.replaceAll("\\.", "_");
     }
 
     private static String nameToPathString(String nameForSystem)

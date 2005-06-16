@@ -39,7 +39,7 @@ public class CompileCommon extends Common{
             throw new Exception("Act was null");
 
         if (exp.size() != act.size())
-            throw new Exception("Size was not the same");
+            throw new Exception("Size was not the same exp.size:" + exp.size() + " act.size:" + act.size());
 
         //use Vector.equals to compare
         if (!act.equals(exp))
