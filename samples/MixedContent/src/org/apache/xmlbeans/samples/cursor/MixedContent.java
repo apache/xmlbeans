@@ -164,7 +164,7 @@ public class MixedContent
                         // beginElement method creates a new element with the
                         // name specified around the current cursor.
                         cursor.beginElement("link",
-                                "http://apache.org/xmlbeans/samples/cursor/mixedcontent");
+                                "http://xmlbeans.apache.org/samples/cursor/mixedcontent");
 
                         // Insert an id attribute and make its value the id of
                         // the item sought.
