@@ -13,7 +13,7 @@
  *  limitations under the License.
  */
 
-Welcome to XmlBeans Version 2.0.0-beta1!
+Welcome to XmlBeans Version 2.0.0!
 
 Layout of the tree:
 - README.txt    this file
@@ -54,4 +54,4 @@ XmlBeans depends on the following external libraries:
 (O) means that the library is optional
 
 For licensing information, see ./src/license/LICENSE.txt
-Updated: 02/03/05.
+Updated: 06/17/05.

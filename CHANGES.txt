@@ -1,3 +1,12 @@
+Changes in v2.0.0 since v2.0.0-beta1:
+
+* many performance related changes, especialy in the DOM and Cursor areas
+* rewrite of the <xs:redefine> support
+* Completed the implementation of Filer
+* new documentation on xs:any, validation plus updates of the old docs
+* many bug fixes, including perm gen memory bug
+
+
 Changes in v2.0.0-beta1:
 
 * new store implementation, including native DOM implementation

@@ -13,7 +13,7 @@
  *  limitations under the License.
  */
 
-XMLBeans Development Kit Version 2.0.0-beta1
+XMLBeans Development Kit Version 2.0.0
 
 
 Welcome to XMLBeans!
