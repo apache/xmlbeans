@@ -19,8 +19,6 @@
       Consortium (Massachusetts Institute of Technology, European Research
       Consortium for Informatics and Mathematics, Keio University)
 
-    - saxon, Copyright 2001-2003 (c) Michael H. Kay of International Computers Limited
-
     - resolver.jar from Apache Xml Commons project,
       Copyright (c) 2001-2003 Apache Software Foundation
 

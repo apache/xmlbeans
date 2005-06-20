@@ -342,6 +342,12 @@
             <fileset dir="samples">
                 <include name="MixedContent/**/*"/>
                 <include name="OrderMatters/**/*"/>
+                <include name="Any/**/*"/>
+                <include name="XQueryXPath/**/*"/>
+                <include name="DateTime/**/*"/>
+                <include name="SchemaEnum/**/*"/>
+                <include name="Validation/**/*"/>
+                <include name="XsdConfig/**/*"/>
                 <exclude name="**/build/**"/>
             </fileset>
         </copy>
