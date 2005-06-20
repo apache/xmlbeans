@@ -48,9 +48,8 @@ Kit contents:
 (7) A few sample schemas
     ./schemas
 
-(8) Two samples that show the use of the XmlCursor API. Between
-    this README file and the two samples, you should be well on
-    your way to becoming an XmlBeans expert
+(8) Samples that show the use of the XMLBeans API. (You'll 
+    also find more samples at the XMLBeans web site.)
     ./samples
 
 Where to start?
