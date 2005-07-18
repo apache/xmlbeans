@@ -2211,8 +2211,9 @@ abstract class Xobj implements TypeStore
 
             try
             {
-
-                Map sourceNamespaces = Locale.getAllNamespaces( c, null );
+                Cur cSrc1 = xSrc.tempCur();
+                Map sourceNamespaces = Locale.getAllNamespaces( cSrc1, null );
+                cSrc1.release();
 
                 if (isAttr())
                 {
