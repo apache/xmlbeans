@@ -324,10 +324,14 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
 
     void printStaticTypeDeclaration(SchemaType sType, SchemaTypeSystem system) throws IOException
     {
-        emit("public static final org.apache.xmlbeans.SchemaType type = (org.apache.xmlbeans.SchemaType)" +
-                indexClassForSystem(system) +
-                ".typeSystem.resolveHandle(\"" +
-                ((SchemaTypeSystemImpl)system).handleForType(sType) + "\");");
+        String interfaceShortName = sType.getShortJavaName();
+        emit("public static final org.apache.xmlbeans.SchemaType type = (org.apache.xmlbeans.SchemaType)");
+        indent();
+        emit("org.apache.xmlbeans.XmlBeans.typeSystemForClassLoader(" +
+             interfaceShortName + ".class.getClassLoader(), \"" + system.getName() + "\")" +
+             ".resolveHandle(\"" +
+             ((SchemaTypeSystemImpl)system).handleForType(sType) + "\");");
+        outdent();
     }
 
     /** @deprecated */
