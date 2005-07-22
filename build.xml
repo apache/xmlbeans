@@ -193,7 +193,7 @@
     </target>
 
     <target name="version">
-        <!-- svn must be on the path 
+        <!-- svn must be on the path -->
         <exec executable="svn" output="build/private/svninfo.properties">
             <arg line="info ${basedir}"/>
         </exec>
@@ -203,6 +203,7 @@
             byline="true"/>
         <property file="build/private/svninfo.properties"/>
 
+        <!-- just in case svn info or regexp failed -->
         <condition property="svn.last.rev" value="unknown">
             <not><isset property="svn.last.rev"/></not>
         </condition>
@@ -211,8 +212,8 @@
         <property name="manifest.comment" value="Apache XmlBeans version ${version.full}"/>
 
         <echo message="${manifest.comment}"/>
-	-->
     </target>
+
 
     <target name="default" depends="deploy"/>
     <target name="redeploy" depends="clean, deploy"/>
