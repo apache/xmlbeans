@@ -126,6 +126,7 @@ pub  1024D/3926D7DD 2005-06-27 Radu Preotiuc <radup@apache.org>
      Key fingerprint = A004 7A3C 02DA 01B5 7974  1890 6899 C8E2 3926 D7DD
 sig 3       3926D7DD 2005-06-27   Radu Preotiuc <radup@apache.org>
 sig         4159EADB 2005-07-10   Cliff Schmidt <cliffs@apache.org>
+sig         46914992 2005-07-13   Cezar Cristian Andrei <cezar@apache.org>
 sub  1024g/408A5399 2005-06-27
 sig         3926D7DD 2005-06-27   Radu Preotiuc <radup@apache.org>
 
