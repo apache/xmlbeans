@@ -15,6 +15,7 @@
 
 package org.apache.xmlbeans.impl.tool;
 
+import org.apache.xmlbeans.SystemProperties;
 import org.apache.xmlbeans.impl.xb.ltgfmt.TestsDocument;
 import org.apache.xmlbeans.impl.xb.ltgfmt.FileDesc;
 import org.apache.xmlbeans.XmlOptions;
@@ -178,7 +179,7 @@ public class XSTCTester
         
         // Launch results
         System.out.println("Results output to " + resultsFile);
-        if (System.getProperty("os.name").toLowerCase().indexOf("windows") >= 0)
+        if (SystemProperties.getProperty("os.name").toLowerCase().indexOf("windows") >= 0)
             Runtime.getRuntime().exec("cmd /c start iexplore \"" + resultsFile.getAbsolutePath() + "\"");
         else
             Runtime.getRuntime().exec("mozilla file://" + resultsFile.getAbsolutePath());

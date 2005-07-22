@@ -22,6 +22,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 
 import java.util.Properties;
+import org.apache.xmlbeans.SystemProperties;
 
 /**
  * This class is used to locate factory classes for javax.xml.soap.
@@ -76,14 +77,14 @@ class FactoryFinder {
      */
     static Object find(String factoryPropertyName, String defaultFactoryClassName) throws SOAPException {
         try {
-            String factoryClassName = System.getProperty(factoryPropertyName);
+            String factoryClassName = SystemProperties.getProperty(factoryPropertyName);
             if (factoryClassName != null) {
                 return newInstance(factoryClassName);
             }
         } catch (SecurityException securityexception) {}
 
         try {
-            String propertiesFileName = System.getProperty("java.home")
+            String propertiesFileName = SystemProperties.getProperty("java.home")
                                         + File.separator + "lib"
                                         + File.separator + "jaxm.properties";
             File file = new File(propertiesFileName);

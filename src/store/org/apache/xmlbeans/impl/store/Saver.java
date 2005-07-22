@@ -17,6 +17,7 @@ package org.apache.xmlbeans.impl.store;
 
 import javax.xml.namespace.QName;
 
+import org.apache.xmlbeans.SystemProperties;
 import org.apache.xmlbeans.XmlDocumentProperties;
 import org.apache.xmlbeans.XmlOptions;
 
@@ -2955,7 +2956,7 @@ abstract class Saver
     private String    _initialDefaultUri;
 
     static final String _newLine =
-        System.getProperty( "line.separator" ) == null
+        SystemProperties.getProperty( "line.separator" ) == null
             ? "\n"
-            : System.getProperty( "line.separator" );
+            : SystemProperties.getProperty( "line.separator" );
 }

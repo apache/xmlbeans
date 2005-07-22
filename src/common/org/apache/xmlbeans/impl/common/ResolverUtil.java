@@ -15,6 +15,8 @@
 
 package org.apache.xmlbeans.impl.common;
 
+import org.apache.xmlbeans.SystemProperties;
+
 import org.xml.sax.EntityResolver;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
@@ -31,7 +33,7 @@ public class ResolverUtil
     {
         try
         {
-            Object o = Class.forName(System.getProperty("xmlbean.entityResolver")).newInstance();
+            Object o = Class.forName(SystemProperties.getProperty("xmlbean.entityResolver")).newInstance();
             _entityResolver = (EntityResolver)o;
         }
         catch (Exception e)

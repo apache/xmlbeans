@@ -18,6 +18,7 @@ package org.apache.xmlbeans.impl.tool;
 import org.apache.xmlbeans.SchemaCodePrinter;
 import org.apache.xmlbeans.SchemaTypeLoader;
 import org.apache.xmlbeans.SchemaTypeSystem;
+import org.apache.xmlbeans.SystemProperties;
 import org.apache.xmlbeans.SimpleValue;
 import org.apache.xmlbeans.XmlBeans;
 import org.apache.xmlbeans.XmlErrorCodes;
@@ -1049,7 +1050,7 @@ public class SchemaCompiler
 
         // Calculate the usenames based on the relativized filenames on the filesystem
         if (baseDir == null)
-            baseDir = new File(System.getProperty("user.dir"));
+            baseDir = new File(SystemProperties.getProperty("user.dir"));
 
         ResourceLoader cpResourceLoader = null;
 

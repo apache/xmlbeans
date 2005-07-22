@@ -193,7 +193,7 @@
     </target>
 
     <target name="version">
-        <!-- svn must be on the path -->
+        <!-- svn must be on the path 
         <exec executable="svn" output="build/private/svninfo.properties">
             <arg line="info ${basedir}"/>
         </exec>
@@ -203,7 +203,6 @@
             byline="true"/>
         <property file="build/private/svninfo.properties"/>
 
-        <!-- just in case svn info or regexp failed -->
         <condition property="svn.last.rev" value="unknown">
             <not><isset property="svn.last.rev"/></not>
         </condition>
@@ -212,6 +211,7 @@
         <property name="manifest.comment" value="Apache XmlBeans version ${version.full}"/>
 
         <echo message="${manifest.comment}"/>
+	-->
     </target>
 
     <target name="default" depends="deploy"/>
@@ -465,7 +465,11 @@
         <javac srcdir="src/xmlinputstream"
             source="${javac.source}" target="${javac.target}"
             destdir="build/classes/xmlinputstream"
-            debug="on"/>
+            debug="on">
+            <classpath>
+                <pathelement location="build/classes/common"/>
+            </classpath>
+               </javac>
     </target>
 
     <!-- xmlpublic target ============================================== -->
@@ -475,6 +479,7 @@
         <javac srcdir="src/xmlpublic" destdir="build/classes/xmlpublic" source="${javac.source}" target="${javac.target}" debug="on">
             <classpath>
                 <pathelement location="build/classes/xmlinputstream"/>
+                <pathelement location="build/classes/common"/>
                 <pathelement location="build/lib/jsr173_api.jar"/>
             </classpath>
         </javac>
@@ -655,6 +660,8 @@
         <mkdir dir="build/classes/saaj_api"/>
         <javac srcdir="src/saaj_api" destdir="build/classes/saaj_api" source="${javac.source}" target="${javac.target}" debug="on">
             <classpath id="saaj_api.compile.path">
+                <pathelement location="build/classes/common"/>
+                <pathelement location="build/classes/xmlpublic"/>
             </classpath>
         </javac>
 

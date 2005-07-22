@@ -36,6 +36,7 @@ import org.apache.xmlbeans.SchemaTypeLoader;
 import org.apache.xmlbeans.SchemaTypeLoaderException;
 import org.apache.xmlbeans.SchemaTypeSystem;
 import org.apache.xmlbeans.SimpleValue;
+import org.apache.xmlbeans.SystemProperties;
 import org.apache.xmlbeans.XmlAnySimpleType;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
@@ -852,7 +853,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
                 String[] props = new String[] { "user.name", "user.dir", "user.timezone", "user.country", "java.class.path", "java.home", "java.vendor", "java.version", "os.version" };
                 for (int i = 0; i < props.length; i++)
                 {
-                    String prop = System.getProperty(props[i]);
+                    String prop = SystemProperties.getProperty(props[i]);
                     if (prop != null)
                     {
                         daos.writeUTF(prop);

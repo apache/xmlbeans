@@ -15,6 +15,8 @@
 
 package org.apache.xmlbeans.impl.common;
 
+import org.apache.xmlbeans.SystemProperties;
+
 import java.io.File;
 import java.io.PrintStream;
 import java.io.FileOutputStream;
@@ -33,7 +35,7 @@ public class XBeanDebug
     private static int initializeBitsFromProperty()
     {
         int bits = 0;
-        String prop = System.getProperty(traceProp, defaultProp);
+        String prop = SystemProperties.getProperty(traceProp, defaultProp);
         if (prop.indexOf("TRACE_SCHEMA_LOADING") >= 0)
             bits |= TRACE_SCHEMA_LOADING;
         return bits;

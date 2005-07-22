@@ -27,6 +27,7 @@ import org.apache.xmlbeans.SchemaIdentityConstraint;
 import org.apache.xmlbeans.SchemaAttributeGroup;
 import org.apache.xmlbeans.SchemaModelGroup;
 import org.apache.xmlbeans.SchemaTypeLoader;
+import org.apache.xmlbeans.SystemProperties;
 import org.apache.xmlbeans.XmlError;
 import org.apache.xmlbeans.XmlBeans;
 import org.apache.xmlbeans.XmlOptions;
@@ -512,13 +513,13 @@ public class StscState
         
         _compatMap = (Map)options.get(XmlOptions.COMPILE_SUBSTITUTE_NAMES);
         _noUpa = options.hasOption(XmlOptions.COMPILE_NO_UPA_RULE) ? true :
-                !"true".equals(System.getProperty("xmlbean.uniqueparticleattribution", "true"));
+                !"true".equals(SystemProperties.getProperty("xmlbean.uniqueparticleattribution", "true"));
         _noPvr = options.hasOption(XmlOptions.COMPILE_NO_PVR_RULE) ? true :
-                !"true".equals(System.getProperty("xmlbean.particlerestriction", "true"));
+                !"true".equals(SystemProperties.getProperty("xmlbean.particlerestriction", "true"));
         _noAnn = options.hasOption(XmlOptions.COMPILE_NO_ANNOTATIONS) ? true :
-            !"true".equals(System.getProperty("xmlbean.schemaannotations", "true"));
+            !"true".equals(SystemProperties.getProperty("xmlbean.schemaannotations", "true"));
         _doingDownloads = options.hasOption(XmlOptions.COMPILE_DOWNLOAD_URLS) ? true :
-                "true".equals(System.getProperty("xmlbean.downloadurls", "false"));
+                "true".equals(SystemProperties.getProperty("xmlbean.downloadurls", "false"));
         _entityResolver = (EntityResolver)options.get(XmlOptions.ENTITY_RESOLVER);
 
         if (_entityResolver == null)
