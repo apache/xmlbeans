@@ -47,6 +47,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Vector;
 
 import org.apache.xmlbeans.impl.soap.Detail;
 import org.apache.xmlbeans.impl.soap.DetailEntry;
@@ -2480,7 +2481,7 @@ abstract class Xobj implements TypeStore
         public String getBaseURI ( ) { return DomImpl._node_getBaseURI( this ); }
     }
 
-    final static class DocumentXobj extends NodeXobj implements Document
+     static class DocumentXobj extends NodeXobj implements Document
     {
         DocumentXobj ( Locale l )
         {
@@ -2505,7 +2506,16 @@ abstract class Xobj implements TypeStore
         public Text createTextNode ( String data ) { return DomImpl._document_createTextNode( this, data ); }
         public DocumentType getDoctype ( ) { return DomImpl._document_getDoctype( this ); }
         public Element getDocumentElement ( ) { return DomImpl._document_getDocumentElement( this ); }
-        public Element getElementById ( String elementId ) { return DomImpl._document_getElementById( this, elementId ); }
+        public Element getElementById ( String elementId ) {
+            if ( _idToElement == null )return null;
+            Xobj o = (Xobj) _idToElement.get(elementId);
+            if (o == null) return null;
+            if (!isInSameTree(o))
+            {
+                _idToElement.remove(elementId);
+            }
+            return (Element)o;
+        }
         public NodeList getElementsByTagName ( String tagname ) { return DomImpl._document_getElementsByTagName( this, tagname ); }
         public NodeList getElementsByTagNameNS ( String namespaceURI, String localName ) { return DomImpl._document_getElementsByTagNameNS( this, namespaceURI, localName ); }
         public DOMImplementation getImplementation ( ) { return DomImpl._document_getImplementation( this ); }
@@ -2526,8 +2536,18 @@ abstract class Xobj implements TypeStore
         public void setStrictErrorChecking ( boolean strictErrorChecking ) { throw new RuntimeException( "DOM Level 3 Not implemented" ); }
         public void setXmlStandalone ( boolean xmlStandalone ) { throw new RuntimeException( "DOM Level 3 Not implemented" ); }
         public void setXmlVersion ( String xmlVersion ) { throw new RuntimeException( "DOM Level 3 Not implemented" ); }
-    }
 
+        protected void addIdElement( String idVal, Dom e){
+            if ( _idToElement == null)
+                _idToElement = new java.util.Hashtable();
+            _idToElement.put(idVal,e);
+        }
+         void removeIdElement( String idVal ){
+            if (_idToElement != null)
+                _idToElement.remove(idVal);
+        }
+        private java.util.Hashtable  _idToElement;
+    }
     static class DocumentFragXobj extends NodeXobj implements DocumentFragment
     {
         DocumentFragXobj ( Locale l ) { super( l, ROOT, DomImpl.DOCFRAG ); }
@@ -2566,8 +2586,7 @@ abstract class Xobj implements TypeStore
 
         boolean _canHavePrefixUri;
     }
-
-    static class ElementXobj extends NamedNodeXobj implements Element
+       static class ElementXobj extends NamedNodeXobj implements Element
     {
         ElementXobj ( Locale l, QName name )
         {
@@ -2637,9 +2656,21 @@ abstract class Xobj implements TypeStore
 
         // DOM Level 3
         public TypeInfo getSchemaTypeInfo ( ) { throw new RuntimeException( "DOM Level 3 Not implemented" ); }
-        public boolean isId ( ) { throw new RuntimeException( "DOM Level 3 Not implemented" ); }
+        public boolean isId ( ) { return false; }
     }
 
+     static class AttrIdXobj
+         extends AttrXobj
+     {
+         AttrIdXobj ( Locale l, QName name )
+        {
+            super( l, name );
+        }
+         public boolean isId()
+         {
+             return true;
+         }
+     }
     static class CommentXobj extends NodeXobj implements Comment
     {
         CommentXobj ( Locale l ) { super( l, COMMENT, DomImpl.COMMENT ); }
@@ -2677,11 +2708,12 @@ abstract class Xobj implements TypeStore
     // SAAJ objects
     //
 
-    static class SoapPartDocXobj extends Xobj
+    static class SoapPartDocXobj extends DocumentXobj
     {
         SoapPartDocXobj ( Locale l )
         {
-            super( l, ROOT, DomImpl.DOCUMENT );
+            super(l);
+            //super( l, ROOT, DomImpl.DOCUMENT );
             _soapPartDom = new SoapPartDom( this );
         }
 
