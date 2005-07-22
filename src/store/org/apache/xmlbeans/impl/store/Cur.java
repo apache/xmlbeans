@@ -2999,20 +2999,33 @@ final class Cur
         }
 
         protected void attr ( QName name, String value )
-        {
+         {
             assert parent().isContainer();
             // BUGBUG - should assert there that there is no text before this attr
 
-            Xobj x = new Xobj.AttrXobj( _locale, checkName( name, true ) );
+            QName parentName = _after?
+                _lastXobj._parent.getQName(): _lastXobj.getQName();
+            boolean isId = isAttrOfTypeId(name, parentName);
 
-            start( x );
-            text( value, 0, value.length() );
+            Xobj x = isId ?
+                new Xobj.AttrIdXobj(_locale, checkName(name, true)) :
+                new Xobj.AttrXobj(_locale, checkName(name, true));
+            start(x);
+            text(value, 0, value.length());
             end();
-
+            if (isId)
+            {
+                Cur c1 = x.tempCur();
+                c1.toRoot();
+                Xobj doc = c1._xobj;
+                c1.release();
+                if (doc instanceof Xobj.DocumentXobj)
+                    ((Xobj.DocumentXobj) doc).addIdElement(value,
+                        x._parent.getDom());
+            }
             _lastXobj = x;
-            _lastPos  = 0;
+            _lastPos = 0;
         }
-
         protected void attr ( String local, String uri, String prefix, String value )
         {
             attr( _locale.makeQName( uri, local, prefix ), value );

@@ -22,10 +22,12 @@ import org.xml.sax.EntityResolver;
 import org.xml.sax.ErrorHandler;
 import org.xml.sax.InputSource;
 import org.xml.sax.ext.LexicalHandler;
+import org.xml.sax.ext.DeclHandler;
 import org.xml.sax.SAXParseException;
 import org.xml.sax.InputSource;
 import org.xml.sax.XMLReader;
 import org.xml.sax.SAXException;
+import org.xml.sax.DTDHandler;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -2964,6 +2966,29 @@ public final class Locale
             XmlBookmark bm);
 
         protected abstract void lineNumber(int line, int column, int offset);
+
+        protected void addIdAttr(String eName, String aName){
+            if ( _idAttrs == null )
+                _idAttrs = new java.util.Hashtable();
+            _idAttrs.put(aName,eName);
+        }
+
+        protected boolean isAttrOfTypeId(QName aqn, QName eqn){
+            if (_idAttrs == null)
+                return false;
+            String pre = aqn.getPrefix();
+            String lName = aqn.getLocalPart();
+            String urnName = "".equals(pre)?lName:pre + ":" + lName;
+            String eName = (String) _idAttrs.get(urnName);
+            if (eName == null ) return false;
+            //get the name of the parent elt
+            pre = eqn.getPrefix();
+            lName = eqn.getLocalPart();
+            lName = eqn.getLocalPart();
+            urnName = "".equals(pre)?lName:pre + ":" + lName;
+            return eName.equals(urnName);
+        }
+        private java.util.Hashtable _idAttrs;
     }
 
     private static class DefaultEntityResolver
@@ -3080,7 +3105,7 @@ public final class Locale
     }
 
     private static abstract class SaxHandler
-        implements ContentHandler, LexicalHandler
+        implements ContentHandler, LexicalHandler , DeclHandler, DTDHandler
     {
         SaxHandler(Locator startLocator)
         {
@@ -3294,7 +3319,24 @@ public final class Locale
         {
             // TODO - for non-Piccolo use cases, use a locator to get line numbers
         }
+        //DeclHandler
+        public void attributeDecl(String eName, String aName, String type, String valueDefault, String value){
+             if (type.equals("ID")){
+                 _context.addIdAttr(eName,aName);
+             }
+        }
+        public void elementDecl(String name, String model){
+         }
+        public void externalEntityDecl(String name, String publicId, String systemId){
+         }
+        public void internalEntityDecl(String name, String value){
+         }
 
+        //DTDHandler
+        public void notationDecl(String name, String publicId, String systemId){
+        }
+        public void unparsedEntityDecl(String name, String publicId, String systemId, String notationName){
+        }
         protected Locale _locale;
 
         protected LoadContext _context;
@@ -3322,6 +3364,8 @@ public final class Locale
                 _xr.setProperty(
                     "http://xml.org/sax/properties/lexical-handler", this);
                 _xr.setContentHandler(this);
+                _xr.setProperty("http://xml.org/sax/properties/declaration-handler", this);
+                _xr.setDTDHandler(this);
                 _xr.setErrorHandler(this);
             }
             catch (Throwable e)

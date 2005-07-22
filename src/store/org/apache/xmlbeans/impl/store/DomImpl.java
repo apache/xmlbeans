@@ -1466,7 +1466,7 @@ final class DomImpl
             
             break;
         }
-            
+
         case PROCINST :
         case COMMENT :
         case ELEMENT :
@@ -1494,7 +1494,7 @@ final class DomImpl
 
             break;
         }
-            
+
         case ENTITY :
         case NOTATION :
         case ENTITYREF :
@@ -2321,6 +2321,17 @@ final class DomImpl
                     assert children.getLength() == 1;
                     children.item( 0 ).setNodeValue( nodeValue );
                 }
+                if (((Xobj.AttrXobj) n).isId())
+                {
+                    Dom d = DomImpl.node_getOwnerDocument(n);
+                    String val = node_getNodeValue(n);
+                    if (d instanceof Xobj.DocumentXobj)
+                    {
+                        ((Xobj.DocumentXobj) d).removeIdElement(val);
+                        ((Xobj.DocumentXobj) d).addIdElement(nodeValue,
+                            attr_getOwnerElement(n));
+                    }
+                }
 
                 break;
             }
@@ -3059,12 +3070,19 @@ final class DomImpl
         {
             Dom aa = c.getDom();
 
-            if (_node_getNodeName( aa ).equals( name ))
+            if (_node_getNodeName(aa).equals(name))
             {
                 if (oldAttr == null)
                     oldAttr = aa;
 
-                removeNode( aa );
+                if (((Xobj.AttrXobj) aa).isId())
+                {
+                    Dom d = DomImpl.node_getOwnerDocument(aa);
+                    String val = node_getNodeValue( aa );
+                    if (d instanceof Xobj.DocumentXobj)
+                        ((Xobj.DocumentXobj) d).removeIdElement(val);
+                }
+                removeNode(aa);
                 c.toPrevAttr();
             }
         }
@@ -3112,7 +3130,13 @@ final class DomImpl
             {
                 if (oldAttr == null)
                     oldAttr = aa;
-
+                 if (((Xobj.AttrXobj) aa).isId())
+                 {
+                     Dom d = DomImpl.node_getOwnerDocument(aa);
+                     String val = node_getNodeValue( aa );
+                     if (d instanceof Xobj.DocumentXobj)
+                         ((Xobj.DocumentXobj) d).removeIdElement(val);
+                 }
                 removeNode( aa );
                 
                 c.toPrevAttr();
