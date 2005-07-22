@@ -15,6 +15,7 @@
 
 package org.apache.xmlbeans.impl.tool;
 
+import org.apache.xmlbeans.SystemProperties;
 import org.apache.xmlbeans.impl.schema.SchemaTypeSystemImpl;
 
 import java.io.*;
@@ -275,7 +276,7 @@ public class Diff
 
     private static boolean isDiffIndex()
     {
-        String prop = System.getProperty("xmlbeans.diff.diffIndex");
+        String prop = SystemProperties.getProperty("xmlbeans.diff.diffIndex");
         if (prop == null)
             return true;
         if ("0".equals(prop) || "false".equalsIgnoreCase(prop))

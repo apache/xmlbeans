@@ -17,6 +17,7 @@ package org.apache.xmlbeans.impl.tool;
 
 import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.SchemaTypeSystem;
+import org.apache.xmlbeans.SystemProperties;
 import org.apache.xmlbeans.impl.common.IOUtil;
 import org.apache.xmlbeans.impl.common.XmlErrorWatcher;
 import org.apache.xmlbeans.impl.schema.SchemaTypeCodePrinter;
@@ -117,7 +118,7 @@ public class SchemaCodeGenerator
 // Some beta builds of JDK1.5 are having troubles creating temp directories
 // if the java.io.tmpdir doesn't exist.  This seems to help.
 try {
-  File tmpDirFile = new File(System.getProperty("java.io.tmpdir"));
+  File tmpDirFile = new File(SystemProperties.getProperty("java.io.tmpdir"));
   tmpDirFile.mkdirs();
 } catch(Exception e) { e.printStackTrace(); }
 

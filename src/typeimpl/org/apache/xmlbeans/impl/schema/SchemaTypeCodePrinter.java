@@ -37,6 +37,7 @@ import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.SchemaTypeSystem;
 import org.apache.xmlbeans.SchemaProperty;
 import org.apache.xmlbeans.SchemaStringEnumEntry;
+import org.apache.xmlbeans.SystemProperties;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
 import org.apache.xmlbeans.SchemaCodePrinter;
@@ -52,9 +53,9 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
 
 
     static final String LINE_SEPARATOR =
-        System.getProperty("line.separator") == null
+        SystemProperties.getProperty("line.separator") == null
             ? "\n"
-            : System.getProperty("line.separator");
+            : SystemProperties.getProperty("line.separator");
 
     static final String MAX_SPACES = "                                        ";
     static final int INDENT_INCREMENT = 4;

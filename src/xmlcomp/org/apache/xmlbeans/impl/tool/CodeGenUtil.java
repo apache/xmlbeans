@@ -15,6 +15,8 @@
 
 package org.apache.xmlbeans.impl.tool;
 
+import org.apache.xmlbeans.SystemProperties;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Iterator;
@@ -268,7 +270,7 @@ public class CodeGenUtil
     public static File[] systemClasspath()
     {
         List cp = new ArrayList();
-        String[] systemcp = System.getProperty("java.class.path").split(File.pathSeparator);
+        String[] systemcp = SystemProperties.getProperty("java.class.path").split(File.pathSeparator);
         for (int i = 0; i < systemcp.length; i++)
         {
             cp.add(new File(systemcp[i]));
@@ -364,7 +366,7 @@ public class CodeGenUtil
             return result;
         }
         
-        String home = System.getProperty("java.home");
+        String home = SystemProperties.getProperty("java.home");
 
         String sep  = File.separator;
         result = new File(home + sep + ".." + sep + "bin", tool);
