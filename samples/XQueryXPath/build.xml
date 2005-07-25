@@ -20,6 +20,7 @@ limitations under the License.
         <path refid="xmlbeans.path"/>
         <fileset dir="build/lib" includes="*.jar"/>
         <pathelement path="build/classes"/>
+	  <pathelement path="${env.CLASSPATH}"/>
     </path>
 
     <target name="init">
