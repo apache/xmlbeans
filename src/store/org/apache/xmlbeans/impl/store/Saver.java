@@ -20,6 +20,7 @@ import javax.xml.namespace.QName;
 import org.apache.xmlbeans.SystemProperties;
 import org.apache.xmlbeans.XmlDocumentProperties;
 import org.apache.xmlbeans.XmlOptions;
+import org.apache.xmlbeans.XmlOptionCharEscapeMap;
 
 import org.apache.xmlbeans.impl.common.QNameHelper;
 import org.apache.xmlbeans.impl.common.EncodingMap;
@@ -67,9 +68,9 @@ abstract class Saver
     Saver ( Cur c, XmlOptions options )
     {
         assert c._locale.entered();
-        
+
         options = XmlOptions.maskNull( options );
-        
+
         _cur = createSaveCur( c, options );
 
         _locale = c._locale;
@@ -83,13 +84,13 @@ abstract class Saver
         _attrValues = new ArrayList ();
 
         // Define implicit xml prefixed namespace
-        
+
         addMapping( "xml", Locale._xml1998Uri );
 
         if (options.hasOption( XmlOptions.SAVE_IMPLICIT_NAMESPACES ))
         {
             Map m = (Map) options.get( XmlOptions.SAVE_IMPLICIT_NAMESPACES );
-            
+
             for ( Iterator i = m.keySet().iterator() ; i.hasNext() ; )
             {
                 String prefix = (String) i.next();
@@ -97,14 +98,21 @@ abstract class Saver
             }
         }
 
+        // define character map for escaped replacements
+        if (options.hasOption( XmlOptions.SAVE_SUBSITITUTE_CHARACTERS ))
+        {
+            _replaceChar = (XmlOptionCharEscapeMap)
+                options.get( XmlOptions.SAVE_SUBSITITUTE_CHARACTERS);
+        }
+
         // If the default prefix has not been mapped, do so now
-        
+
         if (getNamespaceForPrefix( "" ) == null)
         {
             _initialDefaultUri = new String( "" );
             addMapping( "", _initialDefaultUri );
         }
-        
+
         if (options.hasOption( XmlOptions.SAVE_AGGRESSIVE_NAMESPACES ) &&
                 !(this instanceof SynthNamespaceSaver))
         {
@@ -116,15 +124,15 @@ abstract class Saver
             if (!saver._synthNamespaces.isEmpty())
                 _preComputedNamespaces = saver._synthNamespaces;
         }
-        
+
         _useDefaultNamespace =
             options.hasOption( XmlOptions.SAVE_USE_DEFAULT_NAMESPACE );
 
         _saveNamespacesFirst = options.hasOption( XmlOptions.SAVE_NAMESPACES_FIRST );
-        
+
         if (options.hasOption( XmlOptions.SAVE_SUGGESTED_PREFIXES ))
             _suggestedPrefixes = (Map) options.get( XmlOptions.SAVE_SUGGESTED_PREFIXES);
-        
+
         _ancestorNamespaces = _cur.getAncestorNamespaces();
     }
 
@@ -136,13 +144,13 @@ abstract class Saver
 
         if (fragName == null)
         {
-            fragName = 
+            fragName =
                 options.hasOption( XmlOptions.SAVE_USE_OPEN_FRAGMENT )
                     ? Locale._openuriFragment
                     : Locale._xmlFragment;
         }
 
-        boolean saveInner = 
+        boolean saveInner =
             options.hasOption( XmlOptions.SAVE_INNER ) &&
                 !options.hasOption( XmlOptions.SAVE_OUTER );
 
@@ -168,13 +176,13 @@ abstract class Saver
 
             break;
         }
-        
+
         case ELEM :
         {
             if (saveInner)
             {
                 positionToInner( c, start, end );
-                
+
                 cur =
                     new FragSaveCur(
                         start, end, Locale.isFragment( start, end ) ? fragName : synthName );
@@ -182,7 +190,7 @@ abstract class Saver
             else if (synthName != null)
             {
                 positionToInner( c, start, end );
-                
+
                 cur = new FragSaveCur( start, end, synthName );
             }
             else
@@ -218,7 +226,7 @@ abstract class Saver
             {
                 start.moveToCur( c );
                 start.next();
-                
+
                 end.moveToCur( c );
                 end.toEnd();
             }
@@ -230,7 +238,7 @@ abstract class Saver
             else
             {
                 assert k == COMMENT || k == PROCINST;
-                
+
                 start.moveToCur( c );
                 end.moveToCur( c );
                 end.skip();
@@ -277,33 +285,33 @@ abstract class Saver
 
         if (_cur == null)
             return false;
-        
+
         if (_version != _locale.version())
             throw new ConcurrentModificationException( "Document changed during save" );
-        
+
         switch ( _cur.kind() )
         {
             case   ROOT     : { processRoot();                        break; }
             case   ELEM     : { processElement();                     break; }
             case - ELEM     : { processFinish ();                     break; }
             case   TEXT     : { emitText      ( _cur );               break; }
-                
+
             case   COMMENT  : { emitComment   ( _cur ); _cur.toEnd(); break; }
             case   PROCINST : { emitProcinst  ( _cur ); _cur.toEnd(); break; }
-                              
+
             case - ROOT :
             {
                 _cur.release();
                 _cur = null;
-                
+
                 return false;
             }
-                
+
             default : throw new RuntimeException( "Unexpected kind" );
         }
 
         _cur.next();
-        
+
         return true;
     }
 
@@ -389,7 +397,7 @@ abstract class Saver
                 QName attrName = _cur.getName();
 
                 _attrNames.add( attrName );
-                               
+
                 for ( int i = _attrNames.size() - 2 ; i >= 0 ; i-- )
                 {
                     if (_attrNames.get( i ).equals( attrName ))
@@ -400,11 +408,11 @@ abstract class Saver
                 }
 
                 _attrValues.add( _cur.getAttrValue() );
-                
+
                 ensureMapping( attrName.getNamespaceURI(), attrName.getPrefix(), false, true );
             }
         }
-        
+
         _cur.pop();
 
         // If I am doing aggressive namespaces and we're emitting a
@@ -419,7 +427,7 @@ abstract class Saver
                 String uri = (String) i.next();
                 String prefix = (String) _preComputedNamespaces.get( uri );
                 boolean considerDefault = prefix.length() == 0 && !ensureDefaultEmpty;
-                
+
                 ensureMapping( uri, prefix, considerDefault, false );
             }
 
@@ -483,7 +491,7 @@ abstract class Saver
     private final void pushMappings ( SaveCur c, boolean ensureDefaultEmpty )
     {
         assert c.isContainer();
-        
+
         _namespaceStack.add( null );
 
         c.push();
@@ -501,13 +509,13 @@ abstract class Saver
             {
                 String prefix = (String) _ancestorNamespaces.get( i );
                 String uri    = (String) _ancestorNamespaces.get( i + 1 );
-                
+
                 addNewFrameMapping( prefix, uri, ensureDefaultEmpty );
             }
 
             _ancestorNamespaces = null;
         }
-        
+
         if (ensureDefaultEmpty)
         {
             String defaultUri = (String) _prefixMap.get( "" );
@@ -525,7 +533,7 @@ abstract class Saver
         // If the prefix maps to "", this don't include this mapping 'cause it's not well formed.
         // Also, if we want to make sure that the default namespace is always "", then check that
         // here as well.
-        
+
         if ((prefix.length() == 0 || uri.length() > 0) &&
                 (!ensureDefaultEmpty || prefix.length() > 0 || uri.length() == 0))
         {
@@ -562,7 +570,7 @@ abstract class Saver
         {
             // See if this prefix is already mapped to this uri.  If
             // so, then add to the stack, but there is nothing to rename
-        
+
             if (renameUri.equals( uri ))
                 renameUri = null;
             else
@@ -618,7 +626,7 @@ abstract class Saver
         if (renameUri != null)
             _uriMap.put( renameUri, renamePrefix );
     }
-    
+
     private final void popMappings ( )
     {
         for ( ; ; )
@@ -634,21 +642,21 @@ abstract class Saver
                 break;
             }
 
-            Object oldUri = _namespaceStack.get( i - 7 ); 
-            Object oldPrefix = _namespaceStack.get( i - 8 ); 
+            Object oldUri = _namespaceStack.get( i - 7 );
+            Object oldPrefix = _namespaceStack.get( i - 8 );
 
-            if (oldPrefix == null) 
-                _uriMap.remove( oldUri ); 
-            else 
-                _uriMap.put( oldUri, oldPrefix ); 
+            if (oldPrefix == null)
+                _uriMap.remove( oldUri );
+            else
+                _uriMap.put( oldUri, oldPrefix );
 
-            oldPrefix = _namespaceStack.get( i - 4 ); 
-            oldUri = _namespaceStack.get( i - 3 ); 
+            oldPrefix = _namespaceStack.get( i - 4 );
+            oldUri = _namespaceStack.get( i - 3 );
 
-            if (oldUri == null) 
-                _prefixMap.remove( oldPrefix ); 
-            else 
-                _prefixMap.put( oldPrefix, oldUri ); 
+            if (oldUri == null)
+                _prefixMap.remove( oldPrefix );
+            else
+                _prefixMap.put( oldPrefix, oldUri );
 
             String uri = (String) _namespaceStack.get( i - 5 );
 
@@ -666,7 +674,7 @@ abstract class Saver
             _namespaceStack.remove( i - 8 );
         }
     }
-    
+
     private final void dumpMappings ( )
     {
         for ( int i = _namespaceStack.size() ; i > 0 ; )
@@ -732,10 +740,10 @@ abstract class Saver
         //  3) The default mapping is allowed
         //  4) ns#++
         //
-        
+
         if (candidatePrefix != null && candidatePrefix.length() == 0)
             candidatePrefix = null;
-        
+
         if (candidatePrefix == null || !tryPrefix( candidatePrefix ))
         {
             if (_suggestedPrefixes != null &&
@@ -750,12 +758,12 @@ abstract class Saver
             {
                 String basePrefix = QNameHelper.suggestPrefix( uri );
                 candidatePrefix = basePrefix;
-                
+
                 for ( int i = 1 ; ; i++ )
                 {
                     if (tryPrefix( candidatePrefix ))
                         break;
-                    
+
                     candidatePrefix = basePrefix + i;
                 }
             }
@@ -769,7 +777,7 @@ abstract class Saver
 
         return candidatePrefix;
     }
-    
+
     protected final String getUriMapping ( String uri )
     {
         assert _uriMap.get( uri ) != null;
@@ -782,7 +790,7 @@ abstract class Saver
 
         if (prefix != null && prefix.length() > 0)
             return prefix;
-        
+
         for ( Iterator keys = _prefixMap.keySet().iterator() ; keys.hasNext() ; )
         {
             prefix = (String) keys.next();
@@ -819,32 +827,32 @@ abstract class Saver
     public final String getNamespaceForPrefix ( String prefix )
     {
         assert !prefix.equals( "xml" ) || _prefixMap.get( prefix ).equals( Locale._xml1998Uri );
-        
+
         return (String) _prefixMap.get( prefix );
     }
 
     //
     //
     //
-    
+
     static final class SynthNamespaceSaver extends Saver
     {
         LinkedHashMap _synthNamespaces = new LinkedHashMap();
-        
+
         SynthNamespaceSaver ( Cur c, XmlOptions options )
         {
             super( c, options );
         }
-        
+
         protected void syntheticNamespace (
             String prefix, String uri, boolean considerCreatingDefault )
         {
             _synthNamespaces.put( uri, considerCreatingDefault ? "" : prefix );
         }
-        
+
         protected boolean emitElement (
             SaveCur c, ArrayList attrNames, ArrayList attrValues ) { return false; }
-        
+
         protected void emitFinish    ( SaveCur c ) { }
         protected void emitText      ( SaveCur c ) { }
         protected void emitComment   ( SaveCur c ) { }
@@ -865,22 +873,22 @@ abstract class Saver
 
             boolean noSaveDecl =
                 options != null && options.hasOption( XmlOptions.SAVE_NO_XML_DECL );
-            
+
             if (encoding != null && !noSaveDecl)
             {
                 XmlDocumentProperties props = Locale.getDocProps( c, false );
-                
+
                 String version = props == null ? null : props.getVersion();
 
                 if (version == null)
                     version = "1.0";
-                
+
                 emit( "<?xml version=\"" );
                 emit( version );
                 emit( "\" encoding=\"" + encoding + "\"?>" + _newLine );
             }
         }
-        
+
         protected boolean emitElement ( SaveCur c, ArrayList attrNames, ArrayList attrValues )
         {
             assert c.isElem();
@@ -908,14 +916,14 @@ abstract class Saver
                 return false;
             }
         }
-        
+
         protected void emitFinish ( SaveCur c )
         {
             emit( "</" );
             emitName( c.getName(), false );
             emit( '>' );
         }
-        
+
         protected void emitXmlns ( String prefix, String uri )
         {
             assert prefix != null;
@@ -947,7 +955,7 @@ abstract class Saver
                 emitXmlns( mappingPrefix(), mappingUri() );
             }
         }
-                                     
+
         private void emitAttrHelper ( QName attrName, String attrValue )
         {
             emit( ' ' );
@@ -961,12 +969,12 @@ abstract class Saver
         protected void emitText ( SaveCur c )
         {
             assert c.isText();
-            
+
             emit( c );
 
             entitizeContent();
         }
-        
+
         protected void emitComment ( SaveCur c )
         {
             assert c.isComment();
@@ -979,7 +987,7 @@ abstract class Saver
             emit( c );
 
             c.pop();
-            
+
             entitizeComment();
             emit( "-->" );
         }
@@ -987,9 +995,9 @@ abstract class Saver
         protected void emitProcinst ( SaveCur c )
         {
             assert c.isProcinst();
-            
+
             emit( "<?" );
-            
+
             // TODO - encoding issues here?
             emit( c.getName().getLocalPart() );
 
@@ -1005,7 +1013,7 @@ abstract class Saver
             }
 
             c.pop();
-            
+
             emit( "?>" );
         }
 
@@ -1054,7 +1062,7 @@ abstract class Saver
         //
         //
         //
-        
+
         private void emitName ( QName name, boolean needsPrefix )
         {
             assert name != null;
@@ -1077,7 +1085,7 @@ abstract class Saver
                 // NOTE - Consider keeping the currently mapped default URI separate fromn the
                 // _urpMap and _prefixMap.  This way, I would not have to look it up manually
                 // here
-                
+
                 if (needsPrefix && prefix.length() == 0)
                     prefix = getNonDefaultUriMapping( uri );
 
@@ -1101,7 +1109,7 @@ abstract class Saver
 
             _in = (_in + 1) % _buf.length;
         }
-        
+
         private void emit ( String s )
         {
             int cch = s == null ? 0 : s.length();
@@ -1123,14 +1131,14 @@ abstract class Saver
                 _in = (_in + cch) % _buf.length;
             }
         }
-        
+
         private void emit ( SaveCur c )
         {
             if (c.isText())
             {
                 Object src = c.getChars();
                 int cch = c._cchSrc;
-                
+
                 if (preEmit( cch ))
                     return;
 
@@ -1151,11 +1159,11 @@ abstract class Saver
             else
                 preEmit( 0 );
         }
-        
+
         private boolean preEmit ( int cch )
         {
             assert cch >= 0;
-            
+
             _lastEmitCch = cch;
 
             if (cch == 0)
@@ -1171,7 +1179,7 @@ abstract class Saver
             // if we are about to emit and there is noting in the buffer, reset
             // the buffer to be at the beginning so as to not grow it anymore
             // than needed.
-            
+
             if (used == 0)
             {
                 assert _in == _out;
@@ -1182,12 +1190,12 @@ abstract class Saver
             _lastEmitIn = _in;
 
             _free -= cch;
-            
+
             assert _free >= 0;
 
             return false;
         }
-        
+
         private void entitizeContent ( )
         {
             if (_lastEmitCch == 0)
@@ -1196,8 +1204,8 @@ abstract class Saver
             int i = _lastEmitIn;
             final int n = _buf.length;
 
-            boolean hasOutOfRange = false;
-            
+            boolean hasCharToBeReplaced = false;
+
             int count = 0;
             for ( int cch = _lastEmitCch ; cch > 0 ; cch-- )
             {
@@ -1205,14 +1213,14 @@ abstract class Saver
 
                 if (ch == '<' || ch == '&')
                     count++;
-                else if (isBadChar( ch ))
-                    hasOutOfRange = true;
+                else if (isBadChar( ch ) || isEscapedChar( ch ))
+                    hasCharToBeReplaced = true;
 
                 if (++i == n)
                     i = 0;
             }
 
-            if (count == 0 && !hasOutOfRange)
+            if (count == 0 && !hasCharToBeReplaced)
                 return;
 
             i = _lastEmitIn;
@@ -1220,7 +1228,6 @@ abstract class Saver
             //
             // Heuristic for knowing when to save out stuff as a CDATA.
             //
-
             if (_lastEmitCch > 32 && count > 5 &&
                   count * 100 / _lastEmitCch > 1)
             {
@@ -1272,6 +1279,8 @@ abstract class Saver
                         i = replace( i, "&gt;" );
                     else if (isBadChar( ch ))
                         i = replace( i, "?" );
+                    else if (isEscapedChar( ch ))
+                        i = replace( i, _replaceChar.getEscapedString( ch ) );
                     else
                         i++;
 
@@ -1394,7 +1403,7 @@ abstract class Saver
          * Test if a character is valid in xml character content. See
          * http://www.w3.org/TR/REC-xml#NT-Char
          */
-        
+
         private boolean isBadChar ( char ch )
         {
             return ! (
@@ -1403,6 +1412,14 @@ abstract class Saver
                 (ch >= 0x10000 && ch <= 0x10FFFF) ||
                 (ch == 0x9) || (ch == 0xA) || (ch == 0xD)
                 );
+        }
+
+        /**
+         * Test if a character is to be replaced with an escaped value
+         */
+        private boolean isEscapedChar ( char ch )
+        {
+            return ( null != _replaceChar && _replaceChar.containsChar( ch ) );
         }
 
         private int replace ( int i, String replacement )
@@ -1421,7 +1438,7 @@ abstract class Saver
 
             if (dCch > _free)
                 i = resize( dCch, i );
-            
+
             assert _free >= 0;
 
             assert _free >= dCch;
@@ -1443,7 +1460,7 @@ abstract class Saver
             replacement.getChars( 0, dCch + 1, _buf, i );
 
             _free -= dCch;
-            
+
             assert _free >= 0;
 
             return i + dCch + 1;
@@ -1509,7 +1526,7 @@ abstract class Saver
                     System.arraycopy( _buf, 0, newBuf, used - _in, _in );
                     i = i >= _out ? i - _out : i + _out;
                 }
-                
+
                 _out = 0;
                 _in = used;
                 _free += newBuf.length - _buf.length;
@@ -1612,9 +1629,9 @@ abstract class Saver
                 }
 
                 _free += charsAvailable;
-                
+
                 assert _free >= 0;
-                
+
                 _in = 0;
             }
 
@@ -1651,7 +1668,7 @@ abstract class Saver
         private int    _out;
         private char[] _buf;
     }
-    
+
     static final class TextReader extends Reader
     {
         TextReader ( Cur c, XmlOptions options )
@@ -1668,7 +1685,7 @@ abstract class Saver
         public int read ( ) throws IOException
         {
             checkClosed();
-            
+
             if (_locale.noSync())         { _locale.enter(); try { return _textSaver.read(); } finally { _locale.exit(); } }
             else synchronized ( _locale ) { _locale.enter(); try { return _textSaver.read(); } finally { _locale.exit(); } }
         }
@@ -1676,7 +1693,7 @@ abstract class Saver
         public int read ( char[] cbuf ) throws IOException
         {
             checkClosed();
-            
+
             if (_locale.noSync())         { _locale.enter(); try { return _textSaver.read( cbuf, 0, cbuf == null ? 0 : cbuf.length ); } finally { _locale.exit(); } }
             else synchronized ( _locale ) { _locale.enter(); try { return _textSaver.read( cbuf, 0, cbuf == null ? 0 : cbuf.length ); } finally { _locale.exit(); } }
         }
@@ -1684,7 +1701,7 @@ abstract class Saver
         public int read ( char[] cbuf, int off, int len ) throws IOException
         {
             checkClosed();
-            
+
             if (_locale.noSync())         { _locale.enter(); try { return _textSaver.read( cbuf, off, len ); } finally { _locale.exit(); } }
             else synchronized ( _locale ) { _locale.enter(); try { return _textSaver.read( cbuf, off, len ); } finally { _locale.exit(); } }
         }
@@ -1694,12 +1711,12 @@ abstract class Saver
             if (_closed)
                 throw new IOException( "Reader has been closed" );
         }
-        
+
         private Locale    _locale;
         private TextSaver _textSaver;
         private boolean   _closed;
     }
-    
+
     static final class InputStreamSaver extends InputStream
     {
         InputStreamSaver ( Cur c, XmlOptions options )
@@ -1707,17 +1724,17 @@ abstract class Saver
             _locale = c._locale;
 
             _closed = false;
-            
+
             assert _locale.entered();
-            
+
             options = XmlOptions.maskNull( options );
-            
+
             _outStreamImpl = new OutputStreamImpl();
 
             String encoding = null;
 
             XmlDocumentProperties props = Locale.getDocProps( c, false );
-            
+
             if (props != null && props.getEncoding() != null)
                 encoding = EncodingMap.getIANA2JavaMapping( props.getEncoding() );
 
@@ -1765,11 +1782,11 @@ abstract class Saver
 
         // Having the gateway here is kinda slow for the single character case.  It may be possible
         // to only enter the gate when there are no chars in the buffer.
-        
+
         public int read ( ) throws IOException
         {
             checkClosed();
-            
+
             if (_locale.noSync())         { _locale.enter(); try { return _outStreamImpl.read(); } finally { _locale.exit(); } }
             else synchronized ( _locale ) { _locale.enter(); try { return _outStreamImpl.read(); } finally { _locale.exit(); } }
         }
@@ -1777,13 +1794,13 @@ abstract class Saver
         public int read ( byte[] bbuf, int off, int len ) throws IOException
         {
             checkClosed();
-            
+
             if (bbuf == null)
                 throw new NullPointerException( "buf to read into is null" );
 
             if (off < 0 || off > bbuf.length)
                 throw new IndexOutOfBoundsException( "Offset is not within buf" );
-            
+
             if (_locale.noSync())         { _locale.enter(); try { return _outStreamImpl.read( bbuf, off, len ); } finally { _locale.exit(); } }
             else synchronized ( _locale ) { _locale.enter(); try { return _outStreamImpl.read( bbuf, off, len ); } finally { _locale.exit(); } }
         }
@@ -1989,12 +2006,12 @@ abstract class Saver
             throws SAXException
         {
             super( c, options );
-            
+
             _contentHandler = ch;
             _lexicalHandler = lh;
 
             _attributes = new AttributesImpl();
-            
+
             _contentHandler.startDocument();
 
             try
@@ -2006,7 +2023,7 @@ abstract class Saver
             {
                 throw e._saxException;
             }
-            
+
             _contentHandler.endDocument();
         }
 
@@ -2016,7 +2033,7 @@ abstract class Saver
             {
                 _saxException = e;
             }
-            
+
             SAXException _saxException;
         }
 
@@ -2035,7 +2052,7 @@ abstract class Saver
 
             return prefix + ":" + local;
         }
-        
+
         private void emitNamespacesHelper ( )
         {
             for ( iterateMappings() ; hasMapping() ; nextMapping() )
@@ -2058,18 +2075,18 @@ abstract class Saver
                     _attributes.addAttribute( "http://www.w3.org/2000/xmlns/", "", "xmlns:" + prefix, "CDATA", uri );
             }
         }
-            
+
         protected boolean emitElement ( SaveCur c, ArrayList attrNames, ArrayList attrValues )
         {
             _attributes.clear();
-            
+
             if (saveNamespacesFirst())
                 emitNamespacesHelper();
 
             for ( int i = 0 ; i < attrNames.size() ; i++ )
             {
                 QName name = (QName) attrNames.get( i );
-                
+
                 _attributes.addAttribute(
                     name.getNamespaceURI(), name.getLocalPart(), getPrefixedName( name ),
                     "CDATA", (String) attrValues.get( i ) );
@@ -2093,7 +2110,7 @@ abstract class Saver
 
             return false;
         }
-        
+
         protected void emitFinish ( SaveCur c )
         {
             QName name = c.getName();
@@ -2102,7 +2119,7 @@ abstract class Saver
             {
                 _contentHandler.endElement(
                     name.getNamespaceURI(), name.getLocalPart(), getPrefixedName( name ) );
-            
+
                 for ( iterateMappings() ; hasMapping() ; nextMapping() )
                     _contentHandler.endPrefixMapping( mappingPrefix() );
             }
@@ -2111,7 +2128,7 @@ abstract class Saver
                 throw new SaverSAXException( e );
             }
         }
-        
+
         protected void emitText ( SaveCur c )
         {
             assert c.isText();
@@ -2148,7 +2165,7 @@ abstract class Saver
                 throw new SaverSAXException( e );
             }
         }
-        
+
         protected void emitComment ( SaveCur c )
         {
             if (_lexicalHandler != null)
@@ -2189,11 +2206,11 @@ abstract class Saver
                 c.pop();
             }
         }
-        
+
         protected void emitProcinst ( SaveCur c )
         {
             String target = c.getName().getLocalPart();
-            
+
             c.push();
 
             c.next();
@@ -2235,7 +2252,7 @@ abstract class Saver
 
         private char[] _buf;
     }
-    
+
     //
     //
     //
@@ -2255,22 +2272,22 @@ abstract class Saver
         final boolean skip ( ) { toEnd(); return next(); }
 
         abstract void release ( );
-        
+
         abstract int kind ( );
-        
+
         abstract QName  getName ( );
         abstract String getXmlnsPrefix ( );
         abstract String getXmlnsUri ( );
-        
+
         abstract boolean isXmlns ( );
-        
+
         abstract boolean hasChildren  ( );
         abstract boolean hasText      ( );
-        
+
         abstract boolean toFirstAttr ( );
         abstract boolean toNextAttr ( );
         abstract String  getAttrValue ( );
-        
+
         abstract boolean next  ( );
         abstract void    toEnd ( );
 
@@ -2284,10 +2301,10 @@ abstract class Saver
         int _offSrc;
         int _cchSrc;
     }
-    
+
     // TODO - saving a fragment need to take namesapces from root and
     // reflect them on the document element
-    
+
     private static final class DocSaveCur extends SaveCur
     {
         DocSaveCur ( Cur c )
@@ -2301,34 +2318,34 @@ abstract class Saver
             _cur.release();
             _cur = null;
         }
-        
+
         int kind ( ) { return _cur.kind(); }
-        
+
         QName  getName        ( ) { return _cur.getName(); }
         String getXmlnsPrefix ( ) { return _cur.getXmlnsPrefix(); }
         String getXmlnsUri    ( ) { return _cur.getXmlnsUri(); }
-        
+
         boolean isXmlns       ( ) { return _cur.isXmlns();     }
-        
+
         boolean hasChildren   ( ) { return _cur.hasChildren(); }
         boolean hasText       ( ) { return _cur.hasText();     }
-        
+
         boolean toFirstAttr   ( ) { return _cur.toFirstAttr(); }
         boolean toNextAttr    ( ) { return _cur.toNextAttr();  }
         String  getAttrValue  ( ) { assert _cur.isAttr(); return _cur.getValueAsString(); }
-        
+
         void    toEnd         ( ) { _cur.toEnd();              }
         boolean next          ( ) { return _cur.next();        }
-        
+
         void push ( )         { _cur.push(); }
         void pop  ( )         { _cur.pop(); }
 
         List getAncestorNamespaces ( ) { return null; }
-        
+
         Object getChars ( )
         {
             Object o = _cur.getChars( -1 );
-            
+
             _offSrc = _cur._offSrc;
             _cchSrc = _cur._cchSrc;
 
@@ -2356,24 +2373,24 @@ abstract class Saver
             _cur.release();
             _cur = null;
         }
-        
+
         int kind ( ) { return _cur.kind(); }
-        
+
         QName  getName        ( ) { return _cur.getName();        }
         String getXmlnsPrefix ( ) { return _cur.getXmlnsPrefix(); }
         String getXmlnsUri    ( ) { return _cur.getXmlnsUri();    }
-        
+
         boolean isXmlns       ( ) { return _cur.isXmlns();      }
-        
+
         boolean hasChildren   ( ) { return _cur.hasChildren();  }
         boolean hasText       ( ) { return _cur.hasText();      }
-        
+
         boolean toFirstAttr   ( ) { return _cur.toFirstAttr();  }
         boolean toNextAttr    ( ) { return _cur.toNextAttr();   }
         String  getAttrValue  ( ) { return _cur.getAttrValue(); }
-        
+
         void toEnd ( ) { _cur.toEnd(); }
-        
+
         boolean next ( )
         {
             if (!_cur.next())
@@ -2381,29 +2398,29 @@ abstract class Saver
 
             if (!filter())
                 return true;
-            
+
             assert !isRoot() && !isText() && !isAttr();
-                
+
             toEnd();
-            
+
             return next();
         }
-        
+
         void push ( ) { _cur.push(); }
         void pop  ( ) { _cur.pop(); }
 
         List getAncestorNamespaces ( ) { return _cur.getAncestorNamespaces(); }
-        
+
         Object getChars ( )
         {
             Object o = _cur.getChars();
-            
+
             _offSrc = _cur._offSrc;
             _cchSrc = _cur._cchSrc;
 
             return o;
         }
-        
+
         XmlDocumentProperties getDocProps ( ) { return _cur.getDocProps(); }
 
         private SaveCur _cur;
@@ -2414,7 +2431,7 @@ abstract class Saver
         FilterPiSaveCur ( SaveCur c, String target )
         {
             super( c );
-            
+
             _piTarget = target;
         }
 
@@ -2436,9 +2453,9 @@ abstract class Saver
             _end = end.weakCur( this );
 
             _elem = synthElem;
-            
+
             _state = ROOT_START;
-            
+
             _stateStack = new int [ 8 ];
 
             start.push();
@@ -2450,11 +2467,11 @@ abstract class Saver
         {
             return _ancestorNamespaces;
         }
-        
+
         private void computeAncestorNamespaces ( Cur c )
         {
             _ancestorNamespaces = new ArrayList();
-            
+
             while ( c.toParentRaw() )
             {
                 if (c.toFirstAttr())
@@ -2467,7 +2484,7 @@ abstract class Saver
                             String uri = c.getXmlnsUri();
 
                             // Don't let xmlns:foo="" get used
-                            
+
                             if (uri.length() > 0 || prefix.length() == 0)
                             {
                                 _ancestorNamespaces.add( c.getXmlnsPrefix() );
@@ -2476,16 +2493,16 @@ abstract class Saver
                         }
                     }
                     while ( c.toNextAttr() );
-                    
+
                     c.toParent();
                 }
             }
         }
-        
+
         //
         //
         //
-        
+
         void release ( )
         {
             _cur.release();
@@ -2504,49 +2521,49 @@ abstract class Saver
             case ELEM_END   : return -ELEM;
             case ROOT_END   : return -ROOT;
             }
-            
+
             assert _state == CUR;
-            
+
             return _cur.kind();
         }
-        
+
         QName getName ( )
         {
             switch ( _state )
             {
             case ROOT_START :
             case ROOT_END   : return null;
-            case ELEM_START : 
+            case ELEM_START :
             case ELEM_END   : return _elem;
             }
-            
+
             assert _state == CUR;
 
             return _cur.getName();
         }
-        
+
         String getXmlnsPrefix ( )
         {
             assert _state == CUR && _cur.isAttr();
             return _cur.getXmlnsPrefix();
         }
-        
+
         String getXmlnsUri ( )
         {
             assert _state == CUR && _cur.isAttr();
             return _cur.getXmlnsUri();
         }
-        
+
         boolean isXmlns ( )
         {
             assert _state == CUR && _cur.isAttr();
             return _cur.isXmlns();
         }
-        
+
         boolean hasChildren ( )
         {
             boolean hasChildren = false;
-            
+
             if (isContainer())
             {   // is there a faster way to do this?
                 push();
@@ -2554,17 +2571,17 @@ abstract class Saver
 
                 if (!isText() && !isFinish())
                     hasChildren = true;
-                
+
                 pop();
             }
 
             return hasChildren;
         }
-        
+
         boolean hasText ( )
         {
             boolean hasText = false;
-            
+
             if (isContainer())
             {
                 push();
@@ -2572,25 +2589,25 @@ abstract class Saver
 
                 if (isText())
                     hasText = true;
-                
+
                 pop();
             }
 
             return hasText;
         }
-        
+
         Object getChars ( )
         {
             assert _state == CUR && _cur.isText();
 
             Object src = _cur.getChars( -1 );
-            
+
             _offSrc = _cur._offSrc;
             _cchSrc = _cur._cchSrc;
 
             return src;
         }
-        
+
         boolean next ( )
         {
             switch ( _state )
@@ -2633,7 +2650,7 @@ abstract class Saver
 
                 break;
             }
-            
+
             case ELEM_END :
             {
                 _state = ROOT_END;
@@ -2645,7 +2662,7 @@ abstract class Saver
 
             return true;
         }
-        
+
         void toEnd ( )
         {
             switch ( _state )
@@ -2660,33 +2677,33 @@ abstract class Saver
 
             _cur.toEnd();
         }
-        
+
         boolean toFirstAttr ( )
         {
             switch ( _state )
             {
             case ROOT_END   :
-            case ELEM_END   : 
+            case ELEM_END   :
             case ROOT_START : return false;
             case CUR        : return _cur.toFirstAttr();
             }
-            
+
             assert _state == ELEM_START;
 
             if (!_cur.isAttr())
                 return false;
-            
+
             _state = CUR;
-                
+
             return true;
         }
-        
+
         boolean toNextAttr ( )
         {
             assert _state == CUR;
             return !_saveAttr && _cur.toNextAttr();
         }
-        
+
         String getAttrValue ( )
         {
             assert _state == CUR && _cur.isAttr();
@@ -2711,7 +2728,7 @@ abstract class Saver
             _cur.pop();
             _state = _stateStack [ --_stateStackSize ];
         }
-        
+
         XmlDocumentProperties getDocProps ( ) { return Locale.getDocProps(_cur, false); }
 
         //
@@ -2726,26 +2743,26 @@ abstract class Saver
         private QName _elem;
 
         private boolean _saveAttr;
-        
+
         private static final int ROOT_START = 1;
         private static final int ELEM_START = 2;
         private static final int ROOT_END   = 3;
         private static final int ELEM_END   = 4;
         private static final int CUR        = 5;
-        
+
         private int _state;
 
         private int[] _stateStack;
         private int   _stateStackSize;
     }
-    
+
     private static final class PrettySaveCur extends SaveCur
     {
         PrettySaveCur ( SaveCur c, XmlOptions options )
         {
             _sb = new StringBuffer();
             _stack = new ArrayList();
-            
+
             _cur = c;
 
             assert options != null;
@@ -2766,37 +2783,37 @@ abstract class Saver
         }
 
         List getAncestorNamespaces ( ) { return _cur.getAncestorNamespaces(); }
-        
+
         void release ( ) { _cur.release(); }
-        
+
         int kind ( ) { return _txt == null ? _cur.kind() : TEXT; }
-        
+
         QName  getName        ( ) { assert _txt == null; return _cur.getName(); }
         String getXmlnsPrefix ( ) { assert _txt == null; return _cur.getXmlnsPrefix(); }
         String getXmlnsUri    ( ) { assert _txt == null; return _cur.getXmlnsUri(); }
-        
+
         boolean isXmlns       ( ) { return _txt == null ? _cur.isXmlns()      : false; }
-        
+
         boolean hasChildren   ( ) { return _txt == null ? _cur.hasChildren() : false; }
         boolean hasText       ( ) { return _txt == null ? _cur.hasText()     : false; }
-        
+
         boolean toFirstAttr   ( ) { assert _txt == null; return _cur.toFirstAttr(); }
         boolean toNextAttr    ( ) { assert _txt == null; return _cur.toNextAttr(); }
         String  getAttrValue  ( ) { assert _txt == null; return _cur.getAttrValue(); }
-        
+
         void toEnd ( )
         {
             assert _txt == null;
             _cur.toEnd();
-            
+
             if (_cur.kind() == -ELEM)
                 _depth--;
         }
-        
+
         boolean next ( )
         {
             int k;
-            
+
             if (_txt != null)
             {
                 assert _txt.length() > 0;
@@ -2826,7 +2843,7 @@ abstract class Saver
                 k = _cur.kind();
 
                 // Check for non leaf, _prettyIndent < 0 means that the save is all on one line
-                
+
                 if (_prettyIndent >= 0 &&
                       prevKind != COMMENT && prevKind != PROCINST && (prevKind != ELEM || k != -ELEM))
 //                if (prevKind != COMMENT && prevKind != PROCINST && (prevKind != ELEM || k != -ELEM))
@@ -2836,12 +2853,12 @@ abstract class Saver
                         _sb.insert( 0, _newLine );
                         spaces( _sb, _newLine.length(), _prettyOffset + _prettyIndent * _depth );
                     }
-                    
+
                     if (k != -ROOT)
                     {
                         if (prevKind != ROOT)
                             _sb.append( _newLine );
-                        
+
                         int d = k < 0 ? _depth - 1 : _depth;
                         spaces( _sb, _sb.length(), _prettyOffset + _prettyIndent * d );
                     }
@@ -2861,21 +2878,21 @@ abstract class Saver
 
             return true;
         }
-        
+
         void push ( )
         {
             _cur.push();
             _stack.add( _txt );
             _stack.add( new Integer( _depth ) );
         }
-        
+
         void pop ( )
         {
             _cur.pop();
             _depth = ((Integer) _stack.remove( _stack.size() - 1 )).intValue();
             _txt = (String) _stack.remove( _stack.size() - 1 );
         }
-        
+
         Object getChars ( )
         {
             if (_txt != null)
@@ -2884,15 +2901,15 @@ abstract class Saver
                 _cchSrc = _txt.length();
                 return _txt;
             }
-            
+
             Object o = _cur.getChars();
-            
+
             _offSrc = _cur._offSrc;
             _cchSrc = _cur._cchSrc;
 
             return o;
         }
-        
+
         XmlDocumentProperties getDocProps ( ) { return _cur.getDocProps(); }
 
         final static void spaces ( StringBuffer sb, int offset, int count )
@@ -2927,21 +2944,22 @@ abstract class Saver
         private StringBuffer _sb;
 
         private int          _depth;
-        
+
         private ArrayList    _stack;
     }
-    
+
     //
     //
     //
 
     private final Locale _locale;
     private final long   _version;
-    
+
     private SaveCur _cur;
 
     private List    _ancestorNamespaces;
     private Map     _suggestedPrefixes;
+    protected XmlOptionCharEscapeMap _replaceChar;
     private boolean _useDefaultNamespace;
     private Map     _preComputedNamespaces;
     private boolean _saveNamespacesFirst;
