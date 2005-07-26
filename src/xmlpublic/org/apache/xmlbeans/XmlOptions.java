@@ -309,6 +309,23 @@ public class XmlOptions implements java.io.Serializable
     }
 
     /**
+     * This option causes the saver to replace characters with other values in
+     * the output stream.  It is intended to be used for escaping non-standard
+     * characters during output.
+     * 
+     * @param characterReplacementMap is an XmlOptionCharEscapeMap containing
+     * the characters to be escaped.
+     * 
+     * @see XmlTokenSource#save(java.io.File, XmlOptions)
+     * @see XmlTokenSource#xmlText(XmlOptions)
+     * @see XmlOptionCharEscapeMap
+     */
+    public XmlOptions setSaveSubstituteCharacters (
+        XmlOptionCharEscapeMap characterReplacementMap) {
+        return set( SAVE_SUBSITITUTE_CHARACTERS, characterReplacementMap );
+    }
+
+    /**
      * When saving a fragment, this option changes the qname of the synthesized
      * root element.  Normally &lt;xml-fragment&gt; is used.
      * 
@@ -714,7 +731,8 @@ public class XmlOptions implements java.io.Serializable
     public static final String SAVE_INNER                      = "SAVE_INNER";
     /** @exclude */
     public static final String SAVE_NO_XML_DECL                = "SAVE_NO_XML_DECL";
-    
+    /** @exclude */
+    public static final String SAVE_SUBSITITUTE_CHARACTERS     = "SAVE_SUBSITITUTE_CHARACTERS";
     /** @exclude */
     public static final String LOAD_REPLACE_DOCUMENT_ELEMENT   = "LOAD_REPLACE_DOCUMENT_ELEMENT";
     /** @exclude */
