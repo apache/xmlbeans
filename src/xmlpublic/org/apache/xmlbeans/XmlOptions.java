@@ -422,6 +422,22 @@ public class XmlOptions implements java.io.Serializable
         return set( LOAD_LINE_NUMBERS ); 
     }
 
+     /**
+     * If this option is set, line number annotations are placed
+     * in the store when parsing a document.  This is particularly
+     * useful when you want {@link XmlError} objects to contain
+     * line numbers. Use the option to load line numbers at non-default
+     * places, e.g. at the end of an element
+     *
+     * @see XmlObject.Factory#parse(java.io.File, XmlOptions)
+     * @see XmlError
+     */
+    public XmlOptions setLoadLineNumbers (String option) {
+        XmlOptions temp = setLoadLineNumbers();
+        temp = temp.set( option );
+        return temp;
+    }
+
     /**
      * This option sets a map of namespace uri substitutions that happen
      * when parsing a document.
@@ -743,6 +759,9 @@ public class XmlOptions implements java.io.Serializable
     public static final String LOAD_STRIP_PROCINSTS            = "LOAD_STRIP_PROCINSTS";
     /** @exclude */
     public static final String LOAD_LINE_NUMBERS               = "LOAD_LINE_NUMBERS";
+    /** @exclude */
+    public static final String LOAD_LINE_NUMBERS_END_ELEMENT= "LOAD_LINE_NUMBERS_END_ELEMENT";
+
     /** @exclude */
     public static final String LOAD_SUBSTITUTE_NAMESPACES      = "LOAD_SUBSTITUTE_NAMESPACES";
     /** @exclude */

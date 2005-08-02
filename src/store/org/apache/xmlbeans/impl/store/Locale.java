@@ -3128,6 +3128,9 @@ public final class Locale
             _wantLineNumbers =
                 _startLocator != null &&
                 options.hasOption(XmlOptions.LOAD_LINE_NUMBERS);
+            _wantLineNumbersAtEndElt =
+                _startLocator != null &&
+                options.hasOption(XmlOptions.LOAD_LINE_NUMBERS_END_ELEMENT);
         }
 
         public void startDocument()
@@ -3230,6 +3233,12 @@ public final class Locale
             throws SAXException
         {
             _context.endElement();
+            if (_wantLineNumbersAtEndElt)
+            {
+                _context.bookmark(
+                    new XmlLineNumber(_startLocator.getLineNumber(),
+                        _startLocator.getColumnNumber(), -1));
+            }
         }
 
         public void characters(char ch[], int start, int length)
@@ -3342,6 +3351,7 @@ public final class Locale
         protected LoadContext _context;
 
         private boolean _wantLineNumbers;
+        private boolean _wantLineNumbersAtEndElt;
         private Locator _startLocator;
     }
 

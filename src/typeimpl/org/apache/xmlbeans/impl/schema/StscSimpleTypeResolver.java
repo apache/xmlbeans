@@ -933,7 +933,13 @@ public class StscSimpleTypeResolver
                 enumeratedValues.toArray(new XmlAnySimpleType[enumeratedValues.size()])));
 
             SchemaType beType = sImpl;
-            if (sImpl.getBaseType().getBaseEnumType() != null)
+            if ( ((SchemaTypeImpl)sImpl).isRedefinition() ){
+                beType = sImpl.getBaseType().getBaseEnumType();
+                if( beType == null || sImpl.getBaseType() == beType ){
+                    beType = sImpl;
+                }
+            }
+            else if (sImpl.getBaseType().getBaseEnumType() != null)
                 beType = sImpl.getBaseType().getBaseEnumType();
             sImpl.setBaseEnumTypeRef(beType.getRef());
         }
