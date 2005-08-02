@@ -297,7 +297,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
                 emit(" * This is a complex type.");
                 break;
             case SchemaType.ATOMIC:
-                emit(" * This is an atomic type that is a restriction of " + sType.getBaseType().getFullJavaName() + ".");
+                emit(" * This is an atomic type that is a restriction of " + getFullJavaName(sType) + ".");
                 break;
             case SchemaType.LIST:
                 emit(" * This is a list type whose items are " + sType.getListItemType().getFullJavaName() + ".");
@@ -311,6 +311,21 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
         }
         emit(" */");
     }
+
+    private String getFullJavaName(SchemaType sType)
+    {
+
+        SchemaTypeImpl sTypeI = (SchemaTypeImpl) sType;
+        String ret = sTypeI.getFullJavaName();
+
+        while (sTypeI.isRedefinition())
+        {
+            ret = sTypeI.getFullJavaName();
+            sTypeI = (SchemaTypeImpl) sTypeI.getBaseType();
+        }
+        return ret;
+    }
+
 
     public static String indexClassForSystem(SchemaTypeSystem system)
     {
@@ -778,13 +793,6 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
         emit("/** " + sentence + " */");
     }
 
-    static SchemaType findBaseEnumType(SchemaType sType)
-    {
-        while (sType.getBaseType().hasStringEnumValues())
-            sType = sType.getBaseType();
-        return sType;
-    }
-
     public static String javaStringEscape(String str)
     {
         // forbidden: \n, \r, \", \\.
@@ -830,7 +838,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
 
     void printStringEnumeration(SchemaType sType) throws IOException
     {
-        SchemaType baseEnumType = findBaseEnumType(sType);
+        SchemaType baseEnumType = sType.getBaseEnumType();
         String baseEnumClass = baseEnumType.getFullJavaName();
 
         if (baseEnumType == sType)
