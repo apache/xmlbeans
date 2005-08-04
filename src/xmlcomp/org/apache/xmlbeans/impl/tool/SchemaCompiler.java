@@ -748,6 +748,10 @@ public class SchemaCompiler
     {
         XmlErrorWatcher errorListener = new XmlErrorWatcher(outerErrorListener);
 
+        // construct the state (have to initialize early in case of errors)
+        StscState state = StscState.start();
+        state.setErrorListener(errorListener);
+
         // For parsing XSD and WSDL files, we should use the SchemaDocument
         // classloader rather than the thread context classloader.  This is
         // because in some situations (such as when being invoked by ant
