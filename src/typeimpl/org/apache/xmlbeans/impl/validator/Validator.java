@@ -209,20 +209,20 @@ public final class Validator
             expectedQNames, errorType, badSchemaType);
     }
 
-    // For XmlEventListener.error
-
-    public void error ( XmlError error )
-    {
-        _errorState++;
-
-        if (_suspendErrors == 0)
-        {
-            _invalid = true;
-
-            if (_errorListener != null)
-                _errorListener.add( error );
-        }
-    }
+//    // For XmlEventListener.error
+//
+//    public void error ( XmlError error )
+//    {
+//        _errorState++;
+//
+//        if (_suspendErrors == 0)
+//        {
+//            _invalid = true;
+//
+//            if (_errorListener != null)
+//                _errorListener.add( error );
+//        }
+//    }
 
     public void nextEvent ( int kind, Event event )
     {

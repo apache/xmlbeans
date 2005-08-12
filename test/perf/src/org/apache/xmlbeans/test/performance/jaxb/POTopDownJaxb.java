@@ -15,6 +15,7 @@
 package org.apache.xmlbeans.test.performance.jaxb;
 
 import java.util.Calendar;
+import java.util.GregorianCalendar;
 
 import org.apache.xmlbeans.test.performance.utils.Constants;
 
@@ -24,24 +25,25 @@ import org.apache.xmlbeans.test.performance.utils.Constants;
 //import javax.xml.transform.stream.StreamSource;
 //import java.util.List;
 
+
 // from jaxb-generated schema jar(s)
-import org.openuri.easypo.impl.PurchaseOrderImpl;
-import org.openuri.easypo.impl.CustomerImpl;
-import org.openuri.easypo.impl.LineItemImpl;
-import org.openuri.easypo.impl.ShipperImpl;
+import org.openuri.easypo.PurchaseOrder;
+import org.openuri.easypo.Customer;
+import org.openuri.easypo.LineItem;
+import org.openuri.easypo.Shipper;
 
 
 public class POTopDownJaxb
 {
   public static void main(String[] args) throws Exception
   {
-    
+
     final int iterations = Constants.ITERATIONS;
- 
+
     POTopDownJaxb test = new POTopDownJaxb();
     long cputime;
     int hash = 0;
-        
+
     // warm up the vm
     cputime = System.currentTimeMillis();
     for(int i=0; i<iterations; i++){
@@ -55,7 +57,7 @@ public class POTopDownJaxb
       hash += test.run();
     }
     cputime = System.currentTimeMillis() - cputime;
-      
+
     // print the results
     // Class.getSimpleName() is only provided in jdk1.5, so have to trim package name off test name for logging to support 1.4
     System.out.print(Constants.DELIM+test.getClass().getName().substring(test.getClass().getName().lastIndexOf('.')+1)+" ");
@@ -63,33 +65,48 @@ public class POTopDownJaxb
     System.out.print("time "+cputime+"\n");
   }
 
+
+    static javax.xml.datatype.DatatypeFactory dtf;
+    static
+    {
+  	  try
+  	  {
+  	      dtf = javax.xml.datatype.DatatypeFactory.newInstance();
+        }
+        catch(Exception e)
+        {
+  		  e.printStackTrace();
+        }
+    }
+
+
   private int run() throws Exception
   {
     // create the purchase order
-    PurchaseOrderImpl po = new PurchaseOrderImpl();
+    PurchaseOrder po = new PurchaseOrder();
 
     // create and initialize the customer
-    CustomerImpl customer = new CustomerImpl();
+    Customer customer = new Customer();
     customer.setName(Constants.PO_CUSTOMER_NAME);
     customer.setAddress(Constants.PO_CUSTOMER_ADDR);
     po.setCustomer(customer);
 
     // set the date
-    po.setDate(Calendar.getInstance());
+    po.setDate(dtf.newXMLGregorianCalendar(new GregorianCalendar()));
 
     // create and initialize the line item array
     for(int i=0; i<Constants.PO_NUM_LINEITEMS; i++)
     {
-      LineItemImpl li = new LineItemImpl();
+      LineItem li = new LineItem();
       li.setDescription(Constants.PO_LI_DESC);
       li.setPerUnitOunces(Constants.PO_LI_PUO);
       li.setPrice(Constants.PO_LI_PRICE);
       li.setQuantity(Constants.PO_LI_QUANTITY);
       po.getLineItem().add(li);
     }
-    
+
     // create and initialize the shipper
-    ShipperImpl shipper = new ShipperImpl();
+    Shipper shipper = new Shipper();
     shipper.setName(Constants.PO_SHIPPER_NAME);
     shipper.setPerOunceRate(Constants.PO_SHIPPER_POR);
     po.setShipper(shipper);

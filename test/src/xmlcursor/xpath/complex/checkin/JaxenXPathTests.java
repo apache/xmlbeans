@@ -77,7 +77,7 @@ public class JaxenXPathTests
             {
                 bFail = true;
                 errors.append("**********************Failed at test " + i +
-                    "\n");
+                    "\n  path:" + xpathes[i] + "\n");
                 if (e.getMessage() == null)
                 {
                     StringWriter sw = new StringWriter();
