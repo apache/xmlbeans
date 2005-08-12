@@ -23,9 +23,9 @@ import org.apache.xmlbeans.test.performance.utils.Constants;
 //import java.util.List;
 
 // from jaxb-generated schema jar(s)
-import org.openuri.primitives.impl.PrimitivesImpl;
-import org.openuri.primitives.impl.NumericsImpl;
-import org.openuri.primitives.impl.MiscImpl;
+import org.openuri.primitives.Primitives;
+import org.openuri.primitives.Numerics;
+import org.openuri.primitives.Misc;
 
 
 public class PrimTopDownJaxb
@@ -33,11 +33,11 @@ public class PrimTopDownJaxb
   public static void main(String[] args) throws Exception
   {
     final int iterations = Constants.ITERATIONS;
- 
+
     PrimTopDownJaxb test = new PrimTopDownJaxb();
     long cputime;
     int hash = 0;
-        
+
     // warm up the vm
     cputime = System.currentTimeMillis();
     for(int i=0; i<iterations; i++){
@@ -51,7 +51,7 @@ public class PrimTopDownJaxb
       hash += test.run();
     }
     cputime = System.currentTimeMillis() - cputime;
-      
+
     // print the results
     // Class.getSimpleName() is only provided in jdk1.5, so have to trim package name off test name for logging to support 1.4
     System.out.print(Constants.DELIM+test.getClass().getName().substring(test.getClass().getName().lastIndexOf('.')+1)+" ");
@@ -62,12 +62,12 @@ public class PrimTopDownJaxb
   private int run() throws Exception
   {
     // create the doc
-    PrimitivesImpl prim = new PrimitivesImpl();
+    Primitives prim = new Primitives();
 
     // create and initialize the numerics
     for(int i=0; i<Constants.PO_NUM_LINEITEMS; i++)
     {
-      NumericsImpl numerics = new NumericsImpl();
+      Numerics numerics = new Numerics();
       numerics.setMybyte(Constants.myByte);
       numerics.setMyint(Constants.myInt);
       numerics.setMylong(Constants.myLong);
@@ -77,9 +77,9 @@ public class PrimTopDownJaxb
       numerics.setMyfloat(Constants.myFloat);
       prim.getNumerics().add(numerics);
     }
-    
+
     // create and initialize the misc element
-    MiscImpl misc = new MiscImpl();
+    Misc misc = new Misc();
     misc.setMybool(Constants.myBool);
     prim.setMisc(misc);
 

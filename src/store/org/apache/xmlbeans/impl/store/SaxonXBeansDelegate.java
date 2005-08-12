@@ -29,10 +29,15 @@ import java.lang.reflect.Constructor;
  */
 public final class SaxonXBeansDelegate
 {
-    protected static boolean bInstantiated = false;
-    static
+    protected static boolean _saxonAvailable = true; //first time assume Saxon is available
+    private static Constructor _constructor;
+    private static Constructor _xqConstructor;
+
+    private SaxonXBeansDelegate()
+    {}
+
+    static void init()
     {
-        boolean hasTheJars = false;
         Class saxonXPathImpl = null;
         Class saxonXQueryImpl = null;
         try
@@ -42,19 +47,17 @@ public final class SaxonXBeansDelegate
                 .forName("org.apache.xmlbeans.impl.xpath.saxon.XBeansXPath");
             saxonXQueryImpl = Class
                 .forName("org.apache.xmlbeans.impl.xquery.saxon.XBeansXQuery");
-
-            hasTheJars = true;
         }
         catch (ClassNotFoundException e)
         {
-            hasTheJars = false;
+            _saxonAvailable = false;
         }
         catch (NoClassDefFoundError e)
         {
-            hasTheJars = false;
+            _saxonAvailable = false;
         }
 
-        if (hasTheJars)
+        if (_saxonAvailable)
         {
             try
             {
@@ -69,17 +72,17 @@ public final class SaxonXBeansDelegate
             }
             catch (Exception e)
             {
+                _saxonAvailable = false;
                 throw new RuntimeException(e);
             }
         }
     }
 
-    private SaxonXBeansDelegate()
-    {}
-
     static SelectPathInterface createInstance(String xpath, Map namespaceMap)
     {
-        bInstantiated = true;
+        if (_saxonAvailable && _constructor == null)
+            init();
+
         if (_constructor == null)
             return null;
 
@@ -99,6 +102,9 @@ public final class SaxonXBeansDelegate
 
    static QueryInterface createQueryInstance(String query, String contextVar, int boundary)
    {
+       if (_saxonAvailable && _xqConstructor == null)
+           init();
+
         if (_xqConstructor == null)
             return null;
 
@@ -113,8 +119,6 @@ public final class SaxonXBeansDelegate
         }
     }
 
-
-
     public static interface SelectPathInterface
     {
         public List selectPath(Object node);
@@ -124,7 +128,4 @@ public final class SaxonXBeansDelegate
     {
         public List execQuery(Object node);
     }
-
-     private static Constructor _constructor;
-     private static Constructor _xqConstructor;
 }

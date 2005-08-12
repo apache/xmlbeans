@@ -1,10 +1,10 @@
 <!-- build file -->
 <project name="xmlbeans-perf" default="usage">
-	
+
 	<target name="usage">
 		<echo>
 	Main Usage:
-	bootstrap - download and unzip benchmark jars - REQUIRED FOR BENCHMARKS 
+	bootstrap - download and unzip benchmark jars - REQUIRED FOR BENCHMARKS
 	[re]build.all - builds all schema jars and test classes
 	[re]build - builds test and tool classes only
 	[re]build.schema.jars - that's what it does :->
@@ -72,8 +72,8 @@
 	<!--
 	<property name="jibx.url" value="http://umn.dl.sourceforge.net/sourceforge/jibx/jibx-beta3c.zip"/>
 	-->
-	<property name="jibx.url" value="http://easynews.dl.sourceforge.net/sourceforge/jibx/jibx-beta3c.zip"/>	
-	
+	<property name="jibx.url" value="http://easynews.dl.sourceforge.net/sourceforge/jibx/jibx-beta3c.zip"/>
+
 	<!-- v1 -->
 	<property name="v1.zip" value="${v1.dir}/xmlbeans-1.0.3.zip"/>
 	<property name="v1.url" value="http://www.apache.org/dist/xml/xmlbeans/v1.0.3/bin/xmlbeans-1.0.3.zip"/>
@@ -118,7 +118,7 @@
 		<pathelement path="${build.dir}"/>
 		<pathelement path="${perf-results.jar}"/>
 	</path>
-	
+
 	<path id="v1.classpath">
 		<fileset dir="${v1.dir}/xmlbeans-1.0.3/lib" includes="*.jar"/>
 		<pathelement path="${v1-purchase-order.jar}"/>
@@ -148,9 +148,11 @@
 	</path>
 
 	<path id="jaxb.classpath">
-		<fileset dir="${jaxb.dir}/jaxb/lib" includes="*.jar"/>
+		<!--fileset dir="${jaxb.dir}/lib" includes="*.jar"/-->
+		<fileset dir="${jaxb.dir}" includes="*.jar"/>
+		<!--fileset dir="${jaxb.dir}/jaxb/lib" includes="*.jar"/>
 		<fileset dir="${jaxb.dir}/jaxp/lib/endorsed" includes="*.jar"/>
-		<fileset dir="${jaxb.dir}/jwsdp-shared/lib" includes="*.jar"/>
+		<fileset dir="${jaxb.dir}/jwsdp-shared/lib" includes="*.jar"/-->
 		<pathelement path="${jaxb-purchase-order.jar}"/>
 		<pathelement path="${jaxb-primitives.jar}"/>
 		<pathelement path="${jaxb-non-primitives.jar}"/>
@@ -168,7 +170,7 @@
 	<target name="rebuild.all" if="bootstrap.libdir.exists" depends="check.bootstrap.libs,rebuild.schema.jars,rebuild"/>
 
 
-	<!-- conveinence src build targets  -->	
+	<!-- conveinence src build targets  -->
 	<target name="build" depends="build.tools,build.v2.perf,build.v1.perf,build.castor.perf,build.jibx.perf,build.xerces.perf,build.jaxb.perf"/>
 
 	<target name="clean">
@@ -181,7 +183,7 @@
 
 	<!-- conveinence schema jar build targets -->
 	<target name="build.schema.jars" depends="v2.schema.jars,v1.schema.jars,castor.schema.jars,jibx.schema.jars,jaxb.schema.jars"/>
-	
+
 	<target name="clean.schema.jars">
 		<delete dir="${schema.jar.build.dir}"/>
 	</target>
@@ -373,7 +375,7 @@
 		<mkdir dir="${schema.jar.build.dir}"/>
 		<chmod file="${v2.xmlbeans.root}/bin/scomp" perm="755"/>
 		<exec	dir="${v2.temp.dir}"
-					executable="${scomp}" 
+					executable="${scomp}"
 					output="${v2.temp.dir}/scomp_output.txt">
 			<env key="XMLBEANS_HOME" value="${v2.xmlbeans.root}"/>
 			<arg line="-out ${jar.name}"/>
@@ -521,6 +523,13 @@
 
 	<target name="jaxb.schema.build">
 		<echo message="starting schema compilation with jaxb"/>
+		<echo message="  jaxb.temp.dir ${jaxb.temp.dir}"/>
+		<echo message="  schema.jar.build.dir ${schema.jar.build.dir}"/>
+		<echo message="  {ns} ${ns}"/>
+		<echo message="  {env.JAVA_HOME} ${env.JAVA_HOME}"/>
+		<echo message="  {jar.name} ${jar.name}"/>
+		<echo message="  {test.case.dir}/xsd/{xsd.name} ${test.case.dir}/xsd/${xsd.name}"/>
+
 		<mkdir dir="${jaxb.temp.dir}"/>
 		<mkdir dir="${schema.jar.build.dir}"/>
 		<java classname="com.sun.tools.xjc.Driver"
@@ -539,7 +548,7 @@
 			compiler="modern"
 			executable="${env.JAVA_HOME}/bin/javac"
 			classpathref="jaxb.classpath"
-			source="1.4">
+			source="1.5">
 		</javac>
 		<jar destfile="${schema.jar.build.dir}/${jar.name}"
 				 basedir="${jaxb.temp.dir}"/>

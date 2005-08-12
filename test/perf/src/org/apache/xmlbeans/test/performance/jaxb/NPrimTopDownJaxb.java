@@ -23,21 +23,21 @@ import org.apache.xmlbeans.test.performance.utils.Constants;
 //import java.util.List;
 
 // from jaxb-generated schema jar(s)
-import org.openuri.nonprimitives.impl.NonPrimitivesImpl;
-import org.openuri.nonprimitives.impl.NumericsImpl;
+import org.openuri.nonprimitives.NonPrimitives;
+import org.openuri.nonprimitives.Numerics;
 
 
 public class NPrimTopDownJaxb
 {
   public static void main(String[] args) throws Exception
   {
-    
+
     final int iterations = Constants.ITERATIONS;
- 
+
     NPrimTopDownJaxb test = new NPrimTopDownJaxb();
     long cputime;
     int hash = 0;
-        
+
     // warm up the vm
     cputime = System.currentTimeMillis();
     for(int i=0; i<iterations; i++){
@@ -51,7 +51,7 @@ public class NPrimTopDownJaxb
       hash += test.run();
     }
     cputime = System.currentTimeMillis() - cputime;
-      
+
     // print the results
     // Class.getSimpleName() is only provided in jdk1.5, so have to trim package name off test name for logging to support 1.4
     System.out.print(Constants.DELIM+test.getClass().getName().substring(test.getClass().getName().lastIndexOf('.')+1)+" ");
@@ -59,15 +59,30 @@ public class NPrimTopDownJaxb
     System.out.print("time "+cputime+"\n");
   }
 
+
+    static javax.xml.datatype.DatatypeFactory dtf;
+    static
+    {
+  	  try
+  	  {
+  	      dtf = javax.xml.datatype.DatatypeFactory.newInstance();
+        }
+        catch(Exception e)
+        {
+  		  e.printStackTrace();
+        }
+    }
+
+
   private int run() throws Exception
   {
     // create the doc
-    NonPrimitivesImpl nprim = new NonPrimitivesImpl();
+    NonPrimitives nprim = new NonPrimitives();
 
     // create and initialize the numerics
     for(int i=0; i<Constants.PO_NUM_LINEITEMS; i++)
     {
-      NumericsImpl numerics = new NumericsImpl();
+      Numerics numerics = new Numerics();
       numerics.setMydecimal(Constants.myBigDecimal);
       numerics.setMyinteger(Constants.myPosBigInteger);
       numerics.setMyneginteger(Constants.myNegBigInteger);
@@ -76,9 +91,9 @@ public class NPrimTopDownJaxb
       numerics.setMyposinteger(Constants.myPosBigInteger);
       nprim.getNumerics().add(numerics);
     }
-    
+
     // create and initialize the misc element
-    nprim.setMydate(Constants.myDate);
+    nprim.setMydate(dtf.newXMLGregorianCalendar(Constants.myDate));
     nprim.setMystring(Constants.myString);
 
     // calculate a hash to return

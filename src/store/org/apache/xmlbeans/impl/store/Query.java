@@ -17,6 +17,7 @@ package org.apache.xmlbeans.impl.store;
 
 import org.apache.xmlbeans.*;
 import org.apache.xmlbeans.impl.common.XPath;
+import org.apache.xmlbeans.impl.store.*;
 import org.w3c.dom.*;
 
 import javax.xml.namespace.QName;
@@ -50,53 +51,75 @@ public abstract class Query
 
     public static synchronized Query getCompiledQuery(String queryExpr, XmlOptions options)
     {
-        return getCompiledQuery(queryExpr, Path.getCurrentNodeVar(options));
+        return getCompiledQuery(queryExpr, Path.getCurrentNodeVar(options), options);
     }
 
-    static synchronized Query getCompiledQuery(String queryExpr, String currentVar)
+    static synchronized Query getCompiledQuery(String queryExpr, String currentVar, XmlOptions options)
     {
         assert queryExpr != null;
+
+        if (options.hasOption(Path._useXqrl2002ForXpath))
+        {
+            Query res = (Query)_xqrl2002QueryCache.get(queryExpr);
+            if (res!=null)
+                return res;
+
+            res = getXqrl2002CompiledQuery(queryExpr, currentVar);
+            if (res!=null)
+            {
+                _xqrl2002QueryCache.put(queryExpr, res);
+                return res;
+            }
+            throw new RuntimeException("No 2002 query engine found.");
+        }
 
         //Parse the query via XBeans: need to figure out end of prolog
         //in order to bind $this...not good but...
         Map boundary = new HashMap();
         int boundaryVal = 0;
-        try {
+        try
+        {
             XPath.compileXPath(queryExpr, currentVar, boundary);
         }
-        catch (XPath.XPathCompileException e) {
+        catch (XPath.XPathCompileException e)
+        {
             //don't care if it fails, just care about boundary
         }
-        finally {
-            boundaryVal = boundary.get(XPath._NS_BOUNDARY) == null ?
-                    0 :
-                    ((Integer) boundary.get(XPath._NS_BOUNDARY)).intValue();
-
+        finally
+        {
+            boundaryVal = boundary.get(XPath._NS_BOUNDARY) == null ? 0 :
+                ((Integer) boundary.get(XPath._NS_BOUNDARY)).intValue();
         }
 
         //try XQRL
         Query query = (Query) _xqrlQueryCache.get(queryExpr);
         if (query != null)
             return query;
-        else {
-            query = createXqrlCompiledQuery(queryExpr, currentVar);
-            if (query != null)
-                _xqrlQueryCache.put(queryExpr, query);
-            else {
-                //query is still null; look for Saxon
-                query = (Query) _saxonQueryCache.get(queryExpr);
-                if (query != null)
-                    return query;
-                else
-                    query = SaxonQueryImpl.createSaxonCompiledQuery(queryExpr, currentVar, boundaryVal);
-                if (query != null)
-                    _saxonQueryCache.put(queryExpr, query);
-            }
-        }
-            if (query == null)
-                throw new RuntimeException("No query engine found");
+
+        query = createXqrlCompiledQuery(queryExpr, currentVar);
+        if (query != null)
+        {
+            _xqrlQueryCache.put(queryExpr, query);
             return query;
         }
+
+
+        //query is still null; look for Saxon
+        query = (Query) _saxonQueryCache.get(queryExpr);
+
+        if (query != null)
+            return query;
+
+        query = SaxonQueryImpl.createSaxonCompiledQuery(queryExpr, currentVar, boundaryVal);
+
+        if (query != null)
+        {
+            _saxonQueryCache.put(queryExpr, query);
+            return query;
+        }
+
+        throw new RuntimeException("No query engine found");
+    }
 
     public static synchronized String compileQuery(String queryExpr, XmlOptions options)
     {
@@ -106,36 +129,85 @@ public abstract class Query
 
     private static Query createXqrlCompiledQuery(String queryExpr, String currentVar)
     {
-        if (_xqrlCompileQuery == null) {
-            try {
+        if (_xqrlAvailable && _xqrlCompileQuery == null)
+        {
+            try
+            {
                 Class xqrlImpl = Class.forName("org.apache.xmlbeans.impl.store.XqrlImpl");
 
                 _xqrlCompileQuery =
                         xqrlImpl.getDeclaredMethod("compileQuery",
                                 new Class[]{String.class, String.class, Boolean.class});
             }
-            catch (ClassNotFoundException e) {
+            catch (ClassNotFoundException e)
+            {
+                _xqrlAvailable = false;
                 return null;
             }
-            catch (Exception e) {
+            catch (Exception e)
+            {
+                _xqrlAvailable = false;
                 throw new RuntimeException(e.getMessage(), e);
             }
         }
 
         Object[] args = new Object[]{queryExpr, currentVar, new Boolean(true)};
 
-        try {
+        try
+        {
             return (Query) _xqrlCompileQuery.invoke(null, args);
         }
-        catch (InvocationTargetException e) {
+        catch (InvocationTargetException e)
+        {
             Throwable t = e.getCause();
             throw new RuntimeException(t.getMessage(), t);
         }
-        catch (IllegalAccessException e) {
+        catch (IllegalAccessException e)
+        {
             throw new RuntimeException(e.getMessage(), e);
         }
     }
 
+    private static Query getXqrl2002CompiledQuery(String queryExpr, String currentVar)
+    {
+        if (_xqrl2002Available && _xqrl2002CompileQuery == null)
+        {
+            try
+            {
+                Class xqrlImpl = Class.forName("org.apache.xmlbeans.impl.store.Xqrl2002Impl");
+
+                _xqrl2002CompileQuery =
+                        xqrlImpl.getDeclaredMethod("compileQuery",
+                                new Class[]{String.class, String.class, Boolean.class});
+            }
+            catch (ClassNotFoundException e)
+            {
+                _xqrl2002Available = false;
+                return null;
+            }
+            catch (Exception e)
+            {
+                _xqrl2002Available = false;
+                throw new RuntimeException(e.getMessage(), e);
+            }
+        }
+
+        Object[] args = new Object[]{queryExpr, currentVar, new Boolean(true)};
+
+        try
+        {
+            return (Query) _xqrl2002CompileQuery.invoke(null, args);
+        }
+        catch (InvocationTargetException e)
+        {
+            Throwable t = e.getCause();
+            throw new RuntimeException(t.getMessage(), t);
+        }
+        catch (IllegalAccessException e)
+        {
+            throw new RuntimeException(e.getMessage(), e);
+        }
+    }
 
     private static final class SaxonQueryImpl extends Query
     {
@@ -345,8 +417,13 @@ public abstract class Query
     }
 
 
-    private static HashMap _xqrlQueryCache = new HashMap(); //todo check for memory leaks
     private static HashMap _saxonQueryCache = new HashMap();
 
+    private static HashMap _xqrlQueryCache = new HashMap(); //todo check for memory leaks
     private static Method _xqrlCompileQuery;
+    private static boolean _xqrlAvailable = true;  // at the beginning assume is available
+
+    private static HashMap _xqrl2002QueryCache = new HashMap();
+    private static Method  _xqrl2002CompileQuery;
+    private static boolean _xqrl2002Available = true;  // at the beginning assume is available
 }
