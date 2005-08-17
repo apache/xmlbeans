@@ -45,16 +45,16 @@
     building an XMLBean JAR from XSD and WSDL files. If desired, the task can
     also generate the source code that makes up the XMLBean type system specified
     by the schema files.</p>
-  <p class="notepara"><b>Note:</b> This task depends on an external library not
-    included in the Ant distribution called xbean.jar. &nbsp;It can be found in
-    the XMLBeans developer kit at <a
+  <p class="notepara"><b>Note:</b> This task depends on two external libraries not
+    included in the Ant distribution: one called xbean.jar, one called jsr173_api.jar.
+    Both can be found in the XMLBeans developer kit at <a
  href="http://xmlbeans.apache.org/" target="_blank">http://xmlbeans.apache.org/</a>.
     The build script will need to include a taskdef for xmlbean, which could look
     like this:</p>
 </div>
 <blockquote>
   <div class="notepara">
-    <pre class="notepara">&lt;taskdef name="xmlbean" classname="org.apache.xmlbeans.impl.tool.XMLBean" classpath="path/to/xbean.jar"/&gt;</pre>
+    <pre>&lt;taskdef name="xmlbean"<br>     classname="org.apache.xmlbeans.impl.tool.XMLBean"<br>     classpath="path/to/xbean.jar:path/to/jsr173_api.jar" /&gt;</pre>
   </div>
 </blockquote>
 <div>
@@ -308,18 +308,20 @@
 </div>
 <div id=topictext> Be sure to define the task in your script, like this:</div>
 <div>
-  <pre>&lt;taskdef name="xmlbean" classname="org.apache.xmlbeans.impl.tool.XMLBean" classpath="path/to/xbean.jar" /&gt;</pre>
+  <pre>&lt;taskdef name="xmlbean"<br>     classname="org.apache.xmlbeans.impl.tool.XMLBean"<br>     classpath="path/to/xbean.jar:path/to/jsr173_api.jar" /&gt;</pre>
   <p>The following builds all the schemas in the schemas directory and creates
-    a jar called &quot;Schemas.jar&quot;.</p>
+    a jar called &quot;Schemas.jar&quot;. (Note: both xbean.jar and
+    jsr173_api.jar must be on the classpath when the task executes).</p>
 </div>
 <div>
   <pre>
-&lt;xmlbean schema="schemas" destfile="Schemas.jar"/&gt;</pre>
+&lt;xmlbean schema="schemas" destfile="Schemas.jar"
+    classpath="path/to/xbean.jar:path/to/jsr173_api.jar" /&gt;</pre>
   The following compiles the schema &quot;ourSchema.xsd&quot; into the default
   jar &quot;xmltypes.jar&quot;. &nbsp;If &nbsp;any imports and includes are defined
   by remote URLs, they are downloaded during the build.
   <div>
-    <pre>&lt;xmlbean schema="schemas/ourSchema.xsd" download="true"/&gt;</pre>
+    <pre>&lt;xmlbean schema="schemas/ourSchema.xsd" download="true"<br>      classpath="path/to/xbean.jar:path/to/jsr173_api.jar" /&gt;</pre>
   </div>
   <div>
     <h4>Using a fileset</h4>
@@ -331,7 +333,7 @@
     every file in the schemas directory, and compiles them. The fileset can include
     schema files that refer to previously compiled schema components.&nbsp; The
     fileset can also contain JAVA files.&nbsp; The classpath parameter defines
-    the classpath necessary to resolve compiled schema and java references.<br>
+    the classpath necessary to resolve compiled schema and java references (and must include xbean.jar and jsr173_api.jar).<br>
     <br>
     The built classes will go into ${build.dir}.</div>
   <div>
