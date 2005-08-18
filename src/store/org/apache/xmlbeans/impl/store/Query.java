@@ -58,7 +58,7 @@ public abstract class Query
     {
         assert queryExpr != null;
 
-        if (options.hasOption(Path._useXqrl2002ForXpath))
+        if (options!=null && options.hasOption(Path._forceXqrl2002ForXpathXQuery))
         {
             Query res = (Query)_xqrl2002QueryCache.get(queryExpr);
             if (res!=null)

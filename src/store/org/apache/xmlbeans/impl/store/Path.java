@@ -35,7 +35,7 @@ public abstract class Path
 {
     public static String _useXqrlForXpath = "use xqrl for xpath";
     public static String _useXbeanForXpath = "use xbean for xpath";
-    public static String _useXqrl2002ForXpath = "use xqrl-2002 for xpath";
+    public static String _forceXqrl2002ForXpathXQuery = "use xqrl-2002 for xpath";
 
     private static final int USE_XBEAN    = 0x01;
     private static final int USE_XQRL     = 0x02;
