@@ -619,10 +619,10 @@ public class StscChecker
             errors.add(XmlError.forObject(XmlErrorCodes.PARTICLE_DERIVATION_MAP_AND_SUM$SUM_MIN_OCCURS_GTE_MIN_OCCURS,
                 new Object[] { derivedRangeMin.toString(), baseModel.getMinOccurs().toString() },
                 context));
-        } else if (baseModel.getMaxOccurs() == UNBOUNDED || derivedRangeMax != UNBOUNDED && derivedRangeMax.compareTo(baseModel.getMaxOccurs()) > 0) {
+        } else if (baseModel.getMaxOccurs() != UNBOUNDED && (derivedRangeMax == UNBOUNDED || derivedRangeMax.compareTo(baseModel.getMaxOccurs()) > 0)) {
             mapAndSumValid = false;
             errors.add(XmlError.forObject(XmlErrorCodes.PARTICLE_DERIVATION_MAP_AND_SUM$SUM_MAX_OCCURS_LTE_MAX_OCCURS,
-                new Object[] { derivedRangeMax.toString(), baseModel.getMaxOccurs().toString() },
+                    new Object[] { derivedRangeMax == UNBOUNDED ? "unbounded" : derivedRangeMax.toString(), baseModel.getMaxOccurs().toString() },
                 context));
         }
 

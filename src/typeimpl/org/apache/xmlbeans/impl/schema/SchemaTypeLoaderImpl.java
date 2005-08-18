@@ -24,6 +24,7 @@ import org.apache.xmlbeans.SchemaAttributeGroup;
 import org.apache.xmlbeans.SchemaTypeSystem;
 import org.apache.xmlbeans.SchemaIdentityConstraint;
 import org.apache.xmlbeans.ResourceLoader;
+import org.apache.xmlbeans.impl.common.SystemCache;
 import org.apache.xmlbeans.impl.common.QNameHelper;
 import org.apache.xmlbeans.impl.common.XBeanDebug;
 import javax.xml.namespace.QName;
@@ -58,59 +59,85 @@ public class SchemaTypeLoaderImpl extends SchemaTypeLoaderBase
 
     public static String METADATA_PACKAGE_LOAD = SchemaTypeSystemImpl.METADATA_PACKAGE_GEN;
     private static final Object CACHED_NOT_FOUND = new Object();
-        
-    // The following maintains a cache of SchemaTypeLoaders per ClassLoader per Thread.
-    // I use soft references to allow the garbage collector to reclain the type loaders
-    // and/pr class loaders at will.
 
-    private static ThreadLocal _cachedTypeSystems =
-        new ThreadLocal() { protected Object initialValue() { return new ArrayList(); } };
+    private static class SchemaTypeLoaderCache extends SystemCache
+    {
+        // The following maintains a cache of SchemaTypeLoaders per ClassLoader per Thread.
+        // I use soft references to allow the garbage collector to reclain the type loaders
+        // and/pr class loaders at will.
+
+        private static ThreadLocal _cachedTypeSystems =
+            new ThreadLocal() { protected Object initialValue() { return new ArrayList(); } };
+
+        public SchemaTypeLoader getFromTypeLoaderCache(ClassLoader cl)
+        {
+            ArrayList a = (ArrayList) _cachedTypeSystems.get();
+
+            int candidate = -1;
+            SchemaTypeLoaderImpl result = null;
+
+            for ( int i = 0 ; i < a.size() ; i++ )
+            {
+                SchemaTypeLoaderImpl tl = (SchemaTypeLoaderImpl) ((SoftReference) a.get( i )).get();
+
+                if (tl == null)
+                {
+                    assert i > candidate;
+                    a.remove( i-- );
+                }
+                else if (tl._classLoader == cl)
+                {
+                    assert candidate == -1 && result == null;
+
+                    candidate = i;
+                    result = tl;
+
+                    break;
+                }
+            }
+
+            // Make sure the most recently accessed entry is at the beginning of the array
+
+            if (candidate > 0)
+            {
+                Object t = a.get( 0 );
+                a.set( 0, a.get( candidate ) );
+                a.set( candidate, t );
+            }
+
+            return result;
+        }
+
+        public void addToTypeLoaderCache(SchemaTypeLoader stl, ClassLoader cl)
+        {
+            assert (stl instanceof SchemaTypeLoaderImpl) &&
+                ((SchemaTypeLoaderImpl) stl)._classLoader == cl;
+
+            ArrayList a = (ArrayList) _cachedTypeSystems.get();
+            // Make sure this entry is at the top of the stack
+            if (a.size() > 0)
+            {
+                Object t = a.get( 0 );
+                a.set( 0, new SoftReference( stl ) );
+                a.add( t );
+            }
+            else
+                a.add( new SoftReference( stl ) );
+        }
+    }
 
     public static SchemaTypeLoaderImpl getContextTypeLoader ( )
     {
         ClassLoader cl = Thread.currentThread().getContextClassLoader();
-        ArrayList a = (ArrayList) _cachedTypeSystems.get();
+        SchemaTypeLoaderImpl result = (SchemaTypeLoaderImpl)
+            SystemCache.get().getFromTypeLoaderCache(cl);
 
-        int candidate = -1;
-        SchemaTypeLoaderImpl result = null;
-
-        for ( int i = 0 ; i < a.size() ; i++ )
-        {
-            SchemaTypeLoaderImpl tl = (SchemaTypeLoaderImpl) ((SoftReference) a.get( i )).get();
-
-            if (tl == null)
-            {
-                assert i > candidate;
-                a.remove( i-- );
-            }
-            else if (tl._classLoader == cl)
-            {
-                assert candidate == -1 && result == null;
-                
-                candidate = i;
-                result = tl;
-
-                break;
-            }
-        }
-
-        if (candidate < 0)
+        if (result == null)
         {
             result =
                 new SchemaTypeLoaderImpl(
                     new SchemaTypeLoader[] { BuiltinSchemaTypeSystem.get() }, null, cl );
-            
-            candidate = a.size();
-            a.add( new SoftReference( result ) );
-        }
-
-        // Make sure the most recently accessed entry is at the beginning of the array
-
-        if (candidate > 0)
-        {
-            Object t = a.get( 0 );
-            a.set( 0, a.get( candidate ) );
-            a.set( candidate, t );
+            SystemCache.get().addToTypeLoaderCache(result, cl);
         }
 
         return result;
@@ -579,4 +606,9 @@ public class SchemaTypeLoaderImpl extends SchemaTypeLoaderBase
     }
 
     private static final SchemaTypeLoader[] EMPTY_SCHEMATYPELOADER_ARRAY = new SchemaTypeLoader[0];
+
+    static
+    {
+        SystemCache.set(new SchemaTypeLoaderCache());
+    }
 }

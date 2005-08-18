@@ -480,7 +480,6 @@
         <javac srcdir="src/xmlpublic" destdir="build/classes/xmlpublic" source="${javac.source}" target="${javac.target}" debug="on">
             <classpath>
                 <pathelement location="build/classes/xmlinputstream"/>
-                <pathelement location="build/classes/common"/>
                 <pathelement location="build/lib/jsr173_api.jar"/>
             </classpath>
         </javac>

@@ -71,6 +71,7 @@ import org.apache.xmlbeans.impl.common.XMLNameHelper;
 import org.apache.xmlbeans.impl.common.QNameHelper;
 import org.apache.xmlbeans.impl.common.XmlLocale;
 import org.apache.xmlbeans.impl.common.ResolverUtil;
+import org.apache.xmlbeans.impl.common.SystemCache;
 
 import org.apache.xmlbeans.impl.store.Saaj.SaajCallback;
 
@@ -3000,23 +3001,13 @@ public final class Locale
         }
     }
 
-    private static ThreadLocal tl_piccoloLoaders =
-        new ThreadLocal()
-        {
-            protected Object initialValue()
-            {
-                return new SoftReference(PiccoloSaxLoader.newInstance());
-            }
-        };
-
     private static SaxLoader getPiccoloSaxLoader()
     {
-        SoftReference softRef = (SoftReference) tl_piccoloLoaders.get();
-        SaxLoader piccoloLoader = (SaxLoader) (softRef).get();
+        SaxLoader piccoloLoader = (SaxLoader) SystemCache.get().getSaxLoader();
         if (piccoloLoader == null)
         {
             piccoloLoader = PiccoloSaxLoader.newInstance();
-            tl_piccoloLoaders.set(new SoftReference(piccoloLoader));
+            SystemCache.get().setSaxLoader(piccoloLoader);
         }
         return piccoloLoader;
     }
