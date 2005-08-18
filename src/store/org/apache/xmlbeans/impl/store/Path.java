@@ -87,7 +87,7 @@ public abstract class Path
                 ? USE_XQRL
                 : options.hasOption(_useXbeanForXpath)
                 ? USE_XBEAN
-                : options.hasOption(_useXqrl2002ForXpath)
+                : options.hasOption(_forceXqrl2002ForXpathXQuery)
                 ? USE_XQRL2002
                 : USE_XBEAN|USE_XQRL|USE_SAXON; //set all bits except XQRL2002
 
