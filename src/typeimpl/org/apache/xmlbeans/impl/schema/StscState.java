@@ -41,7 +41,6 @@ import java.net.URISyntaxException;
 import java.net.URI;
 import java.net.URL;
 import java.io.File;
-import java.lang.ref.SoftReference;
 
 
 import javax.xml.namespace.QName;
