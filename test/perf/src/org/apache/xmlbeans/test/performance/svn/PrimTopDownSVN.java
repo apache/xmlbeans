@@ -12,33 +12,21 @@
 *   See the License for the specific language governing permissions and
 *  limitations under the License.
 */
-package org.apache.xmlbeans.test.performance.jaxb;
-
-import java.util.Calendar;
+package org.apache.xmlbeans.test.performance.svn;
 
 import org.apache.xmlbeans.test.performance.utils.Constants;
+import org.openuri.primitives.Misc;
+import org.openuri.primitives.Numerics;
+import org.openuri.primitives.PrimitivesDocument;
+import org.openuri.primitives.PrimitivesDocument.Primitives;
 
-// required by jaxb
-//import javax.xml.bind.JAXBContext;
-//import javax.xml.bind.Unmarshaller;
-//import javax.xml.transform.stream.StreamSource;
-//import java.util.List;
-
-// from jaxb-generated schema jar(s)
-import org.openuri.easypo.impl.PurchaseOrderImpl;
-import org.openuri.easypo.impl.CustomerImpl;
-import org.openuri.easypo.impl.LineItemImpl;
-import org.openuri.easypo.impl.ShipperImpl;
-
-
-public class POTopDownJaxb
+public class PrimTopDownSVN
 {
   public static void main(String[] args) throws Exception
   {
-    
-    final int iterations = Constants.ITERATIONS;
- 
-    POTopDownJaxb test = new POTopDownJaxb();
+
+    PrimTopDownSVN test = new PrimTopDownSVN();
+    int iterations = Constants.ITERATIONS;
     long cputime;
     int hash = 0;
         
@@ -65,38 +53,29 @@ public class POTopDownJaxb
 
   private int run() throws Exception
   {
-    // create the purchase order
-    PurchaseOrderImpl po = new PurchaseOrderImpl();
+    // create the doc
+    PrimitivesDocument doc = PrimitivesDocument.Factory.newInstance();
+    Primitives prim = doc.addNewPrimitives();
 
-    // create and initialize the customer
-    CustomerImpl customer = new CustomerImpl();
-    customer.setName(Constants.PO_CUSTOMER_NAME);
-    customer.setAddress(Constants.PO_CUSTOMER_ADDR);
-    po.setCustomer(customer);
-
-    // set the date
-    po.setDate(Calendar.getInstance());
-
-    // create and initialize the line item array
+    // create and initialize numeric elements
     for(int i=0; i<Constants.PO_NUM_LINEITEMS; i++)
     {
-      LineItemImpl li = new LineItemImpl();
-      li.setDescription(Constants.PO_LI_DESC);
-      li.setPerUnitOunces(Constants.PO_LI_PUO);
-      li.setPrice(Constants.PO_LI_PRICE);
-      li.setQuantity(Constants.PO_LI_QUANTITY);
-      po.getLineItem().add(li);
+      Numerics numerics = prim.addNewNumerics();
+      numerics.setMybyte(Constants.myByte);
+      numerics.setMyint(Constants.myInt);
+      numerics.setMylong(Constants.myLong);
+      numerics.setMyshort(Constants.myShort);
+      numerics.setMyhexbin(Constants.myHexbin);
+      numerics.setMydouble(Constants.myDouble);
+      numerics.setMyfloat(Constants.myFloat);
     }
-    
-    // create and initialize the shipper
-    ShipperImpl shipper = new ShipperImpl();
-    shipper.setName(Constants.PO_SHIPPER_NAME);
-    shipper.setPerOunceRate(Constants.PO_SHIPPER_POR);
-    po.setShipper(shipper);
+
+    // create and initialize the misc element
+    Misc misc = prim.addNewMisc();
+    misc.setMybool(Constants.myBool);
 
     // calculate a hash to return
-    int hash = ( po.getLineItem().size() ) * 17;
+    int hash = ( prim.getNumericsArray().length ) * 17;
     return hash;
-
   }
 }
