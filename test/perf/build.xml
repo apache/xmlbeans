@@ -1,10 +1,26 @@
+<!--
+    Copyright 2004 The Apache Software Foundation
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+-->
+
 <!-- build file -->
 <project name="xmlbeans-perf" default="usage">
-
+	
 	<target name="usage">
 		<echo>
 	Main Usage:
-	bootstrap - download and unzip benchmark jars - REQUIRED FOR BENCHMARKS
+	bootstrap - download and unzip benchmark jars - REQUIRED FOR BENCHMARKS 
 	[re]build.all - builds all schema jars and test classes
 	[re]build - builds test and tool classes only
 	[re]build.schema.jars - that's what it does :->
@@ -12,17 +28,21 @@
 	clean - clean test and tools classes
 	clean.schema.jars - clean schema jars
 
+	build.xmlbeans.perf - bootstrap, builds schema jars and tests classes for all XmlBeans releases 
+
 	Schema Builds:
-	v2.schema.jars - required for tools build and v2 perf
+	svn.schema.jars - required for tools build and svn perf
 	v1.schema.jars
+	v2.schema.jars
 	castor.schema.jars
 	jaxb.schema.jars
 	jibx.schema.jars
 
 	Perf Builds:
-	build.tools - perf tools
-	build.v2.perf
-	build.v1.perf
+	build.tools      - perf tools
+	build.svn.perf   - latest XMLBeans SVN snapshot
+	build.v1.perf    - XMLBeans v1
+	build.v2.perf    - XMLBeans v2
 	build.castor.perf
 	build.jaxb.perf
 	build.jibx.perf
@@ -33,8 +53,8 @@
 	<property environment="env"/>
 
 	<!-- root properties used for finding everything -->
-	<property name="xmlbeans.perf.root" value="${basedir}"/>
-	<property name="v2.xmlbeans.root" value="${env.XMLBEANS_HOME}"/>
+	<property name="xmlbeans.perf.root" value="${env.XMLBEANS_PERFROOT}"/>
+	<property name="svn.xmlbeans.root" value="${env.XMLBEANS_HOME}"/>
 
 	<property name="src.dir" value="${xmlbeans.perf.root}/src"/>
 	<property name="build.dir" value="${xmlbeans.perf.root}/build"/>
@@ -45,8 +65,9 @@
 	<property name="3rdparty.dir" value="${xmlbeans.perf.root}/3rdparty"/>
 
 	<!-- benchmark directories -->
-	<property name="v2.dir" value="${v2.xmlbeans.root}"/>
+	<property name="svn.dir" value="${svn.xmlbeans.root}"/>
   	<property name="v1.dir" value="${3rdparty.dir}/v1"/>
+	<property name="v2.dir" value="${3rdparty.dir}/v2"/>
 	<property name="castor.dir" value="${3rdparty.dir}/castor"/>
 	<property name="jibx.dir" value="${3rdparty.dir}/jibx"/>
 	<property name="xerces.dir" value="${3rdparty.dir}/xerces"/>
@@ -56,40 +77,41 @@
 	<!-- temp dirs for schema compilation outputs -->
 	<property name="v1.temp.dir" value="${temp.dir}/v1" />
 	<property name="v2.temp.dir" value="${temp.dir}/v2" />
+	<property name="svn.temp.dir" value="${temp.dir}/svn" />
 	<property name="castor.temp.dir" value="${temp.dir}/castor" />
 	<property name="jibx.temp.dir" value="${temp.dir}/jibx" />
 	<property name="jaxb.temp.dir" value="${temp.dir}/jaxb" />
 
+	<!-- read urls from download.properties file -->
+        <property file="download.properties" />
+
+	<!-- 3rd party jars downloads -->
 	<!-- castor -->
-	<property name="castor.jar" value="${castor.dir}/castor-0.9.5.4.jar"/>
-	<!--
-	<property name="castor.url" value="ftp://ftp.exolab.org/pub/castor/castor_0.9.5.4/castor-0.9.5.4.jar"/>
-	-->
-	<property name="castor.url" value="http://dist.codehaus.org/castor/0.9.5.4/castor-0.9.5.4.jar"/>
+	<property name="castor.jar" value="${castor.dir}/${castor.lib.name}"/>
 
 	<!-- jibx -->
-	<property name="jibx.zip" value="${jibx.dir}/jibx-beta3c.zip"/>
-	<!--
-	<property name="jibx.url" value="http://umn.dl.sourceforge.net/sourceforge/jibx/jibx-beta3c.zip"/>
-	-->
-	<property name="jibx.url" value="http://easynews.dl.sourceforge.net/sourceforge/jibx/jibx-beta3c.zip"/>
-
+	<property name="jibx.zip" value="${jibx.dir}/${jibx.lib.name}"/>
+	
 	<!-- v1 -->
-	<property name="v1.zip" value="${v1.dir}/xmlbeans-1.0.3.zip"/>
-	<property name="v1.url" value="http://www.apache.org/dist/xml/xmlbeans/v1.0.3/bin/xmlbeans-1.0.3.zip"/>
+	<property name="v1.zip" value="${v1.dir}/${v1.lib.name}"/>
+
+	<!-- v2 -->
+	<property name="v2.zip" value="${v2.dir}/${v2.lib.name}"/>
 
 	<!-- xerces -->
-	<property name="xercesImpl.jar" value="${xerces.dir}/xerces-2_6_2/xercesImpl.jar"/>
-	<property name="xerces.zip" value="${xerces.dir}/Xerces-J-bin.2.6.2.zip"/>
-	<property name="xerces.url" value="http://www.apache.org/dist/xml/xerces-j/Xerces-J-bin.2.6.2.zip"/>
+	<property name="xercesImpl.jar" value="${xerces.dir}/xerces-2_7_1/xercesImpl.jar"/>
+	<property name="xerces.zip" value="${xerces.dir}/${xerces.lib.name}"/>
 
 	<!-- user-defined schema jars for SOM runtime perf tests  -->
-	<property name="v2-purchase-order.jar" value="${schema.jar.build.dir}/v2-purchase-order.jar"/>
-	<property name="v2-primitives.jar" value="${schema.jar.build.dir}/v2-primitives.jar"/>
-	<property name="v2-non-primitives.jar" value="${schema.jar.build.dir}/v2-non-primitives.jar"/>
+	<property name="svn-purchase-order.jar" value="${schema.jar.build.dir}/svn-purchase-order.jar"/>
+	<property name="svn-primitives.jar" value="${schema.jar.build.dir}/svn-primitives.jar"/>
+	<property name="svn-non-primitives.jar" value="${schema.jar.build.dir}/svn-non-primitives.jar"/>
 	<property name="v1-purchase-order.jar" value="${schema.jar.build.dir}/v1-purchase-order.jar"/>
 	<property name="v1-primitives.jar" value="${schema.jar.build.dir}/v1-primitives.jar"/>
 	<property name="v1-non-primitives.jar" value="${schema.jar.build.dir}/v1-non-primitives.jar"/>
+	<property name="v2-purchase-order.jar" value="${schema.jar.build.dir}/v2-purchase-order.jar"/>
+	<property name="v2-primitives.jar" value="${schema.jar.build.dir}/v2-primitives.jar"/>
+	<property name="v2-non-primitives.jar" value="${schema.jar.build.dir}/v2-non-primitives.jar"/>
 	<property name="castor-purchase-order.jar" value="${schema.jar.build.dir}/castor-purchase-order.jar"/>
 	<property name="castor-primitives.jar" value="${schema.jar.build.dir}/castor-primitives.jar"/>
 	<property name="castor-non-primitives.jar" value="${schema.jar.build.dir}/castor-non-primitives.jar"/>
@@ -103,22 +125,22 @@
 
 	<!-- classpaths -->
 	<path id="tools.classpath">
-		<fileset dir="${v2.dir}/build/lib" includes="*.jar"/>
+		<fileset dir="${svn.dir}/build/lib" includes="*.jar"/>
 		<pathelement path="${perf-results.jar}"/>
 		<pathelement path="${build.dir}"/>
 	</path>
 
-	<path id="v2.classpath">
-		<fileset dir="${v2.dir}/build/lib" includes="*.jar"/>
-		<fileset dir="${v2.dir}/external/lib" includes="*.jar"/>
-		<pathelement path="${v2-purchase-order.jar}"/>
-		<pathelement path="${v2-primitives.jar}"/>
-		<pathelement path="${v2-non-primitives.jar}"/>
-		<pathelement path="${v2-netui-config.jar}"/>
+	<path id="svn.classpath">
+		<fileset dir="${svn.dir}/build/lib" includes="*.jar"/>
+		<fileset dir="${svn.dir}/external/lib" includes="*.jar"/>
+		<pathelement path="${svn-purchase-order.jar}"/>
+		<pathelement path="${svn-primitives.jar}"/>
+		<pathelement path="${svn-non-primitives.jar}"/>
+		<pathelement path="${svn-netui-config.jar}"/>
 		<pathelement path="${build.dir}"/>
 		<pathelement path="${perf-results.jar}"/>
 	</path>
-
+	
 	<path id="v1.classpath">
 		<fileset dir="${v1.dir}/xmlbeans-1.0.3/lib" includes="*.jar"/>
 		<pathelement path="${v1-purchase-order.jar}"/>
@@ -126,6 +148,14 @@
 		<pathelement path="${v1-non-primitives.jar}"/>
 		<pathelement path="${build.dir}"/>
 	</path>
+
+    <path id="v2.classpath">
+        <fileset dir="${v2.dir}/xmlbeans-2.0.0/lib" includes="*.jar"/>
+        <pathelement path="${v2-purchase-order.jar}"/>
+        <pathelement path="${v2-primitives.jar}"/>
+        <pathelement path="${v2-non-primitives.jar}"/>
+        <pathelement path="${build.dir}"/>
+    </path>
 
 	<path id="castor.classpath">
 		<pathelement path="${castor.jar}"/>
@@ -148,11 +178,9 @@
 	</path>
 
 	<path id="jaxb.classpath">
-		<!--fileset dir="${jaxb.dir}/lib" includes="*.jar"/-->
-		<fileset dir="${jaxb.dir}" includes="*.jar"/>
-		<!--fileset dir="${jaxb.dir}/jaxb/lib" includes="*.jar"/>
+		<fileset dir="${jaxb.dir}/jaxb/lib" includes="*.jar"/>
 		<fileset dir="${jaxb.dir}/jaxp/lib/endorsed" includes="*.jar"/>
-		<fileset dir="${jaxb.dir}/jwsdp-shared/lib" includes="*.jar"/-->
+		<fileset dir="${jaxb.dir}/jwsdp-shared/lib" includes="*.jar"/>
 		<pathelement path="${jaxb-purchase-order.jar}"/>
 		<pathelement path="${jaxb-primitives.jar}"/>
 		<pathelement path="${jaxb-non-primitives.jar}"/>
@@ -165,13 +193,13 @@
 	</path>
 
 	<!-- main build targets  -->
-	<target name="build.all" if="bootstrap.libdir.exists" depends="check.bootstrap.libs,build.schema.jars,build"/>
+	<target name="build.all" if="bootstrap.libdir.exists" depends="check.bootstrap.libs,check.xbeanshome,check.xbeansperfroot,build.schema.jars,build"/>
 	<target name="clean.all" depends="clean.schema.jars,clean"/>
-	<target name="rebuild.all" if="bootstrap.libdir.exists" depends="check.bootstrap.libs,rebuild.schema.jars,rebuild"/>
+	<target name="rebuild.all" if="bootstrap.libdir.exists" depends="check.bootstrap.libs,check.xbeanshome,check.xbeansperfroot,rebuild.schema.jars,rebuild"/>
 
 
 	<!-- conveinence src build targets  -->
-	<target name="build" depends="build.tools,build.v2.perf,build.v1.perf,build.castor.perf,build.jibx.perf,build.xerces.perf,build.jaxb.perf"/>
+	<target name="build" depends="build.tools,build.svn.perf,build.v1.perf,build.v2.perf,build.jibx.perf,build.xerces.perf,build.jaxb.perf,build.castor.perf"/>
 
 	<target name="clean">
 		<delete dir="${build.dir}"/>
@@ -180,10 +208,11 @@
 
 	<target name="rebuild" depends="clean,build"/>
 
+	<target name="build.xmlbeans.perf" depends="check.xbeanshome,check.xbeansperfroot,xmlbeans.bootstrap,v1.schema.jars, v2.schema.jars,svn.schema.jars, build.tools, build.svn.perf,build.v1.perf, build.v2.perf" />
 
 	<!-- conveinence schema jar build targets -->
-	<target name="build.schema.jars" depends="v2.schema.jars,v1.schema.jars,castor.schema.jars,jibx.schema.jars,jaxb.schema.jars"/>
-
+	<target name="build.schema.jars" depends="svn.schema.jars,v1.schema.jars,v2.schema.jars,jibx.schema.jars,castor.schema.jars,jaxb.schema.jars"/>
+	
 	<target name="clean.schema.jars">
 		<delete dir="${schema.jar.build.dir}"/>
 	</target>
@@ -196,30 +225,43 @@
 		<delete dir="${3rdparty.dir}"/>
 	</target>
 
-	<target name="check.bootstrap.libs">
-	<echo message="Verifying 3rd Party libraries download ..." />
-		<available property="bootstrap.libdir.exists"
-			file="${3rdparty.dir}" type="dir" />
-		<fail message="3rd Party Libraries not found! Please run 'ant bootstrap' to download these first." unless="bootstrap.libdir.exists" />
-	</target>
-
-	<target name="bootstrap">
+	<target name="bootstrap" depends="check.xbeanshome,check.xbeansperfroot">
 		<mkdir dir="${castor.dir}"/>
-		<get src="${castor.url}" dest="${castor.jar}" verbose="true"/>
+		<get src="${castor.url}" dest="${castor.jar}" verbose="true" usetimestamp="true"/>
 
 		<mkdir dir="${jibx.dir}"/>
-		<get src="${jibx.url}" dest="${jibx.zip}" verbose="true"/>
+		<get src="${jibx.url}" dest="${jibx.zip}" verbose="true" usetimestamp="true"/>
 		<unzip src="${jibx.zip}" dest="${jibx.dir}"/>
 
 		<mkdir dir="${v1.dir}"/>
-		<get src="${v1.url}" dest="${v1.zip}" verbose="true"/>
+		<get src="${v1.url}" dest="${v1.zip}" verbose="true" usetimestamp="true"/>
 		<unzip src="${v1.zip}" dest="${v1.dir}"/>
 
+        <mkdir dir="${v2.dir}"/>
+        <get src="${v2.url}" dest="${v2.zip}" verbose="true" usetimestamp="true"/>
+        <unzip src="${v2.zip}" dest="${v2.dir}"/>
+
 		<mkdir dir="${xerces.dir}"/>
-		<get src="${xerces.url}" dest="${xerces.zip}" verbose="true"/>
+		<get src="${xerces.url}" dest="${xerces.zip}" verbose="true" usetimestamp="true"/>
 		<unzip src="${xerces.zip}" dest="${xerces.dir}"/>
 
-		<echo message="FOR JAXB SETUP, DOWNLOAD AND INSTALL WSDP 1.5 IN [dir] (for ex c:\Sun\jwsdp-1.5)"/>
+		<antcall target="check.jaxb.libdir" />
+
+	</target>
+
+	<!-- added - bootstrap only for XmlBeans versions -->
+	<target name="xmlbeans.bootstrap">
+		<mkdir dir="${v1.dir}"/>
+		<get src="${v1.url}" dest="${v1.zip}" verbose="true" usetimestamp="true"/>
+		<unzip src="${v1.zip}" dest="${v1.dir}"/>
+
+        <mkdir dir="${v2.dir}"/>
+        <get src="${v2.url}" dest="${v2.zip}" verbose="true" usetimestamp="true"/>
+        <unzip src="${v2.zip}" dest="${v2.dir}"/>
+	</target>
+
+	<target name="jaxb.bootstrap">
+		<echo message="FOR JAXB SETUP, DOWNLOAD AND INSTALL WSDP 1.6 IN [dir] (for ex c:\Sun\jwsdp-1.6)"/>
 		<echo message="THEN SET JAXB_LIBDIR IN YOUR ENVIRONMENT TO POINT TO [dir]"/>
 		<!--  All the required JAXB jars listed for reference
 		<echo message="activation.jar,commons-beanutils.jar,commons-collections.jar,commons-digester.jar
@@ -227,7 +269,6 @@
 			jta-spec1_0_1.jar mail.jar namespace.jar relaxngDatatype.jar xsdlib.jar endorsed/dom.jar
 			endorsed/sax.jar endorsed/xalan.jar endorsed/xercesImpl.jar endorsed/xsltc.jar "/>
 		-->
-
 	</target>
 
 	<target name="build.tools">
@@ -245,7 +286,7 @@
 		</javac>
 	</target>
 
-	<target name="build.v2.perf">
+	<target name="build.svn.perf">
 		<mkdir dir="${build.dir}"/>
 		<javac srcdir="${src.dir}"
 			destdir="${build.dir}"
@@ -254,8 +295,8 @@
 			memoryMaximumSize="1000M"
 			compiler="modern"
 			executable="${env.JAVA_HOME}/bin/javac"
-			classpathref="v2.classpath"
-			includes="org/apache/xmlbeans/test/performance/v2/**,org/apache/xmlbeans/test/performance/utils/**"
+			classpathref="svn.classpath"
+			includes="org/apache/xmlbeans/test/performance/svn/**,org/apache/xmlbeans/test/performance/utils/**"
 			source="1.4">
 		</javac>
 	</target>
@@ -274,6 +315,21 @@
 			source="1.4">
 		</javac>
 	</target>
+
+    <target name="build.v2.perf">
+        <mkdir dir="${build.dir}"/>
+        <javac srcdir="${src.dir}"
+            destdir="${build.dir}"
+            debug="on"
+            fork="yes"
+            memoryMaximumSize="1000M"
+            compiler="modern"
+            executable="${env.JAVA_HOME}/bin/javac"
+            classpathref="v2.classpath"
+            includes="org/apache/xmlbeans/test/performance/v2/**,org/apache/xmlbeans/test/performance/utils/**"
+            source="1.4">
+        </javac>
+    </target>
 
 	<target name="build.castor.perf">
 		<mkdir dir="${build.dir}"/>
@@ -338,52 +394,64 @@
 
 	<!-- specific schema compile targets  -->
 	<target name="os.init">
-		<condition property="scomp" value="${v2.xmlbeans.root}\bin\scomp.cmd">
+		<condition property="scomp" value="${svn.xmlbeans.root}\bin\scomp.cmd">
 			<os family="windows"/>
 		</condition>
-		<condition property="scomp" value="${v2.xmlbeans.root}/bin/scomp">
+		<condition property="scomp" value="${svn.xmlbeans.root}/bin/scomp">
 			<os family="unix"/>
 		</condition>
 		<echo message="scomp variable=${scomp}"/>
 	</target>
 
 
-	<!-- v2 schema jars -->
-	<target name="v2.schema.jars">
-		<antcall target="v2.schema.build">
+	<!-- svn schema jars -->
+	<target name="svn.schema.jars">
+		<antcall target="svn.schema.build">
 			<param name="xsd.name" value="purchase-order.xsd"/>
-			<param name="jar.name" value="v2-purchase-order.jar"/>
+			<param name="jar.name" value="svn-purchase-order.jar"/>
 		</antcall>
-		<antcall target="v2.schema.build">
+		<antcall target="svn.schema.build">
 			<param name="xsd.name" value="primitives.xsd"/>
-			<param name="jar.name" value="v2-primitives.jar"/>
+			<param name="jar.name" value="svn-primitives.jar"/>
 		</antcall>
-		<antcall target="v2.schema.build">
+		<antcall target="svn.schema.build">
 			<param name="xsd.name" value="non-primitives.xsd"/>
-			<param name="jar.name" value="v2-non-primitives.jar"/>
+			<param name="jar.name" value="svn-non-primitives.jar"/>
 		</antcall>
-		<antcall target="v2.schema.build">
+		<antcall target="svn.schema.build">
 			<param name="xsd.name" value="perf-results.xsd"/>
 			<param name="jar.name" value="perf-results.jar"/>
 		</antcall>
 	</target>
 
-	<target name="v2.schema.build" depends="os.init">
-		<echo message="starting schema compilation with XmlBeans v2"/>
+	<target name="svn.schema.build" depends="os.init">
+		<echo message="starting schema compilation with XmlBeans SVN "/>
 		<echo message="Schema source file : ${test.case.dir}/xsd/${xsd.name}"/>
-		<mkdir dir="${v2.temp.dir}"/>
+		<mkdir dir="${svn.temp.dir}"/>
 		<mkdir dir="${schema.jar.build.dir}"/>
-		<chmod file="${v2.xmlbeans.root}/bin/scomp" perm="755"/>
-		<exec	dir="${v2.temp.dir}"
-					executable="${scomp}"
-					output="${v2.temp.dir}/scomp_output.txt">
-			<env key="XMLBEANS_HOME" value="${v2.xmlbeans.root}"/>
+
+        <!--
+		<chmod file="${svn.xmlbeans.root}/bin/scomp" perm="755"/>
+		<exec	dir="${svn.temp.dir}"
+					executable="${scomp}" 
+					output="${svn.temp.dir}/scomp_output.txt">
+			<env key="XMLBEANS_HOME" value="${svn.xmlbeans.root}"/>
 			<arg line="-out ${jar.name}"/>
 			<arg line="${test.case.dir}/xsd/${xsd.name}"/>
 		</exec>
-		<copy file="${v2.temp.dir}/${jar.name}" todir="${schema.jar.build.dir}"/>
+        -->
+	        <java classname="org.apache.xmlbeans.impl.tool.SchemaCompiler"
+                	fork="true"
+             	       	dir="${xmlbeans.perf.root}"
+                	classpathref="svn.classpath">
+            		<arg line="-out ${svn.temp.dir}/${jar.name}"/>
+            		<arg line="${test.case.dir}/xsd/${xsd.name}"/>
+        	</java>
+
+
+		<copy file="${svn.temp.dir}/${jar.name}" todir="${schema.jar.build.dir}"/>
 		<echo message="Schema comp output jar file : ${schema.jar.build.dir}/${jar.name}"/>
-		<echo message="Schema comp output file : ${v2.temp.dir}/scomp_output.txt"/>
+		<echo message="Schema comp output file : ${svn.temp.dir}/scomp_output.txt"/>
 		<echo message="done"/>
 	</target>
 
@@ -407,6 +475,7 @@
 	<target name="v1.schema.build" depends="os.init">
 		<echo message="starting schema compilation with XmlBeans v1"/>
 		<echo message="Schema source file : ${test.case.dir}/xsd/${xsd.name}"/>
+
 		<mkdir dir="${v1.temp.dir}"/>
 		<mkdir dir="${schema.jar.build.dir}"/>
 		<java classname="org.apache.xmlbeans.impl.tool.SchemaCompiler"
@@ -419,6 +488,39 @@
 		<copy file="${v1.temp.dir}/${jar.name}" todir="${schema.jar.build.dir}"/>
 		<echo message="Schema comp output jar file : ${schema.jar.build.dir}/${jar.name}"/>
 	</target>
+
+    <!-- v2 schema jars -->
+    <target name="v2.schema.jars">
+        <antcall target="v2.schema.build">
+            <param name="xsd.name" value="purchase-order.xsd"/>
+            <param name="jar.name" value="v2-purchase-order.jar"/>
+        </antcall>
+        <antcall target="v2.schema.build">
+            <param name="xsd.name" value="primitives.xsd"/>
+            <param name="jar.name" value="v2-primitives.jar"/>
+        </antcall>
+        <antcall target="v2.schema.build">
+            <param name="xsd.name" value="non-primitives.xsd"/>
+            <param name="jar.name" value="v2-non-primitives.jar"/>
+        </antcall>
+    </target>
+
+    <target name="v2.schema.build" depends="os.init">
+        <echo message="starting schema compilation with XmlBeans v2"/>
+        <echo message="Schema source file : ${test.case.dir}/xsd/${xsd.name}"/>
+
+        <mkdir dir="${v2.temp.dir}"/>
+        <mkdir dir="${schema.jar.build.dir}"/>
+        <java classname="org.apache.xmlbeans.impl.tool.SchemaCompiler"
+                    fork="true"
+                    dir="${xmlbeans.perf.root}"
+                    classpathref="v2.classpath">
+            <arg line="-out ${v2.temp.dir}/${jar.name}"/>
+            <arg line="${test.case.dir}/xsd/${xsd.name}"/>
+        </java>
+        <copy file="${v2.temp.dir}/${jar.name}" todir="${schema.jar.build.dir}"/>
+        <echo message="Schema comp output jar file : ${schema.jar.build.dir}/${jar.name}"/>
+    </target>
 
 	<!-- castor schema jars -->
 	<target name="castor.schema.jars">
@@ -481,7 +583,7 @@
 			executable="${env.JAVA_HOME}/bin/javac"
 			classpathref="jibx.binding.classpath"
 			includes="org/apache/xmlbeans/test/performance/jibx/binding/**"
-			excludes="org/apache/xmlbeans/test/performance/castor/**,org/apache/xmlbeans/test/performance/v2/**,org/apache/xmlbeans/test/performance/utils/**"
+			excludes="org/apache/xmlbeans/test/performance/castor/**,org/apache/xmlbeans/test/performance/svn/**,org/apache/xmlbeans/test/performance/utils/**"
 			source="1.4">
 		</javac>
 		<java classname="org.jibx.binding.Compile"
@@ -518,18 +620,12 @@
 	<target name="check.jaxb.libdir">
 		<available property="jaxb.libdir.exists"
 			file="${jaxb.dir}" type="dir" />
-		<fail message="Jaxb installaton directory ${jaxb.dir} not found! FOR JAXB SETUP, DOWNLOAD AND INSTALL WSDP 1.5 IN [dir] (for ex c:\Sun\jwsdp-1.5) AND SET JAXB_LIBDIR IN YOUR ENVIRONMENT TO POINT TO [dir]." unless="jaxb.libdir.exists"   />
+		<fail message="JAXB installaton directory ${jaxb.dir} not found! FOR JAXB SETUP, DOWNLOAD AND INSTALL WSDP 1.6 IN [dir] (for ex c:\Sun\jwsdp-1.6) AND SET JAXB_LIBDIR IN YOUR ENVIRONMENT TO POINT TO [dir]." unless="jaxb.libdir.exists"   />
 	</target>
+
 
 	<target name="jaxb.schema.build">
 		<echo message="starting schema compilation with jaxb"/>
-		<echo message="  jaxb.temp.dir ${jaxb.temp.dir}"/>
-		<echo message="  schema.jar.build.dir ${schema.jar.build.dir}"/>
-		<echo message="  {ns} ${ns}"/>
-		<echo message="  {env.JAVA_HOME} ${env.JAVA_HOME}"/>
-		<echo message="  {jar.name} ${jar.name}"/>
-		<echo message="  {test.case.dir}/xsd/{xsd.name} ${test.case.dir}/xsd/${xsd.name}"/>
-
 		<mkdir dir="${jaxb.temp.dir}"/>
 		<mkdir dir="${schema.jar.build.dir}"/>
 		<java classname="com.sun.tools.xjc.Driver"
@@ -548,11 +644,31 @@
 			compiler="modern"
 			executable="${env.JAVA_HOME}/bin/javac"
 			classpathref="jaxb.classpath"
-			source="1.5">
+			source="1.4">
 		</javac>
 		<jar destfile="${schema.jar.build.dir}/${jar.name}"
 				 basedir="${jaxb.temp.dir}"/>
 	</target>
 
+	<!-- utility targets -->
+
+	<target name="check.bootstrap.libs">
+	<echo message="Verifying 3rd Party libraries download ..." />
+		<available property="bootstrap.libdir.exists"
+			file="${3rdparty.dir}" type="dir" />
+		<fail message="3rd Party Libraries not found! Please run 'ant bootstrap' to download these first." unless="bootstrap.libdir.exists" />
+	</target>
+
+	<target name="check.xbeanshome">
+		<available property="xbeanshome.exists"
+			file="${svn.xmlbeans.root}" type="dir" />
+		<fail message="Xmlbeans root ${svn.xmlbeans.root} not found! Please set XMLBEANS_HOME to the svn root directory." unless="xbeanshome.exists" />
+	</target>
+
+	<target name="check.xbeansperfroot">
+		<available property="xbeansperfroor.exists"
+			file="${xmlbeans.perf.root}" type="dir" />
+		<fail message="Xmlbeans root ${xmlbeans.perf.root} not found! Please run env.bat from XMLBEANS SVN HOME\test\perf " unless="xbeansperfroor.exists" />
+	</target>
 
 </project>
