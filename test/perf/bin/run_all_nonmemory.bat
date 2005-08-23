@@ -3,4 +3,5 @@ call run_v2_nonmemory.bat
 call run_svn_nonmemory.bat
 call run_jaxb_nonmemory.bat
 call run_jibx.bat
+call run_castor.bat
 call run_xerces_nonmemory.bat
