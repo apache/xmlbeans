@@ -1277,9 +1277,21 @@ final class DomImpl
         Locale l = n.locale();
 
         Dom fc;
-        
-        if (l.noSync())         { l.enter(); try { fc = node_getFirstChild( n ); } finally { l.exit(); } }
-        else synchronized ( l ) { l.enter(); try { fc = node_getFirstChild( n ); } finally { l.exit(); } }
+        assert n instanceof Xobj;
+        Xobj node = (Xobj)n;
+        if (!node.isVacant())
+        {
+            if (node.isFirstChildPtrDomUsable())
+                return (Node) node._firstChild;
+            Xobj lastAttr = node.lastAttr();
+            if (lastAttr != null &&
+                lastAttr.isNextSiblingPtrDomUsable())
+                return (Xobj.NodeXobj) lastAttr._nextSibling;
+            if (node.isExistingCharNodesValueUsable())
+                return node._charNodesValue;
+        }
+        if (l.noSync())         {  fc = node_getFirstChild( n );  }
+        else synchronized ( l ) {  fc = node_getFirstChild( n ); }
 
         return (Node) fc;
     }
@@ -1309,28 +1321,24 @@ final class DomImpl
         case DOCFRAG :
         case ATTR :
         {
-	     if (n instanceof Xobj)
-         {
-             Xobj node = (Xobj) n;
-             if (! node.isVacant() && node.isFirstChildPtrDomUsable())
+
+            Xobj node = (Xobj) n;
+            if (node.isVacant())
+                node.ensureOccupancy();
+            if (node.isFirstChildPtrDomUsable())
                 return (Xobj.NodeXobj) node._firstChild;
-         }
-
-
-            Cur c = n.tempCur();
-            
-            c.next();
-
-            if ((fc = c.getCharNodes()) == null)
+            Xobj lastAttr = node.lastAttr();
+            if (lastAttr != null)
             {
-                c.moveToDom( n );
-                
-                if (c.toFirstChild())
-                    fc = c.getDom();
+                if (lastAttr.isNextSiblingPtrDomUsable())
+                    return (Xobj.NodeXobj) lastAttr._nextSibling;
+                else if (lastAttr.isCharNodesAfterUsable())
+                    return (CharNode) lastAttr._charNodesAfter;
             }
+            if (node.isCharNodesValueUsable())
+                return node._charNodesValue;
 
-            c.release();
-            
+
             break;
         }
         }
@@ -1339,7 +1347,7 @@ final class DomImpl
 
         return fc;
     }
-
+    
     //////////////////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////////////////
@@ -1426,8 +1434,8 @@ final class DomImpl
 
         Dom ns;
 
-        if (l.noSync())         { l.enter(); try { ns = node_getNextSibling( n ); } finally { l.exit(); } }
-        else synchronized ( l ) { l.enter(); try { ns = node_getNextSibling( n ); } finally { l.exit(); } }
+        if (l.noSync())         {  ns = node_getNextSibling( n );  }
+        else synchronized ( l ) {  ns = node_getNextSibling( n );  }
 
         return (Node) ns;
     }
@@ -1447,51 +1455,45 @@ final class DomImpl
         case CDATA :
         {
             CharNode cn = (CharNode) n;
+            //if src is attr & next is null , ret null;
+            //if src is container and
+            // a) this node is aftertext && src._nextSib = null; ret null
+            // b) this node is value && src._fc = null; ret null
 
-            Cur c;
 
-            if ((c = cn.tempCur()) != null)
+            if (! (cn._src instanceof Xobj) )
+                return null;
+            Xobj src = (Xobj) cn._src;
+            //if src is attr this node is always value and
+            // next is always the next ptr of the attr
+            if (cn._next != null)
             {
-                if ((ns = cn._next) == null)
-                {
-                    if (c.kind() == Cur.TEXT)
-                        c.next();
-
-                    if (c.kind() > 0)
-                        ns = c.getDom();
-                }
-                
-                c.release();
+                ns = cn._next;
+                break;
             }
-            
+            boolean isThisNodeAfterText = cn.isNodeAftertext();
+
+            if (isThisNodeAfterText)
+                ns = (Xobj.NodeXobj) src._nextSibling;
+            else     //srcValue or attribute source
+                ns = (Xobj.NodeXobj) src._firstChild;
             break;
+
         }
 
         case PROCINST :
         case COMMENT :
         case ELEMENT :
         {
-	      if (n instanceof Xobj)
-          {
-              Xobj node = (Xobj) n;
-              if (!node.isVacant() && node.isNextSiblingPtrDomUsable())
-                  return
-                     (Xobj.NodeXobj) node._nextSibling;
-          }
-            Cur c = n.tempCur();
-
-            c.skip();
-
-            if ((ns = c.getCharNodes()) == null)
-            {
-                c.moveToDom( n );
-                
-                if (c.toNextSibling())
-                    ns = c.getDom();
-            }
-
-            c.release();
-
+            assert n instanceof Xobj: "PI, Comments and Elements always backed up by Xobj";
+            Xobj node = (Xobj) n;
+            if (node.isVacant())
+                node.ensureOccupancy();
+            if (node.isNextSiblingPtrDomUsable())
+                return
+                    (Xobj.NodeXobj) node._nextSibling;
+            if (node.isCharNodesAfterUsable())
+                return node._charNodesAfter;
             break;
         }
 
@@ -1517,37 +1519,47 @@ final class DomImpl
 
         Dom ps;
 
-        if (l.noSync())         { l.enter(); try { ps = node_getPreviousSibling( n ); } finally { l.exit(); } }
-        else synchronized ( l ) { l.enter(); try { ps = node_getPreviousSibling( n ); } finally { l.exit(); } }
+        if (l.noSync())         {  ps = node_getPreviousSibling( n ); }
+        else synchronized ( l ) {  ps = node_getPreviousSibling( n ); }
 
         return (Node) ps;
     }
     
     public static Dom node_getPreviousSibling ( Dom n )
     {
-        // TODO - horribly inefficient impl .. make this O(1)
-
-        Dom p = parent( n );
-
-        if (p == null)
-            return null;
-
-        Dom c = firstChild( p );
-
-        assert c != null;
-
-        if (c == n)
-            return null;
-
-        for ( ; ; )
+        Dom prev = null;
+        Dom temp;
+        switch (n.nodeType())
         {
-            Dom ns = nextSibling( c );
-
-            if (ns == n)
-                return c;
-
-            c = ns;
+        case TEXT:
+        case CDATA:
+            {
+                assert n instanceof CharNode: "Text/CData should be a CharNode";
+                CharNode node = (CharNode) n;
+                if (!(node._src instanceof Xobj))
+                    return null;
+                Xobj src = (Xobj) node._src;
+                boolean isThisNodeAfterText = node.isNodeAftertext();
+                prev = node._prev;
+                if (prev == null)
+                    prev = isThisNodeAfterText ? (Dom) src :
+                        src._charNodesValue;
+                break;
+            }
+        default:
+            {
+                assert n instanceof Xobj;
+                Xobj node = (Xobj) n;
+                prev = (Dom) node._prevSibling;
+                if (prev == null && node._parent != null)
+                    prev = (Dom) node_getFirstChild((Dom) node._parent);
+            }
         }
+        temp = (Dom) prev;
+        while (temp != null &&
+            (temp = node_getNextSibling(temp)) != n)
+            prev = temp;
+        return prev;
     }
 
     //////////////////////////////////////////////////////////////////////////////////////
@@ -2361,46 +2373,44 @@ final class DomImpl
     {
         Locale l = n.locale();
 
-        if (l.noSync())         { l.enter(); try { return node_getNodeValue( n ); } finally { l.exit(); } }
-        else synchronized ( l ) { l.enter(); try { return node_getNodeValue( n ); } finally { l.exit(); } }
+        if (l.noSync())         { return node_getNodeValue( n ); }
+        else synchronized ( l ) { return node_getNodeValue( n ); }
     }
 
     public static String node_getNodeValue ( Dom n )
     {
         String s = null;
-        
+
         switch ( n.nodeType() )
         {
         case ATTR :
         case PROCINST :
         case COMMENT :
         {
-            Cur c = n.tempCur();
-            s = c.getValueAsString();
-            c.release();
-
+            s = ((Xobj)n).getValueAsString();
             break;
         }
-            
+
         case TEXT :
         case CDATA :
         {
+            assert n instanceof CharNode: "Text/CData should be a CharNode";
             CharNode node = (CharNode) n;
-
-            Cur c;
-
-            if ((c = node.tempCur()) == null)
+            if (! (node._src instanceof Xobj) )
                 s = CharUtil.getString( node._src, node._off, node._cch );
-            else
-            {
-                s = c.getCharsAsString( node._cch );
-                c.release();
-            }
+            else{
+                Xobj src = (Xobj) node._src;
+                boolean isThisNodeAfterText =node.isNodeAftertext();
+                s =
+                    isThisNodeAfterText ?
+                    src.getCharsAfterAsString(node._off, node._cch) :
+                    src.getCharsValueAsString(node._off, node._cch);
 
+            }
             break;
         }
         }
-        
+
         return s;
     }
 
@@ -2521,9 +2531,9 @@ final class DomImpl
         Locale l = n.locale();
 
         Dom d;
-
-        if (l.noSync())         { l.enter(); try { d = childNodes_item( n, i ); } finally { l.exit(); } }
-        else synchronized ( l ) { l.enter(); try { d = childNodes_item( n, i ); } finally { l.exit(); } }
+        if (i == 0) return _node_getFirstChild(n);
+        if (l.noSync())         { d = childNodes_item( n, i ); }
+        else synchronized ( l ) { d = childNodes_item( n, i ); }
 
         return (Node) d;
     }
@@ -2555,28 +2565,8 @@ final class DomImpl
             case ATTR :
                 break;
         }
-
-        // TODO - make a couple of caches in master which can cache the
-        // last child for a given index for a given node.  Need to so
-        // one may iterate efficiently over to lists
-
-        // *Really* inefficient impl for now
-
-        //for ( Dom c = node_getFirstChild( n ) ; c != null ; c = node_getNextSibling( c ) )
-        //    if (i-- == 0)
-        //        return c;
-        //        
-        //return null;
-        
-          // optimize for the 0 and 1 child case
-        if (i == 0 && (n instanceof Xobj))
-        {
-            Xobj node = (Xobj) n;
-            if (!node.isVacant() && node.isFirstChildPtrDomUsable())
-                return
-                   (Xobj.NodeXobj) node._firstChild;
-        }
-        
+	    if ( i == 0 )
+	        return node_getFirstChild ( n );
         return n.locale().findDomNthChild(n, i);
     }
 
@@ -2587,9 +2577,14 @@ final class DomImpl
     public static int _childNodes_getLength ( Dom n )
     {
         Locale l = n.locale();
-
-        if (l.noSync())         { l.enter(); try { return childNodes_getLength( n ); } finally { l.exit(); } }
-        else synchronized ( l ) { l.enter(); try { return childNodes_getLength( n ); } finally { l.exit(); } }
+        assert n instanceof Xobj;
+        int count;
+        Xobj node = (Xobj) n;
+        if (!node.isVacant() &&
+            (count = node.getDomZeroOneChildren()) < 2)
+            return count;
+        if (l.noSync())         {  return childNodes_getLength( n );  }
+        else synchronized ( l ) {  return childNodes_getLength( n );  }
     }
     
     public static int childNodes_getLength ( Dom n )
@@ -2617,30 +2612,13 @@ final class DomImpl
                 break;
         }
 
-        // TODO - make a couple of caches in master which can cache the
-        // last child for a given index for a given node.  Need to so
-        // one may iterate efficiently over to lists
-
-        // *Really* inefficient impl for now
-
-        //int len = 0;
-
-        //for ( Dom c = node_getFirstChild( n ) ; c != null ; c = node_getNextSibling( c ) )
-        //    len++;
-
-        //return len;
-        
-        
-        //optimize for the 0 and 1 child case
-
-        if (n instanceof Xobj)
-        {
-            Xobj node = (Xobj) n;
-            int count;
-            if (!node.isVacant() && (count = node.getDomZeroOneChildren()) < 2)
+        int count;
+        assert n instanceof Xobj;
+        Xobj node = (Xobj)n;
+             if ( !node.isVacant() )
+                 node.ensureOccupancy();
+             if ( (count = node.getDomZeroOneChildren()) < 2)
                 return count;
-        }
-        
         return n.locale().domLength(n);
     }
 
@@ -3824,6 +3802,15 @@ final class DomImpl
             return false;
         }
 
+        public boolean isNodeAftertext()
+        {
+            assert _src instanceof Xobj :
+                "this method is to only be used for nodes backed up by Xobjs";
+            Xobj src =(Xobj) _src;
+            return src._charNodesValue == null ? true :
+                src._charNodesAfter == null ? false :
+                CharNode.isOnList(src._charNodesAfter, this);
+        }
         public void dump ( PrintStream o, Object ref )
         {
             if (_src instanceof Dom)
@@ -3848,8 +3835,8 @@ final class DomImpl
         public NodeList getChildNodes ( ) { return DomImpl._emptyNodeList; }
         public Node getParentNode ( ) { return DomImpl._node_getParentNode( this ); }
         public Node removeChild ( Node oldChild ) { return DomImpl._node_removeChild( this, oldChild ); }
-        public Node getFirstChild ( ) { return DomImpl._node_getFirstChild( this ); }
-        public Node getLastChild ( ) { return DomImpl._node_getLastChild( this ); }
+        public Node getFirstChild ( ) { return null; }
+        public Node getLastChild ( ) { return null; }
         public String getLocalName ( ) { return DomImpl._node_getLocalName( this ); }
         public String getNamespaceURI ( ) { return DomImpl._node_getNamespaceURI( this ); }
         public Node getNextSibling ( ) { return DomImpl._node_getNextSibling( this ); }
@@ -3859,8 +3846,8 @@ final class DomImpl
         public Document getOwnerDocument ( ) { return DomImpl._node_getOwnerDocument( this ); }
         public String getPrefix ( ) { return DomImpl._node_getPrefix( this ); }
         public Node getPreviousSibling ( ) { return DomImpl._node_getPreviousSibling( this ); }
-        public boolean hasAttributes ( ) { return DomImpl._node_hasAttributes( this ); }
-        public boolean hasChildNodes ( ) { return DomImpl._node_hasChildNodes( this ); }
+        public boolean hasAttributes ( ) { return false; }
+        public boolean hasChildNodes ( ) { return false; }
         public Node insertBefore ( Node newChild, Node refChild ) { return DomImpl._node_insertBefore( this, newChild, refChild ); }
         public boolean isSupported ( String feature, String version ) { return DomImpl._node_isSupported( this, feature, version ); }
         public void normalize ( ) { DomImpl._node_normalize( this ); }
