@@ -1540,7 +1540,8 @@ final class Cur
         return nodes;
     }
 
-    private static CharNode updateCharNodes ( Locale l, Xobj x, CharNode nodes, int cch )
+   // private
+    static CharNode updateCharNodes ( Locale l, Xobj x, CharNode nodes, int cch )
     {
         assert nodes == null || nodes.locale() == l;
 

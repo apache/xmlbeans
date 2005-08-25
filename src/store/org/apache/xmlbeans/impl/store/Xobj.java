@@ -194,8 +194,22 @@ abstract class Xobj implements TypeStore
 
         if (_firstChild == null &&
             _srcValue != null &&
-            _charNodesValue == null)
+           ( _charNodesValue == null ||
+            (_charNodesValue._next == null &&
+            _charNodesValue._cch == _cchValue))
+        )
             return 1;
+        //single elem after an attr
+        Xobj lastAttr = lastAttr();
+        Xobj node = lastAttr == null ?
+            null : lastAttr._nextSibling;
+        if (lastAttr != null &&
+            lastAttr._srcAfter == null &&
+            node != null &&
+            node._srcAfter == null &&
+            node._nextSibling == null)
+            return 1;
+
         return 2;
     }
 
@@ -240,6 +254,44 @@ abstract class Xobj implements TypeStore
             return true;
         }
         return false;
+    }
+    /**
+     * can one use the _charNodesValue pointer to retrieve
+     * the next DOM sibling
+     *
+     * @return
+     */
+    final protected boolean isExistingCharNodesValueUsable()
+    {
+        if (_srcValue == null) return false;
+        if (_charNodesValue != null && _charNodesValue._next == null
+            && _charNodesValue._cch == _cchValue)
+            return true;
+       return false;
+    }
+      final protected boolean isCharNodesValueUsable()
+      {
+          return isExistingCharNodesValueUsable() ||
+              (_charNodesValue =
+              Cur.updateCharNodes(_locale, this,
+                  _charNodesValue, _cchValue)) != null;
+      }
+
+    /**
+     * can one use the _charNodesAfter pointer to retrieve
+     * the next DOM sibling
+     *
+     * @return
+     */
+    final protected boolean isCharNodesAfterUsable()
+    {
+        if (_srcAfter == null) return false;
+        if (_charNodesAfter != null && _charNodesAfter._next == null
+            && _charNodesAfter._cch == this._cchAfter)
+            return true;
+        return (_charNodesAfter =
+            Cur.updateCharNodes(_locale, this,
+                _charNodesAfter, _cchAfter)) != null;
     }
 
 
@@ -1102,7 +1154,19 @@ abstract class Xobj implements TypeStore
 
         return scrub.getResultAsString();
     }
-
+    String getCharsAfterAsString ( int off, int cch )
+    {
+       int offset = off + _cchValue + 2;
+        if (offset == posMax())
+            offset = -1;
+        return getCharsAsString(offset, cch,
+            Locale.WS_PRESERVE);
+    }
+    String getCharsValueAsString ( int off, int cch )
+    {
+       return getCharsAsString(off + 1, cch,
+                        Locale.WS_PRESERVE);
+    }
     String getValueAsString ( int wsr )
     {
         if (!hasChildren())
@@ -2645,7 +2709,7 @@ abstract class Xobj implements TypeStore
         Xobj newNode ( Locale l ) { return new AttrXobj( l, _name ); }
 
         //
-        //
+        public Node getNextSibling ( ) { return null; }
         //
 
         public String getName ( ) { return DomImpl._node_getNodeName( this ); }
@@ -2698,6 +2762,8 @@ abstract class Xobj implements TypeStore
         }
 
         Xobj newNode ( Locale l ) { return new ProcInstXobj( l, _name.getLocalPart() ); }
+
+        public int getLength ( ) { return 0; }
 
         public String getData ( ) { return DomImpl._processingInstruction_getData( this ); }
         public String getTarget ( ) { return DomImpl._processingInstruction_getTarget( this ); }
