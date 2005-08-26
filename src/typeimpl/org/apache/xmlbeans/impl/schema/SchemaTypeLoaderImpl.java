@@ -66,7 +66,7 @@ public class SchemaTypeLoaderImpl extends SchemaTypeLoaderBase
         // I use soft references to allow the garbage collector to reclain the type loaders
         // and/pr class loaders at will.
 
-        private static ThreadLocal _cachedTypeSystems =
+        private ThreadLocal _cachedTypeSystems =
             new ThreadLocal() { protected Object initialValue() { return new ArrayList(); } };
 
         public SchemaTypeLoader getFromTypeLoaderCache(ClassLoader cl)
@@ -609,6 +609,7 @@ public class SchemaTypeLoaderImpl extends SchemaTypeLoaderBase
 
     static
     {
-        SystemCache.set(new SchemaTypeLoaderCache());
+        if (SystemCache.get() instanceof SystemCache)
+            SystemCache.set(new SchemaTypeLoaderCache());
     }
 }

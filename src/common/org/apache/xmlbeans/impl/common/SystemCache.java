@@ -20,6 +20,18 @@ import java.util.ArrayList;
 import org.apache.xmlbeans.SchemaTypeLoader;
 import org.apache.xmlbeans.SystemProperties;
 
+/**
+ * This class encapsulates the caching strategy for XmlBeans.
+ * By subclassing this, a client of XmlBeans can implement caches that are
+ * more suitable for different applications using information that XmlBeans
+ * cannot know.
+ * <p/>
+ * This class works as a singleton and as a default implementation for the cache.
+ * You can set a particular implementation using the "xmlbean.systemcacheimpl"
+ * system property or using the static {@link set} method.
+ * Subclasses of this need to be thread-safe. An implementation can be replaced
+ * at any time, so use of static variables is discouraged to ensure proper cleanup.
+ */
 public class SystemCache
 {
     private static SystemCache INSTANCE = new SystemCache();
@@ -63,9 +75,6 @@ public class SystemCache
 
     public static synchronized final void set(SystemCache instance)
     {
-        if (INSTANCE.getClass() != SystemCache.class)
-            throw new RuntimeException("Cache instance is already set to class " +
-                INSTANCE.getClass().getName());
         INSTANCE = instance;
     }
 
@@ -84,7 +93,7 @@ public class SystemCache
         return;
     }
 
-    private static ThreadLocal tl_saxLoaders = new ThreadLocal();
+    private ThreadLocal tl_saxLoaders = new ThreadLocal();
 
     public Object getSaxLoader()
     {
