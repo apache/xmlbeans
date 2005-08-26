@@ -1323,8 +1323,7 @@ final class DomImpl
         {
 
             Xobj node = (Xobj) n;
-            if (node.isVacant())
-                node.ensureOccupancy();
+            node.ensureOccupancy();
             if (node.isFirstChildPtrDomUsable())
                 return (Xobj.NodeXobj) node._firstChild;
             Xobj lastAttr = node.lastAttr();
@@ -1487,8 +1486,7 @@ final class DomImpl
         {
             assert n instanceof Xobj: "PI, Comments and Elements always backed up by Xobj";
             Xobj node = (Xobj) n;
-            if (node.isVacant())
-                node.ensureOccupancy();
+            node.ensureOccupancy();
             if (node.isNextSiblingPtrDomUsable())
                 return
                     (Xobj.NodeXobj) node._nextSibling;
@@ -1539,6 +1537,7 @@ final class DomImpl
                 if (!(node._src instanceof Xobj))
                     return null;
                 Xobj src = (Xobj) node._src;
+                src.ensureOccupancy();
                 boolean isThisNodeAfterText = node.isNodeAftertext();
                 prev = node._prev;
                 if (prev == null)
@@ -2400,7 +2399,8 @@ final class DomImpl
                 s = CharUtil.getString( node._src, node._off, node._cch );
             else{
                 Xobj src = (Xobj) node._src;
-                boolean isThisNodeAfterText =node.isNodeAftertext();
+                src.ensureOccupancy();
+                boolean isThisNodeAfterText = node.isNodeAftertext();
                 s =
                     isThisNodeAfterText ?
                     src.getCharsAfterAsString(node._off, node._cch) :
@@ -2614,11 +2614,10 @@ final class DomImpl
 
         int count;
         assert n instanceof Xobj;
-        Xobj node = (Xobj)n;
-             if ( !node.isVacant() )
-                 node.ensureOccupancy();
-             if ( (count = node.getDomZeroOneChildren()) < 2)
-                return count;
+        Xobj node = (Xobj) n;
+        node.ensureOccupancy();
+        if ((count = node.getDomZeroOneChildren()) < 2)
+            return count;
         return n.locale().domLength(n);
     }
 
