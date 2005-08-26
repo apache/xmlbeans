@@ -1693,26 +1693,42 @@ abstract class Xobj implements TypeStore
 
             String value = user.build_text( this );
 
-            Cur c = tempCur();
-
-            c.next();
 
             long saveVersion = _locale._versionAll;
             long saveVersionSansText = _locale._versionSansText;
 
-            c.insertString( value );
 
+            setValue( value );
             assert saveVersionSansText == _locale._versionSansText;
 
             _locale._versionAll = saveVersion;
 
-            c.release();
 
             assert _user == null;
             _user = user;
         }
     }
+    private void setValue(String val)
+    {
+        assert !isRoot();
+        assert CharUtil.isValid(val, 0, val.length());
 
+        // Check for nothing to insert
+
+        if (val.length() <= 0)
+            return;
+
+        _locale.notifyChange();
+        Xobj lastAttr = lastAttr();
+        int startPos = 1;
+        Xobj charOwner = this;
+        if (lastAttr != null)
+        {
+            charOwner = lastAttr;
+            startPos = charOwner.posAfter();
+        }
+        charOwner.insertCharsHelper(startPos, val, 0, val.length(), true);
+    }
     //
     // TypeStore
     //
