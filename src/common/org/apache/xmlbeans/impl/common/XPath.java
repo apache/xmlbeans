@@ -1032,18 +1032,35 @@ public class XPath
         boolean match ( QName name )
         {
             String local = _name.getLocalPart();
+            String nameLocal = name.getLocalPart();
+            String uri;
+            String nameUri;
 
-            if (local.length() == 0)
+            int localLength = local.length();
+            int uriLength;
+
+            // match any name to _name when _name is empty ""@""
+            if (localLength==0)
             {
-                String uri = _name.getNamespaceURI();
+                uri = _name.getNamespaceURI();
+                uriLength = uri.length();
 
-                if (uri.length() == 0)
+                if (uriLength==0)
                     return true;
 
-                return uri.equals( name.getNamespaceURI() );
+                return uri.equals(name.getNamespaceURI());
             }
 
-            return _name.equals( name );
+            if (localLength!=nameLocal.length())
+                return false;
+
+            uri = _name.getNamespaceURI();
+            nameUri = name.getNamespaceURI();
+
+            if (uri.length()!=nameUri.length())
+                return false;
+
+            return local.equals(nameLocal) && uri.equals(nameUri);
         }
 
         final boolean _attr;

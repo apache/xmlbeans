@@ -2079,48 +2079,51 @@ public final class Locale
 
     static boolean toFirstChildElement(Cur c)
     {
-        if (!pushToContainer(c))
-            return false;
+//        if (!pushToContainer(c))
+//            return false;
+//
+//        if (!c.toFirstChild() || (!c.isElem() && !toNextSiblingElement(c)))
+//        {
+//            c.pop();
+//            return false;
+//        }
+//
+//        c.popButStay();
+//
+//        return true;
+
+        Xobj originalXobj = c._xobj;
+        int  originalPos  = c._pos;
+
+        loop:
+        for (; ;)
+        {
+            switch (c.kind())
+            {
+            case ROOT:
+            case ELEM:
+                break loop;
+            case -ROOT:
+            case -ELEM:
+                c.moveTo(originalXobj, originalPos);
+                return false;
+            case COMMENT:
+            case PROCINST:
+                c.skip();
+                break;
+            default:
+                c.nextWithAttrs();
+                break;
+            }
+        }
 
         if (!c.toFirstChild() || (!c.isElem() && !toNextSiblingElement(c)))
         {
-            c.pop();
-            return false;
-        }
-
-        c.popButStay();
-
-        return true;
-
-/*        Xobj originalXobj = c._xobj;
-        int  originalPos  = c._pos;
-        boolean hasMoved = false;
-
-        // find the first container
-        while (!c.isContainer())
-        {
-            if (c.isFinish())
-            {
-                if (hasMoved)
-                    c.moveTo(originalXobj, originalPos);
-
-                return false;
-            }
-            c.next(false);
-            hasMoved = true;
-        }
-
-        // find first elem child
-        if ( !c.toFirstChild() )
-        {
-            if (hasMoved)
-                c.moveTo(originalXobj, originalPos);
-            
+            c.moveTo(originalXobj, originalPos);
             return false;
         }
 
         return true;
-*/
     }
 
     static boolean toLastChildElement(Cur c)
@@ -2211,6 +2214,39 @@ public final class Locale
         }
 
         c.pop();
+
+        return false;
+    }
+
+    static boolean toNextSiblingElement(Cur c, Xobj parent)
+    {
+        Xobj originalXobj = c._xobj;
+        int originalPos = c._pos;
+
+        int k = c.kind();
+
+        if (k == ATTR)
+        {
+            c.moveTo(parent);
+            c.next();
+        }
+        else if (k == ELEM)
+            c.skip();
+
+        while ((k = c.kind()) >= 0)
+        {
+            if (k == ELEM)
+            {
+                return true;
+            }
+
+            if (k > 0)
+                c.toEnd();
+
+            c.next();
+        }
+
+        c.moveTo(originalXobj, originalPos);
 
         return false;
     }

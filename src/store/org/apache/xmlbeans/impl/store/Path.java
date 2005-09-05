@@ -83,12 +83,9 @@ public abstract class Path
         options = XmlOptions.maskNull(options);
 
         int force =
-                options.hasOption(_useXqrlForXpath)
-                ? USE_XQRL
-                : options.hasOption(_useXbeanForXpath)
-                ? USE_XBEAN
-                : options.hasOption(_forceXqrl2002ForXpathXQuery)
-                ? USE_XQRL2002
+                options.hasOption(_useXqrlForXpath) ? USE_XQRL
+                : options.hasOption(_useXbeanForXpath) ? USE_XBEAN
+                : options.hasOption(_forceXqrl2002ForXpathXQuery) ? USE_XQRL2002
                 : USE_XBEAN|USE_XQRL|USE_SAXON; //set all bits except XQRL2002
 
         return getCompiledPath(pathExpr, force, getCurrentNodeVar(options));
@@ -358,7 +355,8 @@ public abstract class Path
         {
             assert _cur != null;
 
-            if (_cur.isFinish()) {
+            if (_cur.isFinish())
+            {
                 if (_cur.isAtEndOfLastPush())
                     release();
                 else {
@@ -366,7 +364,8 @@ public abstract class Path
                     _cur.next();
                 }
             }
-            else if (_cur.isElem()) {
+            else if (_cur.isElem())
+            {
                 int ret = element(_cur.getName());
 
                 if ((ret & HIT) != 0)
@@ -374,13 +373,20 @@ public abstract class Path
 
                 doAttrs(ret, c);
 
-                if ((ret & DESCEND) == 0 || !Locale.toFirstChildElement(_cur)) {
+                if ((ret & DESCEND) == 0 || !Locale.toFirstChildElement(_cur))
+                {
                     end();
                     _cur.skip();
                 }
             }
             else
-                _cur.next();
+            {
+                do
+                {
+                    _cur.next();
+                }
+                while(!_cur.isContainerOrFinish());
+            }
         }
 
         private void doAttrs(int ret, Cur c)
