@@ -1050,10 +1050,6 @@ public final class Cursor implements XmlCursor, ChangeListener {
         return _cur.prevChars(maxCharacterCount);
     }
 
-    public boolean _toNextSibling() {
-        return Locale.toNextSiblingElement(_cur);
-    }
-
     public boolean _toPrevSibling() {
         return Locale.toPrevSiblingElement(_cur);
     }
@@ -1079,7 +1075,7 @@ public final class Cursor implements XmlCursor, ChangeListener {
     public boolean _toNextSibling(QName name) {
         _cur.push();
 
-        while (_toNextSibling()) {
+        while (___toNextSibling()) {
             if (_cur.getName().equals(name)) {
                 _cur.popButStay();
                 return true;
@@ -2902,19 +2898,19 @@ public final class Cursor implements XmlCursor, ChangeListener {
 
     public TokenType currentTokenType() {
         if (preCheck()) {
-            _cur._locale.enter();
-            try {
+//            _cur._locale.enter();
+//            try {
                 return _currentTokenType();
-            } finally {
-                _cur._locale.exit();
-            }
+//            } finally {
+//                _cur._locale.exit();
+//            }
         } else synchronized (_cur._locale) {
-            _cur._locale.enter();
-            try {
+//            _cur._locale.enter();
+//            try {
                 return _currentTokenType();
-            } finally {
-                _cur._locale.exit();
-            }
+//            } finally {
+//                _cur._locale.exit();
+//            }
         }
     }
 
@@ -3296,21 +3292,38 @@ public final class Cursor implements XmlCursor, ChangeListener {
         }
     }
 
-    public boolean toNextSibling() {
+//    public boolean _toNextSibling()
+//    {
+//        return Locale.toNextSiblingElement(_cur);
+//    }
+
+    public boolean ___toNextSibling()
+    {
+        if (!_cur.hasParent())
+            return false;
+
+        Xobj parent = _cur.getParentNoRoot();
+
+        if (parent==null)
+        {
+            _cur._locale.enter();
+            try
+            {
+                parent = _cur.getParent();
+            } finally {
+                _cur._locale.exit();
+            }
+        }
+
+        return Locale.toNextSiblingElement(_cur, parent);
+    }
+
+    public boolean toNextSibling()
+    {
         if (preCheck()) {
-            _cur._locale.enter();
-            try {
-                return _toNextSibling();
-            } finally {
-                _cur._locale.exit();
-            }
+            return ___toNextSibling();
         } else synchronized (_cur._locale) {
-            _cur._locale.enter();
-            try {
-                return _toNextSibling();
-            } finally {
-                _cur._locale.exit();
-            }
+            return ___toNextSibling();
         }
     }
 

@@ -157,6 +157,17 @@ final class Cur
     boolean isFinish    ( ) { assert isPositioned(); return _pos == END_POS && kindIsContainer( _xobj.kind() ); }
     boolean isUserNode  ( ) { assert isPositioned(); int k = kind(); return k == ELEM || k == ROOT || (k == ATTR && !isXmlns()); }
 
+    boolean isContainerOrFinish ( )
+    {
+        assert isPositioned();
+
+        if (_pos!=0 && _pos!= END_POS)
+            return false;
+
+        int kind = _xobj.kind();
+        return kind == ELEM || kind == -ELEM || kind == ROOT || kind == -ROOT;
+    }
+
     boolean isNormalAttr ( ) { return isNode() && _xobj.isNormalAttr(); }
     boolean isXmlns      ( ) { return isNode() && _xobj.isXmlns(); }
 
@@ -881,6 +892,21 @@ final class Cur
         assert _pos == 0 || _xobj._parent != null;
 
         return _xobj._parent != null;
+    }
+
+    Xobj getParentNoRoot()
+    {
+        assert isPositioned();
+
+        if (_pos == END_POS || (_pos >= 1 && _pos < _xobj.posAfter()))
+            return _xobj;
+
+        assert _pos == 0 || _xobj._parent != null;
+
+        if (_xobj._parent != null)
+            return _xobj._parent;
+
+        return null;
     }
 
     Xobj getParent ( boolean raw )
