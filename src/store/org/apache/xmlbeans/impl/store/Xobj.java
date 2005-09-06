@@ -1710,7 +1710,6 @@ abstract class Xobj implements TypeStore
     }
     private void setValue(String val)
     {
-        assert !isRoot();
         assert CharUtil.isValid(val, 0, val.length());
 
         // Check for nothing to insert
