@@ -50,15 +50,21 @@
         <delete dir="build"/>
     </target>
 
-    <target name="clean.jars" description="Delete any downloaded jars">
+    <target name="clean.jars" description="Delete any downloaded jars and accompanying licenses">
         <delete>
             <fileset dir="external/lib">
                 <include name="saxonb8-2.zip"/>
-                <include name="jsr173.jar"/>
+                <include name="jsr173_1.0_api-mini-bundle.jar"/>
                 <include name="jsr173_1.0_api.jar"/>
-                <include name="saxon8.jar"/>
                 <include name="jsr173_1.0_ri.jar"/>
+                <include name="BEA Binary RI License (JSR 173).1(Clean).txt"/>
+                <include name="README(jsr_173 api and ri).txt"/>
+                <include name="saxon8.jar"/>
                 <include name="xcresolver.zip"/>
+                <!-- the 3 entries below are to delete the previous versions of the jsr173 jars -->
+                <include name="jsr173.jar"/>
+                <include name="jsr173_api.jar"/>
+                <include name="jsr173_ri.jar"/>
             </fileset>
         </delete>
     </target>
@@ -104,46 +110,39 @@
         <copy file="external/lib/saxon8.jar" tofile="build/lib/saxon8.jar"/>
     </target>
 
-    <target name="check.jsr173.jar">
-        <condition property="jsr173.jar.exists">
-            <available file="external/lib/jsr173.jar"/>
+    <target name="jsr173-mini-bundle.downloaded">
+        <condition property="jsr173-mini-bundle.exists">
+            <available file="external/lib/jsr173_1.0_api-mini-bundle.jar"/>
         </condition>
     </target>
 
-    <target name="jsr173.jar" depends="check.jsr173.jar, dirs" unless="jsr173.jar.exists">
-        <get dest="external/lib/jsr173.jar"
-            src="http://workshop.bea.com/xmlbeans/jsr173v1/jsr173.jar"
+    <target name="jsr173-mini-bundle.jar"
+            depends="jsr173-mini-bundle.downloaded, dirs"
+            unless="jsr173-mini-bundle.exists">
+        <get dest="external/lib/jsr173_1.0_api-mini-bundle.jar"
+            src="http://workshop.bea.com/xmlbeans/jsr173v1/jsr173_1.0_api-mini-bundle.jar"
             verbose="true" usetimestamp="true" ignoreerrors="true"/>
     </target>
 
-    <target name="check.jsr173_api.jar">
-        <condition property="jsr173_api.jar.exists">
-            <available file="build/lib/jsr173_api.jar"/>
+    <target name="jsr173_1.0.jars.extracted">
+        <condition property="jsr173_1.0.jars.exist">
+            <and>
+                <available file="build/lib/jsr173_1.0_api.jar"/>
+                <available file="build/lib/jsr173_1.0_ri.jar"/>
+            </and>
         </condition>
     </target>
 
-    <target name="jsr173_api.jar" depends="jsr173.jar, jsr173_ri.jar, check.jsr173_api.jar" unless="jsr173_api.jar.exists">
-        <unjar src="external/lib/jsr173.jar" dest="external/lib">
-            <patternset>
-                <include name="jsr173_1.0_api.jar"/>
-            </patternset>
-        </unjar>
-        <copy file="external/lib/jsr173_1.0_api.jar" tofile="build/lib/jsr173_api.jar"/>
-    </target>
-
-    <target name="check.jsr173_ri.jar">
-        <condition property="jsr173_ri.jar.exists">
-            <available file="build/lib/jsr173_ri.jar"/>
-        </condition>
-    </target>
-
-    <target name="jsr173_ri.jar" depends="jsr173.jar, check.jsr173_ri.jar" unless="jsr173_ri.jar.exists">
-        <unjar src="external/lib/jsr173.jar" dest="external/lib">
-            <patternset>
-                <include name="jsr173_1.0_ri.jar"/>
-            </patternset>
-        </unjar>
-        <copy file="external/lib/jsr173_1.0_ri.jar" tofile="build/lib/jsr173_ri.jar"/>
+    <target name="jsr173_1.0.jars"
+            depends="jsr173-mini-bundle.jar, jsr173_1.0.jars.extracted"
+            unless="jsr173_1.0.jars.exist">
+        <unjar src="external/lib/jsr173_1.0_api-mini-bundle.jar" dest="external/lib" />
+        
+        <!-- copy jsr173 API and RI jars and license files to build/lib -->
+        <copy file="external/lib/jsr173_1.0_api.jar" tofile="build/lib/jsr173_1.0_api.jar"/>
+        <copy file="external/lib/jsr173_1.0_ri.jar" tofile="build/lib/jsr173_1.0_ri.jar"/>
+        <copy file="external/lib/BEA Binary RI License (JSR 173).1(Clean).txt" tofile="build/lib/BEA Binary RI License (JSR 173).1(Clean).txt"/>
+        <copy file="external/lib/README(jsr_173 api and ri).txt" tofile="build/lib/README(jsr_173 api and ri).txt"/>
     </target>
 
     <!-- get resolver.jar -->
@@ -330,7 +329,15 @@
 
         <mkdir dir="build/private/xmlbeans-${version.base}/lib"/>
         <copy todir="build/private/xmlbeans-${version.base}/lib">
-            <fileset dir="build/lib" includes="xbean.jar,xmlpublic.jar,xbean_xpath.jar,resolver.jar,jsr173_api.jar"/>
+            <fileset dir="build/lib">
+	        <include name="xbean.jar"/>
+	        <include name="xmlpublic.jar"/>
+	        <include name="xbean_xpath.jar"/>
+	        <include name="resolver.jar"/>
+	        <include name="jsr173_1.0_api.jar"/>
+	        <include name="BEA Binary RI License (JSR 173).1(Clean).txt"/>
+	        <include name="README(jsr_173 api and ri).txt"/>
+	    </fileset>
         </copy>
 
         <mkdir dir="build/private/xmlbeans-${version.base}/docs"/>
@@ -475,12 +482,12 @@
 
     <!-- xmlpublic target ============================================== -->
 
-    <target name="xmlpublic.classes" depends="dirs, xmlinputstream.classes, jsr173_api.jar">
+    <target name="xmlpublic.classes" depends="dirs, xmlinputstream.classes, jsr173_1.0.jars">
         <mkdir dir="build/classes/xmlpublic"/>
         <javac srcdir="src/xmlpublic" destdir="build/classes/xmlpublic" source="${javac.source}" target="${javac.target}" debug="on">
             <classpath>
                 <pathelement location="build/classes/xmlinputstream"/>
-                <pathelement location="build/lib/jsr173_api.jar"/>
+                <pathelement location="build/lib/jsr173_1.0_api.jar"/>
             </classpath>
         </javac>
 
@@ -516,7 +523,7 @@
         <mkdir dir="build/classes/typestore"/>
         <javac srcdir="src/typestore" destdir="build/classes/typestore" source="${javac.source}" target="${javac.target}" debug="on">
             <classpath>
-                <pathelement location="build/lib/jsr173_api.jar"/>
+                <pathelement location="build/lib/jsr173_1.0_api.jar"/>
                 <pathelement location="build/classes/xmlinputstream"/>
                 <pathelement location="build/classes/xmlpublic"/>
                 <pathelement location="build/classes/common"/>
@@ -527,11 +534,11 @@
 
     <!-- common target ============================================= -->
 
-    <target name="common.classes" depends="dirs, xmlpublic.jar, xmlinputstream.classes, jsr173_api.jar">
+    <target name="common.classes" depends="dirs, xmlpublic.jar, xmlinputstream.classes, jsr173_1.0.jars">
         <mkdir dir="build/classes/common"/>
         <javac srcdir="src/common" destdir="build/classes/common" source="${javac.source}" target="${javac.target}" debug="on">
             <classpath>
-                <pathelement location="build/lib/jsr173_api.jar"/>
+                <pathelement location="build/lib/jsr173_1.0_api.jar"/>
                 <pathelement location="build/classes/xmlinputstream"/>
                 <pathelement location="build/lib/xmlpublic.jar"/>
             </classpath>
@@ -569,7 +576,7 @@
 
     <target name="typeimpl.classes" depends="dirs, store.classes,
         repackage.classes, xmlpublic.classes, typeholder.template, typestore.classes, xsdschema.classes,
-        configschema.classes, toolschema.classes, jsr173_api.jar, jam.classes">
+        configschema.classes, toolschema.classes, jsr173_1.0.jars, jam.classes">
         <mkdir dir="build/classes/typeimpl"/>
         <javac destdir="build/classes/typeimpl" source="${javac.source}" target="${javac.target}" debug="on">
             <classpath>
@@ -585,7 +592,7 @@
                 <pathelement location="build/classes/xmlschema"/>
                 <pathelement location="build/classes/toolschema"/>
                 <pathelement location="build/classes/jam"/>
-                <pathelement location="build/lib/jsr173_api.jar"/>
+                <pathelement location="build/lib/jsr173_1.0_api.jar"/>
             </classpath>
 
             <src path="src/typeimpl"/>
@@ -611,7 +618,7 @@
         <mkdir dir="build/classes/xmlcomp"/>
         <javac srcdir="src/xmlcomp" destdir="build/classes/xmlcomp" source="${javac.source}" target="${javac.target}" debug="on">
             <classpath>
-                <pathelement location="build/lib/jsr173_api.jar"/>
+                <pathelement location="build/lib/jsr173_1.0_api.jar"/>
                 <pathelement location="build/classes/xmlinputstream"/>
                 <pathelement location="build/classes/xmlpublic"/>
                 <pathelement location="build/classes/common"/>
@@ -628,11 +635,11 @@
 
     <!-- marshal target =============================================== -->
 
-    <target name="marshal.classes" depends="dirs, typeimpl.classes, xmlpublic.classes, jsr173_api.jar">
+    <target name="marshal.classes" depends="dirs, typeimpl.classes, xmlpublic.classes, jsr173_1.0.jars">
         <mkdir dir="build/classes/marshal"/>
         <javac srcdir="src/marshal" destdir="build/classes/marshal" source="${javac.source}" target="${javac.target}" debug="on">
             <classpath>
-                <pathelement location="build/lib/jsr173_api.jar"/>
+                <pathelement location="build/lib/jsr173_1.0_api.jar"/>
                 <pathelement location="build/classes/configschema"/>
                 <pathelement location="build/classes/xmlinputstream"/>
                 <pathelement location="build/classes/xmlpublic"/>
@@ -675,7 +682,7 @@
         <javac srcdir="src/store" destdir="build/classes/store" source="${javac.source}" target="${javac.target}" debug="on">
             <classpath id="store.compile.path">
                 <pathelement location="build/classes/typestore"/>
-                <pathelement location="build/lib/jsr173_api.jar"/>
+                <pathelement location="build/lib/jsr173_1.0_api.jar"/>
                 <pathelement location="build/classes/xmlinputstream"/>
                 <pathelement location="build/classes/xmlpublic"/>
                 <pathelement location="build/classes/common"/>
@@ -695,7 +702,7 @@
         <javac srcdir="src/tools" destdir="build/classes/tools" source="${javac.source}" target="${javac.target}" debug="on">
             <classpath id="tools.compile.path">
                 <pathelement location="build/classes/typestore"/>
-                <pathelement location="build/lib/jsr173_api.jar"/>
+                <pathelement location="build/lib/jsr173_1.0_api.jar"/>
                 <pathelement location="build/classes/xmlinputstream"/>
                 <pathelement location="build/classes/xmlpublic"/>
                 <pathelement location="build/classes/common"/>
@@ -718,12 +725,12 @@
 
     <path id="bootstrap.run.path">
         <pathelement location="build/private/lib/oldxbean.jar"/>
-        <pathelement location="build/lib/jsr173_api.jar"/>
+        <pathelement location="build/lib/jsr173_1.0_api.jar"/>
     </path>
 
     <path id="bootstrap.compile.path">
         <pathelement location="build/classes/xmlpublic"/>
-        <pathelement location="build/lib/jsr173_api.jar"/>
+        <pathelement location="build/lib/jsr173_1.0_api.jar"/>
     </path>
 
     <property name="bootstrap.compile.path" refid="bootstrap.compile.path"/>
@@ -765,7 +772,7 @@
         </condition>
     </target>
 
-    <target name="xmlschema.classes" depends="xmlschema.check, xmlpublic.classes, oldxbean.jar, jsr173_api.jar" unless="xmlschema.notRequired">
+    <target name="xmlschema.classes" depends="xmlschema.check, xmlpublic.classes, oldxbean.jar, jsr173_1.0.jars" unless="xmlschema.notRequired">
         <delete dir="build/classes/xmlschema"/>
         <delete dir="build/src/xmlschema"/>
         <java classname="${bootstrap_schema_compiler}" classpathref="bootstrap.run.path" fork="true" failonerror="true">
@@ -981,7 +988,7 @@
         <pathelement location="build/classes/common"/>
         <pathelement location="external/lib/junit.jar"/>
         <pathelement location="build/ar/xbean.jar"/>
-        <pathelement location="build/lib/jsr173_api.jar"/>
+        <pathelement location="build/lib/jsr173_1.0_api.jar"/>
         <pathelement location="build/classes/xmlinputstream"/>
     </path>
 
@@ -991,7 +998,7 @@
     </path>
 
 
-    <target name="drt.classes" depends="dirs,jsr173_ri.jar">
+    <target name="drt.classes" depends="dirs,jsr173_1.0.jars">
         <mkdir dir="build/private/classes/drt"/>
         <javac
             destdir="build/private/classes/drt"
@@ -1011,7 +1018,7 @@
 
     <path id="scomp.run.path">
         <pathelement location="build/lib/xbean.jar"/>
-        <pathelement location="build/lib/jsr173_api.jar"/>
+        <pathelement location="build/lib/jsr173_1.0_api.jar"/>
     </path>
 
     <target name="stsschema.check">
@@ -1036,7 +1043,7 @@
         </uptodate>
     </target>
 
-    <target name="jam.classes" depends="jam.classes.check, dirs, repackage.classes, jsr173_api.jar" unless="jam.classes.notRequired">
+    <target name="jam.classes" depends="jam.classes.check, dirs, repackage.classes, jsr173_1.0.jars" unless="jam.classes.notRequired">
         <delete dir="build/private/jam"/>
         <mkdir dir="build/private/jam"/>
         <unjar src="external/lib/jam-0.1.0-src.jar" dest="build/private/jam"/>
@@ -1059,7 +1066,7 @@
             debug="on">
             <src path="build/private/jam/src_repackage"/>
         	<classpath>
-        		<pathelement location="build/lib/jsr173_api.jar"/>
+        		<pathelement location="build/lib/jsr173_1.0_api.jar"/>
         	</classpath>
         </javac>
     </target>

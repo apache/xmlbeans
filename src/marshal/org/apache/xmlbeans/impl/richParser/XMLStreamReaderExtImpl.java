@@ -735,7 +735,7 @@ public class XMLStreamReaderExtImpl
         private int _nonWSEnd = 0;
         private String _toStringValue;
         private XMLStreamReaderExtImpl _xmlSteam;
-        private boolean _supportForGetTextCharacters = true;
+        //private boolean _supportForGetTextCharacters = true;
         private final ExtLocation _location;
         private boolean _hasText;
 
@@ -893,6 +893,14 @@ public class XMLStreamReaderExtImpl
             int textLength = _xmlSteam.getTextLength();
             ensureBufferLength(textLength);
 
+            /*
+            Commented out as part of the receipt of the more up to date
+            jsr173_1.0_ri.jar. getTextCharacters(int, char[], int, int)
+            used to throw UnsupportedOperationException always. Now it no longer
+            does, but getTextCharacters(int, char[], int, int) does not return what
+            we expect. So reverting to always calling getTextCharacters() until
+            we can work out whether it's us that's wrong or them.
+
             if (_supportForGetTextCharacters)
                 try
                 {
@@ -902,12 +910,13 @@ public class XMLStreamReaderExtImpl
                 {
                     _supportForGetTextCharacters = false;
                 }
+            */
 
-            if(!_supportForGetTextCharacters)
-            {
-                System.arraycopy(_xmlSteam.getTextCharacters(), _xmlSteam.getTextStart(), _buf, _length, textLength);
-                _length = _length + textLength;
-            }
+            // if(!_supportForGetTextCharacters)
+            //{
+            System.arraycopy(_xmlSteam.getTextCharacters(), _xmlSteam.getTextStart(), _buf, _length, textLength);
+            _length = _length + textLength;
+            //}
         }
 
         private void addEntityToBuffer()
