@@ -73,4 +73,5 @@ goto end
 :end
 
 echo on
-java -Xmx%MEM%m -classpath %XMLBEANS_PERFROOT%\build;%XMLBEANS_PERFROOT%\schema_build\v2-purchase-order.jar;%XMLBEANS_PERFROOT%\schema_build\v2-primitives.jar;%XMLBEANS_PERFROOT%\schema_build\v2-non-primitives.jar;%XMLBEANS_PERFROOT%\3rdparty\v2\xmlbeans-2.0.0\lib\xbean.jar;%XMLBEANS_HOME%\build\lib\jsr173_1.0_api.jar;%XMLBEANS_HOME%\build\lib\saxon8.jar;%XMLBEANS_HOME%\build\lib\xbean_xpath.jar;%XMLBEANS_HOME%\external\lib\piccolo_apache_dist_20040629_v2.jar -DPERF_ROOT=%XMLBEANS_PERFROOT% org.apache.xmlbeans.test.performance.v2.%1 %FLAVOR% %FILENAME%
+java -Xmx%MEM%m -Xbootclasspath/p:%XMLBEANS_PERFROOT%\3rdparty\xerces\xerces-2_7_1\xml-apis.jar:%XMLBEANS_PERFROOT%\3rdparty\xerces\xerces-2_7_1\xercesImpl.jar -classpath %XMLBEANS_PERFROOT%\build;%XMLBEANS_PERFROOT%\schema_build\jaxb2-purchase-order.jar;%XMLBEANS_PERFROOT%\schema_build\jaxb2-primitives.jar;%XMLBEANS_PERFROOT%\schema_build\jaxb2-non-primitives.jar;%JAXB2_LIBDIR%\lib\jaxb-impl.jar;%JAXB2_LIBDIR%\lib\jaxb-api.jar;%JAXB2_LIBDIR%\lib\activation.jar;%JAXB2_LIBDIR%\lib\jsr173_1.0_api.jar -DPERF_ROOT=%XMLBEANS_PERFROOT% org.apache.xmlbeans.test.performance.jaxb2.%1 %FLAVOR% %FILENAME% 
+
