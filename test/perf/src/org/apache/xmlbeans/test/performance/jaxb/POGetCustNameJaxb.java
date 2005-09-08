@@ -14,11 +14,7 @@
 */
 package org.apache.xmlbeans.test.performance.jaxb;
 
-//import java.io.File;
-//import java.io.IOException;
-//import java.io.FileNotFoundException;
 import java.io.CharArrayReader;
-//import java.lang.UnsupportedOperationException;
 
 import org.apache.xmlbeans.test.performance.utils.PerfUtil;
 import org.apache.xmlbeans.test.performance.utils.Constants;
@@ -27,7 +23,6 @@ import org.apache.xmlbeans.test.performance.utils.Constants;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.transform.stream.StreamSource;
-//import java.util.List;
 
 // from jaxb-generated schema jar(s)
 import org.openuri.easypo.Customer;

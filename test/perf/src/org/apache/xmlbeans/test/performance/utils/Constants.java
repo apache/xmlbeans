@@ -36,6 +36,7 @@ public class Constants
 
   // schema instances
   public static final String XSD_DIR = System.getProperty("PERF_ROOT")+P+"cases"+P+"xsd";
+  public static final String XML_DIR = System.getProperty("PERF_ROOT")+P+"cases"+P+"xml";  
   public static final String PO_XSD = XSD_DIR+P+"purchase-order.xsd";
   public static final String PO_INSTANCE_1 = XSD_DIR+P+"purchase-order-1.xml";
   public static final String PO_INSTANCE_2 = XSD_DIR+P+"purchase-order-2.xml";
