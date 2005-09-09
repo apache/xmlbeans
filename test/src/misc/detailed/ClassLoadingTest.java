@@ -92,11 +92,11 @@ public class ClassLoadingTest extends TestCase
                 if (!jsr173File.exists())
                     throw new Exception("File does not exist");
                 URL jsr173jar = new URL(jsr173File.toURL().toString());
-                File jsr173_apiFile = new File(xbean_home + "/build/lib/jsr173_api.jar");
+                File jsr173_apiFile = new File(xbean_home + "/build/lib/jsr173_1.0_api.jar");
                 if (!jsr173_apiFile.exists())
                     throw new Exception("File does not exist");
                 URL jsr173_apijar = jsr173_apiFile.toURL();
-                File jsr173_riFile = new File(xbean_home + "/build/lib/jsr173_ri.jar");
+                File jsr173_riFile = new File(xbean_home + "/build/lib/jsr173_1.0_ri.jar");
                 if (!jsr173_riFile.exists())
                     throw new Exception("File does not exist");
                 URL jsr173_rijar = jsr173_riFile.toURL();

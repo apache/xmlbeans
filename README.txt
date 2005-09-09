@@ -43,7 +43,7 @@ http://wiki.apache.org/xmlbeans
 ./test/docs/*                       for running tests
 
 XmlBeans depends on the following external libraries:
-- jsr173_api.jar
+- jsr173_1.0_api.jar
 - jam-0.1.0-src.jar [http://annogen.codehaus.org/JAM] for the extension
   feature using plain .java files
 - tools.jar (O) from the JDK, dependency of jam-0.1.0-src

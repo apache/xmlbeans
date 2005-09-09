@@ -25,9 +25,9 @@ Kit contents:
     Should work on any JDK 1.4.x or 1.5.x.
     ./lib/xbean.jar
 
-(2) One copy of jsr173_api.jar, which contains classes
+(2) One copy of jsr173_1.0_api.jar, which contains classes
     needed to parse XML files for use with XMLBeans.
-    /lib/jsr173_api.jar
+    /lib/jsr173_1.0_api.jar
 
 (3) License information for XML Beans and included libraries
     ./LICENSE.txt
@@ -121,10 +121,10 @@ Where to start?
 
        <taskdef name="xmlbean"
            classname="org.apache.xmlbeans.impl.tool.XMLBean"
-           classpath="path/to/xbean.jar:path/to/jsr173_api.jar" />
+           classpath="path/to/xbean.jar:path/to/jsr173_1.0_api.jar" />
 
        <xmlbean schemas="easypo.xsd" destfile="myeasypo.jar"
-           classpath="path/to/xbean.jar:path/to/jsr173_api.jar" />
+           classpath="path/to/xbean.jar:path/to/jsr173_1.0_api.jar" />
 
        For more information, see docs/guide/antXmlbean.html.
 
