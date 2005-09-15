@@ -1465,6 +1465,12 @@ final class DomImpl
             Xobj src = (Xobj) cn._src;
             //if src is attr this node is always value and
             // next is always the next ptr of the attr
+            src._charNodesAfter =
+                                    Cur.updateCharNodes( src._locale, src, src._charNodesAfter, src._cchAfter );
+
+            src._charNodesValue =
+                                  Cur.updateCharNodes( src._locale, src, src._charNodesValue, src._cchValue );
+
             if (cn._next != null)
             {
                 ns = cn._next;
@@ -2401,10 +2407,16 @@ final class DomImpl
                 Xobj src = (Xobj) node._src;
                 src.ensureOccupancy();
                 boolean isThisNodeAfterText = node.isNodeAftertext();
-                s =
-                    isThisNodeAfterText ?
-                    src.getCharsAfterAsString(node._off, node._cch) :
-                    src.getCharsValueAsString(node._off, node._cch);
+                if( isThisNodeAfterText ){
+                    src._charNodesAfter =
+                        Cur.updateCharNodes( src._locale, src, src._charNodesAfter, src._cchAfter );
+                    s = src.getCharsAfterAsString(node._off, node._cch);
+                }
+                else{
+                    src._charNodesValue =
+                       Cur.updateCharNodes( src._locale, src, src._charNodesValue, src._cchValue );
+                    s = src.getCharsValueAsString(node._off, node._cch);
+                }
 
             }
             break;
