@@ -2762,6 +2762,7 @@ abstract class Xobj implements TypeStore
         public void deleteData ( int offset, int count ) { DomImpl._characterData_deleteData( this, offset, count ); }
         public String getData ( ) { return DomImpl._characterData_getData( this ); }
         public int getLength ( ) { return DomImpl._characterData_getLength( this ); }
+        public Node getFirstChild ( ) { return null; }
         public void insertData ( int offset, String arg ) { DomImpl._characterData_insertData( this, offset, arg ); }
         public void replaceData ( int offset, int count, String arg ) { DomImpl._characterData_replaceData( this, offset, count, arg ); }
         public void setData ( String data ) { DomImpl._characterData_setData( this, data ); }
@@ -2779,6 +2780,7 @@ abstract class Xobj implements TypeStore
         Xobj newNode ( Locale l ) { return new ProcInstXobj( l, _name.getLocalPart() ); }
 
         public int getLength ( ) { return 0; }
+        public Node getFirstChild ( ) { return null; }
 
         public String getData ( ) { return DomImpl._processingInstruction_getData( this ); }
         public String getTarget ( ) { return DomImpl._processingInstruction_getTarget( this ); }
