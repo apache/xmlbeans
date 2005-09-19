@@ -47,6 +47,7 @@ public final class GDuration implements GDurationSpecification, java.io.Serializ
     public GDuration()
     {
         _sign = +1;
+        _fs = GDate._zero;
     }
 
     private static final int SEEN_NOTHING = 0;
