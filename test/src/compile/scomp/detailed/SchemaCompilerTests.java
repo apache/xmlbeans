@@ -15,14 +15,12 @@
 package compile.scomp.detailed;
 
 import junit.framework.TestCase;
-import junit.framework.Assert;
 
 import java.util.List;
 import java.util.ArrayList;
 import java.io.File;
 
 import org.apache.xmlbeans.impl.tool.SchemaCompiler;
-import misc.common.JiraTestBase;
 import common.Common;
 
 /**
@@ -35,36 +33,76 @@ import common.Common;
 public class SchemaCompilerTests  extends Common
 {
     public static String scompTestFilesRoot = XBEAN_CASE_ROOT + P + "compile" + P + "scomp" + P + "schemacompiler" + P;
-    public static String schemaCompOutputDirPath = OUTPUTROOT+ P + "compile" + P + "scomp" + P;
+    public static String schemaCompOutputDirPath = OUTPUTROOT + P + "compile" + P + "scomp" + P;
 
     public  SchemaCompilerTests(String name){
         super(name);
     }
 
-    public void testUnionRedefine()
+    private void _testCompile(File[] xsdFiles,
+                              String outputDirName,
+                              String testName)
     {
         List errors = new ArrayList();
-
         SchemaCompiler.Parameters params = new SchemaCompiler.Parameters();
-        params.setXsdFiles(new File[]{new File(scompTestFilesRoot + "union_initial.xsd"), new File(scompTestFilesRoot + "union_redefine.xsd")});
-
+        params.setXsdFiles(xsdFiles);
         params.setErrorListener(errors);
-        params.setSrcDir(new File(schemaCompOutputDirPath + "unionred" + P + "src" + P));
-        params.setClassesDir(new File(schemaCompOutputDirPath + "unionred" + P +"classes" + P));
-
-        // throws NPE
-        try {
-            SchemaCompiler.compile(params);
-        } catch (NullPointerException npe) {
-            npe.printStackTrace();
-            fail("NPE when executing scomp");
+        params.setSrcDir(new File(schemaCompOutputDirPath + outputDirName + P + "src"));
+        params.setClassesDir(new File(schemaCompOutputDirPath + outputDirName + P + "classes"));
+        SchemaCompiler.compile(params);
+        if (printOptionErrMsgs(errors))
+        {
+            fail(testName + "(): failure when executing scomp");
         }
-
-        if (JiraTestBase.printOptionErrMsgs(errors)) {
-            Assert.fail("testUnionRedefine() : failures when executing scomp");
-        }
-
     }
 
+    public void testUnionRedefine()
+    {
+        File[] xsdFiles =
+            new File[] { new File(scompTestFilesRoot + "union_initial.xsd"), 
+                         new File(scompTestFilesRoot + "union_redefine.xsd") };
+        String outputDirName = "unionred";
+        String testname = "testUnionRedefine";
+        _testCompile(xsdFiles, outputDirName, testname);
+    }
 
+    /** This tests a bug where compilation of a schema redefining a type
+        involving an enumeration fails.
+     */
+    public void testEnumerationRedefine1()
+    {
+        File[] xsdFiles = 
+            new File[] { new File(scompTestFilesRoot + "enum1.xsd_"),
+                         new File(scompTestFilesRoot + "enum1_redefine.xsd_") };
+        String outputDirName = "enumRedef1";
+        String testname = "testEnumerationRedefine1";
+        _testCompile(xsdFiles, outputDirName, testname);
+    }
+
+    /** This tests a bug where compilation of a schema redefining a type
+        involving an enumeration fails.
+     */
+    public void testEnumerationRedefine2()
+    {
+        File[] xsdFiles = 
+            new File[] { new File(scompTestFilesRoot + "enum2.xsd_"),
+                         new File(scompTestFilesRoot + "enum2_redefine.xsd_") };
+        String outputDirName = "enumRedef2";
+        String testname = "testEnumerationRedefine2";
+        _testCompile(xsdFiles, outputDirName, testname);
+    }
+
+    /** This tests a bug where compilation of a schema redefining a type
+        involving an enumeration fails.
+     */
+    public void testEnumerationRedefine3()
+    {
+        File[] xsdFiles = 
+            new File[] { new File(scompTestFilesRoot + "enum1.xsd_"),
+                         new File(scompTestFilesRoot + "enum3.xsd_"),
+                         new File(scompTestFilesRoot + "enum3_redefine.xsd_") };
+        String outputDirName = "enumRedef3";
+        String testname = "testEnumerationRedefine3";
+        _testCompile(xsdFiles, outputDirName, testname);
+    }
 }
