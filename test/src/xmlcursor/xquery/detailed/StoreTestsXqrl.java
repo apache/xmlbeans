@@ -35,7 +35,8 @@ public class StoreTestsXqrl extends TestCase
         throws Exception
     {
         XmlCursor c = XmlObject.Factory.parse( xml ).newCursor();
-        String s = c.execQuery( "$this" ).xmlText();
+        //String s = c.execQuery( "$this" ).xmlText();
+        String s = c.execQuery( "." ).xmlText();
         Assert.assertTrue( s.equals( xml ) );
     }
     
@@ -120,7 +121,8 @@ public class StoreTestsXqrl extends TestCase
         c.toStartDoc();
         
         Assert.assertTrue(
-            c.execQuery( "$this" ).
+            //c.execQuery( "$this" ).
+            c.execQuery( "." ).
                 xmlText().equals(
                     "<foo><boo:boo xmlns:boo=\"boo.com\"/></foo>" ) );
     }
@@ -158,7 +160,8 @@ public class StoreTestsXqrl extends TestCase
 
         c = x.newCursor();
 
-        c.selectPath( "$this//@x" );
+        //c.selectPath( "$this//@x" );
+        c.selectPath( ".//@x" );
 
         Assert.assertTrue( c.toNextSelection() );
         Assert.assertTrue( c.currentTokenType().isAttr() );

@@ -1,4 +1,4 @@
-for $e in $this//employee
+for $e in .//employee
 return 
 		<person>
 			{ $e/name }
