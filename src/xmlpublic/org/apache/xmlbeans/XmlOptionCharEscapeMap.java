@@ -92,7 +92,7 @@ public class XmlOptionCharEscapeMap
                 String replString = (String)_predefEntities.get(theChar);
                 if ( replString == null )
                 {
-                    throw new XmlException("XmlOptionCharEncoderMap.addMapping(): " +
+                    throw new XmlException("XmlOptionCharEscapeMap.addMapping(): " +
                         "the PREDEF_ENTITY mode can only be used for the following " +
                         "characters: <, >, &, \" and '");
                 }
@@ -109,7 +109,7 @@ public class XmlOptionCharEscapeMap
                 break;
 
             default:
-                throw new XmlException("XmlOptionCharEncoderMap.addMapping(): " +
+                throw new XmlException("XmlOptionCharEscapeMap.addMapping(): " +
                     "mode must be PREDEF_ENTITY, DECIMAL or HEXADECIMAL");
         }
     }
@@ -122,7 +122,7 @@ public class XmlOptionCharEscapeMap
     {
         if (ch1 > ch2)
         {
-            throw new XmlException("XmlOptionCharEncoderMap.addMappings(): " +
+            throw new XmlException("XmlOptionCharEscapeMap.addMappings(): " +
                 "ch1 must be <= ch2");
         }
 

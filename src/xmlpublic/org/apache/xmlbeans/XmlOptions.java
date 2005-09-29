@@ -226,7 +226,7 @@ public class XmlOptions implements java.io.Serializable
      * collect the set of needed namespace declarations, and then second
      * to actually save the document with the declarations collected
      * at the root.
-     * 
+     *
      * @see XmlTokenSource#save(java.io.File, XmlOptions)
      * @see XmlTokenSource#xmlText(XmlOptions)
      */
@@ -322,7 +322,7 @@ public class XmlOptions implements java.io.Serializable
      */
     public XmlOptions setSaveSubstituteCharacters (
         XmlOptionCharEscapeMap characterReplacementMap) {
-        return set( SAVE_SUBSITITUTE_CHARACTERS, characterReplacementMap );
+        return set( SAVE_SUBSTITUTE_CHARACTERS, characterReplacementMap );
     }
 
     /**
@@ -748,7 +748,7 @@ public class XmlOptions implements java.io.Serializable
     /** @exclude */
     public static final String SAVE_NO_XML_DECL                = "SAVE_NO_XML_DECL";
     /** @exclude */
-    public static final String SAVE_SUBSITITUTE_CHARACTERS     = "SAVE_SUBSITITUTE_CHARACTERS";
+    public static final String SAVE_SUBSTITUTE_CHARACTERS     = "SAVE_SUBSTITUTE_CHARACTERS";
     /** @exclude */
     public static final String LOAD_REPLACE_DOCUMENT_ELEMENT   = "LOAD_REPLACE_DOCUMENT_ELEMENT";
     /** @exclude */
