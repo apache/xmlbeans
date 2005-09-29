@@ -511,8 +511,13 @@ public class JiraRegression50_100Test extends JiraTestBase
                 "  </b> \n" +
                 "</doc> ";
         XmlObject xb80 = XmlObject.Factory.parse(xpathDoc);
+        // change $this to '.' to avoid XQuery syntax error for $this not being declared
+        //XmlObject[] resSet = xb80.selectPath("declare namespace " +
+        //        "ext='http://somebody.elses.extension'; $this//ext:a[@test='test']");
+
         XmlObject[] resSet = xb80.selectPath("declare namespace " +
-                "ext='http://somebody.elses.extension'; $this//ext:a[@test='test']");
+                "ext='http://somebody.elses.extension'; .//ext:a[@test='test']");
+
 
         Assert.assertTrue(resSet.length == 1);
         System.out.println("Result was: " + resSet[0].xmlText());
@@ -537,10 +542,13 @@ public class JiraRegression50_100Test extends JiraTestBase
                 "  </MatchedRecord> \n" +
                 "</MatchedRecords> ";
         XmlObject xb81 = XmlObject.Factory.parse(xpathDoc);
-        XmlObject[] resSet = xb81.selectPath("$this//MatchedRecord[TableName=\"ABC\"]/TableName");
+        // change $this to '.' to avoid XQuery syntax error for $this not being declared
+        //XmlObject[] resSet = xb81.selectPath("$this//MatchedRecord[TableName=\"ABC\"]/TableName");
+        XmlObject[] resSet = xb81.selectPath(".//MatchedRecord[TableName=\"ABC\"]/TableName");
         assertEquals(resSet.length , 1);
         XmlCursor cursor = xb81.newCursor();
-        cursor.selectPath("$this//MatchedRecord[TableName=\"ABC\"]/TableName");
+        //cursor.selectPath("$this//MatchedRecord[TableName=\"ABC\"]/TableName");
+        cursor.selectPath(".//MatchedRecord[TableName=\"ABC\"]/TableName");
     }
 
     /**

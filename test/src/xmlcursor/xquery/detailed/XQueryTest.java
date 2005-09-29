@@ -147,7 +147,8 @@ public class XQueryTest extends TestCase {
     public void testTextSequenceRoot()
             throws XmlException,
             IOException {
-        String query = "$this//text()";
+        //String query = "$this//text()";
+        String query = ".//text()";
         InputStream input = JarUtil.getResourceFromJarasStream("xbean/xmlcursor/XQueryInput.xml");
         XmlObject o = XmlObject.Factory.parse(input);
         XmlObject[] res = o.execQuery(query);
@@ -172,7 +173,8 @@ public class XQueryTest extends TestCase {
     public void testDocumentFunc()
             throws XmlException,
             IOException {
-        String query = "<result>{$this},{count(//employee)}</result>";
+        //String query = "<result>{$this},{count(//employee)}</result>";
+        String query = "<result>{.},{count(//employee)}</result>";
         InputStream input = JarUtil.getResourceFromJarasStream("xbean/xmlcursor/XQueryInput.xml");
         XmlCursor c = XmlObject.Factory.parse(input).newCursor();
         XmlCursor c1 = c.execQuery(query);
@@ -184,7 +186,8 @@ public class XQueryTest extends TestCase {
 
 
     public void testTextAtOddPlaces() throws Exception {
-        String query = "<result>{$this},{count(//employee)}</result>";
+        //String query = "<result>{$this},{count(//employee)}</result>";
+        String query = "<result>{.},{count(//employee)}</result>";
         String input = "<foo><a><b>text</b>more text</a></foo>";
         XmlObject o = XmlObject.Factory.parse(input);
         XmlCursor c = o.newCursor();
@@ -228,7 +231,8 @@ public class XQueryTest extends TestCase {
                 "      </dept>\n" +
                 "};\n" +
                 "\n" +
-                "local:summary($this//employee[location = \"Denver\"])";
+                //"local:summary($this//employee[location = \"Denver\"])";
+                "local:summary(.//employee[location = \"Denver\"])";
 
         String xml = " <list>" +
                 "<employee>" +
