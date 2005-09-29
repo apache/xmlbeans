@@ -129,7 +129,9 @@ public abstract class Query
 
     private static Query createXqrlCompiledQuery(String queryExpr, String currentVar)
     {
-        if (_xqrlAvailable && _xqrlCompileQuery == null)
+        //if the XQRL engine has been determined unavailable, return null
+        if ( !_xqrlAvailable ) return null;
+        if ( _xqrlCompileQuery == null)
         {
             try
             {
