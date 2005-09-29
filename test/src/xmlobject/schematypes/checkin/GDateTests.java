@@ -288,6 +288,27 @@ public class GDateTests extends TestCase
         Assert.assertEquals("--11-29", gregcal.toString());
     }
 
+    private void _testEmptyDuration(GDuration gd)
+    {
+        assertTrue(gd.isValid());
+        assertEquals("PT0S", gd.toString());
+        assertEquals(0, gd.getYear());
+        assertEquals(0, gd.getMonth());
+        assertEquals(0, gd.getDay());
+        assertEquals(0, gd.getHour());
+        assertEquals(0, gd.getMinute());
+        assertEquals(0, gd.getSecond());
+        assertEquals(new java.math.BigDecimal(0.0), gd.getFraction());
+    }
+
+    public void testEmptyDuration()
+    {
+        GDuration gd = new GDuration();
+        _testEmptyDuration(gd);
+        GDuration gdCopy = new GDuration(gd);
+        _testEmptyDuration(gdCopy);
+    }
+
     public static void testValidDuration()
     {
         for (int i = 0; i < validDurations.length; i++)
