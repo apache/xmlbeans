@@ -99,10 +99,10 @@ abstract class Saver
         }
 
         // define character map for escaped replacements
-        if (options.hasOption( XmlOptions.SAVE_SUBSITITUTE_CHARACTERS ))
+        if (options.hasOption( XmlOptions.SAVE_SUBSTITUTE_CHARACTERS ))
         {
             _replaceChar = (XmlOptionCharEscapeMap)
-                options.get( XmlOptions.SAVE_SUBSITITUTE_CHARACTERS);
+                options.get( XmlOptions.SAVE_SUBSTITUTE_CHARACTERS);
         }
 
         // If the default prefix has not been mapped, do so now
