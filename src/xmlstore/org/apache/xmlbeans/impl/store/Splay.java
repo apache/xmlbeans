@@ -1613,7 +1613,14 @@ public abstract class Splay extends Goobers
         switch ( getKind() )
         {
         case DOC :
+        {
+            if (getCchAfter() > 0)
+            {
+                removeChars(r, 1, getCchValue());
+                removeTextAfter(r);
+            }
             break;
+        }
 
         case BEGIN :
         {
