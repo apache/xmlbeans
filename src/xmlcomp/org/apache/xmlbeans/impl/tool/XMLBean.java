@@ -252,10 +252,10 @@ public class XMLBean extends MatchingTask
                 javac.setExecutable(forkedExecutable);
                 javac.setFailonerror(failonerror);
                 javac.setFork(fork);
-                if (source != null)
+                if (javasource != null)
                 {
-                    javac.setSource(source);
-                    javac.setTarget(source);
+                    javac.setSource(javasource);
+                    javac.setTarget(javasource);
                 }
                 else
                 {
