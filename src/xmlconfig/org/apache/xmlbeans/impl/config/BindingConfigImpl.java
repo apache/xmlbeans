@@ -71,8 +71,6 @@ public class BindingConfigImpl extends BindingConfig
 
     private BindingConfigImpl(Config[] configs, File[] javaFiles, File[] classpath)
     {
-        JamClassLoader jamLoader = getJamLoader(javaFiles, classpath);
-
         _packageMap = new LinkedHashMap();
         _prefixMap = new LinkedHashMap();
         _suffixMap = new LinkedHashMap();
@@ -106,7 +104,7 @@ public class BindingConfigImpl extends BindingConfig
             Extensionconfig[] ext = config.getExtensionArray();
             for (int j = 0; j < ext.length; j++)
             {
-                recordExtensionSetting(jamLoader, ext[j]);
+                recordExtensionSetting(javaFiles, classpath, ext[j]);
             }
         }
 
@@ -205,7 +203,7 @@ public class BindingConfigImpl extends BindingConfig
         }
     }
 
-    private void recordExtensionSetting(JamClassLoader jamLoader, Extensionconfig ext)
+    private void recordExtensionSetting(File[] javaFiles, File[] classpath, Extensionconfig ext)
     {
         NameSet xbeanSet = null;
         Object key = ext.getFor();
@@ -228,13 +226,18 @@ public class BindingConfigImpl extends BindingConfig
             error("Invalid value of attribute 'for' : '" + key + "'.", ext);
 
         Extensionconfig.Interface[] intfXO = ext.getInterfaceArray();
+        Extensionconfig.PrePostSet ppXO    = ext.getPrePostSet(); 
 
-        for (int i = 0; i < intfXO.length; i++)
+        if (intfXO.length > 0 || ppXO != null)
         {
-            addInterfaceExtension(InterfaceExtensionImpl.newInstance(jamLoader, xbeanSet, intfXO[i]));
-        }
+            JamClassLoader jamLoader = getJamLoader(javaFiles, classpath);
+            for (int i = 0; i < intfXO.length; i++)
+            {
+                addInterfaceExtension(InterfaceExtensionImpl.newInstance(jamLoader, xbeanSet, intfXO[i]));
+            }
 
-        addPrePostExtension(PrePostExtensionImpl.newInstance(jamLoader, xbeanSet, ext.getPrePostSet()));
+            addPrePostExtension(PrePostExtensionImpl.newInstance(jamLoader, xbeanSet, ppXO));
+        }
     }
 
 
