@@ -271,7 +271,8 @@
         value=" ${build.dir.test.schemas}/xbean/simple/dumb,
          ${build.dir.test.schemas}/xbean/xmlcursor,
          ${build.dir.test.schemas}/xbean/xmlobject,
-         ${build.dir.test.schemas}/xbean/ValidatingStream
+         ${build.dir.test.schemas}/xbean/ValidatingStream,
+	   ${build.dir.test.schemas}/xbean/dom
        "/>
     <property name="checkin.schema.standalone.files"
         value="${schema.standalone}/CarLocationMessage_40_LX.xsd"/>
