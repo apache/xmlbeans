@@ -110,7 +110,7 @@ public class ValidatingXMLStreamReaderTests extends TestCase
         Assert.assertTrue("File '" + file.getName() +"' is invalid.", valXsr.isValid());
     }
 
-    public void ____testValidateGlobalAtt1() throws XMLStreamException
+    public void testValidateGlobalAtt1() throws XMLStreamException
     {
         XmlObject xo = XmlObject.Factory.newInstance();
         XmlCursor xc = xo.newCursor();
@@ -118,7 +118,7 @@ public class ValidatingXMLStreamReaderTests extends TestCase
 
         xc.insertAttributeWithValue("price", URI_NUMERALS, "23.5");
 
-        XMLStreamReader xsr = xo.newXMLStreamReader();
+        XMLStreamReader xsr = xo.newXMLStreamReader(new XmlOptions().setSaveOuter());
         Collection errors = new ArrayList();
 
         ValidatingXMLStreamReader valXsr = new ValidatingXMLStreamReader();

@@ -713,7 +713,7 @@ public class ValidatingXMLStreamReader
                 validationType = _stl.findAttributeType((QName)_attNamesList.get(0));
                 if (validationType==null)
                 {
-                    addError("A schema global element with name '" + _attNamesList.get(0) +
+                    addError("A schema global attribute with name '" + _attNamesList.get(0) +
                         "' could not be found in the current schema type loader.");
                     _state = STATE_ERROR;
                     return;
