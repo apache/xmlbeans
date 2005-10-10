@@ -48,7 +48,8 @@ public class MoveImportNodeTest extends TestCase{
 	super(name);
     }
 
-    //insert a node from a ns into a non-ns
+    //insert a node from a ns into a non-ns: node will move "as is"
+    //even though ns is not in scope as DOM does no prefix resolution
     public void testMoveNodeNStoNoNS(){
 	Node toMove=m_docNS.getFirstChild().getFirstChild().getFirstChild(); //bar
         assertEquals("myns:bar",toMove.getNodeName());
@@ -57,20 +58,22 @@ public class MoveImportNodeTest extends TestCase{
 	newParent.insertBefore(toMove,newParent.getFirstChild());
 
 	assertEquals(2,newParent.getChildNodes().getLength());
-	assertEquals(null,newParent.getElementsByTagNameNS("http://foo.org","bar"));
-	assertEquals(newParent.getElementsByTagName("bar"),newParent.getElementsByTagNameNS(null,"bar"));
+    assertEquals(toMove,newParent.getElementsByTagNameNS("http://foo.org","bar").item(0));
+	assertEquals(newParent.getElementsByTagName("bar").item(0),
+        newParent.getElementsByTagNameNS(null,"bar").item(0));
 
     }
 
     //move node to a different namespace
+    //namespace of node should be unchanged -- DOM does not care
     public void testMoveDiffNS(){
 	Node toMove=m_docNS.getFirstChild().getFirstChild().getFirstChild(); //bar
 	Element newParent=(Element)m_docNS.getFirstChild();
 	newParent.insertBefore(toMove,newParent.getFirstChild());
 	newParent.getFirstChild().setPrefix("other");
 	assertEquals(2,newParent.getChildNodes().getLength());
-	assertEquals(null,(newParent).getElementsByTagNameNS(null,"bar"));
-	assertEquals(true,(toMove==newParent.getElementsByTagNameNS("other.org","bar")));
+	assertEquals(0,(newParent).getElementsByTagNameNS(null,"bar").getLength());
+	assertEquals(true,(toMove==newParent.getElementsByTagNameNS("http://foo.org","bar").item(0)));
     }
 
 
