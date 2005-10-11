@@ -851,7 +851,7 @@
     <target name="checkin">
         <property name="test.area" value="checkin"/>
         <property name="excludes"
-            value="**/compile/scomp/checkin/**"/>
+            value="**/compile/scomp/checkin/**,**/tools/inst2xsd/checkin/**"/>
         <antcall target="build"/>
         <antcall target="run.junit"/>
         <antcall target="-compile.run.exluded"/>
@@ -860,7 +860,7 @@
     <!-- convenience target for just running compile tests -->
     <target name="compile.run">
         <property name="excludes"
-            value="**/compile/scomp/checkin/**"/>
+            value="**/compile/scomp/checkin/**,**/tools/inst2xsd/checkin/**"/>
         <antcall target="-compile.run.exluded"/>
     </target>
     <!-- This test, for some reason, upon compilation,

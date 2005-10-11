@@ -29,6 +29,7 @@ import javax.xml.namespace.NamespaceContext;
 import java.io.FileNotFoundException;
 import java.io.FileInputStream;
 import java.io.File;
+import java.io.IOException;
 import java.io.StringReader;
 import java.util.Collection;
 import java.util.ArrayList;
@@ -41,6 +42,7 @@ import org.apache.xmlbeans.XmlError;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlOptions;
+import org.apache.xmlbeans.XmlException;
 
 import org.openuri.testNumerals.DocDocument;
 
@@ -75,13 +77,18 @@ public class ValidatingXMLStreamReaderTests extends TestCase
         }
     }
 
-    private static void validate(ValidatingXMLStreamReader valXsr, File file) throws XMLStreamException, FileNotFoundException
+    private static void validate(ValidatingXMLStreamReader valXsr, File file) throws XMLStreamException, IOException
     {
         Collection errors = new ArrayList();
-        XMLStreamReader xsr = XMLInputFactory.newInstance().
-            createXMLStreamReader(new FileInputStream(file));
+        XMLStreamReader xsr = null;
+        try {
+            xsr = XmlObject.Factory.
+                        parse(new FileInputStream(file)).newXMLStreamReader();
+        } catch (XmlException e) {
+            throw new XMLStreamException(e);
+        }
 
-        valXsr.init(xsr, false, null /* validate an entire document */ ,
+        valXsr.init(xsr, true, null /* validate an entire document */ ,
             XmlBeans.typeLoaderForClassLoader(ValidatingXMLStreamReader.class.getClassLoader()),
             null,
             errors);
@@ -508,7 +515,12 @@ public class ValidatingXMLStreamReaderTests extends TestCase
     {
         String doc = "<doc xmlns='" + URI_NUMERALS + "'><int>5</int><float>7.654321</float></doc>";
 
-        XMLStreamReader xsr = XMLInputFactory.newInstance().createXMLStreamReader(new StringReader(doc));
+        XMLStreamReader xsr = null;
+        try {
+            xsr = XmlObject.Factory.parse(doc).newXMLStreamReader();
+        } catch (XmlException e) {
+            throw new XMLStreamException(e);
+        }
         xsr.nextTag();
 
         Collection errors = new ArrayList();

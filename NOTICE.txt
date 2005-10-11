@@ -24,3 +24,6 @@
 
     - Piccolo XML Parser for Java from http://piccolo.sourceforge.net/,
       Copyright 2002 Yuval Oren under the terms of the Apache Software License 2.0
+
+    - JSR-173 Streaming API for XML from http://sourceforge.net/projects/xmlpullparser/,
+      Copyright 2005 BEA under the terms of the Apache Software License 2.0
