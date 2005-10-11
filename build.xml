@@ -54,17 +54,18 @@
         <delete>
             <fileset dir="external/lib">
                 <include name="saxonb8-2.zip"/>
-                <include name="jsr173_1.0_api-mini-bundle.jar"/>
+                <include name="jsr173_1.0_api_bundle.jar"/>
                 <include name="jsr173_1.0_api.jar"/>
-                <include name="jsr173_1.0_ri.jar"/>
-                <include name="BEA Binary RI License (JSR 173).1(Clean).txt"/>
-                <include name="README(jsr_173 api and ri).txt"/>
                 <include name="saxon8.jar"/>
                 <include name="xcresolver.zip"/>
-                <!-- the 3 entries below are to delete the previous versions of the jsr173 jars -->
+                <!-- the entries below are to delete the previous versions of the jsr173 jars -->
                 <include name="jsr173.jar"/>
                 <include name="jsr173_api.jar"/>
                 <include name="jsr173_ri.jar"/>
+                <include name="jsr173_1.0_api-mini-bundle.jar"/>
+                <include name="jsr173_1.0_ri.jar"/>
+                <include name="BEA Binary RI License (JSR 173).1(Clean).txt"/>
+                <include name="README(jsr_173 api and ri).txt"/>
             </fileset>
         </delete>
     </target>
@@ -110,39 +111,37 @@
         <copy file="external/lib/saxon8.jar" tofile="build/lib/saxon8.jar"/>
     </target>
 
-    <target name="jsr173-mini-bundle.downloaded">
-        <condition property="jsr173-mini-bundle.exists">
-            <available file="external/lib/jsr173_1.0_api-mini-bundle.jar"/>
+    <target name="jsr173-bundle.downloaded">
+        <condition property="jsr173-bundle.exists">
+            <available file="external/lib/jsr173_1.0_api_bundle.jar"/>
         </condition>
     </target>
 
-    <target name="jsr173-mini-bundle.jar"
-            depends="jsr173-mini-bundle.downloaded, dirs"
-            unless="jsr173-mini-bundle.exists">
-        <get dest="external/lib/jsr173_1.0_api-mini-bundle.jar"
-            src="http://workshop.bea.com/xmlbeans/jsr173v1/jsr173_1.0_api-mini-bundle.jar"
+    <target name="jsr173-bundle.jar"
+            depends="jsr173-bundle.downloaded, dirs"
+            unless="jsr173-bundle.exists">
+        <get dest="external/lib/jsr173_1.0_api_bundle.jar"
+            src="http://workshop.bea.com/xmlbeans/jsr173v1/jsr173_1.0_api_bundle.jar"
             verbose="true" usetimestamp="true" ignoreerrors="true"/>
     </target>
 
     <target name="jsr173_1.0.jars.extracted">
         <condition property="jsr173_1.0.jars.exist">
-            <and>
-                <available file="build/lib/jsr173_1.0_api.jar"/>
-                <available file="build/lib/jsr173_1.0_ri.jar"/>
-            </and>
+            <available file="build/lib/jsr173_1.0_api.jar"/>
         </condition>
     </target>
 
     <target name="jsr173_1.0.jars"
-            depends="jsr173-mini-bundle.jar, jsr173_1.0.jars.extracted"
+            depends="jsr173-bundle.jar, jsr173_1.0.jars.extracted"
             unless="jsr173_1.0.jars.exist">
-        <unjar src="external/lib/jsr173_1.0_api-mini-bundle.jar" dest="external/lib" />
+        <unjar src="external/lib/jsr173_1.0_api_bundle.jar" dest="external/lib" >
+            <patternset>
+                <include name="jsr173_1.0_api.jar"/>
+            </patternset>
+        </unjar>
         
-        <!-- copy jsr173 API and RI jars and license files to build/lib -->
+        <!-- copy jsr173 API jar and license files to build/lib -->
         <copy file="external/lib/jsr173_1.0_api.jar" tofile="build/lib/jsr173_1.0_api.jar"/>
-        <copy file="external/lib/jsr173_1.0_ri.jar" tofile="build/lib/jsr173_1.0_ri.jar"/>
-        <copy file="external/lib/BEA Binary RI License (JSR 173).1(Clean).txt" tofile="build/lib/BEA Binary RI License (JSR 173).1(Clean).txt"/>
-        <copy file="external/lib/README(jsr_173 api and ri).txt" tofile="build/lib/README(jsr_173 api and ri).txt"/>
     </target>
 
     <!-- get resolver.jar -->

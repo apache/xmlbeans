@@ -24,6 +24,8 @@ import org.apache.xmlbeans.GDateBuilder;
 import org.apache.xmlbeans.GDuration;
 import org.apache.xmlbeans.GDurationBuilder;
 import org.apache.xmlbeans.XmlCalendar;
+import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.impl.richParser.XMLStreamReaderExt;
 import org.apache.xmlbeans.impl.richParser.XMLStreamReaderExtImpl;
 
@@ -57,9 +59,9 @@ public class RichParserTests extends TestCase
 
     public void testPrimitiveTypes() throws Exception
     {
-        XMLInputFactory factory = XMLInputFactory.newInstance();
-        XMLStreamReader xsr = factory.createXMLStreamReader(new FileInputStream(
-                 JarUtil.getResourceFromJarasFile("xbean/misc/primitiveTypes.xml")));
+        XMLStreamReader xsr = XmlObject.Factory.parse(new FileInputStream(
+                JarUtil.getResourceFromJarasFile("xbean/misc/primitiveTypes.xml"))).
+                    newXMLStreamReader();
         XMLStreamReaderExt xsrext = new XMLStreamReaderExtImpl(xsr);
 
         while (xsrext.hasNext())
