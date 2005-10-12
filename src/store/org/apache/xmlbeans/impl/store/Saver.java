@@ -1207,17 +1207,24 @@ abstract class Saver
             boolean hasCharToBeReplaced = false;
 
             int count = 0;
+            char prevChar = 0;
+            char prevPrevChar = 0;
             for ( int cch = _lastEmitCch ; cch > 0 ; cch-- )
             {
                 char ch = _buf[ i ];
 
                 if (ch == '<' || ch == '&')
                     count++;
+                else if (prevPrevChar == ']' && prevChar == ']' && ch == '>' )
+                    hasCharToBeReplaced = true;
                 else if (isBadChar( ch ) || isEscapedChar( ch ))
                     hasCharToBeReplaced = true;
 
                 if (++i == n)
                     i = 0;
+
+                prevPrevChar = prevChar;
+                prevChar = ch;
             }
 
             if (count == 0 && !hasCharToBeReplaced)
