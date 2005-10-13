@@ -563,10 +563,10 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
                 else
                     printInnerType(anonTypes[i], system);
             }
-            // For redefinition by extension, go ahead and print the anonymous
-            // types in the base
+            // For redefinition other than by extension for complex types, go ahead and print
+            // the anonymous types in the base
             if (!redefinition ||
-                sType.getDerivationType() != SchemaType.DT_EXTENSION)
+                (sType.getDerivationType() != SchemaType.DT_EXTENSION && !sType.isSimpleType()))
                 break;
             sType = sType.getBaseType();
         }
@@ -2606,7 +2606,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
             // For redefinition by extension, go ahead and print the anonymous
             // types in the base
             if (!redefinition ||
-                sType.getDerivationType() != SchemaType.DT_EXTENSION)
+                (sType.getDerivationType() != SchemaType.DT_EXTENSION && !sType.isSimpleType()))
                 break;
             sType = sType.getBaseType();
         }

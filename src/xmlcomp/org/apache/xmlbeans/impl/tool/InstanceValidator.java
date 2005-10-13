@@ -175,7 +175,7 @@ public class InstanceValidator
             try
             {
                 xobj =
-                    sLoader.parse( instanceFiles[i], null, (new XmlOptions()).setLoadLineNumbers() );
+                    sLoader.parse( instanceFiles[i], null, (new XmlOptions()).setLoadLineNumbers(XmlOptions.LOAD_LINE_NUMBERS_END_ELEMENT) );
             }
             catch (Exception e)
             {
