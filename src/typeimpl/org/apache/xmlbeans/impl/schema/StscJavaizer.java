@@ -68,9 +68,11 @@ public class StscJavaizer
             else
                 skipJavaizingType((SchemaTypeImpl)gType);
             allSeenTypes.addAll(Arrays.asList(gType.getAnonymousTypes()));
-            if (((SchemaTypeImpl) gType).isRedefinition() &&
-                gType.getDerivationType() == SchemaType.DT_EXTENSION)
-                addAnonymousTypesFromRedefinition(gType.getBaseType(), allSeenTypes);
+            // We need to javaize the anonymous types defined inside redefined types
+            // since redefined type do not get a Java class of their own.
+            // The exception is complex types derived by restriction, since in this case
+            // anonymous types are not inherited
+            addAnonymousTypesFromRedefinition(gType, allSeenTypes);
         }
     }
 
@@ -315,13 +317,12 @@ public class StscJavaizer
         StscState state = StscState.get();
 
         int nrOfAnonTypes = anonymousTypes.length;
-        if (outerType.isRedefinition() &&
-            outerType.getDerivationType() == SchemaType.DT_EXTENSION)
+        if (outerType.isRedefinition())
         {
             // We have to add the anonymous types for redefinitions to the list
             // since they don't have another outer class
             ArrayList list = new ArrayList();
-            addAnonymousTypesFromRedefinition(outerType.getBaseType(), list);
+            addAnonymousTypesFromRedefinition(outerType, list);
             if (list.size() > 0)
             {
                 SchemaType[] temp = new SchemaType[nrOfAnonTypes + list.size()];
@@ -868,14 +869,14 @@ public class StscJavaizer
 
     static void addAnonymousTypesFromRedefinition(SchemaType sType, List result)
     {
-        while (sType != null)
+        while (((SchemaTypeImpl)sType).isRedefinition() &&
+                (sType.getDerivationType() == SchemaType.DT_EXTENSION ||
+                        sType.isSimpleType()))
         {
+            sType = sType.getBaseType();
             SchemaType[] newAnonTypes = sType.getAnonymousTypes();
             if (newAnonTypes.length > 0)
                 result.addAll(Arrays.asList(newAnonTypes));
-            if (sType.getDerivationType() != SchemaType.DT_EXTENSION)
-                break;
-            sType = sType.getBaseType();
         }
     }
 }
