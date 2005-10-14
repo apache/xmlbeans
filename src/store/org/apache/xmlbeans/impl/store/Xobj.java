@@ -2357,6 +2357,39 @@ abstract class Xobj implements TypeStore
         return getUser();
     }
 
+    public TypeStoreUser copy(SchemaTypeLoader stl,SchemaType type,XmlOptions options)
+    {
+        //do not use a user's Factory method for copying.
+        //XmlFactoryHook hook = XmlFactoryHook.ThreadContext.getHook();
+        Xobj destination = null;
+        options = XmlOptions.maskNull(options);
+        SchemaType sType = (SchemaType) options.get(XmlOptions.DOCUMENT_TYPE);
+
+        if (sType == null)
+            sType = type == null ? XmlObject.type : type;
+
+        if (sType.isDocumentType() || (sType.isNoType() && (this instanceof Xobj.DocumentXobj)))
+            destination = Cur.createDomDocumentRootXobj(this.locale(), false);
+        else
+            destination = Cur.createDomDocumentRootXobj(this.locale(), true);
+
+
+        _locale.enter();
+        try
+        {
+            Cur c = destination.tempCur();
+            c.setType(type);
+            c.release();
+        }
+        finally
+        {
+            _locale.exit();
+        }
+
+        TypeStoreUser tsu = destination.copy_contents_from(this);
+        return tsu;
+    }
+
     public void array_setter ( XmlObject[] sources, QName elementName )
     {
         _locale.enter();

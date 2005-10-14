@@ -290,7 +290,13 @@ public interface TypeStore extends NamespaceManager
      * This is for implementing obj.set(foo).
      */
     TypeStoreUser copy_contents_from(TypeStore source);
-    
+
+    /**
+     * Makes a copy of this store.
+     * NOTE: Even if st is NO_TYPE, the store can be a document. This method will make an exact copy.
+     */
+    TypeStoreUser copy(SchemaTypeLoader schemaTypeLoader, SchemaType schemaType, XmlOptions options);
+
 // BUGBUG - Need to use this in the future
 //    /**
 //     * Copies the contents of the given TypeStore (including attributes,

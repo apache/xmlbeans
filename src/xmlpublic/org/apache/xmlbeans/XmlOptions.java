@@ -414,6 +414,10 @@ public class XmlOptions implements java.io.Serializable
      * in the store when parsing a document.  This is particularly
      * useful when you want {@link XmlError} objects to contain
      * line numbers.
+     * <br/>Note: This adds line numbers info only for start tags.
+     * For line number info on end tags use:
+     *   {@link XmlOptions#setLoadLineNumbers(java.lang.String)}
+     * <br/>Example: xmlOptions.setLoadLineNumbers(XmlOptions.LOAD_LINE_NUMBERS_END_ELEMENT)
      * 
      * @see XmlObject.Factory#parse(java.io.File, XmlOptions)
      * @see XmlError
@@ -426,8 +430,8 @@ public class XmlOptions implements java.io.Serializable
      * If this option is set, line number annotations are placed
      * in the store when parsing a document.  This is particularly
      * useful when you want {@link XmlError} objects to contain
-     * line numbers. Use the option to load line numbers at non-default
-     * places, e.g. at the end of an element
+     * line numbers. Use the option to load line numbers at the end of an element.
+     * <br/>Example: xmlOptions.setLoadLineNumbers(XmlOptions.LOAD_LINE_NUMBERS_END_ELEMENT)
      *
      * @see XmlObject.Factory#parse(java.io.File, XmlOptions)
      * @see XmlError
