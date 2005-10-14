@@ -77,6 +77,7 @@ import org.apache.xmlbeans.XmlError;
 import org.apache.xmlbeans.SchemaLocalAttribute;
 import org.apache.xmlbeans.FilterXmlObject;
 import org.apache.xmlbeans.DelegateXmlObject;
+import org.apache.xmlbeans.SchemaTypeLoader;
 
 import org.w3c.dom.Node;
 
@@ -119,13 +120,8 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
 
             check_orphaned();
 
-            // copy the type
-            XmlObject result = get_store().get_schematypeloader().newInstance(schemaType(), null);
-
-
-            // copy the data
-            XmlObjectBase target = underlying(result);
-            target.get_store().copy_contents_from(get_store());
+            SchemaTypeLoader stl = get_store().get_schematypeloader();
+            XmlObject result = (XmlObject)get_store().copy(stl,schemaType(), null);
 
             return result;
         }
