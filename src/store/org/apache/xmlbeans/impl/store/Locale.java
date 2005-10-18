@@ -3197,7 +3197,7 @@ public final class Locale
             {
                 _context.bookmark(
                     new XmlLineNumber(_startLocator.getLineNumber(),
-                        _startLocator.getColumnNumber(), -1));
+                        _startLocator.getColumnNumber() - 1, -1));
             }
 
             for (int i = 0, len = atts.getLength(); i < len; i++)
@@ -3264,7 +3264,7 @@ public final class Locale
             {
                 _context.bookmark(
                     new XmlLineNumber(_startLocator.getLineNumber(),
-                        _startLocator.getColumnNumber(), -1));
+                        _startLocator.getColumnNumber() - 1, -1));
             }
         }
 

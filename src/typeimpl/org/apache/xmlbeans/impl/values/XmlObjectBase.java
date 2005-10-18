@@ -54,6 +54,7 @@ import org.apache.xmlbeans.impl.schema.SchemaTypeImpl;
 import org.apache.xmlbeans.impl.schema.SchemaTypeVisitorImpl;
 import org.apache.xmlbeans.impl.validator.Validator;
 import org.apache.xmlbeans.impl.values.XmlValueNotNillableException;
+import org.apache.xmlbeans.XmlErrorCodes;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.SchemaAttributeModel;
 import org.apache.xmlbeans.XmlAnySimpleType;
@@ -1356,7 +1357,8 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
     public double doubleValue()
         { BigDecimal bd = bigDecimalValue(); return bd == null ? 0.0 : bd.doubleValue(); }
     public BigDecimal bigDecimalValue()
-        { throw new XmlValueNotSupportedException(); }
+        { throw new XmlValueNotSupportedException(XmlErrorCodes.EXCEPTION_VALUE_NOT_SUPPORTED_S2J,
+                new Object[] {getPrimitiveTypeName(), "numeric"}); }
 
     // numerics: integral
     public BigInteger bigIntegerValue()
@@ -1459,7 +1461,8 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
 
     // enums
     public StringEnumAbstractBase enumValue()
-        { throw new XmlValueNotSupportedException(); }
+        { throw new XmlValueNotSupportedException(XmlErrorCodes.EXCEPTION_VALUE_NOT_SUPPORTED_S2J,
+                new Object[] {getPrimitiveTypeName(), "enum"}); }
 
     // various
     public String stringValue()
@@ -1559,23 +1562,32 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
         { objectSet(obj); }
 
     public byte[] byteArrayValue()
-        { throw new XmlValueNotSupportedException(); }
+        { throw new XmlValueNotSupportedException(XmlErrorCodes.EXCEPTION_VALUE_NOT_SUPPORTED_S2J,
+            new Object[] {getPrimitiveTypeName(), "byte[]"}); }
     public boolean booleanValue()
-        { throw new XmlValueNotSupportedException(); }
+        { throw new XmlValueNotSupportedException(XmlErrorCodes.EXCEPTION_VALUE_NOT_SUPPORTED_S2J,
+            new Object[] {getPrimitiveTypeName(), "boolean"}); }
     public GDate gDateValue()
-        { throw new XmlValueNotSupportedException(); }
+        { throw new XmlValueNotSupportedException(XmlErrorCodes.EXCEPTION_VALUE_NOT_SUPPORTED_S2J,
+            new Object[] {getPrimitiveTypeName(), "Date"}); }
     public Date dateValue()
-        { throw new XmlValueNotSupportedException(); }
+        { throw new XmlValueNotSupportedException(XmlErrorCodes.EXCEPTION_VALUE_NOT_SUPPORTED_S2J,
+            new Object[] {getPrimitiveTypeName(), "Date"}); }
     public Calendar calendarValue()
-        { throw new XmlValueNotSupportedException(); }
+        { throw new XmlValueNotSupportedException(XmlErrorCodes.EXCEPTION_VALUE_NOT_SUPPORTED_S2J,
+            new Object[] {getPrimitiveTypeName(), "Calendar"}); }
     public GDuration gDurationValue()
-        { throw new XmlValueNotSupportedException(); }
+        { throw new XmlValueNotSupportedException(XmlErrorCodes.EXCEPTION_VALUE_NOT_SUPPORTED_S2J,
+            new Object[] {getPrimitiveTypeName(), "Duration"}); }
     public QName qNameValue()
-        { throw new XmlValueNotSupportedException(); }
+        { throw new XmlValueNotSupportedException(XmlErrorCodes.EXCEPTION_VALUE_NOT_SUPPORTED_S2J,
+            new Object[] {getPrimitiveTypeName(), "QName"}); }
     public List listValue()
-        { throw new XmlValueNotSupportedException(); }
+        { throw new XmlValueNotSupportedException(XmlErrorCodes.EXCEPTION_VALUE_NOT_SUPPORTED_S2J,
+            new Object[] {getPrimitiveTypeName(), "List"}); }
     public List xlistValue()
-        { throw new XmlValueNotSupportedException(); }
+        { throw new XmlValueNotSupportedException(XmlErrorCodes.EXCEPTION_VALUE_NOT_SUPPORTED_S2J,
+            new Object[] {getPrimitiveTypeName(), "List"}); }
     public Object objectValue()
         { return java_value(this); }
 
@@ -1952,9 +1964,11 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
     }
 
     protected void set_list(List list)
-        { throw new XmlValueNotSupportedException(); }
+        { throw new XmlValueNotSupportedException(XmlErrorCodes.EXCEPTION_VALUE_NOT_SUPPORTED_J2S,
+            new Object[] {"List", getPrimitiveTypeName() }); }
     protected void set_boolean(boolean v)
-        { throw new XmlValueNotSupportedException(); }
+        { throw new XmlValueNotSupportedException(XmlErrorCodes.EXCEPTION_VALUE_NOT_SUPPORTED_J2S,
+            new Object[] {"boolean", getPrimitiveTypeName() }); }
     protected void set_byte(byte v)
         { set_int((int) v); }
     protected void set_short(short v)
@@ -1971,10 +1985,12 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
         { set_BigDecimal(new BigDecimal(v)); }
 
     protected void set_enum(StringEnumAbstractBase e)
-        { throw new XmlValueNotSupportedException(); }
+        { throw new XmlValueNotSupportedException(XmlErrorCodes.EXCEPTION_VALUE_NOT_SUPPORTED_J2S,
+            new Object[] {"enum", getPrimitiveTypeName() }); }
 
     protected void set_ByteArray(byte[] b)
-        { throw new XmlValueNotSupportedException(); }
+        { throw new XmlValueNotSupportedException(XmlErrorCodes.EXCEPTION_VALUE_NOT_SUPPORTED_J2S,
+            new Object[] {"byte[]", getPrimitiveTypeName() }); }
     protected void set_b64(byte[] b)
         { set_ByteArray(b); }
     protected void set_hex(byte[] b)
@@ -1982,25 +1998,44 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
     protected void set_BigInteger(BigInteger v)
         { set(new BigDecimal(v)); }
     protected void set_BigDecimal(BigDecimal v)
-        { throw new XmlValueNotSupportedException(); }
+        { throw new XmlValueNotSupportedException(XmlErrorCodes.EXCEPTION_VALUE_NOT_SUPPORTED_J2S,
+            new Object[] {"numeric", getPrimitiveTypeName() }); }
     protected void set_Date(Date v)
-        { throw new XmlValueNotSupportedException(); }
+        { throw new XmlValueNotSupportedException(XmlErrorCodes.EXCEPTION_VALUE_NOT_SUPPORTED_J2S,
+            new Object[] {"Date", getPrimitiveTypeName() }); }
     protected void set_Calendar(Calendar v)
-        { throw new XmlValueNotSupportedException(); }
+        { throw new XmlValueNotSupportedException(XmlErrorCodes.EXCEPTION_VALUE_NOT_SUPPORTED_J2S,
+            new Object[] {"Calendar", getPrimitiveTypeName() }); }
     protected void set_GDate(GDateSpecification v)
-        { throw new XmlValueNotSupportedException(); }
+        { throw new XmlValueNotSupportedException(XmlErrorCodes.EXCEPTION_VALUE_NOT_SUPPORTED_J2S,
+            new Object[] {"Date", getPrimitiveTypeName() }); }
     protected void set_GDuration(GDurationSpecification v)
-        { throw new XmlValueNotSupportedException(); }
+        { throw new XmlValueNotSupportedException(XmlErrorCodes.EXCEPTION_VALUE_NOT_SUPPORTED_J2S,
+            new Object[] {"Duration", getPrimitiveTypeName() }); }
     protected void set_ComplexXml(XmlObject v)
-        { throw new XmlValueNotSupportedException(); }
+        { throw new XmlValueNotSupportedException(XmlErrorCodes.EXCEPTION_VALUE_NOT_SUPPORTED_J2S,
+            new Object[] {"complex content", getPrimitiveTypeName() }); }
     protected void set_QName(QName v)
-        { throw new XmlValueNotSupportedException(); }
+        { throw new XmlValueNotSupportedException(XmlErrorCodes.EXCEPTION_VALUE_NOT_SUPPORTED_J2S,
+            new Object[] {"QName", getPrimitiveTypeName() }); }
 
     protected void set_notation(String v)
         { throw new XmlValueNotSupportedException(); }
 
     protected void set_xmlanysimple(XmlAnySimpleType v)
         { set_String(v.getStringValue()); }
+
+    private final String getPrimitiveTypeName()
+    {
+        SchemaType type = schemaType();
+        if (type.isNoType())
+            return "unknown";
+        SchemaType t = type.getPrimitiveType();
+        if (t == null)
+            return "complex";
+        else
+            return t.getName().getLocalPart();
+    }
 
     private final boolean comparable_value_spaces(SchemaType t1, SchemaType t2)
     {
