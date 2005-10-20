@@ -16,15 +16,14 @@
 package scomp.contentType.simple.detailed;
 
 import scomp.common.BaseCase;
-import xbean.scomp.contentType.union.UnionEltDocument;
-import xbean.scomp.contentType.union.UnionOfUnionsDocument;
-import xbean.scomp.contentType.union.UnionOfUnionsT;
-import xbean.scomp.contentType.union.UnionOfListsDocument;
+import xbean.scomp.contentType.union.*;
 
 import java.util.List;
 import java.util.ArrayList;
 
 import org.apache.xmlbeans.XmlErrorCodes;
+import org.apache.xmlbeans.XmlOptions;
+import org.apache.xmlbeans.impl.values.XmlValueOutOfRangeException;
 
 /**
  *
@@ -115,9 +114,8 @@ public class UnionType extends BaseCase {
     }
 
     /**
-     * All values in the union should be legal. All others-not
-     *
-     * @throws Throwable
+     * Specifiying value for a union that is not part of the consitituent types. The constituent types in this schema
+     * are enumerations and not basic XmlSchema types and hence get translated into enum types in the XmlObjects
      */
     public void testUnionOfUnions() throws Throwable {
         UnionOfUnionsDocument doc = UnionOfUnionsDocument.Factory.newInstance();
@@ -163,18 +161,68 @@ public class UnionType extends BaseCase {
             showErrors();
             throw t;
         }
-        doc.setUnionOfUnions("foobar");
+        // setting a value outside of the union should throw an exception as
+        // type inside the Xmlobject is an enumeration and has a fixed number of constants in the type
+        // This will fail irrespective of the setValidateOnSet() option
+        boolean voeThrown = false;
+        try
+        {
+            doc.setUnionOfUnions("foobar");
 
-        assertTrue(!doc.validate(validateOptions));
+            assertTrue(!doc.validate(validateOptions));
 
-        showErrors();
-        String[] errExpected = new String[]{"cvc-attribute"};
-                    assertTrue(compareErrorCodes(errExpected));
+            showErrors();
+            String[] errExpected = new String[]{"cvc-attribute"};
+                        assertTrue(compareErrorCodes(errExpected));
+        }
+        catch (XmlValueOutOfRangeException voe)
+        {
+            voeThrown = true;
+        }
+
+        finally
+        {
+            if(!voeThrown)
+                fail("Expected XmlValueOutOfRangeException here");
+        }
 
 
     }
 
-    /**
+    // for the above test (testUnionOfUnions), if the value set for the union type is AnyType (in the schema)
+    // but the Java type defined as say Integer or Date then an Exception should be thrown only if
+    // validateOnSet XmlOption is set and not otherwise.
+    public void UnionOfUnions2()
+    {
+        UnionOfUnionsDocument doc = UnionOfUnionsDocument.Factory.newInstance();
+        doc.setUnionOfUnions("4");
+
+        try {
+            assertTrue(doc.validate(validateOptions));
+        }
+        catch (Throwable t) {
+            showErrors();
+        }
+
+        // now validate with setValidateOnSetoption
+        XmlOptions optWithValidateOnSet = new XmlOptions();
+        optWithValidateOnSet.setValidateOnSet();
+
+        UnionOfUnionsDocument doc2 = UnionOfUnionsDocument.Factory.newInstance(optWithValidateOnSet);
+        boolean voeThrown = false;
+        try {
+            doc2.setUnionOfUnions("4");
+        }
+        catch (XmlValueOutOfRangeException voe) {
+            voeThrown = true;
+        }
+        finally{
+            if(!voeThrown)
+                fail("Expected XmlValueOutOfRangeException..");
+        }
+    }
+
+  /**
      * values allolwed here are either a list of (small, med, large, 1-3,-1,-2,-3}
      * or     (lstsmall, lstmed, lstlarge)
      */
@@ -216,13 +264,23 @@ public class UnionType extends BaseCase {
         //the list shoudl have exactly one of the 2 union types
         vals.add("lstsmall");
         vals.add(new Integer(-1));
-        doc.setUnionOfLists( vals );
-        assertTrue(! doc.validate(validateOptions) );
-        showErrors();
-        String[] errExpected = new String[]{"cvc-attribute"};
-                    assertTrue(compareErrorCodes(errExpected));
 
+        // if the type in a union and cannot be converted into any of the union types, and in this case
+        // since the list have enumerations, an exception is expected irrespective of validateOnSet XmlOption
+        // being set. Refer testUnionOfUnions comment also
+        boolean voeThrown = false;
+        try{
+            doc.setUnionOfLists( vals );
+        }
+        catch (XmlValueOutOfRangeException voe){
+            voeThrown = true;
+        }
+        finally{
+            if(!voeThrown)
+                fail("Expected XmlValueOutOfRangeException here");
+        }
 
     }
+
 }
 

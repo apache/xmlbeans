@@ -18,6 +18,7 @@ package scomp.derivation.extension.detailed;
 import xbean.scomp.derivation.simpleExtension.SimpleExtensionEltDocument;
 import xbean.scomp.derivation.simpleExtension.SimpleExtensionT;
 import scomp.common.BaseCase;
+import org.apache.xmlbeans.impl.values.XmlValueOutOfRangeException;
 
 /**
  *
@@ -49,12 +50,25 @@ public class SimpleTypeExtensionTest extends BaseCase {
         assertEquals(null, elt.getAttribute());
         assertTrue(!elt.isSetAttribute());
 
-        //why does type mismatch show up as XmlValueOutOfRangeException 
-        elt.setStringValue("foobar");
-        assertTrue(!elt.validate(validateOptions));
+        // why does type mismatch show up as XmlValueOutOfRangeException ?
+        // updated: ok, since a setStringValue is used for an integer, this is a case where set value cannot be converted
+        // into any of the possible valid types. Hence an exception is
+        // throw irrespective of the setValidateOnSet XmlOption
+        boolean voeThrown = false;
+        try{
+            elt.setStringValue("foobar");
+            //assertTrue(!elt.validate(validateOptions));
 
-         errExpected = new String[]{"cvc-attribute"};
-        assertTrue(compareErrorCodes(errExpected));
+            //errExpected = new String[]{"cvc-attribute"};
+            //assertTrue(compareErrorCodes(errExpected));
+        }
+        catch (XmlValueOutOfRangeException voe){
+            voeThrown = true;
+        }
+        finally{
+            if(!voeThrown)
+                fail("Expected XmlValueOutOfRangeException here");
+        }
 
 
     }
