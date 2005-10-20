@@ -21,6 +21,7 @@ import java.math.BigInteger;
 
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlErrorCodes;
+import org.apache.xmlbeans.impl.values.XmlValueNotSupportedException;
 
 /**
  *
@@ -92,19 +93,26 @@ public class MixedContentRestriction extends BaseCase{
          Mixed2EmptyEltDocument doc=Mixed2EmptyEltDocument.Factory.newInstance();
          Mixed2EmptyT elt=doc.addNewMixed2EmptyElt();
         assertEquals(null,elt.xgetChild1());
+
+        // ok this gets a little tricky. Due to the restriction extension, the setter method is now
+        // 'removed'. So the schema is actually an XmlAnyType while the method sets it to a BigInteger.
+        // This will fail irrespective of the setValidateOnset XmlOption
+        boolean vneThrown = false;
+        try
+        {
         elt.setChild1(new BigInteger("10"));
          assertTrue( !doc.validate(validateOptions));
         showErrors();
         String[] errExpected = new String[]{"cvc-attribute"};
                             assertTrue(compareErrorCodes(errExpected));
-
-        elt.unsetChild1();
-         try {
-            assertTrue( doc.validate(validateOptions));
         }
-        catch (Throwable t) {
-            showErrors();
-            throw t;
+
+        catch (XmlValueNotSupportedException vns) {
+            vneThrown = true;
+        }
+        finally {
+            if(!vneThrown)
+                fail("Expected XmlValueNotSupportedException here");
         }
 
     }

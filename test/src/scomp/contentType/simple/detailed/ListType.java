@@ -23,6 +23,7 @@ import java.util.LinkedList;
 import java.util.ArrayList;
 
 import org.apache.xmlbeans.impl.values.XmlValueOutOfRangeException;
+import org.apache.xmlbeans.impl.values.XmlValueNotSupportedException;
 import org.apache.xmlbeans.XmlSimpleList;
 import org.apache.xmlbeans.XmlErrorCodes;
 
@@ -48,7 +49,21 @@ public class ListType extends BaseCase {
             throw t;
         }
         values.set(0, new Integer(4));
+
+        // since the list has enumerations, it contains a fixed number of Java constants in the xobj
+        // which are checked for types and an exception is expected irrespective of validateOnSet XmlOption
+        // if the value being set is not one of them
+        boolean vneThrown = false;
+        try{
         doc.setListEltToken(values);
+        }
+        catch(XmlValueNotSupportedException vne){
+            vneThrown = true;
+        }
+        finally{
+            if(!vneThrown)
+                fail("Expected XmlValueOutOfRangeException here");
+        }
 
     }
 
