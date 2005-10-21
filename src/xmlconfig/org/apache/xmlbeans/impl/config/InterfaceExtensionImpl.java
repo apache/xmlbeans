@@ -188,6 +188,11 @@ public class InterfaceExtensionImpl implements InterfaceExtension
                 continue;
 
             JParameter[] mParams = method.getParameters();
+
+            // can have methods with same name but different # of params
+            if (mParams.length != paramTypes.length)
+                continue;
+
             for (int j = 0; j < mParams.length; j++)
             {
                 JParameter mParam = mParams[j];
