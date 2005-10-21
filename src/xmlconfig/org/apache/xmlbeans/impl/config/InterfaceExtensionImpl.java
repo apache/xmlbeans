@@ -79,7 +79,7 @@ public class InterfaceExtensionImpl implements InterfaceExtension
         final String ent = isInterface ? "Interface" : "Class";
         JClass cls = loader.loadClass(clsStr);
 
-        if (cls==null)
+        if (cls==null || cls.isUnresolvedType())
         {
             BindingConfigImpl.error(ent + " '" + clsStr + "' not found.", loc);
             return null;
