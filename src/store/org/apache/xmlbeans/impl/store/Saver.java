@@ -1460,8 +1460,20 @@ abstract class Saver
             else
             {
                 assert i < _in;
-                System.arraycopy( _buf, i, _buf, i + dCch, _in - i );
-                _in += dCch;
+                int availableEndChunk = _buf.length - _in;
+                if ( dCch < availableEndChunk )
+                {
+                    System.arraycopy( _buf, i, _buf, i + dCch, _in - i );
+                    _in += dCch;
+                }
+                else
+                {
+                    int numToCopyToStart = _in - i - availableEndChunk;
+                    System.arraycopy( _buf, _in-numToCopyToStart, _buf, 0, numToCopyToStart );
+                    System.arraycopy( _buf, i, _buf, i+dCch, availableEndChunk );
+
+                    _in = numToCopyToStart;
+                }
             }
 
             replacement.getChars( 0, dCch + 1, _buf, i );
