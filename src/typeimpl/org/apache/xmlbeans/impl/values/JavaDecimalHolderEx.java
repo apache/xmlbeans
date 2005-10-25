@@ -88,10 +88,19 @@ public abstract class JavaDecimalHolderEx extends JavaDecimalHolder
         if (fd != null)
         {
             int scale = ((XmlObjectBase)fd).bigIntegerValue().intValue();
-            if (v.scale() > scale)
+            try
             {
+                // used only for side-effect - this does not change v despite
+                // the name of the method
+                v.setScale(scale);
+            }
+            catch(ArithmeticException e)
+            {
+                // ArithmeticException will be thrown if cannot represent as an Integer
+                // with this scale - i.e. would need a fraction which would correspond
+                // to digits beyond the allowed number
                 context.invalid(XmlErrorCodes.DATATYPE_FRACTION_DIGITS_VALID,
-                    new Object[] { new Integer(v.scale()), v, new Integer(scale), QNameHelper.readable(sType) });
+                    new Object[] { new Integer(v.scale()), v.toString(), new Integer(scale), QNameHelper.readable(sType) });
                 return;
             }
         }
@@ -102,13 +111,33 @@ public abstract class JavaDecimalHolderEx extends JavaDecimalHolder
         {
             String temp = v.unscaledValue().toString();
             int tdf = ((XmlObjectBase)td).bigIntegerValue().intValue();
-            int len = temp.length();
-            if (len > 0 && temp.charAt(0) == '-')
-                len -= 1;
+            int origLen = temp.length();
+            int len = origLen;
+            if (origLen > 0)
+            {
+                // don't count leading minus
+                if (temp.charAt(0) == '-')
+                {
+                    len -= 1;
+                }
+
+                // don't count trailing zeros if we can absorb them into scale
+                int insignificantTrailingZeros = 0;
+                int vScale = v.scale();
+                for(int j = origLen-1;
+                    temp.charAt(j) == '0' && j > 0 && insignificantTrailingZeros < vScale;
+                    j--)
+                {
+                    insignificantTrailingZeros++;
+                }
+
+                len -= insignificantTrailingZeros;
+            }
+
             if (len > tdf)
             {
                 context.invalid(XmlErrorCodes.DATATYPE_TOTAL_DIGITS_VALID,
-                    new Object[] { new Integer(len), temp, new Integer(tdf), QNameHelper.readable(sType) });
+                    new Object[] { new Integer(len), v.toString(), new Integer(tdf), QNameHelper.readable(sType) });
                 return;
             }
         }
