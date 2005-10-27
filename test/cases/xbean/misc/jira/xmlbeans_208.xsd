@@ -1,3 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
 /*   Copyright 2004 The Apache Software Foundation
  *
  *   Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,14 +14,19 @@
  *   See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package xmlobject.extensions.interfaceFeature.averageCase.existing;
+-->
+<xs:schema targetNamespace="http://misc/detailed/jira208"
+            xmlns:xs="http://www.w3.org/2001/XMLSchema"
+            xmlns:dec="http://misc/detailed/jira208"
+            elementFormDefault="qualified"
+            attributeFormDefault="unqualified" >
 
-public interface IFoo
-{
-    int getTotal();
 
-    // The following methods are being added to test JIRA isssue XMLBEANS-206
-    public String getName(String s);
-    public String getName(String s, int i);
-
-}
+    <xs:element name="frog_breath" type="dec:dec15d3"/>
+    <xs:simpleType name="dec15d3">
+        <xs:restriction base="xs:decimal">
+            <xs:totalDigits value="15"/>
+            <xs:fractionDigits value="3"/>
+        </xs:restriction>
+    </xs:simpleType>
+</xs:schema>

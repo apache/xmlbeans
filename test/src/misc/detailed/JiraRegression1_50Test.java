@@ -39,31 +39,6 @@ public class JiraRegression1_50Test extends JiraTestBase {
         super(name);
     }
 
-    public void setUp() {
-
-        // directories for the SchemaCompiler.Parameter class members
-        if (schemaCompSrcDir == null) {
-            schemaCompSrcDir = new File(schemaCompOutputDirPath + P + "src");
-            if (!schemaCompSrcDir.exists()) {
-                schemaCompSrcDir.mkdirs();
-            }
-        }
-        //&& (!schemaCompSrcDir.exists()))
-        if (schemaCompClassesDir == null) {
-            schemaCompClassesDir = new File(schemaCompOutputDirPath + P + "classes");
-            if (!schemaCompClassesDir.exists()) {
-                schemaCompClassesDir.mkdirs();
-            }
-        }
-
-        if (schemaCompOutputDirFile == null) {
-            schemaCompOutputDirFile = new File(schemaCompOutputDirPath + P);
-            if (!schemaCompOutputDirFile.exists()) {
-                schemaCompOutputDirFile.mkdirs();
-            }
-        }
-    }
-
     /*
     * [XMLBEANS-2] Problem with XmlError.forObject(String,int,XmlObject)
     */
