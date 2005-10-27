@@ -29,7 +29,7 @@ import xmlcursor.common.Common;
 import javax.xml.namespace.QName;
 import java.util.Collections;
 import java.util.Set;
-import java.util.TreeSet;
+import java.util.HashSet;
 import java.util.Vector;
 
 
@@ -99,18 +99,18 @@ public class XmlLoaderMiscTest extends BasicCursorTestCase {
             fail("getContextTypeLoader failed");
 
         Vector vThreads = new Vector();
-        Set STLset = Collections.synchronizedSortedSet(new TreeSet());
-        for (int i = 0; i < 10; i++) {
+        Set STLset = Collections.synchronizedSet(new HashSet());
+        for (int i = 0; i < 10000; i++) {
             Thread t = new BogusThread(STLset);
             vThreads.add(t);
             t.start();
         }
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 10000; i++) {
             ((BogusThread) vThreads.elementAt(i)).join();
         }
         // each thread should create a unique type loader.
-        // so count of objects in set should be 10
-        assertEquals(10, STLset.size());
+        // so count of objects in set should be 10000
+        assertEquals(10000, STLset.size());
     }
 
 
@@ -122,10 +122,8 @@ public class XmlLoaderMiscTest extends BasicCursorTestCase {
         }
 
         public void run() {
-            String s = XmlBeans.getContextTypeLoader().toString();
-            System.out.println(s);
+            SchemaTypeLoader s = XmlBeans.getContextTypeLoader();
             set.add(s);
         }
     }
 }
-
