@@ -696,12 +696,12 @@ public class StscSimpleTypeResolver
                 switch (code)
                 {
                     case SchemaType.FACET_LENGTH:
-                        if (myFacets[SchemaType.FACET_MIN_LENGTH] != null ||
-                            myFacets[SchemaType.FACET_MAX_LENGTH] != null)
-                        {
-                            state.error(XmlErrorCodes.DATATYPE_LENGTH, null, facet);
-                            continue;
-                        }
+//                        if (myFacets[SchemaType.FACET_MIN_LENGTH] != null ||
+//                            myFacets[SchemaType.FACET_MAX_LENGTH] != null)
+//                        {
+//                            state.error(XmlErrorCodes.DATATYPE_LENGTH, null, facet);
+//                            continue;
+//                        }
                         XmlInteger len = StscTranslator.buildNnInteger(facet.getValue());
                         if (len == null)
                         {
@@ -713,16 +713,37 @@ public class StscSimpleTypeResolver
                             state.error(XmlErrorCodes.FACET_FIXED, new Object[] { facetName }, facet);
                             continue;
                         }
+                        if (myFacets[SchemaType.FACET_MIN_LENGTH] != null)
+                        {
+                            // An error for 'length' and 'minLength' to be specified at the same time
+                            // except if the base type had the same value for 'minLength' also
+                            XmlAnySimpleType baseMinLength = baseImpl.getFacet(SchemaType.FACET_MIN_LENGTH);
+                            if (!(baseMinLength != null &&
+                                baseMinLength.valueEquals(myFacets[SchemaType.FACET_MIN_LENGTH]) &&
+                                baseMinLength.compareValue(len) <= 0))
+                            {
+                                state.error(XmlErrorCodes.DATATYPE_LENGTH, null, facet);
+                                continue;
+                            }
+                        }
+                        if (myFacets[SchemaType.FACET_MAX_LENGTH] != null)
+                        {
+                            // An error for 'length' and 'maxLength' to be specified at the same time
+                            // except if the base type had the same value for 'maxLength' also
+                            XmlAnySimpleType baseMaxLength = baseImpl.getFacet(SchemaType.FACET_MAX_LENGTH);
+                            if (!(baseMaxLength != null &&
+                                baseMaxLength.valueEquals(myFacets[SchemaType.FACET_MAX_LENGTH]) &&
+                                baseMaxLength.compareValue(len) >= 0))
+                            {
+                                state.error(XmlErrorCodes.DATATYPE_LENGTH, null, facet);
+                                continue;
+                            }
+                        }
                         myFacets[code] = len;
                         break;
 
                     case SchemaType.FACET_MIN_LENGTH:
                     case SchemaType.FACET_MAX_LENGTH:
-                        if (myFacets[SchemaType.FACET_LENGTH] != null)
-                        {
-                            state.error(XmlErrorCodes.DATATYPE_LENGTH, null, facet);
-                            continue;
-                        }
                         XmlInteger mlen = StscTranslator.buildNnInteger(facet.getValue());
                         if (mlen == null)
                         {
@@ -733,6 +754,23 @@ public class StscSimpleTypeResolver
                         {
                             state.error(XmlErrorCodes.FACET_FIXED, new Object[] { facetName }, facet);
                             continue;
+                        }
+                        if (myFacets[SchemaType.FACET_LENGTH] != null)
+                        {
+                            // It's an error for 'length' and 'minLength'/'maxLength' to be
+                            // specified at the same time, except for the case when
+                            // the base type had the same value for 'minLength'/'maxLength'
+                            // and the two values are consistent
+                            XmlAnySimpleType baseMinMaxLength = baseImpl.getFacet(code);
+                            if (!(baseMinMaxLength != null &&
+                                baseMinMaxLength.valueEquals(mlen) &&
+                                (code == SchemaType.FACET_MIN_LENGTH ?
+                                    baseMinMaxLength.compareTo(myFacets[SchemaType.FACET_LENGTH]) <= 0 :
+                                    baseMinMaxLength.compareTo(myFacets[SchemaType.FACET_LENGTH]) >= 0)))
+                            {
+                                state.error(XmlErrorCodes.DATATYPE_LENGTH, null, facet);
+                                continue;
+                            }
                         }
                         if (myFacets[SchemaType.FACET_MAX_LENGTH] != null)
                         {
