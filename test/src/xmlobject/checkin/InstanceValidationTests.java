@@ -1081,6 +1081,7 @@ public class InstanceValidationTests extends TestCase
                 "<any " + ns + " xsi:type='aYear'>P1Y</any>",
 
                 "<any " + ns + " xsi:type='fiveCharAnyURI'>abcde</any>",
+                "<any " + ns + " xsi:type='fiveCharQname'>xs:abc</any>",
                 "<any " + ns + " xsi:type='xs:anyURI'>foo</any>",
                 "<any " + ns + " xsi:type='wackyAnyURI'>foo</any>",
 
@@ -1180,7 +1181,6 @@ public class InstanceValidationTests extends TestCase
                 "<any " + ns + " xsi:type='wackyQname'>xs:abcdefghijk</any>",
                 "<any " + ns + " xsi:type='wackyQname'>xs:pqr</any>",
                 "<any " + ns + " xsi:type='xs:QName'>foo:bar</any>",
-                "<any " + ns + " xsi:type='fiveCharQname'>xs:abc</any>",
                 "<any " + ns + " xsi:type='prime'>12</any>",
                 "<any " + ns + " xsi:type='prime'>6</any>",
                 "<any " + ns + " xsi:type='xs:integer'>foo</any>",
