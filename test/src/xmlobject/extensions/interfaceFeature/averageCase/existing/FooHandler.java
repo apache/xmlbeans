@@ -34,7 +34,14 @@ public class FooHandler
 	 return sum;
     }
 
+    // The following methods are being added to test JIRA isssue XMLBEANS-206
+    public static String getName(XmlObject xo, String s) {
+        return "getName-1arg-" + s;
+    }
+
+    public static String getName(XmlObject xo, String s, int i) {
+        return "getName-2arg-" + s + "-" + i;
+    }
 
 
-   
 }

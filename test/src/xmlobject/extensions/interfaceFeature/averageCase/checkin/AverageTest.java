@@ -52,7 +52,18 @@ public class AverageTest extends TestCase{
         int i=poDoc.getTotal();
         //20 items @ $2
         assertEquals( 40, i );
-         
+
     }
-   
+
+    public void testJiraXMLBEANS_206()
+    {
+        PurchaseOrderDocument poDoc ;
+
+        poDoc= PurchaseOrderDocument.Factory.newInstance();
+        PurchaseOrderType po = poDoc.addNewPurchaseOrder();
+
+        System.out.println("Jira206 Test : = " + po.getName("String1"));
+        System.out.println("Jira206 Test : = " + po.getName("String1", 3));
+    }
+
 }

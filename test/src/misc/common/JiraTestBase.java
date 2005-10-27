@@ -1,5 +1,17 @@
 /*
- * Copyright (c) 2005 Your Corporation. All Rights Reserved.
+ *   Copyright 2004 The Apache Software Foundation
+ *
+ *   Licensed under the Apache License, Version 2.0 (the "License");
+ *   you may not use this file except in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing, software
+ *   distributed under the License is distributed on an "AS IS" BASIS,
+ *   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *   See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 package misc.common;
 
@@ -27,5 +39,28 @@ public class JiraTestBase extends Common
 
     public JiraTestBase(String name){
         super(name);
+
+        // directories for the SchemaCompiler.Parameter class members
+        if (schemaCompSrcDir == null) {
+            schemaCompSrcDir = new File(schemaCompOutputDirPath + P + "src");
+            if (!schemaCompSrcDir.exists()) {
+                schemaCompSrcDir.mkdirs();
+            }
+        }
+        //&& (!schemaCompSrcDir.exists()))
+        if (schemaCompClassesDir == null) {
+            schemaCompClassesDir = new File(schemaCompOutputDirPath + P + "classes");
+            if (!schemaCompClassesDir.exists()) {
+                schemaCompClassesDir.mkdirs();
+            }
+        }
+
+        if (schemaCompOutputDirFile == null) {
+            schemaCompOutputDirFile = new File(schemaCompOutputDirPath + P);
+            if (!schemaCompOutputDirFile.exists()) {
+                schemaCompOutputDirFile.mkdirs();
+            }
+        }
+
     }
 }
