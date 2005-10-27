@@ -99,6 +99,7 @@ public abstract class JavaQNameHolderEx extends JavaQNameHolder
             }
         }
 
+        /* length, minLength and maxLength facets deprecated - see http://www.w3.org/TR/xmlschema-2/#QName
         XmlObject x;
         int i;
 
@@ -116,6 +117,7 @@ public abstract class JavaQNameHolderEx extends JavaQNameHolder
             if ((i = ((XmlObjectBase)x).bigIntegerValue().intValue()) < v.length())
                 context.invalid(XmlErrorCodes.DATATYPE_MAX_LENGTH_VALID$STRING,
                     new Object[] { "QName", v, new Integer(i), QNameHelper.readable(sType) });
+        */
 
         return name;
     }
