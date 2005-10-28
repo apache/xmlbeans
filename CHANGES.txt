@@ -1,3 +1,19 @@
+Changes in v2.1.0 since v2.0.0:
+
+* Fixed the issue whereby some IDEs would have problems with the TypeSystemHolder class being generated in the classes directory
+* Better integration with Maven
+* Implemented support for ID/IDREF in DTDs via DOM's .getElementByID()
+* Integrated a patch that makes XmlBeans work in a sandboxed environment
+* Added the ability to control entitization of characters when saving documents
+* Fixed issue with memory reclamation in multi-threaded environments, which was delayed too much so it could be mistaken for a memory leak
+* Added numerous new test cases and performance tests
+* Continued improving performance, especially in the DOM support and XmlCursor areas
+* Added column numbers support in our snapshot of Piccolo; validation and XMLSchema error reporting benefit from this and is of course usable from user code
+* Line/column number is now also available for end-tags
+* Solved a legal inconsistency surrounding our use of JSR173 APIs
+* Fixed a lot of reported issues in various areas of the product
+
+
 Changes in v2.0.0 since v2.0.0-beta1:
 
 * many performance related changes, especialy in the DOM and Cursor areas
