@@ -773,6 +773,8 @@
 		<mkdir dir="${schema.jar.build.dir}"/>
 
 		<!-- define the xjc task here -->
+
+		<!-- xjc does not work with ant 1.5 and hence doing it the usual way (its used in ith performance test infrastructure)
 		<taskdef name="xjc" classname="com.sun.tools.xjc.XJCTask">
 			<classpath>
 				<fileset dir="${jaxb2.dir}/lib" includes="*.jar"/>
@@ -780,7 +782,18 @@
 		</taskdef>
 
 		<xjc schema="${test.case.dir}/xsd/${xsd.name}" target="${jaxb2.temp.dir}" package="${ns}"/>
+		-->
 
+		<java classname="com.sun.tools.xjc.Driver"
+					fork="true"
+					classpathref="jaxb2.classpath"
+					failonerror="true">
+			<arg line="-p ${ns}"/>
+			<arg line="-d ${jaxb2.temp.dir}"/>
+			<arg line="${test.case.dir}/xsd/${xsd.name}"/>
+		</java>
+
+	
 		<javac srcdir="${jaxb2.temp.dir}"
 			destdir="${jaxb2.temp.dir}"
 			debug="on"
@@ -828,6 +841,7 @@
 
 
 		<!-- define the xjc task here -->
+<!-- xjc does not work with ant 1.5
 		<taskdef name="xjc" classname="com.sun.tools.xjc.XJCTask">
 			<classpath>
 				<fileset dir="${jaxb2.dir}/lib" includes="*.jar"/>
@@ -835,6 +849,15 @@
 		</taskdef>
 
 		<xjc schema="${test.case.dir}/xsd/${xsd.name}" target="${parsers.temp.dir}" package="${ns}"/>
+-->
+		<java classname="com.sun.tools.xjc.Driver"
+					fork="true"
+					classpathref="parsers.classpath"
+					failonerror="true">
+			<arg line="-p ${ns}"/>
+			<arg line="-d ${parsers.temp.dir}"/>
+			<arg line="${test.case.dir}/xsd/${xsd.name}"/>
+		</java>
 
 		<javac srcdir="${parsers.temp.dir}"
 			destdir="${parsers.temp.dir}"
