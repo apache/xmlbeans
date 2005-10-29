@@ -59,12 +59,13 @@ public class JiraRegression151_200Test extends JiraTestBase
 
         // fails, IMHO should not!
         assertEquals(0, errors.size());
-
+        /* note: the following uses JDK 1.5 API, not supported in 1.4
         // workaround
         exponent.setDecimal(new BigDecimal(new BigDecimal("1E1").toPlainString()));
         errors.removeAll(errors);
         exponent.validate(validationOptions);
         assertEquals(0, errors.size());
+        */
     }
 
     /**
