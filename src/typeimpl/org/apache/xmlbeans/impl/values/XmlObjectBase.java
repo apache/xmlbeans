@@ -1467,6 +1467,12 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
     // various
     public String stringValue()
     {
+        if (isImmutable())
+        {
+            if ((_flags & FLAG_NIL) != 0)
+                return null;
+            return compute_text(null);
+        }
         // Since complex-content types don't have a "natural" string value, we
         // emit the deeply concatenated, tag-removed content of the tag.
         synchronized (monitor())
