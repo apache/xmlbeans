@@ -1461,7 +1461,7 @@ abstract class Saver
             {
                 assert i < _in;
                 int availableEndChunk = _buf.length - _in;
-                if ( dCch < availableEndChunk )
+                if ( dCch <= availableEndChunk )
                 {
                     System.arraycopy( _buf, i, _buf, i + dCch, _in - i );
                     _in += dCch;
