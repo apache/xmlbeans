@@ -286,9 +286,8 @@ public abstract class Query
                             //TODO: exact same code as Path.java
                             //make a common super-class and pull this--what to name that
                             //superclass???
-                            res = l.load("<xml-fragment>" +
-                                    node.toString() +
-                                    "</xml-fragment>").tempCur();
+                            res = l.load("<xml-fragment/>").tempCur();
+                            res.setValue(node.toString());
                             SchemaType type=getType(node);
                             Locale.autoTypeDocument(res, type, null);
                             result[i] = res.getObject();

@@ -510,9 +510,8 @@ public abstract class Path
 
                         Locale l = c._locale;
                         try {
-                            pos = l.load("<xml-fragment>" +
-                                    value +
-                                    "</xml-fragment>").tempCur();
+                            pos = l.load("<xml-fragment/>").tempCur();
+                            pos.setValue(value);     
                             SchemaType type = getType(node);
                             Locale.autoTypeDocument(pos, type, null);
                             //move the cur to the actual text
