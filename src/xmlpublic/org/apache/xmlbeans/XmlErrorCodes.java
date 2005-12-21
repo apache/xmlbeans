@@ -978,6 +978,12 @@ public abstract class XmlErrorCodes
     public static final String COMPLEX_TYPE_EXTENSION = "cos-ct-extends";
 
     /**
+     * cos-ct-extends.1.4.1: See clause 1.4.1 of
+     * <a href="http://www.w3c.org/TR/xmlschema-1/#cos-ct-extends">XMLSchema Structures 1.0: Derivation Valid (Extension)</a>
+     */
+    public static final String COMPLEX_TYPE_EXTENSION$EXTENDING_SIMPLE_CONTENT = "cos-ct-extends.1.4.1";
+
+    /**
      * cos-ct-extends.1.4.2.2: See clause 1.4.2.2 of
      * <a href="http://www.w3c.org/TR/xmlschema-1/#cos-ct-extends">XMLSchema Structures 1.0: Derivation Valid (Extension)</a>
      */
