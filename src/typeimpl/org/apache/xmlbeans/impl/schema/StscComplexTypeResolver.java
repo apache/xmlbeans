@@ -98,13 +98,13 @@ public class StscComplexTypeResolver
     static Schema getSchema(XmlObject o)
     {
         XmlCursor c = o.newCursor();
-        
+
         try
         {
             while ( c.toParent() )
             {
                 o = c.getObject();
-                
+
                 if (o.schemaType().equals(Schema.type))
                     return (Schema) o;
             }
@@ -113,7 +113,7 @@ public class StscComplexTypeResolver
         {
             c.dispose();
         }
-        
+
         return null;
     }
 
@@ -152,7 +152,7 @@ public class StscComplexTypeResolver
             {
                 if (((List)ds).contains("extension"))
                     finalExt = true;
-                
+
                 if (((List)ds).contains("restriction"))
                     finalRest = true;
 
@@ -161,7 +161,7 @@ public class StscComplexTypeResolver
 
 //                if (((List)ds).contains("list"))
 //                    finalList = true;
-//                
+//
 //                if (((List)ds).contains("union"))
 //                    finalUnion = true;
             }
@@ -217,17 +217,17 @@ public class StscComplexTypeResolver
             if (parseCc != null && parseSc != null)
                 parseSc = null;
         }
-        
+
         if (parseCc != null)
         {
             // KHK: s4s should catch this?
             if (parseCc.getExtension() != null && parseCc.getRestriction() != null)
                 state.error("Restriction conflicts with extension", XmlErrorCodes.REDUNDANT_CONTENT_MODEL, parseCc.getRestriction());
-            
+
             // Mixed can be specified in two places: the rules are that Cc wins over Ct if present
             // http://www.w3.org/TR/xmlschema-1/#c-mve
             boolean mixed = parseCc.isSetMixed() ? parseCc.getMixed() : parseCt.getMixed();
-            
+
             if (parseCc.getExtension() != null)
                 resolveCcExtension(sImpl, parseCc.getExtension(), mixed);
             else if (parseCc.getRestriction() != null)
@@ -305,7 +305,7 @@ public class StscComplexTypeResolver
 
         // detect the nonempty "all" case (empty <all> doesn't count - it needs to be eliminated to match XSD test cases)
         boolean isAll = contentModel != null && contentModel.getParticleType() == SchemaParticle.ALL;
-        
+
         // build attr model and anonymous types
         SchemaAttributeModelImpl attrModel = new SchemaAttributeModelImpl();
         translateAttributeModel(parseTree, targetNamespace, chameleon, sImpl.getAttFormDefault(),
@@ -373,7 +373,7 @@ public class StscComplexTypeResolver
                 {
                     state.error(XmlErrorCodes.SCHEMA_REDEFINE$SAME_TYPE,
                         new Object[] { "<complexType>",
-                                       QNameHelper.pretty(baseType.getName()), 
+                                       QNameHelper.pretty(baseType.getName()),
                                        QNameHelper.pretty(sImpl.getName())
                         },
                         parseTree);
@@ -383,7 +383,7 @@ public class StscComplexTypeResolver
             {
                 baseType = state.findGlobalType(parseTree.getBase(), sImpl.getChameleonNamespace(), targetNamespace);
             }
-            
+
             if (baseType == null)
                 state.notFoundError(parseTree.getBase(), SchemaType.TYPE, parseTree.xgetBase(), true);
         }
@@ -423,7 +423,7 @@ public class StscComplexTypeResolver
 
         // detect the nonempty "all" case (empty <all> doesn't count - it needs to be eliminated to match XSD test cases)
         boolean isAll = contentModel != null && contentModel.getParticleType() == SchemaParticle.ALL;
-        
+
         // build attr model and anonymous types
         SchemaAttributeModelImpl attrModel;
         if (baseType == null)
@@ -505,7 +505,7 @@ public class StscComplexTypeResolver
                 {
                     state.error(XmlErrorCodes.SCHEMA_REDEFINE$SAME_TYPE,
                         new Object[] { "<complexType>",
-                                       QNameHelper.pretty(baseType.getName()), 
+                                       QNameHelper.pretty(baseType.getName()),
                                        QNameHelper.pretty(sImpl.getName())
                         },
                         parseTree);
@@ -526,7 +526,7 @@ public class StscComplexTypeResolver
                 baseType = null; // circular dependency: no inheritance
         }
 
-        if (baseType != null && (baseType.isSimpleType() || baseType.getContentType() == SchemaType.SIMPLE_CONTENT))
+        if (baseType != null && baseType.isSimpleType())
         {
             state.recover(XmlErrorCodes.SCHEMA_COMPLEX_TYPE$COMPLEX_CONTENT,
                 new Object[] { QNameHelper.pretty(baseType.getName()) },
@@ -541,7 +541,7 @@ public class StscComplexTypeResolver
                 parseTree.xgetBase());
             // recovery: just keep going
         }
-        
+
         // get base content model
         SchemaParticle baseContentModel = (baseType == null ? null : baseType.getContentModel());
         // TODO: attribute model also
@@ -549,17 +549,30 @@ public class StscComplexTypeResolver
         List anonymousTypes = new ArrayList();
         Map baseElementModel = extractElementModel(baseType);
         Group parseEg = getContentModel(parseTree);
-        
+
+        if (baseType != null &&
+            (baseType.getContentType() == SchemaType.SIMPLE_CONTENT) &&
+             parseEg != null)
+        {
+            // if this type has complexContent, baseType is complexType
+            // but with non-empty simpleContent then this type cannot
+            // add extra elements
+            state.recover(XmlErrorCodes.COMPLEX_TYPE_EXTENSION$EXTENDING_SIMPLE_CONTENT,
+                new Object[] { QNameHelper.pretty(baseType.getName()) },
+                parseTree.xgetBase());
+            baseType = null; // recovery: no inheritance.
+        }
+
         // build extension model
         SchemaParticle extensionModel = translateContentModel(sImpl,
             parseEg, targetNamespace, chameleon,
             sImpl.getElemFormDefault(), sImpl.getAttFormDefault(),
             translateParticleCode(parseEg), anonymousTypes, baseElementModel, false, null);
-        
+
         // apply rule #2 near http://www.w3.org/TR/xmlschema-1/#c-mve: empty ext model -> mixed taken from base
         if (extensionModel == null && !mixed)
             mixed = (baseType != null && baseType.getContentType() == SchemaType.MIXED_CONTENT);
-        
+
         // apply Derivation Valid (Extension) rule 1.4.2.2
         if (baseType != null && (baseType.getContentType() != SchemaType.EMPTY_CONTENT) &&
                 ((baseType.getContentType() == SchemaType.MIXED_CONTENT) != mixed))
@@ -581,7 +594,7 @@ public class StscComplexTypeResolver
 
         // detect the nonempty "all" case (empty <all> doesn't count - it needs to be eliminated to match XSD test cases)
         boolean isAll = contentModel != null && contentModel.getParticleType() == SchemaParticle.ALL;
-        
+
         // build attr model and anonymous types
         SchemaAttributeModelImpl attrModel;
         if (baseType == null)
@@ -611,7 +624,15 @@ public class StscComplexTypeResolver
         Map attributePropertyModel = buildAttributePropertyModelByQName(attrModel, sImpl);
 
         // compute empty/element/mixed
-        int complexVariety =  ( mixed ? SchemaType.MIXED_CONTENT :
+        int complexVariety;
+        if (contentModel == null && baseType != null &&
+            baseType.getContentType() == SchemaType.SIMPLE_CONTENT)
+        {
+            complexVariety = SchemaType.SIMPLE_CONTENT;
+            sImpl.setContentBasedOnTypeRef(baseType.getContentBasedOnType().getRef());
+        }
+        else
+            complexVariety = ( mixed ? SchemaType.MIXED_CONTENT :
             (contentModel == null ? SchemaType.EMPTY_CONTENT : SchemaType.ELEMENT_CONTENT));
 
         // now fill in the actual schema type implementation
@@ -658,7 +679,7 @@ public class StscComplexTypeResolver
                 {
                     state.error(XmlErrorCodes.SCHEMA_REDEFINE$SAME_TYPE,
                         new Object[] { "<simpleType>",
-                                       QNameHelper.pretty(baseType.getName()), 
+                                       QNameHelper.pretty(baseType.getName()),
                                        QNameHelper.pretty(sImpl.getName())
                         },
                         parseTree);
@@ -772,7 +793,7 @@ public class StscComplexTypeResolver
                 {
                     state.error(XmlErrorCodes.SCHEMA_REDEFINE$SAME_TYPE,
                         new Object[] { "<simpleType>",
-                                       QNameHelper.pretty(baseType.getName()), 
+                                       QNameHelper.pretty(baseType.getName()),
                                        QNameHelper.pretty(sImpl.getName())
                         },
                         parseTree);
@@ -943,7 +964,7 @@ public class StscComplexTypeResolver
                     }
 
                     seenAttributes.add(sAttr.getName());
-                    
+
                     if (baseModel != null)
                     {
                         SchemaLocalAttribute baseAttr = baseModel.getAttribute(sAttr.getName());
@@ -981,14 +1002,14 @@ public class StscComplexTypeResolver
 
                     if (sAttr.getUse() != SchemaLocalAttribute.PROHIBITED)
                         result.addAttribute(sAttr);
-                        
+
                     if (sAttr.getDefaultText() != null && !sAttr.isFixed())
                     {
                         if (sAttr.getUse() != SchemaLocalAttribute.OPTIONAL)
                             state.error(XmlErrorCodes.SCHEMA_ATTR$DEFAULT_AND_USE_OPTIONAL,
                                 new Object[] { QNameHelper.pretty(sAttr.getName()) }, xsdattr);
                     }
-                        
+
 
                     break;
                 }
@@ -1009,7 +1030,7 @@ public class StscComplexTypeResolver
                     else
                         nsText = nsList.getStringValue();
                     QNameSet wcset = QNameSet.forWildcardNamespaceString(nsText, targetNamespace);
-                    
+
                     if (baseModel != null && !extension)
                     {
                         if (baseModel.getWildcardSet() == null)
@@ -1024,7 +1045,7 @@ public class StscComplexTypeResolver
                             continue; // ignore the restriction
                         }
                     }
-                    
+
                     int wcprocess = translateWildcardProcess(xsdwc.xgetProcessContents());
                     if (result.getWildcardProcess() == SchemaAttributeModel.NONE)
                     {
@@ -1120,16 +1141,16 @@ public class StscComplexTypeResolver
     static SchemaParticle extendContentModel(SchemaParticle baseContentModel, SchemaParticle extendedContentModel, XmlObject parseTree)
     {
         // http://www.w3.org/TR/xmlschema-1/#element-complexContent::extension
-        
-        // 2.1 If the ·explicit content· is empty, then the {content type} of the type definition ·resolved· to by the ·actual value· of the base [attribute] 
+
+        // 2.1 If the ·explicit content· is empty, then the {content type} of the type definition ·resolved· to by the ·actual value· of the base [attribute]
         if (extendedContentModel == null)
             return baseContentModel;
-        
+
         // 2.2 If the type definition ·resolved· to by the ·actual value· of the base [attribute] has a {content type} of empty, then a pair of mixed or elementOnly (determined as per clause 1.2.1 above) and the ·explicit content· itself;
         if (baseContentModel == null)
             return extendedContentModel;
-        
-        // 2.3 otherwise a pair of mixed or elementOnly (determined as per clause 1.2.1 above) and a particle whose properties are as follows:  
+
+        // 2.3 otherwise a pair of mixed or elementOnly (determined as per clause 1.2.1 above) and a particle whose properties are as follows:
         SchemaParticleImpl sPart = new SchemaParticleImpl();
         sPart.setParticleType(SchemaParticle.SEQUENCE);
 
@@ -1164,7 +1185,7 @@ public class StscComplexTypeResolver
         else
             return null;
     }
-    
+
     private static class RedefinitionForGroup
     {
         private SchemaModelGroupImpl group;
@@ -1266,7 +1287,7 @@ public class StscComplexTypeResolver
             // grab min/maxOccurs before dereferencign group ref
             minOccurs = extractMinOccurs(parseGroup.xgetMinOccurs());
             maxOccurs = extractMaxOccurs(parseGroup.xgetMaxOccurs());
-            
+
             if (particleCode == MODEL_GROUP_CODE)
             {
                 QName ref = parseGroup.getRef();
@@ -1276,7 +1297,7 @@ public class StscComplexTypeResolver
                     state.error("Group reference must have a ref attribute", XmlErrorCodes.GROUP_MISSING_REF, parseTree);
                     return null;
                 }
-                
+
                 if (redefinitionFor != null)
                 {
                     group = state.findRedefinedModelGroup(ref, chameleon ? targetNamespace : null, redefinitionFor.getGroup());
@@ -1306,7 +1327,7 @@ public class StscComplexTypeResolver
                         new Object[] { QNameHelper.pretty(group.getName()) }, group.getParseObject());
                     return null;
                 }
-                
+
                 // no go to the child.
                 XmlCursor cur = group.getParseObject().newCursor();
                 for (boolean more = cur.toFirstChild(); more; more = cur.toNextSibling())
@@ -1329,7 +1350,7 @@ public class StscComplexTypeResolver
                     // KHK: s4s
                     state.error("Model group " + QNameHelper.pretty(group.getName()) + " is not a sequence, all, or choice", XmlErrorCodes.EXPLICIT_GROUP_NEEDED, group.getParseObject());
                 }
-                
+
                 String newTargetNamespace = group.getTargetNamespace();
                 if (newTargetNamespace != null)
                     targetNamespace = newTargetNamespace;
@@ -1370,7 +1391,7 @@ public class StscComplexTypeResolver
 
         sPart.setMinOccurs(minOccurs);
         sPart.setMaxOccurs(maxOccurs);
-        
+
         if (group != null)
         {
             state.startProcessing(group);
