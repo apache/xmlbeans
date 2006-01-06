@@ -752,7 +752,9 @@ public class XmlOptions implements java.io.Serializable
     /** @exclude */
     public static final String SAVE_NO_XML_DECL                = "SAVE_NO_XML_DECL";
     /** @exclude */
-    public static final String SAVE_SUBSTITUTE_CHARACTERS     = "SAVE_SUBSTITUTE_CHARACTERS";
+    public static final String SAVE_SUBSTITUTE_CHARACTERS      = "SAVE_SUBSTITUTE_CHARACTERS";
+    /** @exclude */
+    public static final String SAVE_OPTIMIZE_FOR_SPEED         = "SAVE_OPTIMIZE_FOR_SPEED";
     /** @exclude */
     public static final String LOAD_REPLACE_DOCUMENT_ELEMENT   = "LOAD_REPLACE_DOCUMENT_ELEMENT";
     /** @exclude */

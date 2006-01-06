@@ -28,8 +28,6 @@ import org.apache.xmlbeans.xml.stream.XMLInputStream;
 import org.apache.xmlbeans.SchemaTypeLoader;
 import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.XmlCursor;
-import org.apache.xmlbeans.XmlCursor.TokenType;
-import org.apache.xmlbeans.XmlCursor.ChangeStamp;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
 import org.apache.xmlbeans.XmlDocumentProperties;
@@ -599,6 +597,12 @@ public final class Cursor implements XmlCursor, ChangeListener {
     public void _save(Writer w, XmlOptions options) throws IOException {
         if (w == null)
             throw new IllegalArgumentException("Null Writer specified");
+
+        if (options != null && options.hasOption( XmlOptions.SAVE_OPTIMIZE_FOR_SPEED ))
+        {
+            Saver.OptimizedForSpeedSaver.save(_cur, w); //ignore all other options
+            return;
+        }
 
         Reader r = _newReader(options);
 

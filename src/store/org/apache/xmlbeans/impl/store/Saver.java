@@ -907,7 +907,7 @@ abstract class Saver
 
             if (!c.hasChildren() && !c.hasText())
             {
-                emit( "/>" );
+                emit( '/', '>' );
                 return true;
             }
             else
@@ -919,7 +919,7 @@ abstract class Saver
 
         protected void emitFinish ( SaveCur c )
         {
-            emit( "</" );
+            emit( '<', '/' );
             emitName( c.getName(), false );
             emit( '>' );
         }
@@ -933,11 +933,11 @@ abstract class Saver
 
             if (prefix.length() > 0)
             {
-                emit( ":" );
+                emit( ':' );
                 emit( prefix );
             }
 
-            emit( "=\"" );
+            emit( '=', '\"' );
 
             // TODO - must encode uri properly
 
@@ -960,7 +960,7 @@ abstract class Saver
         {
             emit( ' ' );
             emitName( attrName, true );
-            emit( "=\"" );
+            emit( '=', '\"' );
             emit( attrValue );
             entitizeAttrValue();
             emit( '"' );
@@ -1023,15 +1023,15 @@ abstract class Saver
             // TODO: publicId production http://www.w3.org/TR/REC-xml/#NT-PubidLiteral
             if (literal.indexOf( "\"" ) < 0)
             {
-                emit( "\"" );
+                emit( '\"' );
                 emit( literal );
-                emit( "\"" );
+                emit( '\"' );
             }
             else
             {
-                emit( "'" );
+                emit( '\'' );
                 emit( literal );
-                emit( "'" );
+                emit( '\'' );
             }
         }
 
@@ -1092,7 +1092,7 @@ abstract class Saver
                 if (prefix.length() > 0)
                 {
                     emit( prefix );
-                    emit( ":" );
+                    emit( ':' );
                 }
             }
 
@@ -1107,6 +1107,18 @@ abstract class Saver
 
             _buf[ _in ] = ch;
 
+            _in = (_in + 1) % _buf.length;
+        }
+
+        private void emit ( char ch1, char ch2 )
+        {
+            if( preEmit( 2 ) )
+                return;
+
+            _buf[ _in ] = ch1;
+            _in = (_in + 1) % _buf.length;
+
+            _buf[ _in ] = ch2;
             _in = (_in + 1) % _buf.length;
         }
 
@@ -1686,6 +1698,468 @@ abstract class Saver
         private int    _in;
         private int    _out;
         private char[] _buf;
+    }
+
+    static final class OptimizedForSpeedSaver
+        extends Saver
+    {
+        Writer _w;
+        private char[] _buf = new char[1024];
+
+
+        static private class SaverIOException
+            extends RuntimeException
+        {
+            SaverIOException(IOException e)
+            {
+                super(e);
+            }
+        }
+
+
+        OptimizedForSpeedSaver(Cur cur, Writer writer)
+        {
+            super(cur, XmlOptions.maskNull(null));
+            _w = writer;
+        }
+
+        static void save(Cur cur, Writer writer)
+            throws IOException
+        {
+            try
+            {
+                Saver saver = new OptimizedForSpeedSaver(cur, writer);
+                while(saver.process())
+                {}
+            }
+            catch (SaverIOException e)
+            {
+                throw (IOException)e.getCause();
+            }
+        }
+
+        private void emit(String s)
+        {
+            try
+            {
+                _w.write(s);
+            }
+            catch (IOException e)
+            {
+                throw new SaverIOException(e);
+            }
+        }
+
+        private void emit(char c)
+        {
+            try
+            {
+                _w.append(c);
+            }
+            catch (IOException e)
+            {
+                throw new SaverIOException(e);
+            }
+        }
+
+        private void emit(char c1, char c2)
+        {
+            try
+            {
+                _w.append(c1);
+                _w.append(c2);
+            }
+            catch (IOException e)
+            {
+                throw new SaverIOException(e);
+            }
+        }
+
+        private void emit(char[] buf, int start, int len)
+        {
+            try
+            {
+                _w.write(buf, start, len);
+            }
+            catch (IOException e)
+            {
+                throw new SaverIOException(e);
+            }
+        }
+
+        protected boolean emitElement ( SaveCur c, ArrayList attrNames, ArrayList attrValues )
+        {
+            assert c.isElem();
+
+            emit( '<' );
+            emitName( c.getName(), false );
+
+            for ( int i = 0 ; i < attrNames.size() ; i++ )
+                emitAttrHelper( (QName) attrNames.get( i ), (String) attrValues.get( i ) );
+
+            if (!saveNamespacesFirst())
+                emitNamespacesHelper();
+
+            if (!c.hasChildren() && !c.hasText())
+            {
+                emit( '/', '>' );
+                return true;
+            }
+            else
+            {
+                emit( '>' );
+                return false;
+            }
+        }
+
+        protected void emitFinish ( SaveCur c )
+        {
+            emit( '<', '/' );
+            emitName( c.getName(), false );
+            emit( '>' );
+        }
+
+        protected void emitXmlns ( String prefix, String uri )
+        {
+            assert prefix != null;
+            assert uri != null;
+
+            emit( "xmlns" );
+
+            if (prefix.length() > 0)
+            {
+                emit( ':' );
+                emit( prefix );
+            }
+
+            emit( '=', '\"' );
+
+            // TODO - must encode uri properly
+            emitAttrValue(uri);
+
+            emit( '"' );
+        }
+
+        private void emitNamespacesHelper ( )
+        {
+            for ( iterateMappings() ; hasMapping() ; nextMapping() )
+            {
+                emit( ' ' );
+                emitXmlns( mappingPrefix(), mappingUri() );
+            }
+        }
+
+        private void emitAttrHelper ( QName attrName, String attrValue )
+        {
+            emit( ' ' );
+            emitName( attrName, true );
+            emit( '=', '\"' );
+            emitAttrValue(attrValue);
+
+            emit( '"' );
+        }
+
+        protected void emitComment ( SaveCur c )
+        {
+            assert c.isComment();
+
+            emit( "<!--" );
+
+            c.push();
+            c.next();
+
+            emitCommentText( c );
+
+            c.pop();
+
+            emit( "-->" );
+        }
+
+        protected void emitProcinst ( SaveCur c )
+        {
+            assert c.isProcinst();
+
+            emit( "<?" );
+
+            // TODO - encoding issues here?
+            emit( c.getName().getLocalPart() );
+
+            c.push();
+
+            c.next();
+
+            if (c.isText())
+            {
+                emit( ' ' );
+                emitPiText( c );
+            }
+
+            c.pop();
+
+            emit( "?>" );
+        }
+
+        protected void emitDocType ( String docTypeName, String publicId, String systemId )
+        {
+            assert docTypeName != null;
+
+            emit( "<!DOCTYPE " );
+            emit( docTypeName );
+
+            if (publicId == null && systemId != null)
+            {
+                emit( " SYSTEM " );
+                emitLiteral( systemId );
+            }
+            else if (publicId != null)
+            {
+                emit( " PUBLIC " );
+                emitLiteral( publicId );
+                emit(' ');
+                emitLiteral( systemId );
+            }
+
+            emit( '>' );
+            emit( _newLine );
+        }
+
+        //
+        //
+        //
+
+        private void emitName ( QName name, boolean needsPrefix )
+        {
+            assert name != null;
+
+            String uri = name.getNamespaceURI();
+
+            assert uri != null;
+
+            if (uri.length() != 0)
+            {
+                String prefix = name.getPrefix();
+                String mappedUri = getNamespaceForPrefix( prefix );
+
+                if (mappedUri == null || !mappedUri.equals( uri ))
+                    prefix = getUriMapping( uri );
+
+                // Attrs need a prefix.  If I have not found one, then there must be a default
+                // prefix obscuring the prefix needed for this attr.  Find it manually.
+
+                // NOTE - Consider keeping the currently mapped default URI separate fromn the
+                // _urpMap and _prefixMap.  This way, I would not have to look it up manually
+                // here
+
+                if (needsPrefix && prefix.length() == 0)
+                    prefix = getNonDefaultUriMapping( uri );
+
+                if (prefix.length() > 0)
+                {
+                    emit( prefix );
+                    emit( ':' );
+                }
+            }
+
+            assert name.getLocalPart().length() > 0;
+
+            emit( name.getLocalPart() );
+        }
+
+        private void emitAttrValue ( CharSequence attVal)
+        {
+            int len = attVal.length();
+
+            for ( int i = 0; i<len ; i++ )
+            {
+                char ch = attVal.charAt(i);
+
+                if (ch == '<')
+                    emit( "&lt;" );
+                else if (ch == '&')
+                    emit( "&amp;" );
+                else if (ch == '"')
+                    emit( "&quot;" );
+                else
+                    emit(ch);
+            }
+        }
+
+        /**
+         * Test if a character is valid in xml character content. See
+         * http://www.w3.org/TR/REC-xml#NT-Char
+         */
+        private boolean isBadChar ( char ch )
+        {
+            return ! (
+                (ch >= 0x20 && ch <= 0xD7FF ) ||
+                (ch >= 0xE000 && ch <= 0xFFFD) ||
+                (ch >= 0x10000 && ch <= 0x10FFFF) ||
+                (ch == 0x9) || (ch == 0xA) || (ch == 0xD)
+                );
+        }
+
+        private void emitLiteral ( String literal )
+        {
+            // TODO: systemId production http://www.w3.org/TR/REC-xml/#NT-SystemLiteral
+            // TODO: publicId production http://www.w3.org/TR/REC-xml/#NT-PubidLiteral
+            if (literal.indexOf( "\"" ) < 0)
+            {
+                emit( '\"' );
+                emit( literal );
+                emit( '\"' );
+            }
+            else
+            {
+                emit( '\'' );
+                emit( literal );
+                emit( '\'' );
+            }
+        }
+
+        protected void emitText ( SaveCur c )
+        {
+            assert c.isText();
+
+            Object src = c.getChars();
+            int cch = c._cchSrc;
+            int off = c._offSrc;
+            int index = 0;
+            int indexLimit = 0;
+            while( index<cch )
+            {
+                indexLimit = index + 512 > cch ? cch : 512;
+                CharUtil.getChars( _buf, 0, src, off+index, indexLimit );
+                entitizeAndWriteText(indexLimit-index);
+                index = indexLimit;
+            }
+        }
+
+        protected void emitPiText ( SaveCur c )
+        {
+            assert c.isText();
+
+            Object src = c.getChars();
+            int cch = c._cchSrc;
+            int off = c._offSrc;
+            int index = 0;
+            int indexLimit = 0;
+            while( index<cch )
+            {
+                indexLimit = index + 512 > cch ? cch : 512;
+                CharUtil.getChars( _buf, 0, src, off+index, indexLimit );
+                entitizeAndWritePIText(indexLimit-index);
+                index = indexLimit;
+            }
+        }
+
+        protected void emitCommentText ( SaveCur c )
+        {
+            assert c.isText();
+
+            Object src = c.getChars();
+            int cch = c._cchSrc;
+            int off = c._offSrc;
+            int index = 0;
+            int indexLimit = 0;
+            while( index<cch )
+            {
+                indexLimit = index + 512 > cch ? cch : 512;
+                CharUtil.getChars( _buf, 0, src, off+index, indexLimit );
+                entitizeAndWriteCommentText(indexLimit-index);
+                index = indexLimit;
+            }
+        }
+
+        private void entitizeAndWriteText(int bufLimit)
+        {
+            int index = 0;
+            for (int i = 0; i < bufLimit; i++)
+            {
+                char c = _buf[i];
+                switch(c)
+                {
+                case '<':
+                    emit(_buf, index, i-index);
+                    emit("&lt;");
+                    index = i+1;
+                    break;
+                case '&':
+                    emit(_buf, index, i-index);
+                    emit("&amp;");
+                    index = i+1;
+                    break;
+                }
+            }
+            emit(_buf, index, bufLimit-index);
+        }
+
+        private void entitizeAndWriteCommentText ( int bufLimit )
+        {
+            boolean lastWasDash = false;
+
+            for ( int i=0 ; i<bufLimit ; i++ )
+            {
+                char ch = _buf[ i ];
+
+                if (isBadChar( ch ))
+                    _buf[i] = '?';
+                else if (ch == '-')
+                {
+                    if (lastWasDash)
+                    {
+                        // Replace "--" with "- " to make well formed
+                        _buf[i] = ' ';
+                        lastWasDash = false;
+                    }
+                    else
+                    {
+                        lastWasDash = true;
+                    }
+                }
+                else
+                {
+                    lastWasDash = false;
+                }
+
+                if (i == _buf.length)
+                    i = 0;
+            }
+
+            if (_buf[ bufLimit-1 ] == '-')
+                _buf[ bufLimit-1 ] = ' ';
+
+            emit(_buf, 0, bufLimit);
+        }
+
+        private void entitizeAndWritePIText(int bufLimit)
+        {
+            boolean lastWasQuestion = false;
+
+            for ( int i=0 ; i<bufLimit ; i++ )
+            {
+                char ch = _buf[ i ];
+
+                if (isBadChar( ch ))
+                {
+                    _buf[i] = '?';
+                    ch = '?';
+                }
+
+                if (ch == '>')
+                {
+                    // Had to convert to a space here ... imples not well formed XML
+                    if (lastWasQuestion)
+                        _buf[i] = ' ';
+
+                    lastWasQuestion = false;
+                }
+                else
+                {
+                    lastWasQuestion = ch == '?';
+                }
+            }
+            emit(_buf, 0, bufLimit);
+        }
     }
 
     static final class TextReader extends Reader
