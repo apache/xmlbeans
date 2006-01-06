@@ -2698,7 +2698,8 @@ abstract class Xobj implements TypeStore
 
         boolean _canHavePrefixUri;
     }
-       static class ElementXobj extends NamedNodeXobj implements Element
+    
+    static class ElementXobj extends NamedNodeXobj implements Element
     {
         ElementXobj ( Locale l, QName name )
         {
