@@ -1754,7 +1754,8 @@ abstract class Saver
         {
             try
             {
-                _w.append(c);
+                _buf[0] = c;
+                _w.write(_buf, 0, 1);
             }
             catch (IOException e)
             {
@@ -1766,8 +1767,9 @@ abstract class Saver
         {
             try
             {
-                _w.append(c1);
-                _w.append(c2);
+                _buf[0] = c1;
+                _buf[1] = c2;
+                _w.write(_buf, 0 , 2);
             }
             catch (IOException e)
             {
