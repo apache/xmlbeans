@@ -1001,7 +1001,22 @@ public class StscComplexTypeResolver
                     }
 
                     if (sAttr.getUse() != SchemaLocalAttribute.PROHIBITED)
+                    {
                         result.addAttribute(sAttr);
+                    }
+                    else
+                    {
+                        // attribute is prohibited. If it has an anonymous type remove
+                        // it from the list (this will prevent inclusion of any anonymous
+                        // types defined within the prohibited attribute which would
+                        // otherwise attempt to refer to the prohibited attribute at
+                        // save() time)
+                        SchemaType attrType = sAttr.getType();
+                        if (anonymousTypes != null && anonymousTypes.contains(attrType))
+                        {
+                            anonymousTypes.remove(attrType);
+                        }
+                    }
 
                     if (sAttr.getDefaultText() != null && !sAttr.isFixed())
                     {
