@@ -146,8 +146,11 @@ public class BindingConfigImpl extends BindingConfig
                 {
 
                     InterfaceExtensionImpl.MethodSignatureImpl ms2 = (InterfaceExtensionImpl.MethodSignatureImpl) methodSignatures.get(methods[j]);
-                    BindingConfigImpl.error("Colliding methods '" + ms.getSignature() + "' in interfaces " +
+                    if (!ms.getReturnType().equals(ms2.getReturnType()))
+                    {
+                        BindingConfigImpl.error("Colliding methods '" + ms.getSignature() + "' in interfaces " +
                         ms.getInterfaceName() + " and " + ms2.getInterfaceName() + ".", null);
+                    }
 
                     return;
                 }
