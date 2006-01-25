@@ -91,48 +91,38 @@ public class StscSimpleTypeResolver
         boolean finalList = false;
         boolean finalUnion = false;
 
-        String value = null;
-        List sValue = null;
+        Object finalValue = null;
         if (parseSt.isSetFinal())
         {
-            value = parseSt.getFinal();
+            finalValue = parseSt.getFinal();
         }
-        // Inspect the final default attribute on the schema
+        // Inspect the finalDefault attribute on the schema
         else if (schema != null && schema.isSetFinalDefault())
         {
-            Object fd = schema.getFinalDefault();
-            if (fd != null)
+            finalValue = schema.getFinalDefault();
+        }
+
+        if (finalValue != null)
+        {
+            if (finalValue instanceof String)
             {
-                if (fd instanceof String)
-                    value = (String) fd;
-                else if (fd instanceof List)
-                    sValue = (List) fd;
+                if ("#all".equals((String)finalValue))
+                {
+                    finalRest = finalList = finalUnion = true;
+                }
             }
-        }
+            else if (finalValue instanceof List)
+            {
+                List lFinalValue = (List) finalValue;
+                if (lFinalValue.contains("restriction"))
+                    finalRest = true;
 
-        if (value != null)
-        {
-            if (value.equals("#all"))
-                finalRest = finalList = finalUnion = true;
-            else if (value.equals("restriction"))
-                finalRest = true;
-            else if (value.equals("list"))
-                finalList = true;
-            else if (value.equals("union"))
-                finalUnion = true;
-        }
-        else if (sValue != null)
-        {
-            // In case of simple types we ignore the "extension" value
+                if (lFinalValue.contains("list"))
+                    finalList = true;
 
-            if (sValue.contains("restriction"))
-                finalRest = true;
-
-            if (sValue.contains("list"))
-                finalList = true;
-
-            if (sValue.contains("union"))
-                finalUnion= true;
+                if (lFinalValue.contains("union"))
+                    finalUnion= true;
+            }
         }
 
         sImpl.setSimpleFinal(finalRest, finalList, finalUnion);
