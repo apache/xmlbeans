@@ -1,13 +1,9 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <!-- XML Schema schema for XML Schemas: Part 1: Structures -->
 <!-- Note this schema is NOT the normative structures schema. -->
-
 <!-- The prose copy in the structures REC is the normative -->
-
 <!-- version (which shouldn't differ from this one except for -->
-
 <!-- this comment and entity expansions, but just in case -->
-
 <!DOCTYPE xs:schema PUBLIC "-//W3C//DTD XMLSCHEMA 200102//EN" "XMLSchema.dtd" [
 
 <!-- provide ID type information even for parsers which only read the
@@ -72,29 +68,24 @@
 <xs:schema targetNamespace="http://www.w3.org/2001/XMLSchema" blockDefault="#all" elementFormDefault="qualified" version="1.0" xmlns:xs="http://www.w3.org/2001/XMLSchema" xml:lang="EN" xmlns:hfp="http://www.w3.org/2001/XMLSchema-hasFacetAndProperty">
  <xs:annotation>
   <xs:documentation>
-    Part 1 version: Id: XMLSchema.xsd,v 1.53 2003/02/24 17:40:07 ht Exp 
-    Part 2 version: Id: datatypes.xsd,v 1.60 2003/04/05 11:02:30 ht Exp 
+    Part 1 version: Id: structures.xsd,v 1.2 2004/01/15 11:34:25 ht Exp 
+    Part 2 version: Id: datatypes.xsd,v 1.3 2004/01/23 18:11:13 ht Exp 
   </xs:documentation>
   <xs:documentation>
     Apache XMLBean changes:
 
-    2003/05/14: The regular expressions that describe integrity constraint
-    xpaths has been modified to permit whitespaces in certain places, as
-    discussed in one of the errata.
-
-    2003/05/28: the type of the &lt;element> element in an &lt;all> group has
-    been given a name so that it is legal to use the type in both a base type
-    and a restriction when using the allModel (otherwise it breaks one of the
-    particle-valid (restriction) rules).
-
-    2003/09/15: finalDefault has been changed to permit "list" and "union"
+    2006/01/25: Updated to be consistent with the schema at 
+    http://www.w3.org/2001/XMLSchema.xsd as of this date with the exception that
+    the modifications in the previous version of this file to the regular 
+    expressions that describe the integrity constraint xpaths (which permit
+    whitespaces in certain places which would not otherwise be allowed)
+    have been retained in this copy as in the previous version of this file.
 
   </xs:documentation>
  </xs:annotation>
 
-
  <xs:annotation>
-   <xs:documentation source="http://www.w3.org/XML/Group/2002/09/xmlschema-1/structures-with-errata.html">
+   <xs:documentation source="http://www.w3.org/TR/2004/PER-xmlschema-1-20040318/structures.html">
    The schema corresponding to this document is normative,
    with respect to the syntactic constraints it expresses in the
    XML Schema language.  The documentation (within &lt;documentation> elements)
@@ -189,38 +180,6 @@
   </xs:restriction>
  </xs:simpleType>
 
- <xs:simpleType name="defaultDerivationControl">
-  <xs:annotation>
-   <xs:documentation>
-   A utility type, not for public use</xs:documentation>
-  </xs:annotation>
-  <xs:restriction base="xs:derivationControl">
-   <xs:enumeration value="extension"/>
-   <xs:enumeration value="restriction"/>
-   <xs:enumeration value="list"/>
-   <xs:enumeration value="union"/>
-  </xs:restriction>
- </xs:simpleType>
-
- <xs:simpleType name="defaultDerivationSet">
-  <xs:annotation>
-   <xs:documentation>
-   A utility type, not for public use</xs:documentation>
-   <xs:documentation>
-   #all or (possibly empty) subset of {extension, restriction, list, union}</xs:documentation>
-  </xs:annotation>
-  <xs:union>
-   <xs:simpleType>    
-    <xs:restriction base="xs:token">
-     <xs:enumeration value="#all"/>
-    </xs:restriction>
-   </xs:simpleType>
-   <xs:simpleType>
-    <xs:list itemType="xs:defaultDerivationControl"/>
-   </xs:simpleType>
-  </xs:union>
- </xs:simpleType>
-
  <xs:simpleType name="reducedDerivationControl">
   <xs:annotation>
    <xs:documentation>
@@ -251,6 +210,38 @@
   </xs:union>
  </xs:simpleType>
 
+ <xs:simpleType name="typeDerivationControl">
+  <xs:annotation>
+   <xs:documentation>
+   A utility type, not for public use</xs:documentation>
+  </xs:annotation>
+  <xs:restriction base="xs:derivationControl">
+   <xs:enumeration value="extension"/>
+   <xs:enumeration value="restriction"/>
+   <xs:enumeration value="list"/>
+   <xs:enumeration value="union"/>
+  </xs:restriction>
+ </xs:simpleType>
+
+  <xs:simpleType name="fullDerivationSet">
+  <xs:annotation>
+   <xs:documentation>
+   A utility type, not for public use</xs:documentation>
+   <xs:documentation>
+   #all or (possibly empty) subset of {extension, restriction, list, union}</xs:documentation>
+  </xs:annotation>
+  <xs:union>
+   <xs:simpleType>    
+    <xs:restriction base="xs:token">
+     <xs:enumeration value="#all"/>
+    </xs:restriction>
+   </xs:simpleType>
+   <xs:simpleType>
+    <xs:list itemType="xs:typeDerivationControl"/>
+   </xs:simpleType>
+  </xs:union>
+ </xs:simpleType>
+
  <xs:element name="schema" id="schema">
   <xs:annotation>
     <xs:documentation source="http://www.w3.org/TR/xmlschema-1/#element-schema"/>
@@ -271,8 +262,8 @@
       </xs:sequence>
      </xs:sequence>
      <xs:attribute name="targetNamespace" type="xs:anyURI"/>
-     <xs:attribute name="version" type="xs:normalizedString"/>
-     <xs:attribute name="finalDefault" type="xs:defaultDerivationSet" use="optional" default=""/>
+     <xs:attribute name="version" type="xs:token"/>
+     <xs:attribute name="finalDefault" type="xs:fullDerivationSet" use="optional" default=""/>
      <xs:attribute name="blockDefault" type="xs:blockSet" use="optional" default=""/>
      <xs:attribute name="attributeFormDefault" type="xs:formChoice" use="optional" default="unqualified"/>
      <xs:attribute name="elementFormDefault" type="xs:formChoice" use="optional" default="unqualified"/>
@@ -860,45 +851,46 @@
                           avoid a pblm with the Elt:All/Choice/Seq
                           Particle derivation constraint</xs:documentation>
        </xs:annotation>
-       <xs:element name="element" type="xs:elementInAll"/>
+       <xs:element name="element" type="xs:narrowMaxMin"/>
       </xs:choice>
      </xs:sequence>
  </xs:group>
-
-  <xs:complexType name="elementInAll">
-   <xs:annotation>
-    <xs:documentation>restricted max/min</xs:documentation>
-   </xs:annotation>
-   <xs:complexContent>
-    <xs:restriction base="xs:localElement">
-     <xs:sequence>
-      <xs:element ref="xs:annotation" minOccurs="0"/>
-      <xs:choice minOccurs="0">
-       <xs:element name="simpleType" type="xs:localSimpleType"/>
-       <xs:element name="complexType" type="xs:localComplexType"/>
-      </xs:choice>
-      <xs:group ref="xs:identityConstraint" minOccurs="0" maxOccurs="unbounded"/>
-     </xs:sequence>
-     <xs:attribute name="minOccurs" use="optional" default="1">
-      <xs:simpleType>
-       <xs:restriction base="xs:nonNegativeInteger">
-        <xs:enumeration value="0"/>
-        <xs:enumeration value="1"/>
-       </xs:restriction>
-      </xs:simpleType>
-     </xs:attribute>
-     <xs:attribute name="maxOccurs" use="optional" default="1">
-      <xs:simpleType>
-       <xs:restriction base="xs:allNNI">
-        <xs:enumeration value="0"/>
-        <xs:enumeration value="1"/>
-       </xs:restriction>
-      </xs:simpleType>
-     </xs:attribute>
-     <xs:anyAttribute namespace="##other" processContents="lax"/>
-    </xs:restriction>
-   </xs:complexContent>
-  </xs:complexType>    
+ 
+ 
+ <xs:complexType name="narrowMaxMin">
+  <xs:annotation>
+   <xs:documentation>restricted max/min</xs:documentation>
+  </xs:annotation>
+  <xs:complexContent>
+   <xs:restriction base="xs:localElement">
+    <xs:sequence>
+     <xs:element ref="xs:annotation" minOccurs="0"/>
+     <xs:choice minOccurs="0">
+      <xs:element name="simpleType" type="xs:localSimpleType"/>
+      <xs:element name="complexType" type="xs:localComplexType"/>
+     </xs:choice>
+     <xs:group ref="xs:identityConstraint" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+    <xs:attribute name="minOccurs" use="optional" default="1">
+     <xs:simpleType>
+      <xs:restriction base="xs:nonNegativeInteger">
+       <xs:enumeration value="0"/>
+       <xs:enumeration value="1"/>
+      </xs:restriction>
+     </xs:simpleType>
+    </xs:attribute>
+    <xs:attribute name="maxOccurs" use="optional" default="1">
+     <xs:simpleType>
+      <xs:restriction base="xs:allNNI">
+       <xs:enumeration value="0"/>
+       <xs:enumeration value="1"/>
+      </xs:restriction>
+     </xs:simpleType>
+    </xs:attribute>
+    <xs:anyAttribute namespace="##other" processContents="lax"/>
+   </xs:restriction>
+  </xs:complexContent>
+ </xs:complexType>
 
   <xs:complexType name="all">
    <xs:annotation>
@@ -1883,7 +1875,7 @@ use</xs:documentation>
                 id="language.pattern">
         <xs:annotation>
           <xs:documentation
-                source="http://www.w3.org/TR/REC-xml#NT-LanguageID">
+                source="http://www.ietf.org/rfc/rfc3066.txt">
             pattern specifies the content of section 2.12 of XML 1.0e2
             and RFC 3066 (Revised version of RFC 1766).
           </xs:documentation>
@@ -1900,6 +1892,7 @@ use</xs:documentation>
         <hfp:hasFacet name="maxLength"/>
         <hfp:hasFacet name="enumeration"/>
         <hfp:hasFacet name="whiteSpace"/>
+        <hfp:hasFacet name="pattern"/>
         <hfp:hasProperty name="ordered" value="false"/>
         <hfp:hasProperty name="bounded" value="false"/>
         <hfp:hasProperty name="cardinality"
@@ -1925,6 +1918,7 @@ use</xs:documentation>
         <hfp:hasFacet name="maxLength"/>
         <hfp:hasFacet name="enumeration"/>
         <hfp:hasFacet name="whiteSpace"/>
+        <hfp:hasFacet name="pattern"/>
         <hfp:hasProperty name="ordered" value="false"/>
         <hfp:hasProperty name="bounded" value="false"/>
         <hfp:hasProperty name="cardinality"
@@ -1967,6 +1961,7 @@ use</xs:documentation>
         <hfp:hasFacet name="maxLength"/>
         <hfp:hasFacet name="enumeration"/>
         <hfp:hasFacet name="whiteSpace"/>
+        <hfp:hasFacet name="pattern"/>
         <hfp:hasProperty name="ordered" value="false"/>
         <hfp:hasProperty name="bounded" value="false"/>
         <hfp:hasProperty name="cardinality"
@@ -2225,11 +2220,15 @@ use</xs:documentation>
     </xs:restriction>
    </xs:simpleType>
    <xs:simpleType>
-    <xs:restriction base="xs:derivationControl">
-     <xs:enumeration value="list"/>
-     <xs:enumeration value="union"/>
-     <xs:enumeration value="restriction"/>
-    </xs:restriction>
+    <xs:list>
+     <xs:simpleType>
+      <xs:restriction base="xs:derivationControl">
+       <xs:enumeration value="list"/>
+       <xs:enumeration value="union"/>
+       <xs:enumeration value="restriction"/>
+      </xs:restriction>
+     </xs:simpleType>
+    </xs:list>
    </xs:simpleType>
   </xs:union>
  </xs:simpleType>
