@@ -125,9 +125,11 @@ public class JavaQNameHolder extends XmlObjectBase
             localname = v.substring(start, end);
         }
 
-        for (int i=start+1; i<end; i++)
-            if (XMLChar.isSpace(v.charAt(i)))
-                throw new XmlValueOutOfRangeException(XmlErrorCodes.QNAME, new Object[] { "XML space found in '" + v + "'" });
+        if ( prefix.length()>0 && !XMLChar.isValidNCName(prefix) )
+            throw new XmlValueOutOfRangeException(XmlErrorCodes.QNAME, new Object[] { "Prefix not a valid NCName in '" + v + "'" });
+
+        if ( !XMLChar.isValidNCName(localname) )
+            throw new XmlValueOutOfRangeException(XmlErrorCodes.QNAME, new Object[] { "Localname not a valid NCName in '" + v + "'" });
 
         String uri =
             resolver == null ? null : resolver.getNamespaceForPrefix(prefix);
