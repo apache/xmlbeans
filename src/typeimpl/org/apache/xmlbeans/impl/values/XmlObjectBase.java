@@ -635,6 +635,10 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
             {
                 _flags &= ~FLAGS_DATED;
                 get_store().invalidate_nil();
+                // THT When we set a value to nil, we should blank out the text that is
+                // in the node so that when the node is printed out, it doesn't reflect
+                // the old text.
+                get_store().store_text("");
             }
             else
             {

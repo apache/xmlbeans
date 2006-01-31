@@ -2321,7 +2321,10 @@ public abstract class Splay extends Goobers
         if (getXsiNil( r ) == nil)
             return;
 
-        setAttr( r, _xsiNil, "true" );
+        // THT - this used to be: setAttr( r, _xsiNil, "true" );
+        // once set to true, this could never be set to false, even if you were un-nilling
+        // a value.
+        setAttr( r, _xsiNil, Boolean.toString(nil) );
     }
 
     boolean getXsiNil ( Root r )
