@@ -2362,7 +2362,15 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
             emitImplementationPreamble();
             emitDeclareTarget(true, xtype);
             emitPre(sType, PrePostExtension.OPERATION_INSERT, identifier, isAttr, "i");
-            emit("target = (" + xtype + ")get_store().insert_element_user(" + identifier + ", i);");
+            if (!isSubstGroup)
+            {
+                emit("target = (" + xtype + ")get_store().insert_element_user(" + identifier + ", i);");
+            }
+            else // This is a subst group case
+            {
+                emit("target = (" + xtype + ")get_store().insert_element_user(" +
+                        setIdentifier + ", " + identifier + ", i);");
+            }
             emitPost(sType, PrePostExtension.OPERATION_INSERT, identifier, isAttr, "i");
             emit("return target;");
             emitImplementationPostamble();
