@@ -21,12 +21,11 @@ import org.w3c.dom.Node;
 import java.util.List;
 import java.util.Map;
 
-import net.sf.saxon.query.*;
-import net.sf.saxon.Configuration;
-import net.sf.saxon.om.NodeInfo;
-import net.sf.saxon.xpath.XPathException;
-import net.sf.saxon.xpath.XPathEvaluator;
-import net.sf.saxon.xpath.StandaloneContext;
+import javax.xml.transform.TransformerException;
+
+import net.sf.saxon.sxpath.XPathEvaluator;
+import net.sf.saxon.sxpath.XPathExpression;
+import net.sf.saxon.trans.Variable;
 
 import javax.xml.transform.dom.DOMSource;
 
@@ -75,12 +74,9 @@ public class XBeansXPath
     {
         try
         {
-            DOMSource rootNode =new DOMSource((Node) node);
+            DOMSource rootNode = new DOMSource((Node) node);
             XPathEvaluator xpe = new XPathEvaluator();
-            NodeInfo _theNode = xpe.setSource(rootNode);
-            XBeansStandaloneContext sc = new XBeansStandaloneContext();
-            sc.declareVariable("this",_theNode);
-            xpe.setStaticContext(sc);
+            XBeansIndependentContext sc = new XBeansIndependentContext();
 
             // Declare ns bindings
             if (defaultNS != null)
@@ -92,9 +88,16 @@ public class XBeansXPath
                 sc.declareNamespace((String) entry.getKey(),
                         (String) entry.getValue());
             }
-              return xpe.evaluate(_queryExp);
+
+            xpe.setStaticContext(sc);
+
+            Variable thisVar = sc.declareVariable("this");
+            thisVar.setValue(rootNode);
+
+            XPathExpression exp = xpe.createExpression(_queryExp);
+            return exp.evaluate(rootNode);
         }
-        catch (XPathException e)
+        catch (TransformerException e)
         {
             throw new RuntimeException(e);
         }
@@ -105,7 +108,7 @@ public class XBeansXPath
         return selectNodes(node);
     }
 
-   private Object[] namespaceMap;
+    private Object[] namespaceMap;
     private String _queryExp;
-   private String defaultNS;
+    private String defaultNS;
 }

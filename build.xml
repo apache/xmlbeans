@@ -53,10 +53,13 @@
     <target name="clean.jars" description="Delete any downloaded jars and accompanying licenses">
         <delete>
             <fileset dir="external/lib">
+                <include name="saxonb8-6-1.zip"/>
                 <include name="saxonb8-2.zip"/>
+                <include name="saxonb8-1.zip"/>
                 <include name="jsr173_1.0_api_bundle.jar"/>
                 <include name="jsr173_1.0_api.jar"/>
                 <include name="saxon8.jar"/>
+                <include name="saxon8-dom.jar"/>
                 <include name="xcresolver.zip"/>
                 <!-- the entries below are to delete the previous versions of the jsr173 jars -->
                 <include name="jsr173.jar"/>
@@ -100,15 +103,21 @@
 	<!-- other saxon urls
 		http://voxel.dl.sourceforge.net/sourceforge/saxon/saxonb8-1.zip
 	-->
-        <get dest="external/lib/saxonb8-1.zip"
-	    src="http://easynews.dl.sourceforge.net/sourceforge/saxon/saxonb8-1.zip"
+        <get dest="external/lib/saxonb8-6-1.zip"
+	    src="http://easynews.dl.sourceforge.net/sourceforge/saxon/saxonb8-6-1.zip"
             verbose="true" usetimestamp="true" ignoreerrors="true"/>
-        <unzip src="external/lib/saxonb8-1.zip" dest="external/lib/">
+        <unzip src="external/lib/saxonb8-6-1.zip" dest="external/lib/">
             <patternset>
                 <include name="saxon8.jar"/>
+                <include name="saxon8-dom.jar"/>
             </patternset>
         </unzip>
+        
         <copy file="external/lib/saxon8.jar" tofile="build/lib/saxon8.jar"/>
+        
+        <!-- saxon8-dom.jar is used to register DOMObjectModel for use in 
+             xpath/xquery checkintest  -->
+        <copy file="external/lib/saxon8-dom.jar" tofile="build/lib/saxon8-dom.jar"/>
     </target>
 
     <target name="jsr173-bundle.downloaded">
