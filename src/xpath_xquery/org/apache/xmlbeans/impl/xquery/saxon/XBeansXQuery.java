@@ -19,13 +19,12 @@ import net.sf.saxon.Configuration;
 import net.sf.saxon.query.DynamicQueryContext;
 import net.sf.saxon.query.StaticQueryContext;
 import net.sf.saxon.query.XQueryExpression;
-import net.sf.saxon.xpath.StaticError;
-import net.sf.saxon.xpath.XPathException;
 import org.apache.xmlbeans.XmlRuntimeException;
 import org.apache.xmlbeans.impl.store.SaxonXBeansDelegate;
 import org.w3c.dom.Node;
 
 import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.TransformerException;
 import java.util.List;
 
 
@@ -58,7 +57,7 @@ public class XBeansXQuery
         try {
             this._xquery = _stcContext.compileQuery(queryExp);
         }
-        catch (XPathException e) {
+        catch (TransformerException e) {
             throw new XmlRuntimeException(e);
         }
     }
@@ -75,11 +74,8 @@ public class XBeansXQuery
                     dynamicContext.getContextNode());
             return _xquery.evaluate(dynamicContext);
         }
-        catch (StaticError e) {
-            throw new RuntimeException(" Error binding " + _contextVar);
-        }
-        catch (XPathException e) {
-            throw new RuntimeException(e);
+        catch (TransformerException e) {
+            throw new RuntimeException(" Error binding " + _contextVar, e);
         }
     }
 

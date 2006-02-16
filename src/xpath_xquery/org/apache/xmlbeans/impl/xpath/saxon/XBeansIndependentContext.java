@@ -15,10 +15,9 @@
 
 package org.apache.xmlbeans.impl.xpath.saxon;
 
-import net.sf.saxon.xpath.StandaloneContext;
+import net.sf.saxon.trans.IndependentContext;
 import net.sf.saxon.Configuration;
 import net.sf.saxon.om.NamespaceConstant;
-import net.sf.saxon.om.NamePool;
 
 /**
  * Date: Jan 10, 2005
@@ -27,14 +26,14 @@ import net.sf.saxon.om.NamePool;
  * This class is used to circumvent a Saxon limitation,
  * namely, the lack of a method to set the default element NS
  */
-public class XBeansStandaloneContext extends StandaloneContext
+public class XBeansIndependentContext extends IndependentContext
 {
-    public XBeansStandaloneContext(Configuration c)
+    public XBeansIndependentContext(Configuration c)
     {
         super(c);
     }
 
-    public XBeansStandaloneContext()
+    public XBeansIndependentContext()
     {
         super();
     }
