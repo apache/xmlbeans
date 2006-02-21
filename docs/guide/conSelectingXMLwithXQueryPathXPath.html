@@ -65,7 +65,7 @@
     method, the value returned is view of values from the <em>current document</em> &#8212; not a copy of those values. In other words, changes your code makes to XML returned by the selectPath method change the XML in the document queried against. In contrast, with XQuery executed using the <span class="langinline">execQuery</span> method, the value returned is a <em>copy of values in the XML queried against</em>.</p>
     <p> Note that XPath itself does not provide syntax for declaring prefix to URI bindings. For user convenience, we allow XQuery syntax to be used for such purposes. You can consult the latest XQuery draft when using syntax for declaring namespaces.</p>
     <blockquote>
-        <p><strong>Note:</strong> By default, XMLBeans supports only very simple XPath expressions. To execute complex expressions &#8212; such as those with predicates, function calls, and the like &#8212; you will need xbean_xpath.jar on your class path. This JAR is among those created when you build XMLBeans from source.</p>
+        <p><strong>Note:</strong> By default, XMLBeans supports only very simple XPath expressions. To execute complex expressions &#8212; such as those with predicates, function calls, and the like &#8212; you will need xbean_xpath.jar and the Saxon jars (see <a href="#saxon_jars">below</a>) on your class path. xbean_xpath.jar is among those created when you build XMLBeans from source. You may need to download the Saxon jars yourself.</p>
     </blockquote>
     <h3>Calling XmlObject.selectPath</h3>
   <p>When called from <span class="langinline">XmlObject</span> (or a type that
@@ -225,7 +225,9 @@ public void printZipsAndWorkPhones(XmlObject xml)
   <p>You use the <span class="langinline">execQuery</span> method to execute XQuery
     expressions. With XQuery expressions, XML returned is a copy of XML in the document queried against. In other words, changes your code makes to the values returned by <code>execQuery</code> are not reflected in the document queried against.</p>
   <blockquote>
-      <p><strong>Note:</strong> To execute XQuery expressions, you must have the Saxon 8.1.1 JAR on your class path. Look for the download at the <a href="http://sourceforge.net/project/showfiles.php?group_id=29872&package_id=21888">Saxon web site</a>. This JAR is also included in the lib directory when you build XMLBeans from source.</p>
+      <p><a name="saxon_jars"></a><strong>Note:</strong> To execute XQuery expressions, you must have the SaxonB 8.6.1 versions of the saxon8.jar and saxon8-dom.jar files on your classpath. These are two of the jars from inside the zip file saxonb8-6-1.zip
+      which can be downloaded from the <a href="http://sourceforge.net/project/showfiles.php?group_id=29872&package_id=21888">Saxon web site</a>.
+      If you build XMLBeans from source then the saxonb8-6-1.zip file and the two Saxon jar files are available in the external/lib directory.</p>
   </blockquote>
   <h3>Calling XmlObject.execQuery</h3>
   <p>As with <span class="langinline">selectPath</span>, calling <span class="langinline">execQuery</span>
@@ -234,13 +236,13 @@ public void printZipsAndWorkPhones(XmlObject xml)
   <p> The following example retrieves work <code>&lt;zip&gt;</code> elements from the incoming XML, adding the elements as children to a new <code>&lt;zip-list&gt;</code> element.</p>
    <pre>public boolean collectZips(XmlObject empDoc)
 {
-    String namespaceDeclaration = 
+    String namespaceDeclaration =
         "declare namespace xq='http://xmlbeans.apache.org/samples/xquery/employees';";
     // The query is designed to return results, so return
     // true if it does.
     boolean hasResults = false;
 
-    // The expression: Get the &lt;zip> elements and return them as children 
+    // The expression: Get the &lt;zip> elements and return them as children
     // of a new &lt;zip-list> element.
     String queryExpression =
         "let $e := $this/xq:employees " +
@@ -252,7 +254,7 @@ public void printZipsAndWorkPhones(XmlObject xml)
 
     // Execute the query. Results will be copies of the XML queried against,
     // stored as members of an XmlObject array.
-    XmlObject[] results = 
+    XmlObject[] results =
         empDoc.execQuery(namespaceDeclaration + queryExpression);
 
     // Print the results.
@@ -276,7 +278,7 @@ public void printZipsAndWorkPhones(XmlObject xml)
    <pre>public boolean updateWorkPhone(XmlObject empDoc)
 {
     boolean hasResults = false;
-      
+
     // A cursor instance to query with.
     XmlCursor empCursor = empDoc.newCursor();
     empCursor.toNextToken();
@@ -289,15 +291,15 @@ public void printZipsAndWorkPhones(XmlObject xml)
         "where $s = 'WA' " +
         "return $e//xq:phone[@location='work']";
 
-    // Execute the query. Results, if any, will be available at 
+    // Execute the query. Results, if any, will be available at
     // the position of the resultCursor in a new XML document.
-    XmlCursor resultCursor = 
+    XmlCursor resultCursor =
         empCursor.execQuery(namespaceDeclaration + queryExpression);
-    
+
     System.out.println("The query results, element copies made " +
 		"from the received document: \n");
     System.out.println(resultCursor.getObject().toString() + "\n");
-        
+
     // If there are results, the results will be children of the fragment root
     // where the new cursor is positioned. This statement tests for children
     // and moves the cursor if to the first if it exists.
@@ -307,7 +309,7 @@ public void printZipsAndWorkPhones(XmlObject xml)
         // Use the cursor to loop through the results, printing each sibling
         // <employee>element returned by the query.
         int i = 0;
-	    do 
+	    do
 	    {
 	        // Change the phone numbers.
             XmlCursor editCursor = resultCursor.newCursor();
