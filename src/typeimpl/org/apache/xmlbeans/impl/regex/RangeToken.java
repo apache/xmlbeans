@@ -503,24 +503,31 @@ final class RangeToken extends Token implements java.io.Serializable {
     private static final int MAPSIZE = 256;
     private void createMap() {
         int asize = MAPSIZE/32;                 // 32 is the number of bits in `int'.
-        this.map = new int[asize];
-        this.nonMapIndex = this.ranges.length;
-        for (int i = 0;  i < asize;  i ++)  this.map[i] = 0;
+        // CHANGE(radup) we need a new map, since this is not synchronized
+        // and if we init the instance map with 0's it's going to be trouble
+        // -this.map = new int[asize];
+        // -this.nonMapIndex = this.ranges.length;
+        // -for (int i = 0; i < asize; i++) this.map[i] = 0;
+        int[] localmap = new int[asize]; // +
+        int localnonMapIndex = this.ranges.length; // +
+        for (int i = 0;  i < asize;  i ++)  localmap[i] = 0; // + redundant
         for (int i = 0;  i < this.ranges.length;  i += 2) {
             int s = this.ranges[i];
             int e = this.ranges[i+1];
             if (s < MAPSIZE) {
                 for (int j = s;  j <= e && j < MAPSIZE;  j ++)
-                    this.map[j/32] |= 1<<(j&0x1f); // s&0x1f : 0-31
+                    localmap[j/32] |= 1<<(j&0x1f); // s&0x1f : 0-31
             } else {
-                this.nonMapIndex = i;
+                localnonMapIndex = i;
                 break;
             }
             if (e >= MAPSIZE) {
-                this.nonMapIndex = i;
+                localnonMapIndex = i;
                 break;
             }
         }
+        this.nonMapIndex = localnonMapIndex; // +
+        this.map = localmap; // +
         //for (int i = 0;  i < asize;  i ++)  System.err.println("Map: "+Integer.toString(this.map[i], 16));
     }
 
