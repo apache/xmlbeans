@@ -33,8 +33,11 @@ public class ResolverUtil
     {
         try
         {
-            Object o = Class.forName(SystemProperties.getProperty("xmlbean.entityResolver")).newInstance();
-            _entityResolver = (EntityResolver)o;
+            String erClassName = SystemProperties.getProperty("xmlbean.entityResolver");
+            if (erClassName != null) {
+                Object o = Class.forName(erClassName).newInstance();
+                _entityResolver = (EntityResolver)o;
+            }
         }
         catch (Exception e)
         {
