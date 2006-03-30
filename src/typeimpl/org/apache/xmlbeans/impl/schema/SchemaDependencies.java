@@ -93,9 +93,15 @@ public class SchemaDependencies
                     continue;
                 depSet.add(source);
             }
+        }
+        for (Iterator it = base._contributions.keySet().iterator(); it.hasNext(); )
+        {
+            String ns = (String) it.next();
+            if (updatedNs.contains(ns))
+                continue;
             List fileList = new ArrayList();
-            _contributions.put(target, fileList);
-            List baseFileList = (List) base._contributions.get(target);
+            _contributions.put(ns, fileList);
+            List baseFileList = (List) base._contributions.get(ns);
             for (Iterator it2 = baseFileList.iterator(); it2.hasNext(); )
                 fileList.add(it2.next());
         }
