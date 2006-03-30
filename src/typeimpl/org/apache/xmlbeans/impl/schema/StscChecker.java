@@ -19,6 +19,7 @@ import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.SchemaParticle;
 import org.apache.xmlbeans.XmlError;
 import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.XmlOptions;
 import org.apache.xmlbeans.SchemaLocalElement;
 import org.apache.xmlbeans.SchemaIdentityConstraint;
 import org.apache.xmlbeans.SchemaAttributeModel;
@@ -175,7 +176,9 @@ public class StscChecker
                         try
                         {
                             XmlAnySimpleType val = model.getDefaultValue();
-                            if (!val.validate())
+                            XmlOptions opt = new XmlOptions();
+                            opt.put(XmlOptions.VALIDATE_TEXT_ONLY);
+                            if (!val.validate(opt))
                                 throw new Exception();
 
                             SchemaPropertyImpl sProp = (SchemaPropertyImpl)parentType.getElementProperty(model.getName());
@@ -279,7 +282,7 @@ public class StscChecker
                     switch (baseType.getContentType())
                     {
                         case SchemaType.SIMPLE_CONTENT:
-                            // 5.1.1 The {content type} of the {base type definition} must be a simple type definition of which the {content type} is a ·valid restriction· as defined in Derivation Valid (Restriction, Simple) (§3.14.6).
+                            // 5.1.1 The {content type} of the {base type definition} must be a simple type definition of which the {content type} is a ï¿½valid restrictionï¿½ as defined in Derivation Valid (Restriction, Simple) (ï¿½3.14.6).
                             SchemaType cType = sType.getContentBasedOnType();
                             if (cType != baseType)
                             {
@@ -298,7 +301,7 @@ public class StscChecker
                             break;
                             
                         case SchemaType.MIXED_CONTENT:
-                            // 5.1.2 The {base type definition} must be mixed and have a particle which is ·emptiable· as defined in Particle Emptiable (§3.9.6).
+                            // 5.1.2 The {base type definition} must be mixed and have a particle which is ï¿½emptiableï¿½ as defined in Particle Emptiable (ï¿½3.9.6).
                             if (baseType.getContentModel() != null && !baseType.getContentModel().isSkippable())
                             {
                                 state.error(XmlErrorCodes.COMPLEX_TYPE_RESTRICTION$SC_AND_MIXED_EMPTIABLE,
@@ -323,7 +326,7 @@ public class StscChecker
                             break;
                         case SchemaType.MIXED_CONTENT:
                         case SchemaType.ELEMENT_CONTENT:
-                            // 5.2.2 The {content type} of the {base type definition} must be elementOnly or mixed and have a particle which is ·emptiable· as defined in Particle Emptiable (§3.9.6).
+                            // 5.2.2 The {content type} of the {base type definition} must be elementOnly or mixed and have a particle which is ï¿½emptiableï¿½ as defined in Particle Emptiable (ï¿½3.9.6).
                             if (baseType.getContentModel() != null && !baseType.getContentModel().isSkippable())
                             {
                                 state.error(XmlErrorCodes.COMPLEX_TYPE_RESTRICTION$EMPTY_AND_ELEMENT_OR_MIXED_EMPTIABLE,
@@ -363,7 +366,7 @@ public class StscChecker
                         return false;
                     }
                     
-                    // 5.3 ... then the particle of the complex type definition itself must be a ·valid restriction· of the particle of the {content type} of the {base type definition}
+                    // 5.3 ... then the particle of the complex type definition itself must be a ï¿½valid restrictionï¿½ of the particle of the {content type} of the {base type definition}
                     SchemaParticle baseModel = baseType.getContentModel();
                     SchemaParticle derivedModel = sType.getContentModel();
                     assert(baseModel != null && derivedModel != null);
@@ -374,7 +377,7 @@ public class StscChecker
                         return false;
                     }
                     
-                    // 5.3 ...  as defined in Particle Valid (Restriction) (§3.9.6).
+                    // 5.3 ...  as defined in Particle Valid (Restriction) (ï¿½3.9.6).
                     List errors = new ArrayList();
                     boolean isValid = isParticleValidRestriction(baseModel, derivedModel, errors, location);
                     if (!isValid)
@@ -555,15 +558,15 @@ public class StscChecker
         assert derivedModel.getParticleType() == SchemaParticle.SEQUENCE;
         boolean mapAndSumValid = true;
         // Schema Component Constraint: Particle Derivation OK (Sequence:Choice -- MapAndSum)
-        // For a sequence group particle to be a ·valid restriction· of a choice group particle all of the following
+        // For a sequence group particle to be a ï¿½valid restrictionï¿½ of a choice group particle all of the following
         // must be true:
         // 1 There is a complete functional mapping from the particles in the {particles} of R to the particles in the
-        // {particles} of B such that each particle in the {particles} of R is a ·valid restriction· of the particle in
-        // the {particles} of B it maps to as defined by Particle Valid (Restriction) (§3.9.6).
+        // {particles} of B such that each particle in the {particles} of R is a ï¿½valid restrictionï¿½ of the particle in
+        // the {particles} of B it maps to as defined by Particle Valid (Restriction) (ï¿½3.9.6).
         // interpretation:  each particle child in derived should have a match in base.
         // 2 The pair consisting of the product of the {min occurs} of R and the length of its {particles} and unbounded
         // if {max occurs} is unbounded otherwise the product of the {max occurs} of R and the length of its {particles}
-        // is a valid restriction of B's occurrence range as defined by Occurrence Range OK (§3.9.6).
+        // is a valid restriction of B's occurrence range as defined by Occurrence Range OK (ï¿½3.9.6).
         // NOTE: This clause is in principle more restrictive than absolutely necessary, but in practice will cover
         // all the likely cases, and is much easier to specify than the fully general version.
         // NOTE: This case allows the "unfolding" of iterated disjunctions into sequences. It may be particularly useful
@@ -639,12 +642,12 @@ public class StscChecker
                 || (baseModel.getParticleType() == SchemaParticle.SEQUENCE && derivedModel.getParticleType() == SchemaParticle.ELEMENT);
         // Schema Component Constraint: Particle Derivation OK (Elt:All/Choice/Sequence -- RecurseAsIfGroup)
 
-        // For an element declaration particle to be a ·valid restriction· of a group particle
+        // For an element declaration particle to be a ï¿½valid restrictionï¿½ of a group particle
         // (all, choice or sequence) a group particle of the variety corresponding to B's, with {min occurs} and
         // {max occurs} of 1 and with {particles} consisting of a single particle the same as the element declaration
-        // must be a ·valid restriction· of the group as defined by Particle Derivation OK
-        // (All:All,Sequence:Sequence -- Recurse) (§3.9.6), Particle Derivation OK (Choice:Choice -- RecurseLax)
-        // (§3.9.6) or Particle Derivation OK (All:All,Sequence:Sequence -- Recurse) (§3.9.6), depending on whether
+        // must be a ï¿½valid restrictionï¿½ of the group as defined by Particle Derivation OK
+        // (All:All,Sequence:Sequence -- Recurse) (ï¿½3.9.6), Particle Derivation OK (Choice:Choice -- RecurseLax)
+        // (ï¿½3.9.6) or Particle Derivation OK (All:All,Sequence:Sequence -- Recurse) (ï¿½3.9.6), depending on whether
         // the group is all, choice or sequence
 
         // interpretation:  make a fake group of the right type, with min occurs and max occurs of 1
@@ -663,15 +666,15 @@ public class StscChecker
         assert baseModel.getParticleType() == SchemaParticle.CHOICE && derivedModel.getParticleType() == SchemaParticle.CHOICE;
         boolean recurseLaxValid = true;
         //Schema Component Constraint: Particle Derivation OK (Choice:Choice -- RecurseLax)
-        // For a choice group particle to be a ·valid restriction· of another choice group particle all of the
+        // For a choice group particle to be a ï¿½valid restrictionï¿½ of another choice group particle all of the
         // following must be true:
         // 1 R's occurrence range is a valid restriction of B's occurrence range as defined by Occurrence
-        // Range OK (§3.9.6);
-        // 2 There is a complete ·order-preserving· functional mapping from the particles in the {particles} of R
+        // Range OK (ï¿½3.9.6);
+        // 2 There is a complete ï¿½order-preservingï¿½ functional mapping from the particles in the {particles} of R
         // to the particles in the {particles} of B such that each particle in the {particles} of R is a
-        // ·valid restriction· of the particle in the {particles} of B it maps to as defined by
-        // Particle Valid (Restriction) (§3.9.6).
-        // NOTE: Although the ·validation· semantics of a choice group does not depend on the order of its particles,
+        // ï¿½valid restrictionï¿½ of the particle in the {particles} of B it maps to as defined by
+        // Particle Valid (Restriction) (ï¿½3.9.6).
+        // NOTE: Although the ï¿½validationï¿½ semantics of a choice group does not depend on the order of its particles,
         // derived choice groups are required to match the order of their base in order to simplify
         // checking that the derivation is OK.
         // interpretation:  check derived choices for match in order, must get an in order match on a base particle,
@@ -722,18 +725,18 @@ public class StscChecker
         assert baseModel.getParticleType() == SchemaParticle.ALL && derivedModel.getParticleType() == SchemaParticle.SEQUENCE;
         boolean recurseUnorderedValid = true;
         // Schema Component Constraint: Particle Derivation OK (Sequence:All -- RecurseUnordered)
-        // For a sequence group particle to be a ·valid restriction· of an all group particle all of the
+        // For a sequence group particle to be a ï¿½valid restrictionï¿½ of an all group particle all of the
         // following must be true:
         // 1 R's occurrence range is a valid restriction of B's occurrence range as defined by
-        // Occurrence Range OK (§3.9.6).
+        // Occurrence Range OK (ï¿½3.9.6).
         // 2 There is a complete functional mapping from the particles in the {particles} of R to the particles
         // in the {particles} of B such that all of the following must be true:
         // 2.1 No particle in the {particles} of B is mapped to by more than one of the particles in
         // the {particles} of R;
-        // 2.2 Each particle in the {particles} of R is a ·valid restriction· of the particle in the {particles} of B
-        // it maps to as defined by Particle Valid (Restriction) (§3.9.6);
+        // 2.2 Each particle in the {particles} of R is a ï¿½valid restrictionï¿½ of the particle in the {particles} of B
+        // it maps to as defined by Particle Valid (Restriction) (ï¿½3.9.6);
         // 2.3 All particles in the {particles} of B which are not mapped to by any particle in the {particles}
-        // of R are ·emptiable· as defined by Particle Emptiable (§3.9.6).
+        // of R are ï¿½emptiableï¿½ as defined by Particle Emptiable (ï¿½3.9.6).
         // NOTE: Although this clause allows reordering, because of the limits on the contents of all groups the
         // checking process can still be deterministic.
         // 1, 2.2, and 2.3 are the same as recurse, so do 2.1 and then call recurse
@@ -812,17 +815,17 @@ public class StscChecker
     private static boolean recurse(SchemaParticle baseModel, SchemaParticle derivedModel, Collection errors, XmlObject context) {
         // recurse is called when base: ALL derived: ALL or base: SEQUENCE derived: SEQUENCE
         boolean recurseValid = true;
-        // For an all or sequence group particle to be a ·valid restriction· of another group particle with the same
+        // For an all or sequence group particle to be a ï¿½valid restrictionï¿½ of another group particle with the same
         // {compositor} all of the following must be true:
         // 1 R's occurrence range is a valid restriction of B's occurrence range as defined by
-        // Occurrence Range OK (§3.9.6).
-        // 2 There is a complete ·order-preserving· functional mapping from the particles in the {particles} of R to
+        // Occurrence Range OK (ï¿½3.9.6).
+        // 2 There is a complete ï¿½order-preservingï¿½ functional mapping from the particles in the {particles} of R to
         // the particles in the {particles} of B such that all of the following must be true:
-        //   2.1 Each particle in the {particles} of R is a ·valid restriction· of the particle in the {particles}
-        //   of B it maps to as defined by Particle Valid (Restriction) (§3.9.6).
+        //   2.1 Each particle in the {particles} of R is a ï¿½valid restrictionï¿½ of the particle in the {particles}
+        //   of B it maps to as defined by Particle Valid (Restriction) (ï¿½3.9.6).
         //   2.2 All particles in the {particles} of B which are not mapped to by any particle in the {particles}
-        //   of R are ·emptiable· as defined by Particle Emptiable (§3.9.6).
-        // NOTE: Although the ·validation· semantics of an all group does not depend on the order of its particles,
+        //   of R are ï¿½emptiableï¿½ as defined by Particle Emptiable (ï¿½3.9.6).
+        // NOTE: Although the ï¿½validationï¿½ semantics of an all group does not depend on the order of its particles,
         // derived all groups are required to match the order of their base in order to simplify checking that
         // the derivation is OK.
         // [Definition:]  A complete functional mapping is order-preserving if each particle r in the domain R maps
@@ -909,8 +912,8 @@ public class StscChecker
                 || (derivedModel.getParticleType() == SchemaParticle.CHOICE)
                 || (derivedModel.getParticleType() == SchemaParticle.SEQUENCE);
         boolean nsRecurseCheckCardinality = true;
-        // For a group particle to be a ·valid restriction· of a wildcard particle all of the following must be true:
-        // 1 Every member of the {particles} of the group is a ·valid restriction· of the wildcard as defined by Particle Valid (Restriction) (§3.9.6).
+        // For a group particle to be a ï¿½valid restrictionï¿½ of a wildcard particle all of the following must be true:
+        // 1 Every member of the {particles} of the group is a ï¿½valid restrictionï¿½ of the wildcard as defined by Particle Valid (Restriction) (ï¿½3.9.6).
         //  Note:  not positive what this means.  Interpreting to mean that every particle of the group must adhere to wildcard derivation rules
         //         in a recursive manner
         //  Loop thru the children particles of the group and invoke the appropriate function to check for wildcard restriction validity
@@ -953,9 +956,9 @@ public class StscChecker
             }
         }
 
-        // 2 The effective total range of the group, as defined by Effective Total Range (all and sequence) (§3.8.6)
-        // (if the group is all or sequence) or Effective Total Range (choice) (§3.8.6) (if it is choice) is a valid
-        // restriction of B's occurrence range as defined by Occurrence Range OK (§3.9.6).
+        // 2 The effective total range of the group, as defined by Effective Total Range (all and sequence) (ï¿½3.8.6)
+        // (if the group is all or sequence) or Effective Total Range (choice) (ï¿½3.8.6) (if it is choice) is a valid
+        // restriction of B's occurrence range as defined by Occurrence Range OK (ï¿½3.9.6).
 
         if (nsRecurseCheckCardinality) {
             nsRecurseCheckCardinality = checkGroupOccurrenceOK(baseModel, derivedModel, errors, context);
@@ -1260,11 +1263,11 @@ public class StscChecker
         assert baseModel.getParticleType() == SchemaParticle.WILDCARD;
         assert derivedModel.getParticleType() == SchemaParticle.WILDCARD;
         boolean nsSubset = false;
-        // For a wildcard particle to be a ·valid restriction· of another wildcard particle all of the following must be true:
-        // 1 R's occurrence range must be a valid restriction of B's occurrence range as defined by Occurrence Range OK (§3.9.6).
+        // For a wildcard particle to be a ï¿½valid restrictionï¿½ of another wildcard particle all of the following must be true:
+        // 1 R's occurrence range must be a valid restriction of B's occurrence range as defined by Occurrence Range OK (ï¿½3.9.6).
         if (occurrenceRangeOK(baseModel, derivedModel, errors, context)) {
             // 2 R's {namespace constraint} must be an intensional subset of B's {namespace constraint} as defined
-            // by Wildcard Subset (§3.10.6).
+            // by Wildcard Subset (ï¿½3.10.6).
             if (baseModel.getWildcardSet().inverse().isDisjoint(derivedModel.getWildcardSet())) {
                 nsSubset = true;
             } else {
@@ -1286,11 +1289,11 @@ public class StscChecker
         // nsCompat is called when base: ANY, derived: ELEMENT
         assert baseModel.getParticleType() == SchemaParticle.WILDCARD;
         boolean nsCompat = false;
-        // For an element declaration particle to be a ·valid restriction· of a wildcard particle all of the following must be true:
-        // 1 The element declaration's {target namespace} is ·valid· with respect to the wildcard's {namespace constraint}
-        // as defined by Wildcard allows Namespace Name (§3.10.4).
+        // For an element declaration particle to be a ï¿½valid restrictionï¿½ of a wildcard particle all of the following must be true:
+        // 1 The element declaration's {target namespace} is ï¿½validï¿½ with respect to the wildcard's {namespace constraint}
+        // as defined by Wildcard allows Namespace Name (ï¿½3.10.4).
         if (baseModel.getWildcardSet().contains(derivedElement.getName())) {
-            // 2 R's occurrence range is a valid restriction of B's occurrence range as defined by Occurrence Range OK (§3.9.6).
+            // 2 R's occurrence range is a valid restriction of B's occurrence range as defined by Occurrence Range OK (ï¿½3.9.6).
             if (occurrenceRangeOK(baseModel, (SchemaParticle) derivedElement, errors, context)) {
                 nsCompat = true;
             } else {
@@ -1326,7 +1329,7 @@ public class StscChecker
             return false;
         }
         
-        // 3 R's occurrence range is a valid restriction of B's occurrence range as defined by Occurrence Range OK (§3.9.6).
+        // 3 R's occurrence range is a valid restriction of B's occurrence range as defined by Occurrence Range OK (ï¿½3.9.6).
         if (!occurrenceRangeOK((SchemaParticle) baseElement, (SchemaParticle) derivedElement, errors, context)) {
             // error already produced
             return false;
@@ -1348,7 +1351,7 @@ public class StscChecker
         }
         
         // 7 R's {type definition} is validly derived given {extension, list, union} from B's {type definition} as
-        // defined by Type Derivation OK (Complex) (§3.4.6) or Type Derivation OK (Simple) (§3.14.6), as appropriate.
+        // defined by Type Derivation OK (Complex) (ï¿½3.4.6) or Type Derivation OK (Simple) (ï¿½3.14.6), as appropriate.
         if (!typeDerivationOK(baseElement.getType(), derivedElement.getType(), errors, context))
         {
             // error already produced
@@ -1398,10 +1401,10 @@ public class StscChecker
         // 2.1 B and D must be the same type definition.
         // 2.2 B must be D's {base type definition}.
         // 2.3 All of the following must be true:
-        // 2.3.1 D's {base type definition} must not be the ·ur-type definition·.
+        // 2.3.1 D's {base type definition} must not be the ï¿½ur-type definitionï¿½.
         // 2.3.2 The appropriate case among the following must be true:
         // 2.3.2.1 If D's {base type definition} is complex, then it must be validly derived from B given the subset as defined by this constraint.
-        // 2.3.2.2 If D's {base type definition} is simple, then it must be validly derived from B given the subset as defined in Type Derivation OK (Simple) (§3.14.6).
+        // 2.3.2.2 If D's {base type definition} is simple, then it must be validly derived from B given the subset as defined in Type Derivation OK (Simple) (ï¿½3.14.6).
         //   This line will check if derivedType is a subType of baseType (should handle all of the 2.xx checks above)
         if (baseType.isAssignableFrom(derivedType)) {
             // Ok derived type is subtype but need to make sure that all of the derivations between the two types are by

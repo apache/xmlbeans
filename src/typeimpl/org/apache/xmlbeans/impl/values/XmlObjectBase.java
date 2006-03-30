@@ -350,7 +350,8 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
     {
         Collection errorListener = options == null ? null : (Collection)options.get(XmlOptions.ERROR_LISTENER);
         XmlErrorWatcher watcher = new XmlErrorWatcher(errorListener);
-        if (!schemaType().isSimpleType())
+        if (!(schemaType().isSimpleType() || options != null &&
+                options.hasOption(XmlOptions.VALIDATE_TEXT_ONLY)))
         {
             // cannot have any required attributes or elements
             SchemaProperty[] properties = schemaType().getProperties();
@@ -360,9 +361,9 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
                 {
                     // KHK: error code?
                     if (properties[i].isAttribute())
-                        watcher.add(XmlError.forObject("Missing required attribute " + QNameHelper.pretty(properties[i].getName()), this));
+                        watcher.add(XmlError.forObject(XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$MISSING_REQUIRED_ATTRIBUTE, new Object[]{QNameHelper.pretty(properties[i].getName()), }, this));
                     else
-                        watcher.add(XmlError.forObject("Missing required element " + QNameHelper.pretty(properties[i].getName()), this));
+                        watcher.add(XmlError.forObject(XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$MISSING_ELEMENT, new Object[]{properties[i].getMinOccurs(), QNameHelper.pretty(properties[i].getName()), }, this));
                 }
             }
 

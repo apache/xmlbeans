@@ -811,6 +811,8 @@ public class XmlOptions implements java.io.Serializable
     /** @exclude */
     public static final String VALIDATE_TREAT_LAX_AS_SKIP      = "VALIDATE_TREAT_LAX_AS_SKIP";
     /** @exclude */
+    public static final String VALIDATE_TEXT_ONLY              = "VALIDATE_TEXT_ONLY";
+    /** @exclude */
     public static final String UNSYNCHRONIZED                  = "UNSYNCHRONIZED";
     /** @exclude */
     public static final String ENTITY_RESOLVER                 = "ENTITY_RESOLVER";
