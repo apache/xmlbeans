@@ -21,9 +21,9 @@ import org.apache.xmlbeans.SystemProperties;
 import org.apache.xmlbeans.XmlDocumentProperties;
 import org.apache.xmlbeans.XmlOptions;
 import org.apache.xmlbeans.XmlOptionCharEscapeMap;
+import org.apache.xmlbeans.xml.stream.*;
 
-import org.apache.xmlbeans.impl.common.QNameHelper;
-import org.apache.xmlbeans.impl.common.EncodingMap;
+import org.apache.xmlbeans.impl.common.*;
 
 import java.io.Writer;
 import java.io.Reader;
@@ -62,6 +62,8 @@ abstract class Saver
     protected abstract void emitComment    ( SaveCur c );
     protected abstract void emitProcinst   ( SaveCur c );
     protected abstract void emitDocType    ( String docTypeName, String publicId, String systemId );
+    protected abstract void emitStartDoc   ( SaveCur c );
+    protected abstract void emitEndDoc     ( SaveCur c );
 
     protected void syntheticNamespace ( String prefix, String uri, boolean considerDefault ) { }
 
@@ -301,10 +303,11 @@ abstract class Saver
 
             case - ROOT :
             {
+                emitEndDoc(_cur);
                 _cur.release();
                 _cur = null;
 
-                return false;
+                return true;
             }
 
             default : throw new RuntimeException( "Unexpected kind" );
@@ -349,8 +352,13 @@ abstract class Saver
             String publicId = props.getDoctypePublicId();
 
             if (docTypeName != null)
+            {
                 emitDocType( docTypeName, publicId, systemId );
+                return;
+            }
         }
+
+        emitStartDoc(_cur);
     }
 
     private final void processElement ( )
@@ -831,6 +839,11 @@ abstract class Saver
         return (String) _prefixMap.get( prefix );
     }
 
+    protected Map getPrefixMap()
+    {
+        return _prefixMap;
+    }
+
     //
     //
     //
@@ -858,7 +871,8 @@ abstract class Saver
         protected void emitComment   ( SaveCur c ) { }
         protected void emitProcinst  ( SaveCur c ) { }
         protected void emitDocType   ( String docTypeName, String publicId, String systemId ) { }
-
+        protected void emitStartDoc  ( SaveCur c ) { }
+        protected void emitEndDoc    ( SaveCur c ) { }
     }
 
     //
@@ -1057,6 +1071,14 @@ abstract class Saver
 
             emit( ">" );
             emit( _newLine );
+        }
+
+        protected void emitStartDoc ( SaveCur c )
+        {
+        }
+
+        protected void emitEndDoc ( SaveCur c )
+        {
         }
 
         //
@@ -1925,6 +1947,14 @@ abstract class Saver
             emit( _newLine );
         }
 
+        protected void emitStartDoc ( SaveCur c )
+        {
+        }
+
+        protected void emitEndDoc ( SaveCur c )
+        {
+        }
+
         //
         //
         //
@@ -2495,6 +2525,702 @@ abstract class Saver
         private OutputStreamWriter _converter;
     }
 
+    static final class XmlInputStreamSaver extends Saver
+    {
+        XmlInputStreamSaver ( Cur c, XmlOptions options )
+        {
+            super( c, options );
+        }
+
+        protected boolean emitElement(SaveCur c, ArrayList attrNames, ArrayList attrValues)
+        {
+            assert c.isElem();
+
+            for ( iterateMappings() ; hasMapping() ; nextMapping() )
+            {
+                enqueue( new StartPrefixMappingImpl( mappingPrefix(), mappingUri() ) );
+            }
+
+            StartElementImpl.AttributeImpl lastAttr = null;
+            StartElementImpl.AttributeImpl attributes = null;
+            StartElementImpl.AttributeImpl namespaces = null;
+
+            for ( int i=0; i<attrNames.size(); i++ )
+            {
+                XMLName attXMLName = computeName((QName)attrNames.get(i),this);
+                StartElementImpl.AttributeImpl attr =
+                    new StartElementImpl.NormalAttributeImpl(attXMLName, (String)attrValues.get(i) );
+
+                if (attributes == null)
+                    attributes = attr;
+                else
+                    lastAttr._next = attr;
+
+                lastAttr = attr;
+            }
+
+            lastAttr = null;
+
+            for ( iterateMappings() ; hasMapping() ; nextMapping() )
+            {
+                String prefix = mappingPrefix();
+                String uri = mappingUri();
+
+                StartElementImpl.AttributeImpl attr =
+                    new StartElementImpl.XmlnsAttributeImpl(prefix, uri);
+
+                if (namespaces == null)
+                    namespaces = attr;
+                else
+                    lastAttr._next = attr;
+
+                lastAttr = attr;
+            }
+
+
+            QName name = c.getName();
+            enqueue( new StartElementImpl( computeName(name, this), attributes, namespaces, getPrefixMap() ) );
+
+            return false;  // still need to be called on end element
+        }
+
+        protected void emitFinish(SaveCur c)
+        {
+            if (c.isRoot())
+                enqueue( new EndDocumentImpl(  ) );
+            else
+            {
+                XMLName xmlName = computeName(c.getName(), this);
+                enqueue( new EndElementImpl( xmlName ) );
+            }
+
+            emitEndPrefixMappings();
+        }
+
+        protected void emitText(SaveCur c)
+        {
+            assert c.isText();
+            Object src = c.getChars();
+            int cch = c._cchSrc;
+            int off = c._offSrc;
+
+            enqueue( new CharacterDataImpl( src, cch, off ) );
+        }
+
+        protected void emitComment(SaveCur c)
+        {
+            enqueue( new CommentImpl( c.getChars(), c._cchSrc, c._offSrc ) );
+        }
+
+        protected void emitProcinst(SaveCur c)
+        {
+            String target = null;
+            QName name = c.getName();
+
+            if (name!=null)
+                target = name.getLocalPart();
+
+            enqueue( new ProcessingInstructionImpl( target, c.getChars(), c._cchSrc, c._offSrc ) );
+        }
+
+        protected void emitDocType( String doctypeName, String publicID, String systemID )
+        {
+            enqueue( new StartDocumentImpl( systemID, null, true, null ) ); //todo
+        }
+
+        protected void emitStartDoc ( SaveCur c )
+        {
+            emitDocType(null, null, null);
+        }
+
+        protected void emitEndDoc ( SaveCur c )
+        {
+            enqueue( new EndDocumentImpl());
+        }
+
+        XMLEvent dequeue ( )
+        {
+            if (_out == null && !process())
+                return null;
+
+            if (_out == null)
+                return null;
+
+            XmlEventImpl e = _out;
+
+            if ((_out = _out._next) == null)
+                _in = null;
+
+            return e;
+        }
+
+        private void enqueue ( XmlEventImpl e )
+        {
+            assert e._next == null;
+
+            if (_in == null)
+            {
+                assert _out == null;
+                _out = _in = e;
+            }
+            else
+            {
+                _in._next = e;
+                _in = e;
+            }
+        }
+
+        //
+        //
+        //
+
+        protected void emitEndPrefixMappings ( )
+        {
+            for ( iterateMappings() ; hasMapping() ; nextMapping() )
+            {
+                String prevPrefixUri = null; // todo mappingPrevPrefixUri();
+                String prefix = mappingPrefix();
+                String uri = mappingUri();
+
+                if (prevPrefixUri == null)
+                    enqueue( new EndPrefixMappingImpl( prefix ) );
+                else
+                {
+                    enqueue( new ChangePrefixMappingImpl( prefix, uri, prevPrefixUri ) );
+                }
+            }
+        }
+
+        //
+        //
+        //
+
+        private static XMLName computeName ( QName name, Saver saver )
+        {
+            String uri = name.getNamespaceURI();
+            String local = name.getLocalPart();
+
+            assert uri != null;
+            assert local.length() > 0;
+
+            String prefix = null;
+
+            if (uri!=null && uri.length() != 0)
+            {
+                prefix = name.getPrefix();
+                String mappedUri = saver.getNamespaceForPrefix( prefix );
+
+                if (mappedUri == null || !mappedUri.equals( uri ))
+                    prefix = saver.getUriMapping( uri );
+
+                // Attrs need a prefix.  If I have not found one, then there must be a default
+                // prefix obscuring the prefix needed for this attr.  Find it manually.
+
+                // NOTE - Consider keeping the currently mapped default URI separate fromn the
+                // _urpMap and _prefixMap.  This way, I would not have to look it up manually
+                // here
+
+                if (prefix.length() == 0)
+                    prefix = saver.getNonDefaultUriMapping( uri );
+
+            }
+
+            return new XmlNameImpl( uri, local, prefix );
+        }
+
+        private static abstract class XmlEventImpl extends XmlEventBase
+        {
+            XmlEventImpl ( int type )
+            {
+                super( type );
+            }
+
+            public XMLName getName ( )
+            {
+                return null;
+            }
+
+            public XMLName getSchemaType ( )
+            {
+                throw new RuntimeException( "NYI" );
+            }
+
+            public boolean hasName ( )
+            {
+                return false;
+            }
+
+            public final Location getLocation ( )
+            {
+                // (orig v1 comment)TODO - perhaps I can save a location goober sometimes?
+                return null;
+            }
+
+            XmlEventImpl _next;
+        }
+
+        private static class StartDocumentImpl
+            extends XmlEventImpl implements StartDocument
+        {
+            StartDocumentImpl ( String systemID, String encoding, boolean isStandAlone, String version )
+            {
+                super( XMLEvent.START_DOCUMENT );
+                _systemID = systemID;
+                _encoding = encoding;
+                _standAlone = isStandAlone;
+                _version = version;
+            }
+
+            public String getSystemId ( )
+            {
+                return _systemID;
+            }
+
+            public String getCharacterEncodingScheme ( )
+            {
+                return _encoding;
+            }
+
+            public boolean isStandalone ( )
+            {
+                return _standAlone;
+            }
+
+            public String getVersion ( )
+            {
+                return _version;
+            }
+
+            String _systemID;
+            String _encoding;
+            boolean _standAlone;
+            String _version;
+        }
+
+        private static class StartElementImpl
+            extends XmlEventImpl implements StartElement
+        {
+            StartElementImpl ( XMLName name, AttributeImpl attributes, AttributeImpl namespaces, Map prefixMap )
+            {
+                super( XMLEvent.START_ELEMENT );
+
+                _name = name;
+                _attributes = attributes;
+                _namespaces = namespaces;
+                _prefixMap = prefixMap;
+            }
+
+            public boolean hasName()
+            {
+                return true;
+            }
+
+            public XMLName getName ( )
+            {
+                return _name;
+            }
+
+            public AttributeIterator getAttributes ( )
+            {
+                return new AttributeIteratorImpl( _attributes, null );
+            }
+
+            public AttributeIterator getNamespaces ( )
+            {
+                return new AttributeIteratorImpl( null, _namespaces );
+            }
+
+            public AttributeIterator getAttributesAndNamespaces ( )
+            {
+                return  new AttributeIteratorImpl( _attributes, _namespaces );
+            }
+
+            public Attribute getAttributeByName ( XMLName xmlName )
+            {
+                for ( AttributeImpl a = _attributes ; a != null ; a = a._next )
+                {
+                    if (xmlName.equals( a.getName() ))
+                        return a;
+                }
+
+                return null;
+            }
+
+            public String getNamespaceUri ( String prefix )
+            {
+                return (String) _prefixMap.get( prefix == null ? "" : prefix );
+            }
+
+            public Map getNamespaceMap ( )
+            {
+                return _prefixMap;
+            }
+
+            private static class AttributeIteratorImpl
+                implements AttributeIterator
+            {
+                AttributeIteratorImpl( AttributeImpl attributes, AttributeImpl namespaces )
+                {
+                    _attributes = attributes;
+                    _namespaces = namespaces;
+                }
+
+                public Object monitor()
+                {
+                    return this;
+                }
+
+                public Attribute next ( )
+                {
+                    synchronized (monitor())
+                    {
+                        checkVersion();
+
+                        AttributeImpl attr = null;
+
+                        if (_attributes != null)
+                        {
+                            attr = _attributes;
+                            _attributes = attr._next;
+                        }
+                        else if (_namespaces != null)
+                        {
+                            attr = _namespaces;
+                            _namespaces = attr._next;
+                        }
+
+                        return attr;
+                    }
+                }
+
+                public boolean hasNext ( )
+                {
+                    synchronized (monitor())
+                    {
+                        checkVersion();
+
+                        return _attributes != null || _namespaces != null;
+                    }
+                }
+
+                public Attribute peek ( )
+                {
+                    synchronized (monitor())
+                    {
+                        checkVersion();
+
+                        if (_attributes != null)
+                            return _attributes;
+                        else if (_namespaces != null)
+                            return _namespaces;
+
+                        return null;
+                    }
+                }
+
+                public void skip ( )
+                {
+                    synchronized (monitor())
+                    {
+                        checkVersion();
+
+                        if (_attributes != null)
+                            _attributes = _attributes._next;
+                        else if (_namespaces != null)
+                            _namespaces = _namespaces._next;
+                    }
+                }
+
+                private final void checkVersion ( )
+                {
+//                    if (_version != _root.getVersion())
+//                        throw new IllegalStateException( "Document changed" );
+                }
+
+//                private long          _version;
+                private AttributeImpl _attributes;
+                private AttributeImpl _namespaces;
+            }
+
+            private static abstract class AttributeImpl implements Attribute
+            {
+                /**
+                 * Don't forget to set _name
+                 */
+                AttributeImpl ()
+                {
+                }
+
+                public XMLName getName ( )
+                {
+                    return _name;
+                }
+
+                public String getType ( )
+                {
+                    // (from v1 impl) TODO - Make sure throwing away this DTD info is ok.
+                    // (from v1 impl) Is there schema info which can return more useful info?
+                    return "CDATA";
+                }
+
+                public XMLName getSchemaType ( )
+                {
+                    // (from v1 impl) TODO - Can I return something reasonable here?
+                    return null;
+                }
+
+                AttributeImpl _next;
+
+                protected XMLName _name;
+            }
+
+            private static class XmlnsAttributeImpl extends AttributeImpl
+            {
+                XmlnsAttributeImpl ( String prefix, String uri )
+                {
+                    super();
+                    _uri = uri;
+
+                    String local;
+
+                    if (prefix.length() == 0)
+                    {
+                        prefix = null;
+                        local = "xmlns";
+                    }
+                    else
+                    {
+                        local = prefix;
+                        prefix = "xmlns";
+                    }
+
+                    _name = new XmlNameImpl( null, local, prefix );
+                }
+
+                public String getValue ( )
+                {
+                    return _uri;
+                }
+
+                private String _uri;
+            }
+
+            private static class NormalAttributeImpl extends AttributeImpl
+            {
+                NormalAttributeImpl (XMLName name, String value)
+                {
+                    _name = name;
+                    _value = value;
+                }
+
+                public String getValue ( )
+                {
+                    return _value;
+                }
+
+                private String _value; // If invalid in the store
+            }
+
+            private XMLName _name;
+            private Map     _prefixMap;
+
+            private AttributeImpl _attributes;
+            private AttributeImpl _namespaces;
+        }
+
+        private static class StartPrefixMappingImpl
+            extends XmlEventImpl implements StartPrefixMapping
+        {
+            StartPrefixMappingImpl ( String prefix, String uri )
+            {
+                super( XMLEvent.START_PREFIX_MAPPING );
+
+                _prefix = prefix;
+                _uri = uri;
+            }
+
+            public String getNamespaceUri ( )
+            {
+                return _uri;
+            }
+
+            public String getPrefix ( )
+            {
+                return _prefix;
+            }
+
+            private String _prefix, _uri;
+        }
+
+        private static class ChangePrefixMappingImpl
+            extends XmlEventImpl implements ChangePrefixMapping
+        {
+            ChangePrefixMappingImpl ( String prefix, String oldUri, String newUri )
+            {
+                super( XMLEvent.CHANGE_PREFIX_MAPPING );
+
+                _oldUri = oldUri;
+                _newUri = newUri;
+                _prefix = prefix;
+            }
+
+            public String getOldNamespaceUri ( )
+            {
+                return _oldUri;
+            }
+
+            public String getNewNamespaceUri ( )
+            {
+                return _newUri;
+            }
+
+            public String getPrefix ( )
+            {
+                return _prefix;
+            }
+
+            private String _oldUri, _newUri, _prefix;
+        }
+
+        private static class EndPrefixMappingImpl
+            extends XmlEventImpl implements EndPrefixMapping
+        {
+            EndPrefixMappingImpl ( String prefix )
+            {
+                super( XMLEvent.END_PREFIX_MAPPING );
+                _prefix = prefix;
+            }
+
+            public String getPrefix ( )
+            {
+                return _prefix;
+            }
+
+            private String _prefix;
+        }
+
+        private static class EndElementImpl
+            extends XmlEventImpl implements EndElement
+        {
+            EndElementImpl ( XMLName name )
+            {
+                super( XMLEvent.END_ELEMENT );
+
+                _name = name;
+            }
+
+            public boolean hasName ( )
+            {
+                return true;
+            }
+
+            public XMLName getName ( )
+            {
+                return _name;
+            }
+
+            private XMLName _name;
+        }
+
+        private static class EndDocumentImpl
+            extends XmlEventImpl implements EndDocument
+        {
+            EndDocumentImpl ( )
+            {
+                super( XMLEvent.END_DOCUMENT );
+            }
+        }
+
+        private static class TripletEventImpl
+            extends XmlEventImpl implements CharacterData
+        {
+            TripletEventImpl ( int eventType, Object obj, int cch, int off )
+            {
+                super(eventType);
+                _obj = obj;
+                _cch = cch;
+                _off = off;
+            }
+
+            public String getContent ( )
+            {
+                return CharUtil.getString(_obj, _off, _cch);
+            }
+
+            public boolean hasContent ( )
+            {
+                return _cch > 0;
+            }
+
+            private Object _obj;
+            private int    _cch;
+            private int    _off;
+        }
+
+        private static class CharacterDataImpl
+            extends TripletEventImpl implements CharacterData
+        {
+            CharacterDataImpl ( Object obj, int cch, int off )
+            {
+                super(XMLEvent.CHARACTER_DATA, obj, cch, off);
+            }
+        }
+
+        private static class CommentImpl
+            extends TripletEventImpl implements Comment
+        {
+            CommentImpl ( Object obj, int cch, int off )
+            {
+                super( XMLEvent.COMMENT, obj, cch, off);
+            }
+        }
+
+        private static class ProcessingInstructionImpl
+            extends TripletEventImpl implements ProcessingInstruction
+        {
+            ProcessingInstructionImpl ( String target, Object obj, int cch, int off)
+            {
+                super( XMLEvent.PROCESSING_INSTRUCTION, obj, cch, off);
+                _target = target;
+            }
+
+            public String getTarget ( )
+            {
+                return _target;
+            }
+
+            public String getData ( )
+            {
+                return getContent();
+            }
+
+            private String _target;
+        }
+
+        private XmlEventImpl _in, _out;
+    }
+
+    static final class XmlInputStreamImpl extends GenericXmlInputStream
+    {
+        XmlInputStreamImpl ( Cur cur, XmlOptions options )
+        {
+            _xmlInputStreamSaver =
+                new XmlInputStreamSaver( cur, options );
+
+            // Make the saver grind away just a bit to throw any exceptions
+            // related to the inability to create a stream on this xml
+
+            _xmlInputStreamSaver.process();
+        }
+
+        protected XMLEvent nextEvent ( ) throws XMLStreamException
+        {
+            return _xmlInputStreamSaver.dequeue();
+        }
+
+        private XmlInputStreamSaver _xmlInputStreamSaver;
+    }
+
     static final class SaxSaver extends Saver
     {
         SaxSaver ( Cur c, XmlOptions options, ContentHandler ch, LexicalHandler lh )
@@ -2738,6 +3464,14 @@ abstract class Saver
                     throw new SaverSAXException( e );
                 }
             }
+        }
+
+        protected void emitStartDoc ( SaveCur c )
+        {
+        }
+
+        protected void emitEndDoc ( SaveCur c )
+        {
         }
 
         private ContentHandler _contentHandler;
@@ -3442,6 +4176,7 @@ abstract class Saver
 
         private ArrayList    _stack;
     }
+
 
     //
     //
