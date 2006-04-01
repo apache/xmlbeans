@@ -537,7 +537,7 @@ public final class Cursor implements XmlCursor, ChangeListener {
      * @deprecated XMLInputStream was deprecated by XMLStreamReader from STaX - jsr173 API.
      */
     public XMLInputStream _newXMLInputStream(XmlOptions options) {
-        throw new RuntimeException("Not implemented");
+        return new Saver.XmlInputStreamImpl(_cur, options);
     }
 
     public String _xmlText(XmlOptions options) {
@@ -797,6 +797,14 @@ public final class Cursor implements XmlCursor, ChangeListener {
             props.setDoctypeSystemId(systemId);
         }
 
+        protected void emitStartDoc(SaveCur c) {
+            ensureDoc();
+        }
+
+        protected void emitEndDoc ( SaveCur c )
+        {
+        }
+        
         private QName getQualifiedName(SaveCur c, QName name) {
             String uri = name.getNamespaceURI();
 
