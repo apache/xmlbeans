@@ -81,7 +81,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
 {
     public static final int DATA_BABE = 0xDA7ABABE;
     public static final int MAJOR_VERSION = 2;  // must match == to be compatible
-    public static final int MINOR_VERSION = 23; // must be <= to be compatible
+    public static final int MINOR_VERSION = 24; // must be <= to be compatible
     public static final int RELEASE_NUMBER = 0; // should be compatible even if < or >
 
     public static final int FILETYPE_SCHEMAINDEX = 1;
@@ -505,6 +505,8 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
     private static final int CONSTANT_INTERFACEMETHOD = 11;
     private static final int CONSTANT_NAMEANDTYPE = 12;
 
+    // MAX_UNSIGNED_SHORT
+    private static final int MAX_UNSIGNED_SHORT = Short.MAX_VALUE * 2 + 1;
 
     private static String repackageConstant(String value, String[] replace, Repackager repackager)
     {
@@ -1530,7 +1532,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
                 _releaseno = readShort();
 
             int actualfiletype = readShort();
-            if (actualfiletype != filetype && filetype != -1)
+            if (actualfiletype != filetype && filetype != 0xFFFF)
                 throw new SchemaTypeLoaderException("XML-BEANS compiled schema: File has the wrong type - expecting type " + filetype + ", got type " + actualfiletype, _name, handle, SchemaTypeLoaderException.WRONG_FILE_TYPE);
 
             _stringPool = new StringPool(_handle, _name);
@@ -1722,7 +1724,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
             for (int i = 0; i < size; i++)
             {
                 String handle = readString();
-                short code = readShort();
+                int code = readShort();
                 Object result;
                 switch (code)
                 {
@@ -1751,11 +1753,11 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
             }
         }
 
-        short readShort()
+        int readShort()
         {
             try
             {
-                return _input.readShort();
+                return _input.readUnsignedShort();
             }
             catch (IOException e)
             {
@@ -1765,8 +1767,8 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
 
         void writeShort(int s)
         {
-            if (s > Short.MAX_VALUE || s < Short.MIN_VALUE)
-                throw new SchemaTypeLoaderException("Value " + s + " out of range: must fit in a 16-bit short.", _name, _handle, SchemaTypeLoaderException.INT_TOO_LARGE);
+            if (s >= MAX_UNSIGNED_SHORT || s < -1)
+                throw new SchemaTypeLoaderException("Value " + s + " out of range: must fit in a 16-bit unsigned short.", _name, _handle, SchemaTypeLoaderException.INT_TOO_LARGE);
             if (_output != null)
             {
                 try
@@ -2228,10 +2230,10 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
             String handle = null;
             try
             {
-                short particleType = readShort();
+                int particleType = readShort();
                 if (particleType != SchemaParticle.ELEMENT)
                     throw new SchemaTypeLoaderException("Wrong particle type ", _name, _handle, SchemaTypeLoaderException.BAD_PARTICLE_TYPE);
-                short particleFlags = readShort();
+                int particleFlags = readShort();
                 BigInteger minOccurs = readBigInteger();
                 BigInteger maxOccurs = readBigInteger();
                 QNameSet transitionRules = readQNameSet();
@@ -2262,7 +2264,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
                 if (atLeast(2, 17, 0))
                     impl.setSubstitutionGroup((SchemaGlobalElement.Ref)readHandle());
 
-                short substGroupCount = readShort();
+                int substGroupCount = readShort();
                 for (int i = 0; i < substGroupCount; i++)
                 {
                     impl.addSubstitutionGroupMember(readQName());
@@ -2475,7 +2477,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
                 impl.setAttributeType((flags & FLAG_ATTRIBUTE_TYPE) != 0);
                 impl.setSimpleType(!isComplexType);
 
-                short complexVariety = SchemaType.NOT_COMPLEX_TYPE;
+                int complexVariety = SchemaType.NOT_COMPLEX_TYPE;
                 if (isComplexType)
                 {
                     impl.setAbstractFinal((flags & FLAG_ABSTRACT) != 0,
@@ -2496,7 +2498,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
                     // Attribute Model Table
                     SchemaAttributeModelImpl attrModel = new SchemaAttributeModelImpl();
 
-                    short attrCount = readShort();
+                    int attrCount = readShort();
                     for (int i = 0; i < attrCount; i++)
                         attrModel.addAttribute(readAttributeData());
 
@@ -2505,7 +2507,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
 
                     // Attribute Property Table
                     Map attrProperties = new LinkedHashMap();
-                    short attrPropCount = readShort();
+                    int attrPropCount = readShort();
                     for (int i = 0; i < attrPropCount; i++)
                     {
                         SchemaProperty prop = readPropertyData();
@@ -2516,7 +2518,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
 
                     SchemaParticle contentModel = null;
                     Map elemProperties = null;
-                    short isAll = 0;
+                    int isAll = 0;
 
                     if (complexVariety == SchemaType.ELEMENT_CONTENT || complexVariety == SchemaType.MIXED_CONTENT)
                     {
@@ -2533,7 +2535,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
                         // Element Property Table
 
                         elemProperties = new LinkedHashMap();
-                        short elemPropCount = readShort();
+                        int elemPropCount = readShort();
                         for (int i = 0; i < elemPropCount; i++)
                         {
                             SchemaProperty prop = readPropertyData();
@@ -2551,7 +2553,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
 
                 if (!isComplexType || complexVariety == SchemaType.SIMPLE_CONTENT)
                 {
-                    short simpleVariety = readShort();
+                    int simpleVariety = readShort();
                     impl.setSimpleTypeVariety(simpleVariety);
 
                     boolean isStringEnum = ((flags & FLAG_STRINGENUM) != 0);
@@ -2567,10 +2569,10 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
 
                     XmlValueRef[] facets = new XmlValueRef[SchemaType.LAST_FACET + 1];
                     boolean[] fixedFacets = new boolean[SchemaType.LAST_FACET + 1];
-                    short facetCount = readShort();
+                    int facetCount = readShort();
                     for (int i = 0; i < facetCount; i++)
                     {
-                        short facetCode = readShort();
+                        int facetCode = readShort();
                         facets[facetCode] = readXmlValueObject();
                         fixedFacets[facetCode] = (readShort() == 1);
                     }
@@ -2580,7 +2582,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
 
                     impl.setPatternFacet((flags & FLAG_HAS_PATTERN) != 0);
 
-                    short patternCount = readShort();
+                    int patternCount = readShort();
                     org.apache.xmlbeans.impl.regex.RegularExpression[] patterns = new org.apache.xmlbeans.impl.regex.RegularExpression[patternCount];
                     for (int i = 0; i < patternCount; i++)
                     {
@@ -2588,7 +2590,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
                     }
                     impl.setPatterns(patterns);
 
-                    short enumCount = readShort();
+                    int enumCount = readShort();
                     XmlValueRef[] enumValues = new XmlValueRef[enumCount];
                     for (int i = 0; i < enumCount; i++)
                     {
@@ -2599,7 +2601,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
                     impl.setBaseEnumTypeRef(readTypeRef());
                     if (isStringEnum)
                     {
-                        short seCount = readShort();
+                        int seCount = readShort();
                         SchemaStringEnumEntry[] entries = new SchemaStringEnumEntry[seCount];
                         for (int i = 0; i < seCount; i++)
                         {
@@ -2950,7 +2952,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
 
         SchemaParticle readParticleData()
         {
-            short particleType = readShort();
+            int particleType = readShort();
             SchemaParticleImpl result;
             if (particleType != SchemaParticle.ELEMENT)
                 result = new SchemaParticleImpl();
@@ -2962,7 +2964,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
 
         void loadParticle(SchemaParticleImpl result, int particleType)
         {
-            short particleFlags = readShort();
+            int particleFlags = readShort();
 
             result.setParticleType(particleType);
             result.setMinOccurs(readBigInteger());
@@ -3099,7 +3101,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
             SchemaPropertyImpl prop = new SchemaPropertyImpl();
             prop.setName(readQName());
             prop.setTypeRef(readTypeRef());
-            short propflags = readShort();
+            int propflags = readShort();
             prop.setAttribute((propflags & FLAG_PROP_ISATTR) != 0);
             prop.setContainerTypeRef(readTypeRef());
             prop.setMinOccurs(readBigInteger());
@@ -3122,7 +3124,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
 
             if (!prop.isAttribute() && atLeast(2, 17, 0))
             {
-                short size = readShort();
+                int size = readShort();
                 LinkedHashSet qnames = new LinkedHashSet(size);
                 for (int i = 0 ; i < size ; i++)
                     qnames.add(readQName());
@@ -3201,7 +3203,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
                     assert(false);
                 case 0:
                     return new XmlValueRef(typeref, null);
-                case -1:
+                case 0xFFFF:
                     {
                         int size = readShort();
                         List values = new ArrayList();
@@ -3339,20 +3341,20 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
 
         QNameSet readQNameSet()
         {
-            short flag = readShort();
+            int flag = readShort();
 
             Set uriSet = new HashSet();
-            short uriCount = readShort();
+            int uriCount = readShort();
             for (int i = 0; i < uriCount; i++)
                 uriSet.add(readString());
 
             Set qnameSet1 = new HashSet();
-            short qncount1 = readShort();
+            int qncount1 = readShort();
             for (int i = 0; i < qncount1; i++)
                 qnameSet1.add(readQName());
 
             Set qnameSet2 = new HashSet();
-            short qncount2 = readShort();
+            int qncount2 = readShort();
             for (int i = 0; i < qncount2; i++)
                 qnameSet2.add(readQName());
 
@@ -3387,7 +3389,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
         {
             try
             {
-                short len = _input.readShort();
+                int len = _input.readShort();
                 byte[] result = new byte[len];
                 _input.readFully(result);
                 return result;
@@ -3468,7 +3470,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
         }
         if (result == null)
         {
-            XsbReader reader = new XsbReader(handle, -1);
+            XsbReader reader = new XsbReader(handle, 0xFFFF);
             int filetype = reader.getActualFiletype();
             switch (filetype)
             {

@@ -154,7 +154,7 @@ public class XsbDumper
 
     public static final int DATA_BABE = 0xDA7ABABE;
     public static final int MAJOR_VERSION = 2;
-    public static final int MINOR_VERSION = 23;
+    public static final int MINOR_VERSION = 24;
 
     public static final int FILETYPE_SCHEMAINDEX = 1;
     public static final int FILETYPE_SCHEMATYPE = 2;
@@ -372,7 +372,7 @@ public class XsbDumper
         for (int i = 0; i < size; i++)
         {
             String handle = readString();
-            short code = readShort();
+            int code = readShort();
             emit(handle + " (" + filetypeString(code) + ")");
         }
         outdent();
@@ -481,11 +481,11 @@ public class XsbDumper
     DataInputStream _input;
     StringPool _stringPool;
 
-    short readShort()
+    int readShort()
     {
         try
         {
-            return _input.readShort();
+            return _input.readUnsignedShort();
         }
         catch (IOException e)
         {
@@ -707,10 +707,10 @@ public class XsbDumper
 
     void dumpParticleData(boolean global)
     {
-        short particleType = readShort();
+        int particleType = readShort();
         emit(particleTypeString(particleType) + ":");
         indent();
-        short particleFlags = readShort();
+        int particleFlags = readShort();
         emit("Flags: " + particleflagsString(particleFlags));
 
         emit("MinOccurs: " + bigIntegerString(readBigInteger()));
@@ -737,7 +737,7 @@ public class XsbDumper
                 {
                     if (atLeast(2, 17, 0))
                         emit("Substitution group ref: " + readHandle());
-                    short substGroupCount = readShort();
+                    int substGroupCount = readShort();
                     emit("Substitution group members (" + substGroupCount + ")");
                     indent();
                     for (int i = 0; i < substGroupCount; i++)
@@ -886,7 +886,7 @@ public class XsbDumper
         emit("Flags: " + typeflagsString(flags));
         boolean isComplexType = ((flags & FLAG_SIMPLE_TYPE) == 0);
 
-        short complexVariety = SchemaType.NOT_COMPLEX_TYPE;
+        int complexVariety = SchemaType.NOT_COMPLEX_TYPE;
         if (isComplexType)
         {
             complexVariety = readShort();
@@ -895,7 +895,7 @@ public class XsbDumper
             if (atLeast(2, 23, 0))
                 emit("Content based on type: " + readType());
 
-            short attrCount = readShort();
+            int attrCount = readShort();
             emit("Attribute model (" + attrCount + "):");
             indent();
             for (int i = 0; i < attrCount; i++)
@@ -906,7 +906,7 @@ public class XsbDumper
             outdent();
 
             // Attribute Property Table
-            short attrPropCount = readShort();
+            int attrPropCount = readShort();
             emit("Attribute properties (" + attrPropCount + "):");
             indent();
             for (int i = 0; i < attrPropCount; i++)
@@ -923,7 +923,7 @@ public class XsbDumper
                 dumpParticleArray("Content model");
 
                 // Element Property Table
-                short elemPropCount = readShort();
+                int elemPropCount = readShort();
                 emit("Element properties (" + elemPropCount + "):");
                 indent();
                 for (int i = 0; i < elemPropCount; i++)
@@ -936,12 +936,12 @@ public class XsbDumper
 
         if (!isComplexType || complexVariety == SchemaType.SIMPLE_CONTENT)
         {
-            short simpleVariety = readShort();
+            int simpleVariety = readShort();
             emit("Simple type variety: " + simpleVarietyString(simpleVariety));
 
             boolean isStringEnum = ((flags & FLAG_STRINGENUM) != 0);
 
-            short facetCount = readShort();
+            int facetCount = readShort();
             emit("Facets (" + facetCount + "):");
             indent();
             for (int i = 0; i < facetCount; i++)
@@ -954,7 +954,7 @@ public class XsbDumper
 
             emit("Whitespace rule: " + whitespaceCodeString(readShort()));
 
-            short patternCount = readShort();
+            int patternCount = readShort();
             emit("Patterns (" + patternCount + "):");
             indent();
             for (int i = 0; i < patternCount; i++)
@@ -963,7 +963,7 @@ public class XsbDumper
             }
             outdent();
 
-            short enumCount = readShort();
+            int enumCount = readShort();
             emit("Enumeration values (" + enumCount + "):");
             indent();
             for (int i = 0; i < enumCount; i++)
@@ -975,7 +975,7 @@ public class XsbDumper
             emit("Base enum type: " + readType());
             if (isStringEnum)
             {
-                short seCount = readShort();
+                int seCount = readShort();
                 emit("String enum entries (" + seCount + "):");
                 indent();
                 for (int i = 0; i < seCount; i++)
@@ -1136,7 +1136,7 @@ public class XsbDumper
         indent();
         emit("Name: " + qnameString(readQName()));
         emit("Type: " + readType());
-        short propflags = readShort();
+        int propflags = readShort();
         emit("Flags: " + propertyflagsString(propflags));
         emit("Container type: " + readType());
         emit("Min occurances: " + bigIntegerString(readBigInteger()));
@@ -1154,7 +1154,7 @@ public class XsbDumper
             emit("Default value: " + readXmlValueObject());
         if (((propflags & FLAG_PROP_ISATTR) == 0) && atLeast(2, 17, 0))
         {
-            short size = readShort();
+            int size = readShort();
             emit("Accepted substitutions (" + size + "):");
             for (int i = 0 ; i < size ; i++)
                 emit("  Accepted name " + readQName());
@@ -1248,20 +1248,20 @@ public class XsbDumper
 
     QNameSet readQNameSet()
     {
-        short flag = readShort();
+        int flag = readShort();
 
         Set uriSet = new HashSet();
-        short uriCount = readShort();
+        int uriCount = readShort();
         for (int i = 0; i < uriCount; i++)
             uriSet.add(readString());
 
         Set qnameSet1 = new HashSet();
-        short qncount1 = readShort();
+        int qncount1 = readShort();
         for (int i = 0; i < qncount1; i++)
             qnameSet1.add(readQName());
 
         Set qnameSet2 = new HashSet();
-        short qncount2 = readShort();
+        int qncount2 = readShort();
         for (int i = 0; i < qncount2; i++)
             qnameSet2.add(readQName());
 
@@ -1275,7 +1275,7 @@ public class XsbDumper
     {
         try
         {
-            short len = _input.readShort();
+            int len = _input.readShort();
             byte[] result = new byte[len];
             _input.readFully(result);
             return result;
