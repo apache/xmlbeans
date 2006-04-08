@@ -81,7 +81,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
 {
     public static final int DATA_BABE = 0xDA7ABABE;
     public static final int MAJOR_VERSION = 2;  // must match == to be compatible
-    public static final int MINOR_VERSION = 24; // must be <= to be compatible
+    public static final int MINOR_VERSION = 23; // must be <= to be compatible
     public static final int RELEASE_NUMBER = 0; // should be compatible even if < or >
 
     public static final int FILETYPE_SCHEMAINDEX = 1;
