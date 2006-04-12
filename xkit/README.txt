@@ -29,26 +29,37 @@ Kit contents:
     needed to parse XML files for use with XMLBeans.
     /lib/jsr173_1.0_api.jar
 
-(3) License information for XML Beans and included libraries
+(3) One copy of resolver.jar from Apache xml-commons. See scomp
+    documentation for when it is needed
+
+(4) One copy of xbean_xpath jar. Contains the XPath and XQuery
+    "glue" code, only needed if XPath-XQuery functionality is
+    required
+
+(5) One copy of xmlpublic.jar, containg all the public interfaces of
+    XMLBeans. (Classes included here are a subset of those included
+    in xbean.jar)
+
+(6) License information for XML Beans and included libraries
     ./LICENSE.txt
     ./NOTICE.txt
 
-(4) One folder full of command-line scripts, pointing to the
+(7) One folder full of command-line scripts, pointing to the
     useful main() functions in the JAR.
     ./bin
 
-(5) A copy of the plain javadoc tree for org.apache.xmlbeans.*
+(8) A copy of the plain javadoc tree for org.apache.xmlbeans.*
     ./docs/reference
 
-(6) A preliminary collection of nicely formatted user-level
+(9) A preliminary collection of nicely formatted user-level
     documentation HTML (includes reformatted and nicely
     organized javadoc as well)
     ./docs/guide
 
-(7) A few sample schemas
+(10) A few sample schemas
     ./schemas
 
-(8) Samples that show the use of the XMLBeans API. (You'll 
+(11) Samples that show the use of the XMLBeans API. (You'll 
     also find more samples at the XMLBeans web site.)
     ./samples
 
