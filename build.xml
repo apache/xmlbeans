@@ -201,7 +201,8 @@
 
     <target name="version">
         <!-- svn must be on the path -->
-        <exec executable="svn" output="build/private/svninfo.properties">
+        <echo message="Trying to get revision number from Subversion..."/>
+        <exec executable="svn" output="build/private/svninfo.properties" failifexecutionfails="false">
             <arg line="info ${basedir}"/>
         </exec>
         <replaceregexp file="build/private/svninfo.properties"
@@ -772,6 +773,8 @@
     <!-- Note that this is a tricky target because it bootstraps xbeans on itself. -->
     <!-- The basic strategy is to rely on the oldxbeans.jar checked into external/lib -->
 
+    <!-- This doesn't really work anymore, because the "schema" part now needs the package name and the
+         ant "replace" mechanism is too difficult to use to be worth it -->
     <target name="xmlschema.check">
         <condition property="xmlschema.notRequired">
             <uptodate property="xmlschema.notRequired" targetfile="build/classes/xmlschema/schema/system/sXMLLANG/index.xsb">
