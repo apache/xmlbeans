@@ -281,6 +281,16 @@ abstract class Saver
         return _saveNamespacesFirst;
     }
 
+    protected void enterLocale()
+    {
+        _locale.enter();
+    }
+
+    protected void exitLocale()
+    {
+        _locale.exit();
+    }
+
     protected final boolean process ( )
     {
         assert _locale.entered();
@@ -2640,8 +2650,19 @@ abstract class Saver
 
         XMLEvent dequeue ( )
         {
-            if (_out == null && !process())
-                return null;
+            if (_out == null)
+            {
+                enterLocale();
+                try
+                {
+                    if(!process())
+                        return null;
+                }
+                finally
+                {
+                    exitLocale();
+                }
+            }
 
             if (_out == null)
                 return null;
