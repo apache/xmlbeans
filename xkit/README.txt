@@ -13,7 +13,7 @@
  *  limitations under the License.
  */
 
-XMLBeans Development Kit Version 2.0.0
+XMLBeans Development Kit Version 2.1.0
 
 
 Welcome to XMLBeans!
@@ -27,18 +27,21 @@ Kit contents:
 
 (2) One copy of jsr173_1.0_api.jar, which contains classes
     needed to parse XML files for use with XMLBeans.
-    /lib/jsr173_1.0_api.jar
+    ./lib/jsr173_1.0_api.jar
 
 (3) One copy of resolver.jar from Apache xml-commons. See scomp
-    documentation for when it is needed
+    documentation for when it is needed.
+    ./lib/resolver.jar
 
 (4) One copy of xbean_xpath jar. Contains the XPath and XQuery
     "glue" code, only needed if XPath-XQuery functionality is
-    required
+    required.
+    ./lib/xbean_xpath.jar
 
-(5) One copy of xmlpublic.jar, containg all the public interfaces of
+(5) One copy of xmlpublic.jar, containing all the public interfaces of
     XMLBeans. (Classes included here are a subset of those included
-    in xbean.jar)
+    in xbean.jar.)
+    ./lib/xmlpublic.jar
 
 (6) License information for XML Beans and included libraries
     ./LICENSE.txt
