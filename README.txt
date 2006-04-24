@@ -35,7 +35,7 @@ To quickly get started run:
 "ant usage" to see the most useful build targets or
 "cd bin" and then "<tool_name> -help" for a description of what the
      tool does and what parameters it accepts
-
+ 
 For further information check out:
 http://xmlbeans.apache.org
 http://wiki.apache.org/xmlbeans
