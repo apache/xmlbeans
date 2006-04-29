@@ -21,13 +21,13 @@
 @echo off
 
 setlocal
-if "%XMLBEANS_LIB%" EQU "" call %~dp0_setlib
+if "%XMLBEANS_LIB%" EQU "" call "%~dp0_setlib"
 
 set cp=
 set cp=%cp%;%XMLBEANS_LIB%\xbean.jar
 set cp=%cp%;%XMLBEANS_LIB%\jsr173_1.0_api.jar
 set cp=%cp%;%XMLBEANS_LIB%\jsr173_1.0_ri.jar
 
-java -classpath %cp% org.apache.xmlbeans.impl.tool.StreamInstanceValidator %*
+java -classpath "%cp%" org.apache.xmlbeans.impl.tool.StreamInstanceValidator %*
 
 :done
