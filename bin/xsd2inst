@@ -17,7 +17,7 @@
 
 #Schema to instance tool
 
-if [ -z $XMLBEANS_LIB ]; then . `dirname $0`/_setlib; fi
+if [ -z "$XMLBEANS_LIB" ]; then . `dirname $0`/_setlib; fi
 
 cp=$XMLBEANS_LIB/xbean.jar:$XMLBEANS_LIB/jsr173_1.0_api.jar
 
@@ -27,4 +27,4 @@ case "`uname`" in
         ;;
 esac
 
-java -classpath $cp org.apache.xmlbeans.impl.xsd2inst.SchemaInstanceGenerator $*
+java -classpath "$cp" org.apache.xmlbeans.impl.xsd2inst.SchemaInstanceGenerator "$@"
