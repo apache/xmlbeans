@@ -19,14 +19,14 @@
 #
 # Validates an instance against a schema.
 
-if [ -z $XMLBEANS_LIB ]; then . `dirname $0`/_setlib; fi
+if [ -z "$XMLBEANS_LIB" ]; then . `dirname $0`/_setlib; fi
 
-CP=$XMLBEANS_LIB/xbean.jar:$XMLBEANS_LIB/jsr173_1.0_api.jar
+cp=$XMLBEANS_LIB/xbean.jar:$XMLBEANS_LIB/jsr173_1.0_api.jar
 
 case "`uname`" in
     CYGWIN*)
-        CP=`cygpath -w -p $CP`
+        cp=`cygpath -w -p $cp`
         ;;
 esac
 
-exec java -classpath $CP org.apache.xmlbeans.impl.tool.InstanceValidator $*
+exec java -classpath "$cp" org.apache.xmlbeans.impl.tool.InstanceValidator "$@"
