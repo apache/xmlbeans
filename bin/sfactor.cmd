@@ -21,11 +21,11 @@
 @echo off
 
 setlocal
-if "%XMLBEANS_LIB%" EQU "" call %~dp0_setlib
+if "%XMLBEANS_LIB%" EQU "" call "%~dp0_setlib"
 
 set cp=
 set cp=%cp%;%XMLBEANS_LIB%\xbean.jar;%XMLBEANS_LIB%\jsr173_1.0_api.jar;%XMLBEANS_LIB%\resolver.jar;
 
-java -classpath %cp% org.apache.xmlbeans.impl.tool.FactorImports %*
+java -classpath "%cp%" org.apache.xmlbeans.impl.tool.FactorImports %*
 
 :done
