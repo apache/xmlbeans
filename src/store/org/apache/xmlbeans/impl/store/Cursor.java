@@ -899,7 +899,7 @@ public final class Cursor implements XmlCursor, ChangeListener {
 
         assert _pathEngine == null;
 
-        _pathEngine = Path.getCompiledPath(pathExpr, options).execute(_cur);
+        _pathEngine = Path.getCompiledPath(pathExpr, options).execute(_cur, options);
 
         _cur._locale.registerForChange(this);
     }

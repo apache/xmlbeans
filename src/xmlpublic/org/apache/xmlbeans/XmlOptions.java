@@ -542,6 +542,23 @@ public class XmlOptions implements java.io.Serializable
     }
 
     /**
+     * Map the names and values of external variables in an xquery
+     * expression.  The keys of the map are the variable names
+     * in the query without the '$' prefix.  The values of the map
+     * are objects and can be any of the primitive wrapper classes,
+     * String, XmlObject, or XmlCursor. The mapping only applies to
+     * xquery and has no effect on xpath expressions.
+     *
+     * @param varMap a map from Strings to variable instances.
+     *
+     * @see XmlObject#execQuery
+     * @see XmlCursor#execQuery
+     */
+    public XmlOptions setXqueryVariables (Map varMap) {
+        return set( XQUERY_VARIABLE_MAP, varMap );
+    }
+
+    /**
      * This option sets the document source name into the xml store
      * when parsing a document.  If a document is parsed from a
      * File or URI, it is automatically set to the URI of the
@@ -783,6 +800,8 @@ public class XmlOptions implements java.io.Serializable
 
     /** @exclude */
     public static final String XQUERY_CURRENT_NODE_VAR         = "XQUERY_CURRENT_NODE_VAR";
+    /** @exclude */
+    public static final String XQUERY_VARIABLE_MAP             =  "XQUERY_VARIABLE_MAP";
 
     /** @exclude */
     public static final String CHARACTER_ENCODING              = "CHARACTER_ENCODING";
