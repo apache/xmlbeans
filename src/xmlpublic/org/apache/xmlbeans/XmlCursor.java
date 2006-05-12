@@ -917,11 +917,30 @@ public interface XmlCursor extends XmlTokenSource
      * returns false and does not move the cursor if there are no
      * attributes. The order of attributes is arbitrary, but stable.<br/><br/>
      *
+     * If the cursor is on a STARTDOC of a document-fragment, this method will
+     * move it to the first top level attribute if one exists.<br></br>
+     *
      * xmlns attributes (namespace declarations) are not considered 
      * attributes by this function.<br/><br/>
      *
-     * The cursor must be on a START or STARTDOC for this method to
+     * The cursor must be on a START or STARTDOC (in the case of a
+     * document fragment with top level attributes) for this method to
      * succeed.
+     *
+     * Example for looping through attributes:
+     * <pre>
+     *      XmlCursor cursor = ... //cursor on START or STARTDOC
+     *      if (cursor.toFirstAttribute())
+     *      {
+     *          do
+     *          {
+     *              // do something using attribute's name and value
+     *              cursor.getName();
+     *              cursor.getTextValue();
+     *          }
+     *          while (cursor.toNextAttribute());
+     *      }
+     * </pre>
      * 
      * @return  true if the cursor was moved; otherwise, false.
      */
@@ -953,7 +972,8 @@ public interface XmlCursor extends XmlTokenSource
      * attributes by this function.<br/><br/>
      *
      * The cursor must be on an attribute for this method to succeed.
-     * 
+     * @see #toFirstAttribute()
+     *
      * @return  true if the cursor was moved; otherwise, false.
      */
 

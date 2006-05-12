@@ -2557,7 +2557,7 @@ abstract class Saver
 
             for ( int i=0; i<attrNames.size(); i++ )
             {
-                XMLName attXMLName = computeName((QName)attrNames.get(i),this);
+                XMLName attXMLName = computeName((QName)attrNames.get(i), this, true);
                 StartElementImpl.AttributeImpl attr =
                     new StartElementImpl.NormalAttributeImpl(attXMLName, (String)attrValues.get(i) );
 
@@ -2589,7 +2589,7 @@ abstract class Saver
 
 
             QName name = c.getName();
-            enqueue( new StartElementImpl( computeName(name, this), attributes, namespaces, getPrefixMap() ) );
+            enqueue( new StartElementImpl( computeName(name, this, false), attributes, namespaces, getPrefixMap() ) );
 
             return false;  // still need to be called on end element
         }
@@ -2600,7 +2600,7 @@ abstract class Saver
                 enqueue( new EndDocumentImpl(  ) );
             else
             {
-                XMLName xmlName = computeName(c.getName(), this);
+                XMLName xmlName = computeName(c.getName(), this, false);
                 enqueue( new EndElementImpl( xmlName ) );
             }
 
@@ -2716,7 +2716,7 @@ abstract class Saver
         //
         //
 
-        private static XMLName computeName ( QName name, Saver saver )
+        private static XMLName computeName ( QName name, Saver saver, boolean needsPrefix )
         {
             String uri = name.getNamespaceURI();
             String local = name.getLocalPart();
@@ -2741,7 +2741,7 @@ abstract class Saver
                 // _urpMap and _prefixMap.  This way, I would not have to look it up manually
                 // here
 
-                if (prefix.length() == 0)
+                if (needsPrefix && prefix.length() == 0)
                     prefix = saver.getNonDefaultUriMapping( uri );
 
             }

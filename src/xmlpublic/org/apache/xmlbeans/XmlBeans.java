@@ -301,7 +301,9 @@ public final class XmlBeans
      * @param  options  Options for the query. For example, you can call 
      * the {@link XmlOptions#setXqueryCurrentNodeVar(String) XmlOptions.setXqueryCurrentNodeVar(String)}
      * method to specify a particular name for the expression 
-     * variable that indicates the context node.
+     * variable that indicates the context node and the
+     * {@link XmlOptions#setXqueryVariables(java.util.Map) XmlOptions.setXqueryVariables(Map)}
+     * method to map external variable names to values.
      */
     public static String compileQuery ( String queryExpr, XmlOptions options )
         throws XmlException

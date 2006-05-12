@@ -55,7 +55,7 @@ public abstract class Path
         boolean next(Cur c);
     }
 
-    abstract PathEngine execute(Cur c);
+    abstract PathEngine execute(Cur c, XmlOptions options);
 
     //
     //
@@ -221,7 +221,7 @@ public abstract class Path
             _compiledPath = xpath;
         }
 
-        PathEngine execute(Cur c)
+        PathEngine execute(Cur c, XmlOptions options)
         {
             // The builtin XPath engine works only on containers.  Delegate to
             // xqrl otherwise.  Also, if the path had a //. at the end, the
@@ -231,7 +231,7 @@ public abstract class Path
             if (!c.isContainer() || _compiledPath.sawDeepDot())
             {
                 int force = USE_SAXON | USE_XQRL;
-                return getCompiledPath(_pathKey, force, _currentVar).execute(c);
+                return getCompiledPath(_pathKey, force, _currentVar).execute(c, options);
             }
             return new XbeanPathEngine(_compiledPath, c);
         }
@@ -461,7 +461,7 @@ public abstract class Path
             _xpathImpl = xpathImpl;
         }
 
-        protected PathEngine execute(Cur c)
+        protected PathEngine execute(Cur c, XmlOptions options)
         {
             return new SaxonPathEngine(_xpathImpl, c);
         }
