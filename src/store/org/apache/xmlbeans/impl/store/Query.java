@@ -17,7 +17,6 @@ package org.apache.xmlbeans.impl.store;
 
 import org.apache.xmlbeans.*;
 import org.apache.xmlbeans.impl.common.XPath;
-import org.apache.xmlbeans.impl.store.*;
 import org.w3c.dom.*;
 
 import javax.xml.namespace.QName;
@@ -265,8 +264,10 @@ public abstract class Query
                 // ("Document changed during select")
                     ;
 
+                Map bindings = (Map) XmlOptions.maskNull(_options).
+                    get(XmlOptions.XQUERY_VARIABLE_MAP);
                 List resultsList;
-                resultsList = _saxonImpl.execQuery(_cur.getDom());
+                resultsList = _saxonImpl.execQuery(_cur.getDom(), bindings);
 
                 assert resultsList.size() > -1;
 
@@ -338,8 +339,10 @@ public abstract class Query
                 // ("Document changed during select")
                     ;
 
+                Map bindings = (Map) XmlOptions.maskNull(_options).
+                    get(XmlOptions.XQUERY_VARIABLE_MAP);
                 List resultsList;
-                resultsList = _saxonImpl.execQuery(_cur.getDom());
+                resultsList = _saxonImpl.execQuery(_cur.getDom(), bindings);
 
                 assert resultsList.size() > -1;
 

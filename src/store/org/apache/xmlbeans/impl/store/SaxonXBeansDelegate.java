@@ -126,6 +126,6 @@ public final class SaxonXBeansDelegate
 
      public static interface QueryInterface
     {
-        public List execQuery(Object node);
+        public List execQuery(Object node, Map variableBindings);
     }
 }
