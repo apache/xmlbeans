@@ -20,12 +20,15 @@ import net.sf.saxon.query.DynamicQueryContext;
 import net.sf.saxon.query.StaticQueryContext;
 import net.sf.saxon.query.XQueryExpression;
 import org.apache.xmlbeans.XmlRuntimeException;
+import org.apache.xmlbeans.XmlTokenSource;
 import org.apache.xmlbeans.impl.store.SaxonXBeansDelegate;
 import org.w3c.dom.Node;
 
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.TransformerException;
 import java.util.List;
+import java.util.Map;
+import java.util.Iterator;
 
 
 public class XBeansXQuery
@@ -62,7 +65,7 @@ public class XBeansXQuery
         }
     }
 
-    public List execQuery(Object node)
+    public List execQuery(Object node, Map variableBindings)
     {
         try {
             Node context_node = (Node) node;
@@ -72,6 +75,25 @@ public class XBeansXQuery
                     buildDocument(new DOMSource(context_node)));
             dynamicContext.setParameter(_contextVar,
                     dynamicContext.getContextNode());
+            // Set the other variables
+            if (variableBindings != null)
+                for (Iterator it = variableBindings.entrySet().iterator();
+                    it.hasNext(); )
+                {
+                    Map.Entry entry = (Map.Entry) it.next();
+                    if (entry.getValue() instanceof XmlTokenSource)
+                    {
+                        DOMSource domSource;
+                        domSource = new DOMSource(((XmlTokenSource)
+                            entry.getValue()).getDomNode());
+                        dynamicContext.setParameter((String) entry.getKey(),
+                            domSource);
+                    }
+                    else if (entry.getValue() instanceof String)
+                    dynamicContext.setParameter((String) entry.getKey(),
+                        entry.getValue());
+                }
+
             return _xquery.evaluate(dynamicContext);
         }
         catch (TransformerException e) {
