@@ -1914,6 +1914,14 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory
         if (isNoType())
             return false;
 
+        if (getSimpleVariety() == UNION)
+        {
+            SchemaType[] members = getUnionMemberTypes();
+            for (int i = 0; i < members.length; i++)
+                if (members[i].isAssignableFrom(type))
+                    return true;
+        }
+
         int depth = ((SchemaTypeImpl)type).getBaseDepth() - getBaseDepth();
         if (depth < 0)
             return false;
