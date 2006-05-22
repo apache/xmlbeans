@@ -23,8 +23,9 @@ import org.apache.xmlbeans.impl.common.XPath;
 import org.apache.xmlbeans.impl.store.Cursor.PathEngine;
 import org.apache.xmlbeans.impl.store.Cursor.Selections;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Represents a precompiled path expression
@@ -559,7 +560,32 @@ public abstract class Path
         }
     }
 
-    private static HashMap _xqrlPathCache = new HashMap();
-    private static HashMap _xbeanPathCache = new HashMap();
-    private static HashMap _xqrlQueryCache = new HashMap();
+    private static Map _xqrlPathCache = new CacheMap();
+    private static Map _xbeanPathCache = new CacheMap();
+    private static Map _xqrlQueryCache = new CacheMap();
+
+    private static class CacheMap extends LinkedHashMap
+    {
+        private static final String XPATH_CACHE_SIZE = "xmlbean.xpathCacheSize";
+
+        private static int MAX_ENTRIES = -1;
+
+        CacheMap()
+        {
+            String size = null;
+            if ((size = System.getProperty(XPATH_CACHE_SIZE)) != null)
+                try 
+                {
+                    MAX_ENTRIES = Integer.parseInt(size);
+                }
+                catch (Exception e)
+                {
+                }
+        }
+
+        protected boolean removeEldestEntry(Map.Entry eldest)
+        {
+            return MAX_ENTRIES > 0 && size() > MAX_ENTRIES;
+        }
+    }
 }
