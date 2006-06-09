@@ -35,7 +35,7 @@ import org.w3c.dom.Node;
 public final class XmlBeans
 {
     private static String XMLBEANS_TITLE = "org.apache.xmlbeans";
-    private static String XMLBEANS_VERSION = "2.1.0";
+    private static String XMLBEANS_VERSION = "2.2.0";
     private static String XMLBEANS_VENDOR = "Apache Software Foundation";
 
     static
@@ -137,7 +137,7 @@ public final class XmlBeans
     private static RuntimeException causedException ( RuntimeException e, Throwable cause )
     {
         e.initCause( cause );
-        
+
         return e;
     }
 
@@ -166,7 +166,7 @@ public final class XmlBeans
                 ": verify that xbean.jar is on the classpath" ), e );
         }
     }
-    
+
     private static final Method buildMethod ( String className, String methodName, Class[] args )
     {
         try
@@ -249,7 +249,7 @@ public final class XmlBeans
                 "org.apache.xmlbeans.impl.store.Locale", "streamToNode",
                 new Class[] { XMLStreamReader.class } );
     }
-    
+
     private static final Constructor buildPathResourceLoaderConstructor()
     {
         return
@@ -266,16 +266,16 @@ public final class XmlBeans
     {
         return compilePath( pathExpr, null );
     }
-    
+
     /**
      * Compiles an XPath, returning a String equal to that which was passed,
-     * but whose identity is that of one which has been precompiled and cached; 
+     * but whose identity is that of one which has been precompiled and cached;
      * takes an option for specifying text that indicates the name of context node.
      * The default is "this", as in "$this".
-     * 
-     * @param  options  Options for the path. For example, you can call 
+     *
+     * @param  options  Options for the path. For example, you can call
      * the {@link XmlOptions#setXqueryCurrentNodeVar(String) XmlOptions.setXqueryCurrentNodeVar(String)}
-     * method to specify a particular name for the expression 
+     * method to specify a particular name for the expression
      * variable that indicates the context node.
      */
     public static String compilePath ( String pathExpr, XmlOptions options )
@@ -283,7 +283,7 @@ public final class XmlBeans
     {
         return getContextTypeLoader().compilePath( pathExpr, options );
     }
-    
+
     /**
      * Compiles an XQuery, returning a String equal to that which was passed,
      * but whose identity is that of one which has been precompiled and cached.
@@ -292,15 +292,15 @@ public final class XmlBeans
     {
         return compileQuery( queryExpr, null );
     }
-    
+
     /**
      * Compiles an XQuery, returning a String equal to that which was passed,
      * but whose identity is that of one which has been precompiled and cached;
      * takes an option for specifying text that indicates the context node.
-     * 
-     * @param  options  Options for the query. For example, you can call 
+     *
+     * @param  options  Options for the query. For example, you can call
      * the {@link XmlOptions#setXqueryCurrentNodeVar(String) XmlOptions.setXqueryCurrentNodeVar(String)}
-     * method to specify a particular name for the expression 
+     * method to specify a particular name for the expression
      * variable that indicates the context node and the
      * {@link XmlOptions#setXqueryVariables(java.util.Map) XmlOptions.setXqueryVariables(Map)}
      * method to map external variable names to values.
@@ -310,7 +310,7 @@ public final class XmlBeans
     {
         return getContextTypeLoader().compileQuery( queryExpr, options );
     }
-    
+
     /**
      * Gets the SchemaTypeLoader based on the current thread's context
      * ClassLoader. This is the SchemaTypeLoader that is used to assign
@@ -470,24 +470,24 @@ public final class XmlBeans
     {
         return loadXsd(schemas, null);
     }
-    
+
     /**
      * <p>Returns the SchemaTypeSystem that results from compiling the XML
      * schema definitions passed in <em>schemas</em>.</p>
-     * 
+     *
      * <p>This is just like compileXsd, but uses the context type loader for
      * linking, and returns a unioned typeloader that is suitable for
      * creating instances.</p>
-     * 
+     *
      * <p>Use the <em>options</em> parameter to specify one or both of the following:</p>
-     * 
+     *
      * <ul>
      * <li>A collection instance that should be used as an error listener during
      * compilation, as described in {@link XmlOptions#setErrorListener}.</li>
      * <li>Whether validation should not be done when building the SchemaTypeSystem,
      * as described in {@link XmlOptions#setCompileNoValidation}.</li>
      * </ul>
-     * 
+     *
      * @param schemas The schema definitions from which to build the schema type system.
      * @param options Options specifying an error listener and/or validation behavior.
      */
@@ -502,7 +502,7 @@ public final class XmlBeans
 
             if (sts == null)
                 return null;
-            
+
             return
                 typeLoaderUnion(
                     new SchemaTypeLoader[] { sts, getContextTypeLoader() } );
@@ -516,7 +516,7 @@ public final class XmlBeans
             throw wrappedException(e.getCause());
         }
     }
-    
+
     /**
      * <p>Returns the SchemaTypeSystem that results from compiling the XML
      * schema definitions passed.</p>
@@ -573,25 +573,25 @@ public final class XmlBeans
      * is org.w3c.x2001.xmlSchema.Schema. (That is, schema elements in
      * the XML namespace http://www.w3c.org/2001/XMLSchema.)  Also
      * org.w3c.x2001.xmlSchema.SchemaDocument is permitted.</p>
-     * 
+     *
      * <p>The optional second argument is a SchemaTypeLoader which will be
      * consulted for already-compiled schema types which may be linked
      * while processing the given schemas.</p>
-     * 
+     *
      * <p>The SchemaTypeSystem that is returned should be combined
      * (via {@link #typeLoaderUnion}) with the typepath typeloader in order
      * to create a typeloader that can be used for creating and validating
      * instances.</p>
-     * 
+     *
      * <p>Use the <em>options</em> parameter to specify the following:</p>
-     * 
+     *
      * <ul>
      * <li>A collection instance that should be used as an error listener during
      * compilation, as described in {@link XmlOptions#setErrorListener}.</li>
      * <li>Whether validation should not be done when building the SchemaTypeSystem,
      * as described in {@link XmlOptions#setCompileNoValidation}.</li>
      * </ul>
-     * 
+     *
      * @param schemas The schema definitions from which to build the schema type system.
      * @param typepath The path to already-compiled schema types for linking while processing.
      * @param options Options specifying an error listener and/or validation behavior.
@@ -675,8 +675,8 @@ public final class XmlBeans
             throw wrappedException(e.getCause());
         }
     }
-    
-    
+
+
     /**
      * Returns the union of a list of typeLoaders. The returned
      * SchemaTypeLoader searches the given list of SchemaTypeLoaders
@@ -726,11 +726,11 @@ public final class XmlBeans
             throw ise;
         }
     }
-    
+
     /**
      * Returns a SchemaTypeLoader that searches for compiled schema types
      * in the given ResourceLoader.
-     * 
+     *
      * @see XmlBeans#resourceLoaderForPath(File[])
      */
     public static SchemaTypeLoader typeLoaderForResource(ResourceLoader resourceLoader)
@@ -824,7 +824,7 @@ public final class XmlBeans
             throw ise;
         }
     }
-    
+
     /**
      * Returns the SchemaType from a corresponding XmlObject subclass,
      * or null if none.
@@ -837,7 +837,7 @@ public final class XmlBeans
         try
         {
             Field typeField = c.getField("type");
-            
+
             if (typeField == null)
                 return null;
 
