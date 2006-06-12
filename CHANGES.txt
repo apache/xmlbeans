@@ -1,3 +1,19 @@
+Changes in v2.2.0 since v2.1.0:
+
+* Allow polymorphism in Extension Interfaces Feature
+* Fix for circular buffer in TextSaver
+* Tuned synchronization for multithreaded validation
+* Updated to the latest XMLSchema.xsd - January 25, 2006
+* Better QName validation
+* Fix insertion positions when using substitution groups with arrays
+* Updated XmlBeans to work with SaxonB-8.6.1 in place of SaxonB8.1
+* Fix for regex validation in multi-threaded, multi-processor environment
+* Fix for schema compilation error when restricting complex type with simple content
+* Implemented XMLInputStream interface for saving a store
+* XQuery external variable binding support
+* Various other bug fixes
+
+
 Changes in v2.1.0 since v2.0.0:
 
 * Fixed the issue whereby some IDEs would have problems with the TypeSystemHolder class being generated in the classes directory
