@@ -2990,6 +2990,7 @@ final class Cur
         protected void startElement ( QName name )
         {
             start( createElementXobj( _locale, checkName( name, false ), parent()._name ) );
+            _stripLeft = true;
         }
 
         protected void endElement ( )
@@ -2997,6 +2998,7 @@ final class Cur
             assert parent().isElem();
 
             end();
+            _stripLeft = true;
         }
 
         protected void xmlns ( String prefix, String uri )
@@ -3071,12 +3073,14 @@ final class Cur
                 _lastXobj = x;
                 _lastPos  = 0;
             }
+            _stripLeft = true;
         }
 
         protected void comment ( String comment )
         {
             if (!_stripComments)
                 comment( comment, 0, comment.length() );
+            _stripLeft = true;
         }
 
         protected void comment ( char[] chars, int off, int cch )
@@ -3087,6 +3091,7 @@ final class Cur
                     _charUtil.saveChars( chars, off, cch ),
                     _charUtil._offSrc, _charUtil._cchSrc );
             }
+            _stripLeft = true;
         }
 
         private void comment ( Object src, int off, int cch )
@@ -3101,13 +3106,20 @@ final class Cur
             _lastPos  = 0;
         }
 
+        private boolean _stripLeft = true;
+
         private void stripText ( Object src, int off, int cch )
         {
             if (_stripWhitespace)
             {
-                src = _charUtil.stripLeft( src, off, cch );
-                off = _charUtil._offSrc;
-                cch = _charUtil._cchSrc;
+                // this is to avoid bug in cases like <company>Procter &amp; Gamble</company>
+                if (_stripLeft)
+                {
+                    src = _charUtil.stripLeft( src, off, cch );
+                    _stripLeft = false;
+                    off = _charUtil._offSrc;
+                    cch = _charUtil._cchSrc;
+                }
             }
 
             text( src, off, cch );
@@ -3166,6 +3178,7 @@ final class Cur
 
         protected void abort ( )
         {
+            _stripLeft = true;
             while ( !parent().isRoot() )
                 end();
 
