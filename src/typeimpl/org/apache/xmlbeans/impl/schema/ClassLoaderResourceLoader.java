@@ -23,7 +23,7 @@ public class ClassLoaderResourceLoader implements ResourceLoader
 {
     ClassLoader _classLoader;
 
-    ClassLoaderResourceLoader(ClassLoader classLoader)
+    public ClassLoaderResourceLoader(ClassLoader classLoader)
     {
         _classLoader = classLoader;
     }
