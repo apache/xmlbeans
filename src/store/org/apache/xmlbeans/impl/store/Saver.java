@@ -898,6 +898,12 @@ abstract class Saver
             boolean noSaveDecl =
                 options != null && options.hasOption( XmlOptions.SAVE_NO_XML_DECL );
 
+            if (options != null && options.hasOption(XmlOptions.SAVE_CDATA_LENGTH_THRESHOLD))
+                _cdataLengthThreshold = ((Integer)options.get(XmlOptions.SAVE_CDATA_LENGTH_THRESHOLD)).intValue();
+
+            if (options != null && options.hasOption(XmlOptions.SAVE_CDATA_ENTITY_COUNT_THRESHOLD))
+                _cdataEntityCountThreshold = ((Integer)options.get(XmlOptions.SAVE_CDATA_ENTITY_COUNT_THRESHOLD)).intValue();
+
             if (encoding != null && !noSaveDecl)
             {
                 XmlDocumentProperties props = Locale.getDocProps( c, false );
@@ -1279,8 +1285,7 @@ abstract class Saver
             //
             // Heuristic for knowing when to save out stuff as a CDATA.
             //
-            if (_lastEmitCch > 32 && count > 5 &&
-                  count * 100 / _lastEmitCch > 1)
+            if (_lastEmitCch > _cdataLengthThreshold && count > _cdataEntityCountThreshold)
             {
                 boolean lastWasBracket = _buf[ i ] == ']';
 
@@ -1722,6 +1727,8 @@ abstract class Saver
         //
 
         private static final int _initialBufSize = 4096;
+        private static final int TextLengthCdataThreshold = 32;
+        private static final int EntitizeCharsCountCdataThreshold = 5;
 
         private int _lastEmitIn;
         private int _lastEmitCch;
@@ -1730,6 +1737,9 @@ abstract class Saver
         private int    _in;
         private int    _out;
         private char[] _buf;
+
+        private int _cdataLengthThreshold = 32;
+        private int _cdataEntityCountThreshold = 5;
     }
 
     static final class OptimizedForSpeedSaver
