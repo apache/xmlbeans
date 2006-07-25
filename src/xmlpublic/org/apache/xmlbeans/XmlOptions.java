@@ -368,6 +368,39 @@ public class XmlOptions implements java.io.Serializable
     }
 
     /**
+     * This option controls when saving will use CDATA blocks.
+     * CDATA will be used if the folowing condition is true:
+     * <br/>textLength > cdataLengthThreshold && entityCount > cdataEntityCountThreshold
+     * <br/>The default value of cdataLengthThreshold is 32.
+     * <br/>
+     * <br/>Use the folowing values for these cases:
+     * <table border=1>
+     * <tr><th>Scenario</th> <th>cdataLengthThreshold</th> <th>cdataEntityCountThreshold</th></tr>
+     * <tr><td>Every text is CDATA</td> <td>0</td> <td>-1</td></tr>
+     * <tr><td>Only text that has an entity is CDATA</td> <td>0</td> <td>0</td></tr>
+     * <tr><td>Only text longer than x chars is CDATA</td> <td>x</td> <td>-1</td></tr>
+     * <tr><td>Only text that has y entitazable chars is CDATA</td> <td>0</td> <td>y</td></tr>
+     * <tr><td>Only text longer than x chars and has y entitazable chars is CDATA</td> <td>x</td> <td>y</td></tr>
+     * </table>
+     * @see XmlOptions#setSaveCDataEntityCountThreshold(int)
+     */
+    public XmlOptions setSaveCDataLengthThreshold (int cdataLengthThreshold) {
+        return set( SAVE_CDATA_LENGTH_THRESHOLD, cdataLengthThreshold );
+    }
+
+    /**
+     * This option controls when saving will use CDATA blocks.
+     * CDATA will be used if the folowing condition is true:
+     * <br/>textLength > cdataLengthThreshold && entityCount > cdataEntityCountThreshold
+     * <br/>The default value of cdataEntityCountThreshold is 5.
+     *
+     * @see XmlOptions#setSaveCDataLengthThreshold(int)
+     */
+    public XmlOptions setSaveCDataEntityCountThreshold (int cdataEntityCountThreshold) {
+        return set( SAVE_CDATA_ENTITY_COUNT_THRESHOLD, cdataEntityCountThreshold );
+    }
+
+    /**
      * If this option is set, the document element is replaced with the
      * given QName when parsing.  If null is supplied, the document element
      * is removed.
@@ -772,6 +805,10 @@ public class XmlOptions implements java.io.Serializable
     public static final String SAVE_SUBSTITUTE_CHARACTERS      = "SAVE_SUBSTITUTE_CHARACTERS";
     /** @exclude */
     public static final String SAVE_OPTIMIZE_FOR_SPEED         = "SAVE_OPTIMIZE_FOR_SPEED";
+    /** @exclude */
+    public static final String SAVE_CDATA_LENGTH_THRESHOLD     = "SAVE_CDATA_LENGTH_THRESHOLD";
+    /** @exclude */
+    public static final String SAVE_CDATA_ENTITY_COUNT_THRESHOLD = "SAVE_CDATA_ENTITY_COUNT_THRESHOLD";
     /** @exclude */
     public static final String LOAD_REPLACE_DOCUMENT_ELEMENT   = "LOAD_REPLACE_DOCUMENT_ELEMENT";
     /** @exclude */
