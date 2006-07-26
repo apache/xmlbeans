@@ -154,7 +154,7 @@ public class XsbDumper
 
     public static final int DATA_BABE = 0xDA7ABABE;
     public static final int MAJOR_VERSION = 2;
-    public static final int MINOR_VERSION = 23;
+    public static final int MINOR_VERSION = 24;
 
     public static final int FILETYPE_SCHEMAINDEX = 1;
     public static final int FILETYPE_SCHEMATYPE = 2;
@@ -659,8 +659,13 @@ public class XsbDumper
             indent();
             for (int i = 0; i < n; i++)
             {
-                emit("Name: " + qnameString(readQName()) +
-                    ", Value: " + readString());
+                if (atLeast(2, 24, 0))
+                    emit("Name: " + qnameString(readQName()) +
+                        ", Value: " + readString() +
+                        ", ValueURI: " + readString());
+                else
+                    emit("Name: " + qnameString(readQName()) +
+                        ", Value: " + readString());
             }
             outdent();
             empty = false;

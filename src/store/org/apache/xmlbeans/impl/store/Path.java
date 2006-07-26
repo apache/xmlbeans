@@ -446,7 +446,7 @@ public abstract class Path
             assert !currentNodeVar.startsWith("$"); // cezar review with ericvas
 
             SaxonXBeansDelegate.SelectPathInterface impl =
-                    SaxonXBeansDelegate.createInstance(pathExpr, namespaceMap);
+                    SaxonXBeansDelegate.createInstance(pathExpr, currentNodeVar, namespaceMap);
             if (impl == null)
                 return null;
 

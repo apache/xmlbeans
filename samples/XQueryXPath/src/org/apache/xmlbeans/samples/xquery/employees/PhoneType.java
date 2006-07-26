@@ -11,11 +11,12 @@ package org.apache.xmlbeans.samples.xquery.employees;
 /**
  * An XML phoneType(@http://xmlbeans.apache.org/samples/xquery/employees).
  *
- * This is an atomic type that is a restriction of org.apache.xmlbeans.XmlString.
+ * This is an atomic type that is a restriction of org.apache.xmlbeans.samples.xquery.employees.PhoneType.
  */
 public interface PhoneType extends org.apache.xmlbeans.XmlString
 {
-    public static final org.apache.xmlbeans.SchemaType type = (org.apache.xmlbeans.SchemaType)schema.system.sD4FB2ECA19277E984CA2AB92FEEBD267.TypeSystemHolder.typeSystem.resolveHandle("phonetype3126type");
+    public static final org.apache.xmlbeans.SchemaType type = (org.apache.xmlbeans.SchemaType)
+        org.apache.xmlbeans.XmlBeans.typeSystemForClassLoader(PhoneType.class.getClassLoader(), "schemaorg_apache_xmlbeans.system.sD4FB2ECA19277E984CA2AB92FEEBD267").resolveHandle("phonetype3126type");
     
     /**
      * Gets the "location" attribute

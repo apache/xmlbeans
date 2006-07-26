@@ -15,7 +15,8 @@ package org.apache.xmlbeans.samples.xquery.employees;
  */
 public interface EmployeeType extends org.apache.xmlbeans.XmlObject
 {
-    public static final org.apache.xmlbeans.SchemaType type = (org.apache.xmlbeans.SchemaType)schema.system.sD4FB2ECA19277E984CA2AB92FEEBD267.TypeSystemHolder.typeSystem.resolveHandle("employeetype5e98type");
+    public static final org.apache.xmlbeans.SchemaType type = (org.apache.xmlbeans.SchemaType)
+        org.apache.xmlbeans.XmlBeans.typeSystemForClassLoader(EmployeeType.class.getClassLoader(), "schemaorg_apache_xmlbeans.system.sD4FB2ECA19277E984CA2AB92FEEBD267").resolveHandle("employeetype5e98type");
     
     /**
      * Gets the "name" element

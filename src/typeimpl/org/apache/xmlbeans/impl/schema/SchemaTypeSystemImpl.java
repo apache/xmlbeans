@@ -81,7 +81,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
 {
     public static final int DATA_BABE = 0xDA7ABABE;
     public static final int MAJOR_VERSION = 2;  // must match == to be compatible
-    public static final int MINOR_VERSION = 23; // must be <= to be compatible
+    public static final int MINOR_VERSION = 24; // must be <= to be compatible
     public static final int RELEASE_NUMBER = 0; // should be compatible even if < or >
 
     public static final int FILETYPE_SCHEMAINDEX = 1;
@@ -1878,8 +1878,10 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
             {
                 QName name = attributes[i].getName();
                 String value = attributes[i].getValue();
+                String valueURI = attributes[i].getValueUri();
                 writeQName(name);
                 writeString(value);
+                writeString(valueURI);
             }
 
             // Write documentation items
@@ -1917,7 +1919,10 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
             {
                 QName name = readQName();
                 String value = readString();
-                attributes[i] = new SchemaAnnotationImpl.AttributeImpl(name, value);
+                String valueUri = null;
+                if (atLeast(2, 24, 0))
+                    valueUri = readString();
+                attributes[i] = new SchemaAnnotationImpl.AttributeImpl(name, value, valueUri);
             }
 
             // Read documentation items

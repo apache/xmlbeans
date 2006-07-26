@@ -16,7 +16,8 @@ package org.apache.xmlbeans.samples.xquery.employees;
  */
 public interface EmployeesDocument extends org.apache.xmlbeans.XmlObject
 {
-    public static final org.apache.xmlbeans.SchemaType type = (org.apache.xmlbeans.SchemaType)schema.system.sD4FB2ECA19277E984CA2AB92FEEBD267.TypeSystemHolder.typeSystem.resolveHandle("employees8e53doctype");
+    public static final org.apache.xmlbeans.SchemaType type = (org.apache.xmlbeans.SchemaType)
+        org.apache.xmlbeans.XmlBeans.typeSystemForClassLoader(EmployeesDocument.class.getClassLoader(), "schemaorg_apache_xmlbeans.system.sD4FB2ECA19277E984CA2AB92FEEBD267").resolveHandle("employees8e53doctype");
     
     /**
      * Gets the "employees" element
@@ -40,7 +41,8 @@ public interface EmployeesDocument extends org.apache.xmlbeans.XmlObject
      */
     public interface Employees extends org.apache.xmlbeans.XmlObject
     {
-        public static final org.apache.xmlbeans.SchemaType type = (org.apache.xmlbeans.SchemaType)schema.system.sD4FB2ECA19277E984CA2AB92FEEBD267.TypeSystemHolder.typeSystem.resolveHandle("employees9844elemtype");
+        public static final org.apache.xmlbeans.SchemaType type = (org.apache.xmlbeans.SchemaType)
+            org.apache.xmlbeans.XmlBeans.typeSystemForClassLoader(Employees.class.getClassLoader(), "schemaorg_apache_xmlbeans.system.sD4FB2ECA19277E984CA2AB92FEEBD267").resolveHandle("employees9844elemtype");
         
         /**
          * Gets array of all "employee" elements

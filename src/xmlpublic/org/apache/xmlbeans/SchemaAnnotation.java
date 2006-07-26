@@ -53,5 +53,11 @@ public interface SchemaAnnotation extends SchemaComponent
          * Returns the value of the attribute
          */
         String getValue();
+
+        /**
+         * In case the value of this attribute is a QName,
+         * returns the URI to which the prefix in the value is bound
+         */
+        String getValueUri();
     }
 }

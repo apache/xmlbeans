@@ -15,7 +15,8 @@ package org.apache.xmlbeans.samples.xquery.employees;
  */
 public interface AddressType extends org.apache.xmlbeans.XmlObject
 {
-    public static final org.apache.xmlbeans.SchemaType type = (org.apache.xmlbeans.SchemaType)schema.system.sD4FB2ECA19277E984CA2AB92FEEBD267.TypeSystemHolder.typeSystem.resolveHandle("addresstype93ectype");
+    public static final org.apache.xmlbeans.SchemaType type = (org.apache.xmlbeans.SchemaType)
+        org.apache.xmlbeans.XmlBeans.typeSystemForClassLoader(AddressType.class.getClassLoader(), "schemaorg_apache_xmlbeans.system.sD4FB2ECA19277E984CA2AB92FEEBD267").resolveHandle("addresstype93ectype");
     
     /**
      * Gets the "street" element

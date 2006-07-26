@@ -17,6 +17,7 @@ package org.apache.xmlbeans.impl.schema;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import javax.xml.namespace.QName;
 
 import org.apache.xmlbeans.SchemaAnnotation;
@@ -171,7 +172,20 @@ public class SchemaAnnotationImpl implements SchemaAnnotation
                 "http://www.w3.org/2001/XMLSchema".equals(namespaceURI))
                 ; // no nothing
             else
-                attrList.add(new AttributeImpl(name, cursor.getTextValue())); //add the attribute
+            {
+                String attValue = cursor.getTextValue();
+                String valUri;
+                String prefix;
+                if (attValue.indexOf(':') > 0)
+                    prefix = attValue.substring(0, attValue.indexOf(':'));
+                else
+                    prefix = "";
+                cursor.push();
+                cursor.toParent();
+                valUri = cursor.namespaceForPrefix(prefix);
+                cursor.pop();
+                attrList.add(new AttributeImpl(name, attValue, valUri)); //add the attribute
+            }
             hasAttributes = cursor.toNextAttribute();
         }
         cursor.dispose();
@@ -196,11 +210,13 @@ public class SchemaAnnotationImpl implements SchemaAnnotation
     {
         private QName _name;
         private String _value;
+        private String _valueUri;
 
-        /*package*/ AttributeImpl(QName name, String value)
+        /*package*/ AttributeImpl(QName name, String value, String valueUri)
         {
             _name = name;
             _value = value;
+            _valueUri = valueUri;
         }
 
         public QName getName()
@@ -208,5 +224,8 @@ public class SchemaAnnotationImpl implements SchemaAnnotation
 
         public String getValue()
         {   return _value; }
+
+        public String getValueUri()
+        {   return _valueUri; }
     }
 }
