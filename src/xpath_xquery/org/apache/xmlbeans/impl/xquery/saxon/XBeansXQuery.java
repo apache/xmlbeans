@@ -44,6 +44,7 @@ public class XBeansXQuery
     public XBeansXQuery(String queryExpr, String contextVar, Integer boundary)
     {
         this.config = new Configuration();
+        config.setTreeModel(net.sf.saxon.event.Builder.STANDARD_TREE);
         this._stcContext = new StaticQueryContext(config);
         this._query = queryExpr;
         this._contextVar = contextVar;

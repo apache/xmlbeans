@@ -63,6 +63,7 @@ public final class SaxonXBeansDelegate
             {
                 _constructor =
                     saxonXPathImpl.getConstructor(new Class[]{String.class,
+                                                              String.class,
                                                               Map.class,
                                                               String.class});
                 _xqConstructor =
@@ -78,7 +79,9 @@ public final class SaxonXBeansDelegate
         }
     }
 
-    static SelectPathInterface createInstance(String xpath, Map namespaceMap)
+    static SelectPathInterface createInstance(String xpath,
+                                              String contextVar,
+                                              Map namespaceMap)
     {
         if (_saxonAvailable && _constructor == null)
             init();
@@ -92,7 +95,7 @@ public final class SaxonXBeansDelegate
             if ( defaultNS != null )
                 namespaceMap.remove( XPath._DEFAULT_ELT_NS );
             return (SaxonXBeansDelegate.SelectPathInterface)
-                    _constructor.newInstance(new Object[] {xpath,namespaceMap,(String)defaultNS});
+                    _constructor.newInstance(new Object[] {xpath,contextVar,namespaceMap,(String)defaultNS});
         }
         catch (Exception e)
         {

@@ -23,6 +23,7 @@ import java.util.Map;
 
 import javax.xml.transform.TransformerException;
 
+import net.sf.saxon.Configuration;
 import net.sf.saxon.sxpath.XPathEvaluator;
 import net.sf.saxon.sxpath.XPathExpression;
 import net.sf.saxon.trans.Variable;
@@ -36,12 +37,15 @@ public class XBeansXPath
     /**
      * Construct given an XPath expression string.
      * @param xpathExpr The XPath expression.
+     * @param contextVar The name of the context variable
      * @param namespaceMap a map of prefix/uri bindings for NS support
      * @param defaultNS the uri for the default element NS, if any
      */
-    public XBeansXPath(String xpathExpr, Map namespaceMap, String defaultNS)
+    public XBeansXPath(String xpathExpr, String contextVar,
+                       Map namespaceMap, String defaultNS)
     {
-        _queryExp = xpathExpr;
+        _queryExpr = xpathExpr;
+        _contextVar = contextVar;
         this.defaultNS = defaultNS;
         this.namespaceMap = namespaceMap.entrySet().toArray();
     }
@@ -76,7 +80,9 @@ public class XBeansXPath
         {
             DOMSource rootNode = new DOMSource((Node) node);
             XPathEvaluator xpe = new XPathEvaluator();
-            XBeansIndependentContext sc = new XBeansIndependentContext();
+            Configuration c = new Configuration();
+            c.setTreeModel(net.sf.saxon.event.Builder.STANDARD_TREE);
+            XBeansIndependentContext sc = new XBeansIndependentContext(c);
 
             // Declare ns bindings
             if (defaultNS != null)
@@ -91,10 +97,10 @@ public class XBeansXPath
 
             xpe.setStaticContext(sc);
 
-            Variable thisVar = sc.declareVariable("this");
+            Variable thisVar = sc.declareVariable(_contextVar);
             thisVar.setValue(rootNode);
 
-            XPathExpression exp = xpe.createExpression(_queryExp);
+            XPathExpression exp = xpe.createExpression(_queryExpr);
             return exp.evaluate(rootNode);
         }
         catch (TransformerException e)
@@ -109,6 +115,7 @@ public class XBeansXPath
     }
 
     private Object[] namespaceMap;
-    private String _queryExp;
+    private String _queryExpr;
+    private String _contextVar;
     private String defaultNS;
 }

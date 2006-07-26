@@ -1052,7 +1052,31 @@ public class XmlComplexContentImpl extends XmlObjectBase
 
     protected void arraySetterHelper ( XmlObject[] sources, QName elemName )
     {
-        get_store().array_setter( sources, elemName );
+        int n = sources == null ? 0 : sources.length;
+        
+        TypeStore store = get_store();
+
+        int m = store.count_elements( elemName );
+
+        for ( ; m > n ; m-- )
+            store.remove_element( elemName, m - 1 );
+
+        for ( int i = 0 ; i < n ; i++ )
+        {
+            TypeStoreUser user;
+            
+            if (i >= m)
+                user = store.add_element_user( elemName );
+            else
+                user = store.find_element_user( elemName, i );
+
+            ((XmlObjectBase) user).set( sources[ i ] );
+        }
+
+        // We can't just delegate to array_setter because we need
+        // synchronization on the sources (potentially each element
+        // in the array on a different lock)
+        // get_store().array_setter( sources, elemName );
     }
 
     protected void arraySetterHelper ( XmlObject[] sources, QName elemName, QNameSet set )
