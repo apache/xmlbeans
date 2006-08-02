@@ -34,6 +34,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.MalformedURLException;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.InputStream;
@@ -59,10 +60,10 @@ import org.xml.sax.SAXException;
 
 public class StscImporter
 {
-    public static SchemaToProcess[] resolveImportsAndIncludes(Schema[] startWith)
+    public static SchemaToProcess[] resolveImportsAndIncludes(Schema[] startWith, boolean forceSrcSave)
     {
         DownloadTable engine = new DownloadTable(startWith);
-        return engine.resolveImportsAndIncludes();
+        return engine.resolveImportsAndIncludes(forceSrcSave);
     }
 
     public static class SchemaToProcess
@@ -596,7 +597,7 @@ public class StscImporter
                     if (urlToLoad == null)
                         throw new IOException("EntityResolver unable to resolve " + absoluteURL + " (for namespace " + namespace + ")");
 
-                    copySchemaSource(absoluteURL, state);
+                    copySchemaSource(absoluteURL, state, false);
                     XmlOptions options = new XmlOptions();
                     options.setLoadLineNumbers();
                     options.setLoadMessageDigest();
@@ -608,7 +609,7 @@ public class StscImporter
 
             // no resolver - just use the URL directly, no substitution
             state.addSourceUri(absoluteURL, null);
-            copySchemaSource(absoluteURL, state);
+            copySchemaSource(absoluteURL, state, false);
 
             XmlOptions options = new XmlOptions();
             options.setLoadLineNumbers();
@@ -740,7 +741,7 @@ public class StscImporter
             }
         }
 
-        public SchemaToProcess[] resolveImportsAndIncludes()
+        public SchemaToProcess[] resolveImportsAndIncludes(boolean forceSave)
         {
             StscState state = StscState.get();
             List result = new ArrayList();
@@ -763,7 +764,7 @@ public class StscImporter
                     String uri = stp.getSourceName();
                     state.addSourceUri(uri, null);
                     result.add(stp);
-                    copySchemaSource(uri, state);
+                    copySchemaSource(uri, state, forceSave);
 
                     {
                         // handle imports
@@ -936,7 +937,7 @@ public class StscImporter
             }
         }
 
-        private static void copySchemaSource(String urlLoc, StscState state)
+        private static void copySchemaSource(String urlLoc, StscState state, boolean forceCopy)
         {
             //Copy the schema file if it wasn't already copied
             if (state.getSchemasDir()!=null)
@@ -944,7 +945,7 @@ public class StscImporter
                 String schemalocation = state.sourceNameForUri(urlLoc);
 
                 File targetFile = new File(state.getSchemasDir(), schemalocation);
-                if (!targetFile.exists())
+                if (forceCopy || !targetFile.exists())
                 {
                     try
                     {
@@ -954,10 +955,22 @@ public class StscImporter
                         InputStream in = null;
                         URL url = new URL(urlLoc);
                         // Copy the file from filepath to schema[METADATA_PACKAGE_GEN]/src/<schemaFile>
-                        in = url.openStream();
-
-                        FileOutputStream out = new FileOutputStream(targetFile);
-                        IOUtil.copyCompletely(in, out);
+                        try
+                        {
+                            in = url.openStream();
+                        }
+                        catch (FileNotFoundException fnfe)
+                        {
+                            if (forceCopy && targetFile.exists())
+                                targetFile.delete();
+                            else
+                                throw fnfe;
+                        }
+                        if (in != null)
+                        {
+                            FileOutputStream out = new FileOutputStream(targetFile);
+                            IOUtil.copyCompletely(in, out);
+                        }
                     }
                     catch (IOException e)
                     {

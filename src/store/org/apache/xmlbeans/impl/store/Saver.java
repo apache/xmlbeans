@@ -1500,6 +1500,8 @@ abstract class Saver
             assert _free >= dCch;
             assert getAvailable() > 0;
 
+            int charsToCopy = dCch + 1;
+
             if (_out > _in && i >= _out)
             {
                 System.arraycopy( _buf, _out, _buf, _out - dCch, i - _out );
@@ -1515,23 +1517,33 @@ abstract class Saver
                     System.arraycopy( _buf, i, _buf, i + dCch, _in - i );
                     _in += dCch;
                 }
-                else
+                else if ( dCch <= availableEndChunk + _in - i - 1 )
                 {
-                    int numToCopyToStart = _in - i - availableEndChunk;
+                    int numToCopyToStart = dCch - availableEndChunk;
                     System.arraycopy( _buf, _in-numToCopyToStart, _buf, 0, numToCopyToStart );
-                    System.arraycopy( _buf, i, _buf, i+dCch, availableEndChunk );
+                    System.arraycopy( _buf, i+1, _buf, i+1+dCch, _in-i-1-numToCopyToStart);
 
                     _in = numToCopyToStart;
                 }
+                else
+                {
+                    int numToCopyToStart = _in - i - 1;
+                    charsToCopy = availableEndChunk + _in - i;
+
+                    System.arraycopy( _buf, _in-numToCopyToStart, _buf, dCch-charsToCopy+1, numToCopyToStart );
+                    replacement.getChars( charsToCopy, dCch + 1, _buf, 0);
+
+                    _in = numToCopyToStart + dCch - charsToCopy + 1;
+                }
             }
 
-            replacement.getChars( 0, dCch + 1, _buf, i );
+            replacement.getChars( 0, charsToCopy, _buf, i );
 
             _free -= dCch;
 
             assert _free >= 0;
 
-            return i + dCch + 1;
+            return (i + dCch + 1) % _buf.length;
         }
         //
         //
