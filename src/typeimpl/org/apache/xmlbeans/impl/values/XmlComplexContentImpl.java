@@ -1052,23 +1052,110 @@ public class XmlComplexContentImpl extends XmlObjectBase
 
     protected void arraySetterHelper ( XmlObject[] sources, QName elemName )
     {
-        int n = sources == null ? 0 : sources.length;
-        
         TypeStore store = get_store();
 
-        int m = store.count_elements( elemName );
+        if (sources == null || sources.length == 0)
+        {
+            int m = store.count_elements( elemName );
+            for ( ; m > 0 ; m-- )
+                store.remove_element( elemName, 0 );
+            return;
+        }
 
-        for ( ; m > n ; m-- )
+        // Verify if the sources contain children of this node
+        int i;
+        int m = store.count_elements( elemName ); // how many elements in the original array
+        int startSrc = 0, startDest = 0;
+        for (i = 0; i < sources.length; i++)
+        {
+            XmlCursor c = sources[i].newCursor();
+            if (c.toParent() && c.getObject() == this)
+            {
+                c.dispose();
+                break;
+            }
+            c.dispose();
+        }
+        if (i < sources.length)
+        {
+            TypeStoreUser current = store.find_element_user( elemName, 0 );
+            if (current == sources[i])
+            {
+                // The new object matches what already exists in the array
+                // Heuristic: we optimize for the case where the new elements
+                // in the array are the same as the existing elements with
+                // potentially new elements inserted
+
+                // First insert the new element in the array at position 0
+                int j = 0;
+                for ( j = 0; j < i; j++ )
+                {
+                    TypeStoreUser user = store.insert_element_user( elemName, j );
+                    ((XmlObjectBase) user).set( sources[j] );
+                }
+                for ( i++, j++; i < sources.length; i++, j++)
+                {
+                    XmlCursor c = sources[i].newCursor();
+                    if (c.toParent() && c.getObject() == this)
+                    {
+                        c.dispose();
+                        current = store.find_element_user( elemName, j );
+                        if (current == sources[i])
+                            ; // advance
+                        else
+                        {
+                            // Fall back to the general case
+                            break;
+                        }
+                    }
+                    else
+                    {
+                        c.dispose();
+                        // Insert before the current element
+                        TypeStoreUser user = store.insert_element_user( elemName, j );
+                        ((XmlObjectBase) user).set( sources[i] );
+                    }
+                }
+                startDest = j;
+                startSrc = i;
+                m = store.count_elements( elemName );
+            }
+            // Fall through
+        }
+        else
+        {
+            // All of the elements in the existing array are to
+            // be deleted and replaced with elements from the
+            // sources array
+        }
+
+        // The general case: we assume that some of the elements
+        // in the new array already exist, but at different indexes
+
+        // Starting with position i in the sources array, copy the remaining elements
+        // to the end of the original array...
+        for (int j = i; j < sources.length; j++)
+        {
+            TypeStoreUser user = store.add_element_user( elemName );
+            ((XmlObjectBase) user).set( sources[ j ] );
+        }
+
+        // ... then come back and insert the elements starting with startSource
+        // up to i from the sources array into the current array, starting with
+        // startDest
+        int n = i;
+        for ( ; m > n - startSrc + startDest; m-- )
             store.remove_element( elemName, m - 1 );
 
-        for ( int i = 0 ; i < n ; i++ )
+        int j;
+        for ( i = startSrc, j = startDest ; i < n ; i++, j++ )
         {
             TypeStoreUser user;
-            
-            if (i >= m)
+
+            if (j >= m)
                 user = store.add_element_user( elemName );
             else
-                user = store.find_element_user( elemName, i );
+                user = store.find_element_user( elemName, j );
 
             ((XmlObjectBase) user).set( sources[ i ] );
         }
@@ -1076,28 +1163,115 @@ public class XmlComplexContentImpl extends XmlObjectBase
         // We can't just delegate to array_setter because we need
         // synchronization on the sources (potentially each element
         // in the array on a different lock)
-        // get_store().array_setter( sources, elemName );
+//         get_store().array_setter( sources, elemName );
     }
 
     protected void arraySetterHelper ( XmlObject[] sources, QName elemName, QNameSet set )
     {
-        int n = sources == null ? 0 : sources.length;
-        
         TypeStore store = get_store();
 
-        int m = store.count_elements( set );
+        if (sources == null || sources.length == 0)
+        {
+            int m = store.count_elements( set );
+            for ( ; m > 0 ; m-- )
+                store.remove_element( set, 0 );
+            return;
+        }
 
-        for ( ; m > n ; m-- )
+        // Verify if the sources contain children of this node
+        int i;
+        int m = store.count_elements( set ); // how many elements in the original array
+        int startSrc = 0, startDest = 0;
+        for (i = 0; i < sources.length; i++)
+        {
+            XmlCursor c = sources[i].newCursor();
+            if (c.toParent() && c.getObject() == this)
+            {
+                c.dispose();
+                break;
+            }
+            c.dispose();
+        }
+        if (i < sources.length)
+        {
+            TypeStoreUser current = store.find_element_user( set, 0 );
+            if (current == sources[i])
+            {
+                // The new object matches what already exists in the array
+                // Heuristic: we optimize for the case where the new elements
+                // in the array are the same as the existing elements with
+                // potentially new elements inserted
+
+                // First insert the new element in the array at position 0
+                int j = 0;
+                for ( j = 0; j < i; j++ )
+                {
+                    TypeStoreUser user = store.insert_element_user( set, elemName, j );
+                    ((XmlObjectBase) user).set( sources[j] );
+                }
+                for ( i++, j++; i < sources.length; i++, j++)
+                {
+                    XmlCursor c = sources[i].newCursor();
+                    if (c.toParent() && c.getObject() == this)
+                    {
+                        c.dispose();
+                        current = store.find_element_user( set, j );
+                        if (current == sources[i])
+                            ; // advance
+                        else
+                        {
+                            // Fall back to the general case
+                            break;
+                        }
+                    }
+                    else
+                    {
+                        c.dispose();
+                        // Insert before the current element
+                        TypeStoreUser user = store.insert_element_user( set, elemName, j );
+                        ((XmlObjectBase) user).set( sources[i] );
+                    }
+                }
+                startDest = j;
+                startSrc = i;
+                m = store.count_elements( elemName );
+            }
+            // Fall through
+        }
+        else
+        {
+            // All of the elements in the existing array are to
+            // be deleted and replaced with elements from the
+            // sources array
+        }
+
+        // The general case: we assume that some of the elements
+        // in the new array already exist, but at different indexes
+
+        // Starting with position i in the sources array, copy the remaining elements
+        // to the end of the original array...
+        for (int j = i; j < sources.length; j++)
+        {
+            TypeStoreUser user = store.add_element_user( elemName );
+            ((XmlObjectBase) user).set( sources[ j ] );
+        }
+
+        // ... then come back and insert the elements starting with startSource
+        // up to i from the sources array into the current array, starting with
+        // startDest
+        int n = i;
+        for ( ; m > n - startSrc + startDest; m-- )
             store.remove_element( set, m - 1 );
 
-        for ( int i = 0 ; i < n ; i++ )
+        int j;
+        for ( i = startSrc, j = startDest ; i < n ; i++, j++ )
         {
             TypeStoreUser user;
-            
-            if (i >= m)
+
+            if (j >= m)
                 user = store.add_element_user( elemName );
             else
-                user = store.find_element_user( set, i );
+                user = store.find_element_user( set, j );
 
             ((XmlObjectBase) user).set( sources[ i ] );
         }
