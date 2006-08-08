@@ -1068,6 +1068,8 @@ public class XmlComplexContentImpl extends XmlObjectBase
         int startSrc = 0, startDest = 0;
         for (i = 0; i < sources.length; i++)
         {
+            if (sources[i].isImmutable())
+                continue;
             XmlCursor c = sources[i].newCursor();
             if (c.toParent() && c.getObject() == this)
             {
@@ -1095,8 +1097,8 @@ public class XmlComplexContentImpl extends XmlObjectBase
                 }
                 for ( i++, j++; i < sources.length; i++, j++)
                 {
-                    XmlCursor c = sources[i].newCursor();
-                    if (c.toParent() && c.getObject() == this)
+                    XmlCursor c = sources[i].isImmutable() ? null : sources[i].newCursor();
+                    if (c != null && c.toParent() && c.getObject() == this)
                     {
                         c.dispose();
                         current = store.find_element_user( elemName, j );
@@ -1184,6 +1186,8 @@ public class XmlComplexContentImpl extends XmlObjectBase
         int startSrc = 0, startDest = 0;
         for (i = 0; i < sources.length; i++)
         {
+            if (sources[i].isImmutable())
+                continue;
             XmlCursor c = sources[i].newCursor();
             if (c.toParent() && c.getObject() == this)
             {
@@ -1211,8 +1215,8 @@ public class XmlComplexContentImpl extends XmlObjectBase
                 }
                 for ( i++, j++; i < sources.length; i++, j++)
                 {
-                    XmlCursor c = sources[i].newCursor();
-                    if (c.toParent() && c.getObject() == this)
+                    XmlCursor c = sources[i].isImmutable() ? null : sources[i].newCursor();
+                    if (c != null && c.toParent() && c.getObject() == this)
                     {
                         c.dispose();
                         current = store.find_element_user( set, j );
