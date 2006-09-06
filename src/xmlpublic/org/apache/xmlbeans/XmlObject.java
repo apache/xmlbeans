@@ -445,6 +445,7 @@ public interface XmlObject extends XmlTokenSource
      * value "1.0", the decimal "1", and the GYear "1", even though
      * all these objects will compare unequal to each other since they
      * lie in different value spaces.
+     * Note: as of XMLBeans 2.2.1 only implemented for simple type values. 
      */
     boolean valueEquals(XmlObject obj);
 
