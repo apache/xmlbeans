@@ -149,7 +149,7 @@ public class XmlOptions implements java.io.Serializable
     }
 
     /**
-     * When parsing or writing a document, this sets the character
+     * When writing a document, this sets the character
      * encoding to use.
      * 
      * @param encoding the character encoding
