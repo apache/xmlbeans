@@ -36,6 +36,7 @@ public class Type
     public static final int COMPLEX_TYPE_SIMPLE_CONTENT  = 2; // ie atts*, no elems, text*   - simple type extension
     public static final int COMPLEX_TYPE_COMPLEX_CONTENT = 3; // ie atts*, elems, no text
     public static final int COMPLEX_TYPE_MIXED_CONTENT   = 4; // ie atts*, elems, text
+    public static final int COMPLEX_TYPE_EMPTY_CONTENT   = 5; // no elems, no text, just atts
 
     private int _topParticleForComplexOrMixedContent = PARTICLE_SEQUENCE;
     // _topParticleForComplexOrMixedContent
@@ -54,7 +55,7 @@ public class Type
                                                         // is not enough for a value, the QNames need to be remembered
                                                         // in case the _extensionType is QName
 
-    private Type()
+    protected Type()
     {}
 
     public static Type createNamedType(QName name, int contentType)
@@ -71,7 +72,8 @@ public class Type
         assert contentType==SIMPLE_TYPE_SIMPLE_CONTENT ||
             contentType==COMPLEX_TYPE_SIMPLE_CONTENT ||
             contentType==COMPLEX_TYPE_COMPLEX_CONTENT ||
-            contentType==COMPLEX_TYPE_MIXED_CONTENT : "Unknown contentType: " + contentType;
+            contentType==COMPLEX_TYPE_MIXED_CONTENT ||
+            contentType==COMPLEX_TYPE_EMPTY_CONTENT: "Unknown contentType: " + contentType;
         Type type = new Type();
         type.setContentType(contentType);
         return type;
@@ -94,6 +96,7 @@ public class Type
      *   COMPLEX_TYPE_SIMPLE_CONTENT  // ie atts*, no elems, text*   - simple type extension
      *   COMPLEX_TYPE_COMPLEX_CONTENT // ie atts*, elems, no text
      *   COMPLEX_TYPE_MIXED_CONTENT   // ie atts*, elems, text
+     *   COMPLEX_TYPE_EMPTY_CONTENT   // no elems, no text, just atts
      */
     public int getContentType()
     {
@@ -106,6 +109,7 @@ public class Type
      *   COMPLEX_TYPE_SIMPLE_CONTENT  // ie atts*, no elems, text*   - simple type extension
      *   COMPLEX_TYPE_COMPLEX_CONTENT // ie atts*, elems, no text
      *   COMPLEX_TYPE_MIXED_CONTENT   // ie atts*, elems, text
+     *   COMPLEX_TYPE_EMPTY_CONTENT   // no elems, no text, just atts
      */
     public void setContentType(int kind)
     {
