@@ -174,12 +174,13 @@ public class TypeSystemHolder
         fillUpTypeOnElement(elemType, topLevelElem, tns);
     }
 
-    private void fillUpLocalElement(Element element, org.apache.xmlbeans.impl.xb.xsdschema.LocalElement localSElement, String tns)
+    protected void fillUpLocalElement(Element element, org.apache.xmlbeans.impl.xb.xsdschema.LocalElement localSElement, String tns)
     {
         fillUpElementDocumentation(localSElement, element.getComment());
         if (!element.isRef())
         {
-            assert element.getName().getNamespaceURI().equals(tns);
+            assert element.getName().getNamespaceURI().equals(tns) ||
+                element.getName().getNamespaceURI().length() == 0;
             fillUpTypeOnElement(element.getType(), localSElement, tns);
             localSElement.setName(element.getName().getLocalPart());
         }
@@ -277,11 +278,11 @@ public class TypeSystemHolder
         }
     }
 
-    private void fillUpLocalAttribute(Attribute att, org.apache.xmlbeans.impl.xb.xsdschema.Attribute sAttribute, String tns)
+    protected void fillUpLocalAttribute(Attribute att, org.apache.xmlbeans.impl.xb.xsdschema.Attribute sAttribute, String tns)
     {
         if (att.isRef())
         {
-            sAttribute.setRef(att.getName());
+            sAttribute.setRef(att.getRef().getName());
         }
         else
         {
@@ -293,7 +294,7 @@ public class TypeSystemHolder
         }
     }
 
-    private void fillUpContentForComplexType(Type type, org.apache.xmlbeans.impl.xb.xsdschema.ComplexType sComplexType, String tns)
+    protected void fillUpContentForComplexType(Type type, org.apache.xmlbeans.impl.xb.xsdschema.ComplexType sComplexType, String tns)
     {
         if (type.getContentType()==Type.COMPLEX_TYPE_SIMPLE_CONTENT)
         {
@@ -314,7 +315,9 @@ public class TypeSystemHolder
             }
 
             org.apache.xmlbeans.impl.xb.xsdschema.ExplicitGroup explicitGroup;
-            if (type.getTopParticleForComplexOrMixedContent()==Type.PARTICLE_SEQUENCE)
+            if (type.getContentType()==Type.COMPLEX_TYPE_EMPTY_CONTENT)
+                explicitGroup = null;
+            else if (type.getTopParticleForComplexOrMixedContent()==Type.PARTICLE_SEQUENCE)
             {
                 explicitGroup = sComplexType.addNewSequence();
             }
