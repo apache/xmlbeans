@@ -1515,7 +1515,7 @@ abstract class Saver
                 if ( dCch <= availableEndChunk )
                 {
                     System.arraycopy( _buf, i, _buf, i + dCch, _in - i );
-                    _in += dCch;
+                    _in = ( _in + dCch) % _buf.length;
                 }
                 else if ( dCch <= availableEndChunk + _in - i - 1 )
                 {
