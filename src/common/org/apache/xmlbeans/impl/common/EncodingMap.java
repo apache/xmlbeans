@@ -389,10 +389,13 @@ public class EncodingMap
         addMapping( "SJIS",          "CSSHIFTJIS",             false );
         addMapping( "SJIS",          "MS_KANJI",               false );
         addMapping( "SJIS",          "SHIFT_JIS",              true  );
-        addMapping( "TIS620",        "TIS-620",                true );
+        addMapping( "TIS620",        "TIS-620",                true  );
         addMapping( "UNICODE",       "UTF-16",                 true  );
-        addMapping( "UNICODEBIG",    "UTF-16BE",               true  );
-        addMapping( "UNICODELITTLE", "UTF-16LE",               true  );
+        addMapping( "UTF-16BE",      "UTF-16BE",               true  );
+        addMapping( "UTF-16BE",      "UTF_16BE",               false );
+        addMapping( "ISO-10646-UCS-2","ISO-10646-UCS-2",        true  );
+        addMapping( "UTF-16LE",      "UTF-16LE",               true  );
+        addMapping( "UTF-16LE",      "UTF_16LE",               false );
         addMapping( "UTF8",          "UTF-8",                  true  );
 
         assert completeMappings();

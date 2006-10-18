@@ -56,7 +56,7 @@ import java.util.Arrays;
  * <ul>
  * <li>A QnameSet can contain a finite number of QNames:
  *   <ul>
- *   <li>excludedQNamesInIncludedURIs == null
+ *   <li>excludedQNamesInIncludedURIs == empty set
  *   <li>excludedURIs == null
  *   <li>includedURIs == empty set
  *   <li>includedQNamesInExcludedURIs == set of included QNames
@@ -154,7 +154,7 @@ public final class QNameSet implements QNameSetSpecification, java.io.Serializab
         if (includedQNames == null)
             throw new IllegalArgumentException("includedQNames cannot be null");
 
-        return new QNameSet(null, new HashSet(), null, new HashSet(Arrays.asList(includedQNames)));
+        return new QNameSet(null, Collections.EMPTY_SET, Collections.EMPTY_SET, new HashSet(Arrays.asList(includedQNames)));
     }
 
     /**
