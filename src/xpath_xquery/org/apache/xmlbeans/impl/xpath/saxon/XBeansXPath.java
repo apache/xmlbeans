@@ -20,10 +20,13 @@ import org.w3c.dom.Node;
 
 import java.util.List;
 import java.util.Map;
+import java.util.ListIterator;
 
 import javax.xml.transform.TransformerException;
 
 import net.sf.saxon.Configuration;
+import net.sf.saxon.dom.NodeOverNodeInfo;
+import net.sf.saxon.om.NodeInfo;
 import net.sf.saxon.sxpath.XPathEvaluator;
 import net.sf.saxon.sxpath.XPathExpression;
 import net.sf.saxon.trans.Variable;
@@ -101,7 +104,21 @@ public class XBeansXPath
             thisVar.setValue(rootNode);
 
             XPathExpression exp = xpe.createExpression(_queryExpr);
-            return exp.evaluate(rootNode);
+
+            // After 8.3(?) Saxon nodes no longer implement Dom.
+            // The client needs saxon8-dom.jar, and the code needs
+            // this NodeOverNodeInfo Dom wrapper doohickey
+            List saxonNodes = exp.evaluate(rootNode);
+            for (ListIterator it = saxonNodes.listIterator(); it.hasNext();)
+            {
+                Object o = it.next();
+                if(o instanceof NodeInfo)
+                {
+                    Node n = NodeOverNodeInfo.wrap((NodeInfo)o);
+                    it.set(n);
+                }
+            }
+            return saxonNodes;
         }
         catch (TransformerException e)
         {

@@ -16,6 +16,8 @@
 package org.apache.xmlbeans.impl.xquery.saxon;
 
 import net.sf.saxon.Configuration;
+import net.sf.saxon.dom.NodeOverNodeInfo;
+import net.sf.saxon.om.NodeInfo;
 import net.sf.saxon.query.DynamicQueryContext;
 import net.sf.saxon.query.StaticQueryContext;
 import net.sf.saxon.query.XQueryExpression;
@@ -29,6 +31,7 @@ import javax.xml.transform.TransformerException;
 import java.util.List;
 import java.util.Map;
 import java.util.Iterator;
+import java.util.ListIterator;
 
 
 public class XBeansXQuery
@@ -75,7 +78,7 @@ public class XBeansXQuery
             dynamicContext.setContextNode(_stcContext.
                     buildDocument(new DOMSource(context_node)));
             dynamicContext.setParameter(_contextVar,
-                    dynamicContext.getContextNode());
+                    dynamicContext.getContextItem());
             // Set the other variables
             if (variableBindings != null)
                 for (Iterator it = variableBindings.entrySet().iterator();
@@ -95,7 +98,20 @@ public class XBeansXQuery
                         entry.getValue());
                 }
 
-            return _xquery.evaluate(dynamicContext);
+            // After 8.3(?) Saxon nodes no longer implement Dom.
+            // The client needs saxon8-dom.jar, and the code needs
+            // this NodeOverNodeInfo Dom wrapper doohickey
+            List saxonNodes = _xquery.evaluate(dynamicContext);
+            for(ListIterator it = saxonNodes.listIterator(); it.hasNext(); )
+            {
+                Object o = it.next();
+                if(o instanceof NodeInfo)
+                {
+                    Node n = NodeOverNodeInfo.wrap((NodeInfo)o);
+                    it.set(n);
+                }
+            }
+            return saxonNodes;
         }
         catch (TransformerException e) {
             throw new RuntimeException(" Error binding " + _contextVar, e);

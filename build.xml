@@ -53,6 +53,7 @@
     <target name="clean.jars" description="Delete any downloaded jars and accompanying licenses">
         <delete>
             <fileset dir="external/lib">
+                <include name="saxonb8-7-3.zip"/>
                 <include name="saxonb8-6-1.zip"/>
                 <include name="saxonb8-2.zip"/>
                 <include name="saxonb8-1.zip"/>
@@ -84,9 +85,11 @@
     <property environment="env"/>
     <target name="saxon.find1" if="env.XMLBEANS_EXTERNALS">
       <property name="saxon_jar" value="${env.XMLBEANS_EXTERNALS}/saxon8.jar"/>
+      <property name="saxon_dom_jar" value="${env.XMLBEANS_EXTERNALS}/saxon8-dom.jar"/>
     </target>
     <target name="saxon.find2">
       <property name="saxon_jar" value="build/lib/saxon8.jar"/>
+      <property name="saxon_dom_jar" value="build/lib/saxon8-dom.jar"/>
     </target>
 
     <target name="check.saxon8.jar" depends="saxon.find1,saxon.find2">
@@ -103,20 +106,18 @@
 	<!-- other saxon urls
 		http://voxel.dl.sourceforge.net/sourceforge/saxon/saxonb8-1.zip
 	-->
-        <get dest="external/lib/saxonb8-6-1.zip"
-	    src="http://easynews.dl.sourceforge.net/sourceforge/saxon/saxonb8-6-1.zip"
+        <get dest="external/lib/saxonb8-7-3j.zip"
+	    src="http://easynews.dl.sourceforge.net/sourceforge/saxon/saxonb8-7-3j.zip"
             verbose="true" usetimestamp="true" ignoreerrors="true"/>
-        <unzip src="external/lib/saxonb8-6-1.zip" dest="external/lib/">
+        <unzip src="external/lib/saxonb8-7-3j.zip" dest="external/lib/">
             <patternset>
                 <include name="saxon8.jar"/>
                 <include name="saxon8-dom.jar"/>
             </patternset>
         </unzip>
-        
+
         <copy file="external/lib/saxon8.jar" tofile="build/lib/saxon8.jar"/>
-        
-        <!-- saxon8-dom.jar is used to register DOMObjectModel for use in 
-             xpath/xquery checkintest  -->
+        <!-- saxon8-dom.jar is used to register DOMObjectModel -->
         <copy file="external/lib/saxon8-dom.jar" tofile="build/lib/saxon8-dom.jar"/>
     </target>
 
@@ -937,6 +938,7 @@
                 <pathelement location="build/classes/xmlpublic"/>
                 <pathelement location="build/classes/store"/>
                 <pathelement location="${saxon_jar}"/>
+                <pathelement location="${saxon_dom_jar}"/>
             </classpath>
         </javac>
     </target>
