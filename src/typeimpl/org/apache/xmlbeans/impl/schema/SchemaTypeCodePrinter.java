@@ -21,13 +21,11 @@ import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetEncoder;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Iterator;
 
 import javax.xml.namespace.QName;
 import org.apache.xmlbeans.impl.common.NameUtil;
@@ -2437,8 +2435,33 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
                 // in order to handle the case (for ints or string enums e.g.) where
                 // there is a simple type restriction.  So property getters need to
                 // be implemented "from scratch" for each derived complex type
+                // Moreover, attribute or element properties can be removed via restriction,
+                // but we still need to implement them because this class is supposed to
+                // also implement all the interfaces
+                SchemaType baseType = sType.getBaseType();
+                List extraProperties = null;
+                while (!baseType.isSimpleType() && !baseType.isBuiltinType())
+                {
+                    SchemaProperty[] baseProperties = baseType.getDerivedProperties();
+                    for (int i = 0; i < baseProperties.length; i++)
+                        if (!(baseProperties[i].isAttribute() &&
+                                sType.getAttributeProperty(baseProperties[i].getName()) != null))
+                        {
+                            if (extraProperties == null)
+                                extraProperties = new ArrayList();
+                            extraProperties.add(baseProperties[i]);
+                        }
+                    baseType = baseType.getBaseType();
+                }
 
                 properties = sType.getProperties();
+                if (extraProperties != null)
+                {
+                    for (int i = 0; i < properties.length; i++)
+                        extraProperties.add(properties[i]);
+                    properties = (SchemaProperty[]) extraProperties.
+                        toArray(new SchemaProperty[extraProperties.size()]);
+                }
             }
             else
             {
