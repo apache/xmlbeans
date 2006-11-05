@@ -180,7 +180,20 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
         _classloader = indexclass.getClassLoader();
         _linker = SchemaTypeLoaderImpl.build(null, null, _classloader);
         _resourceLoader = new ClassLoaderResourceLoader(_classloader);
-        initFromHeader();
+        try
+        {
+            initFromHeader();
+        }
+        catch (RuntimeException e)
+        {
+            XBeanDebug.logException(e);
+            throw e;
+        }
+        catch (Error e)
+        {
+            XBeanDebug.logException(e);
+            throw e;
+        }
         XBeanDebug.trace(XBeanDebug.TRACE_SCHEMA_LOADING, "Finished loading type system " + _name, -1);
     }
 
@@ -2227,6 +2240,16 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
             return _resourceLoader.getResourceAsStream(resourcename);
         }
 
+        void checkContainerNotNull(SchemaContainer container, QName name)
+        {
+            if (container == null)
+            {
+                throw new LinkageError("Loading of resource " + _name + '.' + _handle +
+                    "failed, information from " + _name + ".index.xsb is " +
+                    " out of sync (or conflicting index files found)");
+            }
+        }
+
         /**
          * Finishes loading an element after the header has already been loaded.
          */
@@ -2244,7 +2267,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
                 QNameSet transitionRules = readQNameSet();
                 QName name = readQName();
                 SchemaContainer container = getContainer(name.getNamespaceURI());
-                assert container != null;
+                checkContainerNotNull(container, name);
                 SchemaGlobalElementImpl impl = new SchemaGlobalElementImpl(container);
                 impl.setParticleType(particleType);
                 impl.setMinOccurs(minOccurs);
@@ -2303,7 +2326,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
             {
                 QName name = readQName();
                 SchemaContainer container = getContainer(name.getNamespaceURI());
-                assert container != null;
+                checkContainerNotNull(container, name);
                 SchemaGlobalAttributeImpl impl = new SchemaGlobalAttributeImpl(container);
                 loadAttribute(impl, name, container);
                 impl.setFilename(readString());
@@ -2328,7 +2351,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
         {
             QName name = readQName();
             SchemaContainer container = getContainer(name.getNamespaceURI());
-            assert container != null;
+            checkContainerNotNull(container, name);
             SchemaModelGroupImpl impl = new SchemaModelGroupImpl(container);
 
             try
@@ -2361,7 +2384,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
             try {
                 QName name = readQName();
                 SchemaContainer container = getContainer(name.getNamespaceURI());
-                assert container != null;
+                checkContainerNotNull(container, name);
                 SchemaIdentityConstraintImpl impl = new SchemaIdentityConstraintImpl(container);
                 impl.setName(name);
                 impl.setConstraintCategory(readShort());
@@ -2409,7 +2432,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
         {
             QName name = readQName();
             SchemaContainer container = getContainer(name.getNamespaceURI());
-            assert container != null;
+            checkContainerNotNull(container, name);
             SchemaAttributeGroupImpl impl = new SchemaAttributeGroupImpl(container);
 
             try
@@ -2642,7 +2665,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
                 if (impl.getName() != null)
                 {
                     SchemaContainer container = getContainer(impl.getName().getNamespaceURI());
-                    assert container != null;
+                    checkContainerNotNull(container, impl.getName());
                     impl.setContainer(container);
                 }
                 else if (impl.isDocumentType())
@@ -2651,7 +2674,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
                     if (name != null)
                     {
                         SchemaContainer container = getContainer(name.getNamespaceURI());
-                        assert container != null;
+                        checkContainerNotNull(container, name);
                         impl.setContainer(container);
                     }
                 }
@@ -2661,7 +2684,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
                     if (name != null)
                     {
                         SchemaContainer container = getContainer(name.getNamespaceURI());
-                        assert container != null;
+                        checkContainerNotNull(container, name);
                         impl.setContainer(container);
                     }
                 }
