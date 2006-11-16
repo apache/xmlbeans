@@ -46,6 +46,7 @@ public class XBeansXQuery
      */
     public XBeansXQuery(String queryExpr, String contextVar, Integer boundary)
     {
+        this.needsDomSourceWrapping = needsDOMSourceWrapping();
         this.config = new Configuration();
         config.setTreeModel(net.sf.saxon.event.Builder.STANDARD_TREE);
         this._stcContext = new StaticQueryContext(config);
@@ -87,11 +88,18 @@ public class XBeansXQuery
                     Map.Entry entry = (Map.Entry) it.next();
                     if (entry.getValue() instanceof XmlTokenSource)
                     {
-                        DOMSource domSource;
-                        domSource = new DOMSource(((XmlTokenSource)
-                            entry.getValue()).getDomNode());
+                        Object paramObject;
+                        // Saxon 8.6.1 requires that the Node be wrapped
+                        // into a DOMSource, while later versions require that
+                        // it not be
+                        if (needsDomSourceWrapping)
+                            paramObject = new DOMSource(((XmlTokenSource)
+                                entry.getValue()).getDomNode());
+                        else
+                            paramObject = ((XmlTokenSource) entry.getValue()).
+                                getDomNode();
                         dynamicContext.setParameter((String) entry.getKey(),
-                            domSource);
+                                paramObject);
                     }
                     else if (entry.getValue() instanceof String)
                     dynamicContext.setParameter((String) entry.getKey(),
@@ -118,10 +126,37 @@ public class XBeansXQuery
         }
     }
 
+    /**
+     * @return true if we are dealing with a version of Saxon 8.x where x<=6
+     */
+    private static boolean needsDOMSourceWrapping()
+    {
+        int saxonMinorVersion;
+        int saxonMajorVersion;
+        String versionString = net.sf.saxon.Version.getProductVersion();
+        int dot1 = versionString.indexOf('.');
+        if (dot1 < 0)
+            return false;
+        int dot2 = versionString.indexOf('.', dot1 + 1);
+        if (dot2 < 0)
+            return false;
+        try
+        {
+            saxonMajorVersion = Integer.parseInt(versionString.substring(0, dot1));
+            saxonMinorVersion = Integer.parseInt(versionString.substring(dot1 + 1, dot2));
+            return saxonMajorVersion == 8 && saxonMinorVersion <= 6;
+        }
+        catch (NumberFormatException nfe)
+        {
+            return false;
+        }
+    }
+
     private XQueryExpression _xquery;
     private String _query;
     private String _contextVar;
     private StaticQueryContext _stcContext;
     private Configuration config;
     private int boundary;
+    private boolean needsDomSourceWrapping;
 }

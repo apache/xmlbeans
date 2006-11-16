@@ -51,6 +51,7 @@ public class XBeansXPath
         _contextVar = contextVar;
         this.defaultNS = defaultNS;
         this.namespaceMap = namespaceMap.entrySet().toArray();
+        this.needsDomSourceWrapping = needsDOMSourceWrapping();
     }
 
     /**
@@ -101,7 +102,7 @@ public class XBeansXPath
             xpe.setStaticContext(sc);
 
             Variable thisVar = sc.declareVariable(_contextVar);
-            thisVar.setValue(rootNode);
+            thisVar.setValue(needsDomSourceWrapping ? rootNode : node);
 
             XPathExpression exp = xpe.createExpression(_queryExpr);
 
@@ -131,6 +132,33 @@ public class XBeansXPath
         return selectNodes(node);
     }
 
+    /**
+     * @return true if we are dealing with a version of Saxon 8.x where x<=6
+     */
+    private static boolean needsDOMSourceWrapping()
+    {
+        int saxonMinorVersion;
+        int saxonMajorVersion;
+        String versionString = net.sf.saxon.Version.getProductVersion();
+        int dot1 = versionString.indexOf('.');
+        if (dot1 < 0)
+            return false;
+        int dot2 = versionString.indexOf('.', dot1 + 1);
+        if (dot2 < 0)
+            return false;
+        try
+        {
+            saxonMajorVersion = Integer.parseInt(versionString.substring(0, dot1));
+            saxonMinorVersion = Integer.parseInt(versionString.substring(dot1 + 1, dot2));
+            return saxonMajorVersion == 8 && saxonMinorVersion <= 6;
+        }
+        catch (NumberFormatException nfe)
+        {
+            return false;
+        }
+    }
+
+    private boolean needsDomSourceWrapping;
     private Object[] namespaceMap;
     private String _queryExpr;
     private String _contextVar;
