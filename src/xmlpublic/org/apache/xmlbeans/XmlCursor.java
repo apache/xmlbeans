@@ -716,7 +716,7 @@ public interface XmlCursor extends XmlTokenSource
      * @return  The new current token type.
      */
 
-    TokenType toFirstContentToken ( );
+        TokenType toFirstContentToken ( );
 
 
     /**

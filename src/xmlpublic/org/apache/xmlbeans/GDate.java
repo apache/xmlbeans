@@ -1030,7 +1030,7 @@ public final class GDate implements GDateSpecification, java.io.Serializable
             i = _padTwoAppend(message, i, spec.getSecond());
             if (fs != _zero) // (optimization ~3%)
             {
-                String frac = spec.getFraction().toString();
+                String frac = fs.toString();
                 int point = frac.indexOf('.');
                 if (point >= 0)
                 {
