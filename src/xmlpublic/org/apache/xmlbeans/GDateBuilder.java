@@ -1422,7 +1422,7 @@ public final class GDateBuilder implements GDateSpecification, java.io.Serializa
             (hasTimeZone() && getTimeZoneSign() != 0 && hasTime() &&
             ((hasDay() == hasMonth() && hasDay() == hasYear())));
 
-        if (!needNormalize && getFraction().scale() > 0)
+        if (!needNormalize && getFraction()!=null && getFraction().scale() > 0)
         {
             BigInteger bi = getFraction().unscaledValue();
             needNormalize = (bi.mod(TEN).signum() == 0);
