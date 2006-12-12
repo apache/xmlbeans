@@ -803,7 +803,10 @@ public final class GDateBuilder implements GDateSpecification, java.io.Serializa
             // Add months and years
             temp = _M + sign * month;
             _M = _modulo(temp, 1, 13);
+            boolean yearWasLessThanZero = _CY < 0;
             _CY = _CY + sign * year + (int)_fQuotient(temp, 1, 13);
+            if (yearWasLessThanZero && _CY>=0)
+                _CY +=1;
 
             // In new month, day may need to be pegged before proceeding
             if (hasDay())

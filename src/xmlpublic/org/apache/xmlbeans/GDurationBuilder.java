@@ -579,7 +579,8 @@ public class GDurationBuilder implements GDurationSpecification, java.io.Seriali
             BigDecimal s = duration.getFraction();
             if (duration.getSecond() != 0)
                 s = s.add(BigDecimal.valueOf(duration.getSecond()));
-            message.append(s);
+            // todo when upgrade to 1.5  message.append(s.stripTrailingZeros().toPlainString());
+            message.append(s.stripTrailingZeros());
             message.append('S');
         }
         else if (duration.getSecond() != 0)
