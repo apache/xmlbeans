@@ -1719,7 +1719,11 @@ public final class Locale
 
         for (c.next(); !c.isAtEndOfLastPush(); c.next())
             if (c.isText())
+            {
+                if ( (c._xobj.isComment() || c._xobj.isProcinst() ) && c._pos<c._xobj._cchValue )
+                    continue;
                 CharUtil.getString(sb, c.getChars(-1), c._offSrc, c._cchSrc);
+            }
 
         c.pop();
 
