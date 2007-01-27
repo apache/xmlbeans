@@ -53,7 +53,8 @@
     <target name="clean.jars" description="Delete any downloaded jars and accompanying licenses">
         <delete>
             <fileset dir="external/lib">
-                <include name="saxonb8-7-3.zip"/>
+                <include name="saxonb8-8j.zip"/>
+                <include name="saxonb8-7-3j.zip"/>
                 <include name="saxonb8-6-1.zip"/>
                 <include name="saxonb8-2.zip"/>
                 <include name="saxonb8-1.zip"/>
@@ -105,11 +106,12 @@
         unless="saxon8.jar.exists">
 	<!-- other saxon urls
 		http://voxel.dl.sourceforge.net/sourceforge/saxon/saxonb8-1.zip
+		http://easynews.dl.sourceforge.net/sourceforge/saxon/saxonb8-7-3j.zip
 	-->
-        <get dest="external/lib/saxonb8-7-3j.zip"
-	    src="http://easynews.dl.sourceforge.net/sourceforge/saxon/saxonb8-7-3j.zip"
+        <get dest="external/lib/saxonb8-8j.zip"
+	    src="http://easynews.dl.sourceforge.net/sourceforge/saxon/saxonb8-8j.zip"
             verbose="true" usetimestamp="true" ignoreerrors="true"/>
-        <unzip src="external/lib/saxonb8-7-3j.zip" dest="external/lib/">
+        <unzip src="external/lib/saxonb8-8j.zip" dest="external/lib/">
             <patternset>
                 <include name="saxon8.jar"/>
                 <include name="saxon8-dom.jar"/>
