@@ -3,7 +3,7 @@ Changes in V2.3.0 since V2.2.0
 * Improved Saxon support, Saxon 8.8 became the recommended version
 * Added options to control use of CDATA sections when saving to XML
 * Added support for QNames in Schema annotations
-* Added support for new encodings: UTF-16LE and UTF-16BE
+* Added support for new encodings: UTF-16LE, UTF-16BE, CP936/GBK.
 * Fix: overzealous whitespace cropping after parsing entities like &amp; (XMLBEANS-274)
 * Fix: selectPath() with setXqueryCurrentNodeVar() option does not work for Saxon (XMLBEANS-276)
 * Fix: synchronization problem with array setters
