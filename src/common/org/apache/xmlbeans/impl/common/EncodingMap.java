@@ -302,6 +302,10 @@ public class EncodingMap
         addMapping( "CP924",         "EBCDIC-LATIN9--EURO",    false );
         addMapping( "CP924",         "IBM-924",                false );
         addMapping( "CP924",         "IBM00924",               true  );
+        addMapping( "CP936",         "GBK",                    true  );
+        addMapping( "CP936",         "CP936",                  false );
+        addMapping( "CP936",         "MS936",                  false );
+        addMapping( "CP936",         "WINDOWS-936",            false );
         addMapping( "EUCJIS",        "CSEUCPKDFMTJAPANESE",    false );
         addMapping( "EUCJIS",        "EUC-JP",                 true  );
         addMapping( "EUCJIS",        "EXTENDED_UNIX_CODE_PACKED_FORMAT_FOR_JAPANESE", false );
