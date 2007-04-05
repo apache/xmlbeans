@@ -603,7 +603,8 @@ public final class XsTypeConverter
     private static String trimTrailingZeros(String xsd_decimal)
     {
         final int last_char_idx = xsd_decimal.length() - 1;
-        if (xsd_decimal.charAt(last_char_idx) == '0') {
+        if (xsd_decimal.charAt(last_char_idx) == '0')
+        {
             final int last_point = xsd_decimal.lastIndexOf('.');
             if (last_point >= 0) {
                 //find last trailing zero

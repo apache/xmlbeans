@@ -1277,7 +1277,7 @@ abstract class Saver
                 prevChar = ch;
             }
 
-            if (count == 0 && !hasCharToBeReplaced)
+            if (count == 0 && !hasCharToBeReplaced && count<_cdataEntityCountThreshold)
                 return;
 
             i = _lastEmitIn;
