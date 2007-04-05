@@ -16,6 +16,7 @@
 package org.apache.xmlbeans;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 
 /**
  * Used to build {@link GDuration GDurations}.
@@ -580,7 +581,7 @@ public class GDurationBuilder implements GDurationSpecification, java.io.Seriali
             if (duration.getSecond() != 0)
                 s = s.add(BigDecimal.valueOf(duration.getSecond()));
             // todo when upgrade to 1.5  message.append(s.stripTrailingZeros().toPlainString());
-            message.append(s.stripTrailingZeros());
+            message.append(stripTrailingZeros(toPlainString(s)));
             message.append('S');
         }
         else if (duration.getSecond() != 0)
@@ -593,5 +594,75 @@ public class GDurationBuilder implements GDurationSpecification, java.io.Seriali
             message.append("T0S");
 
         return message.toString();
+    }
+
+    public static String toPlainString(BigDecimal bd)
+    {
+        BigInteger intVal = bd.unscaledValue();
+        int scale = bd.scale();
+        String intValStr = intVal.toString();
+        if (scale == 0)
+            return intValStr;
+
+        boolean isNegative = (intValStr.charAt(0) == '-');
+
+        int point = intValStr.length() - scale - (isNegative ? 1 : 0);
+
+        StringBuffer sb = new StringBuffer(intValStr.length() + 2 + (point <= 0 ? (-point + 1) : 0));
+        if (point <= 0)
+        {
+            // prepend zeros and a decimal point.
+            if (isNegative) sb.append('-');
+            sb.append('0').append('.');
+            while (point < 0)
+            {
+                sb.append('0');
+                point++;
+            }
+            sb.append(intValStr.substring(isNegative ? 1 : 0));
+        }
+        else if (point < intValStr.length())
+        {
+            // No zeros needed
+            sb.append(intValStr);
+            sb.insert(point + (isNegative ? 1 : 0), '.');
+        }
+        else
+        {
+            // append zeros if not 0
+            sb.append(intValStr);
+            if (!intVal.equals(BigInteger.ZERO))
+                for (int i = intValStr.length(); i < point; i++)
+                    sb.append('0');
+        }
+        return sb.toString();
+    }
+
+    public static String stripTrailingZeros(String s)
+    {
+        boolean seenDot = false;
+        int i = s.length() - 1;
+        int zeroIndex = i;
+
+        while(i>=0)
+        {
+            if (s.charAt(i)!='0')
+                break;
+            i--;
+            zeroIndex--;
+        }
+        while(i>=0)
+        {
+            if (s.charAt(i)=='E')
+                return s;
+            if (s.charAt(i)=='.')
+            {
+                seenDot = true;
+                break;
+            }
+            i--;
+        }
+        
+        return seenDot? s.substring(0, zeroIndex+1) : s;
     }
 }
