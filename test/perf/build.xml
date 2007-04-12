@@ -118,7 +118,7 @@
 	<property name="v2.zip" value="${v2.dir}/${v2.lib.name}"/>
 
 	<!-- xerces -->
-	<property name="xercesImpl.jar" value="${xerces.dir}/xerces-2_8_0/xercesImpl.jar"/>
+	<property name="xercesImpl.jar" value="${xerces.dir}/${xerces.version}/xercesImpl.jar"/>
 	<property name="xerces.zip" value="${xerces.dir}/${xerces.lib.name}"/>
 
 	<!-- parser test xml instances zip -->
