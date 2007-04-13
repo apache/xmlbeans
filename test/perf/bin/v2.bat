@@ -73,4 +73,4 @@ goto end
 :end
 
 echo on
-java -Xmx%MEM%m -classpath %XMLBEANS_PERFROOT%\build;%XMLBEANS_PERFROOT%\schema_build\v2-purchase-order.jar;%XMLBEANS_PERFROOT%\schema_build\v2-primitives.jar;%XMLBEANS_PERFROOT%\schema_build\v2-non-primitives.jar;%XMLBEANS_PERFROOT%\3rdparty\v2\xmlbeans-2.0.0\lib\xbean.jar;%XMLBEANS_HOME%\build\lib\jsr173_1.0_api.jar;%XMLBEANS_HOME%\build\lib\saxon8.jar;%XMLBEANS_HOME%\build\lib\xbean_xpath.jar;%XMLBEANS_HOME%\external\lib\piccolo_apache_dist_20040629_v2.jar -DPERF_ROOT=%XMLBEANS_PERFROOT% org.apache.xmlbeans.test.performance.v2.%1 %FLAVOR% %FILENAME%
+java -Xmx%MEM%m -classpath %XMLBEANS_PERFROOT%\build;%XMLBEANS_PERFROOT%\schema_build\v2-purchase-order.jar;%XMLBEANS_PERFROOT%\schema_build\v2-primitives.jar;%XMLBEANS_PERFROOT%\schema_build\v2-non-primitives.jar;%XMLBEANS_PERFROOT%\3rdparty\v2\xmlbeans-2.0.0\lib\xbean.jar;%XMLBEANS_PERFROOT%\3rdparty\v2\xmlbeans-2.0.0\lib\jsr173_api.jar;%XMLBEANS_PERFROOT%\3rdparty\v2\saxon8.jar;%XMLBEANS_PERFROOT%\3rdparty\v2\xmlbeans-2.0.0\lib\xbean_xpath.jar -DPERF_ROOT=%XMLBEANS_PERFROOT% org.apache.xmlbeans.test.performance.v2.%1 %FLAVOR% %FILENAME%

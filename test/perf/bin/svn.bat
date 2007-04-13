@@ -57,4 +57,4 @@ goto end
 :end
 
 echo on
-java -Xmx%MEM%m -classpath %XMLBEANS_PERFROOT%\build;%XMLBEANS_PERFROOT%\schema_build\svn-purchase-order.jar;%XMLBEANS_PERFROOT%\schema_build\svn-primitives.jar;%XMLBEANS_PERFROOT%\schema_build\svn-non-primitives.jar;%XMLBEANS_HOME%\build\lib\xbean.jar;%XMLBEANS_HOME%\build\lib\jsr173_1.0_api.jar;%XMLBEANS_HOME%\build\lib\saxon8.jar;%XMLBEANS_HOME%\build\lib\xbean_xpath.jar;%XMLBEANS_HOME%\external\lib\piccolo_apache_dist_20040629_svn.jar -DPERF_ROOT=%XMLBEANS_PERFROOT% org.apache.xmlbeans.test.performance.svn.%1 %FLAVOR% %FILENAME%
+java -Xmx%MEM%m -classpath %XMLBEANS_PERFROOT%\build;%XMLBEANS_PERFROOT%\schema_build\svn-purchase-order.jar;%XMLBEANS_PERFROOT%\schema_build\svn-primitives.jar;%XMLBEANS_PERFROOT%\schema_build\svn-non-primitives.jar;%XMLBEANS_HOME%\build\lib\xbean.jar;%XMLBEANS_HOME%\build\lib\jsr173_1.0_api.jar;%XMLBEANS_HOME%\build\lib\saxon8.jar;%XMLBEANS_HOME%\build\lib\saxon8-dom.jar;%XMLBEANS_HOME%\build\lib\xbean_xpath.jar -DPERF_ROOT=%XMLBEANS_PERFROOT% org.apache.xmlbeans.test.performance.svn.%1 %FLAVOR% %FILENAME%
