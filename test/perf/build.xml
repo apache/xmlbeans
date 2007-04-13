@@ -28,6 +28,9 @@
 	clean - clean test and tools classes
 	clean.schema.jars - clean schema jars
 
+	NOTE: clean.all does not call the following clean targets:
+	clean.bootstrap - delete downloaded benchmark jars
+	clean.parsers.bootstrap - delete unzipped parser files
 	
 	build.xmlbeans.perf - bootstrap, builds schema jars and tests classes for all XmlBeans releases 
 
@@ -61,7 +64,7 @@
 		ant svn.schema.jars
 		ant build.svn.perf
 
-		run run_svn.bat/run_Svn.sh from the bin directory
+		run run_svn.bat/run_svn.sh from the bin directory
 
 		</echo>
 	</target>
@@ -116,6 +119,7 @@
 
 	<!-- v2 -->
 	<property name="v2.zip" value="${v2.dir}/${v2.lib.name}"/>
+	<property name="saxon81.zip" value="${v2.dir}/${saxon81.lib.name}"/>
 
 	<!-- xerces -->
 	<property name="xercesImpl.jar" value="${xerces.dir}/${xerces.version}/xercesImpl.jar"/>
@@ -250,7 +254,7 @@
 	<target name="rebuild.all" if="bootstrap.libdir.exists" depends="check.bootstrap.libs,check.xbeanshome,check.xbeansperfroot,rebuild.schema.jars,rebuild"/>
 
 
-	<!-- conveinence src build targets  -->
+	<!-- convenience src build targets  -->
 	<target name="build" depends="build.tools,build.svn.perf,build.v1.perf,build.v2.perf,build.jibx.perf,build.xerces.perf,build.jaxb.perf,build.jaxb2.perf,build.castor.perf,build.parsers.perf"/>
 
 	<target name="clean">
@@ -262,7 +266,7 @@
 
 	<target name="build.xmlbeans.perf" depends="check.xbeanshome,check.xbeansperfroot,xmlbeans.bootstrap,v1.schema.jars, v2.schema.jars,svn.schema.jars, build.tools, build.svn.perf,build.v1.perf, build.v2.perf" />
 
-	<!-- conveinence schema jar build targets -->
+	<!-- convenience schema jar build targets -->
 	<target name="build.schema.jars" depends="svn.schema.jars,v1.schema.jars,v2.schema.jars,jibx.schema.jars,castor.schema.jars,jaxb.schema.jars,jaxb2.schema.jars,parsers.schema.jars"/>
 	
 	<target name="clean.schema.jars">
@@ -289,9 +293,10 @@
 		<get src="${v1.url}" dest="${v1.zip}" verbose="true" usetimestamp="true"/>
 		<unzip src="${v1.zip}" dest="${v1.dir}"/>
 
-	        <mkdir dir="${v2.dir}"/>
-        	<get src="${v2.url}" dest="${v2.zip}" verbose="true" usetimestamp="true"/>
-        	<unzip src="${v2.zip}" dest="${v2.dir}"/>
+		<mkdir dir="${v2.dir}"/>
+		<get src="${v2.url}" dest="${v2.zip}" verbose="true" usetimestamp="true"/>
+		<unzip src="${v2.zip}" dest="${v2.dir}"/>
+		<antcall target="saxon81.jar" />
 
 		<mkdir dir="${xerces.dir}"/>
 		<get src="${xerces.url}" dest="${xerces.zip}" verbose="true" usetimestamp="true"/>
@@ -307,15 +312,29 @@
 		<get src="${v1.url}" dest="${v1.zip}" verbose="true" usetimestamp="true"/>
 		<unzip src="${v1.zip}" dest="${v1.dir}"/>
 
-        <mkdir dir="${v2.dir}"/>
-        <get src="${v2.url}" dest="${v2.zip}" verbose="true" usetimestamp="true"/>
-        <unzip src="${v2.zip}" dest="${v2.dir}"/>
+		<mkdir dir="${v2.dir}"/>
+		<get src="${v2.url}" dest="${v2.zip}" verbose="true" usetimestamp="true"/>
+		<unzip src="${v2.zip}" dest="${v2.dir}"/>
+		<antcall target="saxon81.jar" />
+	</target>
+
+	<target name="saxon81.jar">
+		<get src="${saxon81.url}" dest="${saxon81.zip}" verbose="true" usetimestamp="true"/>
+		<unzip src="${saxon81.zip}" dest="${v2.dir}">
+			<patternset>
+				<include name="saxon8.jar"/>
+			</patternset>
+		</unzip>
 	</target>
 
 	<target name="parsers.bootstrap">
 		<echo message="Extracting xml instance files for parser tests"/>	
 		<unzip src="${parsers.zip}" dest="${parsers-instances.dir}"/>
 
+	</target>
+
+	<target name="clean.parsers.bootstrap">
+		<delete dir="${parsers-instances.dir}"/>
 	</target>
 
 	<target name="build.tools">
