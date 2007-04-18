@@ -97,7 +97,7 @@ public interface SchemaComponent
         public final SchemaTypeSystem getTypeSystem()
             { return _schemaTypeSystem; }
 
-        public final SchemaComponent getComponent()
+        public final synchronized SchemaComponent getComponent()
         {
             if (_schemaComponent == null && _handle != null)
             {
