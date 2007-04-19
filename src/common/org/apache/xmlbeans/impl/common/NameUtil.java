@@ -76,6 +76,7 @@ public class NameUtil
               "return",
               "short",
               "static",
+              "strictfp",
               "super",
               "switch",
               "synchronized",

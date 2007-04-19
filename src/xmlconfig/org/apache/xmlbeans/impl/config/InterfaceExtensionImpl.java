@@ -276,7 +276,7 @@ public class InterfaceExtensionImpl implements InterfaceExtension
     // this is used only for detecting method colisions of extending interfaces
     static class MethodSignatureImpl implements InterfaceExtension.MethodSignature
     {
-        private String _intfName;  // Stored only for error output, does not influence the equals or hashCode
+        private String _intfName;  
         private final int NOTINITIALIZED = -1;
         private int _hashCode = NOTINITIALIZED;
         private String _signature;
@@ -336,10 +336,10 @@ public class InterfaceExtensionImpl implements InterfaceExtension
 
         public boolean equals(Object o)
         {
-            if ( !(o instanceof MethodSignature))
+            if ( !(o instanceof MethodSignatureImpl))
                 return false;
 
-            MethodSignature ms = (MethodSignature)o;
+            MethodSignatureImpl ms = (MethodSignatureImpl)o;
 
             if (!ms.getName().equals(getName()) )
                 return false;
@@ -356,6 +356,9 @@ public class InterfaceExtensionImpl implements InterfaceExtension
                     return false;
             }
 
+            if (!_intfName.equals(ms._intfName))
+                return false;
+            
             return true;
         }
 
@@ -373,6 +376,8 @@ public class InterfaceExtensionImpl implements InterfaceExtension
                 hash *= 19;
                 hash += params[i].hashCode();
             }
+
+            hash += 21 * _intfName.hashCode();
 
             _hashCode = hash;
             return _hashCode;
