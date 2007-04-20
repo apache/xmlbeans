@@ -39,6 +39,7 @@ import org.apache.xmlbeans.impl.common.JarHelper;
 import org.apache.xmlbeans.impl.util.FilerImpl;
 import org.apache.xmlbeans.impl.values.XmlListImpl;
 import org.apache.xmlbeans.impl.xb.xmlconfig.ConfigDocument;
+import org.apache.xmlbeans.impl.xb.xmlconfig.Extensionconfig;
 import org.apache.xmlbeans.impl.xb.xsdschema.SchemaDocument;
 import org.xml.sax.EntityResolver;
 import org.apache.xmlbeans.impl.config.BindingConfigImpl;
@@ -77,6 +78,7 @@ public class SchemaCompiler
         System.out.println("    -nopvr - do not enforce the particle valid (restriction) rule");
         System.out.println("    -noann - ignore annotations");
         System.out.println("    -novdoc - do not validate contents of <documentation>");
+        System.out.println("    -noext - ignore all extension (Pre/Post and Interface) found in .xsdconfig files");
         System.out.println("    -compiler - path to external java compiler");
         System.out.println("    -javasource [version] - generate java source compatible for a Java version (1.4 or 1.5)");
         System.out.println("    -ms - initial memory for external java compiler (default '" + CodeGenUtil.DEFAULT_MEM_START + "')");
@@ -119,6 +121,7 @@ public class SchemaCompiler
         flags.add("nopvr");
         flags.add("noann");
         flags.add("novdoc");
+        flags.add("noext");
         flags.add("srconly");
         flags.add("debug");
 
@@ -209,6 +212,7 @@ public class SchemaCompiler
         boolean noPvr = (cl.getOpt("nopvr") != null);
         boolean noAnn = (cl.getOpt("noann") != null);
         boolean noVDoc= (cl.getOpt("novdoc") != null);
+        boolean noExt= (cl.getOpt("noext") != null);
         boolean nojavac = (cl.getOpt("srconly") != null);
         boolean debug = (cl.getOpt("debug") != null);
 
@@ -357,6 +361,7 @@ public class SchemaCompiler
         params.setNoPvr(noPvr);
         params.setNoAnn(noAnn);
         params.setNoVDoc(noVDoc);
+        params.setNoExt(noExt);
         params.setDebug(debug);
         params.setErrorListener(err);
         params.setRepackage(repackage);
@@ -402,6 +407,7 @@ public class SchemaCompiler
         private boolean noPvr;
         private boolean noAnn;
         private boolean noVDoc;
+        private boolean noExt;
         private boolean debug;
         private boolean incrementalSrcGen;
         private String repackage;
@@ -601,6 +607,16 @@ public class SchemaCompiler
             this.noVDoc = newNoVDoc;
         }
 
+        public boolean isNoExt()
+        {
+            return noExt;
+        }
+
+        public void setNoExt(boolean newNoExt)
+        {
+            this.noExt = newNoExt;
+        }
+
         public boolean isIncrementalSrcGen()
         {
             return incrementalSrcGen;
@@ -742,7 +758,7 @@ public class SchemaCompiler
 
     private static SchemaTypeSystem loadTypeSystem(String name, File[] xsdFiles, File[] wsdlFiles, URL[] urlFiles, File[] configFiles,
         File[] javaFiles, ResourceLoader cpResourceLoader,
-        boolean download, boolean noUpa, boolean noPvr, boolean noAnn, boolean noVDoc,
+        boolean download, boolean noUpa, boolean noPvr, boolean noAnn, boolean noVDoc, boolean noExt,
         Set mdefNamespaces, File baseDir, Map sourcesToCopyMap,
         Collection outerErrorListener, File schemasDir, EntityResolver entResolver, File[] classpath, String javasource)
     {
@@ -882,6 +898,9 @@ public class SchemaCompiler
         ArrayList cdoclist = new ArrayList();
         if (configFiles != null)
         {
+            if (noExt)
+                System.out.println("Pre/Post and Interface extensions will be ignored.");
+            
             for (int i = 0; i < configFiles.length; i++)
             {
                 try
@@ -899,7 +918,15 @@ public class SchemaCompiler
                     {
                         StscState.addInfo(errorListener, "Loading config file " + configFiles[i]);
                         if (configdoc.validate(new XmlOptions().setErrorListener(errorListener)))
-                            cdoclist.add(((ConfigDocument)configdoc).getConfig());
+                        {
+                            ConfigDocument.Config config = ((ConfigDocument)configdoc).getConfig();
+                            cdoclist.add(config);
+                            if (noExt)
+                            {
+                                //disable extensions
+                                config.setExtensionArray(new Extensionconfig[] {});
+                            }
+                        }
                     }
                 }
                 catch (XmlException e)
@@ -1023,6 +1050,7 @@ public class SchemaCompiler
         boolean noPvr = params.isNoPvr();
         boolean noAnn = params.isNoAnn();
         boolean noVDoc = params.isNoVDoc();
+        boolean noExt = params.isNoExt();
         boolean incrSrcGen = params.isIncrementalSrcGen();
         Collection outerErrorListener = params.getErrorListener();
 
@@ -1070,7 +1098,7 @@ public class SchemaCompiler
         // build the in-memory type system
         XmlErrorWatcher errorListener = new XmlErrorWatcher(outerErrorListener);
         SchemaTypeSystem system = loadTypeSystem(name, xsdFiles, wsdlFiles, urlFiles, configFiles,
-            javaFiles, cpResourceLoader, download, noUpa, noPvr, noAnn, noVDoc, mdefNamespaces,
+            javaFiles, cpResourceLoader, download, noUpa, noPvr, noAnn, noVDoc, noExt, mdefNamespaces,
             baseDir, sourcesToCopyMap, errorListener, schemasDir, cmdLineEntRes, classpath, javasource);
         if (errorListener.hasError())
             result = false;

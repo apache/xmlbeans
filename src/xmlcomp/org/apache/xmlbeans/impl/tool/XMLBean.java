@@ -69,6 +69,7 @@ public class XMLBean extends MatchingTask
                         nopvr,
                         noann,
                         novdoc,
+                        noext = false,
                         failonerror = true,
                         fork = true,
                         includeAntRuntime = true,
@@ -234,6 +235,7 @@ public class XMLBean extends MatchingTask
             params.setNoPvr(nopvr);
             params.setNoAnn(noann);
             params.setNoVDoc(novdoc);
+            params.setNoExt(noext);
             params.setJavaSource(javasource);
             success = SchemaCompiler.compile(params);
 
@@ -758,6 +760,20 @@ public class XMLBean extends MatchingTask
     public boolean isNoValidateDoc()
     {
         return novdoc;
+    }
+
+    /**
+     * Ignore extensions found in .xsdconfig files
+     * @param novdoc
+     */
+    public void setNoExt(boolean noext)
+    {
+        this.noext = noext;
+    }
+
+    public boolean isNoExt()
+    {
+        return noext;
     }
 
     /**
