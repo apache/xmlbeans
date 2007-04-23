@@ -1670,7 +1670,8 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory
                 break;
 
             case SchemaParticle.ELEMENT:
-                result = QNameSet.singleton(contentModel.getName());
+                // Fix for XMLBEANS-228
+                result = ((SchemaLocalElementImpl) contentModel).acceptedStartNames();
                 break;
         }
         state.put(contentModel, result);
