@@ -30,6 +30,7 @@ import javax.xml.namespace.QName;
  */
 public class Common extends TestCase
 {
+    public static final String NEWLINE = System.getProperty("line.separator");
     public static final String P = File.separator;
 
     public static String FWROOT = getRootFile();
