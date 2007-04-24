@@ -20,7 +20,7 @@
 
     <!-- Global Elements -->
 
-    <table name="PURCHASE_ORDER">
+    <table name="PURCHASE-ORDER">
 
         <column name="PK" type="INTEGER" required="true" primaryKey="true"/>
             

@@ -140,7 +140,7 @@ public class VelocityXmlBeansDB extends Task {
         // Create a map of exported key lists
         SchemaGlobalElement[] globals = sts.globalElements();
         for (int i = 0; i < globals.length; i++) {
-            processProperties(globals[i].getName().getLocalPart().toUpperCase().replace('-','_'), globals[i].getType().getProperties(), exportedKeyMap);
+            processProperties(globals[i].getName().getLocalPart().toUpperCase(), globals[i].getType().getProperties(), exportedKeyMap);
         }
         return exportedKeyMap;
     }

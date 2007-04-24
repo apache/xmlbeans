@@ -18,29 +18,29 @@
 #if($property.type.simpleType)
 
         <!-- $property.type -->
-        <column name='$property.name.localPart.toUpperCase().replace("-","_")' type='#parse("type.vm")' />
+        <column name="$property.name.localPart.toUpperCase()" type='#parse("type.vm")' />
 #elseif( $property.maxOccurs.intValue() == 1 && $property.minOccurs.intValue() == 0 )
 
         <!-- $property.type -->
-        <column name='FK_$property.name.localPart.toUpperCase().replace("-","_")' type="INTEGER" />
-        <foreign-key foreignTable='$property.name.localPart.toUpperCase().replace("-","_")'>
-            <reference local='FK_$property.name.localPart.toUpperCase().replace("-","_")' foreign="PK"/>
+        <column name="FK_$property.name.localPart.toUpperCase()" type="INTEGER" />
+        <foreign-key foreignTable='$property.name.localPart.toUpperCase()'>
+            <reference local='FK_$property.name.localPart.toUpperCase()' foreign="PK"/>
         </foreign-key>
 #elseif( $property.maxOccurs.intValue() == 1 )
 
         <!-- $property.type -->
-        <column name='FK_$property.name.localPart.toUpperCase().replace("-","_")' required="true" type="INTEGER" />
-        <foreign-key foreignTable='$property.name.localPart.toUpperCase().replace("-","_")'>
-            <reference local='FK_$property.name.localPart.toUpperCase().replace("-","_")' foreign="PK"/>
+        <column name='FK_$property.name.localPart.toUpperCase()' required="true" type="INTEGER" />
+        <foreign-key foreignTable='$property.name.localPart.toUpperCase()'>
+            <reference local='FK_$property.name.localPart.toUpperCase()' foreign="PK"/>
         </foreign-key>
 #elseif( $property.maxOccurs.intValue() > 1 || "$!property.maxOccurs" == "")## Greater than one or unbounded
 
-        <!-- Foreign key imported from table named $property.name.localPart.toUpperCase().replace("-","_") -->
+        <!-- Foreign key imported from table named $property.name.localPart.toUpperCase() -->
 #else
 
         <!-- This is a debug line that provides information for properties -->
         <!-- that are not handled in the property.vm template logic. -->
         <!-- SimpleType:$property.type.simpleType -->
         <!-- maxOccurs:"$property.maxOccurs" -->
-        <!-- column name='$property.name.localPart.toUpperCase().replace("-","_")' type=""/ -->
+        <!-- column name='$property.name.localPart.toUpperCase()' type=""/ -->
 #end
