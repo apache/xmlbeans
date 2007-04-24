@@ -25,7 +25,7 @@
 #foreach($global in $xsd.globalElements())## SchemaGlobalElement[]
 
     <!-- Table $global.name -->
-    <table name='$global.name.localPart.toUpperCase().replace("-","_")'>
+    <table name="$global.name.localPart.toUpperCase()">
 
     #set($global = $global.type)
     #parse("global.vm")
@@ -37,7 +37,7 @@
 #foreach($global in $xsd.globalTypes())## SchemaType[]
 
     <!-- Table $global.name -->
-    <table name='$global.name.localPart.toUpperCase().replace("-","_")'>
+    <table name="$global.name.localPart.toUpperCase()">
 
     #parse("global.vm")
 

@@ -22,30 +22,36 @@
     </description>
 
     <property environment="env" />
-    <property name="targetDatabase" value="postgresql" />
+    <property name="targetDatabase" value="derby" />
     <property name="schema" value="schemas/easypo.xsd" />
     <property name="template" value="datamodel.vm" />
-    <property name="output" value="xml/datamodel.xml" />
-    <property name="ddl" value="sql/create.sql" />
+    <property name="output" value="build/datamodel.xml" />
+    <property name="ddl" value="build/create.sql" />
 
     <path id="vxsdb.runtime.classpath">
         <pathelement path="build" />
         <pathelement location="lib/ant-1.6.2.jar" />
         <pathelement location="lib/commons-collections-3.1.jar" />
+        <pathelement location="lib/commons-lang-2.1.jar" />
         <pathelement location="lib/commons-logging-1.0.3.jar" />
         <pathelement location="lib/log4j-1.2.8.jar" />
-        <pathelement location="lib/velocity-1.4.jar" />
+        <pathelement location="lib/velocity-1.5.jar" />
         <path refid="xmlbeans.path" />
     </path>
 
     <path id="commons-sql.runtime.classpath">
         <pathelement location="lib/commons-beanutils-1.7.0.jar" />
-        <pathelement location="lib/commons-betwixt-0.5.jar" />
+        <pathelement location="lib/commons-betwixt-0.8.jar" />
         <pathelement location="lib/commons-collections-3.1.jar" />
         <pathelement location="lib/commons-digester-1.5.jar" />
         <pathelement location="lib/commons-logging-1.0.3.jar" />
-        <pathelement location="lib/commons-sql-1.0-dev.jar" />
+        <pathelement location="lib/commons-dbcp-1.2.1.jar" />
+        <pathelement location="lib/commons-pool-1.2.jar" />
+        <pathelement location="lib/commons-lang-2.1.jar" />
+        <pathelement location="lib/DdlUtils-1.0-RC1.jar" />
         <pathelement location="lib/dom4j-1.4.jar" />
+    	<pathelement location="lib/log4j-1.2.8.jar"/>
+        <pathelement location="lib/derby-10.1.1.0.jar" />
     </path>
 
     <target name="run" depends="init" description="Run the sample code">
@@ -65,9 +71,16 @@
     </target>
 
     <target name="create-db-sql" depends="runjava" description="Create an sql script (DDL) from the xml datamodel">
-        <!-- Jakarta Commons SQL Task-->
-        <taskdef name="ddl" classname="org.apache.commons.sql.task.DDLTask" description="The task used to create a ddl from the datamodel xml." classpathref="commons-sql.runtime.classpath" />
-        <ddl xmlFile="${output}" targetDatabase="${targetDatabase}" output="${ddl}" />
+        <!-- DDLUtils Task-->
+        <taskdef name="ddl" classname="org.apache.ddlutils.task.DdlToDatabaseTask" description="The task used to create a ddl from the datamodel xml." classpathref="commons-sql.runtime.classpath" />
+        <ddl schemaFile="${output}" databaseType="${targetDatabase}">
+            <database url="jdbc:derby:build/db"
+                      driverClassName="org.apache.derby.jdbc.EmbeddedDriver"
+                      username=""
+                      password=""/>
+            <createDatabase failonerror="false"/>
+            <writeSchemaSqlToFile outputFile="${ddl}" />
+        </ddl>
     </target>
 
     <target name="clean" description="Delete the generated files">
