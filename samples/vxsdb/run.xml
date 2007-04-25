@@ -30,7 +30,6 @@
 
     <path id="vxsdb.runtime.classpath">
         <pathelement path="build" />
-        <pathelement location="lib/ant-1.6.2.jar" />
         <pathelement location="lib/commons-collections-3.1.jar" />
         <pathelement location="lib/commons-lang-2.1.jar" />
         <pathelement location="lib/commons-logging-1.0.3.jar" />
@@ -61,16 +60,7 @@
         <vxsdb schema="${schema}" template="${template}" output="${output}" />
     </target>
 
-    <target name="runjava" depends="init" description="Run the sample code">
-        <!-- VelocityXmlBeans Task -->
-        <java classname="org.apache.xmlbeans.samples.vxsdb.VelocityXmlBeansDB" fork="yes" failonerror="yes" classpathref="vxsdb.runtime.classpath">
-            <arg value="${template}" />
-            <arg value="${output}" />
-            <arg value="${schema}" />
-        </java>
-    </target>
-
-    <target name="create-db-sql" depends="runjava" description="Create an sql script (DDL) from the xml datamodel">
+    <target name="create-db-sql" depends="run" description="Create an sql script (DDL) from the xml datamodel">
         <!-- DDLUtils Task-->
         <taskdef name="ddl" classname="org.apache.ddlutils.task.DdlToDatabaseTask" description="The task used to create a ddl from the datamodel xml." classpathref="commons-sql.runtime.classpath" />
         <ddl schemaFile="${output}" databaseType="${targetDatabase}">
