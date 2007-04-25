@@ -103,8 +103,9 @@ public class VelocityXmlBeansDB extends Task {
             // Create Schema Type System
             log.info("Using the xml schema, " + this.schema);
             schemaTypeSystem = XmlBeans.compileXsd(
-                    new XmlObject[] { XmlObject.Factory.parse(new File(
-                            this.schema)) }, XmlBeans.getBuiltinTypeSystem(),
+                    new XmlObject[] { XmlBeans.typeLoaderForClassLoader(this.getClass().getClassLoader()).
+                            parse(new File(this.schema), null, null) },
+					XmlBeans.getBuiltinTypeSystem(),
                     null);
 
             // Place SchemaTypeSystem in the Velocity Context
