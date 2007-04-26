@@ -1739,8 +1739,8 @@ abstract class Saver
         //
 
         private static final int _initialBufSize = 4096;
-        private static final int TextLengthCdataThreshold = 32;
-        private static final int EntitizeCharsCountCdataThreshold = 5;
+        private int _cdataLengthThreshold = 32;
+        private int _cdataEntityCountThreshold = 5;
 
         private int _lastEmitIn;
         private int _lastEmitCch;
@@ -1749,9 +1749,6 @@ abstract class Saver
         private int    _in;
         private int    _out;
         private char[] _buf;
-
-        private int _cdataLengthThreshold = 32;
-        private int _cdataEntityCountThreshold = 5;
     }
 
     static final class OptimizedForSpeedSaver
