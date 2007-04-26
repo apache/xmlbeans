@@ -1018,7 +1018,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
 
         void writeTo(DataOutputStream output)
         {
-            if (intsToStrings.size() > Short.MAX_VALUE)
+            if (intsToStrings.size() >= MAX_UNSIGNED_SHORT)
                 throw new SchemaTypeLoaderException("Too many strings (" + intsToStrings.size() + ")", _name, _handle, SchemaTypeLoaderException.INT_TOO_LARGE);
 
             try
@@ -1044,7 +1044,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
 
             try
             {
-                int size = input.readShort();
+                int size = input.readUnsignedShort();
                 for (int i = 1; i < size; i++)
                 {
                     String str = input.readUTF().intern();
