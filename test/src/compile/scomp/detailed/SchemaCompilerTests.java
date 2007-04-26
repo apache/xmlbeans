@@ -105,4 +105,68 @@ public class SchemaCompilerTests  extends Common
         String testname = "testEnumerationRedefine3";
         _testCompile(xsdFiles, outputDirName, testname);
     }
+
+    /**
+     * [XMLBEANS-205]:
+     * using static handlers for extension interfaces with same method names
+     */
+    public void testExtensionHandlerMethodNameCollision()
+    {
+        File[] xsdFiles =
+            new File[] { new File(scompTestFilesRoot + "methodsColide_jira205_278.xsd_") };
+        File[] configFiles =
+            new File[] { new File(scompTestFilesRoot + "methodsColide_jira205_278.xsdconfig_") };
+        File[] javaFiles =
+            new File[] { new File(scompTestFilesRoot + "ext" + P + "I1.java"),
+                         new File(scompTestFilesRoot + "ext" + P + "H1.java"),
+                         new File(scompTestFilesRoot + "ext" + P + "I2.java"),
+                         new File(scompTestFilesRoot + "ext" + P + "H2.java")};
+        String outputDirName = "methodsColide_jira205";
+
+        List errors = new ArrayList();
+        SchemaCompiler.Parameters params = new SchemaCompiler.Parameters();
+        params.setXsdFiles(xsdFiles);
+        params.setConfigFiles(configFiles);
+        params.setJavaFiles(javaFiles);
+        params.setErrorListener(errors);
+        params.setSrcDir(new File(schemaCompOutputDirPath + outputDirName + P + "src"));
+        params.setClassesDir(new File(schemaCompOutputDirPath + outputDirName + P + "classes"));
+
+        SchemaCompiler.compile(params);
+        if (printOptionErrMsgs(errors))
+        {
+            fail("testExtensionHandlerMethodNameCollision(): failure when executing scomp");
+        }
+    }
+
+    /**
+     * [XMLBEANS-278]:
+     * -noext flag for compilation
+     */
+    public void testNoExt()
+    {
+        File[] xsdFiles =
+            new File[] { new File(scompTestFilesRoot + "methodsColide_jira205_278.xsd_") };
+        File[] configFiles =
+            new File[] { new File(scompTestFilesRoot + "methodsColide_jira205_278.xsdconfig_") };
+        String outputDirName = "noExt";
+
+        List errors = new ArrayList();
+        SchemaCompiler.Parameters params = new SchemaCompiler.Parameters();
+        params.setXsdFiles(xsdFiles);
+        params.setConfigFiles(configFiles);
+        // no java files, if noExt flag doesn't work should fail for not finding the java files  params.setJavaFiles(javaFiles);
+        params.setErrorListener(errors);
+        params.setSrcDir(new File(schemaCompOutputDirPath + outputDirName + P + "src"));
+        params.setClassesDir(new File(schemaCompOutputDirPath + outputDirName + P + "classes"));
+
+        // no extensions
+        params.setNoExt(true);
+
+        SchemaCompiler.compile(params);
+        if (printOptionErrMsgs(errors))
+        {
+            fail("testNoExt(): failure when executing scomp");
+        }
+    }
 }
