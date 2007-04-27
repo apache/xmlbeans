@@ -38,6 +38,13 @@ import javax.xml.namespace.QName;
 
 public class StscJavaizer
 {
+
+    /**
+     * XMLBEANS-307
+     * if enumeration count is greater than 3668,
+     * xmlbeans scomp will fail with a code too large error
+     */
+    private static final int MAX_ENUM_COUNT = 3668;
     /**
      * Does a topo walk of all the types to resolve them.
      */
@@ -193,27 +200,39 @@ public class StscJavaizer
             // javaized as constants.
             if (enumVals != null)
             {
-                SchemaStringEnumEntry[] entryArray = new SchemaStringEnumEntry[enumVals.length];
-                SchemaType basedOn = sImpl.getBaseEnumType();
-                if (basedOn == sImpl)
+                //ERROR is found at > 3668
+                if (enumVals.length > MAX_ENUM_COUNT)
                 {
-                    Set usedNames = new HashSet();
-                    for (int i = 0; i < enumVals.length; i++)
-                    {
-                        String val = enumVals[i].getStringValue();
+                    StscState.get().warning("SchemaType Enumeration found with too many enumeration values " +
+                        "to create a Java enumeration. The base SchemaType \"" +
+                        sImpl.getBaseEnumType() + "\" will be used instead", XmlError.SEVERITY_WARNING, null);
 
-                        entryArray[i] = new SchemaStringEnumEntryImpl(val, i + 1, pickConstantName(usedNames, val));
-                    }
+                    sImpl = (SchemaTypeImpl) sImpl.getBaseEnumType();
                 }
                 else
                 {
-                    for (int i = 0; i < enumVals.length; i++)
+                    SchemaStringEnumEntry[] entryArray = new SchemaStringEnumEntry[enumVals.length];
+                    SchemaType basedOn = sImpl.getBaseEnumType();
+                    if (basedOn == sImpl)
                     {
-                        String val = enumVals[i].getStringValue();
-                        entryArray[i] = basedOn.enumEntryForString(val);
+                        Set usedNames = new HashSet();
+                        for (int i = 0; i < enumVals.length; i++)
+                        {
+                            String val = enumVals[i].getStringValue();
+
+                            entryArray[i] = new SchemaStringEnumEntryImpl(val, i + 1, pickConstantName(usedNames, val));
+                        }
                     }
+                    else
+                    {
+                        for (int i = 0; i < enumVals.length; i++)
+                        {
+                            String val = enumVals[i].getStringValue();
+                            entryArray[i] = basedOn.enumEntryForString(val);
+                        }
+                    }
+                    sImpl.setStringEnumEntries(entryArray);
                 }
-                sImpl.setStringEnumEntries(entryArray);
             }
         }
     }
@@ -573,7 +592,22 @@ public class StscJavaizer
 
             case SchemaType.BTC_STRING:
                 if (isStringType(sType.getBaseEnumType()))
-                    return SchemaProperty.JAVA_ENUM;
+		{
+                    // This is necessary for local types, etc.
+                    // schema enums with > ~3668 cause a Java Src file to be created
+                    // that cannot be compiled due to JVM restrictions
+                    // FIXFIX: http://issues.apache.org/jira/browse/XMLBEANS-307
+                    // FIXFIX: XMLBeans scomp throws error "code too large"
+                    if (sType.getEnumerationValues() != null &&
+                            sType.getEnumerationValues().length > MAX_ENUM_COUNT) 
+                    {
+                        return SchemaProperty.JAVA_STRING;
+                    }
+                    else
+                    {
+                        return SchemaProperty.JAVA_ENUM;
+                    }
+                }
                 return SchemaProperty.JAVA_STRING;
 
             case SchemaType.BTC_DURATION:
