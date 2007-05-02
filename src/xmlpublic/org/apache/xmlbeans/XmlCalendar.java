@@ -107,7 +107,7 @@ public class XmlCalendar extends GregorianCalendar
      * In particular, a year must be padded to at least four digits, so
      * "98" is not a valid year, although "1998" and "0098" are both valid
      * years, unambiguously 19 centuries separated from each other.  A year
-     * may also be preceded by a minus symbol: 0000 is 1 BC and -0001 is
+     * may also be preceded by a minus symbol: -0001 is 1 BC and -0002 is
      * 2 BC.
      *
      * Finally a timezone is always allowed (yet optional) at the end.
@@ -145,15 +145,16 @@ public class XmlCalendar extends GregorianCalendar
         
         if (date.hasYear())
         {
-            int y = date.getYear();
+            int y = date.getYear(); // is never 0
             if (y > 0)
             {
                 set(Calendar.ERA, GregorianCalendar.AD);
             }
-            else
+            else // y < 0
             {
                 set(Calendar.ERA, GregorianCalendar.BC);
-                y = 1 - y;
+                //y = 1 - y;
+                y = -y; // no need to add 1
             }
             set(Calendar.YEAR, y);
         }

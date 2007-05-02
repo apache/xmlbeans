@@ -856,18 +856,18 @@
             value="**/compile/scomp/checkin/**,**/tools/inst2xsd/checkin/**"/>
         <antcall target="build"/>
         <antcall target="run.junit"/>
-        <antcall target="-compile.run.exluded"/>
+        <antcall target="-compile.run.excluded"/>
     </target>
 
     <!-- convenience target for just running compile tests -->
     <target name="compile.run">
         <property name="excludes"
             value="**/compile/scomp/checkin/**,**/tools/inst2xsd/checkin/**"/>
-        <antcall target="-compile.run.exluded"/>
+        <antcall target="-compile.run.excluded"/>
     </target>
     <!-- This test, for some reason, upon compilation,
     affects other tests under Win jdk1.4-->
-    <target name="-compile.run.exluded" depends="check.asserts">
+    <target name="-compile.run.excluded" depends="check.asserts">
         <javac srcdir="${xbeans.test.src}"
             destdir="${build.dir.test.src}"
             includes="${excludes}"

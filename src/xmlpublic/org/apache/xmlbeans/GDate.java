@@ -143,6 +143,7 @@ public final class GDate implements GDateSpecification, java.io.Serializable
             {
                 _bits |= HAS_YEAR;
                 _CY =  negyear ? -value : value;
+                if (_CY == 0) throw new IllegalArgumentException("year must not be zero");
             }
             else if (digits > 0)
                 throw new IllegalArgumentException("year must be four digits (may pad with zeroes, e.g., 0560)");
@@ -383,7 +384,7 @@ public final class GDate implements GDateSpecification, java.io.Serializable
             int y = calendar.get(Calendar.YEAR);
             if (isSetEra && calendar instanceof GregorianCalendar)
                 if (calendar.get(Calendar.ERA) == GregorianCalendar.BC)
-                    y = 1 - y;
+                    y = -y; //1 - y;
             _bits |= HAS_YEAR;
             _CY = y;
         }
@@ -702,7 +703,7 @@ public final class GDate implements GDateSpecification, java.io.Serializable
     /**
      * Returns the Julian date corresponding to this Gregorian date.
      * The Julian date (JD) is a continuous count of days from
-     * 1 January 4713 BC (= -4712 January 1).
+     * 1 January 4713 BC.
      */
     public int getJulianDate()
     {

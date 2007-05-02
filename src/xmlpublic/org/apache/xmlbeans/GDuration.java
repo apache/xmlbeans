@@ -321,10 +321,10 @@ public final class GDuration implements GDurationSpecification, java.io.Serializ
     /**
      * Comparison to another GDuration.
      * <ul>
-     * <li>Returns -1 if this < date. (less-than)
-     * <li>Returns 0 if this == date. (equal)
-     * <li>Returns 1 if this > date. (greater-than)
-     * <li>Returns 2 if this <> date. (incomparable)
+     * <li>Returns -1 if this < duration. (less-than)
+     * <li>Returns 0 if this == duration. (equal)
+     * <li>Returns 1 if this > duration. (greater-than)
+     * <li>Returns 2 if this <> duration. (incomparable)
      * </ul>
      * Two instances are incomparable if they have different amounts
      * of information.
