@@ -137,6 +137,8 @@ public class GDateTests extends TestCase
                 "-9999999-02-28T00:00:00Z", // too long ago
                 "9999999-02-28T00:00:00Z", // too long from now
                 "9999999999999999999999999999999-02-28T00:00:00Z", // overflow?
+                "0000-01-01", // year zero
+                "0000-12-31T04:35:22.456", // year zero
                 "1996-00-28T00:00:00Z", // month
                 "1996-13-28T00:00:00Z", // month
                 "1996-02-00T00:00:00Z", // day
@@ -193,7 +195,7 @@ public class GDateTests extends TestCase
                 "1999-12-31T23:59:59.1234567890-14:00",
                 "1992-12-31T23:59:59.01-14:00",
                 "1965-12-31T23:59:59.000Z",
-                "0000-12-31T04:35:22.456",
+                //"0000-12-31T04:35:22.456",
                 "1696-09-01T00:00:00Z",
                 "1697-02-01T00:00:00Z",
                 "1903-03-01T00:00:00Z",
@@ -251,12 +253,12 @@ public class GDateTests extends TestCase
                 "-0423-12-31T00:00:00-05:00",
             };
 
-    private static boolean hasTime(GDuration gd)
+    private boolean hasTime(GDuration gd)
     {
         return gd.getHour() != 0 || gd.getMinute() != 0 || gd.getSecond() != 0 || gd.getFraction().signum() != 0;
     }
-    
-    public static void testGregorianCalendar()
+
+    public void testGregorianCalendar()
     {
         // this is a check of DST offsets
         Date date = new GDate("2002-04-18T23:59:59Z").getDate();
@@ -269,7 +271,7 @@ public class GDateTests extends TestCase
         Date gdd = gd.getDate();
         Date gcd = gc.getTime();
         Assert.assertEquals(gdd, gcd);
-        
+
         // set up 2/29, and read out Feb 29 in the year 1 BC.
         Calendar gregcal = new GDate("--02-29").getCalendar();
         Assert.assertEquals(29, gregcal.get(Calendar.DAY_OF_MONTH));
@@ -309,7 +311,7 @@ public class GDateTests extends TestCase
         _testEmptyDuration(gdCopy);
     }
 
-    public static void testValidDuration()
+    public void testValidDuration()
     {
         for (int i = 0; i < validDurations.length; i++)
         {
@@ -321,7 +323,7 @@ public class GDateTests extends TestCase
             }
             catch (IllegalArgumentException e)
             {
-                Assert.assertTrue("Problem with " + str + ": " + e.getMessage(), false);
+                Assert.fail("Problem with " + str + ": " + e.getMessage());
             }
 
             Assert.assertEquals(str, gd.toString());
@@ -336,7 +338,7 @@ public class GDateTests extends TestCase
                 }
                 catch (IllegalArgumentException e)
                 {
-                    Assert.assertTrue("Problem with " + str2 + ": " + e.getMessage(), false);
+                    Assert.fail("Problem with " + str2 + ": " + e.getMessage());
                 }
 
                 // subtracting two ways works
@@ -350,7 +352,6 @@ public class GDateTests extends TestCase
                 GDurationBuilder gdb1 = new GDurationBuilder(diff);
                 gdb1.normalize();
                 Assert.assertEquals("Problem: " + gd + " and " + gd2, gdb.toString(), gdb1.toString());
-
 
                 // comparing is reversible
                 int comp1 = gd.compareToGDuration(gd2);
@@ -385,7 +386,7 @@ public class GDateTests extends TestCase
                         seen[comp2 + 1] = true;
                     }
 
-                    // subtraction should yeild the same result
+                    // subtraction should yield the same result
                     if (comp1 != 2)
                     {
                         GDate date3 = date.add(diff);
@@ -405,7 +406,69 @@ public class GDateTests extends TestCase
         }
     }
 
-    public static void testOrder()
+    private void _testAddAndSubtract(String date1, String date2,
+                                     String duration)
+    {
+        GDate gd1 = new GDate(date1);
+        GDate gd2 = new GDate(date2);
+        GDuration gdur = new GDuration(duration);
+        GDate gd = gd1.add(gdur);
+        System.out.println(date1 + " + " + duration + " = " + gd.toString());
+        assertEquals(gd2, gd);
+        gd = gd2.subtract(gdur);
+        System.out.println(date2 + " - " + duration + " = " + gd.toString());
+        assertEquals(gd1, gd);
+    }
+
+    private void _testAdd(String date1, String date2, String duration)
+    {
+        GDate gd1 = new GDate(date1);
+        GDate gd2 = new GDate(date2);
+        GDuration gdur = new GDuration(duration);
+        GDate gd = gd1.add(gdur);
+        System.out.println(date1 + " + " + duration + " = " + gd.toString());
+        assertEquals(gd2, gd);
+    }
+
+    private void _testSubtract(String date1, String date2, String duration)
+    {
+        GDate gd1 = new GDate(date1);
+        GDate gd2 = new GDate(date2);
+        GDuration gdur = new GDuration(duration);
+        GDate gd = gd2.subtract(gdur);
+        System.out.println(date2 + " - " + duration + " = " + gd.toString());
+        assertEquals(gd1, gd);
+    }
+
+    public void testAddAndSubtractDuration()
+    {
+        _testAddAndSubtract("1970-01-01", "1973-01-01", "P3Y");
+        _testAddAndSubtract("0001-01-01", "0004-01-01", "P3Y");
+        // there is no year 0, so 1 BCE + 3Y = 3 CE
+        _testAddAndSubtract("-0001-01-01", "0003-01-01", "P3Y");
+        _testAddAndSubtract("-0002-01-01", "0003-01-01", "P4Y");
+        _testAddAndSubtract("-0001-01-01", "0001-01-01", "P1Y");
+        _testSubtract("-0001-02-29", "0004-02-29", "P4Y");
+        _testSubtract("-0001-12-31", "0001-01-01", "P1D");
+        _testSubtract("-0002-12-31", "0001-12-31", "P731D");
+        _testAddAndSubtract("1970-01-01T00:00:00", "1973-02-01T01:30:45", "P3Y31DT1H30M45S");
+        _testAddAndSubtract("-0001-01-01T00:00:00", "0003-02-01T01:30:45", "P3Y31DT1H30M45S");
+        // addition and subtraction of duration is not necessarily symmetric
+        // if duration is not constant, i.e., contains a component that varies
+        // in length, such as  month (or year)
+        _testAdd("2000-02-29", "2001-02-28", "P1Y");
+        _testSubtract("2000-02-28", "2001-02-28", "P1Y");
+        _testAddAndSubtract("1970-01-01T23:00:00", "1970-01-02T00:00:00", "PT1H");
+        _testAddAndSubtract("1970-01-01T00:00:00", "1969-12-31T23:00:00", "-PT1H");
+        _testAddAndSubtract("1970-01-01T00:00:00", "1969-12-31T22:59:59", "-PT1H1S");
+        _testAddAndSubtract("1971-02-02T01:01:01.1", "1970-01-01T00:00:00", "-P1Y1M1DT1H1M1.1S");
+        _testAdd("1970-01-01T00:00:00", "1968-11-29T22:58:58.9", "-P1Y1M1DT1H1M1.1S");
+        _testSubtract("1969-12-31T00:00:00", "1968-11-29T22:58:58.9", "-P1Y1M1DT1H1M1.1S");
+        _testAdd("0001-01-01T00:00:00", "-0002-11-29T22:58:58.9", "-P1Y1M1DT1H1M1.1S");
+        _testSubtract("0001-01-01T00:00:00", "-0002-11-29T22:58:58.9", "-P1Y1M2DT1H1M1.1S");
+    }
+
+    public void testOrder()
     {
         Assert.assertEquals(-1, new GDate("1998-08-26").compareToGDate(new GDate("2001-08-06")));
         Assert.assertEquals(-1, new GDate("1970-12-20T04:14:22Z").compareToGDate(new GDate("1971-04-18T12:51:41Z")));
@@ -462,8 +525,8 @@ public class GDateTests extends TestCase
         Assert.assertEquals(2, new GDate("23:59:59").compareToGDate(new GDate("00:00:00-10:00")));
         Assert.assertEquals(1, new GDate("23:59:59").compareToGDate(new GDate("00:00:00+14:00")));
     }
-    
-    public static void testAPI() throws Exception
+
+    public void testAPI() throws Exception
     {
         GDateBuilder builder = new GDateBuilder("1970-12-20T04:14:22Z");
         builder.normalizeToTimeZone(1, 0, 0);
@@ -476,8 +539,7 @@ public class GDateTests extends TestCase
         Assert.assertEquals("1970-12-20T04:59:22-05:00", builder.toString());
     }
 
-
-    public static void testFailure() throws Exception
+    public void testFailure() throws Exception
     {
         for (int i = 0; i < invalidDates.length; i++)
         {
@@ -490,11 +552,11 @@ public class GDateTests extends TestCase
             {
                 continue;
             }
-            Assert.assertTrue("Missing exception for GDate " + str, false);
+            Assert.fail("Missing exception for GDate " + str);
         }
     }
 
-    public static void testSuccess() throws Exception
+    public void testSuccess() throws Exception
     {
         for (int i = 0; i < validDates.length; i++)
         {
@@ -506,7 +568,7 @@ public class GDateTests extends TestCase
             }
             catch (IllegalArgumentException e)
             {
-                Assert.assertTrue("Problem with " + str + ": " + e.getMessage(), false);
+                Assert.fail("Problem with " + str + ": " + e.getMessage());
             }
 
             // must round-trip to string
@@ -531,7 +593,7 @@ public class GDateTests extends TestCase
                 Date date = gdate.getDate();
                 GDate gdate2 = new GDate(date);
                 Assert.assertEquals(gdate, gdate2);
-                
+
                 // normalize to UTC fractions-of-seconds is 0 or 3 digits [not 000], stringrep must round-trip
                 if (gdate.getTimeZoneSign() == 0 && ((gdate.getFraction().scale() == 3 && gdate.getFraction().signum() != 0) || gdate.getFraction().scale() == 0))
                 {
@@ -543,7 +605,7 @@ public class GDateTests extends TestCase
                 // verify that going through gcal gives us the same thing
                 GregorianCalendar gcal = gdate.getCalendar();
                 Assert.assertEquals(date, gcal.getTime());
-                
+
                 // double-check XmlCalendar constructor
                 gcal = new XmlCalendar(date);
                 Assert.assertEquals("Doing " + gdate, date, gcal.getTime());

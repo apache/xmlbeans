@@ -158,7 +158,10 @@ public final class GDateBuilder implements GDateSpecification, java.io.Serializa
     {
         _bits = HAS_YEAR | HAS_MONTH | HAS_DAY | HAS_TIME;
 
-        _CY = year;
+        if (year == 0)
+            throw new IllegalArgumentException();
+
+        _CY = (year > 0 ? year : year + 1);
         _M = month;
         _D = day;
         _h = hour;
@@ -206,7 +209,10 @@ public final class GDateBuilder implements GDateSpecification, java.io.Serializa
     {
         _bits = HAS_TIMEZONE | HAS_YEAR | HAS_MONTH | HAS_DAY | HAS_TIME;
 
-        _CY = year;
+        if (year == 0)
+            throw new IllegalArgumentException();
+
+        _CY = (year > 0 ? year : year + 1);
         _M = month;
         _D = day;
         _h = hour;
@@ -295,7 +301,7 @@ public final class GDateBuilder implements GDateSpecification, java.io.Serializa
      * Gets the year. Should be a four-digit year specification.
      */
     public final int getYear()
-        { return _CY;  }
+        { return (_CY > 0 ? _CY : _CY - 1);  }
 
     /**
      * Gets the month-of-year. January is 1.
@@ -374,9 +380,11 @@ public final class GDateBuilder implements GDateSpecification, java.io.Serializa
      */
     public void setYear(int year)
     {
-        if (year < -4712 || year > 999999)
+        if (year < -4713 || year > 999999)
             throw new IllegalArgumentException("year out of range");
-        _bits |= HAS_YEAR; _CY = year;
+        if (year == 0)
+            throw new IllegalArgumentException("year cannot be 0");
+        _bits |= HAS_YEAR; _CY = (year > 0 ? year : year + 1);
     }
 
     /**
@@ -535,13 +543,22 @@ public final class GDateBuilder implements GDateSpecification, java.io.Serializa
 
     /* package */ static final boolean isValidGDate(GDateSpecification date)
     {
+        if (date.hasYear() && date.getYear() == 0)
+            return false;
+
         if (date.hasMonth() && (date.getMonth() < 1 || date.getMonth() > 12))
             return false;
 
-        if (date.hasDay() && (date.getDay() < 1 || date.getDay() > 31 ||
-            date.getDay() > 28 && date.hasMonth() &&
-                (date.hasYear() ? date.getDay() > _maxDayInMonthFor(date.getYear(), date.getMonth()) :
-                                  date.getDay() > _maxDayInMonth(date.getMonth()))))
+        if (date.hasDay() && 
+            (date.getDay() < 1 || date.getDay() > 31 || 
+             date.getDay() > 28 && 
+             date.hasMonth() && 
+             (date.hasYear() ? 
+              date.getDay() > _maxDayInMonthFor((date.getYear() > 0 ? 
+                                                 date.getYear() : 
+                                                 date.getYear() + 1), 
+                                                date.getMonth()) : 
+              date.getDay() > _maxDayInMonth(date.getMonth()))))
             return false;
 
         if (date.hasTime() && (date.getHour() < 0 || date.getHour() > 23 ||
@@ -803,10 +820,7 @@ public final class GDateBuilder implements GDateSpecification, java.io.Serializa
             // Add months and years
             temp = _M + sign * month;
             _M = _modulo(temp, 1, 13);
-            boolean yearWasLessThanZero = _CY < 0;
             _CY = _CY + sign * year + (int)_fQuotient(temp, 1, 13);
-            if (yearWasLessThanZero && _CY>=0)
-                _CY +=1;
 
             // In new month, day may need to be pegged before proceeding
             if (hasDay())
@@ -881,7 +895,7 @@ public final class GDateBuilder implements GDateSpecification, java.io.Serializa
     /**
      * Returns the Julian date corresponding to this Gregorian date.
      * The Julian date (JD) is a continuous count of days from
-     * 1 January 4713 BC (= -4712 January 1).
+     * 1 January 4713 BC.
      */
     public final int getJulianDate()
     {
@@ -892,14 +906,14 @@ public final class GDateBuilder implements GDateSpecification, java.io.Serializa
     /**
      * Sets the Gregorian date based on the given Julian date.
      * The Julian date (JD) is a continuous count of days from
-     * 1 January 4713 BC (= -4712 January 1).
+     * 1 January 4713 BC.
      * 
      * @param julianday the julian day number
      */
     public void setJulianDate(int julianday)
     {
         if (julianday < 0)
-            throw new IllegalArgumentException("date before year -4712");
+            throw new IllegalArgumentException("date before year -4713");
 
         int temp;
         int qepoc;
@@ -980,7 +994,8 @@ public final class GDateBuilder implements GDateSpecification, java.io.Serializa
     public void setGDate(GDateSpecification gdate)
     {
         _bits = gdate.getFlags() & (HAS_TIMEZONE | HAS_YEAR | HAS_MONTH | HAS_DAY | HAS_TIME);
-        _CY = gdate.getYear();
+        int year = gdate.getYear();
+        _CY = (year > 0 ? year : year + 1);
         _M = gdate.getMonth();
         _D = gdate.getDay();
         _h = gdate.getHour();
@@ -1026,11 +1041,15 @@ public final class GDateBuilder implements GDateSpecification, java.io.Serializa
             throw new IllegalStateException("cannot do date math without a complete date");
 
         // from http://aa.usno.navy.mil/faq/docs/JD_Formula.html
-        int result = date.getDay()-32075+1461*(date.getYear()+4800+(date.getMonth()-14)/12)/4+
-            367*(date.getMonth()-2-(date.getMonth()-14)/12*12)/12-3*((date.getYear()+4900+(date.getMonth()-14)/12)/100)/4;
+        int day = date.getDay();
+        int month = date.getMonth();
+        int year = date.getYear();
+        year = (year > 0 ? year : year + 1);
+        int result = day-32075+1461*(year+4800+(month-14)/12)/4+
+            367*(month-2-(month-14)/12*12)/12-3*((year+4900+(month-14)/12)/100)/4;
 
         if (result < 0)
-            throw new IllegalStateException("date too far in the past (year allowed to -4712)");
+            throw new IllegalStateException("date too far in the past (year allowed to -4713)");
 
         return result;
     }

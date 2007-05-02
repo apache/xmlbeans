@@ -154,7 +154,7 @@ public interface GDateSpecification
     /**
      * Returns the Julian date corresponding to this Gregorian date.
      * The Julian date (JD) is a continuous count of days from
-     * 1 January 4713 BC (= -4712 January 1).
+     * 1 January 4713 BC.
      */
     int getJulianDate();
 
