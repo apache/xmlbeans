@@ -20,7 +20,7 @@
 
 if [ -z "$XMLBEANS_LIB" ]; then . `dirname $0`/_setlib; fi
 
-cp=$XMLBEANS_LIB/xbean.jar:$XMLBEANS_LIB/jsr173_1.0_api.jar:$JAVA_HOME/lib/tools.jar:$XMLBEANS_LIB/resolver.jar
+cp=$XMLBEANS_LIB/xbean.jar:$XMLBEANS_LIB/xmlbeans-qname.jar:$XMLBEANS_LIB/jsr173_1.0_api.jar:$JAVA_HOME/lib/tools.jar:$XMLBEANS_LIB/resolver.jar
 
 case "`uname`" in
     CYGWIN*)

@@ -186,7 +186,7 @@
     </target>
 
 
-    <target name="xbean" depends="xbean.jar">
+    <target name="xbean" depends="xbean.jar,xmlpublic.jar">
         <copy file="build/lib/xbean.jar" tofile="build/ar/xbean.jar"/>
     </target>
 
@@ -344,6 +344,7 @@
             <fileset dir="build/lib">
 	        <include name="xbean.jar"/>
 	        <include name="xmlpublic.jar"/>
+            <include name="xmlbeans-qname.jar"/>
 	        <include name="xbean_xpath.jar"/>
 	        <include name="resolver.jar"/>
 	        <include name="jsr173_1.0_api.jar"/>
@@ -446,7 +447,8 @@
                  xmlinputstream.classes, resolver.jar, xbean_xpath.jar,
                  piccolo.classes, tools.classes, jamsupport.classes">
         <jar jarfile="build/lib/xbean.jar" index="true">
-            <fileset dir="build/classes/xmlpublic"/>
+            <fileset dir="build/classes/xmlpublic"
+                excludes="javax/**"/>
             <fileset dir="build/classes/typeholder"/>
             <fileset dir="build/classes/typestore"/>
             <fileset dir="build/classes/common"/>
@@ -475,6 +477,10 @@
                     <attribute name="Implementation-URL" value="${manifest.url}"/>
                 </section>
             </manifest>
+        </jar>
+        <jar jarfile="build/lib/xmlbeans-qname.jar">
+            <fileset dir="build/classes/xmlpublic"
+        	    includes="javax/xml/namespace/QName.class,javax/xml/namespace/NamespaceContext.class"/>
         </jar>
     </target>
 
@@ -514,7 +520,8 @@
 
     <target name="xmlpublic.jar" depends="dirs,xmlinputstream.classes, xmlpublic.classes, xmlschema.classes, xsdschema.classes">
         <jar jarfile="build/lib/xmlpublic.jar" index="true">
-            <fileset dir="build/classes/xmlpublic"/>
+            <fileset dir="build/classes/xmlpublic"
+                excludes="javax/**"/>
             <fileset dir="build/classes/xmlschema"/>
             <fileset dir="build/classes/xsdschema"/>
             <manifest>
@@ -546,13 +553,13 @@
 
     <!-- common target ============================================= -->
 
-    <target name="common.classes" depends="dirs, xmlpublic.jar, xmlinputstream.classes, jsr173_1.0.jars">
+    <target name="common.classes" depends="dirs, xmlpublic.classes, xmlinputstream.classes, jsr173_1.0.jars">
         <mkdir dir="build/classes/common"/>
         <javac srcdir="src/common" destdir="build/classes/common" source="${javac.source}" target="${javac.target}" debug="on">
             <classpath>
                 <pathelement location="build/lib/jsr173_1.0_api.jar"/>
                 <pathelement location="build/classes/xmlinputstream"/>
-                <pathelement location="build/lib/xmlpublic.jar"/>
+                <pathelement location="build/classes/xmlpublic"/>
             </classpath>
         </javac>
 
@@ -738,6 +745,7 @@
     <path id="bootstrap.run.path">
         <pathelement location="build/private/lib/oldxbean.jar"/>
         <pathelement location="build/lib/jsr173_1.0_api.jar"/>
+    	<pathelement location="build/classes/xmlpublic"/>
     </path>
 
     <path id="bootstrap.compile.path">
@@ -797,11 +805,11 @@
 
     <!-- xmlconfig target =============================================== -->
 
-    <target name="xmlconfig.classes" depends="dirs, xmlpublic.jar, configschema.classes">
+    <target name="xmlconfig.classes" depends="dirs, xmlpublic.classes, configschema.classes">
         <mkdir dir="build/classes/xmlconfig"/>
         <javac srcdir="src/xmlconfig" destdir="build/classes/xmlconfig" source="${javac.source}" target="${javac.target}" debug="on">
             <classpath>
-                <pathelement location="build/lib/xmlpublic.jar"/>
+                <pathelement location="build/classes/xmlpublic"/>
                 <pathelement location="build/classes/configschema"/>
             </classpath>
         </javac>
@@ -928,7 +936,7 @@
 
     <!-- xpath target ============================================= -->
 
-    <target name="xpath.classes" depends="dirs, xmlpublic.jar, store.classes, saxon8.jar">
+    <target name="xpath.classes" depends="dirs, xmlpublic.classes, store.classes, saxon8.jar">
         <mkdir dir="build/classes/xpath_xquery"/>
         <javac
             destdir="build/classes/xpath_xquery"

@@ -29,7 +29,7 @@
 
         <echo message="xmlbeans.lib: ${xmlbeans.lib}"/>
         <path id="xmlbeans.classpath">
-            <fileset dir="${xmlbeans.lib}" includes="xbean.jar,jsr173_1.0_api.jar"/>
+            <fileset dir="${xmlbeans.lib}" includes="xbean.jar,xmlbeans-qname.jar,jsr173_1.0_api.jar"/>
         </path>
 
         <taskdef name="scomp"
