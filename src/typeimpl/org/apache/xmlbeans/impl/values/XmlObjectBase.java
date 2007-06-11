@@ -53,7 +53,6 @@ import org.apache.xmlbeans.impl.common.QNameHelper;
 import org.apache.xmlbeans.impl.schema.SchemaTypeImpl;
 import org.apache.xmlbeans.impl.schema.SchemaTypeVisitorImpl;
 import org.apache.xmlbeans.impl.validator.Validator;
-import org.apache.xmlbeans.impl.values.XmlValueNotNillableException;
 import org.apache.xmlbeans.XmlErrorCodes;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.SchemaAttributeModel;
@@ -76,7 +75,6 @@ import org.apache.xmlbeans.StringEnumAbstractBase;
 import org.apache.xmlbeans.XmlBeans;
 import org.apache.xmlbeans.XmlError;
 import org.apache.xmlbeans.SchemaLocalAttribute;
-import org.apache.xmlbeans.FilterXmlObject;
 import org.apache.xmlbeans.DelegateXmlObject;
 import org.apache.xmlbeans.SchemaTypeLoader;
 
@@ -113,19 +111,39 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
 
     public final XmlObject copy()
     {
-        synchronized (monitor())
-        {
-            // immutable objects don't get copied. They're immutable
-            if (isImmutable())
-                return this;
+        if (preCheck())
+            return _copy();
+        else
+            synchronized (monitor())
+            {
+                return _copy();
+            }
+    }
 
-            check_orphaned();
+    private boolean preCheck()
+    {
+        if (has_store())
+            return get_store().get_locale().noSync();
+        return false;
+    }
 
-            SchemaTypeLoader stl = get_store().get_schematypeloader();
-            XmlObject result = (XmlObject)get_store().copy(stl,schemaType(), null);
+    public final XmlObject _copy()
+    {
+        return _copy(null);
+    }
 
-            return result;
-        }
+    public final XmlObject _copy(XmlOptions xmlOptions)
+    {
+        // immutable objects don't get copied. They're immutable
+        if (isImmutable())
+            return this;
+
+        check_orphaned();
+
+        SchemaTypeLoader stl = get_store().get_schematypeloader();
+        XmlObject result = (XmlObject)get_store().copy(stl, schemaType(), xmlOptions);
+
+        return result;
     }
 
     public XmlDocumentProperties documentProperties()

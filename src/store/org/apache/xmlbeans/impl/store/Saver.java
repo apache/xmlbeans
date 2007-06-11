@@ -904,6 +904,9 @@ abstract class Saver
             if (options != null && options.hasOption(XmlOptions.SAVE_CDATA_ENTITY_COUNT_THRESHOLD))
                 _cdataEntityCountThreshold = ((Integer)options.get(XmlOptions.SAVE_CDATA_ENTITY_COUNT_THRESHOLD)).intValue();
 
+            _in = _out = 0;
+            _free = 0;
+
             if (encoding != null && !noSaveDecl)
             {
                 XmlDocumentProperties props = Locale.getDocProps( c, false );
@@ -1141,11 +1144,17 @@ abstract class Saver
 
         private void emit ( char ch )
         {
+            assert _in >= _out : "_in:" + _in + " < _out:" + _out;
+            assert _buf==null || _free == _buf.length - _in : "_buf:" + _buf + "_in:" + _in + " _out:" + _out + " _free:" + _free;
+
             preEmit( 1 );
 
             _buf[ _in ] = ch;
 
             _in = (_in + 1) % _buf.length;
+
+            assert _in >= _out : "_in:" + _in + " < _out:" + _out;
+            assert _buf==null || _free == _buf.length - _in : "_buf:" + _buf + " _in:" + _in + " _out:" + _out + " _free:" + _free;
         }
 
         private void emit ( char ch1, char ch2 )
@@ -1162,6 +1171,9 @@ abstract class Saver
 
         private void emit ( String s )
         {
+            assert _in >= _out : "_in:" + _in + " < _out:" + _out;
+            assert _buf==null || _free == _buf.length - _in : "_buf:" + _buf + "_in:" + _in + " _out:" + _out + " _free:" + _free;
+
             int cch = s == null ? 0 : s.length();
 
             if (preEmit( cch ))
@@ -1180,6 +1192,9 @@ abstract class Saver
                 s.getChars( chunk, cch, _buf, 0 );
                 _in = (_in + cch) % _buf.length;
             }
+
+            assert _in >= _out : "_in:" + _in + " < _out:" + _out;
+            assert _buf==null || _free == _buf.length - _in : "_buf:" + _buf + "_in:" + _in + " _out:" + _out + " _free:" + _free;
         }
 
         private void emit ( SaveCur c )
@@ -1213,13 +1228,15 @@ abstract class Saver
         private boolean preEmit ( int cch )
         {
             assert cch >= 0;
+            assert _in >= _out : "_in:" + _in + " < _out:" + _out;
+            assert _buf==null || _free == _buf.length - _in : "_buf:" + _buf + "_in:" + _in + " _out:" + _out + " _free:" + _free;
 
             _lastEmitCch = cch;
 
             if (cch == 0)
                 return true;
 
-            if (_free < cch)
+            if (_free <= cch)
                 resize( cch, -1 );
 
             assert cch <= _free;
@@ -1242,12 +1259,17 @@ abstract class Saver
             _free -= cch;
 
             assert _free >= 0;
+            assert _in >= _out : "_in:" + _in + " < _out:" + _out;
+            assert _buf==null || _free == _buf.length - _in - cch;
 
             return false;
         }
 
         private void entitizeContent ( )
         {
+            assert _out == 0;
+            assert _free == _buf.length - _in;
+
             if (_lastEmitCch == 0)
                 return;
 
@@ -1344,6 +1366,9 @@ abstract class Saver
                         i = 0;
                 }
             }
+
+            assert _out == 0;
+            assert _free == _buf.length - _in;
         }
 
         private void entitizeAttrValue ( )
@@ -1581,7 +1606,9 @@ abstract class Saver
         {
             assert _free >= 0;
             assert cch > 0;
-            assert cch > _free;
+            assert cch >= _free;
+            assert _in >= _out : "_in:" + _in + " < _out:" + _out;
+            assert _buf==null || _free == _buf.length - _in : "_buf:" + _buf + "_in:" + _in + " _out:" + _out + " _free:" + _free;
 
             int newLen = _buf == null ? _initialBufSize : _buf.length * 2;
             int used = getAvailable();
@@ -1613,7 +1640,7 @@ abstract class Saver
             }
             else
             {
-                _free += newBuf.length;
+                _free = newBuf.length;
                 assert _in == 0 && _out == 0;
                 assert i == -1;
             }
@@ -1621,6 +1648,8 @@ abstract class Saver
             _buf = newBuf;
 
             assert _free >= 0;
+            assert _in >= _out : "_in:" + _in + " < _out:" + _out;
+            assert _buf==null || _free == _buf.length - _in : "_buf:" + _buf + "_in:" + _in + " _out:" + _out + " _free:" + _free;
 
             return i;
         }
@@ -1697,9 +1726,12 @@ abstract class Saver
                 // I don't want to deal with the circular cases
 
                 assert _out == 0;
+                assert _in >= _out : "_in:" + _in + " < _out:" + _out;
+                assert _free == _buf.length - _in;
 
                 try
                 {
+//System.out.println("-------------\nWriting in corverter: TextSaver.write():1703  " + charsAvailable + " chars\n" + new String(_buf, 0, charsAvailable));
                     writer.write( _buf, 0, charsAvailable );
                     writer.flush();
                 }
@@ -1714,6 +1746,8 @@ abstract class Saver
 
                 _in = 0;
             }
+            assert _in >= _out : "_in:" + _in + " < _out:" + _out;
+            assert _free == _buf.length - _in;
 
             return charsAvailable;
         }
@@ -1749,6 +1783,12 @@ abstract class Saver
         private int    _in;
         private int    _out;
         private char[] _buf;
+        /*
+        _buf is a circular buffer, useful data is before _in up to _out, there are 2 posible configurations:
+        1: _in<=_out  |data|_in  empty  _out|data|  ... this is the only case used here
+        2: _out<_in   |empty _out|data|_in  empty|
+        _free is used to keep around the remaining empty space in the bufer so assert _out==0 && _free == _buf.length - _in; 
+         */
     }
 
     static final class OptimizedForSpeedSaver
@@ -2088,8 +2128,8 @@ abstract class Saver
             int indexLimit = 0;
             while( index<cch )
             {
-                indexLimit = index + 512 > cch ? cch : 512;
-                CharUtil.getChars( _buf, 0, src, off+index, indexLimit );
+                indexLimit = index + 512 > cch ? cch : index + 512;
+                CharUtil.getChars( _buf, 0, src, off+index, indexLimit-index );
                 entitizeAndWriteText(indexLimit-index);
                 index = indexLimit;
             }
@@ -2379,8 +2419,8 @@ abstract class Saver
 
             bytesAvailable = _outStreamImpl.getAvailable();
 
-            if (bytesAvailable == 0)
-                return 0;
+//            if (bytesAvailable == 0)
+//                return 0;
 
             return bytesAvailable;
         }
@@ -2437,7 +2477,7 @@ abstract class Saver
                             _buf, 0, bbuf, off + chunk, len - chunk );
                     }
                 }
-
+//System.out.println("------------------------\nRead out of queue: Saver:2440 InputStreamSaver.read() bbuf   " + len + " bytes :\n" + new String(bbuf, off, len));
                 _out = (_out + len) % _buf.length;
                 _free += len;
 
@@ -2465,7 +2505,7 @@ abstract class Saver
             public void write ( byte[] buf, int off, int cbyte )
             {
                 assert cbyte >= 0;
-
+//System.out.println("---------\nAfter converter, write in queue: OutputStreamImpl.write():Saver:2469  " + cbyte + " bytes \n" + new String(buf, off, cbyte));
                 if (cbyte == 0)
                     return;
 
@@ -2532,7 +2572,7 @@ abstract class Saver
                 }
                 else
                 {
-                    _free += newBuf.length;
+                    _free = newBuf.length;
                     assert _in == 0 && _out == 0;
                 }
 
