@@ -767,6 +767,7 @@ public class XmlOptions implements java.io.Serializable
     public static final String GENERATE_JAVA_14 = "1.4";
     public static final String GENERATE_JAVA_15 = "1.5";
 
+
     //
     // Complete set of XmlOption's
     //
