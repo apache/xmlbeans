@@ -314,5 +314,4 @@ public class XmlCalendar extends GregorianCalendar
     {
         return (new GDate(this)).toString(); // use GDate to print
     }
-
 }
