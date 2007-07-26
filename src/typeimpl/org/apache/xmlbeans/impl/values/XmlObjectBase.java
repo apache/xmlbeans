@@ -127,11 +127,20 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
         return false;
     }
 
+    /**
+     * Same as copy() but unsynchronized.
+     * Warning: Using this method in mutithreaded environment can cause invalid states.
+     */
     public final XmlObject _copy()
     {
         return _copy(null);
     }
 
+    /**
+     * Same as copy() but unsynchronized.
+     * If Locale.COPY_USE_NEW_LOCALE is set in the options, a new locale will be created for the copy.
+     * Warning: Using this method in mutithreaded environment can cause invalid states.
+     */
     public final XmlObject _copy(XmlOptions xmlOptions)
     {
         // immutable objects don't get copied. They're immutable
@@ -1984,6 +1993,33 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
                     GlobalLock.release();
             }
         }
+
+        return (XmlObject) newObj;
+    }
+
+    /**
+     * Same as set() but unsynchronized.
+     * Warning: Using this method in mutithreaded environment can cause invalid states.
+     */
+    public final XmlObject _set(XmlObject src)
+    {
+        if (isImmutable())
+            throw new IllegalStateException("Cannot set the value of an immutable XmlObject");
+
+        XmlObjectBase obj = underlying(src);
+
+        TypeStoreUser newObj = this;
+
+        if (obj == null)
+        {
+            setNil();
+            return this;
+        }
+
+        if (obj.isImmutable())
+            set(obj.stringValue());
+        else
+            newObj = setterHelper( obj );
 
         return (XmlObject) newObj;
     }
