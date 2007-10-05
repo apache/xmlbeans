@@ -19,6 +19,7 @@ import java.util.*;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.ref.WeakReference;
 import java.math.BigDecimal;
 
 import org.apache.xmlbeans.impl.common.XPath;
@@ -95,15 +96,18 @@ public abstract class Path
         String currentVar)
     {
         Path path = null;
+        WeakReference pathWeakRef = null;
         Map namespaces = (force & USE_SAXON) != 0 ? new HashMap() : null;
 
         if ((force & USE_XBEAN) != 0)
-            path = (Path) _xbeanPathCache.get(pathExpr);
+            pathWeakRef = (WeakReference)_xbeanPathCache.get(pathExpr);
         if (path == null && (force & USE_XQRL) != 0)
-            path = (Path) _xqrlPathCache.get(pathExpr);
+            pathWeakRef = (WeakReference)_xqrlPathCache.get(pathExpr);
         if (path == null && (force & USE_XQRL2002) != 0)
-            path = (Path) _xqrl2002PathCache.get(pathExpr);
+            pathWeakRef = (WeakReference)_xqrl2002PathCache.get(pathExpr);
 
+        if (pathWeakRef!=null)
+            path = (Path)pathWeakRef.get();
         if (path != null)
             return path;
 
@@ -138,7 +142,7 @@ public abstract class Path
     {
         Path path = createXqrlCompiledPath(pathExpr, currentVar);
         if (path != null)
-            _xqrlPathCache.put(path._pathKey, path);
+            _xqrlPathCache.put(path._pathKey, new WeakReference(path));
 
         return path;
     }
@@ -147,7 +151,7 @@ public abstract class Path
     {
         Path path = createXqrl2002CompiledPath(pathExpr, currentVar);
         if (path != null)
-            _xqrl2002PathCache.put(path._pathKey, path);
+            _xqrl2002PathCache.put(path._pathKey, new WeakReference(path));
 
         return path;
     }
@@ -157,7 +161,7 @@ public abstract class Path
     {
         Path path = XbeanPath.create(pathExpr, currentVar, namespaces);
         if (path != null)
-            _xbeanPathCache.put(path._pathKey, path);
+            _xbeanPathCache.put(path._pathKey, new WeakReference(path));
 
         return path;
     }
@@ -578,9 +582,9 @@ public abstract class Path
 
     protected final String _pathKey;
 
-    private static Map _xbeanPathCache = new HashMap();
-    private static Map _xqrlPathCache = new HashMap();
-    private static Map _xqrl2002PathCache = new HashMap();
+    private static Map _xbeanPathCache = new WeakHashMap();
+    private static Map _xqrlPathCache = new WeakHashMap();
+    private static Map _xqrl2002PathCache = new WeakHashMap();
 
     private static Method _xqrlCompilePath;
     private static Method _xqrl2002CompilePath;

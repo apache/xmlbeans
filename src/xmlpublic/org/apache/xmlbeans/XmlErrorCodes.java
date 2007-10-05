@@ -69,6 +69,9 @@ public abstract class XmlErrorCodes
     public static final String EXCEPTION_VALUE_NOT_SUPPORTED_J2S = "exception.value.not.supported.j2s";
     public static final String EXCEPTION_VALUE_NOT_SUPPORTED_S2J = "exception.value.not.supported.s2j";
 
+    public static final String EXCEPTION_XQRL_XPATH_NOT_VALID = "exception.xqrl.xpath.not.valid";
+    public static final String EXCEPTION_XQRL_EXCEPTION = "exception.xqrl.exception";
+
     //
     // xml errors
     //
@@ -1859,6 +1862,4 @@ public abstract class XmlErrorCodes
      *
      */
     public static final String INVALID_XPATH = "invalid-xpath";
-
-
 }
