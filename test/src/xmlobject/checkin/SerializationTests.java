@@ -25,6 +25,11 @@ import com.easypo.XmlLineItemBean;
 import com.easypo.XmlShipperBean;
 import com.easypo.XmlPurchaseOrderDocumentBean;
 import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.SchemaTypeLoader;
+import org.apache.xmlbeans.XmlBeans;
+import org.apache.xmlbeans.XmlOptions;
+import org.apache.xmlbeans.impl.xb.xsdschema.SchemaDocument;
+import org.xml.sax.InputSource;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -32,6 +37,12 @@ import java.io.ByteArrayOutputStream;
 import java.io.ObjectOutputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ObjectInputStream;
+import java.io.File;
+import java.io.Reader;
+import java.util.List;
+import java.util.ArrayList;
+
+import tools.util.JarUtil;
 
 public class SerializationTests extends TestCase
 {
@@ -128,5 +139,34 @@ public class SerializationTests extends TestCase
         Assert.assertEquals(true, neworder.isSetShipper());
         Assert.assertEquals("UPS", neworder.getShipper().getName());
         Assert.assertEquals(new BigDecimal("0.74"), neworder.getShipper().getPerOunceRate());
+    }
+
+    public void testWsdlSerialization()
+    {
+        // test for TextSaver
+        try
+        {
+            File wsdlFile = JarUtil.getResourceFromJarasFile("xbean/xmlobject/wsdl.xml");
+
+            List loaders = new ArrayList();
+            loaders.add(SchemaDocument.type.getTypeSystem());
+            SchemaTypeLoader[] loadersArr = (SchemaTypeLoader[])loaders.toArray(new SchemaTypeLoader[1]);
+            SchemaTypeLoader loader = XmlBeans.typeLoaderUnion(loadersArr);
+
+            XmlOptions options = new XmlOptions();
+            options.setLoadLineNumbers();
+            XmlObject wsdlObj = (XmlObject) loader.parse(wsdlFile, XmlObject.type, options);
+
+            Reader reader = wsdlObj.newReader();
+            InputSource source = new InputSource(reader);
+            source.setSystemId("");
+
+
+            XmlObject wsdlDefinitions = XmlObject.Factory.parse(reader);
+        }
+        catch (Exception e)
+        {
+            throw new RuntimeException(e);
+        }
     }
 }
