@@ -415,10 +415,12 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
         if (input.length == 0)
             return input;
         SchemaType commonType = input[0].schemaType();
-        if (commonType.equals(XmlObject.type))
+        if (commonType.equals(XmlObject.type) || commonType.isNoType())
             return input;
         for (int i = 1; i < input.length; i++)
         {
+            if (input[i].schemaType().isNoType())
+                return input;
             commonType = commonType.getCommonBaseType(input[i].schemaType());
             if (commonType.equals(XmlObject.type))
                 return input;
