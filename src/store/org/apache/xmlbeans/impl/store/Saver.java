@@ -1363,8 +1363,7 @@ abstract class Saver
                 }
             }
 
-            assert _out == 0;
-            assert _free == _buf.length - _in;
+            assert _buf==null || _free == (_in>=_out ? _buf.length - (_in - _out) : _out - _in ) : "_buf.length:" + _buf.length + " _in:" + _in + " _out:" + _out + " _free:" + _free;
         }
 
         private void entitizeAttrValue ( )
@@ -1785,7 +1784,7 @@ abstract class Saver
         _buf is a circular buffer, useful data is before _in up to _out, there are 2 posible configurations:
         1: _in<=_out  |data|_in  empty  _out|data|
         2: _out<_in   |empty _out|data|_in  empty|
-        _free is used to keep around the remaining empty space in the bufer so assert _out==0 && _free == _buf.length - _in; 
+        _free is used to keep around the remaining empty space in the bufer so  assert _buf==null || _free == (_in>=_out ? _buf.length - (_in - _out) : _out - _in ) ;
          */
     }
 
