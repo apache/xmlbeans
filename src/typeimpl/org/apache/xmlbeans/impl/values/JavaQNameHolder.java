@@ -80,7 +80,7 @@ public class JavaQNameHolder extends XmlObjectBase
 
         assert prefix != null;
         
-        return prefix + ":" + localPart;
+        return "".equals(prefix) ? localPart : prefix + ":" + localPart;
     }
 
     public static QName validateLexical(
