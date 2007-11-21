@@ -907,7 +907,12 @@ abstract class Saver
             _in = _out = 0;
             _free = 0;
 
-            assert _buf==null || _free == (_in>=_out ? _buf.length - (_in - _out) : _out - _in ) : "_buf.length:" + _buf.length + " _in:" + _in + " _out:" + _out + " _free:" + _free;
+            assert _buf==null ||
+                (_out<_in && _free == _buf.length - ( _in - _out ) ) || // data in the middle, free on the edges
+                (_out>_in && _free == _out - _in ) ||                   // data on the edges, free in the middle
+                (_out==_in && _free == _buf.length) ||                  // no data, all buffer free
+                (_out==_in && _free == 0)                               // buffer full
+                : "_buf.length:" + _buf.length + " _in:" + _in + " _out:" + _out + " _free:" + _free;
 
             if (encoding != null && !noSaveDecl)
             {
@@ -1146,7 +1151,12 @@ abstract class Saver
 
         private void emit ( char ch )
         {
-            assert _buf==null || _free == (_in>=_out ? _buf.length - (_in - _out) : _out - _in ) : "_buf.length:" + _buf.length + " _in:" + _in + " _out:" + _out + " _free:" + _free;
+            assert _buf==null ||
+                (_out<_in && _free == _buf.length - ( _in - _out ) ) || // data in the middle, free on the edges
+                (_out>_in && _free == _out - _in ) ||                   // data on the edges, free in the middle
+                (_out==_in && _free == _buf.length) ||                  // no data, all buffer free
+                (_out==_in && _free == 0)                               // buffer full
+                : "_buf.length:" + _buf.length + " _in:" + _in + " _out:" + _out + " _free:" + _free;
 
             preEmit( 1 );
 
@@ -1154,7 +1164,12 @@ abstract class Saver
 
             _in = (_in + 1) % _buf.length;
 
-            assert _buf==null || _free == (_in>=_out ? _buf.length - (_in - _out) : _out - _in ) : "_buf.length:" + _buf.length + " _in:" + _in + " _out:" + _out + " _free:" + _free;
+            assert _buf==null ||
+                (_out<_in && _free == _buf.length - ( _in - _out ) ) || // data in the middle, free on the edges
+                (_out>_in && _free == _out - _in ) ||                   // data on the edges, free in the middle
+                (_out==_in && _free == _buf.length) ||                  // no data, all buffer free
+                (_out==_in && _free == 0)                               // buffer full
+                : "_buf.length:" + _buf.length + " _in:" + _in + " _out:" + _out + " _free:" + _free;
         }
 
         private void emit ( char ch1, char ch2 )
@@ -1167,11 +1182,23 @@ abstract class Saver
 
             _buf[ _in ] = ch2;
             _in = (_in + 1) % _buf.length;
+
+            assert _buf==null ||
+                (_out<_in && _free == _buf.length - ( _in - _out ) ) || // data in the middle, free on the edges
+                (_out>_in && _free == _out - _in ) ||                   // data on the edges, free in the middle
+                (_out==_in && _free == _buf.length) ||                  // no data, all buffer free
+                (_out==_in && _free == 0)                               // buffer full
+                : "_buf.length:" + _buf.length + " _in:" + _in + " _out:" + _out + " _free:" + _free;            
         }
 
         private void emit ( String s )
         {
-            assert _buf==null || _free == (_in>=_out ? _buf.length - (_in - _out) : _out - _in ) : "_buf.length:" + _buf.length + " _in:" + _in + " _out:" + _out + " _free:" + _free;
+            assert _buf==null ||
+                (_out<_in && _free == _buf.length - ( _in - _out ) ) || // data in the middle, free on the edges
+                (_out>_in && _free == _out - _in ) ||                   // data on the edges, free in the middle
+                (_out==_in && _free == _buf.length) ||                  // no data, all buffer free
+                (_out==_in && _free == 0)                               // buffer full
+                : "_buf.length:" + _buf.length + " _in:" + _in + " _out:" + _out + " _free:" + _free;
 
             int cch = s == null ? 0 : s.length();
 
@@ -1192,7 +1219,12 @@ abstract class Saver
                 _in = (_in + cch) % _buf.length;
             }
 
-            assert _free == (_in>=_out ? _buf.length - (_in - _out) : _out - _in ) : "_buf.length:" + _buf.length + " _in:" + _in + " _out:" + _out + " _free:" + _free;
+            assert _buf==null ||
+                (_out<_in && _free == _buf.length - ( _in - _out ) ) || // data in the middle, free on the edges
+                (_out>_in && _free == _out - _in ) ||                   // data on the edges, free in the middle
+                (_out==_in && _free == _buf.length) ||                  // no data, all buffer free
+                (_out==_in && _free == 0)                               // buffer full
+                : "_buf.length:" + _buf.length + " _in:" + _in + " _out:" + _out + " _free:" + _free;
         }
 
         private void emit ( SaveCur c )
@@ -1226,7 +1258,12 @@ abstract class Saver
         private boolean preEmit ( int cch )
         {
             assert cch >= 0;
-            assert _buf==null || _free == (_in>=_out ? _buf.length - (_in - _out) : _out - _in ) : "_buf.length:" + _buf.length + " _in:" + _in + " _out:" + _out + " _free:" + _free;
+            assert _buf==null ||
+                (_out<_in && _free == _buf.length - ( _in - _out ) ) || // data in the middle, free on the edges
+                (_out>_in && _free == _out - _in ) ||                   // data on the edges, free in the middle
+                (_out==_in && _free == _buf.length) ||                  // no data, all buffer free
+                (_out==_in && _free == 0)                               // buffer full
+                : "_buf.length:" + _buf.length + " _in:" + _in + " _out:" + _out + " _free:" + _free;
 
             _lastEmitCch = cch;
 
@@ -1257,15 +1294,20 @@ abstract class Saver
 
             assert _free >= 0;
             assert _buf==null || _free == (_in>=_out ? _buf.length - (_in - _out) : _out - _in ) - cch : "_buf.length:" + _buf.length + " _in:" + _in + " _out:" + _out + " _free:" + _free;
+            assert _buf==null ||
+                (_out<_in && _free == _buf.length - ( _in - _out ) - cch) || // data in the middle, free on the edges
+                (_out>_in && _free == _out - _in - cch ) ||                  // data on the edges, free in the middle
+                (_out==_in && _free == _buf.length - cch) ||                 // no data, all buffer free
+                (_out==_in && _free == 0)                                    // buffer full
+                : "_buf.length:" + _buf.length + " _in:" + _in + " _out:" + _out + " _free:" + _free;
 
             return false;
         }
 
         private void entitizeContent ( )
         {
-            assert _free >= 0;
-            assert _buf==null || _free == (_in>=_out ? _buf.length - (_in - _out) : _out - _in ) : "_buf.length:" + _buf.length + " _in:" + _in + " _out:" + _out + " _free:" + _free;
-
+            assert _free >=0;
+            
             if (_lastEmitCch == 0)
                 return;
 
@@ -1362,8 +1404,6 @@ abstract class Saver
                         i = 0;
                 }
             }
-
-            assert _buf==null || _free == (_in>=_out ? _buf.length - (_in - _out) : _out - _in ) : "_buf.length:" + _buf.length + " _in:" + _in + " _out:" + _out + " _free:" + _free;
         }
 
         private void entitizeAttrValue ( )
@@ -1562,7 +1602,12 @@ abstract class Saver
             _free -= dCch;
 
             assert _free >= 0;
-            assert _free == (_in>=_out ? _buf.length - (_in - _out) : _out - _in ) : "_buf.length:" + _buf.length + " _in:" + _in + " _out:" + _out + " _free:" + _free;
+            assert _buf==null ||
+                (_out<_in && _free == _buf.length - ( _in - _out ) ) || // data in the middle, free on the edges
+                (_out>_in && _free == _out - _in ) ||                   // data on the edges, free in the middle
+                (_out==_in && _free == _buf.length) ||                  // no data, all buffer free
+                (_out==_in && _free == 0)                               // buffer full
+                : "_buf.length:" + _buf.length + " _in:" + _in + " _out:" + _out + " _free:" + _free;
 
             return (i + dCch + 1) % _buf.length;
         }
@@ -1603,7 +1648,12 @@ abstract class Saver
             assert _free >= 0;
             assert cch > 0;
             assert cch >= _free;
-            assert _buf==null || _free == (_in>=_out ? _buf.length - (_in - _out) : _out - _in ) : "_buf.length:" + _buf.length + " _in:" + _in + " _out:" + _out + " _free:" + _free;
+            assert _buf==null ||
+                (_out<_in && _free == _buf.length - ( _in - _out ) ) || // data in the middle, free on the edges
+                (_out>_in && _free == _out - _in ) ||                   // data on the edges, free in the middle
+                (_out==_in && _free == _buf.length) ||                  // no data, all buffer free
+                (_out==_in && _free == 0)                               // buffer full
+                : "_buf.length:" + _buf.length + " _in:" + _in + " _out:" + _out + " _free:" + _free;
 
             int newLen = _buf == null ? _initialBufSize : _buf.length * 2;
             int used = getAvailable();
@@ -1643,7 +1693,12 @@ abstract class Saver
             _buf = newBuf;
 
             assert _free >= 0;
-            assert _buf==null || _free == (_in>=_out ? _buf.length - (_in - _out) : _out - _in ) : "_buf.length:" + _buf.length + " _in:" + _in + " _out:" + _out + " _free:" + _free;
+            assert _buf==null ||
+                (_out<_in && _free == _buf.length - ( _in - _out ) ) || // data in the middle, free on the edges
+                (_out>_in && _free == _out - _in ) ||                   // data on the edges, free in the middle
+                (_out==_in && _free == _buf.length) ||                  // no data, all buffer free
+                (_out==_in && _free == 0)                               // buffer full
+                : "_buf.length:" + _buf.length + " _in:" + _in + " _out:" + _out + " _free:" + _free;
 
             return i;
         }
@@ -1660,7 +1715,12 @@ abstract class Saver
             _out = (_out + 1) % _buf.length;
             _free++;
 
-            assert _buf==null || _free == (_in>=_out ? _buf.length - (_in - _out) : _out - _in ) : "_buf.length:" + _buf.length + " _in:" + _in + " _out:" + _out + " _free:" + _free;
+            assert _buf==null ||
+                (_out<_in && _free == _buf.length - ( _in - _out ) ) || // data in the middle, free on the edges
+                (_out>_in && _free == _out - _in ) ||                   // data on the edges, free in the middle
+                (_out==_in && _free == _buf.length) ||                  // no data, all buffer free
+                (_out==_in && _free == 0)                               // buffer full
+                : "_buf.length:" + _buf.length + " _in:" + _in + " _out:" + _out + " _free:" + _free;
 
             return ch;
         }
@@ -1702,7 +1762,12 @@ abstract class Saver
             _out = (_out + len) % _buf.length;
             _free += len;
 
-            assert _buf==null || _free == (_in>=_out ? _buf.length - (_in - _out) : _out - _in ) : "_buf.length:" + _buf.length + " _in:" + _in + " _out:" + _out + " _free:" + _free;
+            assert _buf==null ||
+                (_out<_in && _free == _buf.length - ( _in - _out ) ) || // data in the middle, free on the edges
+                (_out>_in && _free == _out - _in ) ||                   // data on the edges, free in the middle
+                (_out==_in && _free == _buf.length) ||                  // no data, all buffer free
+                (_out==_in && _free == 0)                               // buffer full
+                : "_buf.length:" + _buf.length + " _in:" + _in + " _out:" + _out + " _free:" + _free;
 
             assert _free >= 0;
 
@@ -1744,7 +1809,12 @@ abstract class Saver
 
                 _in = 0;
             }
-            assert _buf==null || _free == (_in>=_out ? _buf.length - (_in - _out) : _out - _in ) : "_buf.length:" + _buf.length + " _in:" + _in + " _out:" + _out + " _free:" + _free;
+            assert _buf==null ||
+                (_out<_in && _free == _buf.length - ( _in - _out ) ) || // data in the middle, free on the edges
+                (_out>_in && _free == _out - _in ) ||                   // data on the edges, free in the middle
+                (_out==_in && _free == _buf.length) ||                  // no data, all buffer free
+                (_out==_in && _free == 0)                               // buffer full
+                : "_buf.length:" + _buf.length + " _in:" + _in + " _out:" + _out + " _free:" + _free;
 
             return charsAvailable;
         }
