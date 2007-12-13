@@ -1075,7 +1075,7 @@ public final class Cursor implements XmlCursor, ChangeListener {
     }
 
     public boolean _toNextSibling(String name) {
-        return Locale.toNextSiblingElement(_cur);
+        return _toNextSibling(new QName(name));
     }
 
     public boolean _toNextSibling(String uri, String local) {
@@ -4374,4 +4374,4 @@ public final class Cursor implements XmlCursor, ChangeListener {
     private int _currentSelection;
 
     private ChangeListener _nextChangeListener;
-} 
+}
