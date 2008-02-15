@@ -70,7 +70,12 @@ public interface SchemaComponent
     QName getName();
 
     /**
-     * The name of the source .xsd in which this component was defined (if known)
+     * The name of resource that represends the source .xsd in which this component was defined (if known)
+     * <br/>See: {@link org.apache.xmlbeans.SchemaTypeLoader#getSourceAsStream(String)}
+     * <br/><br/>Example:<pre>
+     *   SchemaType schemaType = ..;
+     *   InputStream is = schemaType.getTypeSystem().getSourceAsStream(schemaType.getSourceName());
+     * </pre>
      */
     String getSourceName();
 

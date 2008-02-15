@@ -3558,7 +3558,7 @@ abstract class Saver
                         else
                         {
                             if (_buf == null || _buf.length < c._cchSrc)
-                                _buf = new char [ java.lang.Math.min( 1024, c._cchSrc ) ];
+                                _buf = new char [ java.lang.Math.max( 1024, c._cchSrc ) ];
 
                             CharUtil.getChars( _buf, 0, src, c._offSrc, c._cchSrc );
 
