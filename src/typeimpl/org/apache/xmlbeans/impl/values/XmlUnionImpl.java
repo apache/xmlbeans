@@ -165,64 +165,64 @@ public class XmlUnionImpl extends XmlObjectBase implements XmlAnySimpleType
 
 
     // numerics
-    public float floatValue()
-        { check_dated(); return _value == null ? 0.0f : ((SimpleValue)_value).floatValue(); }
+    public float getFloatValue()
+        { check_dated(); return _value == null ? 0.0f : ((SimpleValue)_value).getFloatValue(); }
 
-    public double doubleValue()
-        { check_dated(); return _value == null ? 0.0 : ((SimpleValue)_value).doubleValue(); }
+    public double getDoubleValue()
+        { check_dated(); return _value == null ? 0.0 : ((SimpleValue)_value).getDoubleValue(); }
 
-    public BigDecimal bigDecimalValue()
-        { check_dated(); return _value == null ? null : ((SimpleValue)_value).bigDecimalValue(); }
+    public BigDecimal getBigDecimalValue()
+        { check_dated(); return _value == null ? null : ((SimpleValue)_value).getBigDecimalValue(); }
 
-    public BigInteger bigIntegerValue()
-        { check_dated(); return _value == null ? null : ((SimpleValue)_value).bigIntegerValue(); }
+    public BigInteger getBigIntegerValue()
+        { check_dated(); return _value == null ? null : ((SimpleValue)_value).getBigIntegerValue(); }
 
-    public byte byteValue()
-        { check_dated(); return _value == null ? 0 : ((SimpleValue)_value).byteValue(); }
+    public byte getByteValue()
+        { check_dated(); return _value == null ? 0 : ((SimpleValue)_value).getByteValue(); }
 
-    public short shortValue()
-        { check_dated(); return _value == null ? 0 : ((SimpleValue)_value).shortValue(); }
+    public short getShortValue()
+        { check_dated(); return _value == null ? 0 : ((SimpleValue)_value).getShortValue(); }
 
-    public int intValue()
-        { check_dated(); return _value == null ? 0 : ((SimpleValue)_value).intValue(); }
+    public int getIntValue()
+        { check_dated(); return _value == null ? 0 : ((SimpleValue)_value).getIntValue(); }
 
-    public long longValue()
-        { check_dated(); return _value == null ? 0 : ((SimpleValue)_value).longValue(); }
+    public long getLongValue()
+        { check_dated(); return _value == null ? 0 : ((SimpleValue)_value).getLongValue(); }
 
 
     // various
-    public byte[] byteArrayValue()
-        { check_dated(); return _value == null ? null : ((SimpleValue)_value).byteArrayValue(); }
+    public byte[] getByteArrayValue()
+        { check_dated(); return _value == null ? null : ((SimpleValue)_value).getByteArrayValue(); }
 
-    public boolean booleanValue()
-        { check_dated(); return _value == null ? false : ((SimpleValue)_value).booleanValue(); }
+    public boolean getBooleanValue()
+        { check_dated(); return _value == null ? false : ((SimpleValue)_value).getBooleanValue(); }
 
-    public Calendar calendarValue()
-        { check_dated(); return _value == null ? null : ((SimpleValue)_value).calendarValue(); }
+    public Calendar getCalendarValue()
+        { check_dated(); return _value == null ? null : ((SimpleValue)_value).getCalendarValue(); }
 
-    public Date dateValue()
-        { check_dated(); return _value == null ? null : ((SimpleValue)_value).dateValue(); }
+    public Date getDateValue()
+        { check_dated(); return _value == null ? null : ((SimpleValue)_value).getDateValue(); }
 
-    public GDate gDateValue()
-        { check_dated(); return _value == null ? null : ((SimpleValue)_value).gDateValue(); }
+    public GDate getGDateValue()
+        { check_dated(); return _value == null ? null : ((SimpleValue)_value).getGDateValue(); }
 
-    public GDuration gDurationValue()
-        { check_dated(); return _value == null ? null : ((SimpleValue)_value).gDurationValue(); }
+    public GDuration getGDurationValue()
+        { check_dated(); return _value == null ? null : ((SimpleValue)_value).getGDurationValue(); }
 
-    public QName qNameValue()
-        { check_dated(); return _value == null ? null : ((SimpleValue)_value).qNameValue(); }
+    public QName getQNameValue()
+        { check_dated(); return _value == null ? null : ((SimpleValue)_value).getQNameValue(); }
 
-    public List listValue()
-        { check_dated(); return _value == null ? null : ((SimpleValue)_value).listValue(); }
+    public List getListValue()
+        { check_dated(); return _value == null ? null : ((SimpleValue)_value).getListValue(); }
 
-    public List xlistValue()
-        { check_dated(); return _value == null ? null : ((SimpleValue)_value).xlistValue(); }
+    public List xgetListValue()
+        { check_dated(); return _value == null ? null : ((SimpleValue)_value).xgetListValue(); }
 
-    public StringEnumAbstractBase enumValue()
-        { check_dated(); return _value == null ? null : ((SimpleValue)_value).enumValue(); }
+    public StringEnumAbstractBase getEnumValue()
+        { check_dated(); return _value == null ? null : ((SimpleValue)_value).getEnumValue(); }
 
-    public String stringValue()
-        { check_dated(); return _value == null ? null : _value.stringValue(); }
+    public String getStringValue()
+        { check_dated(); return _value == null ? null : _value.getStringValue(); }
 
     /**
      * Returns true if the space of canonical lexical forms

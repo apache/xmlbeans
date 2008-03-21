@@ -36,7 +36,7 @@ public class XmlObjectList
     /**
      * Set an object by index unless a value has been previously
      * set at that location.
-     * 
+     *
      * @return true if the value was set, false if the value has
      * already been set
      */
@@ -58,7 +58,7 @@ public class XmlObjectList
 
         return true;
     }
-    
+
     /**
      * Tests that all values have been set. Needed for keys.
      */
@@ -125,11 +125,9 @@ public class XmlObjectList
         for (int i = 0 ; i < _objects.length ; i++)
         {
             if (i != 0) b.append(" ");
-            b.append(prettytrim(((SimpleValue)_objects[i]).stringValue()));
+            b.append(prettytrim(((SimpleValue)_objects[i]).getStringValue()));
         }
 
         return b.toString();
     }
 }
-
-

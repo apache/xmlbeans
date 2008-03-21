@@ -268,11 +268,11 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
             throw new IllegalStateException("XML Value Objects cannot create cursors");
 
         check_orphaned();
-        
+
         // Note that new_cursor does not really need sync ....
-        
+
         XmlLocale l = getXmlLocale();
-        
+
         if (l.noSync())         { l.enter(); try { return get_store().new_cursor(); } finally { l.exit(); } }
         else synchronized ( l ) { l.enter(); try { return get_store().new_cursor(); } finally { l.exit(); } }
 
@@ -849,7 +849,7 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
     {
         return get_store().get_locale();
     }
-            
+
     protected final boolean has_store()
     {
         return (_flags & FLAG_STORE) != 0;
@@ -1382,19 +1382,19 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
     // SIMPLE VALUE ACCESSORS BELOW -------------------------------------------
 
     // numerics: fractional
-    public float floatValue()
+    public float getFloatValue()
         { BigDecimal bd = bigDecimalValue(); return bd == null ? 0.0f : bd.floatValue(); }
-    public double doubleValue()
+    public double getDoubleValue()
         { BigDecimal bd = bigDecimalValue(); return bd == null ? 0.0 : bd.doubleValue(); }
-    public BigDecimal bigDecimalValue()
+    public BigDecimal getBigDecimalValue()
         { throw new XmlValueNotSupportedException(XmlErrorCodes.EXCEPTION_VALUE_NOT_SUPPORTED_S2J,
                 new Object[] {getPrimitiveTypeName(), "numeric"}); }
 
     // numerics: integral
-    public BigInteger bigIntegerValue()
+    public BigInteger getBigIntegerValue()
         { BigDecimal bd = bigDecimalValue(); return bd == null ? null : bd.toBigInteger(); }
 
-    public byte byteValue()
+    public byte getByteValue()
     {
         long l = intValue();
         if (l > Byte.MAX_VALUE) throw new XmlValueOutOfRangeException();
@@ -1402,7 +1402,7 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
         return (byte)l;
     }
 
-    public short shortValue()
+    public short getShortValue()
     {
         long l = intValue();
         if (l > Short.MAX_VALUE) throw new XmlValueOutOfRangeException();
@@ -1410,7 +1410,7 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
         return (short)l;
     }
 
-    public int intValue()
+    public int getIntValue()
     {
         long l = longValue();
         if (l > Integer.MAX_VALUE) throw new XmlValueOutOfRangeException();
@@ -1420,7 +1420,7 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
     private static final BigInteger _max = BigInteger.valueOf(Long.MAX_VALUE);
     private static final BigInteger _min = BigInteger.valueOf(Long.MIN_VALUE);
 
-    public long longValue()
+    public long getLongValue()
     {
         BigInteger b = bigIntegerValue();
         if (b == null) return 0L;
@@ -1490,12 +1490,12 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
     }
 
     // enums
-    public StringEnumAbstractBase enumValue()
+    public StringEnumAbstractBase getEnumValue()
         { throw new XmlValueNotSupportedException(XmlErrorCodes.EXCEPTION_VALUE_NOT_SUPPORTED_S2J,
                 new Object[] {getPrimitiveTypeName(), "enum"}); }
 
     // various
-    public String stringValue()
+    public String getStringValue()
     {
         if (isImmutable())
         {
@@ -1517,155 +1517,159 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
         }
     }
 
-    public String getStringValue()
-        { return stringValue(); }
-    public boolean getBooleanValue()
-        { return booleanValue(); }
-    public byte getByteValue()
-        { return byteValue(); }
-    public short getShortValue()
-        { return shortValue(); }
-    public int getIntValue()
-        { return intValue(); }
-    public long getLongValue()
-        { return longValue(); }
-    public BigInteger getBigIntegerValue()
-        { return bigIntegerValue(); }
-    public BigDecimal getBigDecimalValue()
-        { return bigDecimalValue(); }
-    public float getFloatValue()
-        { return floatValue(); }
-    public double getDoubleValue()
-        { return doubleValue(); }
-    public byte[] getByteArrayValue()
-        { return byteArrayValue(); }
-    public StringEnumAbstractBase getEnumValue()
-        { return enumValue(); }
-    public Calendar getCalendarValue()
-        { return calendarValue(); }
-    public Date getDateValue()
-        { return dateValue(); }
-    public GDate getGDateValue()
-        { return gDateValue(); }
-    public GDuration getGDurationValue()
-        { return gDurationValue(); }
-    public QName getQNameValue()
-        { return qNameValue(); }
-    public List xgetListValue()
-        { return xlistValue(); }
-    public List getListValue()
-        { return listValue(); }
-    public Object getObjectValue()
-        { return objectValue(); }
-
-    public void setStringValue(String obj)
-        { set(obj); }
-    public void setBooleanValue(boolean v)
-        { set(v); }
-    public void setByteValue(byte v)
-        { set(v); }
-    public void setShortValue(short v)
-        { set(v); }
-    public void setIntValue(int v)
-        { set(v); }
-    public void setLongValue(long v)
-        { set(v); }
-    public void setBigIntegerValue(BigInteger obj)
-        { set(obj); }
-    public void setBigDecimalValue(BigDecimal obj)
-        { set(obj); }
-    public void setFloatValue(float v)
-        { set(v); }
-    public void setDoubleValue(double v)
-        { set(v); }
-    public void setByteArrayValue(byte[] obj)
-        { set(obj); }
-    public void setEnumValue(StringEnumAbstractBase obj)
-        { set(obj); }
-    public void setCalendarValue(Calendar obj)
-        { set(obj); }
-    public void setDateValue(Date obj)
-        { set(obj); }
-    public void setGDateValue(GDate obj)
-        { set(obj); }
-    public void setGDurationValue(GDuration obj)
-        { set(obj); }
-    public void setQNameValue(QName obj)
-        { set(obj); }
-    public void setListValue(List obj)
-        { set(obj); }
-    public void setObjectValue(Object obj)
-        { objectSet(obj); }
-
+    public String stringValue()
+        { return getStringValue(); }
+    public boolean booleanValue()
+        { return getBooleanValue(); }
+    public byte byteValue()
+        { return getByteValue(); }
+    public short shortValue()
+        { return getShortValue(); }
+    public int intValue()
+        { return getIntValue(); }
+    public long longValue()
+        { return getLongValue(); }
+    public BigInteger bigIntegerValue()
+        { return getBigIntegerValue(); }
+    public BigDecimal bigDecimalValue()
+        { return getBigDecimalValue(); }
+    public float floatValue()
+        { return getFloatValue(); }
+    public double doubleValue()
+        { return getDoubleValue(); }
     public byte[] byteArrayValue()
+        { return getByteArrayValue(); }
+    public StringEnumAbstractBase enumValue()
+        { return getEnumValue(); }
+    public Calendar calendarValue()
+        { return getCalendarValue(); }
+    public Date dateValue()
+        { return getDateValue(); }
+    public GDate gDateValue()
+        { return getGDateValue(); }
+    public GDuration gDurationValue()
+        { return getGDurationValue(); }
+    public QName qNameValue()
+        { return getQNameValue(); }
+    public List xlistValue()
+        { return xgetListValue(); }
+    public List listValue()
+        { return getListValue(); }
+    public Object objectValue()
+        { return getObjectValue(); }
+
+    public void set(String obj)
+        { setStringValue(obj); }
+    public void set(boolean v)
+        { setBooleanValue(v); }
+    public void set(byte v)
+        { setByteValue(v); }
+    public void set(short v)
+        { setShortValue(v); }
+    public void set(int v)
+        { setIntValue(v); }
+    public void set(long v)
+        { setLongValue(v); }
+    public void set(BigInteger obj)
+        { setBigIntegerValue(obj); }
+    public void set(BigDecimal obj)
+        { setBigDecimalValue(obj); }
+    public void set(float v)
+        { setFloatValue(v); }
+    public void set(double v)
+        { setDoubleValue(v); }
+    public void set(byte[] obj)
+        { setByteArrayValue(obj); }
+    public void set(StringEnumAbstractBase obj)
+        { setEnumValue(obj); }
+    public void set(Calendar obj)
+        { setCalendarValue(obj); }
+    public void set(Date obj)
+        { setDateValue(obj); }
+    public void set(GDateSpecification obj)
+        { setGDateValue(obj); }
+    public void set(GDurationSpecification obj)
+        { setGDurationValue(obj); }
+    public void set(QName obj)
+        { setQNameValue(obj); }
+    public void set(List obj)
+        { setListValue(obj); }
+    public void objectSet(Object obj)
+        { setObjectValue(obj); }
+
+    public byte[] getByteArrayValue()
         { throw new XmlValueNotSupportedException(XmlErrorCodes.EXCEPTION_VALUE_NOT_SUPPORTED_S2J,
             new Object[] {getPrimitiveTypeName(), "byte[]"}); }
-    public boolean booleanValue()
+    public boolean getBooleanValue()
         { throw new XmlValueNotSupportedException(XmlErrorCodes.EXCEPTION_VALUE_NOT_SUPPORTED_S2J,
             new Object[] {getPrimitiveTypeName(), "boolean"}); }
-    public GDate gDateValue()
+    public GDate getGDateValue()
         { throw new XmlValueNotSupportedException(XmlErrorCodes.EXCEPTION_VALUE_NOT_SUPPORTED_S2J,
             new Object[] {getPrimitiveTypeName(), "Date"}); }
-    public Date dateValue()
+    public Date getDateValue()
         { throw new XmlValueNotSupportedException(XmlErrorCodes.EXCEPTION_VALUE_NOT_SUPPORTED_S2J,
             new Object[] {getPrimitiveTypeName(), "Date"}); }
-    public Calendar calendarValue()
+    public Calendar getCalendarValue()
         { throw new XmlValueNotSupportedException(XmlErrorCodes.EXCEPTION_VALUE_NOT_SUPPORTED_S2J,
             new Object[] {getPrimitiveTypeName(), "Calendar"}); }
-    public GDuration gDurationValue()
+    public GDuration getGDurationValue()
         { throw new XmlValueNotSupportedException(XmlErrorCodes.EXCEPTION_VALUE_NOT_SUPPORTED_S2J,
             new Object[] {getPrimitiveTypeName(), "Duration"}); }
-    public QName qNameValue()
+    public QName getQNameValue()
         { throw new XmlValueNotSupportedException(XmlErrorCodes.EXCEPTION_VALUE_NOT_SUPPORTED_S2J,
             new Object[] {getPrimitiveTypeName(), "QName"}); }
-    public List listValue()
+    public List getListValue()
         { throw new XmlValueNotSupportedException(XmlErrorCodes.EXCEPTION_VALUE_NOT_SUPPORTED_S2J,
             new Object[] {getPrimitiveTypeName(), "List"}); }
-    public List xlistValue()
+    public List xgetListValue()
         { throw new XmlValueNotSupportedException(XmlErrorCodes.EXCEPTION_VALUE_NOT_SUPPORTED_S2J,
             new Object[] {getPrimitiveTypeName(), "List"}); }
-    public Object objectValue()
+    public Object getObjectValue()
         { return java_value(this); }
 
     // set this value
-    public final void set(boolean v)
+    public final void setBooleanValue(boolean v)
         { synchronized (monitor()) { set_prepare(); set_boolean(v); set_commit(); } }
-    public final void set(byte v)
+    public final void setByteValue(byte v)
         { synchronized (monitor()) { set_prepare(); set_byte(v); set_commit(); } }
-    public final void set(short v)
+    public final void setShortValue(short v)
         { synchronized (monitor()) { set_prepare(); set_short(v); set_commit(); } }
-    public final void set(int v)
+    public final void setIntValue(int v)
         { synchronized (monitor()) { set_prepare(); set_int(v); set_commit(); } }
-    public final void set(long v)
+    public final void setLongValue(long v)
         { synchronized (monitor()) { set_prepare(); set_long(v); set_commit(); } }
-    public final void set(float v)
+    public final void setFloatValue(float v)
         { synchronized (monitor()) { set_prepare(); set_float(v); set_commit(); } }
-    public final void set(double v)
+    public final void setDoubleValue(double v)
         { synchronized (monitor()) { set_prepare(); set_double(v); set_commit(); } }
-    public final void set(byte[] obj)
+    public final void setByteArrayValue(byte[] obj)
         { if (obj == null) setNil(); else { synchronized (monitor()) { set_prepare(); set_ByteArray(obj); set_commit(); } } }
-    public final void set(StringEnumAbstractBase obj)
+    public final void setEnumValue(StringEnumAbstractBase obj)
         { if (obj == null) setNil(); else { synchronized (monitor()) { set_prepare(); set_enum(obj); set_commit(); } } }
-    public final void set(BigInteger obj)
+    public final void setBigIntegerValue(BigInteger obj)
         { if (obj == null) setNil(); else { synchronized (monitor()) { set_prepare(); set_BigInteger(obj); set_commit(); } } }
-    public final void set(BigDecimal obj)
+    public final void setBigDecimalValue(BigDecimal obj)
         { if (obj == null) setNil(); else { synchronized (monitor()) { set_prepare(); set_BigDecimal(obj); set_commit(); } } }
-    public final void set(Calendar obj)
+    public final void setCalendarValue(Calendar obj)
         { if (obj == null) setNil(); else { synchronized (monitor()) { set_prepare(); set_Calendar(obj); set_commit(); } } }
-    public final void set(Date obj)
+    public final void setDateValue(Date obj)
         { if (obj == null) setNil(); else { synchronized (monitor()) { set_prepare(); set_Date(obj); set_commit(); } } }
-    public final void set(GDateSpecification obj)
+    public final void setGDateValue(GDate obj)
         { if (obj == null) setNil(); else { synchronized (monitor()) { set_prepare(); set_GDate(obj); set_commit(); } } }
-    public final void set(GDurationSpecification obj)
+    public final void setGDateValue(GDateSpecification obj)
+    { if (obj == null) setNil(); else { synchronized (monitor()) { set_prepare(); set_GDate(obj); set_commit(); } } }
+    public final void setGDurationValue(GDuration obj)
         { if (obj == null) setNil(); else { synchronized (monitor()) { set_prepare(); set_GDuration(obj); set_commit(); } } }
-    public final void set(QName obj)
+    public final void setGDurationValue(GDurationSpecification obj)
+    { if (obj == null) setNil(); else { synchronized (monitor()) { set_prepare(); set_GDuration(obj); set_commit(); } } }
+    public final void setQNameValue(QName obj)
         { if (obj == null) setNil(); else { synchronized (monitor()) { set_prepare(); set_QName(obj); set_commit(); } } }
-    public final void set(List obj)
+    public final void setListValue(List obj)
         { if (obj == null) setNil(); else { synchronized (monitor()) { set_prepare(); set_list(obj); set_commit(); } } }
-    public final void set(String obj)
+    public final void setStringValue(String obj)
         { if (obj == null) setNil(); else { synchronized (monitor()) { set_prepare(); set_String(obj); /* strings are special, so set_String does its own commit.*/ } } }
 
-    public void objectSet(Object o)
+    public void setObjectValue(Object o)
     {
         if (o == null)
         {
@@ -1676,41 +1680,41 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
         if (o instanceof XmlObject)
             set( (XmlObject) o );
         else if (o instanceof String)
-            set( (String) o );
+            setStringValue( (String) o );
         else if (o instanceof StringEnumAbstractBase)
-            set( (StringEnumAbstractBase) o );
+            setEnumValue( (StringEnumAbstractBase) o );
         else if (o instanceof BigInteger)
-            set( (BigInteger) o );
+            setBigIntegerValue( (BigInteger) o );
         else if (o instanceof BigDecimal)
-            set( (BigDecimal) o );
+            setBigDecimalValue( (BigDecimal) o );
         else if (o instanceof Byte)
-            set( ((Byte)o).byteValue() );
+            setByteValue( ((Byte)o).byteValue() );
         else if (o instanceof Short)
-            set( ((Short)o).shortValue() );
+            setShortValue( ((Short)o).shortValue() );
         else if (o instanceof Integer)
-            set( ((Integer)o).intValue() );
+            setIntValue( ((Integer)o).intValue() );
         else if (o instanceof Long)
-            set( ((Long)o).longValue() );
+            setLongValue( ((Long)o).longValue() );
         else if (o instanceof Boolean)
-            set( ((Boolean)o).booleanValue() );
+            setBooleanValue( ((Boolean)o).booleanValue() );
         else if (o instanceof Float)
-            set( ((Float)o).floatValue() );
+            setFloatValue( ((Float)o).floatValue() );
         else if (o instanceof Double)
-            set( ((Double)o).doubleValue() );
+            setDoubleValue( ((Double)o).doubleValue() );
         else if (o instanceof Calendar)
-            set( ((Calendar)o) );
+            setCalendarValue( ((Calendar)o) );
         else if (o instanceof Date)
-            set( (Date) o );
+            setDateValue( (Date) o );
         else if (o instanceof GDateSpecification)
-            set( (GDateSpecification) o );
+            setGDateValue( (GDateSpecification) o );
         else if (o instanceof GDurationSpecification)
-            set( (GDurationSpecification) o );
+            setGDurationValue( (GDurationSpecification) o );
         else if (o instanceof QName)
-            set( (QName) o );
+            setQNameValue( (QName) o );
         else if (o instanceof List)
-            set( (List) o );
+            setListValue( (List) o );
         else if (o instanceof byte[])
-            set( (byte[]) o );
+            setByteArrayValue( (byte[]) o );
         else
         {
             throw

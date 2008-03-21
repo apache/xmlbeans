@@ -41,7 +41,7 @@ public abstract class JavaBooleanHolder extends XmlObjectBase
     {
         if (v.equals("true") || v.equals("1"))
             return true;
-        
+
         if (v.equals("false") || v.equals("0"))
             return false;
 
@@ -54,7 +54,7 @@ public abstract class JavaBooleanHolder extends XmlObjectBase
         _value = false;
     }
     // numerics: fractional
-    public boolean booleanValue() { check_dated(); return _value; }
+    public boolean getBooleanValue() { check_dated(); return _value; }
 
     // setters
     protected void set_boolean(boolean f)

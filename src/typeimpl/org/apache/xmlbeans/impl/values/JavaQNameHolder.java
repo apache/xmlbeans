@@ -75,11 +75,11 @@ public class JavaQNameHolder extends XmlObjectBase
 
         if (namespace == null || namespace.length() == 0)
             return localPart;
-        
+
         String prefix = nsm.find_prefix_for_nsuri( namespace, null );
 
         assert prefix != null;
-        
+
         return "".equals(prefix) ? localPart : prefix + ":" + localPart;
     }
 
@@ -87,7 +87,7 @@ public class JavaQNameHolder extends XmlObjectBase
         String v, ValidationContext context, PrefixResolver resolver)
     {
         QName name;
-        
+
         try
         {
             name = parse(v, resolver);
@@ -100,7 +100,7 @@ public class JavaQNameHolder extends XmlObjectBase
 
         return name;
     }
-    
+
     private static QName parse(String v, PrefixResolver resolver)
     {
         String prefix, localname;
@@ -177,7 +177,7 @@ public class JavaQNameHolder extends XmlObjectBase
 
     // setters, getters (setter already handled via set_text)
 
-    public QName qNameValue()
+    public QName getQNameValue()
         { check_dated(); return _value; }
 
     // comparators

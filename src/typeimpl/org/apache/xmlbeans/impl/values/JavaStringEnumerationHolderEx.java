@@ -47,7 +47,7 @@ public abstract class JavaStringEnumerationHolderEx extends JavaStringHolderEx
     {
         JavaStringHolderEx.validateLexical(v, sType, context);
     }
-    
+
     protected void set_nil()
     {
         _val = null;
@@ -55,7 +55,7 @@ public abstract class JavaStringEnumerationHolderEx extends JavaStringHolderEx
     }
 
     // set/get the enum
-    public StringEnumAbstractBase enumValue()
+    public StringEnumAbstractBase getEnumValue()
     {
         check_dated();
         return _val;

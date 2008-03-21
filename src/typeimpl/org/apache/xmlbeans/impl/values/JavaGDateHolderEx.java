@@ -64,7 +64,7 @@ public abstract class JavaGDateHolderEx extends XmlObjectBase
     public static GDate lex(String v, SchemaType sType, ValidationContext context)
     {
         GDate date = null;
-        
+
         try
         {
             date = new GDate(v);
@@ -100,7 +100,7 @@ public abstract class JavaGDateHolderEx extends XmlObjectBase
             if (!sType.matchPatternFacet(v))
                 context.invalid(XmlErrorCodes.DATATYPE_VALID$PATTERN_VALID,
                     new Object[] { "date", v, QNameHelper.readable(sType) });
-        
+
         return date;
     }
 
@@ -108,7 +108,7 @@ public abstract class JavaGDateHolderEx extends XmlObjectBase
     {
         XmlObject x;
         GDate g;
-        
+
         if (v.getBuiltinTypeCode() != sType.getPrimitiveType().getBuiltinTypeCode())
             context.invalid(XmlErrorCodes.DATE, new Object[] { "Date (" + v + ") does not have the set of fields required for " + QNameHelper.readable(sType) });
 
@@ -116,22 +116,22 @@ public abstract class JavaGDateHolderEx extends XmlObjectBase
             if (v.compareToGDate(g = ((XmlObjectBase)x).gDateValue()) <= 0)
                 context.invalid(XmlErrorCodes.DATATYPE_MIN_EXCLUSIVE_VALID,
                     new Object[] { "date", v, g, QNameHelper.readable(sType) });
-        
+
         if ((x = sType.getFacet(SchemaType.FACET_MIN_INCLUSIVE)) != null)
             if (v.compareToGDate(g = ((XmlObjectBase)x).gDateValue()) < 0)
                 context.invalid(XmlErrorCodes.DATATYPE_MIN_INCLUSIVE_VALID,
                     new Object[] { "date", v, g, QNameHelper.readable(sType) });
-        
+
         if ((x = sType.getFacet(SchemaType.FACET_MAX_EXCLUSIVE)) != null)
             if (v.compareToGDate(g = ((XmlObjectBase)x).gDateValue()) >= 0)
                 context.invalid(XmlErrorCodes.DATATYPE_MAX_EXCLUSIVE_VALID,
                     new Object[] { "date", v, g, QNameHelper.readable(sType) });
-        
+
         if ((x = sType.getFacet(SchemaType.FACET_MAX_INCLUSIVE)) != null)
             if (v.compareToGDate(g = ((XmlObjectBase)x).gDateValue()) > 0)
                 context.invalid(XmlErrorCodes.DATATYPE_MAX_INCLUSIVE_VALID,
                     new Object[] { "date", v, g, QNameHelper.readable(sType) });
-        
+
         XmlObject[] vals = sType.getEnumerationValues();
         if (vals != null)
         {
@@ -149,7 +149,7 @@ public abstract class JavaGDateHolderEx extends XmlObjectBase
     }
 
     // numerics: gYear, gMonth, gDay accept an integer
-    public int intValue()
+    public int getIntValue()
     {
         int code = schemaType().getPrimitiveType().getBuiltinTypeCode();
 
@@ -177,7 +177,7 @@ public abstract class JavaGDateHolderEx extends XmlObjectBase
         }
     }
 
-    public GDate gDateValue()
+    public GDate getGDateValue()
     {
         check_dated();
 
@@ -187,7 +187,7 @@ public abstract class JavaGDateHolderEx extends XmlObjectBase
         return _value;
     }
     
-    public Calendar calendarValue()
+    public Calendar getCalendarValue()
     {
         check_dated();
 
@@ -197,7 +197,7 @@ public abstract class JavaGDateHolderEx extends XmlObjectBase
         return _value.getCalendar();
     }
 
-    public Date dateValue()
+    public Date getDateValue()
     {
         check_dated();
 

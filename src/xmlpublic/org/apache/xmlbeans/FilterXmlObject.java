@@ -49,7 +49,7 @@ import javax.xml.stream.XMLStreamReader;
  * Note: it is important that FilterXmlObject has no storage (i.e., no
  * non-transient fields), because subclasses may be serializable and
  * adding storage would break the serialization format.
- */ 
+ */
 public abstract class FilterXmlObject implements XmlObject, SimpleValue, DelegateXmlObject
 {
     public SchemaType schemaType()
@@ -164,7 +164,7 @@ public abstract class FilterXmlObject implements XmlObject, SimpleValue, Delegat
     {
         return underlyingXmlObject().newXMLStreamReader();
     }
-    
+
     public String xmlText()
     {
         return underlyingXmlObject().xmlText();
@@ -222,7 +222,7 @@ public abstract class FilterXmlObject implements XmlObject, SimpleValue, Delegat
     {
         return underlyingXmlObject().newXMLStreamReader(options);
     }
-    
+
     public String xmlText(XmlOptions options)
     {
         return underlyingXmlObject().xmlText(options);
@@ -268,191 +268,305 @@ public abstract class FilterXmlObject implements XmlObject, SimpleValue, Delegat
         return ((SimpleValue)underlyingXmlObject()).instanceType();
     }
 
+    /**
+     * @deprecated replaced with {@link #getStringValue}
+     */
     public String stringValue()
     {
         return ((SimpleValue)underlyingXmlObject()).stringValue();
     }
 
+    /**
+     * @deprecated replaced with {@link #getBooleanValue}
+     */
     public boolean booleanValue()
     {
         return ((SimpleValue)underlyingXmlObject()).booleanValue();
     }
 
+    /**
+     * @deprecated replaced with {@link #getByteValue}
+     */
     public byte byteValue()
     {
         return ((SimpleValue)underlyingXmlObject()).byteValue();
     }
 
+    /**
+     * @deprecated replaced with {@link #getShortValue}
+     */
     public short shortValue()
     {
         return ((SimpleValue)underlyingXmlObject()).shortValue();
     }
 
+    /**
+     * @deprecated replaced with {@link #getIntValue}
+     */
     public int intValue()
     {
         return ((SimpleValue)underlyingXmlObject()).intValue();
     }
 
+    /**
+     * @deprecated replaced with {@link #getLongValue}
+     */
     public long longValue()
     {
         return ((SimpleValue)underlyingXmlObject()).longValue();
     }
 
+    /**
+     * @deprecated replaced with {@link #getBigIntegerValue}
+     */
     public BigInteger bigIntegerValue()
     {
         return ((SimpleValue)underlyingXmlObject()).bigIntegerValue();
     }
 
+    /**
+     * @deprecated replaced with {@link #getBigDecimalValue}
+     */
     public BigDecimal bigDecimalValue()
     {
         return ((SimpleValue)underlyingXmlObject()).bigDecimalValue();
     }
 
+    /**
+     * @deprecated replaced with {@link #getFloatValue}
+     */
     public float floatValue()
     {
         return ((SimpleValue)underlyingXmlObject()).floatValue();
     }
 
+    /**
+     * @deprecated replaced with {@link #getDoubleValue}
+     */
     public double doubleValue()
     {
         return ((SimpleValue)underlyingXmlObject()).doubleValue();
     }
 
+    /**
+     * @deprecated replaced with {@link #getByteArrayValue}
+     */
     public byte[] byteArrayValue()
     {
         return ((SimpleValue)underlyingXmlObject()).byteArrayValue();
     }
 
+    /**
+     * @deprecated replaced with {@link #getEnumValue}
+     */
     public StringEnumAbstractBase enumValue()
     {
         return ((SimpleValue)underlyingXmlObject()).enumValue();
     }
 
+    /**
+     * @deprecated replaced with {@link #getCalendarValue}
+     */
     public Calendar calendarValue()
     {
         return ((SimpleValue)underlyingXmlObject()).calendarValue();
     }
 
+    /**
+     * @deprecated replaced with {@link #getDateValue}
+     */
     public Date dateValue()
     {
         return ((SimpleValue)underlyingXmlObject()).dateValue();
     }
 
+    /**
+     * @deprecated replaced with {@link #getGDateValue}
+     */
     public GDate gDateValue()
     {
         return ((SimpleValue)underlyingXmlObject()).gDateValue();
     }
 
+    /**
+     * @deprecated replaced with {@link #getGDurationValue}
+     */
     public GDuration gDurationValue()
     {
         return ((SimpleValue)underlyingXmlObject()).gDurationValue();
     }
 
+    /**
+     * @deprecated replaced with {@link #getQNameValue}
+     */
     public QName qNameValue()
     {
         return ((SimpleValue)underlyingXmlObject()).qNameValue();
     }
 
+    /**
+     * @deprecated replaced with {@link #getListValue}
+     */
     public List listValue()
     {
         return ((SimpleValue)underlyingXmlObject()).listValue();
     }
 
+    /**
+     * @deprecated replaced with {@link #getListValue}
+     */
     public List xlistValue()
     {
         return ((SimpleValue)underlyingXmlObject()).xlistValue();
     }
 
+    /**
+     * @deprecated replaced with {@link #getObjectValue}
+     */
     public Object objectValue()
     {
         return ((SimpleValue)underlyingXmlObject()).objectValue();
     }
 
+    /**
+     * @deprecated replaced with {@link #setStringValue}
+     */
     public void set(String obj)
     {
         ((SimpleValue)underlyingXmlObject()).set(obj);
     }
 
+    /**
+     * @deprecated replaced with {@link #setBooleanValue}
+     */
     public void set(boolean v)
     {
         ((SimpleValue)underlyingXmlObject()).set(v);
     }
 
+    /**
+     * @deprecated replaced with {@link #setByteValue}
+     */
     public void set(byte v)
     {
         ((SimpleValue)underlyingXmlObject()).set(v);
     }
 
+    /**
+     * @deprecated replaced with {@link #setShortValue}
+     */
     public void set(short v)
     {
         ((SimpleValue)underlyingXmlObject()).set(v);
     }
 
+    /**
+     * @deprecated replaced with {@link #setIntValue}
+     */
     public void set(int v)
     {
         ((SimpleValue)underlyingXmlObject()).set(v);
     }
 
+    /**
+     * @deprecated replaced with {@link #setLongValue}
+     */
     public void set(long v)
     {
         ((SimpleValue)underlyingXmlObject()).set(v);
     }
 
+    /**
+     * @deprecated replaced with {@link #setBigIntegerValue}
+     */
     public void set(BigInteger obj)
     {
         ((SimpleValue)underlyingXmlObject()).set(obj);
     }
 
+    /**
+     * @deprecated replaced with {@link #setBigDecimalValue}
+     */
     public void set(BigDecimal obj)
     {
         ((SimpleValue)underlyingXmlObject()).set(obj);
     }
 
+    /**
+     * @deprecated replaced with {@link #setFloatValue}
+     */
     public void set(float v)
     {
         ((SimpleValue)underlyingXmlObject()).set(v);
     }
 
+    /**
+     * @deprecated replaced with {@link #setDoubleValue}
+     */
     public void set(double v)
     {
         ((SimpleValue)underlyingXmlObject()).set(v);
     }
 
+    /**
+     * @deprecated replaced with {@link #setByteArrayValue}
+     */
     public void set(byte[] obj)
     {
         ((SimpleValue)underlyingXmlObject()).set(obj);
     }
 
+    /**
+     * @deprecated replaced with {@link #setEnumValue}
+     */
     public void set(StringEnumAbstractBase obj)
     {
         ((SimpleValue)underlyingXmlObject()).set(obj);
     }
 
+    /**
+     * @deprecated replaced with {@link #setCalendarValue}
+     */
     public void set(Calendar obj)
     {
         ((SimpleValue)underlyingXmlObject()).set(obj);
     }
 
+    /**
+     * @deprecated replaced with {@link #setDateValue}
+     */
     public void set(Date obj)
     {
         ((SimpleValue)underlyingXmlObject()).set(obj);
     }
 
+    /**
+     * @deprecated replaced with {@link #setGDateValue}
+     */
     public void set(GDateSpecification obj)
     {
         ((SimpleValue)underlyingXmlObject()).set(obj);
     }
 
+    /**
+     * @deprecated replaced with {@link #setGDurationValue}
+     */
     public void set(GDurationSpecification obj)
     {
         ((SimpleValue)underlyingXmlObject()).set(obj);
     }
 
+    /**
+     * @deprecated replaced with {@link #setQNameValue}
+     */
     public void set(QName obj)
     {
         ((SimpleValue)underlyingXmlObject()).set(obj);
     }
 
+    /**
+     * @deprecated replaced with {@link #setListValue}
+     */
     public void set(List obj)
     {
         ((SimpleValue)underlyingXmlObject()).set(obj);
@@ -653,6 +767,9 @@ public abstract class FilterXmlObject implements XmlObject, SimpleValue, Delegat
         ((SimpleValue)underlyingXmlObject()).setObjectValue(obj);
     }
 
+    /**
+     * @deprecated replaced with {@link #setObjectValue}
+     **/
     public void objectSet(Object obj)
     {
         ((SimpleValue)underlyingXmlObject()).objectSet(obj);

@@ -64,15 +64,15 @@ public class JavaDecimalHolder extends XmlObjectBase
         //        already
         int l = v.length();
         int i = 0;
-        
+
         if (i < l)
         {
             int ch = v.charAt(i);
-            
+
             if (ch == '+' || ch == '-')
                 i++;
         }
-        
+
         boolean sawDot = false;
         boolean sawDigit = false;
 
@@ -113,7 +113,7 @@ public class JavaDecimalHolder extends XmlObjectBase
     }
 
     // numerics: fractional
-    public BigDecimal bigDecimalValue() { check_dated(); return _value; }
+    public BigDecimal getBigDecimalValue() { check_dated(); return _value; }
 
     // setters
     protected void set_BigDecimal(BigDecimal v) { _value = v; }
