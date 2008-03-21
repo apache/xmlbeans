@@ -84,7 +84,7 @@ public abstract class JavaBase64Holder extends XmlObjectBase
     {
         final byte[] bytes = lex(v, context);
         if (bytes == null) return null;
-        
+
         if (!sType.matchPatternFacet(v))
         {
             context.invalid(XmlErrorCodes.DATATYPE_VALID$PATTERN_VALID$NO_VALUE,
@@ -95,7 +95,7 @@ public abstract class JavaBase64Holder extends XmlObjectBase
         return bytes;
     }
 
-    public byte[] byteArrayValue()
+    public byte[] getByteArrayValue()
     {
         check_dated();
         if (_value == null)

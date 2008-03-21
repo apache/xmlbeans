@@ -41,7 +41,7 @@ public abstract class JavaIntegerHolder extends XmlObjectBase
     {
         set_BigInteger(lex(s, _voorVc));
     }
-    public static BigInteger lex(String s, ValidationContext vc) 
+    public static BigInteger lex(String s, ValidationContext vc)
     {
         if (s.length() > 0 && s.charAt( 0 ) == '+' )
             s = s.substring(1);
@@ -54,8 +54,8 @@ public abstract class JavaIntegerHolder extends XmlObjectBase
         _value = null;
     }
     // numerics: fractional
-    public BigDecimal bigDecimalValue() { check_dated(); return _value == null ? null : new BigDecimal(_value); }
-    public BigInteger bigIntegerValue() { check_dated(); return _value; }
+    public BigDecimal getBigDecimalValue() { check_dated(); return _value == null ? null : new BigDecimal(_value); }
+    public BigInteger getBigIntegerValue() { check_dated(); return _value; }
 
     // setters
     protected void set_BigDecimal(BigDecimal v) { _value = v.toBigInteger(); }

@@ -71,9 +71,9 @@ public abstract class JavaDoubleHolder extends XmlObjectBase
     }
 
     // numerics: fractional
-    public BigDecimal bigDecimalValue() { check_dated(); return new BigDecimal(_value); }
-    public double doubleValue() { check_dated(); return _value; }
-    public float floatValue() { check_dated(); return (float)_value; }
+    public BigDecimal getBigDecimalValue() { check_dated(); return new BigDecimal(_value); }
+    public double getDoubleValue() { check_dated(); return _value; }
+    public float getFloatValue() { check_dated(); return (float)_value; }
 
     // setters
     protected void set_double(double v) { _value = v; }

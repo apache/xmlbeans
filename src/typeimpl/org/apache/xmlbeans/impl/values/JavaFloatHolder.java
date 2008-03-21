@@ -72,9 +72,9 @@ public abstract class JavaFloatHolder extends XmlObjectBase
         _value = 0.0f;
     }
     // numerics: fractional
-    public BigDecimal bigDecimalValue() { check_dated(); return new BigDecimal(_value); }
-    public double doubleValue() { check_dated(); return _value; }
-    public float floatValue() { check_dated(); return _value; }
+    public BigDecimal getBigDecimalValue() { check_dated(); return new BigDecimal(_value); }
+    public double getDoubleValue() { check_dated(); return _value; }
+    public float getFloatValue() { check_dated(); return _value; }
 
     // setters
     protected void set_double(double v) { set_float((float)v); }

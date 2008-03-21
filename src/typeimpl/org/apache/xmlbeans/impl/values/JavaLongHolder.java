@@ -48,9 +48,9 @@ public abstract class JavaLongHolder extends XmlObjectBase
     }
 
     // numerics: fractional
-    public BigDecimal bigDecimalValue() { check_dated(); return BigDecimal.valueOf(_value); }
-    public BigInteger bigIntegerValue() { check_dated(); return BigInteger.valueOf(_value); }
-    public long longValue() { check_dated(); return _value; }
+    public BigDecimal getBigDecimalValue() { check_dated(); return BigDecimal.valueOf(_value); }
+    public BigInteger getBigIntegerValue() { check_dated(); return BigInteger.valueOf(_value); }
+    public long getLongValue() { check_dated(); return _value; }
 
     private static final BigInteger _max = BigInteger.valueOf(Long.MAX_VALUE);
     private static final BigInteger _min = BigInteger.valueOf(Long.MIN_VALUE);

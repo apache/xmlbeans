@@ -110,9 +110,9 @@ public class XmlListImpl extends XmlObjectBase implements XmlAnySimpleType
         _value = newval;
         _jvalue = null;
     }
-    
+
     private static final String[] EMPTY_STRINGARRAY = new String[0];
-    
+
     public static String[] split_list(String s)
     {
         if (s.length() == 0)
@@ -133,7 +133,7 @@ public class XmlListImpl extends XmlObjectBase implements XmlAnySimpleType
             result.add(s.substring(start, i));
         }
     }
-    
+
     public static XmlSimpleList lex(String s, SchemaType itemType, ValidationContext ctx, PrefixResolver resolver)
     {
         String[] parts = split_list(s);
@@ -173,13 +173,13 @@ public class XmlListImpl extends XmlObjectBase implements XmlAnySimpleType
         _value = null;
     }
 
-    public List xlistValue()
+    public List xgetListValue()
     {
         check_dated();
         return _value;
     }
 
-    public List listValue()
+    public List getListValue()
     {
         check_dated();
         if (_value == null)
@@ -226,7 +226,7 @@ public class XmlListImpl extends XmlObjectBase implements XmlAnySimpleType
             NamespaceContext.push(new NamespaceContext(get_store()));
             pushed = true;
         }
-        
+
         try
         {
             XmlAnySimpleType[] newval = new XmlAnySimpleType[list.size()];
@@ -248,7 +248,6 @@ public class XmlListImpl extends XmlObjectBase implements XmlAnySimpleType
             if (pushed)
                 NamespaceContext.pop();
         }
-        
 
         if (_validateOnSet())
         {
@@ -357,5 +356,5 @@ public class XmlListImpl extends XmlObjectBase implements XmlAnySimpleType
     {
         validateValue((XmlSimpleList)xlistValue(), schemaType(), ctx);
     }
-    
+
 }

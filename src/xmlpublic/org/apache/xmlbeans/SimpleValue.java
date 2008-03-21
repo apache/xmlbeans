@@ -223,7 +223,7 @@ public interface SimpleValue extends XmlObject
     List listValue();
     /**
      * Returns the value as a {@link List} of XmlAnySimpleType objects. *
-     * @deprecated replaced with {@link #getListValue}
+     * @deprecated replaced with {@link #xgetListValue}
      */
     List xlistValue();
     

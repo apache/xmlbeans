@@ -86,7 +86,7 @@ public abstract class JavaHexBinaryHolder extends XmlObjectBase
 
         if (bytes == null)
             return null;
-        
+
         if (!sType.matchPatternFacet(v))
         {
             context.invalid( "Hex encoded data does not match pattern for " + QNameHelper.readable(sType));
@@ -96,7 +96,7 @@ public abstract class JavaHexBinaryHolder extends XmlObjectBase
         return bytes;
     }
 
-    public byte[] byteArrayValue()
+    public byte[] getByteArrayValue()
     {
         check_dated();
         if (_value == null)
