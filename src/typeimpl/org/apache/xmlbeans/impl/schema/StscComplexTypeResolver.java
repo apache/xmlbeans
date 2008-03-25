@@ -551,8 +551,8 @@ public class StscComplexTypeResolver
         Group parseEg = getContentModel(parseTree);
 
         if (baseType != null &&
-            (baseType.getContentType() == SchemaType.SIMPLE_CONTENT) &&
-             parseEg != null)
+            (baseType.getContentType() == SchemaType.SIMPLE_CONTENT))
+        if (parseEg != null)
         {
             // if this type has complexContent, baseType is complexType
             // but with non-empty simpleContent then this type cannot
@@ -561,6 +561,12 @@ public class StscComplexTypeResolver
                 new Object[] { QNameHelper.pretty(baseType.getName()) },
                 parseTree.xgetBase());
             baseType = null; // recovery: no inheritance.
+        }
+        else
+        {
+            // No extra elements, the type is a complex type with simple content
+            resolveScExtensionPart2(sImpl, baseType, parseTree, targetNamespace, chameleon);
+            return;
         }
 
         // build extension model
@@ -832,6 +838,12 @@ public class StscComplexTypeResolver
             // recovery: just keep going
         }
 
+        resolveScExtensionPart2(sImpl, baseType, parseTree, targetNamespace, chameleon);
+    }
+
+    static void resolveScExtensionPart2(SchemaTypeImpl sImpl, SchemaType baseType, ExtensionType parseTree,
+        String targetNamespace, boolean chameleon)
+    {
         // build attr model and anonymous types
         List anonymousTypes = new ArrayList();
         SchemaAttributeModelImpl attrModel;
