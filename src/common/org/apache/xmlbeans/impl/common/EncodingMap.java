@@ -17,17 +17,40 @@ package org.apache.xmlbeans.impl.common;
 
 import java.util.HashMap;
 import java.util.Iterator;
+import java.nio.charset.Charset;
 
 public class EncodingMap
 {
     public static String getJava2IANAMapping ( String java )
     {
-        return (String) _java_to_iana.get( java.toUpperCase() );
+        String iana = (String) _java_to_iana.get( java.toUpperCase() );
+        if (iana != null)
+            return iana;
+        // Try to use the information in the JDK to see if it is an encoding it supports
+        if (Charset.isSupported( java ))
+        {
+            try
+            {
+                iana = Charset.forName( java ).name();
+                return iana;
+            }
+            catch (IllegalArgumentException iae)
+            {
+                return null;
+            }
+        }
+        return null;
     }
     
     public static String getIANA2JavaMapping ( String iana )
     {
-        return (String) _iana_to_java.get( iana.toUpperCase() );
+        String java = (String) _iana_to_java.get( iana.toUpperCase() );
+        if (java != null)
+            return java;
+        else if (Charset.isSupported( iana ))
+            return iana;
+        else
+            return null;
     }
 
     private EncodingMap ( ) { }
