@@ -23,6 +23,7 @@ import org.apache.xmlbeans.XmlErrorCodes;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.impl.common.ValidationContext;
 import org.apache.xmlbeans.impl.schema.BuiltinSchemaTypeSystem;
+import org.apache.xmlbeans.impl.util.XsTypeConverter;
 
 public class JavaDecimalHolder extends XmlObjectBase
 {
@@ -34,7 +35,7 @@ public class JavaDecimalHolder extends XmlObjectBase
     // SIMPLE VALUE ACCESSORS BELOW -------------------------------------------
 
     // sets/gets raw text value
-    protected String compute_text(NamespaceManager nsm) { return _value.toString(); }
+    protected String compute_text(NamespaceManager nsm) { return XsTypeConverter.printDecimal(_value); }
     protected void set_text(String s)
     {
         if (_validateOnSet())
