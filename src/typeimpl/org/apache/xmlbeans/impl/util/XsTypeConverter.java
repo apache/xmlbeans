@@ -87,7 +87,7 @@ public final class XsTypeConverter
             return POS_INF_LEX;
         else if (value == Float.NEGATIVE_INFINITY)
             return NEG_INF_LEX;
-        else if (value == Float.NaN)
+        else if (Float.isNaN(value))
             return NAN_LEX;
         else
             return Float.toString(value);
@@ -139,7 +139,7 @@ public final class XsTypeConverter
             return POS_INF_LEX;
         else if (value == Double.NEGATIVE_INFINITY)
             return NEG_INF_LEX;
-        else if (value == Double.NaN)
+        else if (Double.isNaN(value))
             return NAN_LEX;
         else
             return Double.toString(value);
