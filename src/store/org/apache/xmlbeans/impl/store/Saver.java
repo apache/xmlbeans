@@ -3379,6 +3379,7 @@ abstract class Saver
             _lexicalHandler = lh;
 
             _attributes = new AttributesImpl();
+            _nsAsAttrs = options.hasOption( XmlOptions.SAVE_SAX_NAMESPACE_PREFIXES );
 
             _contentHandler.startDocument();
 
@@ -3437,10 +3438,11 @@ abstract class Saver
                     throw new SaverSAXException( e );
                 }
 
-                if (prefix == null || prefix.length() == 0)
-                    _attributes.addAttribute( "http://www.w3.org/2000/xmlns/", "", "xmlns", "CDATA", uri );
-                else
-                    _attributes.addAttribute( "http://www.w3.org/2000/xmlns/", "", "xmlns:" + prefix, "CDATA", uri );
+                if (_nsAsAttrs)
+                    if (prefix == null || prefix.length() == 0)
+                        _attributes.addAttribute( "http://www.w3.org/2000/xmlns/", "xmlns", "xmlns", "CDATA", uri );
+                    else
+                        _attributes.addAttribute( "http://www.w3.org/2000/xmlns/", prefix, "xmlns:" + prefix, "CDATA", uri );
             }
         }
 
@@ -3627,6 +3629,7 @@ abstract class Saver
         private AttributesImpl _attributes;
 
         private char[] _buf;
+        private boolean _nsAsAttrs;
     }
 
     //
