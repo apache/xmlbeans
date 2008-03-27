@@ -401,6 +401,15 @@ public class XmlOptions implements java.io.Serializable
     }
 
     /**
+     * This option controls whether namespace declarations are included as attributes in the
+     * startElement event. By default, up to and including XMLBeans 2.3.0 they were included, in
+     * subsequent versions, they are no longer included.
+     */
+    public XmlOptions setSaveSaxNamespacePrefixes () {
+        return set( SAVE_SAX_NAMESPACE_PREFIXES );
+    }
+
+    /**
      * If this option is set, the document element is replaced with the
      * given QName when parsing.  If null is supplied, the document element
      * is removed.
@@ -810,6 +819,8 @@ public class XmlOptions implements java.io.Serializable
     public static final String SAVE_CDATA_LENGTH_THRESHOLD     = "SAVE_CDATA_LENGTH_THRESHOLD";
     /** @exclude */
     public static final String SAVE_CDATA_ENTITY_COUNT_THRESHOLD = "SAVE_CDATA_ENTITY_COUNT_THRESHOLD";
+    /** @exclude */
+    public static final String SAVE_SAX_NAMESPACE_PREFIXES     = "SAVE_SAX_NAMESPACE_PREFIXES";
     /** @exclude */
     public static final String LOAD_REPLACE_DOCUMENT_ELEMENT   = "LOAD_REPLACE_DOCUMENT_ELEMENT";
     /** @exclude */
