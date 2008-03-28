@@ -173,54 +173,58 @@ public final class XsTypeConverter
         }
     }
 
+    private static final char[] CH_ZEROS = new char[] {'0', '0', '0', '0', '0', '0', '0', '0',
+        '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0'};
+
     public static String printDecimal(BigDecimal value)
     {
         // We can't simply use value.toString() here, because in JDK1.5 that returns an
         // exponent String and exponents are not allowed in XMLSchema decimal values
-        BigDecimal bd = value;
-        int scale = bd.scale();
-        if (scale < 0)
+        // The following code comes from Apache Harmony
+        String intStr = value.unscaledValue().toString();
+        int scale = value.scale();
+        if ((scale == 0) || ((value.longValue() == 0) && (scale < 0)))
+            return intStr;
+
+        int begin = (value.signum() < 0) ? 1 : 0;
+        int delta = scale;
+        // We take space for all digits, plus a possible decimal point, plus 'scale'
+        StringBuffer result = new StringBuffer(intStr.length() + 1 + Math.abs(scale));
+
+        if (begin == 1)
         {
-            bd.setScale(0);
-            return printInteger(bd.unscaledValue());
+            // If the number is negative, we insert a '-' character at front 
+            result.append('-');
         }
-        else if (scale == 0)
-            return printInteger(bd.unscaledValue());
-        else
+        if (scale > 0)
         {
-            String intString = bd.unscaledValue().abs().toString();
-            int signum = bd.signum();
-            StringBuffer buf;
-            int insertionPoint = intString.length() - scale;
-            if (insertionPoint == 0)
-            {   /* Point goes right before intVal */
-                buf = new StringBuffer(3 + intString.length());
-                buf.append(signum < 0 ? "-0." : "0.").append(intString);
-            }
-            else if (insertionPoint > 0)
-            {   /* Point goes inside intVal */
-                buf = new StringBuffer(intString.length() + 2);
-                if (signum < 0)
-                {
-                    buf.append('-').append(intString);
-                    buf.insert(insertionPoint + 1, '.');
-                }
-                else
-                {
-                    buf.append(intString);
-                    buf.insert(insertionPoint, '.');
-                }
+            delta -= (intStr.length() - begin);
+            if (delta >= 0)
+            {
+                result.append("0."); //$NON-NLS-1$
+                // To append zeros after the decimal point
+                for (; delta > CH_ZEROS.length; delta -= CH_ZEROS.length)
+                    result.append(CH_ZEROS);
+                result.append(CH_ZEROS, 0, delta);
+                result.append(intStr.substring(begin));
             }
             else
-            {   /* We must insert zeros between point and intVal */
-                buf = new StringBuffer(3 - insertionPoint + intString.length());
-                buf.append(signum < 0 ? "-0." : "0.");
-                for (int i = 0; i < -insertionPoint; i++)
-                    buf.append('0');
-                buf.append(intString);
+            {
+                delta = begin - delta;
+                result.append(intStr.substring(begin, delta));
+                result.append('.');
+                result.append(intStr.substring(delta));
             }
-            return buf.toString();
         }
+        else
+        {// (scale <= 0)
+            result.append(intStr.substring(begin));
+            // To append trailing zeros
+            for (; delta < -CH_ZEROS.length; delta += CH_ZEROS.length)
+                result.append(CH_ZEROS);
+            result.append(CH_ZEROS, 0, -delta);
+        }
+        return result.toString();
     }
 
     // ======================== integer ========================
