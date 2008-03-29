@@ -1371,6 +1371,8 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
             " extends " + baseClass + " implements " + interfaces.toString());
 
         startBlock();
+
+        emit("private static final long serialVersionUID = 1L;");
     }
 
     void makeAttributeDefaultValue(String jtargetType, SchemaProperty prop, String identifier) throws IOException
@@ -2064,12 +2066,24 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
             }
 
             // Value[] getProp()
-            printJavaDoc("Gets array of all " + propdesc + "s");
+            if (_useJava15)
+            {
+                emit("");
+                emit("/**");
+                emit(" * Gets array of all " + propdesc + "s");
+                emit(" * @deprecated");
+                emit(" */");
+            }
+            else
+                printJavaDoc("Gets array of all " + propdesc + "s");
             emit("public " + type + "[] get" + arrayName + "()");
             startBlock();
             emitImplementationPreamble();
 
-            emit("java.util.List targetList = new java.util.ArrayList();");
+            if (_useJava15)
+                emit("java.util.List<" + xtype + "> targetList = new java.util.ArrayList<" + xtype + ">();");
+            else
+                emit("java.util.List targetList = new java.util.ArrayList();");
             emit("get_store().find_all_element_users(" + setIdentifier + ", targetList);");
 
             printJGetArrayValue(javaType, type);
@@ -2097,11 +2111,23 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
                 }
 
                 // Value[] xgetProp()
-                printJavaDoc("Gets (as xml) array of all " + propdesc + "s");
+                if (_useJava15)
+                {
+                    emit("");
+                    emit("/**");
+                    emit(" * Gets array of all " + propdesc + "s");
+                    emit(" * @deprecated");
+                    emit(" */");
+                }
+                else
+                    printJavaDoc("Gets (as xml) array of all " + propdesc + "s");
                 emit("public " + xtype + "[] xget" + arrayName + "()");
                 startBlock();
                 emitImplementationPreamble();
-                emit("java.util.List targetList = new java.util.ArrayList();");
+                if (_useJava15)
+                    emit("java.util.List<" + xtype +  "> targetList = new java.util.ArrayList<" + xtype +  ">();");
+                else
+                    emit("java.util.List targetList = new java.util.ArrayList();");
                 emit("get_store().find_all_element_users(" + setIdentifier + ", targetList);");
                 emit(xtype + "[] result = new " + xtype + "[targetList.size()];");
                 emit("targetList.toArray(result);");

@@ -1151,7 +1151,7 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
 
                 // protect against recursion with this flag
                 _flags |= FLAG_SETTINGDEFAULT;
-                try { this.set(def); }
+                try { this.setStringValue(def); }
                 finally { _flags &= ~FLAG_SETTINGDEFAULT; }
                 _flags &= ~FLAG_NIL;
                 _flags |= FLAG_ISDEFAULT;
@@ -1383,9 +1383,9 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
 
     // numerics: fractional
     public float getFloatValue()
-        { BigDecimal bd = bigDecimalValue(); return bd == null ? 0.0f : bd.floatValue(); }
+        { BigDecimal bd = getBigDecimalValue(); return bd == null ? 0.0f : bd.floatValue(); }
     public double getDoubleValue()
-        { BigDecimal bd = bigDecimalValue(); return bd == null ? 0.0 : bd.doubleValue(); }
+        { BigDecimal bd = getBigDecimalValue(); return bd == null ? 0.0 : bd.doubleValue(); }
     public BigDecimal getBigDecimalValue()
         { throw new XmlValueNotSupportedException(XmlErrorCodes.EXCEPTION_VALUE_NOT_SUPPORTED_S2J,
                 new Object[] {getPrimitiveTypeName(), "numeric"}); }
@@ -1396,7 +1396,7 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
 
     public byte getByteValue()
     {
-        long l = intValue();
+        long l = getIntValue();
         if (l > Byte.MAX_VALUE) throw new XmlValueOutOfRangeException();
         if (l < Byte.MIN_VALUE) throw new XmlValueOutOfRangeException();
         return (byte)l;
@@ -1404,7 +1404,7 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
 
     public short getShortValue()
     {
-        long l = intValue();
+        long l = getIntValue();
         if (l > Short.MAX_VALUE) throw new XmlValueOutOfRangeException();
         if (l < Short.MIN_VALUE) throw new XmlValueOutOfRangeException();
         return (short)l;
@@ -1412,7 +1412,7 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
 
     public int getIntValue()
     {
-        long l = longValue();
+        long l = getLongValue();
         if (l > Integer.MAX_VALUE) throw new XmlValueOutOfRangeException();
         if (l < Integer.MIN_VALUE) throw new XmlValueOutOfRangeException();
         return (int)l;
@@ -1422,7 +1422,7 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
 
     public long getLongValue()
     {
-        BigInteger b = bigIntegerValue();
+        BigInteger b = getBigIntegerValue();
         if (b == null) return 0L;
         if (b.compareTo(_max) >= 0) throw new XmlValueOutOfRangeException();
         if (b.compareTo(_min) <= 0) throw new XmlValueOutOfRangeException();
@@ -1517,83 +1517,122 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
         }
     }
 
+    /** @deprecated replaced with {@link #getStringValue} */
     public String stringValue()
         { return getStringValue(); }
+    /** @deprecated replaced with {@link #getBooleanValue} */
     public boolean booleanValue()
         { return getBooleanValue(); }
+    /** @deprecated replaced with {@link #getByteValue} */
     public byte byteValue()
         { return getByteValue(); }
+    /** @deprecated replaced with {@link #getShortValue} */
     public short shortValue()
         { return getShortValue(); }
+    /** @deprecated replaced with {@link #getIntValue} */
     public int intValue()
         { return getIntValue(); }
+    /** @deprecated replaced with {@link #getLongValue} */
     public long longValue()
         { return getLongValue(); }
+    /** @deprecated replaced with {@link #getBigIntegerValue} */
     public BigInteger bigIntegerValue()
         { return getBigIntegerValue(); }
+    /** @deprecated replaced with {@link #getBigDecimalValue} */
     public BigDecimal bigDecimalValue()
         { return getBigDecimalValue(); }
+    /** @deprecated replaced with {@link #getFloatValue} */
     public float floatValue()
         { return getFloatValue(); }
+    /** @deprecated replaced with {@link #getDoubleValue} */
     public double doubleValue()
         { return getDoubleValue(); }
+    /** @deprecated replaced with {@link #getByteArrayValue} */
     public byte[] byteArrayValue()
         { return getByteArrayValue(); }
+    /** @deprecated replaced with {@link #getEnumValue} */
     public StringEnumAbstractBase enumValue()
         { return getEnumValue(); }
+    /** @deprecated replaced with {@link #getCalendarValue} */
     public Calendar calendarValue()
         { return getCalendarValue(); }
+    /** @deprecated replaced with {@link #getDateValue} */
     public Date dateValue()
         { return getDateValue(); }
+    /** @deprecated replaced with {@link #getGDateValue} */
     public GDate gDateValue()
         { return getGDateValue(); }
+    /** @deprecated replaced with {@link #getGDurationValue} */
     public GDuration gDurationValue()
         { return getGDurationValue(); }
+    /** @deprecated replaced with {@link #getQNameValue} */
     public QName qNameValue()
         { return getQNameValue(); }
+    /** @deprecated replaced with {@link #xgetListValue} */
     public List xlistValue()
         { return xgetListValue(); }
+    /** @deprecated replaced with {@link #getListValue} */
     public List listValue()
         { return getListValue(); }
+    /** @deprecated replaced with {@link #getObjectValue} */
     public Object objectValue()
         { return getObjectValue(); }
 
+    /** @deprecated replaced with {@link #setStringValue} */
     public void set(String obj)
         { setStringValue(obj); }
+    /** @deprecated replaced with {@link #setBooleanValue} */
     public void set(boolean v)
         { setBooleanValue(v); }
+    /** @deprecated replaced with {@link #setByteValue} */
     public void set(byte v)
         { setByteValue(v); }
+    /** @deprecated replaced with {@link #setShortValue} */
     public void set(short v)
         { setShortValue(v); }
+    /** @deprecated replaced with {@link #setIntValue} */
     public void set(int v)
         { setIntValue(v); }
+    /** @deprecated replaced with {@link #setLongValue} */
     public void set(long v)
         { setLongValue(v); }
+    /** @deprecated replaced with {@link #setBigIntegerValue} */
     public void set(BigInteger obj)
         { setBigIntegerValue(obj); }
+    /** @deprecated replaced with {@link #setBigDecimalValue} */
     public void set(BigDecimal obj)
         { setBigDecimalValue(obj); }
+    /** @deprecated replaced with {@link #setFloatValue} */
     public void set(float v)
         { setFloatValue(v); }
+    /** @deprecated replaced with {@link #setDoubleValue} */
     public void set(double v)
         { setDoubleValue(v); }
+    /** @deprecated replaced with {@link #setByteArrayValue} */
     public void set(byte[] obj)
         { setByteArrayValue(obj); }
+    /** @deprecated replaced with {@link #setEnumValue} */
     public void set(StringEnumAbstractBase obj)
         { setEnumValue(obj); }
+    /** @deprecated replaced with {@link #setCalendarValue} */
     public void set(Calendar obj)
         { setCalendarValue(obj); }
+    /** @deprecated replaced with {@link #setDateValue} */
     public void set(Date obj)
         { setDateValue(obj); }
+    /** @deprecated replaced with {@link #setGDateValue} */
     public void set(GDateSpecification obj)
         { setGDateValue(obj); }
+    /** @deprecated replaced with {@link #setGDurationValue} */
     public void set(GDurationSpecification obj)
         { setGDurationValue(obj); }
+    /** @deprecated replaced with {@link #setQNameValue} */
     public void set(QName obj)
         { setQNameValue(obj); }
+    /** @deprecated replaced with {@link #setListValue} */
     public void set(List obj)
         { setListValue(obj); }
+    /** @deprecated replaced with {@link #setObjectValue} */
     public void objectSet(Object obj)
         { setObjectValue(obj); }
 
