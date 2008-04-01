@@ -660,11 +660,11 @@ public class StscState
     /**
      * Looks up configured java name for the given qname.
      */
-    public String getJavaname(QName qname)
+    public String getJavaname(QName qname, int kind)
     {
         if (_config == null)
             return null;
-        return _config.lookupJavanameForQName(qname);
+        return _config.lookupJavanameForQName(qname, kind);
     }
 
     /* SPELLINGS ======================================================*/

@@ -19,6 +19,7 @@ import org.apache.xmlbeans.impl.xb.xmlconfig.ConfigDocument.Config;
 import org.apache.xmlbeans.impl.xb.xmlconfig.Extensionconfig;
 import org.apache.xmlbeans.impl.xb.xmlconfig.Nsconfig;
 import org.apache.xmlbeans.impl.xb.xmlconfig.Qnameconfig;
+import org.apache.xmlbeans.impl.xb.xmlconfig.Qnametargetenum;
 import org.apache.xmlbeans.BindingConfig;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlError;
@@ -46,7 +47,10 @@ public class BindingConfigImpl extends BindingConfig
     private Map _packageMapByUriPrefix; // uri prefix -> package
     private Map _prefixMapByUriPrefix;  // uri prefix -> name prefix
     private Map _suffixMapByUriPrefix;  // uri prefix -> name suffix
-    private Map _qnameMap;
+    private Map _qnameTypeMap;
+    private Map _qnameDocTypeMap;
+    private Map _qnameElemMap;
+    private Map _qnameAttMap;
 
     private List _interfaceExtensions;
     private List _prePostExtensions;
@@ -59,7 +63,10 @@ public class BindingConfigImpl extends BindingConfig
         _packageMapByUriPrefix = Collections.EMPTY_MAP;
         _prefixMapByUriPrefix = Collections.EMPTY_MAP;
         _suffixMapByUriPrefix = Collections.EMPTY_MAP;
-        _qnameMap = Collections.EMPTY_MAP;
+        _qnameTypeMap = Collections.EMPTY_MAP;
+        _qnameDocTypeMap = Collections.EMPTY_MAP;
+        _qnameElemMap = Collections.EMPTY_MAP;
+        _qnameAttMap = Collections.EMPTY_MAP;
         _interfaceExtensions = new ArrayList();
         _prePostExtensions = new ArrayList();
     }
@@ -77,7 +84,10 @@ public class BindingConfigImpl extends BindingConfig
         _packageMapByUriPrefix = new LinkedHashMap();
         _prefixMapByUriPrefix = new LinkedHashMap();
         _suffixMapByUriPrefix = new LinkedHashMap();
-        _qnameMap = new LinkedHashMap();
+        _qnameTypeMap = new LinkedHashMap();
+        _qnameDocTypeMap = new LinkedHashMap();
+        _qnameElemMap = new LinkedHashMap();
+        _qnameAttMap = new LinkedHashMap();
         _interfaceExtensions = new ArrayList();
         _prePostExtensions = new ArrayList();
 
@@ -98,7 +108,28 @@ public class BindingConfigImpl extends BindingConfig
             Qnameconfig[] qnc = config.getQnameArray();
             for (int j = 0; j < qnc.length; j++)
             {
-                _qnameMap.put(qnc[j].getName(), qnc[j].getJavaname());
+                List applyto = qnc[j].xgetTarget().xgetListValue();
+                QName name = qnc[j].getName();
+                String javaname = qnc[j].getJavaname();
+                for (int k = 0; k < applyto.size(); k++)
+                {
+                    Qnametargetenum a = (Qnametargetenum) applyto.get(k);
+                    switch (a.enumValue().intValue())
+                    {
+                    case Qnametargetenum.INT_TYPE:
+                        _qnameTypeMap.put(name, javaname);
+                        break;
+                    case Qnametargetenum.INT_DOCUMENT_TYPE:
+                        _qnameDocTypeMap.put(name, javaname);
+                        break;
+                    case Qnametargetenum.INT_ACCESSOR_ELEMENT:
+                        _qnameElemMap.put(name, javaname);
+                        break;
+                    case Qnametargetenum.INT_ACCESSOR_ATTRIBUTE:
+                        _qnameAttMap.put(name, javaname);
+                        break;
+                    }
+                }
             }
 
             Extensionconfig[] ext = config.getExtensionArray();
@@ -312,9 +343,29 @@ public class BindingConfigImpl extends BindingConfig
         return lookup(_suffixMap, _suffixMapByUriPrefix, uri);
     }
 
+    /** @deprecated replaced with {@link #lookupJavanameForQName(QName, int)} */
     public String lookupJavanameForQName(QName qname)
     {
-        return (String)_qnameMap.get(qname);
+        String result = (String)_qnameTypeMap.get(qname);
+        if (result != null)
+            return result;
+        return (String)_qnameDocTypeMap.get(qname);
+    }
+
+    public String lookupJavanameForQName(QName qname, int kind)
+    {
+        switch (kind)
+        {
+        case QNAME_TYPE:
+            return (String)_qnameTypeMap.get(qname);
+        case QNAME_DOCUMENT_TYPE:
+            return (String)_qnameDocTypeMap.get(qname);
+        case QNAME_ACCESSOR_ELEMENT:
+            return (String)_qnameElemMap.get(qname);
+        case QNAME_ACCESSOR_ATTRIBUTE:
+            return (String)_qnameAttMap.get(qname);
+        }
+        return null;
     }
 
     public InterfaceExtension[] getInterfaceExtensions()

@@ -120,11 +120,19 @@ public class TestBindingConfig extends BindingConfig
         return bindingConfig.lookupSuffixForNamespace(s);
     }
 
+    /** @deprecated */
     public String lookupJavanameForQName(QName qName)
     {
         System.out.println("lookupJavanameForQName: "+qName);
         islookupJavanameForQName = true;
         return bindingConfig.lookupJavanameForQName(qName);
+    }
+
+    public String lookupJavanameForQName(QName qName, int kind)
+    {
+        System.out.println("lookupJavanameForQName: "+qName);
+        islookupJavanameForQName = true;
+        return bindingConfig.lookupJavanameForQName(qName, kind);
     }
 
     public InterfaceExtension[] getInterfaceExtensions()
