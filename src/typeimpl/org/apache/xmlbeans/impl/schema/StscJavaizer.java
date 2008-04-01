@@ -92,7 +92,8 @@ public class StscJavaizer
         {
             SchemaTypeImpl sImpl = (SchemaTypeImpl)i.next();
             QName topName = findTopName(sImpl);
-            String pickedName = state.getJavaname(topName);
+            String pickedName = state.getJavaname(topName, sImpl.isDocumentType() ?
+                BindingConfig.QNAME_DOCUMENT_TYPE : BindingConfig.QNAME_TYPE);
             if (sImpl.isUnjavaized())
             {
                 sImpl.setFullJavaName(pickFullJavaClassName(usedNames, findTopName(sImpl), pickedName, sImpl.isDocumentType(), sImpl.isAttributeType()));
@@ -390,7 +391,7 @@ public class StscJavaizer
             {
                 QName qname = sImpl.getContainerField().getName();
                 localname = qname.getLocalPart();
-                javaname = state.getJavaname(sImpl.getContainerField().getName());
+                javaname = state.getJavaname(sImpl.getContainerField().getName(), BindingConfig.QNAME_TYPE);
             }
             else
             {
@@ -458,7 +459,9 @@ public class StscJavaizer
             String theName;
 
             if (baseProp == null)
-                theName = pickJavaPropertyName(usedNames, propQName.getLocalPart(), state.getJavaname(propQName));
+                theName = pickJavaPropertyName(usedNames, propQName.getLocalPart(),
+                    state.getJavaname(propQName, sImpl.isAttribute() ? BindingConfig.QNAME_ACCESSOR_ATTRIBUTE :
+                    BindingConfig.QNAME_ACCESSOR_ELEMENT));
             else
                 theName = baseProp.getJavaPropertyName();
 

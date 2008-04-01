@@ -120,6 +120,19 @@
     <xs:sequence/>
     <xs:attribute name="name" type="xs:QName"/>
     <xs:attribute name="javaname" type="xs:string"/>
+    <xs:attribute name="target" type="xb:qnametargetlist" default="type document-type accessor-element accessor-attribute">
+        <xs:annotation>
+            <xs:documentation>
+              Specified on what type of Schema component does the qname mapping apply:
+                - type - on global types with that QName and "local" types contained within attributes/elements
+                  with the specified name
+                - document-type - on "document" types generated from global elements/attributes with
+                  the specified name
+                - accessor-element - on getters/setters generated from elements with the specified name
+                - accessor-attribute - on getters/setters generated from attributes with the specified name
+            </xs:documentation>
+        </xs:annotation>
+    </xs:attribute>
   </xs:complexType>
 
   <xs:simpleType name="namespacePrefixList">
@@ -253,5 +266,18 @@
 
      <xs:simpleType name="javaName">
          <xs:restriction base="xs:token" />
+     </xs:simpleType>
+
+     <xs:simpleType name="qnametargetlist">
+         <xs:list itemType="xb:qnametargetenum"/>
+     </xs:simpleType>
+
+     <xs:simpleType name="qnametargetenum">
+         <xs:restriction base="xs:token">
+             <xs:enumeration value="type"/>
+             <xs:enumeration value="document-type"/>
+             <xs:enumeration value="accessor-element"/>
+             <xs:enumeration value="accessor-attribute"/>
+         </xs:restriction>
      </xs:simpleType>
 </xs:schema>
