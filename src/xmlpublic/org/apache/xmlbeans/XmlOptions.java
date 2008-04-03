@@ -401,6 +401,57 @@ public class XmlOptions implements java.io.Serializable
     }
 
     /**
+     * <p>Use this option when parsing and saving XML documents.</p>
+     *
+     * <p>For parsing this option will annotate the text fields in the store with CDataBookmark.</p>
+     *
+     * <p>For saving this option will save the text fields annotated with CDataBookmark as
+     * CDATA XML text.<br>
+     * Note: The SaveCDataEntityCountThreshold and SaveCDataLengthThreshold options and
+     * their default values still apply.</p>
+     *
+     * <p><b>Note: Due to the store representation, a CDATA will not be recognized
+     * if it is imediately after non CDATA text and all text following it will
+     * be considered CDATA.</b><br/>
+     * Example:<br>
+     * <pre>
+     * &lt;a>&lt;![CDATA[cdata text]]>&lt;/a>               - is considered as: &lt;a>&lt;![CDATA[cdata text]]>&lt;/a>
+     * &lt;b>&lt;![CDATA[cdata text]]> regular text&lt;/b>  - is considered as: &lt;b>&lt;![CDATA[cdata text regular text]]>&lt;/b>
+     * &lt;c>text &lt;![CDATA[cdata text]]>&lt;/c>          - is considered as: &lt;c>text cdata text&lt;/c>
+     * </pre>
+     * </p>
+     *
+     * <p>Sample code:
+     * <pre>
+        String xmlText = "&lt;a>\n" +
+                "&lt;a>&lt;![CDATA[cdata text]]>&lt;/a>\n" +
+                "&lt;b>&lt;![CDATA[cdata text]]> regular text&lt;/b>\n" +
+                "&lt;c>text &lt;![CDATA[cdata text]]>&lt;/c>\n" +
+                "&lt;/a>";
+        System.out.println(xmlText);
+
+        XmlOptions opts = new XmlOptions();
+        opts.setUseCDataBookmarks();
+
+        XmlObject xo = XmlObject.Factory.parse( xmlText , opts);
+
+        System.out.println("xo1:\n" + xo.xmlText(opts));
+        System.out.println("\n");
+
+        opts.setSavePrettyPrint();
+        System.out.println("xo2:\n" + xo.xmlText(opts));
+     * </pre>
+     * </p>
+     *
+     * @see CDataBookmark
+     * @see CDataBookmark#CDATA_BOOKMARK
+     */
+    public XmlOptions setUseCDataBookmarks()
+    {
+        return set( LOAD_SAVE_CDATA_BOOKMARKS );        
+    }
+
+    /**
      * This option controls whether namespace declarations are included as attributes in the
      * startElement event. By default, up to and including XMLBeans 2.3.0 they were included, in
      * subsequent versions, they are no longer included.
@@ -832,8 +883,9 @@ public class XmlOptions implements java.io.Serializable
     /** @exclude */
     public static final String LOAD_LINE_NUMBERS               = "LOAD_LINE_NUMBERS";
     /** @exclude */
-    public static final String LOAD_LINE_NUMBERS_END_ELEMENT= "LOAD_LINE_NUMBERS_END_ELEMENT";
-
+    public static final String LOAD_LINE_NUMBERS_END_ELEMENT   = "LOAD_LINE_NUMBERS_END_ELEMENT";
+    /** @exclude */
+    public static final String LOAD_SAVE_CDATA_BOOKMARKS       = "LOAD_SAVE_CDATA_BOOKMARKS";
     /** @exclude */
     public static final String LOAD_SUBSTITUTE_NAMESPACES      = "LOAD_SUBSTITUTE_NAMESPACES";
     /** @exclude */

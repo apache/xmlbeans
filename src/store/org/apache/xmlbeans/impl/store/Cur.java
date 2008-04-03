@@ -74,6 +74,7 @@ import org.apache.xmlbeans.impl.store.DomImpl.CdataNode;
 import org.apache.xmlbeans.impl.store.DomImpl.SaajTextNode;
 import org.apache.xmlbeans.impl.store.DomImpl.SaajCdataNode;
 
+import org.apache.xmlbeans.CDataBookmark;
 import org.apache.xmlbeans.XmlBeans;
 import org.apache.xmlbeans.XmlLineNumber;
 import org.apache.xmlbeans.SchemaField;
@@ -170,6 +171,8 @@ final class Cur
 
     boolean isNormalAttr ( ) { return isNode() && _xobj.isNormalAttr(); }
     boolean isXmlns      ( ) { return isNode() && _xobj.isXmlns(); }
+
+    boolean isTextCData  ( ) { return _xobj.hasBookmark(CDataBookmark.class, _pos); }
 
     QName   getName  ( ) { assert isNode() || isEnd(); return _xobj._name; }
     String  getLocal ( ) { return getName().getLocalPart(); }

@@ -904,6 +904,9 @@ abstract class Saver
             if (options != null && options.hasOption(XmlOptions.SAVE_CDATA_ENTITY_COUNT_THRESHOLD))
                 _cdataEntityCountThreshold = ((Integer)options.get(XmlOptions.SAVE_CDATA_ENTITY_COUNT_THRESHOLD)).intValue();
 
+            if (options != null && options.hasOption(XmlOptions.LOAD_SAVE_CDATA_BOOKMARKS) )
+                _useCDataBookmarks = true;
+
             _in = _out = 0;
             _free = 0;
 
@@ -1010,9 +1013,12 @@ abstract class Saver
         {
             assert c.isText();
 
+            // c.isTextCData() is expensive do it only if useCDataBookmarks option is enabled
+            boolean forceCData = _useCDataBookmarks && c.isTextCData();
+
             emit( c );
 
-            entitizeContent();
+            entitizeContent( forceCData );
         }
 
         protected void emitComment ( SaveCur c )
@@ -1304,7 +1310,7 @@ abstract class Saver
             return false;
         }
 
-        private void entitizeContent ( )
+        private void entitizeContent ( boolean forceCData )
         {
             assert _free >=0;
             
@@ -1337,7 +1343,7 @@ abstract class Saver
                 prevChar = ch;
             }
 
-            if (count == 0 && !hasCharToBeReplaced && count<_cdataEntityCountThreshold)
+            if (!forceCData && count == 0 && !hasCharToBeReplaced && count<_cdataEntityCountThreshold)
                 return;
 
             i = _lastEmitIn;
@@ -1345,7 +1351,7 @@ abstract class Saver
             //
             // Heuristic for knowing when to save out stuff as a CDATA.
             //
-            if (_lastEmitCch > _cdataLengthThreshold && count > _cdataEntityCountThreshold)
+            if (forceCData || (_lastEmitCch > _cdataLengthThreshold && count > _cdataEntityCountThreshold) )
             {
                 boolean lastWasBracket = _buf[ i ] == ']';
 
@@ -1842,6 +1848,7 @@ abstract class Saver
         private static final int _initialBufSize = 4096;
         private int _cdataLengthThreshold = 32;
         private int _cdataEntityCountThreshold = 5;
+        private boolean _useCDataBookmarks = false;
 
         private int _lastEmitIn;
         private int _lastEmitCch;
@@ -3662,6 +3669,7 @@ abstract class Saver
 
         abstract boolean hasChildren  ( );
         abstract boolean hasText      ( );
+        abstract boolean isTextCData  ( );
 
         abstract boolean toFirstAttr ( );
         abstract boolean toNextAttr ( );
@@ -3708,6 +3716,7 @@ abstract class Saver
 
         boolean hasChildren   ( ) { return _cur.hasChildren(); }
         boolean hasText       ( ) { return _cur.hasText();     }
+        boolean isTextCData   ( ) { return _cur.isTextCData(); }
 
         boolean toFirstAttr   ( ) { return _cur.toFirstAttr(); }
         boolean toNextAttr    ( ) { return _cur.toNextAttr();  }
@@ -3763,6 +3772,7 @@ abstract class Saver
 
         boolean hasChildren   ( ) { return _cur.hasChildren();  }
         boolean hasText       ( ) { return _cur.hasText();      }
+        boolean isTextCData   ( ) { return _cur.isTextCData(); }
 
         boolean toFirstAttr   ( ) { return _cur.toFirstAttr();  }
         boolean toNextAttr    ( ) { return _cur.toNextAttr();   }
@@ -3975,6 +3985,11 @@ abstract class Saver
             return hasText;
         }
 
+        boolean isTextCData ( )
+        {
+            return _cur.isTextCData();
+        }
+
         Object getChars ( )
         {
             assert _state == CUR && _cur.isText();
@@ -4159,6 +4174,11 @@ abstract class Saver
                 _prettyOffset =
                     ((Integer) options.get( XmlOptions.SAVE_PRETTY_PRINT_OFFSET )).intValue();
             }
+
+            if (options.hasOption( XmlOptions.LOAD_SAVE_CDATA_BOOKMARKS ))
+            {
+                _useCDataBookmarks = true;
+            }
         }
 
         List getAncestorNamespaces ( ) { return _cur.getAncestorNamespaces(); }
@@ -4175,6 +4195,10 @@ abstract class Saver
 
         boolean hasChildren   ( ) { return _txt == null ? _cur.hasChildren() : false; }
         boolean hasText       ( ) { return _txt == null ? _cur.hasText()     : false; }
+
+        // _cur.isTextCData() is expensive do it only if useCDataBookmarks option is enabled
+        boolean isTextCData   ( ) { return _txt == null ? (_useCDataBookmarks && _cur.isTextCData())
+                                                        : _isTextCData; }
 
         boolean toFirstAttr   ( ) { assert _txt == null; return _cur.toFirstAttr(); }
         boolean toNextAttr    ( ) { assert _txt == null; return _cur.toNextAttr(); }
@@ -4198,6 +4222,7 @@ abstract class Saver
                 assert _txt.length() > 0;
                 assert !_cur.isText();
                 _txt = null;
+                _isTextCData = false;
                 k = _cur.kind();
             }
             else
@@ -4214,6 +4239,8 @@ abstract class Saver
                 // place any text encountered in the buffer
                 if (_cur.isText())
                 {
+                    // _cur.isTextCData() is expensive do it only if useCDataBookmarks option is enabled
+                    _isTextCData = _useCDataBookmarks && _cur.isTextCData();
                     CharUtil.getString( _sb, _cur.getChars(), _cur._offSrc, _cur._cchSrc );
                     _cur.next();
                     trim( _sb );
@@ -4263,6 +4290,7 @@ abstract class Saver
             _cur.push();
             _stack.add( _txt );
             _stack.add( new Integer( _depth ) );
+            _isTextCData = false;
         }
 
         void pop ( )
@@ -4270,6 +4298,7 @@ abstract class Saver
             _cur.pop();
             _depth = ((Integer) _stack.remove( _stack.size() - 1 )).intValue();
             _txt = (String) _stack.remove( _stack.size() - 1 );
+            _isTextCData = false;
         }
 
         Object getChars ( )
@@ -4325,6 +4354,8 @@ abstract class Saver
         private int          _depth;
 
         private ArrayList    _stack;
+        private boolean      _isTextCData = false;
+        private boolean      _useCDataBookmarks = false;
     }
 
 

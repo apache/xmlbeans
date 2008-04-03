@@ -492,6 +492,18 @@ abstract class Xobj implements TypeStore
         return b;
     }
 
+    final boolean hasBookmark(Object key, int pos)
+    {
+        for ( Bookmark b = _bookmarks ; b != null ; b = b._next )
+            if ( b._pos == pos && key == b._key )
+            {
+                //System.out.println("hasCDataBookmark  pos: " + pos + " xobj: " + getQName() + " b._pos: " + _bookmarks._pos);
+                return true;
+            }
+
+        return false;
+    }
+
     final Xobj findXmlnsForPrefix ( String prefix )
     {
         assert isContainer() && prefix != null;
