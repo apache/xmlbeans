@@ -83,6 +83,7 @@ import org.apache.xmlbeans.impl.store.DomImpl.SaajCdataNode;
 
 import org.apache.xmlbeans.impl.store.Cur.Locations;
 
+import org.apache.xmlbeans.CDataBookmark;
 import org.apache.xmlbeans.XmlBeans;
 import org.apache.xmlbeans.XmlLineNumber;
 import org.apache.xmlbeans.XmlCursor;
@@ -3167,6 +3168,9 @@ public final class Locale
             _wantLineNumbersAtEndElt =
                 _startLocator != null &&
                 options.hasOption(XmlOptions.LOAD_LINE_NUMBERS_END_ELEMENT);
+            _wantCdataBookmarks =
+                _startLocator != null &&
+                options.hasOption(XmlOptions.LOAD_SAVE_CDATA_BOOKMARKS);
         }
 
         public void startDocument()
@@ -3281,6 +3285,8 @@ public final class Locale
             throws SAXException
         {
             _context.text(ch, start, length);
+            if (_wantCdataBookmarks && _insideCDATA)
+                _context.bookmarkLastNonAttr(CDataBookmark.CDATA_BOOKMARK);
         }
 
         public void ignorableWhitespace(char ch[], int start, int length)
@@ -3341,11 +3347,13 @@ public final class Locale
         public void startCDATA()
             throws SAXException
         {
+            _insideCDATA = true;
         }
 
         public void endCDATA()
             throws SAXException
         {
+            _insideCDATA = false;
         }
 
         public void startEntity(String name)
@@ -3388,7 +3396,9 @@ public final class Locale
 
         private boolean _wantLineNumbers;
         private boolean _wantLineNumbersAtEndElt;
+        private boolean _wantCdataBookmarks;
         private Locator _startLocator;
+        private boolean _insideCDATA = false;
     }
 
     private static abstract class SaxLoader
