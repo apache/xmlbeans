@@ -197,7 +197,7 @@ public final class SOAPArrayType
         _type = nested._type;
 
         _ranks = new int[nested._ranks.length + 1];
-        System.arraycopy(_ranks, 0, nested._ranks, 0, nested._ranks.length);
+        System.arraycopy(nested._ranks, 0, _ranks, 0, nested._ranks.length);
         _ranks[_ranks.length - 1] = nested._dimensions.length;
 
         _dimensions = new int[dimensions.length];
