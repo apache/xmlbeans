@@ -14,15 +14,18 @@
  */
 package xmlcursor.xpath.complex.detailed;
 
+import org.apache.xmlbeans.GDurationSpecification;
+import org.apache.xmlbeans.GDurationBuilder;
 import org.apache.xmlbeans.XmlDate;
 import org.apache.xmlbeans.XmlDecimal;
 import org.apache.xmlbeans.XmlObject;
-import org.apache.xmlbeans.XmlDuration;
-import org.apache.xmlbeans.XmlInt;
+//import org.apache.xmlbeans.XmlInt;
+import org.apache.xmlbeans.XmlLong;
 import org.apache.xmlbeans.XmlTime;
-import org.apache.xmlbeans.XmlByte;
+//import org.apache.xmlbeans.XmlByte;
 import org.apache.xmlbeans.XmlAnyURI;
-import org.apache.xmlbeans.XmlDateTime;
+//import org.apache.xmlbeans.XmlDateTime;
+
 import junit.framework.TestCase;
 
 /**
@@ -31,6 +34,15 @@ import junit.framework.TestCase;
 public class TypesTest
     extends TestCase
 {
+    XmlObject o;
+    XmlObject[] res;
+
+    public void setUp()
+        throws Exception
+    {
+        o = XmlObject.Factory.parse("<a/>");
+    }
+
     public void testDate()
     {
         res = o.selectPath("xs:date(\"2000-01-01\")");
@@ -55,66 +67,73 @@ public class TypesTest
     //representation
     public void testDuration() throws Exception
     {
-        res = o.selectPath("xdt:dayTimeDuration(\"PT12H\")*4");
+        res = o.selectPath("xs:dayTimeDuration(\"PT12H\")*4");
         assertEquals(1, res.length);
-        XmlDuration test=XmlDuration.Factory.parse(res[0].xmlText());
-        System.out.println(test.getGDurationValue().getDay());
-        XmlDuration dec = ((XmlDuration) res[0]);
-        assertEquals("", dec.xmlText());
+        System.out.println(res[0].schemaType());
+        String s = res[0].xmlText();
+        System.out.println(s);
+        int i = s.indexOf("(\"");
+        int j = s.indexOf("\")");
+        assertTrue(0 < i);
+        assertTrue(i < j);
+        String duration = s.substring(i+2, j);
+        System.out.println(duration);
+        GDurationSpecification gDur = new GDurationBuilder(duration);
+        System.out.println(gDur.getDay());
+        assertEquals(2, gDur.getDay());
     }
 
-
-     public static void testTypes()
+    public static void testTypes()
         throws Exception
     {
         XmlObject o = XmlObject.Factory.parse(
-            "<a xmlns='abc'>foo<b>bar</b></a>");
+            "<a xml:base='abc'>foo<b>bar</b></a>");
         XmlObject[] res = null;
 
         //Long
         res = o.selectPath("hours-from-dateTime(" +
             "current-dateTime()) cast as xs:integer");
         assertEquals(1, res.length);
-        XmlInt xi = ((XmlInt) res[0]);
-        System.out.println(xi.xmlText());
+        System.out.println(res[0].schemaType());
+        XmlLong xl = ((XmlLong) res[0]);
+        System.out.println(xl.xmlText());
 
         //Java type is string...
         res = o.selectPath("current-time()");
         assertEquals(1, res.length);
-        XmlTime time = ((XmlTime) res[0]);
+        System.out.println(res[0].schemaType());
+        System.out.println(res[0].xmlText());
+        XmlTime time = XmlTime.Factory.parse(res[0].xmlText());
         System.out.println(time.xmlText());
 
-
+        /*
         res = o.selectPath("subtract-dateTimes-yielding-dayTimeDuration(" +
             "current-dateTime()," +
             "current-dateTime())");
         assertEquals(1, res.length);
         XmlDuration dur = ((XmlDuration) res[0]);
         System.out.println(dur.xmlText());
-
-        //Java type is long--is query rigth?
+        */
+        //Java type is long--is query right?
         res = o.selectPath("xs:byte(3)");
         assertEquals(1, res.length);
-        XmlByte b = ((XmlByte) res[0]);
-        System.out.println(b.xmlText());
+        System.out.println(res[0].schemaType()); //xs:long
+        //XmlByte b = ((XmlByte) res[0]);
+        //System.out.println(b.xmlText());
 
         //Java type is string
-        res = o.selectPath("base-uri()");
+        res = o.selectPath("base-uri(/a)");
         assertEquals(1, res.length);
-        XmlAnyURI u = ((XmlAnyURI) res[0]);
+        System.out.println(res[0].schemaType()); //xs:string
+        XmlAnyURI u = XmlAnyURI.Factory.parse(res[0].xmlText());
         System.out.println(u.xmlText());
+
         //java type is Date
         res = o.selectPath("current-dateTime()");
         assertEquals(1, res.length);
-        XmlDateTime dt = ((XmlDateTime) res[0]);
+        System.out.println(res[0].schemaType());
+        XmlDate dt = ((XmlDate) res[0]);
         System.out.println(dt.xmlText());
     }
-    public void setUp()
-        throws Exception
-    {
-        o = XmlObject.Factory.parse("<a/>");
-    }
 
-    XmlObject o;
-    XmlObject[] res;
 }

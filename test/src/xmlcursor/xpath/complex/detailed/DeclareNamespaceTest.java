@@ -31,11 +31,12 @@ public class DeclareNamespaceTest
         XmlObject s = XmlObject.Factory.parse(
             "<a xmlns:ack='abc' ack:attr='val1'>foo<b>bar</b></a>");
         XmlObject[] res;
-        /*res=s.selectPath("./a");
+        /*
+        res=s.selectPath("./a");
         assertTrue(s.selectChildren("","a")[0] == res[0] );
         assertEquals( res[0].xmlText(),"<xml-fragment ack:attr=\"val1\" xmlns:ack=\"abc\">foo<b>bar</b></xml-fragment>");
         //"for $e in ./a return <doc>{ $e } </doc>"
-       */
+        */
         String query = "declare namespace ack='abc'; .//@ack:attr";
         XmlCursor s1 = s.newCursor();
         s1.selectPath(query);
@@ -62,22 +63,21 @@ public class DeclareNamespaceTest
         XmlObject[] res;
 
         String query = "declare default element namespace 'abc'; .//b[position()=last()]";
-        /*   XmlCursor s1=s.newCursor();
-           s1.selectPath(query);
-           assertEquals(1,s1.getSelectionCount());
-           s1.toNextSelection();
-           assertEquals( s1.xmlText(),"<b xmlns=\"abc\">bar</b>");
-         */
+        /*
+        XmlCursor s1=s.newCursor();
+        s1.selectPath(query);
+        assertEquals(1,s1.getSelectionCount());
+        s1.toNextSelection();
+        assertEquals( s1.xmlText(),"<b xmlns=\"abc\">bar</b>");
+        */
         res = s.execQuery(query);
         XmlCursor c1 = s.newCursor();
         c1.toFirstContentToken();
 
         XmlObject o = c1.getObject();
         assertTrue(o != res[0]);
-        assertEquals(res[0].xmlText(), "<b xmlns=\"abc\">bar</b>");
+        assertEquals(res[0].xmlText(), "<abc:b xmlns:abc=\"abc\">bar</abc:b>");
     }
-
-   
 
     public void testSequence()
         throws Exception
@@ -127,11 +127,10 @@ public class DeclareNamespaceTest
         throws Exception
     {
         XmlCursor o = XmlObject.Factory.parse("<a><b>1</b>1</a>").newCursor();
-        o.selectPath("//a/b intersect //b");
+        o.selectPath("//b intersect //b");
         assertEquals(1, o.getSelectionCount());
         o.toNextSelection();
-        assertEquals(Common.wrapInXmlFrag("1"), o.xmlText());
-
+        assertEquals("<b>1</b>", o.xmlText());
     }
 
     public void testSequenceExcept()
@@ -164,4 +163,3 @@ public class DeclareNamespaceTest
     }
 
 }
-
