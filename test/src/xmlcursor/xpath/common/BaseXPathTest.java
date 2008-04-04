@@ -71,38 +71,37 @@ public abstract class BaseXPathTest extends BasicCursorTestCase {
         testMap.put("testAnd", and);
 
         testMap.put("testFunctionId", new String[]{
-                 "id(\"bobdylan\")",
-        "id(\"foobar\")",
-        "id(\"*\")/child::cd[position()=3]"}
-                );
+            "id(\"bobdylan\")",
+            "id(\"foobar\")",
+            "id(\"*\")/child::cd[position()=3]"});
+
         testMap.put("testFunctionLast", new String[]{
-        "/catalog/cd[last()]"   });
+            "/catalog/cd[last()]"});
 
         testMap.put("testFunctionNamespaceURI", new String[]{
-        "//*[namespace-uri(.)=\"uri.org\"]"
-        });
+            "//*[namespace-uri(.)=\"uri.org\"]"});
 
-          testMap.put("testFunctionNumber",new String[]{
-                  "/foo/bar[number(price)+1=4]"});
+        testMap.put("testFunctionNumber", new String[]{
+            "/foo/bar[number(price)+1=4]"});
 
-          testMap.put("testFunctionRound",new String[]{
-        "//bar//*[round(text())=3]"      });
+        testMap.put("testFunctionRound", new String[]{
+            "//bar//*[round(text())=3]"});
 
-         testMap.put("testFunctionSum",new String[]{
-        "//bar[position()=sum(price)-4]"  });
+        testMap.put("testFunctionSum", new String[]{
+            "//bar[position()=sum(price)-4]"});
 
-        testMap.put("testFunctionBoolean",new String[]{
-        "/foo[boolean(.//@at)]" });
+        testMap.put("testFunctionBoolean", new String[]{
+            "/foo[boolean(.//@at)]"});
 
-        testMap.put("testFunctionFalse",new String[]{
-        "//foo[boolean(price)=false()]"    });
+        testMap.put("testFunctionFalse", new String[]{
+            "//foo[boolean(price)=false()]"});
 
-          testMap.put("testFunctionLang",new String[]{
-        "//price[xf:lang(\"en\")=true()]",
-        "//foo[xf:lang(\"en\")=true()]"}
-        );
-          testMap.put("testFunctionTrue",new String[]{
-        "//*[xf:boolean(@at)=true()]"  });
+        testMap.put("testFunctionLang", new String[]{
+            "//price[xf:lang(\"en\")=true()]",
+            "//foo[xf:lang(\"en\")=true()]"});
+
+        testMap.put("testFunctionTrue", new String[]{
+            "//*[xf:boolean(@at)=true()]"});
     }
 
     public abstract String getQuery(String testName, int testCase);

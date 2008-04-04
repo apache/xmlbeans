@@ -17,7 +17,6 @@ package xmlcursor.xpath.complex.detailed;
 
 import xmlcursor.xpath.common.XPathFunctionTest;
 
-
 import org.apache.xmlbeans.XmlObject;
 
 /**
@@ -31,34 +30,31 @@ public class XPathFunctionTestImpl
     public XPathFunctionTestImpl(String name)
     {
         super(name);
+
         testMap.put("testFunctionCount", new String[]{
             "count(//cd)",
-            "//cd[position()=2]"
-        });
+            "//cd[position()=2]"});
+
         testMap.put("testFunctionLocalName", new String[]{
-            "//*[local-name(.)='bar']"
-        });
+            "//*[local-name(.)='bar']"});
+
         testMap.put("testFunctionConcat", new String[]{
-            "//bar/*[name(.)=concat(\"pr\",\"ice\")]"
-        });
+            "//bar/*[name(.)=concat(\"pr\",\"ice\")]"});
 
         testMap.put("testFunctionString", new String[]{
             "/foo/*[name(.)=" +
-            "concat(\"bar\",string(./foo/bar/price[last()]))]"
-        });
+            "concat(\"bar\",string(./foo/bar/price[last()]))]"});
 
         testMap.put("testFunctionStringLength", new String[]{
-            "//bar/*[string-length(name(.))=5]"
-        });
+            "//bar/*[string-length(name(.))=5]"});
+
         testMap.put("testFunctionSubString", new String[]{
-            "//bar/*[substring(name(.),3,3)=\"ice\"]"
-        });
+            "//bar/*[substring(name(.),3,3)=\"ice\"]"});
 
         testMap.put("testFunctionSubStringAfter", new String[]{
             "//bar/*[substring-after(" +
             "name(.),'pr'" +
-            ")=\"ice\"]"
-        });
+            ")=\"ice\"]"});
 
         testMap.put("testFunctionSubStringBefore", new String[]{
             "//bar/*[substring-before(" +
@@ -77,7 +73,6 @@ public class XPathFunctionTestImpl
             "//*[boolean(@at)=true()]"});
     }
 
-
     public String getQuery(String testName, int testCase)
         throws IllegalArgumentException
     {
@@ -91,9 +86,7 @@ public class XPathFunctionTestImpl
                 " for test" + testName);
         else
             return ((String[]) queries)[testCase];
-
     }
-
 
     public void testErrorMessages()
         throws Exception
@@ -112,7 +105,6 @@ public class XPathFunctionTestImpl
         catch (Throwable t)
         {
         }
-
     }
 
     public void testExternalVariable()
@@ -181,6 +173,5 @@ public class XPathFunctionTestImpl
         assertEquals(1, res.length);
         assertEquals("", res[0].xmlText());
     }
-
 
 }
