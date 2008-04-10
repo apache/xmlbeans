@@ -246,6 +246,8 @@ public class StscJavaizer
         SchemaTypeImpl baseType = (SchemaTypeImpl)sImpl.getBaseType();
         if (baseType != null)
             javaizeType(baseType);
+        if (sImpl.getContentBasedOnType() != null && sImpl.getContentBasedOnType() != baseType)
+            javaizeType((SchemaTypeImpl) sImpl.getContentBasedOnType());
 
         sImpl.startJavaizing();
 

@@ -372,6 +372,9 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
         }
         else
         {
+            if (sType.getContentType() == SchemaType.SIMPLE_CONTENT && sType.hasStringEnumValues())
+                printStringEnumeration(sType);
+
             SchemaProperty[] props = getDerivedProperties(sType);
 
             for (int i = 0; i < props.length; i++)
@@ -838,8 +841,18 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
     {
         SchemaType baseEnumType = sType.getBaseEnumType();
         String baseEnumClass = baseEnumType.getFullJavaName();
+        boolean hasBase;
+        if (baseEnumType.isAnonymousType() && baseEnumType.isSkippedAnonymousType())
+        {
+            if (sType.getContentBasedOnType() != null)
+                hasBase = sType.getContentBasedOnType().getBaseType() != baseEnumType;
+            else
+                hasBase = sType.getBaseType() != baseEnumType;
+        }
+        else
+            hasBase = baseEnumType != sType;
 
-        if (baseEnumType == sType)
+        if (!hasBase)
         {
             emit("");
             emit("org.apache.xmlbeans.StringEnumAbstractBase enumValue();");
@@ -861,7 +874,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
             else
                 seenValues.add(enumValue);
             String constName = entries[i].getEnumName();
-            if (baseEnumType != sType)
+            if (hasBase)
                 emit("static final " + baseEnumClass + ".Enum " + constName + " = " + baseEnumClass + "." + constName + ";");
             else
                 emit("static final Enum " + constName + " = Enum.forString(\"" + javaStringEscape(enumValue) + "\");");
@@ -872,12 +885,12 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
             if (repeatValues.contains(entries[i].getString()))
                 continue;
             String constName = "INT_" + entries[i].getEnumName();
-            if (baseEnumType != sType)
+            if (hasBase)
                 emit("static final int " + constName + " = " + baseEnumClass + "." + constName + ";");
             else
                 emit("static final int " + constName + " = Enum." + constName + ";");
         }
-        if (baseEnumType == sType)
+        if (!hasBase)
         {
             emit("");
             emit("/**");
