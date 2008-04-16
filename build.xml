@@ -53,6 +53,7 @@
     <target name="clean.jars" description="Delete any downloaded jars and accompanying licenses">
         <delete>
             <fileset dir="external/lib">
+                <include name="saxonb9-0-0-4j.zip"/>
                 <include name="saxonb8-8j.zip"/>
                 <include name="saxonb8-7-3j.zip"/>
                 <include name="saxonb8-6-1.zip"/>
@@ -60,6 +61,8 @@
                 <include name="saxonb8-1.zip"/>
                 <include name="jsr173_1.0_api_bundle.jar"/>
                 <include name="jsr173_1.0_api.jar"/>
+                <include name="saxon9.jar"/>
+                <include name="saxon9-dom.jar"/>
                 <include name="saxon8.jar"/>
                 <include name="saxon8-dom.jar"/>
                 <include name="xcresolver.zip"/>
@@ -85,42 +88,43 @@
 
     <property environment="env"/>
     <target name="saxon.find1" if="env.XMLBEANS_EXTERNALS">
-      <property name="saxon_jar" value="${env.XMLBEANS_EXTERNALS}/saxon8.jar"/>
-      <property name="saxon_dom_jar" value="${env.XMLBEANS_EXTERNALS}/saxon8-dom.jar"/>
+      <property name="saxon_jar" value="${env.XMLBEANS_EXTERNALS}/saxon9.jar"/>
+      <property name="saxon_dom_jar" value="${env.XMLBEANS_EXTERNALS}/saxon9-dom.jar"/>
     </target>
     <target name="saxon.find2">
-      <property name="saxon_jar" value="build/lib/saxon8.jar"/>
-      <property name="saxon_dom_jar" value="build/lib/saxon8-dom.jar"/>
+      <property name="saxon_jar" value="build/lib/saxon9.jar"/>
+      <property name="saxon_dom_jar" value="build/lib/saxon9-dom.jar"/>
     </target>
 
-    <target name="check.saxon8.jar" depends="saxon.find1,saxon.find2">
-      <condition property="saxon8.jar.exists">
+    <target name="check.saxon9.jar" depends="saxon.find1,saxon.find2">
+      <condition property="saxon9.jar.exists">
         <or>
-          <available file="build/lib/saxon8.jar"/>
-          <available file="${env.XMLBEANS_EXTERNALS}/saxon8.jar"/>
+          <available file="build/lib/saxon9.jar"/>
+          <available file="${env.XMLBEANS_EXTERNALS}/saxon9.jar"/>
         </or>
       </condition>
     </target>
 
-    <target name="saxon8.jar" depends="check.saxon8.jar, dirs"
-        unless="saxon8.jar.exists">
-	<!-- other saxon urls
-		http://voxel.dl.sourceforge.net/sourceforge/saxon/saxonb8-1.zip
-		http://easynews.dl.sourceforge.net/sourceforge/saxon/saxonb8-7-3j.zip
-	-->
-        <get dest="external/lib/saxonb8-8j.zip"
-	    src="http://easynews.dl.sourceforge.net/sourceforge/saxon/saxonb8-8j.zip"
+    <target name="saxon9.jar" depends="check.saxon9.jar, dirs"
+        unless="saxon9.jar.exists">
+        <!-- other saxon urls
+            http://voxel.dl.sourceforge.net/sourceforge/saxon/saxonb8-1.zip
+            http://easynews.dl.sourceforge.net/sourceforge/saxon/saxonb8-7-3j.zip
+            http://easynews.dl.sourceforge.net/sourceforge/saxon/saxonb8-8j.zip
+        -->
+        <get dest="external/lib/saxonb9-0-0-4j.zip"
+            src="http://prdownloads.sourceforge.net/saxon/saxonb9-0-0-4j.zip"
             verbose="true" usetimestamp="true" ignoreerrors="true"/>
-        <unzip src="external/lib/saxonb8-8j.zip" dest="external/lib/">
+        <unzip src="external/lib/saxonb9-0-0-4j.zip" dest="external/lib/">
             <patternset>
-                <include name="saxon8.jar"/>
-                <include name="saxon8-dom.jar"/>
+                <include name="saxon9.jar"/>
+                <include name="saxon9-dom.jar"/>
             </patternset>
         </unzip>
 
-        <copy file="external/lib/saxon8.jar" tofile="build/lib/saxon8.jar"/>
-        <!-- saxon8-dom.jar is used to register DOMObjectModel -->
-        <copy file="external/lib/saxon8-dom.jar" tofile="build/lib/saxon8-dom.jar"/>
+        <copy file="external/lib/saxon9.jar" tofile="build/lib/saxon9.jar"/>
+        <!-- saxon9-dom.jar is used to register DOMObjectModel -->
+        <copy file="external/lib/saxon9-dom.jar" tofile="build/lib/saxon9-dom.jar"/>
     </target>
 
     <target name="jsr173-bundle.downloaded">
@@ -342,15 +346,15 @@
         <mkdir dir="build/private/xmlbeans-${version.base}/lib"/>
         <copy todir="build/private/xmlbeans-${version.base}/lib">
             <fileset dir="build/lib">
-	        <include name="xbean.jar"/>
-	        <include name="xmlpublic.jar"/>
-            <include name="xmlbeans-qname.jar"/>
-	        <include name="xbean_xpath.jar"/>
-	        <include name="resolver.jar"/>
-	        <include name="jsr173_1.0_api.jar"/>
-	        <include name="BEA Binary RI License (JSR 173).1(Clean).txt"/>
-	        <include name="README(jsr_173 api and ri).txt"/>
-	    </fileset>
+                <include name="xbean.jar"/>
+                <include name="xmlpublic.jar"/>
+                <include name="xmlbeans-qname.jar"/>
+                <include name="xbean_xpath.jar"/>
+                <include name="resolver.jar"/>
+                <include name="jsr173_1.0_api.jar"/>
+                <include name="BEA Binary RI License (JSR 173).1(Clean).txt"/>
+                <include name="README(jsr_173 api and ri).txt"/>
+            </fileset>
         </copy>
 
         <mkdir dir="build/private/xmlbeans-${version.base}/docs"/>
@@ -403,7 +407,7 @@
                     includes="bin/**"/>
                 <patternset id="src.dist.content.files"
                     includes="build.xml README.txt xbeanenv.cmd xbeanenv.sh LICENSE.txt NOTICE.txt"/>
-           	    <patternset id="src.dist.content.tests"
+                <patternset id="src.dist.content.tests"
                     includes=""/><!-- don't have tests part of the distribution yet -->
             </zipfileset>
         </zip>
@@ -480,7 +484,7 @@
         </jar>
         <jar jarfile="build/lib/xmlbeans-qname.jar">
             <fileset dir="build/classes/xmlpublic"
-        	    includes="javax/xml/namespace/QName.class,javax/xml/namespace/NamespaceContext.class"/>
+                includes="javax/xml/namespace/QName.class,javax/xml/namespace/NamespaceContext.class"/>
         </jar>
     </target>
 
@@ -495,7 +499,7 @@
             <classpath>
                 <pathelement location="build/classes/common"/>
             </classpath>
-               </javac>
+        </javac>
     </target>
 
     <!-- xmlpublic target ============================================== -->
@@ -649,7 +653,6 @@
                 <pathelement location="build/classes/xsdschema"/>
             </classpath>
         </javac>
-
     </target>
 
     <!-- marshal target =============================================== -->
@@ -690,7 +693,6 @@
                 <pathelement location="build/classes/xmlpublic"/>
             </classpath>
         </javac>
-
     </target>
 
     <!-- store target ============================================== -->
@@ -709,7 +711,6 @@
                 <pathelement location="build/classes/piccolo"/>
             </classpath>
         </javac>
-
     </target>
 
     <!-- tools target ============================================== -->
@@ -731,7 +732,6 @@
                 <pathelement location="build/classes/xmlcomp"/>
             </classpath>
         </javac>
-
     </target>
 
     <!-- bootstrap schema target support ================================ -->
@@ -745,7 +745,7 @@
     <path id="bootstrap.run.path">
         <pathelement location="build/private/lib/oldxbean.jar"/>
         <pathelement location="build/lib/jsr173_1.0_api.jar"/>
-    	<pathelement location="build/classes/xmlpublic"/>
+        <pathelement location="build/classes/xmlpublic"/>
     </path>
 
     <path id="bootstrap.compile.path">
@@ -813,7 +813,6 @@
                 <pathelement location="build/classes/configschema"/>
             </classpath>
         </javac>
-
     </target>
 
     <!-- configschema target ============================================= -->
@@ -936,7 +935,7 @@
 
     <!-- xpath target ============================================= -->
 
-    <target name="xpath.classes" depends="dirs, xmlpublic.classes, store.classes, saxon8.jar">
+    <target name="xpath.classes" depends="dirs, xmlpublic.classes, store.classes, saxon9.jar">
         <mkdir dir="build/classes/xpath_xquery"/>
         <javac
             destdir="build/classes/xpath_xquery"
@@ -1088,9 +1087,9 @@
             source="1.4" target="1.4"
             debug="on">
             <src path="build/private/jam/src_repackage"/>
-        	<classpath>
-        		<pathelement location="build/lib/jsr173_1.0_api.jar"/>
-        	</classpath>
+            <classpath>
+                <pathelement location="build/lib/jsr173_1.0_api.jar"/>
+            </classpath>
         </javac>
     </target>
 

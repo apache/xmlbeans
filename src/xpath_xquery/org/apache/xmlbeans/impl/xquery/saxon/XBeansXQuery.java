@@ -15,102 +15,98 @@
 
 package org.apache.xmlbeans.impl.xquery.saxon;
 
+import java.util.List;
+import java.util.Map;
+import java.util.Iterator;
+import java.util.ListIterator;
+
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.TransformerException;
+
+import org.w3c.dom.Node;
+
 import net.sf.saxon.Configuration;
 import net.sf.saxon.dom.NodeOverNodeInfo;
 import net.sf.saxon.om.NodeInfo;
 import net.sf.saxon.query.DynamicQueryContext;
 import net.sf.saxon.query.StaticQueryContext;
 import net.sf.saxon.query.XQueryExpression;
+
 import org.apache.xmlbeans.XmlRuntimeException;
 import org.apache.xmlbeans.XmlTokenSource;
 import org.apache.xmlbeans.impl.store.SaxonXBeansDelegate;
-import org.w3c.dom.Node;
-
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.TransformerException;
-import java.util.List;
-import java.util.Map;
-import java.util.Iterator;
-import java.util.ListIterator;
-
 
 public class XBeansXQuery
         implements SaxonXBeansDelegate.QueryInterface
 {
+    private XQueryExpression xquery;
+    private String contextVar;
+    private Configuration config;
 
     /**
      * Construct given an XQuery expression string.
-     * @param queryExpr The XQuery expression.
+     * @param query The XQuery expression
      * @param contextVar The name of the context variable
      * @param boundary The offset of the end of the prolog
      */
-    public XBeansXQuery(String queryExpr, String contextVar, Integer boundary)
+    public XBeansXQuery(String query, String contextVar, Integer boundary)
     {
-        this.needsDomSourceWrapping = needsDOMSourceWrapping();
-        this.config = new Configuration();
+        config = new Configuration();
+        config.setDOMLevel(2);
         config.setTreeModel(net.sf.saxon.event.Builder.STANDARD_TREE);
-        this._stcContext = new StaticQueryContext(config);
-        this._query = queryExpr;
-        this._contextVar = contextVar;
-        this.boundary = boundary.intValue();
+        StaticQueryContext sc = new StaticQueryContext(config);
+        this.contextVar = contextVar;
+        int bdry = boundary.intValue();
         //Saxon requires external variables at the end of the prolog...
-        String queryExp =
-                (this.boundary == 0) ?
+        query = (bdry == 0) ?
                 "declare variable $" +
-                _contextVar + " external;" + _query :
-                _query.substring(0, this.boundary) +
+                contextVar + " external;" + query :
+                query.substring(0, bdry) +
                 "declare variable $" +
-                _contextVar + " external;" +
-                _query.substring(this.boundary);
-        try {
-            this._xquery = _stcContext.compileQuery(queryExp);
+                contextVar + " external;" +
+                query.substring(bdry);
+        try
+        {
+            xquery = sc.compileQuery(query);
         }
-        catch (TransformerException e) {
+        catch (TransformerException e)
+        {
             throw new XmlRuntimeException(e);
         }
     }
 
     public List execQuery(Object node, Map variableBindings)
     {
-        try {
-            Node context_node = (Node) node;
-            DynamicQueryContext dynamicContext =
-                    new DynamicQueryContext(config);
-            dynamicContext.setContextNode(_stcContext.
-                    buildDocument(new DOMSource(context_node)));
-            dynamicContext.setParameter(_contextVar,
-                    dynamicContext.getContextItem());
+        try
+        {
+            Node contextNode = (Node)node;
+            NodeInfo contextItem = 
+                config.buildDocument(new DOMSource(contextNode));
+                //config.unravel(new DOMSource(contextNode));
+            DynamicQueryContext dc = new DynamicQueryContext(config);
+            dc.setContextItem(contextItem);
+            dc.setParameter(contextVar, contextItem);
             // Set the other variables
             if (variableBindings != null)
+            {
                 for (Iterator it = variableBindings.entrySet().iterator();
                     it.hasNext(); )
                 {
-                    Map.Entry entry = (Map.Entry) it.next();
-                    if (entry.getValue() instanceof XmlTokenSource)
+                    Map.Entry entry = (Map.Entry)it.next();
+                    String key = (String)entry.getKey();
+                    Object value = entry.getValue();
+                    if (value instanceof XmlTokenSource)
                     {
-                        Object paramObject;
-                        // Saxon 8.6.1 requires that the Node be wrapped
-                        // into a DOMSource, while later versions require that
-                        // it not be
-                        if (needsDomSourceWrapping)
-                            paramObject = new DOMSource(((XmlTokenSource)
-                                entry.getValue()).getDomNode());
-                        else
-                            paramObject = ((XmlTokenSource) entry.getValue()).
-                                getDomNode();
-                        dynamicContext.setParameter((String) entry.getKey(),
-                                paramObject);
+                        Node paramObject = ((XmlTokenSource)value).getDomNode();
+                        dc.setParameter(key, paramObject);
                     }
-                    else if (entry.getValue() instanceof String)
-                    dynamicContext.setParameter((String) entry.getKey(),
-                        entry.getValue());
+                    else if (value instanceof String)
+                        dc.setParameter(key, value);
                 }
+            }
 
-            // After 8.3(?) Saxon nodes no longer implement Dom.
-            // The client needs saxon8-dom.jar, and the code needs
-            // this NodeOverNodeInfo Dom wrapper doohickey
-            List saxonNodes = _xquery.evaluate(dynamicContext);
-            for(ListIterator it = saxonNodes.listIterator(); it.hasNext(); )
+            List saxonNodes = xquery.evaluate(dc);
+            for (ListIterator it = saxonNodes.listIterator(); it.hasNext(); )
             {
                 Object o = it.next();
                 if(o instanceof NodeInfo)
@@ -121,42 +117,9 @@ public class XBeansXQuery
             }
             return saxonNodes;
         }
-        catch (TransformerException e) {
-            throw new RuntimeException(" Error binding " + _contextVar, e);
+        catch (TransformerException e)
+        {
+            throw new RuntimeException("Error binding " + contextVar, e);
         }
     }
-
-    /**
-     * @return true if we are dealing with a version of Saxon 8.x where x<=6
-     */
-    private static boolean needsDOMSourceWrapping()
-    {
-        int saxonMinorVersion;
-        int saxonMajorVersion;
-        String versionString = net.sf.saxon.Version.getProductVersion();
-        int dot1 = versionString.indexOf('.');
-        if (dot1 < 0)
-            return false;
-        int dot2 = versionString.indexOf('.', dot1 + 1);
-        if (dot2 < 0)
-            return false;
-        try
-        {
-            saxonMajorVersion = Integer.parseInt(versionString.substring(0, dot1));
-            saxonMinorVersion = Integer.parseInt(versionString.substring(dot1 + 1, dot2));
-            return saxonMajorVersion == 8 && saxonMinorVersion <= 6;
-        }
-        catch (NumberFormatException nfe)
-        {
-            return false;
-        }
-    }
-
-    private XQueryExpression _xquery;
-    private String _query;
-    private String _contextVar;
-    private StaticQueryContext _stcContext;
-    private Configuration config;
-    private int boundary;
-    private boolean needsDomSourceWrapping;
 }

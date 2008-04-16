@@ -15,43 +15,51 @@
 
 package org.apache.xmlbeans.impl.xpath.saxon;
 
-import org.apache.xmlbeans.impl.store.SaxonXBeansDelegate;
-import org.w3c.dom.Node;
-
 import java.util.List;
 import java.util.Map;
 import java.util.ListIterator;
 
+import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.TransformerException;
 
+import org.w3c.dom.Node;
+
 import net.sf.saxon.Configuration;
-import net.sf.saxon.dom.NodeOverNodeInfo;
+import net.sf.saxon.dom.NodeWrapper;
 import net.sf.saxon.om.NodeInfo;
+import net.sf.saxon.om.VirtualNode;
+import net.sf.saxon.om.Item;
+import net.sf.saxon.value.Value;
 import net.sf.saxon.sxpath.XPathEvaluator;
 import net.sf.saxon.sxpath.XPathExpression;
-import net.sf.saxon.trans.Variable;
+import net.sf.saxon.sxpath.IndependentContext;
+import net.sf.saxon.sxpath.XPathDynamicContext;
+import net.sf.saxon.sxpath.XPathVariable;
 
-import javax.xml.transform.dom.DOMSource;
-
+import org.apache.xmlbeans.impl.store.SaxonXBeansDelegate;
 
 public class XBeansXPath
-        implements SaxonXBeansDelegate.SelectPathInterface {
+        implements SaxonXBeansDelegate.SelectPathInterface
+{
+    private Object[] namespaceMap;
+    private String path;
+    private String contextVar;
+    private String defaultNS;
 
     /**
      * Construct given an XPath expression string.
-     * @param xpathExpr The XPath expression.
+     * @param path The XPath expression
      * @param contextVar The name of the context variable
      * @param namespaceMap a map of prefix/uri bindings for NS support
      * @param defaultNS the uri for the default element NS, if any
      */
-    public XBeansXPath(String xpathExpr, String contextVar,
+    public XBeansXPath(String path, String contextVar,
                        Map namespaceMap, String defaultNS)
     {
-        _queryExpr = xpathExpr;
-        _contextVar = contextVar;
+        this.path = path;
+        this.contextVar = contextVar;
         this.defaultNS = defaultNS;
         this.namespaceMap = namespaceMap.entrySet().toArray();
-        this.needsDomSourceWrapping = needsDOMSourceWrapping();
     }
 
     /**
@@ -68,26 +76,26 @@ public class XBeansXPath
      * </p>
      * <p/>
      * <p/>
-     * <b>NOTE:</b> Param node must be a Dom node which will be used during the xpath
-     * execution and iteration through the results. A call of node.dispose() must be done
-     * after reading all results.
+     * <b>NOTE:</b> Param node must be a DOM node which will be used
+     * during the xpath execution and iteration through the results. 
+     * A call of node.dispose() must be done after reading all results.
      * </p>
      *
      * @param node The node, nodeset or Context object for evaluation.
      * This value can be null.
-     * @return The <code>a list</code> of all items selected
+     * @return The <code>List</code> of all items selected
      *         by this XPath expression.
      */
     public List selectNodes(Object node)
     {
         try
         {
-            DOMSource rootNode = new DOMSource((Node) node);
+            Node contextNode = (Node)node;
             XPathEvaluator xpe = new XPathEvaluator();
-            Configuration c = new Configuration();
-            c.setTreeModel(net.sf.saxon.event.Builder.STANDARD_TREE);
-            XBeansIndependentContext sc = new XBeansIndependentContext(c);
-
+            Configuration config = new Configuration();
+            config.setDOMLevel(2);
+            config.setTreeModel(net.sf.saxon.event.Builder.STANDARD_TREE);
+            IndependentContext sc = new IndependentContext(config);
             // Declare ns bindings
             if (defaultNS != null)
                 sc.setDefaultElementNamespace(defaultNS);
@@ -98,26 +106,34 @@ public class XBeansXPath
                 sc.declareNamespace((String) entry.getKey(),
                         (String) entry.getValue());
             }
-
             xpe.setStaticContext(sc);
+            XPathVariable thisVar = xpe.declareVariable("", contextVar);
+            XPathExpression xpath = xpe.createExpression(path);
+            NodeInfo contextItem = 
+                //config.buildDocument(new DOMSource(contextNode));
+                config.unravel(new DOMSource(contextNode));
+            XPathDynamicContext dc = xpath.createDynamicContext(null);
+            dc.setContextItem(contextItem);
+            dc.setVariable(thisVar, contextItem);
 
-            Variable thisVar = sc.declareVariable(_contextVar);
-            thisVar.setValue(needsDomSourceWrapping ? rootNode : node);
-
-            XPathExpression exp = xpe.createExpression(_queryExpr);
-
-            // After 8.3(?) Saxon nodes no longer implement Dom.
-            // The client needs saxon8-dom.jar, and the code needs
-            // this NodeOverNodeInfo Dom wrapper doohickey
-            List saxonNodes = exp.evaluate(rootNode);
-            for (ListIterator it = saxonNodes.listIterator(); it.hasNext();)
+            List saxonNodes = xpath.evaluate(dc);
+            for (ListIterator it = saxonNodes.listIterator(); it.hasNext(); )
             {
                 Object o = it.next();
-                if(o instanceof NodeInfo)
+                if (o instanceof NodeInfo)
                 {
-                    Node n = NodeOverNodeInfo.wrap((NodeInfo)o);
-                    it.set(n);
+                    if (o instanceof NodeWrapper)
+                    {
+                        Node n = getUnderlyingNode((NodeWrapper)o);
+                        it.set(n);
+                    }
+                    else
+                    {
+                        it.set(((NodeInfo)o).getStringValue());
+                    }
                 }
+                else if (o instanceof Item)
+                    it.set(Value.convertToJava((Item)o));
             }
             return saxonNodes;
         }
@@ -133,34 +149,25 @@ public class XBeansXPath
     }
 
     /**
-     * @return true if we are dealing with a version of Saxon 8.x where x<=6
+     * According to the Saxon javadoc: 
+     * <code>getUnderlyingNode</code> in <code>NodeWrapper</code> implements 
+     * the method specified in the interface <code>VirtualNode</code>, and
+     * the specification of the latter says that it may return another
+     * <code>VirtualNode</code>, and you may have to drill down through
+     * several layers of wrapping.
+     * To be safe, this method is provided to drill down through multiple
+     * layers of wrapping.
+     * @param v The <code>VirtualNode</code>
+     * @return The underlying node
      */
-    private static boolean needsDOMSourceWrapping()
+    private static Node getUnderlyingNode(VirtualNode v)
     {
-        int saxonMinorVersion;
-        int saxonMajorVersion;
-        String versionString = net.sf.saxon.Version.getProductVersion();
-        int dot1 = versionString.indexOf('.');
-        if (dot1 < 0)
-            return false;
-        int dot2 = versionString.indexOf('.', dot1 + 1);
-        if (dot2 < 0)
-            return false;
-        try
+        Object o = v;
+        while (o instanceof VirtualNode)
         {
-            saxonMajorVersion = Integer.parseInt(versionString.substring(0, dot1));
-            saxonMinorVersion = Integer.parseInt(versionString.substring(dot1 + 1, dot2));
-            return saxonMajorVersion == 8 && saxonMinorVersion <= 6;
+            o = ((VirtualNode)o).getUnderlyingNode();
         }
-        catch (NumberFormatException nfe)
-        {
-            return false;
-        }
+        return (Node)o;
     }
 
-    private boolean needsDomSourceWrapping;
-    private Object[] namespaceMap;
-    private String _queryExpr;
-    private String _contextVar;
-    private String defaultNS;
 }
