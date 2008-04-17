@@ -129,12 +129,14 @@ public class XPath
                 return (QName) ExecutionContext.this._stack.get( _stack.size() - 1 - i );
             }
 
+            // goes back to the begining of the sequence since last // wildcard
             private void backtrack ( )
             {
                 assert _curr != null;
                 
                 if (_curr._hasBacktrack)
-                {
+                {   // _backtrack seems to be a pointer to the step that follows a // wildcard
+                    // ex: for .//b/c/d steps c and d should backtrack to b in case there isn't a match 
                     _curr = _curr._backtrack;
                     return;
                 }
@@ -176,6 +178,7 @@ public class XPath
             
             int element ( QName name )
             {
+                //System.out.println("  Path.element: " + name);
                 _prev.add( _curr );
 
                 if (_curr == null)
@@ -190,6 +193,7 @@ public class XPath
                     
                     backtrack();
                     
+                    //System.out.println("    element - HIT " + _curr._flags);
                     return _curr == null ? HIT : HIT | _curr._flags;
                 }
 
@@ -220,6 +224,7 @@ public class XPath
 
             void end ( )
             {
+                //System.out.println("  Path.end ");
                 _curr = (Step) _prev.remove( _prev.size() - 1 );
             }
             
@@ -692,10 +697,16 @@ public class XPath
                 
                 if (tokenize( "." ))
                     deepDot = deepDot || deep;
-                else if (tokenize( "child", "::" ) && (name = tokenizeQName()) != null)
-                    steps = addStep( deep, false, name, steps );
-                else if ((name = tokenizeQName()) != null)
-                    steps = addStep( deep, false, name, steps );
+                else
+                {
+                    tokenize( "child", "::" );
+                    if ((name = tokenizeQName()) != null)
+                    {
+                        steps = addStep( deep, false, name, steps );
+                        deep = false; // only this step needs to be deep
+                        // other folowing steps will be deep only if they are preceded by // wildcard
+                    }
+                }
 
                 if (tokenize( "//" ))
                 {

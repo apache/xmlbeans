@@ -16,24 +16,13 @@
 
 package xmlcursor.checkin;
 
-import org.apache.xmlbeans.XmlOptions;
-import junit.framework.*;
-import junit.framework.Assert.*;
-
-import java.io.*;
-
-import org.apache.xmlbeans.XmlObject;
+import junit.framework.Test;
+import junit.framework.TestSuite;
 import org.apache.xmlbeans.XmlCursor;
-import org.apache.xmlbeans.XmlBeans;
 import org.apache.xmlbeans.XmlCursor.TokenType;
-import org.apache.xmlbeans.XmlDocumentProperties;
-import org.apache.xmlbeans.XmlCursor.XmlBookmark;
-
-import javax.xml.namespace.QName;
-
-import xmlcursor.common.*;
-
-import java.net.URL;
+import org.apache.xmlbeans.XmlObject;
+import xmlcursor.common.BasicCursorTestCase;
+import xmlcursor.common.Common;
 
 
 /**
