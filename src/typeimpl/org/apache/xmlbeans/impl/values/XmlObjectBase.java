@@ -122,7 +122,9 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
 
     private boolean preCheck()
     {
-        if (has_store())
+//        if ( isImmutable() )
+//            return true;
+        if ( has_store() )
             return get_store().get_locale().noSync();
         return false;
     }
@@ -2000,42 +2002,75 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
             set(obj.stringValue());
         else
         {
-            boolean acquired = false;
-            try
+            boolean noSyncThis = preCheck();
+            boolean noSyncObj  = obj.preCheck();
+
+            if (monitor() == obj.monitor())             // both are in the same locale
             {
-                if (monitor() == obj.monitor())
+                if (noSyncThis)                         // the locale is not sync
+                    newObj = setterHelper( obj );
+                else                                    // the locale is sync
                 {
-                    synchronized (monitor())
-                    {
+                    synchronized (monitor()) {
                         newObj = setterHelper( obj );
                     }
                 }
-                else
+            }
+            else                                        // on different locale's
+            {
+                if (noSyncThis)
                 {
-                    // about to grab two locks: don't deadlock ourselves
-                    GlobalLock.acquire();
-                    acquired = true;
-
-                    synchronized (monitor())
+                    if (noSyncObj)                      // both unsync
                     {
-                        synchronized (obj.monitor())
-                        {
-                            GlobalLock.release();
-                            acquired = false;
-
+                        newObj = setterHelper( obj );
+                    }
+                    else                                // only obj is sync
+                    {
+                        synchronized (obj.monitor()) {
                             newObj = setterHelper( obj );
                         }
                     }
                 }
-            }
-            catch (InterruptedException e)
-            {
-                throw new XmlRuntimeException(e);
-            }
-            finally
-            {
-                if (acquired)
-                    GlobalLock.release();
+                else
+                {
+                    if (noSyncObj)                      // only this is sync
+                    {
+                        synchronized (monitor()) {
+                            newObj = setterHelper( obj );
+                        }
+                    }
+                    else                                // both are sync can't avoid the global lock
+                    {
+                        boolean acquired = false;
+
+                        try
+                        {
+                            // about to grab two locks: don't deadlock ourselves
+                            GlobalLock.acquire();
+                            acquired = true;
+
+                            synchronized (monitor())
+                            {
+                                synchronized (obj.monitor())
+                                {
+                                    GlobalLock.release();
+                                    acquired = false;
+
+                                    newObj = setterHelper( obj );
+                                }
+                            }
+                        }
+                        catch (InterruptedException e)
+                        {
+                            throw new XmlRuntimeException(e);
+                        }
+                        finally
+                        {
+                            if (acquired)
+                                GlobalLock.release();
+                        }
+                    }
+                }
             }
         }
 
