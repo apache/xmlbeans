@@ -92,6 +92,7 @@ public class StscState
     private boolean _noUpa;
     private boolean _noPvr;
     private boolean _noAnn;
+    private boolean _mdefAll;
     private Set _mdefNamespaces     = buildDefaultMdefNamespaces();
     private EntityResolver _entityResolver;
     private File _schemasDir;
@@ -532,11 +533,17 @@ public class StscState
             _mdefNamespaces.addAll((Collection)options.get(XmlOptions.COMPILE_MDEF_NAMESPACES));
             
             String local = "##local";
+            String any = "##any";
             
             if (_mdefNamespaces.contains(local))
             {
                 _mdefNamespaces.remove(local);
                 _mdefNamespaces.add("");
+            }
+            if (_mdefNamespaces.contains(any))
+            {
+                _mdefNamespaces.remove(any);
+                _mdefAll = true;
             }
         }
     }
@@ -747,10 +754,17 @@ public class StscState
             {
                 if (_redefinedGlobalTypes.containsKey(redefined))
                 {
-                    if (!ignoreMdef(name))
-                        error(XmlErrorCodes.SCHEMA_PROPERTIES$DUPLICATE,
-                            new Object[] { "global type", QNameHelper.pretty(name), ((SchemaType) _redefinedGlobalTypes.get(redefined)).getSourceName() } ,
-                            type.getParseObject());
+                    if (!ignoreMdef(name)) {
+                        if (_mdefAll) {
+                            warning(XmlErrorCodes.SCHEMA_PROPERTIES$DUPLICATE,
+                                    new Object[] { "global type", QNameHelper.pretty(name), ((SchemaType) _redefinedGlobalTypes.get(redefined)).getSourceName() } ,
+                                    type.getParseObject());
+                        } else {
+                            error(XmlErrorCodes.SCHEMA_PROPERTIES$DUPLICATE,
+                                new Object[] { "global type", QNameHelper.pretty(name), ((SchemaType) _redefinedGlobalTypes.get(redefined)).getSourceName() } ,
+                                type.getParseObject());
+                        }
+                    }
                 }
                 else
                 {
@@ -762,10 +776,17 @@ public class StscState
             {
                 if (_globalTypes.containsKey(name))
                 {
-                    if (!ignoreMdef(name))
-                        error(XmlErrorCodes.SCHEMA_PROPERTIES$DUPLICATE,
-                            new Object[] { "global type", QNameHelper.pretty(name), ((SchemaType) _globalTypes.get(name)).getSourceName() },
-                            type.getParseObject());
+                    if (!ignoreMdef(name)) {
+                        if (_mdefAll) {
+                            warning(XmlErrorCodes.SCHEMA_PROPERTIES$DUPLICATE,
+                                    new Object[] { "global type", QNameHelper.pretty(name), ((SchemaType) _globalTypes.get(name)).getSourceName() },
+                                    type.getParseObject());
+                        } else {
+                            error(XmlErrorCodes.SCHEMA_PROPERTIES$DUPLICATE,
+                                new Object[] { "global type", QNameHelper.pretty(name), ((SchemaType) _globalTypes.get(name)).getSourceName() },
+                                type.getParseObject());
+                        }
+                    }
                 }
                 else
                 {
@@ -809,10 +830,17 @@ public class StscState
     {
         if (_documentTypes.containsKey(name))
         {
-            if (!ignoreMdef(name))
-                error(XmlErrorCodes.SCHEMA_PROPERTIES$DUPLICATE,
-                    new Object[] { "global element", QNameHelper.pretty(name), ((SchemaComponent) _documentTypes.get(name)).getSourceName() },
-                    type.getParseObject());
+            if (!ignoreMdef(name)) {
+                if (_mdefAll) {
+                    warning(XmlErrorCodes.SCHEMA_PROPERTIES$DUPLICATE,
+                            new Object[] { "global element", QNameHelper.pretty(name), ((SchemaComponent) _documentTypes.get(name)).getSourceName() },
+                            type.getParseObject());
+                } else {                
+                    error(XmlErrorCodes.SCHEMA_PROPERTIES$DUPLICATE,
+                        new Object[] { "global element", QNameHelper.pretty(name), ((SchemaComponent) _documentTypes.get(name)).getSourceName() },
+                        type.getParseObject());
+                }
+            }
         }
         else
         {
@@ -847,10 +875,17 @@ public class StscState
     {
         if (_attributeTypes.containsKey(name))
         {
-            if (!ignoreMdef(name))
-                error(XmlErrorCodes.SCHEMA_PROPERTIES$DUPLICATE,
-                    new Object[] { "global attribute", QNameHelper.pretty(name), ((SchemaComponent) _attributeTypes.get(name)).getSourceName() },
-                    type.getParseObject());
+            if (!ignoreMdef(name)) {
+                if (_mdefAll) {
+                    warning(XmlErrorCodes.SCHEMA_PROPERTIES$DUPLICATE,
+                        new Object[] { "global attribute", QNameHelper.pretty(name), ((SchemaComponent) _attributeTypes.get(name)).getSourceName() },
+                        type.getParseObject());
+                } else {
+                    error(XmlErrorCodes.SCHEMA_PROPERTIES$DUPLICATE,
+                        new Object[] { "global attribute", QNameHelper.pretty(name), ((SchemaComponent) _attributeTypes.get(name)).getSourceName() },
+                        type.getParseObject());
+                }
+            }
         }
         else
         {
@@ -973,10 +1008,17 @@ public class StscState
             {
                 if (_redefinedAttributeGroups.containsKey(redefined))
                 {
-                    if (!ignoreMdef(name))
-                        error(XmlErrorCodes.SCHEMA_PROPERTIES$DUPLICATE,
-                            new Object[] { "attribute group", QNameHelper.pretty(name), ((SchemaComponent) _redefinedAttributeGroups.get(redefined)).getSourceName() },
-                            attributeGroup.getParseObject());
+                    if (!ignoreMdef(name)) {
+                        if (_mdefAll) {
+                            warning(XmlErrorCodes.SCHEMA_PROPERTIES$DUPLICATE,
+                                new Object[] { "attribute group", QNameHelper.pretty(name), ((SchemaComponent) _redefinedAttributeGroups.get(redefined)).getSourceName() },
+                                attributeGroup.getParseObject());
+                        } else {
+                            error(XmlErrorCodes.SCHEMA_PROPERTIES$DUPLICATE,
+                                new Object[] { "attribute group", QNameHelper.pretty(name), ((SchemaComponent) _redefinedAttributeGroups.get(redefined)).getSourceName() },
+                                attributeGroup.getParseObject());
+                        }
+                    }
                 }
                 else
                 {
@@ -988,10 +1030,17 @@ public class StscState
             {
                 if (_attributeGroups.containsKey( name ))
                 {
-                    if (!ignoreMdef(name))
-                        error(XmlErrorCodes.SCHEMA_PROPERTIES$DUPLICATE,
-                            new Object[] { "attribute group", QNameHelper.pretty(name), ((SchemaComponent) _attributeGroups.get(name)).getSourceName() },
-                            attributeGroup.getParseObject());
+                    if (!ignoreMdef(name)) {
+                        if (_mdefAll) {
+                            warning(XmlErrorCodes.SCHEMA_PROPERTIES$DUPLICATE,
+                                new Object[] { "attribute group", QNameHelper.pretty(name), ((SchemaComponent) _attributeGroups.get(name)).getSourceName() },
+                                attributeGroup.getParseObject());
+                        } else {
+                            error(XmlErrorCodes.SCHEMA_PROPERTIES$DUPLICATE,
+                                new Object[] { "attribute group", QNameHelper.pretty(name), ((SchemaComponent) _attributeGroups.get(name)).getSourceName() },
+                                attributeGroup.getParseObject());
+                        }
+                    }
                 }
                 else
                 {
@@ -1052,10 +1101,17 @@ public class StscState
             {
                 if (_redefinedModelGroups.containsKey(redefined))
                 {
-                    if (!ignoreMdef(name))
-                        error(XmlErrorCodes.SCHEMA_PROPERTIES$DUPLICATE,
-                            new Object[] { "model group", QNameHelper.pretty(name), ((SchemaComponent) _redefinedModelGroups.get(redefined)).getSourceName() },
-                            modelGroup.getParseObject());
+                    if (!ignoreMdef(name)) {
+                        if (_mdefAll) {
+                            warning(XmlErrorCodes.SCHEMA_PROPERTIES$DUPLICATE,
+                                    new Object[] { "model group", QNameHelper.pretty(name), ((SchemaComponent) _redefinedModelGroups.get(redefined)).getSourceName() },
+                                    modelGroup.getParseObject());
+                        } else {
+                            error(XmlErrorCodes.SCHEMA_PROPERTIES$DUPLICATE,
+                                new Object[] { "model group", QNameHelper.pretty(name), ((SchemaComponent) _redefinedModelGroups.get(redefined)).getSourceName() },
+                                modelGroup.getParseObject());
+                        }
+                    }
                 }
                 else
                 {
@@ -1067,10 +1123,17 @@ public class StscState
             {
                 if (_modelGroups.containsKey(name))
                 {
-                    if (!ignoreMdef(name))
-                        error(XmlErrorCodes.SCHEMA_PROPERTIES$DUPLICATE,
-                            new Object[] { "model group", QNameHelper.pretty(name), ((SchemaComponent) _modelGroups.get(name)).getSourceName() },
-                            modelGroup.getParseObject());
+                    if (!ignoreMdef(name)) {
+                        if (_mdefAll) {
+                            warning(XmlErrorCodes.SCHEMA_PROPERTIES$DUPLICATE,
+                                    new Object[] { "model group", QNameHelper.pretty(name), ((SchemaComponent) _modelGroups.get(name)).getSourceName() },
+                                    modelGroup.getParseObject());
+                        } else {
+                            error(XmlErrorCodes.SCHEMA_PROPERTIES$DUPLICATE,
+                                new Object[] { "model group", QNameHelper.pretty(name), ((SchemaComponent) _modelGroups.get(name)).getSourceName() },
+                                modelGroup.getParseObject());
+                        }
+                    }
                 }
                 else
                 {
