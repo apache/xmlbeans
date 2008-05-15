@@ -1,10 +1,10 @@
 Sample: XQueryXPath
 Author: Steven Traut (straut@bea.com)
-Last Updated: June 8, 2005
+Last Updated: May 14, 2008
 
 Versions:
     xmlbeans-v1 1.0.3
-    xmlbeans-v2
+    xmlbeans-v2 2.4.0
 
 -----------------------------------------------------------------------------
 
@@ -28,17 +28,20 @@ class for more information.
 
 A note about dependencies. Very simple XPath expressions -- e.g.,
 expressions without predicates or function calls -- require only
-the xbean.jar on your class path. More complex expressions require
-xbean_xpath.jar. XQuery expressions require the Saxon 8.1.1 JAR. 
-Both xbean_xpath.jar and saxon8.jar are created for you when you build
-XMLBeans from Apache source code. These files are required on the class
-path for code in this sample to run.
+the xbean.jar on your class path. More complex XPath expressions
+and XQuery expressions require an XPath/XQuery engine, such as
+Saxon. XMLBeans 2.4.0 supports the use of Saxon 9. Two Saxon jars,
+saxon9.jar and saxon9-dom.jar, as well as xbean_xpath.jar, are 
+required on the classpath for code in this sample to run.
+These jars are created in the build/lib directory if you build
+XMLBeans from Apache source.
 
 To try out this sample:
 
 1. Set XMLBEANS_HOME in your environment
 2. Ant must be on your PATH
-3. xbean_xpath.jar and saxon8.jar must be on your class path.
+3. xbean_xpath.jar, saxon9.jar, and saxon9-dom.jar must be on your 
+   classpath.
    These files are created in the build/lib directory when you 
    build XMLBeans from source.
 4. To compile the schemas and sample source, run "ant build"
