@@ -59,7 +59,6 @@ public class ExecQuery
         
         // A cursor instance to query with.
         XmlCursor empCursor = empDoc.newCursor();
-        empCursor.toNextToken();
 
         // The expression: Get the <employee> elements with <state> elements whose
         // value is "WA".

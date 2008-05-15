@@ -117,7 +117,7 @@ public class SelectPath
         // is inserted at the very beginning of the incoming XML, then moved to
         // the first element's START token.
         XmlCursor pathCursor = empDoc.newCursor();
-        pathCursor.toNextToken();
+        pathCursor.toFirstChild();
 
         // Execute the path expression, qualifying it with the namespace
         // declaration.
