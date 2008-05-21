@@ -34,10 +34,10 @@ import net.sf.saxon.query.XQueryExpression;
 
 import org.apache.xmlbeans.XmlRuntimeException;
 import org.apache.xmlbeans.XmlTokenSource;
-import org.apache.xmlbeans.impl.store.SaxonXBeansDelegate;
+import org.apache.xmlbeans.impl.store.QueryDelegate;
 
 public class XBeansXQuery
-        implements SaxonXBeansDelegate.QueryInterface
+        implements QueryDelegate.QueryInterface
 {
     private XQueryExpression xquery;
     private String contextVar;

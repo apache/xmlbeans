@@ -20,6 +20,7 @@ import org.apache.xmlbeans.impl.common.XPath;
 import org.w3c.dom.*;
 
 import javax.xml.namespace.QName;
+import java.io.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,6 +31,37 @@ import java.math.BigDecimal;
 
 public abstract class Query
 {
+    public static final String QUERY_DELEGATE_INTERFACE = "QUERY_DELEGATE_INTERFACE";
+    public static String _useDelegateForXQuery = "use delegate for xquery";
+
+    private static String _delIntfName;
+    //private static HashMap _delegateQueryCache = new HashMap();
+
+    private static HashMap _xqrlQueryCache = new HashMap(); //todo check for memory leaks
+    private static Method _xqrlCompileQuery;
+    private static boolean _xqrlAvailable = true;  // at the beginning assume is available
+
+    private static HashMap _xqrl2002QueryCache = new HashMap();
+    private static Method  _xqrl2002CompileQuery;
+    private static boolean _xqrl2002Available = true;  // at the beginning assume is available
+
+    static
+    {
+        ClassLoader cl = Query.class.getClassLoader();
+        String id = "META-INF/services/org.apache.xmlbeans.impl.store.QueryDelegate.QueryInterface";
+        InputStream in = cl.getResourceAsStream(id);
+        try
+        {
+            BufferedReader br = new BufferedReader(new InputStreamReader(in));
+            _delIntfName = br.readLine().trim();
+            br.close();
+        }
+        catch (Exception e)
+        {
+            _delIntfName = null;
+        }
+    }
+
     abstract XmlObject[] objectExecute(Cur c, XmlOptions options);
 
     abstract XmlCursor cursorExecute(Cur c, XmlOptions options);
@@ -56,18 +88,20 @@ public abstract class Query
     static synchronized Query getCompiledQuery(String queryExpr, String currentVar, XmlOptions options)
     {
         assert queryExpr != null;
+        options = XmlOptions.maskNull(options);
+        Query query;
 
-        if (options!=null && options.hasOption(Path._forceXqrl2002ForXpathXQuery))
+        if (options.hasOption(Path._forceXqrl2002ForXpathXQuery))
         {
-            Query res = (Query)_xqrl2002QueryCache.get(queryExpr);
-            if (res!=null)
-                return res;
+            query = (Query)_xqrl2002QueryCache.get(queryExpr);
+            if (query!=null)
+                return query;
 
-            res = getXqrl2002CompiledQuery(queryExpr, currentVar);
-            if (res!=null)
+            query = getXqrl2002CompiledQuery(queryExpr, currentVar);
+            if (query!=null)
             {
-                _xqrl2002QueryCache.put(queryExpr, res);
-                return res;
+                _xqrl2002QueryCache.put(queryExpr, query);
+                return query;
             }
             throw new RuntimeException("No 2002 query engine found.");
         }
@@ -90,8 +124,10 @@ public abstract class Query
                 ((Integer) boundary.get(XPath._NS_BOUNDARY)).intValue();
         }
 
+        if (!options.hasOption(_useDelegateForXQuery))
+        {
         //try XQRL
-        Query query = (Query) _xqrlQueryCache.get(queryExpr);
+        query = (Query) _xqrlQueryCache.get(queryExpr);
         if (query != null)
             return query;
 
@@ -101,19 +137,23 @@ public abstract class Query
             _xqrlQueryCache.put(queryExpr, query);
             return query;
         }
+        }
 
+        //otherwise (if _useDelegateForXQuery option is set), 
+        //or if xqrl is not found, try delegate
+        //query = (Query) _delegateQueryCache.get(queryExpr);
 
-        //query is still null; look for Saxon
-        query = (Query) _saxonQueryCache.get(queryExpr);
+        //if (query != null)
+        //    return query;
 
-        if (query != null)
-            return query;
-
-        query = SaxonQueryImpl.createSaxonCompiledQuery(queryExpr, currentVar, boundaryVal);
+        String delIntfName = 
+            options.hasOption(QUERY_DELEGATE_INTERFACE) ? 
+                (String)options.get(QUERY_DELEGATE_INTERFACE) : _delIntfName;
+        query = DelegateQueryImpl.createDelegateCompiledQuery(delIntfName, queryExpr, currentVar, boundaryVal);
 
         if (query != null)
         {
-            _saxonQueryCache.put(queryExpr, query);
+            //_delegateQueryCache.put(queryExpr, query);
             return query;
         }
 
@@ -210,47 +250,46 @@ public abstract class Query
         }
     }
 
-    private static final class SaxonQueryImpl extends Query
+    private static final class DelegateQueryImpl extends Query
     {
-
-        private SaxonQueryImpl(SaxonXBeansDelegate.QueryInterface xqueryImpl)
+        private DelegateQueryImpl(QueryDelegate.QueryInterface xqueryImpl)
         {
             _xqueryImpl = xqueryImpl;
         }
 
-        public static Query createSaxonCompiledQuery(String queryExpr,
-                                                     String currentVar,
-                                                     int boundary)
+        public static Query createDelegateCompiledQuery(String delIntfName,
+                                                        String queryExpr,
+                                                        String currentVar,
+                                                        int boundary)
         {
             assert !(currentVar.startsWith(".") || currentVar.startsWith(".."));
-
-            SaxonXBeansDelegate.QueryInterface impl =
-                    SaxonXBeansDelegate.createQueryInstance(queryExpr,
-                            currentVar, boundary);
+            QueryDelegate.QueryInterface impl =
+                QueryDelegate.createInstance(delIntfName, queryExpr,
+                                             currentVar, boundary);
             if (impl == null)
                 return null;
 
-            return new SaxonQueryImpl(impl);
+            return new DelegateQueryImpl(impl);
         }
 
         XmlObject[] objectExecute(Cur c, XmlOptions options)
         {
-            return new SaxonQueryEngine(_xqueryImpl, c, options).objectExecute();
+            return new DelegateQueryEngine(_xqueryImpl, c, options).objectExecute();
         }
 
         XmlCursor cursorExecute(Cur c, XmlOptions options)
         {
-            return new SaxonQueryEngine(_xqueryImpl, c, options).cursorExecute();
+            return new DelegateQueryEngine(_xqueryImpl, c, options).cursorExecute();
         }
 
 
-        private static class SaxonQueryEngine
+        private static class DelegateQueryEngine
         {
-            public SaxonQueryEngine(SaxonXBeansDelegate.QueryInterface xqImpl,
+            public DelegateQueryEngine(QueryDelegate.QueryInterface xqImpl,
                                     Cur c, XmlOptions opt)
             {
 
-                _saxonImpl = xqImpl;
+                _engine = xqImpl;
                 _version = c._locale.version();
                 _cur = c.weakCur(this);
                 _options = opt;
@@ -267,7 +306,7 @@ public abstract class Query
                 Map bindings = (Map) XmlOptions.maskNull(_options).
                     get(XmlOptions.XQUERY_VARIABLE_MAP);
                 List resultsList;
-                resultsList = _saxonImpl.execQuery(_cur.getDom(), bindings);
+                resultsList = _engine.execQuery(_cur.getDom(), bindings);
 
                 assert resultsList.size() > -1;
 
@@ -306,7 +345,7 @@ public abstract class Query
                     res.release();
                 }
                 release();
-                _saxonImpl = null;
+                _engine = null;
                 return result;
             }
             private SchemaType getType(Object node)
@@ -342,12 +381,12 @@ public abstract class Query
                 Map bindings = (Map) XmlOptions.maskNull(_options).
                     get(XmlOptions.XQUERY_VARIABLE_MAP);
                 List resultsList;
-                resultsList = _saxonImpl.execQuery(_cur.getDom(), bindings);
+                resultsList = _engine.execQuery(_cur.getDom(), bindings);
 
                 assert resultsList.size() > -1;
 
                 int i;
-                _saxonImpl = null;
+                _engine = null;
 
                 Locale locale = Locale.getLocale(_cur._locale._schemaTypeLoader, _options);
                 locale.enter();
@@ -412,22 +451,12 @@ public abstract class Query
 
 
             private Cur _cur;
-            private SaxonXBeansDelegate.QueryInterface _saxonImpl;
+            private QueryDelegate.QueryInterface _engine;
             private long _version;
             private XmlOptions _options;
         }
 
-        private SaxonXBeansDelegate.QueryInterface _xqueryImpl;
+        private QueryDelegate.QueryInterface _xqueryImpl;
     }
 
-
-    private static HashMap _saxonQueryCache = new HashMap();
-
-    private static HashMap _xqrlQueryCache = new HashMap(); //todo check for memory leaks
-    private static Method _xqrlCompileQuery;
-    private static boolean _xqrlAvailable = true;  // at the beginning assume is available
-
-    private static HashMap _xqrl2002QueryCache = new HashMap();
-    private static Method  _xqrl2002CompileQuery;
-    private static boolean _xqrl2002Available = true;  // at the beginning assume is available
 }
