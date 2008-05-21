@@ -15,6 +15,7 @@
 
 package org.apache.xmlbeans.impl.store;
 
+import java.io.*;
 import java.util.*;
 
 import java.lang.reflect.Method;
@@ -34,14 +35,47 @@ import org.w3c.dom.Node;
 
 public abstract class Path
 {
+    public static final String PATH_DELEGATE_INTERFACE = "PATH_DELEGATE_INTERFACE";
+    public static String _useDelegateForXpath = "use delegate for xpath";
     public static String _useXqrlForXpath = "use xqrl for xpath";
     public static String _useXbeanForXpath = "use xbean for xpath";
     public static String _forceXqrl2002ForXpathXQuery = "use xqrl-2002 for xpath";
 
     private static final int USE_XBEAN    = 0x01;
     private static final int USE_XQRL     = 0x02;
-    private static final int USE_SAXON    = 0x04;
+    private static final int USE_DELEGATE = 0x04;
     private static final int USE_XQRL2002 = 0x08;
+
+    private static Map _xbeanPathCache = new WeakHashMap();
+    private static Map _xqrlPathCache = new WeakHashMap();
+    private static Map _xqrl2002PathCache = new WeakHashMap();
+
+    private static Method _xqrlCompilePath;
+    private static Method _xqrl2002CompilePath;
+
+    private static boolean _xqrlAvailable = true;
+    private static boolean _xqrl2002Available = true;
+
+    private static String _delIntfName;
+
+    static
+    {
+        ClassLoader cl = Path.class.getClassLoader();
+        String id = "META-INF/services/org.apache.xmlbeans.impl.store.PathDelegate.SelectPathInterface";
+        InputStream in = cl.getResourceAsStream(id);
+        try
+        {
+            BufferedReader br = new BufferedReader(new InputStreamReader(in));
+            _delIntfName = br.readLine().trim();
+            br.close();
+        }
+        catch (Exception e)
+        {
+            _delIntfName = null;
+        }
+    }
+
+    protected final String _pathKey;
 
     Path(String key)
     {
@@ -84,26 +118,30 @@ public abstract class Path
         options = XmlOptions.maskNull(options);
 
         int force =
-                options.hasOption(_useXqrlForXpath) ? USE_XQRL
+                options.hasOption(_useDelegateForXpath) ? USE_DELEGATE
+                : options.hasOption(_useXqrlForXpath) ? USE_XQRL
                 : options.hasOption(_useXbeanForXpath) ? USE_XBEAN
                 : options.hasOption(_forceXqrl2002ForXpathXQuery) ? USE_XQRL2002
-                : USE_XBEAN|USE_XQRL|USE_SAXON; //set all bits except XQRL2002
+                : USE_XBEAN|USE_XQRL|USE_DELEGATE; //set all bits except XQRL2002
+        String delIntfName = 
+            options.hasOption(PATH_DELEGATE_INTERFACE) ? 
+                (String)options.get(PATH_DELEGATE_INTERFACE) : _delIntfName;
 
-        return getCompiledPath(pathExpr, force, getCurrentNodeVar(options));
+        return getCompiledPath(pathExpr, force, getCurrentNodeVar(options), delIntfName);
     }
 
     static synchronized Path getCompiledPath(String pathExpr, int force,
-        String currentVar)
+        String currentVar, String delIntfName)
     {
         Path path = null;
         WeakReference pathWeakRef = null;
-        Map namespaces = (force & USE_SAXON) != 0 ? new HashMap() : null;
+        Map namespaces = (force & USE_DELEGATE) != 0 ? new HashMap() : null;
 
         if ((force & USE_XBEAN) != 0)
             pathWeakRef = (WeakReference)_xbeanPathCache.get(pathExpr);
-        if (path == null && (force & USE_XQRL) != 0)
+        if (pathWeakRef == null && (force & USE_XQRL) != 0)
             pathWeakRef = (WeakReference)_xqrlPathCache.get(pathExpr);
-        if (path == null && (force & USE_XQRL2002) != 0)
+        if (pathWeakRef == null && (force & USE_XQRL2002) != 0)
             pathWeakRef = (WeakReference)_xqrl2002PathCache.get(pathExpr);
 
         if (pathWeakRef!=null)
@@ -115,8 +153,8 @@ public abstract class Path
             path = getCompiledPathXbean(pathExpr, currentVar, namespaces);
         if (path == null && (force & USE_XQRL) != 0)
             path = getCompiledPathXqrl(pathExpr, currentVar);
-        if (path == null && (force & USE_SAXON) != 0)
-            path = getCompiledPathSaxon(pathExpr, currentVar, namespaces);
+        if (path == null && (force & USE_DELEGATE) != 0)
+            path = getCompiledPathDelegate(pathExpr, currentVar, namespaces, delIntfName);
         if (path == null && (force & USE_XQRL2002) != 0)
             path = getCompiledPathXqrl2002(pathExpr, currentVar);
 
@@ -127,8 +165,8 @@ public abstract class Path
                 errMessage.append(" Trying XBeans path engine...");
             if ((force & USE_XQRL) != 0)
                 errMessage.append(" Trying XQRL...");
-            if ((force & USE_SAXON) != 0)
-                errMessage.append(" Trying Saxon...");
+            if ((force & USE_DELEGATE) != 0)
+                errMessage.append(" Trying delegated path engine...");
             if ((force & USE_XQRL2002) != 0)
                 errMessage.append(" Trying XQRL2002...");
 
@@ -166,7 +204,7 @@ public abstract class Path
         return path;
     }
 
-    static private synchronized Path getCompiledPathSaxon(String pathExpr, String currentVar, Map namespaces)
+    static private synchronized Path getCompiledPathDelegate(String pathExpr, String currentVar, Map namespaces, String delIntfName)
     {
         Path path = null;
         if ( namespaces == null )
@@ -186,7 +224,8 @@ public abstract class Path
             0 :
             ((Integer) namespaces.get(XPath._NS_BOUNDARY)).intValue();
         namespaces.remove(XPath._NS_BOUNDARY);
-        path = SaxonPathImpl.create(pathExpr.substring(offset),
+        path = DelegatePathImpl.create(delIntfName,
+            pathExpr.substring(offset),
             currentVar,
             namespaces);
 
@@ -227,6 +266,11 @@ public abstract class Path
 
         PathEngine execute(Cur c, XmlOptions options)
         {
+            options = XmlOptions.maskNull(options);
+            String delIntfName = 
+                options.hasOption(PATH_DELEGATE_INTERFACE) ? 
+                    (String)options.get(PATH_DELEGATE_INTERFACE) : _delIntfName;
+
             // The builtin XPath engine works only on containers.  Delegate to
             // xqrl otherwise.  Also, if the path had a //. at the end, the
             // simple xpath engine can't do the generate case, it only handles
@@ -234,15 +278,14 @@ public abstract class Path
 
             if (!c.isContainer() || _compiledPath.sawDeepDot())
             {
-                int force = USE_SAXON | USE_XQRL;
-                return getCompiledPath(_pathKey, force, _currentVar).execute(c, options);
+                int force = USE_DELEGATE | USE_XQRL;
+                return getCompiledPath(_pathKey, force, _currentVar, delIntfName).execute(c, options);
             }
             return new XbeanPathEngine(_compiledPath, c);
         }
 
         private final String _currentVar;
         private final XPath _compiledPath;
-        //return a map of namespaces for Saxon, if it's ever invoked
         public Map namespaces;
     }
 
@@ -439,26 +482,24 @@ public abstract class Path
         private Cur _cur;
     }
 
-    private static final class SaxonPathImpl extends Path
+    private static final class DelegatePathImpl extends Path
     {
+        private PathDelegate.SelectPathInterface _xpathImpl;
 
-        private SaxonXBeansDelegate.SelectPathInterface _xpathImpl;
-
-
-        static Path create(String pathExpr, String currentNodeVar, Map namespaceMap)
+        static Path create(String implClassName, String pathExpr, String currentNodeVar, Map namespaceMap)
         {
             assert !currentNodeVar.startsWith("$"); // cezar review with ericvas
 
-            SaxonXBeansDelegate.SelectPathInterface impl =
-                    SaxonXBeansDelegate.createInstance(pathExpr, currentNodeVar, namespaceMap);
+            PathDelegate.SelectPathInterface impl =
+                    PathDelegate.createInstance(implClassName, pathExpr, currentNodeVar, namespaceMap);
             if (impl == null)
                 return null;
 
-            return new SaxonPathImpl(impl, pathExpr);
+            return new DelegatePathImpl(impl, pathExpr);
         }
 
 
-        private SaxonPathImpl(SaxonXBeansDelegate.SelectPathInterface xpathImpl,
+        private DelegatePathImpl(PathDelegate.SelectPathInterface xpathImpl,
                               String pathExpr)
         {
             super(pathExpr);
@@ -467,18 +508,18 @@ public abstract class Path
 
         protected PathEngine execute(Cur c, XmlOptions options)
         {
-            return new SaxonPathEngine(_xpathImpl, c);
+            return new DelegatePathEngine(_xpathImpl, c);
         }
 
-        private static class SaxonPathEngine
+        private static class DelegatePathEngine
                 extends XPath.ExecutionContext
                 implements PathEngine
         {
 
-            SaxonPathEngine(SaxonXBeansDelegate.SelectPathInterface xpathImpl,
-                            Cur c)
+            DelegatePathEngine(PathDelegate.SelectPathInterface xpathImpl,
+                               Cur c)
             {
-                _saxonXpathImpl = xpathImpl;
+                _engine = xpathImpl;
                 _version = c._locale.version();
                 _cur = c.weakCur(this);
             }
@@ -497,7 +538,7 @@ public abstract class Path
                 Object context_node;
 
                 context_node = _cur.getDom();
-                resultsList = _saxonXpathImpl.selectPath(context_node);
+                resultsList = _engine.selectPath(context_node);
 
                 int i;
                 for (i = 0; i < resultsList.size(); i++) {
@@ -535,7 +576,7 @@ public abstract class Path
                     pos.release();
                 }
                 release();
-                _saxonXpathImpl = null;
+                _engine = null;
                 return true;
             }
 
@@ -572,23 +613,11 @@ public abstract class Path
             }
 
             private Cur _cur;
-            private SaxonXBeansDelegate.SelectPathInterface _saxonXpathImpl;
+            private PathDelegate.SelectPathInterface _engine;
             private boolean _firstCall = true;
             private long _version;
         }
 
     }
 
-
-    protected final String _pathKey;
-
-    private static Map _xbeanPathCache = new WeakHashMap();
-    private static Map _xqrlPathCache = new WeakHashMap();
-    private static Map _xqrl2002PathCache = new WeakHashMap();
-
-    private static Method _xqrlCompilePath;
-    private static Method _xqrl2002CompilePath;
-
-    private static boolean _xqrlAvailable = true;
-    private static boolean _xqrl2002Available = true;
 }

@@ -937,6 +937,14 @@
 
     <target name="xpath.classes" depends="dirs, xmlpublic.classes, store.classes, saxon9.jar">
         <mkdir dir="build/classes/xpath_xquery"/>
+        <mkdir dir="build/classes/xpath_xquery/META-INF"/>
+        <mkdir dir="build/classes/xpath_xquery/META-INF/services"/>
+        <copy
+            file="src/xpath_xquery/org/apache/xmlbeans/impl/xpath/saxon/org.apache.xmlbeans.impl.store.PathDelegate.SelectPathInterface"
+            tofile="build/classes/xpath_xquery/META-INF/services/org.apache.xmlbeans.impl.store.PathDelegate.SelectPathInterface"/>
+        <copy
+            file="src/xpath_xquery/org/apache/xmlbeans/impl/xquery/saxon/org.apache.xmlbeans.impl.store.QueryDelegate.QueryInterface"
+            tofile="build/classes/xpath_xquery/META-INF/services/org.apache.xmlbeans.impl.store.QueryDelegate.QueryInterface"/>
         <javac
             destdir="build/classes/xpath_xquery"
             classpathref="xpath.compile.path"

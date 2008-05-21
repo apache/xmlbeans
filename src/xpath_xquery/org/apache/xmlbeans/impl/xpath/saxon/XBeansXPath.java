@@ -36,10 +36,10 @@ import net.sf.saxon.sxpath.IndependentContext;
 import net.sf.saxon.sxpath.XPathDynamicContext;
 import net.sf.saxon.sxpath.XPathVariable;
 
-import org.apache.xmlbeans.impl.store.SaxonXBeansDelegate;
+import org.apache.xmlbeans.impl.store.PathDelegate;
 
 public class XBeansXPath
-        implements SaxonXBeansDelegate.SelectPathInterface
+        implements PathDelegate.SelectPathInterface
 {
     private Object[] namespaceMap;
     private String path;
