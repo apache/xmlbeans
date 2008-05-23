@@ -491,6 +491,14 @@ public class StscState
         try
         {
             URI uri = new URI(uriString);
+            if (uri.getScheme().equalsIgnoreCase("jar") ||
+                uri.getScheme().equalsIgnoreCase("zip"))
+            {
+                // It may be local or not, depending on the embedded URI
+                String s = uri.getSchemeSpecificPart();
+                int i = s.lastIndexOf('!');
+                return shouldDownloadURI(i > 0 ? s.substring(0, i) : s);
+            }
             return uri.getScheme().equalsIgnoreCase("file");
         }
         catch (Exception e)
