@@ -940,10 +940,10 @@
         <mkdir dir="build/classes/xpath_xquery/META-INF"/>
         <mkdir dir="build/classes/xpath_xquery/META-INF/services"/>
         <copy
-            file="src/xpath_xquery/org/apache/xmlbeans/impl/xpath/saxon/org.apache.xmlbeans.impl.store.PathDelegate.SelectPathInterface"
+            file="src/xpath_xquery/SelectPathInterface.g"
             tofile="build/classes/xpath_xquery/META-INF/services/org.apache.xmlbeans.impl.store.PathDelegate.SelectPathInterface"/>
         <copy
-            file="src/xpath_xquery/org/apache/xmlbeans/impl/xquery/saxon/org.apache.xmlbeans.impl.store.QueryDelegate.QueryInterface"
+            file="src/xpath_xquery/QueryInterface.g"
             tofile="build/classes/xpath_xquery/META-INF/services/org.apache.xmlbeans.impl.store.QueryDelegate.QueryInterface"/>
         <javac
             destdir="build/classes/xpath_xquery"
