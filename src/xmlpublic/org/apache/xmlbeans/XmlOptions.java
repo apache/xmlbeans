@@ -456,8 +456,8 @@ public class XmlOptions implements java.io.Serializable
      * startElement event. By default, up to and including XMLBeans 2.3.0 they were included, in
      * subsequent versions, they are no longer included.
      */
-    public XmlOptions setSaveSaxNamespacePrefixes () {
-        return set( SAVE_SAX_NAMESPACE_PREFIXES );
+    public XmlOptions setSaveSaxNoNSDeclsInAttributes () {
+        return set( SAVE_SAX_NO_NSDECLS_IN_ATTRIBUTES );
     }
 
     /**
@@ -871,7 +871,7 @@ public class XmlOptions implements java.io.Serializable
     /** @exclude */
     public static final String SAVE_CDATA_ENTITY_COUNT_THRESHOLD = "SAVE_CDATA_ENTITY_COUNT_THRESHOLD";
     /** @exclude */
-    public static final String SAVE_SAX_NAMESPACE_PREFIXES     = "SAVE_SAX_NAMESPACE_PREFIXES";
+    public static final String SAVE_SAX_NO_NSDECLS_IN_ATTRIBUTES = "SAVE_SAX_NO_NSDECLS_IN_ATTRIBUTES";
     /** @exclude */
     public static final String LOAD_REPLACE_DOCUMENT_ELEMENT   = "LOAD_REPLACE_DOCUMENT_ELEMENT";
     /** @exclude */
