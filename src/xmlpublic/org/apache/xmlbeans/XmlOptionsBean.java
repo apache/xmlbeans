@@ -185,17 +185,17 @@ public class XmlOptionsBean extends XmlOptions
         return (Integer) get( SAVE_CDATA_ENTITY_COUNT_THRESHOLD );
     }
 
-    public void setSaveSaxNamespacePrefixes(boolean b)
+    public void setSaveSaxNoNSDeclsInAttributes(boolean b)
     {
         if (b)
-            super.setSaveSaxNamespacePrefixes();
+            super.setSaveSaxNoNSDeclsInAttributes();
         else
-            remove( SAVE_SAX_NAMESPACE_PREFIXES );
+            remove( SAVE_SAX_NO_NSDECLS_IN_ATTRIBUTES );
     }
 
-    public boolean isSaveSaxNamespacePrefixes()
+    public boolean isSaveSaxNoNSDeclsInAttributes()
     {
-        return hasOption( SAVE_SAX_NAMESPACE_PREFIXES );
+        return hasOption( SAVE_SAX_NO_NSDECLS_IN_ATTRIBUTES );
     }
 
     public QName getLoadReplaceDocumentElement()

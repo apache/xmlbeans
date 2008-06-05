@@ -3386,7 +3386,7 @@ abstract class Saver
             _lexicalHandler = lh;
 
             _attributes = new AttributesImpl();
-            _nsAsAttrs = options.hasOption( XmlOptions.SAVE_SAX_NAMESPACE_PREFIXES );
+            _nsAsAttrs = !options.hasOption( XmlOptions.SAVE_SAX_NO_NSDECLS_IN_ATTRIBUTES );
 
             _contentHandler.startDocument();
 
