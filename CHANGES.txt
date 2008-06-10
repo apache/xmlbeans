@@ -1,3 +1,20 @@
+Changes in V2.4.0 since V2.3.0
+
+* Pluggable XPath/XQuery engine support
+* Upgraded support for Saxon 9
+* Added Schema compilation option to skip errors in case duplicate component declarations are encountered.
+* Finner grained support for CDATA
+* Tool to generate XPath for a given cursor position in a document
+* added more fine-grained control over XML to Java name mapping
+* Add support for JVM-supported encodings
+* Adding XmlError codes
+* Replace static HashMaps with WeakHashMaps
+* Fix for XMLBEANS-309 Warnings on Generated code
+* Fix for XMLBEANS-361 invalid NaN comparisons
+* Fix qname marshaling when empty namespace
+* Various other bug fixes
+
+
 Changes in V2.3.0 since V2.2.0
 
 * Improved Saxon support, Saxon 8.8 became the recommended version
@@ -15,8 +32,8 @@ Changes in V2.3.0 since V2.2.0
 * Fix: improved error handling during loading of Schema type system
 * Fix: bugs in Duration serialization
 * Fix: XMLCursor.getTextValue()
-* Fix: Remove year zero from GDate, GDateBuilder and XmlCalendar per 
-XMLSchema spec D.3.2 
+* Fix: Remove year zero from GDate, GDateBuilder and XmlCalendar per XMLSchema spec D.3.2
+
 
 Changes in v2.2.0 since v2.1.0:
 
