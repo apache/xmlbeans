@@ -13,7 +13,7 @@
  *  limitations under the License.
  */
 
-XMLBeans Development Kit Version 2.2.0
+XMLBeans Development Kit Version 2.4.0
 
 
 Welcome to XMLBeans!
@@ -29,40 +29,44 @@ Kit contents:
     needed to parse XML files for use with XMLBeans.
     ./lib/jsr173_1.0_api.jar
 
-(3) One copy of resolver.jar from Apache xml-commons. See scomp
+(3) One copy of xmlbeans-qname.jar, which contains the QName class.
+    Required only for using XMLBeans with JDK 1.4.
+    ./lib/xmlbeans-qname.jar
+
+(4) One copy of resolver.jar from Apache xml-commons. See scomp
     documentation for when it is needed.
     ./lib/resolver.jar
 
-(4) One copy of xbean_xpath jar. Contains the XPath and XQuery
+(5) One copy of xbean_xpath jar. Contains the XPath and XQuery
     "glue" code, only needed if XPath-XQuery functionality is
     required.
     ./lib/xbean_xpath.jar
 
-(5) One copy of xmlpublic.jar, containing all the public interfaces of
+(6) One copy of xmlpublic.jar, containing all the public interfaces of
     XMLBeans. (Classes included here are a subset of those included
     in xbean.jar.)
     ./lib/xmlpublic.jar
 
-(6) License information for XML Beans and included libraries
+(7) License information for XML Beans and included libraries
     ./LICENSE.txt
     ./NOTICE.txt
 
-(7) One folder full of command-line scripts, pointing to the
+(8) One folder full of command-line scripts, pointing to the
     useful main() functions in the JAR.
     ./bin
 
-(8) A copy of the plain javadoc tree for org.apache.xmlbeans.*
+(9) A copy of the plain javadoc tree for org.apache.xmlbeans.*
     ./docs/reference
 
-(9) A preliminary collection of nicely formatted user-level
+(10) A preliminary collection of nicely formatted user-level
     documentation HTML (includes reformatted and nicely
     organized javadoc as well)
     ./docs/guide
 
-(10) A few sample schemas
+(11) A few sample schemas
     ./schemas
 
-(11) Samples that show the use of the XMLBeans API. (You'll 
+(12) Samples that show the use of the XMLBeans API. (You'll 
     also find more samples at the XMLBeans web site.)
     ./samples
 
@@ -75,7 +79,7 @@ Where to start?
        java[.exe], javac[.exe], and jar[.exe].
 
     2. Set your XMLBEANS_HOME env variable to point to the directory
-       in which you installed XmlBeans (i.e., /home/user/xmlbeans-2.0.0).
+       in which you installed XmlBeans (i.e., /home/user/xmlbeans-2.4.0).
 
     3. Put the scripts in ./bin on your path.
 
