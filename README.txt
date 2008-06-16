@@ -13,7 +13,7 @@
  *  limitations under the License.
  */
 
-Welcome to XmlBeans Version 2.0.0!
+Welcome to XmlBeans Version 2.4.0!
 
 Layout of the tree:
 - README.txt    this file
@@ -49,9 +49,9 @@ XmlBeans depends on the following external libraries:
 - tools.jar (O) from the JDK, dependency of jam-0.1.0-src
 - resolver.jar (O) [http://xml.apache.org/commons/components/resolver/]
   for apache-commons catalog files that are used in entity resolving
-- saxon8.1.1 (O) [http://sourceforge.net/projects/saxon/]
+- saxon9.0.0 (O) [http://sourceforge.net/projects/saxon/]
   for XPath/XQuery in XmlBeans
 (O) means that the library is optional
 
 For licensing information, see ./src/license/LICENSE.txt
-Updated: 06/17/05.
+Updated: 06/16/08.
