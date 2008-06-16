@@ -13,7 +13,7 @@
  *  limitations under the License.
  */
 
-Welcome to XmlBeans Version 2.4.0!
+Welcome to XMLBeans!
 
 Layout of the tree:
 - README.txt    this file

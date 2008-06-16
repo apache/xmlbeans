@@ -29,23 +29,25 @@ Kit contents:
     needed to parse XML files for use with XMLBeans.
     ./lib/jsr173_1.0_api.jar
 
-(3) One copy of xmlbeans-qname.jar, which contains the QName class.
-    Required only for using XMLBeans with JDK 1.4.
-    ./lib/xmlbeans-qname.jar
-
-(4) One copy of resolver.jar from Apache xml-commons. See scomp
+(3) One copy of resolver.jar from Apache xml-commons. See scomp
     documentation for when it is needed.
     ./lib/resolver.jar
 
-(5) One copy of xbean_xpath jar. Contains the XPath and XQuery
+(4) One copy of xbean_xpath jar. Contains the XPath and XQuery
     "glue" code, only needed if XPath-XQuery functionality is
     required.
     ./lib/xbean_xpath.jar
 
-(6) One copy of xmlpublic.jar, containing all the public interfaces of
+(5) One copy of xmlpublic.jar, containing all the public interfaces of
     XMLBeans. (Classes included here are a subset of those included
     in xbean.jar.)
     ./lib/xmlpublic.jar
+
+(6) One copy of xmlbeans-qname.jar, contains javax.xml.namespace
+    QName.class and NamespaceContext.class. These classes were
+    introduced in the jdk since 1.5. This jar is necesary on classpath
+    only if using jdk 1.4.   
+    ./lib/xmlbeans-qname.jar
 
 (7) License information for XML Beans and included libraries
     ./LICENSE.txt
@@ -66,7 +68,7 @@ Kit contents:
 (11) A few sample schemas
     ./schemas
 
-(12) Samples that show the use of the XMLBeans API. (You'll 
+(12) Samples that show the use of the XMLBeans API. (You'll
     also find more samples at the XMLBeans web site.)
     ./samples
 
@@ -79,7 +81,7 @@ Where to start?
        java[.exe], javac[.exe], and jar[.exe].
 
     2. Set your XMLBEANS_HOME env variable to point to the directory
-       in which you installed XmlBeans (i.e., /home/user/xmlbeans-2.4.0).
+       in which you installed XmlBeans (i.e., /home/user/xmlbeans).
 
     3. Put the scripts in ./bin on your path.
 
@@ -97,7 +99,7 @@ Where to start?
     2. For an even shorter introduction, see the Getting Started topic
        included with the release (./docs/guide/conGettingStartedwithXMLBeans.html)
        or at the web site
-       (http://xmlbeans.apache.org/docs/2.0.0/guide/conGettingStartedwithXMLBeans.html).
+       (http://xmlbeans.apache.org/docs/2.2.0/guide/conGettingStartedwithXMLBeans.html).
 
     3. Explore the samples provided with the release (./samples) or 
        at the XMLBeans web site (http://xmlbeans.apache.org/samples/index.html).
