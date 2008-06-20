@@ -2137,7 +2137,7 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
     protected void set_hex(byte[] b)
         { set_ByteArray(b); }
     protected void set_BigInteger(BigInteger v)
-        { set(new BigDecimal(v)); }
+        { set_BigDecimal(new BigDecimal(v)); }
     protected void set_BigDecimal(BigDecimal v)
         { throw new XmlValueNotSupportedException(XmlErrorCodes.EXCEPTION_VALUE_NOT_SUPPORTED_J2S,
             new Object[] {"numeric", getPrimitiveTypeName() }); }

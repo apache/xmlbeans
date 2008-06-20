@@ -66,7 +66,7 @@ public abstract class JavaGDurationHolderEx extends XmlObjectBase
         _value = null;
     }
 
-    public GDuration gDurationValue()
+    public GDuration getGDurationValue()
     {
         check_dated();
 
