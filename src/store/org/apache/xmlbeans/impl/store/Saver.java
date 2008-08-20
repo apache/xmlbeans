@@ -2499,6 +2499,12 @@ abstract class Saver
             return bytesAvailable;
         }
 
+        public int available()
+            throws IOException
+        {
+	        return ensure(1024);
+        }
+
         private final class OutputStreamImpl extends OutputStream
         {
             int read ( )
