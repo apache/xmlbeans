@@ -2653,7 +2653,7 @@ abstract class Saver
                 else
                 {
                     _free = newBuf.length;
-                    assert _in == 0 && _out == 0;
+                    assert _in == _out;
                 }
 
                 _buf = newBuf;
