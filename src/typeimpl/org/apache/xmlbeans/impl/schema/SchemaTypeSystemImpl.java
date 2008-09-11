@@ -914,7 +914,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
         _name = "schema" + METADATA_PACKAGE_GEN + ".system." + nameForSystem;
         _basePackage = nameToPathString(_name);
         _classloader = null;
-
+        //System.out.println("             _base: " + _basePackage);
     }
 
     public void loadFromBuilder(SchemaGlobalElement[] globalElements,

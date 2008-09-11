@@ -374,7 +374,9 @@ public abstract class Path
         }
     }
 
-    private static final class XbeanPathEngine extends ExecutionContext implements PathEngine
+    private static final class XbeanPathEngine
+        extends ExecutionContext
+        implements PathEngine
     {
         XbeanPathEngine(XPath xpath, Cur c)
         {
@@ -482,7 +484,8 @@ public abstract class Path
         private Cur _cur;
     }
 
-    private static final class DelegatePathImpl extends Path
+    private static final class DelegatePathImpl
+        extends Path
     {
         private PathDelegate.SelectPathInterface _xpathImpl;
 
@@ -617,7 +620,5 @@ public abstract class Path
             private boolean _firstCall = true;
             private long _version;
         }
-
     }
-
 }
