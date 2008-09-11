@@ -539,7 +539,7 @@ public class ValidatingXMLStreamReader
     public int next() throws XMLStreamException
     {
         int evType = super.next();
-//        debugEvent(evType);
+        //debugEvent(evType);
 
         validate_event(evType);
 
@@ -779,7 +779,6 @@ public class ValidatingXMLStreamReader
     private void addError(String msg)
     {
         String source = null;
-//        Location location = null;
         Location location = getLocation();
 
         if (location != null)
@@ -800,6 +799,7 @@ public class ValidatingXMLStreamReader
         {
             validate_attribute(i);
         }
+        _validator.nextEvent(Validator.ENDATTRS, _simpleEvent);
     }
 
     protected void validate_attribute(int attIndex)
