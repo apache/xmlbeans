@@ -37,7 +37,7 @@ import org.openuri.test.location.*;
 import org.openuri.test.person.*;
 import org.openuri.test.mixedContent.LetterDocument;
 import org.openuri.test.mixedContent.NoMixedDocument;
-
+import com.foo.sample.HeadingDocument;
 
 
 public class ValidatingXmlStreamReaderTests
@@ -66,7 +66,7 @@ public class ValidatingXmlStreamReaderTests
         throws Exception
     {
         checkDocIsInvalid(getCasesFile(casesLoc + "po.xml"),
-                        null);
+                          null);
     }
 
     public void testValidLocationDoc()
@@ -94,7 +94,7 @@ public class ValidatingXmlStreamReaderTests
         throws Exception
     {
         checkDocIsInvalid(getCasesFile(casesLoc + "person-inv.xml"),
-                        PersonDocument.type);
+                          PersonDocument.type);
     }
 
 
@@ -109,7 +109,14 @@ public class ValidatingXmlStreamReaderTests
         throws Exception
     {
         checkDocIsInvalid(getCasesFile(casesLoc + "nomixed-content-inv.xml"),
-                        NoMixedDocument.type);
+                          NoMixedDocument.type);
+    }
+
+    public void testInvalidMissingAttributeDoc()
+        throws Exception
+    {
+        checkDocIsInvalid(getCasesFile(casesLoc + "foo-inv.xml"),
+                          HeadingDocument.type);
     }
 
 
@@ -393,7 +400,7 @@ public class ValidatingXmlStreamReaderTests
         throws java.io.IOException
     {
         if (path.length()==0)
-        throw new IOException("getCasesFile was called with path of len 0");
+            throw new IOException("getCasesFile was called with path of len 0");
         return JarUtil.getResourceFromJarasFile(path);
         //return new File(casesRoot + path);
     }
