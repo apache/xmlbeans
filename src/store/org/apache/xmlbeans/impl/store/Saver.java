@@ -2502,7 +2502,13 @@ abstract class Saver
         public int available()
             throws IOException
         {
-	        return ensure(1024);
+            if (_locale.noSync())
+                { _locale.enter(); try {
+                    return ensure(1024);
+                } finally { _locale.exit(); } }
+            else
+                synchronized ( _locale )
+                { _locale.enter(); try { return ensure(1024); } finally { _locale.exit(); } }
         }
 
         private final class OutputStreamImpl extends OutputStream
