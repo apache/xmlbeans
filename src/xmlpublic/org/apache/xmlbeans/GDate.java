@@ -675,7 +675,7 @@ public final class GDate implements GDateSpecification, java.io.Serializable
     {
         if (_fs == null)
             return 0;
-        return _fs.setScale(3, BigDecimal.ROUND_HALF_UP).unscaledValue().intValue();
+        return _fs.setScale(3, BigDecimal.ROUND_DOWN).unscaledValue().intValue();
     }
 
     /**
