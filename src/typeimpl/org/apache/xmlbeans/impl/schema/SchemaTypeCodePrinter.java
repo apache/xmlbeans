@@ -2210,12 +2210,30 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
             printJavaDoc((several ? "Sets first " : "Sets the ") + propdesc);
             emit("public void set" + propertyName + "(" + type + " " + safeVarName + ")");
             startBlock();
-            emitImplementationPreamble();
-            emitPre(sType, PrePostExtension.OPERATION_SET, identifier, isAttr, several ? "0" : "-1");
-            emitGetTarget(setIdentifier, identifier, isAttr, "0", ADD_NEW_VALUE, jtargetType);
-            emit(jSet + "(" + safeVarName + ");");
-            emitPost(sType, PrePostExtension.OPERATION_SET, identifier, isAttr, several ? "0" : "-1");
-            emitImplementationPostamble();
+            if ( xmltype )
+            {
+                emit("/*");
+                emitImplementationPreamble();
+                emitPre(sType, PrePostExtension.OPERATION_SET, identifier, isAttr, several ? "0" : "-1");
+                emitGetTarget(setIdentifier, identifier, isAttr, "0", ADD_NEW_VALUE, jtargetType);
+                emit(jSet + "(" + safeVarName + ");");
+                emitPost(sType, PrePostExtension.OPERATION_SET, identifier, isAttr, several ? "0" : "-1");
+                emitImplementationPostamble();
+                emit("*/");
+                emitPre(sType, PrePostExtension.OPERATION_SET, identifier, isAttr, several ? "0" : "-1");
+                emit("generatedSetterHelperImpl(" + safeVarName + ", " + setIdentifier + ", 0, " +
+                        "org.apache.xmlbeans.impl.values.XmlObjectBase.KIND_SETTERHELPER_SINGLETON);");
+                emitPost(sType, PrePostExtension.OPERATION_SET, identifier, isAttr, several ? "0" : "-1");
+            }
+            else
+            {
+                emitImplementationPreamble();
+                emitPre(sType, PrePostExtension.OPERATION_SET, identifier, isAttr, several ? "0" : "-1");
+                emitGetTarget(setIdentifier, identifier, isAttr, "0", ADD_NEW_VALUE, jtargetType);
+                emit(jSet + "(" + safeVarName + ");");
+                emitPost(sType, PrePostExtension.OPERATION_SET, identifier, isAttr, several ? "0" : "-1");
+                emitImplementationPostamble();
+            }
             endBlock();
 
             if (!xmltype)
@@ -2314,12 +2332,30 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
             printJavaDoc("Sets ith " + propdesc);
             emit("public void set" + arrayName + "(int i, " + type + " " + safeVarName + ")");
             startBlock();
-            emitImplementationPreamble();
-            emitPre(sType, PrePostExtension.OPERATION_SET, identifier, isAttr, "i");
-            emitGetTarget(setIdentifier, identifier, isAttr, "i", THROW_EXCEPTION, jtargetType);
-            emit(jSet + "(" + safeVarName + ");");
-            emitPost(sType, PrePostExtension.OPERATION_SET, identifier, isAttr, "i");
-            emitImplementationPostamble();
+            if (javaType == SchemaProperty.XML_OBJECT)
+            {
+                emit("/*");
+                emitImplementationPreamble();
+                emitPre(sType, PrePostExtension.OPERATION_SET, identifier, isAttr, "i");
+                emitGetTarget(setIdentifier, identifier, isAttr, "i", THROW_EXCEPTION, jtargetType);
+                emit(jSet + "(" + safeVarName + ");");
+                emitPost(sType, PrePostExtension.OPERATION_SET, identifier, isAttr, "i");
+                emitImplementationPostamble();
+                emit("*/");
+                emitPre(sType, PrePostExtension.OPERATION_SET, identifier, isAttr, "i");
+                emit("generatedSetterHelperImpl(" + safeVarName + ", " + setIdentifier + ", i, " +
+                        "org.apache.xmlbeans.impl.values.XmlObjectBase.KIND_SETTERHELPER_ARRAYITEM);");
+                emitPost(sType, PrePostExtension.OPERATION_SET, identifier, isAttr, "i");
+            }
+            else
+            {
+                emitImplementationPreamble();
+                emitPre(sType, PrePostExtension.OPERATION_SET, identifier, isAttr, "i");
+                emitGetTarget(setIdentifier, identifier, isAttr, "i", THROW_EXCEPTION, jtargetType);
+                emit(jSet + "(" + safeVarName + ");");
+                emitPost(sType, PrePostExtension.OPERATION_SET, identifier, isAttr, "i");
+                emitImplementationPostamble();
+            }
             endBlock();
 
             if (!xmltype)

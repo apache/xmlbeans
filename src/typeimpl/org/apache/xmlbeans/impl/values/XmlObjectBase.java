@@ -89,6 +89,10 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
     public static final short MAJOR_VERSION_NUMBER = (short) 1; // for serialization
     public static final short MINOR_VERSION_NUMBER = (short) 1; // for serialization
 
+    public static final short KIND_SETTERHELPER_SINGLETON = 1;
+    public static final short KIND_SETTERHELPER_ARRAYALL  = 2;
+    public static final short KIND_SETTERHELPER_ARRAYITEM = 3;
+
     public final Object monitor()
     {
         if (has_store())
@@ -1999,7 +2003,7 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
         }
 
         if (obj.isImmutable())
-            set(obj.stringValue());
+            setStringValue(obj.getStringValue());
         else
         {
             boolean noSyncThis = preCheck();
@@ -2077,6 +2081,167 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
         return (XmlObject) newObj;
     }
 
+    public final XmlObject generatedSetterHelperImpl(XmlObject src, QName propName, int index,
+        short kindSetterHelper)
+    {
+
+        XmlObjectBase srcObj = underlying(src);
+
+        if (srcObj == null)
+        {
+            synchronized (monitor())
+            {
+                XmlObjectBase target = getTargetForSetter(propName, index, kindSetterHelper);
+                target.setNil();
+                return target;
+            }
+        }
+
+        if (srcObj.isImmutable())
+        {
+            synchronized (monitor())
+            {
+                XmlObjectBase target = getTargetForSetter(propName, index, kindSetterHelper);
+                target.setStringValue(srcObj.getStringValue());
+                return (XmlObject) target;
+            }
+        }
+
+
+        boolean noSyncThis = preCheck();
+        boolean noSyncObj  = srcObj.preCheck();
+
+        if (monitor() == srcObj.monitor())             // both are in the same locale
+        {
+            if (noSyncThis)                         // the locale is not sync
+            {
+                return (XmlObject)objSetterHelper(srcObj, propName, index, kindSetterHelper);
+            }
+            else                                    // the locale is sync
+            {
+                synchronized (monitor())
+                {
+                    return (XmlObject)objSetterHelper(srcObj, propName, index, kindSetterHelper);
+                }
+            }
+        }
+
+                                               // on different locale's
+        if (noSyncThis)
+        {
+            if (noSyncObj)                      // both unsync
+            {
+                return (XmlObject)objSetterHelper(srcObj, propName, index, kindSetterHelper);
+            }
+            else                                // only obj is sync
+            {
+                synchronized (srcObj.monitor())
+                {
+                    return (XmlObject)objSetterHelper(srcObj, propName, index, kindSetterHelper);
+                }
+            }
+        }
+        else
+        {
+            if (noSyncObj)                      // only this is sync
+            {
+                synchronized (monitor())
+                {
+                    return (XmlObject)objSetterHelper(srcObj, propName, index, kindSetterHelper);
+                }
+            }
+            else                                // both are sync can't avoid the global lock
+            {
+                boolean acquired = false;
+
+                try
+                {
+                    // about to grab two locks: don't deadlock ourselves
+                    GlobalLock.acquire();
+                    acquired = true;
+
+                    synchronized (monitor())
+                    {
+                        synchronized (srcObj.monitor())
+                        {
+                            GlobalLock.release();
+                            acquired = false;
+
+                            return (XmlObject)objSetterHelper(srcObj, propName, index, kindSetterHelper);
+                        }
+                    }
+                }
+                catch (InterruptedException e)
+                {
+                    throw new XmlRuntimeException(e);
+                }
+                finally
+                {
+                    if (acquired)
+                        GlobalLock.release();
+                }
+            }
+        }
+    }
+
+    private TypeStoreUser objSetterHelper(XmlObjectBase srcObj, QName propName, int index, short kindSetterHelper)
+    {
+        XmlObjectBase target = getTargetForSetter(propName, index, kindSetterHelper);
+
+        target.check_orphaned();
+        srcObj.check_orphaned();
+
+        return target.get_store().copy_contents_from( srcObj.get_store() ).
+                get_store().change_type( srcObj.schemaType() );
+    }
+
+    private XmlObjectBase getTargetForSetter(QName propName, int index, short kindSetterHelper)
+    {
+        switch (kindSetterHelper)
+        {
+            case KIND_SETTERHELPER_SINGLETON:
+            {
+                check_orphaned();
+                XmlObjectBase target = null;
+                target = (XmlObjectBase)get_store().find_element_user(propName, index);
+                if (target == null)
+                {
+                    target = (XmlObjectBase)get_store().add_element_user(propName);
+                }
+
+                if (target.isImmutable())
+                    throw new IllegalStateException("Cannot set the value of an immutable XmlObject");
+
+                return target;
+            }
+
+            case KIND_SETTERHELPER_ARRAYALL:
+                check_orphaned();
+                //arraySetterHelper(lineItemArray, LINEITEM$4);
+                throw new IllegalArgumentException("Unknown kindSetterHelper: ARRAYALL");
+                //return null;
+
+            case KIND_SETTERHELPER_ARRAYITEM:
+            {
+                check_orphaned();
+                XmlObjectBase target = null;
+                target = (XmlObjectBase)get_store().find_element_user(propName, index);
+                if (target == null)
+                {
+                    throw new IndexOutOfBoundsException();
+                }
+
+                if (target.isImmutable())
+                    throw new IllegalStateException("Cannot set the value of an immutable XmlObject");
+
+                return target;
+            }
+
+            default:
+                throw new IllegalArgumentException("Unknown kindSetterHelper: " + kindSetterHelper);
+        }
+    }
+
     /**
      * Same as set() but unsynchronized.
      * Warning: Using this method in mutithreaded environment can cause invalid states.
@@ -2099,8 +2264,13 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
         if (obj.isImmutable())
             set(obj.stringValue());
         else
-            newObj = setterHelper( obj );
+        {
+            check_orphaned();
+            obj.check_orphaned();
 
+            newObj = get_store().copy_contents_from( obj.get_store() ).
+                get_store().change_type( obj.schemaType() );
+        }
         return (XmlObject) newObj;
     }
 

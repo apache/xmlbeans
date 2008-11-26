@@ -3687,23 +3687,26 @@ public final class Locale
     private static final class DefaultQNameFactory
         implements QNameFactory
     {
-        private QNameCache _cache = XmlBeans.getQNameCache();
+        private QNameCache getCache()
+        {
+            return XmlBeans.getQNameCache();
+        }
 
         public QName getQName(String uri, String local)
         {
-            return _cache.getName(uri, local, "");
+            return getCache().getName(uri, local, "");
         }
 
         public QName getQName(String uri, String local, String prefix)
         {
-            return _cache.getName(uri, local, prefix);
+            return getCache().getName(uri, local, prefix);
         }
 
         public QName getQName(char[] uriSrc, int uriPos, int uriCch,
             char[] localSrc, int localPos, int localCch)
         {
             return
-                _cache.getName(new String(uriSrc, uriPos, uriCch),
+                getCache().getName(new String(uriSrc, uriPos, uriCch),
                     new String(localSrc, localPos, localCch),
                     "");
         }
@@ -3713,7 +3716,7 @@ public final class Locale
             char[] prefixSrc, int prefixPos, int prefixCch)
         {
             return
-                _cache.getName(new String(uriSrc, uriPos, uriCch),
+                getCache().getName(new String(uriSrc, uriPos, uriCch),
                     new String(localSrc, localPos, localCch),
                     new String(prefixSrc, prefixPos, prefixCch));
         }
