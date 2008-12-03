@@ -841,16 +841,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
     {
         SchemaType baseEnumType = sType.getBaseEnumType();
         String baseEnumClass = baseEnumType.getFullJavaName();
-        boolean hasBase;
-        if (baseEnumType.isAnonymousType() && baseEnumType.isSkippedAnonymousType())
-        {
-            if (sType.getContentBasedOnType() != null)
-                hasBase = sType.getContentBasedOnType().getBaseType() != baseEnumType;
-            else
-                hasBase = sType.getBaseType() != baseEnumType;
-        }
-        else
-            hasBase = baseEnumType != sType;
+        boolean hasBase = hasBase(sType);
 
         if (!hasBase)
         {
@@ -957,6 +948,22 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
         }
     }
 
+    private boolean hasBase(SchemaType sType)
+    {
+        boolean hasBase;
+       	SchemaType baseEnumType = sType.getBaseEnumType();
+        if (baseEnumType.isAnonymousType() && baseEnumType.isSkippedAnonymousType())
+        {
+            if (sType.getContentBasedOnType() != null)
+                hasBase = sType.getContentBasedOnType().getBaseType() != baseEnumType;
+            else
+                hasBase = sType.getBaseType() != baseEnumType;
+        }
+        else
+            hasBase = baseEnumType != sType;
+	return hasBase;
+    }
+
     String xmlTypeForProperty(SchemaProperty sProp)
     {
         SchemaType sType = sProp.javaBasedOnType();
@@ -1054,7 +1061,10 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
                 if (sType.getSimpleVariety() == SchemaType.UNION)
                     sType = sType.getUnionCommonBaseType();
                 assert sType.getBaseEnumType() != null;
-                return findJavaType(sType.getBaseEnumType()).replace('$', '.') + ".Enum";
+                if (hasBase(sType)) 
+                    return findJavaType(sType.getBaseEnumType()).replace('$', '.') + ".Enum";
+                else
+                    return findJavaType(sType).replace('$', '.') + ".Enum";
 
             case SchemaProperty.JAVA_OBJECT:
                 return "java.lang.Object";
