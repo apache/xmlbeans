@@ -164,7 +164,7 @@ public final class Locale
         // Lazy create this (loading up a locale should use the thread locale one)
         // same goes for the qname factory .. use thread local for hte most part when loading
         
-        _qnameFactory = new DefaultQNameFactory();
+        _qnameFactory = new DefaultQNameFactory(); //new LocalDocumentQNameFactory();
 
         _locations = new Locations(this);
 
@@ -3688,6 +3688,42 @@ public final class Locale
         implements QNameFactory
     {
         private QNameCache _cache = XmlBeans.getQNameCache();
+
+        public QName getQName(String uri, String local)
+        {
+            return _cache.getName(uri, local, "");
+        }
+
+        public QName getQName(String uri, String local, String prefix)
+        {
+            return _cache.getName(uri, local, prefix);
+        }
+
+        public QName getQName(char[] uriSrc, int uriPos, int uriCch,
+            char[] localSrc, int localPos, int localCch)
+        {
+            return
+                _cache.getName(new String(uriSrc, uriPos, uriCch),
+                    new String(localSrc, localPos, localCch),
+                    "");
+        }
+
+        public QName getQName(char[] uriSrc, int uriPos, int uriCch,
+            char[] localSrc, int localPos, int localCch,
+            char[] prefixSrc, int prefixPos, int prefixCch)
+        {
+            return
+                _cache.getName(new String(uriSrc, uriPos, uriCch),
+                    new String(localSrc, localPos, localCch),
+                    new String(prefixSrc, prefixPos, prefixCch));
+        }
+    }
+
+
+    private static final class LocalDocumentQNameFactory
+        implements QNameFactory
+    {
+        private QNameCache _cache = new QNameCache( 32 );
 
         public QName getQName(String uri, String local)
         {
