@@ -3,7 +3,7 @@ Changes in V2.4.0 since V2.3.0
 * Pluggable XPath/XQuery engine support
 * Upgraded support for Saxon 9
 * Added Schema compilation option to skip errors in case duplicate component declarations are encountered.
-* Finner grained support for CDATA
+* Finer grained support for CDATA
 * Tool to generate XPath for a given cursor position in a document
 * added more fine-grained control over XML to Java name mapping
 * Add support for JVM-supported encodings
