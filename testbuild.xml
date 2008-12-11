@@ -270,11 +270,11 @@
     <!--Schemas for bvts: Please keep this list up-to-date in order to minimize
          the build time for checkintests-->
     <property name="checkin.schema.dirs"
-        value=" ${build.dir.test.schemas}/xbean/simple/dumb,
+        value="${build.dir.test.schemas}/xbean/simple/dumb,
          ${build.dir.test.schemas}/xbean/xmlcursor,
          ${build.dir.test.schemas}/xbean/xmlobject,
          ${build.dir.test.schemas}/xbean/ValidatingStream,
-	   ${build.dir.test.schemas}/xbean/dom
+         ${build.dir.test.schemas}/xbean/dom
        "/>
     <property name="checkin.schema.standalone.files"
         value="${schema.standalone}/CarLocationMessage_40_LX.xsd"/>
@@ -509,7 +509,7 @@
 
             </else>
         </if>
-	<antcall target="build.xqcases"/>
+        <antcall target="build.xqcases"/>
     </target>
 
     <!-- Bea-xmlbeans has already been built and in the right location -->
@@ -823,10 +823,10 @@
         <antcall target="unit.build"/>
     </target>
     <target name="build.area.tools">
-	        <property name="includes.for.compile"
-	            value="**/tools/**/*.java"/>
-	        <property name="testcasejar.update" value="true"/>
-	        <antcall target="unit.build"/>
+        <property name="includes.for.compile"
+            value="**/tools/**/*.java"/>
+        <property name="testcasejar.update" value="true"/>
+        <antcall target="unit.build"/>
     </target>
 
     <!-- FREQ Target -->
