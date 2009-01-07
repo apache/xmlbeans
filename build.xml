@@ -83,7 +83,7 @@
     <target name="sources" depends="dirs">
         <zip destfile="build/ar/xbeansrc.zip"
           basedir="."
-          excludes="build/**, test/perf/**"/>
+          excludes="build/**, test/perf/**, mytest/**"/>
     </target>
 
     <property environment="env"/>

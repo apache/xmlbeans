@@ -90,8 +90,7 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
     public static final short MINOR_VERSION_NUMBER = (short) 1; // for serialization
 
     public static final short KIND_SETTERHELPER_SINGLETON = 1;
-    public static final short KIND_SETTERHELPER_ARRAYALL  = 2;
-    public static final short KIND_SETTERHELPER_ARRAYITEM = 3;
+    public static final short KIND_SETTERHELPER_ARRAYITEM = 2;
 
     public final Object monitor()
     {
@@ -2214,12 +2213,6 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
 
                 return target;
             }
-
-            case KIND_SETTERHELPER_ARRAYALL:
-                check_orphaned();
-                //arraySetterHelper(lineItemArray, LINEITEM$4);
-                throw new IllegalArgumentException("Unknown kindSetterHelper: ARRAYALL");
-                //return null;
 
             case KIND_SETTERHELPER_ARRAYITEM:
             {

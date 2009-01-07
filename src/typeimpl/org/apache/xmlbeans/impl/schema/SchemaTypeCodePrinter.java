@@ -2220,16 +2220,8 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
             printJavaDoc((several ? "Sets first " : "Sets the ") + propdesc);
             emit("public void set" + propertyName + "(" + type + " " + safeVarName + ")");
             startBlock();
-            if ( xmltype )
+            if ( xmltype && !isSubstGroup )
             {
-                emit("/*");
-                emitImplementationPreamble();
-                emitPre(sType, PrePostExtension.OPERATION_SET, identifier, isAttr, several ? "0" : "-1");
-                emitGetTarget(setIdentifier, identifier, isAttr, "0", ADD_NEW_VALUE, jtargetType);
-                emit(jSet + "(" + safeVarName + ");");
-                emitPost(sType, PrePostExtension.OPERATION_SET, identifier, isAttr, several ? "0" : "-1");
-                emitImplementationPostamble();
-                emit("*/");
                 emitPre(sType, PrePostExtension.OPERATION_SET, identifier, isAttr, several ? "0" : "-1");
                 emit("generatedSetterHelperImpl(" + safeVarName + ", " + setIdentifier + ", 0, " +
                         "org.apache.xmlbeans.impl.values.XmlObjectBase.KIND_SETTERHELPER_SINGLETON);");
@@ -2313,45 +2305,68 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
         {
             String arrayName = propertyName + "Array";
 
-            // JSET_INDEX
-            printJavaDoc("Sets array of all " + propdesc);
-            emit("public void set" + arrayName + "(" + type + "[] " + safeVarName + "Array)");
-            startBlock();
-            emitImplementationPreamble();
-            emitPre(sType, PrePostExtension.OPERATION_SET, identifier, isAttr);
-
-            if (isobj)
+            if ( xmltype )
             {
-                if (!isSubstGroup)
-                    emit("unionArraySetterHelper(" + safeVarName + "Array" + ", " + identifier + ");" );
+                printJavaDoc("Sets array of all " + propdesc + "  WARNING: This method is not atomicaly synchronized.");
+                emit("public void set" + arrayName + "(" + type + "[] " + safeVarName + "Array)");
+                startBlock();
+                // do not use synchronize (monitor()) {  and GlobalLock inside  } !!! deadlock
+                //emitImplementationPreamble();
+                emit("check_orphaned();");
+                emitPre(sType, PrePostExtension.OPERATION_SET, identifier, isAttr);
+
+                if (isobj)
+                {
+                    if (!isSubstGroup)
+                        emit("unionArraySetterHelper(" + safeVarName + "Array" + ", " + identifier + ");" );
+                    else
+                        emit("unionArraySetterHelper(" + safeVarName + "Array" + ", " + identifier + ", " + setIdentifier + ");" );
+                }
                 else
-                    emit("unionArraySetterHelper(" + safeVarName + "Array" + ", " + identifier + ", " + setIdentifier + ");" );
+                {
+                    if (!isSubstGroup)
+                        emit("arraySetterHelper(" + safeVarName + "Array" + ", " + identifier + ");" );
+                    else
+                        emit("arraySetterHelper(" + safeVarName + "Array" + ", " + identifier + ", " + setIdentifier + ");" );
+                }
+
+                emitPost(sType, PrePostExtension.OPERATION_SET, identifier, isAttr);
+                //emitImplementationPostamble();  to avoid deadlock
+                endBlock();
             }
             else
             {
-                if (!isSubstGroup)
-                    emit("arraySetterHelper(" + safeVarName + "Array" + ", " + identifier + ");" );
-                else
-                    emit("arraySetterHelper(" + safeVarName + "Array" + ", " + identifier + ", " + setIdentifier + ");" );
-            }
+                printJavaDoc("Sets array of all " + propdesc );
+                emit("public void set" + arrayName + "(" + type + "[] " + safeVarName + "Array)");
+                startBlock();
+                emitImplementationPreamble();
+                emitPre(sType, PrePostExtension.OPERATION_SET, identifier, isAttr);
 
-            emitPost(sType, PrePostExtension.OPERATION_SET, identifier, isAttr);
-            emitImplementationPostamble();
-            endBlock();
+                if (isobj)
+                {
+                    if (!isSubstGroup)
+                        emit("unionArraySetterHelper(" + safeVarName + "Array" + ", " + identifier + ");" );
+                    else
+                        emit("unionArraySetterHelper(" + safeVarName + "Array" + ", " + identifier + ", " + setIdentifier + ");" );
+                }
+                else
+                {
+                    if (!isSubstGroup)
+                        emit("arraySetterHelper(" + safeVarName + "Array" + ", " + identifier + ");" );
+                    else
+                        emit("arraySetterHelper(" + safeVarName + "Array" + ", " + identifier + ", " + setIdentifier + ");" );
+                }
+
+                emitPost(sType, PrePostExtension.OPERATION_SET, identifier, isAttr);
+                emitImplementationPostamble();
+                endBlock();
+            }
 
             printJavaDoc("Sets ith " + propdesc);
             emit("public void set" + arrayName + "(int i, " + type + " " + safeVarName + ")");
             startBlock();
-            if (javaType == SchemaProperty.XML_OBJECT)
+            if ( isobj )
             {
-                emit("/*");
-                emitImplementationPreamble();
-                emitPre(sType, PrePostExtension.OPERATION_SET, identifier, isAttr, "i");
-                emitGetTarget(setIdentifier, identifier, isAttr, "i", THROW_EXCEPTION, jtargetType);
-                emit(jSet + "(" + safeVarName + ");");
-                emitPost(sType, PrePostExtension.OPERATION_SET, identifier, isAttr, "i");
-                emitImplementationPostamble();
-                emit("*/");
                 emitPre(sType, PrePostExtension.OPERATION_SET, identifier, isAttr, "i");
                 emit("generatedSetterHelperImpl(" + safeVarName + ", " + setIdentifier + ", i, " +
                         "org.apache.xmlbeans.impl.values.XmlObjectBase.KIND_SETTERHELPER_ARRAYITEM);");

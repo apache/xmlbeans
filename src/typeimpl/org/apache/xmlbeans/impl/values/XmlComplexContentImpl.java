@@ -25,7 +25,6 @@ import java.util.List;
 import java.util.Calendar;
 import javax.xml.namespace.QName;
 
-import javax.xml.namespace.QName;
 import org.apache.xmlbeans.impl.schema.SchemaTypeImpl;
 import org.apache.xmlbeans.impl.schema.SchemaTypeVisitorImpl;
 
