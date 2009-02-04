@@ -52,6 +52,8 @@ public class ValidatingXMLStreamReader
     extends StreamReaderDelegate
     implements XMLStreamReader
 {
+    public static final String OPTION_ATTTRIBUTE_VALIDATION_COMPAT_MODE = "OPTION_ATTTRIBUTE_VALIDATION_COMPAT_MODE";
+
     private static final String URI_XSI = "http://www.w3.org/2001/XMLSchema-instance";
     private static final QName XSI_TYPE = new QName(URI_XSI, "type");
     private static final QName XSI_NIL  = new QName(URI_XSI, "nil");
@@ -799,7 +801,11 @@ public class ValidatingXMLStreamReader
         {
             validate_attribute(i);
         }
-        _validator.nextEvent(Validator.ENDATTRS, _simpleEvent);
+
+        if (_options!=null && _options.hasOption(OPTION_ATTTRIBUTE_VALIDATION_COMPAT_MODE))
+        {}
+        else
+            _validator.nextEvent(Validator.ENDATTRS, _simpleEvent);
     }
 
     protected void validate_attribute(int attIndex)
