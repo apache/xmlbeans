@@ -2365,7 +2365,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
             printJavaDoc("Sets ith " + propdesc);
             emit("public void set" + arrayName + "(int i, " + type + " " + safeVarName + ")");
             startBlock();
-            if ( isobj )
+            if ( isobj && !isSubstGroup )
             {
                 emitPre(sType, PrePostExtension.OPERATION_SET, identifier, isAttr, "i");
                 emit("generatedSetterHelperImpl(" + safeVarName + ", " + setIdentifier + ", i, " +
