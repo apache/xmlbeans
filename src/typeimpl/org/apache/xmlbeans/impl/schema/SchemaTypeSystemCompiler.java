@@ -217,7 +217,8 @@ public class SchemaTypeSystemCompiler
 
         SchemaTypeSystemImpl stsi = compileImpl(existingSTS, name,
             (Schema[])schemas.toArray(new Schema[schemas.size()]),
-            config, linkTo, options, errorWatcher, filer!=null, null, null, null);
+            config, linkTo, options, errorWatcher, filer!=null, (URI) options.get(XmlOptions.BASE_URI),
+            null, null);
 
         // if there is an error and compile didn't recover (stsi==null), throw exception
         if (errorWatcher.hasError() && stsi == null)
