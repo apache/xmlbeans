@@ -18,6 +18,7 @@ package org.apache.xmlbeans;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.XMLReader;
 
+import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Collection;
@@ -73,6 +74,7 @@ import javax.xml.namespace.QName;
  *   <td align="center"><code>setErrorListener</code><br/>
  *                      <code>setCompile***</code><br/>
  *                      <code>setEntityResolver</code><br/>
+ *                      <code>setBaseURI</code><br/>
  *                      <code>setGenerateJavaVersion</code></td>
  *   <td align="center"><code>setSave***</code><br/>
  *                      <code>setUseDefaultNamespace</code><br/>
@@ -796,7 +798,18 @@ public class XmlOptions implements java.io.Serializable
     public XmlOptions setEntityResolver(EntityResolver resolver) {
         return set( ENTITY_RESOLVER, resolver );
     }
-    
+
+    /**
+     * If this option is set when compiling a schema, then the given
+     * URI will be considered as base URI when deciding the directory
+     * structure for saving the sources inside the generated JAR file.
+     * @param baseURI the URI to be considered as "base"
+     * @see XmlBeans#compileXsd
+     */
+    public XmlOptions setBaseURI(URI baseURI) {
+        return set( BASE_URI, baseURI );
+    }
+
     /**
      * If this option is set when compiling a schema, then the given
      * SchemaTypeCodePrinter.Printer will be used to generate the
@@ -936,6 +949,8 @@ public class XmlOptions implements java.io.Serializable
     public static final String UNSYNCHRONIZED                  = "UNSYNCHRONIZED";
     /** @exclude */
     public static final String ENTITY_RESOLVER                 = "ENTITY_RESOLVER";
+    /** @exclude */
+    public static final String BASE_URI                        = "BASE_URI";
     /** @exclude */
     public static final String SCHEMA_CODE_PRINTER             = "SCHEMA_CODE_PRINTER";
     /** @exclude */
