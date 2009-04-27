@@ -20,7 +20,9 @@ import org.apache.xmlbeans.impl.xb.xmlconfig.Extensionconfig;
 import org.apache.xmlbeans.impl.xb.xmlconfig.Nsconfig;
 import org.apache.xmlbeans.impl.xb.xmlconfig.Qnameconfig;
 import org.apache.xmlbeans.impl.xb.xmlconfig.Qnametargetenum;
+import org.apache.xmlbeans.impl.xb.xmlconfig.Usertypeconfig;
 import org.apache.xmlbeans.BindingConfig;
+import org.apache.xmlbeans.UserType;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlError;
 import org.apache.xmlbeans.InterfaceExtension;
@@ -54,6 +56,7 @@ public class BindingConfigImpl extends BindingConfig
 
     private List _interfaceExtensions;
     private List _prePostExtensions;
+    private Map _userTypes;
 
     private BindingConfigImpl()
     {
@@ -69,6 +72,7 @@ public class BindingConfigImpl extends BindingConfig
         _qnameAttMap = Collections.EMPTY_MAP;
         _interfaceExtensions = new ArrayList();
         _prePostExtensions = new ArrayList();
+        _userTypes = Collections.EMPTY_MAP;
     }
 
     public static BindingConfig forConfigDocuments(Config[] configs, File[] javaFiles, File[] classpath)
@@ -90,6 +94,7 @@ public class BindingConfigImpl extends BindingConfig
         _qnameAttMap = new LinkedHashMap();
         _interfaceExtensions = new ArrayList();
         _prePostExtensions = new ArrayList();
+        _userTypes = new LinkedHashMap();
 
         for (int i = 0; i < configs.length; i++)
         {
@@ -136,6 +141,12 @@ public class BindingConfigImpl extends BindingConfig
             for (int j = 0; j < ext.length; j++)
             {
                 recordExtensionSetting(javaFiles, classpath, ext[j]);
+            }
+            
+            Usertypeconfig[] utypes = config.getUsertypeArray();
+            for (int j = 0; j < utypes.length; j++)
+            {
+                recordUserTypeSetting(javaFiles, classpath, utypes[j]);
             }
         }
 
@@ -274,6 +285,14 @@ public class BindingConfigImpl extends BindingConfig
         }
     }
 
+    private void recordUserTypeSetting(File[] javaFiles, File[] classpath,
+            Usertypeconfig usertypeconfig)
+    {
+        JamClassLoader jamLoader = getJamLoader(javaFiles, classpath);
+        UserTypeImpl userType = UserTypeImpl.newInstance(jamLoader, usertypeconfig);
+        _userTypes.put(userType.getName(), userType);
+    }
+
 
     private String lookup(Map map, Map mapByUriPrefix, String uri)
     {
@@ -366,6 +385,14 @@ public class BindingConfigImpl extends BindingConfig
             return (String)_qnameAttMap.get(qname);
         }
         return null;
+    }
+
+    public UserType lookupUserTypeForQName(QName qname)
+    {
+        if (qname == null)
+            return null;
+
+        return (UserType) _userTypes.get(qname);
     }
 
     public InterfaceExtension[] getInterfaceExtensions()

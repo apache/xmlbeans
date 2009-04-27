@@ -27,6 +27,7 @@ public class BindingConfig
 {
     private static final InterfaceExtension[] EMPTY_INTERFACE_EXT_ARRAY = new InterfaceExtension[0];
     private static final PrePostExtension[] EMPTY_PREPOST_EXT_ARRAY = new PrePostExtension[0];
+    private static final UserType[] EMPTY_USER_TYPE_ARRY = new UserType[0];
 
     public static final int QNAME_TYPE = 1;
     public static final int QNAME_DOCUMENT_TYPE = 2;
@@ -84,5 +85,15 @@ public class BindingConfig
      * type generated from schema compilation or null.
      */
     public PrePostExtension getPrePostExtension(String fullJavaName) { return null; }
+
+    /**
+     * Returns all defined user types.
+     */
+    public UserType[] getUserTypes() { return EMPTY_USER_TYPE_ARRY; }
+
+    /**
+     * Returns a user defined Java type for a given QName.
+     */
+    public UserType lookupUserTypeForQName(QName qname) { return null; }
 
 }

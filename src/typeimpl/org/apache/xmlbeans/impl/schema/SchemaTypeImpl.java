@@ -100,6 +100,8 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory
     private volatile Constructor _javaImplConstructor;
     private volatile Constructor _javaImplConstructor2;
     private volatile boolean _implNotAvailable;
+    private volatile Class _userTypeClass;
+    private volatile Class _userTypeHandlerClass;
 
     // user data objects not persisted
     private volatile Object _userData;
@@ -140,6 +142,10 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory
     private int _baseDepth; // how many inheritance steps to AnyType
     private int _derivationType;
 
+    // user type support
+    private String _userTypeName;
+    private String _userTypeHandler;
+    
     // for complex types with simple content
     private SchemaType.Ref _contentBasedOnTyperef;
 
@@ -576,6 +582,26 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory
 
     public String getFullJavaImplName() { return _fullJavaImplName;}
     public String getShortJavaImplName() { return _shortJavaImplName;}
+
+    public String getUserTypeName() 
+    {
+        return _userTypeName;
+    }
+    
+    public void setUserTypeName(String userTypeName)
+    {
+        _userTypeName = userTypeName;
+    }
+
+    public String getUserTypeHandlerName() 
+    {
+        return _userTypeHandler;
+    }
+
+    public void setUserTypeHandlerName(String typeHandler) 
+    {
+        _userTypeHandler = typeHandler;
+    }
 
     public void setInterfaceExtensions(InterfaceExtension[] interfaces)
     {
@@ -1716,6 +1742,44 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory
         }
 
         return _javaImplClass;
+    }
+
+    public Class getUserTypeClass() 
+    {
+        // This field is declared volatile and Class is immutable so this is allowed.
+        if (_userTypeClass == null && getUserTypeName() != null) 
+        {
+            try 
+            {
+                _userTypeClass = Class.forName(_userTypeName, false,
+                    getTypeSystem().getClassLoader());
+            } 
+            catch (ClassNotFoundException e) 
+            {
+                _userTypeClass = null;
+            }
+        }
+
+        return _userTypeClass;
+    }
+
+    public Class getUserTypeHandlerClass() 
+    {
+        // This field is declared volatile and Class is immutable so this is allowed.
+        if (_userTypeHandlerClass == null && getUserTypeHandlerName() != null) 
+        {
+            try 
+            {
+                _userTypeHandlerClass = Class.forName(_userTypeHandler, false,
+                    getTypeSystem().getClassLoader());
+            } 
+            catch (ClassNotFoundException e) 
+            {
+                _userTypeHandlerClass = null;
+            }
+        }
+
+        return _userTypeHandlerClass;
     }
 
     public Constructor getJavaImplConstructor()

@@ -58,6 +58,15 @@
           </xs:annotation>
         </xs:element>
 
+        <xs:element name="usertype" type="xb:usertypeconfig">
+          <xs:annotation>
+              <xs:documentation>
+                  Specifies a custom java type mapping for a derived simple type.
+                  A static handler must be specified that converts between the
+                  custom java type and the built-in simple type it derives from.
+              </xs:documentation>
+          </xs:annotation>
+        </xs:element>
       </xs:choice>
     </xs:complexType>
   </xs:element>
@@ -171,6 +180,30 @@
      </xs:simpleType>
     </xs:union>
    </xs:simpleType>
+
+    <xs:complexType name="usertypeconfig">
+       <xs:sequence>
+           <xs:choice>
+               <xs:element name="staticHandler" type="xs:string">
+                   <xs:annotation>
+                       <xs:documentation>
+                           The name of the handler class for this user type.
+                           The handler must contain public static methods for
+                           translating the user type to and from the derived simple type.
+                           Example:
+                           - qname example:uuid restricts xs:string
+                           - javaname is java.util.UUID
+                           - handler interface must have signatures:
+                                public void encodeUuid(UUID obj, SimpleValue target)
+                                public UUID decodeUuid(SimpleValue obj)
+                       </xs:documentation>
+                   </xs:annotation>
+               </xs:element>
+           </xs:choice>
+       </xs:sequence>
+       <xs:attribute name="name" type="xs:QName"/>
+       <xs:attribute name="javaname" type="xs:string"/>
+    </xs:complexType>
 
     <xs:complexType name="extensionconfig">
        <xs:sequence>

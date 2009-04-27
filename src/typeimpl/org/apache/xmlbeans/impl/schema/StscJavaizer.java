@@ -22,6 +22,7 @@ import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.SchemaParticle;
 import org.apache.xmlbeans.SchemaProperty;
 import org.apache.xmlbeans.QNameSet;
+import org.apache.xmlbeans.UserType;
 import org.apache.xmlbeans.XmlAnySimpleType;
 import org.apache.xmlbeans.SchemaStringEnumEntry;
 import org.apache.xmlbeans.XmlByte;
@@ -98,6 +99,9 @@ public class StscJavaizer
             {
                 sImpl.setFullJavaName(pickFullJavaClassName(usedNames, findTopName(sImpl), pickedName, sImpl.isDocumentType(), sImpl.isAttributeType()));
                 sImpl.setFullJavaImplName(pickFullJavaImplName(usedNames, sImpl.getFullJavaName()));
+
+                setUserTypes(sImpl, state);
+
                 setExtensions(sImpl, state);
             }
         }
@@ -128,6 +132,21 @@ public class StscJavaizer
             String handler = prepost[i].getStaticHandler();
             if (handler != null && usedNames.contains(handler.toLowerCase()))
                 state.error("PrePostExtension handler class '" + handler + "' creates a name collision with one of the generated interfaces or classes.", XmlError.SEVERITY_ERROR, null);
+        }
+    }
+
+    private static void setUserTypes(SchemaTypeImpl sImpl, StscState state)
+    {
+        BindingConfig config = state.getBindingConfig();
+
+        if (config != null)
+        {
+            UserType utype = config.lookupUserTypeForQName(sImpl.getName());
+            if (utype != null)
+            {
+                sImpl.setUserTypeName(utype.getJavaName());
+                sImpl.setUserTypeHandlerName(utype.getStaticHandler());
+            }
         }
     }
 
@@ -530,6 +549,9 @@ public class StscJavaizer
     {
         if (!sType.isSimpleType())
             return SchemaProperty.XML_OBJECT;
+
+        if (((SchemaTypeImpl)sType).getUserTypeHandlerName() != null)
+            return SchemaProperty.JAVA_USER;
 
         if (sType.getSimpleVariety() == SchemaType.UNION)
         {
