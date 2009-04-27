@@ -211,6 +211,9 @@ public interface SchemaProperty
     /** A {@link java.lang.Object}, used for some simple type unions. See {@link #getJavaTypeCode}. */
     static final int JAVA_OBJECT = 19; // for some unions
 
+    /** A user specified type. */
+    static final int JAVA_USER = 20;
+
     /**
      * Returns the default or fixed value,
      * if it is consistent. If it is not consistent,

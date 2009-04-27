@@ -256,7 +256,8 @@
         ${build.dir.test.schemas}/xbean/xmlobject/store,
         ${build.dir.test.schemas}/xbean/xmltokensource,
         ${build.dir.test.schemas}/xbean/ValidatingStream,
-        ${build.dir.test.schemas}/xbean/scomp"/>
+        ${build.dir.test.schemas}/xbean/scomp,
+        ${build.dir.test.schemas}/xbean/usertype"/>
     <!-- comma separated list of directories containing schemas that *must* be separately
          compiled -->
     <property name="schema.standalone"
@@ -571,7 +572,7 @@
     <!-- NOTE: This target depends on build.schemas, but we do not
                explicitly put it on the depends list. -->
 
-    <target name="build.tests" depends="init, build.test.tools, build.xpath,extensions.build"
+    <target name="build.tests" depends="init, build.test.tools, build.xpath,extensions.build,usertype.build"
         description="Build the tests">
 
         <javac srcdir="${xbeans.test.src}"
@@ -646,6 +647,12 @@
                 <antcall target="extensions.build"/>
             </then>
         </if>
+        <if>
+            <isset property="compile.usertype"/>
+            <then>
+                <antcall target="usertype.build"/>
+            </then>
+        </if>
         <antcall target="build.xmlcases"/>
         <antcall target="build.xsdcases"/>
 
@@ -708,6 +715,37 @@
 
         </foreachloop>
     </target>
+    <!--User type feature-->
+    <target name="usertype.build" depends="init">
+        <echo message="Building user types"/>
+        <foreachloop
+            param="case" trim="true">
+            <path>
+                <dirset dir="${xbeans.test.src}/xmlobject/usertype/">
+                    <include name="*"/>
+                </dirset>
+            </path>
+            <loop>
+                <basename property="testcase" path="${case}"/>
+                
+                <available file="${build.dir.test.schemas.lib}/usertype_${testcase}.jar" property="usertypejar.exists"/>
+                <echo message="JAR ${build.dir.test.schemas.lib}/usertype_${testcase}.jar, Exists: ${usertypejar.exists}"/>
+                <if>
+                    <isfalse value="${usertypejar.exists}"/>
+                    <then>
+                        <java classname="${schema.compiler}"
+                            classpathref="build.classpath"
+                            fork="true">
+                            <arg line="-out ${build.dir.test.schemas.lib}/usertype_${testcase}.jar
+                            ${case}/existing
+                            ${xbeans.test.cases}/xbean/usertype/${testcase}"
+                                />
+                        </java>
+                    </then>
+                </if>
+            </loop>
+        </foreachloop>
+    </target>
 
     <!--test xmlbeans task-->
     <target name="xmlbean-test" depends="init">
@@ -733,6 +771,7 @@
             ${schema.standalone}/SimpleRailCarrierWaybillInterchange_V40_LX.xsd,
             ${schema.standalone}/TerminalOperationsAndIntermodalRampActivity_V40_LX.xsd,"/>
         <property name="compile.extensions" value="true"/>
+        <property name="compile.usertype" value="true"/>
 
         <property name="includes.for.compile"
             value="**/xmlobject/**/*.java"/>
@@ -830,7 +869,7 @@
     </target>
 
     <!-- FREQ Target -->
-    <target name="build.area.checkin" depends="clean.tests,extensions.build">
+    <target name="build.area.checkin" depends="clean.tests,extensions.build,usertype.build">
         <property name="includes.for.compile"
             value="**/checkin/**/*.java,
                    **/common/**/*.java"/>

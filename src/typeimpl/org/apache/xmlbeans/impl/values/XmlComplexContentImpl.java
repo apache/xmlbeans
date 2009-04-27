@@ -161,6 +161,58 @@ public class XmlComplexContentImpl extends XmlObjectBase
         }
     }
 
+    protected SimpleValue[] arraySetterHelper ( int sourcesLength, QName elemName )
+    {
+        SimpleValue[] dests = new SimpleValue[sourcesLength];
+
+        TypeStore store = get_store();
+
+        int m = store.count_elements( elemName );
+
+        for ( ; m > sourcesLength ; m-- )
+            store.remove_element( elemName, m - 1 );
+
+        for ( int i = 0 ; i < sourcesLength ; i++ )
+        {
+            TypeStoreUser user;
+
+            if (i >= m)
+                user = store.add_element_user( elemName );
+            else
+                user = store.find_element_user( elemName, i );
+
+            dests[i] = (SimpleValue) user;
+        }
+
+        return dests;
+    }
+
+    protected SimpleValue[] arraySetterHelper ( int sourcesLength, QName elemName, QNameSet set )
+    {
+        SimpleValue[] dests = new SimpleValue[sourcesLength];
+
+        TypeStore store = get_store();
+
+        int m = store.count_elements( set );
+
+        for ( ; m > sourcesLength ; m-- )
+            store.remove_element( set, m - 1 );
+
+        for ( int i = 0 ; i < sourcesLength ; i++ )
+        {
+            TypeStoreUser user;
+
+            if (i >= m)
+                user = store.add_element_user( elemName );
+            else
+                user = store.find_element_user( set, i );
+
+            dests[i] = (SimpleValue) user;
+        }
+
+        return dests;
+    }
+
     protected void arraySetterHelper ( boolean[] sources, QName elemName )
     {
         int n = sources == null ? 0 : sources.length;

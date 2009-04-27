@@ -323,6 +323,20 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
         }
         return ret;
     }
+    
+    private String getUserTypeStaticHandlerMethod(boolean encode, SchemaTypeImpl stype)
+    {
+        String unqualifiedName = stype.getName().getLocalPart();
+        if (unqualifiedName.length() < 2)
+            unqualifiedName = unqualifiedName.toUpperCase();
+        else
+            unqualifiedName = unqualifiedName.substring(0, 1).toUpperCase() + unqualifiedName.substring(1);
+        
+        if (encode)
+            return stype.getUserTypeHandlerName() + ".encode" + unqualifiedName;
+        else
+            return stype.getUserTypeHandlerName() + ".decode" + unqualifiedName;
+    }
 
 
     public static String indexClassForSystem(SchemaTypeSystem system)
@@ -1017,6 +1031,11 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
             SchemaType sType = sProp.javaBasedOnType();
             return findJavaType(sType).replace('$', '.');
         }
+        
+        if (sProp.getJavaTypeCode() == SchemaProperty.JAVA_USER)
+        {
+               return ((SchemaTypeImpl)sProp.getType()).getUserTypeName();
+        }
 
         switch (sProp.getJavaTypeCode())
         {
@@ -1446,7 +1465,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
         }
     }
 
-    void printJGetArrayValue(int javaType, String type) throws IOException {
+    void printJGetArrayValue(int javaType, String type, SchemaTypeImpl stype) throws IOException {
         switch (javaType)
         {
             case SchemaProperty.XML_OBJECT:
@@ -1568,10 +1587,19 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
                 emit("    result[i] = ((org.apache.xmlbeans.SimpleValue)targetList.get(i)).getObjectValue();");
                 break;
 
+            case SchemaProperty.JAVA_USER:
+                emit(stype.getUserTypeName() + "[] result = new " + stype.getUserTypeName() + "[targetList.size()];");
+                emit("for (int i = 0, len = targetList.size() ; i < len ; i++)");
+                emit("    result[i] = " + getUserTypeStaticHandlerMethod(false, stype)
+                        + "((org.apache.xmlbeans.SimpleValue)targetList.get(i));");
+                break;
+                
+            default:
+                throw new IllegalStateException();
         }
         emit("return result;");
     }
-    void printJGetValue(int javaType, String type) throws IOException {
+    void printJGetValue(int javaType, String type, SchemaTypeImpl stype) throws IOException {
         switch (javaType)
         {
         case SchemaProperty.XML_OBJECT:
@@ -1633,72 +1661,83 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
 
         case SchemaProperty.JAVA_OBJECT:
             emit("return target.getObjectValue();"); break;
+            
+        case SchemaProperty.JAVA_USER:
+            emit("return " + getUserTypeStaticHandlerMethod(false, stype)
+                    + "(target);");
+            break;
+            
+        default:
+            throw new IllegalStateException();
         }
     }
-
-    String jsetMethod(int javaType) throws IOException
-    {
+    void printJSetValue(int javaType, String safeVarName, SchemaTypeImpl stype) throws IOException {
         switch (javaType)
         {
             case SchemaProperty.XML_OBJECT:
-                return "target.set";
+                emit("target.set(" + safeVarName + ");"); break;
 
             case SchemaProperty.JAVA_BOOLEAN:
-                return "target.setBooleanValue";
+                emit("target.setBooleanValue(" + safeVarName + ");"); break;
 
             case SchemaProperty.JAVA_FLOAT:
-                return "target.setFloatValue";
+                emit("target.setFloatValue(" + safeVarName + ");"); break;
 
             case SchemaProperty.JAVA_DOUBLE:
-                return "target.setDoubleValue";
+                emit("target.setDoubleValue(" + safeVarName + ");"); break;
 
             case SchemaProperty.JAVA_BYTE:
-                return "target.setByteValue";
+                emit("target.setByteValue(" + safeVarName + ");"); break;
 
             case SchemaProperty.JAVA_SHORT:
-                return "target.setShortValue";
+                emit("target.setShortValue(" + safeVarName + ");"); break;
 
             case SchemaProperty.JAVA_INT:
-                return "target.setIntValue";
+                emit("target.setIntValue(" + safeVarName + ");"); break;
 
             case SchemaProperty.JAVA_LONG:
-                return "target.setLongValue";
+                emit("target.setLongValue(" + safeVarName + ");"); break;
 
             case SchemaProperty.JAVA_BIG_DECIMAL:
-                return "target.setBigDecimalValue";
+                emit("target.setBigDecimalValue(" + safeVarName + ");"); break;
 
             case SchemaProperty.JAVA_BIG_INTEGER:
-                return "target.setBigIntegerValue";
+                emit("target.setBigIntegerValue(" + safeVarName + ");"); break;
 
             case SchemaProperty.JAVA_STRING:
-                return "target.setStringValue";
+                emit("target.setStringValue(" + safeVarName + ");"); break;
 
             case SchemaProperty.JAVA_BYTE_ARRAY:
-                return "target.setByteArrayValue";
+                emit("target.setByteArrayValue(" + safeVarName + ");"); break;
 
             case SchemaProperty.JAVA_GDATE:
-                return "target.setGDateValue";
+                emit("target.setGDateValue(" + safeVarName + ");"); break;
 
             case SchemaProperty.JAVA_GDURATION:
-                return "target.setGDurationValue";
+                emit("target.setGDurationValue(" + safeVarName + ");"); break;
 
             case SchemaProperty.JAVA_CALENDAR:
-                return "target.setCalendarValue";
+                emit("target.setCalendarValue(" + safeVarName + ");"); break;
 
             case SchemaProperty.JAVA_DATE:
-                return "target.setDateValue";
+                emit("target.setDateValue(" + safeVarName + ");"); break;
 
             case SchemaProperty.JAVA_QNAME:
-                return "target.setQNameValue";
+                emit("target.setQNameValue(" + safeVarName + ");"); break;
 
             case SchemaProperty.JAVA_LIST:
-                return "target.setListValue";
+                emit("target.setListValue(" + safeVarName + ");"); break;
 
             case SchemaProperty.JAVA_ENUM:
-                return "target.setEnumValue";
+                emit("target.setEnumValue(" + safeVarName + ");"); break;
 
             case SchemaProperty.JAVA_OBJECT:
-                return "target.setObjectValue";
+                emit("target.setObjectValue(" + safeVarName + ");"); break;
+                
+            case SchemaProperty.JAVA_USER:
+                emit(getUserTypeStaticHandlerMethod(true, stype)
+                        + "(" + safeVarName + ", target);");
+                break;
 
             default:
                 throw new IllegalStateException();
@@ -2009,8 +2048,9 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
             makeMissingValue(javaType);
             endBlock();
 
-
-            printJGetValue(javaType, type);
+            
+            printJGetValue(javaType, type, (SchemaTypeImpl)prop.getType());    
+            
 
             emitImplementationPostamble();
 
@@ -2109,7 +2149,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
                 emit("java.util.List targetList = new java.util.ArrayList();");
             emit("get_store().find_all_element_users(" + setIdentifier + ", targetList);");
 
-            printJGetArrayValue(javaType, type);
+            printJGetArrayValue(javaType, type, (SchemaTypeImpl)prop.getType());
 
             emitImplementationPostamble();
             endBlock();
@@ -2121,7 +2161,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
             emitImplementationPreamble();
 
             emitGetTarget(setIdentifier, identifier, isAttr, "i", THROW_EXCEPTION, jtargetType);
-            printJGetValue(javaType, type);
+            printJGetValue(javaType, type, (SchemaTypeImpl)prop.getType());
 
             emitImplementationPostamble();
             endBlock();
@@ -2194,7 +2234,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
         }
     }
 
-    void printSetterImpls(QName qName, boolean isAttr,
+       void printSetterImpls(QName qName, SchemaProperty prop, boolean isAttr,
                        String propertyName, int javaType, String type, String xtype,
                        boolean nillable, boolean optional, boolean several, boolean singleton,
                        boolean isunion, String identifier, String setIdentifier, SchemaType sType)
@@ -2209,7 +2249,6 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
         boolean xmltype = (javaType == SchemaProperty.XML_OBJECT);
         boolean isobj = (javaType == SchemaProperty.JAVA_OBJECT);
         boolean isSubstGroup = identifier != setIdentifier;
-        String jSet = jsetMethod(javaType);
         String jtargetType = (isunion || !xmltype) ? "org.apache.xmlbeans.SimpleValue" : xtype;
 
         String propdesc = "\"" + qName.getLocalPart() + "\"" + (isAttr ? " attribute" : " element");
@@ -2232,7 +2271,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
                 emitImplementationPreamble();
                 emitPre(sType, PrePostExtension.OPERATION_SET, identifier, isAttr, several ? "0" : "-1");
                 emitGetTarget(setIdentifier, identifier, isAttr, "0", ADD_NEW_VALUE, jtargetType);
-                emit(jSet + "(" + safeVarName + ");");
+                printJSetValue(javaType, safeVarName, (SchemaTypeImpl)prop.getType());
                 emitPost(sType, PrePostExtension.OPERATION_SET, identifier, isAttr, several ? "0" : "-1");
                 emitImplementationPostamble();
             }
@@ -2349,6 +2388,25 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
                     else
                         emit("unionArraySetterHelper(" + safeVarName + "Array" + ", " + identifier + ", " + setIdentifier + ");" );
                 }
+                else if (prop.getJavaTypeCode() == SchemaProperty.JAVA_USER)
+                {
+                    if (!isSubstGroup)
+                    {
+                        emit("org.apache.xmlbeans.SimpleValue[] dests = arraySetterHelper(" + safeVarName + "Array.length" + ", " + identifier + ");" );
+                        emit("for ( int i = 0 ; i < dests.length ; i++ ) {");
+                        emit("    " + getUserTypeStaticHandlerMethod(true, (SchemaTypeImpl)prop.getType())
+                                + "(" + safeVarName + "Array[i], dests[i]);");
+                        emit("}");
+                    }
+                    else
+                    {
+                        emit("org.apache.xmlbeans.SimpleValue[] dests = arraySetterHelper(" + safeVarName + "Array.length" + ", " + identifier + ", " + setIdentifier + ");" );
+                        emit("for ( int i = 0 ; i < dests.length ; i++ ) {");
+                        emit("    " + getUserTypeStaticHandlerMethod(true, (SchemaTypeImpl)prop.getType())
+                                + "(" + safeVarName + "Array[i], dests[i]);");
+                        emit("}");
+                    }
+                }
                 else
                 {
                     if (!isSubstGroup)
@@ -2377,7 +2435,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
                 emitImplementationPreamble();
                 emitPre(sType, PrePostExtension.OPERATION_SET, identifier, isAttr, "i");
                 emitGetTarget(setIdentifier, identifier, isAttr, "i", THROW_EXCEPTION, jtargetType);
-                emit(jSet + "(" + safeVarName + ");");
+                printJSetValue(javaType, safeVarName, (SchemaTypeImpl)prop.getType());
                 emitPost(sType, PrePostExtension.OPERATION_SET, identifier, isAttr, "i");
                 emitImplementationPostamble();
             }
@@ -2436,7 +2494,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
                     emit ("(" + jtargetType +")get_store().insert_element_user(" + setIdentifier + ", " +
                             identifier + ", i);");
                 outdent();
-                emit(jSet + "(" + safeVarName + ");");
+                printJSetValue(javaType, safeVarName, (SchemaTypeImpl)prop.getType());
                 emitPost(sType, PrePostExtension.OPERATION_INSERT, identifier, isAttr, "i");
                 emitImplementationPostamble();
                 endBlock();
@@ -2448,7 +2506,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
                 emitDeclareTarget(true, jtargetType);
   	            emitPre(sType, PrePostExtension.OPERATION_INSERT, identifier, isAttr);
                 emitAddTarget(identifier, isAttr, true, jtargetType);
-                emit(jSet + "(" + safeVarName + ");");
+                printJSetValue(javaType, safeVarName, (SchemaTypeImpl)prop.getType());
                 emitPost(sType, PrePostExtension.OPERATION_INSERT, identifier, isAttr);
                 emitImplementationPostamble();
                 endBlock();
@@ -2602,6 +2660,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
                 {
                     printSetterImpls(
                         name,
+                        prop,
                         prop.isAttribute(),
                         prop.getJavaPropertyName(),
                         prop.getJavaTypeCode(),
