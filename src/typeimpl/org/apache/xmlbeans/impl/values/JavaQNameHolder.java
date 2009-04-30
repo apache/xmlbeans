@@ -178,7 +178,10 @@ public class JavaQNameHolder extends XmlObjectBase
     // setters, getters (setter already handled via set_text)
 
     public QName getQNameValue()
-        { check_dated(); return _value; }
+    {
+        check_dated();
+        return _value;
+    }
 
     // comparators
     protected boolean equal_to(XmlObject obj)
