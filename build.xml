@@ -905,6 +905,8 @@
     <target name="repackage" depends="repackage.classes">
 
         <echo message="Re-packaging XmlBeans"/>
+	<echo message="   from: ${rp_source_dir}"/>
+	<echo message="   to:   ${rp_target_dir}"/>
 
         <property
             name="new_repackage_arg"

@@ -363,8 +363,12 @@ abstract class Saver
 
             if (docTypeName != null)
             {
-                emitDocType( docTypeName, publicId, systemId );
-                return;
+                QName rootElemName = _cur.getName();
+                if ( rootElemName!=null && docTypeName.equals(rootElemName.getLocalPart()) )
+                {
+                    emitDocType( docTypeName, publicId, systemId );
+                    return;
+                }
             }
         }
 
