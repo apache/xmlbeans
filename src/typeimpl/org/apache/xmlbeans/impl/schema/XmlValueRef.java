@@ -29,7 +29,7 @@ public class XmlValueRef
     SchemaType.Ref _typeref;
     Object _initVal;
 
-    XmlValueRef(XmlAnySimpleType xobj)
+    public XmlValueRef(XmlAnySimpleType xobj)
     {
         if (xobj == null)
             throw new IllegalArgumentException();
