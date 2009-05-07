@@ -2204,7 +2204,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
                 startBlock();
                 emitImplementationPreamble();
                 emitGetTarget(setIdentifier, identifier, isAttr, "i", THROW_EXCEPTION, xtype);
-                emit("return (" + xtype + ")target;");
+                emit("return target;");
                 emitImplementationPostamble();
                 endBlock();
 
