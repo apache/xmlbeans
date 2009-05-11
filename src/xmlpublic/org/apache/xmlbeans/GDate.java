@@ -223,7 +223,7 @@ public final class GDate implements GDateSpecification, java.io.Serializable
                 throw new IllegalArgumentException();
 
             int h = twoDigit(string, start);
-            if (h >= 24)
+            if (h > 24)
                 throw new IllegalArgumentException("hour must be between 00 and 23");
             int m = twoDigit(string, start + 3);
             if (m >= 60)
@@ -264,6 +264,31 @@ public final class GDate implements GDateSpecification, java.io.Serializable
             _fs = fs;
         }
 
+        if ( hasTime() && _h == 24 )
+        {
+            if ( _m != 0 || _s != 0 || _fs.compareTo(_zero) != 0 )
+                throw new IllegalArgumentException("if hour is 24 minutes, seconds and fraction must be 0");
+            else
+            {   // normalize to next day if it has date or at least has day
+                if ( hasDate() )
+                {
+                    GDateBuilder gdb = new GDateBuilder(_CY, _M, _D, _h, _m, _s, _fs, _tzsign, _tzh, _tzm);
+                    gdb.normalize();
+                    gdb.normalizeToTimeZone(_tzsign, _tzh, _tzm);
+
+                    _D = gdb.getDay();
+                    _M = gdb.getMonth();
+                    _CY = gdb.getYear();
+                    _h = 0;
+                }
+                else if ( hasDay() ) // if no date only days increment
+                {
+                    _D++;
+                    _h = 0;
+                }
+            }
+        }
+        
         if (!isValid())
             throw new IllegalArgumentException("invalid date");
     }

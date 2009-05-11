@@ -1,28 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
-  <xs:element name="comments">
-    <xs:simpleType>
-      <xs:restriction base="xs:short" xmlns:xs="http://www.w3.org/2001/XMLSchema">
-        <xs:enumeration value="19"/>
-        <xs:enumeration value="215"/>
-        <xs:enumeration value="178"/>
-        <xs:enumeration value="558"/>
-        <xs:enumeration value="140"/>
-        <xs:enumeration value="193"/>
-        <xs:enumeration value="340"/>
-        <xs:enumeration value="277"/>
-        <xs:enumeration value="312"/>
-      </xs:restriction>
-    </xs:simpleType>
-  </xs:element>
-  <xs:element name="backslash">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element ref="story" maxOccurs="unbounded" minOccurs="0"/>
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="section" type="xs:string" xmlns:xs="http://www.w3.org/2001/XMLSchema"/>
   <xs:element name="title">
     <xs:simpleType>
       <xs:restriction base="xs:string" xmlns:xs="http://www.w3.org/2001/XMLSchema">
@@ -39,19 +16,19 @@
       </xs:restriction>
     </xs:simpleType>
   </xs:element>
-  <xs:element name="topic">
+  <xs:element name="url">
     <xs:simpleType>
-      <xs:restriction base="xs:short" xmlns:xs="http://www.w3.org/2001/XMLSchema">
-        <xs:enumeration value="191"/>
-        <xs:enumeration value="172"/>
-        <xs:enumeration value="180"/>
-        <xs:enumeration value="99"/>
-        <xs:enumeration value="141"/>
-        <xs:enumeration value="152"/>
-        <xs:enumeration value="103"/>
-        <xs:enumeration value="111"/>
-        <xs:enumeration value="126"/>
-        <xs:enumeration value="188"/>
+      <xs:restriction base="xs:anyURI" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+        <xs:enumeration value="http://slashdot.org/article.pl?sid=04/08/13/1819223"/>
+        <xs:enumeration value="http://slashdot.org/article.pl?sid=04/08/13/1621253"/>
+        <xs:enumeration value="http://slashdot.org/article.pl?sid=04/08/13/1614232"/>
+        <xs:enumeration value="http://slashdot.org/article.pl?sid=04/08/13/1416254"/>
+        <xs:enumeration value="http://slashdot.org/article.pl?sid=04/08/13/1353247"/>
+        <xs:enumeration value="http://slashdot.org/article.pl?sid=04/08/13/1341237"/>
+        <xs:enumeration value="http://slashdot.org/article.pl?sid=04/08/13/1317236"/>
+        <xs:enumeration value="http://slashdot.org/article.pl?sid=04/08/13/132224"/>
+        <xs:enumeration value="http://slashdot.org/article.pl?sid=04/08/13/1225238"/>
+        <xs:enumeration value="http://slashdot.org/article.pl?sid=04/08/13/128249"/>
       </xs:restriction>
     </xs:simpleType>
   </xs:element>
@@ -71,38 +48,6 @@
       </xs:restriction>
     </xs:simpleType>
   </xs:element>
-  <xs:element name="image" type="xs:string" xmlns:xs="http://www.w3.org/2001/XMLSchema"/>
-  <xs:element name="story">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element ref="title"/>
-        <xs:element ref="url"/>
-        <xs:element ref="time"/>
-        <xs:element ref="author"/>
-        <xs:element ref="department"/>
-        <xs:element ref="topic"/>
-        <xs:element ref="comments"/>
-        <xs:element ref="section"/>
-        <xs:element ref="image"/>
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="url">
-    <xs:simpleType>
-      <xs:restriction base="xs:anyURI" xmlns:xs="http://www.w3.org/2001/XMLSchema">
-        <xs:enumeration value="http://slashdot.org/article.pl?sid=04/08/13/1819223"/>
-        <xs:enumeration value="http://slashdot.org/article.pl?sid=04/08/13/1621253"/>
-        <xs:enumeration value="http://slashdot.org/article.pl?sid=04/08/13/1614232"/>
-        <xs:enumeration value="http://slashdot.org/article.pl?sid=04/08/13/1416254"/>
-        <xs:enumeration value="http://slashdot.org/article.pl?sid=04/08/13/1353247"/>
-        <xs:enumeration value="http://slashdot.org/article.pl?sid=04/08/13/1341237"/>
-        <xs:enumeration value="http://slashdot.org/article.pl?sid=04/08/13/1317236"/>
-        <xs:enumeration value="http://slashdot.org/article.pl?sid=04/08/13/132224"/>
-        <xs:enumeration value="http://slashdot.org/article.pl?sid=04/08/13/1225238"/>
-        <xs:enumeration value="http://slashdot.org/article.pl?sid=04/08/13/128249"/>
-      </xs:restriction>
-    </xs:simpleType>
-  </xs:element>
   <xs:element name="author" type="xs:string" xmlns:xs="http://www.w3.org/2001/XMLSchema"/>
   <xs:element name="department">
     <xs:simpleType>
@@ -119,5 +64,60 @@
         <xs:enumeration value="fear-factor"/>
       </xs:restriction>
     </xs:simpleType>
+  </xs:element>
+  <xs:element name="topic">
+    <xs:simpleType>
+      <xs:restriction base="xs:short" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+        <xs:enumeration value="191"/>
+        <xs:enumeration value="172"/>
+        <xs:enumeration value="180"/>
+        <xs:enumeration value="99"/>
+        <xs:enumeration value="141"/>
+        <xs:enumeration value="152"/>
+        <xs:enumeration value="103"/>
+        <xs:enumeration value="111"/>
+        <xs:enumeration value="126"/>
+        <xs:enumeration value="188"/>
+      </xs:restriction>
+    </xs:simpleType>
+  </xs:element>
+  <xs:element name="comments">
+    <xs:simpleType>
+      <xs:restriction base="xs:short" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+        <xs:enumeration value="19"/>
+        <xs:enumeration value="215"/>
+        <xs:enumeration value="178"/>
+        <xs:enumeration value="558"/>
+        <xs:enumeration value="140"/>
+        <xs:enumeration value="193"/>
+        <xs:enumeration value="340"/>
+        <xs:enumeration value="277"/>
+        <xs:enumeration value="312"/>
+      </xs:restriction>
+    </xs:simpleType>
+  </xs:element>
+  <xs:element name="section" type="xs:string" xmlns:xs="http://www.w3.org/2001/XMLSchema"/>
+  <xs:element name="image" type="xs:string" xmlns:xs="http://www.w3.org/2001/XMLSchema"/>
+  <xs:element name="story">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="title"/>
+        <xs:element ref="url"/>
+        <xs:element ref="time"/>
+        <xs:element ref="author"/>
+        <xs:element ref="department"/>
+        <xs:element ref="topic"/>
+        <xs:element ref="comments"/>
+        <xs:element ref="section"/>
+        <xs:element ref="image"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="backslash">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="story" maxOccurs="unbounded" minOccurs="0"/>
+      </xs:sequence>
+    </xs:complexType>
   </xs:element>
 </xs:schema>

@@ -143,7 +143,8 @@ public class GDateTests extends TestCase
                 "1996-13-28T00:00:00Z", // month
                 "1996-02-00T00:00:00Z", // day
                 "2000-02-30T00:00:00Z", // day
-                "1996-02-29T24:00:00Z", // hr
+                "1996-02-29T25:00:00Z", // hr
+                "1996-02-29T24:00:01Z", // hr
                 "1996-02-29T00:60:00Z", // min
                 "1996-02-29T00:00:60Z", // sec
                 "1996-02-29T00:00:00+14:01", // tz
@@ -164,7 +165,8 @@ public class GDateTests extends TestCase
                 "--11-31", // day
                 "---00", // day
                 "---32", // day
-                "24:00:00Z", // hr
+                "25:00:00Z", // hr
+                "24:01:00Z", // hr
                 "00:60:00Z", // min
                 "00:00:60Z", // sec
                 "00:00:00+14:01", // tz
@@ -251,6 +253,9 @@ public class GDateTests extends TestCase
                 "-0004--31T00:00:00+01:30",
                 "2002-04-18T23:59:59Z",
                 "-0423-12-31T00:00:00-05:00",
+                "1996-02-29T24:00:00Z", // 24:00:00 is valid
+                "24:00:00Z",            // 24:00:00 is valid
+
             };
 
     private boolean hasTime(GDuration gd)
@@ -571,8 +576,13 @@ public class GDateTests extends TestCase
                 Assert.fail("Problem with " + str + ": " + e.getMessage());
             }
 
-            // must round-trip to string
-            Assert.assertEquals(str, gdate.toString());
+            if ( str.contains("24:00:00") && gdate.hasDay() )   // for 24h if hasDay must be normalized, else has the same representation
+            {
+                Assert.assertTrue(str + " " + gdate.toString(), gdate.hasDay() && gdate.toString().contains("00:00:00"));
+            }
+            else
+                // must round-trip to string
+                Assert.assertEquals(str, gdate.toString());
 
             // must round-trip to GregorianCalendar if fractions-of-seconds <=3 digits
             if (gdate.getFraction() == null || gdate.getFraction().scale() <= 3)

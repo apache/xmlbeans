@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
-  <xs:element name="table">
+  <xs:element name="span">
     <xs:complexType>
-      <xs:sequence>
-        <xs:element ref="tr"/>
-      </xs:sequence>
-      <xs:attribute type="xs:byte" name="border" xmlns:xs="http://www.w3.org/2001/XMLSchema"/>
-      <xs:attribute type="xs:string" name="datasrc" xmlns:xs="http://www.w3.org/2001/XMLSchema"/>
+      <xs:simpleContent>
+        <xs:extension base="xs:string" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+          <xs:attribute type="xs:string" name="datafld" use="optional"/>
+        </xs:extension>
+      </xs:simpleContent>
     </xs:complexType>
   </xs:element>
   <xs:element name="td">
@@ -16,10 +16,10 @@
       </xs:sequence>
     </xs:complexType>
   </xs:element>
-  <xs:element name="html">
+  <xs:element name="tr">
     <xs:complexType>
       <xs:sequence>
-        <xs:element ref="body"/>
+        <xs:element ref="td" maxOccurs="unbounded" minOccurs="0"/>
       </xs:sequence>
     </xs:complexType>
   </xs:element>
@@ -33,11 +33,13 @@
       </xs:simpleContent>
     </xs:complexType>
   </xs:element>
-  <xs:element name="tr">
+  <xs:element name="table">
     <xs:complexType>
       <xs:sequence>
-        <xs:element ref="td" maxOccurs="unbounded" minOccurs="0"/>
+        <xs:element ref="tr"/>
       </xs:sequence>
+      <xs:attribute type="xs:byte" name="border" xmlns:xs="http://www.w3.org/2001/XMLSchema"/>
+      <xs:attribute type="xs:string" name="datasrc" xmlns:xs="http://www.w3.org/2001/XMLSchema"/>
     </xs:complexType>
   </xs:element>
   <xs:element name="body">
@@ -48,13 +50,11 @@
       </xs:sequence>
     </xs:complexType>
   </xs:element>
-  <xs:element name="span">
+  <xs:element name="html">
     <xs:complexType>
-      <xs:simpleContent>
-        <xs:extension base="xs:string" xmlns:xs="http://www.w3.org/2001/XMLSchema">
-          <xs:attribute type="xs:string" name="datafld" use="optional"/>
-        </xs:extension>
-      </xs:simpleContent>
+      <xs:sequence>
+        <xs:element ref="body"/>
+      </xs:sequence>
     </xs:complexType>
   </xs:element>
 </xs:schema>

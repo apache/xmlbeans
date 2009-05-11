@@ -561,10 +561,13 @@ public final class GDateBuilder implements GDateSpecification, java.io.Serializa
               date.getDay() > _maxDayInMonth(date.getMonth()))))
             return false;
 
-        if (date.hasTime() && (date.getHour() < 0 || date.getHour() > 23 ||
+        if (date.hasTime() && ((date.getHour() < 0 || date.getHour() > 23 ||
             date.getMinute() < 0 || date.getMinute() > 59 ||
             date.getSecond() < 0 || date.getSecond() > 59 ||
-            date.getFraction().signum() < 0 || date.getFraction().compareTo(GDate._one) >= 0))
+            date.getFraction().signum() < 0 || date.getFraction().compareTo(GDate._one) >= 0)  ) &&
+            // check for 24:00:00 valid format
+            !(date.getHour() == 24 && date.getMinute() == 0 && date.getSecond() == 0 &&
+              date.getFraction().compareTo(GDate._zero) == 0 ) )
             return false;
 
         if (date.hasTimeZone() &&

@@ -22,9 +22,10 @@ import org.apache.xmlbeans.XmlCursor;
 import javax.xml.namespace.QName;
 import java.math.BigInteger;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.LinkedHashMap;
+import java.util.HashMap;
 
 /**
  * @author Cezar Andrei (cezar.andrei at bea.com) Date: Jul 16, 2004
@@ -37,9 +38,9 @@ public class TypeSystemHolder
 
     public TypeSystemHolder()
     {
-        _globalElements = new HashMap();
-        _globalAttributes = new HashMap();
-        _globalTypes = new HashMap();
+        _globalElements = new LinkedHashMap();
+        _globalAttributes = new LinkedHashMap();
+        _globalTypes = new LinkedHashMap();
     }
 
     public void addGlobalElement(Element element)
@@ -96,7 +97,7 @@ public class TypeSystemHolder
     public SchemaDocument[] getSchemaDocuments()
     {
         // recompute everything, should cache it and track changes
-        Map nsToSchemaDocs = new HashMap();
+        Map nsToSchemaDocs = new LinkedHashMap();
 
         for (Iterator iterator = _globalElements.keySet().iterator(); iterator.hasNext();)
         {

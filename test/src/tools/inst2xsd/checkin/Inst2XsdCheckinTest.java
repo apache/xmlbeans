@@ -333,6 +333,4 @@ public class Inst2XsdCheckinTest extends Inst2XsdTestBase {
         runSchemaBuild(inst, common.getSalamiOptions(),
                 XmlObject.Factory.parse(new File(SCHEMA_CASES_DIR + "examples" + P + "sampleRss091_ss0.xsd")));
     }
-
-
 }
