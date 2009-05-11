@@ -1,23 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
-  <xs:element name="rss">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element ref="channel"/>
-      </xs:sequence>
-      <xs:attribute type="xs:float" name="version" xmlns:xs="http://www.w3.org/2001/XMLSchema"/>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="item">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element ref="title"/>
-        <xs:element ref="link"/>
-        <xs:element ref="description"/>
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="width" type="xs:byte" xmlns:xs="http://www.w3.org/2001/XMLSchema"/>
   <xs:element name="title">
     <xs:simpleType>
       <xs:restriction base="xs:string" xmlns:xs="http://www.w3.org/2001/XMLSchema">
@@ -31,6 +13,7 @@
       </xs:restriction>
     </xs:simpleType>
   </xs:element>
+  <xs:element name="url" type="xs:anyURI" xmlns:xs="http://www.w3.org/2001/XMLSchema"/>
   <xs:element name="link">
     <xs:simpleType>
       <xs:restriction base="xs:anyURI" xmlns:xs="http://www.w3.org/2001/XMLSchema">
@@ -44,9 +27,7 @@
       </xs:restriction>
     </xs:simpleType>
   </xs:element>
-  <xs:element name="webMaster" type="xs:string" xmlns:xs="http://www.w3.org/2001/XMLSchema"/>
-  <xs:element name="language" type="xs:string" xmlns:xs="http://www.w3.org/2001/XMLSchema"/>
-  <xs:element name="managingEditor" type="xs:string" xmlns:xs="http://www.w3.org/2001/XMLSchema"/>
+  <xs:element name="width" type="xs:byte" xmlns:xs="http://www.w3.org/2001/XMLSchema"/>
   <xs:element name="height" type="xs:byte" xmlns:xs="http://www.w3.org/2001/XMLSchema"/>
   <xs:element name="description">
     <xs:simpleType>
@@ -61,6 +42,10 @@
       </xs:restriction>
     </xs:simpleType>
   </xs:element>
+  <xs:element name="language" type="xs:string" xmlns:xs="http://www.w3.org/2001/XMLSchema"/>
+  <xs:element name="copyright" type="xs:string" xmlns:xs="http://www.w3.org/2001/XMLSchema"/>
+  <xs:element name="managingEditor" type="xs:string" xmlns:xs="http://www.w3.org/2001/XMLSchema"/>
+  <xs:element name="webMaster" type="xs:string" xmlns:xs="http://www.w3.org/2001/XMLSchema"/>
   <xs:element name="image">
     <xs:complexType>
       <xs:sequence>
@@ -73,7 +58,15 @@
       </xs:sequence>
     </xs:complexType>
   </xs:element>
-  <xs:element name="url" type="xs:anyURI" xmlns:xs="http://www.w3.org/2001/XMLSchema"/>
+  <xs:element name="item">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="title"/>
+        <xs:element ref="link"/>
+        <xs:element ref="description"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
   <xs:element name="channel">
     <xs:complexType>
       <xs:sequence>
@@ -89,5 +82,12 @@
       </xs:sequence>
     </xs:complexType>
   </xs:element>
-  <xs:element name="copyright" type="xs:string" xmlns:xs="http://www.w3.org/2001/XMLSchema"/>
+  <xs:element name="rss">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="channel"/>
+      </xs:sequence>
+      <xs:attribute type="xs:float" name="version" xmlns:xs="http://www.w3.org/2001/XMLSchema"/>
+    </xs:complexType>
+  </xs:element>
 </xs:schema>

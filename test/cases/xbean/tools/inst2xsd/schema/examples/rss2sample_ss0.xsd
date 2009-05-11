@@ -1,24 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
-  <xs:element name="rss">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element ref="channel"/>
-      </xs:sequence>
-      <xs:attribute type="xs:float" name="version" xmlns:xs="http://www.w3.org/2001/XMLSchema"/>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="item">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element ref="title" minOccurs="0"/>
-        <xs:element ref="link" minOccurs="0"/>
-        <xs:element ref="description"/>
-        <xs:element ref="pubDate"/>
-        <xs:element ref="guid"/>
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
   <xs:element name="title">
     <xs:simpleType>
       <xs:restriction base="xs:string" xmlns:xs="http://www.w3.org/2001/XMLSchema">
@@ -39,21 +20,6 @@
       </xs:restriction>
     </xs:simpleType>
   </xs:element>
-  <xs:element name="pubDate">
-    <xs:simpleType>
-      <xs:restriction base="xs:string" xmlns:xs="http://www.w3.org/2001/XMLSchema">
-        <xs:enumeration value="Tue, 03 Jun 2003 09:39:21 GMT"/>
-        <xs:enumeration value="Fri, 30 May 2003 11:06:42 GMT"/>
-        <xs:enumeration value="Tue, 27 May 2003 08:37:32 GMT"/>
-        <xs:enumeration value="Tue, 20 May 2003 08:56:02 GMT"/>
-        <xs:enumeration value="Tue, 10 Jun 2003 04:00:00 GMT"/>
-      </xs:restriction>
-    </xs:simpleType>
-  </xs:element>
-  <xs:element name="webMaster" type="xs:string" xmlns:xs="http://www.w3.org/2001/XMLSchema"/>
-  <xs:element name="language" type="xs:string" xmlns:xs="http://www.w3.org/2001/XMLSchema"/>
-  <xs:element name="managingEditor" type="xs:string" xmlns:xs="http://www.w3.org/2001/XMLSchema"/>
-  <xs:element name="docs" type="xs:anyURI" xmlns:xs="http://www.w3.org/2001/XMLSchema"/>
   <xs:element name="description">
     <xs:simpleType>
       <xs:restriction base="xs:string" xmlns:xs="http://www.w3.org/2001/XMLSchema">
@@ -65,7 +31,17 @@
       </xs:restriction>
     </xs:simpleType>
   </xs:element>
-  <xs:element name="lastBuildDate" type="xs:string" xmlns:xs="http://www.w3.org/2001/XMLSchema"/>
+  <xs:element name="pubDate">
+    <xs:simpleType>
+      <xs:restriction base="xs:string" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+        <xs:enumeration value="Tue, 03 Jun 2003 09:39:21 GMT"/>
+        <xs:enumeration value="Fri, 30 May 2003 11:06:42 GMT"/>
+        <xs:enumeration value="Tue, 27 May 2003 08:37:32 GMT"/>
+        <xs:enumeration value="Tue, 20 May 2003 08:56:02 GMT"/>
+        <xs:enumeration value="Tue, 10 Jun 2003 04:00:00 GMT"/>
+      </xs:restriction>
+    </xs:simpleType>
+  </xs:element>
   <xs:element name="guid">
     <xs:simpleType>
       <xs:restriction base="xs:anyURI" xmlns:xs="http://www.w3.org/2001/XMLSchema">
@@ -76,7 +52,23 @@
       </xs:restriction>
     </xs:simpleType>
   </xs:element>
+  <xs:element name="language" type="xs:string" xmlns:xs="http://www.w3.org/2001/XMLSchema"/>
+  <xs:element name="lastBuildDate" type="xs:string" xmlns:xs="http://www.w3.org/2001/XMLSchema"/>
+  <xs:element name="docs" type="xs:anyURI" xmlns:xs="http://www.w3.org/2001/XMLSchema"/>
   <xs:element name="generator" type="xs:string" xmlns:xs="http://www.w3.org/2001/XMLSchema"/>
+  <xs:element name="managingEditor" type="xs:string" xmlns:xs="http://www.w3.org/2001/XMLSchema"/>
+  <xs:element name="webMaster" type="xs:string" xmlns:xs="http://www.w3.org/2001/XMLSchema"/>
+  <xs:element name="item">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="title" minOccurs="0"/>
+        <xs:element ref="link" minOccurs="0"/>
+        <xs:element ref="description"/>
+        <xs:element ref="pubDate"/>
+        <xs:element ref="guid"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
   <xs:element name="channel">
     <xs:complexType>
       <xs:sequence>
@@ -92,6 +84,14 @@
         <xs:element ref="webMaster"/>
         <xs:element ref="item" maxOccurs="unbounded" minOccurs="0"/>
       </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="rss">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="channel"/>
+      </xs:sequence>
+      <xs:attribute type="xs:float" name="version" xmlns:xs="http://www.w3.org/2001/XMLSchema"/>
     </xs:complexType>
   </xs:element>
 </xs:schema>
