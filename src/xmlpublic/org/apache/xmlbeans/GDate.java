@@ -267,7 +267,7 @@ public final class GDate implements GDateSpecification, java.io.Serializable
         if ( hasTime() && _h == 24 )
         {
             if ( _m != 0 || _s != 0 || _fs.compareTo(_zero) != 0 )
-                throw new IllegalArgumentException("if hour is 24 minutes, seconds and fraction must be 0");
+                throw new IllegalArgumentException("if hour is 24, minutes, seconds and fraction must be 0");
             else
             {   // normalize to next day if it has date or at least has day
                 if ( hasDate() )

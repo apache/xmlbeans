@@ -414,14 +414,14 @@ public final class GDateBuilder implements GDateSpecification, java.io.Serializa
      * minutes and seconds range from 0 to 59; and fractional
      * seconds range from 0 (inclusive) to 1 (exclusive).
      * The fraction can be null and is assumed to be zero.
-     * @param hour the hour of day, from 0-23
+     * @param hour the hour of day, from 0-23 or 24 only if min, sec and fraction are 0
      * @param minute the minute of hour, from 0-59
      * @param second the second of minute, from 0-59
      * @param fraction the fraction of second, 0.0 to 0.999... (may be null)
      */
     public void setTime(int hour, int minute, int second, BigDecimal fraction)
     {
-        if (hour < 0 || hour > 23)
+        if (hour < 0 || hour > 24 )
             throw new IllegalArgumentException("hour out of range");
         if (minute < 0 || minute > 59)
             throw new IllegalArgumentException("minute out of range");
@@ -429,6 +429,9 @@ public final class GDateBuilder implements GDateSpecification, java.io.Serializa
             throw new IllegalArgumentException("second out of range");
         if (fraction != null && (fraction.signum() < 0 || fraction.compareTo(GDate._one) > 1))
             throw new IllegalArgumentException("fraction out of range");
+        if ( hour == 24 && (minute!=0 || second!=0 || (fraction!=null && (GDate._zero.compareTo(fraction)!=0)) ))
+            throw new IllegalArgumentException("when hour is 24, min sec and fracton must be 0");
+
         _bits |= HAS_TIME;
         _h = hour;
         _m = minute;
