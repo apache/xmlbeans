@@ -1988,7 +1988,11 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
             switch (handle.charAt(2))
             {
                 case 'I': // _BI_ - built-in schema type system
-                    return ((SchemaType)BuiltinSchemaTypeSystem.get().resolveHandle(handle)).getRef();
+                    SchemaType st = (SchemaType) BuiltinSchemaTypeSystem.get().resolveHandle(handle);
+                    if (st != null)
+                        return st.getRef();
+                    st = (SchemaType) XQuerySchemaTypeSystem.get().resolveHandle(handle);
+                    return st.getRef();
                 case 'T': // _XT_ - external type
                     return _linker.findTypeRef(QNameHelper.forPretty(handle, 4));
                 case 'E': // _XE_ - external element
