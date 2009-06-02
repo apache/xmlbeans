@@ -17,6 +17,13 @@ package org.apache.xmlbeans.impl.values;
 
 import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.XmlAnySimpleType;
+import org.apache.xmlbeans.XmlErrorCodes;
+import org.apache.xmlbeans.impl.common.ValidationContext;
+import org.apache.xmlbeans.impl.common.PrefixResolver;
+import org.apache.xmlbeans.impl.common.QNameHelper;
+
+import javax.xml.namespace.QName;
 
 public abstract class JavaNotationHolderEx extends JavaNotationHolder
 {
@@ -51,13 +58,49 @@ public abstract class JavaNotationHolderEx extends JavaNotationHolder
     protected void set_notation(String v)
     { set_text(v); }
 
+    protected void set_xmlanysimple(XmlAnySimpleType value)
+    {
+        QName v;
+        if (_validateOnSet())
+        {
+            v = validateLexical(value.getStringValue(), _schemaType, _voorVc, NamespaceContext.getCurrent());
+
+            if (v != null)
+                validateValue(v, _schemaType, _voorVc);
+        }
+        else
+            v = JavaNotationHolder.validateLexical(value.getStringValue(), _voorVc, NamespaceContext.getCurrent());
+
+        super.set_QName(v);
+    }
+
+    public static QName validateLexical(String v, SchemaType sType, ValidationContext context, PrefixResolver resolver)
+    {
+        QName name = JavaQNameHolder.validateLexical(v, context, resolver);
+
+        // check pattern
+        if (sType.hasPatternFacet())
+        {
+            if (!sType.matchPatternFacet(v))
+            {
+                // TODO - describe string and pattern here in error
+                context.invalid(XmlErrorCodes.DATATYPE_VALID$PATTERN_VALID,
+                    new Object[] { "NOTATION", v, QNameHelper.readable(sType) });
+            }
+        }
+
+        check(v, sType);
+
+        return name;
+    }
+
     private static boolean check(String v, SchemaType sType)
     {
         // check against length
         XmlObject len = sType.getFacet(SchemaType.FACET_LENGTH);
         if (len != null)
         {
-            int m = ((XmlObjectBase)len).bigIntegerValue().intValue();
+            int m = ((XmlObjectBase)len).getBigIntegerValue().intValue();
             if (!(v.length() != m))
                 return false;
         }
@@ -66,7 +109,7 @@ public abstract class JavaNotationHolderEx extends JavaNotationHolder
         XmlObject min = sType.getFacet(SchemaType.FACET_MIN_LENGTH);
         if (min != null)
         {
-            int m = ((XmlObjectBase)min).bigIntegerValue().intValue();
+            int m = ((XmlObjectBase)min).getBigIntegerValue().intValue();
             if (!(v.length() >= m))
                 return false;
         }
@@ -75,12 +118,25 @@ public abstract class JavaNotationHolderEx extends JavaNotationHolder
         XmlObject max = sType.getFacet(SchemaType.FACET_MAX_LENGTH);
         if (max != null)
         {
-            int m = ((XmlObjectBase)max).bigIntegerValue().intValue();
+            int m = ((XmlObjectBase)max).getBigIntegerValue().intValue();
             if (!(v.length() <= m))
                 return false;
         }
 
         return true;
+    }
+
+    public static void validateValue(QName v, SchemaType sType, ValidationContext context)
+    {
+        XmlObject[] vals = sType.getEnumerationValues();
+        if (vals != null)
+        {
+            for (int i = 0; i < vals.length; i++)
+                if (v.equals(((XmlObjectBase)vals[i]).getQNameValue()))
+                    return;
+            context.invalid(XmlErrorCodes.DATATYPE_ENUM_VALID,
+                new Object[] { "NOTATION", v, QNameHelper.readable(sType) });
+        }
     }
 
 }

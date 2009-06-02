@@ -87,7 +87,7 @@ public abstract class JavaQNameHolderEx extends JavaQNameHolder
     public static QName validateLexical(String v, SchemaType sType, ValidationContext context, PrefixResolver resolver)
     {
         QName name = JavaQNameHolder.validateLexical(v, context, resolver);
-        
+
         // check pattern
         if (sType.hasPatternFacet())
         {
@@ -128,7 +128,7 @@ public abstract class JavaQNameHolderEx extends JavaQNameHolder
         if (vals != null)
         {
             for (int i = 0; i < vals.length; i++)
-                if (v.equals(((XmlObjectBase)vals[i]).qNameValue()))
+                if (v.equals(((XmlObjectBase)vals[i]).getQNameValue()))
                     return;
             context.invalid(XmlErrorCodes.DATATYPE_ENUM_VALID,
                 new Object[] { "QName", v, QNameHelper.readable(sType) });
@@ -137,7 +137,7 @@ public abstract class JavaQNameHolderEx extends JavaQNameHolder
 
     protected void validate_simpleval(String lexical, ValidationContext ctx)
     {
-        validateValue(qNameValue(), schemaType(), ctx);
+        validateValue(getQNameValue(), schemaType(), ctx);
     }
 
 }

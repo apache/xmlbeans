@@ -18,27 +18,27 @@ package org.apache.xmlbeans.impl.validator;
 import org.apache.xmlbeans.impl.common.IdentityConstraint;
 import org.apache.xmlbeans.impl.common.QNameHelper;
 import org.apache.xmlbeans.impl.common.ValidationContext;
-import org.apache.xmlbeans.impl.common.ValidatorListener.Event;
 import org.apache.xmlbeans.impl.common.ValidatorListener;
 import org.apache.xmlbeans.impl.common.XmlWhitespace;
 import org.apache.xmlbeans.impl.schema.SchemaTypeVisitorImpl;
 import org.apache.xmlbeans.impl.schema.SchemaTypeImpl;
-import org.apache.xmlbeans.impl.values.NamespaceContext;
-import org.apache.xmlbeans.impl.values.JavaUriHolderEx;
 import org.apache.xmlbeans.impl.values.JavaBase64HolderEx;
+import org.apache.xmlbeans.impl.values.JavaBooleanHolder;
 import org.apache.xmlbeans.impl.values.JavaBooleanHolderEx;
-import org.apache.xmlbeans.impl.values.XmlDateImpl;
 import org.apache.xmlbeans.impl.values.JavaDecimalHolderEx;
 import org.apache.xmlbeans.impl.values.JavaDoubleHolderEx;
-import org.apache.xmlbeans.impl.values.XmlDurationImpl;
 import org.apache.xmlbeans.impl.values.JavaFloatHolderEx;
 import org.apache.xmlbeans.impl.values.JavaHexBinaryHolderEx;
-import org.apache.xmlbeans.impl.values.JavaBooleanHolder;
-import org.apache.xmlbeans.impl.values.XmlQNameImpl;
+import org.apache.xmlbeans.impl.values.JavaNotationHolderEx;
 import org.apache.xmlbeans.impl.values.JavaQNameHolderEx;
 import org.apache.xmlbeans.impl.values.JavaStringEnumerationHolderEx;
-import org.apache.xmlbeans.impl.values.XmlValueOutOfRangeException;
+import org.apache.xmlbeans.impl.values.JavaUriHolderEx;
+import org.apache.xmlbeans.impl.values.NamespaceContext;
+import org.apache.xmlbeans.impl.values.XmlDateImpl;
+import org.apache.xmlbeans.impl.values.XmlDurationImpl;
 import org.apache.xmlbeans.impl.values.XmlListImpl;
+import org.apache.xmlbeans.impl.values.XmlQNameImpl;
+import org.apache.xmlbeans.impl.values.XmlValueOutOfRangeException;
 import org.apache.xmlbeans.GDate;
 import org.apache.xmlbeans.GDuration;
 import org.apache.xmlbeans.QNameSet;
@@ -176,15 +176,6 @@ public final class Validator
                 _errorListener.add(error);
             }
         }
-    }
-
-    // KHK: remove this
-    private void emitFieldError ( Event event, String message, QName offendingQName,
-                                  SchemaType expectedSchemaType, List expectedQNames,
-                                  int errorType, SchemaType badSchemaType )
-    {
-        emitFieldError(event, message, null, null, XmlError.SEVERITY_ERROR, offendingQName,
-            expectedSchemaType, expectedQNames, errorType, badSchemaType);
     }
 
     private void emitFieldError ( Event event, String code, Object[] args, QName offendingQName,
@@ -1398,9 +1389,17 @@ public final class Validator
             break;
         }
         case SchemaType.BTC_NOTATION :
-            // Unimplemented.
-            _stringValue = value;
+        {
+            QName n =
+                JavaNotationHolderEx.validateLexical(
+                    value, type, _vc, event );
+
+            if (errorState == _errorState)
+                JavaNotationHolderEx.validateValue( n, type, _vc );
+
+            _qnameValue = n;
             break;
+        }
 
         default :
             throw new RuntimeException( "Unexpected primitive type code" );
@@ -1711,8 +1710,8 @@ public final class Validator
                 }
             case SchemaType.BTC_NOTATION :
                 {
-                    _listValue.add(_stringValue);
-                    _stringValue = null;
+                    _listValue.add(_qnameValue);
+                    _qnameValue = null;
                     break;
                 }
 

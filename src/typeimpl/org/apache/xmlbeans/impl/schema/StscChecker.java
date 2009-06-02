@@ -28,6 +28,7 @@ import org.apache.xmlbeans.SchemaGlobalElement;
 import org.apache.xmlbeans.XmlID;
 import org.apache.xmlbeans.XmlAnySimpleType;
 import org.apache.xmlbeans.XmlErrorCodes;
+import org.apache.xmlbeans.XmlNOTATION;
 import org.apache.xmlbeans.XmlString;
 import org.apache.xmlbeans.impl.common.XBeanDebug;
 import org.apache.xmlbeans.impl.common.QNameHelper;
@@ -73,7 +74,8 @@ public class StscChecker
     
     /**
      * The following code checks rule #5 of http://www.w3.org/TR/xmlschema-1/#coss-ct
-     * as well as attribute + element default/fixed validity.
+     * as well as attribute + element default/fixed validity. <p/>
+     * Checks that xs:NOTATION is not used directly
      */
     public static void checkFields(SchemaTypeImpl sType)
     {
@@ -106,6 +108,35 @@ public class StscChecker
                     {
                         StscState.get().error(XmlErrorCodes.ATTR_PROPERTIES$ID_FIXED_OR_DEFAULT,
                             null, attrLocation != null ? attrLocation : location);
+                    }
+                }
+                else if (XmlNOTATION.type.isAssignableFrom(sAttrs[i].getType()))
+                {
+                    if (sAttrs[i].getType().getBuiltinTypeCode() == SchemaType.BTC_NOTATION)
+                    {
+                        StscState.get().recover(XmlErrorCodes.ATTR_NOTATION_TYPE_FORBIDDEN,
+                            new Object[]{ QNameHelper.pretty(sAttrs[i].getName()) },
+                            attrLocation != null ? attrLocation : location);
+                    }
+                    else
+                    {
+                        // Check that the Schema in which this is present doesn't have a targetNS
+                        boolean hasNS;
+                        if (sType.isAttributeType())
+                            hasNS = sAttrs[i].getName().getNamespaceURI().length() > 0;
+                        else
+                        {
+                            SchemaType t = sType;
+                            while (t.getOuterType() != null)
+                                t = t.getOuterType();
+                            if (t.isDocumentType())
+                                hasNS = t.getDocumentElementName().getNamespaceURI().length() > 0;
+                            else hasNS = t.getName().getNamespaceURI().length() > 0;
+                        }
+                        if (hasNS)
+                            StscState.get().warning(XmlErrorCodes.ATTR_COMPATIBILITY_TARGETNS,
+                                new Object[] {QNameHelper.pretty(sAttrs[i].getName()) },
+                                attrLocation != null ? attrLocation : location);
                     }
                 }
                 else
@@ -151,7 +182,15 @@ public class StscChecker
         
         checkElementDefaults(sType.getContentModel(), location, sType);
     }
-    
+
+    /**
+     * Checks the default values of elements.<p/>
+     * Also checks that the type of elements is not one of ID, IDREF, IDREFS, ENTITY, ENTITIES or
+     * NOTATION as per XMLSchema part 2.
+     * @param model
+     * @param location
+     * @param parentType
+     */
     private static void checkElementDefaults(SchemaParticle model, XmlObject location, SchemaType parentType)
     {
         if (model == null)
@@ -244,8 +283,54 @@ public class StscChecker
                             (constraintLocation==null ? location : constraintLocation));
                     }
                 }
+                // Checks if the type is one of the "attribute-specific" types
+                String warningType = null;
+                if (BuiltinSchemaTypeSystem.ST_ID.isAssignableFrom(model.getType()))
+                    warningType = BuiltinSchemaTypeSystem.ST_ID.getName().getLocalPart();
+                else if (BuiltinSchemaTypeSystem.ST_IDREF.isAssignableFrom(model.getType()))
+                    warningType = BuiltinSchemaTypeSystem.ST_IDREF.getName().getLocalPart();
+                else if (BuiltinSchemaTypeSystem.ST_IDREFS.isAssignableFrom(model.getType()))
+                    warningType = BuiltinSchemaTypeSystem.ST_IDREFS.getName().getLocalPart();
+                else if (BuiltinSchemaTypeSystem.ST_ENTITY.isAssignableFrom(model.getType()))
+                    warningType = BuiltinSchemaTypeSystem.ST_ENTITY.getName().getLocalPart();
+                else if (BuiltinSchemaTypeSystem.ST_ENTITIES.isAssignableFrom(model.getType()))
+                    warningType = BuiltinSchemaTypeSystem.ST_ENTITIES.getName().getLocalPart();
+                else if (BuiltinSchemaTypeSystem.ST_NOTATION.isAssignableFrom(model.getType()))
+                {
+                    if (model.getType().getBuiltinTypeCode() == SchemaType.BTC_NOTATION)
+                    {
+                        StscState.get().recover(XmlErrorCodes.ELEM_NOTATION_TYPE_FORBIDDEN,
+                            new Object[]{ QNameHelper.pretty(model.getName()) },
+                            ((SchemaLocalElementImpl) model)._parseObject == null ? location :
+                            ((SchemaLocalElementImpl) model)._parseObject.selectAttribute("", "type"));
+                    }
+                    else
+                        warningType = BuiltinSchemaTypeSystem.ST_NOTATION.getName().getLocalPart();
+
+                    // Check that the Schema in which this is present doesn't have a targetNS
+                    boolean hasNS;
+                    SchemaType t = parentType;
+                    while (t.getOuterType() != null)
+                        t = t.getOuterType();
+                    if (t.isDocumentType())
+                        hasNS = t.getDocumentElementName().getNamespaceURI().length() > 0;
+                    else
+                        hasNS = t.getName().getNamespaceURI().length() > 0;
+                    if (hasNS)
+                        StscState.get().warning(XmlErrorCodes.ELEM_COMPATIBILITY_TARGETNS,
+                            new Object[] {QNameHelper.pretty(model.getName()) },
+                            ((SchemaLocalElementImpl) model)._parseObject == null ? location :
+                            ((SchemaLocalElementImpl) model)._parseObject);
+                }
+
+                if (warningType != null)
+                    StscState.get().warning(XmlErrorCodes.ELEM_COMPATIBILITY_TYPE, new Object[]
+                        { QNameHelper.pretty(model.getName()), warningType },
+                        ((SchemaLocalElementImpl) model)._parseObject == null ? location :
+                        ((SchemaLocalElementImpl) model)._parseObject.selectAttribute("", "type"));
+
                 break;
-                
+
            default:
                 // nothing to do.
                 break;
