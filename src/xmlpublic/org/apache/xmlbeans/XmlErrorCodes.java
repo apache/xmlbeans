@@ -951,6 +951,12 @@ public abstract class XmlErrorCodes
     public static final String FACETS_APPLICABLE = "cos-applicable-facets"; // KHK: name ok?
 
     /**
+     * notation-facets: See
+     * http://www.w3.org/TR/xmlschema-2/#NOTATION-facets
+     */
+    public static final String FACETS_DEPRECATED_NOTATION = "notation-facets";
+
+    /**
      * cos-aw-intersect: See
      * <a href="http://www.w3c.org/TR/xmlschema-1/#cos-aw-intersect">XMLSchema Structures 1.0: Attribute Wildcard Intersection</a>
      */
@@ -961,6 +967,17 @@ public abstract class XmlErrorCodes
      * <a href="http://www.w3c.org/TR/xmlschema-1/#cos-aw-union">XMLSchema Structures 1.0: Attribute Wildcard Union</a>
      */
     public static final String ATTR_WILDCARD_UNION = "cos-aw-union";
+
+    /**
+     * enumeration-required-notation: See
+     * <a href="http://www.w3.org/TR/xmlschema-2/#enumeration-required-notation">XMLSchema Datatypes 1.0: Schema Component Constraint: enumeration facet value required for NOTATION</a>
+     */
+    public static final String ATTR_NOTATION_TYPE_FORBIDDEN = "enumeration-required-notation-attr";
+
+    /**
+     * <a href="http://www.w3c.org/TR/xmlschema-2/#NOTATION">XMLSchema Datatypes 1.0: Definition of type NOTATION</>
+     */
+    public static final String ATTR_COMPATIBILITY_TARGETNS = "notation-targetns-attr";
 
     /**
      * cos-choice-range: See
@@ -1131,6 +1148,16 @@ public abstract class XmlErrorCodes
     public static final String ELEM_DEFAULT_VALID$MIXED_AND_EMPTIABLE = "cos-valid-default.2.2.2";
 
     /**
+     * <a href="http://www.w3c.org/TR/xmlschema-2/#ID">XMLSchema Datatypes 1.0: Definitions of types ID, IDREF, IDREFS, ENTITY, ENTITIES, NOTATION</>
+     */
+    public static final String ELEM_COMPATIBILITY_TYPE = "id-idref-idrefs-entity-entities-notation";
+
+    /**
+     * <a href="http://www.w3c.org/TR/xmlschema-2/#NOTATION">XMLSchema Datatypes 1.0: Definition of type NOTATION</>
+     */
+    public static final String ELEM_COMPATIBILITY_TARGETNS = "notation-targetns-elem";
+
+    /**
      * ct-props-correct: See
      * <a href="http://www.w3c.org/TR/xmlschema-1/#ct-props-correct">XMLSchema Structures 1.0: Complex Type Definition Properties Correct</a>
      */
@@ -1261,6 +1288,12 @@ public abstract class XmlErrorCodes
      * <a href="http://www.w3c.org/TR/xmlschema-1/#e-props-correct">XMLSchema Structures 1.0: Element Declaration Properties Correct</a>
      */
     public static final String ELEM_PROPERTIES$SUBSTITUTION_FINAL = "e-props-correct.4a";
+
+    /**
+     * enumeration-required-notation: See
+     * <a href="http://www.w3.org/TR/xmlschema-2/#enumeration-required-notation">XMLSchema Datatypes 1.0: Schema Component Constraint: enumeration facet value required for NOTATION</a>
+     */
+    public static final String ELEM_NOTATION_TYPE_FORBIDDEN = "enumeration-required-notation-elem";
 
     /**
      * enumeration-required-notation: See

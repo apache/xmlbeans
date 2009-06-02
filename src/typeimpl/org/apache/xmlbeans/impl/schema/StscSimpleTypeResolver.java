@@ -24,18 +24,18 @@ import org.apache.xmlbeans.impl.values.XmlValueOutOfRangeException;
 import org.apache.xmlbeans.impl.regex.RegularExpression;
 import org.apache.xmlbeans.impl.regex.ParseException;
 import org.apache.xmlbeans.impl.common.QNameHelper;
-import org.apache.xmlbeans.XmlErrorCodes;
-import org.apache.xmlbeans.XmlObject;
-import org.apache.xmlbeans.XmlInteger;
 import org.apache.xmlbeans.SchemaType;
-import org.apache.xmlbeans.XmlCursor;
-import org.apache.xmlbeans.XmlAnySimpleType;
 import org.apache.xmlbeans.SimpleValue;
+import org.apache.xmlbeans.XmlAnySimpleType;
 import org.apache.xmlbeans.XmlByte;
+import org.apache.xmlbeans.XmlCursor;
+import org.apache.xmlbeans.XmlErrorCodes;
+import org.apache.xmlbeans.XmlInteger;
+import org.apache.xmlbeans.XmlNonNegativeInteger;
+import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.XmlPositiveInteger;
 import org.apache.xmlbeans.XmlShort;
 import org.apache.xmlbeans.XmlUnsignedByte;
-import org.apache.xmlbeans.XmlPositiveInteger;
-import org.apache.xmlbeans.XmlNonNegativeInteger;
 import org.apache.xmlbeans.impl.xb.xsdschema.*;
 import org.apache.xmlbeans.impl.xb.xsdschema.SchemaDocument.Schema;
 
@@ -622,6 +622,7 @@ public class StscSimpleTypeResolver
                         return true;
                 }
                 return false;
+
             default:
                 assert(false);
                 return false;
@@ -675,6 +676,13 @@ public class StscSimpleTypeResolver
                     state.error(XmlErrorCodes.FACETS_APPLICABLE,
                         new Object[] { facetName, QNameHelper.pretty(baseImpl.getName()) }, facet);
                     continue;
+                }
+                else if (baseImpl.getPrimitiveType().getBuiltinTypeCode() == SchemaType.BTC_NOTATION
+                    && (code == SchemaType.FACET_LENGTH || code == SchemaType.FACET_MIN_LENGTH ||
+                    code == SchemaType.FACET_MAX_LENGTH))
+                {
+                    state.warning(XmlErrorCodes.FACETS_DEPRECATED_NOTATION,
+                        new Object[] {facetName, QNameHelper.pretty(baseImpl.getName()) }, facet);
                 }
                 if (seenFacet[code] && !isMultipleFacet(code))
                 {
@@ -984,6 +992,12 @@ public class StscSimpleTypeResolver
             patternArray = EMPTY_REGEX_ARRAY;
         sImpl.setPatternFacet((patternArray.length > 0 || baseImpl.hasPatternFacet()));
         sImpl.setPatterns(patternArray);
+
+        // Check that, if the base type is NOTATION, there is an enumeration facet
+        // http://www.w3.org/TR/xmlschema-2/#NOTATION
+        if (baseImpl.getBuiltinTypeCode() == SchemaType.BTC_NOTATION)
+            if (sImpl.getEnumerationValues() == null)
+                state.recover(XmlErrorCodes.DATATYPE_ENUM_NOTATION, null, restriction);
     }
 
     private static XmlValueRef[] makeValueRefArray(XmlAnySimpleType[] source)
