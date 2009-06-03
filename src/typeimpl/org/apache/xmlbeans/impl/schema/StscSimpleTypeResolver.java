@@ -380,10 +380,6 @@ public class StscSimpleTypeResolver
             SchemaTypeImpl mImpl = (SchemaTypeImpl)memberImplList.get(i);
             if (mImpl.finalUnion())
                 state.error(XmlErrorCodes.SIMPLE_TYPE_PROPERTIES$UNION_FINAL, null, parseUnion);
-
-            // Check that the member type is not a plan NOTATION
-            if (mImpl.getBuiltinTypeCode() == SchemaType.BTC_NOTATION)
-                state.recover(XmlErrorCodes.DATATYPE_ENUM_NOTATION, null, parseUnion);
         }
 
         sImpl.setUnionOfLists(isUnionOfLists);

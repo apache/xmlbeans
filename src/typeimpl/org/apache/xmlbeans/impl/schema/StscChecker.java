@@ -120,6 +120,15 @@ public class StscChecker
                     }
                     else
                     {
+                        if (sAttrs[i].getType().getSimpleVariety() == SchemaType.UNION)
+                        {
+                            SchemaType[] members = sAttrs[i].getType().getUnionConstituentTypes();
+                            for (int j = 0; j < members.length; j++)
+                                if (members[j].getBuiltinTypeCode() == SchemaType.BTC_NOTATION)
+                                    StscState.get().recover(XmlErrorCodes.ATTR_NOTATION_TYPE_FORBIDDEN,
+                                        new Object[]{ QNameHelper.pretty(sAttrs[i].getName()) },
+                                        attrLocation != null ? attrLocation : location);
+                        }
                         // Check that the Schema in which this is present doesn't have a targetNS
                         boolean hasNS;
                         if (sType.isAttributeType())
@@ -305,7 +314,19 @@ public class StscChecker
                             ((SchemaLocalElementImpl) model)._parseObject.selectAttribute("", "type"));
                     }
                     else
+                    {
+                        if (model.getType().getSimpleVariety() == SchemaType.UNION)
+                        {
+                            SchemaType[] members = model.getType().getUnionConstituentTypes();
+                            for (int i = 0; i < members.length; i++)
+                                if (members[i].getBuiltinTypeCode() == SchemaType.BTC_NOTATION)
+                                    StscState.get().recover(XmlErrorCodes.ELEM_NOTATION_TYPE_FORBIDDEN,
+                                        new Object[]{ QNameHelper.pretty(model.getName()) },
+                                        ((SchemaLocalElementImpl) model)._parseObject == null ? location :
+                                        ((SchemaLocalElementImpl) model)._parseObject.selectAttribute("", "type"));
+                        }
                         warningType = BuiltinSchemaTypeSystem.ST_NOTATION.getName().getLocalPart();
+                    }
 
                     // Check that the Schema in which this is present doesn't have a targetNS
                     boolean hasNS;
