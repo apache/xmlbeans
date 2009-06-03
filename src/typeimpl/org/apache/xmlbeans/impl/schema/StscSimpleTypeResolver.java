@@ -242,6 +242,9 @@ public class StscSimpleTypeResolver
                 // fallthrough: nonlist unions are just like atomic items
             case SchemaType.ATOMIC:
                 sImpl.setListItemTypeRef(itemImpl.getRef());
+                // Check that the item type is not a plan NOTATION
+                if (sImpl.getBuiltinTypeCode() == SchemaType.BTC_NOTATION)
+                    state.recover(XmlErrorCodes.DATATYPE_ENUM_NOTATION, null, errorLoc);
                 break;
             default:
                 assert(false);
@@ -377,6 +380,10 @@ public class StscSimpleTypeResolver
             SchemaTypeImpl mImpl = (SchemaTypeImpl)memberImplList.get(i);
             if (mImpl.finalUnion())
                 state.error(XmlErrorCodes.SIMPLE_TYPE_PROPERTIES$UNION_FINAL, null, parseUnion);
+
+            // Check that the member type is not a plan NOTATION
+            if (mImpl.getBuiltinTypeCode() == SchemaType.BTC_NOTATION)
+                state.recover(XmlErrorCodes.DATATYPE_ENUM_NOTATION, null, parseUnion);
         }
 
         sImpl.setUnionOfLists(isUnionOfLists);
@@ -677,7 +684,8 @@ public class StscSimpleTypeResolver
                         new Object[] { facetName, QNameHelper.pretty(baseImpl.getName()) }, facet);
                     continue;
                 }
-                else if (baseImpl.getPrimitiveType().getBuiltinTypeCode() == SchemaType.BTC_NOTATION
+                else if (baseImpl.getSimpleVariety() == SchemaType.ATOMIC &&
+                    baseImpl.getPrimitiveType().getBuiltinTypeCode() == SchemaType.BTC_NOTATION
                     && (code == SchemaType.FACET_LENGTH || code == SchemaType.FACET_MIN_LENGTH ||
                     code == SchemaType.FACET_MAX_LENGTH))
                 {
