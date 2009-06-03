@@ -576,9 +576,9 @@ public class GDateTests extends TestCase
                 Assert.fail("Problem with " + str + ": " + e.getMessage());
             }
 
-            if ( str.contains("24:00:00") && gdate.hasDay() )   // for 24h if hasDay must be normalized, else has the same representation
+            if ( str.indexOf("24:00:00") >= 0 && gdate.hasDay() )   // for 24h if hasDay must be normalized, else has the same representation
             {
-                Assert.assertTrue(str + " " + gdate.toString(), gdate.hasDay() && gdate.toString().contains("00:00:00"));
+                Assert.assertTrue(str + " " + gdate.toString(), gdate.hasDay() && gdate.toString().indexOf("00:00:00") >= 0);
             }
             else
                 // must round-trip to string
