@@ -142,7 +142,10 @@ public class JavaQNameHolder extends XmlObjectBase
             uri = "";
         }
 
-        return new QName( uri, localname );
+        if ( prefix!=null && prefix.length()>0 )
+            return new QName(uri, localname, prefix );
+        else
+            return new QName( uri, localname );
     }
     
     protected void set_text(String s)

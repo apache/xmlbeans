@@ -196,6 +196,9 @@ public final class GDuration implements GDurationSpecification, java.io.Serializ
                     throw new IllegalArgumentException("duration must specify Y M D T H M S in order");
             }
         }
+
+        if ( seen == SEEN_NOTHING )
+            throw new IllegalArgumentException("duration must contain at least one number and its designator: " + str);
     }
 
     /**
