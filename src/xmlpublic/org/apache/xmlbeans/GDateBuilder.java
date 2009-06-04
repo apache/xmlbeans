@@ -602,7 +602,7 @@ public final class GDateBuilder implements GDateSpecification, java.io.Serializa
         // DateTime or Time, with TimeZone: normalize to UTC.
         // In the process all the fields will be normalized.
         if (hasDay() == hasMonth() && hasDay() == hasYear() &&
-            hasTimeZone() && hasTime())
+            hasTimeZone() && hasTime() && getHour()!=24 )
         {
             normalizeToTimeZone(0, 0, 0);
         }

@@ -128,11 +128,17 @@ public final class GDate implements GDateSpecification, java.io.Serializable
             int value = 0;
             int digits = -start;
             char ch;
+            boolean startsWithZero = start < len && digitVal(string.charAt(start))==0;
+
             for (;;)
             {
                 ch = start < len ? string.charAt(start) : '\0';
                 if (!isDigit(ch))
                     break;
+                
+                if ( startsWithZero && start+digits>=4 )
+                    throw new IllegalArgumentException("year value starting with zero must be 4 or less digits: " + string);
+
                 value = value * 10 + digitVal(ch);
                 start += 1;
             }
