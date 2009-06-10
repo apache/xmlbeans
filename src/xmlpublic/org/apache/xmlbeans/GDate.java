@@ -40,7 +40,12 @@ import java.util.TimeZone;
 public final class GDate implements GDateSpecification, java.io.Serializable
 {
     private static final long serialVersionUID = 1L;
-    
+
+    // XMLSchema spec requires support only for years 1 to 9999, but XMLBeans covers more up to the following limitations
+    // to avoid losing precision when transforming to a java.util.Date
+    static final int MAX_YEAR =  292277265;  // is Long.MAX_VALUE ms in years - 1 (for the 11month, 31days, 23h, 59m, 59sec case).
+    static final int MIN_YEAR = -292275295; // is Long.MIN_VALUE ms in years + 1970 + 1
+
     // for fast equality comparison, hashing, and serialization
     private transient String _canonicalString;
     private transient String _string;
@@ -143,8 +148,8 @@ public final class GDate implements GDateSpecification, java.io.Serializable
                 start += 1;
             }
             digits += start;
-            if (digits > 6)
-                throw new IllegalArgumentException("year too long (up to 6 digits)");
+            if (digits > 9)
+                throw new IllegalArgumentException("year too long (up to 9 digits)");
             else if (digits >= 4)
             {
                 _bits |= HAS_YEAR;
@@ -154,6 +159,12 @@ public final class GDate implements GDateSpecification, java.io.Serializable
             else if (digits > 0)
                 throw new IllegalArgumentException("year must be four digits (may pad with zeroes, e.g., 0560)");
 
+            /*if ( _CY > MAX_YEAR )
+                throw new IllegalArgumentException("year must be less than " + MAX_YEAR);
+
+            if ( _CY < MIN_YEAR )
+                throw new IllegalArgumentException("year must be bigger than " + MIN_YEAR);
+            */
             // hyphen introduces a month
             if (ch != '-')
             {
@@ -279,8 +290,7 @@ public final class GDate implements GDateSpecification, java.io.Serializable
                 if ( hasDate() )
                 {
                     GDateBuilder gdb = new GDateBuilder(_CY, _M, _D, _h, _m, _s, _fs, _tzsign, _tzh, _tzm);
-                    gdb.normalize();
-                    gdb.normalizeToTimeZone(_tzsign, _tzh, _tzm);
+                    gdb.normalize24h();                    
 
                     _D = gdb.getDay();
                     _M = gdb.getMonth();
