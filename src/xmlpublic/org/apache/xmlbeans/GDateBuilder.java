@@ -374,13 +374,15 @@ public final class GDateBuilder implements GDateSpecification, java.io.Serializa
     public final int getTimeZoneMinute()
         { return _tzm; }
 
+    
+
     /**
      * Sets the year. Should be a four-digit year specification.
      * @param year the year
      */
     public void setYear(int year)
     {
-        if (year < -4713 || year > 999999)
+        if (year < GDate.MIN_YEAR || year > GDate.MAX_YEAR)
             throw new IllegalArgumentException("year out of range");
         if (year == 0)
             throw new IllegalArgumentException("year cannot be 0");
@@ -602,37 +604,14 @@ public final class GDateBuilder implements GDateSpecification, java.io.Serializa
         // DateTime or Time, with TimeZone: normalize to UTC.
         // In the process all the fields will be normalized.
         if (hasDay() == hasMonth() && hasDay() == hasYear() &&
-            hasTimeZone() && hasTime() && getHour()!=24 )
+            hasTimeZone() && hasTime() )
         {
             normalizeToTimeZone(0, 0, 0);
         }
         else
         {
             // No timezone, or incomplete date.
-            long carry = 0;
-
-            if (hasTime())
-                carry = _normalizeTime();
-
-            if (hasDay())
-                _D += carry;
-
-            if (hasDate())
-            {
-                _normalizeDate();
-            }
-            else if (hasMonth())
-            {
-                // with incomplete dates, just months can be normalized:
-                // days stay denormalized.
-                if (_M < 1 || _M > 12)
-                {
-                    int temp = _M;
-                    _M = _modulo(temp, 1, 13);
-                    if (hasYear())
-                        _CY = _CY + (int)_fQuotient(temp, 1, 13);
-                }
-            }
+            _normalizeTimeAndDate();
         }
 
         // remove trailing zeros from fractional seconds
@@ -650,6 +629,46 @@ public final class GDateBuilder implements GDateSpecification, java.io.Serializa
                         break;
                 if (lastzero < str.length())
                     _fs = _fs.setScale(_fs.scale() - str.length() + lastzero);
+            }
+        }
+    }
+
+   /**
+     * Normalizes the instance when hour is 24. If day is present, hour 24 is equivalent to hour 00 next day.
+     */
+    void normalize24h()
+    {
+        if ( !hasTime() || getHour()!=24 )
+            return;
+
+        _normalizeTimeAndDate();
+    }
+
+
+    private void _normalizeTimeAndDate()
+    {
+        long carry = 0;
+
+        if (hasTime())
+            carry = _normalizeTime();
+
+        if (hasDay())
+            _D += carry;
+
+        if (hasDate())
+        {
+            _normalizeDate();
+        }
+        else if (hasMonth())
+        {
+            // with incomplete dates, just months can be normalized:
+            // days stay denormalized.
+            if (_M < 1 || _M > 12)
+            {
+                int temp = _M;
+                _M = _modulo(temp, 1, 13);
+                if (hasYear())
+                    _CY = _CY + (int)_fQuotient(temp, 1, 13);
             }
         }
     }

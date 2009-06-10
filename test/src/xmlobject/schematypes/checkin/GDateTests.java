@@ -29,6 +29,7 @@ import org.apache.xmlbeans.XmlCalendar;
 import java.util.GregorianCalendar;
 import java.util.Date;
 import java.util.Calendar;
+import java.math.BigDecimal;
 
 public class GDateTests extends TestCase
 {
@@ -134,8 +135,8 @@ public class GDateTests extends TestCase
                 "00:00", // time incomplete
                 "00", // incomplete
                 "2100-02-29", // not leap
-                "-9999999-02-28T00:00:00Z", // too long ago
-                "9999999-02-28T00:00:00Z", // too long from now
+                "-999999999-02-28T00:00:00Z", // too long ago
+                "999999999-02-28T00:00:00Z", // too long from now
                 "9999999999999999999999999999999-02-28T00:00:00Z", // overflow?
                 "0000-01-01", // year zero
                 "0000-12-31T04:35:22.456", // year zero
@@ -633,6 +634,91 @@ public class GDateTests extends TestCase
                 GregorianCalendar gcal = gdate.getCalendar();
                 Assert.assertEquals("Comparing " + gdate + " and " + gcal, date, gcal.getTime());
             }
+        }
+    }
+
+    public void test24hDates()
+    {
+        GDate d1 = new GDate("2004-03-31T24:00:00");
+        Assert.assertEquals("2004-04-01T00:00:00", d1.toString());
+
+
+        GDateBuilder b = new GDateBuilder();
+        b.setTime(24, 0, 0, new BigDecimal("0.00"));
+        System.out.println("hour 24: " + b.getCalendar());
+        Assert.assertEquals("24:00:00.000", b.getCalendar().toString());
+
+        b.setDay(10);
+        b.setMonth(1);
+        System.out.println("hour 24: " + b.getCalendar());
+        Assert.assertEquals("--01-10T24:00:00.000", b.getCalendar().toString());
+
+        b.setYear(2010);
+        System.out.println("hour 24: " + b.getCalendar());
+        Assert.assertEquals("2010-01-10T24:00:00.000", b.getCalendar().toString());
+
+        b.setDay(31);
+        b.setMonth(03);
+        b.setYear(2004);
+
+        System.out.println("hour 24: canonical str: " + b.canonicalString());
+        Assert.assertEquals("2004-04-01T00:00:00", b.canonicalString());
+        System.out.println("hour 24: toString: " + b.toString());
+        Assert.assertEquals("2004-03-31T24:00:00.00", b.toString());
+        System.out.println("hour 24: toGDate: " + b.toGDate());
+        Assert.assertEquals("2004-03-31T24:00:00.00", b.toGDate().toString());
+        System.out.println("hour 24: toGDate().canonicalStr: " + b.toGDate().canonicalString());
+        Assert.assertEquals("2004-04-01T00:00:00", b.toGDate().canonicalString());
+        System.out.println("hour 24: toGDate().getCal: " + b.toGDate().getCalendar());
+        Assert.assertEquals("2004-03-31T24:00:00.000", b.toGDate().getCalendar().toString());
+
+
+        GDateBuilder gdb = new GDateBuilder("24:00:00+01:00");
+        System.out.println("gdb: " + gdb);
+        Assert.assertEquals("24:00:00+01:00", gdb.toString());
+
+        gdb.normalize();
+        System.out.println("gdb.normalize(): " + gdb);
+        Assert.assertEquals("23:00:00Z", gdb.toString());
+    }
+
+    public void testYearStartingWith0()
+    {
+        GDate gdate = new GDate("0004-08-01");    //      00004-08-01 must fail
+        System.out.println("year starting with 0: " + gdate.getCalendar());
+        Assert.assertEquals("0004-08-01", gdate.toString());
+
+        String txt = "-9999-06";
+        GDate d = new GDate(txt);
+        System.out.println(" gdate(" + txt + ") = " + d);
+        Assert.assertEquals("-9999-06", d.toString());
+
+        txt = "-12345-06";
+        d = new GDate(txt);
+        System.out.println(" gdate(" + txt + ") = " + d);
+        Assert.assertEquals(txt, d.toString());
+
+
+        try
+        {
+            txt = "00004-08-01";
+            d = new GDate(txt);    //      00004-08-01 must fail
+            Assert.assertTrue("Year starting with 0 of five digits: " + txt, false);
+        }
+        catch(IllegalArgumentException e)
+        {
+            Assert.assertTrue("Year starting with 0 of five digits: " + txt, true);
+        }
+
+        try
+        {
+            txt = "-012340-08-01";
+            d = new GDate(txt);
+            Assert.assertTrue("Year starting with 0 of six digits: " + txt, false);
+        }
+        catch(IllegalArgumentException e)
+        {
+            Assert.assertTrue("Year starting with 0 of six digits: " + txt, true);
         }
     }
 }
