@@ -1070,7 +1070,7 @@ public class XQuerySchemaTypeSystem extends SchemaTypeLoaderBase implements
                 hasPattern = true;
                 break;
             case BTC_DAY_TIME_DURATION:
-                pattern = "[^YM]*(DT.*)?";
+                pattern = "[^YM]*[DT].*";
                 hasPattern = true;
                 break;
             case BTC_YEAR_MONTH_DURATION:
