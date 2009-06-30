@@ -395,9 +395,10 @@
         </tar>
     </target>
 
-    <target name="dist-src" depends="clean, dirs">
+    <target name="dist-src" depends="clean, dirs, version">
         <delete file="build/private/xmlbeans-${version.base}-src.zip"/>
         <delete file="build/private/xmlbeans-${version.base}-src.tgz"/>
+        <delete file="build/private/xmlbeans-${version.base}-source.jar"/>
 
         <zip destfile="build/private/xmlbeans-${version.base}-src.zip">
             <zipfileset dir="." prefix="xmlbeans-${version.base}">
@@ -424,6 +425,39 @@
                 <exclude name="bin/*.cmd"/>
             </tarfileset>
         </tar>
+        <jar jarfile="build/private/xmlbeans-${version.base}-source.jar" index="false">
+	    <fileset dir="src/common" includes="**/*.java"/>
+	    <fileset dir="src/configschema" includes="**/*.java"/>
+	    <fileset dir="src/jamsupport" includes="**/*.java"/>
+	    <fileset dir="src/marshal" includes="**/*.java"/>
+	    <fileset dir="src/repackage" includes="**/*.java"/>
+	    <fileset dir="src/saaj_api" includes="**/*.java"/>
+	    <fileset dir="src/store" includes="**/*.java"/>
+	    <fileset dir="src/tools" includes="**/*.java"/>
+	    <fileset dir="src/toolschema" includes="**/*.java"/>
+	    <fileset dir="src/typeholder" includes="**/*.java"/>
+	    <fileset dir="src/typeimpl" includes="**/*.java"/>
+	    <fileset dir="src/typestore" includes="**/*.java"/>
+	    <fileset dir="src/xmlcomp" includes="**/*.java"/>
+	    <fileset dir="src/xmlconfig" includes="**/*.java"/>
+	    <fileset dir="src/xmlinputstream" includes="**/*.java"/>
+	    <fileset dir="src/xmlpublic" includes="**/*.java"/>
+	    <fileset dir="src/xmlschema" includes="**/*.java"/>
+	    <fileset dir="src/xpath" includes="**/*.java"/>
+	    <fileset dir="src/xpath_xquery" includes="**/*.java"/>
+	    <fileset dir="src/xsdschema" includes="**/*.java"/>
+	    <fileset dir="src/zipcompare" includes="**/*.java"/>
+	    <fileset dir="maven-plugin/src/java" includes="**/*.java"/>
+            <manifest>
+                <section name="${manifest.name}">
+                    <attribute name="Comment" value="${manifest.comment}"/>
+                    <attribute name="Implementation-Title" value="${manifest.title}"/>
+                    <attribute name="Implementation-Version" value="${version.full}"/>
+                    <attribute name="Implementation-Vendor" value="${manifest.vendor}"/>
+                    <attribute name="Implementation-URL" value="${manifest.url}"/>
+                </section>
+            </manifest>	    
+        </jar>
     </target>
 
     <target name="enum-support.jar"
