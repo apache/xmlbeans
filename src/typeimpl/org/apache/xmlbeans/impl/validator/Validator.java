@@ -22,6 +22,7 @@ import org.apache.xmlbeans.impl.common.ValidatorListener;
 import org.apache.xmlbeans.impl.common.XmlWhitespace;
 import org.apache.xmlbeans.impl.schema.SchemaTypeVisitorImpl;
 import org.apache.xmlbeans.impl.schema.SchemaTypeImpl;
+import org.apache.xmlbeans.impl.schema.BuiltinSchemaTypeSystem;
 import org.apache.xmlbeans.impl.values.JavaBase64HolderEx;
 import org.apache.xmlbeans.impl.values.JavaBooleanHolder;
 import org.apache.xmlbeans.impl.values.JavaBooleanHolderEx;
@@ -81,6 +82,7 @@ public final class Validator
         options = XmlOptions.maskNull(options);
         _errorListener = (Collection) options.get(XmlOptions.ERROR_LISTENER);
         _treatLaxAsSkip = options.hasOption(XmlOptions.VALIDATE_TREAT_LAX_AS_SKIP);
+        _strict = options.hasOption(XmlOptions.VALIDATE_STRICT);
 
         if (_errorListener == null)
             _errorListener = defaultErrorListener;
@@ -1286,6 +1288,16 @@ public final class Validator
         {
             JavaDecimalHolderEx.validateLexical( value, type, _vc );
 
+            // An additional rule states that if the type is xs:integer or derived from it,
+            // then the decimal dot is not allowed.
+            // verify that values extending xsd:integer don't have a decimal point
+            if ( _strict &&
+                BuiltinSchemaTypeSystem.ST_INTEGER.isAssignableFrom( type ) &&
+                value.lastIndexOf('.') >= 0)
+            {
+                _vc.invalid(XmlErrorCodes.INTEGER, new Object[] { value });
+            }
+
             if (errorState == _errorState)
             {
                 _decimalValue = new BigDecimal( value );
@@ -1339,6 +1351,14 @@ public final class Validator
             _stringValue = value;
             break;
         }
+        case SchemaType.BTC_G_MONTH :
+        {
+            // In the case of gMonth, there is some strict mode validation to do
+            if (_strict && value.length() == 6 &&
+                value.charAt( 4 ) == '-' && value.charAt( 5 ) == '-')
+                _vc.invalid(XmlErrorCodes.DATE, new Object[] { value });
+            // Fall through
+        }
         case SchemaType.BTC_DATE_TIME :
         case SchemaType.BTC_TIME :
         case SchemaType.BTC_DATE :
@@ -1346,7 +1366,6 @@ public final class Validator
         case SchemaType.BTC_G_YEAR :
         case SchemaType.BTC_G_MONTH_DAY :
         case SchemaType.BTC_G_DAY :
-        case SchemaType.BTC_G_MONTH :
         {
             GDate d = XmlDateImpl.validateLexical( value, type, _vc );
 
@@ -1732,6 +1751,7 @@ public final class Validator
     private int                _errorState;
     private Collection         _errorListener;
     private boolean            _treatLaxAsSkip;
+    private boolean            _strict;
     private ValidatorVC        _vc;
     private int                _suspendErrors;
     private IdentityConstraint _constraintEngine;

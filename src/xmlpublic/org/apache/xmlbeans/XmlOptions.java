@@ -70,7 +70,8 @@ import javax.xml.namespace.QName;
  *   <td align="center"><code>setLoad***</code><br/>
  *                      <code>setEntityResolver</code></td>
  *   <td align="center"><code>setErrorListener</code><br/>
- *                      <code>setValidateTreatLaxAsSkip</code></td>
+ *                      <code>setValidateTreatLaxAsSkip</code>
+ *                      <code>setValidateStrict</code></td>
  *   <td align="center"><code>setErrorListener</code><br/>
  *                      <code>setCompile***</code><br/>
  *                      <code>setEntityResolver</code><br/>
@@ -773,6 +774,14 @@ public class XmlOptions implements java.io.Serializable
     }
 
     /**
+     * Performs additional validation checks that are disabled by
+     * default for better compatibility.
+     */
+    public XmlOptions setValidateStrict() {
+        return set ( VALIDATE_STRICT );
+    }
+
+    /**
      * This option controls whether or not operations on XmlBeans are
      * thread safe.  When not on, all XmlBean operations will be syncronized.
      * This provides for multiple thread the ability to access a single
@@ -943,6 +952,8 @@ public class XmlOptions implements java.io.Serializable
     public static final String VALIDATE_ON_SET                 = "VALIDATE_ON_SET";
     /** @exclude */
     public static final String VALIDATE_TREAT_LAX_AS_SKIP      = "VALIDATE_TREAT_LAX_AS_SKIP";
+    /** @exclude */
+    public static final String VALIDATE_STRICT                 = "VALIDATE_STRICT";
     /** @exclude */
     public static final String VALIDATE_TEXT_ONLY              = "VALIDATE_TEXT_ONLY";
     /** @exclude */

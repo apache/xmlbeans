@@ -407,6 +407,19 @@ public class XmlOptionsBean extends XmlOptions
         return hasOption( VALIDATE_TREAT_LAX_AS_SKIP );
     }
 
+    public void setValidateStrict(boolean b)
+    {
+        if (b)
+            super.setValidateStrict();
+        else
+            remove( VALIDATE_STRICT );
+    }
+
+    public boolean isValidateStrict()
+    {
+        return hasOption( VALIDATE_STRICT );
+    }
+
     public void setUnsynchronized(boolean b)
     {
         if (b)

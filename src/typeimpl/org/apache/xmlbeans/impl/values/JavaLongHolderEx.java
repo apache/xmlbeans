@@ -60,7 +60,7 @@ public abstract class JavaLongHolderEx extends JavaLongHolder
     public static void validateLexical(String v, SchemaType sType, ValidationContext context)
     {
         JavaDecimalHolder.validateLexical(v, context);
-        
+
         // check pattern
         if (sType.hasPatternFacet())
         {
@@ -162,11 +162,11 @@ public abstract class JavaLongHolderEx extends JavaLongHolder
         switch (s.getDecimalSize()) 
         {
             case SchemaType.SIZE_BIG_DECIMAL:
-                return ((XmlObjectBase)o).bigDecimalValue().longValue();
+                return ((XmlObjectBase)o).getBigDecimalValue().longValue();
             case SchemaType.SIZE_BIG_INTEGER:
-                return ((XmlObjectBase)o).bigIntegerValue().longValue();
+                return ((XmlObjectBase)o).getBigIntegerValue().longValue();
             case SchemaType.SIZE_LONG:
-                return ((XmlObjectBase)o).longValue();
+                return ((XmlObjectBase)o).getLongValue();
             default:
                 throw new IllegalStateException("Bad facet type: " + s);
         }
@@ -176,6 +176,6 @@ public abstract class JavaLongHolderEx extends JavaLongHolder
     protected void validate_simpleval(String lexical, ValidationContext ctx)
     {
         validateLexical(lexical, schemaType(), ctx);
-        validateValue(longValue(), schemaType(), ctx);
+        validateValue(getLongValue(), schemaType(), ctx);
     }
 }
