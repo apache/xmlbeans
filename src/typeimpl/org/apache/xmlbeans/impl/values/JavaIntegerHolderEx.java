@@ -59,7 +59,7 @@ public class JavaIntegerHolderEx extends JavaIntegerHolder
     public static void validateLexical(String v, SchemaType sType, ValidationContext context)
     {
         JavaDecimalHolder.validateLexical(v, context);
-        
+
         // check pattern
         if (sType.hasPatternFacet())
         {
@@ -172,7 +172,7 @@ public class JavaIntegerHolderEx extends JavaIntegerHolder
     protected void validate_simpleval(String lexical, ValidationContext ctx)
     {
         validateLexical(lexical, schemaType(), ctx);
-        validateValue(bigIntegerValue(), schemaType(), ctx);
+        validateValue(getBigIntegerValue(), schemaType(), ctx);
     }
     
 }

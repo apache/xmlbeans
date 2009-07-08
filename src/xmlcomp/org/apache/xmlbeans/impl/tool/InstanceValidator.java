@@ -41,6 +41,7 @@ public class InstanceValidator
         System.out.println("    -dl - permit network downloads for imports and includes (default is off)");
         System.out.println("    -noupa - do not enforce the unique particle attribution rule");
         System.out.println("    -nopvr - do not enforce the particle valid (restriction) rule");
+        System.out.println("    -strict - performs strict(er) validation");
         System.out.println("    -partial - allow partial schema type system");
         System.out.println("    -license - prints license information");
     }
@@ -56,6 +57,7 @@ public class InstanceValidator
         flags.add("dl");
         flags.add("noupa");
         flags.add("nopvr");
+        flags.add("strict");
         flags.add("partial");
 
         CommandLine cl = new CommandLine(args, flags, Collections.EMPTY_SET);
@@ -99,6 +101,7 @@ public class InstanceValidator
         boolean dl = (cl.getOpt("dl") != null);
         boolean nopvr = (cl.getOpt("nopvr") != null);
         boolean noupa = (cl.getOpt("noupa") != null);
+        boolean strict = (cl.getOpt("strict") != null);
         boolean partial = (cl.getOpt("partial") != null);
 
         File[] schemaFiles = cl.filesEndingWith(".xsd");
@@ -191,7 +194,9 @@ public class InstanceValidator
                 System.out.println(instanceFiles[i] + " NOT valid.  ");
                 System.out.println("  Document type not found." );
             }
-            else if (xobj.validate(new XmlOptions().setErrorListener(errors)))
+            else if (xobj.validate(strict ?
+                new XmlOptions().setErrorListener(errors).setValidateStrict() :
+                new XmlOptions().setErrorListener(errors)))
                 System.out.println(instanceFiles[i] + " valid.");
             else
             {

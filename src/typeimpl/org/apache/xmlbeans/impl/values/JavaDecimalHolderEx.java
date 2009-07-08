@@ -87,7 +87,7 @@ public abstract class JavaDecimalHolderEx extends JavaDecimalHolder
         XmlObject fd = sType.getFacet(SchemaType.FACET_FRACTION_DIGITS);
         if (fd != null)
         {
-            int scale = ((XmlObjectBase)fd).bigIntegerValue().intValue();
+            int scale = ((XmlObjectBase)fd).getBigIntegerValue().intValue();
             try
             {
                 // used only for side-effect - this does not change v despite
@@ -110,7 +110,7 @@ public abstract class JavaDecimalHolderEx extends JavaDecimalHolder
         if (td != null)
         {
             String temp = v.unscaledValue().toString();
-            int tdf = ((XmlObjectBase)td).bigIntegerValue().intValue();
+            int tdf = ((XmlObjectBase)td).getBigIntegerValue().intValue();
             int origLen = temp.length();
             int len = origLen;
             if (origLen > 0)
@@ -146,7 +146,7 @@ public abstract class JavaDecimalHolderEx extends JavaDecimalHolder
         XmlObject mine = sType.getFacet(SchemaType.FACET_MIN_EXCLUSIVE);
         if (mine != null)
         {
-            BigDecimal m = ((XmlObjectBase)mine).bigDecimalValue();
+            BigDecimal m = ((XmlObjectBase)mine).getBigDecimalValue();
             if (v.compareTo(m) <= 0)
             {
                 context.invalid(XmlErrorCodes.DATATYPE_MIN_EXCLUSIVE_VALID,
@@ -159,7 +159,7 @@ public abstract class JavaDecimalHolderEx extends JavaDecimalHolder
         XmlObject mini = sType.getFacet(SchemaType.FACET_MIN_INCLUSIVE);
         if (mini != null)
         {
-            BigDecimal m = ((XmlObjectBase)mini).bigDecimalValue();
+            BigDecimal m = ((XmlObjectBase)mini).getBigDecimalValue();
             if (v.compareTo(m) < 0)
             {
                 context.invalid(XmlErrorCodes.DATATYPE_MIN_INCLUSIVE_VALID,
@@ -172,7 +172,7 @@ public abstract class JavaDecimalHolderEx extends JavaDecimalHolder
         XmlObject maxi = sType.getFacet(SchemaType.FACET_MAX_INCLUSIVE);
         if (maxi != null)
         {
-            BigDecimal m = ((XmlObjectBase)maxi).bigDecimalValue();
+            BigDecimal m = ((XmlObjectBase)maxi).getBigDecimalValue();
             if (v.compareTo(m) > 0)
             {
                 context.invalid(XmlErrorCodes.DATATYPE_MAX_INCLUSIVE_VALID,
@@ -185,7 +185,7 @@ public abstract class JavaDecimalHolderEx extends JavaDecimalHolder
         XmlObject maxe = sType.getFacet(SchemaType.FACET_MAX_EXCLUSIVE);
         if (maxe != null)
         {
-            BigDecimal m = ((XmlObjectBase)maxe).bigDecimalValue();
+            BigDecimal m = ((XmlObjectBase)maxe).getBigDecimalValue();
             if (v.compareTo(m) >= 0)
             {
                 context.invalid(XmlErrorCodes.DATATYPE_MAX_EXCLUSIVE_VALID,
@@ -199,7 +199,7 @@ public abstract class JavaDecimalHolderEx extends JavaDecimalHolder
         if (vals != null)
         {
             for (int i = 0; i < vals.length; i++)
-                if (v.equals(((XmlObjectBase)vals[i]).bigDecimalValue()))
+                if (v.equals(((XmlObjectBase)vals[i]).getBigDecimalValue()))
                     return;
             context.invalid(XmlErrorCodes.DATATYPE_ENUM_VALID,
                 new Object[] { "decimal", v, QNameHelper.readable(sType) });
@@ -209,7 +209,7 @@ public abstract class JavaDecimalHolderEx extends JavaDecimalHolder
     protected void validate_simpleval(String lexical, ValidationContext ctx)
     {
         validateLexical(lexical, schemaType(), ctx);
-        validateValue(bigDecimalValue(), schemaType(), ctx);
+        validateValue(getBigDecimalValue(), schemaType(), ctx);
     }
 
 }

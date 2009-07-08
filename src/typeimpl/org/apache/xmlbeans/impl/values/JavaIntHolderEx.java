@@ -60,7 +60,7 @@ public abstract class JavaIntHolderEx extends JavaIntHolder
     public static void validateLexical(String v, SchemaType sType, ValidationContext context)
     {
         JavaDecimalHolder.validateLexical(v, context);
-        
+
         // check pattern
         if (sType.hasPatternFacet())
         {
@@ -162,13 +162,13 @@ public abstract class JavaIntHolderEx extends JavaIntHolder
         switch (s.getDecimalSize()) 
         {
             case SchemaType.SIZE_BIG_DECIMAL:
-                return ((XmlObjectBase)o).bigDecimalValue().intValue();
+                return ((XmlObjectBase)o).getBigDecimalValue().intValue();
             case SchemaType.SIZE_BIG_INTEGER:
-                return ((XmlObjectBase)o).bigIntegerValue().intValue();
+                return ((XmlObjectBase)o).getBigIntegerValue().intValue();
             case SchemaType.SIZE_LONG:
-                return (int)((XmlObjectBase)o).longValue();
+                return (int)((XmlObjectBase)o).getLongValue();
             default:
-                return ((XmlObjectBase)o).intValue();
+                return ((XmlObjectBase)o).getIntValue();
         }
 
     }
@@ -176,7 +176,7 @@ public abstract class JavaIntHolderEx extends JavaIntHolder
     protected void validate_simpleval(String lexical, ValidationContext ctx)
     {
         validateLexical(lexical, schemaType(), ctx);
-        validateValue(intValue(), schemaType(), ctx);
+        validateValue(getIntValue(), schemaType(), ctx);
     }
     
 }
