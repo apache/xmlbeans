@@ -425,7 +425,7 @@
                 <exclude name="bin/*.cmd"/>
             </tarfileset>
         </tar>
-        <jar jarfile="build/private/xmlbeans-${version.base}-source.jar" index="false">
+        <jar jarfile="build/private/xmlbeans-${version.base}-sources.jar" index="false">
 	    <fileset dir="src/common" includes="**/*.java"/>
 	    <fileset dir="src/configschema" includes="**/*.java"/>
 	    <fileset dir="src/jamsupport" includes="**/*.java"/>

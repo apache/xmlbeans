@@ -30,6 +30,7 @@ import java.math.BigInteger;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
+import java.net.URI;
 
 public final class XsTypeConverter
 {
@@ -729,4 +730,111 @@ public final class XsTypeConverter
         return sign * result;
     }
 
+    // ======================== anyURI ========================
+    public static CharSequence printAnyURI(CharSequence val)
+    {
+        return val;
+    }
+
+    /**
+     * Checkes the regular expression of URI, defined by RFC2369 http://www.ietf.org/rfc/rfc2396.txt Appendix B.
+     * Note: The whitespace normalization rule collapse must be applied priot to calling this method.
+     * @param lexical_value the lexical value
+     * @return same input value if input value is in the lexical space
+     * @throws InvalidLexicalValueException
+     */
+    public static CharSequence lexAnyURI(CharSequence lexical_value)
+    {
+        /*  // Reg exp from RFC2396, but it's too forgiving for XQTS
+        Pattern p = Pattern.compile("^([^:/?#]+:)?(//[^/?#]*)?([^?#]*)(\\?[^#]*)?(#.*)?");
+        Matcher m = p.matcher(lexical_value);
+        if ( !m.matches() )
+            throw new InvalidLexicalValueException("invalid anyURI value");
+        else
+        {
+            for ( int i = 0; i<= m.groupCount(); i++ )
+            {
+                System.out.print("  " + i + ": " + m.group(i));
+            }
+            System.out.println("");
+            return lexical_value;
+        } */
+
+        // Per XMLSchema spec allow spaces inside URIs
+        String s = lexical_value.toString().replace(" ", "%20");
+
+        try
+        {
+            URI.create(s);
+        }
+        catch (IllegalArgumentException e)
+        {
+            throw new InvalidLexicalValueException("invalid anyURI value: " + lexical_value, e);
+        }
+
+        return lexical_value;
+    }
+
+//    public static void main(String[] args)
+//    {
+//        lexAnyURI("http://www.ics.uci.edu/pub/ietf/uri/#Related");
+//        lexAnyURI("http://www.ics.uci.edu/pub/ietf/uri/?query=abc#Related");
+//        lexAnyURI("http://a/b/c/d;p?q");
+//        lexAnyURI("g:h");
+//        lexAnyURI("./g");
+//        lexAnyURI("g/");
+//        lexAnyURI("/g");
+//        lexAnyURI("//g");
+//        lexAnyURI("?y");
+//        lexAnyURI("g?y");
+//        lexAnyURI("#s");
+//        lexAnyURI("g#s");
+//        lexAnyURI("g?y#s");
+//        lexAnyURI(";x");
+//        lexAnyURI("g;x");
+//        lexAnyURI("g;x?y#s");
+//        lexAnyURI(".");
+//        lexAnyURI("./");
+//        lexAnyURI("..");
+//        lexAnyURI("../");
+//        lexAnyURI("../g");
+//        lexAnyURI("../..");
+//        lexAnyURI("../../");
+//        lexAnyURI("../../g");
+//
+//        lexAnyURI("http:// www   .ics.uci.edu   /pub/ietf/uri  /#Related");
+//        lexAnyURI("http:// www   .ics.uci.edu   /pub/iet%20%20f/uri  /#Related");
+//
+//
+//        // From XQTS cvshead June 2009
+//        String[] invalidURIs = {"http:\\\\invalid>URI\\someURI",        // K2-SeqExprCast-207: Construct an xs:anyURI from an invalid string. However, in F&O 17.1.1, it is said that "For xs:anyURI, the extent to which an implementation validates the lexical form of xs:anyURI is implementation dependent.".
+//                                "http://www.example.com/file%GF.html",  // K2-SeqExprCast-210: '%' is not a disallowed character and therefore it's not encoded before being considered for RFC 2396 validness.
+//                                "foo://",                               // K2-SeqExprCast-421: Pass an invalid anyURI.
+//                                "foo:",                                 // K2-SeqExprCast-421-2: Pass an invalid anyURI.
+//                                "%gg",                                  // K2-SeqExprCast-422: Pass an invalid anyURI(#2).
+//                                ":/cut.jpg",                            // K2-SeqExprCast-423: no scheme
+//                                ":/images/cut.png",                     // K2-SeqExprCast-424: An URI without scheme, combined with a relative directory.
+//                                ":/",                                   // K2-SeqExprCast-505: ':/' is an invalid URI, no scheme.
+//                                "http:%%",                              // fn-resolve-uri-4: Evaluation of resolve-uri function with an invalid URI value for second argument.
+//                                ":",                                    // fn-resolve-uri-3: Evaluation of resolve-uri function with an invalid URI value for first argument.
+//                                "###Rel",
+//                                "##",
+//                                "????###",
+//                                "###????"
+//                               };
+//
+//        for ( int i = 0; i < invalidURIs.length ; i++ )
+//        {
+//            try
+//            {
+//                lexAnyURI(invalidURIs[i]);
+//                throw new IllegalStateException("URI should be invalid: " + invalidURIs[i]);
+//            }
+//            catch (InvalidLexicalValueException e)
+//            {
+//                System.out.println("URI invalid: " + invalidURIs[i] + "  " + e.getCause().getCause().getMessage());
+//                assert true;
+//            }
+//        }
+//    }
 }

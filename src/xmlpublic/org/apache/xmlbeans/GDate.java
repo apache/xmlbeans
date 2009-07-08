@@ -159,12 +159,12 @@ public final class GDate implements GDateSpecification, java.io.Serializable
             else if (digits > 0)
                 throw new IllegalArgumentException("year must be four digits (may pad with zeroes, e.g., 0560)");
 
-            /*if ( _CY > MAX_YEAR )
-                throw new IllegalArgumentException("year must be less than " + MAX_YEAR);
+            if ( _CY > MAX_YEAR )
+                throw new IllegalArgumentException("year value not supported: too big, must be less than " + MAX_YEAR);
 
             if ( _CY < MIN_YEAR )
-                throw new IllegalArgumentException("year must be bigger than " + MIN_YEAR);
-            */
+                throw new IllegalArgumentException("year values not supported: too small, must be bigger than " + MIN_YEAR);
+
             // hyphen introduces a month
             if (ch != '-')
             {
