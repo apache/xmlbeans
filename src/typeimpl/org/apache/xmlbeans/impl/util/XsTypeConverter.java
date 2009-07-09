@@ -761,11 +761,17 @@ public final class XsTypeConverter
         } */
 
         // Per XMLSchema spec allow spaces inside URIs
-        String s = lexical_value.toString().replace(" ", "%20");
+        StringBuffer s = new StringBuffer(lexical_value.toString());
+        int i = 0;
+        while ((i = s.indexOf(" ", i)) >= 0)
+        {
+            s.replace(i, i + 1, "%20");
+            i += 3;
+        }
 
         try
         {
-            URI.create(s);
+            URI.create(s.toString());
         }
         catch (IllegalArgumentException e)
         {
@@ -774,67 +780,4 @@ public final class XsTypeConverter
 
         return lexical_value;
     }
-
-//    public static void main(String[] args)
-//    {
-//        lexAnyURI("http://www.ics.uci.edu/pub/ietf/uri/#Related");
-//        lexAnyURI("http://www.ics.uci.edu/pub/ietf/uri/?query=abc#Related");
-//        lexAnyURI("http://a/b/c/d;p?q");
-//        lexAnyURI("g:h");
-//        lexAnyURI("./g");
-//        lexAnyURI("g/");
-//        lexAnyURI("/g");
-//        lexAnyURI("//g");
-//        lexAnyURI("?y");
-//        lexAnyURI("g?y");
-//        lexAnyURI("#s");
-//        lexAnyURI("g#s");
-//        lexAnyURI("g?y#s");
-//        lexAnyURI(";x");
-//        lexAnyURI("g;x");
-//        lexAnyURI("g;x?y#s");
-//        lexAnyURI(".");
-//        lexAnyURI("./");
-//        lexAnyURI("..");
-//        lexAnyURI("../");
-//        lexAnyURI("../g");
-//        lexAnyURI("../..");
-//        lexAnyURI("../../");
-//        lexAnyURI("../../g");
-//
-//        lexAnyURI("http:// www   .ics.uci.edu   /pub/ietf/uri  /#Related");
-//        lexAnyURI("http:// www   .ics.uci.edu   /pub/iet%20%20f/uri  /#Related");
-//
-//
-//        // From XQTS cvshead June 2009
-//        String[] invalidURIs = {"http:\\\\invalid>URI\\someURI",        // K2-SeqExprCast-207: Construct an xs:anyURI from an invalid string. However, in F&O 17.1.1, it is said that "For xs:anyURI, the extent to which an implementation validates the lexical form of xs:anyURI is implementation dependent.".
-//                                "http://www.example.com/file%GF.html",  // K2-SeqExprCast-210: '%' is not a disallowed character and therefore it's not encoded before being considered for RFC 2396 validness.
-//                                "foo://",                               // K2-SeqExprCast-421: Pass an invalid anyURI.
-//                                "foo:",                                 // K2-SeqExprCast-421-2: Pass an invalid anyURI.
-//                                "%gg",                                  // K2-SeqExprCast-422: Pass an invalid anyURI(#2).
-//                                ":/cut.jpg",                            // K2-SeqExprCast-423: no scheme
-//                                ":/images/cut.png",                     // K2-SeqExprCast-424: An URI without scheme, combined with a relative directory.
-//                                ":/",                                   // K2-SeqExprCast-505: ':/' is an invalid URI, no scheme.
-//                                "http:%%",                              // fn-resolve-uri-4: Evaluation of resolve-uri function with an invalid URI value for second argument.
-//                                ":",                                    // fn-resolve-uri-3: Evaluation of resolve-uri function with an invalid URI value for first argument.
-//                                "###Rel",
-//                                "##",
-//                                "????###",
-//                                "###????"
-//                               };
-//
-//        for ( int i = 0; i < invalidURIs.length ; i++ )
-//        {
-//            try
-//            {
-//                lexAnyURI(invalidURIs[i]);
-//                throw new IllegalStateException("URI should be invalid: " + invalidURIs[i]);
-//            }
-//            catch (InvalidLexicalValueException e)
-//            {
-//                System.out.println("URI invalid: " + invalidURIs[i] + "  " + e.getCause().getCause().getMessage());
-//                assert true;
-//            }
-//        }
-//    }
 }
