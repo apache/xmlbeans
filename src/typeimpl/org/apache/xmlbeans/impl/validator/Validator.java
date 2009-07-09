@@ -20,6 +20,7 @@ import org.apache.xmlbeans.impl.common.QNameHelper;
 import org.apache.xmlbeans.impl.common.ValidationContext;
 import org.apache.xmlbeans.impl.common.ValidatorListener;
 import org.apache.xmlbeans.impl.common.XmlWhitespace;
+import org.apache.xmlbeans.impl.common.InvalidLexicalValueException;
 import org.apache.xmlbeans.impl.schema.SchemaTypeVisitorImpl;
 import org.apache.xmlbeans.impl.schema.SchemaTypeImpl;
 import org.apache.xmlbeans.impl.schema.BuiltinSchemaTypeSystem;
@@ -40,6 +41,7 @@ import org.apache.xmlbeans.impl.values.XmlDurationImpl;
 import org.apache.xmlbeans.impl.values.XmlListImpl;
 import org.apache.xmlbeans.impl.values.XmlQNameImpl;
 import org.apache.xmlbeans.impl.values.XmlValueOutOfRangeException;
+import org.apache.xmlbeans.impl.util.XsTypeConverter;
 import org.apache.xmlbeans.GDate;
 import org.apache.xmlbeans.GDuration;
 import org.apache.xmlbeans.QNameSet;
@@ -1348,6 +1350,18 @@ public final class Validator
         case SchemaType.BTC_ANY_URI :
         {
             JavaUriHolderEx.validateLexical( value, type, _vc );
+            // Do strict validation
+            if (_strict)
+            {
+                try
+                {
+                    XsTypeConverter.lexAnyURI( value );
+                }
+                catch (InvalidLexicalValueException ilve)
+                {
+                     _vc.invalid(XmlErrorCodes.ANYURI, new Object[] { value });
+                }
+            }
             _stringValue = value;
             break;
         }
