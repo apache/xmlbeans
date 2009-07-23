@@ -42,6 +42,10 @@ public final class XsTypeConverter
     private static final String EMPTY_PREFIX = "";
     private static final BigDecimal DECIMAL__ZERO = new BigDecimal(0.0);
 
+    // See Section 2.4.3 of FRC2396  http://www.ietf.org/rfc/rfc2396.txt
+    private static final String[] URI_CHARS_TO_BE_REPLACED = {" "  , "{"  , "}"  , "|"  , "\\" , "^"  , "["  , "]"  , "`"  };
+    private static final String[] URI_CHARS_REPLACED_WITH  = {"%20", "%7b", "%7d", "%7c", "%5c", "%5e", "%5b", "%5d", "%60"};
+
     // ======================== float ========================
     public static float lexFloat(CharSequence cs)
         throws NumberFormatException
@@ -762,11 +766,14 @@ public final class XsTypeConverter
 
         // Per XMLSchema spec allow spaces inside URIs
         StringBuffer s = new StringBuffer(lexical_value.toString());
-        int i = 0;
-        while ((i = s.indexOf(" ", i)) >= 0)
+        for (int ic = 0; ic<URI_CHARS_TO_BE_REPLACED.length; ic++)
         {
-            s.replace(i, i + 1, "%20");
-            i += 3;
+            int i = 0;
+            while ((i = s.indexOf(URI_CHARS_TO_BE_REPLACED[ic], i)) >= 0)
+            {
+                s.replace(i, i + 1, URI_CHARS_REPLACED_WITH[ic]);
+                i += 3;
+            }
         }
 
         try
