@@ -93,6 +93,16 @@ public class NameUtil
         }
     ));
 
+    private final static Set extraWords = new HashSet(Arrays.asList(
+        new String[]
+        {
+              "i",          // used for indexes
+              "target",     // used for parameter
+              "org",        // used for package names
+              "com",        // used for package names
+        }
+    ));
+
     /*
     private final static Set javaNames = new HashSet(Arrays.asList(
         new String[]
@@ -756,6 +766,18 @@ public class NameUtil
     }
 
     /**
+     * Intended to be applied to a lowercase-starting identifier that
+     * may collide with a Java keyword.  If it does collide, this
+     * prepends the letter "x".
+     */
+    public static String nonExtraKeyword(String word)
+    {
+        if (isExtraReservedWord(word, true))
+            return word + "Value";
+        return word;
+    }
+
+    /**
      * Intended to be applied to an uppercase-starting identifier that
      * may collide with a java.lang.* classname.  If it does collide, this
      * prepends the letter "X".
@@ -777,6 +799,13 @@ public class NameUtil
         if (ignore_case)
             word = word.toLowerCase();
         return javaWords.contains(word);
+    }
+
+    private static boolean isExtraReservedWord(String word, boolean ignore_case)
+    {
+        if (ignore_case)
+            word = word.toLowerCase();
+        return extraWords.contains(word);
     }
 
     public static boolean isJavaCommonClassName(String word)

@@ -2299,10 +2299,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
         throws IOException
     {
         String safeVarName = NameUtil.nonJavaKeyword(NameUtil.lowerCamelCase(propertyName));
-        if (safeVarName.equals("i"))
-            safeVarName = "iValue";
-        else if (safeVarName.equals("target"))
-            safeVarName = "targetValue";
+        safeVarName = NameUtil.nonExtraKeyword(safeVarName);
 
         boolean xmltype = (javaType == SchemaProperty.XML_OBJECT);
         boolean isobj = (javaType == SchemaProperty.JAVA_OBJECT);
