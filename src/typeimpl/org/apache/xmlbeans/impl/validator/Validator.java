@@ -23,7 +23,6 @@ import org.apache.xmlbeans.impl.common.XmlWhitespace;
 import org.apache.xmlbeans.impl.common.InvalidLexicalValueException;
 import org.apache.xmlbeans.impl.schema.SchemaTypeVisitorImpl;
 import org.apache.xmlbeans.impl.schema.SchemaTypeImpl;
-import org.apache.xmlbeans.impl.schema.BuiltinSchemaTypeSystem;
 import org.apache.xmlbeans.impl.values.JavaBase64HolderEx;
 import org.apache.xmlbeans.impl.values.JavaBooleanHolder;
 import org.apache.xmlbeans.impl.values.JavaBooleanHolderEx;
@@ -1023,6 +1022,19 @@ public final class Validator
         State _next;
     }
 
+    private boolean derivedFromInteger( SchemaType type )
+    {
+        int btc = type.getBuiltinTypeCode();
+
+        while (btc == SchemaType.BTC_NOT_BUILTIN)
+        {
+            type = type.getBaseType();
+            btc = type.getBuiltinTypeCode();
+        }
+        // This depends on the ordering of the constant values, which is not ideal but is easier
+        return btc >= SchemaType.BTC_INTEGER && btc <= SchemaType.BTC_UNSIGNED_BYTE;
+    }
+
     private void newState ( SchemaType type, SchemaField field, boolean isNil )
     {
         State state = new State();
@@ -1293,9 +1305,7 @@ public final class Validator
             // An additional rule states that if the type is xs:integer or derived from it,
             // then the decimal dot is not allowed.
             // verify that values extending xsd:integer don't have a decimal point
-            if ( _strict &&
-                BuiltinSchemaTypeSystem.ST_INTEGER.isAssignableFrom( type ) &&
-                value.lastIndexOf('.') >= 0)
+            if ( _strict && derivedFromInteger( type ) && value.lastIndexOf('.') >= 0 )
             {
                 _vc.invalid(XmlErrorCodes.INTEGER, new Object[] { value });
             }
