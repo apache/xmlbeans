@@ -93,7 +93,7 @@ public interface SchemaComponent
         protected Ref(SchemaTypeSystem schemaTypeSystem, String handle)
             { assert(handle != null); _schemaTypeSystem = schemaTypeSystem; _handle = handle; }
 
-        private SchemaComponent _schemaComponent;
+        private volatile SchemaComponent _schemaComponent;
         private SchemaTypeSystem _schemaTypeSystem;
         public String _handle;
 
@@ -102,12 +102,18 @@ public interface SchemaComponent
         public final SchemaTypeSystem getTypeSystem()
             { return _schemaTypeSystem; }
 
-        public final synchronized SchemaComponent getComponent()
+        public final SchemaComponent getComponent()
         {
             if (_schemaComponent == null && _handle != null)
             {
-                _schemaComponent = _schemaTypeSystem.resolveHandle(_handle);
-                _schemaTypeSystem = null;
+                synchronized (this)
+                {
+                    if (_schemaComponent == null && _handle != null)
+                    {
+                        _schemaComponent = _schemaTypeSystem.resolveHandle(_handle);
+                        _schemaTypeSystem = null;
+                    }
+                }
             }
 
             return _schemaComponent;
