@@ -554,11 +554,11 @@ public class SampleXmlUtil
 
         if (fractionDigits > 0)
             if (totalDigits >= 0)
-                result.setScale(Math.max(fractionDigits, totalDigits - digits));
+                result = result.setScale(Math.max(fractionDigits, totalDigits - digits));
             else
-                result.setScale(fractionDigits);
+                result = result.setScale(fractionDigits);
         else if (fractionDigits == 0)
-            result.setScale(0);
+            result = result.setScale(0);
 
         return result.toString();
     }
