@@ -366,8 +366,4 @@ public class BuiltInType extends BaseCase {
         calendar.setTime(trialTime);
         return calendar;
     }
-
-    public void testLegacyTypes() throws Throwable {
-        fail("Implement test");
-    }
 }
