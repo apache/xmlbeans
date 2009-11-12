@@ -1800,11 +1800,13 @@ final class Cur
         _locale.notifyChange();
 
         //
-
-        if (to == null)
-            _xobj.removeCharsHelper( _pos, cchMove, null, NO_POS, false, true );
-        else
-            _xobj.removeCharsHelper( _pos, cchMove, to._xobj, to._pos, false, true );
+        //if ( _xobj != null )
+        {
+            if (to == null)
+                _xobj.removeCharsHelper( _pos, cchMove, null, NO_POS, false, true );
+            else
+                _xobj.removeCharsHelper( _pos, cchMove, to._xobj, to._pos, false, true );
+        }
 
         // Need to update the position of this cursor even though it did not move anywhere.  This
         // needs to happen because it may not be properly normalized anymore.  Note that because

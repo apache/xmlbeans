@@ -48,6 +48,16 @@ public class InstanceValidator
 
     public static void main(String[] args)
     {
+        System.exit(extraMain(args));
+    }
+
+    /**
+     * Use this method to avoid calling {@link java.lang.System#exit(int)}
+     * @param args are command line options
+     * @return exitCode
+     */
+    public static int extraMain(String[] args)
+    {
         Set flags = new HashSet();
         flags.add("h");
         flags.add("help");
@@ -65,8 +75,7 @@ public class InstanceValidator
         if (cl.getOpt("h") != null || cl.getOpt("help") != null || cl.getOpt("usage") != null || args.length < 1)
         {
             printUsage();
-            System.exit(0);
-            return;
+            return 0;
         }
 
         String[] badopts = cl.getBadOpts();
@@ -75,27 +84,24 @@ public class InstanceValidator
             for (int i = 0; i < badopts.length; i++)
                 System.out.println("Unrecognized option: " + badopts[i]);
             printUsage();
-            System.exit(0);
-            return;
+            return 0;
         }
 
         if (cl.getOpt("license") != null)
         {
             CommandLine.printLicense();
-            System.exit(0);
-            return;
+            return 0;
         }
 
         if (cl.getOpt("version") != null)
         {
             CommandLine.printVersion();
-            System.exit(0);
-            return;
+            return 0;
         }
 
         if (cl.args().length == 0)
         {
-            return;
+            return 0;
         }
 
         boolean dl = (cl.getOpt("dl") != null);
@@ -143,6 +149,8 @@ public class InstanceValidator
         if (jarFiles != null && jarFiles.length > 0)
             sLoader = XmlBeans.typeLoaderForResource(XmlBeans.resourceLoaderForPath(jarFiles));
 
+        int returnCode = 0;
+
         try
         {
             if (schemas != null && schemas.length > 0)
@@ -157,12 +165,15 @@ public class InstanceValidator
             System.out.println("Schema invalid:" + (partial ? " couldn't recover from errors" : ""));
             for (Iterator i = compErrors.iterator(); i.hasNext(); )
                 System.out.println(i.next());
-            return;
+
+            returnCode = 10;
+            return returnCode;
         }
 
         // recovered from errors, print out errors
         if (partial && !compErrors.isEmpty())
         {
+            returnCode = 11;
             System.out.println("Schema invalid: partial schema type system recovered");
             for (Iterator i = compErrors.iterator(); i.hasNext(); )
                 System.out.println(i.next());
@@ -200,6 +211,7 @@ public class InstanceValidator
                 System.out.println(instanceFiles[i] + " valid.");
             else
             {
+                returnCode = 1;
                 System.out.println(instanceFiles[i] + " NOT valid.");
                 for (Iterator it = errors.iterator(); it.hasNext(); )
                 {
@@ -207,5 +219,7 @@ public class InstanceValidator
                 }
             }
         }
+
+        return returnCode;
     }
 }
