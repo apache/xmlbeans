@@ -122,13 +122,13 @@ public class QNameHelper
                 try
                 {
                     utf8 = s.substring(i, i + 1).getBytes("UTF-8");
-                for (int j = 0; j < utf8.length; j++)
-                {
-                    result.append('_');
-                    result.append(hexdigits[(utf8[j] >> 4) & 0xF]);
-                    result.append(hexdigits[utf8[j] & 0xF]);
+                    for (int j = 0; j < utf8.length; j++)
+                    {
+                        result.append('_');
+                        result.append(hexdigits[(utf8[j] >> 4) & 0xF]);
+                        result.append(hexdigits[utf8[j] & 0xF]);
+                    }
                 }
-            }
                 catch(UnsupportedEncodingException uee)
                 {
                     // should never happen - UTF-8 i always supported
