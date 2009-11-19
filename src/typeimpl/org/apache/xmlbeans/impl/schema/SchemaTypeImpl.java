@@ -531,8 +531,12 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory
         { assertJavaizing(); _isCompiled = f; }
 
     public boolean isSkippedAnonymousType()
-        { return _outerSchemaTypeRef.get().getBaseType() == this ||
-                _outerSchemaTypeRef.get().getContentBasedOnType() == this; }
+    {
+        SchemaType outerType = getOuterType();
+        return ((outerType == null) ? false :
+                (outerType.getBaseType() == this ||
+                 outerType.getContentBasedOnType() == this));
+    }
 
     public String getShortJavaName()
         { return _shortJavaName; }
