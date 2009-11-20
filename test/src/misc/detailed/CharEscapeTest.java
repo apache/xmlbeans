@@ -23,18 +23,23 @@ import junit.framework.TestSuite;
 
 import org.apache.xmlbeans.*;
 import jira.xmlbeans177.*;
+import jira.xmlbeans177A.*;
 import common.Common;
 
 public class CharEscapeTest extends Common
 {
     static final String inputFile = 
         XBEAN_CASE_ROOT + P + "misc" + P + "jira" + P + "xmlbeans_177.xml";
+    static final String inputFile2 = 
+        XBEAN_CASE_ROOT + P + "misc" + P + "jira" + P + "xmlbeans_177a.xml";
     //static final String outputDir = OUTPUTROOT + P + "misc";
     //static final String outputFile1 = "xmlbeans_177_out1.xml";
     //static final String outputFile2 = "xmlbeans_177_out2.xml";
 
     static final String start = "<jira:testList xmlns:jira=\"http://jira/xmlbeans_177\">";
     static final String end = "</jira:testList>";
+    static final String start2 = "<jira:testListA xmlns:jira=\"http://jira/xmlbeans_177a\">";
+    static final String end2 = "</jira:testListA>";
 
     public CharEscapeTest(String name)
     {
@@ -192,7 +197,7 @@ public class CharEscapeTest extends Common
         doc.save(of2, opts);
         */
     }
-    
+
     public void testEscape2() throws Exception
     {
         TestListDocument doc = TestListDocument.Factory.newInstance();
@@ -221,7 +226,51 @@ public class CharEscapeTest extends Common
             end;
         assertEquals(exp, doc.xmlText(opts));
     }
-    
+
+    public void testEscapeAttribute() throws Exception
+    {
+        File f = new File(inputFile2);
+        TestListADocument doc = TestListADocument.Factory.parse(f);
+
+        // default behavior: without the character replacement map,
+        // only the minimal, required characters are escaped
+        String exp1 = start2 + "\n" +
+            "  <test a=\"This is a greater than sign: >\"/>\n" +
+            "  <test a=\"This is a less than sign: &lt;\"/>\n" +
+            "  <test a=\"This is a single quote: '\"/>\n" +
+            "  <test a=\"This is a double quote: &quot;\"/>\n" +
+            "  <test a=\"W.L.Gore &amp; Associates\"/>\n" +
+            end2;
+        assertEquals(exp1, doc.xmlText());
+
+        XmlOptionCharEscapeMap charEsc = new XmlOptionCharEscapeMap();
+        charEsc.addMapping('>', XmlOptionCharEscapeMap.PREDEF_ENTITY);
+        XmlOptions opts = new XmlOptions();
+        opts.setSaveSubstituteCharacters(charEsc);
+
+        // escape '>' as predefined entity as well
+        String exp2 = start2 + "\n" +
+            "  <test a=\"This is a greater than sign: &gt;\"/>\n" +
+            "  <test a=\"This is a less than sign: &lt;\"/>\n" +
+            "  <test a=\"This is a single quote: '\"/>\n" +
+            "  <test a=\"This is a double quote: &quot;\"/>\n" +
+            "  <test a=\"W.L.Gore &amp; Associates\"/>\n" +
+            end2;
+        assertEquals(exp2, doc.xmlText(opts));
+
+        // escape block of chars as hexadecimal
+        charEsc.addMappings('A', 'D', XmlOptionCharEscapeMap.HEXADECIMAL);
+        // opts holds a reference to charEsc, so opts is updated
+        String exp3 = start2 + "\n" +
+            "  <test a=\"This is a greater than sign: &gt;\"/>\n" +
+            "  <test a=\"This is a less than sign: &lt;\"/>\n" +
+            "  <test a=\"This is a single quote: '\"/>\n" +
+            "  <test a=\"This is a double quote: &quot;\"/>\n" +
+            "  <test a=\"W.L.Gore &amp; &#x41;ssociates\"/>\n" +
+            end2;
+        assertEquals(exp3, doc.xmlText(opts));
+    }
+
     public static Test suite()
     {
         TestSuite suite = new TestSuite(CharEscapeTest.class);

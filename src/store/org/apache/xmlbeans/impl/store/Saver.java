@@ -1005,7 +1005,7 @@ abstract class Saver
             // TODO - must encode uri properly
 
             emit( uri );
-            entitizeAttrValue();
+            entitizeAttrValue(false);
 
             emit( '"' );
         }
@@ -1025,7 +1025,7 @@ abstract class Saver
             emitName( attrName, true );
             emit( '=', '\"' );
             emit( attrValue );
-            entitizeAttrValue();
+            entitizeAttrValue(true);
             emit( '"' );
         }
 
@@ -1432,7 +1432,7 @@ abstract class Saver
             }
         }
 
-        private void entitizeAttrValue ( )
+        private void entitizeAttrValue ( boolean replaceEscapedChar )
         {
             if (_lastEmitCch == 0)
                 return;
@@ -1449,6 +1449,11 @@ abstract class Saver
                     i = replace( i, "&amp;" );
                 else if (ch == '"')
                     i = replace( i, "&quot;" );
+                else if (isEscapedChar( ch ))
+                {
+                    if (replaceEscapedChar)
+                        i = replace( i, _replaceChar.getEscapedString( ch ) );
+                }
                 else
                     i++;
 
