@@ -49,9 +49,9 @@ XmlBeans depends on the following external libraries:
 - tools.jar (O) from the JDK, dependency of jam-0.1.0-src
 - resolver.jar (O) [http://xml.apache.org/commons/components/resolver/]
   for apache-commons catalog files that are used in entity resolving
-- saxon9.0.0 (O) [http://sourceforge.net/projects/saxon/]
+- saxon9.0.0.4j (O) [http://sourceforge.net/projects/saxon/]
   for XPath/XQuery in XmlBeans
 (O) means that the library is optional
 
 For licensing information, see ./src/license/LICENSE.txt
-Updated: 06/16/08.
+Updated: 11/25/09.

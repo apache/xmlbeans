@@ -1,3 +1,21 @@
+Changes in V2.5.0 since V2.4.0
+
+* Exit codes for InstanceValidator
+* Decimal precision handling fix in xsd2inst
+* Option to perform additional, stricter Schema validation checks: XMLBEANS-350
+* updated pattern for dayTimeDuration
+* Extended year min/max value limitations
+* Support for date and time types with hour 24.
+* NOTATION built-in type
+* DocType fix when root element is changed
+* "User types" feature - allows mapping of Schema simple types to custom user Java classes
+    http://wiki.apache.org/xmlbeans/UserTypes
+* Nested enumeration type compilation error fix: XMLBEANS-381
+* Deadlock fix in generated impl setter simple and array
+* Required attribute fix in streaming validator
+* Many other fixes and optimizations
+
+
 Changes in V2.4.0 since V2.3.0
 
 * Pluggable XPath/XQuery engine support
