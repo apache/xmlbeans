@@ -195,9 +195,11 @@ public final class Locale
     //
 
     public static final String USE_SAME_LOCALE = "USE_SAME_LOCALE";
-    /** 
+    /**
      * This option is checked in XmlObjectBase._copy(XmlOptions), the locale is used as the synchronization domain.
      * useNewLocale = true: copy will use a new locale, false: copy will use the same locale as the source
+     * @deprecated Replace usages with CopyUseNewSynchronizationDomain option
+     * @see org.apache.xmlbeans.XmlOptions#setCopyUseNewSynchronizationDomain(boolean)
      */
     public static final String COPY_USE_NEW_LOCALE             = "COPY_USE_NEW_LOCALE";
 

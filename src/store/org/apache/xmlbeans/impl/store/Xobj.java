@@ -2381,16 +2381,16 @@ abstract class Xobj implements TypeStore
             sType = type == null ? XmlObject.type : type;
 
         Locale locale = this.locale();
-        if ( Boolean.TRUE.equals(options.get(Locale.COPY_USE_NEW_LOCALE)) )
+        if ( Boolean.TRUE.equals(options.get(XmlOptions.COPY_USE_NEW_SYNC_DOMAIN)) )
             locale = Locale.getLocale(stl, options);
 
         if (sType.isDocumentType() || (sType.isNoType() && (this instanceof Xobj.DocumentXobj)))
-            destination = Cur.createDomDocumentRootXobj(this.locale(), false);
+            destination = Cur.createDomDocumentRootXobj(locale, false);
         else
-            destination = Cur.createDomDocumentRootXobj(this.locale(), true);
+            destination = Cur.createDomDocumentRootXobj(locale, true);
 
 
-        _locale.enter();
+        locale.enter();
         try
         {
             Cur c = destination.tempCur();
@@ -2399,7 +2399,7 @@ abstract class Xobj implements TypeStore
         }
         finally
         {
-            _locale.exit();
+            locale.exit();
         }
 
         TypeStoreUser tsu = destination.copy_contents_from(this);

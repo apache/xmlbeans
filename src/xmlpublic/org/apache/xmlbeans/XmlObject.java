@@ -406,15 +406,37 @@ public interface XmlObject extends XmlTokenSource
      * returned.
      */
     XmlObject set(XmlObject srcObj);
-    
+
     /**
      * Returns a deep copy of this XmlObject.  The returned object has the
      * same type as the current object, and has all the content of
      * the XML document underneath the current object.  Note that
      * any parts of the XML document above or outside this XmlObject are
      * not copied.
+     *
+     * Note: The result object will be in the same synchronization domain as the source,
+     * and additional synchronization is required for concurent access.
+     * To use a different synchronization domain use setCopyUseNewSynchronizationDomain
+     * option with copy(XmlOptions) method.
+     * @see #copy(XmlOptions)
+     * @see org.apache.xmlbeans.XmlOptions#setCopyUseNewSynchronizationDomain(boolean)
      */
     XmlObject copy();
+
+    /**
+     * Returns a deep copy of this XmlObject.  The returned object has the
+     * same type as the current object, and has all the content of
+     * the XML document underneath the current object.  Note that
+     * any parts of the XML document above or outside this XmlObject are
+     * not copied.
+     *
+     * Note: The result object will be in the same synchronization domain as the source,
+     * and additional synchronization is required for concurent access.
+     * To use a different synchronization domain use setCopyUseNewSynchronizationDomain
+     * option when creating the original XmlObject.
+     * @see org.apache.xmlbeans.XmlOptions#setCopyUseNewSynchronizationDomain(boolean)
+     */
+    XmlObject copy(XmlOptions options);
 
     /**
      * True if the xml values are equal. Two different objects
@@ -445,7 +467,7 @@ public interface XmlObject extends XmlTokenSource
      * value "1.0", the decimal "1", and the GYear "1", even though
      * all these objects will compare unequal to each other since they
      * lie in different value spaces.
-     * Note: as of XMLBeans 2.2.1 only implemented for simple type values. 
+     * Note: as of XMLBeans 2.2.1 only implemented for simple type values.
      */
     boolean valueEquals(XmlObject obj);
 
@@ -467,13 +489,16 @@ public interface XmlObject extends XmlTokenSource
      * the objects are equal, and 2 if the objects are incomparable.
      */
     int compareValue(XmlObject obj);
-    
+
     /** LESS_THAN is -1. See {@link #compareValue}. */
     static final int LESS_THAN = -1;
+
     /** EQUAL is 0. See {@link #compareValue}. */
     static final int EQUAL = 0;
+
     /** GREATER_THAN is 1. See {@link #compareValue}. */
     static final int GREATER_THAN = 1;
+
     /** NOT_EQUAL is 2. See {@link #compareValue}. */
     static final int NOT_EQUAL = 2;
 
