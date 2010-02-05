@@ -19,7 +19,8 @@
     <property name="javac.source" value="1.4"/>
     <property name="javac.target" value="1.4"/>
 
-    <property name="version.base" value="2.5.0"/>
+    <property name="version.base" value="2.5.1"/>
+    <property name="version.rc" value=""/>
 
     <!-- manifest entries -->
     <property name="manifest.name" value="org/apache/xmlbeans/"/>
@@ -324,8 +325,8 @@
 
     <target name="dist-bin" depends="xbean, docs">
         <delete dir="build/private/xmlbeans-${version.base}"/>
-        <delete file="build/private/xmlbeans-${version.base}.zip"/>
-        <delete file="build/private/xmlbeans-${version.base}.tgz"/>
+        <delete file="build/private/xmlbeans-${version.base}${version.rc}.zip"/>
+        <delete file="build/private/xmlbeans-${version.base}${version.rc}.tgz"/>
 
         <mkdir dir="build/private/xmlbeans-${version.base}"/>
         <copy todir="build/private/xmlbeans-${version.base}">
@@ -377,10 +378,10 @@
             </fileset>
         </copy>
 
-        <zip destfile="build/private/xmlbeans-${version.base}.zip"
+        <zip destfile="build/private/xmlbeans-${version.base}${version.rc}.zip"
             basedir="build/private"
             includes="xmlbeans-${version.base}/**"/>
-        <tar destfile="build/private/xmlbeans-${version.base}.tgz"
+        <tar destfile="build/private/xmlbeans-${version.base}${version.rc}.tgz"
             basedir="build/private"
             includes="xmlbeans-${version.base}/**"
             excludes="xmlbeans-${version.base}/bin/*"
@@ -396,11 +397,11 @@
     </target>
 
     <target name="dist-src" depends="clean, dirs, version">
-        <delete file="build/private/xmlbeans-${version.base}-src.zip"/>
-        <delete file="build/private/xmlbeans-${version.base}-src.tgz"/>
-        <delete file="build/private/xmlbeans-${version.base}-source.jar"/>
+        <delete file="build/private/xmlbeans-${version.base}${version.rc}-src.zip"/>
+        <delete file="build/private/xmlbeans-${version.base}${version.rc}-src.tgz"/>
+        <delete file="build/private/xmlbeans-${version.base}${version.rc}-source.jar"/>
 
-        <zip destfile="build/private/xmlbeans-${version.base}-src.zip">
+        <zip destfile="build/private/xmlbeans-${version.base}${version.rc}-src.zip">
             <zipfileset dir="." prefix="xmlbeans-${version.base}">
                 <patternset id="src.dist.content.dirs"
                     includes="docs/** external/** samples/** src/**"/>
@@ -412,7 +413,7 @@
                     includes=""/><!-- don't have tests part of the distribution yet -->
             </zipfileset>
         </zip>
-        <tar destfile="build/private/xmlbeans-${version.base}-src.tgz"
+        <tar destfile="build/private/xmlbeans-${version.base}${version.rc}-src.tgz"
             compression="gzip">
             <tarfileset dir="." prefix="xmlbeans-${version.base}">
                 <patternset refid="src.dist.content.dirs"/>
@@ -425,29 +426,29 @@
                 <exclude name="bin/*.cmd"/>
             </tarfileset>
         </tar>
-        <jar jarfile="build/private/xmlbeans-${version.base}-sources.jar" index="false">
-	    <fileset dir="src/common" includes="**/*.java"/>
-	    <fileset dir="src/configschema" includes="**/*.java"/>
-	    <fileset dir="src/jamsupport" includes="**/*.java"/>
-	    <fileset dir="src/marshal" includes="**/*.java"/>
-	    <fileset dir="src/repackage" includes="**/*.java"/>
-	    <fileset dir="src/saaj_api" includes="**/*.java"/>
-	    <fileset dir="src/store" includes="**/*.java"/>
-	    <fileset dir="src/tools" includes="**/*.java"/>
-	    <fileset dir="src/toolschema" includes="**/*.java"/>
-	    <fileset dir="src/typeholder" includes="**/*.java"/>
-	    <fileset dir="src/typeimpl" includes="**/*.java"/>
-	    <fileset dir="src/typestore" includes="**/*.java"/>
-	    <fileset dir="src/xmlcomp" includes="**/*.java"/>
-	    <fileset dir="src/xmlconfig" includes="**/*.java"/>
-	    <fileset dir="src/xmlinputstream" includes="**/*.java"/>
-	    <fileset dir="src/xmlpublic" includes="**/*.java"/>
-	    <fileset dir="src/xmlschema" includes="**/*.java"/>
-	    <fileset dir="src/xpath" includes="**/*.java"/>
-	    <fileset dir="src/xpath_xquery" includes="**/*.java"/>
-	    <fileset dir="src/xsdschema" includes="**/*.java"/>
-	    <fileset dir="src/zipcompare" includes="**/*.java"/>
-	    <fileset dir="maven-plugin/src/java" includes="**/*.java"/>
+        <jar jarfile="build/private/xmlbeans-${version.base}${version.rc}-sources.jar" index="false">
+            <fileset dir="src/common" includes="**/*.java"/>
+            <fileset dir="src/configschema" includes="**/*.java"/>
+            <fileset dir="src/jamsupport" includes="**/*.java"/>
+            <fileset dir="src/marshal" includes="**/*.java"/>
+            <fileset dir="src/repackage" includes="**/*.java"/>
+            <fileset dir="src/saaj_api" includes="**/*.java"/>
+            <fileset dir="src/store" includes="**/*.java"/>
+            <fileset dir="src/tools" includes="**/*.java"/>
+            <fileset dir="src/toolschema" includes="**/*.java"/>
+            <fileset dir="src/typeholder" includes="**/*.java"/>
+            <fileset dir="src/typeimpl" includes="**/*.java"/>
+            <fileset dir="src/typestore" includes="**/*.java"/>
+            <fileset dir="src/xmlcomp" includes="**/*.java"/>
+            <fileset dir="src/xmlconfig" includes="**/*.java"/>
+            <fileset dir="src/xmlinputstream" includes="**/*.java"/>
+            <fileset dir="src/xmlpublic" includes="**/*.java"/>
+            <fileset dir="src/xmlschema" includes="**/*.java"/>
+            <fileset dir="src/xpath" includes="**/*.java"/>
+            <fileset dir="src/xpath_xquery" includes="**/*.java"/>
+            <fileset dir="src/xsdschema" includes="**/*.java"/>
+            <fileset dir="src/zipcompare" includes="**/*.java"/>
+            <fileset dir="maven-plugin/src/java" includes="**/*.java"/>
             <manifest>
                 <section name="${manifest.name}">
                     <attribute name="Comment" value="${manifest.comment}"/>
