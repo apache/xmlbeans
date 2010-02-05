@@ -123,6 +123,17 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
             }
     }
 
+    public final XmlObject copy(XmlOptions options)
+    {
+        if (preCheck())
+            return _copy(options);
+        else
+            synchronized (monitor())
+            {
+                return _copy(options);
+            }
+    }
+
     private boolean preCheck()
     {
 //        if ( isImmutable() )

@@ -117,6 +117,11 @@ public abstract class FilterXmlObject implements XmlObject, SimpleValue, Delegat
         return underlyingXmlObject().copy();
     }
 
+    public XmlObject copy(XmlOptions options)
+    {
+        return underlyingXmlObject().copy(options);
+    }
+    
     public boolean valueEquals(XmlObject obj)
     {
         return underlyingXmlObject().valueEquals(obj);

@@ -846,6 +846,21 @@ public class XmlOptions implements java.io.Serializable
         return set( GENERATE_JAVA_VERSION, source );
     }
 
+    /**
+     * If this option is set to true, the return of XmlObject.copy() method will
+     * return an object in it's own synchronization domain, otherwise both objects
+     * will share the same synchronization domain, requiring explicit synchronization
+     * when concurent accessing the two objects.
+     *
+     * @param useNewSyncDomain  A flag representing the usage of new domain
+     *
+     * @see XmlObject#copy()
+     */
+    public XmlOptions setCopyUseNewSynchronizationDomain (boolean useNewSyncDomain)
+    {
+        return set(COPY_USE_NEW_SYNC_DOMAIN, useNewSyncDomain ? Boolean.TRUE : Boolean.FALSE );
+    }
+
     public static final String GENERATE_JAVA_14 = "1.4";
     public static final String GENERATE_JAVA_15 = "1.5";
 
@@ -966,6 +981,8 @@ public class XmlOptions implements java.io.Serializable
     public static final String SCHEMA_CODE_PRINTER             = "SCHEMA_CODE_PRINTER";
     /** @exclude */
     public static final String GENERATE_JAVA_VERSION           = "GENERATE_JAVA_VERSION";
+    /** @exclude */
+    public static final String COPY_USE_NEW_SYNC_DOMAIN        = "COPY_USE_NEW_LOCALE";
 
     private static final XmlOptions EMPTY_OPTIONS;
     static {
