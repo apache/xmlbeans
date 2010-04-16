@@ -927,6 +927,9 @@ abstract class Saver
             if (options != null && options.hasOption(XmlOptions.LOAD_SAVE_CDATA_BOOKMARKS) )
                 _useCDataBookmarks = true;
 
+            if (options != null && options.hasOption(XmlOptions.SAVE_PRETTY_PRINT) )
+                _isPrettyPrint = true;
+
             _in = _out = 0;
             _free = 0;
 
@@ -1353,7 +1356,7 @@ abstract class Saver
                     count++;
                 else if (prevPrevChar == ']' && prevChar == ']' && ch == '>' )
                     hasCharToBeReplaced = true;
-                else if (isBadChar( ch ) || isEscapedChar( ch ))
+                else if (isBadChar( ch ) || isEscapedChar( ch ) || (!_isPrettyPrint && ch == '\r') )
                     hasCharToBeReplaced = true;
 
                 if (++i == n)
@@ -1421,6 +1424,8 @@ abstract class Saver
                         i = replace( i, "&gt;" );
                     else if (isBadChar( ch ))
                         i = replace( i, "?" );
+                    else if (!_isPrettyPrint && ch == '\r')
+                        i = replace( i, "&#13;" );
                     else if (isEscapedChar( ch ))
                         i = replace( i, _replaceChar.getEscapedString( ch ) );
                     else
@@ -1874,6 +1879,7 @@ abstract class Saver
         private int _cdataLengthThreshold = 32;
         private int _cdataEntityCountThreshold = 5;
         private boolean _useCDataBookmarks = false;
+        private boolean _isPrettyPrint = false;
 
         private int _lastEmitIn;
         private int _lastEmitCch;
