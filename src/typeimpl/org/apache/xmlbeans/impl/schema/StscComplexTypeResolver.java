@@ -453,8 +453,9 @@ public class StscComplexTypeResolver
         Map attributePropertyModel = buildAttributePropertyModelByQName(attrModel, sImpl);
 
         // compute empty/element/mixed
-        int complexVariety = (contentModel == null ? SchemaType.EMPTY_CONTENT :
-            (mixed ? SchemaType.MIXED_CONTENT : SchemaType.ELEMENT_CONTENT));
+        // fix for XMLBEANS-414
+        int complexVariety = (mixed ? SchemaType.MIXED_CONTENT :
+            (contentModel == null ? SchemaType.EMPTY_CONTENT : SchemaType.ELEMENT_CONTENT));
 
         // now fill in the actual schema type implementation
         sImpl.setBaseTypeRef(baseType.getRef());
@@ -1169,11 +1170,11 @@ public class StscComplexTypeResolver
     {
         // http://www.w3.org/TR/xmlschema-1/#element-complexContent::extension
 
-        // 2.1 If the ·explicit content· is empty, then the {content type} of the type definition ·resolved· to by the ·actual value· of the base [attribute]
+        // 2.1 If the explicit content is empty, then the {content type} of the type definition resolved to by the ï¿½actual valueï¿½ of the base [attribute]
         if (extendedContentModel == null)
             return baseContentModel;
 
-        // 2.2 If the type definition ·resolved· to by the ·actual value· of the base [attribute] has a {content type} of empty, then a pair of mixed or elementOnly (determined as per clause 1.2.1 above) and the ·explicit content· itself;
+        // 2.2 If the type definition resolved to by the actual value of the base [attribute] has a {content type} of empty, then a pair of mixed or elementOnly (determined as per clause 1.2.1 above) and the explicit content itself;
         if (baseContentModel == null)
             return extendedContentModel;
 
