@@ -59,6 +59,9 @@ public class JavaIntegerHolderEx extends JavaIntegerHolder
     public static void validateLexical(String v, SchemaType sType, ValidationContext context)
     {
         JavaDecimalHolder.validateLexical(v, context);
+        if ( v.lastIndexOf('.')>=0 )
+            context.invalid(XmlErrorCodes.INTEGER,
+                new Object[] { v });
 
         // check pattern
         if (sType.hasPatternFacet())
