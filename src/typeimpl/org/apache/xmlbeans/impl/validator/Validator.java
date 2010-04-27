@@ -1305,7 +1305,7 @@ public final class Validator
             // An additional rule states that if the type is xs:integer or derived from it,
             // then the decimal dot is not allowed.
             // verify that values extending xsd:integer don't have a decimal point
-            if ( _strict && derivedFromInteger( type ) && value.lastIndexOf('.') >= 0 )
+            if ( derivedFromInteger( type ) && value.lastIndexOf('.') >= 0 )
             {
                 _vc.invalid(XmlErrorCodes.INTEGER, new Object[] { value });
             }
