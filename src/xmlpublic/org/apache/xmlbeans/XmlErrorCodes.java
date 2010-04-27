@@ -1850,8 +1850,8 @@ public abstract class XmlErrorCodes
      * use from the <a href="http://www.w3c.org/TR/xmlschema-1/#ct-base_type_definition" class="propref">{base type definition}</a>.
      * Such an <a href="http://www.w3c.org/TR/xmlschema-1/#element-attribute" class="eltref">&lt;attribute&gt;</a>
      * does not correspond to any component, and hence there is no interaction with either explicit
-     * or inherited wildcards in the operation of <a href="http://www.w3c.org/TR/xmlschema-1/#formal-complex-type">Complex Type Definition Validation Rules (§3.4.4)</a>
-     * or <a href="#coss-ct">Constraints on Complex Type Definition Schema Components (§3.4.6)</a>.
+     * or inherited wildcards in the operation of <a href="http://www.w3c.org/TR/xmlschema-1/#formal-complex-type">Complex Type Definition Validation Rules (3.4.4)</a>
+     * or <a href="#coss-ct">Constraints on Complex Type Definition Schema Components (3.4.6)</a>.
      * </blockquote>
      */
     public static final String ELEM_COMPLEX_TYPE_LOCALLY_VALID$PROHIBITED_ATTRIBUTE = "cvc-complex-type.prohibited-attribute";

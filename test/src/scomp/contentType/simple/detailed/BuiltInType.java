@@ -191,9 +191,9 @@ public class BuiltInType extends BaseCase {
         intDoc.setIntElt(2147483647);
         assertTrue(intDoc.validate(validateOptions));
         /**
-         * short is ·derived· from int by
-         * setting the value of ·maxInclusive·
-         * to be 32767 and ·minInclusive· to be -32768.
+         * short is derived from int by
+         * setting the value of maxInclusive
+         * to be 32767 and minInclusive to be -32768.
          */
         ShortEltDocument shDoc = ShortEltDocument.Factory.parse("<ShortElt " +
                 " xmlns=\"http://xbean/scomp/contentType/builtIn/Number\"" +
