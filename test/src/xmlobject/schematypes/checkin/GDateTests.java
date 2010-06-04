@@ -54,26 +54,8 @@ public class GDateTests extends TestCase
                 "P1Y365D",
                 "P1Y366D",
                 "PT0.1S",
-                "P1Y-364D",
-                "P1Y-365D",
-                "P1Y-366D",
-                "P1Y-367D",
-                "P1Y-12M",
                 "P1M29D",
-                "P1M-27D",
-                "P1M-28D",
-                "P1M-29D",
-                "P1M-31D",
-                "P1M-32D",
-                "P1MT-660H",
-                "P1MT-670H",
-                "P1MT-680H",
-                "P1MT-690H",
-                "P1MT-700H",
-                "P1MT-710H",
-                "P1MT-720H",
-                "P1MT-730H",
-                "P1MT-740H",
+
                 "PT0.1415926S",
                 "PT5233132S",
                 "PT142332M",
@@ -102,6 +84,41 @@ public class GDateTests extends TestCase
                 "-PT142332M",
                 "-PT98023H",
 
+            };
+
+    static String[] invalidDurations =
+            {
+                "P1Y-364D",
+                "P1Y-365D",
+                "P1Y-366D",
+                "P1Y-367D",
+                "P1Y-12M",
+                "P1M-27D",
+                "P1M-28D",
+                "P1M-29D",
+                "P1M-31D",
+                "P1M-32D",
+                "P1MT-660H",
+                "P1MT-670H",
+                "P1MT-680H",
+                "P1MT-690H",
+                "P1MT-700H",
+                "P1MT-710H",
+                "P1MT-720H",
+                "P1MT-730H",
+                "P1MT-740H",
+
+                "-PT-0S",
+                "-P-1Y",
+                "-P-1M",
+                "-P-1D",
+                "-PT-1H",
+                "-PT-1M",
+                "-PT-1S",
+                "-P1Y1M-1DT1H1M1S",
+                "-P1Y1M1DT1H-1M1.1S",
+                "-PT-0.1S",
+                "-PT-0.1415926S",
             };
 
     static String[] invalidDates =
@@ -547,6 +564,20 @@ public class GDateTests extends TestCase
 
     public void testFailure() throws Exception
     {
+        for (int i = 0; i < invalidDurations.length; i++)
+        {
+            String str = invalidDurations[i];
+            try
+            {
+                new GDuration(str);
+            }
+            catch (IllegalArgumentException e)
+            {
+                continue;
+            }
+            Assert.fail("Missing exception for GDuration: " + str);
+        }
+
         for (int i = 0; i < invalidDates.length; i++)
         {
             String str = invalidDates[i];

@@ -1049,6 +1049,9 @@
         <ant antfile="${testbuild.file}" target="detailed"/>
     </target>
 
+    <target name="compile.run">
+        <ant antfile="${testbuild.file}" target="compile.run"/>
+    </target>
 
     <path id="test.compile.path">
         <pathelement location="build/classes/marshal"/>
