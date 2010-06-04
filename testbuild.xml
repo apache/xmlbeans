@@ -907,6 +907,7 @@
     <!-- This test, for some reason, upon compilation,
     affects other tests under Win jdk1.4-->
     <target name="-compile.run.excluded" depends="check.asserts">
+        <delete file="${build.dir.test}/output/compile/scomp/j2ee/j2eeconfigxml.jar" description="Workaround failing test."/>
         <javac srcdir="${xbeans.test.src}"
             destdir="${build.dir.test.src}"
             includes="${excludes}"

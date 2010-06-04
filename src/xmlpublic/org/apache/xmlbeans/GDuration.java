@@ -67,7 +67,8 @@ public final class GDuration implements GDurationSpecification, java.io.Serializ
     public GDuration(CharSequence str)
     {
         // Form:        -PnYnMnDTnHnMnS
-        // (where each n may be preceded by a - for us, and the whole may be -)
+        // (where each n may be unsigned integer, i.e., an integer that conforms to the pattern [0-9]+
+        // {was: preceded by a - for us}, and the whole may be -)
 
         // first trim XML whitespace
         int len = str.length();
@@ -96,7 +97,6 @@ public final class GDuration implements GDurationSpecification, java.io.Serializ
 
         for (;start < len; start += 1)
         {
-            boolean negval = false;
             char ch = str.charAt(start);
             if (ch == 'T')
             {
@@ -111,16 +111,8 @@ public final class GDuration implements GDurationSpecification, java.io.Serializ
                     throw new IllegalArgumentException("illegal duration");
                 ch = str.charAt(start);
             }
-            if (ch == '-')
-            {
-                negval = true;
-                if (start == len)
-                    throw new IllegalArgumentException("illegal duration");
-                start += 1;
-                ch = str.charAt(start);
-            }
             if (!GDate.isDigit(ch))
-                throw new IllegalArgumentException("illegal duration");
+                throw new IllegalArgumentException("illegal duration at char[" + start + "]: '" + ch + "'");
             int value = GDate.digitVal(ch);
             for (;;)
             {
@@ -140,8 +132,7 @@ public final class GDuration implements GDurationSpecification, java.io.Serializ
                     throw new IllegalArgumentException("illegal duration");
                 start = i;
             }
-            if (negval)
-                value = -value;
+
             switch (seen)
             {
                 case SEEN_NOTHING:
