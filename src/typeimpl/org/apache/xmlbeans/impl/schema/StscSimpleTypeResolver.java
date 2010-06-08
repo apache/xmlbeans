@@ -891,6 +891,15 @@ public class StscSimpleTypeResolver
                         }
                         if (myFacets[code] != null)
                         {
+                            SchemaType limitSType = limit.schemaType();
+                            if ( limitSType!=null && !limitSType.isSimpleType() &&
+                                    limitSType.getContentType()==SchemaType.SIMPLE_CONTENT)
+                            {
+                                // in the case of complex types with simple content that has facets
+                                // we need to compare values based on the content type
+                                limit = baseImpl.getContentBasedOnType().newValue(facet.getValue());
+                            }
+
                             int comparison = limit.compareValue(myFacets[code]);
                             if (comparison == 2 || comparison == (ismin ? -1 : 1))
                             {
