@@ -15,6 +15,7 @@
 
 package org.apache.xmlbeans.impl.store;
 
+import org.apache.xmlbeans.CDataBookmark;
 import org.w3c.dom.Attr;
 import org.w3c.dom.CDATASection;
 import org.w3c.dom.CharacterData;
@@ -1118,6 +1119,11 @@ abstract class Xobj implements TypeStore
             newX._offAfter = x._offAfter;
             newX._cchAfter = x._cchAfter;
 
+            for ( Bookmark b = x._bookmarks; b != null ; b = b._next )
+            {
+               if ( x.hasBookmark( CDataBookmark.CDATA_BOOKMARK.getKey(), b._pos) )
+                   newX.setBookmark(b._pos, CDataBookmark.CDATA_BOOKMARK.getKey(), CDataBookmark.CDATA_BOOKMARK);
+            }
             // TODO - strange to have charNode stuff inside here .....
            // newX._charNodesValue = CharNode.copyNodes( x._charNodesValue, newX._srcValue );
            // newX._charNodesAfter = CharNode.copyNodes( x._charNodesAfter, newX._srcAfter );
