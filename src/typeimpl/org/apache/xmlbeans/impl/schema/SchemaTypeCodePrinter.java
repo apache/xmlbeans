@@ -2292,10 +2292,10 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
         }
     }
 
-       void printSetterImpls(QName qName, SchemaProperty prop, boolean isAttr,
-                       String propertyName, int javaType, String type, String xtype,
-                       boolean nillable, boolean optional, boolean several, boolean singleton,
-                       boolean isunion, String identifier, String setIdentifier, SchemaType sType)
+    void printSetterImpls(QName qName, SchemaProperty prop, boolean isAttr,
+        String propertyName, int javaType, String type, String xtype,
+        boolean nillable, boolean optional, boolean several, boolean singleton,
+        boolean isunion, String identifier, String setIdentifier, SchemaType sType)
         throws IOException
     {
         String safeVarName = NameUtil.nonJavaKeyword(NameUtil.lowerCamelCase(propertyName));
@@ -2478,7 +2478,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
             printJavaDoc("Sets ith " + propdesc);
             emit("public void set" + arrayName + "(int i, " + type + " " + safeVarName + ")");
             startBlock();
-            if ( isobj && !isSubstGroup )
+            if ( xmltype && !isSubstGroup )
             {
                 emitPre(sType, PrePostExtension.OPERATION_SET, identifier, isAttr, "i");
                 emit("generatedSetterHelperImpl(" + safeVarName + ", " + setIdentifier + ", i, " +
