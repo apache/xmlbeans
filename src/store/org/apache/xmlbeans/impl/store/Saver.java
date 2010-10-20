@@ -2594,10 +2594,10 @@ abstract class Saver
                             _buf, 0, bbuf, off + chunk, len - chunk );
                     }
                 }
-//System.out.println("------------------------\nRead out of queue: Saver:2440 InputStreamSaver.read() bbuf   " + len + " bytes :\n" + new String(bbuf, off, len));
                 _out = (_out + len) % _buf.length;
                 _free += len;
 
+//System.out.println("------------------------\nRead out of queue: Saver:2440 InputStreamSaver.read() bbuf   " + len + " bytes :\n" + new String(bbuf, off, len));
                 return len;
             }
 
@@ -2636,9 +2636,9 @@ abstract class Saver
                     _in = _out = 0;
                 }
 
-                int chunk;
+                int chunk = _buf.length - _in;
 
-                if (_in <= _out || cbyte < (chunk = _buf.length - _in))
+                if (_in <= _out || cbyte < chunk)
                 {
                     System.arraycopy( buf, off, _buf, _in, cbyte );
                     _in += cbyte;
@@ -2658,7 +2658,7 @@ abstract class Saver
 
             void resize ( int cbyte )
             {
-                assert cbyte > _free;
+                assert cbyte > _free : cbyte + " !> " + _free;
 
                 int newLen = _buf == null ? _initialBufSize : _buf.length * 2;
                 int used = getAvailable();
@@ -2670,9 +2670,7 @@ abstract class Saver
 
                 if (used > 0)
                 {
-                    if (_out == _in)
-                        System.arraycopy( _buf, 0, newBuf, 0, used );
-                    else if (_in > _out)
+                    if (_in > _out)
                         System.arraycopy( _buf, _out, newBuf, 0, used );
                     else
                     {
@@ -2698,10 +2696,10 @@ abstract class Saver
 
             private static final int _initialBufSize = 4096;
 
-            int    _free;
-            int    _in;
-            int    _out;
-            byte[] _buf;
+            private int    _free;
+            private int    _in;
+            private int    _out;
+            private byte[] _buf;
         }
 
         private Locale             _locale;
@@ -4363,13 +4361,13 @@ abstract class Saver
 
         XmlDocumentProperties getDocProps ( ) { return _cur.getDocProps(); }
 
-        final static void spaces ( StringBuffer sb, int offset, int count )
+        static void spaces ( StringBuffer sb, int offset, int count )
         {
             while ( count-- > 0 )
                 sb.insert( offset, ' ' );
         }
 
-        final static void trim ( StringBuffer sb )
+        static void trim ( StringBuffer sb )
         {
             int i;
 
