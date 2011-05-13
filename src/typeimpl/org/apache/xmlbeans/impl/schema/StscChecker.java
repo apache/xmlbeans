@@ -475,8 +475,14 @@ public class StscChecker
                     // 5.3 ... then the particle of the complex type definition itself must be a �valid restriction� of the particle of the {content type} of the {base type definition}
                     SchemaParticle baseModel = baseType.getContentModel();
                     SchemaParticle derivedModel = sType.getContentModel();
-                    assert(baseModel != null && derivedModel != null);
-                    if (baseModel == null || derivedModel == null)
+                    
+                    if ( derivedModel == null && sType.getDerivationType()==SchemaType.DT_RESTRICTION )
+                    {
+                        // it is ok to have an empty contentModel if it's a restriction
+                        // see Particle Valid (Restriction) (3.9.6) all three bulets 2.2.1
+                        return true;
+                    }
+                    else if (baseModel == null || derivedModel == null)
                     {
                         XBeanDebug.logStackTrace("Null models that weren't caught by EMPTY_CONTENT: " + baseType + " (" + baseModel + "), " + sType + " (" + derivedModel + ")");
                         state.error(XmlErrorCodes.COMPLEX_TYPE_RESTRICTION$ELEMENT_OR_MIXED_AND_VALID, null, location);
@@ -528,23 +534,11 @@ public class StscChecker
                             restrictionValid = nameAndTypeOK((SchemaLocalElement) baseModel, (SchemaLocalElement) derivedModel, errors, context);
                             break;
                         case SchemaParticle.WILDCARD:
-                            errors.add(XmlError.forObject(XmlErrorCodes.PARTICLE_RESTRICTION$INVALID_RESTRICTION,
-                                new Object[] { printParticle(baseModel), printParticle(derivedModel) }, context));
-                            restrictionValid = false;
-                            break;
                         case SchemaParticle.ALL:
-                            errors.add(XmlError.forObject(XmlErrorCodes.PARTICLE_RESTRICTION$INVALID_RESTRICTION,
-                                new Object[] { printParticle(baseModel), printParticle(derivedModel) }, context));
-                            restrictionValid = false;
-                            break;
                         case SchemaParticle.CHOICE:
-                            errors.add(XmlError.forObject(XmlErrorCodes.PARTICLE_RESTRICTION$INVALID_RESTRICTION,
-                                new Object[] { printParticle(baseModel), printParticle(derivedModel) }, context));
-                            restrictionValid = false;
-                            break;
                         case SchemaParticle.SEQUENCE:
                             errors.add(XmlError.forObject(XmlErrorCodes.PARTICLE_RESTRICTION$INVALID_RESTRICTION,
-                                new Object[] { printParticle(baseModel), printParticle(derivedModel) }, context));
+                                new Object[] { printParticle(derivedModel), printParticle(baseModel) }, context));
                             restrictionValid = false;
                             break;
                         default:
@@ -578,17 +572,13 @@ public class StscChecker
                             restrictionValid = recurseAsIfGroup(baseModel, derivedModel, errors, context);
                             break;
                         case SchemaParticle.WILDCARD:
+                        case SchemaParticle.CHOICE:
                             errors.add(XmlError.forObject(XmlErrorCodes.PARTICLE_RESTRICTION$INVALID_RESTRICTION,
-                                new Object[] { printParticle(baseModel), printParticle(derivedModel) }, context));
+                                new Object[] { printParticle(derivedModel), printParticle(baseModel) }, context));
                             restrictionValid = false;
                             break;
                         case SchemaParticle.ALL:
                             restrictionValid = recurse(baseModel, derivedModel, errors, context);
-                            break;
-                        case SchemaParticle.CHOICE:
-                            errors.add(XmlError.forObject(XmlErrorCodes.PARTICLE_RESTRICTION$INVALID_RESTRICTION,
-                                new Object[] { printParticle(baseModel), printParticle(derivedModel) }, context));
-                            restrictionValid = false;
                             break;
                         case SchemaParticle.SEQUENCE:
                             restrictionValid = recurseUnordered(baseModel, derivedModel, errors, context);
@@ -603,13 +593,9 @@ public class StscChecker
                             restrictionValid = recurseAsIfGroup(baseModel, derivedModel, errors, context);
                             break;
                         case SchemaParticle.WILDCARD:
-                            errors.add(XmlError.forObject(XmlErrorCodes.PARTICLE_RESTRICTION$INVALID_RESTRICTION,
-                                new Object[] { printParticle(baseModel), printParticle(derivedModel) }, context));
-                            restrictionValid = false;
-                            break;
                         case SchemaParticle.ALL:
                             errors.add(XmlError.forObject(XmlErrorCodes.PARTICLE_RESTRICTION$INVALID_RESTRICTION,
-                                new Object[] { printParticle(baseModel), printParticle(derivedModel) }, context));
+                                new Object[] { printParticle(derivedModel), printParticle(baseModel) }, context));
                             restrictionValid = false;
                             break;
                         case SchemaParticle.CHOICE:
@@ -628,18 +614,10 @@ public class StscChecker
                             restrictionValid = recurseAsIfGroup(baseModel, derivedModel, errors, context);
                             break;
                         case SchemaParticle.WILDCARD:
-                            errors.add(XmlError.forObject(XmlErrorCodes.PARTICLE_RESTRICTION$INVALID_RESTRICTION,
-                                new Object[] { printParticle(baseModel), printParticle(derivedModel) }, context));
-                            restrictionValid = false;
-                            break;
                         case SchemaParticle.ALL:
-                            errors.add(XmlError.forObject(XmlErrorCodes.PARTICLE_RESTRICTION$INVALID_RESTRICTION,
-                                new Object[] { printParticle(baseModel), printParticle(derivedModel) }, context));
-                            restrictionValid = false;
-                            break;
                         case SchemaParticle.CHOICE:
                             errors.add(XmlError.forObject(XmlErrorCodes.PARTICLE_RESTRICTION$INVALID_RESTRICTION,
-                                new Object[] { printParticle(baseModel), printParticle(derivedModel) }, context));
+                                new Object[] { printParticle(derivedModel), printParticle(baseModel) }, context));
                             restrictionValid = false;
                             break;
                         case SchemaParticle.SEQUENCE:
