@@ -46,8 +46,9 @@ public class SchemaInstanceGenerator
         System.out.println("    -name    the name of the root element");
         System.out.println("    -dl      enable network downloads for imports and includes");
         System.out.println("    -nopvr   disable particle valid (restriction) rule");
-        System.out.println("    -noupa   diable unique particle attributeion rule");
+        System.out.println("    -noupa   disable unique particle attribution rule");
         System.out.println("    -license prints license information");
+        System.out.println("    -version prints version information");
     }
 
     public static void main(String[] args)
@@ -175,7 +176,7 @@ public class SchemaInstanceGenerator
             System.out.println("Could not find a global element with name \"" + rootName + "\"");
             return;
         }
-        
+
         // Now generate it
         String result = SampleXmlUtil.createSampleForType(elem);
 
