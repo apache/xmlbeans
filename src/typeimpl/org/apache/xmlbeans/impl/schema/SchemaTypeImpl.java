@@ -1831,10 +1831,17 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory
         // This field is declared volatile and Class is immutable so this is allowed.
         if (_javaEnumClass == null)
         {
-            try
-                { _javaEnumClass = Class.forName(getBaseEnumType().getFullJavaName() + "$Enum", false, getTypeSystem().getClassLoader()); }
-            catch (ClassNotFoundException e)
-                { _javaEnumClass = null; }
+            if ( getBaseEnumType() != null )
+            {
+                try
+                {
+                    _javaEnumClass = Class.forName(getBaseEnumType().getFullJavaName() + "$Enum", false, getTypeSystem().getClassLoader());
+                }
+                catch (ClassNotFoundException e)
+                { 
+                    _javaEnumClass = null;
+                }
+            }
         }
 
         return _javaEnumClass;
