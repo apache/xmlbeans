@@ -21,13 +21,13 @@ package org.apache.xmlbeans.impl.inst2xsd;
        * Design
           o Russian Doll Design - local elements and local types
           o Salami Slice Design - global elements and local types
-          o Venetian Blind Design - local elements and global complex types
+          o Venetian Blind Design (default)- local elements and global complex types
        * Simple content types (leafs)
           o smart (default) - try to find out the right simple shema type
           o always xsd:string
        * Use enumeration - when there are multiple valid values in a list
           o never
-          o only if not more than ( 20 ) - number option
+          o only if not more than the value (default 10)- number option 
  */
 public class Inst2XsdOptions
 {
