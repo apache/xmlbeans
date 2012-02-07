@@ -15,6 +15,7 @@
 
 package org.apache.xmlbeans.impl.store;
 
+import org.apache.xmlbeans.XmlErrorCodes;
 import org.xml.sax.Locator;
 import org.xml.sax.Attributes;
 import org.xml.sax.ContentHandler;
@@ -95,10 +96,8 @@ import org.apache.xmlbeans.XmlOptions;
 import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.SchemaTypeLoader;
 import org.apache.xmlbeans.XmlTokenSource;
-import org.apache.xmlbeans.XmlOptions;
 import org.apache.xmlbeans.QNameSet;
 import org.apache.xmlbeans.QNameCache;
-import org.apache.xmlbeans.XmlBeans;
 import org.apache.xmlbeans.XmlError;
 import org.apache.xmlbeans.XmlRuntimeException;
 import org.apache.xmlbeans.XmlDocumentProperties;
@@ -3173,6 +3172,9 @@ public final class Locale
             _wantCdataBookmarks =
                 _startLocator != null &&
                 options.hasOption(XmlOptions.LOAD_SAVE_CDATA_BOOKMARKS);
+
+            if (options.hasOption(XmlOptions.LOAD_ENTITY_BYTES_LIMIT))
+                _entityBytesLimit = ((Integer)(options.get(XmlOptions.LOAD_ENTITY_BYTES_LIMIT))).intValue();
         }
 
         public void startDocument()
@@ -3287,8 +3289,20 @@ public final class Locale
             throws SAXException
         {
             _context.text(ch, start, length);
+
             if (_wantCdataBookmarks && _insideCDATA)
                 _context.bookmarkLastNonAttr(CDataBookmark.CDATA_BOOKMARK);
+
+            if (_insideEntity!=0)
+            {
+                if ((_entityBytes += length) > _entityBytesLimit)
+                {
+                    XmlError err = XmlError.forMessage(XmlErrorCodes.EXCEPTION_EXCEEDED_ENTITY_BYTES,
+                            new Integer[]{ new Integer(_entityBytesLimit) });
+
+                    throw new SAXException(err.getMessage());
+                }
+            }
         }
 
         public void ignorableWhitespace(char ch[], int start, int length)
@@ -3361,13 +3375,19 @@ public final class Locale
         public void startEntity(String name)
             throws SAXException
         {
-//            throw new RuntimeException( "Not impl: startEntity" );
+            _insideEntity++;
         }
 
         public void endEntity(String name)
             throws SAXException
         {
-//            throw new RuntimeException( "Not impl: endEntity" );
+            _insideEntity--;
+            assert _insideEntity>=0;
+
+            if (_insideEntity==0)
+            {
+                _entityBytes=0;
+            }
         }
 
         public void setDocumentLocator(Locator locator)
@@ -3401,6 +3421,9 @@ public final class Locale
         private boolean _wantCdataBookmarks;
         private Locator _startLocator;
         private boolean _insideCDATA = false;
+        private int _entityBytesLimit = 10240;
+        private int _entityBytes = 0;
+        private int _insideEntity = 0;
     }
 
     private static abstract class SaxLoader
