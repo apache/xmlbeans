@@ -65,6 +65,7 @@ public abstract class XmlErrorCodes
 
     public static final String INVALID_DOCUMENT_TYPE = "invalid.document.type";
     public static final String CANNOT_LOAD_FILE = "cannot.load.file";
+    public static final String EXCEPTION_EXCEEDED_ENTITY_BYTES = "exceeded-entity-bytes";
     public static final String EXCEPTION_LOADING_URL = "exception.loading.url";
     public static final String EXCEPTION_VALUE_NOT_SUPPORTED_J2S = "exception.value.not.supported.j2s";
     public static final String EXCEPTION_VALUE_NOT_SUPPORTED_S2J = "exception.value.not.supported.s2j";

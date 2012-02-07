@@ -861,6 +861,17 @@ public class XmlOptions implements java.io.Serializable
         return set(COPY_USE_NEW_SYNC_DOMAIN, useNewSyncDomain ? Boolean.TRUE : Boolean.FALSE );
     }
 
+    /**
+     * Sets the maximum number of bytes allowed when an Entity is expanded during parsing.
+     * The default value is 10240 bytes.
+     * @param entityBytesLimit
+     * @return
+     */
+    public XmlOptions setLoadEntityBytesLimit (int entityBytesLimit)
+    {
+        return set(LOAD_ENTITY_BYTES_LIMIT,entityBytesLimit);
+    }
+
     public static final String GENERATE_JAVA_14 = "1.4";
     public static final String GENERATE_JAVA_15 = "1.5";
 
@@ -983,6 +994,8 @@ public class XmlOptions implements java.io.Serializable
     public static final String GENERATE_JAVA_VERSION           = "GENERATE_JAVA_VERSION";
     /** @exclude */
     public static final String COPY_USE_NEW_SYNC_DOMAIN        = "COPY_USE_NEW_LOCALE";
+    /** @exclude */
+    public static final String LOAD_ENTITY_BYTES_LIMIT         = "LOAD_ENTITY_BYTES_LIMIT";
 
     private static final XmlOptions EMPTY_OPTIONS;
     static {
