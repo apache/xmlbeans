@@ -16,6 +16,10 @@
 package org.apache.xmlbeans.impl.xsd2inst;
 
 import org.apache.xmlbeans.XmlObject;
+
+import java.io.IOException;
+import java.io.Reader;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.io.File;
 import java.util.HashSet;
@@ -33,6 +37,65 @@ import org.apache.xmlbeans.impl.tool.CommandLine;
 
 public class SchemaInstanceGenerator
 {
+    public static class Xsd2InstOptions
+    {
+        private boolean _downloads = false;
+        private boolean _nopvr = false;
+        private boolean _noupa = false;
+
+        /**
+         * @return true if network downloads are allowed, false othervise
+         * Default is false.
+         */
+        public boolean isNetworkDownloads()
+        {
+            return _downloads;
+        }
+
+        /**
+         * set true to allow network downloads, false othervise
+         */
+        public void setNetworkDownloads(boolean downloads)
+        {
+            this._downloads = downloads;
+        }
+
+        /**
+         * @return true to disable particle valid (restriction) rule, false othervise
+         * Default is false.
+         */
+        public boolean isNopvr()
+        {
+            return _nopvr;
+        }
+
+        /**
+         * set true to disable particle valid (restriction) rule, false othervise
+         */
+        public void setNopvr(boolean nopvr)
+        {
+            this._nopvr = nopvr;
+        }
+
+        /**
+         * @return true to disable unique particle attribution rule, false othervise
+         * Default is false.
+         */
+        public boolean isNoupa()
+        {
+            return _noupa;
+        }
+
+        /**
+         * set true to disable unique particle attribution rule, false othervise
+         */
+        public void setNoupa(boolean noupa)
+        {
+            this._noupa = noupa;
+        }
+    }
+
+
     public static void printUsage()
     {
         System.out.println("Generates a document based on the given Schema file");
@@ -109,7 +172,7 @@ public class SchemaInstanceGenerator
             System.out.println("Required option \"-name\" must be present");
             return;
         }
-        
+
         // Process Schema files
         List sdocs = new ArrayList();
         for (int i = 0; i < schemaFiles.length; i++)
@@ -128,7 +191,14 @@ public class SchemaInstanceGenerator
 
         XmlObject[] schemas = (XmlObject[]) sdocs.toArray(new XmlObject[sdocs.size()]);
 
-        SchemaTypeSystem sts = null;
+        Xsd2InstOptions options = new Xsd2InstOptions();
+        options.setNetworkDownloads(dl);
+        options.setNopvr(nopvr);
+        options.setNoupa(noupa);
+
+        String result = xsd2inst(schemas, rootName, options);
+
+/*        SchemaTypeSystem sts = null;
         if (schemas.length > 0)
         {
             Collection errors = new ArrayList();
@@ -179,9 +249,105 @@ public class SchemaInstanceGenerator
 
         // Now generate it
         String result = SampleXmlUtil.createSampleForType(elem);
+*/
 
         System.out.println(result);
 
         return;
+    }
+
+
+    public static String xsd2inst(String[] xsds, String rootName, Xsd2InstOptions options)
+        throws XmlException, IOException
+    {
+        Reader[] instReaders = new Reader[xsds.length];
+        for (int i=0; i< xsds.length; i++)
+        {
+            instReaders[i] = new StringReader(xsds[i]);
+        }
+
+        String res = xsd2inst(instReaders, rootName, options);
+
+        return res;
+    }
+
+
+    public static String xsd2inst(Reader[] schemaReaders, String rootName, Xsd2InstOptions options)
+    {
+        // Process Schema files
+        List sdocs = new ArrayList();
+        for (int i = 0; i < schemaReaders.length; i++)
+        {
+            try
+            {
+                sdocs.add(XmlObject.Factory.parse(schemaReaders[i],
+                        (new XmlOptions()).setLoadLineNumbers().setLoadMessageDigest()));
+            }
+            catch (Exception e)
+            {
+                System.err.println("Can not load schema reader: " + i + "  " + schemaReaders[i] + ": ");
+                e.printStackTrace();
+            }
+        }
+
+        XmlObject[] schemas = (XmlObject[]) sdocs.toArray(new XmlObject[sdocs.size()]);
+
+        return xsd2inst(schemas, rootName, options);
+    }
+
+
+    public static String xsd2inst(XmlObject[] schemas, String rootName, Xsd2InstOptions options)
+    {
+        SchemaTypeSystem sts = null;
+        if (schemas.length > 0)
+        {
+            Collection errors = new ArrayList();
+            XmlOptions compileOptions = new XmlOptions();
+            if (options.isNetworkDownloads())
+                compileOptions.setCompileDownloadUrls();
+            if (options.isNopvr())
+                compileOptions.setCompileNoPvrRule();
+            if (options.isNoupa())
+                compileOptions.setCompileNoUpaRule();
+
+            try
+            {
+                sts = XmlBeans.compileXsd(schemas, XmlBeans.getBuiltinTypeSystem(), compileOptions);
+            }
+            catch (Exception e)
+            {
+                if (errors.isEmpty() || !(e instanceof XmlException))
+                    e.printStackTrace();
+
+                System.out.println("Schema compilation errors: ");
+                for (Iterator i = errors.iterator(); i.hasNext(); )
+                    System.out.println(i.next());
+            }
+        }
+
+        if (sts == null)
+        {
+            throw new RuntimeException("No Schemas to process.");
+        }
+        SchemaType[] globalElems = sts.documentTypes();
+        SchemaType elem = null;
+        for (int i = 0; i < globalElems.length; i++)
+        {
+            if (rootName.equals(globalElems[i].getDocumentElementName().getLocalPart()))
+            {
+                elem = globalElems[i];
+                break;
+            }
+        }
+
+        if (elem == null)
+        {
+            throw new RuntimeException("Could not find a global element with name \"" + rootName + "\"");
+        }
+
+        // Now generate it
+        String result = SampleXmlUtil.createSampleForType(elem);
+
+        return result;
     }
 }
