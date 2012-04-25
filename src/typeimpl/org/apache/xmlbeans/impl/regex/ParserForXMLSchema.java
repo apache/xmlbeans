@@ -19,7 +19,7 @@ import java.util.Hashtable;
 import java.util.Locale;
 
 /**
- * A regular expression parser for the XML Shema.
+ * A regular expression parser for the XML Schema.
  *
  * @author TAMURA Kent &lt;kent@trl.ibm.co.jp&gt;
  */
@@ -159,7 +159,7 @@ class ParserForXMLSchema extends RegexParser {
      * from-to-range    ::= cc-normal-c '-' cc-normal-c
      *
      * @param useNrage Ignored.
-     * @return This returns no NrageToken.
+     * @return This returns no NrangeToken.
      */
     protected RangeToken parseCharacterClass(boolean useNrange) throws ParseException {
         this.setContext(S_INBRACKETS);
@@ -234,9 +234,9 @@ class ParserForXMLSchema extends RegexParser {
                 if (type == T_CHAR) {
                     if (c == '[')  throw this.ex("parser.cc.6", this.offset-2);
                     if (c == ']')  throw this.ex("parser.cc.7", this.offset-2);
-                    // (radup) XMLSchema 1.0 allows the '-' as the first character of a range,
-                    // but it looks like XMLSchema 1.1 will prohibit it - track this
-                    if (c == '-' && !firstloop)  throw this.ex("parser.cc.8", this.offset-2);
+                    //https://issues.apache.org/jira/browse/XMLBEANS-412
+                    //unescaped single char '-' is a valid char after '[' and before ']' positive range only
+                    if (c== '-' && !firstloop && this.chardata!=']') throw this.ex("parser.cc.8", this.offset-2);
                 }
                 if (this.read() != T_CHAR || this.chardata != '-') { // Here is no '-'.
                     tok.addRange(c, c);
@@ -245,19 +245,27 @@ class ParserForXMLSchema extends RegexParser {
                     this.next(); // Skips '-'
                     if ((type = this.read()) == T_EOF)  throw this.ex("parser.cc.2", this.offset);
                                                 // c '-' ']' -> '-' is a single-range.
-                    if ((type == T_CHAR && this.chardata == ']')
-                        || type == T_XMLSCHEMA_CC_SUBTRACTION) {
+                    if (type == T_XMLSCHEMA_CC_SUBTRACTION) {
                         throw this.ex("parser.cc.8", this.offset-1);
+                    } else if (type == T_CHAR && this.chardata == ']') {
+                        //'-' occurs after a single-range but before ']'
+                        tok.addRange(c,c);
+                        tok.addRange('-','-');
                     } else {
                         int rangeend = this.chardata;
                         if (type == T_CHAR) {
                             if (rangeend == '[')  throw this.ex("parser.cc.6", this.offset-1);
                             if (rangeend == ']')  throw this.ex("parser.cc.7", this.offset-1);
-                            if (rangeend == '-')  throw this.ex("parser.cc.8", this.offset-2);
+                            if (rangeend == '-')  {
+                                this.next();
+                                if (this.chardata!=']')
+                                    throw this.ex("parser.cc.8", this.offset-2);
+                            }
                         }
                         else if (type == T_BACKSOLIDUS)
                             rangeend = this.decodeEscaped();
-                        this.next();
+                        if (rangeend!='-' || this.chardata!=']')
+                            this.next();
 
                         if (c > rangeend)  throw this.ex("parser.ope.3", this.offset-1);
                         tok.addRange(c, rangeend);
