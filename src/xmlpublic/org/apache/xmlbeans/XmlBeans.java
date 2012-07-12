@@ -35,7 +35,7 @@ import org.w3c.dom.Node;
 public final class XmlBeans
 {
     private static String XMLBEANS_TITLE = "org.apache.xmlbeans";
-    private static String XMLBEANS_VERSION = "2.5.1";
+    private static String XMLBEANS_VERSION = "2.6.0";
     private static String XMLBEANS_VENDOR = "Apache Software Foundation";
 
     static
