@@ -33,9 +33,14 @@ public abstract class Query
 {
     public static final String QUERY_DELEGATE_INTERFACE = "QUERY_DELEGATE_INTERFACE";
     public static String _useDelegateForXQuery = "use delegate for xquery";
+    public static String _useXdkForXQuery = "use xdk for xquery";
 
     private static String _delIntfName;
     //private static HashMap _delegateQueryCache = new HashMap();
+
+    private static HashMap _xdkQueryCache = new HashMap();
+    private static Method _xdkCompileQuery;
+    private static boolean _xdkAvailable = true;  // at the beginning assume is available
 
     private static HashMap _xqrlQueryCache = new HashMap(); //todo check for memory leaks
     private static Method _xqrlCompileQuery;
@@ -124,6 +129,21 @@ public abstract class Query
                 ((Integer) boundary.get(XPath._NS_BOUNDARY)).intValue();
         }
 
+        if (options.hasOption(_useXdkForXQuery))
+        {
+            //try XDK
+            query = (Query) _xdkQueryCache.get(queryExpr);
+            if (query != null)
+                return query;
+
+            query = createXdkCompiledQuery(queryExpr, currentVar);
+            if (query != null)
+            {
+                _xdkQueryCache.put(queryExpr, query);
+                return query;
+            }
+        }
+
         if (!options.hasOption(_useDelegateForXQuery))
         {
         //try XQRL
@@ -164,6 +184,49 @@ public abstract class Query
     {
         getCompiledQuery(queryExpr, options);
         return queryExpr;
+    }
+
+    private static Query createXdkCompiledQuery(String queryExpr, String currentVar)
+    {
+        //if the XDK engine has been determined unavailable, return null
+        if ( !_xdkAvailable ) return null;
+        if ( _xdkCompileQuery == null)
+        {
+            try
+            {
+                Class xdkImpl = Class.forName("org.apache.xmlbeans.impl.store.OXQXBXqrlImpl");
+
+                _xdkCompileQuery =
+                    xdkImpl.getDeclaredMethod("compileQuery",
+                        new Class[]{String.class, String.class, Boolean.class});
+            }
+            catch (ClassNotFoundException e)
+            {
+                _xdkAvailable = false;
+                return null;
+            }
+            catch (Exception e)
+            {
+                _xdkAvailable = false;
+                throw new RuntimeException(e.getMessage(), e);
+            }
+        }
+
+        Object[] args = new Object[]{queryExpr, currentVar, new Boolean(true)};
+
+        try
+        {
+            return (Query) _xdkCompileQuery.invoke(null, args);
+        }
+        catch (InvocationTargetException e)
+        {
+            Throwable t = e.getCause();
+            throw new RuntimeException(t.getMessage(), t);
+        }
+        catch (IllegalAccessException e)
+        {
+            throw new RuntimeException(e.getMessage(), e);
+        }
     }
 
     private static Query createXqrlCompiledQuery(String queryExpr, String currentVar)

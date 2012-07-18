@@ -37,6 +37,7 @@ public abstract class Path
 {
     public static final String PATH_DELEGATE_INTERFACE = "PATH_DELEGATE_INTERFACE";
     public static String _useDelegateForXpath = "use delegate for xpath";
+    public static String _useXdkForXpath = "use xdk for xpath";
     public static String _useXqrlForXpath = "use xqrl for xpath";
     public static String _useXbeanForXpath = "use xbean for xpath";
     public static String _forceXqrl2002ForXpathXQuery = "use xqrl-2002 for xpath";
@@ -45,14 +46,18 @@ public abstract class Path
     private static final int USE_XQRL     = 0x02;
     private static final int USE_DELEGATE = 0x04;
     private static final int USE_XQRL2002 = 0x08;
+    private static final int USE_XDK      = 0x10;
 
     private static Map _xbeanPathCache = new WeakHashMap();
+    private static Map _xdkPathCache = new WeakHashMap();
     private static Map _xqrlPathCache = new WeakHashMap();
     private static Map _xqrl2002PathCache = new WeakHashMap();
 
+    private static Method _xdkCompilePath;
     private static Method _xqrlCompilePath;
     private static Method _xqrl2002CompilePath;
 
+    private static boolean _xdkAvailable = true;
     private static boolean _xqrlAvailable = true;
     private static boolean _xqrl2002Available = true;
 
@@ -120,9 +125,10 @@ public abstract class Path
         int force =
                 options.hasOption(_useDelegateForXpath) ? USE_DELEGATE
                 : options.hasOption(_useXqrlForXpath) ? USE_XQRL
+                : options.hasOption(_useXdkForXpath) ? USE_XDK
                 : options.hasOption(_useXbeanForXpath) ? USE_XBEAN
                 : options.hasOption(_forceXqrl2002ForXpathXQuery) ? USE_XQRL2002
-                : USE_XBEAN|USE_XQRL|USE_DELEGATE; //set all bits except XQRL2002
+                : USE_XBEAN|USE_XQRL|USE_XDK|USE_DELEGATE; //set all bits except XQRL2002
         String delIntfName = 
             options.hasOption(PATH_DELEGATE_INTERFACE) ? 
                 (String)options.get(PATH_DELEGATE_INTERFACE) : _delIntfName;
@@ -141,6 +147,8 @@ public abstract class Path
             pathWeakRef = (WeakReference)_xbeanPathCache.get(pathExpr);
         if (pathWeakRef == null && (force & USE_XQRL) != 0)
             pathWeakRef = (WeakReference)_xqrlPathCache.get(pathExpr);
+        if (pathWeakRef == null && (force & USE_XDK) != 0)
+            pathWeakRef = (WeakReference)_xdkPathCache.get(pathExpr);
         if (pathWeakRef == null && (force & USE_XQRL2002) != 0)
             pathWeakRef = (WeakReference)_xqrl2002PathCache.get(pathExpr);
 
@@ -153,6 +161,8 @@ public abstract class Path
             path = getCompiledPathXbean(pathExpr, currentVar, namespaces);
         if (path == null && (force & USE_XQRL) != 0)
             path = getCompiledPathXqrl(pathExpr, currentVar);
+        if (path == null && (force & USE_XDK) != 0)
+            path = getCompiledPathXdk(pathExpr, currentVar);
         if (path == null && (force & USE_DELEGATE) != 0)
             path = getCompiledPathDelegate(pathExpr, currentVar, namespaces, delIntfName);
         if (path == null && (force & USE_XQRL2002) != 0)
@@ -165,6 +175,8 @@ public abstract class Path
                 errMessage.append(" Trying XBeans path engine...");
             if ((force & USE_XQRL) != 0)
                 errMessage.append(" Trying XQRL...");
+            if ((force & USE_XDK) != 0)
+                errMessage.append(" Trying XDK...");
             if ((force & USE_DELEGATE) != 0)
                 errMessage.append(" Trying delegated path engine...");
             if ((force & USE_XQRL2002) != 0)
@@ -172,6 +184,15 @@ public abstract class Path
 
             throw new RuntimeException(errMessage.toString() + " FAILED on " + pathExpr);
         }
+
+        return path;
+    }
+
+    static private synchronized Path getCompiledPathXdk(String pathExpr, String currentVar)
+    {
+        Path path = createXdkCompiledPath(pathExpr, currentVar);
+        if (path != null)
+            _xdkPathCache.put(path._pathKey, new WeakReference(path));
 
         return path;
     }
@@ -278,7 +299,7 @@ public abstract class Path
 
             if (!c.isContainer() || _compiledPath.sawDeepDot())
             {
-                int force = USE_DELEGATE | USE_XQRL;
+                int force = USE_DELEGATE | USE_XQRL | USE_XDK;
                 return getCompiledPath(_pathKey, force, _currentVar, delIntfName).execute(c, options);
             }
             return new XbeanPathEngine(_compiledPath, c);
@@ -287,6 +308,47 @@ public abstract class Path
         private final String _currentVar;
         private final XPath _compiledPath;
         public Map namespaces;
+    }
+
+    private static Path createXdkCompiledPath(String pathExpr, String currentVar)
+    {
+        if (!_xdkAvailable)
+            return null;
+
+        if (_xdkCompilePath == null)
+        {
+            try
+            {
+                Class xdkImpl = Class.forName("org.apache.xmlbeans.impl.store.OXQXBXqrlImpl");
+
+                _xdkCompilePath =
+                    xdkImpl.getDeclaredMethod("compilePath",
+                        new Class[]{String.class, String.class, Boolean.class});
+            }
+            catch (ClassNotFoundException e)
+            {
+                _xdkAvailable = false;
+                return null;
+            }
+            catch (Exception e)
+            {
+                _xdkAvailable = false;
+                throw new RuntimeException(e.getMessage(), e);
+            }
+        }
+
+        Object[] args = new Object[]{pathExpr, currentVar, new Boolean(true)};
+
+        try {
+            return (Path) _xdkCompilePath.invoke(null, args);
+        }
+        catch (InvocationTargetException e) {
+            Throwable t = e.getCause();
+            throw new RuntimeException(t.getMessage(), t);
+        }
+        catch (IllegalAccessException e) {
+            throw new RuntimeException(e.getMessage(), e);
+        }
     }
 
     private static Path createXqrlCompiledPath(String pathExpr, String currentVar)
