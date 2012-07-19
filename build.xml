@@ -541,11 +541,10 @@
 
     <!-- xmlpublic target ============================================== -->
 
-    <target name="xmlpublic.classes" depends="dirs, xmlinputstream.classes, jsr173_1.0.jars">
+    <target name="xmlpublic.classes" depends="dirs, jsr173_1.0.jars">
         <mkdir dir="build/classes/xmlpublic"/>
-        <javac srcdir="src/xmlpublic" destdir="build/classes/xmlpublic" source="${javac.source}" target="${javac.target}" debug="on">
+        <javac srcdir="src/xmlpublic" sourcepath="src/xmlinputstream" destdir="build/classes/xmlpublic" source="${javac.source}" target="${javac.target}" debug="on">
             <classpath>
-                <pathelement location="build/classes/xmlinputstream"/>
                 <pathelement location="build/lib/jsr173_1.0_api.jar"/>
             </classpath>
         </javac>
