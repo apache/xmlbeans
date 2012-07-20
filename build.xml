@@ -243,7 +243,11 @@
     <!-- bootstrap target ============================================== -->
 
     <target name="bootstrap" depends="xbean">
+        <subant target="bootstrappass" inheritAll="true" buildpath="." failonerror="false"/>
+        <subant target="bootstrappass" inheritAll="true" buildpath="." failonerror="true"/>
+    </target>
 
+    <target name="bootstrappass" depends="xbean">
         <!-- after xbean.jar is built, move it out of the way and clean the project -->
         <tempfile property="bootstrap.jarfile" prefix="oldxbean" suffix=".jar"/>
         <move file="build/ar/xbean.jar" tofile="${bootstrap.jarfile}"/>
