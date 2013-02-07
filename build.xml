@@ -170,7 +170,7 @@
 
     <target name="xcresolver.zip" depends="check.xcresolver.zip, dirs" unless="xcresolver.zip.exists">
         <get dest="external/lib/xcresolver.zip"
-            src="http://www.apache.org/dist/xml/commons/binaries/xml-commons-resolver-1.1.zip"
+            src="http://archive.apache.org/dist/xml/commons/binaries/xml-commons-resolver-1.1.zip"
             verbose="true" usetimestamp="true" ignoreerrors="true"/>
     </target>
 
