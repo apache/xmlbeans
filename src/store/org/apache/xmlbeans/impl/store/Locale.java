@@ -2313,19 +2313,6 @@ public final class Locale
                     String prefix = c.getXmlnsPrefix();
                     String uri = c.getXmlnsUri();
 
-                    // Here I check to see if there is a default namespace
-                    // mapping which is not empty on a non root container which
-                    // is in a namespace.  This this case, I do not want to add
-                    // this mapping because it could not be persisted out this
-                    // way.
-
-                    if (prefix.length() == 0 && uri.length() > 0 &&
-                        cName != null &&
-                        cName.getNamespaceURI().length() > 0)
-                    {
-                        continue;
-                    }
-
                     if (filleMe == null)
                         filleMe = new HashMap();
 
