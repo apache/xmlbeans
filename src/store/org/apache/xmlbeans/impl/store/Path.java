@@ -22,6 +22,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.ref.WeakReference;
 import java.math.BigDecimal;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.apache.xmlbeans.impl.common.XPath;
 import org.apache.xmlbeans.impl.common.XPath.XPathCompileException;
@@ -62,6 +63,7 @@ public abstract class Path
     private static boolean _xqrl2002Available = true;
 
     private static String _delIntfName;
+    private static final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
 
     static
     {
@@ -136,13 +138,14 @@ public abstract class Path
         return getCompiledPath(pathExpr, force, getCurrentNodeVar(options), delIntfName);
     }
 
-    static synchronized Path getCompiledPath(String pathExpr, int force,
+    static Path getCompiledPath(String pathExpr, int force,
         String currentVar, String delIntfName)
     {
         Path path = null;
         WeakReference pathWeakRef = null;
         Map namespaces = (force & USE_DELEGATE) != 0 ? new HashMap() : null;
-
+        lock.readLock().lock();
+        try {
         if ((force & USE_XBEAN) != 0)
             pathWeakRef = (WeakReference)_xbeanPathCache.get(pathExpr);
         if (pathWeakRef == null && (force & USE_XQRL) != 0)
@@ -156,18 +159,42 @@ public abstract class Path
             path = (Path)pathWeakRef.get();
         if (path != null)
             return path;
-
-        if ((force & USE_XBEAN) != 0)
+        } finally {
+            lock.readLock().unlock();
+        }
+        lock.writeLock().lock();
+        try {
+        if ((force & USE_XBEAN) != 0) {
+            pathWeakRef = (WeakReference)_xbeanPathCache.get(pathExpr);
+            if (pathWeakRef != null)
+                path = (Path)pathWeakRef.get();
+            if (path==null)
             path = getCompiledPathXbean(pathExpr, currentVar, namespaces);
-        if (path == null && (force & USE_XQRL) != 0)
+        }
+        if (path == null && (force & USE_XQRL) != 0) {
+            pathWeakRef = (WeakReference)_xqrlPathCache.get(pathExpr);
+            if (pathWeakRef != null)
+                path = (Path)pathWeakRef.get();
+            if (path==null)
             path = getCompiledPathXqrl(pathExpr, currentVar);
-        if (path == null && (force & USE_XDK) != 0)
+        }
+        if (path == null && (force & USE_XDK) != 0) {
+            pathWeakRef = (WeakReference)_xdkPathCache.get(pathExpr);
+            if (pathWeakRef != null)
+                path = (Path)pathWeakRef.get();
+            if (path==null)
             path = getCompiledPathXdk(pathExpr, currentVar);
-        if (path == null && (force & USE_DELEGATE) != 0)
+        }
+        if (path == null && (force & USE_DELEGATE) != 0) {
             path = getCompiledPathDelegate(pathExpr, currentVar, namespaces, delIntfName);
-        if (path == null && (force & USE_XQRL2002) != 0)
+        }
+        if (path == null && (force & USE_XQRL2002) != 0) {
+            pathWeakRef = (WeakReference)_xqrl2002PathCache.get(pathExpr);
+            if (pathWeakRef != null)
+                path = (Path)pathWeakRef.get();
+            if (path==null)
             path = getCompiledPathXqrl2002(pathExpr, currentVar);
-
+        }
         if (path == null)
         {
             StringBuffer errMessage = new StringBuffer();
@@ -184,11 +211,13 @@ public abstract class Path
 
             throw new RuntimeException(errMessage.toString() + " FAILED on " + pathExpr);
         }
-
+        } finally {
+            lock.writeLock().unlock();
+        }
         return path;
     }
 
-    static private synchronized Path getCompiledPathXdk(String pathExpr, String currentVar)
+    static private Path getCompiledPathXdk(String pathExpr, String currentVar)
     {
         Path path = createXdkCompiledPath(pathExpr, currentVar);
         if (path != null)
@@ -197,7 +226,7 @@ public abstract class Path
         return path;
     }
 
-    static private synchronized Path getCompiledPathXqrl(String pathExpr, String currentVar)
+    static private Path getCompiledPathXqrl(String pathExpr, String currentVar)
     {
         Path path = createXqrlCompiledPath(pathExpr, currentVar);
         if (path != null)
@@ -206,7 +235,7 @@ public abstract class Path
         return path;
     }
 
-    static private synchronized Path getCompiledPathXqrl2002(String pathExpr, String currentVar)
+    static private Path getCompiledPathXqrl2002(String pathExpr, String currentVar)
     {
         Path path = createXqrl2002CompiledPath(pathExpr, currentVar);
         if (path != null)
@@ -215,7 +244,7 @@ public abstract class Path
         return path;
     }
 
-    static private synchronized Path getCompiledPathXbean(String pathExpr,
+    static private Path getCompiledPathXbean(String pathExpr,
         String currentVar, Map namespaces)
     {
         Path path = XbeanPath.create(pathExpr, currentVar, namespaces);
@@ -225,7 +254,7 @@ public abstract class Path
         return path;
     }
 
-    static private synchronized Path getCompiledPathDelegate(String pathExpr, String currentVar, Map namespaces, String delIntfName)
+    static private Path getCompiledPathDelegate(String pathExpr, String currentVar, Map namespaces, String delIntfName)
     {
         Path path = null;
         if ( namespaces == null )
@@ -254,7 +283,7 @@ public abstract class Path
     }
 
 
-    public static synchronized String compilePath(String pathExpr, XmlOptions options)
+    public static String compilePath(String pathExpr, XmlOptions options)
     {
         return getCompiledPath(pathExpr, options)._pathKey;
     }
