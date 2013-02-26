@@ -16,6 +16,7 @@
 package org.apache.xmlbeans.impl.store;
 
 import org.apache.xmlbeans.XmlErrorCodes;
+import org.xml.sax.helpers.XMLReaderFactory;
 import org.xml.sax.Locator;
 import org.xml.sax.Attributes;
 import org.xml.sax.ContentHandler;
@@ -3035,15 +3036,20 @@ public final class Locale
         }
     }
 
-    private static SaxLoader getPiccoloSaxLoader()
+    private static SaxLoader getCachedSaxLoader()
     {
-        SaxLoader piccoloLoader = (SaxLoader) SystemCache.get().getSaxLoader();
-        if (piccoloLoader == null)
+        SaxLoader cachedLoader = (SaxLoader) SystemCache.get().getSaxLoader();
+        if (cachedLoader == null)
         {
-            piccoloLoader = PiccoloSaxLoader.newInstance();
-            SystemCache.get().setSaxLoader(piccoloLoader);
+            try {
+                XMLReader reader = XMLReaderFactory.createXMLReader();
+                cachedLoader = new CachedXmlReaderSaxLoader(reader);
+            } catch (SAXException e) {
+                cachedLoader = PiccoloSaxLoader.newInstance();
+            }
+            SystemCache.get().setSaxLoader(cachedLoader);
         }
-        return piccoloLoader;
+        return cachedLoader;
     }
 
     private static SaxLoader getSaxLoader(XmlOptions options)
@@ -3082,7 +3088,7 @@ public final class Locale
         }
         else
         {
-            sl = getPiccoloSaxLoader();
+            sl = getCachedSaxLoader();
 
             // Piccolo doesnot mind a null entity resolver ...
 
@@ -3096,6 +3102,15 @@ public final class Locale
         extends SaxLoader
     {
         XmlReaderSaxLoader(XMLReader xr)
+        {
+            super(xr, null);
+        }
+    }
+
+    private static class CachedXmlReaderSaxLoader
+        extends SaxLoader
+    {
+        private CachedXmlReaderSaxLoader(XMLReader xr)
         {
             super(xr, null);
         }
