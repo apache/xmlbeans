@@ -2823,9 +2823,9 @@ public final class Locale
 
         if (--_numTempFramesLeft <= 0)
         {
-            Cur[] newTempFrames = new Cur[(_numTempFramesLeft =
-                _tempFrames.length) *
-                2];
+            Cur[] newTempFrames = new Cur[_tempFrames.length * 2];
+            //move this assignment down so if array allocation fails, error is not masked
+            _numTempFramesLeft = _tempFrames.length;
             System.arraycopy(_tempFrames, 0, newTempFrames, 0,
                 _tempFrames.length);
             _tempFrames = newTempFrames;
