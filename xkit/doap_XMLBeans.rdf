@@ -45,6 +45,7 @@ All of this was built with performance in mind. Informal benchmarks and user fee
     <download-page rdf:resource="http://www.apache.org/dyn/closer.cgi/xmlbeans/" />
     <programming-language>Java</programming-language>
     <category rdf:resource="http://projects.apache.org/category/xml" />
+    <category rdf:resource="http://projects.apache.org/category/retired" />
     <release>
       <Version>
         <name>XMLBeans v2.1.0</name>
