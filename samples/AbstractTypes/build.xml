@@ -70,7 +70,7 @@
                 <path refid="xmlbeans.classpath"/>
             </classpath>
         </scomp>
-        <javac srcdir="src" destdir="build" debug="on" source="1.4">
+        <javac srcdir="src" destdir="build" debug="on" source="1.6">
             <classpath>
                 <path refid="xmlbeans.classpath"/>
                 <pathelement location="build/${abstract.jar}"/>
