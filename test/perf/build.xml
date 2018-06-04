@@ -348,7 +348,7 @@
 			executable="${env.JAVA_HOME}/bin/javac"
 			classpathref="tools.classpath"
 			includes="org/apache/xmlbeans/test/tools/**"
-			source="1.6">
+			source="1.4">
 		</javac>
 	</target>
 
@@ -363,7 +363,7 @@
 			executable="${env.JAVA_HOME}/bin/javac"
 			classpathref="svn.classpath"
 			includes="org/apache/xmlbeans/test/performance/svn/**,org/apache/xmlbeans/test/performance/utils/**"
-			source="1.6">
+			source="1.4">
 		</javac>
 	</target>
 
@@ -378,7 +378,7 @@
 			executable="${env.JAVA_HOME}/bin/javac"
 			classpathref="v1.classpath"
 			includes="org/apache/xmlbeans/test/performance/v1/**,org/apache/xmlbeans/test/performance/utils/**"
-			source="1.6">
+			source="1.4">
 		</javac>
 	</target>
 
@@ -393,7 +393,7 @@
             executable="${env.JAVA_HOME}/bin/javac"
             classpathref="v2.classpath"
             includes="org/apache/xmlbeans/test/performance/v2/**,org/apache/xmlbeans/test/performance/utils/**"
-            source="1.6">
+            source="1.4">
         </javac>
     </target>
 
@@ -408,7 +408,7 @@
 			executable="${env.JAVA_HOME}/bin/javac"
 			classpathref="castor.classpath"
 			includes="org/apache/xmlbeans/test/performance/castor/**,org/apache/xmlbeans/test/performance/utils/**"
-			source="1.6">
+			source="1.4">
 		</javac>
 	</target>
 
@@ -424,7 +424,7 @@
 			classpathref="jibx.classpath"
 			includes="org/apache/xmlbeans/test/performance/jibx/**,org/apache/xmlbeans/test/performance/utils/**"
 			excludes="org/apache/xmlbeans/test/performance/jibx/binding/**"
-			source="1.6">
+			source="1.4">
 		</javac>
 	</target>
 
@@ -439,7 +439,7 @@
 			executable="${env.JAVA_HOME}/bin/javac"
 			classpathref="jaxb.classpath"
 			includes="org/apache/xmlbeans/test/performance/jaxb/**,org/apache/xmlbeans/test/performance/utils/**"
-			source="1.6">
+			source="1.4">
 		</javac>
 	</target>
 
@@ -470,7 +470,7 @@
 			executable="${env.JAVA_HOME}/bin/javac"
 			classpathref="xerces.classpath"
 			includes="org/apache/xmlbeans/test/performance/xerces/**,org/apache/xmlbeans/test/performance/utils/**"
-			source="1.6">
+			source="1.4">
 		</javac>
 	</target>
 
@@ -667,7 +667,7 @@
 			memoryMaximumSize="1000M"
 			compiler="modern"
 			executable="${env.JAVA_HOME}/bin/javac"
-			source="1.6"
+			source="1.4"
 			classpathref="castor.classpath"/>
 		<jar destfile="${schema.jar.build.dir}/${jar.name}"
 				 basedir="${castor.temp.dir}"/>
@@ -689,7 +689,7 @@
 			classpathref="jibx.binding.classpath"
 			includes="org/apache/xmlbeans/test/performance/jibx/binding/**"
 			excludes="org/apache/xmlbeans/test/performance/castor/**,org/apache/xmlbeans/test/performance/svn/**,org/apache/xmlbeans/test/performance/utils/**"
-			source="1.6">
+			source="1.4">
 		</javac>
 		<java classname="org.jibx.binding.Compile"
 					fork="true"
@@ -750,7 +750,7 @@
 			compiler="modern"
 			executable="${env.JAVA_HOME}/bin/javac"
 			classpathref="jaxb.classpath"
-			source="1.6">
+			source="1.4">
 		</javac>
 		<jar destfile="${schema.jar.build.dir}/${jar.name}"
 				 basedir="${jaxb.temp.dir}"/>

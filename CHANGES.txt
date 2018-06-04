@@ -1,21 +1,9 @@
-Changes in V2.7.0 since V2.6.0
-
-* XMLBEANS-516: remove unnecessary javax and org.w3c classes
-* XMLBEANS-515: remove piccolo support
-* XMLBEANS-514: make java 6 the lowest supported runtime
-* Fix for XMLBEANS-499: xmlbeans2.6.0.jar contains duplicate class files (causes issues
-on Android)
-* XMLBEANS-447: Drop the ConcurrentReaderHashMap source code
-* Fix for XMLBEANS-404: entitizeContent CDATA loop iterating too many times (causes
-assertion error or ArrayIndexOutOfBoundsException in replace)
-* Fix for XMLBEANS-332: XMLBeans changes surrogate pair bytes to question marks
-
 Changes in V2.6.0 since V2.5.0
 
 * Add new xml option CopyUseNewSynchronizationDomain used for copy.  
 This fixes the scenario when copy and access (ex. selectPath) are used 
 in a multithreading environment.
-* Entitize \r when not in pretty print, this helps with maintaining \r
+* Entitize \r when not in pretty print, this helps with maintainig \r 
 entities.
 * Fix validation of integer value containing dot char.
 * Fix chars  in comments to avoid errors in IntelliJ under linux.

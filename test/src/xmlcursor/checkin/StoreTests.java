@@ -1112,23 +1112,13 @@ public class StoreTests extends TestCase
         throws Exception
     {
         XmlCursor c = XmlObject.Factory.parse( xml ).newCursor();
-        Assert.assertEquals( xml, c.xmlText() );
+        Assert.assertTrue( c.xmlText().equals( xml ) );
     }
     
     private void doSaveTest ( String xml )
         throws Exception
     {
         doSaverTest( xml );
-    }
-
-    public void testCDATA() throws Exception
-    {
-        // https://issues.apache.org/jira/browse/XMLBEANS-404
-        String xml = "<foo>Unable to render embedded object: <![CDATA[>>>>>>>><<<<<<<<<<<]]></foo>";
-        String expected = "<foo><![CDATA[Unable to render embedded object: >>>>>>>><<<<<<<<<<<]]></foo>";
-        XmlOptions options = new XmlOptions().setSaveCDataLengthThreshold(0);
-        XmlCursor c = XmlObject.Factory.parse(xml, options).newCursor();
-        Assert.assertEquals( expected, c.xmlText(options) );
     }
 
     public void testSaving ( )

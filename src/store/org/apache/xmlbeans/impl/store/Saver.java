@@ -275,23 +275,7 @@ abstract class Saver
         end.moveToCur( c );
         end.toEnd();
     }
-    
-    /**
-     * Test if a character is valid in xml character content. See
-     * http://www.w3.org/TR/REC-xml#NT-Char
-     */
-    static boolean isBadChar ( char ch )
-    {
-        return ! (
-            Character.isHighSurrogate(ch) ||
-            Character.isLowSurrogate(ch) ||
-            (ch >= 0x20 && ch <= 0xD7FF ) ||
-            (ch >= 0xE000 && ch <= 0xFFFD) ||
-            (ch >= 0x10000 && ch <= 0x10FFFF) ||
-            (ch == 0x9) || (ch == 0xA) || (ch == 0xD)
-        );
-    }
-        
+
     protected boolean saveNamespacesFirst ( )
     {
         return _saveNamespacesFirst;
@@ -1403,7 +1387,7 @@ abstract class Saver
                 if (++i == _buf.length)
                     i = 0;
 
-                for ( int cch = _lastEmitCch - 2 ; cch > 0 ; cch-- )
+                for ( int cch = _lastEmitCch ; cch > 0 ; cch-- )
                 {
                     char ch = _buf[ i ];
 
@@ -1565,6 +1549,21 @@ abstract class Saver
                 if (i == _buf.length)
                     i = 0;
             }
+        }
+
+        /**
+         * Test if a character is valid in xml character content. See
+         * http://www.w3.org/TR/REC-xml#NT-Char
+         */
+
+        private boolean isBadChar ( char ch )
+        {
+            return ! (
+                (ch >= 0x20 && ch <= 0xD7FF ) ||
+                (ch >= 0xE000 && ch <= 0xFFFD) ||
+                (ch >= 0x10000 && ch <= 0x10FFFF) ||
+                (ch == 0x9) || (ch == 0xA) || (ch == 0xD)
+                );
         }
 
         /**
@@ -2189,6 +2188,20 @@ abstract class Saver
                 else
                     emit(ch);
             }
+        }
+
+        /**
+         * Test if a character is valid in xml character content. See
+         * http://www.w3.org/TR/REC-xml#NT-Char
+         */
+        private boolean isBadChar ( char ch )
+        {
+            return ! (
+                (ch >= 0x20 && ch <= 0xD7FF ) ||
+                (ch >= 0xE000 && ch <= 0xFFFD) ||
+                (ch >= 0x10000 && ch <= 0x10FFFF) ||
+                (ch == 0x9) || (ch == 0xA) || (ch == 0xD)
+                );
         }
 
         private void emitLiteral ( String literal )

@@ -120,13 +120,13 @@ limitations under the License.
             destdir="build/classes"
             classpathref="XsdConfig.path"
             debug="on"
-            source="1.6"
+            source="1.4"
             />  
         <javac srcdir="src" includes="org/apache/xmlbeans/samples/xsdconfig/CatalogXsd.java org/apache/xmlbeans/samples/xsdconfig/XsdTest.java "
             destdir="build/classes"
             classpathref="Xsd.path"
             debug="on"
-            source="1.6"
+            source="1.4"
             />  
             
     </target>

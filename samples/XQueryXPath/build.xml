@@ -89,7 +89,7 @@ limitations under the License.
             destdir="build/classes"
             classpathref="XQueryXPath.path"
             debug="on"
-            source="1.6"
+            source="1.4"
             />
     </target>
 

@@ -53,8 +53,8 @@ public class CDataTest
             throws Exception
     {
         String xmlText = "<a><![CDATA[cdata text]]></a>";
-        String resultText = "<a>cdata text</a>";
-        checkCData(xmlText, resultText, resultText);
+
+        checkCData(xmlText, xmlText, xmlText);
     }
 
     public void testCData2()
@@ -64,10 +64,10 @@ public class CDataTest
                 "<b><![CDATA[cdata text]]> regular text</b>" + NL +
                 "</a>";
         String expected1 = "<a>\n" +
-                           "<b>cdata text regular text</b>\n" +
+                           "<b><![CDATA[cdata text regular text]]></b>\n" +
                            "</a>";
         String expected2 = "<a>" + NL +
-                           "  <b>cdata text regular text</b>" + NL +
+                           "  <b><![CDATA[cdata text regular text]]></b>" + NL +
                            "</a>";
 
         checkCData(xmlText, expected1, expected2);
@@ -85,23 +85,6 @@ public class CDataTest
         String expected2 = "<a>" + NL +
                            "  <c>text cdata text</c>" + NL +
                            "</a>";
-
-        checkCData(xmlText, expected1, expected2);
-    }
-
-    // https://issues.apache.org/jira/browse/XMLBEANS-404
-    public void testXmlBeans404()
-            throws Exception
-    {
-        String xmlText = "<a>\n" +
-                "<c>text <![CDATA[cdata text]]]]></c>\n" +
-                "</a>";
-        String expected1 = "<a>\n" +
-                "<c>text cdata text]]</c>\n" +
-                "</a>";
-        String expected2 = "<a>" + NL +
-                "  <c>text cdata text]]</c>" + NL +
-                "</a>";
 
         checkCData(xmlText, expected1, expected2);
     }
