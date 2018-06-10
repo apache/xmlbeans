@@ -44,6 +44,7 @@ import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
 import org.apache.xmlbeans.impl.binding.compile.Schema2Java;
+import org.apache.xmlbeans.impl.common.StaxHelper;
 import org.apache.xmlbeans.impl.common.XmlReaderToWriter;
 import org.apache.xmlbeans.impl.common.XmlStreamUtils;
 import org.apache.xmlbeans.impl.marshal.BindingContextFactoryImpl;
@@ -53,8 +54,6 @@ import org.apache.xmlbeans.impl.xb.xsdschema.SchemaDocument;
 import org.w3c.dom.Document;
 
 import javax.xml.namespace.QName;
-import javax.xml.stream.XMLInputFactory;
-import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
@@ -120,7 +119,7 @@ public class MarshalTests extends TestCase
         String doc = "<a x='y'>food</a>";
         StringReader sr = new StringReader(doc);
         final XMLStreamReader reader =
-            XMLInputFactory.newInstance().createXMLStreamReader(sr);
+                StaxHelper.newXMLInputFactory().createXMLStreamReader(sr);
 
         dumpReader(reader);
     }
@@ -132,7 +131,7 @@ public class MarshalTests extends TestCase
     {
         StringWriter sw = new StringWriter();
         final XMLStreamWriter writer =
-            XMLOutputFactory.newInstance().createXMLStreamWriter(sw);
+                StaxHelper.newXMLOutputFactory().createXMLStreamWriter(sw);
 
         writer.writeStartDocument();
         writer.writeStartElement("dummy");
@@ -166,10 +165,9 @@ public class MarshalTests extends TestCase
 
         StringReader sr = new StringReader(DOC);
         final XMLStreamReader reader =
-            XMLInputFactory.newInstance().createXMLStreamReader(sr);
+                StaxHelper.newXMLInputFactory().createXMLStreamReader(sr);
 
-        //uncomment when stax bug is fixed
-        //dumpReader(reader, true);
+        dumpReader(reader, true);
     }
 
     public void testManySimpleTypesUnmarshall()
@@ -301,7 +299,7 @@ public class MarshalTests extends TestCase
 
         StringReader stringReader = new StringReader(xmldoc);
         XMLStreamReader xrdr =
-            XMLInputFactory.newInstance().createXMLStreamReader(stringReader);
+                StaxHelper.newXMLInputFactory().createXMLStreamReader(stringReader);
 
         final XmlOptions options = new XmlOptions();
         Collection errors = new LinkedList();
@@ -694,7 +692,7 @@ public class MarshalTests extends TestCase
 
         StringWriter sw = new StringWriter();
         XMLStreamWriter xml_out =
-            XMLOutputFactory.newInstance().createXMLStreamWriter(sw);
+            StaxHelper.newXMLOutputFactory().createXMLStreamWriter(sw);
 
         xml_out.writeStartDocument();
         xml_out.writeStartElement("DUMMY_ROOT");
@@ -838,7 +836,7 @@ public class MarshalTests extends TestCase
 
         StringWriter sw = new StringWriter();
         XMLStreamWriter xml_out =
-            XMLOutputFactory.newInstance().createXMLStreamWriter(sw);
+            StaxHelper.newXMLOutputFactory().createXMLStreamWriter(sw);
 
         xml_out.writeStartDocument();
         xml_out.writeStartElement("DUMMY_ROOT");
@@ -972,7 +970,7 @@ public class MarshalTests extends TestCase
         BindingContext bindingContext = getBindingContext(getBindingConfigDocument());
 
         StringWriter sw = new StringWriter();
-        XMLStreamWriter w = XMLOutputFactory.newInstance().createXMLStreamWriter(sw);
+        XMLStreamWriter w = StaxHelper.newXMLOutputFactory().createXMLStreamWriter(sw);
 
         final XmlOptions options = new XmlOptions();
         Collection errors = new LinkedList();
@@ -1001,7 +999,7 @@ public class MarshalTests extends TestCase
 
         StringReader sr = new StringReader(sw.getBuffer().toString());
         XMLStreamReader rdr =
-            XMLInputFactory.newInstance().createXMLStreamReader(sr);
+            StaxHelper.newXMLInputFactory().createXMLStreamReader(sr);
         while (!rdr.isStartElement()) {
             rdr.next();
         }
@@ -1034,7 +1032,7 @@ public class MarshalTests extends TestCase
         BindingContext bindingContext = getBindingContext(getBindingConfigDocument());
 
         StringWriter sw = new StringWriter();
-        XMLStreamWriter w = XMLOutputFactory.newInstance().createXMLStreamWriter(sw);
+        XMLStreamWriter w = StaxHelper.newXMLOutputFactory().createXMLStreamWriter(sw);
 
         final XmlOptions options = new XmlOptions();
         Collection errors = new LinkedList();
@@ -1047,7 +1045,7 @@ public class MarshalTests extends TestCase
         //now unmarshall from String and compare objects...
         StringReader sr = new StringReader(sw.getBuffer().toString());
         XMLStreamReader rdr =
-            XMLInputFactory.newInstance().createXMLStreamReader(sr);
+            StaxHelper.newXMLInputFactory().createXMLStreamReader(sr);
         Unmarshaller umctx = bindingContext.createUnmarshaller();
         Object out_obj = umctx.unmarshal(rdr, options);
         reportErrors(errors, "byname-doc-writer");
@@ -1074,7 +1072,7 @@ public class MarshalTests extends TestCase
         BindingContext bindingContext = getBindingContext(getBindingConfigDocument());
 
         StringWriter sw = new StringWriter();
-        XMLStreamWriter w = XMLOutputFactory.newInstance().createXMLStreamWriter(sw);
+        XMLStreamWriter w = StaxHelper.newXMLOutputFactory().createXMLStreamWriter(sw);
 
         final XmlOptions options = new XmlOptions();
         Collection errors = new LinkedList();
@@ -1093,7 +1091,7 @@ public class MarshalTests extends TestCase
         //now unmarshall from String and compare objects...
         StringReader sr = new StringReader(sw.getBuffer().toString());
         XMLStreamReader rdr =
-            XMLInputFactory.newInstance().createXMLStreamReader(sr);
+            StaxHelper.newXMLInputFactory().createXMLStreamReader(sr);
         Unmarshaller umctx = bindingContext.createUnmarshaller();
         while (!rdr.isStartElement()) {
             rdr.next();
@@ -1556,7 +1554,7 @@ public class MarshalTests extends TestCase
             StringWriter sw = new StringWriter();
 
             XMLStreamWriter xsw =
-                XMLOutputFactory.newInstance().createXMLStreamWriter(sw);
+                StaxHelper.newXMLOutputFactory().createXMLStreamWriter(sw);
 
 
             XmlReaderToWriter.writeAll(reader, xsw);
@@ -1582,14 +1580,14 @@ public class MarshalTests extends TestCase
         }
     }
 
-    public void testByNameBeanUnmarshal()
+    public void testByNameBeanUnmarshal()StreamInstanceValidator
         throws Exception
     {
         BindingContext bindingContext = getBindingContext(getBindingConfigDocument());
 
         File doc = TestEnv.xbeanCase("marshal/doc2.xml");
 
-        final XMLInputFactory xmlInputFactory = XMLInputFactory.newInstance();
+        final XMLInputFactory xmlInputFactory = StaxHelper.newXMLInputFactory();
         XMLStreamReader xrdr =
             xmlInputFactory.createXMLStreamReader(doc.toURL().toString(),
                                                   new FileInputStream(doc));
@@ -1618,7 +1616,7 @@ public class MarshalTests extends TestCase
 
         File doc = TestEnv.xbeanCase("marshal/doc3.xml");
 
-        final XMLInputFactory xmlInputFactory = XMLInputFactory.newInstance();
+        final XMLInputFactory xmlInputFactory = StaxHelper.newXMLInputFactory();
         XMLStreamReader xrdr =
             xmlInputFactory.createXMLStreamReader(new FileReader(doc));
 
@@ -1675,7 +1673,7 @@ public class MarshalTests extends TestCase
         final String javaType = "com.mytest.MyClass";
         final QName schemaType = MYCLASS_NAME;
 
-        final XMLInputFactory xmlInputFactory = XMLInputFactory.newInstance();
+        final XMLInputFactory xmlInputFactory = StaxHelper.newXMLInputFactory();
         XMLStreamReader xrdr =
             xmlInputFactory.createXMLStreamReader(new FileReader(doc));
 
@@ -1719,7 +1717,7 @@ public class MarshalTests extends TestCase
 
         final int trials = 5;
 
-        final XMLInputFactory xmlInputFactory = XMLInputFactory.newInstance();
+        final XMLInputFactory xmlInputFactory = StaxHelper.newXMLInputFactory();
 
         final XmlOptions xmlOptions = new XmlOptions();
 
@@ -1804,7 +1802,7 @@ public class MarshalTests extends TestCase
             //now try unmarshalType...
             final FileInputStream fis = new FileInputStream(instance);
             final XMLStreamReader rdr =
-                XMLInputFactory.newInstance().createXMLStreamReader(fis);
+                StaxHelper.newXMLInputFactory().createXMLStreamReader(fis);
             QName schema_type = new QName("http://nosuch.domain.name", "USAddress");
             String java_type = obj.getClass().getName();
 

@@ -21,6 +21,7 @@ import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
 import org.apache.xmlbeans.XmlError;
+import org.apache.xmlbeans.impl.common.StaxHelper;
 import org.apache.xmlbeans.impl.validator.ValidatingXMLStreamReader;
 
 import javax.xml.stream.XMLInputFactory;
@@ -39,7 +40,7 @@ import java.util.HashSet;
 
 public class StreamInstanceValidator
 {
-    private static final XMLInputFactory XML_INPUT_FACTORY = XMLInputFactory.newInstance();
+    private static final XMLInputFactory XML_INPUT_FACTORY = StaxHelper.newXMLInputFactory();
 
     public static void printUsage()
     {
