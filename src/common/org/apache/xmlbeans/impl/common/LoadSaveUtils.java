@@ -22,7 +22,6 @@ package org.apache.xmlbeans.impl.common;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
-import javax.xml.parsers.SAXParserFactory;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLStreamWriter;
@@ -40,10 +39,7 @@ public class LoadSaveUtils
     public static Document xmlText2GenericDom(InputStream is, Document emptyDoc)
             throws SAXException, ParserConfigurationException, IOException
     {
-        SAXParserFactory factory = SAXParserFactory.newInstance();
-        factory.setNamespaceAware(true);
-
-        SAXParser parser = factory.newSAXParser();
+        SAXParser parser = SAXHelper.saxFactory.newSAXParser();
 
         Sax2Dom handler = new Sax2Dom(emptyDoc);
 

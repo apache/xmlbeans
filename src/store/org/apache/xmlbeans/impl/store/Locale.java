@@ -1,4 +1,4 @@
-/*   Copyright 2004-2017 The Apache Software Foundation
+/*   Copyright 2004-2018 The Apache Software Foundation
  *
  *   Licensed under the Apache License, Version 2.0 (the "License");
  *   you may not use this file except in compliance with the License.
@@ -15,7 +15,6 @@
 
 package org.apache.xmlbeans.impl.store;
 
-import org.apache.xmlbeans.XmlErrorCodes;
 import org.xml.sax.Locator;
 import org.xml.sax.Attributes;
 import org.xml.sax.ContentHandler;
@@ -42,6 +41,7 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.io.IOException;
 
+import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamException;
 
@@ -56,15 +56,7 @@ import org.apache.xmlbeans.xml.stream.XMLEvent;
 import org.apache.xmlbeans.xml.stream.XMLInputStream;
 import org.apache.xmlbeans.xml.stream.XMLName;
 
-import org.w3c.dom.DOMImplementation;
-import org.w3c.dom.Document;
-import org.w3c.dom.DocumentType;
-import org.w3c.dom.Node;
-import org.w3c.dom.NamedNodeMap;
-import org.w3c.dom.Element;
-
-import javax.xml.namespace.QName;
-
+import org.apache.xmlbeans.impl.common.SAXHelper;
 import org.apache.xmlbeans.impl.common.XMLNameHelper;
 import org.apache.xmlbeans.impl.common.QNameHelper;
 import org.apache.xmlbeans.impl.common.XmlLocale;
@@ -86,10 +78,11 @@ import org.apache.xmlbeans.XmlBeans;
 import org.apache.xmlbeans.XmlLineNumber;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlCursor.XmlBookmark;
-import org.apache.xmlbeans.XmlSaxHandler;
+import org.apache.xmlbeans.XmlErrorCodes;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
+import org.apache.xmlbeans.XmlSaxHandler;
 import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.SchemaTypeLoader;
 import org.apache.xmlbeans.XmlTokenSource;
@@ -102,6 +95,13 @@ import org.apache.xmlbeans.XmlDocumentProperties;
 import org.apache.xmlbeans.impl.values.TypeStore;
 import org.apache.xmlbeans.impl.values.TypeStoreUser;
 import org.apache.xmlbeans.impl.values.TypeStoreUserFactory;
+
+import org.w3c.dom.DOMImplementation;
+import org.w3c.dom.Document;
+import org.w3c.dom.DocumentType;
+import org.w3c.dom.Node;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Element;
 
 public final class Locale
     implements DOMImplementation, SaajCallback, XmlLocale

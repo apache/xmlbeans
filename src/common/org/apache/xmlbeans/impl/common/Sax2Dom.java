@@ -28,7 +28,6 @@ import org.xml.sax.helpers.DefaultHandler;
 import org.xml.sax.ext.LexicalHandler;
 
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.parsers.DocumentBuilderFactory;
 import java.util.Stack;
 import java.util.Vector;
 
@@ -49,9 +48,7 @@ public class Sax2Dom
 
     public Sax2Dom() throws ParserConfigurationException
     {
-        final DocumentBuilderFactory factory =
-                DocumentBuilderFactory.newInstance();
-        _document = factory.newDocumentBuilder().newDocument();
+        _document = DocumentHelper.newDocumentBuilder().newDocument();
         _root = _document;
     }
 
@@ -68,9 +65,7 @@ public class Sax2Dom
         }
         else
         {
-            final DocumentBuilderFactory factory =
-                    DocumentBuilderFactory.newInstance();
-            _document = factory.newDocumentBuilder().newDocument();
+            _document = DocumentHelper.newDocumentBuilder().newDocument();
             _root = _document;
         }
     }

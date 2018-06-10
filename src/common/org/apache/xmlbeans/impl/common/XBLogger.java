@@ -1,4 +1,4 @@
-/*   Copyright 2017 The Apache Software Foundation
+/*   Copyright 2017, 2018 The Apache Software Foundation
  *
  *   Licensed under the Apache License, Version 2.0 (the "License");
  *   you may not use this file except in compliance with the License.
@@ -13,7 +13,7 @@
  *  limitations under the License.
  */
 
-package org.apache.xmlbeans.impl.store;
+package org.apache.xmlbeans.impl.common;
 
 /**
  * A logger interface that strives to make it as easy as possible for
