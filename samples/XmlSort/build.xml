@@ -65,7 +65,7 @@ limitations under the License.
             destdir="build/classes"
             classpathref="XmlSort.path"
             debug="on"
-            source="1.4"
+            source="1.6"
             />
     </target>
 

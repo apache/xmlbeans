@@ -580,7 +580,7 @@
             destdir="${build.dir.test.src}"
             classpathref="test.run.classpath"
             debug="on"
-            source="1.4"
+            source="1.6"
             optimize="on"
             verbose="false"
             failonerror="true">
@@ -662,7 +662,7 @@
             excludes="${excludes}"
             classpathref="test.run.classpath"
             optimize="on"
-            source="1.4"
+            source="1.6"
             debug="on"
             verbose="false"
             failonerror="true"/>
@@ -914,7 +914,7 @@
             classpathref="test.run.classpath"
             optimize="on"
             debug="on"
-            source="1.4"
+            source="1.6"
             verbose="false"
             failonerror="true"/>
         <property name="test.area.run" value="${excludes}"/>
