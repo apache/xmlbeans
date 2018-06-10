@@ -18,7 +18,7 @@
     <license rdf:resource="http://usefulinc.com/doap/licenses/asl20" />
     <name>Apache XMLBeans</name>
     <homepage rdf:resource="http://xmlbeans.apache.org/" />
-    <asfext:pmc rdf:resource="http://attic.apache.org" />
+    <asfext:pmc rdf:resource="https://poi.apache.org" />
     <shortdesc>XMLBeans is a technology for accessing XML by binding it to Java types. XMLBeans provides several ways to get at the XML: strong XMLSchema typed model, cursor API, streaming (SAX, Stax) and DOM. XMLBeans covers 100% XMLSchema support while giving access to full infoset of documents.</shortdesc>
     <description>XMLBeans is a tool that allows you to access the full power of XML in a Java friendly way. The idea is that you can take advantage of the richness and features of XML and XML Schema and have these features mapped as naturally as possible to the equivalent Java language and typing constructs. XMLBeans uses XML Schema to compile Java interfaces and classes that you can then use to access and modify XML instance data. Using XMLBeans is similar to using any other Java interface/class, you will see things like getFoo or setFoo just as you would expect when working with Java. While a major use of XMLBeans is to access your XML instance data with strongly typed Java classes there are also API's that allow you access to the full XML infoset (XMLBeans keeps XML Infoset fidelity) as well as to allow you to reflect into the XML schema itself through an XML Schema Object model.
 
@@ -45,7 +45,6 @@ All of this was built with performance in mind. Informal benchmarks and user fee
     <download-page rdf:resource="http://www.apache.org/dyn/closer.cgi/xmlbeans/" />
     <programming-language>Java</programming-language>
     <category rdf:resource="http://projects.apache.org/category/xml" />
-    <category rdf:resource="http://projects.apache.org/category/retired" />
     <release>
       <Version>
         <name>XMLBeans v2.1.0</name>
