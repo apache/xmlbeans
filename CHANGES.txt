@@ -1,5 +1,6 @@
 Changes in V2.7.0 since V2.6.0
 
+* XMLBEANS-517: use safe XML parsers
 * XMLBEANS-516: remove unnecessary javax and org.w3c classes
 * XMLBEANS-515: remove piccolo support
 * XMLBEANS-514: make java 6 the lowest supported runtime

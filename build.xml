@@ -60,21 +60,11 @@
                 <include name="saxonb8-6-1.zip"/>
                 <include name="saxonb8-2.zip"/>
                 <include name="saxonb8-1.zip"/>
-                <include name="jsr173_1.0_api_bundle.jar"/>
-                <include name="jsr173_1.0_api.jar"/>
                 <include name="saxon9.jar"/>
                 <include name="saxon9-dom.jar"/>
                 <include name="saxon8.jar"/>
                 <include name="saxon8-dom.jar"/>
                 <include name="xcresolver.zip"/>
-                <!-- the entries below are to delete the previous versions of the jsr173 jars -->
-                <include name="jsr173.jar"/>
-                <include name="jsr173_api.jar"/>
-                <include name="jsr173_ri.jar"/>
-                <include name="jsr173_1.0_api-mini-bundle.jar"/>
-                <include name="jsr173_1.0_ri.jar"/>
-                <include name="BEA Binary RI License (JSR 173).1(Clean).txt"/>
-                <include name="README(jsr_173 api and ri).txt"/>
             </fileset>
         </delete>
     </target>
@@ -288,6 +278,21 @@
         <copy todir="${docs.dir}/images">
             <fileset dir="docs/images"/>
         </copy>
+        <delete file="build/private/xmlbeans-${version.base}${version.rc}-javadoc.jar"/>
+        <jar jarfile="build/private/xmlbeans-${version.base}${version.rc}-javadoc.jar" index="false">
+            <fileset dir="${docs.dir}/reference"/>
+            <fileset file="LICENSE.txt"/>
+            <fileset file="NOTICE.txt"/>
+            <manifest>
+                <section name="${manifest.name}">
+                    <attribute name="Comment" value="${manifest.comment}"/>
+                    <attribute name="Implementation-Title" value="${manifest.title}"/>
+                    <attribute name="Implementation-Version" value="${version.full}"/>
+                    <attribute name="Implementation-Vendor" value="${manifest.vendor}"/>
+                    <attribute name="Implementation-URL" value="${manifest.url}"/>
+                </section>
+            </manifest>
+        </jar>
     </target>
 
 
@@ -393,7 +398,7 @@
                 <exclude name="bin/*.cmd"/>
             </tarfileset>
         </tar>
-        <jar jarfile="build/private/xmlbeans-${version.base}${version.rc}-sources.jar" index="false">
+        <jar jarfile="build/private/xmlbeans-${version.base}${version.rc}-source.jar" index="false">
             <fileset dir="src/common" includes="**/*.java"/>
             <fileset dir="src/configschema" includes="**/*.java"/>
             <fileset dir="src/jamsupport" includes="**/*.java"/>
@@ -464,9 +469,6 @@
             <fileset dir="build/classes/toolschema"/>
             <fileset dir="build/classes/xsdschema"/>
             <fileset dir="build/classes/xmlschema"/>
-            <fileset dir="build/classes/store">
-                <exclude name="org/w3c/dom/**" />
-            </fileset>
             <fileset dir="build/classes/saaj_api"/>
             <fileset dir="build/classes/xmlinputstream"/>
             <fileset dir="build/classes/marshal"/>
