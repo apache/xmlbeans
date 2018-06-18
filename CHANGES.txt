@@ -1,9 +1,10 @@
-Changes in V2.7.0 since V2.6.0
+Changes in V3.0.0 since V2.6.0
 
 * XMLBEANS-517: use safe XML parsers
 * XMLBEANS-516: remove unnecessary javax and org.w3c classes
 * XMLBEANS-515: remove piccolo support
 * XMLBEANS-514: make java 6 the lowest supported runtime
+* XMLBEANS-489: fix for Cursor getAllNamespaces not returning default namespace
 * Fix for XMLBEANS-499: xmlbeans2.6.0.jar contains duplicate class files (causes issues
 on Android)
 * XMLBEANS-447: Drop the ConcurrentReaderHashMap source code
