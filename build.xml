@@ -19,7 +19,7 @@
     <property name="javac.source" value="1.6"/>
     <property name="javac.target" value="1.6"/>
 
-    <property name="version.base" value="2.7.0"/>
+    <property name="version.base" value="3.0.0"/>
     <property name="version.rc" value=""/>
 
     <!-- manifest entries -->
