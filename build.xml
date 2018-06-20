@@ -469,6 +469,7 @@
             <fileset dir="build/classes/toolschema"/>
             <fileset dir="build/classes/xsdschema"/>
             <fileset dir="build/classes/xmlschema"/>
+            <fileset dir="build/classes/store"/>
             <fileset dir="build/classes/saaj_api"/>
             <fileset dir="build/classes/xmlinputstream"/>
             <fileset dir="build/classes/marshal"/>
