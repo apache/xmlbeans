@@ -95,11 +95,13 @@ public final class DocumentHelper {
     static {
         documentBuilderFactory.setNamespaceAware(true);
         documentBuilderFactory.setValidating(false);
-        trySetSAXFeature(documentBuilderFactory, XMLConstants.FEATURE_SECURE_PROCESSING, true);
+        trySetFeature(documentBuilderFactory, XMLConstants.FEATURE_SECURE_PROCESSING, true);
+        trySetFeature(documentBuilderFactory, XMLBeansConstants.FEATURE_LOAD_DTD_GRAMMAR, XMLBeansConstants.isLoadDtdGrammar());
+        trySetFeature(documentBuilderFactory, XMLBeansConstants.FEATURE_LOAD_EXTERNAL_DTD, XMLBeansConstants.isLoadExternalDtd());
         trySetXercesSecurityManager(documentBuilderFactory);
     }
 
-    private static void trySetSAXFeature(DocumentBuilderFactory dbf, String feature, boolean enabled) {
+    private static void trySetFeature(DocumentBuilderFactory dbf, String feature, boolean enabled) {
         try {
             dbf.setFeature(feature, enabled);
         } catch (Exception e) {
@@ -118,8 +120,8 @@ public final class DocumentHelper {
             try {
                 Object mgr = Class.forName(securityManagerClassName).newInstance();
                 Method setLimit = mgr.getClass().getMethod("setEntityExpansionLimit", Integer.TYPE);
-                setLimit.invoke(mgr, 4096);
-                dbf.setAttribute("http://apache.org/xml/properties/security-manager", mgr);
+                setLimit.invoke(mgr, XMLBeansConstants.getEntityExpansionLimit());
+                dbf.setAttribute(XMLBeansConstants.XML_PROPERTY_SECURITY_MANAGER, mgr);
                 // Stop once one can be setup without error
                 return;
             } catch (ClassNotFoundException e) {
@@ -130,7 +132,7 @@ public final class DocumentHelper {
         }
 
         // separate old version of Xerces not found => use the builtin way of setting the property
-        dbf.setAttribute("http://www.oracle.com/xml/jaxp/properties/entityExpansionLimit", 4096);
+        dbf.setAttribute(XMLBeansConstants.XML_PROPERTY_ENTITY_EXPANSION_LIMIT, XMLBeansConstants.getEntityExpansionLimit());
     }
 
     /**

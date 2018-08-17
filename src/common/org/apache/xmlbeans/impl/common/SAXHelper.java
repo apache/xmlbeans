@@ -33,11 +33,6 @@ import org.xml.sax.XMLReader;
  * Provides handy methods for working with SAX parsers and readers
  */
 public final class SAXHelper {
-    public static final String PROPERTY_ENTITY_EXPANSION_LIMIT = "xmlbeans.sax.entity.expansion.limit";
-    public static final int DEFAULT_ENTITY_EXPANSION_LIMIT = 10;
-    private static final int ENTITY_EXPANSION_LIMIT = Integer.getInteger(PROPERTY_ENTITY_EXPANSION_LIMIT, DEFAULT_ENTITY_EXPANSION_LIMIT);
-    private static final String XML_PROPERTY_ENTITY_EXPANSION_LIMIT = "http://www.oracle.com/xml/jaxp/properties/entityExpansionLimit";
-    private static final String XML_PROPERTY_SECURITY_MANAGER = "http://apache.org/xml/properties/security-manager";
     private static final XBLogger logger = XBLogFactory.getLogger(SAXHelper.class);
     private static long lastLog;
 
@@ -67,8 +62,21 @@ public final class SAXHelper {
         saxFactory = SAXParserFactory.newInstance();
         saxFactory.setValidating(false);
         saxFactory.setNamespaceAware(true);
+        trySetSAXFeature(saxFactory, XMLConstants.FEATURE_SECURE_PROCESSING, true);
+        trySetSAXFeature(saxFactory, XMLBeansConstants.FEATURE_LOAD_DTD_GRAMMAR, XMLBeansConstants.isLoadDtdGrammar());
+        trySetSAXFeature(saxFactory, XMLBeansConstants.FEATURE_LOAD_EXTERNAL_DTD, XMLBeansConstants.isLoadExternalDtd());
     }
-            
+
+    private static void trySetSAXFeature(SAXParserFactory spf, String feature, boolean flag) {
+        try {
+            spf.setFeature(feature, flag);
+        } catch (Exception e) {
+            logger.log(XBLogger.WARN, "SAX Feature unsupported", feature, e);
+        } catch (AbstractMethodError ame) {
+            logger.log(XBLogger.WARN, "Cannot set SAX feature because outdated XML parser in classpath", feature, ame);
+        }
+    }
+
     private static void trySetSAXFeature(XMLReader xmlReader, String feature) {
         try {
             xmlReader.setFeature(feature, true);
@@ -88,8 +96,8 @@ public final class SAXHelper {
             try {
                 Object mgr = Class.forName(securityManagerClassName).newInstance();
                 Method setLimit = mgr.getClass().getMethod("setEntityExpansionLimit", Integer.TYPE);
-                setLimit.invoke(mgr, ENTITY_EXPANSION_LIMIT);
-                xmlReader.setProperty(XML_PROPERTY_SECURITY_MANAGER, mgr);
+                setLimit.invoke(mgr, XMLBeansConstants.getEntityExpansionLimit());
+                xmlReader.setProperty(XMLBeansConstants.XML_PROPERTY_SECURITY_MANAGER, mgr);
                 // Stop once one can be setup without error
                 return;
             } catch (Throwable e) {     // NOSONAR - also catch things like NoClassDefError here
@@ -103,7 +111,7 @@ public final class SAXHelper {
 
         // separate old version of Xerces not found => use the builtin way of setting the property
         try {
-            xmlReader.setProperty(XML_PROPERTY_ENTITY_EXPANSION_LIMIT, ENTITY_EXPANSION_LIMIT);
+            xmlReader.setProperty(XMLBeansConstants.XML_PROPERTY_ENTITY_EXPANSION_LIMIT, XMLBeansConstants.getEntityExpansionLimit());
         } catch (SAXException e) {     // NOSONAR - also catch things like NoClassDefError here
             // throttle the log somewhat as it can spam the log otherwise
             if(System.currentTimeMillis() > lastLog + TimeUnit.MINUTES.toMillis(5)) {

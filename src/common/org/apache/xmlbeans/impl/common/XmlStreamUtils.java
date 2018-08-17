@@ -24,7 +24,7 @@ public final class XmlStreamUtils
 {
   public static String printEvent(XMLStreamReader xmlr)
   {
-    StringBuffer b = new StringBuffer();
+    StringBuilder b = new StringBuilder();
     b.append("EVENT:[" + xmlr.getLocation().getLineNumber() + "][" +
              xmlr.getLocation().getColumnNumber() + "] ");
     b.append(getName(xmlr.getEventType()));
@@ -132,14 +132,14 @@ public final class XmlStreamUtils
   private static void printName(String prefix,
                                 String uri,
                                 String localName,
-                                StringBuffer b)
+                                StringBuilder b)
   {
     if (uri != null && !("".equals(uri))) b.append("['" + uri + "']:");
     if (prefix != null && !("".equals(prefix))) b.append(prefix + ":");
     if (localName != null) b.append(localName);
   }
 
-  private static void printName(XMLStreamReader xmlr, StringBuffer b)
+  private static void printName(XMLStreamReader xmlr, StringBuilder b)
   {
     if (xmlr.hasName()) {
       String prefix = xmlr.getPrefix();
