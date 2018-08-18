@@ -35,8 +35,8 @@ public final class StaxHelper {
         XMLInputFactory factory = XMLInputFactory.newFactory();
         trySetProperty(factory, XMLInputFactory.IS_NAMESPACE_AWARE, true);
         trySetProperty(factory, XMLInputFactory.IS_VALIDATING, false);
-        trySetProperty(factory, XMLInputFactory.SUPPORT_DTD, false);
-        trySetProperty(factory, XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, false);
+        trySetProperty(factory, XMLInputFactory.SUPPORT_DTD, XMLBeansConstants.isLoadDtdGrammar());
+        trySetProperty(factory, XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, XMLBeansConstants.isLoadExternalDtd());
         return factory;
     }
 
