@@ -40,16 +40,10 @@ public class ParsersBase extends TestCase {
     // System Property                               Parser                        Value
     // ----------------------------------------------------------------------------------------------------------
     // javax.xml.parsers.DocumentBuilderFactory     Xerces              org.apache.xerces.jaxp.DocumentBuilderFactoryImpl
-    //                                              Crimson             org.apache.crimson.jaxp.DocumentBuilderFactoryImpl
-    //                                              Piccolo             NA
     //
     // org.xml.sax.driver                           Xerces              org.apache.xerces.parsers.SAXParser
-    //                                              Crimson             org.apache.crimson.parser.XmlReaderImpl
-    //                                              Piccolo (Xbeans)    org.apache.xmlbeans.impl.piccolo.xml.Piccolo
     //
     // javax.xml.parsers.SAXParserFactory           Xerces              org.apache.xerces.jaxp.SAXParserFactoryImpl
-    //                                              Crimson             org.apache.crimson.jaxp.SAXParserFactoryImpl
-    //                                              Piccolo (XBeans)    org.apache.xmlbeans.impl.piccolo.xml.JAXPSAXParserFactory
     // ----------------------------------------------------------------------------------------------------------
 
 

@@ -25,6 +25,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.events.Namespace;
 
+import org.apache.xmlbeans.XmlOptionsBean;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.ErrorHandler;
@@ -77,12 +78,13 @@ public final class DocumentHelper {
     /**
      * Creates a new document builder, with sensible defaults
      *
+     * @param xmlOptions
      * @throws IllegalStateException If creating the DocumentBuilder fails, e.g.
      *  due to {@link ParserConfigurationException}.
      */
-    public static synchronized DocumentBuilder newDocumentBuilder() {
+    public static synchronized DocumentBuilder newDocumentBuilder(XmlOptionsBean xmlOptions) {
         try {
-            DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
+            DocumentBuilder documentBuilder = documentBuilderFactory(xmlOptions).newDocumentBuilder();
             documentBuilder.setEntityResolver(SAXHelper.IGNORING_ENTITY_RESOLVER);
             documentBuilder.setErrorHandler(new DocHelperErrorHandler());
             return documentBuilder;
@@ -91,14 +93,15 @@ public final class DocumentHelper {
         }
     }
 
-    private static final DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
-    static {
+    private static final DocumentBuilderFactory documentBuilderFactory(XmlOptionsBean options) {
+        DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
         documentBuilderFactory.setNamespaceAware(true);
         documentBuilderFactory.setValidating(false);
         trySetFeature(documentBuilderFactory, XMLConstants.FEATURE_SECURE_PROCESSING, true);
-        trySetFeature(documentBuilderFactory, XMLBeansConstants.FEATURE_LOAD_DTD_GRAMMAR, XMLBeansConstants.isLoadDtdGrammar());
-        trySetFeature(documentBuilderFactory, XMLBeansConstants.FEATURE_LOAD_EXTERNAL_DTD, XMLBeansConstants.isLoadExternalDtd());
-        trySetXercesSecurityManager(documentBuilderFactory);
+        trySetFeature(documentBuilderFactory, XMLBeansConstants.FEATURE_LOAD_DTD_GRAMMAR, options.isLoadDTDGrammar());
+        trySetFeature(documentBuilderFactory, XMLBeansConstants.FEATURE_LOAD_EXTERNAL_DTD, options.isLoadExternalDTD());
+        trySetXercesSecurityManager(documentBuilderFactory, options);
+        return documentBuilderFactory;
     }
 
     private static void trySetFeature(DocumentBuilderFactory dbf, String feature, boolean enabled) {
@@ -111,7 +114,7 @@ public final class DocumentHelper {
         }
     }
     
-    private static void trySetXercesSecurityManager(DocumentBuilderFactory dbf) {
+    private static void trySetXercesSecurityManager(DocumentBuilderFactory dbf, XmlOptionsBean options) {
         // Try built-in JVM one first, standalone if not
         for (String securityManagerClassName : new String[]{
                 //"com.sun.org.apache.xerces.internal.util.SecurityManager",
@@ -120,8 +123,8 @@ public final class DocumentHelper {
             try {
                 Object mgr = Class.forName(securityManagerClassName).newInstance();
                 Method setLimit = mgr.getClass().getMethod("setEntityExpansionLimit", Integer.TYPE);
-                setLimit.invoke(mgr, XMLBeansConstants.getEntityExpansionLimit());
-                dbf.setAttribute(XMLBeansConstants.XML_PROPERTY_SECURITY_MANAGER, mgr);
+                setLimit.invoke(mgr, options.getEntityExpansionLimit());
+                dbf.setAttribute(XMLBeansConstants.SECURITY_MANAGER, mgr);
                 // Stop once one can be setup without error
                 return;
             } catch (ClassNotFoundException e) {
@@ -132,7 +135,7 @@ public final class DocumentHelper {
         }
 
         // separate old version of Xerces not found => use the builtin way of setting the property
-        dbf.setAttribute(XMLBeansConstants.XML_PROPERTY_ENTITY_EXPANSION_LIMIT, XMLBeansConstants.getEntityExpansionLimit());
+        dbf.setAttribute(XMLBeansConstants.ENTITY_EXPANSION_LIMIT, options.getEntityExpansionLimit());
     }
 
     /**
@@ -141,8 +144,8 @@ public final class DocumentHelper {
      * @param inp Stream to read the XML data from
      * @return the parsed Document 
      */
-    public static Document readDocument(InputStream inp) throws IOException, SAXException {
-        return newDocumentBuilder().parse(inp);
+    public static Document readDocument(XmlOptionsBean xmlOptions, InputStream inp) throws IOException, SAXException {
+        return newDocumentBuilder(xmlOptions).parse(inp);
     }
 
     /**
@@ -151,12 +154,12 @@ public final class DocumentHelper {
      * @param inp sax source to read the XML data from
      * @return the parsed Document 
      */
-    public static Document readDocument(InputSource inp) throws IOException, SAXException {
-        return newDocumentBuilder().parse(inp);
+    public static Document readDocument(XmlOptionsBean xmlOptions, InputSource inp) throws IOException, SAXException {
+        return newDocumentBuilder(xmlOptions).parse(inp);
     }
 
     // must only be used to create empty documents, do not use it for parsing!
-    private static final DocumentBuilder documentBuilderSingleton = newDocumentBuilder();
+    private static final DocumentBuilder documentBuilderSingleton = newDocumentBuilder(new XmlOptionsBean());
 
     /**
      * Creates a new DOM Document

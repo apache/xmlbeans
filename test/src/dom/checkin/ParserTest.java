@@ -16,11 +16,16 @@
 
 package dom.checkin;
 
+import java.io.ByteArrayInputStream;
+import javax.xml.XMLConstants;
 import javax.xml.stream.XMLInputFactory;
 
 import junit.framework.*;
 
+import org.apache.xmlbeans.XmlOptionsBean;
 import org.apache.xmlbeans.impl.common.*;
+import org.xml.sax.InputSource;
+import org.xml.sax.XMLReader;
 
 /**
  * Tests for XML Parser settings
@@ -28,29 +33,26 @@ import org.apache.xmlbeans.impl.common.*;
 
 public class ParserTest extends TestCase {
 
-    public void testXMLBeansConstantsDefaults() {
-        assertEquals(2048, XMLBeansConstants.getEntityExpansionLimit());
-        assertFalse(XMLBeansConstants.isLoadDtdGrammar());
-        assertFalse(XMLBeansConstants.isLoadExternalDtd());
+    public void testXmlOptionsDefaults() {
+        XmlOptionsBean options = new XmlOptionsBean();
+        assertEquals(2048, options.getEntityExpansionLimit());
+        assertFalse(options.isLoadDTDGrammar());
+        assertFalse(options.isLoadExternalDTD());
     }
 
     public void testXMLBeansConstantsOverrides() {
-        try {
-            System.setProperty(XMLBeansConstants.PROPERTY_ENTITY_EXPANSION_LIMIT, "1");
-            System.setProperty(XMLBeansConstants.PROPERTY_LOAD_DTD_GRAMMAR, "true");
-            System.setProperty(XMLBeansConstants.PROPERTY_LOAD_EXTERNAL_DTD, "true");
-            assertEquals(1, XMLBeansConstants.getEntityExpansionLimit());
-            assertTrue(XMLBeansConstants.isLoadDtdGrammar());
-            assertTrue(XMLBeansConstants.isLoadExternalDtd());
-        } finally {
-            System.clearProperty(XMLBeansConstants.PROPERTY_ENTITY_EXPANSION_LIMIT);
-            System.clearProperty(XMLBeansConstants.PROPERTY_LOAD_DTD_GRAMMAR);
-            System.clearProperty(XMLBeansConstants.PROPERTY_LOAD_EXTERNAL_DTD);
-        }
+        XmlOptionsBean options = new XmlOptionsBean();
+        options.setEntityExpansionLimit(1);
+        options.setLoadDTDGrammar(true);
+        options.setLoadExternalDTD(true);
+        assertEquals(1, options.getEntityExpansionLimit());
+        assertTrue(options.isLoadDTDGrammar());
+        assertTrue(options.isLoadExternalDTD());
     }
 
     public void testXmlInputFactoryPropertyDefaults() {
-        XMLInputFactory factory = StaxHelper.newXMLInputFactory();
+        XmlOptionsBean options = new XmlOptionsBean();
+        XMLInputFactory factory = StaxHelper.newXMLInputFactory(options);
         assertEquals(true, factory.getProperty(XMLInputFactory.IS_NAMESPACE_AWARE));
         assertEquals(false, factory.getProperty(XMLInputFactory.IS_VALIDATING));
         assertEquals(false, factory.getProperty(XMLInputFactory.SUPPORT_DTD));
@@ -58,15 +60,39 @@ public class ParserTest extends TestCase {
     }
 
     public void testXmlInputFactoryPropertyOverrides() {
-        try {
-            System.setProperty(XMLBeansConstants.PROPERTY_LOAD_DTD_GRAMMAR, "true");
-            System.setProperty(XMLBeansConstants.PROPERTY_LOAD_EXTERNAL_DTD, "true");
-            XMLInputFactory factory = StaxHelper.newXMLInputFactory();
-            assertEquals(true, factory.getProperty(XMLInputFactory.SUPPORT_DTD));
-            assertEquals(true, factory.getProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES));
-        } finally {
-            System.clearProperty(XMLBeansConstants.PROPERTY_LOAD_DTD_GRAMMAR);
-            System.clearProperty(XMLBeansConstants.PROPERTY_LOAD_EXTERNAL_DTD);
-        }
+        XmlOptionsBean options = new XmlOptionsBean();
+        options.setEntityExpansionLimit(1);
+        options.setLoadDTDGrammar(true);
+        options.setLoadExternalDTD(true);
+        XMLInputFactory factory = StaxHelper.newXMLInputFactory(options);
+        assertEquals(true, factory.getProperty(XMLInputFactory.SUPPORT_DTD));
+        assertEquals(true, factory.getProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES));
+    }
+
+    public void testXMLReader() throws Exception {
+        XmlOptionsBean options = new XmlOptionsBean();
+        XMLReader reader = SAXHelper.newXMLReader(options);
+        assertNotSame(reader, SAXHelper.newXMLReader(options));
+        assertFalse(reader.getFeature(XMLBeansConstants.FEATURE_LOAD_DTD_GRAMMAR));
+        assertFalse(reader.getFeature(XMLBeansConstants.FEATURE_LOAD_EXTERNAL_DTD));
+        assertEquals(SAXHelper.IGNORING_ENTITY_RESOLVER, reader.getEntityResolver());
+        assertNotNull(reader.getProperty(XMLBeansConstants.SECURITY_MANAGER));
+
+        reader.parse(new InputSource(new ByteArrayInputStream("<xml></xml>".getBytes("UTF-8"))));
+    }
+
+    public void testXMLReaderOverrides() throws Exception {
+        XmlOptionsBean options = new XmlOptionsBean();
+        options.setEntityExpansionLimit(1);
+        options.setLoadDTDGrammar(true);
+        options.setLoadExternalDTD(true);
+        XMLReader reader = SAXHelper.newXMLReader(options);
+        assertNotSame(reader, SAXHelper.newXMLReader(options));
+        assertTrue(reader.getFeature(XMLBeansConstants.FEATURE_LOAD_DTD_GRAMMAR));
+        assertTrue(reader.getFeature(XMLBeansConstants.FEATURE_LOAD_EXTERNAL_DTD));
+        assertEquals(SAXHelper.IGNORING_ENTITY_RESOLVER, reader.getEntityResolver());
+        assertNotNull(reader.getProperty(XMLBeansConstants.SECURITY_MANAGER));
+
+        reader.parse(new InputSource(new ByteArrayInputStream("<xml></xml>".getBytes("UTF-8"))));
     }
 }

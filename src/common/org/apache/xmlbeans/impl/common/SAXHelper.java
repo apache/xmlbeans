@@ -24,6 +24,7 @@ import javax.xml.XMLConstants;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParserFactory;
 
+import org.apache.xmlbeans.XmlOptionsBean;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -41,30 +42,34 @@ public final class SAXHelper {
     /**
      * Creates a new SAX XMLReader, with sensible defaults
      */
-    public static synchronized XMLReader newXMLReader() throws SAXException, ParserConfigurationException {
-        XMLReader xmlReader = saxFactory.newSAXParser().getXMLReader();
+    public static XMLReader newXMLReader(XmlOptionsBean options) throws SAXException, ParserConfigurationException {
+        XMLReader xmlReader = saxFactory(options).newSAXParser().getXMLReader();
         xmlReader.setEntityResolver(IGNORING_ENTITY_RESOLVER);
         trySetSAXFeature(xmlReader, XMLConstants.FEATURE_SECURE_PROCESSING);
-        trySetXercesSecurityManager(xmlReader);
+        trySetXercesSecurityManager(xmlReader, options);
         return xmlReader;
     }
     
-    static final EntityResolver IGNORING_ENTITY_RESOLVER = new EntityResolver() {
+    public static final EntityResolver IGNORING_ENTITY_RESOLVER = new EntityResolver() {
         @Override
         public InputSource resolveEntity(String publicId, String systemId)
                 throws SAXException, IOException {
             return new InputSource(new StringReader(""));
         }
     };
-    
-    static final SAXParserFactory saxFactory;
-    static {
-        saxFactory = SAXParserFactory.newInstance();
+
+    static SAXParserFactory saxFactory() {
+        return saxFactory(new XmlOptionsBean());
+    }
+
+    static SAXParserFactory saxFactory(XmlOptionsBean options) {
+        SAXParserFactory saxFactory = SAXParserFactory.newInstance();
         saxFactory.setValidating(false);
         saxFactory.setNamespaceAware(true);
         trySetSAXFeature(saxFactory, XMLConstants.FEATURE_SECURE_PROCESSING, true);
-        trySetSAXFeature(saxFactory, XMLBeansConstants.FEATURE_LOAD_DTD_GRAMMAR, XMLBeansConstants.isLoadDtdGrammar());
-        trySetSAXFeature(saxFactory, XMLBeansConstants.FEATURE_LOAD_EXTERNAL_DTD, XMLBeansConstants.isLoadExternalDtd());
+        trySetSAXFeature(saxFactory, XMLBeansConstants.FEATURE_LOAD_DTD_GRAMMAR, options.isLoadDTDGrammar());
+        trySetSAXFeature(saxFactory, XMLBeansConstants.FEATURE_LOAD_EXTERNAL_DTD, options.isLoadExternalDTD());
+        return saxFactory;
     }
 
     private static void trySetSAXFeature(SAXParserFactory spf, String feature, boolean flag) {
@@ -87,7 +92,7 @@ public final class SAXHelper {
         }
     }
     
-    private static void trySetXercesSecurityManager(XMLReader xmlReader) {
+    private static void trySetXercesSecurityManager(XMLReader xmlReader, XmlOptionsBean options) {
         // Try built-in JVM one first, standalone if not
         for (String securityManagerClassName : new String[] {
                 //"com.sun.org.apache.xerces.internal.util.SecurityManager",
@@ -96,8 +101,8 @@ public final class SAXHelper {
             try {
                 Object mgr = Class.forName(securityManagerClassName).newInstance();
                 Method setLimit = mgr.getClass().getMethod("setEntityExpansionLimit", Integer.TYPE);
-                setLimit.invoke(mgr, XMLBeansConstants.getEntityExpansionLimit());
-                xmlReader.setProperty(XMLBeansConstants.XML_PROPERTY_SECURITY_MANAGER, mgr);
+                setLimit.invoke(mgr, options.getEntityExpansionLimit());
+                xmlReader.setProperty(XMLBeansConstants.SECURITY_MANAGER, mgr);
                 // Stop once one can be setup without error
                 return;
             } catch (Throwable e) {     // NOSONAR - also catch things like NoClassDefError here
@@ -111,7 +116,7 @@ public final class SAXHelper {
 
         // separate old version of Xerces not found => use the builtin way of setting the property
         try {
-            xmlReader.setProperty(XMLBeansConstants.XML_PROPERTY_ENTITY_EXPANSION_LIMIT, XMLBeansConstants.getEntityExpansionLimit());
+            xmlReader.setProperty(XMLBeansConstants.ENTITY_EXPANSION_LIMIT, options.getEntityExpansionLimit());
         } catch (SAXException e) {     // NOSONAR - also catch things like NoClassDefError here
             // throttle the log somewhat as it can spam the log otherwise
             if(System.currentTimeMillis() > lastLog + TimeUnit.MINUTES.toMillis(5)) {

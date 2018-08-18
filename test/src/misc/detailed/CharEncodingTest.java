@@ -33,37 +33,15 @@ public class CharEncodingTest extends ParsersBase {
         String I18N_test_string1 = "<i18n xmlns:\u00c1\u00c1\u00c1=\"\u00c1\u00c1\u00c1\" type=\"\u00c1\u00c1\u00c1:t\"/>";
         String I18N_test_string2 = "<i18n xmlns:\u30af\u30af\u30af=\"\u30af\u30af\u30af\" type=\"\u30af\u30af\u30af:t\"/>";
 
-        // Test all 3 parsers with string 1, this is a valid string and should pass
-        parseXmlWithSAXAPI(I18N_test_string1,
-                "Crimson",
-                "org.apache.crimson.parser.XmlReaderImpl",
-                "org.apache.crimson.jaxp.SAXParserFactoryImpl");
-
         parseXmlWithSAXAPI(I18N_test_string1,
                 "Xerces",
                 "org.apache.xerces.parsers.SAXParser",
                 "org.apache.xerces.jaxp.SAXParserFactoryImpl");
 
-        parseXmlWithSAXAPI(I18N_test_string1,
-                "Piccolo",
-                "org.apache.xmlbeans.impl.piccolo.xml.Piccolo",
-                "org.apache.xmlbeans.impl.piccolo.xml.JAXPSAXParserFactory");
-
-        // Now test all 3 parsers with string 2, this is a valid string and should pass but piccolo fails
-        parseXmlWithSAXAPI(I18N_test_string2,
-                "Crimson",
-                "org.apache.crimson.parser.XmlReaderImpl",
-                "org.apache.crimson.jaxp.SAXParserFactoryImpl");
-
         parseXmlWithSAXAPI(I18N_test_string2,
                 "Xerces",
                 "org.apache.xerces.parsers.SAXParser",
                 "org.apache.xerces.jaxp.SAXParserFactoryImpl");
-
-        parseXmlWithSAXAPI(I18N_test_string2,
-                "Piccolo",
-                "org.apache.xmlbeans.impl.piccolo.xml.Piccolo",
-                "org.apache.xmlbeans.impl.piccolo.xml.JAXPSAXParserFactory");
 
     }
 
@@ -82,17 +60,6 @@ public class CharEncodingTest extends ParsersBase {
                 "Xerces",
                 "org.apache.xerces.parsers.SAXParser",
                 "org.apache.xerces.jaxp.SAXParserFactoryImpl");
-
-        parseXmlWithSAXAPI(netPubEntity,
-                "Piccolo",
-                "org.apache.xmlbeans.impl.piccolo.xml.Piccolo",
-                "org.apache.xmlbeans.impl.piccolo.xml.JAXPSAXParserFactory");
-
-        parseXmlWithSAXAPI(netPubEntity,
-                "Crimson",
-                "org.apache.crimson.parser.XmlReaderImpl",
-                "org.apache.crimson.jaxp.SAXParserFactoryImpl");
-
 
         // parse same string using scomp
         XmlOptions options = new XmlOptions();

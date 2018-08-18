@@ -1,3 +1,8 @@
+Changes in V3.0.1 since V3.0.0
+
+* XMLBEANS-518: add support to XmlOptions to allow control over the XML parser settings that affect DTD loading
+and entity expansion
+
 Changes in V3.0.0 since V2.6.0
 
 * XMLBEANS-517: use safe XML parsers

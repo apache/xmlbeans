@@ -442,4 +442,22 @@ public class XmlOptionsBean extends XmlOptions
     {
         return (String) get( GENERATE_JAVA_VERSION );
     }
+
+    public int getEntityExpansionLimit()
+    {
+        Integer limit = (Integer) get( ENTITY_EXPANSION_LIMIT );
+        return limit == null ? DEFAULT_ENTITY_EXPANSION_LIMIT : limit;
+    }
+
+    public boolean isLoadDTDGrammar()
+    {
+        Boolean flag = (Boolean) get( LOAD_DTD_GRAMMAR );
+        return flag == null ? false : flag;
+    }
+
+    public boolean isLoadExternalDTD()
+    {
+        Boolean flag = (Boolean) get( LOAD_EXTERNAL_DTD );
+        return flag == null ? false : flag;
+    }
 }

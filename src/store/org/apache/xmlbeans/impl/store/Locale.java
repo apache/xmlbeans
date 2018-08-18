@@ -82,6 +82,7 @@ import org.apache.xmlbeans.XmlErrorCodes;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
+import org.apache.xmlbeans.XmlOptionsBean;
 import org.apache.xmlbeans.XmlSaxHandler;
 import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.SchemaTypeLoader;
@@ -3051,7 +3052,7 @@ public final class Locale
 
         if (xr == null) {
             try {
-                xr = SAXHelper.newXMLReader();
+                xr = SAXHelper.newXMLReader(new XmlOptionsBean(options));
             } catch(Exception e) {
                 throw new XmlException("Problem creating XMLReader", e);
             } 

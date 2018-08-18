@@ -39,7 +39,7 @@ public class LoadSaveUtils
     public static Document xmlText2GenericDom(InputStream is, Document emptyDoc)
             throws SAXException, ParserConfigurationException, IOException
     {
-        SAXParser parser = SAXHelper.saxFactory.newSAXParser();
+        SAXParser parser = SAXHelper.saxFactory().newSAXParser();
 
         Sax2Dom handler = new Sax2Dom(emptyDoc);
 

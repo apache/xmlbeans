@@ -20,6 +20,7 @@ import org.apache.xmlbeans.XmlBeans;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
+import org.apache.xmlbeans.XmlOptionsBean;
 import org.apache.xmlbeans.XmlError;
 import org.apache.xmlbeans.impl.common.StaxHelper;
 import org.apache.xmlbeans.impl.validator.ValidatingXMLStreamReader;
@@ -40,8 +41,6 @@ import java.util.HashSet;
 
 public class StreamInstanceValidator
 {
-    private static final XMLInputFactory XML_INPUT_FACTORY = StaxHelper.newXMLInputFactory();
-
     public static void printUsage()
     {
         System.out.println("Validates the specified instance against the specified schema.");
@@ -174,9 +173,11 @@ public class StreamInstanceValidator
             errors.clear();
 
             try {
+                final XMLInputFactory xmlInputFactory = StaxHelper.newXMLInputFactory(new XmlOptionsBean(options));
+
                 final FileInputStream fis = new FileInputStream(file);
                 final XMLStreamReader rdr =
-                    XML_INPUT_FACTORY.createXMLStreamReader(path, fis);
+                        xmlInputFactory.createXMLStreamReader(path, fis);
 
                 //advance to first start element.
                 while(!rdr.isStartElement()) {

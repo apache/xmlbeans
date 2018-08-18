@@ -613,7 +613,7 @@ public class XmlOptions implements java.io.Serializable
     }
 
     /**
-     * By default, XmlBeans uses an internal Piccolo parser,
+     * By default, XmlBeans creates a JAXP parser,
      * other parsers can be used by providing an XMLReader.
      * For using the default JDK's SAX parser use:
      * xmlOptions.setLoadUseXMLReader( SAXParserFactory.newInstance().newSAXParser().getXMLReader() );
@@ -858,7 +858,7 @@ public class XmlOptions implements java.io.Serializable
      */
     public XmlOptions setCopyUseNewSynchronizationDomain (boolean useNewSyncDomain)
     {
-        return set(COPY_USE_NEW_SYNC_DOMAIN, useNewSyncDomain ? Boolean.TRUE : Boolean.FALSE );
+        return set(COPY_USE_NEW_SYNC_DOMAIN, useNewSyncDomain);
     }
 
     /**
@@ -870,6 +870,41 @@ public class XmlOptions implements java.io.Serializable
     public XmlOptions setLoadEntityBytesLimit (int entityBytesLimit)
     {
         return set(LOAD_ENTITY_BYTES_LIMIT,entityBytesLimit);
+    }
+
+    /**
+     * Sets the maximum number of entity expansions allowed during parsing.
+     * The default value is 2048.
+     * @param entityExpansionLimit
+     * @return this
+     */
+    public XmlOptions setEntityExpansionLimit (int entityExpansionLimit)
+    {
+        return set(ENTITY_EXPANSION_LIMIT, entityExpansionLimit);
+    }
+
+    /**
+     * Controls whether DTD grammar is loaded during parsing.
+     * The default value is false.
+     *
+     * @param loadDTDGrammar
+     * @return this
+     */
+    public XmlOptions setLoadDTDGrammar (boolean loadDTDGrammar)
+    {
+        return set(LOAD_DTD_GRAMMAR, loadDTDGrammar);
+    }
+
+    /**
+     * Controls whether external DTDs are loaded during parsing.
+     * The default value is false.
+     *
+     * @param loadExternalDTD
+     * @return this
+     */
+    public XmlOptions setLoadExternalDTD (boolean loadExternalDTD)
+    {
+        return set(LOAD_EXTERNAL_DTD, loadExternalDTD);
     }
 
     public static final String GENERATE_JAVA_14 = "1.4";
@@ -996,6 +1031,14 @@ public class XmlOptions implements java.io.Serializable
     public static final String COPY_USE_NEW_SYNC_DOMAIN        = "COPY_USE_NEW_LOCALE";
     /** @exclude */
     public static final String LOAD_ENTITY_BYTES_LIMIT         = "LOAD_ENTITY_BYTES_LIMIT";
+    /** @exclude */
+    public static final String ENTITY_EXPANSION_LIMIT          = "ENTITY_EXPANSION_LIMIT";
+    /** @exclude */
+    public static final String LOAD_DTD_GRAMMAR                = "LOAD_DTD_GRAMMAR";
+    /** @exclude */
+    public static final String LOAD_EXTERNAL_DTD               = "LOAD_EXTERNAL_DTD";
+
+    public static final int DEFAULT_ENTITY_EXPANSION_LIMIT = 2048;
 
     private static final XmlOptions EMPTY_OPTIONS;
     static {
