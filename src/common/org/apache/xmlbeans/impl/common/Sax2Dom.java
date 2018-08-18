@@ -48,7 +48,7 @@ public class Sax2Dom
 
     public Sax2Dom() throws ParserConfigurationException
     {
-        _document = DocumentHelper.newDocumentBuilder().newDocument();
+        _document = DocumentHelper.createDocument();
         _root = _document;
     }
 
@@ -65,7 +65,7 @@ public class Sax2Dom
         }
         else
         {
-            _document = DocumentHelper.newDocumentBuilder().newDocument();
+            _document = DocumentHelper.createDocument();
             _root = _document;
         }
     }

@@ -19,19 +19,19 @@ public class XMLBeansConstants {
     public static final String PROPERTY_ENTITY_EXPANSION_LIMIT = "xmlbeans.entity.expansion.limit";
     public static final String PROPERTY_LOAD_DTD_GRAMMAR = "xmlbeans.load.dtd.grammar";
     public static final String PROPERTY_LOAD_EXTERNAL_DTD = "xmlbeans.load.external.dtd";
-    public static final int DEFAULT_ENTITY_EXPANSION_LIMIT = 1;
+    public static final int DEFAULT_ENTITY_EXPANSION_LIMIT = 2048;
     public static final String XML_PROPERTY_ENTITY_EXPANSION_LIMIT = "http://www.oracle.com/xml/jaxp/properties/entityExpansionLimit";
     public static final String XML_PROPERTY_SECURITY_MANAGER = "http://apache.org/xml/properties/security-manager";
     public static final String FEATURE_LOAD_DTD_GRAMMAR = "http://apache.org/xml/features/nonvalidating/load-dtd-grammar";
     public static final String FEATURE_LOAD_EXTERNAL_DTD = "http://apache.org/xml/features/nonvalidating/load-external-dtd";
 
-    static int getEntityExpansionLimit() {
+    public static int getEntityExpansionLimit() {
         return Integer.getInteger(PROPERTY_ENTITY_EXPANSION_LIMIT, DEFAULT_ENTITY_EXPANSION_LIMIT);
     }
-    static boolean isLoadDtdGrammar() {
+    public static boolean isLoadDtdGrammar() {
         return Boolean.getBoolean(PROPERTY_LOAD_DTD_GRAMMAR);
     }
-    static boolean isLoadExternalDtd() {
+    public static boolean isLoadExternalDtd() {
         return Boolean.getBoolean(PROPERTY_LOAD_EXTERNAL_DTD);
     }
 }
