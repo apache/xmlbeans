@@ -258,7 +258,8 @@
         <javac srcdir="src/zipcompare"
             source="${javac.source}" target="${javac.target}"
             destdir="build/private/classes/zipcompare"
-            debug="on"/>
+            debug="on"
+            includeantruntime="false"/>
     </target>
 
     <!-- javadocs ====================================================== -->
@@ -506,7 +507,8 @@
         <javac srcdir="src/xmlinputstream"
             source="${javac.source}" target="${javac.target}"
             destdir="build/classes/xmlinputstream"
-            debug="on">
+            debug="on"
+            includeantruntime="false">
             <classpath>
                 <pathelement location="build/classes/common"/>
             </classpath>
@@ -517,7 +519,8 @@
 
     <target name="xmlpublic.classes" depends="dirs">
         <mkdir dir="build/classes/xmlpublic"/>
-        <javac srcdir="src/xmlpublic" sourcepath="src/xmlinputstream" destdir="build/classes/xmlpublic" source="${javac.source}" target="${javac.target}" debug="on">
+        <javac srcdir="src/xmlpublic" sourcepath="src/xmlinputstream" destdir="build/classes/xmlpublic"
+               source="${javac.source}" target="${javac.target}" debug="on" includeantruntime="false">
             <classpath/>
         </javac>
 
@@ -552,7 +555,8 @@
 
     <target name="typestore.classes" depends="dirs, xmlpublic.classes, common.classes, xmlinputstream.classes">
         <mkdir dir="build/classes/typestore"/>
-        <javac srcdir="src/typestore" destdir="build/classes/typestore" source="${javac.source}" target="${javac.target}" debug="on">
+        <javac srcdir="src/typestore" destdir="build/classes/typestore" source="${javac.source}" target="${javac.target}"
+               debug="on" includeantruntime="false">
             <classpath>
                 <pathelement location="build/classes/xmlinputstream"/>
                 <pathelement location="build/classes/xmlpublic"/>
@@ -566,7 +570,8 @@
 
     <target name="common.classes" depends="dirs, xmlpublic.classes, xmlinputstream.classes">
         <mkdir dir="build/classes/common"/>
-        <javac srcdir="src/common" destdir="build/classes/common" source="${javac.source}" target="${javac.target}" debug="on">
+        <javac srcdir="src/common" destdir="build/classes/common" source="${javac.source}" target="${javac.target}"
+               debug="on" includeantruntime="false">
             <classpath>
                 <pathelement location="build/classes/xmlinputstream"/>
                 <pathelement location="build/classes/xmlpublic"/>
@@ -590,7 +595,8 @@
 
     <target name="typeholder.template" depends="typeholder.check, xmlpublic.classes" unless="typeholder.notRequired">
         <mkdir dir="build/classes/typeholder"/>
-        <javac destdir="build/classes/typeholder" source="${javac.source}" target="${javac.target}" debug="off">
+        <javac destdir="build/classes/typeholder" source="${javac.source}" target="${javac.target}"
+               debug="off" includeantruntime="false">
             <classpath>
                 <pathelement location="build/classes/xmlpublic"/>
             </classpath>
@@ -607,7 +613,8 @@
         repackage.classes, xmlpublic.classes, typeholder.template, typestore.classes, xsdschema.classes,
         configschema.classes, toolschema.classes, jam.classes">
         <mkdir dir="build/classes/typeimpl"/>
-        <javac destdir="build/classes/typeimpl" source="${javac.source}" target="${javac.target}" debug="on">
+        <javac destdir="build/classes/typeimpl" source="${javac.source}" target="${javac.target}"
+               debug="on" includeantruntime="false">
             <classpath>
                 <pathelement location="build/classes/store"/>
                 <pathelement location="build/classes/xmlinputstream"/>
@@ -644,7 +651,8 @@
 
     <target name="xmlcomp.classes" depends="dirs, repackage.classes, typeimpl.classes, xmlpublic.classes, typestore.classes">
         <mkdir dir="build/classes/xmlcomp"/>
-        <javac srcdir="src/xmlcomp" destdir="build/classes/xmlcomp" source="${javac.source}" target="${javac.target}" debug="on">
+        <javac srcdir="src/xmlcomp" destdir="build/classes/xmlcomp" source="${javac.source}" target="${javac.target}"
+               debug="on" includeantruntime="true">
             <classpath>
                 <pathelement location="build/classes/xmlinputstream"/>
                 <pathelement location="build/classes/xmlpublic"/>
@@ -664,7 +672,8 @@
 
     <target name="marshal.classes" depends="dirs, typeimpl.classes, xmlpublic.classes">
         <mkdir dir="build/classes/marshal"/>
-        <javac srcdir="src/marshal" destdir="build/classes/marshal" source="${javac.source}" target="${javac.target}" debug="on">
+        <javac srcdir="src/marshal" destdir="build/classes/marshal" source="${javac.source}" target="${javac.target}"
+                debug="on" includeantruntime="false">
             <classpath>
                 <pathelement location="build/classes/configschema"/>
                 <pathelement location="build/classes/xmlinputstream"/>
@@ -680,7 +689,8 @@
     <!-- support for running JAM under JDK1.5 ========================= -->
 
     <target name="jamsupport.classes" depends="dirs,jam.classes">
-        <javac srcdir="src/jamsupport" destdir="build/classes/jam" source="${javac.source}" target="${javac.target}" debug="on">
+        <javac srcdir="src/jamsupport" destdir="build/classes/jam" source="${javac.source}" target="${javac.target}"
+               debug="on" includeantruntime="true">
             <classpath id="jamsupport.compile.path">
                 <pathelement location="build/classes/jam"/>
             </classpath>
@@ -691,7 +701,8 @@
 
     <target name="saaj_api.classes" depends="dirs">
         <mkdir dir="build/classes/saaj_api"/>
-        <javac srcdir="src/saaj_api" destdir="build/classes/saaj_api" source="${javac.source}" target="${javac.target}" debug="on">
+        <javac srcdir="src/saaj_api" destdir="build/classes/saaj_api" source="${javac.source}" target="${javac.target}"
+               debug="on" includeantruntime="false">
             <classpath id="saaj_api.compile.path">
                 <pathelement location="build/classes/common"/>
                 <pathelement location="build/classes/xmlpublic"/>
@@ -704,7 +715,8 @@
     <target name="store.classes"
         depends="dirs, common.classes, xmlpublic.classes, typestore.classes, saaj_api.classes">
         <mkdir dir="build/classes/store"/>
-        <javac srcdir="src/store" destdir="build/classes/store" source="${javac.source}" target="${javac.target}" debug="on">
+        <javac srcdir="src/store" destdir="build/classes/store" source="${javac.source}" target="${javac.target}"
+               debug="on" includeantruntime="false">
             <classpath id="store.compile.path">
                 <pathelement location="build/classes/typestore"/>
                 <pathelement location="build/classes/xmlinputstream"/>
@@ -721,7 +733,8 @@
         depends="dirs, common.classes, xmlpublic.classes, typestore.classes, saaj_api.classes,
         typeimpl.classes, xmlcomp.classes">
         <mkdir dir="build/classes/tools"/>
-        <javac srcdir="src/tools" destdir="build/classes/tools" source="${javac.source}" target="${javac.target}" debug="on">
+        <javac srcdir="src/tools" destdir="build/classes/tools" source="${javac.source}" target="${javac.target}"
+               debug="on" includeantruntime="false">
             <classpath id="tools.compile.path">
                 <pathelement location="build/classes/typestore"/>
                 <pathelement location="build/classes/xmlinputstream"/>
@@ -805,7 +818,8 @@
 
     <target name="xmlconfig.classes" depends="dirs, xmlpublic.classes, configschema.classes">
         <mkdir dir="build/classes/xmlconfig"/>
-        <javac srcdir="src/xmlconfig" destdir="build/classes/xmlconfig" source="${javac.source}" target="${javac.target}" debug="on">
+        <javac srcdir="src/xmlconfig" destdir="build/classes/xmlconfig" source="${javac.source}" target="${javac.target}"
+               debug="on" includeantruntime="false">
             <classpath>
                 <pathelement location="build/classes/xmlpublic"/>
                 <pathelement location="build/classes/configschema"/>
@@ -929,7 +943,8 @@
 
     <target name="repackage.classes">
         <mkdir dir="build/classes/repackage"/>
-        <javac srcdir="src/repackage" destdir="build/classes/repackage" source="${javac.source}" target="${javac.target}" debug="on"/>
+        <javac srcdir="src/repackage" destdir="build/classes/repackage" source="${javac.source}" target="${javac.target}"
+               debug="on" includeantruntime="false"/>
     </target>
 
     <!-- xpath target ============================================= -->
@@ -948,7 +963,8 @@
             destdir="build/classes/xpath_xquery"
             classpathref="xpath.compile.path"
             source="${javac.source}" target="${javac.target}"
-            debug="on">
+            debug="on"
+            includeantruntime="false">
             <src path="src/xpath_xquery"/>
             <classpath id="xpath.compile.path">
                 <pathelement location="build/classes/xmlpublic"/>
@@ -1035,7 +1051,8 @@
             destdir="build/private/classes/drt"
             classpathref="test.compile.path"
             source="${javac.source}" target="${javac.target}"
-            debug="on">
+            debug="on"
+            includeantruntime="false">
             <src path="test/src/drt"/>
         </javac>
     </target>
@@ -1093,7 +1110,8 @@
         <javac
             destdir="build/classes/jam"
             source="${javac.source}" target="${javac.target}"
-            debug="on">
+            debug="on"
+            includeantruntime="true">
             <src path="build/private/jam/src_repackage"/>
             <classpath/>
         </javac>
@@ -1126,6 +1144,9 @@
         <rat:report xmlns:rat="antlib:org.apache.rat.anttasks" reportFile="${rat.report}">
             <fileset dir="src/">
                 <exclude name="**/*.iml" />
+                <exclude name="**/*.g" />
+                <exclude name="**/XML.xsd"/>
+                <exclude name="**/XMLSchema.xsd"/>
             </fileset>
         </rat:report>
 
