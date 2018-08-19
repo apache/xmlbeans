@@ -28,6 +28,15 @@
     <property name="manifest.vendor" value="Apache Software Foundation"/>
     <property name="manifest.url" value="http://xmlbeans.apache.org/"/>
 
+    <property name="repository.m2" value="https://repo1.maven.org"/>
+
+    <!-- Apache RAT license check properties -->
+    <property name="rat.reportdir" value="build/rat"/>
+    <property name="rat.report" value="${rat.reportdir}/report.txt"/>
+    <property name="rat.jar" location="${rat.reportdir}/apache-rat-0.12.jar"/>
+    <property name="rat.url" value="${repository.m2}/maven2/org/apache/rat/apache-rat/0.12/apache-rat-0.12.jar"/>
+
+
     <target name="usage">
         <echo message="The following ant targets are defined:"/>
         <echo/>
@@ -1089,4 +1098,53 @@
             <classpath/>
         </javac>
     </target>
+
+    <macrodef name="downloadfile">
+        <attribute name="src"/>
+        <attribute name="dest"/>
+        <sequential>
+            <!--fail
+                message="Java version might be uncapable to download https URLs - see https://stackoverflow.com/questions/6851461/java-why-does-ssl-handshake-give-could-not-generate-dh-keypair-exception">
+                <condition>
+                    <and>
+                        <equals arg1="${ant.java.version}" arg2="1.6"/>
+                        <contains string="@{src}" substring="https"/>
+                    </and>
+                </condition>
+            </fail-->
+            <get src="@{src}" dest="@{dest}" skipexisting="true"/>
+        </sequential>
+    </macrodef>
+
+    <target name="rat-check" description="Runs the Apache Creadur Rat check against the source code, to spot any files which are missing the correct license headers">
+        <mkdir dir="${rat.reportdir}" />
+        <downloadfile src="${rat.url}" dest="${rat.jar}"/>
+
+        <typedef resource="org/apache/rat/anttasks/antlib.xml"
+                 uri="antlib:org.apache.rat.anttasks"
+                 classpath="${rat.jar}" />
+        <rat:report xmlns:rat="antlib:org.apache.rat.anttasks" reportFile="${rat.report}">
+            <fileset dir="src/">
+                <exclude name="**/*.iml" />
+            </fileset>
+        </rat:report>
+
+        <!-- remove clutter to compact build output -->
+        <!-- replaceregexp doesn't work within loadfile ... -->
+        <replaceregexp file="${rat.report}" match="\s+Printing headers for files without AL header.++" replace="" flags="s"/>
+
+        <loadfile property="rat.reportcontent" srcFile="${rat.report}">
+            <filterchain>
+                <linecontainsregexp negate="true">
+                    <regexp pattern="^\s+(AL|B|N)\s+"/>
+                </linecontainsregexp>
+            </filterchain>
+        </loadfile>
+        <echo>${rat.reportcontent}</echo>
+
+        <!-- fail the build if at least one note is in the report -->
+        <fail><condition><matches pattern="[1-9][0-9]* Unknown Licens" string="${rat.reportcontent}"/></condition></fail>
+    </target>
+
+
 </project>
