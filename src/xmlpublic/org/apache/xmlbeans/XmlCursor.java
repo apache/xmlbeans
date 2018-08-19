@@ -1336,6 +1336,8 @@ public interface XmlCursor extends XmlTokenSource
          * on the bookmark.  Subsequent navigations to bookmark
          * positions should attempt to reuse the last cursor to
          * improve performace.
+         *
+         * @return the new cursor
          */
         public final XmlCursor createCursor ( )
         {
@@ -1343,7 +1345,8 @@ public interface XmlCursor extends XmlTokenSource
         }
 
         /**
-         * Moves the given cursor to this bookmark, and returns it.
+         * @param c the cursor to be moved
+         * @return the given cursor moved to this bookmark
          */ 
         public final XmlCursor toBookmark ( XmlCursor c )
         {
@@ -1356,6 +1359,8 @@ public interface XmlCursor extends XmlTokenSource
          * same instance document will not interfere with eachother.
          * One can, however, override getKey() to use a key other than
          * the class.
+         *
+         * @return default key for bookmarks
          */
         public Object getKey ( )
         {

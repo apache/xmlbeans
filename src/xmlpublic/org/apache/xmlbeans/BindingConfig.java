@@ -35,64 +35,71 @@ public class BindingConfig
     public static final int QNAME_ACCESSOR_ATTRIBUTE = 4;
 
     /**
-     * Get the package name for a namespace or null.
+     * @param uri the namespace uri
+     * @return the package name for a namespace or null.
      */
     public String lookupPackageForNamespace(String uri) { return null; }
 
     /**
-     * Get the prefix applied to each java name for a namespace or null.
+     * @param uri the namespace uri
+     * @return the prefix applied to each java name for a namespace or null.
      */
     public String lookupPrefixForNamespace(String uri) { return null; }
 
     /**
-     * Get the suffix applied to each java name for a namespace or null.
+     * @param uri the namespace uri
+     * @return Get the suffix applied to each java name for a namespace or null.
      */
     public String lookupSuffixForNamespace(String uri) { return null; }
 
     /**
-     * Get the java name for a QName or null.
+     * @param qname the qname of the java name
+     * @return the java name for a QName or null.
      * @deprecated replaced with {@link #lookupJavanameForQName(QName, int)}
      */
     public String lookupJavanameForQName(QName qname) { return null; }
 
     /**
-     * Get the java name for a QName of a specific component kind, or null.
-     * @see #QNAME_TYPE
-     * @see #QNAME_TYPE_DOCUMENT
-     * @see #QNAME_METHOD_ELEMENT
-     * @see #QNAME_METHOD_ATTRIBUTE
+     * @param qname the qname of the java name
+     * @param kind the type of the qname, which one of {@link #QNAME_TYPE}, {@link #QNAME_DOCUMENT_TYPE},
+     *             {@link #QNAME_ACCESSOR_ELEMENT}, {@link #QNAME_ACCESSOR_ATTRIBUTE}
+     *
+     * @return Get the java name for a QName of a specific component kind, or null.
      */
     public String lookupJavanameForQName(QName qname, int kind) { return null; }
 
     /**
-     * Returns all configured InterfaceExtensions or an empty array.
+     * @return all configured InterfaceExtensions or an empty array.
      */
     public InterfaceExtension[] getInterfaceExtensions() { return EMPTY_INTERFACE_EXT_ARRAY; }
 
     /**
-     * Returns all InterfaceExtensions defined for the fully qualified java
+     * @param fullJavaName the fully qualified java type name
+     * @return all InterfaceExtensions defined for the fully qualified java
      * type generated from schema compilation or an empty array.
      */
     public InterfaceExtension[] getInterfaceExtensions(String fullJavaName) { return EMPTY_INTERFACE_EXT_ARRAY; }
 
     /**
-     * Returns all configued PrePostExtensions or an empty array.
+     * @return all configued PrePostExtensions or an empty array.
      */
     public PrePostExtension[] getPrePostExtensions() { return EMPTY_PREPOST_EXT_ARRAY; }
 
     /**
-     * Returns the PrePostExtension defined for the fully qualified java
+     * @param fullJavaName the fully qualified java type name
+     * @return the PrePostExtension defined for the fully qualified java
      * type generated from schema compilation or null.
      */
     public PrePostExtension getPrePostExtension(String fullJavaName) { return null; }
 
     /**
-     * Returns all defined user types.
+     * @return all defined user types.
      */
     public UserType[] getUserTypes() { return EMPTY_USER_TYPE_ARRY; }
 
     /**
-     * Returns a user defined Java type for a given QName.
+     * @param qname the qname of the user type
+     * @return a user defined Java type for a given QName.
      */
     public UserType lookupUserTypeForQName(QName qname) { return null; }
 

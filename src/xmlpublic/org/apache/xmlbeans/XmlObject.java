@@ -139,22 +139,22 @@ public interface XmlObject extends XmlTokenSource
     public static final SchemaType type = XmlBeans.getBuiltinTypeSystem().typeForHandle("_BI_anyType");
 
     /**
-     * The schema type for this instance. This is a permanent,
+     * @return The schema type for this instance. This is a permanent,
      * unchanging property of the instance.
      */
     SchemaType schemaType();
 
     /**
-     * Returns true if the contents of this object are valid
-     * accoring to schemaType().
-     * <p>
      * Does a deep validation of the entire subtree under the
      * object, but does not validate the parents or siblings
      * of the object if the object is in the interior of an xml
      * tree.
+     *
+     * @return true if the contents of this object are valid
+     * accoring to schemaType().
      */
     boolean validate();
-    
+
     /**
      * <p>Just like validate(), but with options.</p>
      * <p>If you wish to collect error messages and locations while validating,
@@ -175,7 +175,7 @@ public interface XmlObject extends XmlTokenSource
      * // printing contained messages.
      * if (!isValid)
      * {
-     *      for (int i = 0; i < errorList.size(); i++)
+     *      for (int i = 0; i &lt; errorList.size(); i++)
      *      {
      *          XmlError error = (XmlError)errorList.get(i);
      *          
@@ -189,35 +189,44 @@ public interface XmlObject extends XmlTokenSource
      *
      * @param options An object that implements the {@link java.util.Collection
      * Collection} interface.
+     *
+     * @return true if the contents of this object are valid
+     * accoring to schemaType().
      */
     boolean validate(XmlOptions options);
 
     /**
      * Selects a path.  Path can be a string or precompiled path String.
      * <p>
+     *
      * The path must be a relative path, where "." represents the
      * element or attribute containg this XmlObject, and it must select
      * only other elements or attributes.  If a non-element or non-attribute
      * is selected, an unchecked exception is thrown.
      * <p>
+     *
      * The array that is returned contains all the selected
      * XmlObjects, within the same document, listed in document
      * order.  The actual array type of the result is inferred
      * from the closest common base type of selected results.
      * <p>
+     *
      * Here is an example of usage.  Suppose we have a global
      * element definition for "owner" whose type is "person":
+     *
      * <pre>
-     *   &lt;schema targetNamespace="http://openuri.org/sample">
-     *      &lt;element name="owner" type="person"/>
-     *      &lt;complexType name="person">
+     *   &lt;schema targetNamespace="http://openuri.org/sample"&gt;
+     *      &lt;element name="owner" type="person"/&gt;
+     *      &lt;complexType name="person"&gt;
      *         [...]
-     *      &lt;/complexType>
-     *   &lt;/schema>
+     *      &lt;/complexType&gt;
+     *   &lt;/schema&gt;
      * </pre>
+     *
      * and suppose "owner" tags can be scattered throughout the
      * document.  Then we can write the following code to find
      * them all:
+     *
      * <pre>
      * import org.openuri.sample.Person;
      * import org.apache.xmlbeans.*;
@@ -228,16 +237,24 @@ public interface XmlObject extends XmlTokenSource
      *      "declare namespace s='http://www.openuri.org/sample' " +
      *      ".//s:owner");
      * </pre>
+     *
      * Notice the way in which namespace declarations are done in XPath 2.0.
      * Since XPath can only navigate within an XML document - it cannot
      * construct new XML - the resulting XmlObjects all reside in
      * the same XML document as this XmlObject itself.
+     *
+     * @param path the xpath
+     * @return an array of all selected XmlObjects
      */
     XmlObject[] selectPath ( String path );
 
     /**
      * Selects a path, applying options.
-     * 
+     *
+     * @param path the xpath
+     * @param options the options used to execute the xpath
+     * @return an array of all selected XmlObjects
+     *
      * @see #selectPath(String)
      */
     XmlObject[] selectPath ( String path, XmlOptions options );
@@ -253,6 +270,10 @@ public interface XmlObject extends XmlTokenSource
      * <p>
      * Syntax and usage is otherwise similar to selectPath.
      * <p>
+     *
+     * @param query The XQuery expression
+     * @return an array of all selected XmlObjects
+     *
      * @see #selectPath(String)
      */
     XmlObject[] execQuery ( String query );
@@ -306,7 +327,9 @@ public interface XmlObject extends XmlTokenSource
      * 
      * @param query The XQuery expression.
      * @param options Options as described.
-     * 
+     *
+     * @return an array of all selected XmlObjects
+     *
      * @see #execQuery(String)
      */
     XmlObject[] execQuery ( String query, XmlOptions options );
@@ -334,6 +357,8 @@ public interface XmlObject extends XmlTokenSource
      *
      * If a type change is done on the interior of an Xml
      * tree, then xsi:type attributes are updated as needed.
+     *
+     * @return a new XmlObject instance whose schemaType is the new type
      */
     XmlObject changeType(SchemaType newType);
 
@@ -357,13 +382,21 @@ public interface XmlObject extends XmlTokenSource
      * invalidated and should not be used. (They will return
      * XmlValueDisconnectedException if you try to use them.)
      * If necessary, xsi:type attributes are updated.
+     *
+     * @param newName the new name
+     * @param newType the new type
+     *
+     * @return an XmlObject instance whose schemaType is the
+     *      new type and container name is the new name
      */
     XmlObject substitute(QName newName, SchemaType newType);
 
     /**
-     * True if the value is nil. Note that in order to be nil,
+     * Note that in order to be nil,
      * the value must be in an element, and the element containing
      * the value must be marked as nillable in the schema.
+     *
+     * @return true if the value is nil.
      */
     boolean isNil();
 
@@ -375,8 +408,6 @@ public interface XmlObject extends XmlTokenSource
 
 
     /**
-     * Returns an XML string for this XML object.
-     * <p>
      * The string is pretty-printed.  If you want a non-pretty-printed
      * string, or if you want to control options precisely, use the
      * xmlText() methods.
@@ -387,14 +418,17 @@ public interface XmlObject extends XmlTokenSource
      * and we will produce a string that starts with an <code>&lt;xml-fragment&gt;</code> tag.
      * The XmlOptions.setSaveOuter() option on xmlText can be used to produce
      * the actual element name above the object if you wish.
+     *
+     * @return a XML string for this XML object.
      */
     String toString();
 
     /**
-     * True if the value is an immutable value. Immutable values do not
-     * have a position in a tree; rather, they are stand-alone simple type
-     * values. If the object is immutable, the equals() methods tests for
-     * value equality, and the object can be used as the key for a hash.
+     * Immutable values do not have a position in a tree; rather, they are
+     * stand-alone simple type values. If the object is immutable, the equals()
+     * methods tests for value equality, and the object can be used as the key for a hash.
+     *
+     * @return true if the value is an immutable value.
      */
     boolean isImmutable();
 

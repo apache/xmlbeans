@@ -30,7 +30,8 @@ public interface Filer
      *
      * @param typename fully qualified type name
      * @return a stream to write the type to
-     * @throws IOException
+     *
+     * @throws IOException when the file can't be created
      */
     public OutputStream createBinaryFile(String typename) throws IOException;
 
@@ -39,7 +40,8 @@ public interface Filer
      *
      * @param typename fully qualified type name
      * @return a stream to write the type to
-     * @throws IOException
+     *
+     * @throws IOException when the file can't be created
      */
     public Writer createSourceFile(String typename) throws IOException;
 

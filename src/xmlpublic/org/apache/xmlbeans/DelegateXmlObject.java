@@ -23,6 +23,8 @@ public interface DelegateXmlObject
     /**
      * This method is called to obtain the underlying XmlObject.
      * Implement this method to supply or compute the wrapped object.
+     *
+     * @return the underlying XmlObject
      */
     XmlObject underlyingXmlObject();
 }
