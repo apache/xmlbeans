@@ -36,6 +36,11 @@
     <property name="rat.jar" location="${rat.reportdir}/apache-rat-0.12.jar"/>
     <property name="rat.url" value="${repository.m2}/maven2/org/apache/rat/apache-rat/0.12/apache-rat-0.12.jar"/>
 
+    <!-- api checks -->
+    <property name="forbidden.jar" location="build/forbiddenapis-2.5.jar"/>
+    <property name="forbidden.url" value="${repository.m2}/maven2/de/thetaphi/forbiddenapis/2.5/forbiddenapis-2.5.jar"/>
+
+
 
     <target name="usage">
         <echo message="The following ant targets are defined:"/>
@@ -1165,6 +1170,72 @@
 
         <!-- fail the build if at least one note is in the report -->
         <fail><condition><matches pattern="[1-9][0-9]* Unknown Licens" string="${rat.reportcontent}"/></condition></fail>
+    </target>
+
+    <!-- Runs the Forbiddens APIs checker against the source code, to -->
+    <!--  spot any cases where we've accidently used methods we shouldn't -->
+    <!-- See https://github.com/policeman-tools/forbidden-apis for details -->
+    <!--  of the checks that this can do -->
+    <target name="forbidden-apis-check">
+        <downloadfile src="${forbidden.url}" dest="${forbidden.jar}"/>
+
+        <taskdef name="forbiddenapis"
+                 classname="de.thetaphi.forbiddenapis.ant.AntTask"
+                 classpath="${forbidden.jar}"/>
+
+        <!-- first check rules that apply to all the source code -->
+        <path id="forbiddenapis.classpath">
+            <pathelement location="build/classes/common"/>
+            <pathelement location="build/classes/jam"/>
+            <pathelement location="build/classes/marshal"/>
+            <pathelement location="build/classes/repackage"/>
+            <pathelement location="build/classes/saaj_api"/>
+            <pathelement location="build/classes/store"/>
+            <pathelement location="build/classes/tools"/>
+            <pathelement location="build/classes/typeholder"/>
+            <pathelement location="build/classes/typeimpl"/>
+            <pathelement location="build/classes/typestore"/>
+            <pathelement location="build/classes/xmlcomp"/>
+            <pathelement location="build/classes/xmlinputstream"/>
+            <pathelement location="build/classes/xmlpublic"/>
+            <pathelement location="build/classes/xpath_xquery"/>
+            <pathelement location="build/classes/xmlinputstream"/>
+            <path path="${env.ANT_HOME}/lib/ant.jar"/>
+            <pathelement location="external/lib/saxon9.jar"/>
+            <pathelement location="external/lib/saxon9-dom.jar"/>
+        </path>
+
+
+        <forbiddenapis
+                suppressAnnotation="org.apache.poi.util.SuppressForbidden"
+                targetVersion="${javac.target}"
+                classpathref="forbiddenapis.classpath"
+        >
+            <bundledsignatures name="jdk-unsafe"/>
+            <bundledsignatures name="jdk-deprecated"/>
+            <bundledsignatures name="jdk-internal"/>
+            <bundledsignatures name="jdk-non-portable"/>
+            <bundledsignatures name="jdk-reflection"/>
+
+            <!--signaturesFileset file="src/resources/devtools/forbidden-signatures.txt"/-->
+            <!-- sources -->
+            <fileset dir="build/classes/xmlcomp"/>
+            <fileset dir="build/classes/common"/>
+            <fileset dir="build/classes/marshal"/>
+            <fileset dir="build/classes/repackage"/>
+            <fileset dir="build/classes/saaj_api"/>
+            <fileset dir="build/classes/store"/>
+            <fileset dir="build/classes/tools"/>
+            <fileset dir="build/classes/typeholder"/>
+            <fileset dir="build/classes/typeimpl"/>
+            <fileset dir="build/classes/typestore"/>
+            <fileset dir="build/classes/xmlcomp"/>
+            <fileset dir="build/classes/xmlinputstream"/>
+            <fileset dir="build/classes/xmlpublic"/>
+            <fileset dir="build/classes/xpath_xquery"/>
+            <fileset dir="build/classes/xmlinputstream"/>
+        </forbiddenapis>
+
     </target>
 
 
