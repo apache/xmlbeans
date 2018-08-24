@@ -47,6 +47,13 @@ All of this was built with performance in mind. Informal benchmarks and user fee
     <category rdf:resource="http://projects.apache.org/category/xml" />
     <release>
       <Version>
+        <name>XMLBeans v3.0.1</name>
+        <created>2018-08-24</created>
+        <revision>3.0.1</revision>
+      </Version>
+    </release>
+    <release>
+      <Version>
         <name>XMLBeans v3.0.0</name>
         <created>2018-06-29</created>
         <revision>3.0.0</revision>
