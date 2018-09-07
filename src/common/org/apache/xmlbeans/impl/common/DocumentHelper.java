@@ -18,6 +18,7 @@ package org.apache.xmlbeans.impl.common;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Method;
+import java.util.concurrent.TimeUnit;
 
 import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
@@ -35,6 +36,7 @@ import org.xml.sax.SAXParseException;
 
 public final class DocumentHelper {
     private static XBLogger logger = XBLogFactory.getLogger(DocumentHelper.class);
+    private static long lastLog;
 
     private DocumentHelper() {}
 
@@ -130,12 +132,22 @@ public final class DocumentHelper {
             } catch (ClassNotFoundException e) {
                 // continue without log, this is expected in some setups
             } catch (Throwable e) {     // NOSONAR - also catch things like NoClassDefError here
-                logger.log(XBLogger.WARN, "SAX Security Manager could not be setup", e);
+                if(System.currentTimeMillis() > lastLog + TimeUnit.MINUTES.toMillis(5)) {
+                    logger.log(XBLogger.WARN, "DocumentBuilderFactory Security Manager could not be setup [log suppressed for 5 minutes]", e);
+                    lastLog = System.currentTimeMillis();
+                }
             }
         }
 
         // separate old version of Xerces not found => use the builtin way of setting the property
-        dbf.setAttribute(XMLBeansConstants.ENTITY_EXPANSION_LIMIT, options.getEntityExpansionLimit());
+        try {
+            dbf.setAttribute(XMLBeansConstants.ENTITY_EXPANSION_LIMIT, options.getEntityExpansionLimit());
+        } catch (Throwable e) {
+            if(System.currentTimeMillis() > lastLog + TimeUnit.MINUTES.toMillis(5)) {
+                logger.log(XBLogger.WARN, "DocumentBuilderFactory Entity Expansion Limit could not be setup [log suppressed for 5 minutes]", e);
+                lastLog = System.currentTimeMillis();
+            }
+        }
     }
 
     /**
