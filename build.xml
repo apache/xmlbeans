@@ -19,8 +19,8 @@
     <property name="javac.source" value="1.6"/>
     <property name="javac.target" value="1.6"/>
 
-    <property name="version.base" value="3.0.1"/>
-    <property name="version.rc" value=""/>
+    <property name="version.base" value="3.0.2"/>
+    <property name="version.rc" value="-rc1"/>
 
     <!-- manifest entries -->
     <property name="manifest.name" value="org/apache/xmlbeans/"/>
@@ -386,7 +386,7 @@
     <target name="dist-src" depends="clean, dirs, version">
         <delete file="build/private/xmlbeans-${version.base}${version.rc}-src.zip"/>
         <delete file="build/private/xmlbeans-${version.base}${version.rc}-src.tgz"/>
-        <delete file="build/private/xmlbeans-${version.base}${version.rc}-source.jar"/>
+        <delete file="build/private/xmlbeans-${version.base}${version.rc}-sources.jar"/>
 
         <zip destfile="build/private/xmlbeans-${version.base}${version.rc}-src.zip">
             <zipfileset dir="." prefix="xmlbeans-${version.base}">
@@ -413,7 +413,7 @@
                 <exclude name="bin/*.cmd"/>
             </tarfileset>
         </tar>
-        <jar jarfile="build/private/xmlbeans-${version.base}${version.rc}-source.jar" index="false">
+        <jar jarfile="build/private/xmlbeans-${version.base}${version.rc}-sources.jar" index="false">
             <fileset dir="src/common" includes="**/*.java"/>
             <fileset dir="src/configschema" includes="**/*.java"/>
             <fileset dir="src/jamsupport" includes="**/*.java"/>
