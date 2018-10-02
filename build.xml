@@ -20,7 +20,7 @@
     <property name="javac.target" value="1.6"/>
 
     <property name="version.base" value="3.0.2"/>
-    <property name="version.rc" value="-rc1"/>
+    <property name="version.rc" value=""/>
 
     <!-- manifest entries -->
     <property name="manifest.name" value="org/apache/xmlbeans/"/>
@@ -118,7 +118,7 @@
             http://easynews.dl.sourceforge.net/sourceforge/saxon/saxonb8-8j.zip
         -->
         <get dest="external/lib/saxonb9-0-0-4j.zip"
-            src="https://master.dl.sourceforge.net/project/saxon/OldFiles/9.0/9.0.0.4/saxonb9-0-0-4j.zip"
+            src="http://master.dl.sourceforge.net/project/saxon/OldFiles/9.0/9.0.0.4/saxonb9-0-0-4j.zip"
             verbose="true" usetimestamp="true" ignoreerrors="true"/>
         <unzip src="external/lib/saxonb9-0-0-4j.zip" dest="external/lib/">
             <patternset>
