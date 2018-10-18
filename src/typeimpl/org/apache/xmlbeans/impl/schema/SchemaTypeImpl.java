@@ -2271,7 +2271,7 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory
             type = type.getBaseType();
             depth -= 1;
         }
-        return (type.equals(this));
+        return (type != null && type.equals(this));
     }
 
 
