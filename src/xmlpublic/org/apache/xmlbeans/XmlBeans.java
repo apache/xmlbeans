@@ -766,7 +766,8 @@ public final class XmlBeans
     {
         try
         {
-            Class clazz = loader.loadClass(stsName + "." + HOLDER_CLASS_NAME);
+            ClassLoader cl = loader == null ? Thread.currentThread().getContextClassLoader() : loader;
+            Class clazz = cl.loadClass(stsName + "." + HOLDER_CLASS_NAME);
             SchemaTypeSystem sts = (SchemaTypeSystem)
                 (clazz.getDeclaredField(TYPE_SYSTEM_FIELD).get(null));
             if (sts == null)
