@@ -1,3 +1,9 @@
+Changes in V3.0.2 since V3.0.1
+
+* XMLBEANS-520: wrong name for source(s) artifact
+* XMLBEANS-519: issue when using old XML parser versions
+* XMLBEANS-506: NPE trying to load resource file if XmlBeans was loaded by the bootstrap ClassLoader
+
 Changes in V3.0.1 since V3.0.0
 
 * XMLBEANS-518: add support to XmlOptions to allow control over the XML parser settings that affect DTD loading

@@ -76,7 +76,7 @@ public class CommandLine
     {
         try
         {
-            IOUtil.copyCompletely(CommandLine.class.getClassLoader().getResourceAsStream("LICENSE.txt"), System.out);
+            IOUtil.copyCompletely(CommandLine.class.getResourceAsStream("LICENSE.txt"), System.out);
         }
         catch (Exception e)
         {

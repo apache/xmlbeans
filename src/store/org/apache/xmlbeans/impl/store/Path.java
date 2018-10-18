@@ -67,9 +67,8 @@ public abstract class Path
 
     static
     {
-        ClassLoader cl = Path.class.getClassLoader();
         String id = "META-INF/services/org.apache.xmlbeans.impl.store.PathDelegate.SelectPathInterface";
-        InputStream in = cl.getResourceAsStream(id);
+        InputStream in = Path.class.getResourceAsStream(id);
         try
         {
             BufferedReader br = new BufferedReader(new InputStreamReader(in));

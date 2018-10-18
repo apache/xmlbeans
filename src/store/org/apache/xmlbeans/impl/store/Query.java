@@ -52,9 +52,8 @@ public abstract class Query
 
     static
     {
-        ClassLoader cl = Query.class.getClassLoader();
         String id = "META-INF/services/org.apache.xmlbeans.impl.store.QueryDelegate.QueryInterface";
-        InputStream in = cl.getResourceAsStream(id);
+        InputStream in = Query.class.getResourceAsStream(id);
         try
         {
             BufferedReader br = new BufferedReader(new InputStreamReader(in));
