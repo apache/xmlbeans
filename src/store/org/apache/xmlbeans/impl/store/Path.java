@@ -24,6 +24,7 @@ import java.lang.ref.WeakReference;
 import java.math.BigDecimal;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+import org.apache.xmlbeans.impl.common.DefaultClassLoaderResourceLoader;
 import org.apache.xmlbeans.impl.common.XPath;
 import org.apache.xmlbeans.impl.common.XPath.XPathCompileException;
 import org.apache.xmlbeans.impl.common.XPath.ExecutionContext;
@@ -68,7 +69,7 @@ public abstract class Path
     static
     {
         String id = "META-INF/services/org.apache.xmlbeans.impl.store.PathDelegate.SelectPathInterface";
-        InputStream in = Path.class.getResourceAsStream(id);
+        InputStream in = new DefaultClassLoaderResourceLoader().getResourceAsStream(id);
         try
         {
             BufferedReader br = new BufferedReader(new InputStreamReader(in));

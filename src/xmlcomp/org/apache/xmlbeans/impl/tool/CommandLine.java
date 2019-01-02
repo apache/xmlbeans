@@ -16,6 +16,7 @@
 package org.apache.xmlbeans.impl.tool;
 
 import org.apache.xmlbeans.XmlBeans;
+import org.apache.xmlbeans.impl.common.DefaultClassLoaderResourceLoader;
 import org.apache.xmlbeans.impl.common.IOUtil;
 
 import java.io.File;
@@ -76,7 +77,7 @@ public class CommandLine
     {
         try
         {
-            IOUtil.copyCompletely(CommandLine.class.getResourceAsStream("LICENSE.txt"), System.out);
+            IOUtil.copyCompletely(new DefaultClassLoaderResourceLoader().getResourceAsStream("LICENSE.txt"), System.out);
         }
         catch (Exception e)
         {

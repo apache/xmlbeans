@@ -417,8 +417,14 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
         try
         {
             is = SchemaTypeSystemImpl.class.getResourceAsStream(HOLDER_TEMPLATE_CLASSFILE);
-            if (is == null)
+            if (is == null) {
+                ClassLoaderResourceLoader clLoader = new ClassLoaderResourceLoader(SchemaTypeSystemImpl.class.getClassLoader());
+                is = clLoader.getResourceAsStream(HOLDER_TEMPLATE_CLASSFILE);
+                clLoader.close();
+            }
+            if (is == null) {
                 throw new SchemaTypeLoaderException("couldn't find resource: " + HOLDER_TEMPLATE_CLASSFILE, _name, null, SchemaTypeLoaderException.IO_EXCEPTION);
+            }
             in = new DataInputStream(is);
 
             os = _filer.createBinaryFile(indexClassName.replace('.', '/') + ".class");

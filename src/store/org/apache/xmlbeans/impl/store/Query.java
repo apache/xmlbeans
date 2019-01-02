@@ -16,6 +16,7 @@
 package org.apache.xmlbeans.impl.store;
 
 import org.apache.xmlbeans.*;
+import org.apache.xmlbeans.impl.common.DefaultClassLoaderResourceLoader;
 import org.apache.xmlbeans.impl.common.XPath;
 import org.w3c.dom.*;
 
@@ -53,7 +54,7 @@ public abstract class Query
     static
     {
         String id = "META-INF/services/org.apache.xmlbeans.impl.store.QueryDelegate.QueryInterface";
-        InputStream in = Query.class.getResourceAsStream(id);
+        InputStream in = new DefaultClassLoaderResourceLoader().getResourceAsStream(id);
         try
         {
             BufferedReader br = new BufferedReader(new InputStreamReader(in));

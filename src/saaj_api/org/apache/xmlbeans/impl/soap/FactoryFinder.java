@@ -149,6 +149,9 @@ class FactoryFinder {
         if (inputstream == null) {
             inputstream = FactoryFinder.class.getResourceAsStream(factoryResource);
         }
+        if (inputstream == null && FactoryFinder.class.getClassLoader() != null) {
+            inputstream = FactoryFinder.class.getClassLoader().getResourceAsStream(factoryResource);
+        }
         return inputstream;
     }
 }
