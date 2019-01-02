@@ -41,6 +41,7 @@ import org.apache.xmlbeans.XmlAnySimpleType;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
 import org.apache.xmlbeans.ResourceLoader;
+import org.apache.xmlbeans.impl.common.DefaultClassLoaderResourceLoader;
 import org.apache.xmlbeans.impl.common.NameUtil;
 import org.apache.xmlbeans.impl.common.QNameHelper;
 import org.apache.xmlbeans.impl.common.XBeanDebug;
@@ -418,9 +419,8 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
         {
             is = SchemaTypeSystemImpl.class.getResourceAsStream(HOLDER_TEMPLATE_CLASSFILE);
             if (is == null) {
-                ClassLoaderResourceLoader clLoader = new ClassLoaderResourceLoader(SchemaTypeSystemImpl.class.getClassLoader());
+                DefaultClassLoaderResourceLoader clLoader = new DefaultClassLoaderResourceLoader();
                 is = clLoader.getResourceAsStream(HOLDER_TEMPLATE_CLASSFILE);
-                clLoader.close();
             }
             if (is == null) {
                 throw new SchemaTypeLoaderException("couldn't find resource: " + HOLDER_TEMPLATE_CLASSFILE, _name, null, SchemaTypeLoaderException.IO_EXCEPTION);
