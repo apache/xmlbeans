@@ -3080,6 +3080,19 @@ public final class Locale
     private static abstract class SaxHandler
         implements ContentHandler, LexicalHandler , DeclHandler, DTDHandler
     {
+        protected Locale _locale;
+
+        protected LoadContext _context;
+
+        private boolean _wantLineNumbers;
+        private boolean _wantLineNumbersAtEndElt;
+        private boolean _wantCdataBookmarks;
+        private Locator _startLocator;
+        private boolean _insideCDATA = false;
+        private int _entityBytesLimit = 10240;
+        private int _entityBytes = 0;
+        private int _insideEntity = 0;
+
         SaxHandler(Locator startLocator)
         {
             _startLocator = startLocator;
@@ -3090,26 +3103,20 @@ public final class Locale
             this(null);
         }
 
-        void initSaxHandler(Locale l, XmlOptions options)
+        void initSaxHandler(Locale l, final XmlOptions options)
         {
             _locale = l;
 
-            options = XmlOptions.maskNull(options);
+            XmlOptions safeOptions = XmlOptions.maskNull(options);
 
-            _context = new Cur.CurLoadContext(_locale, options);
+            _context = new Cur.CurLoadContext(_locale, safeOptions);
 
-            _wantLineNumbers =
-                _startLocator != null &&
-                options.hasOption(XmlOptions.LOAD_LINE_NUMBERS);
-            _wantLineNumbersAtEndElt =
-                _startLocator != null &&
-                options.hasOption(XmlOptions.LOAD_LINE_NUMBERS_END_ELEMENT);
-            _wantCdataBookmarks =
-                _startLocator != null &&
-                options.hasOption(XmlOptions.LOAD_SAVE_CDATA_BOOKMARKS);
+            _wantLineNumbers = safeOptions.hasOption(XmlOptions.LOAD_LINE_NUMBERS);
+            _wantLineNumbersAtEndElt = safeOptions.hasOption(XmlOptions.LOAD_LINE_NUMBERS_END_ELEMENT);
+            _wantCdataBookmarks = safeOptions.hasOption(XmlOptions.LOAD_SAVE_CDATA_BOOKMARKS);
 
-            if (options.hasOption(XmlOptions.LOAD_ENTITY_BYTES_LIMIT))
-                _entityBytesLimit = ((Integer)(options.get(XmlOptions.LOAD_ENTITY_BYTES_LIMIT))).intValue();
+            if (safeOptions.hasOption(XmlOptions.LOAD_ENTITY_BYTES_LIMIT))
+                _entityBytesLimit = (Integer) (safeOptions.get(XmlOptions.LOAD_ENTITY_BYTES_LIMIT));
         }
 
         public void startDocument()
@@ -3145,7 +3152,7 @@ public final class Locale
 
             _context.startElement(_locale.makeQualifiedQName(uri, qName));
 
-            if (_wantLineNumbers)
+            if (_wantLineNumbers && _startLocator != null)
             {
                 _context.bookmark(
                     new XmlLineNumber(_startLocator.getLineNumber(),
@@ -3212,7 +3219,7 @@ public final class Locale
             throws SAXException
         {
             _context.endElement();
-            if (_wantLineNumbersAtEndElt)
+            if (_wantLineNumbersAtEndElt && _startLocator != null)
             {
                 _context.bookmark(
                     new XmlLineNumber(_startLocator.getLineNumber(),
@@ -3225,7 +3232,7 @@ public final class Locale
         {
             _context.text(ch, start, length);
 
-            if (_wantCdataBookmarks && _insideCDATA)
+            if (_wantCdataBookmarks && _insideCDATA && _startLocator != null)
                 _context.bookmarkLastNonAttr(CDataBookmark.CDATA_BOOKMARK);
 
             if (_insideEntity!=0)
@@ -3233,7 +3240,7 @@ public final class Locale
                 if ((_entityBytes += length) > _entityBytesLimit)
                 {
                     XmlError err = XmlError.forMessage(XmlErrorCodes.EXCEPTION_EXCEEDED_ENTITY_BYTES,
-                            new Integer[]{ new Integer(_entityBytesLimit) });
+                            new Integer[]{_entityBytesLimit});
 
                     throw new SAXException(err.getMessage());
                 }
@@ -3325,10 +3332,12 @@ public final class Locale
             }
         }
 
-        public void setDocumentLocator(Locator locator)
-        {
-            // TODO - for non-Piccolo use cases, use a locator to get line numbers
+        public void setDocumentLocator(Locator locator) {
+            if (_startLocator == null) {
+                _startLocator = locator;
+            }
         }
+
         //DeclHandler
         public void attributeDecl(String eName, String aName, String type, String valueDefault, String value){
              if (type.equals("ID")){
@@ -3347,18 +3356,6 @@ public final class Locale
         }
         public void unparsedEntityDecl(String name, String publicId, String systemId, String notationName){
         }
-        protected Locale _locale;
-
-        protected LoadContext _context;
-
-        private boolean _wantLineNumbers;
-        private boolean _wantLineNumbersAtEndElt;
-        private boolean _wantCdataBookmarks;
-        private Locator _startLocator;
-        private boolean _insideCDATA = false;
-        private int _entityBytesLimit = 10240;
-        private int _entityBytes = 0;
-        private int _insideEntity = 0;
     }
 
     private static abstract class SaxLoader
