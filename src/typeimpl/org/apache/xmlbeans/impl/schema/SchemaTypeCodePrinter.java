@@ -2314,7 +2314,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
             printJavaDoc((several ? "Sets first " : "Sets the ") + propdesc);
             emit("public void set" + propertyName + "(" + type + " " + safeVarName + ")");
             startBlock();
-            if ( xmltype && !isSubstGroup )
+            if ( xmltype && !isSubstGroup && !isAttr )
             {
                 emitPre(sType, PrePostExtension.OPERATION_SET, identifier, isAttr, several ? "0" : "-1");
                 emit("generatedSetterHelperImpl(" + safeVarName + ", " + setIdentifier + ", 0, " +
