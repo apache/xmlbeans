@@ -16,6 +16,8 @@
 package org.apache.xmlbeans.impl.store;
 
 import java.io.*;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 import java.lang.reflect.Method;
@@ -609,6 +611,8 @@ public abstract class Path
                 extends XPath.ExecutionContext
                 implements PathEngine
         {
+            // full datetime format: yyyy-MM-dd'T'HH:mm:ss'Z'
+            private final DateFormat xmlDateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
             DelegatePathEngine(PathDelegate.SelectPathInterface xpathImpl,
                                Cur c)
@@ -640,9 +644,15 @@ public abstract class Path
                     Object node = resultsList.get(i);
                     Cur pos = null;
                     if (!(node instanceof Node)) {
+                        Object obj = resultsList.get(i);
                         String value;
-
-                        value = resultsList.get(i).toString();
+                        if (obj instanceof Date) {
+                            value = xmlDateFormat.format((Date) obj);
+                        } else if (obj instanceof BigDecimal) {
+                            value = ((BigDecimal)obj).toPlainString();
+                        } else {
+                            value = obj.toString();
+                        }
 
                         //we cannot leave the cursor's locale, as
                         //everything is done in the selections of this cursor
