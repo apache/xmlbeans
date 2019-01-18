@@ -14,8 +14,8 @@
  */
 package misc.detailed;
 
-import junit.framework.TestCase;
-
+import org.junit.Before;
+import org.junit.Test;
 import tools.ant.*;
 import org.apache.tools.ant.Project;
 import org.apache.tools.ant.Target;
@@ -29,24 +29,19 @@ import java.util.ArrayList;
  * Date: Feb 8, 2005
  * Time: 11:30:24 AM
  */
-public class SampleRunner
-    extends TestCase
-{
+public class SampleRunner {
 
-
-    protected void setUp()
-        throws Exception
-    {
+    @Before
+    protected void setUp() throws Exception {
         proj = new Project();
         proj.setName("Samples Task Tests");
         XMLBEANS_HOME = proj.getBaseDir().getAbsolutePath();
         samples = new ArrayList();
-        runSampleTest = new SamplesBuildFileTest("Sample Ant Task Wrapper");
+        runSampleTest = new SamplesBuildFileTest();
     }
 
-    public void testSamples()
-        throws Exception
-    {
+    @Test
+    public void testSamples() throws Exception {
         loadSampleDirs(new File("./samples"));
         ArrayList exceptions = new ArrayList();
         for (int i = 0; i < samples.size(); i++)
@@ -97,21 +92,13 @@ public class SampleRunner
         }
     }
 
-    private class SamplesBuildFileTest
-        extends BuildFileTest
-    {
-        public SamplesBuildFileTest(String name)
-        {
-            super(name);
-        }
-
+    private class SamplesBuildFileTest extends BuildFileTest {
         public void call_samples_task(String projectPath, String taskName)
         {
             configureProject(projectPath);
             Project proj = getProject();
             proj.setProperty("xmlbeans.home", XMLBEANS_HOME);
             executeTarget(proj.getDefaultTarget());
-            return;
         }
 
         public BuildException getAnyExceptions()

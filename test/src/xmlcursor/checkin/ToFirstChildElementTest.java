@@ -16,78 +16,60 @@
 
 package xmlcursor.checkin;
 
-import org.apache.xmlbeans.XmlOptions;
-import junit.framework.*;
-import junit.framework.Assert.*;
-
-import java.io.*;
-
-import org.apache.xmlbeans.XmlObject;
-import org.apache.xmlbeans.XmlCursor;
-import org.apache.xmlbeans.XmlBeans;
 import org.apache.xmlbeans.XmlCursor.TokenType;
-import org.apache.xmlbeans.XmlDocumentProperties;
-import org.apache.xmlbeans.XmlCursor.XmlBookmark;
+import org.apache.xmlbeans.XmlObject;
+import org.junit.Test;
+import xmlcursor.common.BasicCursorTestCase;
 
-import javax.xml.namespace.QName;
-
-import xmlcursor.common.*;
-
-import java.net.URL;
+import static org.junit.Assert.*;
 
 
-/**
- *
- *
- */
 public class ToFirstChildElementTest extends BasicCursorTestCase {
-    public ToFirstChildElementTest(String sName) {
-        super(sName);
-    }
-
-    public static Test suite() {
-        return new TestSuite(ToFirstChildElementTest.class);
-    }
-
+    @Test
     public void testToFirstChildElemSTARTnested() throws Exception {
         m_xc = XmlObject.Factory.parse("<foo>early<bar>text</bar></foo>").newCursor();
-        assertEquals(true, m_xc.toFirstChild());
-        assertEquals(true, m_xc.toFirstChild());
+        assertTrue(m_xc.toFirstChild());
+        assertTrue(m_xc.toFirstChild());
         assertEquals("text", m_xc.getTextValue());
     }
 
+    @Test
     public void testToFirstChildElemFromLastChild() throws Exception {
         m_xc = XmlObject.Factory.parse("<foo>early<bar>text</bar><char>zap</char></foo>").newCursor();
-        assertEquals(true, m_xc.toFirstChild());
-        assertEquals(true, m_xc.toFirstChild());
-        assertEquals(false, m_xc.toFirstChild());
+        assertTrue(m_xc.toFirstChild());
+        assertTrue(m_xc.toFirstChild());
+        assertFalse(m_xc.toFirstChild());
         assertEquals("text", m_xc.getTextValue());
     }
 
+    @Test
     public void testToFirstChildElemFromTEXTnested() throws Exception {
         m_xc = XmlObject.Factory.parse("<foo>early<bar>text<char>zap</char></bar></foo>").newCursor();
         toNextTokenOfType(m_xc, TokenType.TEXT);
         assertEquals("early", m_xc.getChars());
-        assertEquals(true, m_xc.toFirstChild());
+        assertTrue(m_xc.toFirstChild());
         assertEquals("zap", m_xc.getTextValue());
     }
 
+    @Test
     public void testToFirstChildElemFromATTRnested() throws Exception {
         m_xc = XmlObject.Factory.parse("<foo attr0=\"val0\">early<bar>text<char>zap</char></bar></foo>").newCursor();
         toNextTokenOfType(m_xc, TokenType.ATTR);
         assertEquals("val0", m_xc.getTextValue());
-        assertEquals(true, m_xc.toFirstChild());
+        assertTrue(m_xc.toFirstChild());
     }
 
+    @Test
     public void testToFirstChildElemFromSTARTnoChild() throws Exception {
         m_xc = XmlObject.Factory.parse("<foo>early</foo>").newCursor();
-        assertEquals(true, m_xc.toFirstChild());
-        assertEquals(false, m_xc.toFirstChild());
+        assertTrue(m_xc.toFirstChild());
+        assertFalse(m_xc.toFirstChild());
     }
 
+    @Test
     public void testToFirstChildElemFromSTARTDOC() throws Exception {
         m_xc = XmlObject.Factory.parse("<foo>early</foo>").newCursor();
-        assertEquals(true, m_xc.toFirstChild());
+        assertTrue(m_xc.toFirstChild());
         assertEquals(TokenType.START, m_xc.currentTokenType());
     }
 }

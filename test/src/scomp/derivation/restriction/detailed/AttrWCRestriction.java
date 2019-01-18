@@ -15,19 +15,20 @@
 
 package scomp.derivation.restriction.detailed;
 
+import org.junit.Test;
 import scomp.common.BaseCase;
 import xbean.scomp.derivation.attributeWCRestriction.*;
 import org.apache.xmlbeans.XmlErrorCodes;
 
-/**
- *
- */
+import static org.junit.Assert.assertTrue;
+
 public class AttrWCRestriction extends BaseCase {
     String input;
     /**
      * Replace a wildcard with a concrete attribute
      * No other attr should be valid here
     */
+    @Test
     public void testAny2Instance() throws Throwable{
          input="<foo:Any2Concrete " +
                 " xmlns:foo=\"http://xbean/scomp/derivation/AttributeWCRestriction\"" +
@@ -57,8 +58,8 @@ public class AttrWCRestriction extends BaseCase {
      * attrs not in target ns are therefore illegal
      * Skip to strict
      * No namespace should be OK, any other namespace should be notOK
-     * @throws Throwable
      */
+    @Test
     public void testAny2LocalStrict() throws Throwable{
           input="<foo:Any2Local " +
                 " xmlns:foo=\"http://xbean/scomp/derivation/AttributeWCRestriction\"" +
@@ -92,6 +93,7 @@ public class AttrWCRestriction extends BaseCase {
      * lax to strict
      * @throws Throwable
      */
+    @Test
     public void testList2SubsetStrict()throws Throwable{
           input="<foo:List2Subset " +
                 " xmlns:foo=\"http://xbean/scomp/derivation/AttributeWCRestriction\"" +
@@ -108,11 +110,12 @@ public class AttrWCRestriction extends BaseCase {
 
         //invalid case: give the attr a bad value, make sure it's being validated
     }
+
     /**
      * should be able to ##other w/ spec. namespaces
      * skip to lax
-     * @throws Throwable
      */
+    @Test
     public void testOther2ListLax()throws Throwable{
           input="<foo:Other2List" +
                 " xmlns:foo=\"http://xbean/scomp/derivation/AttributeWCRestriction\"" +

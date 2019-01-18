@@ -14,6 +14,7 @@
  */
 package scomp.elements.detailed;
 
+import org.junit.Test;
 import scomp.common.BaseCase;
 import xbean.scomp.element.any.AnyEltDocument;
 import xbean.scomp.element.any.AnySimpleDocument;
@@ -24,12 +25,11 @@ import org.apache.xmlbeans.XmlDate;
 import java.math.BigInteger;
 import java.util.GregorianCalendar;
 
-/**
- *
- *
- */
+import static org.junit.Assert.assertTrue;
+
 public class AnyTest extends BaseCase {
 
+    @Test
     public void testAny() throws Throwable {
         AnyEltDocument doc = AnyEltDocument.Factory.newInstance();
         BusinessShirtType bst = BusinessShirtType.Factory.newInstance();
@@ -58,10 +58,9 @@ public class AnyTest extends BaseCase {
             showErrors();
             throw t;
         }
-
-
     }
 
+    @Test
     public void testAnySimple() throws Throwable {
         AnySimpleDocument doc =
                 AnySimpleDocument.Factory.newInstance();

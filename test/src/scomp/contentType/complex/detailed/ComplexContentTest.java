@@ -15,30 +15,24 @@
 
 package scomp.contentType.complex.detailed;
 
+import org.apache.xmlbeans.XmlException;
+import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.XmlOptions;
+import org.junit.Test;
 import scomp.common.BaseCase;
-import org.apache.xmlbeans.*;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Iterator;
-import java.util.Collection;
+import java.util.List;
 
-import junit.framework.Assert;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
-/**
- *
- *
- *
- */
 public class ComplexContentTest extends BaseCase {
-    //TODO: this should be a detailed
-    //  test on a complex elt w/ annotations and other such
-    public void testRun() {
-        fail("Implement me");
-    }
 
     // complex types with simple content whose content is declared via an inline <simpleType>
     // Issue fixed with Svn revision 165352
+    @Test
     public void testSimpleContentDerivation() {
         String sInputXsd = "<?xml version=\"1.0\"?>\n" +
                 "<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\">\n" +
@@ -69,7 +63,7 @@ public class ComplexContentTest extends BaseCase {
         }
         catch (XmlException xme) {
             xme.printStackTrace();
-            Assert.fail("XmlException thrown when compiling schema");
+            fail("XmlException thrown when compiling schema");
         }
 
         // check for errors
@@ -77,7 +71,7 @@ public class ComplexContentTest extends BaseCase {
             System.out.println("Xsd Compilation Errors : " + iterator.next());
         }
         if (!errors.isEmpty()) {
-            Assert.fail("Errors found when compiling schema");
+            fail("Errors found when compiling schema");
         }
     }
 }

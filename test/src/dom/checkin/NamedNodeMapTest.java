@@ -19,19 +19,15 @@ package dom.checkin;
 import dom.common.Loader;
 import dom.common.NodeTest;
 import dom.common.TestSetup;
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import org.junit.Before;
+import org.junit.Test;
 import org.w3c.dom.*;
 
 import org.apache.xmlbeans.XmlObject;
 
-/**
- *
- *
- */
+import static org.junit.Assert.*;
 
-public class NamedNodeMapTest extends TestCase implements TestSetup {
+public class NamedNodeMapTest implements TestSetup {
     Document m_doc;
     Document m_docNS;
     Node m_node;
@@ -42,19 +38,13 @@ public class NamedNodeMapTest extends TestCase implements TestSetup {
     int nCount = 5;
 
 
-    public NamedNodeMapTest(String sName) {
-        super(sName);
-    }
-
-    public static Test suite() {
-        return new TestSuite(NamedNodeMapTest.class);
-    }
-
+    @Test
     public void testLength() {
         //assertEquals(m_nodeMap.length,nCount);
         assertEquals(m_nodeMap.getLength(), nCount);
     }
 
+    @Test
     public void testGetNamedItem() {
         result = m_nodeMap.getNamedItem("at0");
         assertEquals("val0", result.getNodeValue());
@@ -63,13 +53,14 @@ public class NamedNodeMapTest extends TestCase implements TestSetup {
         assertEquals("val4", result.getNodeValue());
     }
 
+    @Test
     public void testGetNamedItemDNE() {
         result = m_nodeMap.getNamedItem("attt4");
         assertEquals(null, result);
     }
 
+    @Test
     public void testGetNamedItemNS() {
-
         m_nodeMap = m_docNS.getFirstChild().getAttributes();
 
         result = m_nodeMap.getNamedItemNS("uri:foo", "at0");
@@ -85,12 +76,10 @@ public class NamedNodeMapTest extends TestCase implements TestSetup {
 
         result = m_nodeMap.getNamedItemNS(null, "at3");
         assertEquals("val3", result.getNodeValue());
-
-
     }
 
+    @Test
     public void testGetNamedItemNS_DNE() {
-
         m_nodeMap = m_docNS.getFirstChild().getAttributes();
 
         result = m_nodeMap.getNamedItemNS("uri:fol", "at0");
@@ -108,6 +97,7 @@ public class NamedNodeMapTest extends TestCase implements TestSetup {
            */
     }
 
+    @Test
     public void testItem() {
         result = m_nodeMap.item(0);
         assertEquals("val0", result.getNodeValue());
@@ -115,14 +105,16 @@ public class NamedNodeMapTest extends TestCase implements TestSetup {
         assertEquals("val3", result.getNodeValue());
     }
 
+    @Test
     public void testItemNeg() {
-        assertFalse(null == m_nodeMap);
-        assertEquals(null, m_nodeMap.item(-1));
+        assertNotNull(m_nodeMap);
+        assertNull(m_nodeMap.item(-1));
     }
 
+    @Test
     public void testItemLarge() {
-        assertFalse(null == m_nodeMap);
-        assertEquals(null, m_nodeMap.item(m_nodeMap.getLength() + 1));
+        assertNotNull(m_nodeMap);
+        assertNull(m_nodeMap.item(m_nodeMap.getLength() + 1));
     }
 
     /**
@@ -130,6 +122,7 @@ public class NamedNodeMapTest extends TestCase implements TestSetup {
      * read-only map
      * attr w/ default val
      */
+    @Test
     public void testRemoveNamedItemNull() {
         try {
             m_nodeMap.removeNamedItem(null);
@@ -140,6 +133,7 @@ public class NamedNodeMapTest extends TestCase implements TestSetup {
         }
     }
 
+    @Test
     public void testRemoveNamedItem() {
         try {
             m_nodeMap.removeNamedItem("at7");
@@ -151,17 +145,13 @@ public class NamedNodeMapTest extends TestCase implements TestSetup {
 
         result = m_nodeMap.removeNamedItem("at3");
         assertEquals("val3", result.getNodeValue());
-        assertEquals(m_nodeMap.getNamedItem("at3"), null);
+        assertNull(m_nodeMap.getNamedItem("at3"));
         //liveness test
         assertEquals(m_node.getAttributes().getLength(), nCount - 1);
-        assertEquals(m_node.getAttributes().getNamedItem("at3"), null);
-
+        assertNull(m_node.getAttributes().getNamedItem("at3"));
     }
 
-    /**
-     *
-     */
-
+    @Test
     public void testRemoveNamedItemNS() {
         m_node = m_docNS.getDocumentElement();
         m_nodeMap = m_node.getAttributes();
@@ -175,22 +165,22 @@ public class NamedNodeMapTest extends TestCase implements TestSetup {
 
         result = m_nodeMap.getNamedItemNS("uri:foo", "at4");
         assertEquals(result, m_nodeMap.removeNamedItemNS("uri:foo", "at4"));
-        assertEquals(null, m_nodeMap.getNamedItemNS("uri:foo", "at4"));
+        assertNull(m_nodeMap.getNamedItemNS("uri:foo", "at4"));
 
         assertEquals(nCount - 1, m_node.getAttributes().getLength());
 
         result = m_nodeMap.removeNamedItemNS(null, "at3");
         assertEquals("val3", result.getNodeValue());
-        assertEquals(null, m_nodeMap.getNamedItem("at3"));
+        assertNull(m_nodeMap.getNamedItem("at3"));
         assertEquals(m_node.getAttributes().getLength(), nCount - 2);
 
         //liveness test
         assertEquals(nCount - 2,
                 m_docNS.getFirstChild().getAttributes().getLength());
-        assertEquals(null,
-                m_docNS.getFirstChild().getAttributes().getNamedItem("at3"));
+        assertNull(m_docNS.getFirstChild().getAttributes().getNamedItem("at3"));
     }
 
+    @Test
     public void testRemoveNamedItemNS_DNE() {
         m_nodeMap = m_docNS.getFirstChild().getAttributes();
         int nLen = m_node.getAttributes().getLength();
@@ -219,6 +209,7 @@ public class NamedNodeMapTest extends TestCase implements TestSetup {
      * node in diff elt
      * node not an attr
      */
+    @Test
     public void testSetNamedItem() {
         Node newAt = m_doc.createAttribute("newAt");
         ((Attr) newAt).setValue("newval");
@@ -260,15 +251,12 @@ public class NamedNodeMapTest extends TestCase implements TestSetup {
 
     }
 
+    @Test(expected = IllegalArgumentException.class)
     public void testSetNamedItemNull() {
-        try {
-            m_nodeMap.setNamedItem(null);
-            fail("Setting to null");
-        }
-        catch (java.lang.IllegalArgumentException e) {
-        }
+        m_nodeMap.setNamedItem(null);
     }
 
+    @Test
     public void testSetNamedItemDiffImpl() throws Exception {
         Node toSet = NodeTest.getApacheNode(sXml, false, 'A');
         try {
@@ -280,22 +268,23 @@ public class NamedNodeMapTest extends TestCase implements TestSetup {
         }
     }
 
+    @Test
     public void testSetNamedItemNS() {
-        Node newAt = m_doc.createAttributeNS("uri:foo", "newAt");
-        ((Attr) newAt).setValue("newval");
+        Attr newAt = m_doc.createAttributeNS("uri:foo", "newAt");
+        newAt.setValue("newval");
         m_nodeMap.setNamedItemNS(newAt);
         assertEquals(nCount + 1, m_nodeMap.getLength());
         result = m_nodeMap.getNamedItemNS("uri:foo", "newAt");
         assertEquals("newval", result.getNodeValue());
         //OK, reset value
-        ((Attr) newAt).setValue("newval_overwrite");
+        newAt.setValue("newval_overwrite");
         m_nodeMap.setNamedItemNS(newAt);
         assertEquals(nCount + 1, m_nodeMap.getLength());
         result = m_nodeMap.getNamedItemNS("uri:foo", "newAt");
         assertEquals("newval_overwrite", result.getNodeValue());
 
         newAt = m_doc.createAttributeNS("uri:foo1", "newAt");
-        ((Attr) newAt).setValue("newval1");
+        newAt.setValue("newval1");
         //insert a new item
         m_nodeMap.setNamedItemNS(newAt);
         assertEquals(nCount + 2, m_nodeMap.getLength());
@@ -304,15 +293,12 @@ public class NamedNodeMapTest extends TestCase implements TestSetup {
         //the path cases are the same as in SetNamedItem
     }
 
+    @Test(expected = IllegalArgumentException.class)
     public void testSetNamedItemNSNull() {
-        try {
-            m_nodeMap.setNamedItemNS(null);
-            fail("Setting to null");
-        }
-        catch (java.lang.IllegalArgumentException e) {
-        }
+        m_nodeMap.setNamedItemNS(null);
     }
 
+    @Test
     public void testSetNamedItemNSDiffImpl() throws Exception {
         Node toSet = NodeTest.getApacheNode(sXml, true, 'A');
         try {
@@ -325,6 +311,7 @@ public class NamedNodeMapTest extends TestCase implements TestSetup {
     }
 
     //try to set a node of a diff type than the current collection
+    @Test
     public void testSetNamedItemDiffType() throws Exception {
         Node toSet = m_doc.createElement("foobar");
         try {
@@ -336,6 +323,7 @@ public class NamedNodeMapTest extends TestCase implements TestSetup {
         }
     }
 
+    @Test
     public void testSetNamedItemNSDiffType() throws Exception {
         Node toSet = m_doc.createElementNS("foo:org", "com:foobar");
         try {
@@ -365,12 +353,11 @@ public class NamedNodeMapTest extends TestCase implements TestSetup {
 
     }
 
+    @Before
     public void setUp() throws Exception {
-
         m_doc = (org.w3c.dom.Document) XmlObject.Factory.parse( sXml ).getDomNode();
         m_docNS = (org.w3c.dom.Document) XmlObject.Factory.parse( sXmlNS ).getDomNode();
         moveToNode();
-
     }
 
     private Loader _loader;

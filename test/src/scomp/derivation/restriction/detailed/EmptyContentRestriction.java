@@ -14,17 +14,19 @@
  */
 package scomp.derivation.restriction.detailed;
 
-import xbean.scomp.derivation.emtpy.RestrictedEmptyEltDocument;
-import xbean.scomp.derivation.emtpy.RestrictedEmptyT;
-import scomp.common.BaseCase;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlErrorCodes;
+import org.junit.Test;
+import scomp.common.BaseCase;
+import xbean.scomp.derivation.emtpy.RestrictedEmptyEltDocument;
+import xbean.scomp.derivation.emtpy.RestrictedEmptyT;
 
-/**
- *
- */
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 public class EmptyContentRestriction extends BaseCase {
 
+    @Test
     public void testRestriction() throws Throwable {
         RestrictedEmptyEltDocument doc = RestrictedEmptyEltDocument.Factory.newInstance();
 
@@ -60,7 +62,7 @@ public class EmptyContentRestriction extends BaseCase {
         errExpected = new String[]{
             XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$ELEMENT_NOT_ALLOWED
         };
-                     assertTrue(compareErrorCodes(errExpected));
+        assertTrue(compareErrorCodes(errExpected));
 
 
     }

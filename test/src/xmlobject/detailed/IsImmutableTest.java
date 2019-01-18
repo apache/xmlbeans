@@ -16,65 +16,27 @@
 
 package xmlobject.detailed;
 
-import junit.framework.*;
-import junit.framework.Assert.*;
-
-import java.io.*;
-
-import org.apache.xmlbeans.XmlObject;
-import org.apache.xmlbeans.XmlCursor;
-import org.apache.xmlbeans.XmlBeans;
-import org.apache.xmlbeans.SchemaTypeSystem;
 import org.apache.xmlbeans.SchemaType;
-import org.apache.xmlbeans.SchemaTypeLoader;
-import org.apache.xmlbeans.XmlCursor.TokenType;
-import org.apache.xmlbeans.XmlOptions;
-
-import java.util.*;
-import javax.xml.namespace.QName;
-
-import org.apache.xmlbeans.XmlAnySimpleType;
-
-import java.util.Vector;
-
-import xmlcursor.common.*;
-
-import java.net.URL;
-
-import org.apache.xmlbeans.xml.stream.XMLInputStream;
+import org.apache.xmlbeans.XmlObject;
+import org.junit.Test;
 import org.tranxml.tranXML.version40.CarLocationMessageDocument;
-import tools.util.Util;
 import tools.util.JarUtil;
+import xmlcursor.common.BasicCursorTestCase;
+import xmlcursor.common.Common;
+
+import static org.junit.Assert.*;
 
 
-/**
- *
- *
- */
 public class IsImmutableTest extends BasicCursorTestCase {
-    public IsImmutableTest(String sName) {
-        super(sName);
-    }
-
-    public static Test suite() {
-        return new TestSuite(IsImmutableTest.class);
-    }
-
-    public void testClassPath() throws Exception {
-        String sClassPath = System.getProperty("java.class.path");
-        int i = sClassPath.indexOf(Common.CARLOCATIONMESSAGE_JAR);
-        assertTrue(i >= 0);
-        i = sClassPath.indexOf(Common.XMLCURSOR_JAR);
-        assertTrue(i >= 0);
-    }
-
+    @Test
     public void testIsImmutableFalse() throws Exception {
         CarLocationMessageDocument clmDoc =
                 (CarLocationMessageDocument) XmlObject.Factory
                 .parse(   JarUtil.getResourceFromJar(Common.TRANXML_FILE_CLM));
-        assertEquals(false, clmDoc.isImmutable());
+        assertFalse(clmDoc.isImmutable());
     }
 
+    @Test
     public void testIsImmutableTrue() throws Exception {
         m_xo = XmlObject.Factory.parse(
                    JarUtil.getResourceFromJar(Common.TRANXML_FILE_CLM));
@@ -84,10 +46,8 @@ public class IsImmutableTest extends BasicCursorTestCase {
         m_xc.toNextSelection();
         SchemaType st = m_xc.getObject().schemaType();
         XmlObject xoNew = st.newValue("ZZZZ");
-        assertEquals(true, xoNew.isImmutable());
+        assertTrue(xoNew.isImmutable());
         // verify it's not in main store
         assertEquals("GATX", m_xc.getTextValue());
     }
-
 }
-

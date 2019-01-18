@@ -15,27 +15,24 @@
 
 package scomp.contentType.simple.detailed;
 
-import scomp.common.BaseCase;
-import xbean.scomp.contentType.builtIn.string.*;
-import xbean.scomp.contentType.builtIn.number.*;
-import xbean.scomp.contentType.builtIn.date.*;
 import org.apache.xmlbeans.*;
+import org.junit.Test;
+import scomp.common.BaseCase;
+import xbean.scomp.contentType.builtIn.date.*;
+import xbean.scomp.contentType.builtIn.number.*;
+import xbean.scomp.contentType.builtIn.string.*;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.*;
 
-/**
- *
- *
- *
- */
+import static org.junit.Assert.*;
+
 public class BuiltInType extends BaseCase {
     /**
      * testing types String, normalizedString and token
-     *
-     * @throws Throwable
      */
+    @Test
     public void testStringBasedTypes1() throws Throwable {
         String[] exp = new String[]{
             "\tLead tab,A string on\n 2 lines with 2  spaces",
@@ -79,10 +76,9 @@ public class BuiltInType extends BaseCase {
 
     /**
      * testing types Name, NCName, Language
-     *
-     * @throws Throwable
      */
-    public void testStringBasedTypes2() throws Throwable {
+    @Test
+    public void testStringBasedTypes2() {
         NameEltDocument nameDoc = NameEltDocument.Factory.newInstance();
         nameDoc.setNameElt("_eltName");
         assertTrue(nameDoc.validate(validateOptions));
@@ -144,6 +140,7 @@ public class BuiltInType extends BaseCase {
         return sb.toString();
     }
 
+    @Test
     public void testNumericypes() throws Throwable {
         FloatEltDocument flDoc =
                 FloatEltDocument
@@ -152,11 +149,11 @@ public class BuiltInType extends BaseCase {
                 ">12.34e+5</FloatElt>");
         assertTrue(flDoc.validate(validateOptions));
         flDoc.setFloatElt(13.5f);
-        assertTrue(13.5f == flDoc.getFloatElt());
+        assertEquals(13.5f, flDoc.getFloatElt(), 0.0);
 
         DoubleEltDocument doubDoc =
                 DoubleEltDocument.Factory.newInstance();
-        assertTrue(0 == doubDoc.getDoubleElt());
+        assertEquals(0, doubDoc.getDoubleElt(), 0.0);
         XmlDouble val = XmlDouble.Factory.newInstance();
         val.setDoubleValue(13.4d);
         doubDoc.xsetDoubleElt(val);
@@ -169,7 +166,7 @@ public class BuiltInType extends BaseCase {
         assertTrue(decDoc.validate(validateOptions));
         BigDecimal bdval = new BigDecimal(new BigInteger("10"));
         decDoc.setDecimalElt(bdval);
-        assertTrue(bdval == decDoc.getDecimalElt());
+        assertSame(bdval, decDoc.getDecimalElt());
 
         IntegerEltDocument integerDoc =
                 IntegerEltDocument.Factory.parse("<IntegerElt " +
@@ -177,7 +174,7 @@ public class BuiltInType extends BaseCase {
                 ">124353</IntegerElt>");
         assertTrue(decDoc.validate(validateOptions));
         integerDoc.setIntegerElt(BigInteger.ONE);
-        assertTrue(BigInteger.ONE == integerDoc.getIntegerElt());
+        assertSame(BigInteger.ONE, integerDoc.getIntegerElt());
 
         LongEltDocument longDoc =
                 LongEltDocument.Factory.newInstance();
@@ -199,7 +196,7 @@ public class BuiltInType extends BaseCase {
                 " xmlns=\"http://xbean/scomp/contentType/builtIn/Number\"" +
                 ">-32768</ShortElt>");
         assertTrue(shDoc.validate(validateOptions));
-        assertTrue(-32768 == shDoc.xgetShortElt().getShortValue());
+        assertEquals(-32768, shDoc.xgetShortElt().getShortValue());
         //largest short is 32767. Don't use set--it would wrap around
         shDoc = ShortEltDocument.Factory.parse("<ShortElt " +
                 " xmlns=\"http://xbean/scomp/contentType/builtIn/Number\"" +
@@ -230,7 +227,7 @@ public class BuiltInType extends BaseCase {
                 NonPosIntEltDocument.Factory.parse("<NonPosIntElt " +
                 " xmlns=\"http://xbean/scomp/contentType/builtIn/Number\"" +
                 ">-0000000</NonPosIntElt>");
-        assertTrue(0 == nonposIntDoc.getNonPosIntElt().intValue());
+        assertEquals(0, nonposIntDoc.getNonPosIntElt().intValue());
         assertTrue(nonposIntDoc.validate(validateOptions));
         //should be valid but javac complains is setter is called
         nonposIntDoc =
@@ -277,6 +274,7 @@ public class BuiltInType extends BaseCase {
 
     }
 
+    @Test
     public void testDateTime() throws Throwable {
         DateEltDocument date =
                 DateEltDocument.Factory.newInstance();

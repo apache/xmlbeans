@@ -15,20 +15,19 @@
  */
 package misc.detailed;
 
+import com.easypo.XmlShipperBean;
 import misc.common.JiraTestBase;
-import com.easypo.*;
+import org.junit.Test;
+
+import static org.junit.Assert.assertFalse;
 
 public class JiraRegression251_300Test extends JiraTestBase
 {
-    public JiraRegression251_300Test(String name)
-    {
-        super(name);
-    }
-
     /*
     * [XMLBEANS-260]: SchemaType#isSkippedAnonymousType() throws an NPE
     * if _outerSchemaTypeRef is not set
     */
+    @Test
     public void test_jira_xmlbeans260()
     {
         // construct an instance of a non-anonymous type

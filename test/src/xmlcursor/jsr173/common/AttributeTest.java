@@ -18,53 +18,55 @@ package xmlcursor.jsr173.common;
 
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlObject;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
 
-import javax.xml.stream.XMLStreamReader;
+import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
-import javax.xml.namespace.QName;
+import javax.xml.stream.XMLStreamReader;
 
-import org.apache.xmlbeans.XmlOptions;
+import static org.junit.Assert.*;
 
-import junit.framework.*;
-import junit.framework.Assert.*;
+@Ignore("abstract class")
+public abstract class AttributeTest {
 
-/**
- *
- *
- */
-public abstract class AttributeTest extends TestCase {
+    private XMLStreamReader m_stream;
+    private XmlCursor cur;
+    private int indexMethods = 6;
 
-    int indexMethods=6;
-    public abstract XMLStreamReader getStream(XmlCursor c)throws Exception;
-     public AttributeTest(String s) {
-        super(s);
-    }
+    public abstract XMLStreamReader getStream(XmlCursor c) throws Exception;
 
+    @Test
     public void testAttrEvent() throws Exception {
         cur.toNextToken();
-        m_stream =getStream(cur);
-        assertEquals( XMLStreamConstants.ATTRIBUTE, m_stream.getEventType() );
+        m_stream = getStream(cur);
+        assertEquals(XMLStreamConstants.ATTRIBUTE, m_stream.getEventType());
         assertEquals(1, m_stream.getAttributeCount());
         assertEquals(m_stream.getAttributeValue(0),
-        m_stream.getAttributeValue("foo.org", "at0"));
+            m_stream.getAttributeValue("foo.org", "at0"));
 
-          assertFalse(m_stream.hasNext());
+        assertFalse(m_stream.hasNext());
 
     }
-   public void testAttrMethodsAtAttr() throws Exception{
+
+    @Test
+    public void testAttrMethodsAtAttr() throws Exception {
 
         //2 attrs under the doc
-//        assertEquals(2, m_stream.getAttributeCount());
+        // assertEquals(2, m_stream.getAttributeCount());
 
-         cur.toNextToken();
-        m_stream= getStream(cur);;
+        cur.toNextToken();
+        m_stream = getStream(cur);
+        ;
         //move 2 first attr
-       assertEquals( XMLStreamConstants.ATTRIBUTE, m_stream.getEventType() );
+        assertEquals(XMLStreamConstants.ATTRIBUTE, m_stream.getEventType());
         assertEquals(1, m_stream.getAttributeCount());
 
         assertEquals(m_stream.getAttributeValue(0),
-                m_stream.getAttributeValue("foo.org", "at0"));
+            m_stream.getAttributeValue("foo.org", "at0"));
 
         //Below methods tested at index 0 and last at index tests
         //getAttributeLocalName(int)
@@ -77,7 +79,8 @@ public abstract class AttributeTest extends TestCase {
 
     }
 
-    public void testAttrMethodsAtStartElt()  throws Exception{
+    @Test
+    public void testAttrMethodsAtStartElt() throws Exception {
         cur.toFirstChild();
         cur.toNextSibling();
         m_stream = getStream(cur);
@@ -86,15 +89,14 @@ public abstract class AttributeTest extends TestCase {
         assertEquals(new QName("foo.org", "foo", ""), m_stream.getName());
         assertEquals(m_stream.getAttributeValue(0), "");
         assertEquals(m_stream.getAttributeValue(0),
-                m_stream.getAttributeValue("", "localName"));
+            m_stream.getAttributeValue("", "localName"));
     }
 
     private void assertIllegalState1() {
         try {
             m_stream.getAttributeCount();
             fail("Illegal State");
-        }
-        catch (java.lang.IllegalStateException e) {
+        } catch (java.lang.IllegalStateException e) {
         }
     }
 
@@ -102,15 +104,15 @@ public abstract class AttributeTest extends TestCase {
         try {
             m_stream.getAttributeValue(0);
             fail("Illegal State");
-        }
-        catch (java.lang.IllegalStateException e) {
+        } catch (java.lang.IllegalStateException e) {
         }
     }
 
+    @Test
     public void testAttrMethodsAtNamespace() throws Exception {
         cur.toNextToken();
         cur.toNextToken();
-        assertEquals (XmlCursor.TokenType.NAMESPACE, cur.toNextToken());
+        assertEquals(XmlCursor.TokenType.NAMESPACE, cur.toNextToken());
         m_stream = getStream(cur);
 
         assertIllegalState1();
@@ -121,11 +123,11 @@ public abstract class AttributeTest extends TestCase {
 //
     }
 
-//
+    //
 //    java.lang.IllegalStateException - if this is not a START_ELEMENT or ATTRIBUTE
 //
-
-    public void testAttrMethodsAtEndElt()throws Exception  {
+    @Test
+    public void testAttrMethodsAtEndElt() throws Exception {
         cur.toFirstChild();
         cur.toNextSibling();
         cur.toNextToken();
@@ -136,7 +138,8 @@ public abstract class AttributeTest extends TestCase {
         assertIllegalState2();
     }
 
-    public void testAttrMethodsAtEndDoc() throws Exception  {
+    @Test
+    public void testAttrMethodsAtEndDoc() throws Exception {
         cur.toFirstChild();
         cur.toNextSibling();
         cur.toNextToken();
@@ -149,6 +152,7 @@ public abstract class AttributeTest extends TestCase {
         assertIllegalState2();
     }
 
+    @Test
     public void testAttrMethodstAtText() throws Exception {
         cur.toFirstChild();
         cur.toNextSibling();
@@ -159,6 +163,7 @@ public abstract class AttributeTest extends TestCase {
         assertIllegalState2();
     }
 
+    @Test
     public void testAttrMethodstAtPI() throws Exception {
         cur.toFirstChild();
         cur.toNextSibling();
@@ -171,7 +176,7 @@ public abstract class AttributeTest extends TestCase {
         assertIllegalState2();
     }
 
-   /**
+    /**
      * verify index correctness for all index methods
      * tested w/ cursor positioned at first attr
      * //getAttributeLocalName(int)
@@ -181,149 +186,144 @@ public abstract class AttributeTest extends TestCase {
      * //getAttributeType(int)
      * //getAttributeValue(int)
      */
-
+    @Test
     public void testAttrMethodsNegIndex() throws Exception {
 
         int cnt = 0;
         try {
             m_stream.getAttributeLocalName(-1);
-        }
-        catch (java.lang.IndexOutOfBoundsException e) {
+        } catch (java.lang.IndexOutOfBoundsException e) {
             cnt++;
         }
         try {
             m_stream.getAttributeName(-1);
-        }
-        catch (java.lang.IndexOutOfBoundsException e) {
+        } catch (java.lang.IndexOutOfBoundsException e) {
             cnt++;
         }
         try {
             m_stream.getAttributeNamespace(-1);
-        }
-        catch (java.lang.IndexOutOfBoundsException e) {
+        } catch (java.lang.IndexOutOfBoundsException e) {
             cnt++;
         }
         try {
             m_stream.getAttributePrefix(-1);
-        }
-        catch (java.lang.IndexOutOfBoundsException e) {
+        } catch (java.lang.IndexOutOfBoundsException e) {
             cnt++;
         }
         try {
             m_stream.getAttributeType(-1);
-        }
-        catch (java.lang.IndexOutOfBoundsException e) {
+        } catch (java.lang.IndexOutOfBoundsException e) {
             cnt++;
         }
         try {
             m_stream.getAttributeValue(-1);
-        }
-        catch (java.lang.IndexOutOfBoundsException e) {
+        } catch (java.lang.IndexOutOfBoundsException e) {
             cnt++;
         }
 
-          assertEquals( "A negative error wasn't thrown", indexMethods , cnt);
+        assertEquals("A negative error wasn't thrown", indexMethods, cnt);
     }
 
-    public void testAttrMethodsLargeIndex()
-            throws XMLStreamException {
+    @Test
+    public void testAttrMethodsLargeIndex() throws XMLStreamException {
 
         int cnt = 0;
-         int pos=-1;
+        int pos = -1;
         try {
-             m_stream.next();
-        pos=m_stream.getAttributeCount();
+            m_stream.next();
+            pos = m_stream.getAttributeCount();
             m_stream.getAttributeLocalName(pos);
-        }
-        catch (java.lang.IndexOutOfBoundsException e) {
+        } catch (java.lang.IndexOutOfBoundsException e) {
             cnt++;
         }
         try {
             m_stream.getAttributeName(pos);
-        }
-        catch (java.lang.IndexOutOfBoundsException e) {
+        } catch (java.lang.IndexOutOfBoundsException e) {
             cnt++;
         }
         try {
             m_stream.getAttributeNamespace(pos);
-        }
-        catch (java.lang.IndexOutOfBoundsException e) {
+        } catch (java.lang.IndexOutOfBoundsException e) {
             cnt++;
         }
         try {
             m_stream.getAttributePrefix(pos);
-        }
-        catch (java.lang.IndexOutOfBoundsException e) {
+        } catch (java.lang.IndexOutOfBoundsException e) {
             cnt++;
         }
         try {
             m_stream.getAttributeType(pos);
-        }
-        catch (java.lang.IndexOutOfBoundsException e) {
+        } catch (java.lang.IndexOutOfBoundsException e) {
             cnt++;
         }
         try {
             m_stream.getAttributeValue(pos);
-        }
-        catch (java.lang.IndexOutOfBoundsException e) {
+        } catch (java.lang.IndexOutOfBoundsException e) {
             cnt++;
         }
 
-          assertEquals( "A negative error wasn't thrown", indexMethods, cnt);
+        assertEquals("A negative error wasn't thrown", indexMethods, cnt);
     }
 
-    public void testAttrMethods0Index() throws Exception{
-         assertEquals( XMLStreamConstants.START_DOCUMENT, m_stream.getEventType() );
+    @Test
+    public void testAttrMethods0Index() throws Exception {
+        assertEquals(XMLStreamConstants.START_DOCUMENT, m_stream.getEventType());
 
-        assertEquals( XMLStreamConstants.ATTRIBUTE, m_stream.next() );
+        assertEquals(XMLStreamConstants.ATTRIBUTE, m_stream.next());
         assertEquals(1, m_stream.getAttributeCount());
 
         assertEquals("val0", m_stream.getAttributeValue(0));
 
-        assertEquals( XMLStreamConstants.ATTRIBUTE, m_stream.next() );
+        assertEquals(XMLStreamConstants.ATTRIBUTE, m_stream.next());
 
         assertEquals("val1", m_stream.getAttributeValue(0));
         //why does this crash here????
-        assertEquals( XMLStreamConstants.NAMESPACE,m_stream.next()); //ns
+        assertEquals(XMLStreamConstants.NAMESPACE, m_stream.next()); //ns
         m_stream.next(); //elt
-       assertEquals("", m_stream.getAttributeValue(0));
+        assertEquals("", m_stream.getAttributeValue(0));
 
     }
 
     //NOTHING to do; eric always emits one event per attr=>
     //getAttributeCount is always 1
+    @Test
     public void testAttrMethodsLastIndex() {
 
     }
-   public void testIsAttributeSpecified() throws Exception {
-         assertEquals( XMLStreamConstants.START_DOCUMENT,
-                 m_stream.getEventType() );
-       try{
-           m_stream.isAttributeSpecified(0);
-           fail("Bad state");
-       }catch (IllegalStateException e){}
 
-        assertEquals( XMLStreamConstants.ATTRIBUTE, m_stream.next() );
+    @Test
+    public void testIsAttributeSpecified() throws Exception {
+        assertEquals(XMLStreamConstants.START_DOCUMENT,
+            m_stream.getEventType());
+        try {
+            m_stream.isAttributeSpecified(0);
+            fail("Bad state");
+        } catch (IllegalStateException e) {
+        }
+
+        assertEquals(XMLStreamConstants.ATTRIBUTE, m_stream.next());
         assertEquals(false, m_stream.isAttributeSpecified(0));
 
-        try{
-           m_stream.isAttributeSpecified(-1);
-           fail("Bad state");
-       }catch (java.lang.IndexOutOfBoundsException e){}
+        try {
+            m_stream.isAttributeSpecified(-1);
+            fail("Bad state");
+        } catch (java.lang.IndexOutOfBoundsException e) {
+        }
 
-       try{
-           m_stream.isAttributeSpecified(2);
-           fail("Bad state");
-       }catch (java.lang.IndexOutOfBoundsException e){}
+        try {
+            m_stream.isAttributeSpecified(2);
+            fail("Bad state");
+        } catch (java.lang.IndexOutOfBoundsException e) {
+        }
+    }
 
-   }
-
+    @Before
     public void setUp() throws Exception {
         cur = XmlObject.Factory.newInstance().newCursor();
         cur.toNextToken();
 
         cur.insertAttributeWithValue(new QName("foo.org", "at0", "pre"),
-                "val0");
+            "val0");
         cur.insertAttributeWithValue(new QName("", "at1", "pre"), "val1");
         cur.insertNamespace("pre", "foons.bar.org");
         cur.beginElement(new QName("foo.org", "foo", ""));
@@ -334,19 +334,13 @@ public abstract class AttributeTest extends TestCase {
         cur.insertProcInst("xml-stylesheet", "http://foobar");
 
         cur.toStartDoc();
-        m_stream=getStream(cur);
-                //cur.newXMLStreamReader();
-
+        m_stream = getStream(cur);
+        //cur.newXMLStreamReader();
     }
 
-    public void tearDown() throws Exception
-    {
-        super.tearDown();
+    @After
+    public void tearDown() throws Exception {
         if (m_stream != null)
             m_stream.close();
     }
-
-     XMLStreamReader m_stream;
-     XmlCursor cur;
-
 }

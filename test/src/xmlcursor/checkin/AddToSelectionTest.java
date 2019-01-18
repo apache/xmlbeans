@@ -16,61 +16,37 @@
 
 package xmlcursor.checkin;
 
-import org.apache.xmlbeans.XmlOptions;
-import junit.framework.*;
-import junit.framework.Assert.*;
-
-import java.io.*;
-
-import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlCursor;
-import org.apache.xmlbeans.XmlBeans;
-import org.apache.xmlbeans.XmlCursor.TokenType;
-import org.apache.xmlbeans.XmlDocumentProperties;
-import org.apache.xmlbeans.XmlCursor.XmlBookmark;
-
-import javax.xml.namespace.QName;
-
+import org.apache.xmlbeans.XmlObject;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 import xmlcursor.common.BasicCursorTestCase;
 
-import java.net.URL;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 
-/**
- *
- * 
- */
-public class AddToSelectionTest extends BasicCursorTestCase
-{
+public class AddToSelectionTest extends BasicCursorTestCase {
 
-    static String sXml = "<foo><b>0</b><b>1</b><b>2</b><b attr=\"a3\">3</b><b>4</b><b>5</b><b>6</b></foo>";
+    private static String sXml = "<foo><b>0</b><b>1</b><b>2</b><b attr=\"a3\">3</b><b>4</b><b>5</b><b>6</b></foo>";
 
-    public AddToSelectionTest(String sName)
-    {
-        super(sName);
-    }
-
-    public static Test suite()
-    {
-        return new TestSuite(AddToSelectionTest.class);
-    }
-
-    public void testAddToSelectionEnd()
-    {
+    @Test
+    public void testAddToSelectionEnd() {
         m_xc.toEndDoc();
         m_xc.addToSelection();
         assertEquals(1, m_xc.getSelectionCount());
     }
 
-    public void testAddToSelectionStart()
-    {
+    @Test
+    public void testAddToSelectionStart() {
         m_xc.toStartDoc();
         m_xc.addToSelection();
         assertEquals(1, m_xc.getSelectionCount());
     }
 
-    public void testAddToSelectionAll() throws Exception
-    {
+    @Test
+    public void testAddToSelectionAll() throws Exception {
         sXml = "<foo></foo>";
         m_xc = XmlObject.Factory.parse(sXml).newCursor();
         XmlCursor.TokenType tok;
@@ -91,12 +67,12 @@ public class AddToSelectionTest extends BasicCursorTestCase
             m_xc.toNextSelection();
         }
         //second cursor should be at the end of selections too...
-        assertEquals(false, m_xc.toNextSelection());
+        assertFalse(m_xc.toNextSelection());
         m_xc1.dispose();
     }
 
-    public void testAddToSelectionSet()
-    {
+    @Test
+    public void testAddToSelectionSet() {
         //not set but bag semantics
         int expRes = 100;
 
@@ -108,28 +84,20 @@ public class AddToSelectionTest extends BasicCursorTestCase
         assertEquals(expRes, m_xc.getSelectionCount());
     }
 
-    public void testAddAfterDispose()
-    {
+    @Test(expected = Throwable.class)
+    public void testAddAfterDispose() {
         m_xc.dispose();
-        boolean error = false;
-        try {
-            m_xc.addToSelection();
-        } catch (Throwable e) {
-            error = true;
-        }
-        assertEquals(true, error);
+        m_xc.addToSelection();
 
     }
 
-
-    public void setUp() throws Exception
-    {
+    @Before
+    public void setUp() throws Exception {
         m_xc = XmlObject.Factory.parse(sXml).newCursor();
-        super.setUp();
     }
 
-    public void tearDown()
-    {
+    @After
+    public void tearDown() {
         if (m_xc == null) return;
         try {
             m_xc.clearSelections();

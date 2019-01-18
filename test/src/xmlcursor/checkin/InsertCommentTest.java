@@ -16,37 +16,18 @@
 
 package xmlcursor.checkin;
 
-import org.apache.xmlbeans.XmlOptions;
-import junit.framework.*;
-import junit.framework.Assert.*;
-
-import java.io.*;
-
-import org.apache.xmlbeans.XmlObject;
-import org.apache.xmlbeans.XmlCursor;
-import org.apache.xmlbeans.XmlBeans;
 import org.apache.xmlbeans.XmlCursor.TokenType;
+import org.apache.xmlbeans.XmlObject;
+import org.junit.Test;
+import xmlcursor.common.BasicCursorTestCase;
+import xmlcursor.common.Common;
 
-import javax.xml.namespace.QName;
-
-import xmlcursor.common.*;
-
-import java.net.URL;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 
-/**
- *
- *
- */
 public class InsertCommentTest extends BasicCursorTestCase {
-    public InsertCommentTest(String sName) {
-        super(sName);
-    }
-
-    public static Test suite() {
-        return new TestSuite(InsertCommentTest.class);
-    }
-
+    @Test
     public void testInsertCommentAtSTART() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_BAR_TEXT);
         m_xc = m_xo.newCursor();
@@ -57,6 +38,7 @@ public class InsertCommentTest extends BasicCursorTestCase {
         assertEquals("<foo><!-- new comment --><bar>text</bar></foo>", m_xc.xmlText());
     }
 
+    @Test
     public void testInsertCommentInMiddleOfTEXT() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_BAR_TEXT);
         m_xc = m_xo.newCursor();
@@ -68,6 +50,7 @@ public class InsertCommentTest extends BasicCursorTestCase {
         assertEquals("<bar>te<!-- new comment -->xt</bar>", m_xc.xmlText());
     }
 
+    @Test
     public void testInsertCommentAtEND() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_BAR_TEXT);
         m_xc = m_xo.newCursor();
@@ -77,6 +60,7 @@ public class InsertCommentTest extends BasicCursorTestCase {
         assertEquals("<bar>text<!-- new comment --></bar>", m_xc.xmlText());
     }
 
+    @Test
     public void testInsertCommentWithLTChar() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_TEXT);
         m_xc = m_xo.newCursor();
@@ -86,6 +70,7 @@ public class InsertCommentTest extends BasicCursorTestCase {
         assertEquals("<foo><!--< new comment -->text</foo>", m_xc.xmlText());
     }
 
+    @Test
     public void testInsertCommentWithDoubleDash() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_TEXT);
         m_xc = m_xo.newCursor();
@@ -95,6 +80,7 @@ public class InsertCommentTest extends BasicCursorTestCase {
         assertEquals("<foo><!-- -  -->text</foo>", m_xc.xmlText());
     }
 
+    @Test
     public void testInsertCommentWithDoubleDashNoWS() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_TEXT);
         m_xc = m_xo.newCursor();
@@ -104,6 +90,7 @@ public class InsertCommentTest extends BasicCursorTestCase {
         assertEquals("<foo><!--- -->text</foo>", m_xc.xmlText());
     }
 
+    @Test
     public void testInsertCommentWithEndDash() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_TEXT);
         m_xc = m_xo.newCursor();
@@ -113,7 +100,7 @@ public class InsertCommentTest extends BasicCursorTestCase {
         assertEquals("<foo><!--  -->text</foo>", m_xc.xmlText());
     }
 
-
+    @Test
     public void testInsertCommentWithEmptyString() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_TEXT);
         m_xc = m_xo.newCursor();
@@ -123,6 +110,7 @@ public class InsertCommentTest extends BasicCursorTestCase {
         assertEquals("<foo><!---->text</foo>", m_xc.xmlText());
     }
 
+    @Test
     public void testInsertCommentWithNull() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_TEXT);
         m_xc = m_xo.newCursor();
@@ -132,6 +120,7 @@ public class InsertCommentTest extends BasicCursorTestCase {
         assertEquals("<foo><!---->text</foo>", m_xc.xmlText());
     }
 
+    @Test
     public void testInsertCommentAtSTARTDOC() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_TEXT);
         m_xc = m_xo.newCursor();

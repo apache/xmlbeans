@@ -16,47 +16,30 @@
 
 package xmlcursor.checkin;
 
-import junit.framework.*;
-
-import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlCursor.TokenType;
+import org.apache.xmlbeans.XmlObject;
+import org.junit.Test;
+import tools.util.JarUtil;
+import tools.util.Util;
+import xmlcursor.common.BasicCursorTestCase;
+import xmlcursor.common.Common;
 
 import javax.xml.namespace.QName;
 
-import xmlcursor.common.*;
+import static org.junit.Assert.*;
 
 
-import tools.util.JarUtil;
-import tools.util.Util;
-
-
-/**
- *
- *
- */
 public class MoveTest extends BasicCursorTestCase {
-    public MoveTest(String sName) {
-        super(sName);
-    }
-
-    public static Test suite() {
-        return new TestSuite(MoveTest.class);
-    }
-
+    @Test(expected = IllegalArgumentException.class)
     public void testMoveToNull() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_DIGITS);
         m_xc = m_xo.newCursor();
         toNextTokenOfType(m_xc, TokenType.TEXT);
-        try {
-            m_xc.moveXml(null);
-            fail(
-                    "Expected IllegalArgumentException.  Can't move to foreign document");
-        }
-        catch (IllegalArgumentException e) {
-        }
+        m_xc.moveXml(null);
     }
 
+    @Test
     public void testMoveDifferentStoresLoadedByParse() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_DIGITS);
         m_xc = m_xo.newCursor();
@@ -73,6 +56,7 @@ public class MoveTest extends BasicCursorTestCase {
         assertEquals(TokenType.END, m_xc.currentTokenType());
     }
 
+    @Test
     public void testMoveDifferentStoresLoadedFromFile() throws Exception {
         // load the documents and obtain a cursor
         XmlObject xobj0 = XmlObject.Factory.parse(
@@ -113,6 +97,7 @@ public class MoveTest extends BasicCursorTestCase {
 
     }
 
+    @Test
     public void testMoveSameLocation() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_DIGITS);
         m_xc = m_xo.newCursor();
@@ -124,6 +109,7 @@ public class MoveTest extends BasicCursorTestCase {
         assertEquals("01234", m_xc.getChars());
     }
 
+    @Test
     public void testMoveNewLocation() throws Exception {
        m_xo=XmlObject.Factory.parse(
                 JarUtil.getResourceFromJar(Common.TRANXML_FILE_XMLCURSOR_PO));
@@ -148,6 +134,7 @@ public class MoveTest extends BasicCursorTestCase {
         assertEquals("CA", m_xc.getTextValue());
     }
 
+    @Test
     public void testMoveElementToMiddleOfTEXT() throws Exception {
         m_xo = XmlObject.Factory.parse(
                  JarUtil.getResourceFromJar(Common.TRANXML_FILE_XMLCURSOR_PO));
@@ -182,11 +169,9 @@ public class MoveTest extends BasicCursorTestCase {
 
     /**
      * Method testMoveFromSTARTDOC
-     * <p/>
      * Also used to verify radar bug 16160
-     *
-     * @throws Exception
      */
+    @Test(expected = IllegalArgumentException.class)
     public void testMoveFromSTARTDOC() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO);
         m_xc = m_xo.newCursor();
@@ -199,10 +184,8 @@ public class MoveTest extends BasicCursorTestCase {
             String sTrace = Util.getStackTrace(e);
             int i = sTrace.indexOf("splay.bitch");
             assertTrue(i < 0);
+            throw e;
         }
-        assertTrue(true);
     }
-
-
 }
 

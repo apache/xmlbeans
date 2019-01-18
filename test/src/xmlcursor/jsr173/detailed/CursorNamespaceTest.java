@@ -21,15 +21,9 @@ import xmlcursor.jsr173.common.NamespaceTest;
 import javax.xml.stream.XMLStreamReader;
 
 import org.apache.xmlbeans.XmlCursor;
-/**
- *
- *
- */
-public  class CursorNamespaceTest
-        extends NamespaceTest {
 
-    public  XMLStreamReader getStream(XmlCursor c)
-    throws Exception{
+public class CursorNamespaceTest extends NamespaceTest {
+    public XMLStreamReader getStream(XmlCursor c) {
         return c.newXMLStreamReader();
     }
 }

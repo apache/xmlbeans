@@ -14,80 +14,118 @@
  */
 package xmlcursor.xquery.detailed;
 
-import junit.framework.TestCase;
-import junit.framework.TestResult;
-import org.apache.xmlbeans.XmlObject;
+import noNamespace.TestCase;
+import noNamespace.TestSuiteDocument;
+import noNamespace.TestSuiteDocument.TestSuite.TestGroup;
 import org.apache.xmlbeans.XmlException;
-import tools.util.JarUtil;
+import org.apache.xmlbeans.XmlObject;
+import org.junit.Ignore;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TestWatcher;
+import org.junit.runner.Description;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.util.zip.ZipFile;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
-import xmlcursor.xpath.common.XPathCommon;
-import xmlcursor.xquery.common.XQTestCase;
+import static org.junit.Assert.assertEquals;
 
-/**
- *
- */
-public class NISTTest extends XQTestCase
-{
+@Ignore("Too many XMLBeans unrelated errors")
+@RunWith(Parameterized.class)
+public class NISTTest {
 
+    private static ZipFile zf;
 
-    public NISTTest(String s)
-    {
-        super(s);
-    }
-    public NISTTest(noNamespace.TestCase test)
-    {
-        this(test.getName());
-        mTest=test;
-    }
+    @Rule
+    public final QueryFailed queryLog = new QueryFailed();
 
-   public void testRun() throws Exception
-    {
-        String query=null;
-        String outFile=null;
-        XmlObject obj=XmlObject.Factory.parse("<xml-fragment/>");
+    @SuppressWarnings("DefaultAnnotationParam")
+    @Parameterized.Parameter(value = 0)
+    public String groupName;
 
+    @Parameterized.Parameter(value = 1)
+    public String testName;
 
-            //NIST BUG: folder is called testSuite but appears
-            //as testsuite in desc. file
-            String temp = mTest.getFilePath();
-            temp=temp.replaceAll("testsuite","testSuite");
-            temp=temp.replace( (char)92,'/');
-            query = ZipUtil.getStringFromZip(
-                    pathToZip,zipName,temp + mTest.getName()+".xq") ;
-            //bad comment syntax in suite
-            query =  query.replaceAll("\\{--","(:");
-            query =  query.replaceAll("--\\}",":)");
-            noNamespace.TestCase.OutputFile[] outFiles
-                    = mTest.getOutputFileArray();
-            noNamespace.TestCase.InputFile[] inFiles
-                    = mTest.getInputFileArray();
+    @Parameterized.Parameter(value = 2)
+    public TestCase testCase;
 
+    private String query;
 
-            for (int i=0; i < inFiles.length; i++)
-            {
-                if ( !inFiles[i].getStringValue().equals("emptyDoc"))
-                throw new RuntimeException ("Fix this code. Input file: "+
-                        inFiles[i]);
+    @Parameterized.Parameters(name = "{index}: {0} {1}")
+    public static Iterable<Object[]> files() throws IOException, XmlException {
+        zf = new ZipFile("test/cases/xbean/xmlcursor/xquery/xmlQuery.zip");
 
-//               assertEquals(inFiles.length, outFiles.length);
+        ZipEntry e = zf.getEntry("testSuite/NIST/files/catalog.xml");
+        InputStream is = zf.getInputStream(e);
+        TestSuiteDocument doc = TestSuiteDocument.Factory.parse(is);
 
-                XmlObject[] queryRes = obj.execQuery(query);
-                String input = ZipUtil.getStringFromZip(
-                    pathToZip,zipName,temp+outFiles[i].getStringValue());
-                XmlObject expRes=XmlObject.Factory.parse( input );
-                XPathCommon.compare(queryRes,new XmlObject[]{expRes});
+        List<Object[]> files = new ArrayList<Object[]>();
+        for (TestGroup xg : doc.getTestSuite().getTestGroupArray()) {
+            String groupName = xg.getName();
+            for (TestCase tc : xg.getTestCaseArray()) {
+                String testName = tc.getName();
+                files.add(new Object[]{groupName, testName, tc});
+
+                // NIST BUG: folder is called testSuite but appears as testsuite in desc. file
+                String filePath = tc.getFilePath()
+                    .replaceAll("testsuite", "testSuite")
+                    .replace((char) 92, '/');
+                tc.setFilePath(filePath);
             }
+        }
+        is.close();
 
+        return files;
     }
 
-    noNamespace.TestCase mTest;
-     static String pathToZip;
-    static final String zipName="xmlQuery.zip";
+    @Test
+    public void bla() throws Exception {
+        //bad comment syntax in suite
+        query = getString(testCase.getFilePath()+testCase.getName()+".xq")
+            .replace("{--", "(:")
+            .replace("--}", ":)");
+
+        XmlObject obj = XmlObject.Factory.parse("<xml-fragment/>");
+        String inputFile = testCase.getInputFileArray(0).getStringValue();
+        assertEquals("emptyDoc", inputFile);
+
+        // String outputFile = testCase.getFilePath()+testCase.getOutputFileArray(0).getStringValue();
+        // XmlObject[] expRes = { XmlObject.Factory.parse(getString(outputFile)) };
+
+        XmlObject[] queryRes = obj.execQuery(query);
+        // XPathCommon.compare(queryRes, expRes);
+    }
+
+    private static String getString(String zipFile) throws IOException {
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        ZipEntry queryFile = zf.getEntry(zipFile);
+        InputStream is = zf.getInputStream(queryFile);
+        byte[] buf = new byte[4096];
+        for (int readBytes; (readBytes = is.read(buf)) > -1; ) {
+            bos.write(buf, 0, readBytes);
+        }
+        is.close();
+        return new String(bos.toByteArray(), Charset.forName("UTF-8"));
+    }
+
+
+
+    private class QueryFailed extends TestWatcher {
+        @Override
+        protected void failed(Throwable e, Description description) {
+            System.out.println(
+                "Description:\n"+
+                testCase.getQuery().getDescription().getStringValue()+
+                "\n\nQuery:\n"+
+                query);
+        }
+    }
 }

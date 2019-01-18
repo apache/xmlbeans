@@ -16,45 +16,24 @@
 
 package xmlcursor.checkin;
 
-import org.apache.xmlbeans.XmlOptions;
-import junit.framework.*;
-import junit.framework.Assert.*;
-
-import java.io.*;
-
-import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlCursor;
-import org.apache.xmlbeans.XmlBeans;
 import org.apache.xmlbeans.XmlCursor.TokenType;
-import org.apache.xmlbeans.XmlDocumentProperties;
-import org.apache.xmlbeans.XmlCursor.XmlBookmark;
+import org.apache.xmlbeans.XmlObject;
+import org.junit.Test;
+import xmlcursor.common.BasicCursorTestCase;
 
-import javax.xml.namespace.QName;
-
-import xmlcursor.common.*;
-
-import java.net.URL;
+import static org.junit.Assert.*;
 
 
-/**
- *
- *
- */
 public class ToPrevElementTest extends BasicCursorTestCase {
-    public ToPrevElementTest(String sName) {
-        super(sName);
-    }
-
-    public static Test suite() {
-        return new TestSuite(ToPrevElementTest.class);
-    }
-
+    @Test
     public void testToPrevElementFromSTARTDOC() throws Exception {
         m_xc = XmlObject.Factory.parse("<foo>early<bar>text</bar></foo>").newCursor();
-        assertEquals(false, m_xc.toPrevSibling());
+        assertFalse(m_xc.toPrevSibling());
         assertEquals(TokenType.STARTDOC, m_xc.currentTokenType());
     }
 
+    @Test
     public void testToPrevElementFromENDDOC() throws Exception {
         m_xc = XmlObject.Factory.parse("<foo>early<bar>text</bar></foo>").newCursor();
         XmlCursor xc0 = m_xc.newCursor();
@@ -62,36 +41,39 @@ public class ToPrevElementTest extends BasicCursorTestCase {
         m_xc.toEndDoc();
         m_xc.toPrevSibling();
         try {
-            assertEquals(true, m_xc.isAtSamePositionAs(xc0));
+            assertTrue(m_xc.isAtSamePositionAs(xc0));
         } finally {
             xc0.dispose();
         }
     }
 
+    @Test
     public void testToPrevElementSiblings() throws Exception {
         m_xc = XmlObject.Factory.parse("<foo>early<bar>text</bar><char>zap<dar>wap</dar><ear>yap</ear></char></foo>").newCursor();
         m_xc.selectPath("$this//ear");
         m_xc.toNextSelection();
         assertEquals("yap", m_xc.getTextValue());
-        assertEquals(true, m_xc.toPrevSibling());
+        assertTrue(m_xc.toPrevSibling());
         assertEquals("wap", m_xc.getTextValue());
-        assertEquals(false, m_xc.toPrevSibling());
+        assertFalse(m_xc.toPrevSibling());
     }
 
+    @Test
     public void testToPrevElementFromATTR() throws Exception {
         m_xc = XmlObject.Factory.parse("<foo>early<bar>text</bar><char>zap<dar>wap</dar><ear attr0=\"val0\">yap</ear></char></foo>").newCursor();
         toNextTokenOfType(m_xc, TokenType.ATTR);
         assertEquals("val0", m_xc.getTextValue());
-        assertEquals(false, m_xc.toPrevSibling());
+        assertFalse(m_xc.toPrevSibling());
     }
 
+    @Test
     public void testToPrevElementFromTEXT() throws Exception {
         m_xc = XmlObject.Factory.parse("<foo>early<bar>text</bar><char>zap<dar>wap</dar><ear><a/>yap</ear></char></foo>").newCursor();
         m_xc.selectPath("$this//ear");
         m_xc.toNextSelection();
         toNextTokenOfType(m_xc, TokenType.TEXT);
         assertEquals("yap", m_xc.getChars());
-        assertEquals(true, m_xc.toPrevSibling());
+        assertTrue(m_xc.toPrevSibling());
         assertEquals("", m_xc.getTextValue());
     }
 }

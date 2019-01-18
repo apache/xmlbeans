@@ -14,25 +14,19 @@
  */
 package scomp.common;
 
-import junit.framework.TestCase;
-import org.apache.xmlbeans.XmlOptions;
 import org.apache.xmlbeans.XmlError;
-import org.apache.xmlbeans.XmlErrorCodes;
+import org.apache.xmlbeans.XmlOptions;
+import org.junit.Before;
 
 import java.util.ArrayList;
-import java.util.Collection;
 
-/**
- *
- *
- *
- */
-public class BaseCase extends TestCase {
+public class BaseCase {
     protected boolean bVerbose = true;
 
     protected XmlOptions validateOptions;
     protected ArrayList errorList;
 
+    @Before
     public void setUp() {
         validateOptions = new XmlOptions();
         errorList = new ArrayList();

@@ -15,54 +15,38 @@
 
 package xmlcursor.xpath.complex.detailed;
 
+import org.apache.xmlbeans.XmlCursor;
+import org.apache.xmlbeans.XmlObject;
+import org.junit.Test;
 import xmlcursor.common.Common;
 import xmlcursor.xpath.common.XPathExpressionTest;
 
-import org.apache.xmlbeans.XmlObject;
-import org.apache.xmlbeans.XmlCursor;
+import static org.junit.Assert.*;
 
 /**
  * Verifies XPath with Expressions
  * http://www.w3schools.com/xpath/xpath_expressions.asp
  */
-public class XPathExpressionTestImpl
-    extends XPathExpressionTest
-{
-    public XPathExpressionTestImpl(String name)
-    {
-        super(name);
+public class XPathExpressionTestImpl extends XPathExpressionTest {
+
+    public String getQuery(String testName, int testCase) throws IllegalArgumentException {
+        String[] queries = testMap.get(testName);
+        assertNotNull("No queries for test", queries);
+        assertFalse("No query " + testCase + " for test" + testName, queries.length <= testCase);
+        return queries[testCase];
     }
 
-    public String getQuery(String testName, int testCase)
-        throws IllegalArgumentException
-    {
-        Object queries;
-
-        if ((queries = testMap.get(testName)) == null)
-            throw new IllegalArgumentException("No queries for test" +
-                testName);
-        else if (((String[]) queries).length <= testCase)
-            throw new IllegalArgumentException("No query " + testCase +
-                " for test" + testName);
-        else
-            return ((String[]) queries)[testCase];
-
-    }
-
-    private void verifySelection(XmlCursor c, String[] expected)
-    {
+    private void verifySelection(XmlCursor c, String[] expected) {
         int count = c.getSelectionCount();
         assertEquals(expected.length, count);
-        for (int i = 0; i < count; i++)
-        {
+        for (int i = 0; i < count; i++) {
             c.toNextSelection();
             assertEquals(expected[i], c.xmlText());
         }
     }
 
-    public void testForExpression()
-        throws Exception
-    {
+    @Test
+    public void testForExpression() throws Exception {
         String sXml = "<bib>\n" +
             "  <book>\n" +
             "    <title>TCP/IP Illustrated</title>\n" +
@@ -102,9 +86,8 @@ public class XPathExpressionTestImpl
         verifySelection(c, exp);
     }
 
-    public void testFor_1()
-        throws Exception
-    {
+    @Test
+    public void testFor_1() throws Exception {
         XmlCursor c = XmlObject.Factory.parse("<a/>").newCursor();
         String query = "for $i in (10, 20),\n" +
             "    $j in (1, 2)\n" +
@@ -119,9 +102,8 @@ public class XPathExpressionTestImpl
         verifySelection(c, expected);
     }
 
-    public void testFor_2()
-        throws Exception
-    {
+    @Test
+    public void testFor_2() throws Exception {
         XmlCursor c = XmlObject.Factory.parse("<a/>").newCursor();
         String query = "sum (for $i in (10, 20)" +
             "return $i)";
@@ -131,9 +113,8 @@ public class XPathExpressionTestImpl
         assertEquals(Common.wrapInXmlFrag("30"), c.xmlText());
     }
 
-    public void testIf()
-        throws Exception
-    {
+    @Test
+    public void testIf() throws Exception {
         XmlCursor c = XmlObject.Factory.parse("<root>" +
             "<book price='20'>Pooh</book>" +
             "<cd price='25'>Pooh</cd>" +
@@ -165,9 +146,8 @@ public class XPathExpressionTestImpl
         assertEquals("<cd price=\"25\">Maid</cd>", c.xmlText());
     }
 
-    public void testQuantifiedExpression()
-        throws Exception
-    {
+    @Test
+    public void testQuantifiedExpression() throws Exception {
         XmlCursor c = XmlObject.Factory.parse("<root></root>").newCursor();
         String query =
             "some $x in (1, 2, 3), $y in (2, 3, 4) " +
@@ -177,5 +157,4 @@ public class XPathExpressionTestImpl
         c.toNextSelection();
         assertEquals("<xml-fragment>true</xml-fragment>", c.xmlText());
     }
-
 }

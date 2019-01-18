@@ -1,5 +1,6 @@
 Changes in V3.0.3 since V3.0.2
 
+* XMLBEANS-532: Streamline build.xml and update tests to Junit4
 * XMLBEANS-531: Fix schema gen of attributes
 * XMLBEANS-530: Allow namespaces of XmlOptions to be passed to the XQuery engine
 * XMLBEANS-529: Format xmlobjects to the correct string representation on XPath access

@@ -15,31 +15,17 @@
 
 package misc.checkin;
 
+import org.apache.xmlbeans.impl.store.CharUtil;
+import org.junit.Test;
+
 import java.util.ArrayList;
 import java.util.Random;
 
-import junit.framework.Assert;
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import static org.junit.Assert.assertEquals;
 
-import org.apache.xmlbeans.impl.store.CharUtil;
-import org.apache.xmlbeans.impl.store.CharUtil.CharJoin;
-
-public class CharUtilTests extends TestCase
+public class CharUtilTests
 {
-    public CharUtilTests ( String name )
-    {
-        super( name );
-    }
-
-    public static Test suite ( )
-    {
-        return new TestSuite( CharUtilTests.class );
-    }
-
-    private static class Triple
-    {                                 
+    private static class Triple {
 
         Triple ( Object src, int off, int cch )
         {
@@ -177,6 +163,7 @@ public class CharUtilTests extends TestCase
         ArrayList _strings = new ArrayList();
     }
 
+    @Test
     public void testCharUtil ( ) throws Exception
     {
         RealCharUtil real = new RealCharUtil();
@@ -198,13 +185,13 @@ public class CharUtilTests extends TestCase
 
             case 1 :
             {
-                Assert.assertTrue( real.numTexts() == fake.numTexts() );
+                assertEquals(real.numTexts(), fake.numTexts());
 
                 if (real.numTexts() > 0)
                 {
                     int j = rnd( real.numTexts() );
 
-                    Assert.assertTrue( real.getText( j ).equals( fake.getText( j ) ) );
+                    assertEquals(real.getText(j), fake.getText(j));
                 }
             }
             
@@ -218,9 +205,9 @@ public class CharUtilTests extends TestCase
 
                     real.insert( i, j, off );
                     fake.insert( i, j, off );
-                    
-                    Assert.assertTrue( real.getText( i ).equals( fake.getText( i ) ) );
-                    Assert.assertTrue( real.getText( j ).equals( fake.getText( j ) ) );
+
+                    assertEquals(real.getText(i), fake.getText(i));
+                    assertEquals(real.getText(j), fake.getText(j));
                 }
             }
             case 3 :
@@ -232,8 +219,8 @@ public class CharUtilTests extends TestCase
 
                 real.remove( i, off, cch );
                 fake.remove( i, off, cch );
-                
-                Assert.assertTrue( real.getText( i ).equals( fake.getText( i ) ) );
+
+                assertEquals(real.getText(i), fake.getText(i));
             }
             }
         }

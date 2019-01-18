@@ -14,21 +14,19 @@
  */
 package misc.detailed;
 
-import java.io.InputStream;
-
-import javax.xml.stream.XMLInputFactory;
-import javax.xml.stream.XMLStreamReader;
-
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
+import org.junit.Test;
 
-import junit.framework.TestCase;
+import javax.xml.stream.XMLStreamReader;
+
+import static org.junit.Assert.assertTrue;
 
 /**
  * Adapted from testcase submitted by Brian Bonner for JIRA issue
  * XMLBEANS-222, based on comments by Cezar Andrei.
  */
-public class XMLStreamReaderTest extends TestCase {
+public class XMLStreamReaderTest {
     private static final String soapMsg = "<SOAP:Envelope xmlns:SOAP=\"http://schemas.xmlsoap.org/soap/envelope/\" "
             + "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
             + "xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\">"
@@ -41,7 +39,7 @@ public class XMLStreamReaderTest extends TestCase {
             + "</PriceandAvailabilityResponse>"
             + "</SOAP:Body>"
             + "</SOAP:Envelope>";
-
+    @Test
     public void testXmlStreamReader1() throws Exception {
         XmlObject object = XmlObject.Factory.parse(soapMsg);
 
@@ -66,7 +64,8 @@ public class XMLStreamReaderTest extends TestCase {
         }
         assertTrue("xsi namespace is not found", foundXsiNamespace);
     }
-    
+
+    @Test
     public void testXmlStreamReader2() throws Exception {
         XmlObject object = XmlObject.Factory.parse(soapMsg);
 

@@ -16,80 +16,63 @@
 
 package xmlcursor.checkin;
 
-import org.apache.xmlbeans.XmlOptions;
-import junit.framework.*;
-import junit.framework.Assert.*;
-
-import java.io.*;
-
-import org.apache.xmlbeans.XmlObject;
-import org.apache.xmlbeans.XmlCursor;
-import org.apache.xmlbeans.XmlBeans;
 import org.apache.xmlbeans.XmlCursor.TokenType;
-import org.apache.xmlbeans.XmlDocumentProperties;
-import org.apache.xmlbeans.XmlCursor.XmlBookmark;
+import org.apache.xmlbeans.XmlObject;
+import org.junit.Test;
+import xmlcursor.common.BasicCursorTestCase;
+import xmlcursor.common.Common;
 
-import javax.xml.namespace.QName;
-
-import xmlcursor.common.*;
-
-import java.net.URL;
+import static org.junit.Assert.*;
 
 
-/**
- *
- *
- */
 public class ToNextAttributeTest extends BasicCursorTestCase {
-    public ToNextAttributeTest(String sName) {
-        super(sName);
-    }
-
-    public static Test suite() {
-        return new TestSuite(ToNextAttributeTest.class);
-    }
-
+    @Test
     public void testToNextAttrFromSTART() throws Exception {
         m_xc = XmlObject.Factory.parse(Common.XML_FOO_2ATTR_TEXT).newCursor();
         toNextTokenOfType(m_xc, TokenType.START);
-        assertEquals(false, m_xc.toNextAttribute());
+        assertFalse(m_xc.toNextAttribute());
     }
 
+    @Test
     public void testToNextAttrFromSingleATTR() throws Exception {
         m_xc = XmlObject.Factory.parse(Common.XML_FOO_1ATTR_TEXT).newCursor();
         toNextTokenOfType(m_xc, TokenType.ATTR);
-        assertEquals(false, m_xc.toNextAttribute());
+        assertFalse(m_xc.toNextAttribute());
         assertEquals("val0", m_xc.getTextValue());
     }
 
+    @Test
     public void testToNextAttrWithSiblings() throws Exception {
         m_xc = XmlObject.Factory.parse(Common.XML_FOO_2ATTR_TEXT).newCursor();
         toNextTokenOfType(m_xc, TokenType.ATTR);
-        assertEquals(true, m_xc.toNextAttribute());
+        assertTrue(m_xc.toNextAttribute());
         assertEquals("val1", m_xc.getTextValue());
     }
 
+    @Test
     public void testToNextAttrFromLastSibling() throws Exception {
         m_xc = XmlObject.Factory.parse(Common.XML_FOO_2ATTR_TEXT).newCursor();
         toNextTokenOfType(m_xc, TokenType.ATTR);
         toNextTokenOfType(m_xc, TokenType.ATTR);
-        assertEquals(false, m_xc.toNextAttribute());
+        assertFalse(m_xc.toNextAttribute());
         assertEquals("val1", m_xc.getTextValue());
     }
 
+    @Test
     public void testToNextAttrWithXMLNS() throws Exception {
         m_xc = XmlObject.Factory.parse("<foo attr0=\"val0\" xmlns=\"uri\" attr1=\"val1\">text</foo>").newCursor();
         toNextTokenOfType(m_xc, TokenType.ATTR);
         assertEquals("val0", m_xc.getTextValue());
-        assertEquals(true, m_xc.toNextAttribute());
+        assertTrue(m_xc.toNextAttribute());
         assertEquals("val1", m_xc.getTextValue());
-        assertEquals(false, m_xc.toNextAttribute());
+        assertFalse(m_xc.toNextAttribute());
     }
 
+    @Test
     public void testToNextAttrFromTEXT() throws Exception {
         m_xc = XmlObject.Factory.parse(Common.XML_FOO_2ATTR_TEXT).newCursor();
         toNextTokenOfType(m_xc, TokenType.TEXT);
-        assertEquals(false, m_xc.toNextAttribute());
+        assertFalse(m_xc.toNextAttribute());
     }
 
 }

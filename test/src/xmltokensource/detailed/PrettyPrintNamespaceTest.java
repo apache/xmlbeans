@@ -15,19 +15,18 @@
 
 package xmltokensource.detailed;
 
-import org.apache.xmlbeans.XmlCursor;
-import org.apache.xmlbeans.XmlObject;
 import com.mtest.SubInfo;
 import com.mtest.TestDocument;
-import junit.framework.TestCase;
+import org.apache.xmlbeans.XmlCursor;
+import org.apache.xmlbeans.XmlObject;
+import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
 
 
-public class PrettyPrintNamespaceTest extends TestCase {
+public class PrettyPrintNamespaceTest {
 
-    public PrettyPrintNamespaceTest(String name) {
-        super(name);
-    }
-
+    @Test
     public void testWithNewInstance()
             throws Exception {
         XmlObject x = XmlObject.Factory.newInstance();
@@ -41,10 +40,11 @@ public class PrettyPrintNamespaceTest extends TestCase {
         String str =
                 "<a aaaa:a=\"\" xmlns=\"aaaa\" xmlns:aaaa=\"aaaa\"/>";
 
-        assertTrue("XmlText() Failed.", x.xmlText().equals(str));
-        assertTrue("toString() Failed.", x.toString().trim().equals(str));
+        assertEquals("XmlText() Failed.", x.xmlText(), str);
+        assertEquals("toString() Failed.", x.toString().trim(), str);
     }
 
+    @Test
     public void testWithInstanceFromSchema()
             throws Exception {
         String xml = "<mt:Test xmlns:mt=\"http://www.mtest.com\"> <mt:desc/> </mt:Test>";
@@ -64,7 +64,7 @@ public class PrettyPrintNamespaceTest extends TestCase {
                 "<mtes:subdesc>there</mtes:subdesc>" +
                 "</mtes:Test>";
 
-        assertTrue("XmlText() Failed.", doc.xmlText().equals(str2));
-        assertTrue("toString() Failed.", doc.toString().trim().equals(str1));
+        assertEquals("XmlText() Failed.", doc.xmlText(), str2);
+        assertEquals("toString() Failed.", doc.toString().trim(), str1);
     }
 }

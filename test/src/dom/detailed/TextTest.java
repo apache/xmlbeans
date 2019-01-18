@@ -17,56 +17,41 @@
 package dom.detailed;
 
 import dom.common.Loader;
-import junit.framework.TestCase;
+import org.junit.Before;
+import org.junit.Test;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
+import static org.junit.Assert.assertEquals;
 
-/**
- *
- *
- *
- */
-public class TextTest extends TestCase{
+public class TextTest {
     String sXml="<foo at0=\"no_ns_attr\"></foo>";
     String sXmlNS="<foo><foobar xmlns:myns=\"http://foo.org\" xmlns:other=\"other.org\">footext</foobar></foo>";
     Document m_doc,
 	m_docNS;
     Node m_node;
 
-    public  TextTest(String name){
-	super(name);
-    }
-
-
-    //insert a node from a ns into a non-ns
-    public void testMoveNodeNStoNoNS(){
-
-
-
-    }
-
+    @Test
     public void testTextToAttrValue(){
-	m_node=m_docNS.getFirstChild().getFirstChild().getFirstChild();//footext
-	Attr attrib=(Attr)m_docNS.getFirstChild().getFirstChild().getAttributes().getNamedItem("xmlns:myns");
-	assertEquals("http://foo.org",attrib.getNodeValue());
-	//attrib.replaceChild(m_node,attrib.getFirstChild());
-	attrib.setValue(m_node.getNodeValue());
-	assertEquals("footext",attrib.getNodeValue());
-	//assertFalse(m_docNS.getFirstChild().getFirstChild().hasChildNodes());
+        m_node = m_docNS.getFirstChild().getFirstChild().getFirstChild();//footext
+        Attr attrib = (Attr) m_docNS.getFirstChild().getFirstChild().getAttributes().getNamedItem("xmlns:myns");
+        assertEquals("http://foo.org", attrib.getNodeValue());
+        //attrib.replaceChild(m_node,attrib.getFirstChild());
+        attrib.setValue(m_node.getNodeValue());
+        assertEquals("footext", attrib.getNodeValue());
+        //assertFalse(m_docNS.getFirstChild().getFirstChild().hasChildNodes());
     }
 
+    @Before
+    public void setUp() throws Exception {
 
+        Loader loader = Loader.getLoader();
+        if (sXml == null && sXmlNS == null) throw new IllegalArgumentException("Test bug : Initialize xml strings");
+        m_doc = loader.load(sXml);
+        if (sXmlNS != null && sXmlNS.length() > 0)
+            m_docNS = loader.load(sXmlNS);
 
- public void setUp() throws Exception{
-
-     Loader loader=Loader.getLoader();
-     if (sXml==null && sXmlNS==null) throw new IllegalArgumentException("Test bug : Initialize xml strings");
-     m_doc=(org.w3c.dom.Document)loader.load(sXml);
-     if(sXmlNS!=null && sXmlNS.length()>0)
-	 m_docNS=(org.w3c.dom.Document)loader.load(sXmlNS);
-
-	m_node=m_doc.getFirstChild();
+        m_node = m_doc.getFirstChild();
     }
-    }
+}

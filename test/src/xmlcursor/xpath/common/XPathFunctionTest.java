@@ -15,19 +15,20 @@
 
 package xmlcursor.xpath.common;
 
-import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlCursor;
+import org.apache.xmlbeans.XmlObject;
+import org.junit.Ignore;
+import org.junit.Test;
 import tools.util.JarUtil;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * Verifies XPath using functions
  * http://www.w3schools.com/xpath/xpath_functions.asp
  */
+@Ignore("abstract class")
 public abstract class XPathFunctionTest extends BaseXPathTest {
-    public XPathFunctionTest(String sName) {
-        super(sName);
-    }
-
     //    Node Set Functions
     //    http://www.w3.org/TR/xpath#section-Node-Set-Functions
 
@@ -37,6 +38,7 @@ public abstract class XPathFunctionTest extends BaseXPathTest {
      *      number=count(node-set)
      *
      */
+    @Test
     public void testFunctionCount() throws Exception {
         String ex0Simple =getQuery("testFunctionCount",0) ;
         String ex0Simple1 =getQuery("testFunctionCount",1) ;
@@ -74,6 +76,7 @@ public abstract class XPathFunctionTest extends BaseXPathTest {
      *      Selects elements by their unique ID
      *      node-set=id(value)
      */
+    @Test
     public void testFunctionId() throws Exception {
         XmlObject xDoc = XmlObject.Factory.parse(
                 JarUtil.getResourceFromJar("xbean/xmlcursor/xpath/cdcatalog.xml"));
@@ -128,6 +131,7 @@ public abstract class XPathFunctionTest extends BaseXPathTest {
      *      Returns the position number of the last node in the processed node list
      *      number=last()
      */
+    @Test
     public void testFunctionLast() throws Exception {
         XmlObject xDoc = XmlObject.Factory.parse(
                 JarUtil.getResourceFromJar("xbean/xmlcursor/xpath/cdcatalog.xml"));
@@ -153,6 +157,7 @@ public abstract class XPathFunctionTest extends BaseXPathTest {
      *      Returns the local part of a node. A node usually consists of a prefix, a colon, followed by the local name
      *      string=local-name(node)
      */
+    @Test
     public void testFunctionLocalName() throws Exception {
         String sXPath = getQuery("testFunctionLocalName",0);
         String sXml = "<foo xmlns:pre=\"uri.org\">" +
@@ -182,6 +187,7 @@ public abstract class XPathFunctionTest extends BaseXPathTest {
      *      Returns the namespace URI of a specified node
      *      uri=namespace-uri(node)
      */
+    @Test
     public void testFunctionNamespaceURI() throws Exception {
         String sXPath = getQuery("testFunctionNamespaceURI",0);
 
@@ -214,6 +220,7 @@ public abstract class XPathFunctionTest extends BaseXPathTest {
      *      Returns the concatenation of all its arguments string=concat(val1, val2, ..)
      *      Example: concat('The',' ','XML') Result: 'The XML'
      */
+    @Test
     public void testFunctionConcat() throws Exception {
         String sXPath=getQuery("testFunctionConcat",0);
         String sXml = "<foo><bar><price at=\"val0\">3.00</price>" +
@@ -230,6 +237,7 @@ public abstract class XPathFunctionTest extends BaseXPathTest {
      *      string(value)
      *      Example:  string(314)    Result: '314'
      */
+    @Test
     public void testFunctionString() throws Exception {
         String sXml = "<foo><bar><price at=\"val0\">3.00</price>" +
                 "<price at=\"val1\">1</price></bar><bar1>3.00</bar1></foo>";
@@ -256,6 +264,7 @@ public abstract class XPathFunctionTest extends BaseXPathTest {
      *      number=string-length(string)
      *    Example: string-length('Beatles') Result: 7
      */
+    @Test
     public void testFunctionStringLength() throws Exception {
         String sXml = "<foo><bar>" +
                 "<price at=\"val0\">3.00</price><price at=\"val1\">2</price></bar>" +
@@ -276,6 +285,7 @@ public abstract class XPathFunctionTest extends BaseXPathTest {
      *      string=substring(string,start,length)
      *    Example: substring('Beatles',1,4) Result: 'Beat'
      */
+    @Test
     public void testFunctionSubString() throws Exception {
         String sXml = "<foo><bar><price at=\"val0\">3.00</price><price at=\"val1\">2</price></bar><bar1>3.00</bar1></foo>";
         m_xc = XmlObject.Factory.parse(sXml).newCursor();
@@ -294,6 +304,7 @@ public abstract class XPathFunctionTest extends BaseXPathTest {
      *      string=substring-after(string,substr)
      *      Example: substring-after('12/10','/') Result: '10'
      */
+    @Test
     public void testFunctionSubStringAfter() throws Exception {
         String sXml = "<foo><bar><price at=\"val0\">3.00</price><price at=\"val1\">2</price></bar><bar1>3.00</bar1></foo>";
         m_xc = XmlObject.Factory.parse(sXml).newCursor();
@@ -309,6 +320,7 @@ public abstract class XPathFunctionTest extends BaseXPathTest {
      *      string=substring-before(string,substr)
      *      Example: substring-before('12/10','/') Result: '12'
      */
+    @Test
     public void testFunctionSubStringBefore() throws Exception {
         String sXml = "<foo><bar><price at=\"val0\">3.00</price>" +
                 "<price at=\"val1\">2</price></bar><bar1>3.00</bar1></foo>";
@@ -328,6 +340,7 @@ public abstract class XPathFunctionTest extends BaseXPathTest {
      *                translate('12:30','03','54') Result: '12:45'
      *                translate('12:30','0123','abcd') Result: 'bc:da'
      */
+    @Test
     public void testFunctionTranslate() throws Exception {
         String sXml = "<foo><bar><price at=\"val0\">3.00</price><price at=\"val1\">2</price></bar><bar1>3.00</bar1></foo>";
         m_xc = XmlObject.Factory.parse(sXml).newCursor();
@@ -371,6 +384,7 @@ public abstract class XPathFunctionTest extends BaseXPathTest {
      *      number=number(value)
      *      Example: number('100') Result: 100
      */
+    @Test
     public void testFunctionNumber() throws Exception {
         String sXml = "<foo><bar><price at=\"val0\">3.00</price></bar><bar1>3.00</bar1></foo>";
         m_xc = XmlObject.Factory.parse(sXml).newCursor();
@@ -390,6 +404,7 @@ public abstract class XPathFunctionTest extends BaseXPathTest {
      *      integer=round(number)
      *      Example: round(3.14) Result: 3
      */
+    @Test
     public void testFunctionRound() throws Exception {
         String sXml = "<foo><bar><price at=\"val0\">3.15</price>" +
                 "<price at=\"val1\">2.87</price></bar><bar1>3.00</bar1></foo>";
@@ -411,6 +426,7 @@ public abstract class XPathFunctionTest extends BaseXPathTest {
      *      number=sum(nodeset)
      *      Example: sum(/cd/price)
      */
+    @Test
     public void testFunctionSum() throws Exception {
         String sXml = "<foo><bar><price at=\"val0\">" +
                 "3.00</price><price at=\"val1\">2</price>" +
@@ -440,12 +456,13 @@ public abstract class XPathFunctionTest extends BaseXPathTest {
      * a string is true if and only if its length is non-zero
      * an object of a type other than the four basic types is converted to a boolean in a way that is dependent on that type
      */
+    @Test
     public void testFunctionBoolean() throws Exception {
         m_xc =
-                XmlObject.Factory.parse(
-                        "<foo><price at=\"val0\">3.00</price></foo>")
+            XmlObject.Factory.parse(
+                "<foo><price at=\"val0\">3.00</price></foo>")
                 .newCursor();
-        String sXPath= getQuery("testFunctionBoolean",0);
+        String sXPath = getQuery("testFunctionBoolean", 0);
         m_xc.selectPath(sXPath);
         m_xc.toNextSelection();
         assertEquals(1, m_xc.getSelectionCount());
@@ -456,12 +473,13 @@ public abstract class XPathFunctionTest extends BaseXPathTest {
      *      Returns false false()
      *    Example: number(false()) Result: 0
      */
+    @Test
     public void testFunctionFalse() throws Exception {
         m_xc =
-                XmlObject.Factory.parse(
-                        "<foo><price at=\"val0\">3.00</price></foo>")
+            XmlObject.Factory.parse(
+                "<foo><price at=\"val0\">3.00</price></foo>")
                 .newCursor();
-          String sXPath= getQuery("testFunctionFalse",0);
+        String sXPath = getQuery("testFunctionFalse", 0);
         m_xc.selectPath(sXPath);
         assertEquals(0, m_xc.getSelectionCount());
     }
@@ -472,12 +490,13 @@ public abstract class XPathFunctionTest extends BaseXPathTest {
      *      xsl:lang element, otherwise it returns false
      *      bool=lang(language)
      */
+    @Test
     public void testFunctionLang() throws Exception {
         m_xc =
-                XmlObject.Factory.parse(
-                        "<foo><div xml:lang=\"en\"><para/><price at=\"val0\">3.00</price></div></foo>")
+            XmlObject.Factory.parse(
+                "<foo><div xml:lang=\"en\"><para/><price at=\"val0\">3.00</price></div></foo>")
                 .newCursor();
-          String sXPath= getQuery("testFunctionLang",0);
+        String sXPath = getQuery("testFunctionLang", 0);
         m_xc.selectPath(sXPath);
         String sExpected = "<price at=\"val0\">3.00</price>";
         m_xc.toNextSelection();
@@ -506,10 +525,11 @@ public abstract class XPathFunctionTest extends BaseXPathTest {
      *      true()
      *    Example: number(true()) Result: 1
      */
+    @Test
     public void testFunctionTrue() throws Exception {
         m_xc =
-                XmlObject.Factory.parse(
-                        "<foo><price at=\"val0\">3.00</price></foo>")
+            XmlObject.Factory.parse(
+                "<foo><price at=\"val0\">3.00</price></foo>")
                 .newCursor();
 
         String sXPath= getQuery("testFunctionTrue",0);

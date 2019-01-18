@@ -15,39 +15,20 @@
 
 package xmlobject.detailed;
 
-import junit.framework.TestCase;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.FileReader;
-import java.io.PrintWriter;
-
-import tools.util.ResourceUtil;
+import org.junit.Test;
 import tools.util.JarUtil;
-
-import org.apache.xmlbeans.XmlBeans;
-import org.apache.xmlbeans.XmlObject;
-import org.apache.xmlbeans.XmlCursor;
-import org.apache.xmlbeans.XmlException;
-import org.apache.xmlbeans.XmlCursor.TokenType;
-import xmlcursor.common.Common;
 import xmlobject.common.StringXmlReader;
 
+import static org.junit.Assert.assertTrue;
 
-/**
- *
- *
- */
-public class TestXmlReader extends TestCase {
 
-    public TestXmlReader(String name) {
-        super(name);
-    }
+public class TestXmlReader {
 
     /**
      * Tests read-only concurrency support in XML Beans
      * See Radar Bug: 33254
      */
+    @Test
     public void testConcurrency() throws Exception {
         // Get the file contents
         String xmlFile = JarUtil.getResourceFromJar("xbean/xmlcursor/po.xml");
@@ -73,10 +54,4 @@ public class TestXmlReader extends TestCase {
 
         assertTrue("Concurrency Test Failed.", status);
     }
-
-
-    public static void main(String args[]) throws Exception {
-        new TestXmlReader("Test").testConcurrency();
-    }
-
 }

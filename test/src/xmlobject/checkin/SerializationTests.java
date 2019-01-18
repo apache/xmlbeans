@@ -16,46 +16,33 @@
 
 package xmlobject.checkin;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
-import junit.framework.TestCase;
-import junit.framework.Assert;
-import com.easypo.XmlPurchaseOrderDocumentBean.PurchaseOrder;
 import com.easypo.XmlLineItemBean;
-import com.easypo.XmlShipperBean;
 import com.easypo.XmlPurchaseOrderDocumentBean;
-import org.apache.xmlbeans.XmlObject;
-import org.apache.xmlbeans.SchemaTypeLoader;
-import org.apache.xmlbeans.XmlBeans;
-import org.apache.xmlbeans.XmlOptions;
+import com.easypo.XmlPurchaseOrderDocumentBean.PurchaseOrder;
+import com.easypo.XmlShipperBean;
+import org.apache.xmlbeans.*;
 import org.apache.xmlbeans.impl.xb.xsdschema.SchemaDocument;
+import org.junit.Test;
 import org.xml.sax.InputSource;
-
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.io.ByteArrayOutputStream;
-import java.io.ObjectOutputStream;
-import java.io.ByteArrayInputStream;
-import java.io.ObjectInputStream;
-import java.io.File;
-import java.io.Reader;
-import java.util.List;
-import java.util.ArrayList;
-
 import tools.util.JarUtil;
 
-public class SerializationTests extends TestCase
-{
-    public SerializationTests (String name) { super(name); }
-    public static Test suite() { return new TestSuite(SerializationTests.class); }
+import java.io.*;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.List;
 
-    public void testXmlObjectSerialization() throws Exception
-    {
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
+public class SerializationTests {
+    @Test
+    public void testXmlObjectSerialization() throws Exception {
         String simpleDocument = "<simpleDoc><nestedTag attr=\"sample\">43</nestedTag></simpleDoc>";
         XmlObject doc = XmlObject.Factory.parse(simpleDocument);
 
         // baseline test
-        Assert.assertEquals(simpleDocument, doc.xmlText());
+        assertEquals(simpleDocument, doc.xmlText());
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         ObjectOutputStream oos = new ObjectOutputStream(out);
@@ -65,14 +52,14 @@ public class SerializationTests extends TestCase
         byte[] byteArray = out.toByteArray();
         ByteArrayInputStream in = new ByteArrayInputStream(byteArray);
         ObjectInputStream ois = new ObjectInputStream(in);
-        XmlObject newdoc = (XmlObject)ois.readObject();
+        XmlObject newdoc = (XmlObject) ois.readObject();
         ois.close();
 
-        Assert.assertEquals(simpleDocument, newdoc.xmlText());
+        assertEquals(simpleDocument, newdoc.xmlText());
     }
 
-    public void testXBeanSerialization() throws Exception
-    {
+    @Test
+    public void testXBeanSerialization() throws Exception {
         XmlPurchaseOrderDocumentBean doc = XmlPurchaseOrderDocumentBean.Factory.newInstance();
         PurchaseOrder order = doc.addNewPurchaseOrder();
         order.addNewCustomer().setName("David Bau");
@@ -107,66 +94,59 @@ public class SerializationTests extends TestCase
         byte[] byteArray = out.toByteArray();
         ByteArrayInputStream in = new ByteArrayInputStream(byteArray);
         ObjectInputStream ois = new ObjectInputStream(in);
-        XmlLineItemBean newli1 = (XmlLineItemBean)ois.readObject();
-        XmlPurchaseOrderDocumentBean newdoc = (XmlPurchaseOrderDocumentBean)ois.readObject();
-        XmlLineItemBean newli2 = (XmlLineItemBean)ois.readObject();
+        XmlLineItemBean newli1 = (XmlLineItemBean) ois.readObject();
+        XmlPurchaseOrderDocumentBean newdoc = (XmlPurchaseOrderDocumentBean) ois.readObject();
+        XmlLineItemBean newli2 = (XmlLineItemBean) ois.readObject();
         ois.close();
 
         PurchaseOrder neworder = newdoc.getPurchaseOrder();
 
-        Assert.assertEquals(newli1, neworder.getLineItemArray(1));
-        Assert.assertEquals(newli2, neworder.getLineItemArray(2));
+        assertEquals(newli1, neworder.getLineItemArray(1));
+        assertEquals(newli2, neworder.getLineItemArray(2));
 
-        Assert.assertEquals("David Bau", neworder.getCustomer().getName());
-        Assert.assertEquals("Gladwyne, PA", neworder.getCustomer().getAddress());
-        Assert.assertEquals(3, neworder.sizeOfLineItemArray());
+        assertEquals("David Bau", neworder.getCustomer().getName());
+        assertEquals("Gladwyne, PA", neworder.getCustomer().getAddress());
+        assertEquals(3, neworder.sizeOfLineItemArray());
 
-        Assert.assertEquals("Burnham's Celestial Handbook, Vol 1", neworder.getLineItemArray(0).getDescription());
-        Assert.assertEquals(new BigDecimal("21.79"), neworder.getLineItemArray(0).getPrice());
-        Assert.assertEquals(new BigInteger("2"), neworder.getLineItemArray(0).getQuantity());
-        Assert.assertEquals(new BigDecimal("5"), neworder.getLineItemArray(0).getPerUnitOunces());
+        assertEquals("Burnham's Celestial Handbook, Vol 1", neworder.getLineItemArray(0).getDescription());
+        assertEquals(new BigDecimal("21.79"), neworder.getLineItemArray(0).getPrice());
+        assertEquals(new BigInteger("2"), neworder.getLineItemArray(0).getQuantity());
+        assertEquals(new BigDecimal("5"), neworder.getLineItemArray(0).getPerUnitOunces());
 
-        Assert.assertEquals("Burnham's Celestial Handbook, Vol 2", neworder.getLineItemArray(1).getDescription());
-        Assert.assertEquals(new BigDecimal("19.89"), neworder.getLineItemArray(1).getPrice());
-        Assert.assertEquals(new BigInteger("2"), neworder.getLineItemArray(1).getQuantity());
-        Assert.assertEquals(new BigDecimal("5"), neworder.getLineItemArray(1).getPerUnitOunces());
+        assertEquals("Burnham's Celestial Handbook, Vol 2", neworder.getLineItemArray(1).getDescription());
+        assertEquals(new BigDecimal("19.89"), neworder.getLineItemArray(1).getPrice());
+        assertEquals(new BigInteger("2"), neworder.getLineItemArray(1).getQuantity());
+        assertEquals(new BigDecimal("5"), neworder.getLineItemArray(1).getPerUnitOunces());
 
-        Assert.assertEquals("Burnham's Celestial Handbook, Vol 3", neworder.getLineItemArray(2).getDescription());
-        Assert.assertEquals(new BigDecimal("19.89"), neworder.getLineItemArray(2).getPrice());
-        Assert.assertEquals(new BigInteger("1"), neworder.getLineItemArray(2).getQuantity());
-        Assert.assertEquals(new BigDecimal("5"), neworder.getLineItemArray(2).getPerUnitOunces());
+        assertEquals("Burnham's Celestial Handbook, Vol 3", neworder.getLineItemArray(2).getDescription());
+        assertEquals(new BigDecimal("19.89"), neworder.getLineItemArray(2).getPrice());
+        assertEquals(new BigInteger("1"), neworder.getLineItemArray(2).getQuantity());
+        assertEquals(new BigDecimal("5"), neworder.getLineItemArray(2).getPerUnitOunces());
 
-        Assert.assertEquals(true, neworder.isSetShipper());
-        Assert.assertEquals("UPS", neworder.getShipper().getName());
-        Assert.assertEquals(new BigDecimal("0.74"), neworder.getShipper().getPerOunceRate());
+        assertTrue(neworder.isSetShipper());
+        assertEquals("UPS", neworder.getShipper().getName());
+        assertEquals(new BigDecimal("0.74"), neworder.getShipper().getPerOunceRate());
     }
 
-    public void testWsdlSerialization()
-    {
+    @Test
+    public void testWsdlSerialization() throws IOException, XmlException {
         // test for TextSaver
-        try
-        {
-            File wsdlFile = JarUtil.getResourceFromJarasFile("xbean/xmlobject/wsdl.xml");
+        File wsdlFile = JarUtil.getResourceFromJarasFile("xbean/xmlobject/wsdl.xml");
 
-            List loaders = new ArrayList();
-            loaders.add(SchemaDocument.type.getTypeSystem());
-            SchemaTypeLoader[] loadersArr = (SchemaTypeLoader[])loaders.toArray(new SchemaTypeLoader[1]);
-            SchemaTypeLoader loader = XmlBeans.typeLoaderUnion(loadersArr);
+        List<SchemaTypeSystem> loaders = new ArrayList<SchemaTypeSystem>();
+        loaders.add(SchemaDocument.type.getTypeSystem());
+        SchemaTypeLoader[] loadersArr = (SchemaTypeLoader[]) loaders.toArray(new SchemaTypeLoader[1]);
+        SchemaTypeLoader loader = XmlBeans.typeLoaderUnion(loadersArr);
 
-            XmlOptions options = new XmlOptions();
-            options.setLoadLineNumbers();
-            XmlObject wsdlObj = (XmlObject) loader.parse(wsdlFile, XmlObject.type, options);
+        XmlOptions options = new XmlOptions();
+        options.setLoadLineNumbers();
+        XmlObject wsdlObj = (XmlObject) loader.parse(wsdlFile, XmlObject.type, options);
 
-            Reader reader = wsdlObj.newReader();
-            InputSource source = new InputSource(reader);
-            source.setSystemId("");
+        Reader reader = wsdlObj.newReader();
+        InputSource source = new InputSource(reader);
+        source.setSystemId("");
 
 
-            XmlObject wsdlDefinitions = XmlObject.Factory.parse(reader);
-        }
-        catch (Exception e)
-        {
-            throw new RuntimeException(e);
-        }
+        XmlObject.Factory.parse(reader);
     }
 }

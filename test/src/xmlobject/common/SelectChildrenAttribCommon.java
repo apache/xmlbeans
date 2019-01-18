@@ -16,51 +16,39 @@ package xmlobject.common;
 
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
-
-import java.util.regex.Pattern;
-import java.util.regex.Matcher;
-import junit.framework.TestCase;
+import org.junit.Before;
 import tools.util.JarUtil;
 import tools.xml.XmlComparator;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
-/**
- *
- *
- */
-public class SelectChildrenAttribCommon
-        extends TestCase
-{
-    public SelectChildrenAttribCommon(String name)
-    {
-        super(name);
-    }
-
-    public void setUp()
-    {
-        opts = new XmlOptions().setSavePrettyPrint().setSavePrettyPrintIndent(2);
-    }
+import static org.junit.Assert.*;
 
 
+public class SelectChildrenAttribCommon {
     // Common
     public XmlOptions opts;
 
 
+    @Before
+    public void setUp() {
+        opts = new XmlOptions().setSavePrettyPrint().setSavePrettyPrintIndent(2);
+    }
+
+
     //////////////////////////////////////////////////////////////////
     // Helper methods
-    public void validateTest(String testName, String[] exps, XmlObject[] act)
-        throws Exception
-    {
-        assertTrue(testName + ": Return array has more/less elements than expected: "
-                   + act.length, act.length == exps.length);
+    protected void validateTest(String testName, String[] exps, XmlObject[] act)
+        throws Exception {
+        assertEquals(testName + ": Return array has more/less elements than expected: "
+            + act.length, act.length, exps.length);
         boolean passed = true;
 
-        for (int i = 0; i < act.length; i++)
-        {
+        for (int i = 0; i < act.length; i++) {
             boolean res;
             res = XComp(convertFragToDoc(act[i].xmlText()), exps[i], true);
-            if (res == false)
-            {
+            if (!res) {
                 System.out.println("Expected value differs from actual: Index=" + i);
                 System.out.println("Expected: " + exps[i]);
                 System.out.println("Actual: " + act[i].xmlText());
@@ -71,23 +59,19 @@ public class SelectChildrenAttribCommon
     }
 
 
-    public void validateTest(String testName, String exp, XmlObject xml)
-        throws Exception
-    {
-        if (xml == null)
-            fail(testName + ": XmlObject Recevied is null");
+    protected void validateTest(String testName, String exp, XmlObject xml) throws Exception {
+        assertNotNull(testName + ": XmlObject Recevied is null", xml);
 
         boolean res = XComp(convertFragToDoc(xml.xmlText()), exp, true);
         assertTrue("Expected value differs from actual\n" +
-                   "Expected: " + exp + "\n" +
-                   "Actual: " + xml.xmlText(),
-                   res);
+                "Expected: " + exp + "\n" +
+                "Actual: " + xml.xmlText(),
+            res);
     }
 
 
-    public static String getXml(String file)
-        throws java.io.IOException
-    {
+    protected static String getXml(String file)
+        throws java.io.IOException {
         return JarUtil.getResourceFromJar(file);
     }
 
@@ -95,9 +79,8 @@ public class SelectChildrenAttribCommon
     /**
      * Just a thin wrapper around XmlComparator
      */
-    public static boolean XComp(String actual, String expected, boolean verbose)
-        throws org.apache.xmlbeans.XmlException
-    {
+    private static boolean XComp(String actual, String expected, boolean verbose)
+        throws org.apache.xmlbeans.XmlException {
         boolean same;
         XmlComparator.Diagnostic diag = new XmlComparator.Diagnostic();
         same = XmlComparator.lenientlyCompareTwoXmlStrings(actual, expected, diag);
@@ -114,10 +97,9 @@ public class SelectChildrenAttribCommon
      * this method will replace that with something like <xm> so that they look
      * like Xml Docs...
      */
-    public static String convertFragToDoc(String xmlFragment)
-    {
+    protected static String convertFragToDoc(String xmlFragment) {
         String startFragStr = "<xml-fragment";
-        String endFragStr   = "</xml-fragment>";
+        String endFragStr = "</xml-fragment>";
         String startReplacementStr = "<xm";
         String endReplacementStr = "</xm>";
 
@@ -133,6 +115,4 @@ public class SelectChildrenAttribCommon
 
         return xmlDoc;
     }
-
-
 }

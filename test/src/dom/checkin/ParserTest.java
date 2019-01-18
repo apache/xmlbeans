@@ -16,23 +16,26 @@
 
 package dom.checkin;
 
-import java.io.ByteArrayInputStream;
-import javax.xml.XMLConstants;
-import javax.xml.stream.XMLInputFactory;
-
-import junit.framework.*;
-
 import org.apache.xmlbeans.XmlOptionsBean;
-import org.apache.xmlbeans.impl.common.*;
+import org.apache.xmlbeans.impl.common.SAXHelper;
+import org.apache.xmlbeans.impl.common.StaxHelper;
+import org.apache.xmlbeans.impl.common.XMLBeansConstants;
+import org.junit.Test;
 import org.xml.sax.InputSource;
 import org.xml.sax.XMLReader;
+
+import javax.xml.stream.XMLInputFactory;
+import java.io.ByteArrayInputStream;
+
+import static org.junit.Assert.*;
 
 /**
  * Tests for XML Parser settings
  */
 
-public class ParserTest extends TestCase {
+public class ParserTest {
 
+    @Test
     public void testXmlOptionsDefaults() {
         XmlOptionsBean options = new XmlOptionsBean();
         assertEquals(2048, options.getEntityExpansionLimit());
@@ -40,6 +43,7 @@ public class ParserTest extends TestCase {
         assertFalse(options.isLoadExternalDTD());
     }
 
+    @Test
     public void testXMLBeansConstantsOverrides() {
         XmlOptionsBean options = new XmlOptionsBean();
         options.setEntityExpansionLimit(1);
@@ -50,6 +54,7 @@ public class ParserTest extends TestCase {
         assertTrue(options.isLoadExternalDTD());
     }
 
+    @Test
     public void testXmlInputFactoryPropertyDefaults() {
         XmlOptionsBean options = new XmlOptionsBean();
         XMLInputFactory factory = StaxHelper.newXMLInputFactory(options);
@@ -59,6 +64,7 @@ public class ParserTest extends TestCase {
         assertEquals(false, factory.getProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES));
     }
 
+    @Test
     public void testXmlInputFactoryPropertyOverrides() {
         XmlOptionsBean options = new XmlOptionsBean();
         options.setEntityExpansionLimit(1);
@@ -69,6 +75,7 @@ public class ParserTest extends TestCase {
         assertEquals(true, factory.getProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES));
     }
 
+    @Test
     public void testXMLReader() throws Exception {
         XmlOptionsBean options = new XmlOptionsBean();
         XMLReader reader = SAXHelper.newXMLReader(options);
@@ -81,6 +88,7 @@ public class ParserTest extends TestCase {
         reader.parse(new InputSource(new ByteArrayInputStream("<xml></xml>".getBytes("UTF-8"))));
     }
 
+    @Test
     public void testXMLReaderOverrides() throws Exception {
         XmlOptionsBean options = new XmlOptionsBean();
         options.setEntityExpansionLimit(1);

@@ -15,25 +15,23 @@
 package scomp.contentType.complex.modelGroup.detailed;
 
 
+import org.apache.xmlbeans.XmlCursor;
+import org.apache.xmlbeans.XmlErrorCodes;
+import org.junit.Test;
+import scomp.common.BaseCase;
 import xbean.scomp.contentType.modelGroup.ChoiceEltDocument;
 import xbean.scomp.contentType.modelGroup.ChoiceT;
 import xbean.scomp.contentType.modelGroup.MixedChoiceEltDocument;
 import xbean.scomp.contentType.modelGroup.MixedChoiceT;
-import scomp.common.BaseCase;
 
 import java.math.BigInteger;
 
-import org.apache.xmlbeans.XmlCursor;
-import org.apache.xmlbeans.XmlErrorCodes;
-
-/**
- *
- *
- *
- */
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 //TODO: assert that order of elements in a choice group doesn't matter
 public class ChoiceTest extends BaseCase {
+    @Test
     public void testValidCase() throws Throwable {
         ChoiceEltDocument doc = ChoiceEltDocument.Factory.newInstance();
         ChoiceT elt = doc.addNewChoiceElt();
@@ -49,6 +47,7 @@ public class ChoiceTest extends BaseCase {
 
     //more than 1 from choice group
     //TODO: test should pass but error message not good
+    @Test
     public void testChoiceViolation() throws Throwable {
         ChoiceEltDocument doc = ChoiceEltDocument.Factory.newInstance();
         ChoiceT elt = doc.addNewChoiceElt();

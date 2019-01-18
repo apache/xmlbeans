@@ -16,36 +16,27 @@
 package xmlobject.usertype.multipleItems.checkin;
 
 
-import java.math.BigInteger;
-
-import junit.framework.TestCase;
-
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.impl.values.XmlValueOutOfRangeException;
-
+import org.junit.Test;
 import usertype.xbean.multipleItems.company.CompanyDocument;
 import usertype.xbean.multipleItems.company.CompanyType;
 import usertype.xbean.multipleItems.company.ConsultantType;
 import usertype.xbean.multipleItems.company.DepartmentType;
 import xmlobject.usertype.multipleItems.existing.Room;
 
+import java.math.BigInteger;
 
-public class AverageTest extends TestCase{
+import static org.junit.Assert.assertEquals;
 
-    public  AverageTest(String s){
-        super(s);
-    }
 
+public class AverageTest {
+
+    @Test
     public void test() {
-
-        CompanyDocument doc;
-
-        doc = CompanyDocument.Factory.newInstance();
-
+        CompanyDocument doc = CompanyDocument.Factory.newInstance();
         CompanyType company = doc.addNewCompany();
-
         DepartmentType dept = company.addNewDepartments();
-
 
         ConsultantType cons = dept.addNewConsultant();
 
@@ -69,16 +60,12 @@ public class AverageTest extends TestCase{
     }
 
 
+    @Test
     public void testArrayGetSet() {
 
-        CompanyDocument doc;
-
-        doc = CompanyDocument.Factory.newInstance();
-
+        CompanyDocument doc = CompanyDocument.Factory.newInstance();
         CompanyType company = doc.addNewCompany();
-
         DepartmentType dept = company.addNewDepartments();
-
 
         ConsultantType cons = dept.addNewConsultant();
 
@@ -104,16 +91,12 @@ public class AverageTest extends TestCase{
 
     }
 
+    @Test
     public void testIthGetSet() {
 
-        CompanyDocument doc;
-
-        doc = CompanyDocument.Factory.newInstance();
-
+        CompanyDocument doc = CompanyDocument.Factory.newInstance();
         CompanyType company = doc.addNewCompany();
-
         DepartmentType dept = company.addNewDepartments();
-
 
         ConsultantType cons = dept.addNewConsultant();
 
@@ -140,7 +123,7 @@ public class AverageTest extends TestCase{
 
     }
 
-
+    @Test(expected = XmlValueOutOfRangeException.class)
     public void testBadInput() throws XmlException{
 
         StringBuffer sb = new StringBuffer();
@@ -156,56 +139,35 @@ public class AverageTest extends TestCase{
         ConsultantType cons = company.getDepartmentsArray(0).getConsultantArray(0);
         assertEquals(3, cons.xgetRoomArray().length);
 
-        try
-        {
-            cons.getRoomArray();
-            fail("Invalid Room format should have failed");
-
-        } catch (XmlValueOutOfRangeException e) {
-
-            // test passed
-        }
-
+        cons.getRoomArray();
     }
 
-
-
+    @Test(expected = XmlValueOutOfRangeException.class)
     public void testBadInputGetIthBad() throws XmlException{
 
-        StringBuffer sb = new StringBuffer();
-        sb.append("<com:company xmlns:com=\"http://xbean.usertype/multipleItems/company\">");
-        sb.append("<departments><consultant name=\"Joe Smith\" age=\"100\">");
-        sb.append("<room>000-AB</room><room>0001-AB</room><room>002-AB</room>");
-        sb.append("</consultant></departments></com:company>");
-
-        CompanyDocument doc = CompanyDocument.Factory.parse(sb.toString());
+        String sb =
+            "<com:company xmlns:com=\"http://xbean.usertype/multipleItems/company\">" +
+            "<departments><consultant name=\"Joe Smith\" age=\"100\">" +
+            "<room>000-AB</room><room>0001-AB</room><room>002-AB</room>" +
+            "</consultant></departments></com:company>";
+        CompanyDocument doc = CompanyDocument.Factory.parse(sb);
 
         CompanyType company = doc.getCompany();
 
         ConsultantType cons = company.getDepartmentsArray(0).getConsultantArray(0);
         assertEquals(3, cons.xgetRoomArray().length);
 
-        try
-        {
-            cons.getRoomArray(1);
-            fail("Invalid Room format should have failed");
-        } catch (XmlValueOutOfRangeException e) {
-
-            // test passed
-        }
-
+        cons.getRoomArray(1);
     }
 
-
+    @Test
     public void testBadInputGetIthGood() throws XmlException{
-
-        StringBuffer sb = new StringBuffer();
-        sb.append("<com:company xmlns:com=\"http://xbean.usertype/multipleItems/company\">");
-        sb.append("<departments><consultant name=\"Joe Smith\" age=\"100\">");
-        sb.append("<room>000-AB</room><room>0001-AB</room><room>002-AB</room>");
-        sb.append("</consultant></departments></com:company>");
-
-        CompanyDocument doc = CompanyDocument.Factory.parse(sb.toString());
+        String sb =
+            "<com:company xmlns:com=\"http://xbean.usertype/multipleItems/company\">" +
+            "<departments><consultant name=\"Joe Smith\" age=\"100\">" +
+            "<room>000-AB</room><room>0001-AB</room><room>002-AB</room>" +
+            "</consultant></departments></com:company>";
+        CompanyDocument doc = CompanyDocument.Factory.parse(sb);
 
         CompanyType company = doc.getCompany();
 
@@ -216,7 +178,5 @@ public class AverageTest extends TestCase{
         assertEquals("AB", cons.getRoomArray(0).getLetters());
         assertEquals(2, cons.getRoomArray(2).getDigits());
         assertEquals("AB", cons.getRoomArray(2).getLetters());
-
     }
-
 }

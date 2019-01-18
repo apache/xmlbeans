@@ -16,37 +16,17 @@
 
 package xmlcursor.checkin;
 
-import org.apache.xmlbeans.XmlOptions;
-import junit.framework.*;
-import junit.framework.Assert.*;
-
-import java.io.*;
-
-import org.apache.xmlbeans.XmlObject;
-import org.apache.xmlbeans.XmlCursor;
-import org.apache.xmlbeans.XmlBeans;
 import org.apache.xmlbeans.XmlCursor.TokenType;
+import org.apache.xmlbeans.XmlObject;
+import org.junit.Test;
+import xmlcursor.common.BasicCursorTestCase;
+import xmlcursor.common.Common;
 
-import javax.xml.namespace.QName;
-
-import xmlcursor.common.*;
-
-import java.net.URL;
+import static org.junit.Assert.assertEquals;
 
 
-/**
- *
- *
- */
 public class RemoveCharsTest extends BasicCursorTestCase {
-    public RemoveCharsTest(String sName) {
-        super(sName);
-    }
-
-    public static Test suite() {
-        return new TestSuite(RemoveCharsTest.class);
-    }
-
+    @Test
     public void testRemoveCharsLTLengthFromTEXT() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_DIGITS);
         m_xc = m_xo.newCursor();
@@ -55,6 +35,7 @@ public class RemoveCharsTest extends BasicCursorTestCase {
         assertEquals("34", m_xc.getChars());
     }
 
+    @Test
     public void testRemoveCharsGTLengthFromTEXT() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_DIGITS);
         m_xc = m_xo.newCursor();
@@ -63,6 +44,7 @@ public class RemoveCharsTest extends BasicCursorTestCase {
         assertEquals(TokenType.END, m_xc.currentTokenType());
     }
 
+    @Test
     public void testRemoveCharsNegativeFromTEXT() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_DIGITS);
         m_xc = m_xo.newCursor();
@@ -71,6 +53,7 @@ public class RemoveCharsTest extends BasicCursorTestCase {
         assertEquals(TokenType.END, m_xc.currentTokenType());
     }
 
+    @Test
     public void testRemoveCharsZeroFromTEXT() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_DIGITS);
         m_xc = m_xo.newCursor();
@@ -79,6 +62,7 @@ public class RemoveCharsTest extends BasicCursorTestCase {
         assertEquals("01234", m_xc.getChars());
     }
 
+    @Test
     public void testRemoveCharsFromPROCINST() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_PROCINST);
         m_xc = m_xo.newCursor();
@@ -86,13 +70,12 @@ public class RemoveCharsTest extends BasicCursorTestCase {
         assertEquals(0, m_xc.removeChars(3));
     }
 
+    @Test
     public void testRemoveCharsFromNAMESPACE() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_NS);
         m_xc = m_xo.newCursor();
         toNextTokenOfType(m_xc, TokenType.NAMESPACE);
         assertEquals(0, m_xc.removeChars(3));
     }
-
-
 }
 

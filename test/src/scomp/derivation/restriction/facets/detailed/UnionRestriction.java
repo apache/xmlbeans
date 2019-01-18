@@ -15,6 +15,7 @@
 
 package scomp.derivation.restriction.facets.detailed;
 
+import org.junit.Test;
 import scomp.common.BaseCase;
 import xbean.scomp.derivation.facets.union.UnionPatternEltDocument;
 import xbean.scomp.derivation.facets.union.SmallPatternUnion;
@@ -22,12 +23,15 @@ import xbean.scomp.derivation.facets.union.UnionEnumEltDocument;
 import xbean.scomp.derivation.facets.union.SmallEnumUnion;
 import org.apache.xmlbeans.XmlErrorCodes;
 
+import static org.junit.Assert.assertTrue;
+
 /**
  * Only pattern and enumeration restrictions possible
  * Compile time tests for the rest
  */
 public class UnionRestriction extends BaseCase {
 
+    @Test
     public void testPatternRestriction() throws Throwable {
         UnionPatternEltDocument doc =
                 UnionPatternEltDocument.Factory.newInstance();
@@ -61,10 +65,9 @@ public class UnionRestriction extends BaseCase {
             XmlErrorCodes.DATATYPE_VALID$PATTERN_VALID
         };
         assertTrue(compareErrorCodes(errExpected));
-
-
     }
 
+    @Test
     public void testEnumRestriction() throws Throwable {
         UnionEnumEltDocument doc = UnionEnumEltDocument.Factory.newInstance();
         doc.setUnionEnumElt("small");
@@ -97,7 +100,5 @@ public class UnionRestriction extends BaseCase {
             XmlErrorCodes.DATATYPE_ENUM_VALID
         };
         assertTrue(compareErrorCodes(errExpected));
-
-
     }
 }

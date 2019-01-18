@@ -16,93 +16,59 @@
 
 package xmlcursor.checkin;
 
-import org.apache.xmlbeans.XmlOptions;
-import junit.framework.*;
-import junit.framework.Assert.*;
-
-import java.io.*;
-
-import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlCursor;
-import org.apache.xmlbeans.XmlBeans;
-import org.apache.xmlbeans.XmlCursor.TokenType;
-import org.apache.xmlbeans.XmlDocumentProperties;
-import org.apache.xmlbeans.XmlCursor.XmlBookmark;
+import org.apache.xmlbeans.XmlObject;
+import org.junit.Before;
+import org.junit.Test;
+import xmlcursor.common.BasicCursorTestCase;
+import xmlcursor.common.Common;
 
-import javax.xml.namespace.QName;
+import static org.junit.Assert.*;
 
-import xmlcursor.common.*;
-
-import java.net.URL;
-
-
-/**
- *
- *
- */
 
 public class IsAtSamePositionAsTest extends BasicCursorTestCase{
 
-    static String sDoc=Common.XML_FOO_DIGITS;
+    private static String sDoc=Common.XML_FOO_DIGITS;
 
-    public IsAtSamePositionAsTest(String sName) {
-        super(sName);
-    }
-
-    public static Test suite() {
-        return new TestSuite(IsAtSamePositionAsTest.class);
-    }
-    public void testNormalCase(){
-	XmlCursor m_xc1=m_xo.newCursor();; //parse
-	m_xc.toFirstChild();
-	m_xc1.toFirstChild();
-	assertEquals(true,m_xc.isAtSamePositionAs(m_xc1));
-    }
-
-    public void testSamePosDiffDoc()throws Exception{
-	XmlCursor m_xc1=XmlObject.Factory.parse(sDoc).newCursor();
-	m_xc.toFirstChild();
-	m_xc1.toFirstChild();
-	try{
-	    assertEquals(false,m_xc.isAtSamePositionAs(m_xc1));
-	    fail("Cursors are in different docs");
-	}catch (IllegalArgumentException e){}
-    }
-    public void testDiffPosSameDoc()throws Exception{
-	XmlCursor m_xc1=m_xo.newCursor();
-	m_xc.toFirstChild();
-	m_xc1.toFirstChild();
-	m_xc1.toFirstAttribute();
-	assertEquals(false,m_xc.isAtSamePositionAs(m_xc1));
-    }
-
-    public void testNull(){
-	 try {
-	    assertEquals(false,m_xc.isAtSamePositionAs(null));
-	    fail("Other cursor is Null");
-	 }catch(Exception e){
-	 }
-    }
-
-    public void testSelf(){
-	m_xc.toFirstChild();
-	assertEquals(true,m_xc.isAtSamePositionAs(m_xc));
-    }
-
-    public void setUp()throws Exception{
-	m_xo=XmlObject.Factory.parse(sDoc);
-	m_xc=m_xo.newCursor();
-    }
-
-  public static void main(String[] rgs){
-      try{
-	  IsAtSamePositionAsTest t=new IsAtSamePositionAsTest("");
-	   t.setUp();
-	   t.testNormalCase();
-	  }catch (Exception e){
-	    System.err.println("Error "+e.getMessage());
-	    e.printStackTrace();
+	@Test
+	public void testNormalCase() {
+		XmlCursor m_xc1 = m_xo.newCursor();
+		m_xc.toFirstChild();
+		m_xc1.toFirstChild();
+		assertTrue(m_xc.isAtSamePositionAs(m_xc1));
 	}
-  }
 
+	@Test(expected = IllegalArgumentException.class)
+	public void testSamePosDiffDoc() throws Exception {
+		XmlCursor m_xc1 = XmlObject.Factory.parse(sDoc).newCursor();
+		m_xc.toFirstChild();
+		m_xc1.toFirstChild();
+		m_xc.isAtSamePositionAs(m_xc1);
+	}
+
+	@Test
+	public void testDiffPosSameDoc() throws Exception {
+		XmlCursor m_xc1 = m_xo.newCursor();
+		m_xc.toFirstChild();
+		m_xc1.toFirstChild();
+		m_xc1.toFirstAttribute();
+		assertFalse(m_xc.isAtSamePositionAs(m_xc1));
+	}
+
+	@Test(expected = Exception.class)
+	public void testNull() {
+		m_xc.isAtSamePositionAs(null);
+	}
+
+	@Test
+	public void testSelf() {
+		m_xc.toFirstChild();
+		assertEquals(true, m_xc.isAtSamePositionAs(m_xc));
+	}
+
+	@Before
+	public void setUp() throws Exception {
+		m_xo = XmlObject.Factory.parse(sDoc);
+		m_xc = m_xo.newCursor();
+	}
 }

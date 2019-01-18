@@ -14,16 +14,18 @@
  */
 package scomp.redefine.detailed;
 
-import scomp.common.BaseCase;
-import org.apache.xmlbeans.impl.xb.xsdschema.SchemaDocument;
 import org.apache.xmlbeans.*;
-import junit.framework.Assert;
+import org.apache.xmlbeans.impl.xb.xsdschema.SchemaDocument;
+import org.junit.Assert;
+import org.junit.Test;
+import scomp.common.BaseCase;
 
 import javax.xml.namespace.QName;
 import java.util.Iterator;
 
-public class MultipleRedefines extends BaseCase
-{
+import static org.junit.Assert.*;
+
+public class MultipleRedefines extends BaseCase {
     private static final String[] MULTIPLE_SCHEMAS = {
         "<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\">" +
         "    <xs:complexType name=\"T\">" +
@@ -163,8 +165,8 @@ public class MultipleRedefines extends BaseCase
     private static final String[] CIRCULAR_SCHEMAS_NAME = {
         "A.xsd", "B.xsd", "C.xsd", "D.xsd"};
 
-    public void testMultipleRedefines() throws Exception
-    {
+    @Test
+    public void testMultipleRedefines() throws Exception {
         int N = MULTIPLE_SCHEMAS.length;
         SchemaDocument[] sdocs = new SchemaDocument[N];
         for (int i = 0; i < N; i++)
@@ -175,25 +177,26 @@ public class MultipleRedefines extends BaseCase
 
         SchemaTypeSystem ts = XmlBeans.compileXsd(sdocs,
             XmlBeans.getBuiltinTypeSystem(), validateOptions);
-        Assert.assertNotNull(ts);
+        assertNotNull(ts);
 
         SchemaType t = ts.findType(new QName("", "T"));
-        Assert.assertNotNull(t);
+        assertNotNull(t);
 
         SchemaParticle p = t.getContentModel();
-        Assert.assertNotNull(p);
-        Assert.assertEquals(p.getParticleType(), SchemaParticle.SEQUENCE);
+        assertNotNull(p);
+        assertEquals(p.getParticleType(), SchemaParticle.SEQUENCE);
         SchemaParticle[] elts = p.getParticleChildren();
-        Assert.assertEquals(elts.length, 4);
+        assertEquals(elts.length, 4);
         for (int i = 0; i < elts.length; i++)
-            Assert.assertEquals(elts[i].getParticleType(), SchemaParticle.ELEMENT);
+            assertEquals(elts[i].getParticleType(), SchemaParticle.ELEMENT);
 
-        Assert.assertEquals("A", elts[0].getName().getLocalPart());
-        Assert.assertEquals("B", elts[1].getName().getLocalPart());
-        Assert.assertEquals("D", elts[2].getName().getLocalPart());
-        Assert.assertEquals("E", elts[3].getName().getLocalPart());
+        assertEquals("A", elts[0].getName().getLocalPart());
+        assertEquals("B", elts[1].getName().getLocalPart());
+        assertEquals("D", elts[2].getName().getLocalPart());
+        assertEquals("E", elts[3].getName().getLocalPart());
     }
 
+    @Test
     public void testCircularRedefines() throws Exception
     {
         int N =CIRCULAR_SCHEMAS.length;
@@ -219,9 +222,9 @@ public class MultipleRedefines extends BaseCase
             Assert.assertFalse(it.hasNext());
             String message = err.getMessage();
             // TODO check an error code instead
-            Assert.assertTrue(message.toLowerCase().indexOf("circular") >= 0);
+            assertTrue(message.toLowerCase().indexOf("circular") >= 0);
         }
         clearErrors();
-        Assert.assertTrue("Compilation should fail", caught);
+        assertTrue("Compilation should fail", caught);
     }
 }

@@ -15,30 +15,27 @@
 
 package scomp.attributes.detailed;
 
-import scomp.common.BaseCase;
-import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlErrorCodes;
-
+import org.apache.xmlbeans.XmlException;
+import org.junit.Test;
+import scomp.common.BaseCase;
 import xbean.scomp.attribute.localAttrUse.LocalAttrUseDocDocument;
 import xbean.scomp.attribute.localAttrUse.LocalAttrUseT;
 import xbean.scomp.derivation.attributeUseProhibited.AttrProhibitedEltDocument;
 import xbean.scomp.derivation.attributeUseProhibited.AttrUseProhibited;
 
-import java.util.Calendar;
 import java.math.BigInteger;
+import java.util.Calendar;
 
-/**
- *
- *
- *
- */
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 public class LocalAttrUse extends BaseCase {
     /**
      * Default use of an attribute should be optional
      * Optional attributes can be missing
-     *
-     * @throws XmlException
      */
+    @Test
     public void testDefaultOptional() throws Throwable {
         //figure out the deal w/ namespaces here...
         LocalAttrUseT testDoc =
@@ -60,9 +57,8 @@ public class LocalAttrUse extends BaseCase {
 
     /**
      * test that an optional attr is not set before it is set
-     *
-     * @throws XmlException
      */
+    @Test
     public void testOptional() throws Throwable {
         LocalAttrUseDocDocument testDoc =
                 LocalAttrUseDocDocument.Factory.newInstance();
@@ -74,9 +70,8 @@ public class LocalAttrUse extends BaseCase {
 
     /**
      * test that an optional attr is not set before it is set
-     *
-     * @throws XmlException
      */
+    @Test
     public void testOptionalParse() throws Throwable {
         LocalAttrUseT testDoc =
                 LocalAttrUseDocDocument.Factory.parse("<pre:LocalAttrUseDoc" +
@@ -92,6 +87,7 @@ public class LocalAttrUse extends BaseCase {
 
     }
 
+    @Test
     public void testRequired() throws XmlException {
         //required attRequired is missing
         LocalAttrUseT testDoc =
@@ -120,9 +116,8 @@ public class LocalAttrUse extends BaseCase {
 
     /**
      * can not overwrite an existing value
-     *
-     * @throws XmlException
      */
+    @Test
     public void testRequiredFixed() throws XmlException {
         LocalAttrUseT testDoc =
                 LocalAttrUseDocDocument.Factory.parse("<foo:LocalAttrUseDoc" +
@@ -143,6 +138,7 @@ public class LocalAttrUse extends BaseCase {
 
     }
 
+    @Test
     public void testRequiredDefault() throws XmlException {
         LocalAttrUseT testDoc =
                 LocalAttrUseDocDocument.Factory.parse("<pre:LocalAttrUseDoc" +
@@ -164,7 +160,7 @@ public class LocalAttrUse extends BaseCase {
 
     }
 
-
+    @Test
     public void testUseProhibited() throws Throwable {
         AttrProhibitedEltDocument doc =
                 AttrProhibitedEltDocument.Factory.newInstance();

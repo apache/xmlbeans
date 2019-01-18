@@ -18,6 +18,8 @@ import java.io.BufferedReader;
 import java.io.*;
 import java.net.JarURLConnection;
 import java.net.URL;
+import java.net.URLConnection;
+import java.nio.charset.Charset;
 import java.util.jar.JarFile;
 import java.util.jar.JarEntry;
 
@@ -59,7 +61,7 @@ public class JarUtil {
 
 
     /**
-     * returns an item within the given jarFile as a String. jarFile must exist in classpath
+     * returns the resource as String
      *
      * @param pathToResource
      * @return String
@@ -68,30 +70,21 @@ public class JarUtil {
     public static String getResourceFromJar(String pathToResource)
             throws IOException {
 
-        URL url = ClassLoader.getSystemClassLoader().getResource(
-                pathToResource);
-        if (url == null) {
-            throw new FileNotFoundException(
-                    "Resource: " + pathToResource + " was not found ");
+        BufferedReader in = null;
+        try {
+            InputStream is = getResourceFromJarasStream(pathToResource);
+            in = new BufferedReader(new InputStreamReader(is, Charset.forName("UTF-8")));
+            StringBuilder sb = new StringBuilder();
+            char[] buf = new char[1024];
+            for (int readChr; (readChr = in.read(buf)) > -1; ) {
+                sb.append(buf, 0, readChr);
+            }
+            return sb.toString();
+        } finally {
+            if (in != null) {
+                in.close();
+            }
         }
-        JarURLConnection jarConnection = (JarURLConnection) url.openConnection();
-        JarFile jar = jarConnection.getJarFile();
-        if (jar.getJarEntry(pathToResource) == null) {
-            throw new FileNotFoundException(
-                    "Resource: " + pathToResource + " was not found ");
-        }
-
-        JarEntry item = jar.getJarEntry(pathToResource);
-        BufferedReader in = new BufferedReader(
-                new InputStreamReader(jar.getInputStream(item)));
-
-        StringBuffer stb = new StringBuffer();
-        String buffer;
-
-        while (!((buffer = in.readLine()) == null)) {
-            stb.append(buffer + EOL);
-        }
-        return stb.toString();
     }
 
     /**
@@ -110,34 +103,6 @@ public class JarUtil {
                     "Make sure Jar w/ resource is on classpath");
         }
         return resource;
-    }
-
-    /**
-     * Returns the classpath entry of a given item on the classpath. The item should be a jarFile reference
-     *
-     * @param jarFile
-     * @return String
-     * @throws FileNotFoundException
-     */
-
-    public static String getFilePath(String jarFile)
-            throws FileNotFoundException {
-        String sClassPath = System.getProperty("java.class.path");
-        int jarIndex = sClassPath.indexOf(jarFile);
-        if (jarIndex <= 0) {
-            throw new FileNotFoundException(
-                    "File: " + jarFile + " was not found on the classpath");
-        }
-
-        String P = File.pathSeparator;
-        String[] pathList = sClassPath.split(P);
-        for (int i = 0; i < pathList.length; i++) {
-            if (pathList[i].toLowerCase().endsWith(jarFile.toLowerCase())) {
-                return pathList[i];
-            }
-        }
-        throw new FileNotFoundException(
-                "File: " + jarFile + " was not found when iterating classpath");
     }
 }
 

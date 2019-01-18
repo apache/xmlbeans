@@ -15,31 +15,25 @@
 
 package scomp.contentType.complex.detailed;
 
-import junit.framework.TestCase;
+import org.apache.xmlbeans.XmlCursor;
+import org.apache.xmlbeans.XmlErrorCodes;
+import org.apache.xmlbeans.XmlInteger;
+import org.junit.Test;
+import scomp.common.BaseCase;
+import xbean.scomp.contentType.complexTypeTest.ElementT;
+import xbean.scomp.contentType.complexTypeTest.EltTypeDocument;
 
 import java.math.BigInteger;
 
-import org.apache.xmlbeans.XmlInteger;
-import org.apache.xmlbeans.XmlCursor;
-import org.apache.xmlbeans.XmlErrorCodes;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
-import xbean.scomp.contentType.complexTypeTest.EltTypeDocument;
-import xbean.scomp.contentType.complexTypeTest.ElementT;
-import scomp.common.BaseCase;
-
-/**
- *
- *
- *
- */
 public class ElementOnlyContentTest extends BaseCase {
 
     /**
      * Element only content
-     *
-     * @throws Throwable
      */
-
+    @Test
     public void testElementOnly() throws Throwable {
         EltTypeDocument doc = EltTypeDocument.Factory.newInstance();
         ElementT testElt
@@ -72,6 +66,7 @@ public class ElementOnlyContentTest extends BaseCase {
     /**
      * Mixed content is invalid for element only types
      */
+    @Test
     public void testInvalidContent() {
         EltTypeDocument doc = EltTypeDocument.Factory.newInstance();
         ElementT testElt

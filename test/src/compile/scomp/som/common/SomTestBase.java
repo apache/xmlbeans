@@ -28,11 +28,10 @@
  */
 package compile.scomp.som.common;
 
-import compile.scomp.common.CompileCommon;
 import compile.scomp.common.CompileTestBase;
-import junit.framework.Assert;
 import org.apache.xmlbeans.*;
 import org.apache.xmlbeans.impl.tool.Diff;
+import org.junit.Assert;
 
 import javax.xml.namespace.QName;
 import java.io.File;
@@ -43,10 +42,9 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-/**
- *
- *
- */
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+
 public class SomTestBase extends CompileTestBase
 {
     public static String casesRootDir = XBEAN_CASE_ROOT+ P + "compile" + P + "som" + P;
@@ -60,11 +58,6 @@ public class SomTestBase extends CompileTestBase
 
     public static final String anySimpleType = "anySimpleType";
     public static final String anyType = "anyType";
-
-    public SomTestBase(String name)
-    {
-        super(name);
-    }
 
     public static void inspectSOM(SchemaTypeSystem schematypesys,
                                   int expectedGlobalElems,
@@ -126,7 +119,7 @@ public class SomTestBase extends CompileTestBase
 
             // # of global attributes
             out.println("----- # Global Attributes :" + schematypesys.globalAttributes().length);
-            Assert.assertEquals("Incorrect Number of Global Attributes in STS " + schematypesys.getName(), expectedGlobalAttrs, schematypesys.globalAttributes().length);
+            assertEquals("Incorrect Number of Global Attributes in STS " + schematypesys.getName(), expectedGlobalAttrs, schematypesys.globalAttributes().length);
             for (int i = 0; i < schematypesys.globalAttributes().length; i++)
             {
                 out.println("\t------> Attr Name  :" + schematypesys.globalAttributes()[i].getName());
@@ -135,7 +128,7 @@ public class SomTestBase extends CompileTestBase
 
             // # of global elements
             out.println("----- # Global Elements :" + schematypesys.globalElements().length);
-            Assert.assertEquals("Incorrect Number of Global Elements in STS " + schematypesys.getName(), expectedGlobalElems, schematypesys.globalElements().length);
+            assertEquals("Incorrect Number of Global Elements in STS " + schematypesys.getName(), expectedGlobalElems, schematypesys.globalElements().length);
             for (int i = 0; i < schematypesys.globalElements().length; i++)
             {
                 out.println("\t------> Elem Name :" + schematypesys.globalElements()[i].getName());
@@ -144,7 +137,7 @@ public class SomTestBase extends CompileTestBase
 
             // # of global Types
             out.println("----- # Global Types :" + schematypesys.globalTypes().length);
-            Assert.assertEquals("Incorrect Number of Global Types in STS " + schematypesys.getName(), expectedGlobalTypes, schematypesys.globalTypes().length);
+            assertEquals("Incorrect Number of Global Types in STS " + schematypesys.getName(), expectedGlobalTypes, schematypesys.globalTypes().length);
             for (int i = 0; i < schematypesys.globalTypes().length; i++)
             {
                 out.println("\t------> TypeName:" + schematypesys.globalTypes()[i].getName());
@@ -152,7 +145,7 @@ public class SomTestBase extends CompileTestBase
 
             // # of attribute Groups
             out.println("----- # of Attribute Groups :" + schematypesys.attributeGroups().length);
-            Assert.assertEquals("Incorrect Number of Attribute Groups in STS " + schematypesys.getName(), expectedAttrGroups, schematypesys.attributeGroups().length);
+            assertEquals("Incorrect Number of Attribute Groups in STS " + schematypesys.getName(), expectedAttrGroups, schematypesys.attributeGroups().length);
             for (int i = 0; i < schematypesys.attributeGroups().length; i++)
             {
                 out.println("\t------> Attr Group Name :" + schematypesys.attributeGroups()[i].getName());
@@ -421,7 +414,7 @@ public class SomTestBase extends CompileTestBase
         {
             ioe.getMessage();
             ioe.printStackTrace();
-            Assert.fail("IOException throw when accessing instance xml file " + instancefile.getAbsoluteFile());
+            fail("IOException throw when accessing instance xml file " + instancefile.getAbsoluteFile());
         }
         catch (XmlException xme)
         {
@@ -438,7 +431,7 @@ public class SomTestBase extends CompileTestBase
                 }
             }
             System.out.println("END Instance Validation Errors .. .. ..");
-            Assert.fail("Instance Validation - Xml Exception caught");
+            fail("Instance Validation - Xml Exception caught");
         }
 
         // validation successful

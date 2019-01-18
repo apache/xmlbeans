@@ -17,73 +17,72 @@
 package dom.checkin;
 
 import dom.common.NodeWithChildrenTest;
-import junit.framework.Test;
-import junit.framework.TestSuite;
+import org.junit.Before;
+import org.junit.Test;
 import org.w3c.dom.Node;
 
+import static org.junit.Assert.*;
 
-/**
- *
- *  */
 
 public class DocumentFragmentTest extends NodeWithChildrenTest {
 
 
-    public DocumentFragmentTest(String s) {
-        super(s);
+    public DocumentFragmentTest() {
         sXml =
-                "<foo at0=\"val0\" a" +
+            "<foo at0=\"val0\" a" +
             "t1=\"val1\" at2=\"val2\" at3=\"val3\" at4=\"val4\"><bar bat0=\"val0\"/></foo>";
 
         sXmlNS =
-                "<foo xmlns:myns=\"uri:foo\" at0=\"val0\" myns:at0=\"val01\" at2=\"val2\" at3=\"val3\" at4=\"val4\"/>";
+            "<foo xmlns:myns=\"uri:foo\" at0=\"val0\" myns:at0=\"val01\" at2=\"val2\" at3=\"val3\" at4=\"val4\"/>";
     }
 
-    public static Test suite() {
-        return new TestSuite(DocumentFragmentTest.class);
-    }
-
-
+    @Test
     public void testNodeName() {
         assertEquals("#document-fragment", m_node.getNodeName());
     }
 
+    @Test
     public void testNodeType() {
         assertEquals(Node.DOCUMENT_FRAGMENT_NODE, m_node.getNodeType());
     }
 
-
+    @Test
     public void testNodeValue() {
-        assertEquals(null, m_node.getNodeValue());
+        assertNull(m_node.getNodeValue());
     }
 
-
+    @Test
     public void testNextSibling() {
-        assertEquals(null, m_node.getNextSibling());
+        assertNull(m_node.getNextSibling());
     }
 
+    @Test
     public void testPreviousSibling() {
-        assertFalse(m_node == null);
-        assertEquals(null, m_node.getPreviousSibling());
+        assertNotNull(m_node);
+        assertNull(m_node.getPreviousSibling());
     }
 
+    @Test
     public void testParent() {
-        assertEquals(null, m_node.getParentNode());
+        assertNull(m_node.getParentNode());
     }
 
+    @Test
     public void testGetChildNodes() {
         assertEquals(1, m_node.getChildNodes().getLength());
     }
 
+    @Test
     public void testFirstChild() {
         assertEquals("foo", m_node.getFirstChild().getNodeName());
     }
 
-
+    @Test
     public void testLastChild() {
         assertEquals("foo", m_node.getLastChild().getNodeName());
     }
 
+    @Test
     public void testInsertExisitingNode() {
         Node child = m_doc.getFirstChild().getFirstChild();//some text
         if (child == m_node)
@@ -91,6 +90,7 @@ public class DocumentFragmentTest extends NodeWithChildrenTest {
         super.testInsertExistingNode(child);
     }
 
+    @Test
     public void testAppendChildExisting() {
         Node child = m_doc.getFirstChild().getFirstChild();//some text
         if (child == m_node)
@@ -105,10 +105,9 @@ public class DocumentFragmentTest extends NodeWithChildrenTest {
 
     }
 
+    @Before
     public void setUp() throws Exception {
         super.setUp();
         moveToNode();
     }
-
-
 }

@@ -15,19 +15,19 @@
 
 package scomp.substGroup.restriction.detailed;
 
+import org.apache.xmlbeans.XmlCursor;
+import org.apache.xmlbeans.XmlErrorCodes;
+import org.junit.Test;
 import scomp.common.BaseCase;
 import xbean.scomp.substGroup.block.BeachUmbrellaT;
 import xbean.scomp.substGroup.deep.*;
 
+import javax.xml.namespace.QName;
 import java.math.BigInteger;
 
-import org.apache.xmlbeans.XmlErrorCodes;
-import org.apache.xmlbeans.XmlCursor;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
-import javax.xml.namespace.QName;
-
-/**
- */
 public class Block extends BaseCase {
     /**
      * TODO: verify that w/ respect to substitution
@@ -36,6 +36,7 @@ public class Block extends BaseCase {
      *
      * @throws Throwable
      */
+    @Test
     public void testBlockAllInvalid() throws Throwable {
         //should not be able to use CasualBusinessShirt  instead of shirt
         //but BusinessShirt instead of shirt should be OK
@@ -103,6 +104,7 @@ public class Block extends BaseCase {
 
     }
 
+    @Test
     public void testBlockAllValidParse() throws Throwable {
         String input =
                 "<base:items xmlns:pre=\"http://xbean/scomp/substGroup/Block\"" +
@@ -133,6 +135,7 @@ public class Block extends BaseCase {
 
     }
 
+    @Test
     public void testBlockAllValidBuild() throws Throwable {
            ItemsDocument doc = ItemsDocument.Factory.newInstance();
             BusinessShirtType bs = BusinessShirtType.Factory.newInstance();
@@ -156,6 +159,7 @@ public class Block extends BaseCase {
     * even though umbrella has subst. blocked, beachumbrella
     * is a valid product substitution
     */
+    @Test
     public void testBlockSubst() throws Throwable {
         ItemsDocument doc = ItemsDocument.Factory.newInstance();
         ItemType items = doc.addNewItems();

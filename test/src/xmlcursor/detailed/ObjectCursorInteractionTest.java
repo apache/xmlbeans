@@ -14,46 +14,29 @@
  */
 
 
-package  xmlcursor.detailed;
+package xmlcursor.detailed;
 
-import junit.framework.*;
-
-import  xmlcursor.common.Common;
-import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlCursor;
-
-import test.xbean.xmlcursor.location.LocationDocument.Location;
+import org.apache.xmlbeans.XmlObject;
+import org.junit.Test;
 import test.xbean.xmlcursor.location.LocationDocument;
+import test.xbean.xmlcursor.location.LocationDocument.Location;
+import xmlcursor.common.Common;
+
+import static org.junit.Assert.*;
 
 
-/**
- *
- *
- */
-public class ObjectCursorInteractionTest extends TestCase {
-    public ObjectCursorInteractionTest(String sName) {
-        super(sName);
-    }
-
-    public static Test suite() {
-        return new TestSuite(ObjectCursorInteractionTest.class);
-    }
-
-    public void testClassPath() throws Exception {
-        String sClassPath = System.getProperty("java.class.path");
-        int i = sClassPath.indexOf(Common.XMLCURSOR_JAR);
-        assertTrue(i >= 0);
-    }
-
+public class ObjectCursorInteractionTest {
+    @Test
     public void testObjectNullEffectOnCursor() throws Exception {
         String sNamespace = "";
         String sXml =
-                "<loc:Location xmlns:loc=\"http://xbean.test/xmlcursor/Location\""
-                + sNamespace +
-                "><loc:CityName>DALLAS</loc:CityName><StateCode>TX</StateCode>" +
-                "</loc:Location>";
+            "<loc:Location xmlns:loc=\"http://xbean.test/xmlcursor/Location\""
+            + sNamespace +
+            "><loc:CityName>DALLAS</loc:CityName><StateCode>TX</StateCode>" +
+            "</loc:Location>";
 
-       // LocationDocument locDoc = (LocationDocument) XmlObject.Factory.parse(sXml);
+        // LocationDocument locDoc = (LocationDocument) XmlObject.Factory.parse(sXml);
         LocationDocument locDoc = LocationDocument.Factory.parse(sXml);
         Location loc = locDoc.getLocation();
         XmlCursor xc0 = loc.newCursor();
@@ -64,21 +47,19 @@ public class ObjectCursorInteractionTest extends TestCase {
             Thread.sleep(1000);
             xc0.toFirstChild();
             assertEquals("DALLAS", xc0.getTextValue());
-        }
-        catch (InterruptedException e) {
-        }
-        finally {
+        } finally {
             xc0.dispose();
         }
     }
 
+    @Test
     public void testCursorDisposalEffectOnObject() throws Exception {
         String sNamespace = "xmlns:loc=\"http://xbean.test/xmlcursor/Location\"";
         String sXml = "<loc:Location " + sNamespace + ">" +
-                "<loc:CityName>DALLAS</loc:CityName><loc:StateCode>TX</loc:StateCode></loc:Location>";
+                      "<loc:CityName>DALLAS</loc:CityName><loc:StateCode>TX</loc:StateCode></loc:Location>";
         LocationDocument locDoc = LocationDocument.Factory.parse(
-                sXml);
-        assertEquals(true, locDoc.validate());
+            sXml);
+        assertTrue(locDoc.validate());
         Location loc0 = locDoc.getLocation();
         Location loc1 = locDoc.getLocation();
         XmlCursor xc0 = loc0.newCursor();
@@ -95,42 +76,42 @@ public class ObjectCursorInteractionTest extends TestCase {
             xc1.setTextValue("HOUSTON");
             xc1.dispose();
             assertEquals("HOUSTON", loc0.getCityName());
-        }
-        finally {
+        } finally {
             xc0.dispose();
             xc1.dispose();
         }
     }
 
+    @Test
     public void testObjectRefAssignmentEffectOnCursor() throws Exception {
         String sXml0 =
-                "<loc:Location xmlns:loc=\"http://xbean.test/xmlcursor/Location\">" +
-                "<loc:CityName>DALLAS</loc:CityName>" +
-                "<loc:StateCode>TX</loc:StateCode>" +
-                "</loc:Location>";
+            "<loc:Location xmlns:loc=\"http://xbean.test/xmlcursor/Location\">" +
+            "<loc:CityName>DALLAS</loc:CityName>" +
+            "<loc:StateCode>TX</loc:StateCode>" +
+            "</loc:Location>";
         String sXml1 =
-                "<loc:Location xmlns:loc=\"http://xbean.test/xmlcursor/Location\">" +
-                "<loc:PostalCode>90210</loc:PostalCode>" +
-                "<loc:CountryCode>US</loc:CountryCode>" +
-                "</loc:Location>";
+            "<loc:Location xmlns:loc=\"http://xbean.test/xmlcursor/Location\">" +
+            "<loc:PostalCode>90210</loc:PostalCode>" +
+            "<loc:CountryCode>US</loc:CountryCode>" +
+            "</loc:Location>";
         LocationDocument locDoc0 = LocationDocument.Factory.parse(
-                sXml0);
+            sXml0);
         Location loc0 = locDoc0.getLocation();
         XmlCursor xc0 = loc0.newCursor();
 
         LocationDocument locDoc1 = (LocationDocument) XmlObject.Factory.parse(
-                sXml1);
+            sXml1);
         Location loc1 = locDoc1.getLocation();
 
         assertEquals("DALLAS", loc0.getCityName());
         assertEquals("TX", loc0.getStateCode());
-        assertEquals(null, loc0.getPostalCode());
-        assertEquals(null, loc0.getCountryCode());
+        assertNull(loc0.getPostalCode());
+        assertNull(loc0.getCountryCode());
 
         loc0 = loc1;
 
-        assertEquals(null, loc0.getCityName());
-        assertEquals(null, loc0.getStateCode());
+        assertNull(loc0.getCityName());
+        assertNull(loc0.getStateCode());
         assertEquals("90210", loc0.getPostalCode());
         assertEquals("US", loc0.getCountryCode());
 
@@ -138,55 +119,54 @@ public class ObjectCursorInteractionTest extends TestCase {
             assertEquals(sXml0, xc0.xmlText());
             xc0 = loc0.newCursor();
             assertEquals(sXml1, xc0.xmlText());
-        }
-        finally {
+        } finally {
             xc0.dispose();
         }
     }
 
+    @Test
     public void testCursorRefAssignmentEffectOnObject() throws Exception {
         String sXml0 =
-                "<loc:Location xmlns:loc=\"http://xbean.test/xmlcursor/Location\">" +
-                "<loc:CityName>DALLAS</loc:CityName>" +
-                "<loc:StateCode>TX</loc:StateCode>" +
-                "</loc:Location>";
+            "<loc:Location xmlns:loc=\"http://xbean.test/xmlcursor/Location\">" +
+            "<loc:CityName>DALLAS</loc:CityName>" +
+            "<loc:StateCode>TX</loc:StateCode>" +
+            "</loc:Location>";
         LocationDocument locDoc0 = LocationDocument.Factory.parse(
-                sXml0);
+            sXml0);
         Location loc0 = locDoc0.getLocation();
         XmlCursor xc0 = loc0.newCursor();
 
         String sXml1 =
-                "<loc:Location xmlns:loc=\"http://xbean.test/xmlcursor/Location\">" +
-                "<loc:PostalCode>90210</loc:PostalCode>" +
-                "<loc:CountryCode>US</loc:CountryCode>" +
-                "</loc:Location>";
+            "<loc:Location xmlns:loc=\"http://xbean.test/xmlcursor/Location\">" +
+            "<loc:PostalCode>90210</loc:PostalCode>" +
+            "<loc:CountryCode>US</loc:CountryCode>" +
+            "</loc:Location>";
         LocationDocument locDoc1 = LocationDocument.Factory.parse(
-                sXml1);
+            sXml1);
         Location loc1 = locDoc1.getLocation();
         XmlCursor xc1 = loc1.newCursor();
 
         try {
             assertEquals("DALLAS", loc0.getCityName());
             assertEquals("TX", loc0.getStateCode());
-            assertEquals(null, loc0.getPostalCode());
-            assertEquals(null, loc0.getCountryCode());
+            assertNull(loc0.getPostalCode());
+            assertNull(loc0.getCountryCode());
 
             xc0 = xc1;
 
             assertEquals("DALLAS", loc0.getCityName());
             assertEquals("TX", loc0.getStateCode());
-            assertEquals(null, loc0.getPostalCode());
-            assertEquals(null, loc0.getCountryCode());
+            assertNull(loc0.getPostalCode());
+            assertNull(loc0.getCountryCode());
 
             loc0 = (Location) xc0.getObject();
 
-            assertEquals(null, loc0.getCityName());
-            assertEquals(null, loc0.getStateCode());
+            assertNull(loc0.getCityName());
+            assertNull(loc0.getStateCode());
             assertEquals("90210", loc0.getPostalCode());
             assertEquals("US", loc0.getCountryCode());
 
-        }
-        finally {
+        } finally {
             xc0.dispose();
             xc1.dispose();
         }

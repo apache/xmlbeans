@@ -15,35 +15,26 @@
 
 package scomp.contentType.complex.detailed;
 
-import xbean.scomp.contentType.anonymous.AnonymousEltDocument.*;
-import xbean.scomp.contentType.anonymous.AnonymousMixedEltDocument.*;
+import org.apache.xmlbeans.XmlCursor;
+import org.apache.xmlbeans.XmlInteger;
+import org.junit.Test;
+import scomp.common.BaseCase;
+import xbean.scomp.contentType.anonymous.AnonymousEltDocument.AnonymousElt;
+import xbean.scomp.contentType.anonymous.AnonymousMixedEltDocument.AnonymousMixedElt;
 
 import java.math.BigInteger;
 
-import org.apache.xmlbeans.XmlInteger;
-import org.apache.xmlbeans.XmlCursor;
-import scomp.common.BaseCase;
-
-/**
- *
- *
- *
- */
+import static org.junit.Assert.*;
 
 /**
  * testing anonymous complex types
  */
-public class AnonymousTest
-    extends BaseCase
-{
-
-
-    public void testSimpleAnonymous()
-        throws Throwable
-    {
+public class AnonymousTest extends BaseCase {
+    @Test
+    public void testSimpleAnonymous() throws Throwable {
         AnonymousElt testElt = AnonymousElt.Factory.newInstance();
-        assertEquals(null, testElt.getChild1());
-        assertEquals(null, testElt.xgetChild1());
+        assertNull(testElt.getChild1());
+        assertNull(testElt.xgetChild1());
         XmlInteger ival = XmlInteger.Factory.newInstance();
         testElt.xsetChild1(ival);
         testElt.setChild2(new BigInteger("5"));
@@ -70,12 +61,11 @@ public class AnonymousTest
         }
     }
 
-    public void testMixedAnonymous()
-        throws Throwable
-    {
+    @Test
+    public void testMixedAnonymous() throws Throwable {
         AnonymousMixedElt testElt = AnonymousMixedElt.Factory.newInstance();
-        assertEquals(null, testElt.getChild1());
-        assertEquals(null, testElt.xgetChild1());
+        assertNull(testElt.getChild1());
+        assertNull(testElt.xgetChild1());
         testElt.setChild2(new BigInteger("5"));
         assertEquals(5, testElt.getChild2().intValue());
         assertTrue(XmlInteger.Factory.parse("<xml-fragment>5</xml-fragment>")

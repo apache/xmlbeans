@@ -980,6 +980,7 @@ public class Util
         final String[] defaultFilters = new String[]{
             "org.apache.xmlbeansbeans.test.tools.moosehead",
             "org.apache.xmlbeansbeans.test.tools.harness.Main",
+            "org.junit.Assert.",
             "junit.framework.TestCase",
             "junit.framework.TestResult",
             "junit.framework.TestSuite",

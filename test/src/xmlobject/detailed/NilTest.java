@@ -16,73 +16,53 @@
 
 package xmlobject.detailed;
 
-import junit.framework.*;
-
+import knextest.bug38361.TestDocument;
 import org.apache.xmlbeans.XmlObject;
-
-import xmlcursor.common.*;
-
+import org.apache.xmlbeans.XmlOptions;
+import org.apache.xmlbeans.impl.values.XmlValueNotNillableException;
+import org.junit.Test;
 import org.tranxml.tranXML.version40.CarLocationMessageDocument;
 import org.tranxml.tranXML.version40.CarLocationMessageDocument.CarLocationMessage;
 import test.xbean.xmlcursor.purchaseOrder.PurchaseOrderDocument;
-import knextest.bug38361.TestDocument;
-
-
-import org.apache.xmlbeans.impl.values.XmlValueNotNillableException;
 import tools.util.JarUtil;
+import xmlcursor.common.BasicCursorTestCase;
+import xmlcursor.common.Common;
+
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 
-/**
- *
- *
- */
 public class NilTest extends BasicCursorTestCase {
-    public NilTest(String sName) {
-        super(sName);
-    }
-
-    public static Test suite() {
-        return new TestSuite(NilTest.class);
-    }
-
-    public void testClassPath() throws Exception {
-        String sClassPath = System.getProperty("java.class.path");
-        int i = sClassPath.indexOf(Common.CARLOCATIONMESSAGE_JAR);
-        assertTrue(i >= 0);
-        i = sClassPath.indexOf(Common.XMLCURSOR_JAR);
-        assertTrue(i >= 0);
-    }
-
+    @Test
     public void testIsNilFalse() throws Exception {
         CarLocationMessageDocument clmDoc = (CarLocationMessageDocument) XmlObject.Factory.parse(
                    JarUtil.getResourceFromJar(Common.TRANXML_FILE_CLM));
         CarLocationMessage clm = clmDoc.getCarLocationMessage();
-        assertEquals(false, clm.isNil());
+        assertFalse(clm.isNil());
     }
 
+    @Test
     public void testSetNilNillable() throws Exception {
         PurchaseOrderDocument pod = (PurchaseOrderDocument) XmlObject.Factory.parse(
                 JarUtil.getResourceFromJar("xbean/xmlcursor/po.xml"));
         m_xo = pod.getPurchaseOrder().getShipTo().xgetName();
         m_xo.setNil();
-        assertEquals(true, m_xo.isNil());
+        assertTrue(m_xo.isNil());
     }
 
+    @Test(expected = XmlValueNotNillableException.class)
     public void testSetNilNotNillable() throws Exception {
+        XmlOptions xo = new XmlOptions();
+        xo.setValidateOnSet();
         CarLocationMessageDocument clmDoc = (CarLocationMessageDocument) XmlObject.Factory.parse(
-                   JarUtil.getResourceFromJar(Common.TRANXML_FILE_CLM));
-        try {
-            clmDoc.setNil();
-            fail("Expected XmlValueNotNillableException");
-        }
-        catch (XmlValueNotNillableException xvnne) {
-        }
-        assertTrue(true);
+                   JarUtil.getResourceFromJar(Common.TRANXML_FILE_CLM), xo);
+        clmDoc.setNil();
     }
 
     /**
      * Test case for Radar bug: #38361
      */
+    @Test
     public void nillableTest() throws Exception {
         //Generates a xml document programatically
         TestDocument generated = TestDocument.Factory.newInstance();

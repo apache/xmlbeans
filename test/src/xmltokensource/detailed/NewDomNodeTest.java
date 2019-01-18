@@ -19,26 +19,21 @@ package xmltokensource.detailed;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
-import xmlcursor.common.BasicCursorTestCase;
-import junit.framework.Test;
-import junit.framework.TestSuite;
+import org.junit.Test;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import xmlcursor.common.BasicCursorTestCase;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 
 public class NewDomNodeTest extends BasicCursorTestCase {
     public static final String DOC_FRAGMENT = "#document-fragment";
-    public static final String DOC = "#document";
+    private static final String DOC = "#document";
     private XmlOptions m_map = new XmlOptions();
 
-    public NewDomNodeTest(String sName) {
-        super(sName);
-    }
-
-    public static Test suite() {
-        return new TestSuite(NewDomNodeTest.class);
-    }
-
+    @Test
     public void testNewDomNode() throws Exception {
         m_xo = XmlObject.Factory.parse("<foo>01234   <bar>text</bar>   chars </foo>");
         Node doc = m_xo.newDomNode();
@@ -67,6 +62,7 @@ public class NewDomNodeTest extends BasicCursorTestCase {
         assertEquals("text", node.getNodeValue());
     }
 
+    @Test
     public void testNewDomNodeWithNamespace() throws Exception {
         m_xo = XmlObject.Factory.parse("<foo xmlns=\"ns\">01234   <bar>text</bar>   chars </foo>");
         Node doc = m_xo.newDomNode();
@@ -74,6 +70,7 @@ public class NewDomNodeTest extends BasicCursorTestCase {
         assertEquals(DOC, doc.getNodeName());
     }
 
+    @Test
     public void testNewDomNodeWithOptions() throws Exception {
         m_xo = XmlObject.Factory.parse("<foo attr=\"val\" xmlns=\"ns\">01234   <bar>text</bar>   chars </foo>");
         XmlOptions map = new XmlOptions();
@@ -106,6 +103,7 @@ public class NewDomNodeTest extends BasicCursorTestCase {
         assertEquals("text", node.getNodeValue());
     }
 
+    @Test
     public void testNewDomNodeRoundTrip() throws Exception {
         m_xo = XmlObject.Factory.parse("<foo>01234   <bar>text</bar>   chars </foo>");
         Node doc = m_xo.newDomNode();

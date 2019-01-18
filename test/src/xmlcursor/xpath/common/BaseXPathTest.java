@@ -14,15 +14,18 @@
  */
 package xmlcursor.xpath.common;
 
+import org.junit.Before;
+import org.junit.Ignore;
 import xmlcursor.common.BasicCursorTestCase;
 
 import java.util.HashMap;
 
+@Ignore("abstract class")
 public abstract class BaseXPathTest extends BasicCursorTestCase {
-    protected HashMap testMap = new HashMap();
+    protected final HashMap<String,String[]> testMap = new HashMap<String,String[]>();
 
-    public BaseXPathTest(String sName) {
-        super(sName);
+    @Before
+    public void setUp() throws Exception {
         String[] add = new String[]{"//price[position()=0+1]"};
         String[] sub = new String[]{"//price[position()=4-2]"};
         String[] mult = new String[]{"//price[position()=2*1]"};

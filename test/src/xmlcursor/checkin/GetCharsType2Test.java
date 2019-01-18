@@ -16,37 +16,17 @@
 
 package xmlcursor.checkin;
 
-import org.apache.xmlbeans.XmlOptions;
-import junit.framework.*;
-import junit.framework.Assert.*;
-
-import java.io.*;
-
-import org.apache.xmlbeans.XmlObject;
-import org.apache.xmlbeans.XmlCursor;
-import org.apache.xmlbeans.XmlBeans;
 import org.apache.xmlbeans.XmlCursor.TokenType;
+import org.apache.xmlbeans.XmlObject;
+import org.junit.Test;
+import xmlcursor.common.BasicCursorTestCase;
+import xmlcursor.common.Common;
 
-import javax.xml.namespace.QName;
-
-import xmlcursor.common.*;
-
-import java.net.URL;
+import static org.junit.Assert.assertEquals;
 
 
-/**
- *
- *
- */
 public class GetCharsType2Test extends BasicCursorTestCase {
-    public GetCharsType2Test(String sName) {
-        super(sName);
-    }
-
-    public static Test suite() {
-        return new TestSuite(GetCharsType2Test.class);
-    }
-
+    @Test
     public void testGetCharsType2LessThanBufLength() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_DIGITS);
         m_xc = m_xo.newCursor();
@@ -57,6 +37,7 @@ public class GetCharsType2Test extends BasicCursorTestCase {
         assertEquals("012\0\0", s);
     }
 
+    @Test
     public void testGetCharsType2GTBufLengthMinusOffset() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_DIGITS);
         m_xc = m_xo.newCursor();
@@ -70,6 +51,7 @@ public class GetCharsType2Test extends BasicCursorTestCase {
         assertEquals('1', buf[4]);
     }
 
+    @Test
     public void testGetCharsType2FromATTR() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_DIGITS);
         m_xc = m_xo.newCursor();
@@ -78,6 +60,7 @@ public class GetCharsType2Test extends BasicCursorTestCase {
         assertEquals(0, m_xc.getChars(buf, 3, 4));
     }
 
+    @Test
     public void testGetCharsType2FromSTART() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_DIGITS);
         m_xc = m_xo.newCursor();
@@ -86,6 +69,7 @@ public class GetCharsType2Test extends BasicCursorTestCase {
         assertEquals(0, m_xc.getChars(buf, 3, 4));
     }
 
+    @Test
     public void testGetCharsType2FromSTARTDOC() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_DIGITS);
         m_xc = m_xo.newCursor();
@@ -93,6 +77,7 @@ public class GetCharsType2Test extends BasicCursorTestCase {
         assertEquals(0, m_xc.getChars(buf, 3, 4));
     }
 
+    @Test
     public void testGetCharsType2FromNAMESPACE() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_DIGITS);
         m_xc = m_xo.newCursor();
@@ -101,6 +86,7 @@ public class GetCharsType2Test extends BasicCursorTestCase {
         assertEquals(0, m_xc.getChars(buf, 3, 4));
     }
 
+    @Test
     public void testGetCharsType2FromPROCINST() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_PROCINST);
         m_xc = m_xo.newCursor();
@@ -109,6 +95,7 @@ public class GetCharsType2Test extends BasicCursorTestCase {
         assertEquals(0, m_xc.getChars(buf, 3, 4));
     }
 
+    @Test
     public void testGetCharsType2FromEND() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_DIGITS);
         m_xc = m_xo.newCursor();
@@ -117,6 +104,7 @@ public class GetCharsType2Test extends BasicCursorTestCase {
         assertEquals(0, m_xc.getChars(buf, 3, 4));
     }
 
+    @Test
     public void testGetCharsType2FromENDDOC() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_DIGITS);
         m_xc = m_xo.newCursor();
@@ -125,6 +113,7 @@ public class GetCharsType2Test extends BasicCursorTestCase {
         assertEquals(0, m_xc.getChars(buf, 3, 4));
     }
 
+    @Test
     public void testGetCharsType2FromCOMMENT() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_COMMENT);
         m_xc = m_xo.newCursor();
@@ -132,6 +121,5 @@ public class GetCharsType2Test extends BasicCursorTestCase {
         char[] buf = new char[5];
         assertEquals(0, m_xc.getChars(buf, 3, 4));
     }
-
 }
 

@@ -16,43 +16,24 @@
 
 package xmlcursor.checkin;
 
-import org.apache.xmlbeans.XmlOptions;
-import junit.framework.*;
-import junit.framework.Assert.*;
-
-import java.io.*;
-
-import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlCursor;
-import org.apache.xmlbeans.XmlBeans;
-import org.apache.xmlbeans.XmlCursor.TokenType;
-import org.apache.xmlbeans.XmlDocumentProperties;
 import org.apache.xmlbeans.XmlCursor.XmlBookmark;
+import org.apache.xmlbeans.XmlObject;
+import org.junit.Test;
+import xmlcursor.common.BasicCursorTestCase;
+import xmlcursor.common.Common;
 
-import javax.xml.namespace.QName;
-
-import xmlcursor.common.*;
-
-import java.net.URL;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 
-/**
- *
- *
- */
 public class GetBookmarkTest extends BasicCursorTestCase {
     private Bookmark0 _theBookmark0 = new Bookmark0("value0");
     private Bookmark1 _theBookmark1 = new Bookmark1("value1");
     private Bookmark2 _theBookmark2 = new Bookmark2("value2");
 
-    public GetBookmarkTest(String sName) {
-        super(sName);
-    }
 
-    public static Test suite() {
-        return new TestSuite(GetBookmarkTest.class);
-    }
-
+    @Test
     public void testGetBookmarkIndependentKey() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_TEXT);
         m_xc = m_xo.newCursor();
@@ -67,6 +48,7 @@ public class GetBookmarkTest extends BasicCursorTestCase {
         assertEquals("value2", ann2.text);
     }
 
+    @Test
     public void testGetBookmarkNullKey() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_TEXT);
         m_xc = m_xo.newCursor();
@@ -75,6 +57,7 @@ public class GetBookmarkTest extends BasicCursorTestCase {
         assertNull(xa);
     }
 
+    @Test
     public void testGetBookmarkInvalidKey() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_TEXT);
         m_xc = m_xo.newCursor();
@@ -83,6 +66,7 @@ public class GetBookmarkTest extends BasicCursorTestCase {
         assertNull(xa);
     }
 
+    @Test
     public void testGetBookmarkNotAtCursor() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_TEXT);
         m_xc = m_xo.newCursor();

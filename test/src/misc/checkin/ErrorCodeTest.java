@@ -16,38 +16,17 @@
 package misc.checkin;
 
 import org.apache.xmlbeans.XmlErrorCodes;
-
-import junit.framework.Assert;
-import junit.framework.TestCase;
-import junit.framework.Test;
-import junit.framework.TestSuite;
+import org.junit.Test;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-import java.util.Map;
-import java.util.Set;
+import java.util.Enumeration;
 import java.util.LinkedHashSet;
 import java.util.Properties;
-import java.util.Enumeration;
-import java.util.Iterator;
-import java.util.List;
-import java.util.ArrayList;
-import java.io.FileInputStream;
-import java.io.InputStream;
+import java.util.Set;
 
-public class ErrorCodeTest extends TestCase
-{
-
-    public ErrorCodeTest(String name)
-    {
-        super(name);
-    }
-
-    public static Test suite()
-    {
-        return new TestSuite(ErrorCodeTest.class);
-    }
-
+public class ErrorCodeTest {
+    @Test
     public void testCodes() throws Exception
     {
         // throws Exception if a duplicate error code value is found.
@@ -70,9 +49,8 @@ public class ErrorCodeTest extends TestCase
         }
 
         // each error code value should have a message key
-        Iterator iter = codes.iterator();
-        while (iter.hasNext()) {
-            String code = (String) iter.next();
+        for (Object code1 : codes) {
+            String code = (String) code1;
             if (messages.get(code) == null)
                 throw new Exception("missing message.properties key for error code: " + code);
         }

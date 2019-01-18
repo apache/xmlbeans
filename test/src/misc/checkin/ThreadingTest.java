@@ -15,29 +15,20 @@
 
 package misc.checkin;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
-import junit.framework.TestCase;
-import junit.framework.Assert;
 import org.apache.xmlbeans.SchemaTypeLoader;
 import org.apache.xmlbeans.XmlBeans;
 import org.apache.xmlbeans.XmlObject;
-import org.apache.xmlbeans.XmlOptions;
+import org.junit.Assert;
+import org.junit.Test;
+import tools.util.JarUtil;
 
 import javax.xml.namespace.QName;
-
-import tools.util.*;
-
 import java.io.File;
 
-public class ThreadingTest extends TestCase {
-    public ThreadingTest(String name) {
-        super(name);
-    }
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
-    public static Test suite() {
-        return new TestSuite(ThreadingTest.class);
-    }
+public class ThreadingTest {
 
     public static final int THREAD_COUNT = 4;
     public static final int ITERATION_COUNT = 1;
@@ -78,6 +69,7 @@ public class ThreadingTest extends TestCase {
         }
     }
 
+    @Test
     public void testThreadedCompilation() throws Throwable {
         CompilationThread[] threads = new CompilationThread[THREAD_COUNT];
         for (int i = 0; i < threads.length; i++) {
@@ -93,8 +85,8 @@ public class ThreadingTest extends TestCase {
         }
 
         for (int i = 0; i < threads.length; i++) {
-            Assert.assertNull(threads[i].getException());
-            Assert.assertTrue("Thread " + i + " didn't succeed",
+            assertNull(threads[i].getException());
+            assertTrue("Thread " + i + " didn't succeed",
                     threads[i].getResult());
         }
     }

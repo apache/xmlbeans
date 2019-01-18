@@ -15,44 +15,42 @@
 
 package misc.detailed;
 
-import junit.framework.Assert;
+import dufourrault.DummyDocument;
+import dufourrault.Father;
+import misc.common.JiraTestBase;
+import net.orthogony.xml.sample.structure.ARootDocument;
+import net.orthogony.xml.sample.structure.ChildType;
+import org.apache.beehive.netui.tools.testrecorder.x2004.session.RecorderSessionDocument;
 import org.apache.xmlbeans.*;
 import org.apache.xmlbeans.impl.tool.SchemaCompiler;
 import org.apache.xmlbeans.impl.xb.xmlconfig.ConfigDocument;
-import org.apache.beehive.netui.tools.testrecorder.x2004.session.RecorderSessionDocument;
+import org.junit.Assert;
+import org.junit.Ignore;
+import org.junit.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.DocumentType;
 import org.w3c.dom.Node;
+import test.xbean.xmlcursor.purchaseOrder.PurchaseOrderDocument;
+import testDateAttribute.TestDatewTZone;
+import testDateAttribute.TestElementWithDateAttributeDocument;
+import tools.util.JarUtil;
 
-import javax.xml.stream.XMLStreamReader;
-import javax.xml.stream.XMLInputFactory;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.util.*;
 import java.net.URL;
+import java.util.*;
 
-import tools.util.JarUtil;
-import test.xbean.xmlcursor.purchaseOrder.PurchaseOrderDocument;
-import testDateAttribute.TestElementWithDateAttributeDocument;
-import testDateAttribute.TestDatewTZone;
-import misc.common.JiraTestBase;
-import dufourrault.DummyDocument;
-import dufourrault.Father;
-import net.orthogony.xml.sample.structure.ARootDocument;
-import net.orthogony.xml.sample.structure.ChildType;
+import static org.junit.Assert.*;
 
 
 public class JiraRegression50_100Test extends JiraTestBase
 {
 
-
-    public JiraRegression50_100Test(String name)
-    {
-     super(name);
-    }
 
     ///**
     // * [XMLBEANS-##]  <BUG TITLE>
@@ -68,6 +66,7 @@ public class JiraRegression50_100Test extends JiraTestBase
     /**
      * [XMLBEANS-52]   Validator loops when schema has certain conditions
      */
+    @Test
     public void test_jira_XmlBeans52() throws Exception{
      //reusing code from method test_jira_XmlBeans48()
      String correctXml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?> \n" +
@@ -86,8 +85,8 @@ public class JiraRegression50_100Test extends JiraTestBase
 
     /*
     * [XMLBEANS-54]: problem with default value
-    *
     */
+    @Test
     public void test_jira_xmlbeans54() throws Exception {
         List errors = new ArrayList();
 
@@ -111,15 +110,15 @@ public class JiraRegression50_100Test extends JiraTestBase
         }
 
         if (printOptionErrMsgs(errors)) {
-            Assert.fail("test_jira_xmlbeans54() : Errors found when executing scomp");
+            fail("test_jira_xmlbeans54() : Errors found when executing scomp");
         }
     }
 
     /**
      * [XMLBEANS-56] samples issue with easypo schema and config file
      */
-    public void test_jira_XmlBeans56() throws Exception
-    {
+    @Test
+    public void test_jira_XmlBeans56() throws Exception {
         String xsdConfig = "<xb:config " +
                 " xmlns:xb=\"http://xml.apache.org/xmlbeans/2004/02/xbean/config\"\n" +
                 "    xmlns:ep=\"http://openuri.org/easypo\">\n" +
@@ -156,8 +155,8 @@ public class JiraRegression50_100Test extends JiraTestBase
     /**
      * [XMLBEANS-57]   scomp failure for XSD namespace "DAV:"
      */
-    public void test_jira_XmlBeans57() throws Exception
-    {
+    @Test
+    public void test_jira_XmlBeans57() throws Exception {
         String P = File.separator;
         String outputDir = OUTPUTROOT + P + "dav";
 
@@ -201,6 +200,8 @@ public class JiraRegression50_100Test extends JiraTestBase
     * This is realted to xmlbeans36 - its the same case but the schemas seem to have been updated at the w3c site.
     * Hence adding a new testcase with the new schemas
     */
+    @Test
+    @Ignore("the url doesn't exist anymore ...")
     public void test_jira_xmlbeans58() throws Exception {
         List errors = new ArrayList();
         SchemaCompiler.Parameters params = new SchemaCompiler.Parameters();
@@ -216,7 +217,7 @@ public class JiraRegression50_100Test extends JiraTestBase
 
         SchemaCompiler.compile(params);
         if (printOptionErrMsgs(errors)) {
-            Assert.fail("test_jira_xmlbeans55() : Errors found when executing scomp");
+            fail("test_jira_xmlbeans55() : Errors found when executing scomp");
         }
 
     }
@@ -225,8 +226,8 @@ public class JiraRegression50_100Test extends JiraTestBase
     /**
      * [XMLBEANS-62]   Avoid class cast exception when compiling older schema namespace
      */
-    public void test_jira_XmlBeans62() throws Exception
-    {
+    @Test
+    public void test_jira_XmlBeans62() throws Exception {
         String P = File.separator;
         String outputDir = System.getProperty("xbean.rootdir") + P + "build" +
                 P + "test" + P + "output" + P + "x1999";
@@ -265,8 +266,8 @@ public class JiraRegression50_100Test extends JiraTestBase
     /**
      * [XMLBEANS-64] ArrayIndexOutOfBoundsException during validation
      */
-    public void test_jira_XmlBeans64() throws Exception
-    {
+    @Test
+    public void test_jira_XmlBeans64() throws Exception {
         // load the document
         File inst = new File(JIRA_CASES + "xmlbeans_64.xml");
         XmlObject doc = RecorderSessionDocument.Factory.parse(inst);
@@ -284,8 +285,8 @@ public class JiraRegression50_100Test extends JiraTestBase
     /**
      * [XMLBEANS-66]   NullPointerException when restricting a union with one of the union members
      */
-    public void test_jira_XmlBeans66() throws Exception
-    {
+    @Test
+    public void test_jira_XmlBeans66() throws Exception {
         String reproXsd = "<?xml version=\"1.0\" encoding=\"UTF-8\"?> \n" +
                 "<xsd:schema targetNamespace=\"http://www.w3.org/2003/12/XQueryX\" \n" +
                 "      xmlns=\"http://www.w3.org/2003/12/XQueryX\" \n" +
@@ -318,7 +319,7 @@ public class JiraRegression50_100Test extends JiraTestBase
         SchemaTypeLoader stl = makeSchemaTypeLoader(new String[]{reproXsd});
         QName reproQName = new QName("http://www.w3.org/2003/12/XQueryX", "Kludge");
         SchemaGlobalElement elVal = stl.findElement(reproQName);
-        Assert.assertTrue("Element is null or not found", (elVal != null));
+        assertTrue("Element is null or not found", (elVal != null));
 
         String reproInst = "<Kludge xmlns=\"http://www.w3.org/2003/12/XQueryX\"><value>12</value></Kludge>";
         validateInstance(new String[]{reproXsd}, new String[]{reproInst}, null);
@@ -327,8 +328,8 @@ public class JiraRegression50_100Test extends JiraTestBase
     /**
      * [XMLBEANS-68] GDateBuilder outputs empty string when used without time or timezone
      */
-    public void test_jira_XmlBeans68() throws Exception
-    {
+    @Test
+    public void test_jira_XmlBeans68() throws Exception {
         Calendar cal = Calendar.getInstance();
         GDateBuilder gdateBuilder = new GDateBuilder(cal);
         gdateBuilder.clearTime();
@@ -356,8 +357,8 @@ public class JiraRegression50_100Test extends JiraTestBase
      * This issue needed an elementFormDefault=qualified added to the schema
      * [XMLBEANS-71] when trying to retrieve data from a XMLBean with Input from a XML Document, we cannot get any data from the Bean.
      */
-    public void test_jira_XmlBeans71() throws Exception
-    {
+    @Test
+    public void test_jira_XmlBeans71() throws Exception {
         //schema src lives in cases/xbean/xmlobject/xmlbeans_71.xsd
         abc.BazResponseDocument doc = abc.BazResponseDocument.Factory.parse(JarUtil.getResourceFromJarasFile("xbean/misc/jira/xmlbeans_71.xml"), xmOpts);
         xmOpts.setErrorListener(errorList);
@@ -387,8 +388,9 @@ public class JiraRegression50_100Test extends JiraTestBase
     /**
      * [XMLBEANS-72]   Document properties are lost
      */
-    public void test_jira_XmlBeans72() throws Exception
-    {
+    @Test
+    @Ignore
+    public void test_jira_XmlBeans72() throws Exception {
         String docTypeName = "struts-config";
         String docTypePublicID = "-//Apache Software Foundation//DTD Struts Configuration 1.1//EN";
         String docTypeSystemID = "http://jakarta.apache.org/struts/dtds/struts-config_1_1.dtd";
@@ -461,11 +463,9 @@ public class JiraRegression50_100Test extends JiraTestBase
     /**
      * BUGBUG: XMLBEANS-78 - NPE when processing XMLStreamReader Midstream
      * XMLBEANS-78 - NPE when processing XMLStreamReader Midstream
-     *
-     * @throws Exception
      */
-    public void test_jira_xmlbeans78() throws Exception
-    {
+    @Test
+    public void test_jira_xmlbeans78() throws Exception {
         XMLInputFactory factory = XMLInputFactory.newInstance();
         FileInputStream fis = new FileInputStream(new File(JIRA_CASES+ "xmlbeans_78.xml"));
         XMLStreamReader reader = factory.createXMLStreamReader(fis);
@@ -480,8 +480,7 @@ public class JiraRegression50_100Test extends JiraTestBase
      * @throws javax.xml.stream.XMLStreamException
      *
      */
-    private void skipToBody(XMLStreamReader reader) throws javax.xml.stream.XMLStreamException
-    {
+    private void skipToBody(XMLStreamReader reader) throws javax.xml.stream.XMLStreamException {
         while (true) {
             int event = reader.next();
             switch (event) {
@@ -502,8 +501,8 @@ public class JiraRegression50_100Test extends JiraTestBase
      * Repro case for jira issue
      * XMLBEANS-80  problems in XPath selecting with namespaces and Predicates.
      */
-    public void test_jira_xmlbeans80() throws Exception
-    {
+    @Test
+    public void test_jira_xmlbeans80() throws Exception {
         String xpathDoc = "<?xml version=\"1.0\"?> \n" +
                 "<doc xmlns:ext=\"http://somebody.elses.extension\"> \n" +
                 "  <ext:a test=\"test\" /> \n" +
@@ -522,7 +521,7 @@ public class JiraRegression50_100Test extends JiraTestBase
                 "ext='http://somebody.elses.extension'; .//ext:a[@test='test']");
 
 
-        Assert.assertTrue(resSet.length == 1);
+        assertEquals(1, resSet.length);
         System.out.println("Result was: " + resSet[0].xmlText());
     }
 
@@ -530,8 +529,8 @@ public class JiraRegression50_100Test extends JiraTestBase
      * Repro case for jira issue
      * XMLBEANS-81  Cursor selectPath() method not working with predicates
      */
-    public void test_jira_xmlbeans81() throws Exception
-    {
+    @Test
+    public void test_jira_xmlbeans81() throws Exception {
         String xpathDoc = "<MatchedRecords>" +
                 "  <MatchedRecord>" +
                 "     <TableName>" +
@@ -557,8 +556,8 @@ public class JiraRegression50_100Test extends JiraTestBase
     /**
      * XMLBeans-84 Cannot run XmlObject.selectPath using Jaxen in multi threaded environment
      */
-    public void test_jira_XmlBeans84() throws Exception
-    {
+    @Test
+    public void test_jira_XmlBeans84() throws Exception {
         XPathThread[] threads = new XPathThread[15];
 
         for (int i = 0; i < threads.length; i++) {
@@ -578,9 +577,9 @@ public class JiraRegression50_100Test extends JiraTestBase
 
     /*
     * [XMLBEANS-88]:Cannot compile eBay schema
-    *
     */
-    /*
+    @Ignore
+    @Test
     public void test_jira_xmlbeans88() throws Exception {
         List errors = new ArrayList();
         SchemaCompiler.Parameters params = new SchemaCompiler.Parameters();
@@ -603,22 +602,22 @@ public class JiraRegression50_100Test extends JiraTestBase
             System.out.println(ome.getCause());
             System.out.println(ome.getMessage());
             System.out.println(ome.getStackTrace());
-            Assert.fail("test_jira_xmlbeans88(): Out Of Memory Error");
+            fail("test_jira_xmlbeans88(): Out Of Memory Error");
         } catch (Throwable t) {
             t.getMessage();
             System.out.println("Ok Some Exception is caught here");
         }
 
         if (printOptionErrMsgs(errors)) {
-            Assert.fail("test_jira_xmlbeans88() : Errors found when executing scomp");
+            fail("test_jira_xmlbeans88() : Errors found when executing scomp");
         }
-
     }
-    */
 
     /**
     * [XMLBEANS-96]:XmlDocumentProperties missing version and encoding
     */
+    @Test
+    @Ignore
     public void test_jira_xmlbeans96() throws Exception {
         StringBuffer xmlstringbuf = new StringBuffer("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>");
         xmlstringbuf.append("<test>");
@@ -627,17 +626,17 @@ public class JiraRegression50_100Test extends JiraTestBase
 
         XmlObject doc = XmlObject.Factory.parse(xmlstringbuf.toString());
         XmlDocumentProperties props = doc.documentProperties();
-        Assert.assertEquals("test_jira_xmlbeans96() : Xml Version is not picked up", props.getVersion(), "1.0");
-        Assert.assertEquals("test_jira_xmlbeans96() : Xml Encoding is not picked up", props.getEncoding(), "UTF-8");
+        assertEquals("test_jira_xmlbeans96() : Xml Version is not picked up", "1.0", props.getVersion());
+        assertEquals("test_jira_xmlbeans96() : Xml Encoding is not picked up", "UTF-8", props.getEncoding());
 
     }
 
     /**
      * [XMLBEANS-98]   setSaveSuggestedPrefixes doesn't
      * work for QName attribute values
-     *
-     * @throws Exception
      */
+    @Test
+    @Ignore
     public void test_jira_xmlbeans98() throws Exception {
         String outfn = outputroot + "xmlbeans_98.xml";
         String structnamespace = "http://www.orthogony.net/xml/sample/structure";
@@ -696,9 +695,8 @@ public class JiraRegression50_100Test extends JiraTestBase
 
     /**
      * [XMLBEANS-99]   NPE/AssertionFailure in newDomNode()
-     *
-     * @throws Exception
      */
+    @Test
     public void test_jira_xmlbeans99_a() throws Exception {
         //typed verification
         DummyDocument doc = DummyDocument.Factory.parse(new File(JIRA_CASES + "xmlbeans_99.xml"));
@@ -715,6 +713,7 @@ public class JiraRegression50_100Test extends JiraTestBase
     * [XMLBEANS-99]: NPE/AssertionFailure in newDomNode()
     * refer to [XMLBEANS-14]
     */
+    @Test
     public void test_jira_xmlbeans99_b() throws Exception {
         StringBuffer xmlstringbuf = new StringBuffer("<?xml version=\"1.0\" encoding=\"ISO-8859-1\" ?> \n");
         xmlstringbuf.append("                <x:dummy xmlns:x=\"http://dufourrault\" xmlns:xsi=\"http://www.w3.org/2000/10/XMLSchema-instance\" xsi:SchemaLocation=\"dummy.xsd\">\n");
@@ -754,9 +753,9 @@ public class JiraRegression50_100Test extends JiraTestBase
             System.out.println("New Father Type Node: "+ fatherTypeNode);
 
         } catch (NullPointerException npe) {
-            Assert.fail("test_jira_xmlbeans99() : Null Pointer Exception when create Dom Node");
+            fail("test_jira_xmlbeans99() : Null Pointer Exception when create Dom Node");
         } catch (Exception e) {
-            Assert.fail("test_jira_xmlbeans99() : Exception when create Dom Node");
+            fail("test_jira_xmlbeans99() : Exception when create Dom Node");
         }
     }
 
@@ -845,10 +844,5 @@ public class JiraRegression50_100Test extends JiraTestBase
             }
         }
     }
-
-
-
-
-
 }
 

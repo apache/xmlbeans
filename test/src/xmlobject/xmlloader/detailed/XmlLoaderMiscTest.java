@@ -16,10 +16,9 @@
 
 package xmlobject.xmlloader.detailed;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
 import org.apache.xmlbeans.*;
 import org.apache.xmlbeans.XmlCursor.TokenType;
+import org.junit.Test;
 import org.tranxml.tranXML.version40.CarLocationMessageDocument;
 import org.tranxml.tranXML.version40.GeographicLocationDocument.GeographicLocation;
 import tools.util.JarUtil;
@@ -28,26 +27,15 @@ import xmlcursor.common.Common;
 
 import javax.xml.namespace.QName;
 import java.util.Collections;
-import java.util.Set;
 import java.util.HashSet;
+import java.util.Set;
 import java.util.Vector;
+
+import static org.junit.Assert.*;
 
 
 public class XmlLoaderMiscTest extends BasicCursorTestCase {
-    public XmlLoaderMiscTest(String sName) {
-        super(sName);
-    }
-
-    public static Test suite() {
-        return new TestSuite(XmlLoaderMiscTest.class);
-    }
-
-    public void testClassPath() throws Exception {
-        String sClassPath = System.getProperty("java.class.path");
-        int i = sClassPath.indexOf(Common.CARLOCATIONMESSAGE_JAR);
-        assertTrue(i >= 0);
-    }
-
+    @Test
     public void testNewInstance() throws Exception {
         m_xo = XmlObject.Factory.newInstance();
         m_xc = m_xo.newCursor();
@@ -56,6 +44,7 @@ public class XmlLoaderMiscTest extends BasicCursorTestCase {
         assertEquals(TokenType.ENDDOC, m_xc.currentTokenType());
     }
 
+    @Test
     public void testTypeForClass() throws Exception {
         m_xc = XmlObject.Factory.parse(JarUtil.getResourceFromJar(Common.TRANXML_FILE_CLM)).newCursor();
         m_xc.selectPath(Common.CLM_NS_XQUERY_DEFAULT + "$this//GeographicLocation");
@@ -65,7 +54,8 @@ public class XmlLoaderMiscTest extends BasicCursorTestCase {
         assertEquals(gl.schemaType(), XmlBeans.typeForClass(GeographicLocation.class));
     }
 
-    public void testGetBuiltInTypeSystem() throws Exception {
+    @Test
+    public void testGetBuiltInTypeSystem() {
         SchemaTypeSystem sts = XmlBeans.getBuiltinTypeSystem();
         if (sts == null) {
             fail("XmlBeans.getBuiltinTypeSystem() returned null");
@@ -76,11 +66,13 @@ public class XmlLoaderMiscTest extends BasicCursorTestCase {
         assertEquals(14, stDateTime.getBuiltinTypeCode());
     }
 
-    public void testTypeLoaderUnion() throws Exception {
+    @Test
+    public void testTypeLoaderUnion() {
         System.out.println("testTypeLoaderUnion not implemented");
         // TODO
     }
 
+    @Test
     public void testTypeLoaderForClassLoader() throws Exception {
 
         SchemaTypeLoader stl = XmlBeans.typeLoaderForClassLoader(CarLocationMessageDocument.class.getClassLoader());
@@ -93,6 +85,7 @@ public class XmlLoaderMiscTest extends BasicCursorTestCase {
         assertEquals("FLEETNAME", m_xc.getTextValue());
     }
 
+    @Test
     public void testGetContextTypeLoader() throws Exception {
         SchemaTypeLoader stl = XmlBeans.getContextTypeLoader();
         if (stl == null)

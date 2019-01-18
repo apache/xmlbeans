@@ -14,21 +14,21 @@
  */
 package scomp.attributes.detailed;
 
+import org.apache.xmlbeans.XmlErrorCodes;
+import org.apache.xmlbeans.XmlException;
+import org.junit.Test;
+import scomp.common.BaseCase;
 import xbean.scomp.attribute.globalAttrDefault.GlobalAttrDefaultDocDocument;
 import xbean.scomp.attribute.globalAttrDefault.GlobalAttrDefaultT;
-import scomp.common.BaseCase;
-import org.apache.xmlbeans.XmlException;
-import org.apache.xmlbeans.XmlErrorCodes;
 
-/**
- *
- *
- *
- */
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 public class GlobalAttrDefault extends BaseCase {
     /**
      * If value is missing default should appear
      */
+    @Test
     public void testMissing() {
         GlobalAttrDefaultT testDoc =
                 GlobalAttrDefaultDocDocument.Factory.newInstance()
@@ -39,6 +39,7 @@ public class GlobalAttrDefault extends BaseCase {
     /**
      * Test val preservation
      */
+    @Test
     public void testPresent() {
         GlobalAttrDefaultT testDoc =
                 GlobalAttrDefaultDocDocument.Factory.newInstance()
@@ -50,20 +51,19 @@ public class GlobalAttrDefault extends BaseCase {
     /**
      * Test empty string: should be preserved
      */
+    @Test
     public void testPresentEmpty() throws Throwable {
         GlobalAttrDefaultT testDoc =
-                GlobalAttrDefaultDocDocument.Factory.parse("<pre:GlobalAttrDefaultDoc" +
+            GlobalAttrDefaultDocDocument.Factory.parse("<pre:GlobalAttrDefaultDoc" +
                 " xmlns:pre=\"http://xbean/scomp/attribute/GlobalAttrDefault\" " +
                 " pre:testattribute=\"\"/>").getGlobalAttrDefaultDoc();
         assertEquals("", testDoc.getTestattribute());
         try {
-                  assertTrue(testDoc.validate(validateOptions));
-              }
-              catch (Throwable t) {
-                  showErrors();
-                  throw t;
-              }
-
+            assertTrue(testDoc.validate(validateOptions));
+        } catch (Throwable t) {
+            showErrors();
+            throw t;
+        }
     }
 
 

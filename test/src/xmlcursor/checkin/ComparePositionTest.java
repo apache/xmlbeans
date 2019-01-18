@@ -19,25 +19,15 @@ package xmlcursor.checkin;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlCursor.TokenType;
 import org.apache.xmlbeans.XmlObject;
+import org.junit.Test;
 import xmlcursor.common.BasicCursorTestCase;
 import xmlcursor.common.Common;
-import junit.framework.Test;
-import junit.framework.TestSuite;
+
+import static org.junit.Assert.assertEquals;
 
 
-/**
- *
- *
- */
 public class ComparePositionTest extends BasicCursorTestCase {
-    public ComparePositionTest(String sName) {
-        super(sName);
-    }
-
-    public static Test suite() {
-        return new TestSuite(ComparePositionTest.class);
-    }
-
+    @Test
     public void testComparePositionThis() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_1ATTR_TEXT);
         m_xc = m_xo.newCursor();
@@ -45,6 +35,7 @@ public class ComparePositionTest extends BasicCursorTestCase {
         assertEquals(0, m_xc.comparePosition(m_xc));
     }
 
+    @Test(expected = IllegalArgumentException.class)
     public void testComparePositionDifferentDocs() throws Exception {
         m_xc = XmlObject.Factory.parse(Common.XML_FOO_1ATTR_TEXT).newCursor();
         XmlCursor xc0 = XmlObject.Factory.parse(Common.XML_FOO_1ATTR_TEXT).newCursor();
@@ -52,23 +43,19 @@ public class ComparePositionTest extends BasicCursorTestCase {
         xc0.toFirstChild();
         try {
             m_xc.comparePosition(xc0);
-            fail("Expected IllegalArgumentException");
-        } catch (IllegalArgumentException ise) {
         } finally {
             xc0.dispose();
         }
     }
 
+    @Test(expected = IllegalArgumentException.class)
     public void testComparePositionNull() throws Exception {
         m_xc = XmlObject.Factory.parse(Common.XML_FOO_1ATTR_TEXT).newCursor();
         m_xc.toFirstChild();
-        try {
-            m_xc.comparePosition(null);
-            fail("Expected IllegalArgumentException");
-        } catch (IllegalArgumentException ise) {
-        }
+        m_xc.comparePosition(null);
     }
 
+    @Test
     public void testComparePositionRightInTEXT() throws Exception {
         m_xc = XmlObject.Factory.parse(Common.XML_FOO_1ATTR_TEXT).newCursor();
         XmlCursor xc0 = m_xc.newCursor();
@@ -82,6 +69,7 @@ public class ComparePositionTest extends BasicCursorTestCase {
         }
     }
 
+    @Test
     public void testComparePositionLeftInTEXT() throws Exception {
         m_xc = XmlObject.Factory.parse(Common.XML_FOO_1ATTR_TEXT).newCursor();
         XmlCursor xc0 = m_xc.newCursor();
@@ -95,6 +83,7 @@ public class ComparePositionTest extends BasicCursorTestCase {
         }
     }
 
+    @Test
     public void testComparePositionENDandENDDOC() throws Exception {
         m_xc = XmlObject.Factory.parse(Common.XML_FOO_1ATTR_TEXT).newCursor();
         XmlCursor xc0 = m_xc.newCursor();

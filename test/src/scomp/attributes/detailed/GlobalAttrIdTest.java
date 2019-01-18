@@ -14,6 +14,7 @@
  */
 package scomp.attributes.detailed;
 
+import org.junit.Test;
 import scomp.common.BaseCase;
 import xbean.scomp.attribute.globalAttrId.GlobalAttrIdT;
 import xbean.scomp.attribute.globalAttrId.GlobalAttrIdDocument;
@@ -22,12 +23,10 @@ import org.apache.xmlbeans.XmlString;
 
 import javax.xml.namespace.QName;
 
-/**
- *
- *
- *
- */
+import static org.junit.Assert.assertTrue;
+
 public class GlobalAttrIdTest extends BaseCase {
+    @Test
     public void testId() throws Throwable {
         GlobalAttrIdDocument testDoc =
                 GlobalAttrIdDocument.Factory.newInstance();
@@ -43,8 +42,5 @@ public class GlobalAttrIdTest extends BaseCase {
             showErrors();
             throw t;
         }
-
     }
-
-
 }

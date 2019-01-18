@@ -14,16 +14,15 @@
  */
 package scomp.derivation.extension.detailed;
 
+import org.junit.Test;
+import scomp.common.BaseCase;
 import xbean.scomp.derivation.emtpy.ExtendedEmptyEltDocument;
 import xbean.scomp.derivation.emtpy.ExtendedEmptyT;
-import scomp.common.BaseCase;
 
-/**
- * @owner: ykadiysk
- * Date: Jul 21, 2004
- * Time: 10:18:48 AM
- */
+import static org.junit.Assert.assertTrue;
+
 public class EmptyContentExtension extends BaseCase{
+    @Test
     public void testEmptyElementContent() throws Throwable{
        ExtendedEmptyEltDocument doc=ExtendedEmptyEltDocument.Factory.newInstance();
        ExtendedEmptyT elt=doc.addNewExtendedEmptyElt();

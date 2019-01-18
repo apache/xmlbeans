@@ -14,34 +14,29 @@
  */
 package scomp.contentType.complex.detailed;
 
-import junit.framework.TestCase;
-
+import org.apache.xmlbeans.XmlCursor;
+import org.apache.xmlbeans.XmlInteger;
+import org.junit.Test;
+import scomp.common.BaseCase;
+import xbean.scomp.contentType.named.ElementT;
+import xbean.scomp.contentType.named.MixedT;
+import xbean.scomp.contentType.named.NamedEltDocument;
+import xbean.scomp.contentType.named.NamedMixedEltDocument;
 
 import java.math.BigInteger;
 
-import org.apache.xmlbeans.XmlInteger;
-import org.apache.xmlbeans.XmlCursor;
-import xbean.scomp.contentType.named.NamedEltDocument;
-import xbean.scomp.contentType.named.ElementT;
-import xbean.scomp.contentType.named.NamedMixedEltDocument;
-import xbean.scomp.contentType.named.MixedT;
+import static org.junit.Assert.*;
 
-import scomp.common.BaseCase;
-
-/**
- *
- *
- *
- */
 public class NamedTest extends BaseCase {
 
+    @Test
     public void testSimpleAnonymous() throws Throwable {
         NamedEltDocument doc = NamedEltDocument.Factory.newInstance();
         ElementT testElt = doc.getNamedElt();
-        assertEquals(null, testElt);
+        assertNull(testElt);
         testElt = doc.addNewNamedElt();
-        assertEquals(null, testElt.getChild1());
-        assertEquals(null, testElt.xgetChild1());
+        assertNull(testElt.getChild1());
+        assertNull(testElt.xgetChild1());
         testElt.setChild2(new BigInteger("5"));
         testElt.setChild3(new BigInteger("1"));
         assertEquals("<xml-fragment><child2>5</child2>" +
@@ -60,15 +55,16 @@ public class NamedTest extends BaseCase {
         }
     }
 
+    @Test
     public void testMixedAnonymous() throws Throwable {
         NamedMixedEltDocument doc =
                 NamedMixedEltDocument.Factory.newInstance();
 
         MixedT testElt = doc.getNamedMixedElt();
-        assertEquals(null, testElt);
+        assertNull(testElt);
         testElt = doc.addNewNamedMixedElt();
-        assertEquals(null, testElt.getChild1());
-        assertEquals(null, testElt.xgetChild1());
+        assertNull(testElt.getChild1());
+        assertNull(testElt.xgetChild1());
         testElt.setChild2(new BigInteger("5"));
         assertEquals(5, testElt.getChild2().intValue());
         XmlInteger expected = XmlInteger.Factory.newInstance();

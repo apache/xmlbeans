@@ -1580,7 +1580,7 @@ public class MarshalTests extends TestCase
         }
     }
 
-    public void testByNameBeanUnmarshal()StreamInstanceValidator
+    public void testByNameBeanUnmarshal()
         throws Exception
     {
         BindingContext bindingContext = getBindingContext(getBindingConfigDocument());

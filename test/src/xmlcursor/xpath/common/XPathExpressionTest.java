@@ -14,29 +14,31 @@
  */
 package xmlcursor.xpath.common;
 
+import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 /**
  * Verifies XPath with Expressions
  * http://www.w3schools.com/xpath/xpath_expressions.asp
  */
+@Ignore("abstract class")
 public abstract class XPathExpressionTest extends BaseXPathTest {
-
-    String sXml="<foo>" +
-            "<bar><price at=\"val0\">3.00</price>" +
-            "<price at=\"val1\">2</price></bar><bar1>3.00</bar1>" +
-            "</foo>";
-
-    public XPathExpressionTest(String sName) {
-        super(sName);
-    }
 
     //("/catalog/cd[price>10.80]/price
     //Numerical Expressions
+
+
     /**
      * + Addition 6 + 4 10
      */
-    public void testAddition() throws Exception {
+    @Test
+    public void testAddition() {
         String sXpath=getQuery("testAddition",0);
         m_xc.selectPath(sXpath);
         assertEquals(1,m_xc.getSelectionCount());
@@ -46,8 +48,8 @@ public abstract class XPathExpressionTest extends BaseXPathTest {
     /**
      * - Subtraction 6 - 4 2
      */
-    public void testSubtraction() throws Exception {
-
+    @Test
+    public void testSubtraction() {
         String sXpath=getQuery("testSubtraction",0);
         String sExpected="<price at=\"val1\">2</price>";
         m_xc.selectPath(sXpath);
@@ -55,21 +57,25 @@ public abstract class XPathExpressionTest extends BaseXPathTest {
         m_xc.toNextSelection();
         assertEquals(sExpected,m_xc.xmlText());
     }
+
     /**
      * * Multiplication 6 * 4 24
      */
-    public void testMultiplication() throws Exception {
+    @Test
+    public void testMultiplication() {
         String sXpath=getQuery("testMultiplication",0);
         String sExpected="<price at=\"val1\">2</price>";
         m_xc.selectPath(sXpath);
         m_xc.toNextSelection();
         assertEquals(sExpected,m_xc.xmlText());
     }
+
     /**
      * div Division 8 div 4 2
      * NOTE: do a case where res is infinite (eg 10 div 3 or 22/7)
      */
-    public void testDiv() throws Exception {
+    @Test
+    public void testDiv() {
         String sXpath=getQuery("testDiv",0); //get the second(last) price child
         String sExpected="<price at=\"val0\">3.00</price>";
         m_xc.selectPath(sXpath);
@@ -94,7 +100,7 @@ public abstract class XPathExpressionTest extends BaseXPathTest {
             m_xc.selectPath(sXpathZero);
             i = m_xc.getSelectionCount();
             fail("Division by 0");
-        }catch (Exception e){}
+        } catch (Exception ignored){}
         assertEquals(0,i);
 
         m_xc.clearSelections();
@@ -105,11 +111,12 @@ public abstract class XPathExpressionTest extends BaseXPathTest {
         m_xc.toNextSelection();
         assertEquals(sExpected,m_xc.xmlText());
     }
+
     /**
      * mod Modulus (division remainder) 5 mod 2 1
      */
-    public void testMod() throws Exception {
-
+    @Test(expected = Exception.class)
+    public void testMod() {
         String sXpath=getQuery("testMod",0); //get the second(last) price child
         String sExpected="<price at=\"val1\">2</price>";
 
@@ -132,20 +139,16 @@ public abstract class XPathExpressionTest extends BaseXPathTest {
         String sXpathZero="10 mod 0";
         m_xc.clearSelections();
         m_xc.toStartDoc();
-        int i = 0;
-        try{
-            m_xc.selectPath(sXpathZero);
-            i = m_xc.getSelectionCount();
-            fail("Mod by 0");
-        }catch (Exception e){}
-        assertEquals(0,i);
+        m_xc.selectPath(sXpathZero);
+        m_xc.getSelectionCount();
     }
 
     //Equality Expressions
     /**
      * = Like (equal) price=9.80 true (if price is 9.80)
      */
-    public void testEqual() throws Exception {
+    @Test
+    public void testEqual() throws XmlException {
         String sXml="<foo><bar>" +
                 "<price at=\"val0\">3.00</price>" +
                 "<price at=\"val1\">2</price></bar><bar>" +
@@ -161,7 +164,8 @@ public abstract class XPathExpressionTest extends BaseXPathTest {
 
     //Existential semantics of equality in a node set
     //check this--not sure how to create this test
-    public void testEqualityNodeset() throws Exception {
+    @Test
+    public void testEqualityNodeset() {
         String sXpath=getQuery("testEqualityNodeset",0);
         String sExpected="<bar><price at=\"val0\">3.00</price><price at=\"val1\">2</price></bar>";
         m_xc.selectPath(sXpath);
@@ -169,10 +173,12 @@ public abstract class XPathExpressionTest extends BaseXPathTest {
         m_xc.toNextSelection();
         assertEquals(sExpected,m_xc.xmlText());
     }
+
     /**
      * != Not like (not equal) price!=9.80 false
      */
-    public void testNotEqual() throws Exception {
+    @Test
+    public void testNotEqual() {
         assertEquals(0,m_xc.getSelectionCount());
         String sXpath=getQuery("testNotEqual",0); //has to be double-comparison
         String sExpected="<bar><price at=\"val0\">3.00</price><price at=\"val1\">2</price></bar>";
@@ -187,15 +193,18 @@ public abstract class XPathExpressionTest extends BaseXPathTest {
     /**
      * < Less than price<9.80 false (if price is 9.80)
      */
-    public void testLessThan() throws Exception {
+    @Test
+    public void testLessThan() {
         String sXpath=getQuery("testLessThan",0);
         m_xc.selectPath(sXpath);
         assertEquals(0,m_xc.getSelectionCount());
     }
+
     /**
      * <= Less or equal price<=9.80 true
      */
-    public void testLessOrEqual() throws Exception {
+    @Test
+    public void testLessOrEqual() {
         String sXpath=getQuery("testLessOrEqual",0);
         String sExpected="<bar><price at=\"val0\">3.00</price><price at=\"val1\">2</price></bar>";
         m_xc.selectPath(sXpath);
@@ -203,10 +212,12 @@ public abstract class XPathExpressionTest extends BaseXPathTest {
         m_xc.toNextSelection();
         assertEquals(sExpected,m_xc.xmlText());
     }
+
     /**
      * > Greater than price>9.80 false
      */
-    public void testGreaterThan() throws Exception {
+    @Test
+    public void testGreaterThan() {
         String sXpath=getQuery("testGreaterThan",0);
         String sExpected="<bar><price at=\"val0\">3.00</price><price at=\"val1\">2</price></bar>";
         m_xc.selectPath(sXpath);
@@ -214,10 +225,12 @@ public abstract class XPathExpressionTest extends BaseXPathTest {
         m_xc.toNextSelection();
         assertEquals(sExpected,m_xc.xmlText());
     }
+
     /**
      * >= Greater or equal price>=9.80 true
      */
-    public void testGreaterOrEqual() throws Exception {
+    @Test
+    public void testGreaterOrEqual() {
         String sXpath=getQuery("testGreaterOrEqual",0);
         String sExpected="<bar>" +
                 "<price at=\"val0\">3.00</price><price at=\"val1\">2</price>" +
@@ -232,7 +245,8 @@ public abstract class XPathExpressionTest extends BaseXPathTest {
     /**
      * or or price=9.80 or price=9.70 true (if price is 9.80)
      */
-    public void testOr() throws Exception {
+    @Test
+    public void testOr() {
         String sXpath=getQuery("testOr",0);
         String sExpected="<price at=\"val1\">2</price>";
         m_xc.selectPath(sXpath);
@@ -240,16 +254,24 @@ public abstract class XPathExpressionTest extends BaseXPathTest {
         m_xc.toNextSelection();
         assertEquals(sExpected,m_xc.xmlText());
     }
+
     /**
      * and and  price<=9.80 and price=9.70 false
      */
-    public void testAnd() throws Exception {
+    @Test
+    public void testAnd() {
         String sXpath=getQuery("testAnd",0);
         m_xc.selectPath(sXpath);
         assertEquals(0,m_xc.getSelectionCount());
     }
 
-    public void setUp()throws Exception{
+    @Before
+    public void setUp()throws Exception {
+        super.setUp();
+        String sXml = "<foo>" +
+                      "<bar><price at=\"val0\">3.00</price>" +
+                      "<price at=\"val1\">2</price></bar><bar1>3.00</bar1>" +
+                      "</foo>";
         m_xc=XmlObject.Factory.parse(sXml).newCursor();
     }
 

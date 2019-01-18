@@ -17,24 +17,11 @@
 package dom.checkin;
 
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
+import org.junit.Before;
 
-
-/**
- *
- *
- */
 
 public class TextSyncTest extends TextTest {
-    public TextSyncTest(String s) {
-        super(s);
-    }
-
-    public static Test suite() {
-        return new TestSuite(TextSyncTest.class);
-    }
-
+    @Before
     public void setUp() throws Exception {
         super.loadSync();
         super.moveToNode();

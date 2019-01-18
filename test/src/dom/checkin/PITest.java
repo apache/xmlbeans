@@ -17,58 +17,52 @@
 package dom.checkin;
 
 import dom.common.NodeTest;
-import junit.framework.Test;
-import junit.framework.TestSuite;
+import org.junit.Before;
+import org.junit.Test;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
 import org.w3c.dom.ProcessingInstruction;
 
+import static org.junit.Assert.*;
 
-/**
- *
- *
- */
 
 public class PITest extends NodeTest {
 
-    public PITest(String s) {
-        super(s);
-        sXml =
-                "<bar><?xml-stylesheet type=\"text/xsl\" xmlns=\"http://openuri.org/shipping/\"?><foo>text</foo></bar>";
+    public PITest() {
+        sXml = "<bar><?xml-stylesheet type=\"text/xsl\" xmlns=\"http://openuri.org/shipping/\"?><foo>text</foo></bar>";
         //inspired by Common.XML_FOO_PROCINST;
     }
 
-    public static Test suite() {
-        return new TestSuite(PITest.class);
-    }
-
-
+    @Test
     public void testNodeName() {
         assertEquals("xml-stylesheet", m_node.getNodeName());
     }
 
+    @Test
     public void testLocalName() {
         assertEquals("xml-stylesheet", m_node.getNodeName());
     }
 
+    @Test
     public void testNodeType() {
         assertEquals(Node.PROCESSING_INSTRUCTION_NODE, m_node.getNodeType());
     }
 
-
+    @Test
     public void testNodeValue() {
         assertEquals(
                 "type=\"text/xsl\" xmlns=\"http://openuri.org/shipping/\"",
                 m_node.getNodeValue());
     }
 
-
+    @Test
     public void testNextSibling() {
         Node nxtSibling = m_node.getNextSibling();
         assertEquals("foo", nxtSibling.getNodeName());
 
     }
 
+    @Test
     public void testSetNodeValue() {
         String sNewVal = "type=\"text/xsl\" xmlns=\"http://xbean.foo.org\"";
         m_node.setNodeValue(sNewVal);
@@ -76,63 +70,39 @@ public class PITest extends NodeTest {
 
     }
 
-  
-
-    public void testNormalize() {
-        //TODO
-    }
-
-    public void testReplaceChild() {
-    }
-
-    public void testRemoveChild() {
-    }
-
-    public void testAppendChild() {
-    }
-
-    public void testInsertBefore() {
-    }
-
+    @Test
     public void testPreviousSibling() {
         Node prSibling = m_node.getPreviousSibling();
-        assertEquals(null, prSibling);
+        assertNull(prSibling);
     }
 
+    @Test
     public void testParent() {
         Node parent = m_node.getParentNode();
         assertEquals(m_doc.getFirstChild(), parent);
         assertEquals("bar", parent.getLocalName());
     }
 
+    @Test
     public void testGetData() {
         assertEquals(
                 "type=\"text/xsl\" xmlns=\"http://openuri.org/shipping/\"",
                 ((ProcessingInstruction) m_node).getData());
     }
 
+    @Test
     public void testGetTarget() {
         assertEquals("xml-stylesheet",
                 ((ProcessingInstruction) m_node).getTarget());
-
-
-    }
-
-    public void testSetData(String data) {
-
-        ((ProcessingInstruction) m_node).setData(
-                "\"type=\\\"text/xsl\\\" xmlns=\\\"http://newURI.org/shipping/\\\"\"");
-        assertEquals("type=\"text/xsl\" xmlns=\"http://newURI.org/shipping/\"",
-                ((ProcessingInstruction) m_node).getData());
     }
 
     public void moveToNode() {
         m_node = m_doc.getDocumentElement().getFirstChild();//pi
-        assertFalse(m_node == null);
-
+        assertNotNull(m_node);
     }
 
     //TODO: Test PI with funky but legal chatacters in the name, eg. :
+    @Test
     public void testPiTargetChars() {
         ProcessingInstruction node = m_doc.createProcessingInstruction(
                 "foo:123-_", "some body");
@@ -142,6 +112,7 @@ public class PITest extends NodeTest {
     }
 
     //TODO: Test Illegal PI Targets: xml target, starting with a digit
+    @Test
     public void testPiTargetIllegalChars() {
         ProcessingInstruction node;
         try {
@@ -163,6 +134,7 @@ public class PITest extends NodeTest {
         }
     }
 
+    @Before
     public void setUp() throws Exception {
         super.setUp();
         moveToNode();

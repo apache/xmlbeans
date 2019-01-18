@@ -15,47 +15,46 @@
 
 package xmlcursor.xpath.common;
 
-import org.apache.xmlbeans.XmlObject;
-import org.apache.xmlbeans.XmlOptions;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlException;
-import junit.framework.Assert;
+import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.XmlOptions;
 import tools.xml.XmlComparator;
 
-/**
- */
+import static org.junit.Assert.assertTrue;
+
 public class XPathCommon {
 
     public static String display(XmlObject[] rObj) {
         XmlOptions xm = new XmlOptions();
         xm.setSavePrettyPrint();
         xm.setLoadStripWhitespace();
-        StringBuffer sb=new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         for (int i = 0; i < rObj.length; i++) {
-            sb.append("[" + i + "] -- " + rObj[i].xmlText(xm)+"\n");
+            sb.append("[" + i + "] -- " + rObj[i].xmlText(xm) + "\n");
         }
         return sb.toString();
     }
 
 
-    public static String getPrint(XmlObject[] rObj) {
+    private static String getPrint(XmlObject[] rObj) {
         XmlOptions xm = new XmlOptions();
         xm.setSavePrettyPrint();
         xm.setLoadStripWhitespace();
 
-        StringBuffer st = new StringBuffer();
+        StringBuilder st = new StringBuilder();
         for (int i = 0; i < rObj.length; i++) {
             st.append("[" + i + "] -- " + rObj[i].xmlText(xm));
         }
         return st.toString();
     }
 
-    public static String getPrint(XmlCursor rObj) {
+    private static String getPrint(XmlCursor rObj) {
         XmlOptions xm = new XmlOptions();
         xm.setSavePrettyPrint();
         xm.setLoadStripWhitespace();
 
-        StringBuffer st = new StringBuffer();
+        StringBuilder st = new StringBuilder();
         int i = 0;
         while (rObj.toNextSelection()) {
             st.append("[cursor-" + i + "] -- " + rObj.xmlText(xm));
@@ -69,10 +68,10 @@ public class XPathCommon {
         XmlOptions xm = new XmlOptions();
         xm.setSavePrettyPrint();
         xm.setLoadStripWhitespace();
-        StringBuffer sb=new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         int i = 0;
         while (rObj.toNextSelection()) {
-            sb.append("[cursor-" + i + "] -- " + rObj.xmlText(xm)+"\n");
+            sb.append("[cursor-" + i + "] -- " + rObj.xmlText(xm) + "\n");
             i++;
         }
         return sb.toString();
@@ -85,45 +84,47 @@ public class XPathCommon {
                 actual.xmlText(),
                 expected.xmlText(), diag);
 
-            Assert.assertTrue("***********************\nFound difference: \nactual=\n'" +
+            assertTrue(
+                "***********************\nFound difference: \nactual=\n'" +
                 actual.xmlText() +
-                              "'\nexpected=\n'" + expected.xmlText()
+                "'\nexpected=\n'" + expected.xmlText()
                 + "'\ndiagnostic=" + diag, match);
         } catch (XmlException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public static void compare(XmlObject rObj, XmlObject rSet) throws Exception{
-        check(rObj.newCursor(),rSet.newCursor());
+    public static void compare(XmlObject rObj, XmlObject rSet) {
+        check(rObj.newCursor(), rSet.newCursor());
     }
+
     public static void compare(XmlObject[] rObj, XmlObject[] rSet) throws Exception {
 
         if (rObj.length != rSet.length)
-            throw new Exception("Comparison Failed\n " +
-                    "Actual Count: "+rObj.length +" Expected Count: "+rSet.length+"\n" +
-                    "Actual:"+getPrint(rObj)+"\nExpected:"+getPrint(rSet));
+            throw new Exception(
+                "Comparison Failed\n " +
+                "Actual Count: " + rObj.length + " Expected Count: " + rSet.length + "\n" +
+                "Actual:" + getPrint(rObj) + "\nExpected:" + getPrint(rSet));
 
-        for (int i = 0; i < rObj.length; i++){
+        for (int i = 0; i < rObj.length; i++) {
             check(rObj[i].newCursor(), rSet[i].newCursor());
         }
-        // This should be done in the test if no exception occurs...don't print here
-        // System.out.println("Test Passed");
     }
 
     public static void compare(XmlCursor rObj, XmlObject[] rSet) throws Exception {
         if (rObj.getSelectionCount() != rSet.length) {
-            StringBuffer message = new StringBuffer();
+            StringBuilder message = new StringBuilder();
 
             message.append("EXPECTED ==\n");
             display(rSet);
             message.append("ACTUAL ==\n");
             display(rObj);
 
-            throw new Exception(message.toString()+
+            throw new Exception(
+                message.toString() +
                 "\nCompare failure == Result Count was not equal to actual count\n" +
-                    "Actual Count: "+rObj.getSelectionCount() +" Expected Count: "+rSet.length+"\n" +
-                    "Actual:" + getPrint(rObj) + "\nExpected:" + getPrint(rSet));
+                "Actual Count: " + rObj.getSelectionCount() + " Expected Count: " + rSet.length + "\n" +
+                "Actual:" + getPrint(rObj) + "\nExpected:" + getPrint(rSet));
         }
         int i = 0;
         while (rObj.toNextSelection()) {
@@ -133,16 +134,5 @@ public class XPathCommon {
             check(rObj, rSet[i].newCursor());
             i++;
         }
-        // This should be done in the test if no exception occurs...don't print here
-       // System.out.println("Test Passed");
     }
-
-    public static void checkLength(XmlCursor rObj, int count) throws Exception{
-        if(rObj.getSelectionCount() != count){
-            throw new Exception("Length == Return Count was not equal\n"+
-                    "Cursor-Count: "+ rObj.getSelectionCount()+" Expected: "+count+"\n"+
-                    getPrint(rObj));
-        }
-    }
-
 }

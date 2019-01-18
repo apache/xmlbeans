@@ -16,21 +16,22 @@
 package xmlcursor.jsr173.common;
 
 import org.apache.xmlbeans.XmlCursor;
+import org.apache.xmlbeans.XmlDocumentProperties;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
-import org.apache.xmlbeans.XmlDocumentProperties;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
 
-import javax.xml.stream.XMLStreamReader;
-import javax.xml.stream.*;
-import javax.xml.stream.XMLStreamException;
 import javax.xml.namespace.QName;
-
+import javax.xml.stream.Location;
 import javax.xml.stream.XMLStreamConstants;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
 
-import junit.framework.*;
+import static org.junit.Assert.*;
 
-
-//
 
 /**
  * Methods tested
@@ -43,71 +44,69 @@ import junit.framework.*;
  * isStandalone
  * require
  * standaloneSet
- *
- *
-  *
  */
-public abstract class GeneralMethodsTest extends TestCase {
+@Ignore("abstract class")
+public abstract class GeneralMethodsTest {
 
-     public abstract XMLStreamReader getStream(XmlCursor c)
-             throws Exception;
+    private XMLStreamReader m_stream;
+    private XMLStreamReader m_stream1;
+
+    public abstract XMLStreamReader getStream(XmlCursor c) throws Exception;
+
+    @Test
     public void testClose() throws Exception {
         m_stream.close();
-
-
         m_stream.next();
-
-
     }
 
+    @Test
     public void testAll() throws Exception {
-          m_stream.next();
-         m_stream.next();
+        m_stream.next();
+        m_stream.next();
         assertEquals("utf-8", m_stream.getCharacterEncodingScheme());
-       //  Eric says this refers to actual encoding, not xml def
-        //  assertEquals("utf-8", m_stream.getEncoding());
-
-         assertEquals(null, m_stream1.getCharacterEncodingScheme());
-        assertEquals(null, m_stream1.getEncoding());
+        assertEquals("utf-8", m_stream1.getCharacterEncodingScheme());
+        assertNull(m_stream1.getEncoding());
         //TODO: why is this still -1???
         Location l = m_stream.getLocation();
         assertEquals(-1, l.getCharacterOffset());
         assertEquals(-1, l.getColumnNumber());
         assertEquals(-1, l.getLineNumber());
-        assertEquals(null, l.getPublicId());
-        assertEquals(null, l.getSystemId());
+        assertNull(l.getPublicId());
+        assertNull(l.getSystemId());
 
 
-       // m_stream.getProperty("");
+        // m_stream.getProperty("");
         m_stream.getVersion();
 //        m_stream.isStandalone();
-        assertEquals(XMLStreamConstants.ATTRIBUTE, m_stream.getEventType() );
+        assertEquals(XMLStreamConstants.ATTRIBUTE, m_stream.getEventType());
         //only elements can have localnames
-         try{
-               m_stream.require(10, "", "at1");
+        try {
+            m_stream.require(10, "", "at1");
             fail("IllegalStateException needed here");
-        }catch (IllegalStateException e){}
+        } catch (IllegalStateException e) {
+        }
 
 
-          m_stream.next();
-         assertEquals(XMLStreamConstants.START_ELEMENT, m_stream.next() ) ;
-          m_stream.require(1, "foo.org", "foo");
-        try{
-                     m_stream.require(10, "", "");
-                   fail("XMLStreamException needed here");
-               }catch (XMLStreamException e){}
+        m_stream.next();
+        assertEquals(XMLStreamConstants.START_ELEMENT, m_stream.next());
+        m_stream.require(1, "foo.org", "foo");
+        try {
+            m_stream.require(10, "", "");
+            fail("XMLStreamException needed here");
+        } catch (XMLStreamException e) {
+        }
 
 
 //        m_stream.standaloneSet();
     }
 
-
+    @Before
     public void setUp() throws Exception {
-        cur = XmlObject.Factory.newInstance().newCursor();
+        XmlCursor cur = XmlObject.Factory.newInstance().newCursor();
         cur.toNextToken();
 
         cur.insertAttributeWithValue(new QName("foo.org", "at0", "pre"),
-                "val0");
+            "val0");
         cur.insertAttributeWithValue(new QName("", "at1", "pre"), "val1");
         cur.insertNamespace("pre", "foons.bar.org");
         cur.beginElement(new QName("foo.org", "foo", ""));
@@ -118,26 +117,20 @@ public abstract class GeneralMethodsTest extends TestCase {
         cur.insertProcInst("xml-stylesheet", "http://foobar");
 
         cur.toStartDoc();
-        XmlDocumentProperties opt=cur.documentProperties();
+        XmlDocumentProperties opt = cur.documentProperties();
 
-        m_stream1 = getStream( cur );
+        m_stream1 = getStream(cur);
 
-         opt.setEncoding("utf-8");
-        m_stream=  getStream( cur );
+        opt.setEncoding("utf-8");
+        m_stream = getStream(cur);
 
     }
 
-    public void tearDown() throws Exception
-    {
-        super.tearDown();
+    @After
+    public void tearDown() throws Exception {
         if (m_stream != null)
             m_stream.close();
     }
-
-    private XMLStreamReader m_stream;
-     private XMLStreamReader m_stream1;
-    private XmlCursor cur;
-    private XmlOptions opt;
 
 
 }

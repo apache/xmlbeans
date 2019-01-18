@@ -21,25 +21,20 @@ import org.apache.xmlbeans.impl.common.SystemCache;
 // This class provides an alternative implementation to the SystemCache that essentially does nothing special
 // Used in testing the SystemCache.set() API to test an alternate implementation being picked up. Used in
 // SystemCacheTests
-public class SystemCacheTestImpl extends SystemCache
-{
-       private static int _accessed;
+public class SystemCacheTestImpl extends SystemCache {
+    private static int _accessed;
 
-        public SystemCacheTestImpl()
-        {
-            System.out.println("constructor SystemCacheTestImpl");
-            _accessed++;
-        }
+    public SystemCacheTestImpl() {
+        _accessed++;
+    }
 
-        public String testCacheImpl()
-        {
-            return (this.getClass().getName());
-        }
+    public String testCacheImpl() {
+        return (this.getClass().getName());
+    }
 
-        public static final int getAccessed()
-        {
-            return  _accessed;  
-        }
+    public static final int getAccessed() {
+        return _accessed;
+    }
 
 }
 

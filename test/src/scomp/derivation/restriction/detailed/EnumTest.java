@@ -15,23 +15,25 @@
 
 package scomp.derivation.restriction.detailed;
 
-import scomp.common.BaseCase;
-import org.apache.xmlbeans.impl.xb.xsdschema.SchemaDocument;
 import org.apache.xmlbeans.*;
+import org.apache.xmlbeans.impl.xb.xsdschema.SchemaDocument;
+import org.junit.Test;
+import scomp.common.BaseCase;
 
-import java.util.List;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
-/**
- *
- */
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+
 public class EnumTest extends BaseCase
  {
     /*
     * Refer CR199528, CR191369.
     * This fails in V1 and the case is added here to ensure compliance in v2.
     */
+    @Test
     public void testEnumRestrictionScomp() throws Exception {
         String xsdAsString = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n" +
                 "\n" +

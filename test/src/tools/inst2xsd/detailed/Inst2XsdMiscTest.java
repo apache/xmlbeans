@@ -14,20 +14,14 @@
  */
 package tools.inst2xsd.detailed;
 
-import tools.inst2xsd.common.Inst2XsdTestBase;
-import org.apache.xmlbeans.impl.inst2xsd.Inst2XsdOptions;
-import org.apache.xmlbeans.impl.inst2xsd.Inst2Xsd;
-import org.apache.xmlbeans.impl.common.IOUtil;
-import org.apache.xmlbeans.impl.tool.CommandLine;
-
-
-import java.io.File;
-import java.io.IOException;
-import java.io.FileReader;
-import java.io.PrintStream;
-
 import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.impl.inst2xsd.Inst2Xsd;
+import org.apache.xmlbeans.impl.inst2xsd.Inst2XsdOptions;
 import org.apache.xmlbeans.impl.xb.xsdschema.SchemaDocument;
+import org.junit.Test;
+import tools.inst2xsd.common.Inst2XsdTestBase;
+
+import java.io.FileReader;
 
 public class Inst2XsdMiscTest extends Inst2XsdTestBase {
 
@@ -43,10 +37,7 @@ public class Inst2XsdMiscTest extends Inst2XsdTestBase {
             "  </xs:complexType>\n" +
             "</xs:schema>";
 
-    public Inst2XsdMiscTest(String name) {
-        super(name);
-    }
-
+    @Test
     public void test_usingReader() throws Exception {
         FileReader[] fReader = new FileReader[]{new FileReader(BASEXML)};
         SchemaDocument[] doc = Inst2Xsd.inst2xsd( fReader, common.getDefaultInstOptions());
@@ -56,6 +47,7 @@ public class Inst2XsdMiscTest extends Inst2XsdTestBase {
         compare(doc[0],XmlObject.Factory.parse(EXPBASEXML) );
     }
 
+    @Test
     public void test_nulloptions() throws Exception {
         FileReader[] fReader = new FileReader[]{new FileReader(BASEXML)};
         SchemaDocument[] doc = Inst2Xsd.inst2xsd(fReader, null);
@@ -64,6 +56,7 @@ public class Inst2XsdMiscTest extends Inst2XsdTestBase {
         compare(doc[0], XmlObject.Factory.parse(EXPBASEXML));
     }
 
+    @Test
     public void test_notverboseoptions() throws Exception {
         FileReader[] fReader = new FileReader[]{new FileReader(BASEXML)};
         Inst2XsdOptions opts = common.getDefaultInstOptions();

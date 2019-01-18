@@ -19,9 +19,6 @@ package xmlcursor.common;
 
 
 
-/**
- *
- */
 public class Common {
     public final static String XMLFRAG_BEGINTAG = "<xml-fragment>";
     public final static String XMLFRAG_ENDTAG = "</xml-fragment>";
@@ -40,7 +37,6 @@ public class Common {
     public final static String XML_FOO_BAR_WS_ONLY = "<foo> <bar> </bar> </foo>";
     public final static String XML_FOO_NS = "<foo xmlns=\"http://www.foo.org\"></foo>";
     public final static String XML_FOO_NS_PREFIX = "<foo xmlns:edi='http://ecommerce.org/schema'><!-- the 'price' element's namespace is http://ecommerce.org/schema -->  <edi:price units='Euro'>32.18</edi:price></foo>";
-    public final static String XML_FOO_BAR_SIBLINGS = "<foo><bar>text0</bar><bar>text1</bar></foo>";
     public final static String XML_FOO_BAR_NESTED_SIBLINGS = "<foo attr0=\"val0\"><bar>text0<zed>nested0</zed></bar><bar>text1<zed>nested1</zed></bar></foo>";
     public final static String XML_FOO_PROCINST = "<?xml-stylesheet type=\"text/xsl\" xmlns=\"http://openuri.org/shipping/\"?><foo>text</foo>";
     public final static String XML_FOO_COMMENT = "<!-- comment text --><foo>text</foo>";
@@ -51,31 +47,16 @@ public class Common {
 
 
 
-    public final static String TRANXML_DIR = "tranxml/Version4.0/";
-    public final static String TRANXML_SCHEMAS_DIR = TRANXML_DIR + "schemas/StandAlone/";
-    public final static String TRANXML_EXAMPLEDOCS_DIR = TRANXML_DIR + "ExampleDocs/";
     public final static String CLM_NS = "http://www.tranxml.org/TranXML/Version4.0";
     public final static String CLM_XSI_NS = "xmlns:xsi=\"http://www.w3.org/2000/10/XMLSchema-instance\"";
     public final static String CLM_NS_XQUERY_DEFAULT = "declare default element namespace \"" + CLM_NS + "\"; ";
 
-    public final static String TRANXML_FILE_CLM = TRANXML_EXAMPLEDOCS_DIR + "CarLocationMessage.xml";
-    public final static String TRANXML_FILE_RBL = TRANXML_EXAMPLEDOCS_DIR + "RailBillOfLading.xml";
-    public final static String TRANXML_FILE_SRCWBI = TRANXML_EXAMPLEDOCS_DIR + "SimpleRailCarrierWaybillInterchange.xml";
-    public final static String TRANXML_FILE_TOAIRA = TRANXML_EXAMPLEDOCS_DIR + "TerminalOperationsAndIntermodalRampActivity.xml";
+    public final static String TRANXML_FILE_CLM = "xbean/xmlcursor/CarLocationMessage.xml";
     public final static String TRANXML_FILE_XMLCURSOR_PO = "xbean/xmlcursor/po.xml";
 
 
     public final static String XML_SCHEMA_TYPE_SUFFIX = "http://www.w3.org/2001/XMLSchema";
     public final static String TRANXML_SCHEMA_TYPE_SUFFIX = CLM_NS;
-
-    public static final String XMLCASES_JAR = "xmlcases.jar";
-    public static final String XSDCASES_JAR = "xsdcases.jar";
-
-    public static final String XMLCURSOR_JAR = "xmlcursor.jar";
-    public static final String CARLOCATIONMESSAGE_JAR = "CarLocationMessage_40_LX.xsd.jar";
-    public static final String RAILBILLOFLADING_JAR = "RailBillOfLading_V40_LX.xsd.jar";
-    public static final String SIMPLERAILCARRIERWAYBILLINTERCHANGE_JAR = "SimpleRailCarrierWaybillInterchange_V40_LX.xsd.jar";
-    public static final String TERMINALOPERATIONSANDINTERMODALRAMPACTIVITY_JAR = "TerminalOperationsAndIntermodalRampActivity_V40_LX.xsd.jar";
 
     public static String wrapInXmlFrag(String text) {
         return XMLFRAG_BEGINTAG + text + XMLFRAG_ENDTAG;

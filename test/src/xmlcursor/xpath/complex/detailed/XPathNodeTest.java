@@ -14,23 +14,20 @@
  */
 package xmlcursor.xpath.complex.detailed;
 
-import javax.xml.namespace.QName;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlObject;
-import junit.framework.TestCase;
+import org.junit.Test;
 import xmlcursor.common.Common;
 
-/**
- *
- */
-public class XPathNodeTest
-    extends TestCase
-{
-    public void testNodeEquality()
-        throws Exception
-    {
-        XmlCursor c = XmlObject.Factory.parse("<root>" +
-            "<book isbn='012345' id='09876'/></root>")
+import javax.xml.namespace.QName;
+
+import static org.junit.Assert.assertEquals;
+
+public class XPathNodeTest {
+    @Test
+    public void testNodeEquality() throws Exception {
+        XmlCursor c = XmlObject.Factory.parse(
+            "<root><book isbn='012345' id='09876'/></root>")
             .newCursor();
         c.selectPath("//book[@isbn='012345'] is //book[@id='09876']");
         assertEquals(1, c.getSelectionCount());
@@ -38,11 +35,10 @@ public class XPathNodeTest
         assertEquals(Common.wrapInXmlFrag("true"), c.xmlText());
     }
 
-    public void testNodeOrder()
-        throws Exception
-    {
-        XmlCursor c = XmlObject.Factory.parse("<root>" +
-            "<book isbn='012345'/><book id='09876'/></root>")
+    @Test
+    public void testNodeOrder() throws Exception {
+        XmlCursor c = XmlObject.Factory.parse(
+            "<root><book isbn='012345'/><book id='09876'/></root>")
             .newCursor();
         c.selectPath("//book[@isbn='012345'] << //book[@id='09876']");
         assertEquals(1, c.getSelectionCount());
@@ -55,9 +51,8 @@ public class XPathNodeTest
         assertEquals(Common.wrapInXmlFrag("false"), c.xmlText());
     }
 
-    public void testParent()
-        throws Exception
-    {
+    @Test
+    public void testParent() throws Exception {
         String input = "<A><B><C></C></B></A>";
         XmlObject o;
         XmlCursor c = XmlObject.Factory.parse(input).newCursor();
@@ -71,10 +66,9 @@ public class XPathNodeTest
         assertEquals("<B><C/></B>", res[0].newCursor().xmlText());
     }
 
-    public void testParent1()
-        throws Exception
-    {
-        String input = 
+    @Test
+    public void testParent1() throws Exception {
+        String input =
             "<AttributeCertificate " +
             "xmlns=\"http://www.eurecom.fr/security/xac#\" " +
             "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">" +
@@ -99,5 +93,4 @@ public class XPathNodeTest
         assertEquals("http://www.eurecom.fr/security/xac#", qn.getNamespaceURI());
         assertEquals("Content", qn.getLocalPart());
     }
-
 }

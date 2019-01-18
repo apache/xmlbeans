@@ -18,73 +18,70 @@ package dom.checkin;
 
 
 import dom.common.NodeWithChildrenTest;
-import junit.framework.Test;
-import junit.framework.TestSuite;
+import org.junit.Before;
+import org.junit.Test;
 import org.w3c.dom.*;
 import xmlcursor.common.Common;
 
+import static org.junit.Assert.*;
 
-/**
- *
- *
- */
 
 public class ElementTest extends NodeWithChildrenTest {
 
-
-    public ElementTest(String s) {
-        super(s);
-        String sDTD = "<?xml version=\"1.0\"?>" +
-                "<!DOCTYPE bardoc [" +
-                "<!ELEMENT bar>" +
-                "<!ELEMENT foo>" +
-                "<!ATTLIST bar at_spec CDATA \"0\">" +
-                "]>";
-        sXmlNS = "<bar xmlns:other=\"uri:other\" xmlns:myns=\"uri:foo\">" +
-                "<foo  myns:at0=\"val01\" myns:at2=\"at2\" at2=\"val2\" myns:at3=\"val3\" at4=\"val4\">" +
-                "txt0<foo>nestedfoo</foo><myns:yana/>" +
-                "</foo>" +
-                "<myns:foo>nstext<ZeD/></myns:foo>" +
-                "</bar>";
+    public ElementTest() {
+        String sDTD =
+            "<?xml version=\"1.0\"?>" +
+            "<!DOCTYPE bardoc [" +
+            "<!ELEMENT bar>" +
+            "<!ELEMENT foo>" +
+            "<!ATTLIST bar at_spec CDATA \"0\">" +
+            "]>";
+        sXmlNS =
+            "<bar xmlns:other=\"uri:other\" xmlns:myns=\"uri:foo\">" +
+            "<foo  myns:at0=\"val01\" myns:at2=\"at2\" at2=\"val2\" myns:at3=\"val3\" at4=\"val4\">" +
+            "txt0<foo>nestedfoo</foo><myns:yana/>" +
+            "</foo>" +
+            "<myns:foo>nstext<ZeD/></myns:foo>" +
+            "</bar>";
         if (bDTD)
             sXmlNS = sDTD + sXmlNS;
         sXml = Common.XML_FOO_BAR_NESTED_SIBLINGS;
     }
 
-    public static Test suite() {
-        return new TestSuite(ElementTest.class);
-    }
-
-
+    @Test
     public void testNodeName() {
         assertEquals("zed", m_node.getNodeName());
     }
 
+    @Test
     public void testNodeType() {
         assertEquals(Node.ELEMENT_NODE, m_node.getNodeType());
     }
 
-
+    @Test
     public void testNodeValue() {
-        assertEquals(null, m_node.getNodeValue());
+        assertNull(m_node.getNodeValue());
     }
 
-
+    @Test
     public void testNextSibling() {
-        assertEquals(null, m_node.getNextSibling());
+        assertNull(m_node.getNextSibling());
     }
 
+    @Test
     public void testPreviousSibling() {
         Node prSib = m_node.getPreviousSibling();
         assertEquals("text0", prSib.getNodeValue());
     }
 
+    @Test
     public void testParent() {
         Node parent = m_node.getParentNode();
         assertEquals("bar", parent.getLocalName());
         assertEquals(m_doc.getFirstChild().getFirstChild(), parent);
     }
 
+    @Test
     public void testPrefix() {
         assertEquals("", m_node.getPrefix());
 
@@ -93,10 +90,12 @@ public class ElementTest extends NodeWithChildrenTest {
         assertEquals("myns", m_node.getPrefix());
     }
 
+    @Test
     public void testNamespaceUri() {
-        assertEquals("",m_node.getNamespaceURI());
+        assertEquals("", m_node.getNamespaceURI());
     }
-    
+
+    @Test
     public void testCloneNode() {
         super.testCloneNode();
     }
@@ -104,6 +103,7 @@ public class ElementTest extends NodeWithChildrenTest {
     /**
      * Clone node with atts
      */
+    @Test
     public void testCloneNodeAttrs() {
         Node toClone = m_docNS.getFirstChild(); //the foo elt
         /* Node clone1=toClone.cloneNode(false);
@@ -114,20 +114,23 @@ public class ElementTest extends NodeWithChildrenTest {
         Node clone2 = toClone.cloneNode(true);
     }
 
+    @Test
     public void testHasAttributes() {
         super.testHasAttributes();
         m_node = m_doc.getFirstChild();
-        assertEquals(true, ((Element) m_node).hasAttributes());
+        assertTrue(m_node.hasAttributes());
     }
 
+    @Test
     public void testGetAttribute() {
         m_node = m_docNS.getFirstChild();
         if (bDTD)
             assertEquals("0", ((Element) m_node).getAttribute("at_spec"));
         assertEquals("val2",
-                ((Element) m_node.getFirstChild()).getAttribute("at2"));
+            ((Element) m_node.getFirstChild()).getAttribute("at2"));
     }
 
+    @Test
     public void testGetAttributeDNE() {
         m_node = m_docNS.getFirstChild();
         assertEquals("", ((Element) m_node).getAttribute("at3"));
@@ -136,58 +139,64 @@ public class ElementTest extends NodeWithChildrenTest {
         assertEquals("", ((Element) m_node).getAttribute(sNull));
     }
 
+    @Test
     public void testGetAttributeNode() {
         m_node = m_docNS.getFirstChild();
         assertEquals("bar", ((Element) m_node).getTagName());
         //assertEquals("uri:foo",((Attr)((Element)m_node).getAttributeNodeNS("xmlns","myns")).getNodeValue());
         m_node = m_node.getFirstChild();
         assertEquals("val2",
-                ((Attr) ((Element) m_node).getAttributeNode("at2")).getNodeValue());
+            ((Element) m_node).getAttributeNode("at2").getNodeValue());
         if (bDTD)
             assertEquals("0",
-                    ((Attr) ((Element) m_node).getAttributeNode("at_spec")).getNodeValue());
+                ((Element) m_node).getAttributeNode("at_spec").getNodeValue());
     }
 
+    @Test
     public void testGetAttributeNodeDNE() {
         m_node = m_docNS.getFirstChild();
-        assertEquals(null, ((Element) m_node).getAttributeNode("at3"));
-        assertEquals(null, ((Element) m_node).getAttributeNode("foobar"));
+        assertNull(((Element) m_node).getAttributeNode("at3"));
+        assertNull(((Element) m_node).getAttributeNode("foobar"));
         String sNull = null;
         assertEquals("", ((Element) m_node).getAttribute(sNull));
     }
 
+    @Test
     public void getAttributeNodeNS() {
-        m_node = m_docNS.getFirstChild();
-        assertEquals("0",
-                ((Attr) ((Element) m_node).getAttributeNodeNS("", "at_spec")).getNodeValue());
+        m_node = m_docNS.getFirstChild().getFirstChild();
+        if (bDTD) {
+            assertEquals("0",
+                ((Element) m_node).getAttributeNodeNS("", "at_spec").getNodeValue());
+        }
         assertEquals("val01",
-                ((Attr) ((Element) m_node).getAttributeNodeNS("uri:foo", "at0")).getNodeValue());
-        assertEquals("val0",
-                ((Attr) ((Element) m_node).getAttributeNodeNS(null, "at0")).getNodeValue());
+            ((Element) m_node).getAttributeNodeNS("uri:foo", "at0").getNodeValue());
+        assertEquals("val2",
+            ((Element) m_node).getAttributeNodeNS(null, "at2").getNodeValue());
         assertEquals("val3",
-                ((Attr) ((Element) m_node).getAttributeNodeNS("uri:foo", "at3")).getNodeValue());
+            ((Element) m_node).getAttributeNodeNS("uri:foo", "at3").getNodeValue());
     }
 
+    @Test
     public void testGetAttributeNodeNS_DNE() {
         m_node = m_docNS.getFirstChild();
-        assertEquals(null, ((Element) m_node).getAttributeNodeNS("", "at3"));
-        assertEquals(null,
-                ((Element) m_node).getAttributeNodeNS("uri:foo", "at1"));
+        assertNull(((Element) m_node).getAttributeNodeNS("", "at3"));
+        assertNull(((Element) m_node).getAttributeNodeNS("uri:foo", "at1"));
         String sNull = null;
-        assertEquals(null,
-                ((Element) m_node).getAttributeNodeNS("uri:foo", sNull));
+        assertNull(((Element) m_node).getAttributeNodeNS("uri:foo", sNull));
     }
 
+    @Test
     public void testGetAttributeNS() {
         m_node = m_docNS.getFirstChild().getFirstChild();
         if (bDTD)
             assertEquals("0",
-                    ((Element) m_node).getAttributeNS(null, "at_spec"));
+                ((Element) m_node).getAttributeNS(null, "at_spec"));
         assertEquals("val01",
-                ((Element) m_node).getAttributeNS("uri:foo", "at0"));
+            ((Element) m_node).getAttributeNS("uri:foo", "at0"));
         assertEquals("val2", ((Element) m_node).getAttributeNS("", "at2"));
     }
 
+    @Test
     public void testGetAttributeNS_DNE() {
         m_node = m_docNS.getFirstChild();
         assertEquals("", ((Element) m_node).getAttributeNS("", "at3"));
@@ -196,6 +205,7 @@ public class ElementTest extends NodeWithChildrenTest {
         assertEquals("", ((Element) m_node).getAttributeNS("uri:foo", sNull));
     }
 
+    @Test
     public void testGetElementsByTagName() {
         //move node @ foo
         m_node = m_node.getParentNode().getParentNode();
@@ -209,31 +219,34 @@ public class ElementTest extends NodeWithChildrenTest {
         assertEquals("nested1", result.item(1).getFirstChild().getNodeValue());
     }
 
+    @Test
     public void testGetElementsByTagNameDNE() {
         NodeList result = ((Element) m_node.getParentNode()).getElementsByTagName(
-                "foobar");
+            "foobar");
         assertEquals(0, result.getLength());
     }
 
     //elts need to come out in preorder order
+    @Test
     public void testGetElementsByTagNamePreorder() {
         m_node = m_docNS.getFirstChild();
         NodeList result = ((Element) m_node).getElementsByTagName("foo");
         assertEquals(2, result.getLength());
         assertEquals("txt0", result.item(0).getFirstChild().getNodeValue());
         assertEquals("nestedfoo",
-                result.item(1).getFirstChild().getNodeValue());
+            result.item(1).getFirstChild().getNodeValue());
     }
 
+    @Test
     public void testGetElementsByTagNameDescendant() {
         m_node = m_docNS.getFirstChild().getFirstChild();
         NodeList result = ((Element) m_node).getElementsByTagName("foo");//self should not be selected
         assertEquals(1, result.getLength());
         assertEquals("nestedfoo",
-                result.item(0).getFirstChild().getNodeValue());
+            result.item(0).getFirstChild().getNodeValue());
     }
 
-
+    @Test
     public void testGetElementsByTagNameNS() {
         m_node = m_docNS.getFirstChild();
         NodeList result = ((Element) m_node).getElementsByTagNameNS("*", "*");
@@ -245,7 +258,7 @@ public class ElementTest extends NodeWithChildrenTest {
         assertEquals(nEltCount, result.getLength());
         assertEquals("txt0", result.item(0).getFirstChild().getNodeValue());
         assertEquals("nestedfoo",
-                result.item(1).getFirstChild().getNodeValue());
+            result.item(1).getFirstChild().getNodeValue());
         assertEquals("nstext", result.item(2).getFirstChild().getNodeValue());
 
 
@@ -256,9 +269,9 @@ public class ElementTest extends NodeWithChildrenTest {
         result = ((Element) m_node).getElementsByTagNameNS(null, "foo");
         assertEquals("txt0", result.item(0).getFirstChild().getNodeValue());
         assertEquals("nestedfoo",
-                result.item(1).getFirstChild().getNodeValue());
+            result.item(1).getFirstChild().getNodeValue());
         NodeList result1 = ((Element) m_node).getElementsByTagNameNS("", "foo");
-        assertEquals(true, compareNodeList(result, result1));
+        assertTrue(compareNodeList(result, result1));
 
 
         result = ((Element) m_node).getElementsByTagNameNS(null, "*");
@@ -266,50 +279,50 @@ public class ElementTest extends NodeWithChildrenTest {
         assertEquals("ZeD", ((Element) result.item(2)).getTagName());
     }
 
+    @Test
     public void testGetElementsByTagNameNS_DNE() {
         m_node = m_docNS.getFirstChild();
         NodeList result = ((Element) m_node).getElementsByTagNameNS("uri:foo",
-                "zed");
+            "zed");
         assertEquals(0, result.getLength());
 
         result =
-                ((Element) m_node).getElementsByTagNameNS("foo:uri_DNE", "foo");
+            ((Element) m_node).getElementsByTagNameNS("foo:uri_DNE", "foo");
         assertEquals(0, result.getLength());
-
     }
 
+    @Test
     public void testGetTagName() {
         m_node =
-                m_docNS.getFirstChild().getChildNodes().item(1).getChildNodes()
+            m_docNS.getFirstChild().getChildNodes().item(1).getChildNodes()
                 .item(1);
         assertEquals("ZeD", ((Element) m_node).getTagName());
-
     }
 
-
+    @Test
     public void testHasAttribute() {
         m_node = m_docNS.getFirstChild();
         if (bDTD)
-            assertEquals(true, ((Element) m_node).hasAttribute("at_spec"));
+            assertTrue(((Element) m_node).hasAttribute("at_spec"));
 
         m_node = m_docNS.getFirstChild();
-        assertEquals(false, ((Element) m_node).hasAttribute("at3"));
-        assertEquals(false, ((Element) m_node).hasAttribute("at0"));
+        assertFalse(((Element) m_node).hasAttribute("at3"));
+        assertFalse(((Element) m_node).hasAttribute("at0"));
     }
 
+    @Test
     public void testHasAttributeNS() {
         m_node = m_docNS.getFirstChild();
         if (bDTD)
-            assertEquals(true,
-                    ((Element) m_node).hasAttributeNS(null, "at_spec"));
+            assertTrue(((Element) m_node).hasAttributeNS(null, "at_spec"));
 
         m_node = m_node.getFirstChild();
-        assertEquals(true, ((Element) m_node).hasAttributeNS("uri:foo", "at3"));
-        assertEquals(false,
-                ((Element) m_node).hasAttributeNS("uri:foo:org", "at0"));
-        assertEquals(false, ((Element) m_node).hasAttributeNS("uri:foo", null));
+        assertTrue(((Element) m_node).hasAttributeNS("uri:foo", "at3"));
+        assertFalse(((Element) m_node).hasAttributeNS("uri:foo:org", "at0"));
+        assertFalse(((Element) m_node).hasAttributeNS("uri:foo", null));
     }
 
+    @Test
     public void testRemoveAttribute() {
         m_node = m_docNS.getFirstChild();
         //remove default
@@ -331,13 +344,14 @@ public class ElementTest extends NodeWithChildrenTest {
 
     }
 
+    @Test
     public void testRemoveAttributeNode() {
         Node removed;
         //remove default
         m_node = m_docNS.getFirstChild();
         if (bDTD) {
             ((Element) m_node).removeAttributeNode(
-                    ((Element) m_node).getAttributeNode("at_spec"));
+                ((Element) m_node).getAttributeNode("at_spec"));
             assertEquals(1, m_node.getAttributes().getLength());
         }
         m_node = m_node.getFirstChild();
@@ -345,11 +359,12 @@ public class ElementTest extends NodeWithChildrenTest {
         assertEquals(5, m_node.getAttributes().getLength());
         Attr remove = ((Element) m_node).getAttributeNode("at2");
         removed = ((Element) m_node).removeAttributeNode(remove);
-        assertFalse(removed == null);
+        assertNotNull(removed);
         assertEquals(4, m_node.getAttributes().getLength());
         assertEquals(removed, remove);
     }
 
+    @Test
     public void testRemoveAttributeNode_DNE() {
         //DNE
         Node removed;
@@ -357,8 +372,7 @@ public class ElementTest extends NodeWithChildrenTest {
         try {
             removed = ((Element) m_node).removeAttributeNode(remove);
             fail("removing Non existing attr");
-        }
-        catch (DOMException de) {
+        } catch (DOMException de) {
             assertEquals(DOMException.NOT_FOUND_ERR, de.code);
         }
 
@@ -366,8 +380,7 @@ public class ElementTest extends NodeWithChildrenTest {
         try {
             removed = ((Element) m_node).removeAttributeNode(remove);
             fail("removing Non existing attr");
-        }
-        catch (DOMException de) {
+        } catch (DOMException de) {
             assertEquals(DOMException.NOT_FOUND_ERR, de.code);
         }
 
@@ -376,12 +389,12 @@ public class ElementTest extends NodeWithChildrenTest {
         try {
             removed = ((Element) m_node).removeAttributeNode(remove);
             fail("removing Non existing attr");
-        }
-        catch (DOMException de) {
+        } catch (DOMException de) {
             assertEquals(DOMException.NOT_FOUND_ERR, de.code);
         }
     }
 
+    @Test
     public void testRemoveAttributeNS() {
         //remove default
         m_node = m_docNS.getFirstChild();
@@ -401,15 +414,14 @@ public class ElementTest extends NodeWithChildrenTest {
         assertEquals(4, m_node.getAttributes().getLength());
     }
 
-
+    @Test
     public void testSetAttribute() {
         m_node = m_doc.getDocumentElement();
 
         try {
             ((Element) m_node).setAttribute("invalid<", "0");
             fail("Invalid attr name");
-        }
-        catch (DOMException de) {
+        } catch (DOMException de) {
             assertEquals(DOMException.INVALID_CHARACTER_ERR, de.code);
         }
 
@@ -422,6 +434,7 @@ public class ElementTest extends NodeWithChildrenTest {
         assertEquals(2, m_node.getAttributes().getLength());
     }
 
+    @Test
     public void testSetAttributeNode() {
         Attr result;
         Attr newAttr = m_doc.createAttribute("attr0");
@@ -430,7 +443,7 @@ public class ElementTest extends NodeWithChildrenTest {
         result = ((Element) m_node).setAttributeNode(newAttr);
         assertEquals(oldAttr, result);
         assertEquals("newval",
-                ((Element) m_node).getAttributeNode("attr0").getNodeValue());
+            ((Element) m_node).getAttributeNode("attr0").getNodeValue());
 
         //insert self
         try {
@@ -438,8 +451,7 @@ public class ElementTest extends NodeWithChildrenTest {
             String v1 = at0.getNodeValue();
             ((Element) m_node).setAttributeNode(at0);
             assertEquals(v1, ((Element) m_node).getAttribute("attr0"));
-        }
-        catch (DOMException de) {
+        } catch (DOMException de) {
             assertEquals(de.code, DOMException.INUSE_ATTRIBUTE_ERR);
         }
 
@@ -447,24 +459,25 @@ public class ElementTest extends NodeWithChildrenTest {
         newAttr = m_doc.createAttribute("attr1");
         newAttr.setValue("newval");
         result = ((Element) m_node).setAttributeNode(newAttr);
-        assertEquals(null, result);
+        assertNull(result);
         assertEquals("newval",
-                ((Element) m_node).getAttributeNode("attr1").getNodeValue());
+            ((Element) m_node).getAttributeNode("attr1").getNodeValue());
         assertEquals(2, m_node.getAttributes().getLength());
     }
 
+    @Test
     public void testSetAttributeNodeDiffDoc() {
         Attr result;
         Attr newAttr = m_docNS.createAttribute("attr0");
         try {
             result = ((Element) m_node).setAttributeNode(newAttr);
             fail("Attr Node diff doc in use");
-        }
-        catch (DOMException de) {
+        } catch (DOMException de) {
             assertEquals(DOMException.WRONG_DOCUMENT_ERR, de.code);
         }
     }
 
+    @Test
     public void testSetAttributeNodeInUse() {
         //insert new
         m_node = m_node.getParentNode().getParentNode();
@@ -473,24 +486,24 @@ public class ElementTest extends NodeWithChildrenTest {
         try {
             ((Element) m_node).setAttributeNode(newAttr);
             fail("Attr Node in use");
-        }
-        catch (DOMException de) {
+        } catch (DOMException de) {
             assertEquals(DOMException.INUSE_ATTRIBUTE_ERR, de.code);
         }
     }
 
+    @Test
     public void testSetAttributeNodeNS() {
         m_node = m_docNS.getFirstChild().getFirstChild();
         Attr result;
         Attr newAttr = m_docNS.createAttributeNS("uri:foo", "at0");
         Attr oldAttr = ((Element) m_node).getAttributeNodeNS("uri:foo", "at0");
-        assertFalse(oldAttr == null);
+        assertNotNull(oldAttr);
         newAttr.setValue("newval");
         result = ((Element) m_node).setAttributeNodeNS(newAttr);
         assertEquals(oldAttr, result);
         Attr insertedAtt = ((Element) m_node).getAttributeNodeNS("uri:foo",
-                "at0");
-        assertFalse(insertedAtt == null);
+            "at0");
+        assertNotNull(insertedAtt);
         assertEquals("newval", insertedAtt.getNodeValue());
 
         //insert new
@@ -498,9 +511,9 @@ public class ElementTest extends NodeWithChildrenTest {
         newAttr = m_docNS.createAttributeNS("uri:foo", "attr1");
         newAttr.setValue("newval");
         result = ((Element) m_node).setAttributeNode(newAttr);
-        assertEquals(null, result);
+        assertNull(result);
         assertEquals("newval",
-                ((Element) m_node).getAttributeNS("uri:foo", "attr1"));
+            ((Element) m_node).getAttributeNS("uri:foo", "attr1"));
         assertEquals(nAttrCnt + 1, m_node.getAttributes().getLength());
 
         //insert new
@@ -508,35 +521,34 @@ public class ElementTest extends NodeWithChildrenTest {
         newAttr.setValue("newURIval");
         result = ((Element) m_node).setAttributeNodeNS(newAttr);
 
-        assertEquals(null, result);
+        assertNull(result);
         assertEquals("newURIval",
-                ((Element) m_node).getAttributeNS("uri:foo:org", "attr1"));
+            ((Element) m_node).getAttributeNS("uri:foo:org", "attr1"));
         assertEquals(nAttrCnt + 2, m_node.getAttributes().getLength());
-
     }
 
+    @Test
     public void testSetAttributeNS() {
         m_node = m_docNS.getFirstChild().getFirstChild();
         //overwrite
         ((Element) m_node).setAttributeNS("uri:foo", "at0", "newval");
         assertEquals("newval",
-                ((Element) m_node).getAttributeNS("uri:foo", "at0"));
+            ((Element) m_node).getAttributeNS("uri:foo", "at0"));
 
 
         ((Element) m_node).setAttributeNS("uri:foo:org", "attr1", "newval");
         assertEquals("newval",
-                ((Element) m_node).getAttributeNS("uri:foo:org", "attr1"));
+            ((Element) m_node).getAttributeNS("uri:foo:org", "attr1"));
         assertEquals(6, m_node.getAttributes().getLength());
-
     }
 
+    @Test
     public void testSetAttributeNSBadNS() {
         //qualifiedName is malformed
         try {
             ((Element) m_node).setAttributeNS("foo:org", "invalid<", "0");
             fail("Invalid attr name");
-        }
-        catch (DOMException de) {
+        } catch (DOMException de) {
             assertEquals(DOMException.INVALID_CHARACTER_ERR, de.code);
         }
 
@@ -545,77 +557,81 @@ public class ElementTest extends NodeWithChildrenTest {
             String sNull = null;
             ((Element) m_node).setAttributeNS(sNull, "myfoo:at", "0");
             fail("Invalid attr name");
-        }
-        catch (DOMException de) {
+        } catch (DOMException de) {
             assertEquals(DOMException.NAMESPACE_ERR, de.code);
         }
     }
 
+    @Test
     public void testSetAttributeNSBadNS_xmlns() {
         //the qualifiedName, or its prefix, is "xmlns" and the namespaceURI is different from " http://www.w3.org/2000/xmlns/".
         try {
             ((Element) m_node).setAttributeNS("foo:org:uri", "xmlns", "0");
             fail("Invalid attr name");
-        }
-        catch (DOMException de) {
+        } catch (DOMException de) {
             assertEquals(DOMException.NAMESPACE_ERR, de.code);
         }
 
         try {
             ((Element) m_node).setAttributeNS("foo:org:uri", "xmlns:foo", "0");
             fail("Invalid attr name");
-        }
-        catch (DOMException de) {
+        } catch (DOMException de) {
             assertEquals(DOMException.NAMESPACE_ERR, de.code);
         }
     }
 
+    @Test
     public void testSetAttributeNSBadNS_xml() {
         //if the qualifiedName has a prefix that is "xml"
         // and the namespaceURI is different from " http://www.w3.org/XML/1998/namespace"
         try {
             ((Element) m_node).setAttributeNS("foo:org:uri", "xml:foo", "0");
             fail("Invalid attr name");
-        }
-        catch (DOMException de) {
+        } catch (DOMException de) {
             assertEquals(DOMException.NAMESPACE_ERR, de.code);
         }
     }
 
+    @Test
     public void testGetChildNodes() {
         m_node = m_node.getParentNode();
         assertEquals(2, m_node.getChildNodes().getLength());
     }
 
+    @Test
     public void testFirstChild() {
         assertEquals("nested0", m_node.getFirstChild().getNodeValue());
     }
 
+    @Test
     public void testLastChild() {
         assertEquals("nested0", m_node.getLastChild().getNodeValue());
     }
 
     //code coverage: need a node with penultimate elt and last text
+    @Test
     public void testLastChildMixedContent() {
         Node prevSibling = m_doc.createElement("penultimateNode");
         m_node.insertBefore(prevSibling, m_node.getFirstChild());
         assertEquals("nested0", m_node.getLastChild().getNodeValue());
     }
 
-
+    @Test
     public void testGetAttributes() {
         assertEquals(0, m_node.getAttributes().getLength());
     }
 
+    @Test
     public void testLocalName() {
         assertEquals("zed", m_node.getLocalName());
     }
 
+    @Test
     public void testSetPrefix() {
         //set a null prefix
         m_node =
-                m_docNS.getFirstChild().getFirstChild().getChildNodes().item(2);//<myns:yana/>
-        assertFalse(m_node == null);
+            m_docNS.getFirstChild().getFirstChild().getChildNodes().item(2);//<myns:yana/>
+        assertNotNull(m_node);
         m_node.setPrefix(null);
         assertEquals("", m_node.getPrefix());
 
@@ -625,25 +641,23 @@ public class ElementTest extends NodeWithChildrenTest {
         assertEquals("other:yana", ((Element) m_node).getTagName());
         // assertEquals("uri:other",m_node.getNamespaceURI());--this is the URI @ creation--never changes
         assertEquals(1,
-                ((Element) m_docNS.getDocumentElement()).getElementsByTagName(
-                        "other:yana")
+            ((Element) m_docNS.getDocumentElement()).getElementsByTagName(
+                "other:yana")
                 .getLength());
-
-
     }
 
+    @Test
     public void testNormalizeNode() throws Exception {
         m_node = m_node.getParentNode();
         m_node.replaceChild(m_doc.createTextNode("txt1"),
-                m_node.getLastChild());
+            m_node.getLastChild());
         assertEquals(2, m_node.getChildNodes().getLength());
 
         m_node.normalize();
         assertEquals(1, m_node.getChildNodes().getLength());
-
-
     }
 
+    @Test
     public void testNormalizeNodeNoChildren() throws Exception {
         m_node = m_doc.createElement("foobar");
         assertEquals(0, m_node.getChildNodes().getLength());
@@ -651,6 +665,7 @@ public class ElementTest extends NodeWithChildrenTest {
         assertEquals(0, m_node.getChildNodes().getLength());
     }
 
+    @Test
     public void testNormalizeNodeOneChild() throws Exception {
         m_node = m_doc.createElement("foobar");
         m_node.appendChild(m_doc.createElement("foobar"));
@@ -659,45 +674,42 @@ public class ElementTest extends NodeWithChildrenTest {
         assertEquals(1, m_node.getChildNodes().getLength());
     }
 
+    @Test
     public void testAppendChildExisting() {
         m_node = m_docNS.getFirstChild().getLastChild();
         Node child = m_docNS.getFirstChild().getFirstChild();
         super.testAppendChildExisting(child);
     }
 
+    @Test
     public void testInsertExisitingNode() {
         m_node = m_docNS.getFirstChild().getLastChild();
         Node child = m_docNS.getFirstChild().getFirstChild();
         super.testAppendChildExisting(child);
-
     }
 
-
+    @Test
     public void testDomLevel1() {
-           Element elt = m_doc.createElement("foobar");
-           assertNull("L1 prefix null", elt.getPrefix());
-           assertNull("L1 LocalName null", elt.getLocalName());
-           assertNull("L1 Uri null", elt.getNamespaceURI());
-            try
-            {
-                elt.setPrefix("foo");
-                fail("L1 prefix null");
-            }
-            catch (DOMException de)
-            {
-                assertEquals(DOMException.NAMESPACE_ERR, de.code);
-            }
-       }
+        Element elt = m_doc.createElement("foobar");
+        assertNull("L1 prefix null", elt.getPrefix());
+        assertNull("L1 LocalName null", elt.getLocalName());
+        assertNull("L1 Uri null", elt.getNamespaceURI());
+        try {
+            elt.setPrefix("foo");
+            fail("L1 prefix null");
+        } catch (DOMException de) {
+            assertEquals(DOMException.NAMESPACE_ERR, de.code);
+        }
+    }
 
     public void moveToNode() {
         m_node = m_doc.getFirstChild().getFirstChild().getChildNodes().item(1);//zed node;
-        assertFalse(m_node == null);
+        assertNotNull(m_node);
     }
 
+    @Before
     public void setUp() throws Exception {
         super.setUp();
         moveToNode();
     }
-
-
 }

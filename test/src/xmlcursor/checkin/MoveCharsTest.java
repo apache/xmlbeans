@@ -16,37 +16,19 @@
 
 package xmlcursor.checkin;
 
-import org.apache.xmlbeans.XmlOptions;
-import junit.framework.*;
-import junit.framework.Assert.*;
-
-import java.io.*;
-
-import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlCursor;
-import org.apache.xmlbeans.XmlBeans;
 import org.apache.xmlbeans.XmlCursor.TokenType;
+import org.apache.xmlbeans.XmlObject;
+import org.junit.Test;
+import xmlcursor.common.BasicCursorTestCase;
+import xmlcursor.common.Common;
 
-import javax.xml.namespace.QName;
-
-import xmlcursor.common.*;
-
-import java.net.URL;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 
-/**
- *
- *
- */
 public class MoveCharsTest extends BasicCursorTestCase {
-    public MoveCharsTest(String sName) {
-        super(sName);
-    }
-
-    public static Test suite() {
-        return new TestSuite(MoveCharsTest.class);
-    }
-
+    @Test
     public void testMoveCharsOverlap() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_DIGITS);
         m_xc = m_xo.newCursor();
@@ -64,6 +46,7 @@ public class MoveCharsTest extends BasicCursorTestCase {
         }
     }
 
+    @Test
     public void testMoveCharsNoOverlap() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_DIGITS);
         m_xc = m_xo.newCursor();
@@ -87,18 +70,15 @@ public class MoveCharsTest extends BasicCursorTestCase {
         }
     }
 
+    @Test(expected = IllegalArgumentException.class)
     public void testMoveCharsToNull() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_DIGITS);
         m_xc = m_xo.newCursor();
         toNextTokenOfType(m_xc, TokenType.TEXT);
-        try {
-            m_xc.moveChars(4, null);
-            fail("Expected IllegalArgumentException");
-        } catch (IllegalArgumentException ise) {
-        }
-        assertEquals(true, true);
+        m_xc.moveChars(4, null);
     }
 
+    @Test(expected = IllegalStateException.class)
     public void testMoveCharsSibling() throws Exception {
         m_xo = XmlObject.Factory.parse("<foo><bar>0123</bar><bar>WXYZ</bar></foo>");
         m_xc = m_xo.newCursor();
@@ -107,7 +87,7 @@ public class MoveCharsTest extends BasicCursorTestCase {
         toNextTokenOfType(m_xc, TokenType.TEXT);
         XmlCursor xc1 = m_xc.newCursor();
         try {
-            assertEquals(false, xc0.isAtSamePositionAs(xc1));
+            assertFalse(xc0.isAtSamePositionAs(xc1));
             assertEquals(4, xc1.moveChars(4, xc0));
             assertEquals("0123", xc0.getChars());
             xc0.toPrevToken();
@@ -115,18 +95,14 @@ public class MoveCharsTest extends BasicCursorTestCase {
             System.out.println("we are here");
             assertEquals(TokenType.END, xc1.currentTokenType());
 
-
-            try {
-                xc1.getTextValue();
-                fail("Expected IllegalStateException");
-            } catch (IllegalStateException e) {
-            }
+            xc1.getTextValue();
         } finally {
             xc0.dispose();
             xc1.dispose();
         }
     }
 
+    @Test(expected = IllegalStateException.class)
     public void testMoveCharsNegative() throws Exception {
         m_xo = XmlObject.Factory.parse("<foo><bar>0123</bar><bar>WXYZ</bar></foo>");
         m_xc = m_xo.newCursor();
@@ -135,24 +111,20 @@ public class MoveCharsTest extends BasicCursorTestCase {
         toNextTokenOfType(m_xc, TokenType.TEXT);
         XmlCursor xc1 = m_xc.newCursor();
         try {
-            assertEquals(false, xc0.isAtSamePositionAs(xc1));
+            assertFalse(xc0.isAtSamePositionAs(xc1));
             assertEquals(4, xc1.moveChars(-1, xc0));
             assertEquals("0123", xc0.getChars());
             xc0.toPrevToken();
             assertEquals("WXYZ0123", xc0.getTextValue());
             assertEquals(TokenType.END, xc1.currentTokenType());
-            try {
-                xc1.getTextValue();
-                fail("Expected IllegalStateException");
-            } catch (IllegalStateException e) {
-            }
-
+            xc1.getTextValue();
         } finally {
             xc0.dispose();
             xc1.dispose();
         }
     }
 
+    @Test
     public void testMoveCharsZero() throws Exception {
         m_xo = XmlObject.Factory.parse("<foo><bar>0123</bar><bar>WXYZ</bar></foo>");
         m_xc = m_xo.newCursor();
@@ -161,35 +133,33 @@ public class MoveCharsTest extends BasicCursorTestCase {
         toNextTokenOfType(m_xc, TokenType.TEXT);
         XmlCursor xc1 = m_xc.newCursor();
         try {
-            assertEquals(false, xc0.isAtSamePositionAs(xc1));
+            assertFalse(xc0.isAtSamePositionAs(xc1));
             assertEquals(0, xc1.moveChars(0, xc0));
             assertEquals("0123", xc0.getChars());
             xc0.toPrevToken();
             assertEquals("0123", xc0.getTextValue());
             assertEquals(TokenType.TEXT, xc1.currentTokenType());
             assertEquals("WXYZ", xc1.getChars());
-
-
         } finally {
             xc0.dispose();
             xc1.dispose();
         }
     }
 
+    @Test(expected = IllegalArgumentException.class)
     public void testMoveCharsToSTARTDOC() throws Exception {
         m_xo = XmlObject.Factory.parse("<foo><bar>0123</bar><bar>WXYZ</bar></foo>");
         m_xc = m_xo.newCursor();
         XmlCursor xc0 = m_xo.newCursor();
         toNextTokenOfType(m_xc, TokenType.TEXT);
-        try {
+        try{
             m_xc.moveChars(4, xc0);
-            fail("Expected IllegalArgumentException");
-        } catch (IllegalArgumentException ise) {
         } finally {
             xc0.dispose();
         }
     }
 
+    @Test
     public void testMoveCharsToPROCINST() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_PROCINST);
         m_xc = m_xo.newCursor();
@@ -206,6 +176,7 @@ public class MoveCharsTest extends BasicCursorTestCase {
         }
     }
 
+    @Test(expected = IllegalStateException.class)
     public void testMoveCharsGTmax() throws Exception {
         m_xo = XmlObject.Factory.parse("<foo><bar>0123</bar><bar>WXYZ</bar></foo>");
         m_xc = m_xo.newCursor();
@@ -214,7 +185,7 @@ public class MoveCharsTest extends BasicCursorTestCase {
         toNextTokenOfType(m_xc, TokenType.TEXT);
         XmlCursor xc1 = m_xc.newCursor();
         try {
-            assertEquals(false, xc0.isAtSamePositionAs(xc1));
+            assertFalse(xc0.isAtSamePositionAs(xc1));
             assertEquals(4, xc1.moveChars(1000, xc0));
             assertEquals("0123", xc0.getChars());
             xc0.toPrevToken();
@@ -222,17 +193,14 @@ public class MoveCharsTest extends BasicCursorTestCase {
 
             assertEquals(TokenType.END, xc1.currentTokenType());
 
-            try {
-                xc1.getTextValue();
-                fail("Expected IllegalStateException");
-            } catch (IllegalStateException e) {
-            }
+            xc1.getTextValue();
         } finally {
             xc0.dispose();
             xc1.dispose();
         }
     }
 
+    @Test
     public void testMoveCharsToNewDocument() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_DIGITS);
         m_xc = m_xo.newCursor();

@@ -17,28 +17,22 @@
 package dom.checkin;
 
 import dom.common.NodeWithChildrenTest;
-import junit.framework.AssertionFailedError;
-import junit.framework.Test;
-import junit.framework.TestSuite;
+import org.junit.Before;
+import org.junit.Test;
 import org.w3c.dom.*;
 import org.xml.sax.InputSource;
 
 import java.io.IOException;
 import java.io.StringReader;
 
+import static org.junit.Assert.*;
 
-/**
- *
- *
- */
 
 public class DocumentTest extends NodeWithChildrenTest {
 
 
-    public DocumentTest(String s) {
-        super(s);
-        sXml =
-                "<foo at0=\"val0\" at1=\"val1\" at2=\"val2\" at3=\"val3\" at4=\"val4\"><bar bat0=\"val0\"/></foo>";
+    public DocumentTest() {
+        sXml = "<foo at0=\"val0\" at1=\"val1\" at2=\"val2\" at3=\"val3\" at4=\"val4\"><bar bat0=\"val0\"/></foo>";
 
         sXmlNS = "<bar xmlns:other=\"uri:other\" xmlns:myns=\"uri:foo\">" +
                 "<foo at0=\"val0\" myns:at0=\"val01\" at2=\"val2\" myns:at3=\"val3\" at4=\"val4\">" +
@@ -48,54 +42,57 @@ public class DocumentTest extends NodeWithChildrenTest {
                 "</bar>";
     }
 
-    public static Test suite() {
-        return new TestSuite(DocumentTest.class);
-    }
-
-
+    @Test
     public void testNodeName() {
         assertEquals("#document", m_node.getNodeName());
     }
 
+    @Test
     public void testNodeType() {
         assertEquals(Node.DOCUMENT_NODE, m_node.getNodeType());
     }
 
-
+    @Test
     public void testNodeValue() {
-        assertEquals(null, m_node.getNodeValue());
+        assertNull(m_node.getNodeValue());
     }
 
-
+    @Test
     public void testNextSibling() {
-        assertEquals(null, m_node.getNextSibling());
+        assertNull(m_node.getNextSibling());
     }
 
+    @Test
     public void testPreviousSibling() {
-        assertEquals(null, m_node.getPreviousSibling());
+        assertNull(m_node.getPreviousSibling());
     }
 
+    @Test
     public void testParent() {
-        assertEquals(null, m_node.getParentNode());
+        assertNull(m_node.getParentNode());
     }
 
+    @Test
     public void testOwnerDocument() {
-        assertEquals(null, m_node.getOwnerDocument());//API spec
+        assertNull(m_node.getOwnerDocument());//API spec
     }
 
+    @Test
     public void testChildNodes() {
         assertEquals(1, m_node.getChildNodes().getLength());
     }
 
+    @Test
     public void testFirstChild() {
         assertEquals("foo", m_node.getFirstChild().getLocalName());
     }
 
+    @Test
     public void testLastChild() {
         assertEquals("foo", m_node.getLastChild().getLocalName());
     }
 
-
+    @Test
     public void testAppendChild() {
         try {
             super.testAppendChild();
@@ -103,9 +100,9 @@ public class DocumentTest extends NodeWithChildrenTest {
         catch (DOMException de) {
             assertEquals(DOMException.HIERARCHY_REQUEST_ERR, de.code);
         }
-
     }
 
+    @Test
     public void testInsertBefore() {
         try {
             super.testInsertBefore();
@@ -115,6 +112,7 @@ public class DocumentTest extends NodeWithChildrenTest {
         }
     }
 
+    @Test
     public void testInsertBeforeNullTarget() {
         try {
             super.testInsertBeforeNullTarget();
@@ -124,6 +122,7 @@ public class DocumentTest extends NodeWithChildrenTest {
         }
     }
 
+    @Test
     public void testInsertExistingNode() {
         try {
             super.testInsertExistingNode(m_node.getFirstChild());
@@ -133,6 +132,7 @@ public class DocumentTest extends NodeWithChildrenTest {
         }
     }
 
+    @Test
     public void testInsertBeforeInvalidRefNode() {
         try {
             super.testInsertBeforeInvalidRefNode();
@@ -140,12 +140,13 @@ public class DocumentTest extends NodeWithChildrenTest {
         catch (DOMException de) {
             assertEquals(DOMException.HIERARCHY_REQUEST_ERR, de.code);
         }
-        catch (AssertionFailedError af) {
+        catch (AssertionError af) {
             assertEquals(((DOMException) af.getCause()).code,
                     DOMException.HIERARCHY_REQUEST_ERR);
         }
     }
 
+    @Test
     public void testAppendChildIllegal0() {
         try {
             super.testAppendChildIllegal0();
@@ -153,12 +154,13 @@ public class DocumentTest extends NodeWithChildrenTest {
         catch (DOMException de) {
             assertEquals(DOMException.HIERARCHY_REQUEST_ERR, de.code);
         }
-        catch (AssertionFailedError af) {
+        catch (AssertionError af) {
             assertEquals(((DOMException) af.getCause()).code,
                     DOMException.HIERARCHY_REQUEST_ERR);
         }
     }
 
+    @Test
     public void testAppendChildIllegal1() {
         try {
             super.testAppendChildIllegal1();
@@ -166,20 +168,23 @@ public class DocumentTest extends NodeWithChildrenTest {
         catch (DOMException de) {
             assertEquals(DOMException.HIERARCHY_REQUEST_ERR, de.code);
         }
-        catch (AssertionFailedError af) {
+        catch (AssertionError af) {
             assertEquals(((DOMException) af.getCause()).code,
                     DOMException.HIERARCHY_REQUEST_ERR);
         }
     }
 
+    @Test
     public void testGetChildNodes() {
         assertEquals(1, m_node.getChildNodes().getLength());
     }
 
+    @Test
     public void testSetPrefix() {
         super.testSetPrefix(); //see charData--is the exception correct
     }
 
+    @Test
     public void testInsertExisitingNode() {
         Node child = m_doc.getFirstChild().getFirstChild();//some text
         if (child == m_node)
@@ -193,6 +198,7 @@ public class DocumentTest extends NodeWithChildrenTest {
         }
     }
 
+    @Test
     public void testAppendChildExisting() {
         Node child = m_node.getFirstChild().getFirstChild();
         try {
@@ -207,6 +213,7 @@ public class DocumentTest extends NodeWithChildrenTest {
         //unque doc child--normalize in elt. or text or comment, etc
     }
 
+    @Test
     public void testInsertBeforeDocFrag() {
         try {
             super.testInsertBeforeDocFrag();
@@ -216,6 +223,7 @@ public class DocumentTest extends NodeWithChildrenTest {
         }
     }
 
+    @Test
     public void testAppendChildDocFrag() {
         try {
             super.testAppendChildDocFrag();
@@ -225,6 +233,7 @@ public class DocumentTest extends NodeWithChildrenTest {
         }
     }
 
+    @Test
     public void testReplaceChildFront() {
         Node node = m_doc.getDocumentElement();
         assertEquals(node, m_node.getFirstChild());
@@ -233,6 +242,7 @@ public class DocumentTest extends NodeWithChildrenTest {
         assertEquals(m_doc.getDocumentElement(), newNode);
     }
 
+    @Test
     public void testReplaceChildEnd() {
         Node node = m_doc.getDocumentElement();
         assertEquals(node, m_node.getFirstChild());
@@ -240,6 +250,7 @@ public class DocumentTest extends NodeWithChildrenTest {
         super.testReplaceChild(newNode, node);
     }
 
+    @Test
     public void testReplaceChildDocFrag() {
         try {
             super.testReplaceChildDocFrag();
@@ -249,73 +260,76 @@ public class DocumentTest extends NodeWithChildrenTest {
         }
     }
 
+    @Test
     public void testCreateAttribute() {
         Attr att = m_doc.createAttribute("at0");
-        assertEquals(null, att.getOwnerElement());
+        assertNull(att.getOwnerElement());
         assertEquals(m_doc, att.getOwnerDocument());
 
         assertFalse(att.hasChildNodes());
         assertEquals("", att.getValue());
     }
 
+    @Test
     public void testCreateAttributeNS() {
         Attr att = m_doc.createAttributeNS("foo:uri", "at0");
         assertEquals("foo:uri", att.getNamespaceURI());
-        assertEquals(null, att.getOwnerElement());
+        assertNull(att.getOwnerElement());
         assertEquals(m_doc, att.getOwnerDocument());
     }
 
-    //not implem
+    @Test
     public void testCreateCDATASection() {
         CDATASection cdata = m_doc.createCDATASection("<CDATA Section>");
-        assertEquals(null, cdata.getParentNode());
+        assertNull(cdata.getParentNode());
         assertEquals(m_doc, cdata.getOwnerDocument());
 
         cdata = m_doc.createCDATASection(null);
-        assertEquals(null, cdata.getParentNode());
+        assertNull(cdata.getParentNode());
         assertEquals(m_doc, cdata.getOwnerDocument());
         assertEquals("", cdata.getData());
     }
 
+    @Test
     public void testCreateComment() {
         Comment comment = m_doc.createComment("A comment");
-        assertEquals(null, comment.getParentNode());
+        assertNull(comment.getParentNode());
         assertEquals(m_doc, comment.getOwnerDocument());
 
         comment = m_doc.createComment(null);
         assertEquals("", comment.getData());
     }
 
+    @Test
     public void testCreateDocumentFragment() {
         DocumentFragment doc_frag = m_doc.createDocumentFragment();
-        assertEquals(null, doc_frag.getParentNode());
+        assertNull(doc_frag.getParentNode());
         assertEquals(m_doc, doc_frag.getOwnerDocument());
 
     }
 
+    @Test
     public void testCreateElement() {
         Element elt1 = m_doc.createElement("elt1");
-        assertEquals(null, elt1.getParentNode());
+        assertNull(elt1.getParentNode());
         assertEquals(m_doc, elt1.getOwnerDocument());
 
     }
 
+    @Test
     public void testCreateElementNS() {
         Element elt1 = m_doc.createElementNS("uri:foo", "ns:elt1");
         assertEquals("uri:foo", elt1.getNamespaceURI());
-        assertEquals(null, elt1.getParentNode());
+        assertNull(elt1.getParentNode());
         assertEquals(m_doc, elt1.getOwnerDocument());
     }
 
-    public void testCreateEntityReference() {
-        //not implemented
-    }
-
+    @Test
     public void testCreateProcessingInstruction() {
         ProcessingInstruction pi = null;
         try {
             pi = m_doc.createProcessingInstruction("xml", "version 1.0");
-            assertEquals(null, pi.getParentNode());
+            assertNull(pi.getParentNode());
             assertEquals(m_doc, pi.getOwnerDocument());
             fail(" this is a no-go");
         }
@@ -346,29 +360,22 @@ public class DocumentTest extends NodeWithChildrenTest {
 
     }
 
+    @Test
     public void testCreateTextNode() {
         Text txt0 = m_doc.createTextNode("foo");
-        assertEquals(null, txt0.getParentNode());
+        assertNull(txt0.getParentNode());
         assertEquals(m_doc, txt0.getOwnerDocument());
 
         txt0 = m_doc.createTextNode(null);
         assertEquals("", txt0.getData());
     }
 
-    public void testGetDoctype() {
-        //TODO throws not impl exception assertEquals(null,m_doc.getDoctype());
-    }
-
+    @Test
     public void testGetDocumentElement() {
         assertEquals(m_doc.getDocumentElement(), m_node.getFirstChild());
     }
 
-/*  public  void testGetElementById()
-    {
-    //  TODO
-	fail("Test Not implemented");
-    }
-*/
+    @Test
     public void testGetElementsByTagName() {
         //move node @ foo
         m_node = m_docNS;
@@ -382,6 +389,7 @@ public class DocumentTest extends NodeWithChildrenTest {
     }
 
     //elts need to come out in preorder order
+    @Test
     public void testGetElementsByTagNamePreorder() {
         m_node = m_docNS;
         NodeList result = ((Document) m_node).getElementsByTagName("foo");
@@ -391,13 +399,14 @@ public class DocumentTest extends NodeWithChildrenTest {
                 result.item(1).getFirstChild().getNodeValue());
     }
 
-
+    @Test
     public void testGetElementsByTagNameDNE() {
         m_node = m_docNS;
         NodeList result = ((Document) m_node).getElementsByTagName("foobar");
         assertEquals(0, result.getLength());
     }
 
+    @Test
     public void testGetElementsByTagNameNS() {
         m_node = m_docNS;
         NodeList result = ((Document) m_node).getElementsByTagNameNS("*", "*");
@@ -423,7 +432,7 @@ public class DocumentTest extends NodeWithChildrenTest {
                 result.item(1).getFirstChild().getNodeValue());
         NodeList result1 = ((Document) m_node).getElementsByTagNameNS("",
                 "foo");
-        assertEquals(true, compareNodeList(result, result1));
+        assertTrue(compareNodeList(result, result1));
 
 
         result = ((Document) m_node).getElementsByTagNameNS(null, "*");
@@ -431,6 +440,7 @@ public class DocumentTest extends NodeWithChildrenTest {
         assertEquals("ZeD", ((Element) result.item(3)).getTagName());
     }
 
+    @Test
     public void testGetElementsByTagNameNS_DNE() {
         m_node = m_docNS;
         NodeList result = ((Document) m_node).getElementsByTagNameNS("uri:foo",
@@ -444,12 +454,14 @@ public class DocumentTest extends NodeWithChildrenTest {
 
     }
 
+    @Test
     public void testGetImplementation() {
         assertTrue(
                 m_doc.getImplementation().toString().startsWith(
                         "org.apache.xmlbeans.impl.store"));
     }
 
+    @Test
     public void testImportNode() {
 
         Node toImport = m_docNS.getFirstChild();
@@ -471,7 +483,7 @@ public class DocumentTest extends NodeWithChildrenTest {
         }
 
         Document xercesDocument = parser.getDocument();
-        assertFalse(xercesDocument == null);
+        assertNotNull(xercesDocument);
         toImport = xercesDocument.getFirstChild();
         ((Document) m_node).importNode(toImport, true);
 
@@ -482,7 +494,6 @@ public class DocumentTest extends NodeWithChildrenTest {
         ((Document) m_node).importNode(toImport, false);
 
         ((Document) m_node).importNode(toImport, true);
-
     }
 
     /**
@@ -494,17 +505,16 @@ public class DocumentTest extends NodeWithChildrenTest {
      * Note that the deep parameter has no effect on Attr nodes;
      * they always carry their children with them when imported
      */
-
+    @Test
     public void testImportAttrNode() {
         Node toImport = m_doc.getFirstChild().getAttributes().item(0);
         toImport.appendChild(m_doc.createTextNode("more text"));
         Node imported = m_docNS.importNode(toImport, false);
 
-        assertEquals(null, imported.getParentNode());
+        assertNull(imported.getParentNode());
         assertEquals(Node.ATTRIBUTE_NODE, imported.getNodeType());
         assertEquals(2, imported.getChildNodes().getLength());
         assertEquals(imported.getOwnerDocument(), m_docNS);
-
     }
 
     /**
@@ -515,19 +525,20 @@ public class DocumentTest extends NodeWithChildrenTest {
      * corresponding subtree.
      * Otherwise, this simply generates an empty DocumentFragment.
      */
+    @Test
     public void testImportDocFrag() {
         Node toImport = m_doc.createDocumentFragment();
         toImport.appendChild(m_doc.getFirstChild());
         toImport.appendChild(m_doc.createTextNode("some text"));
 
         Node imported = m_docNS.importNode(toImport, false);
-        assertEquals(null, imported.getParentNode());
+        assertNull(imported.getParentNode());
         assertEquals(Node.DOCUMENT_FRAGMENT_NODE, imported.getNodeType());
-        assertEquals(false, imported.hasChildNodes());
+        assertFalse(imported.hasChildNodes());
         assertEquals(imported.getOwnerDocument(), m_docNS);
 
         imported = m_docNS.importNode(toImport, true);
-        assertEquals(null, imported.getParentNode());
+        assertNull(imported.getParentNode());
         assertEquals(Node.DOCUMENT_FRAGMENT_NODE, imported.getNodeType());
         assertEquals(2, imported.getChildNodes().getLength());
         assertEquals(imported.getOwnerDocument(), m_docNS);
@@ -537,9 +548,8 @@ public class DocumentTest extends NodeWithChildrenTest {
      * DOCUMENT_NODE
      * Document nodes cannot be imported.
      */
-
+    @Test
     public void testImportDocument() {
-
         DOMException e1 = null;
         try {
             m_docNS.importNode(m_doc, false);
@@ -572,11 +582,12 @@ public class DocumentTest extends NodeWithChildrenTest {
      * reassembled to form the corresponding subtree.
      */
     //TODO: specified and default attributes
+    @Test
     public void testImportElement() {
         Node toImport = m_doc.getFirstChild();
         Node imported = m_docNS.importNode(toImport, false);
 
-        assertEquals(null, imported.getParentNode());
+        assertNull(imported.getParentNode());
         assertEquals(Node.ELEMENT_NODE, imported.getNodeType());
         assertEquals(0, imported.getChildNodes().getLength());
         assertEquals(5, imported.getAttributes().getLength());
@@ -584,12 +595,11 @@ public class DocumentTest extends NodeWithChildrenTest {
 
         imported = m_docNS.importNode(toImport, true);
 
-        assertEquals(null, imported.getParentNode());
+        assertNull(imported.getParentNode());
         assertEquals(Node.ELEMENT_NODE, imported.getNodeType());
         assertEquals(1, imported.getChildNodes().getLength());
         assertEquals(5, imported.getAttributes().getLength());
         assertEquals(imported.getOwnerDocument(), m_docNS);
-
     }
 
     /**
@@ -614,21 +624,20 @@ public class DocumentTest extends NodeWithChildrenTest {
      * The imported node copies its target and data
      * values from those of the source node.
      */
+    @Test
     public void testImportPI() {
         Node pi = m_doc.createProcessingInstruction("xml-stylesheet",
                 "do something");
         m_doc.getFirstChild().appendChild(pi);
 
         Node imported = m_docNS.importNode(pi, false);
-        assertEquals(null, imported.getParentNode());
+        assertNull(imported.getParentNode());
         assertEquals(Node.PROCESSING_INSTRUCTION_NODE, imported.getNodeType());
         assertEquals("do something",
                 ((ProcessingInstruction) imported).getData());
         assertEquals("xml-stylesheet",
                 ((ProcessingInstruction) imported).getTarget());
         assertEquals(imported.getOwnerDocument(), m_docNS);
-
-
     }
 
     /**
@@ -636,6 +645,7 @@ public class DocumentTest extends NodeWithChildrenTest {
      * These three types of nodes inheriting from CharacterData copy their
      * data and length attributes from those of the source node.
      */
+    @Test
     public void testImportChars() {
         //import CDATA--nothing to do--it's always text
 
@@ -646,7 +656,7 @@ public class DocumentTest extends NodeWithChildrenTest {
         Node imported = m_docNS.importNode(
                 m_doc.getFirstChild().getLastChild(), false);
 
-        assertEquals(null, imported.getParentNode());
+        assertNull(imported.getParentNode());
         assertEquals(Node.TEXT_NODE, imported.getNodeType());
         assertEquals("some text", ((Text) imported).getData());
         assertEquals(9, ((Text) imported).getLength());
@@ -657,7 +667,7 @@ public class DocumentTest extends NodeWithChildrenTest {
         //import Comment
         txt = m_doc.createComment("some text");
         m_doc.getFirstChild().appendChild(txt);
-        assertEquals(null, imported.getParentNode());
+        assertNull(imported.getParentNode());
         imported =
                 m_docNS.importNode(m_doc.getFirstChild().getLastChild(), false);
 
@@ -669,6 +679,7 @@ public class DocumentTest extends NodeWithChildrenTest {
 
     }
 
+    @Test
     public void testImportNodeNull() {
         Node _Null = null;
         ((Document) m_node).importNode(_Null, true);
@@ -678,11 +689,10 @@ public class DocumentTest extends NodeWithChildrenTest {
 
     public void moveToNode() {
         m_node = m_doc;
-
     }
 
+    @Before
     public void setUp() throws Exception {
-
         super.setUp();
         moveToNode();
     }

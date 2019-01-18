@@ -15,28 +15,24 @@
 
 package xmlobject.checkin;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
-import junit.framework.TestCase;
-import junit.framework.Assert;
+import com.easypo.XmlLineItemBean;
 import com.easypo.XmlPurchaseOrderDocumentBean;
 import com.easypo.XmlPurchaseOrderDocumentBean.PurchaseOrder;
-import com.easypo.XmlLineItemBean;
 import com.easypo.XmlShipperBean;
+import org.junit.Test;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
-public class CreationTests extends TestCase
-{
-    public CreationTests(String name) { super(name); }
-    public static Test suite() { return new TestSuite(CreationTests.class); }
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
-    public void testCreatePo() throws Exception
-    {
+public class CreationTests {
+    @Test
+    public void testCreatePo() {
         XmlPurchaseOrderDocumentBean doc =
             XmlPurchaseOrderDocumentBean.Factory.newInstance();
-        
+
         PurchaseOrder order = doc.addNewPurchaseOrder();
         order.addNewCustomer().setName("David Bau");
         order.getCustomer().setAddress("Gladwyne, PA");
@@ -60,29 +56,27 @@ public class CreationTests extends TestCase
         sh.setName("UPS");
         sh.setPerOunceRate(new BigDecimal("0.74"));
 
-//        System.out.println(doc.xmlText());
+        assertEquals("David Bau", order.getCustomer().getName());
+        assertEquals("Gladwyne, PA", order.getCustomer().getAddress());
+        assertEquals(3, order.sizeOfLineItemArray());
 
-        Assert.assertEquals("David Bau", order.getCustomer().getName());
-        Assert.assertEquals("Gladwyne, PA", order.getCustomer().getAddress());
-        Assert.assertEquals(3, order.sizeOfLineItemArray());
+        assertEquals("Burnham's Celestial Handbook, Vol 1", order.getLineItemArray(0).getDescription());
+        assertEquals(new BigDecimal("21.79"), order.getLineItemArray(0).getPrice());
+        assertEquals(new BigInteger("2"), order.getLineItemArray(0).getQuantity());
+        assertEquals(new BigDecimal("5"), order.getLineItemArray(0).getPerUnitOunces());
 
-        Assert.assertEquals("Burnham's Celestial Handbook, Vol 1", order.getLineItemArray(0).getDescription());
-        Assert.assertEquals(new BigDecimal("21.79"), order.getLineItemArray(0).getPrice());
-        Assert.assertEquals(new BigInteger("2"), order.getLineItemArray(0).getQuantity());
-        Assert.assertEquals(new BigDecimal("5"), order.getLineItemArray(0).getPerUnitOunces());
+        assertEquals("Burnham's Celestial Handbook, Vol 2", order.getLineItemArray(1).getDescription());
+        assertEquals(new BigDecimal("19.89"), order.getLineItemArray(1).getPrice());
+        assertEquals(new BigInteger("2"), order.getLineItemArray(1).getQuantity());
+        assertEquals(new BigDecimal("5"), order.getLineItemArray(1).getPerUnitOunces());
 
-        Assert.assertEquals("Burnham's Celestial Handbook, Vol 2", order.getLineItemArray(1).getDescription());
-        Assert.assertEquals(new BigDecimal("19.89"), order.getLineItemArray(1).getPrice());
-        Assert.assertEquals(new BigInteger("2"), order.getLineItemArray(1).getQuantity());
-        Assert.assertEquals(new BigDecimal("5"), order.getLineItemArray(1).getPerUnitOunces());
+        assertEquals("Burnham's Celestial Handbook, Vol 3", order.getLineItemArray(2).getDescription());
+        assertEquals(new BigDecimal("19.89"), order.getLineItemArray(2).getPrice());
+        assertEquals(new BigInteger("1"), order.getLineItemArray(2).getQuantity());
+        assertEquals(new BigDecimal("5"), order.getLineItemArray(2).getPerUnitOunces());
 
-        Assert.assertEquals("Burnham's Celestial Handbook, Vol 3", order.getLineItemArray(2).getDescription());
-        Assert.assertEquals(new BigDecimal("19.89"), order.getLineItemArray(2).getPrice());
-        Assert.assertEquals(new BigInteger("1"), order.getLineItemArray(2).getQuantity());
-        Assert.assertEquals(new BigDecimal("5"), order.getLineItemArray(2).getPerUnitOunces());
-
-        Assert.assertEquals(true, order.isSetShipper());
-        Assert.assertEquals("UPS", order.getShipper().getName());
-        Assert.assertEquals(new BigDecimal("0.74"), order.getShipper().getPerOunceRate());
+        assertTrue(order.isSetShipper());
+        assertEquals("UPS", order.getShipper().getName());
+        assertEquals(new BigDecimal("0.74"), order.getShipper().getPerOunceRate());
     }
 }

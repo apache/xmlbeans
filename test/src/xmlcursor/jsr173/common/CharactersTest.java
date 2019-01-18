@@ -18,16 +18,16 @@ package xmlcursor.jsr173.common;
 
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlObject;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
 
-import javax.xml.stream.XMLStreamReader;
-import javax.xml.stream.XMLStreamConstants;
 import javax.xml.namespace.QName;
+import javax.xml.stream.XMLStreamConstants;
+import javax.xml.stream.XMLStreamReader;
 
-
-import junit.framework.*;
-
-
-//
+import static org.junit.Assert.*;
 
 /**
  * Methods tested
@@ -39,13 +39,17 @@ import junit.framework.*;
  * Token Types should be DTD, ER, Chars, Comment, Space
  * currently DTD and ER are Not Impl
  */
-public abstract class CharactersTest extends TestCase {
+@Ignore("abstract class")
+public abstract class CharactersTest {
+
+    private XMLStreamReader m_stream;
 
     public abstract XMLStreamReader getStream(XmlCursor c) throws Exception;
 
+    @Test
     public void testHasText() throws Exception {
         assertEquals(XMLStreamConstants.START_DOCUMENT,
-                m_stream.getEventType());
+            m_stream.getEventType());
 
         // assertEquals( XMLStreamConstants.ATTRIBUTE, m_stream.next()  );
         //  assertFalse( m_stream.hasText() );
@@ -72,6 +76,7 @@ public abstract class CharactersTest extends TestCase {
     }
 
     //also testing getTextStart and getTextLength
+    @Test
     public void testGetTextCharacters() throws Exception {
         try {
             assertEquals(XMLStreamConstants.START_DOCUMENT, m_stream.getEventType());
@@ -83,7 +88,7 @@ public abstract class CharactersTest extends TestCase {
         assertEquals(XMLStreamConstants.COMMENT, m_stream.next());
         char[] result = m_stream.getTextCharacters();
         assertEquals(" some comment ", new String(result).substring(m_stream.getTextStart(),
-                m_stream.getTextLength()));
+            m_stream.getTextLength()));
 
         try {
             assertEquals(XMLStreamConstants.START_ELEMENT, m_stream.next());
@@ -96,7 +101,7 @@ public abstract class CharactersTest extends TestCase {
         assertEquals(XMLStreamConstants.CHARACTERS, m_stream.next());
         result = m_stream.getTextCharacters();
         assertEquals("some text", new String(result).substring(m_stream.getTextStart(),
-                m_stream.getTextLength()));
+            m_stream.getTextLength()));
 
         m_stream.next();
         m_stream.next();//skip empty elt
@@ -104,7 +109,7 @@ public abstract class CharactersTest extends TestCase {
         assertEquals(XMLStreamConstants.CHARACTERS, m_stream.next());
         result = m_stream.getTextCharacters();
         assertEquals("\t", new String(result).substring(m_stream.getTextStart(),
-                m_stream.getTextLength()));
+            m_stream.getTextLength()));
         try {
             m_stream.next();
             m_stream.getTextLength();
@@ -113,74 +118,46 @@ public abstract class CharactersTest extends TestCase {
         }
     }
 
-
+    @Test(expected = IndexOutOfBoundsException.class)
     public void testGetTextCharactersBufferNegStart() throws Exception {
         m_stream.next();
-        try {
-            m_stream.getTextCharacters(-1, new char[10], 12, 12);
-            fail(" java.lang.IndexOutOfBoundsException - if " +
-                    "length < 0 or targetStart + length > length of target ");
-        } catch (java.lang.IndexOutOfBoundsException e) {
-        }
+        m_stream.getTextCharacters(-1, new char[10], 12, 12);
     }
 
+    @Test(expected = NullPointerException.class)
     public void testGetTextCharactersBufferNull() throws Exception {
         m_stream.next();
-        try {
-            m_stream.getTextCharacters(0, null, 12, 12);
-            fail(" java.lang.NullPointerException - is if target is null ");
-        } catch (java.lang.NullPointerException e) {
-        }
-
+        m_stream.getTextCharacters(0, null, 12, 12);
     }
 
+    @Test(expected = IndexOutOfBoundsException.class)
     public void testGetTextCharactersLargeSrcOff() throws Exception {
         m_stream.next();
-        try {
-            m_stream.getTextCharacters(110, new char[10], 0, 9);
-            fail(" java.lang.IndexOutOfBoundsException - if " +
-                    "length < 0 or targetStart + length > length of target ");
-        } catch (java.lang.IndexOutOfBoundsException e) {
-        }
+        m_stream.getTextCharacters(110, new char[10], 0, 9);
     }
 
+    @Test(expected = IndexOutOfBoundsException.class)
     public void testGetTextCharactersLargeTrgOff() throws Exception {
         m_stream.next();
-        try {
-            m_stream.getTextCharacters(110, new char[10], 10, 9);
-            fail(" java.lang.IndexOutOfBoundsException - if " +
-                    "length < 0 or targetStart + length > length of target ");
-        } catch (java.lang.IndexOutOfBoundsException e) {
-        }
+        m_stream.getTextCharacters(110, new char[10], 10, 9);
     }
 
+    @Test(expected = IndexOutOfBoundsException.class)
     public void testGetTextCharactersLargeLen() throws Exception {
         m_stream.next();
         char[] buff = new char[9];
-        try {
-            int nCopied = m_stream.getTextCharacters(0, buff, 0, 30);
-            assertEquals(nCopied, buff.length);
-            fail(" java.lang.IndexOutOfBoundsException - if " +
-                    "length < 0 or targetStart + length > length of target ");
-        } catch (java.lang.IndexOutOfBoundsException e) {
-        }
-
+        m_stream.getTextCharacters(0, buff, 0, 30);
     }
 
     //off+len past end
+    @Test(expected = IndexOutOfBoundsException.class)
     public void testGetTextCharactersLargeSum() throws Exception {
         m_stream.next();
         char[] buff = new char[9];
-        try {
-            int nCopied = m_stream.getTextCharacters(0, buff, 3, 10);
-            fail(" java.lang.IndexOutOfBoundsException - if " +
-                    "length < 0 or targetStart + length > length of target ");
-        } catch (java.lang.IndexOutOfBoundsException e) {
-        }
-
+        m_stream.getTextCharacters(0, buff, 3, 10);
     }
 
-
+    @Test
     public void testGetText() throws Exception {
         try {
             assertEquals(XMLStreamConstants.START_DOCUMENT, m_stream.getEventType());
@@ -219,9 +196,9 @@ public abstract class CharactersTest extends TestCase {
         }
     }
 
-
+    @Before
     public void setUp() throws Exception {
-        cur = XmlObject.Factory.newInstance().newCursor();
+        XmlCursor cur = XmlObject.Factory.newInstance().newCursor();
         cur.toNextToken();
 
         //   cur.insertAttributeWithValue(new QName("foo.org", "at0", "pre"), "val0");
@@ -238,13 +215,9 @@ public abstract class CharactersTest extends TestCase {
         m_stream = getStream(cur);
     }
 
-    public void tearDown() throws Exception
-    {
-        super.tearDown();
+    @After
+    public void tearDown() throws Exception {
         if (m_stream != null)
             m_stream.close();
     }
-
-    private XMLStreamReader m_stream;
-    private XmlCursor cur;
 }

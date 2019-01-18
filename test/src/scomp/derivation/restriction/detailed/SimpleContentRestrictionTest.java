@@ -14,15 +14,16 @@
  */
 package scomp.derivation.restriction.detailed;
 
+import org.apache.xmlbeans.XmlErrorCodes;
+import org.junit.Test;
+import scomp.common.BaseCase;
 import xbean.scomp.derivation.simpleExtension.SimpleRestrictionEltDocument;
 import xbean.scomp.derivation.simpleExtension.SimpleRestrictionT;
-import scomp.common.BaseCase;
-import org.apache.xmlbeans.XmlErrorCodes;
 
-/**
- *
- */
+import static org.junit.Assert.assertTrue;
+
 public class SimpleContentRestrictionTest extends BaseCase {
+    @Test
     public void testLegalValues() throws Throwable {
         SimpleRestrictionEltDocument doc = SimpleRestrictionEltDocument.Factory.newInstance();
         SimpleRestrictionT elt = doc.addNewSimpleRestrictionElt();
@@ -33,9 +34,9 @@ public class SimpleContentRestrictionTest extends BaseCase {
             showErrors();
             throw t;
         }
-
     }
 
+    @Test
     public void testIllegalValues() throws Throwable {
         SimpleRestrictionEltDocument doc = SimpleRestrictionEltDocument.Factory.newInstance();
         SimpleRestrictionT elt = doc.addNewSimpleRestrictionElt();
@@ -48,7 +49,5 @@ public class SimpleContentRestrictionTest extends BaseCase {
             XmlErrorCodes.DATATYPE_MAX_INCLUSIVE_VALID
         };
         assertTrue(compareErrorCodes(errExpected));
-
-
     }
 }

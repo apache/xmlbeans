@@ -16,10 +16,8 @@
 
 package xmlobject.detailed;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
 import org.apache.xmlbeans.XmlInteger;
+import org.junit.Test;
 import org.w3c.dom.DocumentFragment;
 import org.w3c.dom.Node;
 
@@ -29,29 +27,29 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.math.BigInteger;
 
-public class SerializationDetailedTests extends TestCase
-{
-    public SerializationDetailedTests (String name) { super(name); }
-    public static Test suite() { return new TestSuite(SerializationDetailedTests.class); }
+import static org.junit.Assert.assertTrue;
 
-    public void testDocFragmentSerialization() throws Exception
-    {
+public class SerializationDetailedTests {
+
+    @Test
+    public void testDocFragmentSerialization() throws Exception {
         XmlInteger xmlInt = XmlInteger.Factory.newInstance();
-		xmlInt.setBigIntegerValue(new BigInteger("10"));
+        xmlInt.setBigIntegerValue(new BigInteger("10"));
 
-		Node node = xmlInt.getDomNode();
-		assertTrue("DOM node from XmlObject not instance of DocumentFragment (it is a "+node+")", node instanceof DocumentFragment);
+        Node node = xmlInt.getDomNode();
+        assertTrue("DOM node from XmlObject not instance of DocumentFragment (it is a " + node + ")", node instanceof DocumentFragment);
 
-		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		ObjectOutputStream oos = new ObjectOutputStream(out);
-		oos.writeObject(xmlInt);
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        ObjectOutputStream oos = new ObjectOutputStream(out);
+        oos.writeObject(xmlInt);
 
 
-		ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
-		ObjectInputStream ois = new ObjectInputStream(in);
-		XmlInteger deserialized = (XmlInteger) ois.readObject();
+        ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
+        ObjectInputStream ois = new ObjectInputStream(in);
+        XmlInteger deserialized = (XmlInteger) ois.readObject();
 
-		node = deserialized.getDomNode();
-		assertTrue("DOM node from deserialized XmlObject not instance of DocumentFragment (it is a "+node+")", node instanceof DocumentFragment);    }
-
+        node = deserialized.getDomNode();
+        assertTrue("DOM node from deserialized XmlObject not instance of DocumentFragment (it is a " + node + ")", node instanceof DocumentFragment);
     }
+
+}

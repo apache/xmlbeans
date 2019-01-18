@@ -17,18 +17,22 @@
 package misc.detailed;
 
 import misc.common.ParsersBase;
+import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
-import org.apache.xmlbeans.XmlException;
+import org.junit.Test;
 
-import java.util.List;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
+
+import static org.junit.Assert.fail;
 
 public class CharEncodingTest extends ParsersBase {
 
     // Piccolo fails when trying to parse I18N chars in some QNames
     // String 2 fails with piccolo and hence with xbeans
+    @Test
     public void testCharEncodingI18N() {
         String I18N_test_string1 = "<i18n xmlns:\u00c1\u00c1\u00c1=\"\u00c1\u00c1\u00c1\" type=\"\u00c1\u00c1\u00c1:t\"/>";
         String I18N_test_string2 = "<i18n xmlns:\u30af\u30af\u30af=\"\u30af\u30af\u30af\" type=\"\u30af\u30af\u30af:t\"/>";
@@ -48,6 +52,7 @@ public class CharEncodingTest extends ParsersBase {
     // Piccolo has an issue with handling external identifiers when the value is PUBLIC
     // refer : http://cafeconleche.org/SAXTest/results/com.bluecast.xml.Piccolo/xmltest/valid/not-sa/009.xml.html
     // results for the SAX conformance suite. This has been fixed in newer versions of Piccolo
+    @Test
     public void testExternalPublicIdentifier() {
         // repro using piccolo and other parsers via JAXP API
         String netPubEntity = "<!DOCTYPE doc PUBLIC \"whatever\" \"http://www.w3.org/2001/XMLSchema.dtd\" [\n" +

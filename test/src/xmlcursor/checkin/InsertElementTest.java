@@ -18,50 +18,31 @@ package xmlcursor.checkin;
 
 import org.apache.xmlbeans.XmlCursor.TokenType;
 import org.apache.xmlbeans.XmlObject;
+import org.junit.Test;
 import tools.util.JarUtil;
 import xmlcursor.common.BasicCursorTestCase;
 import xmlcursor.common.Common;
-import junit.framework.Test;
-import junit.framework.TestSuite;
 
+import static org.junit.Assert.assertEquals;
 
-/**
- *
- *
- */
 public class InsertElementTest extends BasicCursorTestCase {
-    public InsertElementTest(String sName) {
-        super(sName);
-    }
-
-    public static Test suite() {
-        return new TestSuite(InsertElementTest.class);
-    }
-
+    @Test(expected = IllegalArgumentException.class)
     public void testInsertElementNullName() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_DIGITS);
         m_xc = m_xo.newCursor();
         toNextTokenOfType(m_xc, TokenType.START);
-        try {
-            m_xc.insertElementWithText(null, "uri", "value");
-            fail("Expected IllegalArgumentException");
-        } catch (IllegalArgumentException iae) {
-        }
-        assertEquals(true, true);
+        m_xc.insertElementWithText(null, "uri", "value");
     }
 
+    @Test(expected = IllegalArgumentException.class)
     public void testInsertElementEmptyStringName() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_DIGITS);
         m_xc = m_xo.newCursor();
         toNextTokenOfType(m_xc, TokenType.START);
-        try {
-            m_xc.insertElementWithText("", "uri", "value");
-            fail("Expected IllegalArgumentException");
-        } catch (IllegalArgumentException iae) {
-        }
-        assertEquals(true, true);
+        m_xc.insertElementWithText("", "uri", "value");
     }
 
+    @Test
     public void testInsertElementNullUri() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_DIGITS);
         m_xc = m_xo.newCursor();
@@ -71,6 +52,7 @@ public class InsertElementTest extends BasicCursorTestCase {
         assertEquals("<name>value</name>", m_xc.xmlText());
     }
 
+    @Test
     public void testInsertElementNullText() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_DIGITS);
         m_xc = m_xo.newCursor();
@@ -80,6 +62,7 @@ public class InsertElementTest extends BasicCursorTestCase {
         assertEquals("<uri:name xmlns:uri=\"uri\"/>", m_xc.xmlText());
     }
 
+    @Test
     public void testInsertElementEmptyStringText() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_DIGITS);
         m_xc = m_xo.newCursor();
@@ -89,6 +72,7 @@ public class InsertElementTest extends BasicCursorTestCase {
         assertEquals("<name/>", m_xc.xmlText());
     }
 
+    @Test
     public void testInsertElementInMiddleOfTEXT() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_TEXT);
         m_xc = m_xo.newCursor();
@@ -100,6 +84,7 @@ public class InsertElementTest extends BasicCursorTestCase {
         assertEquals("<foo>te<name>value</name>xt</foo>", m_xc.xmlText());
     }
 
+    @Test
     public void testInsertElementAtEND() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_TEXT);
         m_xc = m_xo.newCursor();
@@ -109,17 +94,14 @@ public class InsertElementTest extends BasicCursorTestCase {
         assertEquals("<foo>text<name>value</name></foo>", m_xc.xmlText());
     }
 
+    @Test(expected = IllegalArgumentException.class)
     public void testInsertElementAtSTARTDOC() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_TEXT);
         m_xc = m_xo.newCursor();
-        try {
-            m_xc.insertElementWithText("name", null, "value");
-            fail("Expected IllegalArgumentException");
-        } catch (IllegalArgumentException e) {
-        }
-        assertEquals(true, true);
+        m_xc.insertElementWithText("name", null, "value");
     }
 
+    @Test
     public void testInsertElementAtENDDOC() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_TEXT);
         m_xc = m_xo.newCursor();
@@ -129,6 +111,7 @@ public class InsertElementTest extends BasicCursorTestCase {
         assertEquals(Common.wrapInXmlFrag("<foo>text</foo><name>value</name>"), m_xc.xmlText());
     }
 
+    @Test
     public void testInsertElementInStoreWithNamespace() throws Exception {
         m_xo = XmlObject.Factory.parse(
                  JarUtil.getResourceFromJar(Common.TRANXML_FILE_CLM));

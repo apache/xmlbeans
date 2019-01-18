@@ -16,44 +16,23 @@
 
 package xmlcursor.checkin;
 
-import org.apache.xmlbeans.XmlOptions;
-import junit.framework.*;
-import junit.framework.Assert.*;
-
-import java.io.*;
-
-import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlCursor;
-import org.apache.xmlbeans.XmlBeans;
-import org.apache.xmlbeans.XmlCursor.TokenType;
-import org.apache.xmlbeans.XmlDocumentProperties;
-import org.apache.xmlbeans.XmlCursor.XmlBookmark;
+import org.apache.xmlbeans.XmlObject;
+import org.junit.Test;
+import xmlcursor.common.BasicCursorTestCase;
+import xmlcursor.common.Common;
 
-import javax.xml.namespace.QName;
-
-import xmlcursor.common.*;
-
-import java.net.URL;
 import java.util.Vector;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
-/**
- *
- *
- */
 public class GetAllBookmarkRefsTest extends BasicCursorTestCase {
     private Bookmark0 _theBookmark0 = new Bookmark0("value0");
     private Bookmark1 _theBookmark1 = new Bookmark1("value1");
     private Bookmark2 _theBookmark2 = new Bookmark2("value2");
 
-    public GetAllBookmarkRefsTest(String sName) {
-        super(sName);
-    }
-
-    public static Test suite() {
-        return new TestSuite(GetAllBookmarkRefsTest.class);
-    }
-
+    @Test
     public void testGetAll() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_TEXT);
         m_xc = m_xo.newCursor();
@@ -69,6 +48,7 @@ public class GetAllBookmarkRefsTest extends BasicCursorTestCase {
         assertEquals("value2", ((Bookmark2) v.elementAt(2)).text);
     }
 
+    @Test
     public void testGetAllNullListToFill() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_TEXT);
         m_xc = m_xo.newCursor();
@@ -82,7 +62,7 @@ public class GetAllBookmarkRefsTest extends BasicCursorTestCase {
     public class Bookmark0 extends XmlCursor.XmlBookmark {
         public String text;
 
-        public Bookmark0(String text) {
+        Bookmark0(String text) {
             this.text = text;
         }
     }
@@ -90,7 +70,7 @@ public class GetAllBookmarkRefsTest extends BasicCursorTestCase {
     public class Bookmark1 extends XmlCursor.XmlBookmark {
         public String text;
 
-        public Bookmark1(String text) {
+        Bookmark1(String text) {
             this.text = text;
         }
     }
@@ -98,11 +78,9 @@ public class GetAllBookmarkRefsTest extends BasicCursorTestCase {
     public class Bookmark2 extends XmlCursor.XmlBookmark {
         public String text;
 
-        public Bookmark2(String text) {
+        Bookmark2(String text) {
             this.text = text;
         }
     }
-
-
 }
 

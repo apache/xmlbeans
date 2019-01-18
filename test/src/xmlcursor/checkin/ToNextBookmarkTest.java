@@ -16,43 +16,22 @@
 
 package xmlcursor.checkin;
 
-import org.apache.xmlbeans.XmlOptions;
-import junit.framework.*;
-import junit.framework.Assert.*;
-
-import java.io.*;
-
-import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlCursor;
-import org.apache.xmlbeans.XmlBeans;
 import org.apache.xmlbeans.XmlCursor.TokenType;
-import org.apache.xmlbeans.XmlDocumentProperties;
-import org.apache.xmlbeans.XmlCursor.XmlBookmark;
+import org.apache.xmlbeans.XmlObject;
+import org.junit.Test;
+import xmlcursor.common.BasicCursorTestCase;
+import xmlcursor.common.Common;
 
-import javax.xml.namespace.QName;
-
-import xmlcursor.common.*;
-
-import java.net.URL;
+import static org.junit.Assert.*;
 
 
-/**
- *
- *
- */
 public class ToNextBookmarkTest extends BasicCursorTestCase {
     private SimpleBookmark _theBookmark = new SimpleBookmark("value");
     private SimpleBookmark _theBookmark1 = new SimpleBookmark("value1");
     private DifferentBookmark _difBookmark = new DifferentBookmark("diff");
 
-    public ToNextBookmarkTest(String sName) {
-        super(sName);
-    }
-
-    public static Test suite() {
-        return new TestSuite(ToNextBookmarkTest.class);
-    }
-
+    @Test
     public void testToNextBookmarkSameKey() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_TEXT);
         m_xc = m_xo.newCursor();
@@ -65,16 +44,17 @@ public class ToNextBookmarkTest extends BasicCursorTestCase {
         m_xc.toStartDoc();
         try {
             assertEquals(_theBookmark, m_xc.toNextBookmark(SimpleBookmark.class));
-            assertEquals(true, m_xc.isAtSamePositionAs(xc0));
+            assertTrue(m_xc.isAtSamePositionAs(xc0));
             assertEquals(_theBookmark1, m_xc.toNextBookmark(SimpleBookmark.class));
-            assertEquals(true, m_xc.isAtSamePositionAs(xc1));
-            assertEquals(null, m_xc.toNextBookmark(SimpleBookmark.class));
+            assertTrue(m_xc.isAtSamePositionAs(xc1));
+            assertNull(m_xc.toNextBookmark(SimpleBookmark.class));
         } finally {
             xc0.dispose();
             xc1.dispose();
         }
     }
 
+    @Test
     public void testToNextBookmarkInvalidKey() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_TEXT);
         m_xc = m_xo.newCursor();
@@ -83,9 +63,10 @@ public class ToNextBookmarkTest extends BasicCursorTestCase {
         toNextTokenOfType(m_xc, TokenType.END);
         m_xc.setBookmark(_theBookmark1);
         m_xc.toStartDoc();
-        assertEquals(null, m_xc.toNextBookmark(Object.class));
+        assertNull(m_xc.toNextBookmark(Object.class));
     }
 
+    @Test
     public void testToNextBookmarkDifferentKeys() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_TEXT);
         m_xc = m_xo.newCursor();
@@ -98,16 +79,17 @@ public class ToNextBookmarkTest extends BasicCursorTestCase {
         m_xc.toStartDoc();
         try {
             assertEquals(_theBookmark, m_xc.toNextBookmark(SimpleBookmark.class));
-            assertEquals(true, m_xc.isAtSamePositionAs(xc0));
-            assertEquals(null, m_xc.toNextBookmark(SimpleBookmark.class));
+            assertTrue(m_xc.isAtSamePositionAs(xc0));
+            assertNull(m_xc.toNextBookmark(SimpleBookmark.class));
             assertEquals(_difBookmark, m_xc.toNextBookmark(DifferentBookmark.class));
-            assertEquals(true, m_xc.isAtSamePositionAs(xc1));
+            assertTrue(m_xc.isAtSamePositionAs(xc1));
         } finally {
             xc0.dispose();
             xc1.dispose();
         }
     }
 
+    @Test
     public void testToNextBookmarkPostRemoveChars() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_DIGITS);
         m_xc = m_xo.newCursor();
@@ -121,7 +103,7 @@ public class ToNextBookmarkTest extends BasicCursorTestCase {
         XmlCursor xc1 = m_xc.newCursor();
         xc1.toStartDoc();
         try {
-            assertEquals(null, xc1.toNextBookmark(SimpleBookmark.class));
+            assertNull(xc1.toNextBookmark(SimpleBookmark.class));
             assertEquals(TokenType.STARTDOC, xc1.currentTokenType());
         } finally {
             xc1.dispose();
@@ -131,7 +113,7 @@ public class ToNextBookmarkTest extends BasicCursorTestCase {
     public class SimpleBookmark extends XmlCursor.XmlBookmark {
         public String text;
 
-        public SimpleBookmark(String text) {
+        SimpleBookmark(String text) {
             this.text = text;
         }
     }
@@ -139,7 +121,7 @@ public class ToNextBookmarkTest extends BasicCursorTestCase {
     public class DifferentBookmark extends XmlCursor.XmlBookmark {
         public String text;
 
-        public DifferentBookmark(String text) {
+        DifferentBookmark(String text) {
             this.text = text;
         }
     }

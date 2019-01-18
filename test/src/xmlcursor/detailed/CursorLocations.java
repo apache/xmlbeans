@@ -16,11 +16,10 @@
 
 package xmlcursor.detailed;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlCursor.TokenType;
 import org.apache.xmlbeans.XmlObject;
+import org.junit.Test;
 import test.xbean.xmlcursor.purchaseOrder.PurchaseOrderDocument;
 import test.xbean.xmlcursor.purchaseOrder.PurchaseOrderType;
 import test.xbean.xmlcursor.purchaseOrder.USAddress;
@@ -30,22 +29,13 @@ import xmlcursor.common.Common;
 
 import java.math.BigDecimal;
 
-/**
- *
- *
- */
+import static org.junit.Assert.*;
+
 public class CursorLocations extends BasicCursorTestCase {
 
     private Bookmark0 _theBookmark0 = new Bookmark0("value0");
 
-    public CursorLocations(String sName) {
-        super(sName);
-    }
-
-    public static Test suite() {
-        return new TestSuite(CursorLocations.class);
-    }
-
+    @Test(expected = IllegalArgumentException.class)
     public void testLocation() throws Exception {
         XmlCursor xc1, xc2, xc3, xc4;
         XmlObject m_xo1;
@@ -68,11 +58,11 @@ public class CursorLocations extends BasicCursorTestCase {
        //start w/ xc1 at beg of doc
         //xc2 at end of first elt (po:name)
         while (xc1.isLeftOf(xc2)) {
-            assertEquals(false, xc1.isRightOf(xc2));
-            assertEquals(true, xc2.isRightOf(xc1));
-            assertEquals(true, xc1.isInSameDocument(xc2));
-            assertEquals(false, xc2.isAtSamePositionAs(xc1));
-            assertEquals(false, xc1.isAtSamePositionAs(xc2));
+            assertFalse(xc1.isRightOf(xc2));
+            assertTrue(xc2.isRightOf(xc1));
+            assertTrue(xc1.isInSameDocument(xc2));
+            assertFalse(xc2.isAtSamePositionAs(xc1));
+            assertFalse(xc1.isAtSamePositionAs(xc2));
             assertEquals(1, xc2.comparePosition(xc1));
             assertEquals(-1, xc1.comparePosition(xc2));
             //	System.out.println(xc1.currentTokenType() + "       " +  xc2.currentTokenType());
@@ -94,29 +84,29 @@ public class CursorLocations extends BasicCursorTestCase {
         assertEquals(xc1.getChars(), xc1.getTextValue());
         assertEquals(xc1.getChars(), xc2.getTextValue());
 
-        assertEquals(true, xc1.isAtSamePositionAs(xc2));
+        assertTrue(xc1.isAtSamePositionAs(xc2));
         xc2.toNextChar(10);
 
 
 //comparing two cursors in the middle of text
 
         assertEquals(xc2.toPrevChar(4), xc1.toNextChar(4));
-        assertEquals(true, xc2.isRightOf(xc1));
-        assertEquals(false, xc1.isRightOf(xc2));
-        assertEquals(false, xc2.isLeftOf(xc1));
-        assertEquals(false, xc1.isAtSamePositionAs(xc2));
+        assertTrue(xc2.isRightOf(xc1));
+        assertFalse(xc1.isRightOf(xc2));
+        assertFalse(xc2.isLeftOf(xc1));
+        assertFalse(xc1.isAtSamePositionAs(xc2));
         assertEquals(1, xc2.comparePosition(xc1));
-        assertEquals(true, xc1.isInSameDocument(xc2));
+        assertTrue(xc1.isInSameDocument(xc2));
         xc1.toNextChar(2);
         assertEquals(0, xc2.comparePosition(xc1));
         assertEquals(xc1.currentTokenType(), xc2.currentTokenType());
 
-//Comparing the same cursor to itself
+        //Comparing the same cursor to itself
         xc1.toNextChar(1);
-        assertEquals(false, xc1.isRightOf(xc1));
+        assertFalse(xc1.isRightOf(xc1));
         assertEquals(0, xc2.comparePosition(xc2));
-        assertEquals(true, xc2.isInSameDocument(xc2));
-        assertEquals(true, xc2.isAtSamePositionAs(xc2));
+        assertTrue(xc2.isInSameDocument(xc2));
+        assertTrue(xc2.isAtSamePositionAs(xc2));
 
         xc2.toPrevToken();
         //xc2 on Alice
@@ -126,37 +116,35 @@ public class CursorLocations extends BasicCursorTestCase {
 
         //moving xml and bookmark to a
         // different location
-        assertEquals(true, xc1.moveXml(xc3));
+        assertTrue(xc1.moveXml(xc3));
         xc4 = _theBookmark0.createCursor();
+        assertNotNull(xc4);
 
         XmlCursor debug=xc4.newCursor();
         XmlCursor debug1=xc1.newCursor();
 
-         toPrevTokenOfType(debug1,TokenType.START);
-        assertEquals(true, xc4.isInSameDocument(xc3));
+        toPrevTokenOfType(debug1,TokenType.START);
+        assertTrue(xc4.isInSameDocument(xc3));
         assertEquals(-1, xc4.comparePosition(xc3));
-      //  assertEquals(TokenType.TEXT, xc3.toPrevToken());
+        // assertEquals(TokenType.TEXT, xc3.toPrevToken());
         assertEquals(4,xc3.toPrevChar(4));
         assertEquals(0, xc4.comparePosition(xc3));
 
-//comparing in  two different documents
-        assertEquals(false, xc2.isInSameDocument(xc3));
+        //comparing in  two different documents
+        assertFalse(xc2.isInSameDocument(xc3));
 
 
         try {
             xc4.isLeftOf(xc2);
-            fail("Expecting Illegal Argument Exception");
+        } finally {
+            xc1.dispose();
+            xc2.dispose();
+            xc3.dispose();
+            xc4.dispose();
         }
-        catch (IllegalArgumentException ie) {
-        }
-
-        xc1.dispose();
-        xc2.dispose();
-        xc3.dispose();
-        xc4.dispose();
-
     }
 
+    @Test
     public void testLocationATTR() throws Exception {
         XmlCursor xc1, xc2;
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_5ATTR_TEXT);
@@ -176,22 +164,22 @@ public class CursorLocations extends BasicCursorTestCase {
         assertEquals(5, i);
         xc2.toPrevToken();
 
-//moving betweenAttributes. one cursor is at the last ATTR and other is at first ATTR.
+        //moving betweenAttributes. one cursor is at the last ATTR and other is at first ATTR.
         while (xc1.isLeftOf(xc2)) {
-            assertEquals(false, xc1.isRightOf(xc2));
-            assertEquals(true, xc2.isRightOf(xc1));
-            assertEquals(true, xc1.isInSameDocument(xc2));
-            assertEquals(false, xc2.isAtSamePositionAs(xc1));
-            assertEquals(false, xc1.isAtSamePositionAs(xc2));
+            assertFalse(xc1.isRightOf(xc2));
+            assertTrue(xc2.isRightOf(xc1));
+            assertTrue(xc1.isInSameDocument(xc2));
+            assertFalse(xc2.isAtSamePositionAs(xc1));
+            assertFalse(xc1.isAtSamePositionAs(xc2));
             assertEquals(1, xc2.comparePosition(xc1));
             assertEquals(-1, xc1.comparePosition(xc2));
             //	System.out.println(xc1.currentTokenType() + "       " +  xc2.currentTokenType());
             xc1.toNextToken();
             xc2.toPrevToken();
         }
-        assertEquals(true, xc1.isAtSamePositionAs(xc2));
+        assertTrue(xc1.isAtSamePositionAs(xc2));
 
-//inserting and then comparing to make sure cursors move properly.
+        //inserting and then comparing to make sure cursors move properly.
         xc2.insertAttributeWithValue("attr5", "val5");
         assertEquals(0, xc1.comparePosition(xc2));
 
@@ -203,6 +191,7 @@ public class CursorLocations extends BasicCursorTestCase {
 
     }
 
+    @Test
     public void testLocationTEXTMiddle() throws Exception {
         XmlCursor xc1, xc2, xc3;
         m_xo = XmlObject.Factory.parse(Common.XML_TEXT_MIDDLE);
@@ -218,7 +207,8 @@ public class CursorLocations extends BasicCursorTestCase {
         //    xc2.toNextToken();
         // }
 
-//moving cursor to right locations. one is in middle of mixed content. the others is in middle of text of first node and last node
+        // moving cursor to right locations. one is in middle of mixed content.
+        // the others is in middle of text of first node and last node
 
         toNextTokenOfType(xc1, TokenType.TEXT);
         toNextTokenOfType(xc2, TokenType.TEXT);
@@ -229,34 +219,34 @@ public class CursorLocations extends BasicCursorTestCase {
         xc3.toEndToken();
         xc3.toPrevToken();
         xc3.toPrevChar(3);
-//comparing positions
-        assertEquals(-1, xc2.comparePosition(xc3));
-        assertEquals(true, xc2.isRightOf(xc1));
-        assertEquals(true, xc1.isInSameDocument(xc2));
-        assertEquals(false, xc2.isAtSamePositionAs(xc3));
 
-//moving cursors
+        //comparing positions
+        assertEquals(-1, xc2.comparePosition(xc3));
+        assertTrue(xc2.isRightOf(xc1));
+        assertTrue(xc1.isInSameDocument(xc2));
+        assertFalse(xc2.isAtSamePositionAs(xc3));
+
+        //moving cursors
         xc3.toPrevChar(2);
         xc2.toNextChar(1);
-//comparing position once again
-        assertEquals(-1, xc2.comparePosition(xc3));
-        assertEquals(true, xc2.isRightOf(xc1));
-        assertEquals(true, xc1.isInSameDocument(xc2));
-        assertEquals(false, xc2.isAtSamePositionAs(xc3));
 
-//moving and bringing them to identical positions
+        //comparing position once again
+        assertEquals(-1, xc2.comparePosition(xc3));
+        assertTrue(xc2.isRightOf(xc1));
+        assertTrue(xc1.isInSameDocument(xc2));
+        assertFalse(xc2.isAtSamePositionAs(xc3));
+
+        //moving and bringing them to identical positions
         xc3.toPrevToken();
         xc2.toNextChar(2);
-        assertEquals(true, xc2.isAtSamePositionAs(xc3));
+        assertTrue(xc2.isAtSamePositionAs(xc3));
 
         xc1.dispose();
         xc2.dispose();
         xc3.dispose();
-
-
     }
 
-
+    @Test
     public void testXmlObjectUsingCursor() throws Exception {
         XmlCursor xc1, xc2, xc3;
 
@@ -286,14 +276,14 @@ public class CursorLocations extends BasicCursorTestCase {
         toPrevTokenOfType(xc2, TokenType.TEXT);
         toPrevTokenOfType(xc3, TokenType.TEXT);
         toPrevTokenOfType(xc3, TokenType.TEXT);
-       //all cursors are now at: 90952
+        //all cursors are now at: 90952
         assertEquals(xc1.getChars(), xc2.getChars(), xc3.getChars());
-       //at 52
+        //at 52
         xc2.toNextChar(3);
         //after 90952
         xc3.toNextChar(5);
-        assertEquals(false, xc2.isAtSamePositionAs(xc3));
-        assertEquals(false, xc3.isAtSamePositionAs(xc1));
+        assertFalse(xc2.isAtSamePositionAs(xc3));
+        assertFalse(xc3.isAtSamePositionAs(xc1));
 
 
         //setting zip value through the object .
@@ -302,16 +292,17 @@ public class CursorLocations extends BasicCursorTestCase {
         USAddress usa = pt.getShipTo();
         usa.setZip(new BigDecimal(500));
 
-      assertEquals(500,usa.getZip().intValue());
-       //Any cursors in the value of an Element/attr should be positioned
+        assertEquals(500,usa.getZip().intValue());
+         //Any cursors in the value of an Element/attr should be positioned
         // at the end of the elem/attr after the strong setter
-        assertEquals(true, xc2.isAtSamePositionAs(xc3));
-        assertEquals(true, xc3.isAtSamePositionAs(xc1));
+        assertTrue(xc2.isAtSamePositionAs(xc3));
+        assertTrue(xc3.isAtSamePositionAs(xc1));
 
         assertEquals(TokenType.END,xc1.currentTokenType());
 
 
-//inserting an element through the cursor under zip and then doing a set of a valid value through object..
+        // inserting an element through the cursor under zip and then doing
+        // a set of a valid value through object..
 
         xc1.insertElementWithText("foo", "text");
         toPrevTokenOfType(xc1, TokenType.START);
@@ -323,8 +314,8 @@ public class CursorLocations extends BasicCursorTestCase {
         xc1.toNextChar(2);
         usa.setZip(new BigDecimal(90852));
 
-        assertEquals(true, xc2.isAtSamePositionAs(xc3));
-        assertEquals(true, xc3.isAtSamePositionAs(xc1));
+        assertTrue(xc2.isAtSamePositionAs(xc3));
+        assertTrue(xc3.isAtSamePositionAs(xc1));
         //cursors at the end of element
         xc1.toPrevToken();
         //assertEquals(5,xc1.toPrevChar(5));
@@ -334,19 +325,15 @@ public class CursorLocations extends BasicCursorTestCase {
         xc1.dispose();
         xc2.dispose();
         xc3.dispose();
-
-
     }
 
 
     public class Bookmark0 extends XmlCursor.XmlBookmark {
         public String text;
 
-        public Bookmark0(String text) {
+        Bookmark0(String text) {
             this.text = text;
         }
     }
-
-
 }
 

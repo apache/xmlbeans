@@ -14,14 +14,13 @@
  */
 package tools.inst2xsd.detailed;
 
+import org.junit.Ignore;
+import org.junit.Test;
 import tools.inst2xsd.common.Inst2XsdTestBase;
 import org.apache.xmlbeans.XmlObject;
 
+@Ignore
 public class DetailedLCDTest extends Inst2XsdTestBase {
-
-    public DetailedLCDTest(String name) {
-        super(name);
-    }
 
     // List of precedence for smart simple primitive type determination
     // byte, short, int, long, integer, float, double, decimal,
@@ -67,6 +66,7 @@ public class DetailedLCDTest extends Inst2XsdTestBase {
         runLCDTypeCheckTest("P1347Y", "-P1347M", "duration");
     } */
 
+    @Test
     public void test_lcd_anyuri() throws Exception {
         runLCDTypeCheckTest("abc",
                 "http://www.math.uio.no/faq/compression-faq/part1.html", "string");
@@ -76,6 +76,7 @@ public class DetailedLCDTest extends Inst2XsdTestBase {
         //runLCDTypeCheckTest("ftp://ftp.is.co.za/rfc/rfc1808.txt", "gopher://spinaltap.micro.umn.edu/00/Weather/California/Los%20Angeles", "anyURI");
     }
 
+    @Test
     public void test_lcd_byte() throws Exception {
         runLCDTypeCheckTest("122", "123", "byte");
         runLCDTypeCheckTest("-1", "+100", "byte");
@@ -100,9 +101,9 @@ public class DetailedLCDTest extends Inst2XsdTestBase {
         runLCDTypeCheckTest("1267.43233E12", "-1", "float");
         runLCDTypeCheckTest("INF", "0", "float");
         runLCDTypeCheckTest("abc", "127", "string");
-
     }
 
+    @Test
     public void test_lcd_short() throws Exception {
         runLCDTypeCheckTest("32767","-129", "short");
         runLCDTypeCheckTest("-32768","128", "short");
@@ -126,6 +127,7 @@ public class DetailedLCDTest extends Inst2XsdTestBase {
         runLCDTypeCheckTest("abc", "-3000", "string");
     }
 
+    @Test
     public void test_lcd_int() throws Exception {
         runLCDTypeCheckTest("32768","39000", "int");
         runLCDTypeCheckTest("32768","32768", "int");
@@ -150,6 +152,7 @@ public class DetailedLCDTest extends Inst2XsdTestBase {
         runLCDTypeCheckTest("abc", "32768", "string");
     }
 
+    @Test
     public void test_lcd_long() throws Exception {
         runLCDTypeCheckTest("-9223372036854775808","2147483648", "long");
         runLCDTypeCheckTest("-9223372036854775808","-2147483649", "long");
@@ -168,6 +171,7 @@ public class DetailedLCDTest extends Inst2XsdTestBase {
         runLCDTypeCheckTest("abc", "2150000000", "string");
     }
 
+    @Test
     public void test_lcd_integer() throws Exception {
         runLCDTypeCheckTest("9223372036854775808","9300000000000000000", "integer");
         runLCDTypeCheckTest("9223372036854775808","-9300000000000000000", "integer");
@@ -182,6 +186,7 @@ public class DetailedLCDTest extends Inst2XsdTestBase {
         runLCDTypeCheckTest("abc", "9223372036854775808", "string");
     }
 
+    @Test
     public void test_lcd_float() throws Exception {
         runLCDTypeCheckTest("+100000.00","12.78e-2", "float");
         runLCDTypeCheckTest("+100000.00","1267.43233E12", "float");
@@ -227,12 +232,13 @@ public class DetailedLCDTest extends Inst2XsdTestBase {
     //runLCDTypeCheckTest("","1999"), "gYear");
     //}
 
-
+    @Test
     public void test_lcd_date() throws Exception {
         runLCDTypeCheckTest("abc", "1999-05-31", "string");
         runLCDTypeCheckTest("1999-06-15","1999-05-31", "date");
     }
 
+    @Test
     public void test_lcd_dateTime() throws Exception {
         runLCDTypeCheckTest("abc", "1999-05-31T13:20:00-05:00", "string");
         runLCDTypeCheckTest("1999-05-31T13:20:00-08:00","1999-05-31T13:20:00-05:00", "dateTime");
@@ -240,6 +246,7 @@ public class DetailedLCDTest extends Inst2XsdTestBase {
         runLCDTypeCheckTest("1999-05-15T13:20:00-05:00","2000-03-04T23:00:00+03:00", "dateTime");
     }
 
+    @Test
     public void test_lcd_time() throws Exception {
         runLCDTypeCheckTest("abc", "13:20:00-05:00", "string");
         runLCDTypeCheckTest("00:00:00","13:20:00-05:00", "time");
@@ -258,7 +265,4 @@ public class DetailedLCDTest extends Inst2XsdTestBase {
         runAttrTypeChecking(xsdString, "QName");
         runAttrTypeChecking(foobaz, "QName");
     }*/
-
-
-
 }

@@ -17,5 +17,5 @@ package dom.common;
 
 public interface TestSetup{
 
-    public static boolean bDTD=false;
+    boolean bDTD=false;
 }

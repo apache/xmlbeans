@@ -16,137 +16,118 @@
 
 package xmlcursor.detailed;
 
-import junit.framework.*;
-import junit.framework.Assert.*;
-
-import java.io.*;
-
-import org.apache.xmlbeans.XmlCursor.TokenType;
-import org.apache.xmlbeans.*;
-import org.apache.xmlbeans.XmlCursor.XmlBookmark;
-
-import javax.xml.namespace.QName;
-
-import xmlcursor.common.*;
-
-import java.net.URL;
-
-import test.xbean.xmlcursor.cr196679.TestType;
+import org.apache.xmlbeans.XmlCursor;
+import org.apache.xmlbeans.XmlObject;
+import org.junit.Before;
+import org.junit.Test;
 import test.xbean.xmlcursor.cr196679.TestDocument;
+import test.xbean.xmlcursor.cr196679.TestType;
+import xmlcursor.common.BasicCursorTestCase;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
-/**
- *
- *
- */
 
 public class SelectionsTest extends BasicCursorTestCase {
 
-    static final String sXml="<foo><b>0</b><b>1</b><b>2</b><b attr=\"a3\">3</b><b>4</b><b>5</b><b>6</b></foo>";
-
-    public SelectionsTest(String sName) {
-	super(sName);
-    }
-
-     public static Test suite() {
-        return new TestSuite(SelectionsTest.class);
-    }
+    private static final String sXml="<foo><b>0</b><b>1</b><b>2</b><b attr=\"a3\">3</b><b>4</b><b>5</b><b>6</b></foo>";
 
     //average case test
-    public void testNormalCase()throws Exception{
-	XmlCursor m_xc1=m_xo.newCursor();
-	int nSelectionsCount=7;
-	m_xc.selectPath("$this//a");
-	assertEquals(false, m_xc.hasNextSelection());
-	assertEquals(false, m_xc.toNextSelection());
-	assertEquals(0, m_xc.getSelectionCount());
+	@Test
+	public void testNormalCase() throws Exception {
+		XmlCursor m_xc1 = m_xo.newCursor();
+		int nSelectionsCount = 7;
+		m_xc.selectPath("$this//a");
+		assertFalse(m_xc.hasNextSelection());
+		assertFalse(m_xc.toNextSelection());
+		assertEquals(0, m_xc.getSelectionCount());
 
-	 m_xc.selectPath("$this//b");
-	 m_xc1.toFirstChild();
-	 m_xc1.toFirstChild();
-	 do{
-	     m_xc1.addToSelection();
-	 }while(m_xc1.toNextSibling());
-	 assertEquals(nSelectionsCount, m_xc.getSelectionCount());
-	 int i=0;
-	 while(m_xc.hasNextSelection()){
-	     m_xc.toNextSelection();
-	     assertEquals("" + i, m_xc.getTextValue());
-	     i++;
-	 }
-	 int j=0;
-	 while(m_xc1.hasNextSelection()){
-	      m_xc1.toSelection(j);
-	      assertEquals("" + j, m_xc1.getTextValue());
-	      j++;
-	 }
-	 assertEquals(nSelectionsCount,j);
-	 assertEquals(nSelectionsCount,i);
-    }
+		m_xc.selectPath("$this//b");
+		m_xc1.toFirstChild();
+		m_xc1.toFirstChild();
+		do {
+			m_xc1.addToSelection();
+		} while (m_xc1.toNextSibling());
+		assertEquals(nSelectionsCount, m_xc.getSelectionCount());
+		int i = 0;
+		while (m_xc.hasNextSelection()) {
+			m_xc.toNextSelection();
+			assertEquals("" + i, m_xc.getTextValue());
+			i++;
+		}
+		int j = 0;
+		while (m_xc1.hasNextSelection()) {
+			m_xc1.toSelection(j);
+			assertEquals("" + j, m_xc1.getTextValue());
+			j++;
+		}
+		assertEquals(nSelectionsCount, j);
+		assertEquals(nSelectionsCount, i);
+	}
 
-    public void testToSelectionIllegalIndex(){
-	 m_xc.selectPath("$this//b");
-	 int i=0;
-	 boolean result=false;
-     result=m_xc.toSelection(-1);
-     assertEquals(result,false);
+	@Test
+	public void testToSelectionIllegalIndex() {
+		m_xc.selectPath("$this//b");
+		boolean result = m_xc.toSelection(-1);
+		assertFalse(result);
 
-	 try{
-	     result=m_xc.toSelection(m_xc.getSelectionCount()+1);
-	     if (result)
-		 fail(" Index > num selections");
-	 }catch(IllegalStateException e){}
+		try {
+			result = m_xc.toSelection(m_xc.getSelectionCount() + 1);
+			assertFalse("Index > num selections", result);
+		} catch (IllegalStateException e) {
+		}
 
-	 if (result && (i>0)) fail(" Index <0 ");
+		assertFalse("Index < 0 ", result);
 
-    }
+	}
 
-    public void testClearSelections(){
+	@Test
+	public void testClearSelections() {
+		m_xc.selectPath("$this//b");
+		m_xc.toSelection(0);
+		m_xc.clearSelections();
+		assertEquals("<b>0</b>", m_xc.xmlText());
 
-	int nSelectionsCount=7;
-	m_xc.selectPath("$this//b");
-        m_xc.toSelection(0);
-        m_xc.clearSelections();
-        assertEquals("<b>0</b>",m_xc.xmlText());
+	}
 
-    }
+	@Test
+	public void testCR196679() throws Exception {
+		TestDocument testDoc = null;
+		String input = "<ns:test xmlns:ns=\"http://xbean.test/xmlcursor/CR196679\">\n" +
+			"  <ns:name>myTest</ns:name>" +
+			"  <ns:value>5</ns:value>" +
+			"  </ns:test>";
+		testDoc = TestDocument.Factory.parse(input);
+		TestType test = testDoc.getTest();
 
-    public void testCR196679() throws Exception
-  {
-      TestDocument testDoc = null;
-      String input="<ns:test xmlns:ns=\"http://xbean.test/xmlcursor/CR196679\">\n" +
-              "  <ns:name>myTest</ns:name>" +
-              "  <ns:value>5</ns:value>" +
-              "  </ns:test>";
-      testDoc = TestDocument.Factory.parse(input);
-      TestType test = testDoc.getTest();
+		String queryName =
+			"declare namespace ns='http://xbean.test/xmlcursor/CR196679'" +
+				"$this/ns:name";
 
-      String queryName =
-        "declare namespace ns='http://xbean.test/xmlcursor/CR196679'" +
-        "$this/ns:name";
+		String queryValue =
+			"declare namespace ns='http://xbean.test/xmlcursor/CR196679'" +
+				"$this/ns:value";
 
-      String queryValue =
-        "declare namespace ns='http://xbean.test/xmlcursor/CR196679'" +
-        "$this/ns:value";
+		XmlCursor cursor = test.newCursor();
+		cursor.push();
+		cursor.selectPath(queryName);
+		cursor.toNextSelection();
 
-      XmlCursor cursor = test.newCursor();
-      cursor.push();
-      cursor.selectPath(queryName);
-      cursor.toNextSelection();
+		assertEquals("myTest", cursor.getTextValue());
 
-      assertEquals("myTest",cursor.getTextValue());
+		cursor.pop();
+		cursor.selectPath(queryValue);
+		cursor.toNextSelection();
 
-      cursor.pop();
-      cursor.selectPath(queryValue);
-      cursor.toNextSelection();
+		assertEquals("5", cursor.getTextValue());//expected output is value=5
 
-      assertEquals("5",cursor.getTextValue());//expected output is value=5
+		cursor.dispose();
 
-      cursor.dispose();
+	}
 
-  }
-    public void setUp()throws Exception{
-	m_xo=XmlObject.Factory.parse(sXml);
-	m_xc= m_xo.newCursor();
-    }
+	@Before
+	public void setUp() throws Exception {
+		m_xo = XmlObject.Factory.parse(sXml);
+		m_xc = m_xo.newCursor();
+	}
 }

@@ -15,37 +15,25 @@
 
 package xmlcursor.checkin;
 
-import junit.framework.*;
-
 import org.apache.xmlbeans.XmlObject;
-import org.apache.xmlbeans.XmlCursor;
+import org.junit.Test;
+import xmlcursor.common.BasicCursorTestCase;
 
 import javax.xml.namespace.QName;
 
-import xmlcursor.common.*;
+import static org.junit.Assert.*;
 
 /**
  * checkin tests for XmlCursor toNextSibling methods
  *
  */
-public class ToNextSiblingTest extends BasicCursorTestCase
-{
-    public ToNextSiblingTest(String name)
-    {
-        super(name);
-    }
-
-    public static Test suite()
-    {
-        return new TestSuite(ToNextSiblingTest.class);
-    }
-
+public class ToNextSiblingTest extends BasicCursorTestCase {
     private static String xml0 = "<root><a/><b/><c/></root>";
     private static String xml1 = "<root xmlns=\"somenamespace\"><a/><b/><c/></root>";
 
     /** test toNextSibling(String name) where there is no namespace */
-    public void testName() throws Exception
-    {
+    @Test
+    public void testName() throws Exception {
         m_xc = XmlObject.Factory.parse(xml0).newCursor();
         m_xc.toNextToken();
         m_xc.toChild(0);
@@ -67,8 +55,8 @@ public class ToNextSiblingTest extends BasicCursorTestCase
     }
 
     /** test toNextSibling(String name) where there is a namespace */
-    public void testIncompleteName() throws Exception
-    {
+    @Test
+    public void testIncompleteName() throws Exception {
         m_xc = XmlObject.Factory.parse(xml1).newCursor();
         m_xc.toNextToken();
         m_xc.toChild(0);
@@ -82,8 +70,8 @@ public class ToNextSiblingTest extends BasicCursorTestCase
     }
 
     /** test toNextSibling(String namespace, String localname) */
-    public void testNamespaceAndLocalName0() throws Exception
-    {
+    @Test
+    public void testNamespaceAndLocalName0() throws Exception {
         m_xc = XmlObject.Factory.parse(xml0).newCursor();
         m_xc.toNextToken();
         m_xc.toChild(0);
@@ -105,8 +93,8 @@ public class ToNextSiblingTest extends BasicCursorTestCase
     }
 
     /** test toNextSibling(String namespace, String localname) */
-    public void testNamespaceAndLocalName1() throws Exception
-    {
+    @Test
+    public void testNamespaceAndLocalName1() throws Exception {
         m_xc = XmlObject.Factory.parse(xml1).newCursor();
         m_xc.toNextToken();
         m_xc.toChild(0);
@@ -128,8 +116,8 @@ public class ToNextSiblingTest extends BasicCursorTestCase
     }
 
     /** test toNextSibling(QName qName) */
-    public void testQName() throws Exception
-    {
+    @Test
+    public void testQName() throws Exception {
         m_xc = XmlObject.Factory.parse(xml1).newCursor();
         m_xc.toNextToken();
         m_xc.toChild(0);

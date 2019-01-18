@@ -15,35 +15,28 @@
 
 package compile.scomp.detailed;
 
-import junit.framework.TestCase;
-import junit.framework.Test;
-import junit.framework.TestSuite;
-import junit.framework.Assert;
+import compile.scomp.common.CompileCommon;
 import org.apache.xmlbeans.*;
 import org.apache.xmlbeans.impl.xb.xsdschema.SchemaDocument;
-
-import java.io.File;
-import java.util.*;
-
-import compile.scomp.common.CompileCommon;
+import org.junit.Test;
 
 import javax.xml.namespace.QName;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Iterator;
+
+import static org.junit.Assert.*;
 
 
-public class DetailedCompTests extends TestCase
-{
-    public DetailedCompTests(String name) { super(name); }
-    public static Test suite() { return new TestSuite(DetailedCompTests.class); }
-
-
+public class DetailedCompTests {
     /**
      * This test requires laxDoc.xsd to be compiled and
      * on the classpath ahead of time, otherwise documentation
      * element processing would not occur
      * @throws Exception
      */
-    public void testLaxDocProcessing() throws Exception
-    {
+    @Test
+    public void testLaxDocProcessing() throws Exception {
         QName q = new QName("urn:lax.Doc.Compilation", "ItemRequest");
         ArrayList err = new ArrayList();
         XmlOptions xm_opt = new XmlOptions().setErrorListener(err);
@@ -60,7 +53,7 @@ public class DetailedCompTests extends TestCase
         try{
             SchemaTypeSystem sts = XmlBeans.compileXmlBeans(null, null,
                 schemas, null, XmlBeans.getBuiltinTypeSystem(), null, xm_opt);
-            Assert.assertTrue("STS was null", sts != null);
+            assertNotNull("STS was null", sts);
         }catch(XmlException xmlEx){
             valDocEx = true;
             System.err.println("Expected Error: "+xmlEx.getMessage());
@@ -152,8 +145,8 @@ public class DetailedCompTests extends TestCase
 
     /**
      * This tests usage of the xs:NOTATION type
-     * @throws Exception
      */
+    @Test
     public void testNotation() throws Exception
     {
         String schema;

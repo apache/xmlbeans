@@ -16,38 +16,17 @@
 
 package xmlcursor.checkin;
 
-import org.apache.xmlbeans.XmlOptions;
-import junit.framework.*;
-import junit.framework.Assert.*;
-
-import java.io.*;
-
-import org.apache.xmlbeans.XmlObject;
-import org.apache.xmlbeans.XmlCursor;
-import org.apache.xmlbeans.XmlBeans;
 import org.apache.xmlbeans.XmlCursor.TokenType;
+import org.apache.xmlbeans.XmlObject;
+import org.junit.Test;
+import xmlcursor.common.BasicCursorTestCase;
+import xmlcursor.common.Common;
 
-import javax.xml.namespace.QName;
-
-import xmlcursor.common.*;
-
-import java.net.URL;
+import static org.junit.Assert.assertEquals;
 
 
-/**
- *
- *
- */
 public class GetCharsTest extends BasicCursorTestCase {
-    public GetCharsTest(String sName) {
-        super(sName);
-    }
-
-    public static Test suite() {
-        return new TestSuite(GetCharsTest.class);
-    }
-
-
+    @Test
     public void testGetCharFromTEXTOffset() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_DIGITS);
         m_xc = m_xo.newCursor();
@@ -56,6 +35,7 @@ public class GetCharsTest extends BasicCursorTestCase {
         assertEquals("1234", m_xc.getChars());
     }
 
+    @Test
     public void testGetCharFromATTR() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_DIGITS);
         m_xc = m_xo.newCursor();
@@ -63,6 +43,7 @@ public class GetCharsTest extends BasicCursorTestCase {
         assertEquals("", m_xc.getChars());
     }
 
+    @Test
     public void testGetCharFromCOMMENT() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_COMMENT);
         m_xc = m_xo.newCursor();

@@ -15,27 +15,32 @@
 
 package scomp.namespace.checkin;
 
-import junit.framework.TestCase;
-import org.apache.xmlbeans.XmlOptions;
 import org.apache.xmlbeans.XmlCursor;
+import org.apache.xmlbeans.XmlOptions;
+import org.junit.Before;
+import org.junit.Test;
 import org.xmlsoap.schemas.soap.envelope.EnvelopeDocument;
 import tools.xml.XmlComparator;
+
 import javax.xml.namespace.QName;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
-public class PreserveNamespaces extends TestCase
+
+public class PreserveNamespaces
 {
     public static XmlOptions options;
     public static final String EOL = System.getProperty("line.separator");
 
-    public void setUp()
-    {
+    @Before
+    public void setUp() {
         options = new XmlOptions().setSavePrettyPrint().setSaveOuter();
     }
 
     //tests for preserving/copying namespace declarations when doing an XmlObject.set()
-    public void testDroppedXsdNSDecl() throws Exception
-    {
+    @Test
+    public void testDroppedXsdNSDecl() throws Exception {
         // Test for XSD namespace declaration dropped
         EnvelopeDocument env1 = EnvelopeDocument.Factory.parse("<soap:Envelope \n" +
                 "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" \n" +
@@ -63,15 +68,15 @@ public class PreserveNamespaces extends TestCase
         assertTrue(env2Cursor.toFirstChild());      // <ConvertTemperature>
         if (env2Cursor.toFirstChild())               // <dFahrenheit>
         {
-            assertTrue("Element name mismatch!", env2Cursor.getName().equals(new QName("","dFahrenheit")));
+            assertEquals("Element name mismatch!", env2Cursor.getName(), new QName("", "dFahrenheit"));
             assertEquals("Element val mismatch!", "88", env2Cursor.getTextValue());
             assertEquals("XSD Namespace has been dropped", "http://www.w3.org/2001/XMLSchema", env2Cursor.namespaceForPrefix("xsd"));
         }
 
     }
 
-    public void testsModifiedXsdNSPrefix() throws Exception
-    {
+    @Test
+    public void testsModifiedXsdNSPrefix() throws Exception {
         // XSD namespace used in QName values and elements
         EnvelopeDocument env1 = EnvelopeDocument.Factory.parse("<soap:Envelope \n" +
                 "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" \n" +
@@ -96,14 +101,14 @@ public class PreserveNamespaces extends TestCase
         assertTrue(env2Cursor.toFirstChild());      // <Body>
         if (env2Cursor.toFirstChild())              // <element>
         {
-            assertTrue("Element name mismatch!", env2Cursor.getName().equals(new QName("http://www.w3.org/2001/XMLSchema","element")));
+            assertEquals("Element name mismatch!", env2Cursor.getName(), new QName("http://www.w3.org/2001/XMLSchema", "element"));
             assertEquals("XSD Namespace has been dropped", "http://www.w3.org/2001/XMLSchema", env2Cursor.namespaceForPrefix("xsd"));
         }
 
     }
 
-    public void testsFaultCodeNSUpdate() throws Exception
-    {
+    @Test
+    public void testsFaultCodeNSUpdate() throws Exception {
         EnvelopeDocument env1 = EnvelopeDocument.Factory.parse("<soap:Envelope \n" +
                 "xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">\n" +
                 "  <soap:Body>\n" +
@@ -129,7 +134,7 @@ public class PreserveNamespaces extends TestCase
         assertTrue(env2Cursor.toFirstChild());      // <Fault>
         if (env2Cursor.toFirstChild())              // <faultcode>
         {
-            assertTrue("Element name mismatch!", env2Cursor.getName().equals(new QName("","faultcode")));
+            assertEquals("Element name mismatch!", env2Cursor.getName(), new QName("", "faultcode"));
             assertEquals("soap Namespace has been dropped", "http://schemas.xmlsoap.org/soap/envelope/", env2Cursor.namespaceForPrefix("soap"));
         }
 

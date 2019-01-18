@@ -14,35 +14,29 @@
  */
 package compile.scomp.checkin;
 
-import org.apache.xmlbeans.*;
-import org.apache.xmlbeans.impl.schema.SchemaTypeSystemImpl;
-import compile.scomp.common.mockobj.TestFiler;
 import compile.scomp.common.CompileCommon;
 import compile.scomp.common.CompileTestBase;
+import compile.scomp.common.mockobj.TestFiler;
+import org.apache.xmlbeans.*;
+import org.apache.xmlbeans.impl.schema.SchemaTypeSystemImpl;
+import org.junit.After;
+import org.junit.Test;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.Vector;
 import java.util.List;
-import java.io.File;
-import java.io.IOException;
+import java.util.Vector;
 
-import junit.framework.Assert;
+import static org.junit.Assert.*;
 
-/**
- *
- *
- */
 public class XmlBeansCompCheckinTests extends CompileTestBase
-{   public List xm_errors;
-    public XmlOptions xm_opts;
-    Vector expBinType;
-    Vector expSrcType;
+{   public final List xm_errors = new ArrayList();
+    public final XmlOptions xm_opts = new XmlOptions();
+    final Vector expBinType = new Vector();
+    final Vector expSrcType = new Vector();
 
-    public XmlBeansCompCheckinTests(String name)
-    {
-        super(name);
-        expBinType = new Vector();
+    public XmlBeansCompCheckinTests() {
         expBinType.add("schemaorg_apache_xmlbeans/system/apiCompile/atypedb57type.xsb");
         expBinType.add("schemaorg_apache_xmlbeans/system/apiCompile/elname429edoctype.xsb");
         expBinType.add("schemaorg_apache_xmlbeans/system/apiCompile/elnameelement.xsb");
@@ -54,26 +48,22 @@ public class XmlBeansCompCheckinTests extends CompileTestBase
         expBinType.add("schemaorg_apache_xmlbeans/javaname/baz/AType.xsb");
         expBinType.add("schemaorg_apache_xmlbeans/system/apiCompile/TypeSystemHolder.class");
 
-        expSrcType = new Vector();
         expSrcType.add("baz.AType");
         expSrcType.add("baz.impl.ATypeImpl");
         expSrcType.add("baz.ElNameDocument");
         expSrcType.add("baz.impl.ElNameDocumentImpl");
 
-        xm_errors = new ArrayList();
-        xm_opts = new XmlOptions();
         xm_opts.setErrorListener(xm_errors);
         xm_opts.setSavePrettyPrint();
     }
 
-    public void tearDown() throws Exception
-    {
-        super.tearDown();
-
+    @After
+    public void tearDown() throws Exception {
         if (xm_errors.size() > 0)
             xm_errors.clear();
     }
 
+    @Test
     public void test_Filer_compilation() throws Exception
     {
         XmlObject obj1 = XmlObject.Factory.parse(forXsd);
@@ -108,9 +98,8 @@ public class XmlBeansCompCheckinTests extends CompileTestBase
 
     /**
      * Verify Partial SOM cannot be saved to file system
-     *
-     * @throws Exception
      */
+    @Test
     public void test_sts_noSave() throws Exception
     {
         XmlObject obj1 = XmlObject.Factory.parse(forXsd);
@@ -160,7 +149,7 @@ public class XmlBeansCompCheckinTests extends CompileTestBase
             throw e;
         }
 
-        Assert.assertTrue("Expected partial schema type system", ((SchemaTypeSystemImpl)sts).isIncomplete());
+        assertTrue("Expected partial schema type system", ((SchemaTypeSystemImpl)sts).isIncomplete());
 
 
         //call some stupid methods on STS
@@ -173,50 +162,47 @@ public class XmlBeansCompCheckinTests extends CompileTestBase
             tempDir = new File(OUTPUTROOT, "psom_save");
             tempDir.mkdirs();
             tempDir.deleteOnExit();
-            Assert.assertTrue("Output Directory Init needed to be empty",
-                    tempDir.listFiles().length == 0);
+            assertEquals("Output Directory Init needed to be empty", 0, tempDir.listFiles().length);
 
             //This should not Work
             sts.saveToDirectory(tempDir);
-            Assert.fail("Expected IllegalStateException");
+            fail("Expected IllegalStateException");
         } catch (IllegalStateException e) {
             // ok
             System.out.println("sts.saveToDirectory() threw IllegalStateException as expected");
         }
 
         //make sure nothing was written
-        Assert.assertTrue("Partial SOM output dir needed to be empty",
-            tempDir.listFiles().length == 0);
+        assertEquals("Partial SOM output dir needed to be empty", 0, tempDir.listFiles().length);
 
         // Check using save(Filer) on Partial SOM
         TestFiler tf = null;
         try {
             //setUp outputDirectory
             tf = new TestFiler();
-            Assert.assertTrue("Filer Source should have been size 0",
-                    tf.getBinFileVec().size() == 0);
+            assertEquals("Filer Source should have been size 0", 0, tf.getBinFileVec().size());
 
             //This should not Work
             sts.save(tf);
-            Assert.fail("Expected IllegalStateException");
+            fail("Expected IllegalStateException");
         } catch (IllegalStateException e) {
             // ok
             System.out.println("sts.save() threw IllegalStateException as expected");
         }
 
         //make sure nothing was written
-        Assert.assertTrue("Filer -Bin- Partial SOM " +
+        assertTrue("Filer -Bin- Partial SOM " +
             "output dir needed to be empty",
             tf.getBinFileVec().size() == 0);
-        Assert.assertTrue("Filer -SRC- Partial SOM " +
+        assertTrue("Filer -SRC- Partial SOM " +
             "output dir needed to be empty",
             tf.getSrcFileVec().size() == 0);
 
-        Assert.assertFalse("Filer Create Source File " +
+        assertFalse("Filer Create Source File " +
             "method should not have been invoked",
             tf.isCreateSourceFile());
 
-        Assert.assertFalse("Filer Create Binary File " +
+        assertFalse("Filer Create Binary File " +
             "method should not have been invoked",
             tf.isCreateBinaryFile());
 
@@ -224,7 +210,7 @@ public class XmlBeansCompCheckinTests extends CompileTestBase
         try {
             tf = new TestFiler();
 
-            Assert.assertTrue("Filer Source should have been size 0",
+            assertTrue("Filer Source should have been size 0",
                     tf.getBinFileVec().size() == 0);
 
             //reset data
@@ -236,20 +222,20 @@ public class XmlBeansCompCheckinTests extends CompileTestBase
                     null, schemas3, null,
                     XmlBeans.getBuiltinTypeSystem(), tf, opt);
 
-            Assert.assertTrue("Errors was not empty", !err.isEmpty());
+            assertTrue("Errors was not empty", !err.isEmpty());
             //make sure nothing was written
-            Assert.assertTrue("Filer -Bin- Partial SOM " +
+            assertTrue("Filer -Bin- Partial SOM " +
                     "output dir needed to be empty",
                     tf.getBinFileVec().size() == 0);
-            Assert.assertTrue("Filer -SRC- Partial SOM " +
+            assertTrue("Filer -SRC- Partial SOM " +
                     "output dir needed to be empty",
                     tf.getSrcFileVec().size() == 0);
 
-            Assert.assertFalse("Filer Create Source File " +
+            assertFalse("Filer Create Source File " +
                     "method should not have been invoked",
                     tf.isCreateSourceFile());
 
-            Assert.assertFalse("Filer Create Binary File " +
+            assertFalse("Filer Create Binary File " +
                     "method should not have been invoked",
                     tf.isCreateBinaryFile());
         } catch (Exception e) {
@@ -265,6 +251,7 @@ public class XmlBeansCompCheckinTests extends CompileTestBase
      * ensure that entry point properly handles
      * different configs with null values
      */
+    @Test
     public void test_entrypoint_nullVals() throws Exception
     {
         XmlObject obj1 = XmlObject.Factory.parse(forXsd);

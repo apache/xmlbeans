@@ -16,28 +16,23 @@
 
 package xmlobject.schematypes.checkin;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
-import junit.framework.TestCase;
-import junit.framework.Assert;
-
+import org.apache.xmlbeans.XmlException;
+import org.junit.Test;
 import xint.test.PositionDocument;
 
-public class IntTests extends TestCase
-{
-    public IntTests(String name) { super(name); }
-    public static Test suite() { return new TestSuite(IntTests.class); }
+import static org.junit.Assert.assertEquals;
 
-    public static void testLatLong() throws Exception
-    {
+public class IntTests {
+    @Test
+    public void testLatLong() throws XmlException {
         PositionDocument doc = PositionDocument.Factory.parse(
-          "<p:position xmlns:p='java:int.test'><p:lat>43</p:lat><p:lon>020</p:lon></p:position>");
-        Assert.assertEquals(43, doc.getPosition().getLat());
-        Assert.assertEquals(20, doc.getPosition().getLon());
+            "<p:position xmlns:p='java:int.test'><p:lat>43</p:lat><p:lon>020</p:lon></p:position>");
+        assertEquals(43, doc.getPosition().getLat());
+        assertEquals(20, doc.getPosition().getLon());
         doc.getPosition().xgetLat().setStringValue("07");
         doc.getPosition().xgetLon().setStringValue("040");
-        Assert.assertEquals(7, doc.getPosition().getLat());
-        Assert.assertEquals(40, doc.getPosition().getLon());
-        doc.getPosition().setLat((short)22);
+        assertEquals(7, doc.getPosition().getLat());
+        assertEquals(40, doc.getPosition().getLon());
+        doc.getPosition().setLat((short) 22);
     }
 }

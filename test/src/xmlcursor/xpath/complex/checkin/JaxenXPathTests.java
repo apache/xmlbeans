@@ -14,26 +14,19 @@
  */
 package xmlcursor.xpath.complex.checkin;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
 import org.apache.xmlbeans.XmlCursor;
-import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
-import xmlcursor.common.Common;
+import org.junit.Before;
+import org.junit.Test;
 import xmlcursor.xpath.common.XPathCommon;
 
-import java.io.IOException;
-import java.io.StringWriter;
 import java.io.PrintWriter;
+import java.io.StringWriter;
 
-/**
- *
- */
-public class JaxenXPathTests
-    extends TestCase
-{
-    String sXml =
+import static org.junit.Assert.assertNull;
+
+public class JaxenXPathTests {
+    private final String sXml =
         "<?xml version=\"1.0\"?>" +
         "<doc xmlns:ext=\"http://somebody.elses.extension\">" +
         "<a test=\"test\" />" +
@@ -44,48 +37,35 @@ public class JaxenXPathTests
         "</b>" +
         "</doc><!-- -->         ";
 
+    private String[][] expected = null;
+    private String[] xpath = null;
 
-    public JaxenXPathTests(String name)
-    {
-        super(name);
-    }
 
-    public static Test suite()
-    {
-        return new TestSuite(JaxenXPathTests.class);
-    }
-
+    @Test
     public void testConformance()
-        throws Exception
-    {
+        throws Exception {
         XmlObject doc = XmlObject.Factory.parse(sXml);
         runAll(doc, xpath);
     }
 
-    private void runAll(XmlObject doc, String[] xpathes)
-        throws Exception
-    {
-        StringBuffer errors = new StringBuffer();
+    private void runAll(XmlObject doc, String[] xpathes) {
+        StringBuilder errors = new StringBuilder();
         boolean bFail = false;
-        for (int i = 0; i < xpathes.length; i++)
-        {
-            try
-            {
+        for (int i = 0; i < xpathes.length; i++) {
+            try {
                 runXpath2(doc, xpathes[i], i);
-            }
-            catch (Exception e)
-            {
+            } catch (Exception e) {
                 bFail = true;
                 errors.append("**********************Failed at test " + i +
-                    "\n  path:" + xpathes[i] + "\n");
+                              "\n  path:" + xpathes[i] + "\n");
 //                if (e.getMessage() == null)
 //                {
-                    StringWriter sw = new StringWriter();
-                    e.printStackTrace(new PrintWriter(sw));
-                    errors.append(sw);
+                StringWriter sw = new StringWriter();
+                e.printStackTrace(new PrintWriter(sw));
+                errors.append(sw);
 //                }
 //                else
-                    errors.append(e.getMessage());
+                errors.append(e.getMessage());
                 errors.append("\n\n");
             }
         }
@@ -126,23 +106,17 @@ public class JaxenXPathTests
 //        }
 //    }
 
-    private void runXpath2(XmlObject doc, String xpathStr, int i)
-        throws Exception
-    {
+    private void runXpath2(XmlObject doc, String xpathStr, int i) throws Exception {
         XmlCursor xc = doc.newCursor();
         xc.selectPath(xpathStr);
         check(i, xc);
         xc.dispose();
     }
 
-    private void check(int expresionNumber,
-        XmlCursor actual)
-        throws Exception
-    {
+    private void check(int expresionNumber, XmlCursor actual) throws Exception {
 
-        if (actual.getSelectionCount() == 0)
-        {
-            assertEquals(null, expected[expresionNumber]);
+        if (actual.getSelectionCount() == 0) {
+            assertNull(expected[expresionNumber]);
             return;
         }
 
@@ -154,28 +128,17 @@ public class JaxenXPathTests
             expected_val[i] = XmlObject.Factory.parse(
                 expected[expresionNumber][i]);
 
-        try
-        {
+        try {
             XPathCommon.compare(actual, expected_val);
-        }
-        catch (Throwable e)
-        {
+        } catch (Throwable e) {
             throw new Exception(e.getMessage());
         }
 
     }
 
-    /**
-     * This is only used to regen the expected files.
-     */
-    private void generateExpected(int expresionNumber, int resultNumber,
-        String content)
-    {
-        expected[expresionNumber][resultNumber] = content;
-    }
-
-    public void setUp()
-    {
+    @Before
+    public void setUp() {
+        int numExpressions = 25;
         expected = new String[numExpressions][];
 
 
@@ -208,15 +171,13 @@ public class JaxenXPathTests
 
 
         String[] steps = new String[12];
-        final String DEFAULT_NS =
-            "<xml-fragment xmlns:xml=\"http://www.w3.org/XML/1998/namespace\"/>";
         steps[0] =
             "<xml-fragment xmlns:ext=\"http://somebody.elses.extension\"/>";
         steps[1] = "<doc xmlns:ext=\"http://somebody.elses.extension\">" +
-            "<a test=\"test\" />" +
-            "<b attr1=\"a1\" attr2=\"a2\" " +
-            "xmlns:java=\"http://xml.apache.org/xslt/java\">" +
-            " <a /> </b></doc>";
+                   "<a test=\"test\" />" +
+                   "<b attr1=\"a1\" attr2=\"a2\" " +
+                   "xmlns:java=\"http://xml.apache.org/xslt/java\">" +
+                   " <a /> </b></doc>";
         steps[2] =
             "<a test=\"test\" xmlns:ext=\"http://somebody.elses.extension\"/>";
         steps[3] =
@@ -239,19 +200,20 @@ public class JaxenXPathTests
             "xmlns:ext=\"http://somebody.elses.extension\" />";
         steps[8] = "<xml-fragment><!-- --></xml-fragment>";
         steps[9] = " <xml-fragment xmlns:java=\"http://xml.apache.org/xslt/java\"" +
-            " xmlns:ext=\"http://somebody.elses.extension\" />";
+                   " xmlns:ext=\"http://somebody.elses.extension\" />";
         steps[10] = "<a>    </a>";
         steps[11] = "<xml-fragment>    </xml-fragment>";
 
         expected[0] = new String[]{steps[2]};
+        String XMLFRAG_EMPTY = "<xml-fragment/>";
         expected[1] = new String[]{sXml,
-                                   steps[1],
-                                   steps[2],
-                                   steps[5],
-                                   XMLFRAG_EMPTY,
-                                   steps[10],
-                                   XMLFRAG_EMPTY,
-                                   steps[8],
+            steps[1],
+            steps[2],
+            steps[5],
+            XMLFRAG_EMPTY,
+            steps[10],
+            XMLFRAG_EMPTY,
+            steps[8],
         };
 
         expected[2] = new String[]{steps[1]};
@@ -264,16 +226,16 @@ public class JaxenXPathTests
 
         expected[5] = new String[]{sXml};
         expected[6] = new String[]{sXml,
-                                   steps[2],
-                                   steps[5],
-                                   steps[10]};
+            steps[2],
+            steps[5],
+            steps[10]};
         expected[7] = new String[]{steps[1]};
         expected[8] =
             new String[]{
                 steps[2],
                 steps[6]};
 
-        /**
+        /*
          * This is tricky:
          * The expression "*" is true for the principal axis: since the axis is
          * self, so we're looking for elements: doc elt
@@ -286,7 +248,7 @@ public class JaxenXPathTests
             steps[6],
             steps[7],
             steps[8]
-           };
+        };
 
         expected[10] = new String[]{
             steps[1],
@@ -297,15 +259,15 @@ public class JaxenXPathTests
         expected[11] = null; //new String[]{steps[0],DEFAULT_NS};
         expected[12] = new String[]{steps[8]};
         expected[13] = new String[]{steps[2],
-                                    steps[4]
+            steps[4]
         };
         expected[14] = new String[]{steps[3],
-                                    steps[6],
-                                    steps[7]};
+            steps[6],
+            steps[7]};
 
         expected[15] = new String[]{steps[1],
-                                    steps[5],
-                                    steps[4]};
+            steps[5],
+            steps[4]};
         expected[16] = new String[]{steps[5]};
         //TODO: BUGBUG: fix this
         expected[17] = null;
@@ -313,7 +275,7 @@ public class JaxenXPathTests
         expected[18] = new String[]{
             steps[2],
             steps[5],
-             steps[11],
+            steps[11],
             steps[10],
             steps[11]
         };
@@ -339,18 +301,13 @@ public class JaxenXPathTests
 
     }
 
-    private String[][] expected = null;
-    private String[] xpath = null;
-    private int numExpressions = 25;
-    private String XMLFRAG_EMPTY = "<xml-fragment/>";
+    @Test
+    public void testDelete() throws Exception {
+        String query = "*";
 
-    public void testDelete() throws Exception
-    {
-        String query="*";
-
-           XmlCursor xc = XmlObject.Factory.parse(sXml).newCursor();
+        XmlCursor xc = XmlObject.Factory.parse(sXml).newCursor();
         xc.selectPath(query);
         while (xc.toNextSelection())
-         System.out.println(xc.xmlText());
+            System.out.println(xc.xmlText());
     }
 }

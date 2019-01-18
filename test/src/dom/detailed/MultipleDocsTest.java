@@ -16,7 +16,8 @@
 package dom.detailed;
 
 import dom.common.Loader;
-import junit.framework.TestCase;
+import org.junit.Before;
+import org.junit.Test;
 import org.w3c.dom.*;
 
 
@@ -25,13 +26,13 @@ import org.w3c.dom.*;
  *
  *
  */
-public class MultipleDocsTest extends TestCase {
-    String[] sXml = new String[]{"<foo0/>",
-                                 "<foo1 foo1_at=\"val0\"/>",
-                                 "<foo2 foo2_at=\"val0\">text</foo2>",
-                                 "<foo3 foo3_at=\"val0\">text <foo2 foo2_at=\"val0\">text</foo2> </foo3>",
-                                 "<foo4 xmlns:myns=\"foo.org\" myns:foo3_at=\"val0\">text <foo2 foo2_at=\"val0\">text</foo2> </foo4>",
-                                 "<foo5  xmlns:myns=\"foo_OUT.org\"><myns:foo4 xmlns:myns=\"foo.org\" myns:foo3_at=\"val0\">text <foo2 foo2_at=\"val0\">text</foo2> </myns:foo4></foo5>"
+public class MultipleDocsTest {
+    String[] sXml = {"<foo0/>",
+        "<foo1 foo1_at=\"val0\"/>",
+        "<foo2 foo2_at=\"val0\">text</foo2>",
+        "<foo3 foo3_at=\"val0\">text <foo2 foo2_at=\"val0\">text</foo2> </foo3>",
+        "<foo4 xmlns:myns=\"foo.org\" myns:foo3_at=\"val0\">text <foo2 foo2_at=\"val0\">text</foo2> </foo4>",
+        "<foo5  xmlns:myns=\"foo_OUT.org\"><myns:foo4 xmlns:myns=\"foo.org\" myns:foo3_at=\"val0\">text <foo2 foo2_at=\"val0\">text</foo2> </myns:foo4></foo5>"
     };
 
     Thread[] threads;
@@ -39,10 +40,7 @@ public class MultipleDocsTest extends TestCase {
     int nIterations = 100;
     Document[] m_doc;
 
-    public MultipleDocsTest(String name) {
-        super(name);
-    }
-
+    @Test
     public void testRunThreads() {
 
         for (int j = 0; j < nThreadCount; j++)
@@ -56,10 +54,10 @@ public class MultipleDocsTest extends TestCase {
                 System.err.println("Thread " + j + " interrupted");
 
             }
-
         }
     }
 
+    @Before
     public void setUp() throws Exception {
         threads = new Thread[nThreadCount];
         for (int i = 0; i < nThreadCount; i++) {
@@ -71,11 +69,6 @@ public class MultipleDocsTest extends TestCase {
 
             threads[i] = new Thread(new Worker(i, m_doc, nIterations));
         }
-    }
-
-    public void tearDown() throws Exception
-    {
-        super.tearDown();
     }
 
     private class Worker extends Thread {
@@ -189,16 +182,4 @@ public class MultipleDocsTest extends TestCase {
             }
         }
     }
-
-    public static void main(String[] a) {
-        try {
-            MultipleDocsTest test = new MultipleDocsTest("");
-            test.setUp();
-            test.testRunThreads();
-        }
-        catch (Throwable t) {
-            t.printStackTrace(System.err);
-        }
-    }
-
 }

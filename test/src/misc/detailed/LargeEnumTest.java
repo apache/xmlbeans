@@ -1,72 +1,59 @@
 package misc.detailed;
 
-import org.apache.xmlbeans.*;
-
-import java.util.*;
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
-
-import junit.framework.TestSuite;
-import junit.framework.TestCase;
-import junit.framework.Test;
-import junit.framework.Assert;
+import org.apache.xmlbeans.SchemaType;
+import org.apache.xmlbeans.XmlError;
+import org.apache.xmlbeans.XmlOptions;
+import org.apache.xmlbeans.XmlToken;
+import org.junit.Test;
 import xmlbeans307.*;
+
+import java.util.ArrayList;
+
+import static org.junit.Assert.*;
 
 /**
  * This test was put together for:
  * http://issues.apache.org/jira/browse/XMLBEANS-307
  * XMLBeans scomp throws error "code too large"
  */
-public class LargeEnumTest extends TestCase {
-
-    public LargeEnumTest(String name) {
-        super(name);
-    }
-
-    public static Test suite() {
-        return new TestSuite(LargeEnumTest.class);
-    }
-
+public class LargeEnumTest {
     /**
      * These are tests for a enumeration type
-     *
-     * @throws Exception
      */
+    @Test
     public void testEnumCount_closeToMax() throws Exception {
         SchemaType mType = MaxAllowedEnumType.type;
-        assertTrue("Enumeration SchemaType was null", mType.getEnumerationValues() != null);
-        assertTrue("EnumerationValue was not 3665 as expected was" + mType.getEnumerationValues().length,
-                mType.getEnumerationValues().length == 3665);
+        assertNotNull("Enumeration SchemaType was null", mType.getEnumerationValues());
+        assertEquals("EnumerationValue was not 3665 as expected was" + mType.getEnumerationValues().length, 3665, mType.getEnumerationValues().length);
 
         SchemaType mElem = MaxAllowedElementDocument.type;
-        assertTrue("Enumeration SchemaType was null", mElem.getEnumerationValues() == null);
+        assertNull("Enumeration SchemaType was null", mElem.getEnumerationValues());
 
         // Test that the Java type associated to this is an enum type
         assertNotNull("This type does not correspond to a Java enumeration", mType.getStringEnumEntries());
     }
 
-
+    @Test
     public void testEnumCount_greaterThanMax() throws Exception {
         // TODO: verify if any xpath/xquery issues 
         SchemaType mType = MoreThanAllowedEnumType.type;
 
         assertNotNull("Enumeration should be null as type should be base type " + mType.getEnumerationValues(),
                 mType.getEnumerationValues());
-        assertTrue("EnumerationValue was not 3678 as expected was " + mType.getEnumerationValues().length,
-                mType.getEnumerationValues().length == 3678);
+        assertEquals("EnumerationValue was not 3678 as expected was " + mType.getEnumerationValues().length, 3678, mType.getEnumerationValues().length);
         System.out.println("GET BASE TYPE: " + mType.getBaseType());
         System.out.println("GET BASE TYPE: " + mType.getPrimitiveType());
-        assertTrue("type should have been base type, was " + mType.getBaseType(),
-                mType.getBaseType().getBuiltinTypeCode() == XmlToken.type.getBuiltinTypeCode());
+        assertEquals("type should have been base type, was " + mType.getBaseType(), mType.getBaseType().getBuiltinTypeCode(), XmlToken.type.getBuiltinTypeCode());
 
         SchemaType mElem = GlobalMoreThanElementDocument.type;
-        assertTrue("Enumeration SchemaType was null", mElem.getBaseEnumType() == null);
+        assertNull("Enumeration SchemaType was null", mElem.getBaseEnumType());
 
         // Test that the Java type associated to this is not an enum type
         assertNull("This type corresponds to a Java enumeration, even though it has too many enumeration values",
             mType.getStringEnumEntries());
     }
 
+    @Test
     public void testEnumCount_validate_invalid_enum() throws Exception {
         MoreThanAllowedEnumType mType = MoreThanAllowedEnumType.Factory.newInstance();
 
@@ -81,13 +68,12 @@ public class LargeEnumTest extends TestCase {
             xErr[i] = (XmlError)errors.get(i);
         }
 
-        Assert.assertTrue("NO Expected Errors after validating enumType after set", errors.size() ==1 );
-        Assert.assertTrue("Expected ERROR CODE was not as expected",
-                xErr[0].getErrorCode().compareTo("cvc-enumeration-valid") ==0 );
+        assertEquals("NO Expected Errors after validating enumType after set", 1, errors.size());
+        assertEquals("Expected ERROR CODE was not as expected", 0, xErr[0].getErrorCode().compareTo("cvc-enumeration-valid"));
         // string value '12345AAA' is not a valid enumeration value for MoreThanAllowedEnumType in
     }
 
-
+    @Test
     public void test_MoreEnum_Operations() throws Exception {
         MoreThanAllowedEnumType mType = MoreThanAllowedEnumType.Factory.newInstance();
 
@@ -99,7 +85,7 @@ public class LargeEnumTest extends TestCase {
         for (int i = 0; i < errors.size(); i++) {
             System.out.println("ERROR: " + errors.get(i));
         }
-        Assert.assertTrue("There were errors validating enumType after set", errors.size() == 0);
+        assertEquals("There were errors validating enumType after set", 0, errors.size());
 
         GlobalMoreThanElementDocument mDoc = GlobalMoreThanElementDocument.Factory.newInstance();
         mDoc.setGlobalMoreThanElement("AAA");
@@ -112,7 +98,7 @@ public class LargeEnumTest extends TestCase {
             System.out.println("ERROR: " + errors.get(i));
         }
 
-        Assert.assertTrue("There were errors validating enumDoc after set", errors.size() == 0);
+        assertEquals("There were errors validating enumDoc after set", 0, errors.size());
 
         MoreThanAllowedComplexType mcType = MoreThanAllowedComplexType.Factory.newInstance();
         mcType.setComplexTypeMoreThanEnum("AAA");
@@ -124,7 +110,7 @@ public class LargeEnumTest extends TestCase {
             System.out.println("ERROR: " + errors.get(i));
         }
 
-        Assert.assertTrue("There were errors validating complxType after set", errors.size() == 0);
+        assertEquals("There were errors validating complxType after set", 0, errors.size());
     }
 
 

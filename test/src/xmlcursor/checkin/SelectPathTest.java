@@ -16,54 +16,46 @@
 
 package xmlcursor.checkin;
 
-import junit.framework.*;
-
+import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlObject;
-import org.apache.xmlbeans.XmlCursor.TokenType;
-
-import xmlcursor.common.*;
-
+import org.junit.Ignore;
+import org.junit.Test;
 import tools.util.JarUtil;
+import xmlcursor.common.BasicCursorTestCase;
+import xmlcursor.common.Common;
+
+import static org.junit.Assert.assertEquals;
 
 
-/**
-  *
- *
- */
 public class SelectPathTest extends BasicCursorTestCase {
-    public SelectPathTest(String sName) {
-        super(sName);
-    }
-
-    public static Test suite() {
-        return new TestSuite(SelectPathTest.class);
-    }
-
-   /**
-        *$BUGBUG: Eric's engine doesn't send to Jaxen appropriately
-    *
-   public void testSelectPathFromEND() throws Exception {
+    /**
+     * $BUGBUG: Eric's engine doesn't send to Jaxen appropriately
+     */
+    @Test
+    @Ignore
+    public void testSelectPathFromEND() throws Exception {
         m_xo = XmlObject.Factory.parse(
-                   JarUtil.getResourceFromJar(Common.XMLCASES_JAR,
-                        Common.TRANXML_FILE_XMLCURSOR_PO));
-        String ns="declare namespace po=\"http://xbean.test/xmlcursor/PurchaseOrder\"";
+            JarUtil.getResourceFromJar(Common.TRANXML_FILE_XMLCURSOR_PO));
+        String ns = "declare namespace po=\"http://xbean.test/xmlcursor/PurchaseOrder\"";
         m_xc = m_xo.newCursor();
-        toNextTokenOfType(m_xc, TokenType.END);
-        m_xc.selectPath(ns+" $this//city");
+        toNextTokenOfType(m_xc, XmlCursor.TokenType.END);
+        m_xc.selectPath(ns + " $this//city");
         assertEquals(0, m_xc.getSelectionCount());
     }
 
+    @Test
+    @Ignore
     public void testSelectPathFromENDDOC() throws Exception {
         m_xo = XmlObject.Factory.parse(
-                 JarUtil.getResourceFromJar(Common.XMLCASES_JAR,
-                        Common.TRANXML_FILE_XMLCURSOR_PO));
+            JarUtil.getResourceFromJar(Common.TRANXML_FILE_XMLCURSOR_PO));
         m_xc = m_xo.newCursor();
         String ns="declare namespace po=\"http://xbean.test/xmlcursor/PurchaseOrder\"";
-        toNextTokenOfType(m_xc, TokenType.ENDDOC);
+        toNextTokenOfType(m_xc, XmlCursor.TokenType.ENDDOC);
         m_xc.selectPath(ns+" .//po:city");
         assertEquals(0, m_xc.getSelectionCount());
     }
-        */
+
+    @Test
     public void testSelectPathNamespace() throws Exception {
         m_xo = XmlObject.Factory.parse(
                 JarUtil.getResourceFromJar(Common.TRANXML_FILE_CLM));
@@ -76,6 +68,7 @@ public class SelectPathTest extends BasicCursorTestCase {
         assertEquals(1, m_xc.getSelectionCount());
     }
 
+    @Test
     public void testSelectPathCaseSensitive() throws Exception {
         m_xo = XmlObject.Factory.parse(
                  JarUtil.getResourceFromJar(Common.TRANXML_FILE_XMLCURSOR_PO));
@@ -87,6 +80,7 @@ public class SelectPathTest extends BasicCursorTestCase {
         assertEquals(2, m_xc.getSelectionCount());
     }
 
+    @Test
     public void testSelectPathReservedKeyword() throws Exception {
         m_xo = XmlObject.Factory.parse(
                 JarUtil.getResourceFromJar(Common.TRANXML_FILE_XMLCURSOR_PO));
@@ -96,34 +90,25 @@ public class SelectPathTest extends BasicCursorTestCase {
         assertEquals(2, m_xc.getSelectionCount());
     }
 
+    @Test(expected = RuntimeException.class)
     public void testSelectPathNull() throws Exception {
         m_xo = XmlObject.Factory.parse(
                  JarUtil.getResourceFromJar(Common.TRANXML_FILE_XMLCURSOR_PO));
         m_xc = m_xo.newCursor();
         // TODO: surround with appropriate t-c once ericvas creates the exception type
         // see bugs 18009 and/or 18718
-        try {
-            m_xc.selectPath(null);
-            fail("Expected RuntimeException");
-        } catch (RuntimeException re) {
-        }
-        assertTrue(true);
+        m_xc.selectPath(null);
     }
 
+    @Test(expected = RuntimeException.class)
     public void testSelectPathInvalidXPath() throws Exception {
         m_xo = XmlObject.Factory.parse(
                  JarUtil.getResourceFromJar(Common.TRANXML_FILE_XMLCURSOR_PO));
         m_xc = m_xo.newCursor();
         // TODO: surround with appropriate t-c once ericvas creates the exception type
         // see bugs 18009 and/or 18718
-        try {
-            m_xc.selectPath("&GARBAGE");
-            assertEquals(0,m_xc.getSelectionCount());
-            fail("Expected RuntimeException");
-        } catch (RuntimeException re) {
-        }
-        assertTrue(true);
+        m_xc.selectPath("&GARBAGE");
+        m_xc.getSelectionCount();
     }
-
 }
 

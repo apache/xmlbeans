@@ -15,51 +15,39 @@
 
 package xmlobject.detailed;
 
-import junit.framework.TestCase;
-import junit.framework.Assert;
-
-import org.openuri.test.selectChildren.*;
-import org.openuri.test.selectAttribute.*;
-
-import org.apache.xmlbeans.*;
-
-import javax.xml.namespace.QName;
-import java.util.*;
-
+import org.apache.xmlbeans.XmlObject;
+import org.junit.Test;
+import org.openuri.test.selectAttribute.DocDocument;
 import xmlobject.common.SelectChildrenAttribCommon;
 
-/**
- *
- *
- */
-public class SelectAttributeTests
-            extends SelectChildrenAttribCommon
-{
-    public SelectAttributeTests(String name)
-    {
-        super(name);
-    }
+import javax.xml.namespace.QName;
+import java.util.ArrayList;
+import java.util.Collection;
 
-    static String saUri = "http://openuri.org/test/selectAttribute";
-    static String saStartFrag = "<xm xmlns:sa=\"" + saUri + "\">";
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
-    static String abcUri = "http://abc";
-    static String defUri = "http://def";
-    static String xyzUri = "http://xyz";
+public class SelectAttributeTests extends SelectChildrenAttribCommon {
+
+    private static String saUri = "http://openuri.org/test/selectAttribute";
+    private static String saStartFrag = "<xm xmlns:sa=\"" + saUri + "\">";
+
+    private static String abcUri = "http://abc";
+    private static String defUri = "http://def";
 
     static String anyStartFrag = "<xm xmlns:sa=\"" + saUri + "\"" +
-                                 " xmlns:abc=\"" + abcUri + "\"" +
-                                 " xmlns:def=\"" + defUri + "\"" + ">";
+        " xmlns:abc=\"" + abcUri + "\"" +
+        " xmlns:def=\"" + defUri + "\"" + ">";
 
-    static String endFrag = "</xm>";
+    private static String endFrag = "</xm>";
     // To speed up tests when running multiple test methods in the same run
-    DocDocument.Doc doc = null;
+    private DocDocument.Doc doc = null;
 
     ///////////////////////////////////////////////////////////////////
     // Tests for non-wildcard attributes
+    @Test
     public void testSelectWithQName()
-        throws Exception
-    {
+        throws Exception {
         if (doc == null)
             doc = (DocDocument.Doc) getTestObject();
         QName qn = new QName("", "att1");
@@ -69,13 +57,13 @@ public class SelectAttributeTests
         validateTest("testSelectWithQName", exp, x);
         // Check Select with QName that is not present.. should get null back.
         x = doc.getWithOther().selectAttribute(qn);
-        assertTrue(x == null);
+        assertNull(x);
     }
 
 
+    @Test
     public void testSelectWithURI()
-        throws Exception
-    {
+        throws Exception {
         if (doc == null)
             doc = (DocDocument.Doc) getTestObject();
 
@@ -85,15 +73,15 @@ public class SelectAttributeTests
         validateTest("testSelectWithURI", exp, x);
         // Check Select with QName that is not present.. should get null back.
         x = doc.getWithAny().selectAttribute("", "att2");
-        assertTrue(x == null);
+        assertNull(x);
 
     }
 
     ////////////////////////////////////////////////////////////////////
     // Test for wild-card attributes
+    @Test
     public void testSelectWithQNameForAny()
-        throws Exception
-    {
+        throws Exception {
         if (doc == null)
             doc = (DocDocument.Doc) getTestObject();
 
@@ -111,9 +99,8 @@ public class SelectAttributeTests
 
     ////////////////////////////////////////////////////////////////////
     // Helper
-    public XmlObject getTestObject()
-        throws Exception
-    {
+    private XmlObject getTestObject()
+        throws Exception {
         String xml = getXml("xbean/xmlobject/SelectAttribute-Doc.xml");
         DocDocument xmlObj = DocDocument.Factory.parse(xml);
         DocDocument.Doc doc = xmlObj.getDoc();
@@ -126,13 +113,4 @@ public class SelectAttributeTests
         assertTrue("Test Xml is not valid!!", valid);
         return doc;
     }
-
-    public void printXmlObj(XmlObject[] xobj)
-        throws Exception
-    {
-        for (int i = 0; i < xobj.length; i++)
-            System.out.println(convertFragToDoc(xobj[i].xmlText()));
-    }
-
-
 }

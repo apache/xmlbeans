@@ -14,16 +14,15 @@
  */
 package scomp.contentType.simple.detailed;
 
+import org.junit.Test;
 import scomp.common.BaseCase;
 import xbean.scomp.contentType.simpleType.PantSizeEltDocument;
 import org.apache.xmlbeans.XmlErrorCodes;
 
-/**
- *
- *
- *
- */
+import static org.junit.Assert.assertTrue;
+
 public class SimpleType extends BaseCase {
+    @Test
     public void testPattern() throws Throwable {
         PantSizeEltDocument size = PantSizeEltDocument.Factory.newInstance();
         size.setPantSizeElt(16);

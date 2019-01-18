@@ -14,21 +14,19 @@
  */
 package tools.inst2xsd.detailed;
 
+import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.impl.inst2xsd.Inst2XsdOptions;
+import org.junit.Ignore;
+import org.junit.Test;
 import tools.inst2xsd.common.Inst2XsdTestBase;
 
 import java.io.File;
-import java.io.IOException;
 
-import org.apache.xmlbeans.XmlObject;
-import org.apache.xmlbeans.impl.inst2xsd.Inst2XsdOptions;
-
+@Ignore
 public class Inst2XsdDetailedTest extends Inst2XsdTestBase {
 
-    public Inst2XsdDetailedTest(String name) {
-        super(name);
-    }
-
     //TODO: move to checkin
+    @Test
     public void test_ns_duplicate_salami() throws Exception {
         XmlObject inst = XmlObject.Factory.parse(new File(SCHEMA_CASES_DIR + "namespaces" + P + "duplicatedNS.xml"));
         log("-= Salami =-");
@@ -37,6 +35,7 @@ public class Inst2XsdDetailedTest extends Inst2XsdTestBase {
     }
 
     //TODO: move to checkin
+    @Test
     public void test_ns_duplicate_venetian() throws Exception {
         XmlObject inst = XmlObject.Factory.parse(new File(SCHEMA_CASES_DIR + "namespaces" + P + "duplicatedNS.xml"));
         log("-= venetian =-");
@@ -46,6 +45,7 @@ public class Inst2XsdDetailedTest extends Inst2XsdTestBase {
     }
 
     //TODO: move to checkin  QName:bug
+    @Test
     public void test_examples_xmlnews() throws Exception {
         XmlObject inst = XmlObject.Factory.parse(new File(SCHEMA_CASES_DIR + "examples" + P + "xmlnews.xml"));
 
@@ -61,6 +61,7 @@ public class Inst2XsdDetailedTest extends Inst2XsdTestBase {
     }
 
     //TODO: move to checkin QName:bug
+    @Test
     public void test_examples_slashdotrdf() throws Exception {
         XmlObject inst = XmlObject.Factory.parse(new File(SCHEMA_CASES_DIR + "examples" + P + "slashdot.rdf.xml"));
 
@@ -82,6 +83,7 @@ public class Inst2XsdDetailedTest extends Inst2XsdTestBase {
     }
 
     //TODO: move to checkin QName:bug
+    @Test
     public void test_examples_xsl() throws Exception {
         XmlObject inst = XmlObject.Factory.parse(new File(SCHEMA_CASES_DIR + "examples" + P + "xsl_example.xml"));
 
@@ -103,6 +105,7 @@ public class Inst2XsdDetailedTest extends Inst2XsdTestBase {
     }
 
     //TODO: move to checkin QName:bug
+    @Test
     public void test_examples_rss092() throws Exception {
         XmlObject inst = XmlObject.Factory.parse(new File(SCHEMA_CASES_DIR + "examples" + P + "sampleRss092.xml"));
 
@@ -117,6 +120,7 @@ public class Inst2XsdDetailedTest extends Inst2XsdTestBase {
                 XmlObject.Factory.parse(new File(SCHEMA_CASES_DIR + "examples" + P + "sampleRss092_ss0.xsd")));
     }
 
+    @Test
     public void test_types_comments() throws Exception {
         XmlObject inst = XmlObject.Factory.parse(new File(SCHEMA_CASES_DIR + "types" + P + "comments.xml"));
 
@@ -131,6 +135,7 @@ public class Inst2XsdDetailedTest extends Inst2XsdTestBase {
             XmlObject.Factory.parse(new File(SCHEMA_CASES_DIR + "types" + P + "comments_ss0.xsd")));
     }
 
+    @Test
     public void test_types_commentschoice() throws Exception {
         XmlObject inst = XmlObject.Factory.parse(new File(SCHEMA_CASES_DIR + "types" + P + "commentschoice.xml"));
         Inst2XsdOptions opts = common.getRussianOptions();
@@ -152,6 +157,7 @@ public class Inst2XsdDetailedTest extends Inst2XsdTestBase {
     }
 
     /** This case fails validation because comment is not recognized */
+    @Test
     public void test_types_innercomment() throws Exception {
         XmlObject inst = XmlObject.Factory.parse(new File(SCHEMA_CASES_DIR + "types" + P + "innercomment.xml"));
 
@@ -159,6 +165,7 @@ public class Inst2XsdDetailedTest extends Inst2XsdTestBase {
                 XmlObject.Factory.parse(new File(SCHEMA_CASES_DIR + "types" + P + "innercomment_vb0.xsd")));
     }
 
+    @Test
     public void test_types_nillable() throws Exception {
         XmlObject inst = XmlObject.Factory.parse(new File(SCHEMA_CASES_DIR + "types" + P + "xsinil.xml"));
 

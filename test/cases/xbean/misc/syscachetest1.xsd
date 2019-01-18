@@ -1,3 +1,5 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
 /*   Copyright 2004 The Apache Software Foundation
  *
  *   Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,29 +14,22 @@
  *   See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package xmlcursor.xquery.common;
+-->
+<xsd:schema
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    xmlns:test="http://xbean/misc/SyscacheTests1"
+    targetNamespace="http://xbean/misc/SyscacheTests1"
+    >                                                                              
 
-import junit.framework.TestSuite;
-import tools.util.JarUtil;
+    <xsd:element name="Person" type="test:personType"/>
 
-import java.io.FileNotFoundException;
+    <xsd:complexType name="personType">
+		<xsd:sequence>
+			<xsd:element name="FirstName" type="xsd:string"/>
+            <xsd:element name="LastName" type="xsd:string"/>
+		</xsd:sequence>
+		<xsd:attribute name="Birthday" type="xsd:date"/>
+	</xsd:complexType>
 
-/**
- *
- */
-public  class AbstractRunner
-    extends TestSuite
-{
+ </xsd:schema>
 
-    public void findZip() throws FileNotFoundException
-    {
-        pathToZip = JarUtil.getFilePath("xmlcases.jar");
-        int i = pathToZip.lastIndexOf('/');
-        i = (i == -1) ? pathToZip.lastIndexOf('\\') : i;
-        pathToZip=pathToZip.substring(0, i);
-
-    }
-
-
-    public String pathToZip;
-}

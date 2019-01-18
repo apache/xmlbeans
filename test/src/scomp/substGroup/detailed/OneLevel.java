@@ -14,18 +14,18 @@
  */
 package scomp.substGroup.detailed;
 
+import org.apache.xmlbeans.XmlErrorCodes;
+import org.junit.Test;
 import scomp.common.BaseCase;
 import xbean.scomp.substGroup.oneLevel.*;
 
 import java.math.BigInteger;
 
-import org.apache.xmlbeans.XmlObject;
-import org.apache.xmlbeans.XmlErrorCodes;
+import static org.junit.Assert.assertTrue;
 
-/**
- */
 public class OneLevel extends BaseCase {
 
+    @Test
     public void testValidSubstParse() throws Throwable {
         String input =
                 "<items xmlns=\"http://xbean/scomp/substGroup/OneLevel\">" +
@@ -61,9 +61,8 @@ public class OneLevel extends BaseCase {
 
     /**
      * Test error message. 1 product too many
-     *
-     * @throws Throwable
      */
+    @Test
     public void testValidSubstParseInvalid() throws Throwable {
         String input =
                 "<items xmlns=\"http://xbean/scomp/substGroup/OneLevel\">" +
@@ -100,9 +99,9 @@ public class OneLevel extends BaseCase {
                   };
         assertTrue(compareErrorCodes(
                 errExpected));
-
     }
 
+    @Test
     public void testValidSubstBuild() throws Throwable {
         ItemsDocument doc = ItemsDocument.Factory.newInstance();
         ItemType items = doc.addNewItems();

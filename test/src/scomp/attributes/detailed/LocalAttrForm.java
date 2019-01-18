@@ -14,6 +14,7 @@
  */
 package scomp.attributes.detailed;
 
+import org.junit.Test;
 import scomp.common.BaseCase;
 import xbean.scomp.namespace.attributeFormDefault.AttributeUnqualifiedDocument;
 
@@ -21,17 +22,14 @@ import javax.xml.namespace.QName;
 
 import org.apache.xmlbeans.XmlErrorCodes;
 
-/**
- *
- *
- *
- */
+import static org.junit.Assert.assertTrue;
+
 public class LocalAttrForm extends BaseCase{
 
     /**
      * attrFormDefault is "qualified", overwrite locally to "unqualified"
-     * @throws Throwable
      */
+    @Test
     public void testRun() throws Throwable{
 
         String input="<ns:AttributeUnqualified " +

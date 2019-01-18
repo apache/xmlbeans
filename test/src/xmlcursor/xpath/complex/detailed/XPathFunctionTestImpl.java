@@ -15,21 +15,22 @@
 
 package xmlcursor.xpath.complex.detailed;
 
+import org.apache.xmlbeans.XmlObject;
+import org.junit.Before;
+import org.junit.Test;
 import xmlcursor.xpath.common.XPathFunctionTest;
 
-import org.apache.xmlbeans.XmlObject;
+import static org.junit.Assert.*;
 
 /**
  * Queries here overwrite whatever is loaded in the query map if
  * the syntax is different
  */
 
-public class XPathFunctionTestImpl
-    extends XPathFunctionTest
-{
-    public XPathFunctionTestImpl(String name)
-    {
-        super(name);
+public class XPathFunctionTestImpl extends XPathFunctionTest {
+    @Before
+    public void setUp() throws Exception {
+        super.setUp();
 
         testMap.put("testFunctionCount", new String[]{
             "count(//cd)",
@@ -73,49 +74,32 @@ public class XPathFunctionTestImpl
             "//*[boolean(@at)=true()]"});
     }
 
-    public String getQuery(String testName, int testCase)
-        throws IllegalArgumentException
-    {
-        Object queries;
-
-        if ((queries = testMap.get(testName)) == null)
-            throw new IllegalArgumentException("No queries for test" +
-                testName);
-        else if (((String[]) queries).length <= testCase)
-            throw new IllegalArgumentException("No query " + testCase +
-                " for test" + testName);
-        else
-            return ((String[]) queries)[testCase];
+    public String getQuery(String testName, int testCase) throws IllegalArgumentException {
+        String[] queries = testMap.get(testName);
+        assertNotNull("No queries for test" + testName, queries);
+        assertFalse("No query " + testCase + " for test" + testName, queries.length <= testCase);
+        return queries[testCase];
     }
 
-    public void testErrorMessages()
-        throws Exception
-    {
+    @Test
+    public void testErrorMessages() throws Exception {
         //do nothing for Jaxen
     }
 
     //ensure Jaxen is not in the classpath
-    public void testAntiJaxenTest()
-    {
-        try
-        {
-            m_xc.selectPath("//*");
-            fail("XQRL shouldn't handle absolute paths");
-        }
-        catch (Throwable t)
-        {
-        }
+    @Test(expected = Throwable.class)
+    public void testAntiJaxenTest() {
+        // XQRL shouldn't handle absolute paths
+        m_xc.selectPath("//*");
     }
 
-    public void testExternalVariable()
-        throws Exception
-    {
+    @Test
+    public void testExternalVariable() throws Exception {
 
     }
 
-    public void testExternalFunction()
-        throws Exception
-    {
+    @Test
+    public void testExternalFunction() throws Exception {
         String query = "" +
             "declare function local:toc($book-or-section as element()) as element()*;" +
             " local:toc($book-or-section/section)";
@@ -173,5 +157,4 @@ public class XPathFunctionTestImpl
         assertEquals(1, res.length);
         assertEquals("", res[0].xmlText());
     }
-
 }

@@ -16,37 +16,19 @@
 
 package xmlcursor.checkin;
 
-import org.apache.xmlbeans.XmlOptions;
-import junit.framework.*;
-import junit.framework.Assert.*;
-
-import java.io.*;
-
-import org.apache.xmlbeans.XmlObject;
-import org.apache.xmlbeans.XmlCursor;
-import org.apache.xmlbeans.XmlBeans;
 import org.apache.xmlbeans.XmlCursor.TokenType;
+import org.apache.xmlbeans.XmlObject;
+import org.junit.Test;
+import xmlcursor.common.BasicCursorTestCase;
+import xmlcursor.common.Common;
 
 import javax.xml.namespace.QName;
 
-import xmlcursor.common.*;
-
-import java.net.URL;
+import static org.junit.Assert.assertEquals;
 
 
-/**
- *
- *
- */
 public class InsertAttributeTest extends BasicCursorTestCase {
-    public InsertAttributeTest(String sName) {
-        super(sName);
-    }
-
-    public static Test suite() {
-        return new TestSuite(InsertAttributeTest.class);
-    }
-
+    @Test
     public void testInsertAttributeAtSTART() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_TEXT);
         m_xc = m_xo.newCursor();
@@ -56,6 +38,7 @@ public class InsertAttributeTest extends BasicCursorTestCase {
         assertEquals("<foo uri:name=\"value\" xmlns:uri=\"uri\">text</foo>", m_xc.xmlText());
     }
 
+    @Test
     public void testInsertAttributeAtATTR() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_2ATTR_TEXT);
         m_xc = m_xo.newCursor();
@@ -65,6 +48,7 @@ public class InsertAttributeTest extends BasicCursorTestCase {
         assertEquals("<foo name=\"value\" attr0=\"val0\" attr1=\"val1\">text</foo>", m_xc.xmlText());
     }
 
+    @Test
     public void testInsertAttributeAt2ndATTR() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_2ATTR_TEXT);
         m_xc = m_xo.newCursor();
@@ -75,56 +59,41 @@ public class InsertAttributeTest extends BasicCursorTestCase {
         assertEquals("<foo attr0=\"val0\" name=\"value\" attr1=\"val1\">text</foo>", m_xc.xmlText());
     }
 
+    @Test(expected = IllegalArgumentException.class)
     public void testInsertAttributeAtPROCINST() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_PROCINST);
         m_xc = m_xo.newCursor();
         toNextTokenOfType(m_xc, TokenType.PROCINST);
         m_xc.toNextToken();
-        try {
-            m_xc.insertAttributeWithValue("name", null, "value");
-            fail("Expected IllegalArgumentException");
-        } catch (IllegalArgumentException e) {
-        }
-        assertEquals(true, true);
+        m_xc.insertAttributeWithValue("name", null, "value");
     }
 
+    @Test(expected = IllegalArgumentException.class)
     public void testInsertAttributeAtSTARTwithEmptyStringName() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_DIGITS);
         m_xc = m_xo.newCursor();
         toNextTokenOfType(m_xc, TokenType.START);
-        try {
-            m_xc.insertAttributeWithValue("", "uri", "value");
-            fail("Expected IllegalArgumentException");
-        } catch (IllegalArgumentException iae) {
-        }
-        assertEquals(true, true);
+        m_xc.insertAttributeWithValue("", "uri", "value");
     }
 
+    @Test(expected = IllegalArgumentException.class)
     public void testInsertAttributeAtSTARTwithNullName() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_DIGITS);
         m_xc = m_xo.newCursor();
         toNextTokenOfType(m_xc, TokenType.START);
-        try {
-            m_xc.insertAttributeWithValue(null, "uri", "value");
-            fail("Expected IllegalArgumentException");
-        } catch (IllegalArgumentException iae) {
-        }
-        assertEquals(true, true);
+        m_xc.insertAttributeWithValue(null, "uri", "value");
     }
 
+    @Test(expected = IllegalArgumentException.class)
     public void testInsertAttributeWithNullQName() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_DIGITS);
         m_xc = m_xo.newCursor();
         toNextTokenOfType(m_xc, TokenType.START);
-        try {
-            QName name = new QName(null);
-            m_xc.insertAttribute(name);
-            fail("Expected IllegalArgumentException");
-        } catch (IllegalArgumentException iae) {
-        }
-        assertEquals(true, true);
+        QName name = new QName(null);
+        m_xc.insertAttribute(name);
     }
 
+    @Test
     public void testInsertAttributeAtSTARTwithEmptyStringUri() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_TEXT);
         m_xc = m_xo.newCursor();
@@ -134,6 +103,7 @@ public class InsertAttributeTest extends BasicCursorTestCase {
         assertEquals("<foo name=\"value\">text</foo>", m_xc.xmlText());
     }
 
+    @Test(expected = Exception.class)
     public void testInsertAttributeAtSTARTwithNameXml() throws Exception {
         /*
 m_xo = XmlObject.Factory.parse(Common.XML_FOO_TEXT);
@@ -150,17 +120,12 @@ catch (IllegalArgumentException iae)
 assertEquals(true,true);
         */
 
-        try {
-            m_xo = XmlObject.Factory.parse("<foo>text</foo>");
-            m_xc = m_xo.newCursor();
-            m_xc.insertAttributeWithValue("xml", null, "value");
-            fail("Expected Exception");
-        } catch (Exception e) {
-        }
-
-        assertTrue(true);
+        m_xo = XmlObject.Factory.parse("<foo>text</foo>");
+        m_xc = m_xo.newCursor();
+        m_xc.insertAttributeWithValue("xml", null, "value");
     }
 
+    @Test
     public void testInsertAttributeAtSTARTwithValueXml() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_TEXT);
         m_xc = m_xo.newCursor();
@@ -170,18 +135,15 @@ assertEquals(true,true);
         assertEquals("<foo name=\"xml\">text</foo>", m_xc.xmlText());
     }
 
+    @Test(expected = IllegalArgumentException.class)
     public void testInsertAttributeAtSTARTwithLTcharInName() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_TEXT);
         m_xc = m_xo.newCursor();
         toNextTokenOfType(m_xc, TokenType.TEXT);
-        try {
-            m_xc.insertAttributeWithValue("<b", null, "value");
-            fail("Expected IllegalArgumentException");
-        } catch (IllegalArgumentException iae) {
-        }
-        assertEquals(true, true);
+        m_xc.insertAttributeWithValue("<b", null, "value");
     }
 
+    @Test
     public void testInsertAttributeAtSTARTwithLTcharInValue() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_TEXT);
         m_xc = m_xo.newCursor();
@@ -191,6 +153,7 @@ assertEquals(true,true);
         assertEquals("<foo name=\"&lt;value\">text</foo>", m_xc.xmlText());
     }
 
+    @Test
     public void testInsertAttributeAtSTARTwithAmpCharInValue() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_TEXT);
         m_xc = m_xo.newCursor();
@@ -200,20 +163,16 @@ assertEquals(true,true);
         assertEquals("<foo name=\"&amp;value\">text</foo>", m_xc.xmlText());
     }
 
+    @Test(expected = IllegalArgumentException.class)
     public void testInsertAttributeAtSTARTwithAmpCharInName() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_TEXT);
         m_xc = m_xo.newCursor();
         toNextTokenOfType(m_xc, TokenType.TEXT);
-        try {
-            m_xc.insertAttributeWithValue("&bar", null, "value");
-            fail("Expected IllegalArgumentException");
-        } catch (IllegalArgumentException iae) {
-        }
-        assertEquals(true, true);
+        m_xc.insertAttributeWithValue("&bar", null, "value");
     }
 
     // tests below use the XMLName form of the parameter signature
-
+    @Test
     public void testInsertAttributeType2AtATTR() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_2ATTR_TEXT);
         m_xc = m_xo.newCursor();
@@ -224,6 +183,7 @@ assertEquals(true,true);
         assertEquals("<foo name=\"value\" attr0=\"val0\" attr1=\"val1\">text</foo>", m_xc.xmlText());
     }
 
+    @Test
     public void testInsertAttributeType2AfterSTART() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_2ATTR_TEXT);
         m_xc = m_xo.newCursor();
@@ -234,69 +194,49 @@ assertEquals(true,true);
         assertEquals("<foo attr0=\"val0\" attr1=\"val1\" name=\"\">text</foo>", m_xc.xmlText());
     }
 
+    @Test(expected = IllegalArgumentException.class)
     public void testInsertAttributeType2WithXMLinName() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_2ATTR_TEXT);
         m_xc = m_xo.newCursor();
         toNextTokenOfType(m_xc, TokenType.ATTR);
         QName name = new QName("<xml>");
-        try {
-            m_xc.insertAttributeWithValue(name, "value");
-            fail("Expected IllegalArgumentException");
-        } catch (IllegalArgumentException iae) {
-        }
-        assertEquals(true, true);
+        m_xc.insertAttributeWithValue(name, "value");
     }
 
+    @Test(expected = IllegalArgumentException.class)
     public void testInsertAttributeType2WithLeadingSpaceinName() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_2ATTR_TEXT);
         m_xc = m_xo.newCursor();
         toNextTokenOfType(m_xc, TokenType.ATTR);
         QName name = new QName(" any");
-        try {
-            m_xc.insertAttributeWithValue(name, "value");
-            fail("Expected IllegalArgumentException");
-        } catch (IllegalArgumentException iae) {
-        }
-        assertEquals(true, true);
+        m_xc.insertAttributeWithValue(name, "value");
     }
 
+    @Test(expected = IllegalArgumentException.class)
     public void testInsertAttributeType2ContainingSpaceinName() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_2ATTR_TEXT);
         m_xc = m_xo.newCursor();
         toNextTokenOfType(m_xc, TokenType.ATTR);
         QName name = new QName("any any");
-        try {
-            m_xc.insertAttributeWithValue(name, "value");
-            fail("Expected IllegalArgumentException");
-        } catch (IllegalArgumentException iae) {
-        }
-        assertEquals(true, true);
+        m_xc.insertAttributeWithValue(name, "value");
     }
 
+    @Test(expected = IllegalArgumentException.class)
     public void testInsertAttributeType2WithTrailingSpaceinName() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_2ATTR_TEXT);
         m_xc = m_xo.newCursor();
         toNextTokenOfType(m_xc, TokenType.ATTR);
         QName name = new QName("any ");
-        try {
-            m_xc.insertAttributeWithValue(name, "value");
-            fail("Expected IllegalArgumentException");
-        } catch (IllegalArgumentException iae) {
-        }
-        assertEquals(true, true);
+        m_xc.insertAttributeWithValue(name, "value");
     }
 
+    @Test(expected = IllegalArgumentException.class)
     public void testInsertAttributeType2WithXMLinNameCase() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_2ATTR_TEXT);
         m_xc = m_xo.newCursor();
         toNextTokenOfType(m_xc, TokenType.ATTR);
         QName name = new QName("<xMlzorro>");
-        try {
-            m_xc.insertAttributeWithValue(name, "value");
-            fail("Expected IllegalArgumentException");
-        } catch (IllegalArgumentException iae) {
-        }
-        assertEquals(true, true);
+        m_xc.insertAttributeWithValue(name, "value");
     }
 }
 

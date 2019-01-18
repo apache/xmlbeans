@@ -20,313 +20,307 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 //package org.w3c.domts.level2.core;
 package dom.detailed.w3c;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import org.junit.runner.RunWith;
+import org.junit.runners.Suite;
 import org.w3c.domts.level2.core.*;
 
 
-    /**
-    *  Test suite
-    *  @author W3C DOM Test Working Group
-    **/
-    public class alltests extends TestCase{
-
-   public static Test suite() {
-     TestSuite sink= new TestSuite();
-    //  sink.addTestSuite(attrgetownerelement01.class);
-      sink.addTestSuite(attrgetownerelement02.class);
-      sink.addTestSuite(attrgetownerelement03.class);
-    //  sink.addTestSuite(attrgetownerelement04.class);
-      sink.addTestSuite(attrgetownerelement05.class);
-      sink.addTestSuite(createAttributeNS01.class);
-      sink.addTestSuite(createAttributeNS02.class);
-      sink.addTestSuite(createAttributeNS03.class);
-      sink.addTestSuite(createAttributeNS04.class);
-      sink.addTestSuite(createAttributeNS05.class);
-      sink.addTestSuite(createDocument01.class);
-      sink.addTestSuite(createDocument02.class);
-  //    sink.addTestSuite(createDocument03.class);
-    //  sink.addTestSuite(createDocument04.class);
-      sink.addTestSuite(createDocument05.class);
-      sink.addTestSuite(createDocument06.class);
-      sink.addTestSuite(createDocument07.class);
-   //   sink.addTestSuite(createDocumentType01.class);
-    //  sink.addTestSuite(createDocumentType02.class);
-   //   sink.addTestSuite(createDocumentType03.class);
-      sink.addTestSuite(createElementNS01.class);
-      sink.addTestSuite(createElementNS02.class);
-      sink.addTestSuite(createElementNS03.class);
-      sink.addTestSuite(createElementNS04.class);
-      sink.addTestSuite(createElementNS05.class);
-      sink.addTestSuite(documentcreateattributeNS01.class);
-      sink.addTestSuite(documentcreateattributeNS02.class);
-      sink.addTestSuite(documentcreateattributeNS03.class);
-      sink.addTestSuite(documentcreateattributeNS04.class);
-      sink.addTestSuite(documentcreateattributeNS05.class);
-      sink.addTestSuite(documentcreateattributeNS06.class);
-      sink.addTestSuite(documentcreateattributeNS07.class);
-      sink.addTestSuite(documentcreateelementNS01.class);
-      sink.addTestSuite(documentcreateelementNS02.class);
-      sink.addTestSuite(documentcreateelementNS05.class);
-      sink.addTestSuite(documentcreateelementNS06.class);
-    //  sink.addTestSuite(documentgetelementbyid01.class);
-      sink.addTestSuite(documentgetelementsbytagnameNS01.class);
-      sink.addTestSuite(documentgetelementsbytagnameNS02.class);
-      sink.addTestSuite(documentgetelementsbytagnameNS03.class);
-      sink.addTestSuite(documentgetelementsbytagnameNS04.class);
-      sink.addTestSuite(documentgetelementsbytagnameNS05.class);
-      sink.addTestSuite(documentimportnode01.class);
-     // sink.addTestSuite(documentimportnode02.class);
-     // sink.addTestSuite(documentimportnode03.class);
-    //  sink.addTestSuite(documentimportnode04.class);
-      sink.addTestSuite(documentimportnode05.class);
-      sink.addTestSuite(documentimportnode06.class);
-    //  sink.addTestSuite(documentimportnode07.class);
-    //  sink.addTestSuite(documentimportnode08.class);
-      sink.addTestSuite(documentimportnode09.class);
-      sink.addTestSuite(documentimportnode10.class);
-      sink.addTestSuite(documentimportnode11.class);
-      sink.addTestSuite(documentimportnode12.class);
-      sink.addTestSuite(documentimportnode13.class);
-      sink.addTestSuite(documentimportnode14.class);
-      sink.addTestSuite(documentimportnode15.class);
-      sink.addTestSuite(documentimportnode17.class);
-      sink.addTestSuite(documentimportnode18.class);
-     // sink.addTestSuite(documentimportnode19.class);
-     // sink.addTestSuite(documentimportnode20.class);
-     // sink.addTestSuite(documentimportnode21.class);
-    //  sink.addTestSuite(documentimportnode22.class);
-    //  sink.addTestSuite(documenttypeinternalSubset01.class);
-     // sink.addTestSuite(documenttypepublicid01.class);
-    //  sink.addTestSuite(documenttypesystemid01.class);
-      sink.addTestSuite(domimplementationcreatedocument03.class);
-      sink.addTestSuite(domimplementationcreatedocument04.class);
-      sink.addTestSuite(domimplementationcreatedocument05.class);
-      sink.addTestSuite(domimplementationcreatedocument07.class);
-   //   sink.addTestSuite(domimplementationcreatedocumenttype01.class);
-     // sink.addTestSuite(domimplementationcreatedocumenttype02.class);
-    //  sink.addTestSuite(domimplementationcreatedocumenttype04.class);
-     // sink.addTestSuite(domimplementationfeaturecore.class);
-    //  sink.addTestSuite(domimplementationfeaturexmlversion2.class);
-    //  sink.addTestSuite(domimplementationhasfeature01.class);
-    //  sink.addTestSuite(domimplementationhasfeature02.class);
-      sink.addTestSuite(elementgetattributenodens01.class);
-      sink.addTestSuite(elementgetattributenodens02.class);
-      // sink.addTestSuite(elementgetattributenodens03.class);
-      // sink.addTestSuite(elementgetattributens02.class);
-      sink.addTestSuite(elementgetelementsbytagnamens02.class);
-      sink.addTestSuite(elementgetelementsbytagnamens04.class);
-      sink.addTestSuite(elementgetelementsbytagnamens05.class);
-      sink.addTestSuite(elementhasattribute01.class);
-   //   sink.addTestSuite(elementhasattribute02.class);
-      sink.addTestSuite(elementhasattribute03.class);
-      sink.addTestSuite(elementhasattribute04.class);
-      sink.addTestSuite(elementhasattributens01.class);
-      sink.addTestSuite(elementhasattributens02.class);
-      sink.addTestSuite(elementhasattributens03.class);
-      sink.addTestSuite(elementremoveattributens01.class);
-      sink.addTestSuite(elementsetattributenodens01.class);
-      sink.addTestSuite(elementsetattributenodens02.class);
-      sink.addTestSuite(elementsetattributenodens03.class);
-      sink.addTestSuite(elementsetattributenodens04.class);
-      sink.addTestSuite(elementsetattributenodens05.class);
-    //  sink.addTestSuite(elementsetattributenodens06.class);
-      sink.addTestSuite(elementsetattributens01.class);
-      sink.addTestSuite(elementsetattributens02.class);
-      sink.addTestSuite(elementsetattributens03.class);
-      sink.addTestSuite(elementsetattributens04.class);
-      sink.addTestSuite(elementsetattributens05.class);
-      sink.addTestSuite(elementsetattributens08.class);
-      sink.addTestSuite(elementsetattributensurinull.class);
-     // sink.addTestSuite(getAttributeNS01.class);
-      sink.addTestSuite(getAttributeNS02.class);
-      sink.addTestSuite(getAttributeNS03.class);
-      sink.addTestSuite(getAttributeNS04.class);
-      sink.addTestSuite(getAttributeNS05.class);
-      sink.addTestSuite(getAttributeNodeNS01.class);
-      sink.addTestSuite(getAttributeNodeNS02.class);
-    //  sink.addTestSuite(getElementById01.class);
-     // sink.addTestSuite(getElementById02.class);
-    //  sink.addTestSuite(getElementsByTagNameNS01.class);
-      sink.addTestSuite(getElementsByTagNameNS02.class);
-      sink.addTestSuite(getElementsByTagNameNS03.class);
-      sink.addTestSuite(getElementsByTagNameNS04.class);
-      sink.addTestSuite(getElementsByTagNameNS05.class);
-      sink.addTestSuite(getElementsByTagNameNS06.class);
-      sink.addTestSuite(getElementsByTagNameNS07.class);
-      sink.addTestSuite(getElementsByTagNameNS08.class);
-      sink.addTestSuite(getElementsByTagNameNS09.class);
-      sink.addTestSuite(getElementsByTagNameNS10.class);
-      sink.addTestSuite(getElementsByTagNameNS11.class);
-      sink.addTestSuite(getElementsByTagNameNS12.class);
-      sink.addTestSuite(getElementsByTagNameNS13.class);
-      sink.addTestSuite(getElementsByTagNameNS14.class);
-      sink.addTestSuite(getNamedItemNS01.class);
-      sink.addTestSuite(getNamedItemNS02.class);
-   //  sink.addTestSuite(getNamedItemNS03.class);
-    //  sink.addTestSuite(getNamedItemNS04.class);
-      sink.addTestSuite(hasAttribute01.class);
-      sink.addTestSuite(hasAttribute02.class);
-      sink.addTestSuite(hasAttribute03.class);
-      sink.addTestSuite(hasAttribute04.class);
-      sink.addTestSuite(hasAttributeNS01.class);
-      sink.addTestSuite(hasAttributeNS02.class);
-      sink.addTestSuite(hasAttributeNS03.class);
-     // sink.addTestSuite(hasAttributeNS04.class);
-      sink.addTestSuite(hasAttributeNS05.class);
-      sink.addTestSuite(hasAttributes01.class);
-      sink.addTestSuite(hasAttributes02.class);
-      sink.addTestSuite(hc_attrcreatedocumentfragment.class);
-      sink.addTestSuite(hc_attrname.class);
-      sink.addTestSuite(hc_documentcreateattribute.class);
-      sink.addTestSuite(hc_elementgetattributenode.class);
-  //    sink.addTestSuite(hc_entitiesremovenameditemns1.class);
-   //   sink.addTestSuite(hc_entitiessetnameditemns1.class);
-      sink.addTestSuite(hc_namednodemapgetnameditem.class);
-      sink.addTestSuite(hc_nodedocumentfragmentnormalize1.class);
-      sink.addTestSuite(hc_nodedocumentfragmentnormalize2.class);
-   //   sink.addTestSuite(hc_notationsremovenameditemns1.class);
- //     sink.addTestSuite(hc_notationssetnameditemns1.class);
-  //    sink.addTestSuite(ibmtests.class);
-   //   sink.addTestSuite(importNode01.class);
-    //  sink.addTestSuite(importNode02.class);
-      sink.addTestSuite(importNode03.class);
-      sink.addTestSuite(importNode04.class);
-  //    sink.addTestSuite(importNode05.class);
-   //   sink.addTestSuite(importNode06.class);
-      sink.addTestSuite(importNode07.class);
-      sink.addTestSuite(importNode08.class);
-    //  sink.addTestSuite(importNode09.class);
-    //  sink.addTestSuite(importNode10.class);
-    //  sink.addTestSuite(importNode11.class);
-    //  sink.addTestSuite(importNode12.class);
-     // sink.addTestSuite(importNode13.class);
-      sink.addTestSuite(importNode14.class);
-      sink.addTestSuite(importNode15.class);
-     // sink.addTestSuite(importNode16.class);
-      sink.addTestSuite(importNode17.class);
-     // sink.addTestSuite(internalSubset01.class);
-     sink.addTestSuite(isSupported01.class);
-      sink.addTestSuite(isSupported02.class);
-      sink.addTestSuite(isSupported04.class);
-      sink.addTestSuite(isSupported05.class);
-      sink.addTestSuite(isSupported06.class);
-      sink.addTestSuite(isSupported07.class);
-      sink.addTestSuite(isSupported09.class);
-      sink.addTestSuite(isSupported10.class);
-      sink.addTestSuite(isSupported11.class);
-      sink.addTestSuite(isSupported12.class);
-      sink.addTestSuite(isSupported13.class);
-      sink.addTestSuite(isSupported14.class);
-      sink.addTestSuite(localName01.class);
-      sink.addTestSuite(localName02.class);
-      sink.addTestSuite(localName03.class);
-      sink.addTestSuite(localName04.class);
-     // sink.addTestSuite(namednodemapgetnameditemns01.class);
-      sink.addTestSuite(namednodemapgetnameditemns02.class);
-      sink.addTestSuite(namednodemapgetnameditemns03.class);
-      sink.addTestSuite(namednodemapgetnameditemns04.class);
-      sink.addTestSuite(namednodemapgetnameditemns05.class);
-      sink.addTestSuite(namednodemapgetnameditemns06.class);
-      sink.addTestSuite(namednodemapremovenameditemns01.class);
-       //default Attr
-     // sink.addTestSuite(namednodemapremovenameditemns02.class);
-     // ER
-       //  sink.addTestSuite(namednodemapremovenameditemns03.class);
-      sink.addTestSuite(namednodemapremovenameditemns04.class);
-     // sink.addTestSuite(namednodemapremovenameditemns05.class);
-      sink.addTestSuite(namednodemapremovenameditemns06.class);
-      sink.addTestSuite(namednodemapremovenameditemns07.class);
-      sink.addTestSuite(namednodemapremovenameditemns08.class);
-      sink.addTestSuite(namednodemapremovenameditemns09.class);
-      sink.addTestSuite(namednodemapsetnameditemns01.class);
-      sink.addTestSuite(namednodemapsetnameditemns02.class);
-      sink.addTestSuite(namednodemapsetnameditemns03.class);
-      sink.addTestSuite(namednodemapsetnameditemns04.class);
-    //  sink.addTestSuite(namednodemapsetnameditemns05.class);
-      sink.addTestSuite(namednodemapsetnameditemns06.class);
-      sink.addTestSuite(namednodemapsetnameditemns07.class);
-      sink.addTestSuite(namednodemapsetnameditemns08.class);
-    //  sink.addTestSuite(namednodemapsetnameditemns09.class);
-     // sink.addTestSuite(namednodemapsetnameditemns10.class);
-     // sink.addTestSuite(namednodemapsetnameditemns11.class);
-      sink.addTestSuite(namespaceURI01.class);
-      sink.addTestSuite(namespaceURI02.class);
-      sink.addTestSuite(namespaceURI03.class);
-      sink.addTestSuite(namespaceURI04.class);
-      sink.addTestSuite(nodegetlocalname03.class);
-      sink.addTestSuite(nodegetnamespaceuri03.class);
-   //   sink.addTestSuite(nodegetownerdocument01.class);
-      sink.addTestSuite(nodegetownerdocument02.class);
-      sink.addTestSuite(nodegetprefix03.class);
-      sink.addTestSuite(nodehasattributes01.class);
-    //  sink.addTestSuite(nodehasattributes02.class);
-      sink.addTestSuite(nodehasattributes03.class);
-      sink.addTestSuite(nodehasattributes04.class);
-    //  sink.addTestSuite(nodeissupported01.class);
-     // sink.addTestSuite(nodeissupported02.class);
-     // sink.addTestSuite(nodeissupported03.class);
-     // sink.addTestSuite(nodeissupported04.class);
-      // sink.addTestSuite(nodeissupported05.class);
-     // sink.addTestSuite(nodenormalize01.class);
-      sink.addTestSuite(nodesetprefix01.class);
-      sink.addTestSuite(nodesetprefix02.class);
-      sink.addTestSuite(nodesetprefix03.class);
-     // sink.addTestSuite(nodesetprefix04.class);
-      sink.addTestSuite(nodesetprefix05.class);
-      sink.addTestSuite(nodesetprefix06.class);
-      sink.addTestSuite(nodesetprefix07.class);
-      sink.addTestSuite(nodesetprefix08.class);
-      sink.addTestSuite(nodesetprefix09.class);
-      sink.addTestSuite(normalize01.class);
-      sink.addTestSuite(ownerDocument01.class);
-      sink.addTestSuite(ownerElement01.class);
-      sink.addTestSuite(ownerElement02.class);
-      sink.addTestSuite(prefix01.class);
-      sink.addTestSuite(prefix02.class);
-      sink.addTestSuite(prefix03.class);
-      sink.addTestSuite(prefix04.class);
-      sink.addTestSuite(prefix05.class);
-      sink.addTestSuite(prefix06.class);
-      sink.addTestSuite(prefix07.class);
-    //  sink.addTestSuite(prefix08.class);
-      sink.addTestSuite(prefix09.class);
-      sink.addTestSuite(prefix10.class);
-      sink.addTestSuite(prefix11.class);
-    //  sink.addTestSuite(publicId01.class);
-    //  sink.addTestSuite(removeAttributeNS01.class);
-   //   sink.addTestSuite(removeAttributeNS02.class);
-      sink.addTestSuite(removeNamedItemNS01.class);
-      sink.addTestSuite(removeNamedItemNS02.class);
-      sink.addTestSuite(removeNamedItemNS03.class);
-      sink.addTestSuite(setAttributeNS01.class);
-      sink.addTestSuite(setAttributeNS02.class);
-      //Test makes no sense w/o ER
-    //  sink.addTestSuite(setAttributeNS03.class);
-      sink.addTestSuite(setAttributeNS04.class);
-      sink.addTestSuite(setAttributeNS05.class);
-      sink.addTestSuite(setAttributeNS06.class);
-      sink.addTestSuite(setAttributeNS07.class);
-      sink.addTestSuite(setAttributeNS09.class);
-      sink.addTestSuite(setAttributeNodeNS01.class);
-          //Test makes no sense w/o ER
-     // sink.addTestSuite(setAttributeNodeNS02.class);
-      sink.addTestSuite(setAttributeNodeNS03.class);
-      sink.addTestSuite(setAttributeNodeNS04.class);
-      sink.addTestSuite(setAttributeNodeNS05.class);
-      sink.addTestSuite(setNamedItemNS01.class);
-      sink.addTestSuite(setNamedItemNS02.class);
-      sink.addTestSuite(setNamedItemNS03.class);
-         //Test makes no sense w/o ER
-    //  sink.addTestSuite(setNamedItemNS04.class);
-      sink.addTestSuite(setNamedItemNS05.class);
-  //    sink.addTestSuite(systemId01.class);
-
-      return sink;
-
-   }
-
+/**
+*  Test suite
+*  @author W3C DOM Test Working Group
+**/
+@RunWith(Suite.class)
+@Suite.SuiteClasses({
+    //  attrgetownerelement01.class,
+    attrgetownerelement02.class,
+    attrgetownerelement03.class,
+    //  attrgetownerelement04.class,
+    attrgetownerelement05.class,
+    createAttributeNS01.class,
+    createAttributeNS02.class,
+    createAttributeNS03.class,
+    createAttributeNS04.class,
+    createAttributeNS05.class,
+    createDocument01.class,
+    createDocument02.class,
+    //    createDocument03.class,
+    //  createDocument04.class,
+    createDocument05.class,
+    createDocument06.class,
+    createDocument07.class,
+    //   createDocumentType01.class,
+    //  createDocumentType02.class,
+    //   createDocumentType03.class,
+    createElementNS01.class,
+    createElementNS02.class,
+    createElementNS03.class,
+    createElementNS04.class,
+    createElementNS05.class,
+    documentcreateattributeNS01.class,
+    documentcreateattributeNS02.class,
+    documentcreateattributeNS03.class,
+    documentcreateattributeNS04.class,
+    documentcreateattributeNS05.class,
+    documentcreateattributeNS06.class,
+    documentcreateattributeNS07.class,
+    documentcreateelementNS01.class,
+    documentcreateelementNS02.class,
+    documentcreateelementNS05.class,
+    documentcreateelementNS06.class,
+    //  documentgetelementbyid01.class,
+    documentgetelementsbytagnameNS01.class,
+    documentgetelementsbytagnameNS02.class,
+    documentgetelementsbytagnameNS03.class,
+    documentgetelementsbytagnameNS04.class,
+    documentgetelementsbytagnameNS05.class,
+    documentimportnode01.class,
+    // documentimportnode02.class,
+    // documentimportnode03.class,
+    //  documentimportnode04.class,
+    documentimportnode05.class,
+    documentimportnode06.class,
+    //  documentimportnode07.class,
+    //  documentimportnode08.class,
+    documentimportnode09.class,
+    documentimportnode10.class,
+    documentimportnode11.class,
+    documentimportnode12.class,
+    documentimportnode13.class,
+    documentimportnode14.class,
+    documentimportnode15.class,
+    documentimportnode17.class,
+    documentimportnode18.class,
+    // documentimportnode19.class,
+    // documentimportnode20.class,
+    // documentimportnode21.class,
+    //  documentimportnode22.class,
+    //  documenttypeinternalSubset01.class,
+    // documenttypepublicid01.class,
+    //  documenttypesystemid01.class,
+    domimplementationcreatedocument03.class,
+    domimplementationcreatedocument04.class,
+    domimplementationcreatedocument05.class,
+    domimplementationcreatedocument07.class,
+    //   domimplementationcreatedocumenttype01.class,
+    // domimplementationcreatedocumenttype02.class,
+    //  domimplementationcreatedocumenttype04.class,
+    // domimplementationfeaturecore.class,
+    //  domimplementationfeaturexmlversion2.class,
+    //  domimplementationhasfeature01.class,
+    //  domimplementationhasfeature02.class,
+    elementgetattributenodens01.class,
+    elementgetattributenodens02.class,
+    // elementgetattributenodens03.class,
+    // elementgetattributens02.class,
+    elementgetelementsbytagnamens02.class,
+    elementgetelementsbytagnamens04.class,
+    elementgetelementsbytagnamens05.class,
+    elementhasattribute01.class,
+    //   elementhasattribute02.class,
+    elementhasattribute03.class,
+    elementhasattribute04.class,
+    elementhasattributens01.class,
+    elementhasattributens02.class,
+    elementhasattributens03.class,
+    elementremoveattributens01.class,
+    elementsetattributenodens01.class,
+    elementsetattributenodens02.class,
+    elementsetattributenodens03.class,
+    elementsetattributenodens04.class,
+    elementsetattributenodens05.class,
+    //  elementsetattributenodens06.class,
+    elementsetattributens01.class,
+    elementsetattributens02.class,
+    elementsetattributens03.class,
+    elementsetattributens04.class,
+    elementsetattributens05.class,
+    elementsetattributens08.class,
+    elementsetattributensurinull.class,
+    // getAttributeNS01.class,
+    getAttributeNS02.class,
+    getAttributeNS03.class,
+    getAttributeNS04.class,
+    getAttributeNS05.class,
+    getAttributeNodeNS01.class,
+    getAttributeNodeNS02.class,
+    //  getElementById01.class,
+    // getElementById02.class,
+    //  getElementsByTagNameNS01.class,
+    getElementsByTagNameNS02.class,
+    getElementsByTagNameNS03.class,
+    getElementsByTagNameNS04.class,
+    getElementsByTagNameNS05.class,
+    getElementsByTagNameNS06.class,
+    getElementsByTagNameNS07.class,
+    getElementsByTagNameNS08.class,
+    getElementsByTagNameNS09.class,
+    getElementsByTagNameNS10.class,
+    getElementsByTagNameNS11.class,
+    getElementsByTagNameNS12.class,
+    getElementsByTagNameNS13.class,
+    getElementsByTagNameNS14.class,
+    getNamedItemNS01.class,
+    getNamedItemNS02.class,
+    //  getNamedItemNS03.class,
+    //  getNamedItemNS04.class,
+    hasAttribute01.class,
+    hasAttribute02.class,
+    hasAttribute03.class,
+    hasAttribute04.class,
+    hasAttributeNS01.class,
+    hasAttributeNS02.class,
+    hasAttributeNS03.class,
+    // hasAttributeNS04.class,
+    hasAttributeNS05.class,
+    hasAttributes01.class,
+    hasAttributes02.class,
+    hc_attrcreatedocumentfragment.class,
+    hc_attrname.class,
+    hc_documentcreateattribute.class,
+    hc_elementgetattributenode.class,
+    //    hc_entitiesremovenameditemns1.class,
+    //   hc_entitiessetnameditemns1.class,
+    hc_namednodemapgetnameditem.class,
+    hc_nodedocumentfragmentnormalize1.class,
+    hc_nodedocumentfragmentnormalize2.class,
+    //   hc_notationsremovenameditemns1.class,
+    //     hc_notationssetnameditemns1.class,
+    //    ibmtests.class,
+    //   importNode01.class,
+    //  importNode02.class,
+    importNode03.class,
+    importNode04.class,
+    //    importNode05.class,
+    //   importNode06.class,
+    importNode07.class,
+    importNode08.class,
+    //  importNode09.class,
+    //  importNode10.class,
+    //  importNode11.class,
+    //  importNode12.class,
+    // importNode13.class,
+    importNode14.class,
+    importNode15.class,
+    // importNode16.class,
+    importNode17.class,
+    // internalSubset01.class,
+    isSupported01.class,
+    isSupported02.class,
+    isSupported04.class,
+    isSupported05.class,
+    isSupported06.class,
+    isSupported07.class,
+    isSupported09.class,
+    isSupported10.class,
+    isSupported11.class,
+    isSupported12.class,
+    isSupported13.class,
+    isSupported14.class,
+    localName01.class,
+    localName02.class,
+    localName03.class,
+    localName04.class,
+    // namednodemapgetnameditemns01.class,
+    namednodemapgetnameditemns02.class,
+    namednodemapgetnameditemns03.class,
+    namednodemapgetnameditemns04.class,
+    namednodemapgetnameditemns05.class,
+    namednodemapgetnameditemns06.class,
+    namednodemapremovenameditemns01.class,
+    //default Attr
+    // namednodemapremovenameditemns02.class,
+    // ER
+    //  namednodemapremovenameditemns03.class,
+    namednodemapremovenameditemns04.class,
+    // namednodemapremovenameditemns05.class,
+    namednodemapremovenameditemns06.class,
+    namednodemapremovenameditemns07.class,
+    namednodemapremovenameditemns08.class,
+    namednodemapremovenameditemns09.class,
+    namednodemapsetnameditemns01.class,
+    namednodemapsetnameditemns02.class,
+    namednodemapsetnameditemns03.class,
+    namednodemapsetnameditemns04.class,
+    //  namednodemapsetnameditemns05.class,
+    namednodemapsetnameditemns06.class,
+    namednodemapsetnameditemns07.class,
+    namednodemapsetnameditemns08.class,
+    //  namednodemapsetnameditemns09.class,
+    // namednodemapsetnameditemns10.class,
+    // namednodemapsetnameditemns11.class,
+    namespaceURI01.class,
+    namespaceURI02.class,
+    namespaceURI03.class,
+    namespaceURI04.class,
+    nodegetlocalname03.class,
+    nodegetnamespaceuri03.class,
+    //   nodegetownerdocument01.class,
+    nodegetownerdocument02.class,
+    nodegetprefix03.class,
+    nodehasattributes01.class,
+    //  nodehasattributes02.class,
+    nodehasattributes03.class,
+    nodehasattributes04.class,
+    //  nodeissupported01.class,
+    // nodeissupported02.class,
+    // nodeissupported03.class,
+    // nodeissupported04.class,
+    // nodeissupported05.class,
+    // nodenormalize01.class,
+    nodesetprefix01.class,
+    nodesetprefix02.class,
+    nodesetprefix03.class,
+    // nodesetprefix04.class,
+    nodesetprefix05.class,
+    nodesetprefix06.class,
+    nodesetprefix07.class,
+    nodesetprefix08.class,
+    nodesetprefix09.class,
+    normalize01.class,
+    ownerDocument01.class,
+    ownerElement01.class,
+    ownerElement02.class,
+    prefix01.class,
+    prefix02.class,
+    prefix03.class,
+    prefix04.class,
+    prefix05.class,
+    prefix06.class,
+    prefix07.class,
+    //  prefix08.class,
+    prefix09.class,
+    prefix10.class,
+    prefix11.class,
+    //  publicId01.class,
+    //  removeAttributeNS01.class,
+    //   removeAttributeNS02.class,
+    removeNamedItemNS01.class,
+    removeNamedItemNS02.class,
+    removeNamedItemNS03.class,
+    setAttributeNS01.class,
+    setAttributeNS02.class,
+    //Test makes no sense w/o ER
+    //  setAttributeNS03.class,
+    setAttributeNS04.class,
+    setAttributeNS05.class,
+    setAttributeNS06.class,
+    setAttributeNS07.class,
+    setAttributeNS09.class,
+    setAttributeNodeNS01.class,
+    //Test makes no sense w/o ER
+    // setAttributeNodeNS02.class,
+    setAttributeNodeNS03.class,
+    setAttributeNodeNS04.class,
+    setAttributeNodeNS05.class,
+    setNamedItemNS01.class,
+    setNamedItemNS02.class,
+    setNamedItemNS03.class,
+    //Test makes no sense w/o ER
+    //  setNamedItemNS04.class,
+    setNamedItemNS05.class,
+    //    systemId01.class,
+})
+public class alltests {
    /**
     *  Gets URI that identifies the test suite
     *  @return uri identifier of test suite
@@ -334,6 +328,4 @@ import org.w3c.domts.level2.core.*;
    public String getTargetURI() {
       return "http://www.w3.org/2001/DOM-Test-Suite/level2/core/alltests";
    }
-
-
 }

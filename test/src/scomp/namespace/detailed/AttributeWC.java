@@ -15,28 +15,31 @@
 
 package scomp.namespace.detailed;
 
+import org.apache.xmlbeans.XmlErrorCodes;
+import org.junit.Ignore;
+import org.junit.Test;
 import scomp.common.BaseCase;
 import xbean.scomp.namespace.attributeWC.*;
-import org.apache.xmlbeans.XmlErrorCodes;
 
-/**
- *
- *
- * 
- */
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 public class AttributeWC extends BaseCase {
+    @Test
     public void testAnyLaxLegal() throws Throwable {
         AnyLaxDocument doc = AnyLaxDocument.Factory.parse("<AnyLax xmlns=\"http://xbean/scomp/namespace/AttributeWC\" " +
                 "attr1=\"val1\"/>");
         assertTrue(doc.validate(validateOptions));
     }
 
+    @Test
     public void testAnyLaxIllegal() throws Throwable {
         AnyLaxDocument doc = AnyLaxDocument.Factory.parse("<AnyLax xmlns=\"http://xbean/scomp/namespace/AttributeWC\" " +
                 "attr1=\"val1\"/>");
         assertTrue(doc.validate(validateOptions));
     }
 
+    @Test
     public void testAnySkipLegal() throws Throwable {
         AnySkipDocument doc = AnySkipDocument.Factory.parse("<AnySkip xmlns=\"http://xbean/scomp/namespace/AttributeWC\" " +
                 "attr1=\"val1\"/>");
@@ -49,6 +52,7 @@ public class AttributeWC extends BaseCase {
      * }
      */
     //no NS is legal too
+    @Test
     public void testAnyStrictLegal() throws Throwable {
         AnyStrictDocument doc = AnyStrictDocument.Factory
                 .parse("<ns:AnyStrict" +
@@ -58,6 +62,7 @@ public class AttributeWC extends BaseCase {
         assertTrue(doc.validate(validateOptions));
     }
 
+    @Test
     public void testAnyStrictIllegal() throws Throwable {
         AnyStrictDocument doc = AnyStrictDocument.Factory.parse("<AnyStrict xmlns=\"http://xbean/scomp/namespace/AttributeWC\" " +
                 "attr1=\"val1\"/>");
@@ -70,6 +75,7 @@ public class AttributeWC extends BaseCase {
 
     }
 
+    @Test
     public void testOtherLaxLegal() throws Throwable {
         OtherLaxDocument doc = OtherLaxDocument.Factory
                 .parse("<foo:OtherLax " +
@@ -81,6 +87,7 @@ public class AttributeWC extends BaseCase {
 
     //can not be in target NS
     //cannot be in noNS
+    @Test
     public void testOtherLaxIllegal() throws Throwable {
         OtherLaxDocument doc = OtherLaxDocument.Factory
                 .parse("<foo:OtherLax xmlns:foo=\"http://xbean/scomp/namespace/AttributeWC\" " +
@@ -105,6 +112,7 @@ public class AttributeWC extends BaseCase {
 
     }
 
+    @Test
     public void testOtherSkipLegal() throws Throwable {
         OtherSkipDocument doc = OtherSkipDocument.Factory
                 .parse("<foo:OtherSkip xmlns:foo=\"http://xbean/scomp/namespace/AttributeWC\" " +
@@ -114,6 +122,7 @@ public class AttributeWC extends BaseCase {
     }
 
     //ns not allowed by the wc
+    @Test
     public void testOtherSkipIllegal() throws Throwable {
         OtherSkipDocument doc = OtherSkipDocument.Factory
                 .parse("<foo:OtherSkip xmlns:foo=\"http://xbean/scomp/namespace/AttributeWC\" " +
@@ -127,6 +136,7 @@ public class AttributeWC extends BaseCase {
 
     }
 
+    @Test
     public void testOtherStrictLegal() throws Throwable {
         OtherStrictDocument doc = OtherStrictDocument.Factory
                 .parse("<foo:OtherStrict xmlns:foo=\"http://xbean/scomp/namespace/AttributeWC\"" +
@@ -136,6 +146,7 @@ public class AttributeWC extends BaseCase {
 
     }
 
+    @Test
     public void testOtherStrictIllegal() throws Throwable {
         OtherStrictDocument doc = OtherStrictDocument.Factory
                 .parse("<foo:OtherStrict xmlns:foo=\"http://xbean/scomp/namespace/AttributeWC\"" +
@@ -151,6 +162,7 @@ public class AttributeWC extends BaseCase {
     }
 
     //no declaration for this attr, no error on Lax
+    @Test
     public void testListLaxLegal() throws Throwable {
         ListLaxDocument doc = ListLaxDocument.Factory
                 .parse("<foo:ListLax " +
@@ -160,6 +172,7 @@ public class AttributeWC extends BaseCase {
         assertTrue(doc.validate(validateOptions));
     }
 
+    @Test
     public void testListLaxIllegal() throws Throwable {
         ListLaxDocument doc = ListLaxDocument.Factory.parse("<foo:ListLax " +
                 " xmlns:foo=\"http://xbean/scomp/namespace/AttributeWC\"" +
@@ -175,6 +188,7 @@ public class AttributeWC extends BaseCase {
     }
 
 
+    @Test
     public void testListSkipLegal() throws Throwable {
         ListSkipDocument doc = ListSkipDocument.Factory
                 .parse("<foo:ListSkip " +
@@ -184,6 +198,7 @@ public class AttributeWC extends BaseCase {
         assertTrue(doc.validate(validateOptions));
     }
 
+    @Test
     public void testListSkipIllegal() throws Throwable {
         ListSkipDocument doc = ListSkipDocument.Factory
                 .parse("<foo:ListSkip " +
@@ -199,7 +214,8 @@ public class AttributeWC extends BaseCase {
 
     }
 
-   //  " xmlns:pre=\"http://xbean/scomp/attribute/GlobalAttrDefault\"
+    //  " xmlns:pre=\"http://xbean/scomp/attribute/GlobalAttrDefault\"
+    @Test
     public void testListStrictLegal() throws Throwable {
         ListStrictDocument doc = ListStrictDocument.Factory
                 .parse("<foo:ListStrict " +
@@ -214,6 +230,7 @@ public class AttributeWC extends BaseCase {
 
     }
 
+    @Test
     public void testListStrictIllegal() throws Throwable {
         ListStrictDocument doc = ListStrictDocument.Factory
                 .parse("<foo:ListStrict " +
@@ -229,6 +246,7 @@ public class AttributeWC extends BaseCase {
 
     }
 
+    @Test
     public void testTargetLaxLegal() throws Throwable {
         TargetLaxDocument doc = TargetLaxDocument.Factory
                 .parse("<foo:TargetLax " +
@@ -237,6 +255,7 @@ public class AttributeWC extends BaseCase {
         assertTrue(doc.validate(validateOptions));
     }
 
+    @Test
     public void testTargetLaxIllegal() throws Throwable {
         TargetLaxDocument doc = TargetLaxDocument.Factory
                 .parse("<foo:TargetLax " +
@@ -252,6 +271,7 @@ public class AttributeWC extends BaseCase {
 
     }
 
+    @Test
     public void testTargetSkipLegal() throws Throwable {
         TargetSkipDocument doc = TargetSkipDocument.Factory
                 .parse("<foo:TargetSkip " +
@@ -262,7 +282,9 @@ public class AttributeWC extends BaseCase {
 
     /**
      * can a test ever be illegal here?
-
+    */
+    @Ignore
+    @Test
     public void testTargetSkipIllegal() throws Throwable {
         TargetSkipDocument doc = TargetSkipDocument.Factory
                 .parse("<foo:TargetSkip " +
@@ -274,8 +296,8 @@ public class AttributeWC extends BaseCase {
         assertTrue(compareErrorCodes(errExpected));
 
     }
-     */
 
+    @Test
     public void testTargetStrictLegal() throws Throwable {
         TargetStrictDocument doc = TargetStrictDocument.Factory
                 .parse("<foo:TargetStrict " +
@@ -284,6 +306,7 @@ public class AttributeWC extends BaseCase {
         assertTrue(doc.validate(validateOptions));
     }
 
+    @Test
     public void testTargetStrictIllegal() throws Throwable {
         TargetStrictDocument doc = TargetStrictDocument.Factory
                 .parse("<foo:TargetStrict " +
@@ -298,6 +321,7 @@ public class AttributeWC extends BaseCase {
 
     }
 
+    @Test
     public void testLocalLaxLegal() throws Throwable {
         LocalLaxDocument doc = LocalLaxDocument.Factory
                 .parse("<foo:LocalLax " +
@@ -306,6 +330,7 @@ public class AttributeWC extends BaseCase {
         assertTrue(doc.validate(validateOptions));
     }
 
+    @Test
     public void testLocalLaxIllegal() throws Throwable {
         LocalLaxDocument doc = LocalLaxDocument.Factory
                 .parse("<foo:LocalLax " +
@@ -320,6 +345,7 @@ public class AttributeWC extends BaseCase {
 
     }
 
+    @Test
     public void testLocalSkipLegal() throws Throwable {
         LocalSkipDocument doc = LocalSkipDocument.Factory
                 .parse("<foo:LocalSkip " +
@@ -330,7 +356,9 @@ public class AttributeWC extends BaseCase {
 
     /**
      * can a test ever be illegal here?
-
+    */
+    @Ignore
+    @Test
     public void testLocalSkipIllegal() throws Throwable {
         LocalSkipDocument doc = LocalSkipDocument.Factory
                 .parse("<foo:LocalSkip " +
@@ -342,7 +370,8 @@ public class AttributeWC extends BaseCase {
         assertTrue(compareErrorCodes(errExpected));
 
     }
-    */
+
+    @Test
     public void testLocalStrictIllegal() throws Throwable {
         LocalStrictDocument doc = LocalStrictDocument.Factory
                 .parse("<foo:LocalStrict " +
@@ -357,6 +386,7 @@ public class AttributeWC extends BaseCase {
 
     }
 
+    @Test
     public void testLocalStrictLegal() throws Throwable {
         LocalStrictDocument doc = LocalStrictDocument.Factory
                 .parse("<foo:LocalStrict " +

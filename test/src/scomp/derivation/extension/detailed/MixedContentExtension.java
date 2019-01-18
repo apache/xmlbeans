@@ -15,22 +15,20 @@
 
 package scomp.derivation.extension.detailed;
 
+import org.apache.xmlbeans.XmlCursor;
+import org.apache.xmlbeans.XmlErrorCodes;
+import org.junit.Test;
 import scomp.common.BaseCase;
 import xbean.scomp.derivation.complexExtension.ExtendedMixedEltDocument;
 import xbean.scomp.derivation.complexExtension.ExtendedMixedT;
 
 import java.math.BigInteger;
 
-import org.apache.xmlbeans.XmlCursor;
-import org.apache.xmlbeans.XmlErrorCodes;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
-/**
- *
- *
- *
- */
 public class MixedContentExtension extends BaseCase {
-
+    @Test
     public void testMixedContentInvalid() throws Throwable {
         ExtendedMixedEltDocument doc = ExtendedMixedEltDocument.
                 Factory.newInstance();
@@ -73,7 +71,7 @@ public class MixedContentExtension extends BaseCase {
 
     }
 
-
+    @Test
     public void testMixedContentValid() throws Throwable {
         ExtendedMixedEltDocument doc = ExtendedMixedEltDocument.
                 Factory.newInstance();

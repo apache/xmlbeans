@@ -15,17 +15,17 @@
 
 package scomp.substGroup.detailed;
 
+import org.junit.Test;
 import scomp.common.BaseCase;
-import xbean.scomp.substGroup.userReported.RootDocument;
-import xbean.scomp.substGroup.userReported.T;
 import xbean.scomp.substGroup.userReported.ADocument;
 import xbean.scomp.substGroup.userReported.BDocument;
-import org.apache.xmlbeans.XmlObject;
+import xbean.scomp.substGroup.userReported.RootDocument;
+import xbean.scomp.substGroup.userReported.T;
 
 import javax.xml.namespace.QName;
 
-/**
- */
+import static org.junit.Assert.assertTrue;
+
 public class UserReportedTest extends BaseCase{
        String input="<Root xmlns=\"http://xbean/scomp/substGroup/UserReported\">" +
                 "   <a/>" +
@@ -34,7 +34,8 @@ public class UserReportedTest extends BaseCase{
                 "   <a/>" +
                 "   <b/>" +
                 "</Root>";
-    public  void testGoal()throws Throwable{
+    @Test
+    public void testGoal()throws Throwable{
 
         RootDocument doc=RootDocument.Factory.parse(input);
         try{
@@ -45,6 +46,7 @@ public class UserReportedTest extends BaseCase{
         }
     }
 
+    @Test
     public void testBuild()throws Throwable{
         T[] arr = new T[5];
 

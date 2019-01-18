@@ -14,20 +14,19 @@
  */
 package scomp.contentType.complex.modelGroup.detailed;
 
+import org.apache.xmlbeans.XmlErrorCodes;
+import org.junit.Test;
 import scomp.common.BaseCase;
 import xbean.scomp.contentType.modelGroup.NestedChoiceInSequenceDocument;
 import xbean.scomp.contentType.modelGroup.NestedChoiceInSequenceT;
-import org.apache.xmlbeans.XmlErrorCodes;
 
-/**
- *
- *
- *
- */
+import static org.junit.Assert.assertTrue;
+
 public class NestSequenceChoiceTest extends BaseCase {
     /**
      * Choice group is optional
      */
+    @Test
     public void testChoiceMissing() throws Throwable {
         NestedChoiceInSequenceDocument doc =
                 NestedChoiceInSequenceDocument.Factory.newInstance();
@@ -42,9 +41,9 @@ public class NestSequenceChoiceTest extends BaseCase {
             showErrors();
             throw t;
         }
-
     }
 
+    @Test
     public void testAllPresent() throws Throwable {
         NestedChoiceInSequenceDocument doc =
                 NestedChoiceInSequenceDocument.Factory.newInstance();
@@ -85,6 +84,7 @@ public class NestSequenceChoiceTest extends BaseCase {
     /**
      * Missing elt. from the sequence in the choice
      */
+    @Test
     public void testIllegal() throws Throwable {
         NestedChoiceInSequenceDocument doc =
                 NestedChoiceInSequenceDocument.Factory.newInstance();
@@ -110,12 +110,12 @@ public class NestSequenceChoiceTest extends BaseCase {
             showErrors();
             throw t;
         }
-
     }
 
     /**
      * Incorrect order in inner sequence
      */
+    @Test
     public void testIllegalOrderInner() throws Throwable {
         String input =
                 "<pre:NestedChoiceInSequence  " +
@@ -135,13 +135,12 @@ public class NestSequenceChoiceTest extends BaseCase {
              XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$MISSING_ELEMENT
         };
         assertTrue(compareErrorCodes(errExpected));
-
-
     }
 
     /**
      * Incorrect order in outer sequence
      */
+    @Test
     public void testIllegalOrderOuter() throws Throwable {
         String input =
                 "<pre:NestedChoiceInSequence  " +
@@ -155,7 +154,5 @@ public class NestSequenceChoiceTest extends BaseCase {
                 NestedChoiceInSequenceDocument.Factory.parse(input);
         assertTrue(!doc.validate(validateOptions));
         showErrors();
-
     }
-
 }

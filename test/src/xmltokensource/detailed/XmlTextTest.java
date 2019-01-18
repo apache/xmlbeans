@@ -20,27 +20,20 @@ import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlCursor.TokenType;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
+import org.junit.Test;
+import tools.util.JarUtil;
 import xmlcursor.common.BasicCursorTestCase;
 import xmlcursor.common.Common;
-import tools.util.JarUtil;
-import junit.framework.Test;
-import junit.framework.TestSuite;
 
 import javax.xml.namespace.QName;
 
+import static org.junit.Assert.assertEquals;
 
 
 public class XmlTextTest extends BasicCursorTestCase {
     private XmlOptions m_map = new XmlOptions();
 
-    public XmlTextTest(String sName) {
-        super(sName);
-    }
-
-    public static Test suite() {
-        return new TestSuite(XmlTextTest.class);
-    }
-
+    @Test
     public void testSAVENAMESPACESFIRST() throws Exception {
         m_xo = XmlObject.Factory.parse("<foo attr0=\"val0\" xmlns=\"http://www.foo.org\">01234</foo>");
         m_xc = m_xo.newCursor();
@@ -49,6 +42,7 @@ public class XmlTextTest extends BasicCursorTestCase {
                      m_xc.xmlText(m_map));
     }
 
+    @Test
     public void testSAVENAMESPACESlast() throws Exception {
         m_xo = XmlObject.Factory.parse("<foo attr0=\"val0\" xmlns=\"http://www.foo.org\">01234</foo>");
         m_xc = m_xo.newCursor();
@@ -56,6 +50,7 @@ public class XmlTextTest extends BasicCursorTestCase {
                      m_xc.xmlText(m_map));
     }
 
+    @Test
     public void testSaveSyntheticDocumentElement() throws Exception {
         m_xo = XmlObject.Factory.parse("<bar>text</bar>");
         m_xc = m_xo.newCursor();
@@ -64,6 +59,7 @@ public class XmlTextTest extends BasicCursorTestCase {
         assertEquals("<foo><bar>text</bar></foo>", m_xc.xmlText(m_map));
     }
 
+    @Test
     public void testSavePrettyPrint() throws Exception {
         m_xo = XmlObject.Factory.parse("<a><b><c> text </c></b></a>");
         m_xc = m_xo.newCursor();
@@ -72,6 +68,7 @@ public class XmlTextTest extends BasicCursorTestCase {
         assertEquals("<a>" + lnSep + "  <b>" + lnSep + "    <c>text</c>" + lnSep + "  </b>" + lnSep + "</a>", m_xc.xmlText(m_map));
     }
 
+    @Test
     public void testSavePrettyPrintIndent3() throws Exception {
         m_xo = XmlObject.Factory.parse("<a><b><c> text </c></b></a>");
         m_xc = m_xo.newCursor();
@@ -81,6 +78,7 @@ public class XmlTextTest extends BasicCursorTestCase {
         assertEquals("<a>" + lnSep + "   <b>" + lnSep + "      <c>text</c>" + lnSep + "   </b>" + lnSep + "</a>", m_xc.xmlText(m_map));
     }
 
+    @Test
     public void testSavePrettyPrintIndentNeg1() throws Exception {
         m_xc = XmlObject.Factory.parse("<a>  \n  <b>  \n    <c> text   </c>   \n  </b>  \n  </a>").newCursor();
         m_map.put(XmlOptions.SAVE_PRETTY_PRINT, "");
@@ -88,6 +86,7 @@ public class XmlTextTest extends BasicCursorTestCase {
         assertEquals("<a><b><c>text</c></b></a>", m_xc.xmlText(m_map));
     }
 
+    @Test
     public void testDefaultNamespace() throws Exception {
         m_xo = XmlObject.Factory.parse(
                    JarUtil.getResourceFromJar(Common.TRANXML_FILE_CLM));
@@ -101,6 +100,7 @@ public class XmlTextTest extends BasicCursorTestCase {
                      m_xc.xmlText(m_map));
     }
 
+    @Test
     public void testSTARTDOCvsFirstChild() throws Exception {
         m_xo = XmlObject.Factory.parse(
                    JarUtil.getResourceFromJar(Common.TRANXML_FILE_CLM));
@@ -114,6 +114,7 @@ public class XmlTextTest extends BasicCursorTestCase {
         }
     }
 
+    @Test
     public void testXmlTextFromTEXT() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_1ATTR_TEXT);
         m_xc = m_xo.newCursor();
@@ -121,6 +122,7 @@ public class XmlTextTest extends BasicCursorTestCase {
         assertEquals("text", m_xc.getChars());
     }
 
+    @Test
     public void testXmlTextFromTEXTafterEND() throws Exception {
         m_xo = XmlObject.Factory.parse("<foo><bar> text </bar> ws \\r\\n </foo>");
         m_xc = m_xo.newCursor();

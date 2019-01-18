@@ -16,78 +16,62 @@
 
 package xmlcursor.checkin;
 
-import org.apache.xmlbeans.XmlOptions;
-import junit.framework.*;
-import junit.framework.Assert.*;
-
-import java.io.*;
-
-import org.apache.xmlbeans.XmlObject;
-import org.apache.xmlbeans.XmlCursor;
-import org.apache.xmlbeans.XmlBeans;
 import org.apache.xmlbeans.XmlCursor.TokenType;
-import org.apache.xmlbeans.XmlDocumentProperties;
-import org.apache.xmlbeans.XmlCursor.XmlBookmark;
+import org.apache.xmlbeans.XmlObject;
+import org.junit.Test;
+import xmlcursor.common.BasicCursorTestCase;
+import xmlcursor.common.Common;
 
-import javax.xml.namespace.QName;
-
-import xmlcursor.common.*;
-
-import java.net.URL;
+import static org.junit.Assert.*;
 
 
-/**
- *
- *
- */
 public class ToLastAttributeTest extends BasicCursorTestCase {
-    public ToLastAttributeTest(String sName) {
-        super(sName);
-    }
 
-    public static Test suite() {
-        return new TestSuite(ToLastAttributeTest.class);
-    }
-
+    @Test
     public void testToLastAttrSTARTDOC() throws Exception {
         m_xc = XmlObject.Factory.parse("<foo>text</foo>").newCursor();
         m_xc.toLastChild();
         m_xc.insertAttributeWithValue("attr0", "val0");
         m_xc.insertAttributeWithValue("attr1", "val1");
         m_xc.toStartDoc();
-        assertEquals(true, m_xc.toLastAttribute());
+        assertTrue(m_xc.toLastAttribute());
         assertEquals("val1", m_xc.getTextValue());
     }
 
+    @Test
     public void testToLastAttrSTARTmoreThan1ATTR() throws Exception {
         m_xc = XmlObject.Factory.parse(Common.XML_FOO_2ATTR_TEXT).newCursor();
         toNextTokenOfType(m_xc, TokenType.START);
-        assertEquals(true, m_xc.toLastAttribute());
+        assertTrue(m_xc.toLastAttribute());
         assertEquals("val1", m_xc.getTextValue());
     }
 
+    @Test
     public void testToLastAttrFrom1stATTR() throws Exception {
         m_xc = XmlObject.Factory.parse(Common.XML_FOO_2ATTR_TEXT).newCursor();
         toNextTokenOfType(m_xc, TokenType.ATTR);
-        assertEquals(false, m_xc.toLastAttribute());
+        assertFalse(m_xc.toLastAttribute());
     }
 
+    @Test
     public void testToLastAttrZeroATTR() throws Exception {
         m_xc = XmlObject.Factory.parse(Common.XML_FOO_TEXT).newCursor();
         toNextTokenOfType(m_xc, TokenType.START);
-        assertEquals(false, m_xc.toLastAttribute());
+        assertFalse(m_xc.toLastAttribute());
     }
 
+    @Test
     public void testToLastAttrFromTEXT() throws Exception {
         m_xc = XmlObject.Factory.parse(Common.XML_FOO_2ATTR_TEXT).newCursor();
         toNextTokenOfType(m_xc, TokenType.TEXT);
-        assertEquals(false, m_xc.toLastAttribute());
+        assertFalse(m_xc.toLastAttribute());
     }
 
+    @Test
     public void testToLastAttrWithXMLNS() throws Exception {
         m_xc = XmlObject.Factory.parse("<foo xmlns=\"http://www.foo.org\">text</foo>").newCursor();
         toNextTokenOfType(m_xc, TokenType.START);
-        assertEquals(false, m_xc.toLastAttribute());
+        assertFalse(m_xc.toLastAttribute());
     }
 }
 

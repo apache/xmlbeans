@@ -14,17 +14,18 @@
  */
 package misc.detailed;
 
+import common.Common;
+import jira.xmlbeans177.TestListDocument;
+import jira.xmlbeans177A.TestListADocument;
+import org.apache.xmlbeans.XmlException;
+import org.apache.xmlbeans.XmlOptionCharEscapeMap;
+import org.apache.xmlbeans.XmlOptions;
+import org.junit.Test;
+
 import java.io.File;
 import java.util.HashMap;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
-
-import org.apache.xmlbeans.*;
-import jira.xmlbeans177.*;
-import jira.xmlbeans177A.*;
-import common.Common;
+import static org.junit.Assert.*;
 
 public class CharEscapeTest extends Common
 {
@@ -41,11 +42,7 @@ public class CharEscapeTest extends Common
     static final String start2 = "<jira:testListA xmlns:jira=\"http://jira/xmlbeans_177a\">";
     static final String end2 = "</jira:testListA>";
 
-    public CharEscapeTest(String name)
-    {
-        super(name);
-    }
-
+    @Test
     public void testAddMapping() throws Exception
     {
         XmlOptionCharEscapeMap charEsc = new XmlOptionCharEscapeMap();
@@ -96,6 +93,7 @@ public class CharEscapeTest extends Common
         }
     }
 
+    @Test
     public void testAddMappings() throws Exception
     {
         XmlOptionCharEscapeMap charEsc = new XmlOptionCharEscapeMap();
@@ -140,6 +138,7 @@ public class CharEscapeTest extends Common
         assertEquals("&#x5a;", charEsc.getEscapedString('Z'));
     }
 
+    @Test
     public void testEscape1() throws Exception
     {
         File f = new File(inputFile);
@@ -198,6 +197,7 @@ public class CharEscapeTest extends Common
         */
     }
 
+    @Test
     public void testEscape2() throws Exception
     {
         TestListDocument doc = TestListDocument.Factory.newInstance();
@@ -227,6 +227,7 @@ public class CharEscapeTest extends Common
         assertEquals(exp, doc.xmlText(opts));
     }
 
+    @Test
     public void testEscapeAttribute() throws Exception
     {
         File f = new File(inputFile2);
@@ -269,16 +270,5 @@ public class CharEscapeTest extends Common
             "  <test a=\"W.L.Gore &amp; &#x41;ssociates\"/>\n" +
             end2;
         assertEquals(exp3, doc.xmlText(opts));
-    }
-
-    public static Test suite()
-    {
-        TestSuite suite = new TestSuite(CharEscapeTest.class);
-        return suite;
-    }
-
-    public static void main(String args[])
-    {
-        junit.textui.TestRunner.run(suite());
     }
 }

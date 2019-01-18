@@ -16,46 +16,25 @@
 
 package xmlcursor.checkin;
 
-import org.apache.xmlbeans.XmlOptions;
-import junit.framework.*;
-import junit.framework.Assert.*;
-
-import java.io.*;
-
-import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlCursor;
-import org.apache.xmlbeans.XmlBeans;
 import org.apache.xmlbeans.XmlCursor.TokenType;
-import org.apache.xmlbeans.XmlDocumentProperties;
-import org.apache.xmlbeans.XmlCursor.XmlBookmark;
+import org.apache.xmlbeans.XmlObject;
+import org.junit.Test;
+import xmlcursor.common.BasicCursorTestCase;
+import xmlcursor.common.Common;
 
-import javax.xml.namespace.QName;
-
-import xmlcursor.common.*;
-
-import java.net.URL;
+import static org.junit.Assert.*;
 
 
-/**
- *
- *
- */
 public class ToCursorTest extends BasicCursorTestCase {
-    public ToCursorTest(String sName) {
-        super(sName);
-    }
-
-    public static Test suite() {
-        return new TestSuite(ToCursorTest.class);
-    }
-
+    @Test
     public void testToCursorMoves() throws Exception {
         m_xc = XmlObject.Factory.parse(Common.XML_FOO_1ATTR_TEXT).newCursor();
         XmlCursor xc0 = m_xc.newCursor();
         xc0.toEndDoc();
         try {
-            assertEquals(true, m_xc.toCursor(xc0));
-            assertEquals(true, xc0.isAtSamePositionAs(m_xc));
+            assertTrue(m_xc.toCursor(xc0));
+            assertTrue(xc0.isAtSamePositionAs(m_xc));
         } finally {
             xc0.dispose();
         }
@@ -64,20 +43,14 @@ public class ToCursorTest extends BasicCursorTestCase {
     /**
      * FIXED: toCursor(null) does not return a boolean but throws an exception.
      */
+    @Test(expected = IllegalArgumentException.class)
     public void testToCursorNull() throws Exception {
         m_xc = XmlObject.Factory.parse(Common.XML_FOO_1ATTR_TEXT).newCursor();
         m_xc.toFirstChild();
-        String s = m_xc.xmlText();
-        boolean caught = false;
-        try {
-            m_xc.toCursor(null);
-        } catch (java.lang.IllegalArgumentException e) {
-            caught = true;
-        }
-        assertTrue("toCursor(null) did not throw IllegalArgumentException", caught);
-        assertEquals(s, m_xc.xmlText());
+        m_xc.toCursor(null);
     }
 
+    @Test
     public void testToCursorDifferentDocs() throws Exception {
         m_xc = XmlObject.Factory.parse(Common.XML_FOO_1ATTR_TEXT).newCursor();
         XmlCursor xc0 = XmlObject.Factory.parse(Common.XML_FOO_1ATTR_TEXT).newCursor();
@@ -85,18 +58,19 @@ public class ToCursorTest extends BasicCursorTestCase {
         String s = m_xc.xmlText();
         toNextTokenOfType(xc0, TokenType.TEXT);
         try {
-            assertEquals(false, m_xc.toCursor(xc0));
+            assertFalse(m_xc.toCursor(xc0));
             assertEquals(s, m_xc.xmlText());
         } finally {
             xc0.dispose();
         }
     }
 
+    @Test
     public void testToCursorThis() throws Exception {
         m_xc = XmlObject.Factory.parse(Common.XML_FOO_1ATTR_TEXT).newCursor();
         m_xc.toFirstChild();
         String s = m_xc.xmlText();
-        assertEquals(true, m_xc.toCursor(m_xc));
+        assertTrue(m_xc.toCursor(m_xc));
         assertEquals(s, m_xc.xmlText());
     }
 

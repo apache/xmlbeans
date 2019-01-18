@@ -1,30 +1,27 @@
 package misc.detailed;
 
-import junit.framework.Assert;
+import misc.common.JiraTestBase;
+import org.apache.xmlbeans.XmlError;
+import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.impl.tool.SchemaCompiler;
+import org.junit.Test;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.io.File;
 
-import org.apache.xmlbeans.XmlObject;
-import org.apache.xmlbeans.XmlError;
-import org.apache.xmlbeans.impl.tool.SchemaCompiler;
-import misc.common.JiraTestBase;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 /**
  *
  */
 public class JiraRegressionTest101_150 extends JiraTestBase
 {
-    public JiraRegressionTest101_150(String name)
-    {
-        super(name);
-    }
-
     /**
      * [XMLBEANS-103]   XMLBeans - QName thread cache, cause memory leaks
-     * @throws Exception
      */
+    @Test
     public void test_jira_xmlbeans102a() throws Exception{
         // set the parameters similar to those in the bug
         SchemaCompiler.Parameters params = new SchemaCompiler.Parameters();
@@ -45,8 +42,8 @@ public class JiraRegressionTest101_150 extends JiraTestBase
 
     /*
     * [XMLBEANS-102]: scomp - infinite loop during jar for specific xsd and params for netui_config.xsd
-    *
     */
+    @Test
     public void test_jira_xmlbeans102b() {
         //Assert.fail("test_jira_xmlbeans102: Infinite loop after completion of parsing" );
 
@@ -62,7 +59,7 @@ public class JiraRegressionTest101_150 extends JiraTestBase
 
         SchemaCompiler.compile(params);
         if (printOptionErrMsgs(errors)) {
-            Assert.fail("test_jira_xmlbeans102() : Errors found when executing scomp");
+            fail("test_jira_xmlbeans102() : Errors found when executing scomp");
         }
 
     }
@@ -70,9 +67,8 @@ public class JiraRegressionTest101_150 extends JiraTestBase
     /**
      * NPE while initializing a type system w/ a type that extends
      * an a complex type from a different type system
-     *
-     * @throws Exception
      */
+    @Test
     public void test_jira_xmlbeans105() throws Exception {
         //run untyped parse
         XmlObject obj = XmlObject.Factory.parse(new File(JIRA_CASES + "xmlbeans_105.xml"));
@@ -84,16 +80,8 @@ public class JiraRegressionTest101_150 extends JiraTestBase
         // / we know the instance is invalid
         // make sure the error message is what is expected
         rud.validate(xmOpts);
-        Assert.assertTrue("More Errors than expected", errorList.size() == 1);
-        Assert.assertTrue("Did not recieve the expected error code: " + ((XmlError) errorList.get(0)).getErrorCode(),
-                ((XmlError) errorList.get(0)).getErrorCode().compareToIgnoreCase("cvc-complex-type.2.4a") == 0);
+        assertEquals("More Errors than expected", 1, errorList.size());
+        assertEquals("Did not recieve the expected error code: " + ((XmlError) errorList.get(0)).getErrorCode(), 0, ((XmlError) errorList.get(0)).getErrorCode().compareToIgnoreCase("cvc-complex-type.2.4a"));
 
     }
-
-
-
-
-
-
-
 }

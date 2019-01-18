@@ -15,42 +15,28 @@
 
 package xmlobject.detailed;
 
-import junit.framework.TestCase;
-
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
-import org.apache.xmlbeans.XmlError;
+import org.junit.Ignore;
+import org.junit.Test;
+import org.xmlsoap.schemas.soap.envelope.Detail;
+import org.xmlsoap.schemas.soap.envelope.Fault;
+import xmlobjecttest.soapfaults.FirstFaultType;
 
 import javax.xml.namespace.QName;
-
-import org.xmlsoap.schemas.soap.envelope.Fault;
-//import org.xmlsoap.schemas.soap.envelope.FaultDocument;
-import org.xmlsoap.schemas.soap.envelope.Detail;
-
-import xmlobjecttest.soapfaults.FirstFaultType;
-import xmlobjecttest.soapfaults.FirstFaultDocument;
-import xmlobjecttest.soapfaults.SecondFaultType;
-import xmlobjecttest.soapfaults.SecondFaultDocument;
-
 import java.util.ArrayList;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
-/**
- *
- */
-public class SoapFaultTest extends TestCase {
-    public static final String soapenc = "http://schemas.xmlsoap.org/soap/encoding/";
-    public static final String soapenv = "http://schemas.xmlsoap.org/soap/envelope/";
-
-    public SoapFaultTest(String name) {
-        super(name);
-    }
-
-    /** Regression test for Radar bug #25114 */
+public class SoapFaultTest {
+    private static final String soapenv = "http://schemas.xmlsoap.org/soap/envelope/";
 
     /**
-     *
-
+     * Regression test for Radar bug #25114
+     */
+    @Test
+    @Ignore
     public void testSetDetail() throws Exception {
         Fault fault = Fault.Factory.newInstance();
         fault.setDetail(Detail.Factory.parse(XmlObject.Factory.parse("<foo/>").newXMLInputStream()));
@@ -58,72 +44,58 @@ public class SoapFaultTest extends TestCase {
         assertEquals("<detail><foo/></detail>", fault.xmlText());
         assertEquals("<xml-fragment><foo/></xml-fragment>", fault.getDetail().xmlText());
     }
-       */
-
-    /** Regression test for Radar bug #25119 */
 
     /**
-     *
+     * Regression test for Radar bug #25119
      */
+    @Test
     public void testAddNewDetail() throws Exception {
         Fault fault = Fault.Factory.newInstance();
 
         fault.setFaultcode(new QName(soapenv, "foo"));
         fault.setFaultstring("Undefined");
         fault.addNewDetail().set(
-                XmlObject.Factory.parse("<foo/>").changeType(Detail.type));
+            XmlObject.Factory.parse("<foo/>").changeType(Detail.type));
 
         String expect = "<xml-fragment>" +
-                "<faultcode xmlns:soapenv=\"" + soapenv + "\">soapenv:foo</faultcode>" +
-                "<faultstring>Undefined</faultstring>" +
-                "<detail><foo/></detail>" +
-                "</xml-fragment>";
+            "<faultcode xmlns:soapenv=\"" + soapenv + "\">soapenv:foo</faultcode>" +
+            "<faultstring>Undefined</faultstring>" +
+            "<detail><foo/></detail>" +
+            "</xml-fragment>";
         assertEquals(expect, fault.xmlText());
         assertEquals(new QName(soapenv, "foo"), fault.getFaultcode());
         assertEquals("Undefined", fault.getFaultstring());
         assertEquals("<foo/>", fault.getDetail().xmlText());
     }
 
-    /** Regression test for Radar bug #25409 */
-
     /**
-     *
-     * @status inactive
-
+     * Regression test for Radar bug #25409
+     */
+    @Test
+    @Ignore
     public void testSetFaultDetail() throws Exception {
         String soapFault =
-                "<soapenv:Fault xmlns:soapenv=\"" + soapenv + "\">" +
-                "<faultcode>soapenv:Server</faultcode>" +
-                "<faultstring>Undefined</faultstring>" +
-                "<detail>" +
-                "    <soap:a-string xmlns:soap=\"http://xmlobjecttest/soapfaults\">" +
-                "        The First Fault" +
-                "    </soap:a-string>" +
-                "    <soap:a-int xmlns:soap=\"http://xmlobjecttest/soapfaults\">" +
-                "        1" +
-                "    </soap:a-int>" +
-                "    <soap:a-date xmlns:soap=\"http://xmlobjecttest/soapfaults\">" +
-                "       2003-03-28" +
-                "    </soap:a-date>" +
-                "</detail>" +
-                "</soapenv:Fault>";
+            "<soapenv:Fault xmlns:soapenv=\"" + soapenv + "\">" +
+            "<faultcode>soapenv:Server</faultcode>" +
+            "<faultstring>Undefined</faultstring>" +
+            "<detail>" +
+            "    <soap:a-string xmlns:soap=\"http://xmlobjecttest/soapfaults\">" +
+            "        The First Fault" +
+            "    </soap:a-string>" +
+            "    <soap:a-int xmlns:soap=\"http://xmlobjecttest/soapfaults\">" +
+            "        1" +
+            "    </soap:a-int>" +
+            "    <soap:a-date xmlns:soap=\"http://xmlobjecttest/soapfaults\">" +
+            "       2003-03-28" +
+            "    </soap:a-date>" +
+            "</detail>" +
+            "</soapenv:Fault>";
 
         Fault faultDoc = Fault.Factory.parse(soapFault);
-        XmlOptions opt=new XmlOptions();
-        ArrayList errors=new ArrayList();
+        XmlOptions opt = new XmlOptions();
+        ArrayList errors = new ArrayList();
         opt.setErrorListener(errors);
-        try{
         assertTrue(faultDoc.validate(opt));
-        }catch (Throwable t){
-             for (int i = 0; i < errors.size(); i++) {
-                XmlError error = (XmlError) errors.get(i);
-                System.out.println("\n");
-                System.out.println("Message: " + error.getMessage() + "\n");
-                if (error.getCursorLocation() != null)
-                    System.out.println("Location of invalid XML: " +
-                            error.getCursorLocation().xmlText() + "\n");
-            }
-        }
         assertEquals(new QName(soapenv, "Server"), faultDoc.getFaultcode());
         assertEquals("Undefined", faultDoc.getFaultstring());
 
@@ -135,7 +107,6 @@ public class SoapFaultTest extends TestCase {
         assertEquals("The First Fault", firstFault.getAString().trim());
         assertEquals(1, firstFault.getAInt());
         assertEquals(new org.apache.xmlbeans.XmlCalendar("2003-03-28"),
-                     firstFault.getADate());
+            firstFault.getADate());
     }
-      */
 }

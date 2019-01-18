@@ -15,10 +15,9 @@
 
 package dom.checkin;
 
-import junit.framework.TestCase;
 import org.apache.xmlbeans.XmlCursor;
+import org.junit.Test;
 import org.w3c.dom.Node;
-
 import xbean.dom.complexTypeTest.ElementT;
 import xbean.dom.complexTypeTest.EltTypeDocument;
 import xbean.dom.complexTypeTest.MixedT;
@@ -27,10 +26,11 @@ import xbean.dom.dumbNS.RootDocument;
 
 import java.math.BigInteger;
 
-public class DirtyCacheTests extends TestCase
-{
+import static org.junit.Assert.assertNull;
 
-   public void testDirtyValue()throws Exception{
+public class DirtyCacheTests {
+    @Test
+    public void testDirtyValue() throws Exception {
         EltTypeDocument o = EltTypeDocument.Factory.newInstance();
         ElementT t = o.addNewEltType();
         t.setChild1(new BigInteger("30"));
@@ -39,17 +39,18 @@ public class DirtyCacheTests extends TestCase
         n = n.getFirstChild();
         n = n.getFirstChild();//text
         String s = n.getNodeValue();
-        System.out.println(n.getNodeName()+" "+ s);
+        System.out.println(n.getNodeName() + " " + s);
         t.setChild1(new BigInteger("5"));
         s = n.getNodeValue();
-        System.out.println(n.getNodeName()+" "+ s);
+        System.out.println(n.getNodeName() + " " + s);
     }
 
-    public void testDirtyValue1()throws Exception{
+    @Test
+    public void testDirtyValue1() throws Exception {
         MixedTypeDocument o = MixedTypeDocument.Factory.newInstance();
         MixedT testElt = o.addNewMixedType();
-        assertEquals(null, testElt.getChild1());
-        assertEquals(null, testElt.xgetChild1());
+        assertNull(testElt.getChild1());
+        assertNull(testElt.xgetChild1());
         testElt.setChild2(new BigInteger("5"));
         testElt.setChild3(new BigInteger("1"));
         testElt.setChild1(new BigInteger("0"));
@@ -62,15 +63,16 @@ public class DirtyCacheTests extends TestCase
         n = n.getFirstChild();
 
         String s = n.getNodeValue();
-        System.out.println(n.getNodeName()+" "+ s);
-        n=n.getNextSibling();
+        System.out.println(n.getNodeName() + " " + s);
+        n = n.getNextSibling();
         n = n.getFirstChild();
 
         s = n.getNodeValue();
-        System.out.println(n.getNodeName()+" "+ s);
+        System.out.println(n.getNodeName() + " " + s);
     }
 
-     public void testDirtyValue2()throws Exception{
+    @Test
+    public void testDirtyValue2() throws Exception {
         RootDocument o = RootDocument.Factory.newInstance();
         RootDocument.Root testElt = o.addNewRoot();
         testElt.setB(new BigInteger("5"));
@@ -78,6 +80,6 @@ public class DirtyCacheTests extends TestCase
         n = n.getFirstChild();
         n = n.getAttributes().getNamedItem("b");
 
-        System.out.println(n.getNodeName()+" "+ n.getNodeValue());
+        System.out.println(n.getNodeName() + " " + n.getNodeValue());
     }
 }

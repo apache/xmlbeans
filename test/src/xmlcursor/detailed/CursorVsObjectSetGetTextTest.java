@@ -16,36 +16,20 @@
 
 package  xmlcursor.detailed;
 
-import junit.framework.*;
-
-import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlCursor;
+import org.apache.xmlbeans.XmlObject;
+import org.junit.Test;
+import org.tranxml.tranXML.version40.CarLocationMessageDocument;
+import org.tranxml.tranXML.version40.CityNameDocument.CityName;
+import org.tranxml.tranXML.version40.GeographicLocationDocument.GeographicLocation;
 import tools.util.JarUtil;
 import xmlcursor.common.Common;
-import org.tranxml.tranXML.version40.CarLocationMessageDocument;
-import org.tranxml.tranXML.version40.GeographicLocationDocument.GeographicLocation;
-import org.tranxml.tranXML.version40.CityNameDocument.CityName;
+
+import static org.junit.Assert.*;
 
 
-/**
- *
- *
- */
-public class CursorVsObjectSetGetTextTest extends TestCase {
-    public CursorVsObjectSetGetTextTest(String sName) {
-        super(sName);
-    }
-
-    public static Test suite() {
-        return new TestSuite(CursorVsObjectSetGetTextTest.class);
-    }
-
-    public void testClassPath() throws Exception {
-        String sClassPath = System.getProperty("java.class.path");
-        int i = sClassPath.indexOf(Common.CARLOCATIONMESSAGE_JAR);
-        assertTrue(i >= 0);
-    }
-
+public class CursorVsObjectSetGetTextTest {
+    @Test
     public void testSetGet() throws Exception {
         CarLocationMessageDocument clm =
                 (CarLocationMessageDocument) XmlObject.Factory.parse(
@@ -74,7 +58,7 @@ public class CursorVsObjectSetGetTextTest extends TestCase {
             xc.toNextSelection();
 
             for (int i = 0; i < 3; i++) {
-                assertEquals(true, xc.toFirstChild());
+                assertTrue(xc.toFirstChild());
                 assertEquals("SEATTLE", xc.getTextValue());
                 xc.setTextValue("PORTLAND");
                 xc.toNextSelection();
@@ -89,10 +73,10 @@ public class CursorVsObjectSetGetTextTest extends TestCase {
     }
 
 
-    public class Bookmark extends XmlCursor.XmlBookmark {
+    class Bookmark extends XmlCursor.XmlBookmark {
         public String text;
 
-        public Bookmark(String text) {
+        Bookmark(String text) {
             this.text = text;
         }
     }

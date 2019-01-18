@@ -16,42 +16,22 @@
 
 package xmlcursor.checkin;
 
-import org.apache.xmlbeans.XmlOptions;
-import junit.framework.*;
-import junit.framework.Assert.*;
-
-import java.io.*;
-
-import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlCursor;
-import org.apache.xmlbeans.XmlBeans;
 import org.apache.xmlbeans.XmlCursor.TokenType;
-import org.apache.xmlbeans.XmlDocumentProperties;
-import org.apache.xmlbeans.XmlCursor.XmlBookmark;
+import org.apache.xmlbeans.XmlObject;
+import org.junit.Test;
+import xmlcursor.common.BasicCursorTestCase;
+import xmlcursor.common.Common;
 
-import javax.xml.namespace.QName;
-
-import xmlcursor.common.*;
-
-import java.net.URL;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 
-/**
- *
- *
- */
 public class SetBookmarkTest extends BasicCursorTestCase {
     private SimpleBookmark _theBookmark = new SimpleBookmark("value");
     private SimpleBookmark _theBookmark1 = new SimpleBookmark("value1");
 
-    public SetBookmarkTest(String sName) {
-        super(sName);
-    }
-
-    public static Test suite() {
-        return new TestSuite(SetBookmarkTest.class);
-    }
-
+    @Test
     public void testSetBookmarkAtSTARTDOC() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_TEXT);
         m_xc = m_xo.newCursor();
@@ -60,6 +40,7 @@ public class SetBookmarkTest extends BasicCursorTestCase {
         assertEquals("value", sa.text);
     }
 
+    @Test
     public void testSetBookmarkDuplicateKey() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_TEXT);
         m_xc = m_xo.newCursor();
@@ -70,6 +51,7 @@ public class SetBookmarkTest extends BasicCursorTestCase {
         assertEquals("value1", sa.text);
     }
 
+    @Test
     public void testSetBookmarkDuplicateKeyDifferentLocation() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_TEXT);
         m_xc = m_xo.newCursor();
@@ -83,6 +65,7 @@ public class SetBookmarkTest extends BasicCursorTestCase {
         assertEquals("value", sa.text);
     }
 
+    @Test
     public void testSetBookmarkAtSTART() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_TEXT);
         m_xc = m_xo.newCursor();
@@ -92,6 +75,7 @@ public class SetBookmarkTest extends BasicCursorTestCase {
         assertEquals("value", sa.text);
     }
 
+    @Test
     public void testSetBookmarkAtATTR() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_1ATTR);
         m_xc = m_xo.newCursor();
@@ -101,6 +85,7 @@ public class SetBookmarkTest extends BasicCursorTestCase {
         assertEquals("value", sa.text);
     }
 
+    @Test
     public void testSetBookmarkAtPROCINST() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_PROCINST);
         m_xc = m_xo.newCursor();
@@ -110,6 +95,7 @@ public class SetBookmarkTest extends BasicCursorTestCase {
         assertEquals("value", sa.text);
     }
 
+    @Test
     public void testSetBookmarkInMiddleOfTEXT() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_TEXT);
         m_xc = m_xo.newCursor();
@@ -120,6 +106,7 @@ public class SetBookmarkTest extends BasicCursorTestCase {
         assertEquals("value", sa.text);
     }
 
+    @Test
     public void testSetBookmarkAtENDDOC() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_1ATTR);
         m_xc = m_xo.newCursor();
@@ -129,6 +116,7 @@ public class SetBookmarkTest extends BasicCursorTestCase {
         assertEquals("value", sa.text);
     }
 
+    @Test
     public void testSetBookmarkNull() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_1ATTR);
         m_xc = m_xo.newCursor();
@@ -138,6 +126,7 @@ public class SetBookmarkTest extends BasicCursorTestCase {
         assertNull(sa);
     }
 
+    @Test
     public void testXmlDocumentProperties() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_1ATTR);
         m_xo.documentProperties().put("fredkey", "fredvalue");
@@ -149,7 +138,7 @@ public class SetBookmarkTest extends BasicCursorTestCase {
     public class SimpleBookmark extends XmlCursor.XmlBookmark {
         public String text;
 
-        public SimpleBookmark(String text) {
+        SimpleBookmark(String text) {
             this.text = text;
         }
     }

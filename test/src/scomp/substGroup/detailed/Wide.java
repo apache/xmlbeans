@@ -15,20 +15,21 @@
 
 package scomp.substGroup.detailed;
 
+import org.apache.xmlbeans.XmlErrorCodes;
+import org.junit.Test;
 import scomp.common.BaseCase;
-import xbean.scomp.substGroup.wide.*;
 import xbean.scomp.substGroup.deep.ItemType;
-import xbean.scomp.substGroup.deep.ProductType;
 import xbean.scomp.substGroup.deep.ItemsDocument;
+import xbean.scomp.substGroup.deep.ProductType;
+import xbean.scomp.substGroup.wide.BeachUmbrellaT;
+import xbean.scomp.substGroup.wide.BusinessShirtType;
 
 import java.math.BigInteger;
 
-import org.apache.xmlbeans.XmlErrorCodes;
+import static org.junit.Assert.assertTrue;
 
-/**
- */
 public class Wide extends BaseCase {
-
+    @Test
     public void testValidSubstParse() throws Throwable {
         String input =
                 "<base:items xmlns:pre=\"http://xbean/scomp/substGroup/Wide\"" +

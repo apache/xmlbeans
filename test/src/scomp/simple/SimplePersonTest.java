@@ -13,59 +13,64 @@
  *  limitations under the License.
  */
 
-import org.openuri.mytest.Person;
+package scomp.simple;
+
+import common.Common;
+import org.junit.Test;
 import org.openuri.mytest.CustomerDocument;
+import org.openuri.mytest.Person;
 
+import java.util.Calendar;
 import java.util.Date;
-import org.apache.xmlbeans.XmlBeans;
-import org.apache.xmlbeans.XmlCursor;
-import drtcases.TestEnv;
-import junit.framework.Assert;
+import java.util.TimeZone;
 
-public class SimplePersonTest
-{
-    public static void main(String args[]) throws Exception
-    {
-        test();
-    }
+import static org.junit.Assert.assertEquals;
 
-    public static void test() throws Exception
-    {
+public class SimplePersonTest {
+    @Test
+    public void test() throws Exception {
         CustomerDocument doc =
             CustomerDocument.Factory.parse(
-                TestEnv.xbeanCase("schema/simple/person.xml"), null);
+                Common.xbeanCase("xbean/simple/person/person.xml"), null);
 
         // Move from the root to the root customer element
         Person person = doc.getCustomer();
-        Assert.assertEquals("Howdy", person.getFirstname());
-        Assert.assertEquals(4,   person.sizeOfNumberArray());
-        Assert.assertEquals(436, person.getNumberArray(0));
-        Assert.assertEquals(123, person.getNumberArray(1));
-        Assert.assertEquals(44,  person.getNumberArray(2));
-        Assert.assertEquals(933, person.getNumberArray(3));
-        Assert.assertEquals(2,   person.sizeOfBirthdayArray());
-        Assert.assertEquals(new Date("Tue Aug 25 17:00:00 PDT 1998"), person.getBirthdayArray(0));
+        assertEquals("Howdy", person.getFirstname());
+        assertEquals(4, person.sizeOfNumberArray());
+        assertEquals(436, person.getNumberArray(0));
+        assertEquals(123, person.getNumberArray(1));
+        assertEquals(44, person.getNumberArray(2));
+        assertEquals(933, person.getNumberArray(3));
+        assertEquals(2, person.sizeOfBirthdayArray());
+        Calendar cal = person.getBirthdayArray(0);
+        cal.set(1998, 7, 25, 17, 0);
+        assertEquals(1998, cal.get(Calendar.YEAR));
+        assertEquals(7, cal.get(Calendar.MONTH));
+        assertEquals(25, cal.get(Calendar.DATE));
+        assertEquals(17, cal.get(Calendar.HOUR_OF_DAY));
+        assertEquals(0, cal.get(Calendar.MINUTE));
+        assertEquals(0, cal.get(Calendar.SECOND));
 
         Person.Gender.Enum g = person.getGender();
-        Assert.assertEquals(Person.Gender.MALE, g);
+        assertEquals(Person.Gender.MALE, g);
 
-        Assert.assertEquals("EGIQTWYZJ", new String(person.getHex()));
-        Assert.assertEquals("This string is base64Binary encoded!",
-                            new String(person.getBase64()));
+        assertEquals("EGIQTWYZJ", new String(person.getHex()));
+        assertEquals("This string is base64Binary encoded!",
+            new String(person.getBase64()));
 
-        Assert.assertEquals("GGIQTWYGG", new String(person.getHexAtt()));
-        Assert.assertEquals("This string is base64Binary encoded!",
-                            new String(person.getBase64Att()));
+        assertEquals("GGIQTWYGG", new String(person.getHexAtt()));
+        assertEquals("This string is base64Binary encoded!",
+            new String(person.getBase64Att()));
 
         person.setFirstname("George");
-        Assert.assertEquals("George", person.getFirstname());
+        assertEquals("George", person.getFirstname());
 
         person.setHex("hex encoding".getBytes());
-        Assert.assertEquals("hex encoding", new String(person.getHex()));
+        assertEquals("hex encoding", new String(person.getHex()));
 
         person.setBase64("base64 encoded".getBytes());
-        Assert.assertEquals("base64 encoded",
-                            new String(person.getBase64()));
+        assertEquals("base64 encoded",
+            new String(person.getBase64()));
 
         //person.setHexAtt("hex encoding in attributes".getBytes());
         //Assert.assertEquals("hex encoding in attributes",

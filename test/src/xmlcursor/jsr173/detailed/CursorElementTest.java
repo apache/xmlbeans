@@ -16,22 +16,14 @@
 package xmlcursor.jsr173.detailed;
 
 
-import junit.framework.*;
+import org.apache.xmlbeans.XmlCursor;
 import xmlcursor.jsr173.common.ElementTest;
 
 import javax.xml.stream.XMLStreamReader;
 
-import org.apache.xmlbeans.XmlCursor;
-import org.w3c.dom.Node;
-/**
- *
- *
- */
-public  class CursorElementTest
-        extends ElementTest {
+public class CursorElementTest extends ElementTest {
 
-    public  XMLStreamReader getStream(XmlCursor c)
-    throws Exception{
+    public XMLStreamReader getStream(XmlCursor c) {
         return c.newXMLStreamReader();
     }
 }

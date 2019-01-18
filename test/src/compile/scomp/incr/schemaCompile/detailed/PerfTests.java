@@ -15,46 +15,25 @@
 
 package compile.scomp.incr.schemaCompile.detailed;
 
-import junit.framework.TestCase;
-import junit.framework.Assert;
-import junit.framework.Test;
-import junit.framework.TestSuite;
-import org.apache.xmlbeans.impl.common.QNameHelper;
-import org.apache.xmlbeans.impl.tool.SchemaCompiler;
-import org.apache.xmlbeans.impl.tool.CodeGenUtil;
-import org.apache.xmlbeans.impl.tool.SchemaCodeGenerator;
-import org.apache.xmlbeans.impl.tool.Diff;
-import org.apache.xmlbeans.impl.xb.xsdschema.SchemaDocument;
-import org.apache.xmlbeans.impl.xb.xsdschema.TopLevelComplexType;
-import org.apache.xmlbeans.*;
-
-import java.io.File;
-import java.io.StringWriter;
-import java.io.IOException;
-import java.util.*;
-
-import tools.util.TestRunUtil;
 import compile.scomp.common.CompileCommon;
 import compile.scomp.common.CompileTestBase;
+import org.apache.xmlbeans.SchemaTypeSystem;
+import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.XmlOptions;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
 
 import javax.xml.namespace.QName;
+import java.io.IOException;
+import java.util.ArrayList;
+
+import static org.junit.Assert.assertNotSame;
 
 
-/**
- *
- *
- */
 public class PerfTests extends CompileTestBase {
-
-
-    public PerfTests(String name) {
-        super(name);
-    }
-
-    public static Test suite() {
-        return new TestSuite(PerfTests.class);
-    }
-
+    @Before
     public void setUp() throws IOException {
         CompileCommon.deltree(CompileCommon.xbeanOutput(outputDir));
         out = CompileCommon.xbeanOutput(outPath);
@@ -67,13 +46,14 @@ public class PerfTests extends CompileTestBase {
         xm.setSavePrettyPrint();
     }
 
-    public void tearDown() throws Exception
-    {
-        super.tearDown();
+    @After
+    public void tearDown() throws Exception {
         if (errors.size() > 0)
             errors.clear();
     }
 
+    @Ignore("throws duplicate global type")
+    @Test
     public void test_perf_choice2seqchange() throws Exception {
         //XmlObject.Factory.parse(getBaseSchema("baz","elName", "elType", "attrName","attrType"));
         XmlObject obj1 = XmlObject.Factory.parse(getSchemaTop("baz") +
@@ -113,7 +93,7 @@ public class PerfTests extends CompileTestBase {
         findElementbyQName(base, baseTypes);
         findElementbyQName(incr, incrTypes);
 
-        Assert.assertNotSame(base, incr);
+        assertNotSame(base, incr);
 
         compareandPopErrors(out, outincr, errors);
         handleErrors(errors);

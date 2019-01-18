@@ -17,20 +17,16 @@
 package dom.checkin;
 
 import dom.common.Loader;
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import org.junit.Before;
+import org.junit.Test;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Document;
 import org.w3c.dom.DocumentType;
 
-/**
- *
- *
- */
+import static org.junit.Assert.*;
 
-public class DomImplementationTest extends TestCase {
+public class DomImplementationTest {
 
     DOMImplementation m_imp;
     DocumentType m_docType;
@@ -39,22 +35,13 @@ public class DomImplementationTest extends TestCase {
     Document m_docNS;
     String sXmlNS;
 
-    public DomImplementationTest(String sName) {
-        super(sName);
+    public DomImplementationTest() {
         sXmlNS =
                 "<foo xmlns:myns=\"uri:foo\" at0=\"val0\" myns:at0=\"val01\" at2=\"val2\" at3=\"val3\" at4=\"val4\"/>";
     }
 
-    public static Test suite() {
-        return new TestSuite(DomImplementationTest.class);
-    }
-
-    public void testCreateDocumentType() {
-        //not implemented by Eric
-
-    }
-
     //$TODO: non null doctype
+    @Test
     public void testCreateDocument() {
         String sUri = "http://foo.org";
         String sQName = "qname";
@@ -66,6 +53,7 @@ public class DomImplementationTest extends TestCase {
 
     //$TODO: implem. w/o "XML" feature; WRONG_DOCUMENT_ERR
     //NOT_SUPPORTED_ERR
+    @Test
     public void testCreateDocumentInvalid() {
         String sUri = "http://foo.org";
         String sQName = "<qname";
@@ -96,9 +84,9 @@ public class DomImplementationTest extends TestCase {
 
     }
 
+    @Test
     public void testHasFeature() {
-
-        String[] features = new String[]{
+        String[] features = {
             "Core", "XML", "Events", "MutationEvents", "Range", "Traversal", "HTML", "Views", "StyleSheets", "CSS", "CSS2", "UIEvents", "HTMLEvents"
         };
         boolean bResult = true;
@@ -112,6 +100,7 @@ public class DomImplementationTest extends TestCase {
 
     }
 
+    @Test
     public void testHasFeatureIlegal() {
         assertFalse(m_imp.hasFeature(null, "2.0"));
         assertFalse(m_imp.hasFeature("foobar", "2.0"));
@@ -134,8 +123,8 @@ public class DomImplementationTest extends TestCase {
 
     }
 
+    @Before
     public void setUp() throws Exception {
-
         _loader = Loader.getLoader();
         m_docNS = (org.w3c.dom.Document) _loader.load(sXmlNS);
         moveToNode();

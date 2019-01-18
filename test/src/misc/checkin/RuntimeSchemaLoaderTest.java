@@ -15,36 +15,24 @@
 
 package misc.checkin;
 
-import org.apache.xmlbeans.XmlBeans;
-import org.apache.xmlbeans.XmlOptions;
-import org.apache.xmlbeans.XmlObject;
-import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.SchemaTypeLoader;
+import org.apache.xmlbeans.XmlBeans;
+import org.apache.xmlbeans.XmlCursor;
+import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.impl.xb.xsdschema.SchemaDocument.Schema;
+import org.junit.Assert;
+import org.junit.Test;
+import tools.util.JarUtil;
 
 import javax.xml.namespace.QName;
-
 import java.io.File;
 
-import junit.framework.Assert;
-import junit.framework.TestCase;
-import junit.framework.Test;
-import junit.framework.TestSuite;
-
-import org.apache.xmlbeans.impl.xb.xsdschema.SchemaDocument.Schema;
+import static org.junit.Assert.assertEquals;
 
 
-import tools.util.*;
+public class RuntimeSchemaLoaderTest {
 
-
-public class RuntimeSchemaLoaderTest extends TestCase {
-    public RuntimeSchemaLoaderTest(String name) {
-        super(name);
-    }
-
-    public static Test suite() {
-        return new TestSuite(RuntimeSchemaLoaderTest.class);
-    }
-
+    @Test
     public void testDynamicLoad() throws Throwable {
         File inputfile1 = JarUtil
                 .getResourceFromJarasFile("xbean/misc/dyntest.xsd");
@@ -53,16 +41,17 @@ public class RuntimeSchemaLoaderTest extends TestCase {
         XmlObject result = loader.parse(
                 JarUtil.getResourceFromJarasFile("xbean/misc/dyntest.xml"),
                 null, null);
-        Assert.assertEquals(
+        assertEquals(
                 "D=wrappedinstance@http://openuri.org/test/dyntest",
                 result.schemaType().toString());
-        Assert.assertEquals(
+        assertEquals(
                 loader.findDocumentType(
                         new QName("http://openuri.org/test/dyntest",
                                 "wrappedinstance")),
                 result.schemaType());
     }
 
+    @Test
     public void testDynamicLoad2() throws Throwable {
         File inputfile1 = JarUtil
                 .getResourceFromJarasFile("xbean/misc/dyntest2.xsd");
@@ -71,10 +60,10 @@ public class RuntimeSchemaLoaderTest extends TestCase {
         XmlObject result = loader.parse(
                 JarUtil.getResourceFromJarasFile("xbean/misc/dyntest2.xml"),
                 null, null);
-        Assert.assertEquals(
+        assertEquals(
                 "D=wrappedwildcard@http://openuri.org/test/dyntest",
                 result.schemaType().toString());
-        Assert.assertEquals(
+        assertEquals(
                 loader.findDocumentType(
                         new QName("http://openuri.org/test/dyntest",
                                 "wrappedwildcard")),
@@ -82,20 +71,20 @@ public class RuntimeSchemaLoaderTest extends TestCase {
         XmlCursor cur = result.newCursor();
         Assert.assertTrue("Should have a root element", cur.toFirstChild());
         result = cur.getObject();
-        Assert.assertEquals(
+        assertEquals(
                 "E=wrappedwildcard|D=wrappedwildcard@http://openuri.org/test/dyntest",
                 result.schemaType().toString());
-        Assert.assertEquals(
+        assertEquals(
                 loader.findElement(
                         new QName("http://openuri.org/test/dyntest",
                                 "wrappedwildcard"))
                 .getType(),
                 result.schemaType());
         Assert.assertTrue("Should have a first child", cur.toFirstChild());
-        Assert.assertEquals(
+        assertEquals(
                 new QName("http://www.w3.org/2001/XMLSchema", "schema"),
                 cur.getName());
         XmlObject obj = cur.getObject();
-        Assert.assertEquals(Schema.type, obj.schemaType());
+        assertEquals(Schema.type, obj.schemaType());
     }
 }

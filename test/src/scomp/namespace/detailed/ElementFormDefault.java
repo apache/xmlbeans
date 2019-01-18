@@ -16,6 +16,7 @@
 
 package scomp.namespace.detailed;
 
+import org.junit.Test;
 import scomp.common.BaseCase;
 import xbean.scomp.namespace.elementFormDefault.ElementFormDefaultEltDocument;
 import xbean.scomp.namespace.elementFormDefault.ElementT;
@@ -23,10 +24,11 @@ import org.apache.xmlbeans.XmlAnySimpleType;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlErrorCodes;
 
-/**
- */
+import static org.junit.Assert.assertTrue;
+
 public class ElementFormDefault extends BaseCase {
 
+    @Test
     public void testValid() throws Throwable {
         ElementFormDefaultEltDocument doc =
                 ElementFormDefaultEltDocument.Factory.parse("<ns:ElementFormDefaultElt " +
@@ -43,6 +45,7 @@ public class ElementFormDefault extends BaseCase {
         }
     }
 
+    @Test
     public void testInvalid() throws Throwable {
         ElementFormDefaultEltDocument doc =
                 ElementFormDefaultEltDocument.Factory.parse("<ns:ElementFormDefaultElt " +

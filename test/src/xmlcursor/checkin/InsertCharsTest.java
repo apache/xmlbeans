@@ -16,37 +16,17 @@
 
 package xmlcursor.checkin;
 
-import org.apache.xmlbeans.XmlOptions;
-import junit.framework.*;
-import junit.framework.Assert.*;
-
-import java.io.*;
-
-import org.apache.xmlbeans.XmlObject;
-import org.apache.xmlbeans.XmlCursor;
-import org.apache.xmlbeans.XmlBeans;
 import org.apache.xmlbeans.XmlCursor.TokenType;
+import org.apache.xmlbeans.XmlObject;
+import org.junit.Test;
+import xmlcursor.common.BasicCursorTestCase;
+import xmlcursor.common.Common;
 
-import javax.xml.namespace.QName;
-
-import xmlcursor.common.*;
-
-import java.net.URL;
+import static org.junit.Assert.assertEquals;
 
 
-/**
- *
- *
- */
 public class InsertCharsTest extends BasicCursorTestCase {
-    public InsertCharsTest(String sName) {
-        super(sName);
-    }
-
-    public static Test suite() {
-        return new TestSuite(InsertCharsTest.class);
-    }
-
+    @Test
     public void testInsertCharsAtSTART() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_BAR_TEXT);
         m_xc = m_xo.newCursor();
@@ -58,6 +38,7 @@ public class InsertCharsTest extends BasicCursorTestCase {
         assertEquals(" new chars ", m_xc.getChars());
     }
 
+    @Test
     public void testInsertCharsAtSTARTnonEmptyPriorTEXT() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_BAR_WS_ONLY);
         m_xc = m_xo.newCursor();
@@ -69,6 +50,7 @@ public class InsertCharsTest extends BasicCursorTestCase {
         assertEquals(" new chars ", m_xc.getChars());
     }
 
+    @Test
     public void testInsertCharsAtENDnonEmptyPriorTEXT() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_BAR_WS_ONLY);
         m_xc = m_xo.newCursor();
@@ -79,6 +61,7 @@ public class InsertCharsTest extends BasicCursorTestCase {
         assertEquals(" new chars ", m_xc.getChars());
     }
 
+    @Test
     public void testInsertCharsInMiddleOfTEXT() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_TEXT);
         m_xc = m_xo.newCursor();
@@ -91,6 +74,7 @@ public class InsertCharsTest extends BasicCursorTestCase {
         assertEquals("tenew chars xt", m_xc.getTextValue());
     }
 
+    @Test
     public void testInsertCharsNullInMiddleOfTEXT() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_TEXT);
         m_xc = m_xo.newCursor();
@@ -103,6 +87,7 @@ public class InsertCharsTest extends BasicCursorTestCase {
         assertEquals("text", m_xc.getTextValue());
     }
 
+    @Test
     public void testInsertCharsEmptyInMiddleOfTEXT() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_TEXT);
         m_xc = m_xo.newCursor();
@@ -115,16 +100,12 @@ public class InsertCharsTest extends BasicCursorTestCase {
         assertEquals("text", m_xc.getTextValue());
     }
 
+    @Test(expected = IllegalStateException.class)
     public void testInsertCharsInNAMESPACE() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_NS);
         m_xc = m_xo.newCursor();
         toNextTokenOfType(m_xc, TokenType.NAMESPACE);
-        try {
-            m_xc.insertChars("fred");
-            fail("Expected IllegalStateException");
-        } catch (IllegalStateException e) {
-        }
-        assertEquals(true, true);
+        m_xc.insertChars("fred");
     }
 
 }

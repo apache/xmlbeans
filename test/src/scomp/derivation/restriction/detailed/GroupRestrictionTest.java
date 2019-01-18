@@ -14,18 +14,21 @@
  */
 package scomp.derivation.restriction.detailed;
 
+import org.apache.xmlbeans.XmlErrorCodes;
+import org.junit.Test;
 import scomp.common.BaseCase;
 import xbean.scomp.derivation.groupRestriction.*;
 
 import java.math.BigInteger;
 
-import org.apache.xmlbeans.XmlErrorCodes;
+import static org.junit.Assert.assertTrue;
 
 /**
  *
  */
 public class GroupRestrictionTest extends BaseCase {
 
+    @Test
     public void testRestrictSequence() throws Throwable {
         RestrictedSequenceEltDocument doc = RestrictedSequenceEltDocument.Factory
                 .newInstance();
@@ -51,6 +54,7 @@ public class GroupRestrictionTest extends BaseCase {
 
     }
 
+    @Test
     public void testRestrictChoice() throws Throwable {
         RestrictedChoiceEltDocument doc = RestrictedChoiceEltDocument.Factory
                 .newInstance();
@@ -73,6 +77,7 @@ public class GroupRestrictionTest extends BaseCase {
 
     }
 
+    @Test
     public void testRestrictAll() throws Throwable {
         RestrictedAllEltDocument doc = RestrictedAllEltDocument.Factory
                 .newInstance();
@@ -95,6 +100,7 @@ public class GroupRestrictionTest extends BaseCase {
         }
     }
 
+    @Test
     public void testAllToSequence() throws Throwable {
         All2SeqEltDocument doc = All2SeqEltDocument.Factory.newInstance();
         All2SequenceT elt = doc.addNewAll2SeqElt();
@@ -117,6 +123,7 @@ public class GroupRestrictionTest extends BaseCase {
 
     }
 
+    @Test
     public void testChoiceToSequence() throws Throwable {
         Choice2SeqEltDocument doc = Choice2SeqEltDocument.Factory.newInstance();
         Choice2SequenceT elt = doc.addNewChoice2SeqElt();

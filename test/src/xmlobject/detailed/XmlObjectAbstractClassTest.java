@@ -14,44 +14,35 @@
  */
 package xmlobject.detailed;
 
+import org.apache.xmlbeans.impl.tool.CodeGenUtil;
+import org.junit.Test;
+import tools.util.JarUtil;
+
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
-import junit.framework.TestCase;
-import org.apache.xmlbeans.impl.tool.CodeGenUtil;
-import tools.util.JarUtil;
-import xmlcursor.common.Common;
+import static org.junit.Assert.assertTrue;
 
 /**
  * JUnit Test file to test XmlObject Abstract base class
- *
- * @author: Raju Subramanian.
- *
- *
  */
 
-public class XmlObjectAbstractClassTest
-        extends TestCase {
-
-    public XmlObjectAbstractClassTest(String name) {
-        super(name);
-    }
+public class XmlObjectAbstractClassTest {
 
     /**
      * The test entry point.
      */
+    @Test
     public void testAbstractBaseClass() throws Exception {
         // create the source file
         //String src = JarUtil.getResourceFromJarasStream(Common.XMLCASES_JAR, "xbean/xmlobject/SimpleXmlObject.java.txt");
-        File to = new File("SimpleXmlObject.java");
-        InputStreamReader r=new InputStreamReader(
-                                JarUtil.getResourceFromJarasStream(
-                                        "xbean/xmlobject/SimpleXmlObject.java.txt"));
-        assertTrue("Could not create source file",
-                copyTo(r , to));
-        assertTrue("Could not compile SimpleXmlObject.java",
-                compileFile(to));
+        File to = new File("build/SimpleXmlObject.java");
+        InputStreamReader r = new InputStreamReader(
+            JarUtil.getResourceFromJarasStream(
+                "xbean/xmlobject/SimpleXmlObject.java.txt"));
+        assertTrue("Could not create source file", copyTo(r, to));
+        assertTrue("Could not compile SimpleXmlObject.java", compileFile(to));
         to.deleteOnExit();
     }
 
@@ -62,17 +53,14 @@ public class XmlObjectAbstractClassTest
      */
     private boolean compileFile(File source) {
         // the location for the compiled file
-        File dir = new File(System.getProperty("user.dir"));
+        File dir = new File("build");
         File[] classpath = CodeGenUtil.systemClasspath();
-        List srcFiles = new ArrayList();
+        List<File> srcFiles = new ArrayList<File>();
         srcFiles.add(source);
 
-        if (!CodeGenUtil.externalCompile(srcFiles, dir, classpath, false,
-                CodeGenUtil.DEFAULT_COMPILER, null, CodeGenUtil.DEFAULT_MEM_START,
-                CodeGenUtil.DEFAULT_MEM_MAX, false, false)){
-            return false;
-        }
-        return true;
+        return CodeGenUtil.externalCompile(srcFiles, dir, classpath, false,
+            CodeGenUtil.DEFAULT_COMPILER, null, CodeGenUtil.DEFAULT_MEM_START,
+            CodeGenUtil.DEFAULT_MEM_MAX, false, false);
     }
 
     /**
@@ -96,8 +84,7 @@ public class XmlObjectAbstractClassTest
 
             in.close();
             fos.close();
-        }
-        catch (Exception ioe) {
+        } catch (Exception ioe) {
             System.out.println("Could not create source file: " + ioe);
             ioe.printStackTrace();
             return false;
@@ -126,19 +113,11 @@ public class XmlObjectAbstractClassTest
             }
             fis.close();
             fos.close();
-        }
-        catch (Exception ioe) {
+        } catch (Exception ioe) {
             System.out.println("Could not create source file: " + ioe);
             return false;
         }
 
         return true;
-    }
-
-    /**
-     *
-     */
-    public static void main(String args[]) throws Exception {
-        new XmlObjectAbstractClassTest("test").testAbstractBaseClass();
     }
 }

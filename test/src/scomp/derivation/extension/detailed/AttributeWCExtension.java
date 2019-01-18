@@ -14,23 +14,19 @@
  */
 package scomp.derivation.extension.detailed;
 
+import org.junit.Test;
 import scomp.common.BaseCase;
 import xbean.scomp.derivation.attributeWCExtension.*;
 
-/**
- *
- *
- *
- */
+import static org.junit.Assert.assertTrue;
+
 public class AttributeWCExtension extends BaseCase {
 
     /**
      * Strict wildcard ##local
      * Base type didn't have wildcards
-     *
-     * @throws Throwable
      */
-
+    @Test
     public void testRestrictBaseWOWC() throws Throwable {
         String input = "<pre:BaseNoWC " +
                 " xmlns:pre=\"http://xbean/scomp/derivation/AttributeWCExtension\"" +
@@ -43,14 +39,12 @@ public class AttributeWCExtension extends BaseCase {
             showErrors();
 
         assertTrue(doc.validate(validateOptions));
-
     }
 
     /**
      * Strict validation: attr should be found AND valid
-     *
-     * @throws Throwable
      */
+    @Test
     public void testAnyStrict() throws Throwable {
         String input = "<foo:AnyStrict " +
                 " xmlns:foo=\"http://xbean/scomp/derivation/AttributeWCExtension\"" +
@@ -63,9 +57,8 @@ public class AttributeWCExtension extends BaseCase {
 
     /**
      * Lax validation:IF attr is found, it should be valid
-     *
-     * @throws Throwable
      */
+    @Test
     public void testAnyLax() throws Throwable {
         String input = "<foo:AnyLax " +
                 " xmlns:foo=\"http://xbean/scomp/derivation/AttributeWCExtension\"" +
@@ -74,9 +67,9 @@ public class AttributeWCExtension extends BaseCase {
         if (!doc.validate(validateOptions))
             showErrors();
         assertTrue(doc.validate(validateOptions));
-
     }
 
+    @Test
     public void testAnySkip() throws Throwable {
         String input = "<foo:AnySkip " +
                 " xmlns:foo=\"http://xbean/scomp/derivation/AttributeWCExtension\"" +
@@ -90,6 +83,7 @@ public class AttributeWCExtension extends BaseCase {
     /**
      * target and local here too
      */
+    @Test
     public void test2ListsLax() throws Throwable {
 
         String input = "<foo:UriListLax " +
@@ -105,6 +99,7 @@ public class AttributeWCExtension extends BaseCase {
      * any valid XML should be OK,
      * as long as NS is other or target
      */
+    @Test
     public void test2ListsSkip() throws Throwable {
         String input = "<foo:UriListSkip " +
                 " xmlns:foo=\"http://xbean/scomp/derivation/AttributeWCExtension\"" +
@@ -115,6 +110,7 @@ public class AttributeWCExtension extends BaseCase {
         assertTrue(doc.validate(validateOptions));
     }
 
+    @Test
     public void test2ListsStrict() throws Throwable {
         String input = "<foo:UriListStrict " +
                 " xmlns:foo=\"http://xbean/scomp/derivation/AttributeWCExtension\"" +
@@ -129,6 +125,7 @@ public class AttributeWCExtension extends BaseCase {
     /**
      * target and local here too
      */
+    @Test
     public void testOtherListLax() throws Throwable {
         String input = "<foo:OtherListLax " +
                 " xmlns:foo=\"http://xbean/scomp/derivation/AttributeWCExtension\"" +
@@ -139,6 +136,7 @@ public class AttributeWCExtension extends BaseCase {
         assertTrue(doc.validate(validateOptions));
     }
 
+    @Test
     public void testOtherListSkip() throws Throwable {
         String input = "<foo:OtherListSkip " +
                 " xmlns:foo=\"http://xbean/scomp/derivation/AttributeWCExtension\"" +
@@ -149,6 +147,7 @@ public class AttributeWCExtension extends BaseCase {
         assertTrue(doc.validate(validateOptions));
     }
 
+    @Test
     public void testOtherListStrict() throws Throwable {
         String input = "<foo:OtherListStrict " +
                 " xmlns:foo=\"http://xbean/scomp/derivation/AttributeWCExtension\"" +
@@ -165,6 +164,7 @@ public class AttributeWCExtension extends BaseCase {
      * target and local here too
      * Other other should be equivalent to ##any
      */
+    @Test
     public void testOtherOtherLax() throws Throwable {
         String input = "<foo:OtherOtherLax " +
                 " xmlns:foo=\"http://xbean/scomp/derivation/AttributeWCExtension\"" +
@@ -176,6 +176,7 @@ public class AttributeWCExtension extends BaseCase {
         assertTrue(doc.validate(validateOptions));
     }
 
+    @Test
     public void testOtherOtherSkip() throws Throwable {
         String input = "<foo:OtherOtherSkip " +
                 " xmlns:foo=\"http://xbean/scomp/derivation/AttributeWCExtension\"" +
@@ -187,6 +188,7 @@ public class AttributeWCExtension extends BaseCase {
         assertTrue(doc.validate(validateOptions));
     }
 
+    @Test
     public void testOtherOtherStrict() throws Throwable {
         String input = "<foo:OtherOtherStrict " +
                 " xmlns:foo=\"http://xbean/scomp/derivation/AttributeWCExtension\"" +

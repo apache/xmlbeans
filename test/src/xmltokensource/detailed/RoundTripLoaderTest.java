@@ -19,29 +19,27 @@ package xmltokensource.detailed;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
+import org.apache.xmlbeans.xml.stream.XMLInputStream;
+import org.junit.Before;
+import org.junit.Test;
+import org.w3c.dom.Node;
 import xmlcursor.common.BasicCursorTestCase;
 import xmlcursor.common.Common;
-import junit.framework.Test;
-import junit.framework.TestSuite;
-import org.w3c.dom.Node;
-import org.apache.xmlbeans.xml.stream.XMLInputStream;
 
 import java.io.InputStream;
 import java.io.Reader;
+
+import static org.junit.Assert.assertNotNull;
 
 
 public class RoundTripLoaderTest extends BasicCursorTestCase {
     public static final String DOC_FRAGMENT = "#document-fragment";
     private XmlOptions m_map = new XmlOptions();
 
-    public RoundTripLoaderTest(String sName) {
-        super(sName);
+    @Before
+    public void setUp() {
         m_map.put(XmlOptions.CHARACTER_ENCODING, "Big5");
         m_map.put(XmlOptions.SAVE_NAMESPACES_FIRST, "");
-    }
-
-    public static Test suite() {
-        return new TestSuite(RoundTripLoaderTest.class);
     }
 
     private void _newDomNodeRoundTrip(XmlOptions map) throws Exception {
@@ -58,10 +56,12 @@ public class RoundTripLoaderTest extends BasicCursorTestCase {
         }
     }
 
+    @Test
     public void testNewDomNodeRoundTrip() throws Exception {
         _newDomNodeRoundTrip(null);
     }
 
+    @Test
     public void testNewDomNodeWithOptionsRoundTrip() throws Exception {
         _newDomNodeRoundTrip(m_map);
     }
@@ -81,10 +81,12 @@ public class RoundTripLoaderTest extends BasicCursorTestCase {
         }
     }
 
+    @Test
     public void testNewInputStreamRoundTrip() throws Exception {
         _newInputStreamRoundTrip(null);
     }
 
+    @Test
     public void testNewInputStreamWithOptionsRoundTrip() throws Exception {
         _newInputStreamRoundTrip(m_map);
     }
@@ -103,21 +105,22 @@ public class RoundTripLoaderTest extends BasicCursorTestCase {
             xc1.dispose();
         }
     }
-  /**
-   * yana_kadiyska (3:25:15 PM): Eric, is this going to be impl
-   * on this release? Bug? store.Cursor._newXMLInputStream
-   * ericvasilik (3:26:01 PM): This is not a v2 feature. ...
-   * but otherwise, we should disable XMLInputStream tests
-   * 
-    public void testNewReaderRoundTrip() throws Exception {
-        _newReaderRoundTrip(null);
-    }
 
-    public void testNewReaderWithOptionsRoundTrip() throws Exception {
-        _newReaderRoundTrip(m_map);
-    }
+    /**
+     * yana_kadiyska (3:25:15 PM): Eric, is this going to be impl
+     * on this release? Bug? store.Cursor._newXMLInputStream
+     * ericvasilik (3:26:01 PM): This is not a v2 feature. ...
+     * but otherwise, we should disable XMLInputStream tests
+     *
+     * public void testNewReaderRoundTrip() throws Exception {
+     * _newReaderRoundTrip(null);
+     * }
+     *
+     * public void testNewReaderWithOptionsRoundTrip() throws Exception {
+     * _newReaderRoundTrip(m_map);
+     * }
+     */
 
-   */
     private void _newXMLInputStreamRoundTrip(XmlOptions map) throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_BAR_NESTED_SIBLINGS);
         XMLInputStream xmlIs = m_xo.newXMLInputStream(map);
@@ -132,11 +135,8 @@ public class RoundTripLoaderTest extends BasicCursorTestCase {
         }
     }
 
- /**
-  *
-  * @throws Exception
-  */
- public void testNewXMLInputStreamRoundTrip() throws Exception {
+    @Test
+    public void testNewXMLInputStreamRoundTrip() throws Exception {
         _newXMLInputStreamRoundTrip(null);
     }
 
@@ -159,6 +159,7 @@ public class RoundTripLoaderTest extends BasicCursorTestCase {
         }
     }
 
+    @Test
     public void testXmlTextRoundTrip() throws Exception {
         _xmlTextRoundTrip(null);
     }
@@ -166,7 +167,4 @@ public class RoundTripLoaderTest extends BasicCursorTestCase {
     public void testXmlTextWithOptionsRoundTrip() throws Exception {
         _xmlTextRoundTrip(m_map);
     }
-
-
 }
-

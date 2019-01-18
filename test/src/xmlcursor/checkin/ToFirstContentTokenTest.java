@@ -16,39 +16,16 @@
 
 package xmlcursor.checkin;
 
-import org.apache.xmlbeans.XmlOptions;
-import junit.framework.*;
-import junit.framework.Assert.*;
-
-import java.io.*;
-
-import org.apache.xmlbeans.XmlObject;
-import org.apache.xmlbeans.XmlCursor;
-import org.apache.xmlbeans.XmlBeans;
 import org.apache.xmlbeans.XmlCursor.TokenType;
-import org.apache.xmlbeans.XmlDocumentProperties;
-import org.apache.xmlbeans.XmlCursor.XmlBookmark;
+import org.apache.xmlbeans.XmlObject;
+import org.junit.Test;
+import xmlcursor.common.BasicCursorTestCase;
 
-import javax.xml.namespace.QName;
+import static org.junit.Assert.assertEquals;
 
-import xmlcursor.common.*;
-
-import java.net.URL;
-
-
-/**
- *
- *
- */
 public class ToFirstContentTokenTest extends BasicCursorTestCase {
-    public ToFirstContentTokenTest(String sName) {
-        super(sName);
-    }
 
-    public static Test suite() {
-        return new TestSuite(ToFirstContentTokenTest.class);
-    }
-
+    @Test
     public void testToFirstContentTokenFromSTARTDOC() throws Exception {
         m_xc = XmlObject.Factory.parse("<foo>early<bar>text</bar></foo>").newCursor();
         m_xc.toFirstChild();
@@ -59,6 +36,7 @@ public class ToFirstContentTokenTest extends BasicCursorTestCase {
         assertEquals("earlytext", m_xc.getTextValue());
     }
 
+    @Test
     public void testToFirstContentTokenFromATTR() throws Exception {
         m_xc = XmlObject.Factory.parse("<foo attr0=\"val0\" xmlns=\"nsuri\">early<bar>text</bar></foo>").newCursor();
         toNextTokenOfType(m_xc, TokenType.ATTR);
@@ -67,6 +45,7 @@ public class ToFirstContentTokenTest extends BasicCursorTestCase {
         assertEquals("val0", m_xc.getTextValue());
     }
 
+    @Test
     public void testToFirstContentTokenFromNAMESPACE() throws Exception {
         m_xc = XmlObject.Factory.parse("<foo attr0=\"val0\" xmlns=\"nsuri\">early<bar>text</bar></foo>").newCursor();
         toNextTokenOfType(m_xc, TokenType.NAMESPACE);
@@ -76,6 +55,7 @@ public class ToFirstContentTokenTest extends BasicCursorTestCase {
         assertEquals(m_xc.getTextValue(),"nsuri");
     }
 
+    @Test
     public void testToFirstContentTokenFromSTARTwithContent() throws Exception {
         m_xc = XmlObject.Factory.parse("<foo attr0=\"val0\" xmlns=\"nsuri\">early<bar>text</bar></foo>").newCursor();
         toNextTokenOfType(m_xc, TokenType.START);
@@ -83,6 +63,7 @@ public class ToFirstContentTokenTest extends BasicCursorTestCase {
         assertEquals("early", m_xc.getChars());
     }
 
+    @Test
     public void testToFirstContentTokenFromSTARTnoContent() throws Exception {
         m_xc = XmlObject.Factory.parse("<foo attr0=\"val0\" xmlns=\"nsuri\"></foo>").newCursor();
         toNextTokenOfType(m_xc, TokenType.START);
@@ -91,12 +72,14 @@ public class ToFirstContentTokenTest extends BasicCursorTestCase {
         assertEquals(TokenType.ENDDOC, m_xc.currentTokenType());
     }
 
+    @Test
     public void testToFirstContentTokenEmptyDocument() throws Exception {
         m_xc = XmlObject.Factory.newInstance().newCursor();
         assertEquals(TokenType.STARTDOC, m_xc.currentTokenType());
         assertEquals(TokenType.ENDDOC, m_xc.toFirstContentToken());
     }
 
+    @Test
     public void testToFirstContentTokenFromTEXT() throws Exception {
         m_xc = XmlObject.Factory.parse("<foo attr0=\"val0\" xmlns=\"nsuri\"><bar>text</bar></foo>").newCursor();
         toNextTokenOfType(m_xc, TokenType.TEXT);
@@ -104,6 +87,7 @@ public class ToFirstContentTokenTest extends BasicCursorTestCase {
         assertEquals("text", m_xc.getChars());
     }
 
+    @Test
     public void testToFirstContentTokenFromTEXTmiddle() throws Exception {
         m_xc = XmlObject.Factory.parse("<foo attr0=\"val0\" xmlns=\"nsuri\"><bar>text</bar></foo>").newCursor();
         toNextTokenOfType(m_xc, TokenType.TEXT);
@@ -111,6 +95,5 @@ public class ToFirstContentTokenTest extends BasicCursorTestCase {
         assertEquals(TokenType.NONE, m_xc.toFirstContentToken());
         assertEquals("xt", m_xc.getChars());
     }
-
 }
 

@@ -17,29 +17,22 @@
 package xmlobject.schematypes.checkin;
 
 
-import junit.framework.TestCase;
-import junit.framework.Test;
-import junit.framework.TestSuite;
-import junit.framework.Assert;
-import org.openuri.testNumerals.DocDocument;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.impl.values.XmlValueOutOfRangeException;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.openuri.testNumerals.DocDocument;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
-/**
- * Author: Cezar Andrei (cezar.andrei at bea.com)
- * Date: Nov 23, 2003
- */
-public class NumeralsTests extends TestCase
-{
-    public NumeralsTests(String name) { super(name); }
-    public static Test suite() { return new TestSuite(NumeralsTests.class); }
+import static org.junit.Assert.*;
 
+public class NumeralsTests {
     private static DocDocument.Doc doc;
-    static
-    {
+
+    @BeforeClass
+    public static void initDoc() throws XmlException {
         String inst =
             "<doc xmlns='http://openuri.org/testNumerals'>\n" +
             "  <string>    this is a long string \n" +
@@ -117,158 +110,138 @@ public class NumeralsTests extends TestCase
             "  </integer>\n" +
             "</doc>";
 
-        try
-        {
-            doc = DocDocument.Factory.parse(inst).getDoc();
-        }
-        catch (XmlException e)
-        {
-            throw new IllegalStateException(e.getMessage());
-        }
+        doc = DocDocument.Factory.parse(inst).getDoc();
     }
 
-    public void test1() throws XmlException
-    {
+    @Test
+    public void test1() {
         String s = "    this is a long string \n" + "  ...   ";
-        Assert.assertTrue("String expected:\n'" + s + "'         actual:\n'" +
-            doc.getStringArray()[0] + "'", s.equals(doc.getStringArray()[0]));
+        assertEquals("String expected:\n'" + s + "'         actual:\n'" +
+            doc.getStringArray()[0] + "'", s, doc.getStringArray()[0]);
     }
 
-    public void test2() throws XmlException
-    {
-        Assert.assertTrue("int expected:" + 5 + " actual:" + doc.getIntArray()[0], doc.getIntArray()[0]==5);
+    @Test
+    public void test2() {
+        assertEquals("int expected:" + 5 + " actual:" + doc.getIntArray()[0], 5, doc.getIntArray()[0]);
     }
 
-    public void test3() throws XmlException
-    {
-        Assert.assertTrue("int expected:" + (-6) + " actual:" + doc.getIntArray()[1], doc.getIntArray()[1]==-6);
+    @Test
+    public void test3() {
+        assertEquals("int expected:" + (-6) + " actual:" + doc.getIntArray()[1], doc.getIntArray()[1], -6);
     }
 
-    public void test4() throws XmlException
-    {
-        Assert.assertTrue("int expected:" + 15 + " actual:" + doc.getIntArray()[2], doc.getIntArray()[2]==15);
+    @Test
+    public void test4() {
+        assertEquals("int expected:" + 15 + " actual:" + doc.getIntArray()[2], 15, doc.getIntArray()[2]);
     }
 
-    public void test5() throws XmlException
-    {
-        Assert.assertTrue("int expected:" + 77 + " actual:" + doc.getIntArray()[3], doc.getIntArray()[3]==77);
+    @Test
+    public void test5() {
+        assertEquals("int expected:" + 77 + " actual:" + doc.getIntArray()[3], 77, doc.getIntArray()[3]);
     }
 
-    public void test6() throws XmlException
-    {
-        Assert.assertTrue(doc.getBooleanArray(0)==true);
+    @Test
+    public void test6() {
+        assertTrue(doc.getBooleanArray(0));
     }
 
-    public void test7() throws XmlException
-    {
-        Assert.assertTrue(doc.getBooleanArray(1)==false);
+    @Test
+    public void test7() {
+        assertFalse(doc.getBooleanArray(1));
     }
 
-    public void test8() throws XmlException
-    {
-        Assert.assertTrue(doc.getBooleanArray(2)==false);
+    @Test
+    public void test8() {
+        assertFalse(doc.getBooleanArray(2));
     }
 
-    public void test9() throws XmlException
-    {
-        Assert.assertTrue(doc.getBooleanArray(3)==true);
+    @Test
+    public void test9() {
+        assertTrue(doc.getBooleanArray(3));
     }
 
-    public void test10() throws XmlException
-    {
-        try { boolean b = doc.getBooleanArray()[4]; Assert.assertTrue(false); }
-        catch(XmlValueOutOfRangeException e)
-        { Assert.assertTrue(true); }
+    @Test(expected = XmlValueOutOfRangeException.class)
+    public void test10() {
+        boolean b = doc.getBooleanArray()[4];
     }
 
-    public void test11() throws XmlException
-    {
-        Assert.assertTrue(doc.getShortArray()[0]==3);
+    @Test
+    public void test11() {
+        assertEquals(3, doc.getShortArray()[0]);
     }
 
-    public void test12() throws XmlException
-    {
-        Assert.assertTrue(doc.getByteArray()[0]==1);
+    @Test
+    public void test12() {
+        assertEquals(1, doc.getByteArray()[0]);
     }
 
-    public void test13() throws XmlException
-    {
-        Assert.assertTrue("long expected:" + (-50000) + " actual:" + doc.getLongArray()[0],
-            doc.getLongArray()[0]==-500000);
+    @Test
+    public void test13() {
+        assertEquals("long expected:" + (-50000) + " actual:" + doc.getLongArray()[0], doc.getLongArray()[0], -500000);
     }
 
-    public void test14() throws XmlException
-    {
-        Assert.assertTrue("long expected:" + 1 + " actual:" + doc.getLongArray()[1],
-            doc.getLongArray()[1]==1);
+    @Test
+    public void test14() {
+        assertEquals("long expected:" + 1 + " actual:" + doc.getLongArray()[1], 1, doc.getLongArray()[1]);
     }
 
-    public void test15() throws XmlException
-    {
-        Assert.assertTrue("long expected:" + 2 + " actual:" + doc.getLongArray()[2],
-            doc.getLongArray()[2]==2);
+    @Test
+    public void test15() {
+        assertEquals("long expected:" + 2 + " actual:" + doc.getLongArray()[2], 2, doc.getLongArray()[2]);
     }
 
-    public void test16() throws XmlException
-    {
-        Assert.assertTrue(doc.getDoubleArray()[0]==1);
+    @Test
+    public void test16() {
+        assertEquals(1, doc.getDoubleArray()[0], 0.0);
     }
 
-    public void test17() throws XmlException
-    {
-        Assert.assertTrue("double expected:" + -2.007d + " actual:" + doc.getDoubleArray()[1],
-            doc.getDoubleArray()[1]==-2.007d);
+    @Test
+    public void test17() {
+        assertEquals("double expected:" + -2.007d + " actual:" + doc.getDoubleArray()[1], doc.getDoubleArray()[1], -2.007d, 0.0);
     }
 
-    public void test18() throws XmlException
-    {
-        Assert.assertTrue(new Double(Double.POSITIVE_INFINITY).
-            equals(new Double(doc.getDoubleArray()[2])));
+    @Test
+    public void test18() {
+        assertEquals(Double.POSITIVE_INFINITY, doc.getDoubleArray()[2], 0);
     }
 
-    public void test19() throws XmlException
-    {
-        Assert.assertTrue(new Double(Double.NEGATIVE_INFINITY).
-            equals(new Double(doc.getDoubleArray()[3])));
+    @Test
+    public void test19() {
+        assertEquals(Double.NEGATIVE_INFINITY, doc.getDoubleArray()[3], 0);
     }
 
-    public void test20() throws XmlException
-    {
-        Assert.assertTrue(new Double(Double.NaN).
-            equals(new Double(doc.getDoubleArray()[4])));
+    @Test
+    public void test20() {
+        assertEquals(Double.NaN, doc.getDoubleArray()[4], 0);
     }
 
-    public void test21() throws XmlException
-    {
-        Assert.assertTrue("fload expected:" + 12.325f + " actual:" + doc.getFloatArray()[0],
-            doc.getFloatArray()[0]==12.325f);
+    @Test
+    public void test21() {
+        assertEquals("fload expected:" + 12.325f + " actual:" + doc.getFloatArray()[0], 12.325f, doc.getFloatArray()[0], 0.0);
     }
 
-    public void test22() throws XmlException
-    {
-        Assert.assertTrue(new Float(Float.NaN).
-            equals(new Float(doc.getFloatArray()[1])));
+    @Test
+    public void test22() {
+        assertEquals(Float.NaN, doc.getFloatArray()[1], 0);
     }
 
-    public void test23() throws XmlException
-    {
-        Assert.assertTrue("fload expected:" + Float.POSITIVE_INFINITY + " actual:" + doc.getFloatArray()[2],
-            new Float(Float.POSITIVE_INFINITY).equals(new Float(doc.getFloatArray()[2])));
+    @Test
+    public void test23() {
+        assertEquals("fload expected:" + Float.POSITIVE_INFINITY + " actual:" + doc.getFloatArray()[2], Float.POSITIVE_INFINITY, doc.getFloatArray()[2], 0);
     }
 
-    public void test24() throws XmlException
-    {
-        Assert.assertTrue(new Float(Float.NEGATIVE_INFINITY).
-            equals(new Float(doc.getFloatArray()[3])));
+    @Test
+    public void test24() {
+        assertEquals(Float.NEGATIVE_INFINITY, doc.getFloatArray()[3], 0);
     }
 
-    public void test25() throws XmlException
-    {
-        Assert.assertTrue(new BigDecimal("1.001").equals(doc.getDecimalArray()[0]));
+    @Test
+    public void test25() {
+        assertEquals(new BigDecimal("1.001"), doc.getDecimalArray()[0]);
     }
 
-    public void test26() throws XmlException
-    {
-        Assert.assertTrue(new BigInteger("1000000000").equals(doc.getIntegerArray(0)));
+    @Test
+    public void test26() {
+        assertEquals(new BigInteger("1000000000"), doc.getIntegerArray(0));
     }
 }

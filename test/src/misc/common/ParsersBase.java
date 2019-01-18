@@ -16,7 +16,6 @@
 
 package misc.common;
 
-import junit.framework.TestCase;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -30,8 +29,10 @@ import javax.xml.parsers.SAXParserFactory;
 import java.io.IOException;
 import java.io.StringReader;
 
+import static org.junit.Assert.fail;
 
-public class ParsersBase extends TestCase {
+
+public class ParsersBase {
 
     private static final String outputEncoding = "UTF-8";
 

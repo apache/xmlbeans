@@ -15,15 +15,15 @@
 
 package scomp.derivation.restriction.detailed;
 
+import org.junit.Test;
+import scomp.common.BaseCase;
 import xbean.scomp.contentType.modelGroup.ChoiceEltDocument;
 import xbean.scomp.contentType.simpleType.PantSizeEltDocument;
-import scomp.common.BaseCase;
 
-/**
- *
- */
-public class SubstitutionTest extends BaseCase
- {
+import static org.junit.Assert.assertTrue;
+
+public class SubstitutionTest extends BaseCase {
+    @Test
     public void testSubstitution() throws Throwable{
          ChoiceEltDocument doc=
                 ChoiceEltDocument.Factory.parse(
@@ -35,7 +35,7 @@ public class SubstitutionTest extends BaseCase
                  "<child3>50</child3>" +
                  "</foo:ChoiceElt>"
                 );
-                try {
+        try {
             assertTrue(doc.validate(validateOptions));
         }
         catch (Throwable t) {
@@ -44,21 +44,21 @@ public class SubstitutionTest extends BaseCase
         }
     }
 
-     public void testSimpleTypeSubstitution() throws Throwable{
-                PantSizeEltDocument doc=
-                PantSizeEltDocument.Factory.parse(
-                        "<foo:PantSizeElt " +
-                 "xmlns:foo=\"http://xbean/scomp/contentType/SimpleType\"" +
-                 " xmlns:sub=\"http://xbean/scomp/derivation/SimpleTypeRestriction\""+
-                 " xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"" +
-                 " xsi:type=\"sub:SmallPantSize\">"+
-                  "8" +
-                 "</foo:PantSizeElt>"
-                );
-                try {
+    @Test
+    public void testSimpleTypeSubstitution() throws Throwable{
+        PantSizeEltDocument doc =
+            PantSizeEltDocument.Factory.parse(
+                "<foo:PantSizeElt " +
+                    "xmlns:foo=\"http://xbean/scomp/contentType/SimpleType\"" +
+                    " xmlns:sub=\"http://xbean/scomp/derivation/SimpleTypeRestriction\"" +
+                    " xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"" +
+                    " xsi:type=\"sub:SmallPantSize\">" +
+                    "8" +
+                    "</foo:PantSizeElt>"
+            );
+        try {
             assertTrue(doc.validate(validateOptions));
-        }
-        catch (Throwable t) {
+        } catch (Throwable t) {
             showErrors();
             throw t;
         }

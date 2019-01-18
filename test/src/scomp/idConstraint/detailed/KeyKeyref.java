@@ -15,18 +15,17 @@
 
 package scomp.idConstraint.detailed;
 
+import org.apache.xmlbeans.XmlErrorCodes;
+import org.apache.xmlbeans.XmlString;
+import org.junit.Test;
 import scomp.common.BaseCase;
 import xbean.scomp.idConstraint.constraint.*;
-import org.apache.xmlbeans.XmlString;
-import org.apache.xmlbeans.XmlErrorCodes;
 
-/**
- *
- *
- * 
- */
+import static org.junit.Assert.assertTrue;
+
 public class KeyKeyref extends BaseCase {
 
+    @Test
     public void testUnique() throws Throwable {
         String input =
                 "<con:productList xmlns:con=\"http://xbean/scomp/idConstraint/Constraint\">" +
@@ -52,9 +51,8 @@ public class KeyKeyref extends BaseCase {
 
     /**
      * field combo not unique in instance  (a and c are the same)
-     *
-     * @throws Throwable
      */
+    @Test
     public void testUniqueIllegal() throws Throwable {
         ProductListDocument doc = ProductListDocument.Factory.newInstance();
         ProductListType products = ProductListType.Factory.newInstance();
@@ -90,9 +88,8 @@ public class KeyKeyref extends BaseCase {
     /**
      * Selector selects a non-unique field in instance
      * Only one dept can appear in the first product
-     *
-     * @throws Throwable
      */
+    @Test
     public void testUniqueIllegal2() throws Throwable {
         String input =
                 "<con:productList xmlns:con=\"http://xbean/scomp/idConstraint/Constraint\">" +
@@ -115,6 +112,7 @@ public class KeyKeyref extends BaseCase {
     }
 
 
+    @Test
     public void testKey() throws Throwable {
         String input =
                 "<con:KeyProductList xmlns:con=\"http://xbean/scomp/idConstraint/Constraint\">" +
@@ -139,9 +137,8 @@ public class KeyKeyref extends BaseCase {
 
     /**
      * null key in instance:missing dept in first product
-     *
-     * @throws Throwable
      */
+    @Test
     public void testKeyIllegal() throws Throwable {
         String input =
                 "<xs:KeyProductList xmlns:xs=\"http://xbean/scomp/idConstraint/Constraint\">" +
@@ -168,6 +165,7 @@ public class KeyKeyref extends BaseCase {
     }
 
 
+    @Test
     public void testKeyRef() throws Throwable {
         String input =
                 "<con:CompanyDB xmlns:con=\"http://xbean/scomp/idConstraint/Constraint\">" +
@@ -209,6 +207,7 @@ public class KeyKeyref extends BaseCase {
     // Invalid xml instance with 2 problems :
     // a) the values for the key & key ref elems are not the same
     // b) The keyref/key elems are duplicated
+    @Test
     public void testKeyRefIllegal() throws Throwable {
 
         String input =

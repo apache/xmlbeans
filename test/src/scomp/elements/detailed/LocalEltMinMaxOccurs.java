@@ -14,9 +14,13 @@
  */
 package scomp.elements.detailed;
 
+import org.junit.Test;
 import scomp.common.BaseCase;
 import xbean.scomp.element.localEltMinMaxOccurs.MinMaxOccursDocDocument;
 import org.apache.xmlbeans.XmlErrorCodes;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  *
@@ -42,11 +46,13 @@ public class LocalEltMinMaxOccurs extends BaseCase {
     }
 
 
+    @Test
     public void testMinGTMaxOccurs() {
         //compile time error raised correctly. Same for neg values
     }
 
     // twoToFour occurs only once
+    @Test
     public void testInstanceLTMinOccurs() throws Exception {
         MinMaxOccursDocDocument testDoc = MinMaxOccursDocDocument
                 .Factory.parse("<MinMaxOccursDoc" +
@@ -56,16 +62,17 @@ public class LocalEltMinMaxOccurs extends BaseCase {
                 "<twoToFour>1</twoToFour>" +
                 "</MinMaxOccursDoc>");
         assertTrue(!testDoc.validate(validateOptions));
-        assertEquals(1,errorList.size());
+        assertEquals(1, errorList.size());
         showErrors();
         String[] errExpected = new String[]{
             XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$MISSING_ELEMENT
         };
-             assertTrue(compareErrorCodes(errExpected));
+        assertTrue(compareErrorCodes(errExpected));
 
     }
 
     // maxOccursOne occurs 2ce
+    @Test
     public void testInstanceGTMaxOccurs() throws Exception {
         MinMaxOccursDocDocument testDoc = MinMaxOccursDocDocument
                 .Factory.parse("<MinMaxOccursDoc" +
@@ -76,17 +83,17 @@ public class LocalEltMinMaxOccurs extends BaseCase {
                 "<twoToFour>1</twoToFour>" +
                 "<twoToFour>1</twoToFour>" +
                 "</MinMaxOccursDoc>");
-        assertEquals(0,errorList.size());
-          assertTrue(!testDoc.validate(validateOptions));
-          assertEquals(1,errorList.size());
-         //TODO: why is this not element not allowed?
+        assertEquals(0, errorList.size());
+        assertTrue(!testDoc.validate(validateOptions));
+        assertEquals(1, errorList.size());
+        //TODO: why is this not element not allowed?
 
         String[] errExpected = new String[]{
             XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$EXPECTED_DIFFERENT_ELEMENT};
-             assertTrue(compareErrorCodes(errExpected));
+        assertTrue(compareErrorCodes(errExpected));
 
-         //fail("Error is incorrect: the dev infers the cause... incorrectly");
-                showErrors();
+        //fail("Error is incorrect: the dev infers the cause... incorrectly");
+        showErrors();
     }
 
 }

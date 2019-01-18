@@ -15,24 +15,21 @@
 
 package scomp.contentType.simple.detailed;
 
+import org.apache.xmlbeans.XmlErrorCodes;
+import org.apache.xmlbeans.XmlSimpleList;
+import org.apache.xmlbeans.impl.values.XmlValueNotSupportedException;
+import org.junit.Test;
 import scomp.common.BaseCase;
 import xbean.scomp.contentType.list.*;
 
-import java.util.List;
-import java.util.LinkedList;
 import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
 
-import org.apache.xmlbeans.impl.values.XmlValueOutOfRangeException;
-import org.apache.xmlbeans.impl.values.XmlValueNotSupportedException;
-import org.apache.xmlbeans.XmlSimpleList;
-import org.apache.xmlbeans.XmlErrorCodes;
+import static org.junit.Assert.*;
 
-/**
- *
- *
- *
- */
 public class ListType extends BaseCase {
+    @Test
     public void testListTypeAnonymous() throws Throwable {
         ListEltTokenDocument doc =
                 ListEltTokenDocument.Factory.newInstance();
@@ -67,6 +64,7 @@ public class ListType extends BaseCase {
 
     }
 
+    @Test
     public void testListTypeGlobal() throws Throwable {
         String input =
                 "<ListEltInt xmlns=\"http://xbean/scomp/contentType/List\"" +
@@ -100,6 +98,7 @@ public class ListType extends BaseCase {
         }
     }
 
+    @Test
     public void testListofLists() {
         //also,a list of union that contains a list is not OK
         fail("Compile Time eror");
@@ -108,6 +107,7 @@ public class ListType extends BaseCase {
     /**
      * values should be in [small,medium,large,1-3,-3,-2,-1]
      */
+    @Test
     public void testListofUnions() throws Throwable {
         ListUnionDocument doc =
                 ListUnionDocument.Factory.newInstance();
@@ -127,6 +127,7 @@ public class ListType extends BaseCase {
         }
     }
 
+    @Test
     public void testListofUnionsIllegal() throws Throwable {
         String input =
                 "<ListUnion xmlns=\"http://xbean/scomp/contentType/List\"" +
@@ -145,6 +146,7 @@ public class ListType extends BaseCase {
     }
 
 
+    @Test
     public void testListofUnions2() throws Throwable {
         ListUnion2Document doc =
                 ListUnion2Document.Factory.newInstance();

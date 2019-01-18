@@ -14,17 +14,21 @@
  */
 package scomp.derivation.restriction.facets.detailed;
 
+import org.apache.xmlbeans.XmlErrorCodes;
+import org.junit.Test;
 import scomp.common.BaseCase;
 import xbean.scomp.derivation.facets.list.*;
 
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 
-import org.apache.xmlbeans.XmlErrorCodes;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  */
 public class ListRestriction extends BaseCase {
+    @Test
     public void testLengthFacet() throws Throwable {
         LengthEltDocument doc = LengthEltDocument.Factory.newInstance();
         List vals = new ArrayList();
@@ -59,6 +63,7 @@ public class ListRestriction extends BaseCase {
 
     }
 
+    @Test
     public void testMinLengthFacet() throws Throwable {
         String input =
                 "<MinLengthElt xmlns=\"http://xbean/scomp/derivation/facets/List\">" +
@@ -96,6 +101,7 @@ public class ListRestriction extends BaseCase {
 
     }
 
+    @Test
     public void testMaxLengthFacet() throws Throwable {
         String input =
                 "<MaxLengthElt xmlns=\"http://xbean/scomp/derivation/facets/List\">" +
@@ -125,9 +131,8 @@ public class ListRestriction extends BaseCase {
 
     /**
      * Walmsley, p. 215...
-     *
-     * @throws Throwable
      */
+    @Test
     public void testEnum() throws Throwable {
         EnumEltDocument doc = EnumEltDocument.Factory.newInstance();
         List vals = new ArrayList();
@@ -166,6 +171,7 @@ public class ListRestriction extends BaseCase {
 
     }
 
+    @Test
     public void testPattern() throws Throwable {
         PatternEltDocument doc = PatternEltDocument.Factory.newInstance();
         List vals = new ArrayList();

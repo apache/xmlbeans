@@ -16,33 +16,31 @@
 package misc.detailed;
 
 import misc.common.JiraTestBase;
-import org.apache.xmlbeans.XmlOptions;
+import net.eads.space.scoexml.test.TestExponentDocument;
 import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.XmlOptions;
 import org.apache.xmlbeans.impl.tool.SchemaCompiler;
+import org.junit.Test;
 
+import java.io.File;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.io.File;
 
-import net.eads.space.scoexml.test.TestExponentDocument;
-import junit.framework.Assert;
+import static org.junit.Assert.*;
 
 /**
  *
  */
 public class JiraRegression151_200Test extends JiraTestBase
 {
-    public JiraRegression151_200Test(String name)
-    {
-        super(name);
-    }
 
     /**
      * [XMLBEANS-175]   Validation of decimal in exponential representation fails
      * @throws Exception
      */
+    @Test
     public void test_jira_xmlbeans175() throws Exception{
 
         TestExponentDocument.TestExponent exponent = TestExponentDocument.TestExponent.Factory.newInstance();
@@ -71,6 +69,7 @@ public class JiraRegression151_200Test extends JiraTestBase
     /**
      * [XMLBEANS-179]   Saving xml with '&' and '<' characters in attribute values throws an ArrayIndexOutOfBoundsException
      */
+    @Test
     public void test_jira_xmlbeans179() throws Exception{
         String xmlWithIssues = "<Net id=\"dbid:66754220\" name=\"3&lt;.3V\" type=\"POWER\"/>";
 
@@ -86,8 +85,8 @@ public class JiraRegression151_200Test extends JiraTestBase
 
     /*
     * [XMLBEANS-184]: NPE when running scomp without nopvr option
-    *
     */
+    @Test
     public void test_jira_xmlbeans184() throws Exception {
         List errors = new ArrayList();
 
@@ -107,7 +106,7 @@ public class JiraRegression151_200Test extends JiraTestBase
         }
 
         if (printOptionErrMsgs(errors)) {
-            Assert.fail("test_jira_xmlbeans184() : Errors found when executing scomp");
+            fail("test_jira_xmlbeans184() : Errors found when executing scomp");
         }
 
         // now compile without the pvr option and NPE is thrown
@@ -120,7 +119,7 @@ public class JiraRegression151_200Test extends JiraTestBase
         }
 
         if (printOptionErrMsgs(errors)) {
-            Assert.fail("test_jira_xmlbeans184() : Errors found when executing scomp ");
+            fail("test_jira_xmlbeans184() : Errors found when executing scomp ");
         }
 
     }

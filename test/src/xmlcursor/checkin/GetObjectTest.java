@@ -19,108 +19,99 @@ package xmlcursor.checkin;
 import org.apache.xmlbeans.XmlCursor.TokenType;
 import org.apache.xmlbeans.XmlNMTOKEN;
 import org.apache.xmlbeans.XmlObject;
+import org.junit.Test;
+import org.tranxml.tranXML.version40.CarLocationMessageDocument;
 import tools.util.JarUtil;
 import xmlcursor.common.BasicCursorTestCase;
 import xmlcursor.common.Common;
-import junit.framework.Test;
-import junit.framework.TestSuite;
-import org.tranxml.tranXML.version40.CarLocationMessageDocument;
+
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 
-/**
- *
- *
- */
 public class GetObjectTest extends BasicCursorTestCase {
-    public GetObjectTest(String sName) {
-        super(sName);
-    }
-
-    public static Test suite() {
-        return new TestSuite(GetObjectTest.class);
-    }
-
-    public void testClassPath() throws Exception {
-        String sClassPath = System.getProperty("java.class.path");
-        int i = sClassPath.indexOf(Common.CARLOCATIONMESSAGE_JAR);
-        assertTrue(i >= 0);
-    }
-
+    @Test
     public void testGetObjectFromSTARTDOC() throws Exception {
         m_xo = XmlObject.Factory.parse(
                  JarUtil.getResourceFromJar(Common.TRANXML_FILE_CLM));
         m_xc = m_xo.newCursor();
-        assertEquals(true,
-                m_xc.getObject() instanceof CarLocationMessageDocument);
+        assertTrue(m_xc.getObject() instanceof CarLocationMessageDocument);
     }
 
+    @Test
     public void testGetObjectFromSTART() throws Exception {
         m_xo = XmlObject.Factory.parse(
                 JarUtil.getResourceFromJar(Common.TRANXML_FILE_CLM));
         m_xc = m_xo.newCursor();
         m_xc.toFirstChild();
-        assertEquals(true,
-                m_xc.getObject() instanceof CarLocationMessageDocument.CarLocationMessage);
+        assertTrue(m_xc.getObject() instanceof CarLocationMessageDocument.CarLocationMessage);
     }
 
+    @Test
     public void testGetObjectFromATTR() throws Exception {
         m_xo =
-                XmlObject.Factory.parse(
-                        JarUtil.getResourceFromJar("xbean/xmlcursor/po.xml"));
+            XmlObject.Factory.parse(
+                JarUtil.getResourceFromJar("xbean/xmlcursor/po.xml"));
         m_xc = m_xo.newCursor();
-        String sQuery=
-                 "declare namespace po=\"http://xbean.test/xmlcursor/PurchaseOrder\";  "+
-                 "$this//po:shipTo";
-        m_xc.selectPath( sQuery );
+        String sQuery =
+            "declare namespace po=\"http://xbean.test/xmlcursor/PurchaseOrder\";  " +
+                "$this//po:shipTo";
+        m_xc.selectPath(sQuery);
         m_xc.toNextSelection();
         m_xc.toFirstAttribute();
-        assertEquals(true, m_xc.getObject() instanceof XmlNMTOKEN);
+        assertTrue(m_xc.getObject() instanceof XmlNMTOKEN);
     }
 
+    @Test
     public void testGetObjectFromEND() throws Exception {
         m_xo = XmlObject.Factory.parse(
                 JarUtil.getResourceFromJar(Common.TRANXML_FILE_CLM));
         m_xc = m_xo.newCursor();
         toNextTokenOfType(m_xc, TokenType.END);
-        assertEquals(null, m_xc.getObject());
+        assertNull(m_xc.getObject());
     }
 
+    @Test
     public void testGetObjectFromENDDOC() throws Exception {
         m_xo = XmlObject.Factory.parse(
                 JarUtil.getResourceFromJar(Common.TRANXML_FILE_CLM));
         m_xc = m_xo.newCursor();
         m_xc.toEndDoc();
-        assertEquals(null, m_xc.getObject());
+        assertNull(m_xc.getObject());
     }
 
+    @Test
     public void testGetObjectFromNAMESPACE() throws Exception {
         m_xo = XmlObject.Factory.parse(
                 JarUtil.getResourceFromJar(Common.TRANXML_FILE_CLM));
         m_xc = m_xo.newCursor();
         toNextTokenOfType(m_xc, TokenType.NAMESPACE);
-        assertEquals(null, m_xc.getObject());
+        assertNull(m_xc.getObject());
     }
 
+    @Test
     public void testGetObjectFromPROCINST() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_PROCINST);
         m_xc = m_xo.newCursor();
         toNextTokenOfType(m_xc, TokenType.PROCINST);
-        assertEquals(null, m_xc.getObject());
+        assertNull(m_xc.getObject());
     }
 
+    @Test
     public void testGetObjectFromCOMMENT() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_COMMENT);
         m_xc = m_xo.newCursor();
         toNextTokenOfType(m_xc, TokenType.COMMENT);
-        assertEquals(null, m_xc.getObject());
+        assertNull(m_xc.getObject());
     }
 
+    @Test
     public void testGetObjectFromTEXT() throws Exception {
         m_xo = XmlObject.Factory.parse(
                 JarUtil.getResourceFromJar(Common.TRANXML_FILE_CLM));
         m_xc = m_xo.newCursor();
         toNextTokenOfType(m_xc, TokenType.TEXT);
-        assertEquals(null, m_xc.getObject());
+        assertNull(m_xc.getObject());
     }
 }
 

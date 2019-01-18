@@ -16,35 +16,33 @@
 
 package scomp.derivation.restriction.detailed;
 
+import org.junit.Test;
 import scomp.common.BaseCase;
-import xbean.scomp.derivation.simpleTypeRestriction.SmallPantSizeEltDocument;
-import xbean.scomp.derivation.facets.dateTimePattern.DateTimesDocument;
 import xbean.scomp.derivation.facets.dateTimePattern.DateTimes;
-import xbean.scomp.contentType.simpleType.PantSizeEltDocument;
-import xbean.scomp.contentType.simpleType.PantSize;
+import xbean.scomp.derivation.facets.dateTimePattern.DateTimesDocument;
+import xbean.scomp.derivation.simpleTypeRestriction.SmallPantSizeEltDocument;
 
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 
-/**
- *
- */
+import static org.junit.Assert.assertTrue;
+
 public class SimpleTypeRestriction extends BaseCase{
 
+    @Test
     public void testPatternRestriction()throws Throwable{
-        SmallPantSizeEltDocument doc=SmallPantSizeEltDocument.Factory.newInstance();
-          doc.setSmallPantSizeElt(8);
-          //doc.setSmallPantSizeElt(6);
-           try {
+        SmallPantSizeEltDocument doc = SmallPantSizeEltDocument.Factory.newInstance();
+        doc.setSmallPantSizeElt(8);
+        //doc.setSmallPantSizeElt(6);
+        try {
             assertTrue(doc.validate(validateOptions));
-        }
-        catch (Throwable t) {
+        } catch (Throwable t) {
             showErrors();
             throw t;
         }
     }
 
-    //user-list inspired
+    @Test
     public void testDateTimeRestriction() throws Throwable{
        DateTimesDocument doc=
                DateTimesDocument.Factory.newInstance();

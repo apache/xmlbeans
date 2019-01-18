@@ -16,24 +16,10 @@
 package dom.checkin;
 
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
-
-
-/**
- *
- *
- */
+import org.junit.Before;
 
 public class CDataSectionSyncTest extends CDataSectionTest {
-    public CDataSectionSyncTest(String s) {
-        super(s);
-    }
-
-    public static Test suite() {
-        return new TestSuite(CDataSectionSyncTest.class);
-    }
-
+    @Before
     public void setUp() throws Exception {
         super.loadSync();
         super.moveToNode();

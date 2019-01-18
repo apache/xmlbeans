@@ -15,8 +15,9 @@
  */
 package misc.common;
 
-import java.io.File;
 import common.Common;
+
+import java.io.File;
 
 /**
  *
@@ -34,12 +35,9 @@ public class JiraTestBase extends Common
     public static File schemaCompSrcDir = null;
     public static File schemaCompClassesDir = null;
 
-    public static final int THREAD_COUNT = 150;
     public static final int ITERATION_COUNT = 2;
 
-    public JiraTestBase(String name){
-        super(name);
-
+    public JiraTestBase(){
         // directories for the SchemaCompiler.Parameter class members
         if (schemaCompSrcDir == null) {
             schemaCompSrcDir = new File(schemaCompOutputDirPath + P + "src");

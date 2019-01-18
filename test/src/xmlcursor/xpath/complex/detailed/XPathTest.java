@@ -15,20 +15,12 @@
 
 package xmlcursor.xpath.complex.detailed;
 
-import xmlcursor.common.BasicCursorTestCase;
-import xmlcursor.common.Common;
-import xmlcursor.xpath.common.XPathCommon;
-import junit.framework.Test;
-import junit.framework.TestSuite;
-import junit.framework.Assert;
-import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlCursor;
-import org.apache.xmlbeans.XmlOptions;
-import org.apache.xmlbeans.XmlException;
+import org.apache.xmlbeans.XmlObject;
+import org.junit.Test;
 import tools.util.JarUtil;
-import tools.xml.XmlComparator;
-
-import java.io.IOException;
+import xmlcursor.common.BasicCursorTestCase;
+import xmlcursor.xpath.common.XPathCommon;
 
 /**
  * Verifies XPath impl using examples from
@@ -36,18 +28,7 @@ import java.io.IOException;
  * includes expanded notations as well
  *
  */
-public class XPathTest
-    extends BasicCursorTestCase
-{
-    public XPathTest(String sName)
-    {
-        super(sName);
-    }
-
-    public static Test suite()
-    {
-        return new TestSuite(XPathTest.class);
-    }
+public class XPathTest extends BasicCursorTestCase {
 
     static String fixPath(String path)
     {
@@ -55,13 +36,8 @@ public class XPathTest
         return path;
     }
 
-
-    /**
-     * @throws Exception
-     */
-    public void testZvonExample1()
-        throws Exception
-    {
+    @Test
+    public void testZvonExample1() throws Exception {
         System.out.println("====== Example-1 ==========");
         XmlObject xDoc = XmlObject.Factory.parse(
             JarUtil.getResourceFromJar("xbean/xmlcursor/xpath/zvon1.xml"));
@@ -109,12 +85,8 @@ public class XPathTest
         x3.dispose();
     }
 
-    /**
-     * @throws Exception
-     */
-    public void testZvonExample2()
-        throws Exception
-    {
+    @Test
+    public void testZvonExample2() throws Exception {
         System.out.println("====== Example-2 ==========");
 
         XmlObject xDoc = XmlObject.Factory.parse(
@@ -147,15 +119,10 @@ public class XPathTest
         x2.selectPath(fixPath(ex2Simple));
         XPathCommon.compare(x2, exXml2);
         x2.dispose();
-
     }
 
-    /**
-     * @throws Exception
-     */
-    public void testZvonExample3()
-        throws Exception
-    {
+    @Test
+    public void testZvonExample3() throws Exception {
         System.out.println("====== Example-3 ==========");
         XmlObject xDoc = XmlObject.Factory.parse(
             JarUtil.getResourceFromJar("xbean/xmlcursor/xpath/zvon3.xml"));
@@ -259,12 +226,8 @@ public class XPathTest
 
     }
 
-    /**
-     * @throws Exception
-     */
-    public void testZvonExample4()
-        throws Exception
-    {
+    @Test
+    public void testZvonExample4() throws Exception {
         System.out.println("====== Example-4 ==========");
         XmlObject xDoc = XmlObject.Factory.parse(
             JarUtil.getResourceFromJar("xbean/xmlcursor/xpath/zvon4.xml"));
@@ -288,15 +251,10 @@ public class XPathTest
         //XPathCommon.display(x2);
         XPathCommon.compare(x2, exXml);
         x2.dispose();
-
     }
 
-    /**
-     * @throws Exception
-     */
-    public void testZvonExample5()
-        throws Exception
-    {
+    @Test
+    public void testZvonExample5() throws Exception {
         System.out.println("====== Example-5 ==========");
         XmlObject xDoc = XmlObject.Factory.parse(
             JarUtil.getResourceFromJar("xbean/xmlcursor/xpath/zvon5.xml"));
@@ -364,12 +322,8 @@ public class XPathTest
         x5.dispose();
     }
 
-    /**
-     * @throws Exception
-     */
-    public void testZvonExample6()
-        throws Exception
-    {
+    @Test
+    public void testZvonExample6() throws Exception {
         System.out.println("====== Example-16 ==========");
         XmlObject xDoc = XmlObject.Factory.parse(
             JarUtil.getResourceFromJar("xbean/xmlcursor/xpath/zvon6.xml"));
@@ -410,12 +364,8 @@ public class XPathTest
         x3.dispose();
     }
 
-    /**
-     * @throws Exception
-     */
-    public void testZvonExample7()
-        throws Exception
-    {
+    @Test
+    public void testZvonExample7() throws Exception {
         System.out.println("====== Example-7 ==========");
         XmlObject xDoc = XmlObject.Factory.parse(
             JarUtil.getResourceFromJar("xbean/xmlcursor/xpath/zvon7.xml"));
@@ -456,12 +406,8 @@ public class XPathTest
         x3.dispose();
     }
 
-    /**
-     * @throws Exception
-     */
-    public void testZvonExample8()
-        throws Exception
-    {
+    @Test
+    public void testZvonExample8() throws Exception {
         System.out.println("====== Example-8 ==========");
         XmlObject xDoc = XmlObject.Factory.parse(
             JarUtil.getResourceFromJar("xbean/xmlcursor/xpath/zvon8.xml"));
@@ -524,12 +470,8 @@ public class XPathTest
         x3.dispose();
     }
 
-    /**
-     * @throws Exception
-     */
-    public void testZvonExample9()
-        throws Exception
-    {
+    @Test
+    public void testZvonExample9() throws Exception {
         System.out.println("====== Example-9 ==========");
         XmlObject xDoc = XmlObject.Factory.parse(
             JarUtil.getResourceFromJar("xbean/xmlcursor/xpath/zvon9.xml"));
@@ -570,12 +512,8 @@ public class XPathTest
         x3.dispose();
     }
 
-    /**
-     * @throws Exception
-     */
-    public void testZvonExample10()
-        throws Exception
-    {
+    @Test
+    public void testZvonExample10() throws Exception {
         System.out.println("====== Example-10 ==========");
         XmlObject xDoc = XmlObject.Factory.parse(
             JarUtil.getResourceFromJar("xbean/xmlcursor/xpath/zvon10.xml"));
@@ -628,12 +566,8 @@ public class XPathTest
         x3.dispose();
     }
 
-    /**
-     * @throws Exception
-     */
-    public void testZvonExample11()
-        throws Exception
-    {
+    @Test
+    public void testZvonExample11() throws Exception {
         System.out.println("====== Example-11 ==========");
         XmlObject xDoc = XmlObject.Factory.parse(
             JarUtil.getResourceFromJar("xbean/xmlcursor/xpath/zvon11.xml"));
@@ -693,12 +627,8 @@ public class XPathTest
         x5.dispose();
     }
 
-    /**
-     * @throws Exception
-     */
-    public void testZvonExample12()
-        throws Exception
-    {
+    @Test
+    public void testZvonExample12() throws Exception {
         System.out.println("====== Example-12 ==========");
         XmlObject xDoc = XmlObject.Factory.parse(
             JarUtil.getResourceFromJar("xbean/xmlcursor/xpath/zvon12.xml"));
@@ -779,12 +709,8 @@ public class XPathTest
         x4.dispose();
     }
 
-    /**
-     * @throws Exception
-     */
-    public void testZvonExample13()
-        throws Exception
-    {
+    @Test
+    public void testZvonExample13() throws Exception {
         System.out.println("====== Example-13 ==========");
         XmlObject xDoc = XmlObject.Factory.parse(
             JarUtil.getResourceFromJar("xbean/xmlcursor/xpath/zvon13.xml"));
@@ -808,12 +734,8 @@ public class XPathTest
         x1.dispose();
     }
 
-    /**
-     * @throws Exception
-     */
-    public void testZvonExample14()
-        throws Exception
-    {
+    @Test
+    public void testZvonExample14() throws Exception {
         System.out.println("====== Example-14 ==========");
         XmlObject xDoc = XmlObject.Factory.parse(
             JarUtil.getResourceFromJar("xbean/xmlcursor/xpath/zvon14.xml"));
@@ -855,12 +777,8 @@ public class XPathTest
 
     }
 
-    /**
-     * @throws Exception
-     */
-    public void testZvonExample15()
-        throws Exception
-    {
+    @Test
+    public void testZvonExample15() throws Exception {
         System.out.println("====== Example-15 ==========");
         XmlObject xDoc = XmlObject.Factory.parse(
             JarUtil.getResourceFromJar("xbean/xmlcursor/xpath/zvon15.xml"));
@@ -892,12 +810,8 @@ public class XPathTest
 
     }
 
-    /**
-     * @throws Exception
-     */
-    public void testZvonExample16()
-        throws Exception
-    {
+    @Test
+    public void testZvonExample16() throws Exception {
         System.out.println("====== Example-16 ==========");
         XmlObject xDoc = XmlObject.Factory.parse(
             JarUtil.getResourceFromJar("xbean/xmlcursor/xpath/zvon16.xml"));
@@ -929,12 +843,8 @@ public class XPathTest
 
     }
 
-    /**
-     * @throws Exception
-     */
-    public void testZvonExample17()
-        throws Exception
-    {
+    @Test
+    public void testZvonExample17() throws Exception {
         System.out.println("====== Example-17 ==========");
         XmlObject xDoc = XmlObject.Factory.parse(
             JarUtil.getResourceFromJar("xbean/xmlcursor/xpath/zvon17.xml"));
@@ -979,12 +889,9 @@ public class XPathTest
      * the preceding axis contains all nodes that are descendants of the root
      * of the tree in which the context node is found, are not ancestors of
      * the context node, and occur before the context node in document order
-     *
-     * @throws Exception
      */
-    public void testZvonExample18()
-        throws Exception
-    {
+    @Test
+    public void testZvonExample18() throws Exception {
         System.out.println("====== Example-18 ==========");
         XmlObject xDoc = XmlObject.Factory.parse(
             JarUtil.getResourceFromJar("xbean/xmlcursor/xpath/zvon18.xml"));
@@ -1035,12 +942,8 @@ public class XPathTest
 
     }
 
-    /**
-     * @throws Exception
-     */
-    public void testZvonExample19()
-        throws Exception
-    {
+    @Test
+    public void testZvonExample19() throws Exception {
         System.out.println("====== Example-19 ==========");
         XmlObject xDoc = XmlObject.Factory.parse(
             JarUtil.getResourceFromJar("xbean/xmlcursor/xpath/zvon19.xml"));
@@ -1083,12 +986,8 @@ public class XPathTest
 
     }
 
-    /**
-     * @throws Exception
-     */
-    public void testZvonExample20()
-        throws Exception
-    {
+    @Test
+    public void testZvonExample20() throws Exception {
         System.out.println("====== Example-20 ==========");
         XmlObject xDoc = XmlObject.Factory.parse(
             JarUtil.getResourceFromJar("xbean/xmlcursor/xpath/zvon20.xml"));
@@ -1132,12 +1031,8 @@ public class XPathTest
 
     }
 
-    /**
-     * @throws Exception
-     */
-    public void testZvonExample21()
-        throws Exception
-    {
+    @Test
+    public void testZvonExample21() throws Exception {
         System.out.println("====== Example-21 ==========");
         XmlObject xDoc = XmlObject.Factory.parse(
             JarUtil.getResourceFromJar("xbean/xmlcursor/xpath/zvon21.xml"));
@@ -1257,12 +1152,8 @@ public class XPathTest
         x6.dispose();
     }
 
-    /**
-     * @throws Exception
-     */
-    public void testZvonExample22()
-        throws Exception
-    {
+    @Test
+    public void testZvonExample22() throws Exception {
         System.out.println("====== Example-22 ==========");
         XmlObject xDoc = XmlObject.Factory.parse(
             JarUtil.getResourceFromJar("xbean/xmlcursor/xpath/zvon22.xml"));
@@ -1301,25 +1192,4 @@ public class XPathTest
         XPathCommon.compare(x3, ex3Xml);
         x3.dispose();
     }
-
-
-   /* public static void main(String[] rgs)
-    {
-        try
-        {
-            new XPathTest("").testZvonExample21();
-        }
-        catch (Exception e)
-        {
-            e.printStackTrace();
-        }
-    }
-    */
-//    public void testZvonExample() throws Exception {
-//        XmlObject xDoc = XmlObject.Factory.parse(JarUtil.getResourceFromJar(Common.XMLCASES_JAR,
-//                                                                            "xbean/xmlcursor/xpath/zvon.xml"));
-//        XmlCursor xc = xDoc.newCursor();
-//    }
-
-
 }

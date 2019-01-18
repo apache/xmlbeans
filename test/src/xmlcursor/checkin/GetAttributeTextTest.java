@@ -18,28 +18,19 @@ package xmlcursor.checkin;
 
 import org.apache.xmlbeans.XmlCursor.TokenType;
 import org.apache.xmlbeans.XmlObject;
+import org.junit.Test;
 import tools.util.JarUtil;
 import xmlcursor.common.BasicCursorTestCase;
 import xmlcursor.common.Common;
-import junit.framework.Test;
-import junit.framework.TestSuite;
 
 import javax.xml.namespace.QName;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
-/**
- *
- *
- */
+
 public class GetAttributeTextTest extends BasicCursorTestCase {
-    public GetAttributeTextTest(String sName) {
-        super(sName);
-    }
-
-    public static Test suite() {
-        return new TestSuite(GetAttributeTextTest.class);
-    }
-
+    @Test
     public void testGetAttributeTextFromSTARTwith2ATTR() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_2ATTR_TEXT);
         m_xc = m_xo.newCursor();
@@ -47,34 +38,37 @@ public class GetAttributeTextTest extends BasicCursorTestCase {
         assertEquals("val1", m_xc.getAttributeText(new QName("attr1")));
     }
 
+    @Test
     public void testGetAttributeTextFromSTARTwithInvalid() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_2ATTR_TEXT);
         m_xc = m_xo.newCursor();
         m_xc.toFirstChild();
-        assertEquals(null, m_xc.getAttributeText(new QName("invalid")));
+        assertNull(m_xc.getAttributeText(new QName("invalid")));
     }
 
+    @Test
     public void testGetAttributeTextFromSTARTChildHasAttr() throws Exception {
         m_xo = XmlObject.Factory.parse(
                   JarUtil.getResourceFromJar(Common.TRANXML_FILE_XMLCURSOR_PO));
         m_xc = m_xo.newCursor();
         m_xc.selectPath("$this//items");
-        assertEquals(null, m_xc.getAttributeText(new QName("partNum")));
+        assertNull(m_xc.getAttributeText(new QName("partNum")));
     }
 
+    @Test
     public void testGetAttributeTextFromSTARTDOCChildHasAttr() throws Exception {
         m_xo = XmlObject.Factory.parse(
                   JarUtil.getResourceFromJar(Common.TRANXML_FILE_XMLCURSOR_PO));
         m_xc = m_xo.newCursor();
-        assertEquals(null, m_xc.getAttributeText(new QName("partNum")));
+        assertNull(m_xc.getAttributeText(new QName("partNum")));
     }
 
+    @Test
     public void testGetAttributeTextFromATTR() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_2ATTR_TEXT);
         m_xc = m_xo.newCursor();
         toNextTokenOfType(m_xc, TokenType.ATTR);
-        assertEquals(null, m_xc.getAttributeText(new QName("attr1")));
+        assertNull(m_xc.getAttributeText(new QName("attr1")));
     }
-
 }
 

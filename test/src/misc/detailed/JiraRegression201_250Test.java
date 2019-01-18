@@ -15,31 +15,23 @@
  */
 package misc.detailed;
 
-import misc.common.JiraTestBase;
-import misc.detailed.jira208.FrogBreathDocument;
-import jira.xmlbeans228.substitution.PersonDocument;
 import jira.xmlbeans228.substitution.CommentType;
 import jira.xmlbeans228.substitution.FirstCommentType;
-
-import java.io.StringWriter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Iterator;
+import jira.xmlbeans228.substitution.PersonDocument;
+import misc.common.JiraTestBase;
+import misc.detailed.jira208.FrogBreathDocument;
+import org.apache.xmlbeans.XmlOptions;
+import org.junit.Test;
 
 import javax.xml.namespace.QName;
+import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
-import org.apache.xmlbeans.XmlOptions;
-import org.apache.xmlbeans.XmlError;
+import static org.junit.Assert.*;
 
-/**
- *
- */
-public class JiraRegression201_250Test extends JiraTestBase
-{
-    public JiraRegression201_250Test(String name)
-    {
-        super(name);
-    }
+public class JiraRegression201_250Test extends JiraTestBase {
 
     /*
     * [XMLBEANS-206]: Wrong method finding in getMethod() of InterfaceExtensionImpl
@@ -51,6 +43,7 @@ public class JiraRegression201_250Test extends JiraTestBase
     * [XMLBEANS-208]: validation of decimal with fractionDigits -- special case, additional zero digits
     *
     */
+    @Test
     public void test_jira_xmlbeans208() throws Exception {
 
         XmlOptions options = new XmlOptions();
@@ -88,6 +81,7 @@ public class JiraRegression201_250Test extends JiraTestBase
     * [XMLBEANS-228]: 
     * element order in sequence incorrect after calling substitute()
     */
+    @Test
     public void test_jira_xmlbeans228() throws Exception
     {
         PersonDocument personDocument = PersonDocument.Factory.newInstance();

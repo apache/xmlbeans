@@ -17,42 +17,27 @@
 package xmlcursor.checkin;
 
 
-import junit.framework.*;
-
-import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlCursor.TokenType;
-
-import xmlcursor.common.*;
-
-import test.xbean.xmlcursor.purchaseOrder.USAddress;
+import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.impl.values.XmlValueDisconnectedException;
+import org.junit.Test;
+import test.xbean.xmlcursor.purchaseOrder.USAddress;
 import tools.util.JarUtil;
+import xmlcursor.common.BasicCursorTestCase;
+import xmlcursor.common.Common;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
-/**
- *
- *
- */
 public class RemoveTest extends BasicCursorTestCase {
-    public RemoveTest(String sName) {
-        super(sName);
-    }
-
-    public static Test suite() {
-        return new TestSuite(RemoveTest.class);
-    }
-
+    @Test(expected = IllegalStateException.class)
     public void testRemoveFromSTARTDOC() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_DIGITS);
         m_xc = m_xo.newCursor();
-        try {
-            m_xc.removeXml();
-            fail("Expected IllegalStateException");
-        }
-        catch (IllegalStateException e) {
-        }
+        m_xc.removeXml();
     }
 
+    @Test
     public void testRemoveFromFirstChild() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_DIGITS);
         m_xc = m_xo.newCursor();
@@ -61,6 +46,7 @@ public class RemoveTest extends BasicCursorTestCase {
         assertEquals(TokenType.ENDDOC, m_xc.currentTokenType());
     }
 
+    @Test
     public void testRemoveAllText() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_BAR_TEXT);
         m_xc = m_xo.newCursor();
@@ -71,6 +57,7 @@ public class RemoveTest extends BasicCursorTestCase {
         assertEquals("<foo><bar/></foo>", m_xc.xmlText());
     }
 
+    @Test
     public void testRemovePartialText() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_BAR_TEXT);
         m_xc = m_xo.newCursor();
@@ -83,6 +70,7 @@ public class RemoveTest extends BasicCursorTestCase {
         assertEquals("<foo><bar>te</bar></foo>", m_xc.xmlText());
     }
 
+    @Test
     public void testRemoveFromATTR() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_2ATTR_TEXT);
         m_xc = m_xo.newCursor();
@@ -93,6 +81,7 @@ public class RemoveTest extends BasicCursorTestCase {
         assertEquals("<foo attr1=\"val1\">text</foo>", m_xc.xmlText());
     }
 
+    @Test(expected = XmlValueDisconnectedException.class)
     public void testRemoveAffectOnXmlObjectGetXXX() throws Exception {
         //  m_xo =XmlObject.Factory.parse(JarUtil.getResourceFromJar(
         //          Common.XMLCASES_JAR, Common.TRANXML_FILE_XMLCURSOR_PO));
@@ -108,17 +97,11 @@ public class RemoveTest extends BasicCursorTestCase {
         XmlObject xo = m_xc.getObject();
         USAddress usa = (USAddress) xo;
         m_xc.removeXml();
-        try {
-            usa.getCity();
-            fail("Expected XmlValueDisconnectedException");
-        }
-        catch (XmlValueDisconnectedException xvde) {
-        }
-        assertTrue(true);
+        usa.getCity();
     }
 
+    @Test(expected = XmlValueDisconnectedException.class)
     public void testRemoveAffectOnXmlObjectNewCursor() throws Exception {
-
         // m_xo = XmlObject.Factory.parse(Common.XML_PURCHASEORDER);
         m_xo = XmlObject.Factory.parse(JarUtil.getResourceFromJar(
               "xbean/xmlcursor/po.xml"));
@@ -132,13 +115,7 @@ public class RemoveTest extends BasicCursorTestCase {
         USAddress usa = (USAddress) xo;
         m_xc.removeXml();
         assertNotNull("USAddress object expected non-null, but is null", usa);
-        try {
-            m_xc = usa.newCursor();
-            fail("Expected XmlValueDisconnectedException");
-        }
-        catch (XmlValueDisconnectedException npe) {
-        }
-        assertTrue(true);
+        m_xc = usa.newCursor();
     }
 }
 

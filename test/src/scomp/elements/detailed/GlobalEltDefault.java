@@ -15,20 +15,21 @@
 
 package scomp.elements.detailed;
 
+import org.junit.Test;
 import scomp.common.BaseCase;
 import xbean.scomp.element.globalEltDefault.GlobalEltDefaultIntDocument;
 import xbean.scomp.element.globalEltDefault.GlobalEltDefaultStrDocument;
 
-/**
- *
- *
- */
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 public class GlobalEltDefault extends BaseCase {
     //empty string is OK considered , so default value is ignored
-    public void testStringType()throws Throwable{
-    GlobalEltDefaultStrDocument testDoc=GlobalEltDefaultStrDocument
+    @Test
+    public void testStringType() throws Throwable {
+        GlobalEltDefaultStrDocument testDoc = GlobalEltDefaultStrDocument
             .Factory.newInstance();
-     assertEquals(null,testDoc.getGlobalEltDefaultStr());
+        assertEquals(null, testDoc.getGlobalEltDefaultStr());
 /*try{
     assertTrue(testDoc.validate(validateOptions));
 }catch(Throwable t){
@@ -36,26 +37,27 @@ public class GlobalEltDefault extends BaseCase {
     throw t;
 } */
         testDoc.setGlobalEltDefaultStr("foo");
-        try{
+        try {
             assertTrue(testDoc.validate(validateOptions));
-        }catch(Throwable t){
+        } catch (Throwable t) {
             showErrors();
             throw t;
         }
 
-        }
+    }
 
     //default value is used
-    public void testIntType()throws Throwable{
-       GlobalEltDefaultIntDocument testDoc
-                =GlobalEltDefaultIntDocument.Factory
-               .newInstance();
-     assertEquals(0,testDoc.getGlobalEltDefaultInt());
-    try{
-    assertTrue(testDoc.validate(validateOptions));
-}catch(Throwable t){
-    showErrors();
-    throw t;
-}
+    @Test
+    public void testIntType() throws Throwable {
+        GlobalEltDefaultIntDocument testDoc
+            = GlobalEltDefaultIntDocument.Factory
+            .newInstance();
+        assertEquals(0, testDoc.getGlobalEltDefaultInt());
+        try {
+            assertTrue(testDoc.validate(validateOptions));
+        } catch (Throwable t) {
+            showErrors();
+            throw t;
+        }
     }
 }

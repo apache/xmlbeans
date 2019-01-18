@@ -14,51 +14,35 @@
  */
 package ValidatingXSRTests.checkin;
 
-import junit.framework.TestCase;
-import junit.framework.Test;
-import junit.framework.TestSuite;
-import junit.framework.Assert;
+import org.apache.xmlbeans.*;
+import org.apache.xmlbeans.impl.validator.ValidatingXMLStreamReader;
+import org.junit.Test;
+import org.openuri.testNumerals.DocDocument;
+import tools.util.JarUtil;
 
+import javax.xml.namespace.NamespaceContext;
+import javax.xml.namespace.QName;
+import javax.xml.stream.Location;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
-import javax.xml.stream.Location;
 import javax.xml.stream.events.XMLEvent;
-import javax.xml.namespace.QName;
-import javax.xml.namespace.NamespaceContext;
-import java.io.FileNotFoundException;
-import java.io.FileInputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.StringReader;
-import java.util.Collection;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 
-import org.apache.xmlbeans.impl.validator.ValidatingXMLStreamReader;
-import org.apache.xmlbeans.impl.xb.xsdschema.SchemaDocument;
-import org.apache.xmlbeans.XmlBeans;
-import org.apache.xmlbeans.XmlError;
-import org.apache.xmlbeans.XmlObject;
-import org.apache.xmlbeans.XmlCursor;
-import org.apache.xmlbeans.XmlOptions;
-import org.apache.xmlbeans.XmlException;
-
-import org.openuri.testNumerals.DocDocument;
-
-
-import tools.util.JarUtil;
+import static org.junit.Assert.assertTrue;
 
 /**
  *
  */
-public class ValidatingXMLStreamReaderTests extends TestCase
-{
-    public ValidatingXMLStreamReaderTests(String name) { super(name); }
-
-    public static Test suite() { return new TestSuite(ValidatingXMLStreamReaderTests.class); }
-
+public class ValidatingXMLStreamReaderTests {
     private final static String URI_NUMERALS = "http://openuri.org/testNumerals";
 
+    @Test
     public void testValidateDoc() throws FileNotFoundException, XMLStreamException,Exception
     {
         File[] files = new File[] {
@@ -113,9 +97,10 @@ public class ValidatingXMLStreamReaderTests extends TestCase
         if (!valXsr.isValid())
             System.out.println("---------------\n");
 
-        Assert.assertTrue("File '" + file.getName() +"' is invalid.", valXsr.isValid());
+        assertTrue("File '" + file.getName() +"' is invalid.", valXsr.isValid());
     }
 
+    @Test
     public void testValidateGlobalAtt1() throws XMLStreamException
     {
         XmlObject xo = XmlObject.Factory.newInstance();
@@ -148,10 +133,11 @@ public class ValidatingXMLStreamReaderTests extends TestCase
             }
         }
 
-        Assert.assertTrue("Global attribute validation is broken.", valXsr.isValid());
+        assertTrue("Global attribute validation is broken.", valXsr.isValid());
 
     }
 
+    @Test
     public void testValidateGlobalAtt2() throws XMLStreamException
     {
 
@@ -178,7 +164,7 @@ public class ValidatingXMLStreamReaderTests extends TestCase
             System.out.println(sev + " " + err.getLine() + ":" + err.getColumn() + " " + err.getMessage() + " ");
         }
 
-        Assert.assertTrue("Global attribute validation 2 is broken.", valXsr.isValid());
+        assertTrue("Global attribute validation 2 is broken.", valXsr.isValid());
     }
 
     private static class TestXSR implements XMLStreamReader
@@ -437,6 +423,7 @@ public class ValidatingXMLStreamReaderTests extends TestCase
 
     }
 
+    @Test
     public void testValidateContent1() throws XMLStreamException
     {
         XmlObject xo = XmlObject.Factory.newInstance();
@@ -470,7 +457,7 @@ public class ValidatingXMLStreamReaderTests extends TestCase
             }
             valXsr.next();
         }
-        Assert.assertTrue("Content1 validation is broken.", valXsr.isValid());
+        assertTrue("Content1 validation is broken.", valXsr.isValid());
     }
 
     private static void printState(XMLStreamReader vxsr)
@@ -509,7 +496,7 @@ public class ValidatingXMLStreamReaderTests extends TestCase
         }
     }
 
-
+    @Test
     public void testValidateContent2() throws XMLStreamException
     {
         String doc = "<doc xmlns='" + URI_NUMERALS + "'><int>5</int><float>7.654321</float></doc>";
@@ -556,6 +543,6 @@ loop:   while(valXsr.hasNext())
             System.out.println(sev + " " + err.getLine() + ":" + err.getColumn() + " " + err.getMessage() + " ");
         }
 
-        Assert.assertTrue("Content2 validation is broken.", valXsr.isValid());
+        assertTrue("Content2 validation is broken.", valXsr.isValid());
     }
 }

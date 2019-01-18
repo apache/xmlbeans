@@ -16,38 +16,17 @@
 
 package xmlcursor.detailed;
 
-import org.apache.xmlbeans.XmlOptions;
-import junit.framework.*;
-import junit.framework.Assert.*;
-
-import java.io.*;
-
-import org.apache.xmlbeans.XmlObject;
-import org.apache.xmlbeans.XmlCursor;
-import org.apache.xmlbeans.XmlBeans;
 import org.apache.xmlbeans.XmlCursor.TokenType;
-
-import javax.xml.namespace.QName;
-
-import xmlcursor.common.*;
+import org.apache.xmlbeans.XmlObject;
+import org.junit.Test;
 import tools.util.JarUtil;
+import xmlcursor.common.BasicCursorTestCase;
+import xmlcursor.common.Common;
 
-import java.net.URL;
+import static org.junit.Assert.assertEquals;
 
-
-/**
- *
- *
- */
 public class GetTextTest extends BasicCursorTestCase {
-    public GetTextTest(String sName) {
-        super(sName);
-    }
-
-    public static Test suite() {
-        return new TestSuite(GetTextTest.class);
-    }
-
+    @Test(expected = IllegalStateException.class)
     public void testGetTextFromEND() throws Exception {
         m_xo = XmlObject.Factory.parse(
                  JarUtil.getResourceFromJar(Common.TRANXML_FILE_CLM));
@@ -57,14 +36,10 @@ public class GetTextTest extends BasicCursorTestCase {
         assertEquals(TokenType.END, m_xc.currentTokenType());
         //assertEquals(null, m_xc.getTextValue());
 
-        try {
-            m_xc.getTextValue();
-            fail("Expecting Illegal State Exception");
-        } catch (IllegalStateException ie) {
-        }
-
+        m_xc.getTextValue();
     }
 
+    @Test
     public void testGetTextFromPROCINST() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_PROCINST);
         m_xc = m_xo.newCursor();
@@ -72,6 +47,7 @@ public class GetTextTest extends BasicCursorTestCase {
         assertEquals("type=\"text/xsl\" xmlns=\"http://openuri.org/shipping/\"", m_xc.getTextValue());
     }
 
+    @Test
     public void testGetTextFromCOMMENT() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_COMMENT);
         m_xc = m_xo.newCursor();
@@ -79,6 +55,7 @@ public class GetTextTest extends BasicCursorTestCase {
         assertEquals(" comment text ", m_xc.getTextValue());
     }
 
+    @Test
     public void testGetTextFromNAMESPACE() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_NS);
         m_xc = m_xo.newCursor();
@@ -89,24 +66,19 @@ public class GetTextTest extends BasicCursorTestCase {
         //filed bug on API
            String text= m_xc.getTextValue();
         assertEquals("http://www.foo.org", text);
-
-
     }
 
+    @Test(expected = IllegalStateException.class)
     public void testGetTextFromENDDOC() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO);
         m_xc = m_xo.newCursor();
         toNextTokenOfType(m_xc, TokenType.ENDDOC);
         //assertEquals(null, m_xc.getTextValue());
-        try {
-            m_xc.getTextValue();
-            fail("Expecting Illegal State Exception");
-        } catch (IllegalStateException ie) {
-        }
-
+        m_xc.getTextValue();
     }
 
 
+    @Test
     public void testGetTextFromTEXT() throws Exception {
         //  m_xo = XmlObject.Factory.parse(Common.XML_FOO_TEXT);
 
@@ -115,13 +87,14 @@ public class GetTextTest extends BasicCursorTestCase {
         toNextTokenOfType(m_xc, TokenType.TEXT);
         assertEquals(TokenType.TEXT, m_xc.currentTokenType());
         assertEquals("text", m_xc.getChars());
-	assertEquals("text", m_xc.getTextValue());
+        assertEquals("text", m_xc.getTextValue());
 
-	m_xc.toNextChar(2);
-	assertEquals(TokenType.TEXT, m_xc.currentTokenType());
+        m_xc.toNextChar(2);
+        assertEquals(TokenType.TEXT, m_xc.currentTokenType());
         assertEquals("xt", m_xc.getTextValue());
     }
 
+    @Test
     public void testGetTextFromSTART_NotNested() throws Exception {
         m_xo = XmlObject.Factory.parse(
                 JarUtil.getResourceFromJar(Common.TRANXML_FILE_CLM));
@@ -133,6 +106,7 @@ public class GetTextTest extends BasicCursorTestCase {
         assertEquals("FLEETNAME", m_xc.getTextValue());
     }
 
+    @Test
     public void testGetTextFromSTART_Nested() throws Exception {
         m_xo = XmlObject.Factory.parse(
                  JarUtil.getResourceFromJar(Common.TRANXML_FILE_CLM));
@@ -142,6 +116,7 @@ public class GetTextTest extends BasicCursorTestCase {
         assertEquals("\n\t\t\tGATX\n\t\t\t123456\n\t\t\tL\n\t\t", m_xc.getTextValue());
     }
 
+    @Test
     public void testGetTextFromSTART_TextAferEND() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_BAR_TEXT_EXT);
         m_xc = m_xo.newCursor();
@@ -150,6 +125,7 @@ public class GetTextTest extends BasicCursorTestCase {
         assertEquals("text", m_xc.getTextValue());
     }
 
+    @Test
     public void testGetTextFromSTART_TextAferEND_WS() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_BAR_WS_TEXT);
         m_xc = m_xo.newCursor();
@@ -158,6 +134,7 @@ public class GetTextTest extends BasicCursorTestCase {
         assertEquals(" text ", m_xc.getTextValue());
     }
 
+    @Test
     public void testGetTextFromATTR_Nested() throws Exception {
         m_xo = XmlObject.Factory.parse(
                   JarUtil.getResourceFromJar(Common.TRANXML_FILE_XMLCURSOR_PO));
@@ -170,12 +147,14 @@ public class GetTextTest extends BasicCursorTestCase {
         assertEquals("US", m_xc.getTextValue());
     }
 
+    @Test
     public void testGetTextFromSTARTDOC() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_BAR_TEXT_EXT);
         m_xc = m_xo.newCursor();
         assertEquals("textextended", m_xc.getTextValue());
     }
 
+    @Test
     public void testGetTextEmptyElementSTART() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_BAR);
         m_xc = m_xo.newCursor();
@@ -183,12 +162,12 @@ public class GetTextTest extends BasicCursorTestCase {
         assertEquals("", m_xc.getTextValue());
     }
 
+    @Test
     public void testGetTextWhitespaceOnlyFromSTART() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_BAR_WS_ONLY);
         m_xc = m_xo.newCursor();
         m_xc.toFirstChild();
         assertEquals("   ", m_xc.getTextValue());
     }
-
 }
 

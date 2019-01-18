@@ -16,99 +16,64 @@
 
 package xmlcursor.checkin;
 
-import org.apache.xmlbeans.XmlOptions;
-import junit.framework.*;
-import junit.framework.Assert.*;
-
-import java.io.*;
-
 import org.apache.xmlbeans.XmlObject;
-import org.apache.xmlbeans.XmlCursor;
-import org.apache.xmlbeans.XmlBeans;
-import org.apache.xmlbeans.XmlCursor.TokenType;
+import org.junit.Before;
+import org.junit.Test;
+import xmlcursor.common.BasicCursorTestCase;
 
 import javax.xml.namespace.QName;
 
-import xmlcursor.common.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
-import java.net.URL;
-
-
-/**
- *
- *
- */
 
 public class SetNameTest extends BasicCursorTestCase{
-    String sTestXml="<bk:book at0=\"value0\" xmlns:bk=\"urn:loc.gov:books\">text0<author at0=\"v0\" at1=\"value1\"/></bk:book>";
+
+	@Test
+	public void testNormalCase(){
+		m_xc.toFirstChild();
+		QName newName = new QName("newBook");
+		m_xc.setName(newName);
+		assertEquals(m_xc.getName(), newName);
+
+		newName = new QName("uri:newUri", "newBook");
+		m_xc.setName(newName);
+		assertEquals(m_xc.getName(), newName);
 
 
-    public SetNameTest(String sName) {
-        super(sName);
+		newName = new QName("uri:newUri", "newBook", "prefix");
+		m_xc.setName(newName);
+		assertEquals(m_xc.getName(), newName);
+
+		//should work for attrs too...
+		m_xc.toFirstAttribute();
+		newName = new QName("uri:newUri", "newBook", "prefix");
+		m_xc.setName(newName);
+		assertEquals(m_xc.getName(), newName);
     }
 
-    public static Test suite() {
-        return new TestSuite(SetNameTest.class);
-    }
-
-
-    public void testNormalCase(){
-	m_xc.toFirstChild();
-	QName newName=new QName("newBook");
-	m_xc.setName(newName);
-	assertEquals(m_xc.getName(),newName);
-
-	 newName=new QName("uri:newUri","newBook");
-	m_xc.setName(newName);
-	assertEquals(m_xc.getName(),newName);
-
-
-	 newName=new QName("uri:newUri","newBook","prefix");
-	m_xc.setName(newName);
-	assertEquals(m_xc.getName(),newName);
-
-	//should work for attrs too...
-	m_xc.toFirstAttribute();
-	 newName=new QName("uri:newUri","newBook","prefix");
-	m_xc.setName(newName);
-	assertEquals(m_xc.getName(),newName);
-    }
-
+	@Test
     public void testNoUri(){
-	m_xc.toFirstChild();
-	QName newName=new QName(null,"newBook");
-	m_xc.setName(newName);
-	assertEquals(m_xc.getName().getLocalPart(),"newBook");
-    }
-
-    public void testNull(){
-	m_xc.toFirstChild();
-	try{
-	    m_xc.setName(null);
-	    fail("QName null");
-	}catch(Exception e){
-	    System.err.println(e.getMessage());
+		m_xc.toFirstChild();
+		QName newName = new QName(null, "newBook");
+		m_xc.setName(newName);
+		assertEquals(m_xc.getName().getLocalPart(), "newBook");
 	}
 
+	@Test
+	public void testNull() {
+		m_xc.toFirstChild();
+		try {
+			m_xc.setName(null);
+			fail("QName null");
+		} catch (Exception e) {
+			System.err.println(e.getMessage());
+		}
     }
 
+    @Before
     public void setUp()throws Exception{
-	m_xc=XmlObject.Factory.parse(sTestXml).newCursor();
-    }
-
-
-    public static void main(String[]rgs){
-	try{
-	    SetNameTest myTest=new SetNameTest("");
-	    myTest.setUp();
-	    myTest.testNormalCase();
-	    myTest.setUp();
-	    myTest.testNoUri();
-	     myTest.setUp();
-	    myTest.testNull();
-
-	}catch(Exception e){
-	    System.err.println(e.getMessage());
-	}
+		String sTestXml = "<bk:book at0=\"value0\" xmlns:bk=\"urn:loc.gov:books\">text0<author at0=\"v0\" at1=\"value1\"/></bk:book>";
+		m_xc=XmlObject.Factory.parse(sTestXml).newCursor();
     }
 }

@@ -16,37 +16,16 @@
 
 package xmlcursor.checkin;
 
-import org.apache.xmlbeans.XmlOptions;
-import junit.framework.*;
-import junit.framework.Assert.*;
-
-import java.io.*;
-
-import org.apache.xmlbeans.XmlObject;
-import org.apache.xmlbeans.XmlCursor;
-import org.apache.xmlbeans.XmlBeans;
 import org.apache.xmlbeans.XmlCursor.TokenType;
+import org.apache.xmlbeans.XmlObject;
+import org.junit.Test;
+import xmlcursor.common.BasicCursorTestCase;
+import xmlcursor.common.Common;
 
-import javax.xml.namespace.QName;
+import static org.junit.Assert.assertEquals;
 
-import xmlcursor.common.*;
-
-import java.net.URL;
-
-
-/**
- *
- *
- */
 public class SetTextTest extends BasicCursorTestCase {
-    public SetTextTest(String sName) {
-        super(sName);
-    }
-
-    public static Test suite() {
-        return new TestSuite(SetTextTest.class);
-    }
-
+    @Test
     public void testSetTextFromCOMMENT() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_COMMENT);
         m_xc = m_xo.newCursor();
@@ -55,6 +34,7 @@ public class SetTextTest extends BasicCursorTestCase {
         assertEquals("fred", m_xc.getTextValue());
     }
 
+    @Test
     public void testSetTextFromPROCINST() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_PROCINST);
         m_xc = m_xo.newCursor();
@@ -63,6 +43,7 @@ public class SetTextTest extends BasicCursorTestCase {
         assertEquals("new procinst text", m_xc.getTextValue());
     }
 
+    @Test
     public void testSetTextFromPROCINSTInputNull() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_PROCINST);
         m_xc = m_xo.newCursor();
@@ -71,55 +52,42 @@ public class SetTextTest extends BasicCursorTestCase {
         assertEquals("", m_xc.getTextValue());
     }
 
+    @Test(expected = IllegalStateException.class)
     public void testSetTextFromEND() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_COMMENT);
         m_xc = m_xo.newCursor();
         toNextTokenOfType(m_xc, TokenType.END);
-        try {
-            m_xc.setTextValue("fred");
-            fail("Expected IllegalStateException");
-        } catch (IllegalStateException e) {
-        }
+        m_xc.setTextValue("fred");
     }
 
+    @Test(expected = IllegalStateException.class)
     public void testSetTextFromENDDOC() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_NS);
         m_xc = m_xo.newCursor();
         m_xc.toEndDoc();
-        try {
-            m_xc.setTextValue("fred");
-            fail("Expected IllegalStateException");
-        } catch (IllegalStateException e) {
-        }
+        m_xc.setTextValue("fred");
     }
 
+    @Test(expected = IllegalStateException.class)
     public void testSetTextFromTEXTbegin() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_DIGITS);
         m_xc = m_xo.newCursor();
         toNextTokenOfType(m_xc, TokenType.TEXT);
         assertEquals("01234", m_xc.getChars());
-        try {
-            m_xc.setTextValue("new text");
-            fail("Expected IllegalStateException");
-        } catch (IllegalStateException e) {
-        }
-        assertEquals(true, true);
+        m_xc.setTextValue("new text");
     }
 
+    @Test(expected = IllegalStateException.class)
     public void testSetTextFromTEXTmiddle() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_DIGITS);
         m_xc = m_xo.newCursor();
         toNextTokenOfType(m_xc, TokenType.TEXT);
         m_xc.toNextChar(2);
         assertEquals("234", m_xc.getChars());
-        try {
-            m_xc.setTextValue("new text");
-            fail("Expected IllegalStateException");
-        } catch (IllegalStateException e) {
-        }
-        assertEquals(true, true);
+        m_xc.setTextValue("new text");
     }
 
+    @Test
     public void testSetTextFromSTARTnotNested() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_DIGITS);
         m_xc = m_xo.newCursor();
@@ -129,6 +97,7 @@ public class SetTextTest extends BasicCursorTestCase {
         assertEquals("new text", m_xc.getTextValue());
     }
 
+    @Test
     public void testSetTextFromSTARTnotNestedInputNull() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_DIGITS);
         m_xc = m_xo.newCursor();
@@ -138,6 +107,7 @@ public class SetTextTest extends BasicCursorTestCase {
         assertEquals("", m_xc.getTextValue());
     }
 
+    @Test
     public void testSetTextFromSTARTnested() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_BAR_NESTED_SIBLINGS);
         m_xc = m_xo.newCursor();
@@ -147,6 +117,7 @@ public class SetTextTest extends BasicCursorTestCase {
         assertEquals("<foo attr0=\"val0\">new text</foo>", m_xc.xmlText());
     }
 
+    @Test
     public void testSetTextFromSTARTnestedInputNull() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_BAR_NESTED_SIBLINGS);
         m_xc = m_xo.newCursor();
@@ -156,6 +127,7 @@ public class SetTextTest extends BasicCursorTestCase {
         assertEquals("<foo attr0=\"val0\"/>", m_xc.xmlText());
     }
 
+    @Test
     public void testSetTextFromATTRnested() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_BAR_NESTED_SIBLINGS);
         m_xc = m_xo.newCursor();
@@ -165,6 +137,7 @@ public class SetTextTest extends BasicCursorTestCase {
         assertEquals("new text", m_xc.getTextValue());
     }
 
+    @Test
     public void testSetTextFromSTARTDOCnested() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_BAR_NESTED_SIBLINGS);
         m_xc = m_xo.newCursor();
@@ -172,7 +145,5 @@ public class SetTextTest extends BasicCursorTestCase {
         m_xc.setTextValue("new text");
         assertEquals(Common.wrapInXmlFrag("new text"), m_xc.xmlText());
     }
-
-
 }
 

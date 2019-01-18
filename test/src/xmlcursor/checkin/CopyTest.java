@@ -20,43 +20,26 @@ package xmlcursor.checkin;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlCursor.TokenType;
 import org.apache.xmlbeans.XmlObject;
-import org.apache.xmlbeans.XmlException;
+import org.junit.Test;
 import tools.util.JarUtil;
 import xmlcursor.common.BasicCursorTestCase;
 import xmlcursor.common.Common;
-import junit.framework.Test;
-import junit.framework.TestSuite;
 
 import javax.xml.namespace.QName;
 
+import static org.junit.Assert.assertEquals;
 
 
-/**
- *
- *
- */
 public class CopyTest extends BasicCursorTestCase {
-    public CopyTest(String sName) {
-        super(sName);
-    }
-
-    public static Test suite() {
-        return new TestSuite(CopyTest.class);
-    }
-
+    @Test(expected = IllegalArgumentException.class)
     public void testCopyToNull() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_DIGITS);
         m_xc = m_xo.newCursor();
         toNextTokenOfType(m_xc, TokenType.TEXT);
-        try {
-            m_xc.copyXml(null);
-            fail(
-                    "Expected IllegalArgumentException.  Can't copy to foreign document");
-        }
-        catch (IllegalArgumentException ise) {
-        }
+        m_xc.copyXml(null);
     }
 
+    @Test
     public void testCopyDifferentStoresLoadedByParse() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_DIGITS);
         m_xc = m_xo.newCursor();
@@ -75,11 +58,10 @@ public class CopyTest extends BasicCursorTestCase {
 
     /**
      * Method testCopyDifferentStoresLoadedFromFile
-     * <p/>
-     * Tests copy from document w/ namespaces to doc w/o
      *
-     * @throws Exception
+     * Tests copy from document w/ namespaces to doc w/o
      */
+    @Test
     public void testCopyDifferentStoresLoadedFromFile() throws Exception {
         // load the documents and obtain a cursor
         XmlObject xobj0 = XmlObject.Factory.parse(
@@ -120,11 +102,10 @@ public class CopyTest extends BasicCursorTestCase {
 
     /**
      * Method testCopyDifferentStoresLoadedFromFile2
-     * <p/>
-     * Tests copy from document w/o namespaces to document with namespaces
      *
-     * @throws Exception
+     * Tests copy from document w/o namespaces to document with namespaces
      */
+    @Test
     public void testCopyDifferentStoresLoadedFromFile2() throws Exception {
         // load the documents and obtain a cursor
         XmlObject xobj0 = XmlObject.Factory.parse(
@@ -166,6 +147,7 @@ public class CopyTest extends BasicCursorTestCase {
 
     }
 
+    @Test
     public void testCopySameLocation() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_DIGITS);
         m_xc = m_xo.newCursor();
@@ -178,6 +160,7 @@ public class CopyTest extends BasicCursorTestCase {
         assertEquals("0123401234", m_xc.getTextValue());
     }
 
+    @Test
     public void testCopyNewLocation() throws Exception {
         m_xo = XmlObject.Factory.parse(
                  JarUtil.getResourceFromJar(Common.TRANXML_FILE_XMLCURSOR_PO));
@@ -200,8 +183,8 @@ public class CopyTest extends BasicCursorTestCase {
 
     }
 
+    @Test
     public void testCopyElementToMiddleOfTEXT() throws Exception {
-
         String ns="declare namespace po=\"http://xbean.test/xmlcursor/PurchaseOrder\"; ";
         String exp_ns="xmlns:po=\"http://xbean.test/xmlcursor/PurchaseOrder\"";
         m_xo = XmlObject.Factory.parse(
@@ -229,8 +212,4 @@ public class CopyTest extends BasicCursorTestCase {
         // verify m_xc
         assertEquals("<po:city "+exp_ns+">Mill Valley</po:city>", m_xc.xmlText());
     }
-
-
-
 }
-

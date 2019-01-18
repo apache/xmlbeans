@@ -15,10 +15,9 @@
 
 package misc.detailed;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
-import junit.framework.TestCase;
 import org.apache.xmlbeans.*;
+import org.junit.Ignore;
+import org.junit.Test;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -27,18 +26,8 @@ import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
 
-
-public class ClassLoadingTest extends TestCase
-{
-    public ClassLoadingTest(String name)
-    {
-        super(name);
-    }
-
-    public static Test suite()
-    {
-        return new TestSuite(ClassLoadingTest.class);
-    }
+@Ignore("needs to be updated to current jars")
+public class ClassLoadingTest {
 
     public static class CompilationThread extends Thread
     {
@@ -263,7 +252,8 @@ public class ClassLoadingTest extends TestCase
     /**
      * OOM Error happens around thread 97 with the params listed below
      */
-    public static void testThreadedCompilation() throws Throwable
+    @Test
+    public void testThreadedCompilation() throws Throwable
     {
         Runtime r = Runtime.getRuntime();
         CompilationThread[] threads = new CompilationThread[THREAD_COUNT];
@@ -287,25 +277,6 @@ public class ClassLoadingTest extends TestCase
         //    Assert.assertTrue("Thread " + i + " didn't succeed",
         //            threads[i].getResult());
         //}
-    }
-
-    /**
-     * Call this with something like the following
-     * D:\xml\xml-xmlbeans\v2\build\test\lib>
-     * java
-     * -Xms8M -Xmx16M
-     * -cp .\testcases.jar;.\testtools.jar;.;..\..\lib\xbean.jar;
-     * ..\..\lib\jsr173.jar;..\..\lib\xmlpublic.jar;
-     * ..\..\lib\jsr173_api.jar;..\..\lib\jsr173_ri.jar;
-     * ..\..\..\external\lib\junit.jar;
-     * misc.detailed.ClassLoadingTest
-     * @param args
-     * @throws Throwable
-     */
-    public static void main(String[] args) throws Throwable
-    {
-        testThreadedCompilation();
-        throw new Exception("FOO");
     }
 }
 

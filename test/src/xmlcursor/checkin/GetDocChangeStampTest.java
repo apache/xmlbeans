@@ -18,26 +18,16 @@ package xmlcursor.checkin;
 
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlObject;
+import org.junit.Test;
 import tools.util.JarUtil;
 import xmlcursor.common.BasicCursorTestCase;
 import xmlcursor.common.Common;
-import junit.framework.Test;
-import junit.framework.TestSuite;
+
+import static org.junit.Assert.assertEquals;
 
 
-/**
- *
- *
- */
 public class GetDocChangeStampTest extends BasicCursorTestCase {
-    public GetDocChangeStampTest(String sName) {
-        super(sName);
-    }
-
-    public static Test suite() {
-        return new TestSuite(GetDocChangeStampTest.class);
-    }
-
+    @Test
     public void testGetDocChangeStampHasChanged() throws Exception {
         m_xo = XmlObject.Factory.parse(
                   JarUtil.getResourceFromJar(Common.TRANXML_FILE_XMLCURSOR_PO));
@@ -53,6 +43,7 @@ public class GetDocChangeStampTest extends BasicCursorTestCase {
         assertEquals(true, cs0.hasChanged());
     }
 
+    @Test
     public void testGetDocChangeStampNotChanged() throws Exception {
         m_xo = XmlObject.Factory.parse(
                   JarUtil.getResourceFromJar(Common.TRANXML_FILE_XMLCURSOR_PO));

@@ -15,120 +15,90 @@
 
 package xmlobject.checkin;
 
-import junit.framework.TestCase;
-import junit.framework.Test;
-import junit.framework.TestSuite;
-import junit.framework.Assert;
+import com.easypo.XmlPurchaseOrderDocumentBean;
+import com.easypo.XmlPurchaseOrderDocumentBean.PurchaseOrder;
+import org.apache.xmlbeans.XmlException;
+import org.apache.xmlbeans.XmlObject;
+import org.junit.Test;
+import tools.util.JarUtil;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
-import org.apache.xmlbeans.XmlObject;
-import org.apache.xmlbeans.XmlException;
-import com.easypo.XmlPurchaseOrderDocumentBean;
-import com.easypo.XmlPurchaseOrderDocumentBean.PurchaseOrder;
+import static org.junit.Assert.*;
 
-
-
-import tools.util.*;
-
-public class EasyPoTests extends TestCase
-{
-    public EasyPoTests(String name) { super(name); }
-    public static Test suite() { return new TestSuite(EasyPoTests.class); }
-
-    public void testEasyPo() throws Exception
-    {
+public class EasyPoTests {
+    @Test
+    public void testEasyPo() throws Exception {
         XmlPurchaseOrderDocumentBean doc = (XmlPurchaseOrderDocumentBean)
             XmlObject.Factory.parse(JarUtil.getResourceFromJarasFile(
-                                     "xbean/xmlobject/easypo1.xml"));
-        Assert.assertEquals(false, doc.isNil());
+                "xbean/xmlobject/easypo1.xml"));
+        assertFalse(doc.isNil());
         PurchaseOrder order = doc.getPurchaseOrder();
-        Assert.assertEquals("David Bau", order.getCustomer().getName());
-        Assert.assertEquals("Gladwyne, PA", order.getCustomer().getAddress());
-        Assert.assertEquals(3, order.sizeOfLineItemArray());
+        assertEquals("David Bau", order.getCustomer().getName());
+        assertEquals("Gladwyne, PA", order.getCustomer().getAddress());
+        assertEquals(3, order.sizeOfLineItemArray());
 
-        Assert.assertEquals("Burnham's Celestial Handbook, Vol 1", order.getLineItemArray(0).getDescription());
-        Assert.assertEquals(new BigDecimal("21.79"), order.getLineItemArray(0).getPrice());
-        Assert.assertEquals(new BigInteger("2"), order.getLineItemArray(0).getQuantity());
-        Assert.assertEquals(new BigDecimal("5"), order.getLineItemArray(0).getPerUnitOunces());
+        assertEquals("Burnham's Celestial Handbook, Vol 1", order.getLineItemArray(0).getDescription());
+        assertEquals(new BigDecimal("21.79"), order.getLineItemArray(0).getPrice());
+        assertEquals(new BigInteger("2"), order.getLineItemArray(0).getQuantity());
+        assertEquals(new BigDecimal("5"), order.getLineItemArray(0).getPerUnitOunces());
 
-        Assert.assertEquals("Burnham's Celestial Handbook, Vol 2", order.getLineItemArray(1).getDescription());
-        Assert.assertEquals(new BigDecimal("19.89"), order.getLineItemArray(1).getPrice());
-        Assert.assertEquals(new BigInteger("2"), order.getLineItemArray(1).getQuantity());
-        Assert.assertEquals(new BigDecimal("5"), order.getLineItemArray(1).getPerUnitOunces());
+        assertEquals("Burnham's Celestial Handbook, Vol 2", order.getLineItemArray(1).getDescription());
+        assertEquals(new BigDecimal("19.89"), order.getLineItemArray(1).getPrice());
+        assertEquals(new BigInteger("2"), order.getLineItemArray(1).getQuantity());
+        assertEquals(new BigDecimal("5"), order.getLineItemArray(1).getPerUnitOunces());
 
-        Assert.assertEquals("Burnham's Celestial Handbook, Vol 3", order.getLineItemArray(2).getDescription());
-        Assert.assertEquals(new BigDecimal("19.89"), order.getLineItemArray(2).getPrice());
-        Assert.assertEquals(new BigInteger("1"), order.getLineItemArray(2).getQuantity());
-        Assert.assertEquals(new BigDecimal("5"), order.getLineItemArray(2).getPerUnitOunces());
+        assertEquals("Burnham's Celestial Handbook, Vol 3", order.getLineItemArray(2).getDescription());
+        assertEquals(new BigDecimal("19.89"), order.getLineItemArray(2).getPrice());
+        assertEquals(new BigInteger("1"), order.getLineItemArray(2).getQuantity());
+        assertEquals(new BigDecimal("5"), order.getLineItemArray(2).getPerUnitOunces());
 
-        Assert.assertEquals(true, order.isSetShipper());
-        Assert.assertEquals("UPS", order.getShipper().getName());
-        Assert.assertEquals(new BigDecimal("0.74"), order.getShipper().getPerOunceRate());
+        assertTrue(order.isSetShipper());
+        assertEquals("UPS", order.getShipper().getName());
+        assertEquals(new BigDecimal("0.74"), order.getShipper().getPerOunceRate());
 
-        Assert.assertEquals(3, order.sizeOfLineItemArray());
+        assertEquals(3, order.sizeOfLineItemArray());
     }
-    
-    
-    public void testSimpleAutoValidaiton() throws Exception
-    {
+
+    @Test
+    public void testSimpleAutoValidaiton() throws Exception {
         XmlPurchaseOrderDocumentBean.Factory.parse(
-            "<purchase-order xmlns='http://openuri.org/easypo'/>" );
+            "<purchase-order xmlns='http://openuri.org/easypo'/>");
 
-        try
-        {
+        try {
             XmlPurchaseOrderDocumentBean.Factory.parse(
-                "<purchase-orde xmlns='http://openuri.org/easypo'/>" );
-
-            Assert.assertTrue( false );
-        }
-        catch ( XmlException e )
-        {
+                "<purchase-orde xmlns='http://openuri.org/easypo'/>");
+            fail();
+        } catch (XmlException e) {
         }
 
-        try
-        {
+        try {
             XmlPurchaseOrderDocumentBean.Factory.parse(
-                "<purchase-order xmlns='http://openuri.org/easyp'/>" );
+                "<purchase-order xmlns='http://openuri.org/easyp'/>");
+            fail();
+        } catch (XmlException e) {
+        }
 
-            Assert.assertTrue( false );
-        }
-        catch ( XmlException e )
-        {
-        }
-        
-        try
-        {
+        try {
             XmlPurchaseOrderDocumentBean.Factory.parse(
-                "<f:fragment xmlns:f='http://www.openuri.org/fragment'/>" );
+                "<f:fragment xmlns:f='http://www.openuri.org/fragment'/>");
+            fail();
+        } catch (XmlException e) {
+        }
 
-            Assert.assertTrue( false );
-        }
-        catch ( XmlException e )
-        {
-        }
-        
-        try
-        {
+        try {
             XmlPurchaseOrderDocumentBean.Factory.parse(
-                "<f:fragment xmlns:f='http://www.openuri.org/fragment'><a/></f:fragment>" );
+                "<f:fragment xmlns:f='http://www.openuri.org/fragment'><a/></f:fragment>");
+            fail();
+        } catch (XmlException e) {
+        }
 
-            Assert.assertTrue( false );
-        }
-        catch ( XmlException e )
-        {
-        }
-        
-        try
-        {
+        try {
             XmlPurchaseOrderDocumentBean.Factory.parse(
-                "<f:fragment xmlns:f='http://www.openuri.org/fragment'><a/><a/></f:fragment>" );
-
-            Assert.assertTrue( false );
-        }
-        catch ( XmlException e )
-        {
+                "<f:fragment xmlns:f='http://www.openuri.org/fragment'><a/><a/></f:fragment>");
+            fail();
+        } catch (XmlException e) {
         }
     }
 }

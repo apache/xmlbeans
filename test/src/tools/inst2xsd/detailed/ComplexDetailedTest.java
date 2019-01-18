@@ -14,20 +14,18 @@
  */
 package tools.inst2xsd.detailed;
 
+import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.impl.inst2xsd.Inst2XsdOptions;
+import org.junit.Ignore;
+import org.junit.Test;
 import tools.inst2xsd.common.Inst2XsdTestBase;
 
 import java.io.File;
-import java.io.IOException;
 
-import org.apache.xmlbeans.XmlObject;
-import org.apache.xmlbeans.impl.inst2xsd.Inst2XsdOptions;
-
+@Ignore
 public class ComplexDetailedTest extends Inst2XsdTestBase {
 
-    public ComplexDetailedTest(String name) {
-        super(name);
-    }
-
+    @Test
     public void test_complex_enum() throws Exception {
         XmlObject inst = XmlObject.Factory.parse(new File(SCHEMA_CASES_DIR + "complex" + P + "enum" + P + "enum.xml"));
 
@@ -42,6 +40,7 @@ public class ComplexDetailedTest extends Inst2XsdTestBase {
                 XmlObject.Factory.parse(new File(SCHEMA_CASES_DIR + "complex" + P + "enum" + P + "enum2_ss0.xsd")));
     }
 
+    @Test
     public void test_complex_enum_never() throws Exception {
         XmlObject inst = XmlObject.Factory.parse(new File(SCHEMA_CASES_DIR + "complex" + P + "enum" + P + "enum.xml"));
 
@@ -57,9 +56,9 @@ public class ComplexDetailedTest extends Inst2XsdTestBase {
         log("-= SCS Options =-");
         runSchemaBuild(inst, opts,
                 XmlObject.Factory.parse(new File(SCHEMA_CASES_DIR + "complex" + P + "enum" + P + "enum_vb_scs_enum0.xsd")));
-
     }
 
+    @Test
     public void test_complex_qname_enum() throws Exception {
         XmlObject inst = XmlObject.Factory.parse(new File(SCHEMA_CASES_DIR + "complex" + P + "enum" + P + "enumQName.xml"));
 
@@ -74,6 +73,7 @@ public class ComplexDetailedTest extends Inst2XsdTestBase {
                 XmlObject.Factory.parse(new File(SCHEMA_CASES_DIR + "complex" + P + "enum" + P + "enumQName_vb_eN0.xsd")));
     }
 
+    @Test
     public void test_complex_nestedNSArray() throws Exception {
         XmlObject inst = XmlObject.Factory.parse(new File(SCHEMA_CASES_DIR + "complex" + P + "nestedNSArray" + P + "nestedNSArray.xml"));
 
@@ -100,6 +100,7 @@ public class ComplexDetailedTest extends Inst2XsdTestBase {
         });
     }
 
+    @Test
     public void test_example_po() throws Exception {
         XmlObject inst = XmlObject.Factory.parse(new File(SCHEMA_CASES_DIR + "examples" + P + "po" + P + "po.xml"));
 
@@ -144,6 +145,7 @@ public class ComplexDetailedTest extends Inst2XsdTestBase {
     /**
      * java.lang.IllegalStateException: Not on a container
      */
+    @Test
     public void test_complex_attrenum() throws Exception {
         XmlObject inst = XmlObject.Factory.parse(new File(SCHEMA_CASES_DIR + "complex" + P + "enum" + P + "attr"+P+"attrenum.xml"));
 

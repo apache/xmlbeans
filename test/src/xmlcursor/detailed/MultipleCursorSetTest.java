@@ -16,35 +16,19 @@
 
 package  xmlcursor.detailed;
 
-import junit.framework.*;
-
-import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlCursor;
-import org.apache.xmlbeans.XmlString;
 import org.apache.xmlbeans.XmlCursor.TokenType;
-import xmlcursor.common.*;
+import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.XmlString;
+import org.junit.Test;
 import tools.util.JarUtil;
+import xmlcursor.common.Common;
+
+import static org.junit.Assert.*;
 
 
-/**
- *
- *
- */
-public class MultipleCursorSetTest extends TestCase {
-    public MultipleCursorSetTest(String sName) {
-        super(sName);
-    }
-
-    public static Test suite() {
-        return new TestSuite(MultipleCursorSetTest.class);
-    }
-
-    public void testClassPath() throws Exception {
-        String sClassPath = System.getProperty("java.class.path");
-        int i = sClassPath.indexOf(Common.CARLOCATIONMESSAGE_JAR);
-        assertTrue(i >= 0);
-    }
-
+public class MultipleCursorSetTest {
+    @Test
     public void testMultipleCursorSet() throws Exception {
         XmlCursor xc = XmlObject.Factory.parse(JarUtil.getResourceFromJar(
                 Common.TRANXML_FILE_CLM)).newCursor();
@@ -61,13 +45,13 @@ public class MultipleCursorSetTest extends TestCase {
         }
         for (int i = 0; i < 6; i++) {
             for (int j = 0; j != i && j < 6; j++) {
-                assertEquals(false, aCursors[i].isAtSamePositionAs(aCursors[j]));
+                assertFalse(aCursors[i].isAtSamePositionAs(aCursors[j]));
             }
         }
         xs.setStringValue("XYZ");
         for (int i = 0; i < 6; i++) {
             for (int j = 0; j < 6; j++) {
-                assertEquals(true, aCursors[i].isAtSamePositionAs(aCursors[j]));
+                assertTrue(aCursors[i].isAtSamePositionAs(aCursors[j]));
             }
             // System.out.println(aCursors[i].currentTokenType());
             // assertEquals(null, aCursors[i].getTextValue());

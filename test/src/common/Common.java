@@ -15,20 +15,16 @@
 package common;
 
 import org.apache.xmlbeans.*;
+import org.junit.Assert;
 
+import javax.xml.namespace.QName;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
 
-import junit.framework.Assert;
-import junit.framework.TestCase;
+import static org.junit.Assert.assertNotNull;
 
-import javax.xml.namespace.QName;
-
-/**
- *
- */
-public class Common extends TestCase
+public class Common
 {
     public static final String NEWLINE = System.getProperty("line.separator");
     public static final String P = File.separator;
@@ -41,14 +37,10 @@ public class Common extends TestCase
     public static String OUTPUTROOT = FWROOT+P+"build" + P + "test" + P + "output";
 
 
-    public LinkedList errorList;
-    public XmlOptions xmOpts;
+    public final LinkedList errorList = new LinkedList();
+    public final XmlOptions xmOpts = new XmlOptions();
 
-    public Common(String name)
-    {
-        super(name);
-        errorList = new LinkedList();
-        xmOpts = new XmlOptions();
+    public Common() {
         xmOpts.setErrorListener(errorList);
     }
 
@@ -238,7 +230,7 @@ public class Common extends TestCase
                 }
             }
         } finally {
-            Assert.assertNotNull(xobj);
+            assertNotNull(xobj);
             return xobj;
         }
     }
@@ -265,7 +257,7 @@ public class Common extends TestCase
             ioe.printStackTrace();
             ioe.getMessage();
         } finally {
-            Assert.assertNotNull(xobj);
+            assertNotNull(xobj);
             return xobj;
         }
     }

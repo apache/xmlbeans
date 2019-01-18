@@ -15,35 +15,22 @@
 
 package xmlcursor.checkin;
 
-import junit.framework.*;
-
-
-import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlCursor.XmlBookmark;
-
-
+import org.apache.xmlbeans.XmlObject;
+import org.junit.Test;
 import xmlcursor.common.BasicCursorTestCase;
 import xmlcursor.common.Common;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
-/**
- *
- *
- */
 public class ClearBookmarkTest extends BasicCursorTestCase {
     private Bookmark0 _theAnnotation0 = new Bookmark0("value0");
     private Bookmark1 _theAnnotation1 = new Bookmark1("value1");
     private Bookmark2 _theAnnotation2 = new Bookmark2("value2");
 
-    public ClearBookmarkTest(String sName) {
-        super(sName);
-    }
-
-    public static Test suite() {
-        return new TestSuite(ClearBookmarkTest.class);
-    }
-
+    @Test
     public void testClearIndependent() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_TEXT);
         m_xc = m_xo.newCursor();
@@ -66,6 +53,7 @@ public class ClearBookmarkTest extends BasicCursorTestCase {
         assertEquals("value2", ann2.text);
     }
 
+    @Test
     public void testClearNullKey() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_TEXT);
         m_xc = m_xo.newCursor();
@@ -75,6 +63,7 @@ public class ClearBookmarkTest extends BasicCursorTestCase {
         assertEquals("value0", ann0.text);
     }
 
+    @Test
     public void testClearSuperClass() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_TEXT);
         m_xc = m_xo.newCursor();
@@ -84,6 +73,7 @@ public class ClearBookmarkTest extends BasicCursorTestCase {
         assertEquals("value0", ann0.text);
     }
 
+    @Test
     public void testClearInvalidClass() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_TEXT);
         m_xc = m_xo.newCursor();

@@ -15,6 +15,7 @@
 
 package scomp.derivation.restriction.detailed;
 
+import org.junit.Test;
 import xbean.scomp.derivation.attributeRestriction.AttrEltDocument;
 import xbean.scomp.derivation.attributeRestriction.RestrictedAttrT;
 
@@ -24,16 +25,15 @@ import scomp.common.BaseCase;
 import org.apache.xmlbeans.XmlString;
 import org.apache.xmlbeans.XmlErrorCodes;
 
-/**
- *
- *
- */
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 public class AttributeRestriction extends BaseCase {
-   /**
-    * A should be positive
-    * B should be there by default
-    * @throws Throwable
-    */
+    /**
+     * A should be positive
+     * B should be there by default
+     */
+    @Test
     public void testAttributeABC() throws Throwable {
         AttrEltDocument doc = AttrEltDocument.Factory.newInstance();
         RestrictedAttrT elt = doc.addNewAttrElt();
@@ -52,6 +52,7 @@ public class AttributeRestriction extends BaseCase {
         assertTrue ( expected.valueEquals(elt.xgetC()) );
     }
 
+    @Test
     public void testAttributeDEF() throws Throwable {
         AttrEltDocument doc = AttrEltDocument.Factory.newInstance();
         RestrictedAttrT elt = doc.addNewAttrElt();
@@ -79,33 +80,32 @@ public class AttributeRestriction extends BaseCase {
             throw t;
         }
     }
-  /**
-   * G is prohibited, X can appear even though not explicit in type
-   * @throws Throwable
-   */
+
+    /**
+     * G is prohibited, X can appear even though not explicit in type
+     */
+    @Test
     public void testAttributeGX() throws Throwable {
         AttrEltDocument doc = AttrEltDocument.Factory.newInstance();
         RestrictedAttrT elt = doc.addNewAttrElt();
         elt.setG("foobar");
         assertTrue(!doc.validate(validateOptions));
         showErrors();
-      //g prohibited, f missing
-      String[] errExpected = new String[]{
+        //g prohibited, f missing
+        String[] errExpected = new String[]{
             XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$NO_WILDCARD,
             XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$MISSING_REQUIRED_ATTRIBUTE
-      };
-                   assertTrue(compareErrorCodes(errExpected));
+        };
+        assertTrue(compareErrorCodes(errExpected));
 
         elt.setX("myval");
         elt.unsetG();
         elt.setF("foobar");
-         try {
+        try {
             assertTrue(doc.validate(validateOptions));
-        }
-        catch (Throwable t) {
+        } catch (Throwable t) {
             showErrors();
             throw t;
         }
-
     }
 }

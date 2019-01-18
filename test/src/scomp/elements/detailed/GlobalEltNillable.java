@@ -15,20 +15,19 @@
 
 package scomp.elements.detailed;
 
-import scomp.common.BaseCase;
-import xbean.scomp.element.globalEltNillable.*;
-import org.apache.xmlbeans.impl.values.XmlValueNotNillableException;
 import org.apache.xmlbeans.XmlErrorCodes;
 import org.apache.xmlbeans.XmlOptions;
+import org.apache.xmlbeans.impl.values.XmlValueNotNillableException;
+import org.junit.Test;
+import scomp.common.BaseCase;
+import xbean.scomp.element.globalEltNillable.*;
 
-/**
- *
- *
- */
+import static org.junit.Assert.*;
+
 public class GlobalEltNillable extends BaseCase {
 
     //xsi:nil illegal in instance if the elt is not nillable
-
+    @Test
     public void testNillableFalse() throws Exception {
         GlobalEltNotNillableDocument testElt = GlobalEltNotNillableDocument
                 .Factory.parse("<GlobalEltNotNillable" +
@@ -40,8 +39,6 @@ public class GlobalEltNillable extends BaseCase {
         String[] errExpected = new String[]{
             XmlErrorCodes.ELEM_LOCALLY_VALID$NOT_NILLABLE};
              assertTrue(compareErrorCodes(errExpected));
-
-
     }
 
     /**
@@ -51,11 +48,9 @@ public class GlobalEltNillable extends BaseCase {
      * setXXX(null) will clear the value of the
      * XXX attribute/element and if the container is an
      * element, will also add the "xsi:nil" attribute.
-
-     *
-     * @throws Exception
      */
-    public void testNotNillable() throws Exception {
+    @Test
+    public void testNotNillable() {
 
         // XmlValueNotNillableException should be thrown only when validateOnSet property is set
         XmlOptions options = new XmlOptions();
@@ -70,7 +65,7 @@ public class GlobalEltNillable extends BaseCase {
         catch (XmlValueNotNillableException e) {
         }
 
-         try {
+        try {
             testElt.set(null);
             fail("Expected XmlValueNotNillableException");
         }
@@ -91,10 +86,11 @@ public class GlobalEltNillable extends BaseCase {
                 new String[]{
                     XmlErrorCodes.ELEM_LOCALLY_VALID$NOT_NILLABLE};
              assertTrue(compareErrorCodes(errExpected));
-}
+    }
 
     //for nillable, fixed value cannot be specified (instance error) :
     // Walmsley p.137 footnote
+    @Test
     public void testNillableFixed() throws Exception {
         GlobalEltNillableFixedDocument testElt = GlobalEltNillableFixedDocument
                 .Factory.parse("<GlobalEltNillableFixed" +
@@ -107,10 +103,9 @@ public class GlobalEltNillable extends BaseCase {
         showErrors();
                String[] errExpected = new String[]{XmlErrorCodes.ELEM_LOCALLY_VALID$NIL_WITH_FIXED};
                     assertTrue(compareErrorCodes(errExpected));
-
-
     }
 
+    @Test
     public void testNillableInt() throws Exception {
         GlobalEltNillableIntDocument testElt = GlobalEltNillableIntDocument
                 .Factory.parse("<GlobalEltNillableInt" +
@@ -142,6 +137,7 @@ public class GlobalEltNillable extends BaseCase {
 
     //default value not filled in for nillable elts when xsi:nil=true
     // $TODO: check w/ Kevin--what is the value of a nillable attr if it's a primitive type????
+    @Test
     public void testNillableDefault() throws Exception {
         GlobalEltNillableDefaultDocument testElt = GlobalEltNillableDefaultDocument
                 .Factory.parse("<GlobalEltNillableDefault" +
@@ -160,6 +156,7 @@ public class GlobalEltNillable extends BaseCase {
 
     // An element with xsi:nil="true" may not have any element content but it
     //  may still carry attributes.
+    @Test
     public void testComplexNillable() throws Throwable {
         GlobalEltComplexDocument testElt = GlobalEltComplexDocument
                 .Factory.parse("<GlobalEltComplex" +
@@ -191,8 +188,8 @@ public class GlobalEltNillable extends BaseCase {
 
     /** calling setNil should inserts
      * attr and delete value
-     * @throws Throwable
      */
+    @Test
     public void testDelete() throws Throwable{
         GlobalEltComplexDocument  testElt = GlobalEltComplexDocument
                 .Factory.parse("<pre:GlobalEltComplex" +

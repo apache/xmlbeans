@@ -20,36 +20,19 @@ import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlCursor.TokenType;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
-import tools.util.JarUtil;
-import xmlcursor.common.Common;
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import org.junit.Test;
 import org.tranxml.tranXML.version40.CarLocationMessageDocument;
 import org.tranxml.tranXML.version40.CarLocationMessageDocument.CarLocationMessage;
+import tools.util.JarUtil;
+import xmlcursor.common.Common;
 
 import javax.xml.namespace.QName;
 
+import static org.junit.Assert.*;
 
-/**
- *
- *
- */
-public class CursorVsObjectAttributeTest extends TestCase {
-    public CursorVsObjectAttributeTest(String sName) {
-        super(sName);
-    }
 
-    public static Test suite() {
-        return new TestSuite(CursorVsObjectAttributeTest.class);
-    }
-
-    public void testClassPath() throws Exception {
-        String sClassPath = System.getProperty("java.class.path");
-        int i = sClassPath.indexOf(Common.CARLOCATIONMESSAGE_JAR);
-        assertTrue(i >= 0);
-    }
-
+public class CursorVsObjectAttributeTest {
+    @Test
     public void testAttributeSet() throws Exception {
         CarLocationMessageDocument clmDoc = CarLocationMessageDocument.Factory.parse(
                 JarUtil.getResourceFromJar(Common.TRANXML_FILE_CLM));
@@ -64,6 +47,7 @@ public class CursorVsObjectAttributeTest extends TestCase {
         assertEquals("012", clm.getVersion());
     }
 
+    @Test
     public void testAttributeUnsetRemove() throws Exception {
         CarLocationMessageDocument clmDoc =
                 (CarLocationMessageDocument) XmlObject.Factory.parse(
@@ -74,13 +58,14 @@ public class CursorVsObjectAttributeTest extends TestCase {
         QName name = new QName("Version");
         assertEquals("CLM", xc.getAttributeText(name));
         clm.unsetVersion();
-        assertEquals(null, xc.getAttributeText(name));
+        assertNull(xc.getAttributeText(name));
         xc.setAttributeText(name, "012");
         assertEquals("012", clm.getVersion());
         xc.removeAttribute(name);
-        assertEquals(null, clm.getVersion());
+        assertNull(clm.getVersion());
     }
 
+    @Test
     public void testAttributeInsert() throws Exception {
         XmlOptions map = new XmlOptions();
         map.put(XmlOptions.LOAD_STRIP_WHITESPACE, "");
@@ -94,12 +79,10 @@ public class CursorVsObjectAttributeTest extends TestCase {
         QName name = new QName("Version");
         assertEquals("CLM", xc.getAttributeText(name));
         clm.unsetVersion();
-        assertEquals(null, xc.getAttributeText(name));
+        assertNull(xc.getAttributeText(name));
         xc.toFirstChild();
         assertEquals(TokenType.START, xc.currentTokenType());
         xc.insertAttributeWithValue(name, "012");
         assertEquals("012", clm.getVersion());
     }
-
 }
-

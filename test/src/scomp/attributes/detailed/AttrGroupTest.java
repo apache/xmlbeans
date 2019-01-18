@@ -15,21 +15,21 @@
 
 package scomp.attributes.detailed;
 
+import org.apache.xmlbeans.*;
+import org.junit.Test;
 import scomp.common.BaseCase;
 import xbean.scomp.attribute.attributeGroup.AttGroupEltDocument;
 import xbean.scomp.attribute.attributeGroup.GlobalT;
-import org.apache.xmlbeans.*;
 
 import javax.xml.namespace.QName;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
-/**
- *
- *
- *
- */
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 public class AttrGroupTest extends BaseCase {
+    @Test
     public void testAttributeGroup() throws Throwable {
         AttGroupEltDocument doc = AttGroupEltDocument.Factory.newInstance();
         GlobalT elt = doc.addNewAttGroupElt();
@@ -70,7 +70,5 @@ public class AttrGroupTest extends BaseCase {
             showErrors();
             throw t;
         }
-
-
     }
 }

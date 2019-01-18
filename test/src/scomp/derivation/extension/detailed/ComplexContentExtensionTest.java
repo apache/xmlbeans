@@ -14,6 +14,8 @@
  */
 package scomp.derivation.extension.detailed;
 
+import org.apache.xmlbeans.*;
+import org.junit.Test;
 import scomp.common.BaseCase;
 import xbean.scomp.derivation.complexExtension.ChoiceExtensionEltDocument;
 import xbean.scomp.derivation.complexExtension.ChoiceExtensionT;
@@ -21,20 +23,14 @@ import xbean.scomp.derivation.complexExtension.SequenceExtensionEltDocument;
 import xbean.scomp.derivation.complexExtension.SequenceExtensionT;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.ArrayList;
 
-import org.apache.xmlbeans.*;
+import static org.junit.Assert.*;
 
-/**
- *
- *
- *
- */
 public class ComplexContentExtensionTest extends BaseCase {
-
-
+    @Test
     public void testSequenceExtension() throws Throwable {
         SequenceExtensionEltDocument doc = SequenceExtensionEltDocument.Factory
                 .newInstance();
@@ -76,6 +72,7 @@ public class ComplexContentExtensionTest extends BaseCase {
      * Valid sets: { (child1 xor child2 xor child3 )(extraEltStr xor extraEltStr) }
      * @throws Throwable
      */
+    @Test
     public void testChoiceExtension() throws Throwable {
         ChoiceExtensionEltDocument doc = ChoiceExtensionEltDocument.Factory
                 .newInstance();
@@ -149,6 +146,7 @@ public class ComplexContentExtensionTest extends BaseCase {
      * The follwing are test for the 'final' attribute used in a base type that affects extenstion/restriction
      * They are negative tests and test for #all, restriction, extenstion and 'extenstion restriction' values
      */
+    @Test
     public void testFinalAll() {
         String inputXsd = "    <xsd:schema xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\">\n" +
                 "    <xsd:complexType name=\"BaseProductTypeFinalAll\" final=\"#all\">\n" +
@@ -211,6 +209,7 @@ public class ComplexContentExtensionTest extends BaseCase {
 
     }
 
+    @Test
     public void testFinalExtension() {
         String inputXsd = "    <xsd:schema xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\">\n" +
                 "    <xsd:complexType name=\"BaseProductTypeFinalExtension\" final=\"extension\">\n" +
@@ -247,6 +246,7 @@ public class ComplexContentExtensionTest extends BaseCase {
         }
     }
 
+    @Test
     public void testFinalRestriction() {
         String inputXsd = "    <xsd:schema xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\">\n" +
                 "    <xsd:complexType name=\"BaseProductTypeFinalRestriction\" final=\"restriction\">\n" +
@@ -282,6 +282,7 @@ public class ComplexContentExtensionTest extends BaseCase {
         }
     }
 
+    @Test
     public void testFinalRestrExt() {
         String inputXsd = "    <xsd:schema xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\">\n" +
                 "    <xsd:complexType name=\"BaseProductTypeFinalAll\" final=\"restriction extension\">\n" +
@@ -341,7 +342,5 @@ public class ComplexContentExtensionTest extends BaseCase {
         System.out.println("Err:" + eacherr.getMessage());
         assertNotNull(eacherr.getErrorCode());
         assertEquals(XmlErrorCodes.COMPLEX_TYPE_RESTRICTION$FINAL, eacherr.getErrorCode());
-
     }
-
 }

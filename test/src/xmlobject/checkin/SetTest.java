@@ -14,46 +14,25 @@
  */
 package xmlobject.checkin;
 
-import java.util.*;
-
-import junit.framework.*;
-
-import xmlcursor.common.*;
-
-
-import org.apache.xmlbeans.XmlObject;
-import org.apache.xmlbeans.XmlCursor.TokenType;
-import org.apache.xmlbeans.XmlString;
-import org.apache.xmlbeans.XmlDate;
 import org.apache.xmlbeans.XmlCalendar;
-
+import org.apache.xmlbeans.XmlCursor.TokenType;
+import org.apache.xmlbeans.XmlDate;
+import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.XmlString;
+import org.junit.Test;
 import test.xbean.xmlcursor.purchaseOrder.PurchaseOrderDocument;
 import test.xbean.xmlcursor.purchaseOrder.USAddress;
-
 import tools.util.JarUtil;
+import xmlcursor.common.BasicCursorTestCase;
+import xmlcursor.common.Common;
+
+import java.util.Calendar;
+
+import static org.junit.Assert.*;
 
 
-/**
- *
- *
- */
 public class SetTest extends BasicCursorTestCase {
-    public SetTest(String sName) {
-        super(sName);
-    }
-
-    public static Test suite() {
-        return new TestSuite(SetTest.class);
-    }
-
-    public void testClassPath() throws Exception {
-        String sClassPath = System.getProperty("java.class.path");
-        int i = sClassPath.indexOf(Common.CARLOCATIONMESSAGE_JAR);
-        assertTrue(i >= 0);
-        i = sClassPath.indexOf(Common.XMLCURSOR_JAR);
-        assertTrue(i >= 0);
-    }
-
+    @Test
     public void testSetFromSTART() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_1ATTR_TEXT);
         m_xc = m_xo.newCursor();
@@ -63,6 +42,7 @@ public class SetTest extends BasicCursorTestCase {
         assertEquals("newtext", m_xc.getTextValue());
     }
 
+    @Test
     public void testSetFromATTR() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_1ATTR_TEXT);
         m_xc = m_xo.newCursor();
@@ -72,6 +52,7 @@ public class SetTest extends BasicCursorTestCase {
         assertEquals(" new attr text ", m_xc.getTextValue());
     }
 
+    @Test
     public void testSetFromSTARTstronglyTyped() throws Exception {
        PurchaseOrderDocument pod = (PurchaseOrderDocument) XmlObject.Factory.parse(
                 JarUtil.getResourceFromJar("xbean/xmlcursor/po.xml"));
@@ -80,12 +61,13 @@ public class SetTest extends BasicCursorTestCase {
         assertEquals("new comment text", pod.getPurchaseOrder().getComment());
     }
 
+    @Test
     public void testSetFromATTRstronglyTyped() throws Exception {
         PurchaseOrderDocument pod = (PurchaseOrderDocument) XmlObject.Factory.parse(
                 JarUtil.getResourceFromJar("xbean/xmlcursor/po.xml"));
         XmlDate xorderDate = pod.getPurchaseOrder().xgetOrderDate();
 
-        assertFalse(xorderDate==null);
+        assertNotNull(xorderDate);
 
         Calendar d = new XmlCalendar(new java.util.Date());
         xorderDate.setCalendarValue(d);
@@ -100,33 +82,34 @@ public class SetTest extends BasicCursorTestCase {
                         Calendar.DAY_OF_MONTH));
     }
 
+    @Test
     public void testSetFromFixedATTR() throws Exception {
 
         PurchaseOrderDocument pod = (PurchaseOrderDocument) XmlObject.Factory.parse(
                 JarUtil.getResourceFromJar("xbean/xmlcursor/po.xml"));
         USAddress usa = pod.getPurchaseOrder().getShipTo();
-         assertFalse(usa==null);
+        assertNotNull(usa);
 
         XmlString xcountry = usa.xgetCountry();
 
         xcountry.setStringValue("UK");
 
-
-        assertEquals(false, pod.validate());
+        assertFalse(pod.validate());
     }
 
+    @Test
     public void testSetFromComplexType() throws Exception {
 
         PurchaseOrderDocument pod = (PurchaseOrderDocument) XmlObject.Factory.parse(
                 JarUtil.getResourceFromJar("xbean/xmlcursor/po.xml"));
         USAddress usa = pod.getPurchaseOrder().getShipTo();
-        assertFalse(usa==null);
+        assertNotNull(usa);
         usa.set(
                 USAddress.Factory.parse(
                         "<shipTo country=\"UK\"><name>Fred</name><street>paved</street><city>town</city><state>AK</state><zip>00000</zip></shipTo>"));
 
         // assertTrue(true);
-        assertEquals(false, pod.validate());
+        assertFalse(pod.validate());
     }
 }
 

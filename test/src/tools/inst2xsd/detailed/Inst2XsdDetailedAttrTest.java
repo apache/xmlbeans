@@ -14,14 +14,11 @@
  */
 package tools.inst2xsd.detailed;
 
+import org.junit.Test;
 import tools.inst2xsd.common.Inst2XsdTestBase;
 import org.apache.xmlbeans.XmlObject;
 
 public class Inst2XsdDetailedAttrTest extends Inst2XsdTestBase {
-
-    public Inst2XsdDetailedAttrTest(String name) {
-        super(name);
-    }
 
     // List of precedence for smart simple primitive type determination
     // byte, short, int, long, integer, float, double, decimal,
@@ -72,6 +69,7 @@ public class Inst2XsdDetailedAttrTest extends Inst2XsdTestBase {
     //runAttrTypeChecking(getAttrTypeXml("1999"), "gYear");
     //}
 
+    @Test
     public void test_attranyuri() throws Exception {
         runAttrTypeChecking(getAttrTypeXml("http://www.math.uio.no/faq/compression-faq/part1.html"), "anyURI");
         runAttrTypeChecking(getAttrTypeXml("http://www.example.com/doc.html#ID5"), "anyURI");
@@ -88,6 +86,7 @@ public class Inst2XsdDetailedAttrTest extends Inst2XsdTestBase {
      * 0, and 1 get picked up by byte
      * true, false are strings
      */
+    @Test
     public void test_attrboolean() throws Exception {
         runAttrTypeChecking(getAttrTypeXml("true"), "string");
         runAttrTypeChecking(getAttrTypeXml("false"), "string");
@@ -96,11 +95,7 @@ public class Inst2XsdDetailedAttrTest extends Inst2XsdTestBase {
         //runAttrTypeChecking(getAttrTypeXml("false"), "boolean");
     }
 
-
-
-
-
-
+    @Test
     public void test_attrQName() throws Exception {
         XmlObject xsdString = XmlObject.Factory.parse("<a xmlns=\"attrTests\" " +
                 "xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" a=\"xsd:string\"></a>");
@@ -111,7 +106,4 @@ public class Inst2XsdDetailedAttrTest extends Inst2XsdTestBase {
         runAttrTypeChecking(xsdString, "QName");
         runAttrTypeChecking(foobaz, "QName");
     }
-
-
-
 }

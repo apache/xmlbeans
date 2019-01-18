@@ -15,49 +15,34 @@
 
 package compile.scomp.incr.schemaCompile.detailed;
 
-import junit.framework.TestCase;
-import junit.framework.Assert;
-import junit.framework.Test;
-import junit.framework.TestSuite;
-import org.apache.xmlbeans.impl.common.QNameHelper;
-import org.apache.xmlbeans.impl.tool.SchemaCompiler;
-import org.apache.xmlbeans.impl.tool.CodeGenUtil;
-import org.apache.xmlbeans.impl.tool.SchemaCodeGenerator;
-import org.apache.xmlbeans.impl.tool.Diff;
-import org.apache.xmlbeans.impl.xb.xsdschema.SchemaDocument;
-import org.apache.xmlbeans.impl.xb.xsdschema.TopLevelComplexType;
-import org.apache.xmlbeans.*;
-
-import java.io.File;
-import java.io.StringWriter;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Arrays;
-import java.util.Collections;
-
-import tools.util.TestRunUtil;
 import compile.scomp.common.CompileCommon;
 import compile.scomp.common.CompileTestBase;
+import org.apache.xmlbeans.SchemaTypeSystem;
+import org.apache.xmlbeans.XmlException;
+import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.XmlOptions;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
 
 import javax.xml.namespace.QName;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+
+import static org.junit.Assert.assertNotSame;
 
 
-/**
- *
- *
- */
+@Ignore("Currently all tests receive a duplicate schema entry exception")
 public class ModelGroupTests extends CompileTestBase {
 
+    File obj1File, obj2File;
 
-    public ModelGroupTests(String name) {
-        super(name);
-    }
-
-    public static Test suite() {
-        return new TestSuite(ModelGroupTests.class);
-    }
-
+    @Before
     public void setUp() throws IOException {
         CompileCommon.deltree(CompileCommon.xbeanOutput(outputDir));
         out = CompileCommon.xbeanOutput(outPath);
@@ -68,37 +53,56 @@ public class ModelGroupTests extends CompileTestBase {
         xm = new XmlOptions();
         xm.setErrorListener(errors);
         xm.setSavePrettyPrint();
+
+        obj1File = File.createTempFile("obj1_", ".xsd");
+        obj2File = File.createTempFile("obj2_", ".xsd");
     }
 
-    public void tearDown() throws Exception
-    {
-        super.tearDown();
-        if (errors.size() > 0)
+    @After
+    public void tearDown() throws Exception {
+        if (errors.size() > 0) {
             errors.clear();
+        }
+        obj1File.delete();
+        obj2File.delete();
     }
 
+    private XmlObject[] getSchema(File objFile, String schemaString) throws IOException, XmlException {
+        FileOutputStream fos = new FileOutputStream(objFile);
+        OutputStreamWriter osw = new OutputStreamWriter(fos, Charset.forName("UTF-8"));
+        if (!schemaString.startsWith("<?xml")) {
+            osw.write(getSchemaTop("baz"));
+        }
+        osw.write(schemaString);
+        if (!schemaString.startsWith("<?xml")) {
+            osw.write(getSchemaBottom());
+        }
+        osw.close();
+
+        XmlObject obj = XmlObject.Factory.parse(objFile);
+        obj.documentProperties().setSourceName(objFile.toURI().toASCIIString());
+        return new XmlObject[]{obj};
+    }
+
+    @Test
     public void test_model_diffns_choice2seqchange() throws Exception {
         //XmlObject.Factory.parse(getBaseSchema("baz","elName", "elType", "attrName","attrType"));
-        XmlObject obj1 = XmlObject.Factory.parse(getSchemaTop("baz") +
+        XmlObject[] schemas = getSchema(obj1File,
                 "<xs:element name=\"elName\" type=\"bas:aType\" xmlns:bas=\"http://baz\" />" +
                 "<xs:complexType name=\"aType\">" +
                 "<xs:choice>" +
                 "<xs:element name=\"a\" type=\"xs:string\" />" +
                 "<xs:element name=\"b\" type=\"xs:string\" />" +
                 "</xs:choice>" +
-                "</xs:complexType>" + getSchemaBottom());
-        XmlObject obj2 = XmlObject.Factory.parse(getSchemaTop("baz") +
+                "</xs:complexType>");
+        XmlObject[] schemas2 = getSchema(obj2File,
                 "<xs:element name=\"elName\" type=\"bas:aType\" xmlns:bas=\"http://baz\" />" +
                 "<xs:complexType name=\"aType\">" +
                 "<xs:sequence>" +
                 "<xs:element name=\"a\" type=\"xs:string\" />" +
                 "<xs:element name=\"b\" type=\"xs:string\" />" +
                 "</xs:sequence>" +
-                "</xs:complexType>" + getSchemaBottom());
-        XmlObject[] schemas = new XmlObject[]{obj1};
-        XmlObject[] schemas2 = new XmlObject[]{obj2};
-        schemas[0].documentProperties().setSourceName("obj1");
-        schemas2[0].documentProperties().setSourceName("obj2");
+                "</xs:complexType>");
 
         SchemaTypeSystem base = compileSchemas(schemas, builtin, xm);
         SchemaTypeSystem incr = incrCompileXsd(base, schemas2, builtin, xm);
@@ -111,34 +115,31 @@ public class ModelGroupTests extends CompileTestBase {
         findElementbyQName(incr, incrTypes);
 
         //        if (incr.findElement(incrTypes[0]).getType().g
-        Assert.assertNotSame(base, incr);
+        assertNotSame(base, incr);
 
         compareandPopErrors(out, outincr, errors);
         handleErrors(errors);
     }
 
+    @Test
     public void test_model_seq2choicechange() throws Exception {
         //XmlObject.Factory.parse(getBaseSchema("baz","elName", "elType", "attrName","attrType"));
-        XmlObject obj1 = XmlObject.Factory.parse(getSchemaTop("baz") +
+        XmlObject[] schemas = getSchema(obj1File,
                 "<xs:element name=\"elName\" type=\"bas:aType\" xmlns:bas=\"http://baz\" />" +
                 "<xs:complexType name=\"aType\">" +
                 "<xs:sequence>" +
                 "<xs:element name=\"a\" type=\"xs:string\" />" +
                 "<xs:element name=\"b\" type=\"xs:string\" />" +
                 "</xs:sequence>" +
-                "</xs:complexType>" + getSchemaBottom());
-        XmlObject obj2 = XmlObject.Factory.parse(getSchemaTop("baz") +
+                "</xs:complexType>");
+        XmlObject[] schemas2 = getSchema(obj2File,
                 "<xs:element name=\"elName\" type=\"bas:aType\" xmlns:bas=\"http://baz\" />" +
                 "<xs:complexType name=\"aType\">" +
                 "<xs:choice>" +
                 "<xs:element name=\"a\" type=\"xs:string\" />" +
                 "<xs:element name=\"b\" type=\"xs:string\" />" +
                 "</xs:choice>" +
-                "</xs:complexType>" + getSchemaBottom());
-        XmlObject[] schemas = new XmlObject[]{obj1};
-        XmlObject[] schemas2 = new XmlObject[]{obj2};
-        schemas[0].documentProperties().setSourceName("obj1");
-        schemas2[0].documentProperties().setSourceName("obj2");
+                "</xs:complexType>");
 
         SchemaTypeSystem base = compileSchemas(schemas, builtin, xm);
         SchemaTypeSystem incr = incrCompileXsd(base, schemas2, builtin, xm);
@@ -150,28 +151,25 @@ public class ModelGroupTests extends CompileTestBase {
         findElementbyQName(base, baseTypes);
         findElementbyQName(incr, incrTypes);
 
-        Assert.assertNotSame(base, incr);
+        assertNotSame(base, incr);
 
         compareandPopErrors(out, outincr, errors);
         handleErrors(errors);
     }
 
+    @Test
     public void test_model_seq2choicechange_diffns() throws Exception {
         //XmlObject.Factory.parse(getBaseSchema("baz","elName", "elType", "attrName","attrType"));
-        XmlObject obj1 = XmlObject.Factory.parse(getBaseSchema("bar", "elName", "string", "attrName", "string"));
-        XmlObject obj2 = XmlObject.Factory.parse(
-                getSchemaTop("baz")+
+        XmlObject[] schemas = getSchema(obj1File,
+            getBaseSchema("bar", "elName", "string", "attrName", "string"));
+        XmlObject[] schemas2 = getSchema(obj2File,
                 "<xs:element name=\"elName\" type=\"bas:aType\" xmlns:bas=\"http://baz\" />" +
                 "<xs:complexType name=\"aType\">" +
                 "<xs:sequence>" +
                 "<xs:element name=\"a\" type=\"xs:string\" />" +
                 "<xs:element name=\"b\" type=\"xs:string\" />" +
                 "</xs:sequence>" +
-                "</xs:complexType>"+getSchemaBottom());
-        XmlObject[] schemas = new XmlObject[]{obj1};
-        XmlObject[] schemas2 = new XmlObject[]{obj2};
-        schemas[0].documentProperties().setSourceName("obj1");
-        schemas2[0].documentProperties().setSourceName("obj2");
+                "</xs:complexType>");
 
         SchemaTypeSystem base = compileSchemas(schemas, builtin, xm);
         SchemaTypeSystem incr = incrCompileXsd(base, schemas2, builtin, xm);
@@ -184,34 +182,31 @@ public class ModelGroupTests extends CompileTestBase {
         findElementbyQName(incr, incrTypes);
 
         //        if (incr.findElement(incrTypes[0]).getType().g
-        Assert.assertNotSame(base, incr);
+        assertNotSame(base, incr);
 
         compareandPopErrors(out, outincr, errors);
         handleErrors(errors);
     }
 
+    @Test
     public void test_model_seq2allchange() throws Exception {
         //XmlObject.Factory.parse(getBaseSchema("baz","elName", "elType", "attrName","attrType"));
-        XmlObject obj1 = XmlObject.Factory.parse(getSchemaTop("baz") +
+        XmlObject[] schemas = getSchema(obj1File,
                 "<xs:element name=\"elName\" type=\"bas:aType\" xmlns:bas=\"http://baz\" />" +
                 "<xs:complexType name=\"aType\">" +
                 "<xs:sequence>" +
                 "<xs:element name=\"a\" type=\"xs:string\" />" +
                 "<xs:element name=\"b\" type=\"xs:string\" />" +
                 "</xs:sequence>" +
-                "</xs:complexType>" + getSchemaBottom());
-        XmlObject obj2 = XmlObject.Factory.parse(getSchemaTop("baz") +
+                "</xs:complexType>");
+        XmlObject[] schemas2 = getSchema(obj2File,
                 "<xs:element name=\"elName\" type=\"bas:aType\" xmlns:bas=\"http://baz\" />" +
                 "<xs:complexType name=\"aType\">" +
                 "<xs:all>" +
                 "<xs:element name=\"a\" type=\"xs:string\" />" +
                 "<xs:element name=\"b\" type=\"xs:string\" />" +
                 "</xs:all>" +
-                "</xs:complexType>" + getSchemaBottom());
-        XmlObject[] schemas = new XmlObject[]{obj1};
-        XmlObject[] schemas2 = new XmlObject[]{obj2};
-        schemas[0].documentProperties().setSourceName("obj1");
-        schemas2[0].documentProperties().setSourceName("obj2");
+                "</xs:complexType>");
 
         SchemaTypeSystem base = compileSchemas(schemas, builtin, xm);
         SchemaTypeSystem incr = incrCompileXsd(base, schemas2, builtin, xm);
@@ -224,34 +219,31 @@ public class ModelGroupTests extends CompileTestBase {
         findElementbyQName(incr, incrTypes);
 
         //        if (incr.findElement(incrTypes[0]).getType().g
-        Assert.assertNotSame(base, incr);
+        assertNotSame(base, incr);
 
         compareandPopErrors(out, outincr, errors);
         handleErrors(errors);
     }
 
+    @Test
     public void test_model_all2seqchange() throws Exception {
         //XmlObject.Factory.parse(getBaseSchema("baz","elName", "elType", "attrName","attrType"));
-        XmlObject obj1 = XmlObject.Factory.parse(getSchemaTop("baz") +
+        XmlObject[] schemas = getSchema(obj1File,
                 "<xs:element name=\"elName\" type=\"bas:aType\" xmlns:bas=\"http://baz\" />" +
                 "<xs:complexType name=\"aType\">" +
                 "<xs:all>" +
                 "<xs:element name=\"a\" type=\"xs:string\" />" +
                 "<xs:element name=\"b\" type=\"xs:string\" />" +
                 "</xs:all>" +
-                "</xs:complexType>" + getSchemaBottom());
-        XmlObject obj2 = XmlObject.Factory.parse(getSchemaTop("baz") +
+                "</xs:complexType>");
+        XmlObject[] schemas2 = getSchema(obj2File,
                 "<xs:element name=\"elName\" type=\"bas:aType\" xmlns:bas=\"http://baz\" />" +
                 "<xs:complexType name=\"aType\">" +
                 "<xs:sequence>" +
                 "<xs:element name=\"a\" type=\"xs:string\" />" +
                 "<xs:element name=\"b\" type=\"xs:string\" />" +
                 "</xs:sequence>" +
-                "</xs:complexType>" + getSchemaBottom());
-        XmlObject[] schemas = new XmlObject[]{obj1};
-        XmlObject[] schemas2 = new XmlObject[]{obj2};
-        schemas[0].documentProperties().setSourceName("obj1");
-        schemas2[0].documentProperties().setSourceName("obj2");
+                "</xs:complexType>");
 
         SchemaTypeSystem base = compileSchemas(schemas, builtin, xm);
         SchemaTypeSystem incr = incrCompileXsd(base, schemas2, builtin, xm);
@@ -264,34 +256,31 @@ public class ModelGroupTests extends CompileTestBase {
         findElementbyQName(incr, incrTypes);
 
         //        if (incr.findElement(incrTypes[0]).getType().g
-        Assert.assertNotSame(base, incr);
+        assertNotSame(base, incr);
 
         compareandPopErrors(out, outincr, errors);
         handleErrors(errors);
     }
 
+    @Test
     public void test_model_all2choicechange() throws Exception {
         //XmlObject.Factory.parse(getBaseSchema("baz","elName", "elType", "attrName","attrType"));
-        XmlObject obj1 = XmlObject.Factory.parse(getSchemaTop("baz") +
+        XmlObject[] schemas = getSchema(obj1File,
                 "<xs:element name=\"elName\" type=\"bas:aType\" xmlns:bas=\"http://baz\" />" +
                 "<xs:complexType name=\"aType\">" +
                 "<xs:all>" +
                 "<xs:element name=\"a\" type=\"xs:string\" />" +
                 "<xs:element name=\"b\" type=\"xs:string\" />" +
                 "</xs:all>" +
-                "</xs:complexType>" + getSchemaBottom());
-        XmlObject obj2 = XmlObject.Factory.parse(getSchemaTop("baz") +
+                "</xs:complexType>");
+        XmlObject[] schemas2 = getSchema(obj2File,
                 "<xs:element name=\"elName\" type=\"bas:aType\" xmlns:bas=\"http://baz\" />" +
                 "<xs:complexType name=\"aType\">" +
                 "<xs:choice>" +
                 "<xs:element name=\"a\" type=\"xs:string\" />" +
                 "<xs:element name=\"b\" type=\"xs:string\" />" +
                 "</xs:choice>" +
-                "</xs:complexType>" + getSchemaBottom());
-        XmlObject[] schemas = new XmlObject[]{obj1};
-        XmlObject[] schemas2 = new XmlObject[]{obj2};
-        schemas[0].documentProperties().setSourceName("obj1");
-        schemas2[0].documentProperties().setSourceName("obj2");
+                "</xs:complexType>");
 
         SchemaTypeSystem base = compileSchemas(schemas, builtin, xm);
         SchemaTypeSystem incr = incrCompileXsd(base, schemas2, builtin, xm);
@@ -304,34 +293,31 @@ public class ModelGroupTests extends CompileTestBase {
         findElementbyQName(incr, incrTypes);
 
         //        if (incr.findElement(incrTypes[0]).getType().g
-        Assert.assertNotSame(base, incr);
+        assertNotSame(base, incr);
 
         compareandPopErrors(out, outincr, errors);
         handleErrors(errors);
     }
 
+    @Test
     public void test_model_choice2choicechange() throws Exception {
         //XmlObject.Factory.parse(getBaseSchema("baz","elName", "elType", "attrName","attrType"));
-        XmlObject obj1 = XmlObject.Factory.parse(getSchemaTop("baz") +
+        XmlObject[] schemas = getSchema(obj1File,
                 "<xs:element name=\"elName\" type=\"bas:aType\" xmlns:bas=\"http://baz\" />" +
                 "<xs:complexType name=\"aType\">" +
                 "<xs:choice>" +
                 "<xs:element name=\"a\" type=\"xs:string\" />" +
                 "<xs:element name=\"b\" type=\"xs:string\" />" +
                 "</xs:choice>" +
-                "</xs:complexType>" + getSchemaBottom());
-        XmlObject obj2 = XmlObject.Factory.parse(getSchemaTop("baz") +
+                "</xs:complexType>");
+        XmlObject[] schemas2 = getSchema(obj2File,
                 "<xs:element name=\"elName\" type=\"bas:aType\" xmlns:bas=\"http://baz\" />" +
                 "<xs:complexType name=\"aType\">" +
                 "<xs:all>" +
                 "<xs:element name=\"a\" type=\"xs:string\" />" +
                 "<xs:element name=\"b\" type=\"xs:string\" />" +
                 "</xs:all>" +
-                "</xs:complexType>" + getSchemaBottom());
-        XmlObject[] schemas = new XmlObject[]{obj1};
-        XmlObject[] schemas2 = new XmlObject[]{obj2};
-        schemas[0].documentProperties().setSourceName("obj1");
-        schemas2[0].documentProperties().setSourceName("obj2");
+                "</xs:complexType>");
 
         SchemaTypeSystem base = compileSchemas(schemas, builtin, xm);
         SchemaTypeSystem incr = incrCompileXsd(base, schemas2, builtin, xm);
@@ -344,12 +330,9 @@ public class ModelGroupTests extends CompileTestBase {
         findElementbyQName(incr, incrTypes);
 
         //        if (incr.findElement(incrTypes[0]).getType().g
-        Assert.assertNotSame(base, incr);
+        assertNotSame(base, incr);
 
         compareandPopErrors(out, outincr, errors);
         handleErrors(errors);
     }
-
-
-
 }

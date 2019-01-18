@@ -54,10 +54,11 @@
 
 package tools.ant;
 
-import junit.framework.*;
 import org.apache.tools.ant.*;
 import java.io.*;
 import java.net.URL;
+
+import static org.junit.Assert.*;
 
 /**
  * A BuildFileTest is a TestCase which executes targets from an Ant buildfile
@@ -69,7 +70,7 @@ import java.net.URL;
  * @author Nico Seessle <nico@seessle.de>
  * @author Conor MacNeill
  */
-public abstract class BuildFileTest extends TestCase {
+public abstract class BuildFileTest {
 
     protected Project project;
 
@@ -79,14 +80,6 @@ public abstract class BuildFileTest extends TestCase {
     private StringBuffer errBuffer;
     private BuildException buildException;
 
-    /**
-     *  Constructor for the BuildFileTest object
-     *
-     *@param  name string to pass up to TestCase constructor
-     */
-    public BuildFileTest(String name) {
-        super(name);
-    }
 
     /**
      *  run a target, expect for any build exception
@@ -309,7 +302,6 @@ public abstract class BuildFileTest extends TestCase {
      *
      *@param  target target to run
      *@param  cause  information string to reader of report
-     *@param  msg    the message value of the build exception we are waiting for
      *@param  contains  substring of the build exception to look for
      */
     protected void expectBuildExceptionContaining(String target, String cause, String contains) {
@@ -391,7 +383,6 @@ public abstract class BuildFileTest extends TestCase {
      * assuming a vm working directory. The resource path must be
      * relative to the package name or absolute from the root path.
      * @param resource the resource to retrieve its url.
-     * @throws AssertionFailureException if resource is not found.
      */
     protected URL getResource(String resource){
         URL url = getClass().getResource(resource);

@@ -1,29 +1,18 @@
 package ValidatingXSRTests.checkin;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
-import junit.framework.TestCase;
-import junit.framework.Assert;
-import org.apache.xmlbeans.impl.util.XsTypeConverter;
 import org.apache.xmlbeans.impl.common.InvalidLexicalValueException;
+import org.apache.xmlbeans.impl.util.XsTypeConverter;
+import org.junit.Test;
+
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 /**
  * Created by Cezar Andrei (cezar dot andrei at gmail dot com)
  * Date: Jul 23, 2009
  */
-public class TestUriValidation
-    extends TestCase
-{
-    public TestUriValidation(String name)
-    {
-        super(name);
-    }
-
-    public static Test suite()
-    {
-        return new TestSuite(TestUriValidation.class);
-    }
-
+public class TestUriValidation {
+    @Test
     public void testLexAnyUriValid()
     {
         String[] validURIs = {
@@ -66,12 +55,12 @@ public class TestUriValidation
             catch (RuntimeException e)
             {
                 System.out.println("URI should be valid: " + validURIs[i] + "  " + e.getCause().getCause().getMessage());
-                Assert.assertTrue("URI should be valid: " + validURIs[i], false);
-                throw new IllegalStateException("URI should be valid: " + validURIs[i]);
+                fail("URI should be valid: " + validURIs[i]);
             }
         }
     }
 
+    @Test
     public void testLexAnyUriInvalid()
     {
         // From XQTS cvshead June 2009
@@ -98,12 +87,11 @@ public class TestUriValidation
             {
                 XsTypeConverter.lexAnyURI(invalidURIs[i]);
                 System.out.println("URI should be invalid: " + invalidURIs[i] );
-                Assert.assertTrue("URI should be invalid: " + invalidURIs[i], false);
-                throw new IllegalStateException("URI should be invalid: " + invalidURIs[i]);
+                fail("URI should be invalid: " + invalidURIs[i]);
             }
             catch (InvalidLexicalValueException e)
             {
-                Assert.assertTrue("URI should be invalid: " + invalidURIs[i] + "  " + e.getCause().getCause().getMessage(), true);
+                assertTrue("URI should be invalid: " + invalidURIs[i] + "  " + e.getCause().getCause().getMessage(), true);
             }
         }
     }

@@ -15,32 +15,23 @@
 
 package xmlcursor.detailed;
 
-import junit.framework.*;
-
-import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlCursor.TokenType;
-import xmlcursor.common.*;
+import org.apache.xmlbeans.XmlObject;
+import org.junit.Before;
+import org.junit.Test;
+import xmlcursor.common.BasicCursorTestCase;
+import xmlcursor.common.Common;
+
+import static org.junit.Assert.*;
 
 
-/**
- *
- *
- */
 public class GetTextValueTest extends BasicCursorTestCase {
 
 
-    String sDoc = Common.XML_FOO_NS_PREFIX;
-
-    public GetTextValueTest(String sName) {
-        super(sName);
-    }
-
-    public static Test suite() {
-        return new TestSuite(GetTextValueTest.class);
-    }
+    private String sDoc = Common.XML_FOO_NS_PREFIX;
 
     // Depth first concatenation of all text leaves
-     
+    @Test
     public void testNormalCase() {
         String sExpected = "  32.18";
         char[] buffer = new char[100];
@@ -49,24 +40,18 @@ public class GetTextValueTest extends BasicCursorTestCase {
         assertEquals(sExpected, new String(buffer).substring(0, nCopied));
     }
 
+    @Test(expected = IllegalArgumentException.class)
     public void testGetNull() {
-        try {
-            m_xc.getTextValue(null, 0, 10);
-            fail("Buffer was Null");
-        } catch (IllegalArgumentException ie) {
-        }
+        m_xc.getTextValue(null, 0, 10);
     }
 
+    @Test(expected = IllegalArgumentException.class)
     public void testNegativeOffset() {
         char[] buffer = new char[100];
-        try {
-            m_xc.getTextValue(buffer, -1, 100);
-            fail("Offset < 0");
-        } catch (IllegalArgumentException ie) {
-        }
-
+        m_xc.getTextValue(buffer, -1, 100);
     }
 
+    @Test
     public void testNonZeroOffset() {
         String sExpected = "T\0  32.18";
         char[] buffer = new char[10];
@@ -79,20 +64,17 @@ public class GetTextValueTest extends BasicCursorTestCase {
         assertEquals("",
                 new String(buffer).substring(nOffset + nCopied, buffer.length)
                 .trim());
-
     }
 
+    @Test(expected = IllegalArgumentException.class)
     public void testLargeOffset() {
         char[] buffer = new char[100];
-        try {
-            m_xc.getTextValue(buffer, 101, 1);
-            fail("Offset Past end");
-        } catch (IllegalArgumentException ie) {
-        }
+        m_xc.getTextValue(buffer, 101, 1);
     }
 
     //charCount<=0: should be a noop
     //BUT: Assumption is that <0=infinity, so all is copies
+    @Test
     public void testNegativeCharCount() {
         char[] buffer = new char[100];
         String sExpected = m_xc.getTextValue();
@@ -101,6 +83,7 @@ public class GetTextValueTest extends BasicCursorTestCase {
         assertEquals(sExpected, new String(buffer, 0, nCount));
     }
 
+    @Test
     public void testZeroCharCount() {
         char[] buffer = new char[10];
         int nCopied = m_xc.getTextValue(buffer, 0, 0);
@@ -108,18 +91,20 @@ public class GetTextValueTest extends BasicCursorTestCase {
         assertEquals("", new String(buffer).trim());
     }
 
+    @Test
     public void testLargeCharCount() {
         String sExpected = "  32.18";
         char[] buffer = new char[200];
         int nCharCount = 300;
-        assertEquals(true, sDoc.length() < nCharCount);
-        assertEquals(false, buffer.length >= nCharCount);
+        assertTrue(sDoc.length() < nCharCount);
+        assertFalse(buffer.length >= nCharCount);
         int nCopied = m_xc.getTextValue(buffer, 0, nCharCount);
         assertEquals(sExpected.length(), nCopied);
         assertEquals(sExpected, new String(buffer).substring(0, nCopied));
     }
 
     //offset+selection>buffer
+    @Test
     public void testSelectionPastEnd() {
         String sExpected = "  3";
         char[] buffer = new char[100];
@@ -133,6 +118,7 @@ public class GetTextValueTest extends BasicCursorTestCase {
     //End,Enddoc,Namespace should
     //return 0 as per spec
     //NB: Design changed, should work now
+    @Test
     public void testGetNonTextElement() {
         char[] buffer = new char[100];
         toNextTokenOfType(m_xc, TokenType.NAMESPACE);
@@ -154,11 +140,10 @@ public class GetTextValueTest extends BasicCursorTestCase {
             fail("Operation not allowed");
         } catch (java.lang.IllegalStateException e) {
         }
-
-
     }
 
     //test text of comment, PI or Attr
+    @Test
     public void testCommentPIAttr() throws Exception {
         String sExpected = "http://ecommerce.org/schema";
         int nSize = sExpected.length();
@@ -191,11 +176,10 @@ public class GetTextValueTest extends BasicCursorTestCase {
         assertEquals(sExpected, new String(buffer)
                 .substring(0, nCopied));
         assertEquals(sExpected.length(), nCopied);
-
     }
 
+    @Before
     public void setUp() throws Exception {
-        m_xc = XmlObject.Factory.parse(sDoc)
-                .newCursor();
+        m_xc = XmlObject.Factory.parse(sDoc).newCursor();
     }
 }

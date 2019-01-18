@@ -14,14 +14,15 @@
  */
 package compile.scomp.detailed;
 
-import junit.framework.TestCase;
-
-import java.util.List;
-import java.util.ArrayList;
-import java.io.File;
-
-import org.apache.xmlbeans.impl.tool.SchemaCompiler;
 import common.Common;
+import org.apache.xmlbeans.impl.tool.SchemaCompiler;
+import org.junit.Test;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.junit.Assert.fail;
 
 /**
  * This class contains tests that need to invoke the SchemaCompiler class which is
@@ -30,14 +31,10 @@ import common.Common;
  * The tests need to be run with cmd line param that points to the test case root directory and xmlbeans root
  * ex: -Dcases.location=D:\svnnew\xmlbeans\trunk\test\cases -Dxbean.rootdir=D:\svnnew\xmlbeans\trunk
  */
-public class SchemaCompilerTests  extends Common
+public class SchemaCompilerTests extends Common
 {
     public static String scompTestFilesRoot = XBEAN_CASE_ROOT + P + "compile" + P + "scomp" + P + "schemacompiler" + P;
     public static String schemaCompOutputDirPath = OUTPUTROOT + P + "compile" + P + "scomp" + P;
-
-    public  SchemaCompilerTests(String name){
-        super(name);
-    }
 
     private void _testCompile(File[] xsdFiles,
                               String outputDirName,
@@ -56,6 +53,7 @@ public class SchemaCompilerTests  extends Common
         }
     }
 
+    @Test
     public void testUnionRedefine()
     {
         File[] xsdFiles =
@@ -69,6 +67,7 @@ public class SchemaCompilerTests  extends Common
     /** This tests a bug where compilation of a schema redefining a type
         involving an enumeration fails.
      */
+    @Test
     public void testEnumerationRedefine1()
     {
         File[] xsdFiles = 
@@ -82,6 +81,7 @@ public class SchemaCompilerTests  extends Common
     /** This tests a bug where compilation of a schema redefining a type
         involving an enumeration fails.
      */
+    @Test
     public void testEnumerationRedefine2()
     {
         File[] xsdFiles = 
@@ -95,6 +95,7 @@ public class SchemaCompilerTests  extends Common
     /** This tests a bug where compilation of a schema redefining a type
         involving an enumeration fails.
      */
+    @Test
     public void testEnumerationRedefine3()
     {
         File[] xsdFiles = 
@@ -110,6 +111,7 @@ public class SchemaCompilerTests  extends Common
      * [XMLBEANS-205]:
      * using static handlers for extension interfaces with same method names
      */
+    @Test
     public void testExtensionHandlerMethodNameCollision()
     {
         File[] xsdFiles =
@@ -143,6 +145,7 @@ public class SchemaCompilerTests  extends Common
      * [XMLBEANS-278]:
      * -noext flag for compilation
      */
+    @Test
     public void testNoExt()
     {
         File[] xsdFiles =

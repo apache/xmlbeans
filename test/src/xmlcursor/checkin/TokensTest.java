@@ -16,61 +16,56 @@
 
 package xmlcursor.checkin;
 
-import junit.framework.*;
-
-import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlCursor.TokenType;
+import org.apache.xmlbeans.XmlObject;
+import org.junit.Test;
+import xmlcursor.common.BasicCursorTestCase;
+import xmlcursor.common.Common;
 
-import xmlcursor.common.*;
+import static org.junit.Assert.*;
 
 
-
-/**
- *
- *
- */
 public class TokensTest extends BasicCursorTestCase {
-    public TokensTest(String sName) {
-        super(sName);
-    }
 
-    public static Test suite() {
-        return new TestSuite(TokensTest.class);
-    }
-
+    @Test
     public void testHasNextToken() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_1ATTR_TEXT);
         m_xc = m_xo.newCursor();
         toNextTokenOfType(m_xc, TokenType.TEXT);
-        assertEquals(true, m_xc.hasNextToken());
+        assertTrue(m_xc.hasNextToken());
     }
 
+    @Test
     public void testHasNextTokenENDDOC() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_1ATTR_TEXT);
         m_xc = m_xo.newCursor();
         m_xc.toEndDoc();
-        assertEquals(false, m_xc.hasNextToken());
+        assertFalse(m_xc.hasNextToken());
     }
 
+    @Test
     public void testHasPrevToken() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_1ATTR_TEXT);
         m_xc = m_xo.newCursor();
         toNextTokenOfType(m_xc, TokenType.TEXT);
-        assertEquals(true, m_xc.hasPrevToken());
+        assertTrue(m_xc.hasPrevToken());
     }
 
+    @Test
     public void testHasPrevTokenSTARTDOC() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_1ATTR_TEXT);
         m_xc = m_xo.newCursor();
-        assertEquals(false, m_xc.hasPrevToken());
+        assertFalse(m_xc.hasPrevToken());
     }
 
+    @Test
     public void testToEndTokenFromSTARTDOC() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_1ATTR_TEXT);
         m_xc = m_xo.newCursor();
         assertEquals(TokenType.ENDDOC, m_xc.toEndToken());
     }
 
+    @Test
     public void testToEndTokenFromSTART() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_1ATTR_TEXT);
         m_xc = m_xo.newCursor();
@@ -78,6 +73,7 @@ public class TokensTest extends BasicCursorTestCase {
         assertEquals(TokenType.END, m_xc.toEndToken());
     }
 
+    @Test
     public void testToEndTokenFromTEXTmiddle() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_1ATTR_TEXT);
         m_xc = m_xo.newCursor();
@@ -86,6 +82,7 @@ public class TokensTest extends BasicCursorTestCase {
         assertEquals(TokenType.NONE, m_xc.toEndToken());
     }
 
+    @Test
     public void testToFirstContentTokenFromSTARTDOC() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_1ATTR_TEXT);
         m_xc = m_xo.newCursor();
@@ -93,6 +90,7 @@ public class TokensTest extends BasicCursorTestCase {
         assertEquals(TokenType.START, m_xc.currentTokenType());
     }
 
+    @Test
     public void testToFirstContentTokenFromATTR() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_1ATTR_TEXT);
         m_xc = m_xo.newCursor();
@@ -101,6 +99,7 @@ public class TokensTest extends BasicCursorTestCase {
         assertEquals(TokenType.ATTR, m_xc.currentTokenType());
     }
 
+    @Test
     public void testToFirstContentTokenFromSTARTwithContent() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_1ATTR_TEXT);
         m_xc = m_xo.newCursor();
@@ -108,6 +107,7 @@ public class TokensTest extends BasicCursorTestCase {
         assertEquals(TokenType.TEXT, m_xc.toFirstContentToken());
     }
 
+    @Test
     public void testToFirstContentTokenFromSTARTwithoutContent() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_1ATTR);
         m_xc = m_xo.newCursor();
@@ -115,6 +115,7 @@ public class TokensTest extends BasicCursorTestCase {
         assertEquals(TokenType.END, m_xc.toFirstContentToken());
     }
 
+    @Test
     public void testToNextTokenFromENDDOC() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_1ATTR_TEXT);
         m_xc = m_xo.newCursor();
@@ -122,6 +123,7 @@ public class TokensTest extends BasicCursorTestCase {
         assertEquals(TokenType.NONE, m_xc.toNextToken());
     }
 
+    @Test
     public void testToNextTokenNAMESPACE() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_NS);
         m_xc = m_xo.newCursor();
@@ -129,6 +131,7 @@ public class TokensTest extends BasicCursorTestCase {
         assertEquals(TokenType.NAMESPACE, m_xc.toNextToken());
     }
 
+    @Test
     public void testToPrevTokenSTARTDOC() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_1ATTR_TEXT);
         m_xc = m_xo.newCursor();
@@ -136,13 +139,12 @@ public class TokensTest extends BasicCursorTestCase {
         assertEquals(TokenType.STARTDOC, m_xc.currentTokenType());
     }
 
+    @Test
     public void testToPrevTokenENDDOC() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_1ATTR_TEXT);
         m_xc = m_xo.newCursor();
         m_xc.toEndDoc();
         assertEquals(TokenType.END, m_xc.toPrevToken());
     }
-
-
 }
 

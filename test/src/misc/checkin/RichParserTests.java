@@ -15,19 +15,11 @@
 
 package misc.checkin;
 
-import junit.framework.Assert;
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
-import org.apache.xmlbeans.GDate;
-import org.apache.xmlbeans.GDateBuilder;
-import org.apache.xmlbeans.GDuration;
-import org.apache.xmlbeans.GDurationBuilder;
-import org.apache.xmlbeans.XmlCalendar;
-import org.apache.xmlbeans.XmlObject;
-import org.apache.xmlbeans.XmlException;
+import org.apache.xmlbeans.*;
 import org.apache.xmlbeans.impl.richParser.XMLStreamReaderExt;
 import org.apache.xmlbeans.impl.richParser.XMLStreamReaderExtImpl;
+import org.junit.Test;
+import tools.util.JarUtil;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLInputFactory;
@@ -43,20 +35,15 @@ import java.math.BigInteger;
 import java.util.Calendar;
 import java.util.Date;
 
-
-import tools.util.*;
-
+import static org.junit.Assert.assertEquals;
 
 
 /**
  * Author: Cezar Andrei (cezar.andrei at bea.com)
  * Date: Nov 19, 2003
  */
-public class RichParserTests extends TestCase
-{
-    public RichParserTests(String name) { super(name); }
-    public static Test suite() { return new TestSuite(RichParserTests.class); }
-
+public class RichParserTests {
+    @Test
     public void testPrimitiveTypes() throws Exception
     {
         XMLStreamReader xsr = XmlObject.Factory.parse(new FileInputStream(
@@ -112,75 +99,73 @@ public class RichParserTests extends TestCase
         if ("int".equals(ln))
         {
             int v = attIndex>-1 ? xs.getAttributeIntValue(attIndex) : xs.getIntValue();
-            Assert.assertTrue("int " + v, ints[intsIdx++]==v);
+            assertEquals("int " + v, ints[intsIdx++], v);
         }
         else if ("boolean".equals(ln))
         {
             boolean v = attIndex>-1 ? xs.getAttributeBooleanValue(attIndex) : xs.getBooleanValue();
-            Assert.assertTrue("boolean " + v, bools[boolsIdx++]==v);
+            assertEquals("boolean " + v, bools[boolsIdx++], v);
         }
         else if ("short".equals(ln))
         {
             short v = attIndex>-1 ? xs.getAttributeShortValue(attIndex) : xs.getShortValue();
-            Assert.assertTrue("short " + v, shorts[shortsIdx++]==v);
+            assertEquals("short " + v, shorts[shortsIdx++], v);
         }
         else if ("byte".equals(ln))
         {
             byte v = attIndex>-1 ? xs.getAttributeByteValue(attIndex) : xs.getByteValue();
-            Assert.assertTrue("byte " + v, bytes[bytesIdx++]==v);
+            assertEquals("byte " + v, bytes[bytesIdx++], v);
         }
         else if ("long".equals(ln))
         {
             long v = attIndex>-1 ? xs.getAttributeLongValue(attIndex) : xs.getLongValue();
-            Assert.assertTrue("long " + v, longs[longsIdx++]==v);
+            assertEquals("long " + v, longs[longsIdx++], v);
         }
         else if ("double".equals(ln))
         {
             double v = attIndex>-1 ? xs.getAttributeDoubleValue(attIndex) : xs.getDoubleValue();
-            Assert.assertTrue("double expected: " + doubles[doublesIdx] + "  actual: " + v,
-                new Double(doubles[doublesIdx++]).equals(new Double(v)));
+            assertEquals("double expected: " + doubles[doublesIdx] + "  actual: " + v, new Double(doubles[doublesIdx++]), new Double(v));
             // makeing new Doubles because Double.NaN==Double.NaN is false;
         }
         else if ("float".equals(ln))
         {
             float v = attIndex>-1 ? xs.getAttributeFloatValue(attIndex) : xs.getFloatValue();
-            Assert.assertTrue("float expected: " + floats[floatsIdx] + "  actual: " + v,
-                new Float(floats[floatsIdx++]).equals( new Float(v)));
+            assertEquals("float expected: " + floats[floatsIdx] + "  actual: " + v, new Float(floats[floatsIdx++]), new Float(v));
             // makeing new Floats because Float.NaN==Float.NaN is false;
         }
         else if ("decimal".equals(ln))
         {
             BigDecimal v = attIndex>-1 ? xs.getAttributeBigDecimalValue(attIndex) : xs.getBigDecimalValue();
-            Assert.assertTrue("BigDecimal " + v, new BigDecimal("1.001").equals(v));
+            assertEquals("BigDecimal " + v, new BigDecimal("1.001"), v);
         }
         else if ("integer".equals(ln))
         {
             BigInteger v = attIndex>-1 ? xs.getAttributeBigIntegerValue(attIndex) : xs.getBigIntegerValue();
-            Assert.assertTrue("BigInteger " + v, new BigInteger("1000000000").equals(v));
+            assertEquals("BigInteger " + v, new BigInteger("1000000000"), v);
         }
         else if ("base64Binary".equals(ln))
         {
             InputStream v = attIndex>-1 ? xs.getAttributeBase64Value(attIndex) : xs.getBase64Value();
             String a = readIS(v);
-            Assert.assertTrue("Base64Binary " + a, "base64Binary".equals(a));
+            assertEquals("Base64Binary " + a, "base64Binary", a);
         }
         else if ("hexBinary".equals(ln))
         {
             InputStream v = attIndex>-1 ? xs.getAttributeHexBinaryValue(attIndex) : xs.getHexBinaryValue();
             String a = readIS(v);
-            Assert.assertTrue("HexBinary " + a, "hexBinary".equals(a));
+            assertEquals("HexBinary " + a, "hexBinary", a);
         }
         else if ("date".equals(ln))
         {
             Calendar v = attIndex>-1 ? xs.getAttributeCalendarValue(attIndex) : xs.getCalendarValue();
             Calendar c = new XmlCalendar( "2001-11-26T21:32:52Z" );
-            Assert.assertTrue("Calendar expected:" + c.getTimeInMillis() + " actual:" + v.getTimeInMillis(), c.getTimeInMillis()==v.getTimeInMillis());
+            assertEquals("Calendar expected:" + c.getTimeInMillis() + " actual:" + v.getTimeInMillis(), c.getTimeInMillis(), v.getTimeInMillis());
         }
         else if ("dateTime".equals(ln))
         {
             Date v = attIndex>-1 ? xs.getAttributeDateValue(attIndex) : xs.getDateValue();
             Date d = new XmlCalendar("2001-11-26T21:32:52").getTime();
-            Assert.assertTrue("Date expected:" + d + " actual:" + v, d.equals(v));
+            assertEquals("Date expected:" + d + " actual:" + v, d, v);
         }
         else if ("gYearMonth".equals(ln))
         {
@@ -188,7 +173,7 @@ public class RichParserTests extends TestCase
             GDateBuilder gdb = new GDateBuilder();
             gdb.setYear(2001);
             gdb.setMonth(11);
-            Assert.assertTrue("GDate expected:" + gdb + " actual:" + v, gdb.toGDate().equals(v));
+            assertEquals("GDate expected:" + gdb + " actual:" + v, gdb.toGDate(), v);
         }
         else if ("duration".equals(ln))
         {
@@ -196,12 +181,12 @@ public class RichParserTests extends TestCase
             GDurationBuilder gdb = new GDurationBuilder();
             gdb.setSign(-1);
             gdb.setSecond(7);
-            Assert.assertTrue("GDuration expected:" + gdb + " actual:" + v, gdb.toGDuration().equals(v));
+            assertEquals("GDuration expected:" + gdb + " actual:" + v, gdb.toGDuration(), v);
         }
         else if ("QName".equals(ln))
         {
             QName v = attIndex>-1 ? xs.getAttributeQNameValue(attIndex) : xs.getQNameValue();
-            Assert.assertTrue("QName expected:" + qnames[qnamesIdx] + " actual:" + v, qnames[qnamesIdx++].equals(v));
+            assertEquals("QName expected:" + qnames[qnamesIdx] + " actual:" + v, qnames[qnamesIdx++], v);
         }
         else if ("string".equals(ln))
         {
@@ -209,7 +194,7 @@ public class RichParserTests extends TestCase
             String s = strings[stringsIdx++];
 
 
-            Assert.assertTrue("String expected:\n'" + s + "'         actual:\n'" + v + "'", s.equals(v));
+            assertEquals("String expected:\n'" + s + "'         actual:\n'" + v + "'", s, v);
         }
     }
 

@@ -15,28 +15,30 @@
 
 package scomp.contentType.simple.detailed;
 
-import scomp.common.BaseCase;
-import xbean.scomp.contentType.union.*;
-
-import java.util.List;
-import java.util.ArrayList;
-
 import org.apache.xmlbeans.XmlErrorCodes;
 import org.apache.xmlbeans.XmlOptions;
 import org.apache.xmlbeans.impl.values.XmlValueOutOfRangeException;
+import org.junit.Test;
+import scomp.common.BaseCase;
+import xbean.scomp.contentType.union.UnionEltDocument;
+import xbean.scomp.contentType.union.UnionOfListsDocument;
+import xbean.scomp.contentType.union.UnionOfUnionsDocument;
+import xbean.scomp.contentType.union.UnionOfUnionsT;
 
-/**
- *
- *
- *
- */
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.junit.Assert.*;
+
+
 public class UnionType extends BaseCase {
     /**
      * should be a bunch of negative cases at compile time
      */
+    @Test
     public void testUnionType() throws Throwable {
         UnionEltDocument doc = UnionEltDocument.Factory.newInstance();
-        assertEquals(null, doc.getUnionElt());
+        assertNull(doc.getUnionElt());
         doc.setUnionElt("small");
         try {
             assertTrue(doc.validate(validateOptions));
@@ -45,7 +47,7 @@ public class UnionType extends BaseCase {
             showErrors();
             throw t;
         }
-        doc.setUnionElt(new Integer(2));
+        doc.setUnionElt(2);
         try {
             assertTrue(doc.validate(validateOptions));
         }
@@ -53,7 +55,7 @@ public class UnionType extends BaseCase {
             showErrors();
             throw t;
         }
-        doc.setUnionElt(new Integer(-2));
+        doc.setUnionElt(-2);
         try {
             assertTrue(doc.validate(validateOptions));
         }
@@ -61,7 +63,7 @@ public class UnionType extends BaseCase {
             showErrors();
             throw t;
         }
-        doc.setUnionElt(new Integer(5));
+        doc.setUnionElt(5);
         assertTrue(!doc.validate(validateOptions));
         showErrors();
         String[] errExpected = new String[]{
@@ -72,9 +74,8 @@ public class UnionType extends BaseCase {
 
     /**
      * valid instance w/ xsi:type hint
-     *
-     * @throws Throwable
      */
+    @Test
     public void testParseInstanceValid() throws Throwable {
         String input =
                 "<UnionElt xmlns=\"http://xbean/scomp/contentType/Union\"" +
@@ -94,9 +95,8 @@ public class UnionType extends BaseCase {
 
     /**
      * invalid instance w/ xsi:type hint
-     *
-     * @throws Throwable
      */
+    @Test
     public void testParseInstanceInvalid() throws Throwable {
         String input =
                 "<UnionElt xmlns=\"http://xbean/scomp/contentType/Union\"" +
@@ -117,6 +117,7 @@ public class UnionType extends BaseCase {
      * Specifiying value for a union that is not part of the consitituent types. The constituent types in this schema
      * are enumerations and not basic XmlSchema types and hence get translated into enum types in the XmlObjects
      */
+    @Test
     public void testUnionOfUnions() throws Throwable {
         UnionOfUnionsDocument doc = UnionOfUnionsDocument.Factory.newInstance();
         doc.setUnionOfUnions("large");
@@ -128,7 +129,7 @@ public class UnionType extends BaseCase {
             throw t;
         }
         UnionOfUnionsT elt = UnionOfUnionsT.Factory.newInstance();
-        elt.setObjectValue(new Integer(-3));
+        elt.setObjectValue(-3);
         doc.xsetUnionOfUnions(elt);
         try {
             assertTrue(doc.validate(validateOptions));
@@ -192,6 +193,7 @@ public class UnionType extends BaseCase {
     // for the above test (testUnionOfUnions), if the value set for the union type is AnyType (in the schema)
     // but the Java type defined as say Integer or Date then an Exception should be thrown only if
     // validateOnSet XmlOption is set and not otherwise.
+    @Test
     public void UnionOfUnions2()
     {
         UnionOfUnionsDocument doc = UnionOfUnionsDocument.Factory.newInstance();
@@ -222,19 +224,19 @@ public class UnionType extends BaseCase {
         }
     }
 
-  /**
+    /**
      * values allolwed here are either a list of (small, med, large, 1-3,-1,-2,-3}
      * or     (lstsmall, lstmed, lstlarge)
      */
-
+    @Test
     public void testUnionOfLists() throws Throwable {
         UnionOfListsDocument doc = UnionOfListsDocument.Factory.newInstance();
         List vals = new ArrayList();
         vals.add("small");
-        vals.add(new Integer(-1));
-        vals.add(new Integer(-2));
-        vals.add(new Integer(-3));
-        vals.add(new Integer(3));
+        vals.add(-1);
+        vals.add(-2);
+        vals.add(-3);
+        vals.add(3);
         vals.add("medium");
         doc.setUnionOfLists(vals);
         try {

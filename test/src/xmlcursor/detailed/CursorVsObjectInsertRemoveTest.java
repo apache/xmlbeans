@@ -14,43 +14,26 @@
  */
 
 
-package  xmlcursor.detailed;
+package xmlcursor.detailed;
 
-import junit.framework.*;
-
-import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlCursor.TokenType;
-import xmlcursor.common.Common;
-
-import tools.util.JarUtil;
+import org.apache.xmlbeans.XmlObject;
+import org.junit.Test;
 import org.tranxml.tranXML.version40.CarLocationMessageDocument;
 import org.tranxml.tranXML.version40.EventStatusDocument.EventStatus;
 import org.tranxml.tranXML.version40.GeographicLocationDocument.GeographicLocation;
+import tools.util.JarUtil;
+import xmlcursor.common.Common;
 
-/**
- *
- *
- */
-public class CursorVsObjectInsertRemoveTest extends TestCase {
-    public CursorVsObjectInsertRemoveTest(String sName) {
-        super(sName);
-    }
+import static org.junit.Assert.*;
 
-    public static Test suite() {
-        return new TestSuite(CursorVsObjectInsertRemoveTest.class);
-    }
-
-    public void testClassPath() throws Exception {
-        String sClassPath = System.getProperty("java.class.path");
-        int i = sClassPath.indexOf(Common.CARLOCATIONMESSAGE_JAR);
-        assertTrue(i >= 0);
-    }
-
+public class CursorVsObjectInsertRemoveTest {
+    @Test
     public void testInsertRemove() throws Exception {
         CarLocationMessageDocument clm =
-                (CarLocationMessageDocument) XmlObject.Factory.parse(
-                        JarUtil.getResourceFromJar(Common.TRANXML_FILE_CLM));
+            (CarLocationMessageDocument) XmlObject.Factory.parse(
+                JarUtil.getResourceFromJar(Common.TRANXML_FILE_CLM));
         assertNotNull(clm);
         XmlCursor xc = clm.newCursor();
         xc.toFirstChild();

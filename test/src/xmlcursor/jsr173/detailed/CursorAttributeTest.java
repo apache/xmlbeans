@@ -15,26 +15,13 @@
 package xmlcursor.jsr173.detailed;
 
 
-import junit.framework.*;
+import org.apache.xmlbeans.XmlCursor;
 import xmlcursor.jsr173.common.AttributeTest;
 
 import javax.xml.stream.XMLStreamReader;
 
-import org.apache.xmlbeans.XmlCursor;
-import org.w3c.dom.Node;
-/**
- *
- *
- */
-public  class CursorAttributeTest
-        extends AttributeTest {
-
-
-    public CursorAttributeTest(String s) {
-        super(s);
-    }
-    public  XMLStreamReader getStream(XmlCursor c)
-    throws Exception{
+public class CursorAttributeTest extends AttributeTest {
+    public XMLStreamReader getStream(XmlCursor c) {
         return c.newXMLStreamReader();
     }
 }

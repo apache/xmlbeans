@@ -18,22 +18,17 @@ package xmlcursor.checkin;
 
 import org.apache.xmlbeans.XmlCursor.TokenType;
 import org.apache.xmlbeans.XmlObject;
+import org.junit.Test;
 import tools.util.JarUtil;
 import xmlcursor.common.BasicCursorTestCase;
 import xmlcursor.common.Common;
-import junit.framework.Test;
-import junit.framework.TestSuite;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 
 public class GetNameTest extends BasicCursorTestCase {
-    public GetNameTest(String sName) {
-        super(sName);
-    }
-
-    public static Test suite() {
-        return new TestSuite(GetNameTest.class);
-    }
-
+    @Test
     public void testGetNameFromSTARTDOC() throws Exception {
        // String test="<?xml version=\"1.0\"?><purchaseOrder xmlns= \"http://www.bea.com/po\" orderDate=\"1999-10-20\"><shipTo country=\"US\"><name>Alice Smith</name><street>123 Maple Street</street><city>Mill Valley</city><state>CA</state><zip>90952</zip></shipTo><comment>Hurry, my lawn is going wild!</comment><!-- comment text --><items>2 <item partNum=\"872-AA\" partid=\"00A\"><productName>Lawnmower</productName> <quantity>10</quantity></item><item partNum=\"926-AA\" partid=\"00B\"><productName>Baby Monitor</productName><quantity>1</quantity></item></items></purchaseOrder>";
         String test="<?xml version=\"1.0\"?>\n" +
@@ -73,9 +68,10 @@ public class GetNameTest extends BasicCursorTestCase {
                         Common.TRANXML_FILE_XMLCURSOR_PO));
                         */
         m_xc = m_xo.newCursor();
-        assertEquals(null, m_xc.getName());
+        assertNull(m_xc.getName());
     }
 
+    @Test
     public void testGetNameFromPROCINST() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_PROCINST);
         m_xc = m_xo.newCursor();
@@ -83,6 +79,7 @@ public class GetNameTest extends BasicCursorTestCase {
         assertEquals("xml-stylesheet", m_xc.getName().getLocalPart());
     }
 
+    @Test
     public void testGetNameFromSTART() throws Exception {
         m_xo = XmlObject.Factory.parse(
                   JarUtil.getResourceFromJar(Common.TRANXML_FILE_XMLCURSOR_PO));
@@ -94,14 +91,16 @@ public class GetNameTest extends BasicCursorTestCase {
         assertEquals("city", m_xc.getName().getLocalPart());
     }
 
+    @Test
     public void testGetNameFromEND() throws Exception {
         m_xo = XmlObject.Factory.parse("<foo><bar>text</bar></foo>");
         m_xc = m_xo.newCursor();
         m_xc.selectPath(".//bar");
         toNextTokenOfType(m_xc, TokenType.END);
-        assertEquals(null, m_xc.getName());
+        assertNull(m_xc.getName());
     }
 
+    @Test
     public void testGetNameFromATTR() throws Exception {
         m_xo = XmlObject.Factory.parse(
                   JarUtil.getResourceFromJar(Common.TRANXML_FILE_XMLCURSOR_PO));
@@ -114,13 +113,15 @@ public class GetNameTest extends BasicCursorTestCase {
         assertEquals("country", m_xc.getName().getLocalPart());
     }
 
+    @Test
     public void testGetNameFromCOMMENT() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_COMMENT);
         m_xc = m_xo.newCursor();
         toNextTokenOfType(m_xc, TokenType.COMMENT);
-        assertEquals(null, m_xc.getName());
+        assertNull(m_xc.getName());
     }
 
+    @Test
     public void testGetNameElementWithDefaultNamespace() throws Exception {
         m_xo =  XmlObject.Factory.parse(
                 JarUtil.getResourceFromJar(Common.TRANXML_FILE_CLM));
@@ -131,6 +132,7 @@ public class GetNameTest extends BasicCursorTestCase {
         assertEquals(Common.CLM_NS, m_xc.getName().getNamespaceURI());
     }
 
+    @Test
     public void testGetNameAttrWithDefaultNamespace() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_NS_PREFIX);
         m_xc = m_xo.newCursor();

@@ -25,7 +25,7 @@
 
     <!-- import with complete file path -->
     <xs:import namespace="http://openuri.org/namespaceimported"
-                schemaLocation="file:///D:/SVNNEW/xmlbeans/trunk/test/cases/xbean/compile/som/namespaces1.xsd" />
+                schemaLocation="namespaces1.xsd_" />
 
     <xs:element name="NamespaceRootElem">
         <xs:complexType>

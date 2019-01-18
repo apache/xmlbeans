@@ -15,28 +15,31 @@
 
 package dom.detailed;
 
-import junit.framework.TestCase;
-import org.apache.xmlbeans.*;
+import common.Common;
+import org.apache.xmlbeans.XmlError;
+import org.apache.xmlbeans.XmlException;
+import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.XmlOptions;
+import org.junit.Ignore;
+import org.junit.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import tools.util.JarUtil;
 import xbean.dom.id.FooDocument;
 
 import java.io.File;
-import java.io.IOException;
-import java.io.FileOutputStream;
-import java.io.OutputStreamWriter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
 
-import common.Common;
+import static org.junit.Assert.*;
 
-public class IDTest extends TestCase
-{
-    String P = File.separator;
+public class IDTest {
+    private String P = File.separator;
 
     // Test the getElementById() DOM API with DTDs , run with jvm arg -Dcases.location 
-    public void testGetElemById() throws Exception
-    {
+    @Test
+    public void testGetElemById() throws Exception {
         Document doc;
         Element element;
         String tagname;
@@ -53,25 +56,28 @@ public class IDTest extends TestCase
     }
 
     // test getElementById() with schema containing DTD with ID definition for untyped XmlObject
-    public void testIDSchema() throws Exception
-    {
-        XmlObject o = XmlObject.Factory.parse("<!DOCTYPE xs:schema PUBLIC \"-//W3C//DTD XMLSCHEMA 200102//EN\" \"XMLSchema.dtd\" [\n" +
-                "<!ELEMENT first_name (#PCDATA)>\n" +
-                "<!ELEMENT hobby (#PCDATA)>\n" +
-                "<!ELEMENT homepage EMPTY>\n" +
-                "<!ATTLIST homepage href CDATA #REQUIRED>\n" +
-                "<!ELEMENT last_name (#PCDATA)>\n" +
-                "<!ELEMENT middle_initial (#PCDATA)>\n" +
-                "<!ELEMENT name (first_name, middle_initial?, last_name)>\n" +
-                "<!ELEMENT person (name, profession+, homepage?, hobby?)>\n" +
-                "<!ATTLIST person\n" +
-                "        born CDATA #REQUIRED\n" +
-                "        died CDATA #REQUIRED\n" +
-                "        id ID #REQUIRED\n" +
-                ">\n" +
-                "<!ELEMENT profession (#PCDATA)>\n" +
-                "]>" +
-                "<person id=\"25\" born=\"yday\" />");
+    @Test
+    public void testIDSchema() throws Exception {
+        String dtdAndData =
+            "<!DOCTYPE xs:schema PUBLIC \"-//W3C//DTD XMLSCHEMA 200102//EN\" \"XMLSchema.dtd\" [\n" +
+            "<!ELEMENT first_name (#PCDATA)>\n" +
+            "<!ELEMENT hobby (#PCDATA)>\n" +
+            "<!ELEMENT homepage EMPTY>\n" +
+            "<!ATTLIST homepage href CDATA #REQUIRED>\n" +
+            "<!ELEMENT last_name (#PCDATA)>\n" +
+            "<!ELEMENT middle_initial (#PCDATA)>\n" +
+            "<!ELEMENT name (first_name, middle_initial?, last_name)>\n" +
+            "<!ELEMENT person (name, profession+, homepage?, hobby?)>\n" +
+            "<!ATTLIST person\n" +
+            "        born CDATA #REQUIRED\n" +
+            "        died CDATA #REQUIRED\n" +
+            "        id ID #REQUIRED\n" +
+            ">\n" +
+            "<!ELEMENT profession (#PCDATA)>\n" +
+            "]>" +
+            "<person id=\"25\" born=\"yday\" />";
+
+        XmlObject o = XmlObject.Factory.parse(dtdAndData);
         Document n = (Document) o.getDomNode();
         Element elem = n.getElementById("25");
         assertNotNull(elem);
@@ -82,39 +88,40 @@ public class IDTest extends TestCase
     }
 
     // typed XmlObject
-    public void testSchemaWithDTD() throws Exception
-    {
+    @Test
+    @Ignore("doesn't work anymore - xerces 2.11 is not calling the DeclHandler and so no ID attribute is added")
+    public void testSchemaWithDTD() throws Exception {
         XmlOptions opt = new XmlOptions();
-        List  err = new ArrayList();
+        List err = new ArrayList();
         opt.setErrorListener(err);
+        // opt.setLoadSaxSchema(true);
 
-        String instance =  "<foo xmlns='http://xbean/dom/id'>" +
-                           "    <person id=\"25\"/>" +
-                           "</foo>";
-        try
-        {
+        String instance =
+            "<foo xmlns='http://xbean/dom/id'>" +
+            "    <person id=\"abc\"><firstname>John</firstname></person>" +
+            "</foo>";
+
+        try {
             FooDocument fooDoc = FooDocument.Factory.parse(instance, opt);
 
-            Document d = (Document)fooDoc.getDomNode();
-            Element elem = d.getElementById("25");
+            Document d = (Document) fooDoc.getDomNode();
+            Element elem = d.getElementById("abc");
             assertNotNull(elem);
 
             Element elemInvalid = d.getElementById("100");
             assertNull(elemInvalid);
-        }
-        catch (XmlException xme)
-        {
+        } catch (XmlException xme) {
             Collection xmlerrs = xme.getErrors();
-            for (Iterator iterator1 = xmlerrs.iterator(); iterator1.hasNext();) {
-                XmlError xerr = (XmlError) iterator1.next();
+            for (Object xmlerr : xmlerrs) {
+                XmlError xerr = (XmlError) xmlerr;
                 System.out.println("Exception:" + xerr.getMessage());
             }
             throw (new XmlException(new Throwable("XmlException occured")));
         }
 
         // parse errors
-        for (Iterator iterator = err.iterator(); iterator.hasNext();) {
-            System.out.println("Err:" + iterator.next());
+        for (Object o : err) {
+            System.out.println("Err:" + o);
         }
     }
 

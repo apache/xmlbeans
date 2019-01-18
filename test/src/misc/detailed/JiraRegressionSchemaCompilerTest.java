@@ -14,24 +14,21 @@
  */
 package misc.detailed;
 
+import misc.common.JiraTestBase;
+import org.apache.xmlbeans.XmlError;
+import org.apache.xmlbeans.impl.tool.SchemaCompiler;
+import org.junit.Test;
+
+import java.io.File;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
-import java.util.ArrayList;
-import java.io.File;
 
-import org.apache.xmlbeans.XmlError;
-import org.apache.xmlbeans.impl.tool.SchemaCompiler;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
-import misc.common.JiraTestBase;
-
-public class JiraRegressionSchemaCompilerTest extends JiraTestBase
-{
-    public JiraRegressionSchemaCompilerTest(String name)
-    {
-        super(name);
-    }
-
+public class JiraRegressionSchemaCompilerTest extends JiraTestBase {
     private List _testCompile(File[] xsdFiles,
                               String outputDirName)
     {
@@ -66,6 +63,7 @@ public class JiraRegressionSchemaCompilerTest extends JiraTestBase
         return errFound;
     }
 
+    @Test
     public void test_jira_xmlbeans236()
     {
         File[] xsdFiles =
@@ -78,6 +76,7 @@ public class JiraRegressionSchemaCompilerTest extends JiraTestBase
         }
     }
 
+    @Test
     public void test_jira_xmlbeans239()
     {
         /* complexType with complexContent extending base type with 
@@ -107,6 +106,7 @@ public class JiraRegressionSchemaCompilerTest extends JiraTestBase
         assertTrue(findErrMsg(errors, msg));
     }
 
+    @Test
     public void test_jira_xmlbeans251()
     {
         File[] xsdFiles =

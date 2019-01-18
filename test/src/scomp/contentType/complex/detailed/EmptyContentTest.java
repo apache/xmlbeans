@@ -14,21 +14,19 @@
  */
  package scomp.contentType.complex.detailed;
 
-import xbean.scomp.contentType.complexTypeTest.EmptyTypeDocument;
-import xbean.scomp.contentType.complexTypeTest.EmptyT;
-import xbean.scomp.contentType.complexTypeTest.EmptyMixedTypeDocument;
 import org.apache.xmlbeans.XmlCursor;
-import org.apache.xmlbeans.XmlString;
-import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlErrorCodes;
+import org.apache.xmlbeans.XmlString;
+import org.junit.Test;
 import scomp.common.BaseCase;
+import xbean.scomp.contentType.complexTypeTest.EmptyT;
+import xbean.scomp.contentType.complexTypeTest.EmptyTypeDocument;
 
-/**
- *
- *
- *
- */
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 public class EmptyContentTest extends BaseCase {
+    @Test
     public void testIllegalContent() {
         EmptyTypeDocument doc = EmptyTypeDocument.Factory.newInstance();
         EmptyT elt = doc.addNewEmptyType();
@@ -43,11 +41,12 @@ public class EmptyContentTest extends BaseCase {
         String[] errExpected = new String[]{
             XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$ELEMENT_NOT_ALLOWED
         };
-            assertTrue(compareErrorCodes(errExpected));
+        assertTrue(compareErrorCodes(errExpected));
 
     }
 
-    public void testLegalContent() throws XmlException {
+    @Test
+    public void testLegalContent() {
         EmptyTypeDocument doc = EmptyTypeDocument.Factory.newInstance();
         EmptyT elt = doc.addNewEmptyType();
         assertTrue(!elt.isSetEmptyAttr());

@@ -16,78 +16,42 @@
 
 package xmlcursor.checkin;
 
-import org.apache.xmlbeans.XmlOptions;
-import junit.framework.*;
-import junit.framework.Assert.*;
-
-import java.io.*;
-
-import org.apache.xmlbeans.XmlObject;
-import org.apache.xmlbeans.XmlCursor;
-import org.apache.xmlbeans.XmlBeans;
 import org.apache.xmlbeans.XmlCursor.TokenType;
+import org.apache.xmlbeans.XmlObject;
+import org.junit.Test;
+import xmlcursor.common.BasicCursorTestCase;
+import xmlcursor.common.Common;
 
-import javax.xml.namespace.QName;
-
-
-import java.net.URL;
-
-import org.apache.xmlbeans.XmlOptions;
-import xmlcursor.common.*;
-
-import java.util.HashMap;
+import static org.junit.Assert.assertEquals;
 
 
-/**
- *
- *
- */
 public class InsertProcInstTest extends BasicCursorTestCase {
-    public InsertProcInstTest(String sName) {
-        super(sName);
-    }
-
-    public static Test suite() {
-        return new TestSuite(InsertProcInstTest.class);
-    }
-
+    @Test(expected = IllegalArgumentException.class)
     public void testInsertProcInstWithNullTarget() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_BAR_TEXT);
         m_xc = m_xo.newCursor();
         toNextTokenOfType(m_xc, TokenType.TEXT);
-        try {
-            m_xc.insertProcInst(null, "value");
-            fail("Expected IllegalArgumentException");
-        } catch (IllegalArgumentException iae) {
-        }
-        assertEquals(true, true);
+        m_xc.insertProcInst(null, "value");
     }
 
+    @Test(expected = IllegalArgumentException.class)
     public void testInsertProcInstWithEmptyStringTarget() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_BAR_TEXT);
         m_xc = m_xo.newCursor();
         toNextTokenOfType(m_xc, TokenType.TEXT);
-        try {
-            m_xc.insertProcInst("", "value");
-            fail("Expected IllegalArgumentException");
-        } catch (IllegalArgumentException iae) {
-        }
-        assertEquals(true, true);
+        m_xc.insertProcInst("", "value");
     }
 
+    @Test(expected = IllegalArgumentException.class)
     public void testInsertProcInstWithLTcharInTarget() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_BAR_TEXT);
         m_xc = m_xo.newCursor();
         m_xc.selectPath("$this//bar");
         m_xc.toNextSelection();
-        try {
-            m_xc.insertProcInst("<target", " value ");
-            fail("Expected IllegalArgumentException");
-        } catch (IllegalArgumentException iae) {
-        }
-        assertTrue(true);
+        m_xc.insertProcInst("<target", " value ");
     }
 
+    @Test
     public void testInsertProcInstWithNullText() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_BAR_TEXT);
         m_xc = m_xo.newCursor();
@@ -99,6 +63,7 @@ public class InsertProcInstTest extends BasicCursorTestCase {
         assertEquals("<bar>te<?target?>xt</bar>", m_xc.xmlText());
     }
 
+    @Test
     public void testInsertProcInstWithEmptyStringText() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_BAR_TEXT);
         m_xc = m_xo.newCursor();
@@ -110,6 +75,7 @@ public class InsertProcInstTest extends BasicCursorTestCase {
         assertEquals("<bar>te<?target?>xt</bar>", m_xc.xmlText());
     }
 
+    @Test
     public void testInsertProcInstWithLTcharInText() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_BAR_TEXT);
         m_xc = m_xo.newCursor();
@@ -120,6 +86,7 @@ public class InsertProcInstTest extends BasicCursorTestCase {
         assertEquals("<foo><?target < value ?><bar>text</bar></foo>", m_xc.xmlText());
     }
 
+    @Test
     public void testInsertProcInstInMiddleOfTEXT() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_BAR_TEXT);
         m_xc = m_xo.newCursor();
@@ -131,6 +98,7 @@ public class InsertProcInstTest extends BasicCursorTestCase {
         assertEquals("<bar>te<?target  value ?>xt</bar>", m_xc.xmlText());
     }
 
+    @Test
     public void testInsertProcInstAfterSTART() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_BAR_TEXT);
         m_xc = m_xo.newCursor();
@@ -141,6 +109,7 @@ public class InsertProcInstTest extends BasicCursorTestCase {
         assertEquals("<foo><?target  value ?><bar>text</bar></foo>", m_xc.xmlText());
     }
 
+    @Test
     public void testInsertProcInstAtEND() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_NS);
         m_xc = m_xo.newCursor();
@@ -150,16 +119,12 @@ public class InsertProcInstTest extends BasicCursorTestCase {
         assertEquals("<foo xmlns=\"http://www.foo.org\"><?target  value ?></foo>", m_xc.xmlText());
     }
 
+    @Test(expected = IllegalArgumentException.class)
     public void testInsertProcInstBeforeATTR() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_1ATTR_TEXT);
         m_xc = m_xo.newCursor();
         toNextTokenOfType(m_xc, TokenType.ATTR);
-        try {
-            m_xc.insertProcInst("target", " value ");
-            fail("Expected IllegalArgumentException");
-        } catch (IllegalArgumentException ise) {
-        }
-        assertEquals(true, true);
+        m_xc.insertProcInst("target", " value ");
     }
 }
 

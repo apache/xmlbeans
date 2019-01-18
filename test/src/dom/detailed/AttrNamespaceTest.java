@@ -16,25 +16,26 @@
 package dom.detailed;
 
 import dom.common.Loader;
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import org.apache.xmlbeans.XmlObject;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.xml.sax.InputSource;
-import org.apache.xmlbeans.XmlObject;
 
 import java.io.StringReader;
-import java.io.IOException;
+
+import static org.junit.Assert.*;
 
 
 /**
  * Tests conversion of regular attributes to namespaces and vv
  */
 
-public class AttrNamespaceTest extends TestCase {
+public class AttrNamespaceTest {
     String sXml = "<foo at0=\"nonsattr\"></foo>";
     String sXmlNS = "<foo xmlns:myns=\"http://foo.org\"><myns:bar/></foo>";
     Document m_doc,
@@ -42,18 +43,13 @@ public class AttrNamespaceTest extends TestCase {
     Node m_node;
 
 
-    public AttrNamespaceTest(String name) {
-        super(name);
-    }
-
-    public static Test suite() {
-        return new TestSuite(AttrNamespaceTest.class);
-    }
-
+    @Test
+    @Ignore
     public void testDefaultNamespace() {
-        //assertEquals(true,((Element)m_node).hasAttribute("xmlns"));
+        assertTrue(((Element) m_node).hasAttribute("xmlns"));
     }
 
+    @Test
     public void testAttr2Namespace() {
         Attr at = (Attr) ((Element) m_node).getAttributeNode("at0");
         String namespaceURI = "http://foo.org";
@@ -61,7 +57,7 @@ public class AttrNamespaceTest extends TestCase {
         at.setValue(namespaceURI);
         m_node.appendChild(m_doc.createElementNS(namespaceURI, qualifiedName));
         Element bar = (Element) ((Element) m_node).getElementsByTagNameNS(namespaceURI, "bar").item(0);
-        assertFalse(null == bar);
+        assertNotNull(bar);
         assertEquals(namespaceURI, bar.getNamespaceURI());
         assertEquals(qualifiedName, bar.getNodeName());
         /*
@@ -72,6 +68,7 @@ public class AttrNamespaceTest extends TestCase {
 	*/
     }
 
+    @Test
     public void testNamespace2Attr() {
         m_node = m_docNS.getFirstChild();
 
@@ -102,6 +99,7 @@ public class AttrNamespaceTest extends TestCase {
      * ""/NULL...Do we get an error since now there is a prefix
      * with NULL URI?
      */
+    @Test
     public void testInsertBadAttribute() throws Exception{
         String sER="<foo/>";
         org.apache.xerces.parsers.DOMParser parser = new org.apache.xerces.parsers.DOMParser();
@@ -120,9 +118,8 @@ public class AttrNamespaceTest extends TestCase {
         at_xerces.setValue("");
     }
 
-
+    @Before
     public void setUp() throws Exception {
-
         if (sXml == null && sXmlNS == null) throw new IllegalArgumentException("Test bug : Initialize xml strings");
         Loader loader = Loader.getLoader();
         m_doc = (org.w3c.dom.Document) loader.load(sXml);

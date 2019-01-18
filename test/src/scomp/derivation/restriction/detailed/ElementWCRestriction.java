@@ -15,9 +15,14 @@
 
 package scomp.derivation.restriction.detailed;
 
-import scomp.common.BaseCase;
-import xbean.scomp.derivation.elementWCRestriction.*;
 import org.apache.xmlbeans.XmlErrorCodes;
+import org.junit.Test;
+import scomp.common.BaseCase;
+import xbean.scomp.derivation.elementWCRestriction.ConcreteEltDocument;
+import xbean.scomp.derivation.elementWCRestriction.OtherLaxDocument;
+import xbean.scomp.derivation.elementWCRestriction.UriSkipDocument;
+
+import static org.junit.Assert.assertTrue;
 
 /**
  *
@@ -27,6 +32,7 @@ import org.apache.xmlbeans.XmlErrorCodes;
 public class ElementWCRestriction extends BaseCase {
     // max occurs is now 2, not 3
     //NS restricted from any to other
+    @Test
     public void testMaxOccurs() throws Throwable {
         String input =
                 "<OtherLax " +
@@ -87,6 +93,7 @@ public class ElementWCRestriction extends BaseCase {
 
     //elt needs to occur exactly 2x
     //only URI allowed is GlobalElt
+    @Test
     public void testMinOccurs() throws Throwable {
         String input =
                 "<UriSkip " +
@@ -124,6 +131,7 @@ public class ElementWCRestriction extends BaseCase {
 
     //WC replaced by elt
     //maxOccurs is 1
+    @Test
     public void testConcrete() throws Throwable {
         String input =
                 "<foo:ConcreteElt " +

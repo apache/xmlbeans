@@ -18,63 +18,61 @@ package xmlcursor.jsr173.common;
 
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlObject;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
 
-import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
-import javax.xml.namespace.QName;
+import javax.xml.stream.XMLStreamReader;
 
-import javax.xml.stream.XMLStreamConstants;
-
-import junit.framework.*;
-import junit.framework.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 /**
  * Methods tested:
  * getPIData
  * getPITarget
- *
- *
-  *
  */
-public abstract class PITest extends TestCase {
+@Ignore("abstract class")
+public abstract class PITest {
 
-    public abstract XMLStreamReader getStream(XmlCursor c)throws Exception;
+    private XMLStreamReader m_stream;
+
+    public abstract XMLStreamReader getStream(XmlCursor c) throws Exception;
+
+    @Test
     public void testGetPiData() throws XMLStreamException {
         assertEquals(XMLStreamConstants.PROCESSING_INSTRUCTION,
-                m_stream.next());
+            m_stream.next());
         assertEquals("http://foobar", m_stream.getPIData());
         assertEquals(XMLStreamConstants.START_ELEMENT, m_stream.next());
-        assertEquals(null, m_stream.getPIData());
+        assertNull(m_stream.getPIData());
     }
 
+    @Test
     public void testGetPiTarget() throws XMLStreamException {
         assertEquals(XMLStreamConstants.PROCESSING_INSTRUCTION,
-                m_stream.next());
+            m_stream.next());
         assertEquals("xml-stylesheet", m_stream.getPITarget());
         assertEquals(XMLStreamConstants.START_ELEMENT, m_stream.next());
-        assertEquals(null, m_stream.getPITarget());
+        assertNull(m_stream.getPITarget());
     }
 
+    @Before
     public void setUp() throws Exception {
-        cur = XmlObject.Factory.newInstance().newCursor();
+        XmlCursor cur = XmlObject.Factory.newInstance().newCursor();
         cur.toNextToken();
         cur.insertProcInst("xml-stylesheet", "http://foobar");
         cur.insertElement("foobar");
         cur.toStartDoc();
-        m_stream = getStream( cur );
+        m_stream = getStream(cur);
     }
 
-    public void tearDown() throws Exception
-    {
-        super.tearDown();
+    @After
+    public void tearDown() throws Exception {
         if (m_stream != null)
             m_stream.close();
     }
-
-    private XMLStreamReader m_stream;
-    private XmlCursor cur;
-
 }
-
-

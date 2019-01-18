@@ -14,15 +14,17 @@
  */
 package xmlcursor.xquery.detailed;
 
-import java.io.File;
-import java.util.Map;
-import java.util.HashMap;
-
+import common.Common;
+import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
-import org.apache.xmlbeans.XmlCursor;
+import org.junit.Test;
 
-import common.Common;
+import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
+
+import static org.junit.Assert.*;
 
 /** This class tests the use of XmlOptions in binding XQuery variables */
 public class XQueryVariableBindingTest extends Common
@@ -30,11 +32,6 @@ public class XQueryVariableBindingTest extends Common
     public static final String XQUERY_CASE_DIR =
         XBEAN_CASE_ROOT + P + "xmlcursor" + P + "xquery";
     public static File dir = new File(XQUERY_CASE_DIR);
-
-    public XQueryVariableBindingTest(String name)
-    {
-        super(name);
-    }
 
     private XmlCursor _testDocCursor1() throws Exception
     {
@@ -54,8 +51,7 @@ public class XQueryVariableBindingTest extends Common
         return xc;
     }
 
-    private void _verifySelection(XmlCursor xc)
-    {
+    private void _verifySelection(XmlCursor xc) {
         assertEquals(3, xc.getSelectionCount());
         assertTrue(xc.toNextSelection());
         assertEquals("<elem12 idRef=\"123\"/>", xc.xmlText());
@@ -66,6 +62,7 @@ public class XQueryVariableBindingTest extends Common
     }
 
     /** test the automatic binding of $this to the current node: selectPath() */
+    @Test
     public void testThisVariable1() throws Exception
     {
         XmlCursor xc = _testDocCursor1();
@@ -79,6 +76,7 @@ public class XQueryVariableBindingTest extends Common
 
     // this fails: see JIRA issue XMLBEANS-276
     /** test the binding of a variable to the current node: selectPath() */
+    @Test
     public void testCurrentNodeVariable1() throws Exception
     {
         XmlCursor xc = _testDocCursor1();
@@ -115,6 +113,7 @@ public class XQueryVariableBindingTest extends Common
     }
 
     /** test the automatic binding of $this to the current node: execQuery() */
+    @Test
     public void testThisVariable2() throws Exception
     {
         XmlCursor xc = _testDocCursor2();
@@ -131,6 +130,7 @@ public class XQueryVariableBindingTest extends Common
     }
 
     /** test the binding of a variable to the current node: execQuery() */
+    @Test
     public void testCurrentNodeVariable2() throws Exception
     {
         XmlCursor xc = _testDocCursor2();
@@ -159,6 +159,7 @@ public class XQueryVariableBindingTest extends Common
     }
 
     /** test the binding of a variable to an XmlTokenSource using a map */
+    @Test
     public void testOneVariable() throws Exception
     {
         File f = new File(dir, "bookstore.xml");
@@ -182,6 +183,7 @@ public class XQueryVariableBindingTest extends Common
     /** test the binding of multiple variables using a map;
         at the same time, test the binding of a variable to a String
      */
+    @Test
     public void testMultipleVariables() throws Exception
     {
         File f = new File(dir, "bookstore.xml");

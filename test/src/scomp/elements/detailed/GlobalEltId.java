@@ -15,22 +15,21 @@
 
 package scomp.elements.detailed;
 
+import org.junit.Test;
 import scomp.common.BaseCase;
 import xbean.scomp.element.globalEltDefault.IDElementDocument;
 
-/**
- *
- *
- */
+import static org.junit.Assert.assertTrue;
+
 public class GlobalEltId extends BaseCase{
-    public void testRun()throws Throwable{
-        IDElementDocument doc=
-                IDElementDocument.Factory.newInstance();
+    @Test
+    public void testRun() throws Throwable {
+        IDElementDocument doc =
+            IDElementDocument.Factory.newInstance();
         doc.addNewIDElement().setID("IDAttr");
-           try {
-            assertTrue( doc.validate(validateOptions)) ;
-        }
-        catch (Throwable t) {
+        try {
+            assertTrue(doc.validate(validateOptions));
+        } catch (Throwable t) {
             showErrors();
             throw t;
         }

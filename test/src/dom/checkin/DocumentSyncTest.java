@@ -16,27 +16,13 @@
 package dom.checkin;
 
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
+import org.junit.Before;
 
-
-/**
- *
- *
- */
 
 public class DocumentSyncTest extends DocumentTest {
-    public DocumentSyncTest(String s) {
-        super(s);
-    }
-
-    public static Test suite() {
-        return new TestSuite(DocumentSyncTest.class);
-    }
-
+    @Before
     public void setUp() throws Exception {
         super.loadSync();
         super.moveToNode();
     }
-
 }

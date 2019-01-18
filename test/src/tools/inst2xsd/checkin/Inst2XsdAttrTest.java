@@ -14,13 +14,10 @@
  */
 package tools.inst2xsd.checkin;
 
+import org.junit.Test;
 import tools.inst2xsd.common.Inst2XsdTestBase;
 
 public class Inst2XsdAttrTest extends Inst2XsdTestBase {
-
-    public Inst2XsdAttrTest(String name) {
-        super(name);
-    }
 
     // List of precedence for smart simple primitive type determination
     // byte, short, int, long, integer, float, double, decimal,
@@ -30,12 +27,14 @@ public class Inst2XsdAttrTest extends Inst2XsdTestBase {
     // anyUri ? - triggered only for http:// or www. constructs,
     // list types ?
     // string
+    @Test
     public void test_attrstring() throws Exception {
         runAttrTypeChecking(getAttrTypeXml("a"), "string");
         runAttrTypeChecking(getAttrTypeXml("a2a"), "string");
         runAttrTypeChecking(getAttrTypeXml("a b c\n hello\t from\n\txmlbeans"), "string");
     }
 
+    @Test
     public void test_attrshort() throws Exception {
         runAttrTypeChecking(getAttrTypeXml("-129"), "short");
         runAttrTypeChecking(getAttrTypeXml("128"), "short");
@@ -45,6 +44,7 @@ public class Inst2XsdAttrTest extends Inst2XsdTestBase {
         runAttrTypeChecking(getAttrTypeXml("32767"), "short");
     }
 
+    @Test
     public void test_attrint() throws Exception {
         runAttrTypeChecking(getAttrTypeXml("39000"), "int");
         runAttrTypeChecking(getAttrTypeXml("32768"), "int");
@@ -55,6 +55,7 @@ public class Inst2XsdAttrTest extends Inst2XsdTestBase {
         runAttrTypeChecking(getAttrTypeXml("-2147483648"), "int");
     }
 
+    @Test
     public void test_attrlong() throws Exception {
         runAttrTypeChecking(getAttrTypeXml("2147483648"), "long");
         runAttrTypeChecking(getAttrTypeXml("-2147483649"), "long");
@@ -64,6 +65,7 @@ public class Inst2XsdAttrTest extends Inst2XsdTestBase {
         runAttrTypeChecking(getAttrTypeXml("9223372036854775807"), "long");
     }
 
+    @Test
     public void test_attrinteger() throws Exception {
         runAttrTypeChecking(getAttrTypeXml("9300000000000000000"), "integer");
         runAttrTypeChecking(getAttrTypeXml("-9300000000000000000"), "integer");
@@ -71,6 +73,7 @@ public class Inst2XsdAttrTest extends Inst2XsdTestBase {
         runAttrTypeChecking(getAttrTypeXml("9223372036854775808"), "integer");
     }
 
+    @Test
     public void test_attrfloat() throws Exception {
         runAttrTypeChecking(getAttrTypeXml("12.78e-2"), "float");
         runAttrTypeChecking(getAttrTypeXml("1267.43233E12"), "float");
@@ -83,23 +86,26 @@ public class Inst2XsdAttrTest extends Inst2XsdTestBase {
         runAttrTypeChecking(getAttrTypeXml("+100000.00"), "float");
     }
 
-
+    @Test
     public void test_attrdate() throws Exception {
         runAttrTypeChecking(getAttrTypeXml("1999-05-31"), "date");
     }
 
+    @Test
     public void test_attrdateTime() throws Exception {
         runAttrTypeChecking(getAttrTypeXml("1999-05-31T13:20:00-05:00"), "dateTime");
         runAttrTypeChecking(getAttrTypeXml("2000-03-04T20:00:00Z"), "dateTime");
         runAttrTypeChecking(getAttrTypeXml("2000-03-04T23:00:00+03:00"), "dateTime");
     }
 
+    @Test
     public void test_attrtime() throws Exception {
         runAttrTypeChecking(getAttrTypeXml("13:20:00-05:00"), "time");
         runAttrTypeChecking(getAttrTypeXml("00:00:00"), "time");
         runAttrTypeChecking(getAttrTypeXml("13:20:00Z"), "time");
     }
 
+    @Test
     public void test_attrbyte() throws Exception {
         runAttrTypeChecking(getAttrTypeXml("123"), "byte");
         runAttrTypeChecking(getAttrTypeXml("+100"), "byte");
@@ -109,6 +115,7 @@ public class Inst2XsdAttrTest extends Inst2XsdTestBase {
         runAttrTypeChecking(getAttrTypeXml("-128"), "byte");
     }
 
+    @Test
     public void test_attrduration() throws Exception {
         runAttrTypeChecking(getAttrTypeXml("P1347Y"), "duration");
         runAttrTypeChecking(getAttrTypeXml("P1347M"), "duration");
@@ -117,9 +124,4 @@ public class Inst2XsdAttrTest extends Inst2XsdTestBase {
         runAttrTypeChecking(getAttrTypeXml("P0Y1347M0D"), "duration");
         runAttrTypeChecking(getAttrTypeXml("-P1347M"), "duration");
     }
-
-    //public void test_attr() throws Exception {
-    //    runAttrTypeChecking(getAttrTypeXml(""), "");
-    //}
-
 }

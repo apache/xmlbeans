@@ -15,13 +15,15 @@
 
 package xmlcursor.detailed;
 
-import junit.framework.*;
-
-import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlCursor.TokenType;
+import org.apache.xmlbeans.XmlObject;
+import org.junit.Before;
+import org.junit.Test;
 import xmlcursor.common.BasicCursorTestCase;
 import xmlcursor.common.Common;
+
+import static org.junit.Assert.*;
 
 /**
  *
@@ -29,19 +31,10 @@ import xmlcursor.common.Common;
  */
 public class SetTextValueTest extends BasicCursorTestCase {
 
-    String sDoc = Common.XML_FOO_NS_PREFIX;
-
-    public SetTextValueTest(String sName) {
-        super(sName);
-    }
-
-    public static Test suite() {
-        return new TestSuite(SetTextValueTest.class);
-    }
-
     /**
      * Depth first concatenation of all text leaves
      */
+    @Test
     public void testSTARTDOC() {
         String sExpected = Common.XMLFRAG_BEGINTAG + "&lt;newdoc/>" +
                 Common.XMLFRAG_ENDTAG;
@@ -51,6 +44,7 @@ public class SetTextValueTest extends BasicCursorTestCase {
         assertEquals(sExpected, m_xc.xmlText());
     }
 
+    @Test
     public void testSTART() {
         String sNewVal = "new test value ";
         String sExpected = "<foo xmlns:edi=\"http://ecommerce.org/schema\">" +
@@ -63,6 +57,7 @@ public class SetTextValueTest extends BasicCursorTestCase {
         assertEquals(sExpected, m_xc.xmlText());
     }
 
+    @Test
     public void testAttr() {
         String sNewVal = "US\u0024 ";
         String sExpected = "<foo xmlns:edi=\"http://ecommerce.org/schema\"><!-- the 'price' element's namespace is http://ecommerce.org/schema -->  <edi:price units=\"" +
@@ -75,6 +70,7 @@ public class SetTextValueTest extends BasicCursorTestCase {
         assertEquals(sExpected, m_xc.xmlText());
     }
 
+    @Test
     public void testComment() {
         String sNewVal = "My new comment ";
         String sExpected = "<foo xmlns:edi=\"http://ecommerce.org/schema\"><!--" +
@@ -87,6 +83,7 @@ public class SetTextValueTest extends BasicCursorTestCase {
         assertEquals(sExpected, m_xc.xmlText());
     }
 
+    @Test
     public void testPI() throws Exception {
         String sTestXml = "<?xml-stylesheet type=\"text/xsl\" xmlns=\"http://openuri.org/shipping/\"?><foo at0=\"value0\">text</foo>";
         m_xc = XmlObject.Factory.parse(sTestXml).newCursor();
@@ -100,6 +97,7 @@ public class SetTextValueTest extends BasicCursorTestCase {
         assertEquals(sExpected, m_xc.xmlText());
     }
 
+    @Test
     public void testSetNull() {
         toNextTokenOfType(m_xc, TokenType.START);
         try {
@@ -110,18 +108,15 @@ public class SetTextValueTest extends BasicCursorTestCase {
         }
     }
 
+    @Test(expected = IndexOutOfBoundsException.class)
     public void testNegativeOffset() {
         char[] buffer = new char[100];
         toNextTokenOfType(m_xc, TokenType.START);
-        try {
-            m_xc.setTextValue(buffer, -1, 98);
-            fail("Offset < 0");
-        }
-        catch (IndexOutOfBoundsException ie) {
-        }
+        m_xc.setTextValue(buffer, -1, 98);
     }
 
 
+    @Test
     public void testNonZeroOffset() {
         char[] buffer = "Test".toCharArray();
         toNextTokenOfType(m_xc, TokenType.START);
@@ -132,30 +127,24 @@ public class SetTextValueTest extends BasicCursorTestCase {
     }
 
 
+    @Test(expected = IndexOutOfBoundsException.class)
     public void testLargeOffset() {
         String sNewVal = " 20";
         toNextTokenOfType(m_xc, TokenType.START);
-        try {
-            m_xc.setTextValue(sNewVal.toCharArray(), 5, 3);
-            fail("Offset Past end");
-        }
-        catch (IndexOutOfBoundsException ie) {
-        }
+        m_xc.setTextValue(sNewVal.toCharArray(), 5, 3);
     }
 
     //charCount<=0: should be a noop
+    @Test(expected = IndexOutOfBoundsException.class)
     public void testNegativeCharCount() {
         char[] buffer = new char[100];
         toNextTokenOfType(m_xc, TokenType.START);
         String sExpected = m_xc.xmlText();
-        try {
-            m_xc.setTextValue(buffer, 10, -1);
-            if (!m_xc.equals(sExpected)) fail("Negative Char Cnt");
-        }
-        catch (IndexOutOfBoundsException ie) {
-        }
+        m_xc.setTextValue(buffer, 10, -1);
+        if (!m_xc.equals(sExpected)) fail("Negative Char Cnt");
     }
 
+    @Test
     public void testZeroCharCount() {
         char[] buffer = new char[100];
         String sExpected = "<foo xmlns:edi=\"http://ecommerce.org/schema\"/>";
@@ -168,10 +157,11 @@ public class SetTextValueTest extends BasicCursorTestCase {
         assertEquals(sExpected, m_xc.xmlText());
     }
 
+    @Test
     public void testLargeCharCount() {
         String sNewVal = " 20";
         int nCharCount = 10;
-        assertEquals(true, sNewVal.length() < nCharCount);
+        assertTrue(sNewVal.length() < nCharCount);
         toNextTokenOfType(m_xc, TokenType.START);
         m_xc.setTextValue(sNewVal.toCharArray(), 0, nCharCount);
 //        toPrevTokenOfType(m_xc, TokenType.START);
@@ -179,6 +169,7 @@ public class SetTextValueTest extends BasicCursorTestCase {
     }
 
     //offset+selection>buffer
+    @Test
     public void testSelectionPastEnd() {
         String sNewVal = " 20";
         toNextTokenOfType(m_xc, TokenType.START);
@@ -188,20 +179,16 @@ public class SetTextValueTest extends BasicCursorTestCase {
     }
 
     //spec doesn't say anything about text???
+    @Test(expected = IllegalStateException.class)
     public void testText() {
         String sNewVal = "5000 ";
         char[] buff = sNewVal.toCharArray();
         toNextTokenOfType(m_xc, TokenType.TEXT);
-        try {
-            m_xc.setTextValue(buff, 0, buff.length);
-            fail("SetText in TEXT token");
-        }
-        catch (IllegalStateException e) {
-        }
-
+        m_xc.setTextValue(buff, 0, buff.length);
     }
 
     //$NOTE:did I forget a type
+    @Test
     public void testSetIllegalCursorPos() {
 
         char[] buffer = new char[100];
@@ -225,7 +212,9 @@ public class SetTextValueTest extends BasicCursorTestCase {
             fail("SetText in END token");
     }
 
+    @Before
     public void setUp() throws Exception {
+        String sDoc = Common.XML_FOO_NS_PREFIX;
         m_xc = XmlObject.Factory.parse(sDoc).newCursor();
     }
 }

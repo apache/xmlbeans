@@ -14,53 +14,51 @@
  */
 package scomp.derivation.detailed;
 
+import org.junit.Test;
 import scomp.common.BaseCase;
-import xbean.scomp.derivation.xabstract.EltAbstractDocument;
 import xbean.scomp.derivation.xabstract.AbstractT;
+import xbean.scomp.derivation.xabstract.EltAbstractDocument;
 import xbean.scomp.derivation.xabstract.EltConcreteDocument;
 
 import java.math.BigInteger;
 
-/**
- *
- *
- *
- */
-public class AbstractTest extends BaseCase{
+import static org.junit.Assert.assertTrue;
 
-   /**
-    * This is an abstract element...no instance should ever be valid
-    * @throws Throwable
-    */
+public class AbstractTest extends BaseCase {
 
-    public void testElementAbstract() throws Throwable{
-        EltAbstractDocument doc=EltAbstractDocument.Factory.newInstance();
-        AbstractT elt=doc.addNewEltAbstract();
+    /**
+     * This is an abstract element...no instance should ever be valid
+     */
+    @Test
+    public void testElementAbstract() throws Throwable {
+        EltAbstractDocument doc = EltAbstractDocument.Factory.newInstance();
+        AbstractT elt = doc.addNewEltAbstract();
         elt.setAge(new BigInteger("15"));
         elt.setName("Ben");
-        assertTrue(elt!=null);
-        assertTrue (! elt.validate() );
+        assertTrue(elt != null);
+        assertTrue(!elt.validate());
     }
 
-     public void testElementAbstractParse() throws Throwable{
-        EltAbstractDocument doc=EltAbstractDocument.Factory.parse(
-                  "<foo:EltAbstract " +
-                   "xmlns:foo=\"http://xbean/scomp/derivation/Abstract\">"+
-                   " <name>Bob</name><age>25</age><gender>G</gender>" +
-                           "</foo:EltAbstract>");
+    @Test
+    public void testElementAbstractParse() throws Throwable {
+        EltAbstractDocument doc = EltAbstractDocument.Factory.parse(
+            "<foo:EltAbstract " +
+                "xmlns:foo=\"http://xbean/scomp/derivation/Abstract\">" +
+                " <name>Bob</name><age>25</age><gender>G</gender>" +
+                "</foo:EltAbstract>");
 
-        assertTrue (! doc.validate(validateOptions) );
+        assertTrue(!doc.validate(validateOptions));
         showErrors();
     }
 
-       public void testElementConcrete() throws Throwable{
-           EltConcreteDocument doc=EltConcreteDocument.Factory.parse(
-                   "<foo:EltConcrete " +
-                   "xmlns:foo=\"http://xbean/scomp/derivation/Abstract\">"+
-                   " <name>Bob</name><age>25</age><gender>G</gender>" +
-                           "</foo:EltConcrete>");
-           assertTrue (! doc.validate(validateOptions));
-           showErrors();
-       }
-
+    @Test
+    public void testElementConcrete() throws Throwable {
+        EltConcreteDocument doc = EltConcreteDocument.Factory.parse(
+            "<foo:EltConcrete " +
+                "xmlns:foo=\"http://xbean/scomp/derivation/Abstract\">" +
+                " <name>Bob</name><age>25</age><gender>G</gender>" +
+                "</foo:EltConcrete>");
+        assertTrue(!doc.validate(validateOptions));
+        showErrors();
+    }
 }

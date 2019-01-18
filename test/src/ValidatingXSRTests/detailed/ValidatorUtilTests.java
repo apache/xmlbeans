@@ -15,31 +15,19 @@
 
 package ValidatingXSRTests.detailed;
 
-import junit.framework.TestCase;
-
-import javax.xml.stream.XMLStreamReader;
-import javax.xml.stream.XMLInputFactory;
-import javax.xml.stream.events.XMLEvent;
-import java.util.Collection;
-import java.util.ArrayList;
-
+import ValidatingXSRTests.common.TestPrefixResolver;
 import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.impl.validator.ValidatorUtil;
+import org.junit.Test;
 import tools.xml.Utils;
-import ValidatingXSRTests.common.TestPrefixResolver;
 
-public class ValidatorUtilTests
-        extends TestCase
-{
-    public ValidatorUtilTests(String name)
-    {
-        super(name);
-    }
+import java.util.ArrayList;
+import java.util.Collection;
 
-    // Base variable
-    static String casesLoc = "xbean/ValidatingStream/";
+import static org.junit.Assert.fail;
 
-
+public class ValidatorUtilTests {
+    @Test
     public void testValidQName()
         throws Exception
     {
@@ -58,9 +46,8 @@ public class ValidatorUtilTests
     }
 
 
-    public void testInvalidQName()
-        throws Exception
-    {
+    @Test
+    public void testInvalidQName() {
         String xml = "foo:bz";
         TestPrefixResolver pRes = new TestPrefixResolver("foo", "http://openuri.org/test/My");
         SchemaType type = org.openuri.test.simType.QNameType.type;

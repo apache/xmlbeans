@@ -14,18 +14,16 @@
  */
 package xmlcursor.detailed;
 
-import java.io.*;
-
-import org.apache.xmlbeans.XmlObject;
+import common.Common;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlLineNumber;
+import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
+import org.junit.Test;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import java.io.File;
 
-import common.Common;
+import static org.junit.Assert.*;
 
 public class XmlLineNumberTest extends Common
 {
@@ -40,13 +38,9 @@ public class XmlLineNumberTest extends Common
     public static final String xmlFile = 
         XBEAN_CASE_ROOT + P + "xmlcursor" + P + "Employees.xml";
 
-    public XmlLineNumberTest(String name)
-    {
-        super(name);
-    }
-
     /** test obtaining XmlLineNumber bookmark with option
         XmlOptions.setLoadLineNumbers() */
+    @Test
     public void testGetBookmark1() throws Exception
     {
         File f = new File(xmlFile);
@@ -57,7 +51,7 @@ public class XmlLineNumberTest extends Common
         c.toFirstChild();
         assertEquals(XmlCursor.TokenType.START, c.currentTokenType());
         XmlLineNumber ln = (XmlLineNumber) c.getBookmark(XmlLineNumber.class);
-        assertTrue(ln != null);
+        assertNotNull(ln);
         assertEquals(1, ln.getLine());
         c.toFirstChild();
         ln = (XmlLineNumber) c.getBookmark(XmlLineNumber.class);
@@ -66,12 +60,13 @@ public class XmlLineNumberTest extends Common
         assertEquals(XmlCursor.TokenType.END, c.currentTokenType());
         ln =(XmlLineNumber) c.getBookmark(XmlLineNumber.class);
         // no bookmark at END
-        assertEquals(null, ln);
+        assertNull(ln);
     }
 
     /** test obtaining XmlLineNumber bookmark with option
         XmlOptions.setLoadLineNumbers(XmlOptions.LOAD_LINE_NUMBERS_END_ELEMENT)
     */
+    @Test
     public void testGetBookmark2() throws Exception
     {
         File f = new File(xmlFile);
@@ -82,7 +77,7 @@ public class XmlLineNumberTest extends Common
         c.toFirstChild();
         assertEquals(XmlCursor.TokenType.START, c.currentTokenType());
         XmlLineNumber ln = (XmlLineNumber) c.getBookmark(XmlLineNumber.class);
-        assertTrue(ln != null);
+        assertNotNull(ln);
         assertEquals(1, ln.getLine());
         c.toFirstChild();
         ln = (XmlLineNumber) c.getBookmark(XmlLineNumber.class);
@@ -91,12 +86,13 @@ public class XmlLineNumberTest extends Common
         assertEquals(XmlCursor.TokenType.END, c.currentTokenType());
         ln = (XmlLineNumber) c.getBookmark(XmlLineNumber.class);
         // there is a bookmark at END
-        assertTrue(ln != null);
+        assertNotNull(ln);
         assertEquals(19, ln.getLine());
     }
 
     /** test using XmlLineNumber to get line number, column, and offset
         - parsing xml from string */
+    @Test
     public void testLineNumber1() throws Exception
     {
         XmlOptions opt = new XmlOptions().setLoadLineNumbers();
@@ -106,27 +102,24 @@ public class XmlLineNumberTest extends Common
         c.toFirstChild();
         XmlLineNumber ln = (XmlLineNumber) c.getBookmark(XmlLineNumber.class);
         assertEquals(1, ln.getLine());
-        //assertEquals(8, ln.getColumn()); // actual: 10
-        assertTrue(8 <= ln.getColumn() && ln.getColumn() <= 10);
+        assertEquals(50, ln.getColumn());
         // offset is not implemented
         assertEquals(-1, ln.getOffset());
         c.toFirstChild();
         ln = (XmlLineNumber) c.getBookmark(XmlLineNumber.class);
         assertEquals(2, ln.getLine());
-        //assertEquals(4, ln.getColumn()); // actual: 6
-        assertTrue(4 <= ln.getColumn() && ln.getColumn() <= 6);
+        assertEquals(10, ln.getColumn());
         c.toFirstChild();
         ln = (XmlLineNumber) c.getBookmark(XmlLineNumber.class);
         assertEquals(3, ln.getLine());
-        // tabs count as having single column width
-        //assertEquals(2, ln.getColumn()); // actual: 4
-        assertTrue(2 <= ln.getColumn() && ln.getColumn() <= 4);
+        // finishes after reading after <first_name> + 2xtabs
+        assertEquals(14, ln.getColumn());
     }
 
     /** test using XmlLineNumber to get line number, column, and offset
         - parsing xml from file */
-    public void testLineNumber2() throws Exception
-    {
+    @Test
+    public void testLineNumber2() throws Exception {
         File f = new File(xmlFile);
         XmlOptions opt = new XmlOptions();
         opt.setLoadLineNumbers(XmlOptions.LOAD_LINE_NUMBERS_END_ELEMENT);
@@ -136,34 +129,23 @@ public class XmlLineNumberTest extends Common
         c.toFirstChild();
         XmlLineNumber ln = (XmlLineNumber) c.getBookmark(XmlLineNumber.class);
         assertEquals(2, ln.getLine());
-        assertTrue(2 <= ln.getColumn() && ln.getColumn() <= 4);
+        assertEquals(15, ln.getColumn());
         assertEquals(-1, ln.getOffset());
         c.toFirstChild();
         c.push();
         ln = (XmlLineNumber) c.getBookmark(XmlLineNumber.class);
         assertEquals(3, ln.getLine());
-        assertTrue(4 <= ln.getColumn() && ln.getColumn() <= 6);
+        assertEquals(13, ln.getColumn());
         c.toEndToken();
         ln = (XmlLineNumber) c.getBookmark(XmlLineNumber.class);
         assertEquals(3, ln.getLine());
-        assertTrue(23 <= ln.getColumn() && ln.getColumn() <= 25);
+        assertEquals(33, ln.getColumn());
         c.pop();
         c.toNextSibling(); //address
         c.toEndToken();
         ln = (XmlLineNumber) c.getBookmark(XmlLineNumber.class);
         assertEquals(9, ln.getLine());
-        assertTrue(4 <= ln.getColumn() && ln.getColumn() <= 6);
+        assertEquals(17, ln.getColumn());
         assertEquals(-1, ln.getOffset());
-    }
-
-    public static Test suite()
-    {
-        TestSuite suite = new TestSuite(XmlLineNumberTest.class);
-        return suite;
-    }
-
-    public static void main(String args[])
-    {
-        junit.textui.TestRunner.run(suite());
     }
 }

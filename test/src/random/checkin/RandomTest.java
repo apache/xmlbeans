@@ -16,27 +16,30 @@
 package random.checkin;
 
 import org.apache.xmlbeans.impl.tool.CommandLine;
+import org.junit.Before;
+import org.junit.Test;
+import random.common.Random;
 
 import java.util.Arrays;
 
-import random.common.Random;
-import junit.framework.TestCase;
 
-
-public class RandomTest  extends TestCase {
+public class RandomTest {
 
      long seed;
     int iterations;
     int threads;
     int docs;
 
+    @Before
     public void setUp() {
         seed = System.currentTimeMillis();
         iterations = Integer.MAX_VALUE;
         threads = 1;
         docs = 10;
     }
-    public static void testNoQuery() throws Exception {
+
+    @Test
+    public void testNoQuery() {
         String[] args = new String[]{"-seed", "0", "-i", "20", "-noquery"};
         CommandLine cl = new CommandLine(args,
                 Arrays.asList(new String[]{"?", "help", "readonly", "noquery", "nosave"}),

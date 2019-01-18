@@ -15,17 +15,17 @@
 
 package scomp.elements.detailed;
 
+import org.junit.Test;
 import scomp.common.BaseCase;
 import xbean.scomp.element.globalEltFixed.GlobalEltFixedIntDocument;
 import xbean.scomp.element.globalEltFixed.GlobalEltFixedStrDocument;
 import org.apache.xmlbeans.XmlErrorCodes;
 
-/**
- *
- *
- */
-public class GlobalEltFixed extends BaseCase {
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
+public class GlobalEltFixed extends BaseCase {
+    @Test
     public void testValidPresent() throws Exception {
         GlobalEltFixedIntDocument testEltInt = GlobalEltFixedIntDocument.Factory.parse("<GlobalEltFixedInt " +
                 "xmlns=\"http://xbean/scomp/element/GlobalEltFixed\"" +
@@ -39,6 +39,7 @@ public class GlobalEltFixed extends BaseCase {
 
     //document should be valid even if the values
     // are missing
+    @Test
     public void testValidMissing() throws Exception {
         GlobalEltFixedIntDocument testEltInt = GlobalEltFixedIntDocument
                 .Factory.parse("<GlobalEltFixedInt " +
@@ -47,6 +48,7 @@ public class GlobalEltFixed extends BaseCase {
         assertTrue(testEltInt.validate());
     }
 
+    @Test
     public void testIntTypeInvalid() throws Exception {
         GlobalEltFixedIntDocument testEltInt = GlobalEltFixedIntDocument
                 .Factory.parse("<GlobalEltFixedInt " +
@@ -57,9 +59,9 @@ public class GlobalEltFixed extends BaseCase {
             XmlErrorCodes.DECIMAL
         };
         assertTrue(compareErrorCodes(errExpected));
-
     }
 
+    @Test
     public void testIntValueInvalid() throws Exception {
         GlobalEltFixedIntDocument testEltInt = GlobalEltFixedIntDocument.Factory.parse("<GlobalEltFixedInt " +
                 "xmlns=\"http://xbean/scomp/element/GlobalEltFixed\"" +
@@ -69,9 +71,9 @@ public class GlobalEltFixed extends BaseCase {
         String[] errExpected = new String[]{
             XmlErrorCodes.ELEM_LOCALLY_VALID$FIXED_VALID_SIMPLE_TYPE};
         assertTrue(compareErrorCodes(errExpected));
-
     }
 
+    @Test
     public void testStrValueInvalid() throws Exception {
         GlobalEltFixedStrDocument testEltStr = GlobalEltFixedStrDocument.Factory.parse("<GlobalEltFixedStr " +
                 "xmlns=\"http://xbean/scomp/element/GlobalEltFixed\"" +
@@ -81,8 +83,5 @@ public class GlobalEltFixed extends BaseCase {
         String[] errExpected = new String[]{
              XmlErrorCodes.ELEM_LOCALLY_VALID$FIXED_VALID_SIMPLE_TYPE};
         assertTrue(compareErrorCodes(errExpected));
-
     }
-
-   
 }

@@ -16,45 +16,18 @@
 
 package xmlcursor.detailed;
 
-import org.apache.xmlbeans.XmlOptions;
-import junit.framework.*;
-import junit.framework.Assert.*;
-
-import java.io.*;
-
-import org.apache.xmlbeans.XmlObject;
-import org.apache.xmlbeans.XmlCursor;
-import org.apache.xmlbeans.XmlBeans;
 import org.apache.xmlbeans.XmlCursor.TokenType;
-import org.apache.xmlbeans.XmlOptions;
-
-import java.util.Map;
-import java.util.HashMap;
-import javax.xml.namespace.QName;
-
-import java.util.Vector;
-
-import xmlcursor.common.*;
+import org.apache.xmlbeans.XmlObject;
+import org.junit.Test;
 import tools.util.JarUtil;
+import xmlcursor.common.BasicCursorTestCase;
+import xmlcursor.common.Common;
 
-import java.net.URL;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
-import org.apache.xmlbeans.xml.stream.XMLInputStream;
-
-
-/**
- *
- *
- */
 public class NamespaceForPrefixTest extends BasicCursorTestCase {
-    public NamespaceForPrefixTest(String sName) {
-        super(sName);
-    }
-
-    public static Test suite() {
-        return new TestSuite(NamespaceForPrefixTest.class);
-    }
-
+    @Test
     public void testNamespaceForPrefixFromSTARTDOC() throws Exception {
         m_xo = XmlObject.Factory.parse("<foo xmlns=\"nsa\">text</foo>");
         m_xc = m_xo.newCursor();
@@ -69,6 +42,7 @@ public class NamespaceForPrefixTest extends BasicCursorTestCase {
         assertEquals("uri3", m_xc.namespaceForPrefix("pre3"));
     }
 
+    @Test
     public void testNamespaceForPrefixFromSTARTDOCInvalid() throws Exception {
         m_xo = XmlObject.Factory.parse("<foo xmlns=\"nsa\">text</foo>");
         m_xc = m_xo.newCursor();
@@ -78,9 +52,10 @@ public class NamespaceForPrefixTest extends BasicCursorTestCase {
         m_xc.insertNamespace("pre3", "uri3");
         m_xc.insertNamespace(null, "uridefault");
         m_xc.toStartDoc();
-        assertEquals(null, m_xc.namespaceForPrefix("pre4"));
+        assertNull(m_xc.namespaceForPrefix("pre4"));
     }
 
+    @Test
     public void testNamespaceForPrefixFromSTARTDOCNull() throws Exception {
         m_xo = XmlObject.Factory.parse("<foo xmlns=\"nsa\">text</foo>");
         m_xc = m_xo.newCursor();
@@ -93,6 +68,7 @@ public class NamespaceForPrefixTest extends BasicCursorTestCase {
         assertEquals("uridefault", m_xc.namespaceForPrefix(null));
     }
 
+    @Test
     public void testNamespaceForPrefixFromSTARTDOCEmptyString() throws Exception {
         m_xo = XmlObject.Factory.parse("<foo xmlns=\"nsa\">text</foo>");
         m_xc = m_xo.newCursor();
@@ -105,6 +81,7 @@ public class NamespaceForPrefixTest extends BasicCursorTestCase {
         assertEquals("uridefault", m_xc.namespaceForPrefix(""));
     }
 
+    @Test
     public void testNamespaceForPrefixFromSTART() throws Exception {
         m_xo = XmlObject.Factory.parse(
                   JarUtil.getResourceFromJar(Common.TRANXML_FILE_CLM));
@@ -114,6 +91,7 @@ public class NamespaceForPrefixTest extends BasicCursorTestCase {
                      m_xc.namespaceForPrefix("xsi"));
     }
 
+    @Test
     public void testNamespaceForPrefixFromSTARTdefaultNamespace() throws Exception {
         m_xo = XmlObject.Factory.parse(
                   JarUtil.getResourceFromJar(Common.TRANXML_FILE_CLM));
@@ -123,6 +101,7 @@ public class NamespaceForPrefixTest extends BasicCursorTestCase {
                      m_xc.namespaceForPrefix(""));
     }
 
+    @Test(expected = IllegalStateException.class)
     public void testNamespaceForPrefixFromATTR() throws Exception {
         m_xo = XmlObject.Factory.parse("<foo xmlns=\"nsa\"><bar attr0=\"val0\">text</bar></foo>");
         m_xc = m_xo.newCursor();
@@ -136,15 +115,12 @@ public class NamespaceForPrefixTest extends BasicCursorTestCase {
         m_xc.toNextSelection();
         m_xc.toFirstAttribute();
 
-        try {
-            m_xc.namespaceForPrefix(null);
-            fail("Expected IllegalStateException");
-        } catch (IllegalStateException iae) {
-        }
+        m_xc.namespaceForPrefix(null);
         //assertEquals("nsa", m_xc.namespaceForPrefix(null));
         // assertEquals("uri1", m_xc.namespaceForPrefix("pre1"));
     }
 
+    @Test(expected = IllegalStateException.class)
     public void testNamespaceForPrefixFromEND() throws Exception {
         m_xo = XmlObject.Factory.parse("<foo xmlns=\"nsa\"><bar attr0=\"val0\">text</bar></foo>");
         m_xc = m_xo.newCursor();
@@ -155,11 +131,7 @@ public class NamespaceForPrefixTest extends BasicCursorTestCase {
         m_xc.insertNamespace("pre3", "uri3");
         m_xc.insertNamespace(null, "uridefault");
         toNextTokenOfType(m_xc, TokenType.END);
-        try {
-            m_xc.namespaceForPrefix(null);
-            fail("Expected IllegalStateException");
-        } catch (IllegalStateException iae) {
-        }
+        m_xc.namespaceForPrefix(null);
         //  assertEquals("nsa", m_xc.namespaceForPrefix(null));
         // assertEquals("uri1", m_xc.namespaceForPrefix("pre1"));
     }

@@ -15,63 +15,48 @@
 
 package xmlcursor.checkin;
 
-import java.io.File;
 import org.apache.xmlbeans.XmlCursor;
-import org.apache.xmlbeans.XmlBeans;
 import org.apache.xmlbeans.XmlObject;
-import junit.framework.Assert;
-import junit.framework.TestCase;
-import junit.framework.Test;
-import junit.framework.TestSuite;
-
+import org.junit.Test;
 import xmlcursor.common.Common;
 
-public class AnnotationsTests extends TestCase
-{
-    public AnnotationsTests(String name) { super(name); }
-    public static Test suite() { return new TestSuite(AnnotationsTests.class); }
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
-    static String[] _args;
-    static String _test;
-
-   
-
-    static class TestBookmark extends XmlCursor.XmlBookmark
-    {
+public class AnnotationsTests {
+    private static class TestBookmark extends XmlCursor.XmlBookmark {
     }
 
     //
     // Basic load up a file and iterate through it
     //
-
-    public void testBasicXml( )
-        throws Exception
-    {
+    @Test
+    public void testBasicXml() throws Exception {
         XmlCursor c = XmlObject.Factory.parse(Common.XML_ATTR_TEXT, null).newCursor();
 
         TestBookmark a1 = new TestBookmark();
 
-        c.setBookmark( a1 );
-        
+        c.setBookmark(a1);
+
         TestBookmark a2 = new TestBookmark();
 
         c.toNextToken();
         c.toNextToken();
-        
-        c.setBookmark( a2 );
-        
+
+        c.setBookmark(a2);
+
         c.toPrevToken();
         c.toPrevToken();
 
-        Assert.assertEquals( c.getBookmark( TestBookmark.class ), a1 );
-        
+        assertEquals(c.getBookmark(TestBookmark.class), a1);
+
         c.toNextToken();
         c.toNextToken();
-        
-        Assert.assertEquals( c.getBookmark( TestBookmark.class ), a2 );
-        
+
+        assertEquals(c.getBookmark(TestBookmark.class), a2);
+
         c.toNextToken();
-        
-        Assert.assertTrue( c.getBookmark( TestBookmark.class ) == null );
+
+        assertNull(c.getBookmark(TestBookmark.class));
     }
 }

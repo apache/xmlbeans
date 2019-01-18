@@ -15,52 +15,35 @@
 
 package xmlobject.checkin;
 
-import java.io.File;
+import dumbNS.RootDocument;
+import dumbNS.RootDocument.Root;
+import org.apache.xmlbeans.XmlObject;
+import org.junit.Before;
+import org.junit.Test;
+import tools.util.JarUtil;
+
 import java.io.IOException;
 
-import junit.framework.TestCase;
-
-import org.apache.xmlbeans.XmlObject;
-
-import dumbNS.RootDocument.Root;
-import dumbNS.RootDocument;
-
-import tools.util.Util;
-import tools.util.ResourceUtil;
-import tools.util.JarUtil;
-import xmlcursor.common.Common;
+import static org.junit.Assert.assertEquals;
 
 
-/**
- *
- *
- */
-public class DumbTest extends TestCase {
-    String instance;
+public class DumbTest {
+    private String instance;
 
-    public DumbTest(String name) {
-        super(name);
+    @Before
+    public void setUp() throws IOException {
+        instance = JarUtil.getResourceFromJar("xbean/simple/dumb/dumb.xml");
     }
 
-    public void setUp() {
-
-        try {
-            instance = JarUtil.getResourceFromJar("xbean/simple/dumb/dumb.xml");
-        } catch (IOException e) {
-            System.err.println("Could not load xbean/simple/dumb/dumb.xml from " + Common.XMLCASES_JAR
-                               + e.getMessage());
-            e.printStackTrace();
-        }
-    }
-
+    @Test
     public void testGetB2()
-            throws Exception {
+        throws Exception {
         RootDocument rootDoc = (RootDocument) XmlObject.Factory
-                .parse(instance);
+            .parse(instance);
         Root root = rootDoc.getRoot();
 
         System.out.println("root.xmlText() = " + root.xmlText());
 
-        assertTrue("bar:b attribute != 4", root.getB2().intValue() == 4);
+        assertEquals("bar:b attribute != 4", 4, root.getB2().intValue());
     }
 }

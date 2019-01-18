@@ -14,30 +14,23 @@
  */
 package scomp.derivation.restriction.facets.detailed;
 
+import org.apache.xmlbeans.XmlErrorCodes;
+import org.junit.Test;
 import scomp.common.BaseCase;
 import xbean.scomp.derivation.facets.facets.*;
-import xbean.scomp.derivation.facets.facets.DigitsEltDocument;
-import xbean.scomp.derivation.facets.facets.EnumEltDocument;
-import xbean.scomp.derivation.facets.facets.EnumT;
-import xbean.scomp.derivation.facets.facets.LengthEltDocument;
-import xbean.scomp.derivation.facets.facets.MinMaxExclusiveDateEltDocument;
-import xbean.scomp.derivation.facets.facets.MinMaxExclusiveEltDocument;
-import xbean.scomp.derivation.facets.facets.MinMaxInclusiveDateEltDocument;
-import xbean.scomp.derivation.facets.facets.MinMaxInclusiveEltDocument;
-import xbean.scomp.derivation.facets.facets.MinMaxLengthEltDocument;
-import xbean.scomp.derivation.facets.facets.PatternEltDocument;
 
 import java.math.BigDecimal;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.TimeZone;
 
-import org.apache.xmlbeans.XmlErrorCodes;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  */
 public class FacetsTest extends BaseCase {
-
+    @Test
     public void testMinMaxInclusiveElt() throws Throwable {
         MinMaxInclusiveEltDocument doc =
                 MinMaxInclusiveEltDocument.Factory.newInstance();
@@ -64,6 +57,7 @@ public class FacetsTest extends BaseCase {
 
     }
 
+    @Test
     public void testMinMaxInclusiveDateElt() throws Throwable {
         MinMaxInclusiveDateEltDocument doc =
                 MinMaxInclusiveDateEltDocument.Factory.newInstance();
@@ -88,6 +82,7 @@ public class FacetsTest extends BaseCase {
     }
 
     //valid range should be 3-9
+    @Test
     public void testMinMaxExclusiveElt() throws Throwable {
         MinMaxExclusiveEltDocument doc =
                 MinMaxExclusiveEltDocument.Factory.newInstance();
@@ -115,6 +110,7 @@ public class FacetsTest extends BaseCase {
     }
 
     //valid range is 12-11 12-24-2003
+    @Test
     public void testMinMaxExclusiveDateElt() throws Throwable {
         MinMaxExclusiveDateEltDocument doc = MinMaxExclusiveDateEltDocument.Factory.newInstance();
         Calendar c = new GregorianCalendar(2003, 11, 25);
@@ -136,6 +132,7 @@ public class FacetsTest extends BaseCase {
 
     }
 
+    @Test
     public void testLengthElt() throws Throwable {
         LengthEltDocument doc = LengthEltDocument.Factory.newInstance();
         doc.setLengthElt("foobar");
@@ -159,6 +156,7 @@ public class FacetsTest extends BaseCase {
         }
     }
 
+    @Test
     public void testMinMaxLengthElt() throws Throwable {
         MinMaxLengthEltDocument doc = MinMaxLengthEltDocument.Factory.newInstance();
         String[] errExpected = new String[]{
@@ -192,6 +190,7 @@ public class FacetsTest extends BaseCase {
 
     }
 
+    @Test
     public void testDigitsElt() throws Throwable {
         DigitsEltDocument doc = DigitsEltDocument.Factory.newInstance();
         String[] errExpected = new String[]{
@@ -217,6 +216,7 @@ public class FacetsTest extends BaseCase {
 
     }
 
+    @Test
     public void testWSElt() throws Throwable {
         WSPreserveEltDocument doc = WSPreserveEltDocument.Factory.parse("<WSPreserveElt " +
                 "xmlns=\"http://xbean/scomp/derivation/facets/Facets\">" +
@@ -236,6 +236,7 @@ public class FacetsTest extends BaseCase {
         assertEquals(expected, doc.getWSPreserveElt());
     }
 
+    @Test
     public void testEnumElt() throws Throwable {
 
         EnumEltDocument doc = EnumEltDocument.Factory.newInstance();
@@ -257,6 +258,7 @@ public class FacetsTest extends BaseCase {
 
     }
 
+    @Test
     public void testPatternElt() throws Throwable {
         PatternEltDocument doc = PatternEltDocument.Factory.newInstance();
         doc.setPatternElt("aedaedaed");

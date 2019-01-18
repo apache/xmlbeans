@@ -14,21 +14,13 @@
 */
 package compile.scomp.common;
 
-import java.util.Vector;
-
 import common.Common;
 
-/**
- *
- *
- */
+import java.util.Vector;
+
 public class CompileCommon extends Common{
 
     public static String fileLocation = XBEAN_CASE_ROOT +P + "compile" + P + "scomp" + P;
-
-    public CompileCommon(String name){
-        super(name);
-    }
 
     /** compare contents of two vectors */
     public static void comparefNameVectors(Vector act, Vector exp) throws Exception

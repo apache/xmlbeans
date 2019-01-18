@@ -17,45 +17,37 @@
 package xmlcursor.detailed;
 
 
-import junit.framework.*;
-
 import org.apache.xmlbeans.XmlObject;
+import org.junit.Before;
+import org.junit.Test;
+import xmlcursor.common.BasicCursorTestCase;
 
-import xmlcursor.common.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
-
-/**
- *
- *
- */
 public class PushPopTest extends BasicCursorTestCase {
 
-      String sDoc="<foo xmlns:edi='http://ecommerce.org/schema'><?xml-stylesheet type=\"text/xsl\" xmlns=\"http://openuri.org/shipping/\"?><!-- the 'price' element's namespace is http://ecommerce.org/schema -->  <edi:price units='Euro' date='12-12-03'>32.18</edi:price> </foo>";
+    private String sDoc = "<foo xmlns:edi='http://ecommerce.org/schema'><?xml-stylesheet type=\"text/xsl\" xmlns=\"http://openuri.org/shipping/\"?><!-- the 'price' element's namespace is http://ecommerce.org/schema -->  <edi:price units='Euro' date='12-12-03'>32.18</edi:price> </foo>";
 
-    public PushPopTest(String sName) {
-        super(sName);
+    @Test
+    public void testPopEmpty() {
+        assertFalse(m_xc.pop());
     }
 
-    public static Test suite() {
-        return new TestSuite(PushPopTest.class);
+    @Test
+    public void testPushNTimes() {
+        int nCount = 100;
+        for (int i = 0; i < nCount; i++)
+            m_xc.push();
+        boolean result = true;
+        for (int i = 0; i < nCount; i++)
+            result &= m_xc.pop();
+        assertTrue(result);
+        assertFalse(m_xc.pop());
     }
 
-    public void testPopEmpty(){
-	assertEquals(false,m_xc.pop());
-    }
-
-    public void testPushNTimes(){
-	int nCount=100;
-	for (int i=0;i<nCount;i++)
-	    m_xc.push();
-	boolean result=true;
-	for (int i=0;i<nCount;i++)
-	    result&=m_xc.pop();
-	assertEquals(true,result);
-	assertEquals(false,m_xc.pop());
-    }
-
-    public void setUp() throws Exception{
-	m_xc=XmlObject.Factory.parse(sDoc).newCursor();
+    @Before
+    public void setUp() throws Exception {
+        m_xc = XmlObject.Factory.parse(sDoc).newCursor();
     }
 }

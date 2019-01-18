@@ -15,53 +15,19 @@
 
 package misc.checkin;
 
-import org.apache.xmlbeans.XmlErrorCodes;
 import org.apache.xmlbeans.XmlBeans;
+import org.junit.Test;
 
-import junit.framework.Assert;
-import junit.framework.TestCase;
-import junit.framework.Test;
-import junit.framework.TestSuite;
+import static org.junit.Assert.assertNotNull;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
-import java.util.Map;
-import java.util.Set;
-import java.util.LinkedHashSet;
-import java.util.Properties;
-import java.util.Enumeration;
-import java.util.Iterator;
-import java.util.List;
-import java.util.ArrayList;
-import java.io.FileInputStream;
-import java.io.InputStream;
+public class VersionTest {
 
-public class VersionTest extends TestCase
-{
-
-    public VersionTest(String name)
-    {
-        super(name);
-    }
-
-    public static Test suite()
-    {
-        return new TestSuite(VersionTest.class);
-    }
 
     // Test the getVersion API
-    public void testXBeansVersion()
-    {
-        try
-        {
-            String version = XmlBeans.getVersion();
-            System.out.println("XmlBeans version:" + version);
-            assertNotNull(version);
-        }
-        catch(NullPointerException npe)
-        {
-            fail("NPE thrown for XmlBeans.getVersion()");
-        }
+    @Test
+    public void testXBeansVersion() {
+        String version = XmlBeans.getVersion();
+        assertNotNull(version);
     }
 
 }

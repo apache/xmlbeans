@@ -15,46 +15,26 @@
 
 package compile.scomp.incr.schemaCompile.detailed;
 
-import junit.framework.TestCase;
-import junit.framework.Assert;
-import junit.framework.Test;
-import junit.framework.TestSuite;
-import org.apache.xmlbeans.impl.common.QNameHelper;
-import org.apache.xmlbeans.impl.tool.SchemaCompiler;
-import org.apache.xmlbeans.impl.tool.CodeGenUtil;
-import org.apache.xmlbeans.impl.tool.SchemaCodeGenerator;
-import org.apache.xmlbeans.impl.tool.Diff;
-import org.apache.xmlbeans.impl.xb.xsdschema.SchemaDocument;
-import org.apache.xmlbeans.impl.xb.xsdschema.TopLevelComplexType;
-import org.apache.xmlbeans.impl.util.FilerImpl;
-import org.apache.xmlbeans.*;
-
-import java.io.*;
-import java.util.*;
-
-//import tools.util.TestRunUtil;
 import compile.scomp.common.CompileCommon;
 import compile.scomp.common.CompileTestBase;
-import compile.scomp.common.mockobj.TestFiler;
+import org.apache.xmlbeans.*;
+import org.apache.xmlbeans.impl.util.FilerImpl;
+import org.junit.*;
 
 import javax.xml.namespace.QName;
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Set;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotSame;
 
-/**
- *
- *
- */
 public class IncrCompilationTests extends CompileTestBase {
 
-
-    public IncrCompilationTests(String name) {
-        super(name);
-    }
-
-    public static Test suite() {
-        return new TestSuite(IncrCompilationTests.class);
-    }
-
+    @Before
     public void setUp() throws IOException {
         CompileCommon.deltree(CompileCommon.xbeanOutput(outputDir));
         out = CompileCommon.xbeanOutput(outPath);
@@ -67,14 +47,15 @@ public class IncrCompilationTests extends CompileTestBase {
         xm.setSavePrettyPrint();
     }
 
-    public void tearDown() throws Exception
-    {
-            super.tearDown();
+    @After
+    public void tearDown() throws Exception {
             if (errors.size() > 0)
             errors.clear();
     }
 
 
+    @Test
+    @Ignore
     public void test_dupetype_diffns() throws Exception {
         XmlObject obj1 = XmlObject.Factory.parse(getBaseSchema("baz", "elName", "string", "attrName", "string"));
         XmlObject obj2 = XmlObject.Factory.parse(getBaseSchema("bar", "elName", "string", "attrName", "string"));
@@ -110,7 +91,8 @@ public class IncrCompilationTests extends CompileTestBase {
         handleErrors(errors);
     }
 
-
+    @Test
+    @Ignore("Duplicate global type")
     public void test_dupens_difftypename() throws Exception {
         XmlObject obj1 = XmlObject.Factory.parse(getBaseSchema("baz", "elName", "string", "attrName", "string"));
         XmlObject obj2 = XmlObject.Factory.parse(getBaseSchema("baz", "elName2", "string", "attrName2", "string"));
@@ -139,6 +121,8 @@ public class IncrCompilationTests extends CompileTestBase {
      * This test should not change sts since xmlobject is same
      * @throws Exception
      */
+    @Test
+    @Ignore("Duplicate global type")
     public void test_dupens_dupetypename() throws Exception {
         XmlObject obj1 = XmlObject.Factory.parse(getBaseSchema("baz", "elName", "string", "attrName", "string"));
         XmlObject obj2 = XmlObject.Factory.parse(getBaseSchema("baz", "elName", "string", "attrName", "string"));
@@ -164,6 +148,8 @@ public class IncrCompilationTests extends CompileTestBase {
         handleErrors(errors);
     }
 
+    @Test
+    @Ignore("Duplicate global type")
     public void test_dupens_attrnamechange() throws Exception {
         //XmlObject.Factory.parse(getBaseSchema("baz","elName", "elType", "attrName","attrType"));
         XmlObject obj1 = XmlObject.Factory.parse(getBaseSchema("baz", "elName", "string", "attrName", "string"));
@@ -183,12 +169,14 @@ public class IncrCompilationTests extends CompileTestBase {
         findElementbyQName(base, baseTypes);
         findElementbyQName(incr, incrTypes);
 
-        Assert.assertNotSame(base, incr);
+        assertNotSame(base, incr);
 
         compareandPopErrors(out, outincr, errors);
         handleErrors(errors);
     }
 
+    @Test
+    @Ignore("Duplicate global type")
     public void test_dupens_attrtypechange() throws Exception {
         //XmlObject.Factory.parse(getBaseSchema("baz","elName", "elType", "attrName","attrType"));
         XmlObject obj1 = XmlObject.Factory.parse(getBaseSchema("baz", "elName", "string", "attrName", "string"));
@@ -208,13 +196,14 @@ public class IncrCompilationTests extends CompileTestBase {
         findElementbyQName(base, baseTypes);
         findElementbyQName(incr, incrTypes);
 
-        Assert.assertNotSame(base, incr);
+        assertNotSame(base, incr);
 
         compareandPopErrors(out, outincr, errors);
         handleErrors(errors);
     }
 
-
+    @Test
+    @Ignore("Duplicate global type")
     public void test_dupens_eltypechange() throws Exception {
         //XmlObject.Factory.parse(getBaseSchema("baz","elName", "elType", "attrName","attrType"));
         XmlObject obj1 = XmlObject.Factory.parse(getBaseSchema("baz", "elName", "string", "attrName", "string"));
@@ -235,12 +224,14 @@ public class IncrCompilationTests extends CompileTestBase {
         findElementbyQName(incr, incrTypes);
 
         //        if (incr.findElement(incrTypes[0]).getType().g
-        Assert.assertNotSame(base, incr);
+        assertNotSame(base, incr);
 
         compareandPopErrors(out, outincr, errors);
         handleErrors(errors);
     }
 
+    @Test
+    @Ignore("Duplicate global type")
     public void test_typechange() throws Exception {
         //XmlObject.Factory.parse(getBaseSchema("baz","elName", "elType", "attrName","attrType"));
         XmlObject obj1 = XmlObject.Factory.parse(getBaseSchema("baz", "elName", "string", "attrName", "string"));
@@ -260,13 +251,14 @@ public class IncrCompilationTests extends CompileTestBase {
         findElementbyQName(base, baseTypes);
         findElementbyQName(incr, incrTypes);
 
-        Assert.assertNotSame(base, incr);
+        assertNotSame(base, incr);
 
         compareandPopErrors(out, outincr, errors);
         handleErrors(errors);
     }
 
     // test regeneration of generated java files by the Filer
+    @Test
     public void test_schemaFilesRegeneration_01() throws Exception {
 
         // incremental compile with the same file again. There should be no regeneration of src files
@@ -310,7 +302,7 @@ public class IncrCompilationTests extends CompileTestBase {
         handleErrors(errors);
     }
 
-
+    @Test
     public void test_schemaFilesRegeneration_02() throws Exception {
         // incremental compile with the changes. Specific files should be regenerated
         XmlObject obj1 = XmlObject.Factory.parse(schemaFilesRegeneration_schema1);

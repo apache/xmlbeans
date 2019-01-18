@@ -17,33 +17,19 @@
 
 package xmlcursor.common;
 
-import junit.framework.*;
-import junit.framework.Assert.*;
-import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlCursor.TokenType;
-import org.apache.xmlbeans.XmlError;
+import org.apache.xmlbeans.XmlObject;
+import org.junit.After;
 
-import javax.xml.namespace.QName;
-import java.util.*;
+import static org.junit.Assert.*;
 
-/**
- * 
- */
-public class BasicCursorTestCase extends TestCase {
+public class BasicCursorTestCase {
      protected XmlObject m_xo;
      protected XmlCursor m_xc;
 
-    public BasicCursorTestCase(String sName) {
-        super(sName);
-    }
-
-    protected void setUp() throws Exception {
-    }
-
-    protected void tearDown() throws Exception
-    {
-        super.tearDown();
+    @After
+    public void tearDown() throws Exception {
         m_xo = null;
         if (m_xc != null) {
             m_xc.dispose();
@@ -117,7 +103,6 @@ public class BasicCursorTestCase extends TestCase {
      *
      * TODO: should really compare values also.
      *
-     * @param    tc                  a  TestCase
      * @param    a                   a  XmlCursor
      * @param    b                   a  XmlCursor
      *

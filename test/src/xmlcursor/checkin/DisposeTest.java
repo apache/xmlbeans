@@ -16,43 +16,20 @@
 
 package xmlcursor.checkin;
 
-import org.apache.xmlbeans.XmlOptions;
-import junit.framework.*;
-import junit.framework.Assert.*;
-
-import java.io.*;
-
 import org.apache.xmlbeans.XmlObject;
-import org.apache.xmlbeans.XmlCursor;
-import org.apache.xmlbeans.XmlBeans;
-import org.apache.xmlbeans.XmlCursor.TokenType;
-
-import javax.xml.namespace.QName;
-
-import xmlcursor.common.*;
-
-import java.net.URL;
+import org.junit.Test;
+import xmlcursor.common.BasicCursorTestCase;
+import xmlcursor.common.Common;
 
 
-/**
- *
- *
- */
 public class DisposeTest extends BasicCursorTestCase {
-    public DisposeTest(String sName) {
-        super(sName);
-    }
 
-    public static Test suite() {
-        return new TestSuite(DisposeTest.class);
-    }
-
+    @Test
     public void testMultipleDispose() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO);
         m_xc = m_xo.newCursor();
         m_xc.dispose();
         m_xc.dispose();
-        assertEquals(true, true);
     }
 }
 

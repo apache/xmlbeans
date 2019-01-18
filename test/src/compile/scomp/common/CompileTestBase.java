@@ -14,19 +14,21 @@
 */
 package compile.scomp.common;
 
-import junit.framework.Assert;
-import org.apache.xmlbeans.impl.tool.SchemaCompiler;
+import org.apache.xmlbeans.*;
 import org.apache.xmlbeans.impl.tool.Diff;
 import org.apache.xmlbeans.impl.tool.SchemaCodeGenerator;
-import org.apache.xmlbeans.*;
+import org.apache.xmlbeans.impl.tool.SchemaCompiler;
 import org.apache.xmlbeans.impl.xb.xsdschema.SchemaDocument;
 
 import javax.xml.namespace.QName;
 import java.io.File;
 import java.io.IOException;
 import java.io.StringWriter;
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
+
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
 
 /**
  * TODO: modify for deprecation warnings
@@ -84,8 +86,7 @@ public class CompileTestBase extends CompileCommon {
             "<xs:element name=\"elErrName\" type=\"tnf:bType\" /> " +
             "</xs:schema>";
 
-    public CompileTestBase(String name) {
-        super(name);
+    public CompileTestBase() {
         out =  xbeanOutput(outPath);
         sanity =  xbeanOutput(sanityPath);
         outincr =  xbeanOutput(incrPath);
@@ -188,7 +189,7 @@ public class CompileTestBase extends CompileCommon {
 
         SchemaTypeSystem sts;
         sts = XmlBeans.compileXsd(system, schemas, builtin, options);
-        Assert.assertNotNull("Compilation failed during Incremental Compile.", sts);
+        assertNotNull("Compilation failed during Incremental Compile.", sts);
         SchemaCodeGenerator.saveTypeSystem(sts, outincr, null, null, null);
         return sts;
 
@@ -202,7 +203,7 @@ public class CompileTestBase extends CompileCommon {
         SchemaTypeSystem system;
         SchemaTypeSystem builtin = XmlBeans.getBuiltinTypeSystem();
         system = XmlBeans.compileXsd(schemas, builtin, options);
-        Assert.assertNotNull("Compilation failed during compile.", system);
+        assertNotNull("Compilation failed during compile.", system);
         SchemaCodeGenerator.saveTypeSystem(system, outDir, null, null, null);
         return system;
     }
@@ -214,7 +215,7 @@ public class CompileTestBase extends CompileCommon {
         SchemaTypeSystem system;
         SchemaTypeSystem builtin = XmlBeans.getBuiltinTypeSystem();
         system = XmlBeans.compileXsd(schemas, builtin, options);
-        Assert.assertNotNull("Compilation failed during compile.", system);
+        assertNotNull("Compilation failed during compile.", system);
         SchemaCodeGenerator.saveTypeSystem(system, out, null, null, null);
         return system;
     }
@@ -224,7 +225,7 @@ public class CompileTestBase extends CompileCommon {
             StringWriter message = new StringWriter();
             for (int i = 0; i < errors.size(); i++)
                 message.write(((String) errors.get(i)) + "\n");
-            Assert.fail("\nDifferences encountered:\n" + message);
+            fail("\nDifferences encountered:\n" + message);
         }
     }
 

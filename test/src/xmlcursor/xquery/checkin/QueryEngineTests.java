@@ -14,21 +14,19 @@
  */
 package xmlcursor.xquery.checkin;
 
-import junit.framework.TestCase;
 import org.apache.xmlbeans.XmlObject;
-import org.apache.xmlbeans.XmlInteger;
+import org.junit.Test;
 
-public class QueryEngineTests extends TestCase
-{
+import static org.junit.Assert.assertEquals;
+
+public class QueryEngineTests {
     // Execute repeated queries to test picking up of the query engine from classpath
-    // This test is following rev 292446 
-    public void testQueryEngineSelection()throws Exception{
-            XmlObject o = XmlObject.Factory.parse("<foo><a><b/></a></foo>");
-            XmlObject[] res = o.execQuery("(//a/b)");
-            res= o.execQuery("(//a/b)");
-            String expectedRes = "<b/>";
-            assertEquals(expectedRes,res[0].xmlText());
-
-        }
-
+    // This test is following rev 292446
+    @Test
+    public void testQueryEngineSelection() throws Exception {
+        XmlObject o = XmlObject.Factory.parse("<foo><a><b/></a></foo>");
+        XmlObject[] res = o.execQuery("(//a/b)");
+        String expectedRes = "<b/>";
+        assertEquals(expectedRes, res[0].xmlText());
+    }
 }

@@ -15,22 +15,22 @@
 
 package scomp.derivation.extension.detailed;
 
+import org.junit.Test;
 import scomp.common.BaseCase;
 import xbean.scomp.derivation.attributeExtension.ExtendedT;
 import xbean.scomp.derivation.attributeExtension.ExtendedElementDocument;
 
 import java.math.BigInteger;
 
-/**
- *
- *
- *
- */
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 public class AttributeExtensionTest extends BaseCase{
     /**
      * Attribute w/ same LN but diff NS in base type
      * Other scenarious are compile time errors
      */
+    @Test
     public void testAttribute()throws Throwable{
        ExtendedElementDocument doc=ExtendedElementDocument.Factory.newInstance();
         ExtendedT elt=doc.addNewExtendedElement();

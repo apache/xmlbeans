@@ -16,56 +16,18 @@
 
 package xmlobject.detailed;
 
-import junit.framework.*;
-import junit.framework.Assert.*;
-
-import java.io.*;
-
 import org.apache.xmlbeans.XmlObject;
-import org.apache.xmlbeans.XmlCursor;
-import org.apache.xmlbeans.XmlBeans;
-import org.apache.xmlbeans.SchemaTypeSystem;
-import org.apache.xmlbeans.SchemaType;
-import org.apache.xmlbeans.SchemaTypeLoader;
-import org.apache.xmlbeans.XmlCursor.TokenType;
-import org.apache.xmlbeans.XmlOptions;
-
-import java.util.*;
-import javax.xml.namespace.QName;
-
-
-import java.util.Vector;
-
-import xmlcursor.common.*;
-
-import java.net.URL;
-
-import org.apache.xmlbeans.xml.stream.XMLInputStream;
+import org.junit.Test;
 import org.tranxml.tranXML.version40.CarLocationMessageDocument;
-import org.tranxml.tranXML.version40.FleetIDDocument;
-import tools.util.Util;
 import tools.util.JarUtil;
+import xmlcursor.common.BasicCursorTestCase;
+import xmlcursor.common.Common;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
-/**
- *
- *
- */
 public class ValueEqualsTest extends BasicCursorTestCase {
-    public ValueEqualsTest(String sName) {
-        super(sName);
-    }
-
-    public static Test suite() {
-        return new TestSuite(ValueEqualsTest.class);
-    }
-
-    public void testClassPath() throws Exception {
-        String sClassPath = System.getProperty("java.class.path");
-        int i = sClassPath.indexOf(Common.CARLOCATIONMESSAGE_JAR);
-        assertTrue(i >= 0);
-    }
-
+    @Test
     public void testValueEqualsTrue() throws Exception {
         CarLocationMessageDocument clmDoc = (CarLocationMessageDocument)
                 XmlObject.Factory.parse(

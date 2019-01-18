@@ -16,17 +16,11 @@
 package xmlcursor.jsr173.detailed;
 
 
+import org.apache.xmlbeans.XmlCursor;
 import xmlcursor.jsr173.common.GeneralMethodsTest;
 
 import javax.xml.stream.XMLStreamReader;
 
-import org.apache.xmlbeans.XmlCursor;
-import org.apache.xmlbeans.XmlOptions;
-import org.apache.xmlbeans.XmlDocumentProperties;
-/**
- *
- *
- */
 public  class CursorGeneralMethodsTest
         extends GeneralMethodsTest {
 

@@ -1,16 +1,14 @@
 package misc.checkin;
 
-import junit.framework.Assert;
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
 import org.apache.xmlbeans.impl.regex.ParseException;
 import org.apache.xmlbeans.impl.regex.RegularExpression;
+import org.junit.Test;
 
 import java.util.StringTokenizer;
 
-public class XMLBEANS412Test extends TestCase
-{
+import static org.junit.Assert.fail;
+
+public class XMLBEANS412Test {
     static String PassedPosCharGroups = "-,\\-,--,\\--,---,\\---,--\\-,\\--\\-,-\\--,\\-\\--,-a,\\-a,a-,"+
             "a\\-,a-b,a\\-b,a\\--,-a-z,\\-a-z,a-z-,a-z\\-,a-z\\-0-9,a\\-z-,a\\-z\\-,a\\-z\\-0-9,"+
             "-0-9,0-9-,0-9aaa,0-9a-,a-z\\--/,A-F0-9.+-,-A-F0-9.+,A-F0-9.+\\-,\\-A-F0-9.+";
@@ -18,16 +16,7 @@ public class XMLBEANS412Test extends TestCase
     static String FailedPosCharGroups =  "[a--],[a-z-0-9],[a\\-z-0-9],[0-9--],[0-9a--],[0-9-a],[0-9-a-z]";
     static String MiscPassedPatterns = "([\\.a-zA-Z0-9_-])+@([a-zA-Z0-9_-])+(([a-zA-Z0-9_-])*\\.([a-zA-Z0-9_-])+)+";
 
-    public XMLBEANS412Test(String name)
-    {
-        super(name);
-    }
-
-    public static Test suite()
-    {
-        return new TestSuite(XMLBEANS412Test.class);
-    }
-
+    @Test
     public void testPassedPosCharGroupPatterns()
     {
         StringTokenizer tok = new StringTokenizer(PassedPosCharGroups,",");
@@ -36,11 +25,12 @@ public class XMLBEANS412Test extends TestCase
             try {
                 new RegularExpression(pattern, "X");
             } catch (ParseException e) {
-                Assert.fail("Pattern " + pattern + " failed due to " + e.getMessage());
+                fail("Pattern " + pattern + " failed due to " + e.getMessage());
             }
         }
     }
 
+    @Test
     public void testNegatedPassedPosCharGroupPatterns()
     {
         StringTokenizer tok = new StringTokenizer(PassedPosCharGroups,",");
@@ -49,13 +39,12 @@ public class XMLBEANS412Test extends TestCase
             try {
                 new RegularExpression(pattern, "X");
             } catch (ParseException e) {
-                Assert.fail("Pattern " + pattern + " failed due to " + e.getMessage());
+                fail("Pattern " + pattern + " failed due to " + e.getMessage());
             }
         }
-
-
     }
 
+    @Test
     public void testFailedPosCharGroupPatterns()
     {
         StringTokenizer tok = new StringTokenizer(FailedPosCharGroups,",");
@@ -66,10 +55,11 @@ public class XMLBEANS412Test extends TestCase
             } catch (ParseException e) {
                 continue;
             }
-            Assert.fail("Pattern " + pattern + " did not fail.");
+            fail("Pattern " + pattern + " did not fail.");
         }
     }
 
+    @Test
     public void testNegatedFailedPosCharGroupPatterns()
     {
         StringTokenizer tok = new StringTokenizer(FailedPosCharGroups,",");
@@ -80,10 +70,11 @@ public class XMLBEANS412Test extends TestCase
             } catch (ParseException e) {
                 continue;
             }
-            Assert.fail("Pattern " + pattern + " did not fail.");
+            fail("Pattern " + pattern + " did not fail.");
         }
     }
 
+    @Test
     public void testMiscPassedPatterns() {
         StringTokenizer tok = new StringTokenizer(MiscPassedPatterns,",");
         while (tok.hasMoreElements()) {
@@ -91,9 +82,8 @@ public class XMLBEANS412Test extends TestCase
             try {
                 new RegularExpression(pattern, "X");
             } catch (ParseException e) {
-                Assert.fail("Pattern " + pattern + " failed due to " + e.getMessage());
+                fail("Pattern " + pattern + " failed due to " + e.getMessage());
             }
         }
-
     }
 }

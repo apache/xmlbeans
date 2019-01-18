@@ -14,31 +14,29 @@
  */
 package scomp.contentType.complex.detailed;
 
-import junit.framework.TestCase;
-import xbean.scomp.contentType.complexTypeTest.MixedTypeDocument;
-import xbean.scomp.contentType.complexTypeTest.MixedT;
-import xbean.scomp.contentType.complexTypeTest.MixedFixedEltDocument;
-
-import java.math.BigInteger;
-
-import org.apache.xmlbeans.XmlInteger;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlErrorCodes;
 import org.apache.xmlbeans.XmlException;
+import org.apache.xmlbeans.XmlInteger;
+import org.junit.Before;
+import org.junit.Test;
 import scomp.common.BaseCase;
+import xbean.scomp.contentType.complexTypeTest.MixedFixedEltDocument;
+import xbean.scomp.contentType.complexTypeTest.MixedT;
+import xbean.scomp.contentType.complexTypeTest.MixedTypeDocument;
 
-/**
- *
- *
- *
- */
+import java.math.BigInteger;
+
+import static org.junit.Assert.*;
+
 public class MixedContentTest extends BaseCase {
 
+    @Test
     public void testElementsOnly() throws Throwable {
 
         testElt = doc.addNewMixedType();
-        assertEquals(null, testElt.getChild1());
-        assertEquals(null, testElt.xgetChild1());
+        assertNull(testElt.getChild1());
+        assertNull(testElt.xgetChild1());
         testElt.setChild2(new BigInteger("5"));
         testElt.setChild3(new BigInteger("1"));
         testElt.setChild1(new BigInteger("0"));
@@ -65,13 +63,13 @@ public class MixedContentTest extends BaseCase {
      * mixed model in XML 1.0. Under the XML Schema mixed model, the order and
      *  number of child elements appearing in an instance must agree with the
      * order and number of child elements specified in the model
-     * @throws Throwable
      */
-    public void testTextOnly() throws Throwable {
+    @Test
+    public void testTextOnly() {
 
         testElt = doc.addNewMixedType();
-        assertEquals(null, testElt.getChild1());
-        assertEquals(null, testElt.xgetChild1());
+        assertNull(testElt.getChild1());
+        assertNull(testElt.xgetChild1());
         XmlCursor cur = testElt.newCursor();
         cur.insertChars("Random mixed content");
         assertTrue( !testElt.validate(validateOptions) );
@@ -84,10 +82,11 @@ public class MixedContentTest extends BaseCase {
 
     }
 
+    @Test
     public void testMixed() throws Throwable {
          testElt = doc.addNewMixedType();
-        assertEquals(null, testElt.getChild1());
-        assertEquals(null, testElt.xgetChild1());
+        assertNull(testElt.getChild1());
+        assertNull(testElt.xgetChild1());
         testElt.setChild2(new BigInteger("5"));
         testElt.setChild3(new BigInteger("1"));
         testElt.setChild1(new BigInteger("0"));
@@ -119,6 +118,8 @@ public class MixedContentTest extends BaseCase {
                 "<child1>0</child1>Random mixed content1<child2>5</child2>" +
                 "<child3>1</child3></xml-fragment>",testElt.xmlText() );
     }
+
+    @Test
     public void testInsertDelete() throws Throwable{
         testElt = doc.addNewMixedType();
         testElt.setChild2(new BigInteger("5"));
@@ -158,14 +159,14 @@ public class MixedContentTest extends BaseCase {
 
     }
 
- /**
-  * see CR related to CR194159:
-
-clause 5.2.2.1 of
-  "Validation Rule: Element Locally Valid (Element)" says
-  if there is a fixed value constraint, the element may not have element children.
-  * @throws XmlException
-  */
+    /**
+     * see CR related to CR194159:
+     * <p>
+     * clause 5.2.2.1 of
+     * "Validation Rule: Element Locally Valid (Element)" says
+     * if there is a fixed value constraint, the element may not have element children.
+     */
+    @Test
     public void testMixedFixed() throws XmlException{
         MixedFixedEltDocument doc=
               MixedFixedEltDocument.Factory
@@ -180,11 +181,12 @@ clause 5.2.2.1 of
         assertTrue(compareErrorCodes(expected));
 
     }
+
+    @Before
     public void setUp() {
         doc = MixedTypeDocument.Factory.newInstance();
-        testElt
-                = doc.getMixedType();
-        assertEquals(null, testElt);
+        testElt = doc.getMixedType();
+        assertNull(testElt);
         super.setUp();
     }
 

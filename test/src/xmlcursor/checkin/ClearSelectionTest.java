@@ -16,26 +16,16 @@
 package xmlcursor.checkin;
 
 import org.apache.xmlbeans.XmlObject;
+import org.junit.Test;
 import tools.util.JarUtil;
 import xmlcursor.common.BasicCursorTestCase;
 import xmlcursor.common.Common;
-import junit.framework.Test;
-import junit.framework.TestSuite;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
-/**
- *
- *
- */
 public class ClearSelectionTest extends BasicCursorTestCase {
-    public ClearSelectionTest(String sName) {
-        super(sName);
-    }
-
-    public static Test suite() {
-        return new TestSuite(ClearSelectionTest.class);
-    }
-
+    @Test
     public void testClearSelection() throws Exception {
         //m_xo = XmlObject.Factory.parse(Common.XML_PURCHASEORDER);
         m_xo = XmlObject.Factory.parse(
@@ -48,17 +38,17 @@ public class ClearSelectionTest extends BasicCursorTestCase {
         assertEquals("Mill Valley", m_xc.getTextValue());
         assertEquals("<po:city "+exp_ns+">Mill Valley</po:city>", m_xc.xmlText());
         m_xc.clearSelections();
-        assertEquals(false, m_xc.toNextSelection());
+        assertFalse(m_xc.toNextSelection());
         assertEquals("Mill Valley", m_xc.getTextValue());
         assertEquals("<po:city "+exp_ns+">Mill Valley</po:city>", m_xc.xmlText());
     }
 
+    @Test
     public void testClearSelectionNoSelection() throws Exception {
         m_xo = XmlObject.Factory.parse(
                JarUtil.getResourceFromJar(Common.TRANXML_FILE_XMLCURSOR_PO));
         m_xc = m_xo.newCursor();
         m_xc.clearSelections();
     }
-
 }
 

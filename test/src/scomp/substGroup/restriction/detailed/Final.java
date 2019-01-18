@@ -15,43 +15,39 @@
 package scomp.substGroup.restriction.detailed;
 
 import org.apache.xmlbeans.*;
+import org.junit.Test;
 import scomp.common.BaseCase;
 
-import java.util.List;
 import java.util.Iterator;
-import java.util.Collection;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 
-/**
- */
 public class Final extends BaseCase {
 
     /**
      * The follwing are test for the 'final' attribute used in a base in substitution groups
      * They are negative tests and test for #all, restriction, extenstion and 'extenstion restriction' values
      */
+    @Test
     public void testFinalAll() {
-
         parseXsdDoc(constructInputXsdString("#all"));
-
     }
 
+    @Test
     public void testFinalExtRestr() {
-
         parseXsdDoc(constructInputXsdString("extension restriction"));
-
     }
 
+    @Test
     public void testFinalRestriction() {
-
         parseXsdDoc(constructInputXsdString("restriction"));
-
     }
 
+    @Test
     public void testFinalExtension() {
-
         parseXsdDoc(constructInputXsdString("extension"));
-
     }
 
     // helper function for this class

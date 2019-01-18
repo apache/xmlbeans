@@ -14,45 +14,27 @@
  */
 
 
-package  xmlcursor.detailed;
+package xmlcursor.detailed;
 
-import junit.framework.*;
-
-import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlCursor;
-import xmlcursor.common.*;
-
-
-import tools.util.JarUtil;
+import org.apache.xmlbeans.XmlObject;
+import org.junit.Test;
 import org.tranxml.tranXML.version40.CarLocationMessageDocument;
-import org.tranxml.tranXML.version40.GeographicLocationDocument.GeographicLocation;
 import org.tranxml.tranXML.version40.CodeList309;
+import org.tranxml.tranXML.version40.GeographicLocationDocument.GeographicLocation;
 import org.tranxml.tranXML.version40.LocationIdentifierDocument.LocationIdentifier;
+import tools.util.JarUtil;
+import xmlcursor.common.Common;
+
+import static org.junit.Assert.*;
 
 
-/**
- *
- *
- */
-public class MultipleCopyTest extends TestCase {
-    public MultipleCopyTest(String sName) {
-        super(sName);
-    }
-
-    public static Test suite() {
-        return new TestSuite(MultipleCopyTest.class);
-    }
-
-    public void testClassPath() throws Exception {
-        String sClassPath = System.getProperty("java.class.path");
-        int i = sClassPath.indexOf(Common.CARLOCATIONMESSAGE_JAR);
-        assertTrue(i >= 0);
-    }
-
+public class MultipleCopyTest {
+    @Test
     public void testMultipleCopy() throws Exception {
         CarLocationMessageDocument clm =
-                (CarLocationMessageDocument) XmlObject.Factory.parse(
-                        JarUtil.getResourceFromJar(Common.TRANXML_FILE_CLM));
+            (CarLocationMessageDocument) XmlObject.Factory.parse(
+                JarUtil.getResourceFromJar(Common.TRANXML_FILE_CLM));
         assertNotNull(clm);
         XmlCursor xc = clm.newCursor();
         XmlCursor[] aCursors = new XmlCursor[3];

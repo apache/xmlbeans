@@ -14,6 +14,7 @@
  */
 package scomp.derivation.restriction.detailed;
 
+import org.junit.Test;
 import xbean.scomp.derivation.mixedContentRestriction.*;
 import scomp.common.BaseCase;
 
@@ -23,11 +24,10 @@ import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlErrorCodes;
 import org.apache.xmlbeans.impl.values.XmlValueNotSupportedException;
 
-/**
- *
- */
-public class MixedContentRestriction extends BaseCase{
+import static org.junit.Assert.*;
 
+public class MixedContentRestriction extends BaseCase{
+    @Test
     public void testRestrictedMixed() throws Throwable{
         MixedEltDocument doc=MixedEltDocument.Factory.newInstance();
         RestrictedMixedT elt=doc.addNewMixedElt();
@@ -49,8 +49,9 @@ public class MixedContentRestriction extends BaseCase{
         assertEquals("<xml-fragment>" +
                 "<child1>10</child1>My chars<child2>0</child2>" +
                 "</xml-fragment>", elt.xmlText());
-
     }
+
+    @Test
     public void testRestrictedEltOnly() throws Throwable{
        ElementOnlyEltDocument doc=ElementOnlyEltDocument.Factory.newInstance();
         RestrictedEltT elt=doc.addNewElementOnlyElt();
@@ -87,8 +88,9 @@ public class MixedContentRestriction extends BaseCase{
 
 
     }
+
     //seems that this is not a valid example p.329 top
-    //public void testRestrictedMixedToSimple() throws Throwable{}
+    @Test
     public void testRestrictedMixedToEmpty() throws Throwable{
          Mixed2EmptyEltDocument doc=Mixed2EmptyEltDocument.Factory.newInstance();
          Mixed2EmptyT elt=doc.addNewMixed2EmptyElt();

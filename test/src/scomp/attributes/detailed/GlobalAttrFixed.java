@@ -16,29 +16,24 @@
 package scomp.attributes.detailed;
 
 
-import xbean.scomp.attribute.globalAttrFixed.GlobalAttrFixedDocDocument;
-import xbean.scomp.attribute.globalAttrFixed.TestattributeStrAttribute;
-import xbean.scomp.attribute.globalAttrFixed.TestattributeIntAttribute;
-import xbean.scomp.attribute.globalAttrFixed.GlobalAttrFixedT;
-import scomp.common.BaseCase;
-import org.apache.xmlbeans.XmlException;
-import org.apache.xmlbeans.XmlOptions;
-import org.apache.xmlbeans.XmlError;
 import org.apache.xmlbeans.XmlErrorCodes;
+import org.apache.xmlbeans.XmlException;
+import org.junit.Test;
+import scomp.common.BaseCase;
+import xbean.scomp.attribute.globalAttrFixed.GlobalAttrFixedDocDocument;
+import xbean.scomp.attribute.globalAttrFixed.GlobalAttrFixedT;
 
 import java.math.BigInteger;
-import java.util.ArrayList;
 
-/**
- *
- *
- *
- */
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 public class GlobalAttrFixed extends BaseCase {
 
     /**
      * Missing OK
      */
+    @Test
     public void testValidMissing() throws Exception {
         GlobalAttrFixedT testDoc =
                 GlobalAttrFixedDocDocument.Factory.parse("<pre:GlobalAttrFixedDoc" +
@@ -48,6 +43,7 @@ public class GlobalAttrFixed extends BaseCase {
 
     }
 
+    @Test
     public void testBothValid() throws Throwable {
         GlobalAttrFixedT testDoc =
                 GlobalAttrFixedDocDocument.Factory.parse("<pre:GlobalAttrFixedDoc" +
@@ -68,6 +64,7 @@ public class GlobalAttrFixed extends BaseCase {
     /**
      * value does not match fixed
      */
+    @Test
     public void testStringInvalidSpace() throws Exception {
         GlobalAttrFixedT testAtt =
                 GlobalAttrFixedDocDocument.Factory.parse("<pre:GlobalAttrFixedDoc" +
@@ -85,6 +82,7 @@ public class GlobalAttrFixed extends BaseCase {
         //catch XmlExceptionHere;
     }
 
+    @Test
     public void testStringInvalidValue() throws Exception {
         GlobalAttrFixedT testAtt =
                 GlobalAttrFixedDocDocument.Factory.parse("<pre:GlobalAttrFixedDoc" +
@@ -97,13 +95,12 @@ public class GlobalAttrFixed extends BaseCase {
         assertEquals(1, errorList.size());
         showErrors();
         assertTrue(compareErrorCodes(errExpected));
-
-
     }
 
     /**
      * Test empty string: should be preserved
      */
+    @Test
     public void testIntInvalidType() throws XmlException {
         GlobalAttrFixedT testAtt =
                 GlobalAttrFixedDocDocument.Factory.parse("<pre:GlobalAttrFixedDoc" +
@@ -117,10 +114,9 @@ public class GlobalAttrFixed extends BaseCase {
             XmlErrorCodes.DECIMAL
         };
         assertTrue(compareErrorCodes(errExpected));
-
-
     }
 
+    @Test
     public void testIntInvalidValue() throws XmlException {
         GlobalAttrFixedT testAtt =
                 GlobalAttrFixedDocDocument.Factory.parse("<pre:GlobalAttrFixedDoc" +
@@ -136,6 +132,7 @@ public class GlobalAttrFixed extends BaseCase {
 
     }
 
+    @Test
     public void testIntValidValue() throws Throwable {
         GlobalAttrFixedT testAtt =
                 GlobalAttrFixedDocDocument.Factory.parse("<pre:GlobalAttrFixedDoc" +
@@ -151,7 +148,8 @@ public class GlobalAttrFixed extends BaseCase {
         //catch XmlExceptionHere;
     }
 
-    public void testSetValue() throws XmlException {
+    @Test
+    public void testSetValue() {
         GlobalAttrFixedDocDocument testAtt =
                 GlobalAttrFixedDocDocument.Factory.newInstance();
         GlobalAttrFixedT testDoc = testAtt.addNewGlobalAttrFixedDoc();
@@ -164,7 +162,5 @@ public class GlobalAttrFixed extends BaseCase {
         String[] errExpected = new String[]{
             XmlErrorCodes.ATTR_LOCALLY_VALID$FIXED};
         assertTrue(compareErrorCodes(errExpected));
-
     }
-
 }

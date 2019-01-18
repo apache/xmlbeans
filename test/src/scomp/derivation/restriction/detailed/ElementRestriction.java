@@ -14,6 +14,7 @@
  */
 package scomp.derivation.restriction.detailed;
 
+import org.junit.Test;
 import xbean.scomp.derivation.elementRestriction.ElementDocument;
 import xbean.scomp.derivation.elementRestriction.RestrictedEltT;
 import org.apache.xmlbeans.XmlObject;
@@ -22,9 +23,10 @@ import org.apache.xmlbeans.XmlErrorCodes;
 import org.apache.xmlbeans.XmlDecimal;
 import scomp.common.BaseCase;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
-/**
- */
+
 public class ElementRestriction extends BaseCase {
     /**
      * <xsd:complexType name="SequenceT">
@@ -45,6 +47,7 @@ public class ElementRestriction extends BaseCase {
      * </xsd:complexContent>
      * </xsd:complexType>
      */
+    @Test
     public void testRestrictedElement() throws Throwable {
         ElementDocument doc = ElementDocument.Factory.newInstance();
         RestrictedEltT elt = doc.addNewElement();
@@ -69,7 +72,7 @@ public class ElementRestriction extends BaseCase {
             XmlErrorCodes.ELEM_LOCALLY_VALID$FIXED_VALID_MIXED_CONTENT,
             XmlErrorCodes.DATATYPE_FRACTION_DIGITS_VALID,
         };
-                     assertTrue(compareErrorCodes(errExpected));
+        assertTrue(compareErrorCodes(errExpected));
 
 
         elt.removeA(2);

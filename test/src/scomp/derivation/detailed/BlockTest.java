@@ -14,19 +14,18 @@
  */
 package scomp.derivation.detailed;
 
-import xbean.scomp.derivation.finalBlockDefault.EltNoBlockDocument;
-import xbean.scomp.derivation.finalBlockDefault.EltDefaultBlockDocument;
-import xbean.scomp.derivation.block.*;
-import scomp.common.BaseCase;
-import org.apache.xmlbeans.XmlObject;
-import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlErrorCodes;
+import org.apache.xmlbeans.XmlException;
+import org.apache.xmlbeans.XmlObject;
+import org.junit.Test;
+import scomp.common.BaseCase;
+import xbean.scomp.derivation.block.*;
+import xbean.scomp.derivation.finalBlockDefault.EltDefaultBlockDocument;
+import xbean.scomp.derivation.finalBlockDefault.EltNoBlockDocument;
 
-/**
- *
- *
- *
- */
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 public class BlockTest extends BaseCase {
     String restrContentValid = "<name>Bobby</name><age>20</age>";
     String restrContentInvalid = "<name>Bobby</name><age>40</age>";
@@ -72,6 +71,7 @@ public class BlockTest extends BaseCase {
 
     }
 
+    @Test
     public void testBlockAll() throws Throwable {
         //subst ext type: should not be possible
         EltAllBaseDocument doc = EltAllBaseDocument.Factory.parse(getInstance("EltAllBase", "extAllT", true, true));
@@ -91,6 +91,7 @@ public class BlockTest extends BaseCase {
 
     }
 
+    @Test
     public void testBlockExtension() throws Throwable {
         //subst ext type: should not be possible
         try {
@@ -115,6 +116,7 @@ public class BlockTest extends BaseCase {
         validate(doc1);
     }
 
+    @Test
     public void testBlockRestriction() throws Throwable {
         //subst ext type: should work
         EltRBaseDocument doc = EltRBaseDocument.Factory.parse(getInstance("EltRBase", "extRT", true, true));
@@ -138,6 +140,7 @@ public class BlockTest extends BaseCase {
     }
 
     //should be equivaluent to final="#all"
+    @Test
     public void testBlockRE_ER() throws Throwable {
         //subst ext type: should not be possible
         //ER
@@ -196,9 +199,8 @@ public class BlockTest extends BaseCase {
 
     /**
      * blockDefault="#all"
-     *
-     * @throws Throwable
      */
+    @Test
     public void testBlockDefault() throws Throwable {
         EltDefaultBlockDocument doc =
                 EltDefaultBlockDocument.Factory
@@ -232,9 +234,8 @@ public class BlockTest extends BaseCase {
     /**
      * blockDefault="#all"
      * local block=""
-     *
-     * @throws Throwable
      */
+    @Test
     public void testBlockNone() throws Throwable {
         String instance = getInstanceDefault("EltNoBlock", "extAllT", true, true);
         EltNoBlockDocument doc = EltNoBlockDocument.Factory.parse(instance);

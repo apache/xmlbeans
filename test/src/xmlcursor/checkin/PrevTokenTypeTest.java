@@ -16,113 +16,88 @@
 
 package xmlcursor.checkin;
 
-import org.apache.xmlbeans.XmlOptions;
-import junit.framework.*;
-import junit.framework.Assert.*;
-
-import java.io.*;
-
-import org.apache.xmlbeans.XmlObject;
-import org.apache.xmlbeans.XmlCursor;
-import org.apache.xmlbeans.XmlBeans;
 import org.apache.xmlbeans.XmlCursor.TokenType;
-import org.apache.xmlbeans.XmlDocumentProperties;
-import org.apache.xmlbeans.XmlCursor.XmlBookmark;
+import org.apache.xmlbeans.XmlObject;
+import org.junit.Before;
+import xmlcursor.common.BasicCursorTestCase;
 
-import javax.xml.namespace.QName;
-
-
-import xmlcursor.common.*;
-
-import java.net.URL;
+import static org.junit.Assert.*;
 
 
-/**
- *
- *
- */
 public class PrevTokenTypeTest extends BasicCursorTestCase {
 
-    String sDoc="<foo xmlns:edi='http://ecommerce.org/schema'><?xml-stylesheet type=\"text/xsl\" xmlns=\"http://openuri.org/shipping/\"?><!-- the 'price' element's namespace is http://ecommerce.org/schema -->  <edi:price units='Euro' date='12-12-03'>32.18</edi:price></foo>";
-
-    public PrevTokenTypeTest(String sName) {
-        super(sName);
-    }
-
-    public static Test suite() {
-        return new TestSuite(PrevTokenTypeTest.class);
-    }
-
+	@org.junit.Test
     public void testAllTokensTest(){
-	m_xc.toEndDoc();
-	assertEquals(true,m_xc.isEnddoc());
-	assertEquals(true,m_xc.isFinish());
-	assertEquals(TokenType.END,m_xc.prevTokenType());
-	m_xc.toPrevToken();
+		m_xc.toEndDoc();
+		assertTrue(m_xc.isEnddoc());
+		assertTrue(m_xc.isFinish());
+		assertEquals(TokenType.END, m_xc.prevTokenType());
+		m_xc.toPrevToken();
 
-	assertEquals(true,m_xc.isEnd());
-	assertEquals(true,m_xc.isFinish());
-	assertEquals(TokenType.END,m_xc.prevTokenType());
-	m_xc.toPrevToken();
+		assertTrue(m_xc.isEnd());
+		assertTrue(m_xc.isFinish());
+		assertEquals(TokenType.END, m_xc.prevTokenType());
+		m_xc.toPrevToken();
 
 
-	assertEquals(true,m_xc.isEnd());
-	assertEquals(TokenType.TEXT,m_xc.prevTokenType());
-	m_xc.toPrevToken();
+		assertTrue(m_xc.isEnd());
+		assertEquals(TokenType.TEXT, m_xc.prevTokenType());
+		m_xc.toPrevToken();
 
-	assertEquals(true,m_xc.isText());
-	assertEquals(false,m_xc.isContainer());
-	assertEquals(TokenType.ATTR,m_xc.prevTokenType());
-	m_xc.toPrevToken();
+		assertTrue(m_xc.isText());
+		assertFalse(m_xc.isContainer());
+		assertEquals(TokenType.ATTR, m_xc.prevTokenType());
+		m_xc.toPrevToken();
 
-	assertEquals(true,m_xc.isAttr());
-	assertEquals(true,m_xc.isAnyAttr());
-	assertEquals(TokenType.ATTR,m_xc.prevTokenType());
-	m_xc.toPrevToken();
+		assertTrue(m_xc.isAttr());
+		assertTrue(m_xc.isAnyAttr());
+		assertEquals(TokenType.ATTR, m_xc.prevTokenType());
+		m_xc.toPrevToken();
 
-	assertEquals(true,m_xc.isAttr());
-	assertEquals(true,m_xc.isAnyAttr());
-	assertEquals(TokenType.START,m_xc.prevTokenType());
-	m_xc.toPrevToken();
+		assertTrue(m_xc.isAttr());
+		assertTrue(m_xc.isAnyAttr());
+		assertEquals(TokenType.START, m_xc.prevTokenType());
+		m_xc.toPrevToken();
 
-	assertEquals(true,m_xc.isStart());
-	assertEquals(true,m_xc.isContainer());
-	assertEquals(TokenType.TEXT,m_xc.prevTokenType());
-	m_xc.toPrevToken();
+		assertTrue(m_xc.isStart());
+		assertTrue(m_xc.isContainer());
+		assertEquals(TokenType.TEXT, m_xc.prevTokenType());
+		m_xc.toPrevToken();
 
-	assertEquals(true,m_xc.isText());
-	assertEquals(TokenType.COMMENT,m_xc.prevTokenType());
-	m_xc.toPrevToken();
+		assertTrue(m_xc.isText());
+		assertEquals(TokenType.COMMENT, m_xc.prevTokenType());
+		m_xc.toPrevToken();
 
-	assertEquals(true,m_xc.isComment());
-	assertEquals(TokenType.PROCINST,m_xc.prevTokenType());
-	m_xc.toPrevToken();
+		assertTrue(m_xc.isComment());
+		assertEquals(TokenType.PROCINST, m_xc.prevTokenType());
+		m_xc.toPrevToken();
 
-	assertEquals(true,m_xc.isProcinst());
-	assertEquals(TokenType.NAMESPACE,m_xc.prevTokenType());
-	m_xc.toPrevToken();
+		assertTrue(m_xc.isProcinst());
+		assertEquals(TokenType.NAMESPACE, m_xc.prevTokenType());
+		m_xc.toPrevToken();
 
-	assertEquals(true,m_xc.isNamespace());
-	assertEquals(true,m_xc.isAnyAttr());
-	assertEquals(false,m_xc.isAttr());
-	assertEquals(TokenType.START,m_xc.prevTokenType());
-	m_xc.toPrevToken();
+		assertTrue(m_xc.isNamespace());
+		assertTrue(m_xc.isAnyAttr());
+		assertFalse(m_xc.isAttr());
+		assertEquals(TokenType.START, m_xc.prevTokenType());
+		m_xc.toPrevToken();
 
-	assertEquals(true,m_xc.isStart());
-	assertEquals(true,m_xc.isContainer());
-	assertEquals(TokenType.STARTDOC,m_xc.prevTokenType());
-	m_xc.toPrevToken();
+		assertTrue(m_xc.isStart());
+		assertTrue(m_xc.isContainer());
+		assertEquals(TokenType.STARTDOC, m_xc.prevTokenType());
+		m_xc.toPrevToken();
 
-	assertEquals(true,m_xc.isStartdoc());
-	assertEquals(true,m_xc.isContainer());
-	assertEquals(TokenType.NONE,m_xc.prevTokenType());
-	//assert won't move further
-	assertEquals(TokenType.NONE,m_xc.toPrevToken());
-	assertEquals(true,m_xc.isStartdoc());
+		assertTrue(m_xc.isStartdoc());
+		assertTrue(m_xc.isContainer());
+		assertEquals(TokenType.NONE, m_xc.prevTokenType());
+		//assert won't move further
+		assertEquals(TokenType.NONE, m_xc.toPrevToken());
+		assertEquals(true, m_xc.isStartdoc());
     }
 
-
+	@Before
     public void setUp() throws Exception{
-	m_xc=XmlObject.Factory.parse(sDoc).newCursor();
+		String sDoc = "<foo xmlns:edi='http://ecommerce.org/schema'><?xml-stylesheet type=\"text/xsl\" xmlns=\"http://openuri.org/shipping/\"?><!-- the 'price' element's namespace is http://ecommerce.org/schema -->  <edi:price units='Euro' date='12-12-03'>32.18</edi:price></foo>";
+		m_xc = XmlObject.Factory.parse(sDoc).newCursor();
     }
 }

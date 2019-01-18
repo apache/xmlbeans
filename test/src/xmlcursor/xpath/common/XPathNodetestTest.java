@@ -16,16 +16,13 @@
 package xmlcursor.xpath.common;
 
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
-
 import org.apache.xmlbeans.XmlObject;
-import org.apache.xmlbeans.XmlCursor;
-import org.apache.xmlbeans.XmlBeans;
-import org.apache.xmlbeans.XmlCursor.TokenType;
-
+import org.junit.Test;
 import xmlcursor.common.BasicCursorTestCase;
-import xmlcursor.common.*;
+import xmlcursor.common.Common;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 
 /**
@@ -33,18 +30,7 @@ import xmlcursor.common.*;
  */
 public class XPathNodetestTest extends BasicCursorTestCase {
 
-
-
-    public XPathNodetestTest(String sName) {
-        super(sName);
-    }
-
-    public static Test suite() {
-        return new TestSuite(XPathNodetestTest.class);
-    }
-
-
-     static String fixPath(String path){
+     private static String fixPath(String path){
         return "."+path;
      }
 
@@ -53,82 +39,85 @@ public class XPathNodetestTest extends BasicCursorTestCase {
 	//e.g //A/B/*: tested by Zvon
     }
 
+	@Test
     public void testComment()throws Exception {
-	String sXml=Common.XML_FOO_NS_PREFIX;
-	m_xc= XmlObject.Factory.parse(sXml).newCursor();
-	String sExpected=Common.XMLFRAG_BEGINTAG+"<!-- the 'price' element's namespace is http://ecommerce.org/schema -->"+Common.XMLFRAG_ENDTAG;//the comment string
-	String sXPath="//comment()";
-	m_xc.selectPath(fixPath(sXPath));
-	m_xc.toNextSelection();
-	assertEquals(m_xc.xmlText(),sExpected );
+		String sXml = Common.XML_FOO_NS_PREFIX;
+		m_xc = XmlObject.Factory.parse(sXml).newCursor();
+		String sExpected = "<xml-fragment xmlns:edi=\"http://ecommerce.org/schema\"><!-- the 'price' element's namespace is http://ecommerce.org/schema -->" + Common.XMLFRAG_ENDTAG;//the comment string
+		String sXPath = "//comment()";
+		m_xc.selectPath(fixPath(sXPath));
+		m_xc.toNextSelection();
+		assertEquals(m_xc.xmlText(), sExpected);
     }
 
-    public void testNode()throws Exception{
-	String sInput="<foo> <node>foo</node>txt</foo>";
-	m_xc= XmlObject.Factory.parse(sInput).newCursor();
-	String sXPath="//foo/node()";
-	String[] sExpected=new String[]{Common.XMLFRAG_BEGINTAG+" "+Common.XMLFRAG_ENDTAG,"<node>foo</node>",Common.XMLFRAG_BEGINTAG+"txt"+Common.XMLFRAG_ENDTAG};
-	m_xc.selectPath(fixPath(sXPath));
-	int i=0;
-	if (m_xc.getSelectionCount()!=sExpected.length)
-	    fail("node() failed");
-	while(m_xc.hasNextSelection()){
-	    m_xc.toNextSelection();
-	    assertEquals(m_xc.xmlText(),sExpected[i++]);
+	@Test
+	public void testNode() throws Exception {
+		String sInput = "<foo> <node>foo</node>txt</foo>";
+		m_xc = XmlObject.Factory.parse(sInput).newCursor();
+		String sXPath = "//foo/node()";
+		String[] sExpected = new String[]{Common.XMLFRAG_BEGINTAG + " " + Common.XMLFRAG_ENDTAG, "<node>foo</node>", Common.XMLFRAG_BEGINTAG + "txt" + Common.XMLFRAG_ENDTAG};
+		m_xc.selectPath(fixPath(sXPath));
+		int i = 0;
+		if (m_xc.getSelectionCount() != sExpected.length)
+			fail("node() failed");
+		while (m_xc.hasNextSelection()) {
+			m_xc.toNextSelection();
+			assertEquals(m_xc.xmlText(), sExpected[i++]);
+		}
 	}
 
-    }
+	@Test
+	public void testPI() throws Exception {
+		String sInput = Common.XML_FOO_PROCINST;
+		m_xc = XmlObject.Factory.parse(sInput).newCursor();
+		String sXPath1 = "//processing-instruction()";
+		String sXPath2 = "//processing-instruction(\"xml-stylesheet\")";
+		String sXPath3 = "//processing-instruction(\"xsl\")";
+		String sExpected1 = Common.XMLFRAG_BEGINTAG + "<?xml-stylesheet type=\"text/xsl\" xmlns=\"http://openuri.org/shipping/\"?>" + Common.XMLFRAG_ENDTAG;
+		String sExpected2 = "";
+		m_xc.selectPath(fixPath(sXPath1));
+		assertEquals(m_xc.getSelectionCount(), 1);
+		m_xc.toNextSelection();
+		assertEquals(m_xc.xmlText(), sExpected1);
 
-    public void testPI()throws Exception{
-	String sInput=Common.XML_FOO_PROCINST;
-	m_xc= XmlObject.Factory.parse(sInput).newCursor();
-	String sXPath1="//processing-instruction()";
-	String sXPath2="//processing-instruction(\"xml-stylesheet\")";
-	String sXPath3="//processing-instruction(\"xsl\")";
-	String sExpected1=Common.XMLFRAG_BEGINTAG+"<?xml-stylesheet type=\"text/xsl\" xmlns=\"http://openuri.org/shipping/\"?>"+Common.XMLFRAG_ENDTAG;
-	String sExpected2="";
-	m_xc.selectPath(fixPath(sXPath1));
-	assertEquals(m_xc.getSelectionCount(),1);
-	m_xc.toNextSelection();
-	assertEquals(m_xc.xmlText(),sExpected1);
 
+		m_xc.clearSelections();
+		m_xc.selectPath(fixPath(sXPath2));
+		assertEquals(m_xc.xmlText(), sExpected1);
 
-	m_xc.clearSelections();
-	m_xc.selectPath(fixPath(sXPath2));
-	assertEquals(m_xc.xmlText(),sExpected1);
+		m_xc.clearSelections();
+		//shouldn't select any nodes
+		m_xc.selectPath(fixPath(sXPath3));
+		assertEquals(m_xc.getSelectionCount(), 0);
+	}
 
-	m_xc.clearSelections();
-	//shouldn't select any nodes
-	m_xc.selectPath(fixPath(sXPath3));
-	assertEquals(m_xc.getSelectionCount(),0);
+	@Test
+	public void testText() throws Exception {
+		String sInput = "<?xml-stylesheet type=\"text/xsl\" xmlns=\"http://openuri.org/shipping/\"?><br>foo<foo>text</foo></br>";
+		m_xc = XmlObject.Factory.parse(sInput).newCursor();
+		String sXPath = "//text()";
+		String sExpected1 = Common.XMLFRAG_BEGINTAG + "foo" + Common.XMLFRAG_ENDTAG;
+		String sExpected2 = Common.XMLFRAG_BEGINTAG + "text" + Common.XMLFRAG_ENDTAG;
+		m_xc.selectPath(sXPath);
+		assertEquals(m_xc.getSelectionCount(), 2);
+		m_xc.toNextSelection();
+		assertEquals(m_xc.xmlText(), sExpected1);
+		m_xc.toNextSelection();
+		assertEquals(m_xc.xmlText(), sExpected2);
+	}
 
-    }
-
-    public void testText()throws Exception{
-	String sInput="<?xml-stylesheet type=\"text/xsl\" xmlns=\"http://openuri.org/shipping/\"?><br>foo<foo>text</foo></br>";
-	m_xc= XmlObject.Factory.parse(sInput).newCursor();
-	String sXPath="//text()";
-	String sExpected1=Common.XMLFRAG_BEGINTAG+"foo"+Common.XMLFRAG_ENDTAG;
-	String sExpected2=Common.XMLFRAG_BEGINTAG+"text"+Common.XMLFRAG_ENDTAG;
-	m_xc.selectPath(sXPath);
-	assertEquals(m_xc.getSelectionCount(),2);
-	m_xc.toNextSelection();
-	assertEquals(m_xc.xmlText(),sExpected1);
-	m_xc.toNextSelection();
-	assertEquals(m_xc.xmlText(),sExpected2);
-    }
-
-    public void testTextObject()throws Exception{
-	String sInput="<?xml-stylesheet type=\"text/xsl\" xmlns=\"http://openuri.org/shipping/\"?><br>foo<foo>text</foo></br>";
-	m_xo= XmlObject.Factory.parse(sInput);
-	String sXPath="//text()";
-	String sExpected1=Common.XMLFRAG_BEGINTAG+"foo"+Common.XMLFRAG_ENDTAG;
-	String sExpected2=Common.XMLFRAG_BEGINTAG+"text"+Common.XMLFRAG_ENDTAG;
-	XmlObject[] res=m_xo.selectPath(sXPath);
-	assertEquals(res.length,2);
-	assertEquals(res[0].xmlText(),sExpected1);
-	assertEquals(res[1].xmlText(),sExpected2);
-    }
+	@Test
+	public void testTextObject() throws Exception {
+		String sInput = "<?xml-stylesheet type=\"text/xsl\" xmlns=\"http://openuri.org/shipping/\"?><br>foo<foo>text</foo></br>";
+		m_xo = XmlObject.Factory.parse(sInput);
+		String sXPath = "//text()";
+		String sExpected1 = Common.XMLFRAG_BEGINTAG + "foo<foo>text</foo>" + Common.XMLFRAG_ENDTAG;
+		String sExpected2 = Common.XMLFRAG_BEGINTAG + "text" + Common.XMLFRAG_ENDTAG;
+		XmlObject[] res = m_xo.selectPath(sXPath);
+		assertEquals(res.length, 2);
+		assertEquals(res[0].xmlText(), sExpected1);
+		assertEquals(res[1].xmlText(), sExpected2);
+	}
 }
 
 

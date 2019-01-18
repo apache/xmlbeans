@@ -15,26 +15,28 @@
 
 package scomp.substGroup.restriction.detailed;
 
+import org.apache.xmlbeans.XmlErrorCodes;
+import org.apache.xmlbeans.XmlString;
+import org.junit.Test;
 import scomp.common.BaseCase;
-import xbean.scomp.substGroup.deep.ItemsDocument;
 import xbean.scomp.substGroup.deep.BusinessShirtType;
 import xbean.scomp.substGroup.deep.ItemType;
+import xbean.scomp.substGroup.deep.ItemsDocument;
 import xbean.scomp.substGroup.deep.ProductType;
-import xbean.scomp.substGroup.xabstract.BeachUmbrellaT;
-import xbean.scomp.substGroup.userAbstract.RootDocument;
-import xbean.scomp.substGroup.userAbstract.Bar;
 import xbean.scomp.substGroup.userAbstract.AbstractFoo;
+import xbean.scomp.substGroup.userAbstract.Bar;
 import xbean.scomp.substGroup.userAbstract.GenericFoo;
-
+import xbean.scomp.substGroup.userAbstract.RootDocument;
+import xbean.scomp.substGroup.xabstract.BeachUmbrellaT;
 
 import java.math.BigInteger;
 
-import org.apache.xmlbeans.XmlString;
-import org.apache.xmlbeans.XmlErrorCodes;
+import static org.junit.Assert.assertTrue;
 
 /**
  */
 public class Abstract extends BaseCase {
+    @Test
     public void testAbstractInvalid() throws Throwable {
         //umbrella not OK here
         String input =
@@ -62,6 +64,7 @@ public class Abstract extends BaseCase {
 
     }
 
+    @Test
     public void testParseValid() throws Throwable {
         String input =
                 "<base:items xmlns:pre=\"http://xbean/scomp/substGroup/Abstract\"" +
@@ -93,6 +96,7 @@ public class Abstract extends BaseCase {
 
     }
 
+    @Test
     public void testBuildValid() throws Throwable {
            ItemsDocument doc = ItemsDocument.Factory.newInstance();
             BusinessShirtType bs = BusinessShirtType.Factory.newInstance();
@@ -122,6 +126,7 @@ public class Abstract extends BaseCase {
     }
 
     //user described problem
+    @Test
     public void testUserAbstract(){
 
         RootDocument doc=RootDocument.Factory

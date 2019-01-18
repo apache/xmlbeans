@@ -15,47 +15,28 @@
 
 package xmlobject.checkin;
 
-import junit.framework.*;
-
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
+import org.junit.Test;
+import test.xbean.xmlcursor.purchaseOrder.PurchaseOrderDocument;
+import tools.util.JarUtil;
+import xmlcursor.common.BasicCursorTestCase;
+import xmlcursor.common.Common;
 
 import javax.xml.namespace.QName;
 
-import xmlcursor.common.*;
+import static org.junit.Assert.*;
 
-import test.xbean.xmlcursor.purchaseOrder.PurchaseOrderDocument;
-import tools.util.JarUtil;
-
-
-/**
- *
- *
- */
 public class ValidateTest extends BasicCursorTestCase {
-    public ValidateTest(String sName) {
-        super(sName);
-    }
-
-    public static Test suite() {
-        return new TestSuite(ValidateTest.class);
-    }
-
-    public void testClassPath() throws Exception {
-        String sClassPath = System.getProperty("java.class.path");
-        int i = sClassPath.indexOf(Common.CARLOCATIONMESSAGE_JAR);
-        assertTrue(i >= 0);
-        i = sClassPath.indexOf(Common.XMLCURSOR_JAR);
-        assertTrue(i >= 0);
-    }
-
+    @Test
     public void testValidateTrue() throws Exception {
         //m_xo = XmlObject.Factory.parse(Common.XML_PURCHASEORDER);
          m_xo = XmlObject.Factory.parse(
                 JarUtil.getResourceFromJar("xbean/xmlcursor/po.xml"));
-        assertEquals(true, m_xo.validate());
+        assertTrue(m_xo.validate());
     }
 
+    @Test
     public void testValidateTrueWithOptionDiscardDocElement() throws Exception {
         XmlOptions map = new XmlOptions();
         map.put(XmlOptions.LOAD_REPLACE_DOCUMENT_ELEMENT, null);
@@ -63,9 +44,10 @@ public class ValidateTest extends BasicCursorTestCase {
                 JarUtil.getResourceFromJar(Common.TRANXML_FILE_XMLCURSOR_PO)
                 , map);
 
-        assertEquals(false, m_xo.validate(map));
+        assertFalse(m_xo.validate(map));
     }
 
+    @Test
     public void testValidateFalseFixedAttr() throws Exception {
          m_xo = XmlObject.Factory.parse(
                 JarUtil.getResourceFromJar("xbean/xmlcursor/po.xml"));
@@ -80,11 +62,9 @@ public class ValidateTest extends BasicCursorTestCase {
         assertEquals("UK", m_xc.getAttributeText(name));
         PurchaseOrderDocument pod = (PurchaseOrderDocument) m_xo;
 
-
-
-        assertEquals(false, xo.validate());
-        assertEquals(false, pod.validate());
-        assertEquals(false, m_xo.validate());
+        assertFalse(xo.validate());
+        assertFalse(pod.validate());
+        assertFalse(m_xo.validate());
 
         assertTrue(true);
     }

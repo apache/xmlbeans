@@ -15,18 +15,17 @@
 
 package scomp.derivation.extension.detailed;
 
+import org.junit.Test;
 import xbean.scomp.derivation.simpleExtension.SimpleExtensionEltDocument;
 import xbean.scomp.derivation.simpleExtension.SimpleExtensionT;
 import scomp.common.BaseCase;
 import org.apache.xmlbeans.impl.values.XmlValueOutOfRangeException;
 
-/**
- *
- *
- *
- */
+import static org.junit.Assert.*;
+
 public class SimpleTypeExtensionTest extends BaseCase {
 
+    @Test
     public void testExtension() throws Throwable {
         SimpleExtensionEltDocument doc = SimpleExtensionEltDocument.Factory.newInstance();
         SimpleExtensionT elt = doc.addNewSimpleExtensionElt();

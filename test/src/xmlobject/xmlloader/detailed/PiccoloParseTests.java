@@ -14,33 +14,38 @@
 */
  package xmlobject.xmlloader.detailed;
 
-import junit.framework.TestCase;
+import org.apache.xmlbeans.XmlObject;
+import org.junit.Ignore;
+import org.junit.Test;
 import tools.util.JarUtil;
 
 import java.io.InputStream;
 
-import org.apache.xmlbeans.XmlObject;
+import static org.junit.Assert.assertTrue;
 
-public class PiccoloParseTests extends TestCase{
+@Ignore("Piccolo is not anymore used")
+public class PiccoloParseTests {
     String filename="xbean/xmlobject/japanese/core_generated_wsdl_src.xml";
     String temp="xbean/xmlobject/japanese/UCS2Encoding.xml";
 
+    @Test
     public void testParseInputStream() throws Exception{
         InputStream is=JarUtil.getResourceFromJarasStream(filename);
         assertTrue (is != null );
         XmlObject obj=XmlObject.Factory.parse(is);
     }
 
+    @Test
     public void testParseString() throws Exception{
         String str=JarUtil.getResourceFromJar(filename);
         assertTrue (str != null );
         XmlObject obj=XmlObject.Factory.parse(str);
     }
 
-    public void testParseInputStreamUCS2() throws Exception{
-          InputStream is=JarUtil.getResourceFromJarasStream(temp);
-          assertTrue (is != null );
-          XmlObject obj=XmlObject.Factory.parse(is);
-      }
-
+    @Test
+    public void testParseInputStreamUCS2() throws Exception {
+        InputStream is = JarUtil.getResourceFromJarasStream(temp);
+        assertTrue(is != null);
+        XmlObject obj = XmlObject.Factory.parse(is);
+    }
 }

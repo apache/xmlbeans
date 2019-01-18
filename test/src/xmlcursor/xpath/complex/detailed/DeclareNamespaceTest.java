@@ -12,22 +12,21 @@
  *   See the License for the specific language governing permissions and
  *  limitations under the License.
  */
- package xmlcursor.xpath.complex.detailed;
+package xmlcursor.xpath.complex.detailed;
 
-import org.apache.xmlbeans.*;
-import junit.framework.TestCase;
+import org.apache.xmlbeans.XmlCursor;
+import org.apache.xmlbeans.XmlException;
+import org.apache.xmlbeans.XmlLong;
+import org.apache.xmlbeans.XmlObject;
+import org.junit.Test;
 import xmlcursor.common.Common;
 
-/**
- *
- */
-public class DeclareNamespaceTest
-    extends TestCase
-{
+import static org.junit.Assert.*;
 
-    public static void testDeclareNSPath()
-        throws Exception
-    {
+public class DeclareNamespaceTest {
+
+    @Test
+    public void testDeclareNSPath() throws Exception {
         XmlObject s = XmlObject.Factory.parse(
             "<a xmlns:ack='abc' ack:attr='val1'>foo<b>bar</b></a>");
         XmlObject[] res;
@@ -50,14 +49,13 @@ public class DeclareNamespaceTest
         c1.toFirstContentToken();
 
         XmlObject o = c1.getObject();
-        assertTrue(o != res[0]);
+        assertNotSame(o, res[0]);
         assertEquals(res[0].xmlText(),
             "<xml-fragment ack:attr=\"val1\" xmlns:ack=\"abc\"/>");
     }
 
-    public static void testDefaultNSPath()
-        throws Exception
-    {
+    @Test
+    public void testDefaultNSPath() throws Exception {
         XmlObject s = XmlObject.Factory.parse(
             "<a xmlns='abc'>foo<b>bar</b></a>");
         XmlObject[] res;
@@ -75,13 +73,12 @@ public class DeclareNamespaceTest
         c1.toFirstContentToken();
 
         XmlObject o = c1.getObject();
-        assertTrue(o != res[0]);
+        assertNotSame(o, res[0]);
         assertEquals(res[0].xmlText(), "<abc:b xmlns:abc=\"abc\">bar</abc:b>");
     }
 
-    public void testSequence()
-        throws Exception
-    {
+    @Test
+    public void testSequence() throws Exception {
         XmlObject o = XmlObject.Factory.parse(
             "<a xmlns='abc'>foo<b>bar</b></a>");
         XmlObject[] res = null;
@@ -101,16 +98,14 @@ public class DeclareNamespaceTest
         a = ((XmlLong) res[0]);
         expXml = "<xml-fragment>10</xml-fragment>";
         assertEquals(expXml, a.xmlText());
-        for (int i = 1; i < 5; i++)
-        {
+        for (int i = 1; i < 5; i++) {
             a = ((XmlLong) res[i]);
             assertEquals(Common.wrapInXmlFrag(i + ""), a.xmlText());
         }
     }
 
-    public void testSequenceUnion()
-        throws Exception
-    {
+    @Test
+    public void testSequenceUnion() throws Exception {
         XmlObject o = XmlObject.Factory.parse("<a><b>1</b>1</a>");
         XmlObject[] res = o.selectPath("//a union //b");
         assertEquals(2, res.length);
@@ -123,9 +118,8 @@ public class DeclareNamespaceTest
         assertEquals("<xml-fragment>1</xml-fragment>", a.xmlText());
     }
 
-    public void testSequenceIntersect()
-        throws Exception
-    {
+    @Test
+    public void testSequenceIntersect() throws Exception {
         XmlCursor o = XmlObject.Factory.parse("<a><b>1</b>1</a>").newCursor();
         o.selectPath("//b intersect //b");
         assertEquals(1, o.getSelectionCount());
@@ -133,9 +127,8 @@ public class DeclareNamespaceTest
         assertEquals("<b>1</b>", o.xmlText());
     }
 
-    public void testSequenceExcept()
-        throws Exception
-    {
+    @Test
+    public void testSequenceExcept() throws Exception {
         XmlCursor o = XmlObject.Factory.parse("<a><b>1</b>1</a>").newCursor();
         o.selectPath("/a except /a");
         assertEquals(0, o.getSelectionCount());
@@ -148,18 +141,10 @@ public class DeclareNamespaceTest
     //If an operand of union, intersect, or except
     // contains an item that is not a node, a type error is raised.
 
-    public void testSequenceTypeError()
-        throws Exception
-    {
-        try
-        {
-            XmlCursor o = XmlObject.Factory.parse("<a/>").newCursor();
-            o.selectPath("(0 to 4) except (0 to 4)");
-            fail("Type error expected");
-        }
-        catch (Throwable t)
-        {
-        }
+    @Test(expected = RuntimeException.class)
+    public void testSequenceTypeError() throws XmlException {
+        XmlCursor o = XmlObject.Factory.parse("<a/>").newCursor();
+        o.selectPath("(0 to 4) except (0 to 4)");
+        o.toNextSelection();
     }
-
 }

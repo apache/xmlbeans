@@ -17,36 +17,36 @@
 package dom.detailed;
 
 import dom.common.Loader;
-import junit.framework.TestCase;
-import org.w3c.dom.*;
 import org.apache.xmlbeans.XmlObject;
+import org.junit.Before;
+import org.junit.Test;
+import org.w3c.dom.*;
 
+import static org.junit.Assert.assertEquals;
 
-/**
- *
- *
- */
-public class TextInsertDeleteTest extends TestCase {
+public class TextInsertDeleteTest {
     String sXml = "<foo>txt0<bar/>txt1<baz/>txt2</foo>";
     String sXmlNS = "<foo/>";
     Document m_doc,
     m_docNS;
     Node m_node;
 
+    @Test
     public void testBuildMixedContent(){
-        DOMImplementation domImpl = XmlObject.Factory.newDomImplementation( null );
-        m_doc=domImpl.createDocument("foobar","val",null);
-        Element root=m_doc.getDocumentElement();
+        DOMImplementation domImpl = XmlObject.Factory.newDomImplementation(null);
+        m_doc = domImpl.createDocument("foobar", "val", null);
+        Element root = m_doc.getDocumentElement();
         //m_doc.appendChild(root);
-        Element n=(Element)m_doc.createElement("foo");
-        Text txt1=m_doc.createTextNode("foobar");
-        Text txt2=m_doc.createTextNode("baz");
-       root.appendChild(txt1);
-         root.appendChild(n);
-         root.appendChild(txt2);
-         System.out.println(m_doc.toString()) ;
+        Element n = (Element) m_doc.createElement("foo");
+        Text txt1 = m_doc.createTextNode("foobar");
+        Text txt2 = m_doc.createTextNode("baz");
+        root.appendChild(txt1);
+        root.appendChild(n);
+        root.appendChild(txt2);
+        System.out.println(m_doc.toString());
     }
 
+    @Test
     public void testAdjacent() {
         NodeList ch = m_node.getChildNodes();
         m_node.removeChild(ch.item(1));
@@ -59,6 +59,7 @@ public class TextInsertDeleteTest extends TestCase {
 
     }
 
+    @Test
     public void testInsertDelete() {
         //eric test
         // TODO: three children delete middle--verify length
@@ -89,10 +90,9 @@ public class TextInsertDeleteTest extends TestCase {
         assertEquals(1, ch.getLength());
         assertEquals("bar", m_node.getLastChild().getNodeValue());
         assertEquals("bar", m_node.getFirstChild().getNodeValue());
-
-
     }
 
+    @Test
     public void testInsertDeleteBulk() {
 
         int nNodeCnt = 16;
@@ -134,13 +134,13 @@ public class TextInsertDeleteTest extends TestCase {
 
     }
 
+    @Before
     public void setUp() throws Exception {
-
         Loader loader = Loader.getLoader();
         if (sXml == null && sXmlNS == null) throw new IllegalArgumentException("Test bug : Initialize xml strings");
-        m_doc = (org.w3c.dom.Document) loader.load(sXml);
+        m_doc = loader.load(sXml);
         if (sXmlNS != null && sXmlNS.length() > 0)
-            m_docNS = (org.w3c.dom.Document) loader.load(sXmlNS);
+            m_docNS = loader.load(sXmlNS);
 
         m_node = m_doc.getFirstChild();
     }

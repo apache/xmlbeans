@@ -16,37 +16,23 @@
 
 package xmlcursor.detailed;
 
-import junit.framework.*;
-
-import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlCursor.TokenType;
+import org.apache.xmlbeans.XmlObject;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import xmlcursor.common.BasicCursorTestCase;
 
-import xmlcursor.common.*;
+import static org.junit.Assert.*;
 
-
-/**
- *
- *
- */
 public class MoveXmlTest2 extends BasicCursorTestCase
         {
 
-    static String sTestXml = "<bk:book xmlns:bk='urn:loc.gov:books' at0=\"value0\"><!--BOOK COMMENT-->text0<author at0=\"v0\" at1=\"value1\"/></bk:book>";
-    static String sTargetXml = "<target></target>";
-    static XmlCursor m_xc1;
+    private static String sTestXml = "<bk:book xmlns:bk='urn:loc.gov:books' at0=\"value0\"><!--BOOK COMMENT-->text0<author at0=\"v0\" at1=\"value1\"/></bk:book>";
+    private static XmlCursor m_xc1;
 
-    public MoveXmlTest2(String sName)
-    {
-        super(sName);
-    }
-
-    public static Test suite()
-    {
-        return new TestSuite(MoveXmlTest2.class);
-    }
-
-
+    @Test
     public void testNormalCase()
     {
         String sExpectedTrg1 = "<!--BOOK COMMENT--><target/>";
@@ -87,6 +73,7 @@ public class MoveXmlTest2 extends BasicCursorTestCase
     }
 
     //to here at END
+    @Test(expected = IllegalArgumentException.class)
     public void testMoveNoop()
     {
 
@@ -101,17 +88,15 @@ public class MoveXmlTest2 extends BasicCursorTestCase
 
         toNextTokenOfType(m_xc1, TokenType.START);
         toNextTokenOfType(m_xc, TokenType.ENDDOC);
-        try {
-            m_xc.moveXml(m_xc1);
-            fail(" need IllegalArgumentException");
-        } catch (IllegalArgumentException e) {}
+        m_xc.moveXml(m_xc1);
     }
 
+    @Test
     public void testInvalidToCursorPos()
     {
         //position the cursor within a tag <a <movedXML/>...</a>
         toNextTokenOfType(m_xc, TokenType.START);//m_xc on book at0
-        assertEquals(true, m_xc.toFirstAttribute()); //at0 in book
+        assertTrue(m_xc.toFirstAttribute()); //at0 in book
         toNextTokenOfType(m_xc1, TokenType.START);
         try {
             if (m_xc1.moveXml(m_xc)) {
@@ -123,6 +108,7 @@ public class MoveXmlTest2 extends BasicCursorTestCase
         }
     }
 
+    @Test
     public void testMovedAttrNameCollision() throws Exception
     {
 
@@ -131,13 +117,13 @@ public class MoveXmlTest2 extends BasicCursorTestCase
         toNextTokenOfType(m_xc1, TokenType.START);
         toNextTokenOfType(m_xc1, TokenType.START);
         //toNextTokenOfType(m_xc1,TokenType.END);//to author
-        assertEquals(true, m_xc1.toFirstAttribute());
-        assertEquals(true, m_xc.toFirstAttribute()); //at0 in book
+        assertTrue(m_xc1.toFirstAttribute());
+        assertTrue(m_xc.toFirstAttribute()); //at0 in book
         if (m_xc.moveXml(m_xc1)) {
             toPrevTokenOfType(m_xc1, TokenType.START);
             m_xc1.toFirstAttribute();
             assertEquals(m_xc1.getName().getLocalPart(), "at0");
-            assertEquals(true, m_xc1.toNextAttribute());
+            assertTrue(m_xc1.toNextAttribute());
             assertEquals(m_xc1.getName().getLocalPart(), "at0");
         }
         m_xc1.dispose();
@@ -148,14 +134,15 @@ public class MoveXmlTest2 extends BasicCursorTestCase
      * seems to be illegal semantics judging from beginElement
      * $NOTE: legal here
      */
+    @Test
     public void testInvalidXml()
     {
         toNextTokenOfType(m_xc, TokenType.START);
         toNextTokenOfType(m_xc1, TokenType.START);
-        assertEquals(true, m_xc.moveXml(m_xc1));
+        assertTrue(m_xc.moveXml(m_xc1));
     }
 
-
+    @Test
     public void testNull()
     {
         toNextTokenOfType(m_xc, TokenType.START);
@@ -167,7 +154,7 @@ public class MoveXmlTest2 extends BasicCursorTestCase
         }
     }
 
-
+    @Test
     public void testSelf()
     {
         String sExpectedResult = m_xc.xmlText();
@@ -183,12 +170,15 @@ public class MoveXmlTest2 extends BasicCursorTestCase
         }
     }
 
+    @Before
     public void setUp() throws Exception
     {
         m_xc = XmlObject.Factory.parse(sTestXml).newCursor();
+        String sTargetXml = "<target></target>";
         m_xc1 = XmlObject.Factory.parse(sTargetXml).newCursor();
     }
 
+    @After
     public void tearDown() throws Exception
     {
         super.tearDown();
@@ -197,18 +187,4 @@ public class MoveXmlTest2 extends BasicCursorTestCase
             m_xc1 = null;
         }
     }
-
-    public static void main(String[] rgs)
-    {
-        try {
-            MoveXmlTest2 t = new MoveXmlTest2("");
-            t.setUp();
-            t.testSelf();
-        } catch (Exception e) {
-            System.err.println("Error " + e.getMessage());
-            e.printStackTrace();
-        }
-    }
-
-
 }

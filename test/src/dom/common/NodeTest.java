@@ -15,7 +15,9 @@
 
 package dom.common;
 
-import junit.framework.TestCase;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -24,9 +26,10 @@ import org.xml.sax.InputSource;
 
 import java.io.StringReader;
 
+import static org.junit.Assert.*;
 
-public abstract class NodeTest extends TestCase implements
-       TestSetup {
+@Ignore
+public abstract class NodeTest implements TestSetup {
     protected Node m_node;
 
     protected Document m_doc;
@@ -36,70 +39,57 @@ public abstract class NodeTest extends TestCase implements
     protected String sXmlNS;
     //attributes
 
-    public NodeTest(String s) {
-        super(s);
-    }
-
-    public final void testInherited() {
-    };
-    public abstract void testNodeName();
-
-    public abstract void testNodeType();
-
-    public abstract void testNodeValue();
-
-    public abstract void testParent();
-
-    public abstract void testPreviousSibling();
-
-    public abstract void testNextSibling();
-
+    @Test
     public void testOwnerDocument() {
         assertEquals(m_doc, m_node.getOwnerDocument());
     }
 
+    @Test
     public void testPrefix() {
-        assertFalse(m_node == null);
-        assertEquals(null,m_node.getPrefix());
+        assertNotNull(m_node);
+        assertNull(m_node.getPrefix());
        // assertEquals("", m_node.getPrefix());
     }
 
+    @Test
     public void testNamespaceUri() {
-        assertFalse(m_node == null);
-        assertEquals(null,m_node.getNamespaceURI());
+        assertNotNull(m_node);
+        assertNull(m_node.getNamespaceURI());
         //assertEquals("", m_node.getNamespaceURI());
     }
 
+    @Test
     public void testLocalName() {
-        assertFalse(m_node == null);
-        assertEquals(null,m_node.getLocalName());
+        assertNotNull(m_node);
+        assertNull(m_node.getLocalName());
        // assertEquals("", m_node.getLocalName());
     }
 
     //0 length list as of API
+    @Test
     public void testGetChildNodes() {
         assertEquals(0, m_node.getChildNodes().getLength());
     }
 
+    @Test
     public void testFirstChild() {
-        assertEquals(null, m_node.getFirstChild());
+        assertNull(m_node.getFirstChild());
     }
 
+    @Test
     public void testLastChild() {
-        assertEquals(null, m_node.getLastChild());
+        assertNull(m_node.getLastChild());
     }
-
-    public abstract void testAppendChild();
 
     /**
      * pathologic cases: newChild is m_node or an ancestor
      * newChild is from a different document
      * newChild is not allowed at this pos
      */
-    public void testAppendChild(Node newChild) {
+    protected void testAppendChild(Node newChild) {
         Node inserted = m_node.appendChild(newChild);
         if (newChild.getNodeType() == Node.DOCUMENT_FRAGMENT_NODE)
-            assertEquals(true, compareNodeListPrefix(newChild.getChildNodes(), m_node.getChildNodes()));
+            assertTrue(compareNodeListPrefix(newChild.getChildNodes(), m_node.getChildNodes()));
         else
             assertEquals(inserted, m_node.getLastChild());
         if (isInTree(m_node, newChild)) //new child is in the tree
@@ -113,28 +103,24 @@ public abstract class NodeTest extends TestCase implements
      * override for Attribute
      * $TODO: ER results in a mutable copy
      */
+    @Test
     public void testCloneNode() {
 
         Node m_clone;
-        /**not implemented : Eric */
-         m_clone=m_node.cloneNode(false);
-         assertEquals(true, DomUtils.compareNodesShallow(m_node, m_clone));
+        m_clone=m_node.cloneNode(false);
+        assertTrue(DomUtils.compareNodesShallow(m_node, m_clone));
 //         assertEquals(true, DomUtils.compareNodeTreePtr(m_clone.getChildNodes(),m_node.getChildNodes())); //ptr eq for ch.
-         assertEquals(false,m_clone==m_node);
+        assertNotSame(m_clone, m_node);
 
 
         m_clone = m_node.cloneNode(true);
-        assertEquals(true, DomUtils.compareNodesDeep(m_node, m_clone)); //deep clone: should do for whole tree, not just ch.
-        assertEquals(false, m_clone == m_node);
+        assertTrue(DomUtils.compareNodesDeep(m_node, m_clone)); //deep clone: should do for whole tree, not just ch.
+        assertNotSame(m_clone, m_node);
 
-        assertEquals(null, m_clone.getParentNode());
+        assertNull(m_clone.getParentNode());
     }
 
-    public abstract void testInsertBefore();
-
-
-
-    public void testInsertBefore(Node newChild, Node refChild) {
+    protected void testInsertBefore(Node newChild, Node refChild) {
 
         int newChPos = getChildPos(m_node, newChild);
         int pos = getChildPos(m_node, refChild);
@@ -161,10 +147,10 @@ public abstract class NodeTest extends TestCase implements
         else if (pos == -1)//would have thrown exc
             fail("Inserting after fake child");
         else if (newChild.getNodeType() == Node.DOCUMENT_FRAGMENT_NODE)
-            assertEquals(true, compareNodeListPrefix(newChild.getChildNodes(), m_node.getChildNodes()));
+            assertTrue(compareNodeListPrefix(newChild.getChildNodes(), m_node.getChildNodes()));
         else if (newChPos != -1) //new child is in the tree
         //assert the child is removed first
-            assertEquals(false, inserted.getParentNode().equals(prevParent));
+            assertNotEquals(inserted.getParentNode(), prevParent);
         else {
             assertEquals(newChild, childNodes.item(pos));
             assertEquals(nOrigChildNum + 1, m_node.getChildNodes().getLength());
@@ -175,26 +161,27 @@ public abstract class NodeTest extends TestCase implements
     /**
      * $NOTE: override for element
      */
+    @Test
     public void testGetAttributes() {
-        assertEquals(null, m_node.getAttributes());
+        assertNull(m_node.getAttributes());
     }
 
-
+    @Test
     public void testHasChildNodes() {
         int i = m_node.getChildNodes().getLength();
         if (i > 0)
-            assertEquals(true, m_node.hasChildNodes());
+            assertTrue(m_node.hasChildNodes());
         else
-            assertEquals(false, m_node.hasChildNodes());
+            assertFalse(m_node.hasChildNodes());
     }
-
 
     //Override for Element
+    @Test
     public void testHasAttributes() {
-        assertEquals(false, m_node.hasAttributes());
+        assertFalse(m_node.hasAttributes());
     }
 
-
+    @Test
     public void testIsSupported() {
         String[] features=new String[]{
             "Core","XML","Events","MutationEvents","Range","Traversal","HTML","Views","StyleSheets","CSS","CSS2","UIEvents","HTMLEvents"
@@ -208,19 +195,7 @@ public abstract class NodeTest extends TestCase implements
 
     }
 
-    public void testNormalize() {
-        fail("Test Not implemented");
-    }
-
-
-    /**
-     * pathological cases:
-     * node is read-only
-     * node is not a child of this node
-     */
-    public abstract void testRemoveChild();
-
-    public void testRemoveChild(Node removed) {
+    void testRemoveChild(Node removed) {
         int pos = getChildPos(m_node, removed);
         int len = m_node.getChildNodes().getLength();
         if (removed == null)
@@ -244,15 +219,12 @@ public abstract class NodeTest extends TestCase implements
 
     }
 
-
-    public abstract void testReplaceChild();
-
     /**
      * pathological cases:
      * node is DocFrag
      * node is already in tree
      */
-    public void testReplaceChild(Node newChild, Node oldChild) {
+    protected void testReplaceChild(final Node newChild, Node oldChild) {
         int pos = getChildPos(m_node, oldChild);
         boolean existing = isInTree(m_doc.getDocumentElement(), newChild); //new Child has a parent
 
@@ -277,10 +249,7 @@ public abstract class NodeTest extends TestCase implements
             Node oldParent = newChild.getParentNode();
             NodeList old = m_node.getChildNodes();
             assertEquals(oldChild, m_node.replaceChild(newChild, oldChild));
-            assertFalse(newChild.getParentNode().equals(oldParent));
-        } else if (newChild == null) { //is this equivalent to deletion?
-            m_node.replaceChild(newChild, oldChild);
-            assertEquals(len - 1, m_node.getChildNodes().getLength());
+            assertNotEquals(newChild.getParentNode(), oldParent);
         } else if (newChild.getNodeType() == Node.DOCUMENT_FRAGMENT_NODE) {
             int new_len = newChild.getChildNodes().getLength();
             assertEquals(oldChild, m_node.replaceChild(newChild, oldChild));
@@ -291,9 +260,8 @@ public abstract class NodeTest extends TestCase implements
 
     }
 
-    public abstract void testSetNodeValue();
-
     //$NOTE:override for element and attribute
+    @Test
     public void testSetPrefix()
     {
         //any prefix here is invalid
@@ -310,7 +278,7 @@ public abstract class NodeTest extends TestCase implements
         }
     }
 
-    public static int getChildPos(Node node, Node child) {
+    private static int getChildPos(Node node, Node child) {
         if (child == null) return -1;
         NodeList ch = node.getChildNodes();
         for (int i = 0; i < ch.getLength(); i++)
@@ -319,7 +287,7 @@ public abstract class NodeTest extends TestCase implements
         return -1;
     }
 
-    public static boolean isInTree(Node root, Node find) {
+    private static boolean isInTree(Node root, Node find) {
         if (find == null) return false;
         if (root == null) return false;
         if (root == find) return true;
@@ -330,7 +298,7 @@ public abstract class NodeTest extends TestCase implements
         return temp_res;
     }
 
-    public static boolean compareNodeList(NodeList l1, NodeList l2) {
+    protected static boolean compareNodeList(NodeList l1, NodeList l2) {
         if (l1.getLength() != l2.getLength()) return false;
         for (int i = 0; i < l1.getLength(); i++)
             if (l1.item(i) != l2.item(i)) //pointer eq
@@ -339,7 +307,7 @@ public abstract class NodeTest extends TestCase implements
     }
 
     //l1 is a prefix of l2
-    public static boolean compareNodeListPrefix(NodeList l1, NodeList l2) {
+    private static boolean compareNodeListPrefix(NodeList l1, NodeList l2) {
         if (l1.getLength() > l2.getLength()) return false;
         for (int i = 0; i < l1.getLength(); i++)
             if (l1.item(i) != l2.item(i)) //pointer eq
@@ -347,7 +315,7 @@ public abstract class NodeTest extends TestCase implements
         return true;
     }
 
-    public void loadSync() throws Exception {
+    public void loadSync() {
         _loader = Loader.getLoader();
 
         if (sXml == null && sXmlNS == null) throw new IllegalArgumentException("Test bug : Initialize xml strings");
@@ -362,7 +330,7 @@ public abstract class NodeTest extends TestCase implements
             throws Exception{
         org.apache.xerces.parsers.DOMParser parser = new org.apache.xerces.parsers.DOMParser();
         parser.parse(new InputSource(new StringReader(sXml)));
-	Document doc = parser.getDocument();
+	    Document doc = parser.getDocument();
 
         String name="apache_node";
         String nsname="pre:apache_node";
@@ -384,21 +352,22 @@ public abstract class NodeTest extends TestCase implements
    
     }
 
-
-    public abstract void moveToNode();
-
     //exposing a node for other tests...saver in particular
     public Node getNode(){
         return m_node;
     }
+
+    @Before
     public void setUp() throws Exception {
         //m_doc=(org.w3c.dom.Document)org.apache.xmlbeans.XmlObject.Factory.parse(xml).newDomNode();
         _loader = Loader.getLoader();
 
-        if (sXml == null && sXmlNS == null) throw new IllegalArgumentException("Test bug : Initialize xml strings");
-        m_doc = (org.w3c.dom.Document) _loader.load(sXml);
+        if (sXml == null && sXmlNS == null) {
+            throw new IllegalArgumentException("Test bug : Initialize xml strings");
+        }
+        m_doc = _loader.load(sXml);
         if (sXmlNS != null && sXmlNS.length() > 0)
-            m_docNS = (org.w3c.dom.Document) _loader.load(sXmlNS);
+            m_docNS = _loader.load(sXmlNS);
     }
 
     private Loader _loader;

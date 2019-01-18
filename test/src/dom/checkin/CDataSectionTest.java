@@ -16,21 +16,17 @@
 package dom.checkin;
 
 import dom.common.CharacterDataTest;
-import junit.framework.Test;
-import junit.framework.TestSuite;
+import org.junit.Before;
+import org.junit.Test;
 import org.w3c.dom.CDATASection;
 import org.w3c.dom.Node;
 
+import static org.junit.Assert.assertEquals;
 
-/**
- *
- *
- */
 
 public class CDataSectionTest extends CharacterDataTest {
 
-    public CDataSectionTest(String s) {
-        super(s);
+    public CDataSectionTest() {
         sXml = "<script/>";
         /*
 TODO:
@@ -44,43 +40,43 @@ sXml="<script>"+
 */
     }
 
-    public static Test suite() {
-        return new TestSuite(CDataSectionTest.class);
-    }
-
-
+    @Test
     public void testNodeName() {
         assertEquals("#cdata-section", m_node.getNodeName());
     }
 
+    @Test
     public void testNodeType() {
         assertEquals(Node.CDATA_SECTION_NODE, m_node.getNodeType());
     }
 
-
+    @Test
     public void testNodeValue() {
         assertEquals("function matchwo(a,b){\"+\n\t    \"return 0   }",
                 m_node.getNodeValue());
     }
 
-
+    @Test
     public void testNextSibling() {
         Node nxtSibling = m_node.getNextSibling();
         assertEquals("foobar", nxtSibling.getNodeValue());
 
     }
 
+    @Test
     public void testPreviousSibling() {
         Node prSibling = m_node.getPreviousSibling();
         assertEquals(null, prSibling);
     }
 
+    @Test
     public void testParent() {
         Node parent = m_node.getParentNode();
         assertEquals(m_doc.getFirstChild(), parent);
         assertEquals("script", parent.getLocalName());
     }
 
+    @Test
     public void testSetNodeValue() {
         m_node.setNodeValue("new CDATA");
         assertEquals("new CDATA", m_node.getNodeValue());
@@ -97,6 +93,7 @@ sXml="<script>"+
 
     }
 
+    @Before
     public void setUp() throws Exception {
         super.setUp();
         moveToNode();

@@ -16,39 +16,16 @@
 
 package xmlcursor.checkin;
 
-import org.apache.xmlbeans.XmlOptions;
-import junit.framework.*;
-import junit.framework.Assert.*;
-
-import java.io.*;
-
-import org.apache.xmlbeans.XmlObject;
-import org.apache.xmlbeans.XmlCursor;
-import org.apache.xmlbeans.XmlBeans;
 import org.apache.xmlbeans.XmlCursor.TokenType;
-import org.apache.xmlbeans.XmlDocumentProperties;
-import org.apache.xmlbeans.XmlCursor.XmlBookmark;
+import org.apache.xmlbeans.XmlObject;
+import org.junit.Test;
+import xmlcursor.common.BasicCursorTestCase;
 
-import javax.xml.namespace.QName;
-
-import xmlcursor.common.*;
-
-import java.net.URL;
+import static org.junit.Assert.assertEquals;
 
 
-/**
- *
- *
- */
 public class ToPrevCharTest extends BasicCursorTestCase {
-    public ToPrevCharTest(String sName) {
-        super(sName);
-    }
-
-    public static Test suite() {
-        return new TestSuite(ToPrevCharTest.class);
-    }
-
+    @Test
     public void testToPrevCharNegative() throws Exception {
         m_xc = XmlObject.Factory.parse("<foo>early<bar>text</bar></foo>").newCursor();
         toNextTokenOfType(m_xc, TokenType.TEXT);
@@ -59,6 +36,7 @@ public class ToPrevCharTest extends BasicCursorTestCase {
         assertEquals("early", m_xc.getChars());
     }
 
+    @Test
     public void testToPrevCharGTLength() throws Exception {
         m_xc = XmlObject.Factory.parse("<foo>early<bar>text</bar></foo>").newCursor();
         toNextTokenOfType(m_xc, TokenType.TEXT);
@@ -69,6 +47,7 @@ public class ToPrevCharTest extends BasicCursorTestCase {
         assertEquals("early", m_xc.getChars());
     }
 
+    @Test
     public void testToPrevCharLTLength() throws Exception {
         m_xc = XmlObject.Factory.parse("<foo>early<bar>text</bar></foo>").newCursor();
         toNextTokenOfType(m_xc, TokenType.TEXT);
@@ -79,6 +58,7 @@ public class ToPrevCharTest extends BasicCursorTestCase {
         assertEquals("rly", m_xc.getChars());
     }
 
+    @Test
     public void testToPrevCharZero() throws Exception {
         m_xc = XmlObject.Factory.parse("<foo>early<bar>text</bar></foo>").newCursor();
         toNextTokenOfType(m_xc, TokenType.TEXT);
@@ -89,6 +69,7 @@ public class ToPrevCharTest extends BasicCursorTestCase {
         assertEquals("text", m_xc.getTextValue());
     }
 
+    @Test
     public void testToPrevCharFromATTR() throws Exception {
         m_xc = XmlObject.Factory.parse("<foo attr0=\"val0\">early<bar>text</bar></foo>").newCursor();
         toNextTokenOfType(m_xc, TokenType.ATTR);

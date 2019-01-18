@@ -16,57 +16,52 @@
 
 package dom.common;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
+import org.junit.Ignore;
+import org.junit.Test;
 import org.w3c.dom.CharacterData;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
 
+import static org.junit.Assert.*;
 
+@Ignore
 public abstract class CharacterDataTest extends NodeTest {
 
-    String NULL = "";
-
-    public static Test suite() {
-        return new TestSuite(CharacterDataTest.class);
-    }
-
-
-    public CharacterDataTest(String s) {
-        super(s);
-    }
-
+    @Test
     public void testAppendChild() {
         Node newChild = m_doc.createElement("foo");
         try {
-            ((CharacterData) m_node).appendChild(newChild);
+            m_node.appendChild(newChild);
         } catch (DOMException de) {
             assertEquals(DOMException.HIERARCHY_REQUEST_ERR, de.code);
         }
     }
 
     //super method not relevant
+    @Test
     public void testInsertBefore() {
         Node newChild = m_doc.createElement("foo");
-        assertEquals(false, m_node.hasChildNodes());
+        assertFalse(m_node.hasChildNodes());
         Node nullNode = m_node.getFirstChild();
         try {
-            ((CharacterData) m_node).insertBefore(newChild, nullNode);
+            m_node.insertBefore(newChild, nullNode);
         } catch (DOMException de) {
             assertEquals(DOMException.HIERARCHY_REQUEST_ERR, de.code);
         }
     }
 
+    @Test
     public void testRemoveChild() {
-        assertEquals(false, m_node.hasChildNodes());
+        assertFalse(m_node.hasChildNodes());
     }
 
+    @Test
     public void testReplaceChild() {
         Node newChild = m_doc.createElement("foo");
-        assertEquals(false, m_node.hasChildNodes());
+        assertFalse(m_node.hasChildNodes());
         if (m_node.getFirstChild() != null)
             try {
-                ((CharacterData) m_node).replaceChild(newChild, m_node.getFirstChild());
+                m_node.replaceChild(newChild, m_node.getFirstChild());
             } catch (DOMException de) {
                 if (DOMException.HIERARCHY_REQUEST_ERR != de.code)
                     throw de;
@@ -74,7 +69,7 @@ public abstract class CharacterDataTest extends NodeTest {
 
     }
 
-
+    @Test
     public void testAppendData() {
         String sOrig = ((CharacterData) m_node).getData();
         String sNewData = "some new data";
@@ -84,41 +79,41 @@ public abstract class CharacterDataTest extends NodeTest {
             fail(" Expected " + sExpected + " but got " + ((CharacterData) m_node).getData());
     }
 
+    @Test
     public void testAppendDataNull() {
         String sOrig = ((CharacterData) m_node).getData();
-        String sNewData = "";
-        ((CharacterData) m_node).appendData(sNewData);
-        assertEquals(sOrig + sNewData, ((CharacterData) m_node).getData());
-
-        sNewData = null;
-        ((CharacterData) m_node).appendData(sNewData);
+        ((CharacterData) m_node).appendData("");
         assertEquals(sOrig, ((CharacterData) m_node).getData());
 
+        ((CharacterData) m_node).appendData(null);
+        assertEquals(sOrig, ((CharacterData) m_node).getData());
     }
 
-
+    @Test
     public void testDeleteDataNegOff() {
         _testDeleteData(-1, 10);
     }
 
+    @Test
     public void testDeleteDataNegLen() {
         _testDeleteData(1, -10);
     }
 
+    @Test
     public void testDeleteDataLargeOff() {
         String sData = ((CharacterData) m_node).getData();
         int nDataLen = sData.length();
         _testDeleteData(nDataLen + 1, 10);
-
     }
 
+    @Test
     public void testDeleteDataLargeLen() {
         String sData = ((CharacterData) m_node).getData();
         int nDataLen = sData.length();
         _testDeleteData(0, nDataLen + 30);
     }
 
-
+    @Test
     public void testDeleteDataAverage() {
         String sData = ((CharacterData) m_node).getData();
         int nDataLen = sData.length();
@@ -142,14 +137,14 @@ public abstract class CharacterDataTest extends NodeTest {
             else if (offset + count == nDataLen || (offset + count) > nDataLen)
                 assertEquals("", ((CharacterData) m_node).getData());
             else if (offset == 0) {
-                assertEquals(sData.substring(count, sData.length()), ((CharacterData) m_node).getData());
+                assertEquals(sData.substring(count), ((CharacterData) m_node).getData());
 
             } else
                 assertEquals(sData.substring(0, offset) + sData.substring(offset + count, sData.length() - (offset + count)), ((CharacterData) m_node).getData());
         }
     }
 
-
+    @Test
     public void testGetData() {
         char[] buff = new char[200];
         java.util.Arrays.fill(buff, 'a');
@@ -162,28 +157,30 @@ public abstract class CharacterDataTest extends NodeTest {
         }
     }
 
-
+    @Test
     public void testGetLength() {
         int nDataLen = ((CharacterData) m_node).getData().length();
         assertEquals(((CharacterData) m_node).getLength(), nDataLen);
     }
 
-
+    @Test
     public void testInsertNull() {
-
         _testInsertData(0, null);
     }
 
+    @Test
     public void testInsertNeg() {
         _testInsertData(-1, "foo");
     }
 
+    @Test
     public void testInsertOOB() {
         String sData = ((CharacterData) m_node).getData();
         int nDataLen = sData.length();
         _testInsertData(nDataLen + 2, "foo");
     }
 
+    @Test
     public void testInsertAverage() {
         String sData = ((CharacterData) m_node).getData();
         int nDataLen = sData.length();
@@ -203,7 +200,7 @@ public abstract class CharacterDataTest extends NodeTest {
         else {
             ((CharacterData) m_node).insertData(offset, toInsert);
             if (toInsert == null)
-                assertTrue(sData.equals(((CharacterData) m_node).getData()));
+                assertEquals(sData, ((CharacterData) m_node).getData());
             else if (offset == nDataLen)
                 assertEquals(sData + toInsert, ((CharacterData) m_node).getData());
             else {
@@ -218,44 +215,50 @@ public abstract class CharacterDataTest extends NodeTest {
         }
     }
 
-
+    @Test
     public void testReplaceDataNull() {
         String sData = ((CharacterData) m_node).getData();
         int nDataLen = sData.length();
-        String repl = null;
-        _testReplaceData(0, nDataLen, repl);
+        _testReplaceData(0, nDataLen, null);
     }
 
+    @Test
     public void testReplaceDataNegOff() {
         _testReplaceData(-1, 3, "foo");
     }
 
+    @Test
     public void testReplaceDataNegCount() {
         _testReplaceData(1, -3, "foo");
     }
 
-     public void testReplaceDataZeroCount() {
+    @Test
+    public void testReplaceDataZeroCount() {
         _testReplaceData(1, 0, "foo");
     }
 
+    @Test
     public void testReplaceDataLargeOff() {
         String sData = ((CharacterData) m_node).getData();
         int nDataLen = sData.length();
         _testReplaceData(nDataLen + 1, 2, "foo");
     }
 
+    @Test
     public void testReplaceDataLargeCount() {
         String sData = ((CharacterData) m_node).getData();
         int nDataLen = sData.length();
         _testReplaceData(0, nDataLen + 2, "foo");
     }
 
+    @Test
     public void testReplaceDataLarge() {
         String sData = ((CharacterData) m_node).getData();
         int nDataLen = sData.length();
         _testReplaceData(nDataLen / 2, nDataLen / 2 + 1, "foo");
     }
 
+    @Test
     public void testReplaceDataAverage() {
         String sData = ((CharacterData) m_node).getData();
         int nDataLen = sData.length();
@@ -292,44 +295,37 @@ public abstract class CharacterDataTest extends NodeTest {
 
     }
 
+    @Test
     public void testSetDataNull() {
-        String sNull = null;
-        ((CharacterData) m_node).setData(sNull);
+        ((CharacterData) m_node).setData(null);
         assertEquals("", ((CharacterData) m_node).getData());
     }
 
-    public void testSetData(String newData) {
-        ((CharacterData) m_node).setData(newData);
-        assertEquals(newData, ((CharacterData) m_node).getData());
-    }
-
-    //nothing happens here
-    public void testNormalize() {
-    }
-
-
+    @Test
     public void testSubstringDataNegOff() {
         _testSubstringData(-1, 10);
     }
 
+    @Test
     public void testSubstringDataNegLen() {
         _testSubstringData(1, -10);
     }
 
+    @Test
     public void testSubstringDataLargeOff() {
         String sData = ((CharacterData) m_node).getData();
         int nDataLen = sData.length();
         _testSubstringData(nDataLen + 1, 10);
-
     }
 
+    @Test
     public void testSubstringDataLargeLen() {
         String sData = ((CharacterData) m_node).getData();
         int nDataLen = sData.length();
         _testSubstringData(0, nDataLen + 30);
     }
 
-
+    @Test
     public void testSubstringDataAverage() {
         String sData = ((CharacterData) m_node).getData();
         int nDataLen = sData.length();
@@ -358,23 +354,14 @@ public abstract class CharacterDataTest extends NodeTest {
         }
     }
 
-    public void testSetNodeValue() {
-        fail("Override");
-    }
-
-
-    public void testSetPrefix()
-    {
-        try
-        {
+    @Test
+    public void testSetPrefix() {
+        try {
             m_node.setPrefix("foobar");
             fail("Can't set prefix on node other than Element or Attribute");
-        }
-        catch (DOMException de)
-        {
+        } catch (DOMException de) {
             assertEquals(DOMException.NAMESPACE_ERR, de.code);
         }
-
     }
 }
 

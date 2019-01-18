@@ -16,57 +16,28 @@
 
 package misc.detailed;
 
-import junit.framework.TestCase;
-import common.Common;
-
-import java.util.Random;
-import java.util.Collection;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.io.File;
-import java.net.URL;
-import java.net.URLClassLoader;
-import java.lang.reflect.Method;
-
-import org.apache.xmlbeans.*;
 import org.apache.xmlbeans.impl.common.SystemCache;
+import org.junit.Test;
 
-import javax.xml.namespace.QName;
+import static org.junit.Assert.assertEquals;
 
-public class SystemCacheTests extends TestCase
-{
-    public void testSystemCacheImplFromAPITest() throws Throwable
-    {
-        try
-        {
-            // store the default SystemCache implementation before switch
-            SystemCache defaultImpl = SystemCache.get();
+public class SystemCacheTests {
+    @Test
+    public void testSystemCacheImplFromAPITest() throws Throwable {
+        // store the default SystemCache implementation before switch
+        SystemCache defaultImpl = SystemCache.get();
 
-            //assertEquals("org.apache.xmlbeans.impl.common.SystemCache",defaultImpl.getClass().getName());
-            // The expected default impl does not get picked up as the test is not run from a single jvm
-            // when run from the test infrastructure. Hence compare against the actual impl that gets picked up
-            // The assert above commented out will hold good if this test is invoked as follows:
-            // ant run.junit -Dtest.area=misc -Dtest.spec=misc.detailed.SystemCacheTests
-            assertEquals("org.apache.xmlbeans.impl.schema.SchemaTypeLoaderImpl$SchemaTypeLoaderCache",defaultImpl.getClass().getName());
+        assertEquals("org.apache.xmlbeans.impl.common.SystemCache", defaultImpl.getClass().getName());
 
-            // switch the Impl to the test Impl
-            SystemCacheTestImpl testImpl = new SystemCacheTestImpl();
-            SystemCache.set(testImpl);
-            assertEquals("misc.detailed.SystemCacheTestImpl",testImpl.getClass().getName());
-            assertEquals(testImpl.getAccessed(), 1);
+        // switch the Impl to the test Impl
+        SystemCacheTestImpl testImpl = new SystemCacheTestImpl();
+        SystemCache.set(testImpl);
+        assertEquals("misc.detailed.SystemCacheTestImpl", testImpl.getClass().getName());
+        assertEquals(testImpl.getAccessed(), 1);
 
-            // switch back to default impl
-            SystemCache.set(defaultImpl);
-            System.out.println("Third 1:" + defaultImpl.getClass().getName());
-            System.out.println("Third 2:" + defaultImpl.getClass().getName());
-            //assertEquals("org.apache.xmlbeans.impl.common.SystemCache",defaultImpl.getClass().getName());
-            assertEquals("org.apache.xmlbeans.impl.schema.SchemaTypeLoaderImpl$SchemaTypeLoaderCache",defaultImpl.getClass().getName());
-        }
-        catch(ExceptionInInitializerError err)
-        {
-            System.out.println(err.getMessage());
-            throw new Exception("File does not exist");
-        }
+        // switch back to default impl
+        SystemCache.set(defaultImpl);
+        assertEquals("org.apache.xmlbeans.impl.common.SystemCache", defaultImpl.getClass().getName());
     }
 
 }

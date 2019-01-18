@@ -14,12 +14,13 @@
  */
 package scomp.elements.detailed;
 
+import org.apache.xmlbeans.XmlOptions;
+import org.apache.xmlbeans.impl.values.XmlValueNotNillableException;
+import org.junit.Test;
 import scomp.common.BaseCase;
 import xbean.scomp.element.nillTest.*;
-import org.apache.xmlbeans.impl.values.XmlValueNotNillableException;
-import org.apache.xmlbeans.XmlOptions;
 
-import java.math.BigInteger;
+import static org.junit.Assert.*;
 
 
 /**
@@ -37,6 +38,7 @@ public class NillTest extends BaseCase {
      * element, will also add the "xsi:nil" attribute.
      */
     // for all nillable tests, the validation falls thro only if the ValidateOnSet option is turned on
+    @Test
     public void testNotNillableLocalElem() {
 
         XmlOptions options = new XmlOptions();
@@ -68,6 +70,7 @@ public class NillTest extends BaseCase {
 
     }
 
+    @Test
     public void testNotNillableGlobalElem() {
         XmlOptions options = new XmlOptions();
         options.setValidateOnSet();
@@ -98,6 +101,7 @@ public class NillTest extends BaseCase {
                cityNameWithValidateOff.xmlText());
     }
 
+    @Test
     public void testNillableGlobalElement()
     {
         XmlOptions options = new XmlOptions();
@@ -134,10 +138,9 @@ public class NillTest extends BaseCase {
                "xmlns:nil=\"http://xbean/scomp/element/NillTest\" " +
                "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"/>",
                testElt.xmlText());
-
-
     }
 
+    @Test
     public void testNillableLocalElement()
     {
         XmlOptions options = new XmlOptions();
@@ -172,10 +175,9 @@ public class NillTest extends BaseCase {
                "xsi:nil=\"true\" " +
                "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"/>",
                contactWithValidationOff.xmlText());
-
-
     }
 
+    @Test
     public void testDefaultValElement()
     {
         XmlOptions options = new XmlOptions();
@@ -195,6 +197,7 @@ public class NillTest extends BaseCase {
         }
     }
 
+    @Test
     public void testNotNillableFixedValueElement()
     {
         XmlOptions options = new XmlOptions();

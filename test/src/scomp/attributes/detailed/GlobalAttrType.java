@@ -14,6 +14,7 @@
  */
 package scomp.attributes.detailed;
 
+import org.junit.Test;
 import scomp.common.BaseCase;
 import org.apache.xmlbeans.*;
 import xbean.scomp.attribute.globalAttrType.GlobalAttrTypeDocDocument;
@@ -22,12 +23,11 @@ import xbean.scomp.attribute.globalAttrType.GlobalAttrTypeT;
 import java.util.ArrayList;
 import java.math.BigInteger;
 
-/**
- *
- *
- *
- */
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 public class GlobalAttrType extends BaseCase {
+    @Test
     public void testAllValid() throws Throwable {
         GlobalAttrTypeT testDoc =
                 GlobalAttrTypeDocDocument.Factory.parse("<pre:GlobalAttrTypeDoc" +
@@ -52,6 +52,7 @@ public class GlobalAttrType extends BaseCase {
     /**
      * This should awlays be valid
      */
+    @Test
     public void testAnyType() throws Throwable {
         GlobalAttrTypeT testDoc =
                 GlobalAttrTypeDocDocument.Factory.parse("<pre:GlobalAttrTypeDoc" +
@@ -80,8 +81,8 @@ public class GlobalAttrType extends BaseCase {
 
         testDoc.setAttAnyType(ival);
 
-       // assertEquals(BigInteger.ZERO,testDoc.getAttAnyType().changeType(XmlInteger.type));
-assertEquals(BigInteger.ZERO.toString(),
+        // assertEquals(BigInteger.ZERO,testDoc.getAttAnyType().changeType(XmlInteger.type));
+        assertEquals(BigInteger.ZERO.toString(),
         testDoc.getAttAnyType().getStringValue());
 
         try {
@@ -116,6 +117,7 @@ assertEquals(BigInteger.ZERO.toString(),
         }
     }
 
+    @Test
     public void testAnonType() throws Throwable {
         GlobalAttrTypeT testDoc =
                 GlobalAttrTypeDocDocument.Factory
@@ -134,7 +136,7 @@ assertEquals(BigInteger.ZERO.toString(),
         assertEquals(1, testDoc.getAttAnonymous().intValue());
 
         testDoc.setAttAnonymous( BigInteger.ZERO );
-        assertTrue( 0 == testDoc.getAttAnonymous().intValue());
+        assertEquals(0, testDoc.getAttAnonymous().intValue());
         try {
             assertTrue(testDoc.validate(validateOptions));
         }

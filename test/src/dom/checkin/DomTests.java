@@ -16,12 +16,9 @@
 
 package dom.checkin;
 
-import junit.framework.Assert;
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlObject;
+import org.junit.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.xml.sax.InputSource;
@@ -30,14 +27,9 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.StringReader;
 
-public class DomTests extends TestCase {
-    public DomTests(String name) {
-        super(name);
-    }
+import static org.junit.Assert.assertEquals;
 
-    public static Test suite() {
-        return new TestSuite(DomTests.class);
-    }
+public class DomTests {
 
     static String[] _args;
     static String _test;
@@ -53,14 +45,14 @@ public class DomTests extends TestCase {
 
         XmlObject x = XmlObject.Factory.parse(doc);
 
-        Assert.assertTrue(x.xmlText().equals(xml));
+        assertEquals(x.xmlText(), xml);
     }
 
     public void doTestDomExport(String xml)
             throws Exception {
         XmlObject x = XmlObject.Factory.parse(
                 XmlObject.Factory.parse(xml).newDomNode());
-        Assert.assertTrue(x.xmlText().equals(xml));
+        assertEquals(x.xmlText(), xml);
     }
 
     public void doTest(String xml)
@@ -73,9 +65,9 @@ public class DomTests extends TestCase {
 //        throws Exception
 //    {
 //        DOMParser parser = new DOMParser();
-//        
+//
 //        parser.setFeature( "http://xml.org/sax/features/namespaces", true );
-//        
+//
 //        parser.parse( new InputSource( new StringReader( "<foo a='x\n\ny'></foo>" ) ) );
 //
 //        XmlObject x = XmlLoader.Factory.parse( parser.getDocument() );
@@ -83,6 +75,7 @@ public class DomTests extends TestCase {
 //        System.out.println( x.xmlText() );
 //    }
     
+    @Test
     public void testDom()
             throws Exception {
         doTest("<foo xmlns=\"x\"/>");

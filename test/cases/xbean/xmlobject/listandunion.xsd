@@ -52,7 +52,7 @@
   </xs:element>
 
   <xs:simpleType name="date-or-dateTime">
-    <xs:union memberTypes="xs:date xs:dateTime"/>
+    <xs:union memberTypes="xs:dateTime xs:date"/>
   </xs:simpleType>
 
   <xs:element name="when" type="tns:date-or-dateTime"/>

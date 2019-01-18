@@ -17,46 +17,41 @@
 package dom.checkin;
 
 import dom.common.CharacterDataTest;
-import junit.framework.Test;
-import junit.framework.TestSuite;
+import org.junit.Before;
+import org.junit.Test;
 import org.w3c.dom.Node;
 import org.w3c.dom.Text;
 import xmlcursor.common.Common;
 
+import static org.junit.Assert.assertEquals;
 
-/**
- *
- *
- */
 
 public class CommentTest extends CharacterDataTest {
 
 
-    public CommentTest(String s) {
-        super(s);
+    public CommentTest() {
         sXml = Common.XML_FOO_COMMENT;
         sXmlNS = sXml;
     }
 
-    public static Test suite() {
-        return new TestSuite(CommentTest.class);
-    }
-
-
+    @Test
     public void testNodeName() {
         assertEquals("#comment", m_node.getNodeName());
     }
 
+    @Test
     public void testNodeValue() {
         System.out.println("Comment testNodeValue");
         assertEquals(" comment text ", m_node.getNodeValue());
         System.out.println("Comment testNodeValue DONE");
     }
 
+    @Test
     public void testNodeType() {
         assertEquals(Node.COMMENT_NODE, m_node.getNodeType());
     }
 
+    @Test
     public void testNextSibling() {
         Node nxtSibling = m_node.getNextSibling();
         assertEquals("foo", nxtSibling.getLocalName());
@@ -65,16 +60,19 @@ public class CommentTest extends CharacterDataTest {
         assertEquals("text", ((Text) nxtSibling.getFirstChild()).getData());
     }
 
+    @Test
     public void testPreviousSibling() {
         Node prSibling = m_node.getPreviousSibling();
         assertEquals(null, prSibling);
     }
 
+    @Test
     public void testParent() {
         Node parent = m_node.getParentNode();
         assertEquals(m_doc, parent);
     }
 
+    @Test
     public void testSetNodeValue() {
         m_node.setNodeValue("new comment");
         assertEquals("new comment", m_doc.getFirstChild().getNodeValue());
@@ -86,6 +84,7 @@ public class CommentTest extends CharacterDataTest {
 
     }
 
+    @Before
     public void setUp() throws Exception {
         super.setUp();
         moveToNode();

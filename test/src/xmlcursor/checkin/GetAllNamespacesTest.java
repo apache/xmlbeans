@@ -16,61 +16,30 @@
 
 package xmlcursor.checkin;
 
-import junit.framework.*;
-
-import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlCursor;
-import xmlcursor.common.*;
+import org.apache.xmlbeans.XmlObject;
+import org.junit.Before;
+import org.junit.Test;
+import xmlcursor.common.BasicCursorTestCase;
 
+import java.util.HashMap;
+import java.util.Map;
 
-import java.util.*;
+import static org.junit.Assert.assertEquals;
 
-/**
- *
- *
- */
 public class GetAllNamespacesTest extends BasicCursorTestCase {
 
-    static String sTestXml = "<bk:book xmlns:bk='urn:loc.gov:books'" +
-            " xmlns:isbn='urn:ISBN:0-395-36341-6'>" +
-            "<bk:title>Cheaper by the Dozen</bk:title>" +
-            "<isbn:number>1568491379</isbn:number>" +
-            "<nestedInfo xmlns:bk='urn:loc.gov:booksOverridden'>" +
-            "nestedText</nestedInfo>" +
-            "</bk:book>";
-
-
-    public GetAllNamespacesTest(String sName) {
-        super(sName);
-    }
-
-    public static Test suite() {
-        return new TestSuite(GetAllNamespacesTest.class);
-    }
-
-
+    @Test(expected = Exception.class)
     public void testCursorNotContainer() {
         //lousy message
         toNextTokenOfType(m_xc, XmlCursor.TokenType.TEXT);
         Map myHash = new HashMap();
 
-        try {
-            m_xc.getAllNamespaces(myHash);
-            fail("Cursor not on a container");
-        }
-        catch (Exception e) {
-            System.err.println(e.getMessage());
-        }
-        /*
-          Iterator it=myHash.values().iterator();
-          while(it.hasNext()){
-          System.out.println(it.next());
-          }
-        */
-
+        m_xc.getAllNamespaces(myHash);
     }
 
 
+    @Test
     public void testGetAllNamespaces() {
         //parse in setUp
         int nExpectedNamespaces = 2;//2 distinct namespaces but 3
@@ -84,6 +53,7 @@ public class GetAllNamespacesTest extends BasicCursorTestCase {
                 "urn:ISBN:0-395-36341-6");
     }
 
+    @Test
     public void testGetAllNamespacesIllegalCursorPos() {
         int nExpectedNamespaces = 0;
         Map namespaceMap = new HashMap();
@@ -91,6 +61,7 @@ public class GetAllNamespacesTest extends BasicCursorTestCase {
         assertEquals(namespaceMap.entrySet().size(), nExpectedNamespaces);
     }
 
+    @Test
     public void testGetAllNamespacesNull() {
 
         toNextTokenOfType(m_xc, XmlCursor.TokenType.START);
@@ -101,6 +72,7 @@ public class GetAllNamespacesTest extends BasicCursorTestCase {
     /**
      * cursor is positioned below the namespace declaration but in its scope
      */
+    @Test
     public void testGetAllNamespacesInternal() {
         int nExpectedNamespaces = 2;
         Map namespaceMap = new HashMap();
@@ -116,20 +88,15 @@ public class GetAllNamespacesTest extends BasicCursorTestCase {
 
     }
 
+    @Before
     public void setUp() throws Exception {
+        String sTestXml = "<bk:book xmlns:bk='urn:loc.gov:books'" +
+            " xmlns:isbn='urn:ISBN:0-395-36341-6'>" +
+            "<bk:title>Cheaper by the Dozen</bk:title>" +
+            "<isbn:number>1568491379</isbn:number>" +
+            "<nestedInfo xmlns:bk='urn:loc.gov:booksOverridden'>" +
+            "nestedText</nestedInfo>" +
+            "</bk:book>";
         m_xc = XmlObject.Factory.parse(sTestXml).newCursor();
     }
-
-    public static void main(String[] rgs) {
-        try {
-            GetAllNamespacesTest t = (new GetAllNamespacesTest(""));
-            t.setUp();
-            t.testGetAllNamespacesNull();
-        }
-        catch (Exception e) {
-            System.err.println(e.getMessage());
-        }
-    }
-
-
 }

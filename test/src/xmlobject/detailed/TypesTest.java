@@ -16,41 +16,22 @@
 
 package xmlobject.detailed;
 
-import junit.framework.*;
-
-import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.SimpleValue;
+import org.apache.xmlbeans.XmlObject;
+import org.junit.Test;
+import test.xbean.xmlcursor.purchaseOrder.PurchaseOrderDocument;
+import tools.util.JarUtil;
+import xmlcursor.common.BasicCursorTestCase;
+import xmlcursor.common.Common;
 
 import javax.xml.namespace.QName;
 
-import xmlcursor.common.*;
-
-import test.xbean.xmlcursor.purchaseOrder.PurchaseOrderDocument;
-import tools.util.JarUtil;
+import static org.junit.Assert.*;
 
 
-/**
- *
- *
- */
 public class TypesTest extends BasicCursorTestCase {
-    public TypesTest(String sName) {
-        super(sName);
-    }
-
-    public static Test suite() {
-        return new TestSuite(TypesTest.class);
-    }
-
-    public void testClassPath() throws Exception {
-        String sClassPath = System.getProperty("java.class.path");
-        int i = sClassPath.indexOf(Common.CARLOCATIONMESSAGE_JAR);
-        assertTrue(i >= 0);
-        i = sClassPath.indexOf(Common.XMLCURSOR_JAR);
-        assertTrue(i >= 0);
-    }
-
+    @Test
     public void testSchemaTypeFromStronglyTypedBuiltIn() throws Exception {
         m_xo = XmlObject.Factory.parse(
                    JarUtil.getResourceFromJar(Common.TRANXML_FILE_CLM));
@@ -66,6 +47,7 @@ public class TypesTest extends BasicCursorTestCase {
                 q.toString());
     }
 
+    @Test
     public void testSchemaTypeFromStronglyTyped() throws Exception {
         m_xo = XmlObject.Factory.parse(
                    JarUtil.getResourceFromJar(Common.TRANXML_FILE_CLM));
@@ -83,6 +65,7 @@ public class TypesTest extends BasicCursorTestCase {
 
     }
 
+    @Test
     public void testSchemaTypeFromNonTyped() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_BAR_TEXT);
         m_xc = m_xo.newCursor();
@@ -94,7 +77,7 @@ public class TypesTest extends BasicCursorTestCase {
         //assertEquals("TanyType@" + Common.XML_SCHEMA_TYPE_SUFFIX, st.toString());
     }
 
-
+    @Test
     public void testInstanceTypeNotNillable() throws Exception {
         m_xo = XmlObject.Factory.parse(
                   JarUtil.getResourceFromJar(Common.TRANXML_FILE_CLM));
@@ -105,6 +88,7 @@ public class TypesTest extends BasicCursorTestCase {
         assertEquals(xo.schemaType(), ((SimpleValue) xo).instanceType());
     }
 
+    @Test
     public void testInstanceTypeNil() throws Exception {
         PurchaseOrderDocument pod = (PurchaseOrderDocument) XmlObject.Factory.parse(
                 JarUtil.getResourceFromJar("xbean/xmlcursor/po.xml"));

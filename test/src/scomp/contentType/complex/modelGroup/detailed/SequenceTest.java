@@ -14,21 +14,21 @@
  */
 package scomp.contentType.complex.modelGroup.detailed;
 
+import org.apache.xmlbeans.XmlErrorCodes;
+import org.apache.xmlbeans.XmlString;
+import org.junit.Test;
+import scomp.common.BaseCase;
 import xbean.scomp.contentType.modelGroup.SequenceEltDocument;
 import xbean.scomp.contentType.modelGroup.SequenceT;
-import org.apache.xmlbeans.XmlString;
-import org.apache.xmlbeans.XmlErrorCodes;
-import scomp.common.BaseCase;
 
 import java.math.BigInteger;
 
-/**
- *
- *
- *
- */
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 public class SequenceTest extends BaseCase {
 
+    @Test
     public void testWrongOrder() throws Throwable {
         SequenceEltDocument doc = SequenceEltDocument.Factory
                 .parse("<foo:SequenceElt xmlns:foo=\"http://xbean/scomp/contentType/ModelGroup\">" +
@@ -42,10 +42,9 @@ public class SequenceTest extends BaseCase {
         String[] errExpected = new String[]{
             XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$EXPECTED_DIFFERENT_ELEMENT};
         assertTrue(compareErrorCodes(errExpected));
-
-
     }
 
+    @Test
     public void testWrongCardinality() {
         SequenceEltDocument doc = SequenceEltDocument.Factory.newInstance();
         SequenceT elt = doc.addNewSequenceElt();
