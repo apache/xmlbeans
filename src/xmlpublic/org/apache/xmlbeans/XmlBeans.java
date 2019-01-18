@@ -41,8 +41,7 @@ public final class XmlBeans
     static
     {
         Package pkg = XmlBeans.class.getPackage();
-        if (pkg != null)
-        {
+        if (pkg != null && pkg.getImplementationVersion() != null) {
             XMLBEANS_TITLE = pkg.getImplementationTitle();
             XMLBEANS_VERSION = pkg.getImplementationVersion();
             XMLBEANS_VENDOR = pkg.getImplementationVendor();
@@ -324,7 +323,7 @@ public final class XmlBeans
     {
         try
         {
-            return (SchemaTypeLoader)_getContextTypeLoaderMethod.invoke(null, null);
+            return (SchemaTypeLoader)_getContextTypeLoaderMethod.invoke(null);
         }
         catch (IllegalAccessException e)
         {
@@ -347,7 +346,7 @@ public final class XmlBeans
     {
         try
         {
-            return (SchemaTypeSystem)_getBuiltinSchemaTypeSystemMethod.invoke(null, null);
+            return (SchemaTypeSystem)_getBuiltinSchemaTypeSystemMethod.invoke(null);
         }
         catch (IllegalAccessException e)
         {
@@ -854,7 +853,7 @@ public final class XmlBeans
     {
         try
         {
-            return (SchemaType)_getNoTypeMethod.invoke(null, null);
+            return (SchemaType)_getNoTypeMethod.invoke(null);
         }
         catch (IllegalAccessException e)
         {

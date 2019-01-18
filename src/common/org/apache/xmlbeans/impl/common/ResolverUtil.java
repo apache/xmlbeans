@@ -58,14 +58,14 @@ public class ResolverUtil
         try
         {
             Class cmClass = Class.forName("org.apache.xml.resolver.CatalogManager");
-            Constructor cstrCm = cmClass.getConstructor(new Class[] {});
-            Object cmObj = cstrCm.newInstance(new Object[] {});
-            Method cmMethod = cmClass.getMethod("setCatalogFiles", new Class[] {String.class});
-            cmMethod.invoke(cmObj, new String[] {catalogFile});
+            Constructor cstrCm = cmClass.getConstructor();
+            Object cmObj = cstrCm.newInstance();
+            Method cmMethod = cmClass.getMethod("setCatalogFiles", String.class);
+            cmMethod.invoke(cmObj, catalogFile);
 
             Class crClass = Class.forName("org.apache.xml.resolver.tools.CatalogResolver");
-            Constructor cstrCr = crClass.getConstructor(new Class[] {cmClass});
-            Object crObj = cstrCr.newInstance(new Object[] {cmObj});
+            Constructor cstrCr = crClass.getConstructor(cmClass);
+            Object crObj = cstrCr.newInstance(cmObj);
 
             return (EntityResolver)crObj;
         }
