@@ -14,76 +14,63 @@
  */
 package org.apache.xmlbeans.impl.store;
 
+import org.apache.xmlbeans.XmlOptions;
+
 import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
 import java.lang.reflect.Constructor;
 
-public final class QueryDelegate
-{
-    private static HashMap _constructors = new HashMap();
+public final class QueryDelegate {
+    private static final Map<String, Constructor<? extends QueryInterface>> _constructors =
+        new HashMap<String, Constructor<? extends QueryInterface>>();
 
-    private QueryDelegate()
-    {}
+    private QueryDelegate() {
+    }
 
-    private static synchronized void init(String implClassName)
-    {
+    private static synchronized void init(String implClassName) {
         // default to Saxon
         if (implClassName == null)
             implClassName = "org.apache.xmlbeans.impl.xquery.saxon.XBeansXQuery";
-        Class queryInterfaceImpl = null;
+        Class<? extends QueryInterface> queryInterfaceImpl = null;
         boolean engineAvailable = true;
-        try
-        {
-            queryInterfaceImpl = Class.forName(implClassName);
-        }
-        catch (ClassNotFoundException e)
-        {
+        try {
+            //noinspection unchecked
+            queryInterfaceImpl = (Class<? extends QueryInterface>) Class.forName(implClassName);
+        } catch (ClassNotFoundException e) {
             engineAvailable = false;
-        }
-        catch (NoClassDefFoundError e)
-        {
+        } catch (NoClassDefFoundError e) {
             engineAvailable = false;
         }
 
-        if (engineAvailable)
-        {
-            try
-            {
-                Constructor constructor = queryInterfaceImpl.getConstructor(
-                    new Class[] {String.class, String.class, Integer.class});
+        if (engineAvailable) {
+            try {
+                Constructor<? extends QueryInterface> constructor = queryInterfaceImpl.getConstructor(
+                    String.class, String.class, Integer.class, XmlOptions.class);
                 _constructors.put(implClassName, constructor);
-            }
-            catch (Exception e)
-            {
+            } catch (Exception e) {
                 throw new RuntimeException(e);
             }
         }
     }
 
     public static synchronized QueryInterface createInstance(String implClassName,
-            String query, String contextVar, int boundary)
-    {
+         String query, String contextVar, int boundary, XmlOptions xmlOptions) {
         if (_constructors.get(implClassName) == null)
             init(implClassName);
 
         if (_constructors.get(implClassName) == null)
             return null;
 
-        Constructor constructor = (Constructor)_constructors.get(implClassName);
-        try
-        {
-            return (QueryInterface)constructor.newInstance(
-                new Object[] {query, contextVar, new Integer(boundary)});
-        }
-        catch (Exception e)
-        {
+        Constructor<? extends QueryInterface> constructor = _constructors.get(implClassName);
+        try {
+            return constructor.newInstance(query, contextVar, boundary, xmlOptions);
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
 
-    public static interface QueryInterface
-    {
-        public List execQuery(Object node, Map variableBindings);
+    public interface QueryInterface {
+        List execQuery(Object node, Map variableBindings);
     }
 }

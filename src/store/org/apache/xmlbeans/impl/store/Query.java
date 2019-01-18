@@ -169,7 +169,7 @@ public abstract class Query
         String delIntfName = 
             options.hasOption(QUERY_DELEGATE_INTERFACE) ? 
                 (String)options.get(QUERY_DELEGATE_INTERFACE) : _delIntfName;
-        query = DelegateQueryImpl.createDelegateCompiledQuery(delIntfName, queryExpr, currentVar, boundaryVal);
+        query = DelegateQueryImpl.createDelegateCompiledQuery(delIntfName, queryExpr, currentVar, boundaryVal, options);
 
         if (query != null)
         {
@@ -320,15 +320,16 @@ public abstract class Query
             _xqueryImpl = xqueryImpl;
         }
 
-        public static Query createDelegateCompiledQuery(String delIntfName,
-                                                        String queryExpr,
-                                                        String currentVar,
-                                                        int boundary)
+        static Query createDelegateCompiledQuery(String delIntfName,
+                                                 String queryExpr,
+                                                 String currentVar,
+                                                 int boundary,
+                                                 XmlOptions xmlOptions)
         {
             assert !(currentVar.startsWith(".") || currentVar.startsWith(".."));
             QueryDelegate.QueryInterface impl =
                 QueryDelegate.createInstance(delIntfName, queryExpr,
-                                             currentVar, boundary);
+                                             currentVar, boundary, xmlOptions);
             if (impl == null)
                 return null;
 
@@ -502,13 +503,13 @@ public abstract class Query
             private void loadNodeHelper(Locale locale, Node node, Locale.LoadContext context)
             {
                 if (node.getNodeType() == Node.ATTRIBUTE_NODE) {
-                    QName attName = new QName(node.getNamespaceURI(),
+                        QName attName = new QName(node.getNamespaceURI(),
                             node.getLocalName(),
                             node.getPrefix());
-                    context.attr(attName, node.getNodeValue());
-                }
+                        context.attr(attName, node.getNodeValue());
+                        }
                 else
-                    locale.loadNode(node, context);
+                        locale.loadNode(node, context);
 
             }
 

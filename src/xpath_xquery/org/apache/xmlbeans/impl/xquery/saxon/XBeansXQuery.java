@@ -23,6 +23,7 @@ import java.util.ListIterator;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.TransformerException;
 
+import org.apache.xmlbeans.XmlOptions;
 import org.w3c.dom.Node;
 
 import net.sf.saxon.Configuration;
@@ -49,22 +50,29 @@ public class XBeansXQuery
      * @param contextVar The name of the context variable
      * @param boundary The offset of the end of the prolog
      */
-    public XBeansXQuery(String query, String contextVar, Integer boundary)
+    public XBeansXQuery(String query, String contextVar, Integer boundary, XmlOptions xmlOptions)
     {
         config = new Configuration();
         config.setDOMLevel(2);
         config.setTreeModel(net.sf.saxon.event.Builder.STANDARD_TREE);
         StaticQueryContext sc = new StaticQueryContext(config);
+        @SuppressWarnings("unchecked")
+        Map<String,String> nsMap = (Map<String,String>)xmlOptions.get(XmlOptions.LOAD_ADDITIONAL_NAMESPACES);
+        if (nsMap != null) {
+            for (Map.Entry<String,String> me : nsMap.entrySet()) {
+                sc.declareNamespace(me.getKey(), me.getValue());
+            }
+        }
+
         this.contextVar = contextVar;
-        int bdry = boundary.intValue();
         //Saxon requires external variables at the end of the prolog...
-        query = (bdry == 0) ?
+        query = (boundary == 0) ?
                 "declare variable $" +
                 contextVar + " external;" + query :
-                query.substring(0, bdry) +
+                query.substring(0, boundary) +
                 "declare variable $" +
                 contextVar + " external;" +
-                query.substring(bdry);
+                query.substring(boundary);
         try
         {
             xquery = sc.compileQuery(query);

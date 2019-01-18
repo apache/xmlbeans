@@ -1,5 +1,7 @@
 Changes in V3.0.3 since V3.0.2
 
+* XMLBEANS-530: Allow namespaces of XmlOptions to be passed to the XQuery engine
+* XMLBEANS-529: Format xmlobjects to the correct string representation on XPath access
 * XMLBEANS-528: Allow document locator to be set after initialization
 * XMLBEANS-527: Rename shell script directory, to align on typical directory layout
 
