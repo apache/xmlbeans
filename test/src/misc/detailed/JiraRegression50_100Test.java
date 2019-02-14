@@ -381,7 +381,7 @@ public class JiraRegression50_100Test extends JiraTestBase
         if (baz.getStatus().compareTo("SUCCESS") != 0)
             throw new Exception("Status was not loaded properly");
         else
-            System.out.println("Sucess was recieved correctly");
+            System.out.println("Sucess was received correctly");
     }
 
 

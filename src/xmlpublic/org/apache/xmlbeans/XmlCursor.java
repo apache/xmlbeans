@@ -1388,7 +1388,7 @@ public interface XmlCursor extends XmlTokenSource
      * Implementations of XmlCursor implement XmlMark to be able to
      * reconstitute a cursor from a bookmark. When content moves between
      * implementations, the XmlMark is set to the implmentation's which
-     * recieves the new content.
+     * receives the new content.
      */
 
     interface XmlMark

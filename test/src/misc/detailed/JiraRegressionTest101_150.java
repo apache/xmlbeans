@@ -81,7 +81,7 @@ public class JiraRegressionTest101_150 extends JiraTestBase
         // make sure the error message is what is expected
         rud.validate(xmOpts);
         assertEquals("More Errors than expected", 1, errorList.size());
-        assertEquals("Did not recieve the expected error code: " + ((XmlError) errorList.get(0)).getErrorCode(), 0, ((XmlError) errorList.get(0)).getErrorCode().compareToIgnoreCase("cvc-complex-type.2.4a"));
+        assertEquals("Did not receive the expected error code: " + ((XmlError) errorList.get(0)).getErrorCode(), 0, ((XmlError) errorList.get(0)).getErrorCode().compareToIgnoreCase("cvc-complex-type.2.4a"));
 
     }
 }
