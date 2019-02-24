@@ -249,7 +249,7 @@
 
         <schemaCompProd classpathref="oldxbean" dest="build/bootstrap"/>
 
-        <javac destdir="build/classes" debug="on" includeantruntime="true">
+        <javac destdir="build/classes" debug="true" debuglevel="lines,vars,source" includeantruntime="true">
             <src refid="sources"/>
             <src path="build/bootstrap/generated-sources"/>
             <classpath>
@@ -275,7 +275,7 @@
         <!-- delete old schema classes -->
         <delete dir="build/classes/org/apache/xmlbeans/impl/xb"/>
 
-        <javac destdir="build/classes" debug="on" includeantruntime="true" classpathref="saxon">
+        <javac destdir="build/classes" debug="true" debuglevel="lines,vars,source" includeantruntime="true" classpathref="saxon">
             <src refid="sources"/>
         </javac>
     </target>
@@ -375,7 +375,7 @@
 
 
     <target name="test-compile" depends="process-test-resources" description="Compile test sources and resources">
-        <javac destdir="build/test-classes" debug="on" includeantruntime="true" classpathref="xmlbeans-test">
+        <javac destdir="build/test-classes" debug="true" debuglevel="lines,vars,source" includeantruntime="true" classpathref="xmlbeans-test">
             <src path="test/src"/>
             <src path="test/tools/src"/>
             <src>
@@ -386,10 +386,10 @@
         </javac>
 
         <mkdir dir="build/test-syscache/1/classes"/>
-        <javac destdir="build/test-syscache/1/classes" debug="on" includeantruntime="true" classpathref="xmlbeans-test"
+        <javac destdir="build/test-syscache/1/classes" debug="true" debuglevel="lines,vars,source" includeantruntime="true" classpathref="xmlbeans-test"
                srcdir="build/test-syscache/1/generated-sources"/>
         <mkdir dir="build/test-syscache/2/classes"/>
-        <javac destdir="build/test-syscache/2/classes" debug="on" includeantruntime="true" classpathref="xmlbeans-test"
+        <javac destdir="build/test-syscache/2/classes" debug="true" debuglevel="lines,vars,source" includeantruntime="true" classpathref="xmlbeans-test"
                srcdir="build/test-syscache/2/generated-sources"/>
     </target>
 
