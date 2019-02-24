@@ -25,7 +25,7 @@ import org.apache.xmlbeans.SchemaTypeSystem;
  * required without needing to rely on javac.  The generated source still
  * requires a java compiler.
  *
- * @see SchemaTypeSystemImpl.save()
+ * @see SchemaTypeSystemImpl#save(org.apache.xmlbeans.Filer)
  */
 //
 // !!! It's important that there never NEVER be any references to this class because
