@@ -39,8 +39,9 @@ import java.util.IdentityHashMap;
 
 import java.lang.ref.SoftReference;
 
-public class SchemaTypeLoaderImpl extends SchemaTypeLoaderBase
-{
+import static org.apache.xmlbeans.impl.schema.SchemaTypeSystemImpl.METADATA_PACKAGE_GEN;
+
+public class SchemaTypeLoaderImpl extends SchemaTypeLoaderBase {
     private ResourceLoader _resourceLoader;
     private ClassLoader _classLoader;
     private SchemaTypeLoader[] _searchPath;
@@ -56,8 +57,9 @@ public class SchemaTypeLoaderImpl extends SchemaTypeLoaderBase
     private Map _documentCache;
     private Map _attributeTypeCache;
     private Map _classnameCache;
+    private final String _metadataPath;
 
-    public static String METADATA_PACKAGE_LOAD = SchemaTypeSystemImpl.METADATA_PACKAGE_GEN;
+    public static String METADATA_PACKAGE_LOAD = METADATA_PACKAGE_GEN;
     private static final Object CACHED_NOT_FOUND = new Object();
 
     private static class SchemaTypeLoaderCache extends SystemCache
@@ -78,12 +80,12 @@ public class SchemaTypeLoaderImpl extends SchemaTypeLoaderBase
 
             for ( int i = 0 ; i < a.size() ; i++ )
             {
-                SchemaTypeLoaderImpl tl = (SchemaTypeLoaderImpl) ((SoftReference) a.get( i )).get();
+                SchemaTypeLoaderImpl tl = (SchemaTypeLoaderImpl) ((SoftReference) a.get(i)).get();
 
                 if (tl == null)
                 {
                     assert i > candidate;
-                    a.remove( i-- );
+                    a.remove(i--);
                 }
                 else if (tl._classLoader == cl)
                 {
@@ -100,9 +102,9 @@ public class SchemaTypeLoaderImpl extends SchemaTypeLoaderBase
 
             if (candidate > 0)
             {
-                Object t = a.get( 0 );
-                a.set( 0, a.get( candidate ) );
-                a.set( candidate, t );
+                Object t = a.get(0);
+                a.set(0, a.get(candidate));
+                a.set(candidate, t);
             }
 
             return result;
@@ -111,18 +113,18 @@ public class SchemaTypeLoaderImpl extends SchemaTypeLoaderBase
         public void addToTypeLoaderCache(SchemaTypeLoader stl, ClassLoader cl)
         {
             assert (stl instanceof SchemaTypeLoaderImpl) &&
-                ((SchemaTypeLoaderImpl) stl)._classLoader == cl;
+                   ((SchemaTypeLoaderImpl) stl)._classLoader == cl;
 
             ArrayList a = (ArrayList) _cachedTypeSystems.get();
             // Make sure this entry is at the top of the stack
             if (a.size() > 0)
             {
-                Object t = a.get( 0 );
-                a.set( 0, new SoftReference( stl ) );
-                a.add( t );
+                Object t = a.get(0);
+                a.set(0, new SoftReference(stl));
+                a.add(t);
             }
             else
-                a.add( new SoftReference( stl ) );
+                a.add(new SoftReference(stl));
         }
     }
 
@@ -136,45 +138,67 @@ public class SchemaTypeLoaderImpl extends SchemaTypeLoaderBase
         {
             result =
                 new SchemaTypeLoaderImpl(
-                    new SchemaTypeLoader[] { BuiltinSchemaTypeSystem.get() }, null, cl );
+                    new SchemaTypeLoader[]{BuiltinSchemaTypeSystem.get()}, null, cl, null);
             SystemCache.get().addToTypeLoaderCache(result, cl);
         }
 
         return result;
     }
 
-    public static SchemaTypeLoader build(SchemaTypeLoader[] searchPath, ResourceLoader resourceLoader, ClassLoader classLoader)
-    {
-        if (searchPath == null)
-        {
-            searchPath = EMPTY_SCHEMATYPELOADER_ARRAY;
-        }
-        else
-        {
-            // assemble a flattened search path with no duplicates
-            SubLoaderList list = new SubLoaderList();
-            for (int i = 0; i < searchPath.length; i++)
-            {
-                if (searchPath[i] == null)
-                    throw new IllegalArgumentException("searchPath[" + i + "] is null");
-                if (!(searchPath[i] instanceof SchemaTypeLoaderImpl))
-                    list.add(searchPath[i]);
-                else
-                {
-                    SchemaTypeLoaderImpl sub = (SchemaTypeLoaderImpl)searchPath[i];
-                    if (sub._classLoader != null || sub._resourceLoader != null)
-                        list.add(sub);
-                    else for (int j = 0; j < sub._searchPath.length; j++)
-                        list.add(sub._searchPath[j]);
+    public static SchemaTypeLoader build(SchemaTypeLoader[] searchPath, ResourceLoader resourceLoader, ClassLoader classLoader) {
+        return build(searchPath, resourceLoader, classLoader, null);
+    }
+
+    /**
+     * Initialize a SchemaTypeLoader via the given loaders and paths
+     *
+     * @param searchPath the searchPath to use
+     * @param resourceLoader the resourceLoader to use
+     * @param classLoader the classLoader to use
+     * @param metadataPath the custom metadata path
+     * @return the schemaTypeLoader
+     *
+     * @since XmlBeans 3.0.3
+     */
+    public static SchemaTypeLoader build(final SchemaTypeLoader[] searchPath, ResourceLoader resourceLoader, ClassLoader classLoader, String metadataPath) {
+        final SchemaTypeLoader[] sp;
+
+        if (searchPath == null) {
+            // if the metadata directory is customized, fallback to the xmlbeans typesystems
+            final boolean isDefaultPath = (metadataPath == null || ("schema" + METADATA_PACKAGE_GEN).equals(metadataPath));
+            if (isDefaultPath) {
+                sp = null;
+            } else {
+                String[] baseHolder = {
+                    "schemaorg_apache_xmlbeans.system.sXMLCONFIG.TypeSystemHolder",
+                    "schemaorg_apache_xmlbeans.system.sXMLLANG.TypeSystemHolder",
+                    "schemaorg_apache_xmlbeans.system.sXMLSCHEMA.TypeSystemHolder",
+                    "schemaorg_apache_xmlbeans.system.sXMLTOOLS.TypeSystemHolder"
+                };
+
+                sp = new SchemaTypeLoader[baseHolder.length];
+                for (int i=0; i<baseHolder.length; i++) {
+                    try {
+                        Class cls = Class.forName(baseHolder[i]);
+                        sp[i] = (SchemaTypeLoader)cls.getDeclaredField("typeSystem").get(null);
+                    } catch (Exception e) {
+                        System.out.println("throw runtime: "+e.toString());
+                        throw new RuntimeException(e);
+                    }
                 }
             }
-            searchPath = list.toArray();
+        } else {
+            // assemble a flattened search path with no duplicates
+            SubLoaderList list = new SubLoaderList();
+            list.add(searchPath);
+            sp = list.toArray();
         }
 
-        if (searchPath.length == 1 && resourceLoader == null && classLoader == null)
-            return searchPath[0];
+        if (sp != null && sp.length == 1 && resourceLoader == null && classLoader == null) {
+            return sp[0];
+        }
 
-        return new SchemaTypeLoaderImpl(searchPath, resourceLoader, classLoader);
+        return new SchemaTypeLoaderImpl(sp, resourceLoader, classLoader, metadataPath);
     }
 
     /**
@@ -182,21 +206,36 @@ public class SchemaTypeLoaderImpl extends SchemaTypeLoaderBase
      */
     private static class SubLoaderList
     {
-        private List theList = new ArrayList();
-        private Map seen = new IdentityHashMap();
+        private final List<SchemaTypeLoader> theList = new ArrayList<SchemaTypeLoader>();
+        private final Map<SchemaTypeLoader,Object> seen = new IdentityHashMap<SchemaTypeLoader,Object>();
 
-        private boolean add(SchemaTypeLoader loader)
-        {
-            if (seen.containsKey(loader))
-                return false;
-            theList.add(loader);
-            seen.put(loader, null);
-            return true;
+        void add(SchemaTypeLoader[] searchPath) {
+            if (searchPath == null) {
+                return;
+            }
+            for (SchemaTypeLoader stl : searchPath) {
+                if (stl instanceof SchemaTypeLoaderImpl) {
+                    SchemaTypeLoaderImpl sub = (SchemaTypeLoaderImpl)stl;
+                    if (sub._classLoader != null || sub._resourceLoader != null) {
+                        add(sub);
+                    } else {
+                        add(sub._searchPath);
+                    }
+                } else {
+                    add(stl);
+                }
+            }
         }
 
-        private SchemaTypeLoader[] toArray()
-        {
-            return (SchemaTypeLoader[])theList.toArray(EMPTY_SCHEMATYPELOADER_ARRAY);
+        void add(SchemaTypeLoader loader) {
+            if (loader != null && !seen.containsKey(loader)) {
+                theList.add(loader);
+                seen.put(loader, null);
+            }
+        }
+
+        SchemaTypeLoader[] toArray() {
+            return theList.toArray(EMPTY_SCHEMATYPELOADER_ARRAY);
         }
     }
 
@@ -214,7 +253,7 @@ public class SchemaTypeLoaderImpl extends SchemaTypeLoaderBase
      *     be different.
      * (3) Finally on the classloader supplied.
      */
-    private SchemaTypeLoaderImpl(SchemaTypeLoader[] searchPath, ResourceLoader resourceLoader, ClassLoader classLoader)
+    private SchemaTypeLoaderImpl(SchemaTypeLoader[] searchPath, ResourceLoader resourceLoader, ClassLoader classLoader, String metadataPath)
     {
         if (searchPath == null)
             _searchPath = EMPTY_SCHEMATYPELOADER_ARRAY;
@@ -222,6 +261,7 @@ public class SchemaTypeLoaderImpl extends SchemaTypeLoaderBase
             _searchPath = searchPath;
         _resourceLoader = resourceLoader;
         _classLoader = classLoader;
+        this._metadataPath = (metadataPath == null) ? "schema" + METADATA_PACKAGE_LOAD : metadataPath;
 
         initCaches();
     }
@@ -350,8 +390,8 @@ public class SchemaTypeLoaderImpl extends SchemaTypeLoaderBase
         for (int i = 0; i < _searchPath.length; i++)
             if (_searchPath[i].isNamespaceDefined(namespace))
                 return true;
-        
-        SchemaTypeSystem sts = typeSystemForComponent("schema" + METADATA_PACKAGE_LOAD + "/namespace/", new QName(namespace, "xmlns"));
+
+        SchemaTypeSystem sts = typeSystemForComponent(_metadataPath + "/namespace/", new QName(namespace, "xmlns"));
         return (sts != null);
     }
 
@@ -375,7 +415,7 @@ public class SchemaTypeLoaderImpl extends SchemaTypeLoaderBase
                     break;
             if (result == null)
             {
-                SchemaTypeSystem ts = typeSystemForComponent("schema" + METADATA_PACKAGE_LOAD + "/type/", name);
+                SchemaTypeSystem ts = typeSystemForComponent(_metadataPath + "/type/", name);
                 if (ts != null)
                 {
                     result = ts.findTypeRef(name);
@@ -402,7 +442,7 @@ public class SchemaTypeLoaderImpl extends SchemaTypeLoaderBase
                     break;
             if (result == null)
             {
-                SchemaTypeSystem ts = typeSystemForClassname("schema" + METADATA_PACKAGE_LOAD + "/javaname/", classname);
+                SchemaTypeSystem ts = typeSystemForClassname(_metadataPath + "/javaname/", classname);
                 if (ts != null)
                 {
                     result = ts.typeForClassname(classname);
@@ -427,7 +467,7 @@ public class SchemaTypeLoaderImpl extends SchemaTypeLoaderBase
                     break;
             if (result == null)
             {
-                SchemaTypeSystem ts = typeSystemForComponent("schema" + METADATA_PACKAGE_LOAD + "/element/", name);
+                SchemaTypeSystem ts = typeSystemForComponent(_metadataPath + "/element/", name);
                 if (ts != null)
                 {
                     result = ts.findDocumentTypeRef(name);
@@ -452,7 +492,7 @@ public class SchemaTypeLoaderImpl extends SchemaTypeLoaderBase
                     break;
             if (result == null)
             {
-                SchemaTypeSystem ts = typeSystemForComponent("schema" + METADATA_PACKAGE_LOAD + "/attribute/", name);
+                SchemaTypeSystem ts = typeSystemForComponent(_metadataPath + "/attribute/", name);
                 if (ts != null)
                 {
                     result = ts.findAttributeTypeRef(name);
@@ -477,7 +517,7 @@ public class SchemaTypeLoaderImpl extends SchemaTypeLoaderBase
                     break;
             if (result == null)
             {
-                SchemaTypeSystem ts = typeSystemForComponent("schema" + METADATA_PACKAGE_LOAD + "/element/", name);
+                SchemaTypeSystem ts = typeSystemForComponent(_metadataPath + "/element/", name);
                 if (ts != null)
                 {
                     result = ts.findElementRef(name);
@@ -502,7 +542,7 @@ public class SchemaTypeLoaderImpl extends SchemaTypeLoaderBase
                     break;
             if (result == null)
             {
-                SchemaTypeSystem ts = typeSystemForComponent("schema" + METADATA_PACKAGE_LOAD + "/attribute/", name);
+                SchemaTypeSystem ts = typeSystemForComponent(_metadataPath + "/attribute/", name);
                 if (ts != null)
                 {
                     result = ts.findAttributeRef(name);
@@ -527,7 +567,7 @@ public class SchemaTypeLoaderImpl extends SchemaTypeLoaderBase
                     break;
             if (result == null)
             {
-                SchemaTypeSystem ts = typeSystemForComponent("schema" + METADATA_PACKAGE_LOAD + "/modelgroup/", name);
+                SchemaTypeSystem ts = typeSystemForComponent(_metadataPath + "/modelgroup/", name);
                 if (ts != null)
                 {
                     result = ts.findModelGroupRef(name);
@@ -552,7 +592,7 @@ public class SchemaTypeLoaderImpl extends SchemaTypeLoaderBase
                     break;
             if (result == null)
             {
-                SchemaTypeSystem ts = typeSystemForComponent("schema" + METADATA_PACKAGE_LOAD + "/attributegroup/", name);
+                SchemaTypeSystem ts = typeSystemForComponent(_metadataPath + "/attributegroup/", name);
                 if (ts != null)
                 {
                     result = ts.findAttributeGroupRef(name);
@@ -577,7 +617,7 @@ public class SchemaTypeLoaderImpl extends SchemaTypeLoaderBase
                     break;
             if (result == null)
             {
-                SchemaTypeSystem ts = typeSystemForComponent("schema" + METADATA_PACKAGE_LOAD + "/identityconstraint/", name);
+                SchemaTypeSystem ts = typeSystemForComponent(_metadataPath + "/identityconstraint/", name);
                 if (ts != null)
                 {
                     result = ts.findIdentityConstraintRef(name);
@@ -597,10 +637,10 @@ public class SchemaTypeLoaderImpl extends SchemaTypeLoaderBase
             sourceName = "/" + sourceName;
 
         if (_resourceLoader != null)
-            result = _resourceLoader.getResourceAsStream("schema" + METADATA_PACKAGE_LOAD + "/src" + sourceName);
+            result = _resourceLoader.getResourceAsStream(_metadataPath + "/src" + sourceName);
 
         if (result == null && _classLoader != null)
-            return _classLoader.getResourceAsStream("schema" + METADATA_PACKAGE_LOAD + "/src" + sourceName);
+            return _classLoader.getResourceAsStream(_metadataPath + "/src" + sourceName);
 
         return result;
     }

@@ -21,7 +21,6 @@ import org.apache.xmlbeans.SchemaAnnotation;
 import org.apache.xmlbeans.SchemaAttributeGroup;
 import org.apache.xmlbeans.SchemaAttributeModel;
 import org.apache.xmlbeans.SchemaComponent;
-import org.apache.xmlbeans.SchemaField;
 import org.apache.xmlbeans.SchemaGlobalAttribute;
 import org.apache.xmlbeans.SchemaGlobalElement;
 import org.apache.xmlbeans.SchemaIdentityConstraint;
@@ -52,7 +51,7 @@ import org.apache.xmlbeans.impl.xb.xsdschema.AttributeGroupDocument;
 import org.apache.xmlbeans.impl.xb.xsdschema.GroupDocument;
 import org.apache.xmlbeans.soap.SOAPArrayType;
 import org.apache.xmlbeans.soap.SchemaWSDLArrayType;
-import repackage.Repackager;
+import org.apache.xmlbeans.impl.repackage.Repackager;
 
 import javax.xml.namespace.QName;
 import java.io.ByteArrayOutputStream;
@@ -179,7 +178,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
         XBeanDebug.trace(XBeanDebug.TRACE_SCHEMA_LOADING, "Loading type system " + _name, 1);
         _basePackage = nameToPathString(_name);
         _classloader = indexclass.getClassLoader();
-        _linker = SchemaTypeLoaderImpl.build(null, null, _classloader);
+        _linker = SchemaTypeLoaderImpl.build(null, null, _classloader, getMetadataPath());
         _resourceLoader = new ClassLoaderResourceLoader(_classloader);
         try
         {
@@ -341,17 +340,17 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
 
     void savePointers()
     {
-        savePointersForComponents(globalElements(), "schema" + METADATA_PACKAGE_GEN + "/element/");
-        savePointersForComponents(globalAttributes(), "schema" + METADATA_PACKAGE_GEN + "/attribute/");
-        savePointersForComponents(modelGroups(), "schema" + METADATA_PACKAGE_GEN + "/modelgroup/");
-        savePointersForComponents(attributeGroups(), "schema" + METADATA_PACKAGE_GEN + "/attributegroup/");
-        savePointersForComponents(globalTypes(), "schema" + METADATA_PACKAGE_GEN + "/type/");
-        savePointersForComponents(identityConstraints(), "schema" + METADATA_PACKAGE_GEN + "/identityconstraint/");
-        savePointersForNamespaces(_namespaces, "schema" + METADATA_PACKAGE_GEN + "/namespace/");
-        savePointersForClassnames(_typeRefsByClassname.keySet(), "schema" + METADATA_PACKAGE_GEN + "/javaname/");
-        savePointersForComponents(redefinedModelGroups(), "schema" + METADATA_PACKAGE_GEN + "/redefinedmodelgroup/");
-        savePointersForComponents(redefinedAttributeGroups(), "schema" + METADATA_PACKAGE_GEN + "/redefinedattributegroup/");
-        savePointersForComponents(redefinedGlobalTypes(), "schema" + METADATA_PACKAGE_GEN + "/redefinedtype/");
+        savePointersForComponents(globalElements(), getMetadataPath() + "/element/");
+        savePointersForComponents(globalAttributes(), getMetadataPath() + "/attribute/");
+        savePointersForComponents(modelGroups(), getMetadataPath() + "/modelgroup/");
+        savePointersForComponents(attributeGroups(), getMetadataPath() + "/attributegroup/");
+        savePointersForComponents(globalTypes(), getMetadataPath() + "/type/");
+        savePointersForComponents(identityConstraints(), getMetadataPath() + "/identityconstraint/");
+        savePointersForNamespaces(_namespaces, getMetadataPath() + "/namespace/");
+        savePointersForClassnames(_typeRefsByClassname.keySet(), getMetadataPath() + "/javaname/");
+        savePointersForComponents(redefinedModelGroups(), getMetadataPath() + "/redefinedmodelgroup/");
+        savePointersForComponents(redefinedAttributeGroups(), getMetadataPath() + "/redefinedattributegroup/");
+        savePointersForComponents(redefinedGlobalTypes(), getMetadataPath() + "/redefinedtype/");
     }
 
     void savePointersForComponents(SchemaComponent[] components, String dir)
@@ -917,7 +916,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
             nameForSystem = "s" + new String(HexBin.encode(bytes));
         }
 
-        _name = "schema" + METADATA_PACKAGE_GEN + ".system." + nameForSystem;
+        _name = getMetadataPath().replace('/','.') + ".system." + nameForSystem;
         _basePackage = nameToPathString(_name);
         _classloader = null;
         //System.out.println("             _base: " + _basePackage);
@@ -3655,7 +3654,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
         if (!sourceName.startsWith("/"))
             sourceName = "/" + sourceName;
 
-        return _resourceLoader.getResourceAsStream("schema" + METADATA_PACKAGE_GEN + "/src" + sourceName);
+        return _resourceLoader.getResourceAsStream(getMetadataPath() + "/src" + sourceName);
     }
 
     SchemaContainer[] containers()
@@ -3810,4 +3809,17 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
             return this;
         return null;
     }
+
+
+    /**
+     * Provide method to be overriden by user typesystems using a different metadata path
+     *
+     * @return the metadata directory
+     *
+     * @since XmlBeans 3.0.3
+     */
+    protected String getMetadataPath() {
+        return "schema" + METADATA_PACKAGE_GEN;
+    }
+
 }
