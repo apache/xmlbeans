@@ -13,7 +13,7 @@
  *  limitations under the License.
  */
 
-package repackage;
+package org.apache.xmlbeans.impl.repackage;
 
 import java.io.*;
 

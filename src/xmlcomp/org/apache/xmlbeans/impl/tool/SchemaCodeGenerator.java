@@ -15,31 +15,19 @@
 
 package org.apache.xmlbeans.impl.tool;
 
-import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.SchemaTypeSystem;
 import org.apache.xmlbeans.SystemProperties;
-import org.apache.xmlbeans.impl.common.IOUtil;
-import org.apache.xmlbeans.impl.common.XmlErrorWatcher;
-import org.apache.xmlbeans.impl.schema.SchemaTypeCodePrinter;
-import org.apache.xmlbeans.impl.schema.SchemaTypeSystemCompiler;
 import org.apache.xmlbeans.impl.util.FilerImpl;
-import org.apache.xmlbeans.SchemaCodePrinter;
 import org.apache.xmlbeans.XmlOptions;
 import org.apache.xmlbeans.Filer;
-import repackage.Repackager;
+import org.apache.xmlbeans.impl.repackage.Repackager;
 
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.StringWriter;
-import java.io.Reader;
-import java.io.Writer;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 public class SchemaCodeGenerator

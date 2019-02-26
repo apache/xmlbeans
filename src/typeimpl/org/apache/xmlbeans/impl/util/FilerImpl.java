@@ -35,7 +35,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.ArrayList;
 
-import repackage.Repackager;
+import org.apache.xmlbeans.impl.repackage.Repackager;
 
 /**
  * This implementation of Filer writes to disk.

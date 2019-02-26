@@ -59,7 +59,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
-import repackage.Repackager;
+import org.apache.xmlbeans.impl.repackage.Repackager;
 
 public class SchemaCompiler
 {
