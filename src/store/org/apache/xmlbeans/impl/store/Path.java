@@ -65,23 +65,26 @@ public abstract class Path
     private static boolean _xqrlAvailable = true;
     private static boolean _xqrl2002Available = true;
 
-    private static String _delIntfName;
+    private static final String _delIntfName;
     private static final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
 
     static
     {
         String id = "META-INF/services/org.apache.xmlbeans.impl.store.PathDelegate.SelectPathInterface";
         InputStream in = new DefaultClassLoaderResourceLoader().getResourceAsStream(id);
-        try
-        {
-            BufferedReader br = new BufferedReader(new InputStreamReader(in));
-            _delIntfName = br.readLine().trim();
-            br.close();
+
+        String name = null;
+        if(in != null) {
+            try {
+                BufferedReader br = new BufferedReader(new InputStreamReader(in));
+                name = br.readLine().trim();
+                br.close();
+            } catch (Exception e) {
+                // set nothing
+            }
         }
-        catch (Exception e)
-        {
-            _delIntfName = null;
-        }
+
+        _delIntfName = name;
     }
 
     protected final String _pathKey;
