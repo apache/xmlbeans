@@ -766,217 +766,181 @@ public class SchemaCompiler
 
         // construct the state (have to initialize early in case of errors)
         StscState state = StscState.start();
-        state.setErrorListener(errorListener);
+        try {
+            state.setErrorListener(errorListener);
 
-        // For parsing XSD and WSDL files, we should use the SchemaDocument
-        // classloader rather than the thread context classloader.  This is
-        // because in some situations (such as when being invoked by ant
-        // underneath the ide) the context classloader is potentially weird
-        // (because of the design of ant).
+            // For parsing XSD and WSDL files, we should use the SchemaDocument
+            // classloader rather than the thread context classloader.  This is
+            // because in some situations (such as when being invoked by ant
+            // underneath the ide) the context classloader is potentially weird
+            // (because of the design of ant).
 
-        SchemaTypeLoader loader = XmlBeans.typeLoaderForClassLoader(SchemaDocument.class.getClassLoader());
+            SchemaTypeLoader loader = XmlBeans.typeLoaderForClassLoader(SchemaDocument.class.getClassLoader());
 
-        // step 1, parse all the XSD files.
-        ArrayList scontentlist = new ArrayList();
-        if (xsdFiles != null)
-        {
-            for (int i = 0; i < xsdFiles.length; i++)
-            {
-                try
-                {
-                    XmlOptions options = new XmlOptions();
-                    options.setLoadLineNumbers();
-                    options.setLoadMessageDigest();
-                    options.setEntityResolver(entResolver);
+            // step 1, parse all the XSD files.
+            ArrayList scontentlist = new ArrayList();
+            if (xsdFiles != null) {
+                for (int i = 0; i < xsdFiles.length; i++) {
+                    try {
+                        XmlOptions options = new XmlOptions();
+                        options.setLoadLineNumbers();
+                        options.setLoadMessageDigest();
+                        options.setEntityResolver(entResolver);
 
-                    XmlObject schemadoc = loader.parse(xsdFiles[i], null, options);
-                    if (!(schemadoc instanceof SchemaDocument))
-                    {
-                        StscState.addError(errorListener, XmlErrorCodes.INVALID_DOCUMENT_TYPE,
-                            new Object[] { xsdFiles[i], "schema" }, schemadoc);
+                        XmlObject schemadoc = loader.parse(xsdFiles[i], null, options);
+                        if (!(schemadoc instanceof SchemaDocument)) {
+                            StscState.addError(errorListener, XmlErrorCodes.INVALID_DOCUMENT_TYPE,
+                                    new Object[]{xsdFiles[i], "schema"}, schemadoc);
+                        } else {
+                            addSchema(xsdFiles[i].toString(), (SchemaDocument) schemadoc,
+                                    errorListener, noVDoc, scontentlist);
+                        }
+                    } catch (XmlException e) {
+                        errorListener.add(e.getError());
+                    } catch (Exception e) {
+                        StscState.addError(errorListener, XmlErrorCodes.CANNOT_LOAD_FILE,
+                                new Object[]{"xsd", xsdFiles[i], e.getMessage()}, xsdFiles[i]);
                     }
-                    else
-                    {
-                        addSchema(xsdFiles[i].toString(), (SchemaDocument)schemadoc,
-                            errorListener, noVDoc, scontentlist);
-                    }
-                }
-                catch (XmlException e)
-                {
-                    errorListener.add(e.getError());
-                }
-                catch (Exception e)
-                {
-                    StscState.addError(errorListener, XmlErrorCodes.CANNOT_LOAD_FILE,
-                        new Object[] { "xsd", xsdFiles[i], e.getMessage() }, xsdFiles[i]);
                 }
             }
-        }
 
-        // step 2, parse all WSDL files
-        if (wsdlFiles != null)
-        {
-            for (int i = 0; i < wsdlFiles.length; i++)
-            {
-                try
-                {
-                    XmlOptions options = new XmlOptions();
-                    options.setLoadLineNumbers();
-                    options.setLoadSubstituteNamespaces(Collections.singletonMap(
-                            "http://schemas.xmlsoap.org/wsdl/", "http://www.apache.org/internal/xmlbeans/wsdlsubst"
-                    ));
-                    options.setEntityResolver(entResolver);
+            // step 2, parse all WSDL files
+            if (wsdlFiles != null) {
+                for (int i = 0; i < wsdlFiles.length; i++) {
+                    try {
+                        XmlOptions options = new XmlOptions();
+                        options.setLoadLineNumbers();
+                        options.setLoadSubstituteNamespaces(Collections.singletonMap(
+                                "http://schemas.xmlsoap.org/wsdl/", "http://www.apache.org/internal/xmlbeans/wsdlsubst"
+                        ));
+                        options.setEntityResolver(entResolver);
 
-                    XmlObject wsdldoc = loader.parse(wsdlFiles[i], null, options);
+                        XmlObject wsdldoc = loader.parse(wsdlFiles[i], null, options);
 
-                    if (!(wsdldoc instanceof org.apache.xmlbeans.impl.xb.substwsdl.DefinitionsDocument))
-                        StscState.addError(errorListener, XmlErrorCodes.INVALID_DOCUMENT_TYPE,
-                            new Object[] { wsdlFiles[i], "wsdl" }, wsdldoc);
-                    else
-                    {
-                        addWsdlSchemas(wsdlFiles[i].toString(), (org.apache.xmlbeans.impl.xb.substwsdl.DefinitionsDocument)wsdldoc, errorListener, noVDoc, scontentlist);
+                        if (!(wsdldoc instanceof org.apache.xmlbeans.impl.xb.substwsdl.DefinitionsDocument))
+                            StscState.addError(errorListener, XmlErrorCodes.INVALID_DOCUMENT_TYPE,
+                                    new Object[]{wsdlFiles[i], "wsdl"}, wsdldoc);
+                        else {
+                            addWsdlSchemas(wsdlFiles[i].toString(), (org.apache.xmlbeans.impl.xb.substwsdl.DefinitionsDocument) wsdldoc, errorListener, noVDoc, scontentlist);
+                        }
+                    } catch (XmlException e) {
+                        errorListener.add(e.getError());
+                    } catch (Exception e) {
+                        StscState.addError(errorListener, XmlErrorCodes.CANNOT_LOAD_FILE,
+                                new Object[]{"wsdl", wsdlFiles[i], e.getMessage()}, wsdlFiles[i]);
                     }
-                }
-                catch (XmlException e)
-                {
-                    errorListener.add(e.getError());
-                }
-                catch (Exception e)
-                {
-                    StscState.addError(errorListener, XmlErrorCodes.CANNOT_LOAD_FILE,
-                        new Object[] { "wsdl", wsdlFiles[i], e.getMessage() }, wsdlFiles[i]);
                 }
             }
-        }
 
-        // step 3, parse all URL files
-        // XMLBEANS-58 - Ability to pass URLs instead of Files for Wsdl/Schemas
-        if (urlFiles != null)
-        {
-            for (int i = 0; i < urlFiles.length; i++)
-            {
-                try
-                {
-                    XmlOptions options = new XmlOptions();
-                    options.setLoadLineNumbers();
-                    options.setLoadSubstituteNamespaces(Collections.singletonMap("http://schemas.xmlsoap.org/wsdl/", "http://www.apache.org/internal/xmlbeans/wsdlsubst"));
-                    options.setEntityResolver(entResolver);
+            // step 3, parse all URL files
+            // XMLBEANS-58 - Ability to pass URLs instead of Files for Wsdl/Schemas
+            if (urlFiles != null) {
+                for (int i = 0; i < urlFiles.length; i++) {
+                    try {
+                        XmlOptions options = new XmlOptions();
+                        options.setLoadLineNumbers();
+                        options.setLoadSubstituteNamespaces(Collections.singletonMap("http://schemas.xmlsoap.org/wsdl/", "http://www.apache.org/internal/xmlbeans/wsdlsubst"));
+                        options.setEntityResolver(entResolver);
 
-                    XmlObject urldoc = loader.parse(urlFiles[i], null, options);
+                        XmlObject urldoc = loader.parse(urlFiles[i], null, options);
 
-                    if ((urldoc instanceof org.apache.xmlbeans.impl.xb.substwsdl.DefinitionsDocument))
-                    {
-                        addWsdlSchemas(urlFiles[i].toString(), (org.apache.xmlbeans.impl.xb.substwsdl.DefinitionsDocument)urldoc, errorListener, noVDoc, scontentlist);
+                        if ((urldoc instanceof org.apache.xmlbeans.impl.xb.substwsdl.DefinitionsDocument)) {
+                            addWsdlSchemas(urlFiles[i].toString(), (org.apache.xmlbeans.impl.xb.substwsdl.DefinitionsDocument) urldoc, errorListener, noVDoc, scontentlist);
+                        } else if ((urldoc instanceof SchemaDocument)) {
+                            addSchema(urlFiles[i].toString(), (SchemaDocument) urldoc,
+                                    errorListener, noVDoc, scontentlist);
+                        } else {
+                            StscState.addError(errorListener, XmlErrorCodes.INVALID_DOCUMENT_TYPE,
+                                    new Object[]{urlFiles[i], "wsdl or schema"}, urldoc);
+                        }
+
+                    } catch (XmlException e) {
+                        errorListener.add(e.getError());
+                    } catch (Exception e) {
+                        StscState.addError(errorListener, XmlErrorCodes.CANNOT_LOAD_FILE,
+                                new Object[]{"url", urlFiles[i], e.getMessage()}, urlFiles[i]);
                     }
-                    else if ((urldoc instanceof SchemaDocument))
-                    {
-                        addSchema(urlFiles[i].toString(), (SchemaDocument)urldoc,
-                            errorListener, noVDoc, scontentlist);
-                    }
-                    else
-                    {
-                        StscState.addError(errorListener, XmlErrorCodes.INVALID_DOCUMENT_TYPE,
-                            new Object[]{urlFiles[i], "wsdl or schema"}, urldoc);
-                    }
-
-                }
-                catch (XmlException e)
-                {
-                    errorListener.add(e.getError());
-                }
-                catch (Exception e)
-                {
-                    StscState.addError(errorListener, XmlErrorCodes.CANNOT_LOAD_FILE,
-                        new Object[]{"url", urlFiles[i], e.getMessage()}, urlFiles[i]);
                 }
             }
-        }
 
-        SchemaDocument.Schema[] sdocs = (SchemaDocument.Schema[])scontentlist.toArray(new SchemaDocument.Schema[scontentlist.size()]);
+            SchemaDocument.Schema[] sdocs = (SchemaDocument.Schema[]) scontentlist.toArray(new SchemaDocument.Schema[scontentlist.size()]);
 
-        // now the config files.
-        ArrayList cdoclist = new ArrayList();
-        if (configFiles != null)
-        {
-            if (noExt)
-                System.out.println("Pre/Post and Interface extensions will be ignored.");
-            
-            for (int i = 0; i < configFiles.length; i++)
-            {
-                try
-                {
-                    XmlOptions options = new XmlOptions();
-                    options.put( XmlOptions.LOAD_LINE_NUMBERS );
-                    options.setEntityResolver(entResolver);
-                    options.setLoadSubstituteNamespaces(MAP_COMPATIBILITY_CONFIG_URIS);
+            // now the config files.
+            ArrayList cdoclist = new ArrayList();
+            if (configFiles != null) {
+                if (noExt)
+                    System.out.println("Pre/Post and Interface extensions will be ignored.");
 
-                    XmlObject configdoc = loader.parse(configFiles[i], null, options);
-                    if (!(configdoc instanceof ConfigDocument))
-                        StscState.addError(errorListener, XmlErrorCodes.INVALID_DOCUMENT_TYPE,
-                            new Object[] { configFiles[i], "xsd config" }, configdoc);
-                    else
-                    {
-                        StscState.addInfo(errorListener, "Loading config file " + configFiles[i]);
-                        if (configdoc.validate(new XmlOptions().setErrorListener(errorListener)))
-                        {
-                            ConfigDocument.Config config = ((ConfigDocument)configdoc).getConfig();
-                            cdoclist.add(config);
-                            if (noExt)
-                            {
-                                //disable extensions
-                                config.setExtensionArray(new Extensionconfig[] {});
+                for (int i = 0; i < configFiles.length; i++) {
+                    try {
+                        XmlOptions options = new XmlOptions();
+                        options.put(XmlOptions.LOAD_LINE_NUMBERS);
+                        options.setEntityResolver(entResolver);
+                        options.setLoadSubstituteNamespaces(MAP_COMPATIBILITY_CONFIG_URIS);
+
+                        XmlObject configdoc = loader.parse(configFiles[i], null, options);
+                        if (!(configdoc instanceof ConfigDocument))
+                            StscState.addError(errorListener, XmlErrorCodes.INVALID_DOCUMENT_TYPE,
+                                    new Object[]{configFiles[i], "xsd config"}, configdoc);
+                        else {
+                            StscState.addInfo(errorListener, "Loading config file " + configFiles[i]);
+                            if (configdoc.validate(new XmlOptions().setErrorListener(errorListener))) {
+                                ConfigDocument.Config config = ((ConfigDocument) configdoc).getConfig();
+                                cdoclist.add(config);
+                                if (noExt) {
+                                    //disable extensions
+                                    config.setExtensionArray(new Extensionconfig[]{});
+                                }
                             }
                         }
+                    } catch (XmlException e) {
+                        errorListener.add(e.getError());
+                    } catch (Exception e) {
+                        StscState.addError(errorListener, XmlErrorCodes.CANNOT_LOAD_FILE,
+                                new Object[]{"xsd config", configFiles[i], e.getMessage()}, configFiles[i]);
                     }
                 }
-                catch (XmlException e)
-                {
-                    errorListener.add(e.getError());
-                }
-                catch (Exception e)
-                {
-                    StscState.addError(errorListener, XmlErrorCodes.CANNOT_LOAD_FILE,
-                        new Object[] { "xsd config", configFiles[i], e.getMessage() }, configFiles[i]);
-                }
             }
+            ConfigDocument.Config[] cdocs = (ConfigDocument.Config[]) cdoclist.toArray(new ConfigDocument.Config[cdoclist.size()]);
+
+            SchemaTypeLoader linkTo = SchemaTypeLoaderImpl.build(null, cpResourceLoader, null);
+
+            URI baseURI = null;
+            if (baseDir != null)
+                baseURI = baseDir.toURI();
+
+            XmlOptions opts = new XmlOptions();
+            if (download)
+                opts.setCompileDownloadUrls();
+            if (noUpa)
+                opts.setCompileNoUpaRule();
+            if (noPvr)
+                opts.setCompileNoPvrRule();
+            if (noAnn)
+                opts.setCompileNoAnnotations();
+            if (mdefNamespaces != null)
+                opts.setCompileMdefNamespaces(mdefNamespaces);
+            opts.setCompileNoValidation(); // already validated here
+            opts.setEntityResolver(entResolver);
+            if (javasource != null)
+                opts.setGenerateJavaVersion(javasource);
+
+            // now pass it to the main compile function
+            SchemaTypeSystemCompiler.Parameters params = new SchemaTypeSystemCompiler.Parameters();
+            params.setName(name);
+            params.setSchemas(sdocs);
+            params.setConfig(BindingConfigImpl.forConfigDocuments(cdocs, javaFiles, classpath));
+            params.setLinkTo(linkTo);
+            params.setOptions(opts);
+            params.setErrorListener(errorListener);
+            params.setJavaize(true);
+            params.setBaseURI(baseURI);
+            params.setSourcesToCopyMap(sourcesToCopyMap);
+            params.setSchemasDir(schemasDir);
+            return SchemaTypeSystemCompiler.compile(params);
+        } finally {
+            StscState.end();
         }
-        ConfigDocument.Config[] cdocs = (ConfigDocument.Config[])cdoclist.toArray(new ConfigDocument.Config[cdoclist.size()]);
-
-        SchemaTypeLoader linkTo = SchemaTypeLoaderImpl.build(null, cpResourceLoader, null);
-
-        URI baseURI = null;
-        if (baseDir != null)
-            baseURI = baseDir.toURI();
-
-        XmlOptions opts = new XmlOptions();
-        if (download)
-            opts.setCompileDownloadUrls();
-        if (noUpa)
-            opts.setCompileNoUpaRule();
-        if (noPvr)
-            opts.setCompileNoPvrRule();
-        if (noAnn)
-            opts.setCompileNoAnnotations();
-        if (mdefNamespaces != null)
-            opts.setCompileMdefNamespaces(mdefNamespaces);
-        opts.setCompileNoValidation(); // already validated here
-        opts.setEntityResolver(entResolver);
-        if (javasource != null)
-            opts.setGenerateJavaVersion(javasource);
-
-        // now pass it to the main compile function
-        SchemaTypeSystemCompiler.Parameters params = new SchemaTypeSystemCompiler.Parameters();
-        params.setName(name);
-        params.setSchemas(sdocs);
-        params.setConfig(BindingConfigImpl.forConfigDocuments(cdocs, javaFiles, classpath));
-        params.setLinkTo(linkTo);
-        params.setOptions(opts);
-        params.setErrorListener(errorListener);
-        params.setJavaize(true);
-        params.setBaseURI(baseURI);
-        params.setSourcesToCopyMap(sourcesToCopyMap);
-        params.setSchemasDir(schemasDir);
-        return SchemaTypeSystemCompiler.compile(params);
     }
 
     private static void addSchema(String name, SchemaDocument schemadoc,
