@@ -74,7 +74,8 @@ public class XMLBean extends MatchingTask
                         fork = true,
                         includeAntRuntime = true,
                         noSrcRegen,
-                        includeJavaRuntime = false;
+                        includeJavaRuntime = false,
+                        nowarn = false;
 
     private String      typesystemname,
                         forkedExecutable,
@@ -266,6 +267,7 @@ public class XMLBean extends MatchingTask
                 }
                 javac.setIncludeantruntime(includeAntRuntime);
                 javac.setIncludejavaruntime(includeJavaRuntime);
+                javac.setNowarn(nowarn);
                 javac.setSrcdir(new Path(project, srcgendir.getAbsolutePath()));
                 if (memoryInitialSize != null) javac.setMemoryInitialSize(memoryInitialSize);
                 if (memoryMaximumSize != null) javac.setMemoryMaximumSize(memoryMaximumSize);
@@ -672,6 +674,16 @@ public class XMLBean extends MatchingTask
     public void setIncludeJavaRuntime(boolean includeJavaRuntime)
     {
         this.includeJavaRuntime = includeJavaRuntime;
+    }
+
+    public boolean isNowarn()
+    {
+        return nowarn;
+    }
+
+    public void setNowarn(boolean nowarn)
+    {
+        this.nowarn = nowarn;
     }
 
     public boolean isNoSrcRegen()
