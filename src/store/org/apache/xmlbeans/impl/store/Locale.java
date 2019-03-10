@@ -1897,6 +1897,10 @@ public final class Locale
             }
         };
 
+    public static void clearThreadLocals() {
+        tl_scrubBuffer.remove();
+    }
+
     static ScrubBuffer getScrubBuffer(int wsr)
     {
         SoftReference softRef = (SoftReference) tl_scrubBuffer.get();

@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Random;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 public class CharUtilTests
 {
@@ -232,4 +233,11 @@ public class CharUtilTests
     }
 
     private Random _rnd = new Random( 0 );
+
+    @Test
+    public void testThreadLocal() {
+        assertNotNull("Should always get a CharUtil from ThreadLocals", CharUtil.getThreadLocalCharUtil());
+        CharUtil.clearThreadLocals();
+        assertNotNull("Should always get a CharUtil from ThreadLocals", CharUtil.getThreadLocalCharUtil());
+    }
 }

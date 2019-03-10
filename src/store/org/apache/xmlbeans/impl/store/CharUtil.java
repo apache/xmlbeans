@@ -909,6 +909,10 @@ public final class CharUtil
     private static ThreadLocal tl_charUtil =
         new ThreadLocal() { protected Object initialValue() { return new SoftReference(new CharUtil( CHARUTIL_INITIAL_BUFSIZE )); } };
 
+    public static void clearThreadLocals() {
+        tl_charUtil.remove();
+    }
+
     private CharIterator _charIter = new CharIterator();
 
     // TODO - 64 is kinda arbitrary.  Perhaps it should be configurable.

@@ -1267,6 +1267,10 @@ public class StscState
 
     private static ThreadLocal tl_stscStack = new ThreadLocal();
 
+    public static void clearThreadLocals() {
+        tl_stscStack.remove();
+    }
+
     public static StscState start()
     {
         StscStack stscStack = (StscStack) tl_stscStack.get();

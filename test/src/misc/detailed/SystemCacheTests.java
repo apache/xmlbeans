@@ -20,10 +20,11 @@ import org.apache.xmlbeans.impl.common.SystemCache;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 public class SystemCacheTests {
     @Test
-    public void testSystemCacheImplFromAPITest() throws Throwable {
+    public void testSystemCacheImplFromAPITest() {
         // store the default SystemCache implementation before switch
         SystemCache defaultImpl = SystemCache.get();
 
@@ -33,11 +34,25 @@ public class SystemCacheTests {
         SystemCacheTestImpl testImpl = new SystemCacheTestImpl();
         SystemCache.set(testImpl);
         assertEquals("misc.detailed.SystemCacheTestImpl", testImpl.getClass().getName());
-        assertEquals(testImpl.getAccessed(), 1);
+        assertEquals(SystemCacheTestImpl.getAccessed(), 1);
 
         // switch back to default impl
         SystemCache.set(defaultImpl);
         assertEquals("org.apache.xmlbeans.impl.common.SystemCache", defaultImpl.getClass().getName());
     }
 
+    @Test
+    public void testClearThreadLocal() {
+        SystemCache cache = SystemCache.get();
+        String saxLoader = "object is not cast currently...";
+
+        cache.setSaxLoader(saxLoader);
+        assertEquals(saxLoader, cache.getSaxLoader());
+
+        cache.clearThreadLocals();
+        assertNull(cache.getSaxLoader());
+
+        cache.setSaxLoader(saxLoader);
+        assertEquals(saxLoader, cache.getSaxLoader());
+    }
 }

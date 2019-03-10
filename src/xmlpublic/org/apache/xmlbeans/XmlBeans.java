@@ -90,6 +90,11 @@ public final class XmlBeans
             }
         };
 
+    public static void clearThreadLocals() {
+        // clear thread local here
+        _threadLocalLoaderQNameCache.remove();
+    }
+
     /**
      * Returns a thread local QNameCache
      */

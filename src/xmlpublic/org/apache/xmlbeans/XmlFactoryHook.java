@@ -92,6 +92,10 @@ public interface XmlFactoryHook
     {
         private static ThreadLocal threadHook = new ThreadLocal();
 
+        public static void clearThreadLocals() {
+            threadHook.remove();
+        }
+
         /**
          * Returns the current thread's hook, or null if none.
          */ 

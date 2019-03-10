@@ -71,6 +71,13 @@ public class SchemaTypeLoaderImpl extends SchemaTypeLoaderBase {
         private ThreadLocal _cachedTypeSystems =
             new ThreadLocal() { protected Object initialValue() { return new ArrayList(); } };
 
+        @Override
+        public void clearThreadLocals() {
+            _cachedTypeSystems.remove();
+
+            super.clearThreadLocals();
+        }
+
         public SchemaTypeLoader getFromTypeLoaderCache(ClassLoader cl)
         {
             ArrayList a = (ArrayList) _cachedTypeSystems.get();

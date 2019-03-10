@@ -95,6 +95,10 @@ public class SystemCache
 
     private ThreadLocal tl_saxLoaders = new ThreadLocal();
 
+    public void clearThreadLocals() {
+        tl_saxLoaders.remove();
+    }
+
     public Object getSaxLoader()
     {
         SoftReference s = (SoftReference) tl_saxLoaders.get();

@@ -90,6 +90,10 @@ public class NamespaceContext implements PrefixResolver
 
     private static ThreadLocal tl_namespaceContextStack = new ThreadLocal();
 
+    public static void clearThreadLocals() {
+        tl_namespaceContextStack.remove();
+    }
+
     private static NamespaceContextStack getNamespaceContextStack()
     {
         NamespaceContextStack namespaceContextStack = (NamespaceContextStack) tl_namespaceContextStack.get();
