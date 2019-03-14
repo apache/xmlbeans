@@ -1462,6 +1462,13 @@ public final class Locale
         case Node.DOCUMENT_TYPE_NODE:
         case Node.ENTITY_NODE:
         case Node.NOTATION_NODE:
+            {
+                Node next = n.getNextSibling();
+                if (next != null) {
+                    loadNode(next, context);
+                }
+                break;
+            }
         case Node.ATTRIBUTE_NODE:
             {
                 throw new RuntimeException("Unexpected node");

@@ -19,12 +19,18 @@ import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
 import org.junit.Test;
+import org.w3c.dom.Document;
+import org.xml.sax.InputSource;
 import xmlcursor.common.BasicCursorTestCase;
 
 import javax.xml.namespace.QName;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import java.io.StringReader;
 import java.util.Vector;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 public class ParseTest extends BasicCursorTestCase {
     private XmlOptions m_map = new XmlOptions();
@@ -57,6 +63,18 @@ public class ParseTest extends BasicCursorTestCase {
         Vector vErrors = new Vector();
         m_map.setErrorListener(vErrors);
         XmlObject.Factory.parse("<foo>text<foo>", m_map);  // improper end tag
+    }
+
+    @Test
+    public void testParsingDOMWithDTD() throws Exception {
+        final String svgDocumentString = "<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.1//EN\"\n" +
+                "\"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd\">\n" +
+                "<svg />";
+        assertNotNull(XmlObject.Factory.parse(svgDocumentString));
+        final DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
+        final DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
+        final Document parse = documentBuilder.parse(new InputSource(new StringReader(svgDocumentString)));
+        assertNotNull(XmlObject.Factory.parse(parse));
     }
 }
 
