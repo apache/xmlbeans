@@ -10,6 +10,7 @@ Changes in V3.0.3 since V3.0.2
 * XMLBEANS-528: Allow document locator to be set after initialization
 * XMLBEANS-527: Rename shell script directory, to align on typical directory layout
 * XMLBEANS-526: Fix issue with loading META-INF/services files
+* XMLBEANS-538: fix issue with parsing DOM with DTD
 
 Changes in V3.0.2 since V3.0.1
 
