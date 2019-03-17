@@ -13,7 +13,9 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 -->
-<project name="XMLBeans" default="process-resources" basedir="." xmlns:if="ant:if" xmlns:unless="ant:unless">
+<project name="XMLBeans" default="process-resources" basedir="."
+     xmlns:mvn="antlib:org.apache.maven.artifact.ant"
+     xmlns:if="ant:if" xmlns:unless="ant:unless">
 
     <property name="build.compiler" value="javac1.6"/>
     <property name="ant.build.javac.source" value="1.6"/>
@@ -73,7 +75,7 @@
     <path id="xmlbeans-test">
         <pathelement location="build/classes"/>
         <pathelement location="build/generated-resources"/>
-        <dirset dir="resources" includes="*"/>
+        <dirset dir="resources" includes="*" excludes="maven"/>
         <path refid="saxon"/>
         <pathelement location="${xcresolver.jar}"/>
         <pathelement location="test/lib/w3c_domts.jar"/>
@@ -204,7 +206,7 @@
             <mkdir dir="${srcDir}"/>
             <mkdir dir="${rscDir}"/>
 
-            <uptodate property="up2date" targetfile="${rscDir}/schemaorg_apache_xmlbeans/system/@{schemaName}/TypeSystemHolder.class">
+            <uptodate property="up2date" targetfile="${rscDir}/org/apache/xmlbeans/system/@{schemaName}/TypeSystemHolder.class">
                 <srcresources>
                     <filelist dir="${basedir}" files="@{src}"/>
                 </srcresources>
@@ -252,17 +254,27 @@
         <javac destdir="build/classes" debug="true" debuglevel="lines,vars,source" includeantruntime="true">
             <src refid="sources"/>
             <src path="build/bootstrap/generated-sources"/>
+            <src path="src/typeholder"/>
             <classpath>
                 <path refid="oldxbean"/>
                 <path refid="saxon"/>
             </classpath>
         </javac>
 
+        <mkdir dir="build/generated-resources/org/apache/xmlbeans/impl/schema"/>
+
+        <!-- need to provide the template also in classes - generated-resources will be ignored on bootstrapping -->
+        <copy file="build/classes/org/apache/xmlbeans/impl/schema/TypeSystemHolder.class"
+              tofile="build/classes/org/apache/xmlbeans/impl/schema/TypeSystemHolder.template"/>
+
+        <move file="build/classes/org/apache/xmlbeans/impl/schema/TypeSystemHolder.class"
+              tofile="build/generated-resources/org/apache/xmlbeans/impl/schema/TypeSystemHolder.template"/>
+
         <!-- now generate new xmlbeans re-/sources and remove the traces of the oldxbean generated re-/sources -->
         <path id="oldschemas">
             <pathelement location="build/classes"/>
             <pathelement location="build/bootstrap/generated-resources"/>
-            <dirset dir="resources" includes="*"/>
+            <dirset dir="resources" includes="*" excludes="maven"/>
         </path>
 
         <schemaCompProd classpathref="oldschemas" dest="build"/>
@@ -453,7 +465,7 @@
             <fileset dir="." includes="LICENSE.txt,NOTICE.txt"/>
             <fileset dir="build/generated-resources"/>
             <mappedresources>
-                <fileset dir="resources"/>
+                <fileset dir="resources" excludes="maven"/>
                 <cutdirsmapper dirs="1"/>
             </mappedresources>
             <manifest>
@@ -481,16 +493,24 @@
             </manifest>
         </jar>
 
-        <jar jarfile="build/xmlbeans-${version.base}-sources.jar" update="false" index="false">
+        <chainedmapper id="src-mapper">
+            <cutdirsmapper dirs="1"/>
+            <firstmatchmapper>
+                <globmapper from="schema/*" to="org/apache/xmlbeans/src/*"/>
+                <identitymapper />
+            </firstmatchmapper>
+        </chainedmapper>
+
+        <jar jarfile="build/xmlbeans-${version.base}-sources.jar" update="false" index="false" duplicate="preserve">
             <fileset dir="." includes="LICENSE.txt,NOTICE.txt"/>
             <mappedresources>
                 <fileset dir="src" excludes="toolschema/**,shell/**"/>
-                <cutdirsmapper dirs="1"/>
+                <mapper refid="src-mapper"/>
             </mappedresources>
-            <zipfileset dir="src/toolschema" prefix="schema"/>
+            <zipfileset dir="src/toolschema" prefix="org/apache/xmlbeans/src" excludes="**/*.xsd"/>
             <mappedresources>
-                <fileset dir="build" includes="generated-sources/**,generated-resources/**"/>
-                <cutdirsmapper dirs="1"/>
+                <fileset dir="build" includes="generated-sources/**,generated-resources/**" excludes="**/*.xsb,**/*.class"/>
+                <mapper refid="src-mapper"/>
             </mappedresources>
 
             <manifest>
