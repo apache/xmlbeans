@@ -626,4 +626,30 @@
     <target name="jenkins"
             depends="test,package,rat-check"
             description="Combines all targets that are executed in CI runs"/>
+
+
+    <available property="maven.ant.tasks.present" classname="org.apache.maven.artifact.ant.Pom"/>
+    <target name="maven.ant.tasks-check">
+        <fail unless="maven.ant.tasks.present">
+            Maven ant tasks not found.
+            Please make sure the maven-ant-tasks jar is in ANT_HOME/lib, or made
+            available to Ant using other mechanisms like -lib or CLASSPATH.
+
+            You can download the Maven Ant Tasks from https://maven.apache.org/ant-tasks/download.html
+        </fail>
+    </target>
+
+    <target name="mvn-install" depends="maven.ant.tasks-check,package" description="Install XmlBeans artifacts into the local repository. Equivalent of 'mvn install'">
+        <copy file="${basedir}/resources/maven/pom.xml" todir="${basedir}/build" filtering="true">
+            <filterset>
+                <filter token="VERSION" value="${version.base}"/>
+            </filterset>
+        </copy>
+
+        <mvn:install file="${basedir}/build/xmlbeans-${version.base}.jar">
+            <pom file="${basedir}/build/pom.xml"/>
+            <attach file="${basedir}/build/xmlbeans-${version.base}-sources.jar" type="jar" classifier="sources"/>
+            <attach file="${basedir}/build/xmlbeans-${version.base}-javadoc.jar" type="jar" classifier="javadoc"/>
+        </mvn:install>
+    </target>
 </project>
