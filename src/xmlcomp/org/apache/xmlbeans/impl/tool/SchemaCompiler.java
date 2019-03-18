@@ -1057,7 +1057,7 @@ public class SchemaCompiler
 
         boolean result = true;
 
-        File schemasDir = IOUtil.createDir(classesDir, "schema" + SchemaTypeSystemImpl.METADATA_PACKAGE_GEN + "/src");
+        File schemasDir = IOUtil.createDir(classesDir, SchemaTypeSystemImpl.METADATA_PACKAGE_GEN + "/src");
 
         // build the in-memory type system
         XmlErrorWatcher errorListener = new XmlErrorWatcher(outerErrorListener);

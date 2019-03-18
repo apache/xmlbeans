@@ -15,18 +15,12 @@
 
 package org.apache.xmlbeans.impl.schema;
 
-import org.apache.xmlbeans.SchemaTypeLoader;
-import org.apache.xmlbeans.SchemaType;
-import org.apache.xmlbeans.SchemaGlobalElement;
-import org.apache.xmlbeans.SchemaGlobalAttribute;
-import org.apache.xmlbeans.SchemaModelGroup;
-import org.apache.xmlbeans.SchemaAttributeGroup;
-import org.apache.xmlbeans.SchemaTypeSystem;
-import org.apache.xmlbeans.SchemaIdentityConstraint;
-import org.apache.xmlbeans.ResourceLoader;
+import org.apache.xmlbeans.*;
 import org.apache.xmlbeans.impl.common.SystemCache;
 import org.apache.xmlbeans.impl.common.QNameHelper;
 import org.apache.xmlbeans.impl.common.XBeanDebug;
+import org.apache.xmlbeans.impl.xb.xsdschema.SchemaDocument;
+
 import javax.xml.namespace.QName;
 
 import java.io.InputStream;
@@ -61,6 +55,12 @@ public class SchemaTypeLoaderImpl extends SchemaTypeLoaderBase {
 
     public static String METADATA_PACKAGE_LOAD = METADATA_PACKAGE_GEN;
     private static final Object CACHED_NOT_FOUND = new Object();
+
+    private static final String[] basePackage = { "org.apache.xmlbeans", "schemaorg_apache_xmlbeans" };
+    private static final String[] baseSchemas = { "sXMLCONFIG", "sXMLLANG", "sXMLSCHEMA", "sXMLTOOLS" };
+
+
+
 
     private static class SchemaTypeLoaderCache extends SystemCache
     {
@@ -168,44 +168,30 @@ public class SchemaTypeLoaderImpl extends SchemaTypeLoaderBase {
      * @since XmlBeans 3.0.3
      */
     public static SchemaTypeLoader build(final SchemaTypeLoader[] searchPath, ResourceLoader resourceLoader, ClassLoader classLoader, String metadataPath) {
-        final SchemaTypeLoader[] sp;
+        // assemble a flattened search path with no duplicates
+        SubLoaderList list = new SubLoaderList();
 
-        if (searchPath == null) {
-            // if the metadata directory is customized, fallback to the xmlbeans typesystems
-            final boolean isDefaultPath = (metadataPath == null || ("schema" + METADATA_PACKAGE_GEN).equals(metadataPath));
-            if (isDefaultPath) {
-                sp = null;
-            } else {
-                String[] baseHolder = {
-                    "schemaorg_apache_xmlbeans.system.sXMLCONFIG.TypeSystemHolder",
-                    "schemaorg_apache_xmlbeans.system.sXMLLANG.TypeSystemHolder",
-                    "schemaorg_apache_xmlbeans.system.sXMLSCHEMA.TypeSystemHolder",
-                    "schemaorg_apache_xmlbeans.system.sXMLTOOLS.TypeSystemHolder"
-                };
+        list.add(searchPath);
 
-                sp = new SchemaTypeLoader[baseHolder.length];
-                for (int i=0; i<baseHolder.length; i++) {
-                    try {
-                        Class cls = Class.forName(baseHolder[i]);
-                        sp[i] = (SchemaTypeLoader)cls.getDeclaredField("typeSystem").get(null);
-                    } catch (Exception e) {
-                        System.out.println("throw runtime: "+e.toString());
-                        throw new RuntimeException(e);
-                    }
+        ClassLoader cl = (classLoader == null) ? SchemaDocument.class.getClassLoader() :  classLoader;
+
+        for (String prefix : basePackage) {
+            for (String holder : baseSchemas) {
+                String clName = prefix + ".system." + holder + ".TypeSystemHolder";
+                if (cl.getResource(clName.replace(".","/")+".class") == null) {
+                    // if the first class isn't found in the package, continue with the next package
+                    break;
+                }
+                try {
+                    Class cls = Class.forName(clName, true, cl);
+                    list.add((SchemaTypeLoader)cls.getDeclaredField("typeSystem").get(null));
+                } catch (Exception e) {
+                    throw new XmlRuntimeException(e);
                 }
             }
-        } else {
-            // assemble a flattened search path with no duplicates
-            SubLoaderList list = new SubLoaderList();
-            list.add(searchPath);
-            sp = list.toArray();
         }
 
-        if (sp != null && sp.length == 1 && resourceLoader == null && classLoader == null) {
-            return sp[0];
-        }
-
-        return new SchemaTypeLoaderImpl(sp, resourceLoader, classLoader, metadataPath);
+        return new SchemaTypeLoaderImpl(list.toArray(), resourceLoader, classLoader, metadataPath);
     }
 
     /**
@@ -262,15 +248,24 @@ public class SchemaTypeLoaderImpl extends SchemaTypeLoaderBase {
      */
     private SchemaTypeLoaderImpl(SchemaTypeLoader[] searchPath, ResourceLoader resourceLoader, ClassLoader classLoader, String metadataPath)
     {
-        if (searchPath == null)
-            _searchPath = EMPTY_SCHEMATYPELOADER_ARRAY;
-        else
-            _searchPath = searchPath;
+        _searchPath = (searchPath == null) ? EMPTY_SCHEMATYPELOADER_ARRAY : searchPath;
         _resourceLoader = resourceLoader;
         _classLoader = classLoader;
-        this._metadataPath = (metadataPath == null) ? "schema" + METADATA_PACKAGE_LOAD : metadataPath;
+
+        if (metadataPath != null) {
+            this._metadataPath = metadataPath;
+        } else {
+            final String path26 = "schema" + METADATA_PACKAGE_LOAD.replace("/","_");
+            this._metadataPath = (isPath30(_classLoader)) ? METADATA_PACKAGE_LOAD : path26;
+        }
 
         initCaches();
+    }
+
+    private static boolean isPath30(ClassLoader loader) {
+        final String path30 = METADATA_PACKAGE_LOAD + "/system";
+        final ClassLoader cl = (loader != null) ? loader : SchemaDocument.class.getClassLoader();
+        return cl.getResource(path30) != null;
     }
 
     /**

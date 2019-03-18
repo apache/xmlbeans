@@ -74,6 +74,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -136,11 +138,16 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
     static final int FLAG_ATTRIBUTE_TYPE  = 0x80000;
 
     /**
+     * regex to identify the type system holder package namespace
+     */
+    private static final Pattern packPat = Pattern.compile("^(.+)(\\.[^.]+){3}$");
+
+    /**
      * This is to support the feature of a separate/private XMLBeans
      * distribution that will not colide with the public org apache
      * xmlbeans one.
      * METADATA_PACKAGE_GEN will be "" for the original and something like
-     * com_mycompany_private_xmlbeans for a private distribution of XMLBeans.
+     * com.mycompany.private.xmlbeans for a private distribution of XMLBeans.
      *
      * There are two properties:
      *   METADATA_PACKAGE_GEN - used for generating metadata
@@ -158,7 +165,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
             SchemaTypeSystem.class.getName().substring(0, SchemaTypeSystem.class.getName().lastIndexOf(".")) :
             stsPackage.getName();
 
-        METADATA_PACKAGE_GEN = stsPackageName.replaceAll("\\.", "_");
+        METADATA_PACKAGE_GEN = stsPackageName.replace('.', '/');
     }
 
     private static String nameToPathString(String nameForSystem)
@@ -169,6 +176,31 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
             nameForSystem = nameForSystem + "/";
 
         return nameForSystem;
+    }
+
+    protected SchemaTypeSystemImpl() {
+        String fullname = getClass().getName();
+        _name = fullname.substring(0, fullname.lastIndexOf('.'));
+        XBeanDebug.trace(XBeanDebug.TRACE_SCHEMA_LOADING, "Loading type system " + _name, 1);
+        _basePackage = nameToPathString(_name);
+        _classloader = getClass().getClassLoader();
+        _linker = this;
+        _resourceLoader = new ClassLoaderResourceLoader(_classloader);
+        try
+        {
+            initFromHeader();
+        }
+        catch (RuntimeException e)
+        {
+            XBeanDebug.logException(e);
+            throw e;
+        }
+        catch (Error e)
+        {
+            XBeanDebug.logException(e);
+            throw e;
+        }
+        XBeanDebug.trace(XBeanDebug.TRACE_SCHEMA_LOADING, "Finished loading type system " + _name, -1);
     }
 
     public SchemaTypeSystemImpl(Class indexclass)
@@ -235,7 +267,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
             Class c = Class.forName(name + "." + SchemaTypeCodePrinter.INDEX_CLASSNAME, true, loader);
             return (SchemaTypeSystemImpl)c.getField("typeSystem").get(null);
         }
-        catch (Exception e)
+        catch (Throwable e)
         {
             return null;
         }
@@ -3818,8 +3850,9 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
      *
      * @since XmlBeans 3.0.3
      */
-    protected String getMetadataPath() {
-        return "schema" + METADATA_PACKAGE_GEN;
+    public String getMetadataPath() {
+        Matcher m = packPat.matcher(getClass().getName());
+        m.find();
+        return m.group(1).replace('.','/');
     }
-
 }

@@ -39,6 +39,7 @@ public class JiraRegressionSchemaCompilerTest extends JiraTestBase {
         params.setErrorListener(errors);
         params.setSrcDir(new File(schemaCompOutputDirPath + outputDirName + P + "src"));
         params.setClassesDir(new File(schemaCompOutputDirPath + outputDirName + P + "classes"));
+        params.setQuiet(true);
         SchemaCompiler.compile(params);
         return errors;
     }
