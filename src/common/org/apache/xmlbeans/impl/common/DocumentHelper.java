@@ -84,7 +84,7 @@ public final class DocumentHelper {
      * @throws IllegalStateException If creating the DocumentBuilder fails, e.g.
      *  due to {@link ParserConfigurationException}.
      */
-    public static synchronized DocumentBuilder newDocumentBuilder(XmlOptionsBean xmlOptions) {
+    public static DocumentBuilder newDocumentBuilder(XmlOptionsBean xmlOptions) {
         try {
             DocumentBuilder documentBuilder = documentBuilderFactory(xmlOptions).newDocumentBuilder();
             documentBuilder.setEntityResolver(SAXHelper.IGNORING_ENTITY_RESOLVER);
@@ -176,7 +176,7 @@ public final class DocumentHelper {
     /**
      * Creates a new DOM Document
      */
-    public static synchronized Document createDocument() {
+    public static Document createDocument() {
         return documentBuilderSingleton.newDocument();
     }
 }
