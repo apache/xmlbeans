@@ -19,7 +19,7 @@
     <property name="ant.build.javac.source" value="1.6"/>
     <property name="ant.build.javac.target" value="1.6"/>
 
-    <property name="version.base" value="3.0.3"/>
+    <property name="version.base" value="3.1.0"/>
     <property name="version.rc" value=""/>
 
     <property name="repository.m2" value="http://repo1.maven.org"/>
@@ -511,8 +511,15 @@
         <property name="prefix" value="xmlbeans-${version.base}"/>
 
         <zip destfile="build/xmlbeans-src-${version.base}-${tstamp.dist}.zip" update="false">
-            <zipfileset dir="." excludes="build/**,tmp/**,.idea/**,bin/**,compile-lib/**" prefix="${prefix}"/>
+            <zipfileset dir="." excludes="build/**,tmp/**,.idea/**,bin/**,lib/**,compile-lib/**,/src/shell,build.javacheck.xml,release-guide.txt" prefix="${prefix}"/>
+        	<zipfileset dir="src/shell" prefix="${prefix}/bin" />
+            <fileset dir="build/javadocs" prefix="${prefix}/javadocs" />
         </zip>
+        <tar destfile="build/xmlbeans-src-${version.base}-${tstamp.dist}.tgz" compression="gzip">
+            <tarfileset dir="." excludes="build/**,tmp/**,.idea/**,bin/**,lib/**,compile-lib/**,/src/shell,build.javacheck.xml,release-guide.txt" prefix="${prefix}"/>
+        	<tarfileset dir="src/shell" prefix="${prefix}/bin" />
+            <fileset dir="build/javadocs" prefix="${prefix}/javadocs" />
+        </tar>
 
         <zip destfile="build/xmlbeans-bin-${version.base}-${tstamp.dist}.zip" update="false">
             <zipfileset dir="." includes="LICENSE.txt,NOTICE.txt,docs/**" prefix="${prefix}"/>
@@ -529,6 +536,21 @@
                 <include name="xmlbeans-${version.base}-sources.jar"/>
             </zipfileset>
         </zip>
+        <tar destfile="build/xmlbeans-bin-${version.base}-${tstamp.dist}.zip" compression="gzip">
+            <tarfileset dir="." includes="LICENSE.txt,NOTICE.txt,docs/**" prefix="${prefix}"/>
+            <tarfileset dir="samples" includes="Any/**,DateTime/**,MixedContent/**,OrderMatters/**,SchemaEnum/**,Validation/**,XQueryXPath/**,XsdConfig/**" prefix="${prefix}/samples"/>
+            <tarfileset dir="src/shell" prefix="${prefix}/bin"/>
+            <tarfileset dir="compile-lib" includes="resolver.jar" prefix="${prefix}/lib"/>
+            <tarfileset dir="xkit" prefix="${prefix}"/>
+            <tarfileset dir="src/xsdschema/schema" includes="*.xsd" prefix="${prefix}/schemas/s4s"/>
+            <tarfileset dir="src/xmlschema/schema" includes="*.xsd" prefix="${prefix}/schemas/s4s"/>
+            <tarfileset dir="test/cases/xbean/xmlobject" includes="numerals.xsd,easypo.xsd*,nameworld.xsd" prefix="${prefix}/schemas"/>
+            <tarfileset dir="build" prefix="${prefix}/lib">
+                <include name="xmlbeans-${version.base}.jar"/>
+                <include name="xmlbeans-${version.base}-javadoc.jar"/>
+                <include name="xmlbeans-${version.base}-sources.jar"/>
+            </tarfileset>
+        </tar>
 
     </target>
 

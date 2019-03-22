@@ -18,13 +18,12 @@ Welcome to XMLBeans!
 Layout of the tree:
 - README.txt    this file
 - build.xml     ant build file for building XmlBeans code and utilities
-- testbuild.xml ant build file for building and running tests
 - STATUS        essential info about the project
 - xbeanenv.cmd  sets the XMLBEANS_HOME environment variable on Windows
 - xbeanenv.sh   sets the XMLBEANS_HOME environment variable on Unix
 - bin           contains useful command-line scripts for Win and Unix
 - docs          contains several documentation files
-- external      contains external jars upon which XmlBeans depends
+- maven-plugin  source and documentation on using the xmlbeans2 Maven plugin
 - samples       contains ... samples
 - src           the source code for XmlBeans, organized by area
 - test          contains test cases and infrastructure
@@ -54,4 +53,4 @@ XmlBeans depends on the following external libraries:
 (O) means that the library is optional
 
 For licensing information, see ./src/license/LICENSE.txt
-Updated: 11/25/09.
+Updated: 3/22/2019.

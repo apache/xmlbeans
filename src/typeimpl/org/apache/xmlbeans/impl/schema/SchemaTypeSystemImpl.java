@@ -3816,7 +3816,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
      *
      * @return the metadata directory
      *
-     * @since XmlBeans 3.0.3
+     * @since XmlBeans 3.1.0
      */
     protected String getMetadataPath() {
         return "schema" + METADATA_PACKAGE_GEN;

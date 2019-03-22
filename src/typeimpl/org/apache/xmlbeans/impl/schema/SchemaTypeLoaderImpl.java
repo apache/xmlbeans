@@ -165,7 +165,7 @@ public class SchemaTypeLoaderImpl extends SchemaTypeLoaderBase {
      * @param metadataPath the custom metadata path
      * @return the schemaTypeLoader
      *
-     * @since XmlBeans 3.0.3
+     * @since XmlBeans 3.1.0
      */
     public static SchemaTypeLoader build(final SchemaTypeLoader[] searchPath, ResourceLoader resourceLoader, ClassLoader classLoader, String metadataPath) {
         final SchemaTypeLoader[] sp;

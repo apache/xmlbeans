@@ -1,0 +1,228 @@
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+
+
+             ==============================
+                   XMLBeans Release Guide
+             ==============================
+
+
+(I) Prerequisites
+
+   1. You should read the <a href="https://www.apache.org/dev/release.html">Apache Release FAQ</a>
+   2a. You must have shell access to people.apache.org; and you should
+       have key-based authentication set up
+       1. Generate ssh key with ssh-keygen -t rsa -b 4096
+       (e.g. <a href="http://www.linuxproblem.org/art_9.html">how to</a>.)
+       2. Add contents of id_rsa.pub to SSH Key (authorized_keys) line on https://id.apache.org/
+       3. ssh -v username@people.apache.org
+          Verify authenticity of host: https://www.apache.org/dev/machines
+       4. Only sftp access is necessary
+   2b. You must be a member of the committee group
+   3. Release manager must have their public key appended to the KEYS file checked in to SVN and the key published on one of the public key servers.
+      More info can be found here: <a href="https://www.apache.org/dev/release-signing.html">https://www.apache.org/dev/release-signing.html</a>
+   4. You must have Java JDK 1.6 installed and active.
+   5. You must have the following utilities installed on your local machine and available in your path:
+          * <a href="www.openssh.com">ssh</a>
+          * <a href="www.gnupg.org">gnupg</a>
+          * <a href="www.openssl.org">openssl</a>
+      For Windows users, install Cygwin and make sure you have the above utilities
+   6a. The POI build system requires two components to perform a build
+          * <a href="https://ant.apache.org">Ant</a> 1.9.x or higher
+          * <a href="https://forrest.apache.org/">Forrest</a> 0.90.
+      Make sure ANT_HOME and FORREST_HOME are set.
+
+   6b. Ensure you can log in to https://repository.apache.org/ with your Apache
+        credentials, and that you can see the "Staging Repositories" area on
+        the left hand side.
+
+   6c. It's a good idea to check at 
+       https://builds.apache.org/view/P/view/POI/job/POI-XMLBeans-DSL-1.6/
+       that Jenkins is in a good state (i.e. most recent build passed
+       and is up to date with SVN). You probably also want to e-mail
+       the dev list with a note to say you're building a release.
+
+   7. Before building, you should run the "rat-check" build task, which
+      uses <a href="https://incubator.apache.org/rat/">Apache Rat</a>
+      to check the source tree for files lacking license headers. Files
+      without headers should be either fixed, or added to the exclude list
+
+   8. Check file permissions are correct in SVN.
+      There can be  files in the SVN tree marked executable (have the
+      svn:executable property set), but which should not be. Checking them
+      out will cause the executable bit to be set for them on filesystems
+      which support it. The flag can be removed in batch using
+
+{code:sh}
+svn pd 'svn:executable' $(find -name .svn -prune -or -type f ! -name \*.sh \
+ -print0 | xargs -0 svn pg 'svn:executable' | cut -d ' ' -f 1)
+{code}
+
+   9. Before building, review any new or updated dependencies to ensure that
+      if they required LICENSE or NOTICE updates then these were done.
+
+  10. Ensure that CHANGES.txt is up to date
+
+  11. Ensure that the KEYS files in the dist areas are up-to-date with the
+      latest ones in POI svn:
+      https://dist.apache.org/repos/dist/dev/poi/KEYS
+      https://dist.apache.org/repos/dist/release/poi/KEYS
+      Dist is a regular svn repo that can be checked out and committed to.
+      To upload to dist: https://www.apache.org/dev/release-distribution
+
+
+(II) Making release artifacts
+
+  1. Grab the output from a successful Jenkins build for the desired revision:
+     https://builds.apache.org/view/P/view/POI/job/POI-XMLBeans-DSL-1.6/lastBuild/artifact/build/
+     - xmlbeans-VERSION.jar
+     - xmlbeans-VERSION-javadoc.jar
+     - xmlbeans-VERSION-sources.jar
+     - xmlbeans-bin-VERSION-DATE.zip
+     - xmlbeans-src-VERSION-DATE.zip
+
+  2. Grab the current deployed POM, and edit the version # and anything else that has changed:
+     https://repository.apache.org/service/local/repo_groups/public/content/org/apache/xmlbeans/xmlbeans/VERSION/xmlbeans-VERSION.pom
+
+  3. Sign the jars and pom with your key:
+     gpg -ab *.jar *.pom
+
+  4. Build the nexus bundle.jar to upload to 
+     repository.apache.org:
+     jar -cvf bundle.jar *.pom *.pom.asc *.jar *.jar.asc
+
+  5. Upload the bundle to https://repository.apache.org/
+
+  6. Convert the bin and src zip files to equivalent .tgz files by unzipping
+     to a temp folder and repackaging with tar -z
+
+  7. Sign the *.zip and *.tgz files
+     gpg -ab *.tgz *.zip
+
+  8. Generate checksums (sha256sum, sha512sum) for the *.zip and *.tgz files
+     and their signature (*.asc) files
+
+  9. Commit the *.tgz and *.zip files, their signatures, and sha256 and sha512
+     checksums to the release candidate repo at
+     https://dist.apache.org/repos/dist/dev/poi/xmlbeans/
+
+
+ (III) Calling the vote:
+
+   1. The release manager should call the vote
+   2. Include the URL of the release artifacts
+   3. Include the time for the vote to run (3 day minimum, can be longer)
+   4. Provide guidance on what needs to be checked
+   5. Complete a tally, and send a result once the time has passed
+
+ (IV) After the vote:
+
+Deploy the artifacts from the staging area (https://dist.apache.org/repos/dist/dev/poi/xmlbeans)
+to the release area of the dist repo:
+    https://dist.apache.org/repos/dist/release/poi/xmlbeans/release/
+
+Perform a sparse checkout of the dist repo to move artifacts in the staging area to the release area
+In the following example, replace FIXME3.1.0RC1 or FIXME3.1.0 with the version you are releasing
+
+{code:sh}
+svn checkout https://dist.apache.org/repos/dist/ --depth immediates
+svn update --set-depth immediates dist/dev/poi/
+svn update --set-depth infinity   dist/dev/poi/xmlbeans/
+svn update --set-depth infinity   dist/release/poi/xmlbeans/
+svn rm dist/release/poi/xmlbeans/release/src/* dist/release/poi/xmlbeans/release/bin/*
+svn mv dist/dev/poi/xmlbeans/src/* dist/release/poi/xmlbeans/release/src/
+svn mv dist/dev/poi/xmlbeans/bin/* dist/release/poi/xmlbeans/release/bin/
+svn mv dist/dev/poi/xmlbeans/RELEASE-NOTES.txt dist/release/poi/xmlbeans/dev/RELEASE-NOTES-FIXME3.1.0.txt
+# regular (non-svn) copy so that these text files retain their revision history
+cp dist/release/poi/xmlbeans/dev/RELEASE-NOTES-FIXME3.1.0.txt dist/release/poi/xmlbeans/release/RELEASE-NOTES.txt
+cp dist/dev/poi/KEYS dist/release/poi/KEYS
+svn ci dist/ -m "deploy FIXME3.1.0 release artifacts from staging area"
+{code}
+
+
+And remove any old releases from the staging area if they exist (should have been deleted above)
+Staging area: https://dist.apache.org/repos/dist/dev/poi/xmlbeans
+
+{code:sh}
+svn rm https://dist.apache.org/repos/dist/dev/poi/xmlbeans/FIXME3.1.0-RC1 -m "remove old release from staging area"
+{code:sh}
+
+You should get an email from the Apache Reporter Service (no-reply@reporter.apache.org)
+at your Apache email address.
+The email instructions will ask you to log on to https://reporter.apache.org/addrelease.html?poi
+and add your release data (version and date) to the database.
+
+Log into https://repository.apache.org/ and go to the "Staging Repositories" area.
+Find the "orgapachexmlbeans" entry, check it has the right content, then Close the repository
+Select all artifacts and Release (and Automatically Drop) them.
+Refresh to verify that the artifacts are no longer in the Staging Repositories area.
+
+2. Wait for the distributions to appear on your favourite mirror (anywhere from 3-24 hours)
+  https://www.apache.org/dyn/closer.lua/xmlbeans/dev/
+
+3. Wait for the maven artifacts to appear on Maven Central, and ensure they work:
+  Maven Central: https://search.maven.org/#search|ga|1|g%3A%22org.apache.xmlbeans%22
+
+4. Edit the website homepage and list the new release there.
+   https://xmlbeans.apache.org/index.html
+   https://xmlbeans.apache.org/changes.html
+   remove older releases.
+
+5. Edit the website download page, and list the new release there. This should
+   reference the checksums, so take care when updating
+   https://xmlbeans.apache.org/download.html
+{code:sh}
+# the following generates a download-snipplet.xml to be copy&pasted in the download.xml
+ant update-download -Dversion.id="FIXME3.1.0" -Dreltype=dev -Drel_date="02 July 2016" -Dfile_date="20160702"
+{code}
+   And copy the contents from the output, download-snipplet.xml, to the appropriate section
+   in xmlbeans/site/src/documentation/content/xdocs/download.xml.
+
+6. Build site using a recent version of Java 1.8
+   Commit the site changes to svn, and publish live
+
+7. Don't forget to upload the latest version of the site and javadocs
+
+8. Send announcements:
+From: your @apache.org e-mail address
+To: user@poi.apache.org, dev@poi.apache.org, general@poi.apache.org, and announce@apache.org
+Subject: [ANNOUNCE] Apache XMLBeans FIXME3.1.0 released
+Body: 
+"""
+The Apache POI PMC is pleased to announce the release of Apache XMLBeans FIXME3.1.0.
+
+Apache XMLBeans is a technology for accessing XML by binding it to Java types.
+
+For detailed changes in this release, refer to the release notes [1] and the changelog [2].
+
+Thank you to all our contributors for making this release possible.
+
+On behalf of the Apache POI PMC,
+Your Name
+
+[1] Release notes: https://www.apache.org/dyn/closer.lua/xmlbeans/dev/RELEASE-NOTES-FIXME3.1.0.txt
+[2] Changelog: https://xmlbeans.apache.org/changes.html#FIXME3.1.0
+"""
+
+Note, announcements should be sent from your @apache.org e-mail address.
+
+9. In Bugzilla, add a new version and the next "...-dev" version. Also close the n-2 -dev version to new bugs.
+
+10. Add the version to the DOAP file too
+  https://svn.apache.org/repos/asf/xmlbeans/trunk/doap_POI.rdf
+
+11. Delete directory that held RC.

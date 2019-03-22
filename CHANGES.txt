@@ -1,5 +1,6 @@
-Changes in V3.0.3 since V3.0.2
+Changes in V3.1.0 since V3.0.2
 
+* update build and deployment artifacts to standardize naming and remove unused items 
 * XMLBEANS-502: Allow to clear all ThreadLocals from the current thread
 * XMLBEANS-503: Allow to specify -nowarn in the Ant task
 * XMLBEANS-537: Add missing StscState.end() to avoid memory leaks

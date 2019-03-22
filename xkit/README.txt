@@ -13,7 +13,7 @@
  *  limitations under the License.
  */
 
-XMLBeans Development Kit Version 2.5.0
+XMLBeans Development Kit Version 3.1.0
 
 
 Welcome to XMLBeans!
@@ -22,53 +22,29 @@ Welcome to XMLBeans!
 Kit contents:
 
 (1) One copy of xbean.jar, which contains XMLBeans.
-    Should work on any JDK 1.4.x or 1.5.x.
+    Should work on any JDK 1.6.x or newer.
     ./lib/xbean.jar
 
-(2) One copy of jsr173_1.0_api.jar, which contains classes
-    needed to parse XML files for use with XMLBeans.
-    ./lib/jsr173_1.0_api.jar
-
-(3) One copy of resolver.jar from Apache xml-commons. See scomp
+(2) One copy of resolver.jar from Apache xml-commons. See scomp
     documentation for when it is needed.
     ./lib/resolver.jar
 
-(4) One copy of xbean_xpath jar. Contains the XPath and XQuery
-    "glue" code, only needed if XPath-XQuery functionality is
-    required.
-    ./lib/xbean_xpath.jar
-
-(5) One copy of xmlpublic.jar, containing all the public interfaces of
-    XMLBeans. (Classes included here are a subset of those included
-    in xbean.jar.)
-    ./lib/xmlpublic.jar
-
-(6) One copy of xmlbeans-qname.jar, contains javax.xml.namespace
-    QName.class and NamespaceContext.class. These classes were
-    introduced in the jdk since 1.5. This jar is necesary on classpath
-    only if using jdk 1.4.   
-    ./lib/xmlbeans-qname.jar
-
-(7) License information for XML Beans and included libraries
+(3) License information for XML Beans and included libraries
     ./LICENSE.txt
     ./NOTICE.txt
 
-(8) One folder full of command-line scripts, pointing to the
+(4) One folder full of command-line scripts, pointing to the
     useful main() functions in the JAR.
     ./bin
 
-(9) A copy of the plain javadoc tree for org.apache.xmlbeans.*
-    ./docs/reference
+(5) A copy of the plain javadoc tree for org.apache.xmlbeans.*
+    ./docs/javadocs
 
-(10) A preliminary collection of nicely formatted user-level
-    documentation HTML (includes reformatted and nicely
-    organized javadoc as well)
+(6) A preliminary collection of nicely formatted user-level
+    documentation HTML
     ./docs/guide
 
-(11) A few sample schemas
-    ./schemas
-
-(12) Samples that show the use of the XMLBeans API. (You'll
+(7) Samples that show the use of the XMLBeans API. (You'll
     also find more samples at the XMLBeans web site.)
     ./samples
 
@@ -76,7 +52,7 @@ Where to start?
 
 (1) Setup.
 
-    1. Make sure you have a JDK 1.4.x installed (or 1.5.x); that
+    1. Make sure you have a JDK 1.6.x or later installed; that
        java[.exe] is on your path and that JAVA_HOME/bin contains
        java[.exe], javac[.exe], and jar[.exe].
 
