@@ -23,6 +23,7 @@ Layout of the tree:
 - xbeanenv.sh   sets the XMLBEANS_HOME environment variable on Unix
 - bin           contains useful command-line scripts for Win and Unix
 - docs          contains several documentation files
+- javadocs      API documentation
 - maven-plugin  source and documentation on using the xmlbeans2 Maven plugin
 - samples       contains ... samples
 - src           the source code for XmlBeans, organized by area

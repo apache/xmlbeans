@@ -511,14 +511,14 @@
         <property name="prefix" value="xmlbeans-${version.base}"/>
 
         <zip destfile="build/xmlbeans-src-${version.base}-${tstamp.dist}.zip" update="false">
-            <zipfileset dir="." excludes="build/**,tmp/**,.idea/**,bin/**,lib/**,compile-lib/**,/src/shell,build.javacheck.xml,release-guide.txt" prefix="${prefix}"/>
+            <zipfileset dir="." excludes="build/**,tmp/**,.idea/**,bin/**,lib/**,compile-lib/**,/src/shell/**,.settings/**,.project,build.javacheck.xml,release-guide.txt" prefix="${prefix}"/>
         	<zipfileset dir="src/shell" prefix="${prefix}/bin" />
-            <fileset dir="build/javadocs" prefix="${prefix}/javadocs" />
+            <zipfileset dir="build/javadocs" prefix="${prefix}/javadocs" />
         </zip>
         <tar destfile="build/xmlbeans-src-${version.base}-${tstamp.dist}.tgz" compression="gzip">
-            <tarfileset dir="." excludes="build/**,tmp/**,.idea/**,bin/**,lib/**,compile-lib/**,/src/shell,build.javacheck.xml,release-guide.txt" prefix="${prefix}"/>
+            <tarfileset dir="." excludes="build/**,tmp/**,.idea/**,bin/**,lib/**,compile-lib/**,/src/shell/**,.settings/**,.project,build.javacheck.xml,release-guide.txt" prefix="${prefix}"/>
         	<tarfileset dir="src/shell" prefix="${prefix}/bin" />
-            <fileset dir="build/javadocs" prefix="${prefix}/javadocs" />
+            <tarfileset dir="build/javadocs" prefix="${prefix}/javadocs" />
         </tar>
 
         <zip destfile="build/xmlbeans-bin-${version.base}-${tstamp.dist}.zip" update="false">
@@ -536,7 +536,7 @@
                 <include name="xmlbeans-${version.base}-sources.jar"/>
             </zipfileset>
         </zip>
-        <tar destfile="build/xmlbeans-bin-${version.base}-${tstamp.dist}.zip" compression="gzip">
+        <tar destfile="build/xmlbeans-bin-${version.base}-${tstamp.dist}.tgz" compression="gzip">
             <tarfileset dir="." includes="LICENSE.txt,NOTICE.txt,docs/**" prefix="${prefix}"/>
             <tarfileset dir="samples" includes="Any/**,DateTime/**,MixedContent/**,OrderMatters/**,SchemaEnum/**,Validation/**,XQueryXPath/**,XsdConfig/**" prefix="${prefix}/samples"/>
             <tarfileset dir="src/shell" prefix="${prefix}/bin"/>
