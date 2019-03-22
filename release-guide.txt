@@ -93,13 +93,15 @@ svn pd 'svn:executable' $(find -name .svn -prune -or -type f ! -name \*.sh \
      - xmlbeans-VERSION-javadoc.jar
      - xmlbeans-VERSION-sources.jar
      - xmlbeans-bin-VERSION-DATE.zip
+     - xmlbeans-bin-VERSION-DATE.tgz
      - xmlbeans-src-VERSION-DATE.zip
+     - xmlbeans-src-VERSION-DATE.tgz
 
   2. Grab the current deployed POM, and edit the version # and anything else that has changed:
      https://repository.apache.org/service/local/repo_groups/public/content/org/apache/xmlbeans/xmlbeans/VERSION/xmlbeans-VERSION.pom
 
-  3. Sign the jars and pom with your key:
-     gpg -ab *.jar *.pom
+  3. Sign the jars, zip, tgz, and pom with your key:
+     gpg -ab *.jar *.zip *.tgz *.pom
 
   4. Build the nexus bundle.jar to upload to 
      repository.apache.org:
@@ -107,16 +109,10 @@ svn pd 'svn:executable' $(find -name .svn -prune -or -type f ! -name \*.sh \
 
   5. Upload the bundle to https://repository.apache.org/
 
-  6. Convert the bin and src zip files to equivalent .tgz files by unzipping
-     to a temp folder and repackaging with tar -z
-
-  7. Sign the *.zip and *.tgz files
-     gpg -ab *.tgz *.zip
-
-  8. Generate checksums (sha256sum, sha512sum) for the *.zip and *.tgz files
+  6. Generate checksums (sha256sum, sha512sum) for the *.zip and *.tgz files
      and their signature (*.asc) files
 
-  9. Commit the *.tgz and *.zip files, their signatures, and sha256 and sha512
+  7. Commit the *.tgz and *.zip files, their signatures, and sha256 and sha512
      checksums to the release candidate repo at
      https://dist.apache.org/repos/dist/dev/poi/xmlbeans/
 
