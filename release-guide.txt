@@ -110,9 +110,8 @@ svn pd 'svn:executable' $(find -name .svn -prune -or -type f ! -name \*.sh \
   5. Upload the bundle to https://repository.apache.org/
 
   6. Generate checksums (sha256sum, sha512sum) for the *.zip and *.tgz files
-     and their signature (*.asc) files
 
-     for f in *.zip *.tgz *.zip.asc *.tgz.asc
+     for f in *.zip *.tgz
      do 
          for b in 256 512
          do 
@@ -140,7 +139,7 @@ to the release area of the dist repo:
     https://dist.apache.org/repos/dist/release/poi/xmlbeans/release/
 
 Perform a sparse checkout of the dist repo to move artifacts in the staging area to the release area
-In the following example, replace FIXME3.1.0RC1 or FIXME3.1.0 with the version you are releasing
+In the following example, replace FIXME3.0.2 or FIXME3.1.0 with the version you are releasing
 
 {code:sh}
 svn checkout https://dist.apache.org/repos/dist/ --depth immediates
@@ -150,20 +149,14 @@ svn update --set-depth infinity   dist/release/poi/xmlbeans/
 svn rm dist/release/poi/xmlbeans/release/src/* dist/release/poi/xmlbeans/release/bin/*
 svn mv dist/dev/poi/xmlbeans/src/* dist/release/poi/xmlbeans/release/src/
 svn mv dist/dev/poi/xmlbeans/bin/* dist/release/poi/xmlbeans/release/bin/
-svn mv dist/dev/poi/xmlbeans/RELEASE-NOTES.txt dist/release/poi/xmlbeans/dev/RELEASE-NOTES-FIXME3.1.0.txt
-# regular (non-svn) copy so that these text files retain their revision history
-cp dist/release/poi/xmlbeans/dev/RELEASE-NOTES-FIXME3.1.0.txt dist/release/poi/xmlbeans/release/RELEASE-NOTES.txt
-cp dist/dev/poi/KEYS dist/release/poi/KEYS
+svn mv dist/release/poi/xmlbeans/release/dev/RELEASE-NOTES-FIXME3.0.2.txt dist/release/poi/xmlbeans/dev/
+# non-SVN copy to create a new artifact with its own history
+cp dist/release/poi/xmlbeans/dev/RELEASE-NOTES-FIXME3.0.2.txt dist/release/poi/xmlbeans/release/dev/RELEASE-NOTES-FIXME3.1.0.txt
+# edit the RELEASE-NOTES file to reflect the current version
+svn add dist/release/poi/xmlbeans/release/dev/RELEASE-NOTES-FIXME3.1.0.txt
 svn ci dist/ -m "deploy FIXME3.1.0 release artifacts from staging area"
 {code}
 
-
-And remove any old releases from the staging area if they exist (should have been deleted above)
-Staging area: https://dist.apache.org/repos/dist/dev/poi/xmlbeans
-
-{code:sh}
-svn rm https://dist.apache.org/repos/dist/dev/poi/xmlbeans/FIXME3.1.0-RC1 -m "remove old release from staging area"
-{code:sh}
 
 You should get an email from the Apache Reporter Service (no-reply@reporter.apache.org)
 at your Apache email address.
@@ -186,18 +179,23 @@ Refresh to verify that the artifacts are no longer in the Staging Repositories a
    https://xmlbeans.apache.org/changes.html
    remove older releases.
 
-5. Edit the website download page, and list the new release there. This should
-   reference the checksums, so take care when updating
-   https://xmlbeans.apache.org/download.html
-{code:sh}
-# the following generates a download-snipplet.xml to be copy&pasted in the download.xml
-ant update-download -Dversion.id="FIXME3.1.0" -Dreltype=dev -Drel_date="02 July 2016" -Dfile_date="20160702"
-{code}
-   And copy the contents from the output, download-snipplet.xml, to the appropriate section
-   in xmlbeans/site/src/documentation/content/xdocs/download.xml.
+5. Edit the website, in particular the download page, listing the new release there. 
+   This should reference the checksums, so take care when updating
 
+   site/src/documentation/content/xdocs/index.xml
+   site/src/documentation/content/xdocs/news.xml
+   site/src/documentation/content/xdocs/site.xml
+   site/src/documentation/content/xdocs/status.xml
+   site/src/documentation/content/xdocs/download/index.xml
+   
 6. Build site using a recent version of Java 1.8
-   Commit the site changes to svn, and publish live
+   forrest run
+   * inspect the generated changed pages in a local browser
+   * save the generated HTML, replacing originals in the site/build/ directory
+   * compare new HTML with SVN source, and pass files through dos2unix or unix2dos as needed
+   ** some files generate with line endings different than stored in SVN, making diffs annoying
+   
+6a.Commit the site changes to svn, and publish live
 
 7. Don't forget to upload the latest version of the site and javadocs
 
@@ -218,15 +216,13 @@ Thank you to all our contributors for making this release possible.
 On behalf of the Apache POI PMC,
 Your Name
 
-[1] Release notes: https://www.apache.org/dyn/closer.lua/xmlbeans/dev/RELEASE-NOTES-FIXME3.1.0.txt
+[1] Release notes: https://www.apache.org/dyn/closer.lua/poi/xmlbeans/release/dev/RELEASE-NOTES-FIXME3.1.0.txt
 [2] Changelog: https://xmlbeans.apache.org/changes.html#FIXME3.1.0
 """
 
 Note, announcements should be sent from your @apache.org e-mail address.
 
-9. In Bugzilla, add a new version and the next "...-dev" version. Also close the n-2 -dev version to new bugs.
+9. Add the version to the DOAP file too
+  https://svn.apache.org/repos/asf/xmlbeans/trunk/xkit/doap_XMLBeans.rdf
 
-10. Add the version to the DOAP file too
-  https://svn.apache.org/repos/asf/xmlbeans/trunk/doap_POI.rdf
-
-11. Delete directory that held RC.
+11. Delete directory that held RC, if any.
