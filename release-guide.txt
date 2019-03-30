@@ -189,6 +189,13 @@ Refresh to verify that the artifacts are no longer in the Staging Repositories a
    site/src/documentation/content/xdocs/download/index.xml
    
 6. Build site using a recent version of Java 1.8
+   Generating with Forrest may result in line ending changes, making change diffs
+   hard to read.  That may be fixed eventually, but for now dos2linux and linux2dos
+   are your friend to minimize these.
+   
+   Or, you can follow this process to only replace generated files where you know
+   the source changed:
+   
    forrest run
    * inspect the generated changed pages in a local browser
    * save the generated HTML, replacing originals in the site/build/ directory
@@ -217,7 +224,7 @@ On behalf of the Apache POI PMC,
 Your Name
 
 [1] Release notes: https://www.apache.org/dyn/closer.lua/poi/xmlbeans/release/dev/RELEASE-NOTES-FIXME3.1.0.txt
-[2] Changelog: https://xmlbeans.apache.org/changes.html#FIXME3.1.0
+[2] Changelog: https://xmlbeans.apache.org/status.html#rel_FIXME310
 """
 
 Note, announcements should be sent from your @apache.org e-mail address.
