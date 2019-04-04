@@ -26,19 +26,21 @@ import org.apache.xmlbeans.impl.xb.xsdschema.TopLevelComplexType;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
-import tools.util.TestRunUtil;
+import org.junit.runner.JUnitCore;
+import org.junit.runner.Result;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 
 public class CompilationTests {
@@ -195,14 +197,13 @@ public class CompilationTests {
     }
 
     @Test
-    @Ignore
     public void testSimple() throws Throwable {
         deltree(xbeanOutput("compile/scomp/simple"));
         // First, compile schema
 
         // First, compile schema
-        File inputfile1 = xbeanCase("../../simple/person.xsd");
-        File inputfile2 = xbeanCase("../../simple/simplec.xsd");
+        File inputfile1 = xbeanCase("../../simple/person/person.xsd");
+        File inputfile2 = xbeanCase("../../simple/person/simplec.xsd");
 
         File srcdir = xbeanOutput("simple/simpletypes/src");
 
@@ -217,16 +218,18 @@ public class CompilationTests {
         assertTrue("Build failed", SchemaCompiler.compile(params));
 
         // Then, compile java classes
-        File javasrc = xbeanCase("simple/javasrc");
+        File javasrc = new File("test/src/scomp/simple");
         File javaclasses = xbeanOutput("compile/scomp/simple/javaclasses");
         javaclasses.mkdirs();
-        List<File> testcp = Arrays.asList(CodeGenUtil.systemClasspath());
+        List<File> testcp = new ArrayList<File>(Arrays.asList(CodeGenUtil.systemClasspath()));
         testcp.add(outputjar);
         CodeGenUtil.externalCompile(Arrays.asList(javasrc), javaclasses, testcp.toArray(new File[0]), true);
 
         // Then run the test
-        testcp.add(javaclasses);
-        TestRunUtil.run("SimplePersonTest", new File[]{outputjar, javaclasses});
+        URLClassLoader childcl = new URLClassLoader(new URL[]{outputjar.toURI().toURL()}, CompilationTests.class.getClassLoader());
+        Class<?> cl = childcl.loadClass("scomp.simple.SimplePersonTest");
+        Result result = JUnitCore.runClasses(cl);
+        assertEquals(0, result.getFailureCount());
     }
 
     @Test
@@ -269,7 +272,6 @@ public class CompilationTests {
     }
 
     @Test
-    @Ignore
     public void testPricequote() throws Throwable {
         deltree(xbeanOutput("compile/scomp/pricequote"));
         // First, compile schema
@@ -278,7 +280,7 @@ public class CompilationTests {
         File outputjar = xbeanOutput("compile/scomp/pricequote/pricequote.jar");
         SchemaCompiler.Parameters params = new SchemaCompiler.Parameters();
         params.setXsdFiles(new File[]{
-            xbeanCase("compile/scomp/pricequote/PriceQuote.xsd")});
+            xbeanCase("pricequote/PriceQuote.xsd")});
         params.setSrcDir(srcdir);
         params.setClassesDir(classesdir);
         params.setOutputJar(outputjar);
@@ -363,7 +365,6 @@ public class CompilationTests {
     };
 
     @Test
-    @Ignore
     public void testFinal() throws Throwable {
         SchemaDocument[] schemas = new SchemaDocument[invalidSchemas.length];
 
