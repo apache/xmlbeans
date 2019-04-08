@@ -15,10 +15,12 @@
 
 package org.apache.xmlbeans;
 
+import org.apache.xmlbeans.impl.common.XmlErrorWatcher;
 import org.apache.xmlbeans.impl.schema.BuiltinSchemaTypeSystem;
 import org.apache.xmlbeans.impl.schema.PathResourceLoader;
 import org.apache.xmlbeans.impl.schema.SchemaTypeLoaderImpl;
 import org.apache.xmlbeans.impl.schema.SchemaTypeSystemCompiler;
+import org.apache.xmlbeans.impl.schema.SchemaTypeSystemCompiler.Parameters;
 import org.apache.xmlbeans.impl.store.Locale;
 import org.w3c.dom.Node;
 
@@ -27,6 +29,8 @@ import javax.xml.stream.XMLStreamReader;
 import java.io.File;
 import java.lang.ref.SoftReference;
 import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.Collection;
 
 /**
  * Provides an assortment of utilities
@@ -274,8 +278,19 @@ public final class XmlBeans
      * @param options Options specifying an error listener and/or validation behavior.
      */
     public static SchemaTypeLoader loadXsd(XmlObject[] schemas, XmlOptions options) throws XmlException {
-        SchemaTypeSystem sts = SchemaTypeSystemCompiler.compile(null, null, schemas, null, getContextTypeLoader(), null, options);
-        return (sts == null) ? null : typeLoaderUnion(sts, getContextTypeLoader());
+        Parameters params = new Parameters();
+        params.setInputXmls(schemas);
+        params.setOptions(options);
+
+        XmlErrorWatcher xew = setErrorWatcher(params, options);
+
+        SchemaTypeSystem sts = SchemaTypeSystemCompiler.compile(params);
+
+        if (xew.hasError() && sts == null) {
+            throw new XmlException(xew.firstError());
+        }
+
+        return typeLoaderUnion(sts, getContextTypeLoader());
     }
 
 
@@ -423,7 +438,34 @@ public final class XmlBeans
      * @param options Options specifying an error listener and/or validation behavior.
      */
     public static SchemaTypeSystem compileXmlBeans(String name, SchemaTypeSystem system, XmlObject[] schemas, BindingConfig config, SchemaTypeLoader typepath, Filer filer, XmlOptions options) throws XmlException {
-        return SchemaTypeSystemCompiler.compile(name, system, schemas, config, typepath != null ? typepath : getContextTypeLoader(), filer, options);
+        Parameters params = new Parameters();
+        params.setName(name);
+        params.setExistingTypeSystem(system);
+        params.setInputXmls(schemas);
+        params.setConfig(config);
+        params.setLinkTo(typepath);
+        params.setFiler(filer);
+        params.setOptions(options);
+
+        XmlErrorWatcher xew = setErrorWatcher(params, options);
+
+        SchemaTypeSystem sts = SchemaTypeSystemCompiler.compile(params);
+
+        if (xew.hasError() && sts == null) {
+            throw new XmlException(xew.firstError());
+        }
+
+        return sts;
+    }
+
+    @SuppressWarnings("unchecked")
+    private static XmlErrorWatcher setErrorWatcher(Parameters params, XmlOptions options) {
+        Collection<XmlError> errorListener = (options != null && options.hasOption (XmlOptions.ERROR_LISTENER))
+            ? (Collection<XmlError>)options.get(XmlOptions.ERROR_LISTENER)
+            : new ArrayList<XmlError>();
+        XmlErrorWatcher xew = new XmlErrorWatcher(errorListener);
+        params.setErrorListener(xew);
+        return xew;
     }
 
 

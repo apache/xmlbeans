@@ -137,12 +137,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
     static final int FLAG_ABSTRACT        = 0x40000;
     static final int FLAG_ATTRIBUTE_TYPE  = 0x80000;
 
-    /**
-     * regex to identify the type system holder package namespace
-     */
-    private static final Pattern packPat = Pattern.compile("^(.+)(\\.[^.]+){3}$");
-
-    /**
+     /**
      * This is to support the feature of a separate/private XMLBeans
      * distribution that will not colide with the public org apache
      * xmlbeans one.
@@ -937,7 +932,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
         }
     }
 
-    public SchemaTypeSystemImpl(String nameForSystem)
+    public SchemaTypeSystemImpl(String nameForSystem, String schemasDir)
     {
         // if we have no name, select a random one
         if (nameForSystem == null)
@@ -948,7 +943,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
             nameForSystem = "s" + new String(HexBin.encode(bytes));
         }
 
-        _name = getMetadataPath().replace('/','.') + ".system." + nameForSystem;
+        _name = schemasDir.replace('/','.') + ".system." + nameForSystem;
         _basePackage = nameToPathString(_name);
         _classloader = null;
         //System.out.println("             _base: " + _basePackage);
@@ -3851,8 +3846,6 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
      * @since XmlBeans 3.0.3
      */
     public String getMetadataPath() {
-        Matcher m = packPat.matcher(getClass().getName());
-        m.find();
-        return m.group(1).replace('.','/');
+        return new File(_basePackage).getParentFile().getParent();
     }
 }

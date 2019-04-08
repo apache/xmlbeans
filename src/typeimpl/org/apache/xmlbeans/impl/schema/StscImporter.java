@@ -881,8 +881,7 @@ public class StscImporter
             if (state.getSchemasDir() == null)
                 return reader;
 
-            String schemalocation = state.sourceNameForUri(url);
-            File targetFile = new File(state.getSchemasDir(), schemalocation);
+            File targetFile = getTargetDir(url, state);
             if (targetFile.exists())
                 return reader;
 
@@ -912,8 +911,7 @@ public class StscImporter
             if (state.getSchemasDir() == null)
                 return bytes;
 
-            String schemalocation = state.sourceNameForUri(url);
-            File targetFile = new File(state.getSchemasDir(), schemalocation);
+            File targetFile = getTargetDir(url, state);
             if (targetFile.exists())
                 return bytes;
 
@@ -942,9 +940,7 @@ public class StscImporter
             //Copy the schema file if it wasn't already copied
             if (state.getSchemasDir()!=null)
             {
-                String schemalocation = state.sourceNameForUri(urlLoc);
-
-                File targetFile = new File(state.getSchemasDir(), schemalocation);
+                File targetFile = getTargetDir(urlLoc, state);
                 if (forceCopy || !targetFile.exists())
                 {
                     try
@@ -979,6 +975,24 @@ public class StscImporter
                     }
                 }
             }
+        }
+
+        private static File getTargetDir(String urlLoc, StscState state) {
+            String[] paths = {
+                state.getClassesDir() == null ? null : state.getClassesDir().getPath(),
+                state.getSchemasDir() == null ? null : state.getSchemasDir().getPath(),
+                "src",
+                state.sourceNameForUri(urlLoc)
+            };
+
+            File parent = null;
+            for (String path : paths) {
+                if (path != null) {
+                    parent = new File(parent, path);
+                }
+            }
+
+            return parent;
         }
 
         private static ByteArrayInputStream copy(InputStream is) throws IOException

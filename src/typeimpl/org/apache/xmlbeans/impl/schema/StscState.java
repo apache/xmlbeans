@@ -96,6 +96,7 @@ public class StscState
     private Set _mdefNamespaces     = buildDefaultMdefNamespaces();
     private EntityResolver _entityResolver;
     private File _schemasDir;
+    private File _classesDir;
 
     private static Set buildDefaultMdefNamespaces()
     {
@@ -473,7 +474,7 @@ public class StscState
         if (name == null && _digest != null)
             name = "s" + new String(HexBin.encode(_digest));
 
-        _target = new SchemaTypeSystemImpl(name);
+        _target = new SchemaTypeSystemImpl(name, _schemasDir.getPath());
         return _target;
     }
 
@@ -1595,5 +1596,13 @@ public class StscState
     public void setSchemasDir(File _schemasDir)
     {
         this._schemasDir = _schemasDir;
+    }
+
+    public File getClassesDir() {
+        return _classesDir;
+    }
+
+    public void setClassesDir(File classesDir) {
+        this._classesDir = classesDir;
     }
 }

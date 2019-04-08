@@ -36,8 +36,7 @@ import org.apache.xmlbeans.SchemaTypeSystem;
 // !!! If this scares you, turn back now !!!
 //
 public final class TypeSystemHolder extends SchemaTypeSystemImpl {
-    // TODO: provide parameter-less parent constructor
-    private TypeSystemHolder() { super(TypeSystemHolder.class); }
+    private TypeSystemHolder() { }
 
     // the type system
     public static final SchemaTypeSystem typeSystem = new TypeSystemHolder();

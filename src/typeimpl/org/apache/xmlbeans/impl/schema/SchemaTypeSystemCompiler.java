@@ -15,35 +15,19 @@
 
 package org.apache.xmlbeans.impl.schema;
 
-import org.apache.xmlbeans.XmlBeans;
-import org.apache.xmlbeans.SchemaTypeLoader;
-import org.apache.xmlbeans.XmlException;
-import org.apache.xmlbeans.XmlErrorCodes;
-import org.apache.xmlbeans.XmlObject;
-import org.apache.xmlbeans.XmlOptions;
-import org.apache.xmlbeans.SchemaTypeSystem;
-import org.apache.xmlbeans.Filer;
-import org.apache.xmlbeans.SchemaType;
-import org.apache.xmlbeans.BindingConfig;
-
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.List;
-import java.util.Set;
-import java.util.Arrays;
-import java.net.URI;
-
-import org.apache.xmlbeans.impl.xb.xsdschema.SchemaDocument.Schema;
-import org.apache.xmlbeans.impl.xb.xsdschema.SchemaDocument;
+import org.apache.xmlbeans.*;
 import org.apache.xmlbeans.impl.common.XmlErrorWatcher;
+import org.apache.xmlbeans.impl.xb.xsdschema.SchemaDocument;
+import org.apache.xmlbeans.impl.xb.xsdschema.SchemaDocument.Schema;
 
-import java.util.Collection;
-import java.util.Iterator;
 import java.io.File;
 import java.io.IOException;
 import java.io.Writer;
+import java.net.URI;
+import java.util.*;
+
+import static org.apache.xmlbeans.impl.schema.SchemaTypeLoaderImpl.getContextTypeLoader;
+import static org.apache.xmlbeans.impl.schema.SchemaTypeSystemImpl.METADATA_PACKAGE_GEN;
 
 public class SchemaTypeSystemCompiler
 {
@@ -52,6 +36,7 @@ public class SchemaTypeSystemCompiler
         private SchemaTypeSystem existingSystem;
         private String name;
         private Schema[] schemas;
+        private XmlObject[] inputXmls;
         private BindingConfig config;
         private SchemaTypeLoader linkTo;
         private XmlOptions options;
@@ -60,6 +45,8 @@ public class SchemaTypeSystemCompiler
         private URI baseURI;
         private Map sourcesToCopyMap;
         private File schemasDir;
+        private File classesDir;
+        private Filer filer;
 
         public SchemaTypeSystem getExistingTypeSystem()
         {
@@ -171,60 +158,82 @@ public class SchemaTypeSystemCompiler
             this.schemasDir = schemasDir;
         }
 
+        public File getClassesDir()
+        {
+            return classesDir;
+        }
+
+        public void setClassesDir(File classesDir)
+        {
+            this.classesDir = classesDir;
+        }
+
+        public XmlObject[] getInputXmls() {
+            return inputXmls;
+        }
+
+        public void setInputXmls(XmlObject[] inputXmls) {
+            this.inputXmls = inputXmls;
+        }
+
+        public Filer getFiler() {
+            return filer;
+        }
+
+        public void setFiler(Filer filer) {
+            this.filer = filer;
+        }
     }
 
     /**
      * Compiles a SchemaTypeSystem.  Use XmlBeans.compileXmlBeans() if you can.
      */
-    public static SchemaTypeSystem compile(Parameters params)
-    {
-        return compileImpl(params.getExistingTypeSystem(), params.getName(),
-            params.getSchemas(), params.getConfig(), params.getLinkTo(),
-            params.getOptions(), params.getErrorListener(), params.isJavaize(),
-            params.getBaseURI(), params.getSourcesToCopyMap(), params.getSchemasDir());
-    }
+    public static SchemaTypeSystem compile(Parameters params) {
+        final XmlOptions options = XmlOptions.maskNull(params.getOptions());
+        final List<Schema> schemas = new ArrayList<Schema>();
+        if (params.getSchemas() != null) {
+            schemas.addAll(Arrays.asList(params.getSchemas()));
+        }
 
-    /**
-     * Please do not invoke this method directly as the signature could change unexpectedly.
-     * Use one of
-     * {@link XmlBeans#loadXsd(XmlObject[])},
-     * {@link XmlBeans#compileXsd(XmlObject[], SchemaTypeLoader, XmlOptions)},
-     * or
-     * {@link XmlBeans#compileXmlBeans(String, SchemaTypeSystem, XmlObject[], BindingConfig, SchemaTypeLoader, Filer, XmlOptions)}
-     */
-    public static SchemaTypeSystemImpl compile(String name, SchemaTypeSystem existingSTS,
-        XmlObject[] input, BindingConfig config, SchemaTypeLoader linkTo, Filer filer, XmlOptions options)
-        throws XmlException
-    {
-        options = XmlOptions.maskNull(options);
-        ArrayList schemas = new ArrayList();
+        final Collection userErrors = (params.getErrorListener() != null)
+            ? params.getErrorListener()
+            : (Collection)options.get(XmlOptions.ERROR_LISTENER);
+        final XmlErrorWatcher errorWatcher = (userErrors instanceof XmlErrorWatcher)
+            ? (XmlErrorWatcher)userErrors
+            : new XmlErrorWatcher(userErrors);
 
-        if (input != null)
-        {
-            for (int i = 0; i < input.length; i++)
-            {
-                if (input[i] instanceof Schema)
-                    schemas.add(input[i]);
-                else if (input[i] instanceof SchemaDocument && ((SchemaDocument)input[i]).getSchema() != null)
-                    schemas.add(((SchemaDocument)input[i]).getSchema());
-                else
-                    throw new XmlException("Thread " + Thread.currentThread().getName() +  ": The " + i + "th supplied input is not a schema document: its type is " + input[i].schemaType());
+        if (params.getInputXmls() != null) {
+            int idx = 0;
+            for (XmlObject xo : params.getInputXmls()) {
+                XmlObject xoOrig = xo;
+                if (xo instanceof SchemaDocument) {
+                    xo = ((SchemaDocument)xo).getSchema();
+                }
+
+                if (xo instanceof Schema) {
+                    schemas.add((Schema) xo);
+                } else {
+                    XmlError xe = XmlError.forObject("The supplied input (index: "+idx+") is not a schema document: its type is " + (xo == null ? "null" : xo.schemaType()), XmlError.SEVERITY_ERROR, xo);
+                    errorWatcher.add(xe);
+                    return null;
+                }
+                idx++;
             }
         }
 
-        Collection userErrors = (Collection)options.get(XmlOptions.ERROR_LISTENER);
-        XmlErrorWatcher errorWatcher = new XmlErrorWatcher(userErrors);
+        final SchemaTypeLoader linkTo = (params.getLinkTo() != null) ? params.getLinkTo() : getContextTypeLoader();
 
-        SchemaTypeSystemImpl stsi = compileImpl(existingSTS, name,
-            (Schema[])schemas.toArray(new Schema[schemas.size()]),
-            config, linkTo, options, errorWatcher, filer!=null, (URI) options.get(XmlOptions.BASE_URI),
-            null, null);
+        final URI baseUri = (params.getBaseURI() != null) ? params.getBaseURI() : (URI)options.get(XmlOptions.BASE_URI);
+        final Filer filer = params.getFiler();
+        final boolean isJavaize = params.isJavaize() || filer != null;
 
-        // if there is an error and compile didn't recover (stsi==null), throw exception
-        if (errorWatcher.hasError() && stsi == null)
-        {
-            throw new XmlException(errorWatcher.firstError());
-        }
+        final File schemasDir = (params.getSchemasDir() != null) ? params.getSchemasDir() : new File(METADATA_PACKAGE_GEN);
+
+        SchemaTypeSystemImpl stsi = compileImpl(params.getExistingTypeSystem(), params.getName(),
+            schemas.toArray(new Schema[0]), params.getConfig(), linkTo,
+            options, errorWatcher, isJavaize,
+            baseUri, params.getSourcesToCopyMap(), schemasDir,
+            params.getClassesDir());
 
         if (stsi != null && !stsi.isIncomplete() && filer != null)
         {
@@ -241,7 +250,7 @@ public class SchemaTypeSystemCompiler
     /* package */ static SchemaTypeSystemImpl compileImpl( SchemaTypeSystem system, String name,
         Schema[] schemas, BindingConfig config, SchemaTypeLoader linkTo,
         XmlOptions options, Collection outsideErrors, boolean javaize,
-        URI baseURI, Map sourcesToCopyMap, File schemasDir)
+        URI baseURI, Map sourcesToCopyMap, File schemasDir, File classesDir)
     {
         if (linkTo == null)
             throw new IllegalArgumentException("Must supply linkTo");
@@ -259,6 +268,7 @@ public class SchemaTypeSystemCompiler
             state.setOptions(options);
             state.setGivenTypeSystemName(name);
             state.setSchemasDir(schemasDir);
+            state.setClassesDir(classesDir);
             if (baseURI != null)
                 state.setBaseUri(baseURI);
 

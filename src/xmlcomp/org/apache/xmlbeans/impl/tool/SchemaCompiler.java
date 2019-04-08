@@ -142,6 +142,7 @@ public class SchemaCompiler
         opts.add("extensionParms");
         opts.add("allowmdef");
         opts.add("catalog");
+        opts.add("schemasDir");
         CommandLine cl = new CommandLine(args, flags, opts);
 
         if (cl.getOpt("h") != null || cl.getOpt("help") != null || cl.getOpt("usage") != null)
@@ -337,6 +338,12 @@ public class SchemaCompiler
 
         String catString = cl.getOpt("catalog");
 
+        String schemasDir = cl.getOpt("schemasDir");
+        if (schemasDir == null || schemasDir.isEmpty()) {
+            schemasDir = SchemaTypeSystemImpl.METADATA_PACKAGE_GEN;
+        }
+
+
         Parameters params = new Parameters();
         params.setBaseDir(baseDir);
         params.setXsdFiles(xsdFiles);
@@ -369,6 +376,7 @@ public class SchemaCompiler
         params.setMdefNamespaces(mdefNamespaces);
         params.setCatalogFile(catString);
         params.setSchemaCodePrinter(codePrinter);
+        params.setSchemasDir(schemasDir);
 
         boolean result = compile(params);
 
@@ -416,6 +424,7 @@ public class SchemaCompiler
         private String catalogFile;
         private SchemaCodePrinter schemaCodePrinter;
         private EntityResolver entityResolver;
+        private String schemasDir;
 
         public File getBaseDir()
         {
@@ -754,14 +763,21 @@ public class SchemaCompiler
         public void setEntityResolver(EntityResolver entityResolver) {
             this.entityResolver = entityResolver;
         }
+
+        public String getSchemasDir() {
+            return schemasDir;
+        }
+
+        public void setSchemasDir(String schemasDir) {
+            this.schemasDir = schemasDir;
+        }
     }
 
     private static SchemaTypeSystem loadTypeSystem(String name, File[] xsdFiles, File[] wsdlFiles, URL[] urlFiles, File[] configFiles,
         File[] javaFiles, ResourceLoader cpResourceLoader,
         boolean download, boolean noUpa, boolean noPvr, boolean noAnn, boolean noVDoc, boolean noExt,
         Set mdefNamespaces, File baseDir, Map sourcesToCopyMap,
-        Collection outerErrorListener, File schemasDir, EntityResolver entResolver, File[] classpath, String javasource)
-    {
+        Collection outerErrorListener, File schemasDir, File classesDir, EntityResolver entResolver, File[] classpath, String javasource) {
         XmlErrorWatcher errorListener = new XmlErrorWatcher(outerErrorListener);
 
         // construct the state (have to initialize early in case of errors)
@@ -937,6 +953,7 @@ public class SchemaCompiler
             params.setBaseURI(baseURI);
             params.setSourcesToCopyMap(sourcesToCopyMap);
             params.setSchemasDir(schemasDir);
+            params.setClassesDir(classesDir);
             return SchemaTypeSystemCompiler.compile(params);
         } finally {
             StscState.end();
@@ -988,8 +1005,7 @@ public class SchemaCompiler
         StscState.addInfo(errorListener, "Processing " + count + " schema(s) in " + name);
     }
 
-    public static boolean compile(Parameters params)
-    {
+    public static boolean compile(Parameters params) {
         File baseDir = params.getBaseDir();
         File[] xsdFiles = params.getXsdFiles();
         File[] wsdlFiles = params.getWsdlFiles();
@@ -1017,6 +1033,10 @@ public class SchemaCompiler
         boolean noExt = params.isNoExt();
         boolean incrSrcGen = params.isIncrementalSrcGen();
         Collection outerErrorListener = params.getErrorListener();
+
+        if (params.getSchemasDir() == null) {
+            params.setSchemasDir(SchemaTypeSystemImpl.METADATA_PACKAGE_GEN);
+        }
 
         String repackage = params.getRepackage();
 
@@ -1057,13 +1077,13 @@ public class SchemaCompiler
 
         boolean result = true;
 
-        File schemasDir = IOUtil.createDir(classesDir, SchemaTypeSystemImpl.METADATA_PACKAGE_GEN + "/src");
+        File schemasDir = new File(params.getSchemasDir());
 
         // build the in-memory type system
         XmlErrorWatcher errorListener = new XmlErrorWatcher(outerErrorListener);
         SchemaTypeSystem system = loadTypeSystem(name, xsdFiles, wsdlFiles, urlFiles, configFiles,
             javaFiles, cpResourceLoader, download, noUpa, noPvr, noAnn, noVDoc, noExt, mdefNamespaces,
-            baseDir, sourcesToCopyMap, errorListener, schemasDir, cmdLineEntRes, classpath, javasource);
+            baseDir, sourcesToCopyMap, errorListener, schemasDir, classesDir, cmdLineEntRes, classpath, javasource);
         if (errorListener.hasError())
             result = false;
         long finish = System.currentTimeMillis();
