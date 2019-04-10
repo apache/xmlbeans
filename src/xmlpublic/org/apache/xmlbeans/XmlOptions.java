@@ -15,6 +15,7 @@
 
 package org.apache.xmlbeans;
 
+import org.apache.xmlbeans.impl.schema.SchemaTypeSystemCompiler;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.XMLReader;
 
@@ -216,7 +217,7 @@ public class XmlOptions implements java.io.Serializable
      * @see XmlError
      * @see XmlObject.Factory#parse(java.io.File, XmlOptions)
      * @see XmlObject#validate(XmlOptions)
-     * @see XmlBeans#compileXsd
+     * @see XmlBeans#compileXmlBeans(SchemaTypeSystemCompiler.Parameters)
      * @see XmlOptions#setLoadLineNumbers
      */
     public XmlOptions setErrorListener (Collection c) { 
@@ -672,7 +673,7 @@ public class XmlOptions implements java.io.Serializable
      * 
      * @param nameMap a map from <code>QName</code>s to substitute <code>QName</code>s.
      * 
-     * @see XmlBeans#compileXsd
+     * @see XmlBeans#compileXmlBeans(SchemaTypeSystemCompiler.Parameters)
      */
     public XmlOptions setCompileSubstituteNames (Map nameMap) { 
         return set( COMPILE_SUBSTITUTE_NAMES, nameMap ); 
@@ -682,7 +683,7 @@ public class XmlOptions implements java.io.Serializable
      * If this option is set, validation is not done on the Schema XmlBeans
      * when building a <code>SchemaTypeSystem</code>
      * 
-     * @see XmlBeans#compileXsd
+     * @see XmlBeans#compileXmlBeans(SchemaTypeSystemCompiler.Parameters)
      */
     public XmlOptions setCompileNoValidation () { 
         return set( COMPILE_NO_VALIDATION ); 
@@ -694,7 +695,7 @@ public class XmlOptions implements java.io.Serializable
      * <a target="_blank" href="http://www.w3.org/TR/xmlschema-1/#non-ambig">Appendix H of the XML Schema specification</a>
      * for information on the UPA rule.
      * 
-     * @see XmlBeans#compileXsd
+     * @see XmlBeans#compileXmlBeans(SchemaTypeSystemCompiler.Parameters)
      */
     public XmlOptions setCompileNoUpaRule () { 
         return set( COMPILE_NO_UPA_RULE ); 
@@ -706,7 +707,7 @@ public class XmlOptions implements java.io.Serializable
      * <a target="_blank" href="http://www.w3.org/TR/xmlschema-1/#cos-particle-restrict">Section 3.9.6 of the XML Schema specification</a>
      * for information on the PVR rule.
      * 
-     * @see XmlBeans#compileXsd
+     * @see XmlBeans#compileXmlBeans(SchemaTypeSystemCompiler.Parameters)
      */
     public XmlOptions setCompileNoPvrRule () { 
         return set( COMPILE_NO_PVR_RULE ); 
@@ -716,7 +717,7 @@ public class XmlOptions implements java.io.Serializable
      * if this option is set, the schema compiler will skip annotations when
      * processing Schema components.
      * 
-     * @see XmlBeans#compileXsd
+     * @see XmlBeans#compileXmlBeans(SchemaTypeSystemCompiler.Parameters)
      */
     public XmlOptions setCompileNoAnnotations() {
         return set( COMPILE_NO_ANNOTATIONS );
@@ -726,7 +727,7 @@ public class XmlOptions implements java.io.Serializable
      * If this option is set, then the schema compiler will try to download
      * schemas that appear in imports and includes from network based URLs.
      * 
-     * @see XmlBeans#compileXsd
+     * @see XmlBeans#compileXmlBeans(SchemaTypeSystemCompiler.Parameters)
      */
     public XmlOptions setCompileDownloadUrls () { 
         return set( COMPILE_DOWNLOAD_URLS); 
@@ -741,7 +742,7 @@ public class XmlOptions implements java.io.Serializable
      * 
      * @param mdefNamespaces a set of namespace URIs as Strings
      * 
-     * @see XmlBeans#compileXsd
+     * @see XmlBeans#compileXmlBeans(SchemaTypeSystemCompiler.Parameters)
      */ 
     public XmlOptions setCompileMdefNamespaces(Set mdefNamespaces)
     {
@@ -802,7 +803,7 @@ public class XmlOptions implements java.io.Serializable
      * are not consulted by other functions, for example, parse.
      * This will likely change in the future.
      * 
-     * @see XmlBeans#compileXsd
+     * @see XmlBeans#compileXmlBeans(SchemaTypeSystemCompiler.Parameters)
      */
     public XmlOptions setEntityResolver(EntityResolver resolver) {
         return set( ENTITY_RESOLVER, resolver );
@@ -813,7 +814,7 @@ public class XmlOptions implements java.io.Serializable
      * URI will be considered as base URI when deciding the directory
      * structure for saving the sources inside the generated JAR file.
      * @param baseURI the URI to be considered as "base"
-     * @see XmlBeans#compileXsd
+     * @see XmlBeans#compileXmlBeans(SchemaTypeSystemCompiler.Parameters)
      */
     public XmlOptions setBaseURI(URI baseURI) {
         return set( BASE_URI, baseURI );
@@ -824,7 +825,7 @@ public class XmlOptions implements java.io.Serializable
      * SchemaTypeCodePrinter.Printer will be used to generate the
      * Java code.
      * 
-     * @see XmlBeans#compileXsd
+     * @see XmlBeans#compileXmlBeans(SchemaTypeSystemCompiler.Parameters)
      */
     public XmlOptions setSchemaCodePrinter(SchemaCodePrinter printer) {
         return set( SCHEMA_CODE_PRINTER, printer );
@@ -840,7 +841,7 @@ public class XmlOptions implements java.io.Serializable
      *
      * @see #GENERATE_JAVA_14
      * @see #GENERATE_JAVA_15
-     * @see XmlBeans#compileXmlBeans
+     * @see XmlBeans#compileXmlBeans(org.apache.xmlbeans.impl.schema.SchemaTypeSystemCompiler.Parameters)
      */
     public XmlOptions setGenerateJavaVersion (String source) {
         return set( GENERATE_JAVA_VERSION, source );

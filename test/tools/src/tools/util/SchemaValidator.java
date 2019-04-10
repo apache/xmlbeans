@@ -15,6 +15,7 @@
 package tools.util;
 
 import org.apache.xmlbeans.*;
+import org.apache.xmlbeans.impl.schema.SchemaTypeSystemCompiler;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -74,12 +75,12 @@ public class SchemaValidator
         Exception ioex = null;
         XmlObject[] schema = new XmlObject[1];
         SchemaTypeSystem system = null;
-        try
-        {
-            schema[0] = XmlObject.Factory.parse(new File(schemaFile));
-            system = XmlBeans.compileXsd(schema,
-                                         XmlBeans.getBuiltinTypeSystem(),
-                                         options);
+        try {
+            SchemaTypeSystemCompiler.Parameters params = new SchemaTypeSystemCompiler.Parameters();
+            params.setInputXmls(XmlObject.Factory.parse(new File(schemaFile)));
+            params.setLinkTo(XmlBeans.getBuiltinTypeSystem());
+            params.setOptions(options);
+            system = XmlBeans.compileXmlBeans(params);
         } catch (XmlException e)
         {
             // Parse Exception

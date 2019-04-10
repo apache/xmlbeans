@@ -18,6 +18,7 @@ import compile.scomp.common.CompileCommon;
 import compile.scomp.common.CompileTestBase;
 import compile.scomp.common.mockobj.TestFiler;
 import org.apache.xmlbeans.*;
+import org.apache.xmlbeans.impl.schema.SchemaTypeSystemCompiler.Parameters;
 import org.apache.xmlbeans.impl.schema.SchemaTypeSystemImpl;
 import org.junit.After;
 import org.junit.Test;
@@ -67,11 +68,17 @@ public class XmlBeansCompCheckinTests extends CompileTestBase
     public void test_Filer_compilation() throws Exception
     {
         XmlObject obj1 = XmlObject.Factory.parse(forXsd);
-        XmlObject[] schemas = new XmlObject[]{obj1};
 
         TestFiler f = new TestFiler();//FilerImpl(fClass, fSrc, repackage, true, false);
-        SchemaTypeSystem apiSts = XmlBeans.compileXmlBeans("apiCompile", null,
-                schemas, null, XmlBeans.getBuiltinTypeSystem(), f, xm_opts);
+
+        Parameters params = new Parameters();
+        params.setName("apiCompile");
+        params.setLinkTo(XmlBeans.getBuiltinTypeSystem());
+        params.setInputXmls(obj1);
+        params.setFiler(f);
+        params.setOptions(xm_opts);
+
+        SchemaTypeSystem apiSts = XmlBeans.compileXmlBeans(params);
 
 
         for (int i = 0; i < apiSts.globalElements().length; i++) {
@@ -103,11 +110,8 @@ public class XmlBeansCompCheckinTests extends CompileTestBase
     public void test_sts_noSave() throws Exception
     {
         XmlObject obj1 = XmlObject.Factory.parse(forXsd);
-        XmlObject[] schemas = new XmlObject[]{obj1};
         XmlObject obj2 = XmlObject.Factory.parse(incrXsd);
-        XmlObject[] schemas2 = new XmlObject[]{obj2};
         XmlObject obj3 = XmlObject.Factory.parse(errXsd);
-        XmlObject[] schemas3 = new XmlObject[]{obj3};
 
         SchemaTypeSystem sts;
         TestFiler f = new TestFiler();
@@ -117,9 +121,11 @@ public class XmlBeansCompCheckinTests extends CompileTestBase
 
         try {
             // since you can't save a partial SOM, don't bother passing in a Filer
-            sts = XmlBeans.compileXmlBeans(null,
-                    null, schemas3, null,
-                    XmlBeans.getBuiltinTypeSystem(), null, opt);
+            Parameters params = new Parameters();
+            params.setLinkTo(XmlBeans.getBuiltinTypeSystem());
+            params.setInputXmls(obj3);
+            params.setOptions(opt);
+            sts = XmlBeans.compileXmlBeans(params);
             boolean psom_expError = false;
             // print out the recovered xm_errors
             if (!err.isEmpty()) {
@@ -218,9 +224,12 @@ public class XmlBeansCompCheckinTests extends CompileTestBase
             err.clear();
 
             //filer methods on partial SOM should not be returned
-            sts = XmlBeans.compileXmlBeans(null,
-                    null, schemas3, null,
-                    XmlBeans.getBuiltinTypeSystem(), tf, opt);
+            Parameters params = new Parameters();
+            params.setLinkTo(XmlBeans.getBuiltinTypeSystem());
+            params.setInputXmls(obj3);
+            params.setFiler(tf);
+            params.setOptions(opt);
+            sts = XmlBeans.compileXmlBeans(params);
 
             assertTrue("Errors was not empty", !err.isEmpty());
             //make sure nothing was written
@@ -255,23 +264,26 @@ public class XmlBeansCompCheckinTests extends CompileTestBase
     public void test_entrypoint_nullVals() throws Exception
     {
         XmlObject obj1 = XmlObject.Factory.parse(forXsd);
-        XmlObject[] schemas = new XmlObject[]{obj1};
 
         TestFiler f = new TestFiler();
 
-        SchemaTypeSystem apiSts = XmlBeans.compileXmlBeans(null, null,
-                schemas, null, XmlBeans.getBuiltinTypeSystem(), null, null);
+        Parameters params = new Parameters();
+        params.setLinkTo(XmlBeans.getBuiltinTypeSystem());
+        params.setInputXmls(obj1);
+
+        SchemaTypeSystem apiSts = XmlBeans.compileXmlBeans(params);
         System.out.println("Name: " + apiSts.getName());
         printSTS(apiSts);
 
-        apiSts = XmlBeans.compileXmlBeans(null, null,
-                null, null, XmlBeans.getBuiltinTypeSystem(), null, null);
+        params.setInputXmls(null);
+
+        apiSts = XmlBeans.compileXmlBeans(params);
         printSTS(apiSts);
 
         boolean iArgExThrown = false;
         try {
-            apiSts = XmlBeans.compileXmlBeans(null, null,
-                    null, null, null, null, null);
+            params = new Parameters();
+            apiSts = XmlBeans.compileXmlBeans(params);
             printSTS(apiSts);
 
         } catch (IllegalArgumentException iaEx) {
@@ -284,8 +296,9 @@ public class XmlBeansCompCheckinTests extends CompileTestBase
 
         iArgExThrown = false;
         try {
-            apiSts = XmlBeans.compileXmlBeans(null, null,
-                    schemas, null, null, null, null);
+            params.setInputXmls(obj1);
+            params.setLinkTo(null);
+            apiSts = XmlBeans.compileXmlBeans(params);
             printSTS(apiSts);
         } catch (IllegalArgumentException iaEx) {
             iArgExThrown = true;

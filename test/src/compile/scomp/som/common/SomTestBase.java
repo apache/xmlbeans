@@ -30,6 +30,8 @@ package compile.scomp.som.common;
 
 import compile.scomp.common.CompileTestBase;
 import org.apache.xmlbeans.*;
+import org.apache.xmlbeans.impl.schema.SchemaTypeSystemCompiler;
+import org.apache.xmlbeans.impl.schema.SchemaTypeSystemCompiler.Parameters;
 import org.apache.xmlbeans.impl.tool.Diff;
 import org.junit.Assert;
 
@@ -507,9 +509,15 @@ public class SomTestBase extends CompileTestBase
                 xsdModifiedObj.documentProperties().setSourceName(sBaseSourceName);
             }
             Assert.assertNotNull("Xml Object creation failed", xsdModifiedObj);
-            XmlObject[] xobjArr = new XmlObject[]{xsdModifiedObj};
 
-            returnSTS = XmlBeans.compileXmlBeans(sSTSName, baseSchema, xobjArr, null, builtin, null, options);
+            Parameters params = new Parameters();
+            params.setName(sSTSName);
+            params.setLinkTo(builtin);
+            params.setInputXmls(xsdModifiedObj);
+            params.setExistingTypeSystem(baseSchema);
+            params.setOptions(options);
+
+            returnSTS = XmlBeans.compileXmlBeans(params);
             Assert.assertNotNull("Schema Type System created is Null.", returnSTS);
 
             // validate the XmlObject created

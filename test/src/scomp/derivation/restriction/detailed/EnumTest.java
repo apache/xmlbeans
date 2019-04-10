@@ -16,6 +16,7 @@
 package scomp.derivation.restriction.detailed;
 
 import org.apache.xmlbeans.*;
+import org.apache.xmlbeans.impl.schema.SchemaTypeSystemCompiler;
 import org.apache.xmlbeans.impl.xb.xsdschema.SchemaDocument;
 import org.junit.Test;
 import scomp.common.BaseCase;
@@ -62,14 +63,16 @@ public class EnumTest extends BaseCase
         SchemaDocument sd = SchemaDocument.Factory.parse(xsdAsString.toString());
 
         // compile loaded XmlObject
-        try
-        {
-        XmlOptions options = new XmlOptions();
-        List errors = new ArrayList();
-        options.setErrorListener(errors);
-        SchemaTypeSystem sts = XmlBeans.compileXsd((XmlObject[]) Collections.singletonList(sd).toArray(new XmlObject[]{}),
-                XmlBeans.getContextTypeLoader(),
-                options);
+        try {
+            XmlOptions options = new XmlOptions();
+            List errors = new ArrayList();
+            options.setErrorListener(errors);
+
+            SchemaTypeSystemCompiler.Parameters params = new SchemaTypeSystemCompiler.Parameters();
+            params.setInputXmls(sd);
+            params.setOptions(options);
+
+            SchemaTypeSystem sts = XmlBeans.compileXmlBeans(params);
         }
 
         catch(XmlException xme)

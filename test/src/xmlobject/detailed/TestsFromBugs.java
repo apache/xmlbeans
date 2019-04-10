@@ -20,6 +20,7 @@ import com.mytest.Foo;
 import com.mytest.Info;
 import com.mytest.TestDocument;
 import org.apache.xmlbeans.*;
+import org.apache.xmlbeans.impl.schema.SchemaTypeSystemCompiler;
 import org.junit.Test;
 import test.xmlobject.test36510.Test36510AppDocument;
 
@@ -144,8 +145,11 @@ public class TestsFromBugs {
             XmlObject.Factory.parse(str)};
         XmlOptions xOpt = new XmlOptions().setValidateTreatLaxAsSkip();
 
-        SchemaTypeSystem sts = XmlBeans.compileXmlBeans(null, null, schemas,
-            null, XmlBeans.getBuiltinTypeSystem(), null, xOpt);
+        SchemaTypeSystemCompiler.Parameters params = new SchemaTypeSystemCompiler.Parameters();
+        params.setLinkTo(XmlBeans.getBuiltinTypeSystem());
+        params.setInputXmls(schemas);
+        params.setOptions(xOpt);
+        SchemaTypeSystem sts = XmlBeans.compileXmlBeans(params);
 
         //ensure SchemaGlobalElement has getSourceName Method
         SchemaGlobalElement[] sge = sts.globalElements();

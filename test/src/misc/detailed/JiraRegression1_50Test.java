@@ -16,6 +16,7 @@ package misc.detailed;
 
 import misc.common.JiraTestBase;
 import org.apache.xmlbeans.*;
+import org.apache.xmlbeans.impl.schema.SchemaTypeSystemCompiler;
 import org.apache.xmlbeans.impl.tool.SchemaCompiler;
 import org.apache.xmlbeans.impl.xb.xsdschema.SchemaDocument;
 import org.junit.Ignore;
@@ -144,9 +145,10 @@ public class JiraRegression1_50Test extends JiraTestBase {
         SchemaDocument sd = SchemaDocument.Factory.parse(xsdAsString.toString());
 
         // compile loaded XmlObject
-        SchemaTypeSystem sts = XmlBeans.compileXsd((XmlObject[]) Collections.singletonList(sd).toArray(new XmlObject[]{}),
-                XmlBeans.getContextTypeLoader(),
-                new XmlOptions());
+        SchemaTypeSystemCompiler.Parameters params = new SchemaTypeSystemCompiler.Parameters();
+        params.setInputXmls(sd);
+
+        SchemaTypeSystem sts = XmlBeans.compileXmlBeans(params);
         sts.resolve();
 
         SchemaType[] st = sts.globalTypes();

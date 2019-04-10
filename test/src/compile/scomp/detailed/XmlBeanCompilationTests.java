@@ -19,6 +19,7 @@ import compile.scomp.common.CompileTestBase;
 import compile.scomp.common.mockobj.TestBindingConfig;
 import compile.scomp.common.mockobj.TestFiler;
 import org.apache.xmlbeans.*;
+import org.apache.xmlbeans.impl.schema.SchemaTypeSystemCompiler.Parameters;
 import org.apache.xmlbeans.impl.xb.xmlconfig.ConfigDocument;
 import org.junit.After;
 import org.junit.Test;
@@ -103,11 +104,17 @@ public class XmlBeanCompilationTests extends CompileTestBase {
         XmlObject obj1 = XmlObject.Factory.parse(new File(dir + P + "po.xsd"));
         XmlObject obj2 = XmlObject.Factory.parse(
             new File(dir2 + P + "company.xsd"));
-        XmlObject[] schemas = new XmlObject[]{obj1, obj2};
 
         //filer must be present on this method
-        SchemaTypeSystem apiSts = XmlBeans.compileXmlBeans("apiCompile", null,
-            schemas, bind, XmlBeans.getBuiltinTypeSystem(), f, xm_opts);
+        Parameters params = new Parameters();
+        params.setName("apiCompile");
+        params.setLinkTo(XmlBeans.getBuiltinTypeSystem());
+        params.setInputXmls(obj1, obj2);
+        params.setConfig(bind);
+        params.setFiler(f);
+        params.setOptions(xm_opts);
+
+        SchemaTypeSystem apiSts = XmlBeans.compileXmlBeans(params);
 
         if (!bind.isIslookupPrefixForNamespace())
             throw new Exception("isIslookupPrefixForNamespace not invoked");
@@ -135,17 +142,14 @@ public class XmlBeanCompilationTests extends CompileTestBase {
     public void test_incrCompile() throws Exception {
         XmlObject obj1 = XmlObject.Factory.parse(forXsd);
         obj1.documentProperties().setSourceName("OBJ1");
-        XmlObject[] schemas = new XmlObject[]{obj1};
         QName sts1 = new QName("http://baz", "elName");
 
         XmlObject obj2 = XmlObject.Factory.parse(incrXsd);
         obj2.documentProperties().setSourceName("OBJ2");
-        XmlObject[] schemas2 = new XmlObject[]{obj2};
         QName sts2 = new QName("http://bar", "elName");
 
         XmlObject obj3 = XmlObject.Factory.parse(errXsd);
         obj3.documentProperties().setSourceName("OBJ3");
-        XmlObject[] schemas3 = new XmlObject[]{obj3};
         QName sts3 = new QName("http://bar", "elErrName");
 
         SchemaTypeSystem sts;
@@ -154,9 +158,11 @@ public class XmlBeanCompilationTests extends CompileTestBase {
         opt.put("COMPILE_PARTIAL_TYPESYSTEM");
 
         //BASIC COMPILATION
-        sts = XmlBeans.compileXmlBeans(null,
-            null, schemas, null,
-            XmlBeans.getBuiltinTypeSystem(), null, opt);
+        Parameters params = new Parameters();
+        params.setLinkTo(XmlBeans.getBuiltinTypeSystem());
+        params.setInputXmls(obj1);
+        params.setOptions(opt);
+        sts = XmlBeans.compileXmlBeans(params);
 
         assertTrue("Errors should have been empty", err.isEmpty());
         // find element in the type System
@@ -165,9 +171,9 @@ public class XmlBeanCompilationTests extends CompileTestBase {
                 "Could Not find Type from first Type System: " + sts1);
 
         //SIMPLE INCR COMPILATION
-        sts = XmlBeans.compileXmlBeans(null,
-            sts, schemas2, null,
-            XmlBeans.getBuiltinTypeSystem(), null, opt);
+        params.setExistingTypeSystem(sts);
+        params.setInputXmls(obj2);
+        sts = XmlBeans.compileXmlBeans(params);
         assertTrue("Errors should have been empty", err.isEmpty());
         // find element in the type System
 
@@ -181,9 +187,10 @@ public class XmlBeanCompilationTests extends CompileTestBase {
 
         System.out.println("Building over Existing");
         //BUILDING OFF BASE SIMPLE INCR COMPILATION
-        sts = XmlBeans.compileXmlBeans(null,
-            sts, schemas2, null,
-            sts, null, opt);
+        params.setInputXmls(obj2);
+        params.setExistingTypeSystem(sts);
+        params.setLinkTo(sts);
+        sts = XmlBeans.compileXmlBeans(params);
         assertTrue("Errors should have been empty", err.isEmpty());
         // find element in the type System
 
@@ -197,9 +204,12 @@ public class XmlBeanCompilationTests extends CompileTestBase {
 
         //INCR COMPILATION WITH RECOVERABLE ERROR
         err.clear();
-        SchemaTypeSystem b = XmlBeans.compileXmlBeans(null,
-            sts, schemas3, null,
-            XmlBeans.getBuiltinTypeSystem(), null, opt);
+        params = new Parameters();
+        params.setExistingTypeSystem(sts);
+        params.setLinkTo(XmlBeans.getBuiltinTypeSystem());
+        params.setInputXmls(obj3);
+        params.setOptions(opt);
+        SchemaTypeSystem b = XmlBeans.compileXmlBeans(params);
         // find element in the type System
         if (!findGlobalElement(b.globalElements(), sts1))
             throw new Exception("Could Not find Type from first Type System: " +

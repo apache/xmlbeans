@@ -17,6 +17,7 @@ package compile.scomp.detailed;
 
 import compile.scomp.common.CompileCommon;
 import org.apache.xmlbeans.*;
+import org.apache.xmlbeans.impl.schema.SchemaTypeSystemCompiler.Parameters;
 import org.apache.xmlbeans.impl.xb.xsdschema.SchemaDocument;
 import org.junit.Test;
 
@@ -44,15 +45,17 @@ public class DetailedCompTests {
 
         XmlObject xObj = XmlObject.Factory.parse(
                 new File(CompileCommon.fileLocation+"/detailed/laxDoc.xsd"));
-        XmlObject[] schemas = new XmlObject[]{xObj};
-
 
         // ensure exception is thrown when
         // xmloptions flag is not set
         boolean valDocEx = false;
         try{
-            SchemaTypeSystem sts = XmlBeans.compileXmlBeans(null, null,
-                schemas, null, XmlBeans.getBuiltinTypeSystem(), null, xm_opt);
+            Parameters params = new Parameters();
+            params.setLinkTo(XmlBeans.getBuiltinTypeSystem());
+            params.setInputXmls(xObj);
+            params.setOptions(xm_opt);
+
+            SchemaTypeSystem sts = XmlBeans.compileXmlBeans(params);
             assertNotNull("STS was null", sts);
         }catch(XmlException xmlEx){
             valDocEx = true;
@@ -86,9 +89,12 @@ public class DetailedCompTests {
         //ensure no exception when error
         xm_opt = xm_opt.setCompileNoValidation();
         try {
-            SchemaTypeSystem sts = XmlBeans.compileXmlBeans(null, null,
-                    schemas, null, XmlBeans.getBuiltinTypeSystem(), null,
-                    xm_opt);
+            Parameters params = new Parameters();
+            params.setLinkTo(XmlBeans.getBuiltinTypeSystem());
+            params.setInputXmls(xObj);
+            params.setOptions(xm_opt);
+
+            SchemaTypeSystem sts = XmlBeans.compileXmlBeans(params);
 
             if(!err.isEmpty())
                 throw new Exception("Error listener should be empty");
@@ -152,7 +158,6 @@ public class DetailedCompTests {
         String schema;
         String xml;
         SchemaTypeSystem typeSystem;
-        XmlObject[] parsedSchema = new XmlObject[1];
         XmlObject parsedDoc;
         XmlOptions opts = new XmlOptions();
         ArrayList errors = new ArrayList();
@@ -161,10 +166,11 @@ public class DetailedCompTests {
 
         // 1. Negative test - Error if xs:NOTATION used directly
         schema = schema_begin + root_decl + notation1 + root_end + schema_end;
-//        System.out.println(schema);
-        parsedSchema[0] = SchemaDocument.Factory.parse(schema);
+        Parameters params = new Parameters();
+        params.setInputXmls(SchemaDocument.Factory.parse(schema));
+        params.setOptions(opts);
         errors.clear();
-        XmlBeans.compileXsd(parsedSchema, null, opts);
+        XmlBeans.compileXmlBeans(params);
         assertTrue("Expected error: NOTATION type cannot be used directly", errors.size() == 1);
         assertEquals("Expected error: NOTATION type cannot be used directly",
             XmlErrorCodes.ATTR_NOTATION_TYPE_FORBIDDEN, ((XmlError)errors.get(0)).getErrorCode());
@@ -172,10 +178,9 @@ public class DetailedCompTests {
 
         // 2. Negative test - Error if xs:NOTATION restricted without enumeration
         schema = schema_begin + root_decl + att_decl + root_end + notation2 + schema_end;
-//        System.out.println(schema);
-        parsedSchema[0] = SchemaDocument.Factory.parse(schema);
+        params.setInputXmls(SchemaDocument.Factory.parse(schema));
         errors.clear();
-        XmlBeans.compileXsd(parsedSchema, null, opts);
+        XmlBeans.compileXmlBeans(params);
         assertTrue("Expected error: restriction of NOTATION must use enumeration facet", errors.size() == 1);
         assertEquals("Expected error: restriction of NOTATION must use enumeration facet",
             XmlErrorCodes.DATATYPE_ENUM_NOTATION, ((XmlError)errors.get(0)).getErrorCode());
@@ -184,10 +189,9 @@ public class DetailedCompTests {
         // 3. Warning if xs:NOTATION used as type of an element
         final String correctTypes = simpleTypeDef + notation6 + enumDef;
         schema = schema_begin + root_decl + notation3 + root_end + correctTypes + schema_end;
-//        System.out.println(schema);
-        parsedSchema[0] = SchemaDocument.Factory.parse(schema);
+        params.setInputXmls(SchemaDocument.Factory.parse(schema));
         errors.clear();
-        XmlBeans.compileXsd(parsedSchema, null, opts);
+        XmlBeans.compileXmlBeans(params);
         assertTrue("Expected warning: NOTATION-derived type should not be used on elements", errors.size() == 1);
         assertEquals("Expected warning: NOTATION-derived type should not be used on elements",
             XmlErrorCodes.ELEM_COMPATIBILITY_TYPE, ((XmlError)errors.get(0)).getErrorCode());
@@ -196,10 +200,9 @@ public class DetailedCompTests {
         // 4. Warning if xs:NOTATION is used in a Schema with target namespace
         schema = schema_begin.substring(0, schema_begin.length() - 2) + notation4 + root_decl +
             att_decl + root_end + correctTypes + schema_end;
-//        System.out.println(schema);
-        parsedSchema[0] = SchemaDocument.Factory.parse(schema);
+        params.setInputXmls(SchemaDocument.Factory.parse(schema));
         errors.clear();
-        XmlBeans.compileXsd(parsedSchema, null, opts);
+        XmlBeans.compileXmlBeans(params);
         assertTrue("Expected warning: NOTATION-derived type should not be used in a Schema with target namespace", errors.size() == 1);
         assertEquals("Expected warning: NOTATION-derived type should not be used in a Schema with target namespace",
             XmlErrorCodes.ATTR_COMPATIBILITY_TARGETNS, ((XmlError)errors.get(0)).getErrorCode());
@@ -208,10 +211,9 @@ public class DetailedCompTests {
         // 5. Warning - Deprecation of minLength, maxLength and length facets
         schema = schema_begin + root_decl + att_decl + root_end + simpleTypeDef + notation5 +
             enumDef + schema_end;
-//        System.out.println(schema);
-        parsedSchema[0] = SchemaDocument.Factory.parse(schema);
+        params.setInputXmls(SchemaDocument.Factory.parse(schema));
         errors.clear();
-        XmlBeans.compileXsd(parsedSchema, null, opts);
+        XmlBeans.compileXmlBeans(params);
         assertTrue("Expected warning: length facet cannot be used on a type derived from NOTATION", errors.size() == 1);
         assertEquals("Expected warning: length facet cannot be used on a type derived from NOTATION",
             XmlErrorCodes.FACETS_DEPRECATED_NOTATION, ((XmlError)errors.get(0)).getErrorCode());
@@ -219,10 +221,9 @@ public class DetailedCompTests {
 
         // 6. Positive test - Test restriction via enumeration, then same as 2
         schema = schema_begin + root_decl + att_decl + root_end + correctTypes + schema_end;
-//        System.out.println(schema);
-        parsedSchema[0] = SchemaDocument.Factory.parse(schema);
+        params.setInputXmls(SchemaDocument.Factory.parse(schema));
         errors.clear();
-        typeSystem = XmlBeans.compileXsd(parsedSchema, null, opts);
+        typeSystem = XmlBeans.compileXmlBeans(params);
         assertTrue("Expected no errors or warnings", errors.size() == 0);
         SchemaType docType = typeSystem.findDocumentType(new QName("", "root"));
         SchemaType type = docType.getElementProperty(new QName("", "root")).getType().

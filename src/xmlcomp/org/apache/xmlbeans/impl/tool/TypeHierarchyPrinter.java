@@ -36,6 +36,7 @@ import java.util.Set;
 import java.util.HashSet;
 import java.io.File;
 
+import org.apache.xmlbeans.impl.schema.SchemaTypeSystemCompiler;
 import org.apache.xmlbeans.impl.xb.xsdschema.SchemaDocument;
 
 public class TypeHierarchyPrinter
@@ -148,9 +149,12 @@ public class TypeHierarchyPrinter
         if (jarFiles != null && jarFiles.length > 0)
             linkTo = XmlBeans.typeLoaderForResource(XmlBeans.resourceLoaderForPath(jarFiles));
 
-        try
-        {
-            typeSystem = XmlBeans.compileXsd(schemas, linkTo, schemaOptions);
+        try {
+            SchemaTypeSystemCompiler.Parameters params = new SchemaTypeSystemCompiler.Parameters();
+            params.setInputXmls(schemas);
+            params.setLinkTo(linkTo);
+            params.setOptions(schemaOptions);
+            typeSystem = XmlBeans.compileXmlBeans(params);
         }
         catch (XmlException e)
         {

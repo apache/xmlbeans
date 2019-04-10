@@ -15,6 +15,7 @@
 package compile.scomp.common;
 
 import org.apache.xmlbeans.*;
+import org.apache.xmlbeans.impl.schema.SchemaTypeSystemCompiler;
 import org.apache.xmlbeans.impl.tool.Diff;
 import org.apache.xmlbeans.impl.tool.SchemaCodeGenerator;
 import org.apache.xmlbeans.impl.tool.SchemaCompiler;
@@ -187,8 +188,13 @@ public class CompileTestBase extends CompileCommon {
     public SchemaTypeSystem incrCompileXsd(SchemaTypeSystem system, XmlObject[] schemas,
                                            SchemaTypeLoader typepath, XmlOptions options) throws XmlException, IOException {
 
-        SchemaTypeSystem sts;
-        sts = XmlBeans.compileXsd(system, schemas, builtin, options);
+        SchemaTypeSystemCompiler.Parameters params = new SchemaTypeSystemCompiler.Parameters();
+        params.setExistingTypeSystem(system);
+        params.setInputXmls(schemas);
+        params.setLinkTo(builtin);
+        params.setOptions(options);
+
+        SchemaTypeSystem sts = XmlBeans.compileXmlBeans(params);
         assertNotNull("Compilation failed during Incremental Compile.", sts);
         SchemaCodeGenerator.saveTypeSystem(sts, outincr, null, null, null);
         return sts;
@@ -202,7 +208,11 @@ public class CompileTestBase extends CompileCommon {
                                            XmlOptions options, File outDir) throws XmlException, IOException {
         SchemaTypeSystem system;
         SchemaTypeSystem builtin = XmlBeans.getBuiltinTypeSystem();
-        system = XmlBeans.compileXsd(schemas, builtin, options);
+        SchemaTypeSystemCompiler.Parameters params = new SchemaTypeSystemCompiler.Parameters();
+        params.setInputXmls(schemas);
+        params.setLinkTo(builtin);
+        params.setOptions(options);
+        system = XmlBeans.compileXmlBeans(params);
         assertNotNull("Compilation failed during compile.", system);
         SchemaCodeGenerator.saveTypeSystem(system, outDir, null, null, null);
         return system;
@@ -214,7 +224,11 @@ public class CompileTestBase extends CompileCommon {
                                            XmlOptions options) throws XmlException, IOException {
         SchemaTypeSystem system;
         SchemaTypeSystem builtin = XmlBeans.getBuiltinTypeSystem();
-        system = XmlBeans.compileXsd(schemas, builtin, options);
+        SchemaTypeSystemCompiler.Parameters params = new SchemaTypeSystemCompiler.Parameters();
+        params.setInputXmls(schemas);
+        params.setLinkTo(builtin);
+        params.setOptions(options);
+        system = XmlBeans.compileXmlBeans(params);
         assertNotNull("Compilation failed during compile.", system);
         SchemaCodeGenerator.saveTypeSystem(system, out, null, null, null);
         return system;

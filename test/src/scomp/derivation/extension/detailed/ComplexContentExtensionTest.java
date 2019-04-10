@@ -15,6 +15,7 @@
 package scomp.derivation.extension.detailed;
 
 import org.apache.xmlbeans.*;
+import org.apache.xmlbeans.impl.schema.SchemaTypeSystemCompiler.Parameters;
 import org.junit.Test;
 import scomp.common.BaseCase;
 import xbean.scomp.derivation.complexExtension.ChoiceExtensionEltDocument;
@@ -184,8 +185,12 @@ public class ComplexContentExtensionTest extends BaseCase {
 
         try {
             XmlObject xobj = XmlObject.Factory.parse(inputXsd);
-            XmlObject[] compInput = new XmlObject[]{xobj};
-            XmlBeans.compileXmlBeans(null, null, compInput, null, XmlBeans.getBuiltinTypeSystem(), null, options);
+            Parameters params = new Parameters();
+            params.setLinkTo(XmlBeans.getBuiltinTypeSystem());
+            params.setOptions(options);
+            params.setInputXmls(xobj);
+
+            XmlBeans.compileXmlBeans(params);
         }
         catch (XmlException xme) {
             // The convention is that the XmlException that gets thrown form XmlBeans.compile* methods always contains
@@ -233,8 +238,11 @@ public class ComplexContentExtensionTest extends BaseCase {
 
         try {
             XmlObject xobj = XmlObject.Factory.parse(inputXsd);
-            XmlObject[] compInput = new XmlObject[]{xobj};
-            XmlBeans.compileXmlBeans(null, null, compInput, null, XmlBeans.getBuiltinTypeSystem(), null, null);
+            Parameters params = new Parameters();
+            params.setLinkTo(XmlBeans.getBuiltinTypeSystem());
+            params.setInputXmls(xobj);
+
+            XmlBeans.compileXmlBeans(params);
         }
         catch (XmlException xme) {
             assertEquals(xme.getErrors().size(), 1);
@@ -269,8 +277,11 @@ public class ComplexContentExtensionTest extends BaseCase {
 
         try {
             XmlObject xobj = XmlObject.Factory.parse(inputXsd);
-            XmlObject[] compInput = new XmlObject[]{xobj};
-            XmlBeans.compileXmlBeans(null, null, compInput, null, XmlBeans.getBuiltinTypeSystem(), null, null);
+            Parameters params = new Parameters();
+            params.setLinkTo(XmlBeans.getBuiltinTypeSystem());
+            params.setInputXmls(xobj);
+
+            XmlBeans.compileXmlBeans(params);
         }
         catch (XmlException xme) {
             assertEquals(1, xme.getErrors().size());
@@ -320,8 +331,12 @@ public class ComplexContentExtensionTest extends BaseCase {
 
         try {
             XmlObject xobj = XmlObject.Factory.parse(inputXsd);
-            XmlObject[] compInput = new XmlObject[]{xobj};
-            XmlBeans.compileXmlBeans(null, null, compInput, null, XmlBeans.getBuiltinTypeSystem(), null, options);
+            Parameters params = new Parameters();
+            params.setLinkTo(XmlBeans.getBuiltinTypeSystem());
+            params.setInputXmls(xobj);
+            params.setOptions(options);
+
+            XmlBeans.compileXmlBeans(params);
         }
         catch (XmlException xme) {
             // The convention is that the XmlException that gets thrown form XmlBeans.compile* methods always contains

@@ -15,6 +15,7 @@
 
 package org.apache.xmlbeans;
 
+import org.apache.xmlbeans.impl.common.Removal;
 import org.apache.xmlbeans.impl.common.XmlErrorWatcher;
 import org.apache.xmlbeans.impl.schema.BuiltinSchemaTypeSystem;
 import org.apache.xmlbeans.impl.schema.PathResourceLoader;
@@ -324,7 +325,11 @@ public final class XmlBeans
      * @param schemas The schema definitions from which to build the schema type system.
      * @param typepath The path to already-compiled schema types for linking while processing.
      * @param options Options specifying an error listener and/or validation behavior.
+     *
+     * @deprecated use {@link #compileXmlBeans(Parameters)} instead
      */
+    @Removal(version = "4.0")
+    @Deprecated
     public static SchemaTypeSystem compileXsd(XmlObject[] schemas, SchemaTypeLoader typepath, XmlOptions options) throws XmlException
     {
         return compileXmlBeans(null, null, schemas, null, typepath, null, options);
@@ -372,7 +377,11 @@ public final class XmlBeans
      * @param schemas The schema definitions from which to build the schema type system.
      * @param typepath The path to already-compiled schema types for linking while processing.
      * @param options Options specifying an error listener and/or validation behavior.
+     *
+     * @deprecated use {@link #compileXmlBeans(Parameters)} instead
      */
+    @Removal(version = "4.0")
+    @Deprecated
     public static SchemaTypeSystem compileXsd(SchemaTypeSystem system, XmlObject[] schemas, SchemaTypeLoader typepath, XmlOptions options) throws XmlException
     {
         return compileXmlBeans(null, system, schemas, null, typepath, null, options);
@@ -436,7 +445,12 @@ public final class XmlBeans
      * @param typepath The path to already-compiled schema types for linking while processing.
      * @param filer The Filer instance used to create binary binding files and source text files.
      * @param options Options specifying an error listener and/or validation behavior.
+     *
+     * @deprecated use {@link #compileXmlBeans(Parameters)} instead
+     *
      */
+    @Removal(version = "4.0")
+    @Deprecated
     public static SchemaTypeSystem compileXmlBeans(String name, SchemaTypeSystem system, XmlObject[] schemas, BindingConfig config, SchemaTypeLoader typepath, Filer filer, XmlOptions options) throws XmlException {
         Parameters params = new Parameters();
         params.setName(name);
@@ -446,8 +460,65 @@ public final class XmlBeans
         params.setLinkTo(typepath);
         params.setFiler(filer);
         params.setOptions(options);
+        return compileXmlBeans(params);
+    }
 
-        XmlErrorWatcher xew = setErrorWatcher(params, options);
+    /**
+     * Returns the SchemaTypeSystem that results from augumenting the
+     * SchemaTypeSystem passed in by incrementally adding the given XML
+     * schema definitions.<p>
+     *
+     * These could be new definitions (if the Schema document is not recorded into
+     * the existing SchemaTypeSystem), modifications to the already existing
+     * definitions (if the Schema document is already recorded in the existing
+     * SchemaTypeSystem), or deletions (if the Schema document is already recorded
+     * in the existing SchemaTypeSystem and the new definitions are empty).
+     * The identity of documents is established using
+     * {@link XmlDocumentProperties#getSourceName}, so if the caller chooses to
+     * construct the Schema definitions using other methods than parsing an
+     * XML document, they should make sure that the names returned by that
+     * method are consistent with the caller's intent (add/modify).<p>
+     *
+     * The XmlObjects passed via {@link Parameters#setInputXmls(XmlObject[])} should
+     * be w3c &lt;schema&gt; elements whose type
+     * is org.w3c.x2001.xmlSchema.Schema. (That is, schema elements in
+     * the XML namespace http://www.w3c.org/2001/XMLSchema.)  Also
+     * org.w3c.x2001.xmlSchema.SchemaDocument is permitted.<p>
+     *
+     * The optional name passed via {@link Parameters#setName(String)} is used to name
+     * the compiled schema type system.
+     * A randomly generated name will be used if the name is null.<p>
+     *
+     * The optional BindingConfig passed via {@link Parameters#setConfig(BindingConfig)}
+     * is used to control the shape of the generated code. A BindingConfig isn't
+     * used if {@link Parameters#getFiler()} is null.<p>
+     *
+     * The optional SchemaTypeLoader passed via {@link Parameters#setLinkTo(SchemaTypeLoader)} will be
+     * consulted for already-compiled schema types which may be linked
+     * while processing the given schemas. If not specified, the context
+     * typeloader (as returned by {@link #getContextTypeLoader}) will be used.<p>
+     *
+     * The optional Filer passed via {@link Parameters#setFiler(Filer)} is used to
+     * create new binary or source files which are the product of the compilation.
+     * If the Filer is null, the schema binaries (.xsb) files and source files won't be generated.<p>
+     *
+     * The SchemaTypeSystem passed via {@link Parameters#setExistingTypeSystem(SchemaTypeSystem)}
+     * that is returned should be combined (via {@link #typeLoaderUnion}) with the typepath typeloader
+     * in order to create a typeloader that can be used for creating and validating instances.<p>
+     *
+     * Use the {@link Parameters#setOptions(XmlOptions)} to specify the following:<p>
+     *
+     * <ul>
+     * <li>A collection instance that should be used as an error listener during
+     * compilation, as described in {@link XmlOptions#setErrorListener}.
+     * <li>Whether validation should not be done when building the SchemaTypeSystem,
+     * as described in {@link XmlOptions#setCompileNoValidation}.
+     * </ul>
+     *
+     * @param params the schema compiler parameters
+     */
+    public static SchemaTypeSystem compileXmlBeans(Parameters params) throws XmlException {
+        XmlErrorWatcher xew = setErrorWatcher(params, params.getOptions());
 
         SchemaTypeSystem sts = SchemaTypeSystemCompiler.compile(params);
 
@@ -457,6 +528,7 @@ public final class XmlBeans
 
         return sts;
     }
+
 
     @SuppressWarnings("unchecked")
     private static XmlErrorWatcher setErrorWatcher(Parameters params, XmlOptions options) {

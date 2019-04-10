@@ -21,7 +21,7 @@ import javax.xml.namespace.QName;
  * The BindingConfig class is used during compilation to control the generation of java source files.
  * The default BindingConfig does nothing, but sub-classes should provide more interesting behavior.
  *
- * @see XmlBeans#compileXmlBeans(String, SchemaTypeSystem, XmlObject[], BindingConfig, SchemaTypeLoader, Filer, XmlOptions) XmlBeans.compileXmlBeans()
+ * @see XmlBeans#compileXmlBeans(org.apache.xmlbeans.impl.schema.SchemaTypeSystemCompiler.Parameters) XmlBeans.compileXmlBeans()
  */
 public class BindingConfig
 {

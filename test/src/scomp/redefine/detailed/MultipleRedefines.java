@@ -15,6 +15,7 @@
 package scomp.redefine.detailed;
 
 import org.apache.xmlbeans.*;
+import org.apache.xmlbeans.impl.schema.SchemaTypeSystemCompiler;
 import org.apache.xmlbeans.impl.xb.xsdschema.SchemaDocument;
 import org.junit.Assert;
 import org.junit.Test;
@@ -175,8 +176,12 @@ public class MultipleRedefines extends BaseCase {
             sdocs[i].documentProperties().setSourceName(MULTIPLE_SCHEMAS_NAME[i]);
         }
 
-        SchemaTypeSystem ts = XmlBeans.compileXsd(sdocs,
-            XmlBeans.getBuiltinTypeSystem(), validateOptions);
+        SchemaTypeSystemCompiler.Parameters params = new SchemaTypeSystemCompiler.Parameters();
+        params.setInputXmls(sdocs);
+        params.setLinkTo(XmlBeans.getBuiltinTypeSystem());
+        params.setOptions(validateOptions);
+
+        SchemaTypeSystem ts = XmlBeans.compileXmlBeans(params);
         assertNotNull(ts);
 
         SchemaType t = ts.findType(new QName("", "T"));
@@ -209,10 +214,12 @@ public class MultipleRedefines extends BaseCase {
 
         setUp();
         boolean caught = false;
-        try
-        {
-            SchemaTypeSystem ts = XmlBeans.compileXsd(sdocs,
-                XmlBeans.getBuiltinTypeSystem(), validateOptions);
+        try {
+            SchemaTypeSystemCompiler.Parameters params = new SchemaTypeSystemCompiler.Parameters();
+            params.setInputXmls(sdocs);
+            params.setLinkTo(XmlBeans.getBuiltinTypeSystem());
+            params.setOptions(validateOptions);
+            SchemaTypeSystem ts = XmlBeans.compileXmlBeans(params);
         }
         catch (XmlException e)
         {

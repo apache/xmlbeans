@@ -21,6 +21,7 @@ import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
 import org.apache.xmlbeans.SchemaTypeSystem;
 import org.apache.xmlbeans.XmlException;
+import org.apache.xmlbeans.impl.schema.SchemaTypeSystemCompiler;
 
 import java.util.Collection;
 import java.util.ArrayList;
@@ -47,15 +48,20 @@ public class XMLBeanXSTCHarness implements XSTCTester.Harness
             
             // step 1, load schema file etc.
             SchemaTypeLoader loader = null;
-            try
-            {
-                XmlObject schema = XmlObject.Factory.parse(testCase.getSchemaFile(), new XmlOptions().setErrorListener(errors).setLoadLineNumbers());
-                XmlObject schema2 = null;
-                if (testCase.getResourceFile() != null)
-                    schema2 = XmlObject.Factory.parse(testCase.getResourceFile(), new XmlOptions().setErrorListener(errors).setLoadLineNumbers());
-                XmlObject[] schemas = schema2 == null ? new XmlObject[] { schema } : new XmlObject[] { schema, schema2 };
-                SchemaTypeSystem system = XmlBeans.compileXsd(schemas, XmlBeans.getBuiltinTypeSystem(), new XmlOptions().setErrorListener(errors));
-                loader = XmlBeans.typeLoaderUnion(new SchemaTypeLoader[] { system, XmlBeans.getBuiltinTypeSystem() });
+            try {
+                SchemaTypeSystemCompiler.Parameters params = new SchemaTypeSystemCompiler.Parameters();
+                XmlOptions options = new XmlOptions().setErrorListener(errors).setLoadLineNumbers();
+                XmlObject schema = XmlObject.Factory.parse(testCase.getSchemaFile(), options);
+                if (testCase.getResourceFile() != null) {
+                    params.setInputXmls(schema, XmlObject.Factory.parse(testCase.getResourceFile(), options));
+                } else {
+                    params.setInputXmls(schema);
+                }
+                params.setLinkTo(XmlBeans.getBuiltinTypeSystem());
+                params.setOptions(options);
+
+                SchemaTypeSystem system = XmlBeans.compileXmlBeans(params);
+                loader = XmlBeans.typeLoaderUnion(system, XmlBeans.getBuiltinTypeSystem());
             }
             catch (Exception e)
             {

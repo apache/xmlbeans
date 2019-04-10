@@ -20,6 +20,7 @@ import org.apache.xmlbeans.XmlOptions;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.SchemaTypeLoader;
 import org.apache.xmlbeans.XmlException;
+import org.apache.xmlbeans.impl.schema.SchemaTypeSystemCompiler;
 
 import java.util.Collections;
 import java.util.List;
@@ -153,8 +154,14 @@ public class InstanceValidator
 
         try
         {
-            if (schemas != null && schemas.length > 0)
-                sLoader = XmlBeans.compileXsd(schemas, sLoader, schemaOptions);
+            if (schemas != null && schemas.length > 0) {
+                SchemaTypeSystemCompiler.Parameters params = new SchemaTypeSystemCompiler.Parameters();
+                params.setInputXmls(schemas);
+                params.setLinkTo(sLoader);
+                params.setOptions(schemaOptions);
+
+                sLoader = XmlBeans.compileXmlBeans(params);
+            }
         }
         catch (Exception e)
         {

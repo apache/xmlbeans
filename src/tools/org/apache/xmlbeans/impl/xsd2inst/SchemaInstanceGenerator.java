@@ -15,25 +15,15 @@
 
 package org.apache.xmlbeans.impl.xsd2inst;
 
-import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.*;
+import org.apache.xmlbeans.impl.schema.SchemaTypeSystemCompiler;
+import org.apache.xmlbeans.impl.tool.CommandLine;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
-import java.util.ArrayList;
-import java.io.File;
-import java.util.HashSet;
-import org.apache.xmlbeans.XmlOptions;
-import org.apache.xmlbeans.XmlBeans;
-import org.apache.xmlbeans.SchemaTypeSystem;
-import org.apache.xmlbeans.SchemaType;
-import org.apache.xmlbeans.impl.xsd2inst.SampleXmlUtil;
-import java.util.Set;
-import org.apache.xmlbeans.XmlException;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Collection;
-import org.apache.xmlbeans.impl.tool.CommandLine;
+import java.util.*;
 
 public class SchemaInstanceGenerator
 {
@@ -310,9 +300,12 @@ public class SchemaInstanceGenerator
             if (options.isNoupa())
                 compileOptions.setCompileNoUpaRule();
 
-            try
-            {
-                sts = XmlBeans.compileXsd(schemas, XmlBeans.getBuiltinTypeSystem(), compileOptions);
+            try {
+                SchemaTypeSystemCompiler.Parameters params = new SchemaTypeSystemCompiler.Parameters();
+                params.setInputXmls(schemas);
+                params.setLinkTo(XmlBeans.getBuiltinTypeSystem());
+                params.setOptions(compileOptions);
+                sts = XmlBeans.compileXmlBeans(params);
             }
             catch (Exception e)
             {

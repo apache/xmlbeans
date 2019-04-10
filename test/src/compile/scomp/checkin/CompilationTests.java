@@ -17,6 +17,7 @@ package compile.scomp.checkin;
 
 import org.apache.xmlbeans.*;
 import org.apache.xmlbeans.impl.common.QNameHelper;
+import org.apache.xmlbeans.impl.schema.SchemaTypeSystemCompiler;
 import org.apache.xmlbeans.impl.tool.CodeGenUtil;
 import org.apache.xmlbeans.impl.tool.Diff;
 import org.apache.xmlbeans.impl.tool.SchemaCodeGenerator;
@@ -100,7 +101,11 @@ public class CompilationTests {
         List errors = new ArrayList();
         XmlOptions options = (new XmlOptions()).setErrorListener(errors);
         SchemaTypeSystem builtin = XmlBeans.getBuiltinTypeSystem();
-        system = XmlBeans.compileXsd(schemas, builtin, options);
+        SchemaTypeSystemCompiler.Parameters params = new SchemaTypeSystemCompiler.Parameters();
+        params.setSchemas(schemas);
+        params.setLinkTo(builtin);
+        params.setOptions(options);
+        system = XmlBeans.compileXmlBeans(params);
         Assert.assertNotNull("Compilation failed during inititial compile.", system);
         System.out.println("-= Initial Compile =-");
 
@@ -116,11 +121,16 @@ public class CompilationTests {
 
         // Incremental compile
         String url = schemas[n - 2].documentProperties().getSourceName();
-        SchemaDocument.Schema[] schemas1 = new SchemaDocument.Schema[1];
-        schemas1[0] = SchemaDocument.Factory.parse(files[n - 1]).getSchema();
-        schemas1[0].documentProperties().setSourceName(url);
+        SchemaDocument.Schema schemas1 = SchemaDocument.Factory.parse(files[n - 1]).getSchema();
+        schemas1.documentProperties().setSourceName(url);
         errors.clear();
-        system = XmlBeans.compileXsd(system, schemas1, builtin, options);
+        params = new SchemaTypeSystemCompiler.Parameters();
+        params.setExistingTypeSystem(system);
+        params.setSchemas(schemas1);
+        params.setLinkTo(builtin);
+        params.setOptions(options);
+
+        system = XmlBeans.compileXmlBeans(params);
         Assert.assertNotNull("Compilation failed during incremental compile.", system);
         SchemaCodeGenerator.saveTypeSystem(system, outincr, null, null, null);
         System.out.println("-= Incremental Compile =-");
@@ -135,8 +145,13 @@ public class CompilationTests {
         }
         // Now compile non-incrementally for the purpose of comparing the result
         errors.clear();
-        schemas[n - 2] = schemas1[0];
-        system = XmlBeans.compileXsd(schemas, builtin, options);
+        schemas[n - 2] = schemas1;
+        params = new SchemaTypeSystemCompiler.Parameters();
+        params.setSchemas(schemas);
+        params.setLinkTo(builtin);
+        params.setOptions(options);
+
+        system = XmlBeans.compileXmlBeans(params);
         Assert.assertNotNull("Compilation failed during reference compile.", system);
         SchemaCodeGenerator.saveTypeSystem(system, out, null, null, null);
 
@@ -185,8 +200,10 @@ public class CompilationTests {
         SchemaBookmark sb = new SchemaBookmark("MyBookmark");
         cTypes[i].newCursor().setBookmark(sb);
         // Compile it into STS
-        SchemaTypeSystem sts = XmlBeans.compileXsd(new XmlObject[]{parsed},
-            XmlBeans.getBuiltinTypeSystem(), null);
+        SchemaTypeSystemCompiler.Parameters params = new SchemaTypeSystemCompiler.Parameters();
+        params.setInputXmls(parsed);
+        params.setLinkTo(XmlBeans.getBuiltinTypeSystem());
+        SchemaTypeSystem sts = XmlBeans.compileXmlBeans(params);
         Assert.assertNotNull("Could not compile person.xsd", sts);
         SchemaType personType = sts.findType(QNameHelper.forLNS("person", "http://openuri.org/mytest"));
         Assert.assertNotNull("Could not find the \"person\" schema type", personType);

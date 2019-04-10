@@ -73,7 +73,7 @@ public class SchemaTypeSystemCompiler
             return schemas;
         }
 
-        public void setSchemas(SchemaDocument.Schema[] schemas)
+        public void setSchemas(SchemaDocument.Schema... schemas)
         {
             this.schemas = schemas;
         }
@@ -172,7 +172,7 @@ public class SchemaTypeSystemCompiler
             return inputXmls;
         }
 
-        public void setInputXmls(XmlObject[] inputXmls) {
+        public void setInputXmls(XmlObject... inputXmls) {
             this.inputXmls = inputXmls;
         }
 
@@ -431,7 +431,7 @@ public class SchemaTypeSystemCompiler
     /**
      * Generate java source files for a SchemaTypeSystem.
      * Please do not invoke this method directly as the signature could change unexpectedly.
-     * Use {@link org.apache.xmlbeans.XmlBeans#compileXmlBeans}
+     * Use {@link org.apache.xmlbeans.XmlBeans#compileXmlBeans(Parameters)}
      *
      * @param system the SchemaTypeSystem to generated java source for
      * @param filer to create the java source files

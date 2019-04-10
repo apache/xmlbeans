@@ -23,6 +23,7 @@ import org.apache.xmlbeans.XmlOptions;
 import org.apache.xmlbeans.XmlOptionsBean;
 import org.apache.xmlbeans.XmlError;
 import org.apache.xmlbeans.impl.common.StaxHelper;
+import org.apache.xmlbeans.impl.schema.SchemaTypeSystemCompiler;
 import org.apache.xmlbeans.impl.validator.ValidatingXMLStreamReader;
 
 import javax.xml.stream.XMLInputFactory;
@@ -141,8 +142,13 @@ public class StreamInstanceValidator
             sLoader = XmlBeans.typeLoaderForResource(XmlBeans.resourceLoaderForPath(jarFiles));
 
         try {
-            if (schemas != null && schemas.length > 0)
-                sLoader = XmlBeans.compileXsd(schemas, sLoader, schemaOptions);
+            if (schemas != null && schemas.length > 0) {
+                SchemaTypeSystemCompiler.Parameters params = new SchemaTypeSystemCompiler.Parameters();
+                params.setInputXmls(schemas);
+                params.setLinkTo(sLoader);
+                params.setOptions(schemaOptions);
+                sLoader = XmlBeans.compileXmlBeans(params);
+            }
         }
         catch (Exception e) {
             if (compErrors.isEmpty() || !(e instanceof XmlException)) {

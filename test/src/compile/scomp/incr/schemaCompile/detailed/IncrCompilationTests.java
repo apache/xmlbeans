@@ -18,6 +18,7 @@ package compile.scomp.incr.schemaCompile.detailed;
 import compile.scomp.common.CompileCommon;
 import compile.scomp.common.CompileTestBase;
 import org.apache.xmlbeans.*;
+import org.apache.xmlbeans.impl.schema.SchemaTypeSystemCompiler;
 import org.apache.xmlbeans.impl.util.FilerImpl;
 import org.junit.*;
 
@@ -274,7 +275,14 @@ public class IncrCompilationTests extends CompileTestBase {
 
         // create a new filer here with the incrCompile flag value set to 'true'
         Filer filer = new FilerImpl(out, out, null, true, true);
-        SchemaTypeSystem base = XmlBeans.compileXmlBeans("teststs",null,schemas,null,builtin,filer,xm);
+        SchemaTypeSystemCompiler.Parameters params = new SchemaTypeSystemCompiler.Parameters();
+        params.setName("teststs");
+        params.setLinkTo(builtin);
+        params.setInputXmls(obj1);
+        params.setFiler(filer);
+        params.setOptions(xm);
+
+        SchemaTypeSystem base = XmlBeans.compileXmlBeans(params);
         Assert.assertNotNull("Compilation failed during Incremental Compile.", base);
         base.saveToDirectory(out);
 
@@ -286,7 +294,11 @@ public class IncrCompilationTests extends CompileTestBase {
         // note: providing a null or different name results in regeneration of generated Interface java src files
         HashMap recompileTimeStamps = new HashMap();
         Filer filer2 = new FilerImpl(out, out, null, true, true);
-        SchemaTypeSystem incr = XmlBeans.compileXmlBeans("teststs",base,schemas2,null,builtin,filer2,xm);
+        params.setExistingTypeSystem(base);
+        params.setInputXmls(obj2);
+        params.setFiler(filer2);
+
+        SchemaTypeSystem incr = XmlBeans.compileXmlBeans(params);
         Assert.assertNotNull("Compilation failed during Incremental Compile.", incr);
         incr.saveToDirectory(out);
         recordTimeStamps(out, recompileTimeStamps);
@@ -317,7 +329,13 @@ public class IncrCompilationTests extends CompileTestBase {
 
         // create a new filer here with the incrCompile flag value set to 'true'
         Filer filer = new FilerImpl(out, out, null, true, true);
-        SchemaTypeSystem base = XmlBeans.compileXmlBeans("test",null,schemas,null,builtin,filer,xm);
+        SchemaTypeSystemCompiler.Parameters params = new SchemaTypeSystemCompiler.Parameters();
+        params.setName("test");
+        params.setLinkTo(XmlBeans.getBuiltinTypeSystem());
+        params.setInputXmls(obj1);
+        params.setFiler(filer);
+        params.setOptions(xm);
+        SchemaTypeSystem base = XmlBeans.compileXmlBeans(params);
         Assert.assertNotNull("Compilation failed during Incremental Compile.", base);
         base.saveToDirectory(out);
 
@@ -328,7 +346,10 @@ public class IncrCompilationTests extends CompileTestBase {
         // the incr compile
         HashMap recompileTimeStamps = new HashMap();
         Filer filer2 = new FilerImpl(out, out, null, true, true);
-        SchemaTypeSystem incr = XmlBeans.compileXmlBeans("test",base,schemas2,null,builtin,filer2,xm);
+        params.setExistingTypeSystem(base);
+        params.setInputXmls(obj2);
+        params.setFiler(filer2);
+        SchemaTypeSystem incr = XmlBeans.compileXmlBeans(params);
         Assert.assertNotNull("Compilation failed during Incremental Compile.", incr);
         incr.saveToDirectory(out);
         recordTimeStamps(out, recompileTimeStamps);

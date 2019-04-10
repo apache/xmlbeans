@@ -15,6 +15,7 @@
 package scomp.substGroup.restriction.detailed;
 
 import org.apache.xmlbeans.*;
+import org.apache.xmlbeans.impl.schema.SchemaTypeSystemCompiler.Parameters;
 import org.junit.Test;
 import scomp.common.BaseCase;
 
@@ -95,8 +96,10 @@ public class Final extends BaseCase {
     {
         try {
             XmlObject xobj = XmlObject.Factory.parse(inputXsd);
-            XmlObject[] compInput = new XmlObject[]{xobj};
-            XmlBeans.compileXmlBeans(null, null, compInput, null, XmlBeans.getBuiltinTypeSystem(), null, null);
+            Parameters params = new Parameters();
+            params.setLinkTo(XmlBeans.getBuiltinTypeSystem());
+            params.setInputXmls(xobj);
+            XmlBeans.compileXmlBeans(params);
         }
         catch (XmlException xme) {
             assertEquals(1,xme.getErrors().size());
