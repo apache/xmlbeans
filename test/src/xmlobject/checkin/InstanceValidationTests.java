@@ -16,6 +16,7 @@
 package xmlobject.checkin;
 
 import org.apache.xmlbeans.*;
+import org.apache.xmlbeans.impl.schema.SchemaTypeSystemCompiler;
 import org.apache.xmlbeans.impl.values.XmlValueOutOfRangeException;
 import org.junit.Test;
 import tools.util.JarUtil;
@@ -41,7 +42,11 @@ public class InstanceValidationTests {
             schemaDocs[i] = XmlObject.Factory.parse(schemas[i]);
         }
 
-        return XmlBeans.loadXsd(schemaDocs);
+        SchemaTypeSystemCompiler.Parameters params = new SchemaTypeSystemCompiler.Parameters();
+        params.setClassesDir(new File("build/junit/" + getClass().getSimpleName()));
+        params.setInputXmls(schemaDocs);
+
+        return XmlBeans.loadXsd(params);
     }
 
     private SchemaTypeLoader makeSchemaTypeLoader(File[] schemas) throws XmlException, IOException {
@@ -51,7 +56,11 @@ public class InstanceValidationTests {
             schemaDocs[i] = XmlObject.Factory.parse(schemas[i], new XmlOptions().setLoadLineNumbers().setLoadMessageDigest());
         }
 
-        return XmlBeans.loadXsd(schemaDocs);
+        SchemaTypeSystemCompiler.Parameters params = new SchemaTypeSystemCompiler.Parameters();
+        params.setClassesDir(new File("build/junit/" + getClass().getSimpleName()));
+        params.setInputXmls(schemaDocs);
+
+        return XmlBeans.loadXsd(params);
     }
 
 

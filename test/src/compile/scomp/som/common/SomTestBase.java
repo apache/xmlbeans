@@ -516,6 +516,7 @@ public class SomTestBase extends CompileTestBase
             params.setInputXmls(xsdModifiedObj);
             params.setExistingTypeSystem(baseSchema);
             params.setOptions(options);
+            params.setClassesDir(new File("build/junit/"+getClass().getSimpleName()));
 
             returnSTS = XmlBeans.compileXmlBeans(params);
             Assert.assertNotNull("Schema Type System created is Null.", returnSTS);

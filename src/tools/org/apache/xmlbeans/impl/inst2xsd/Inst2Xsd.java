@@ -20,6 +20,7 @@ import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
 import org.apache.xmlbeans.XmlError;
+import org.apache.xmlbeans.impl.schema.SchemaTypeSystemCompiler;
 import org.apache.xmlbeans.impl.xb.xsdschema.SchemaDocument;
 import org.apache.xmlbeans.impl.inst2xsd.util.TypeSystemHolder;
 import org.apache.xmlbeans.impl.tool.CommandLine;
@@ -312,9 +313,13 @@ public class Inst2Xsd
         Collection compErrors = new ArrayList();
         XmlOptions schemaOptions = new XmlOptions();
         schemaOptions.setErrorListener(compErrors);
-        try
-        {
-            sLoader = XmlBeans.loadXsd(sDocs, schemaOptions);
+
+        SchemaTypeSystemCompiler.Parameters params = new SchemaTypeSystemCompiler.Parameters();
+        params.setInputXmls(sDocs);
+        params.setOptions(schemaOptions);
+
+        try {
+            sLoader = XmlBeans.loadXsd(params);
         }
         catch (Exception e)
         {

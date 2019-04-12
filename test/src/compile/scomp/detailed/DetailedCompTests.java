@@ -54,6 +54,7 @@ public class DetailedCompTests {
             params.setLinkTo(XmlBeans.getBuiltinTypeSystem());
             params.setInputXmls(xObj);
             params.setOptions(xm_opt);
+            params.setClassesDir(new File("build/junit/"+getClass().getSimpleName()));
 
             SchemaTypeSystem sts = XmlBeans.compileXmlBeans(params);
             assertNotNull("STS was null", sts);
@@ -93,6 +94,7 @@ public class DetailedCompTests {
             params.setLinkTo(XmlBeans.getBuiltinTypeSystem());
             params.setInputXmls(xObj);
             params.setOptions(xm_opt);
+            params.setClassesDir(new File("build/junit/"+getClass().getSimpleName()));
 
             SchemaTypeSystem sts = XmlBeans.compileXmlBeans(params);
 
@@ -169,6 +171,7 @@ public class DetailedCompTests {
         Parameters params = new Parameters();
         params.setInputXmls(SchemaDocument.Factory.parse(schema));
         params.setOptions(opts);
+        params.setClassesDir(new File("build/junit/"+getClass().getSimpleName()));
         errors.clear();
         XmlBeans.compileXmlBeans(params);
         assertTrue("Expected error: NOTATION type cannot be used directly", errors.size() == 1);

@@ -15,6 +15,7 @@
 package common;
 
 import org.apache.xmlbeans.*;
+import org.apache.xmlbeans.impl.schema.SchemaTypeSystemCompiler;
 import org.junit.Assert;
 
 import javax.xml.namespace.QName;
@@ -279,7 +280,11 @@ public class Common
                     XmlObject.Factory.parse(schemas[i]);
         }
 
-        return XmlBeans.loadXsd(schemaDocs);
+        SchemaTypeSystemCompiler.Parameters params = new SchemaTypeSystemCompiler.Parameters();
+        params.setInputXmls(schemaDocs);
+        params.setClassesDir(new File("build/junit/common"));
+
+        return XmlBeans.loadXsd(params);
     }
 
     /**

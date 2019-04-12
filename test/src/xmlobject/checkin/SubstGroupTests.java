@@ -16,12 +16,15 @@
 package xmlobject.checkin;
 
 import org.apache.xmlbeans.*;
+import org.apache.xmlbeans.impl.schema.SchemaTypeSystemCompiler;
 import org.apache.xmlbeans.impl.xb.xsdschema.SchemaDocument;
 import org.junit.Test;
 import org.openuri.sgs.ADocument;
 import org.openuri.sgs.BDocument;
 import org.openuri.sgs.CDocument;
 import org.openuri.sgs.RootDocument;
+
+import java.io.File;
 
 import static org.junit.Assert.*;
 
@@ -176,10 +179,14 @@ public class SubstGroupTests {
         for (int i = 0; i < invalidSchemas.length; i++)
             schemas[i] = SchemaDocument.Factory.parse(invalidSchemas[i]);
 
+        SchemaTypeSystemCompiler.Parameters params = new SchemaTypeSystemCompiler.Parameters();
+        params.setClassesDir(new File("build/junit/" + getClass().getSimpleName()));
+
         // Now compile the invalid schemas, test that they fail
         for (int i = 0; i < schemas.length; i++) {
             try {
-                XmlBeans.loadXsd(new XmlObject[]{schemas[i]});
+                params.setInputXmls(schemas[i]);
+                XmlBeans.loadXsd(params);
                 fail("Schema should have failed to compile:\n" + invalidSchemas[i]);
             } catch (XmlException success) { /* System.out.println(success); */ }
         }
@@ -193,7 +200,8 @@ public class SubstGroupTests {
         // Now compile the valid schemas, test that they succeed
         for (int i = 0; i < schemas.length; i++) {
             try {
-                XmlBeans.loadXsd(new XmlObject[]{schemas[i]});
+                params.setInputXmls(schemas[i]);
+                XmlBeans.loadXsd(params);
             } catch (XmlException fail) {
                 fail("Failed to compile schema: " + schemas[i] + " with error: " + fail);
             }

@@ -19,6 +19,7 @@ import org.apache.xmlbeans.SchemaTypeLoader;
 import org.apache.xmlbeans.XmlBeans;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.impl.schema.SchemaTypeSystemCompiler;
 import org.apache.xmlbeans.impl.xb.xsdschema.SchemaDocument.Schema;
 import org.junit.Assert;
 import org.junit.Test;
@@ -33,11 +34,15 @@ import static org.junit.Assert.assertEquals;
 public class RuntimeSchemaLoaderTest {
 
     @Test
-    public void testDynamicLoad() throws Throwable {
+    public void testDynamicLoad() throws Exception {
         File inputfile1 = JarUtil
                 .getResourceFromJarasFile("xbean/misc/dyntest.xsd");
-        SchemaTypeLoader loader = XmlBeans.loadXsd(
-                new XmlObject[]{XmlObject.Factory.parse(inputfile1)});
+
+        SchemaTypeSystemCompiler.Parameters params = new SchemaTypeSystemCompiler.Parameters();
+        params.setClassesDir(new File("build/junit/" + getClass().getSimpleName()));
+        params.setInputXmls(XmlObject.Factory.parse(inputfile1));
+
+        SchemaTypeLoader loader = XmlBeans.loadXsd(params);
         XmlObject result = loader.parse(
                 JarUtil.getResourceFromJarasFile("xbean/misc/dyntest.xml"),
                 null, null);
@@ -52,11 +57,15 @@ public class RuntimeSchemaLoaderTest {
     }
 
     @Test
-    public void testDynamicLoad2() throws Throwable {
+    public void testDynamicLoad2() throws Exception {
         File inputfile1 = JarUtil
                 .getResourceFromJarasFile("xbean/misc/dyntest2.xsd");
-        SchemaTypeLoader loader = XmlBeans.loadXsd(new XmlObject[]
-        {XmlObject.Factory.parse(inputfile1)});
+
+        SchemaTypeSystemCompiler.Parameters params = new SchemaTypeSystemCompiler.Parameters();
+        params.setClassesDir(new File("build/junit/" + getClass().getSimpleName()));
+        params.setInputXmls(XmlObject.Factory.parse(inputfile1));
+
+        SchemaTypeLoader loader = XmlBeans.loadXsd(params);
         XmlObject result = loader.parse(
                 JarUtil.getResourceFromJarasFile("xbean/misc/dyntest2.xml"),
                 null, null);

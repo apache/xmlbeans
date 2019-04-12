@@ -22,6 +22,7 @@ import org.junit.Test;
 import scomp.common.BaseCase;
 
 import javax.xml.namespace.QName;
+import java.io.File;
 import java.util.Iterator;
 
 import static org.junit.Assert.*;
@@ -180,6 +181,7 @@ public class MultipleRedefines extends BaseCase {
         params.setInputXmls(sdocs);
         params.setLinkTo(XmlBeans.getBuiltinTypeSystem());
         params.setOptions(validateOptions);
+        params.setClassesDir(new File("build/junit/" + getClass().getSimpleName()));
 
         SchemaTypeSystem ts = XmlBeans.compileXmlBeans(params);
         assertNotNull(ts);
@@ -219,6 +221,7 @@ public class MultipleRedefines extends BaseCase {
             params.setInputXmls(sdocs);
             params.setLinkTo(XmlBeans.getBuiltinTypeSystem());
             params.setOptions(validateOptions);
+            params.setClassesDir(new File("build/junit/"+getClass().getSimpleName()));
             SchemaTypeSystem ts = XmlBeans.compileXmlBeans(params);
         }
         catch (XmlException e)

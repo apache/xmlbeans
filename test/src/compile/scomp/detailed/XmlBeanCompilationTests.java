@@ -113,6 +113,7 @@ public class XmlBeanCompilationTests extends CompileTestBase {
         params.setConfig(bind);
         params.setFiler(f);
         params.setOptions(xm_opts);
+        params.setClassesDir(new File("build/junit/"+getClass().getSimpleName()));
 
         SchemaTypeSystem apiSts = XmlBeans.compileXmlBeans(params);
 
@@ -162,6 +163,8 @@ public class XmlBeanCompilationTests extends CompileTestBase {
         params.setLinkTo(XmlBeans.getBuiltinTypeSystem());
         params.setInputXmls(obj1);
         params.setOptions(opt);
+        params.setClassesDir(new File("build/junit/"+getClass().getSimpleName()));
+
         sts = XmlBeans.compileXmlBeans(params);
 
         assertTrue("Errors should have been empty", err.isEmpty());
@@ -209,6 +212,8 @@ public class XmlBeanCompilationTests extends CompileTestBase {
         params.setLinkTo(XmlBeans.getBuiltinTypeSystem());
         params.setInputXmls(obj3);
         params.setOptions(opt);
+        params.setClassesDir(new File("build/junit/"+getClass().getSimpleName()));
+
         SchemaTypeSystem b = XmlBeans.compileXmlBeans(params);
         // find element in the type System
         if (!findGlobalElement(b.globalElements(), sts1))

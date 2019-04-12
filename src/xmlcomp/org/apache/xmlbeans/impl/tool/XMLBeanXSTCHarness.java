@@ -23,6 +23,7 @@ import org.apache.xmlbeans.SchemaTypeSystem;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.impl.schema.SchemaTypeSystemCompiler;
 
+import java.io.File;
 import java.util.Collection;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -59,6 +60,7 @@ public class XMLBeanXSTCHarness implements XSTCTester.Harness
                 }
                 params.setLinkTo(XmlBeans.getBuiltinTypeSystem());
                 params.setOptions(options);
+                params.setClassesDir(new File("build/xstctest/"));
 
                 SchemaTypeSystem system = XmlBeans.compileXmlBeans(params);
                 loader = XmlBeans.typeLoaderUnion(system, XmlBeans.getBuiltinTypeSystem());

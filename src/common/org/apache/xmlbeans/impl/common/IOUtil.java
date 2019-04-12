@@ -111,7 +111,7 @@ public class IOUtil
         }
     }
 
-    public static File createDir(File rootdir, String subdir)
+    public static synchronized File createDir(File rootdir, String subdir)
     {
         File newdir = (subdir == null) ? rootdir : new File(rootdir, subdir);
         boolean created = (newdir.exists() && newdir.isDirectory()) || newdir.mkdirs();

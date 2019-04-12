@@ -16,7 +16,10 @@
 package xmlobject.schematypes.checkin;
 
 import org.apache.xmlbeans.*;
+import org.apache.xmlbeans.impl.schema.SchemaTypeSystemCompiler;
 import org.junit.Test;
+
+import java.io.File;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
@@ -36,9 +39,11 @@ public class QNameTests {
             "</xs:schema>\n" +
             "";
 
-        SchemaTypeLoader stl =
-            XmlBeans.loadXsd(new XmlObject[]{
-                XmlObject.Factory.parse(schema)});
+        SchemaTypeSystemCompiler.Parameters params = new SchemaTypeSystemCompiler.Parameters();
+        params.setClassesDir(new File("build/junit/" + getClass().getSimpleName()));
+        params.setInputXmls(XmlObject.Factory.parse(schema));
+
+        SchemaTypeLoader stl = XmlBeans.loadXsd(params);
 
         //
         // Test the set_XMLName function on XmlQNameImpl

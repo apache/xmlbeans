@@ -193,6 +193,7 @@ public class CompileTestBase extends CompileCommon {
         params.setInputXmls(schemas);
         params.setLinkTo(builtin);
         params.setOptions(options);
+        params.setClassesDir(new File("build/junit/"+getClass().getSimpleName()));
 
         SchemaTypeSystem sts = XmlBeans.compileXmlBeans(params);
         assertNotNull("Compilation failed during Incremental Compile.", sts);
@@ -201,34 +202,16 @@ public class CompileTestBase extends CompileCommon {
 
     }
 
-    /**
-     * Original Compilation to directory specified
-     */
-    public SchemaTypeSystem compileSchemas(XmlObject[] schemas, SchemaTypeLoader typepath,
-                                           XmlOptions options, File outDir) throws XmlException, IOException {
-        SchemaTypeSystem system;
-        SchemaTypeSystem builtin = XmlBeans.getBuiltinTypeSystem();
-        SchemaTypeSystemCompiler.Parameters params = new SchemaTypeSystemCompiler.Parameters();
-        params.setInputXmls(schemas);
-        params.setLinkTo(builtin);
-        params.setOptions(options);
-        system = XmlBeans.compileXmlBeans(params);
-        assertNotNull("Compilation failed during compile.", system);
-        SchemaCodeGenerator.saveTypeSystem(system, outDir, null, null, null);
-        return system;
-    }
-
-
     //original compile to get base type system
     public SchemaTypeSystem compileSchemas(XmlObject[] schemas, SchemaTypeLoader typepath,
                                            XmlOptions options) throws XmlException, IOException {
-        SchemaTypeSystem system;
-        SchemaTypeSystem builtin = XmlBeans.getBuiltinTypeSystem();
         SchemaTypeSystemCompiler.Parameters params = new SchemaTypeSystemCompiler.Parameters();
         params.setInputXmls(schemas);
-        params.setLinkTo(builtin);
+        params.setLinkTo(XmlBeans.getBuiltinTypeSystem());
         params.setOptions(options);
-        system = XmlBeans.compileXmlBeans(params);
+        params.setClassesDir(new File("build/junit/"+getClass().getSimpleName()));
+
+        SchemaTypeSystem system = XmlBeans.compileXmlBeans(params);
         assertNotNull("Compilation failed during compile.", system);
         SchemaCodeGenerator.saveTypeSystem(system, out, null, null, null);
         return system;

@@ -147,6 +147,7 @@ public class JiraRegression1_50Test extends JiraTestBase {
         // compile loaded XmlObject
         SchemaTypeSystemCompiler.Parameters params = new SchemaTypeSystemCompiler.Parameters();
         params.setInputXmls(sd);
+        params.setClassesDir(new File("build/junit/"+getClass().getSimpleName()));
 
         SchemaTypeSystem sts = XmlBeans.compileXmlBeans(params);
         sts.resolve();

@@ -281,6 +281,7 @@ public class IncrCompilationTests extends CompileTestBase {
         params.setInputXmls(obj1);
         params.setFiler(filer);
         params.setOptions(xm);
+        params.setClassesDir(new File("build/junit/"+getClass().getSimpleName()));
 
         SchemaTypeSystem base = XmlBeans.compileXmlBeans(params);
         Assert.assertNotNull("Compilation failed during Incremental Compile.", base);
@@ -335,6 +336,7 @@ public class IncrCompilationTests extends CompileTestBase {
         params.setInputXmls(obj1);
         params.setFiler(filer);
         params.setOptions(xm);
+        params.setClassesDir(new File("build/junit/"+getClass().getSimpleName()));
         SchemaTypeSystem base = XmlBeans.compileXmlBeans(params);
         Assert.assertNotNull("Compilation failed during Incremental Compile.", base);
         base.saveToDirectory(out);

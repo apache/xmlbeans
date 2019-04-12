@@ -149,6 +149,7 @@ public class TestsFromBugs {
         params.setLinkTo(XmlBeans.getBuiltinTypeSystem());
         params.setInputXmls(schemas);
         params.setOptions(xOpt);
+        params.setClassesDir(new File("build/junit/"+getClass().getSimpleName()));
         SchemaTypeSystem sts = XmlBeans.compileXmlBeans(params);
 
         //ensure SchemaGlobalElement has getSourceName Method

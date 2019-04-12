@@ -18,6 +18,7 @@ package misc.checkin;
 import org.apache.xmlbeans.SchemaTypeLoader;
 import org.apache.xmlbeans.XmlBeans;
 import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.impl.schema.SchemaTypeSystemCompiler;
 import org.junit.Assert;
 import org.junit.Test;
 import tools.util.JarUtil;
@@ -46,13 +47,15 @@ public class ThreadingTest {
         }
 
         public void run() {
+            SchemaTypeSystemCompiler.Parameters params = new SchemaTypeSystemCompiler.Parameters();
+            params.setClassesDir(new File("build/junit/" + getClass().getSimpleName()));
+
             try {
                 for (int i = 0; i < ITERATION_COUNT; i++) {
-                    SchemaTypeLoader loader = XmlBeans.loadXsd(
-                            new XmlObject[]{
-                                XmlObject.Factory.parse(
-                                        JarUtil.getResourceFromJarasFile(
-                                                "xbean/misc/xmldsig-core-schema.xsd"))});
+                    params.setInputXmls(XmlObject.Factory.parse(
+                        JarUtil.getResourceFromJarasFile(
+                            "xbean/misc/xmldsig-core-schema.xsd")));
+                    SchemaTypeLoader loader = XmlBeans.loadXsd(params);
                     File temp = JarUtil.getResourceFromJarasFile(
                             "xbean/misc/signature-example.xml");
                     XmlObject result = loader.parse(temp, null, null);

@@ -23,6 +23,7 @@ import xbean.scomp.derivation.complexExtension.ChoiceExtensionT;
 import xbean.scomp.derivation.complexExtension.SequenceExtensionEltDocument;
 import xbean.scomp.derivation.complexExtension.SequenceExtensionT;
 
+import java.io.File;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -189,6 +190,7 @@ public class ComplexContentExtensionTest extends BaseCase {
             params.setLinkTo(XmlBeans.getBuiltinTypeSystem());
             params.setOptions(options);
             params.setInputXmls(xobj);
+            params.setClassesDir(new File("build/junit/" + getClass().getSimpleName()));
 
             XmlBeans.compileXmlBeans(params);
         }
@@ -241,6 +243,7 @@ public class ComplexContentExtensionTest extends BaseCase {
             Parameters params = new Parameters();
             params.setLinkTo(XmlBeans.getBuiltinTypeSystem());
             params.setInputXmls(xobj);
+            params.setClassesDir(new File("build/junit/"+getClass().getSimpleName()));
 
             XmlBeans.compileXmlBeans(params);
         }
@@ -280,6 +283,7 @@ public class ComplexContentExtensionTest extends BaseCase {
             Parameters params = new Parameters();
             params.setLinkTo(XmlBeans.getBuiltinTypeSystem());
             params.setInputXmls(xobj);
+            params.setClassesDir(new File("build/junit/"+getClass().getSimpleName()));
 
             XmlBeans.compileXmlBeans(params);
         }
@@ -335,6 +339,7 @@ public class ComplexContentExtensionTest extends BaseCase {
             params.setLinkTo(XmlBeans.getBuiltinTypeSystem());
             params.setInputXmls(xobj);
             params.setOptions(options);
+            params.setClassesDir(new File("build/junit/"+getClass().getSimpleName()));
 
             XmlBeans.compileXmlBeans(params);
         }

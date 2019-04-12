@@ -100,11 +100,13 @@ public class CompilationTests {
         schemas[n - 2] = SchemaDocument.Factory.parse(files[n - 2]).getSchema();
         List errors = new ArrayList();
         XmlOptions options = (new XmlOptions()).setErrorListener(errors);
-        SchemaTypeSystem builtin = XmlBeans.getBuiltinTypeSystem();
+
         SchemaTypeSystemCompiler.Parameters params = new SchemaTypeSystemCompiler.Parameters();
         params.setSchemas(schemas);
-        params.setLinkTo(builtin);
+        params.setLinkTo(XmlBeans.getBuiltinTypeSystem());
         params.setOptions(options);
+        params.setClassesDir(new File("build/junit/"+getClass().getSimpleName()));
+
         system = XmlBeans.compileXmlBeans(params);
         Assert.assertNotNull("Compilation failed during inititial compile.", system);
         System.out.println("-= Initial Compile =-");
@@ -124,11 +126,9 @@ public class CompilationTests {
         SchemaDocument.Schema schemas1 = SchemaDocument.Factory.parse(files[n - 1]).getSchema();
         schemas1.documentProperties().setSourceName(url);
         errors.clear();
-        params = new SchemaTypeSystemCompiler.Parameters();
+
         params.setExistingTypeSystem(system);
         params.setSchemas(schemas1);
-        params.setLinkTo(builtin);
-        params.setOptions(options);
 
         system = XmlBeans.compileXmlBeans(params);
         Assert.assertNotNull("Compilation failed during incremental compile.", system);
@@ -146,10 +146,9 @@ public class CompilationTests {
         // Now compile non-incrementally for the purpose of comparing the result
         errors.clear();
         schemas[n - 2] = schemas1;
-        params = new SchemaTypeSystemCompiler.Parameters();
+
+        params.setExistingTypeSystem(null);
         params.setSchemas(schemas);
-        params.setLinkTo(builtin);
-        params.setOptions(options);
 
         system = XmlBeans.compileXmlBeans(params);
         Assert.assertNotNull("Compilation failed during reference compile.", system);
@@ -203,6 +202,7 @@ public class CompilationTests {
         SchemaTypeSystemCompiler.Parameters params = new SchemaTypeSystemCompiler.Parameters();
         params.setInputXmls(parsed);
         params.setLinkTo(XmlBeans.getBuiltinTypeSystem());
+        params.setClassesDir(new File("build/junit/"+getClass().getSimpleName()));
         SchemaTypeSystem sts = XmlBeans.compileXmlBeans(params);
         Assert.assertNotNull("Could not compile person.xsd", sts);
         SchemaType personType = sts.findType(QNameHelper.forLNS("person", "http://openuri.org/mytest"));
@@ -389,10 +389,14 @@ public class CompilationTests {
         for (int i = 0; i < invalidSchemas.length; i++)
             schemas[i] = SchemaDocument.Factory.parse(invalidSchemas[i]);
 
+        SchemaTypeSystemCompiler.Parameters params = new SchemaTypeSystemCompiler.Parameters();
+        params.setClassesDir(new File("build/junit/"+getClass().getSimpleName()));
+
         // Now compile the invalid schemas, test that they fail
         for (int i = 0; i < schemas.length; i++) {
             try {
-                XmlBeans.loadXsd(new XmlObject[]{schemas[i]});
+                params.setInputXmls(schemas[i]);
+                XmlBeans.loadXsd(params);
                 fail("Schema should have failed to compile:\n" + invalidSchemas[i]);
             } catch (XmlException success) {
             }
@@ -406,7 +410,8 @@ public class CompilationTests {
         // Compile the valid schemas. They should not fail
         for (int i = 0; i < schemas.length; i++) {
             try {
-                XmlBeans.loadXsd(new XmlObject[]{schemas[i]});
+                params.setInputXmls(schemas[i]);
+                XmlBeans.loadXsd(params);
             } catch (XmlException fail) {
                 fail("Failed to compile schema:\n" + validSchemas[i]);
             }

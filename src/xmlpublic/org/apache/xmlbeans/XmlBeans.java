@@ -252,7 +252,11 @@ public final class XmlBeans
      * Just like compileXsd, but uses the context type loader for
      * linking, and returns a unioned typeloader that is suitable for
      * creating instances.
+     *
+     * @deprecated use {@link #loadXsd(Parameters)} instead
      */
+    @Deprecated
+    @Removal(version = "4.0")
     public static SchemaTypeLoader loadXsd(XmlObject[] schemas) throws XmlException
     {
         return loadXsd(schemas, null);
@@ -277,13 +281,32 @@ public final class XmlBeans
      *
      * @param schemas The schema definitions from which to build the schema type system.
      * @param options Options specifying an error listener and/or validation behavior.
+     *
+     * @deprecated use {@link #loadXsd(Parameters)} instead
      */
+    @Deprecated
+    @Removal(version = "4.0")
     public static SchemaTypeLoader loadXsd(XmlObject[] schemas, XmlOptions options) throws XmlException {
         Parameters params = new Parameters();
         params.setInputXmls(schemas);
         params.setOptions(options);
+        return loadXsd(params);
+    }
 
-        XmlErrorWatcher xew = setErrorWatcher(params, options);
+    /**
+     * <p>Returns the SchemaTypeSystem that results from compiling the XML
+     * schema definitions passed in <em>schemas</em>.</p>
+     *
+     * <p>This is just like {@link #compileXmlBeans(Parameters)}, but uses the context type loader for
+     * linking, and returns a unioned typeloader that is suitable for
+     * creating instances.</p>
+     *
+     * @param params the schema compiler parameters
+     *
+     * @see #compileXmlBeans(Parameters)
+     */
+    public static SchemaTypeLoader loadXsd(Parameters params) throws XmlException {
+        XmlErrorWatcher xew = setErrorWatcher(params, params.getOptions());
 
         SchemaTypeSystem sts = SchemaTypeSystemCompiler.compile(params);
 
@@ -293,7 +316,6 @@ public final class XmlBeans
 
         return typeLoaderUnion(sts, getContextTypeLoader());
     }
-
 
     /**
      * <p>Returns the SchemaTypeSystem that results from compiling the XML

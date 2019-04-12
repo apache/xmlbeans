@@ -23,8 +23,11 @@ import com.enumtest.StatusreportDocument;
 import org.apache.xmlbeans.XmlBeans;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.impl.schema.SchemaTypeSystemCompiler;
 import org.junit.Test;
 import tools.util.JarUtil;
+
+import java.io.File;
 
 import static org.junit.Assert.assertEquals;
 
@@ -150,7 +153,11 @@ public class EnumTests {
 
         XmlObject xobj = XmlObject.Factory.parse(schema);
 
-        XmlBeans.loadXsd(new XmlObject[]{xobj});
+        SchemaTypeSystemCompiler.Parameters params = new SchemaTypeSystemCompiler.Parameters();
+        params.setClassesDir(new File("build/junit/" + getClass().getSimpleName()));
+        params.setInputXmls(xobj);
+
+        XmlBeans.loadXsd(params);
     }
 
 }

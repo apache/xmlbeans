@@ -77,6 +77,7 @@ public class XmlBeansCompCheckinTests extends CompileTestBase
         params.setInputXmls(obj1);
         params.setFiler(f);
         params.setOptions(xm_opts);
+        params.setClassesDir(new File("build/junit/"+getClass().getSimpleName()));
 
         SchemaTypeSystem apiSts = XmlBeans.compileXmlBeans(params);
 
@@ -125,6 +126,7 @@ public class XmlBeansCompCheckinTests extends CompileTestBase
             params.setLinkTo(XmlBeans.getBuiltinTypeSystem());
             params.setInputXmls(obj3);
             params.setOptions(opt);
+            params.setClassesDir(new File("build/junit/"+getClass().getSimpleName()));
             sts = XmlBeans.compileXmlBeans(params);
             boolean psom_expError = false;
             // print out the recovered xm_errors
@@ -229,6 +231,7 @@ public class XmlBeansCompCheckinTests extends CompileTestBase
             params.setInputXmls(obj3);
             params.setFiler(tf);
             params.setOptions(opt);
+            params.setClassesDir(new File("build/junit/"+getClass().getSimpleName()));
             sts = XmlBeans.compileXmlBeans(params);
 
             assertTrue("Errors was not empty", !err.isEmpty());
@@ -270,6 +273,7 @@ public class XmlBeansCompCheckinTests extends CompileTestBase
         Parameters params = new Parameters();
         params.setLinkTo(XmlBeans.getBuiltinTypeSystem());
         params.setInputXmls(obj1);
+        params.setClassesDir(new File("build/junit/"+getClass().getSimpleName()));
 
         SchemaTypeSystem apiSts = XmlBeans.compileXmlBeans(params);
         System.out.println("Name: " + apiSts.getName());
@@ -298,6 +302,7 @@ public class XmlBeansCompCheckinTests extends CompileTestBase
         try {
             params.setInputXmls(obj1);
             params.setLinkTo(null);
+            params.setClassesDir(new File("build/junit/"+getClass().getSimpleName()));
             apiSts = XmlBeans.compileXmlBeans(params);
             printSTS(apiSts);
         } catch (IllegalArgumentException iaEx) {

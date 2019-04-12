@@ -19,6 +19,7 @@ import org.apache.xmlbeans.impl.schema.SchemaTypeSystemCompiler.Parameters;
 import org.junit.Test;
 import scomp.common.BaseCase;
 
+import java.io.File;
 import java.util.Iterator;
 
 import static org.junit.Assert.assertEquals;
@@ -99,6 +100,7 @@ public class Final extends BaseCase {
             Parameters params = new Parameters();
             params.setLinkTo(XmlBeans.getBuiltinTypeSystem());
             params.setInputXmls(xobj);
+            params.setClassesDir(new File("build/junit/" + getClass().getSimpleName()));
             XmlBeans.compileXmlBeans(params);
         }
         catch (XmlException xme) {

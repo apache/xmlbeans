@@ -21,6 +21,7 @@ import org.apache.xmlbeans.impl.xb.xsdschema.SchemaDocument;
 import org.junit.Test;
 import scomp.common.BaseCase;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -71,6 +72,7 @@ public class EnumTest extends BaseCase
             SchemaTypeSystemCompiler.Parameters params = new SchemaTypeSystemCompiler.Parameters();
             params.setInputXmls(sd);
             params.setOptions(options);
+            params.setClassesDir(new File("build/junit/" + getClass().getSimpleName()));
 
             SchemaTypeSystem sts = XmlBeans.compileXmlBeans(params);
         }
