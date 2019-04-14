@@ -103,6 +103,7 @@
         <pathelement location="src/typestore"/>
         <pathelement location="src/xmlcomp"/>
         <pathelement location="src/xmlconfig"/>
+        <pathelement location="src/jam"/>
         <pathelement location="src/jamsupport"/>
         <pathelement location="build/generated-sources"/>
     </path>
@@ -233,14 +234,7 @@
 
     <target name="process-resources" depends="-fetch-jars" description="Generate sources and resources based on schema files">
         <mkdir dir="build/classes"/>
-
-        <copy todir="build/generated-sources/org/apache/xmlbeans/impl">
-            <zipfileset src="lib/jam-0.1.0-src.jar" includes="src/org/**"/>
-            <cutdirsmapper dirs="3"/>
-            <filterchain>
-                <replacestring from="org.codehaus.jam" to="org.apache.xmlbeans.impl.jam"/>
-            </filterchain>
-        </copy>
+        <mkdir dir="build/generated-sources"/>
 
         <!-- Note that this is tricky because it bootstraps xmlbeans on itself. -->
         <!-- The basic strategy is to rely on the oldxbeans.jar checked into lib -->
@@ -450,7 +444,6 @@
             </classpath>
             <excludepackage name="repackage.*"/>
             <excludepackage name="org.apache.xmlbeans.impl.xb.*"/>
-            <excludepackage name="org.apache.xmlbeans.impl.jam.*"/>
             <link href="http://xmlbeans.apache.org/${version.base}/docs/reference/index.html"/>
             <link href="http://docs.oracle.com/javase/6/docs/api/"/>
             <link href="http://docs.oracle.com/javaee/6/api/"/>
