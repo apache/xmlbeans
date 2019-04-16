@@ -4038,9 +4038,7 @@ abstract class Saver {
                 // Check for non leaf, _prettyIndent < 0 means that the save is all on one line
 
                 if (_prettyIndent >= 0 &&
-                        prevKind != COMMENT && prevKind != PROCINST && (prevKind != ELEM || k != -ELEM))
-//                if (prevKind != COMMENT && prevKind != PROCINST && (prevKind != ELEM || k != -ELEM))
-                {
+                        prevKind != COMMENT && prevKind != PROCINST && (prevKind != ELEM || k != -ELEM)) {
                     if (_sb.length() > 0) {
                         _sb.insert(0, _newLine);
                         spaces(_sb, _newLine.length(), _prettyOffset + _prettyIndent * _depth);
