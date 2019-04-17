@@ -65,7 +65,7 @@ public class XmlTextTest extends BasicCursorTestCase {
         m_xc = m_xo.newCursor();
         m_map.put(XmlOptions.SAVE_PRETTY_PRINT, "");
         String lnSep = System.getProperty("line.separator");
-        assertEquals("<a>" + lnSep + "  <b>" + lnSep + "    <c>text</c>" + lnSep + "  </b>" + lnSep + "</a>", m_xc.xmlText(m_map));
+        assertEquals("<a>" + lnSep + "  <b>" + lnSep + "    <c> text </c>" + lnSep + "  </b>" + lnSep + "</a>", m_xc.xmlText(m_map));
     }
 
     @Test
@@ -75,7 +75,7 @@ public class XmlTextTest extends BasicCursorTestCase {
         m_map.put(XmlOptions.SAVE_PRETTY_PRINT, "");
         m_map.put(XmlOptions.SAVE_PRETTY_PRINT_INDENT, new Integer(3));
         String lnSep = System.getProperty("line.separator");
-        assertEquals("<a>" + lnSep + "   <b>" + lnSep + "      <c>text</c>" + lnSep + "   </b>" + lnSep + "</a>", m_xc.xmlText(m_map));
+        assertEquals("<a>" + lnSep + "   <b>" + lnSep + "      <c> text </c>" + lnSep + "   </b>" + lnSep + "</a>", m_xc.xmlText(m_map));
     }
 
     @Test
@@ -83,7 +83,7 @@ public class XmlTextTest extends BasicCursorTestCase {
         m_xc = XmlObject.Factory.parse("<a>  \n  <b>  \n    <c> text   </c>   \n  </b>  \n  </a>").newCursor();
         m_map.put(XmlOptions.SAVE_PRETTY_PRINT, "");
         m_map.put(XmlOptions.SAVE_PRETTY_PRINT_INDENT, new Integer(-1));
-        assertEquals("<a><b><c>text</c></b></a>", m_xc.xmlText(m_map));
+        assertEquals("<a><b><c> text   </c></b></a>", m_xc.xmlText(m_map));
     }
 
     @Test

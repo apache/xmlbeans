@@ -76,14 +76,14 @@ public class SelectChldAttTests {
 
         xos = doc.selectChildren(uri, "string");
         //print("2 selectChildren 'string' : ", xos);
-        assertTrue("2 selectChildren 'string' : ", verifyResult(xos, new String[]{"<xml-fragment>... some text ...</xml-fragment>"}));
+        assertTrue("2 selectChildren 'string' : ", verifyResult(xos, new String[]{"<xml-fragment> ... some text ... </xml-fragment>"}));
 
         // elemA
         xos = doc.selectChildren(new QName(uri, "elemA"));
         //print("3 selectChildren 'elemA' : ", xos);
         assertTrue("3 selectChildren 'elemA' : ",
             verifyResult(xos, new String[]{"<xml-fragment price=\"4.321\" xmlns:sel=\"" + uri + "\">\n" +
-                "  <sel:topLevelElement>this is wildcard bucket</sel:topLevelElement>\n" +
+                "  <sel:topLevelElement> this is wildcard bucket </sel:topLevelElement>\n" +
                 "</xml-fragment>"}));
 
         // select a known attribute
@@ -106,7 +106,7 @@ public class SelectChldAttTests {
         //print("7     selectChildren set'##other' : " , xos[0].selectChildren(QNameSet.forWildcardNamespaceString("##other", uri)));
         assertTrue("7     selectChildren set'##other' : ",
             verifyResult(xos[0].selectChildren(QNameSet.forWildcardNamespaceString("##other", uri))
-                , new String[]{"<xml-fragment xmlns:p=\"uri:other_namespace\">element in #other namespace</xml-fragment>"}));
+                , new String[]{"<xml-fragment xmlns:p=\"uri:other_namespace\"> element in #other namespace </xml-fragment>"}));
         //print("8     selectAttributes set'##other' : ", xos[0].selectAttributes(QNameSet.forWildcardNamespaceString("##other", uri)));
         assertTrue("8     selectAttributes set'##other' : ",
             verifyResult(xos[0].selectAttributes(QNameSet.forWildcardNamespaceString("##other", uri)),
@@ -118,9 +118,9 @@ public class SelectChldAttTests {
         //print("10    selectChildren set'##any' : " , xos[0].selectChildren(QNameSet.forWildcardNamespaceString("##any", uri)));
         assertTrue("10    selectChildren set'##any' : ",
             verifyResult(xos[0].selectChildren(QNameSet.forWildcardNamespaceString("##any", uri))
-                , new String[]{"<xml-fragment xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:p=\"uri_other_namespace\">element from typeC</xml-fragment>",
-                    "<xml-fragment xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:p=\"uri_other_namespace\">element in the 'any' bucket for typeExtendedC</xml-fragment>",
-                    "<xml-fragment xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:p=\"uri_other_namespace\">element from typeExtendedC</xml-fragment>"}));
+                , new String[]{"<xml-fragment xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:p=\"uri_other_namespace\"> element from typeC </xml-fragment>",
+                    "<xml-fragment xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:p=\"uri_other_namespace\"> element in the 'any' bucket for typeExtendedC </xml-fragment>",
+                    "<xml-fragment xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:p=\"uri_other_namespace\"> element from typeExtendedC </xml-fragment>"}));
 
         // select elements in the any bucket by excluding the the known elements
         QNameSetBuilder qnsb = new QNameSetBuilder();
@@ -131,12 +131,12 @@ public class SelectChldAttTests {
         //print("11a    selectChildren in the any bucket for typeExtendedC: " , xos[0].selectChildren(qnsb.toQNameSet()));
         assertTrue("11a    selectChildren in the any bucket for typeExtendedC: ",
             verifyResult(xos[0].selectChildren(qnsb.toQNameSet()),
-                new String[]{"<xml-fragment xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:p=\"uri_other_namespace\">element in the 'any' bucket for typeExtendedC</xml-fragment>"}));
+                new String[]{"<xml-fragment xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:p=\"uri_other_namespace\"> element in the 'any' bucket for typeExtendedC </xml-fragment>"}));
 
         //print("11b    selectChildren in the any bucket for typeExtendedC: " , xos[0].selectChildren(TypeExtendedC.type.qnameSetForWildcardElements()));
         assertTrue("11b    selectChildren in the any bucket for typeExtendedC: ",
             verifyResult(xos[0].selectChildren(TypeExtendedC.type.qnameSetForWildcardElements()),
-                new String[]{"<xml-fragment xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:p=\"uri_other_namespace\">element in the 'any' bucket for typeExtendedC</xml-fragment>"}));
+                new String[]{"<xml-fragment xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:p=\"uri_other_namespace\"> element in the 'any' bucket for typeExtendedC </xml-fragment>"}));
 
         // select attributes in the any bucket by excluding the the known attributes
         qnsb = new QNameSetBuilder();

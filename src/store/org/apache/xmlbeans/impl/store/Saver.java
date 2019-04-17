@@ -4030,7 +4030,10 @@ abstract class Saver {
                     _isTextCData = _useCDataBookmarks && _cur.isTextCData();
                     CharUtil.getString(_sb, _cur.getChars(), _cur._offSrc, _cur._cchSrc);
                     _cur.next();
-                    trim(_sb);
+                    k = _cur.kind();
+                    if (prevKind != ELEM || k != -ELEM) {
+                        trim(_sb);
+                    }
                 }
 
                 k = _cur.kind();
