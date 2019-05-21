@@ -51,7 +51,7 @@
 
     <property name="xcresolver.zip" location="${compile.lib}/xcresolver.zip"/>
     <property name="xcresolver.jar" location="${compile.lib}/resolver.jar"/>
-    <property name="xcresolver.url" value="https://archive.apache.org/dist/xml/commons/binaries/xml-commons-resolver-1.1.zip"/>
+    <property name="xcresolver.url" value="http://archive.apache.org/dist/xml/commons/binaries/xml-commons-resolver-1.1.zip"/>
 
     <!-- test dependencies -->
     <property name="junit.jar" location="${compile.lib}/junit-4.12.jar"/>
