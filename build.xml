@@ -19,10 +19,10 @@
     <property name="ant.build.javac.source" value="1.6"/>
     <property name="ant.build.javac.target" value="1.6"/>
 
-    <property name="version.base" value="3.1.0"/>
+    <property name="version.base" value="3.1.1"/>
     <property name="version.rc" value=""/>
 
-    <property name="repository.m2" value="https://repo1.maven.org"/>
+    <property name="repository.m2" value="http://repo1.maven.org"/>
     <property environment="ENV"/>
 
     <property name="compile.lib" location="compile-lib"/>
