@@ -49,7 +49,7 @@ public class IncrCompilationTests extends CompileTestBase {
 
     @After
     public void tearDown() throws Exception {
-            if (errors.size() > 0)
+        if (errors.size() > 0)
             errors.clear();
     }
 
@@ -338,8 +338,9 @@ public class IncrCompilationTests extends CompileTestBase {
         Set keyset = initialTimeStamps.keySet();
 
         // Atype has been modified, BType has been removed
-        String modifiedFileName = out.getCanonicalFile() + "\\org\\openuri\\impl\\ATypeImpl.java";
-        String modifiedFileName2 = out.getCanonicalFile() + "\\org\\openuri\\AType.java";
+        String sep = System.getProperty("file.separator");
+        String modifiedFileName = out.getCanonicalFile() + sep + "org" + sep + "openuri" + sep + "impl" + sep + "ATypeImpl.java";
+        String modifiedFileName2 = out.getCanonicalFile() + sep + "org" + sep + "openuri" + sep + "AType.java";
 
         for (Iterator iterator = keyset.iterator(); iterator.hasNext();) {
             String eachFile = (String) iterator.next();
