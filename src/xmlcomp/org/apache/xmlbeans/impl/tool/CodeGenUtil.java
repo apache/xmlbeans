@@ -172,7 +172,7 @@ public class CodeGenUtil
         }
 
         if (genver == null)
-            genver = "1.6";
+            genver = "1.8";
 
         args.add("-source");
         args.add(genver);

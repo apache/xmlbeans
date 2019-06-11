@@ -15,9 +15,9 @@
 -->
 <project name="XMLBeans" default="process-resources" basedir="." xmlns:if="ant:if" xmlns:unless="ant:unless">
 
-    <property name="build.compiler" value="javac1.6"/>
-    <property name="ant.build.javac.source" value="1.6"/>
-    <property name="ant.build.javac.target" value="1.6"/>
+    <property name="build.compiler" value="javac1.8"/>
+    <property name="ant.build.javac.source" value="1.8"/>
+    <property name="ant.build.javac.target" value="1.8"/>
 
     <property name="version.base" value="3.1.1"/>
     <property name="version.rc" value=""/>
