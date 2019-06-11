@@ -22,7 +22,7 @@
     <property name="version.base" value="3.1.1"/>
     <property name="version.rc" value=""/>
 
-    <property name="repository.m2" value="http://repo1.maven.org"/>
+    <property name="repository.m2" value="https://repo1.maven.org"/>
     <property environment="ENV"/>
 
     <property name="compile.lib" location="compile-lib"/>
@@ -47,11 +47,11 @@
     <property name="saxon.zip" location="${compile.lib}/saxonb9-0-0-4j.zip"/>
     <property name="saxon.jar" location="${compile.lib}/saxon9.jar"/>
     <property name="saxon-dom.jar" location="${compile.lib}/saxon9-dom.jar"/>
-    <property name="saxon.url" value="http://master.dl.sourceforge.net/project/saxon/OldFiles/9.0/9.0.0.4/saxonb9-0-0-4j.zip"/>
+    <property name="saxon.url" value="https://master.dl.sourceforge.net/project/saxon/OldFiles/9.0/9.0.0.4/saxonb9-0-0-4j.zip"/>
 
     <property name="xcresolver.zip" location="${compile.lib}/xcresolver.zip"/>
     <property name="xcresolver.jar" location="${compile.lib}/resolver.jar"/>
-    <property name="xcresolver.url" value="http://archive.apache.org/dist/xml/commons/binaries/xml-commons-resolver-1.1.zip"/>
+    <property name="xcresolver.url" value="https://archive.apache.org/dist/xml/commons/binaries/xml-commons-resolver-1.1.zip"/>
 
     <!-- test dependencies -->
     <property name="junit.jar" location="${compile.lib}/junit-4.12.jar"/>
@@ -440,8 +440,8 @@
             <excludepackage name="org.apache.xmlbeans.impl.xb.*"/>
             <excludepackage name="org.apache.xmlbeans.impl.jam.*"/>
             <link href="http://xmlbeans.apache.org/${version.base}/docs/reference/index.html"/>
-            <link href="http://docs.oracle.com/javase/6/docs/api/"/>
-            <link href="http://docs.oracle.com/javaee/6/api/"/>
+            <link href="http://docs.oracle.com/javase/8/docs/api/"/>
+            <link href="http://docs.oracle.com/javaee/7/api/"/>
             <link href="http://xml.apache.org/xerces-j/apiDocs/"/>
             <link href="http://ant.apache.org/manual-1.9.x/api/"/>
         </javadoc>
