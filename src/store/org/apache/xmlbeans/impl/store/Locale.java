@@ -62,6 +62,8 @@ import org.apache.xmlbeans.impl.common.QNameHelper;
 import org.apache.xmlbeans.impl.common.XmlLocale;
 import org.apache.xmlbeans.impl.common.ResolverUtil;
 import org.apache.xmlbeans.impl.common.SystemCache;
+import org.apache.xmlbeans.impl.common.XBLogger;
+import org.apache.xmlbeans.impl.common.XBLogFactory;
 
 import org.apache.xmlbeans.impl.store.Saaj.SaajCallback;
 
@@ -107,6 +109,8 @@ import org.w3c.dom.Element;
 public final class Locale
     implements DOMImplementation, SaajCallback, XmlLocale
 {
+    private static final XBLogger logger = XBLogFactory.getLogger(Locale.class);
+
     static final int ROOT = Cur.ROOT;
     static final int ELEM = Cur.ELEM;
     static final int ATTR = Cur.ATTR;
@@ -3388,13 +3392,18 @@ public final class Locale
                 _xr.setProperty(
                     "http://xml.org/sax/properties/lexical-handler", this);
                 _xr.setContentHandler(this);
-                _xr.setProperty("http://xml.org/sax/properties/declaration-handler", this);
                 _xr.setDTDHandler(this);
                 _xr.setErrorHandler(this);
             }
-            catch (Throwable e)
-            {
+            catch (Throwable e) {
                 throw new RuntimeException(e.getMessage(), e);
+            }
+            try
+            {
+                _xr.setProperty("http://xml.org/sax/properties/declaration-handler", this);
+            }
+            catch (Throwable e) {
+                logger.log(XBLogger.WARN, "SAX Declaration Handler is not supported", e);
             }
         }
 
