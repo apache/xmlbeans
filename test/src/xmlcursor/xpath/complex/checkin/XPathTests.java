@@ -25,7 +25,7 @@ import java.io.StringWriter;
 
 import static org.junit.Assert.assertNull;
 
-public class JaxenXPathTests {
+public class XPathTests {
     private final String sXml =
         "<?xml version=\"1.0\"?>" +
         "<doc xmlns:ext=\"http://somebody.elses.extension\">" +
@@ -58,13 +58,9 @@ public class JaxenXPathTests {
                 bFail = true;
                 errors.append("**********************Failed at test " + i +
                               "\n  path:" + xpathes[i] + "\n");
-//                if (e.getMessage() == null)
-//                {
                 StringWriter sw = new StringWriter();
                 e.printStackTrace(new PrintWriter(sw));
                 errors.append(sw);
-//                }
-//                else
                 errors.append(e.getMessage());
                 errors.append("\n\n");
             }
