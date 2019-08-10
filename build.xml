@@ -44,10 +44,10 @@
         http://easynews.dl.sourceforge.net/sourceforge/saxon/saxonb8-7-3j.zip
         http://easynews.dl.sourceforge.net/sourceforge/saxon/saxonb8-8j.zip
     -->
-    <property name="saxon.zip" location="${compile.lib}/saxonb9-0-0-4j.zip"/>
+    <property name="saxon.zip" location="${compile.lib}/saxonb9-1-0-8j.zip"/>
     <property name="saxon.jar" location="${compile.lib}/saxon9.jar"/>
     <property name="saxon-dom.jar" location="${compile.lib}/saxon9-dom.jar"/>
-    <property name="saxon.url" value="https://master.dl.sourceforge.net/project/saxon/OldFiles/9.0/9.0.0.4/saxonb9-0-0-4j.zip"/>
+    <property name="saxon.url" value="https://vorboss.dl.sourceforge.net/project/saxon/Saxon-B/9.1.0.8/saxonb9-1-0-8j.zip"/>
 
     <property name="xcresolver.zip" location="${compile.lib}/xcresolver.zip"/>
     <property name="xcresolver.jar" location="${compile.lib}/resolver.jar"/>
