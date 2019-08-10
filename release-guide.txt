@@ -35,7 +35,7 @@
    2b. You must be a member of the committee group
    3. Release manager must have their public key appended to the KEYS file checked in to SVN and the key published on one of the public key servers.
       More info can be found here: <a href="https://www.apache.org/dev/release-signing.html">https://www.apache.org/dev/release-signing.html</a>
-   4. You must have Java JDK 1.6 installed and active.
+   4. You must have Java JDK 8 installed and active.
    5. You must have the following utilities installed on your local machine and available in your path:
           * <a href="www.openssh.com">ssh</a>
           * <a href="www.gnupg.org">gnupg</a>
@@ -51,7 +51,7 @@
         the left hand side.
 
    6c. It's a good idea to check at 
-       https://builds.apache.org/view/P/view/POI/job/POI-XMLBeans-DSL-1.6/
+       https://builds.apache.org/view/P/view/POI/job/POI-XMLBeans-DSL-1.8/
        that Jenkins is in a good state (i.e. most recent build passed
        and is up to date with SVN). You probably also want to e-mail
        the dev list with a note to say you're building a release.
@@ -88,7 +88,7 @@ svn pd 'svn:executable' $(find -name .svn -prune -or -type f ! -name \*.sh \
 (II) Making release artifacts
 
   1. Grab the output from a successful Jenkins build for the desired revision:
-     https://builds.apache.org/view/P/view/POI/job/POI-XMLBeans-DSL-1.6/lastBuild/artifact/build/
+     https://builds.apache.org/view/P/view/POI/job/POI-XMLBeans-DSL-1.8/lastBuild/artifact/build/
      - xmlbeans-VERSION.jar
      - xmlbeans-VERSION-javadoc.jar
      - xmlbeans-VERSION-sources.jar
