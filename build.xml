@@ -47,7 +47,7 @@
     <property name="saxon.zip" location="${compile.lib}/saxonb9-1-0-8j.zip"/>
     <property name="saxon.jar" location="${compile.lib}/saxon9.jar"/>
     <property name="saxon-dom.jar" location="${compile.lib}/saxon9-dom.jar"/>
-    <property name="saxon.url" value="https://vorboss.dl.sourceforge.net/project/saxon/Saxon-B/9.1.0.8/saxonb9-1-0-8j.zip"/>
+    <property name="saxon.url" value="https://sourceforge.net/projects/saxon/files/Saxon-B/9.1.0.8/saxonb9-1-0-8j.zip"/>
 
     <property name="xcresolver.zip" location="${compile.lib}/xcresolver.zip"/>
     <property name="xcresolver.jar" location="${compile.lib}/resolver.jar"/>
