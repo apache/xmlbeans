@@ -167,7 +167,7 @@ public final class XmlBeans
             throw causedException(
                 new IllegalStateException(
                     "Cannot load constructor for " + className +
-                ": verify that xbean.jar is on the classpath" ), e );
+                ": verify that xmlbeans.jar is on the classpath" ), e );
         }
     }
 
@@ -185,7 +185,7 @@ public final class XmlBeans
             throw causedException(
                 new IllegalStateException(
                     "Cannot load " + methodName +
-                        ": verify that xbean.jar is on the classpath" ), e );
+                        ": verify that xmlbeans.jar is on the classpath" ), e );
         }
     }
 
@@ -332,7 +332,7 @@ public final class XmlBeans
         }
         catch (IllegalAccessException e)
         {
-            throw causedException(new IllegalStateException("No access to SchemaTypeLoaderImpl.getContextTypeLoader(): verify that version of xbean.jar is correct"), e);
+            throw causedException(new IllegalStateException("No access to SchemaTypeLoaderImpl.getContextTypeLoader(): verify that version of xmlbeans.jar is correct"), e);
         }
         catch (InvocationTargetException e)
         {
@@ -355,7 +355,7 @@ public final class XmlBeans
         }
         catch (IllegalAccessException e)
         {
-            throw causedException(new IllegalStateException("No access to BuiltinSchemaTypeSystem.get(): verify that version of xbean.jar is correct"), e);
+            throw causedException(new IllegalStateException("No access to BuiltinSchemaTypeSystem.get(): verify that version of xmlbeans.jar is correct"), e);
         }
         catch (InvocationTargetException e)
         {
@@ -379,7 +379,7 @@ public final class XmlBeans
         {
             throw causedException(
                 new IllegalStateException(
-                    "No access to nodeToCursor verify that version of xbean.jar is correct" ), e );
+                    "No access to nodeToCursor verify that version of xmlbeans.jar is correct" ), e );
         }
         catch ( InvocationTargetException e )
         {
@@ -403,7 +403,7 @@ public final class XmlBeans
         {
             throw causedException(
                 new IllegalStateException(
-                    "No access to nodeToXmlObject verify that version of xbean.jar is correct" ), e );
+                    "No access to nodeToXmlObject verify that version of xmlbeans.jar is correct" ), e );
         }
         catch ( InvocationTargetException e )
         {
@@ -427,7 +427,7 @@ public final class XmlBeans
         {
             throw causedException(
                 new IllegalStateException(
-                    "No access to nodeToXmlStreamReader verify that version of xbean.jar is correct" ), e );
+                    "No access to nodeToXmlStreamReader verify that version of xmlbeans.jar is correct" ), e );
         }
         catch ( InvocationTargetException e )
         {
@@ -451,7 +451,7 @@ public final class XmlBeans
         {
             throw causedException(
                 new IllegalStateException(
-                    "No access to streamToNode verify that version of xbean.jar is correct" ), e );
+                    "No access to streamToNode verify that version of xmlbeans.jar is correct" ), e );
         }
         catch ( InvocationTargetException e )
         {
@@ -513,7 +513,7 @@ public final class XmlBeans
         }
         catch (IllegalAccessException e)
         {
-            throw causedException(new IllegalStateException("No access to SchemaTypeLoaderImpl.forSchemaXml(): verify that version of xbean.jar is correct"), e);
+            throw causedException(new IllegalStateException("No access to SchemaTypeLoaderImpl.forSchemaXml(): verify that version of xmlbeans.jar is correct"), e);
         }
         catch (InvocationTargetException e)
         {
@@ -672,7 +672,7 @@ public final class XmlBeans
         }
         catch (IllegalAccessException e)
         {
-            throw new IllegalStateException("No access to SchemaTypeLoaderImpl.forSchemaXml(): verify that version of xbean.jar is correct");
+            throw new IllegalStateException("No access to SchemaTypeLoaderImpl.forSchemaXml(): verify that version of xmlbeans.jar is correct");
         }
         catch (InvocationTargetException e)
         {
@@ -697,7 +697,7 @@ public final class XmlBeans
         }
         catch (IllegalAccessException e)
         {
-            throw causedException(new IllegalStateException("No access to SchemaTypeLoaderImpl: verify that version of xbean.jar is correct"), e);
+            throw causedException(new IllegalStateException("No access to SchemaTypeLoaderImpl: verify that version of xmlbeans.jar is correct"), e);
         }
         catch (InvocationTargetException e)
         {
@@ -720,7 +720,7 @@ public final class XmlBeans
         }
         catch (IllegalAccessException e)
         {
-            throw causedException(new IllegalStateException("No access to SchemaTypeLoaderImpl: verify that version of xbean.jar is correct"), e);
+            throw causedException(new IllegalStateException("No access to SchemaTypeLoaderImpl: verify that version of xmlbeans.jar is correct"), e);
         }
         catch (InvocationTargetException e)
         {
@@ -745,7 +745,7 @@ public final class XmlBeans
         }
         catch (IllegalAccessException e)
         {
-            throw causedException(new IllegalStateException("No access to SchemaTypeLoaderImpl: verify that version of xbean.jar is correct"), e);
+            throw causedException(new IllegalStateException("No access to SchemaTypeLoaderImpl: verify that version of xmlbeans.jar is correct"), e);
         }
         catch (InvocationTargetException e)
         {
@@ -779,7 +779,7 @@ public final class XmlBeans
                 throw new RuntimeException("SchemaTypeSystem is null for field " +
                     TYPE_SYSTEM_FIELD + " on class with name " + stsName +
                     "." + HOLDER_CLASS_NAME +
-                    ". Please verify the version of xbean.jar is correct.");
+                    ". Please verify the version of xmlbeans.jar is correct.");
             }
             return sts;
         }
@@ -793,19 +793,19 @@ public final class XmlBeans
         {
             throw causedException(new RuntimeException("Cannot find field " +
                 TYPE_SYSTEM_FIELD + " on class " + stsName + "." + HOLDER_CLASS_NAME +
-                ". Please verify the version of xbean.jar is correct."), e);
+                ". Please verify the version of xmlbeans.jar is correct."), e);
         }
         catch (IllegalAccessException e)
         {
             throw causedException(new RuntimeException("Field " +
                 TYPE_SYSTEM_FIELD + " on class " + stsName + "." + HOLDER_CLASS_NAME +
-                "is not accessible. Please verify the version of xbean.jar is correct."), e);
+                "is not accessible. Please verify the version of xmlbeans.jar is correct."), e);
         }
     }
 
     /**
      * Returns a new ResourceLoader for a search path where each component of
-     * the path is either a directory or a compiled xbean jar.
+     * the path is either a directory or a compiled xmlbeans jar.
      */
     public static ResourceLoader resourceLoaderForPath(File[] path)
     {
@@ -815,7 +815,7 @@ public final class XmlBeans
         }
         catch (IllegalAccessException e)
         {
-            throw causedException(new IllegalStateException("No access to SchemaTypeLoaderImpl: verify that version of xbean.jar is correct"), e);
+            throw causedException(new IllegalStateException("No access to SchemaTypeLoaderImpl: verify that version of xmlbeans.jar is correct"), e);
         }
         catch (InstantiationException e)
         {
@@ -862,7 +862,7 @@ public final class XmlBeans
         }
         catch (IllegalAccessException e)
         {
-            throw causedException(new IllegalStateException("No access to SchemaTypeLoaderImpl.getContextTypeLoader(): verify that version of xbean.jar is correct"), e);
+            throw causedException(new IllegalStateException("No access to SchemaTypeLoaderImpl.getContextTypeLoader(): verify that version of xmlbeans.jar is correct"), e);
         }
         catch (InvocationTargetException e)
         {
