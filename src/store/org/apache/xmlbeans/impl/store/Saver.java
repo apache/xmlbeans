@@ -913,7 +913,7 @@ abstract class Saver {
 
                 Boolean standalone = null;
                 if (props != null && props.get(XmlDocumentProperties.STANDALONE) != null)
-                    standalone = Boolean.valueOf("yes".equals(props.get(XmlDocumentProperties.STANDALONE)));
+                    standalone = props.getStandalone();
 
                 emit("<?xml version=\"");
                 emit(version);

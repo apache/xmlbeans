@@ -79,7 +79,10 @@ public abstract class XmlDocumentProperties
     /**
      * Returns the standalone property
      */
-    public boolean getStandalone ( ) { return get( STANDALONE ) != null; }
+    public boolean getStandalone ( ) {
+        Object flag = get( STANDALONE );
+        return flag != null && flag.toString().equalsIgnoreCase("true");
+    }
 
     /**
      * Sets the DOCTYPE name use in the &lt&#33;DOCTYPE&gt; declaration.
