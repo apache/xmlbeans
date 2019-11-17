@@ -439,11 +439,10 @@
             <excludepackage name="repackage.*"/>
             <excludepackage name="org.apache.xmlbeans.impl.xb.*"/>
             <excludepackage name="org.apache.xmlbeans.impl.jam.*"/>
-            <link href="http://xmlbeans.apache.org/${version.base}/docs/reference/index.html"/>
-            <link href="http://docs.oracle.com/javase/8/docs/api/"/>
-            <link href="http://docs.oracle.com/javaee/7/api/"/>
-            <link href="http://xml.apache.org/xerces-j/apiDocs/"/>
-            <link href="http://ant.apache.org/manual-1.9.x/api/"/>
+            <link href="https://docs.oracle.com/javase/8/docs/api/"/>
+            <link href="https://docs.oracle.com/javaee/7/api/"/>
+            <link href="https://xml.apache.org/xerces-j/apiDocs/"/>
+            <link href="https://ant.apache.org/manual-1.9.x/api/"/>
         </javadoc>
     </target>
 
