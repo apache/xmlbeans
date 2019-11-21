@@ -424,7 +424,7 @@ public class JiraRegression50_100Test extends JiraTestBase
         //System.out.println("System: "+ doc2Props.getDoctypeSystemId() + " = " + docType.getSystemId());
         //System.out.println("Public: "+ doc2Props.getDoctypePublicId()+ " = " + docType.getPublicId());
 
-        StringBuffer compareText = new StringBuffer();
+        StringBuilder compareText = new StringBuilder();
         //check values - compare to expected and DOM
         if (doc2Props != null) {
             if (doc2Props.getDoctypeName() == null ||
@@ -619,7 +619,7 @@ public class JiraRegression50_100Test extends JiraTestBase
     @Test
     @Ignore
     public void test_jira_xmlbeans96() throws Exception {
-        StringBuffer xmlstringbuf = new StringBuffer("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>");
+        StringBuilder xmlstringbuf = new StringBuilder("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>");
         xmlstringbuf.append("<test>");
         xmlstringbuf.append("<testchild attr=\"abcd\"> Jira02 </testchild>");
         xmlstringbuf.append("</test>");
@@ -715,7 +715,7 @@ public class JiraRegression50_100Test extends JiraTestBase
     */
     @Test
     public void test_jira_xmlbeans99_b() throws Exception {
-        StringBuffer xmlstringbuf = new StringBuffer("<?xml version=\"1.0\" encoding=\"ISO-8859-1\" ?> \n");
+        StringBuilder xmlstringbuf = new StringBuilder("<?xml version=\"1.0\" encoding=\"ISO-8859-1\" ?> \n");
         xmlstringbuf.append("                <x:dummy xmlns:x=\"http://dufourrault\" xmlns:xsi=\"http://www.w3.org/2000/10/XMLSchema-instance\" xsi:SchemaLocation=\"dummy.xsd\">\n");
         xmlstringbuf.append("                    <x:father>\n");
         xmlstringbuf.append("                     <x:son>toto</x:son> \n");

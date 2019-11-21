@@ -176,7 +176,7 @@ public class SampleXmlUtil
         if (sType.getSimpleVariety() == SchemaType.LIST)
         {
             SchemaType itemType = sType.getListItemType();
-            StringBuffer sb = new StringBuffer();
+            StringBuilder sb = new StringBuilder();
             int length = pickLength(sType);
             if (length > 0)
                 sb.append(sampleDataForSimpleType(itemType));
@@ -374,7 +374,7 @@ public class SampleXmlUtil
     
     private String pickDigits(int digits)
     {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         while (digits-- > 0)
             sb.append(Integer.toString(pick(10)));
         return sb.toString();

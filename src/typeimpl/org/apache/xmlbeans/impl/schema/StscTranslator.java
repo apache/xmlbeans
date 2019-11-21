@@ -1315,7 +1315,7 @@ public class StscTranslator
 
     private static String removeWhitespace(String xpath)
     {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         for (int i = 0; i < xpath.length(); i++)
         {
             char ch = xpath.charAt(i);

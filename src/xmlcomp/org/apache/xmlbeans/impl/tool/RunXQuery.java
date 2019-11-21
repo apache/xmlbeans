@@ -122,7 +122,7 @@ public class RunXQuery
                 FileInputStream is = new FileInputStream( queryFile );
                 InputStreamReader r = new InputStreamReader( is );
                 
-                StringBuffer sb = new StringBuffer();
+                StringBuilder sb = new StringBuilder();
 
                 for ( ; ; )
                 {

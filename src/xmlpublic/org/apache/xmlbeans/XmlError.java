@@ -584,7 +584,7 @@ public class XmlError implements java.io.Serializable
         // workshop.workspace.ant.AntLogger regex
         // which also matches javac (davidbau)
 
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
 
         String source = formattedFileName(getSourceName(), base);
 

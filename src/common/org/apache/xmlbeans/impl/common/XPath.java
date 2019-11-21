@@ -580,7 +580,7 @@ public class XPath
             if (!isNCNameStart())
                 throw newError( "Expected non-colonized name" );
 
-            StringBuffer sb = new StringBuffer();
+            StringBuilder sb = new StringBuilder();
 
             sb.append( (char) currChar() );
 
@@ -622,7 +622,7 @@ public class XPath
             else
                 throw newError( "Expected quote (\" or ')" );
 
-            StringBuffer sb = new StringBuffer();
+            StringBuilder sb = new StringBuilder();
 
             for ( ; ; )
             {

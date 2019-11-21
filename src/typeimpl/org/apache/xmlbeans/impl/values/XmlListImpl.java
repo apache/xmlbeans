@@ -59,7 +59,7 @@ public class XmlListImpl extends XmlObjectBase implements XmlAnySimpleType
         if (xList.size() == 0)
             return "";
 
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         sb.append(nullAsEmpty(((SimpleValue)xList.get(0)).getStringValue()));
 
         for (int i = 1; i < xList.size(); i++)

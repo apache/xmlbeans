@@ -64,7 +64,7 @@ public class SampleRunner {
 
     private String getMessageFromExceptions(ArrayList ex)
     {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         for (int i = 0; i < ex.size(); i += 2)
         {
             sb.append("\n\nFILE:" + (String) ex.get(i));

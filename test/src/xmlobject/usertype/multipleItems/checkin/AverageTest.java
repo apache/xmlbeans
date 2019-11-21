@@ -126,7 +126,7 @@ public class AverageTest {
     @Test(expected = XmlValueOutOfRangeException.class)
     public void testBadInput() throws XmlException{
 
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         sb.append("<com:company xmlns:com=\"http://xbean.usertype/multipleItems/company\">");
         sb.append("<departments><consultant name=\"Joe Smith\" age=\"100\">");
         sb.append("<room>000-AB</room><room>0001-AB</room><room>002-AB</room>");

@@ -35,7 +35,7 @@ public class BlockTest extends BaseCase {
                               String type,
                               boolean ext,
                               boolean valid) {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         sb.append("<ns:" + elt +
                 "  xmlns:ns=\"http://xbean/scomp/derivation/Block\"");
         sb.append(" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"");
@@ -54,7 +54,7 @@ public class BlockTest extends BaseCase {
 
     public String getInstanceDefault(String elt, String type, boolean ext,
                                      boolean valid) {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         sb.append("<ns:" + elt +
                 "  xmlns:ns=\"http://xbean/scomp/derivation/FinalBlockDefault\"");
         sb.append(" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"");

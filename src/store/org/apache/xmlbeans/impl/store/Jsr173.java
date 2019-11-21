@@ -287,7 +287,7 @@ public class Jsr173
             if (!isStartElement())
                 throw new IllegalStateException();
 
-            StringBuffer sb = new StringBuffer();
+            StringBuilder sb = new StringBuilder();
 
             for ( ; ; )
             {

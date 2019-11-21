@@ -642,7 +642,7 @@ public class Random implements Runnable {
         if (c.isFinish() || c.isNamespace() || c.isText())
             return;
 
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
 
         for (int i = rnd(10); i >= 0; i--)
             sb.append(_chars[rnd(_chars.length)]);
@@ -700,7 +700,7 @@ public class Random implements Runnable {
         if (c.isAnyAttr() || c.isStartdoc())
             return;
 
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
 
         for (int i = rnd(10); i >= 0; i--)
             sb.append(_chars[rnd(_chars.length)]);

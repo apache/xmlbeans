@@ -120,7 +120,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
 
     String encodeString ( String s )
     {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
 
         sb.append( '"' );
 
@@ -696,7 +696,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
         if (sImpl == null)
             return "";
 
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
 
         InterfaceExtension[] exts = sImpl.getInterfaceExtensions();
         if (exts != null) for (int i = 0; i < exts.length; i++)
@@ -869,7 +869,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
             }
             return str;
         }
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         for (int i = 0; i < str.length(); i++)
         {
             char ch = str.charAt(i);

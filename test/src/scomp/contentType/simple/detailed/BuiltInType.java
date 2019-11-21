@@ -129,7 +129,7 @@ public class BuiltInType extends BaseCase {
     }
 
     private String buildString(String Elt, boolean leadSpace) {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         sb.append("<" + Elt);
         sb.append(" xmlns=\"http://xbean/scomp/contentType/builtIn/String\">");
         if (leadSpace)

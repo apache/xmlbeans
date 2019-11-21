@@ -309,7 +309,7 @@ public final class SOAPArrayType
      */
     public String soap11DimensionString(int[] actualDimensions)
     {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         for (int i = 0; i < _ranks.length; i++)
         {
             sb.append('[');
@@ -383,7 +383,7 @@ public final class SOAPArrayType
      */
     public String soap12DimensionString(int[] actualDimensions)
     {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
 
         for (int i = 0; i < actualDimensions.length; i++)
         {

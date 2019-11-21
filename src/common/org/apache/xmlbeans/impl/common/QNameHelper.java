@@ -108,7 +108,7 @@ public class QNameHelper
 
     public static String hexsafe(String s)
     {
-        StringBuffer result = new StringBuffer();
+        StringBuilder result = new StringBuilder();
         for (int i = 0; i < s.length(); i++)
         {
             char ch = s.charAt(i);
@@ -157,7 +157,7 @@ public class QNameHelper
             }
             byte[] digest = md.digest(inputBytes);
             assert(digest.length == 20); // SHA1 160 bits == 20 bytes
-            result = new StringBuffer(URI_SHA1_PREFIX);
+            result = new StringBuilder(URI_SHA1_PREFIX);
             for (int j = 0; j < digest.length; j++)
             {
                 result.append(hexdigits[(digest[j] >> 4) & 0xF]);

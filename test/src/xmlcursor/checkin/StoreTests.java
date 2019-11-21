@@ -427,9 +427,9 @@ public class StoreTests {
 
     private static class DocBuilder {
         Random r;
-        StringBuffer sb;
+        StringBuilder sb;
 
-        DocBuilder(Random _r, StringBuffer _sb) {
+        DocBuilder(Random _r, StringBuilder _sb) {
             r = _r;
             sb = _sb;
         }
@@ -679,7 +679,7 @@ public class StoreTests {
     }
 
     private String makeRandomDocument(Random r) {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
 
         DocBuilder db = new DocBuilder(r, sb);
 

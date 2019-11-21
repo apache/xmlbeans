@@ -388,7 +388,7 @@ public class JiraRegression1_50Test extends JiraTestBase {
         Thread.sleep(6000);
         System.out.println("Done with RegEx Threading Test...");
 
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         for (int i = 0; i < threads.length; i++) {
             if (threads[i].getException() != null)
                 sb.append(threads[i].getException().getMessage() + "\n");

@@ -349,7 +349,7 @@ public class XSTCTester
     
     public static String makeHTMLDescription(TestCase testCase)
     {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         sb.append("<a class=noline href='javascript:openWindow(\"");
         if (testCase.getSchemaFile() == null)
             sb.append("about:No schema");

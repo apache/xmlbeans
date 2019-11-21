@@ -53,7 +53,7 @@ public class CharUtilTests
     
     private String randomString ( )
     {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
 
         for ( int i = rnd( 128 ) ; i >= 0 ; i-- )
             sb.append( randomChar() );

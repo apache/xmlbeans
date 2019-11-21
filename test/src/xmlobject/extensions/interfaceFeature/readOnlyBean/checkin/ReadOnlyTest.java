@@ -46,7 +46,7 @@ public class ReadOnlyTest extends TestCase{
             items.setItemArray(it);
          po.setItems(items);
 
-         StringBuffer sb = new StringBuffer();
+         StringBuilder sb = new StringBuilder();
         sb.append(
                 "<pur:purchaseOrder xmlns:pur=\"http://xbean.interface_feature/readOnlyBean/PurchaseOrder\">");
 

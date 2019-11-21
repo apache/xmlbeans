@@ -682,7 +682,7 @@ public class QNameSetBuilder implements QNameSetSpecification, java.io.Serializa
      */ 
     public String toString()
     {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         sb.append("QNameSetBuilder");
         sb.append(_inverted ? "-(" : "+(");
         for (Iterator i = _includedURIs.iterator(); i.hasNext(); )

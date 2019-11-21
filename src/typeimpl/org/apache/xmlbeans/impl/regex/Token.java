@@ -1490,7 +1490,7 @@ class Token implements java.io.Serializable {
                     } else
                         ret = ch.toString(options)+ch2.toString(options);
                 } else {
-                    StringBuffer sb = new StringBuffer();
+                    StringBuilder sb = new StringBuilder();
                     for (int i = 0;  i < this.children.size();  i ++) {
                         sb.append(((Token)this.children.elementAt(i)).toString(options));
                     }
@@ -1504,7 +1504,7 @@ class Token implements java.io.Serializable {
                        && this.getChild(0).type == EMPTY) {
                 ret = this.getChild(1).toString(options)+"??";
             } else {
-                StringBuffer sb = new StringBuffer();
+                StringBuilder sb = new StringBuilder();
                 sb.append(((Token)this.children.elementAt(0)).toString(options));
                 for (int i = 1;  i < this.children.size();  i ++) {
                     sb.append((char)'|');
