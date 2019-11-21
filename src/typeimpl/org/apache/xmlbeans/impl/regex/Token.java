@@ -828,7 +828,7 @@ class Token implements java.io.Serializable {
                 //REVISIT: do we really need to support block names as in Unicode 3.1
                 //         or we can just create all the names in IsBLOCKNAME format (XML Schema REC)?
                 //
-                StringBuffer buffer = new StringBuffer(50);
+                StringBuilder buffer = new StringBuilder(50);
                 for (int i = 0;  i < Token.blockNames.length;  i ++) {
                     Token r1 = Token.createRange();
                     int location;
@@ -1441,10 +1441,10 @@ class Token implements java.io.Serializable {
             
             //System.err.println("Merge '"+previous+"' and '"+tok+"'.");
 
-            StringBuffer buffer;
+            StringBuilder buffer;
             int nextMaxLength = (tok.type == CHAR ? 2 : tok.getString().length());
             if (previous.type == CHAR) {        // Replace previous token by STRING
-                buffer = new StringBuffer(2 + nextMaxLength);
+                buffer = new StringBuilder(2 + nextMaxLength);
                 int ch = previous.getChar();
                 if (ch >= 0x10000)
                     buffer.append(REUtil.decomposeToSurrogates(ch));
@@ -1453,7 +1453,7 @@ class Token implements java.io.Serializable {
                 previous = Token.createString(null);
                 this.children.setElementAt(previous, size-1);
             } else {                            // STRING
-                buffer = new StringBuffer(previous.getString().length() + nextMaxLength);
+                buffer = new StringBuilder(previous.getString().length() + nextMaxLength);
                 buffer.append(previous.getString());
             }
 

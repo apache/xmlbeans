@@ -137,7 +137,7 @@ public class XmlSimpleList implements List, java.io.Serializable
         String first = stringValue(underlying.get(0));
         if (size == 1)
             return first;
-        StringBuffer result = new StringBuffer(first);
+        StringBuilder result = new StringBuilder(first);
         for (int i = 1; i < size; i++)
         {
             result.append(' ');

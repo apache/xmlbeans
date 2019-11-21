@@ -45,7 +45,7 @@ public class PerfResultUtil
 		final String HASH = "hash";
 		
 		FileReader reader = new FileReader(p_filename);
-		StringBuffer buff = new StringBuffer();
+		StringBuilder buff = new StringBuilder();
 		int c;
 		while( (c=reader.read()) != -1)
 		{

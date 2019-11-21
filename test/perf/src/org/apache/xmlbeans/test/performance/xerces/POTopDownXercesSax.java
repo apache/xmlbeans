@@ -129,7 +129,7 @@ public class POTopDownXercesSax
   public static class MyHandler extends DefaultHandler
   {
     private int _hash = 0;
-    private StringBuffer _buff;
+    private StringBuilder _buff;
     private String _uri;
     private String _prefix;
     private final String SES = "<";
@@ -153,7 +153,7 @@ public class POTopDownXercesSax
     // sax event handlers
     public void startDocument() throws SAXException
     {
-      _buff = new StringBuffer(Constants.initialBuffSize);
+      _buff = new StringBuilder(Constants.initialBuffSize);
     }
 
     /*

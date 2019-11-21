@@ -207,7 +207,7 @@ public class InterfaceExtensionImpl implements InterfaceExtension
 
     private static String listTypes(JClass[] types)
     {
-        StringBuffer result = new StringBuffer();
+        StringBuilder result = new StringBuilder();
         for (int i = 0; i < types.length; i++)
         {
             JClass type = types[i];
@@ -220,7 +220,7 @@ public class InterfaceExtensionImpl implements InterfaceExtension
 
     private static String listTypes(JParameter[] params)
     {
-        StringBuffer result = new StringBuffer();
+        StringBuilder result = new StringBuilder();
         for (int i = 0; i < params.length; i++)
         {
             JClass type = params[i].getType();
@@ -388,7 +388,7 @@ public class InterfaceExtensionImpl implements InterfaceExtension
             if (_signature!=null)
                 return _signature;
 
-            StringBuffer sb = new StringBuffer(60);
+            StringBuilder sb = new StringBuilder(60);
             sb.append(_name).append("(");
             for (int i = 0; i < _params.length; i++)
                 sb.append((i == 0 ? "" : " ,")).append(_params[i]);

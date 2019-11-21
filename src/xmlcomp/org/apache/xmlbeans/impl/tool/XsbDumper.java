@@ -192,7 +192,7 @@ public class XsbDumper
 
     static String particleflagsString(int flags)
     {
-        StringBuffer result = new StringBuffer();
+        StringBuilder result = new StringBuilder();
         if ((flags & FLAG_PART_SKIPPABLE) != 0) result.append("FLAG_PART_SKIPPABLE | ");
         if ((flags & FLAG_PART_FIXED) != 0) result.append("FLAG_PART_FIXED | ");
         if ((flags & FLAG_PART_NILLABLE) != 0) result.append("FLAG_PART_NILLABLE | ");
@@ -213,7 +213,7 @@ public class XsbDumper
 
     static String propertyflagsString(int flags)
     {
-        StringBuffer result = new StringBuffer();
+        StringBuilder result = new StringBuilder();
         if ((flags & FLAG_PROP_ISATTR) != 0) result.append("FLAG_PROP_ISATTR | ");
         if ((flags & FLAG_PROP_JAVASINGLETON) != 0) result.append("FLAG_PROP_JAVASINGLETON | ");
         if ((flags & FLAG_PROP_JAVAOPTIONAL) != 0) result.append("FLAG_PROP_JAVAOPTIONAL | ");
@@ -264,7 +264,7 @@ public class XsbDumper
 
     static String typeflagsString(int flags)
     {
-        StringBuffer result = new StringBuffer();
+        StringBuilder result = new StringBuilder();
         if ((flags & FLAG_SIMPLE_TYPE) != 0) result.append("FLAG_SIMPLE_TYPE | ");
         if ((flags & FLAG_DOCUMENT_TYPE) != 0) result.append("FLAG_DOCUMENT_TYPE | ");
         if ((flags & FLAG_ATTRIBUTE_TYPE) != 0) result.append("FLAG_ATTRIBUTE_TYPE | ");

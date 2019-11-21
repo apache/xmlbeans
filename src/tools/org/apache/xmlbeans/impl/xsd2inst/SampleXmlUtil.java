@@ -360,7 +360,7 @@ public class SampleXmlUtil
             return "";
             
         int i = pick(a.length);
-        StringBuffer sb = new StringBuffer(a[i]);
+        StringBuilder sb = new StringBuilder(a[i]);
         while (count-- > 0)
         {
             i += 1;
@@ -477,7 +477,7 @@ public class SampleXmlUtil
         {
             totalDigits = xmlD.getBigDecimalValue().intValue();
 
-            StringBuffer sb = new StringBuffer(totalDigits);
+            StringBuilder sb = new StringBuilder(totalDigits);
             for (int i = 0; i < totalDigits; i++)
                 sb.append('9');
             BigDecimal digitsLimit = new BigDecimal(sb.toString());
@@ -1157,7 +1157,7 @@ public class SampleXmlUtil
 
     private String printParticleType(int particleType)
     {
-        StringBuffer returnParticleType = new StringBuffer();
+        StringBuilder returnParticleType = new StringBuilder();
         returnParticleType.append("Schema Particle Type: ");
 
         switch (particleType)

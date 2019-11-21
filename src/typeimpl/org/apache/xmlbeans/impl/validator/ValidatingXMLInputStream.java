@@ -378,7 +378,7 @@ public final class ValidatingXMLInputStream
 
     private XMLInputStream _source;
     private Validator      _validator;
-    private StringBuffer   _text = new StringBuffer();
+    private StringBuilder   _text = new StringBuilder();
     private boolean        _finished;
     private String         _xsiType;
     private String         _xsiNil;

@@ -532,7 +532,7 @@ public class GDurationBuilder implements GDurationSpecification, java.io.Seriali
         // Minutes:        (?:(\d+)M)?
         // Seconds:        (?:(\d+(?:\.\d*)?|(?:.\d+)S)?
 
-        StringBuffer message = new StringBuffer(30);
+        StringBuilder message = new StringBuilder(30);
 
         if (duration.getSign() < 0)
             message.append('-');
@@ -608,7 +608,7 @@ public class GDurationBuilder implements GDurationSpecification, java.io.Seriali
 
         int point = intValStr.length() - scale - (isNegative ? 1 : 0);
 
-        StringBuffer sb = new StringBuffer(intValStr.length() + 2 + (point <= 0 ? (-point + 1) : 0));
+        StringBuilder sb = new StringBuilder(intValStr.length() + 2 + (point <= 0 ? (-point + 1) : 0));
         if (point <= 0)
         {
             // prepend zeros and a decimal point.
