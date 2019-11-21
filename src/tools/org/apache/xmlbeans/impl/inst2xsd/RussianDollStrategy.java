@@ -48,7 +48,7 @@ public class RussianDollStrategy
             XmlCursor xc = instance.newCursor();
             // xc on start doc
 
-            StringBuffer comment = new StringBuffer();
+            StringBuilder comment = new StringBuilder();
 
             while( !xc.isStart() )
             {
@@ -96,8 +96,8 @@ public class RussianDollStrategy
         Type elemType = Type.createUnnamedType(Type.SIMPLE_TYPE_SIMPLE_CONTENT); //assume simple, set later
         element.setType(elemType);
 
-        StringBuffer textBuff = new StringBuffer();
-        StringBuffer commentBuff = new StringBuffer();
+        StringBuilder textBuff = new StringBuilder();
+        StringBuilder commentBuff = new StringBuilder();
         List children = new ArrayList();
         List attributes = new ArrayList();
 

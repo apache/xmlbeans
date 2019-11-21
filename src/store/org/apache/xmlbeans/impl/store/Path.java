@@ -202,7 +202,7 @@ public abstract class Path
         }
         if (path == null)
         {
-            StringBuffer errMessage = new StringBuffer();
+            StringBuilder errMessage = new StringBuilder();
             if ((force & USE_XBEAN) != 0)
                 errMessage.append(" Trying XBeans path engine...");
             if ((force & USE_XQRL) != 0)

@@ -152,7 +152,7 @@ public class CodeGenUtil
 
         if (cp.length > 0)
         {
-            StringBuffer classPath = new StringBuffer();
+            StringBuilder classPath = new StringBuilder();
             // Add the output directory to the classpath.  We do this so that
             // javac will be able to find classes that were compiled
             // previously but are not in the list of sources this time.
@@ -230,8 +230,8 @@ public class CodeGenUtil
 
             final Process proc = Runtime.getRuntime().exec(strArgs);
 
-            StringBuffer errorBuffer = new StringBuffer();
-            StringBuffer outputBuffer = new StringBuffer();
+            StringBuilder errorBuffer = new StringBuilder();
+            StringBuilder outputBuffer = new StringBuilder();
 
             ThreadedReader out = new ThreadedReader(proc.getInputStream(), outputBuffer);
             ThreadedReader err = new ThreadedReader(proc.getErrorStream(), errorBuffer);
@@ -319,8 +319,8 @@ public class CodeGenUtil
 
             final Process proc = Runtime.getRuntime().exec(strArgs);
 
-            StringBuffer errorBuffer = new StringBuffer();
-            StringBuffer outputBuffer = new StringBuffer();
+            StringBuilder errorBuffer = new StringBuilder();
+            StringBuilder outputBuffer = new StringBuilder();
 
             ThreadedReader out = new ThreadedReader(proc.getInputStream(), outputBuffer);
             ThreadedReader err = new ThreadedReader(proc.getErrorStream(), errorBuffer);
@@ -400,7 +400,7 @@ public class CodeGenUtil
      */
     static private class ThreadedReader
     {
-        public ThreadedReader(InputStream stream, final StringBuffer output)
+        public ThreadedReader(InputStream stream, final StringBuilder output)
         {
             final BufferedReader reader =
                 new BufferedReader(new InputStreamReader(stream));

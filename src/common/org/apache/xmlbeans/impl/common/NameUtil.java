@@ -411,7 +411,7 @@ public class NameUtil
 
     private static String jls77String(String name)
     {
-        StringBuffer buf = new StringBuffer(name);
+        StringBuilder buf = new StringBuilder(name);
         for (int i = 0; i < name.length(); i++)
         {
             // We need to also make sure that our package names don't contain the

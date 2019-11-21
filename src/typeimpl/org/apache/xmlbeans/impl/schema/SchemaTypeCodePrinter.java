@@ -193,7 +193,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
         if (charset == null)
             throw new IllegalStateException("Default character set is null!");
         CharsetEncoder cEncoder = charset.newEncoder();
-        StringBuffer result = new StringBuffer();
+        StringBuilder result = new StringBuilder();
         int i;
         for (i = 0; i < s.length(); i++)
         {
@@ -1446,7 +1446,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
     {
         String shortName = sType.getShortJavaImplName();
         String baseClass = getBaseClass(sType);
-        StringBuffer interfaces = new StringBuffer();
+        StringBuilder interfaces = new StringBuilder();
         interfaces.append(sType.getFullJavaName().replace('$', '.'));
 
         if (sType.getSimpleVariety() == SchemaType.UNION) {
@@ -2794,7 +2794,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
 
     void printInterfaceMethodDecl(InterfaceExtension.MethodSignature method) throws IOException
     {
-        StringBuffer decl = new StringBuffer(60);
+        StringBuilder decl = new StringBuilder(60);
 
         decl.append("public ").append(method.getReturnType());
         decl.append(" ").append(method.getName()).append("(");
@@ -2818,7 +2818,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
 
     void printInterfaceMethodImpl(String handler, InterfaceExtension.MethodSignature method) throws IOException
     {
-        StringBuffer impl = new StringBuffer(60);
+        StringBuilder impl = new StringBuilder(60);
 
         if (!method.getReturnType().equals("void"))
             impl.append("return ");

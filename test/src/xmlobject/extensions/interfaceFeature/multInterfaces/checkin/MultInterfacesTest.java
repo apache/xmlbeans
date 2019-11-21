@@ -56,7 +56,7 @@ public class MultInterfacesTest extends TestCase {
 
         sb.append("<pur:items>");
 
-        StringBuffer sbContent = new StringBuffer();
+        StringBuilder sbContent = new StringBuilder();
         for (int i = 0; i < LEN; i++)
             sbContent.append("<pur:item><pur:USPrice>"+i+"</pur:USPrice></pur:item>");
 
@@ -74,7 +74,7 @@ public class MultInterfacesTest extends TestCase {
 
         poDoc.setMinPrice((double)price);
 
-        sbContent = new StringBuffer();
+        sbContent = new StringBuilder();
         for (int i = 0; i < LEN; i++)
            if( i< price )
             sbContent.append("<pur:item><pur:USPrice>"+price+"</pur:USPrice></pur:item>");

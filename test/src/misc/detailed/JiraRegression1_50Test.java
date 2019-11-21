@@ -37,7 +37,7 @@ public class JiraRegression1_50Test extends JiraTestBase {
     */
     @Test
     public void test_jira_xmlbeans02() throws Exception {
-        StringBuffer xmlstringbuf = new StringBuffer("<?xml version=\"1.0\" encoding=\"utf-8\"?>");
+        StringBuilder xmlstringbuf = new StringBuilder("<?xml version=\"1.0\" encoding=\"utf-8\"?>");
         xmlstringbuf.append("<test>");
         xmlstringbuf.append("<testchild attr=\"abcd\"> Jira02 </testchild>");
         xmlstringbuf.append("</test>");

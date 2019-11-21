@@ -23,53 +23,54 @@ import xmlobject.extensions.interfaceFeature.methodNameCollision.existing.IFoo;
 
 import org.apache.xmlbeans.XmlString;
 
-public class NameCollisionTest extends TestCase{
+public class NameCollisionTest extends TestCase {
 
-    public NameCollisionTest(String s){
+    public NameCollisionTest(String s) {
         super(s);
     }
 
-    public void test(){
-        CompanyDocument poDoc ;
+    public void test() {
+        CompanyDocument poDoc;
 
-              poDoc= CompanyDocument.Factory.newInstance();
-              CompanyType po=poDoc.addNewCompany();
+        poDoc = CompanyDocument.Factory.newInstance();
+        CompanyType po = poDoc.addNewCompany();
 
 
-              int LEN=20;
+        int LEN = 20;
 
-             StringBuffer sExpected=new StringBuffer();
-              sExpected.append("<com:company xmlns:com=" +
-                      "\"interfaceFeature/xbean/methodNameCollision/company\">" +
-                      "<departments>");
-             DepartmentType dept=po.addNewDepartments();
-             ConsultantType[] it= new ConsultantType[LEN];
-              for (int i=0; i < LEN; i++){
-                     it[i]=dept.addNewConsultant();
-                     XmlString s= XmlString.Factory.newInstance();
-                     it[i].setAge(50);
-                    it[i].setName4("BEAN Name"+i);
-                      sExpected.append("<consultant age=\"50\" name=\"BEAN Name"+i+"\"/>");
-              }
+        StringBuilder sExpected = new StringBuilder();
+        sExpected.append("<com:company xmlns:com=" +
+                "\"interfaceFeature/xbean/methodNameCollision/company\">" +
+                "<departments>");
+        DepartmentType dept = po.addNewDepartments();
+        ConsultantType[] it = new ConsultantType[LEN];
+        for (int i = 0; i < LEN; i++) {
+            it[i] = dept.addNewConsultant();
+            XmlString s = XmlString.Factory.newInstance();
+            it[i].setAge(50);
+            it[i].setName4("BEAN Name" + i);
+            sExpected.append("<consultant age=\"50\" name=\"BEAN Name" + i + "\"/>");
+        }
 
-            sExpected.append("</departments></com:company>");
+        sExpected.append("</departments></com:company>");
 
-            int[][] ints = new int[2][3];
-            for (int i = 0; i < ints.length; i++)
-                for (int j = 0; j < ints[i].length; j++)
-                    ints[i][j] = (i+1) * (j+1);
+        int[][] ints = new int[2][3];
+        for (int i = 0; i < ints.length; i++)
+            for (int j = 0; j < ints[i].length; j++)
+                ints[i][j] = (i + 1) * (j + 1);
 
-            IFoo.Inner inner = new IFoo.Inner() {
-                public String getValue() { return "inner value"; }
-            };
+        IFoo.Inner inner = new IFoo.Inner() {
+            public String getValue() {
+                return "inner value";
+            }
+        };
 
-             assertEquals( sExpected.toString(), poDoc.xmlText());
-             assertTrue( poDoc.validate() );
-             assertEquals("Name0", it[0].getName());
-             assertEquals("Name2: [1, 2, 3, ], [2, 4, 6, ], ",it[0].getName2(ints));
-             assertEquals("Name3: inner value",it[0].getName3(inner));
-            assertEquals("BEAN Name0",it[0].getName4());
-
+        assertEquals(sExpected.toString(), poDoc.xmlText());
+        assertTrue(poDoc.validate());
+        assertEquals("Name0", it[0].getName());
+        assertEquals("Name2: [1, 2, 3, ], [2, 4, 6, ], ", it[0].getName2(ints));
+        assertEquals("Name3: inner value", it[0].getName3(inner));
+        assertEquals("BEAN Name0", it[0].getName4());
 
 
     }

@@ -143,7 +143,7 @@ public class ValidatingXMLStreamReader
         implements XMLStreamReader
     {
         private boolean _hasBufferedText;
-        private StringBuffer _buffer = new StringBuffer();
+        private StringBuilder _buffer = new StringBuilder();
         private int _textEventType;
 
         void init(XMLStreamReader xmlstream)

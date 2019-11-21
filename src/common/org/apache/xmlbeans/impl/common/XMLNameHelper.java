@@ -76,7 +76,7 @@ public class XMLNameHelper
 
     public static String hexsafe(String s)
     {
-        StringBuffer result = new StringBuffer();
+        StringBuilder result = new StringBuilder();
         for (int i = 0; i < s.length(); i++)
         {
             char ch = s.charAt(i);

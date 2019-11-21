@@ -18,15 +18,13 @@ import java.io.FileInputStream;
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.FileNotFoundException;
-import java.lang.StringBuffer;
-import java.lang.Math;
 
 public class PerfUtil
 {
 
   // TODO: add more flavors
   public char[] createXmlData(String flavor, int size){
-    StringBuffer buff = new StringBuffer(size);
+    StringBuilder buff = new StringBuilder(size);
     final String rootStart = "<r>";
     final String rootEnd = "</r>";
     final String childStart = "<c>";
@@ -91,7 +89,7 @@ public class PerfUtil
   {
     char[] chars = createXmlData(flavor,size);
     System.gc();
-    StringBuffer buff = new StringBuffer(chars.length);
+    StringBuilder buff = new StringBuilder(chars.length);
     buff.append(chars);
     chars = null;
     System.gc();
@@ -115,7 +113,7 @@ public class PerfUtil
   {
     BufferedInputStream bis = 
       new BufferedInputStream(new FileInputStream(filename));
-    StringBuffer buff = new StringBuffer();
+    StringBuilder buff = new StringBuilder();
     int c;
     while( (c=bis.read()) != -1){
       buff.append((char)c);
@@ -128,7 +126,7 @@ public class PerfUtil
   {
     BufferedInputStream bis = 
       new BufferedInputStream(new FileInputStream(filename));
-    StringBuffer buff = new StringBuffer();
+    StringBuilder buff = new StringBuilder();
     int c;
     while( (c=bis.read()) != -1){
       buff.append((char)c);
@@ -139,7 +137,7 @@ public class PerfUtil
 
   public String createString(int size)
   {
-    StringBuffer buff = new StringBuffer();
+    StringBuilder buff = new StringBuilder();
     for(int i=0; i<size; i++)
     {
       buff.append("z");

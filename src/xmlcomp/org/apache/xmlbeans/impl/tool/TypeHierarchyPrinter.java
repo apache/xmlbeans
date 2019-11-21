@@ -217,7 +217,7 @@ public class TypeHierarchyPrinter
         // step 4: print the tree, starting from xs:anyType (i.e., XmlObject.type)
         List typesToPrint = new ArrayList();
         typesToPrint.add(XmlObject.type);
-        StringBuffer spaces = new StringBuffer();
+        StringBuilder spaces = new StringBuilder();
         while (!typesToPrint.isEmpty())
         {
             SchemaType sType = (SchemaType)typesToPrint.remove(typesToPrint.size() - 1);

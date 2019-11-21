@@ -510,7 +510,7 @@ public class SampleXmlUtil
             fractionDigits = xmlD.getBigDecimalValue().intValue();
             if (fractionDigits > 0)
             {
-                StringBuffer sb = new StringBuffer("0.");
+                StringBuilder sb = new StringBuilder("0.");
                 for (int i = 1; i < fractionDigits; i++)
                     sb.append('0');
                 sb.append('1');

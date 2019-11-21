@@ -199,7 +199,7 @@ public class Common
             boolean isValid = x.validate(options);
 
             if (!isValid) {
-                StringBuffer errorTxt = new StringBuffer("Invalid doc, expected a valid doc: ");
+                StringBuilder errorTxt = new StringBuilder("Invalid doc, expected a valid doc: ");
                 errorTxt.append("Instance(" + i + "): ");
                 errorTxt.append(x.xmlText());
                 errorTxt.append("Errors: ");

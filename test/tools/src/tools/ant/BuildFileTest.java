@@ -74,10 +74,10 @@ public abstract class BuildFileTest {
 
     protected Project project;
 
-    private StringBuffer logBuffer;
-    private StringBuffer fullLogBuffer;
-    private StringBuffer outBuffer;
-    private StringBuffer errBuffer;
+    private StringBuilder logBuffer;
+    private StringBuilder fullLogBuffer;
+    private StringBuilder outBuffer;
+    private StringBuilder errBuffer;
     private BuildException buildException;
 
 
@@ -186,8 +186,8 @@ public abstract class BuildFileTest {
         return buildException;
     }
 
-    private String cleanBuffer(StringBuffer buffer) {
-        StringBuffer cleanedBuffer = new StringBuffer();
+    private String cleanBuffer(StringBuilder buffer) {
+        StringBuilder cleanedBuffer = new StringBuilder();
         boolean cr = false;
         for (int i = 0; i < buffer.length(); i++) {
             char ch = buffer.charAt(i);
@@ -215,8 +215,8 @@ public abstract class BuildFileTest {
      * @param  filename name of project file to run
      */
     protected void configureProject(String filename) throws BuildException {
-        logBuffer = new StringBuffer();
-        fullLogBuffer = new StringBuffer();
+        logBuffer = new StringBuilder();
+        fullLogBuffer = new StringBuilder();
         project = new Project();
         project.init();
         project.setUserProperty( "ant.file" , new File(filename).getAbsolutePath() );
@@ -236,14 +236,14 @@ public abstract class BuildFileTest {
         try {
             sysOut.flush();
             sysErr.flush();
-            outBuffer = new StringBuffer();
+            outBuffer = new StringBuilder();
             PrintStream out = new PrintStream(new AntOutputStream());
             System.setOut(out);
-            errBuffer = new StringBuffer();
+            errBuffer = new StringBuilder();
             PrintStream err = new PrintStream(new AntOutputStream());
             System.setErr(err);
-            logBuffer = new StringBuffer();
-            fullLogBuffer = new StringBuffer();
+            logBuffer = new StringBuilder();
+            fullLogBuffer = new StringBuilder();
             buildException = null;
             project.executeTarget(targetName);
         } finally {
