@@ -24,7 +24,7 @@ public class FooHandler {
     }
 
     public static String getName2(XmlObject xo, int[][] ints){
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         buf.append("Name2: ");
         for (int i = 0; i < ints.length; i++)
         {

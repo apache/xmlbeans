@@ -768,7 +768,7 @@ public class Util
     public static String gobbleUpReader(Reader in)
             throws Exception
     {
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         int c;
 
         while (-1 != (c = in.read()))
@@ -1126,7 +1126,7 @@ public class Util
             return str;
 
         int last = 0;
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         Matcher m = p.matcher(str);
 
         while (m.find())

@@ -910,7 +910,7 @@ public final class Validator
 
         if (names.size() > 0)
         {
-            StringBuffer buf = new StringBuffer();
+            StringBuilder buf = new StringBuilder();
             for (Iterator iter = names.iterator(); iter.hasNext();)
             {
                 QName qname = (QName) iter.next();
@@ -957,7 +957,7 @@ public final class Validator
 
         if (names.size() > 0)
         {
-            StringBuffer buf = new StringBuffer();
+            StringBuilder buf = new StringBuilder();
             for (Iterator iter = names.iterator(); iter.hasNext();)
             {
                 QName qname = (QName) iter.next();

@@ -262,7 +262,7 @@ public class InterfaceExtensionImpl implements InterfaceExtension
 
     public String toString()
     {
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         buf.append("  static handler: ").append(_delegateToClassName).append("\n");
         buf.append("  interface: ").append(_interfaceClassName).append("\n");
         buf.append("  name set: ").append(_xbeanSet).append("\n");
@@ -401,7 +401,7 @@ public class InterfaceExtensionImpl implements InterfaceExtension
 
         public String toString()
         {
-            StringBuffer buf = new StringBuffer();
+            StringBuilder buf = new StringBuilder();
 
             buf.append(getReturnType()).append(" ").append(getSignature());
 

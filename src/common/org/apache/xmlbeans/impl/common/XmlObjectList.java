@@ -120,7 +120,7 @@ public class XmlObjectList
     }
 
     public String toString() {
-        StringBuffer b = new StringBuffer();
+        StringBuilder b = new StringBuilder();
 
         for (int i = 0 ; i < _objects.length ; i++)
         {

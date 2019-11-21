@@ -518,7 +518,7 @@ public class NameUtil
             }
         }
 
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         for (Iterator it = result.iterator(); it.hasNext(); )
         {
             String part = nonJavaKeyword(lowerCamelCase((String)it.next(), useJaxRpcRules, true));
@@ -549,7 +549,7 @@ public class NameUtil
      */
     public static String upperCaseUnderbar(String xml_name)
     {
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         List words = splitWords(xml_name, false);
 
         final int sz = words.size() - 1;
@@ -595,7 +595,7 @@ public class NameUtil
      */
     public static String upperCamelCase(String xml_name, boolean useJaxRpcRules)
     {
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         List words = splitWords(xml_name, useJaxRpcRules);
 
         if (words.size() > 0)
@@ -630,7 +630,7 @@ public class NameUtil
     public static String lowerCamelCase(String xml_name, boolean useJaxRpcRules,
                                         boolean fixGeneratedName)
     {
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         List words = splitWords(xml_name, useJaxRpcRules);
 
         if (words.size() > 0)

@@ -618,7 +618,7 @@ public class XMLBean extends MatchingTask
         if (mdefnamespaces == null) {
             return null;
         }
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         Iterator i = mdefnamespaces.iterator();
         while (i.hasNext()) {
             buf.append((String)i.next());
