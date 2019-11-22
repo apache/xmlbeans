@@ -235,7 +235,7 @@ public class XmlValidationError extends XmlError
         if (_fieldQName != null)
         {
             String msg = super.getMessage();
-            StringBuffer sb = new StringBuffer(msg.length() + 100);
+            StringBuilder sb = new StringBuilder(msg.length() + 100);
 
             sb.append(msg);
 

@@ -19,53 +19,54 @@ import prePostFeature.xbean.valueRestriction.company.*;
 import org.apache.xmlbeans.XmlString;
 
 
-public class ValueRestrictionTest extends TestCase{
+public class ValueRestrictionTest extends TestCase {
 
-      public  ValueRestrictionTest(String s){
-            super(s);
+    public ValueRestrictionTest(String s) {
+        super(s);
+    }
+
+    public void test() throws Exception {
+
+        CompanyDocument poDoc;
+
+        poDoc = CompanyDocument.Factory.newInstance();
+        CompanyType po = poDoc.addNewCompany();
+
+
+        int LEN = 20;
+
+        StringBuilder sExpected = new StringBuilder();
+        sExpected.append("<com:company xmlns:com=\"http://xbean.prePostFeature/ValueRestriction/company\"><departments>");
+        DepartmentType dept = po.addNewDepartments();
+        ConsultantType[] it = new ConsultantType[LEN];
+        for (int i = 0; i < LEN; i++) {
+            it[i] = dept.addNewConsultant();
+            XmlString s = XmlString.Factory.newInstance();
+            it[i].setAge(50);
+            sExpected.append("<consultant age=\"50\"/>");
         }
-    public void test() throws Exception{
 
-         CompanyDocument poDoc ;
+        sExpected.append("</departments></com:company>");
 
-         poDoc= CompanyDocument.Factory.newInstance();
-         CompanyType po=poDoc.addNewCompany();
-
-
-         int LEN=20;
-
-        StringBuffer sExpected=new StringBuffer();
-         sExpected.append("<com:company xmlns:com=\"http://xbean.prePostFeature/ValueRestriction/company\"><departments>");
-        DepartmentType dept=po.addNewDepartments();
-        ConsultantType[] it= new ConsultantType[LEN];
-         for (int i=0; i < LEN; i++){
-                it[i]=dept.addNewConsultant();
-                XmlString s= XmlString.Factory.newInstance();
-                it[i].setAge(50);
-                 sExpected.append("<consultant age=\"50\"/>");
-         }
-
-       sExpected.append("</departments></com:company>");
-
-        assertEquals( sExpected.toString(), poDoc.xmlText());
-        assertTrue( poDoc.validate() );
+        assertEquals(sExpected.toString(), poDoc.xmlText());
+        assertTrue(poDoc.validate());
 
 
-       xmlobject.extensions.prePostFeature.ValueRestriction.existing.SetterHandler.bReady=true;
+        xmlobject.extensions.prePostFeature.ValueRestriction.existing.SetterHandler.bReady = true;
 
 
-         for (int i=0; i< LEN; i++){
-                it[i].setAge(150);
-         }
+        for (int i = 0; i < LEN; i++) {
+            it[i].setAge(150);
+        }
 
-        assertEquals( sExpected.toString(), poDoc.xmlText());
-        assertTrue( poDoc.validate() );
+        assertEquals(sExpected.toString(), poDoc.xmlText());
+        assertTrue(poDoc.validate());
 
-        for (int i=0; i< LEN; i++){
-                it[i].setEmployeeAge(150);
-         }
-       assertTrue( sExpected.toString().equals(poDoc.xmlText()) );
-       assertTrue ( poDoc.validate() );
+        for (int i = 0; i < LEN; i++) {
+            it[i].setEmployeeAge(150);
+        }
+        assertTrue(sExpected.toString().equals(poDoc.xmlText()));
+        assertTrue(poDoc.validate());
     }
 
 }

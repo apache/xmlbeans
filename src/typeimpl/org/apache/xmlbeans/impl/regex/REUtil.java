@@ -101,7 +101,7 @@ public final class REUtil {
     }
 
     static final String createOptionString(int options) {
-        StringBuffer sb = new StringBuffer(9);
+        StringBuilder sb = new StringBuilder(9);
         if ((options & RegularExpression.PROHIBIT_FIXED_STRING_OPTIMIZATION) != 0)
             sb.append((char)'F');
         if ((options & RegularExpression.PROHIBIT_HEAD_CHARACTER_OPTIMIZATION) != 0)
@@ -129,7 +129,7 @@ public final class REUtil {
 
     static String stripExtendedComment(String regex) {
         int len = regex.length();
-        StringBuffer buffer = new StringBuffer(len);
+        StringBuilder buffer = new StringBuilder(len);
         int offset = 0;
         while (offset < len) {
             int ch = regex.charAt(offset++);
@@ -298,12 +298,12 @@ public final class REUtil {
      */
     public static String quoteMeta(String literal) {
         int len = literal.length();
-        StringBuffer buffer = null;
+        StringBuilder buffer = null;
         for (int i = 0;  i < len;  i ++) {
             int ch = literal.charAt(i);
             if (".*+?{[()|\\^$".indexOf(ch) >= 0) {
                 if (buffer == null) {
-                    buffer = new StringBuffer(i+(len-i)*2);
+                    buffer = new StringBuilder(i+(len-i)*2);
                     if (i > 0)  buffer.append(literal.substring(0, i));
                 }
                 buffer.append((char)'\\');

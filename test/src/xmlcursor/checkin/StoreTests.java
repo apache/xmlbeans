@@ -315,7 +315,7 @@ public class StoreTests {
             return _sb.toString();
         }
 
-        private StringBuffer _sb = new StringBuffer();
+        private StringBuilder _sb = new StringBuilder();
     }
 
     private void doTestSaxSaver(String xml)

@@ -1635,7 +1635,7 @@ public class StscChecker
     
     private static String printParticles(SchemaParticle[] parts, int start, int end)
     {
-        StringBuffer buf = new StringBuffer(parts.length * 30);
+        StringBuilder buf = new StringBuilder(parts.length * 30);
         for (int i = start; i < end; )
         {
             buf.append(printParticle(parts[i]));

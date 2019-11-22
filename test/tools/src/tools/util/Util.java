@@ -78,7 +78,7 @@ public class Util
     {
         try
         {
-            StringBuffer sb = new StringBuffer(_charBuffer.length);
+            StringBuilder sb = new StringBuilder(_charBuffer.length);
             int amount = 0;
 
             while (true)
@@ -736,7 +736,7 @@ public class Util
             hexStringFromBytes(byte[] bytes)
     {
         String hex = "0123456789abcdef";
-        StringBuffer buf = new StringBuffer(2 * bytes.length);
+        StringBuilder buf = new StringBuilder(2 * bytes.length);
 
         for (int i = 0; i < bytes.length; i++)
         {
@@ -805,7 +805,7 @@ public class Util
         int lenIn = sIn.length();
         int iIn;
 
-        StringBuffer outBuf = new StringBuffer(lenIn + lenIn / 4);  // Plenty of room for extra characters
+        StringBuilder outBuf = new StringBuilder(lenIn + lenIn / 4);  // Plenty of room for extra characters
         char c;
 
         for (iIn = 0; iIn < lenIn; ++iIn)
@@ -1054,7 +1054,7 @@ public class Util
         if (map == null)
             return str;
 
-        StringBuffer result = new StringBuffer();
+        StringBuilder result = new StringBuilder();
 
         int pos = 0;
         int open = -1;
@@ -1165,7 +1165,7 @@ public class Util
     public static String escapeProperty(String s)
     {
         int len = s.length();
-        StringBuffer buf = new StringBuffer(len * 2);
+        StringBuilder buf = new StringBuilder(len * 2);
 
         for (int i = 0; i < len; ++i)
         {

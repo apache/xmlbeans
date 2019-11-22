@@ -163,13 +163,13 @@ public class SchemaEnum
         PriceSummaryDocument.PriceSummary summary = summaryDoc.getPriceSummary();
         PriceType[] priceElements = summary.getPriceArray();
 
-        StringBuffer responseBuffer = new StringBuffer();
+        StringBuilder responseBuffer = new StringBuilder();
 
         // Create string buffers to hold the sorted results of the values
         // retrieved.
-        StringBuffer zeroBuffer = new StringBuffer("\nItems under 10 dollars: \n");
-        StringBuffer tenBuffer = new StringBuffer("\nItems between 10 and 20 dollars: \n");
-        StringBuffer twentyBuffer = new StringBuffer("\nItems more than 20 dollars: \n");
+        StringBuilder zeroBuffer = new StringBuilder("\nItems under 10 dollars: \n");
+        StringBuilder tenBuffer = new StringBuilder("\nItems between 10 and 20 dollars: \n");
+        StringBuilder twentyBuffer = new StringBuilder("\nItems more than 20 dollars: \n");
 
         // Loop through the price elements, extracting the array of <item> child
         // elements in each.

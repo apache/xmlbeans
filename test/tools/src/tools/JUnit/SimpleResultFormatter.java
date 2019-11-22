@@ -109,7 +109,7 @@ public class SimpleResultFormatter implements JUnitResultFormatter {
      */
     public void endTestSuite(JUnitTest suite) throws BuildException {
         String newLine = System.getProperty("line.separator");
-        StringBuffer sb = new StringBuffer("Testsuite: ");
+        StringBuilder sb = new StringBuilder("Testsuite: ");
         sb.append(suite.getName());
         sb.append(newLine);
         sb.append("Tests run: ");

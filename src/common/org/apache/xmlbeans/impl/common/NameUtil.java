@@ -654,7 +654,7 @@ public class NameUtil
         if (s.length() == 0 || Character.isUpperCase(s.charAt(0)))
             return s;
 
-        StringBuffer buf = new StringBuffer(s);
+        StringBuilder buf = new StringBuilder(s);
         buf.setCharAt(0, Character.toUpperCase(buf.charAt(0)));
         return buf.toString();
     }

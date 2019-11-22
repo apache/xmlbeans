@@ -316,7 +316,7 @@ public class XmlResultFormatter implements JUnitResultFormatter {
             if (index < 0) index = exp.length();
             exo.setErrorname(exp.substring(0, index));
         }
-        StringBuffer output = new StringBuffer();
+        StringBuilder output = new StringBuilder();
         String eol = System.getProperty("line.separator");
         output.append("[STDOUT]").append(eol);
         output.append(rec.getSysout()).append(eol);

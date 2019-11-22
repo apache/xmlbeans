@@ -194,7 +194,7 @@ public final class XsTypeConverter
         int begin = (value.signum() < 0) ? 1 : 0;
         int delta = scale;
         // We take space for all digits, plus a possible decimal point, plus 'scale'
-        StringBuffer result = new StringBuffer(intStr.length() + 1 + Math.abs(scale));
+        StringBuilder result = new StringBuilder(intStr.length() + 1 + Math.abs(scale));
 
         if (begin == 1)
         {
@@ -765,7 +765,7 @@ public final class XsTypeConverter
         } */
 
         // Per XMLSchema spec allow spaces inside URIs
-        StringBuffer s = new StringBuffer(lexical_value.toString());
+        StringBuilder s = new StringBuilder(lexical_value.toString());
         for (int ic = 0; ic<URI_CHARS_TO_BE_REPLACED.length; ic++)
         {
             int i = 0;

@@ -59,15 +59,14 @@ public class BaseCase {
                            
            return false;
         }
-        StringBuffer errMessage=
-                new StringBuffer();
+        StringBuilder errMessage = new StringBuilder();
         for (int i = 0; i < errorList.size(); i++) {
             XmlError error = (XmlError) errorList.get(i);
             if ( error.getErrorCode() == null )
               errMessage.append("Kevin needs a code here "+error.getMessage()+"\n");
 
             if (!expected[i].equals(error.getErrorCode())){
-                if (errMessage.length() >0)
+                if (errMessage.length() > 0)
                     System.err.println(errMessage);
                 ArrayList exp=new ArrayList();
 
@@ -80,7 +79,7 @@ public class BaseCase {
 
     public String stringOfCodes(String[] errorCodes, ArrayList actual_errorCodes)
     {
-        StringBuffer res=new StringBuffer();
+        StringBuilder res = new StringBuilder();
         res.append("\n Expected codes:\n");
         int i=0;
         for (;i < errorCodes.length; i++ )

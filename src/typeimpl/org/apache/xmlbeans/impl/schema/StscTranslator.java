@@ -596,7 +596,7 @@ public class StscTranslator
                     // Error! Circular redefinition
                     if (!errorReported)
                     {
-                        StringBuffer fileNameList = new StringBuffer();
+                        StringBuilder fileNameList = new StringBuilder();
                         XmlObject location = null;
                         for (int i = 0; i < n; i++)
                             if (specificRedefines[i] != null)

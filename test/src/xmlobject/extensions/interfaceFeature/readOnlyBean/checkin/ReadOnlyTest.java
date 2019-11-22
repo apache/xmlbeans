@@ -15,44 +15,46 @@
 package xmlobject.extensions.interfaceFeature.readOnlyBean.checkin;
 
 
-import interfaceFeature.xbean.readOnlyBean.purchaseOrder.PurchaseOrderDocument ;
+import interfaceFeature.xbean.readOnlyBean.purchaseOrder.PurchaseOrderDocument;
 import interfaceFeature.xbean.readOnlyBean.purchaseOrder.PurchaseOrderType;
 import interfaceFeature.xbean.readOnlyBean.purchaseOrder.Items;
 
 
 import java.math.BigDecimal;
+
 import junit.framework.*;
 
-public class ReadOnlyTest extends TestCase{
+public class ReadOnlyTest extends TestCase {
 
 
-      public  ReadOnlyTest(String s){
-            super(s);
+    public ReadOnlyTest(String s) {
+        super(s);
+    }
+
+    public void test() {
+
+        PurchaseOrderDocument poDoc;
+
+        poDoc = PurchaseOrderDocument.Factory.newInstance();
+        PurchaseOrderType po = poDoc.addNewPurchaseOrder();
+        int LEN = 20;
+
+        Items.Item[] it = new Items.Item[LEN];
+        for (int i = 0; i < LEN; i++) {
+            it[i] = Items.Item.Factory.newInstance();
+            it[i].setUSPrice(new BigDecimal("" + 4));
         }
-    public void test(){
+        Items items = Items.Factory.newInstance();
+        items.setItemArray(it);
+        po.setItems(items);
 
-         PurchaseOrderDocument poDoc ;
-
-         poDoc= PurchaseOrderDocument.Factory.newInstance();
-         PurchaseOrderType po=poDoc.addNewPurchaseOrder();
-         int LEN=20;
-
-         Items.Item[] it= new Items.Item[LEN];
-         for (int i=0; i< LEN; i++){
-                it[i]=Items.Item.Factory.newInstance();
-                it[i].setUSPrice(new BigDecimal(""+ 4 ));
-         }
-         Items items= Items.Factory.newInstance();
-            items.setItemArray(it);
-         po.setItems(items);
-
-         StringBuilder sb = new StringBuilder();
+        StringBuilder sb = new StringBuilder();
         sb.append(
                 "<pur:purchaseOrder xmlns:pur=\"http://xbean.interface_feature/readOnlyBean/PurchaseOrder\">");
 
         sb.append("<pur:items>");
 
-        StringBuffer sbContent = new StringBuffer();
+        StringBuilder sbContent = new StringBuilder();
         for (int i = 0; i < LEN; i++)
             sbContent.append("<pur:item><pur:USPrice>4</pur:USPrice></pur:item>");
 
@@ -63,18 +65,18 @@ public class ReadOnlyTest extends TestCase{
                 sbContent.toString() +
                 sb.subSequence(pos, sb.length());
 
-        assertEquals( sExpected, poDoc.xmlText());
+        assertEquals(sExpected, poDoc.xmlText());
 
-        try{
+        try {
             poDoc.setPrice(10);
 
-        }catch (Exception t){
+        } catch (Exception t) {
             t.printStackTrace(System.err);
             System.exit(-1);
         }
 
 
-       assertTrue ( !poDoc.validate() );
+        assertTrue(!poDoc.validate());
     }
-   
+
 }

@@ -24,24 +24,24 @@ public class XmlComparator
 {
     public static class Diagnostic
     {
-        private StringBuffer message = null;
+        private StringBuilder message = null;
 
         private void add(String s)
         {
-            if (message==null)
-                 message = new StringBuffer();
+            if (message == null)
+                 message = new StringBuilder();
 
             message.append(s).append("\n");
         }
 
         public boolean hasMessage()
         {
-            return message!=null;
+            return message != null;
         }
 
         public String toString()
         {
-            return (message==null ? null : message.toString());
+            return (message == null ? null : message.toString());
         }
 
         public static void add(Diagnostic diag, String s)
