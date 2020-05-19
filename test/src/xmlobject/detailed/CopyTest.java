@@ -25,7 +25,7 @@ public class CopyTest {
     @Test
     public void testXobjTypeOnDomNodeCopy() throws Exception {
         XmlObject o = XmlObject.Factory.parse("<foo><a/></foo>");
-        String xobjOrgClassName = "org.apache.xmlbeans.impl.store.Xobj$DocumentXobj";
+        String xobjOrgClassName = "org.apache.xmlbeans.impl.store.DocumentXobj";
         assertEquals("Invalid Type!", o.getDomNode().getClass().getName(), xobjOrgClassName);
 
         XmlObject o2 = o.copy();
@@ -33,8 +33,8 @@ public class CopyTest {
         System.out.println("DocXobj:" + xobjCopyClassName);
 
         // check for the expected type
-        assertEquals("Invalid Type!", "org.apache.xmlbeans.impl.store.Xobj$DocumentXobj", xobjOrgClassName);
-        assertEquals("Invalid Type!", "org.apache.xmlbeans.impl.store.Xobj$DocumentXobj", xobjCopyClassName);
+        assertEquals("Invalid Type!", "org.apache.xmlbeans.impl.store.DocumentXobj", xobjOrgClassName);
+        assertEquals("Invalid Type!", "org.apache.xmlbeans.impl.store.DocumentXobj", xobjCopyClassName);
     }
 
     // Test the same for a simple untyped XmlObject copy
@@ -46,7 +46,6 @@ public class CopyTest {
         assertEquals("Invalid Type!", untypedXobjClass, o.getClass().getName());
 
         XmlObject o2 = o.copy();
-        String xobjClass = o2.getClass().getName();
         // type should be unchanged after the copy
         assertEquals("Invalid Type!", untypedXobjClass, o2.getClass().getName());
     }

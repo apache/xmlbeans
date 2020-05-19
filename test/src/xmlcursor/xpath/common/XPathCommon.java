@@ -19,6 +19,7 @@ import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
+import org.junit.Assert;
 import tools.xml.XmlComparator;
 
 import static org.junit.Assert.assertTrue;
@@ -98,41 +99,20 @@ public class XPathCommon {
         check(rObj.newCursor(), rSet.newCursor());
     }
 
-    public static void compare(XmlObject[] rObj, XmlObject[] rSet) throws Exception {
-
-        if (rObj.length != rSet.length)
-            throw new Exception(
-                "Comparison Failed\n " +
-                "Actual Count: " + rObj.length + " Expected Count: " + rSet.length + "\n" +
-                "Actual:" + getPrint(rObj) + "\nExpected:" + getPrint(rSet));
-
-        for (int i = 0; i < rObj.length; i++) {
+    public static void compare(XmlObject[] rObj, XmlObject[] rSet) {
+        for (int i=0; i < Math.min(rObj.length,rSet.length); i++) {
             check(rObj[i].newCursor(), rSet[i].newCursor());
         }
+
+        Assert.assertEquals(rSet.length, rObj.length);
     }
 
-    public static void compare(XmlCursor rObj, XmlObject[] rSet) throws Exception {
-        if (rObj.getSelectionCount() != rSet.length) {
-            StringBuilder message = new StringBuilder();
-
-            message.append("EXPECTED ==\n");
-            display(rSet);
-            message.append("ACTUAL ==\n");
-            display(rObj);
-
-            throw new Exception(
-                message.toString() +
-                "\nCompare failure == Result Count was not equal to actual count\n" +
-                "Actual Count: " + rObj.getSelectionCount() + " Expected Count: " + rSet.length + "\n" +
-                "Actual:" + getPrint(rObj) + "\nExpected:" + getPrint(rSet));
-        }
-        int i = 0;
-        while (rObj.toNextSelection()) {
-            //System.out.println("[cursor-" + i + "] -- " + rObj.xmlText(xm));
-            //System.out.println("[Expected-" + i + "] -- " + rSet[i].xmlText(xm));
-
+    public static void compare(XmlCursor rObj, XmlObject[] rSet) {
+        int curLen = rObj.getSelectionCount();
+        for (int i=0; i < Math.min(curLen,rSet.length) && rObj.toNextSelection(); i++) {
             check(rObj, rSet[i].newCursor());
-            i++;
         }
+
+        Assert.assertEquals(rSet.length, curLen);
     }
 }

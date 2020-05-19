@@ -22,7 +22,8 @@ import org.apache.xmlbeans.XmlCursor.TokenType;
 import org.apache.xmlbeans.XmlObject;
 import org.junit.After;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 public class BasicCursorTestCase {
      protected XmlObject m_xo;
@@ -35,38 +36,6 @@ public class BasicCursorTestCase {
             m_xc.dispose();
             m_xc = null;
         }
-    }
-
-    /*
-    public void testRuntimeClassPath() throws Exception
-    {
-        fail(System.getProperty("java.class.path"));
-    }
-    */
-
-    /**
-     * Method testFilesInClassPath
-     *
-     * tests for files directory in local environment:
-     *                  ${cajun.dir}/knex/test/local/files
-     *   or automation environment:
-     *                  ${install.tempdir}/testcase/files
-     *
-     * If these directories are not in runtime classpath, locating files
-     * using getSystemResource() will fail causing false test failures.
-     *
-     * TODO: we should really make these identical as the test isn't foolproof
-     *
-     * @throws   Exception
-     *
-     */
-    public void testForFilesInClassPath() throws Exception {
-        String sClassPath = System.getProperty("java.class.path");
-        int i = sClassPath.indexOf("schemajars");
-        if (i < 0) {
-            fail("files directory not found in runtime classpath.  Ant script error!");
-        }
-        assertTrue(true);
     }
 
     public void toNextTokenOfType(XmlCursor xc, TokenType tt) throws IllegalArgumentException {

@@ -15,11 +15,10 @@
 
 package org.apache.xmlbeans.impl.config;
 
-import javax.xml.namespace.QName;
-
 import org.apache.xmlbeans.UserType;
-import org.apache.xmlbeans.impl.jam.JamClassLoader;
 import org.apache.xmlbeans.impl.xb.xmlconfig.Usertypeconfig;
+
+import javax.xml.namespace.QName;
 
 public class UserTypeImpl implements UserType
 {
@@ -28,7 +27,7 @@ public class UserTypeImpl implements UserType
     private String _staticHandler;
 
 
-    static UserTypeImpl newInstance(JamClassLoader loader, Usertypeconfig cfgXO)
+    static UserTypeImpl newInstance(Parser loader, Usertypeconfig cfgXO)
     {
         UserTypeImpl result = new UserTypeImpl();
 
@@ -44,7 +43,7 @@ public class UserTypeImpl implements UserType
     }
 
 
-    public String getJavaName() 
+    public String getJavaName()
     {
         return _javaName;
     }

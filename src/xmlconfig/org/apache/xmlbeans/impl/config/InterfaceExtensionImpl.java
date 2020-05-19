@@ -15,27 +15,31 @@
 
 package org.apache.xmlbeans.impl.config;
 
-import org.apache.xmlbeans.impl.xb.xmlconfig.Extensionconfig;
+import com.github.javaparser.ast.NodeList;
+import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
+import com.github.javaparser.ast.body.MethodDeclaration;
+import com.github.javaparser.ast.body.Parameter;
+import com.github.javaparser.ast.type.ReferenceType;
 import org.apache.xmlbeans.InterfaceExtension;
 import org.apache.xmlbeans.XmlObject;
-import org.apache.xmlbeans.impl.jam.JMethod;
-import org.apache.xmlbeans.impl.jam.JClass;
-import org.apache.xmlbeans.impl.jam.JParameter;
-import org.apache.xmlbeans.impl.jam.JamClassLoader;
+import org.apache.xmlbeans.impl.xb.xmlconfig.Extensionconfig;
 
-public class InterfaceExtensionImpl implements InterfaceExtension
-{
+import java.util.Arrays;
+import java.util.Objects;
+import java.util.stream.Stream;
+
+public class InterfaceExtensionImpl implements InterfaceExtension {
     private NameSet _xbeanSet;
     private String _interfaceClassName;
     private String _delegateToClassName;
     private MethodSignatureImpl[] _methods;
 
-    static InterfaceExtensionImpl newInstance(JamClassLoader loader, NameSet xbeanSet, Extensionconfig.Interface intfXO)
-    {
+    static InterfaceExtensionImpl newInstance(Parser loader, NameSet xbeanSet, Extensionconfig.Interface intfXO) {
         InterfaceExtensionImpl result = new InterfaceExtensionImpl();
 
         result._xbeanSet = xbeanSet;
-        JClass interfaceJClass = validateInterface(loader, intfXO.getName(), intfXO);
+
+        ClassOrInterfaceDeclaration interfaceJClass = validateInterface(loader, intfXO.getName(), intfXO);
 
 
         if (interfaceJClass == null)
@@ -44,13 +48,13 @@ public class InterfaceExtensionImpl implements InterfaceExtension
             return null;
         }
 
-        result._interfaceClassName = interfaceJClass.getQualifiedName();
+        result._interfaceClassName = interfaceJClass.getFullyQualifiedName().get();
 
         result._delegateToClassName = intfXO.getStaticHandler();
-        JClass delegateJClass = validateClass(loader, result._delegateToClassName, intfXO);
+        ClassOrInterfaceDeclaration delegateJClass = validateClass(loader, result._delegateToClassName, intfXO);
 
-        if (delegateJClass == null) // no HandlerClass
-        {
+        if (delegateJClass == null) {
+            // no HandlerClass
             BindingConfigImpl.warning("Handler class '" + intfXO.getStaticHandler() + "' not found on classpath, skip validation.", intfXO);
             return result;
         }
@@ -61,207 +65,148 @@ public class InterfaceExtensionImpl implements InterfaceExtension
         return result;
     }
 
-    private static JClass validateInterface(JamClassLoader loader, String intfStr, XmlObject loc)
-    {
+    private static ClassOrInterfaceDeclaration validateInterface(Parser loader, String intfStr, XmlObject loc) {
         return validateJava(loader, intfStr, true, loc);
     }
 
-    static JClass validateClass(JamClassLoader loader, String clsStr, XmlObject loc)
-    {
+    static ClassOrInterfaceDeclaration validateClass(Parser loader, String clsStr, XmlObject loc) {
         return validateJava(loader, clsStr, false, loc);
     }
 
-    static JClass validateJava(JamClassLoader loader, String clsStr, boolean isInterface, XmlObject loc)
-    {
-        if (loader==null)
+    static ClassOrInterfaceDeclaration validateJava(Parser loader, String clsStr, boolean isInterface, XmlObject loc) {
+        if (loader==null) {
             return null;
+        }
 
         final String ent = isInterface ? "Interface" : "Class";
-        JClass cls = loader.loadClass(clsStr);
+        ClassOrInterfaceDeclaration cls = loader.loadSource(clsStr);
 
-        if (cls==null || cls.isUnresolvedType())
-        {
+        if (cls==null) {
             BindingConfigImpl.error(ent + " '" + clsStr + "' not found.", loc);
             return null;
         }
 
-        if ( (isInterface && !cls.isInterface()) ||
-                (!isInterface && cls.isInterface()))
-        {
-            BindingConfigImpl.error("'" + clsStr + "' must be " +
-                (isInterface ? "an interface" : "a class") + ".", loc);
+        if ( isInterface != cls.isInterface() ) {
+            BindingConfigImpl.error("'" + clsStr + "' must be " + (isInterface ? "an interface" : "a class") + ".", loc);
         }
 
-        if (!cls.isPublic())
-        {
+        if (!cls.isPublic()) {
             BindingConfigImpl.error(ent + " '" + clsStr + "' is not public.", loc);
         }
 
         return cls;
     }
 
-    private boolean validateMethods(JClass interfaceJClass, JClass delegateJClass, XmlObject loc)
-    {
-        //assert _delegateToClass != null : "Delegate to class handler expected.";
-        boolean valid = true;
+    private boolean validateMethods(ClassOrInterfaceDeclaration interfaceJClass, ClassOrInterfaceDeclaration delegateJClass, XmlObject loc) {
+        _methods = interfaceJClass.getMethods().stream()
+            .map(m -> validateMethod(interfaceJClass, delegateJClass, m, loc))
+            .map(m -> m == null ? null : new MethodSignatureImpl(getStaticHandler(), m))
+            .toArray(MethodSignatureImpl[]::new);
 
-        JMethod[] interfaceMethods = interfaceJClass.getMethods();
-        _methods = new MethodSignatureImpl[interfaceMethods.length];
-
-        for (int i = 0; i < interfaceMethods.length; i++)
-        {
-            JMethod method = validateMethod(interfaceJClass, delegateJClass, interfaceMethods[i], loc);
-            if (method != null)
-                _methods[i] = new MethodSignatureImpl(getStaticHandler(), method);
-            else
-                valid = false;
-        }
-
-
-        return valid;
+        return Stream.of(_methods).allMatch(Objects::nonNull);
     }
 
-    private JMethod validateMethod(JClass interfaceJClass, JClass delegateJClass, JMethod method, XmlObject loc)
-    {
-        String methodName = method.getSimpleName();
-        JParameter[] params = method.getParameters();
-        JClass returnType = method.getReturnType();
+    private MethodDeclaration validateMethod(ClassOrInterfaceDeclaration interfaceJClass,
+         ClassOrInterfaceDeclaration delegateJClass, MethodDeclaration method, XmlObject loc) {
 
-        JClass[] delegateParams = new JClass[params.length+1];
-        delegateParams[0] = returnType.forName("org.apache.xmlbeans.XmlObject");
-        for (int i = 1; i < delegateParams.length; i++)
-        {
-            delegateParams[i] = params[i-1].getType();
-        }
+        String methodName = method.getName().asString();
 
-        JMethod handlerMethod = null;
-        handlerMethod = getMethod(delegateJClass, methodName, delegateParams);
-        if (handlerMethod==null)
-        {
-            BindingConfigImpl.error("Handler class '" + delegateJClass.getQualifiedName() + "' does not contain method " + methodName + "(" + listTypes(delegateParams) + ")", loc);
+        String[] delegateParams = Stream.concat(
+            Stream.of("org.apache.xmlbeans.XmlObject"),
+            Stream.of(paramStrings(method.getParameters()))
+        ).toArray(String[]::new);
+
+        MethodDeclaration handlerMethod = getMethod(delegateJClass, methodName, delegateParams);
+
+        String delegateFQN = delegateJClass.getFullyQualifiedName().orElse("");
+        String methodFQN =  methodName + "(" + method.getParameters().toString() + ")";
+        String interfaceFQN = interfaceJClass.getFullyQualifiedName().orElse("");
+
+        if (handlerMethod == null) {
+            BindingConfigImpl.error("Handler class '" + delegateFQN + "' does not contain method " + methodFQN, loc);
             return null;
         }
 
         // check for throws exceptions
-        JClass[] intfExceptions = method.getExceptionTypes();
-        JClass[] delegateExceptions = handlerMethod.getExceptionTypes();
-        if ( delegateExceptions.length!=intfExceptions.length )
-        {
-            BindingConfigImpl.error("Handler method '" + delegateJClass.getQualifiedName() + "." + methodName + "(" + listTypes(delegateParams) +
-                ")' must declare the same exceptions as the interface method '" + interfaceJClass.getQualifiedName() + "." + methodName + "(" + listTypes(params), loc);
+        if (!Arrays.equals(exceptionStrings(method), exceptionStrings(handlerMethod))) {
+            BindingConfigImpl.error("Handler method '" + delegateFQN + "." + methodName + "' must declare the same " +
+            "exceptions as the interface method '" + interfaceFQN + "." + methodFQN, loc);
             return null;
         }
 
-        for (int i = 0; i < delegateExceptions.length; i++)
-        {
-            if ( delegateExceptions[i]!=intfExceptions[i] )
-            {
-                BindingConfigImpl.error("Handler method '" + delegateJClass.getQualifiedName() + "." + methodName + "(" + listTypes(delegateParams) +
-                    ")' must declare the same exceptions as the interface method '" + interfaceJClass.getQualifiedName() + "." + methodName + "(" + listTypes(params), loc);
-                return null;
-            }
-        }
-
-        if (!handlerMethod.isPublic() || !handlerMethod.isStatic())
-        {
-            BindingConfigImpl.error("Method '" + delegateJClass.getQualifiedName() + "." + methodName + "(" + listTypes(delegateParams) + ")' must be declared public and static.", loc);
+        if (!handlerMethod.isPublic() || !handlerMethod.isStatic()) {
+            BindingConfigImpl.error("Method '" + delegateJClass.getFullyQualifiedName() + "." +
+            methodFQN + "' must be declared public and static.", loc);
             return null;
         }
 
-        if (!returnType.equals(handlerMethod.getReturnType()))
-        {
-            BindingConfigImpl.error("Return type for method '" + handlerMethod.getReturnType() + " " + delegateJClass.getQualifiedName() +
-                    "." + methodName + "(" + listTypes(delegateParams) + ")' does not match the return type of the interface method :'" + returnType + "'.", loc);
+        String returnType = method.getTypeAsString();
+        if (!returnType.equals(handlerMethod.getTypeAsString())) {
+            BindingConfigImpl.error("Return type for method '" + returnType + " " + delegateFQN + "." + methodName +
+            "(...)' does not match the return type of the interface method :'" + returnType + "'.", loc);
             return null;
         }
 
         return method;
     }
 
-    static JMethod getMethod(JClass cls, String name, JClass[] paramTypes)
-    {
-        JMethod[] methods = cls.getMethods();
-        for (int i = 0; i < methods.length; i++)
-        {
-            JMethod method = methods[i];
-            if (!name.equals(method.getSimpleName()))
-                continue;
+    static MethodDeclaration getMethod(ClassOrInterfaceDeclaration cls, String name, String[] paramTypes) {
+        // cls.getMethodsBySignature only checks the type name as-is ... i.e. if the type name is imported
+        // only the simple name is checked, otherwise the full qualified name
+        return cls.getMethodsByName(name).stream()
+            .filter(m -> parameterMatches(paramStrings(m.getParameters()), paramTypes))
+            .findFirst().orElse(null);
+    }
 
-            JParameter[] mParams = method.getParameters();
+    private static String[] paramStrings(NodeList<Parameter> params) {
+        return params.stream().map(Parameter::getTypeAsString).toArray(String[]::new);
+    }
 
-            // can have methods with same name but different # of params
-            if (mParams.length != paramTypes.length)
-                continue;
+    private static String[] exceptionStrings(MethodDeclaration method) {
+        return method.getThrownExceptions().stream().map(ReferenceType::asString).toArray(String[]::new);
+    }
 
-            for (int j = 0; j < mParams.length; j++)
-            {
-                JParameter mParam = mParams[j];
-                if (!mParam.getType().equals(paramTypes[j]))
-                    continue;
+    private static boolean parameterMatches(String[] params1, String[] params2) {
+        // compare all parameters type strings
+        // a type string can be a simple name (e.g. "XmlObject") or
+        // fully qualified name ("org.apache.xmlbeans.XmlObject")
+        // try to loosely match the names
+        if (params1.length != params2.length) {
+            return false;
+        }
+        for (int i=0; i<params1.length; i++) {
+            String p1 = params1[i];
+            String p2 = params2[i];
+            if (p1.contains(".")) {
+                String tmp = p1;
+                p1 = p2;
+                p2 = tmp;
             }
-
-            return method;
+            if (!p2.endsWith(p1)) {
+                return false;
+            }
         }
-        return null;
-    }
-
-    private static String listTypes(JClass[] types)
-    {
-        StringBuilder result = new StringBuilder();
-        for (int i = 0; i < types.length; i++)
-        {
-            JClass type = types[i];
-            if (i>0)
-                result.append(", ");
-            result.append(emitType(type));
-        }
-        return result.toString();
-    }
-
-    private static String listTypes(JParameter[] params)
-    {
-        StringBuilder result = new StringBuilder();
-        for (int i = 0; i < params.length; i++)
-        {
-            JClass type = params[i].getType();
-            if (i>0)
-                result.append(", ");
-            result.append(emitType(type));
-        }
-        return result.toString();
-    }
-
-    public static String emitType(JClass cls)
-    {
-        if (cls.isArrayType())
-            return emitType(cls.getArrayComponentType()) + "[]";
-        else
-            return cls.getQualifiedName().replace('$', '.');
+        return true;
     }
 
     /* public getters */
-    public boolean contains(String fullJavaName)
-    {
+    public boolean contains(String fullJavaName) {
         return _xbeanSet.contains(fullJavaName);
     }
 
-    public String getStaticHandler()
-    {
+    public String getStaticHandler() {
         return _delegateToClassName;
     }
 
-    public String getInterface()
-    {
+    public String getInterface() {
         return _interfaceClassName;
     }
 
-    public InterfaceExtension.MethodSignature[] getMethods()
-    {
+    public InterfaceExtension.MethodSignature[] getMethods() {
         return _methods;
     }
 
-    public String toString()
-    {
+    public String toString() {
         StringBuilder buf = new StringBuilder();
         buf.append("  static handler: ").append(_delegateToClassName).append("\n");
         buf.append("  interface: ").append(_interfaceClassName).append("\n");
@@ -274,138 +219,86 @@ public class InterfaceExtensionImpl implements InterfaceExtension
     }
 
     // this is used only for detecting method colisions of extending interfaces
-    static class MethodSignatureImpl implements InterfaceExtension.MethodSignature
-    {
-        private String _intfName;  
+    static class MethodSignatureImpl implements InterfaceExtension.MethodSignature {
+        private final String _intfName;
         private final int NOTINITIALIZED = -1;
         private int _hashCode = NOTINITIALIZED;
         private String _signature;
 
-        private String _name;
-        private String _return;
-        private String[] _params;
-        private String[] _exceptions;
+        private final String _name;
+        private final String _return;
+        private final String[] _params;
+        private final String[] _exceptions;
 
-        MethodSignatureImpl(String intfName, JMethod method)
-        {
-            if (intfName==null || method==null)
+        MethodSignatureImpl(String intfName, MethodDeclaration method) {
+            if (intfName==null || method==null) {
                 throw new IllegalArgumentException("Interface: " + intfName + " method: " + method);
+            }
 
             _intfName = intfName;
-            _hashCode = NOTINITIALIZED;
             _signature = null;
 
-            _name = method.getSimpleName();
-            _return = method.getReturnType().getQualifiedName().replace('$', '.');
+            _name = method.getName().asString();
+            _return = replaceInner(method.getTypeAsString());
 
-            JParameter[] paramTypes = method.getParameters();
-            _params = new String[paramTypes.length];
-            for (int i = 0; i < paramTypes.length; i++)
-                _params[i] = paramTypes[i].getType().getQualifiedName().replace('$', '.');;
+            _params = method.getParameters().stream().map(Parameter::getTypeAsString).
+                map(MethodSignatureImpl::replaceInner).toArray(String[]::new);
 
-            JClass[] exceptionTypes = method.getExceptionTypes();
-            _exceptions = new String[exceptionTypes.length];
-            for (int i = 0; i < exceptionTypes.length; i++)
-                _exceptions[i] = exceptionTypes[i].getQualifiedName().replace('$', '.');
+            _exceptions = method.getThrownExceptions().stream().map(ReferenceType::asString).
+                map(MethodSignatureImpl::replaceInner).toArray(String[]::new);
         }
 
-        String getInterfaceName()
-        {
+        private static String replaceInner(String classname) {
+            return classname.replace('$', '.');
+        }
+
+        String getInterfaceName() {
             return _intfName;
         }
 
-        public String getName()
-        {
+        public String getName() {
             return _name;
         }
 
-        public String getReturnType()
-        {
+        public String getReturnType() {
             return _return;
         }
 
-        public String[] getParameterTypes()
-        {
+        public String[] getParameterTypes() {
             return _params;
         }
 
-        public String[] getExceptionTypes()
-        {
+        public String[] getExceptionTypes() {
             return _exceptions;
         }
 
-        public boolean equals(Object o)
-        {
-            if ( !(o instanceof MethodSignatureImpl))
-                return false;
+        public boolean equals(Object o) {
+            if (o == this) {
+                return true;
+            }
 
+            if (!(o instanceof MethodSignatureImpl)) {
+                return false;
+            }
             MethodSignatureImpl ms = (MethodSignatureImpl)o;
 
-            if (!ms.getName().equals(getName()) )
-                return false;
-
-            String[] params = getParameterTypes();
-            String[] msParams = ms.getParameterTypes();
-
-            if (msParams.length != params.length )
-                return false;
-
-            for (int i = 0; i < params.length; i++)
-            {
-                if (!msParams[i].equals(params[i]))
-                    return false;
-            }
-
-            if (!_intfName.equals(ms._intfName))
-                return false;
-            
-            return true;
+            return ms.getName().equals(getName()) &&
+                   _intfName.equals(ms._intfName) &&
+                   Arrays.equals(getParameterTypes(),ms.getParameterTypes());
         }
 
-        public int hashCode()
-        {
-            if (_hashCode!=NOTINITIALIZED)
-                return _hashCode;
-
-            int hash = getName().hashCode();
-
-            String[] params = getParameterTypes();
-
-            for (int i = 0; i < params.length; i++)
-            {
-                hash *= 19;
-                hash += params[i].hashCode();
-            }
-
-            hash += 21 * _intfName.hashCode();
-
-            _hashCode = hash;
-            return _hashCode;
+        public int hashCode() {
+            return (_hashCode!=NOTINITIALIZED) ? _hashCode :
+                (_hashCode = Objects.hash(getName(), Arrays.hashCode(getParameterTypes()), _intfName));
         }
 
-        String getSignature()
-        {
-            if (_signature!=null)
-                return _signature;
-
-            StringBuilder sb = new StringBuilder(60);
-            sb.append(_name).append("(");
-            for (int i = 0; i < _params.length; i++)
-                sb.append((i == 0 ? "" : " ,")).append(_params[i]);
-            sb.append(")");
-
-            _signature = sb.toString();
-
-            return _signature;
+        String getSignature() {
+            return (_signature!=null) ? _signature :
+                (_signature = _name+"("+String.join(" ,", _params)+")");
         }
 
-        public String toString()
-        {
-            StringBuilder buf = new StringBuilder();
-
-            buf.append(getReturnType()).append(" ").append(getSignature());
-
-            return buf.toString();
+        public String toString() {
+            return getReturnType() + " " + getSignature();
         }
     }
 }

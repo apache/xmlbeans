@@ -12,21 +12,31 @@
  *   See the License for the specific language governing permissions and
  *  limitations under the License.
  */
+
 package xmlcursor.xpath.complex.checkin;
 
 import org.apache.xmlbeans.XmlCursor;
+import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
-import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameter;
+import org.junit.runners.Parameterized.Parameters;
 import xmlcursor.xpath.common.XPathCommon;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.stream.Stream;
 
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.fail;
 
+@RunWith(Parameterized.class)
 public class XPathTests {
-    private final String sXml =
+    static final String XML =
         "<?xml version=\"1.0\"?>" +
         "<doc xmlns:ext=\"http://somebody.elses.extension\">" +
         "<a test=\"test\" />" +
@@ -37,273 +47,106 @@ public class XPathTests {
         "</b>" +
         "</doc><!-- -->         ";
 
-    private String[][] expected = null;
-    private String[] xpath = null;
+    private static final String[] STEPS = {
+        /*  0 */ "<xml-fragment xmlns:ext=\"http://somebody.elses.extension\"/>",
+        /*  1 */ "<doc xmlns:ext=\"http://somebody.elses.extension\"><a test=\"test\" /><b attr1=\"a1\" attr2=\"a2\" xmlns:java=\"http://xml.apache.org/xslt/java\"> <a /> </b></doc>",
+        /*  2 */ "<a test=\"test\" xmlns:ext=\"http://somebody.elses.extension\"/>",
+        /*  3 */ "<xml-fragment test=\"test\" xmlns:ext=\"http://somebody.elses.extension\" /> ",
+        /*  4 */ "<a xmlns:java=\"http://xml.apache.org/xslt/java\" xmlns:ext=\"http://somebody.elses.extension\" />",
+        /*  5 */ "<b attr1=\"a1\" attr2=\"a2\" xmlns:java=\"http://xml.apache.org/xslt/java\"> <a /> </b>",
+        /*  6 */ "<xml-fragment attr1=\"a1\" xmlns:java=\"http://xml.apache.org/xslt/java\" xmlns:ext=\"http://somebody.elses.extension\" />",
+        /*  7 */ "<xml-fragment attr2=\"a2\" xmlns:java=\"http://xml.apache.org/xslt/java\" xmlns:ext=\"http://somebody.elses.extension\" />",
+        /*  8 */ "<xml-fragment><!-- --></xml-fragment>",
+        /*  9 */ " <xml-fragment xmlns:java=\"http://xml.apache.org/xslt/java\" xmlns:ext=\"http://somebody.elses.extension\" />",
+        /* 10 */ "<a>    </a>",
+        /* 11 */ "<xml-fragment>    </xml-fragment>"
+    };
+
+    private static final String XMLFRAG_EMPTY = "<xml-fragment/>";
+    private static XmlObject doc;
+
+    @Parameter
+    public String xpath = null;
+    @Parameter(value = 1)
+    public String[] expected = null;
+
+    @BeforeClass
+    public static void init() throws XmlException {
+        doc = XmlObject.Factory.parse(XML);
+    }
+
+    @Parameters(name = "{index}: {0}")
+    public static Collection<Object[]> data() {
+        final List<Object[]> data = new ArrayList<>();
+
+        add(data, "/doc/a/@test", STEPS[2]);
+        add(data, "//.", XML, STEPS[1], STEPS[2], STEPS[5], XMLFRAG_EMPTY, STEPS[10], XMLFRAG_EMPTY, STEPS[8]);
+        add(data, "/doc", STEPS[1]);
+        add(data, "/doc/a", STEPS[2]);
+        add(data, "//@*", STEPS[3], STEPS[6], STEPS[7]);
+        add(data, ".", XML);
+        add(data, "//ancestor-or-self::*", XML, STEPS[2], STEPS[5], STEPS[10]);
+        add(data, "./child::*[1]", STEPS[1]);
+        add(data, "//descendant-or-self::*/@*[1]", STEPS[2], STEPS[6]);
+
+        // This is tricky:
+        // The expression "*" is true for the principal axis: since the axis is self, so we're looking for elements: doc
+        // elt node() also returns the doc elt, but also the comment nodes in the union set are returned in doc order
+        add(data, "//@* | * | node()", STEPS[1], STEPS[3], STEPS[6], STEPS[7], STEPS[8]);
+
+        add(data, "//*", STEPS[1], STEPS[2], STEPS[5], STEPS[4]);
+        add(data, "/doc/n", (String) null);
+        add(data, "//descendant::comment()", STEPS[8]);
+        add(data, "//*[local-name()='a']", STEPS[2], STEPS[4]);
+        add(data, "//*/@*", STEPS[3], STEPS[6], STEPS[7]);
+        add(data, "//*[last()]", STEPS[1], STEPS[5], STEPS[4]);
+        add(data, "doc/*[last()]", STEPS[5]);
+
+        // TODO: BUGBUG: fix this
+        add(data, "/doc/a/*/@*", (String) null);
+
+        add(data, "doc/descendant::node()", STEPS[2], STEPS[5], STEPS[11], STEPS[10], STEPS[11]);
+        add(data, "doc/a/@*", STEPS[2]);
+        add(data, "doc/b/a/ancestor-or-self::*", STEPS[1], STEPS[5], STEPS[4]);
+        add(data, "doc/b/a/preceding::*", STEPS[2]);
+        add(data, "doc/a/following::*", STEPS[5], STEPS[4]);
+        add(data, "/doc/b/preceding-sibling::*", STEPS[2]);
+        add(data, "/doc/a/following-sibling::*", STEPS[5]);
+
+        // "/doc/namespace::*", STEPS[0],DEFAULT_NS};
+
+        return data;
+    }
+
+    private static void add(List<Object[]> data, String xpath, String... expected) {
+        data.add(new Object[]{xpath, expected});
+    }
 
 
     @Test
-    public void testConformance()
-        throws Exception {
-        XmlObject doc = XmlObject.Factory.parse(sXml);
-        runAll(doc, xpath);
-    }
-
-    private void runAll(XmlObject doc, String[] xpathes) {
-        StringBuilder errors = new StringBuilder();
-        boolean bFail = false;
-        for (int i = 0; i < xpathes.length; i++) {
-            try {
-                runXpath2(doc, xpathes[i], i);
-            } catch (Exception e) {
-                bFail = true;
-                errors.append("**********************Failed at test " + i +
-                              "\n  path:" + xpathes[i] + "\n");
-                StringWriter sw = new StringWriter();
-                e.printStackTrace(new PrintWriter(sw));
-                errors.append(sw);
-                errors.append(e.getMessage());
-                errors.append("\n\n");
-            }
-        }
-
-        if (bFail)
-            throw new RuntimeException(errors.toString());
-    }
-
-//    private static void runXpath(XmlObject doc, String xpathStr, int i)
-//    {
-//        try
-//        {
-//            XmlCursor xc = doc.newCursor();
-//            XPath xpath = new XBeansXPath(xpathStr);
-//            List results = xpath.selectNodes( xc );
-//
-//            Iterator resultIter = results.iterator();
-//
-//            int j = 0;
-//            while ( resultIter.hasNext() )
-//            {
-//                xc = (XmlCursor)resultIter.next();  //it's the same object as previous xc
-//                // generateExpected(i, j, xc.toString());
-//                check(i, j, xc);
-//                j++;
-//            }
-//
-//            xc.dispose();
-//        }
-//        catch (XPathSyntaxException e)
-//        {
-//            System.err.println( e.getMultilineMessage() );
-//            throw new RuntimeException(e);
-//        }
-//        catch (JaxenException e)
-//        {
-//            throw new RuntimeException(e);
-//        }
-//    }
-
-    private void runXpath2(XmlObject doc, String xpathStr, int i) throws Exception {
-        XmlCursor xc = doc.newCursor();
-        xc.selectPath(xpathStr);
-        check(i, xc);
-        xc.dispose();
-    }
-
-    private void check(int expresionNumber, XmlCursor actual) throws Exception {
-
-        if (actual.getSelectionCount() == 0) {
-            assertNull(expected[expresionNumber]);
-            return;
-        }
-
-        int numCases = expected[expresionNumber].length;
-        XmlObject[] expected_val = new XmlObject[numCases];
-
-
-        for (int i = 0; i < numCases; i++)
-            expected_val[i] = XmlObject.Factory.parse(
-                expected[expresionNumber][i]);
-
+    public void testConformance() {
+        XmlCursor actual = doc.newCursor();
         try {
-            XPathCommon.compare(actual, expected_val);
-        } catch (Throwable e) {
-            throw new Exception(e.getMessage());
+            actual.selectPath(xpath);
+
+            if (actual.getSelectionCount() == 0) {
+                assertNull(expected[0]);
+                return;
+            }
+
+            XmlObject[] expXO = Stream.of(expected).map(XPathTests::parse).toArray(XmlObject[]::new);
+            XPathCommon.compare(actual, expXO);
+        } finally {
+            actual.dispose();
         }
-
     }
 
-    @Before
-    public void setUp() {
-        int numExpressions = 25;
-        expected = new String[numExpressions][];
-
-
-        xpath = new String[numExpressions];
-        xpath[0] = "/doc/a/@test";
-        xpath[1] = "//.";
-        xpath[2] = "/doc";
-        xpath[3] = "/doc/a";
-        xpath[4] = "//@*";
-        xpath[5] = ".";
-        xpath[6] = "//ancestor-or-self::*";
-        xpath[7] = "./child::*[1]";
-        xpath[8] = "//descendant-or-self::*/@*[1]";
-        xpath[9] = "//@* | * | node()";
-        xpath[10] = "//*";
-        xpath[11] = "/doc/n"; //"/doc/namespace::*";
-        xpath[12] = "//descendant::comment()";
-        xpath[13] = "//*[local-name()='a']";
-        xpath[14] = "//*/@*";
-        xpath[15] = "//*[last()]";
-        xpath[16] = "doc/*[last()]";
-        xpath[17] = "/doc/a/*/@*";
-        xpath[18] = "doc/descendant::node()";
-        xpath[19] = "doc/a/@*";
-        xpath[20] = "doc/b/a/ancestor-or-self::*";
-        xpath[21] = "doc/b/a/preceding::*";
-        xpath[22] = "doc/a/following::*";
-        xpath[23] = "/doc/b/preceding-sibling::*";
-        xpath[24] = "/doc/a/following-sibling::*";
-
-
-        String[] steps = new String[12];
-        steps[0] =
-            "<xml-fragment xmlns:ext=\"http://somebody.elses.extension\"/>";
-        steps[1] = "<doc xmlns:ext=\"http://somebody.elses.extension\">" +
-                   "<a test=\"test\" />" +
-                   "<b attr1=\"a1\" attr2=\"a2\" " +
-                   "xmlns:java=\"http://xml.apache.org/xslt/java\">" +
-                   " <a /> </b></doc>";
-        steps[2] =
-            "<a test=\"test\" xmlns:ext=\"http://somebody.elses.extension\"/>";
-        steps[3] =
-            "<xml-fragment test=\"test\" " +
-            "xmlns:ext=\"http://somebody.elses.extension\" /> ";
-        steps[4] =
-            "<a xmlns:java=\"http://xml.apache.org/xslt/java\" " +
-            "xmlns:ext=\"http://somebody.elses.extension\" />";
-        steps[5] =
-            "<b attr1=\"a1\" attr2=\"a2\" " +
-            "xmlns:java=\"http://xml.apache.org/xslt/java\">" +
-            " <a /> </b>";
-        steps[6] =
-            "<xml-fragment attr1=\"a1\" " +
-            "xmlns:java=\"http://xml.apache.org/xslt/java\" " +
-            "xmlns:ext=\"http://somebody.elses.extension\" />";
-        steps[7] =
-            "<xml-fragment attr2=\"a2\" " +
-            "xmlns:java=\"http://xml.apache.org/xslt/java\" " +
-            "xmlns:ext=\"http://somebody.elses.extension\" />";
-        steps[8] = "<xml-fragment><!-- --></xml-fragment>";
-        steps[9] = " <xml-fragment xmlns:java=\"http://xml.apache.org/xslt/java\"" +
-                   " xmlns:ext=\"http://somebody.elses.extension\" />";
-        steps[10] = "<a>    </a>";
-        steps[11] = "<xml-fragment>    </xml-fragment>";
-
-        expected[0] = new String[]{steps[2]};
-        String XMLFRAG_EMPTY = "<xml-fragment/>";
-        expected[1] = new String[]{sXml,
-            steps[1],
-            steps[2],
-            steps[5],
-            XMLFRAG_EMPTY,
-            steps[10],
-            XMLFRAG_EMPTY,
-            steps[8],
-        };
-
-        expected[2] = new String[]{steps[1]};
-        expected[3] = new String[]{steps[2]};
-
-        expected[4] = new String[]{
-            steps[3],
-            steps[6],
-            steps[7]};
-
-        expected[5] = new String[]{sXml};
-        expected[6] = new String[]{sXml,
-            steps[2],
-            steps[5],
-            steps[10]};
-        expected[7] = new String[]{steps[1]};
-        expected[8] =
-            new String[]{
-                steps[2],
-                steps[6]};
-
-        /*
-         * This is tricky:
-         * The expression "*" is true for the principal axis: since the axis is
-         * self, so we're looking for elements: doc elt
-         * node() also returns the doc elt, but also the comment
-         * nodes in the union set are returned in doc order
-         */
-        expected[9] = new String[]{
-            steps[1],
-            steps[3],
-            steps[6],
-            steps[7],
-            steps[8]
-        };
-
-        expected[10] = new String[]{
-            steps[1],
-            steps[2],
-            steps[5],
-            steps[4]
-        };
-        expected[11] = null; //new String[]{steps[0],DEFAULT_NS};
-        expected[12] = new String[]{steps[8]};
-        expected[13] = new String[]{steps[2],
-            steps[4]
-        };
-        expected[14] = new String[]{steps[3],
-            steps[6],
-            steps[7]};
-
-        expected[15] = new String[]{steps[1],
-            steps[5],
-            steps[4]};
-        expected[16] = new String[]{steps[5]};
-        //TODO: BUGBUG: fix this
-        expected[17] = null;
-
-        expected[18] = new String[]{
-            steps[2],
-            steps[5],
-            steps[11],
-            steps[10],
-            steps[11]
-        };
-        expected[19] = new String[]{steps[2]};
-        expected[20] = new String[]{
-            steps[1],
-            steps[5],
-            steps[4],
-        };
-        expected[21] = new String[]{
-            steps[2]
-
-        };
-        expected[22] = new String[]{
-            steps[5],
-            steps[4]};
-
-        expected[23] = new String[]{
-            steps[2]};
-
-        expected[24] = new String[]{
-            steps[5]};
-
-    }
-
-    @Test
-    public void testDelete() throws Exception {
-        String query = "*";
-
-        XmlCursor xc = XmlObject.Factory.parse(sXml).newCursor();
-        xc.selectPath(query);
-        while (xc.toNextSelection())
-            System.out.println(xc.xmlText());
+    private static XmlObject parse(String str) {
+        try {
+            return XmlObject.Factory.parse(str);
+        } catch (XmlException e) {
+            fail(e.getMessage());
+            return null;
+        }
     }
 }

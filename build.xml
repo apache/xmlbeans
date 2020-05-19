@@ -13,7 +13,7 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 -->
-<project name="XMLBeans" default="process-resources" basedir="." xmlns:if="ant:if" xmlns:unless="ant:unless">
+<project name="XMLBeans" default="process-resources" basedir="." xmlns:unless="ant:unless">
 
     <property name="build.compiler" value="javac1.8"/>
     <property name="ant.build.javac.source" value="1.8"/>
@@ -22,20 +22,51 @@
     <property name="version.base" value="3.1.1"/>
     <property name="version.rc" value=""/>
 
-    <property name="repository.m2" value="https://repo1.maven.org"/>
+    <property name="repository.m2" value="https://repo1.maven.org/maven2"/>
     <property environment="ENV"/>
 
-    <property name="compile.lib" location="compile-lib"/>
+    <scriptdef name="dependency" language="javascript" description="define properties for library dependency">
+        <attribute name="prefix"/>
+        <attribute name="artifact"/>
+        <attribute name="usage"/>
+        <attribute name="packaging"/>
+        <attribute name="repo"/>
+        <attribute name="snapshot"/>
+        <attribute name="query"/>
+        <attribute name="target"/>
+        <![CDATA[
+            var parts = attributes.get("artifact").split(/:/);
+            var packaging = attributes.get("packaging") || "jar";
+            var version = attributes.get("snapshot") || parts[2];
+            var repo = attributes.get("repo");
+            if (repo == null) {
+                repo = project.getProperty("repository.m2");
+            }
+            var query = attributes.get("query") || "";
+            var usageDir = attributes.get("usage");
+            usageDir = project.getProperty("basedir")+(usageDir.charAt(0) == '/' ? "" : "/lib/")+usageDir;
+            var jarLoc = usageDir+"/"+(attributes.get("target")||(parts[1]+"-"+parts[2]+"."+packaging));
+            var urlLoc = repo+"/"+parts[0].replace(/\./g,"/")+"/"+parts[1]+"/"+parts[2]+"/"+
+                parts[1]+"-"+(attributes.get("snapshot") || parts[2])+"."+packaging+query;
+            project.setProperty(attributes.get("prefix")+"."+packaging, jarLoc);
+            project.setProperty(attributes.get("prefix")+".url", urlLoc);
+        ]]>
+        <!-- TODO: add library to a queue for downloading ... -->
+    </scriptdef>
+
+    <dependency prefix="old.xmlbeans" artifact="org.apache.xmlbeans:xmlbeans:3.1.0" usage="previous"/>
+    <dependency prefix="javaparser.core" artifact="com.github.javaparser:javaparser-core:3.15.21" usage="main"/>
+
 
     <!-- Apache RAT license check properties -->
     <property name="rat.reportdir" value="build/rat"/>
     <property name="rat.report" value="${rat.reportdir}/report.txt"/>
-    <property name="rat.jar" location="${compile.lib}/apache-rat-0.12.jar"/>
-    <property name="rat.url" value="${repository.m2}/maven2/org/apache/rat/apache-rat/0.12/apache-rat-0.12.jar"/>
+
+    <dependency prefix="rat" artifact="org.apache.rat:apache-rat:0.12" usage="util"/>
 
     <!-- api checks -->
-    <property name="forbidden.jar" location="${compile.lib}/forbiddenapis-2.5.jar"/>
-    <property name="forbidden.url" value="${repository.m2}/maven2/de/thetaphi/forbiddenapis/2.5/forbiddenapis-2.5.jar"/>
+    <dependency prefix="forbidden" artifact="de.thetaphi:forbiddenapis:2.6" usage="util"/>
+
 
     <!-- dependencies -->
 
@@ -44,44 +75,25 @@
         http://easynews.dl.sourceforge.net/sourceforge/saxon/saxonb8-7-3j.zip
         http://easynews.dl.sourceforge.net/sourceforge/saxon/saxonb8-8j.zip
     -->
-    <property name="saxon.zip" location="${compile.lib}/saxonb9-1-0-8j.zip"/>
-    <property name="saxon.jar" location="${compile.lib}/saxon9.jar"/>
-    <property name="saxon-dom.jar" location="${compile.lib}/saxon9-dom.jar"/>
-    <property name="saxon.url" value="https://sourceforge.net/projects/saxon/files/Saxon-B/9.1.0.8/saxonb9-1-0-8j.zip"/>
-
-    <property name="xcresolver.zip" location="${compile.lib}/xcresolver.zip"/>
-    <property name="xcresolver.jar" location="${compile.lib}/resolver.jar"/>
-    <property name="xcresolver.url" value="https://archive.apache.org/dist/xml/commons/binaries/xml-commons-resolver-1.1.zip"/>
+    <dependency prefix="saxon" artifact="net.sf.saxon:Saxon-HE:10.0" usage="tests"/>
 
     <!-- test dependencies -->
-    <property name="junit.jar" location="${compile.lib}/junit-4.12.jar"/>
-    <property name="junit.url" value="${repository.m2}/maven2/junit/junit/4.12/junit-4.12.jar"/>
-    <property name="hamcrest.jar" location="${compile.lib}/hamcrest-core-1.3.jar"/>
-    <property name="hamcrest.url" value="${repository.m2}/maven2/org/hamcrest/hamcrest-core/1.3/hamcrest-core-1.3.jar"/>
-
-    <property name="xerces.jar" location="${compile.lib}/xercesImpl-2.11.0.jar"/>
-    <property name="xerces.url" value="${repository.m2}/maven2/xerces/xercesImpl/2.11.0/xercesImpl-2.11.0.jar"/>
-
-    <property name="xml-apis.jar" location="${compile.lib}/xml-apis-1.4.01.jar"/>
-    <property name="xml-apis.url" value="${repository.m2}/maven2/xml-apis/xml-apis/1.4.01/xml-apis-1.4.01.jar"/>
-
-    <path id="saxon">
-        <pathelement location="${saxon.jar}"/>
-        <pathelement location="${saxon-dom.jar}"/>
-    </path>
+    <dependency prefix="junit" artifact="junit:junit:4.13" usage="tests"/>
+    <dependency prefix="hamcrest" artifact="org.hamcrest:hamcrest:2.2" usage="tests"/>
+    <dependency prefix="xerces" artifact="xerces:xercesImpl:2.12.0" usage="tests"/>
+    <dependency prefix="xml-apis" artifact="xml-apis:xml-apis:1.4.01" usage="tests"/>
 
     <path id="xmlbeans-test">
         <pathelement location="build/classes"/>
         <pathelement location="build/generated-resources"/>
         <dirset dir="resources" includes="*"/>
-        <path refid="saxon"/>
-        <pathelement location="${xcresolver.jar}"/>
+        <pathelement location="${saxon.jar}"/>
         <pathelement location="test/lib/w3c_domts.jar"/>
         <pathelement location="${junit.jar}"/>
         <pathelement location="${hamcrest.jar}"/>
         <pathelement location="${xerces.jar}"/>
         <pathelement location="${xml-apis.jar}"/>
-        <pathelement location="${ENV.JAVA_HOME}/lib/tools.jar"/>
+        <pathelement location="${javaparser.core.jar}"/>
     </path>
 
     <path id="sources">
@@ -101,7 +113,6 @@
         <pathelement location="src/typestore"/>
         <pathelement location="src/xmlcomp"/>
         <pathelement location="src/xmlconfig"/>
-        <pathelement location="src/jamsupport"/>
         <pathelement location="build/generated-sources"/>
     </path>
 
@@ -117,25 +128,15 @@
     </target>
 
     <target name="-check-jars" description="Removes old dependencies and verifies downloaded ones">
-        <mkdir dir="${compile.lib}"/>
         <!-- remove previous versions of third-party jars to prevent them from lingering around,
             we often had hard-to-find build/CI-problems because of these! -->
-        <delete>
-            <fileset dir="${compile.lib}">
-                <include name="saxonb8-8j.zip"/>
-                <include name="saxonb8-7-3j.zip"/>
-                <include name="saxonb8-6-1.zip"/>
-                <include name="saxonb8-2.zip"/>
-                <include name="saxonb8-1.zip"/>
-                <include name="saxon8.jar"/>
-                <include name="saxon8-dom.jar"/>
-            </fileset>
-        </delete>
+        <delete dir="compile-lib"/>
         <condition property="jars.present">
             <or>
                 <and>
+                    <available file="${old.xmlbeans.jar}"/>
+                    <available file="${javaparser.core.jar}"/>
                     <available file="${saxon.jar}"/>
-                    <available file="${xcresolver.jar}"/>
                     <available file="${junit.jar}"/>
                     <available file="${hamcrest.jar}"/>
                     <available file="${xerces.jar}"/>
@@ -150,37 +151,18 @@
         <attribute name="src"/>
         <attribute name="dest"/>
         <sequential>
-            <echo>src: @{src}</echo>
-            <echo>dest: @{dest}</echo>
-            <!--fail
-                message="Java version might be uncapable to download https URLs - see https://stackoverflow.com/questions/6851461/java-why-does-ssl-handshake-give-could-not-generate-dh-keypair-exception">
-                <condition>
-                    <and>
-                        <equals arg1="${ant.java.version}" arg2="1.6"/>
-                        <contains string="@{src}" substring="https"/>
-                    </and>
-                </condition>
-            </fail-->
+            <local name="destdir"/>
+            <dirname property="destdir" file="@{dest}"/>
+            <mkdir dir="${destdir}"/>
             <get src="@{src}" dest="@{dest}" skipexisting="true"/>
         </sequential>
     </macrodef>
 
     <target name="-fetch-jars" depends="-check-jars" unless="jars.present"
             description="Fetches needed JAR files from the Internet">
-        <downloadfile dest="${saxon.zip}" src="${saxon.url}"/>
-        <unzip src="${saxon.zip}" dest="${compile.lib}">
-            <patternset>
-                <include name="saxon9.jar"/>
-                <include name="saxon9-dom.jar"/>
-            </patternset>
-        </unzip>
-        <downloadfile dest="${xcresolver.zip}" src="${xcresolver.url}"/>
-        <unzip src="${xcresolver.zip}" dest="${compile.lib}">
-            <patternset>
-                <include name="*/resolver.jar"/>
-            </patternset>
-            <mapper type="flatten"/>
-        </unzip>
+        <downloadfile dest="${old.xmlbeans.jar}" src="${old.xmlbeans.url}"/>
+        <downloadfile dest="${javaparser.core.jar}" src="${javaparser.core.url}"/>
+        <downloadfile dest="${saxon.jar}" src="${saxon.url}"/>
         <downloadfile dest="${junit.jar}" src="${junit.url}"/>
         <downloadfile dest="${hamcrest.jar}" src="${hamcrest.url}"/>
         <downloadfile dest="${xerces.jar}" src="${xerces.url}"/>
@@ -231,20 +213,13 @@
 
     <target name="process-resources" depends="-fetch-jars" description="Generate sources and resources based on schema files">
         <mkdir dir="build/classes"/>
-
-        <copy todir="build/generated-sources/org/apache/xmlbeans/impl">
-            <zipfileset src="lib/jam-0.1.0-src.jar" includes="src/org/**"/>
-            <cutdirsmapper dirs="3"/>
-            <filterchain>
-                <replacestring from="org.codehaus.jam" to="org.apache.xmlbeans.impl.jam"/>
-            </filterchain>
-        </copy>
+        <mkdir dir="build/generated-sources"/>
 
         <!-- Note that this is tricky because it bootstraps xmlbeans on itself. -->
         <!-- The basic strategy is to rely on the oldxbeans.jar checked into lib -->
 
         <path id="oldxbean">
-            <pathelement location="lib/oldxbean.jar"/>
+            <pathelement location="${old.xmlbeans.jar}"/>
         </path>
 
         <schemaCompProd classpathref="oldxbean" dest="build/bootstrap"/>
@@ -254,7 +229,8 @@
             <src path="build/bootstrap/generated-sources"/>
             <classpath>
                 <path refid="oldxbean"/>
-                <path refid="saxon"/>
+                <pathelement location="${saxon.jar}"/>
+                <pathelement location="${javaparser.core.jar}"/>
             </classpath>
         </javac>
 
@@ -275,8 +251,9 @@
         <!-- delete old schema classes -->
         <delete dir="build/classes/org/apache/xmlbeans/impl/xb"/>
 
-        <javac destdir="build/classes" debug="true" debuglevel="lines,vars,source" includeantruntime="true" classpathref="saxon">
+        <javac destdir="build/classes" debug="true" debuglevel="lines,vars,source" includeantruntime="true">
             <src refid="sources"/>
+            <classpath path="${saxon.jar}"/>
         </javac>
     </target>
 
@@ -510,12 +487,12 @@
         <property name="prefix" value="xmlbeans-${version.base}"/>
 
         <zip destfile="build/xmlbeans-src-${version.base}-${tstamp.dist}.zip" update="false">
-            <zipfileset dir="." excludes="build/**,tmp/**,.idea/**,bin/**,lib/**,compile-lib/**,/src/shell/**,.settings/**,.project,build.javacheck.xml,release-guide.txt" prefix="${prefix}"/>
+            <zipfileset dir="." excludes="build/**,tmp/**,.idea/**,bin/**,lib/**,/src/shell/**,.settings/**,.project,build.javacheck.xml,release-guide.txt" prefix="${prefix}"/>
         	<zipfileset dir="src/shell" prefix="${prefix}/bin" />
             <zipfileset dir="build/javadocs" prefix="${prefix}/javadocs" />
         </zip>
         <tar destfile="build/xmlbeans-src-${version.base}-${tstamp.dist}.tgz" compression="gzip">
-            <tarfileset dir="." excludes="build/**,tmp/**,.idea/**,bin/**,lib/**,compile-lib/**,/src/shell/**,.settings/**,.project,build.javacheck.xml,release-guide.txt" prefix="${prefix}"/>
+            <tarfileset dir="." excludes="build/**,tmp/**,.idea/**,bin/**,lib/**,/src/shell/**,.settings/**,.project,build.javacheck.xml,release-guide.txt" prefix="${prefix}"/>
         	<tarfileset dir="src/shell" prefix="${prefix}/bin" />
             <tarfileset dir="build/javadocs" prefix="${prefix}/javadocs" />
         </tar>
@@ -524,7 +501,6 @@
             <zipfileset dir="." includes="LICENSE.txt,NOTICE.txt,docs/**" prefix="${prefix}"/>
             <zipfileset dir="samples" includes="Any/**,DateTime/**,MixedContent/**,OrderMatters/**,SchemaEnum/**,Validation/**,XQueryXPath/**,XsdConfig/**" prefix="${prefix}/samples"/>
             <zipfileset dir="src/shell" prefix="${prefix}/bin"/>
-            <zipfileset dir="compile-lib" includes="resolver.jar" prefix="${prefix}/lib"/>
             <zipfileset dir="xkit" prefix="${prefix}"/>
             <zipfileset dir="src/xsdschema/schema" includes="*.xsd" prefix="${prefix}/schemas/s4s"/>
             <zipfileset dir="src/xmlschema/schema" includes="*.xsd" prefix="${prefix}/schemas/s4s"/>
@@ -539,7 +515,6 @@
             <tarfileset dir="." includes="LICENSE.txt,NOTICE.txt,docs/**" prefix="${prefix}"/>
             <tarfileset dir="samples" includes="Any/**,DateTime/**,MixedContent/**,OrderMatters/**,SchemaEnum/**,Validation/**,XQueryXPath/**,XsdConfig/**" prefix="${prefix}/samples"/>
             <tarfileset dir="src/shell" prefix="${prefix}/bin"/>
-            <tarfileset dir="compile-lib" includes="resolver.jar" prefix="${prefix}/lib"/>
             <tarfileset dir="xkit" prefix="${prefix}"/>
             <tarfileset dir="src/xsdschema/schema" includes="*.xsd" prefix="${prefix}/schemas/s4s"/>
             <tarfileset dir="src/xmlschema/schema" includes="*.xsd" prefix="${prefix}/schemas/s4s"/>

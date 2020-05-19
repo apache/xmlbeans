@@ -24,7 +24,7 @@ public class LargeEnumTest {
     public void testEnumCount_closeToMax() throws Exception {
         SchemaType mType = MaxAllowedEnumType.type;
         assertNotNull("Enumeration SchemaType was null", mType.getEnumerationValues());
-        assertEquals("EnumerationValue was not 3665 as expected was" + mType.getEnumerationValues().length, 3665, mType.getEnumerationValues().length);
+        assertEquals("EnumerationValue was not 3660 as expected was" + mType.getEnumerationValues().length, 3660, mType.getEnumerationValues().length);
 
         SchemaType mElem = MaxAllowedElementDocument.type;
         assertNull("Enumeration SchemaType was null", mElem.getEnumerationValues());
@@ -35,7 +35,7 @@ public class LargeEnumTest {
 
     @Test
     public void testEnumCount_greaterThanMax() throws Exception {
-        // TODO: verify if any xpath/xquery issues 
+        // TODO: verify if any xpath/xquery issues
         SchemaType mType = MoreThanAllowedEnumType.type;
 
         assertNotNull("Enumeration should be null as type should be base type " + mType.getEnumerationValues(),

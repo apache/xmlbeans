@@ -4,7 +4,7 @@
             xmlns:tns="http://XMLBEANS-307"
             xmlns:xsd="http://www.w3.org/2001/XMLSchema">
     <xsd:element name="MaxAllowedElement" type="tns:MaxAllowedEnumType" />
-        
+
     <xsd:simpleType name="MaxAllowedEnumType">
         <xsd:restriction base="xsd:token">
             <!--<xsd:enumeration value="AAA"/>-->
@@ -3670,11 +3670,13 @@
             <xsd:enumeration value="NEWN"/>
             <xsd:enumeration value="NEWP"/>
             <xsd:enumeration value="NEWS"/>
+            <!-- this used to be triggered by a few more enumerations, but the byte code layout seemed to changed since ...
             <xsd:enumeration value="NEWT"/>
             <xsd:enumeration value="NFLD"/>
             <xsd:enumeration value="NHYD"/>
             <xsd:enumeration value="NIAG"/>
             <xsd:enumeration value="NICE"/>
+            -->
             <!-- TOO REPRO UNCOMMENT THIS
        <xsd:enumeration value="NICH" />
        -->

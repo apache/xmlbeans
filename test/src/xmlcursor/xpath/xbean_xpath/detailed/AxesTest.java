@@ -35,13 +35,13 @@ import static org.junit.Assert.assertEquals;
  * namespace
  */
 public class AxesTest {
-    private String sXmlChild =
+    private final String sXmlChild =
         "<foo> <bar xmlns:pre=\"http://uri.com\" at0='val0'>" +
         "<pre:baz xmlns:baz='http://uri' baz:at0='val1'/>txt child</bar></foo>";
 
-    private XmlOptions options = new XmlOptions();
+    private final XmlOptions options = new XmlOptions();
 
-    private String sXmlDesc =
+    private final String sXmlDesc =
         "<foo> <foo xmlns:pre=\"http://uri.com\" at0='val0'>" +
         "<pre:baz xmlns:baz='http://uri' baz:at0='val1'/>txt child</foo></foo>";
 
@@ -98,6 +98,7 @@ public class AxesTest {
         assertEquals(sExpected, c.xmlText());
     }
 
+    @Test
     public void testChildAxisDNE() throws XmlException {
         String sQuery1 = "$this/foo/./baz";
         XmlCursor c = XmlObject.Factory.parse(sXmlChild).newCursor();

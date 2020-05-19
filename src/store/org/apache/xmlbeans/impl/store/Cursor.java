@@ -15,46 +15,27 @@
 
 package org.apache.xmlbeans.impl.store;
 
-import java.util.ArrayList;
-
-import java.io.PrintStream;
-
-import javax.xml.namespace.QName;
-
-import javax.xml.stream.XMLStreamReader;
-
-import org.apache.xmlbeans.xml.stream.XMLInputStream;
-
-import org.apache.xmlbeans.SchemaTypeLoader;
-import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.XmlCursor;
+import org.apache.xmlbeans.XmlDocumentProperties;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
-import org.apache.xmlbeans.XmlDocumentProperties;
-
-import org.apache.xmlbeans.impl.common.XMLChar;
 import org.apache.xmlbeans.impl.common.GlobalLock;
-
-import java.util.Map;
-import java.util.Collection;
-
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.Reader;
-import java.io.Writer;
-import java.io.File;
-import java.io.IOException;
-import java.io.FileOutputStream;
-
-import org.w3c.dom.Node;
-
-import org.xml.sax.ContentHandler;
-import org.xml.sax.ext.LexicalHandler;
-import org.xml.sax.SAXException;
-
-import org.apache.xmlbeans.impl.store.Saver.TextSaver;
+import org.apache.xmlbeans.impl.common.XMLChar;
 import org.apache.xmlbeans.impl.store.Locale.ChangeListener;
 import org.apache.xmlbeans.impl.store.Path.PathEngine;
+import org.apache.xmlbeans.impl.store.Saver.TextSaver;
+import org.apache.xmlbeans.xml.stream.XMLInputStream;
+import org.w3c.dom.Node;
+import org.xml.sax.ContentHandler;
+import org.xml.sax.SAXException;
+import org.xml.sax.ext.LexicalHandler;
+
+import javax.xml.namespace.QName;
+import javax.xml.stream.XMLStreamReader;
+import java.io.*;
+import java.util.Collection;
+import java.util.Map;
+import java.util.function.Supplier;
 
 public final class Cursor implements XmlCursor, ChangeListener {
     static final int ROOT = Cur.ROOT;
@@ -63,6 +44,12 @@ public final class Cursor implements XmlCursor, ChangeListener {
     static final int COMMENT = Cur.COMMENT;
     static final int PROCINST = Cur.PROCINST;
     static final int TEXT = Cur.TEXT;
+
+    private Cur _cur;
+    private PathEngine _pathEngine;
+    private int _currentSelection;
+
+    private ChangeListener _nextChangeListener;
 
     Cursor(Xobj x, int p) {
         _cur = x._locale.weakCur(this);
@@ -191,7 +178,7 @@ public final class Cursor implements XmlCursor, ChangeListener {
         _cur.toEnd();
         _cur.nextWithAttrs();
     }
-    
+
     //
     //
     //
@@ -200,7 +187,7 @@ public final class Cursor implements XmlCursor, ChangeListener {
     // Can I move the ref from one q to another?  If not I will have to
     // change from a phantom ref to a soft/weak ref so I can know what
     // to do when I dequeue from the old q.
-    
+
     public void _dispose() {
         _cur.release();
         _cur = null;
@@ -212,7 +199,7 @@ public final class Cursor implements XmlCursor, ChangeListener {
 
     public QName _getName() {
         // TODO - consider taking this out of the gateway
-        
+
         switch (_cur.kind()) {
             case ATTR:
 
@@ -222,7 +209,7 @@ public final class Cursor implements XmlCursor, ChangeListener {
                 }
 
                 // Fall thru
-                
+
             case ELEM:
             case PROCINST:
                 return _cur.getName();
@@ -412,25 +399,27 @@ public final class Cursor implements XmlCursor, ChangeListener {
         // if the Cur in in attrs, it will not jump out of attrs.  Also, if moving backwards and
         // text is to the left and right, Cur will move to the beginning of that text, while
         // Cursor will move further so that the token type to the right is not text.
-        
+
         boolean wasText = _cur.isText();
 
         if (!_cur.prev()) {
             assert _cur.isRoot() || _cur.isAttr();
 
-            if (_cur.isRoot())
+            if (_cur.isRoot()) {
                 return TokenType.NONE;
+            }
 
             _cur.toParent();
         } else {
             int k = _cur.kind();
 
-            if (k < 0 && (k == -COMMENT || k == -PROCINST || k == -ATTR))
+            if (k == -COMMENT || k == -PROCINST || k == -ATTR) {
                 _cur.toParent();
-            else if (_cur.isContainer())
+            } else if (_cur.isContainer()) {
                 _cur.toLastAttr();
-            else if (wasText && _cur.isText())
+            } else if (wasText && _cur.isText()) {
                 return _toPrevToken();
+            }
         }
 
         return _currentTokenType();
@@ -438,7 +427,7 @@ public final class Cursor implements XmlCursor, ChangeListener {
 
     public Object _monitor() {
         // TODO - some of these methods need not be protected by a
-        // gatway.  This is one of them.  Inline this.
+        //  gatway.  This is one of them.  Inline this.
 
         return _cur._locale;
     }
@@ -446,8 +435,9 @@ public final class Cursor implements XmlCursor, ChangeListener {
     public boolean _toParent() {
         Cur c = _cur.tempCur();
 
-        if (!c.toParent())
+        if (!c.toParent()) {
             return false;
+        }
 
         _cur.moveToCur(c);
 
@@ -563,12 +553,8 @@ public final class Cursor implements XmlCursor, ChangeListener {
         if (file == null)
             throw new IllegalArgumentException("Null file specified");
 
-        OutputStream os = new FileOutputStream(file);
-
-        try {
+        try (OutputStream os = new FileOutputStream(file)) {
             _save(os, options);
-        } finally {
-            os.close();
         }
     }
 
@@ -604,21 +590,18 @@ public final class Cursor implements XmlCursor, ChangeListener {
             return;
         }
 
-        Reader r = _newReader(options);
-
-        try {
+        try (Reader r = _newReader(options)) {
             char[] chars = new char[8192];
 
-            for (; ;) {
+            for (;;) {
                 int n = r.read(chars);
 
-                if (n < 0)
+                if (n < 0) {
                     break;
+                }
 
                 w.write(chars, 0, n);
             }
-        } finally {
-            r.close();
         }
     }
 
@@ -637,19 +620,19 @@ public final class Cursor implements XmlCursor, ChangeListener {
 
         try {
             LOOP: for (; ;) {
-                SWITCH: switch (token) {
+                switch (token) {
                     case TokenType.INT_START:
                         if (seenElement)
                             return true;
                         seenElement = true;
                         token = c.toEndToken().intValue();
-                        break SWITCH;
+                        break;
 
                     case TokenType.INT_TEXT:
                         if (!Locale.isWhiteSpace(c.getChars()))
                             return true;
                         token = c.toNextToken().intValue();
-                        break SWITCH;
+                        break;
 
                     case TokenType.INT_NONE:
                     case TokenType.INT_ENDDOC:
@@ -663,7 +646,7 @@ public final class Cursor implements XmlCursor, ChangeListener {
                     case TokenType.INT_COMMENT:
                     case TokenType.INT_PROCINST:
                         token = c.toNextToken().intValue();
-                        break SWITCH;
+                        break;
 
                     case TokenType.INT_STARTDOC:
                         assert false;
@@ -677,179 +660,9 @@ public final class Cursor implements XmlCursor, ChangeListener {
         return !seenElement;
     }
 
-    private static final class DomSaver extends Saver {
-        DomSaver(Cur c, boolean isFrag, XmlOptions options) {
-            super(c, options);
-
-            if (c.isUserNode())
-                _type = c.getUser().get_schema_type();
-
-            _stl = c._locale._schemaTypeLoader;
-            _options = options;
-            _isFrag = isFrag;
-        }
-
-        Node saveDom() {
-            Locale l = Locale.getLocale(_stl, _options);
-
-            l.enter();
-
-            try {
-                _nodeCur = l.getCur();  // Not weak or temp
-
-                // Build the tree
-                
-                while (process())
-                    ;
-
-                // Set the type
-
-                while (!_nodeCur.isRoot())
-                    _nodeCur.toParent();
-
-                if (_type != null)
-                    _nodeCur.setType(_type);
-
-                Node node = (Node) _nodeCur.getDom();
-
-                _nodeCur.release();
-
-                _nodeCur = null;
-
-                return node;
-            } finally {
-                l.exit();
-            }
-        }
-
-        protected boolean emitElement(SaveCur c, ArrayList attrNames, ArrayList attrValues) {
-            // If there was text or comments before the frag element, I will loose them -- oh well
-            // Also, I will lose any attributes and namesapces on the fragment -- DOM can
-            // have attrs in fragments
-            
-            if (Locale.isFragmentQName(c.getName()))
-                _nodeCur.moveTo(null, Cur.NO_POS);
-
-            ensureDoc();
-
-            _nodeCur.createElement(getQualifiedName(c, c.getName()));
-            _nodeCur.next();
-
-            for (iterateMappings(); hasMapping(); nextMapping()) {
-                _nodeCur.createAttr(_nodeCur._locale.createXmlns(mappingPrefix()));
-                _nodeCur.next();
-                _nodeCur.insertString(mappingUri());
-                _nodeCur.toParent();
-                _nodeCur.skipWithAttrs();
-            }
-
-            for (int i = 0; i < attrNames.size(); i++) {
-                _nodeCur.createAttr(getQualifiedName(c, (QName) attrNames.get(i)));
-                _nodeCur.next();
-                _nodeCur.insertString((String) attrValues.get(i));
-                _nodeCur.toParent();
-                _nodeCur.skipWithAttrs();
-            }
-
-            return false;
-        }
-
-        protected void emitFinish(SaveCur c) {
-            if (!Locale.isFragmentQName(c.getName())) {
-                assert _nodeCur.isEnd();
-                _nodeCur.next();
-            }
-        }
-
-        protected void emitText(SaveCur c) {
-            ensureDoc();
-
-            Object src = c.getChars();
-
-            if (c._cchSrc > 0) {
-                _nodeCur.insertChars(src, c._offSrc, c._cchSrc);
-                _nodeCur.next();
-            }
-        }
-
-        protected void emitComment(SaveCur c) {
-            ensureDoc();
-
-            _nodeCur.createComment();
-            emitTextValue(c);
-            _nodeCur.skip();
-        }
-
-        protected void emitProcinst(SaveCur c) {
-            ensureDoc();
-
-            _nodeCur.createProcinst(c.getName().getLocalPart());
-            emitTextValue(c);
-            _nodeCur.skip();
-        }
-
-        protected void emitDocType(String docTypeName, String publicId, String systemId) {
-            ensureDoc();
-
-            XmlDocumentProperties props = Locale.getDocProps(_nodeCur, true);
-            props.setDoctypeName(docTypeName);
-            props.setDoctypePublicId(publicId);
-            props.setDoctypeSystemId(systemId);
-        }
-
-        protected void emitStartDoc(SaveCur c) {
-            ensureDoc();
-        }
-
-        protected void emitEndDoc ( SaveCur c )
-        {
-        }
-        
-        private QName getQualifiedName(SaveCur c, QName name) {
-            String uri = name.getNamespaceURI();
-
-            String prefix = uri.length() > 0 ? getUriMapping(uri) : "";
-
-            if (prefix.equals(name.getPrefix()))
-                return name;
-
-            return _nodeCur._locale.makeQName(uri, name.getLocalPart(), prefix);
-        }
-
-        private void emitTextValue(SaveCur c) {
-            c.push();
-            c.next();
-
-            if (c.isText()) {
-                _nodeCur.next();
-                _nodeCur.insertChars(c.getChars(), c._offSrc, c._cchSrc);
-                _nodeCur.toParent();
-            }
-
-            c.pop();
-        }
-
-        private void ensureDoc() {
-            if (!_nodeCur.isPositioned()) {
-                if (_isFrag)
-                    _nodeCur.createDomDocFragRoot();
-                else
-                    _nodeCur.createDomDocumentRoot();
-
-                _nodeCur.next();
-            }
-        }
-
-        private Cur _nodeCur;
-        private SchemaType _type;
-        private SchemaTypeLoader _stl;
-        private XmlOptions _options;
-        private boolean _isFrag;
-    }
-
     public Node _newDomNode(XmlOptions options) {
         // Must ignore inner options for compat with v1.
-        
+
         if (XmlOptions.hasOption(options, XmlOptions.SAVE_INNER)) {
             options = new XmlOptions(options);
             options.remove(XmlOptions.SAVE_INNER);
@@ -1143,20 +956,23 @@ public final class Cursor implements XmlCursor, ChangeListener {
         if (attrName == null)
             throw new IllegalArgumentException("Attr name is null");
 
-        if (!_cur.isContainer())
+        if (!_cur.isContainer()) {
             return null;
+        }
 
         return _cur.getAttrValue(attrName);
     }
 
     public boolean _setAttributeText(QName attrName, String value) {
-        if (attrName == null)
+        if (attrName == null) {
             throw new IllegalArgumentException("Attr name is null");
+        }
 
         validateLocalName(attrName.getLocalPart());
 
-        if (!_cur.isContainer())
+        if (!_cur.isContainer()) {
             return false;
+        }
 
         _cur.setAttrValue(attrName, value);
 
@@ -1164,18 +980,21 @@ public final class Cursor implements XmlCursor, ChangeListener {
     }
 
     public boolean _removeAttribute(QName attrName) {
-        if (attrName == null)
+        if (attrName == null) {
             throw new IllegalArgumentException("Attr name is null");
+        }
 
-        if (!_cur.isContainer())
+        if (!_cur.isContainer()) {
             return false;
+        }
 
         return _cur.removeAttr(attrName);
     }
 
     public String _getTextValue() {
-        if (_cur.isText())
+        if (_cur.isText()) {
             return _getChars();
+        }
 
         if (!_cur.isNode()) {
             throw new IllegalStateException("Can't get text value, current token can have no text value");
@@ -1185,23 +1004,29 @@ public final class Cursor implements XmlCursor, ChangeListener {
     }
 
     public int _getTextValue(char[] chars, int offset, int max) {
-        if (_cur.isText())
+        if (_cur.isText()) {
             return _getChars(chars, offset, max);
+        }
 
-        if (chars == null)
+        if (chars == null) {
             throw new IllegalArgumentException("char buffer is null");
+        }
 
-        if (offset < 0)
+        if (offset < 0) {
             throw new IllegalArgumentException("offset < 0");
+        }
 
-        if (offset >= chars.length)
+        if (offset >= chars.length) {
             throw new IllegalArgumentException("offset off end");
+        }
 
-        if (max < 0)
+        if (max < 0) {
             max = Integer.MAX_VALUE;
+        }
 
-        if (offset + max > chars.length)
+        if (offset + max > chars.length) {
             max = chars.length - offset;
+        }
 
         if (!_cur.isNode()) {
             throw new IllegalStateException("Can't get text value, current token can have no text value");
@@ -1209,18 +1034,21 @@ public final class Cursor implements XmlCursor, ChangeListener {
 
         // If there are no children (hopefully the common case), I can get the text faster.
 
-        if (_cur.hasChildren())
+        if (_cur.hasChildren()) {
             return Locale.getTextValue(_cur, Locale.WS_PRESERVE, chars, offset, max);
+        }
 
         // Fast way
-            
+
         Object src = _cur.getFirstChars();
 
-        if (_cur._cchSrc > max)
+        if (_cur._cchSrc > max) {
             _cur._cchSrc = max;
+        }
 
-        if (_cur._cchSrc <= 0)
+        if (_cur._cchSrc <= 0) {
             return 0;
+        }
 
         CharUtil.getChars(chars, offset, src, _cur._offSrc, _cur._cchSrc);
 
@@ -1239,30 +1067,35 @@ public final class Cursor implements XmlCursor, ChangeListener {
     }
 
     public void _setTextValue(String text) {
-        if (text == null)
+        if (text == null) {
             text = "";
+        }
 
         setTextValue(text, 0, text.length());
     }
 
     public void _setTextValue(char[] sourceChars, int offset, int length) {
-        if (length < 0)
+        if (length < 0) {
             throw new IndexOutOfBoundsException("setTextValue: length < 0");
+        }
 
         if (sourceChars == null) {
-            if (length > 0)
+            if (length > 0) {
                 throw new IllegalArgumentException("setTextValue: sourceChars == null");
+            }
 
             setTextValue(null, 0, 0);
 
             return;
         }
 
-        if (offset < 0 || offset >= sourceChars.length)
+        if (offset < 0 || offset >= sourceChars.length) {
             throw new IndexOutOfBoundsException("setTextValue: offset out of bounds");
+        }
 
-        if (offset + length > sourceChars.length)
+        if (offset + length > sourceChars.length) {
             length = sourceChars.length - offset;
+        }
 
         CharUtil cu = _cur._locale.getCharUtil();
 
@@ -1270,20 +1103,23 @@ public final class Cursor implements XmlCursor, ChangeListener {
     }
 
     public String _getChars() {
-        return _cur.getCharsAsString(-1);
+        return _cur.getCharsAsString();
     }
 
     public int _getChars(char[] buf, int off, int cch) {
         int cchRight = _cur.cchRight();
 
-        if (cch < 0 || cch > cchRight)
+        if (cch < 0 || cch > cchRight) {
             cch = cchRight;
+        }
 
-        if (buf == null || off >= buf.length)
+        if (buf == null || off >= buf.length) {
             return 0;
+        }
 
-        if (buf.length - off < cch)
+        if (buf.length - off < cch) {
             cch = buf.length - off;
+        }
 
         Object src = _cur.getChars(cch);
 
@@ -1293,22 +1129,20 @@ public final class Cursor implements XmlCursor, ChangeListener {
     }
 
     public void _toStartDoc() {
-//        while (_cur.toParent())
-//            ;
-          _cur.toRoot();
+        _cur.toRoot();
     }
 
     public void _toEndDoc() {
         _toStartDoc();
-
         _cur.toEnd();
     }
 
     public int _comparePosition(Cursor other) {
         int s = _cur.comparePosition(other._cur);
 
-        if (s == 2)
+        if (s == 2) {
             throw new IllegalArgumentException("Cursors not in same document");
+        }
 
         assert s >= -1 && s <= 1;
 
@@ -1332,20 +1166,21 @@ public final class Cursor implements XmlCursor, ChangeListener {
     }
 
     public XmlCursor _execQuery(String query, XmlOptions options) {
-            checkThisCursor();
-            return Query.cursorExecQuery(_cur,query,options);
-
+        checkThisCursor();
+        return Query.cursorExecQuery(_cur,query,options);
     }
 
 
     public boolean _toBookmark(XmlBookmark bookmark) {
-        if (bookmark == null || !(bookmark._currentMark instanceof Xobj.Bookmark))
+        if (bookmark == null || !(bookmark._currentMark instanceof Bookmark)) {
             return false;
+        }
 
-        Xobj.Bookmark m = (Xobj.Bookmark) bookmark._currentMark;
+        Bookmark m = (Bookmark) bookmark._currentMark;
 
-        if (m._xobj == null || m._xobj._locale != _cur._locale)
+        if (m._xobj == null || m._xobj._locale != _cur._locale) {
             return false;
+        }
 
         _cur.moveTo(m._xobj, m._pos);
 
@@ -1353,8 +1188,9 @@ public final class Cursor implements XmlCursor, ChangeListener {
     }
 
     public XmlBookmark _toNextBookmark(Object key) {
-        if (key == null)
+        if (key == null) {
             return null;
+        }
 
         int cch;
 
@@ -1362,7 +1198,7 @@ public final class Cursor implements XmlCursor, ChangeListener {
 
         for (; ;) {
             // Move a minimal amount.  If at text, move to a potential bookmark in the text.
-            
+
             if ((cch = _cur.cchRight()) > 1) {
                 _cur.nextChars(1);
                 _cur.nextChars((cch = _cur.firstBookmarkInChars(key, cch - 1)) >= 0 ? cch : -1);
@@ -1395,7 +1231,7 @@ public final class Cursor implements XmlCursor, ChangeListener {
 
         for (; ;) {
             // Move a minimal amount.  If at text, move to a potential bookmark in the text.
-            
+
             if ((cch = _cur.cchLeft()) > 1) {
                 _cur.prevChars(1);
 
@@ -1404,7 +1240,7 @@ public final class Cursor implements XmlCursor, ChangeListener {
                 // _toPrevToken will not skip to the beginning of the text, it will go further
                 // so that the token to the right is not text.  I need to simply skip to
                 // the beginning of the text ...
-                
+
                 _cur.prevChars(1);
             } else if (_toPrevToken().isNone()) {
                 _cur.pop();
@@ -1427,9 +1263,10 @@ public final class Cursor implements XmlCursor, ChangeListener {
 
     public void _setBookmark(XmlBookmark bookmark) {
         if (bookmark != null) {
-            if (bookmark.getKey() == null)
+            if (bookmark.getKey() == null) {
                 throw new IllegalArgumentException("Annotation key is null");
-            
+            }
+
             // TODO - I Don't do weak bookmarks yet ... perhaps I'll never do them ....
 
             bookmark._currentMark = _cur.setBookmark(bookmark.getKey(), bookmark);
@@ -1439,12 +1276,13 @@ public final class Cursor implements XmlCursor, ChangeListener {
     static XmlBookmark getBookmark(Object key, Cur c) {
         // TODO - I Don't do weak bookmarks yet ...
 
-        if (key == null)
+        if (key == null) {
             return null;
+        }
 
         Object bm = c.getBookmark(key);
 
-        return bm != null && bm instanceof XmlBookmark ? (XmlBookmark) bm : null;
+        return bm instanceof XmlBookmark ? (XmlBookmark) bm : null;
     }
 
     public XmlBookmark _getBookmark(Object key) {
@@ -1452,24 +1290,29 @@ public final class Cursor implements XmlCursor, ChangeListener {
     }
 
     public void _clearBookmark(Object key) {
-        if (key != null)
+        if (key != null) {
             _cur.setBookmark(key, null);
+        }
     }
 
     public void _getAllBookmarkRefs(Collection listToFill) {
         if (listToFill != null) {
-            for (Xobj.Bookmark b = _cur._xobj._bookmarks; b != null; b = b._next)
-                if (b._value instanceof XmlBookmark)
+            for (Bookmark b = _cur._xobj._bookmarks; b != null; b = b._next) {
+                if (b._value instanceof XmlBookmark) {
                     listToFill.add(b._value);
+                }
+            }
         }
     }
 
     public boolean _removeXml() {
-        if (_cur.isRoot())
+        if (_cur.isRoot()) {
             throw new IllegalStateException("Can't remove a whole document.");
+        }
 
-        if (_cur.isFinish())
+        if (_cur.isFinish()) {
             return false;
+        }
 
         assert _cur.isText() || _cur.isNode();
 
@@ -1485,14 +1328,15 @@ public final class Cursor implements XmlCursor, ChangeListener {
         to.checkInsertionValidity(_cur);
 
         // Check for a no-op
-        
+
         if (_cur.isText()) {
             int cchRight = _cur.cchRight();
 
             assert cchRight > 0;
 
-            if (_cur.inChars(to._cur, cchRight, true))
+            if (_cur.inChars(to._cur, cchRight, true)) {
                 return false;
+            }
 
             _cur.moveChars(to._cur, cchRight);
 
@@ -1501,11 +1345,12 @@ public final class Cursor implements XmlCursor, ChangeListener {
             return true;
         }
 
-        if (_cur.contains(to._cur))
+        if (_cur.contains(to._cur)) {
             return false;
+        }
 
         // Make a cur which will float to the right of the insertion
-        
+
         Cur c = to.tempCur();
 
         _cur.moveNode(to._cur);
@@ -1524,10 +1369,11 @@ public final class Cursor implements XmlCursor, ChangeListener {
 
         Cur c = to.tempCur();
 
-        if (_cur.isText())
+        if (_cur.isText()) {
             to._cur.insertChars(_cur.getChars(-1), _cur._offSrc, _cur._cchSrc);
-        else
+        } else {
             _cur.copyNode(to._cur);
+        }
 
         to._cur.moveToCur(c);
 
@@ -1537,8 +1383,9 @@ public final class Cursor implements XmlCursor, ChangeListener {
     }
 
     public boolean _removeXmlContents() {
-        if (!_cur.isContainer())
+        if (!_cur.isContainer()) {
             return false;
+        }
 
         _cur.moveNodeContents(null, false);
 
@@ -1568,11 +1415,13 @@ public final class Cursor implements XmlCursor, ChangeListener {
     }
 
     public boolean _moveXmlContents(Cursor to) {
-        if (!_cur.isContainer() || _cur.contains(to._cur))
+        if (!_cur.isContainer() || _cur.contains(to._cur)) {
             return false;
+        }
 
-        if (!checkContentInsertionValidity(to))
+        if (!checkContentInsertionValidity(to)) {
             return false;
+        }
 
         Cur c = to.tempCur();
 
@@ -1586,11 +1435,13 @@ public final class Cursor implements XmlCursor, ChangeListener {
     }
 
     public boolean _copyXmlContents(Cursor to) {
-        if (!_cur.isContainer() || _cur.contains(to._cur))
+        if (!_cur.isContainer() || _cur.contains(to._cur)) {
             return false;
+        }
 
-        if (!checkContentInsertionValidity(to))
+        if (!checkContentInsertionValidity(to)) {
             return false;
+        }
 
         // I don't have a primitive to copy contents, make a copy of the node and them move the
         // contents
@@ -1615,11 +1466,13 @@ public final class Cursor implements XmlCursor, ChangeListener {
     public int _removeChars(int cch) {
         int cchRight = _cur.cchRight();
 
-        if (cchRight == 0 || cch == 0)
+        if (cchRight == 0 || cch == 0) {
             return 0;
+        }
 
-        if (cch < 0 || cch > cchRight)
+        if (cch < 0 || cch > cchRight) {
             cch = cchRight;
+        }
 
         _cur.moveChars(null, cch);
 
@@ -1679,7 +1532,7 @@ public final class Cursor implements XmlCursor, ChangeListener {
     //
     // Inserting elements
     //
-    
+
     public void _beginElement(String localName) {
         _insertElementWithText(localName, null, null);
         _toPrevToken();
@@ -1732,7 +1585,7 @@ public final class Cursor implements XmlCursor, ChangeListener {
     //
     //
     //
-    
+
     public void _insertAttribute(String localName) {
         _insertAttributeWithValue(localName, null);
     }
@@ -1770,7 +1623,7 @@ public final class Cursor implements XmlCursor, ChangeListener {
     //
     //
     //
-    
+
     public void _insertNamespace(String prefix, String namespace) {
         _insertAttributeWithValue(_cur._locale.createXmlns(prefix), namespace);
     }
@@ -1833,7 +1686,7 @@ public final class Cursor implements XmlCursor, ChangeListener {
 
         return other;
     }
-    
+
     //
     // The following operations have two cursors, and can be in different documents
     //
@@ -1852,13 +1705,7 @@ public final class Cursor implements XmlCursor, ChangeListener {
         Locale otherLocale = other._cur._locale;
 
         if (locale == otherLocale) {
-            if (locale.noSync())
-                return twoLocaleOp(other, op, arg);
-            else {
-                synchronized (locale) {
-                    return twoLocaleOp(other, op, arg);
-                }
-            }
+            return syncWrapNoEnter(() -> twoLocaleOp(other, op, arg));
         }
 
         if (locale.noSync()) {
@@ -1950,6 +1797,7 @@ public final class Cursor implements XmlCursor, ChangeListener {
         return twoLocaleOp(xTo, COPY_CHARS, cch);
     }
 
+
     //
     // Special methods involving multiple cursors which can be in different locales, but do not
     // require sync on both locales.
@@ -1957,33 +1805,15 @@ public final class Cursor implements XmlCursor, ChangeListener {
 
     public boolean toCursor(XmlCursor xOther) {
         // One may only move cursors within the same locale
-        
+
         Cursor other = checkCursors(xOther);
 
-        if (_cur._locale != other._cur._locale)
-            return false;
-
-        if (_cur._locale.noSync()) {
-            _cur._locale.enter();
-            try {
-                return _toCursor(other);
-            } finally {
-                _cur._locale.exit();
-            }
-        } else {
-            synchronized (_cur._locale) {
-                _cur._locale.enter();
-                try {
-                    return _toCursor(other);
-                } finally {
-                    _cur._locale.exit();
-                }
-            }
-        }
+        return _cur._locale == other._cur._locale &&
+               syncWrap(() -> _toCursor(other));
     }
 
     public boolean isInSameDocument(XmlCursor xOther) {
-        return xOther == null ? false : _cur.isInSameTree(checkCursors(xOther)._cur);
+        return xOther != null && _cur.isInSameTree(checkCursors(xOther)._cur);
     }
 
     //
@@ -1993,92 +1823,37 @@ public final class Cursor implements XmlCursor, ChangeListener {
     private Cursor preCheck(XmlCursor xOther) {
         Cursor other = checkCursors(xOther);
 
-        if (_cur._locale != other._cur._locale)
+        if (_cur._locale != other._cur._locale) {
             throw new IllegalArgumentException("Cursors not in same document");
+        }
 
         return other;
     }
 
     public int comparePosition(XmlCursor xOther) {
         Cursor other = preCheck(xOther);
-        if (_cur._locale.noSync()) {
-            _cur._locale.enter();
-            try {
-                return _comparePosition(other);
-            } finally {
-                _cur._locale.exit();
-            }
-        } else synchronized (_cur._locale) {
-            _cur._locale.enter();
-            try {
-                return _comparePosition(other);
-            } finally {
-                _cur._locale.exit();
-            }
-        }
+        return syncWrap(() -> _comparePosition(other));
     }
 
     public boolean isLeftOf(XmlCursor xOther) {
         Cursor other = preCheck(xOther);
-        if (_cur._locale.noSync()) {
-            _cur._locale.enter();
-            try {
-                return _isLeftOf(other);
-            } finally {
-                _cur._locale.exit();
-            }
-        } else synchronized (_cur._locale) {
-            _cur._locale.enter();
-            try {
-                return _isLeftOf(other);
-            } finally {
-                _cur._locale.exit();
-            }
-        }
+        return syncWrap(() -> _isLeftOf(other));
     }
 
     public boolean isAtSamePositionAs(XmlCursor xOther) {
         Cursor other = preCheck(xOther);
-        if (_cur._locale.noSync()) {
-            _cur._locale.enter();
-            try {
-                return _isAtSamePositionAs(other);
-            } finally {
-                _cur._locale.exit();
-            }
-        } else synchronized (_cur._locale) {
-            _cur._locale.enter();
-            try {
-                return _isAtSamePositionAs(other);
-            } finally {
-                _cur._locale.exit();
-            }
-        }
+        return syncWrap(() -> _isAtSamePositionAs(other));
     }
 
     public boolean isRightOf(XmlCursor xOther) {
         Cursor other = preCheck(xOther);
-        if (_cur._locale.noSync()) {
-            _cur._locale.enter();
-            try {
-                return _isRightOf(other);
-            } finally {
-                _cur._locale.exit();
-            }
-        } else synchronized (_cur._locale) {
-            _cur._locale.enter();
-            try {
-                return _isRightOf(other);
-            } finally {
-                _cur._locale.exit();
-            }
-        }
+        return syncWrap(() -> _isRightOf(other));
     }
-    
+
     //
     // Create a cursor from an Xobj -- used for XmlBookmark.createCursor
     //
-    
+
     public static XmlCursor newCursor(Xobj x, int p) {
         Locale l = x._locale;
         if (l.noSync()) {
@@ -2097,7 +1872,7 @@ public final class Cursor implements XmlCursor, ChangeListener {
             }
         }
     }
-    
+
     //
     // The following operations involve only one cursor
     //
@@ -2109,1199 +1884,274 @@ public final class Cursor implements XmlCursor, ChangeListener {
 
     public void dispose() {
         if (_cur != null) {
-            Locale l = _cur._locale;
-            if (preCheck()) {
-                l.enter();
-                try {
-                    _dispose();
-                } finally {
-                    l.exit();
-                }
-            } else synchronized (l) {
-                l.enter();
-                try {
-                    _dispose();
-                } finally {
-                    l.exit();
-                }
-            }
+            syncWrap(this::_dispose);
         }
     }
 
     public Object monitor() {
-        if (preCheck()) {
-            _cur._locale.enter();
-            try {
-                return _monitor();
-            } finally {
-                _cur._locale.exit();
-            }
-        } else synchronized (_cur._locale) {
-            _cur._locale.enter();
-            try {
-                return _monitor();
-            } finally {
-                _cur._locale.exit();
-            }
-        }
+        return syncWrap(this::_monitor);
     }
 
     public XmlDocumentProperties documentProperties() {
-        if (preCheck()) {
-            _cur._locale.enter();
-            try {
-                return _documentProperties();
-            } finally {
-                _cur._locale.exit();
-            }
-        } else synchronized (_cur._locale) {
-            _cur._locale.enter();
-            try {
-                return _documentProperties();
-            } finally {
-                _cur._locale.exit();
-            }
-        }
+        return syncWrap(this::_documentProperties);
     }
 
     public XmlCursor newCursor() {
-        if (preCheck()) {
-            _cur._locale.enter();
-            try {
-                return _newCursor();
-            } finally {
-                _cur._locale.exit();
-            }
-        } else synchronized (_cur._locale) {
-            _cur._locale.enter();
-            try {
-                return _newCursor();
-            } finally {
-                _cur._locale.exit();
-            }
-        }
+        return syncWrap(this::_newCursor);
     }
 
     public XMLStreamReader newXMLStreamReader() {
-        if (preCheck()) {
-            _cur._locale.enter();
-            try {
-                return _newXMLStreamReader();
-            } finally {
-                _cur._locale.exit();
-            }
-        } else synchronized (_cur._locale) {
-            _cur._locale.enter();
-            try {
-                return _newXMLStreamReader();
-            } finally {
-                _cur._locale.exit();
-            }
-        }
+        return syncWrap((Supplier<XMLStreamReader>)this::_newXMLStreamReader);
     }
 
     public XMLStreamReader newXMLStreamReader(XmlOptions options) {
-        if (preCheck()) {
-            _cur._locale.enter();
-            try {
-                return _newXMLStreamReader(options);
-            } finally {
-                _cur._locale.exit();
-            }
-        } else synchronized (_cur._locale) {
-            _cur._locale.enter();
-            try {
-                return _newXMLStreamReader(options);
-            } finally {
-                _cur._locale.exit();
-            }
-        }
+        return syncWrap(() -> _newXMLStreamReader(options));
     }
 
     /**
      * @deprecated XMLInputStream was deprecated by XMLStreamReader from STaX - jsr173 API.
      */
     public XMLInputStream newXMLInputStream() {
-        if (preCheck()) {
-            _cur._locale.enter();
-            try {
-                return _newXMLInputStream();
-            } finally {
-                _cur._locale.exit();
-            }
-        } else synchronized (_cur._locale) {
-            _cur._locale.enter();
-            try {
-                return _newXMLInputStream();
-            } finally {
-                _cur._locale.exit();
-            }
-        }
+        return syncWrap((Supplier<XMLInputStream>)this::_newXMLInputStream);
     }
 
     public String xmlText() {
-        if (preCheck()) {
-            _cur._locale.enter();
-            try {
-                return _xmlText();
-            } finally {
-                _cur._locale.exit();
-            }
-        } else synchronized (_cur._locale) {
-            _cur._locale.enter();
-            try {
-                return _xmlText();
-            } finally {
-                _cur._locale.exit();
-            }
-        }
+        return syncWrap((Supplier<String>)this::_xmlText);
     }
 
     public InputStream newInputStream() {
-        if (preCheck()) {
-            _cur._locale.enter();
-            try {
-                return _newInputStream();
-            } finally {
-                _cur._locale.exit();
-            }
-        } else synchronized (_cur._locale) {
-            _cur._locale.enter();
-            try {
-                return _newInputStream();
-            } finally {
-                _cur._locale.exit();
-            }
-        }
+        return syncWrap((Supplier<InputStream>)this::_newInputStream);
     }
 
     public Reader newReader() {
-        if (preCheck()) {
-            _cur._locale.enter();
-            try {
-                return _newReader();
-            } finally {
-                _cur._locale.exit();
-            }
-        } else synchronized (_cur._locale) {
-            _cur._locale.enter();
-            try {
-                return _newReader();
-            } finally {
-                _cur._locale.exit();
-            }
-        }
+        return syncWrap((Supplier<Reader>)this::_newReader);
     }
 
     public Node newDomNode() {
-        if (preCheck()) {
-            _cur._locale.enter();
-            try {
-                return _newDomNode();
-            } finally {
-                _cur._locale.exit();
-            }
-        } else synchronized (_cur._locale) {
-            _cur._locale.enter();
-            try {
-                return _newDomNode();
-            } finally {
-                _cur._locale.exit();
-            }
-        }
+        return syncWrap((Supplier<Node>)this::_newDomNode);
     }
 
     public Node getDomNode() {
-        if (preCheck()) {
-            _cur._locale.enter();
-            try {
-                return _getDomNode();
-            } finally {
-                _cur._locale.exit();
-            }
-        } else synchronized (_cur._locale) {
-            _cur._locale.enter();
-            try {
-                return _getDomNode();
-            } finally {
-                _cur._locale.exit();
-            }
-        }
+        return syncWrap(this::_getDomNode);
     }
 
     public void save(ContentHandler ch, LexicalHandler lh) throws SAXException {
-        if (preCheck()) {
-            _cur._locale.enter();
-            try {
-                _save(ch, lh);
-            } finally {
-                _cur._locale.exit();
-            }
-        } else synchronized (_cur._locale) {
-            _cur._locale.enter();
-            try {
-                _save(ch, lh);
-            } finally {
-                _cur._locale.exit();
-            }
-        }
+        syncWrapSAXEx(() -> _save(ch, lh));
     }
 
     public void save(File file) throws IOException {
-        if (preCheck()) {
-            _cur._locale.enter();
-            try {
-                _save(file);
-            } finally {
-                _cur._locale.exit();
-            }
-        } else synchronized (_cur._locale) {
-            _cur._locale.enter();
-            try {
-                _save(file);
-            } finally {
-                _cur._locale.exit();
-            }
-        }
+        syncWrapIOEx(() -> _save(file));
     }
 
     public void save(OutputStream os) throws IOException {
-        if (preCheck()) {
-            _cur._locale.enter();
-            try {
-                _save(os);
-            } finally {
-                _cur._locale.exit();
-            }
-        } else synchronized (_cur._locale) {
-            _cur._locale.enter();
-            try {
-                _save(os);
-            } finally {
-                _cur._locale.exit();
-            }
-        }
+        syncWrapIOEx(() -> _save(os));
     }
 
     public void save(Writer w) throws IOException {
-        if (preCheck()) {
-            _cur._locale.enter();
-            try {
-                _save(w);
-            } finally {
-                _cur._locale.exit();
-            }
-        } else synchronized (_cur._locale) {
-            _cur._locale.enter();
-            try {
-                _save(w);
-            } finally {
-                _cur._locale.exit();
-            }
-        }
+        syncWrapIOEx(() -> _save(w));
     }
 
     /**
      * @deprecated XMLInputStream was deprecated by XMLStreamReader from STaX - jsr173 API.
      */
     public XMLInputStream newXMLInputStream(XmlOptions options) {
-        if (preCheck()) {
-            _cur._locale.enter();
-            try {
-                return _newXMLInputStream(options);
-            } finally {
-                _cur._locale.exit();
-            }
-        } else synchronized (_cur._locale) {
-            _cur._locale.enter();
-            try {
-                return _newXMLInputStream(options);
-            } finally {
-                _cur._locale.exit();
-            }
-        }
+        return syncWrap(() -> _newXMLInputStream(options));
     }
 
     public String xmlText(XmlOptions options) {
-        if (preCheck()) {
-            _cur._locale.enter();
-            try {
-                return _xmlText(options);
-            } finally {
-                _cur._locale.exit();
-            }
-        } else synchronized (_cur._locale) {
-            _cur._locale.enter();
-            try {
-                return _xmlText(options);
-            } finally {
-                _cur._locale.exit();
-            }
-        }
+        return syncWrap(() -> _xmlText(options));
     }
 
     public InputStream newInputStream(XmlOptions options) {
-        if (preCheck()) {
-            _cur._locale.enter();
-            try {
-                return _newInputStream(options);
-            } finally {
-                _cur._locale.exit();
-            }
-        } else synchronized (_cur._locale) {
-            _cur._locale.enter();
-            try {
-                return _newInputStream(options);
-            } finally {
-                _cur._locale.exit();
-            }
-        }
+        return syncWrap(() -> _newInputStream(options));
     }
 
     public Reader newReader(XmlOptions options) {
-        if (preCheck()) {
-            _cur._locale.enter();
-            try {
-                return _newReader(options);
-            } finally {
-                _cur._locale.exit();
-            }
-        } else synchronized (_cur._locale) {
-            _cur._locale.enter();
-            try {
-                return _newReader(options);
-            } finally {
-                _cur._locale.exit();
-            }
-        }
+        return syncWrap(() -> _newReader(options));
     }
 
     public Node newDomNode(XmlOptions options) {
-        if (preCheck()) {
-            _cur._locale.enter();
-            try {
-                return _newDomNode(options);
-            } finally {
-                _cur._locale.exit();
-            }
-        } else synchronized (_cur._locale) {
-            _cur._locale.enter();
-            try {
-                return _newDomNode(options);
-            } finally {
-                _cur._locale.exit();
-            }
-        }
+        return syncWrap(() -> _newDomNode(options));
     }
 
     public void save(ContentHandler ch, LexicalHandler lh, XmlOptions options) throws SAXException {
-        if (preCheck()) {
-            _cur._locale.enter();
-            try {
-                _save(ch, lh, options);
-            } finally {
-                _cur._locale.exit();
-            }
-        } else synchronized (_cur._locale) {
-            _cur._locale.enter();
-            try {
-                _save(ch, lh, options);
-            } finally {
-                _cur._locale.exit();
-            }
-        }
+        syncWrapSAXEx(() -> _save(ch, lh, options));
     }
 
     public void save(File file, XmlOptions options) throws IOException {
-        if (preCheck()) {
-            _cur._locale.enter();
-            try {
-                _save(file, options);
-            } finally {
-                _cur._locale.exit();
-            }
-        } else synchronized (_cur._locale) {
-            _cur._locale.enter();
-            try {
-                _save(file, options);
-            } finally {
-                _cur._locale.exit();
-            }
-        }
+        syncWrapIOEx(() -> _save(file, options));
     }
 
     public void save(OutputStream os, XmlOptions options) throws IOException {
-        if (preCheck()) {
-            _cur._locale.enter();
-            try {
-                _save(os, options);
-            } finally {
-                _cur._locale.exit();
-            }
-        } else synchronized (_cur._locale) {
-            _cur._locale.enter();
-            try {
-                _save(os, options);
-            } finally {
-                _cur._locale.exit();
-            }
-        }
+        syncWrapIOEx(() -> _save(os, options));
     }
 
     public void save(Writer w, XmlOptions options) throws IOException {
-        if (preCheck()) {
-            _cur._locale.enter();
-            try {
-                _save(w, options);
-            } finally {
-                _cur._locale.exit();
-            }
-        } else synchronized (_cur._locale) {
-            _cur._locale.enter();
-            try {
-                _save(w, options);
-            } finally {
-                _cur._locale.exit();
-            }
-        }
+        syncWrapIOEx(() -> _save(w, options));
     }
 
     public void push() {
-        if (preCheck()) {
-            _cur._locale.enter();
-            try {
-                _push();
-            } finally {
-                _cur._locale.exit();
-            }
-        } else synchronized (_cur._locale) {
-            _cur._locale.enter();
-            try {
-                _push();
-            } finally {
-                _cur._locale.exit();
-            }
-        }
+        syncWrap(this::_push);
     }
 
     public boolean pop() {
-        if (preCheck()) {
-            _cur._locale.enter();
-            try {
-                return _pop();
-            } finally {
-                _cur._locale.exit();
-            }
-        } else synchronized (_cur._locale) {
-            _cur._locale.enter();
-            try {
-                return _pop();
-            } finally {
-                _cur._locale.exit();
-            }
-        }
+        return syncWrap(this::_pop);
     }
 
     public void selectPath(String path) {
-        if (preCheck()) {
-            _cur._locale.enter();
-            try {
-                _selectPath(path);
-            } finally {
-                _cur._locale.exit();
-            }
-        } else synchronized (_cur._locale) {
-            _cur._locale.enter();
-            try {
-                _selectPath(path);
-            } finally {
-                _cur._locale.exit();
-            }
-        }
+        syncWrap(() -> _selectPath(path));
     }
 
     public void selectPath(String path, XmlOptions options) {
-        if (preCheck()) {
-            _cur._locale.enter();
-            try {
-                _selectPath(path, options);
-            } finally {
-                _cur._locale.exit();
-            }
-        } else synchronized (_cur._locale) {
-            _cur._locale.enter();
-            try {
-                _selectPath(path, options);
-            } finally {
-                _cur._locale.exit();
-            }
-        }
+        syncWrap(() -> _selectPath(path, options));
     }
 
     public boolean hasNextSelection() {
-        if (preCheck()) {
-            _cur._locale.enter();
-            try {
-                return _hasNextSelection();
-            } finally {
-                _cur._locale.exit();
-            }
-        } else synchronized (_cur._locale) {
-            _cur._locale.enter();
-            try {
-                return _hasNextSelection();
-            } finally {
-                _cur._locale.exit();
-            }
-        }
+        return syncWrap(this::_hasNextSelection);
     }
 
     public boolean toNextSelection() {
-        if (preCheck()) {
-            _cur._locale.enter();
-            try {
-                return _toNextSelection();
-            } finally {
-                _cur._locale.exit();
-            }
-        } else synchronized (_cur._locale) {
-            _cur._locale.enter();
-            try {
-                return _toNextSelection();
-            } finally {
-                _cur._locale.exit();
-            }
-        }
+        return syncWrap(this::_toNextSelection);
     }
 
     public boolean toSelection(int i) {
-        if (preCheck()) {
-            _cur._locale.enter();
-            try {
-                return _toSelection(i);
-            } finally {
-                _cur._locale.exit();
-            }
-        } else synchronized (_cur._locale) {
-            _cur._locale.enter();
-            try {
-                return _toSelection(i);
-            } finally {
-                _cur._locale.exit();
-            }
-        }
+        return syncWrap(() -> _toSelection(i));
     }
 
     public int getSelectionCount() {
-        if (preCheck()) {
-            _cur._locale.enter();
-            try {
-                return _getSelectionCount();
-            } finally {
-                _cur._locale.exit();
-            }
-        } else synchronized (_cur._locale) {
-            _cur._locale.enter();
-            try {
-                return _getSelectionCount();
-            } finally {
-                _cur._locale.exit();
-            }
-        }
+        return syncWrap(this::_getSelectionCount);
     }
 
     public void addToSelection() {
-        if (preCheck()) {
-            _cur._locale.enter();
-            try {
-                _addToSelection();
-            } finally {
-                _cur._locale.exit();
-            }
-        } else synchronized (_cur._locale) {
-            _cur._locale.enter();
-            try {
-                _addToSelection();
-            } finally {
-                _cur._locale.exit();
-            }
-        }
+        syncWrap(this::_addToSelection);
     }
 
     public void clearSelections() {
-        if (preCheck()) {
-            _cur._locale.enter();
-            try {
-                _clearSelections();
-            } finally {
-                _cur._locale.exit();
-            }
-        } else synchronized (_cur._locale) {
-            _cur._locale.enter();
-            try {
-                _clearSelections();
-            } finally {
-                _cur._locale.exit();
-            }
-        }
+        syncWrap(this::_clearSelections);
     }
 
     public boolean toBookmark(XmlBookmark bookmark) {
-        if (preCheck()) {
-            _cur._locale.enter();
-            try {
-                return _toBookmark(bookmark);
-            } finally {
-                _cur._locale.exit();
-            }
-        } else synchronized (_cur._locale) {
-            _cur._locale.enter();
-            try {
-                return _toBookmark(bookmark);
-            } finally {
-                _cur._locale.exit();
-            }
-        }
+        return syncWrap(() -> _toBookmark(bookmark));
     }
 
     public XmlBookmark toNextBookmark(Object key) {
-        if (preCheck()) {
-            _cur._locale.enter();
-            try {
-                return _toNextBookmark(key);
-            } finally {
-                _cur._locale.exit();
-            }
-        } else synchronized (_cur._locale) {
-            _cur._locale.enter();
-            try {
-                return _toNextBookmark(key);
-            } finally {
-                _cur._locale.exit();
-            }
-        }
+        return syncWrap(() -> _toNextBookmark(key));
     }
 
     public XmlBookmark toPrevBookmark(Object key) {
-        if (preCheck()) {
-            _cur._locale.enter();
-            try {
-                return _toPrevBookmark(key);
-            } finally {
-                _cur._locale.exit();
-            }
-        } else synchronized (_cur._locale) {
-            _cur._locale.enter();
-            try {
-                return _toPrevBookmark(key);
-            } finally {
-                _cur._locale.exit();
-            }
-        }
+        return syncWrap(() -> _toPrevBookmark(key));
     }
 
     public QName getName() {
-        if (preCheck()) {
-            _cur._locale.enter();
-            try {
-                return _getName();
-            } finally {
-                _cur._locale.exit();
-            }
-        } else synchronized (_cur._locale) {
-            _cur._locale.enter();
-            try {
-                return _getName();
-            } finally {
-                _cur._locale.exit();
-            }
-        }
+        return syncWrap(this::_getName);
     }
 
     public void setName(QName name) {
-        if (preCheck()) {
-            _cur._locale.enter();
-            try {
-                _setName(name);
-            } finally {
-                _cur._locale.exit();
-            }
-        } else synchronized (_cur._locale) {
-            _cur._locale.enter();
-            try {
-                _setName(name);
-            } finally {
-                _cur._locale.exit();
-            }
-        }
+        syncWrap(() -> _setName(name));
     }
 
     public String namespaceForPrefix(String prefix) {
-        if (preCheck()) {
-            _cur._locale.enter();
-            try {
-                return _namespaceForPrefix(prefix);
-            } finally {
-                _cur._locale.exit();
-            }
-        } else synchronized (_cur._locale) {
-            _cur._locale.enter();
-            try {
-                return _namespaceForPrefix(prefix);
-            } finally {
-                _cur._locale.exit();
-            }
-        }
+        return syncWrap(() -> _namespaceForPrefix(prefix));
     }
 
     public String prefixForNamespace(String namespaceURI) {
-        if (preCheck()) {
-            _cur._locale.enter();
-            try {
-                return _prefixForNamespace(namespaceURI);
-            } finally {
-                _cur._locale.exit();
-            }
-        } else synchronized (_cur._locale) {
-            _cur._locale.enter();
-            try {
-                return _prefixForNamespace(namespaceURI);
-            } finally {
-                _cur._locale.exit();
-            }
-        }
+        return syncWrap(() -> _prefixForNamespace(namespaceURI));
     }
 
     public void getAllNamespaces(Map addToThis) {
-        if (preCheck()) {
-            _cur._locale.enter();
-            try {
-                _getAllNamespaces(addToThis);
-            } finally {
-                _cur._locale.exit();
-            }
-        } else synchronized (_cur._locale) {
-            _cur._locale.enter();
-            try {
-                _getAllNamespaces(addToThis);
-            } finally {
-                _cur._locale.exit();
-            }
-        }
+        syncWrap(() -> _getAllNamespaces(addToThis));
     }
 
     public XmlObject getObject() {
-        if (preCheck()) {
-            _cur._locale.enter();
-            try {
-                return _getObject();
-            } finally {
-                _cur._locale.exit();
-            }
-        } else synchronized (_cur._locale) {
-            _cur._locale.enter();
-            try {
-                return _getObject();
-            } finally {
-                _cur._locale.exit();
-            }
-        }
+        return syncWrap(this::_getObject);
     }
 
     public TokenType currentTokenType() {
-        if (preCheck()) {
-//            _cur._locale.enter();
-//            try {
-                return _currentTokenType();
-//            } finally {
-//                _cur._locale.exit();
-//            }
-        } else synchronized (_cur._locale) {
-//            _cur._locale.enter();
-//            try {
-                return _currentTokenType();
-//            } finally {
-//                _cur._locale.exit();
-//            }
-        }
+        return syncWrapNoEnter(this::_currentTokenType);
     }
 
     public boolean isStartdoc() {
-        if (preCheck()) {
-//            _cur._locale.enter();
-//            try {
-                return _isStartdoc();
-//            } finally {
-//                _cur._locale.exit();
-//            }
-        } else synchronized (_cur._locale) {
-//            _cur._locale.enter();
-//            try {
-                return _isStartdoc();
-//            } finally {
-//                _cur._locale.exit();
-//            }
-        }
+        return syncWrapNoEnter(this::_isStartdoc);
     }
 
     public boolean isEnddoc() {
-        if (preCheck()) {
-//            _cur._locale.enter();
-//            try {
-                return _isEnddoc();
-//            } finally {
-//                _cur._locale.exit();
-//            }
-        } else synchronized (_cur._locale) {
-//            _cur._locale.enter();
-//            try {
-                return _isEnddoc();
-//            } finally {
-//                _cur._locale.exit();
-//            }
-        }
+        return syncWrapNoEnter(this::_isEnddoc);
     }
 
     public boolean isStart() {
-        if (preCheck()) {
-//            _cur._locale.enter();
-//            try {
-                return _isStart();
-//            } finally {
-//                _cur._locale.exit();
-//            }
-        } else synchronized (_cur._locale) {
-//            _cur._locale.enter();
-//            try {
-                return _isStart();
-//            } finally {
-//                _cur._locale.exit();
-//            }
-        }
+        return syncWrapNoEnter(this::_isStart);
     }
 
     public boolean isEnd() {
-        if (preCheck()) {
-//            _cur._locale.enter();
-//            try {
-                return _isEnd();
-//            } finally {
-//                _cur._locale.exit();
-//            }
-        } else synchronized (_cur._locale) {
-//            _cur._locale.enter();
-//            try {
-                return _isEnd();
-//            } finally {
-//                _cur._locale.exit();
-//            }
-        }
+        return syncWrapNoEnter(this::_isEnd);
     }
 
     public boolean isText() {
-        if (preCheck()) {
-//            _cur._locale.enter();
-//            try {
-                return _isText();
-//            } finally {
-//                _cur._locale.exit();
-//            }
-        } else synchronized (_cur._locale) {
-//            _cur._locale.enter();
-//            try {
-                return _isText();
-//            } finally {
-//                _cur._locale.exit();
-//            }
-        }
+        return syncWrapNoEnter(this::_isText);
     }
 
     public boolean isAttr() {
-        if (preCheck()) {
-//            _cur._locale.enter();
-//            try {
-                return _isAttr();
-//            } finally {
-//                _cur._locale.exit();
-//            }
-        } else synchronized (_cur._locale) {
-//            _cur._locale.enter();
-//            try {
-                return _isAttr();
-//            } finally {
-//                _cur._locale.exit();
-//            }
-        }
+        return syncWrapNoEnter(this::_isAttr);
     }
 
     public boolean isNamespace() {
-        if (preCheck()) {
-//            _cur._locale.enter();
-//            try {
-                return _isNamespace();
-//            } finally {
-//                _cur._locale.exit();
-//            }
-        } else synchronized (_cur._locale) {
-//            _cur._locale.enter();
-//            try {
-                return _isNamespace();
-//            } finally {
-//                _cur._locale.exit();
-//            }
-        }
+        return syncWrapNoEnter(this::_isNamespace);
     }
 
     public boolean isComment() {
-        if (preCheck()) {
-//            _cur._locale.enter();
-//            try {
-                return _isComment();
-//            } finally {
-//                _cur._locale.exit();
-//            }
-        } else synchronized (_cur._locale) {
-//            _cur._locale.enter();
-//            try {
-                return _isComment();
-//            } finally {
-//                _cur._locale.exit();
-//            }
-        }
+        return syncWrapNoEnter(this::_isComment);
     }
 
     public boolean isProcinst() {
-        if (preCheck()) {
-//            _cur._locale.enter();
-//            try {
-                return _isProcinst();
-//            } finally {
-//                _cur._locale.exit();
-//            }
-        } else synchronized (_cur._locale) {
-//            _cur._locale.enter();
-//            try {
-                return _isProcinst();
-//            } finally {
-//                _cur._locale.exit();
-//            }
-        }
+        return syncWrapNoEnter(this::_isProcinst);
     }
 
     public boolean isContainer() {
-        if (preCheck()) {
-//            _cur._locale.enter();
-//            try {
-                return _isContainer();
-//            } finally {
-//                _cur._locale.exit();
-//            }
-        } else synchronized (_cur._locale) {
-//            _cur._locale.enter();
-//            try {
-                return _isContainer();
-//            } finally {
-//                _cur._locale.exit();
-//            }
-        }
+        return syncWrapNoEnter(this::_isContainer);
     }
 
     public boolean isFinish() {
-        if (preCheck()) {
-//            _cur._locale.enter();
-//            try {
-                return _isFinish();
-//            } finally {
-//                _cur._locale.exit();
-//            }
-        } else synchronized (_cur._locale) {
-//            _cur._locale.enter();
-//            try {
-                return _isFinish();
-//            } finally {
-//                _cur._locale.exit();
-//            }
-        }
+        return syncWrapNoEnter(this::_isFinish);
     }
 
     public boolean isAnyAttr() {
-        if (preCheck()) {
-//            _cur._locale.enter();
-//            try {
-                return _isAnyAttr();
-//            } finally {
-//                _cur._locale.exit();
-//            }
-        } else synchronized (_cur._locale) {
-//            _cur._locale.enter();
-//            try {
-                return _isAnyAttr();
-//            } finally {
-//                _cur._locale.exit();
-//            }
-        }
+        return syncWrapNoEnter(this::_isAnyAttr);
     }
 
     public TokenType prevTokenType() {
-        if (preCheck()) {
-            _cur._locale.enter();
-            try {
-                return _prevTokenType();
-            } finally {
-                _cur._locale.exit();
-            }
-        } else synchronized (_cur._locale) {
-            _cur._locale.enter();
-            try {
-                return _prevTokenType();
-            } finally {
-                _cur._locale.exit();
-            }
-        }
+        return syncWrap(this::_prevTokenType);
     }
 
     public boolean hasNextToken() {
-        if (preCheck()) {
-//            _cur._locale.enter();
-//            try {
-                return _hasNextToken();
-//            } finally {
-//                _cur._locale.exit();
-//            }
-        } else synchronized (_cur._locale) {
-//            _cur._locale.enter();
-//            try {
-                return _hasNextToken();
-//            } finally {
-//                _cur._locale.exit();
-//            }
-        }
+        return syncWrapNoEnter(this::_hasNextToken);
     }
 
     public boolean hasPrevToken() {
-        if (preCheck()) {
-            _cur._locale.enter();
-            try {
-                return _hasPrevToken();
-            } finally {
-                _cur._locale.exit();
-            }
-        } else synchronized (_cur._locale) {
-            _cur._locale.enter();
-            try {
-                return _hasPrevToken();
-            } finally {
-                _cur._locale.exit();
-            }
-        }
+        return syncWrap(this::_hasPrevToken);
     }
 
     public TokenType toNextToken() {
-        if (preCheck()) {
-            _cur._locale.enter();
-            try {
-                return _toNextToken();
-            } finally {
-                _cur._locale.exit();
-            }
-        } else synchronized (_cur._locale) {
-            _cur._locale.enter();
-            try {
-                return _toNextToken();
-            } finally {
-                _cur._locale.exit();
-            }
-        }
+        return syncWrap(this::_toNextToken);
     }
 
     public TokenType toPrevToken() {
-        if (preCheck()) {
-            _cur._locale.enter();
-            try {
-                return _toPrevToken();
-            } finally {
-                _cur._locale.exit();
-            }
-        } else synchronized (_cur._locale) {
-            _cur._locale.enter();
-            try {
-                return _toPrevToken();
-            } finally {
-                _cur._locale.exit();
-            }
-        }
+        return syncWrap(this::_toPrevToken);
     }
 
     public TokenType toFirstContentToken() {
-        if (preCheck()) {
-            _cur._locale.enter();
-            try {
-                return _toFirstContentToken();
-            } finally {
-                _cur._locale.exit();
-            }
-        } else synchronized (_cur._locale) {
-            _cur._locale.enter();
-            try {
-                return _toFirstContentToken();
-            } finally {
-                _cur._locale.exit();
-            }
-        }
+        return syncWrap(this::_toFirstContentToken);
     }
 
     public TokenType toEndToken() {
-        if (preCheck()) {
-            _cur._locale.enter();
-            try {
-                return _toEndToken();
-            } finally {
-                _cur._locale.exit();
-            }
-        } else synchronized (_cur._locale) {
-            _cur._locale.enter();
-            try {
-                return _toEndToken();
-            } finally {
-                _cur._locale.exit();
-            }
-        }
+        return syncWrap(this::_toEndToken);
     }
 
     public int toNextChar(int cch) {
-        if (preCheck()) {
-            _cur._locale.enter();
-            try {
-                return _toNextChar(cch);
-            } finally {
-                _cur._locale.exit();
-            }
-        } else synchronized (_cur._locale) {
-            _cur._locale.enter();
-            try {
-                return _toNextChar(cch);
-            } finally {
-                _cur._locale.exit();
-            }
-        }
+        return syncWrap(() -> _toNextChar(cch));
     }
 
     public int toPrevChar(int cch) {
-        if (preCheck()) {
-            _cur._locale.enter();
-            try {
-                return _toPrevChar(cch);
-            } finally {
-                _cur._locale.exit();
-            }
-        } else synchronized (_cur._locale) {
-            _cur._locale.enter();
-            try {
-                return _toPrevChar(cch);
-            } finally {
-                _cur._locale.exit();
-            }
-        }
+        return syncWrap(() -> _toPrevChar(cch));
     }
 
 //    public boolean _toNextSibling()
@@ -3309,18 +2159,16 @@ public final class Cursor implements XmlCursor, ChangeListener {
 //        return Locale.toNextSiblingElement(_cur);
 //    }
 
-    public boolean ___toNextSibling()
-    {
-        if (!_cur.hasParent())
+    public boolean ___toNextSibling() {
+        if (!_cur.hasParent()) {
             return false;
+        }
 
         Xobj parent = _cur.getParentNoRoot();
 
-        if (parent==null)
-        {
+        if (parent==null) {
             _cur._locale.enter();
-            try
-            {
+            try {
                 parent = _cur.getParent();
             } finally {
                 _cur._locale.exit();
@@ -3330,1048 +2178,358 @@ public final class Cursor implements XmlCursor, ChangeListener {
         return Locale.toNextSiblingElement(_cur, parent);
     }
 
-    public boolean toNextSibling()
-    {
-        if (preCheck()) {
-            return ___toNextSibling();
-        } else synchronized (_cur._locale) {
-            return ___toNextSibling();
-        }
+    public boolean toNextSibling() {
+        return syncWrapNoEnter(this::___toNextSibling);
     }
 
     public boolean toPrevSibling() {
-        if (preCheck()) {
-            _cur._locale.enter();
-            try {
-                return _toPrevSibling();
-            } finally {
-                _cur._locale.exit();
-            }
-        } else synchronized (_cur._locale) {
-            _cur._locale.enter();
-            try {
-                return _toPrevSibling();
-            } finally {
-                _cur._locale.exit();
-            }
-        }
+        return syncWrap(this::_toPrevSibling);
     }
 
     public boolean toParent() {
-        if (preCheck()) {
-            _cur._locale.enter();
-            try {
-                return _toParent();
-            } finally {
-                _cur._locale.exit();
-            }
-        } else synchronized (_cur._locale) {
-            _cur._locale.enter();
-            try {
-                return _toParent();
-            } finally {
-                _cur._locale.exit();
-            }
-        }
+        return syncWrap(this::_toParent);
     }
 
     public boolean toFirstChild() {
-        if (preCheck()) {
-//            _cur._locale.enter();
-//            try {
-                return _toFirstChild();
-//            } finally {
-//                _cur._locale.exit();
-//            }
-        } else synchronized (_cur._locale) {
-//            _cur._locale.enter();
-//            try {
-                return _toFirstChild();
-//            } finally {
-//                _cur._locale.exit();
-//            }
-        }
+        return syncWrapNoEnter(this::_toFirstChild);
     }
 
     public boolean toLastChild() {
-        if (preCheck()) {
-            _cur._locale.enter();
-            try {
-                return _toLastChild();
-            } finally {
-                _cur._locale.exit();
-            }
-        } else synchronized (_cur._locale) {
-            _cur._locale.enter();
-            try {
-                return _toLastChild();
-            } finally {
-                _cur._locale.exit();
-            }
-        }
+        return syncWrap(this::_toLastChild);
     }
 
     public boolean toChild(String name) {
-        if (preCheck()) {
-            _cur._locale.enter();
-            try {
-                return _toChild(name);
-            } finally {
-                _cur._locale.exit();
-            }
-        } else synchronized (_cur._locale) {
-            _cur._locale.enter();
-            try {
-                return _toChild(name);
-            } finally {
-                _cur._locale.exit();
-            }
-        }
+        return syncWrap(() -> _toChild(name));
     }
 
     public boolean toChild(String namespace, String name) {
-        if (preCheck()) {
-            _cur._locale.enter();
-            try {
-                return _toChild(namespace, name);
-            } finally {
-                _cur._locale.exit();
-            }
-        } else synchronized (_cur._locale) {
-            _cur._locale.enter();
-            try {
-                return _toChild(namespace, name);
-            } finally {
-                _cur._locale.exit();
-            }
-        }
+        return syncWrap(() -> _toChild(namespace, name));
     }
 
     public boolean toChild(QName name) {
-        if (preCheck()) {
-            _cur._locale.enter();
-            try {
-                return _toChild(name);
-            } finally {
-                _cur._locale.exit();
-            }
-        } else synchronized (_cur._locale) {
-            _cur._locale.enter();
-            try {
-                return _toChild(name);
-            } finally {
-                _cur._locale.exit();
-            }
-        }
+        return syncWrap(() -> _toChild(name));
     }
 
     public boolean toChild(int index) {
-        if (preCheck()) {
-            _cur._locale.enter();
-            try {
-                return _toChild(index);
-            } finally {
-                _cur._locale.exit();
-            }
-        } else synchronized (_cur._locale) {
-            _cur._locale.enter();
-            try {
-                return _toChild(index);
-            } finally {
-                _cur._locale.exit();
-            }
-        }
+        return syncWrap(() -> _toChild(index));
     }
 
     public boolean toChild(QName name, int index) {
-        if (preCheck()) {
-            _cur._locale.enter();
-            try {
-                return _toChild(name, index);
-            } finally {
-                _cur._locale.exit();
-            }
-        } else synchronized (_cur._locale) {
-            _cur._locale.enter();
-            try {
-                return _toChild(name, index);
-            } finally {
-                _cur._locale.exit();
-            }
-        }
+        return syncWrap(() -> _toChild(name, index));
     }
 
     public boolean toNextSibling(String name) {
-        if (preCheck()) {
-            _cur._locale.enter();
-            try {
-                return _toNextSibling(name);
-            } finally {
-                _cur._locale.exit();
-            }
-        } else synchronized (_cur._locale) {
-            _cur._locale.enter();
-            try {
-                return _toNextSibling(name);
-            } finally {
-                _cur._locale.exit();
-            }
-        }
+        return syncWrap(() -> _toNextSibling(name));
     }
 
     public boolean toNextSibling(String namespace, String name) {
-        if (preCheck()) {
-            _cur._locale.enter();
-            try {
-                return _toNextSibling(namespace, name);
-            } finally {
-                _cur._locale.exit();
-            }
-        } else synchronized (_cur._locale) {
-            _cur._locale.enter();
-            try {
-                return _toNextSibling(namespace, name);
-            } finally {
-                _cur._locale.exit();
-            }
-        }
+        return syncWrap(() -> _toNextSibling(namespace, name));
     }
 
     public boolean toNextSibling(QName name) {
-        if (preCheck()) {
-            _cur._locale.enter();
-            try {
-                return _toNextSibling(name);
-            } finally {
-                _cur._locale.exit();
-            }
-        } else synchronized (_cur._locale) {
-            _cur._locale.enter();
-            try {
-                return _toNextSibling(name);
-            } finally {
-                _cur._locale.exit();
-            }
-        }
+        return syncWrap(() -> _toNextSibling(name));
     }
 
     public boolean toFirstAttribute() {
-        if (preCheck()) {
-//            _cur._locale.enter();
-//            try {
-                return _toFirstAttribute();
-//            } finally {
-//                _cur._locale.exit();
-//            }
-        } else synchronized (_cur._locale) {
-//            _cur._locale.enter();
-//            try {
-                return _toFirstAttribute();
-//            } finally {
-//                _cur._locale.exit();
-//            }
-        }
+        return syncWrapNoEnter(this::_toFirstAttribute);
     }
 
     public boolean toLastAttribute() {
-        if (preCheck()) {
-            _cur._locale.enter();
-            try {
-                return _toLastAttribute();
-            } finally {
-                _cur._locale.exit();
-            }
-        } else synchronized (_cur._locale) {
-            _cur._locale.enter();
-            try {
-                return _toLastAttribute();
-            } finally {
-                _cur._locale.exit();
-            }
-        }
+        return syncWrap(this::_toLastAttribute);
     }
 
     public boolean toNextAttribute() {
-        if (preCheck()) {
-            _cur._locale.enter();
-            try {
-                return _toNextAttribute();
-            } finally {
-                _cur._locale.exit();
-            }
-        } else synchronized (_cur._locale) {
-            _cur._locale.enter();
-            try {
-                return _toNextAttribute();
-            } finally {
-                _cur._locale.exit();
-            }
-        }
+        return syncWrap(this::_toNextAttribute);
     }
 
     public boolean toPrevAttribute() {
-        if (preCheck()) {
-            _cur._locale.enter();
-            try {
-                return _toPrevAttribute();
-            } finally {
-                _cur._locale.exit();
-            }
-        } else synchronized (_cur._locale) {
-            _cur._locale.enter();
-            try {
-                return _toPrevAttribute();
-            } finally {
-                _cur._locale.exit();
-            }
-        }
+        return syncWrap(this::_toPrevAttribute);
     }
 
     public String getAttributeText(QName attrName) {
-        if (preCheck()) {
-            _cur._locale.enter();
-            try {
-                return _getAttributeText(attrName);
-            } finally {
-                _cur._locale.exit();
-            }
-        } else synchronized (_cur._locale) {
-            _cur._locale.enter();
-            try {
-                return _getAttributeText(attrName);
-            } finally {
-                _cur._locale.exit();
-            }
-        }
+        return syncWrap(() -> _getAttributeText(attrName));
     }
 
     public boolean setAttributeText(QName attrName, String value) {
-        if (preCheck()) {
-            _cur._locale.enter();
-            try {
-                return _setAttributeText(attrName, value);
-            } finally {
-                _cur._locale.exit();
-            }
-        } else synchronized (_cur._locale) {
-            _cur._locale.enter();
-            try {
-                return _setAttributeText(attrName, value);
-            } finally {
-                _cur._locale.exit();
-            }
-        }
+        return syncWrap(() -> _setAttributeText(attrName, value));
     }
 
     public boolean removeAttribute(QName attrName) {
-        if (preCheck()) {
-            _cur._locale.enter();
-            try {
-                return _removeAttribute(attrName);
-            } finally {
-                _cur._locale.exit();
-            }
-        } else synchronized (_cur._locale) {
-            _cur._locale.enter();
-            try {
-                return _removeAttribute(attrName);
-            } finally {
-                _cur._locale.exit();
-            }
-        }
+        return syncWrap(() -> _removeAttribute(attrName));
     }
 
     public String getTextValue() {
-        if (preCheck()) {
-            _cur._locale.enter();
-            try {
-                return _getTextValue();
-            } finally {
-                _cur._locale.exit();
-            }
-        } else synchronized (_cur._locale) {
-            _cur._locale.enter();
-            try {
-                return _getTextValue();
-            } finally {
-                _cur._locale.exit();
-            }
-        }
+        return syncWrap((Supplier<String>)this::_getTextValue);
     }
 
     public int getTextValue(char[] chars, int offset, int cch) {
-        if (preCheck()) {
-            _cur._locale.enter();
-            try {
-                return _getTextValue(chars, offset, cch);
-            } finally {
-                _cur._locale.exit();
-            }
-        } else synchronized (_cur._locale) {
-            _cur._locale.enter();
-            try {
-                return _getTextValue(chars, offset, cch);
-            } finally {
-                _cur._locale.exit();
-            }
-        }
+        return syncWrap(() -> _getTextValue(chars, offset, cch));
     }
 
     public void setTextValue(String text) {
-        if (preCheck()) {
-            _cur._locale.enter();
-            try {
-                _setTextValue(text);
-            } finally {
-                _cur._locale.exit();
-            }
-        } else synchronized (_cur._locale) {
-            _cur._locale.enter();
-            try {
-                _setTextValue(text);
-            } finally {
-                _cur._locale.exit();
-            }
-        }
+        syncWrap(() -> _setTextValue(text));
     }
 
     public void setTextValue(char[] sourceChars, int offset, int length) {
-        if (preCheck()) {
-            _cur._locale.enter();
-            try {
-                _setTextValue(sourceChars, offset, length);
-            } finally {
-                _cur._locale.exit();
-            }
-        } else synchronized (_cur._locale) {
-            _cur._locale.enter();
-            try {
-                _setTextValue(sourceChars, offset, length);
-            } finally {
-                _cur._locale.exit();
-            }
-        }
+        syncWrap(() -> _setTextValue(sourceChars, offset, length));
     }
 
     public String getChars() {
-        if (preCheck()) {
-            _cur._locale.enter();
-            try {
-                return _getChars();
-            } finally {
-                _cur._locale.exit();
-            }
-        } else synchronized (_cur._locale) {
-            _cur._locale.enter();
-            try {
-                return _getChars();
-            } finally {
-                _cur._locale.exit();
-            }
-        }
+        return syncWrap((Supplier<String>)this::_getChars);
     }
 
     public int getChars(char[] chars, int offset, int cch) {
-        if (preCheck()) {
-            _cur._locale.enter();
-            try {
-                return _getChars(chars, offset, cch);
-            } finally {
-                _cur._locale.exit();
-            }
-        } else synchronized (_cur._locale) {
-            _cur._locale.enter();
-            try {
-                return _getChars(chars, offset, cch);
-            } finally {
-                _cur._locale.exit();
-            }
-        }
+        return syncWrap(() -> _getChars(chars, offset, cch));
     }
 
     public void toStartDoc() {
-        if (preCheck()) {
-//            _cur._locale.enter();
-//            try {
-                _toStartDoc();
-//            } finally {
-//                _cur._locale.exit();
-//            }
-        } else synchronized (_cur._locale) {
-//            _cur._locale.enter();
-//            try {
-                _toStartDoc();
-//            } finally {
-//                _cur._locale.exit();
-//            }
-        }
+        syncWrapNoEnter(this::_toStartDoc);
     }
 
     public void toEndDoc() {
-        if (preCheck()) {
-//            _cur._locale.enter();
-//            try {
-                _toEndDoc();
-//            } finally {
-//                _cur._locale.exit();
-//            }
-        } else synchronized (_cur._locale) {
-//            _cur._locale.enter();
-//            try {
-                _toEndDoc();
-//            } finally {
-//                _cur._locale.exit();
-//            }
-        }
+        syncWrapNoEnter(this::_toEndDoc);
     }
 
     public XmlCursor execQuery(String query) {
-        if (preCheck()) {
-            _cur._locale.enter();
-            try {
-                return _execQuery(query);
-            } finally {
-                _cur._locale.exit();
-            }
-        } else synchronized (_cur._locale) {
-            _cur._locale.enter();
-            try {
-                return _execQuery(query);
-            } finally {
-                _cur._locale.exit();
-            }
-        }
+        return syncWrap(() -> _execQuery(query));
     }
 
     public XmlCursor execQuery(String query, XmlOptions options) {
-        if (preCheck()) {
-            _cur._locale.enter();
-            try {
-                return _execQuery(query, options);
-            } finally {
-                _cur._locale.exit();
-            }
-        } else synchronized (_cur._locale) {
-            _cur._locale.enter();
-            try {
-                return _execQuery(query, options);
-            } finally {
-                _cur._locale.exit();
-            }
-        }
+        return syncWrap(() -> _execQuery(query, options));
     }
 
     public ChangeStamp getDocChangeStamp() {
-        if (preCheck()) {
-            _cur._locale.enter();
-            try {
-                return _getDocChangeStamp();
-            } finally {
-                _cur._locale.exit();
-            }
-        } else synchronized (_cur._locale) {
-            _cur._locale.enter();
-            try {
-                return _getDocChangeStamp();
-            } finally {
-                _cur._locale.exit();
-            }
-        }
+        return syncWrap(this::_getDocChangeStamp);
     }
 
     public void setBookmark(XmlBookmark bookmark) {
-        if (preCheck()) {
-            _cur._locale.enter();
-            try {
-                _setBookmark(bookmark);
-            } finally {
-                _cur._locale.exit();
-            }
-        } else synchronized (_cur._locale) {
-            _cur._locale.enter();
-            try {
-                _setBookmark(bookmark);
-            } finally {
-                _cur._locale.exit();
-            }
-        }
+        syncWrap(() -> _setBookmark(bookmark));
     }
 
     public XmlBookmark getBookmark(Object key) {
-        if (preCheck()) {
-            _cur._locale.enter();
-            try {
-                return _getBookmark(key);
-            } finally {
-                _cur._locale.exit();
-            }
-        } else synchronized (_cur._locale) {
-            _cur._locale.enter();
-            try {
-                return _getBookmark(key);
-            } finally {
-                _cur._locale.exit();
-            }
-        }
+        return syncWrap(() -> _getBookmark(key));
     }
 
     public void clearBookmark(Object key) {
-        if (preCheck()) {
-            _cur._locale.enter();
-            try {
-                _clearBookmark(key);
-            } finally {
-                _cur._locale.exit();
-            }
-        } else synchronized (_cur._locale) {
-            _cur._locale.enter();
-            try {
-                _clearBookmark(key);
-            } finally {
-                _cur._locale.exit();
-            }
-        }
+        syncWrap(() -> _clearBookmark(key));
     }
 
     public void getAllBookmarkRefs(Collection listToFill) {
-        if (preCheck()) {
-            _cur._locale.enter();
-            try {
-                _getAllBookmarkRefs(listToFill);
-            } finally {
-                _cur._locale.exit();
-            }
-        } else synchronized (_cur._locale) {
-            _cur._locale.enter();
-            try {
-                _getAllBookmarkRefs(listToFill);
-            } finally {
-                _cur._locale.exit();
-            }
-        }
+        syncWrap(() -> _getAllBookmarkRefs(listToFill));
     }
 
     public boolean removeXml() {
-        if (preCheck()) {
-            _cur._locale.enter();
-            try {
-                return _removeXml();
-            } finally {
-                _cur._locale.exit();
-            }
-        } else synchronized (_cur._locale) {
-            _cur._locale.enter();
-            try {
-                return _removeXml();
-            } finally {
-                _cur._locale.exit();
-            }
-        }
+        return syncWrap(this::_removeXml);
     }
 
     public boolean removeXmlContents() {
-        if (preCheck()) {
-            _cur._locale.enter();
-            try {
-                return _removeXmlContents();
-            } finally {
-                _cur._locale.exit();
-            }
-        } else synchronized (_cur._locale) {
-            _cur._locale.enter();
-            try {
-                return _removeXmlContents();
-            } finally {
-                _cur._locale.exit();
-            }
-        }
+        return syncWrap(this::_removeXmlContents);
     }
 
     public int removeChars(int cch) {
-        if (preCheck()) {
-            _cur._locale.enter();
-            try {
-                return _removeChars(cch);
-            } finally {
-                _cur._locale.exit();
-            }
-        } else synchronized (_cur._locale) {
-            _cur._locale.enter();
-            try {
-                return _removeChars(cch);
-            } finally {
-                _cur._locale.exit();
-            }
-        }
+        return syncWrap(() -> _removeChars(cch));
     }
 
     public void insertChars(String text) {
-        if (preCheck()) {
-            _cur._locale.enter();
-            try {
-                _insertChars(text);
-            } finally {
-                _cur._locale.exit();
-            }
-        } else synchronized (_cur._locale) {
-            _cur._locale.enter();
-            try {
-                _insertChars(text);
-            } finally {
-                _cur._locale.exit();
-            }
-        }
+        syncWrap(() -> _insertChars(text));
     }
 
     public void insertElement(QName name) {
-        if (preCheck()) {
-            _cur._locale.enter();
-            try {
-                _insertElement(name);
-            } finally {
-                _cur._locale.exit();
-            }
-        } else synchronized (_cur._locale) {
-            _cur._locale.enter();
-            try {
-                _insertElement(name);
-            } finally {
-                _cur._locale.exit();
-            }
-        }
+        syncWrap(() -> _insertElement(name));
     }
 
     public void insertElement(String localName) {
-        if (preCheck()) {
-            _cur._locale.enter();
-            try {
-                _insertElement(localName);
-            } finally {
-                _cur._locale.exit();
-            }
-        } else synchronized (_cur._locale) {
-            _cur._locale.enter();
-            try {
-                _insertElement(localName);
-            } finally {
-                _cur._locale.exit();
-            }
-        }
+        syncWrap(() -> _insertElement(localName));
     }
 
     public void insertElement(String localName, String uri) {
-        if (preCheck()) {
-            _cur._locale.enter();
-            try {
-                _insertElement(localName, uri);
-            } finally {
-                _cur._locale.exit();
-            }
-        } else synchronized (_cur._locale) {
-            _cur._locale.enter();
-            try {
-                _insertElement(localName, uri);
-            } finally {
-                _cur._locale.exit();
-            }
-        }
+        syncWrap(() -> _insertElement(localName, uri));
     }
 
     public void beginElement(QName name) {
-        if (preCheck()) {
-            _cur._locale.enter();
-            try {
-                _beginElement(name);
-            } finally {
-                _cur._locale.exit();
-            }
-        } else synchronized (_cur._locale) {
-            _cur._locale.enter();
-            try {
-                _beginElement(name);
-            } finally {
-                _cur._locale.exit();
-            }
-        }
+        syncWrap(() -> _beginElement(name));
     }
 
     public void beginElement(String localName) {
-        if (preCheck()) {
-            _cur._locale.enter();
-            try {
-                _beginElement(localName);
-            } finally {
-                _cur._locale.exit();
-            }
-        } else synchronized (_cur._locale) {
-            _cur._locale.enter();
-            try {
-                _beginElement(localName);
-            } finally {
-                _cur._locale.exit();
-            }
-        }
+        syncWrap(() -> _beginElement(localName));
     }
 
     public void beginElement(String localName, String uri) {
-        if (preCheck()) {
-            _cur._locale.enter();
-            try {
-                _beginElement(localName, uri);
-            } finally {
-                _cur._locale.exit();
-            }
-        } else synchronized (_cur._locale) {
-            _cur._locale.enter();
-            try {
-                _beginElement(localName, uri);
-            } finally {
-                _cur._locale.exit();
-            }
-        }
+        syncWrap(() -> _beginElement(localName, uri));
     }
 
     public void insertElementWithText(QName name, String text) {
-        if (preCheck()) {
-            _cur._locale.enter();
-            try {
-                _insertElementWithText(name, text);
-            } finally {
-                _cur._locale.exit();
-            }
-        } else synchronized (_cur._locale) {
-            _cur._locale.enter();
-            try {
-                _insertElementWithText(name, text);
-            } finally {
-                _cur._locale.exit();
-            }
-        }
+        syncWrap(() -> _insertElementWithText(name, text));
     }
 
     public void insertElementWithText(String localName, String text) {
-        if (preCheck()) {
-            _cur._locale.enter();
-            try {
-                _insertElementWithText(localName, text);
-            } finally {
-                _cur._locale.exit();
-            }
-        } else synchronized (_cur._locale) {
-            _cur._locale.enter();
-            try {
-                _insertElementWithText(localName, text);
-            } finally {
-                _cur._locale.exit();
-            }
-        }
+        syncWrap(() -> _insertElementWithText(localName, text));
     }
 
     public void insertElementWithText(String localName, String uri, String text) {
-        if (preCheck()) {
-            _cur._locale.enter();
-            try {
-                _insertElementWithText(localName, uri, text);
-            } finally {
-                _cur._locale.exit();
-            }
-        } else synchronized (_cur._locale) {
-            _cur._locale.enter();
-            try {
-                _insertElementWithText(localName, uri, text);
-            } finally {
-                _cur._locale.exit();
-            }
-        }
+        syncWrap(() -> _insertElementWithText(localName, uri, text));
     }
 
     public void insertAttribute(String localName) {
-        if (preCheck()) {
-            _cur._locale.enter();
-            try {
-                _insertAttribute(localName);
-            } finally {
-                _cur._locale.exit();
-            }
-        } else synchronized (_cur._locale) {
-            _cur._locale.enter();
-            try {
-                _insertAttribute(localName);
-            } finally {
-                _cur._locale.exit();
-            }
-        }
+        syncWrap(() -> _insertAttribute(localName));
     }
 
     public void insertAttribute(String localName, String uri) {
-        if (preCheck()) {
-            _cur._locale.enter();
-            try {
-                _insertAttribute(localName, uri);
-            } finally {
-                _cur._locale.exit();
-            }
-        } else synchronized (_cur._locale) {
-            _cur._locale.enter();
-            try {
-                _insertAttribute(localName, uri);
-            } finally {
-                _cur._locale.exit();
-            }
-        }
+        syncWrap(() -> _insertAttribute(localName, uri));
     }
 
     public void insertAttribute(QName name) {
-        if (preCheck()) {
-            _cur._locale.enter();
-            try {
-                _insertAttribute(name);
-            } finally {
-                _cur._locale.exit();
-            }
-        } else synchronized (_cur._locale) {
-            _cur._locale.enter();
-            try {
-                _insertAttribute(name);
-            } finally {
-                _cur._locale.exit();
-            }
-        }
+        syncWrap(() -> _insertAttribute(name));
     }
 
-    public void insertAttributeWithValue(String Name, String value) {
-        if (preCheck()) {
-            _cur._locale.enter();
-            try {
-                _insertAttributeWithValue(Name, value);
-            } finally {
-                _cur._locale.exit();
-            }
-        } else synchronized (_cur._locale) {
-            _cur._locale.enter();
-            try {
-                _insertAttributeWithValue(Name, value);
-            } finally {
-                _cur._locale.exit();
-            }
-        }
+    public void insertAttributeWithValue(String name, String value) {
+        syncWrap(() -> _insertAttributeWithValue(name, value));
     }
 
     public void insertAttributeWithValue(String name, String uri, String value) {
-        if (preCheck()) {
-            _cur._locale.enter();
-            try {
-                _insertAttributeWithValue(name, uri, value);
-            } finally {
-                _cur._locale.exit();
-            }
-        } else synchronized (_cur._locale) {
-            _cur._locale.enter();
-            try {
-                _insertAttributeWithValue(name, uri, value);
-            } finally {
-                _cur._locale.exit();
-            }
-        }
+        syncWrap(() -> _insertAttributeWithValue(name, uri, value));
     }
 
     public void insertAttributeWithValue(QName name, String value) {
-        if (preCheck()) {
-            _cur._locale.enter();
-            try {
-                _insertAttributeWithValue(name, value);
-            } finally {
-                _cur._locale.exit();
-            }
-        } else synchronized (_cur._locale) {
-            _cur._locale.enter();
-            try {
-                _insertAttributeWithValue(name, value);
-            } finally {
-                _cur._locale.exit();
-            }
-        }
+        syncWrap(() -> _insertAttributeWithValue(name, value));
     }
 
     public void insertNamespace(String prefix, String namespace) {
-        if (preCheck()) {
-            _cur._locale.enter();
-            try {
-                _insertNamespace(prefix, namespace);
-            } finally {
-                _cur._locale.exit();
-            }
-        } else synchronized (_cur._locale) {
-            _cur._locale.enter();
-            try {
-                _insertNamespace(prefix, namespace);
-            } finally {
-                _cur._locale.exit();
-            }
-        }
+        syncWrap(() -> _insertNamespace(prefix, namespace));
     }
 
     public void insertComment(String text) {
-        if (preCheck()) {
-            _cur._locale.enter();
-            try {
-                _insertComment(text);
-            } finally {
-                _cur._locale.exit();
-            }
-        } else synchronized (_cur._locale) {
-            _cur._locale.enter();
-            try {
-                _insertComment(text);
-            } finally {
-                _cur._locale.exit();
-            }
-        }
+        syncWrap(() -> _insertComment(text));
     }
 
     public void insertProcInst(String target, String text) {
-        if (preCheck()) {
-            _cur._locale.enter();
-            try {
-                _insertProcInst(target, text);
-            } finally {
-                _cur._locale.exit();
-            }
-        } else synchronized (_cur._locale) {
-            _cur._locale.enter();
-            try {
-                _insertProcInst(target, text);
-            } finally {
-                _cur._locale.exit();
-            }
-        }
+        syncWrap(() -> _insertProcInst(target, text));
     }
 
     public void dump() {
+        syncWrap(this::_dump);
+    }
+
+    private interface WrapSAXEx {
+        void run() throws SAXException;
+    }
+
+    private interface WrapIOEx {
+        void run() throws IOException;
+    }
+
+
+    @SuppressWarnings("SynchronizeOnNonFinalField")
+    private void syncWrap(Runnable inner) {
         if (preCheck()) {
-            _cur._locale.enter();
-            try {
-                _dump();
-            } finally {
-                _cur._locale.exit();
-            }
-        } else synchronized (_cur._locale) {
-            _cur._locale.enter();
-            try {
-                _dump();
-            } finally {
-                _cur._locale.exit();
+            syncWrapHelper(inner, true);
+        } else {
+            synchronized (_cur._locale) {
+                syncWrapHelper(inner, true);
             }
         }
     }
-    
-    //
-    //
-    //
 
-    private Cur _cur;
-    private PathEngine _pathEngine;
-    private int _currentSelection;
+    @SuppressWarnings("SynchronizeOnNonFinalField")
+    private <T> T syncWrap(Supplier<T> inner) {
+        if (preCheck()) {
+            return syncWrapHelper(inner, true);
+        } else {
+            synchronized (_cur._locale) {
+                return syncWrapHelper(inner, true);
+            }
+        }
+    }
 
-    private ChangeListener _nextChangeListener;
+    @SuppressWarnings("SynchronizeOnNonFinalField")
+    private <T> T syncWrapNoEnter(Supplier<T> inner) {
+        if (preCheck()) {
+            return syncWrapHelper(inner, false);
+        } else {
+            synchronized (_cur._locale) {
+                return syncWrapHelper(inner, false);
+            }
+        }
+    }
+
+    @SuppressWarnings("SynchronizeOnNonFinalField")
+    private void syncWrapNoEnter(Runnable inner) {
+        if (preCheck()) {
+            syncWrapHelper(inner, false);
+        } else {
+            synchronized (_cur._locale) {
+                syncWrapHelper(inner, false);
+            }
+        }
+    }
+
+    @SuppressWarnings("SynchronizeOnNonFinalField")
+    private void syncWrapSAXEx(WrapSAXEx inner) throws SAXException {
+        if (preCheck()) {
+            syncWrapHelper(inner);
+        } else {
+            synchronized (_cur._locale) {
+                syncWrapHelper(inner);
+            }
+        }
+    }
+
+    @SuppressWarnings("SynchronizeOnNonFinalField")
+    private void syncWrapIOEx(WrapIOEx inner) throws IOException {
+        if (preCheck()) {
+            syncWrapHelper(inner);
+        } else {
+            synchronized (_cur._locale) {
+                syncWrapHelper(inner);
+            }
+        }
+    }
+
+    private void syncWrapHelper(Runnable inner, final boolean enterLocale) {
+        final Locale l = _cur._locale;
+        if (enterLocale) {
+            l.enter();
+        }
+        try {
+            inner.run();
+        } finally {
+            if (enterLocale) {
+                l.exit();
+            }
+        }
+    }
+
+    private <T> T syncWrapHelper(Supplier<T> inner, final boolean enterLocale) {
+        final Locale l = _cur._locale;
+        if (enterLocale) {
+            l.enter();
+        }
+        try {
+            return inner.get();
+        } finally {
+            if (enterLocale) {
+                l.exit();
+            }
+        }
+    }
+
+    private void syncWrapHelper(WrapSAXEx inner) throws SAXException {
+        final Locale l = _cur._locale;
+        l.enter();
+        try {
+            inner.run();
+        } finally {
+            l.exit();
+        }
+    }
+
+    private void syncWrapHelper(WrapIOEx inner) throws IOException {
+        final Locale l = _cur._locale;
+        l.enter();
+        try {
+            inner.run();
+        } finally {
+            l.exit();
+        }
+    }
 }

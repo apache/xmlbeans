@@ -15,96 +15,33 @@
 
 package org.apache.xmlbeans.impl.store;
 
-import org.xml.sax.Locator;
-import org.xml.sax.Attributes;
-import org.xml.sax.ContentHandler;
-import org.xml.sax.EntityResolver;
-import org.xml.sax.ErrorHandler;
-import org.xml.sax.InputSource;
-import org.xml.sax.ext.LexicalHandler;
+import org.apache.xmlbeans.*;
+import org.apache.xmlbeans.XmlCursor.XmlBookmark;
+import org.apache.xmlbeans.impl.common.*;
+import org.apache.xmlbeans.impl.store.Cur.Locations;
+import org.apache.xmlbeans.impl.store.DomImpl.Dom;
+import org.apache.xmlbeans.impl.store.Saaj.SaajCallback;
+import org.apache.xmlbeans.impl.values.TypeStore;
+import org.apache.xmlbeans.xml.stream.CharacterData;
+import org.apache.xmlbeans.xml.stream.ProcessingInstruction;
+import org.apache.xmlbeans.xml.stream.*;
+import org.w3c.dom.*;
+import org.xml.sax.*;
 import org.xml.sax.ext.DeclHandler;
-import org.xml.sax.SAXParseException;
-import org.xml.sax.XMLReader;
-import org.xml.sax.SAXException;
-import org.xml.sax.DTDHandler;
+import org.xml.sax.ext.LexicalHandler;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import java.lang.ref.ReferenceQueue;
-import java.lang.ref.Reference;
-import java.lang.ref.PhantomReference;
-import java.lang.ref.SoftReference;
-
+import javax.xml.namespace.QName;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
 import java.io.StringReader;
-import java.io.IOException;
-
-import javax.xml.namespace.QName;
-import javax.xml.stream.XMLStreamReader;
-import javax.xml.stream.XMLStreamException;
-
-import org.apache.xmlbeans.xml.stream.Attribute;
-import org.apache.xmlbeans.xml.stream.AttributeIterator;
-import org.apache.xmlbeans.xml.stream.CharacterData;
-import org.apache.xmlbeans.xml.stream.ProcessingInstruction;
-import org.apache.xmlbeans.xml.stream.Space;
-import org.apache.xmlbeans.xml.stream.StartDocument;
-import org.apache.xmlbeans.xml.stream.StartElement;
-import org.apache.xmlbeans.xml.stream.XMLEvent;
-import org.apache.xmlbeans.xml.stream.XMLInputStream;
-import org.apache.xmlbeans.xml.stream.XMLName;
-
-import org.apache.xmlbeans.impl.common.SAXHelper;
-import org.apache.xmlbeans.impl.common.XMLNameHelper;
-import org.apache.xmlbeans.impl.common.QNameHelper;
-import org.apache.xmlbeans.impl.common.XmlLocale;
-import org.apache.xmlbeans.impl.common.ResolverUtil;
-import org.apache.xmlbeans.impl.common.SystemCache;
-import org.apache.xmlbeans.impl.common.XBLogger;
-import org.apache.xmlbeans.impl.common.XBLogFactory;
-
-import org.apache.xmlbeans.impl.store.Saaj.SaajCallback;
-
-import org.apache.xmlbeans.impl.store.DomImpl.Dom;
-import org.apache.xmlbeans.impl.store.DomImpl.TextNode;
-import org.apache.xmlbeans.impl.store.DomImpl.CdataNode;
-import org.apache.xmlbeans.impl.store.DomImpl.SaajTextNode;
-import org.apache.xmlbeans.impl.store.DomImpl.SaajCdataNode;
-
-import org.apache.xmlbeans.impl.store.Cur.Locations;
-
-import org.apache.xmlbeans.CDataBookmark;
-import org.apache.xmlbeans.XmlBeans;
-import org.apache.xmlbeans.XmlLineNumber;
-import org.apache.xmlbeans.XmlCursor;
-import org.apache.xmlbeans.XmlCursor.XmlBookmark;
-import org.apache.xmlbeans.XmlErrorCodes;
-import org.apache.xmlbeans.XmlException;
-import org.apache.xmlbeans.XmlObject;
-import org.apache.xmlbeans.XmlOptions;
-import org.apache.xmlbeans.XmlOptionsBean;
-import org.apache.xmlbeans.XmlSaxHandler;
-import org.apache.xmlbeans.SchemaType;
-import org.apache.xmlbeans.SchemaTypeLoader;
-import org.apache.xmlbeans.XmlTokenSource;
-import org.apache.xmlbeans.QNameSet;
-import org.apache.xmlbeans.QNameCache;
-import org.apache.xmlbeans.XmlError;
-import org.apache.xmlbeans.XmlRuntimeException;
-import org.apache.xmlbeans.XmlDocumentProperties;
-
-import org.apache.xmlbeans.impl.values.TypeStore;
-import org.apache.xmlbeans.impl.values.TypeStoreUser;
-import org.apache.xmlbeans.impl.values.TypeStoreUserFactory;
-
-import org.w3c.dom.DOMImplementation;
-import org.w3c.dom.Document;
-import org.w3c.dom.DocumentType;
-import org.w3c.dom.Node;
-import org.w3c.dom.NamedNodeMap;
-import org.w3c.dom.Element;
+import java.lang.ref.PhantomReference;
+import java.lang.ref.ReferenceQueue;
+import java.lang.ref.SoftReference;
+import java.util.HashMap;
+import java.util.Map;
 
 public final class Locale
     implements DOMImplementation, SaajCallback, XmlLocale
@@ -150,7 +87,7 @@ public final class Locale
         //
         // Also - have a thread local setting for thread safety?  .. Perhaps something
         // in the type loader which defines whether ot not sync is on????
-        
+
         _noSync = options.hasOption(XmlOptions.UNSYNCHRONIZED);
 
         _tempFrames = new Cur[_numTempFramesLeft = 8];
@@ -158,10 +95,10 @@ public final class Locale
         // BUGBUG - this cannot be thread local ....
         // BUGBUG - this cannot be thread local ....
         // BUGBUG - this cannot be thread local .... uhh what, again?
-        // 
+        //
         // Lazy create this (loading up a locale should use the thread locale one)
         // same goes for the qname factory .. use thread local for hte most part when loading
-        
+
         _qnameFactory = new DefaultQNameFactory(); //new LocalDocumentQNameFactory();
 
         _locations = new Locations(this);
@@ -169,11 +106,11 @@ public final class Locale
         _schemaTypeLoader = stl;
 
         _validateOnSet = options.hasOption(XmlOptions.VALIDATE_ON_SET);
-        
+
         //
         // Check for Saaj implementation request
         //
-        
+
         Object saajObj = options.get(Saaj.SAAJ_IMPL);
 
         if (saajObj != null)
@@ -246,7 +183,7 @@ public final class Locale
     //
     //
     //
-    
+
     static void associateSourceName(Cur c, XmlOptions options)
     {
         String sourceName = (String) XmlOptions.safeGet(options,
@@ -259,7 +196,7 @@ public final class Locale
     //
     //
     //
-    
+
     static void autoTypeDocument(Cur c, SchemaType requestedType,
         XmlOptions options)
         throws XmlException
@@ -298,7 +235,7 @@ public final class Locale
         }
 
         // Look for a document element to establish type
-        
+
         if (type == null &&
             (requestedType == null || requestedType.isDocumentType()))
         {
@@ -554,7 +491,7 @@ public final class Locale
             if (k == ATTR)
                 break;
 
-            if (k == TEXT && !isWhiteSpace(start.getCharsAsString(-1)))
+            if (k == TEXT && !isWhiteSpace(start.getCharsAsString()))
             {
                 isFrag = true;
                 break;
@@ -581,11 +518,11 @@ public final class Locale
 
         return isFrag || numDocElems != 1;
     }
-    
+
     //
     //
     //
-    
+
     public static XmlObject newInstance(SchemaTypeLoader stl, SchemaType type,
         XmlOptions options)
     {
@@ -634,7 +571,7 @@ public final class Locale
         else
              c.createRoot();
         c.setType(sType);
-        
+
         XmlObject x = (XmlObject) c.getUser();
 
         c.release();
@@ -2470,18 +2407,18 @@ public final class Locale
     //
     //
     //
-    
+
     Dom findDomNthChild ( Dom parent, int n )
     {
         assert n >= 0;
-        
+
         if (parent == null)
             return null;
-        
+
         int da = _domNthCache_A.distance(parent, n);
         int db = _domNthCache_B.distance(parent, n);
-        
-       
+
+
         // the "better" cache should never walk more than 1/2 len
         Dom x = null;
         boolean bInvalidate = (db - _domNthCache_B._len / 2 > 0) &&
@@ -2510,33 +2447,33 @@ public final class Locale
             _domNthCache_A = _domNthCache_B;
             _domNthCache_B = temp;
         }
-        
+
         return x;
     }
-    
+
     int domLength ( Dom parent )
     {
         if (parent == null)
             return 0;
-        
+
         int da = _domNthCache_A.distance( parent, 0 );
         int db = _domNthCache_B.distance( parent, 0 );
-        
+
         int len =
             da <= db
             ? _domNthCache_A.length( parent )
             : _domNthCache_B.length( parent );
-        
+
         if (da == db)
         {
             domNthCache temp = _domNthCache_A;
             _domNthCache_A = _domNthCache_B;
             _domNthCache_B = temp;
         }
-        
+
         return len;
     }
-    
+
     void invalidateDomCaches ( Dom d )
     {
         if (_domNthCache_A._parent == d)
@@ -2544,28 +2481,28 @@ public final class Locale
         if (_domNthCache_B._parent == d)
             _domNthCache_B._version = -1;
     }
-    
+
     boolean isDomCached ( Dom d )
     {
         return _domNthCache_A._parent == d || _domNthCache_B._parent == d;
     }
-    
+
     class domNthCache
     {
-        
+
         int distance ( Dom parent, int n )
         {
             assert n >= 0;
-            
+
             if (_version != Locale.this.version())
                 return Integer.MAX_VALUE - 1;
-            
+
             if (parent != _parent)
                 return Integer.MAX_VALUE;
-            
+
             return n > _n ? n - _n : _n - n;
         }
-        
+
         int length ( Dom parent )
         {
             if (_version != Locale.this.version() || _parent != parent)
@@ -2576,11 +2513,11 @@ public final class Locale
                 _n = -1;
                 _len = -1;
             }
-            
+
             if (_len == -1)
             {
                 Dom x = null;
-                
+
                 if (_child != null && _n != -1)
                 {
                     x = _child;
@@ -2590,26 +2527,26 @@ public final class Locale
                 {
                     x = DomImpl.firstChild(_parent);
                     _len = 0;
-                    
+
                     // cache the 0th child
                     _child = x;
                     _n = 0;
                 }
-                
+
                 for (; x != null; x = DomImpl.nextSibling(x) )
                 {
                     _len++;
                 }
             }
-            
-            
+
+
             return _len;
         }
-        
+
         Dom fetch ( Dom parent, int n )
         {
             assert n >= 0;
-            
+
             if (_version != Locale.this.version() || _parent != parent)
             {
                 _parent = parent;
@@ -2617,7 +2554,7 @@ public final class Locale
                 _child = null;
                 _n = -1;
                 _len = -1;
-                
+
                 for (Dom x = DomImpl.firstChild(_parent); x != null; x = DomImpl.nextSibling(x) )
                 {
                     _n++;
@@ -2627,13 +2564,13 @@ public final class Locale
                         break;
                     }
                 }
-                
+
                 return _child;
             }
-            
+
             if (_n < 0)
                 return null;
-            
+
             if (n > _n)
             {
                 while ( n > _n )
@@ -2642,10 +2579,10 @@ public final class Locale
                     {
                         if (x == null)
                             return null;
-                        
+
                         _child = x;
                         _n++;
-                        
+
                         break;
                     }
                 }
@@ -2658,18 +2595,18 @@ public final class Locale
                     {
                         if (x == null)
                             return null;
-                        
+
                         _child = x;
                         _n--;
-                        
+
                         break;
                     }
                 }
             }
-            
+
             return _child;
         }
-        
+
         public static final int BLITZ_BOUNDARY = 40; //walk small lists
 	 private long  _version;
         private Dom   _parent;
@@ -2677,9 +2614,9 @@ public final class Locale
         private int   _n;
         private int   _len;
     }
-    
+
     //
-    // 
+    //
     //
 
     CharUtil getCharUtil()
@@ -3070,7 +3007,7 @@ public final class Locale
                 xr = SAXHelper.newXMLReader(new XmlOptionsBean(options));
             } catch(Exception e) {
                 throw new XmlException("Problem creating XMLReader", e);
-            } 
+            }
         }
 
         SaxLoader sl = new XmlReaderSaxLoader(xr);

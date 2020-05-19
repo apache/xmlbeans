@@ -42,9 +42,9 @@ final class Validate implements ValidatorListener.Event
         {
             _cur.pop();
             _cur = null;
-            
+
             _sink = null;
-            
+
             _textCur.release();
         }
     }
@@ -57,7 +57,7 @@ final class Validate implements ValidatorListener.Event
         {
             // If validating an attr, I'm really validating the contents of that attr.  So, go to
             // any text value and shove it thru the validator.
-            
+
             _cur.next();
 
             if (_cur.isText())
@@ -68,7 +68,7 @@ final class Validate implements ValidatorListener.Event
             assert _cur.isContainer();
 
             // Do the attrs of the top container
-            
+
             doAttrs();
 
             for ( _cur.next() ; ! _cur.isAtEndOfLastPush() ; _cur.next() )
@@ -79,15 +79,15 @@ final class Validate implements ValidatorListener.Event
                     emitEvent( ValidatorListener.BEGIN );
                     doAttrs();
                     break;
-                
+
                 case - Cur.ELEM :
                     emitEvent( ValidatorListener.END );
                     break;
-                
+
                 case Cur.TEXT :
                     emitText();
                     break;
-                    
+
                 case Cur.COMMENT  :
                 case Cur.PROCINST :
                     _cur.toEnd();
@@ -98,7 +98,7 @@ final class Validate implements ValidatorListener.Event
                 }
             }
         }
-        
+
         emitEvent( ValidatorListener.END );
     }
 
@@ -106,9 +106,9 @@ final class Validate implements ValidatorListener.Event
     {
         // When processing attrs, there can be no accumulated text because there would have been
         // a preceeding event which would have flushged the text.
-        
+
         assert !_hasText;
-        
+
         if (_cur.toFirstAttr())
         {
             do
@@ -120,7 +120,7 @@ final class Validate implements ValidatorListener.Event
 
             _cur.toParent();
         }
-        
+
         _sink.nextEvent( ValidatorListener.ENDATTRS, this );
     }
 
@@ -144,9 +144,9 @@ final class Validate implements ValidatorListener.Event
 
                 _oneChunk = false;
             }
-            
+
             assert _textSb != null && _textSb.length() > 0;
-                
+
             CharUtil.getString( _textSb, _cur.getChars( -1 ), _cur._offSrc, _cur._cchSrc );
         }
         else
@@ -181,7 +181,7 @@ final class Validate implements ValidatorListener.Event
         assert _oneChunk || (_textSb != null && _textSb.length() > 0);
         assert !_oneChunk || _textCur.isText();
 
-        return _oneChunk ? _textCur.getCharsAsString( -1 ) : _textSb.toString();
+        return _oneChunk ? _textCur.getCharsAsString() : _textSb.toString();
     }
 
     public String getText ( int wsr )
@@ -194,7 +194,7 @@ final class Validate implements ValidatorListener.Event
         assert !_oneChunk || _textCur.isText();
 
         if (_oneChunk)
-            return _textCur.getCharsAsString( -1, wsr );
+            return _textCur.getCharsAsString( wsr );
 
         return Locale.applyWhiteSpaceRule( _textSb.toString(), wsr );
     }
@@ -207,7 +207,7 @@ final class Validate implements ValidatorListener.Event
                 _cur._locale.getCharUtil().isWhiteSpace(
                     _cur.getFirstChars(), _cur._offSrc, _cur._cchSrc );
         }
-        
+
         assert _hasText;
 
         if (_oneChunk)
@@ -218,7 +218,7 @@ final class Validate implements ValidatorListener.Event
         }
 
         String s = _textSb.toString();
-        
+
         return _cur._locale.getCharUtil().isWhiteSpace( s, 0, s.length() );
     }
 
@@ -275,7 +275,7 @@ final class Validate implements ValidatorListener.Event
     // This way, when I turn the text into a String, I can cache the string.  If multiple chunks
     // of text exists for one event, then I accumulate all the text into a string buffer and I,
     // then, don't care about caching Strings.
-    
+
     private boolean _hasText;
     private boolean _oneChunk;
 

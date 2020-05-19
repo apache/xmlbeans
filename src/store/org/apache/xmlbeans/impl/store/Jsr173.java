@@ -44,12 +44,12 @@ public class Jsr173
         Jsr173GateWay gw = (Jsr173GateWay) xs;
 
         Locale l = gw._l;
-                  
+
         if (l.noSync())         { l.enter(); try { return nodeFromStreamImpl( gw ); } finally { l.exit(); } }
         else synchronized ( l ) { l.enter(); try { return nodeFromStreamImpl( gw ); } finally { l.exit(); } }
-        
+
     }
-    
+
     public static Node nodeFromStreamImpl ( Jsr173GateWay gw )
     {
         Cur c = gw._xs.getStreamCur();
@@ -60,25 +60,25 @@ public class Jsr173
     public static XMLStreamReader newXmlStreamReader ( Cur c, Object src, int off, int cch )
     {
         XMLStreamReaderBase xs = new XMLStreamReaderForString( c, src, off, cch );
-        
+
         if (c._locale.noSync())
             return new UnsyncedJsr173( c._locale, xs );
         else
             return new SyncedJsr173( c._locale, xs );
     }
-    
+
     public static XMLStreamReader newXmlStreamReader ( Cur c, XmlOptions options )
     {
         options = XmlOptions.maskNull( options );
-        
-        boolean inner = 
+
+        boolean inner =
             options.hasOption( XmlOptions.SAVE_INNER ) &&
                 !options.hasOption( XmlOptions.SAVE_OUTER );
 
         XMLStreamReaderBase xs;
 
         int k = c.kind();
-        
+
         if (k == Cur.TEXT || k < 0)
         {
             xs = new XMLStreamReaderForString( c, c.getChars( -1 ), c._offSrc, c._cchSrc );
@@ -95,23 +95,23 @@ public class Jsr173
         }
         else
             xs = new XMLStreamReaderForNode( c, false );
-        
+
         if (c._locale.noSync())
             return new UnsyncedJsr173( c._locale, xs );
         else
             return new SyncedJsr173( c._locale, xs );
     }
-    
+
     //
     //
     //
-    
+
     private static final class XMLStreamReaderForNode extends XMLStreamReaderBase
     {
         public XMLStreamReaderForNode ( Cur c, boolean inner )
         {
             super( c );
-            
+
             assert c.isContainer() || c.isComment() || c.isProcinst() || c.isAttr();
 
             // Iterate over everything *between* _cur and _end.  Do
@@ -120,12 +120,12 @@ public class Jsr173
             if (inner)
             {
                 assert c.isContainer();
-                
+
                 _cur = c.weakCur( this );
 
                 if (!_cur.toFirstAttr())
                     _cur.next();
-            
+
                 _end = c.weakCur( this );
                 _end.toEnd();
             }
@@ -155,9 +155,9 @@ public class Jsr173
             if (!_wholeDoc)
             {
                 // Set the _done bit properly
-                
+
                 _cur.push();
-                
+
                 try
                 {
                     next();
@@ -166,7 +166,7 @@ public class Jsr173
                 {
                     throw new RuntimeException( e.getMessage(), e );
                 }
-                    
+
                 _cur.pop();
             }
 
@@ -240,7 +240,7 @@ public class Jsr173
                     _cur.next();
 
                 assert _wholeDoc || _end != null;
-                
+
                 _done = _wholeDoc ? _cur.kind() == -Cur.ROOT : _cur.isSamePos( _end );
             }
 
@@ -260,7 +260,7 @@ public class Jsr173
                 return _cur.getValueAsString();
 
             if (k == Cur.TEXT)
-                return _cur.getCharsAsString( -1 );
+                return _cur.getCharsAsString();
 
             throw new IllegalStateException();
         }
@@ -373,7 +373,7 @@ public class Jsr173
 
             return ca;
         }
-        
+
         public String getAttributeValue ( String uri, String local )
         {
             Cur ca = toAttr( _cur, uri, local );
@@ -429,11 +429,11 @@ public class Jsr173
         public int getAttributeCount ( )
         {
             int n = 0;
-            
+
             if (_cur.isElem())
             {
                 Cur ca = _cur.tempCur();
-                
+
                 if (ca.toFirstAttr())
                 {
                     do
@@ -503,7 +503,7 @@ public class Jsr173
             // Go to attr to force index check
             Cur ca = toAttr( _cur, index );
             ca.release();
-            
+
             return false;
         }
 
@@ -550,7 +550,7 @@ public class Jsr173
             {
                 if (c.kind() == -Cur.ELEM)
                     ca.toParent();
-                
+
                 if (ca.toFirstAttr())
                 {
                     do
@@ -613,7 +613,7 @@ public class Jsr173
                     throw new IllegalStateException();
 
                 Object src = cText.getChars( -1 );
-                
+
                 ensureCharBufLen( cText._cchSrc );
 
                 CharUtil.getChars(
@@ -625,7 +625,7 @@ public class Jsr173
                 _textFetched = true;
             }
         }
-        
+
         private void ensureCharBufLen ( int cch )
         {
             if (_chars == null || _chars.length < cch)
@@ -634,7 +634,7 @@ public class Jsr173
 
                 while ( l < cch )
                     l *= 2;
-                
+
                 _chars = new char [ l ];
             }
         }
@@ -694,14 +694,14 @@ public class Jsr173
                     cText = _cur;
                 else
                     throw new IllegalStateException();
-            
+
                 _src = cText.getChars( -1 );
                 _offSrc = cText._offSrc;
                 _cchSrc = cText._cchSrc;
-                         
+
                 if (cText != _cur)
                     cText.release();
-                
+
                 _srcFetched = true;
             }
 
@@ -712,14 +712,14 @@ public class Jsr173
                 length = _cchSrc - sourceStart;
 
             CharUtil.getChars( target, targetStart, _src, _offSrc, length );
-            
+
             return length;
         }
 
         public boolean hasText ( )
         {
             int k = _cur.kind();
-            
+
             return k == Cur.COMMENT || k == Cur.TEXT;
         }
 
@@ -768,7 +768,7 @@ public class Jsr173
 
         private boolean _wholeDoc;
         private boolean _done;
-                
+
         private Cur _cur;
         private Cur _end;
 
@@ -776,13 +776,13 @@ public class Jsr173
         private Object  _src;
         private int     _offSrc;
         private int     _cchSrc;
-        
+
         private boolean _textFetched;
         private char[]  _chars;
         private int     _offChars;
         private int     _cchChars;
     }
-    
+
     //
     //
     //
@@ -857,7 +857,7 @@ public class Jsr173
                 throw new IllegalArgumentException( "Property name is null" );
 
             // BUGBUG - I should implement some perperties here
-            
+
             return null;
         }
 
@@ -924,7 +924,7 @@ public class Jsr173
         public int    getColumnNumber    ( ) { return _column; }
         public int    getLineNumber      ( ) { return _line;   }
         public String getLocationURI     ( ) { return _uri;    }
-        
+
         public String getPublicId ( ) { return null; }
         public String getSystemId ( ) { return null; }
 
@@ -943,7 +943,7 @@ public class Jsr173
 
             if (!c.isContainer())
                 c.toParent();
-            
+
             String ns = c.namespaceForPrefix( prefix, true );
 
             c.pop();
@@ -961,9 +961,9 @@ public class Jsr173
 
             if (!c.isContainer())
                 c.toParent();
-            
+
             String prefix = c.prefixForNamespace( namespaceURI, null, false );
-            
+
             c.pop();
 
             return prefix;
@@ -994,14 +994,14 @@ public class Jsr173
 
         private Locale _locale;
         private long   _version;
-        
+
         String _uri;
-        
+
         int _line   = -1;
         int _column = -1;
         int _offset = -1;
     }
-    
+
     //
     //
     //
@@ -1034,7 +1034,7 @@ public class Jsr173
 
             return CharUtil.getString( _src, _off, _cch );
         }
-        
+
         public char[] getTextCharacters ( )
         {
             checkChanged();
@@ -1057,20 +1057,20 @@ public class Jsr173
 
             return _cch;
         }
-        
+
         public int getTextCharacters ( int sourceStart, char[] target, int targetStart, int length )
         {
             checkChanged();
 
             if (length < 0)
                 throw new IndexOutOfBoundsException();
-            
+
             if (sourceStart > _cch)
                 throw new IndexOutOfBoundsException();
 
             if (sourceStart + length > _cch)
                 length = _cch - sourceStart;
-            
+
             CharUtil.getChars( target, targetStart, _src, _off + sourceStart, length );
 
             return length;
@@ -1125,7 +1125,7 @@ public class Jsr173
     private static abstract class Jsr173GateWay
     {
         public Jsr173GateWay ( Locale l, XMLStreamReaderBase xs ) { _l = l; _xs = xs; }
-        
+
         Locale              _l;
         XMLStreamReaderBase _xs;
     }
@@ -1133,7 +1133,7 @@ public class Jsr173
     private static final class SyncedJsr173 extends Jsr173GateWay implements XMLStreamReader, Location, NamespaceContext
     {
         public SyncedJsr173 ( Locale l, XMLStreamReaderBase xs ) { super( l, xs ); }
-        
+
         public Object getProperty ( java.lang.String name ) { synchronized ( _l ) { _l.enter(); try { return _xs.getProperty( name ); } finally { _l.exit(); } } }
         public int next ( ) throws XMLStreamException { synchronized ( _l ) { _l.enter(); try { return _xs.next(); } finally { _l.exit(); } } }
         public void require ( int type, String namespaceURI, String localName ) throws XMLStreamException { synchronized ( _l ) { _l.enter(); try { _xs.require( type, namespaceURI, localName ); } finally { _l.exit(); } } }
@@ -1192,7 +1192,7 @@ public class Jsr173
     private static final class UnsyncedJsr173 extends Jsr173GateWay implements XMLStreamReader, Location, NamespaceContext
     {
         public UnsyncedJsr173 ( Locale l, XMLStreamReaderBase xs ) { super( l, xs ); }
-        
+
         public Object getProperty ( java.lang.String name ) { try { _l.enter(); return _xs.getProperty( name ); } finally { _l.exit(); } }
         public int next ( ) throws XMLStreamException { try { _l.enter(); return _xs.next(); } finally { _l.exit(); } }
         public void require ( int type, String namespaceURI, String localName ) throws XMLStreamException { try { _l.enter(); _xs.require( type, namespaceURI, localName ); } finally { _l.exit(); } }
@@ -1249,4 +1249,3 @@ public class Jsr173
     }
 }
 
- 

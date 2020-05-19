@@ -15,138 +15,85 @@
 
 package org.apache.xmlbeans.impl.config;
 
-import org.apache.xmlbeans.impl.xb.xmlconfig.ConfigDocument.Config;
-import org.apache.xmlbeans.impl.xb.xmlconfig.Extensionconfig;
-import org.apache.xmlbeans.impl.xb.xmlconfig.Nsconfig;
-import org.apache.xmlbeans.impl.xb.xmlconfig.Qnameconfig;
-import org.apache.xmlbeans.impl.xb.xmlconfig.Qnametargetenum;
-import org.apache.xmlbeans.impl.xb.xmlconfig.Usertypeconfig;
-import org.apache.xmlbeans.BindingConfig;
-import org.apache.xmlbeans.UserType;
-import org.apache.xmlbeans.XmlObject;
-import org.apache.xmlbeans.XmlError;
-import org.apache.xmlbeans.InterfaceExtension;
-import org.apache.xmlbeans.PrePostExtension;
-import org.apache.xmlbeans.impl.jam.JamClassLoader;
-import org.apache.xmlbeans.impl.jam.JamService;
-import org.apache.xmlbeans.impl.jam.JamServiceFactory;
-import org.apache.xmlbeans.impl.jam.JamServiceParams;
+import org.apache.xmlbeans.*;
 import org.apache.xmlbeans.impl.schema.StscState;
+import org.apache.xmlbeans.impl.xb.xmlconfig.ConfigDocument.Config;
+import org.apache.xmlbeans.impl.xb.xmlconfig.*;
 
 import javax.xml.namespace.QName;
 import java.io.File;
-import java.io.IOException;
 import java.util.*;
 
 /**
  * An implementation of BindingConfig
  */
-public class BindingConfigImpl extends BindingConfig
-{
-    private Map _packageMap;
-    private Map _prefixMap;
-    private Map _suffixMap;
-    private Map _packageMapByUriPrefix; // uri prefix -> package
-    private Map _prefixMapByUriPrefix;  // uri prefix -> name prefix
-    private Map _suffixMapByUriPrefix;  // uri prefix -> name suffix
-    private Map _qnameTypeMap;
-    private Map _qnameDocTypeMap;
-    private Map _qnameElemMap;
-    private Map _qnameAttMap;
+public class BindingConfigImpl extends BindingConfig {
+    private final Map _packageMap = new LinkedHashMap();
+    private final Map _prefixMap = new LinkedHashMap();
+    private final Map _suffixMap = new LinkedHashMap();
+    // uri prefix -> package
+    private final Map<Object,String> _packageMapByUriPrefix = new LinkedHashMap<>();
+    // uri prefix -> name prefix
+    private final Map<Object,String> _prefixMapByUriPrefix = new LinkedHashMap<>();
+    // uri prefix -> name suffix
+    private final Map<Object,String> _suffixMapByUriPrefix = new LinkedHashMap<>();
+    private final Map<QName,String> _qnameTypeMap = new LinkedHashMap<>();
+    private final Map<QName,String> _qnameDocTypeMap = new LinkedHashMap<>();
+    private final Map<QName,String> _qnameElemMap = new LinkedHashMap<>();
+    private final Map<QName,String> _qnameAttMap = new LinkedHashMap<>();
 
-    private List _interfaceExtensions;
-    private List _prePostExtensions;
-    private Map _userTypes;
+    private final List<InterfaceExtensionImpl> _interfaceExtensions = new ArrayList<>();
+    private final List<PrePostExtensionImpl> _prePostExtensions = new ArrayList<>();
+    private final Map<QName,UserTypeImpl> _userTypes = new LinkedHashMap<>();
 
-    private BindingConfigImpl()
-    {
-        _packageMap = Collections.EMPTY_MAP;
-        _prefixMap = Collections.EMPTY_MAP;
-        _suffixMap = Collections.EMPTY_MAP;
-        _packageMapByUriPrefix = Collections.EMPTY_MAP;
-        _prefixMapByUriPrefix = Collections.EMPTY_MAP;
-        _suffixMapByUriPrefix = Collections.EMPTY_MAP;
-        _qnameTypeMap = Collections.EMPTY_MAP;
-        _qnameDocTypeMap = Collections.EMPTY_MAP;
-        _qnameElemMap = Collections.EMPTY_MAP;
-        _qnameAttMap = Collections.EMPTY_MAP;
-        _interfaceExtensions = new ArrayList();
-        _prePostExtensions = new ArrayList();
-        _userTypes = Collections.EMPTY_MAP;
-    }
-
-    public static BindingConfig forConfigDocuments(Config[] configs, File[] javaFiles, File[] classpath)
-    {
+    public static BindingConfig forConfigDocuments(Config[] configs, File[] javaFiles, File[] classpath) {
         return new BindingConfigImpl(configs, javaFiles, classpath);
     }
 
-    private BindingConfigImpl(Config[] configs, File[] javaFiles, File[] classpath)
-    {
-        _packageMap = new LinkedHashMap();
-        _prefixMap = new LinkedHashMap();
-        _suffixMap = new LinkedHashMap();
-        _packageMapByUriPrefix = new LinkedHashMap();
-        _prefixMapByUriPrefix = new LinkedHashMap();
-        _suffixMapByUriPrefix = new LinkedHashMap();
-        _qnameTypeMap = new LinkedHashMap();
-        _qnameDocTypeMap = new LinkedHashMap();
-        _qnameElemMap = new LinkedHashMap();
-        _qnameAttMap = new LinkedHashMap();
-        _interfaceExtensions = new ArrayList();
-        _prePostExtensions = new ArrayList();
-        _userTypes = new LinkedHashMap();
-
-        for (int i = 0; i < configs.length; i++)
-        {
-            Config config = configs[i];
+    private BindingConfigImpl(Config[] configs, File[] javaFiles, File[] classpath) {
+        for (Config config : configs) {
             Nsconfig[] nsa = config.getNamespaceArray();
-            for (int j = 0; j < nsa.length; j++)
-            {
-                recordNamespaceSetting(nsa[j].getUri(), nsa[j].getPackage(), _packageMap);
-                recordNamespaceSetting(nsa[j].getUri(), nsa[j].getPrefix(), _prefixMap);
-                recordNamespaceSetting(nsa[j].getUri(), nsa[j].getSuffix(), _suffixMap);
-                recordNamespacePrefixSetting(nsa[j].getUriprefix(), nsa[j].getPackage(), _packageMapByUriPrefix);
-                recordNamespacePrefixSetting(nsa[j].getUriprefix(), nsa[j].getPrefix(), _prefixMapByUriPrefix);
-                recordNamespacePrefixSetting(nsa[j].getUriprefix(), nsa[j].getSuffix(), _suffixMapByUriPrefix);
+            for (Nsconfig nsconfig : nsa) {
+                recordNamespaceSetting(nsconfig.getUri(), nsconfig.getPackage(), _packageMap);
+                recordNamespaceSetting(nsconfig.getUri(), nsconfig.getPrefix(), _prefixMap);
+                recordNamespaceSetting(nsconfig.getUri(), nsconfig.getSuffix(), _suffixMap);
+                recordNamespacePrefixSetting(nsconfig.getUriprefix(), nsconfig.getPackage(), _packageMapByUriPrefix);
+                recordNamespacePrefixSetting(nsconfig.getUriprefix(), nsconfig.getPrefix(), _prefixMapByUriPrefix);
+                recordNamespacePrefixSetting(nsconfig.getUriprefix(), nsconfig.getSuffix(), _suffixMapByUriPrefix);
             }
 
             Qnameconfig[] qnc = config.getQnameArray();
-            for (int j = 0; j < qnc.length; j++)
-            {
-                List applyto = qnc[j].xgetTarget().xgetListValue();
-                QName name = qnc[j].getName();
-                String javaname = qnc[j].getJavaname();
-                for (int k = 0; k < applyto.size(); k++)
-                {
-                    Qnametargetenum a = (Qnametargetenum) applyto.get(k);
-                    switch (a.enumValue().intValue())
-                    {
-                    case Qnametargetenum.INT_TYPE:
-                        _qnameTypeMap.put(name, javaname);
-                        break;
-                    case Qnametargetenum.INT_DOCUMENT_TYPE:
-                        _qnameDocTypeMap.put(name, javaname);
-                        break;
-                    case Qnametargetenum.INT_ACCESSOR_ELEMENT:
-                        _qnameElemMap.put(name, javaname);
-                        break;
-                    case Qnametargetenum.INT_ACCESSOR_ATTRIBUTE:
-                        _qnameAttMap.put(name, javaname);
-                        break;
+            for (Qnameconfig qnameconfig : qnc) {
+                List applyto = qnameconfig.xgetTarget().xgetListValue();
+                QName name = qnameconfig.getName();
+                String javaname = qnameconfig.getJavaname();
+                for (Object o : applyto) {
+                    Qnametargetenum a = (Qnametargetenum) o;
+                    switch (a.enumValue().intValue()) {
+                        case Qnametargetenum.INT_TYPE:
+                            _qnameTypeMap.put(name, javaname);
+                            break;
+                        case Qnametargetenum.INT_DOCUMENT_TYPE:
+                            _qnameDocTypeMap.put(name, javaname);
+                            break;
+                        case Qnametargetenum.INT_ACCESSOR_ELEMENT:
+                            _qnameElemMap.put(name, javaname);
+                            break;
+                        case Qnametargetenum.INT_ACCESSOR_ATTRIBUTE:
+                            _qnameAttMap.put(name, javaname);
+                            break;
                     }
                 }
             }
 
             Extensionconfig[] ext = config.getExtensionArray();
-            for (int j = 0; j < ext.length; j++)
-            {
-                recordExtensionSetting(javaFiles, classpath, ext[j]);
+            for (Extensionconfig extensionconfig : ext) {
+                recordExtensionSetting(javaFiles, classpath, extensionconfig);
             }
-            
+
             Usertypeconfig[] utypes = config.getUsertypeArray();
-            for (int j = 0; j < utypes.length; j++)
-            {
-                recordUserTypeSetting(javaFiles, classpath, utypes[j]);
+            for (Usertypeconfig utype : utypes) {
+                recordUserTypeSetting(javaFiles, classpath, utype);
             }
         }
 
@@ -154,102 +101,84 @@ public class BindingConfigImpl extends BindingConfig
         //todo normalize();
     }
 
-    void addInterfaceExtension(InterfaceExtensionImpl ext)
-    {
-        if (ext==null)
+    void addInterfaceExtension(InterfaceExtensionImpl ext) {
+        if (ext==null) {
             return;
+        }
 
         _interfaceExtensions.add(ext);
     }
 
-    void addPrePostExtension(PrePostExtensionImpl ext)
-    {
-        if (ext==null)
+    void addPrePostExtension(PrePostExtensionImpl ext) {
+        if (ext==null) {
             return;
+        }
 
         _prePostExtensions.add(ext);
     }
 
-    void secondPhaseValidation()
-    {
+    void secondPhaseValidation() {
         // validate interface methods collisions
-        Map methodSignatures = new HashMap();
+        Map<InterfaceExtension.MethodSignature,InterfaceExtension.MethodSignature> methodSignatures = new HashMap<>();
 
-        for (int i = 0; i < _interfaceExtensions.size(); i++)
-        {
-            InterfaceExtensionImpl interfaceExtension = (InterfaceExtensionImpl) _interfaceExtensions.get(i);
+        for (InterfaceExtensionImpl extension : _interfaceExtensions) {
 
-            InterfaceExtensionImpl.MethodSignatureImpl[] methods = (InterfaceExtensionImpl.MethodSignatureImpl[])interfaceExtension.getMethods();
-            for (int j = 0; j < methods.length; j++)
-            {
-                InterfaceExtensionImpl.MethodSignatureImpl ms = methods[j];
+            InterfaceExtensionImpl.MethodSignatureImpl[] methods = (InterfaceExtensionImpl.MethodSignatureImpl[]) extension.getMethods();
+            for (InterfaceExtensionImpl.MethodSignatureImpl ms : methods) {
+                if (methodSignatures.containsKey(ms)) {
 
-                if (methodSignatures.containsKey(methods[j]))
-                {
-
-                    InterfaceExtensionImpl.MethodSignatureImpl ms2 = (InterfaceExtensionImpl.MethodSignatureImpl) methodSignatures.get(methods[j]);
-                    if (!ms.getReturnType().equals(ms2.getReturnType()))
-                    {
+                    InterfaceExtensionImpl.MethodSignatureImpl ms2 = (InterfaceExtensionImpl.MethodSignatureImpl) methodSignatures.get(ms);
+                    if (!ms.getReturnType().equals(ms2.getReturnType())) {
                         BindingConfigImpl.error("Colliding methods '" + ms.getSignature() + "' in interfaces " +
-                        ms.getInterfaceName() + " and " + ms2.getInterfaceName() + ".", null);
+                                                ms.getInterfaceName() + " and " + ms2.getInterfaceName() + ".", null);
                     }
 
                     return;
                 }
 
                 // store it into hashmap
-                methodSignatures.put(methods[j], methods[j]);
+                methodSignatures.put(ms, ms);
             }
         }
 
         // validate that PrePostExtension-s do not intersect
-        for (int i = 0; i < _prePostExtensions.size() - 1; i++)
-        {
-            PrePostExtensionImpl a = (PrePostExtensionImpl) _prePostExtensions.get(i);
-            for (int j = 1; j < _prePostExtensions.size(); j++)
-            {
-                PrePostExtensionImpl b = (PrePostExtensionImpl) _prePostExtensions.get(j);
-                if (a.hasNameSetIntersection(b))
+        for (int i = 0; i < _prePostExtensions.size() - 1; i++) {
+            PrePostExtensionImpl a = _prePostExtensions.get(i);
+            for (int j = 1; j < _prePostExtensions.size(); j++) {
+                PrePostExtensionImpl b = _prePostExtensions.get(j);
+                if (a.hasNameSetIntersection(b)) {
                     BindingConfigImpl.error("The applicable domain for handler '" + a.getHandlerNameForJavaSource() +
-                        "' intersects with the one for '" + b.getHandlerNameForJavaSource() + "'.", null);
+                                            "' intersects with the one for '" + b.getHandlerNameForJavaSource() + "'.", null);
+                }
             }
         }
     }
 
-    private static void recordNamespaceSetting(Object key, String value, Map result)
-    {
-        if (value == null)
+    private static void recordNamespaceSetting(Object key, String value, Map<Object,String> result) {
+        if (value == null) {
             return;
-        else if (key == null)
+        }
+        if (key == null) {
             result.put("", value);
-        else if (key instanceof String && "##any".equals(key))
+        } else if (key instanceof String && "##any".equals(key)) {
             result.put(key, value);
-        else if (key instanceof List)
-        {
-            for (Iterator i = ((List)key).iterator(); i.hasNext(); )
-            {
-                String uri = (String)i.next();
-                if ("##local".equals(uri))
-                    uri = "";
-                result.put(uri, value);
-            }
+        } else if (key instanceof List) {
+            // map uris to value
+            ((List<?>)key).forEach(o -> result.put("##local".equals(o) ? "" : o, value));
         }
     }
 
-    private static void recordNamespacePrefixSetting(List list, String value, Map result)
-    {
-        if (value == null)
+    private static void recordNamespacePrefixSetting(List list, String value, Map<Object,String> result) {
+        if (value == null) {
             return;
-        else if (list == null)
-            return;
-        for (Iterator i = list.iterator(); i.hasNext(); )
-        {
-            result.put(i.next(), value);
         }
+        if (list == null) {
+            return;
+        }
+        list.forEach(o -> result.put(o, value));
     }
 
-    private void recordExtensionSetting(File[] javaFiles, File[] classpath, Extensionconfig ext)
-    {
+    private void recordExtensionSetting(File[] javaFiles, File[] classpath, Extensionconfig ext) {
         NameSet xbeanSet = null;
         Object key = ext.getFor();
 
@@ -259,9 +188,8 @@ public class BindingConfigImpl extends BindingConfig
         else if (key instanceof List)
         {
             NameSetBuilder xbeanSetBuilder = new NameSetBuilder();
-            for (Iterator i = ((List) key).iterator(); i.hasNext();)
-            {
-                String xbeanName = (String) i.next();
+            for (Object o : (List) key) {
+                String xbeanName = (String) o;
                 xbeanSetBuilder.add(xbeanName);
             }
             xbeanSet = xbeanSetBuilder.toNameSet();
@@ -271,210 +199,131 @@ public class BindingConfigImpl extends BindingConfig
             error("Invalid value of attribute 'for' : '" + key + "'.", ext);
 
         Extensionconfig.Interface[] intfXO = ext.getInterfaceArray();
-        Extensionconfig.PrePostSet ppXO    = ext.getPrePostSet(); 
+        Extensionconfig.PrePostSet ppXO    = ext.getPrePostSet();
 
-        if (intfXO.length > 0 || ppXO != null)
-        {
-            JamClassLoader jamLoader = getJamLoader(javaFiles, classpath);
-            for (int i = 0; i < intfXO.length; i++)
-            {
-                addInterfaceExtension(InterfaceExtensionImpl.newInstance(jamLoader, xbeanSet, intfXO[i]));
+        Parser loader = new Parser(javaFiles, classpath);
+
+        if (intfXO.length > 0 || ppXO != null) {
+            for (Extensionconfig.Interface anInterface : intfXO) {
+                addInterfaceExtension(InterfaceExtensionImpl.newInstance(loader, xbeanSet, anInterface));
             }
 
-            addPrePostExtension(PrePostExtensionImpl.newInstance(jamLoader, xbeanSet, ppXO));
+            addPrePostExtension(PrePostExtensionImpl.newInstance(loader, xbeanSet, ppXO));
         }
     }
 
-    private void recordUserTypeSetting(File[] javaFiles, File[] classpath,
-            Usertypeconfig usertypeconfig)
-    {
-        JamClassLoader jamLoader = getJamLoader(javaFiles, classpath);
-        UserTypeImpl userType = UserTypeImpl.newInstance(jamLoader, usertypeconfig);
+    private void recordUserTypeSetting(File[] javaFiles, File[] classpath, Usertypeconfig usertypeconfig) {
+        Parser loader = new Parser(javaFiles, classpath);
+        UserTypeImpl userType = UserTypeImpl.newInstance(loader, usertypeconfig);
         _userTypes.put(userType.getName(), userType);
     }
 
 
-    private String lookup(Map map, Map mapByUriPrefix, String uri)
-    {
-        if (uri == null)
+    private String lookup(Map map, Map mapByUriPrefix, String uri) {
+        if (uri == null) {
             uri = "";
+        }
         String result = (String)map.get(uri);
-        if (result != null)
+        if (result != null) {
             return result;
-        if (mapByUriPrefix != null)
-        {
+        }
+        if (mapByUriPrefix != null) {
             result = lookupByUriPrefix(mapByUriPrefix, uri);
-            if (result != null)
+            if (result != null) {
                 return result;
+            }
         }
 
         return (String)map.get("##any");
     }
 
-    private String lookupByUriPrefix(Map mapByUriPrefix, String uri)
-    {
-        if (uri == null)
+    private String lookupByUriPrefix(Map mapByUriPrefix, String uri) {
+        if (uri == null) {
             return null;
-        if (!mapByUriPrefix.isEmpty())
-        {
+        }
+        if (!mapByUriPrefix.isEmpty()) {
             String uriprefix = null;
-            Iterator i = mapByUriPrefix.keySet().iterator();
-            while (i.hasNext())
-            {
-                String nextprefix = (String)i.next();
-                if (uriprefix != null && nextprefix.length() < uriprefix.length())
+            for (Object o : mapByUriPrefix.keySet()) {
+                String nextprefix = (String) o;
+                if (uriprefix != null && nextprefix.length() < uriprefix.length()) {
                     continue;
-                if (uri.startsWith(nextprefix))
+                }
+                if (uri.startsWith(nextprefix)) {
                     uriprefix = nextprefix;
+                }
             }
 
-            if (uriprefix != null)
-                return (String)mapByUriPrefix.get(uriprefix);
+            if (uriprefix != null) {
+                return (String) mapByUriPrefix.get(uriprefix);
+            }
         }
         return null;
     }
 
     //package methods
-    static void warning(String s, XmlObject xo)
-    {
+    static void warning(String s, XmlObject xo) {
         StscState.get().error(s, XmlError.SEVERITY_WARNING, xo);
     }
 
-    static void error(String s, XmlObject xo)
-    {
+    static void error(String s, XmlObject xo) {
         StscState.get().error(s, XmlError.SEVERITY_ERROR, xo);
     }
 
     //public methods
 
-    public String lookupPackageForNamespace(String uri)
-    {
+    public String lookupPackageForNamespace(String uri) {
         return lookup(_packageMap, _packageMapByUriPrefix, uri);
     }
 
-    public String lookupPrefixForNamespace(String uri)
-    {
+    public String lookupPrefixForNamespace(String uri) {
         return lookup(_prefixMap, _prefixMapByUriPrefix, uri);
     }
 
-    public String lookupSuffixForNamespace(String uri)
-    {
+    public String lookupSuffixForNamespace(String uri) {
         return lookup(_suffixMap, _suffixMapByUriPrefix, uri);
     }
 
     /** @deprecated replaced with {@link #lookupJavanameForQName(QName, int)} */
-    public String lookupJavanameForQName(QName qname)
-    {
-        String result = (String)_qnameTypeMap.get(qname);
-        if (result != null)
-            return result;
-        return (String)_qnameDocTypeMap.get(qname);
+    public String lookupJavanameForQName(QName qname) {
+        String result = _qnameTypeMap.get(qname);
+        return result != null ? result : _qnameDocTypeMap.get(qname);
     }
 
-    public String lookupJavanameForQName(QName qname, int kind)
-    {
-        switch (kind)
-        {
+    public String lookupJavanameForQName(QName qname, int kind) {
+        switch (kind) {
         case QNAME_TYPE:
-            return (String)_qnameTypeMap.get(qname);
+            return _qnameTypeMap.get(qname);
         case QNAME_DOCUMENT_TYPE:
-            return (String)_qnameDocTypeMap.get(qname);
+            return _qnameDocTypeMap.get(qname);
         case QNAME_ACCESSOR_ELEMENT:
-            return (String)_qnameElemMap.get(qname);
+            return _qnameElemMap.get(qname);
         case QNAME_ACCESSOR_ATTRIBUTE:
-            return (String)_qnameAttMap.get(qname);
+            return _qnameAttMap.get(qname);
         }
         return null;
     }
 
-    public UserType lookupUserTypeForQName(QName qname)
-    {
-        if (qname == null)
-            return null;
-
-        return (UserType) _userTypes.get(qname);
+    public UserType lookupUserTypeForQName(QName qname) {
+        return qname == null ? null : _userTypes.get(qname);
     }
 
-    public InterfaceExtension[] getInterfaceExtensions()
-    {
-        return (InterfaceExtension[])_interfaceExtensions.toArray(new InterfaceExtension[_interfaceExtensions.size()]);
+    public InterfaceExtension[] getInterfaceExtensions() {
+        return _interfaceExtensions.toArray(new InterfaceExtension[0]);
     }
 
-    public InterfaceExtension[] getInterfaceExtensions(String fullJavaName)
-    {
-        List result = new ArrayList();
-        for (int i = 0; i < _interfaceExtensions.size(); i++)
-        {
-            InterfaceExtensionImpl intfExt = (InterfaceExtensionImpl) _interfaceExtensions.get(i);
-            if (intfExt.contains(fullJavaName))
-                result.add(intfExt);
-        }
-
-        return (InterfaceExtension[])result.toArray(new InterfaceExtension[result.size()]);
+    public InterfaceExtension[] getInterfaceExtensions(String fullJavaName) {
+        return _interfaceExtensions.stream().
+            filter(i -> i.contains(fullJavaName)).
+            toArray(InterfaceExtension[]::new);
     }
 
-    public PrePostExtension[] getPrePostExtensions()
-    {
-        return (PrePostExtension[])_prePostExtensions.toArray(new PrePostExtension[_prePostExtensions.size()]);
+    public PrePostExtension[] getPrePostExtensions() {
+        return _prePostExtensions.toArray(new PrePostExtension[0]);
     }
 
-    public PrePostExtension getPrePostExtension(String fullJavaName)
-    {
-        for (int i = 0; i < _prePostExtensions.size(); i++)
-        {
-            PrePostExtensionImpl prePostExt = (PrePostExtensionImpl) _prePostExtensions.get(i);
-            if (prePostExt.contains(fullJavaName))
-                return prePostExt;
-        }
-        return null;
-    }
-
-    private JamClassLoader getJamLoader(File[] javaFiles, File[] classpath)
-    {
-        JamServiceFactory jf = JamServiceFactory.getInstance();
-        JamServiceParams params = jf.createServiceParams();
-        params.set14WarningsEnabled(false);
-        // BUGBUG(radup) This is here because the above doesn't do the trick
-        params.setShowWarnings(false);
-
-        // process the included sources
-        if (javaFiles!=null)
-            for (int i = 0; i < javaFiles.length; i++)
-                params.includeSourceFile(javaFiles[i]);
-
-        //params.setVerbose(DirectoryScanner.class);
-
-        // add the sourcepath and classpath, if specified
-        params.addClassLoader(this.getClass().getClassLoader());
-        if (classpath != null)
-            for (int i = 0; i < classpath.length; i++)
-                params.addClasspath(classpath[i]);
-
-        // create service, get classes, return compiler
-        JamService service;
-        try
-        {
-            service = jf.createService(params);
-        }
-        catch (IOException ioe)
-        {
-            error("Error when accessing .java files.", null);
-            return null;
-        }
-
-//        JClass[] cls = service.getAllClasses();
-//        for (int i = 0; i < cls.length; i++)
-//        {
-//            JClass cl = cls[i];
-//            System.out.println("CL: " + cl + " " + cl.getQualifiedName());
-//            JMethod[] methods = cl.getMethods();
-//            for (int j = 0; j < methods.length; j++)
-//            {
-//                JMethod method = methods[j];
-//                System.out.println("    " + method.getQualifiedName());
-//            }
-//        }
-
-        return service.getClassLoader();
+    public PrePostExtension getPrePostExtension(String fullJavaName) {
+        return _prePostExtensions.stream().
+            filter(p -> p.contains(fullJavaName)).
+            findFirst().orElse(null);
     }
 }
