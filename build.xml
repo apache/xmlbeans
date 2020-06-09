@@ -19,8 +19,8 @@
     <property name="ant.build.javac.source" value="1.8"/>
     <property name="ant.build.javac.target" value="1.8"/>
 
-    <property name="version.base" value="3.1.1"/>
-    <property name="version.rc" value=""/>
+    <property name="version.base" value="4.0.0"/>
+    <property name="version.rc" value="rc0"/>
 
     <property name="repository.m2" value="https://repo1.maven.org/maven2"/>
     <property environment="ENV"/>
