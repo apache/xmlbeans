@@ -1,3 +1,11 @@
+Changes in V4.0.0 since V3.1.0
+
+* XMLBEANS-548: XmlDocumentProperties.setStandalone is ignored when saving
+* XMLBEANS-542: SAX Parsing should not fail if parser does not allow the setting of declaration-handler
+* XMLBEANS-541, XMLBEANS-544, XMLBEANS-545: Fixes to ant build scripts
+* XMLBEANS-540: Prevent trim of elements when pretty print is used
+* XMLBEANS-539: Support Saxon-HE 10 as an XPath engine
+
 Changes in V3.1.0 since V3.0.2
 
 * update build and deployment artifacts to standardize naming and remove unused items 
