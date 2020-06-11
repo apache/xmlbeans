@@ -75,7 +75,7 @@
         http://easynews.dl.sourceforge.net/sourceforge/saxon/saxonb8-7-3j.zip
         http://easynews.dl.sourceforge.net/sourceforge/saxon/saxonb8-8j.zip
     -->
-    <dependency prefix="saxon" artifact="net.sf.saxon:Saxon-HE:10.0" usage="tests"/>
+    <dependency prefix="saxon" artifact="net.sf.saxon:Saxon-HE:10.1" usage="tests"/>
 
     <!-- test dependencies -->
     <dependency prefix="junit" artifact="junit:junit:4.13" usage="tests"/>
