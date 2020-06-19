@@ -74,6 +74,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -136,11 +138,16 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
     static final int FLAG_ATTRIBUTE_TYPE  = 0x80000;
 
     /**
+     * regex to identify the type system holder package namespace
+     */
+    private static final Pattern packPat = Pattern.compile("^(.+)(\\.[^.]+){2}$");
+
+    /**
      * This is to support the feature of a separate/private XMLBeans
      * distribution that will not colide with the public org apache
      * xmlbeans one.
      * METADATA_PACKAGE_GEN will be "" for the original and something like
-     * com_mycompany_private_xmlbeans for a private distribution of XMLBeans.
+     * com.mycompany.private.xmlbeans for a private distribution of XMLBeans.
      *
      * There are two properties:
      *   METADATA_PACKAGE_GEN - used for generating metadata
@@ -149,17 +156,18 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
      * repackage process scomp needs to load from old package and generate into
      * a new package.
      */
-    public static String METADATA_PACKAGE_GEN;
-    static
-    {
-        // fix for maven classloader
-        Package stsPackage = SchemaTypeSystem.class.getPackage();
-        String stsPackageName = (stsPackage==null) ?
-            SchemaTypeSystem.class.getName().substring(0, SchemaTypeSystem.class.getName().lastIndexOf(".")) :
-            stsPackage.getName();
-
-        METADATA_PACKAGE_GEN = stsPackageName.replaceAll("\\.", "_");
-    }
+    public static String METADATA_PACKAGE_GEN = "org/apache/xmlbeans/metadata";
+//    public static String METADATA_PACKAGE_GEN;
+//    static
+//    {
+//        // fix for maven classloader
+//        Package stsPackage = SchemaTypeSystem.class.getPackage();
+//        String stsPackageName = (stsPackage==null) ?
+//            SchemaTypeSystem.class.getName().substring(0, SchemaTypeSystem.class.getName().lastIndexOf(".")) :
+//            stsPackage.getName();
+//
+//        METADATA_PACKAGE_GEN = stsPackageName.replace('.', '/') + "/metadata";
+//    }
 
     private static String nameToPathString(String nameForSystem)
     {
@@ -171,8 +179,32 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
         return nameForSystem;
     }
 
-    public SchemaTypeSystemImpl(Class indexclass)
-    {
+    protected SchemaTypeSystemImpl() {
+        String fullname = getClass().getName();
+        _name = fullname.substring(0, fullname.lastIndexOf('.'));
+        XBeanDebug.trace(XBeanDebug.TRACE_SCHEMA_LOADING, "Loading type system " + _name, 1);
+        _basePackage = nameToPathString(_name);
+        _classloader = getClass().getClassLoader();
+        _linker = this;
+        _resourceLoader = new ClassLoaderResourceLoader(_classloader);
+        try
+        {
+            initFromHeader();
+        }
+        catch (RuntimeException e)
+        {
+            XBeanDebug.logException(e);
+            throw e;
+        }
+        catch (Error e)
+        {
+            XBeanDebug.logException(e);
+            throw e;
+        }
+        XBeanDebug.trace(XBeanDebug.TRACE_SCHEMA_LOADING, "Finished loading type system " + _name, -1);
+    }
+
+    public SchemaTypeSystemImpl(Class indexclass) {
         String fullname = indexclass.getName();
         _name = fullname.substring(0, fullname.lastIndexOf('.'));
         XBeanDebug.trace(XBeanDebug.TRACE_SCHEMA_LOADING, "Loading type system " + _name, 1);
@@ -235,7 +267,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
             Class c = Class.forName(name + "." + SchemaTypeCodePrinter.INDEX_CLASSNAME, true, loader);
             return (SchemaTypeSystemImpl)c.getField("typeSystem").get(null);
         }
-        catch (Exception e)
+        catch (Throwable e)
         {
             return null;
         }
@@ -905,8 +937,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
         }
     }
 
-    public SchemaTypeSystemImpl(String nameForSystem)
-    {
+    public SchemaTypeSystemImpl(String nameForSystem) {
         // if we have no name, select a random one
         if (nameForSystem == null)
         {
@@ -916,10 +947,9 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
             nameForSystem = "s" + new String(HexBin.encode(bytes));
         }
 
-        _name = getMetadataPath().replace('/','.') + ".system." + nameForSystem;
+        _name = SchemaTypeSystemImpl.METADATA_PACKAGE_GEN.replace('/','.') + ".system." + nameForSystem;
         _basePackage = nameToPathString(_name);
         _classloader = null;
-        //System.out.println("             _base: " + _basePackage);
     }
 
     public void loadFromBuilder(SchemaGlobalElement[] globalElements,
@@ -976,10 +1006,10 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
 
     SchemaDependencies getDependencies()
     {   return _deps; }
-    
+
     // EXPERIMENTAL
     public boolean isIncomplete() { return _incomplete; }
-    
+
     // EXPERIMENTAL
     void setIncomplete(boolean incomplete) { _incomplete = incomplete; }
 
@@ -1243,9 +1273,9 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
 
     }
 
-    private String _name;
+    private final String _name;
     private String _basePackage;
-    
+
     // EXPERIMENTAL: recovery from compilation errors and partial type systems
     private boolean _incomplete = false;
 
@@ -3818,8 +3848,9 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
      *
      * @since XmlBeans 3.1.0
      */
-    protected String getMetadataPath() {
-        return "schema" + METADATA_PACKAGE_GEN;
+    public String getMetadataPath() {
+        Matcher m = packPat.matcher(_name);
+        m.find();
+        return m.group(1).replace('.','/');
     }
-
 }

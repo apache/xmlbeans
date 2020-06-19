@@ -16,6 +16,7 @@
 package org.apache.xmlbeans.impl.schema;
 
 import org.apache.xmlbeans.SchemaTypeSystem;
+import org.apache.xmlbeans.impl.schema.SchemaTypeSystemImpl;
 
 /**
  * This class is the hook which causes the SchemaTypeSystem to be loaded when
@@ -35,45 +36,15 @@ import org.apache.xmlbeans.SchemaTypeSystem;
 // !!! If you modify this class, you will have to run bootstrap.
 // !!! If this scares you, turn back now !!!
 //
-public class TypeSystemHolder
-{
-    private TypeSystemHolder() { }
+public final class TypeSystemHolder extends SchemaTypeSystemImpl {
+    // TODO: provide parameter-less parent constructor
+    private TypeSystemHolder() { super(TypeSystemHolder.class); }
 
-    public static final SchemaTypeSystem typeSystem = loadTypeSystem();
+    // the type system
+    public static final TypeSystemHolder typeSystem = new TypeSystemHolder();
 
     // Commenting out this line has the effect of not loading all components in a
     // typesystem upfront, but just as they are needed, which may improve
     // performance significantly
     //static { typeSystem.resolve(); }
-
-    private static final SchemaTypeSystem loadTypeSystem()
-    {
-        try
-        {
-            // The fact that we are using TypeSystemHolder.class.getClassLoader()
-            // to load the SchemaTypeSystem class means that the TypeSystemHolder's
-            // classloader MUST be a descendant of the XmlBeans classloader, even
-            // though it can be different.
-            // In other words, each Schema type has only one copy per VM, not one
-            // copy per copy of XmlBeans in use, therefore this implies that
-            // there either must be one copy of XmlBeans in the VM or copies in
-            // different classloaders will each need a different copy of one
-            // Schema type, which seems a reasonable restriction, but needs to be
-            // understood nevertheless
-            return (SchemaTypeSystem)
-                Class.forName(
-                    "org.apache.xmlbeans.impl.schema.SchemaTypeSystemImpl",
-                    true, TypeSystemHolder.class.getClassLoader())
-                .getConstructor(new Class[] { Class.class })
-                .newInstance(new java.lang.Object[] { TypeSystemHolder.class });
-        }
-        catch (ClassNotFoundException e)
-        {
-            throw new RuntimeException("Cannot load org.apache.xmlbeans.impl.SchemaTypeSystemImpl: make sure xbean.jar is on the classpath.", e);
-        }
-        catch (Exception e)
-        {
-            throw new RuntimeException("Could not instantiate SchemaTypeSystemImpl (" + e.toString() + "): is the version of xbean.jar correct?", e);
-        }
-    }
 }

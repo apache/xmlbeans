@@ -84,7 +84,8 @@ public class XMLBean extends MatchingTask
                         memoryInitialSize,
                         memoryMaximumSize,
                         catalog,
-                        javasource;
+                        javasource,
+                        repackage;
 
     private List        extensions = new ArrayList();
 
@@ -238,6 +239,7 @@ public class XMLBean extends MatchingTask
             params.setNoVDoc(novdoc);
             params.setNoExt(noext);
             params.setJavaSource(javasource);
+            params.setRepackage(repackage);
             success = SchemaCompiler.compile(params);
 
             if (success && !srconly) {
@@ -305,7 +307,7 @@ public class XMLBean extends MatchingTask
             //interrupted means cancel
             if (e instanceof InterruptedException || failonerror)
                 throw new BuildException(e);
-            
+
             log("Exception while building schemas: " + e.getMessage(), Project.MSG_ERR);
             StringWriter sw = new StringWriter();
             e.printStackTrace(new PrintWriter(sw));
@@ -822,6 +824,14 @@ public class XMLBean extends MatchingTask
     public void setCatalog(String catalog)
     {
         this.catalog = catalog;
+    }
+
+    public String getRepackage() {
+        return repackage;
+    }
+
+    public void setRepackage(String repackage) {
+        this.repackage = repackage;
     }
 
     private static URI uriFromFile(File f)

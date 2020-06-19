@@ -303,7 +303,7 @@ public class SomTestBase extends CompileTestBase
 
     public boolean checkPSOMSave(SchemaTypeSystem tgtSTS)
     {
-        String outDirName = tgtSTS.getName().split("schemaorg_apache_xmlbeans.system.")[1];
+        String outDirName = tgtSTS.getName().split("org.apache.xmlbeans.metadata.system.")[1];
         String outDirNameWithPath = somOutputRootDir + P + runid + P + outDirName;
 
         // call the save

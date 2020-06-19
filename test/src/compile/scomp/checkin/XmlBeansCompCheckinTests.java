@@ -37,16 +37,16 @@ public class XmlBeansCompCheckinTests extends CompileTestBase
     final Vector expSrcType = new Vector();
 
     public XmlBeansCompCheckinTests() {
-        expBinType.add("schemaorg_apache_xmlbeans/system/apiCompile/atypedb57type.xsb");
-        expBinType.add("schemaorg_apache_xmlbeans/system/apiCompile/elname429edoctype.xsb");
-        expBinType.add("schemaorg_apache_xmlbeans/system/apiCompile/elnameelement.xsb");
-        expBinType.add("schemaorg_apache_xmlbeans/system/apiCompile/index.xsb");
-        expBinType.add("schemaorg_apache_xmlbeans/element/http_3A_2F_2Fbaz/elName.xsb");
-        expBinType.add("schemaorg_apache_xmlbeans/type/http_3A_2F_2Fbaz/aType.xsb");
-        expBinType.add("schemaorg_apache_xmlbeans/namespace/http_3A_2F_2Fbaz/xmlns.xsb");
-        expBinType.add("schemaorg_apache_xmlbeans/javaname/baz/ElNameDocument.xsb");
-        expBinType.add("schemaorg_apache_xmlbeans/javaname/baz/AType.xsb");
-        expBinType.add("schemaorg_apache_xmlbeans/system/apiCompile/TypeSystemHolder.class");
+        expBinType.add("org/apache/xmlbeans/metadata/system/apiCompile/atypedb57type.xsb");
+        expBinType.add("org/apache/xmlbeans/metadata/system/apiCompile/elname429edoctype.xsb");
+        expBinType.add("org/apache/xmlbeans/metadata/system/apiCompile/elnameelement.xsb");
+        expBinType.add("org/apache/xmlbeans/metadata/system/apiCompile/index.xsb");
+        expBinType.add("org/apache/xmlbeans/metadata/element/http_3A_2F_2Fbaz/elName.xsb");
+        expBinType.add("org/apache/xmlbeans/metadata/type/http_3A_2F_2Fbaz/aType.xsb");
+        expBinType.add("org/apache/xmlbeans/metadata/namespace/http_3A_2F_2Fbaz/xmlns.xsb");
+        expBinType.add("org/apache/xmlbeans/metadata/javaname/baz/ElNameDocument.xsb");
+        expBinType.add("org/apache/xmlbeans/metadata/javaname/baz/AType.xsb");
+        expBinType.add("org/apache/xmlbeans/metadata/system/apiCompile/TypeSystemHolder.class");
 
         expSrcType.add("baz.AType");
         expSrcType.add("baz.impl.ATypeImpl");
