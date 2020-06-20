@@ -15,17 +15,18 @@
 
 package org.apache.xmlbeans;
 
-import javax.xml.namespace.QName;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Constructor;
-import java.lang.ref.SoftReference;
-import java.io.File;
-
-import javax.xml.stream.XMLStreamReader;
-
+import org.apache.xmlbeans.impl.schema.BuiltinSchemaTypeSystem;
+import org.apache.xmlbeans.impl.schema.PathResourceLoader;
+import org.apache.xmlbeans.impl.schema.SchemaTypeLoaderImpl;
+import org.apache.xmlbeans.impl.schema.SchemaTypeSystemCompiler;
+import org.apache.xmlbeans.impl.store.Locale;
 import org.w3c.dom.Node;
+
+import javax.xml.namespace.QName;
+import javax.xml.stream.XMLStreamReader;
+import java.io.File;
+import java.lang.ref.SoftReference;
+import java.lang.reflect.Field;
 
 /**
  * Provides an assortment of utilities
@@ -34,8 +35,11 @@ import org.w3c.dom.Node;
  */
 public final class XmlBeans
 {
+    private static final String HOLDER_CLASS_NAME = "TypeSystemHolder";
+    private static final String TYPE_SYSTEM_FIELD = "typeSystem";
+
     private static String XMLBEANS_TITLE = "org.apache.xmlbeans";
-    private static String XMLBEANS_VERSION = "3.1.0";
+    private static String XMLBEANS_VERSION = "4.0.0";
     private static String XMLBEANS_VENDOR = "Apache Software Foundation";
 
     static
@@ -127,139 +131,11 @@ public final class XmlBeans
         return getQNameCache().getName( namespaceUri,  localPart );
     }
 
-    private static final Method _getContextTypeLoaderMethod = buildGetContextTypeLoaderMethod();
-    private static final Method _getBuiltinSchemaTypeSystemMethod = buildGetBuiltinSchemaTypeSystemMethod();
-    private static final Method _getNoTypeMethod = buildGetNoTypeMethod();
-    private static final Method _typeLoaderBuilderMethod = buildTypeLoaderBuilderMethod();
-    private static final Method _compilationMethod = buildCompilationMethod();
-    private static final Method _nodeToCursorMethod = buildNodeToCursorMethod();
-    private static final Method _nodeToXmlObjectMethod = buildNodeToXmlObjectMethod();
-    private static final Method _nodeToXmlStreamMethod = buildNodeToXmlStreamMethod();
-    private static final Method _streamToNodeMethod = buildStreamToNodeMethod();
-    private static final Constructor _pathResourceLoaderConstructor = buildPathResourceLoaderConstructor();
-
     private static RuntimeException causedException ( RuntimeException e, Throwable cause )
     {
         e.initCause( cause );
 
         return e;
-    }
-
-    private static XmlException wrappedException(Throwable e)
-    {
-        if (e instanceof XmlException)
-            return (XmlException) e;
-
-        return new XmlException( e.getMessage(), e );
-    }
-
-    private static final Constructor buildConstructor ( String className, Class[] args )
-    {
-        try
-        {
-            return
-                Class.forName(
-                    className, false, XmlBeans.class.getClassLoader() ).
-                getConstructor( args );
-        }
-        catch ( Exception e )
-        {
-            throw causedException(
-                new IllegalStateException(
-                    "Cannot load constructor for " + className +
-                ": verify that xmlbeans.jar is on the classpath" ), e );
-        }
-    }
-
-    private static final Method buildMethod ( String className, String methodName, Class[] args )
-    {
-        try
-        {
-            return
-                Class.forName(
-                    className, false, XmlBeans.class.getClassLoader() ).
-                        getMethod( methodName, args );
-        }
-        catch ( Exception e )
-        {
-            throw causedException(
-                new IllegalStateException(
-                    "Cannot load " + methodName +
-                        ": verify that xmlbeans.jar is on the classpath" ), e );
-        }
-    }
-
-    private static final Method buildNoArgMethod ( String className, String methodName )
-    {
-        return buildMethod( className, methodName, new Class[ 0 ] );
-    }
-
-    private static final Method buildNodeMethod ( String className, String methodName )
-    {
-        return buildMethod( className, methodName, new Class[] { Node.class } );
-    }
-
-    private static Method buildGetContextTypeLoaderMethod()
-    {
-        return buildNoArgMethod( "org.apache.xmlbeans.impl.schema.SchemaTypeLoaderImpl", "getContextTypeLoader" );
-    }
-
-
-    private static final Method buildGetBuiltinSchemaTypeSystemMethod()
-    {
-        return buildNoArgMethod( "org.apache.xmlbeans.impl.schema.BuiltinSchemaTypeSystem", "get" );
-    }
-
-    private static final Method buildGetNoTypeMethod()
-    {
-        return buildNoArgMethod( "org.apache.xmlbeans.impl.schema.BuiltinSchemaTypeSystem", "getNoType" );
-    }
-
-    private static final Method buildTypeLoaderBuilderMethod ( )
-    {
-        return
-            buildMethod(
-                "org.apache.xmlbeans.impl.schema.SchemaTypeLoaderImpl", "build",
-                new Class[] { SchemaTypeLoader[].class, ResourceLoader.class, ClassLoader.class } );
-    }
-
-    private static final Method buildCompilationMethod()
-    {
-        return
-            buildMethod(
-                "org.apache.xmlbeans.impl.schema.SchemaTypeSystemCompiler", "compile",
-                new Class[] { String.class, SchemaTypeSystem.class, XmlObject[].class, BindingConfig.class, SchemaTypeLoader.class, Filer.class, XmlOptions.class } );
-    }
-
-    private static final Method buildNodeToCursorMethod()
-    {
-        return buildNodeMethod( "org.apache.xmlbeans.impl.store.Locale", "nodeToCursor" );
-    }
-
-    private static final Method buildNodeToXmlObjectMethod()
-    {
-        return buildNodeMethod( "org.apache.xmlbeans.impl.store.Locale", "nodeToXmlObject" );
-    }
-
-    private static final Method buildNodeToXmlStreamMethod()
-    {
-        return buildNodeMethod( "org.apache.xmlbeans.impl.store.Locale", "nodeToXmlStream" );
-    }
-
-    private static final Method buildStreamToNodeMethod()
-    {
-        return
-            buildMethod(
-                "org.apache.xmlbeans.impl.store.Locale", "streamToNode",
-                new Class[] { XMLStreamReader.class } );
-    }
-
-    private static final Constructor buildPathResourceLoaderConstructor()
-    {
-        return
-            buildConstructor(
-                "org.apache.xmlbeans.impl.schema.PathResourceLoader",
-                new Class[] { File[].class } );
     }
 
     /**
@@ -324,142 +200,44 @@ public final class XmlBeans
      * The "parse" methods of XmlBeans all delegate to the
      * "parseInstance" methods of the context type loader.
      */
-    public static SchemaTypeLoader getContextTypeLoader()
-    {
-        try
-        {
-            return (SchemaTypeLoader)_getContextTypeLoaderMethod.invoke(null);
-        }
-        catch (IllegalAccessException e)
-        {
-            throw causedException(new IllegalStateException("No access to SchemaTypeLoaderImpl.getContextTypeLoader(): verify that version of xmlbeans.jar is correct"), e);
-        }
-        catch (InvocationTargetException e)
-        {
-            Throwable t = e.getCause();
-            IllegalStateException ise = new IllegalStateException(t.getMessage());
-            ise.initCause(t); // use initCause() to support Java 1.4
-            throw ise;
-        }
+    public static SchemaTypeLoader getContextTypeLoader() {
+        return SchemaTypeLoaderImpl.getContextTypeLoader();
     }
 
     /**
      * Returns the builtin type system. This SchemaTypeSystem contains
      * only the 46 builtin types defined by the XML Schema specification.
      */
-    public static SchemaTypeSystem getBuiltinTypeSystem()
-    {
-        try
-        {
-            return (SchemaTypeSystem)_getBuiltinSchemaTypeSystemMethod.invoke(null);
-        }
-        catch (IllegalAccessException e)
-        {
-            throw causedException(new IllegalStateException("No access to BuiltinSchemaTypeSystem.get(): verify that version of xmlbeans.jar is correct"), e);
-        }
-        catch (InvocationTargetException e)
-        {
-            Throwable t = e.getCause();
-            IllegalStateException ise = new IllegalStateException(t.getMessage());
-            ise.initCause(t); // use initCause() to support Java 1.4
-            throw ise;
-        }
+    public static SchemaTypeSystem getBuiltinTypeSystem() {
+        return BuiltinSchemaTypeSystem.get();
     }
 
     /**
      * Creates an XmlCursor for a DOM node which is implemented by XmlBwans
      */
-    public static XmlCursor nodeToCursor ( Node n )
-    {
-        try
-        {
-            return (XmlCursor) _nodeToCursorMethod.invoke( null, new Object[] { n } );
-        }
-        catch ( IllegalAccessException e )
-        {
-            throw causedException(
-                new IllegalStateException(
-                    "No access to nodeToCursor verify that version of xmlbeans.jar is correct" ), e );
-        }
-        catch ( InvocationTargetException e )
-        {
-            Throwable t = e.getCause();
-            IllegalStateException ise = new IllegalStateException(t.getMessage());
-            ise.initCause(t); // use initCause() to support Java 1.4
-            throw ise;
-        }
+    public static XmlCursor nodeToCursor ( Node n ) {
+        return Locale.nodeToCursor(n);
     }
 
     /**
      * Creates an XmlObject for a DOM node which is implemented by XmlBwans
      */
-    public static XmlObject nodeToXmlObject ( Node n )
-    {
-        try
-        {
-            return (XmlObject) _nodeToXmlObjectMethod.invoke( null, new Object[] { n } );
-        }
-        catch ( IllegalAccessException e )
-        {
-            throw causedException(
-                new IllegalStateException(
-                    "No access to nodeToXmlObject verify that version of xmlbeans.jar is correct" ), e );
-        }
-        catch ( InvocationTargetException e )
-        {
-            Throwable t = e.getCause();
-            IllegalStateException ise = new IllegalStateException(t.getMessage());
-            ise.initCause(t); // use initCause() to support Java 1.4
-            throw ise;
-        }
+    public static XmlObject nodeToXmlObject ( Node n ) {
+        return Locale.nodeToXmlObject(n);
     }
 
     /**
      * Creates an XmlObject for a DOM node which is implemented by XmlBwans
      */
-    public static XMLStreamReader nodeToXmlStreamReader ( Node n )
-    {
-        try
-        {
-            return (XMLStreamReader) _nodeToXmlStreamMethod.invoke( null, new Object[] { n } );
-        }
-        catch ( IllegalAccessException e )
-        {
-            throw causedException(
-                new IllegalStateException(
-                    "No access to nodeToXmlStreamReader verify that version of xmlbeans.jar is correct" ), e );
-        }
-        catch ( InvocationTargetException e )
-        {
-            Throwable t = e.getCause();
-            IllegalStateException ise = new IllegalStateException(t.getMessage());
-            ise.initCause(t); // use initCause() to support Java 1.4
-            throw ise;
-        }
+    public static XMLStreamReader nodeToXmlStreamReader ( Node n ) {
+        return Locale.nodeToXmlStream(n);
     }
 
     /**
      * Returns the XmlObject for a DOM node which is implemented by XmlBwans
      */
-    public static Node streamToNode ( XMLStreamReader xs )
-    {
-        try
-        {
-            return (Node) _streamToNodeMethod.invoke( null, new Object[] { xs } );
-        }
-        catch ( IllegalAccessException e )
-        {
-            throw causedException(
-                new IllegalStateException(
-                    "No access to streamToNode verify that version of xmlbeans.jar is correct" ), e );
-        }
-        catch ( InvocationTargetException e )
-        {
-            Throwable t = e.getCause();
-            IllegalStateException ise = new IllegalStateException(t.getMessage());
-            ise.initCause(t); // use initCause() to support Java 1.4
-            throw ise;
-        }
+    public static Node streamToNode ( XMLStreamReader xs ) {
+        return Locale.streamToNode(xs);
     }
 
     /**
@@ -495,31 +273,11 @@ public final class XmlBeans
      * @param schemas The schema definitions from which to build the schema type system.
      * @param options Options specifying an error listener and/or validation behavior.
      */
-    public static SchemaTypeLoader loadXsd(XmlObject[] schemas, XmlOptions options) throws XmlException
-    {
-        try
-        {
-            SchemaTypeSystem sts =
-                (SchemaTypeSystem)
-                    _compilationMethod.invoke(
-                        null, new Object[] { null, null, schemas, null, getContextTypeLoader(), null, options });
-
-            if (sts == null)
-                return null;
-
-            return
-                typeLoaderUnion(
-                    new SchemaTypeLoader[] { sts, getContextTypeLoader() } );
-        }
-        catch (IllegalAccessException e)
-        {
-            throw causedException(new IllegalStateException("No access to SchemaTypeLoaderImpl.forSchemaXml(): verify that version of xmlbeans.jar is correct"), e);
-        }
-        catch (InvocationTargetException e)
-        {
-            throw wrappedException(e.getCause());
-        }
+    public static SchemaTypeLoader loadXsd(XmlObject[] schemas, XmlOptions options) throws XmlException {
+        SchemaTypeSystem sts = SchemaTypeSystemCompiler.compile(null, null, schemas, null, getContextTypeLoader(), null, options);
+        return (sts == null) ? null : typeLoaderUnion(sts, getContextTypeLoader());
     }
+
 
     /**
      * <p>Returns the SchemaTypeSystem that results from compiling the XML
@@ -664,20 +422,8 @@ public final class XmlBeans
      * @param filer The Filer instance used to create binary binding files and source text files.
      * @param options Options specifying an error listener and/or validation behavior.
      */
-    public static SchemaTypeSystem compileXmlBeans(String name, SchemaTypeSystem system, XmlObject[] schemas, BindingConfig config, SchemaTypeLoader typepath, Filer filer, XmlOptions options) throws XmlException
-    {
-        try
-        {
-            return (SchemaTypeSystem)_compilationMethod.invoke(null, new Object[] { name, system, schemas, config, typepath != null ? typepath : getContextTypeLoader(), filer, options });
-        }
-        catch (IllegalAccessException e)
-        {
-            throw new IllegalStateException("No access to SchemaTypeLoaderImpl.forSchemaXml(): verify that version of xmlbeans.jar is correct");
-        }
-        catch (InvocationTargetException e)
-        {
-            throw wrappedException(e.getCause());
-        }
+    public static SchemaTypeSystem compileXmlBeans(String name, SchemaTypeSystem system, XmlObject[] schemas, BindingConfig config, SchemaTypeLoader typepath, Filer filer, XmlOptions options) throws XmlException {
+        return SchemaTypeSystemCompiler.compile(name, system, schemas, config, typepath != null ? typepath : getContextTypeLoader(), filer, options);
     }
 
 
@@ -686,49 +432,16 @@ public final class XmlBeans
      * SchemaTypeLoader searches the given list of SchemaTypeLoaders
      * in order from first to last.
      */
-    public static SchemaTypeLoader typeLoaderUnion(SchemaTypeLoader[] typeLoaders)
-    {
-        try
-        {
-            if (typeLoaders.length == 1)
-                return typeLoaders[0];
-
-            return (SchemaTypeLoader)_typeLoaderBuilderMethod.invoke(null, new Object[] {typeLoaders, null, null});
-        }
-        catch (IllegalAccessException e)
-        {
-            throw causedException(new IllegalStateException("No access to SchemaTypeLoaderImpl: verify that version of xmlbeans.jar is correct"), e);
-        }
-        catch (InvocationTargetException e)
-        {
-            Throwable t = e.getCause();
-            IllegalStateException ise = new IllegalStateException(t.getMessage());
-            ise.initCause(t); // use initCause() to support Java 1.4
-            throw ise;
-        }
+    public static SchemaTypeLoader typeLoaderUnion(SchemaTypeLoader... typeLoaders) {
+        return (typeLoaders.length == 1) ? typeLoaders[0] : SchemaTypeLoaderImpl.build(typeLoaders, null, null);
     }
 
     /**
      * Returns a SchemaTypeLoader that searches for compiled schema types
      * in the given ClassLoader.
      */
-    public static SchemaTypeLoader typeLoaderForClassLoader(ClassLoader loader)
-    {
-        try
-        {
-            return (SchemaTypeLoader)_typeLoaderBuilderMethod.invoke(null, new Object[] {null, null, loader});
-        }
-        catch (IllegalAccessException e)
-        {
-            throw causedException(new IllegalStateException("No access to SchemaTypeLoaderImpl: verify that version of xmlbeans.jar is correct"), e);
-        }
-        catch (InvocationTargetException e)
-        {
-            Throwable t = e.getCause();
-            IllegalStateException ise = new IllegalStateException(t.getMessage());
-            ise.initCause(t); // use initCause() to support Java 1.4
-            throw ise;
-        }
+    public static SchemaTypeLoader typeLoaderForClassLoader(ClassLoader loader) {
+        return SchemaTypeLoaderImpl.build(null, null, loader);
     }
 
     /**
@@ -737,27 +450,9 @@ public final class XmlBeans
      *
      * @see XmlBeans#resourceLoaderForPath(File[])
      */
-    public static SchemaTypeLoader typeLoaderForResource(ResourceLoader resourceLoader)
-    {
-        try
-        {
-            return (SchemaTypeLoader)_typeLoaderBuilderMethod.invoke(null, new Object[] {null, resourceLoader, null});
-        }
-        catch (IllegalAccessException e)
-        {
-            throw causedException(new IllegalStateException("No access to SchemaTypeLoaderImpl: verify that version of xmlbeans.jar is correct"), e);
-        }
-        catch (InvocationTargetException e)
-        {
-            Throwable t = e.getCause();
-            IllegalStateException ise = new IllegalStateException(t.getMessage());
-            ise.initCause(t); // use initCause() to support Java 1.4
-            throw ise;
-        }
+    public static SchemaTypeLoader typeLoaderForResource(ResourceLoader resourceLoader) {
+        return SchemaTypeLoaderImpl.build(null, resourceLoader, null);
     }
-
-    private static final String HOLDER_CLASS_NAME = "TypeSystemHolder";
-    private static final String TYPE_SYSTEM_FIELD = "typeSystem";
 
     /**
      * Returns the SchemaTypeSystem of the given name (as returned by
@@ -807,27 +502,8 @@ public final class XmlBeans
      * Returns a new ResourceLoader for a search path where each component of
      * the path is either a directory or a compiled xmlbeans jar.
      */
-    public static ResourceLoader resourceLoaderForPath(File[] path)
-    {
-        try
-        {
-            return (ResourceLoader)_pathResourceLoaderConstructor.newInstance(new Object[] {path});
-        }
-        catch (IllegalAccessException e)
-        {
-            throw causedException(new IllegalStateException("No access to SchemaTypeLoaderImpl: verify that version of xmlbeans.jar is correct"), e);
-        }
-        catch (InstantiationException e)
-        {
-            throw causedException(new IllegalStateException(e.getMessage()), e);
-        }
-        catch (InvocationTargetException e)
-        {
-            Throwable t = e.getCause();
-            IllegalStateException ise = new IllegalStateException(t.getMessage());
-            ise.initCause(t); // use initCause() to support Java 1.4
-            throw ise;
-        }
+    public static ResourceLoader resourceLoaderForPath(File[] path) {
+        return new PathResourceLoader(path);
     }
 
     /**
@@ -854,23 +530,8 @@ public final class XmlBeans
         }
     }
 
-    private static SchemaType getNoType()
-    {
-        try
-        {
-            return (SchemaType)_getNoTypeMethod.invoke(null);
-        }
-        catch (IllegalAccessException e)
-        {
-            throw causedException(new IllegalStateException("No access to SchemaTypeLoaderImpl.getContextTypeLoader(): verify that version of xmlbeans.jar is correct"), e);
-        }
-        catch (InvocationTargetException e)
-        {
-            Throwable t = e.getCause();
-            IllegalStateException ise = new IllegalStateException(t.getMessage());
-            ise.initCause(t); // use initCause() to support Java 1.4
-            throw ise;
-        }
+    private static SchemaType getNoType() {
+        return org.apache.xmlbeans.impl.schema.BuiltinSchemaTypeSystem.getNoType();
     }
 
     /**
