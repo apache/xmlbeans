@@ -24,6 +24,8 @@
     <property name="version.base" value="4.0.0"/>
     <property name="version.rc" value="rc0"/>
 
+    <property name="cases.location" location="src/test/resources"/>
+
     <property name="repository.m2" value="https://repo1.maven.org/maven2"/>
     <property environment="ENV"/>
 
@@ -88,7 +90,7 @@
     <path id="xmlbeans-test">
         <pathelement location="build/classes"/>
         <pathelement location="build/generated-resources"/>
-        <dirset dir="resources" includes="*" excludes="maven"/>
+        <dirset dir="src/main/resources" includes="*" excludes="maven"/>
         <pathelement location="${saxon.jar}"/>
         <pathelement location="test/lib/w3c_domts.jar"/>
         <pathelement location="${junit.jar}"/>
@@ -99,22 +101,8 @@
     </path>
 
     <path id="sources">
-        <pathelement location="src/xmlinputstream"/>
-        <pathelement location="src/xmlpublic"/>
-        <pathelement location="src/common"/>
-        <pathelement location="src/typestore"/>
-        <pathelement location="src/saaj_api"/>
-        <pathelement location="src/store"/>
-        <pathelement location="src/xpath_xquery"/>
+        <pathelement location="src/main/java"/>
         <!-- the next sources depend on the oldxbean.jar -->
-        <pathelement location="src/typeimpl"/>
-        <pathelement location="src/marshal"/>
-        <pathelement location="src/repackage"/>
-        <pathelement location="src/tools"/>
-        <pathelement location="src/toolschema"/>
-        <pathelement location="src/typestore"/>
-        <pathelement location="src/xmlcomp"/>
-        <pathelement location="src/xmlconfig"/>
         <pathelement location="build/generated-sources"/>
     </path>
 
@@ -209,7 +197,7 @@
         <sequential>
             <!-- if replaceHolder: copy TypeSystemHolder and replace package name, then compile -->
             <mkdir dir="@{srcDir}/org/apache/xmlbeans/metadata/system/@{schemaName}"/>
-            <copy file="src/typeholder/org/apache/xmlbeans/impl/schema/TypeSystemHolder.java" todir="@{srcDir}/org/apache/xmlbeans/metadata/system/@{schemaName}">
+            <copy file="src/main/java/org/apache/xmlbeans/impl/schema/TypeSystemHolder.java" todir="@{srcDir}/org/apache/xmlbeans/metadata/system/@{schemaName}">
                 <filterchain>
                     <replacestring from="package org.apache.xmlbeans.impl.schema" to="package org.apache.xmlbeans.metadata.system.@{schemaName}"/>
                 </filterchain>
@@ -228,10 +216,10 @@
         <attribute name="classpathref"/>
         <attribute name="dest"/>
         <sequential>
-            <schemaComp schemaName="sXMLLANG" src="src/xmlschema/schema" dest="@{dest}" classpathref="@{classpathref}"/>
-            <schemaComp schemaName="sXMLSCHEMA" src="src/xsdschema/schema" dest="@{dest}" classpathref="@{classpathref}"/>
-            <schemaComp schemaName="sXMLCONFIG" src="src/configschema/schema" dest="@{dest}" classpathref="@{classpathref}"/>
-            <schemaComp schemaName="sXMLTOOLS" src="src/toolschema" dest="@{dest}" classpathref="@{classpathref}"/>
+            <schemaComp schemaName="sXMLLANG" src="src/main/schema/xml" dest="@{dest}" classpathref="@{classpathref}"/>
+            <schemaComp schemaName="sXMLSCHEMA" src="src/main/schema/xsd" dest="@{dest}" classpathref="@{classpathref}"/>
+            <schemaComp schemaName="sXMLCONFIG" src="src/main/schema/config" dest="@{dest}" classpathref="@{classpathref}"/>
+            <schemaComp schemaName="sXMLTOOLS" src="src/main/schema/tools" dest="@{dest}" classpathref="@{classpathref}"/>
         </sequential>
     </macrodef>
 
@@ -260,7 +248,6 @@
         <javac destdir="build/classes" debug="true" debuglevel="lines,vars,source" includeantruntime="true">
             <src refid="sources"/>
             <src path="build/bootstrap/generated-sources"/>
-            <src path="src/typeholder"/>
             <classpath>
                 <path refid="oldxbean"/>
                 <pathelement location="${saxon.jar}"/>
@@ -280,7 +267,7 @@
         <path id="oldschemas">
             <pathelement location="build/classes"/>
             <pathelement location="build/bootstrap/generated-resources"/>
-            <dirset dir="resources" includes="*" excludes="maven"/>
+            <dirset dir="src/main/resources" includes="*" excludes="maven"/>
         </path>
 
         <schemaCompProd classpathref="oldschemas" dest="build"/>
@@ -311,14 +298,14 @@
         <pathconvert property="extensions-dir" pathsep=" ">
             <path>
                 <dirset dir="test/src/xmlobject/extensions/" includes="interfaceFeature/*,prePostFeature/readOnlyBean"/>
-                <dirset dir="test/cases/xbean/extensions/" includes="interfaceFeature/*,prePostFeature/readOnlyBean"/>
+                <dirset dir="${cases.location}/xbean/extensions/" includes="interfaceFeature/*,prePostFeature/readOnlyBean"/>
             </path>
         </pathconvert>
         <schemaComp schemaName="sEXTENSIONS" src="${extensions-dir}" dest="build/test-extensions" classpathref="xmlbeans-test"/>
-        <schemaComp schemaName="sEXTENSIONS2" src="test/cases/xbean/extensions/prePostFeature/ValueRestriction test/src/xmlobject/extensions/prePostFeature/ValueRestriction" dest="build/test-extensions" classpathref="xmlbeans-test"/>
+        <schemaComp schemaName="sEXTENSIONS2" src="${cases.location}/xbean/extensions/prePostFeature/ValueRestriction test/src/xmlobject/extensions/prePostFeature/ValueRestriction" dest="build/test-extensions" classpathref="xmlbeans-test"/>
         -->
 
-        <untar src="test/cases/xbean/tranxml.tar.bz2" dest="build/test-tranxml/schemas" compression="bzip2" overwrite="false">
+        <untar src="${cases.location}/xbean/tranxml.tar.bz2" dest="build/test-tranxml/schemas" compression="bzip2" overwrite="false">
             <patternset>
                 <include name="tranxml/Version4.0/schemas/StandAlone/CarLocationMessage_40_LX.xsd"/>
             </patternset>
@@ -326,17 +313,17 @@
         </untar>
         <schemaComp schemaName="sTRAN" src="build/test-tranxml/schemas" dest="build/test-tranxml" classpathref="xmlbeans-test"/>
         <schemaComp schemaName="sTOOLS" src="test/tools/lib/xsl" dest="build/test-tools" classpathref="xmlbeans-test"/>
-        <schemaComp schemaName="sXMLCURSOR" src="test/cases/xbean/xmlcursor" dest="build/test-xmlcursor" classpathref="xmlbeans-test"/>
-        <schemaComp schemaName="sDOM" src="test/cases/xbean/dom" dest="build/test-dom" classpathref="xmlbeans-test"/>
-        <schemaComp schemaName="sSCOMP" src="test/cases/xbean/scomp" dest="build/test-scomp" classpathref="xmlbeans-test"/>
-        <schemaComp schemaName="sSIMPLE" src="test/cases/xbean/simple" dest="build/test-simple" classpathref="xmlbeans-test"/>
-        <schemaComp schemaName="sVALIDATE" src="test/cases/xbean/ValidatingStream" dest="build/test-validate" classpathref="xmlbeans-test"/>
-        <schemaComp schemaName="sUSERTYPE" src="test/cases/xbean/usertype" dest="build/test-usertype" classpathref="xmlbeans-test"/>
-        <schemaComp schemaName="sLAX" src="test/cases/xbean/compile/scomp/detailed" dest="build/test-lax" classpathref="xmlbeans-test"/>
+        <schemaComp schemaName="sXMLCURSOR" src="${cases.location}/xbean/xmlcursor" dest="build/test-xmlcursor" classpathref="xmlbeans-test"/>
+        <schemaComp schemaName="sDOM" src="${cases.location}/xbean/dom" dest="build/test-dom" classpathref="xmlbeans-test"/>
+        <schemaComp schemaName="sSCOMP" src="${cases.location}/xbean/scomp" dest="build/test-scomp" classpathref="xmlbeans-test"/>
+        <schemaComp schemaName="sSIMPLE" src="${cases.location}/xbean/simple" dest="build/test-simple" classpathref="xmlbeans-test"/>
+        <schemaComp schemaName="sVALIDATE" src="${cases.location}/xbean/ValidatingStream" dest="build/test-validate" classpathref="xmlbeans-test"/>
+        <schemaComp schemaName="sUSERTYPE" src="${cases.location}/xbean/usertype" dest="build/test-usertype" classpathref="xmlbeans-test"/>
+        <schemaComp schemaName="sLAX" src="${cases.location}/xbean/compile/scomp/detailed" dest="build/test-lax" classpathref="xmlbeans-test"/>
 
         <pathconvert property="xmlobjects" pathsep=" ">
             <path>
-                <fileset dir="test/cases/xbean/xmlobject">
+                <fileset dir="${cases.location}/xbean/xmlobject">
                     <include name="CR192525.xsd"/>
                     <include name="defaults.xsd"/>
                     <include name="easypo.xsd*"/>
@@ -364,7 +351,7 @@
 
         <pathconvert property="miscs" pathsep=" ">
             <path>
-                <fileset dir="test/cases/xbean/misc/jira">
+                <fileset dir="${cases.location}/xbean/misc/jira">
                     <include name="xmlbeans_33b.xsd"/>
                     <include name="xmlbeans_46.xsd"/>
                     <include name="xmlbeans_48.xsd"/>
@@ -381,22 +368,21 @@
                     <include name="xmlbeans_307_maxallowedenum.xsd"/>
                     <include name="xmlbeans_307_morethanallowedenum.xsd"/>
                 </fileset>
-                <pathelement location="test/cases/xbean/xmltokensource"/>
+                <pathelement location="${cases.location}/xbean/xmltokensource"/>
             </path>
         </pathconvert>
         <schemaComp schemaName="sMISC" src="${miscs}" dest="build/test-misc" classpathref="xmlbeans-test"/>
 
         <!-- don't include in normal test classpath -->
-        <schemaComp schemaName="sSYSCACHE" src="test/cases/xbean/misc/syscachetest1.xsd" dest="build/test-syscache/1" classpathref="xmlbeans-test"/>
-        <schemaComp schemaName="sSYSCACHE" src="test/cases/xbean/misc/syscachetest2.xsd" dest="build/test-syscache/2" classpathref="xmlbeans-test"/>
+        <schemaComp schemaName="sSYSCACHE" src="${cases.location}/xbean/misc/syscachetest1.xsd" dest="build/test-syscache/1" classpathref="xmlbeans-test"/>
+        <schemaComp schemaName="sSYSCACHE" src="${cases.location}/xbean/misc/syscachetest2.xsd" dest="build/test-syscache/2" classpathref="xmlbeans-test"/>
     </target>
 
 
 
     <target name="test-compile" depends="process-test-resources" description="Compile test sources and resources">
         <javac destdir="build/test-classes" debug="true" debuglevel="lines,vars,source" includeantruntime="true" classpathref="xmlbeans-test">
-            <src path="test/src"/>
-            <src path="test/tools/src"/>
+            <src path="src/test/java"/>
             <src>
                 <dirset dir="build" includes="test-*/generated-sources"/>
             </src>
@@ -416,7 +402,7 @@
         <junit printsummary="yes" showoutput="no" haltonerror="true" haltonfailure="true">
             <classpath refid="xmlbeans-test"/>
             <classpath>
-                <pathelement location="test/cases"/>
+                <pathelement location="${cases.location}"/>
                 <pathelement location="build/test-classes"/>
                 <dirset dir="build" includes="test-*/generated-resources"/>
             </classpath>
@@ -429,11 +415,11 @@
             <jvmarg value="-Djava.io.tmpdir=${basedir}/build/tmp"/>
 
             <!-- For tests that need to access case files directly -->
-            <sysproperty key="cases.location" path="${basedir}/test/cases"/>
+            <sysproperty key="cases.location" path="${basedir}/src/test/resources"/>
             <sysproperty key="xbean.rootdir" path="${basedir}"/>
 
             <batchtest fork="yes" todir="build/test-results">
-                <fileset dir="test/src">
+                <fileset dir="src/test/java">
                     <include name="**/*Tests.java"/>
                     <include name="**/*Test.java"/>
                     <exclude name="**/extensions/**"/>
@@ -471,7 +457,7 @@
             <fileset dir="." includes="LICENSE.txt,NOTICE.txt"/>
             <fileset dir="build/generated-resources"/>
             <mappedresources>
-                <fileset dir="resources" excludes="maven"/>
+                <fileset dir="src/main/resources" excludes="maven"/>
                 <cutdirsmapper dirs="1"/>
             </mappedresources>
             <manifest>
@@ -509,6 +495,9 @@
 
         <jar jarfile="build/xmlbeans-${version.base}-sources.jar" update="false" index="false" duplicate="preserve">
             <fileset dir="." includes="LICENSE.txt,NOTICE.txt"/>
+            <fileset dir="src/main/java"/>
+            <fileset dir="build/generated-sources"/>
+<!--
             <mappedresources>
                 <fileset dir="src" excludes="toolschema/**,shell/**"/>
                 <mapper refid="src-mapper"/>
@@ -518,6 +507,7 @@
                 <fileset dir="build" includes="generated-sources/**,generated-resources/**" excludes="**/*.xsb,**/*.class"/>
                 <mapper refid="src-mapper"/>
             </mappedresources>
+-->
 
             <manifest>
                 <section name="org/apache/xmlbeans/">
@@ -537,24 +527,24 @@
         <property name="prefix" value="xmlbeans-${version.base}"/>
 
         <zip destfile="build/xmlbeans-src-${version.base}-${tstamp.dist}.zip" update="false">
-            <zipfileset dir="." excludes="build/**,tmp/**,.idea/**,bin/**,lib/**,/src/shell/**,.settings/**,.project,build.javacheck.xml,release-guide.txt" prefix="${prefix}"/>
-        	<zipfileset dir="src/shell" prefix="${prefix}/bin" />
+            <zipfileset dir="." excludes="build/**,tmp/**,.idea/**,bin/**,lib/**,/src/main/shell/**,.settings/**,.project,build.javacheck.xml,release-guide.txt" prefix="${prefix}"/>
+        	<zipfileset dir="src/main/shell" prefix="${prefix}/bin" />
             <zipfileset dir="build/javadocs" prefix="${prefix}/javadocs" />
         </zip>
         <tar destfile="build/xmlbeans-src-${version.base}-${tstamp.dist}.tgz" compression="gzip">
-            <tarfileset dir="." excludes="build/**,tmp/**,.idea/**,bin/**,lib/**,/src/shell/**,.settings/**,.project,build.javacheck.xml,release-guide.txt" prefix="${prefix}"/>
-        	<tarfileset dir="src/shell" prefix="${prefix}/bin" />
+            <tarfileset dir="." excludes="build/**,tmp/**,.idea/**,bin/**,lib/**,/src/main/shell/**,.settings/**,.project,build.javacheck.xml,release-guide.txt" prefix="${prefix}"/>
+        	<tarfileset dir="src/main/shell" prefix="${prefix}/bin" />
             <tarfileset dir="build/javadocs" prefix="${prefix}/javadocs" />
         </tar>
 
         <zip destfile="build/xmlbeans-bin-${version.base}-${tstamp.dist}.zip" update="false">
             <zipfileset dir="." includes="LICENSE.txt,NOTICE.txt,docs/**" prefix="${prefix}"/>
             <zipfileset dir="samples" includes="Any/**,DateTime/**,MixedContent/**,OrderMatters/**,SchemaEnum/**,Validation/**,XQueryXPath/**,XsdConfig/**" prefix="${prefix}/samples"/>
-            <zipfileset dir="src/shell" prefix="${prefix}/bin"/>
+            <zipfileset dir="src/main/shell" prefix="${prefix}/bin"/>
             <zipfileset dir="xkit" prefix="${prefix}"/>
-            <zipfileset dir="src/xsdschema/schema" includes="*.xsd" prefix="${prefix}/schemas/s4s"/>
-            <zipfileset dir="src/xmlschema/schema" includes="*.xsd" prefix="${prefix}/schemas/s4s"/>
-            <zipfileset dir="test/cases/xbean/xmlobject" includes="numerals.xsd,easypo.xsd*,nameworld.xsd" prefix="${prefix}/schemas"/>
+            <zipfileset dir="src/main/schema/xsd" includes="*.xsd" prefix="${prefix}/schemas/s4s"/>
+            <zipfileset dir="src/main/schema/xml" includes="*.xsd" prefix="${prefix}/schemas/s4s"/>
+            <zipfileset dir="${cases.location}/xbean/xmlobject" includes="numerals.xsd,easypo.xsd*,nameworld.xsd" prefix="${prefix}/schemas"/>
             <zipfileset dir="build" prefix="${prefix}/lib">
                 <include name="xmlbeans-${version.base}.jar"/>
                 <include name="xmlbeans-${version.base}-javadoc.jar"/>
@@ -564,11 +554,11 @@
         <tar destfile="build/xmlbeans-bin-${version.base}-${tstamp.dist}.tgz" compression="gzip">
             <tarfileset dir="." includes="LICENSE.txt,NOTICE.txt,docs/**" prefix="${prefix}"/>
             <tarfileset dir="samples" includes="Any/**,DateTime/**,MixedContent/**,OrderMatters/**,SchemaEnum/**,Validation/**,XQueryXPath/**,XsdConfig/**" prefix="${prefix}/samples"/>
-            <tarfileset dir="src/shell" prefix="${prefix}/bin"/>
+            <tarfileset dir="src/main/shell" prefix="${prefix}/bin"/>
             <tarfileset dir="xkit" prefix="${prefix}"/>
-            <tarfileset dir="src/xsdschema/schema" includes="*.xsd" prefix="${prefix}/schemas/s4s"/>
-            <tarfileset dir="src/xmlschema/schema" includes="*.xsd" prefix="${prefix}/schemas/s4s"/>
-            <tarfileset dir="test/cases/xbean/xmlobject" includes="numerals.xsd,easypo.xsd*,nameworld.xsd" prefix="${prefix}/schemas"/>
+            <tarfileset dir="src/main/schema/xsd" includes="*.xsd" prefix="${prefix}/schemas/s4s"/>
+            <tarfileset dir="src/main/schema/xml" includes="*.xsd" prefix="${prefix}/schemas/s4s"/>
+            <tarfileset dir="${cases.location}/xbean/xmlobject" includes="numerals.xsd,easypo.xsd*,nameworld.xsd" prefix="${prefix}/schemas"/>
             <tarfileset dir="build" prefix="${prefix}/lib">
                 <include name="xmlbeans-${version.base}.jar"/>
                 <include name="xmlbeans-${version.base}-javadoc.jar"/>
@@ -592,7 +582,7 @@
                 <exclude name="**/XML.xsd"/>
                 <exclude name="**/XMLSchema.xsd"/>
             </fileset>
-            <fileset dir="resources">
+            <fileset dir="src/main/resources">
                 <exclude name="**/META-INF/services/**"/>
             </fileset>
         </rat:report>
@@ -666,7 +656,7 @@
     </target>
 
     <target name="mvn-install" depends="maven.ant.tasks-check,package" description="Install XmlBeans artifacts into the local repository. Equivalent of 'mvn install'">
-        <copy file="${basedir}/resources/maven/pom.xml" todir="${basedir}/build" filtering="true">
+        <copy file="${basedir}/main/resources/maven/pom.xml" todir="${basedir}/build" filtering="true">
             <filterset>
                 <filter token="VERSION" value="${version.base}"/>
             </filterset>
