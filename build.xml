@@ -22,7 +22,7 @@
     <property name="ant.build.javac.target" value="1.8"/>
 
     <property name="version.base" value="4.0.0"/>
-    <property name="version.rc" value="rc0"/>
+    <property name="version.rc" value=""/>
 
     <property name="cases.location" location="src/test/resources"/>
 
@@ -581,9 +581,8 @@
                 <exclude name="**/*.iml" />
                 <exclude name="**/XML.xsd"/>
                 <exclude name="**/XMLSchema.xsd"/>
-            </fileset>
-            <fileset dir="src/main/resources">
-                <exclude name="**/META-INF/services/**"/>
+                <exclude name="test/resources/**/*.*"/>
+                <exclude name="main/resources/**/META-INF/services/**"/>
             </fileset>
         </rat:report>
 
