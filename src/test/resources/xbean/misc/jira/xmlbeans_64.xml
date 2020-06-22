@@ -1,4 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright 2004 The Apache Software Foundation
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+         http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License. -->
+
 <ses:recorderSession xmlns:ses="http://beehive.apache.org/netui/tools/testrecorder/2004/session">
    <ses:sessionName>XhtmlCheckBox</ses:sessionName>
    <ses:tester>ekoneil</ses:tester>
@@ -78,7 +92,7 @@
         .title {color: #000099;font-family:Verdana; font-size:12pt;margin:2,0,5,0;}
         .resultDiv {border: thin solid;margin:5,5,5,5;}
         &lt;/style>
-    &lt;/head>        
+    &lt;/head>
   &lt;body>
     &lt;h1 class="normalHead">CheckBox and CheckBox Group tests&lt;/h1>
     &lt;a href="/coreWeb/xhtml/begin.do" class="normal" rel="contents" rev="chapter">Home&lt;/a>
@@ -92,32 +106,32 @@
                     &lt;input type="hidden" name="wlw-checkbox_group_key:{actionForm.cbg}OldValue" value="true" />
                             &lt;input type="checkbox" name="wlw-checkbox_group_key:{actionForm.cbg}" value="CheckBox Option 1" disabled="disabled" lang="en" title="Title Text" alt="Alt Text" dir="ltr" />&lt;span class="normal">Text CB Option One&lt;/span>
                             &lt;input type="checkbox" name="wlw-checkbox_group_key:{actionForm.cbg}" value="CheckBox Option 2" checked="checked" />&lt;span class="normal">Text CB Option Two&lt;/span>
-                    
+
                     &lt;/td>
                 &lt;/tr>
                 &lt;tr valign="top" >
                     &lt;td class="normalBold" align="right">Repeating CheckBox Group&lt;/td>
                     &lt;td>
                     &lt;table>
-                    
+
                             &lt;tr>&lt;td align="right" class="normal2">
                             &lt;span>CBG Option 1&lt;/span>
                             &lt;/td>&lt;td>
                             &lt;input type="checkbox" name="wlw-checkbox_group_key:{actionForm.optCbg}" value="CBG Option 1" />&lt;input type="hidden" name="wlw-checkbox_group_key:{actionForm.optCbg}OldValue" value="true" />
                             &lt;/td>&lt;/tr>
-                    
+
                             &lt;tr>&lt;td align="right" class="normal2">
                             &lt;span>CBG Option 2&lt;/span>
                             &lt;/td>&lt;td>
                             &lt;input type="checkbox" name="wlw-checkbox_group_key:{actionForm.optCbg}" value="CBG Option 2" checked="checked" />
                             &lt;/td>&lt;/tr>
-                    
+
                             &lt;tr>&lt;td align="right" class="normal2">
                             &lt;span>CBG Option 3&lt;/span>
                             &lt;/td>&lt;td>
                             &lt;input type="checkbox" name="wlw-checkbox_group_key:{actionForm.optCbg}" value="CBG Option 3" />
                             &lt;/td>&lt;/tr>
-                    
+
                     &lt;/table>
                     &lt;/td>
                 &lt;/tr>
@@ -137,22 +151,22 @@
                     &lt;td colspan="2" align="center">
                         &lt;table cellspacing="0" border="1">
                         &lt;tr>&lt;th class="normalBold" valign="top" align="center">Complex Repeater&lt;/th>&lt;td>
-                        
+
                             &lt;input type="checkbox" name="wlw-checkbox_group_key:{actionForm.optCbgMap}" value="opt-1" checked="checked" />&lt;input type="hidden" name="wlw-checkbox_group_key:{actionForm.optCbgMap}OldValue" value="true" />
                                 &lt;span class="normal">Option One&lt;/span>&lt;br/>
-                        
-                        
+
+
                             &lt;input type="checkbox" name="wlw-checkbox_group_key:{actionForm.optCbgMap}" value="opt-2" />
                                 &lt;span class="normal2">Option Two&lt;/span>&lt;br/>
-                        
-                        
+
+
                             &lt;input type="checkbox" name="wlw-checkbox_group_key:{actionForm.optCbgMap}" value="opt-3" />
                                 &lt;span class="normal3">Option Three&lt;/span>&lt;br/>
-                        
-                        
+
+
                         &lt;/td>&lt;/tr>&lt;/table>
                     &lt;/td>
-                &lt;/tr>                        
+                &lt;/tr>
             &lt;/table>
             &lt;br />
             &lt;input type="submit" class="normal" value="Post To Results One" title="Post to Results One" lang="en" alt="Post to Results One" dir="ltr" />
@@ -314,14 +328,14 @@
         .title {color: #000099;font-family:Verdana; font-size:12pt;margin:2,0,5,0;}
         .resultDiv {border: thin solid;height: 400px;}
         </style>
-    </head>        
+    </head>
   <body>
     <a id="top" name="top"></a>
     <table width="400pt"><tr><td align="left"><h1 class="normalHead">Checkbox Results</h1></td>
         <td align="right"><a href="/coreWeb/xhtml/goCheckboxTest.do" class="normal">Input Tests</a></td>
     </tr></table>
     <p>
-        Action: <span>postFormOne</span> 
+        Action: <span>postFormOne</span>
     </p>
         <table border="1" cellspacing="0">
         <tr class="tablehead" valign="top">
@@ -446,7 +460,7 @@
         .title {color: #000099;font-family:Verdana; font-size:12pt;margin:2,0,5,0;}
         .resultDiv {border: thin solid;margin:5,5,5,5;}
         &lt;/style>
-    &lt;/head>        
+    &lt;/head>
   &lt;body>
     &lt;h1 class="normalHead">CheckBox and CheckBox Group tests&lt;/h1>
     &lt;a href="/coreWeb/xhtml/begin.do" class="normal" rel="contents" rev="chapter">Home&lt;/a>
@@ -460,32 +474,32 @@
                     &lt;input type="hidden" name="wlw-checkbox_group_key:{actionForm.cbg}OldValue" value="true" />
                             &lt;input type="checkbox" name="wlw-checkbox_group_key:{actionForm.cbg}" value="CheckBox Option 1" disabled="disabled" lang="en" title="Title Text" alt="Alt Text" dir="ltr" />&lt;span class="normal">Text CB Option One&lt;/span>
                             &lt;input type="checkbox" name="wlw-checkbox_group_key:{actionForm.cbg}" value="CheckBox Option 2" checked="checked" />&lt;span class="normal">Text CB Option Two&lt;/span>
-                    
+
                     &lt;/td>
                 &lt;/tr>
                 &lt;tr valign="top" >
                     &lt;td class="normalBold" align="right">Repeating CheckBox Group&lt;/td>
                     &lt;td>
                     &lt;table>
-                    
+
                             &lt;tr>&lt;td align="right" class="normal2">
                             &lt;span>CBG Option 1&lt;/span>
                             &lt;/td>&lt;td>
                             &lt;input type="checkbox" name="wlw-checkbox_group_key:{actionForm.optCbg}" value="CBG Option 1" />&lt;input type="hidden" name="wlw-checkbox_group_key:{actionForm.optCbg}OldValue" value="true" />
                             &lt;/td>&lt;/tr>
-                    
+
                             &lt;tr>&lt;td align="right" class="normal2">
                             &lt;span>CBG Option 2&lt;/span>
                             &lt;/td>&lt;td>
                             &lt;input type="checkbox" name="wlw-checkbox_group_key:{actionForm.optCbg}" value="CBG Option 2" checked="checked" />
                             &lt;/td>&lt;/tr>
-                    
+
                             &lt;tr>&lt;td align="right" class="normal2">
                             &lt;span>CBG Option 3&lt;/span>
                             &lt;/td>&lt;td>
                             &lt;input type="checkbox" name="wlw-checkbox_group_key:{actionForm.optCbg}" value="CBG Option 3" />
                             &lt;/td>&lt;/tr>
-                    
+
                     &lt;/table>
                     &lt;/td>
                 &lt;/tr>
@@ -505,22 +519,22 @@
                     &lt;td colspan="2" align="center">
                         &lt;table cellspacing="0" border="1">
                         &lt;tr>&lt;th class="normalBold" valign="top" align="center">Complex Repeater&lt;/th>&lt;td>
-                        
+
                             &lt;input type="checkbox" name="wlw-checkbox_group_key:{actionForm.optCbgMap}" value="opt-1" checked="checked" />&lt;input type="hidden" name="wlw-checkbox_group_key:{actionForm.optCbgMap}OldValue" value="true" />
                                 &lt;span class="normal">Option One&lt;/span>&lt;br/>
-                        
-                        
+
+
                             &lt;input type="checkbox" name="wlw-checkbox_group_key:{actionForm.optCbgMap}" value="opt-2" />
                                 &lt;span class="normal2">Option Two&lt;/span>&lt;br/>
-                        
-                        
+
+
                             &lt;input type="checkbox" name="wlw-checkbox_group_key:{actionForm.optCbgMap}" value="opt-3" />
                                 &lt;span class="normal3">Option Three&lt;/span>&lt;br/>
-                        
-                        
+
+
                         &lt;/td>&lt;/tr>&lt;/table>
                     &lt;/td>
-                &lt;/tr>                        
+                &lt;/tr>
             &lt;/table>
             &lt;br />
             &lt;input type="submit" class="normal" value="Post To Results One" title="Post to Results One" lang="en" alt="Post to Results One" dir="ltr" />
@@ -686,14 +700,14 @@
         .title {color: #000099;font-family:Verdana; font-size:12pt;margin:2,0,5,0;}
         .resultDiv {border: thin solid;height: 400px;}
         </style>
-    </head>        
+    </head>
   <body>
     <a id="top" name="top"></a>
     <table width="400pt"><tr><td align="left"><h1 class="normalHead">Checkbox Results</h1></td>
         <td align="right"><a href="/coreWeb/xhtml/goCheckboxTest.do" class="normal">Input Tests</a></td>
     </tr></table>
     <p>
-        Action: <span>postFormTwo</span> 
+        Action: <span>postFormTwo</span>
     </p>
         <table border="1" cellspacing="0">
         <tr class="tablehead" valign="top">
@@ -818,7 +832,7 @@
         .title {color: #000099;font-family:Verdana; font-size:12pt;margin:2,0,5,0;}
         .resultDiv {border: thin solid;margin:5,5,5,5;}
         &lt;/style>
-    &lt;/head>        
+    &lt;/head>
   &lt;body>
     &lt;h1 class="normalHead">CheckBox and CheckBox Group tests&lt;/h1>
     &lt;a href="/coreWeb/xhtml/begin.do" class="normal" rel="contents" rev="chapter">Home&lt;/a>
@@ -832,32 +846,32 @@
                     &lt;input type="hidden" name="wlw-checkbox_group_key:{actionForm.cbg}OldValue" value="true" />
                             &lt;input type="checkbox" name="wlw-checkbox_group_key:{actionForm.cbg}" value="CheckBox Option 1" disabled="disabled" lang="en" title="Title Text" alt="Alt Text" dir="ltr" />&lt;span class="normal">Text CB Option One&lt;/span>
                             &lt;input type="checkbox" name="wlw-checkbox_group_key:{actionForm.cbg}" value="CheckBox Option 2" checked="checked" />&lt;span class="normal">Text CB Option Two&lt;/span>
-                    
+
                     &lt;/td>
                 &lt;/tr>
                 &lt;tr valign="top" >
                     &lt;td class="normalBold" align="right">Repeating CheckBox Group&lt;/td>
                     &lt;td>
                     &lt;table>
-                    
+
                             &lt;tr>&lt;td align="right" class="normal2">
                             &lt;span>CBG Option 1&lt;/span>
                             &lt;/td>&lt;td>
                             &lt;input type="checkbox" name="wlw-checkbox_group_key:{actionForm.optCbg}" value="CBG Option 1" />&lt;input type="hidden" name="wlw-checkbox_group_key:{actionForm.optCbg}OldValue" value="true" />
                             &lt;/td>&lt;/tr>
-                    
+
                             &lt;tr>&lt;td align="right" class="normal2">
                             &lt;span>CBG Option 2&lt;/span>
                             &lt;/td>&lt;td>
                             &lt;input type="checkbox" name="wlw-checkbox_group_key:{actionForm.optCbg}" value="CBG Option 2" checked="checked" />
                             &lt;/td>&lt;/tr>
-                    
+
                             &lt;tr>&lt;td align="right" class="normal2">
                             &lt;span>CBG Option 3&lt;/span>
                             &lt;/td>&lt;td>
                             &lt;input type="checkbox" name="wlw-checkbox_group_key:{actionForm.optCbg}" value="CBG Option 3" />
                             &lt;/td>&lt;/tr>
-                    
+
                     &lt;/table>
                     &lt;/td>
                 &lt;/tr>
@@ -877,22 +891,22 @@
                     &lt;td colspan="2" align="center">
                         &lt;table cellspacing="0" border="1">
                         &lt;tr>&lt;th class="normalBold" valign="top" align="center">Complex Repeater&lt;/th>&lt;td>
-                        
+
                             &lt;input type="checkbox" name="wlw-checkbox_group_key:{actionForm.optCbgMap}" value="opt-1" checked="checked" />&lt;input type="hidden" name="wlw-checkbox_group_key:{actionForm.optCbgMap}OldValue" value="true" />
                                 &lt;span class="normal">Option One&lt;/span>&lt;br/>
-                        
-                        
+
+
                             &lt;input type="checkbox" name="wlw-checkbox_group_key:{actionForm.optCbgMap}" value="opt-2" />
                                 &lt;span class="normal2">Option Two&lt;/span>&lt;br/>
-                        
-                        
+
+
                             &lt;input type="checkbox" name="wlw-checkbox_group_key:{actionForm.optCbgMap}" value="opt-3" />
                                 &lt;span class="normal3">Option Three&lt;/span>&lt;br/>
-                        
-                        
+
+
                         &lt;/td>&lt;/tr>&lt;/table>
                     &lt;/td>
-                &lt;/tr>                        
+                &lt;/tr>
             &lt;/table>
             &lt;br />
             &lt;input type="submit" class="normal" value="Post To Results One" title="Post to Results One" lang="en" alt="Post to Results One" dir="ltr" />

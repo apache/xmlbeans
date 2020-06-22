@@ -1,22 +1,20 @@
-<?xml version="1.0" encoding="ISO-8859-1"?>
-<!--
-/*   Copyright 2004 The Apache Software Foundation
- *
- *   Licensed under the Apache License, Version 2.0 (the "License");
- *   you may not use this file except in compliance with the License.
- *   You may obtain a copy of the License at
- *
- *       http://www.apache.org/licenses/LICENSE-2.0
- *
- *   Unless required by applicable law or agreed to in writing, software
- *   distributed under the License is distributed on an "AS IS" BASIS,
- *   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *   See the License for the specific language governing permissions and
- *  limitations under the License.
- */
--->
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright 2004 The Apache Software Foundation
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+         http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License. -->
+
 <!-- =======================================================================
- Typdefinitionen für Schnittstellen,
+ Typdefinitionen fÃ¼r Schnittstellen,
  Namensraum ist:  keins
 =======================================================================-->
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified">
@@ -25,16 +23,16 @@
 	Dokument/Instanz Identifikation
 	ID-Elemente identifizieren eindeutig Objekte. Werte zur Identifizierung werden in
 	Attribute EX, RT und RTV eingetragen:
-	RT-Attribut (Root) enthält eine eindeutige OID des Objekts (Person/Organisation oder
-	Schlüsseltabelle ...)
-	EX-Attribut (Extension) enthält die Erweiterung zu OID z.B. fortlaufende Nummer, 
-	oder GUID bei XML-Dokumenten oder kodierten Wert aus der Schlüsseltabelle.
-	RTV-Attribut wird bei Referenzierung auf Schlüsseltabellen verwendet. Hier wird
-	Schlüsseltabellenversion eingegeben.
+	RT-Attribut (Root) enthÃ¤lt eine eindeutige OID des Objekts (Person/Organisation oder
+	SchlÃ¼sseltabelle ...)
+	EX-Attribut (Extension) enthÃ¤lt die Erweiterung zu OID z.B. fortlaufende Nummer,
+	oder GUID bei XML-Dokumenten oder kodierten Wert aus der SchlÃ¼sseltabelle.
+	RTV-Attribut wird bei Referenzierung auf SchlÃ¼sseltabellen verwendet. Hier wird
+	SchlÃ¼sseltabellenversion eingegeben.
 	============================================================-->
 	<xs:element name="id" type="id_typ">
 		<xs:annotation>
-			<xs:documentation>enthält eindeutige Instanz-ID</xs:documentation>
+			<xs:documentation>enthÃ¤lt eindeutige Instanz-ID</xs:documentation>
 		</xs:annotation>
 	</xs:element>
 	<xs:complexType name="id_typ">
@@ -52,17 +50,17 @@
 	</xs:complexType>
 	<xs:element name="set_id" type="id_typ">
 		<xs:annotation>
-			<xs:documentation>enthält eindeutige Instanz-ID, die über alle Versionen und zusammgengehörende Dokumente konstant bleibt</xs:documentation>
+			<xs:documentation>enthÃ¤lt eindeutige Instanz-ID, die Ã¼ber alle Versionen und zusammgengehÃ¶rende Dokumente konstant bleibt</xs:documentation>
 		</xs:annotation>
 	</xs:element>
 	<!--
 	============================================================
 	Dokumentenverwaltung
-	Die Zuordnung des Dokuments zu einem bestimmten Dokumenttyp wird über
+	Die Zuordnung des Dokuments zu einem bestimmten Dokumenttyp wird Ã¼ber
 	das Element <document_type_cd> erreicht. Die Dokumente werden mit
 	Hilfe der Elemente <id>, <set_id>, <version_nbr> und <document_relationship>
-	verwaltet. Mit <document_relationship> wird eine verkettete Liste von Dokumenten 
-	abgebildet, wie ein Pointer der auf den Vorgänger oder anderes Dokument zeigt.
+	verwaltet. Mit <document_relationship> wird eine verkettete Liste von Dokumenten
+	abgebildet, wie ein Pointer der auf den VorgÃ¤nger oder anderes Dokument zeigt.
 	============================================================
 	-->
 	<!-- ************************ version_nbr_typ ********************************* -->
@@ -128,14 +126,14 @@
 	<!--
 	============================================================
 	Zeitangaben:
-	service_tmr_typ: Gültigkeitszeitram der Daten (XML-Dokuments).
+	service_tmr_typ: GÃ¼ltigkeitszeitram der Daten (XML-Dokuments).
  	origination_dttm_typ: Erstellungsdatum des XML-Dokuments
 	============================================================
 	-->
 	<!-- ************************ service_tmr_typ ********************************* -->
 	<xs:element name="service_tmr" type="service_tmr_typ">
 		<xs:annotation>
-			<xs:documentation>Gültigkeitszeitraum (date..date)</xs:documentation>
+			<xs:documentation>GÃ¼ltigkeitszeitraum (date..date)</xs:documentation>
 		</xs:annotation>
 	</xs:element>
 	<xs:complexType name="service_tmr_typ">
@@ -156,8 +154,8 @@
 	</xs:complexType>
 	<!--
 	============================================================
-	Person/Organisation- Angaben:  
-	intended_recipient_typ: beabsichtigter Empfänger/Zielgruppe.
+	Person/Organisation- Angaben:
+	intended_recipient_typ: beabsichtigter EmpfÃ¤nger/Zielgruppe.
 	originator_typ: Ersteller/Urheber (Person oder Organisationi).
 	provider_typ: Sender/Lieferer (Person oder Organisation).
 	person_typ: Person
@@ -169,7 +167,7 @@
 	<!-- ************************ intended_recipient_typ ********************************* -->
 	<xs:element name="intended_recipient" type="intended_recipient_typ">
 		<xs:annotation>
-			<xs:documentation>Empfänger / Zielgruppe der Daten</xs:documentation>
+			<xs:documentation>EmpfÃ¤nger / Zielgruppe der Daten</xs:documentation>
 		</xs:annotation>
 	</xs:element>
 	<xs:complexType name="intended_recipient_typ">
@@ -259,7 +257,7 @@
 	</xs:element>
 	<xs:element name="group" type="group_typ">
 		<xs:annotation>
-			<xs:documentation>zugehörende Gruppe, Ausprägung (z.B. Augenarzt)</xs:documentation>
+			<xs:documentation>zugehÃ¶rende Gruppe, AusprÃ¤gung (z.B. Augenarzt)</xs:documentation>
 		</xs:annotation>
 	</xs:element>
 	<xs:complexType name="group_typ">
@@ -391,12 +389,12 @@
 	<!--
 	============================================================
 	local_header, 	Einzige Stelle, wo eigendefinierte Elemente  und SCIPHOX SSUS
-	verwendet werden können.
+	verwendet werden kÃ¶nnen.
 	============================================================
 	-->
 	<xs:element name="local_header" type="local_header-cont.model">
 		<xs:annotation>
-			<xs:documentation>Element für weitere, datenartspezifische, Metainformationen</xs:documentation>
+			<xs:documentation>Element fÃ¼r weitere, datenartspezifische, Metainformationen</xs:documentation>
 		</xs:annotation>
 	</xs:element>
 	<xs:complexType name="local_header-cont.model" mixed="true">
@@ -409,11 +407,11 @@
 	</xs:complexType>
 	<!--
 	============================================================
-	Komplexe Hilfstypen:  
-	v_string_typ: enthält nur den V-Attribut für einfache Daten-Angaben
-	v_s_string_typ: wird für kodierte Wertepaare mit optionaler Schlüsseltabelle verwendet
-	v_date_typ: enthält nur den V-Attribut für einfache Datums-Angaben
-	v_zeitraum_typ: enthält nur den V-Attribut für Zeitraum-Angaben
+	Komplexe Hilfstypen:
+	v_string_typ: enthÃ¤lt nur den V-Attribut fÃ¼r einfache Daten-Angaben
+	v_s_string_typ: wird fÃ¼r kodierte Wertepaare mit optionaler SchlÃ¼sseltabelle verwendet
+	v_date_typ: enthÃ¤lt nur den V-Attribut fÃ¼r einfache Datums-Angaben
+	v_zeitraum_typ: enthÃ¤lt nur den V-Attribut fÃ¼r Zeitraum-Angaben
 	============================================================
 	-->
 	<!-- ************************ v_string_typ ********************************** -->
@@ -423,7 +421,7 @@
 	<!-- ************************ v_s_string_typ ********************************** -->
 	<xs:element name="TRANSLTN" type="transltn_typ">
 		<xs:annotation>
-			<xs:documentation>interne/alternative Kodes und Schlüsseltabellen</xs:documentation>
+			<xs:documentation>interne/alternative Kodes und SchlÃ¼sseltabellen</xs:documentation>
 		</xs:annotation>
 	</xs:element>
 	<xs:complexType name="transltn_typ">
@@ -459,8 +457,8 @@
 	<!-- ======================================================================= -->
 	<!--
 	============================================================
-	Schnittstelle-Angaben: 
-	interface_typ: enthält Informationen über die Schnittstelle selbst.
+	Schnittstelle-Angaben:
+	interface_typ: enthÃ¤lt Informationen Ã¼ber die Schnittstelle selbst.
 	interface_nm_typ: Bezeichnung der Schnittstelle kann auch als kodierter Wert angegeben werden.
 	interface_version_typ: Die Version der Schnittstelle
 	description_typ: Kurzbeschreibung der Schnittstelle.
@@ -468,7 +466,7 @@
 	<!-- ************************ interface_typ ********************************* -->
 	<xs:element name="interface" type="interface_typ">
 		<xs:annotation>
-			<xs:documentation>enthält Informationen über die Schnittstelle selbst</xs:documentation>
+			<xs:documentation>enthÃ¤lt Informationen Ã¼ber die Schnittstelle selbst</xs:documentation>
 		</xs:annotation>
 	</xs:element>
 	<xs:complexType name="interface_typ">
@@ -516,7 +514,7 @@
 	</xs:complexType>
 	<!--
 	============================================================
-	Geltungsbereich: 
+	Geltungsbereich:
 	wenn die Daten nur in bestimmten KV-Bereichen gelten
 	============================================================-->
 	<xs:element name="scope" type="scope_typ">
@@ -556,7 +554,7 @@
 	</xs:complexType>
 	<!--
 	============================================================
-	Bearbeitungszustand: 
+	Bearbeitungszustand:
 	kann als kodierter Wert angegeben werden, im welchen Bearbeitungszustand das Dokument sich befindet
 	============================================================-->
 	<xs:element name="state" type="state_typ">
@@ -576,7 +574,7 @@
 	<!-- ======================================================================= -->
 	<xs:simpleType name="null.code.set">
 		<xs:annotation>
-			<xs:documentation>Ausprägungen für NULL-Attribut</xs:documentation>
+			<xs:documentation>AusprÃ¤gungen fÃ¼r NULL-Attribut</xs:documentation>
 		</xs:annotation>
 		<xs:restriction base="xs:string">
 			<xs:enumeration value="NI"/>
@@ -592,7 +590,7 @@
 	</xs:simpleType>
 	<xs:simpleType name="guid_typ">
 		<xs:annotation>
-			<xs:documentation>Typ für einen Global Unique Identifier</xs:documentation>
+			<xs:documentation>Typ fÃ¼r einen Global Unique Identifier</xs:documentation>
 		</xs:annotation>
 		<xs:restriction base="xs:string">
 			<xs:pattern value="[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}"/>

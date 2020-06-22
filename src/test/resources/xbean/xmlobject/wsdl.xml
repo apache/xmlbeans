@@ -1,4 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright 2004 The Apache Software Foundation
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+         http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License. -->
+
 <definitions xmlns="http://schemas.xmlsoap.org/wsdl/" xmlns:conv="http://www.openuri.org/2002/04/soap/conversation/" xmlns:cw="http://www.openuri.org/2002/04/wsdl/conversation/" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:jms="http://www.openuri.org/2002/04/wsdl/jms/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:s="http://www.w3.org/2001/XMLSchema" xmlns:s0="http://www.telkomsel.com/soa/ProductCatalog/WS" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" targetNamespace="http://www.telkomsel.com/soa/ProductCatalog/WS">
   <types>
     <s:schema xmlns:s="http://www.w3.org/2001/XMLSchema" xmlns:ns="http://www.telkomsel.com/soa/ProductCatalog/200606" xmlns:ws="http://www.telkomsel.com/soa/ProductCatalog/WS" xmlns:com="commonj.sdo" elementFormDefault="qualified" targetNamespace="http://www.telkomsel.com/soa/ProductCatalog/WS">
@@ -697,7 +711,7 @@
       <!-- Service Data Objects
      Version 1.0
      Licensed Materials - Property of BEA and IBM
- 
+
      © Copyright BEA Systems, Inc. and International Business Machines Corp 2003. All rights reserved.
   -->
       <xsd:element name="datagraph" type="sdo:DataGraphType"/>
@@ -742,7 +756,7 @@
         <xsd:attribute name="delete" type="xsd:string"/>
       </xsd:complexType>
     </xsd:schema>
-    
+
   </types>
   <message name="getPackageDefinitionSoapIn">
     <part name="parameters" element="s0:getPackageDefinition"/>

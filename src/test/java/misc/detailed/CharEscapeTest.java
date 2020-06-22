@@ -29,9 +29,9 @@ import static org.junit.Assert.*;
 
 public class CharEscapeTest extends Common
 {
-    static final String inputFile = 
+    static final String inputFile =
         XBEAN_CASE_ROOT + P + "misc" + P + "jira" + P + "xmlbeans_177.xml";
-    static final String inputFile2 = 
+    static final String inputFile2 =
         XBEAN_CASE_ROOT + P + "misc" + P + "jira" + P + "xmlbeans_177a.xml";
     //static final String outputDir = OUTPUTROOT + P + "misc";
     //static final String outputFile1 = "xmlbeans_177_out1.xml";
@@ -155,7 +155,7 @@ public class CharEscapeTest extends Common
             "  <test>Character data may not contain the three-character sequence ]]&gt; with the > unescaped.</test>\n" +
             "  <test>In particular, character data in a CDATA section may not contain the three-character sequence ]]&amp;gt; with the > unescaped.</test>\n" +
             end;
-        assertEquals(exp1, doc.xmlText());
+        assertEquals(exp1, doc.xmlText().replaceFirst("(?s)<!--.*-->",""));
 
         XmlOptionCharEscapeMap charEsc = new XmlOptionCharEscapeMap();
         charEsc.addMapping('>', XmlOptionCharEscapeMap.PREDEF_ENTITY);
@@ -172,7 +172,7 @@ public class CharEscapeTest extends Common
             "  <test>Character data may not contain the three-character sequence ]]&gt; with the &gt; unescaped.</test>\n" +
             "  <test>In particular, character data in a CDATA section may not contain the three-character sequence ]]&amp;gt; with the &gt; unescaped.</test>\n" +
             end;
-        assertEquals(exp2, doc.xmlText(opts));
+        assertEquals(exp2, doc.xmlText(opts).replaceFirst("(?s)<!--.*-->",""));
 
         // escape block of chars as hexadecimal
         charEsc.addMappings('A', 'D', XmlOptionCharEscapeMap.HEXADECIMAL);
@@ -186,7 +186,7 @@ public class CharEscapeTest extends Common
             "  <test>&#x43;haracter data may not contain the three-character sequence ]]&gt; with the &gt; unescaped.</test>\n" +
             "  <test>In particular, character data in a &#x43;&#x44;&#x41;T&#x41; section may not contain the three-character sequence ]]&amp;gt; with the &gt; unescaped.</test>\n" +
             end;
-        assertEquals(exp3, doc.xmlText(opts));
+        assertEquals(exp3, doc.xmlText(opts).replaceFirst("(?s)<!--.*-->",""));
         /*
         File od = new File(outputDir);
         od.mkdir();
@@ -242,7 +242,7 @@ public class CharEscapeTest extends Common
             "  <test a=\"This is a double quote: &quot;\"/>\n" +
             "  <test a=\"W.L.Gore &amp; Associates\"/>\n" +
             end2;
-        assertEquals(exp1, doc.xmlText());
+        assertEquals(exp1, doc.xmlText().replaceFirst("(?s)<!--.*-->",""));
 
         XmlOptionCharEscapeMap charEsc = new XmlOptionCharEscapeMap();
         charEsc.addMapping('>', XmlOptionCharEscapeMap.PREDEF_ENTITY);
@@ -257,7 +257,7 @@ public class CharEscapeTest extends Common
             "  <test a=\"This is a double quote: &quot;\"/>\n" +
             "  <test a=\"W.L.Gore &amp; Associates\"/>\n" +
             end2;
-        assertEquals(exp2, doc.xmlText(opts));
+        assertEquals(exp2, doc.xmlText(opts).replaceFirst("(?s)<!--.*-->",""));
 
         // escape block of chars as hexadecimal
         charEsc.addMappings('A', 'D', XmlOptionCharEscapeMap.HEXADECIMAL);
@@ -269,6 +269,6 @@ public class CharEscapeTest extends Common
             "  <test a=\"This is a double quote: &quot;\"/>\n" +
             "  <test a=\"W.L.Gore &amp; &#x41;ssociates\"/>\n" +
             end2;
-        assertEquals(exp3, doc.xmlText(opts));
+        assertEquals(exp3, doc.xmlText(opts).replaceFirst("(?s)<!--.*-->",""));
     }
 }

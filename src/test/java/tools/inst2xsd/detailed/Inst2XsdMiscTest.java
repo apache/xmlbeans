@@ -27,7 +27,23 @@ public class Inst2XsdMiscTest extends Inst2XsdTestBase {
 
     public static final String EXPBASEXML = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
             "<xs:schema attributeFormDefault=\"unqualified\" elementFormDefault=\"qualified\" targetNamespace=\"baseNamespace\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\">\n" +
-            "  <xs:element name=\"a\" type=\"bas:aType\" xmlns:bas=\"baseNamespace\"/>\n" +
+            "  <xs:element name=\"a\" type=\"bas:aType\" xmlns:bas=\"baseNamespace\">\n" +
+            "    <xs:annotation>\n" +
+            "      <xs:documentation> Copyright 2004 The Apache Software Foundation\n" +
+            "\n" +
+            "     Licensed under the Apache License, Version 2.0 (the \"License\");\n" +
+            "     you may not use this file except in compliance with the License.\n" +
+            "     You may obtain a copy of the License at\n" +
+            "\n" +
+            "         http://www.apache.org/licenses/LICENSE-2.0\n" +
+            "\n" +
+            "     Unless required by applicable law or agreed to in writing, software\n" +
+            "     distributed under the License is distributed on an \"AS IS\" BASIS,\n" +
+            "     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n" +
+            "     See the License for the specific language governing permissions and\n" +
+            "     limitations under the License. </xs:documentation>\n" +
+            "    </xs:annotation>\n" +
+            "  </xs:element>\n" +
             "  <xs:complexType name=\"aType\">\n" +
             "    <xs:sequence>\n" +
             "      <xs:element type=\"xs:string\" name=\"b\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"/>\n" +

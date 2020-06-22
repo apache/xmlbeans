@@ -53,7 +53,22 @@ public class Inst2XsdCommon {
     }
 
 
-    public static String base = "<a xmlns=\"baseNamespace\">" +
+    private static final String asl_header =
+        "<!-- Copyright 2004 The Apache Software Foundation\n" +
+        "\n" +
+        "     Licensed under the Apache License, Version 2.0 (the \"License\");\n" +
+        "     you may not use this file except in compliance with the License.\n" +
+        "     You may obtain a copy of the License at\n" +
+        "\n" +
+        "         http://www.apache.org/licenses/LICENSE-2.0\n" +
+        "\n" +
+        "     Unless required by applicable law or agreed to in writing, software\n" +
+        "     distributed under the License is distributed on an \"AS IS\" BASIS,\n" +
+        "     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n" +
+        "     See the License for the specific language governing permissions and\n" +
+        "     limitations under the License. -->\n";
+
+    public static String base = asl_header + "<a xmlns=\"baseNamespace\">" +
             "<b>abc</b>" +
             "<c>123</c>" +
             "<d />" +
@@ -61,6 +76,21 @@ public class Inst2XsdCommon {
     public static String base_expected_russian = "<xs:schema attributeFormDefault=\"unqualified\" elementFormDefault=\"qualified\" " +
             "targetNamespace=\"baseNamespace\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\">" +
             "<xs:element name=\"a\">" +
+            "    <xs:annotation>\n" +
+            "      <xs:documentation> Copyright 2004 The Apache Software Foundation\n" +
+            "\n" +
+            "     Licensed under the Apache License, Version 2.0 (the \"License\");\n" +
+            "     you may not use this file except in compliance with the License.\n" +
+            "     You may obtain a copy of the License at\n" +
+            "\n" +
+            "         http://www.apache.org/licenses/LICENSE-2.0\n" +
+            "\n" +
+            "     Unless required by applicable law or agreed to in writing, software\n" +
+            "     distributed under the License is distributed on an \"AS IS\" BASIS,\n" +
+            "     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n" +
+            "     See the License for the specific language governing permissions and\n" +
+            "     limitations under the License. </xs:documentation>\n" +
+            "    </xs:annotation>\n" +
             "<xs:complexType>" +
             "<xs:sequence>" +
             "<xs:element type=\"xs:string\" name=\"b\" />" +
@@ -75,6 +105,22 @@ public class Inst2XsdCommon {
             "targetNamespace=\"baseNamespace\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\">" +
             "<xs:element name=\"c\" type=\"xs:byte\" />" +
             "<xs:element name=\"a\">" +
+            "    <xs:annotation>\n" +
+            "      <xs:documentation> Copyright 2004 The Apache Software Foundation\n" +
+            "\n" +
+            "     Licensed under the Apache License, Version 2.0 (the \"License\");\n" +
+            "     you may not use this file except in compliance with the License.\n" +
+            "     You may obtain a copy of the License at\n" +
+            "\n" +
+            "         http://www.apache.org/licenses/LICENSE-2.0\n" +
+            "\n" +
+            "     Unless required by applicable law or agreed to in writing, software\n" +
+            "     distributed under the License is distributed on an \"AS IS\" BASIS,\n" +
+            "     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n" +
+            "     See the License for the specific language governing permissions and\n" +
+            "     limitations under the License. </xs:documentation>\n" +
+            "    </xs:annotation>\n" +
+            "</xs:element>" +
             "<xs:complexType>" +
             "<xs:sequence>" +
             "<xs:element ref=\"bas:b\" xmlns:bas=\"baseNamespace\"/>" +
@@ -89,7 +135,23 @@ public class Inst2XsdCommon {
 
     public static String base_expected_venetian = "<xs:schema attributeFormDefault=\"unqualified\" elementFormDefault=\"qualified\" " +
             "targetNamespace=\"baseNamespace\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\">" +
-            "<xs:element name=\"a\" type=\"bas:aType\" xmlns:bas=\"baseNamespace\"/>" +
+            "<xs:element name=\"a\" type=\"bas:aType\" xmlns:bas=\"baseNamespace\">" +
+            "    <xs:annotation>\n" +
+            "      <xs:documentation> Copyright 2004 The Apache Software Foundation\n" +
+            "\n" +
+            "     Licensed under the Apache License, Version 2.0 (the \"License\");\n" +
+            "     you may not use this file except in compliance with the License.\n" +
+            "     You may obtain a copy of the License at\n" +
+            "\n" +
+            "         http://www.apache.org/licenses/LICENSE-2.0\n" +
+            "\n" +
+            "     Unless required by applicable law or agreed to in writing, software\n" +
+            "     distributed under the License is distributed on an \"AS IS\" BASIS,\n" +
+            "     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n" +
+            "     See the License for the specific language governing permissions and\n" +
+            "     limitations under the License. </xs:documentation>\n" +
+            "    </xs:annotation>\n" +
+            "</xs:element>" +
             "<xs:complexType name=\"aType\" >" +
             "<xs:sequence>" +
             "<xs:element type=\"xs:string\" name=\"b\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"/>" +

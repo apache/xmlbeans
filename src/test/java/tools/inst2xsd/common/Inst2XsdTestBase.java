@@ -311,7 +311,8 @@ public class Inst2XsdTestBase extends Common {
     }
 
     public static void compare(XmlObject act, XmlObject exp) throws XmlException {
-        XmlComparator.Diagnostic diag = XmlComparator.lenientlyCompareTwoXmlStrings(act.xmlText(Inst2XsdCommon.getXmlOptions()),
+        XmlComparator.Diagnostic diag = XmlComparator.lenientlyCompareTwoXmlStrings(
+            act.xmlText(Inst2XsdCommon.getXmlOptions()),
             exp.xmlText(Inst2XsdCommon.getXmlOptions()));
         if (diag.hasMessage()) {
             log("Expected: \n" + exp.xmlText(Inst2XsdCommon.getXmlOptions()));

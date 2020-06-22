@@ -27,15 +27,15 @@ import static org.junit.Assert.*;
 
 public class XmlLineNumberTest extends Common
 {
-    public static final String xml = 
-        "<people><person born=\"1912\" died=\"1954\" id=\"p342\">\n" + 
-        "    <name>\n" + 
-        "\t\t<first_name>Alan</first_name>\n" + 
-        "\t\t<last_name>Turing</last_name>\n" + 
-        "</name>\n" + 
+    public static final String xml =
+        "<people><person born=\"1912\" died=\"1954\" id=\"p342\">\n" +
+        "    <name>\n" +
+        "\t\t<first_name>Alan</first_name>\n" +
+        "\t\t<last_name>Turing</last_name>\n" +
+        "</name>\n" +
         "</person></people>";
- 
-    public static final String xmlFile = 
+
+    public static final String xmlFile =
         XBEAN_CASE_ROOT + P + "xmlcursor" + P + "Employees.xml";
 
     /** test obtaining XmlLineNumber bookmark with option
@@ -52,10 +52,10 @@ public class XmlLineNumberTest extends Common
         assertEquals(XmlCursor.TokenType.START, c.currentTokenType());
         XmlLineNumber ln = (XmlLineNumber) c.getBookmark(XmlLineNumber.class);
         assertNotNull(ln);
-        assertEquals(1, ln.getLine());
+        assertEquals(16, ln.getLine());
         c.toFirstChild();
         ln = (XmlLineNumber) c.getBookmark(XmlLineNumber.class);
-        assertEquals(2, ln.getLine());
+        assertEquals(17, ln.getLine());
         c.toEndToken();
         assertEquals(XmlCursor.TokenType.END, c.currentTokenType());
         ln =(XmlLineNumber) c.getBookmark(XmlLineNumber.class);
@@ -78,16 +78,16 @@ public class XmlLineNumberTest extends Common
         assertEquals(XmlCursor.TokenType.START, c.currentTokenType());
         XmlLineNumber ln = (XmlLineNumber) c.getBookmark(XmlLineNumber.class);
         assertNotNull(ln);
-        assertEquals(1, ln.getLine());
+        assertEquals(16, ln.getLine());
         c.toFirstChild();
         ln = (XmlLineNumber) c.getBookmark(XmlLineNumber.class);
-        assertEquals(2, ln.getLine());
+        assertEquals(17, ln.getLine());
         c.toEndToken();
         assertEquals(XmlCursor.TokenType.END, c.currentTokenType());
         ln = (XmlLineNumber) c.getBookmark(XmlLineNumber.class);
         // there is a bookmark at END
         assertNotNull(ln);
-        assertEquals(19, ln.getLine());
+        assertEquals(34, ln.getLine());
     }
 
     /** test using XmlLineNumber to get line number, column, and offset
@@ -128,23 +128,23 @@ public class XmlLineNumberTest extends Common
         c.toFirstContentToken();
         c.toFirstChild();
         XmlLineNumber ln = (XmlLineNumber) c.getBookmark(XmlLineNumber.class);
-        assertEquals(2, ln.getLine());
+        assertEquals(17, ln.getLine());
         assertEquals(15, ln.getColumn());
         assertEquals(-1, ln.getOffset());
         c.toFirstChild();
         c.push();
         ln = (XmlLineNumber) c.getBookmark(XmlLineNumber.class);
-        assertEquals(3, ln.getLine());
+        assertEquals(18, ln.getLine());
         assertEquals(13, ln.getColumn());
         c.toEndToken();
         ln = (XmlLineNumber) c.getBookmark(XmlLineNumber.class);
-        assertEquals(3, ln.getLine());
+        assertEquals(18, ln.getLine());
         assertEquals(33, ln.getColumn());
         c.pop();
         c.toNextSibling(); //address
         c.toEndToken();
         ln = (XmlLineNumber) c.getBookmark(XmlLineNumber.class);
-        assertEquals(9, ln.getLine());
+        assertEquals(24, ln.getLine());
         assertEquals(17, ln.getColumn());
         assertEquals(-1, ln.getOffset());
     }

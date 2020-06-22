@@ -108,7 +108,7 @@ public class XmlTextTest extends BasicCursorTestCase {
         XmlCursor xc1 = m_xo.newCursor();
         xc1.toFirstChild();
         try {
-            assertEquals(m_xc.xmlText(), xc1.xmlText());
+            assertEquals(m_xc.xmlText().replaceFirst("(?s)<!--.*-->",""), xc1.xmlText());
         } finally {
             xc1.dispose();
         }

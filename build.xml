@@ -578,11 +578,17 @@
                  classpath="${rat.jar}" />
         <rat:report xmlns:rat="antlib:org.apache.rat.anttasks" reportFile="${rat.report}">
             <fileset dir="src/">
+                <exclude name="main/resources/**/META-INF/services/**"/>
                 <exclude name="**/*.iml" />
                 <exclude name="**/XML.xsd"/>
                 <exclude name="**/XMLSchema.xsd"/>
-                <exclude name="test/resources/**/*.*"/>
-                <exclude name="main/resources/**/META-INF/services/**"/>
+                <exclude name="**/zvon*.xml"/>
+                <exclude name="**/xmldsig-core-schema.xsd"/>
+                <exclude name="test/resources/xbean/xmlobject/japanese/**"/>
+                <exclude name="test/resources/xbean/compile/scomp/j2ee/**"/>
+                <exclude name="test/resources/xbean/dom/W3C/level2/core/files/**"/>
+                <exclude name="test/resources/xbean/xmlobject/soap-envelope.xsd"/>
+                <exclude name="test/resources/xbean/xmlobject/soap12-encoding.xsd"/>
             </fileset>
         </rat:report>
 

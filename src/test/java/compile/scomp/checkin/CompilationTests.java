@@ -282,8 +282,7 @@ public class CompilationTests {
         File classesdir = xbeanOutput("compile/scomp/pricequote/classes");
         File outputjar = xbeanOutput("compile/scomp/pricequote/pricequote.jar");
         SchemaCompiler.Parameters params = new SchemaCompiler.Parameters();
-        params.setXsdFiles(new File[]{
-            xbeanCase("pricequote/PriceQuote.xsd")});
+        params.setXsdFiles(new File[]{xbeanCase("pricequote/PriceQuote.xsd")});
         params.setSrcDir(srcdir);
         params.setClassesDir(classesdir);
         params.setOutputJar(outputjar);
