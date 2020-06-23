@@ -165,13 +165,13 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
     void emit(String s) throws IOException
     {
         int indent = _indent;
-        
+
         if (indent > MAX_SPACES.length() / 2)
             indent = MAX_SPACES.length() / 4 + indent / 2;
-        
+
         if (indent > MAX_SPACES.length())
             indent = MAX_SPACES.length();
-        
+
         _writer.write(MAX_SPACES.substring(0, indent));
         try
         {
@@ -182,7 +182,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
             _writer.write(makeSafe(s));
         }
         _writer.write(LINE_SEPARATOR);
-        
+
         // System.out.print(MAX_SPACES.substring(0, indent));
         // System.out.println(s);
     }
@@ -237,7 +237,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
         _writer.flush();
     }
 
-    public void printTypeImpl(Writer writer, SchemaType sType) 
+    public void printTypeImpl(Writer writer, SchemaType sType)
         throws IOException
     {
         _writer = writer;
@@ -254,7 +254,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
     {
         while ( sType.getFullJavaName() == null )
             sType = sType.getBaseType();
-        
+
         return sType.getFullJavaName();
     }
 
@@ -323,7 +323,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
         }
         return ret;
     }
-    
+
     private String getUserTypeStaticHandlerMethod(boolean encode, SchemaTypeImpl stype)
     {
         String unqualifiedName = stype.getName().getLocalPart();
@@ -331,7 +331,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
             unqualifiedName = unqualifiedName.toUpperCase();
         else
             unqualifiedName = unqualifiedName.substring(0, 1).toUpperCase() + unqualifiedName.substring(1);
-        
+
         if (encode)
             return stype.getUserTypeHandlerName() + ".encode" + unqualifiedName;
         else
@@ -355,10 +355,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
         String interfaceShortName = sType.getShortJavaName();
         emit("public static final org.apache.xmlbeans.SchemaType type = (org.apache.xmlbeans.SchemaType)");
         indent();
-        emit("org.apache.xmlbeans.XmlBeans.typeSystemForClassLoader(" +
-             interfaceShortName + ".class.getClassLoader(), \"" + system.getName() + "\")" +
-             ".resolveHandle(\"" +
-             ((SchemaTypeSystemImpl)system).handleForType(sType) + "\");");
+        emit("Factory.getTypeLoader().resolveHandle(\""+((SchemaTypeSystemImpl)system).handleForType(sType) + "\");");
         outdent();
     }
 
@@ -455,6 +452,11 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
         emit("{");
         indent();
 
+        emit("private static synchronized " + sType.getTypeSystem().getName() + ".TypeSystemHolder getTypeLoader() {");
+        emit("  return " + sType.getTypeSystem().getName() + ".TypeSystemHolder.typeSystem;");
+        emit("}");
+        emit("");
+
         if (sType.isSimpleType())
         {
             emit("public static " + fullName + " newValue(java.lang.Object obj) {");
@@ -469,7 +471,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
                 emit("@Deprecated");
         }
         emit("public static " + fullName + " newInstance() {");
-        emit("  return (" + fullName + ") org.apache.xmlbeans.XmlBeans.getContextTypeLoader().newInstance( type, null ); }");
+        emit("  return (" + fullName + ") getTypeLoader().newInstance( type, null ); }");
         emit("");
 
         // Only need newInstance() for non-abstract types
@@ -479,81 +481,81 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
                 emit("@Deprecated");
         }
         emit("public static " + fullName + " newInstance(org.apache.xmlbeans.XmlOptions options) {");
-        emit("  return (" + fullName + ") org.apache.xmlbeans.XmlBeans.getContextTypeLoader().newInstance( type, options ); }");
+        emit("  return (" + fullName + ") getTypeLoader().newInstance( type, options ); }");
         emit("");
 
         if (fullFactory)
         {
             emit("/** @param xmlAsString the string value to parse */");
             emit("public static " + fullName + " parse(java.lang.String xmlAsString) throws org.apache.xmlbeans.XmlException {");
-            emit("  return (" + fullName + ") org.apache.xmlbeans.XmlBeans.getContextTypeLoader().parse( xmlAsString, type, null ); }");
+            emit("  return (" + fullName + ") getTypeLoader().parse( xmlAsString, type, null ); }");
             emit("");
 
             emit("public static " + fullName + " parse(java.lang.String xmlAsString, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException {");
-            emit("  return (" + fullName + ") org.apache.xmlbeans.XmlBeans.getContextTypeLoader().parse( xmlAsString, type, options ); }");
+            emit("  return (" + fullName + ") getTypeLoader().parse( xmlAsString, type, options ); }");
             emit("");
 
             emit("/** @param file the file from which to load an xml document */");
             emit("public static " + fullName + " parse(java.io.File file) throws org.apache.xmlbeans.XmlException, java.io.IOException {");
-            emit("  return (" + fullName + ") org.apache.xmlbeans.XmlBeans.getContextTypeLoader().parse( file, type, null ); }");
+            emit("  return (" + fullName + ") getTypeLoader().parse( file, type, null ); }");
             emit("");
 
             emit("public static " + fullName + " parse(java.io.File file, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException, java.io.IOException {");
-            emit("  return (" + fullName + ") org.apache.xmlbeans.XmlBeans.getContextTypeLoader().parse( file, type, options ); }");
+            emit("  return (" + fullName + ") getTypeLoader().parse( file, type, options ); }");
             emit("");
 
             emit("public static " + fullName + " parse(java.net.URL u) throws org.apache.xmlbeans.XmlException, java.io.IOException {");
-            emit("  return (" + fullName + ") org.apache.xmlbeans.XmlBeans.getContextTypeLoader().parse( u, type, null ); }");
+            emit("  return (" + fullName + ") getTypeLoader().parse( u, type, null ); }");
             emit("");
 
             emit("public static " + fullName + " parse(java.net.URL u, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException, java.io.IOException {");
-            emit("  return (" + fullName + ") org.apache.xmlbeans.XmlBeans.getContextTypeLoader().parse( u, type, options ); }");
+            emit("  return (" + fullName + ") getTypeLoader().parse( u, type, options ); }");
             emit("");
 
             emit("public static " + fullName + " parse(java.io.InputStream is) throws org.apache.xmlbeans.XmlException, java.io.IOException {");
-            emit("  return (" + fullName + ") org.apache.xmlbeans.XmlBeans.getContextTypeLoader().parse( is, type, null ); }");
+            emit("  return (" + fullName + ") getTypeLoader().parse( is, type, null ); }");
             emit("");
 
             emit("public static " + fullName + " parse(java.io.InputStream is, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException, java.io.IOException {");
-            emit("  return (" + fullName + ") org.apache.xmlbeans.XmlBeans.getContextTypeLoader().parse( is, type, options ); }");
+            emit("  return (" + fullName + ") getTypeLoader().parse( is, type, options ); }");
             emit("");
 
             emit("public static " + fullName + " parse(java.io.Reader r) throws org.apache.xmlbeans.XmlException, java.io.IOException {");
-            emit("  return (" + fullName + ") org.apache.xmlbeans.XmlBeans.getContextTypeLoader().parse( r, type, null ); }");
+            emit("  return (" + fullName + ") getTypeLoader().parse( r, type, null ); }");
             emit("");
 
             emit("public static " + fullName + " parse(java.io.Reader r, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException, java.io.IOException {");
-            emit("  return (" + fullName + ") org.apache.xmlbeans.XmlBeans.getContextTypeLoader().parse( r, type, options ); }");
+            emit("  return (" + fullName + ") getTypeLoader().parse( r, type, options ); }");
             emit("");
 
             emit("public static " + fullName + " parse(javax.xml.stream.XMLStreamReader sr) throws org.apache.xmlbeans.XmlException {");
-            emit("  return (" + fullName + ") org.apache.xmlbeans.XmlBeans.getContextTypeLoader().parse( sr, type, null ); }");
+            emit("  return (" + fullName + ") getTypeLoader().parse( sr, type, null ); }");
             emit("");
 
             emit("public static " + fullName + " parse(javax.xml.stream.XMLStreamReader sr, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException {");
-            emit("  return (" + fullName + ") org.apache.xmlbeans.XmlBeans.getContextTypeLoader().parse( sr, type, options ); }");
+            emit("  return (" + fullName + ") getTypeLoader().parse( sr, type, options ); }");
             emit("");
 
             emit("public static " + fullName + " parse(org.w3c.dom.Node node) throws org.apache.xmlbeans.XmlException {");
-            emit("  return (" + fullName + ") org.apache.xmlbeans.XmlBeans.getContextTypeLoader().parse( node, type, null ); }");
+            emit("  return (" + fullName + ") getTypeLoader().parse( node, type, null ); }");
             emit("");
 
             emit("public static " + fullName + " parse(org.w3c.dom.Node node, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException {");
-            emit("  return (" + fullName + ") org.apache.xmlbeans.XmlBeans.getContextTypeLoader().parse( node, type, options ); }");
+            emit("  return (" + fullName + ") getTypeLoader().parse( node, type, options ); }");
             emit("");
 
             emit("/** @deprecated {@link org.apache.xmlbeans.xml.stream.XMLInputStream} */");
             if (_useJava15)
                 emit("@Deprecated");
             emit("public static " + fullName + " parse(org.apache.xmlbeans.xml.stream.XMLInputStream xis) throws org.apache.xmlbeans.XmlException, org.apache.xmlbeans.xml.stream.XMLStreamException {");
-            emit("  return (" + fullName + ") org.apache.xmlbeans.XmlBeans.getContextTypeLoader().parse( xis, type, null ); }");
+            emit("  return (" + fullName + ") getTypeLoader().parse( xis, type, null ); }");
             emit("");
 
             emit("/** @deprecated {@link org.apache.xmlbeans.xml.stream.XMLInputStream} */");
             if (_useJava15)
                 emit("@Deprecated");
             emit("public static " + fullName + " parse(org.apache.xmlbeans.xml.stream.XMLInputStream xis, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException, org.apache.xmlbeans.xml.stream.XMLStreamException {");
-            emit("  return (" + fullName + ") org.apache.xmlbeans.XmlBeans.getContextTypeLoader().parse( xis, type, options ); }");
+            emit("  return (" + fullName + ") getTypeLoader().parse( xis, type, options ); }");
             emit("");
 
             // Don't have XMLInputStream anymore
@@ -561,7 +563,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
             if (_useJava15)
                 emit("@Deprecated");
             emit("public static org.apache.xmlbeans.xml.stream.XMLInputStream newValidatingXMLInputStream(org.apache.xmlbeans.xml.stream.XMLInputStream xis) throws org.apache.xmlbeans.XmlException, org.apache.xmlbeans.xml.stream.XMLStreamException {");
-            emit("  return org.apache.xmlbeans.XmlBeans.getContextTypeLoader().newValidatingXMLInputStream( xis, type, null ); }");
+            emit("  return getTypeLoader().newValidatingXMLInputStream( xis, type, null ); }");
             emit("");
 
             // Don't have XMLInputStream anymore
@@ -569,7 +571,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
             if (_useJava15)
                 emit("@Deprecated");
             emit("public static org.apache.xmlbeans.xml.stream.XMLInputStream newValidatingXMLInputStream(org.apache.xmlbeans.xml.stream.XMLInputStream xis, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException, org.apache.xmlbeans.xml.stream.XMLStreamException {");
-            emit("  return org.apache.xmlbeans.XmlBeans.getContextTypeLoader().newValidatingXMLInputStream( xis, type, options ); }");
+            emit("  return getTypeLoader().newValidatingXMLInputStream( xis, type, options ); }");
             emit("");
         }
 
@@ -627,7 +629,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
                 assert false;
 
             assert( thename != null );
-            
+
             emit(" * Localname: " + thename.getLocalPart());
             emit(" * Namespace: " + thename.getNamespaceURI());
         }
@@ -655,7 +657,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
     void startInterface(SchemaType sType) throws IOException
     {
         String shortName = sType.getShortJavaName();
-        
+
         String baseInterface = findJavaType(sType.getBaseType());
 
         /*
@@ -1075,7 +1077,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
             SchemaType sType = sProp.javaBasedOnType();
             return findJavaType(sType).replace('$', '.');
         }
-        
+
         if (sProp.getJavaTypeCode() == SchemaProperty.JAVA_USER)
         {
                return ((SchemaTypeImpl)sProp.getType()).getUserTypeName();
@@ -1124,7 +1126,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
                 if (sType.getSimpleVariety() == SchemaType.UNION)
                     sType = sType.getUnionCommonBaseType();
                 assert sType.getBaseEnumType() != null;
-                if (hasBase(sType)) 
+                if (hasBase(sType))
                     return findJavaType(sType.getBaseEnumType()).replace('$', '.') + ".Enum";
                 else
                     return findJavaType(sType).replace('$', '.') + ".Enum";
@@ -1186,17 +1188,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
                 emit("java.util.List<" + wrappedType + "> get" + propertyName + "List();");
             }
 
-            if (_useJava15)
-            {
-                emit("");
-                emit("/**");
-                emit(" * Gets array of all " + propdesc + "s");
-                emit(" * @deprecated");
-                emit(" */");
-                emit("@Deprecated");
-            }
-            else
-                printJavaDoc("Gets array of all " + propdesc + "s");
+            printJavaDoc("Gets array of all " + propdesc + "s");
             emit(type + "[] get" + arrayName + "();");
 
             printJavaDoc("Gets ith " + propdesc);
@@ -1210,17 +1202,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
                     emit("java.util.List<" + xtype + "> xget" + propertyName + "List();");
                 }
 
-                if (_useJava15)
-                {
-                    emit("");
-                    emit("/**");
-                    emit(" * Gets (as xml) array of all " + propdesc + "s");
-                    emit(" * @deprecated");
-                    emit(" */");
-                    emit("@Deprecated");
-                }
-                else
-                    printJavaDoc("Gets (as xml) array of all " + propdesc + "s");
+                printJavaDoc("Gets (as xml) array of all " + propdesc + "s");
                 emit(xtype + "[] xget" + arrayName + "();");
 
                 printJavaDoc("Gets (as xml) ith " + propdesc);
@@ -1639,7 +1621,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
                 emit("    result[i] = " + getUserTypeStaticHandlerMethod(false, stype)
                         + "((org.apache.xmlbeans.SimpleValue)targetList.get(i));");
                 break;
-                
+
             default:
                 throw new IllegalStateException();
         }
@@ -1707,12 +1689,12 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
 
         case SchemaProperty.JAVA_OBJECT:
             emit("return target.getObjectValue();"); break;
-            
+
         case SchemaProperty.JAVA_USER:
             emit("return " + getUserTypeStaticHandlerMethod(false, stype)
                     + "(target);");
             break;
-            
+
         default:
             throw new IllegalStateException();
         }
@@ -1779,7 +1761,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
 
             case SchemaProperty.JAVA_OBJECT:
                 emit("target.setObjectValue(" + safeVarName + ");"); break;
-                
+
             case SchemaProperty.JAVA_USER:
                 emit(getUserTypeStaticHandlerMethod(true, stype)
                         + "(" + safeVarName + ", target);");
@@ -2104,9 +2086,9 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
             makeMissingValue(javaType);
             endBlock();
 
-            
-            printJGetValue(javaType, type, (SchemaTypeImpl)prop.getType());    
-            
+
+            printJGetValue(javaType, type, (SchemaTypeImpl)prop.getType());
+
 
             emitImplementationPostamble();
 
@@ -2185,17 +2167,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
             }
 
             // Value[] getProp()
-            if (_useJava15)
-            {
-                emit("");
-                emit("/**");
-                emit(" * Gets array of all " + propdesc + "s");
-                emit(" * @deprecated");
-                emit(" */");
-                emit("@Deprecated");
-            }
-            else
-                printJavaDoc("Gets array of all " + propdesc + "s");
+            printJavaDoc("Gets array of all " + propdesc + "s");
             emit("public " + type + "[] get" + arrayName + "()");
             startBlock();
             emitImplementationPreamble();
@@ -2231,17 +2203,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
                 }
 
                 // Value[] xgetProp()
-                if (_useJava15)
-                {
-                    emit("");
-                    emit("/**");
-                    emit(" * Gets array of all " + propdesc + "s");
-                    emit(" * @deprecated");
-                    emit(" */");
-                    emit("@Deprecated");
-                }
-                else
-                    printJavaDoc("Gets (as xml) array of all " + propdesc + "s");
+                printJavaDoc("Gets (as xml) array of all " + propdesc + "s");
                 emit("public " + xtype + "[] xget" + arrayName + "()");
                 startBlock();
                 emitImplementationPreamble();

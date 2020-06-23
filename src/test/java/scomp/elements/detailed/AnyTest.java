@@ -45,8 +45,9 @@ public class AnyTest extends BaseCase {
             showErrors();
             throw t;
         }
+        clearErrors();
 
-
+        doc = AnyEltDocument.Factory.newInstance();
         XmlString val = XmlString.Factory.newInstance();
         val.setStringValue("foobar");
         doc.setAnyElt(val);
