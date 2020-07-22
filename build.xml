@@ -18,8 +18,8 @@
      xmlns:if="ant:if" xmlns:unless="ant:unless">
 
     <property name="build.compiler" value="javac1.8"/>
-    <property name="ant.build.javac.source" value="1.8"/>
-    <property name="ant.build.javac.target" value="1.8"/>
+    <property name="jdk.version.source" value="1.8" description="JDK version of source code"/>
+    <property name="jdk.version.class" value="1.8" description="JDK version of generated class files"/>
 
     <property name="version.base" value="4.0.0"/>
     <property name="version.rc" value=""/>
@@ -28,6 +28,10 @@
 
     <property name="repository.m2" value="https://repo1.maven.org/maven2"/>
     <property environment="ENV"/>
+
+    <condition property="isJava8">
+        <equals arg1="${ant.java.version}" arg2="1.8"/>
+    </condition>
 
     <scriptdef name="dependency" language="javascript" description="define properties for library dependency">
         <attribute name="prefix"/>
@@ -58,9 +62,14 @@
         <!-- TODO: add library to a queue for downloading ... -->
     </scriptdef>
 
-    <dependency prefix="old.xmlbeans" artifact="org.apache.xmlbeans:xmlbeans:3.1.0" usage="previous"/>
+    <!-- dependencies -->
+<!--    <dependency prefix="xml-apis" artifact="xml-apis:xml-apis:1.4.01" usage="main"/>-->
+    <dependency prefix="saxon" artifact="net.sf.saxon:Saxon-HE:10.1" usage="main"/>
+    <dependency prefix="ant" artifact="org.apache.ant:ant:1.10.8" usage="main"/>
     <dependency prefix="javaparser.core" artifact="com.github.javaparser:javaparser-core:3.15.21" usage="main"/>
 
+    <!-- previous xmlbeans version is used to bootstrap necessary schema bindings -->
+    <dependency prefix="old.xmlbeans" artifact="org.apache.xmlbeans:xmlbeans:3.1.0" usage="previous"/>
 
     <!-- Apache RAT license check properties -->
     <property name="rat.reportdir" value="build/rat"/>
@@ -71,32 +80,26 @@
     <!-- api checks -->
     <dependency prefix="forbidden" artifact="de.thetaphi:forbiddenapis:2.6" usage="util"/>
 
-
-    <!-- dependencies -->
-
-    <!-- other saxon urls
-        http://voxel.dl.sourceforge.net/sourceforge/saxon/saxonb8-1.zip
-        http://easynews.dl.sourceforge.net/sourceforge/saxon/saxonb8-7-3j.zip
-        http://easynews.dl.sourceforge.net/sourceforge/saxon/saxonb8-8j.zip
-    -->
-    <dependency prefix="saxon" artifact="net.sf.saxon:Saxon-HE:10.1" usage="tests"/>
-
     <!-- test dependencies -->
     <dependency prefix="junit" artifact="junit:junit:4.13" usage="tests"/>
+    <dependency prefix="ant-junit" artifact="org.apache.ant:ant-junit:1.10.8" usage="tests"/>
+    <dependency prefix="ant-junit4" artifact="org.apache.ant:ant-junit4:1.10.8" usage="tests"/>
     <dependency prefix="hamcrest" artifact="org.hamcrest:hamcrest:2.2" usage="tests"/>
     <dependency prefix="xerces" artifact="xerces:xercesImpl:2.12.0" usage="tests"/>
-    <dependency prefix="xml-apis" artifact="xml-apis:xml-apis:1.4.01" usage="tests"/>
 
     <path id="xmlbeans-test">
         <pathelement location="build/classes"/>
         <pathelement location="build/generated-resources"/>
         <dirset dir="src/main/resources" includes="*" excludes="maven"/>
+        <pathelement location="${ant.jar}"/>
+        <pathelement location="${ant-junit.jar}"/>
+        <pathelement location="${ant-junit4.jar}"/>
         <pathelement location="${saxon.jar}"/>
         <pathelement location="test/lib/w3c_domts.jar"/>
         <pathelement location="${junit.jar}"/>
         <pathelement location="${hamcrest.jar}"/>
         <pathelement location="${xerces.jar}"/>
-        <pathelement location="${xml-apis.jar}"/>
+<!--        <pathelement location="${xml-apis.jar}"/>-->
         <pathelement location="${javaparser.core.jar}"/>
     </path>
 
@@ -130,7 +133,10 @@
                     <available file="${junit.jar}"/>
                     <available file="${hamcrest.jar}"/>
                     <available file="${xerces.jar}"/>
-                    <available file="${xml-apis.jar}"/>
+<!--                    <available file="${xml-apis.jar}"/>-->
+                    <available file="${ant.jar}"/>
+                    <available file="${ant-junit.jar}"/>
+                    <available file="${ant-junit4.jar}"/>
                 </and>
                 <isset property="disconnected"/>
             </or>
@@ -156,7 +162,10 @@
         <downloadfile dest="${junit.jar}" src="${junit.url}"/>
         <downloadfile dest="${hamcrest.jar}" src="${hamcrest.url}"/>
         <downloadfile dest="${xerces.jar}" src="${xerces.url}"/>
-        <downloadfile dest="${xml-apis.jar}" src="${xml-apis.url}"/>
+<!--        <downloadfile dest="${xml-apis.jar}" src="${xml-apis.url}"/>-->
+        <downloadfile dest="${ant.jar}" src="${ant.url}"/>
+        <downloadfile dest="${ant-junit.jar}" src="${ant-junit.url}"/>
+        <downloadfile dest="${ant-junit4.jar}" src="${ant-junit4.url}"/>
 
     </target>
 
@@ -203,7 +212,13 @@
                 </filterchain>
             </copy>
 
-            <javac destdir="@{rscDir}" debug="true" debuglevel="lines,vars,source" includeantruntime="true">
+            <javac destdir="@{rscDir}"
+                   debug="true"
+                   debuglevel="lines,vars,source"
+                   includeantruntime="false"
+                   target="${jdk.version.class}"
+                   source="${jdk.version.source}"
+            >
                 <src path="@{srcDir}/org/apache/xmlbeans/metadata/system/@{schemaName}"/>
                 <classpath>
                     <pathelement location="${old.xmlbeans.jar}"/>
@@ -245,11 +260,20 @@
 
         <mkdir dir="build/classes"/>
         <mkdir dir="build/generated-sources"/>
-        <javac destdir="build/classes" debug="true" debuglevel="lines,vars,source" includeantruntime="true">
+        <javac destdir="build/classes"
+               debug="true"
+               debuglevel="lines,vars,source"
+               includeantruntime="false"
+               target="${jdk.version.class}"
+               source="${jdk.version.source}"
+        >
             <src refid="sources"/>
             <src path="build/bootstrap/generated-sources"/>
             <classpath>
                 <path refid="oldxbean"/>
+                <pathelement location="${ant.jar}"/>
+                <pathelement location="${ant-junit.jar}"/>
+                <pathelement location="${ant-junit4.jar}"/>
                 <pathelement location="${saxon.jar}"/>
                 <pathelement location="${javaparser.core.jar}"/>
             </classpath>
@@ -265,6 +289,9 @@
 
         <!-- now generate new xmlbeans re-/sources and remove the traces of the oldxbean generated re-/sources -->
         <path id="oldschemas">
+            <pathelement location="${ant.jar}"/>
+            <pathelement location="${ant-junit.jar}"/>
+            <pathelement location="${ant-junit4.jar}"/>
             <pathelement location="build/classes"/>
             <pathelement location="build/bootstrap/generated-resources"/>
             <dirset dir="src/main/resources" includes="*" excludes="maven"/>
@@ -280,9 +307,27 @@
         <!-- delete old schema classes -->
         <delete dir="build/classes/org/apache/xmlbeans/impl/xb"/>
 
-        <javac destdir="build/classes" debug="true" debuglevel="lines,vars,source" includeantruntime="true">
+        <javac destdir="build/classes"
+               debug="true"
+               debuglevel="lines,vars,source"
+               includeantruntime="false"
+               target="${jdk.version.class}"
+               source="${jdk.version.source}"
+        >
             <src refid="sources"/>
             <classpath path="${saxon.jar}"/>
+        </javac>
+
+        <mkdir dir="build/classes/META-INF/versions/9"/>
+
+        <javac release="9"
+               srcdir="${basedir}/src/main/multimodule/java9"
+               destdir="build/classes/META-INF/versions/9"
+               includeantruntime="false"
+               fork="true"
+               modulepath="lib/main"
+               unless:true="${isJava8}">
+            <compilerarg line="--patch-module org.apache.xmlbeans=build/classes"/>
         </javac>
     </target>
 
@@ -381,7 +426,14 @@
 
 
     <target name="test-compile" depends="process-test-resources" description="Compile test sources and resources">
-        <javac destdir="build/test-classes" debug="true" debuglevel="lines,vars,source" includeantruntime="true" classpathref="xmlbeans-test">
+        <javac destdir="build/test-classes"
+               debug="true"
+               debuglevel="lines,vars,source"
+               includeantruntime="false"
+               classpathref="xmlbeans-test"
+               target="${jdk.version.class}"
+               source="${jdk.version.source}"
+        >
             <classpath>
                 <dirset dir="build" includes="test-*/generated-resources"/>
             </classpath>
@@ -394,19 +446,33 @@
         </javac>
 
         <mkdir dir="build/test-syscache/1/classes"/>
-        <javac destdir="build/test-syscache/1/classes" debug="true" debuglevel="lines,vars,source" includeantruntime="true" classpathref="xmlbeans-test"
-               srcdir="build/test-syscache/1/generated-sources">
+        <javac destdir="build/test-syscache/1/classes"
+               debug="true"
+               debuglevel="lines,vars,source"
+               includeantruntime="false"
+               classpathref="xmlbeans-test"
+               srcdir="build/test-syscache/1/generated-sources"
+               target="${jdk.version.class}"
+               source="${jdk.version.source}"
+        >
             <classpath location="build/test-syscache/1/generated-resources"/>
         </javac>
         <mkdir dir="build/test-syscache/2/classes"/>
-        <javac destdir="build/test-syscache/2/classes" debug="true" debuglevel="lines,vars,source" includeantruntime="true" classpathref="xmlbeans-test"
-               srcdir="build/test-syscache/2/generated-sources">
+        <javac destdir="build/test-syscache/2/classes"
+               debug="true"
+               debuglevel="lines,vars,source"
+               includeantruntime="false"
+               classpathref="xmlbeans-test"
+               srcdir="build/test-syscache/2/generated-sources"
+               target="${jdk.version.class}"
+               source="${jdk.version.source}"
+        >
             <classpath location="build/test-syscache/2/generated-resources"/>
         </javac>
     </target>
 
     <target name="test" depends="test-compile" description="Run the tests">
-        <junit printsummary="yes" showoutput="no" haltonerror="true" haltonfailure="true">
+        <junit printsummary="yes" showoutput="no" haltonerror="true" haltonfailure="true" includeantruntime="false" fork="true">
             <classpath refid="xmlbeans-test"/>
             <classpath>
                 <pathelement location="${cases.location}"/>
@@ -441,20 +507,21 @@
         <delete dir="${javadocs.dir}"/>
         <mkdir dir="${javadocs.dir}"/>
 
+        <!-- force Java 8 source compatibility - see https://stackoverflow.com/questions/56409697 -->
         <javadoc sourcepathref="sources"
                  destdir="${javadocs.dir}"
-                 windowtitle="XMLBeans ${version.base} Documentation">
+                 windowtitle="XMLBeans ${version.base} Documentation"
+                 source="8">
             <classpath>
-                <path refid="xmlbeans-test"/>
-                <pathelement location="${ENV.ANT_HOME}/lib/ant.jar"/>
+                <pathelement location="build/classes"/>
+                <fileset dir="lib/main" includes="*.jar"/>
             </classpath>
-            <excludepackage name="repackage.*"/>
+            <excludepackage name="org.apache.xmlbeans.impl.repackage.*"/>
             <excludepackage name="org.apache.xmlbeans.impl.xb.*"/>
-            <excludepackage name="org.apache.xmlbeans.impl.jam.*"/>
-            <link href="https://docs.oracle.com/javase/8/docs/api/"/>
-            <link href="https://docs.oracle.com/javaee/7/api/"/>
-            <link href="https://xml.apache.org/xerces-j/apiDocs/"/>
-            <link href="https://ant.apache.org/manual-1.9.x/api/"/>
+            <link href="https://docs.oracle.com/javase/9/docs/api/"/>
+<!--            <link href="https://javadoc.io/doc/xml-apis/xml-apis/1.4.01/"/>-->
+            <link href="https://javadoc.io/doc/com.github.javaparser/javaparser-core/3.15.21"/>
+            <link href="https://ant.apache.org/manual/api/"/>
         </javadoc>
     </target>
 
@@ -468,6 +535,7 @@
                 <cutdirsmapper dirs="1"/>
             </mappedresources>
             <manifest>
+                <attribute name="Multi-Release" value="true"/>
                 <section name="org/apache/xmlbeans/">
                     <attribute name="Comment" value="Apache XmlBeans version ${version.base}"/>
                     <attribute name="Implementation-Title" value="org.apache.xmlbeans"/>
@@ -538,7 +606,7 @@
         	<zipfileset dir="src/main/shell" prefix="${prefix}/bin" />
             <zipfileset dir="build/javadocs" prefix="${prefix}/javadocs" />
         </zip>
-        <tar destfile="build/xmlbeans-src-${version.base}-${tstamp.dist}.tgz" compression="gzip">
+        <tar destfile="build/xmlbeans-src-${version.base}-${tstamp.dist}.tgz" compression="gzip" longfile="posix">
             <tarfileset dir="." excludes="build/**,tmp/**,.idea/**,bin/**,lib/**,/src/main/shell/**,.settings/**,.project,build.javacheck.xml,release-guide.txt" prefix="${prefix}"/>
         	<tarfileset dir="src/main/shell" prefix="${prefix}/bin" />
             <tarfileset dir="build/javadocs" prefix="${prefix}/javadocs" />
@@ -558,7 +626,7 @@
                 <include name="xmlbeans-${version.base}-sources.jar"/>
             </zipfileset>
         </zip>
-        <tar destfile="build/xmlbeans-bin-${version.base}-${tstamp.dist}.tgz" compression="gzip">
+        <tar destfile="build/xmlbeans-bin-${version.base}-${tstamp.dist}.tgz" compression="gzip" longfile="posix">
             <tarfileset dir="." includes="LICENSE.txt,NOTICE.txt,docs/**" prefix="${prefix}"/>
             <tarfileset dir="samples" includes="Any/**,DateTime/**,MixedContent/**,OrderMatters/**,SchemaEnum/**,Validation/**,XQueryXPath/**,XsdConfig/**" prefix="${prefix}/samples"/>
             <tarfileset dir="src/main/shell" prefix="${prefix}/bin"/>
@@ -628,7 +696,7 @@
 
         <path id="forbiddenapis.classpath">
             <path refid="xmlbeans-test"/>
-            <path path="${ENV.ANT_HOME}/lib/ant.jar"/>
+            <path path="${ant.jar}"/>
         </path>
 
 
