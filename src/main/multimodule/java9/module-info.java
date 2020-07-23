@@ -16,6 +16,7 @@
 ==================================================================== */
 
 module org.apache.xmlbeans {
+    requires java.xml;
     requires jdk.xml.dom;
     requires static ant;
     requires static com.github.javaparser.core;

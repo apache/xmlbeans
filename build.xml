@@ -17,9 +17,9 @@
      xmlns:mvn="antlib:org.apache.maven.artifact.ant"
      xmlns:if="ant:if" xmlns:unless="ant:unless">
 
-    <property name="build.compiler" value="javac1.8"/>
     <property name="jdk.version.source" value="1.8" description="JDK version of source code"/>
     <property name="jdk.version.class" value="1.8" description="JDK version of generated class files"/>
+    <property name="compile.debug" value="true"/>
 
     <property name="version.base" value="4.0.0"/>
     <property name="version.rc" value=""/>
@@ -33,37 +33,73 @@
         <equals arg1="${ant.java.version}" arg2="1.8"/>
     </condition>
 
-    <scriptdef name="dependency" language="javascript" description="define properties for library dependency">
+    <macrodef name="dependency">
         <attribute name="prefix"/>
         <attribute name="artifact"/>
         <attribute name="usage"/>
-        <attribute name="packaging"/>
-        <attribute name="repo"/>
-        <attribute name="snapshot"/>
-        <attribute name="query"/>
-        <attribute name="target"/>
-        <![CDATA[
-            var parts = attributes.get("artifact").split(/:/);
-            var packaging = attributes.get("packaging") || "jar";
-            var version = attributes.get("snapshot") || parts[2];
-            var repo = attributes.get("repo");
-            if (repo == null) {
-                repo = project.getProperty("repository.m2");
-            }
-            var query = attributes.get("query") || "";
-            var usageDir = attributes.get("usage");
-            usageDir = project.getProperty("basedir")+(usageDir.charAt(0) == '/' ? "" : "/lib/")+usageDir;
-            var jarLoc = usageDir+"/"+(attributes.get("target")||(parts[1]+"-"+parts[2]+"."+packaging));
-            var urlLoc = repo+"/"+parts[0].replace(/\./g,"/")+"/"+parts[1]+"/"+parts[2]+"/"+
-                parts[1]+"-"+(attributes.get("snapshot") || parts[2])+"."+packaging+query;
-            project.setProperty(attributes.get("prefix")+"."+packaging, jarLoc);
-            project.setProperty(attributes.get("prefix")+".url", urlLoc);
-        ]]>
-        <!-- TODO: add library to a queue for downloading ... -->
-    </scriptdef>
+        <attribute name="packaging" default="jar"/>
+        <attribute name="repo" default="${repository.m2}"/>
+        <attribute name="snapshot" default=""/>
+        <attribute name="query" default=""/>
+        <attribute name="target" default=""/>
+        <attribute name="url" default=""/>
+
+        <sequential>
+            <local name="groupDir"/>
+            <loadresource property="groupDir">
+                <string>@{artifact}</string>
+                <filterchain>
+                    <replaceregex pattern="([^:]+).*" replace="\1"/>
+                    <replaceregex pattern="\." replace="/" flags="g"/>
+                </filterchain>
+            </loadresource>
+
+            <local name="artifactId"/>
+            <loadresource property="artifactId">
+                <string>@{artifact}</string>
+                <filterchain>
+                    <replaceregex pattern="[^:]+:([^:]+).*" replace="\1"/>
+                </filterchain>
+            </loadresource>
+
+            <local name="versionDir"/>
+            <loadresource property="versionDir">
+                <string>@{artifact}</string>
+                <filterchain>
+                    <replaceregex pattern="[^:]+:[^:]+:(.*)" replace="\1"/>
+                </filterchain>
+            </loadresource>
+
+            <local name="version"/>
+            <property name="version" value="${versionDir}" if:blank="@{snapshot}"/>
+            <property name="version" value="@{snapshot}"/>
+
+            <local name="usageDir"/>
+            <loadresource property="usageDir">
+                <string>@{usage}</string>
+                <filterchain>
+                    <replaceregex pattern="^([^/])" replace="/lib/\1"/>
+                    <prefixlines prefix="${basedir}"/>
+                </filterchain>
+            </loadresource>
+
+            <local name="jarLoc"/>
+            <property name="jarLoc" value="${usageDir}/@{target}" unless:blank="@{target}"/>
+            <property name="jarLoc" value="${usageDir}/${artifactId}-${version}.@{packaging}"/>
+
+            <local name="urlLoc"/>
+            <property name="urlLoc" value="@{url}" unless:blank="@{url}"/>
+            <property name="urlLoc" value="@{repo}/${groupDir}/${artifactId}/${versionDir}/${artifactId}-${version}.@{packaging}@{query}"/>
+
+            <property name="@{prefix}.@{packaging}" value="${jarLoc}"/>
+            <property name="@{prefix}.url" value="${urlLoc}"/>
+
+            <!-- TODO: add library to a queue for downloading ... -->
+        </sequential>
+    </macrodef>
 
     <!-- dependencies -->
-    <dependency prefix="xml-apis" artifact="xml-apis:xml-apis:1.4.01" usage="main"/>
+    <dependency prefix="xml-apis" artifact="xml-apis:xml-apis:1.4.01" usage="java8"/>
     <dependency prefix="saxon" artifact="net.sf.saxon:Saxon-HE:10.1" usage="main"/>
     <dependency prefix="ant" artifact="org.apache.ant:ant:1.10.8" usage="main"/>
     <dependency prefix="javaparser.core" artifact="com.github.javaparser:javaparser-core:3.15.21" usage="main"/>
@@ -212,13 +248,13 @@
                 </filterchain>
             </copy>
 
-            <javac destdir="@{rscDir}"
-                   debug="true"
+            <javac release="8"
+                   destdir="@{rscDir}"
+                   debug="${compile.debug}"
                    debuglevel="lines,vars,source"
                    includeantruntime="false"
                    target="${jdk.version.class}"
-                   source="${jdk.version.source}"
-            >
+                   source="${jdk.version.source}">
                 <src path="@{srcDir}/org/apache/xmlbeans/metadata/system/@{schemaName}"/>
                 <classpath>
                     <pathelement location="${old.xmlbeans.jar}"/>
@@ -260,13 +296,13 @@
 
         <mkdir dir="build/classes"/>
         <mkdir dir="build/generated-sources"/>
-        <javac destdir="build/classes"
-               debug="true"
+        <javac release="8"
+               destdir="build/classes"
+               debug="${compile.debug}"
                debuglevel="lines,vars,source"
                includeantruntime="false"
                target="${jdk.version.class}"
-               source="${jdk.version.source}"
-        >
+               source="${jdk.version.source}">
             <src refid="sources"/>
             <src path="build/bootstrap/generated-sources"/>
             <classpath>
@@ -307,27 +343,29 @@
         <!-- delete old schema classes -->
         <delete dir="build/classes/org/apache/xmlbeans/impl/xb"/>
 
-        <javac destdir="build/classes"
-               debug="true"
+        <javac release="8"
+               destdir="build/classes"
+               debug="${compile.debug}"
                debuglevel="lines,vars,source"
                includeantruntime="false"
                target="${jdk.version.class}"
-               source="${jdk.version.source}"
-        >
+               source="${jdk.version.source}">
             <src refid="sources"/>
             <classpath path="${saxon.jar}"/>
         </javac>
 
-        <mkdir dir="build/classes/META-INF/versions/9"/>
-
         <javac release="9"
                srcdir="${basedir}/src/main/multimodule/java9"
-               destdir="build/classes/META-INF/versions/9"
+               destdir="${basedir}/src/main/multimodule/java9"
                includeantruntime="false"
+               debug="${compile.debug}"
+               debuglevel="lines,vars,source"
                fork="true"
-               modulepath="lib/main"
                unless:true="${isJava8}">
-            <compilerarg line="--patch-module org.apache.xmlbeans=build/classes"/>
+            <compilerarg line="--patch-module org.apache.xmlbeans=${basedir}/build/classes"/>
+            <modulepath>
+                <pathelement path="lib/main"/>
+            </modulepath>
         </javac>
     </target>
 
@@ -426,14 +464,14 @@
 
 
     <target name="test-compile" depends="process-test-resources" description="Compile test sources and resources">
-        <javac destdir="build/test-classes"
-               debug="true"
+        <javac release="8"
+               destdir="build/test-classes"
+               debug="${compile.debug}"
                debuglevel="lines,vars,source"
                includeantruntime="false"
                classpathref="xmlbeans-test"
                target="${jdk.version.class}"
-               source="${jdk.version.source}"
-        >
+               source="${jdk.version.source}">
             <classpath>
                 <dirset dir="build" includes="test-*/generated-resources"/>
             </classpath>
@@ -446,27 +484,27 @@
         </javac>
 
         <mkdir dir="build/test-syscache/1/classes"/>
-        <javac destdir="build/test-syscache/1/classes"
-               debug="true"
+        <javac release="8"
+               destdir="build/test-syscache/1/classes"
+               debug="${compile.debug}"
                debuglevel="lines,vars,source"
                includeantruntime="false"
                classpathref="xmlbeans-test"
                srcdir="build/test-syscache/1/generated-sources"
                target="${jdk.version.class}"
-               source="${jdk.version.source}"
-        >
+               source="${jdk.version.source}">
             <classpath location="build/test-syscache/1/generated-resources"/>
         </javac>
         <mkdir dir="build/test-syscache/2/classes"/>
-        <javac destdir="build/test-syscache/2/classes"
-               debug="true"
+        <javac release="8"
+               destdir="build/test-syscache/2/classes"
+               debug="${compile.debug}"
                debuglevel="lines,vars,source"
                includeantruntime="false"
                classpathref="xmlbeans-test"
                srcdir="build/test-syscache/2/generated-sources"
                target="${jdk.version.class}"
-               source="${jdk.version.source}"
-        >
+               source="${jdk.version.source}">
             <classpath location="build/test-syscache/2/generated-resources"/>
         </javac>
     </target>
@@ -530,6 +568,7 @@
             <fileset dir="build/classes" excludes="org/apache/xmlbeans/impl/schema/TypeSystemHolder.template"/>
             <fileset dir="." includes="LICENSE.txt,NOTICE.txt"/>
             <fileset dir="build/generated-resources"/>
+            <zipfileset dir="src/main/multimodule/java9" prefix="META-INF/versions/9" excludes="*.java"/>
             <mappedresources>
                 <fileset dir="src/main/resources" excludes="maven"/>
                 <cutdirsmapper dirs="1"/>
