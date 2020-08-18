@@ -766,7 +766,7 @@
 
     <!-- forbidden-apis-check is currently not included as it is still failing... -->
     <target name="jenkins"
-            depends="test,package,rat-check"
+            depends="test,package,rat-check,findbugs"
             description="Combines all targets that are executed in CI runs"/>
 
 
