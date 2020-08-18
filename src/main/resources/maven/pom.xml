@@ -69,36 +69,6 @@
 
     <developers>
         <developer>
-            <name>Cezar Andrei</name>
-            <id>cezar</id>
-            <email>cezar.andrei@no#spam#!gma|l.com</email>
-            <organization></organization>
-        </developer>
-        <developer>
-            <name>Radu Preotiuc</name>
-            <id>radup</id>
-            <email>radupr@nos#pam.gm@il.com</email>
-            <organization></organization>
-        </developer>
-        <developer>
-            <name>Radu Preotiuc</name>
-            <id>radup</id>
-            <email>radu.preotiuc-pietro@nos#pam.bea.com</email>
-            <organization></organization>
-        </developer>
-        <developer>
-            <name>Wing Yew Poon</name>
-            <id>wpoon</id>
-            <email>wing-yew.poon@nos#pam.oracle.com</email>
-            <organization></organization>
-        </developer>
-        <developer>
-            <name>Jacob Danner</name>
-            <id>jdanner</id>
-            <email>jacob.danner@nos#pam.oracle.com</email>
-            <organization></organization>
-        </developer>
-        <developer>
             <name>POI Team</name>
             <id>poi</id>
             <email>user@poi.apache.org</email>
@@ -113,6 +83,27 @@
             <version>10.1</version>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>com.github.javaparser</groupId>
+            <artifactId>javaparser-core</artifactId>
+            <version>3.16.1</version>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 
+    <profiles>
+        <profile>
+            <id>java8</id>
+            <activation>
+                <jdk>1.8</jdk>
+            </activation>
+            <dependencies>
+                <dependency>
+                    <groupId>xml-apis</groupId>
+                    <artifactId>xml-apis</artifactId>
+                    <version>1.4.01</version>
+                </dependency>
+            </dependencies>
+        </profile>
+    </profiles>
 </project>

@@ -30,7 +30,7 @@
     <property environment="ENV"/>
 
     <condition property="isJava8">
-        <equals arg1="${ant.java.version}" arg2="1.8"/>
+        <javaversion exactly="1.8"/>
     </condition>
 
     <macrodef name="dependency">
@@ -102,7 +102,7 @@
     <dependency prefix="xml-apis" artifact="xml-apis:xml-apis:1.4.01" usage="java8"/>
     <dependency prefix="saxon" artifact="net.sf.saxon:Saxon-HE:10.1" usage="main"/>
     <dependency prefix="ant" artifact="org.apache.ant:ant:1.10.8" usage="main"/>
-    <dependency prefix="javaparser.core" artifact="com.github.javaparser:javaparser-core:3.15.21" usage="main"/>
+    <dependency prefix="javaparser.core" artifact="com.github.javaparser:javaparser-core:3.16.1" usage="main"/>
 
     <!-- previous xmlbeans version is used to bootstrap necessary schema bindings -->
     <dependency prefix="old.xmlbeans" artifact="org.apache.xmlbeans:xmlbeans:3.1.0" usage="previous"/>
@@ -111,10 +111,10 @@
     <property name="rat.reportdir" value="build/rat"/>
     <property name="rat.report" value="${rat.reportdir}/report.txt"/>
 
-    <dependency prefix="rat" artifact="org.apache.rat:apache-rat:0.12" usage="util"/>
+    <dependency prefix="rat" artifact="org.apache.rat:apache-rat:0.13" usage="util"/>
 
     <!-- api checks -->
-    <dependency prefix="forbidden" artifact="de.thetaphi:forbiddenapis:2.6" usage="util"/>
+    <dependency prefix="forbidden" artifact="de.thetaphi:forbiddenapis:3.0.1" usage="util"/>
 
     <!-- test dependencies -->
     <dependency prefix="junit" artifact="junit:junit:4.13" usage="tests"/>
@@ -160,6 +160,8 @@
         <!-- remove previous versions of third-party jars to prevent them from lingering around,
             we often had hard-to-find build/CI-problems because of these! -->
         <delete dir="compile-lib"/>
+        <delete dir="lib/main" includes="javaparser-core-3.15.21.jar"/>
+        <delete dir="lib/util" includes="forbiddenapis-2.6.jar,apache-rat-0.12.jar"/>
         <condition property="jars.present">
             <or>
                 <and>
@@ -738,11 +740,16 @@
             <path path="${ant.jar}"/>
         </path>
 
+        <!-- forbiddenapis bundled signatures max supported version is 14 -->
+        <condition property="forbiddenVersion" value="14">
+            <javaversion atleast="15"/>
+        </condition>
+        <property name="forbiddenVersion" value="${ant.java.version}"/>
 
         <!-- first check rules that apply to all the source code -->
         <forbiddenapis
                 suppressAnnotation="org.apache.poi.util.SuppressForbidden"
-                targetVersion="${ant.build.javac.target}"
+                targetVersion="${forbiddenVersion}"
                 classpathref="forbiddenapis.classpath"
         >
             <bundledsignatures name="jdk-unsafe"/>
@@ -775,7 +782,7 @@
     </target>
 
     <target name="mvn-install" depends="maven.ant.tasks-check,package" description="Install XmlBeans artifacts into the local repository. Equivalent of 'mvn install'">
-        <copy file="${basedir}/main/resources/maven/pom.xml" todir="${basedir}/build" filtering="true">
+        <copy file="${basedir}/src/main/resources/maven/pom.xml" todir="${basedir}/build" filtering="true">
             <filterset>
                 <filter token="VERSION" value="${version.base}"/>
             </filterset>
@@ -787,4 +794,113 @@
             <attach file="${basedir}/build/xmlbeans-${version.base}-javadoc.jar" type="jar" classifier="javadoc"/>
         </mvn:install>
     </target>
+
+
+
+    <!-- disabling findbugs until jenkins is updated to a current IBM JDK
+         see https://stackoverflow.com/a/48561534/2066598
+         this should be replaced by spotbugs when available in the jenkins warnings plugin -->
+    <target name="findbugs" depends="package">
+        <property name="spotbugs.home" value="build/findbugs" />
+        <property name="spotbugs.lib" value="/build/findbugs/lib" />
+
+        <!-- findbugs successor, spotbugs ... need to use the dependencies used in the spotbugs release. -->
+        <!-- compare with the entries found in the MANIFEST.MF of spotbugs.jar -->
+        <dependency prefix="spotbugs" artifact="com.github.spotbugs:spotbugs:4.0.2" usage="${spotbugs.lib}" target="spotbugs.jar"/>
+        <dependency prefix="spotbugs-ant" artifact="com.github.spotbugs:spotbugs-ant:4.0.2" usage="${spotbugs.lib}" target="spotbugs-ant.jar"/>
+        <dependency prefix="spotbugs-anno" artifact="com.github.spotbugs:spotbugs-annotations:4.0.2" usage="${spotbugs.lib}" target="spotbugs-annotations.jar"/>
+        <dependency prefix="spotbugs.asm" artifact="org.ow2.asm:asm:8.0.1" usage="${spotbugs.lib}"/>
+        <dependency prefix="spotbugs.asm-analysis" artifact="org.ow2.asm:asm-analysis:8.0.1" usage="${spotbugs.lib}"/>
+        <dependency prefix="spotbugs.asm-commons" artifact="org.ow2.asm:asm-commons:8.0.1" usage="${spotbugs.lib}"/>
+        <dependency prefix="spotbugs.asm-tree" artifact="org.ow2.asm:asm-tree:8.0.1" usage="${spotbugs.lib}"/>
+        <dependency prefix="spotbugs.asm-util" artifact="org.ow2.asm:asm-util:8.0.1" usage="${spotbugs.lib}"/>
+        <dependency prefix="spotbugs.jsr305" artifact="com.google.code.findbugs:jsr305:3.0.2" usage="${spotbugs.lib}"/>
+        <dependency prefix="spotbugs.dom4j" artifact="org.dom4j:dom4j:2.1.1" usage="${spotbugs.lib}"/>
+        <dependency prefix="spotbugs.jaxen" artifact="jaxen:jaxen:1.1.6" usage="${spotbugs.lib}"/>
+        <dependency prefix="spotbugs.bcel" artifact="org.apache.bcel:bcel:6.4.1" usage="${spotbugs.lib}"/>
+        <dependency prefix="spotbugs.slf4j-api" artifact="org.slf4j:slf4j-api:1.8.0-beta4" usage="${spotbugs.lib}"/>
+        <dependency prefix="spotbugs.commons-lang3" artifact="org.apache.commons:commons-lang3:3.10" usage="${spotbugs.lib}"/>
+        <dependency prefix="spotbugs.commons-text" artifact="org.apache.commons:commons-text:1.8" usage="${spotbugs.lib}"/>
+        <dependency prefix="spotbugs.jcip-annotations" artifact="net.jcip:jcip-annotations:1.0" usage="${spotbugs.lib}"/>
+        <dependency prefix="spotbugs.icu4j" artifact="com.ibm.icu:icu4j:63.2" usage="${spotbugs.lib}" target="icu4j-63.1.jar"/>
+        <dependency prefix="spotbugs.log4j-api" artifact="org.apache.logging.log4j:log4j-api:2.13.1" usage="${spotbugs.lib}"/>
+        <dependency prefix="spotbugs.log4j-core" artifact="org.apache.logging.log4j:log4j-core:2.13.1" usage="${spotbugs.lib}"/>
+        <dependency prefix="spotbugs.log4j-slf4j18-impl" artifact="org.apache.logging.log4j:log4j-slf4j18-impl:2.13.1" usage="${spotbugs.lib}"/>
+        <dependency prefix="spotbugs.saxon" artifact="net.sf.saxon:Saxon-HE:9.9.1-2" usage="${spotbugs.lib}"/>
+
+        <mkdir dir="${basedir}${spotbugs.lib}/config"/>
+
+        <downloadfile src="${spotbugs.url}" dest="${spotbugs.jar}"/>
+        <downloadfile src="${spotbugs-ant.url}" dest="${spotbugs-ant.jar}"/>
+        <downloadfile src="${spotbugs-anno.url}" dest="${spotbugs-anno.jar}"/>
+        <downloadfile src="${spotbugs.dom4j.url}" dest="${spotbugs.dom4j.jar}"/>
+        <downloadfile src="${spotbugs.jaxen.url}" dest="${spotbugs.jaxen.jar}"/>
+        <downloadfile src="${spotbugs.bcel.url}" dest="${spotbugs.bcel.jar}"/>
+        <downloadfile src="${spotbugs.slf4j-api.url}" dest="${spotbugs.slf4j-api.jar}"/>
+        <downloadfile src="${spotbugs.commons-lang3.url}" dest="${spotbugs.commons-lang3.jar}"/>
+        <downloadfile src="${spotbugs.commons-text.url}" dest="${spotbugs.commons-text.jar}"/>
+        <downloadfile src="${spotbugs.jcip-annotations.url}" dest="${spotbugs.jcip-annotations.jar}"/>
+        <downloadfile src="${spotbugs.jsr305.url}" dest="${spotbugs.jsr305.jar}"/>
+        <downloadfile src="${spotbugs.asm.url}" dest="${spotbugs.asm.jar}"/>
+        <downloadfile src="${spotbugs.asm-analysis.url}" dest="${spotbugs.asm-analysis.jar}"/>
+        <downloadfile src="${spotbugs.asm-commons.url}" dest="${spotbugs.asm-commons.jar}"/>
+        <downloadfile src="${spotbugs.asm-tree.url}" dest="${spotbugs.asm-tree.jar}"/>
+        <downloadfile src="${spotbugs.asm-util.url}" dest="${spotbugs.asm-util.jar}"/>
+        <downloadfile src="${spotbugs.log4j-api.url}" dest="${spotbugs.log4j-api.jar}"/>
+        <downloadfile src="${spotbugs.log4j-core.url}" dest="${spotbugs.log4j-core.jar}"/>
+        <downloadfile src="${spotbugs.log4j-slf4j18-impl.url}" dest="${spotbugs.log4j-slf4j18-impl.jar}"/>
+        <downloadfile src="${spotbugs.saxon.url}" dest="${spotbugs.saxon.jar}"/>
+        <downloadfile src="${spotbugs.icu4j.url}" dest="${spotbugs.icu4j.jar}"/>
+
+        <taskdef resource="edu/umd/cs/findbugs/anttask/tasks.properties">
+            <classpath>
+                <pathelement location="${spotbugs-ant.jar}"/>
+            </classpath>
+        </taskdef>
+
+        <echo file="${basedir}${spotbugs.lib}/config/log4j2.xml"><![CDATA[<?xml version="1.0" encoding="UTF-8"?>
+            <Configuration status="WARN">
+                <Appenders>
+                    <Console name="Console" target="SYSTEM_OUT">
+                        <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
+                    </Console>
+                </Appenders>
+                <Loggers>
+                    <Root level="error">
+                        <AppenderRef ref="Console"/>
+                    </Root>
+                </Loggers>
+            </Configuration>
+        ]]></echo>
+
+        <spotbugs home="${spotbugs.home}"
+                  output="xml:withMessages"
+                  outputFile="build/findbugs.xml"
+                  effort="max"
+                  failOnError="true">
+            <fileset dir="build">
+                <include name="xmlbeans-4.0.0.jar"/>
+            </fileset>
+            <auxClasspath path="${xml-apis.jar}"/>
+            <auxClasspath path="${saxon.jar}"/>
+            <auxClasspath path="${ant.jar}"/>
+            <auxClasspath path="${javaparser.core.jar}"/>
+            <sourcePath path="src/main/java" />
+        </spotbugs>
+
+        <!-- instead of calling findbugs again, we simply transform the xml -->
+        <makeurl file="${basedir}${spotbugs.lib}/spotbugs.jar" property="findbugs.jarurl"/>
+        <!-- although there's a findbugs history task too, it doesn't make much sense to provide it, -->
+        <!-- as the build directory (i.e. the old findbugs.xml) is deleted regularly -->
+        <xslt basedir="build" destdir="build" includes="findbugs.xml" force="true">
+            <style>
+                <url url="jar:${findbugs.jarurl}!/fancy.xsl"/>
+            </style>
+            <classpath>
+                <pathelement location="${spotbugs.saxon.jar}"/>
+            </classpath>
+            <factory name="net.sf.saxon.TransformerFactoryImpl"/>
+        </xslt>
+    </target>
+
 </project>
