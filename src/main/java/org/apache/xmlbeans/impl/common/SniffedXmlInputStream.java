@@ -15,43 +15,34 @@
 
 package org.apache.xmlbeans.impl.common;
 
-import java.io.InputStream;
-import java.io.BufferedInputStream;
-import java.io.IOException;
-import java.io.ByteArrayInputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
+import java.io.*;
 import java.nio.charset.Charset;
 
-public class SniffedXmlInputStream extends BufferedInputStream
-{
+public class SniffedXmlInputStream extends BufferedInputStream {
     // We don't sniff more than 192 bytes.
-    public static int MAX_SNIFFED_BYTES = 192;
+    public static final int MAX_SNIFFED_BYTES = 192;
 
-    public SniffedXmlInputStream(InputStream stream) throws IOException
-    {
+    public SniffedXmlInputStream(InputStream stream) throws IOException {
         super(stream);
 
         // read byte order marks and detect EBCDIC etc
         _encoding = sniffFourBytes();
 
-        if (_encoding != null && _encoding.equals("IBM037"))
-        {
+        if (_encoding != null && _encoding.equals("IBM037")) {
             // First four bytes suggest EBCDIC with <?xm at start
             String encoding = sniffForXmlDecl(_encoding);
-            if (encoding != null)
+            if (encoding != null) {
                 _encoding = encoding;
+            }
         }
 
-        if (_encoding == null)
-        {
+        if (_encoding == null) {
             // Haven't yet determined encoding: sniff for <?xml encoding="..."?>
             // assuming we can read it as UTF-8.
             _encoding = sniffForXmlDecl("UTF-8");
         }
 
-        if (_encoding == null)
-        {
+        if (_encoding == null) {
             // The XML spec says these two things:
 
             // (1) "In the absence of external character encoding information
@@ -81,56 +72,54 @@ public class SniffedXmlInputStream extends BufferedInputStream
         }
     }
 
-    private int readAsMuchAsPossible(byte[] buf, int startAt, int len) throws IOException
-    {
+    private int readAsMuchAsPossible(byte[] buf, int startAt, int len) throws IOException {
         int total = 0;
-        while (total < len)
-        {
+        while (total < len) {
             int count = read(buf, startAt + total, len - total);
-            if (count < 0)
+            if (count < 0) {
                 break;
+            }
             total += count;
         }
         return total;
     }
 
-    private String sniffFourBytes() throws IOException
-    {
+    private String sniffFourBytes() throws IOException {
         mark(4);
         int skip = 0;
-        try
-        {
+        try {
             byte[] buf = new byte[4];
-            if (readAsMuchAsPossible(buf, 0, 4) < 4)
+            if (readAsMuchAsPossible(buf, 0, 4) < 4) {
                 return null;
+            }
             long result = 0xFF000000 & (buf[0] << 24) | 0x00FF0000 & (buf[1] << 16) | 0x0000FF00 & (buf[2] << 8) | 0x000000FF & buf[3];
 
-            if (result == 0x0000FEFF)
+            if (result == 0x0000FEFF) {
                 return "UCS-4";
-            else if (result == 0xFFFE0000)
+            } else if (result == 0xFFFE0000) {
                 return "UCS-4";
-            else if (result == 0x0000003C)
+            } else if (result == 0x0000003C) {
                 return "UCS-4BE";
-            else if (result == 0x3C000000)
+            } else if (result == 0x3C000000) {
                 return "UCS-4LE";
-            else if (result == 0x003C003F)
+            } else if (result == 0x003C003F) {
                 return "UTF-16BE";
-            else if (result == 0x3C003F00)
+            } else if (result == 0x3C003F00) {
                 return "UTF-16LE";
-            else if (result == 0x3C3F786D)
+            } else if (result == 0x3C3F786D) {
                 return null; // looks like US-ASCII with <?xml: sniff
-            else if (result == 0x4C6FA794)
+            } else if (result == 0x4C6FA794) {
                 return "IBM037"; // Sniff for ebdic codepage
-            else if ((result & 0xFFFF0000) == 0xFEFF0000)
+            } else if ((result & 0xFFFF0000) == 0xFEFF0000) {
                 return "UTF-16";
-            else if ((result & 0xFFFF0000) == 0xFFFE0000)
+            } else if ((result & 0xFFFF0000) == 0xFFFE0000) {
                 return "UTF-16";
-            else if ((result & 0xFFFFFF00) == 0xEFBBBF00)
+            } else if ((result & 0xFFFFFF00) == 0xEFBBBF00) {
                 return "UTF-8";
-            else return null;
-        }
-        finally
-        {
+            } else {
+                return null;
+            }
+        } finally {
             reset();
         }
     }
@@ -147,11 +136,9 @@ public class SniffedXmlInputStream extends BufferedInputStream
     private static Charset dummy7 = Charset.forName("Cp1252");
 
 
-    private String sniffForXmlDecl(String encoding) throws IOException
-    {
+    private String sniffForXmlDecl(String encoding) throws IOException {
         mark(MAX_SNIFFED_BYTES);
-        try
-        {
+        try {
             byte[] bytebuf = new byte[MAX_SNIFFED_BYTES];
             int bytelimit = readAsMuchAsPossible(bytebuf, 0, MAX_SNIFFED_BYTES);
 
@@ -160,63 +147,56 @@ public class SniffedXmlInputStream extends BufferedInputStream
             Reader reader = new InputStreamReader(new ByteArrayInputStream(bytebuf, 0, bytelimit), charset);
             char[] buf = new char[bytelimit];
             int limit = 0;
-            while (limit < bytelimit)
-            {
+            while (limit < bytelimit) {
                 int count = reader.read(buf, limit, bytelimit - limit);
-                if (count < 0)
+                if (count < 0) {
                     break;
+                }
                 limit += count;
             }
 
             return extractXmlDeclEncoding(buf, 0, limit);
-        }
-        finally
-        {
+        } finally {
             reset();
         }
     }
 
     private String _encoding;
 
-    public String getXmlEncoding()
-    {
+    public String getXmlEncoding() {
         return _encoding;
     }
 
-    /* package */ static String extractXmlDeclEncoding(char[] buf, int offset, int size)
-    {
+    /* package */
+    static String extractXmlDeclEncoding(char[] buf, int offset, int size) {
         int limit = offset + size;
         int xmlpi = firstIndexOf("<?xml", buf, offset, limit);
-        if (xmlpi >= 0)
-        {
+        if (xmlpi >= 0) {
             int i = xmlpi + 5;
             ScannedAttribute attr = new ScannedAttribute();
-            while (i < limit)
-            {
+            while (i < limit) {
                 i = scanAttribute(buf, i, limit, attr);
-                if (i < 0)
+                if (i < 0) {
                     return null;
-                if (attr.name.equals("encoding"))
+                }
+                if (attr.name.equals("encoding")) {
                     return attr.value;
+                }
             }
         }
         return null;
     }
 
-    private static int firstIndexOf(String s, char[] buf, int startAt, int limit)
-    {
-        assert(s.length() > 0);
+    private static int firstIndexOf(String s, char[] buf, int startAt, int limit) {
+        assert (s.length() > 0);
         char[] lookFor = s.toCharArray();
 
         char firstchar = lookFor[0];
-        searching: for (limit -= lookFor.length; startAt < limit; startAt++)
-        {
-            if (buf[startAt] == firstchar)
-            {
-                for (int i = 1; i < lookFor.length; i++)
-                {
-                    if (buf[startAt + i] != lookFor[i])
-                    {
+        searching:
+        for (limit -= lookFor.length; startAt < limit; startAt++) {
+            if (buf[startAt] == firstchar) {
+                for (int i = 1; i < lookFor.length; i++) {
+                    if (buf[startAt + i] != lookFor[i]) {
                         continue searching;
                     }
                 }
@@ -227,68 +207,75 @@ public class SniffedXmlInputStream extends BufferedInputStream
         return -1;
     }
 
-    private static int nextNonmatchingByte(char[] lookFor, char[] buf, int startAt, int limit)
-    {
-        searching: for (; startAt < limit; startAt++)
-        {
+    private static int nextNonmatchingByte(char[] lookFor, char[] buf, int startAt, int limit) {
+        searching:
+        for (; startAt < limit; startAt++) {
             int thischar = buf[startAt];
-            for (int i = 0; i < lookFor.length; i++)
-                if (thischar == lookFor[i])
+            for (int i = 0; i < lookFor.length; i++) {
+                if (thischar == lookFor[i]) {
                     continue searching;
+                }
+            }
             return startAt;
         }
         return -1;
     }
 
-    private static int nextMatchingByte(char[] lookFor, char[] buf, int startAt, int limit)
-    {
-        searching: for (; startAt < limit; startAt++)
-        {
+    private static int nextMatchingByte(char[] lookFor, char[] buf, int startAt, int limit) {
+        searching:
+        for (; startAt < limit; startAt++) {
             int thischar = buf[startAt];
-            for (int i = 0; i < lookFor.length; i++)
-                if (thischar == lookFor[i])
+            for (int i = 0; i < lookFor.length; i++) {
+                if (thischar == lookFor[i]) {
                     return startAt;
+                }
+            }
         }
         return -1;
     }
 
-    private static int nextMatchingByte(char lookFor, char[] buf, int startAt, int limit)
-    {
-        searching: for (; startAt < limit; startAt++)
-        {
-            if (buf[startAt] == lookFor)
+    private static int nextMatchingByte(char lookFor, char[] buf, int startAt, int limit) {
+        searching:
+        for (; startAt < limit; startAt++) {
+            if (buf[startAt] == lookFor) {
                 return startAt;
+            }
         }
         return -1;
     }
-    private static char[] WHITESPACE = new char[] { ' ', '\r', '\t', '\n' };
-    private static char[] NOTNAME = new char[] { '=', ' ', '\r', '\t', '\n', '?', '>', '<', '\'', '\"' };
 
-    private static class ScannedAttribute
-    {
+    private static char[] WHITESPACE = new char[]{' ', '\r', '\t', '\n'};
+    private static char[] NOTNAME = new char[]{'=', ' ', '\r', '\t', '\n', '?', '>', '<', '\'', '\"'};
+
+    private static class ScannedAttribute {
         public String name;
         public String value;
     }
 
-    private static int scanAttribute(char[] buf, int startAt, int limit, ScannedAttribute attr)
-    {
+    private static int scanAttribute(char[] buf, int startAt, int limit, ScannedAttribute attr) {
         int nameStart = nextNonmatchingByte(WHITESPACE, buf, startAt, limit);
-        if (nameStart < 0)
+        if (nameStart < 0) {
             return -1;
+        }
         int nameEnd = nextMatchingByte(NOTNAME, buf, nameStart, limit);
-        if (nameEnd < 0)
+        if (nameEnd < 0) {
             return -1;
+        }
         int equals = nextNonmatchingByte(WHITESPACE, buf, nameEnd, limit);
-        if (equals < 0)
+        if (equals < 0) {
             return -1;
-        if (buf[equals] != '=')
+        }
+        if (buf[equals] != '=') {
             return -1;
+        }
         int valQuote = nextNonmatchingByte(WHITESPACE, buf, equals + 1, limit);
-        if (buf[valQuote] != '\'' && buf[valQuote] != '\"')
+        if (buf[valQuote] != '\'' && buf[valQuote] != '\"') {
             return -1;
+        }
         int valEndquote = nextMatchingByte(buf[valQuote], buf, valQuote + 1, limit);
-        if (valEndquote < 0)
+        if (valEndquote < 0) {
             return -1;
+        }
         attr.name = new String(buf, nameStart, nameEnd - nameStart);
         attr.value = new String(buf, valQuote + 1, valEndquote - valQuote - 1);
         return valEndquote + 1;

@@ -16,19 +16,19 @@ package org.apache.xmlbeans;
 
 /**
  * Represents a CDATA bookmark.<p>
- *
+ * <p>
  * When XmlOption UseCDataBookmarks is setted on parse methods,
  * the loader will set these CDataBookmarks in the store on the respective
  * TEXT fields that were represented as CDATA.<p>
- *
+ * <p>
  * Users can modify the 'look' of TEXT fields, by annotating them with
  * this bookmark, or remove the bookmark.<p>
- *
+ * <p>
  * Additionaly if setted on save methods, the output will look for these
  * bookmarks and will output the text as CDATA.
  * Note: The SaveCDataEntityCountThreshold and SaveCDataLengthThreshold
  * options and their default values still apply.<p>
- *
+ * <p>
  * Note: Due to the store representation, a CDATA will not be recognized
  * if it is imediately after non CDATA text and all text following it will
  * be considered CDATA.<br>
@@ -42,17 +42,14 @@ package org.apache.xmlbeans;
  * @see XmlOptions#setUseCDataBookmarks()
  * @see org.apache.xmlbeans.XmlObject.Factory#parse(String, XmlOptions)
  * @see org.apache.xmlbeans.XmlObject#save(java.io.OutputStream, XmlOptions)
- * @see XmlOptions#setSaveCDataEntityCountThreshold(int) 
+ * @see XmlOptions#setSaveCDataEntityCountThreshold(int)
  * @see XmlOptions#setSaveCDataLengthThreshold(int)
- * @author Cezar Andrei  (cezar dot andrei at gmail dot com)
  */
-public class CDataBookmark
-   extends XmlCursor.XmlBookmark
-{
+public class CDataBookmark extends XmlCursor.XmlBookmark {
     /**
      * The actual bookmark object representing CData.<br>
      * Users must use this bookmark in addition to UseCDataBookmarks
      * option to make use of CDATA representation in XML text.
      */
-    public static CDataBookmark CDATA_BOOKMARK = new CDataBookmark();
+    public static final CDataBookmark CDATA_BOOKMARK = new CDataBookmark();
 }

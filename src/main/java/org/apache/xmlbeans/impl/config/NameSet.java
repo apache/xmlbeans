@@ -18,63 +18,60 @@
  */
 package org.apache.xmlbeans.impl.config;
 
-import java.util.Set;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Set;
 
 /**
- * Reprezents a non finite set of names.
+ * Represents a non finite set of names.
+ *
  * @see NameSetBuilder
  */
-public class NameSet
-{
+public class NameSet {
     /**
      * An empty NameSet, it doesn't contain any name
      */
-    public static NameSet EMPTY = new NameSet(true, Collections.EMPTY_SET);
+    public static final NameSet EMPTY = new NameSet(true, Collections.EMPTY_SET);
     /**
      * The NameSet that contains any name
      */
-    public static NameSet EVERYTHING = new NameSet(false, Collections.EMPTY_SET);
+    public static final NameSet EVERYTHING = new NameSet(false, Collections.EMPTY_SET);
 
     /*
     There are two big cases:
-    1) - it reprezents "*", ie all except a finite set of names: _isFinite==false
-    2) - if reprezents only a finite set of names: _isFinite==true
+    1) - it represents "*", ie all except a finite set of names: _isFinite==false
+    2) - if represents only a finite set of names: _isFinite==true
     */
     private boolean _isFinite;
-    private Set _finiteSet;
+    private Set<String> _finiteSet;
 
-    private NameSet(boolean isFinite, Set finiteSet)
-    {
+    private NameSet(boolean isFinite, Set<String> finiteSet) {
         _isFinite = isFinite;
         _finiteSet = finiteSet;
     }
 
-    static NameSet newInstance(boolean isFinite, Set finiteSet)
-    {
-        if ( finiteSet.size()==0 )
-            if ( isFinite )
+    static NameSet newInstance(boolean isFinite, Set<String> finiteSet) {
+        if (finiteSet.size() == 0) {
+            if (isFinite) {
                 return NameSet.EMPTY;
-            else
+            } else {
                 return NameSet.EVERYTHING;
-        else
-        {
-            Set fs = new HashSet();
+            }
+        } else {
+            Set<String> fs = new HashSet<>();
             fs.addAll(finiteSet);
             return new NameSet(isFinite, fs);
         }
     }
 
-    private static Set intersectFiniteSets(Set a, Set b)
-    {
-        Set intersection = new HashSet();
+    private static Set<String> intersectFiniteSets(Set<String> a, Set<String> b) {
+        Set<String> intersection = new HashSet<>();
         //compute the intersection of _finiteSet with withSet
-        while (a.iterator().hasNext())
-        {
+        while (a.iterator().hasNext()) {
             String name = (String) a.iterator().next();
-            if (b.contains(name))
+            if (b.contains(name)) {
                 intersection.add(name);
+            }
         }
         return intersection;
     }
@@ -82,36 +79,26 @@ public class NameSet
     /**
      * Returns the union of this NameSet with the 'with' NameSet.
      */
-    public NameSet union(NameSet with)
-    {
-        if (_isFinite)
-        {
-            if (with._isFinite)
-            {
-                Set union = new HashSet();
+    public NameSet union(NameSet with) {
+        if (_isFinite) {
+            if (with._isFinite) {
+                Set<String> union = new HashSet<>();
                 union.addAll(_finiteSet);
                 union.addAll(with._finiteSet);
                 return newInstance(true, union);
-            }
-            else
-            {
-                Set subst = new HashSet();
+            } else {
+                Set<String> subst = new HashSet<>();
                 subst.addAll(with._finiteSet);
                 subst.removeAll(_finiteSet);
                 return newInstance(false, subst);
             }
-        }
-        else
-        {
-            if (with._isFinite)
-            {
-                Set subst = new HashSet();
+        } else {
+            if (with._isFinite) {
+                Set<String> subst = new HashSet<>();
                 subst.addAll(_finiteSet);
                 subst.removeAll(with._finiteSet);
                 return newInstance(false, subst);
-            }
-            else
-            {
+            } else {
                 return newInstance(false, intersectFiniteSets(_finiteSet, with._finiteSet));
             }
         }
@@ -120,34 +107,24 @@ public class NameSet
     /**
      * Returns the intersection of this NameSet with the 'with' NameSet
      */
-    public NameSet intersect(NameSet with)
-    {
-        if (_isFinite)
-        {
-            if (with._isFinite)
-            {
+    public NameSet intersect(NameSet with) {
+        if (_isFinite) {
+            if (with._isFinite) {
                 return newInstance(true, intersectFiniteSets(_finiteSet, with._finiteSet));
-            }
-            else
-            {
-                Set subst = new HashSet();
+            } else {
+                Set<String> subst = new HashSet<>();
                 subst.addAll(_finiteSet);
                 subst.removeAll(with._finiteSet);
                 return newInstance(false, subst);
             }
-        }
-        else
-        {
-            if (with._isFinite)
-            {
-                Set subst = new HashSet();
+        } else {
+            if (with._isFinite) {
+                Set<String> subst = new HashSet<>();
                 subst.addAll(with._finiteSet);
                 subst.removeAll(_finiteSet);
                 return newInstance(true, subst);
-            }
-            else
-            {
-                Set union = new HashSet();
+            } else {
+                Set<String> union = new HashSet<>();
                 union.addAll(_finiteSet);
                 union.addAll(with._finiteSet);
                 return newInstance(false, union);
@@ -157,48 +134,39 @@ public class NameSet
 
     /**
      * Returns the result of substracting this NameSet from 'from' NameSet
+     *
      * @see NameSet#substract
      */
-    public NameSet substractFrom(NameSet from)
-    {
+    public NameSet substractFrom(NameSet from) {
         return from.substract(this);
     }
 
     /**
      * Returns the result of substracting 'what' NameSet from this NameSet
+     *
      * @see NameSet#substractFrom
      */
-    public NameSet substract(NameSet what)
-    {
-        if (_isFinite)
-        {
-            if ( what._isFinite )
-            {
+    public NameSet substract(NameSet what) {
+        if (_isFinite) {
+            if (what._isFinite) {
                 // it's the subst of _finiteSet with what._finiteSet
-                Set subst = new HashSet();
+                Set<String> subst = new HashSet<>();
                 subst.addAll(_finiteSet);
                 subst.removeAll(what._finiteSet);
                 return newInstance(true, subst);
-            }
-            else
-            {
+            } else {
                 return newInstance(true, intersectFiniteSets(_finiteSet, what._finiteSet));
             }
-        }
-        else
-        {
-            if ( what._isFinite )
-            {
+        } else {
+            if (what._isFinite) {
                 // it's the union of _finiteSet with what._finiteSet
-                Set union = new HashSet();
+                Set<String> union = new HashSet<>();
                 union.addAll(_finiteSet);
                 union.addAll(what._finiteSet);
                 return newInstance(false, union);
-            }
-            else
-            {
+            } else {
                 // what's in thisSet and it's not in whatSet
-                Set subst = new HashSet();
+                Set<String> subst = new HashSet<>();
                 subst.addAll(what._finiteSet);
                 subst.removeAll(_finiteSet);
                 return newInstance(true, subst);
@@ -209,16 +177,15 @@ public class NameSet
     /**
      * Returns an inversion of this NameSet
      */
-    public NameSet invert()
-    {
+    public NameSet invert() {
         return newInstance(!_isFinite, _finiteSet);
     }
 
-    public boolean contains(String name)
-    {
-        if (_isFinite)
+    public boolean contains(String name) {
+        if (_isFinite) {
             return _finiteSet.contains(name);
-        else
+        } else {
             return !_finiteSet.contains(name);
+        }
     }
 }

@@ -18,25 +18,16 @@
  */
 package org.apache.xmlbeans.impl.config;
 
-import java.util.Set;
 import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Used to build {@link NameSet NameSets}.
  */
 public class NameSetBuilder
 {
-    private boolean _isFinite;
-    private Set _finiteSet;
-
-    /**
-     * Creates an empty builder for a NameSet.
-     */
-    public NameSetBuilder()
-    {
-        _isFinite = true;
-        _finiteSet = new HashSet();
-    }
+    private boolean _isFinite = true;
+    private final Set<String> _finiteSet = new HashSet<>();
 
     /**
      * Inverts the representing NameSet
@@ -50,26 +41,28 @@ public class NameSetBuilder
      * Adds a name to the representing NameSet
      * @param name
      */
-    public void add(String name)
-    {
-        if (_isFinite )
+    public void add(String name) {
+        if (_isFinite) {
             _finiteSet.add(name);
-        else
+        } else {
             _finiteSet.remove(name);
+        }
     }
 
     /**
      * Creates a new NameSet with the current state.
+     *
      * @return created NameSet
      */
-    public NameSet toNameSet()
-    {
-        if ( _finiteSet.size()==0 )
-            if ( _isFinite )
+    public NameSet toNameSet() {
+        if (_finiteSet.size() == 0) {
+            if (_isFinite) {
                 return NameSet.EMPTY;
-            else
+            } else {
                 return NameSet.EVERYTHING;
-        else
+            }
+        } else {
             return NameSet.newInstance(_isFinite, _finiteSet);
+        }
     }
 }

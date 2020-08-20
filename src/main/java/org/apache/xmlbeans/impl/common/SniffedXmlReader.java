@@ -15,30 +15,27 @@
 
 package org.apache.xmlbeans.impl.common;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Reader;
-import java.io.BufferedReader;
 import java.nio.charset.Charset;
 
-public class SniffedXmlReader extends BufferedReader
-{
+public class SniffedXmlReader extends BufferedReader {
     // We don't sniff more than 192 bytes.
-    public static int MAX_SNIFFED_CHARS = 192;
+    public static final int MAX_SNIFFED_CHARS = 192;
 
-    public SniffedXmlReader(Reader reader) throws IOException
-    {
+    public SniffedXmlReader(Reader reader) throws IOException {
         super(reader);
         _encoding = sniffForXmlDecl();
     }
 
-    private int readAsMuchAsPossible(char[] buf, int startAt, int len) throws IOException
-    {
+    private int readAsMuchAsPossible(char[] buf, int startAt, int len) throws IOException {
         int total = 0;
-        while (total < len)
-        {
+        while (total < len) {
             int count = read(buf, startAt + total, len - total);
-            if (count < 0)
+            if (count < 0) {
                 break;
+            }
             total += count;
         }
         return total;
@@ -56,25 +53,20 @@ public class SniffedXmlReader extends BufferedReader
     private static Charset dummy7 = Charset.forName("Cp1252");
 
 
-    private String sniffForXmlDecl() throws IOException
-    {
+    private String sniffForXmlDecl() throws IOException {
         mark(MAX_SNIFFED_CHARS);
-        try
-        {
+        try {
             char[] buf = new char[MAX_SNIFFED_CHARS];
             int limit = readAsMuchAsPossible(buf, 0, MAX_SNIFFED_CHARS);
             return SniffedXmlInputStream.extractXmlDeclEncoding(buf, 0, limit);
-        }
-        finally
-        {
+        } finally {
             reset();
         }
     }
 
     private String _encoding;
 
-    public String getXmlEncoding()
-    {
+    public String getXmlEncoding() {
         return _encoding;
     }
 }
