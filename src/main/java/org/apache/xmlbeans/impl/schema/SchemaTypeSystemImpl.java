@@ -32,6 +32,7 @@ import org.apache.xmlbeans.soap.SchemaWSDLArrayType;
 import javax.xml.namespace.QName;
 import java.io.*;
 import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -406,8 +407,8 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
             copy(in, out);
         } catch (IOException e) {
             // ok
-            }
         }
+    }
 
     private InputStream getHolder() {
         InputStream is = SchemaTypeSystemImpl.class.getResourceAsStream(HOLDER_TEMPLATE_CLASSFILE);
@@ -825,7 +826,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
             // get 128 random bits (that'll be 32 hex digits)
             byte[] bytes = new byte[128 / 8];
             nextBytes(bytes);
-            nameForSystem = "s" + new String(HexBin.encode(bytes));
+            nameForSystem = "s" + new String(HexBin.encode(bytes), StandardCharsets.ISO_8859_1);
         }
 
         _name = SchemaTypeSystemImpl.METADATA_PACKAGE_GEN.replace('/', '.') + ".system." + nameForSystem;

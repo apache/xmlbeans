@@ -16,84 +16,70 @@
 package org.apache.xmlbeans.impl.repackage;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 
-public class EditBuildScript
-{
+public class EditBuildScript {
     //
     // usgae: edit buildfile token new-value
     //
 
-    public static void main ( String[] args )
-        throws Exception
-    {
-        if (args.length != 3)
-            throw new IllegalArgumentException( "Wrong number of arguments" );
+    public static void main(String[] args) throws Exception {
+        if (args.length != 3) {
+            throw new IllegalArgumentException("Wrong number of arguments");
+        }
 
-        args[ 0 ] = args[ 0 ].replace( '/', File.separatorChar );
+        args[0] = args[0].replace('/', File.separatorChar);
 
-        File buildFile = new File( args[ 0 ] );
+        File buildFile = new File(args[0]);
 
-        StringBuffer sb = readFile( buildFile );
+        StringBuffer sb = readFile(buildFile);
 
-        String tokenStr = "<property name=\"" + args[ 1 ] + "\" value=\"";
-                         
-        int i = sb.indexOf( tokenStr );
+        String tokenStr = "<property name=\"" + args[1] + "\" value=\"";
 
-        if (i < 0)
-            throw new IllegalArgumentException( "Can't find token: " + tokenStr );
+        int i = sb.indexOf(tokenStr);
+
+        if (i < 0) {
+            throw new IllegalArgumentException("Can't find token: " + tokenStr);
+        }
 
         int j = i + tokenStr.length();
 
-        while ( sb.charAt( j ) != '"' )
+        while (sb.charAt(j) != '"') {
             j++;
+        }
 
-        sb.replace( i + tokenStr.length(), j, args[ 2 ] );
+        sb.replace(i + tokenStr.length(), j, args[2]);
 
-        writeFile( buildFile, sb );
+        writeFile(buildFile, sb);
     }
-    
-    static StringBuffer readFile ( File f )
-        throws IOException
-    {
-        InputStream in = new FileInputStream( f );
-        Reader r = new InputStreamReader( in );
-        StringWriter w = new StringWriter();
 
-        copy( r, w );
-
-        w.close();
-        r.close();
-        in.close();
-
-        return w.getBuffer();
+    static StringBuffer readFile(File f) throws IOException {
+        try (Reader r = Files.newBufferedReader(f.toPath(), StandardCharsets.ISO_8859_1);
+             StringWriter w = new StringWriter()) {
+            copy(r, w);
+            return w.getBuffer();
+        }
     }
-    
-    static void writeFile ( File f, StringBuffer chars )
-        throws IOException
-    {
-        OutputStream out = new FileOutputStream( f );
-        Writer w = new OutputStreamWriter( out );
-        Reader r = new StringReader( chars.toString() );
 
-        copy( r, w );
-
-        r.close();
-        w.close();
-        out.close();
+    static void writeFile(File f, StringBuffer chars) throws IOException {
+        try (Writer w = Files.newBufferedWriter(f.toPath(), StandardCharsets.ISO_8859_1);
+             Reader r = new StringReader(chars.toString())) {
+            copy(r, w);
+        }
     }
-    
-    static void copy ( Reader r, Writer w ) throws IOException
-    {
-        char[] buffer = new char [ 1024 * 16 ];
 
-        for ( ; ; )
-        {
-            int n = r.read( buffer, 0, buffer.length );
+    static void copy(Reader r, Writer w) throws IOException {
+        char[] buffer = new char[1024 * 16];
 
-            if (n < 0)
+        for (; ; ) {
+            int n = r.read(buffer, 0, buffer.length);
+
+            if (n < 0) {
                 break;
+            }
 
-            w.write( buffer, 0, n );
+            w.write(buffer, 0, n);
         }
     }
 }
