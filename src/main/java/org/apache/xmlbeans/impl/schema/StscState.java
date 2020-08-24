@@ -31,17 +31,44 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.function.Consumer;
 
 /**
  * This class represents the state of the SchemaTypeSystemCompiler as it's
  * going.
  */
 public class StscState {
+    private final static XmlValueRef XMLSTR_PRESERVE = buildString("preserve");
+    private final static XmlValueRef XMLSTR_REPLACE = buildString("preserve");
+    private final static XmlValueRef XMLSTR_COLLAPSE = buildString("preserve");
+
+    static final SchemaType[] EMPTY_ST_ARRAY = new SchemaType[0];
+
+    private static final XmlValueRef[] FACETS_NONE = new XmlValueRef[12];
+    private static final boolean[] FIXED_FACETS_NONE = new boolean[12];
+    private static final boolean[] FIXED_FACETS_WS = new boolean[12];
+
+    private static final XmlValueRef[] FACETS_WS_COLLAPSE = {
+        null, null, null, null, null, null, null, null, null,
+        build_wsstring(SchemaType.WS_COLLAPSE), null, null
+    };
+
+
+    final static XmlValueRef[] FACETS_UNION = FACETS_NONE;
+    final static boolean[] FIXED_FACETS_UNION = FIXED_FACETS_NONE;
+    final static XmlValueRef[] FACETS_LIST = FACETS_WS_COLLAPSE;
+    final static boolean[] FIXED_FACETS_LIST = FIXED_FACETS_WS;
+
+    private static final ThreadLocal<StscStack> tl_stscStack = new ThreadLocal<>();
+
+    private final static String PROJECT_URL_PREFIX = "project://local";
+
+
     private String _givenStsName;
-    private Collection _errorListener;
+    private Collection<XmlError> _errorListener;
     private SchemaTypeSystemImpl _target;
     private BindingConfig _config;
-    private Map _compatMap;
+    private Map<QName, QName> _compatMap;
     private boolean _doingDownloads;
     private byte[] _digest = null;
     private boolean _noDigest = false;
@@ -52,47 +79,45 @@ public class StscState {
 
     private SchemaTypeLoader _importingLoader;
 
-    private Map _containers = new LinkedHashMap();
+    private final Map<String, SchemaContainer> _containers = new LinkedHashMap<>();
     private SchemaDependencies _dependencies;
 
     private Map _redefinedGlobalTypes = new LinkedHashMap();
     private Map _redefinedModelGroups = new LinkedHashMap();
     private Map _redefinedAttributeGroups = new LinkedHashMap();
 
-    private Map _globalTypes = new LinkedHashMap();
-    private Map _globalElements = new LinkedHashMap();
-    private Map _globalAttributes = new LinkedHashMap();
-    private Map _modelGroups = new LinkedHashMap();
-    private Map _attributeGroups = new LinkedHashMap();
-    private Map _documentTypes = new LinkedHashMap();
-    private Map _attributeTypes = new LinkedHashMap();
-    private Map _typesByClassname = new LinkedHashMap();
-    private Map _misspelledNames = new HashMap();
-    private Set _processingGroups = new LinkedHashSet();
-    private Map _idConstraints = new LinkedHashMap();
-    private Set _namespaces = new HashSet();
-    private List _annotations = new ArrayList();
+    private final Map<QName, SchemaType> _globalTypes = new LinkedHashMap<>();
+    private final Map<QName, SchemaGlobalElement> _globalElements = new LinkedHashMap<>();
+    private final Map<QName, SchemaGlobalAttribute> _globalAttributes = new LinkedHashMap<>();
+    private final Map<QName, SchemaModelGroup> _modelGroups = new LinkedHashMap<>();
+    private final Map<QName, SchemaAttributeGroup> _attributeGroups = new LinkedHashMap<>();
+    private final Map<QName, SchemaType> _documentTypes = new LinkedHashMap<>();
+    private final Map<QName, SchemaType> _attributeTypes = new LinkedHashMap<>();
+    private final Map<String, SchemaType> _typesByClassname = new LinkedHashMap<>();
+    private final Map<String, SchemaComponent> _misspelledNames = new HashMap<>();
+    private final Set<SchemaComponent> _processingGroups = new LinkedHashSet<>();
+    private final Map<QName, SchemaIdentityConstraint> _idConstraints = new LinkedHashMap<>();
+    private final Set<String> _namespaces = new HashSet<>();
+    private final List<SchemaAnnotation> _annotations = new ArrayList<>();
     private boolean _noUpa;
     private boolean _noPvr;
     private boolean _noAnn;
     private boolean _mdefAll;
-    private Set _mdefNamespaces = buildDefaultMdefNamespaces();
+    private final Set<String> _mdefNamespaces = buildDefaultMdefNamespaces();
     private EntityResolver _entityResolver;
     private File _schemasDir;
 
-    private static Set buildDefaultMdefNamespaces() {
-        // namespaces which are known to appear in WSDLs redundantly
-        return new HashSet(
-            Arrays.asList(new String[]{
-                "http://www.openuri.org/2002/04/soap/conversation/",
-            }));
-    }
 
-    /**
-     * Used to store the new target namespace for a chameleon
-     * included schema.
-     */
-    public static final Object CHAMELEON_INCLUDE_URI = new Object();
+    private final Map<String, String> _sourceForUri = new HashMap<>();
+    private URI _baseURI = URI.create(PROJECT_URL_PREFIX + "/");
+    private final SchemaTypeLoader _s4sloader = XmlBeans.typeLoaderForClassLoader(SchemaDocument.class.getClassLoader());
+
+
+    private static Set<String> buildDefaultMdefNamespaces() {
+        // namespaces which are known to appear in WSDLs redundantly
+        return new HashSet<>(
+            Collections.singletonList("http://www.openuri.org/2002/04/soap/conversation/"));
+    }
 
     /**
      * Only constructed via StscState.start().
@@ -103,14 +128,14 @@ public class StscState {
     /**
      * Initializer for incremental compilation
      */
-    public void initFromTypeSystem(SchemaTypeSystemImpl system, Set newNamespaces) {
+    public void initFromTypeSystem(SchemaTypeSystemImpl system, Set<String> newNamespaces) {
 //         setGivenTypeSystemName(system.getName().substring(14));
 
         SchemaContainer[] containers = system.containers();
-        for (int i = 0; i < containers.length; i++) {
-            if (!newNamespaces.contains(containers[i].getNamespace())) {
+        for (SchemaContainer container : containers) {
+            if (!newNamespaces.contains(container.getNamespace())) {
                 // Copy data from the given container
-                addContainer(containers[i]);
+                addContainer(container);
             }
         }
     }
@@ -149,76 +174,37 @@ public class StscState {
             _redefinedGlobalTypes.put(name, redefTypes.get(i));
         }
 
-        List globalElems = container.globalElements();
-        for (int i = 0; i < globalElems.size(); i++) {
-            QName name = ((SchemaGlobalElement) globalElems.get(i)).getName();
-            _globalElements.put(name, globalElems.get(i));
-        }
+        container.globalElements().forEach(g -> _globalElements.put(g.getName(), g));
+        container.globalAttributes().forEach(g -> _globalAttributes.put(g.getName(), g));
+        container.modelGroups().forEach(g -> _modelGroups.put(g.getName(), g));
+        container.attributeGroups().forEach(g -> _attributeGroups.put(g.getName(), g));
 
-        List globalAtts = container.globalAttributes();
-        for (int i = 0; i < globalAtts.size(); i++) {
-            QName name = ((SchemaGlobalAttribute) globalAtts.get(i)).getName();
-            _globalAttributes.put(name, globalAtts.get(i));
-        }
+        container.globalTypes().forEach(mapTypes(_globalTypes, false));
+        container.documentTypes().forEach(mapTypes(_documentTypes, true));
+        container.attributeTypes().forEach(mapTypes(_attributeTypes, true));
 
-        List modelGroups = container.modelGroups();
-        for (int i = 0; i < modelGroups.size(); i++) {
-            QName name = ((SchemaModelGroup) modelGroups.get(i)).getName();
-            _modelGroups.put(name, modelGroups.get(i));
-        }
-
-        List attrGroups = container.attributeGroups();
-        for (int i = 0; i < attrGroups.size(); i++) {
-            QName name = ((SchemaAttributeGroup) attrGroups.get(i)).getName();
-            _attributeGroups.put(name, attrGroups.get(i));
-        }
-
-        List globalTypes = container.globalTypes();
-        for (int i = 0; i < globalTypes.size(); i++) {
-            SchemaType t = (SchemaType) globalTypes.get(i);
-            QName name = t.getName();
-            _globalTypes.put(name, t);
-            if (t.getFullJavaName() != null) {
-                addClassname(t.getFullJavaName(), t);
-            }
-        }
-
-        List documentTypes = container.documentTypes();
-        for (int i = 0; i < documentTypes.size(); i++) {
-            SchemaType t = (SchemaType) documentTypes.get(i);
-            QName name = t.getProperties()[0].getName();
-            _documentTypes.put(name, t);
-            if (t.getFullJavaName() != null) {
-                addClassname(t.getFullJavaName(), t);
-            }
-        }
-
-        List attributeTypes = container.attributeTypes();
-        for (int i = 0; i < attributeTypes.size(); i++) {
-            SchemaType t = (SchemaType) attributeTypes.get(i);
-            QName name = t.getProperties()[0].getName();
-            _attributeTypes.put(name, t);
-            if (t.getFullJavaName() != null) {
-                addClassname(t.getFullJavaName(), t);
-            }
-        }
-
-        List identityConstraints = container.identityConstraints();
-        for (int i = 0; i < identityConstraints.size(); i++) {
-            QName name = ((SchemaIdentityConstraint) identityConstraints.get(i)).getName();
-            _idConstraints.put(name, identityConstraints.get(i));
-        }
+        container.identityConstraints().forEach(g -> _idConstraints.put(g.getName(), g));
 
         _annotations.addAll(container.annotations());
         _namespaces.add(container.getNamespace());
         container.unsetImmutable();
     }
 
-    SchemaContainer getContainer(String namespace) {
-        return (SchemaContainer) _containers.get(namespace);
+    private Consumer<SchemaType> mapTypes(Map<QName, SchemaType> map, boolean useProperties) {
+        return (t) -> {
+            QName name = useProperties ? t.getProperties()[0].getName() : t.getName();
+            map.put(name, t);
+            if (t.getFullJavaName() != null) {
+                addClassname(t.getFullJavaName(), t);
+            }
+        };
     }
 
-    Map getContainerMap() {
+    SchemaContainer getContainer(String namespace) {
+        return _containers.get(namespace);
+    }
+
+    Map<String, SchemaContainer> getContainerMap() {
         return Collections.unmodifiableMap(_containers);
     }
 
@@ -255,7 +241,7 @@ public class StscState {
     /**
      * Initializer for error handling.
      */
-    public void setErrorListener(Collection errorListener) {
+    public void setErrorListener(Collection<XmlError> errorListener) {
         _errorListener = errorListener;
     }
 
@@ -318,7 +304,7 @@ public class StscState {
     }
 
     // KHK: remove this
-    public static void addError(Collection errorListener, String message, int code, XmlObject location) {
+    public static void addError(Collection<XmlError> errorListener, String message, int code, XmlObject location) {
         XmlError err =
             XmlError.forObject(
                 message,
@@ -327,7 +313,7 @@ public class StscState {
         errorListener.add(err);
     }
 
-    public static void addError(Collection errorListener, String code, Object[] args, XmlObject location) {
+    public static void addError(Collection<XmlError> errorListener, String code, Object[] args, XmlObject location) {
         XmlError err =
             XmlError.forObject(
                 code,
@@ -337,7 +323,7 @@ public class StscState {
         errorListener.add(err);
     }
 
-    public static void addError(Collection errorListener, String code, Object[] args, File location) {
+    public static void addError(Collection<XmlError> errorListener, String code, Object[] args, File location) {
         XmlError err =
             XmlError.forLocation(
                 code,
@@ -347,7 +333,7 @@ public class StscState {
         errorListener.add(err);
     }
 
-    public static void addError(Collection errorListener, String code, Object[] args, URL location) {
+    public static void addError(Collection<XmlError> errorListener, String code, Object[] args, URL location) {
         XmlError err =
             XmlError.forLocation(
                 code,
@@ -358,7 +344,7 @@ public class StscState {
     }
 
     // KHK: remove this
-    public static void addWarning(Collection errorListener, String message, int code, XmlObject location) {
+    public static void addWarning(Collection<XmlError> errorListener, String message, int code, XmlObject location) {
         XmlError err =
             XmlError.forObject(
                 message,
@@ -367,7 +353,7 @@ public class StscState {
         errorListener.add(err);
     }
 
-    public static void addWarning(Collection errorListener, String code, Object[] args, XmlObject location) {
+    public static void addWarning(Collection<XmlError> errorListener, String code, Object[] args, XmlObject location) {
         XmlError err =
             XmlError.forObject(
                 code,
@@ -377,12 +363,12 @@ public class StscState {
         errorListener.add(err);
     }
 
-    public static void addInfo(Collection errorListener, String message) {
+    public static void addInfo(Collection<XmlError> errorListener, String message) {
         XmlError err = XmlError.forMessage(message, XmlError.SEVERITY_INFO);
         errorListener.add(err);
     }
 
-    public static void addInfo(Collection errorListener, String code, Object[] args) {
+    public static void addInfo(Collection<XmlError> errorListener, String code, Object[] args) {
         XmlError err = XmlError.forMessage(code, args, XmlError.SEVERITY_INFO);
         errorListener.add(err);
     }
@@ -574,7 +560,7 @@ public class StscState {
             return name;
         }
 
-        QName subst = (QName) _compatMap.get(name);
+        QName subst = _compatMap.get(name);
         if (subst == null) {
             return name;
         }
@@ -646,7 +632,7 @@ public class StscState {
     }
 
     SchemaComponent findSpelling(QName name) {
-        return (SchemaComponent) _misspelledNames.get(crunchName(name));
+        return _misspelledNames.get(crunchName(name));
     }
 
     /* NAMESPACES ======================================================*/
@@ -656,7 +642,7 @@ public class StscState {
     }
 
     String[] getNamespaces() {
-        return (String[]) _namespaces.toArray(new String[_namespaces.size()]);
+        return _namespaces.toArray(new String[0]);
     }
 
     boolean linkerDefinesNamespace(String namespace) {
@@ -722,11 +708,11 @@ public class StscState {
                     if (!ignoreMdef(name)) {
                         if (_mdefAll) {
                             warning(XmlErrorCodes.SCHEMA_PROPERTIES$DUPLICATE,
-                                new Object[]{"global type", QNameHelper.pretty(name), ((SchemaType) _globalTypes.get(name)).getSourceName()},
+                                new Object[]{"global type", QNameHelper.pretty(name), _globalTypes.get(name).getSourceName()},
                                 type.getParseObject());
                         } else {
                             error(XmlErrorCodes.SCHEMA_PROPERTIES$DUPLICATE,
-                                new Object[]{"global type", QNameHelper.pretty(name), ((SchemaType) _globalTypes.get(name)).getSourceName()},
+                                new Object[]{"global type", QNameHelper.pretty(name), _globalTypes.get(name).getSourceName()},
                                 type.getParseObject());
                         }
                     }
@@ -744,11 +730,11 @@ public class StscState {
     }
 
     SchemaType[] globalTypes() {
-        return (SchemaType[]) _globalTypes.values().toArray(new SchemaType[_globalTypes.size()]);
+        return _globalTypes.values().toArray(new SchemaType[0]);
     }
 
     SchemaType[] redefinedGlobalTypes() {
-        return (SchemaType[]) _redefinedGlobalTypes.values().toArray(new SchemaType[_redefinedGlobalTypes.size()]);
+        return (SchemaType[]) _redefinedGlobalTypes.values().toArray(new SchemaType[0]);
     }
 
     /* DOCUMENT TYPES =================================================*/
@@ -772,11 +758,11 @@ public class StscState {
             if (!ignoreMdef(name)) {
                 if (_mdefAll) {
                     warning(XmlErrorCodes.SCHEMA_PROPERTIES$DUPLICATE,
-                        new Object[]{"global element", QNameHelper.pretty(name), ((SchemaComponent) _documentTypes.get(name)).getSourceName()},
+                        new Object[]{"global element", QNameHelper.pretty(name), _documentTypes.get(name).getSourceName()},
                         type.getParseObject());
                 } else {
                     error(XmlErrorCodes.SCHEMA_PROPERTIES$DUPLICATE,
-                        new Object[]{"global element", QNameHelper.pretty(name), ((SchemaComponent) _documentTypes.get(name)).getSourceName()},
+                        new Object[]{"global element", QNameHelper.pretty(name), _documentTypes.get(name).getSourceName()},
                         type.getParseObject());
                 }
             }
@@ -789,7 +775,7 @@ public class StscState {
     }
 
     SchemaType[] documentTypes() {
-        return (SchemaType[]) _documentTypes.values().toArray(new SchemaType[_documentTypes.size()]);
+        return _documentTypes.values().toArray(new SchemaType[0]);
     }
 
     /* ATTRIBUTE TYPES =================================================*/
@@ -813,11 +799,11 @@ public class StscState {
             if (!ignoreMdef(name)) {
                 if (_mdefAll) {
                     warning(XmlErrorCodes.SCHEMA_PROPERTIES$DUPLICATE,
-                        new Object[]{"global attribute", QNameHelper.pretty(name), ((SchemaComponent) _attributeTypes.get(name)).getSourceName()},
+                        new Object[]{"global attribute", QNameHelper.pretty(name), _attributeTypes.get(name).getSourceName()},
                         type.getParseObject());
                 } else {
                     error(XmlErrorCodes.SCHEMA_PROPERTIES$DUPLICATE,
-                        new Object[]{"global attribute", QNameHelper.pretty(name), ((SchemaComponent) _attributeTypes.get(name)).getSourceName()},
+                        new Object[]{"global attribute", QNameHelper.pretty(name), _attributeTypes.get(name).getSourceName()},
                         type.getParseObject());
                 }
             }
@@ -830,7 +816,7 @@ public class StscState {
     }
 
     SchemaType[] attributeTypes() {
-        return (SchemaType[]) _attributeTypes.values().toArray(new SchemaType[_attributeTypes.size()]);
+        return _attributeTypes.values().toArray(new SchemaType[0]);
     }
 
     /* ATTRIBUTES =====================================================*/
@@ -861,7 +847,7 @@ public class StscState {
     }
 
     SchemaGlobalAttribute[] globalAttributes() {
-        return (SchemaGlobalAttribute[]) _globalAttributes.values().toArray(new SchemaGlobalAttribute[_globalAttributes.size()]);
+        return _globalAttributes.values().toArray(new SchemaGlobalAttribute[0]);
     }
 
     /* ELEMENTS =======================================================*/
@@ -892,7 +878,7 @@ public class StscState {
     }
 
     SchemaGlobalElement[] globalElements() {
-        return (SchemaGlobalElement[]) _globalElements.values().toArray(new SchemaGlobalElement[_globalElements.size()]);
+        return _globalElements.values().toArray(new SchemaGlobalElement[0]);
     }
 
     /* ATTRIBUTE GROUPS ===============================================*/
@@ -952,11 +938,11 @@ public class StscState {
                     if (!ignoreMdef(name)) {
                         if (_mdefAll) {
                             warning(XmlErrorCodes.SCHEMA_PROPERTIES$DUPLICATE,
-                                new Object[]{"attribute group", QNameHelper.pretty(name), ((SchemaComponent) _attributeGroups.get(name)).getSourceName()},
+                                new Object[]{"attribute group", QNameHelper.pretty(name), _attributeGroups.get(name).getSourceName()},
                                 attributeGroup.getParseObject());
                         } else {
                             error(XmlErrorCodes.SCHEMA_PROPERTIES$DUPLICATE,
-                                new Object[]{"attribute group", QNameHelper.pretty(name), ((SchemaComponent) _attributeGroups.get(name)).getSourceName()},
+                                new Object[]{"attribute group", QNameHelper.pretty(name), _attributeGroups.get(name).getSourceName()},
                                 attributeGroup.getParseObject());
                         }
                     }
@@ -970,11 +956,11 @@ public class StscState {
     }
 
     SchemaAttributeGroup[] attributeGroups() {
-        return (SchemaAttributeGroup[]) _attributeGroups.values().toArray(new SchemaAttributeGroup[_attributeGroups.size()]);
+        return _attributeGroups.values().toArray(new SchemaAttributeGroup[0]);
     }
 
     SchemaAttributeGroup[] redefinedAttributeGroups() {
-        return (SchemaAttributeGroup[]) _redefinedAttributeGroups.values().toArray(new SchemaAttributeGroup[_redefinedAttributeGroups.size()]);
+        return (SchemaAttributeGroup[]) _redefinedAttributeGroups.values().toArray(new SchemaAttributeGroup[0]);
     }
 
     /* MODEL GROUPS ===================================================*/
@@ -1034,11 +1020,11 @@ public class StscState {
                     if (!ignoreMdef(name)) {
                         if (_mdefAll) {
                             warning(XmlErrorCodes.SCHEMA_PROPERTIES$DUPLICATE,
-                                new Object[]{"model group", QNameHelper.pretty(name), ((SchemaComponent) _modelGroups.get(name)).getSourceName()},
+                                new Object[]{"model group", QNameHelper.pretty(name), _modelGroups.get(name).getSourceName()},
                                 modelGroup.getParseObject());
                         } else {
                             error(XmlErrorCodes.SCHEMA_PROPERTIES$DUPLICATE,
-                                new Object[]{"model group", QNameHelper.pretty(name), ((SchemaComponent) _modelGroups.get(name)).getSourceName()},
+                                new Object[]{"model group", QNameHelper.pretty(name), _modelGroups.get(name).getSourceName()},
                                 modelGroup.getParseObject());
                         }
                     }
@@ -1052,11 +1038,11 @@ public class StscState {
     }
 
     SchemaModelGroup[] modelGroups() {
-        return (SchemaModelGroup[]) _modelGroups.values().toArray(new SchemaModelGroup[_modelGroups.size()]);
+        return _modelGroups.values().toArray(new SchemaModelGroup[0]);
     }
 
     SchemaModelGroup[] redefinedModelGroups() {
-        return (SchemaModelGroup[]) _redefinedModelGroups.values().toArray(new SchemaModelGroup[_redefinedModelGroups.size()]);
+        return (SchemaModelGroup[]) _redefinedModelGroups.values().toArray(new SchemaModelGroup[0]);
     }
 
     /* IDENTITY CONSTRAINTS ===========================================*/
@@ -1077,7 +1063,7 @@ public class StscState {
             if (_idConstraints.containsKey(name)) {
                 if (!ignoreMdef(name)) {
                     warning(XmlErrorCodes.SCHEMA_PROPERTIES$DUPLICATE,
-                        new Object[]{"identity constraint", QNameHelper.pretty(name), ((SchemaComponent) _idConstraints.get(name)).getSourceName()},
+                        new Object[]{"identity constraint", QNameHelper.pretty(name), _idConstraints.get(name).getSourceName()},
                         idc.getParseObject());
                 }
             } else {
@@ -1089,7 +1075,7 @@ public class StscState {
     }
 
     SchemaIdentityConstraintImpl[] idConstraints() {
-        return (SchemaIdentityConstraintImpl[]) _idConstraints.values().toArray(new SchemaIdentityConstraintImpl[_idConstraints.size()]);
+        return _idConstraints.values().toArray(new SchemaIdentityConstraintImpl[0]);
     }
 
     /* ANNOTATIONS ===========================================*/
@@ -1103,32 +1089,32 @@ public class StscState {
         }
     }
 
-    List annotations() {
+    List<SchemaAnnotation> annotations() {
         return _annotations;
     }
 
     /* RECURSION AVOIDANCE ============================================*/
-    boolean isProcessing(Object obj) {
+    boolean isProcessing(SchemaComponent obj) {
         return _processingGroups.contains(obj);
     }
 
-    void startProcessing(Object obj) {
+    void startProcessing(SchemaComponent obj) {
         assert (!_processingGroups.contains(obj));
         _processingGroups.add(obj);
     }
 
-    void finishProcessing(Object obj) {
+    void finishProcessing(SchemaComponent obj) {
         assert (_processingGroups.contains(obj));
         _processingGroups.remove(obj);
     }
 
-    Object[] getCurrentProcessing() {
-        return _processingGroups.toArray();
+    SchemaComponent[] getCurrentProcessing() {
+        return _processingGroups.toArray(new SchemaComponent[0]);
     }
 
     /* JAVAIZATION ====================================================*/
 
-    Map typesByClassname() {
+    Map<String, SchemaType> typesByClassname() {
         return Collections.unmodifiableMap(_typesByClassname);
     }
 
@@ -1143,7 +1129,7 @@ public class StscState {
      */
     private static final class StscStack {
         StscState current;
-        ArrayList stack = new ArrayList();
+        List<StscState> stack = new ArrayList<>();
 
         final StscState push() {
             stack.add(current);
@@ -1152,19 +1138,17 @@ public class StscState {
         }
 
         final void pop() {
-            current = (StscState) stack.get(stack.size() - 1);
+            current = stack.get(stack.size() - 1);
             stack.remove(stack.size() - 1);
         }
     }
-
-    private static ThreadLocal tl_stscStack = new ThreadLocal();
 
     public static void clearThreadLocals() {
         tl_stscStack.remove();
     }
 
     public static StscState start() {
-        StscStack stscStack = (StscStack) tl_stscStack.get();
+        StscStack stscStack = tl_stscStack.get();
 
         if (stscStack == null) {
             stscStack = new StscStack();
@@ -1174,11 +1158,11 @@ public class StscState {
     }
 
     public static StscState get() {
-        return ((StscStack) tl_stscStack.get()).current;
+        return tl_stscStack.get().current;
     }
 
     public static void end() {
-        StscStack stscStack = (StscStack) tl_stscStack.get();
+        StscStack stscStack = tl_stscStack.get();
         stscStack.pop();
         if (stscStack.stack.size() == 0) {
             tl_stscStack.set(null);            // this is required to release all the references in this classloader
@@ -1186,33 +1170,6 @@ public class StscState {
         // which will enable class unloading and avoid OOM in PermGen
     }
 
-    private final static XmlValueRef XMLSTR_PRESERVE = buildString("preserve");
-    private final static XmlValueRef XMLSTR_REPLACE = buildString("preserve");
-    private final static XmlValueRef XMLSTR_COLLAPSE = buildString("preserve");
-
-    static final SchemaType[] EMPTY_ST_ARRAY = new SchemaType[0];
-    static final SchemaType.Ref[] EMPTY_STREF_ARRAY = new SchemaType.Ref[0];
-
-    private final static XmlValueRef[] FACETS_NONE = new XmlValueRef[]
-        {null, null, null, null, null, null, null, null, null,
-            null, null, null};
-
-    private final static boolean[] FIXED_FACETS_NONE = new boolean[]
-        {false, false, false, false, false, false, false, false, false,
-            false, false, false};
-
-    private final static XmlValueRef[] FACETS_WS_COLLAPSE = new XmlValueRef[]
-        {null, null, null, null, null, null, null, null, null,
-            build_wsstring(SchemaType.WS_COLLAPSE), null, null};
-
-    private final static boolean[] FIXED_FACETS_WS = new boolean[]
-        {false, false, false, false, false, false, false, false, false,
-            true, false, false};
-
-    final static XmlValueRef[] FACETS_UNION = FACETS_NONE;
-    final static boolean[] FIXED_FACETS_UNION = FIXED_FACETS_NONE;
-    final static XmlValueRef[] FACETS_LIST = FACETS_WS_COLLAPSE;
-    final static boolean[] FIXED_FACETS_LIST = FIXED_FACETS_WS;
 
     static XmlValueRef build_wsstring(int wsr) {
         switch (wsr) {
@@ -1285,15 +1242,15 @@ public class StscState {
                 switch (foundComponent.getComponentType()) {
                     case SchemaComponent.TYPE:
                         found = "type";
-                        sourceName = ((SchemaType) foundComponent).getSourceName();
+                        sourceName = foundComponent.getSourceName();
                         break;
                     case SchemaComponent.ELEMENT:
                         found = "element";
-                        sourceName = ((SchemaGlobalElement) foundComponent).getSourceName();
+                        sourceName = foundComponent.getSourceName();
                         break;
                     case SchemaComponent.ATTRIBUTE:
                         found = "attribute";
-                        sourceName = ((SchemaGlobalAttribute) foundComponent).getSourceName();
+                        sourceName = foundComponent.getSourceName();
                         break;
                     case SchemaComponent.ATTRIBUTE_GROUP:
                         found = "attribute group";
@@ -1341,7 +1298,7 @@ public class StscState {
      * Returns null if none.
      */
     public String sourceNameForUri(String uri) {
-        return (String) _sourceForUri.get(uri);
+        return _sourceForUri.get(uri);
     }
 
     /**
@@ -1349,7 +1306,7 @@ public class StscState {
      * been read to "sourceName" local names that have been used
      * to tag the types.
      */
-    public Map sourceCopyMap() {
+    public Map<String, String> sourceCopyMap() {
         return Collections.unmodifiableMap(_sourceForUri);
     }
 
@@ -1359,8 +1316,6 @@ public class StscState {
     public void setBaseUri(URI uri) {
         _baseURI = uri;
     }
-
-    private final static String PROJECT_URL_PREFIX = "project://local";
 
     public String relativize(String uri) {
         return relativize(uri, false);
@@ -1411,7 +1366,7 @@ public class StscState {
             return dir + "/" + uri.substring(lastslash + 1);
         }
 
-        String query = QNameHelper.hexsafe(question == -1 ? "" : uri.substring(question));
+        String query = QNameHelper.hexsafe(uri.substring(question));
 
         // if encoded query part is longer than 64 characters, just drop it
         if (query.startsWith(QNameHelper.URI_SHA1_PREFIX)) {
@@ -1440,7 +1395,7 @@ public class StscState {
     /**
      * Returns the error listener being filled in during this compilation
      */
-    public Collection getErrorListener() {
+    public Collection<XmlError> getErrorListener() {
         return _errorListener;
     }
 
@@ -1450,10 +1405,6 @@ public class StscState {
     public SchemaTypeLoader getS4SLoader() {
         return _s4sloader;
     }
-
-    Map _sourceForUri = new HashMap();
-    URI _baseURI = URI.create(PROJECT_URL_PREFIX + "/");
-    SchemaTypeLoader _s4sloader = XmlBeans.typeLoaderForClassLoader(SchemaDocument.class.getClassLoader());
 
     public File getSchemasDir() {
         return _schemasDir;
