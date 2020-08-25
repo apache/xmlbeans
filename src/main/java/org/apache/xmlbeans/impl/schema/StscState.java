@@ -82,9 +82,9 @@ public class StscState {
     private final Map<String, SchemaContainer> _containers = new LinkedHashMap<>();
     private SchemaDependencies _dependencies;
 
-    private Map _redefinedGlobalTypes = new LinkedHashMap();
-    private Map _redefinedModelGroups = new LinkedHashMap();
-    private Map _redefinedAttributeGroups = new LinkedHashMap();
+    private final Map<SchemaTypeImpl,SchemaTypeImpl> _redefinedGlobalTypes = new LinkedHashMap<>();
+    private final Map<SchemaModelGroupImpl,SchemaModelGroupImpl>  _redefinedModelGroups = new LinkedHashMap<>();
+    private final Map<SchemaAttributeGroupImpl,SchemaAttributeGroupImpl>  _redefinedAttributeGroups = new LinkedHashMap<>();
 
     private final Map<QName, SchemaType> _globalTypes = new LinkedHashMap<>();
     private final Map<QName, SchemaGlobalElement> _globalElements = new LinkedHashMap<>();
@@ -156,23 +156,9 @@ public class StscState {
 
     private void addContainer(SchemaContainer container) {
         _containers.put(container.getNamespace(), container);
-        List redefModelGroups = container.redefinedModelGroups();
-        for (int i = 0; i < redefModelGroups.size(); i++) {
-            QName name = ((SchemaModelGroup) redefModelGroups.get(i)).getName();
-            _redefinedModelGroups.put(name, redefModelGroups.get(i));
-        }
 
-        List redefAttrGroups = container.redefinedAttributeGroups();
-        for (int i = 0; i < redefAttrGroups.size(); i++) {
-            QName name = ((SchemaAttributeGroup) redefAttrGroups.get(i)).getName();
-            _redefinedAttributeGroups.put(name, redefAttrGroups.get(i));
-        }
-
-        List redefTypes = container.redefinedGlobalTypes();
-        for (int i = 0; i < redefTypes.size(); i++) {
-            QName name = ((SchemaType) redefTypes.get(i)).getName();
-            _redefinedGlobalTypes.put(name, redefTypes.get(i));
-        }
+        // container.redefinedModelGroups() / .redefinedAttributeGroups() / .redefinedGlobalTypes() are always empty
+        // no need to copy them over to _redefinedModelGroups / _redefinedAttributeGroups / _redefinedGlobalTypes
 
         container.globalElements().forEach(g -> _globalElements.put(g.getName(), g));
         container.globalAttributes().forEach(g -> _globalAttributes.put(g.getName(), g));
@@ -280,7 +266,7 @@ public class StscState {
      */
     public void warning(String code, Object[] args, XmlObject loc) {
         // it's OK for XMLSchema.xsd itself to have reserved type names
-        if (code == XmlErrorCodes.RESERVED_TYPE_NAME &&
+        if (XmlErrorCodes.RESERVED_TYPE_NAME.equals(code) &&
             loc.documentProperties().getSourceName() != null &&
             loc.documentProperties().getSourceName().indexOf("XMLSchema.xsd") > 0) {
             return;
@@ -669,7 +655,7 @@ public class StscState {
         QName redefinedName = redefinedBy.getName();
         name = compatName(name, chameleonNamespace);
         if (name.equals(redefinedName)) {
-            return (SchemaTypeImpl) _redefinedGlobalTypes.get(redefinedBy);
+            return _redefinedGlobalTypes.get(redefinedBy);
             // BUGBUG: should also link against _importingLoader.findRedefinedType
         }
         SchemaTypeImpl result = (SchemaTypeImpl) _globalTypes.get(name);
@@ -691,11 +677,11 @@ public class StscState {
                     if (!ignoreMdef(name)) {
                         if (_mdefAll) {
                             warning(XmlErrorCodes.SCHEMA_PROPERTIES$DUPLICATE,
-                                new Object[]{"global type", QNameHelper.pretty(name), ((SchemaType) _redefinedGlobalTypes.get(redefined)).getSourceName()},
+                                new Object[]{"global type", QNameHelper.pretty(name), _redefinedGlobalTypes.get(redefined).getSourceName()},
                                 type.getParseObject());
                         } else {
                             error(XmlErrorCodes.SCHEMA_PROPERTIES$DUPLICATE,
-                                new Object[]{"global type", QNameHelper.pretty(name), ((SchemaType) _redefinedGlobalTypes.get(redefined)).getSourceName()},
+                                new Object[]{"global type", QNameHelper.pretty(name), _redefinedGlobalTypes.get(redefined).getSourceName()},
                                 type.getParseObject());
                         }
                     }
@@ -901,7 +887,7 @@ public class StscState {
         QName redefinitionFor = redefinedBy.getName();
         name = compatName(name, chameleonNamespace);
         if (name.equals(redefinitionFor)) {
-            return (SchemaAttributeGroupImpl) _redefinedAttributeGroups.get(redefinedBy);
+            return _redefinedAttributeGroups.get(redefinedBy);
             // BUGBUG: should also link against _importingLoader.findRedefinedAttributeGroup
         }
         SchemaAttributeGroupImpl result = (SchemaAttributeGroupImpl) _attributeGroups.get(name);
@@ -921,11 +907,11 @@ public class StscState {
                     if (!ignoreMdef(name)) {
                         if (_mdefAll) {
                             warning(XmlErrorCodes.SCHEMA_PROPERTIES$DUPLICATE,
-                                new Object[]{"attribute group", QNameHelper.pretty(name), ((SchemaComponent) _redefinedAttributeGroups.get(redefined)).getSourceName()},
+                                new Object[]{"attribute group", QNameHelper.pretty(name), _redefinedAttributeGroups.get(redefined).getSourceName()},
                                 attributeGroup.getParseObject());
                         } else {
                             error(XmlErrorCodes.SCHEMA_PROPERTIES$DUPLICATE,
-                                new Object[]{"attribute group", QNameHelper.pretty(name), ((SchemaComponent) _redefinedAttributeGroups.get(redefined)).getSourceName()},
+                                new Object[]{"attribute group", QNameHelper.pretty(name), _redefinedAttributeGroups.get(redefined).getSourceName()},
                                 attributeGroup.getParseObject());
                         }
                     }
@@ -960,7 +946,7 @@ public class StscState {
     }
 
     SchemaAttributeGroup[] redefinedAttributeGroups() {
-        return (SchemaAttributeGroup[]) _redefinedAttributeGroups.values().toArray(new SchemaAttributeGroup[0]);
+        return _redefinedAttributeGroups.values().toArray(new SchemaAttributeGroup[0]);
     }
 
     /* MODEL GROUPS ===================================================*/
@@ -983,7 +969,7 @@ public class StscState {
         QName redefinitionFor = redefinedBy.getName();
         name = compatName(name, chameleonNamespace);
         if (name.equals(redefinitionFor)) {
-            return (SchemaModelGroupImpl) _redefinedModelGroups.get(redefinedBy);
+            return _redefinedModelGroups.get(redefinedBy);
             // BUGBUG: should also link against _importingLoader.findRedefinedModelGroup
         }
         SchemaModelGroupImpl result = (SchemaModelGroupImpl) _modelGroups.get(name);
@@ -1042,7 +1028,7 @@ public class StscState {
     }
 
     SchemaModelGroup[] redefinedModelGroups() {
-        return (SchemaModelGroup[]) _redefinedModelGroups.values().toArray(new SchemaModelGroup[0]);
+        return _redefinedModelGroups.values().toArray(new SchemaModelGroup[0]);
     }
 
     /* IDENTITY CONSTRAINTS ===========================================*/
@@ -1165,7 +1151,8 @@ public class StscState {
         StscStack stscStack = tl_stscStack.get();
         stscStack.pop();
         if (stscStack.stack.size() == 0) {
-            tl_stscStack.set(null);            // this is required to release all the references in this classloader
+            // this is required to release all the references in this classloader
+            tl_stscStack.remove();
         }
         // which will enable class unloading and avoid OOM in PermGen
     }
@@ -1190,7 +1177,7 @@ public class StscState {
 
         try {
             XmlStringImpl i = new XmlStringImpl();
-            i.set(str);
+            i.setStringValue(str);
             i.setImmutable();
             return new XmlValueRef(i);
         } catch (XmlValueOutOfRangeException e) {
@@ -1350,7 +1337,7 @@ public class StscState {
                 } else {
                     uri = relative.toString();
                 }
-            } catch (URISyntaxException e) {
+            } catch (URISyntaxException ignored) {
             }
         }
 

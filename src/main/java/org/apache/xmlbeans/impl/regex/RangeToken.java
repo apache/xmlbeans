@@ -121,6 +121,7 @@ final class RangeToken extends Token implements java.io.Serializable {
     /**
      * this.ranges is sorted.
      */
+    @SuppressWarnings("ConstantConditions")
     protected void compactRanges() {
         boolean DEBUG = false;
         if (this.ranges == null || this.ranges.length <= 2) {
@@ -489,17 +490,6 @@ final class RangeToken extends Token implements java.io.Serializable {
         return lowers;
     }
 
-    void dumpRanges() {
-        System.err.print("RANGE: ");
-        if (this.ranges == null) {
-            System.err.println(" NULL");
-        }
-        for (int i = 0; i < this.ranges.length; i += 2) {
-            System.err.print("[" + this.ranges[i] + "," + this.ranges[i + 1] + "] ");
-        }
-        System.err.println();
-    }
-
     boolean match(int ch) {
         if (this.map == null) {
             this.createMap();
@@ -586,7 +576,7 @@ final class RangeToken extends Token implements java.io.Serializable {
                         sb.append(escapeCharInCharClass(this.ranges[i]));
                     } else {
                         sb.append(escapeCharInCharClass(this.ranges[i]));
-                        sb.append((char) '-');
+                        sb.append('-');
                         sb.append(escapeCharInCharClass(this.ranges[i + 1]));
                     }
                 }

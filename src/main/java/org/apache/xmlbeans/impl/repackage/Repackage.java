@@ -69,6 +69,7 @@ public class Repackage {
 
         _repackager = new Repackager(repackageSpec);
 
+        //noinspection ConstantConditions
         if (sourceDir == null || targetDir == null) {
             _sourceBase = _targetBase = null;
         } else {
@@ -333,15 +334,11 @@ public class Repackage {
     }
 
     StringBuffer readInputStream(InputStream is) throws IOException {
-        Reader r = new InputStreamReader(is);
-        StringWriter w = new StringWriter();
-
-        copy(r, w);
-
-        w.close();
-        r.close();
-
-        return w.getBuffer();
+        try (Reader r = new InputStreamReader(is, StandardCharsets.ISO_8859_1);
+            StringWriter w = new StringWriter()) {
+            copy(r, w);
+            return w.getBuffer();
+        }
     }
 
     public static void copyFile(File from, File to) throws IOException {

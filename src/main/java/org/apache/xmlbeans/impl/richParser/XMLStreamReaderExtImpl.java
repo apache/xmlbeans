@@ -182,7 +182,7 @@ public class XMLStreamReaderExtImpl
         throws XMLStreamException, InvalidLexicalValueException {
         _charSeq.reload(CharSeqTrimWS.XMLWHITESPACE_TRIM);
         String text = _charSeq.toString();
-        byte[] buf = Base64.getDecoder().decode(text.getBytes());
+        byte[] buf = Base64.getDecoder().decode(text.getBytes(StandardCharsets.ISO_8859_1));
         if (buf != null) {
             return new ByteArrayInputStream(buf);
         } else {
@@ -332,7 +332,7 @@ public class XMLStreamReaderExtImpl
 
     public InputStream getAttributeBase64Value(int index) throws XMLStreamException {
         String text = _charSeq.reloadAtt(index, CharSeqTrimWS.XMLWHITESPACE_TRIM).toString();
-        byte[] buf = Base64.getDecoder().decode(text.getBytes());
+        byte[] buf = Base64.getDecoder().decode(text.getBytes(StandardCharsets.ISO_8859_1));
         if (buf != null) {
             return new ByteArrayInputStream(buf);
         } else {
@@ -486,7 +486,7 @@ public class XMLStreamReaderExtImpl
     public InputStream getAttributeBase64Value(String uri, String local) throws XMLStreamException {
         CharSequence cs = _charSeq.reloadAtt(uri, local, CharSeqTrimWS.XMLWHITESPACE_TRIM);
         String text = cs.toString();
-        byte[] buf = Base64.getDecoder().decode(text.getBytes());
+        byte[] buf = Base64.getDecoder().decode(text.getBytes(StandardCharsets.ISO_8859_1));
         if (buf != null) {
             return new ByteArrayInputStream(buf);
         } else {
