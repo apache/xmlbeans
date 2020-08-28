@@ -28,17 +28,17 @@ public class StscChecker {
         // walk the tree of types
         StscState state = StscState.get();
 
-        List allSeenTypes = new ArrayList();
+        List<SchemaType> allSeenTypes = new ArrayList<>();
         allSeenTypes.addAll(Arrays.asList(state.documentTypes()));
         allSeenTypes.addAll(Arrays.asList(state.attributeTypes()));
         allSeenTypes.addAll(Arrays.asList(state.redefinedGlobalTypes()));
         allSeenTypes.addAll(Arrays.asList(state.globalTypes()));
 
         for (int i = 0; i < allSeenTypes.size(); i++) {
-            SchemaType gType = (SchemaType) allSeenTypes.get(i);
-            if (!state.noPvr() &&  // option to turn off particle restriction checking
-                !gType.isDocumentType()) // Don't check doc types for restriction.
-            {
+            SchemaType gType = allSeenTypes.get(i);
+            // option to turn off particle restriction checking
+            // Don't check doc types for restriction.
+            if (!state.noPvr() && !gType.isDocumentType()) {
                 checkRestriction((SchemaTypeImpl) gType);
             }
             checkFields((SchemaTypeImpl) gType);
@@ -64,32 +64,32 @@ public class StscChecker {
         if (sAttrModel != null) {
             SchemaLocalAttribute[] sAttrs = sAttrModel.getAttributes();
             QName idAttr = null;
-            for (int i = 0; i < sAttrs.length; i++) {
-                XmlObject attrLocation = ((SchemaLocalAttributeImpl) sAttrs[i])._parseObject;
-                if (XmlID.type.isAssignableFrom(sAttrs[i].getType())) {
+            for (SchemaLocalAttribute sAttr : sAttrs) {
+                XmlObject attrLocation = ((SchemaLocalAttributeImpl) sAttr)._parseObject;
+                if (XmlID.type.isAssignableFrom(sAttr.getType())) {
                     if (idAttr == null) {
-                        idAttr = sAttrs[i].getName();
+                        idAttr = sAttr.getName();
                     } else {
                         StscState.get().error(XmlErrorCodes.ATTR_GROUP_PROPERTIES$TWO_IDS,
-                            new Object[]{QNameHelper.pretty(idAttr), sAttrs[i].getName()},
+                            new Object[]{QNameHelper.pretty(idAttr), sAttr.getName()},
                             attrLocation != null ? attrLocation : location);
                     }
-                    if (sAttrs[i].getDefaultText() != null) {
+                    if (sAttr.getDefaultText() != null) {
                         StscState.get().error(XmlErrorCodes.ATTR_PROPERTIES$ID_FIXED_OR_DEFAULT,
                             null, attrLocation != null ? attrLocation : location);
                     }
-                } else if (XmlNOTATION.type.isAssignableFrom(sAttrs[i].getType())) {
-                    if (sAttrs[i].getType().getBuiltinTypeCode() == SchemaType.BTC_NOTATION) {
+                } else if (XmlNOTATION.type.isAssignableFrom(sAttr.getType())) {
+                    if (sAttr.getType().getBuiltinTypeCode() == SchemaType.BTC_NOTATION) {
                         StscState.get().recover(XmlErrorCodes.ATTR_NOTATION_TYPE_FORBIDDEN,
-                            new Object[]{QNameHelper.pretty(sAttrs[i].getName())},
+                            new Object[]{QNameHelper.pretty(sAttr.getName())},
                             attrLocation != null ? attrLocation : location);
                     } else {
-                        if (sAttrs[i].getType().getSimpleVariety() == SchemaType.UNION) {
-                            SchemaType[] members = sAttrs[i].getType().getUnionConstituentTypes();
-                            for (int j = 0; j < members.length; j++) {
-                                if (members[j].getBuiltinTypeCode() == SchemaType.BTC_NOTATION) {
+                        if (sAttr.getType().getSimpleVariety() == SchemaType.UNION) {
+                            SchemaType[] members = sAttr.getType().getUnionConstituentTypes();
+                            for (SchemaType member : members) {
+                                if (member.getBuiltinTypeCode() == SchemaType.BTC_NOTATION) {
                                     StscState.get().recover(XmlErrorCodes.ATTR_NOTATION_TYPE_FORBIDDEN,
-                                        new Object[]{QNameHelper.pretty(sAttrs[i].getName())},
+                                        new Object[]{QNameHelper.pretty(sAttr.getName())},
                                         attrLocation != null ? attrLocation : location);
                                 }
                             }
@@ -97,7 +97,7 @@ public class StscChecker {
                         // Check that the Schema in which this is present doesn't have a targetNS
                         boolean hasNS;
                         if (sType.isAttributeType()) {
-                            hasNS = sAttrs[i].getName().getNamespaceURI().length() > 0;
+                            hasNS = sAttr.getName().getNamespaceURI().length() > 0;
                         } else {
                             SchemaType t = sType;
                             while (t.getOuterType() != null) {
@@ -111,26 +111,26 @@ public class StscChecker {
                         }
                         if (hasNS) {
                             StscState.get().warning(XmlErrorCodes.ATTR_COMPATIBILITY_TARGETNS,
-                                new Object[]{QNameHelper.pretty(sAttrs[i].getName())},
+                                new Object[]{QNameHelper.pretty(sAttr.getName())},
                                 attrLocation != null ? attrLocation : location);
                         }
                     }
                 } else {
-                    String valueConstraint = sAttrs[i].getDefaultText();
+                    String valueConstraint = sAttr.getDefaultText();
                     if (valueConstraint != null) {
                         try {
-                            XmlAnySimpleType val = sAttrs[i].getDefaultValue();
+                            XmlAnySimpleType val = sAttr.getDefaultValue();
                             if (!val.validate()) {
                                 throw new Exception();
                             }
 
-                            SchemaPropertyImpl sProp = (SchemaPropertyImpl) sType.getAttributeProperty(sAttrs[i].getName());
+                            SchemaPropertyImpl sProp = (SchemaPropertyImpl) sType.getAttributeProperty(sAttr.getName());
                             if (sProp != null && sProp.getDefaultText() != null) {
                                 sProp.setDefaultValue(new XmlValueRef(val));
                             }
                         } catch (Exception e) {
                             // move to 'fixed' or 'default' attribute on the attribute definition
-                            String constraintName = (sAttrs[i].isFixed() ? "fixed" : "default");
+                            String constraintName = (sAttr.isFixed() ? "fixed" : "default");
                             XmlObject constraintLocation = location;
                             if (attrLocation != null) {
                                 constraintLocation = attrLocation.selectAttribute("", constraintName);
@@ -140,10 +140,10 @@ public class StscChecker {
                             }
 
                             StscState.get().error(XmlErrorCodes.ATTR_PROPERTIES$CONSTRAINT_VALID,
-                                new Object[]{QNameHelper.pretty(sAttrs[i].getName()),
+                                new Object[]{QNameHelper.pretty(sAttr.getName()),
                                     constraintName,
                                     valueConstraint,
-                                    QNameHelper.pretty(sAttrs[i].getType().getName())},
+                                    QNameHelper.pretty(sAttr.getType().getName())},
                                 constraintLocation);
                         }
                     }
@@ -172,8 +172,8 @@ public class StscChecker {
             case SchemaParticle.CHOICE:
             case SchemaParticle.ALL:
                 SchemaParticle[] children = model.getParticleChildren();
-                for (int i = 0; i < children.length; i++) {
-                    checkElementDefaults(children[i], location, parentType);
+                for (SchemaParticle child : children) {
+                    checkElementDefaults(child, location, parentType);
                 }
                 break;
             case SchemaParticle.ELEMENT:
@@ -183,7 +183,7 @@ public class StscChecker {
                         try {
                             XmlAnySimpleType val = model.getDefaultValue();
                             XmlOptions opt = new XmlOptions();
-                            opt.put(XmlOptions.VALIDATE_TEXT_ONLY);
+                            opt.setValidateTextOnly();
                             if (!val.validate(opt)) {
                                 throw new Exception();
                             }
@@ -259,8 +259,8 @@ public class StscChecker {
                     } else {
                         if (model.getType().getSimpleVariety() == SchemaType.UNION) {
                             SchemaType[] members = model.getType().getUnionConstituentTypes();
-                            for (int i = 0; i < members.length; i++) {
-                                if (members[i].getBuiltinTypeCode() == SchemaType.BTC_NOTATION) {
+                            for (SchemaType member : members) {
+                                if (member.getBuiltinTypeCode() == SchemaType.BTC_NOTATION) {
                                     StscState.get().recover(XmlErrorCodes.ELEM_NOTATION_TYPE_FORBIDDEN,
                                         new Object[]{QNameHelper.pretty(model.getName())},
                                         ((SchemaLocalElementImpl) model)._parseObject == null ? location :
@@ -593,11 +593,9 @@ public class StscChecker {
         //  for match
         SchemaParticle[] derivedParticleArray = derivedModel.getParticleChildren();
         SchemaParticle[] baseParticleArray = baseModel.getParticleChildren();
-        for (int i = 0; i < derivedParticleArray.length; i++) {
-            SchemaParticle derivedParticle = derivedParticleArray[i];
+        for (SchemaParticle derivedParticle : derivedParticleArray) {
             boolean foundMatch = false;
-            for (int j = 0; j < baseParticleArray.length; j++) {
-                SchemaParticle baseParticle = baseParticleArray[j];
+            for (SchemaParticle baseParticle : baseParticleArray) {
                 // recurse to check if there is a match
                 if (isParticleValidRestriction(baseParticle, derivedParticle, errors, context)) {
                     // if there is a match then no need to check base particles anymore
@@ -618,9 +616,8 @@ public class StscChecker {
 
         // Sum step
         BigInteger derivedRangeMin = derivedModel.getMinOccurs().multiply(BigInteger.valueOf(derivedModel.getParticleChildren().length));
-        BigInteger derivedRangeMax = null;
-        BigInteger UNBOUNDED = null;
-        if (derivedModel.getMaxOccurs() == UNBOUNDED) {
+        BigInteger derivedRangeMax;
+        if (derivedModel.getMaxOccurs() == null) {
             derivedRangeMax = null;
         } else {
             derivedRangeMax = derivedModel.getMaxOccurs().multiply(BigInteger.valueOf(derivedModel.getParticleChildren().length));
@@ -639,10 +636,10 @@ public class StscChecker {
             errors.add(XmlError.forObject(XmlErrorCodes.PARTICLE_DERIVATION_MAP_AND_SUM$SUM_MIN_OCCURS_GTE_MIN_OCCURS,
                 new Object[]{derivedRangeMin.toString(), baseModel.getMinOccurs().toString()},
                 context));
-        } else if (baseModel.getMaxOccurs() != UNBOUNDED && (derivedRangeMax == UNBOUNDED || derivedRangeMax.compareTo(baseModel.getMaxOccurs()) > 0)) {
+        } else if (baseModel.getMaxOccurs() != null && (derivedRangeMax == null || derivedRangeMax.compareTo(baseModel.getMaxOccurs()) > 0)) {
             mapAndSumValid = false;
             errors.add(XmlError.forObject(XmlErrorCodes.PARTICLE_DERIVATION_MAP_AND_SUM$SUM_MAX_OCCURS_LTE_MAX_OCCURS,
-                new Object[]{derivedRangeMax == UNBOUNDED ? "unbounded" : derivedRangeMax.toString(), baseModel.getMaxOccurs().toString()},
+                new Object[]{derivedRangeMax == null ? "unbounded" : derivedRangeMax.toString(), baseModel.getMaxOccurs().toString()},
                 context));
         }
 
@@ -706,7 +703,7 @@ public class StscChecker {
         SchemaParticle[] derivedParticleArray = derivedModel.getParticleChildren();
         SchemaParticle[] baseParticleArray = baseModel.getParticleChildren();
         int i = 0, j = 0;
-        for (; i < derivedParticleArray.length && j < baseParticleArray.length; ) {
+        while (i < derivedParticleArray.length && j < baseParticleArray.length) {
             SchemaParticle derivedParticle = derivedParticleArray[i];
             SchemaParticle baseParticle = baseParticleArray[j];
             // try to match the two particles by recursing
@@ -764,21 +761,21 @@ public class StscChecker {
 
         // read baseParticle array QNames into hashmap
         SchemaParticle[] baseParticles = baseModel.getParticleChildren();
-        HashMap baseParticleMap = new HashMap(10);
-        Object MAPPED = new Object();
+        HashMap<QName, Object> baseParticleMap = new HashMap<>(10);
+        final Object MAPPED = new Object();
         // Initialize the hashmap
-        for (int i = 0; i < baseParticles.length; i++) {
-            baseParticleMap.put(baseParticles[i].getName(), baseParticles[i]);
+        for (SchemaParticle particle : baseParticles) {
+            baseParticleMap.put(particle.getName(), particle);
         }
 
         // go thru the sequence (derived model's children) and check off from base particle map
         SchemaParticle[] derivedParticles = derivedModel.getParticleChildren();
-        for (int i = 0; i < derivedParticles.length; i++) {
-            Object baseParticle = baseParticleMap.get(derivedParticles[i].getName());
+        for (SchemaParticle derivedParticle : derivedParticles) {
+            Object baseParticle = baseParticleMap.get(derivedParticle.getName());
             if (baseParticle == null) {
                 recurseUnorderedValid = false;
                 errors.add(XmlError.forObject(XmlErrorCodes.PARTICLE_DERIVATION_RECURSE_UNORDERED$MAP,
-                    new Object[]{printParticle(derivedParticles[i])}, context));
+                    new Object[]{printParticle(derivedParticle)}, context));
                 break;
             } else {
                 // got a match
@@ -786,26 +783,26 @@ public class StscChecker {
                     // whoa, this base particle has already been matched (see 2.1 above)
                     recurseUnorderedValid = false;
                     errors.add(XmlError.forObject(XmlErrorCodes.PARTICLE_DERIVATION_RECURSE_UNORDERED$MAP_UNIQUE,
-                        new Object[]{printParticle(derivedParticles[i])}, context));
+                        new Object[]{printParticle(derivedParticle)}, context));
                     break;
                 } else {
                     SchemaParticle matchedBaseParticle = (SchemaParticle) baseParticle;
-                    if (derivedParticles[i].getMaxOccurs() == null ||
-                        derivedParticles[i].getMaxOccurs().compareTo(BigInteger.ONE) > 0) {
+                    if (derivedParticle.getMaxOccurs() == null ||
+                        derivedParticle.getMaxOccurs().compareTo(BigInteger.ONE) > 0) {
                         // no derived particles can have a max occurs greater than 1
                         recurseUnorderedValid = false;
                         errors.add(XmlError.forObject(XmlErrorCodes.PARTICLE_DERIVATION_RECURSE_UNORDERED$MAP_MAX_OCCURS_1,
-                            new Object[]{printParticle(derivedParticles[i]), printMaxOccurs(derivedParticles[i].getMinOccurs())},
+                            new Object[]{printParticle(derivedParticle), printMaxOccurs(derivedParticle.getMinOccurs())},
                             context));
                         break;
                     }
-                    if (!isParticleValidRestriction(matchedBaseParticle, derivedParticles[i], errors, context)) {
+                    if (!isParticleValidRestriction(matchedBaseParticle, derivedParticle, errors, context)) {
                         // already have an error
                         recurseUnorderedValid = false;
                         break;
                     }
                     // everything is cool, got a match, update to MAPPED
-                    baseParticleMap.put(derivedParticles[i].getName(), MAPPED);
+                    baseParticleMap.put(derivedParticle.getName(), MAPPED);
                 }
             }
         }
@@ -813,9 +810,8 @@ public class StscChecker {
         // if everything is cool so far then check to see if any base particles are not matched
         if (recurseUnorderedValid) {
             // get all the hashmap keys and loop thru looking for NOT_MAPPED
-            Set baseParticleCollection = baseParticleMap.keySet();
-            for (Iterator iterator = baseParticleCollection.iterator(); iterator.hasNext(); ) {
-                QName baseParticleQName = (QName) iterator.next();
+            Set<QName> baseParticleCollection = baseParticleMap.keySet();
+            for (QName baseParticleQName : baseParticleCollection) {
                 if (baseParticleMap.get(baseParticleQName) != MAPPED && !((SchemaParticle) baseParticleMap.get(baseParticleQName)).isSkippable()) {
                     // this base particle was not mapped and is not "particle emptiable" (skippable)
                     recurseUnorderedValid = false;
@@ -863,7 +859,7 @@ public class StscChecker {
         SchemaParticle[] derivedParticleArray = derivedModel.getParticleChildren();
         SchemaParticle[] baseParticleArray = baseModel.getParticleChildren();
         int i = 0, j = 0;
-        for (; i < derivedParticleArray.length && j < baseParticleArray.length; ) {
+        while (i < derivedParticleArray.length && j < baseParticleArray.length) {
             SchemaParticle derivedParticle = derivedParticleArray[i];
             SchemaParticle baseParticle = baseParticleArray[j];
             // try to match the two particles by recursing
@@ -901,7 +897,7 @@ public class StscChecker {
             // if at end of derived particle array and not at end of base particle array then chck remaining
             //  base particles to assure they are skippable
             if (j < baseParticleArray.length) {
-                ArrayList particles = new ArrayList(baseParticleArray.length);
+                ArrayList<SchemaParticle> particles = new ArrayList<>(baseParticleArray.length);
                 for (int k = j; k < baseParticleArray.length; k++) {
                     if (!baseParticleArray[k].isSkippable()) {
                         particles.add(baseParticleArray[k]);
@@ -948,8 +944,7 @@ public class StscChecker {
         asIfPart.setTransitionNotes(baseModel.getWildcardSet(), true);
 
         SchemaParticle[] particleChildren = derivedModel.getParticleChildren();
-        for (int i = 0; i < particleChildren.length; i++) {
-            SchemaParticle particle = particleChildren[i];
+        for (SchemaParticle particle : particleChildren) {
             switch (particle.getParticleType()) {
                 case SchemaParticle.ELEMENT:
                     // Check for valid Wildcard/Element derivation
@@ -1011,9 +1006,8 @@ public class StscChecker {
         // one of the following must be true:
         // The base model's {max occurs} is unbounded.
         // or both {max occurs} are numbers, and the particle's is less than or equal to the other's
-        BigInteger UNBOUNDED = null;
-        if (baseModel.getMaxOccurs() != UNBOUNDED) {
-            if (maxRange == UNBOUNDED) {
+        if (baseModel.getMaxOccurs() != null) {
+            if (maxRange == null) {
                 groupOccurrenceOK = false;
                 errors.add(XmlError.forObject(XmlErrorCodes.OCCURRENCE_RANGE$MAX_LTE_MAX,
                     new Object[]{printParticle(derivedModel), printParticle(baseModel)},
@@ -1032,7 +1026,6 @@ public class StscChecker {
 
     private static BigInteger getEffectiveMaxRangeChoice(SchemaParticle derivedModel) {
         BigInteger maxRange = BigInteger.ZERO;
-        BigInteger UNBOUNDED = null;
         // Schema Component Constraint: Effective Total Range (choice)
         // The effective total range of a particle whose {term} is a group whose {compositor} is choice
         // is a pair of minimum and maximum, as follows:
@@ -1051,14 +1044,13 @@ public class StscChecker {
         BigInteger maxOccursInWildCardOrElement = BigInteger.ZERO;
         BigInteger maxOccursInGroup = BigInteger.ZERO;
         SchemaParticle[] particleChildren = derivedModel.getParticleChildren();
-        for (int i = 0; i < particleChildren.length; i++) {
-            SchemaParticle particle = particleChildren[i];
+        for (SchemaParticle particle : particleChildren) {
             switch (particle.getParticleType()) {
                 case SchemaParticle.WILDCARD:
                 case SchemaParticle.ELEMENT:
                     // if unbounded then maxoccurs will be null
-                    if (particle.getMaxOccurs() == UNBOUNDED) {
-                        maxRange = UNBOUNDED;
+                    if (particle.getMaxOccurs() == null) {
+                        maxRange = null;
                     } else {
                         if (particle.getIntMaxOccurs() > 0) {
                             // show tht at least one non-zero particle is found for later test
@@ -1072,7 +1064,7 @@ public class StscChecker {
                 case SchemaParticle.ALL:
                 case SchemaParticle.SEQUENCE:
                     maxRange = getEffectiveMaxRangeAllSeq(particle);
-                    if (maxRange != UNBOUNDED) {
+                    if (maxRange != null) {
                         // keep highest maxoccurs found
                         if (maxRange.compareTo(maxOccursInGroup) > 0) {
                             maxOccursInGroup = maxRange;
@@ -1081,7 +1073,7 @@ public class StscChecker {
                     break;
                 case SchemaParticle.CHOICE:
                     maxRange = getEffectiveMaxRangeChoice(particle);
-                    if (maxRange != UNBOUNDED) {
+                    if (maxRange != null) {
                         // keep highest maxoccurs found
                         if (maxRange.compareTo(maxOccursInGroup) > 0) {
                             maxOccursInGroup = maxRange;
@@ -1090,7 +1082,7 @@ public class StscChecker {
                     break;
             }
             // if an unbounded has been found then we are done
-            if (maxRange == UNBOUNDED) {
+            if (maxRange == null) {
                 break;
             }
         }
@@ -1098,10 +1090,10 @@ public class StscChecker {
         // 1) unbounded if the {max occurs} of any wildcard or element declaration particle in the group's {particles} or
         // the maximum part of the effective total range of any of the group particles in the group's {particles} is
         // unbounded
-        if (maxRange != UNBOUNDED) {
+        if (maxRange != null) {
             // 2) if any of those is non-zero and the {max occurs} of the particle itself is unbounded
-            if (nonZeroParticleChildFound && derivedModel.getMaxOccurs() == UNBOUNDED) {
-                maxRange = UNBOUNDED;
+            if (nonZeroParticleChildFound && derivedModel.getMaxOccurs() == null) {
+                maxRange = null;
             } else {
                 // 3) the product of the particle's {max occurs} and the maximum of the {max occurs} of every
                 // wildcard or element declaration particle in the group's {particles} and the *maximum*
@@ -1115,7 +1107,6 @@ public class StscChecker {
 
     private static BigInteger getEffectiveMaxRangeAllSeq(SchemaParticle derivedModel) {
         BigInteger maxRange = BigInteger.ZERO;
-        BigInteger UNBOUNDED = null;
         // Schema Component Constraint: Effective Total Range (all and sequence)
         // The effective total range of a particle whose {term} is a group whose {compositor} is all or sequence is a
         // pair of minimum and maximum, as follows:
@@ -1131,14 +1122,13 @@ public class StscChecker {
         BigInteger maxOccursTotal = BigInteger.ZERO;
         BigInteger maxOccursInGroup = BigInteger.ZERO;
         SchemaParticle[] particleChildren = derivedModel.getParticleChildren();
-        for (int i = 0; i < particleChildren.length; i++) {
-            SchemaParticle particle = particleChildren[i];
+        for (SchemaParticle particle : particleChildren) {
             switch (particle.getParticleType()) {
                 case SchemaParticle.WILDCARD:
                 case SchemaParticle.ELEMENT:
                     // if unbounded then maxoccurs will be null
-                    if (particle.getMaxOccurs() == UNBOUNDED) {
-                        maxRange = UNBOUNDED;
+                    if (particle.getMaxOccurs() == null) {
+                        maxRange = null;
                     } else {
                         if (particle.getIntMaxOccurs() > 0) {
                             // show tht at least one non-zero particle is found for later test
@@ -1150,7 +1140,7 @@ public class StscChecker {
                 case SchemaParticle.ALL:
                 case SchemaParticle.SEQUENCE:
                     maxRange = getEffectiveMaxRangeAllSeq(particle);
-                    if (maxRange != UNBOUNDED) {
+                    if (maxRange != null) {
                         // keep highest maxoccurs found
                         if (maxRange.compareTo(maxOccursInGroup) > 0) {
                             maxOccursInGroup = maxRange;
@@ -1159,7 +1149,7 @@ public class StscChecker {
                     break;
                 case SchemaParticle.CHOICE:
                     maxRange = getEffectiveMaxRangeChoice(particle);
-                    if (maxRange != UNBOUNDED) {
+                    if (maxRange != null) {
                         // keep highest maxoccurs found
                         if (maxRange.compareTo(maxOccursInGroup) > 0) {
                             maxOccursInGroup = maxRange;
@@ -1168,7 +1158,7 @@ public class StscChecker {
                     break;
             }
             // if an unbounded has been found then we are done
-            if (maxRange == UNBOUNDED) {
+            if (maxRange == null) {
                 break;
             }
         }
@@ -1176,10 +1166,10 @@ public class StscChecker {
         // 1) unbounded if the {max occurs} of any wildcard or element declaration particle in the group's {particles} or
         // the maximum part of the effective total range of any of the group particles in the group's {particles} is
         // unbounded
-        if (maxRange != UNBOUNDED) {
+        if (maxRange != null) {
             // 2) if any of those is non-zero and the {max occurs} of the particle itself is unbounded
-            if (nonZeroParticleChildFound && derivedModel.getMaxOccurs() == UNBOUNDED) {
-                maxRange = UNBOUNDED;
+            if (nonZeroParticleChildFound && derivedModel.getMaxOccurs() == null) {
+                maxRange = null;
             } else {
                 // 3) the product of the particle's {max occurs} and the sum of the {max occurs} of every wildcard or element
                 // declaration particle in the group's {particles} and the maximum part of the effective total range of each of
@@ -1208,8 +1198,7 @@ public class StscChecker {
         BigInteger minRange = null;
         // get the minimum of every wildcard or element
         // total up the effective total range for each group
-        for (int i = 0; i < particleChildren.length; i++) {
-            SchemaParticle particle = particleChildren[i];
+        for (SchemaParticle particle : particleChildren) {
             switch (particle.getParticleType()) {
                 case SchemaParticle.WILDCARD:
                 case SchemaParticle.ELEMENT:
@@ -1242,7 +1231,7 @@ public class StscChecker {
     }
 
     private static BigInteger getEffectiveMinRangeAllSeq(SchemaParticle derivedModel) {
-        BigInteger minRange = BigInteger.ZERO;
+        BigInteger minRange;
         // Schema Component Constraint: Effective Total Range (all and sequence)
         // The effective total range of a particle whose {term} is a group whose {compositor} is all or sequence is a
         // pair of minimum and maximum, as follows:
@@ -1254,8 +1243,7 @@ public class StscChecker {
         // of the group particles in the group's {particles} (or 0 if there are no {particles}).
         SchemaParticle[] particleChildren = derivedModel.getParticleChildren();
         BigInteger particleTotalMinOccurs = BigInteger.ZERO;
-        for (int i = 0; i < particleChildren.length; i++) {
-            SchemaParticle particle = particleChildren[i];
+        for (SchemaParticle particle : particleChildren) {
             switch (particle.getParticleType()) {
                 case SchemaParticle.WILDCARD:
                 case SchemaParticle.ELEMENT:
@@ -1280,7 +1268,7 @@ public class StscChecker {
         // nsSubset is called when base: ANY, derived: ANY
         assert baseModel.getParticleType() == SchemaParticle.WILDCARD;
         assert derivedModel.getParticleType() == SchemaParticle.WILDCARD;
-        boolean nsSubset = false;
+        boolean nsSubset;
         // For a wildcard particle to be a �valid restriction� of another wildcard particle all of the following must be true:
         // 1 R's occurrence range must be a valid restriction of B's occurrence range as defined by Occurrence Range OK (�3.9.6).
         if (occurrenceRangeOK(baseModel, derivedModel, errors, context)) {
@@ -1306,7 +1294,7 @@ public class StscChecker {
     private static boolean nsCompat(SchemaParticle baseModel, SchemaLocalElement derivedElement, Collection<XmlError> errors, XmlObject context) {
         // nsCompat is called when base: ANY, derived: ELEMENT
         assert baseModel.getParticleType() == SchemaParticle.WILDCARD;
-        boolean nsCompat = false;
+        boolean nsCompat;
         // For an element declaration particle to be a �valid restriction� of a wildcard particle all of the following must be true:
         // 1 The element declaration's {target namespace} is �valid� with respect to the wildcard's {namespace constraint}
         // as defined by Wildcard allows Namespace Name (�3.10.4).
@@ -1315,6 +1303,7 @@ public class StscChecker {
             if (occurrenceRangeOK(baseModel, (SchemaParticle) derivedElement, errors, context)) {
                 nsCompat = true;
             } else {
+                nsCompat = false;
                 // error already produced by occurrenceRangeOK
                 //errors.add(XmlError.forObject(formatOccurenceRangeMinError(baseModel, (SchemaParticle) derivedElement), context));
             }
@@ -1374,12 +1363,7 @@ public class StscChecker {
         }
 
         // 6 R's declaration's {disallowed substitutions} is a superset of B's declaration's {disallowed substitutions}.
-        if (!blockSetOK(baseElement, derivedElement, errors, context)) {
-            // error already produced
-            return false;
-        }
-
-        return true;
+        return blockSetOK(baseElement, derivedElement, errors, context);
     }
 
     private static boolean blockSetOK(SchemaLocalElement baseElement, SchemaLocalElement derivedElement, Collection<XmlError> errors, XmlObject context) {
@@ -1405,7 +1389,7 @@ public class StscChecker {
     }
 
     private static boolean typeDerivationOK(SchemaType baseType, SchemaType derivedType, Collection<XmlError> errors, XmlObject context) {
-        boolean typeDerivationOK = false;
+        boolean typeDerivationOK;
         // 1 If B and D are not the same type definition, then the {derivation method} of D must not be in the subset.
         // 2 One of the following must be true:
         // 2.1 B and D must be the same type definition.
@@ -1435,9 +1419,9 @@ public class StscChecker {
         SchemaType currentType = derivedType;
 
         // XMLBEANS-66: if baseType is a union, check restriction is of one of the constituant types
-        Set possibleTypes = null;
+        Set<SchemaType> possibleTypes = null;
         if (baseType.getSimpleVariety() == SchemaType.UNION) {
-            possibleTypes = new HashSet(Arrays.asList(baseType.getUnionConstituentTypes()));
+            possibleTypes = new HashSet<>(Arrays.asList(baseType.getUnionConstituentTypes()));
         }
 
         // run up the types hierarchy from derived Type to base Type and make sure that all are derived by
@@ -1463,8 +1447,7 @@ public class StscChecker {
         SchemaIdentityConstraint[] baseConstraints = baseElement.getIdentityConstraints();
         SchemaIdentityConstraint[] derivedConstraints = derivedElement.getIdentityConstraints();
         // cycle thru derived's identity constraints and check each to assure they in the array of base constraints
-        for (int i = 0; i < derivedConstraints.length; i++) {
-            SchemaIdentityConstraint derivedConstraint = derivedConstraints[i];
+        for (SchemaIdentityConstraint derivedConstraint : derivedConstraints) {
             if (checkForIdentityConstraintExistence(baseConstraints, derivedConstraint)) {
                 identityConstraintsOK = false;
                 errors.add(XmlError.forObject(XmlErrorCodes.PARTICLE_RESTRICTION_NAME_AND_TYPE$IDENTITY_CONSTRAINTS,
@@ -1479,8 +1462,7 @@ public class StscChecker {
     private static boolean checkForIdentityConstraintExistence(SchemaIdentityConstraint[] baseConstraints, SchemaIdentityConstraint derivedConstraint) {
         // spin thru the base identity constraints check to see if derived constraint exists
         boolean identityConstraintExists = false;
-        for (int i = 0; i < baseConstraints.length; i++) {
-            SchemaIdentityConstraint baseConstraint = baseConstraints[i];
+        for (SchemaIdentityConstraint baseConstraint : baseConstraints) {
             if (baseConstraint.getName().equals(derivedConstraint.getName())) {
                 identityConstraintExists = true;
                 break;
@@ -1493,7 +1475,7 @@ public class StscChecker {
     private static boolean checkFixed(SchemaLocalElement baseModel, SchemaLocalElement derivedModel, Collection<XmlError> errors, XmlObject context) {
         // 4 either B's declaration's {value constraint} is absent, or is not fixed,
         // or R's declaration's {value constraint} is fixed with the same value.
-        boolean checkFixed = false;
+        boolean checkFixed;
         if (baseModel.isFixed()) {
             if (baseModel.getDefaultText().equals(derivedModel.getDefaultText())) {
                 //  R's declaration's {value constraint} is fixed with the same value.
@@ -1514,7 +1496,7 @@ public class StscChecker {
     }
 
     private static boolean occurrenceRangeOK(SchemaParticle baseParticle, SchemaParticle derivedParticle, Collection<XmlError> errors, XmlObject context) {
-        boolean occurrenceRangeOK = false;
+        boolean occurrenceRangeOK;
         // Note: in the following comments (from the schema spec) other is the baseModel
         // 1 Its {min occurs} is greater than or equal to the other's {min occurs}.
         if (derivedParticle.getMinOccurs().compareTo(baseParticle.getMinOccurs()) >= 0) {
@@ -1545,8 +1527,8 @@ public class StscChecker {
         return occurrenceRangeOK;
     }
 
-    private static String printParticles(List parts) {
-        return printParticles((SchemaParticle[]) parts.toArray(new SchemaParticle[parts.size()]));
+    private static String printParticles(List<SchemaParticle> parts) {
+        return printParticles(parts.toArray(new SchemaParticle[0]));
     }
 
     private static String printParticles(SchemaParticle[] parts) {
@@ -1602,8 +1584,7 @@ public class StscChecker {
     private static void checkSubstitutionGroups(SchemaGlobalElement[] elts) {
         StscState state = StscState.get();
 
-        for (int i = 0; i < elts.length; i++) {
-            SchemaGlobalElement elt = elts[i];
+        for (SchemaGlobalElement elt : elts) {
             SchemaGlobalElement head = elt.substitutionGroup();
 
             if (head != null) {

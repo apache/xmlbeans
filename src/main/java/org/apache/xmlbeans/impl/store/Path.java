@@ -18,8 +18,8 @@ package org.apache.xmlbeans.impl.store;
 import org.apache.xmlbeans.*;
 import org.apache.xmlbeans.impl.common.DefaultClassLoaderResourceLoader;
 import org.apache.xmlbeans.impl.common.XPath;
-import org.apache.xmlbeans.impl.common.XPathExecutionContext;
 import org.apache.xmlbeans.impl.common.XPath.XPathCompileException;
+import org.apache.xmlbeans.impl.common.XPathExecutionContext;
 import org.w3c.dom.Node;
 
 import java.io.BufferedReader;
@@ -51,10 +51,10 @@ public abstract class Path {
     private static final int USE_XQRL2002 = 0x08;
     private static final int USE_XDK = 0x10;
 
-    private static final Map<String,WeakReference<Path>> _xbeanPathCache = new WeakHashMap<>();
-    private static final Map<String,WeakReference<Path>> _xdkPathCache = new WeakHashMap<>();
-    private static final Map<String,WeakReference<Path>> _xqrlPathCache = new WeakHashMap<>();
-    private static final Map<String,WeakReference<Path>> _xqrl2002PathCache = new WeakHashMap<>();
+    private static final Map<String, WeakReference<Path>> _xbeanPathCache = new WeakHashMap<>();
+    private static final Map<String, WeakReference<Path>> _xdkPathCache = new WeakHashMap<>();
+    private static final Map<String, WeakReference<Path>> _xqrlPathCache = new WeakHashMap<>();
+    private static final Map<String, WeakReference<Path>> _xqrl2002PathCache = new WeakHashMap<>();
 
     private static Method _xdkCompilePath;
     private static Method _xqrlCompilePath;
@@ -109,8 +109,9 @@ public abstract class Path {
 
         options = XmlOptions.maskNull(options);
 
-        if (options.hasOption(XmlOptions.XQUERY_CURRENT_NODE_VAR)) {
-            currentNodeVar = (String) options.get(XmlOptions.XQUERY_CURRENT_NODE_VAR);
+        String cnv = options.getXqueryCurrentNodeVar();
+        if (cnv != null) {
+            currentNodeVar = cnv;
 
             if (currentNodeVar.startsWith("$")) {
                 throw new IllegalArgumentException("Omit the '$' prefix for the current node variable");
@@ -141,7 +142,7 @@ public abstract class Path {
                                 String currentVar, String delIntfName) {
         Path path = null;
         WeakReference<Path> pathWeakRef = null;
-        Map<String,String> namespaces = (force & USE_DELEGATE) != 0 ? new HashMap<>() : null;
+        Map<String, String> namespaces = (force & USE_DELEGATE) != 0 ? new HashMap<>() : null;
         lock.readLock().lock();
         try {
             if ((force & USE_XBEAN) != 0) {
@@ -261,7 +262,7 @@ public abstract class Path {
     }
 
     static private Path getCompiledPathXbean(String pathExpr,
-                                             String currentVar, Map<String,String> namespaces) {
+                                             String currentVar, Map<String, String> namespaces) {
         Path path = XbeanPath.create(pathExpr, currentVar, namespaces);
         if (path != null) {
             _xbeanPathCache.put(path._pathKey, new WeakReference<>(path));
@@ -270,7 +271,7 @@ public abstract class Path {
         return path;
     }
 
-    static private Path getCompiledPathDelegate(String pathExpr, String currentVar, Map<String,String> namespaces, String delIntfName) {
+    static private Path getCompiledPathDelegate(String pathExpr, String currentVar, Map<String, String> namespaces, String delIntfName) {
         if (namespaces == null) {
             namespaces = new HashMap<>();
         }
@@ -301,7 +302,7 @@ public abstract class Path {
     //
 
     private static final class XbeanPath extends Path {
-        static Path create(String pathExpr, String currentVar, Map<String,String> namespaces) {
+        static Path create(String pathExpr, String currentVar, Map<String, String> namespaces) {
             try {
                 return new XbeanPath(pathExpr, currentVar,
                     XPath.compileXPath(pathExpr, currentVar, namespaces));
@@ -337,7 +338,7 @@ public abstract class Path {
 
         private final String _currentVar;
         private final XPath _compiledPath;
-        public Map<String,String> namespaces;
+        public Map<String, String> namespaces;
     }
 
     private static Path createXdkCompiledPath(String pathExpr, String currentVar) {

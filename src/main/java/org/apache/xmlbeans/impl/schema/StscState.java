@@ -82,9 +82,9 @@ public class StscState {
     private final Map<String, SchemaContainer> _containers = new LinkedHashMap<>();
     private SchemaDependencies _dependencies;
 
-    private final Map<SchemaTypeImpl,SchemaTypeImpl> _redefinedGlobalTypes = new LinkedHashMap<>();
-    private final Map<SchemaModelGroupImpl,SchemaModelGroupImpl>  _redefinedModelGroups = new LinkedHashMap<>();
-    private final Map<SchemaAttributeGroupImpl,SchemaAttributeGroupImpl>  _redefinedAttributeGroups = new LinkedHashMap<>();
+    private final Map<SchemaTypeImpl, SchemaTypeImpl> _redefinedGlobalTypes = new LinkedHashMap<>();
+    private final Map<SchemaModelGroupImpl, SchemaModelGroupImpl> _redefinedModelGroups = new LinkedHashMap<>();
+    private final Map<SchemaAttributeGroupImpl, SchemaAttributeGroupImpl> _redefinedAttributeGroups = new LinkedHashMap<>();
 
     private final Map<QName, SchemaType> _globalTypes = new LinkedHashMap<>();
     private final Map<QName, SchemaGlobalElement> _globalElements = new LinkedHashMap<>();
@@ -450,16 +450,16 @@ public class StscState {
 
         _allowPartial = options.hasOption("COMPILE_PARTIAL_TYPESYSTEM");
 
-        _compatMap = (Map) options.get(XmlOptions.COMPILE_SUBSTITUTE_NAMES);
-        _noUpa = options.hasOption(XmlOptions.COMPILE_NO_UPA_RULE) ? true :
-            !"true".equals(SystemProperties.getProperty("xmlbean.uniqueparticleattribution", "true"));
-        _noPvr = options.hasOption(XmlOptions.COMPILE_NO_PVR_RULE) ? true :
-            !"true".equals(SystemProperties.getProperty("xmlbean.particlerestriction", "true"));
-        _noAnn = options.hasOption(XmlOptions.COMPILE_NO_ANNOTATIONS) ? true :
-            !"true".equals(SystemProperties.getProperty("xmlbean.schemaannotations", "true"));
-        _doingDownloads = options.hasOption(XmlOptions.COMPILE_DOWNLOAD_URLS) ? true :
-            "true".equals(SystemProperties.getProperty("xmlbean.downloadurls", "false"));
-        _entityResolver = (EntityResolver) options.get(XmlOptions.ENTITY_RESOLVER);
+        _compatMap = options.getCompileSubstituteNames();
+        _noUpa = options.isCompileNoUpaRule() ||
+                 !"true".equals(SystemProperties.getProperty("xmlbean.uniqueparticleattribution", "true"));
+        _noPvr = options.isCompileNoPvrRule() ||
+                 !"true".equals(SystemProperties.getProperty("xmlbean.particlerestriction", "true"));
+        _noAnn = options.isCompileNoAnnotations() ||
+                 !"true".equals(SystemProperties.getProperty("xmlbean.schemaannotations", "true"));
+        _doingDownloads = options.isCompileDownloadUrls() ||
+                          "true".equals(SystemProperties.getProperty("xmlbean.downloadurls", "false"));
+        _entityResolver = options.getEntityResolver();
 
         if (_entityResolver == null) {
             _entityResolver = ResolverUtil.getGlobalEntityResolver();
@@ -469,8 +469,9 @@ public class StscState {
             _doingDownloads = true;
         }
 
-        if (options.hasOption(XmlOptions.COMPILE_MDEF_NAMESPACES)) {
-            _mdefNamespaces.addAll((Collection) options.get(XmlOptions.COMPILE_MDEF_NAMESPACES));
+        Set<String> mdef = options.getCompileMdefNamespaces();
+        if (mdef != null) {
+            _mdefNamespaces.addAll(mdef);
 
             String local = "##local";
             String any = "##any";
@@ -720,7 +721,7 @@ public class StscState {
     }
 
     SchemaType[] redefinedGlobalTypes() {
-        return (SchemaType[]) _redefinedGlobalTypes.values().toArray(new SchemaType[0]);
+        return _redefinedGlobalTypes.values().toArray(new SchemaType[0]);
     }
 
     /* DOCUMENT TYPES =================================================*/

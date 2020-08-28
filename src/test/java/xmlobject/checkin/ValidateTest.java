@@ -31,31 +31,31 @@ public class ValidateTest extends BasicCursorTestCase {
     @Test
     public void testValidateTrue() throws Exception {
         //m_xo = XmlObject.Factory.parse(Common.XML_PURCHASEORDER);
-         m_xo = XmlObject.Factory.parse(
-                JarUtil.getResourceFromJar("xbean/xmlcursor/po.xml"));
+        m_xo = XmlObject.Factory.parse(
+            JarUtil.getResourceFromJar("xbean/xmlcursor/po.xml"));
         assertTrue(m_xo.validate());
     }
 
     @Test
     public void testValidateTrueWithOptionDiscardDocElement() throws Exception {
         XmlOptions map = new XmlOptions();
-        map.put(XmlOptions.LOAD_REPLACE_DOCUMENT_ELEMENT, null);
+        map.setLoadReplaceDocumentElement(null);
         m_xo = XmlObject.Factory.parse(
-                JarUtil.getResourceFromJar(Common.TRANXML_FILE_XMLCURSOR_PO)
-                , map);
+            JarUtil.getResourceFromJar(Common.TRANXML_FILE_XMLCURSOR_PO)
+            , map);
 
         assertFalse(m_xo.validate(map));
     }
 
     @Test
     public void testValidateFalseFixedAttr() throws Exception {
-         m_xo = XmlObject.Factory.parse(
-                JarUtil.getResourceFromJar("xbean/xmlcursor/po.xml"));
-        String ns="declare namespace po=\"http://xbean.test/xmlcursor/PurchaseOrder\";";
-                    String exp_ns="xmlns:po=\"http://xbean.test/xmlcursor/PurchaseOrder\"";
+        m_xo = XmlObject.Factory.parse(
+            JarUtil.getResourceFromJar("xbean/xmlcursor/po.xml"));
+        String ns = "declare namespace po=\"http://xbean.test/xmlcursor/PurchaseOrder\";";
+        String exp_ns = "xmlns:po=\"http://xbean.test/xmlcursor/PurchaseOrder\"";
 
         m_xc = m_xo.newCursor();
-        m_xc.selectPath(ns+" $this//po:shipTo");
+        m_xc.selectPath(ns + " $this//po:shipTo");
         QName name = new QName("country");
         m_xc.setAttributeText(name, "UK");
         XmlObject xo = m_xc.getObject();

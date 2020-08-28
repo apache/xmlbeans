@@ -63,8 +63,7 @@ public class XBeansXQuery
     public XBeansXQuery(final String query, String contextVar, Integer boundary, XmlOptions xmlOptions) {
         config = new Configuration();
         StaticQueryContext sc = config.newStaticQueryContext();
-        @SuppressWarnings("unchecked")
-        Map<String,String> nsMap = (Map<String,String>)xmlOptions.get(XmlOptions.LOAD_ADDITIONAL_NAMESPACES);
+        Map<String, String> nsMap = xmlOptions.getLoadAdditionalNamespaces();
         if (nsMap != null) {
             nsMap.forEach(sc::declareNamespace);
         }
@@ -87,14 +86,14 @@ public class XBeansXQuery
                 ? (Document) contextNode : contextNode.getOwnerDocument();
 
             DocumentWrapper docWrapper = new DocumentWrapper(dom, null, config);
-            NodeInfo root =  docWrapper.wrap(contextNode);
+            NodeInfo root = docWrapper.wrap(contextNode);
 
             DynamicQueryContext dc = new DynamicQueryContext(config);
             dc.setContextItem(root);
             dc.setParameter(new StructuredQName("", null, contextVar), root);
             // Set the other variables
             if (variableBindings != null) {
-                for (Map.Entry<String, Object> me : ((Map<String,Object>)variableBindings).entrySet()) {
+                for (Map.Entry<String, Object> me : ((Map<String, Object>) variableBindings).entrySet()) {
                     StructuredQName key = new StructuredQName("", null, me.getKey());
                     Object value = me.getValue();
                     if (value instanceof XmlTokenSource) {
@@ -134,7 +133,7 @@ public class XBeansXQuery
         if (value instanceof Boolean) {
             return BooleanValue.get((Boolean) value);
         } else if (value instanceof byte[]) {
-            return new HexBinaryValue((byte[])value);
+            return new HexBinaryValue((byte[]) value);
         } else if (value instanceof Byte) {
             return new Int64Value((Byte) value, BuiltInAtomicType.BYTE, false);
         } else if (value instanceof Float) {
@@ -148,13 +147,13 @@ public class XBeansXQuery
         } else if (value instanceof Short) {
             return new Int64Value((Short) value, BuiltInAtomicType.SHORT, false);
         } else if (value instanceof String) {
-            return new StringValue((String)value);
+            return new StringValue((String) value);
         } else if (value instanceof BigDecimal) {
-            return new BigDecimalValue((BigDecimal)value);
+            return new BigDecimalValue((BigDecimal) value);
         } else if (value instanceof BigInteger) {
-            return new BigIntegerValue((BigInteger)value);
+            return new BigIntegerValue((BigInteger) value);
         } else if (value instanceof SaxonDuration) {
-            return ((SaxonDuration)value).getDurationValue();
+            return ((SaxonDuration) value).getDurationValue();
         } else if (value instanceof Duration) {
             // this is simpler and safer (but perhaps slower) than extracting all the components
             //return DurationValue.makeDuration(value.toString()).asAtomic();
@@ -162,9 +161,9 @@ public class XBeansXQuery
             return new DurationValue(dv.getSign() >= 0, dv.getYears(), dv.getMonths(), dv.getDays(),
                 dv.getHours(), dv.getMinutes(), dv.getSeconds(), 0); // take correct millis..
         } else if (value instanceof SaxonXMLGregorianCalendar) {
-            return ((SaxonXMLGregorianCalendar)value).toCalendarValue();
+            return ((SaxonXMLGregorianCalendar) value).toCalendarValue();
         } else if (value instanceof XMLGregorianCalendar) {
-            XMLGregorianCalendar g = (XMLGregorianCalendar)value;
+            XMLGregorianCalendar g = (XMLGregorianCalendar) value;
             QName gtype = g.getXMLSchemaType();
             if (gtype.equals(DatatypeConstants.DATETIME)) {
                 return DateTimeValue.makeDateTimeValue(value.toString(), config.getConversionRules()).asAtomic();
@@ -191,19 +190,20 @@ public class XBeansXQuery
                 throw new AssertionError("Unknown Gregorian date type");
             }
         } else if (value instanceof QName) {
-            QName q = (QName)value;
+            QName q = (QName) value;
             return new QNameValue(q.getPrefix(), q.getNamespaceURI(), q.getLocalPart()); //BuiltInAtomicType.QNAME, null);
         } else if (value instanceof URI) {
             return new AnyURIValue(value.toString());
         } else if (value instanceof Map) {
             HashTrieMap htm = new HashTrieMap();
-            for (Map.Entry<?,?> me : ((Map<?,?>)value).entrySet()) {
+            for (Map.Entry<?, ?> me : ((Map<?, ?>) value).entrySet()) {
                 htm.initialPut(
-                    (AtomicValue)objectToItem(me.getKey(), config),
+                    (AtomicValue) objectToItem(me.getKey(), config),
                     objectToItem(me.getValue(), config));
             }
             return htm;
         } else {
             return new ObjectValue(value);
         }
-    }}
+    }
+}

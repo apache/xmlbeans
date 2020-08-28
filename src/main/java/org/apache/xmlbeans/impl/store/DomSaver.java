@@ -22,7 +22,7 @@ import org.apache.xmlbeans.XmlOptions;
 import org.w3c.dom.Node;
 
 import javax.xml.namespace.QName;
-import java.util.ArrayList;
+import java.util.List;
 
 final class DomSaver extends Saver {
     private Cur _nodeCur;
@@ -79,7 +79,8 @@ final class DomSaver extends Saver {
         }
     }
 
-    protected boolean emitElement(SaveCur c, ArrayList attrNames, ArrayList attrValues) {
+    @Override
+    protected boolean emitElement(SaveCur c, List<QName> attrNames, List<String> attrValues) {
         // If there was text or comments before the frag element, I will loose them -- oh well
         // Also, I will lose any attributes and namesapces on the fragment -- DOM can
         // have attrs in fragments

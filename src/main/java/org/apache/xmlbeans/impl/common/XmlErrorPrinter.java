@@ -17,43 +17,37 @@ package org.apache.xmlbeans.impl.common;
 
 import org.apache.xmlbeans.XmlError;
 
-import java.util.AbstractCollection;
-import java.util.Iterator;
-import java.util.Collections;
 import java.net.URI;
+import java.util.AbstractCollection;
+import java.util.Collections;
+import java.util.Iterator;
 
-public class XmlErrorPrinter extends AbstractCollection
-{
-    private boolean _noisy;
-    private URI _baseURI;
+public class XmlErrorPrinter extends AbstractCollection<XmlError> {
+    private final boolean _noisy;
+    private final URI _baseURI;
 
-    public XmlErrorPrinter(boolean noisy, URI baseURI)
-    {
+    public XmlErrorPrinter(boolean noisy, URI baseURI) {
         _noisy = noisy;
         _baseURI = baseURI;
     }
 
-    public boolean add(Object o)
-    {
-        if (o instanceof XmlError)
-        {
-            XmlError err = (XmlError)o;
+    public boolean add(XmlError err) {
+        if (err != null) {
             if (err.getSeverity() == XmlError.SEVERITY_ERROR ||
-                err.getSeverity() == XmlError.SEVERITY_WARNING)
+                err.getSeverity() == XmlError.SEVERITY_WARNING) {
                 System.err.println(err.toString(_baseURI));
-            else if (_noisy)
+            } else if (_noisy) {
                 System.out.println(err.toString(_baseURI));
+            }
         }
         return false;
     }
 
-    public Iterator iterator()
-    {
-        return Collections.EMPTY_LIST.iterator();
+    public Iterator<XmlError> iterator() {
+        return Collections.emptyIterator();
     }
 
-    public int size()
-    {
+    public int size() {
         return 0;
     }
 }

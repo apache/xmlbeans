@@ -37,9 +37,9 @@ public class XmlTextTest extends BasicCursorTestCase {
     public void testSAVENAMESPACESFIRST() throws Exception {
         m_xo = XmlObject.Factory.parse("<foo attr0=\"val0\" xmlns=\"http://www.foo.org\">01234</foo>");
         m_xc = m_xo.newCursor();
-        m_map.put(XmlOptions.SAVE_NAMESPACES_FIRST, "");
+        m_map.setSaveNamespacesFirst();
         assertEquals("<foo xmlns=\"http://www.foo.org\" attr0=\"val0\">01234</foo>",
-                     m_xc.xmlText(m_map));
+            m_xc.xmlText(m_map));
     }
 
     @Test
@@ -47,15 +47,14 @@ public class XmlTextTest extends BasicCursorTestCase {
         m_xo = XmlObject.Factory.parse("<foo attr0=\"val0\" xmlns=\"http://www.foo.org\">01234</foo>");
         m_xc = m_xo.newCursor();
         assertEquals("<foo attr0=\"val0\" xmlns=\"http://www.foo.org\">01234</foo>",
-                     m_xc.xmlText(m_map));
+            m_xc.xmlText(m_map));
     }
 
     @Test
     public void testSaveSyntheticDocumentElement() throws Exception {
         m_xo = XmlObject.Factory.parse("<bar>text</bar>");
         m_xc = m_xo.newCursor();
-        m_map.put(XmlOptions.SAVE_SYNTHETIC_DOCUMENT_ELEMENT,
-                  new QName("foo"));
+        m_map.setSaveSyntheticDocumentElement(new QName("foo"));
         assertEquals("<foo><bar>text</bar></foo>", m_xc.xmlText(m_map));
     }
 
@@ -63,7 +62,7 @@ public class XmlTextTest extends BasicCursorTestCase {
     public void testSavePrettyPrint() throws Exception {
         m_xo = XmlObject.Factory.parse("<a><b><c> text </c></b></a>");
         m_xc = m_xo.newCursor();
-        m_map.put(XmlOptions.SAVE_PRETTY_PRINT, "");
+        m_map.setSavePrettyPrint();
         String lnSep = System.getProperty("line.separator");
         assertEquals("<a>" + lnSep + "  <b>" + lnSep + "    <c> text </c>" + lnSep + "  </b>" + lnSep + "</a>", m_xc.xmlText(m_map));
     }
@@ -72,8 +71,8 @@ public class XmlTextTest extends BasicCursorTestCase {
     public void testSavePrettyPrintIndent3() throws Exception {
         m_xo = XmlObject.Factory.parse("<a><b><c> text </c></b></a>");
         m_xc = m_xo.newCursor();
-        m_map.put(XmlOptions.SAVE_PRETTY_PRINT, "");
-        m_map.put(XmlOptions.SAVE_PRETTY_PRINT_INDENT, new Integer(3));
+        m_map.setSavePrettyPrint();
+        m_map.setSavePrettyPrintIndent(3);
         String lnSep = System.getProperty("line.separator");
         assertEquals("<a>" + lnSep + "   <b>" + lnSep + "      <c> text </c>" + lnSep + "   </b>" + lnSep + "</a>", m_xc.xmlText(m_map));
     }
@@ -81,34 +80,34 @@ public class XmlTextTest extends BasicCursorTestCase {
     @Test
     public void testSavePrettyPrintIndentNeg1() throws Exception {
         m_xc = XmlObject.Factory.parse("<a>  \n  <b>  \n    <c> text   </c>   \n  </b>  \n  </a>").newCursor();
-        m_map.put(XmlOptions.SAVE_PRETTY_PRINT, "");
-        m_map.put(XmlOptions.SAVE_PRETTY_PRINT_INDENT, new Integer(-1));
+        m_map.setSavePrettyPrint();
+        m_map.setSavePrettyPrintIndent(-1);
         assertEquals("<a><b><c> text   </c></b></a>", m_xc.xmlText(m_map));
     }
 
     @Test
     public void testDefaultNamespace() throws Exception {
         m_xo = XmlObject.Factory.parse(
-                   JarUtil.getResourceFromJar(Common.TRANXML_FILE_CLM));
+            JarUtil.getResourceFromJar(Common.TRANXML_FILE_CLM));
         m_xc = m_xo.newCursor();
         m_xc.selectPath(Common.CLM_NS_XQUERY_DEFAULT + "$this//FleetID");
         m_xc.toNextSelection();
-        m_map.put(XmlOptions.SAVE_NAMESPACES_FIRST, "");
+        m_map.setSaveNamespacesFirst();
         assertEquals("<FleetID xmlns=\"" + Common.CLM_NS + "\" " +
                      Common.CLM_XSI_NS +
                      ">FLEETNAME</FleetID>",
-                     m_xc.xmlText(m_map));
+            m_xc.xmlText(m_map));
     }
 
     @Test
     public void testSTARTDOCvsFirstChild() throws Exception {
         m_xo = XmlObject.Factory.parse(
-                   JarUtil.getResourceFromJar(Common.TRANXML_FILE_CLM));
+            JarUtil.getResourceFromJar(Common.TRANXML_FILE_CLM));
         m_xc = m_xo.newCursor();
         XmlCursor xc1 = m_xo.newCursor();
         xc1.toFirstChild();
         try {
-            assertEquals(m_xc.xmlText().replaceFirst("(?s)<!--.*-->",""), xc1.xmlText());
+            assertEquals(m_xc.xmlText().replaceFirst("(?s)<!--.*-->", ""), xc1.xmlText());
         } finally {
             xc1.dispose();
         }

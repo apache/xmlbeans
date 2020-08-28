@@ -33,11 +33,11 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 public class ParseTest extends BasicCursorTestCase {
-    private XmlOptions m_map = new XmlOptions();
+    private final XmlOptions m_map = new XmlOptions();
 
     @Test
     public void testLoadStripWhitespace() throws Exception {
-        m_map.put(XmlOptions.LOAD_STRIP_WHITESPACE, "");
+        m_map.setLoadStripWhitespace();
         m_xo = XmlObject.Factory.parse("<foo>01234   <bar>text</bar>   chars \r\n</foo>  ",
             m_map);
         m_xc = m_xo.newCursor();
@@ -47,8 +47,7 @@ public class ParseTest extends BasicCursorTestCase {
 
     @Test
     public void testLoadDiscardDocumentElement() throws Exception {
-        QName name = new QName("");
-        m_map.put(XmlOptions.LOAD_REPLACE_DOCUMENT_ELEMENT, name);
+        m_map.setLoadReplaceDocumentElement(new QName(""));
         XmlObject.Factory.parse("<foo>01234   <bar>text</bar>   chars </foo>  ", m_map);
     }
 
@@ -68,8 +67,8 @@ public class ParseTest extends BasicCursorTestCase {
     @Test
     public void testParsingDOMWithDTD() throws Exception {
         final String svgDocumentString = "<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.1//EN\"\n" +
-                "\"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd\">\n" +
-                "<svg />";
+                                         "\"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd\">\n" +
+                                         "<svg />";
         assertNotNull(XmlObject.Factory.parse(svgDocumentString));
         final DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
         final DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();

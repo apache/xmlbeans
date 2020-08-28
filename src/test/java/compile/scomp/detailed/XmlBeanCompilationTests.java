@@ -37,7 +37,7 @@ import static org.junit.Assert.assertTrue;
  * the same schematypesystem
  */
 public class XmlBeanCompilationTests extends CompileTestBase {
-    private final List<String> xm_errors = new ArrayList<String>();
+    private final List<XmlError> xm_errors = new ArrayList<>();
     private final XmlOptions xm_opts = new XmlOptions();
 
     public XmlBeanCompilationTests() {
@@ -47,8 +47,9 @@ public class XmlBeanCompilationTests extends CompileTestBase {
 
     @After
     public void tearDown() throws Exception {
-        if (xm_errors.size() > 0)
+        if (xm_errors.size() > 0) {
             xm_errors.clear();
+        }
     }
 
     /**
@@ -109,22 +110,30 @@ public class XmlBeanCompilationTests extends CompileTestBase {
         SchemaTypeSystem apiSts = XmlBeans.compileXmlBeans("apiCompile", null,
             schemas, bind, XmlBeans.getBuiltinTypeSystem(), f, xm_opts);
 
-        if (!bind.isIslookupPrefixForNamespace())
+        if (!bind.isIslookupPrefixForNamespace()) {
             throw new Exception("isIslookupPrefixForNamespace not invoked");
-        if (!bind.isIslookupPackageForNamespace())
+        }
+        if (!bind.isIslookupPackageForNamespace()) {
             throw new Exception("isIslookupPackageForNamespace not invoked");
-        if (!bind.isIslookupSuffixForNamespace())
+        }
+        if (!bind.isIslookupSuffixForNamespace()) {
             throw new Exception("isIslookupSuffixForNamespace not invoked");
-        if (!bind.isIslookupJavanameForQName())
+        }
+        if (!bind.isIslookupJavanameForQName()) {
             throw new Exception("isIslookupJavanameForQName not invoked");
-        if (!bind.isIsgetInterfaceExtensionsString())
+        }
+        if (!bind.isIsgetInterfaceExtensionsString()) {
             throw new Exception("isIsgetInterfaceExtensionsString not invoked");
-        if (!bind.isIsgetInterfaceExtensions())
+        }
+        if (!bind.isIsgetInterfaceExtensions()) {
             throw new Exception("isIsgetInterfaceExtensions not invoked");
-        if (!bind.isIsgetPrePostExtensions())
+        }
+        if (!bind.isIsgetPrePostExtensions()) {
             throw new Exception("isIsgetPrePostExtensions not invoked");
-        if (!bind.isIsgetPrePostExtensionsString())
+        }
+        if (!bind.isIsgetPrePostExtensionsString()) {
             throw new Exception("isIsgetPrePostExtensionsString not invoked");
+        }
     }
 
     /**
@@ -160,9 +169,10 @@ public class XmlBeanCompilationTests extends CompileTestBase {
 
         assertTrue("Errors should have been empty", err.isEmpty());
         // find element in the type System
-        if (!findGlobalElement(sts.globalElements(), sts1))
+        if (!findGlobalElement(sts.globalElements(), sts1)) {
             throw new Exception(
                 "Could Not find Type from first Type System: " + sts1);
+        }
 
         //SIMPLE INCR COMPILATION
         sts = XmlBeans.compileXmlBeans(null,
@@ -171,13 +181,15 @@ public class XmlBeanCompilationTests extends CompileTestBase {
         assertTrue("Errors should have been empty", err.isEmpty());
         // find element in the type System
 
-        if (!findGlobalElement(sts.globalElements(), sts1))
+        if (!findGlobalElement(sts.globalElements(), sts1)) {
             throw new Exception("Could Not find Type from first Type System: " +
                                 sts1);
+        }
 
-        if (!findGlobalElement(sts.globalElements(), sts2))
+        if (!findGlobalElement(sts.globalElements(), sts2)) {
             throw new Exception("Could Not find Type from 2nd Type System: " +
                                 sts2);
+        }
 
         System.out.println("Building over Existing");
         //BUILDING OFF BASE SIMPLE INCR COMPILATION
@@ -187,13 +199,15 @@ public class XmlBeanCompilationTests extends CompileTestBase {
         assertTrue("Errors should have been empty", err.isEmpty());
         // find element in the type System
 
-        if (!findGlobalElement(sts.globalElements(), sts1))
+        if (!findGlobalElement(sts.globalElements(), sts1)) {
             throw new Exception("Could Not find Type from first Type System: " +
                                 sts1);
+        }
 
-        if (!findGlobalElement(sts.globalElements(), sts2))
+        if (!findGlobalElement(sts.globalElements(), sts2)) {
             throw new Exception("Could Not find Type from 2nd Type System: " +
                                 sts2);
+        }
 
         //INCR COMPILATION WITH RECOVERABLE ERROR
         err.clear();
@@ -201,17 +215,20 @@ public class XmlBeanCompilationTests extends CompileTestBase {
             sts, schemas3, null,
             XmlBeans.getBuiltinTypeSystem(), null, opt);
         // find element in the type System
-        if (!findGlobalElement(b.globalElements(), sts1))
+        if (!findGlobalElement(b.globalElements(), sts1)) {
             throw new Exception("Could Not find Type from first Type System: " +
                                 sts1);
+        }
 
-        if (!findGlobalElement(b.globalElements(), sts2))
+        if (!findGlobalElement(b.globalElements(), sts2)) {
             throw new Exception("Could Not find Type from 2nd Type System: " +
                                 sts2);
+        }
 
-        if (!findGlobalElement(b.globalElements(), sts3))
+        if (!findGlobalElement(b.globalElements(), sts3)) {
             throw new Exception("Could Not find Type from 3rd Type System: " +
                                 sts3);
+        }
 
         printSTS(b);
 
@@ -228,12 +245,14 @@ public class XmlBeanCompilationTests extends CompileTestBase {
                 if ((xErr.getErrorCode().compareTo("src-resolve") == 0) &&
                     (xErr.getMessage().compareTo(
                         "type 'bType@http://baz' not found.") ==
-                     0))
+                     0)) {
                     psom_expError = true;
+                }
             }
         }
-        if (!psom_expError)
+        if (!psom_expError) {
             throw new Exception("Error Code was not as Expected");
+        }
 
 
     }

@@ -14,7 +14,7 @@
  */
 
 
-package  xmlcursor.detailed;
+package xmlcursor.detailed;
 
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlCursor.TokenType;
@@ -28,14 +28,15 @@ import xmlcursor.common.Common;
 
 import javax.xml.namespace.QName;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 
 public class CursorVsObjectAttributeTest {
     @Test
     public void testAttributeSet() throws Exception {
         CarLocationMessageDocument clmDoc = CarLocationMessageDocument.Factory.parse(
-                JarUtil.getResourceFromJar(Common.TRANXML_FILE_CLM));
+            JarUtil.getResourceFromJar(Common.TRANXML_FILE_CLM));
         XmlCursor xc = clmDoc.newCursor();
         xc.toFirstChild();
         CarLocationMessage clm = (CarLocationMessage) xc.getObject();
@@ -50,8 +51,8 @@ public class CursorVsObjectAttributeTest {
     @Test
     public void testAttributeUnsetRemove() throws Exception {
         CarLocationMessageDocument clmDoc =
-                (CarLocationMessageDocument) XmlObject.Factory.parse(
-                        JarUtil.getResourceFromJar(Common.TRANXML_FILE_CLM));
+            (CarLocationMessageDocument) XmlObject.Factory.parse(
+                JarUtil.getResourceFromJar(Common.TRANXML_FILE_CLM));
         XmlCursor xc = clmDoc.newCursor();
         xc.toFirstChild();
         CarLocationMessage clm = (CarLocationMessage) xc.getObject();
@@ -68,11 +69,11 @@ public class CursorVsObjectAttributeTest {
     @Test
     public void testAttributeInsert() throws Exception {
         XmlOptions map = new XmlOptions();
-        map.put(XmlOptions.LOAD_STRIP_WHITESPACE, "");
+        map.setLoadStripWhitespace();
 
         CarLocationMessageDocument clmDoc =
-                (CarLocationMessageDocument) XmlObject.Factory.parse(
-                        JarUtil.getResourceFromJar(Common.TRANXML_FILE_CLM), map);
+            (CarLocationMessageDocument) XmlObject.Factory.parse(
+                JarUtil.getResourceFromJar(Common.TRANXML_FILE_CLM), map);
         XmlCursor xc = clmDoc.newCursor();
         xc.toFirstChild();
         CarLocationMessage clm = (CarLocationMessage) xc.getObject();

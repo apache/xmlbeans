@@ -1210,8 +1210,9 @@ public class InstanceValidationTests {
         do {
             XmlObject obj = c.getObject();
 
-            if (obj != null)
+            if (obj != null) {
                 obj.validate();
+            }
 
         } while (!c.toNextToken().isNone());
 
@@ -1239,8 +1240,9 @@ public class InstanceValidationTests {
         do {
             XmlObject obj = c.getObject();
 
-            if (obj != null)
+            if (obj != null) {
                 obj.validate();
+            }
 
         } while (!c.toNextToken().isNone());
     }
@@ -1862,7 +1864,7 @@ public class InstanceValidationTests {
 
             assertNotNull(docSchema);
 
-            options.put(XmlOptions.DOCUMENT_TYPE, docSchema);
+            options.setDocumentType(docSchema);
         }
 
         for (int i = 0; i < validInstances.length; i++) {
@@ -1876,9 +1878,9 @@ public class InstanceValidationTests {
                 c.dispose();
             }
 
-            List xel = new ArrayList();
+            List<XmlError> xel = new ArrayList<>();
 
-            options.put(XmlOptions.ERROR_LISTENER, xel);
+            options.setErrorListener(xel);
 
             boolean isValid = x.validate(options);
 
@@ -1887,7 +1889,9 @@ public class InstanceValidationTests {
                 System.err.println("Instance(" + i + "): ");
                 System.err.println(x.xmlText());
                 System.err.println("Errors: ");
-                for (Object o : xel) System.err.println(o);
+                for (Object o : xel) {
+                    System.err.println(o);
+                }
                 System.err.println();
             }
 

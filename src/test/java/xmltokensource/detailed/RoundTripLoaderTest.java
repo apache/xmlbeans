@@ -38,8 +38,8 @@ public class RoundTripLoaderTest extends BasicCursorTestCase {
 
     @Before
     public void setUp() {
-        m_map.put(XmlOptions.CHARACTER_ENCODING, "Big5");
-        m_map.put(XmlOptions.SAVE_NAMESPACES_FIRST, "");
+        m_map.setCharacterEncoding("Big5");
+        m_map.setSaveNamespacesFirst();
     }
 
     private void _newDomNodeRoundTrip(XmlOptions map) throws Exception {
@@ -95,7 +95,7 @@ public class RoundTripLoaderTest extends BasicCursorTestCase {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_BAR_NESTED_SIBLINGS);
         Reader reader = m_xo.newReader(map);
         assertNotNull(reader);
-         XmlOptions options = new XmlOptions(map);
+        XmlOptions options = new XmlOptions(map);
         XmlObject xo = XmlObject.Factory.parse(reader, options);
         m_xc = m_xo.newCursor();
         XmlCursor xc1 = xo.newCursor();
@@ -111,11 +111,11 @@ public class RoundTripLoaderTest extends BasicCursorTestCase {
      * on this release? Bug? store.Cursor._newXMLInputStream
      * ericvasilik (3:26:01 PM): This is not a v2 feature. ...
      * but otherwise, we should disable XMLInputStream tests
-     *
+     * <p>
      * public void testNewReaderRoundTrip() throws Exception {
      * _newReaderRoundTrip(null);
      * }
-     *
+     * <p>
      * public void testNewReaderWithOptionsRoundTrip() throws Exception {
      * _newReaderRoundTrip(m_map);
      * }

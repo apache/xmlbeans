@@ -15,69 +15,46 @@
 
 package org.apache.xmlbeans.impl.schema;
 
-import org.apache.xmlbeans.impl.xb.xsdschema.RedefineDocument.Redefine;
-import org.apache.xmlbeans.impl.xb.xsdschema.SchemaDocument.Schema;
-import org.apache.xmlbeans.impl.xb.xsdschema.SchemaDocument;
-import org.apache.xmlbeans.impl.xb.xsdschema.ImportDocument.Import;
-import org.apache.xmlbeans.impl.xb.xsdschema.IncludeDocument.Include;
-
-import java.util.Map;
-import java.util.List;
-import java.util.LinkedList;
-import java.util.Set;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.Arrays;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.net.MalformedURLException;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.Reader;
-import java.io.InputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.CharArrayReader;
-import java.io.Writer;
-import java.io.CharArrayWriter;
-import java.io.OutputStreamWriter;
-
-import org.apache.xmlbeans.XmlObject;
-import org.apache.xmlbeans.XmlException;
-import org.apache.xmlbeans.XmlOptions;
-import org.apache.xmlbeans.SchemaTypeLoader;
-import org.apache.xmlbeans.XmlErrorCodes;
+import org.apache.xmlbeans.*;
 import org.apache.xmlbeans.impl.common.IOUtil;
 import org.apache.xmlbeans.impl.common.XmlEncodingSniffer;
+import org.apache.xmlbeans.impl.xb.xsdschema.ImportDocument.Import;
+import org.apache.xmlbeans.impl.xb.xsdschema.IncludeDocument.Include;
+import org.apache.xmlbeans.impl.xb.xsdschema.RedefineDocument.Redefine;
+import org.apache.xmlbeans.impl.xb.xsdschema.SchemaDocument;
+import org.apache.xmlbeans.impl.xb.xsdschema.SchemaDocument.Schema;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-public class StscImporter
-{
-    public static SchemaToProcess[] resolveImportsAndIncludes(Schema[] startWith, boolean forceSrcSave)
-    {
+import java.io.*;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.util.*;
+
+public class StscImporter {
+    public static SchemaToProcess[] resolveImportsAndIncludes(Schema[] startWith, boolean forceSrcSave) {
         DownloadTable engine = new DownloadTable(startWith);
         return engine.resolveImportsAndIncludes(forceSrcSave);
     }
 
-    public static class SchemaToProcess
-    {
-        private Schema schema;
-        private String chameleonNamespace;
-        private List includes; // list of SchemaToProcess objects directly included by this
-        private List redefines; // list of SchemaToProcess objects directly redefined by this
-        private List redefineObjects; // list of Redefine objects associated to each redefinition
-        private Set indirectIncludes; // set of SchemaToProcess  objects directly/indirectly included by this
-        private Set indirectIncludedBy; // set of SchemaToProcess objects that include this directly/indirectly
+    public static class SchemaToProcess {
+        private final Schema schema;
+        private final String chameleonNamespace;
+        // list of SchemaToProcess objects directly included by this
+        private List<SchemaToProcess> includes;
+        // list of SchemaToProcess objects directly redefined by this
+        private List<SchemaToProcess> redefines;
+        // list of Redefine objects associated to each redefinition
+        private List<Redefine> redefineObjects;
+        // set of SchemaToProcess  objects directly/indirectly included by this
+        private Set<SchemaToProcess> indirectIncludes;
+        // set of SchemaToProcess objects that include this directly/indirectly
+        private Set<SchemaToProcess> indirectIncludedBy;
 
-        public SchemaToProcess(Schema schema, String chameleonNamespace)
-        {
+        public SchemaToProcess(Schema schema, String chameleonNamespace) {
             this.schema = schema;
             this.chameleonNamespace = chameleonNamespace;
         }
@@ -85,26 +62,23 @@ public class StscImporter
         /**
          * The schema to parse.
          */
-        public Schema getSchema()
-        {
+        public Schema getSchema() {
             return schema;
         }
 
         /**
          * The base URI for this stp
          */
-        public String getSourceName()
-        {
+        public String getSourceName() {
             return schema.documentProperties().getSourceName();
         }
-        
+
         /**
          * The chameleon namespace. Null if this schema is not being treated
          * as a chameleon. (The ordinary targetNamespace will just be extracted
          * from the syntax of the schema.)
          */
-        public String getChameleonNamespace()
-        {
+        public String getChameleonNamespace() {
             return chameleonNamespace;
         }
 
@@ -113,108 +87,99 @@ public class StscImporter
          * directed graph of includes/redefines. This is required in order
          * to establish identity component by component, as required in
          * xmlschema-1, chapter 4.2.2
-         * @return
          */
-        public List getRedefines()
-        {
+        public List<SchemaToProcess> getRedefines() {
             return redefines;
         }
 
-        public List getRedefineObjects()
-        {
+        public List<Redefine> getRedefineObjects() {
             return redefineObjects;
         }
 
-        private void addInclude(SchemaToProcess include)
-        {
-            if (includes == null)
-                includes = new ArrayList();
+        private void addInclude(SchemaToProcess include) {
+            if (includes == null) {
+                includes = new ArrayList<>();
+            }
             includes.add(include);
         }
 
-        private void addRedefine(SchemaToProcess redefine, Redefine object)
-        {
-            if (redefines == null || redefineObjects == null)
-            {
-                redefines = new ArrayList();
-                redefineObjects = new ArrayList();
+        private void addRedefine(SchemaToProcess redefine, Redefine object) {
+            if (redefines == null || redefineObjects == null) {
+                redefines = new ArrayList<>();
+                redefineObjects = new ArrayList<>();
             }
             redefines.add(redefine);
             redefineObjects.add(object);
         }
 
-        private void buildIndirectReferences()
-        {
-            if (includes != null)
-                for (int i = 0; i < includes.size(); i++)
-                {
-                    SchemaToProcess schemaToProcess = (SchemaToProcess) includes.get(i);
+        private void buildIndirectReferences() {
+            if (includes != null) {
+                for (SchemaToProcess schemaToProcess : includes) {
                     /* We have a this-schemaToProcess vertex
-                    * This means that all nodes accessible from schemaToProcess are
-                    * also accessible from this and all nodes that have access to
-                    * this also have access to schemaToProcess */
+                     * This means that all nodes accessible from schemaToProcess are
+                     * also accessible from this and all nodes that have access to
+                     * this also have access to schemaToProcess */
                     this.addIndirectIncludes(schemaToProcess);
                 }
+            }
             // Repeat the same algorithm for redefines, since redefines are also includes
-            if (redefines != null)
-                for (int i = 0; i < redefines.size(); i++)
-                {
-                    SchemaToProcess schemaToProcess = (SchemaToProcess) redefines.get(i);
+            if (redefines != null) {
+                for (SchemaToProcess schemaToProcess : redefines) {
                     this.addIndirectIncludes(schemaToProcess);
                 }
+            }
         }
 
-        private void addIndirectIncludes(SchemaToProcess schemaToProcess)
-        {
-            if (indirectIncludes == null)
-                indirectIncludes = new HashSet();
+        private void addIndirectIncludes(SchemaToProcess schemaToProcess) {
+            if (indirectIncludes == null) {
+                indirectIncludes = new HashSet<>();
+            }
             indirectIncludes.add(schemaToProcess);
-            if (schemaToProcess.indirectIncludedBy == null)
-                schemaToProcess.indirectIncludedBy = new HashSet();
+            if (schemaToProcess.indirectIncludedBy == null) {
+                schemaToProcess.indirectIncludedBy = new HashSet<>();
+            }
             schemaToProcess.indirectIncludedBy.add(this);
             addIndirectIncludesHelper(this, schemaToProcess);
-            if (indirectIncludedBy != null)
-                for (Iterator it = indirectIncludedBy.iterator(); it.hasNext();)
-                {
-                    SchemaToProcess stp = (SchemaToProcess) it.next();
+            if (indirectIncludedBy != null) {
+                for (SchemaToProcess stp : indirectIncludedBy) {
                     stp.indirectIncludes.add(schemaToProcess);
                     schemaToProcess.indirectIncludedBy.add(stp);
                     addIndirectIncludesHelper(stp, schemaToProcess);
                 }
+            }
         }
 
         private static void addIndirectIncludesHelper(SchemaToProcess including,
-            SchemaToProcess schemaToProcess)
-        {
-            if (schemaToProcess.indirectIncludes != null)
-                for (Iterator it = schemaToProcess.indirectIncludes.iterator(); it.hasNext();)
-                {
-                    SchemaToProcess stp = (SchemaToProcess) it.next();
+                                                      SchemaToProcess schemaToProcess) {
+            if (schemaToProcess.indirectIncludes != null) {
+                for (SchemaToProcess stp : schemaToProcess.indirectIncludes) {
                     including.indirectIncludes.add(stp);
                     stp.indirectIncludedBy.add(including);
                 }
+            }
         }
 
-        public boolean indirectIncludes(SchemaToProcess schemaToProcess)
-        {
+        public boolean indirectIncludes(SchemaToProcess schemaToProcess) {
             return indirectIncludes != null && indirectIncludes.contains(schemaToProcess);
         }
 
-        public boolean equals(Object o)
-        {
-            if (this == o) return true;
-            if (!(o instanceof SchemaToProcess)) return false;
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (!(o instanceof SchemaToProcess)) {
+                return false;
+            }
 
             final SchemaToProcess schemaToProcess = (SchemaToProcess) o;
 
-            if (chameleonNamespace != null ? !chameleonNamespace.equals(schemaToProcess.chameleonNamespace) : schemaToProcess.chameleonNamespace != null) return false;
-            if (!(schema == schemaToProcess.schema)) return false;
-
-            return true;
+            if (!Objects.equals(chameleonNamespace, schemaToProcess.chameleonNamespace)) {
+                return false;
+            }
+            return schema == schemaToProcess.schema;
         }
 
-        public int hashCode()
-        {
+        public int hashCode() {
             int result;
             result = schema.hashCode();
             result = 29 * result + (chameleonNamespace != null ? chameleonNamespace.hashCode() : 0);
@@ -224,43 +189,41 @@ public class StscImporter
 
     private final static String PROJECT_URL_PREFIX = "project://local";
 
-    private static String baseURLForDoc(XmlObject obj)
-    {
+    private static String baseURLForDoc(XmlObject obj) {
         String path = obj.documentProperties().getSourceName();
 
-        if (path == null)
+        if (path == null) {
             return null;
+        }
 
-        if (path.startsWith("/"))
+        if (path.startsWith("/")) {
             return PROJECT_URL_PREFIX + path.replace('\\', '/');
+        }
 
         // looks like a URL?
         int colon = path.indexOf(':');
-        if (colon > 1 && path.substring(0, colon).matches("^\\w+$"))
+        if (colon > 1 && path.substring(0, colon).matches("^\\w+$")) {
             return path;
+        }
 
         return PROJECT_URL_PREFIX + "/" + path.replace('\\', '/');
     }
 
-    private static URI parseURI(String s)
-    {
-        if (s == null)
+    private static URI parseURI(String s) {
+        if (s == null) {
             return null;
-
-        try
-        {
-            return new URI(s);
         }
-        catch (URISyntaxException syntax)
-        {
-                return null;
+
+        try {
+            return new URI(s);
+        } catch (URISyntaxException syntax) {
+            return null;
         }
     }
 
     //workaround for Sun bug # 4723726
     public static URI resolve(URI base, String child)
-        throws URISyntaxException
-    {
+        throws URISyntaxException {
         URI childUri = new URI(child);
         URI ruri = base.resolve(childUri);
 
@@ -270,22 +233,19 @@ public class StscImporter
         // to this ourselves to make sure that the nested jar url gets
         // resolved correctly
         if (childUri.equals(ruri) && !childUri.isAbsolute() &&
-          (base.getScheme().equals("jar") || base.getScheme().equals("zip"))) {
+            (base.getScheme().equals("jar") || base.getScheme().equals("zip"))) {
             String r = base.toString();
             int lastslash = r.lastIndexOf('/');
-            r = r.substring(0,lastslash) + "/" + childUri;
+            r = r.substring(0, lastslash) + "/" + childUri;
             // Sun's implementation of URI doesn't support references to the
             // parent directory ("/..") in the part after "!/" so we have to
             // remove these ourselves
             int exclPointSlashIndex = r.lastIndexOf("!/");
-            if (exclPointSlashIndex > 0)
-            {
+            if (exclPointSlashIndex > 0) {
                 int slashDotDotIndex = r.indexOf("/..", exclPointSlashIndex);
-                while (slashDotDotIndex > 0)
-                {
+                while (slashDotDotIndex > 0) {
                     int prevSlashIndex = r.lastIndexOf("/", slashDotDotIndex - 1);
-                    if (prevSlashIndex >= exclPointSlashIndex)
-                    {
+                    if (prevSlashIndex >= exclPointSlashIndex) {
                         String temp = r.substring(slashDotDotIndex + 3);
                         r = r.substring(0, prevSlashIndex).concat(temp);
                     }
@@ -296,39 +256,32 @@ public class StscImporter
         }
 
         //fix up normalization bug
-        if ("file".equals(ruri.getScheme()) && ! child.equals(ruri))
-        {
-            if (base.getPath().startsWith("//") && !ruri.getPath().startsWith("//"))
-            {
+        if ("file".equals(ruri.getScheme()) && !child.equals(ruri.getPath())) {
+            if (base.getPath().startsWith("//") && !ruri.getPath().startsWith("//")) {
                 String path = "///".concat(ruri.getPath());
-                try
-                {
+                try {
                     ruri = new URI("file", null, path, ruri.getQuery(), ruri.getFragment());
+                } catch (URISyntaxException ignored) {
                 }
-                catch(URISyntaxException uris)
-                {}
             }
         }
         return ruri;
     }
 
-    public static class DownloadTable
-    {
+    public static class DownloadTable {
         /**
          * Namespace/schemaLocation pair.
-         *
+         * <p>
          * Downloaded schemas are indexed by namespace, schemaLocation, and both.
-         *
+         * <p>
          * A perfect match is preferred, but a match-by-namespace is accepted.
          * A match-by-schemaLocation is only accepted for includes (not imports).
          */
-        private static class NsLocPair
-        {
-            private String namespaceURI;
-            private String locationURL;
+        private static class NsLocPair {
+            private final String namespaceURI;
+            private final String locationURL;
 
-            public NsLocPair(String namespaceURI, String locationURL)
-            {
+            public NsLocPair(String namespaceURI, String locationURL) {
                 this.namespaceURI = namespaceURI;
                 this.locationURL = locationURL;
             }
@@ -336,31 +289,31 @@ public class StscImporter
             /**
              * Empty string for no-namespace, null for namespace-not-part-of-key
              */
-            public String getNamespaceURI()
-            {
+            public String getNamespaceURI() {
                 return namespaceURI;
             }
 
-            public String getLocationURL()
-            {
+            public String getLocationURL() {
                 return locationURL;
             }
 
-            public boolean equals(Object o)
-            {
-                if (this == o) return true;
-                if (!(o instanceof NsLocPair)) return false;
+            public boolean equals(Object o) {
+                if (this == o) {
+                    return true;
+                }
+                if (!(o instanceof NsLocPair)) {
+                    return false;
+                }
 
                 final NsLocPair nsLocPair = (NsLocPair) o;
 
-                if (locationURL != null ? !locationURL.equals(nsLocPair.locationURL) : nsLocPair.locationURL != null) return false;
-                if (namespaceURI != null ? !namespaceURI.equals(nsLocPair.namespaceURI) : nsLocPair.namespaceURI != null) return false;
-
-                return true;
+                if (!Objects.equals(locationURL, nsLocPair.locationURL)) {
+                    return false;
+                }
+                return Objects.equals(namespaceURI, nsLocPair.namespaceURI);
             }
 
-            public int hashCode()
-            {
+            public int hashCode() {
                 int result;
                 result = (namespaceURI != null ? namespaceURI.hashCode() : 0);
                 result = 29 * result + (locationURL != null ? locationURL.hashCode() : 0);
@@ -368,71 +321,69 @@ public class StscImporter
             }
         }
 
-        private static class DigestKey
-        {
+        private static class DigestKey {
             byte[] _digest;
             int _hashCode;
-            DigestKey(byte[] digest)
-            {
+
+            DigestKey(byte[] digest) {
                 _digest = digest;
-                for (int i = 0; i < 4 && i < digest.length; i++)
-                {
+                for (int i = 0; i < 4 && i < digest.length; i++) {
                     _hashCode = _hashCode << 8;
                     _hashCode = _hashCode + digest[i];
                 }
             }
 
-            public boolean equals(Object o)
-            {
-                if (this == o) return true;
-                if (!(o instanceof DigestKey)) return false;
-                return Arrays.equals(_digest, ((DigestKey)o)._digest);
+            public boolean equals(Object o) {
+                if (this == o) {
+                    return true;
+                }
+                if (!(o instanceof DigestKey)) {
+                    return false;
+                }
+                return Arrays.equals(_digest, ((DigestKey) o)._digest);
             }
 
-            public int hashCode()
-            {
+            public int hashCode() {
                 return _hashCode;
             }
         }
 
-        private Map schemaByNsLocPair = new HashMap();
-        private Map schemaByDigestKey = new HashMap();
-        private LinkedList scanNeeded = new LinkedList();
-        private Set emptyNamespaceSchemas = new HashSet();
-        private Map scannedAlready = new HashMap();
-        private Set failedDownloads = new HashSet();
+        private final Map<NsLocPair, Schema> schemaByNsLocPair = new HashMap<>();
+        private final Map<DigestKey, Schema> schemaByDigestKey = new HashMap<>();
+        private final LinkedList<SchemaToProcess> scanNeeded = new LinkedList<>();
+        private final Set<Schema> emptyNamespaceSchemas = new HashSet<>();
+        private final Map<SchemaToProcess, SchemaToProcess> scannedAlready = new HashMap<>();
+        private final Set<String> failedDownloads = new HashSet<>();
 
-        private Schema downloadSchema(XmlObject referencedBy, String targetNamespace, String locationURL)
-        {
+        private Schema downloadSchema(XmlObject referencedBy, String targetNamespace, String locationURL) {
             // no location URL provided?  Then nothing to do.
-            if (locationURL == null)
+            if (locationURL == null) {
                 return null;
-            
+            }
+
             StscState state = StscState.get();
-            
+
             // First resolve relative URLs with respect to base URL for doc
             URI baseURI = parseURI(baseURLForDoc(referencedBy));
-            String absoluteURL = null;
-            try
-            {
+            String absoluteURL;
+            try {
                 absoluteURL = baseURI == null ? locationURL : resolve(baseURI, locationURL).toString();
-            }
-            catch (URISyntaxException e)
-            {
+            } catch (URISyntaxException e) {
                 state.error("Could not find resource - invalid location URL: " + e.getMessage(), XmlErrorCodes.CANNOT_FIND_RESOURCE, referencedBy);
                 return null;
             }
 
             // probe 0: this url is already processed, from a previous compile
-            if (state.isFileProcessed(absoluteURL))
+            if (state.isFileProcessed(absoluteURL)) {
                 return null;
+            }
 
             // probe 1: ns+url - perfect match
-            if (absoluteURL != null && targetNamespace != null)
-            {
-                Schema result = (Schema)schemaByNsLocPair.get(new NsLocPair(targetNamespace, absoluteURL));
-                if (result != null)
+            if (absoluteURL != null && targetNamespace != null) {
+                Schema result = schemaByNsLocPair.get(new NsLocPair(targetNamespace, absoluteURL));
+                if (result != null) {
                     return result;
+                }
             }
 
             // probe 2: we have preexisting knowledge of this namespace,
@@ -444,80 +395,74 @@ public class StscImporter
             // (We never assume preexisting knowledge of the no-namespace,
             // even if we have some definitions, since it's likely that
             // more than one person is playing in the no-namespace at once.)
-            if (targetNamespace != null && !targetNamespace.equals(""))
-            {
+            if (targetNamespace != null && !targetNamespace.equals("")) {
                 // the URL is not one to download; should we assume we know about the namespace?
-                if (!state.shouldDownloadURI(absoluteURL))
-                {
+                if (!state.shouldDownloadURI(absoluteURL)) {
                     // If we already have a schema representing this namespace,
                     // then skip this URL silently without producing an error.
-                    Schema result = (Schema)schemaByNsLocPair.get(new NsLocPair(targetNamespace, null));
-                    if (result != null)
+                    Schema result = schemaByNsLocPair.get(new NsLocPair(targetNamespace, null));
+                    if (result != null) {
                         return result;
+                    }
                 }
 
                 // If the linker already knows about this namespace, skip
                 // this URL.
-                if (state.linkerDefinesNamespace(targetNamespace))
+                if (state.linkerDefinesNamespace(targetNamespace)) {
                     return null;
+                }
             }
 
             // probe 3: url only
-            if (absoluteURL != null)
-            {
-                Schema result = (Schema)schemaByNsLocPair.get(new NsLocPair(null, absoluteURL));
-                if (result != null)
+            if (absoluteURL != null) {
+                Schema result = schemaByNsLocPair.get(new NsLocPair(null, absoluteURL));
+                if (result != null) {
                     return result;
+                }
             }
 
             // no match: error if we can't or won't download.
-            if (absoluteURL == null)
-            {
+            if (absoluteURL == null) {
                 state.error("Could not find resource - no valid location URL.", XmlErrorCodes.CANNOT_FIND_RESOURCE, referencedBy);
                 return null;
             }
 
-            if (previouslyFailedToDownload(absoluteURL))
-            {
+            if (previouslyFailedToDownload(absoluteURL)) {
                 // an error message has already been produced.
                 return null;
             }
 
-            if (!state.shouldDownloadURI(absoluteURL))
-            {
+            if (!state.shouldDownloadURI(absoluteURL)) {
                 state.error("Could not load resource \"" + absoluteURL + "\" (network downloads disabled).", XmlErrorCodes.CANNOT_FIND_RESOURCE, referencedBy);
                 addFailedDownload(absoluteURL);
                 return null;
             }
 
             // try to download
-            download: try
-            {
+            download:
+            try {
                 XmlObject xdoc = downloadDocument(state.getS4SLoader(), targetNamespace, absoluteURL);
 
                 Schema result = findMatchByDigest(xdoc);
                 String shortname = state.relativize(absoluteURL);
-                if (result != null)
-                {
+                if (result != null) {
                     // if an exactly-the-same document has already been loaded, use the original and spew
                     String dupname = state.relativize(result.documentProperties().getSourceName());
-                    if (dupname != null)
+                    if (dupname != null) {
                         state.info(shortname + " is the same as " + dupname + " (ignoring the duplicate file)");
-                    else
+                    } else {
                         state.info(shortname + " is the same as another schema");
-                }
-                else
-                {
+                    }
+                } else {
                     // otherwise, it's a new document: validate it and grab the contents
                     XmlOptions voptions = new XmlOptions();
                     voptions.setErrorListener(state.getErrorListener());
-                    if (!(xdoc instanceof SchemaDocument) || !xdoc.validate(voptions))
-                    {
+                    if (!(xdoc instanceof SchemaDocument) || !xdoc.validate(voptions)) {
                         state.error("Referenced document is not a valid schema", XmlErrorCodes.CANNOT_FIND_RESOURCE, referencedBy);
                         break download;
                     }
 
-                    SchemaDocument sDoc = (SchemaDocument)xdoc;
+                    SchemaDocument sDoc = (SchemaDocument) xdoc;
 
                     result = sDoc.getSchema();
                     state.info("Loading referenced file " + shortname);
@@ -525,17 +470,11 @@ public class StscImporter
                 NsLocPair key = new NsLocPair(emptyStringIfNull(result.getTargetNamespace()), absoluteURL);
                 addSuccessfulDownload(key, result);
                 return result;
-            }
-            catch (MalformedURLException malformed)
-            {
+            } catch (MalformedURLException malformed) {
                 state.error("URL \"" + absoluteURL + "\" is not well-formed", XmlErrorCodes.CANNOT_FIND_RESOURCE, referencedBy);
-            }
-            catch (IOException connectionProblem)
-            {
+            } catch (IOException connectionProblem) {
                 state.error(connectionProblem.toString(), XmlErrorCodes.CANNOT_FIND_RESOURCE, referencedBy);
-            }
-            catch (XmlException e)
-            {
+            } catch (XmlException e) {
                 state.error("Problem parsing referenced XML resource - " + e.getMessage(), XmlErrorCodes.CANNOT_FIND_RESOURCE, referencedBy);
             }
 
@@ -543,59 +482,53 @@ public class StscImporter
             addFailedDownload(absoluteURL);
             return null;
         }
-        
+
         static XmlObject downloadDocument(SchemaTypeLoader loader, String namespace, String absoluteURL)
-                throws MalformedURLException, IOException, XmlException
-        {
+            throws IOException, XmlException {
             StscState state = StscState.get();
-            
+
             EntityResolver resolver = state.getEntityResolver();
-            if (resolver != null)
-            {
-                InputSource source = null;
-                try
-                {
+            if (resolver != null) {
+                InputSource source;
+                try {
                     source = resolver.resolveEntity(namespace, absoluteURL);
-                }
-                catch (SAXException e)
-                {
+                } catch (SAXException e) {
                     throw new XmlException(e);
                 }
 
-                if (source != null)
-                {
+                if (source != null) {
                     state.addSourceUri(absoluteURL, null);
 
                     // first preference for InputSource contract: character stream
                     Reader reader = source.getCharacterStream();
-                    if (reader != null)
-                    {
+                    if (reader != null) {
                         reader = copySchemaSource(absoluteURL, reader, state);
                         XmlOptions options = new XmlOptions();
                         options.setLoadLineNumbers();
                         options.setDocumentSourceName(absoluteURL);
                         return loader.parse(reader, null, options);
                     }
-                
-                    // second preference for InputSource contract: 
+
+                    // second preference for InputSource contract:
                     InputStream bytes = source.getByteStream();
-                    if (bytes != null)
-                    {
+                    if (bytes != null) {
                         bytes = copySchemaSource(absoluteURL, bytes, state);
                         String encoding = source.getEncoding();
                         XmlOptions options = new XmlOptions();
                         options.setLoadLineNumbers();
                         options.setLoadMessageDigest();
                         options.setDocumentSourceName(absoluteURL);
-                        if (encoding != null)
+                        if (encoding != null) {
                             options.setCharacterEncoding(encoding);
+                        }
                         return loader.parse(bytes, null, options);
                     }
-                
+
                     // third preference: use the (possibly redirected) url
                     String urlToLoad = source.getSystemId();
-                    if (urlToLoad == null)
+                    if (urlToLoad == null) {
                         throw new IOException("EntityResolver unable to resolve " + absoluteURL + " (for namespace " + namespace + ")");
+                    }
 
                     copySchemaSource(absoluteURL, state, false);
                     XmlOptions options = new XmlOptions();
@@ -619,18 +552,13 @@ public class StscImporter
             return loader.parse(urlDownload, null, options);
         }
 
-        private void addSuccessfulDownload(NsLocPair key, Schema schema)
-        {
+        private void addSuccessfulDownload(NsLocPair key, Schema schema) {
             byte[] digest = schema.documentProperties().getMessageDigest();
-            if (digest == null)
-            {
+            if (digest == null) {
                 StscState.get().addSchemaDigest(null);
-            }
-            else
-            {
+            } else {
                 DigestKey dk = new DigestKey(digest);
-                if (!schemaByDigestKey.containsKey(dk))
-                {
+                if (!schemaByDigestKey.containsKey(dk)) {
                     schemaByDigestKey.put(new DigestKey(digest), schema);
                     StscState.get().addSchemaDigest(digest);
                 }
@@ -638,77 +566,72 @@ public class StscImporter
 
             schemaByNsLocPair.put(key, schema);
             NsLocPair key1 = new NsLocPair(key.getNamespaceURI(), null);
-            if (!schemaByNsLocPair.containsKey(key1))
+            if (!schemaByNsLocPair.containsKey(key1)) {
                 schemaByNsLocPair.put(key1, schema);
+            }
             NsLocPair key2 = new NsLocPair(null, key.getLocationURL());
-            if (!schemaByNsLocPair.containsKey(key2))
+            if (!schemaByNsLocPair.containsKey(key2)) {
                 schemaByNsLocPair.put(key2, schema);
+            }
         }
 
-        private Schema findMatchByDigest(XmlObject original)
-        {
+        private Schema findMatchByDigest(XmlObject original) {
             byte[] digest = original.documentProperties().getMessageDigest();
-            if (digest == null)
+            if (digest == null) {
                 return null;
-            return (Schema)schemaByDigestKey.get(new DigestKey(digest));
+            }
+            return schemaByDigestKey.get(new DigestKey(digest));
         }
 
-        private void addFailedDownload(String locationURL)
-        {
+        private void addFailedDownload(String locationURL) {
             failedDownloads.add(locationURL);
         }
 
-        private boolean previouslyFailedToDownload(String locationURL)
-        {
+        private boolean previouslyFailedToDownload(String locationURL) {
             return failedDownloads.contains(locationURL);
         }
 
-        private static boolean nullableStringsMatch(String s1, String s2)
-        {
-            if (s1 == null && s2 == null)
+        private static boolean nullableStringsMatch(String s1, String s2) {
+            if (s1 == null && s2 == null) {
                 return true;
-            if (s1 == null || s2 == null)
+            }
+            if (s1 == null || s2 == null) {
                 return false;
+            }
             return (s1.equals(s2));
         }
 
-        private static String emptyStringIfNull(String s)
-        {
-            if (s == null)
+        private static String emptyStringIfNull(String s) {
+            if (s == null) {
                 return "";
+            }
             return s;
         }
 
-        private SchemaToProcess addScanNeeded(SchemaToProcess stp)
-        {
-            if (!scannedAlready.containsKey(stp))
-            {
+        private SchemaToProcess addScanNeeded(SchemaToProcess stp) {
+            if (!scannedAlready.containsKey(stp)) {
                 scannedAlready.put(stp, stp);
                 scanNeeded.add(stp);
                 return stp;
+            } else {
+                return scannedAlready.get(stp);
             }
-            else
-                return (SchemaToProcess) scannedAlready.get(stp);
         }
 
-        private void addEmptyNamespaceSchema(Schema s)
-        {
+        private void addEmptyNamespaceSchema(Schema s) {
             emptyNamespaceSchemas.add(s);
         }
 
-        private void usedEmptyNamespaceSchema(Schema s)
-        {
+        private void usedEmptyNamespaceSchema(Schema s) {
             emptyNamespaceSchemas.remove(s);
         }
 
-        private boolean fetchRemainingEmptyNamespaceSchemas()
-        {
-            if (emptyNamespaceSchemas.isEmpty())
+        private boolean fetchRemainingEmptyNamespaceSchemas() {
+            if (emptyNamespaceSchemas.isEmpty()) {
                 return false;
+            }
 
-            for (Iterator i = emptyNamespaceSchemas.iterator(); i.hasNext();)
-            {
-                Schema schema = (Schema)i.next();
+            for (Schema schema : emptyNamespaceSchemas) {
                 addScanNeeded(new SchemaToProcess(schema, null));
             }
 
@@ -716,35 +639,30 @@ public class StscImporter
             return true;
         }
 
-        private boolean hasNextToScan()
-        {
+        private boolean hasNextToScan() {
             return !scanNeeded.isEmpty();
         }
 
-        private SchemaToProcess nextToScan()
-        {
-            SchemaToProcess next = (SchemaToProcess)scanNeeded.removeFirst();
-            return next;
+        private SchemaToProcess nextToScan() {
+            return scanNeeded.removeFirst();
         }
 
-        public DownloadTable(Schema[] startWith)
-        {
-            for (int i = 0; i < startWith.length; i++)
-            {
-                String targetNamespace = startWith[i].getTargetNamespace();
-                NsLocPair key = new NsLocPair(targetNamespace, baseURLForDoc(startWith[i]));
-                addSuccessfulDownload(key, startWith[i]);
-                if (targetNamespace != null)
-                    addScanNeeded(new SchemaToProcess(startWith[i], null));
-                else
-                    addEmptyNamespaceSchema(startWith[i]);
+        public DownloadTable(Schema[] startWith) {
+            for (Schema schema : startWith) {
+                String targetNamespace = schema.getTargetNamespace();
+                NsLocPair key = new NsLocPair(targetNamespace, baseURLForDoc(schema));
+                addSuccessfulDownload(key, schema);
+                if (targetNamespace != null) {
+                    addScanNeeded(new SchemaToProcess(schema, null));
+                } else {
+                    addEmptyNamespaceSchema(schema);
+                }
             }
         }
 
-        public SchemaToProcess[] resolveImportsAndIncludes(boolean forceSave)
-        {
+        public SchemaToProcess[] resolveImportsAndIncludes(boolean forceSave) {
             StscState state = StscState.get();
-            List result = new ArrayList();
+            List<SchemaToProcess> result = new ArrayList<>();
             boolean hasRedefinitions = false;
 
             // algorithm is to scan through each schema document and
@@ -756,10 +674,8 @@ public class StscImporter
             // empty empty-namespace schemas that have NOT been chameleon-
             // included by other schemas and process them.
 
-            for (;;)
-            {
-                while (hasNextToScan())
-                {
+            do {
+                while (hasNextToScan()) {
                     SchemaToProcess stp = nextToScan();
                     String uri = stp.getSourceName();
                     state.addSourceUri(uri, null);
@@ -769,52 +685,45 @@ public class StscImporter
                     {
                         // handle imports
                         Import[] imports = stp.getSchema().getImportArray();
-                        for (int i = 0; i < imports.length; i++)
-                        {
-                            Schema imported = downloadSchema(imports[i], emptyStringIfNull(imports[i].getNamespace()), imports[i].getSchemaLocation());
+                        for (Import anImport : imports) {
+                            Schema imported = downloadSchema(anImport, emptyStringIfNull(anImport.getNamespace()), anImport.getSchemaLocation());
 
                             // if download fails, an error has already been reported.
-                            if (imported == null)
+                            if (imported == null) {
                                 continue;
-    
-                            if (!nullableStringsMatch(imported.getTargetNamespace(), imports[i].getNamespace()))
-                            {
-                                StscState.get().error("Imported schema has a target namespace \"" + imported.getTargetNamespace() + "\" that does not match the specified \"" + imports[i].getNamespace() + "\"", XmlErrorCodes.MISMATCHED_TARGET_NAMESPACE, imports[i]);
                             }
-                            else
-                            {
+
+                            if (!nullableStringsMatch(imported.getTargetNamespace(), anImport.getNamespace())) {
+                                StscState.get().error("Imported schema has a target namespace \"" + imported.getTargetNamespace() + "\" that does not match the specified \"" + anImport.getNamespace() + "\"", XmlErrorCodes.MISMATCHED_TARGET_NAMESPACE, anImport);
+                            } else {
                                 addScanNeeded(new SchemaToProcess(imported, null));
                             }
                         }
                     }
-                    
+
                     {
                         // handle includes
                         Include[] includes = stp.getSchema().getIncludeArray();
                         String sourceNamespace = stp.getChameleonNamespace();
-                        if (sourceNamespace == null)
+                        if (sourceNamespace == null) {
                             sourceNamespace = emptyStringIfNull(stp.getSchema().getTargetNamespace());
-    
-                        for (int i = 0; i < includes.length; i++)
-                        {
-                            Schema included = downloadSchema(includes[i], null, includes[i].getSchemaLocation());
+                        }
+
+                        for (Include include : includes) {
+                            Schema included = downloadSchema(include, null, include.getSchemaLocation());
                             // if download fails, an error has already been reported.
-                            if (included == null)
+                            if (included == null) {
                                 continue;
-    
-                            if (emptyStringIfNull(included.getTargetNamespace()).equals(sourceNamespace))
-                            {
+                            }
+
+                            if (emptyStringIfNull(included.getTargetNamespace()).equals(sourceNamespace)) {
                                 // non-chameleon case - just like an import
                                 SchemaToProcess s = addScanNeeded(new SchemaToProcess(included, null));
                                 stp.addInclude(s);
-                            }
-                            else if (included.getTargetNamespace() != null)
-                            {
+                            } else if (included.getTargetNamespace() != null) {
                                 // illegal include: included schema in wrong namespace.
-                                StscState.get().error("Included schema has a target namespace \"" + included.getTargetNamespace() + "\" that does not match the source namespace \"" + sourceNamespace + "\"", XmlErrorCodes.MISMATCHED_TARGET_NAMESPACE, includes[i]);
-                            }
-                            else
-                            {
+                                StscState.get().error("Included schema has a target namespace \"" + included.getTargetNamespace() + "\" that does not match the source namespace \"" + sourceNamespace + "\"", XmlErrorCodes.MISMATCHED_TARGET_NAMESPACE, include);
+                            } else {
                                 // chameleon include
                                 SchemaToProcess s = addScanNeeded(new SchemaToProcess(included, sourceNamespace));
                                 stp.addInclude(s);
@@ -822,37 +731,33 @@ public class StscImporter
                             }
                         }
                     }
-                    
+
                     {
                         // handle redefines
                         Redefine[] redefines = stp.getSchema().getRedefineArray();
                         String sourceNamespace = stp.getChameleonNamespace();
-                        if (sourceNamespace == null)
+                        if (sourceNamespace == null) {
                             sourceNamespace = emptyStringIfNull(stp.getSchema().getTargetNamespace());
-                        for (int i = 0; i < redefines.length; i++)
-                        {
-                            Schema redefined = downloadSchema(redefines[i], null, redefines[i].getSchemaLocation());
+                        }
+                        for (Redefine redefine : redefines) {
+                            Schema redefined = downloadSchema(redefine, null, redefine.getSchemaLocation());
                             // if download fails, an error has already been reported.
-                            if (redefined == null)
+                            if (redefined == null) {
                                 continue;
-    
-                            if (emptyStringIfNull(redefined.getTargetNamespace()).equals(sourceNamespace))
-                            {
+                            }
+
+                            if (emptyStringIfNull(redefined.getTargetNamespace()).equals(sourceNamespace)) {
                                 // non-chameleon case
                                 SchemaToProcess s = addScanNeeded(new SchemaToProcess(redefined, null));
-                                stp.addRedefine(s, redefines[i]);
+                                stp.addRedefine(s, redefine);
                                 hasRedefinitions = true;
-                            }
-                            else if (redefined.getTargetNamespace() != null)
-                            {
+                            } else if (redefined.getTargetNamespace() != null) {
                                 // illegal include: included schema in wrong namespace.
-                                StscState.get().error("Redefined schema has a target namespace \"" + redefined.getTargetNamespace() + "\" that does not match the source namespace \"" + sourceNamespace + "\"", XmlErrorCodes.MISMATCHED_TARGET_NAMESPACE, redefines[i]);
-                            }
-                            else
-                            {
+                                StscState.get().error("Redefined schema has a target namespace \"" + redefined.getTargetNamespace() + "\" that does not match the source namespace \"" + sourceNamespace + "\"", XmlErrorCodes.MISMATCHED_TARGET_NAMESPACE, redefine);
+                            } else {
                                 // chameleon redefine
                                 SchemaToProcess s = addScanNeeded(new SchemaToProcess(redefined, sourceNamespace));
-                                stp.addRedefine(s, redefines[i]);
+                                stp.addRedefine(s, redefine);
                                 usedEmptyNamespaceSchema(redefined);
                                 hasRedefinitions = true;
                             }
@@ -860,34 +765,31 @@ public class StscImporter
                     }
                 }
 
-                if (!fetchRemainingEmptyNamespaceSchemas())
-                    break;
-            }
+            } while (fetchRemainingEmptyNamespaceSchemas());
 
             // Build the lists of indirect references
             // Make all the effort only if there are redefinitions
-            if (hasRedefinitions)
-                for (int i = 0; i < result.size(); i++)
-                {
-                    SchemaToProcess schemaToProcess = (SchemaToProcess) result.get(i);
+            if (hasRedefinitions) {
+                for (SchemaToProcess schemaToProcess : result) {
                     schemaToProcess.buildIndirectReferences();
                 }
-            return (SchemaToProcess[])result.toArray(new SchemaToProcess[result.size()]);
+            }
+            return result.toArray(new SchemaToProcess[0]);
         }
 
-        private static Reader copySchemaSource(String url, Reader reader, StscState state)
-        {
+        private static Reader copySchemaSource(String url, Reader reader, StscState state) {
             //Copy the schema file if it wasn't already copied
-            if (state.getSchemasDir() == null)
+            if (state.getSchemasDir() == null) {
                 return reader;
+            }
 
             String schemalocation = state.sourceNameForUri(url);
             File targetFile = new File(state.getSchemasDir(), schemalocation);
-            if (targetFile.exists())
+            if (targetFile.exists()) {
                 return reader;
+            }
 
-            try
-            {
+            try {
                 File parentDir = new File(targetFile.getParent());
                 IOUtil.createDir(parentDir, null);
 
@@ -898,27 +800,25 @@ public class StscImporter
 
                 car.reset();
                 return car;
-            }
-            catch (IOException e)
-            {
+            } catch (IOException e) {
                 System.err.println("IO Error " + e);
                 return reader;
             }
         }
 
-        private static InputStream copySchemaSource(String url, InputStream bytes, StscState state)
-        {
+        private static InputStream copySchemaSource(String url, InputStream bytes, StscState state) {
             //Copy the schema file if it wasn't already copied
-            if (state.getSchemasDir() == null)
+            if (state.getSchemasDir() == null) {
                 return bytes;
+            }
 
             String schemalocation = state.sourceNameForUri(url);
             File targetFile = new File(state.getSchemasDir(), schemalocation);
-            if (targetFile.exists())
+            if (targetFile.exists()) {
                 return bytes;
+            }
 
-            try
-            {
+            try {
                 File parentDir = new File(targetFile.getParent());
                 IOUtil.createDir(parentDir, null);
 
@@ -929,51 +829,40 @@ public class StscImporter
 
                 bais.reset();
                 return bais;
-            }
-            catch (IOException e)
-            {
+            } catch (IOException e) {
                 System.err.println("IO Error " + e);
                 return bytes;
             }
         }
 
-        private static void copySchemaSource(String urlLoc, StscState state, boolean forceCopy)
-        {
+        private static void copySchemaSource(String urlLoc, StscState state, boolean forceCopy) {
             //Copy the schema file if it wasn't already copied
-            if (state.getSchemasDir()!=null)
-            {
+            if (state.getSchemasDir() != null) {
                 String schemalocation = state.sourceNameForUri(urlLoc);
 
                 File targetFile = new File(state.getSchemasDir(), schemalocation);
-                if (forceCopy || !targetFile.exists())
-                {
-                    try
-                    {
+                if (forceCopy || !targetFile.exists()) {
+                    try {
                         File parentDir = new File(targetFile.getParent());
                         IOUtil.createDir(parentDir, null);
 
                         InputStream in = null;
                         URL url = new URL(urlLoc);
                         // Copy the file from filepath to schema[METADATA_PACKAGE_GEN]/src/<schemaFile>
-                        try
-                        {
+                        try {
                             in = url.openStream();
-                        }
-                        catch (FileNotFoundException fnfe)
-                        {
-                            if (forceCopy && targetFile.exists())
+                        } catch (FileNotFoundException fnfe) {
+                            if (forceCopy && targetFile.exists()) {
                                 targetFile.delete();
-                            else
+                            } else {
                                 throw fnfe;
+                            }
                         }
-                        if (in != null)
-                        {
+                        if (in != null) {
                             FileOutputStream out = new FileOutputStream(targetFile);
                             IOUtil.copyCompletely(in, out);
                         }
-                    }
-                    catch (IOException e)
-                    {
+                    } catch (IOException e) {
                         System.err.println("IO Error " + e);
                         // failure = true; - not cause for failure
                     }
@@ -981,26 +870,26 @@ public class StscImporter
             }
         }
 
-        private static ByteArrayInputStream copy(InputStream is) throws IOException
-        {
-            byte [] buf = new byte[1024];
+        private static ByteArrayInputStream copy(InputStream is) throws IOException {
+            byte[] buf = new byte[1024];
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
             int bytesRead;
-            while(( bytesRead = is.read(buf, 0, 1024)) > 0)
+            while ((bytesRead = is.read(buf, 0, 1024)) > 0) {
                 baos.write(buf, 0, bytesRead);
+            }
 
             return new ByteArrayInputStream(baos.toByteArray());
         }
 
-        private static CharArrayReader copy(Reader is) throws IOException
-        {
+        private static CharArrayReader copy(Reader is) throws IOException {
             char[] buf = new char[1024];
             CharArrayWriter baos = new CharArrayWriter();
 
             int bytesRead;
-            while(( bytesRead = is.read(buf, 0, 1024)) > 0)
+            while ((bytesRead = is.read(buf, 0, 1024)) > 0) {
                 baos.write(buf, 0, bytesRead);
+            }
 
             return new CharArrayReader(baos.toCharArray());
         }

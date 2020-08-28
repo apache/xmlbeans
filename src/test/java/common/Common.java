@@ -24,8 +24,7 @@ import java.util.*;
 
 import static org.junit.Assert.assertNotNull;
 
-public class Common
-{
+public class Common {
     public static final String NEWLINE = System.getProperty("line.separator");
     public static final String P = File.separator;
 
@@ -34,7 +33,7 @@ public class Common
     public static String XBEAN_CASE_ROOT = getCaseLocation() + P + "xbean";
 
     //location of files under "cases folder"
-    public static String OUTPUTROOT = FWROOT+P+"build" + P + "test" + P + "output";
+    public static String OUTPUTROOT = FWROOT + P + "build" + P + "test" + P + "output";
 
 
     public final LinkedList errorList = new LinkedList();
@@ -52,13 +51,13 @@ public class Common
      * @return
      * @throws IllegalStateException
      */
-    public static String getRootFile() throws IllegalStateException
-    {
+    public static String getRootFile() throws IllegalStateException {
         String baseDir = System.getProperty("xbean.rootdir");
-        if (baseDir == null)
+        if (baseDir == null) {
             return new File(".").getAbsolutePath();
-        else
+        } else {
             return new File(baseDir).getAbsolutePath();
+        }
     }
 
     /**
@@ -68,8 +67,7 @@ public class Common
      *
      * @throws IllegalStateException
      */
-    public static String getCaseLocation() throws IllegalStateException
-    {
+    public static String getCaseLocation() throws IllegalStateException {
         String baseDir = System.getProperty("cases.location");
         if (baseDir == null) {
             return new File("." + P + "src" + P + "test" + P + "resources").getAbsolutePath();
@@ -84,8 +82,7 @@ public class Common
      * @param strPath
      * @return file Object for references location
      */
-    public static File xbeanCase(String strPath)
-    {
+    public static File xbeanCase(String strPath) {
         return (new File(CASEROOT, strPath));
     }
 
@@ -95,8 +92,7 @@ public class Common
      * @param strPath
      * @return File Object specified by strPath
      */
-    public static File xbeanOutput(String strPath)
-    {
+    public static File xbeanOutput(String strPath) {
         File result = (new File(OUTPUTROOT, strPath));
         File parentdir = result.getParentFile();
         parentdir.mkdirs();
@@ -108,16 +104,17 @@ public class Common
      *
      * @param dir
      */
-    public static void deltree(File dir)
-    {
+    public static void deltree(File dir) {
         if (dir.exists()) {
             if (dir.isDirectory()) {
                 String[] list = dir.list();
-                for (int i = 0; i < list.length; i++)
+                for (int i = 0; i < list.length; i++) {
                     deltree(new File(dir, list[i]));
+                }
             }
-            if (!dir.delete())
+            if (!dir.delete()) {
                 System.out.println("Could not delete " + dir);
+            }
             //throw new IllegalStateException("Could not delete " + dir);
         }
     }
@@ -127,25 +124,25 @@ public class Common
      *
      * @param errors
      */
-    public static void listErrors(List errors)
-    {
+    public static void listErrors(List errors) {
         for (int i = 0; i < errors.size(); i++) {
             XmlError error = (XmlError) errors.get(i);
-            if (error.getSeverity() == XmlError.SEVERITY_ERROR)
+            if (error.getSeverity() == XmlError.SEVERITY_ERROR) {
                 System.out.println(error.toString());
+            }
         }
     }
 
     /**
      * check list of errors/warnings/msgs and print them. Return true if errors found
+     *
      * @param errors
      * @return
      */
-    public static boolean printOptionErrMsgs(Collection errors)
-    {
+    public static boolean printOptionErrMsgs(Collection errors) {
         boolean errFound = false;
         if (!errors.isEmpty()) {
-            for (Iterator i = errors.iterator(); i.hasNext();) {
+            for (Iterator i = errors.iterator(); i.hasNext(); ) {
                 XmlError eacherr = (XmlError) i.next();
                 int errSeverity = eacherr.getSeverity();
                 if (errSeverity == XmlError.SEVERITY_ERROR) {
@@ -164,25 +161,25 @@ public class Common
 
     /**
      * Validate schemas to instance based on the docType
+     *
      * @param schemas
      * @param instances
      * @param docType
      * @throws Exception
      */
-    public static void validateInstance(String[] schemas, String[] instances, QName docType) throws Exception
-    {
+    public static void validateInstance(String[] schemas, String[] instances, QName docType) throws Exception {
         SchemaTypeLoader stl = makeSchemaTypeLoader(schemas);
         XmlOptions options = new XmlOptions();
 
         if (docType != null) {
             SchemaType docSchema = stl.findDocumentType(docType);
             Assert.assertTrue(docSchema != null);
-            options.put(XmlOptions.DOCUMENT_TYPE, docSchema);
+            options.setDocumentType(docSchema);
         }
 
         for (int i = 0; i < instances.length; i++) {
             XmlObject x =
-                    stl.parse((String) instances[i], null, options);
+                stl.parse((String) instances[i], null, options);
 
             //if (!startOnDocument) {
             //    XmlCursor c = x.newCursor();
@@ -191,9 +188,9 @@ public class Common
             //    c.dispose();
             //}
 
-            List xel = new ArrayList();
+            List<XmlError> xel = new ArrayList<>();
 
-            options.put(XmlOptions.ERROR_LISTENER, xel);
+            options.setErrorListener(xel);
 
             boolean isValid = x.validate(options);
 
@@ -202,8 +199,9 @@ public class Common
                 errorTxt.append("Instance(" + i + "): ");
                 errorTxt.append(x.xmlText());
                 errorTxt.append("Errors: ");
-                for (int j = 0; j < xel.size(); j++)
-                    errorTxt.append(xel.get(j) + "\n");
+                for (XmlError xmlError : xel) {
+                    errorTxt.append(xmlError + "\n");
+                }
                 System.err.println(errorTxt.toString());
                 throw new Exception("Instance not valid\n" + errorTxt.toString());
             }
@@ -217,14 +215,13 @@ public class Common
      * @param XsdAsString
      * @return
      */
-    public static XmlObject compileXsdString(String XsdAsString)
-    {
+    public static XmlObject compileXsdString(String XsdAsString) {
         XmlObject xobj = null;
         try {
             xobj = XmlObject.Factory.parse(XsdAsString);
         } catch (XmlException xme) {
             if (!xme.getErrors().isEmpty()) {
-                for (Iterator itr = xme.getErrors().iterator(); itr.hasNext();) {
+                for (Iterator itr = xme.getErrors().iterator(); itr.hasNext(); ) {
                     System.out.println("Parse Errors :" + itr.next());
                 }
             }
@@ -241,14 +238,13 @@ public class Common
      * @param XsdFilePath
      * @return
      */
-    public static XmlObject compileXsdFile(String XsdFilePath)
-    {
+    public static XmlObject compileXsdFile(String XsdFilePath) {
         XmlObject xobj = null;
         try {
             xobj = XmlObject.Factory.parse(new File(XsdFilePath));
         } catch (XmlException xme) {
             if (!xme.getErrors().isEmpty()) {
-                for (Iterator itr = xme.getErrors().iterator(); itr.hasNext();) {
+                for (Iterator itr = xme.getErrors().iterator(); itr.hasNext(); ) {
                     System.out.println("Parse Errors :" + itr.next());
                 }
             }
@@ -269,13 +265,12 @@ public class Common
      * @throws Exception
      */
     public static SchemaTypeLoader makeSchemaTypeLoader(String[] schemas)
-            throws Exception
-    {
+        throws Exception {
         XmlObject[] schemaDocs = new XmlObject[schemas.length];
 
         for (int i = 0; i < schemas.length; i++) {
             schemaDocs[i] =
-                    XmlObject.Factory.parse(schemas[i]);
+                XmlObject.Factory.parse(schemas[i]);
         }
 
         return XmlBeans.loadXsd(schemaDocs);
@@ -287,36 +282,31 @@ public class Common
      *
      * @return true if java.version starts with 1.4
      */
-    public static boolean isJDK14()
-    {
+    public static boolean isJDK14() {
         return System.getProperty("java.version").startsWith("1.4");
     }
 
     /**
      * Convenience class for creating tests in a multithreaded env
      */
-    public static abstract class TestThread extends Thread
-    {
+    public static abstract class TestThread extends Thread {
         protected Throwable _throwable;
         protected boolean _result;
         protected XmlOptions xm;
         protected ArrayList errors;
 
-        public TestThread()
-        {
+        public TestThread() {
             xm = new XmlOptions();
             ArrayList errors = new ArrayList();
             xm.setErrorListener(errors);
             xm.setValidateOnSet();
         }
 
-        public Throwable getException()
-        {
+        public Throwable getException() {
             return _throwable;
         }
 
-        public boolean getResult()
-        {
+        public boolean getResult() {
             return _result;
         }
 

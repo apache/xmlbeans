@@ -25,8 +25,7 @@ import java.io.File;
 
 import static org.junit.Assert.*;
 
-public class XmlLineNumberTest extends Common
-{
+public class XmlLineNumberTest extends Common {
     public static final String xml =
         "<people><person born=\"1912\" died=\"1954\" id=\"p342\">\n" +
         "    <name>\n" +
@@ -38,11 +37,12 @@ public class XmlLineNumberTest extends Common
     public static final String xmlFile =
         XBEAN_CASE_ROOT + P + "xmlcursor" + P + "Employees.xml";
 
-    /** test obtaining XmlLineNumber bookmark with option
-        XmlOptions.setLoadLineNumbers() */
+    /**
+     * test obtaining XmlLineNumber bookmark with option
+     * XmlOptions.setLoadLineNumbers()
+     */
     @Test
-    public void testGetBookmark1() throws Exception
-    {
+    public void testGetBookmark1() throws Exception {
         File f = new File(xmlFile);
         XmlOptions opt = new XmlOptions();
         opt.setLoadLineNumbers();
@@ -58,20 +58,20 @@ public class XmlLineNumberTest extends Common
         assertEquals(17, ln.getLine());
         c.toEndToken();
         assertEquals(XmlCursor.TokenType.END, c.currentTokenType());
-        ln =(XmlLineNumber) c.getBookmark(XmlLineNumber.class);
+        ln = (XmlLineNumber) c.getBookmark(XmlLineNumber.class);
         // no bookmark at END
         assertNull(ln);
     }
 
-    /** test obtaining XmlLineNumber bookmark with option
-        XmlOptions.setLoadLineNumbers(XmlOptions.LOAD_LINE_NUMBERS_END_ELEMENT)
-    */
+    /**
+     * test obtaining XmlLineNumber bookmark with option
+     * XmlOptions.setLoadLineNumbers(XmlOptions.LOAD_LINE_NUMBERS_END_ELEMENT)
+     */
     @Test
-    public void testGetBookmark2() throws Exception
-    {
+    public void testGetBookmark2() throws Exception {
         File f = new File(xmlFile);
         XmlOptions opt = new XmlOptions();
-        opt.setLoadLineNumbers(XmlOptions.LOAD_LINE_NUMBERS_END_ELEMENT);
+        opt.setLoadLineNumbersEndElement();
         XmlObject xo = XmlObject.Factory.parse(f, opt);
         XmlCursor c = xo.newCursor();
         c.toFirstChild();
@@ -90,11 +90,12 @@ public class XmlLineNumberTest extends Common
         assertEquals(34, ln.getLine());
     }
 
-    /** test using XmlLineNumber to get line number, column, and offset
-        - parsing xml from string */
+    /**
+     * test using XmlLineNumber to get line number, column, and offset
+     * - parsing xml from string
+     */
     @Test
-    public void testLineNumber1() throws Exception
-    {
+    public void testLineNumber1() throws Exception {
         XmlOptions opt = new XmlOptions().setLoadLineNumbers();
         XmlObject xo = XmlObject.Factory.parse(xml, opt);
         XmlCursor c = xo.newCursor();
@@ -116,13 +117,15 @@ public class XmlLineNumberTest extends Common
         assertEquals(14, ln.getColumn());
     }
 
-    /** test using XmlLineNumber to get line number, column, and offset
-        - parsing xml from file */
+    /**
+     * test using XmlLineNumber to get line number, column, and offset
+     * - parsing xml from file
+     */
     @Test
     public void testLineNumber2() throws Exception {
         File f = new File(xmlFile);
         XmlOptions opt = new XmlOptions();
-        opt.setLoadLineNumbers(XmlOptions.LOAD_LINE_NUMBERS_END_ELEMENT);
+        opt.setLoadLineNumbersEndElement();
         XmlObject xo = XmlObject.Factory.parse(f, opt);
         XmlCursor c = xo.newCursor();
         c.toFirstContentToken();

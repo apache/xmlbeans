@@ -15,51 +15,40 @@
 
 package org.apache.xmlbeans.impl.schema;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
-public class SchemaDependencies
-{
+public class SchemaDependencies {
     // This class is NOT synchronized
 
-    void registerDependency(String source, String target)
-    {
-        Set depSet = (Set) _dependencies.get(target);
-        if (depSet == null)
-        {
-            depSet = new HashSet();
-            _dependencies.put(target, depSet);
-        }
-        depSet.add(source);
-    }
-
-    
+    /**
+     * Records the list of files associated to each namespace.
+     * This is needed so that we can return a list of files that
+     * need to be compiled once we get a set of altered namespaces
+     */
+    private final Map<String, List<String>> _contributions = new HashMap<>();
 
     /**
      * Records anti-dependencies. Keys are namespaces and values are
      * the lists of namespaces that depend on each key
      */
-    private Map/*<String,Set<String>>*/ _dependencies;
+    private final Map<String, Set<String>> _dependencies = new HashMap<>();
 
-    Set computeTransitiveClosure(List modifiedNamespaces)
-    {
-        List nsList = new ArrayList(modifiedNamespaces);
-        Set result = new HashSet(modifiedNamespaces);
-        for (int i = 0; i < nsList.size(); i++)
-        {
-            Set deps = (Set) _dependencies.get(nsList.get(i));
-            if (deps == null)
+    void registerDependency(String source, String target) {
+        _dependencies.computeIfAbsent(target, k -> new HashSet<>()).add(source);
+    }
+
+
+    Set<String> computeTransitiveClosure(List<String> modifiedNamespaces) {
+        List<String> nsList = new ArrayList<>(modifiedNamespaces);
+        Set<String> result = new HashSet<>(modifiedNamespaces);
+        for (int i = 0; i < nsList.size(); i++) {
+            Set<String> deps = _dependencies.get(nsList.get(i));
+            if (deps == null) {
                 continue;
-            for (Iterator it = deps.iterator(); it.hasNext(); )
-            {
-                String ns = (String) it.next();
-                if (!result.contains(ns))
-                {
+            }
+            for (String ns : deps) {
+                if (!result.contains(ns)) {
                     nsList.add(ns);
                     result.add(ns);
                 }
@@ -68,95 +57,52 @@ public class SchemaDependencies
         return result;
     }
 
-    SchemaDependencies()
-    {
-        _dependencies = new HashMap();
-        _contributions = new HashMap();
+    SchemaDependencies() {
     }
 
-    SchemaDependencies(SchemaDependencies base, Set updatedNs)
-    {
-        _dependencies = new HashMap();
-        _contributions = new HashMap();
-        for (Iterator it = base._dependencies.keySet().iterator(); it.hasNext(); )
-        {
-            String target = (String) it.next();
-            if (updatedNs.contains(target))
+    SchemaDependencies(SchemaDependencies base, Set<String> updatedNs) {
+        for (String target : base._dependencies.keySet()) {
+            if (updatedNs.contains(target)) {
                 continue;
-            Set depSet = new HashSet();
+            }
+            Set<String> depSet = new HashSet<>();
             _dependencies.put(target, depSet);
-            Set baseDepSet = (Set) base._dependencies.get(target);
-            for (Iterator it2 = baseDepSet.iterator(); it2.hasNext(); )
-            {
-                String source = (String) it2.next();
-                if (updatedNs.contains(source))
+            Set<String> baseDepSet = base._dependencies.get(target);
+            for (String source : baseDepSet) {
+                if (updatedNs.contains(source)) {
                     continue;
+                }
                 depSet.add(source);
             }
         }
-        for (Iterator it = base._contributions.keySet().iterator(); it.hasNext(); )
-        {
-            String ns = (String) it.next();
-            if (updatedNs.contains(ns))
+        for (String ns : base._contributions.keySet()) {
+            if (updatedNs.contains(ns)) {
                 continue;
-            List fileList = new ArrayList();
+            }
+            List<String> fileList = new ArrayList<>();
             _contributions.put(ns, fileList);
-            List baseFileList = (List) base._contributions.get(ns);
-            for (Iterator it2 = baseFileList.iterator(); it2.hasNext(); )
-                fileList.add(it2.next());
+            fileList.addAll(base._contributions.get(ns));
         }
     }
 
-    /**
-     * Records the list of files associated to each namespace.
-     * This is needed so that we can return a list of files that
-     * need to be compiled once we get a set of altered namespaces
-     */
-    private Map/*<String,List<String>>*/ _contributions;
-
-    void registerContribution(String ns, String fileURL)
-    {
-        List fileList = (List) _contributions.get(ns);
-        if (fileList == null)
-        {
-            fileList = new ArrayList();
-            _contributions.put(ns, fileList);
-        }
-        fileList.add(fileURL);
+    void registerContribution(String ns, String fileURL) {
+        _contributions.computeIfAbsent(ns, k -> new ArrayList<>()).add(fileURL);
     }
 
-    boolean isFileRepresented(String fileURL)
-    {
-        for (Iterator it = _contributions.values().iterator(); it.hasNext(); )
-        {
-            List fileList = (List) it.next();
-            if (fileList.contains(fileURL))
-                return true;
-        }
-        return false;
+    boolean isFileRepresented(String fileURL) {
+        return _contributions.values().stream().anyMatch(l -> l.contains(fileURL));
     }
 
-    List getFilesTouched(Set updatedNs)
-    {
-        List result = new ArrayList();
-        for (Iterator it = updatedNs.iterator(); it.hasNext(); )
-        {
-            result.addAll((List) _contributions.get(it.next()));
-        }
-        return result;
+    List<String> getFilesTouched(Set<String> updatedNs) {
+        return updatedNs.stream().map(_contributions::get).
+            filter(Objects::nonNull).flatMap(List::stream).
+            collect(Collectors.toList());
     }
 
-    List getNamespacesTouched(Set modifiedFiles)
-    {
-        List result = new ArrayList();
-        for (Iterator it = _contributions.keySet().iterator(); it.hasNext(); )
-        {
-            String ns = (String) it.next();
-            List files = (List) _contributions.get(ns);
-            for (int i = 0; i < files.size(); i++)
-                if (modifiedFiles.contains(files.get(i)))
-                    result.add(ns);
-        }
-        return result;
+    List<String> getNamespacesTouched(Set<String> modifiedFiles) {
+        return _contributions.entrySet().stream().
+            filter(e -> e.getValue().stream().anyMatch(modifiedFiles::contains)).
+            map(Map.Entry::getKey).
+            collect(Collectors.toList());
     }
 }

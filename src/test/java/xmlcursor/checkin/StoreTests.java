@@ -142,14 +142,14 @@ public class StoreTests {
     }
 
     @Test
-    public void testImplicitNamespaces() throws Exception {
-        Map<String,String> namespaces = new HashMap<String,String>();
+    public void testImplicitNamespaces() {
+        Map<String, String> namespaces = new HashMap<>();
         namespaces.put("foo", "foo.com");
         namespaces.put("bar", "bar.com");
         namespaces.put("", "default.com");
 
         XmlOptions options = new XmlOptions();
-        options.put(XmlOptions.SAVE_IMPLICIT_NAMESPACES, namespaces);
+        options.setSaveImplicitNamespaces(namespaces);
 
         XmlObject x = XmlObject.Factory.newInstance();
         XmlCursor c = x.newCursor();
@@ -178,19 +178,21 @@ public class StoreTests {
             add("START_ELEMENT");
             add("  namespaceURI: " + namespaceURI);
             add("  localName: " + localName);
-//            add( "  qName: " + qName ); 
+//            add( "  qName: " + qName );
 
-            TreeSet sortedAttrs = new TreeSet();
+            TreeSet<String> sortedAttrs = new TreeSet<>();
 
             for (int i = 0; i < atts.getLength(); i++) {
                 String ln = atts.getLocalName(i);
                 String uri = atts.getURI(i);
                 String qname = atts.getQName(i);
 
-                if (ln.equals("xmlns"))
+                if (ln.equals("xmlns")) {
                     continue;
-                if (qname.startsWith("xmlns"))
+                }
+                if (qname.startsWith("xmlns")) {
                     continue;
+                }
 
 //                if (ln.equals( "xmlns" ))
 //                    ln = "";
@@ -204,8 +206,9 @@ public class StoreTests {
                     atts.getValue(i));
             }
 
-            for (Iterator i = sortedAttrs.iterator(); i.hasNext(); )
-                add("  Attr: " + i.next());
+            for (String sortedAttr : sortedAttrs) {
+                add("  Attr: " + sortedAttr);
+            }
         }
 
         public void endElement(
@@ -297,8 +300,9 @@ public class StoreTests {
 
         private void add(String s, char[] buf, int off, int cch) {
             _sb.append(s);
-            if (buf != null)
+            if (buf != null) {
                 _sb.append(buf, off, cch);
+            }
             _sb.append("\n");
         }
 
@@ -315,7 +319,7 @@ public class StoreTests {
             return _sb.toString();
         }
 
-        private StringBuilder _sb = new StringBuilder();
+        private final StringBuilder _sb = new StringBuilder();
     }
 
     private void doTestSaxSaver(String xml)
@@ -388,8 +392,9 @@ public class StoreTests {
             char ch = xml.charAt(i);
 
             if (ch == '<' && Character.isLetter(xml.charAt(i + 1))) {
-                while (!c.currentTokenType().isStart())
+                while (!c.currentTokenType().isStart()) {
                     c.toNextToken();
+                }
 
                 assertTrue(c.currentTokenType().isStart());
 
@@ -409,8 +414,9 @@ public class StoreTests {
             if (ch == '\n') {
                 line++;
                 col = 1;
-            } else
+            } else {
                 col++;
+            }
         }
     }
 
@@ -445,17 +451,19 @@ public class StoreTests {
         public void whitespace() {
             int p = r.nextInt(100);
 
-            if (p < 20)
+            if (p < 20) {
                 append('\t');
-            else if (p < 40)
+            } else if (p < 40) {
                 append('\n');
-            else
+            } else {
                 append(' ');
+            }
         }
 
         void whitespaces() {
-            for (int i = r.nextInt(8); i > 0; i--)
+            for (int i = r.nextInt(8); i > 0; i--) {
                 whitespace();
+            }
         }
 
         char makeLetter() {
@@ -490,12 +498,13 @@ public class StoreTests {
             for (int i = r.nextInt(20); i > 0; i--) {
                 int p = r.nextInt(100);
 
-                if (p < 70)
+                if (p < 70) {
                     letter();
-                else if (p < 74)
+                } else if (p < 74) {
                     charEntity();
-                else
+                } else {
                     whitespace();
+                }
             }
         }
 
@@ -505,16 +514,18 @@ public class StoreTests {
             for (; ; ) {
                 char ch = makeLetter();
 
-                if (ch == 'x' || ch == 'X')
+                if (ch == 'x' || ch == 'X') {
                     continue;
+                }
 
                 name.append(ch);
 
                 break;
             }
 
-            for (int i = r.nextInt(20); i > 0; i--)
+            for (int i = r.nextInt(20); i > 0; i--) {
                 name.append(makeLetter());
+            }
 
             return name.toString();
         }
@@ -545,14 +556,15 @@ public class StoreTests {
             for (; ; ) {
                 int p = r.nextInt(100);
 
-                if (p < 20)
+                if (p < 20) {
                     break;
-                else if (p < 50)
+                } else if (p < 50) {
                     whitespaces();
-                else if (p < 70)
+                } else if (p < 70) {
                     comment();
-                else
+                } else {
                     procinst();
+                }
             }
         }
 
@@ -583,13 +595,15 @@ public class StoreTests {
         public void attribute() {
             ncName();
 
-            if (r.nextInt(100) == 0)
+            if (r.nextInt(100) == 0) {
                 whitespaces();
+            }
 
             append('=');
 
-            if (r.nextInt(100) == 0)
+            if (r.nextInt(100) == 0) {
                 whitespaces();
+            }
 
             char q = r.nextInt(2) == 0 ? '\'' : '"';
 
@@ -611,34 +625,35 @@ public class StoreTests {
                 append('<');
                 append(name);
 
-                if (r.nextInt(100) == 0)
+                if (r.nextInt(100) == 0) {
                     whitespaces();
+                }
 
-                HashMap attrs = new HashMap();
+                HashMap<String,Object> attrs = new HashMap<>();
 
                 for (int i = r.nextInt(3); i > 0; i--) {
                     append(' ');
 
                     String aname;
 
-                    for (; ; ) {
+                    do {
                         aname = makeNcName();
 
-                        if (!attrs.containsKey(aname))
-                            break;
-                    }
+                    } while (attrs.containsKey(aname));
 
                     attrs.put(aname, null);
 
                     append(aname);
 
-                    if (r.nextInt(100) == 0)
+                    if (r.nextInt(100) == 0) {
                         whitespaces();
+                    }
 
                     append('=');
 
-                    if (r.nextInt(100) == 0)
+                    if (r.nextInt(100) == 0) {
                         whitespaces();
+                    }
 
                     char q = r.nextInt(2) == 0 ? '\'' : '"';
 
@@ -648,8 +663,9 @@ public class StoreTests {
 
                     append(q);
 
-                    if (r.nextInt(10) == 0)
+                    if (r.nextInt(10) == 0) {
                         whitespaces();
+                    }
                 }
 
                 append('>');
@@ -659,16 +675,18 @@ public class StoreTests {
                 append("</");
                 append(name);
 
-                if (r.nextInt(100) == 0)
+                if (r.nextInt(100) == 0) {
                     whitespaces();
+                }
 
                 append('>');
             }
         }
 
         public void document() {
-            if (r.nextInt(2) == 0)
+            if (r.nextInt(2) == 0) {
                 xmlDecl();
+            }
 
             whiteContent();
 
@@ -783,8 +801,9 @@ public class StoreTests {
 
             n++;
 
-            if (t == TokenType.NONE)
+            if (t == TokenType.NONE) {
                 break;
+            }
         }
 
         assertEquals(6, n);
@@ -797,18 +816,16 @@ public class StoreTests {
     @Test
     public void testConsistentTokenOrder()
         throws Exception {
-        ArrayList<TokenType> l = new ArrayList<TokenType>();
+        ArrayList<TokenType> l = new ArrayList<>();
 
         XmlCursor c = XmlObject.Factory.parse(Common.XML_ATTR_TEXT, null).newCursor();
 
 
-        for (; ; ) {
+        do {
             // System.err.println(c.currentTokenType());
             l.add(c.currentTokenType());
 
-            if (c.toNextToken() == TokenType.NONE)
-                break;
-        }
+        } while (c.toNextToken() != TokenType.NONE);
 
         c.toEndDoc();
         // System.err.println("Reversing");
@@ -817,8 +834,9 @@ public class StoreTests {
             // System.err.println(c.currentTokenType());
             assertEquals(l.get(i), c.currentTokenType());
 
-            if (c.toPrevToken() == TokenType.NONE)
+            if (c.toPrevToken() == TokenType.NONE) {
                 break;
+            }
         }
     }
 
@@ -954,48 +972,54 @@ public class StoreTests {
                 continue;
             }
 
-            if (n == 0)
+            if (n == 0) {
                 n = 1;
+            }
 
             if (ch == 'c') {
-                if (prev)
+                if (prev) {
                     assertEquals(c.toPrevChar(n), n);
-                else
+                } else {
                     assertEquals(c.toNextChar(n), n);
+                }
             } else if (ch == 't') {
                 while (n-- > 0) {
-                    if (prev)
+                    if (prev) {
                         assertNotSame(c.toPrevToken(), TokenType.NONE);
-                    else
+                    } else {
                         assertNotSame(c.toNextToken(), TokenType.NONE);
+                    }
                 }
             } else if (ch == 'p') {
-                assertTrue(!prev);
+                assertFalse(prev);
 
-                while (n-- > 0)
+                while (n-- > 0) {
                     assertTrue(c.toParent());
+                }
             } else if (ch == 'r') {
-                assertTrue(!prev);
+                assertFalse(prev);
                 assertEquals(1, n);
 
                 c.toEndDoc();
             } else if (ch == 'b') {
-                assertTrue(!prev);
+                assertFalse(prev);
                 assertEquals(1, n);
 
                 c.toStartDoc();
             } else if (ch == 's') {
                 while (n-- > 0) {
-                    if (prev)
+                    if (prev) {
                         assertTrue(c.toPrevSibling());
-                    else
+                    } else {
                         assertTrue(c.toNextSibling());
+                    }
                 }
             } else if (ch == 'd') {
-                assertTrue(!prev);
+                assertFalse(prev);
 
-                while (n-- > 0)
+                while (n-- > 0) {
                     assertTrue(c.toFirstChild());
+                }
             } else {
                 fail();
             }
@@ -1025,9 +1049,7 @@ public class StoreTests {
 
         XmlOptions options = new XmlOptions();
 
-        options.put(
-            XmlOptions.SAVE_SYNTHETIC_DOCUMENT_ELEMENT,
-            new QName(null, "bar"));
+        options.setSaveSyntheticDocumentElement(new QName(null, "bar"));
 
         assertTrue(
             x.xmlText(options).equals("<bar>[TO]<foo>abcdef</foo>[FROM]</bar>") ||
@@ -1053,7 +1075,7 @@ public class StoreTests {
 
         cFrom = navDoc(x, "d");
         cTo = navNewCursor(cFrom, "t3c");
-        assertTrue(!cFrom.moveXml(cTo));
+        assertFalse(cFrom.moveXml(cTo));
         cFrom.insertChars("[FROM]");
         cTo.insertChars("[TO]");
 
@@ -1433,9 +1455,7 @@ public class StoreTests {
 
         XmlOptions options = new XmlOptions();
 
-        options.put(
-            XmlOptions.SAVE_SYNTHETIC_DOCUMENT_ELEMENT,
-            new QName(null, "bar"));
+        options.setSaveSyntheticDocumentElement(new QName(null, "bar"));
 
         x = XmlObject.Factory.parse(cTo.xmlText(options));
 
@@ -1451,9 +1471,7 @@ public class StoreTests {
 
         options = new XmlOptions();
 
-        options.put(
-            XmlOptions.SAVE_SYNTHETIC_DOCUMENT_ELEMENT,
-            new QName(null, "bar"));
+        options.setSaveSyntheticDocumentElement(new QName(null, "bar"));
 
         x = XmlObject.Factory.parse(cTo.xmlText(options));
 
@@ -1556,8 +1574,7 @@ public class StoreTests {
         XmlObject x;
 
         XmlOptions options = new XmlOptions();
-
-        options.put(XmlOptions.LOAD_REPLACE_DOCUMENT_ELEMENT, null);
+        options.setLoadReplaceDocumentElement(null);
 
         x =
             XmlObject.Factory.parse(
@@ -1584,7 +1601,7 @@ public class StoreTests {
         XmlObject x;
         XmlCursor cFrom, cTo;
 
-        // Forward navigation 
+        // Forward navigation
 
         x = XmlObject.Factory.parse("<bar p='q' x='y'>ab<foo>xy</foo>cd</bar>");
 
@@ -1608,7 +1625,7 @@ public class StoreTests {
             }
         }
 
-        // Backward navigation 
+        // Backward navigation
 
         x = XmlObject.Factory.parse("<bar p='q' x='y'>ab<foo>xy</foo>cd</bar>");
 
@@ -1619,12 +1636,13 @@ public class StoreTests {
             assertEquals(0, cFrom.comparePosition(cTo));
             assertTrue(cFrom.isAtSamePositionAs(cTo));
 
-            if (cFrom.toPrevChar(1) == 1)
+            if (cFrom.toPrevChar(1) == 1) {
                 cTo.toPrevChar(1);
-            else if (cFrom.toPrevToken() != TokenType.NONE)
+            } else if (cFrom.toPrevToken() != TokenType.NONE) {
                 cTo.toPrevToken();
-            else
+            } else {
                 break;
+            }
         }
 
         //
@@ -1641,23 +1659,27 @@ public class StoreTests {
 
             for (; ; ) {
                 if (cTo.isAtSamePositionAs(cFrom)) {
-                    assertTrue(!passed);
+                    assertFalse(passed);
                     passed = true;
                 } else if (cTo.isLeftOf(cFrom)) {
-                    assertTrue(!passed);
+                    assertFalse(passed);
                 } else {
                     assertTrue(passed);
                     assertTrue(cTo.isRightOf(cFrom));
                 }
 
-                if (cTo.toNextChar(1) != 1)
-                    if (cTo.toNextToken() == TokenType.ENDDOC)
+                if (cTo.toNextChar(1) != 1) {
+                    if (cTo.toNextToken() == TokenType.ENDDOC) {
                         break;
+                    }
+                }
             }
 
-            if (cFrom.toNextChar(1) != 1)
-                if (cFrom.toNextToken() == TokenType.ENDDOC)
+            if (cFrom.toNextChar(1) != 1) {
+                if (cFrom.toNextToken() == TokenType.ENDDOC) {
                     break;
+                }
+            }
         }
     }
 
@@ -1757,22 +1779,22 @@ public class StoreTests {
         XmlObject x = XmlObject.Factory.parse("<a x='y'>eric<!----><?moo?></a>");
         XmlCursor c = x.newCursor();
         assertNull(c.getName());
-        assertTrue(!c.toNextToken().isNone());
+        assertFalse(c.toNextToken().isNone());
         assertEquals("a", c.getName().getLocalPart());
         assertEquals(0, c.getName().getNamespaceURI().length());
-        assertTrue(!c.toNextToken().isNone());
+        assertFalse(c.toNextToken().isNone());
         assertEquals("x", c.getName().getLocalPart());
         assertEquals(0, c.getName().getNamespaceURI().length());
-        assertTrue(!c.toNextToken().isNone());
+        assertFalse(c.toNextToken().isNone());
         assertNull(c.getName());
-        assertTrue(!c.toNextToken().isNone());
+        assertFalse(c.toNextToken().isNone());
         assertNull(c.getName());
-        assertTrue(!c.toNextToken().isNone());
+        assertFalse(c.toNextToken().isNone());
         assertEquals("moo", c.getName().getLocalPart());
         assertEquals(0, c.getName().getNamespaceURI().length());
-        assertTrue(!c.toNextToken().isNone());
+        assertFalse(c.toNextToken().isNone());
         assertNull(c.getName());
-        assertTrue(!c.toNextToken().isNone());
+        assertFalse(c.toNextToken().isNone());
         assertNull(c.getName());
         assertTrue(c.toNextToken().isNone());
     }
@@ -1798,17 +1820,14 @@ public class StoreTests {
     @Test
     public void testNamespaceSubstitution()
         throws Exception {
-        HashMap<String, String> subs = new HashMap<String, String>();
+        HashMap<String, String> subs = new HashMap<>();
         subs.put("foo", "moo");
         subs.put("a", "b");
 
         XmlOptions options = new XmlOptions();
-        options.put(XmlOptions.LOAD_SUBSTITUTE_NAMESPACES, subs);
+        options.setLoadSubstituteNamespaces(subs);
 
-        XmlObject x =
-            XmlObject.Factory.parse(
-                "<a xmlns='foo' xmlns:a='a' a:x='y'/>",
-                options);
+        XmlObject x = XmlObject.Factory.parse("<a xmlns='foo' xmlns:a='a' a:x='y'/>", options);
 
         XmlCursor c = x.newCursor();
 
@@ -1826,8 +1845,7 @@ public class StoreTests {
     }
 
     @Test
-    public void testNamespaceInsertion()
-        throws Exception {
+    public void testNamespaceInsertion() {
         XmlObject x = XmlObject.Factory.newInstance();
 
         XmlCursor c = x.newCursor();
@@ -1864,7 +1882,7 @@ public class StoreTests {
         XmlCursor c = x.newCursor();
         c.toFirstChild();
         XmlObject fc = c.getObject();
-        assertTrue(!fc.isNil());
+        assertFalse(fc.isNil());
         fc.setNil();
         assertTrue(fc.isNil());
         assertEquals("<canBeNil xsi:nil=\"true\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"/>", x.xmlText());
@@ -1872,7 +1890,7 @@ public class StoreTests {
         assertTrue(c.isAttr());
         c.removeXml();
         assertEquals("<canBeNil/>", x.xmlText());
-        assertTrue(!fc.isNil());
+        assertFalse(fc.isNil());
     }
 
     @Test
@@ -1893,8 +1911,8 @@ public class StoreTests {
         dotestParserErrors("<foo a></foo>");
         dotestParserErrors("<foo>");
         dotestParserErrors("</foo>");
-        dotestParserErrors( "<foo><!-- -- --></foo>" );
-        dotestParserErrors( "<foo><!-- ---></foo>" );
+        dotestParserErrors("<foo><!-- -- --></foo>");
+        dotestParserErrors("<foo><!-- ---></foo>");
 
         dotestParser("<a b=\"x\n\ny\"/>", "<a b=\"x  y\"/>");
     }
@@ -1940,7 +1958,7 @@ public class StoreTests {
         throws Exception {
         String xml = "<a xmlns:a='aNS'><a:b/></a>";
 
-        Map<String, String> map = new java.util.LinkedHashMap<String, String>();
+        Map<String, String> map = new LinkedHashMap<>();
         map.put("b", "bNS");
         map.put("c", "cNS");
         map.put("a", "not-aNS");
@@ -1954,7 +1972,7 @@ public class StoreTests {
 
         xml = "<a xmlns='aNS'><b/></a>";
 
-        map = new java.util.LinkedHashMap<String, String>();
+        map = new LinkedHashMap<>();
         map.put("b", "bNS");
         map.put("c", "cNS");
         map.put("", "not-aNS");

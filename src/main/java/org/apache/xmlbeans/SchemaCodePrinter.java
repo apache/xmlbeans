@@ -15,26 +15,17 @@
 
 package org.apache.xmlbeans;
 
-import java.io.Writer;
 import java.io.IOException;
+import java.io.Writer;
 
 /**
  * This class is used to provide alternate implementations of the
  * schema Java code generation.
  */
 
-public interface SchemaCodePrinter
-{
-    public void printTypeImpl(Writer writer, SchemaType sType)
-        throws IOException;
-    
-    public void printType(Writer writer, SchemaType sType)
-        throws IOException;
-    
-    /**
-     * @deprecated Obsoleted by functionality in {@link SchemaTypeSystem.save()}
-     */
-    public void printLoader(Writer writer, SchemaTypeSystem system)
-        throws IOException;
+public interface SchemaCodePrinter {
+    void printTypeImpl(Writer writer, SchemaType sType) throws IOException;
+
+    void printType(Writer writer, SchemaType sType) throws IOException;
 }
 

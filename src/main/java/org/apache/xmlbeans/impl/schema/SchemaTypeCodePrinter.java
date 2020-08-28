@@ -57,32 +57,15 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
         getPrinter(opt).printType(writer, sType);
     }
 
-    /**
-     * @deprecated
-     */
-    public static void printLoader(Writer writer, SchemaTypeSystem system,
-                                   XmlOptions opt)
-        throws IOException {
-        getPrinter(opt).printLoader(writer, system);
-    }
-
     private static SchemaCodePrinter getPrinter(XmlOptions opt) {
-        Object printer = XmlOptions.safeGet
-            (opt, XmlOptions.SCHEMA_CODE_PRINTER);
-        if (printer == null || !(printer instanceof SchemaCodePrinter)) {
-            printer = new SchemaTypeCodePrinter(opt);
-        }
-        return (SchemaCodePrinter) printer;
+        SchemaCodePrinter printer = opt == null ? null : opt.getSchemaCodePrinter();
+        return printer == null ? new SchemaTypeCodePrinter(opt) : printer;
     }
 
     public SchemaTypeCodePrinter(XmlOptions opt) {
         _indent = 0;
 
-        String genversion = null;
-
-        if (opt != null && XmlOptions.hasOption(opt, XmlOptions.GENERATE_JAVA_VERSION)) {
-            genversion = (String) opt.get(XmlOptions.GENERATE_JAVA_VERSION);
-        }
+        String genversion = (opt == null) ? null : opt.getGenerateJavaVersion();
 
         if (genversion == null) {
             genversion = XmlOptions.GENERATE_JAVA_14;
@@ -97,39 +80,6 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
 
     void outdent() {
         _indent -= INDENT_INCREMENT;
-    }
-
-    String encodeString(String s) {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append('"');
-
-        for (int i = 0; i < s.length(); i++) {
-            char ch = s.charAt(i);
-
-            if (ch == '"') {
-                sb.append('\\');
-                sb.append('\"');
-            } else if (ch == '\\') {
-                sb.append('\\');
-                sb.append('\\');
-            } else if (ch == '\r') {
-                sb.append('\\');
-                sb.append('r');
-            } else if (ch == '\n') {
-                sb.append('\\');
-                sb.append('n');
-            } else if (ch == '\t') {
-                sb.append('\\');
-                sb.append('t');
-            } else {
-                sb.append(ch);
-            }
-        }
-
-        sb.append('"');
-
-        return sb.toString();
     }
 
     void emit(String s) throws IOException {
@@ -157,9 +107,6 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
 
     private static String makeSafe(String s) {
         Charset charset = Charset.forName(System.getProperty("file.encoding"));
-        if (charset == null) {
-            throw new IllegalStateException("Default character set is null!");
-        }
         CharsetEncoder cEncoder = charset.newEncoder();
         StringBuilder result = new StringBuilder();
         int i;
@@ -174,7 +121,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
             if (cEncoder.canEncode(c)) {
                 result.append(c);
             } else {
-                String hexValue = Integer.toHexString((int) c);
+                String hexValue = Integer.toHexString(c);
                 switch (hexValue.length()) {
                     case 1:
                         result.append("\\u000").append(hexValue);
@@ -269,8 +216,8 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
             case SchemaType.UNION:
                 emit(" * This is a union type. Instances are of one of the following types:");
                 SchemaType[] members = sType.getUnionConstituentTypes();
-                for (int i = 0; i < members.length; i++) {
-                    emit(" *     " + members[i].getFullJavaName());
+                for (SchemaType member : members) {
+                    emit(" *     " + member.getFullJavaName());
                 }
                 break;
         }
@@ -310,24 +257,11 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
         return name + "." + INDEX_CLASSNAME;
     }
 
-    static String shortIndexClassForSystem(SchemaTypeSystem system) {
-        return INDEX_CLASSNAME;
-    }
-
     void printStaticTypeDeclaration(SchemaType sType, SchemaTypeSystem system) throws IOException {
-        String interfaceShortName = sType.getShortJavaName();
         emit("public static final org.apache.xmlbeans.SchemaType type = (org.apache.xmlbeans.SchemaType)");
         indent();
         emit("Factory.getTypeLoader().resolveHandle(\"" + ((SchemaTypeSystemImpl) system).handleForType(sType) + "\");");
         outdent();
-    }
-
-    /**
-     * @deprecated
-     */
-    public void printLoader(Writer writer, SchemaTypeSystem system)
-        throws IOException {
-        // deprecated
     }
 
     void printInnerType(SchemaType sType, SchemaTypeSystem system) throws IOException {
@@ -350,9 +284,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
 
             SchemaProperty[] props = getDerivedProperties(sType);
 
-            for (int i = 0; i < props.length; i++) {
-                SchemaProperty prop = props[i];
-
+            for (SchemaProperty prop : props) {
                 printPropertyGetters(
                     prop.getName(),
                     prop.isAttribute(),
@@ -549,11 +481,11 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
                                sType.getName().equals(sType.getBaseType().getName());
         while (sType != null) {
             SchemaType[] anonTypes = sType.getAnonymousTypes();
-            for (int i = 0; i < anonTypes.length; i++) {
-                if (anonTypes[i].isSkippedAnonymousType()) {
-                    printNestedInnerTypes(anonTypes[i], system);
+            for (SchemaType anonType : anonTypes) {
+                if (anonType.isSkippedAnonymousType()) {
+                    printNestedInnerTypes(anonType, system);
                 } else {
-                    printInnerType(anonTypes[i], system);
+                    printInnerType(anonType, system);
                 }
             }
             // For redefinition other than by extension for complex types, go ahead and print
@@ -658,8 +590,8 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
 
         InterfaceExtension[] exts = sImpl.getInterfaceExtensions();
         if (exts != null) {
-            for (int i = 0; i < exts.length; i++) {
-                sb.append(", " + exts[i].getInterface());
+            for (InterfaceExtension ext : exts) {
+                sb.append(", " + ext.getInterface());
             }
         }
 
@@ -808,10 +740,6 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
         emit(" */");
     }
 
-    void printShortJavaDoc(String sentence) throws IOException {
-        emit("/** " + sentence + " */");
-    }
-
     public static String javaStringEscape(String str) {
         // forbidden: \n, \r, \", \\.
         test:
@@ -864,17 +792,17 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
 
         emit("");
         SchemaStringEnumEntry[] entries = sType.getStringEnumEntries();
-        HashSet seenValues = new HashSet();
-        HashSet repeatValues = new HashSet();
-        for (int i = 0; i < entries.length; i++) {
-            String enumValue = entries[i].getString();
+        HashSet<String> seenValues = new HashSet<>();
+        HashSet<String> repeatValues = new HashSet<>();
+        for (SchemaStringEnumEntry entry : entries) {
+            String enumValue = entry.getString();
             if (seenValues.contains(enumValue)) {
                 repeatValues.add(enumValue);
                 continue;
             } else {
                 seenValues.add(enumValue);
             }
-            String constName = entries[i].getEnumName();
+            String constName = entry.getEnumName();
             if (hasBase) {
                 emit("static final " + baseEnumClass + ".Enum " + constName + " = " + baseEnumClass + "." + constName + ";");
             } else {
@@ -882,11 +810,11 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
             }
         }
         emit("");
-        for (int i = 0; i < entries.length; i++) {
-            if (repeatValues.contains(entries[i].getString())) {
+        for (SchemaStringEnumEntry entry : entries) {
+            if (repeatValues.contains(entry.getString())) {
                 continue;
             }
-            String constName = "INT_" + entries[i].getEnumName();
+            String constName = "INT_" + entry.getEnumName();
             if (hasBase) {
                 emit("static final int " + constName + " = " + baseEnumClass + "." + constName + ";");
             } else {
@@ -929,9 +857,9 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
             emit("private Enum(java.lang.String s, int i)");
             emit("    { super(s, i); }");
             emit("");
-            for (int i = 0; i < entries.length; i++) {
-                String constName = "INT_" + entries[i].getEnumName();
-                int intValue = entries[i].getIntValue();
+            for (SchemaStringEnumEntry entry : entries) {
+                String constName = "INT_" + entry.getEnumName();
+                int intValue = entry.getIntValue();
                 emit("static final int " + constName + " = " + intValue + ";");
             }
             emit("");
@@ -942,9 +870,9 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
             emit("new Enum[]");
             emit("{");
             indent();
-            for (int i = 0; i < entries.length; i++) {
-                String enumValue = entries[i].getString();
-                String constName = "INT_" + entries[i].getEnumName();
+            for (SchemaStringEnumEntry entry : entries) {
+                String enumValue = entry.getString();
+                String constName = "INT_" + entry.getEnumName();
                 emit("new Enum(\"" + javaStringEscape(enumValue) + "\", " + constName + "),");
             }
             outdent();
@@ -984,8 +912,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
     }
 
     static boolean isJavaPrimitive(int javaType) {
-        return (javaType < SchemaProperty.JAVA_FIRST_PRIMITIVE ? false :
-            (javaType > SchemaProperty.JAVA_LAST_PRIMITIVE ? false : true));
+        return (javaType >= SchemaProperty.JAVA_FIRST_PRIMITIVE && (javaType <= SchemaProperty.JAVA_LAST_PRIMITIVE));
     }
 
     /**
@@ -1356,8 +1283,8 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
 
         if (sType.getSimpleVariety() == SchemaType.UNION) {
             SchemaType[] memberTypes = sType.getUnionMemberTypes();
-            for (int i = 0; i < memberTypes.length; i++) {
-                interfaces.append(", " + memberTypes[i].getFullJavaName().replace('$', '.'));
+            for (SchemaType memberType : memberTypes) {
+                interfaces.append(", " + memberType.getFullJavaName().replace('$', '.'));
             }
         }
 
@@ -1739,17 +1666,17 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
         }
     }
 
-    String getIdentifier(Map qNameMap, QName qName) {
-        return ((String[]) qNameMap.get(qName))[0];
+    String getIdentifier(Map<QName, String[]> qNameMap, QName qName) {
+        return qNameMap.get(qName)[0];
     }
 
-    String getSetIdentifier(Map qNameMap, QName qName) {
-        String[] identifiers = (String[]) qNameMap.get(qName);
+    String getSetIdentifier(Map<QName, String[]> qNameMap, QName qName) {
+        String[] identifiers = qNameMap.get(qName);
         return identifiers[1] == null ? identifiers[0] : identifiers[1];
     }
 
-    Map printStaticFields(SchemaProperty[] properties) throws IOException {
-        final Map results = new HashMap();
+    Map<QName, String[]> printStaticFields(SchemaProperty[] properties) throws IOException {
+        final Map<QName, String[]> results = new HashMap<>();
 
         emit("");
         for (int i = 0; i < properties.length; i++) {
@@ -1777,9 +1704,9 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
                     emit("private static final org.apache.xmlbeans.QNameSet " + identifiers[1] +
                          " = org.apache.xmlbeans.QNameSet.forArray( new javax.xml.namespace.QName[] { ");
                     indent();
-                    for (int j = 0; j < qnames.length; j++) {
-                        emit("new javax.xml.namespace.QName(\"" + qnames[j].getNamespaceURI() +
-                             "\", \"" + qnames[j].getLocalPart() + "\"),");
+                    for (QName qname : qnames) {
+                        emit("new javax.xml.namespace.QName(\"" + qname.getNamespaceURI() +
+                             "\", \"" + qname.getLocalPart() + "\"),");
                     }
 
                     outdent();
@@ -2499,21 +2426,6 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
         }
     }
 
-    static void getTypeName(Class c, StringBuffer sb) {
-        int arrayCount = 0;
-        while (c.isArray()) {
-            c = c.getComponentType();
-            arrayCount++;
-        }
-
-        sb.append(c.getName());
-
-        for (int i = 0; i < arrayCount; i++) {
-            sb.append("[]");
-        }
-
-    }
-
     void printInnerTypeImpl(
         SchemaType sType, SchemaTypeSystem system, boolean isInner) throws IOException {
         String shortName = sType.getShortJavaImplName();
@@ -2538,16 +2450,16 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
                 // but we still need to implement them because this class is supposed to
                 // also implement all the interfaces
                 SchemaType baseType = sType.getBaseType();
-                List extraProperties = null;
+                List<SchemaProperty> extraProperties = null;
                 while (!baseType.isSimpleType() && !baseType.isBuiltinType()) {
                     SchemaProperty[] baseProperties = baseType.getDerivedProperties();
-                    for (int i = 0; i < baseProperties.length; i++) {
-                        if (!(baseProperties[i].isAttribute() &&
-                              sType.getAttributeProperty(baseProperties[i].getName()) != null)) {
+                    for (SchemaProperty baseProperty : baseProperties) {
+                        if (!(baseProperty.isAttribute() &&
+                              sType.getAttributeProperty(baseProperty.getName()) != null)) {
                             if (extraProperties == null) {
-                                extraProperties = new ArrayList();
+                                extraProperties = new ArrayList<>();
                             }
-                            extraProperties.add(baseProperties[i]);
+                            extraProperties.add(baseProperty);
                         }
                     }
                     baseType = baseType.getBaseType();
@@ -2555,11 +2467,8 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
 
                 properties = sType.getProperties();
                 if (extraProperties != null) {
-                    for (int i = 0; i < properties.length; i++) {
-                        extraProperties.add(properties[i]);
-                    }
-                    properties = (SchemaProperty[]) extraProperties.
-                        toArray(new SchemaProperty[extraProperties.size()]);
+                    Collections.addAll(extraProperties, properties);
+                    properties = extraProperties.toArray(new SchemaProperty[0]);
                 }
             } else {
                 // complex content type implementations derive from base type impls
@@ -2568,11 +2477,9 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
                 properties = getDerivedProperties(sType);
             }
 
-            Map qNameMap = printStaticFields(properties);
+            Map<QName, String[]> qNameMap = printStaticFields(properties);
 
-            for (int i = 0; i < properties.length; i++) {
-                SchemaProperty prop = properties[i];
-
+            for (SchemaProperty prop : properties) {
                 QName name = prop.getName();
                 String xmlType = xmlTypeForProperty(prop);
 
@@ -2631,20 +2538,20 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
             // not present in sType, because the redefined types do not
             // have a generated class to represent them
             SchemaProperty[] props = sType.getDerivedProperties();
-            Map propsByName = new LinkedHashMap();
-            for (int i = 0; i < props.length; i++) {
-                propsByName.put(props[i].getName(), props[i]);
+            Map<QName, SchemaProperty> propsByName = new LinkedHashMap<>();
+            for (SchemaProperty prop : props) {
+                propsByName.put(prop.getName(), prop);
             }
             while (sType2 != null && name.equals(sType2.getName())) {
                 props = sType2.getDerivedProperties();
-                for (int i = 0; i < props.length; i++) {
-                    if (!propsByName.containsKey(props[i].getName())) {
-                        propsByName.put(props[i].getName(), props[i]);
+                for (SchemaProperty prop : props) {
+                    if (!propsByName.containsKey(prop.getName())) {
+                        propsByName.put(prop.getName(), prop);
                     }
                 }
                 sType2 = sType2.getBaseType();
             }
-            return (SchemaProperty[]) propsByName.values().toArray(new SchemaProperty[0]);
+            return propsByName.values().toArray(new SchemaProperty[0]);
         } else {
             return sType.getDerivedProperties();
         }
@@ -2658,14 +2565,14 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
 
         InterfaceExtension[] exts = sImpl.getInterfaceExtensions();
         if (exts != null) {
-            for (int i = 0; i < exts.length; i++) {
-                InterfaceExtension.MethodSignature[] methods = exts[i].getMethods();
+            for (InterfaceExtension ext : exts) {
+                InterfaceExtension.MethodSignature[] methods = ext.getMethods();
                 if (methods != null) {
-                    for (int j = 0; j < methods.length; j++) {
-                        printJavaDoc("Implementation method for interface " + exts[i].getStaticHandler());
-                        printInterfaceMethodDecl(methods[j]);
+                    for (InterfaceExtension.MethodSignature method : methods) {
+                        printJavaDoc("Implementation method for interface " + ext.getStaticHandler());
+                        printInterfaceMethodDecl(method);
                         startBlock();
-                        printInterfaceMethodImpl(exts[i].getStaticHandler(), methods[j]);
+                        printInterfaceMethodImpl(ext.getStaticHandler(), method);
                         endBlock();
                     }
                 }
@@ -2721,11 +2628,11 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
                                sType.getName().equals(sType.getBaseType().getName());
         while (sType != null) {
             SchemaType[] anonTypes = sType.getAnonymousTypes();
-            for (int i = 0; i < anonTypes.length; i++) {
-                if (anonTypes[i].isSkippedAnonymousType()) {
-                    printNestedTypeImpls(anonTypes[i], system);
+            for (SchemaType anonType : anonTypes) {
+                if (anonType.isSkippedAnonymousType()) {
+                    printNestedTypeImpls(anonType, system);
                 } else {
-                    printInnerTypeImpl(anonTypes[i], system, true);
+                    printInnerTypeImpl(anonType, system, true);
                 }
             }
             // For redefinition by extension, go ahead and print the anonymous

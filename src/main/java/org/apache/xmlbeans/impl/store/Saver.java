@@ -15,37 +15,21 @@
 
 package org.apache.xmlbeans.impl.store;
 
-import javax.xml.namespace.QName;
-
 import org.apache.xmlbeans.SystemProperties;
 import org.apache.xmlbeans.XmlDocumentProperties;
-import org.apache.xmlbeans.XmlOptions;
 import org.apache.xmlbeans.XmlOptionCharEscapeMap;
-import org.apache.xmlbeans.xml.stream.*;
-
+import org.apache.xmlbeans.XmlOptions;
 import org.apache.xmlbeans.impl.common.*;
-
-import java.io.Writer;
-import java.io.Reader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.UnsupportedEncodingException;
-
+import org.apache.xmlbeans.xml.stream.CharacterData;
+import org.apache.xmlbeans.xml.stream.*;
 import org.xml.sax.ContentHandler;
-import org.xml.sax.ext.LexicalHandler;
 import org.xml.sax.SAXException;
-
+import org.xml.sax.ext.LexicalHandler;
 import org.xml.sax.helpers.AttributesImpl;
 
-import java.util.Iterator;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.LinkedHashMap;
-import java.util.ConcurrentModificationException;
+import javax.xml.namespace.QName;
+import java.io.*;
+import java.util.*;
 
 abstract class Saver {
     static final int ROOT = Cur.ROOT;
@@ -55,7 +39,32 @@ abstract class Saver {
     static final int PROCINST = Cur.PROCINST;
     static final int TEXT = Cur.TEXT;
 
-    protected abstract boolean emitElement(SaveCur c, ArrayList attrNames, ArrayList attrValues);
+
+    private final Locale _locale;
+    private final long _version;
+
+    private SaveCur _cur;
+
+    private List<String> _ancestorNamespaces;
+    private final Map<String, String> _suggestedPrefixes;
+    protected XmlOptionCharEscapeMap _replaceChar;
+    private final boolean _useDefaultNamespace;
+    private Map<String, String> _preComputedNamespaces;
+    private final boolean _saveNamespacesFirst;
+
+    private final ArrayList<QName> _attrNames = new ArrayList<>();
+    private final ArrayList<String> _attrValues = new ArrayList<>();
+
+    private final ArrayList<String> _namespaceStack = new ArrayList<>();
+    private int _currentMapping;
+    private final HashMap<String, String> _uriMap = new HashMap<>();
+    private final HashMap<String, String> _prefixMap = new HashMap<>();
+    private String _initialDefaultUri;
+
+    static final String _newLine = SystemProperties.getProperty("line.separator", "\n");
+
+
+    protected abstract boolean emitElement(SaveCur c, List<QName> attrNames, List<String> attrValues);
 
     protected abstract void emitFinish(SaveCur c);
 
@@ -84,31 +93,19 @@ abstract class Saver {
         _locale = c._locale;
         _version = _locale.version();
 
-        _namespaceStack = new ArrayList();
-        _uriMap = new HashMap();
-        _prefixMap = new HashMap();
-
-        _attrNames = new ArrayList();
-        _attrValues = new ArrayList();
-
         // Define implicit xml prefixed namespace
 
         addMapping("xml", Locale._xml1998Uri);
 
-        if (options.hasOption(XmlOptions.SAVE_IMPLICIT_NAMESPACES)) {
-            Map m = (Map) options.get(XmlOptions.SAVE_IMPLICIT_NAMESPACES);
-
-            for (Iterator i = m.keySet().iterator(); i.hasNext(); ) {
-                String prefix = (String) i.next();
-                addMapping(prefix, (String) m.get(prefix));
+        Map<String, String> m = options.getSaveImplicitNamespaces();
+        if (m != null) {
+            for (String prefix : m.keySet()) {
+                addMapping(prefix, m.get(prefix));
             }
         }
 
         // define character map for escaped replacements
-        if (options.hasOption(XmlOptions.SAVE_SUBSTITUTE_CHARACTERS)) {
-            _replaceChar = (XmlOptionCharEscapeMap)
-                    options.get(XmlOptions.SAVE_SUBSTITUTE_CHARACTERS);
-        }
+        _replaceChar = options.getSaveSubstituteCharacters();
 
         // If the default prefix has not been mapped, do so now
 
@@ -117,43 +114,39 @@ abstract class Saver {
             addMapping("", _initialDefaultUri);
         }
 
-        if (options.hasOption(XmlOptions.SAVE_AGGRESSIVE_NAMESPACES) &&
-                !(this instanceof SynthNamespaceSaver)) {
+        if (options.isSaveAggressiveNamespaces() && !(this instanceof SynthNamespaceSaver)) {
             SynthNamespaceSaver saver = new SynthNamespaceSaver(c, options);
 
-            while (saver.process())
-                ;
+            //noinspection StatementWithEmptyBody
+            while (saver.process()) { }
 
-            if (!saver._synthNamespaces.isEmpty())
+            if (!saver._synthNamespaces.isEmpty()) {
                 _preComputedNamespaces = saver._synthNamespaces;
+            }
         }
 
-        _useDefaultNamespace =
-                options.hasOption(XmlOptions.SAVE_USE_DEFAULT_NAMESPACE);
+        _useDefaultNamespace = options.isUseDefaultNamespace();
 
-        _saveNamespacesFirst = options.hasOption(XmlOptions.SAVE_NAMESPACES_FIRST);
+        _saveNamespacesFirst = options.isSaveNamespacesFirst();
 
-        if (options.hasOption(XmlOptions.SAVE_SUGGESTED_PREFIXES))
-            _suggestedPrefixes = (Map) options.get(XmlOptions.SAVE_SUGGESTED_PREFIXES);
+
+        _suggestedPrefixes = options.getSaveSuggestedPrefixes();
 
         _ancestorNamespaces = _cur.getAncestorNamespaces();
     }
 
     private static SaveCur createSaveCur(Cur c, XmlOptions options) {
-        QName synthName = (QName) options.get(XmlOptions.SAVE_SYNTHETIC_DOCUMENT_ELEMENT);
+        QName synthName = options.getSaveSyntheticDocumentElement();
 
         QName fragName = synthName;
 
         if (fragName == null) {
-            fragName =
-                    options.hasOption(XmlOptions.SAVE_USE_OPEN_FRAGMENT)
-                            ? Locale._openuriFragment
-                            : Locale._xmlFragment;
+            fragName = options.isSaveUseOpenFrag()
+                ? Locale._openuriFragment
+                : Locale._xmlFragment;
         }
 
-        boolean saveInner =
-                options.hasOption(XmlOptions.SAVE_INNER) &&
-                        !options.hasOption(XmlOptions.SAVE_OUTER);
+        boolean saveInner = options.isSaveInner() && !options.isSaveOuter();
 
         Cur start = c.tempCur();
         Cur end = c.tempCur();
@@ -166,12 +159,13 @@ abstract class Saver {
             case ROOT: {
                 positionToInner(c, start, end);
 
-                if (Locale.isFragment(start, end))
+                if (Locale.isFragment(start, end)) {
                     cur = new FragSaveCur(start, end, fragName);
-                else if (synthName != null)
+                } else if (synthName != null) {
                     cur = new FragSaveCur(start, end, synthName);
-                else
+                } else {
                     cur = new DocSaveCur(c);
+                }
 
                 break;
             }
@@ -181,8 +175,8 @@ abstract class Saver {
                     positionToInner(c, start, end);
 
                     cur =
-                            new FragSaveCur(
-                                    start, end, Locale.isFragment(start, end) ? fragName : synthName);
+                        new FragSaveCur(
+                            start, end, Locale.isFragment(start, end) ? fragName : synthName);
                 } else if (synthName != null) {
                     positionToInner(c, start, end);
 
@@ -220,8 +214,6 @@ abstract class Saver {
                 start.moveToCur(c);
                 end.moveToCur(c);
             } else {
-                assert k == COMMENT || k == PROCINST;
-
                 start.moveToCur(c);
                 end.moveToCur(c);
                 end.skip();
@@ -230,13 +222,15 @@ abstract class Saver {
             cur = new FragSaveCur(start, end, fragName);
         }
 
-        String filterPI = (String) options.get(XmlOptions.SAVE_FILTER_PROCINST);
+        String filterPI = options.getSaveFilterProcinst();
 
-        if (filterPI != null)
+        if (filterPI != null) {
             cur = new FilterPiSaveCur(cur, filterPI);
+        }
 
-        if (options.hasOption(XmlOptions.SAVE_PRETTY_PRINT))
+        if (options.isSavePrettyPrint()) {
             cur = new PrettySaveCur(cur, options);
+        }
 
         start.release();
         end.release();
@@ -249,8 +243,9 @@ abstract class Saver {
 
         start.moveToCur(c);
 
-        if (!start.toFirstAttr())
+        if (!start.toFirstAttr()) {
             start.next();
+        }
 
         end.moveToCur(c);
         end.toEnd();
@@ -262,12 +257,13 @@ abstract class Saver {
      */
     static boolean isBadChar(char ch) {
         return !(
-                Character.isHighSurrogate(ch) ||
-                        Character.isLowSurrogate(ch) ||
-                        (ch >= 0x20 && ch <= 0xD7FF) ||
-                        (ch >= 0xE000 && ch <= 0xFFFD) ||
-                        (ch >= 0x10000 && ch <= 0x10FFFF) ||
-                        (ch == 0x9) || (ch == 0xA) || (ch == 0xD)
+            Character.isHighSurrogate(ch) ||
+            Character.isLowSurrogate(ch) ||
+            (ch >= 0x20 && ch <= 0xD7FF) ||
+            (ch >= 0xE000 && ch <= 0xFFFD) ||
+            // TODO: ch >= 0x10000 && ch <= 0x10FFFF is always false for a char, use codepoints/ints
+            (ch >= 0x10000 && ch <= 0x10FFFF) ||
+            (ch == 0x9) || (ch == 0xA) || (ch == 0xD)
         );
     }
 
@@ -286,11 +282,13 @@ abstract class Saver {
     protected final boolean process() {
         assert _locale.entered();
 
-        if (_cur == null)
+        if (_cur == null) {
             return false;
+        }
 
-        if (_version != _locale.version())
+        if (_version != _locale.version()) {
             throw new ConcurrentModificationException("Document changed during save");
+        }
 
         switch (_cur.kind()) {
             case ROOT: {
@@ -338,12 +336,12 @@ abstract class Saver {
         return true;
     }
 
-    private final void processFinish() {
+    private void processFinish() {
         emitFinish(_cur);
         popMappings();
     }
 
-    private final void processRoot() {
+    private void processRoot() {
         assert _cur.isRoot();
 
         XmlDocumentProperties props = _cur.getDocProps();
@@ -357,10 +355,11 @@ abstract class Saver {
         if (systemId != null || docTypeName != null) {
             if (docTypeName == null) {
                 _cur.push();
-                while (!_cur.isElem() && _cur.next())
-                    ;
-                if (_cur.isElem())
+                //noinspection StatementWithEmptyBody
+                while (!_cur.isElem() && _cur.next()) { }
+                if (_cur.isElem()) {
                     docTypeName = _cur.getName().getLocalPart();
+                }
                 _cur.pop();
             }
 
@@ -391,7 +390,7 @@ abstract class Saver {
         emitStartDoc(_cur);
     }
 
-    private final void processElement() {
+    private void processElement() {
         assert _cur.isElem() && _cur.getName() != null;
 
         QName name = _cur.getName();
@@ -454,9 +453,9 @@ abstract class Saver {
         // namespaces are mapped on the first container which has a name.
 
         if (_preComputedNamespaces != null) {
-            for (Iterator i = _preComputedNamespaces.keySet().iterator(); i.hasNext(); ) {
-                String uri = (String) i.next();
-                String prefix = (String) _preComputedNamespaces.get(uri);
+            for (Map.Entry<String,String> entry : _preComputedNamespaces.entrySet()) {
+                String uri = entry.getKey();
+                String prefix = entry.getValue();
                 boolean considerDefault = prefix.length() == 0 && !ensureDefaultEmpty;
 
                 ensureMapping(uri, prefix, considerDefault, false);
@@ -481,17 +480,12 @@ abstract class Saver {
     //    Mapping
     //
 
-    boolean hasMappings() {
-        int i = _namespaceStack.size();
-
-        return i > 0 && _namespaceStack.get(i - 1) != null;
-    }
-
     void iterateMappings() {
         _currentMapping = _namespaceStack.size();
 
-        while (_currentMapping > 0 && _namespaceStack.get(_currentMapping - 1) != null)
+        while (_currentMapping > 0 && _namespaceStack.get(_currentMapping - 1) != null) {
             _currentMapping -= 8;
+        }
     }
 
     boolean hasMapping() {
@@ -504,32 +498,33 @@ abstract class Saver {
 
     String mappingPrefix() {
         assert hasMapping();
-        return (String) _namespaceStack.get(_currentMapping + 6);
+        return _namespaceStack.get(_currentMapping + 6);
     }
 
     String mappingUri() {
         assert hasMapping();
-        return (String) _namespaceStack.get(_currentMapping + 7);
+        return _namespaceStack.get(_currentMapping + 7);
     }
 
-    private final void pushMappings(SaveCur c, boolean ensureDefaultEmpty) {
+    private void pushMappings(SaveCur c, boolean ensureDefaultEmpty) {
         assert c.isContainer();
 
         _namespaceStack.add(null);
 
         c.push();
 
-        namespaces:
-        for (boolean A = c.toFirstAttr(); A; A = c.toNextAttr())
-            if (c.isXmlns())
+        for (boolean A = c.toFirstAttr(); A; A = c.toNextAttr()) {
+            if (c.isXmlns()) {
                 addNewFrameMapping(c.getXmlnsPrefix(), c.getXmlnsUri(), ensureDefaultEmpty);
+            }
+        }
 
         c.pop();
 
         if (_ancestorNamespaces != null) {
             for (int i = 0; i < _ancestorNamespaces.size(); i += 2) {
-                String prefix = (String) _ancestorNamespaces.get(i);
-                String uri = (String) _ancestorNamespaces.get(i + 1);
+                String prefix = _ancestorNamespaces.get(i);
+                String uri = _ancestorNamespaces.get(i + 1);
 
                 addNewFrameMapping(prefix, uri, ensureDefaultEmpty);
             }
@@ -538,41 +533,45 @@ abstract class Saver {
         }
 
         if (ensureDefaultEmpty) {
-            String defaultUri = (String) _prefixMap.get("");
+            String defaultUri = _prefixMap.get("");
 
             // I map the default to "" at the very beginning
             assert defaultUri != null;
 
-            if (defaultUri.length() > 0)
+            if (defaultUri.length() > 0) {
                 addMapping("", "");
+            }
         }
     }
 
-    private final void addNewFrameMapping(String prefix, String uri, boolean ensureDefaultEmpty) {
+    private void addNewFrameMapping(String prefix, String uri, boolean ensureDefaultEmpty) {
         // If the prefix maps to "", this don't include this mapping 'cause it's not well formed.
         // Also, if we want to make sure that the default namespace is always "", then check that
         // here as well.
 
         if ((prefix.length() == 0 || uri.length() > 0) &&
-                (!ensureDefaultEmpty || prefix.length() > 0 || uri.length() == 0)) {
+            (!ensureDefaultEmpty || prefix.length() > 0 || uri.length() == 0)) {
             // Make sure the prefix is not already mapped in this frame
 
-            for (iterateMappings(); hasMapping(); nextMapping())
-                if (mappingPrefix().equals(prefix))
+            for (iterateMappings(); hasMapping(); nextMapping()) {
+                if (mappingPrefix().equals(prefix)) {
                     return;
+                }
+            }
 
             // Also make sure that the prefix declaration is not redundant
             // This has the side-effect of making it impossible to set a
             // redundant prefix declaration, but seems that it's better
             // to just never issue a duplicate prefix declaration.
-            if (uri.equals(getNamespaceForPrefix(prefix)))
+            if (uri.equals(getNamespaceForPrefix(prefix))) {
                 return;
+            }
 
             addMapping(prefix, uri);
         }
     }
 
-    private final void addMapping(String prefix, String uri) {
+    private void addMapping(String prefix, String uri) {
         assert uri != null;
         assert prefix != null;
 
@@ -580,16 +579,16 @@ abstract class Saver {
         // that uri will either go out of scope or be mapped to another
         // prefix.
 
-        String renameUri = (String) _prefixMap.get(prefix);
+        String renameUri = _prefixMap.get(prefix);
         String renamePrefix = null;
 
         if (renameUri != null) {
             // See if this prefix is already mapped to this uri.  If
             // so, then add to the stack, but there is nothing to rename
 
-            if (renameUri.equals(uri))
+            if (renameUri.equals(uri)) {
                 renameUri = null;
-            else {
+            } else {
                 int i = _namespaceStack.size();
 
                 while (i > 0) {
@@ -599,10 +598,11 @@ abstract class Saver {
                     }
 
                     if (_namespaceStack.get(i - 7).equals(renameUri)) {
-                        renamePrefix = (String) _namespaceStack.get(i - 8);
+                        renamePrefix = _namespaceStack.get(i - 8);
 
-                        if (renamePrefix == null || !renamePrefix.equals(prefix))
+                        if (renamePrefix == null || !renamePrefix.equals(prefix)) {
                             break;
+                        }
                     }
 
                     i -= 8;
@@ -632,42 +632,47 @@ abstract class Saver {
         _uriMap.put(uri, prefix);
         _prefixMap.put(prefix, uri);
 
-        if (renameUri != null)
+        if (renameUri != null) {
             _uriMap.put(renameUri, renamePrefix);
+        }
     }
 
-    private final void popMappings() {
+    private void popMappings() {
         for (; ; ) {
             int i = _namespaceStack.size();
 
-            if (i == 0)
+            if (i == 0) {
                 break;
+            }
 
             if (_namespaceStack.get(i - 1) == null) {
                 _namespaceStack.remove(i - 1);
                 break;
             }
 
-            Object oldUri = _namespaceStack.get(i - 7);
-            Object oldPrefix = _namespaceStack.get(i - 8);
+            String oldUri = _namespaceStack.get(i - 7);
+            String oldPrefix = _namespaceStack.get(i - 8);
 
-            if (oldPrefix == null)
+            if (oldPrefix == null) {
                 _uriMap.remove(oldUri);
-            else
+            } else {
                 _uriMap.put(oldUri, oldPrefix);
+            }
 
             oldPrefix = _namespaceStack.get(i - 4);
             oldUri = _namespaceStack.get(i - 3);
 
-            if (oldUri == null)
+            if (oldUri == null) {
                 _prefixMap.remove(oldPrefix);
-            else
+            } else {
                 _prefixMap.put(oldPrefix, oldUri);
+            }
 
-            String uri = (String) _namespaceStack.get(i - 5);
+            String uri = _namespaceStack.get(i - 5);
 
-            if (uri != null)
+            if (uri != null) {
                 _uriMap.put(uri, _namespaceStack.get(i - 6));
+            }
 
             // Hahahahahaha -- :-(
             _namespaceStack.remove(i - 1);
@@ -681,58 +686,22 @@ abstract class Saver {
         }
     }
 
-    private final void dumpMappings() {
-        for (int i = _namespaceStack.size(); i > 0; ) {
-            if (_namespaceStack.get(i - 1) == null) {
-                System.out.println("----------------");
-                i--;
-                continue;
-            }
-
-            System.out.print("Mapping: ");
-            System.out.print(_namespaceStack.get(i - 2));
-            System.out.print(" -> ");
-            System.out.print(_namespaceStack.get(i - 1));
-            System.out.println();
-
-            System.out.print("Prefix Undo: ");
-            System.out.print(_namespaceStack.get(i - 4));
-            System.out.print(" -> ");
-            System.out.print(_namespaceStack.get(i - 3));
-            System.out.println();
-
-            System.out.print("Uri Rename: ");
-            System.out.print(_namespaceStack.get(i - 5));
-            System.out.print(" -> ");
-            System.out.print(_namespaceStack.get(i - 6));
-            System.out.println();
-
-            System.out.print("UriUndo: ");
-            System.out.print(_namespaceStack.get(i - 7));
-            System.out.print(" -> ");
-            System.out.print(_namespaceStack.get(i - 8));
-            System.out.println();
-
-            System.out.println();
-
-            i -= 8;
-        }
-    }
-
-    private final String ensureMapping(
-            String uri, String candidatePrefix,
-            boolean considerCreatingDefault, boolean mustHavePrefix) {
+    private void ensureMapping(
+        String uri, String candidatePrefix,
+        boolean considerCreatingDefault, boolean mustHavePrefix) {
         assert uri != null;
 
         // Can be called for no-namespaced things
 
-        if (uri.length() == 0)
-            return null;
+        if (uri.length() == 0) {
+            return;
+        }
 
-        String prefix = (String) _uriMap.get(uri);
+        String prefix = _uriMap.get(uri);
 
-        if (prefix != null && (prefix.length() > 0 || !mustHavePrefix))
-            return prefix;
+        if (prefix != null && (prefix.length() > 0 || !mustHavePrefix)) {
+            return;
+        }
 
         //
         // I try prefixes from a number of places, in order:
@@ -743,23 +712,25 @@ abstract class Saver {
         //  4) ns#++
         //
 
-        if (candidatePrefix != null && candidatePrefix.length() == 0)
+        if (candidatePrefix != null && candidatePrefix.length() == 0) {
             candidatePrefix = null;
+        }
 
-        if (candidatePrefix == null || !tryPrefix(candidatePrefix)) {
+        if (!tryPrefix(candidatePrefix)) {
             if (_suggestedPrefixes != null &&
-                    _suggestedPrefixes.containsKey(uri) &&
-                    tryPrefix((String) _suggestedPrefixes.get(uri))) {
-                candidatePrefix = (String) _suggestedPrefixes.get(uri);
-            } else if (considerCreatingDefault && _useDefaultNamespace && tryPrefix(""))
+                _suggestedPrefixes.containsKey(uri) &&
+                tryPrefix(_suggestedPrefixes.get(uri))) {
+                candidatePrefix = _suggestedPrefixes.get(uri);
+            } else if (considerCreatingDefault && _useDefaultNamespace && tryPrefix("")) {
                 candidatePrefix = "";
-            else {
+            } else {
                 String basePrefix = QNameHelper.suggestPrefix(uri);
                 candidatePrefix = basePrefix;
 
                 for (int i = 1; ; i++) {
-                    if (tryPrefix(candidatePrefix))
+                    if (tryPrefix(candidatePrefix)) {
                         break;
+                    }
 
                     candidatePrefix = basePrefix + i;
                 }
@@ -771,26 +742,26 @@ abstract class Saver {
         syntheticNamespace(candidatePrefix, uri, considerCreatingDefault);
 
         addMapping(candidatePrefix, uri);
-
-        return candidatePrefix;
     }
 
     protected final String getUriMapping(String uri) {
-        assert _uriMap.get(uri) != null;
-        return (String) _uriMap.get(uri);
+        assert _uriMap.containsKey(uri);
+        return _uriMap.get(uri);
     }
 
     String getNonDefaultUriMapping(String uri) {
-        String prefix = (String) _uriMap.get(uri);
+        String prefix = _uriMap.get(uri);
 
-        if (prefix != null && prefix.length() > 0)
+        if (prefix != null && prefix.length() > 0) {
             return prefix;
+        }
 
-        for (Iterator keys = _prefixMap.keySet().iterator(); keys.hasNext(); ) {
-            prefix = (String) keys.next();
+        for (String s : _prefixMap.keySet()) {
+            prefix = s;
 
-            if (prefix.length() > 0 && _prefixMap.get(prefix).equals(uri))
+            if (prefix.length() > 0 && _prefixMap.get(prefix).equals(uri)) {
                 return prefix;
+            }
         }
 
         assert false : "Could not find non-default mapping";
@@ -798,11 +769,12 @@ abstract class Saver {
         return null;
     }
 
-    private final boolean tryPrefix(String prefix) {
-        if (prefix == null || Locale.beginsWithXml(prefix))
+    private boolean tryPrefix(String prefix) {
+        if (prefix == null || Locale.beginsWithXml(prefix)) {
             return false;
+        }
 
-        String existingUri = (String) _prefixMap.get(prefix);
+        String existingUri = _prefixMap.get(prefix);
 
         // If the prefix is currently mapped, then try another prefix.  A
         // special case is that of trying to map the default prefix ("").
@@ -811,19 +783,16 @@ abstract class Saver {
         // strings because I want to test for the specific initial default
         // uri I added when I initialized the saver.
 
-        if (existingUri != null && (prefix.length() > 0 || existingUri != _initialDefaultUri))
-            return false;
-
-        return true;
+        return existingUri == null || (prefix.length() <= 0 && Objects.equals(existingUri, _initialDefaultUri));
     }
 
     public final String getNamespaceForPrefix(String prefix) {
         assert !prefix.equals("xml") || _prefixMap.get(prefix).equals(Locale._xml1998Uri);
 
-        return (String) _prefixMap.get(prefix);
+        return _prefixMap.get(prefix);
     }
 
-    protected Map getPrefixMap() {
+    protected Map<String,String> getPrefixMap() {
         return _prefixMap;
     }
 
@@ -832,19 +801,19 @@ abstract class Saver {
     //
 
     static final class SynthNamespaceSaver extends Saver {
-        LinkedHashMap _synthNamespaces = new LinkedHashMap();
+        LinkedHashMap<String,String> _synthNamespaces = new LinkedHashMap<>();
 
         SynthNamespaceSaver(Cur c, XmlOptions options) {
             super(c, options);
         }
 
         protected void syntheticNamespace(
-                String prefix, String uri, boolean considerCreatingDefault) {
+            String prefix, String uri, boolean considerCreatingDefault) {
             _synthNamespaces.put(uri, considerCreatingDefault ? "" : prefix);
         }
 
         protected boolean emitElement(
-                SaveCur c, ArrayList attrNames, ArrayList attrValues) {
+            SaveCur c, List<QName> attrNames, List<String> attrValues) {
             return false;
         }
 
@@ -878,66 +847,77 @@ abstract class Saver {
         TextSaver(Cur c, XmlOptions options, String encoding) {
             super(c, options);
 
-            boolean noSaveDecl =
-                    options != null && options.hasOption(XmlOptions.SAVE_NO_XML_DECL);
+            boolean noSaveDecl = options != null && options.isSaveNoXmlDecl();
 
-            if (options != null && options.hasOption(XmlOptions.SAVE_CDATA_LENGTH_THRESHOLD))
-                _cdataLengthThreshold = ((Integer) options.get(XmlOptions.SAVE_CDATA_LENGTH_THRESHOLD)).intValue();
+            if (options != null && options.getSaveCDataLengthThreshold() != null) {
+                _cdataLengthThreshold = options.getSaveCDataLengthThreshold();
+            }
 
-            if (options != null && options.hasOption(XmlOptions.SAVE_CDATA_ENTITY_COUNT_THRESHOLD))
-                _cdataEntityCountThreshold = ((Integer) options.get(XmlOptions.SAVE_CDATA_ENTITY_COUNT_THRESHOLD)).intValue();
+            if (options != null && options.getSaveCDataEntityCountThreshold() != null) {
+                _cdataEntityCountThreshold = options.getSaveCDataEntityCountThreshold();
+            }
 
-            if (options != null && options.hasOption(XmlOptions.LOAD_SAVE_CDATA_BOOKMARKS))
+            if (options != null && options.isUseCDataBookmarks()) {
                 _useCDataBookmarks = true;
+            }
 
-            if (options != null && options.hasOption(XmlOptions.SAVE_PRETTY_PRINT))
+            if (options != null && options.isSavePrettyPrint()) {
                 _isPrettyPrint = true;
+            }
 
             _in = _out = 0;
             _free = 0;
 
+            //noinspection ConstantConditions
             assert _buf == null ||
-                    (_out < _in && _free == _buf.length - (_in - _out)) || // data in the middle, free on the edges
-                    (_out > _in && _free == _out - _in) ||                   // data on the edges, free in the middle
-                    (_out == _in && _free == _buf.length) ||                  // no data, all buffer free
-                    (_out == _in && _free == 0)                               // buffer full
-                    : "_buf.length:" + _buf.length + " _in:" + _in + " _out:" + _out + " _free:" + _free;
+                   (_out < _in && _free == _buf.length - (_in - _out)) || // data in the middle, free on the edges
+                   (_out > _in && _free == _out - _in) ||                   // data on the edges, free in the middle
+                   (_out == _in && _free == _buf.length) ||                  // no data, all buffer free
+                   (_out == _in && _free == 0)                               // buffer full
+                : "_buf.length:" + _buf.length + " _in:" + _in + " _out:" + _out + " _free:" + _free;
 
             if (encoding != null && !noSaveDecl) {
                 XmlDocumentProperties props = Locale.getDocProps(c, false);
 
                 String version = props == null ? null : props.getVersion();
 
-                if (version == null)
+                if (version == null) {
                     version = "1.0";
+                }
 
                 Boolean standalone = null;
-                if (props != null && props.get(XmlDocumentProperties.STANDALONE) != null)
+                if (props != null && props.get(XmlDocumentProperties.STANDALONE) != null) {
                     standalone = props.getStandalone();
+                }
 
                 emit("<?xml version=\"");
                 emit(version);
-                emit( "\" encoding=\"" + encoding + "\"");
-                if (standalone != null)
-                    emit( " standalone=\"" + (standalone.booleanValue() ? "yes" : "no") + "\"");
-                emit( "?>" + _newLine );
+                emit("\" encoding=\"" + encoding + "\"");
+                if (standalone != null) {
+                    emit(" standalone=\"" + (standalone ? "yes" : "no") + "\"");
+                }
+                emit("?>" + _newLine);
             }
         }
 
-        protected boolean emitElement(SaveCur c, ArrayList attrNames, ArrayList attrValues) {
+        @Override
+        protected boolean emitElement(SaveCur c, List<QName> attrNames, List<String> attrValues) {
             assert c.isElem();
 
             emit('<');
             emitName(c.getName(), false);
 
-            if (saveNamespacesFirst())
+            if (saveNamespacesFirst()) {
                 emitNamespacesHelper();
+            }
 
-            for (int i = 0; i < attrNames.size(); i++)
-                emitAttrHelper((QName) attrNames.get(i), (String) attrValues.get(i));
+            for (int i = 0; i < attrNames.size(); i++) {
+                emitAttrHelper(attrNames.get(i), attrValues.get(i));
+            }
 
-            if (!saveNamespacesFirst())
+            if (!saveNamespacesFirst()) {
                 emitNamespacesHelper();
+            }
 
             if (!c.hasChildren() && !c.hasText()) {
                 emit('/', '>');
@@ -1044,7 +1024,7 @@ abstract class Saver {
         private void emitLiteral(String literal) {
             // TODO: systemId production http://www.w3.org/TR/REC-xml/#NT-SystemLiteral
             // TODO: publicId production http://www.w3.org/TR/REC-xml/#NT-PubidLiteral
-            if (literal.indexOf("\"") < 0) {
+            if (!literal.contains("\"")) {
                 emit('\"');
                 emit(literal);
                 emit('\"');
@@ -1096,8 +1076,9 @@ abstract class Saver {
                 String prefix = name.getPrefix();
                 String mappedUri = getNamespaceForPrefix(prefix);
 
-                if (mappedUri == null || !mappedUri.equals(uri))
+                if (mappedUri == null || !mappedUri.equals(uri)) {
                     prefix = getUriMapping(uri);
+                }
 
                 // Attrs need a prefix.  If I have not found one, then there must be a default
                 // prefix obscuring the prefix needed for this attr.  Find it manually.
@@ -1106,8 +1087,9 @@ abstract class Saver {
                 // _urpMap and _prefixMap.  This way, I would not have to look it up manually
                 // here
 
-                if (needsPrefix && prefix.length() == 0)
+                if (needsPrefix && prefix.length() == 0) {
                     prefix = getNonDefaultUriMapping(uri);
+                }
 
                 if (prefix.length() > 0) {
                     emit(prefix);
@@ -1122,11 +1104,11 @@ abstract class Saver {
 
         private void emit(char ch) {
             assert _buf == null ||
-                    (_out < _in && _free == _buf.length - (_in - _out)) || // data in the middle, free on the edges
-                    (_out > _in && _free == _out - _in) ||                   // data on the edges, free in the middle
-                    (_out == _in && _free == _buf.length) ||                  // no data, all buffer free
-                    (_out == _in && _free == 0)                               // buffer full
-                    : "_buf.length:" + _buf.length + " _in:" + _in + " _out:" + _out + " _free:" + _free;
+                   (_out < _in && _free == _buf.length - (_in - _out)) || // data in the middle, free on the edges
+                   (_out > _in && _free == _out - _in) ||                   // data on the edges, free in the middle
+                   (_out == _in && _free == _buf.length) ||                  // no data, all buffer free
+                   (_out == _in && _free == 0)                               // buffer full
+                : "_buf.length:" + _buf.length + " _in:" + _in + " _out:" + _out + " _free:" + _free;
 
             preEmit(1);
 
@@ -1134,17 +1116,17 @@ abstract class Saver {
 
             _in = (_in + 1) % _buf.length;
 
-            assert _buf == null ||
-                    (_out < _in && _free == _buf.length - (_in - _out)) || // data in the middle, free on the edges
-                    (_out > _in && _free == _out - _in) ||                   // data on the edges, free in the middle
-                    (_out == _in && _free == _buf.length) ||                  // no data, all buffer free
-                    (_out == _in && _free == 0)                               // buffer full
-                    : "_buf.length:" + _buf.length + " _in:" + _in + " _out:" + _out + " _free:" + _free;
+            assert (_out < _in && _free == _buf.length - (_in - _out)) || // data in the middle, free on the edges
+                   (_out > _in && _free == _out - _in) ||                   // data on the edges, free in the middle
+                   (_out == _in && _free == _buf.length) ||                  // no data, all buffer free
+                   (_out == _in && _free == 0)                               // buffer full
+                : "_buf.length:" + _buf.length + " _in:" + _in + " _out:" + _out + " _free:" + _free;
         }
 
         private void emit(char ch1, char ch2) {
-            if (preEmit(2))
+            if (preEmit(2)) {
                 return;
+            }
 
             _buf[_in] = ch1;
             _in = (_in + 1) % _buf.length;
@@ -1152,26 +1134,26 @@ abstract class Saver {
             _buf[_in] = ch2;
             _in = (_in + 1) % _buf.length;
 
-            assert _buf == null ||
-                    (_out < _in && _free == _buf.length - (_in - _out)) || // data in the middle, free on the edges
-                    (_out > _in && _free == _out - _in) ||                   // data on the edges, free in the middle
-                    (_out == _in && _free == _buf.length) ||                  // no data, all buffer free
-                    (_out == _in && _free == 0)                               // buffer full
-                    : "_buf.length:" + _buf.length + " _in:" + _in + " _out:" + _out + " _free:" + _free;
+            assert (_out < _in && _free == _buf.length - (_in - _out)) || // data in the middle, free on the edges
+                   (_out > _in && _free == _out - _in) ||                   // data on the edges, free in the middle
+                   (_out == _in && _free == _buf.length) ||                  // no data, all buffer free
+                   (_out == _in && _free == 0)                               // buffer full
+                : "_buf.length:" + _buf.length + " _in:" + _in + " _out:" + _out + " _free:" + _free;
         }
 
         private void emit(String s) {
             assert _buf == null ||
-                    (_out < _in && _free == _buf.length - (_in - _out)) || // data in the middle, free on the edges
-                    (_out > _in && _free == _out - _in) ||                   // data on the edges, free in the middle
-                    (_out == _in && _free == _buf.length) ||                  // no data, all buffer free
-                    (_out == _in && _free == 0)                               // buffer full
-                    : "_buf.length:" + _buf.length + " _in:" + _in + " _out:" + _out + " _free:" + _free;
+                   (_out < _in && _free == _buf.length - (_in - _out)) || // data in the middle, free on the edges
+                   (_out > _in && _free == _out - _in) ||                   // data on the edges, free in the middle
+                   (_out == _in && _free == _buf.length) ||                  // no data, all buffer free
+                   (_out == _in && _free == 0)                               // buffer full
+                : "_buf.length:" + _buf.length + " _in:" + _in + " _out:" + _out + " _free:" + _free;
 
             int cch = s == null ? 0 : s.length();
 
-            if (preEmit(cch))
+            if (preEmit(cch) || s == null) {
                 return;
+            }
 
             int chunk;
 
@@ -1184,12 +1166,11 @@ abstract class Saver {
                 _in = (_in + cch) % _buf.length;
             }
 
-            assert _buf == null ||
-                    (_out < _in && _free == _buf.length - (_in - _out)) || // data in the middle, free on the edges
-                    (_out > _in && _free == _out - _in) ||                   // data on the edges, free in the middle
-                    (_out == _in && _free == _buf.length) ||                  // no data, all buffer free
-                    (_out == _in && _free == 0)                               // buffer full
-                    : "_buf.length:" + _buf.length + " _in:" + _in + " _out:" + _out + " _free:" + _free;
+            assert (_out < _in && _free == _buf.length - (_in - _out)) || // data in the middle, free on the edges
+                   (_out > _in && _free == _out - _in) ||                   // data on the edges, free in the middle
+                   (_out == _in && _free == _buf.length) ||                  // no data, all buffer free
+                   (_out == _in && _free == 0)                               // buffer full
+                : "_buf.length:" + _buf.length + " _in:" + _in + " _out:" + _out + " _free:" + _free;
         }
 
         private void emit(SaveCur c) {
@@ -1197,8 +1178,9 @@ abstract class Saver {
                 Object src = c.getChars();
                 int cch = c._cchSrc;
 
-                if (preEmit(cch))
+                if (preEmit(cch)) {
                     return;
+                }
 
                 int chunk;
 
@@ -1210,26 +1192,29 @@ abstract class Saver {
                     CharUtil.getChars(_buf, 0, src, c._offSrc + chunk, cch - chunk);
                     _in = (_in + cch) % _buf.length;
                 }
-            } else
+            } else {
                 preEmit(0);
+            }
         }
 
         private boolean preEmit(int cch) {
             assert cch >= 0;
             assert _buf == null ||
-                    (_out < _in && _free == _buf.length - (_in - _out)) || // data in the middle, free on the edges
-                    (_out > _in && _free == _out - _in) ||                   // data on the edges, free in the middle
-                    (_out == _in && _free == _buf.length) ||                  // no data, all buffer free
-                    (_out == _in && _free == 0)                               // buffer full
-                    : "_buf.length:" + _buf.length + " _in:" + _in + " _out:" + _out + " _free:" + _free;
+                   (_out < _in && _free == _buf.length - (_in - _out)) || // data in the middle, free on the edges
+                   (_out > _in && _free == _out - _in) ||                   // data on the edges, free in the middle
+                   (_out == _in && _free == _buf.length) ||                  // no data, all buffer free
+                   (_out == _in && _free == 0)                               // buffer full
+                : "_buf.length:" + _buf.length + " _in:" + _in + " _out:" + _out + " _free:" + _free;
 
             _lastEmitCch = cch;
 
-            if (cch == 0)
+            if (cch == 0) {
                 return true;
+            }
 
-            if (_free <= cch)
+            if (_free <= cch) {
                 resize(cch, -1);
+            }
 
             assert cch <= _free;
 
@@ -1241,7 +1226,7 @@ abstract class Saver {
 
             if (used == 0) {
                 assert _in == _out;
-                assert _free == _buf.length;
+                assert _buf == null || _free == _buf.length;
                 _in = _out = 0;
             }
 
@@ -1249,14 +1234,13 @@ abstract class Saver {
 
             _free -= cch;
 
-            assert _free >= 0;
             assert _buf == null || _free == (_in >= _out ? _buf.length - (_in - _out) : _out - _in) - cch : "_buf.length:" + _buf.length + " _in:" + _in + " _out:" + _out + " _free:" + _free;
             assert _buf == null ||
-                    (_out < _in && _free == _buf.length - (_in - _out) - cch) || // data in the middle, free on the edges
-                    (_out > _in && _free == _out - _in - cch) ||                  // data on the edges, free in the middle
-                    (_out == _in && _free == _buf.length - cch) ||                 // no data, all buffer free
-                    (_out == _in && _free == 0)                                    // buffer full
-                    : "_buf.length:" + _buf.length + " _in:" + _in + " _out:" + _out + " _free:" + _free;
+                   (_out < _in && _free == _buf.length - (_in - _out) - cch) || // data in the middle, free on the edges
+                   (_out > _in && _free == _out - _in - cch) ||                  // data on the edges, free in the middle
+                   (_out == _in && _free == _buf.length - cch) ||                 // no data, all buffer free
+                   (_out == _in && _free == 0)                                    // buffer full
+                : "_buf.length:" + _buf.length + " _in:" + _in + " _out:" + _out + " _free:" + _free;
 
             return false;
         }
@@ -1264,8 +1248,9 @@ abstract class Saver {
         private void entitizeContent(boolean forceCData) {
             assert _free >= 0;
 
-            if (_lastEmitCch == 0)
+            if (_lastEmitCch == 0) {
                 return;
+            }
 
             int i = _lastEmitIn;
             final int n = _buf.length;
@@ -1278,22 +1263,25 @@ abstract class Saver {
             for (int cch = _lastEmitCch; cch > 0; cch--) {
                 char ch = _buf[i];
 
-                if (ch == '<' || ch == '&')
+                if (ch == '<' || ch == '&') {
                     count++;
-                else if (prevPrevChar == ']' && prevChar == ']' && ch == '>')
+                } else if (prevPrevChar == ']' && prevChar == ']' && ch == '>') {
                     hasCharToBeReplaced = true;
-                else if (isBadChar(ch) || isEscapedChar(ch) || (!_isPrettyPrint && ch == '\r'))
+                } else if (isBadChar(ch) || isEscapedChar(ch) || (!_isPrettyPrint && ch == '\r')) {
                     hasCharToBeReplaced = true;
+                }
 
-                if (++i == n)
+                if (++i == n) {
                     i = 0;
+                }
 
                 prevPrevChar = prevChar;
                 prevChar = ch;
             }
 
-            if (!forceCData && count == 0 && !hasCharToBeReplaced && count < _cdataEntityCountThreshold)
+            if (!forceCData && count == 0 && !hasCharToBeReplaced && count < _cdataEntityCountThreshold) {
                 return;
+            }
 
             i = _lastEmitIn;
 
@@ -1309,24 +1297,27 @@ abstract class Saver {
 
                 lastWasBracket = _buf[i] == ']';
 
-                if (++i == _buf.length)
+                if (++i == _buf.length) {
                     i = 0;
+                }
 
                 for (int cch = _lastEmitCch - 2; cch > 0; cch--) {
                     char ch = _buf[i];
 
-                    if (ch == '>' && secondToLastWasBracket && lastWasBracket)
+                    if (ch == '>' && secondToLastWasBracket && lastWasBracket) {
                         i = replace(i, "]]>><![CDATA[");
-                    else if (isBadChar(ch))
+                    } else if (isBadChar(ch)) {
                         i = replace(i, "?");
-                    else
+                    } else {
                         i++;
+                    }
 
                     secondToLastWasBracket = lastWasBracket;
                     lastWasBracket = ch == ']';
 
-                    if (i == _buf.length)
+                    if (i == _buf.length) {
                         i = 0;
+                    }
                 }
 
                 emit("]]>");
@@ -1337,56 +1328,63 @@ abstract class Saver {
                     ch_1 = ch;
                     ch = _buf[i];
 
-                    if (ch == '<')
+                    if (ch == '<') {
                         i = replace(i, "&lt;");
-                    else if (ch == '&')
+                    } else if (ch == '&') {
                         i = replace(i, "&amp;");
-                    else if (ch == '>' && ch_1 == ']' && ch_2 == ']')
+                    } else if (ch == '>' && ch_1 == ']' && ch_2 == ']') {
                         i = replace(i, "&gt;");
-                    else if (isBadChar(ch))
+                    } else if (isBadChar(ch)) {
                         i = replace(i, "?");
-                    else if (!_isPrettyPrint && ch == '\r')
+                    } else if (!_isPrettyPrint && ch == '\r') {
                         i = replace(i, "&#13;");
-                    else if (isEscapedChar(ch))
+                    } else if (isEscapedChar(ch)) {
                         i = replace(i, _replaceChar.getEscapedString(ch));
-                    else
+                    } else {
                         i++;
+                    }
 
-                    if (i == _buf.length)
+                    if (i == _buf.length) {
                         i = 0;
+                    }
                 }
             }
         }
 
         private void entitizeAttrValue(boolean replaceEscapedChar) {
-            if (_lastEmitCch == 0)
+            if (_lastEmitCch == 0) {
                 return;
+            }
 
             int i = _lastEmitIn;
 
             for (int cch = _lastEmitCch; cch > 0; cch--) {
                 char ch = _buf[i];
 
-                if (ch == '<')
+                if (ch == '<') {
                     i = replace(i, "&lt;");
-                else if (ch == '&')
+                } else if (ch == '&') {
                     i = replace(i, "&amp;");
-                else if (ch == '"')
+                } else if (ch == '"') {
                     i = replace(i, "&quot;");
-                else if (isEscapedChar(ch)) {
-                    if (replaceEscapedChar)
+                } else if (isEscapedChar(ch)) {
+                    if (replaceEscapedChar) {
                         i = replace(i, _replaceChar.getEscapedString(ch));
-                } else
+                    }
+                } else {
                     i++;
+                }
 
-                if (i == _buf.length)
+                if (i == _buf.length) {
                     i = 0;
+                }
             }
         }
 
         private void entitizeComment() {
-            if (_lastEmitCch == 0)
+            if (_lastEmitCch == 0) {
                 return;
+            }
 
             int i = _lastEmitIn;
 
@@ -1395,9 +1393,9 @@ abstract class Saver {
             for (int cch = _lastEmitCch; cch > 0; cch--) {
                 char ch = _buf[i];
 
-                if (isBadChar(ch))
+                if (isBadChar(ch)) {
                     i = replace(i, "?");
-                else if (ch == '-') {
+                } else if (ch == '-') {
                     if (lastWasDash) {
                         // Replace "--" with "- " to make well formed
                         i = replace(i, " ");
@@ -1411,21 +1409,24 @@ abstract class Saver {
                     i++;
                 }
 
-                if (i == _buf.length)
+                if (i == _buf.length) {
                     i = 0;
+                }
             }
 
             // Because I have only replaced chars with single chars,
             // _lastEmitIn will still be ok
 
             int offset = (_lastEmitIn + _lastEmitCch - 1) % _buf.length;
-            if (_buf[offset] == '-')
-                i = replace(offset, " ");
+            if (_buf[offset] == '-') {
+                replace(offset, " ");
+            }
         }
 
         private void entitizeProcinst() {
-            if (_lastEmitCch == 0)
+            if (_lastEmitCch == 0) {
                 return;
+            }
 
             int i = _lastEmitIn;
 
@@ -1434,15 +1435,17 @@ abstract class Saver {
             for (int cch = _lastEmitCch; cch > 0; cch--) {
                 char ch = _buf[i];
 
-                if (isBadChar(ch))
+                if (isBadChar(ch)) {
                     i = replace(i, "?");
+                }
 
                 if (ch == '>') {
                     // TODO - Had to convert to a space here ... imples not well formed XML
-                    if (lastWasQuestion)
+                    if (lastWasQuestion) {
                         i = replace(i, " ");
-                    else
+                    } else {
                         i++;
+                    }
 
                     lastWasQuestion = false;
                 } else {
@@ -1450,8 +1453,9 @@ abstract class Saver {
                     i++;
                 }
 
-                if (i == _buf.length)
+                if (i == _buf.length) {
                     i = 0;
+                }
             }
         }
 
@@ -1474,8 +1478,9 @@ abstract class Saver {
 
             assert _free >= 0;
 
-            if (dCch > _free)
+            if (dCch > _free) {
                 i = resize(dCch, i);
+            }
 
             assert _free >= 0;
 
@@ -1516,12 +1521,11 @@ abstract class Saver {
             _free -= dCch;
 
             assert _free >= 0;
-            assert _buf == null ||
-                    (_out < _in && _free == _buf.length - (_in - _out)) || // data in the middle, free on the edges
-                    (_out > _in && _free == _out - _in) ||                   // data on the edges, free in the middle
-                    (_out == _in && _free == _buf.length) ||                  // no data, all buffer free
-                    (_out == _in && _free == 0)                               // buffer full
-                    : "_buf.length:" + _buf.length + " _in:" + _in + " _out:" + _out + " _free:" + _free;
+            assert (_out < _in && _free == _buf.length - (_in - _out)) || // data in the middle, free on the edges
+                   (_out > _in && _free == _out - _in) ||                   // data on the edges, free in the middle
+                   (_out == _in && _free == _buf.length) ||                  // no data, all buffer free
+                   (_out == _in && _free == 0)                               // buffer full
+                : "_buf.length:" + _buf.length + " _in:" + _in + " _out:" + _out + " _free:" + _free;
 
             return (i + dCch + 1) % _buf.length;
         }
@@ -1534,14 +1538,17 @@ abstract class Saver {
             // atleast one character so we can determine if we're at the
             // end of the stream.
 
-            if (cch <= 0)
+            if (cch <= 0) {
                 cch = 1;
+            }
 
             int available = getAvailable();
 
-            for (; available < cch; available = getAvailable())
-                if (!process())
+            for (; available < cch; available = getAvailable()) {
+                if (!process()) {
                     break;
+                }
+            }
 
             assert available == getAvailable();
 
@@ -1560,17 +1567,18 @@ abstract class Saver {
             assert cch > 0;
             assert cch >= _free;
             assert _buf == null ||
-                    (_out < _in && _free == _buf.length - (_in - _out)) || // data in the middle, free on the edges
-                    (_out > _in && _free == _out - _in) ||                   // data on the edges, free in the middle
-                    (_out == _in && _free == _buf.length) ||                  // no data, all buffer free
-                    (_out == _in && _free == 0)                               // buffer full
-                    : "_buf.length:" + _buf.length + " _in:" + _in + " _out:" + _out + " _free:" + _free;
+                   (_out < _in && _free == _buf.length - (_in - _out)) || // data in the middle, free on the edges
+                   (_out > _in && _free == _out - _in) ||                   // data on the edges, free in the middle
+                   (_out == _in && _free == _buf.length) ||                  // no data, all buffer free
+                   (_out == _in && _free == 0)                               // buffer full
+                : "_buf.length:" + _buf.length + " _in:" + _in + " _out:" + _out + " _free:" + _free;
 
             int newLen = _buf == null ? _initialBufSize : _buf.length * 2;
             int used = getAvailable();
 
-            while (newLen - used < cch)
+            while (newLen - used < cch) {
                 newLen *= 2;
+            }
 
             char[] newBuf = new char[newLen];
 
@@ -1598,19 +1606,21 @@ abstract class Saver {
             _buf = newBuf;
 
             assert _free >= 0;
+            //noinspection ConstantConditions
             assert _buf == null ||
-                    (_out < _in && _free == _buf.length - (_in - _out)) || // data in the middle, free on the edges
-                    (_out > _in && _free == _out - _in) ||                   // data on the edges, free in the middle
-                    (_out == _in && _free == _buf.length) ||                  // no data, all buffer free
-                    (_out == _in && _free == 0)                               // buffer full
-                    : "_buf.length:" + _buf.length + " _in:" + _in + " _out:" + _out + " _free:" + _free;
+                   (_out < _in && _free == _buf.length - (_in - _out)) || // data in the middle, free on the edges
+                   (_out > _in && _free == _out - _in) ||                   // data on the edges, free in the middle
+                   (_out == _in && _free == _buf.length) ||                  // no data, all buffer free
+                   (_out == _in && _free == 0)                               // buffer full
+                : "_buf.length:" + _buf.length + " _in:" + _in + " _out:" + _out + " _free:" + _free;
 
             return i;
         }
 
         public int read() {
-            if (ensure(1) == 0)
+            if (ensure(1) == 0) {
                 return -1;
+            }
 
             assert getAvailable() > 0;
 
@@ -1619,12 +1629,11 @@ abstract class Saver {
             _out = (_out + 1) % _buf.length;
             _free++;
 
-            assert _buf == null ||
-                    (_out < _in && _free == _buf.length - (_in - _out)) || // data in the middle, free on the edges
-                    (_out > _in && _free == _out - _in) ||                   // data on the edges, free in the middle
-                    (_out == _in && _free == _buf.length) ||                  // no data, all buffer free
-                    (_out == _in && _free == 0)                               // buffer full
-                    : "_buf.length:" + _buf.length + " _in:" + _in + " _out:" + _out + " _free:" + _free;
+            assert (_out < _in && _free == _buf.length - (_in - _out)) || // data in the middle, free on the edges
+                   (_out > _in && _free == _out - _in) ||                   // data on the edges, free in the middle
+                   (_out == _in && _free == _buf.length) ||                  // no data, all buffer free
+                   (_out == _in && _free == 0)                               // buffer full
+                : "_buf.length:" + _buf.length + " _in:" + _in + " _out:" + _out + " _free:" + _free;
 
             return ch;
         }
@@ -1636,23 +1645,26 @@ abstract class Saver {
 
             int n;
 
-            if ((n = ensure(len)) == 0)
+            if ((n = ensure(len)) == 0) {
                 return -1;
+            }
 
-            if (cbuf == null || len <= 0)
+            if (cbuf == null || len <= 0) {
                 return 0;
+            }
 
-            if (n < len)
+            if (n < len) {
                 len = n;
+            }
 
             if (_out < _in) {
                 System.arraycopy(_buf, _out, cbuf, off, len);
             } else {
                 int chunk = _buf.length - _out;
 
-                if (chunk >= len)
+                if (chunk >= len) {
                     System.arraycopy(_buf, _out, cbuf, off, len);
-                else {
+                } else {
                     System.arraycopy(_buf, _out, cbuf, off, chunk);
                     System.arraycopy(_buf, 0, cbuf, off + chunk, len - chunk);
                 }
@@ -1661,12 +1673,11 @@ abstract class Saver {
             _out = (_out + len) % _buf.length;
             _free += len;
 
-            assert _buf == null ||
-                    (_out < _in && _free == _buf.length - (_in - _out)) || // data in the middle, free on the edges
-                    (_out > _in && _free == _out - _in) ||                   // data on the edges, free in the middle
-                    (_out == _in && _free == _buf.length) ||                  // no data, all buffer free
-                    (_out == _in && _free == 0)                               // buffer full
-                    : "_buf.length:" + _buf.length + " _in:" + _in + " _out:" + _out + " _free:" + _free;
+            assert (_out < _in && _free == _buf.length - (_in - _out)) || // data in the middle, free on the edges
+                   (_out > _in && _free == _out - _in) ||                   // data on the edges, free in the middle
+                   (_out == _in && _free == _buf.length) ||                  // no data, all buffer free
+                   (_out == _in && _free == 0)                               // buffer full
+                : "_buf.length:" + _buf.length + " _in:" + _in + " _out:" + _out + " _free:" + _free;
 
             assert _free >= 0;
 
@@ -1675,8 +1686,9 @@ abstract class Saver {
 
         public int write(Writer writer, int cchMin) {
             while (getAvailable() < cchMin) {
-                if (!process())
+                if (!process()) {
                     break;
+                }
             }
 
             int charsAvailable = getAvailable();
@@ -1703,11 +1715,11 @@ abstract class Saver {
                 _in = 0;
             }
             assert _buf == null ||
-                    (_out < _in && _free == _buf.length - (_in - _out)) || // data in the middle, free on the edges
-                    (_out > _in && _free == _out - _in) ||                   // data on the edges, free in the middle
-                    (_out == _in && _free == _buf.length) ||                  // no data, all buffer free
-                    (_out == _in && _free == 0)                               // buffer full
-                    : "_buf.length:" + _buf.length + " _in:" + _in + " _out:" + _out + " _free:" + _free;
+                   (_out < _in && _free == _buf.length - (_in - _out)) || // data in the middle, free on the edges
+                   (_out > _in && _free == _out - _in) ||                   // data on the edges, free in the middle
+                   (_out == _in && _free == _buf.length) ||                  // no data, all buffer free
+                   (_out == _in && _free == 0)                               // buffer full
+                : "_buf.length:" + _buf.length + " _in:" + _in + " _out:" + _out + " _free:" + _free;
 
             return charsAvailable;
         }
@@ -1717,8 +1729,8 @@ abstract class Saver {
             // as well use my buffer here.  Fill the whole sucker up and
             // create a String!
 
-            while (process())
-                ;
+            //noinspection StatementWithEmptyBody
+            while (process()) { }
 
             assert _out == 0;
 
@@ -1753,13 +1765,13 @@ abstract class Saver {
     }
 
     static final class OptimizedForSpeedSaver
-            extends Saver {
+        extends Saver {
         Writer _w;
-        private char[] _buf = new char[1024];
+        private final char[] _buf = new char[1024];
 
 
         static private class SaverIOException
-                extends RuntimeException {
+            extends RuntimeException {
             SaverIOException(IOException e) {
                 super(e);
             }
@@ -1772,11 +1784,11 @@ abstract class Saver {
         }
 
         static void save(Cur cur, Writer writer)
-                throws IOException {
+            throws IOException {
             try {
                 Saver saver = new OptimizedForSpeedSaver(cur, writer);
-                while (saver.process()) {
-                }
+                //noinspection StatementWithEmptyBody
+                while (saver.process()) { }
             } catch (SaverIOException e) {
                 throw (IOException) e.getCause();
             }
@@ -1817,17 +1829,19 @@ abstract class Saver {
             }
         }
 
-        protected boolean emitElement(SaveCur c, ArrayList attrNames, ArrayList attrValues) {
+        protected boolean emitElement(SaveCur c, List<QName> attrNames, List<String> attrValues) {
             assert c.isElem();
 
             emit('<');
             emitName(c.getName(), false);
 
-            for (int i = 0; i < attrNames.size(); i++)
-                emitAttrHelper((QName) attrNames.get(i), (String) attrValues.get(i));
+            for (int i = 0; i < attrNames.size(); i++) {
+                emitAttrHelper(attrNames.get(i), attrValues.get(i));
+            }
 
-            if (!saveNamespacesFirst())
+            if (!saveNamespacesFirst()) {
                 emitNamespacesHelper();
+            }
 
             if (!c.hasChildren() && !c.hasText()) {
                 emit('/', '>');
@@ -1957,8 +1971,9 @@ abstract class Saver {
                 String prefix = name.getPrefix();
                 String mappedUri = getNamespaceForPrefix(prefix);
 
-                if (mappedUri == null || !mappedUri.equals(uri))
+                if (mappedUri == null || !mappedUri.equals(uri)) {
                     prefix = getUriMapping(uri);
+                }
 
                 // Attrs need a prefix.  If I have not found one, then there must be a default
                 // prefix obscuring the prefix needed for this attr.  Find it manually.
@@ -1967,8 +1982,9 @@ abstract class Saver {
                 // _urpMap and _prefixMap.  This way, I would not have to look it up manually
                 // here
 
-                if (needsPrefix && prefix.length() == 0)
+                if (needsPrefix && prefix.length() == 0) {
                     prefix = getNonDefaultUriMapping(uri);
+                }
 
                 if (prefix.length() > 0) {
                     emit(prefix);
@@ -1987,21 +2003,22 @@ abstract class Saver {
             for (int i = 0; i < len; i++) {
                 char ch = attVal.charAt(i);
 
-                if (ch == '<')
+                if (ch == '<') {
                     emit("&lt;");
-                else if (ch == '&')
+                } else if (ch == '&') {
                     emit("&amp;");
-                else if (ch == '"')
+                } else if (ch == '"') {
                     emit("&quot;");
-                else
+                } else {
                     emit(ch);
+                }
             }
         }
 
         private void emitLiteral(String literal) {
             // TODO: systemId production http://www.w3.org/TR/REC-xml/#NT-SystemLiteral
             // TODO: publicId production http://www.w3.org/TR/REC-xml/#NT-PubidLiteral
-            if (literal.indexOf("\"") < 0) {
+            if (!literal.contains("\"")) {
                 emit('\"');
                 emit(literal);
                 emit('\"');
@@ -2019,9 +2036,8 @@ abstract class Saver {
             int cch = c._cchSrc;
             int off = c._offSrc;
             int index = 0;
-            int indexLimit = 0;
             while (index < cch) {
-                indexLimit = index + 512 > cch ? cch : index + 512;
+                int indexLimit = Math.min(index + 512, cch);
                 CharUtil.getChars(_buf, 0, src, off + index, indexLimit - index);
                 entitizeAndWriteText(indexLimit - index);
                 index = indexLimit;
@@ -2035,9 +2051,8 @@ abstract class Saver {
             int cch = c._cchSrc;
             int off = c._offSrc;
             int index = 0;
-            int indexLimit = 0;
             while (index < cch) {
-                indexLimit = index + 512 > cch ? cch : 512;
+                int indexLimit = index + 512 > cch ? cch : 512;
                 CharUtil.getChars(_buf, 0, src, off + index, indexLimit);
                 entitizeAndWritePIText(indexLimit - index);
                 index = indexLimit;
@@ -2051,9 +2066,8 @@ abstract class Saver {
             int cch = c._cchSrc;
             int off = c._offSrc;
             int index = 0;
-            int indexLimit = 0;
             while (index < cch) {
-                indexLimit = index + 512 > cch ? cch : 512;
+                int indexLimit = index + 512 > cch ? cch : 512;
                 CharUtil.getChars(_buf, 0, src, off + index, indexLimit);
                 entitizeAndWriteCommentText(indexLimit - index);
                 index = indexLimit;
@@ -2086,9 +2100,9 @@ abstract class Saver {
             for (int i = 0; i < bufLimit; i++) {
                 char ch = _buf[i];
 
-                if (isBadChar(ch))
+                if (isBadChar(ch)) {
                     _buf[i] = '?';
-                else if (ch == '-') {
+                } else if (ch == '-') {
                     if (lastWasDash) {
                         // Replace "--" with "- " to make well formed
                         _buf[i] = ' ';
@@ -2100,12 +2114,14 @@ abstract class Saver {
                     lastWasDash = false;
                 }
 
-                if (i == _buf.length)
+                if (i == _buf.length) {
                     i = 0;
+                }
             }
 
-            if (_buf[bufLimit - 1] == '-')
+            if (_buf[bufLimit - 1] == '-') {
                 _buf[bufLimit - 1] = ' ';
+            }
 
             emit(_buf, 0, bufLimit);
         }
@@ -2123,8 +2139,9 @@ abstract class Saver {
 
                 if (ch == '>') {
                     // Had to convert to a space here ... imples not well formed XML
-                    if (lastWasQuestion)
+                    if (lastWasQuestion) {
                         _buf[i] = ' ';
+                    }
 
                     lastWasQuestion = false;
                 } else {
@@ -2142,11 +2159,11 @@ abstract class Saver {
             _closed = false;
         }
 
-        public void close() throws IOException {
+        public void close() {
             _closed = true;
         }
 
-        public boolean ready() throws IOException {
+        public boolean ready() {
             return !_closed;
         }
 
@@ -2160,12 +2177,14 @@ abstract class Saver {
                 } finally {
                     _locale.exit();
                 }
-            } else synchronized (_locale) {
-                _locale.enter();
-                try {
-                    return _textSaver.read();
-                } finally {
-                    _locale.exit();
+            } else {
+                synchronized (_locale) {
+                    _locale.enter();
+                    try {
+                        return _textSaver.read();
+                    } finally {
+                        _locale.exit();
+                    }
                 }
             }
         }
@@ -2180,12 +2199,14 @@ abstract class Saver {
                 } finally {
                     _locale.exit();
                 }
-            } else synchronized (_locale) {
-                _locale.enter();
-                try {
-                    return _textSaver.read(cbuf, 0, cbuf == null ? 0 : cbuf.length);
-                } finally {
-                    _locale.exit();
+            } else {
+                synchronized (_locale) {
+                    _locale.enter();
+                    try {
+                        return _textSaver.read(cbuf, 0, cbuf == null ? 0 : cbuf.length);
+                    } finally {
+                        _locale.exit();
+                    }
                 }
             }
         }
@@ -2200,23 +2221,26 @@ abstract class Saver {
                 } finally {
                     _locale.exit();
                 }
-            } else synchronized (_locale) {
-                _locale.enter();
-                try {
-                    return _textSaver.read(cbuf, off, len);
-                } finally {
-                    _locale.exit();
+            } else {
+                synchronized (_locale) {
+                    _locale.enter();
+                    try {
+                        return _textSaver.read(cbuf, off, len);
+                    } finally {
+                        _locale.exit();
+                    }
                 }
             }
         }
 
         private void checkClosed() throws IOException {
-            if (_closed)
+            if (_closed) {
                 throw new IOException("Reader has been closed");
+            }
         }
 
-        private Locale _locale;
-        private TextSaver _textSaver;
+        private final Locale _locale;
+        private final TextSaver _textSaver;
         private boolean _closed;
     }
 
@@ -2236,26 +2260,32 @@ abstract class Saver {
 
             XmlDocumentProperties props = Locale.getDocProps(c, false);
 
-            if (props != null && props.getEncoding() != null)
+            if (props != null && props.getEncoding() != null) {
                 encoding = EncodingMap.getIANA2JavaMapping(props.getEncoding());
+            }
 
-            if (options.hasOption(XmlOptions.CHARACTER_ENCODING))
-                encoding = (String) options.get(XmlOptions.CHARACTER_ENCODING);
+            String enc = options.getCharacterEncoding();
+            if (enc != null) {
+                encoding = enc;
+            }
 
             if (encoding != null) {
                 String ianaEncoding = EncodingMap.getJava2IANAMapping(encoding);
 
-                if (ianaEncoding != null)
+                if (ianaEncoding != null) {
                     encoding = ianaEncoding;
+                }
             }
 
-            if (encoding == null)
+            if (encoding == null) {
                 encoding = EncodingMap.getJava2IANAMapping("UTF8");
+            }
 
-            String javaEncoding = EncodingMap.getIANA2JavaMapping(encoding);
+            String javaEncoding = (encoding == null) ? null : EncodingMap.getIANA2JavaMapping(encoding);
 
-            if (javaEncoding == null)
+            if (javaEncoding == null) {
                 throw new IllegalStateException("Unknown encoding: " + encoding);
+            }
 
             try {
                 _converter = new OutputStreamWriter(_outStreamImpl, javaEncoding);
@@ -2266,13 +2296,14 @@ abstract class Saver {
             _textSaver = new TextSaver(c, options, encoding);
         }
 
-        public void close() throws IOException {
+        public void close() {
             _closed = true;
         }
 
         private void checkClosed() throws IOException {
-            if (_closed)
+            if (_closed) {
                 throw new IOException("Stream closed");
+            }
         }
 
         // Having the gateway here is kinda slow for the single character case.  It may be possible
@@ -2288,12 +2319,14 @@ abstract class Saver {
                 } finally {
                     _locale.exit();
                 }
-            } else synchronized (_locale) {
-                _locale.enter();
-                try {
-                    return _outStreamImpl.read();
-                } finally {
-                    _locale.exit();
+            } else {
+                synchronized (_locale) {
+                    _locale.enter();
+                    try {
+                        return _outStreamImpl.read();
+                    } finally {
+                        _locale.exit();
+                    }
                 }
             }
         }
@@ -2301,11 +2334,13 @@ abstract class Saver {
         public int read(byte[] bbuf, int off, int len) throws IOException {
             checkClosed();
 
-            if (bbuf == null)
+            if (bbuf == null) {
                 throw new NullPointerException("buf to read into is null");
+            }
 
-            if (off < 0 || off > bbuf.length)
+            if (off < 0 || off > bbuf.length) {
                 throw new IndexOutOfBoundsException("Offset is not within buf");
+            }
 
             if (_locale.noSync()) {
                 _locale.enter();
@@ -2314,12 +2349,14 @@ abstract class Saver {
                 } finally {
                     _locale.exit();
                 }
-            } else synchronized (_locale) {
-                _locale.enter();
-                try {
-                    return _outStreamImpl.read(bbuf, off, len);
-                } finally {
-                    _locale.exit();
+            } else {
+                synchronized (_locale) {
+                    _locale.enter();
+                    try {
+                        return _outStreamImpl.read(bbuf, off, len);
+                    } finally {
+                        _locale.exit();
+                    }
                 }
             }
         }
@@ -2329,15 +2366,17 @@ abstract class Saver {
             // atleast one byte so we can determine if we're at the
             // end of the stream.
 
-            if (cbyte <= 0)
+            if (cbyte <= 0) {
                 cbyte = 1;
+            }
 
             int bytesAvailable = _outStreamImpl.getAvailable();
 
             for (; bytesAvailable < cbyte;
                  bytesAvailable = _outStreamImpl.getAvailable()) {
-                if (_textSaver.write(_converter, 2048) < 2048)
+                if (_textSaver.write(_converter, 2048) < 2048) {
                     break;
+                }
             }
 
             bytesAvailable = _outStreamImpl.getAvailable();
@@ -2348,8 +2387,7 @@ abstract class Saver {
             return bytesAvailable;
         }
 
-        public int available()
-                throws IOException {
+        public int available() {
             if (_locale.noSync()) {
                 _locale.enter();
                 try {
@@ -2357,7 +2395,7 @@ abstract class Saver {
                 } finally {
                     _locale.exit();
                 }
-            } else
+            } else {
                 synchronized (_locale) {
                     _locale.enter();
                     try {
@@ -2366,12 +2404,14 @@ abstract class Saver {
                         _locale.exit();
                     }
                 }
+            }
         }
 
         private final class OutputStreamImpl extends OutputStream {
             int read() {
-                if (InputStreamSaver.this.ensure(1) == 0)
+                if (InputStreamSaver.this.ensure(1) == 0) {
                     return -1;
+                }
 
                 assert getAvailable() > 0;
 
@@ -2390,27 +2430,30 @@ abstract class Saver {
 
                 int n;
 
-                if ((n = ensure(len)) == 0)
+                if ((n = ensure(len)) == 0) {
                     return -1;
+                }
 
-                if (bbuf == null || len <= 0)
+                if (bbuf == null || len <= 0) {
                     return 0;
+                }
 
-                if (n < len)
+                if (n < len) {
                     len = n;
+                }
 
                 if (_out < _in) {
                     System.arraycopy(_buf, _out, bbuf, off, len);
                 } else {
                     int chunk = _buf.length - _out;
 
-                    if (chunk >= len)
+                    if (chunk >= len) {
                         System.arraycopy(_buf, _out, bbuf, off, len);
-                    else {
+                    } else {
                         System.arraycopy(_buf, _out, bbuf, off, chunk);
 
                         System.arraycopy(
-                                _buf, 0, bbuf, off + chunk, len - chunk);
+                            _buf, 0, bbuf, off + chunk, len - chunk);
                     }
                 }
                 _out = (_out + len) % _buf.length;
@@ -2425,8 +2468,9 @@ abstract class Saver {
             }
 
             public void write(int bite) {
-                if (_free == 0)
+                if (_free == 0) {
                     resize(1);
+                }
 
                 assert _free > 0;
 
@@ -2438,12 +2482,13 @@ abstract class Saver {
 
             public void write(byte[] buf, int off, int cbyte) {
                 assert cbyte >= 0;
-//System.out.println("---------\nAfter converter, write in queue: OutputStreamImpl.write():Saver:2469  " + cbyte + " bytes \n" + new String(buf, off, cbyte));
-                if (cbyte == 0)
+                if (cbyte == 0) {
                     return;
+                }
 
-                if (_free < cbyte)
+                if (_free < cbyte) {
                     resize(cbyte);
+                }
 
                 if (_in == _out) {
                     assert getAvailable() == 0;
@@ -2460,7 +2505,7 @@ abstract class Saver {
                     System.arraycopy(buf, off, _buf, _in, chunk);
 
                     System.arraycopy(
-                            buf, off + chunk, _buf, 0, cbyte - chunk);
+                        buf, off + chunk, _buf, 0, cbyte - chunk);
 
                     _in = (_in + cbyte) % _buf.length;
                 }
@@ -2474,20 +2519,21 @@ abstract class Saver {
                 int newLen = _buf == null ? _initialBufSize : _buf.length * 2;
                 int used = getAvailable();
 
-                while (newLen - used < cbyte)
+                while (newLen - used < cbyte) {
                     newLen *= 2;
+                }
 
                 byte[] newBuf = new byte[newLen];
 
                 if (used > 0) {
-                    if (_in > _out)
+                    if (_in > _out) {
                         System.arraycopy(_buf, _out, newBuf, 0, used);
-                    else {
+                    } else {
                         System.arraycopy(
-                                _buf, _out, newBuf, 0, used - _in);
+                            _buf, _out, newBuf, 0, used - _in);
 
                         System.arraycopy(
-                                _buf, 0, newBuf, used - _in, _in);
+                            _buf, 0, newBuf, used - _in, _in);
                     }
 
                     _out = 0;
@@ -2509,11 +2555,11 @@ abstract class Saver {
             private byte[] _buf;
         }
 
-        private Locale _locale;
+        private final Locale _locale;
         private boolean _closed;
-        private OutputStreamImpl _outStreamImpl;
-        private TextSaver _textSaver;
-        private OutputStreamWriter _converter;
+        private final OutputStreamImpl _outStreamImpl;
+        private final TextSaver _textSaver;
+        private final OutputStreamWriter _converter;
     }
 
     static final class XmlInputStreamSaver extends Saver {
@@ -2521,7 +2567,8 @@ abstract class Saver {
             super(c, options);
         }
 
-        protected boolean emitElement(SaveCur c, ArrayList attrNames, ArrayList attrValues) {
+        @Override
+        protected boolean emitElement(SaveCur c, List<QName> attrNames, List<String> attrValues) {
             assert c.isElem();
 
             for (iterateMappings(); hasMapping(); nextMapping()) {
@@ -2533,14 +2580,15 @@ abstract class Saver {
             StartElementImpl.AttributeImpl namespaces = null;
 
             for (int i = 0; i < attrNames.size(); i++) {
-                XMLName attXMLName = computeName((QName) attrNames.get(i), this, true);
+                XMLName attXMLName = computeName(attrNames.get(i), this, true);
                 StartElementImpl.AttributeImpl attr =
-                        new StartElementImpl.NormalAttributeImpl(attXMLName, (String) attrValues.get(i));
+                    new StartElementImpl.NormalAttributeImpl(attXMLName, attrValues.get(i));
 
-                if (attributes == null)
+                if (attributes == null) {
                     attributes = attr;
-                else
+                } else {
                     lastAttr._next = attr;
+                }
 
                 lastAttr = attr;
             }
@@ -2552,12 +2600,13 @@ abstract class Saver {
                 String uri = mappingUri();
 
                 StartElementImpl.AttributeImpl attr =
-                        new StartElementImpl.XmlnsAttributeImpl(prefix, uri);
+                    new StartElementImpl.XmlnsAttributeImpl(prefix, uri);
 
-                if (namespaces == null)
+                if (namespaces == null) {
                     namespaces = attr;
-                else
+                } else {
                     lastAttr._next = attr;
+                }
 
                 lastAttr = attr;
             }
@@ -2570,9 +2619,9 @@ abstract class Saver {
         }
 
         protected void emitFinish(SaveCur c) {
-            if (c.isRoot())
+            if (c.isRoot()) {
                 enqueue(new EndDocumentImpl());
-            else {
+            } else {
                 XMLName xmlName = computeName(c.getName(), this, false);
                 enqueue(new EndElementImpl(xmlName));
             }
@@ -2597,8 +2646,9 @@ abstract class Saver {
             String target = null;
             QName name = c.getName();
 
-            if (name != null)
+            if (name != null) {
                 target = name.getLocalPart();
+            }
 
             enqueue(new ProcessingInstructionImpl(target, c.getChars(), c._cchSrc, c._offSrc));
         }
@@ -2619,20 +2669,23 @@ abstract class Saver {
             if (_out == null) {
                 enterLocale();
                 try {
-                    if (!process())
+                    if (!process()) {
                         return null;
+                    }
                 } finally {
                     exitLocale();
                 }
             }
 
-            if (_out == null)
+            if (_out == null) {
                 return null;
+            }
 
             XmlEventImpl e = _out;
 
-            if ((_out = _out._next) == null)
+            if ((_out = _out._next) == null) {
                 _in = null;
+            }
 
             return e;
         }
@@ -2659,9 +2712,9 @@ abstract class Saver {
                 String prefix = mappingPrefix();
                 String uri = mappingUri();
 
-                if (prevPrefixUri == null)
+                if (prevPrefixUri == null) {
                     enqueue(new EndPrefixMappingImpl(prefix));
-                else {
+                } else {
                     enqueue(new ChangePrefixMappingImpl(prefix, uri, prevPrefixUri));
                 }
             }
@@ -2684,8 +2737,9 @@ abstract class Saver {
                 prefix = name.getPrefix();
                 String mappedUri = saver.getNamespaceForPrefix(prefix);
 
-                if (mappedUri == null || !mappedUri.equals(uri))
+                if (mappedUri == null || !mappedUri.equals(uri)) {
                     prefix = saver.getUriMapping(uri);
+                }
 
                 // Attrs need a prefix.  If I have not found one, then there must be a default
                 // prefix obscuring the prefix needed for this attr.  Find it manually.
@@ -2694,8 +2748,9 @@ abstract class Saver {
                 // _urpMap and _prefixMap.  This way, I would not have to look it up manually
                 // here
 
-                if (needsPrefix && prefix.length() == 0)
+                if (needsPrefix && prefix.length() == 0) {
                     prefix = saver.getNonDefaultUriMapping(uri);
+                }
 
             }
 
@@ -2728,7 +2783,7 @@ abstract class Saver {
         }
 
         private static class StartDocumentImpl
-                extends XmlEventImpl implements StartDocument {
+            extends XmlEventImpl implements StartDocument {
             StartDocumentImpl(String systemID, String encoding, boolean isStandAlone, String version) {
                 super(XMLEvent.START_DOCUMENT);
                 _systemID = systemID;
@@ -2760,8 +2815,8 @@ abstract class Saver {
         }
 
         private static class StartElementImpl
-                extends XmlEventImpl implements StartElement {
-            StartElementImpl(XMLName name, AttributeImpl attributes, AttributeImpl namespaces, Map prefixMap) {
+            extends XmlEventImpl implements StartElement {
+            StartElementImpl(XMLName name, AttributeImpl attributes, AttributeImpl namespaces, Map<String,String> prefixMap) {
                 super(XMLEvent.START_ELEMENT);
 
                 _name = name;
@@ -2792,23 +2847,24 @@ abstract class Saver {
 
             public Attribute getAttributeByName(XMLName xmlName) {
                 for (AttributeImpl a = _attributes; a != null; a = a._next) {
-                    if (xmlName.equals(a.getName()))
+                    if (xmlName.equals(a.getName())) {
                         return a;
+                    }
                 }
 
                 return null;
             }
 
             public String getNamespaceUri(String prefix) {
-                return (String) _prefixMap.get(prefix == null ? "" : prefix);
+                return _prefixMap.get(prefix == null ? "" : prefix);
             }
 
-            public Map getNamespaceMap() {
+            public Map<String,String> getNamespaceMap() {
                 return _prefixMap;
             }
 
             private static class AttributeIteratorImpl
-                    implements AttributeIterator {
+                implements AttributeIterator {
                 AttributeIteratorImpl(AttributeImpl attributes, AttributeImpl namespaces) {
                     _attributes = attributes;
                     _namespaces = namespaces;
@@ -2848,10 +2904,11 @@ abstract class Saver {
                     synchronized (monitor()) {
                         checkVersion();
 
-                        if (_attributes != null)
+                        if (_attributes != null) {
                             return _attributes;
-                        else if (_namespaces != null)
+                        } else if (_namespaces != null) {
                             return _namespaces;
+                        }
 
                         return null;
                     }
@@ -2861,14 +2918,15 @@ abstract class Saver {
                     synchronized (monitor()) {
                         checkVersion();
 
-                        if (_attributes != null)
+                        if (_attributes != null) {
                             _attributes = _attributes._next;
-                        else if (_namespaces != null)
+                        } else if (_namespaces != null) {
                             _namespaces = _namespaces._next;
+                        }
                     }
                 }
 
-                private final void checkVersion() {
+                private void checkVersion() {
 //                    if (_version != _root.getVersion())
 //                        throw new IllegalStateException( "Document changed" );
                 }
@@ -2927,7 +2985,7 @@ abstract class Saver {
                     return _uri;
                 }
 
-                private String _uri;
+                private final String _uri;
             }
 
             private static class NormalAttributeImpl extends AttributeImpl {
@@ -2940,18 +2998,18 @@ abstract class Saver {
                     return _value;
                 }
 
-                private String _value; // If invalid in the store
+                private final String _value; // If invalid in the store
             }
 
-            private XMLName _name;
-            private Map _prefixMap;
+            private final XMLName _name;
+            private final Map<String,String> _prefixMap;
 
-            private AttributeImpl _attributes;
-            private AttributeImpl _namespaces;
+            private final AttributeImpl _attributes;
+            private final AttributeImpl _namespaces;
         }
 
         private static class StartPrefixMappingImpl
-                extends XmlEventImpl implements StartPrefixMapping {
+            extends XmlEventImpl implements StartPrefixMapping {
             StartPrefixMappingImpl(String prefix, String uri) {
                 super(XMLEvent.START_PREFIX_MAPPING);
 
@@ -2967,11 +3025,12 @@ abstract class Saver {
                 return _prefix;
             }
 
-            private String _prefix, _uri;
+            private final String _prefix;
+            private final String _uri;
         }
 
         private static class ChangePrefixMappingImpl
-                extends XmlEventImpl implements ChangePrefixMapping {
+            extends XmlEventImpl implements ChangePrefixMapping {
             ChangePrefixMappingImpl(String prefix, String oldUri, String newUri) {
                 super(XMLEvent.CHANGE_PREFIX_MAPPING);
 
@@ -2992,11 +3051,13 @@ abstract class Saver {
                 return _prefix;
             }
 
-            private String _oldUri, _newUri, _prefix;
+            private final String _oldUri;
+            private final String _newUri;
+            private final String _prefix;
         }
 
         private static class EndPrefixMappingImpl
-                extends XmlEventImpl implements EndPrefixMapping {
+            extends XmlEventImpl implements EndPrefixMapping {
             EndPrefixMappingImpl(String prefix) {
                 super(XMLEvent.END_PREFIX_MAPPING);
                 _prefix = prefix;
@@ -3006,11 +3067,11 @@ abstract class Saver {
                 return _prefix;
             }
 
-            private String _prefix;
+            private final String _prefix;
         }
 
         private static class EndElementImpl
-                extends XmlEventImpl implements EndElement {
+            extends XmlEventImpl implements EndElement {
             EndElementImpl(XMLName name) {
                 super(XMLEvent.END_ELEMENT);
 
@@ -3025,18 +3086,18 @@ abstract class Saver {
                 return _name;
             }
 
-            private XMLName _name;
+            private final XMLName _name;
         }
 
         private static class EndDocumentImpl
-                extends XmlEventImpl implements EndDocument {
+            extends XmlEventImpl implements EndDocument {
             EndDocumentImpl() {
                 super(XMLEvent.END_DOCUMENT);
             }
         }
 
         private static class TripletEventImpl
-                extends XmlEventImpl implements CharacterData {
+            extends XmlEventImpl implements CharacterData {
             TripletEventImpl(int eventType, Object obj, int cch, int off) {
                 super(eventType);
                 _obj = obj;
@@ -3052,27 +3113,27 @@ abstract class Saver {
                 return _cch > 0;
             }
 
-            private Object _obj;
-            private int _cch;
-            private int _off;
+            private final Object _obj;
+            private final int _cch;
+            private final int _off;
         }
 
         private static class CharacterDataImpl
-                extends TripletEventImpl implements CharacterData {
+            extends TripletEventImpl implements CharacterData {
             CharacterDataImpl(Object obj, int cch, int off) {
                 super(XMLEvent.CHARACTER_DATA, obj, cch, off);
             }
         }
 
         private static class CommentImpl
-                extends TripletEventImpl implements Comment {
+            extends TripletEventImpl implements Comment {
             CommentImpl(Object obj, int cch, int off) {
                 super(XMLEvent.COMMENT, obj, cch, off);
             }
         }
 
         private static class ProcessingInstructionImpl
-                extends TripletEventImpl implements ProcessingInstruction {
+            extends TripletEventImpl implements ProcessingInstruction {
             ProcessingInstructionImpl(String target, Object obj, int cch, int off) {
                 super(XMLEvent.PROCESSING_INSTRUCTION, obj, cch, off);
                 _target = target;
@@ -3086,7 +3147,7 @@ abstract class Saver {
                 return getContent();
             }
 
-            private String _target;
+            private final String _target;
         }
 
         private XmlEventImpl _in, _out;
@@ -3095,7 +3156,7 @@ abstract class Saver {
     static final class XmlInputStreamImpl extends GenericXmlInputStream {
         XmlInputStreamImpl(Cur cur, XmlOptions options) {
             _xmlInputStreamSaver =
-                    new XmlInputStreamSaver(cur, options);
+                new XmlInputStreamSaver(cur, options);
 
             // Make the saver grind away just a bit to throw any exceptions
             // related to the inability to create a stream on this xml
@@ -3103,29 +3164,29 @@ abstract class Saver {
             _xmlInputStreamSaver.process();
         }
 
-        protected XMLEvent nextEvent() throws XMLStreamException {
+        protected XMLEvent nextEvent() {
             return _xmlInputStreamSaver.dequeue();
         }
 
-        private XmlInputStreamSaver _xmlInputStreamSaver;
+        private final XmlInputStreamSaver _xmlInputStreamSaver;
     }
 
     static final class SaxSaver extends Saver {
         SaxSaver(Cur c, XmlOptions options, ContentHandler ch, LexicalHandler lh)
-                throws SAXException {
+            throws SAXException {
             super(c, options);
 
             _contentHandler = ch;
             _lexicalHandler = lh;
 
             _attributes = new AttributesImpl();
-            _nsAsAttrs = !options.hasOption(XmlOptions.SAVE_SAX_NO_NSDECLS_IN_ATTRIBUTES);
+            _nsAsAttrs = !options.isSaveSaxNoNSDeclsInAttributes();
 
             _contentHandler.startDocument();
 
             try {
-                while (process())
-                    ;
+                //noinspection StatementWithEmptyBody
+                while (process()) { }
             } catch (SaverSAXException e) {
                 throw e._saxException;
             }
@@ -3133,7 +3194,7 @@ abstract class Saver {
             _contentHandler.endDocument();
         }
 
-        private class SaverSAXException extends RuntimeException {
+        private static class SaverSAXException extends RuntimeException {
             SaverSAXException(SAXException e) {
                 _saxException = e;
             }
@@ -3145,13 +3206,15 @@ abstract class Saver {
             String uri = name.getNamespaceURI();
             String local = name.getLocalPart();
 
-            if (uri.length() == 0)
+            if (uri.length() == 0) {
                 return local;
+            }
 
             String prefix = getUriMapping(uri);
 
-            if (prefix.length() == 0)
+            if (prefix.length() == 0) {
                 return local;
+            }
 
             return prefix + ":" + local;
         }
@@ -3167,37 +3230,42 @@ abstract class Saver {
                     throw new SaverSAXException(e);
                 }
 
-                if (_nsAsAttrs)
-                    if (prefix == null || prefix.length() == 0)
+                if (_nsAsAttrs) {
+                    if (prefix == null || prefix.length() == 0) {
                         _attributes.addAttribute("http://www.w3.org/2000/xmlns/", "xmlns", "xmlns", "CDATA", uri);
-                    else
+                    } else {
                         _attributes.addAttribute("http://www.w3.org/2000/xmlns/", prefix, "xmlns:" + prefix, "CDATA", uri);
+                    }
+                }
             }
         }
 
-        protected boolean emitElement(SaveCur c, ArrayList attrNames, ArrayList attrValues) {
+        @Override
+        protected boolean emitElement(SaveCur c, List<QName> attrNames, List<String> attrValues) {
             _attributes.clear();
 
-            if (saveNamespacesFirst())
+            if (saveNamespacesFirst()) {
                 emitNamespacesHelper();
-
-            for (int i = 0; i < attrNames.size(); i++) {
-                QName name = (QName) attrNames.get(i);
-
-                _attributes.addAttribute(
-                        name.getNamespaceURI(), name.getLocalPart(), getPrefixedName(name),
-                        "CDATA", (String) attrValues.get(i));
             }
 
-            if (!saveNamespacesFirst())
+            for (int i = 0; i < attrNames.size(); i++) {
+                QName name = attrNames.get(i);
+
+                _attributes.addAttribute(
+                    name.getNamespaceURI(), name.getLocalPart(), getPrefixedName(name),
+                    "CDATA", attrValues.get(i));
+            }
+
+            if (!saveNamespacesFirst()) {
                 emitNamespacesHelper();
+            }
 
             QName elemName = c.getName();
 
             try {
                 _contentHandler.startElement(
-                        elemName.getNamespaceURI(), elemName.getLocalPart(),
-                        getPrefixedName(elemName), _attributes);
+                    elemName.getNamespaceURI(), elemName.getLocalPart(),
+                    getPrefixedName(elemName), _attributes);
             } catch (SAXException e) {
                 throw new SaverSAXException(e);
             }
@@ -3210,10 +3278,11 @@ abstract class Saver {
 
             try {
                 _contentHandler.endElement(
-                        name.getNamespaceURI(), name.getLocalPart(), getPrefixedName(name));
+                    name.getNamespaceURI(), name.getLocalPart(), getPrefixedName(name));
 
-                for (iterateMappings(); hasMapping(); nextMapping())
+                for (iterateMappings(); hasMapping(); nextMapping()) {
                     _contentHandler.endPrefixMapping(mappingPrefix());
+                }
             } catch (SAXException e) {
                 throw new SaverSAXException(e);
             }
@@ -3229,8 +3298,9 @@ abstract class Saver {
                     // Pray the user does not modify the buffer ....
                     _contentHandler.characters((char[]) src, c._offSrc, c._cchSrc);
                 } else {
-                    if (_buf == null)
+                    if (_buf == null) {
                         _buf = new char[1024];
+                    }
 
                     while (c._cchSrc > 0) {
                         int cch = java.lang.Math.min(_buf.length, c._cchSrc);
@@ -3255,17 +3325,18 @@ abstract class Saver {
                 c.next();
 
                 try {
-                    if (!c.isText())
+                    if (!c.isText()) {
                         _lexicalHandler.comment(null, 0, 0);
-                    else {
+                    } else {
                         Object src = c.getChars();
 
                         if (src instanceof char[]) {
                             // Pray the user does not modify the buffer ....
                             _lexicalHandler.comment((char[]) src, c._offSrc, c._cchSrc);
                         } else {
-                            if (_buf == null || _buf.length < c._cchSrc)
+                            if (_buf == null || _buf.length < c._cchSrc) {
                                 _buf = new char[java.lang.Math.max(1024, c._cchSrc)];
+                            }
 
                             CharUtil.getChars(_buf, 0, src, c._offSrc, c._cchSrc);
 
@@ -3281,8 +3352,6 @@ abstract class Saver {
         }
 
         protected void emitProcinst(SaveCur c) {
-            String target = c.getName().getLocalPart();
-
             c.push();
 
             c.next();
@@ -3315,13 +3384,13 @@ abstract class Saver {
         protected void emitEndDoc(SaveCur c) {
         }
 
-        private ContentHandler _contentHandler;
-        private LexicalHandler _lexicalHandler;
+        private final ContentHandler _contentHandler;
+        private final LexicalHandler _lexicalHandler;
 
-        private AttributesImpl _attributes;
+        private final AttributesImpl _attributes;
 
         private char[] _buf;
-        private boolean _nsAsAttrs;
+        private final boolean _nsAsAttrs;
     }
 
     //
@@ -3365,6 +3434,7 @@ abstract class Saver {
             return kind() == ATTR && !isXmlns();
         }
 
+        @SuppressWarnings("unused")
         final boolean skip() {
             toEnd();
             return next();
@@ -3404,7 +3474,7 @@ abstract class Saver {
 
         abstract Object getChars();
 
-        abstract List getAncestorNamespaces();
+        abstract List<String> getAncestorNamespaces();
 
         abstract XmlDocumentProperties getDocProps();
 
@@ -3487,7 +3557,7 @@ abstract class Saver {
             _cur.pop();
         }
 
-        List getAncestorNamespaces() {
+        List<String> getAncestorNamespaces() {
             return null;
         }
 
@@ -3570,11 +3640,13 @@ abstract class Saver {
         }
 
         boolean next() {
-            if (!_cur.next())
+            if (!_cur.next()) {
                 return false;
+            }
 
-            if (!filter())
+            if (!filter()) {
                 return true;
+            }
 
             assert !isRoot() && !isText() && !isAttr();
 
@@ -3591,7 +3663,7 @@ abstract class Saver {
             _cur.pop();
         }
 
-        List getAncestorNamespaces() {
+        List<String> getAncestorNamespaces() {
             return _cur.getAncestorNamespaces();
         }
 
@@ -3622,7 +3694,7 @@ abstract class Saver {
             return kind() == PROCINST && getName().getLocalPart().equals(_piTarget);
         }
 
-        private String _piTarget;
+        private final String _piTarget;
     }
 
     private static final class FragSaveCur extends SaveCur {
@@ -3643,12 +3715,12 @@ abstract class Saver {
             start.pop();
         }
 
-        List getAncestorNamespaces() {
+        List<String> getAncestorNamespaces() {
             return _ancestorNamespaces;
         }
 
         private void computeAncestorNamespaces(Cur c) {
-            _ancestorNamespaces = new ArrayList();
+            _ancestorNamespaces = new ArrayList<>();
 
             while (c.toParentRaw()) {
                 if (c.toFirstAttr()) {
@@ -3738,8 +3810,9 @@ abstract class Saver {
                 push();
                 next();
 
-                if (!isText() && !isFinish())
+                if (!isText() && !isFinish()) {
                     hasChildren = true;
+                }
 
                 pop();
             }
@@ -3754,8 +3827,9 @@ abstract class Saver {
                 push();
                 next();
 
-                if (isText())
+                if (isText()) {
                     hasText = true;
+                }
 
                 pop();
             }
@@ -3786,18 +3860,19 @@ abstract class Saver {
                 }
 
                 case ELEM_START: {
-                    if (_saveAttr)
+                    if (_saveAttr) {
                         _state = ELEM_END;
-                    else {
+                    } else {
                         if (_cur.isAttr()) {
                             _cur.toParent();
                             _cur.next();
                         }
 
-                        if (_cur.isSamePos(_end))
+                        if (_cur.isSamePos(_end)) {
                             _state = ELEM_END;
-                        else
+                        } else {
                             _state = CUR;
+                        }
                     }
 
                     break;
@@ -3808,8 +3883,9 @@ abstract class Saver {
 
                     _cur.next();
 
-                    if (_cur.isSamePos(_end))
+                    if (_cur.isSamePos(_end)) {
                         _state = _elem == null ? ROOT_END : ELEM_END;
+                    }
 
                     break;
                 }
@@ -3855,8 +3931,9 @@ abstract class Saver {
 
             assert _state == ELEM_START;
 
-            if (!_cur.isAttr())
+            if (!_cur.isAttr()) {
                 return false;
+            }
 
             _state = CUR;
 
@@ -3900,11 +3977,11 @@ abstract class Saver {
         private Cur _cur;
         private Cur _end;
 
-        private ArrayList _ancestorNamespaces;
+        private ArrayList<String> _ancestorNamespaces;
 
-        private QName _elem;
+        private final QName _elem;
 
-        private boolean _saveAttr;
+        private final boolean _saveAttr;
 
         private static final int ROOT_START = 1;
         private static final int ELEM_START = 2;
@@ -3921,7 +3998,7 @@ abstract class Saver {
     private static final class PrettySaveCur extends SaveCur {
         PrettySaveCur(SaveCur c, XmlOptions options) {
             _sb = new StringBuffer();
-            _stack = new ArrayList();
+            _stack = new ArrayList<>();
 
             _cur = c;
 
@@ -3930,21 +4007,17 @@ abstract class Saver {
             _prettyIndent = 2;
 
             if (options.hasOption(XmlOptions.SAVE_PRETTY_PRINT_INDENT)) {
-                _prettyIndent =
-                        ((Integer) options.get(XmlOptions.SAVE_PRETTY_PRINT_INDENT)).intValue();
+                _prettyIndent = options.getSavePrettyPrintIndent();
             }
 
             if (options.hasOption(XmlOptions.SAVE_PRETTY_PRINT_OFFSET)) {
-                _prettyOffset =
-                        ((Integer) options.get(XmlOptions.SAVE_PRETTY_PRINT_OFFSET)).intValue();
+                _prettyOffset = options.getSavePrettyPrintOffset();
             }
 
-            if (options.hasOption(XmlOptions.LOAD_SAVE_CDATA_BOOKMARKS)) {
-                _useCDataBookmarks = true;
-            }
+            _useCDataBookmarks = options.isUseCDataBookmarks();
         }
 
-        List getAncestorNamespaces() {
+        List<String> getAncestorNamespaces() {
             return _cur.getAncestorNamespaces();
         }
 
@@ -3972,21 +4045,21 @@ abstract class Saver {
         }
 
         boolean isXmlns() {
-            return _txt == null ? _cur.isXmlns() : false;
+            return _txt == null && _cur.isXmlns();
         }
 
         boolean hasChildren() {
-            return _txt == null ? _cur.hasChildren() : false;
+            return _txt == null && _cur.hasChildren();
         }
 
         boolean hasText() {
-            return _txt == null ? _cur.hasText() : false;
+            return _txt == null && _cur.hasText();
         }
 
         // _cur.isTextCData() is expensive do it only if useCDataBookmarks option is enabled
         boolean isTextCData() {
             return _txt == null ? (_useCDataBookmarks && _cur.isTextCData())
-                    : _isTextCData;
+                : _isTextCData;
         }
 
         boolean toFirstAttr() {
@@ -4008,8 +4081,9 @@ abstract class Saver {
             assert _txt == null;
             _cur.toEnd();
 
-            if (_cur.kind() == -ELEM)
+            if (_cur.kind() == -ELEM) {
                 _depth--;
+            }
         }
 
         boolean next() {
@@ -4022,10 +4096,11 @@ abstract class Saver {
                 _isTextCData = false;
                 k = _cur.kind();
             } else {
-                int prevKind = k = _cur.kind();
+                int prevKind = _cur.kind();
 
-                if (!_cur.next())
+                if (!_cur.next()) {
                     return false;
+                }
 
                 _sb.delete(0, _sb.length());
 
@@ -4048,15 +4123,16 @@ abstract class Saver {
                 // Check for non leaf, _prettyIndent < 0 means that the save is all on one line
 
                 if (_prettyIndent >= 0 &&
-                        prevKind != COMMENT && prevKind != PROCINST && (prevKind != ELEM || k != -ELEM)) {
+                    prevKind != COMMENT && prevKind != PROCINST && (prevKind != ELEM || k != -ELEM)) {
                     if (_sb.length() > 0) {
                         _sb.insert(0, _newLine);
                         spaces(_sb, _newLine.length(), _prettyOffset + _prettyIndent * _depth);
                     }
 
                     if (k != -ROOT) {
-                        if (prevKind != ROOT)
+                        if (prevKind != ROOT) {
                             _sb.append(_newLine);
+                        }
 
                         int d = k < 0 ? _depth - 1 : _depth;
                         spaces(_sb, _sb.length(), _prettyOffset + _prettyIndent * d);
@@ -4069,10 +4145,11 @@ abstract class Saver {
                 }
             }
 
-            if (k == ELEM)
+            if (k == ELEM) {
                 _depth++;
-            else if (k == -ELEM)
+            } else if (k == -ELEM) {
                 _depth--;
+            }
 
             return true;
         }
@@ -4080,13 +4157,13 @@ abstract class Saver {
         void push() {
             _cur.push();
             _stack.add(_txt);
-            _stack.add(new Integer(_depth));
+            _stack.add(_depth);
             _isTextCData = false;
         }
 
         void pop() {
             _cur.pop();
-            _depth = ((Integer) _stack.remove(_stack.size() - 1)).intValue();
+            _depth = (Integer) _stack.remove(_stack.size() - 1);
             _txt = (String) _stack.remove(_stack.size() - 1);
             _isTextCData = false;
         }
@@ -4111,69 +4188,43 @@ abstract class Saver {
         }
 
         static void spaces(StringBuffer sb, int offset, int count) {
-            while (count-- > 0)
+            while (count-- > 0) {
                 sb.insert(offset, ' ');
+            }
         }
 
         static void trim(StringBuffer sb) {
             int i;
 
-            for (i = 0; i < sb.length(); i++)
-                if (!CharUtil.isWhiteSpace(sb.charAt(i)))
+            for (i = 0; i < sb.length(); i++) {
+                if (!CharUtil.isWhiteSpace(sb.charAt(i))) {
                     break;
+                }
+            }
 
             sb.delete(0, i);
 
-            for (i = sb.length(); i > 0; i--)
-                if (!CharUtil.isWhiteSpace(sb.charAt(i - 1)))
+            for (i = sb.length(); i > 0; i--) {
+                if (!CharUtil.isWhiteSpace(sb.charAt(i - 1))) {
                     break;
+                }
+            }
 
             sb.delete(i, sb.length());
         }
 
-        private SaveCur _cur;
+        private final SaveCur _cur;
 
         private int _prettyIndent;
         private int _prettyOffset;
 
         private String _txt;
-        private StringBuffer _sb;
+        private final StringBuffer _sb;
 
         private int _depth;
 
-        private ArrayList _stack;
+        private final ArrayList<Object> _stack;
         private boolean _isTextCData = false;
-        private boolean _useCDataBookmarks = false;
+        private final boolean _useCDataBookmarks;
     }
-
-
-    //
-    //
-    //
-
-    private final Locale _locale;
-    private final long _version;
-
-    private SaveCur _cur;
-
-    private List _ancestorNamespaces;
-    private Map _suggestedPrefixes;
-    protected XmlOptionCharEscapeMap _replaceChar;
-    private boolean _useDefaultNamespace;
-    private Map _preComputedNamespaces;
-    private boolean _saveNamespacesFirst;
-
-    private ArrayList _attrNames;
-    private ArrayList _attrValues;
-
-    private ArrayList _namespaceStack;
-    private int _currentMapping;
-    private HashMap _uriMap;
-    private HashMap _prefixMap;
-    private String _initialDefaultUri;
-
-    static final String _newLine =
-            SystemProperties.getProperty("line.separator") == null
-                    ? "\n"
-                    : SystemProperties.getProperty("line.separator");
 }

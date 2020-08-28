@@ -19,51 +19,48 @@ import org.apache.xmlbeans.XmlError;
 
 import java.util.AbstractCollection;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.Collections;
+import java.util.Iterator;
 
-public class XmlErrorWatcher extends AbstractCollection
-{
-    private Collection _underlying;
+public class XmlErrorWatcher extends AbstractCollection<XmlError> {
+    private final Collection<XmlError> _underlying;
     private XmlError _firstError;
 
-    public XmlErrorWatcher(Collection underlying)
-    {
+    public XmlErrorWatcher(Collection<XmlError> underlying) {
         _underlying = underlying;
     }
 
-    public boolean add(Object o)
-    {
-        if (_firstError == null && o instanceof XmlError && ((XmlError)o).getSeverity() == XmlError.SEVERITY_ERROR)
-            _firstError = (XmlError)o;
-        if (_underlying == null)
+    public boolean add(XmlError o) {
+        if (_firstError == null && o != null && o.getSeverity() == XmlError.SEVERITY_ERROR) {
+            _firstError = o;
+        }
+        if (_underlying == null) {
             return false;
+        }
         return _underlying.add(o);
     }
 
-    public Iterator iterator()
-    {
-        if (_underlying == null)
-            return Collections.EMPTY_LIST.iterator();
+    public Iterator<XmlError> iterator() {
+        if (_underlying == null) {
+            return Collections.emptyIterator();
+        }
 
         return _underlying.iterator();
     }
 
-    public int size()
-    {
-        if (_underlying == null)
+    public int size() {
+        if (_underlying == null) {
             return 0;
+        }
 
         return _underlying.size();
     }
 
-    public boolean hasError()
-    {
+    public boolean hasError() {
         return _firstError != null;
     }
 
-    public XmlError firstError()
-    {
+    public XmlError firstError() {
         return _firstError;
     }
 }

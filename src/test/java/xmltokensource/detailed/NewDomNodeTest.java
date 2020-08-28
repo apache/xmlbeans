@@ -24,6 +24,8 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import xmlcursor.common.BasicCursorTestCase;
 
+import javax.xml.namespace.QName;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
@@ -74,9 +76,9 @@ public class NewDomNodeTest extends BasicCursorTestCase {
     public void testNewDomNodeWithOptions() throws Exception {
         m_xo = XmlObject.Factory.parse("<foo attr=\"val\" xmlns=\"ns\">01234   <bar>text</bar>   chars </foo>");
         XmlOptions map = new XmlOptions();
-        map.put(XmlOptions.LOAD_STRIP_WHITESPACE, "");
-        map.put(XmlOptions.LOAD_REPLACE_DOCUMENT_ELEMENT, "");
-        map.put(XmlOptions.SAVE_NAMESPACES_FIRST, "");
+        map.setLoadStripComments();
+        map.setLoadReplaceDocumentElement(new QName(""));
+        map.setSaveNamespacesFirst();
         Node doc = m_xo.newDomNode(map);
         assertEquals(DOC, doc.getNodeName());
         NodeList nl = doc.getChildNodes();

@@ -68,8 +68,9 @@ public final class Cursor implements XmlCursor, ChangeListener {
             if (c.toParentRaw()) {
                 int pk = c.kind();
 
-                if (pk == COMMENT || pk == PROCINST || pk == ATTR)
+                if (pk == COMMENT || pk == PROCINST || pk == ATTR) {
                     return false;
+                }
             }
 
             c.pop();
@@ -95,35 +96,43 @@ public final class Cursor implements XmlCursor, ChangeListener {
     }
 
     static void validateLocalName(QName name) {
-        if (name == null)
+        if (name == null) {
             throw new IllegalArgumentException("QName is null");
+        }
 
         validateLocalName(name.getLocalPart());
     }
 
     static void validateLocalName(String name) {
-        if (name == null)
+        if (name == null) {
             throw new IllegalArgumentException("Name is null");
+        }
 
-        if (name.length() == 0)
+        if (name.length() == 0) {
             throw new IllegalArgumentException("Name is empty");
+        }
 
-        if (!XMLChar.isValidNCName(name))
+        if (!XMLChar.isValidNCName(name)) {
             throw new IllegalArgumentException("Name is not valid");
+        }
     }
 
     static void validatePrefix(String name) {
-        if (name == null)
+        if (name == null) {
             throw new IllegalArgumentException("Prefix is null");
+        }
 
-        if (name.length() == 0)
+        if (name.length() == 0) {
             throw new IllegalArgumentException("Prefix is empty");
+        }
 
-        if (Locale.beginsWithXml(name))
+        if (Locale.beginsWithXml(name)) {
             throw new IllegalArgumentException("Prefix begins with 'xml'");
+        }
 
-        if (!XMLChar.isValidNCName(name))
+        if (!XMLChar.isValidNCName(name)) {
             throw new IllegalArgumentException("Prefix is not valid");
+        }
     }
 
     private static void complain(String msg) {
@@ -133,16 +142,19 @@ public final class Cursor implements XmlCursor, ChangeListener {
     private void checkInsertionValidity(Cur that) {
         int thatKind = that.kind();
 
-        if (thatKind < 0)
+        if (thatKind < 0) {
             complain("Can't move/copy/insert an end token.");
+        }
 
-        if (thatKind == ROOT)
+        if (thatKind == ROOT) {
             complain("Can't move/copy/insert a whole document.");
+        }
 
         int thisKind = _cur.kind();
 
-        if (thisKind == ROOT)
+        if (thisKind == ROOT) {
             complain("Can't insert before the start of the document.");
+        }
 
         if (thatKind == ATTR) {
             _cur.push();
@@ -155,8 +167,9 @@ public final class Cursor implements XmlCursor, ChangeListener {
             }
         }
 
-        if (thisKind == ATTR && thatKind != ATTR)
+        if (thisKind == ATTR && thatKind != ATTR) {
             complain("Can only insert attributes before other attributes or after containers.");
+        }
     }
 
     private void insertNode(Cur that, String text) {
@@ -205,7 +218,7 @@ public final class Cursor implements XmlCursor, ChangeListener {
 
                 if (_cur.isXmlns()) {
                     return
-                            _cur._locale.makeQNameNoCheck(_cur.getXmlnsUri(), _cur.getXmlnsPrefix());
+                        _cur._locale.makeQNameNoCheck(_cur.getXmlnsUri(), _cur.getXmlnsPrefix());
                 }
 
                 // Fall thru
@@ -219,33 +232,34 @@ public final class Cursor implements XmlCursor, ChangeListener {
     }
 
     public void _setName(QName name) {
-        if (name == null)
+        if (name == null) {
             throw new IllegalArgumentException("Name is null");
+        }
 
         switch (_cur.kind()) {
             case ELEM:
-            case ATTR:
-                {
-                    validateLocalName(name.getLocalPart());
-                    break;
+            case ATTR: {
+                validateLocalName(name.getLocalPart());
+                break;
+            }
+
+            case PROCINST: {
+                validatePrefix(name.getLocalPart());
+
+                if (name.getNamespaceURI().length() > 0) {
+                    throw new IllegalArgumentException("Procinst name must have no URI");
                 }
 
-            case PROCINST:
-                {
-                    validatePrefix(name.getLocalPart());
-
-                    if (name.getNamespaceURI().length() > 0)
-                        throw new IllegalArgumentException("Procinst name must have no URI");
-
-                    if (name.getPrefix().length() > 0)
-                        throw new IllegalArgumentException("Procinst name must have no prefix");
-
-                    break;
+                if (name.getPrefix().length() > 0) {
+                    throw new IllegalArgumentException("Procinst name must have no prefix");
                 }
 
-            default :
+                break;
+            }
+
+            default:
                 throw
-                        new IllegalStateException("Can set name on element, atrtribute and procinst only");
+                    new IllegalStateException("Can set name on element, atrtribute and procinst only");
         }
 
         _cur.setName(name);
@@ -272,7 +286,7 @@ public final class Cursor implements XmlCursor, ChangeListener {
             case PROCINST:
                 return TokenType.PROCINST;
 
-            default :
+            default:
                 throw new IllegalStateException();
         }
     }
@@ -354,38 +368,36 @@ public final class Cursor implements XmlCursor, ChangeListener {
 
         switch (_cur.kind()) {
             case ROOT:
-            case ELEM:
-                {
-                    if (!_cur.toFirstAttr())
-                        _cur.next();
-
-                    break;
+            case ELEM: {
+                if (!_cur.toFirstAttr()) {
+                    _cur.next();
                 }
 
-            case ATTR:
-                {
-                    if (!_cur.toNextSibling()) {
-                        _cur.toParent();
-                        _cur.next();
-                    }
+                break;
+            }
 
-                    break;
+            case ATTR: {
+                if (!_cur.toNextSibling()) {
+                    _cur.toParent();
+                    _cur.next();
                 }
+
+                break;
+            }
 
             case COMMENT:
-            case PROCINST:
-                {
-                    _cur.skip();
-                    break;
+            case PROCINST: {
+                _cur.skip();
+                break;
+            }
+
+            default: {
+                if (!_cur.next()) {
+                    return TokenType.NONE;
                 }
 
-            default :
-                {
-                    if (!_cur.next())
-                        return TokenType.NONE;
-
-                    break;
-                }
+                break;
+            }
         }
 
         return _currentTokenType();
@@ -545,13 +557,14 @@ public final class Cursor implements XmlCursor, ChangeListener {
     }
 
     public void _save(ContentHandler ch, LexicalHandler lh, XmlOptions options)
-            throws SAXException {
+        throws SAXException {
         new Saver.SaxSaver(_cur, options, ch, lh);
     }
 
     public void _save(File file, XmlOptions options) throws IOException {
-        if (file == null)
+        if (file == null) {
             throw new IllegalArgumentException("Null file specified");
+        }
 
         try (OutputStream os = new FileOutputStream(file)) {
             _save(os, options);
@@ -559,33 +572,31 @@ public final class Cursor implements XmlCursor, ChangeListener {
     }
 
     public void _save(OutputStream os, XmlOptions options) throws IOException {
-        if (os == null)
+        if (os == null) {
             throw new IllegalArgumentException("Null OutputStream specified");
+        }
 
-        InputStream is = _newInputStream(options);
-
-        try {
+        try (InputStream is = _newInputStream(options)) {
             byte[] bytes = new byte[8192];
 
-            for (; ;) {
+            for (; ; ) {
                 int n = is.read(bytes);
 
-                if (n < 0)
+                if (n < 0) {
                     break;
+                }
 
                 os.write(bytes, 0, n);
             }
-        } finally {
-            is.close();
         }
     }
 
     public void _save(Writer w, XmlOptions options) throws IOException {
-        if (w == null)
+        if (w == null) {
             throw new IllegalArgumentException("Null Writer specified");
+        }
 
-        if (options != null && options.hasOption( XmlOptions.SAVE_OPTIMIZE_FOR_SPEED ))
-        {
+        if (options != null && options.isSaveOptimizeForSpeed()) {
             Saver.OptimizedForSpeedSaver.save(_cur, w); //ignore all other options
             return;
         }
@@ -593,7 +604,7 @@ public final class Cursor implements XmlCursor, ChangeListener {
         try (Reader r = _newReader(options)) {
             char[] chars = new char[8192];
 
-            for (;;) {
+            for (; ; ) {
                 int n = r.read(chars);
 
                 if (n < 0) {
@@ -610,8 +621,9 @@ public final class Cursor implements XmlCursor, ChangeListener {
     }
 
     private boolean isDomFragment() {
-        if (!isStartdoc())
+        if (!isStartdoc()) {
             return true;
+        }
 
         boolean seenElement = false;
 
@@ -619,18 +631,21 @@ public final class Cursor implements XmlCursor, ChangeListener {
         int token = c.toNextToken().intValue();
 
         try {
-            LOOP: for (; ;) {
+            LOOP:
+            for (; ; ) {
                 switch (token) {
                     case TokenType.INT_START:
-                        if (seenElement)
+                        if (seenElement) {
                             return true;
+                        }
                         seenElement = true;
                         token = c.toEndToken().intValue();
                         break;
 
                     case TokenType.INT_TEXT:
-                        if (!Locale.isWhiteSpace(c.getChars()))
+                        if (!Locale.isWhiteSpace(c.getChars())) {
                             return true;
+                        }
                         token = c.toNextToken().intValue();
                         break;
 
@@ -663,9 +678,9 @@ public final class Cursor implements XmlCursor, ChangeListener {
     public Node _newDomNode(XmlOptions options) {
         // Must ignore inner options for compat with v1.
 
-        if (XmlOptions.hasOption(options, XmlOptions.SAVE_INNER)) {
+        if (options != null && options.isSaveInner()) {
             options = new XmlOptions(options);
-            options.remove(XmlOptions.SAVE_INNER);
+            options.setSaveInner(false);
         }
 
         return new DomSaver(_cur, isDomFragment(), options).saveDom();
@@ -691,8 +706,9 @@ public final class Cursor implements XmlCursor, ChangeListener {
         // Force any path to get exausted, cursor may be disposed, but still be on the notification
         // list.
 
-        if (_cur != null)
+        if (_cur != null) {
             _getSelectionCount();
+        }
     }
 
     public void setNextChangeListener(ChangeListener listener) {
@@ -734,12 +750,14 @@ public final class Cursor implements XmlCursor, ChangeListener {
     }
 
     public boolean _toSelection(int i) {
-        if (i < 0)
+        if (i < 0) {
             return false;
+        }
 
         while (i >= _cur.selectionCount()) {
-            if (_pathEngine == null)
+            if (_pathEngine == null) {
                 return false;
+            }
 
             if (!_pathEngine.next(_cur)) {
                 _pathEngine.release();
@@ -779,15 +797,17 @@ public final class Cursor implements XmlCursor, ChangeListener {
     }
 
     public String _namespaceForPrefix(String prefix) {
-        if (!_cur.isContainer())
+        if (!_cur.isContainer()) {
             throw new IllegalStateException("Not on a container");
+        }
 
         return _cur.namespaceForPrefix(prefix, true);
     }
 
     public String _prefixForNamespace(String ns) {
-        if (ns == null || ns.length() == 0)
+        if (ns == null || ns.length() == 0) {
             throw new IllegalArgumentException("Must specify a namespace");
+        }
 
 // Note: I loosen this requirement in v2, can call this from anywhere
 //        if (!_cur.isContainer())
@@ -796,12 +816,14 @@ public final class Cursor implements XmlCursor, ChangeListener {
         return _cur.prefixForNamespace(ns, null, true);
     }
 
-    public void _getAllNamespaces(Map addToThis) {
-        if (!_cur.isContainer())
+    public void _getAllNamespaces(Map<String,String> addToThis) {
+        if (!_cur.isContainer()) {
             throw new IllegalStateException("Not on a container");
+        }
 
-        if (addToThis != null)
+        if (addToThis != null) {
             Locale.getAllNamespaces(_cur, addToThis);
+        }
     }
 
     public XmlObject _getObject() {
@@ -820,7 +842,7 @@ public final class Cursor implements XmlCursor, ChangeListener {
 
     public boolean _hasNextToken() {
         //return _cur.kind() != -ROOT;
-        return _cur._pos!=Cur.END_POS || _cur._xobj.kind()!=ROOT;
+        return _cur._pos != Cur.END_POS || _cur._xobj.kind() != ROOT;
     }
 
     public boolean _hasPrevToken() {
@@ -828,8 +850,9 @@ public final class Cursor implements XmlCursor, ChangeListener {
     }
 
     public TokenType _toFirstContentToken() {
-        if (!_cur.isContainer())
+        if (!_cur.isContainer()) {
             return TokenType.NONE;
+        }
 
         _cur.next();
 
@@ -837,8 +860,9 @@ public final class Cursor implements XmlCursor, ChangeListener {
     }
 
     public TokenType _toEndToken() {
-        if (!_cur.isContainer())
+        if (!_cur.isContainer()) {
             return TokenType.NONE;
+        }
 
         _cur.toEnd();
 
@@ -953,8 +977,9 @@ public final class Cursor implements XmlCursor, ChangeListener {
     }
 
     public String _getAttributeText(QName attrName) {
-        if (attrName == null)
+        if (attrName == null) {
             throw new IllegalArgumentException("Attr name is null");
+        }
 
         if (!_cur.isContainer()) {
             return null;
@@ -1167,7 +1192,7 @@ public final class Cursor implements XmlCursor, ChangeListener {
 
     public XmlCursor _execQuery(String query, XmlOptions options) {
         checkThisCursor();
-        return Query.cursorExecQuery(_cur,query,options);
+        return Query.cursorExecQuery(_cur, query, options);
     }
 
 
@@ -1196,7 +1221,7 @@ public final class Cursor implements XmlCursor, ChangeListener {
 
         _cur.push();
 
-        for (; ;) {
+        for (; ; ) {
             // Move a minimal amount.  If at text, move to a potential bookmark in the text.
 
             if ((cch = _cur.cchRight()) > 1) {
@@ -1222,14 +1247,15 @@ public final class Cursor implements XmlCursor, ChangeListener {
     }
 
     public XmlBookmark _toPrevBookmark(Object key) {
-        if (key == null)
+        if (key == null) {
             return null;
+        }
 
         int cch;
 
         _cur.push();
 
-        for (; ;) {
+        for (; ; ) {
             // Move a minimal amount.  If at text, move to a potential bookmark in the text.
 
             if ((cch = _cur.cchLeft()) > 1) {
@@ -1316,10 +1342,11 @@ public final class Cursor implements XmlCursor, ChangeListener {
 
         assert _cur.isText() || _cur.isNode();
 
-        if (_cur.isText())
+        if (_cur.isText()) {
             _cur.moveChars(null, -1);
-        else
+        } else {
             _cur.moveNode(null);
+        }
 
         return true;
     }
@@ -1482,11 +1509,13 @@ public final class Cursor implements XmlCursor, ChangeListener {
     public int _moveChars(int cch, Cursor to) {
         int cchRight = _cur.cchRight();
 
-        if (cchRight <= 0 || cch == 0)
+        if (cchRight <= 0 || cch == 0) {
             return 0;
+        }
 
-        if (cch < 0 || cch > cchRight)
+        if (cch < 0 || cch > cchRight) {
             cch = cchRight;
+        }
 
         to.checkInsertionValidity(_cur);
 
@@ -1500,11 +1529,13 @@ public final class Cursor implements XmlCursor, ChangeListener {
     public int _copyChars(int cch, Cursor to) {
         int cchRight = _cur.cchRight();
 
-        if (cchRight <= 0 || cch == 0)
+        if (cchRight <= 0 || cch == 0) {
             return 0;
+        }
 
-        if (cch < 0 || cch > cchRight)
+        if (cch < 0 || cch > cchRight) {
             cch = cchRight;
+        }
 
         to.checkInsertionValidity(_cur);
 
@@ -1521,7 +1552,7 @@ public final class Cursor implements XmlCursor, ChangeListener {
         if (l > 0) {
             if (_cur.isRoot() || _cur.isAttr()) {
                 throw
-                        new IllegalStateException("Can't insert before the document or an attribute.");
+                    new IllegalStateException("Can't insert before the document or an attribute.");
             }
 
             _cur.insertChars(text, 0, l);
@@ -1641,8 +1672,9 @@ public final class Cursor implements XmlCursor, ChangeListener {
     public void _insertProcInst(String target, String text) {
         validateLocalName(target);
 
-        if (Locale.beginsWithXml(target) && target.length() == 3)
+        if (Locale.beginsWithXml(target) && target.length() == 3) {
             throw new IllegalArgumentException("Target is 'xml'");
+        }
 
         Cur c = _cur._locale.tempCur();
 
@@ -1666,23 +1698,27 @@ public final class Cursor implements XmlCursor, ChangeListener {
     //
 
     private void checkThisCursor() {
-        if (_cur == null)
+        if (_cur == null) {
             throw new IllegalStateException("This cursor has been disposed");
+        }
     }
 
     private Cursor checkCursors(XmlCursor xOther) {
         checkThisCursor();
 
-        if (xOther == null)
+        if (xOther == null) {
             throw new IllegalArgumentException("Other cursor is <null>");
+        }
 
-        if (!(xOther instanceof Cursor))
+        if (!(xOther instanceof Cursor)) {
             throw new IllegalArgumentException("Incompatible cursors: " + xOther);
+        }
 
         Cursor other = (Cursor) xOther;
 
-        if (other._cur == null)
+        if (other._cur == null) {
             throw new IllegalStateException("Other cursor has been disposed");
+        }
 
         return other;
     }
@@ -1709,9 +1745,9 @@ public final class Cursor implements XmlCursor, ChangeListener {
         }
 
         if (locale.noSync()) {
-            if (otherLocale.noSync())
+            if (otherLocale.noSync()) {
                 return twoLocaleOp(other, op, arg);
-            else {
+            } else {
                 synchronized (otherLocale) {
                     return twoLocaleOp(other, op, arg);
                 }
@@ -1739,8 +1775,9 @@ public final class Cursor implements XmlCursor, ChangeListener {
         } catch (InterruptedException e) {
             throw new RuntimeException(e.getMessage(), e);
         } finally {
-            if (acquired)
+            if (acquired) {
                 GlobalLock.release();
+            }
         }
     }
 
@@ -1765,7 +1802,7 @@ public final class Cursor implements XmlCursor, ChangeListener {
                 case COPY_CHARS:
                     return _copyChars(arg, other);
 
-                default :
+                default:
                     throw new RuntimeException("Unknown operation: " + op);
             }
         } finally {
@@ -1863,12 +1900,14 @@ public final class Cursor implements XmlCursor, ChangeListener {
             } finally {
                 l.exit();
             }
-        } else synchronized (l) {
-            l.enter();
-            try {
-                return new Cursor(x, p);
-            } finally {
-                l.exit();
+        } else {
+            synchronized (l) {
+                l.enter();
+                try {
+                    return new Cursor(x, p);
+                } finally {
+                    l.exit();
+                }
             }
         }
     }
@@ -1901,7 +1940,7 @@ public final class Cursor implements XmlCursor, ChangeListener {
     }
 
     public XMLStreamReader newXMLStreamReader() {
-        return syncWrap((Supplier<XMLStreamReader>)this::_newXMLStreamReader);
+        return syncWrap((Supplier<XMLStreamReader>) this::_newXMLStreamReader);
     }
 
     public XMLStreamReader newXMLStreamReader(XmlOptions options) {
@@ -1912,23 +1951,23 @@ public final class Cursor implements XmlCursor, ChangeListener {
      * @deprecated XMLInputStream was deprecated by XMLStreamReader from STaX - jsr173 API.
      */
     public XMLInputStream newXMLInputStream() {
-        return syncWrap((Supplier<XMLInputStream>)this::_newXMLInputStream);
+        return syncWrap((Supplier<XMLInputStream>) this::_newXMLInputStream);
     }
 
     public String xmlText() {
-        return syncWrap((Supplier<String>)this::_xmlText);
+        return syncWrap((Supplier<String>) this::_xmlText);
     }
 
     public InputStream newInputStream() {
-        return syncWrap((Supplier<InputStream>)this::_newInputStream);
+        return syncWrap((Supplier<InputStream>) this::_newInputStream);
     }
 
     public Reader newReader() {
-        return syncWrap((Supplier<Reader>)this::_newReader);
+        return syncWrap((Supplier<Reader>) this::_newReader);
     }
 
     public Node newDomNode() {
-        return syncWrap((Supplier<Node>)this::_newDomNode);
+        return syncWrap((Supplier<Node>) this::_newDomNode);
     }
 
     public Node getDomNode() {
@@ -2058,7 +2097,7 @@ public final class Cursor implements XmlCursor, ChangeListener {
         return syncWrap(() -> _prefixForNamespace(namespaceURI));
     }
 
-    public void getAllNamespaces(Map addToThis) {
+    public void getAllNamespaces(Map<String,String> addToThis) {
         syncWrap(() -> _getAllNamespaces(addToThis));
     }
 
@@ -2166,7 +2205,7 @@ public final class Cursor implements XmlCursor, ChangeListener {
 
         Xobj parent = _cur.getParentNoRoot();
 
-        if (parent==null) {
+        if (parent == null) {
             _cur._locale.enter();
             try {
                 parent = _cur.getParent();
@@ -2259,7 +2298,7 @@ public final class Cursor implements XmlCursor, ChangeListener {
     }
 
     public String getTextValue() {
-        return syncWrap((Supplier<String>)this::_getTextValue);
+        return syncWrap((Supplier<String>) this::_getTextValue);
     }
 
     public int getTextValue(char[] chars, int offset, int cch) {
@@ -2275,7 +2314,7 @@ public final class Cursor implements XmlCursor, ChangeListener {
     }
 
     public String getChars() {
-        return syncWrap((Supplier<String>)this::_getChars);
+        return syncWrap((Supplier<String>) this::_getChars);
     }
 
     public int getChars(char[] chars, int offset, int cch) {

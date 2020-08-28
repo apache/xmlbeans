@@ -24,7 +24,7 @@ import org.junit.Test;
 import xmlcursor.common.BasicCursorTestCase;
 import xmlcursor.common.Common;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 
 public class InsertNamespaceTest extends BasicCursorTestCase {
@@ -36,7 +36,7 @@ public class InsertNamespaceTest extends BasicCursorTestCase {
         m_xc.insertNamespace("prefix", "value");
         m_xc.toStartDoc();
         XmlOptions map = new XmlOptions();
-        map.put(XmlOptions.SAVE_NAMESPACES_FIRST, "");
+        map.setSaveNamespacesFirst(true);
         assertEquals("<foo xmlns:prefix=\"value\" attr0=\"val0\" attr1=\"val1\">text</foo>", m_xc.xmlText(map));
     }
 
@@ -49,7 +49,7 @@ public class InsertNamespaceTest extends BasicCursorTestCase {
         m_xc.insertNamespace("prefix", "value");
         m_xc.toStartDoc();
         XmlOptions map = new XmlOptions();
-        map.put(XmlOptions.SAVE_NAMESPACES_FIRST, "");
+        map.setSaveNamespacesFirst();
         assertEquals("<foo xmlns:prefix=\"value\" attr0=\"val0\" attr1=\"val1\">text</foo>", m_xc.xmlText(map));
     }
 

@@ -15,56 +15,26 @@
 
 package org.apache.xmlbeans.impl.tool;
 
-import org.apache.xmlbeans.SchemaCodePrinter;
-import org.apache.xmlbeans.SchemaTypeLoader;
-import org.apache.xmlbeans.SchemaTypeSystem;
-import org.apache.xmlbeans.SystemProperties;
-import org.apache.xmlbeans.SimpleValue;
-import org.apache.xmlbeans.XmlBeans;
-import org.apache.xmlbeans.XmlErrorCodes;
-import org.apache.xmlbeans.XmlException;
-import org.apache.xmlbeans.XmlObject;
-import org.apache.xmlbeans.XmlOptions;
-import org.apache.xmlbeans.ResourceLoader;
-import org.apache.xmlbeans.impl.common.IOUtil;
-import org.apache.xmlbeans.impl.common.ResolverUtil;
-import org.apache.xmlbeans.impl.common.XmlErrorPrinter;
-import org.apache.xmlbeans.impl.common.XmlErrorWatcher;
-import org.apache.xmlbeans.impl.schema.PathResourceLoader;
-import org.apache.xmlbeans.impl.schema.SchemaTypeLoaderImpl;
-import org.apache.xmlbeans.impl.schema.SchemaTypeSystemCompiler;
-import org.apache.xmlbeans.impl.schema.SchemaTypeSystemImpl;
-import org.apache.xmlbeans.impl.schema.StscState;
-import org.apache.xmlbeans.impl.common.JarHelper;
+import org.apache.xmlbeans.*;
+import org.apache.xmlbeans.impl.common.*;
+import org.apache.xmlbeans.impl.config.BindingConfigImpl;
+import org.apache.xmlbeans.impl.repackage.Repackager;
+import org.apache.xmlbeans.impl.schema.*;
 import org.apache.xmlbeans.impl.util.FilerImpl;
 import org.apache.xmlbeans.impl.values.XmlListImpl;
 import org.apache.xmlbeans.impl.xb.xmlconfig.ConfigDocument;
 import org.apache.xmlbeans.impl.xb.xmlconfig.Extensionconfig;
 import org.apache.xmlbeans.impl.xb.xsdschema.SchemaDocument;
 import org.xml.sax.EntityResolver;
-import org.apache.xmlbeans.impl.config.BindingConfigImpl;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.StringTokenizer;
-import org.apache.xmlbeans.impl.repackage.Repackager;
+import java.util.*;
 
-public class SchemaCompiler
-{
-    public static void printUsage()
-    {
+public class SchemaCompiler {
+    public static void printUsage() {
         System.out.println("Compiles a schema into XML Bean classes and metadata.");
         System.out.println("Usage: scomp [opts] [dirs]* [schema.xsd]* [service.wsdl]* [config.xsdconfig]*");
         System.out.println("Options include:");
@@ -100,16 +70,14 @@ public class SchemaCompiler
         System.out.println();
     }
 
-    public static void main(String[] args)
-    {
-        if (args.length == 0)
-        {
+    public static void main(String[] args) {
+        if (args.length == 0) {
             printUsage();
             System.exit(0);
             return;
         }
 
-        Set flags = new HashSet();
+        Set<String> flags = new HashSet<>();
         flags.add("h");
         flags.add("help");
         flags.add("usage");
@@ -126,7 +94,7 @@ public class SchemaCompiler
         flags.add("srconly");
         flags.add("debug");
 
-        Set opts = new HashSet();
+        Set<String> opts = new HashSet<>();
         opts.add("out");
         opts.add("name");
         opts.add("src");
@@ -145,32 +113,29 @@ public class SchemaCompiler
         opts.add("catalog");
         CommandLine cl = new CommandLine(args, flags, opts);
 
-        if (cl.getOpt("h") != null || cl.getOpt("help") != null || cl.getOpt("usage") != null)
-        {
+        if (cl.getOpt("h") != null || cl.getOpt("help") != null || cl.getOpt("usage") != null) {
             printUsage();
             System.exit(0);
             return;
         }
 
         String[] badopts = cl.getBadOpts();
-        if (badopts.length > 0)
-        {
-            for (int i = 0; i < badopts.length; i++)
-                System.out.println("Unrecognized option: " + badopts[i]);
+        if (badopts.length > 0) {
+            for (String badopt : badopts) {
+                System.out.println("Unrecognized option: " + badopt);
+            }
             printUsage();
             System.exit(0);
             return;
         }
 
-        if (cl.getOpt("license") != null)
-        {
+        if (cl.getOpt("license") != null) {
             CommandLine.printLicense();
             System.exit(0);
             return;
         }
 
-        if (cl.getOpt("version") != null)
-        {
+        if (cl.getOpt("version") != null) {
             CommandLine.printVersion();
             System.exit(0);
             return;
@@ -179,11 +144,13 @@ public class SchemaCompiler
         args = cl.args();
         boolean verbose = (cl.getOpt("verbose") != null);
         boolean quiet = (cl.getOpt("quiet") != null);
-        if (verbose)
+        if (verbose) {
             quiet = false;
+        }
 
-        if (verbose)
+        if (verbose) {
             CommandLine.printVersion();
+        }
 
         String outputfilename = cl.getOpt("out");
 
@@ -191,15 +158,11 @@ public class SchemaCompiler
 
         String codePrinterClass = cl.getOpt("schemaCodePrinter");
         SchemaCodePrinter codePrinter = null;
-        if (codePrinterClass != null)
-        {
-            try
-            {
+        if (codePrinterClass != null) {
+            try {
                 codePrinter = (SchemaCodePrinter)
                     Class.forName(codePrinterClass).newInstance();
-            }
-            catch (Exception e)
-            {
+            } catch (Exception e) {
                 System.err.println
                     ("Failed to load SchemaCodePrinter class " +
                      codePrinterClass + "; proceeding with default printer");
@@ -212,16 +175,16 @@ public class SchemaCompiler
         boolean noUpa = (cl.getOpt("noupa") != null);
         boolean noPvr = (cl.getOpt("nopvr") != null);
         boolean noAnn = (cl.getOpt("noann") != null);
-        boolean noVDoc= (cl.getOpt("novdoc") != null);
-        boolean noExt= (cl.getOpt("noext") != null);
+        boolean noVDoc = (cl.getOpt("novdoc") != null);
+        boolean noExt = (cl.getOpt("noext") != null);
         boolean nojavac = (cl.getOpt("srconly") != null);
         boolean debug = (cl.getOpt("debug") != null);
 
         String allowmdef = cl.getOpt("allowmdef");
-        Set mdefNamespaces = (allowmdef == null ? Collections.EMPTY_SET :
-                new HashSet(Arrays.asList(XmlListImpl.split_list(allowmdef))));
+        Set<String> mdefNamespaces = (allowmdef == null ? Collections.emptySet() :
+            new HashSet<>(Arrays.asList(XmlListImpl.split_list(allowmdef))));
 
-        List extensions = new ArrayList();
+        List<Extension> extensions = new ArrayList<>();
         if (cl.getOpt("extension") != null) {
             try {
                 Extension e = new Extension();
@@ -233,19 +196,17 @@ public class SchemaCompiler
             }
         }
 
-        if (extensions.size() > 0)
-        {
+        if (extensions.size() > 0) {
             // example: -extensionParms typeMappingFileLocation=d:\types
             if (cl.getOpt("extensionParms") != null) {
-                Extension e = (Extension) extensions.get(0);
+                Extension e = extensions.get(0);
                 // extensionParms are delimited by ';'
                 StringTokenizer parmTokens = new StringTokenizer(cl.getOpt("extensionParms"), ";");
                 while (parmTokens.hasMoreTokens()) {
                     // get name value pair for each extension parms and stick into extension parms
                     String nvPair = parmTokens.nextToken();
                     int index = nvPair.indexOf('=');
-                    if (index < 0)
-                    {
+                    if (index < 0) {
                         System.err.println("extensionParms should be name=value;name=value");
                         System.exit(1);
                     }
@@ -260,62 +221,64 @@ public class SchemaCompiler
 
         String classesdir = cl.getOpt("d");
         File classes = null;
-        if (classesdir != null)
+        if (classesdir != null) {
             classes = new File(classesdir);
+        }
 
         String srcdir = cl.getOpt("src");
         File src = null;
-        if (srcdir != null)
+        if (srcdir != null) {
             src = new File(srcdir);
-        if (nojavac && srcdir == null && classes != null)
+        }
+        if (nojavac && srcdir == null && classes != null) {
             src = classes;
+        }
 
         // create temp directory
         File tempdir = null;
-        if (src == null || classes == null)
-        {
-            try
-            {
+        if (src == null || classes == null) {
+            try {
                 tempdir = SchemaCodeGenerator.createTempDir();
-            }
-            catch (java.io.IOException e)
-            {
+            } catch (java.io.IOException e) {
                 System.err.println("Error creating temp dir " + e);
                 System.exit(1);
             }
         }
 
         File jarfile = null;
-        if (outputfilename == null && classes == null && !nojavac)
+        if (outputfilename == null && classes == null && !nojavac) {
             outputfilename = "xmltypes.jar";
-        if (outputfilename != null)
-            jarfile = new File(outputfilename);
-
-        if (src == null)
-            src = IOUtil.createDir(tempdir, "src");
-        if (classes == null)
-            classes = IOUtil.createDir(tempdir, "classes");
-
-        File[] classpath = null;
-        String cpString = cl.getOpt("cp");
-        if (cpString != null)
-        {
-            String[] cpparts = cpString.split(File.pathSeparator);
-            List cpList = new ArrayList();
-            for (int i = 0; i < cpparts.length; i++)
-                cpList.add(new File(cpparts[i]));
-            classpath = (File[])cpList.toArray(new File[cpList.size()]);
         }
-        else
-        {
+        if (outputfilename != null) {
+            jarfile = new File(outputfilename);
+        }
+
+        if (src == null) {
+            src = IOUtil.createDir(tempdir, "src");
+        }
+        if (classes == null) {
+            classes = IOUtil.createDir(tempdir, "classes");
+        }
+
+        File[] classpath;
+        String cpString = cl.getOpt("cp");
+        if (cpString != null) {
+            String[] cpparts = cpString.split(File.pathSeparator);
+            List<File> cpList = new ArrayList<>();
+            for (String cppart : cpparts) {
+                cpList.add(new File(cppart));
+            }
+            classpath = cpList.toArray(new File[0]);
+        } else {
             classpath = CodeGenUtil.systemClasspath();
         }
 
         String javasource = cl.getOpt("javasource");
         String compiler = cl.getOpt("compiler");
         String jar = cl.getOpt("jar");
-        if (verbose && jar != null)
+        if (verbose && jar != null) {
             System.out.println("The 'jar' option is no longer supported.");
+        }
 
         String memoryInitialSize = cl.getOpt("ms");
         String memoryMaximumSize = cl.getOpt("mx");
@@ -326,8 +289,7 @@ public class SchemaCompiler
         File[] configFiles = cl.filesEndingWith(".xsdconfig");
         URL[] urlFiles = cl.getURLs();
 
-        if (xsdFiles.length + wsdlFiles.length + urlFiles.length == 0)
-        {
+        if (xsdFiles.length + wsdlFiles.length + urlFiles.length == 0) {
             System.out.println("Could not find any xsd or wsdl files to process.");
             System.exit(0);
         }
@@ -373,17 +335,18 @@ public class SchemaCompiler
 
         boolean result = compile(params);
 
-        if (tempdir != null)
+        if (tempdir != null) {
             SchemaCodeGenerator.tryHardToDelete(tempdir);
+        }
 
-        if (!result)
+        if (!result) {
             System.exit(1);
+        }
 
         System.exit(0);
     }
 
-    public static class Parameters
-    {
+    public static class Parameters {
         private File baseDir;
         private File[] xsdFiles;
         private File[] wsdlFiles;
@@ -403,7 +366,7 @@ public class SchemaCompiler
         private boolean quiet;
         private boolean verbose;
         private boolean download;
-        private Collection errorListener;
+        private Collection<XmlError> errorListener;
         private boolean noUpa;
         private boolean noPvr;
         private boolean noAnn;
@@ -412,339 +375,279 @@ public class SchemaCompiler
         private boolean debug;
         private boolean incrementalSrcGen;
         private String repackage;
-        private List extensions = Collections.EMPTY_LIST;
-        private Set mdefNamespaces = Collections.EMPTY_SET;
+        private List<Extension> extensions = Collections.emptyList();
+        private Set<String> mdefNamespaces = Collections.emptySet();
         private String catalogFile;
         private SchemaCodePrinter schemaCodePrinter;
         private EntityResolver entityResolver;
 
-        public File getBaseDir()
-        {
+        public File getBaseDir() {
             return baseDir;
         }
 
-        public void setBaseDir(File baseDir)
-        {
+        public void setBaseDir(File baseDir) {
             this.baseDir = baseDir;
         }
 
-        public File[] getXsdFiles()
-        {
+        public File[] getXsdFiles() {
             return xsdFiles;
         }
 
-        public void setXsdFiles(File[] xsdFiles)
-        {
+        public void setXsdFiles(File[] xsdFiles) {
             this.xsdFiles = xsdFiles;
         }
 
-        public File[] getWsdlFiles()
-        {
+        public File[] getWsdlFiles() {
             return wsdlFiles;
         }
 
-        public void setWsdlFiles(File[] wsdlFiles)
-        {
+        public void setWsdlFiles(File[] wsdlFiles) {
             this.wsdlFiles = wsdlFiles;
         }
 
-        public File[] getJavaFiles()
-        {
+        public File[] getJavaFiles() {
             return javaFiles;
         }
 
-        public void setJavaFiles(File[] javaFiles)
-        {
+        public void setJavaFiles(File[] javaFiles) {
             this.javaFiles = javaFiles;
         }
 
-        public File[] getConfigFiles()
-        {
+        public File[] getConfigFiles() {
             return configFiles;
         }
 
-        public void setConfigFiles(File[] configFiles)
-        {
+        public void setConfigFiles(File[] configFiles) {
             this.configFiles = configFiles;
         }
 
-        public URL[] getUrlFiles()
-        {
+        public URL[] getUrlFiles() {
             return urlFiles;
         }
 
-        public void setUrlFiles(URL[] urlFiles)
-        {
+        public void setUrlFiles(URL[] urlFiles) {
             this.urlFiles = urlFiles;
         }
 
-        public File[] getClasspath()
-        {
+        public File[] getClasspath() {
             return classpath;
         }
 
-        public void setClasspath(File[] classpath)
-        {
+        public void setClasspath(File[] classpath) {
             this.classpath = classpath;
         }
 
-        public File getOutputJar()
-        {
+        public File getOutputJar() {
             return outputJar;
         }
 
-        public void setOutputJar(File outputJar)
-        {
+        public void setOutputJar(File outputJar) {
             this.outputJar = outputJar;
         }
 
-        public String getName()
-        {
+        public String getName() {
             return name;
         }
 
-        public void setName(String name)
-        {
+        public void setName(String name) {
             this.name = name;
         }
 
-        public File getSrcDir()
-        {
+        public File getSrcDir() {
             return srcDir;
         }
 
-        public void setSrcDir(File srcDir)
-        {
+        public void setSrcDir(File srcDir) {
             this.srcDir = srcDir;
         }
 
-        public File getClassesDir()
-        {
+        public File getClassesDir() {
             return classesDir;
         }
 
-        public void setClassesDir(File classesDir)
-        {
+        public void setClassesDir(File classesDir) {
             this.classesDir = classesDir;
         }
 
-        public boolean isNojavac()
-        {
+        public boolean isNojavac() {
             return nojavac;
         }
 
-        public void setNojavac(boolean nojavac)
-        {
+        public void setNojavac(boolean nojavac) {
             this.nojavac = nojavac;
         }
 
-        public boolean isQuiet()
-        {
+        public boolean isQuiet() {
             return quiet;
         }
 
-        public void setQuiet(boolean quiet)
-        {
+        public void setQuiet(boolean quiet) {
             this.quiet = quiet;
         }
 
-        public boolean isVerbose()
-        {
+        public boolean isVerbose() {
             return verbose;
         }
 
-        public void setVerbose(boolean verbose)
-        {
+        public void setVerbose(boolean verbose) {
             this.verbose = verbose;
         }
 
-        public boolean isDownload()
-        {
+        public boolean isDownload() {
             return download;
         }
 
-        public void setDownload(boolean download)
-        {
+        public void setDownload(boolean download) {
             this.download = download;
         }
 
-        public boolean isNoUpa()
-        {
+        public boolean isNoUpa() {
             return noUpa;
         }
 
-        public void setNoUpa(boolean noUpa)
-        {
+        public void setNoUpa(boolean noUpa) {
             this.noUpa = noUpa;
         }
 
-        public boolean isNoPvr()
-        {
+        public boolean isNoPvr() {
             return noPvr;
         }
 
-        public void setNoPvr(boolean noPvr)
-        {
+        public void setNoPvr(boolean noPvr) {
             this.noPvr = noPvr;
         }
 
-        public boolean isNoAnn()
-        {
+        public boolean isNoAnn() {
             return noAnn;
         }
 
-        public void setNoAnn(boolean noAnn)
-        {
+        public void setNoAnn(boolean noAnn) {
             this.noAnn = noAnn;
         }
 
-        public boolean isNoVDoc()
-        {
+        public boolean isNoVDoc() {
             return noVDoc;
         }
 
-        public void setNoVDoc(boolean newNoVDoc)
-        {
+        public void setNoVDoc(boolean newNoVDoc) {
             this.noVDoc = newNoVDoc;
         }
 
-        public boolean isNoExt()
-        {
+        public boolean isNoExt() {
             return noExt;
         }
 
-        public void setNoExt(boolean newNoExt)
-        {
+        public void setNoExt(boolean newNoExt) {
             this.noExt = newNoExt;
         }
 
-        public boolean isIncrementalSrcGen()
-        {
+        public boolean isIncrementalSrcGen() {
             return incrementalSrcGen;
         }
 
-        public void setIncrementalSrcGen(boolean incrSrcGen)
-        {
+        public void setIncrementalSrcGen(boolean incrSrcGen) {
             this.incrementalSrcGen = incrSrcGen;
         }
 
-        public boolean isDebug()
-        {
+        public boolean isDebug() {
             return debug;
         }
 
-        public void setDebug(boolean debug)
-        {
+        public void setDebug(boolean debug) {
             this.debug = debug;
         }
 
-        public String getMemoryInitialSize()
-        {
+        public String getMemoryInitialSize() {
             return memoryInitialSize;
         }
 
-        public void setMemoryInitialSize(String memoryInitialSize)
-        {
+        public void setMemoryInitialSize(String memoryInitialSize) {
             this.memoryInitialSize = memoryInitialSize;
         }
 
-        public String getMemoryMaximumSize()
-        {
+        public String getMemoryMaximumSize() {
             return memoryMaximumSize;
         }
 
-        public void setMemoryMaximumSize(String memoryMaximumSize)
-        {
+        public void setMemoryMaximumSize(String memoryMaximumSize) {
             this.memoryMaximumSize = memoryMaximumSize;
         }
 
-        public String getCompiler()
-        {
+        public String getCompiler() {
             return compiler;
         }
 
-        public void setCompiler(String compiler)
-        {
+        public void setCompiler(String compiler) {
             this.compiler = compiler;
         }
 
-        public String getJavaSource()
-        {
+        public String getJavaSource() {
             return javasource;
         }
 
-        public void setJavaSource(String javasource)
-        {
+        public void setJavaSource(String javasource) {
             this.javasource = javasource;
         }
 
-        /** @deprecated */
-        public String getJar()
-        {
+        /**
+         * @deprecated
+         */
+        public String getJar() {
             return null;
         }
 
-        /** @deprecated */
-        public void setJar(String jar)
-        {
+        /**
+         * @deprecated
+         */
+        public void setJar(String jar) {
             // no op
         }
 
-        public Collection getErrorListener()
-        {
+        public Collection<XmlError> getErrorListener() {
             return errorListener;
         }
 
-        public void setErrorListener(Collection errorListener)
-        {
+        public void setErrorListener(Collection<XmlError> errorListener) {
             this.errorListener = errorListener;
         }
 
-        public String getRepackage()
-        {
+        public String getRepackage() {
             return repackage;
         }
 
-        public void setRepackage(String newRepackage)
-        {
+        public void setRepackage(String newRepackage) {
             repackage = newRepackage;
         }
 
-        public List getExtensions() {
+        public List<Extension> getExtensions() {
             return extensions;
         }
 
-        public void setExtensions(List extensions) {
+        public void setExtensions(List<Extension> extensions) {
             this.extensions = extensions;
         }
 
-        public Set getMdefNamespaces()
-        {
+        public Set<String> getMdefNamespaces() {
             return mdefNamespaces;
         }
 
-        public void setMdefNamespaces(Set mdefNamespaces)
-        {
+        public void setMdefNamespaces(Set<String> mdefNamespaces) {
             this.mdefNamespaces = mdefNamespaces;
         }
 
-        public String getCatalogFile()
-        {
+        public String getCatalogFile() {
             return catalogFile;
         }
 
-        public void setCatalogFile(String catalogPropFile)
-        {
+        public void setCatalogFile(String catalogPropFile) {
             this.catalogFile = catalogPropFile;
         }
 
-        public SchemaCodePrinter getSchemaCodePrinter()
-        {
+        public SchemaCodePrinter getSchemaCodePrinter() {
             return schemaCodePrinter;
         }
 
-        public void setSchemaCodePrinter(SchemaCodePrinter schemaCodePrinter)
-        {
+        public void setSchemaCodePrinter(SchemaCodePrinter schemaCodePrinter) {
             this.schemaCodePrinter = schemaCodePrinter;
         }
 
@@ -758,11 +661,10 @@ public class SchemaCompiler
     }
 
     private static SchemaTypeSystem loadTypeSystem(String name, File[] xsdFiles, File[] wsdlFiles, URL[] urlFiles, File[] configFiles,
-        File[] javaFiles, ResourceLoader cpResourceLoader,
-        boolean download, boolean noUpa, boolean noPvr, boolean noAnn, boolean noVDoc, boolean noExt,
-        Set mdefNamespaces, File baseDir, Map sourcesToCopyMap,
-        Collection outerErrorListener, File schemasDir, EntityResolver entResolver, File[] classpath, String javasource)
-    {
+                                                   File[] javaFiles, ResourceLoader cpResourceLoader,
+                                                   boolean download, boolean noUpa, boolean noPvr, boolean noAnn, boolean noVDoc, boolean noExt,
+                                                   Set<String> mdefNamespaces, File baseDir, Map sourcesToCopyMap,
+                                                   Collection<XmlError> outerErrorListener, File schemasDir, EntityResolver entResolver, File[] classpath, String javasource) {
         XmlErrorWatcher errorListener = new XmlErrorWatcher(outerErrorListener);
 
         // construct the state (have to initialize early in case of errors)
@@ -779,56 +681,56 @@ public class SchemaCompiler
             SchemaTypeLoader loader = XmlBeans.typeLoaderForClassLoader(SchemaDocument.class.getClassLoader());
 
             // step 1, parse all the XSD files.
-            ArrayList scontentlist = new ArrayList();
+            ArrayList<SchemaDocument.Schema> scontentlist = new ArrayList<>();
             if (xsdFiles != null) {
-                for (int i = 0; i < xsdFiles.length; i++) {
+                for (File xsdFile : xsdFiles) {
                     try {
                         XmlOptions options = new XmlOptions();
                         options.setLoadLineNumbers();
                         options.setLoadMessageDigest();
                         options.setEntityResolver(entResolver);
 
-                        XmlObject schemadoc = loader.parse(xsdFiles[i], null, options);
+                        XmlObject schemadoc = loader.parse(xsdFile, null, options);
                         if (!(schemadoc instanceof SchemaDocument)) {
                             StscState.addError(errorListener, XmlErrorCodes.INVALID_DOCUMENT_TYPE,
-                                    new Object[]{xsdFiles[i], "schema"}, schemadoc);
+                                new Object[]{xsdFile, "schema"}, schemadoc);
                         } else {
-                            addSchema(xsdFiles[i].toString(), (SchemaDocument) schemadoc,
-                                    errorListener, noVDoc, scontentlist);
+                            addSchema(xsdFile.toString(), (SchemaDocument) schemadoc,
+                                errorListener, noVDoc, scontentlist);
                         }
                     } catch (XmlException e) {
                         errorListener.add(e.getError());
                     } catch (Exception e) {
                         StscState.addError(errorListener, XmlErrorCodes.CANNOT_LOAD_FILE,
-                                new Object[]{"xsd", xsdFiles[i], e.getMessage()}, xsdFiles[i]);
+                            new Object[]{"xsd", xsdFile, e.getMessage()}, xsdFile);
                     }
                 }
             }
 
             // step 2, parse all WSDL files
             if (wsdlFiles != null) {
-                for (int i = 0; i < wsdlFiles.length; i++) {
+                for (File wsdlFile : wsdlFiles) {
                     try {
                         XmlOptions options = new XmlOptions();
                         options.setLoadLineNumbers();
                         options.setLoadSubstituteNamespaces(Collections.singletonMap(
-                                "http://schemas.xmlsoap.org/wsdl/", "http://www.apache.org/internal/xmlbeans/wsdlsubst"
+                            "http://schemas.xmlsoap.org/wsdl/", "http://www.apache.org/internal/xmlbeans/wsdlsubst"
                         ));
                         options.setEntityResolver(entResolver);
 
-                        XmlObject wsdldoc = loader.parse(wsdlFiles[i], null, options);
+                        XmlObject wsdldoc = loader.parse(wsdlFile, null, options);
 
-                        if (!(wsdldoc instanceof org.apache.xmlbeans.impl.xb.substwsdl.DefinitionsDocument))
+                        if (!(wsdldoc instanceof org.apache.xmlbeans.impl.xb.substwsdl.DefinitionsDocument)) {
                             StscState.addError(errorListener, XmlErrorCodes.INVALID_DOCUMENT_TYPE,
-                                    new Object[]{wsdlFiles[i], "wsdl"}, wsdldoc);
-                        else {
-                            addWsdlSchemas(wsdlFiles[i].toString(), (org.apache.xmlbeans.impl.xb.substwsdl.DefinitionsDocument) wsdldoc, errorListener, noVDoc, scontentlist);
+                                new Object[]{wsdlFile, "wsdl"}, wsdldoc);
+                        } else {
+                            addWsdlSchemas(wsdlFile.toString(), (org.apache.xmlbeans.impl.xb.substwsdl.DefinitionsDocument) wsdldoc, errorListener, noVDoc, scontentlist);
                         }
                     } catch (XmlException e) {
                         errorListener.add(e.getError());
                     } catch (Exception e) {
                         StscState.addError(errorListener, XmlErrorCodes.CANNOT_LOAD_FILE,
-                                new Object[]{"wsdl", wsdlFiles[i], e.getMessage()}, wsdlFiles[i]);
+                            new Object[]{"wsdl", wsdlFile, e.getMessage()}, wsdlFile);
                     }
                 }
             }
@@ -836,55 +738,56 @@ public class SchemaCompiler
             // step 3, parse all URL files
             // XMLBEANS-58 - Ability to pass URLs instead of Files for Wsdl/Schemas
             if (urlFiles != null) {
-                for (int i = 0; i < urlFiles.length; i++) {
+                for (URL urlFile : urlFiles) {
                     try {
                         XmlOptions options = new XmlOptions();
                         options.setLoadLineNumbers();
                         options.setLoadSubstituteNamespaces(Collections.singletonMap("http://schemas.xmlsoap.org/wsdl/", "http://www.apache.org/internal/xmlbeans/wsdlsubst"));
                         options.setEntityResolver(entResolver);
 
-                        XmlObject urldoc = loader.parse(urlFiles[i], null, options);
+                        XmlObject urldoc = loader.parse(urlFile, null, options);
 
                         if ((urldoc instanceof org.apache.xmlbeans.impl.xb.substwsdl.DefinitionsDocument)) {
-                            addWsdlSchemas(urlFiles[i].toString(), (org.apache.xmlbeans.impl.xb.substwsdl.DefinitionsDocument) urldoc, errorListener, noVDoc, scontentlist);
+                            addWsdlSchemas(urlFile.toString(), (org.apache.xmlbeans.impl.xb.substwsdl.DefinitionsDocument) urldoc, errorListener, noVDoc, scontentlist);
                         } else if ((urldoc instanceof SchemaDocument)) {
-                            addSchema(urlFiles[i].toString(), (SchemaDocument) urldoc,
-                                    errorListener, noVDoc, scontentlist);
+                            addSchema(urlFile.toString(), (SchemaDocument) urldoc,
+                                errorListener, noVDoc, scontentlist);
                         } else {
                             StscState.addError(errorListener, XmlErrorCodes.INVALID_DOCUMENT_TYPE,
-                                    new Object[]{urlFiles[i], "wsdl or schema"}, urldoc);
+                                new Object[]{urlFile, "wsdl or schema"}, urldoc);
                         }
 
                     } catch (XmlException e) {
                         errorListener.add(e.getError());
                     } catch (Exception e) {
                         StscState.addError(errorListener, XmlErrorCodes.CANNOT_LOAD_FILE,
-                                new Object[]{"url", urlFiles[i], e.getMessage()}, urlFiles[i]);
+                            new Object[]{"url", urlFile, e.getMessage()}, urlFile);
                     }
                 }
             }
 
-            SchemaDocument.Schema[] sdocs = (SchemaDocument.Schema[]) scontentlist.toArray(new SchemaDocument.Schema[scontentlist.size()]);
+            SchemaDocument.Schema[] sdocs = (SchemaDocument.Schema[]) scontentlist.toArray(new SchemaDocument.Schema[0]);
 
             // now the config files.
-            ArrayList cdoclist = new ArrayList();
+            ArrayList<ConfigDocument.Config> cdoclist = new ArrayList<>();
             if (configFiles != null) {
-                if (noExt)
+                if (noExt) {
                     System.out.println("Pre/Post and Interface extensions will be ignored.");
+                }
 
-                for (int i = 0; i < configFiles.length; i++) {
+                for (File configFile : configFiles) {
                     try {
                         XmlOptions options = new XmlOptions();
-                        options.put(XmlOptions.LOAD_LINE_NUMBERS);
+                        options.setLoadLineNumbers();
                         options.setEntityResolver(entResolver);
                         options.setLoadSubstituteNamespaces(MAP_COMPATIBILITY_CONFIG_URIS);
 
-                        XmlObject configdoc = loader.parse(configFiles[i], null, options);
-                        if (!(configdoc instanceof ConfigDocument))
+                        XmlObject configdoc = loader.parse(configFile, null, options);
+                        if (!(configdoc instanceof ConfigDocument)) {
                             StscState.addError(errorListener, XmlErrorCodes.INVALID_DOCUMENT_TYPE,
-                                    new Object[]{configFiles[i], "xsd config"}, configdoc);
-                        else {
-                            StscState.addInfo(errorListener, "Loading config file " + configFiles[i]);
+                                new Object[]{configFile, "xsd config"}, configdoc);
+                        } else {
+                            StscState.addInfo(errorListener, "Loading config file " + configFile);
                             if (configdoc.validate(new XmlOptions().setErrorListener(errorListener))) {
                                 ConfigDocument.Config config = ((ConfigDocument) configdoc).getConfig();
                                 cdoclist.add(config);
@@ -898,33 +801,40 @@ public class SchemaCompiler
                         errorListener.add(e.getError());
                     } catch (Exception e) {
                         StscState.addError(errorListener, XmlErrorCodes.CANNOT_LOAD_FILE,
-                                new Object[]{"xsd config", configFiles[i], e.getMessage()}, configFiles[i]);
+                            new Object[]{"xsd config", configFile, e.getMessage()}, configFile);
                     }
                 }
             }
-            ConfigDocument.Config[] cdocs = (ConfigDocument.Config[]) cdoclist.toArray(new ConfigDocument.Config[cdoclist.size()]);
+            ConfigDocument.Config[] cdocs = cdoclist.toArray(new ConfigDocument.Config[0]);
 
             SchemaTypeLoader linkTo = SchemaTypeLoaderImpl.build(null, cpResourceLoader, null);
 
             URI baseURI = null;
-            if (baseDir != null)
+            if (baseDir != null) {
                 baseURI = baseDir.toURI();
+            }
 
             XmlOptions opts = new XmlOptions();
-            if (download)
+            if (download) {
                 opts.setCompileDownloadUrls();
-            if (noUpa)
+            }
+            if (noUpa) {
                 opts.setCompileNoUpaRule();
-            if (noPvr)
+            }
+            if (noPvr) {
                 opts.setCompileNoPvrRule();
-            if (noAnn)
+            }
+            if (noAnn) {
                 opts.setCompileNoAnnotations();
-            if (mdefNamespaces != null)
+            }
+            if (mdefNamespaces != null) {
                 opts.setCompileMdefNamespaces(mdefNamespaces);
+            }
             opts.setCompileNoValidation(); // already validated here
             opts.setEntityResolver(entResolver);
-            if (javasource != null)
+            if (javasource != null) {
                 opts.setGenerateJavaVersion(javasource);
+            }
 
             // now pass it to the main compile function
             SchemaTypeSystemCompiler.Parameters params = new SchemaTypeSystemCompiler.Parameters();
@@ -945,42 +855,40 @@ public class SchemaCompiler
     }
 
     private static void addSchema(String name, SchemaDocument schemadoc,
-        XmlErrorWatcher errorListener, boolean noVDoc, List scontentlist)
-    {
+                                  XmlErrorWatcher errorListener, boolean noVDoc, List<SchemaDocument.Schema> scontentlist) {
         StscState.addInfo(errorListener, "Loading schema file " + name);
         XmlOptions opts = new XmlOptions().setErrorListener(errorListener);
-        if (noVDoc)
+        if (noVDoc) {
             opts.setValidateTreatLaxAsSkip();
-        if (schemadoc.validate(opts))
+        }
+        if (schemadoc.validate(opts)) {
             scontentlist.add((schemadoc).getSchema());
+        }
     }
 
     private static void addWsdlSchemas(String name,
-        org.apache.xmlbeans.impl.xb.substwsdl.DefinitionsDocument wsdldoc,
-        XmlErrorWatcher errorListener, boolean noVDoc, List scontentlist)
-    {
-        if (wsdlContainsEncoded(wsdldoc))
+                                       org.apache.xmlbeans.impl.xb.substwsdl.DefinitionsDocument wsdldoc,
+                                       XmlErrorWatcher errorListener, boolean noVDoc, List scontentlist) {
+        if (wsdlContainsEncoded(wsdldoc)) {
             StscState.addWarning(errorListener, "The WSDL " + name + " uses SOAP encoding. SOAP encoding is not compatible with literal XML Schema.", XmlErrorCodes.GENERIC_ERROR, wsdldoc);
+        }
         StscState.addInfo(errorListener, "Loading wsdl file " + name);
         XmlOptions opts = new XmlOptions().setErrorListener(errorListener);
-        if (noVDoc)
-        opts.setValidateTreatLaxAsSkip();
+        if (noVDoc) {
+            opts.setValidateTreatLaxAsSkip();
+        }
         XmlObject[] types = wsdldoc.getDefinitions().getTypesArray();
         int count = 0;
-        for (int j = 0; j < types.length; j++)
-        {
+        for (int j = 0; j < types.length; j++) {
             XmlObject[] schemas = types[j].selectPath("declare namespace xs=\"http://www.w3.org/2001/XMLSchema\" xs:schema");
-            if (schemas.length == 0)
-            {
+            if (schemas.length == 0) {
                 StscState.addWarning(errorListener, "The WSDL " + name + " did not have any schema documents in namespace 'http://www.w3.org/2001/XMLSchema'", XmlErrorCodes.GENERIC_ERROR, wsdldoc);
                 continue;
             }
 
-            for (int k = 0; k < schemas.length; k++)
-            {
+            for (int k = 0; k < schemas.length; k++) {
                 if (schemas[k] instanceof SchemaDocument.Schema &&
-                    schemas[k].validate(opts))
-                {
+                    schemas[k].validate(opts)) {
                     count++;
                     scontentlist.add(schemas[k]);
                 }
@@ -989,8 +897,7 @@ public class SchemaCompiler
         StscState.addInfo(errorListener, "Processing " + count + " schema(s) in " + name);
     }
 
-    public static boolean compile(Parameters params)
-    {
+    public static boolean compile(Parameters params) {
         File baseDir = params.getBaseDir();
         File[] xsdFiles = params.getXsdFiles();
         File[] wsdlFiles = params.getWsdlFiles();
@@ -1021,11 +928,10 @@ public class SchemaCompiler
 
         String repackage = params.getRepackage();
 
-        if (repackage!=null)
-        {
+        if (repackage != null) {
             SchemaTypeLoaderImpl.METADATA_PACKAGE_LOAD = SchemaTypeSystemImpl.METADATA_PACKAGE_GEN;
 
-            Repackager repackager = new Repackager( repackage );
+            Repackager repackager = new Repackager(repackage);
 
             StringBuffer sb = new StringBuffer(SchemaTypeLoaderImpl.METADATA_PACKAGE_LOAD);
             sb = repackager.repackage(sb);
@@ -1041,21 +947,24 @@ public class SchemaCompiler
         EntityResolver cmdLineEntRes = params.getEntityResolver() == null ?
             ResolverUtil.resolverForCatalog(params.getCatalogFile()) : params.getEntityResolver();
 
-        if (srcDir == null || classesDir == null)
+        if (srcDir == null || classesDir == null) {
             throw new IllegalArgumentException("src and class gen directories may not be null.");
+        }
 
         long start = System.currentTimeMillis();
 
         // Calculate the usenames based on the relativized filenames on the filesystem
-        if (baseDir == null)
+        if (baseDir == null) {
             baseDir = new File(SystemProperties.getProperty("user.dir"));
+        }
 
         ResourceLoader cpResourceLoader = null;
 
         Map sourcesToCopyMap = new HashMap();
 
-        if (classpath != null)
+        if (classpath != null) {
             cpResourceLoader = new PathResourceLoader(classpath);
+        }
 
         boolean result = true;
 
@@ -1066,11 +975,13 @@ public class SchemaCompiler
         SchemaTypeSystem system = loadTypeSystem(name, xsdFiles, wsdlFiles, urlFiles, configFiles,
             javaFiles, cpResourceLoader, download, noUpa, noPvr, noAnn, noVDoc, noExt, mdefNamespaces,
             baseDir, sourcesToCopyMap, errorListener, schemasDir, cmdLineEntRes, classpath, javasource);
-        if (errorListener.hasError())
+        if (errorListener.hasError()) {
             result = false;
+        }
         long finish = System.currentTimeMillis();
-        if (!quiet)
-            System.out.println("Time to build schema type system: " + ((double)(finish - start) / 1000.0) + " seconds" );
+        if (!quiet) {
+            System.out.println("Time to build schema type system: " + ((double) (finish - start) / 1000.0) + " seconds");
+        }
 
         // now code generate and compile the JAR
         if (result && system != null) // todo: don't check "result" here if we want to compile anyway, ignoring invalid schemas
@@ -1083,10 +994,12 @@ public class SchemaCompiler
 
             // currently just for schemaCodePrinter
             XmlOptions options = new XmlOptions();
-            if (codePrinter != null)
+            if (codePrinter != null) {
                 options.setSchemaCodePrinter(codePrinter);
-            if (javasource != null)
+            }
+            if (javasource != null) {
                 options.setGenerateJavaVersion(javasource);
+            }
 
             // save .xsb files
             system.save(filer);
@@ -1094,102 +1007,88 @@ public class SchemaCompiler
             // gen source files
             result &= SchemaTypeSystemCompiler.generateTypes(system, filer, options);
 
-            if (incrSrcGen)
-            {
+            if (incrSrcGen) {
                 // We have to delete extra source files that may be out of date
                 SchemaCodeGenerator.deleteObsoleteFiles(srcDir, srcDir,
                     new HashSet(filer.getSourceFiles()));
             }
 
-            if (result)
-            {
+            if (result) {
                 finish = System.currentTimeMillis();
-                if (!quiet)
-                    System.out.println("Time to generate code: " + ((double)(finish - start) / 1000.0) + " seconds" );
+                if (!quiet) {
+                    System.out.println("Time to generate code: " + ((double) (finish - start) / 1000.0) + " seconds");
+                }
             }
 
             // compile source
-            if (result && !nojavac)
-            {
+            if (result && !nojavac) {
                 start = System.currentTimeMillis();
 
                 List sourcefiles = filer.getSourceFiles();
 
-                if (javaFiles != null)
+                if (javaFiles != null) {
                     sourcefiles.addAll(java.util.Arrays.asList(javaFiles));
-                if (!CodeGenUtil.externalCompile(sourcefiles, classesDir, classpath, debug, compiler, javasource, memoryInitialSize, memoryMaximumSize, quiet, verbose))
+                }
+                if (!CodeGenUtil.externalCompile(sourcefiles, classesDir, classpath, debug, compiler, javasource, memoryInitialSize, memoryMaximumSize, quiet, verbose)) {
                     result = false;
+                }
 
                 finish = System.currentTimeMillis();
-                if (result && !params.isQuiet())
-                    System.out.println("Time to compile code: " + ((double)(finish - start) / 1000.0) + " seconds" );
+                if (result && !params.isQuiet()) {
+                    System.out.println("Time to compile code: " + ((double) (finish - start) / 1000.0) + " seconds");
+                }
 
                 // jar classes and .xsb
-                if (result && outputJar != null)
-                {
-                    try
-                    {
+                if (result && outputJar != null) {
+                    try {
                         new JarHelper().jarDir(classesDir, outputJar);
-                    }
-                    catch (IOException e)
-                    {
+                    } catch (IOException e) {
                         System.err.println("IO Error " + e);
                         result = false;
                     }
 
-                    if (result && !params.isQuiet())
+                    if (result && !params.isQuiet()) {
                         System.out.println("Compiled types to: " + outputJar);
+                    }
                 }
             }
         }
 
-        if (!result && !quiet)
-        {
+        if (!result && !quiet) {
             System.out.println("BUILD FAILED");
-        }
-        else {
+        } else {
             // call schema compiler extension if registered
             runExtensions(extensions, system, classesDir);
         }
 
-        if (cpResourceLoader != null)
+        if (cpResourceLoader != null) {
             cpResourceLoader.close();
+        }
         return result;
     }
 
-    private static void runExtensions(List extensions, SchemaTypeSystem system, File classesDir)
-    {
-        if (extensions != null && extensions.size() > 0)
-        {
+    private static void runExtensions(List extensions, SchemaTypeSystem system, File classesDir) {
+        if (extensions != null && extensions.size() > 0) {
             SchemaCompilerExtension sce = null;
             Iterator i = extensions.iterator();
             Map extensionParms = null;
             String classesDirName = null;
-            try
-            {
+            try {
                 classesDirName = classesDir.getCanonicalPath();
-            }
-            catch(java.io.IOException e)
-            {
+            } catch (java.io.IOException e) {
                 System.out.println("WARNING: Unable to get the path for schema jar file");
                 classesDirName = classesDir.getAbsolutePath();
             }
 
-            while (i.hasNext())
-            {
+            while (i.hasNext()) {
                 Extension extension = (Extension) i.next();
-                try
-                {
+                try {
                     sce = (SchemaCompilerExtension) extension.getClassName().newInstance();
-                }
-                catch (InstantiationException e)
-                {
+                } catch (InstantiationException e) {
                     System.out.println("UNABLE to instantiate schema compiler extension:" + extension.getClassName().getName());
                     System.out.println("EXTENSION Class was not run");
                     break;
-                }
-                catch (IllegalAccessException e)
-                {
+                } catch (IllegalAccessException e) {
                     System.out.println("ILLEGAL ACCESS Exception when attempting to instantiate schema compiler extension: " + extension.getClassName().getName());
                     System.out.println("EXTENSION Class was not run");
                     break;
@@ -1198,8 +1097,7 @@ public class SchemaCompiler
                 System.out.println("Running Extension: " + sce.getExtensionName());
                 extensionParms = new HashMap();
                 Iterator parmsi = extension.getParams().iterator();
-                while (parmsi.hasNext())
-                {
+                while (parmsi.hasNext()) {
                     Extension.Param p = (Extension.Param) parmsi.next();
                     extensionParms.put(p.getName(), p.getValue());
                 }
@@ -1210,16 +1108,15 @@ public class SchemaCompiler
     }
 
 
-    private static boolean wsdlContainsEncoded(XmlObject wsdldoc)
-    {
+    private static boolean wsdlContainsEncoded(XmlObject wsdldoc) {
         // search for any <soap:body use="encoded"/> etc.
         XmlObject[] useAttrs = wsdldoc.selectPath(
-                "declare namespace soap='http://schemas.xmlsoap.org/wsdl/soap/' " +
-                ".//soap:body/@use|.//soap:header/@use|.//soap:fault/@use");
-        for (int i = 0; i < useAttrs.length; i++)
-        {
-            if ("encoded".equals(((SimpleValue)useAttrs[i]).getStringValue()))
+            "declare namespace soap='http://schemas.xmlsoap.org/wsdl/soap/' " +
+            ".//soap:body/@use|.//soap:header/@use|.//soap:fault/@use");
+        for (int i = 0; i < useAttrs.length; i++) {
+            if ("encoded".equals(((SimpleValue) useAttrs[i]).getStringValue())) {
                 return true;
+            }
         }
         return false;
     }
@@ -1227,8 +1124,8 @@ public class SchemaCompiler
     private static final String CONFIG_URI = "http://xml.apache.org/xmlbeans/2004/02/xbean/config";
     private static final String COMPATIBILITY_CONFIG_URI = "http://www.bea.com/2002/09/xbean/config";
     private static final Map MAP_COMPATIBILITY_CONFIG_URIS;
-    static
-    {
+
+    static {
         MAP_COMPATIBILITY_CONFIG_URIS = new HashMap();
         MAP_COMPATIBILITY_CONFIG_URIS.put(COMPATIBILITY_CONFIG_URI, CONFIG_URI);
     }

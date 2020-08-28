@@ -36,7 +36,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 public class SampleXmlUtil {
-    private boolean _soapEnc;
+    private final boolean _soapEnc;
     private static final int MAX_ELEMENTS = 1000;
     private int _nElements;
 
@@ -57,11 +57,10 @@ public class SampleXmlUtil {
         // end of the doc so we use the original xml object that the cursor was
         // created upon to do the xmlText() against.
         XmlOptions options = new XmlOptions();
-        options.put(XmlOptions.SAVE_PRETTY_PRINT);
-        options.put(XmlOptions.SAVE_PRETTY_PRINT_INDENT, 2);
-        options.put(XmlOptions.SAVE_AGGRESSIVE_NAMESPACES);
-        String result = object.xmlText(options);
-        return result;
+        options.setSavePrettyPrint();
+        options.setSavePrettyPrintIndent(2);
+        options.setSaveAggressiveNamespaces();
+        return object.xmlText(options);
     }
 
     Random _picker = new Random(1);
@@ -226,21 +225,7 @@ public class SampleXmlUtil {
                 }
 
             case SchemaType.BTC_STRING: {
-                String result;
-                switch (closestBuiltin(sType).getBuiltinTypeCode()) {
-                    case SchemaType.BTC_STRING:
-                    case SchemaType.BTC_NORMALIZED_STRING:
-                        result = "string";
-                        break;
-
-                    case SchemaType.BTC_TOKEN:
-                        result = "token";
-                        break;
-
-                    default:
-                        result = "string";
-                        break;
-                }
+                String result = closestBuiltin(sType).getBuiltinTypeCode() == SchemaType.BTC_TOKEN ? "token" : "string";
 
                 return formatToLength(result, sType);
             }
@@ -297,32 +282,6 @@ public class SampleXmlUtil {
 
     private String pick(String[] a) {
         return a[pick(a.length)];
-    }
-
-    private String pick(String[] a, int count) {
-        if (count <= 0) {
-            return "";
-        }
-
-        int i = pick(a.length);
-        StringBuilder sb = new StringBuilder(a[i]);
-        while (count-- > 0) {
-            i += 1;
-            if (i >= a.length) {
-                i = 0;
-            }
-            sb.append(' ');
-            sb.append(a[i]);
-        }
-        return sb.toString();
-    }
-
-    private String pickDigits(int digits) {
-        StringBuilder sb = new StringBuilder();
-        while (digits-- > 0) {
-            sb.append(Integer.toString(pick(10)));
-        }
-        return sb.toString();
     }
 
     private int pickLength(SchemaType sType) {
@@ -385,8 +344,8 @@ public class SampleXmlUtil {
                     result = result.substring(0, len);
                 }
             }
-        } catch (Exception e) // intValue can be out of range
-        {
+        } catch (Exception ignored) {
+            // intValue can be out of range
         }
         return result;
     }
@@ -457,10 +416,11 @@ public class SampleXmlUtil {
                 sb.append('1');
                 increment = new BigDecimal(sb.toString());
             } else {
-                increment = new BigDecimal(1.0);
+                increment = BigDecimal.ONE;
             }
         }
 
+        //noinspection StatementWithEmptyBody
         if (minOk && maxOk) {
             // OK
         } else if (minOk && !maxOk) {
@@ -529,7 +489,6 @@ public class SampleXmlUtil {
         }
 
         GDurationBuilder gdurb = new GDurationBuilder();
-        BigInteger min, max;
 
         gdurb.setSecond(pick(800000));
         gdurb.setMonth(pick(20));
@@ -609,7 +568,7 @@ public class SampleXmlUtil {
                 gdurb.setSecond(minExclusive.getSecond() + 1);
             }
             if (gdurb.getFraction().compareTo(minExclusive.getFraction()) <= 0) {
-                gdurb.setFraction(minExclusive.getFraction().add(new BigDecimal(0.001)));
+                gdurb.setFraction(minExclusive.getFraction().add(new BigDecimal("0.001")));
             }
         }
 
@@ -644,7 +603,6 @@ public class SampleXmlUtil {
     private String formatDate(SchemaType sType) {
         GDateBuilder gdateb = new GDateBuilder(new Date(1000L * pick(365 * 24 * 60 * 60) + (30L + pick(20)) * 365 * 24 * 60 * 60 * 1000));
         GDate min = null, max = null;
-        GDate temp;
 
         // Find the min and the max according to the type
         switch (sType.getPrimitiveType().getBuiltinTypeCode()) {
@@ -853,7 +811,7 @@ public class SampleXmlUtil {
             if (max.compareToGDate(gdateb) <= 0) {
                 // Reset the date to max - (1-8) hours
                 Calendar c = gdateb.getCalendar();
-                c.add(Calendar.HOUR_OF_DAY, 0 - pick(8));
+                c.add(Calendar.HOUR_OF_DAY, -pick(8));
                 gdateb = new GDateBuilder(c);
             }
         } else if (min != null && max != null) {
@@ -975,24 +933,11 @@ public class SampleXmlUtil {
                 xmlc.insertComment(minOccurs + " or more repetitions:");
             }
         } else if (sp.getIntMaxOccurs() > 1) {
-            xmlc.insertComment(minOccurs + " to " + String.valueOf(sp.getMaxOccurs()) + " repetitions:");
+            xmlc.insertComment(minOccurs + " to " + sp.getMaxOccurs() + " repetitions:");
         } else {
             xmlc.insertComment("Optional:");
         }
         return result;
-    }
-
-    /*
-     Return a name for the element or the particle type to use in the comment for minoccurs, max occurs
-    */
-    private String getItemNameOrType(SchemaParticle sp, XmlCursor xmlc) {
-        String elementOrTypeName = null;
-        if (sp.getParticleType() == SchemaParticle.ELEMENT) {
-            elementOrTypeName = "Element (" + sp.getName().getLocalPart() + ")";
-        } else {
-            elementOrTypeName = printParticleType(sp.getParticleType());
-        }
-        return elementOrTypeName;
     }
 
     private void processElement(SchemaParticle sp, XmlCursor xmlc, boolean mixed) {
@@ -1015,17 +960,7 @@ public class SampleXmlUtil {
 
     }
 
-    private void moveToken(int numToMove, XmlCursor xmlc) {
-        for (int i = 0; i < Math.abs(numToMove); i++) {
-            if (numToMove < 0) {
-                xmlc.toPrevToken();
-            } else {
-                xmlc.toNextToken();
-            }
-        }
-    }
-
-    private static final String formatQName(XmlCursor xmlc, QName qName) {
+    private static String formatQName(XmlCursor xmlc, QName qName) {
         XmlCursor parent = xmlc.newCursor();
         parent.toParent();
         String prefix = parent.prefixForNamespace(qName.getNamespaceURI());
@@ -1045,7 +980,7 @@ public class SampleXmlUtil {
     private static final QName ENC_ARRAYTYPE = new QName("http://schemas.xmlsoap.org/soap/encoding/", "arrayType");
     private static final QName ENC_OFFSET = new QName("http://schemas.xmlsoap.org/soap/encoding/", "offset");
 
-    private static final Set SKIPPED_SOAP_ATTRS = new HashSet(Arrays.asList(new QName[]{HREF, ID, ENC_OFFSET}));
+    private static final Set<QName> SKIPPED_SOAP_ATTRS = new HashSet<>(Arrays.asList(HREF, ID, ENC_OFFSET));
 
     private void processAttributes(SchemaType stype, XmlCursor xmlc) {
         if (_soapEnc) {
@@ -1056,8 +991,7 @@ public class SampleXmlUtil {
         }
 
         SchemaProperty[] attrProps = stype.getAttributeProperties();
-        for (int i = 0; i < attrProps.length; i++) {
-            SchemaProperty attr = attrProps[i];
+        for (SchemaProperty attr : attrProps) {
             if (_soapEnc) {
                 if (SKIPPED_SOAP_ATTRS.contains(attr.getName())) {
                     continue;
@@ -1090,9 +1024,9 @@ public class SampleXmlUtil {
 
     private void processChoice(SchemaParticle sp, XmlCursor xmlc, boolean mixed) {
         SchemaParticle[] spc = sp.getParticleChildren();
-        xmlc.insertComment("You have a CHOICE of the next " + String.valueOf(spc.length) + " items at this level");
-        for (int i = 0; i < spc.length; i++) {
-            processParticle(spc[i], xmlc, mixed);
+        xmlc.insertComment("You have a CHOICE of the next " + spc.length + " items at this level");
+        for (SchemaParticle schemaParticle : spc) {
+            processParticle(schemaParticle, xmlc, mixed);
         }
     }
 
@@ -1112,45 +1046,5 @@ public class SampleXmlUtil {
         xmlc.insertElement("AnyElement");
     }
 
-    /**
-     * This method will get the base type for the schema type
-     */
-
-    private static QName getClosestName(SchemaType sType) {
-        while (sType.getName() == null) {
-            sType = sType.getBaseType();
-        }
-
-        return sType.getName();
-    }
-
-    private String printParticleType(int particleType) {
-        StringBuilder returnParticleType = new StringBuilder();
-        returnParticleType.append("Schema Particle Type: ");
-
-        switch (particleType) {
-            case SchemaParticle.ALL:
-                returnParticleType.append("ALL\n");
-                break;
-            case SchemaParticle.CHOICE:
-                returnParticleType.append("CHOICE\n");
-                break;
-            case SchemaParticle.ELEMENT:
-                returnParticleType.append("ELEMENT\n");
-                break;
-            case SchemaParticle.SEQUENCE:
-                returnParticleType.append("SEQUENCE\n");
-                break;
-            case SchemaParticle.WILDCARD:
-                returnParticleType.append("WILDCARD\n");
-                break;
-            default:
-                returnParticleType.append("Schema Particle Type Unknown");
-                break;
-        }
-
-        return returnParticleType.toString();
-    }
-
-    private ArrayList _typeStack = new ArrayList();
+    private final ArrayList<SchemaType> _typeStack = new ArrayList<>();
 }

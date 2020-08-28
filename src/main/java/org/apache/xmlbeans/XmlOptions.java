@@ -18,13 +18,9 @@ package org.apache.xmlbeans;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.XMLReader;
 
-import java.net.URI;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Set;
 import javax.xml.namespace.QName;
+import java.net.URI;
+import java.util.*;
 
 /**
  * Used to supply options for loading, saving, and compiling, and validating.
@@ -37,13 +33,13 @@ import javax.xml.namespace.QName;
  * opts.setSavePrettyPrintIndent(4);
  * System.out.println(xobj.xmlText(opts));
  * </pre>
- * 
+ * <p>
  * The alternative is single-line usage:
  * <pre>
  * System.out.println(xobj.xmlText(
  *     new XmlOptions().setSavePrettyPrint().setSavePrettyPrintIndent(4)));
  * </pre>
- *
+ * <p>
  * Table showing where each option gets used.
  * Note that:
  * <ul>
@@ -83,117 +79,233 @@ import javax.xml.namespace.QName;
  * </tr>
  * </table>
  */
-public class XmlOptions implements java.io.Serializable
-{
+public class XmlOptions implements java.io.Serializable {
+    //
+    // Complete set of XmlOption's
+    //
+
+    // TODO - Add selectPath option to track the seletion (deault is to clean selections fast).
+
+    public static final String SAVE_NAMESPACES_FIRST = "SAVE_NAMESPACES_FIRST";
+    public static final String SAVE_SYNTHETIC_DOCUMENT_ELEMENT = "SAVE_SYNTHETIC_DOCUMENT_ELEMENT";
+    public static final String SAVE_PRETTY_PRINT = "SAVE_PRETTY_PRINT";
+    public static final String SAVE_PRETTY_PRINT_INDENT = "SAVE_PRETTY_PRINT_INDENT";
+    public static final String SAVE_PRETTY_PRINT_OFFSET = "SAVE_PRETTY_PRINT_OFFSET";
+    public static final String SAVE_AGGRESSIVE_NAMESPACES = "SAVE_AGGRESSIVE_NAMESPACES";
+    public static final String SAVE_USE_DEFAULT_NAMESPACE = "SAVE_USE_DEFAULT_NAMESPACE";
+    public static final String SAVE_IMPLICIT_NAMESPACES = "SAVE_IMPLICIT_NAMESPACES";
+    public static final String SAVE_SUGGESTED_PREFIXES = "SAVE_SUGGESTED_PREFIXES";
+    public static final String SAVE_FILTER_PROCINST = "SAVE_FILTER_PROCINST";
+    public static final String SAVE_USE_OPEN_FRAGMENT = "SAVE_USE_OPEN_FRAGMENT";
+    public static final String SAVE_OUTER = "SAVE_OUTER";
+    public static final String SAVE_INNER = "SAVE_INNER";
+    public static final String SAVE_NO_XML_DECL = "SAVE_NO_XML_DECL";
+    public static final String SAVE_SUBSTITUTE_CHARACTERS = "SAVE_SUBSTITUTE_CHARACTERS";
+    public static final String SAVE_OPTIMIZE_FOR_SPEED = "SAVE_OPTIMIZE_FOR_SPEED";
+    public static final String SAVE_CDATA_LENGTH_THRESHOLD = "SAVE_CDATA_LENGTH_THRESHOLD";
+    public static final String SAVE_CDATA_ENTITY_COUNT_THRESHOLD = "SAVE_CDATA_ENTITY_COUNT_THRESHOLD";
+    public static final String SAVE_SAX_NO_NSDECLS_IN_ATTRIBUTES = "SAVE_SAX_NO_NSDECLS_IN_ATTRIBUTES";
+    public static final String LOAD_REPLACE_DOCUMENT_ELEMENT = "LOAD_REPLACE_DOCUMENT_ELEMENT";
+    public static final String LOAD_STRIP_WHITESPACE = "LOAD_STRIP_WHITESPACE";
+    public static final String LOAD_STRIP_COMMENTS = "LOAD_STRIP_COMMENTS";
+    public static final String LOAD_STRIP_PROCINSTS = "LOAD_STRIP_PROCINSTS";
+    public static final String LOAD_LINE_NUMBERS = "LOAD_LINE_NUMBERS";
+    public static final String LOAD_LINE_NUMBERS_END_ELEMENT = "LOAD_LINE_NUMBERS_END_ELEMENT";
+    public static final String LOAD_SAVE_CDATA_BOOKMARKS = "LOAD_SAVE_CDATA_BOOKMARKS";
+    public static final String LOAD_SUBSTITUTE_NAMESPACES = "LOAD_SUBSTITUTE_NAMESPACES";
+    public static final String LOAD_TRIM_TEXT_BUFFER = "LOAD_TRIM_TEXT_BUFFER";
+    public static final String LOAD_ADDITIONAL_NAMESPACES = "LOAD_ADDITIONAL_NAMESPACES";
+    public static final String LOAD_MESSAGE_DIGEST = "LOAD_MESSAGE_DIGEST";
+    public static final String LOAD_USE_DEFAULT_RESOLVER = "LOAD_USE_DEFAULT_RESOLVER";
+    public static final String LOAD_USE_XMLREADER = "LOAD_USE_XMLREADER";
+    public static final String XQUERY_CURRENT_NODE_VAR = "XQUERY_CURRENT_NODE_VAR";
+    public static final String XQUERY_VARIABLE_MAP = "XQUERY_VARIABLE_MAP";
+    public static final String CHARACTER_ENCODING = "CHARACTER_ENCODING";
+    public static final String ERROR_LISTENER = "ERROR_LISTENER";
+    public static final String DOCUMENT_TYPE = "DOCUMENT_TYPE";
+    public static final String DOCUMENT_SOURCE_NAME = "DOCUMENT_SOURCE_NAME";
+    public static final String COMPILE_SUBSTITUTE_NAMES = "COMPILE_SUBSTITUTE_NAMES";
+    public static final String COMPILE_NO_VALIDATION = "COMPILE_NO_VALIDATION";
+    public static final String COMPILE_NO_UPA_RULE = "COMPILE_NO_UPA_RULE";
+    public static final String COMPILE_NO_PVR_RULE = "COMPILE_NO_PVR_RULE";
+    public static final String COMPILE_NO_ANNOTATIONS = "COMPILE_NO_ANNOTATIONS";
+    public static final String COMPILE_DOWNLOAD_URLS = "COMPILE_DOWNLOAD_URLS";
+    public static final String COMPILE_MDEF_NAMESPACES = "COMPILE_MDEF_NAMESPACES";
+    public static final String VALIDATE_ON_SET = "VALIDATE_ON_SET";
+    public static final String VALIDATE_TREAT_LAX_AS_SKIP = "VALIDATE_TREAT_LAX_AS_SKIP";
+    public static final String VALIDATE_STRICT = "VALIDATE_STRICT";
+    public static final String VALIDATE_TEXT_ONLY = "VALIDATE_TEXT_ONLY";
+    public static final String UNSYNCHRONIZED = "UNSYNCHRONIZED";
+    public static final String ENTITY_RESOLVER = "ENTITY_RESOLVER";
+    public static final String BASE_URI = "BASE_URI";
+    public static final String SCHEMA_CODE_PRINTER = "SCHEMA_CODE_PRINTER";
+    public static final String GENERATE_JAVA_VERSION = "GENERATE_JAVA_VERSION";
+    public static final String COPY_USE_NEW_SYNC_DOMAIN = "COPY_USE_NEW_LOCALE";
+    public static final String LOAD_ENTITY_BYTES_LIMIT = "LOAD_ENTITY_BYTES_LIMIT";
+    public static final String ENTITY_EXPANSION_LIMIT = "ENTITY_EXPANSION_LIMIT";
+    public static final String LOAD_DTD_GRAMMAR = "LOAD_DTD_GRAMMAR";
+    public static final String LOAD_EXTERNAL_DTD = "LOAD_EXTERNAL_DTD";
+
+    public static final int DEFAULT_ENTITY_EXPANSION_LIMIT = 2048;
+    public static final String GENERATE_JAVA_14 = "1.4";
+    public static final String GENERATE_JAVA_15 = "1.5";
+
+    private static final XmlOptions EMPTY_OPTIONS;
+
+    static {
+        EMPTY_OPTIONS = new XmlOptions();
+        EMPTY_OPTIONS._map = Collections.unmodifiableMap(EMPTY_OPTIONS._map);
+    }
+
+
     private static final long serialVersionUID = 1L;
-    
-    private Map _map = new HashMap();
+
+    private Map<String, Object> _map = new HashMap<>();
 
 
     /**
      * Construct a new blank XmlOptions.
      */
-    public XmlOptions ( ) { }
+    public XmlOptions() {
+    }
 
     /**
      * Construct a new XmlOptions, copying the options.
      */
-    public XmlOptions (XmlOptions other) {
-        if (other != null) _map.putAll(other._map);
+    public XmlOptions(XmlOptions other) {
+        if (other != null) {
+            _map.putAll(other._map);
+        }
     }
-            
+
     //
     // Handy-dandy helper methods for setting some options
     //
 
     /**
      * This option will cause the saver to save namespace attributes first.
-     * 
+     *
      * @see XmlTokenSource#save(java.io.File, XmlOptions)
      * @see XmlTokenSource#xmlText(XmlOptions)
      */
-    public XmlOptions setSaveNamespacesFirst() { 
-        return set( SAVE_NAMESPACES_FIRST ); 
+    public XmlOptions setSaveNamespacesFirst() {
+        return setSaveNamespacesFirst(true);
     }
+
+    public XmlOptions setSaveNamespacesFirst(boolean b) {
+        return set(SAVE_NAMESPACES_FIRST, b);
+    }
+
+    public boolean isSaveNamespacesFirst() {
+        return hasOption(SAVE_NAMESPACES_FIRST);
+    }
+
+
     /**
      * This option will cause the saver to reformat white space for easier reading.
-     * 
+     *
      * @see XmlTokenSource#save(java.io.File, XmlOptions)
      * @see XmlTokenSource#xmlText(XmlOptions)
      */
-    public XmlOptions setSavePrettyPrint() { 
-        return set( SAVE_PRETTY_PRINT ); 
+    public XmlOptions setSavePrettyPrint() {
+        return setSavePrettyPrint(true);
     }
+
+    public XmlOptions setSavePrettyPrint(boolean b) {
+        return set(SAVE_PRETTY_PRINT, b);
+    }
+
+    public boolean isSavePrettyPrint() {
+        return hasOption(SAVE_PRETTY_PRINT);
+    }
+
 
     /**
      * When used with <code>setSavePrettyPrint</code> this sets the indent
      * amount to use.
-     * 
+     *
      * @param indent the indent amount to use
      * @see #setSavePrettyPrint
      * @see XmlTokenSource#save(java.io.File, XmlOptions)
      * @see XmlTokenSource#xmlText(XmlOptions)
      */
-    public XmlOptions setSavePrettyPrintIndent(int indent) { 
-        return set( SAVE_PRETTY_PRINT_INDENT, indent ); 
+    public XmlOptions setSavePrettyPrintIndent(int indent) {
+        return set(SAVE_PRETTY_PRINT_INDENT, indent);
+    }
+
+    public Integer getSavePrettyPrintIndent() {
+        return (Integer) get(SAVE_PRETTY_PRINT_INDENT);
     }
 
     /**
      * When used with <code>setSavePrettyPrint</code> this sets the offset
      * amount to use.
-     * 
+     *
      * @param offset the offset amount to use
      * @see #setSavePrettyPrint
      * @see XmlTokenSource#save(java.io.File, XmlOptions)
      * @see XmlTokenSource#xmlText(XmlOptions)
      */
-    public XmlOptions setSavePrettyPrintOffset(int offset) { 
-        return set( SAVE_PRETTY_PRINT_OFFSET, offset ); 
+    public XmlOptions setSavePrettyPrintOffset(int offset) {
+        return set(SAVE_PRETTY_PRINT_OFFSET, offset);
+    }
+
+    public Integer getSavePrettyPrintOffset() {
+        return (Integer) get(SAVE_PRETTY_PRINT_OFFSET);
     }
 
     /**
      * When writing a document, this sets the character
      * encoding to use.
-     * 
+     *
      * @param encoding the character encoding
      * @see XmlObject.Factory#parse(java.io.File, XmlOptions)
      * @see XmlTokenSource#save(java.io.File, XmlOptions)
      */
-    public XmlOptions setCharacterEncoding(String encoding) { 
-        return set( CHARACTER_ENCODING, encoding ); 
+    public XmlOptions setCharacterEncoding(String encoding) {
+        return set(CHARACTER_ENCODING, encoding);
+    }
+
+    public String getCharacterEncoding() {
+        return (String) get(CHARACTER_ENCODING);
     }
 
     /**
      * When parsing a document, this sets the type of the root
      * element. If this is set, the parser will not try to guess
      * the type based on the document's <code>QName</code>.
-     * 
+     *
      * @param type The root element's document type.
      * @see XmlObject.Factory#parse(java.io.File, XmlOptions)
      */
     public XmlOptions setDocumentType(SchemaType type) {
-        return set( DOCUMENT_TYPE, type ); 
+        return set(DOCUMENT_TYPE, type);
     }
 
+    public SchemaType getDocumentType() {
+        return (SchemaType) get(DOCUMENT_TYPE);
+    }
+
+
     /**
-     * <p>Sets a collection object for collecting {@link XmlError} objects 
-     * during parsing, validation, and compilation. When set, the collection 
+     * <p>Sets a collection object for collecting {@link XmlError} objects
+     * during parsing, validation, and compilation. When set, the collection
      * will contain all the errors after the operation takes place.  Notice that
      * the errors will only have line numbers if the document was
      * loaded with line numbers enabled.</p>
-     * 
+     *
      * <p>The following simple example illustrates using an error listener
      * during validation.</p>
-     * 
+     *
      * <pre>
      * // Create an XmlOptions instance and set the error listener.
      * XmlOptions validateOptions = new XmlOptions();
      * ArrayList errorList = new ArrayList();
      * validateOptions.setErrorListener(errorList);
-     * 
+     *
      * // Validate the XML.
      * boolean isValid = newEmp.validate(validateOptions);
-     * 
+     *
      * // If the XML isn't valid, loop through the listener's contents,
      * // printing contained messages.
      * if (!isValid)
@@ -201,26 +313,30 @@ public class XmlOptions implements java.io.Serializable
      *      for (int i = 0; i < errorList.size(); i++)
      *      {
      *          XmlError error = (XmlError)errorList.get(i);
-     *          
+     *
      *          System.out.println("\n");
      *          System.out.println("Message: " + error.getMessage() + "\n");
-     *          System.out.println("Location of invalid XML: " + 
+     *          System.out.println("Location of invalid XML: " +
      *              error.getCursorLocation().xmlText() + "\n");
      *      }
      * }
      * </pre>
-     * 
-     * @param c A collection that will be filled with {@link XmlError} objects 
-     * via {@link Collection#add}
-     * 
+     *
+     * @param c A collection that will be filled with {@link XmlError} objects
+     *          via {@link Collection#add}
      * @see XmlError
      * @see XmlObject.Factory#parse(java.io.File, XmlOptions)
      * @see XmlObject#validate(XmlOptions)
      * @see XmlBeans#compileXsd
      * @see XmlOptions#setLoadLineNumbers
      */
-    public XmlOptions setErrorListener (Collection c) { 
-        return set( ERROR_LISTENER, c ); 
+    public XmlOptions setErrorListener(Collection<XmlError> c) {
+        return set(ERROR_LISTENER, c);
+    }
+
+    @SuppressWarnings("unchecked")
+    public Collection<XmlError> getErrorListener() {
+        return (Collection<XmlError>) get(ERROR_LISTENER);
     }
 
     /**
@@ -234,141 +350,202 @@ public class XmlOptions implements java.io.Serializable
      * @see XmlTokenSource#xmlText(XmlOptions)
      */
     public XmlOptions setSaveAggressiveNamespaces() {
-        return set( SAVE_AGGRESSIVE_NAMESPACES ); 
+        return setSaveAggressiveNamespaces(true);
     }
 
-    /**
-     * @deprecated replaced by {@link #setSaveAggressiveNamespaces}
-     */
-    public XmlOptions setSaveAggresiveNamespaces() { 
-        return setSaveAggressiveNamespaces(); 
+    public XmlOptions setSaveAggressiveNamespaces(boolean b) {
+        return set(SAVE_AGGRESSIVE_NAMESPACES, b);
     }
+
+    public boolean isSaveAggressiveNamespaces() {
+        return hasOption(SAVE_AGGRESSIVE_NAMESPACES);
+    }
+
 
     /**
      * This option causes the saver to wrap the current fragment in
      * an element with the given name.
-     * 
+     *
      * @param name the name to use for the top level element
-     * 
      * @see XmlTokenSource#save(java.io.File, XmlOptions)
      * @see XmlTokenSource#xmlText(XmlOptions)
      */
-    public XmlOptions setSaveSyntheticDocumentElement (QName name) { 
-        return set( SAVE_SYNTHETIC_DOCUMENT_ELEMENT, name ); 
+    public XmlOptions setSaveSyntheticDocumentElement(QName name) {
+        return set(SAVE_SYNTHETIC_DOCUMENT_ELEMENT, name);
     }
+
+    public QName getSaveSyntheticDocumentElement() {
+        return (QName) get(SAVE_SYNTHETIC_DOCUMENT_ELEMENT);
+    }
+
 
     /**
      * If this option is set, the saver will try to use the default
      * namespace for the most commonly used URI. If it is not set
      * the saver will always created named prefixes.
-     * 
+     *
      * @see XmlTokenSource#save(java.io.File, XmlOptions)
      * @see XmlTokenSource#xmlText(XmlOptions)
      */
-    public XmlOptions setUseDefaultNamespace () { 
-        return set( SAVE_USE_DEFAULT_NAMESPACE ); 
+    public XmlOptions setUseDefaultNamespace() {
+        return setUseDefaultNamespace(true);
+    }
+
+    public XmlOptions setUseDefaultNamespace(boolean b) {
+        return set(SAVE_USE_DEFAULT_NAMESPACE, b);
+    }
+
+    public boolean isUseDefaultNamespace() {
+        return hasOption(SAVE_USE_DEFAULT_NAMESPACE);
     }
 
     /**
      * If namespaces have already been declared outside the scope of the
      * fragment being saved, this allows those mappings to be passed
      * down to the saver, so the prefixes are not re-declared.
-     * 
+     *
      * @param implicitNamespaces a map of prefixes to uris that can be
-     *  used by the saver without being declared
-     * 
+     *                           used by the saver without being declared
      * @see XmlTokenSource#save(java.io.File, XmlOptions)
      * @see XmlTokenSource#xmlText(XmlOptions)
-     */ 
-    public XmlOptions setSaveImplicitNamespaces (Map implicitNamespaces) { 
-        return set( SAVE_IMPLICIT_NAMESPACES, implicitNamespaces ); 
+     */
+    public XmlOptions setSaveImplicitNamespaces(Map<String, String> implicitNamespaces) {
+        return set(SAVE_IMPLICIT_NAMESPACES, implicitNamespaces);
+    }
+
+    @SuppressWarnings("unchecked")
+    public Map<String, String> getSaveImplicitNamespaces() {
+        return (Map<String, String>) get(SAVE_IMPLICIT_NAMESPACES);
     }
 
     /**
      * A map of hints to pass to the saver for which prefixes to use
      * for which namespace URI.
-     * 
+     *
      * @param suggestedPrefixes a map from URIs to prefixes
-     * 
      * @see XmlTokenSource#save(java.io.File, XmlOptions)
      * @see XmlTokenSource#xmlText(XmlOptions)
      */
-    public XmlOptions setSaveSuggestedPrefixes (Map suggestedPrefixes) { 
-        return set( SAVE_SUGGESTED_PREFIXES, suggestedPrefixes ); 
+    public XmlOptions setSaveSuggestedPrefixes(Map<String, String> suggestedPrefixes) {
+        return set(SAVE_SUGGESTED_PREFIXES, suggestedPrefixes);
+    }
+
+    @SuppressWarnings("unchecked")
+    public Map<String, String> getSaveSuggestedPrefixes() {
+        return (Map<String, String>) get(SAVE_SUGGESTED_PREFIXES);
     }
 
     /**
      * This option causes the saver to filter a Processing Instruction
      * with the given target
-     * 
+     *
      * @param filterProcinst the name of a Processing Instruction to filter
-     *   on save
-     * 
+     *                       on save
      * @see XmlTokenSource#save(java.io.File, XmlOptions)
      * @see XmlTokenSource#xmlText(XmlOptions)
      */
-    public XmlOptions setSaveFilterProcinst (String filterProcinst) { 
-        return set( SAVE_FILTER_PROCINST, filterProcinst ); 
+    public XmlOptions setSaveFilterProcinst(String filterProcinst) {
+        return set(SAVE_FILTER_PROCINST, filterProcinst);
+    }
+
+    public String getSaveFilterProcinst() {
+        return (String) get(SAVE_FILTER_PROCINST);
     }
 
     /**
      * This option causes the saver to replace characters with other values in
      * the output stream.  It is intended to be used for escaping non-standard
      * characters during output.
-     * 
+     *
      * @param characterReplacementMap is an XmlOptionCharEscapeMap containing
-     * the characters to be escaped.
-     * 
+     *                                the characters to be escaped.
      * @see XmlTokenSource#save(java.io.File, XmlOptions)
      * @see XmlTokenSource#xmlText(XmlOptions)
      * @see XmlOptionCharEscapeMap
      */
-    public XmlOptions setSaveSubstituteCharacters (
+    public XmlOptions setSaveSubstituteCharacters(
         XmlOptionCharEscapeMap characterReplacementMap) {
-        return set( SAVE_SUBSTITUTE_CHARACTERS, characterReplacementMap );
+        return set(SAVE_SUBSTITUTE_CHARACTERS, characterReplacementMap);
+    }
+
+    public XmlOptionCharEscapeMap getSaveSubstituteCharacters() {
+        return (XmlOptionCharEscapeMap) get(SAVE_SUBSTITUTE_CHARACTERS);
     }
 
     /**
      * When saving a fragment, this option changes the qname of the synthesized
      * root element.  Normally &lt;xml-fragment&gt; is used.
-     * 
+     *
      * @see XmlTokenSource#save(java.io.File, XmlOptions)
      * @see XmlTokenSource#xmlText(XmlOptions)
      */
-    public XmlOptions setSaveUseOpenFrag () { 
-        return set( SAVE_USE_OPEN_FRAGMENT ); 
+    public XmlOptions setSaveUseOpenFrag() {
+        return setSaveUseOpenFrag(true);
+    }
+
+    public XmlOptions setSaveUseOpenFrag(boolean b) {
+        return set(SAVE_USE_OPEN_FRAGMENT, b);
+    }
+
+    public boolean isSaveUseOpenFrag() {
+        return hasOption(SAVE_USE_OPEN_FRAGMENT);
     }
 
     /**
      * This option controls whether saving begins on the element or its contents
-     * 
+     *
      * @see XmlTokenSource#save(java.io.File, XmlOptions)
      * @see XmlTokenSource#xmlText(XmlOptions)
      */
-    public XmlOptions setSaveOuter () { 
-        return set( SAVE_OUTER ); 
+    public XmlOptions setSaveOuter() {
+        return setSaveOuter(true);
+    }
+
+    public XmlOptions setSaveOuter(boolean b) {
+        return set(SAVE_OUTER, b);
+    }
+
+    public boolean isSaveOuter() {
+        return hasOption(SAVE_OUTER);
     }
 
     /**
      * This option controls whether saving begins on the element or its contents
-     * 
+     *
      * @see XmlTokenSource#save(java.io.File, XmlOptions)
      * @see XmlTokenSource#xmlText(XmlOptions)
      */
-    public XmlOptions setSaveInner () { 
-        return set( SAVE_INNER ); 
+    public XmlOptions setSaveInner() {
+        return setSaveInner(true);
+    }
+
+    public XmlOptions setSaveInner(boolean b) {
+        return set(SAVE_INNER, b);
+    }
+
+    public boolean isSaveInner() {
+        return hasOption(SAVE_INNER);
     }
 
     /**
      * This option controls whether saving saves out the XML
      * declaration (<?xml ... ?>
-     * 
+     *
      * @see XmlTokenSource#save(java.io.File, XmlOptions)
      * @see XmlTokenSource#xmlText(XmlOptions)
      */
-    public XmlOptions setSaveNoXmlDecl () { 
-        return set( SAVE_NO_XML_DECL ); 
+    public XmlOptions setSaveNoXmlDecl() {
+        return setSaveNoXmlDecl(true);
     }
+
+    public XmlOptions setSaveNoXmlDecl(boolean b) {
+        return set(SAVE_NO_XML_DECL, b);
+    }
+
+    public boolean isSaveNoXmlDecl() {
+        return hasOption(SAVE_NO_XML_DECL);
+    }
+
 
     /**
      * This option controls when saving will use CDATA blocks.
@@ -385,11 +562,17 @@ public class XmlOptions implements java.io.Serializable
      * <tr><td>Only text that has y entitazable chars is CDATA</td> <td>0</td> <td>y</td></tr>
      * <tr><td>Only text longer than x chars and has y entitazable chars is CDATA</td> <td>x</td> <td>y</td></tr>
      * </table>
+     *
      * @see XmlOptions#setSaveCDataEntityCountThreshold(int)
      */
-    public XmlOptions setSaveCDataLengthThreshold (int cdataLengthThreshold) {
-        return set( SAVE_CDATA_LENGTH_THRESHOLD, cdataLengthThreshold );
+    public XmlOptions setSaveCDataLengthThreshold(int cdataLengthThreshold) {
+        return set(SAVE_CDATA_LENGTH_THRESHOLD, cdataLengthThreshold);
     }
+
+    public Integer getSaveCDataLengthThreshold() {
+        return (Integer) get(SAVE_CDATA_LENGTH_THRESHOLD);
+    }
+
 
     /**
      * This option controls when saving will use CDATA blocks.
@@ -399,8 +582,12 @@ public class XmlOptions implements java.io.Serializable
      *
      * @see XmlOptions#setSaveCDataLengthThreshold(int)
      */
-    public XmlOptions setSaveCDataEntityCountThreshold (int cdataEntityCountThreshold) {
-        return set( SAVE_CDATA_ENTITY_COUNT_THRESHOLD, cdataEntityCountThreshold );
+    public XmlOptions setSaveCDataEntityCountThreshold(int cdataEntityCountThreshold) {
+        return set(SAVE_CDATA_ENTITY_COUNT_THRESHOLD, cdataEntityCountThreshold);
+    }
+
+    public Integer getSaveCDataEntityCountThreshold() {
+        return (Integer) get(SAVE_CDATA_ENTITY_COUNT_THRESHOLD);
     }
 
     /**
@@ -426,32 +613,35 @@ public class XmlOptions implements java.io.Serializable
      *
      * <p>Sample code:
      * <pre>
-        String xmlText = "&lt;a>\n" +
-                "&lt;a>&lt;![CDATA[cdata text]]>&lt;/a>\n" +
-                "&lt;b>&lt;![CDATA[cdata text]]> regular text&lt;/b>\n" +
-                "&lt;c>text &lt;![CDATA[cdata text]]>&lt;/c>\n" +
-                "&lt;/a>";
-        System.out.println(xmlText);
-
-        XmlOptions opts = new XmlOptions();
-        opts.setUseCDataBookmarks();
-
-        XmlObject xo = XmlObject.Factory.parse( xmlText , opts);
-
-        System.out.println("xo1:\n" + xo.xmlText(opts));
-        System.out.println("\n");
-
-        opts.setSavePrettyPrint();
-        System.out.println("xo2:\n" + xo.xmlText(opts));
+     * String xmlText = "&lt;a>\n" +
+     * "&lt;a>&lt;![CDATA[cdata text]]>&lt;/a>\n" +
+     * "&lt;b>&lt;![CDATA[cdata text]]> regular text&lt;/b>\n" +
+     * "&lt;c>text &lt;![CDATA[cdata text]]>&lt;/c>\n" +
+     * "&lt;/a>";
+     * System.out.println(xmlText);
+     *
+     * XmlOptions opts = new XmlOptions();
+     * opts.setUseCDataBookmarks();
+     *
+     * XmlObject xo = XmlObject.Factory.parse( xmlText , opts);
+     *
+     * System.out.println("xo1:\n" + xo.xmlText(opts));
+     * System.out.println("\n");
+     *
+     * opts.setSavePrettyPrint();
+     * System.out.println("xo2:\n" + xo.xmlText(opts));
      * </pre>
      * </p>
      *
      * @see CDataBookmark
      * @see CDataBookmark#CDATA_BOOKMARK
      */
-    public XmlOptions setUseCDataBookmarks()
-    {
-        return set( LOAD_SAVE_CDATA_BOOKMARKS );        
+    public XmlOptions setUseCDataBookmarks() {
+        return set(LOAD_SAVE_CDATA_BOOKMARKS);
+    }
+
+    public boolean isUseCDataBookmarks() {
+        return hasOption(LOAD_SAVE_CDATA_BOOKMARKS);
     }
 
     /**
@@ -459,50 +649,87 @@ public class XmlOptions implements java.io.Serializable
      * startElement event. By default, up to and including XMLBeans 2.3.0 they were included, in
      * subsequent versions, they are no longer included.
      */
-    public XmlOptions setSaveSaxNoNSDeclsInAttributes () {
-        return set( SAVE_SAX_NO_NSDECLS_IN_ATTRIBUTES );
+    public XmlOptions setSaveSaxNoNSDeclsInAttributes() {
+        return setSaveSaxNoNSDeclsInAttributes(true);
     }
+
+    public XmlOptions setSaveSaxNoNSDeclsInAttributes(boolean b) {
+        return set(SAVE_SAX_NO_NSDECLS_IN_ATTRIBUTES, b);
+    }
+
+    public boolean isSaveSaxNoNSDeclsInAttributes() {
+        return hasOption(SAVE_SAX_NO_NSDECLS_IN_ATTRIBUTES);
+    }
+
 
     /**
      * If this option is set, the document element is replaced with the
      * given QName when parsing.  If null is supplied, the document element
      * is removed.
-     * 
+     *
      * @see XmlObject.Factory#parse(java.io.File, XmlOptions)
      */
-    public XmlOptions setLoadReplaceDocumentElement ( QName replacement ) { 
-        return set( LOAD_REPLACE_DOCUMENT_ELEMENT, replacement ); 
+    public XmlOptions setLoadReplaceDocumentElement(QName replacement) {
+        return set(LOAD_REPLACE_DOCUMENT_ELEMENT, replacement);
+    }
+
+    public QName getLoadReplaceDocumentElement() {
+        return (QName) get(LOAD_REPLACE_DOCUMENT_ELEMENT);
     }
 
     /**
      * If this option is set, all insignificant whitespace is stripped
      * when parsing a document.  Can be used to save memory on large
      * documents when you know there is no mixed content.
-     * 
+     *
      * @see XmlObject.Factory#parse(java.io.File, XmlOptions)
      */
-    public XmlOptions setLoadStripWhitespace () { 
-        return set( LOAD_STRIP_WHITESPACE); 
+    public XmlOptions setLoadStripWhitespace() {
+        return setLoadStripWhitespace(true);
+    }
+
+    public XmlOptions setLoadStripWhitespace(boolean b) {
+        return set(LOAD_STRIP_WHITESPACE, b);
+    }
+
+    public boolean isSetLoadStripWhitespace() {
+        return hasOption(LOAD_STRIP_WHITESPACE);
     }
 
     /**
      * If this option is set, all comments are stripped when parsing
      * a document.
-     * 
+     *
      * @see XmlObject.Factory#parse(java.io.File, XmlOptions)
      */
     public XmlOptions setLoadStripComments() {
-        return set( LOAD_STRIP_COMMENTS ); 
+        return setLoadStripComments(true);
+    }
+
+    public XmlOptions setLoadStripComments(boolean b) {
+        return set(LOAD_STRIP_COMMENTS, b);
+    }
+
+    public boolean isLoadStripComments() {
+        return hasOption(LOAD_STRIP_COMMENTS);
     }
 
     /**
-     * If this option is set, all processing instructions 
+     * If this option is set, all processing instructions
      * are stripped when parsing a document.
-     * 
+     *
      * @see XmlObject.Factory#parse(java.io.File, XmlOptions)
      */
-    public XmlOptions setLoadStripProcinsts () { 
-        return set( LOAD_STRIP_PROCINSTS ); 
+    public XmlOptions setLoadStripProcinsts() {
+        return setLoadStripProcinsts(true);
+    }
+
+    public XmlOptions setLoadStripProcinsts(boolean b) {
+        return set(LOAD_STRIP_PROCINSTS, b);
+    }
+
+    public boolean isLoadStripProcinsts() {
+        return hasOption(LOAD_STRIP_PROCINSTS);
     }
 
     /**
@@ -512,30 +739,41 @@ public class XmlOptions implements java.io.Serializable
      * line numbers.
      * <br/>Note: This adds line numbers info only for start tags.
      * For line number info on end tags use:
-     *   {@link XmlOptions#setLoadLineNumbers(java.lang.String)}
-     * <br/>Example: xmlOptions.setLoadLineNumbers(XmlOptions.LOAD_LINE_NUMBERS_END_ELEMENT)
-     * 
-     * @see XmlObject.Factory#parse(java.io.File, XmlOptions)
-     * @see XmlError
-     */
-    public XmlOptions setLoadLineNumbers () { 
-        return set( LOAD_LINE_NUMBERS ); 
-    }
-
-     /**
-     * If this option is set, line number annotations are placed
-     * in the store when parsing a document.  This is particularly
-     * useful when you want {@link XmlError} objects to contain
-     * line numbers. Use the option to load line numbers at the end of an element.
-     * <br/>Example: xmlOptions.setLoadLineNumbers(XmlOptions.LOAD_LINE_NUMBERS_END_ELEMENT)
+     * {@link XmlOptions#setLoadLineNumbersEndElement()}
      *
      * @see XmlObject.Factory#parse(java.io.File, XmlOptions)
      * @see XmlError
      */
-    public XmlOptions setLoadLineNumbers (String option) {
-        XmlOptions temp = setLoadLineNumbers();
-        temp = temp.set( option );
-        return temp;
+    public XmlOptions setLoadLineNumbers() {
+        return setLoadLineNumbers(true);
+    }
+
+    public XmlOptions setLoadLineNumbers(boolean b) {
+        return set(LOAD_LINE_NUMBERS, b);
+    }
+
+    public boolean isLoadLineNumbers() {
+        return hasOption(LOAD_LINE_NUMBERS);
+    }
+
+
+    /**
+     * If this option is set, line number annotations are placed
+     * in the store when parsing a document.  This is particularly
+     * useful when you want {@link XmlError} objects to contain
+     * line numbers. Use the option to load line numbers at the end of an element.
+     */
+    public XmlOptions setLoadLineNumbersEndElement() {
+        return setLoadLineNumbersEndElement(true);
+    }
+
+    public XmlOptions setLoadLineNumbersEndElement(boolean b) {
+        setLoadLineNumbers(true);
+        return set(LOAD_LINE_NUMBERS_END_ELEMENT, b);
+    }
+
+    public boolean isLoadLineNumbersEndElement() {
+        return hasOption(LOAD_LINE_NUMBERS_END_ELEMENT);
     }
 
     /**
@@ -553,13 +791,17 @@ public class XmlOptions implements java.io.Serializable
      * to type the instance according to a schema in a nonempty namespace,
      * and therefore avoid the problematic practice of using schema
      * definitions without a target namespace.
-     * 
+     *
      * @param substNamespaces a map of document URIs to replacement URIs
-     * 
      * @see XmlObject.Factory#parse(java.io.File, XmlOptions)
      */
-    public XmlOptions setLoadSubstituteNamespaces (Map substNamespaces) { 
-        return set( LOAD_SUBSTITUTE_NAMESPACES, substNamespaces ); 
+    public XmlOptions setLoadSubstituteNamespaces(Map<String, String> substNamespaces) {
+        return set(LOAD_SUBSTITUTE_NAMESPACES, substNamespaces);
+    }
+
+    @SuppressWarnings("unchecked")
+    public Map<String, String> getLoadSubstituteNamespaces() {
+        return (Map<String, String>) get(LOAD_SUBSTITUTE_NAMESPACES);
     }
 
     /**
@@ -567,23 +809,35 @@ public class XmlOptions implements java.io.Serializable
      * immediately after parsing a document resulting in a smaller memory
      * footprint.  Use this option if you are loading a large number
      * of unchanging documents that will stay in memory for some time.
-     * 
+     *
      * @see XmlObject.Factory#parse(java.io.File, XmlOptions)
      */
-    public XmlOptions setLoadTrimTextBuffer () { 
-        return set( LOAD_TRIM_TEXT_BUFFER ); 
+    public XmlOptions setLoadTrimTextBuffer() {
+        return setLoadTrimTextBuffer(true);
+    }
+
+    public XmlOptions setLoadTrimTextBuffer(boolean b) {
+        return set(LOAD_TRIM_TEXT_BUFFER, b);
+    }
+
+    public boolean isLoadTrimTextBuffer() {
+        return hasOption(LOAD_TRIM_TEXT_BUFFER);
     }
 
     /**
      * Set additional namespace mappings to be added when parsing
      * a document.
-     * 
+     *
      * @param nses additional namespace mappings
-     * 
      * @see XmlObject.Factory#parse(java.io.File, XmlOptions)
      */
-    public XmlOptions setLoadAdditionalNamespaces (Map nses) { 
-        return set( LOAD_ADDITIONAL_NAMESPACES, nses ); 
+    public XmlOptions setLoadAdditionalNamespaces(Map<String, String> nses) {
+        return set(LOAD_ADDITIONAL_NAMESPACES, nses);
+    }
+
+    @SuppressWarnings("unchecked")
+    public Map<String, String> getLoadAdditionalNamespaces() {
+        return (Map<String, String>) get(LOAD_ADDITIONAL_NAMESPACES);
     }
 
     /**
@@ -594,23 +848,40 @@ public class XmlOptions implements java.io.Serializable
      * <br>
      * The schema compiler uses message digests to detect and eliminate
      * duplicate imported xsd files.
-     * 
+     *
      * @see XmlObject.Factory#parse(java.io.File, XmlOptions)
      */
-    public XmlOptions setLoadMessageDigest () { 
-        return set( LOAD_MESSAGE_DIGEST ); 
+    public XmlOptions setLoadMessageDigest() {
+        return setLoadMessageDigest(true);
+    }
+
+    public XmlOptions setLoadMessageDigest(boolean b) {
+        return set(LOAD_MESSAGE_DIGEST, b);
+    }
+
+    public boolean isLoadMessageDigest() {
+        return hasOption(LOAD_MESSAGE_DIGEST);
     }
 
     /**
      * By default, XmlBeans does not resolve entities when parsing xml
      * documents (unless an explicit entity resolver is specified).
      * Use this option to turn on entity resolving by default.
-     * 
+     *
      * @see XmlObject.Factory#parse(java.io.File, XmlOptions)
      */
-    public XmlOptions setLoadUseDefaultResolver () { 
-        return set( LOAD_USE_DEFAULT_RESOLVER ); 
+    public XmlOptions setLoadUseDefaultResolver() {
+        return setLoadUseDefaultResolver(true);
     }
+
+    public XmlOptions setLoadUseDefaultResolver(boolean b) {
+        return set(LOAD_USE_DEFAULT_RESOLVER, b);
+    }
+
+    public boolean isLoadUseDefaultResolver() {
+        return hasOption(LOAD_USE_DEFAULT_RESOLVER);
+    }
+
 
     /**
      * By default, XmlBeans creates a JAXP parser,
@@ -620,21 +891,28 @@ public class XmlOptions implements java.io.Serializable
      *
      * @see XmlObject.Factory#parse(java.io.File, XmlOptions)
      */
-    public XmlOptions setLoadUseXMLReader (XMLReader xmlReader) {
-        return set( LOAD_USE_XMLREADER, xmlReader );
+    public XmlOptions setLoadUseXMLReader(XMLReader xmlReader) {
+        return set(LOAD_USE_XMLREADER, xmlReader);
+    }
+
+    public XMLReader getLoadUseXMLReader() {
+        return (XMLReader) get(LOAD_USE_XMLREADER);
     }
 
     /**
      * Sets the name of the variable that represents
      * the current node in a query expression.
-     * 
+     *
      * @param varName The new variable name to use for the query.
-     * 
      * @see XmlObject#execQuery
      * @see XmlCursor#execQuery
      */
-    public XmlOptions setXqueryCurrentNodeVar (String varName) { 
-        return set( XQUERY_CURRENT_NODE_VAR, varName ); 
+    public XmlOptions setXqueryCurrentNodeVar(String varName) {
+        return set(XQUERY_CURRENT_NODE_VAR, varName);
+    }
+
+    public String getXqueryCurrentNodeVar() {
+        return (String) get(XQUERY_CURRENT_NODE_VAR);
     }
 
     /**
@@ -646,12 +924,16 @@ public class XmlOptions implements java.io.Serializable
      * xquery and has no effect on xpath expressions.
      *
      * @param varMap a map from Strings to variable instances.
-     *
      * @see XmlObject#execQuery
      * @see XmlCursor#execQuery
      */
-    public XmlOptions setXqueryVariables (Map varMap) {
-        return set( XQUERY_VARIABLE_MAP, varMap );
+    public XmlOptions setXqueryVariables(Map<String, Object> varMap) {
+        return set(XQUERY_VARIABLE_MAP, varMap);
+    }
+
+    @SuppressWarnings("unchecked")
+    public Map<String, Object> getXqueryVariables() {
+        return (Map<String, Object>) get(XQUERY_VARIABLE_MAP);
     }
 
     /**
@@ -659,33 +941,45 @@ public class XmlOptions implements java.io.Serializable
      * when parsing a document.  If a document is parsed from a
      * File or URI, it is automatically set to the URI of the
      * source; otherwise, for example, when parsing a String,
-     * you can use this option to specify the source name yourself. 
-     * 
+     * you can use this option to specify the source name yourself.
+     *
      * @see XmlObject.Factory#parse(java.lang.String, XmlOptions)
      */
-    public XmlOptions setDocumentSourceName (String documentSourceName) { 
-        return set( DOCUMENT_SOURCE_NAME, documentSourceName ); 
+    public XmlOptions setDocumentSourceName(String documentSourceName) {
+        return set(DOCUMENT_SOURCE_NAME, documentSourceName);
+    }
+
+    public String getDocumentSourceName() {
+        return (String) get(DOCUMENT_SOURCE_NAME);
     }
 
     /**
      * This option allows for <code>QName</code> substitution during schema compilation.
-     * 
+     *
      * @param nameMap a map from <code>QName</code>s to substitute <code>QName</code>s.
-     * 
      * @see XmlBeans#compileXsd
      */
-    public XmlOptions setCompileSubstituteNames (Map nameMap) { 
-        return set( COMPILE_SUBSTITUTE_NAMES, nameMap ); 
+    public XmlOptions setCompileSubstituteNames(Map<QName, QName> nameMap) {
+        return set(COMPILE_SUBSTITUTE_NAMES, nameMap);
     }
-    
+
+    @SuppressWarnings("unchecked")
+    public Map<QName, QName> getCompileSubstituteNames() {
+        return (Map<QName, QName>) get(COMPILE_SUBSTITUTE_NAMES);
+    }
+
     /**
      * If this option is set, validation is not done on the Schema XmlBeans
      * when building a <code>SchemaTypeSystem</code>
-     * 
+     *
      * @see XmlBeans#compileXsd
      */
-    public XmlOptions setCompileNoValidation () { 
-        return set( COMPILE_NO_VALIDATION ); 
+    public XmlOptions setCompileNoValidation() {
+        return set(COMPILE_NO_VALIDATION);
+    }
+
+    public boolean isCompileNoValidation() {
+        return hasOption(COMPILE_NO_VALIDATION);
     }
 
     /**
@@ -693,59 +987,94 @@ public class XmlOptions implements java.io.Serializable
      * enforced when building a <code>SchemaTypeSystem</code>. See
      * <a target="_blank" href="http://www.w3.org/TR/xmlschema-1/#non-ambig">Appendix H of the XML Schema specification</a>
      * for information on the UPA rule.
-     * 
+     *
      * @see XmlBeans#compileXsd
      */
-    public XmlOptions setCompileNoUpaRule () { 
-        return set( COMPILE_NO_UPA_RULE ); 
+    public XmlOptions setCompileNoUpaRule() {
+        return setCompileNoUpaRule(true);
     }
-    
+
+    public XmlOptions setCompileNoUpaRule(boolean b) {
+        return set(COMPILE_NO_UPA_RULE, b);
+    }
+
+    public boolean isCompileNoUpaRule() {
+        return hasOption(COMPILE_NO_UPA_RULE);
+    }
+
     /**
      * If this option is set, the particle valid (restriciton) rule is not
      * enforced when building a <code>SchemaTypeSystem</code>. See
      * <a target="_blank" href="http://www.w3.org/TR/xmlschema-1/#cos-particle-restrict">Section 3.9.6 of the XML Schema specification</a>
      * for information on the PVR rule.
-     * 
+     *
      * @see XmlBeans#compileXsd
      */
-    public XmlOptions setCompileNoPvrRule () { 
-        return set( COMPILE_NO_PVR_RULE ); 
+    public XmlOptions setCompileNoPvrRule() {
+        return setCompileNoPvrRule(true);
+    }
+
+    public XmlOptions setCompileNoPvrRule(boolean b) {
+        return set(COMPILE_NO_PVR_RULE, b);
+    }
+
+    public boolean isCompileNoPvrRule() {
+        return hasOption(COMPILE_NO_PVR_RULE);
     }
 
     /**
      * if this option is set, the schema compiler will skip annotations when
      * processing Schema components.
-     * 
+     *
      * @see XmlBeans#compileXsd
      */
     public XmlOptions setCompileNoAnnotations() {
-        return set( COMPILE_NO_ANNOTATIONS );
+        return setCompileNoAnnotations(true);
+    }
+
+    public XmlOptions setCompileNoAnnotations(boolean b) {
+        return set(COMPILE_NO_ANNOTATIONS, b);
+    }
+
+    public boolean isCompileNoAnnotations() {
+        return hasOption(COMPILE_NO_ANNOTATIONS);
     }
 
     /**
      * If this option is set, then the schema compiler will try to download
      * schemas that appear in imports and includes from network based URLs.
-     * 
+     *
      * @see XmlBeans#compileXsd
      */
-    public XmlOptions setCompileDownloadUrls () { 
-        return set( COMPILE_DOWNLOAD_URLS); 
+    public XmlOptions setCompileDownloadUrls() {
+        return setCompileDownloadUrls(true);
     }
-    
+
+    public XmlOptions setCompileDownloadUrls(boolean b) {
+        return set(COMPILE_DOWNLOAD_URLS, b);
+    }
+
+    public boolean isCompileDownloadUrls() {
+        return hasOption(COMPILE_DOWNLOAD_URLS);
+    }
+
     /**
      * If this option is set, then the schema compiler will permit and
      * ignore multiple definitions of the same component (element, attribute,
      * type, etc) names in the given namespaces.  If multiple definitions
      * with the same name appear, the definitions that happen to be processed
      * last will be ignored.
-     * 
+     *
      * @param mdefNamespaces a set of namespace URIs as Strings
-     * 
      * @see XmlBeans#compileXsd
-     */ 
-    public XmlOptions setCompileMdefNamespaces(Set mdefNamespaces)
-    {
-        return set( COMPILE_MDEF_NAMESPACES, mdefNamespaces );
+     */
+    public XmlOptions setCompileMdefNamespaces(Set<String> mdefNamespaces) {
+        return set(COMPILE_MDEF_NAMESPACES, mdefNamespaces);
+    }
+
+    @SuppressWarnings("unchecked")
+    public Set<String> getCompileMdefNamespaces() {
+        return (Set<String>) get(COMPILE_MDEF_NAMESPACES);
     }
 
     /**
@@ -756,11 +1085,19 @@ public class XmlOptions implements java.io.Serializable
      * thrown immediately.  This option is useful for finding code that
      * is introducing invalid values in an XML document, but it
      * slows performance.
-     * 
+     *
      * @see XmlObject.Factory#parse(java.io.File, XmlOptions)
      */
     public XmlOptions setValidateOnSet() {
-        return set( VALIDATE_ON_SET );
+        return setValidateOnSet(true);
+    }
+
+    public XmlOptions setValidateOnSet(boolean b) {
+        return set(VALIDATE_ON_SET, b);
+    }
+
+    public boolean isValidateOnSet() {
+        return hasOption(VALIDATE_ON_SET);
     }
 
     /**
@@ -770,7 +1107,15 @@ public class XmlOptions implements java.io.Serializable
      * classpath that the document author did not anticipate.
      */
     public XmlOptions setValidateTreatLaxAsSkip() {
-        return set ( VALIDATE_TREAT_LAX_AS_SKIP );
+        return setValidateTreatLaxAsSkip(true);
+    }
+
+    public XmlOptions setValidateTreatLaxAsSkip(boolean b) {
+        return set(VALIDATE_TREAT_LAX_AS_SKIP, b);
+    }
+
+    public boolean isValidateTreatLaxAsSkip() {
+        return hasOption(VALIDATE_TREAT_LAX_AS_SKIP);
     }
 
     /**
@@ -778,8 +1123,29 @@ public class XmlOptions implements java.io.Serializable
      * default for better compatibility.
      */
     public XmlOptions setValidateStrict() {
-        return set ( VALIDATE_STRICT );
+        return setValidateStrict(true);
     }
+
+    public XmlOptions setValidateStrict(boolean b) {
+        return set(VALIDATE_STRICT, b);
+    }
+
+    public boolean isValidateStrict() {
+        return hasOption(VALIDATE_STRICT);
+    }
+
+    public XmlOptions setValidateTextOnly() {
+        return setValidateTextOnly(true);
+    }
+
+    public XmlOptions setValidateTextOnly(boolean b) {
+        return set(VALIDATE_TEXT_ONLY, b);
+    }
+
+    public boolean isValidateTextOnly() {
+        return hasOption(VALIDATE_TEXT_ONLY);
+    }
+
 
     /**
      * This option controls whether or not operations on XmlBeans are
@@ -788,46 +1154,66 @@ public class XmlOptions implements java.io.Serializable
      * XmlBeans simultainously, but has a perf impact.  If set, then
      * only one thread may access an XmlBean.
      */
-    public XmlOptions setUnsynchronized ( )
-    {
-        return set( UNSYNCHRONIZED );
+    public XmlOptions setUnsynchronized() {
+        return setUnsynchronized(true);
+    }
+
+    public XmlOptions setUnsynchronized(boolean b) {
+        return set(UNSYNCHRONIZED, b);
+    }
+
+    public boolean isUnsynchronized() {
+        return hasOption(UNSYNCHRONIZED);
     }
 
     /**
      * If this option is set when compiling a schema, then the given
      * EntityResolver will be consulted in order to resolve any
      * URIs while downloading imported schemas.
-     *
+     * <p>
      * EntityResolvers are currently only used by compileXsd; they
      * are not consulted by other functions, for example, parse.
      * This will likely change in the future.
-     * 
+     *
      * @see XmlBeans#compileXsd
      */
     public XmlOptions setEntityResolver(EntityResolver resolver) {
-        return set( ENTITY_RESOLVER, resolver );
+        return set(ENTITY_RESOLVER, resolver);
+    }
+
+    public EntityResolver getEntityResolver() {
+        return (EntityResolver) get(ENTITY_RESOLVER);
     }
 
     /**
      * If this option is set when compiling a schema, then the given
      * URI will be considered as base URI when deciding the directory
      * structure for saving the sources inside the generated JAR file.
+     *
      * @param baseURI the URI to be considered as "base"
      * @see XmlBeans#compileXsd
      */
     public XmlOptions setBaseURI(URI baseURI) {
-        return set( BASE_URI, baseURI );
+        return set(BASE_URI, baseURI);
+    }
+
+    public URI getBaseURI() {
+        return (URI) get(BASE_URI);
     }
 
     /**
      * If this option is set when compiling a schema, then the given
      * SchemaTypeCodePrinter.Printer will be used to generate the
      * Java code.
-     * 
+     *
      * @see XmlBeans#compileXsd
      */
     public XmlOptions setSchemaCodePrinter(SchemaCodePrinter printer) {
-        return set( SCHEMA_CODE_PRINTER, printer );
+        return set(SCHEMA_CODE_PRINTER, printer);
+    }
+
+    public SchemaCodePrinter getSchemaCodePrinter() {
+        return (SchemaCodePrinter) get(SCHEMA_CODE_PRINTER);
     }
 
     /**
@@ -837,13 +1223,16 @@ public class XmlOptions implements java.io.Serializable
      * supported.
      *
      * @param source A Java version number
-     *
      * @see #GENERATE_JAVA_14
      * @see #GENERATE_JAVA_15
      * @see XmlBeans#compileXmlBeans
      */
-    public XmlOptions setGenerateJavaVersion (String source) {
-        return set( GENERATE_JAVA_VERSION, source );
+    public XmlOptions setGenerateJavaVersion(String source) {
+        return set(GENERATE_JAVA_VERSION, source);
+    }
+
+    public String getGenerateJavaVersion() {
+        return (String) get(GENERATE_JAVA_VERSION);
     }
 
     /**
@@ -852,227 +1241,169 @@ public class XmlOptions implements java.io.Serializable
      * will share the same synchronization domain, requiring explicit synchronization
      * when concurent accessing the two objects.
      *
-     * @param useNewSyncDomain  A flag representing the usage of new domain
-     *
+     * @param useNewSyncDomain A flag representing the usage of new domain
      * @see XmlObject#copy()
      */
-    public XmlOptions setCopyUseNewSynchronizationDomain (boolean useNewSyncDomain)
-    {
+    public XmlOptions setCopyUseNewSynchronizationDomain(boolean useNewSyncDomain) {
         return set(COPY_USE_NEW_SYNC_DOMAIN, useNewSyncDomain);
+    }
+
+    public boolean isCopyUseNewSynchronizationDomain() {
+        Boolean flag = (Boolean)get(COPY_USE_NEW_SYNC_DOMAIN);
+        return flag != null && flag;
     }
 
     /**
      * Sets the maximum number of bytes allowed when an Entity is expanded during parsing.
      * The default value is 10240 bytes.
-     * @param entityBytesLimit
-     * @return
+     *
+     * @param entityBytesLimit the maximum number of bytes allowed when an Entity is expanded during parsing
+     * @return this
      */
-    public XmlOptions setLoadEntityBytesLimit (int entityBytesLimit)
-    {
-        return set(LOAD_ENTITY_BYTES_LIMIT,entityBytesLimit);
+    public XmlOptions setLoadEntityBytesLimit(int entityBytesLimit) {
+        return set(LOAD_ENTITY_BYTES_LIMIT, entityBytesLimit);
     }
+
+    public Integer getLoadEntityBytesLimit() {
+        return (Integer) get(LOAD_ENTITY_BYTES_LIMIT);
+    }
+
 
     /**
      * Sets the maximum number of entity expansions allowed during parsing.
      * The default value is 2048.
-     * @param entityExpansionLimit
+     *
+     * @param entityExpansionLimit the maximum number of entity expansions allowed during parsing
      * @return this
      */
-    public XmlOptions setEntityExpansionLimit (int entityExpansionLimit)
-    {
+    public XmlOptions setEntityExpansionLimit(int entityExpansionLimit) {
         return set(ENTITY_EXPANSION_LIMIT, entityExpansionLimit);
+    }
+
+    public int getEntityExpansionLimit() {
+        Integer limit = (Integer) get(ENTITY_EXPANSION_LIMIT);
+        return limit == null ? DEFAULT_ENTITY_EXPANSION_LIMIT : limit;
     }
 
     /**
      * Controls whether DTD grammar is loaded during parsing.
      * The default value is false.
      *
-     * @param loadDTDGrammar
+     * @param loadDTDGrammar {@code true}, if DTD grammar is loaded during parsing
      * @return this
      */
-    public XmlOptions setLoadDTDGrammar (boolean loadDTDGrammar)
-    {
+    public XmlOptions setLoadDTDGrammar(boolean loadDTDGrammar) {
         return set(LOAD_DTD_GRAMMAR, loadDTDGrammar);
+    }
+
+    public boolean isLoadDTDGrammar() {
+        Boolean flag = (Boolean) get(LOAD_DTD_GRAMMAR);
+        return flag != null && flag;
     }
 
     /**
      * Controls whether external DTDs are loaded during parsing.
      * The default value is false.
      *
-     * @param loadExternalDTD
+     * @param loadExternalDTD {@code true}, if external DTDs are loaded during parsing
      * @return this
      */
-    public XmlOptions setLoadExternalDTD (boolean loadExternalDTD)
-    {
+    public XmlOptions setLoadExternalDTD(boolean loadExternalDTD) {
         return set(LOAD_EXTERNAL_DTD, loadExternalDTD);
     }
 
-    public static final String GENERATE_JAVA_14 = "1.4";
-    public static final String GENERATE_JAVA_15 = "1.5";
-
-
-    //
-    // Complete set of XmlOption's
-    //
-            
-    // TODO - Add selectPath option to track the seletion (deault is to clean selections fast). 
-    
-    /** @exclude */
-    public static final String SAVE_NAMESPACES_FIRST           = "SAVE_NAMESPACES_FIRST";
-    /** @exclude */
-    public static final String SAVE_SYNTHETIC_DOCUMENT_ELEMENT = "SAVE_SYNTHETIC_DOCUMENT_ELEMENT";
-    /** @exclude */
-    public static final String SAVE_PRETTY_PRINT               = "SAVE_PRETTY_PRINT";
-    /** @exclude */
-    public static final String SAVE_PRETTY_PRINT_INDENT        = "SAVE_PRETTY_PRINT_INDENT";
-    /** @exclude */
-    public static final String SAVE_PRETTY_PRINT_OFFSET        = "SAVE_PRETTY_PRINT_OFFSET";
-    /** @exclude */
-    public static final String SAVE_AGGRESSIVE_NAMESPACES      = "SAVE_AGGRESSIVE_NAMESPACES";
-    /** @exclude */
-    public static final String SAVE_USE_DEFAULT_NAMESPACE      = "SAVE_USE_DEFAULT_NAMESPACE";
-    /** @exclude */
-    public static final String SAVE_IMPLICIT_NAMESPACES        = "SAVE_IMPLICIT_NAMESPACES";
-    /** @exclude */
-    public static final String SAVE_SUGGESTED_PREFIXES         = "SAVE_SUGGESTED_PREFIXES";
-    /** @exclude */
-    public static final String SAVE_FILTER_PROCINST            = "SAVE_FILTER_PROCINST";
-    /** @exclude */
-    public static final String SAVE_USE_OPEN_FRAGMENT          = "SAVE_USE_OPEN_FRAGMENT";
-    /** @exclude */
-    public static final String SAVE_OUTER                      = "SAVE_OUTER";
-    /** @exclude */
-    public static final String SAVE_INNER                      = "SAVE_INNER";
-    /** @exclude */
-    public static final String SAVE_NO_XML_DECL                = "SAVE_NO_XML_DECL";
-    /** @exclude */
-    public static final String SAVE_SUBSTITUTE_CHARACTERS      = "SAVE_SUBSTITUTE_CHARACTERS";
-    /** @exclude */
-    public static final String SAVE_OPTIMIZE_FOR_SPEED         = "SAVE_OPTIMIZE_FOR_SPEED";
-    /** @exclude */
-    public static final String SAVE_CDATA_LENGTH_THRESHOLD     = "SAVE_CDATA_LENGTH_THRESHOLD";
-    /** @exclude */
-    public static final String SAVE_CDATA_ENTITY_COUNT_THRESHOLD = "SAVE_CDATA_ENTITY_COUNT_THRESHOLD";
-    /** @exclude */
-    public static final String SAVE_SAX_NO_NSDECLS_IN_ATTRIBUTES = "SAVE_SAX_NO_NSDECLS_IN_ATTRIBUTES";
-    /** @exclude */
-    public static final String LOAD_REPLACE_DOCUMENT_ELEMENT   = "LOAD_REPLACE_DOCUMENT_ELEMENT";
-    /** @exclude */
-    public static final String LOAD_STRIP_WHITESPACE           = "LOAD_STRIP_WHITESPACE";
-    /** @exclude */
-    public static final String LOAD_STRIP_COMMENTS             = "LOAD_STRIP_COMMENTS";
-    /** @exclude */
-    public static final String LOAD_STRIP_PROCINSTS            = "LOAD_STRIP_PROCINSTS";
-    /** @exclude */
-    public static final String LOAD_LINE_NUMBERS               = "LOAD_LINE_NUMBERS";
-    /** @exclude */
-    public static final String LOAD_LINE_NUMBERS_END_ELEMENT   = "LOAD_LINE_NUMBERS_END_ELEMENT";
-    /** @exclude */
-    public static final String LOAD_SAVE_CDATA_BOOKMARKS       = "LOAD_SAVE_CDATA_BOOKMARKS";
-    /** @exclude */
-    public static final String LOAD_SUBSTITUTE_NAMESPACES      = "LOAD_SUBSTITUTE_NAMESPACES";
-    /** @exclude */
-    public static final String LOAD_TRIM_TEXT_BUFFER           = "LOAD_TRIM_TEXT_BUFFER";
-    /** @exclude */
-    public static final String LOAD_ADDITIONAL_NAMESPACES      = "LOAD_ADDITIONAL_NAMESPACES";
-    /** @exclude */
-    public static final String LOAD_MESSAGE_DIGEST             = "LOAD_MESSAGE_DIGEST";
-    /** @exclude */
-    public static final String LOAD_USE_DEFAULT_RESOLVER       = "LOAD_USE_DEFAULT_RESOLVER";
-    /** @exclude */
-    public static final String LOAD_USE_XMLREADER              = "LOAD_USE_XMLREADER";
-
-    /** @exclude */
-    public static final String XQUERY_CURRENT_NODE_VAR         = "XQUERY_CURRENT_NODE_VAR";
-    /** @exclude */
-    public static final String XQUERY_VARIABLE_MAP             =  "XQUERY_VARIABLE_MAP";
-
-    /** @exclude */
-    public static final String CHARACTER_ENCODING              = "CHARACTER_ENCODING";
-    /** @exclude */
-    public static final String ERROR_LISTENER                  = "ERROR_LISTENER";
-    /** @exclude */
-    public static final String DOCUMENT_TYPE                   = "DOCUMENT_TYPE";
-    /** @exclude */
-    public static final String DOCUMENT_SOURCE_NAME            = "DOCUMENT_SOURCE_NAME";
-    /** @exclude */
-    public static final String COMPILE_SUBSTITUTE_NAMES        = "COMPILE_SUBSTITUTE_NAMES";
-    /** @exclude */
-    public static final String COMPILE_NO_VALIDATION           = "COMPILE_NO_VALIDATION";
-    /** @exclude */
-    public static final String COMPILE_NO_UPA_RULE             = "COMPILE_NO_UPA_RULE";
-    /** @exclude */
-    public static final String COMPILE_NO_PVR_RULE             = "COMPILE_NO_PVR_RULE";
-    /** @exclude */
-    public static final String COMPILE_NO_ANNOTATIONS          = "COMPILE_NO_ANNOTATIONS";
-    /** @exclude */
-    public static final String COMPILE_DOWNLOAD_URLS           = "COMPILE_DOWNLOAD_URLS";
-    /** @exclude */
-    public static final String COMPILE_MDEF_NAMESPACES         = "COMPILE_MDEF_NAMESPACES";
-    /** @exclude */
-    public static final String VALIDATE_ON_SET                 = "VALIDATE_ON_SET";
-    /** @exclude */
-    public static final String VALIDATE_TREAT_LAX_AS_SKIP      = "VALIDATE_TREAT_LAX_AS_SKIP";
-    /** @exclude */
-    public static final String VALIDATE_STRICT                 = "VALIDATE_STRICT";
-    /** @exclude */
-    public static final String VALIDATE_TEXT_ONLY              = "VALIDATE_TEXT_ONLY";
-    /** @exclude */
-    public static final String UNSYNCHRONIZED                  = "UNSYNCHRONIZED";
-    /** @exclude */
-    public static final String ENTITY_RESOLVER                 = "ENTITY_RESOLVER";
-    /** @exclude */
-    public static final String BASE_URI                        = "BASE_URI";
-    /** @exclude */
-    public static final String SCHEMA_CODE_PRINTER             = "SCHEMA_CODE_PRINTER";
-    /** @exclude */
-    public static final String GENERATE_JAVA_VERSION           = "GENERATE_JAVA_VERSION";
-    /** @exclude */
-    public static final String COPY_USE_NEW_SYNC_DOMAIN        = "COPY_USE_NEW_LOCALE";
-    /** @exclude */
-    public static final String LOAD_ENTITY_BYTES_LIMIT         = "LOAD_ENTITY_BYTES_LIMIT";
-    /** @exclude */
-    public static final String ENTITY_EXPANSION_LIMIT          = "ENTITY_EXPANSION_LIMIT";
-    /** @exclude */
-    public static final String LOAD_DTD_GRAMMAR                = "LOAD_DTD_GRAMMAR";
-    /** @exclude */
-    public static final String LOAD_EXTERNAL_DTD               = "LOAD_EXTERNAL_DTD";
-
-    public static final int DEFAULT_ENTITY_EXPANSION_LIMIT = 2048;
-
-    private static final XmlOptions EMPTY_OPTIONS;
-    static {
-        EMPTY_OPTIONS = new XmlOptions();
-        EMPTY_OPTIONS._map = Collections.unmodifiableMap(EMPTY_OPTIONS._map);
+    public boolean isLoadExternalDTD() {
+        Boolean flag = (Boolean) get(LOAD_EXTERNAL_DTD);
+        return flag != null && flag;
     }
 
-    /** If passed null, returns an empty options object.  Otherwise, returns its argument. */
+    public XmlOptions setSaveOptimizeForSpeed(boolean saveOptimizeForSpeed) {
+        return set(SAVE_OPTIMIZE_FOR_SPEED, saveOptimizeForSpeed);
+    }
+
+    public boolean isSaveOptimizeForSpeed() {
+        Boolean flag = (Boolean) get(SAVE_OPTIMIZE_FOR_SPEED);
+        return flag != null && flag;
+    }
+
+
+    /**
+     * If passed null, returns an empty options object.  Otherwise, returns its argument.
+     */
     public static XmlOptions maskNull(XmlOptions o) {
         return (o == null) ? EMPTY_OPTIONS : o;
     }
 
-    
-    /** Used to set a generic option */
-    public void  put ( Object option               ) { put( option, null ); }
-    /** Used to set a generic option */
-    public void  put ( Object option, Object value ) { _map.put(option, value); }
-    /** Used to set a generic option */
-    public void put  ( Object option, int value    ) { put( option, new Integer( value ) ); }
 
-    private XmlOptions set(Object option)               { return set(option, null); }
-    private XmlOptions set(Object option, Object value) { _map.put(option, value); return this;}
-    private XmlOptions set(Object option, int value)    { return set(option, new Integer(value)); }
+    /**
+     * Used to set a generic option
+     */
+    public void put(String option) {
+        put(option, null);
+    }
 
-    /** Used to test a generic option */
-    public boolean hasOption   ( Object option ) { return _map.containsKey( option ); }
-    public static boolean hasOption ( XmlOptions options, Object option ) { return options == null ? false : options.hasOption( option ); }
-    
-    /** Used to get a generic option */
-    public Object  get         ( Object option ) { return _map.get( option ); }
-    public void    remove      ( Object option ) { _map.remove( option ); }
+    /**
+     * Used to set a generic option
+     */
+    public void put(String option, Object value) {
+        _map.put(option, value);
+    }
 
-    /** Used to test a generic option on an options object that may be null */
-    public static Object safeGet(XmlOptions o, Object option) {
+    /**
+     * Used to set a generic option
+     */
+    public void put(String option, int value) {
+        put(option, new Integer(value));
+    }
+
+    private XmlOptions set(String option) {
+        return set(option, null);
+    }
+
+    private XmlOptions set(String option, Object value) {
+        _map.put(option, value);
+        return this;
+    }
+
+    private XmlOptions set(String option, int value) {
+        return set(option, new Integer(value));
+    }
+
+    private XmlOptions set(String option, boolean value) {
+        if (value) {
+            set(option, Boolean.TRUE);
+        } else {
+            remove(option);
+        }
+        return this;
+    }
+
+    /**
+     * Used to test a generic option
+     */
+    public boolean hasOption(String option) {
+        return _map.containsKey(option);
+    }
+
+    public static boolean hasOption(XmlOptions options, String option) {
+        return options != null && options.hasOption(option);
+    }
+
+    /**
+     * Used to get a generic option
+     */
+    public Object get(String option) {
+        return _map.get(option);
+    }
+
+    public void remove(String option) {
+        _map.remove(option);
+    }
+
+    /**
+     * Used to test a generic option on an options object that may be null
+     */
+    public static Object safeGet(XmlOptions o, String option) {
         return o == null ? null : o.get(option);
     }
 

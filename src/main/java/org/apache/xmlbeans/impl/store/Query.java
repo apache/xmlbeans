@@ -312,19 +312,14 @@ public abstract class Query {
                     ;
                 }
 
-                Map bindings = (Map) XmlOptions.maskNull(_options).
-                    get(XmlOptions.XQUERY_VARIABLE_MAP);
-                List resultsList;
-                resultsList = _engine.execQuery(_cur.getDom(), bindings);
-
-                assert resultsList.size() > -1;
+                Map<String, Object> bindings = XmlOptions.maskNull(_options).getXqueryVariables();
+                List resultsList = _engine.execQuery(_cur.getDom(), bindings);
 
                 XmlObject[] result = new XmlObject[resultsList.size()];
                 int i;
                 for (i = 0; i < resultsList.size(); i++) {
                     //copy objects into the locale
-                    Locale l = Locale.getLocale(_cur._locale._schemaTypeLoader,
-                        _options);
+                    Locale l = Locale.getLocale(_cur._locale._schemaTypeLoader, _options);
 
                     l.enter();
                     Object node = resultsList.get(i);
@@ -388,12 +383,8 @@ public abstract class Query {
                     ;
                 }
 
-                Map bindings = (Map) XmlOptions.maskNull(_options).
-                    get(XmlOptions.XQUERY_VARIABLE_MAP);
-                List resultsList;
-                resultsList = _engine.execQuery(_cur.getDom(), bindings);
-
-                assert resultsList.size() > -1;
+                Map<String, Object> bindings = XmlOptions.maskNull(_options).getXqueryVariables();
+                List resultsList = _engine.execQuery(_cur.getDom(), bindings);
 
                 int i;
                 _engine = null;

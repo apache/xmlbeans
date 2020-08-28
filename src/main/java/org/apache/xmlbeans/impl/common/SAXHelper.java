@@ -15,20 +15,20 @@
 
 package org.apache.xmlbeans.impl.common;
 
-import java.io.IOException;
-import java.io.StringReader;
-import java.lang.reflect.Method;
-import java.util.concurrent.TimeUnit;
-
-import javax.xml.XMLConstants;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.parsers.SAXParserFactory;
-
+import org.apache.xmlbeans.XmlOptions;
 import org.apache.xmlbeans.XmlOptionsBean;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
+
+import javax.xml.XMLConstants;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParserFactory;
+import java.io.IOException;
+import java.io.StringReader;
+import java.lang.reflect.Method;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Provides handy methods for working with SAX parsers and readers
@@ -37,23 +37,24 @@ public final class SAXHelper {
     private static final XBLogger logger = XBLogFactory.getLogger(SAXHelper.class);
     private static long lastLog;
 
-    private SAXHelper() {}
+    private SAXHelper() {
+    }
 
     /**
      * Creates a new SAX XMLReader, with sensible defaults
      */
-    public static XMLReader newXMLReader(XmlOptionsBean options) throws SAXException, ParserConfigurationException {
+    public static XMLReader newXMLReader(XmlOptions options) throws SAXException, ParserConfigurationException {
         XMLReader xmlReader = saxFactory(options).newSAXParser().getXMLReader();
         xmlReader.setEntityResolver(IGNORING_ENTITY_RESOLVER);
         trySetSAXFeature(xmlReader, XMLConstants.FEATURE_SECURE_PROCESSING);
         trySetXercesSecurityManager(xmlReader, options);
         return xmlReader;
     }
-    
+
     public static final EntityResolver IGNORING_ENTITY_RESOLVER = new EntityResolver() {
         @Override
         public InputSource resolveEntity(String publicId, String systemId)
-                throws SAXException, IOException {
+            throws SAXException, IOException {
             return new InputSource(new StringReader(""));
         }
     };
@@ -62,7 +63,7 @@ public final class SAXHelper {
         return saxFactory(new XmlOptionsBean());
     }
 
-    static SAXParserFactory saxFactory(XmlOptionsBean options) {
+    static SAXParserFactory saxFactory(XmlOptions options) {
         SAXParserFactory saxFactory = SAXParserFactory.newInstance();
         saxFactory.setValidating(false);
         saxFactory.setNamespaceAware(true);
@@ -91,12 +92,12 @@ public final class SAXHelper {
             logger.log(XBLogger.WARN, "Cannot set SAX feature because outdated XML parser in classpath", feature, ame);
         }
     }
-    
-    private static void trySetXercesSecurityManager(XMLReader xmlReader, XmlOptionsBean options) {
+
+    private static void trySetXercesSecurityManager(XMLReader xmlReader, XmlOptions options) {
         // Try built-in JVM one first, standalone if not
-        for (String securityManagerClassName : new String[] {
-                //"com.sun.org.apache.xerces.internal.util.SecurityManager",
-                "org.apache.xerces.util.SecurityManager"
+        for (String securityManagerClassName : new String[]{
+            //"com.sun.org.apache.xerces.internal.util.SecurityManager",
+            "org.apache.xerces.util.SecurityManager"
         }) {
             try {
                 Object mgr = Class.forName(securityManagerClassName).newInstance();
@@ -107,7 +108,7 @@ public final class SAXHelper {
                 return;
             } catch (Throwable e) {     // NOSONAR - also catch things like NoClassDefError here
                 // throttle the log somewhat as it can spam the log otherwise
-                if(System.currentTimeMillis() > lastLog + TimeUnit.MINUTES.toMillis(5)) {
+                if (System.currentTimeMillis() > lastLog + TimeUnit.MINUTES.toMillis(5)) {
                     logger.log(XBLogger.WARN, "SAX Security Manager could not be setup [log suppressed for 5 minutes]", e);
                     lastLog = System.currentTimeMillis();
                 }
@@ -119,7 +120,7 @@ public final class SAXHelper {
             xmlReader.setProperty(XMLBeansConstants.ENTITY_EXPANSION_LIMIT, options.getEntityExpansionLimit());
         } catch (SAXException e) {     // NOSONAR - also catch things like NoClassDefError here
             // throttle the log somewhat as it can spam the log otherwise
-            if(System.currentTimeMillis() > lastLog + TimeUnit.MINUTES.toMillis(5)) {
+            if (System.currentTimeMillis() > lastLog + TimeUnit.MINUTES.toMillis(5)) {
                 logger.log(XBLogger.WARN, "SAX Security Manager could not be setup [log suppressed for 5 minutes]", e);
                 lastLog = System.currentTimeMillis();
             }

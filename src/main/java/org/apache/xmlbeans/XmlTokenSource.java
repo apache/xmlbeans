@@ -16,21 +16,13 @@
 package org.apache.xmlbeans;
 
 import org.apache.xmlbeans.xml.stream.XMLInputStream;
-
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.Reader;
-import java.io.Writer;
-import java.io.File;
-import java.io.IOException;
+import org.w3c.dom.Node;
+import org.xml.sax.ContentHandler;
+import org.xml.sax.SAXException;
+import org.xml.sax.ext.LexicalHandler;
 
 import javax.xml.stream.XMLStreamReader;
-
-import org.w3c.dom.Node;
-
-import org.xml.sax.ContentHandler;
-import org.xml.sax.ext.LexicalHandler;
-import org.xml.sax.SAXException;
+import java.io.*;
 
 /**
  * Represents a holder of XML that can return an {@link XmlCursor}
@@ -39,12 +31,11 @@ import org.xml.sax.SAXException;
  * Both {@link XmlObject}
  * (and thus all XML Beans) and {@link XmlCursor} are
  * XmlTokenSource implementations.
- * 
+ *
  * @see XmlObject
  * @see XmlCursor
- */ 
-public interface XmlTokenSource
-{
+ */
+public interface XmlTokenSource {
     /**
      * Returns the synchronization object for the document.  If concurrent
      * multithreaded access to a document is required, the access should should
@@ -52,7 +43,7 @@ public interface XmlTokenSource
      * monitor per XML document tree.
      */
     Object monitor();
-    
+
     /**
      * Returns the XmlDocumentProperties object for the document this token
      * source is associated with.
@@ -61,12 +52,12 @@ public interface XmlTokenSource
 
     /**
      * Returns a new XML cursor.
-     *
+     * <p>
      * A cursor provides random access to all the tokens in the XML
      * data, plus the ability to extract strongly-typed XmlObjects
      * for the data. If the data is not read-only, the XML cursor
      * also allows modifications to the data.
-     *
+     * <p>
      * Using a cursor for the first time typically forces the XML
      * document into memory.
      */
@@ -74,33 +65,34 @@ public interface XmlTokenSource
 
     /**
      * Returns a new XmlInputStream.
-     *
+     * <p>
      * The stream starts at the current begin-tag or begin-document
      * position and ends at the matching end-tag or end-document.
-     *
+     * <p>
      * This is a fail-fast stream, so if the underlying data is changed
      * while the stream is being read, the stream throws a
      * ConcurrentModificationException.
-     *
+     * <p>
      * Throws an IllegalStateException if the XmlTokenSource is not
      * positioned at begin-tag or begin-document (e.g., if it is at
      * an attribute).
+     *
      * @deprecated XMLInputStream was deprecated by XMLStreamReader from STaX - jsr173 API.
      */
     XMLInputStream newXMLInputStream();
-    
+
     /**
      * Returns a new XMLStreamReader.
-     *
+     * <p>
      * The stream starts at the current begin-tag or begin-document
      * position and ends at the matching end-tag or end-document.
-     *
+     * <p>
      * This is a fail-fast stream, so if the underlying data is changed
      * while the stream is being read, the stream throws a
      * ConcurrentModificationException.
      */
     XMLStreamReader newXMLStreamReader();
-    
+
     /**
      * Returns standard XML text.
      * <p>
@@ -113,8 +105,8 @@ public interface XmlTokenSource
      * positioned at begin-tag or begin-document (e.g., if it is at
      * an attribute).
      * <p>
-     * Note that this method does not produce XML with the XML declaration, 
-     * including the encoding information. To save the XML declaration with 
+     * Note that this method does not produce XML with the XML declaration,
+     * including the encoding information. To save the XML declaration with
      * the XML, see {@link #save(OutputStream)} or {@link #save(OutputStream, XmlOptions)}.
      */
     String xmlText();
@@ -122,16 +114,16 @@ public interface XmlTokenSource
     /**
      * Returns a new stream containing standard XML text, encoded
      * according to the given encoding.
-     *
+     * <p>
      * The byte stream contains contents starting at the current
      * begin-tag or begin-document and ending at the matching
      * end-tag or end-document.  The specified encoding is used
      * and also emitted in a PI at the beginning of the stream.
-     *
+     * <p>
      * This is a fail-fast stream, so if the underlying data is changed
      * while the stream is being read, the stream throws a
      * ConcurrentModificationException.
-     *
+     * <p>
      * Throws an IllegalStateException if the XmlTokenSource is not
      * positioned at begin-tag or begin-document (e.g., if it is at
      * an attribute).
@@ -140,22 +132,22 @@ public interface XmlTokenSource
 
     /**
      * Returns a new character reader containing XML text.
-     *
+     * <p>
      * The contents of the reader represents the document contents
      * starting at the current begin-tag or begin-document and ending at
      * the matching end-tag or end-document.  No encoding annotation
      * will be made in the text itself.
-     *
+     * <p>
      * This is a fail-fast reader, so if the underlying data is changed
      * while the reader is being read, the reader throws a
      * ConcurrentModificationException.
-     *
+     * <p>
      * Throws an IllegalStateException if the XmlTokenSource is not
      * positioned at begin-tag or begin-document (e.g., if it is at
      * an attribute).
      */
     Reader newReader();
-    
+
     /**
      * Returns a W3C DOM Node containing the XML
      * represented by this source.  This is a copy of the XML, it is
@@ -177,38 +169,38 @@ public interface XmlTokenSource
     /**
      * Writes the XML represented by this source to the given SAX content and
      * lexical handlers.
-     * Note that this method does not save the XML declaration, including the encoding information. 
-     * To save the XML declaration with the XML, see {@link #save(OutputStream)}, 
+     * Note that this method does not save the XML declaration, including the encoding information.
+     * To save the XML declaration with the XML, see {@link #save(OutputStream)},
      * {@link #save(OutputStream, XmlOptions)}, {@link #save(File)} or {@link #save(File, XmlOptions)}.
      */
-    void save ( ContentHandler ch, LexicalHandler lh ) throws SAXException;
-    
+    void save(ContentHandler ch, LexicalHandler lh) throws SAXException;
+
     /**
      * Writes the XML represented by this source to the given File.
      * This method will save the XML declaration, including encoding information,
      * with the XML.
      */
-    void save ( File file ) throws IOException;
-    
+    void save(File file) throws IOException;
+
     /**
      * Writes the XML represented by this source to the given output stream.
      * This method will save the XML declaration, including encoding information,
      * with the XML.
      */
-    void save ( OutputStream os ) throws IOException;
+    void save(OutputStream os) throws IOException;
 
     /**
      * Writes the XML represented by this source to the given output.
-     * Note that this method does not save the XML declaration, including the encoding information. 
-     * To save the XML declaration with the XML, see {@link #save(OutputStream)}, 
+     * Note that this method does not save the XML declaration, including the encoding information.
+     * To save the XML declaration with the XML, see {@link #save(OutputStream)},
      * {@link #save(OutputStream, XmlOptions)}, {@link #save(File)} or {@link #save(File, XmlOptions)}.
      */
-    void save ( Writer w ) throws IOException;
+    void save(Writer w) throws IOException;
 
     /**
-     * <p>Just like newXMLInputStream() but with any of a number of options. Use the 
+     * <p>Just like newXMLInputStream() but with any of a number of options. Use the
      * <em>options</em> parameter to specify the following:</p>
-     * 
+     *
      * <table>
      * <tr><th>To specify this</th><th>Use this method</th></tr>
      * <tr>
@@ -219,8 +211,8 @@ public interface XmlTokenSource
      * <tr>
      *  <td>Prefix-to-namespace mappings that should be assumed
      *  when saving this XML. This is useful when the resulting
-     *  XML will be part of a larger XML document, ensuring that this 
-     *  inner document will take advantage of namespaces defined in 
+     *  XML will be part of a larger XML document, ensuring that this
+     *  inner document will take advantage of namespaces defined in
      *  the outer document.</td>
      *  <td>{@link XmlOptions#setSaveImplicitNamespaces}</td>
      * </tr>
@@ -235,12 +227,12 @@ public interface XmlTokenSource
      *  <td>{@link XmlOptions#setSaveNamespacesFirst}</td>
      * </tr>
      * <tr>
-     *  <td>The XML should be pretty printed when saved. Note that this 
+     *  <td>The XML should be pretty printed when saved. Note that this
      *  should only be used for debugging.</td>
      *  <td>{@link XmlOptions#setSavePrettyPrint}</td>
      * </tr>
      * <tr>
-     *  <td>The number of spaces to use when indenting for pretty printing. 
+     *  <td>The number of spaces to use when indenting for pretty printing.
      *  The default is 2.</td>
      *  <td>{@link XmlOptions#setSavePrettyPrintIndent}</td>
      * </tr>
@@ -250,14 +242,14 @@ public interface XmlTokenSource
      *  <td>{@link XmlOptions#setSavePrettyPrintOffset}</td>
      * </tr>
      * <tr>
-     *  <td>To minimize the number of namespace attributes generated for the 
+     *  <td>To minimize the number of namespace attributes generated for the
      *  saved XML. Note that this can reduce performance significantly.</td>
-     *  <td>{@link XmlOptions#setSaveAggresiveNamespaces}</td>
+     *  <td>{@link XmlOptions#setSaveAggressiveNamespaces}</td>
      * </tr>
      * <tr>
      *  <td>To reduce the size of the saved document
-     *  by allowing the use of the default namespace. Note that this can 
-     *  potentially change the semantic meaning of the XML if unprefixed QNames are 
+     *  by allowing the use of the default namespace. Note that this can
+     *  potentially change the semantic meaning of the XML if unprefixed QNames are
      *  present as the value of an attribute or element.</td>
      *  <td>{@link XmlOptions#setUseDefaultNamespace}</td>
      * </tr>
@@ -266,8 +258,8 @@ public interface XmlTokenSource
      *  <td>{@link XmlOptions#setSaveFilterProcinst}</td>
      * </tr>
      * <tr>
-     *  <td>Change the QName of the synthesized root element when saving. This 
-     *  replaces "xml-fragment" with "fragment" in the namespace 
+     *  <td>Change the QName of the synthesized root element when saving. This
+     *  replaces "xml-fragment" with "fragment" in the namespace
      *  http://www.openuri.org/fragment</td>
      *  <td>{@link XmlOptions#setSaveUseOpenFrag}</td>
      * </tr>
@@ -285,11 +277,10 @@ public interface XmlTokenSource
      *  <td>{@link XmlOptions#setSaveSyntheticDocumentElement}</td>
      * </tr>
      * </table>
-     * 
-     * @see XmlOptions
-     * 
+     *
      * @param options Any of the described options.
      * @return A new validating XMLInputStream.
+     * @see XmlOptions
      * @deprecated XMLInputStream was deprecated by XMLStreamReader from STaX - jsr173 API.
      */
     XMLInputStream newXMLInputStream(XmlOptions options);
@@ -297,75 +288,78 @@ public interface XmlTokenSource
     /**
      * Just like newXMLInputStream() but with options.
      * Options map may be null.
+     *
      * @see XmlOptions
      */
     XMLStreamReader newXMLStreamReader(XmlOptions options);
-    
+
     /**
      * Just like xmlText() but with options.
      * Options map may be null.
      * <p>
-     * Note that this method does not produce XML with the XML declaration, 
-     * including the encoding information. To save the XML declaration with 
+     * Note that this method does not produce XML with the XML declaration,
+     * including the encoding information. To save the XML declaration with
      * the XML, see {@link #save(OutputStream)} or {@link #save(OutputStream, XmlOptions)}.
      *
      * @see XmlOptions
      */
     String xmlText(XmlOptions options);
-    
+
     /**
-     *
      * Just like newInputStream(String encoding) but with options.
      * Options map may be null.
+     *
      * @see XmlOptions
      */
     InputStream newInputStream(XmlOptions options);
-    
+
     /**
      * Just like newReader() but with options.
      * Options map may be null.
+     *
      * @see XmlOptions
      */
     Reader newReader(XmlOptions options);
-    
+
     /**
      * Just like newDomNode() but with options.
      * Options map may be null.
+     *
      * @see XmlOptions
      */
 
     Node newDomNode(XmlOptions options);
-    
+
     /**
      * Writes the XML represented by this source to the given SAX content and
      * lexical handlers.
-     * Note that this method does not save the XML declaration, including the encoding information. 
-     * To save the XML declaration with the XML, see {@link #save(OutputStream)}, 
+     * Note that this method does not save the XML declaration, including the encoding information.
+     * To save the XML declaration with the XML, see {@link #save(OutputStream)},
      * {@link #save(OutputStream, XmlOptions)}, {@link #save(File)} or {@link #save(File, XmlOptions)}.
      */
-    void save ( ContentHandler ch, LexicalHandler lh, XmlOptions options ) throws SAXException;
-    
+    void save(ContentHandler ch, LexicalHandler lh, XmlOptions options) throws SAXException;
+
     /**
      * Writes the XML represented by this source to the given File.
      * This method will save the XML declaration, including encoding information,
      * with the XML.
      */
-    void save ( File file, XmlOptions options ) throws IOException;
-    
+    void save(File file, XmlOptions options) throws IOException;
+
     /**
      * Writes the XML represented by this source to the given output stream.
      * This method will save the XML declaration, including encoding information,
      * with the XML.
      */
-    void save ( OutputStream os, XmlOptions options ) throws IOException;
+    void save(OutputStream os, XmlOptions options) throws IOException;
 
     /**
      * Writes the XML represented by this source to the given output.
-     * Note that this method does not save the XML declaration, including the encoding information. 
-     * To save the XML declaration with the XML, see {@link #save(OutputStream)}, 
+     * Note that this method does not save the XML declaration, including the encoding information.
+     * To save the XML declaration with the XML, see {@link #save(OutputStream)},
      * {@link #save(OutputStream, XmlOptions)}, {@link #save(File)} or {@link #save(File, XmlOptions)}.
      */
-    void save ( Writer w, XmlOptions options ) throws IOException;
+    void save(Writer w, XmlOptions options) throws IOException;
 
     /**
      * Prints to stdout the state of the document in which this token source is positioned.
@@ -374,5 +368,5 @@ public interface XmlTokenSource
      * XML text which only approximates the actual state of the document.
      */
 
-    void dump ( );
+    void dump();
 }
