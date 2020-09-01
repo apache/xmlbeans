@@ -143,7 +143,7 @@ public class TypeHierarchyPrinter
         if (noupa)
             schemaOptions.setCompileNoUpaRule();
         if (partial)
-            schemaOptions.put("COMPILE_PARTIAL_TYPESYSTEM");
+            schemaOptions.setCompilePartialTypesystem();
 
         if (jarFiles != null && jarFiles.length > 0)
             linkTo = XmlBeans.typeLoaderForResource(XmlBeans.resourceLoaderForPath(jarFiles));

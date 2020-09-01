@@ -15,6 +15,7 @@
 
 package org.apache.xmlbeans;
 
+import org.apache.xmlbeans.impl.store.Saaj;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.XMLReader;
 
@@ -84,67 +85,77 @@ public class XmlOptions implements java.io.Serializable {
     // Complete set of XmlOption's
     //
 
-    // TODO - Add selectPath option to track the seletion (deault is to clean selections fast).
+    // TODO - Add selectPath option to track the seletion (default is to clean selections fast).
+    public enum XmlOptionsKeys {
+        SAVE_NAMESPACES_FIRST,
+        SAVE_SYNTHETIC_DOCUMENT_ELEMENT,
+        SAVE_PRETTY_PRINT,
+        SAVE_PRETTY_PRINT_INDENT,
+        SAVE_PRETTY_PRINT_OFFSET,
+        SAVE_AGGRESSIVE_NAMESPACES,
+        SAVE_USE_DEFAULT_NAMESPACE,
+        SAVE_IMPLICIT_NAMESPACES,
+        SAVE_SUGGESTED_PREFIXES,
+        SAVE_FILTER_PROCINST,
+        SAVE_USE_OPEN_FRAGMENT,
+        SAVE_OUTER,
+        SAVE_INNER,
+        SAVE_NO_XML_DECL,
+        SAVE_SUBSTITUTE_CHARACTERS,
+        SAVE_OPTIMIZE_FOR_SPEED,
+        SAVE_CDATA_LENGTH_THRESHOLD,
+        SAVE_CDATA_ENTITY_COUNT_THRESHOLD,
+        SAVE_SAX_NO_NSDECLS_IN_ATTRIBUTES,
+        LOAD_REPLACE_DOCUMENT_ELEMENT,
+        LOAD_STRIP_WHITESPACE,
+        LOAD_STRIP_COMMENTS,
+        LOAD_STRIP_PROCINSTS,
+        LOAD_LINE_NUMBERS,
+        LOAD_LINE_NUMBERS_END_ELEMENT,
+        LOAD_SAVE_CDATA_BOOKMARKS,
+        LOAD_SUBSTITUTE_NAMESPACES,
+        LOAD_TRIM_TEXT_BUFFER,
+        LOAD_ADDITIONAL_NAMESPACES,
+        LOAD_MESSAGE_DIGEST,
+        LOAD_USE_DEFAULT_RESOLVER,
+        LOAD_USE_XMLREADER,
+        XQUERY_CURRENT_NODE_VAR,
+        XQUERY_VARIABLE_MAP,
+        CHARACTER_ENCODING,
+        ERROR_LISTENER,
+        DOCUMENT_TYPE,
+        DOCUMENT_SOURCE_NAME,
+        COMPILE_SUBSTITUTE_NAMES,
+        COMPILE_NO_VALIDATION,
+        COMPILE_NO_UPA_RULE,
+        COMPILE_NO_PVR_RULE,
+        COMPILE_NO_ANNOTATIONS,
+        COMPILE_DOWNLOAD_URLS,
+        COMPILE_MDEF_NAMESPACES,
+        COMPILE_PARTIAL_TYPESYSTEM,
+        VALIDATE_ON_SET,
+        VALIDATE_TREAT_LAX_AS_SKIP,
+        VALIDATE_STRICT,
+        VALIDATE_TEXT_ONLY,
+        UNSYNCHRONIZED,
+        ENTITY_RESOLVER,
+        BASE_URI,
+        SCHEMA_CODE_PRINTER,
+        GENERATE_JAVA_VERSION,
+        USE_SAME_LOCALE,
+        COPY_USE_NEW_SYNC_DOMAIN,
+        LOAD_ENTITY_BYTES_LIMIT,
+        ENTITY_EXPANSION_LIMIT,
+        LOAD_DTD_GRAMMAR,
+        LOAD_EXTERNAL_DTD,
+        SAAJ_IMPL,
+        LOAD_USE_LOCALE_CHAR_UTIL,
+        PATH_DELEGATE_INTERFACE,
+        XPATH_USE_DELEGATE,
+        XPATH_USE_XMLBEANS,
+        ATTTRIBUTE_VALIDATION_COMPAT_MODE
+    }
 
-    public static final String SAVE_NAMESPACES_FIRST = "SAVE_NAMESPACES_FIRST";
-    public static final String SAVE_SYNTHETIC_DOCUMENT_ELEMENT = "SAVE_SYNTHETIC_DOCUMENT_ELEMENT";
-    public static final String SAVE_PRETTY_PRINT = "SAVE_PRETTY_PRINT";
-    public static final String SAVE_PRETTY_PRINT_INDENT = "SAVE_PRETTY_PRINT_INDENT";
-    public static final String SAVE_PRETTY_PRINT_OFFSET = "SAVE_PRETTY_PRINT_OFFSET";
-    public static final String SAVE_AGGRESSIVE_NAMESPACES = "SAVE_AGGRESSIVE_NAMESPACES";
-    public static final String SAVE_USE_DEFAULT_NAMESPACE = "SAVE_USE_DEFAULT_NAMESPACE";
-    public static final String SAVE_IMPLICIT_NAMESPACES = "SAVE_IMPLICIT_NAMESPACES";
-    public static final String SAVE_SUGGESTED_PREFIXES = "SAVE_SUGGESTED_PREFIXES";
-    public static final String SAVE_FILTER_PROCINST = "SAVE_FILTER_PROCINST";
-    public static final String SAVE_USE_OPEN_FRAGMENT = "SAVE_USE_OPEN_FRAGMENT";
-    public static final String SAVE_OUTER = "SAVE_OUTER";
-    public static final String SAVE_INNER = "SAVE_INNER";
-    public static final String SAVE_NO_XML_DECL = "SAVE_NO_XML_DECL";
-    public static final String SAVE_SUBSTITUTE_CHARACTERS = "SAVE_SUBSTITUTE_CHARACTERS";
-    public static final String SAVE_OPTIMIZE_FOR_SPEED = "SAVE_OPTIMIZE_FOR_SPEED";
-    public static final String SAVE_CDATA_LENGTH_THRESHOLD = "SAVE_CDATA_LENGTH_THRESHOLD";
-    public static final String SAVE_CDATA_ENTITY_COUNT_THRESHOLD = "SAVE_CDATA_ENTITY_COUNT_THRESHOLD";
-    public static final String SAVE_SAX_NO_NSDECLS_IN_ATTRIBUTES = "SAVE_SAX_NO_NSDECLS_IN_ATTRIBUTES";
-    public static final String LOAD_REPLACE_DOCUMENT_ELEMENT = "LOAD_REPLACE_DOCUMENT_ELEMENT";
-    public static final String LOAD_STRIP_WHITESPACE = "LOAD_STRIP_WHITESPACE";
-    public static final String LOAD_STRIP_COMMENTS = "LOAD_STRIP_COMMENTS";
-    public static final String LOAD_STRIP_PROCINSTS = "LOAD_STRIP_PROCINSTS";
-    public static final String LOAD_LINE_NUMBERS = "LOAD_LINE_NUMBERS";
-    public static final String LOAD_LINE_NUMBERS_END_ELEMENT = "LOAD_LINE_NUMBERS_END_ELEMENT";
-    public static final String LOAD_SAVE_CDATA_BOOKMARKS = "LOAD_SAVE_CDATA_BOOKMARKS";
-    public static final String LOAD_SUBSTITUTE_NAMESPACES = "LOAD_SUBSTITUTE_NAMESPACES";
-    public static final String LOAD_TRIM_TEXT_BUFFER = "LOAD_TRIM_TEXT_BUFFER";
-    public static final String LOAD_ADDITIONAL_NAMESPACES = "LOAD_ADDITIONAL_NAMESPACES";
-    public static final String LOAD_MESSAGE_DIGEST = "LOAD_MESSAGE_DIGEST";
-    public static final String LOAD_USE_DEFAULT_RESOLVER = "LOAD_USE_DEFAULT_RESOLVER";
-    public static final String LOAD_USE_XMLREADER = "LOAD_USE_XMLREADER";
-    public static final String XQUERY_CURRENT_NODE_VAR = "XQUERY_CURRENT_NODE_VAR";
-    public static final String XQUERY_VARIABLE_MAP = "XQUERY_VARIABLE_MAP";
-    public static final String CHARACTER_ENCODING = "CHARACTER_ENCODING";
-    public static final String ERROR_LISTENER = "ERROR_LISTENER";
-    public static final String DOCUMENT_TYPE = "DOCUMENT_TYPE";
-    public static final String DOCUMENT_SOURCE_NAME = "DOCUMENT_SOURCE_NAME";
-    public static final String COMPILE_SUBSTITUTE_NAMES = "COMPILE_SUBSTITUTE_NAMES";
-    public static final String COMPILE_NO_VALIDATION = "COMPILE_NO_VALIDATION";
-    public static final String COMPILE_NO_UPA_RULE = "COMPILE_NO_UPA_RULE";
-    public static final String COMPILE_NO_PVR_RULE = "COMPILE_NO_PVR_RULE";
-    public static final String COMPILE_NO_ANNOTATIONS = "COMPILE_NO_ANNOTATIONS";
-    public static final String COMPILE_DOWNLOAD_URLS = "COMPILE_DOWNLOAD_URLS";
-    public static final String COMPILE_MDEF_NAMESPACES = "COMPILE_MDEF_NAMESPACES";
-    public static final String VALIDATE_ON_SET = "VALIDATE_ON_SET";
-    public static final String VALIDATE_TREAT_LAX_AS_SKIP = "VALIDATE_TREAT_LAX_AS_SKIP";
-    public static final String VALIDATE_STRICT = "VALIDATE_STRICT";
-    public static final String VALIDATE_TEXT_ONLY = "VALIDATE_TEXT_ONLY";
-    public static final String UNSYNCHRONIZED = "UNSYNCHRONIZED";
-    public static final String ENTITY_RESOLVER = "ENTITY_RESOLVER";
-    public static final String BASE_URI = "BASE_URI";
-    public static final String SCHEMA_CODE_PRINTER = "SCHEMA_CODE_PRINTER";
-    public static final String GENERATE_JAVA_VERSION = "GENERATE_JAVA_VERSION";
-    public static final String COPY_USE_NEW_SYNC_DOMAIN = "COPY_USE_NEW_LOCALE";
-    public static final String LOAD_ENTITY_BYTES_LIMIT = "LOAD_ENTITY_BYTES_LIMIT";
-    public static final String ENTITY_EXPANSION_LIMIT = "ENTITY_EXPANSION_LIMIT";
-    public static final String LOAD_DTD_GRAMMAR = "LOAD_DTD_GRAMMAR";
-    public static final String LOAD_EXTERNAL_DTD = "LOAD_EXTERNAL_DTD";
 
     public static final int DEFAULT_ENTITY_EXPANSION_LIMIT = 2048;
     public static final String GENERATE_JAVA_14 = "1.4";
@@ -160,7 +171,7 @@ public class XmlOptions implements java.io.Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    private Map<String, Object> _map = new HashMap<>();
+    private Map<XmlOptionsKeys, Object> _map = new HashMap<>();
 
 
     /**
@@ -193,11 +204,11 @@ public class XmlOptions implements java.io.Serializable {
     }
 
     public XmlOptions setSaveNamespacesFirst(boolean b) {
-        return set(SAVE_NAMESPACES_FIRST, b);
+        return set(XmlOptionsKeys.SAVE_NAMESPACES_FIRST, b);
     }
 
     public boolean isSaveNamespacesFirst() {
-        return hasOption(SAVE_NAMESPACES_FIRST);
+        return hasOption(XmlOptionsKeys.SAVE_NAMESPACES_FIRST);
     }
 
 
@@ -212,11 +223,11 @@ public class XmlOptions implements java.io.Serializable {
     }
 
     public XmlOptions setSavePrettyPrint(boolean b) {
-        return set(SAVE_PRETTY_PRINT, b);
+        return set(XmlOptionsKeys.SAVE_PRETTY_PRINT, b);
     }
 
     public boolean isSavePrettyPrint() {
-        return hasOption(SAVE_PRETTY_PRINT);
+        return hasOption(XmlOptionsKeys.SAVE_PRETTY_PRINT);
     }
 
 
@@ -230,11 +241,11 @@ public class XmlOptions implements java.io.Serializable {
      * @see XmlTokenSource#xmlText(XmlOptions)
      */
     public XmlOptions setSavePrettyPrintIndent(int indent) {
-        return set(SAVE_PRETTY_PRINT_INDENT, indent);
+        return set(XmlOptionsKeys.SAVE_PRETTY_PRINT_INDENT, indent);
     }
 
     public Integer getSavePrettyPrintIndent() {
-        return (Integer) get(SAVE_PRETTY_PRINT_INDENT);
+        return (Integer) get(XmlOptionsKeys.SAVE_PRETTY_PRINT_INDENT);
     }
 
     /**
@@ -247,11 +258,11 @@ public class XmlOptions implements java.io.Serializable {
      * @see XmlTokenSource#xmlText(XmlOptions)
      */
     public XmlOptions setSavePrettyPrintOffset(int offset) {
-        return set(SAVE_PRETTY_PRINT_OFFSET, offset);
+        return set(XmlOptionsKeys.SAVE_PRETTY_PRINT_OFFSET, offset);
     }
 
     public Integer getSavePrettyPrintOffset() {
-        return (Integer) get(SAVE_PRETTY_PRINT_OFFSET);
+        return (Integer) get(XmlOptionsKeys.SAVE_PRETTY_PRINT_OFFSET);
     }
 
     /**
@@ -263,11 +274,11 @@ public class XmlOptions implements java.io.Serializable {
      * @see XmlTokenSource#save(java.io.File, XmlOptions)
      */
     public XmlOptions setCharacterEncoding(String encoding) {
-        return set(CHARACTER_ENCODING, encoding);
+        return set(XmlOptionsKeys.CHARACTER_ENCODING, encoding);
     }
 
     public String getCharacterEncoding() {
-        return (String) get(CHARACTER_ENCODING);
+        return (String) get(XmlOptionsKeys.CHARACTER_ENCODING);
     }
 
     /**
@@ -279,11 +290,11 @@ public class XmlOptions implements java.io.Serializable {
      * @see XmlObject.Factory#parse(java.io.File, XmlOptions)
      */
     public XmlOptions setDocumentType(SchemaType type) {
-        return set(DOCUMENT_TYPE, type);
+        return set(XmlOptionsKeys.DOCUMENT_TYPE, type);
     }
 
     public SchemaType getDocumentType() {
-        return (SchemaType) get(DOCUMENT_TYPE);
+        return (SchemaType) get(XmlOptionsKeys.DOCUMENT_TYPE);
     }
 
 
@@ -331,12 +342,12 @@ public class XmlOptions implements java.io.Serializable {
      * @see XmlOptions#setLoadLineNumbers
      */
     public XmlOptions setErrorListener(Collection<XmlError> c) {
-        return set(ERROR_LISTENER, c);
+        return set(XmlOptionsKeys.ERROR_LISTENER, c);
     }
 
     @SuppressWarnings("unchecked")
     public Collection<XmlError> getErrorListener() {
-        return (Collection<XmlError>) get(ERROR_LISTENER);
+        return (Collection<XmlError>) get(XmlOptionsKeys.ERROR_LISTENER);
     }
 
     /**
@@ -354,11 +365,11 @@ public class XmlOptions implements java.io.Serializable {
     }
 
     public XmlOptions setSaveAggressiveNamespaces(boolean b) {
-        return set(SAVE_AGGRESSIVE_NAMESPACES, b);
+        return set(XmlOptionsKeys.SAVE_AGGRESSIVE_NAMESPACES, b);
     }
 
     public boolean isSaveAggressiveNamespaces() {
-        return hasOption(SAVE_AGGRESSIVE_NAMESPACES);
+        return hasOption(XmlOptionsKeys.SAVE_AGGRESSIVE_NAMESPACES);
     }
 
 
@@ -371,11 +382,11 @@ public class XmlOptions implements java.io.Serializable {
      * @see XmlTokenSource#xmlText(XmlOptions)
      */
     public XmlOptions setSaveSyntheticDocumentElement(QName name) {
-        return set(SAVE_SYNTHETIC_DOCUMENT_ELEMENT, name);
+        return set(XmlOptionsKeys.SAVE_SYNTHETIC_DOCUMENT_ELEMENT, name);
     }
 
     public QName getSaveSyntheticDocumentElement() {
-        return (QName) get(SAVE_SYNTHETIC_DOCUMENT_ELEMENT);
+        return (QName) get(XmlOptionsKeys.SAVE_SYNTHETIC_DOCUMENT_ELEMENT);
     }
 
 
@@ -392,11 +403,11 @@ public class XmlOptions implements java.io.Serializable {
     }
 
     public XmlOptions setUseDefaultNamespace(boolean b) {
-        return set(SAVE_USE_DEFAULT_NAMESPACE, b);
+        return set(XmlOptionsKeys.SAVE_USE_DEFAULT_NAMESPACE, b);
     }
 
     public boolean isUseDefaultNamespace() {
-        return hasOption(SAVE_USE_DEFAULT_NAMESPACE);
+        return hasOption(XmlOptionsKeys.SAVE_USE_DEFAULT_NAMESPACE);
     }
 
     /**
@@ -410,12 +421,12 @@ public class XmlOptions implements java.io.Serializable {
      * @see XmlTokenSource#xmlText(XmlOptions)
      */
     public XmlOptions setSaveImplicitNamespaces(Map<String, String> implicitNamespaces) {
-        return set(SAVE_IMPLICIT_NAMESPACES, implicitNamespaces);
+        return set(XmlOptionsKeys.SAVE_IMPLICIT_NAMESPACES, implicitNamespaces);
     }
 
     @SuppressWarnings("unchecked")
     public Map<String, String> getSaveImplicitNamespaces() {
-        return (Map<String, String>) get(SAVE_IMPLICIT_NAMESPACES);
+        return (Map<String, String>) get(XmlOptionsKeys.SAVE_IMPLICIT_NAMESPACES);
     }
 
     /**
@@ -427,12 +438,12 @@ public class XmlOptions implements java.io.Serializable {
      * @see XmlTokenSource#xmlText(XmlOptions)
      */
     public XmlOptions setSaveSuggestedPrefixes(Map<String, String> suggestedPrefixes) {
-        return set(SAVE_SUGGESTED_PREFIXES, suggestedPrefixes);
+        return set(XmlOptionsKeys.SAVE_SUGGESTED_PREFIXES, suggestedPrefixes);
     }
 
     @SuppressWarnings("unchecked")
     public Map<String, String> getSaveSuggestedPrefixes() {
-        return (Map<String, String>) get(SAVE_SUGGESTED_PREFIXES);
+        return (Map<String, String>) get(XmlOptionsKeys.SAVE_SUGGESTED_PREFIXES);
     }
 
     /**
@@ -445,11 +456,11 @@ public class XmlOptions implements java.io.Serializable {
      * @see XmlTokenSource#xmlText(XmlOptions)
      */
     public XmlOptions setSaveFilterProcinst(String filterProcinst) {
-        return set(SAVE_FILTER_PROCINST, filterProcinst);
+        return set(XmlOptionsKeys.SAVE_FILTER_PROCINST, filterProcinst);
     }
 
     public String getSaveFilterProcinst() {
-        return (String) get(SAVE_FILTER_PROCINST);
+        return (String) get(XmlOptionsKeys.SAVE_FILTER_PROCINST);
     }
 
     /**
@@ -465,11 +476,11 @@ public class XmlOptions implements java.io.Serializable {
      */
     public XmlOptions setSaveSubstituteCharacters(
         XmlOptionCharEscapeMap characterReplacementMap) {
-        return set(SAVE_SUBSTITUTE_CHARACTERS, characterReplacementMap);
+        return set(XmlOptionsKeys.SAVE_SUBSTITUTE_CHARACTERS, characterReplacementMap);
     }
 
     public XmlOptionCharEscapeMap getSaveSubstituteCharacters() {
-        return (XmlOptionCharEscapeMap) get(SAVE_SUBSTITUTE_CHARACTERS);
+        return (XmlOptionCharEscapeMap) get(XmlOptionsKeys.SAVE_SUBSTITUTE_CHARACTERS);
     }
 
     /**
@@ -484,11 +495,11 @@ public class XmlOptions implements java.io.Serializable {
     }
 
     public XmlOptions setSaveUseOpenFrag(boolean b) {
-        return set(SAVE_USE_OPEN_FRAGMENT, b);
+        return set(XmlOptionsKeys.SAVE_USE_OPEN_FRAGMENT, b);
     }
 
     public boolean isSaveUseOpenFrag() {
-        return hasOption(SAVE_USE_OPEN_FRAGMENT);
+        return hasOption(XmlOptionsKeys.SAVE_USE_OPEN_FRAGMENT);
     }
 
     /**
@@ -502,11 +513,11 @@ public class XmlOptions implements java.io.Serializable {
     }
 
     public XmlOptions setSaveOuter(boolean b) {
-        return set(SAVE_OUTER, b);
+        return set(XmlOptionsKeys.SAVE_OUTER, b);
     }
 
     public boolean isSaveOuter() {
-        return hasOption(SAVE_OUTER);
+        return hasOption(XmlOptionsKeys.SAVE_OUTER);
     }
 
     /**
@@ -520,11 +531,11 @@ public class XmlOptions implements java.io.Serializable {
     }
 
     public XmlOptions setSaveInner(boolean b) {
-        return set(SAVE_INNER, b);
+        return set(XmlOptionsKeys.SAVE_INNER, b);
     }
 
     public boolean isSaveInner() {
-        return hasOption(SAVE_INNER);
+        return hasOption(XmlOptionsKeys.SAVE_INNER);
     }
 
     /**
@@ -539,11 +550,11 @@ public class XmlOptions implements java.io.Serializable {
     }
 
     public XmlOptions setSaveNoXmlDecl(boolean b) {
-        return set(SAVE_NO_XML_DECL, b);
+        return set(XmlOptionsKeys.SAVE_NO_XML_DECL, b);
     }
 
     public boolean isSaveNoXmlDecl() {
-        return hasOption(SAVE_NO_XML_DECL);
+        return hasOption(XmlOptionsKeys.SAVE_NO_XML_DECL);
     }
 
 
@@ -566,11 +577,11 @@ public class XmlOptions implements java.io.Serializable {
      * @see XmlOptions#setSaveCDataEntityCountThreshold(int)
      */
     public XmlOptions setSaveCDataLengthThreshold(int cdataLengthThreshold) {
-        return set(SAVE_CDATA_LENGTH_THRESHOLD, cdataLengthThreshold);
+        return set(XmlOptionsKeys.SAVE_CDATA_LENGTH_THRESHOLD, cdataLengthThreshold);
     }
 
     public Integer getSaveCDataLengthThreshold() {
-        return (Integer) get(SAVE_CDATA_LENGTH_THRESHOLD);
+        return (Integer) get(XmlOptionsKeys.SAVE_CDATA_LENGTH_THRESHOLD);
     }
 
 
@@ -583,11 +594,11 @@ public class XmlOptions implements java.io.Serializable {
      * @see XmlOptions#setSaveCDataLengthThreshold(int)
      */
     public XmlOptions setSaveCDataEntityCountThreshold(int cdataEntityCountThreshold) {
-        return set(SAVE_CDATA_ENTITY_COUNT_THRESHOLD, cdataEntityCountThreshold);
+        return set(XmlOptionsKeys.SAVE_CDATA_ENTITY_COUNT_THRESHOLD, cdataEntityCountThreshold);
     }
 
     public Integer getSaveCDataEntityCountThreshold() {
-        return (Integer) get(SAVE_CDATA_ENTITY_COUNT_THRESHOLD);
+        return (Integer) get(XmlOptionsKeys.SAVE_CDATA_ENTITY_COUNT_THRESHOLD);
     }
 
     /**
@@ -637,11 +648,11 @@ public class XmlOptions implements java.io.Serializable {
      * @see CDataBookmark#CDATA_BOOKMARK
      */
     public XmlOptions setUseCDataBookmarks() {
-        return set(LOAD_SAVE_CDATA_BOOKMARKS);
+        return set(XmlOptionsKeys.LOAD_SAVE_CDATA_BOOKMARKS);
     }
 
     public boolean isUseCDataBookmarks() {
-        return hasOption(LOAD_SAVE_CDATA_BOOKMARKS);
+        return hasOption(XmlOptionsKeys.LOAD_SAVE_CDATA_BOOKMARKS);
     }
 
     /**
@@ -654,11 +665,11 @@ public class XmlOptions implements java.io.Serializable {
     }
 
     public XmlOptions setSaveSaxNoNSDeclsInAttributes(boolean b) {
-        return set(SAVE_SAX_NO_NSDECLS_IN_ATTRIBUTES, b);
+        return set(XmlOptionsKeys.SAVE_SAX_NO_NSDECLS_IN_ATTRIBUTES, b);
     }
 
     public boolean isSaveSaxNoNSDeclsInAttributes() {
-        return hasOption(SAVE_SAX_NO_NSDECLS_IN_ATTRIBUTES);
+        return hasOption(XmlOptionsKeys.SAVE_SAX_NO_NSDECLS_IN_ATTRIBUTES);
     }
 
 
@@ -670,11 +681,11 @@ public class XmlOptions implements java.io.Serializable {
      * @see XmlObject.Factory#parse(java.io.File, XmlOptions)
      */
     public XmlOptions setLoadReplaceDocumentElement(QName replacement) {
-        return set(LOAD_REPLACE_DOCUMENT_ELEMENT, replacement);
+        return set(XmlOptionsKeys.LOAD_REPLACE_DOCUMENT_ELEMENT, replacement);
     }
 
     public QName getLoadReplaceDocumentElement() {
-        return (QName) get(LOAD_REPLACE_DOCUMENT_ELEMENT);
+        return (QName) get(XmlOptionsKeys.LOAD_REPLACE_DOCUMENT_ELEMENT);
     }
 
     /**
@@ -689,11 +700,11 @@ public class XmlOptions implements java.io.Serializable {
     }
 
     public XmlOptions setLoadStripWhitespace(boolean b) {
-        return set(LOAD_STRIP_WHITESPACE, b);
+        return set(XmlOptionsKeys.LOAD_STRIP_WHITESPACE, b);
     }
 
     public boolean isSetLoadStripWhitespace() {
-        return hasOption(LOAD_STRIP_WHITESPACE);
+        return hasOption(XmlOptionsKeys.LOAD_STRIP_WHITESPACE);
     }
 
     /**
@@ -707,11 +718,11 @@ public class XmlOptions implements java.io.Serializable {
     }
 
     public XmlOptions setLoadStripComments(boolean b) {
-        return set(LOAD_STRIP_COMMENTS, b);
+        return set(XmlOptionsKeys.LOAD_STRIP_COMMENTS, b);
     }
 
     public boolean isLoadStripComments() {
-        return hasOption(LOAD_STRIP_COMMENTS);
+        return hasOption(XmlOptionsKeys.LOAD_STRIP_COMMENTS);
     }
 
     /**
@@ -725,11 +736,11 @@ public class XmlOptions implements java.io.Serializable {
     }
 
     public XmlOptions setLoadStripProcinsts(boolean b) {
-        return set(LOAD_STRIP_PROCINSTS, b);
+        return set(XmlOptionsKeys.LOAD_STRIP_PROCINSTS, b);
     }
 
     public boolean isLoadStripProcinsts() {
-        return hasOption(LOAD_STRIP_PROCINSTS);
+        return hasOption(XmlOptionsKeys.LOAD_STRIP_PROCINSTS);
     }
 
     /**
@@ -749,11 +760,11 @@ public class XmlOptions implements java.io.Serializable {
     }
 
     public XmlOptions setLoadLineNumbers(boolean b) {
-        return set(LOAD_LINE_NUMBERS, b);
+        return set(XmlOptionsKeys.LOAD_LINE_NUMBERS, b);
     }
 
     public boolean isLoadLineNumbers() {
-        return hasOption(LOAD_LINE_NUMBERS);
+        return hasOption(XmlOptionsKeys.LOAD_LINE_NUMBERS);
     }
 
 
@@ -769,11 +780,11 @@ public class XmlOptions implements java.io.Serializable {
 
     public XmlOptions setLoadLineNumbersEndElement(boolean b) {
         setLoadLineNumbers(true);
-        return set(LOAD_LINE_NUMBERS_END_ELEMENT, b);
+        return set(XmlOptionsKeys.LOAD_LINE_NUMBERS_END_ELEMENT, b);
     }
 
     public boolean isLoadLineNumbersEndElement() {
-        return hasOption(LOAD_LINE_NUMBERS_END_ELEMENT);
+        return hasOption(XmlOptionsKeys.LOAD_LINE_NUMBERS_END_ELEMENT);
     }
 
     /**
@@ -796,12 +807,12 @@ public class XmlOptions implements java.io.Serializable {
      * @see XmlObject.Factory#parse(java.io.File, XmlOptions)
      */
     public XmlOptions setLoadSubstituteNamespaces(Map<String, String> substNamespaces) {
-        return set(LOAD_SUBSTITUTE_NAMESPACES, substNamespaces);
+        return set(XmlOptionsKeys.LOAD_SUBSTITUTE_NAMESPACES, substNamespaces);
     }
 
     @SuppressWarnings("unchecked")
     public Map<String, String> getLoadSubstituteNamespaces() {
-        return (Map<String, String>) get(LOAD_SUBSTITUTE_NAMESPACES);
+        return (Map<String, String>) get(XmlOptionsKeys.LOAD_SUBSTITUTE_NAMESPACES);
     }
 
     /**
@@ -817,11 +828,11 @@ public class XmlOptions implements java.io.Serializable {
     }
 
     public XmlOptions setLoadTrimTextBuffer(boolean b) {
-        return set(LOAD_TRIM_TEXT_BUFFER, b);
+        return set(XmlOptionsKeys.LOAD_TRIM_TEXT_BUFFER, b);
     }
 
     public boolean isLoadTrimTextBuffer() {
-        return hasOption(LOAD_TRIM_TEXT_BUFFER);
+        return hasOption(XmlOptionsKeys.LOAD_TRIM_TEXT_BUFFER);
     }
 
     /**
@@ -832,12 +843,12 @@ public class XmlOptions implements java.io.Serializable {
      * @see XmlObject.Factory#parse(java.io.File, XmlOptions)
      */
     public XmlOptions setLoadAdditionalNamespaces(Map<String, String> nses) {
-        return set(LOAD_ADDITIONAL_NAMESPACES, nses);
+        return set(XmlOptionsKeys.LOAD_ADDITIONAL_NAMESPACES, nses);
     }
 
     @SuppressWarnings("unchecked")
     public Map<String, String> getLoadAdditionalNamespaces() {
-        return (Map<String, String>) get(LOAD_ADDITIONAL_NAMESPACES);
+        return (Map<String, String>) get(XmlOptionsKeys.LOAD_ADDITIONAL_NAMESPACES);
     }
 
     /**
@@ -856,11 +867,11 @@ public class XmlOptions implements java.io.Serializable {
     }
 
     public XmlOptions setLoadMessageDigest(boolean b) {
-        return set(LOAD_MESSAGE_DIGEST, b);
+        return set(XmlOptionsKeys.LOAD_MESSAGE_DIGEST, b);
     }
 
     public boolean isLoadMessageDigest() {
-        return hasOption(LOAD_MESSAGE_DIGEST);
+        return hasOption(XmlOptionsKeys.LOAD_MESSAGE_DIGEST);
     }
 
     /**
@@ -875,11 +886,11 @@ public class XmlOptions implements java.io.Serializable {
     }
 
     public XmlOptions setLoadUseDefaultResolver(boolean b) {
-        return set(LOAD_USE_DEFAULT_RESOLVER, b);
+        return set(XmlOptionsKeys.LOAD_USE_DEFAULT_RESOLVER, b);
     }
 
     public boolean isLoadUseDefaultResolver() {
-        return hasOption(LOAD_USE_DEFAULT_RESOLVER);
+        return hasOption(XmlOptionsKeys.LOAD_USE_DEFAULT_RESOLVER);
     }
 
 
@@ -892,11 +903,11 @@ public class XmlOptions implements java.io.Serializable {
      * @see XmlObject.Factory#parse(java.io.File, XmlOptions)
      */
     public XmlOptions setLoadUseXMLReader(XMLReader xmlReader) {
-        return set(LOAD_USE_XMLREADER, xmlReader);
+        return set(XmlOptionsKeys.LOAD_USE_XMLREADER, xmlReader);
     }
 
     public XMLReader getLoadUseXMLReader() {
-        return (XMLReader) get(LOAD_USE_XMLREADER);
+        return (XMLReader) get(XmlOptionsKeys.LOAD_USE_XMLREADER);
     }
 
     /**
@@ -908,11 +919,11 @@ public class XmlOptions implements java.io.Serializable {
      * @see XmlCursor#execQuery
      */
     public XmlOptions setXqueryCurrentNodeVar(String varName) {
-        return set(XQUERY_CURRENT_NODE_VAR, varName);
+        return set(XmlOptionsKeys.XQUERY_CURRENT_NODE_VAR, varName);
     }
 
     public String getXqueryCurrentNodeVar() {
-        return (String) get(XQUERY_CURRENT_NODE_VAR);
+        return (String) get(XmlOptionsKeys.XQUERY_CURRENT_NODE_VAR);
     }
 
     /**
@@ -928,12 +939,12 @@ public class XmlOptions implements java.io.Serializable {
      * @see XmlCursor#execQuery
      */
     public XmlOptions setXqueryVariables(Map<String, Object> varMap) {
-        return set(XQUERY_VARIABLE_MAP, varMap);
+        return set(XmlOptionsKeys.XQUERY_VARIABLE_MAP, varMap);
     }
 
     @SuppressWarnings("unchecked")
     public Map<String, Object> getXqueryVariables() {
-        return (Map<String, Object>) get(XQUERY_VARIABLE_MAP);
+        return (Map<String, Object>) get(XmlOptionsKeys.XQUERY_VARIABLE_MAP);
     }
 
     /**
@@ -946,11 +957,11 @@ public class XmlOptions implements java.io.Serializable {
      * @see XmlObject.Factory#parse(java.lang.String, XmlOptions)
      */
     public XmlOptions setDocumentSourceName(String documentSourceName) {
-        return set(DOCUMENT_SOURCE_NAME, documentSourceName);
+        return set(XmlOptionsKeys.DOCUMENT_SOURCE_NAME, documentSourceName);
     }
 
     public String getDocumentSourceName() {
-        return (String) get(DOCUMENT_SOURCE_NAME);
+        return (String) get(XmlOptionsKeys.DOCUMENT_SOURCE_NAME);
     }
 
     /**
@@ -960,12 +971,12 @@ public class XmlOptions implements java.io.Serializable {
      * @see XmlBeans#compileXsd
      */
     public XmlOptions setCompileSubstituteNames(Map<QName, QName> nameMap) {
-        return set(COMPILE_SUBSTITUTE_NAMES, nameMap);
+        return set(XmlOptionsKeys.COMPILE_SUBSTITUTE_NAMES, nameMap);
     }
 
     @SuppressWarnings("unchecked")
     public Map<QName, QName> getCompileSubstituteNames() {
-        return (Map<QName, QName>) get(COMPILE_SUBSTITUTE_NAMES);
+        return (Map<QName, QName>) get(XmlOptionsKeys.COMPILE_SUBSTITUTE_NAMES);
     }
 
     /**
@@ -975,11 +986,11 @@ public class XmlOptions implements java.io.Serializable {
      * @see XmlBeans#compileXsd
      */
     public XmlOptions setCompileNoValidation() {
-        return set(COMPILE_NO_VALIDATION);
+        return set(XmlOptionsKeys.COMPILE_NO_VALIDATION);
     }
 
     public boolean isCompileNoValidation() {
-        return hasOption(COMPILE_NO_VALIDATION);
+        return hasOption(XmlOptionsKeys.COMPILE_NO_VALIDATION);
     }
 
     /**
@@ -995,11 +1006,11 @@ public class XmlOptions implements java.io.Serializable {
     }
 
     public XmlOptions setCompileNoUpaRule(boolean b) {
-        return set(COMPILE_NO_UPA_RULE, b);
+        return set(XmlOptionsKeys.COMPILE_NO_UPA_RULE, b);
     }
 
     public boolean isCompileNoUpaRule() {
-        return hasOption(COMPILE_NO_UPA_RULE);
+        return hasOption(XmlOptionsKeys.COMPILE_NO_UPA_RULE);
     }
 
     /**
@@ -1015,11 +1026,11 @@ public class XmlOptions implements java.io.Serializable {
     }
 
     public XmlOptions setCompileNoPvrRule(boolean b) {
-        return set(COMPILE_NO_PVR_RULE, b);
+        return set(XmlOptionsKeys.COMPILE_NO_PVR_RULE, b);
     }
 
     public boolean isCompileNoPvrRule() {
-        return hasOption(COMPILE_NO_PVR_RULE);
+        return hasOption(XmlOptionsKeys.COMPILE_NO_PVR_RULE);
     }
 
     /**
@@ -1033,11 +1044,11 @@ public class XmlOptions implements java.io.Serializable {
     }
 
     public XmlOptions setCompileNoAnnotations(boolean b) {
-        return set(COMPILE_NO_ANNOTATIONS, b);
+        return set(XmlOptionsKeys.COMPILE_NO_ANNOTATIONS, b);
     }
 
     public boolean isCompileNoAnnotations() {
-        return hasOption(COMPILE_NO_ANNOTATIONS);
+        return hasOption(XmlOptionsKeys.COMPILE_NO_ANNOTATIONS);
     }
 
     /**
@@ -1051,11 +1062,11 @@ public class XmlOptions implements java.io.Serializable {
     }
 
     public XmlOptions setCompileDownloadUrls(boolean b) {
-        return set(COMPILE_DOWNLOAD_URLS, b);
+        return set(XmlOptionsKeys.COMPILE_DOWNLOAD_URLS, b);
     }
 
     public boolean isCompileDownloadUrls() {
-        return hasOption(COMPILE_DOWNLOAD_URLS);
+        return hasOption(XmlOptionsKeys.COMPILE_DOWNLOAD_URLS);
     }
 
     /**
@@ -1069,12 +1080,25 @@ public class XmlOptions implements java.io.Serializable {
      * @see XmlBeans#compileXsd
      */
     public XmlOptions setCompileMdefNamespaces(Set<String> mdefNamespaces) {
-        return set(COMPILE_MDEF_NAMESPACES, mdefNamespaces);
+        return set(XmlOptionsKeys.COMPILE_MDEF_NAMESPACES, mdefNamespaces);
     }
 
     @SuppressWarnings("unchecked")
     public Set<String> getCompileMdefNamespaces() {
-        return (Set<String>) get(COMPILE_MDEF_NAMESPACES);
+        return (Set<String>) get(XmlOptionsKeys.COMPILE_MDEF_NAMESPACES);
+    }
+
+    public XmlOptions setCompilePartialTypesystem() {
+        return setCompilePartialTypesystem(true);
+    }
+
+    public XmlOptions setCompilePartialTypesystem(boolean compilePartialTypesystem) {
+        return set(XmlOptionsKeys.COMPILE_PARTIAL_TYPESYSTEM, compilePartialTypesystem);
+    }
+
+    public boolean isCompilePartialTypesystem() {
+        Boolean flag = (Boolean) get(XmlOptionsKeys.COMPILE_PARTIAL_TYPESYSTEM);
+        return flag != null && flag;
     }
 
     /**
@@ -1093,11 +1117,11 @@ public class XmlOptions implements java.io.Serializable {
     }
 
     public XmlOptions setValidateOnSet(boolean b) {
-        return set(VALIDATE_ON_SET, b);
+        return set(XmlOptionsKeys.VALIDATE_ON_SET, b);
     }
 
     public boolean isValidateOnSet() {
-        return hasOption(VALIDATE_ON_SET);
+        return hasOption(XmlOptionsKeys.VALIDATE_ON_SET);
     }
 
     /**
@@ -1111,11 +1135,11 @@ public class XmlOptions implements java.io.Serializable {
     }
 
     public XmlOptions setValidateTreatLaxAsSkip(boolean b) {
-        return set(VALIDATE_TREAT_LAX_AS_SKIP, b);
+        return set(XmlOptionsKeys.VALIDATE_TREAT_LAX_AS_SKIP, b);
     }
 
     public boolean isValidateTreatLaxAsSkip() {
-        return hasOption(VALIDATE_TREAT_LAX_AS_SKIP);
+        return hasOption(XmlOptionsKeys.VALIDATE_TREAT_LAX_AS_SKIP);
     }
 
     /**
@@ -1127,11 +1151,11 @@ public class XmlOptions implements java.io.Serializable {
     }
 
     public XmlOptions setValidateStrict(boolean b) {
-        return set(VALIDATE_STRICT, b);
+        return set(XmlOptionsKeys.VALIDATE_STRICT, b);
     }
 
     public boolean isValidateStrict() {
-        return hasOption(VALIDATE_STRICT);
+        return hasOption(XmlOptionsKeys.VALIDATE_STRICT);
     }
 
     public XmlOptions setValidateTextOnly() {
@@ -1139,11 +1163,11 @@ public class XmlOptions implements java.io.Serializable {
     }
 
     public XmlOptions setValidateTextOnly(boolean b) {
-        return set(VALIDATE_TEXT_ONLY, b);
+        return set(XmlOptionsKeys.VALIDATE_TEXT_ONLY, b);
     }
 
     public boolean isValidateTextOnly() {
-        return hasOption(VALIDATE_TEXT_ONLY);
+        return hasOption(XmlOptionsKeys.VALIDATE_TEXT_ONLY);
     }
 
 
@@ -1159,11 +1183,11 @@ public class XmlOptions implements java.io.Serializable {
     }
 
     public XmlOptions setUnsynchronized(boolean b) {
-        return set(UNSYNCHRONIZED, b);
+        return set(XmlOptionsKeys.UNSYNCHRONIZED, b);
     }
 
     public boolean isUnsynchronized() {
-        return hasOption(UNSYNCHRONIZED);
+        return hasOption(XmlOptionsKeys.UNSYNCHRONIZED);
     }
 
     /**
@@ -1178,11 +1202,11 @@ public class XmlOptions implements java.io.Serializable {
      * @see XmlBeans#compileXsd
      */
     public XmlOptions setEntityResolver(EntityResolver resolver) {
-        return set(ENTITY_RESOLVER, resolver);
+        return set(XmlOptionsKeys.ENTITY_RESOLVER, resolver);
     }
 
     public EntityResolver getEntityResolver() {
-        return (EntityResolver) get(ENTITY_RESOLVER);
+        return (EntityResolver) get(XmlOptionsKeys.ENTITY_RESOLVER);
     }
 
     /**
@@ -1194,11 +1218,11 @@ public class XmlOptions implements java.io.Serializable {
      * @see XmlBeans#compileXsd
      */
     public XmlOptions setBaseURI(URI baseURI) {
-        return set(BASE_URI, baseURI);
+        return set(XmlOptionsKeys.BASE_URI, baseURI);
     }
 
     public URI getBaseURI() {
-        return (URI) get(BASE_URI);
+        return (URI) get(XmlOptionsKeys.BASE_URI);
     }
 
     /**
@@ -1209,11 +1233,11 @@ public class XmlOptions implements java.io.Serializable {
      * @see XmlBeans#compileXsd
      */
     public XmlOptions setSchemaCodePrinter(SchemaCodePrinter printer) {
-        return set(SCHEMA_CODE_PRINTER, printer);
+        return set(XmlOptionsKeys.SCHEMA_CODE_PRINTER, printer);
     }
 
     public SchemaCodePrinter getSchemaCodePrinter() {
-        return (SchemaCodePrinter) get(SCHEMA_CODE_PRINTER);
+        return (SchemaCodePrinter) get(XmlOptionsKeys.SCHEMA_CODE_PRINTER);
     }
 
     /**
@@ -1228,11 +1252,11 @@ public class XmlOptions implements java.io.Serializable {
      * @see XmlBeans#compileXmlBeans
      */
     public XmlOptions setGenerateJavaVersion(String source) {
-        return set(GENERATE_JAVA_VERSION, source);
+        return set(XmlOptionsKeys.GENERATE_JAVA_VERSION, source);
     }
 
     public String getGenerateJavaVersion() {
-        return (String) get(GENERATE_JAVA_VERSION);
+        return (String) get(XmlOptionsKeys.GENERATE_JAVA_VERSION);
     }
 
     /**
@@ -1245,13 +1269,22 @@ public class XmlOptions implements java.io.Serializable {
      * @see XmlObject#copy()
      */
     public XmlOptions setCopyUseNewSynchronizationDomain(boolean useNewSyncDomain) {
-        return set(COPY_USE_NEW_SYNC_DOMAIN, useNewSyncDomain);
+        return set(XmlOptionsKeys.COPY_USE_NEW_SYNC_DOMAIN, useNewSyncDomain);
     }
 
     public boolean isCopyUseNewSynchronizationDomain() {
-        Boolean flag = (Boolean)get(COPY_USE_NEW_SYNC_DOMAIN);
+        Boolean flag = (Boolean)get(XmlOptionsKeys.COPY_USE_NEW_SYNC_DOMAIN);
         return flag != null && flag;
     }
+
+    public XmlOptions setUseSameLocale(Object localeOrXmlTokenSource) {
+        return set(XmlOptionsKeys.USE_SAME_LOCALE, localeOrXmlTokenSource);
+    }
+
+    public Object getUseSameLocale() {
+        return get(XmlOptionsKeys.USE_SAME_LOCALE);
+    }
+
 
     /**
      * Sets the maximum number of bytes allowed when an Entity is expanded during parsing.
@@ -1261,11 +1294,11 @@ public class XmlOptions implements java.io.Serializable {
      * @return this
      */
     public XmlOptions setLoadEntityBytesLimit(int entityBytesLimit) {
-        return set(LOAD_ENTITY_BYTES_LIMIT, entityBytesLimit);
+        return set(XmlOptionsKeys.LOAD_ENTITY_BYTES_LIMIT, entityBytesLimit);
     }
 
     public Integer getLoadEntityBytesLimit() {
-        return (Integer) get(LOAD_ENTITY_BYTES_LIMIT);
+        return (Integer) get(XmlOptionsKeys.LOAD_ENTITY_BYTES_LIMIT);
     }
 
 
@@ -1277,11 +1310,11 @@ public class XmlOptions implements java.io.Serializable {
      * @return this
      */
     public XmlOptions setEntityExpansionLimit(int entityExpansionLimit) {
-        return set(ENTITY_EXPANSION_LIMIT, entityExpansionLimit);
+        return set(XmlOptionsKeys.ENTITY_EXPANSION_LIMIT, entityExpansionLimit);
     }
 
     public int getEntityExpansionLimit() {
-        Integer limit = (Integer) get(ENTITY_EXPANSION_LIMIT);
+        Integer limit = (Integer) get(XmlOptionsKeys.ENTITY_EXPANSION_LIMIT);
         return limit == null ? DEFAULT_ENTITY_EXPANSION_LIMIT : limit;
     }
 
@@ -1293,11 +1326,11 @@ public class XmlOptions implements java.io.Serializable {
      * @return this
      */
     public XmlOptions setLoadDTDGrammar(boolean loadDTDGrammar) {
-        return set(LOAD_DTD_GRAMMAR, loadDTDGrammar);
+        return set(XmlOptionsKeys.LOAD_DTD_GRAMMAR, loadDTDGrammar);
     }
 
     public boolean isLoadDTDGrammar() {
-        Boolean flag = (Boolean) get(LOAD_DTD_GRAMMAR);
+        Boolean flag = (Boolean) get(XmlOptionsKeys.LOAD_DTD_GRAMMAR);
         return flag != null && flag;
     }
 
@@ -1309,23 +1342,75 @@ public class XmlOptions implements java.io.Serializable {
      * @return this
      */
     public XmlOptions setLoadExternalDTD(boolean loadExternalDTD) {
-        return set(LOAD_EXTERNAL_DTD, loadExternalDTD);
+        return set(XmlOptionsKeys.LOAD_EXTERNAL_DTD, loadExternalDTD);
     }
 
     public boolean isLoadExternalDTD() {
-        Boolean flag = (Boolean) get(LOAD_EXTERNAL_DTD);
+        Boolean flag = (Boolean) get(XmlOptionsKeys.LOAD_EXTERNAL_DTD);
         return flag != null && flag;
     }
 
     public XmlOptions setSaveOptimizeForSpeed(boolean saveOptimizeForSpeed) {
-        return set(SAVE_OPTIMIZE_FOR_SPEED, saveOptimizeForSpeed);
+        return set(XmlOptionsKeys.SAVE_OPTIMIZE_FOR_SPEED, saveOptimizeForSpeed);
     }
 
     public boolean isSaveOptimizeForSpeed() {
-        Boolean flag = (Boolean) get(SAVE_OPTIMIZE_FOR_SPEED);
+        Boolean flag = (Boolean) get(XmlOptionsKeys.SAVE_OPTIMIZE_FOR_SPEED);
         return flag != null && flag;
     }
 
+    // Use in XmlOptions to enable SAAJ support in store
+    public XmlOptions setSaaj(Saaj saaj) {
+        return set(XmlOptionsKeys.SAAJ_IMPL, saaj);
+    }
+
+    public Saaj getSaaj() {
+        return (Saaj)get(XmlOptionsKeys.SAAJ_IMPL);
+    }
+
+    public XmlOptions setLoadUseLocaleCharUtil(boolean useCharUtil) {
+        return set(XmlOptionsKeys.LOAD_USE_LOCALE_CHAR_UTIL, useCharUtil);
+    }
+
+    public boolean isLoadUseLocaleCharUtil() {
+        Boolean flag = (Boolean) get(XmlOptionsKeys.LOAD_USE_LOCALE_CHAR_UTIL);
+        return flag != null && flag;
+    }
+
+    public XmlOptions setXPathUseDelegate() {
+        return setXPathUseDelegate(true);
+    }
+
+    public XmlOptions setXPathUseDelegate(boolean xpathUseDelegate) {
+        return set(XmlOptionsKeys.XPATH_USE_DELEGATE, xpathUseDelegate);
+    }
+
+    public boolean isXPathUseDelegate() {
+        Boolean flag = (Boolean)get(XmlOptionsKeys.XPATH_USE_DELEGATE);
+        return flag != null && flag;
+    }
+
+    public XmlOptions setXPathUseXmlBeans() {
+        return setXPathUseDelegate(true);
+    }
+
+    public XmlOptions setXPathUseXmlBeans(boolean xpathUseDelegate) {
+        return set(XmlOptionsKeys.XPATH_USE_XMLBEANS, xpathUseDelegate);
+    }
+
+    public boolean isXPathUseXmlBeans() {
+        Boolean flag = (Boolean)get(XmlOptionsKeys.XPATH_USE_XMLBEANS);
+        return flag != null && flag;
+    }
+
+    public XmlOptions setAttributeValidationCompatMode(boolean attributeValidationCompatMode) {
+        return set(XmlOptionsKeys.ATTTRIBUTE_VALIDATION_COMPAT_MODE, attributeValidationCompatMode);
+    }
+
+    public boolean isAttributeValidationCompatMode() {
+        Boolean flag = (Boolean)get(XmlOptionsKeys.ATTTRIBUTE_VALIDATION_COMPAT_MODE);
+        return flag != null && flag;
+    }
 
     /**
      * If passed null, returns an empty options object.  Otherwise, returns its argument.
@@ -1335,41 +1420,20 @@ public class XmlOptions implements java.io.Serializable {
     }
 
 
-    /**
-     * Used to set a generic option
-     */
-    public void put(String option) {
-        put(option, null);
+    private XmlOptions set(XmlOptionsKeys option) {
+        return set(option, true);
     }
 
-    /**
-     * Used to set a generic option
-     */
-    public void put(String option, Object value) {
-        _map.put(option, value);
-    }
-
-    /**
-     * Used to set a generic option
-     */
-    public void put(String option, int value) {
-        put(option, new Integer(value));
-    }
-
-    private XmlOptions set(String option) {
-        return set(option, null);
-    }
-
-    private XmlOptions set(String option, Object value) {
+    private XmlOptions set(XmlOptionsKeys option, Object value) {
         _map.put(option, value);
         return this;
     }
 
-    private XmlOptions set(String option, int value) {
+    private XmlOptions set(XmlOptionsKeys option, int value) {
         return set(option, new Integer(value));
     }
 
-    private XmlOptions set(String option, boolean value) {
+    private XmlOptions set(XmlOptionsKeys option, boolean value) {
         if (value) {
             set(option, Boolean.TRUE);
         } else {
@@ -1381,30 +1445,18 @@ public class XmlOptions implements java.io.Serializable {
     /**
      * Used to test a generic option
      */
-    public boolean hasOption(String option) {
+    public boolean hasOption(XmlOptionsKeys option) {
         return _map.containsKey(option);
-    }
-
-    public static boolean hasOption(XmlOptions options, String option) {
-        return options != null && options.hasOption(option);
     }
 
     /**
      * Used to get a generic option
      */
-    public Object get(String option) {
+    public Object get(XmlOptionsKeys option) {
         return _map.get(option);
     }
 
-    public void remove(String option) {
+    public void remove(XmlOptionsKeys option) {
         _map.remove(option);
     }
-
-    /**
-     * Used to test a generic option on an options object that may be null
-     */
-    public static Object safeGet(XmlOptions o, String option) {
-        return o == null ? null : o.get(option);
-    }
-
 }

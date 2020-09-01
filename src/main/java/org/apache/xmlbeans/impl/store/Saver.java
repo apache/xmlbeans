@@ -4006,11 +4006,11 @@ abstract class Saver {
 
             _prettyIndent = 2;
 
-            if (options.hasOption(XmlOptions.SAVE_PRETTY_PRINT_INDENT)) {
+            if (options.getSavePrettyPrintIndent() != null) {
                 _prettyIndent = options.getSavePrettyPrintIndent();
             }
 
-            if (options.hasOption(XmlOptions.SAVE_PRETTY_PRINT_OFFSET)) {
+            if (options.getSavePrettyPrintOffset() != null) {
                 _prettyOffset = options.getSavePrettyPrintOffset();
             }
 

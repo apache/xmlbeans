@@ -448,7 +448,7 @@ public class StscState {
             return; // defaults are all false.
         }
 
-        _allowPartial = options.hasOption("COMPILE_PARTIAL_TYPESYSTEM");
+        _allowPartial = options.isCompilePartialTypesystem();
 
         _compatMap = options.getCompileSubstituteNames();
         _noUpa = options.isCompileNoUpaRule() ||

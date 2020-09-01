@@ -44,10 +44,7 @@ import org.w3c.dom.Text;
 
 public interface Saaj
 {
-    // Use in XmlOptions to enable SAAJ support in store
-    
-    public static final String SAAJ_IMPL =  "SAAJ_IMPL";
-    
+
     public interface SaajCallback
     {
         void   setSaajData ( Node n, Object o );
@@ -61,7 +58,7 @@ public interface Saaj
     void setCallback ( SaajCallback callback );
 
     Class identifyElement ( QName name, QName parentName );
-    
+
     void        soapNode_detachNode       ( org.apache.xmlbeans.impl.soap.Node soapNode );
     void        soapNode_recycleNode      ( org.apache.xmlbeans.impl.soap.Node node );
     String      soapNode_getValue         ( org.apache.xmlbeans.impl.soap.Node node );
@@ -147,4 +144,4 @@ public interface Saaj
 
     DetailEntry detail_addDetailEntry   ( Detail detail, Name name );
     Iterator    detail_getDetailEntries ( Detail detail );
-} 
+}

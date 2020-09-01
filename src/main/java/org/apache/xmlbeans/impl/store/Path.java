@@ -20,6 +20,7 @@ import org.apache.xmlbeans.impl.common.DefaultClassLoaderResourceLoader;
 import org.apache.xmlbeans.impl.common.XPath;
 import org.apache.xmlbeans.impl.common.XPath.XPathCompileException;
 import org.apache.xmlbeans.impl.common.XPathExecutionContext;
+import org.apache.xmlbeans.impl.xpath.saxon.XBeansXPath;
 import org.w3c.dom.Node;
 
 import java.io.BufferedReader;
@@ -40,50 +41,15 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 public abstract class Path {
     public static final String PATH_DELEGATE_INTERFACE = "PATH_DELEGATE_INTERFACE";
     public static String _useDelegateForXpath = "use delegate for xpath";
-    public static String _useXdkForXpath = "use xdk for xpath";
-    public static String _useXqrlForXpath = "use xqrl for xpath";
     public static String _useXbeanForXpath = "use xbean for xpath";
-    public static String _forceXqrl2002ForXpathXQuery = "use xqrl-2002 for xpath";
 
     private static final int USE_XBEAN = 0x01;
-    private static final int USE_XQRL = 0x02;
     private static final int USE_DELEGATE = 0x04;
-    private static final int USE_XQRL2002 = 0x08;
-    private static final int USE_XDK = 0x10;
 
     private static final Map<String, WeakReference<Path>> _xbeanPathCache = new WeakHashMap<>();
-    private static final Map<String, WeakReference<Path>> _xdkPathCache = new WeakHashMap<>();
-    private static final Map<String, WeakReference<Path>> _xqrlPathCache = new WeakHashMap<>();
-    private static final Map<String, WeakReference<Path>> _xqrl2002PathCache = new WeakHashMap<>();
 
-    private static Method _xdkCompilePath;
-    private static Method _xqrlCompilePath;
-    private static Method _xqrl2002CompilePath;
 
-    private static boolean _xdkAvailable = true;
-    private static boolean _xqrlAvailable = true;
-    private static boolean _xqrl2002Available = true;
-
-    private static final String _delIntfName;
     private static final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
-
-    static {
-        String id = "META-INF/services/org.apache.xmlbeans.impl.store.PathDelegate.SelectPathInterface";
-        InputStream in = new DefaultClassLoaderResourceLoader().getResourceAsStream(id);
-
-        String name = null;
-        if (in != null) {
-            try {
-                BufferedReader br = new BufferedReader(new InputStreamReader(in));
-                name = br.readLine().trim();
-                br.close();
-            } catch (Exception e) {
-                // set nothing
-            }
-        }
-
-        _delIntfName = name;
-    }
 
     protected final String _pathKey;
 
@@ -125,15 +91,10 @@ public abstract class Path {
         options = XmlOptions.maskNull(options);
 
         int force =
-            options.hasOption(_useDelegateForXpath) ? USE_DELEGATE
-                : options.hasOption(_useXqrlForXpath) ? USE_XQRL
-                : options.hasOption(_useXdkForXpath) ? USE_XDK
-                : options.hasOption(_useXbeanForXpath) ? USE_XBEAN
-                : options.hasOption(_forceXqrl2002ForXpathXQuery) ? USE_XQRL2002
-                : USE_XBEAN | USE_XQRL | USE_XDK | USE_DELEGATE; //set all bits except XQRL2002
-        String delIntfName =
-            options.hasOption(PATH_DELEGATE_INTERFACE) ?
-                (String) options.get(PATH_DELEGATE_INTERFACE) : _delIntfName;
+            options.isXPathUseDelegate() ? USE_DELEGATE
+                : options.isXPathUseXmlBeans() ? USE_XBEAN
+                : USE_XBEAN | USE_DELEGATE;
+        String delIntfName = XBeansXPath.class.getName();
 
         return getCompiledPath(pathExpr, force, getCurrentNodeVar(options), delIntfName);
     }
@@ -147,15 +108,6 @@ public abstract class Path {
         try {
             if ((force & USE_XBEAN) != 0) {
                 pathWeakRef = _xbeanPathCache.get(pathExpr);
-            }
-            if (pathWeakRef == null && (force & USE_XQRL) != 0) {
-                pathWeakRef = _xqrlPathCache.get(pathExpr);
-            }
-            if (pathWeakRef == null && (force & USE_XDK) != 0) {
-                pathWeakRef = _xdkPathCache.get(pathExpr);
-            }
-            if (pathWeakRef == null && (force & USE_XQRL2002) != 0) {
-                pathWeakRef = _xqrl2002PathCache.get(pathExpr);
             }
 
             if (pathWeakRef != null) {
@@ -178,52 +130,16 @@ public abstract class Path {
                     path = getCompiledPathXbean(pathExpr, currentVar, namespaces);
                 }
             }
-            if (path == null && (force & USE_XQRL) != 0) {
-                pathWeakRef = _xqrlPathCache.get(pathExpr);
-                if (pathWeakRef != null) {
-                    path = pathWeakRef.get();
-                }
-                if (path == null) {
-                    path = getCompiledPathXqrl(pathExpr, currentVar);
-                }
-            }
-            if (path == null && (force & USE_XDK) != 0) {
-                pathWeakRef = _xdkPathCache.get(pathExpr);
-                if (pathWeakRef != null) {
-                    path = pathWeakRef.get();
-                }
-                if (path == null) {
-                    path = getCompiledPathXdk(pathExpr, currentVar);
-                }
-            }
             if (path == null && (force & USE_DELEGATE) != 0) {
                 path = getCompiledPathDelegate(pathExpr, currentVar, namespaces, delIntfName);
-            }
-            if (path == null && (force & USE_XQRL2002) != 0) {
-                pathWeakRef = _xqrl2002PathCache.get(pathExpr);
-                if (pathWeakRef != null) {
-                    path = pathWeakRef.get();
-                }
-                if (path == null) {
-                    path = getCompiledPathXqrl2002(pathExpr, currentVar);
-                }
             }
             if (path == null) {
                 StringBuilder errMessage = new StringBuilder();
                 if ((force & USE_XBEAN) != 0) {
                     errMessage.append(" Trying XBeans path engine...");
                 }
-                if ((force & USE_XQRL) != 0) {
-                    errMessage.append(" Trying XQRL...");
-                }
-                if ((force & USE_XDK) != 0) {
-                    errMessage.append(" Trying XDK...");
-                }
                 if ((force & USE_DELEGATE) != 0) {
                     errMessage.append(" Trying delegated path engine...");
-                }
-                if ((force & USE_XQRL2002) != 0) {
-                    errMessage.append(" Trying XQRL2002...");
                 }
 
                 throw new RuntimeException(errMessage.toString() + " FAILED on " + pathExpr);
@@ -231,33 +147,6 @@ public abstract class Path {
         } finally {
             lock.writeLock().unlock();
         }
-        return path;
-    }
-
-    static private Path getCompiledPathXdk(String pathExpr, String currentVar) {
-        Path path = createXdkCompiledPath(pathExpr, currentVar);
-        if (path != null) {
-            _xdkPathCache.put(path._pathKey, new WeakReference<>(path));
-        }
-
-        return path;
-    }
-
-    static private Path getCompiledPathXqrl(String pathExpr, String currentVar) {
-        Path path = createXqrlCompiledPath(pathExpr, currentVar);
-        if (path != null) {
-            _xqrlPathCache.put(path._pathKey, new WeakReference<>(path));
-        }
-
-        return path;
-    }
-
-    static private Path getCompiledPathXqrl2002(String pathExpr, String currentVar) {
-        Path path = createXqrl2002CompiledPath(pathExpr, currentVar);
-        if (path != null) {
-            _xqrl2002PathCache.put(path._pathKey, new WeakReference<>(path));
-        }
-
         return path;
     }
 
@@ -320,9 +209,7 @@ public abstract class Path {
 
         PathEngine execute(Cur c, XmlOptions options) {
             options = XmlOptions.maskNull(options);
-            String delIntfName =
-                options.hasOption(PATH_DELEGATE_INTERFACE) ?
-                    (String) options.get(PATH_DELEGATE_INTERFACE) : _delIntfName;
+            String delIntfName = XBeansXPath.class.getName();
 
             // The builtin XPath engine works only on containers.  Delegate to
             // xqrl otherwise.  Also, if the path had a //. at the end, the
@@ -330,7 +217,7 @@ public abstract class Path {
             // attrs and elements.
 
             if (!c.isContainer() || _compiledPath.sawDeepDot()) {
-                int force = USE_DELEGATE | USE_XQRL | USE_XDK;
+                int force = USE_DELEGATE;
                 return getCompiledPath(_pathKey, force, _currentVar, delIntfName).execute(c, options);
             }
             return new XbeanPathEngine(_compiledPath, c);
@@ -339,105 +226,6 @@ public abstract class Path {
         private final String _currentVar;
         private final XPath _compiledPath;
         public Map<String, String> namespaces;
-    }
-
-    private static Path createXdkCompiledPath(String pathExpr, String currentVar) {
-        if (!_xdkAvailable) {
-            return null;
-        }
-
-        if (_xdkCompilePath == null) {
-            try {
-                Class xdkImpl = Class.forName("org.apache.xmlbeans.impl.store.OXQXBXqrlImpl");
-
-                _xdkCompilePath =
-                    xdkImpl.getDeclaredMethod("compilePath",
-                        new Class[]{String.class, String.class, Boolean.class});
-            } catch (ClassNotFoundException e) {
-                _xdkAvailable = false;
-                return null;
-            } catch (Exception e) {
-                _xdkAvailable = false;
-                throw new RuntimeException(e.getMessage(), e);
-            }
-        }
-
-        Object[] args = new Object[]{pathExpr, currentVar, Boolean.TRUE};
-
-        try {
-            return (Path) _xdkCompilePath.invoke(null, args);
-        } catch (InvocationTargetException e) {
-            Throwable t = e.getCause();
-            throw new RuntimeException(t.getMessage(), t);
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException(e.getMessage(), e);
-        }
-    }
-
-    private static Path createXqrlCompiledPath(String pathExpr, String currentVar) {
-        if (!_xqrlAvailable) {
-            return null;
-        }
-
-        if (_xqrlCompilePath == null) {
-            try {
-                Class xqrlImpl = Class.forName("org.apache.xmlbeans.impl.store.XqrlImpl");
-
-                _xqrlCompilePath =
-                    xqrlImpl.getDeclaredMethod("compilePath",
-                        new Class[]{String.class, String.class, Boolean.class});
-            } catch (ClassNotFoundException e) {
-                _xqrlAvailable = false;
-                return null;
-            } catch (Exception e) {
-                _xqrlAvailable = false;
-                throw new RuntimeException(e.getMessage(), e);
-            }
-        }
-
-        Object[] args = new Object[]{pathExpr, currentVar, Boolean.TRUE};
-
-        try {
-            return (Path) _xqrlCompilePath.invoke(null, args);
-        } catch (InvocationTargetException e) {
-            Throwable t = e.getCause();
-            throw new RuntimeException(t.getMessage(), t);
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException(e.getMessage(), e);
-        }
-    }
-
-    private static Path createXqrl2002CompiledPath(String pathExpr, String currentVar) {
-        if (!_xqrl2002Available) {
-            return null;
-        }
-
-        if (_xqrl2002CompilePath == null) {
-            try {
-                Class xqrlImpl = Class.forName("org.apache.xmlbeans.impl.store.Xqrl2002Impl");
-
-                _xqrl2002CompilePath =
-                    xqrlImpl.getDeclaredMethod("compilePath",
-                        new Class[]{String.class, String.class, Boolean.class});
-            } catch (ClassNotFoundException e) {
-                _xqrl2002Available = false;
-                return null;
-            } catch (Exception e) {
-                _xqrl2002Available = false;
-                throw new RuntimeException(e.getMessage(), e);
-            }
-        }
-
-        Object[] args = new Object[]{pathExpr, currentVar, Boolean.TRUE};
-
-        try {
-            return (Path) _xqrl2002CompilePath.invoke(null, args);
-        } catch (InvocationTargetException e) {
-            Throwable t = e.getCause();
-            throw new RuntimeException(t.getMessage(), t);
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException(e.getMessage(), e);
-        }
     }
 
     private static final class XbeanPathEngine

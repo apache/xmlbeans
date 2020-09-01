@@ -160,7 +160,7 @@ public class XmlBeanCompilationTests extends CompileTestBase {
         SchemaTypeSystem sts;
         ArrayList err = new ArrayList();
         XmlOptions opt = new XmlOptions().setErrorListener(err);
-        opt.put("COMPILE_PARTIAL_TYPESYSTEM");
+        opt.setCompilePartialTypesystem();
 
         //BASIC COMPILATION
         sts = XmlBeans.compileXmlBeans(null,

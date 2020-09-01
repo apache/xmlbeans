@@ -113,7 +113,7 @@ public class XmlBeansCompCheckinTests extends CompileTestBase
         TestFiler f = new TestFiler();
         ArrayList err = new ArrayList();
         XmlOptions opt = new XmlOptions().setErrorListener(err);
-        opt.put("COMPILE_PARTIAL_TYPESYSTEM");
+        opt.setCompilePartialTypesystem();
 
         try {
             // since you can't save a partial SOM, don't bother passing in a Filer

@@ -157,7 +157,7 @@ public class DetailedCompTests {
         XmlOptions opts = new XmlOptions();
         ArrayList errors = new ArrayList();
         opts.setErrorListener(errors);
-        opts.put("COMPILE_PARTIAL_TYPESYSTEM");
+        opts.setCompilePartialTypesystem();
 
         // 1. Negative test - Error if xs:NOTATION used directly
         schema = schema_begin + root_decl + notation1 + root_end + schema_end;

@@ -109,15 +109,9 @@ public final class Locale
         // Check for Saaj implementation request
         //
 
-        Object saajObj = options.get(Saaj.SAAJ_IMPL);
+        _saaj = options.getSaaj();
 
-        if (saajObj != null) {
-            if (!(saajObj instanceof Saaj)) {
-                throw new IllegalStateException(
-                    "Saaj impl not correct type: " + saajObj);
-            }
-
-            _saaj = (Saaj) saajObj;
+        if (_saaj != null) {
 
             _saaj.setCallback(this);
         }
@@ -127,16 +121,6 @@ public final class Locale
     //
     //
 
-    public static final String USE_SAME_LOCALE = "USE_SAME_LOCALE";
-    /**
-     * This option is checked in XmlObjectBase._copy(XmlOptions), the locale is used as the synchronization domain.
-     * useNewLocale = true: copy will use a new locale, false: copy will use the same locale as the source
-     *
-     * @see org.apache.xmlbeans.XmlOptions#setCopyUseNewSynchronizationDomain(boolean)
-     * @deprecated Replace usages with CopyUseNewSynchronizationDomain option
-     */
-    public static final String COPY_USE_NEW_LOCALE = "COPY_USE_NEW_LOCALE";
-
     static Locale getLocale(SchemaTypeLoader stl, XmlOptions options) {
         if (stl == null) {
             stl = XmlBeans.getContextTypeLoader();
@@ -144,10 +128,13 @@ public final class Locale
 
         options = XmlOptions.maskNull(options);
 
-        Locale l = null;
+        if (options.getUseSameLocale() == null) {
+            return new Locale(stl, options);
+        }
 
-        if (options.hasOption(USE_SAME_LOCALE)) {
-            Object source = options.get(USE_SAME_LOCALE);
+        Object source = options.getUseSameLocale();
+
+        Locale l;
 
             if (source instanceof Locale) {
                 l = (Locale) source;
@@ -163,7 +150,7 @@ public final class Locale
                     "Source locale does not support same schema type loader");
             }
 
-            if (l._saaj != null && l._saaj != options.get(Saaj.SAAJ_IMPL)) {
+        if (l._saaj != null && l._saaj != options.getSaaj()) {
                 throw new IllegalArgumentException(
                     "Source locale does not support same saaj");
             }
@@ -174,9 +161,6 @@ public final class Locale
             }
 
             // TODO - other things to check?
-        } else {
-            l = new Locale(stl, options);
-        }
 
         return l;
     }
@@ -1295,7 +1279,7 @@ public final class Locale
             // to use the Locale specific CharUtil.
 
             XmlOptions saxHandlerOptions = new XmlOptions(options);
-            saxHandlerOptions.put(Cur.LOAD_USE_LOCALE_CHAR_UTIL);
+            saxHandlerOptions.setLoadUseLocaleCharUtil(true);
 
             initSaxHandler(l, saxHandlerOptions);
         }

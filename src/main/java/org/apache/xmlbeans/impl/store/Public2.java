@@ -61,7 +61,7 @@ public final class Public2
         if (saaj != null)
         {
             options = new XmlOptions();
-            options.put( org.apache.xmlbeans.impl.store.Saaj.SAAJ_IMPL, saaj );
+            options.setSaaj(saaj);
         }
 
         return Locale.getLocale( null, options );
@@ -300,7 +300,7 @@ public final class Public2
         Node n = xc.getDomNode();
         Dom d = (Dom) n;
         xc.dispose();
-        
+
         dump( o, d );
     }
 
@@ -342,7 +342,7 @@ public final class Public2
     public static void test ( ) throws Exception
     {
         Xobj x = (Xobj) Public2.parse( "<a>XY</a>" );
-        
+
         Locale l = x._locale;
 
         l.enter();
@@ -352,20 +352,20 @@ public final class Public2
             Cur c = x.tempCur();
 
             c.next();
-            
+
             Cur c2 = c.tempCur();
             c2.next();
-            
+
             Cur c3 = c2.tempCur();
             c3.nextChars( 1 );
-            
+
             Cur c4 = c3.tempCur();
             c4.nextChars( 1 );
 
             c.dump();
-            
+
             c.moveNodeContents( c, true );
-            
+
             c.dump();
         }
         catch ( Throwable e )

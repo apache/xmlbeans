@@ -47,7 +47,7 @@ public class AxesTest {
 
     @Before
     public void setUp() {
-        options.put("use xbean for xpath");
+        options.setXPathUseXmlBeans();
     }
 
     @Test

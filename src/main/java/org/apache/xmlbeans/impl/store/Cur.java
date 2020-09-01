@@ -2695,8 +2695,6 @@ final class Cur {
         return isOnList(_locale._registered);
     }
 
-    static final String LOAD_USE_LOCALE_CHAR_UTIL = "LOAD_USE_LOCALE_CHAR_UTIL";
-
     static final class CurLoadContext extends LoadContext {
         CurLoadContext(Locale l, XmlOptions options) {
             options = XmlOptions.maskNull(options);
@@ -2704,7 +2702,7 @@ final class Cur {
             _locale = l;
 
             _charUtil =
-                options.hasOption(LOAD_USE_LOCALE_CHAR_UTIL)
+                options.isLoadUseLocaleCharUtil()
                     ? _locale.getCharUtil()
                     : CharUtil.getThreadLocalCharUtil();
 
@@ -2715,7 +2713,7 @@ final class Cur {
             _lastPos = 0;
 
             _replaceDocElem = options.getLoadReplaceDocumentElement();
-            _discardDocElem = options.hasOption(XmlOptions.LOAD_REPLACE_DOCUMENT_ELEMENT);
+            _discardDocElem = options.hasOption(XmlOptions.XmlOptionsKeys.LOAD_REPLACE_DOCUMENT_ELEMENT);
 
             _stripWhitespace = options.isSetLoadStripWhitespace();
             _stripComments = options.isLoadStripComments();

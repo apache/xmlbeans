@@ -45,7 +45,7 @@ public class PartialSOMDetailedTest extends SomTestBase {
         if (options == null) {
             options = (new XmlOptions()).setErrorListener(errors);
             options.setCompileDownloadUrls();
-            options.put("COMPILE_PARTIAL_TYPESYSTEM");
+            options.setCompilePartialTypesystem();
             options.setLoadLineNumbers();
         }
 

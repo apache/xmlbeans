@@ -124,7 +124,7 @@ public class InstanceValidator {
             schemaOptions.setCompileNoUpaRule();
         }
         if (partial) {
-            schemaOptions.put("COMPILE_PARTIAL_TYPESYSTEM");
+            schemaOptions.setCompilePartialTypesystem();
         }
 
         if (jarFiles != null && jarFiles.length > 0) {
