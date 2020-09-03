@@ -30,12 +30,11 @@ module org.apache.xmlbeans {
     exports org.apache.xmlbeans.impl.repackage;
     exports org.apache.xmlbeans.impl.common;
     exports org.apache.xmlbeans.impl.config;
-    // exports org.apache.xmlbeans.impl.xquery;
-    exports org.apache.xmlbeans.impl.xquery.saxon;
     exports org.apache.xmlbeans.impl.richParser;
     exports org.apache.xmlbeans.impl.soap;
-    // exports org.apache.xmlbeans.impl.xpath;
+    exports org.apache.xmlbeans.impl.xpath;
     exports org.apache.xmlbeans.impl.xpath.saxon;
+    exports org.apache.xmlbeans.impl.xpath.xmlbeans;
     exports org.apache.xmlbeans.impl.regex;
     exports org.apache.xmlbeans.impl.tool;
     exports org.apache.xmlbeans.impl.schema;

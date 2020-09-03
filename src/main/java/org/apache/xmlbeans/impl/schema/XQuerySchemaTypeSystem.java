@@ -15,6 +15,13 @@
 
 package org.apache.xmlbeans.impl.schema;
 
+import org.apache.xmlbeans.*;
+import org.apache.xmlbeans.impl.common.QNameHelper;
+import org.apache.xmlbeans.impl.values.XmlIntegerImpl;
+import org.apache.xmlbeans.impl.values.XmlStringImpl;
+import org.apache.xmlbeans.impl.values.XmlValueOutOfRangeException;
+
+import javax.xml.namespace.QName;
 import java.io.File;
 import java.io.InputStream;
 import java.math.BigInteger;
@@ -22,40 +29,20 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.xml.namespace.QName;
-
-import org.apache.xmlbeans.Filer;
-import org.apache.xmlbeans.QNameSet;
-import org.apache.xmlbeans.SchemaAnnotation;
-import org.apache.xmlbeans.SchemaAttributeGroup;
-import org.apache.xmlbeans.SchemaAttributeModel;
-import org.apache.xmlbeans.SchemaComponent;
-import org.apache.xmlbeans.SchemaGlobalAttribute;
-import org.apache.xmlbeans.SchemaGlobalElement;
-import org.apache.xmlbeans.SchemaIdentityConstraint;
-import org.apache.xmlbeans.SchemaModelGroup;
-import org.apache.xmlbeans.SchemaParticle;
-import org.apache.xmlbeans.SchemaType;
-import org.apache.xmlbeans.SchemaTypeSystem;
-import org.apache.xmlbeans.impl.common.QNameHelper;
-import org.apache.xmlbeans.impl.values.XmlIntegerImpl;
-import org.apache.xmlbeans.impl.values.XmlStringImpl;
-import org.apache.xmlbeans.impl.values.XmlValueOutOfRangeException;
-
 /**
  * Same as {@link BuiltinSchemaTypeSystem} but adds three extra types
- * (<i>dayTimeDuration</i>, <i>yearMonthDuration</i> and <i>anyAtomicType</i>) 
+ * (<i>dayTimeDuration</i>, <i>yearMonthDuration</i> and <i>anyAtomicType</i>)
  * and makes all the primitives extend <i>anyAtomicType</i>.
- * 
- * @author Radu Preotiuc
  *
+ * @author Radu Preotiuc
  */
+@SuppressWarnings("unused")
 public class XQuerySchemaTypeSystem extends SchemaTypeLoaderBase implements
-        SchemaTypeSystem
-{
+    SchemaTypeSystem {
     // The global builtin type system
-    public static SchemaTypeSystem get()
-        { return _global; }
+    public static SchemaTypeSystem get() {
+        return _global;
+    }
 
     // Extra constants; since the extra types are going to be part of XMLSchema 1.1
     // we will want to eventually move these to SchemaType
@@ -74,7 +61,7 @@ public class XQuerySchemaTypeSystem extends SchemaTypeLoaderBase implements
     private static final SchemaAttributeGroup[] EMPTY_SCHEMAATTRIBUTEGROUP_ARRAY = new SchemaAttributeGroup[0];
     private static final SchemaAnnotation[] EMPTY_SCHEMAANNOTATION_ARRAY = new SchemaAnnotation[0];
 
-    private static XQuerySchemaTypeSystem _global = new XQuerySchemaTypeSystem();
+    private static final XQuerySchemaTypeSystem _global = new XQuerySchemaTypeSystem();
 
     // UR types
     public static final SchemaTypeImpl ST_ANY_TYPE = _global.getBuiltinType(SchemaType.BTC_ANY_TYPE);
@@ -144,88 +131,88 @@ public class XQuerySchemaTypeSystem extends SchemaTypeLoaderBase implements
     private final static XmlValueRef XMLSTR_COLLAPSE = buildString("preserve");
 
     private final static XmlValueRef[] FACETS_NONE = new XmlValueRef[]
-        { null, null, null, null, null, null, null, null, null,
-          null, null, null };
+        {null, null, null, null, null, null, null, null, null,
+            null, null, null};
 
     private final static boolean[] FIXED_FACETS_NONE = new boolean[]
-        { false, false, false, false, false, false, false, false, false,
-          false, false, false };
+        {false, false, false, false, false, false, false, false, false,
+            false, false, false};
 
     private final static XmlValueRef[] FACETS_WS_COLLAPSE = new XmlValueRef[]
-        { null, null, null, null, null, null, null, null, null,
-          build_wsstring(SchemaType.WS_COLLAPSE), null, null };
+        {null, null, null, null, null, null, null, null, null,
+            build_wsstring(SchemaType.WS_COLLAPSE), null, null};
 
     private final static XmlValueRef[] FACETS_WS_REPLACE = new XmlValueRef[]
-        { null, null, null, null, null, null, null, null, null,
-          build_wsstring(SchemaType.WS_REPLACE), null, null };
+        {null, null, null, null, null, null, null, null, null,
+            build_wsstring(SchemaType.WS_REPLACE), null, null};
 
     private final static XmlValueRef[] FACETS_WS_PRESERVE = new XmlValueRef[]
-        { null, null, null, null, null, null, null, null, null,
-          build_wsstring(SchemaType.WS_PRESERVE), null, null };
+        {null, null, null, null, null, null, null, null, null,
+            build_wsstring(SchemaType.WS_PRESERVE), null, null};
 
     private final static XmlValueRef[] FACETS_INTEGER = new XmlValueRef[]
-        { null, null, null, null, null, null, null, null, buildNnInteger(BigInteger.ZERO),
-          build_wsstring(SchemaType.WS_COLLAPSE), null, null };
+        {null, null, null, null, null, null, null, null, buildNnInteger(BigInteger.ZERO),
+            build_wsstring(SchemaType.WS_COLLAPSE), null, null};
 
     private final static XmlValueRef[] FACETS_LONG = new XmlValueRef[]
-        { null, null, null, null, buildInteger(BigInteger.valueOf(Long.MIN_VALUE)), buildInteger(BigInteger.valueOf(Long.MAX_VALUE)), null, null, buildNnInteger(BigInteger.ZERO),
-          build_wsstring(SchemaType.WS_COLLAPSE), null, null };
+        {null, null, null, null, buildInteger(BigInteger.valueOf(Long.MIN_VALUE)), buildInteger(BigInteger.valueOf(Long.MAX_VALUE)), null, null, buildNnInteger(BigInteger.ZERO),
+            build_wsstring(SchemaType.WS_COLLAPSE), null, null};
 
     private final static XmlValueRef[] FACETS_INT = new XmlValueRef[]
-        { null, null, null, null, buildInteger(BigInteger.valueOf(Integer.MIN_VALUE)), buildInteger(BigInteger.valueOf(Integer.MAX_VALUE)), null, null, buildNnInteger(BigInteger.ZERO),
-          build_wsstring(SchemaType.WS_COLLAPSE), null, null };
+        {null, null, null, null, buildInteger(BigInteger.valueOf(Integer.MIN_VALUE)), buildInteger(BigInteger.valueOf(Integer.MAX_VALUE)), null, null, buildNnInteger(BigInteger.ZERO),
+            build_wsstring(SchemaType.WS_COLLAPSE), null, null};
 
     private final static XmlValueRef[] FACETS_SHORT = new XmlValueRef[]
-        { null, null, null, null, buildInteger(BigInteger.valueOf(Short.MIN_VALUE)), buildInteger(BigInteger.valueOf(Short.MAX_VALUE)), null, null, buildNnInteger(BigInteger.ZERO),
-          build_wsstring(SchemaType.WS_COLLAPSE), null, null };
+        {null, null, null, null, buildInteger(BigInteger.valueOf(Short.MIN_VALUE)), buildInteger(BigInteger.valueOf(Short.MAX_VALUE)), null, null, buildNnInteger(BigInteger.ZERO),
+            build_wsstring(SchemaType.WS_COLLAPSE), null, null};
 
     private final static XmlValueRef[] FACETS_BYTE = new XmlValueRef[]
-        { null, null, null, null, buildInteger(BigInteger.valueOf(Byte.MIN_VALUE)), buildInteger(BigInteger.valueOf(Byte.MAX_VALUE)), null, null, buildNnInteger(BigInteger.ZERO),
-          build_wsstring(SchemaType.WS_COLLAPSE), null, null };
+        {null, null, null, null, buildInteger(BigInteger.valueOf(Byte.MIN_VALUE)), buildInteger(BigInteger.valueOf(Byte.MAX_VALUE)), null, null, buildNnInteger(BigInteger.ZERO),
+            build_wsstring(SchemaType.WS_COLLAPSE), null, null};
 
     private final static XmlValueRef[] FACETS_NONNEGATIVE = new XmlValueRef[]
-        { null, null, null, null, buildInteger(BigInteger.ZERO), null, null, null, buildNnInteger(BigInteger.ZERO),
-          build_wsstring(SchemaType.WS_COLLAPSE), null, null };
+        {null, null, null, null, buildInteger(BigInteger.ZERO), null, null, null, buildNnInteger(BigInteger.ZERO),
+            build_wsstring(SchemaType.WS_COLLAPSE), null, null};
 
     private final static XmlValueRef[] FACETS_POSITIVE = new XmlValueRef[]
-        { null, null, null, null, buildInteger(BigInteger.ONE), null, null, null, buildNnInteger(BigInteger.ZERO),
-          build_wsstring(SchemaType.WS_COLLAPSE), null, null };
+        {null, null, null, null, buildInteger(BigInteger.ONE), null, null, null, buildNnInteger(BigInteger.ZERO),
+            build_wsstring(SchemaType.WS_COLLAPSE), null, null};
 
     private final static XmlValueRef[] FACETS_NONPOSITIVE = new XmlValueRef[]
-        { null, null, null, null, null, buildInteger(BigInteger.ZERO), null, null, buildNnInteger(BigInteger.ZERO),
-          build_wsstring(SchemaType.WS_COLLAPSE), null, null };
+        {null, null, null, null, null, buildInteger(BigInteger.ZERO), null, null, buildNnInteger(BigInteger.ZERO),
+            build_wsstring(SchemaType.WS_COLLAPSE), null, null};
 
     private final static XmlValueRef[] FACETS_NEGATIVE = new XmlValueRef[]
-        { null, null, null, null, null, buildInteger(BigInteger.ONE.negate()), null, null, buildNnInteger(BigInteger.ZERO),
-          build_wsstring(SchemaType.WS_COLLAPSE), null, null };
+        {null, null, null, null, null, buildInteger(BigInteger.ONE.negate()), null, null, buildNnInteger(BigInteger.ZERO),
+            build_wsstring(SchemaType.WS_COLLAPSE), null, null};
 
     private final static XmlValueRef[] FACETS_UNSIGNED_LONG = new XmlValueRef[]
-        { null, null, null, null, buildInteger(BigInteger.ZERO), buildInteger(new BigInteger("18446744073709551615")), null, null, buildNnInteger(BigInteger.ZERO),
-          build_wsstring(SchemaType.WS_COLLAPSE), null, null };
+        {null, null, null, null, buildInteger(BigInteger.ZERO), buildInteger(new BigInteger("18446744073709551615")), null, null, buildNnInteger(BigInteger.ZERO),
+            build_wsstring(SchemaType.WS_COLLAPSE), null, null};
 
     private final static XmlValueRef[] FACETS_UNSIGNED_INT = new XmlValueRef[]
-        { null, null, null, null, buildInteger(BigInteger.ZERO), buildInteger(BigInteger.valueOf(4294967295L)), null, null, buildNnInteger(BigInteger.ZERO),
-          build_wsstring(SchemaType.WS_COLLAPSE), null, null };
+        {null, null, null, null, buildInteger(BigInteger.ZERO), buildInteger(BigInteger.valueOf(4294967295L)), null, null, buildNnInteger(BigInteger.ZERO),
+            build_wsstring(SchemaType.WS_COLLAPSE), null, null};
 
     private final static XmlValueRef[] FACETS_UNSIGNED_SHORT = new XmlValueRef[]
-        { null, null, null, null, buildInteger(BigInteger.ZERO), buildInteger(BigInteger.valueOf(65535)), null, null, buildNnInteger(BigInteger.ZERO),
-          build_wsstring(SchemaType.WS_COLLAPSE), null, null };
+        {null, null, null, null, buildInteger(BigInteger.ZERO), buildInteger(BigInteger.valueOf(65535)), null, null, buildNnInteger(BigInteger.ZERO),
+            build_wsstring(SchemaType.WS_COLLAPSE), null, null};
 
     private final static XmlValueRef[] FACETS_UNSIGNED_BYTE = new XmlValueRef[]
-        { null, null, null, null, buildInteger(BigInteger.ZERO), buildInteger(BigInteger.valueOf(255)), null, null, buildNnInteger(BigInteger.ZERO),
-          build_wsstring(SchemaType.WS_COLLAPSE), null, null };
+        {null, null, null, null, buildInteger(BigInteger.ZERO), buildInteger(BigInteger.valueOf(255)), null, null, buildNnInteger(BigInteger.ZERO),
+            build_wsstring(SchemaType.WS_COLLAPSE), null, null};
 
     private final static XmlValueRef[] FACETS_BUILTIN_LIST = new XmlValueRef[]
-        { null, buildNnInteger(BigInteger.ONE), null, null, null, null, null, null, null,
-          build_wsstring(SchemaType.WS_COLLAPSE), null, null };
+        {null, buildNnInteger(BigInteger.ONE), null, null, null, null, null, null, null,
+            build_wsstring(SchemaType.WS_COLLAPSE), null, null};
 
     private final static boolean[] FIXED_FACETS_WS = new boolean[]
-        { false, false, false, false, false, false, false, false, false,
-          true, false, false };
+        {false, false, false, false, false, false, false, false, false,
+            true, false, false};
 
     private final static boolean[] FIXED_FACETS_INTEGER = new boolean[]
-        { false, false, false, false, false, false, false, false, true,
-          true, false, false };
+        {false, false, false, false, false, false, false, false, true,
+            true, false, false};
 
     final static XmlValueRef[] FACETS_UNION = FACETS_NONE;
     final static boolean[] FIXED_FACETS_UNION = FIXED_FACETS_NONE;
@@ -238,31 +225,27 @@ public class XQuerySchemaTypeSystem extends SchemaTypeLoaderBase implements
      * LAST Static initializer
      */
     static {
-        for (int i = SchemaType.BTC_NOT_BUILTIN; i <= SchemaType.BTC_LAST_BUILTIN; i++)
-        {
+        for (int i = SchemaType.BTC_NOT_BUILTIN; i <= SchemaType.BTC_LAST_BUILTIN; i++) {
             _global.fillInType(i);
         }
-        for (int i = BTC_FIRST_XQUERY; i <= BTC_LAST_XQUERY; i++)
-        {
+        for (int i = BTC_FIRST_XQUERY; i <= BTC_LAST_XQUERY; i++) {
             _global.fillInType(i);
         }
     }
 
-    private Map _typeMap = new HashMap();
-    private SchemaTypeImpl[] _typeArray = new SchemaTypeImpl[SchemaType.BTC_LAST_BUILTIN + 1 + 
-                                                             BTC_LAST_XQUERY - BTC_FIRST_XQUERY + 1];
-    private Map _handlesToObjects = new HashMap();
-    private Map _objectsToHandles = new HashMap();
-    private Map _typesByClassname = new HashMap();
-    private SchemaContainer _container = new SchemaContainer("http://www.w3.org/2001/XMLSchema");
+    private final Map<QName, SchemaType> _typeMap = new HashMap<>();
+    private final SchemaTypeImpl[] _typeArray = new SchemaTypeImpl[SchemaType.BTC_LAST_BUILTIN + 1 +
+                                                                   BTC_LAST_XQUERY - BTC_FIRST_XQUERY + 1];
+    private final Map<String, SchemaType> _handlesToObjects = new HashMap<>();
+    private final Map<SchemaType, String> _objectsToHandles = new HashMap<>();
+    private final Map<String, SchemaType> _typesByClassname = new HashMap<>();
+    private final SchemaContainer _container = new SchemaContainer("http://www.w3.org/2001/XMLSchema");
 
-    private SchemaTypeImpl getBuiltinType(int btc)
-    {
+    private SchemaTypeImpl getBuiltinType(int btc) {
         return _typeArray[arrayIndexForBtc(btc)];
     }
 
-    private XQuerySchemaTypeSystem()
-    {
+    private XQuerySchemaTypeSystem() {
         _container.setTypeSystem(this);
         // UR types
         setupType(SchemaType.BTC_ANY_TYPE, "anyType", "org.apache.xmlbeans.XmlObject");
@@ -333,98 +316,80 @@ public class XQuerySchemaTypeSystem extends SchemaTypeLoaderBase implements
     /**
      * Returns the name of this loader.
      */
-    public String getName()
-    {
+    public String getName() {
         return "xquery.typesystem.builtin";
     }
 
-    public boolean isNamespaceDefined(String namespace)
-    {
+    public boolean isNamespaceDefined(String namespace) {
         return namespace.equals("http://www.w3.org/2001/XMLSchema");
     }
 
-    public SchemaType findType(QName name)
-    {
-        return (SchemaType)_typeMap.get(name);
+    public SchemaType findType(QName name) {
+        return _typeMap.get(name);
     }
 
 
-    public SchemaType findDocumentType(QName name)
-    {
+    public SchemaType findDocumentType(QName name) {
         return null;
     }
 
-    public SchemaType findAttributeType(QName name)
-    {
+    public SchemaType findAttributeType(QName name) {
         return null;
     }
 
-    public SchemaGlobalElement findElement(QName name)
-    {
+    public SchemaGlobalElement findElement(QName name) {
         return null;
     }
 
-    public SchemaGlobalAttribute findAttribute(QName name)
-    {
+    public SchemaGlobalAttribute findAttribute(QName name) {
         return null;
     }
 
-    public SchemaType.Ref findTypeRef(QName name)
-    {
+    public SchemaType.Ref findTypeRef(QName name) {
         SchemaType type = findType(name);
         return (type == null ? null : type.getRef());
     }
 
-    public SchemaType.Ref findDocumentTypeRef(QName name)
-    {
+    public SchemaType.Ref findDocumentTypeRef(QName name) {
         return null;
     }
 
-    public SchemaType.Ref findAttributeTypeRef(QName name)
-    {
+    public SchemaType.Ref findAttributeTypeRef(QName name) {
         return null;
     }
 
-    public SchemaGlobalElement.Ref findElementRef(QName name)
-    {
+    public SchemaGlobalElement.Ref findElementRef(QName name) {
         return null;
     }
 
-    public SchemaGlobalAttribute.Ref findAttributeRef(QName name)
-    {
+    public SchemaGlobalAttribute.Ref findAttributeRef(QName name) {
         return null;
     }
 
-    public SchemaModelGroup.Ref findModelGroupRef(QName name)
-    {
+    public SchemaModelGroup.Ref findModelGroupRef(QName name) {
         return null;
     }
 
-    public SchemaAttributeGroup.Ref findAttributeGroupRef(QName name)
-    {
+    public SchemaAttributeGroup.Ref findAttributeGroupRef(QName name) {
         return null;
     }
 
-    public SchemaIdentityConstraint.Ref findIdentityConstraintRef(QName name) 
-    {
+    public SchemaIdentityConstraint.Ref findIdentityConstraintRef(QName name) {
         return null;
     }
 
-    public SchemaType typeForClassname(String classname)
-    {
-        return (SchemaType)_typesByClassname.get(classname);
+    public SchemaType typeForClassname(String classname) {
+        return _typesByClassname.get(classname);
     }
 
-    public InputStream getSourceAsStream(String sourceName)
-    {
+    public InputStream getSourceAsStream(String sourceName) {
         return null; // builtin schema type system has no source.
     }
 
     /**
      * Returns the global types defined in this loader.
      */
-    public SchemaType[] globalTypes()
-    {
+    public SchemaType[] globalTypes() {
         SchemaType[] result = new SchemaType[_typeArray.length - 1];
         System.arraycopy(_typeArray, 1, result, 0, result.length);
         return result;
@@ -433,101 +398,87 @@ public class XQuerySchemaTypeSystem extends SchemaTypeLoaderBase implements
     /**
      * Returns the document types defined in this loader.
      */
-    public SchemaType[] documentTypes()
-    {
+    public SchemaType[] documentTypes() {
         return EMPTY_SCHEMATYPE_ARRAY;
     }
 
     /**
      * Returns the attribute types defined in this loader.
      */
-    public SchemaType[] attributeTypes()
-    {
+    public SchemaType[] attributeTypes() {
         return EMPTY_SCHEMATYPE_ARRAY;
     }
 
     /**
      * Returns the global elements defined in this loader.
      */
-    public SchemaGlobalElement[] globalElements()
-    {
+    public SchemaGlobalElement[] globalElements() {
         return EMPTY_SCHEMAELEMENT_ARRAY;
     }
 
     /**
      * Returns the global attributes defined in this loader.
      */
-    public SchemaGlobalAttribute[] globalAttributes()
-    {
+    public SchemaGlobalAttribute[] globalAttributes() {
         return EMPTY_SCHEMAATTRIBUTE_ARRAY;
     }
 
     /**
      * Returns the model groups defined in this loader.
      */
-    public SchemaModelGroup[] modelGroups()
-    {
+    public SchemaModelGroup[] modelGroups() {
         return EMPTY_SCHEMAMODELGROUP_ARRAY;
     }
 
     /**
      * Returns the attribute groups defined in this loader.
      */
-    public SchemaAttributeGroup[] attributeGroups()
-    {
+    public SchemaAttributeGroup[] attributeGroups() {
         return EMPTY_SCHEMAATTRIBUTEGROUP_ARRAY;
     }
 
     /*
      * Returns the top-level annotations.
      */
-    public SchemaAnnotation[] annotations()
-    {
+    public SchemaAnnotation[] annotations() {
         return EMPTY_SCHEMAANNOTATION_ARRAY;
     }
 
     /**
      * Returns the handle for the given type within this loader.
      */
-    public String handleForType(SchemaType type)
-    {
-        return (String)_objectsToHandles.get(type);
+    public String handleForType(SchemaType type) {
+        return _objectsToHandles.get(type);
     }
 
     /**
      * Returns the classloader used by this loader for resolving types.
      */
-    public ClassLoader getClassLoader()
-    {
+    public ClassLoader getClassLoader() {
         return BuiltinSchemaTypeSystem.class.getClassLoader();
     }
 
     /**
      * Saves this type to a directory.
      */
-    public void saveToDirectory(File classDir)
-    {
+    public void saveToDirectory(File classDir) {
         throw new UnsupportedOperationException("The builtin schema type system cannot be saved.");
     }
 
     /**
      * Saves this type system using a Filer
      */
-    public void save(Filer filer)
-    {
+    public void save(Filer filer) {
         throw new UnsupportedOperationException("The builtin schema type system cannot be saved.");
     }
 
-    private int arrayIndexForBtc(int btc)
-    {
+    private int arrayIndexForBtc(int btc) {
         return btc > SchemaType.BTC_LAST_BUILTIN ?
             btc - BTC_FIRST_XQUERY + SchemaType.BTC_LAST_BUILTIN + 1 : btc;
     }
 
-    private static XmlValueRef build_wsstring(int wsr)
-    {
-        switch (wsr)
-        {
+    private static XmlValueRef build_wsstring(int wsr) {
+        switch (wsr) {
             case SchemaType.WS_PRESERVE:
                 return XMLSTR_PRESERVE;
             case SchemaType.WS_REPLACE:
@@ -538,107 +489,95 @@ public class XQuerySchemaTypeSystem extends SchemaTypeLoaderBase implements
         return null;
     }
 
-    private static XmlValueRef buildNnInteger(BigInteger bigInt)
-    {
-        if (bigInt == null)
+    private static XmlValueRef buildNnInteger(BigInteger bigInt) {
+        if (bigInt == null) {
             return null;
-        if (bigInt.signum() < 0)
+        }
+        if (bigInt.signum() < 0) {
             return null;
-        try
-        {
+        }
+        try {
             XmlIntegerImpl i = new XmlIntegerImpl();
             i.setBigIntegerValue(bigInt);
             i.setImmutable();
             return new XmlValueRef(i);
-        }
-        catch (XmlValueOutOfRangeException e)
-        {
+        } catch (XmlValueOutOfRangeException e) {
             return null;
         }
     }
 
-    private static XmlValueRef buildInteger(BigInteger bigInt)
-    {
-        if (bigInt == null)
+    private static XmlValueRef buildInteger(BigInteger bigInt) {
+        if (bigInt == null) {
             return null;
-        try
-        {
+        }
+        try {
             XmlIntegerImpl i = new XmlIntegerImpl();
             i.setBigIntegerValue(bigInt);
             i.setImmutable();
             return new XmlValueRef(i);
-        }
-        catch (XmlValueOutOfRangeException e)
-        {
+        } catch (XmlValueOutOfRangeException e) {
             return null;
         }
     }
 
-    private static XmlValueRef buildString(String str)
-    {
-        if (str == null)
+    private static XmlValueRef buildString(String str) {
+        if (str == null) {
             return null;
+        }
 
-        try
-        {
+        try {
             XmlStringImpl i = new XmlStringImpl();
             i.setStringValue(str);
             i.setImmutable();
             return new XmlValueRef(i);
-        }
-        catch (XmlValueOutOfRangeException e)
-        {
+        } catch (XmlValueOutOfRangeException e) {
             return null;
         }
     }
 
-    private void setupType(int btc, String localname, String classname)
-    {
+    private void setupType(int btc, String localname, String classname) {
         SchemaTypeImpl result = new SchemaTypeImpl(_container, true);
         _container.addGlobalType(result.getRef());
         QName name = localname == null ? null : QNameHelper.forLNS(localname, "http://www.w3.org/2001/XMLSchema");
         String handle = "_BI_" + (localname == null ? "NO_TYPE" : localname);
         result.setName(name);
         result.setBuiltinTypeCode(btc);
-        if (classname != null)
+        if (classname != null) {
             result.setFullJavaName(classname);
+        }
 
         _typeArray[arrayIndexForBtc(btc)] = result;
         _typeMap.put(name, result);
         _handlesToObjects.put(handle, result);
         _objectsToHandles.put(result, handle);
-        if (classname != null)
+        if (classname != null) {
             _typesByClassname.put(classname, result);
+        }
     }
 
-    public void resolve()
-    {
+    public void resolve() {
         // we're born resolved and don't need to do anything.
     }
 
-    public SchemaType typeForHandle(String handle)
-    {
-        return (SchemaType)_handlesToObjects.get(handle);
+    public SchemaType typeForHandle(String handle) {
+        return _handlesToObjects.get(handle);
     }
 
-    public SchemaComponent resolveHandle(String handle)
-    {
-        return (SchemaComponent)_handlesToObjects.get(handle);
+    public SchemaComponent resolveHandle(String handle) {
+        return _handlesToObjects.get(handle);
     }
 
     /**
      * Links a type.
      */
-    public void fillInType(int btc)
-    {
+    public void fillInType(int btc) {
         SchemaTypeImpl result = getBuiltinType(btc);
         SchemaType base;
         SchemaType item = null;
         int variety = SchemaType.ATOMIC;
         int derivationType = SchemaType.DT_RESTRICTION;
 
-        switch (btc)
-        {
+        switch (btc) {
             case SchemaType.BTC_NOT_BUILTIN:
                 variety = SchemaType.NOT_SIMPLE;
                 base = ST_ANY_TYPE;
@@ -651,13 +590,15 @@ public class XQuerySchemaTypeSystem extends SchemaTypeLoaderBase implements
                 break;
 
             default:
-                assert(false);
+                assert (false);
 
             case SchemaType.BTC_ANY_SIMPLE:
-                base = ST_ANY_TYPE; break;
+                base = ST_ANY_TYPE;
+                break;
 
             case BTC_ANY_ATOMIC:
                 base = ST_ANY_SIMPLE;
+                break;
 
             case SchemaType.BTC_BOOLEAN:
             case SchemaType.BTC_BASE_64_BINARY:
@@ -678,81 +619,102 @@ public class XQuerySchemaTypeSystem extends SchemaTypeLoaderBase implements
             case SchemaType.BTC_G_MONTH_DAY:
             case SchemaType.BTC_G_DAY:
             case SchemaType.BTC_G_MONTH:
-                base = ST_ANY_ATOMIC; break;
+                base = ST_ANY_ATOMIC;
+                break;
 
             // derived numerics
             case SchemaType.BTC_INTEGER:
-                base = ST_DECIMAL; break;
+                base = ST_DECIMAL;
+                break;
 
             case SchemaType.BTC_LONG:
-                base = ST_INTEGER; break;
+                base = ST_INTEGER;
+                break;
 
             case SchemaType.BTC_INT:
-                base = ST_LONG; break;
+                base = ST_LONG;
+                break;
 
             case SchemaType.BTC_SHORT:
-                base = ST_INT; break;
+                base = ST_INT;
+                break;
 
             case SchemaType.BTC_BYTE:
-                base = ST_SHORT; break;
+                base = ST_SHORT;
+                break;
 
             case SchemaType.BTC_NON_POSITIVE_INTEGER:
-                base = ST_INTEGER; break;
+                base = ST_INTEGER;
+                break;
 
             case SchemaType.BTC_NEGATIVE_INTEGER:
-                base = ST_NON_POSITIVE_INTEGER; break;
+                base = ST_NON_POSITIVE_INTEGER;
+                break;
 
             case SchemaType.BTC_NON_NEGATIVE_INTEGER:
-                base = ST_INTEGER; break;
+                base = ST_INTEGER;
+                break;
 
             case SchemaType.BTC_POSITIVE_INTEGER:
-                base = ST_NON_NEGATIVE_INTEGER; break;
+                base = ST_NON_NEGATIVE_INTEGER;
+                break;
 
             case SchemaType.BTC_UNSIGNED_LONG:
-                base = ST_NON_NEGATIVE_INTEGER; break;
+                base = ST_NON_NEGATIVE_INTEGER;
+                break;
 
             case SchemaType.BTC_UNSIGNED_INT:
-                base = ST_UNSIGNED_LONG; break;
+                base = ST_UNSIGNED_LONG;
+                break;
 
             case SchemaType.BTC_UNSIGNED_SHORT:
-                base = ST_UNSIGNED_INT; break;
+                base = ST_UNSIGNED_INT;
+                break;
 
             case SchemaType.BTC_UNSIGNED_BYTE:
-                base = ST_UNSIGNED_SHORT; break;
+                base = ST_UNSIGNED_SHORT;
+                break;
 
             // derived strings
             case SchemaType.BTC_NORMALIZED_STRING:
-                base = ST_STRING; break;
+                base = ST_STRING;
+                break;
 
             case SchemaType.BTC_TOKEN:
-                base = ST_NORMALIZED_STRING; break;
+                base = ST_NORMALIZED_STRING;
+                break;
 
             case SchemaType.BTC_NAME:
-                base = ST_TOKEN; break;
+                base = ST_TOKEN;
+                break;
 
             case SchemaType.BTC_NCNAME:
-                base = ST_NAME; break;
+                base = ST_NAME;
+                break;
 
             case SchemaType.BTC_ID:
             case SchemaType.BTC_IDREF:
             case SchemaType.BTC_ENTITY:
-                base = ST_NCNAME; break;
+                base = ST_NCNAME;
+                break;
 
             case SchemaType.BTC_LANGUAGE:
             case SchemaType.BTC_NMTOKEN:
-                base = ST_TOKEN; break;
+                base = ST_TOKEN;
+                break;
 
             case SchemaType.BTC_IDREFS:
             case SchemaType.BTC_ENTITIES:
             case SchemaType.BTC_NMTOKENS:
                 variety = SchemaType.LIST;
                 base = ST_ANY_SIMPLE;
-                if (btc == SchemaType.BTC_IDREFS)
+                if (btc == SchemaType.BTC_IDREFS) {
                     item = ST_IDREF;
-                else if (btc == SchemaType.BTC_ENTITIES)
+                } else if (btc == SchemaType.BTC_ENTITIES) {
                     item = ST_ENTITY;
-                else
+                } else {
                     item = ST_NMTOKEN;
+                }
                 break;
 
             // derived durations
@@ -765,26 +727,24 @@ public class XQuerySchemaTypeSystem extends SchemaTypeLoaderBase implements
 
         result.setDerivationType(derivationType);
         result.setSimpleTypeVariety(variety);
-        if (variety != SchemaType.NOT_SIMPLE)
-        {
+        if (variety != SchemaType.NOT_SIMPLE) {
             result.setSimpleType(true);
-        }
-        else
-        {
+        } else {
             assert (btc == SchemaType.BTC_ANY_TYPE || btc == SchemaType.BTC_NOT_BUILTIN);
         }
         result.setBaseTypeRef(base == null ? null : base.getRef());
-        result.setBaseDepth(base == null ? 0 : ((SchemaTypeImpl)base).getBaseDepth() + 1);
+        result.setBaseDepth(base == null ? 0 : ((SchemaTypeImpl) base).getBaseDepth() + 1);
         result.setListItemTypeRef(item == null ? null : item.getRef());
         if (btc >= SchemaType.BTC_FIRST_PRIMITIVE && btc <= SchemaType.BTC_LAST_PRIMITIVE ||
-                btc == BTC_ANY_ATOMIC)
+            btc == BTC_ANY_ATOMIC) {
             result.setPrimitiveTypeRef(result.getRef());
-        else if (variety == SchemaType.ATOMIC)
-        {
-            if (base == null)
+        } else if (variety == SchemaType.ATOMIC) {
+            if (base == null) {
                 throw new IllegalStateException("Base was null for " + btc);
-            if (base.getPrimitiveType() == null)
+            }
+            if (base.getPrimitiveType() == null) {
                 throw new IllegalStateException("Base.gpt was null for " + btc);
+            }
             result.setPrimitiveTypeRef(base.getPrimitiveType().getRef());
         }
 
@@ -794,10 +754,9 @@ public class XQuerySchemaTypeSystem extends SchemaTypeLoaderBase implements
         int decimalSize = SchemaType.NOT_DECIMAL;
 
         // now set up facets
-        switch (btc)
-        {
+        switch (btc) {
             default:
-                assert(false);
+                assert (false);
 
             case SchemaType.BTC_ANY_TYPE:
             case SchemaType.BTC_ANY_SIMPLE:
@@ -955,7 +914,7 @@ public class XQuerySchemaTypeSystem extends SchemaTypeLoaderBase implements
                 fixedf = FIXED_FACETS_WS;
                 wsr = SchemaType.WS_COLLAPSE;
                 break;
-                
+
         }
 
         // fundamental facets
@@ -964,10 +923,9 @@ public class XQuerySchemaTypeSystem extends SchemaTypeLoaderBase implements
         boolean isFinite = false;
         boolean isBounded = false;
 
-        switch (btc)
-        {
+        switch (btc) {
             default:
-                assert(false);
+                assert (false);
 
             case SchemaType.BTC_ANY_TYPE:
             case SchemaType.BTC_NOT_BUILTIN:
@@ -1051,14 +1009,13 @@ public class XQuerySchemaTypeSystem extends SchemaTypeLoaderBase implements
         String pattern = null;
         boolean hasPattern = false;
 
-        switch (btc)
-        {
+        switch (btc) {
             case SchemaType.BTC_LANGUAGE:
-                pattern = "[a-zA-Z]{1,8}(-[a-zA-Z0-9]{1,8})*"; // we used to have ([a-zA-Z]{2}|[iI]-[a-zA-Z]+|[xX]-[a-zA-Z]{1,8})(-[a-zA-Z]{1,8})*", but s4s uses the more lenient pattern to the left. 
+                pattern = "[a-zA-Z]{1,8}(-[a-zA-Z0-9]{1,8})*"; // we used to have ([a-zA-Z]{2}|[iI]-[a-zA-Z]+|[xX]-[a-zA-Z]{1,8})(-[a-zA-Z]{1,8})*", but s4s uses the more lenient pattern to the left.
                 hasPattern = true;
                 break;
             case SchemaType.BTC_NMTOKEN:
-                pattern = "\\c+"; 
+                pattern = "\\c+";
                 hasPattern = true;
                 break;
             case SchemaType.BTC_NAME:
@@ -1086,20 +1043,20 @@ public class XQuerySchemaTypeSystem extends SchemaTypeLoaderBase implements
                 break;
         }
 
-        if (pattern != null)
-        {
+        if (pattern != null) {
             org.apache.xmlbeans.impl.regex.RegularExpression p = null;
-            try { p = org.apache.xmlbeans.impl.regex.SchemaRegularExpression.forPattern(pattern); }
-            catch (org.apache.xmlbeans.impl.regex.ParseException e) { assert false; }
-            result.setPatterns(new org.apache.xmlbeans.impl.regex.RegularExpression[] {p});
+            try {
+                p = org.apache.xmlbeans.impl.regex.SchemaRegularExpression.forPattern(pattern);
+            } catch (org.apache.xmlbeans.impl.regex.ParseException e) {
+                assert false;
+            }
+            result.setPatterns(new org.apache.xmlbeans.impl.regex.RegularExpression[]{p});
         }
         result.setPatternFacet(hasPattern);
 
 
-
         // ANY_TYPE has to be able to act like a complex type
-        if (btc == SchemaType.BTC_ANY_TYPE)
-        {
+        if (btc == SchemaType.BTC_ANY_TYPE) {
             SchemaParticleImpl contentModel = new SchemaParticleImpl();
             contentModel.setParticleType(SchemaParticle.WILDCARD);
             contentModel.setWildcardSet(QNameSet.ALL);
@@ -1117,9 +1074,7 @@ public class XQuerySchemaTypeSystem extends SchemaTypeLoaderBase implements
             result.setContentModel(contentModel, attrModel, Collections.EMPTY_MAP, Collections.EMPTY_MAP, false);
             result.setAnonymousTypeRefs(EMPTY_SCHEMATYPEREF_ARRAY);
             result.setWildcardSummary(QNameSet.ALL, true, QNameSet.ALL, true);
-        }
-        else if (btc == SchemaType.BTC_NOT_BUILTIN)
-        {
+        } else if (btc == SchemaType.BTC_NOT_BUILTIN) {
             // so does the no_type : it permits no contents (and even empty contents is invalid, but that's special-cased)
             SchemaParticleImpl contentModel = null; // empty
             SchemaAttributeModelImpl attrModel = new SchemaAttributeModelImpl(); // empty
@@ -1132,8 +1087,7 @@ public class XQuerySchemaTypeSystem extends SchemaTypeLoaderBase implements
         result.setOrderSensitive(false);
     }
 
-    public static SchemaType getNoType()
-    {
+    public static SchemaType getNoType() {
         return ST_NO_TYPE;
     }
 }

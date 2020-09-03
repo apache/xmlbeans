@@ -18,7 +18,6 @@ package org.apache.xmlbeans.impl.schema;
 import org.apache.xmlbeans.*;
 import org.apache.xmlbeans.impl.common.QNameHelper;
 import org.apache.xmlbeans.impl.common.XMLChar;
-import org.apache.xmlbeans.impl.common.XPath;
 import org.apache.xmlbeans.impl.schema.StscImporter.SchemaToProcess;
 import org.apache.xmlbeans.impl.values.NamespaceContext;
 import org.apache.xmlbeans.impl.values.XmlNonNegativeIntegerImpl;
@@ -27,6 +26,7 @@ import org.apache.xmlbeans.impl.values.XmlValueOutOfRangeException;
 import org.apache.xmlbeans.impl.xb.xsdschema.*;
 import org.apache.xmlbeans.impl.xb.xsdschema.RedefineDocument.Redefine;
 import org.apache.xmlbeans.impl.xb.xsdschema.SchemaDocument.Schema;
+import org.apache.xmlbeans.impl.xpath.XPath;
 import org.apache.xmlbeans.soap.SOAPArrayType;
 
 import javax.xml.namespace.QName;

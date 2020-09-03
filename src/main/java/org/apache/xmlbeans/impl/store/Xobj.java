@@ -24,6 +24,7 @@ import org.apache.xmlbeans.impl.values.TypeStore;
 import org.apache.xmlbeans.impl.values.TypeStoreUser;
 import org.apache.xmlbeans.impl.values.TypeStoreUserFactory;
 import org.apache.xmlbeans.impl.values.TypeStoreVisitor;
+import org.apache.xmlbeans.impl.xpath.XPathFactory;
 
 import javax.xml.namespace.QName;
 import java.io.PrintStream;
@@ -2473,7 +2474,7 @@ abstract class Xobj implements TypeStore {
         try {
             Cur c = tempCur();
 
-            XmlObject[] result = Query.objectExecQuery(c, queryExpr, options);
+            XmlObject[] result = XPathFactory.objectExecQuery(c, queryExpr, options);
 
             c.release();
 

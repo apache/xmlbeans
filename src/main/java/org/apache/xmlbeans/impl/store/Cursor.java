@@ -22,8 +22,9 @@ import org.apache.xmlbeans.XmlOptions;
 import org.apache.xmlbeans.impl.common.GlobalLock;
 import org.apache.xmlbeans.impl.common.XMLChar;
 import org.apache.xmlbeans.impl.store.Locale.ChangeListener;
-import org.apache.xmlbeans.impl.store.Path.PathEngine;
 import org.apache.xmlbeans.impl.store.Saver.TextSaver;
+import org.apache.xmlbeans.impl.xpath.XPathEngine;
+import org.apache.xmlbeans.impl.xpath.XPathFactory;
 import org.apache.xmlbeans.xml.stream.XMLInputStream;
 import org.w3c.dom.Node;
 import org.xml.sax.ContentHandler;
@@ -46,7 +47,7 @@ public final class Cursor implements XmlCursor, ChangeListener {
     static final int TEXT = Cur.TEXT;
 
     private Cur _cur;
-    private PathEngine _pathEngine;
+    private XPathEngine _pathEngine;
     private int _currentSelection;
 
     private ChangeListener _nextChangeListener;
@@ -57,7 +58,7 @@ public final class Cursor implements XmlCursor, ChangeListener {
         _currentSelection = -1;
     }
 
-    Cursor(Cur c) {
+    public Cursor(Cur c) {
         this(c._xobj, c._pos);
     }
 
@@ -728,7 +729,7 @@ public final class Cursor implements XmlCursor, ChangeListener {
 
         assert _pathEngine == null;
 
-        _pathEngine = Path.getCompiledPath(pathExpr, options).execute(_cur, options);
+        _pathEngine = XPathFactory.getCompiledPath(pathExpr, options).execute(_cur, options);
 
         _cur._locale.registerForChange(this);
     }
@@ -816,7 +817,7 @@ public final class Cursor implements XmlCursor, ChangeListener {
         return _cur.prefixForNamespace(ns, null, true);
     }
 
-    public void _getAllNamespaces(Map<String,String> addToThis) {
+    public void _getAllNamespaces(Map<String, String> addToThis) {
         if (!_cur.isContainer()) {
             throw new IllegalStateException("Not on a container");
         }
@@ -1192,7 +1193,7 @@ public final class Cursor implements XmlCursor, ChangeListener {
 
     public XmlCursor _execQuery(String query, XmlOptions options) {
         checkThisCursor();
-        return Query.cursorExecQuery(_cur, query, options);
+        return XPathFactory.cursorExecQuery(_cur, query, options);
     }
 
 
@@ -2097,7 +2098,7 @@ public final class Cursor implements XmlCursor, ChangeListener {
         return syncWrap(() -> _prefixForNamespace(namespaceURI));
     }
 
-    public void getAllNamespaces(Map<String,String> addToThis) {
+    public void getAllNamespaces(Map<String, String> addToThis) {
         syncWrap(() -> _getAllNamespaces(addToThis));
     }
 

@@ -13,7 +13,7 @@
  *  limitations under the License.
  */
 
-package org.apache.xmlbeans.impl.common;
+package org.apache.xmlbeans.impl.xpath;
 
 import javax.xml.namespace.QName;
 

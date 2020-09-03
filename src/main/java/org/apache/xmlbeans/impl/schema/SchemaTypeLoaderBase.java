@@ -19,6 +19,7 @@ import org.apache.xmlbeans.*;
 import org.apache.xmlbeans.impl.common.QNameHelper;
 import org.apache.xmlbeans.impl.store.Locale;
 import org.apache.xmlbeans.impl.validator.ValidatingXMLInputStream;
+import org.apache.xmlbeans.impl.xpath.XPathFactory;
 import org.apache.xmlbeans.xml.stream.XMLInputStream;
 import org.apache.xmlbeans.xml.stream.XMLStreamException;
 import org.w3c.dom.DOMImplementation;
@@ -27,8 +28,6 @@ import org.w3c.dom.Node;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamReader;
 import java.io.*;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
@@ -41,39 +40,12 @@ import java.util.List;
 public abstract class SchemaTypeLoaderBase implements SchemaTypeLoader {
     private static final String USER_AGENT = "XMLBeans/" + XmlBeans.getVersion() + " (" + XmlBeans.getTitle() + ")";
 
-    private static final Method _pathCompiler = getMethod("org.apache.xmlbeans.impl.store.Path", "compilePath", new Class[]{String.class, XmlOptions.class});
-    private static final Method _queryCompiler = getMethod("org.apache.xmlbeans.impl.store.Query", "compileQuery", new Class[]{String.class, XmlOptions.class});
-
-    private static Method getMethod(String className, String methodName, Class[] args) {
-        try {
-            return
-                Class.forName(className).
-                    getDeclaredMethod(methodName, args);
-        } catch (Exception e) {
-            throw new IllegalStateException(
-                "Cannot find " + className + "." + methodName +
-                ".  verify that xmlstore " +
-                "(from xbean.jar) is on classpath");
-        }
-    }
-
-    private static Object invokeMethod(Method method, Object[] args) {
-        try {
-            return method.invoke(method, args);
-        } catch (InvocationTargetException e) {
-            Throwable t = e.getCause();
-            throw new IllegalStateException(t.getMessage(), t);
-        } catch (Exception e) {
-            throw new IllegalStateException(e.getMessage(), e);
-        }
-    }
-
     private static String doCompilePath(String pathExpr, XmlOptions options) {
-        return (String) invokeMethod(_pathCompiler, new Object[]{pathExpr, options});
+        return XPathFactory.compilePath(pathExpr, options);
     }
 
     private static String doCompileQuery(String queryExpr, XmlOptions options) {
-        return (String) invokeMethod(_queryCompiler, new Object[]{queryExpr, options});
+        return XPathFactory.compileQuery(queryExpr, options);
     }
 
     public SchemaType findType(QName name) {

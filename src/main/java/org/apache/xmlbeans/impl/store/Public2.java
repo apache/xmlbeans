@@ -15,42 +15,24 @@
 
 package org.apache.xmlbeans.impl.store;
 
-import javax.xml.stream.XMLStreamReader;
-
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.IOException;
-
-import org.w3c.dom.DOMImplementation;
-import org.w3c.dom.Node;
-import org.w3c.dom.Document;
-
-import org.apache.xmlbeans.XmlBeans;
-import org.apache.xmlbeans.XmlCursor;
-import org.apache.xmlbeans.XmlOptions;
-import org.apache.xmlbeans.XmlObject;
-import org.apache.xmlbeans.XmlException;
-
-import java.io.PrintStream;
-
+import org.apache.xmlbeans.*;
 import org.apache.xmlbeans.impl.store.DomImpl.Dom;
-
 import org.apache.xmlbeans.impl.store.Saver.TextSaver;
-
+import org.apache.xmlbeans.impl.values.NamespaceManager;
 import org.apache.xmlbeans.impl.values.TypeStore;
 import org.apache.xmlbeans.impl.values.TypeStoreUser;
 import org.apache.xmlbeans.impl.values.TypeStoreVisitor;
-import org.apache.xmlbeans.impl.values.TypeStoreUserFactory;
-
-import org.apache.xmlbeans.SchemaType;
-
-import org.apache.xmlbeans.impl.values.NamespaceManager;
+import org.apache.xmlbeans.impl.xpath.XPathFactory;
+import org.w3c.dom.DOMImplementation;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 
 import javax.xml.namespace.QName;
-
-import org.apache.xmlbeans.SchemaField;
-
-import org.apache.xmlbeans.QNameSet;
+import javax.xml.stream.XMLStreamReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.PrintStream;
 
 public final class Public2
 {
@@ -83,7 +65,7 @@ public final class Public2
 
     public static String compilePath ( String path, XmlOptions options )
     {
-        return Path.compilePath( path, options );
+        return XPathFactory.compilePath( path, options );
     }
 
     public static DOMImplementation getDomImplementation ( )

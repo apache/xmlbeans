@@ -22,7 +22,11 @@ import net.sf.saxon.om.NodeInfo;
 import net.sf.saxon.om.SequenceTool;
 import net.sf.saxon.sxpath.*;
 import net.sf.saxon.tree.wrapper.VirtualNode;
-import org.apache.xmlbeans.impl.store.PathDelegate;
+import org.apache.xmlbeans.XmlOptions;
+import org.apache.xmlbeans.impl.store.Cur;
+import org.apache.xmlbeans.impl.xpath.Path;
+import org.apache.xmlbeans.impl.xpath.XPath;
+import org.apache.xmlbeans.impl.xpath.XPathEngine;
 import org.w3c.dom.Node;
 
 import javax.xml.transform.TransformerException;
@@ -33,9 +37,8 @@ import java.util.List;
 import java.util.Map;
 
 @SuppressWarnings("WeakerAccess")
-public class XBeansXPath
-    implements PathDelegate.SelectPathInterface {
-    private final Map<String, String> namespaceMap = new HashMap<String, String>();
+public class SaxonXPath implements Path {
+    private final Map<String, String> namespaceMap = new HashMap<>();
     private String path;
     private String contextVar;
     private String defaultNS;
@@ -46,15 +49,19 @@ public class XBeansXPath
      * @param path         The XPath expression
      * @param contextVar   The name of the context variable
      * @param namespaceMap a map of prefix/uri bindings for NS support
-     * @param defaultNS    the uri for the default element NS, if any
      */
-    public XBeansXPath(String path, String contextVar,
-                       Map<String, String> namespaceMap, String defaultNS) {
+    public SaxonXPath(String path, String contextVar, Map<String, String> namespaceMap) {
         this.path = path;
         this.contextVar = contextVar;
-        this.defaultNS = defaultNS;
+        this.defaultNS = namespaceMap.get(XPath._DEFAULT_ELT_NS);
         this.namespaceMap.putAll(namespaceMap);
+        this.namespaceMap.remove(XPath._DEFAULT_ELT_NS);
     }
+
+    public XPathEngine execute(Cur c, XmlOptions options) {
+        return new SaxonXPathEngine(this, c);
+    }
+
 
     /**
      * Select all nodes that are selectable by this XPath

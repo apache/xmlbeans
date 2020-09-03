@@ -13,7 +13,7 @@
  *  limitations under the License.
  */
 
-package org.apache.xmlbeans.impl.common;
+package org.apache.xmlbeans.impl.xpath;
 
 import org.apache.xmlbeans.XmlError;
 import org.apache.xmlbeans.XmlException;
@@ -38,21 +38,18 @@ public class XPath {
     }
 
     public static XPath compileXPath(String xpath, String currentNodeVar)
-        throws XPathCompileException {
+    throws XPathCompileException {
         return compileXPath(xpath, currentNodeVar, null);
     }
 
     public static XPath compileXPath(String xpath, Map<String, String> namespaces)
-        throws XPathCompileException {
+    throws XPathCompileException {
         return compileXPath(xpath, "$this", namespaces);
     }
 
-    public static XPath compileXPath(
-        String xpath, String currentNodeVar, Map<String, String> namespaces)
-        throws XPathCompileException {
-        return
-            new XPathCompilationContext(namespaces, currentNodeVar).
-                compile(xpath);
+    public static XPath compileXPath(String xpath, String currentNodeVar, Map<String, String> namespaces)
+    throws XPathCompileException {
+        return new XPathCompilationContext(namespaces, currentNodeVar).compile(xpath);
     }
 
     static final class Selector {
@@ -62,10 +59,6 @@ public class XPath {
 
         final XPathStep[] _paths;
     }
-
-    //
-    //
-    //
 
     XPath(Selector selector, boolean sawDeepDot) {
         _selector = selector;

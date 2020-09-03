@@ -13,16 +13,17 @@
  *  limitations under the License.
  */
 
-package org.apache.xmlbeans.impl.common;
+package org.apache.xmlbeans.impl.xpath;
 
 import org.apache.xmlbeans.XmlError;
+import org.apache.xmlbeans.impl.common.XMLChar;
 
 import javax.xml.namespace.QName;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.apache.xmlbeans.impl.common.XPath._NS_BOUNDARY;
+import static org.apache.xmlbeans.impl.xpath.XPath._NS_BOUNDARY;
 
 class XPathCompilationContext {
     private String _expr;
@@ -42,7 +43,7 @@ class XPathCompilationContext {
 
     XPathCompilationContext(Map<String, String> namespaces, String currentNodeVar) {
         // TODO: checkme
-//        assert (_currentNodeVar == null || _currentNodeVar.startsWith("$"));
+        // assert (_currentNodeVar == null || _currentNodeVar.startsWith("$"));
 
         _currentNodeVar = (currentNodeVar == null) ? "$this" : currentNodeVar;
 
@@ -144,22 +145,22 @@ class XPathCompilationContext {
 
         switch (prefix != null ? prefix : "") {
             case "xml":
-            return "http://www.w3.org/XML/1998/namespace";
+                return "http://www.w3.org/XML/1998/namespace";
 
             case "xs":
-            return "http://www.w3.org/2001/XMLSchema";
+                return "http://www.w3.org/2001/XMLSchema";
 
             case "xsi":
-            return "http://www.w3.org/2001/XMLSchema-instance";
+                return "http://www.w3.org/2001/XMLSchema-instance";
 
             case "fn":
-            return "http://www.w3.org/2002/11/xquery-functions";
+                return "http://www.w3.org/2002/11/xquery-functions";
 
             case "xdt":
-            return "http://www.w3.org/2003/11/xpath-datatypes";
+                return "http://www.w3.org/2003/11/xpath-datatypes";
 
             case "local":
-            return "http://www.w3.org/2003/11/xquery-local-functions";
+                return "http://www.w3.org/2003/11/xquery-local-functions";
         }
 
         throw newError("Undefined prefix: " + prefix);
@@ -187,15 +188,15 @@ class XPathCompilationContext {
         for (String s : tokens) {
             assert (s != null && !s.isEmpty());
 
-        while (isWhitespace(offset)) {
-            offset++;
-        }
+            while (isWhitespace(offset)) {
+                offset++;
+            }
 
-        if (!startsWith(s, offset)) {
-            return false;
-        }
+            if (!startsWith(s, offset)) {
+                return false;
+            }
 
-        offset += s.length();
+            offset += s.length();
         }
 
         advance(offset);
@@ -332,10 +333,10 @@ class XPathCompilationContext {
             } else {
                 tokenize("child", "::");
                 name = tokenizeQName();
-                    steps = addStep(deep, false, name, steps);
-                    deep = false; // only this step needs to be deep
-                    // other folowing steps will be deep only if they are preceded by // wildcard
-                }
+                steps = addStep(deep, false, name, steps);
+                deep = false; // only this step needs to be deep
+                // other folowing steps will be deep only if they are preceded by // wildcard
+            }
 
             if (tokenize("//")) {
                 deep = true;

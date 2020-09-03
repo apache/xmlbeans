@@ -13,7 +13,7 @@
  *  limitations under the License.
  */
 
-package org.apache.xmlbeans.impl.xquery.saxon;
+package org.apache.xmlbeans.impl.xpath.saxon;
 
 import net.sf.saxon.Configuration;
 import net.sf.saxon.dom.DocumentWrapper;
@@ -27,10 +27,11 @@ import net.sf.saxon.query.StaticQueryContext;
 import net.sf.saxon.query.XQueryExpression;
 import net.sf.saxon.type.BuiltInAtomicType;
 import net.sf.saxon.value.*;
-import org.apache.xmlbeans.XmlOptions;
-import org.apache.xmlbeans.XmlRuntimeException;
-import org.apache.xmlbeans.XmlTokenSource;
-import org.apache.xmlbeans.impl.store.QueryDelegate;
+import org.apache.xmlbeans.*;
+import org.apache.xmlbeans.impl.store.Cur;
+import org.apache.xmlbeans.impl.store.Cursor;
+import org.apache.xmlbeans.impl.store.Locale;
+import org.apache.xmlbeans.impl.xpath.XQuery;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
@@ -43,15 +44,20 @@ import javax.xml.xpath.XPathException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.URI;
+import java.util.Date;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 
-public class XBeansXQuery
-    implements QueryDelegate.QueryInterface {
-    private XQueryExpression xquery;
-    private String contextVar;
-    private Configuration config;
+public class SaxonXQuery implements XQuery {
+    private final XQueryExpression xquery;
+    private final String contextVar;
+    private final Configuration config;
+
+    private Cur _cur;
+    private long _version;
+    private XmlOptions _options;
+
 
     /**
      * Construct given an XQuery expression string.
@@ -60,7 +66,12 @@ public class XBeansXQuery
      * @param contextVar The name of the context variable
      * @param boundary   The offset of the end of the prolog
      */
-    public XBeansXQuery(final String query, String contextVar, Integer boundary, XmlOptions xmlOptions) {
+    public SaxonXQuery(final String query, String contextVar, Integer boundary, XmlOptions xmlOptions) {
+        assert !(contextVar.startsWith(".") || contextVar.startsWith(".."));
+
+        _options = xmlOptions;
+
+
         config = new Configuration();
         StaticQueryContext sc = config.newStaticQueryContext();
         Map<String, String> nsMap = xmlOptions.getLoadAdditionalNamespaces();
@@ -77,6 +88,22 @@ public class XBeansXQuery
             throw new XmlRuntimeException(e);
         }
     }
+
+
+    public XmlObject[] objectExecute(Cur c, XmlOptions options) {
+        _version = c.getLocale().version();
+        _cur = c.weakCur(this);
+        this._options = options;
+        return objectExecute();
+    }
+
+    public XmlCursor cursorExecute(Cur c, XmlOptions options) {
+        _version = c.getLocale().version();
+        _cur = c.weakCur(this);
+        this._options = options;
+        return cursorExecute();
+    }
+
 
     public List execQuery(Object node, Map variableBindings) {
         try {
@@ -206,4 +233,144 @@ public class XBeansXQuery
             return new ObjectValue(value);
         }
     }
+
+
+    public XmlObject[] objectExecute() {
+        if (_cur != null && _version != _cur.getLocale().version())
+        //throw new ConcurrentModificationException
+        // ("Document changed during select")
+        {
+            ;
+        }
+
+        Map<String, Object> bindings = XmlOptions.maskNull(_options).getXqueryVariables();
+        List resultsList = execQuery(_cur.getDom(), bindings);
+
+        XmlObject[] result = new XmlObject[resultsList.size()];
+        int i;
+        for (i = 0; i < resultsList.size(); i++) {
+            //copy objects into the locale
+            Locale l = Locale.getLocale(_cur.getLocale().getSchemaTypeLoader(), _options);
+
+            l.enter();
+            Object node = resultsList.get(i);
+            Cur res = null;
+            try {
+                //typed function results of XQuery
+                if (!(node instanceof Node)) {
+                    //TODO: exact same code as Path.java
+                    //make a common super-class and pull this--what to name that
+                    //superclass???
+                    res = l.load("<xml-fragment/>").tempCur();
+                    res.setValue(node.toString());
+                    SchemaType type = getType(node);
+                    Locale.autoTypeDocument(res, type, null);
+                    result[i] = res.getObject();
+                } else {
+                    res = loadNode(l, (Node) node);
+                }
+                result[i] = res.getObject();
+            } catch (XmlException e) {
+                throw new RuntimeException(e);
+            } finally {
+                l.exit();
+            }
+            res.release();
+        }
+        release();
+        return result;
+    }
+
+    private SchemaType getType(Object node) {
+        SchemaType type;
+        if (node instanceof Integer) {
+            type = XmlInteger.type;
+        } else if (node instanceof Double) {
+            type = XmlDouble.type;
+        } else if (node instanceof Long) {
+            type = XmlLong.type;
+        } else if (node instanceof Float) {
+            type = XmlFloat.type;
+        } else if (node instanceof BigDecimal) {
+            type = XmlDecimal.type;
+        } else if (node instanceof Boolean) {
+            type = XmlBoolean.type;
+        } else if (node instanceof String) {
+            type = XmlString.type;
+        } else if (node instanceof Date) {
+            type = XmlDate.type;
+        } else {
+            type = XmlAnySimpleType.type;
+        }
+        return type;
+    }
+
+    public XmlCursor cursorExecute() {
+        if (_cur != null && _version != _cur.getLocale().version())
+        //throw new ConcurrentModificationException
+        // ("Document changed during select")
+        {
+            ;
+        }
+
+        Map<String, Object> bindings = XmlOptions.maskNull(_options).getXqueryVariables();
+        List resultsList = execQuery(_cur.getDom(), bindings);
+
+        int i;
+
+        Locale locale = Locale.getLocale(_cur.getLocale().getSchemaTypeLoader(), _options);
+        locale.enter();
+        Locale.LoadContext _context = new Cur.CurLoadContext(locale, _options);
+        Cursor resultCur = null;
+        try {
+            for (i = 0; i < resultsList.size(); i++) {
+                loadNodeHelper(locale, (Node) resultsList.get(i), _context);
+            }
+            Cur c = _context.finish();
+            Locale.associateSourceName(c, _options);
+            Locale.autoTypeDocument(c, null, _options);
+            resultCur = new Cursor(c);
+        } catch (Exception e) {
+        } finally {
+            locale.exit();
+        }
+        release();
+        return resultCur;
+    }
+
+
+    public void release() {
+        if (_cur != null) {
+            _cur.release();
+            _cur = null;
+        }
+    }
+
+
+    private Cur loadNode(Locale locale, Node node) {
+        Locale.LoadContext context = new Cur.CurLoadContext(locale, _options);
+
+        try {
+            loadNodeHelper(locale, node, context);
+            Cur c = context.finish();
+            Locale.associateSourceName(c, _options);
+            Locale.autoTypeDocument(c, null, _options);
+            return c;
+        } catch (Exception e) {
+            throw new XmlRuntimeException(e.getMessage(), e);
+        }
+    }
+
+    private void loadNodeHelper(Locale locale, Node node, Locale.LoadContext context) {
+        if (node.getNodeType() == Node.ATTRIBUTE_NODE) {
+            QName attName = new QName(node.getNamespaceURI(),
+                node.getLocalName(),
+                node.getPrefix());
+            context.attr(attName, node.getNodeValue());
+        } else {
+            locale.loadNode(node, context);
+        }
+
+    }
+
 }

@@ -112,7 +112,6 @@ public final class Locale
         _saaj = options.getSaaj();
 
         if (_saaj != null) {
-
             _saaj.setCallback(this);
         }
     }
@@ -121,7 +120,7 @@ public final class Locale
     //
     //
 
-    static Locale getLocale(SchemaTypeLoader stl, XmlOptions options) {
+    public static Locale getLocale(SchemaTypeLoader stl, XmlOptions options) {
         if (stl == null) {
             stl = XmlBeans.getContextTypeLoader();
         }
@@ -136,31 +135,30 @@ public final class Locale
 
         Locale l;
 
-            if (source instanceof Locale) {
-                l = (Locale) source;
-            } else if (source instanceof XmlTokenSource) {
-                l = (Locale) ((XmlTokenSource) source).monitor();
-            } else {
-                throw new IllegalArgumentException(
-                    "Source locale not understood: " + source);
-            }
+        if (source instanceof Locale) {
+            l = (Locale) source;
+        } else if (source instanceof XmlTokenSource) {
+            l = (Locale) ((XmlTokenSource) source).monitor();
+        } else {
+            throw new IllegalArgumentException("Source locale not understood: " + source);
+        }
 
-            if (l._schemaTypeLoader != stl) {
-                throw new IllegalArgumentException(
-                    "Source locale does not support same schema type loader");
-            }
+        if (l._schemaTypeLoader != stl) {
+            throw new IllegalArgumentException(
+                "Source locale does not support same schema type loader");
+        }
 
         if (l._saaj != null && l._saaj != options.getSaaj()) {
-                throw new IllegalArgumentException(
-                    "Source locale does not support same saaj");
-            }
+            throw new IllegalArgumentException(
+                "Source locale does not support same saaj");
+        }
 
-            if (l._validateOnSet && !options.isValidateOnSet()) {
-                throw new IllegalArgumentException(
-                    "Source locale does not support same validate on set");
-            }
+        if (l._validateOnSet && !options.isValidateOnSet()) {
+            throw new IllegalArgumentException(
+                "Source locale does not support same validate on set");
+        }
 
-            // TODO - other things to check?
+        // TODO - other things to check?
 
         return l;
     }
@@ -169,7 +167,7 @@ public final class Locale
     //
     //
 
-    static void associateSourceName(Cur c, XmlOptions options) {
+    public static void associateSourceName(Cur c, XmlOptions options) {
         String sourceName = options == null ? null : options.getDocumentSourceName();
 
         if (sourceName != null) {
@@ -181,8 +179,8 @@ public final class Locale
     //
     //
 
-    static void autoTypeDocument(Cur c, SchemaType requestedType,
-                                 XmlOptions options)
+    public static void autoTypeDocument(Cur c, SchemaType requestedType,
+                                        XmlOptions options)
         throws XmlException {
         assert c.isRoot();
 
@@ -1193,7 +1191,7 @@ public final class Locale
         }
     }
 
-    void loadNode(Node n, LoadContext context) {
+    public void loadNode(Node n, LoadContext context) {
         switch (n.getNodeType()) {
             case Node.DOCUMENT_NODE:
             case Node.DOCUMENT_FRAGMENT_NODE:
@@ -1280,7 +1278,6 @@ public final class Locale
 
             XmlOptions saxHandlerOptions = new XmlOptions(options);
             saxHandlerOptions.setLoadUseLocaleCharUtil(true);
-
             initSaxHandler(l, saxHandlerOptions);
         }
 
@@ -1822,7 +1819,7 @@ public final class Locale
         return false;
     }
 
-    static boolean toFirstChildElement(Cur c) {
+    public static boolean toFirstChildElement(Cur c) {
 //        if (!pushToContainer(c))
 //            return false;
 //
@@ -2010,7 +2007,7 @@ public final class Locale
         }
     }
 
-    static Map<String,String> getAllNamespaces(Cur c, Map<String,String> filleMe) {
+    static Map<String, String> getAllNamespaces(Cur c, Map<String, String> filleMe) {
         assert c.isNode();
 
         c.push();
@@ -2366,7 +2363,7 @@ public final class Locale
         return _charUtil;
     }
 
-    long version() {
+    public long version() {
         return _versionAll;
     }
 
@@ -2627,7 +2624,7 @@ public final class Locale
     // Loading/parsing
     //
 
-    static abstract class LoadContext {
+    public static abstract class LoadContext {
         protected abstract void startDTD(String name, String publicId,
                                          String systemId);
 
@@ -2637,7 +2634,7 @@ public final class Locale
 
         protected abstract void endElement();
 
-        protected abstract void attr(QName name, String value);
+        public abstract void attr(QName name, String value);
 
         protected abstract void attr(String local, String uri, String prefix,
                                      String value);
@@ -2654,7 +2651,7 @@ public final class Locale
 
         protected abstract void text(String s);
 
-        protected abstract Cur finish();
+        public abstract Cur finish();
 
         protected abstract void abort();
 
@@ -3232,6 +3229,9 @@ public final class Locale
             parentName);
     }
 
+    public SchemaTypeLoader getSchemaTypeLoader() {
+        return _schemaTypeLoader;
+    }
 
     private static final class DefaultQNameFactory
         implements QNameFactory {

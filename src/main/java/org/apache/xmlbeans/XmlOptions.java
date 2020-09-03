@@ -150,8 +150,7 @@ public class XmlOptions implements java.io.Serializable {
         LOAD_EXTERNAL_DTD,
         SAAJ_IMPL,
         LOAD_USE_LOCALE_CHAR_UTIL,
-        PATH_DELEGATE_INTERFACE,
-        XPATH_USE_DELEGATE,
+        XPATH_USE_SAXON,
         XPATH_USE_XMLBEANS,
         ATTTRIBUTE_VALIDATION_COMPAT_MODE
     }
@@ -1273,7 +1272,7 @@ public class XmlOptions implements java.io.Serializable {
     }
 
     public boolean isCopyUseNewSynchronizationDomain() {
-        Boolean flag = (Boolean)get(XmlOptionsKeys.COPY_USE_NEW_SYNC_DOMAIN);
+        Boolean flag = (Boolean) get(XmlOptionsKeys.COPY_USE_NEW_SYNC_DOMAIN);
         return flag != null && flag;
     }
 
@@ -1365,7 +1364,7 @@ public class XmlOptions implements java.io.Serializable {
     }
 
     public Saaj getSaaj() {
-        return (Saaj)get(XmlOptionsKeys.SAAJ_IMPL);
+        return (Saaj) get(XmlOptionsKeys.SAAJ_IMPL);
     }
 
     public XmlOptions setLoadUseLocaleCharUtil(boolean useCharUtil) {
@@ -1377,29 +1376,29 @@ public class XmlOptions implements java.io.Serializable {
         return flag != null && flag;
     }
 
-    public XmlOptions setXPathUseDelegate() {
-        return setXPathUseDelegate(true);
+    public XmlOptions setXPathUseSaxon() {
+        return setXPathUseSaxon(true);
     }
 
-    public XmlOptions setXPathUseDelegate(boolean xpathUseDelegate) {
-        return set(XmlOptionsKeys.XPATH_USE_DELEGATE, xpathUseDelegate);
+    public XmlOptions setXPathUseSaxon(boolean xpathUseSaxon) {
+        return set(XmlOptionsKeys.XPATH_USE_SAXON, xpathUseSaxon);
     }
 
-    public boolean isXPathUseDelegate() {
-        Boolean flag = (Boolean)get(XmlOptionsKeys.XPATH_USE_DELEGATE);
+    public boolean isXPathUseSaxon() {
+        Boolean flag = (Boolean) get(XmlOptionsKeys.XPATH_USE_SAXON);
         return flag != null && flag;
     }
 
     public XmlOptions setXPathUseXmlBeans() {
-        return setXPathUseDelegate(true);
+        return setXPathUseSaxon(true);
     }
 
-    public XmlOptions setXPathUseXmlBeans(boolean xpathUseDelegate) {
-        return set(XmlOptionsKeys.XPATH_USE_XMLBEANS, xpathUseDelegate);
+    public XmlOptions setXPathUseXmlBeans(boolean xpathUseXmlBeans) {
+        return set(XmlOptionsKeys.XPATH_USE_XMLBEANS, xpathUseXmlBeans);
     }
 
     public boolean isXPathUseXmlBeans() {
-        Boolean flag = (Boolean)get(XmlOptionsKeys.XPATH_USE_XMLBEANS);
+        Boolean flag = (Boolean) get(XmlOptionsKeys.XPATH_USE_XMLBEANS);
         return flag != null && flag;
     }
 
@@ -1408,7 +1407,7 @@ public class XmlOptions implements java.io.Serializable {
     }
 
     public boolean isAttributeValidationCompatMode() {
-        Boolean flag = (Boolean)get(XmlOptionsKeys.ATTTRIBUTE_VALIDATION_COMPAT_MODE);
+        Boolean flag = (Boolean) get(XmlOptionsKeys.ATTTRIBUTE_VALIDATION_COMPAT_MODE);
         return flag != null && flag;
     }
 

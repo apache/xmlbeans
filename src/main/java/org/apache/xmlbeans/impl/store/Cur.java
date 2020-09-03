@@ -31,7 +31,7 @@ import java.util.Map;
 // DOM Level 3
 
 
-final class Cur {
+public final class Cur {
     static final int TEXT = 0; // Must be 0
     static final int ROOT = 1;
     static final int ELEM = 2;
@@ -46,6 +46,37 @@ final class Cur {
 
     static final int END_POS = -1;
     static final int NO_POS = -2;
+
+    Locale _locale;
+
+    Xobj _xobj;
+    int _pos;
+
+    int _state;
+
+    String _id;
+
+    Cur _nextTemp;
+    Cur _prevTemp;
+    int _tempFrame;
+
+    Cur _next;
+    Cur _prev;
+
+    Locale.Ref _ref;
+
+    int _stackTop;
+
+    int _selectionFirst;
+    int _selectionN;
+    int _selectionLoc;
+    int _selectionCount;
+
+    private int _posTemp;
+
+    int _offSrc;
+    int _cchSrc;
+
 
     Cur(Locale l) {
         _locale = l;
@@ -62,7 +93,7 @@ final class Cur {
         _selectionCount = 0;
     }
 
-    boolean isPositioned() {
+    public boolean isPositioned() {
         assert isNormal();
         return _xobj != null;
     }
@@ -75,74 +106,74 @@ final class Cur {
         return k == -ELEM || k == -ROOT;
     }
 
-    int kind() {
+    public int kind() {
         assert isPositioned();
         int kind = _xobj.kind();
         return _pos == 0 ? kind : (_pos == END_POS ? -kind : TEXT);
     }
 
-    boolean isRoot() {
+    public boolean isRoot() {
         assert isPositioned();
         return _pos == 0 && _xobj.kind() == ROOT;
     }
 
-    boolean isElem() {
+    public boolean isElem() {
         assert isPositioned();
         return _pos == 0 && _xobj.kind() == ELEM;
     }
 
-    boolean isAttr() {
+    public boolean isAttr() {
         assert isPositioned();
         return _pos == 0 && _xobj.kind() == ATTR;
     }
 
-    boolean isComment() {
+    public boolean isComment() {
         assert isPositioned();
         return _pos == 0 && _xobj.kind() == COMMENT;
     }
 
-    boolean isProcinst() {
+    public boolean isProcinst() {
         assert isPositioned();
         return _pos == 0 && _xobj.kind() == PROCINST;
     }
 
-    boolean isText() {
+    public boolean isText() {
         assert isPositioned();
         return _pos > 0;
     }
 
-    boolean isEnd() {
+    public boolean isEnd() {
         assert isPositioned();
         return _pos == END_POS && _xobj.kind() == ELEM;
     }
 
-    boolean isEndRoot() {
+    public boolean isEndRoot() {
         assert isPositioned();
         return _pos == END_POS && _xobj.kind() == ROOT;
     }
 
-    boolean isNode() {
+    public boolean isNode() {
         assert isPositioned();
         return _pos == 0;
     }
 
-    boolean isContainer() {
+    public boolean isContainer() {
         assert isPositioned();
         return _pos == 0 && kindIsContainer(_xobj.kind());
     }
 
-    boolean isFinish() {
+    public boolean isFinish() {
         assert isPositioned();
         return _pos == END_POS && kindIsContainer(_xobj.kind());
     }
 
-    boolean isUserNode() {
+    public boolean isUserNode() {
         assert isPositioned();
         int k = kind();
         return k == ELEM || k == ROOT || (k == ATTR && !isXmlns());
     }
 
-    boolean isContainerOrFinish() {
+    public boolean isContainerOrFinish() {
         assert isPositioned();
 
         if (_pos != 0 && _pos != END_POS) {
@@ -153,55 +184,55 @@ final class Cur {
         return kind == ELEM || kind == -ELEM || kind == ROOT || kind == -ROOT;
     }
 
-    boolean isNormalAttr() {
+    public boolean isNormalAttr() {
         return isNode() && _xobj.isNormalAttr();
     }
 
-    boolean isXmlns() {
+    public boolean isXmlns() {
         return isNode() && _xobj.isXmlns();
     }
 
-    boolean isTextCData() {
+    public boolean isTextCData() {
         return _xobj.hasBookmark(CDataBookmark.class, _pos);
     }
 
-    QName getName() {
+    public QName getName() {
         assert isNode() || isEnd();
         return _xobj._name;
     }
 
-    String getLocal() {
+    public String getLocal() {
         return getName().getLocalPart();
     }
 
-    String getUri() {
+    public String getUri() {
         return getName().getNamespaceURI();
     }
 
-    String getXmlnsPrefix() {
+    public String getXmlnsPrefix() {
         assert isXmlns();
         return _xobj.getXmlnsPrefix();
     }
 
-    String getXmlnsUri() {
+    public String getXmlnsUri() {
         assert isXmlns();
         return _xobj.getXmlnsUri();
     }
 
-    boolean isDomDocRoot() {
+    public boolean isDomDocRoot() {
         return isRoot() && _xobj.getDom() instanceof Document;
     }
 
-    boolean isDomFragRoot() {
+    public boolean isDomFragRoot() {
         return isRoot() && _xobj.getDom() instanceof DocumentFragment;
     }
 
-    int cchRight() {
+    public int cchRight() {
         assert isPositioned();
         return _xobj.cchRight(_pos);
     }
 
-    int cchLeft() {
+    public int cchLeft() {
         assert isPositioned();
         return _xobj.cchLeft(_pos);
     }
@@ -758,7 +789,7 @@ final class Cur {
         private int _naked;  // Entries without Curs
     }
 
-    void push() {
+    public void push() {
         assert isPositioned();
 
         int i = _locale._locations.allocate(this);
@@ -788,13 +819,13 @@ final class Cur {
         return _locale._locations.isSamePos(_stackTop, this);
     }
 
-    boolean isAtEndOfLastPush() {
+    public boolean isAtEndOfLastPush() {
         assert _stackTop != Locations.NULL;
 
         return _locale._locations.isAtEndOf(_stackTop, this);
     }
 
-    void addToSelection(Cur that) {
+    public void addToSelection(Cur that) {
         assert that != null && that.isNormal();
         assert isPositioned() && that.isPositioned();
 
@@ -804,7 +835,7 @@ final class Cur {
         _selectionCount++;
     }
 
-    void addToSelection() {
+    public void addToSelection() {
         assert isPositioned();
 
         int i = _locale._locations.allocate(this);
@@ -854,17 +885,17 @@ final class Cur {
         _selectionCount--;
     }
 
-    int selectionCount() {
+    public int selectionCount() {
         return _selectionCount;
     }
 
-    void moveToSelection(int i) {
+    public void moveToSelection(int i) {
         assert i >= 0 && i < _selectionCount;
 
         _locale._locations.moveTo(selectionIndex(i), this);
     }
 
-    void clearSelection() {
+    public void clearSelection() {
         assert _selectionCount >= 0;
 
         while (_selectionCount > 0) {
@@ -872,23 +903,23 @@ final class Cur {
         }
     }
 
-    boolean toParent() {
+    public boolean toParent() {
         return toParent(false);
     }
 
-    boolean toParentRaw() {
+    public boolean toParentRaw() {
         return toParent(true);
     }
 
-    Xobj getParent() {
+    public Xobj getParent() {
         return getParent(false);
     }
 
-    Xobj getParentRaw() {
+    public Xobj getParentRaw() {
         return getParent(true);
     }
 
-    boolean hasParent() {
+    public boolean hasParent() {
         assert isPositioned();
 
         if (_pos == END_POS || (_pos >= 1 && _pos < _xobj.posAfter())) {
@@ -900,7 +931,7 @@ final class Cur {
         return _xobj._parent != null;
     }
 
-    Xobj getParentNoRoot() {
+    public Xobj getParentNoRoot() {
         assert isPositioned();
 
         if (_pos == END_POS || (_pos >= 1 && _pos < _xobj.posAfter())) {
@@ -916,7 +947,7 @@ final class Cur {
         return null;
     }
 
-    Xobj getParent(boolean raw) {
+    public Xobj getParent(boolean raw) {
         assert isPositioned();
 
         if (_pos == END_POS || (_pos >= 1 && _pos < _xobj.posAfter())) {
@@ -946,7 +977,7 @@ final class Cur {
         return root;
     }
 
-    boolean toParent(boolean raw) {
+    public boolean toParent(boolean raw) {
         Xobj parent = getParent(raw);
 
         if (parent == null) {
@@ -958,7 +989,7 @@ final class Cur {
         return true;
     }
 
-    void toRoot() {
+    public void toRoot() {
         Xobj xobj = _xobj;
         while (!xobj.isRoot()) {
             if (xobj._parent == null) {
@@ -980,25 +1011,25 @@ final class Cur {
         moveTo(xobj);
     }
 
-    boolean hasText() {
+    public boolean hasText() {
         assert isNode();
 
         return _xobj.hasTextEnsureOccupancy();
     }
 
-    boolean hasAttrs() {
+    public boolean hasAttrs() {
         assert isNode();
 
         return _xobj.hasAttrs();
     }
 
-    boolean hasChildren() {
+    public boolean hasChildren() {
         assert isNode();
 
         return _xobj.hasChildren();
     }
 
-    boolean toFirstChild() {
+    public boolean toFirstChild() {
         assert isNode();
 
         if (!_xobj.hasChildren()) {
@@ -1013,7 +1044,7 @@ final class Cur {
         }
     }
 
-    protected boolean toLastChild() {
+    public boolean toLastChild() {
         assert isNode();
 
         if (!_xobj.hasChildren()) {
@@ -1025,7 +1056,7 @@ final class Cur {
         return true;
     }
 
-    boolean toNextSibling() {
+    public boolean toNextSibling() {
         assert isNode();
 
         if (_xobj.isAttr()) {
@@ -1041,7 +1072,7 @@ final class Cur {
         return false;
     }
 
-    void setValueAsQName(QName qname) {
+    public void setValueAsQName(QName qname) {
         assert isNode();
 
         String value = qname.getLocalPart();
@@ -1058,7 +1089,7 @@ final class Cur {
         setValue(value);
     }
 
-    void setValue(String value) {
+    public void setValue(String value) {
         assert isNode();
 
         moveNodeContents(null, false);
@@ -1070,7 +1101,7 @@ final class Cur {
         toParent();
     }
 
-    void removeFollowingAttrs() {
+    public void removeFollowingAttrs() {
         assert isAttr();
 
         QName attrName = getName();
@@ -1090,7 +1121,7 @@ final class Cur {
         pop();
     }
 
-    String getAttrValue(QName name) {
+    public String getAttrValue(QName name) {
         String s = null;
 
         push();
@@ -1104,7 +1135,7 @@ final class Cur {
         return s;
     }
 
-    void setAttrValueAsQName(QName value) {
+    public void setAttrValueAsQName(QName value) {
         assert isContainer();
 
         final QName name = Locale._xsiType;
@@ -1124,19 +1155,19 @@ final class Cur {
         toParent();
     }
 
-    boolean removeAttr(QName name) {
+    public boolean removeAttr(QName name) {
         assert isContainer();
 
         return _xobj.removeAttr(name);
     }
 
-    void setAttrValue(QName name, String value) {
+    public void setAttrValue(QName name, String value) {
         assert isContainer();
 
         _xobj.setAttr(name, value);
     }
 
-    boolean toAttr(QName name) {
+    public boolean toAttr(QName name) {
         assert isNode();
 
         Xobj a = _xobj.getAttr(name);
@@ -1150,7 +1181,7 @@ final class Cur {
         return true;
     }
 
-    boolean toFirstAttr() {
+    public boolean toFirstAttr() {
         assert isNode();
 
         Xobj firstAttr = _xobj.firstAttr();
@@ -1164,7 +1195,7 @@ final class Cur {
         return true;
     }
 
-    boolean toLastAttr() {
+    public boolean toLastAttr() {
         assert isNode();
 
         if (!toFirstAttr()) {
@@ -1179,7 +1210,7 @@ final class Cur {
         return true;
     }
 
-    boolean toNextAttr() {
+    public boolean toNextAttr() {
         assert isAttr() || isContainer();
 
         Xobj nextAttr = _xobj.nextAttr();
@@ -1194,7 +1225,7 @@ final class Cur {
     }
 
     @SuppressWarnings("UnusedReturnValue")
-    boolean toPrevAttr() {
+    public boolean toPrevAttr() {
         if (isAttr()) {
             if (_xobj._prevSibling == null) {
                 moveTo(_xobj.ensureParent());
@@ -1216,7 +1247,7 @@ final class Cur {
     }
 
     @SuppressWarnings("UnusedReturnValue")
-    boolean skipWithAttrs() {
+    public boolean skipWithAttrs() {
         assert isNode();
 
         if (skip()) {
@@ -1236,7 +1267,7 @@ final class Cur {
         return true;
     }
 
-    boolean skip() {
+    public boolean skip() {
         assert isNode();
 
         if (_xobj.isRoot()) {
@@ -1256,13 +1287,13 @@ final class Cur {
         return true;
     }
 
-    void toEnd() {
+    public void toEnd() {
         assert isNode();
 
         moveTo(_xobj, END_POS);
     }
 
-    void moveToCharNode(CharNode node) {
+    public void moveToCharNode(CharNode node) {
         assert node.getDom() != null && node.getDom().locale() == _locale;
 
         moveToDom(node.getDom());
@@ -1295,7 +1326,7 @@ final class Cur {
     }
 
     @SuppressWarnings("UnusedReturnValue")
-    boolean prevWithAttrs() {
+    public boolean prevWithAttrs() {
         if (prev()) {
             return true;
         }
@@ -1309,7 +1340,7 @@ final class Cur {
         return true;
     }
 
-    boolean prev() {
+    public boolean prev() {
         assert isPositioned();
 
         if (_xobj.isRoot() && _pos == 0) {
@@ -1360,11 +1391,11 @@ final class Cur {
     }
 
     @SuppressWarnings("UnusedReturnValue")
-    boolean next(boolean withAttrs) {
+    public boolean next(boolean withAttrs) {
         return withAttrs ? nextWithAttrs() : next();
     }
 
-    boolean nextWithAttrs() {
+    public boolean nextWithAttrs() {
         int k = kind();
 
         if (kindIsContainer(k)) {
@@ -1386,7 +1417,7 @@ final class Cur {
         return next();
     }
 
-    boolean next() {
+    public boolean next() {
         assert isNormal();
 
         Xobj x = _xobj;
@@ -2325,7 +2356,7 @@ final class Cur {
         }
     }
 
-    Cur weakCur(Object o) {
+    public Cur weakCur(Object o) {
         Cur c = _locale.weakCur(o);
         c.moveToCur(this);
         return c;
@@ -2529,7 +2560,7 @@ final class Cur {
         return _xobj._user;
     }
 
-    XmlObject getObject() {
+    public XmlObject getObject() {
         return isUserNode() ? (XmlObject) getUser() : null;
     }
 
@@ -2539,7 +2570,7 @@ final class Cur {
         return _xobj.getUser();
     }
 
-    Dom getDom() {
+    public Dom getDom() {
         assert isNormal();
         assert isPositioned();
 
@@ -2556,7 +2587,7 @@ final class Cur {
         return _xobj.getDom();
     }
 
-    void release() {
+    public void release() {
         if (_tempFrame >= 0) {
             if (_nextTemp != null) {
                 _nextTemp._prevTemp = _prevTemp;
@@ -2695,8 +2726,8 @@ final class Cur {
         return isOnList(_locale._registered);
     }
 
-    static final class CurLoadContext extends LoadContext {
-        CurLoadContext(Locale l, XmlOptions options) {
+    public static final class CurLoadContext extends LoadContext {
+        public CurLoadContext(Locale l, XmlOptions options) {
             options = XmlOptions.maskNull(options);
 
             _locale = l;
@@ -2876,7 +2907,7 @@ final class Cur {
             _lastPos = 0;
         }
 
-        protected void attr(QName name, String value) {
+        public void attr(QName name, String value) {
             assert parent().isContainer();
             // BUGBUG - should assert there that there is no text before this attr
 
@@ -3019,7 +3050,7 @@ final class Cur {
             finish().release();
         }
 
-        protected Cur finish() {
+        public Cur finish() {
             flushText();
 
             if (_after) {
@@ -3391,37 +3422,7 @@ final class Cur {
         _id = id;
     }
 
-    //
-    //
-    //
-
-    Locale _locale;
-
-    Xobj _xobj;
-    int _pos;
-
-    int _state;
-
-    String _id;
-
-    Cur _nextTemp;
-    Cur _prevTemp;
-    int _tempFrame;
-
-    Cur _next;
-    Cur _prev;
-
-    Locale.Ref _ref;
-
-    int _stackTop;
-
-    int _selectionFirst;
-    int _selectionN;
-    int _selectionLoc;
-    int _selectionCount;
-
-    private int _posTemp;
-
-    int _offSrc;
-    int _cchSrc;
+    public Locale getLocale() {
+        return _locale;
+    }
 }

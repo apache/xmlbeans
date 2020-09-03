@@ -15,18 +15,14 @@
 
 package org.apache.xmlbeans.impl.schema;
 
-import org.apache.xmlbeans.SchemaIdentityConstraint;
-import org.apache.xmlbeans.SchemaTypeSystem;
-import org.apache.xmlbeans.SchemaAnnotation;
-import org.apache.xmlbeans.SchemaComponent;
-import org.apache.xmlbeans.XmlObject;
-import org.apache.xmlbeans.impl.common.XPath;
-import javax.xml.namespace.QName;
-import java.util.Map;
-import java.util.Collections;
+import org.apache.xmlbeans.*;
+import org.apache.xmlbeans.impl.xpath.XPath;
 
-public class SchemaIdentityConstraintImpl implements SchemaIdentityConstraint
-{
+import javax.xml.namespace.QName;
+import java.util.Collections;
+import java.util.Map;
+
+public class SchemaIdentityConstraintImpl implements SchemaIdentityConstraint {
     private SchemaContainer _container;
     private String _selector;
     private String[] _fields;
@@ -49,11 +45,13 @@ public class SchemaIdentityConstraintImpl implements SchemaIdentityConstraint
         _container = c;
     }
 
-    public void setFilename(String filename)
-        { _filename = filename; }
+    public void setFilename(String filename) {
+        _filename = filename;
+    }
 
-    public String getSourceName()
-        { return _filename; }
+    public String getSourceName() {
+        return _filename;
+    }
 
 
     public String getSelector() {
@@ -66,22 +64,19 @@ public class SchemaIdentityConstraintImpl implements SchemaIdentityConstraint
             try {
                 buildPaths();
                 p = _selectorPath;
-            }
-            catch (XPath.XPathCompileException e) {
-                assert false: "Failed to compile xpath. Should be caught by compiler " + e;
+            } catch (XPath.XPathCompileException e) {
+                assert false : "Failed to compile xpath. Should be caught by compiler " + e;
                 return null;
             }
         }
         return p;
     }
 
-    public void setAnnotation(SchemaAnnotation ann)
-    {
+    public void setAnnotation(SchemaAnnotation ann) {
         _annotation = ann;
     }
 
-    public SchemaAnnotation getAnnotation()
-    {
+    public SchemaAnnotation getAnnotation() {
         return _annotation;
     }
 
@@ -115,9 +110,8 @@ public class SchemaIdentityConstraintImpl implements SchemaIdentityConstraint
             try {
                 buildPaths();
                 p = _fieldPaths;
-            }
-            catch (XPath.XPathCompileException e) {
-                assert false: "Failed to compile xpath. Should be caught by compiler " + e;
+            } catch (XPath.XPathCompileException e) {
+                assert false : "Failed to compile xpath. Should be caught by compiler " + e;
                 return null;
             }
         }
@@ -129,8 +123,9 @@ public class SchemaIdentityConstraintImpl implements SchemaIdentityConstraint
         _selectorPath = XPath.compileXPath(_selector, _nsMap);
 
         _fieldPaths = new XPath[_fields.length];
-        for (int i = 0 ; i < _fieldPaths.length ; i++)
+        for (int i = 0; i < _fieldPaths.length; i++) {
             _fieldPaths[i] = XPath.compileXPath(_fields[i], _nsMap);
+        }
     }
 
     public void setReferencedKey(SchemaIdentityConstraint.Ref key) {
@@ -199,15 +194,19 @@ public class SchemaIdentityConstraintImpl implements SchemaIdentityConstraint
 
     private SchemaIdentityConstraint.Ref _selfref = new SchemaIdentityConstraint.Ref(this);
 
-    public SchemaIdentityConstraint.Ref getRef()
-        { return _selfref; }
+    public SchemaIdentityConstraint.Ref getRef() {
+        return _selfref;
+    }
 
-    public SchemaComponent.Ref getComponentRef()
-        { return getRef(); }
+    public SchemaComponent.Ref getComponentRef() {
+        return getRef();
+    }
 
-    public Object getUserData()
-    {   return _userData; }
+    public Object getUserData() {
+        return _userData;
+    }
 
-    public void setUserData(Object data)
-    {   _userData = data; }
+    public void setUserData(Object data) {
+        _userData = data;
+    }
 }

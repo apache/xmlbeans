@@ -17,6 +17,8 @@ package org.apache.xmlbeans.impl.common;
 
 import org.apache.xmlbeans.*;
 import org.apache.xmlbeans.impl.common.ValidatorListener.Event;
+import org.apache.xmlbeans.impl.xpath.XPath;
+import org.apache.xmlbeans.impl.xpath.XPathExecutionContext;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.Location;
