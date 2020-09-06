@@ -24,6 +24,7 @@ import org.apache.xmlbeans.impl.xb.xsdschema.SchemaDocument.Schema;
 import javax.xml.namespace.QName;
 import java.math.BigInteger;
 import java.util.*;
+import java.util.function.BinaryOperator;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -1382,9 +1383,13 @@ public class StscComplexTypeResolver {
         list.add(part);
     }
 
+    private static <T> BinaryOperator<T> throwingMerger() {
+        return (u,v) -> { throw new IllegalStateException(String.format("Duplicate key %s", u)); };
+    }
+
     static Map<QName, SchemaProperty> buildAttributePropertyModelByQName(SchemaAttributeModel attrModel, SchemaType owner) {
         return Stream.of(attrModel.getAttributes())
-            .collect(Collectors.toMap(SchemaLocalAttribute::getName, a -> buildUseProperty(a, owner)));
+            .collect(Collectors.toMap(SchemaLocalAttribute::getName, a -> buildUseProperty(a, owner), throwingMerger(), LinkedHashMap::new));
     }
 
     static Map<QName, SchemaProperty> buildContentPropertyModelByQName(SchemaParticle part, SchemaType owner) {
