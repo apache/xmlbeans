@@ -365,7 +365,7 @@ public class StscImporter {
 
             // First resolve relative URLs with respect to base URL for doc
             URI baseURI = parseURI(baseURLForDoc(referencedBy));
-            String absoluteURL;
+            final String absoluteURL;
             try {
                 absoluteURL = baseURI == null ? locationURL : resolve(baseURI, locationURL).toString();
             } catch (URISyntaxException e) {
@@ -373,13 +373,15 @@ public class StscImporter {
                 return null;
             }
 
+            assert (absoluteURL != null);
+
             // probe 0: this url is already processed, from a previous compile
             if (state.isFileProcessed(absoluteURL)) {
                 return null;
             }
 
             // probe 1: ns+url - perfect match
-            if (absoluteURL != null && targetNamespace != null) {
+            if (targetNamespace != null) {
                 Schema result = schemaByNsLocPair.get(new NsLocPair(targetNamespace, absoluteURL));
                 if (result != null) {
                     return result;
@@ -414,19 +416,12 @@ public class StscImporter {
             }
 
             // probe 3: url only
-            if (absoluteURL != null) {
-                Schema result = schemaByNsLocPair.get(new NsLocPair(null, absoluteURL));
-                if (result != null) {
-                    return result;
-                }
+            final Schema result2 = schemaByNsLocPair.get(new NsLocPair(null, absoluteURL));
+            if (result2 != null) {
+                return result2;
             }
 
             // no match: error if we can't or won't download.
-            if (absoluteURL == null) {
-                state.error("Could not find resource - no valid location URL.", XmlErrorCodes.CANNOT_FIND_RESOURCE, referencedBy);
-                return null;
-            }
-
             if (previouslyFailedToDownload(absoluteURL)) {
                 // an error message has already been produced.
                 return null;
