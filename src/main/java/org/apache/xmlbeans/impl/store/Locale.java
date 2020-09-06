@@ -2270,7 +2270,7 @@ public final class Locale
                     x = _child;
                     _len = _n;
                 } else {
-                    x = DomImpl.firstChild(_parent);
+                    x = (Dom) DomImpl.firstChild(_parent);
                     _len = 0;
 
                     // cache the 0th child
@@ -2278,7 +2278,7 @@ public final class Locale
                     _n = 0;
                 }
 
-                for (; x != null; x = DomImpl.nextSibling(x)) {
+                for (; x != null; x = (Dom) DomImpl.nextSibling(x)) {
                     _len++;
                 }
             }
@@ -2297,7 +2297,7 @@ public final class Locale
                 _n = -1;
                 _len = -1;
 
-                for (Dom x = DomImpl.firstChild(_parent); x != null; x = DomImpl.nextSibling(x)) {
+                for (Dom x = (Dom) DomImpl.firstChild(_parent); x != null; x = (Dom) DomImpl.nextSibling(x)) {
                     _n++;
                     if (_child == null && n == _n) {
                         _child = x;
@@ -2314,7 +2314,7 @@ public final class Locale
 
             if (n > _n) {
                 while (n > _n) {
-                    for (Dom x = DomImpl.nextSibling(_child); ; x = DomImpl.nextSibling(x)) {
+                    for (Dom x = (Dom) DomImpl.nextSibling(_child); ; x = (Dom) DomImpl.nextSibling(x)) {
                         if (x == null) {
                             return null;
                         }
@@ -2327,7 +2327,7 @@ public final class Locale
                 }
             } else if (n < _n) {
                 while (n < _n) {
-                    for (Dom x = DomImpl.prevSibling(_child); ; x = DomImpl.prevSibling(x)) {
+                    for (Dom x = (Dom) DomImpl.prevSibling(_child); ; x = (Dom) DomImpl.prevSibling(x)) {
                         if (x == null) {
                             return null;
                         }

@@ -30,6 +30,9 @@ import javax.xml.stream.XMLStreamReader;
 import javax.xml.transform.Source;
 import java.io.PrintStream;
 import java.util.*;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 // DOM Level 3
 
@@ -65,41 +68,39 @@ public final class DomImpl {
         void dump(PrintStream o, Object ref);
     }
 
-    ;
-
-    static Dom parent(Dom d) {
+    static Node parent(Dom d) {
         return node_getParentNode(d);
     }
 
-    static Dom firstChild(Dom d) {
+    static Node firstChild(Dom d) {
         return node_getFirstChild(d);
     }
 
-    static Dom nextSibling(Dom d) {
+    static Node nextSibling(Dom d) {
         return node_getNextSibling(d);
     }
 
-    static Dom prevSibling(Dom d) {
+    static Node prevSibling(Dom d) {
         return node_getPreviousSibling(d);
     }
 
-    public static Dom append(Dom n, Dom p) {
+    public static Node append(Dom n, Dom p) {
         return node_insertBefore(p, n, null);
     }
 
-    public static Dom insert(Dom n, Dom b) {
+    public static Node insert(Dom n, Dom b) {
         assert b != null;
-        return node_insertBefore(parent(b), n, b);
+        return node_insertBefore((Dom) parent(b), n, b);
     }
 
-    public static Dom remove(Dom n) {
-        Dom p = parent(n);
+    public static Node remove(Dom n) {
+        Node p = parent(n);
 
         if (p != null) {
-            node_removeChild(p, n);
+            node_removeChild((Dom) p, n);
         }
 
-        return n;
+        return (Node) n;
     }
 
     //
@@ -107,50 +108,30 @@ public final class DomImpl {
     //
 
     static class HierarchyRequestErr extends DOMException {
-        HierarchyRequestErr() {
-            this("This node isn't allowed there");
-        }
-
         HierarchyRequestErr(String message) {
             super(HIERARCHY_REQUEST_ERR, message);
         }
     }
 
     static class WrongDocumentErr extends DOMException {
-        WrongDocumentErr() {
-            this("Nodes do not belong to the same document");
-        }
-
         WrongDocumentErr(String message) {
             super(WRONG_DOCUMENT_ERR, message);
         }
     }
 
     static class NotFoundErr extends DOMException {
-        NotFoundErr() {
-            this("Node not found");
-        }
-
         NotFoundErr(String message) {
             super(NOT_FOUND_ERR, message);
         }
     }
 
     static class NamespaceErr extends DOMException {
-        NamespaceErr() {
-            this("Namespace error");
-        }
-
         NamespaceErr(String message) {
             super(NAMESPACE_ERR, message);
         }
     }
 
     static class NoModificationAllowedErr extends DOMException {
-        NoModificationAllowedErr() {
-            this("No modification allowed error");
-        }
-
         NoModificationAllowedErr(String message) {
             super(NO_MODIFICATION_ALLOWED_ERR, message);
         }
@@ -177,10 +158,6 @@ public final class DomImpl {
     }
 
     static class NotSupportedError extends DOMException {
-        NotSupportedError() {
-            this("This operation is not supported");
-        }
-
         NotSupportedError(String message) {
             super(NOT_SUPPORTED_ERR, message);
         }
@@ -210,7 +187,7 @@ public final class DomImpl {
         }
     }
 
-    public static NodeList _emptyNodeList = new EmptyNodeList();
+    public static final NodeList _emptyNodeList = new EmptyNodeList();
 
     static String nodeKindName(int t) {
         switch (t) {
@@ -315,7 +292,7 @@ public final class DomImpl {
             nodeKindName(ck) + " nodes as children";
     }
 
-    private static void validateNewChild(Dom parent, Dom child) {
+    private static void validateNewChild(final Dom parent, Dom child) {
         String msg = isValidChild(parent, child);
 
         if (msg != null) {
@@ -326,7 +303,7 @@ public final class DomImpl {
             throw new HierarchyRequestErr("New child and parent are the same node");
         }
 
-        while ((parent = parent(parent)) != null) {
+        for (Node p = (Node) parent; (p = parent((Dom) p)) != null; ) {
             // TODO - use read only state on a node to know if it is under an
             // entity ref
 
@@ -334,7 +311,7 @@ public final class DomImpl {
                 throw new NoModificationAllowedErr("Entity reference trees may not be modified");
             }
 
-            if (child == parent) {
+            if (child == p) {
                 throw new HierarchyRequestErr("New child is an ancestor node of the parent node");
             }
         }
@@ -499,8 +476,7 @@ public final class DomImpl {
 
         public Node item(int i) {
             ensureElements();
-
-            return i < 0 || i >= _elements.size() ? (Node) null : (Node) _elements.get(i);
+            return i < 0 || i >= _elements.size() ? null : (Node) _elements.get(i);
         }
 
         private void ensureElements() {
@@ -509,62 +485,46 @@ public final class DomImpl {
             }
 
             _version = _locale.version();
+            _elements = new ArrayList<>();
 
-            _elements = new ArrayList();
-
-            Locale l = _locale;
-
-            if (l.noSync()) {
-                l.enter();
-                try {
-                    addElements(_root);
-                } finally {
-                    l.exit();
-                }
-            } else {
-                synchronized (l) {
-                    l.enter();
-                    try {
-                        addElements(_root);
-                    } finally {
-                        l.exit();
-                    }
-                }
-            }
+            syncWrapHelper(_locale, true, () -> {
+                addElements(_root);
+                return null;
+            });
         }
 
         private void addElements(Dom node) {
-            for (Dom c = firstChild(node); c != null; c = nextSibling(c)) {
-                if (c.nodeType() == ELEMENT) {
-                    if (match(c)) {
-                        _elements.add(c);
+            for (Node c = firstChild(node); c != null; c = nextSibling((Dom) c)) {
+                if (((Dom) c).nodeType() == ELEMENT) {
+                    if (match((Dom) c)) {
+                        _elements.add((Dom) c);
                     }
 
-                    addElements(c);
+                    addElements((Dom) c);
                 }
             }
         }
 
         protected abstract boolean match(Dom element);
 
-        private Dom _root;
-        private Locale _locale;
+        private final Dom _root;
+        private final Locale _locale;
         private long _version;
-        private ArrayList _elements;
+        private ArrayList<Dom> _elements;
     }
 
     private static class ElementsByTagNameNodeList extends ElementsNodeList {
         ElementsByTagNameNodeList(Dom root, String name) {
             super(root);
-
             _name = name;
+            assert (_name != null);
         }
 
         protected boolean match(Dom element) {
-            return _name.equals("*") ? true : _node_getNodeName(element).equals(_name);
+            return _name.equals("*") || _name.equals(_node_getNodeName(element));
         }
 
-        private String _name;
+        private final String _name;
     }
 
     private static class ElementsByTagNameNSNodeList extends ElementsNodeList {
@@ -573,45 +533,27 @@ public final class DomImpl {
 
             _uri = uri == null ? "" : uri;
             _local = local;
+            assert (local != null);
         }
 
         protected boolean match(Dom element) {
-            if (!(_uri.equals("*") ? true : _node_getNamespaceURI(element).equals(_uri))) {
+            if (!(_uri.equals("*") || _uri.equals(_node_getNamespaceURI(element)))) {
                 return false;
             }
 
-            return _local.equals("*") ? true : _node_getLocalName(element).equals(_local);
+            return _local.equals("*") || _local.equals(_node_getLocalName(element));
         }
 
-        private String _uri;
-        private String _local;
+        private final String _uri;
+        private final String _local;
     }
 
     //////////////////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////////////////
 
-    public static Document _domImplementation_createDocument(
-        Locale l, String u, String n, DocumentType t) {
-        Document d;
-
-        if (l.noSync()) {
-            l.enter();
-            try {
-                return domImplementation_createDocument(l, u, n, t);
-            } finally {
-                l.exit();
-            }
-        } else {
-            synchronized (l) {
-                l.enter();
-                try {
-                    return domImplementation_createDocument(l, u, n, t);
-                } finally {
-                    l.exit();
-                }
-            }
-        }
+    public static Document _domImplementation_createDocument(Locale l, String u, String n, DocumentType t) {
+        return syncWrapHelper(l, true, () -> domImplementation_createDocument(l, u, n, t));
     }
 
     public static Document domImplementation_createDocument(
@@ -619,13 +561,9 @@ public final class DomImpl {
         validateQualifiedName(qualifiedName, namespaceURI, false);
 
         Cur c = l.tempCur();
-
         c.createDomDocumentRoot();
-
         Document doc = (Document) c.getDom();
-
         c.next();
-
         c.createElement(l.makeQualifiedQName(namespaceURI, qualifiedName));
 
         if (doctype != null) {
@@ -649,6 +587,7 @@ public final class DomImpl {
     //////////////////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////////////////
 
+    @SuppressWarnings("unused")
     public static boolean _domImplementation_hasFeature(Locale l, String feature, String version) {
         if (feature == null) {
             return false;
@@ -663,11 +602,7 @@ public final class DomImpl {
             return true;
         }
 
-        if (feature.equalsIgnoreCase("xml")) {
-            return true;
-        }
-
-        return false;
+        return feature.equalsIgnoreCase("xml");
     }
 
     //////////////////////////////////////////////////////////////////////////////////////
@@ -675,35 +610,13 @@ public final class DomImpl {
     //////////////////////////////////////////////////////////////////////////////////////
 
     public static Element _document_getDocumentElement(Dom d) {
-        Locale l = d.locale();
-
-        Dom e;
-
-        if (l.noSync()) {
-            l.enter();
-            try {
-                e = document_getDocumentElement(d);
-            } finally {
-                l.exit();
-            }
-        } else {
-            synchronized (l) {
-                l.enter();
-                try {
-                    e = document_getDocumentElement(d);
-                } finally {
-                    l.exit();
-                }
-            }
-        }
-
-        return (Element) e;
+        return syncWrap(d, DomImpl::document_getDocumentElement);
     }
 
-    public static Dom document_getDocumentElement(Dom d) {
-        for (d = firstChild(d); d != null; d = nextSibling(d)) {
-            if (d.nodeType() == ELEMENT) {
-                return d;
+    public static Element document_getDocumentElement(final Dom d) {
+        for (Node n = firstChild(d); n != null; n = nextSibling((Dom) n)) {
+            if (((Dom) n).nodeType() == ELEMENT) {
+                return (Element) n;
             }
         }
 
@@ -715,41 +628,15 @@ public final class DomImpl {
     //////////////////////////////////////////////////////////////////////////////////////
 
     public static DocumentFragment _document_createDocumentFragment(Dom d) {
-        Locale l = d.locale();
-
-        Dom f;
-
-        if (l.noSync()) {
-            l.enter();
-            try {
-                f = document_createDocumentFragment(d);
-            } finally {
-                l.exit();
-            }
-        } else {
-            synchronized (l) {
-                l.enter();
-                try {
-                    f = document_createDocumentFragment(d);
-                } finally {
-                    l.exit();
-                }
-            }
-        }
-
-        return (DocumentFragment) f;
+        return syncWrap(d, DomImpl::document_createDocumentFragment);
     }
 
-    public static Dom document_createDocumentFragment(Dom d) {
+    public static DocumentFragment document_createDocumentFragment(Dom d) {
         Cur c = d.locale().tempCur();
-
         c.createDomDocFragRoot();
-
         Dom f = c.getDom();
-
         c.release();
-
-        return f;
+        return (DocumentFragment) f;
     }
 
     //////////////////////////////////////////////////////////////////////////////////////
@@ -757,44 +644,17 @@ public final class DomImpl {
     //////////////////////////////////////////////////////////////////////////////////////
 
     public static Element _document_createElement(Dom d, String name) {
-        Locale l = d.locale();
-
-        Dom e;
-
-        if (l.noSync()) {
-            l.enter();
-            try {
-                e = document_createElement(d, name);
-            } finally {
-                l.exit();
-            }
-        } else {
-            synchronized (l) {
-                l.enter();
-                try {
-                    e = document_createElement(d, name);
-                } finally {
-                    l.exit();
-                }
-            }
-        }
-
-        return (Element) e;
+        return syncWrap(d, p -> document_createElement(p, name));
     }
 
-    public static Dom document_createElement(Dom d, String name) {
+    public static Element document_createElement(Dom d, String name) {
         validateName(name);
-
         Locale l = d.locale();
-
         Cur c = l.tempCur();
-
         c.createElement(l.makeQualifiedQName("", name));
-
-        Dom e = c.getDom();
-
+        ElementXobj e = (ElementXobj) c.getDom();
         c.release();
-        ((ElementXobj) e)._canHavePrefixUri = false;
+        e._canHavePrefixUri = false;
         return e;
     }
 
@@ -803,45 +663,17 @@ public final class DomImpl {
     //////////////////////////////////////////////////////////////////////////////////////
 
     public static Element _document_createElementNS(Dom d, String uri, String qname) {
-        Locale l = d.locale();
-
-        Dom e;
-
-        if (l.noSync()) {
-            l.enter();
-            try {
-                e = document_createElementNS(d, uri, qname);
-            } finally {
-                l.exit();
-            }
-        } else {
-            synchronized (l) {
-                l.enter();
-                try {
-                    e = document_createElementNS(d, uri, qname);
-                } finally {
-                    l.exit();
-                }
-            }
-        }
-
-        return (Element) e;
+        return syncWrap(d, p -> document_createElementNS(p, uri, qname));
     }
 
-    public static Dom document_createElementNS(Dom d, String uri, String qname) {
+    public static Element document_createElementNS(Dom d, String uri, String qname) {
         validateQualifiedName(qname, uri, false);
-
         Locale l = d.locale();
-
         Cur c = l.tempCur();
-
         c.createElement(l.makeQualifiedQName(uri, qname));
-
         Dom e = c.getDom();
-
         c.release();
-
-        return e;
+        return (Element) e;
     }
 
     //////////////////////////////////////////////////////////////////////////////////////
@@ -849,44 +681,17 @@ public final class DomImpl {
     //////////////////////////////////////////////////////////////////////////////////////
 
     public static Attr _document_createAttribute(Dom d, String name) {
-        Locale l = d.locale();
-
-        Dom a;
-
-        if (l.noSync()) {
-            l.enter();
-            try {
-                a = document_createAttribute(d, name);
-            } finally {
-                l.exit();
-            }
-        } else {
-            synchronized (l) {
-                l.enter();
-                try {
-                    a = document_createAttribute(d, name);
-                } finally {
-                    l.exit();
-                }
-            }
-        }
-
-        return (Attr) a;
+        return syncWrap(d, p -> document_createAttribute(p, name));
     }
 
-    public static Dom document_createAttribute(Dom d, String name) {
+    public static Attr document_createAttribute(Dom d, String name) {
         validateName(name);
-
         Locale l = d.locale();
-
         Cur c = l.tempCur();
-
         c.createAttr(l.makeQualifiedQName("", name));
-
-        Dom e = c.getDom();
-
+        AttrXobj e = (AttrXobj) c.getDom();
         c.release();
-        ((AttrXobj) e)._canHavePrefixUri = false;
+        e._canHavePrefixUri = false;
         return e;
     }
 
@@ -895,45 +700,17 @@ public final class DomImpl {
     //////////////////////////////////////////////////////////////////////////////////////
 
     public static Attr _document_createAttributeNS(Dom d, String uri, String qname) {
-        Locale l = d.locale();
-
-        Dom a;
-
-        if (l.noSync()) {
-            l.enter();
-            try {
-                a = document_createAttributeNS(d, uri, qname);
-            } finally {
-                l.exit();
-            }
-        } else {
-            synchronized (l) {
-                l.enter();
-                try {
-                    a = document_createAttributeNS(d, uri, qname);
-                } finally {
-                    l.exit();
-                }
-            }
-        }
-
-        return (Attr) a;
+        return syncWrap(d, p -> document_createAttributeNS(p, uri, qname));
     }
 
-    public static Dom document_createAttributeNS(Dom d, String uri, String qname) {
+    public static Attr document_createAttributeNS(Dom d, String uri, String qname) {
         validateQualifiedName(qname, uri, true);
-
         Locale l = d.locale();
-
         Cur c = l.tempCur();
-
         c.createAttr(l.makeQualifiedQName(uri, qname));
-
         Dom e = c.getDom();
-
         c.release();
-
-        return e;
+        return (Attr) e;
     }
 
     //////////////////////////////////////////////////////////////////////////////////////
@@ -941,48 +718,20 @@ public final class DomImpl {
     //////////////////////////////////////////////////////////////////////////////////////
 
     public static Comment _document_createComment(Dom d, String data) {
-        Locale l = d.locale();
-
-        Dom c;
-
-        if (l.noSync()) {
-            l.enter();
-            try {
-                c = document_createComment(d, data);
-            } finally {
-                l.exit();
-            }
-        } else {
-            synchronized (l) {
-                l.enter();
-                try {
-                    c = document_createComment(d, data);
-                } finally {
-                    l.exit();
-                }
-            }
-        }
-
-        return (Comment) c;
+        return syncWrap(d, p -> document_createComment(p, data));
     }
 
-    public static Dom document_createComment(Dom d, String data) {
+    public static Comment document_createComment(Dom d, String data) {
         Locale l = d.locale();
-
         Cur c = l.tempCur();
-
         c.createComment();
-
         Dom comment = c.getDom();
-
         if (data != null) {
             c.next();
             c.insertString(data);
         }
-
         c.release();
-
-        return comment;
+        return (Comment) comment;
     }
 
     //////////////////////////////////////////////////////////////////////////////////////
@@ -990,32 +739,10 @@ public final class DomImpl {
     //////////////////////////////////////////////////////////////////////////////////////
 
     public static ProcessingInstruction _document_createProcessingInstruction(Dom d, String target, String data) {
-        Locale l = d.locale();
-
-        Dom pi;
-
-        if (l.noSync()) {
-            l.enter();
-            try {
-                pi = document_createProcessingInstruction(d, target, data);
-            } finally {
-                l.exit();
-            }
-        } else {
-            synchronized (l) {
-                l.enter();
-                try {
-                    pi = document_createProcessingInstruction(d, target, data);
-                } finally {
-                    l.exit();
-                }
-            }
-        }
-
-        return (ProcessingInstruction) pi;
+        return syncWrap(d, p -> document_createProcessingInstruction(p, target, data));
     }
 
-    public static Dom document_createProcessingInstruction(Dom d, String target, String data) {
+    public static ProcessingInstruction document_createProcessingInstruction(Dom d, String target, String data) {
         if (target == null) {
             throw new IllegalArgumentException("Target is null");
         }
@@ -1033,21 +760,15 @@ public final class DomImpl {
         }
 
         Locale l = d.locale();
-
         Cur c = l.tempCur();
-
         c.createProcinst(target);
-
         Dom pi = c.getDom();
-
         if (data != null) {
             c.next();
             c.insertString(data);
         }
-
         c.release();
-
-        return pi;
+        return (ProcessingInstruction) pi;
     }
 
     //////////////////////////////////////////////////////////////////////////////////////
@@ -1055,10 +776,10 @@ public final class DomImpl {
     //////////////////////////////////////////////////////////////////////////////////////
 
     public static CDATASection _document_createCDATASection(Dom d, String data) {
-        return (CDATASection) document_createCDATASection(d, data);
+        return document_createCDATASection(d, data);
     }
 
-    public static Dom document_createCDATASection(Dom d, String data) {
+    public static CDATASection document_createCDATASection(Dom d, String data) {
         TextNode t = d.locale().createCdataNode();
 
         if (data == null) {
@@ -1067,7 +788,7 @@ public final class DomImpl {
 
         t.setChars(data, 0, data.length());
 
-        return t;
+        return (CDATASection) t;
     }
 
     //////////////////////////////////////////////////////////////////////////////////////
@@ -1075,10 +796,10 @@ public final class DomImpl {
     //////////////////////////////////////////////////////////////////////////////////////
 
     public static Text _document_createTextNode(Dom d, String data) {
-        return (Text) document_createTextNode(d, data);
+        return document_createTextNode(d, data);
     }
 
-    public static CharNode document_createTextNode(Dom d, String data) {
+    public static Text document_createTextNode(Dom d, String data) {
         TextNode t = d.locale().createTextNode();
 
         if (data == null) {
@@ -1094,6 +815,7 @@ public final class DomImpl {
     //////////////////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////////////////
 
+    @SuppressWarnings("unused")
     public static EntityReference _document_createEntityReference(Dom d, String name) {
         throw new RuntimeException("Not implemented");
     }
@@ -1102,6 +824,7 @@ public final class DomImpl {
     //////////////////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////////////////
 
+    @SuppressWarnings("unused")
     public static Element _document_getElementById(Dom d, String elementId) {
         throw new RuntimeException("Not implemented");
     }
@@ -1111,25 +834,7 @@ public final class DomImpl {
     //////////////////////////////////////////////////////////////////////////////////////
 
     public static NodeList _document_getElementsByTagName(Dom d, String name) {
-        Locale l = d.locale();
-
-        if (l.noSync()) {
-            l.enter();
-            try {
-                return document_getElementsByTagName(d, name);
-            } finally {
-                l.exit();
-            }
-        } else {
-            synchronized (l) {
-                l.enter();
-                try {
-                    return document_getElementsByTagName(d, name);
-                } finally {
-                    l.exit();
-                }
-            }
-        }
+        return syncWrap(d, p -> document_getElementsByTagName(p, name));
     }
 
     public static NodeList document_getElementsByTagName(Dom d, String name) {
@@ -1141,25 +846,7 @@ public final class DomImpl {
     //////////////////////////////////////////////////////////////////////////////////////
 
     public static NodeList _document_getElementsByTagNameNS(Dom d, String uri, String local) {
-        Locale l = d.locale();
-
-        if (l.noSync()) {
-            l.enter();
-            try {
-                return document_getElementsByTagNameNS(d, uri, local);
-            } finally {
-                l.exit();
-            }
-        } else {
-            synchronized (l) {
-                l.enter();
-                try {
-                    return document_getElementsByTagNameNS(d, uri, local);
-                } finally {
-                    l.exit();
-                }
-            }
-        }
+        return syncWrap(d, p -> document_getElementsByTagNameNS(p, uri, local));
     }
 
     public static NodeList document_getElementsByTagNameNS(Dom d, String uri, String local) {
@@ -1171,7 +858,7 @@ public final class DomImpl {
     //////////////////////////////////////////////////////////////////////////////////////
 
     public static DOMImplementation _document_getImplementation(Dom d) {
-        return (DOMImplementation) d.locale();
+        return d.locale();
     }
 
     //////////////////////////////////////////////////////////////////////////////////////
@@ -1179,43 +866,16 @@ public final class DomImpl {
     //////////////////////////////////////////////////////////////////////////////////////
 
     public static Node _document_importNode(Dom d, Node n, boolean deep) {
-        Locale l = d.locale();
-        Dom i;
-
-//        // TODO - need to wrap this in sync ..
-//        if (n instanceof Dom)
-//            i = node_cloneNode( (Dom) n, deep, m );
-//        else
-// TODO -- I'm importing my own nodes through DOM methods!  -- make this faster
-        {
-            if (l.noSync()) {
-                l.enter();
-                try {
-                    i = document_importNode(d, n, deep);
-                } finally {
-                    l.exit();
-                }
-            } else {
-                synchronized (l) {
-                    l.enter();
-                    try {
-                        i = document_importNode(d, n, deep);
-                    } finally {
-                        l.exit();
-                    }
-                }
-            }
-        }
-
-        return (Node) i;
+        // TODO -- I'm importing my own nodes through DOM methods!  -- make this faster
+        return syncWrap(d, p -> document_importNode(p, n, deep));
     }
 
-    public static Dom document_importNode(Dom d, Node n, boolean deep) {
+    public static Node document_importNode(Dom d, Node n, boolean deep) {
         if (n == null) {
             return null;
         }
 
-        Dom i;
+        Node i;
 
         boolean copyChildren = false;
 
@@ -1246,7 +906,7 @@ public final class DomImpl {
                 NamedNodeMap attrs = n.getAttributes();
 
                 for (int a = 0; a < attrs.getLength(); a++) {
-                    attributes_setNamedItem(i, document_importNode(d, attrs.item(a), true));
+                    attributes_setNamedItem((Dom) i, (Dom) document_importNode(d, attrs.item(a), true));
                 }
 
                 copyChildren = deep;
@@ -1317,7 +977,7 @@ public final class DomImpl {
             NodeList children = n.getChildNodes();
 
             for (int c = 0; c < children.getLength(); c++) {
-                node_insertBefore(i, document_importNode(d, children.item(c), true), null);
+                node_insertBefore((Dom) i, (Dom) document_importNode(d, children.item(c), true), null);
             }
         }
 
@@ -1329,32 +989,10 @@ public final class DomImpl {
     //////////////////////////////////////////////////////////////////////////////////////
 
     public static DocumentType _document_getDoctype(Dom d) {
-        Locale l = d.locale();
-
-        Dom dt;
-
-        if (l.noSync()) {
-            l.enter();
-            try {
-                dt = document_getDoctype(d);
-            } finally {
-                l.exit();
-            }
-        } else {
-            synchronized (l) {
-                l.enter();
-                try {
-                    dt = document_getDoctype(d);
-                } finally {
-                    l.exit();
-                }
-            }
-        }
-
-        return (DocumentType) dt;
+        return syncWrap(d, DomImpl::document_getDoctype);
     }
 
-    public static Dom document_getDoctype(Dom d) {
+    public static DocumentType document_getDoctype(Dom d) {
         return null;
     }
 
@@ -1362,33 +1000,11 @@ public final class DomImpl {
     //////////////////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////////////////
 
-    public static Document _node_getOwnerDocument(Dom n) {
-        Locale l = n.locale();
-
-        Dom d;
-
-        if (l.noSync()) {
-            l.enter();
-            try {
-                d = node_getOwnerDocument(n);
-            } finally {
-                l.exit();
-            }
-        } else {
-            synchronized (l) {
-                l.enter();
-                try {
-                    d = node_getOwnerDocument(n);
-                } finally {
-                    l.exit();
-                }
-            }
-        }
-
-        return (Document) d;
+    public static Document _node_getOwnerDocument(Dom d) {
+        return syncWrap(d, DomImpl::node_getOwnerDocument);
     }
 
-    public static Dom node_getOwnerDocument(Dom n) {
+    public static Document node_getOwnerDocument(Dom n) {
         if (n.nodeType() == DOCUMENT) {
             return null;
         }
@@ -1402,40 +1018,18 @@ public final class DomImpl {
             c.release();
         }
 
-        return l._ownerDoc;
+        return (Document) l._ownerDoc;
     }
 
     //////////////////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////////////////
 
-    public static Node _node_getParentNode(Dom n) {
-        Locale l = n.locale();
-
-        Dom p;
-
-        if (l.noSync()) {
-            l.enter();
-            try {
-                p = node_getParentNode(n);
-            } finally {
-                l.exit();
-            }
-        } else {
-            synchronized (l) {
-                l.enter();
-                try {
-                    p = node_getParentNode(n);
-                } finally {
-                    l.exit();
-                }
-            }
-        }
-
-        return (Node) p;
+    public static Node _node_getParentNode(Dom d) {
+        return syncWrap(d, DomImpl::node_getParentNode);
     }
 
-    public static Dom node_getParentNode(Dom n) {
+    public static Node node_getParentNode(Dom n) {
         Cur c = null;
 
         switch (n.nodeType()) {
@@ -1484,7 +1078,7 @@ public final class DomImpl {
 
         c.release();
 
-        return d;
+        return (Node) d;
     }
 
     //////////////////////////////////////////////////////////////////////////////////////
@@ -1492,9 +1086,6 @@ public final class DomImpl {
     //////////////////////////////////////////////////////////////////////////////////////
 
     public static Node _node_getFirstChild(Dom n) {
-        Locale l = n.locale();
-
-        Dom fc;
         assert n instanceof Xobj;
         Xobj node = (Xobj) n;
         if (!node.isVacant()) {
@@ -1510,18 +1101,11 @@ public final class DomImpl {
                 return node._charNodesValue;
             }
         }
-        if (l.noSync()) {
-            fc = node_getFirstChild(n);
-        } else {
-            synchronized (l) {
-                fc = node_getFirstChild(n);
-            }
-        }
 
-        return (Node) fc;
+        return syncWrapNoEnter(n, DomImpl::node_getFirstChild);
     }
 
-    public static Dom node_getFirstChild(Dom n) {
+    public static Node node_getFirstChild(Dom n) {
         Dom fc = null;
 
         switch (n.nodeType()) {
@@ -1554,7 +1138,7 @@ public final class DomImpl {
                     if (lastAttr.isNextSiblingPtrDomUsable()) {
                         return (NodeXobj) lastAttr._nextSibling;
                     } else if (lastAttr.isCharNodesAfterUsable()) {
-                        return (CharNode) lastAttr._charNodesAfter;
+                        return lastAttr._charNodesAfter;
                     }
                 }
                 if (node.isCharNodesValueUsable()) {
@@ -1568,7 +1152,7 @@ public final class DomImpl {
 
         // TODO - handle entity refs here ...
 
-        return fc;
+        return (Node) fc;
     }
 
     //////////////////////////////////////////////////////////////////////////////////////
@@ -1576,32 +1160,10 @@ public final class DomImpl {
     //////////////////////////////////////////////////////////////////////////////////////
 
     public static Node _node_getLastChild(Dom n) {
-        Locale l = n.locale();
-
-        Dom lc;
-
-        if (l.noSync()) {
-            l.enter();
-            try {
-                lc = node_getLastChild(n);
-            } finally {
-                l.exit();
-            }
-        } else {
-            synchronized (l) {
-                l.enter();
-                try {
-                    lc = node_getLastChild(n);
-                } finally {
-                    l.exit();
-                }
-            }
-        }
-
-        return (Node) lc;
+        return syncWrap(n, DomImpl::node_getLastChild);
     }
 
-    public static Dom node_getLastChild(Dom n) {
+    public static Node node_getLastChild(Dom n) {
         switch (n.nodeType()) {
             case TEXT:
             case CDATA:
@@ -1654,7 +1216,7 @@ public final class DomImpl {
 
         // TODO - handle entity refs here ...
 
-        return lc;
+        return (Node) lc;
     }
 
     //////////////////////////////////////////////////////////////////////////////////////
@@ -1662,22 +1224,10 @@ public final class DomImpl {
     //////////////////////////////////////////////////////////////////////////////////////
 
     public static Node _node_getNextSibling(Dom n) {
-        Locale l = n.locale();
-
-        Dom ns;
-
-        if (l.noSync()) {
-            ns = node_getNextSibling(n);
-        } else {
-            synchronized (l) {
-                ns = node_getNextSibling(n);
-            }
-        }
-
-        return (Node) ns;
+        return syncWrapNoEnter(n, DomImpl::node_getNextSibling);
     }
 
-    public static Dom node_getNextSibling(Dom n) {
+    public static Node node_getNextSibling(Dom n) {
         Dom ns = null;
 
         switch (n.nodeType()) {
@@ -1748,7 +1298,7 @@ public final class DomImpl {
 
         // TODO - handle entity refs here ...
 
-        return ns;
+        return (Node) ns;
     }
 
     //////////////////////////////////////////////////////////////////////////////////////
@@ -1756,23 +1306,11 @@ public final class DomImpl {
     //////////////////////////////////////////////////////////////////////////////////////
 
     public static Node _node_getPreviousSibling(Dom n) {
-        Locale l = n.locale();
-
-        Dom ps;
-
-        if (l.noSync()) {
-            ps = node_getPreviousSibling(n);
-        } else {
-            synchronized (l) {
-                ps = node_getPreviousSibling(n);
-            }
-        }
-
-        return (Node) ps;
+        return syncWrapNoEnter(n, DomImpl::node_getPreviousSibling);
     }
 
-    public static Dom node_getPreviousSibling(Dom n) {
-        Dom prev;
+    public static Node node_getPreviousSibling(Dom n) {
+        Node prev;
         switch (n.nodeType()) {
             case TEXT:
             case CDATA: {
@@ -1781,28 +1319,27 @@ public final class DomImpl {
                 if (!(node.getObject() instanceof Xobj)) {
                     return null;
                 }
-                Xobj src = (Xobj) node.getObject();
+                NodeXobj src = (NodeXobj) node.getObject();
                 src.ensureOccupancy();
                 boolean isThisNodeAfterText = node.isNodeAftertext();
                 prev = node._prev;
                 if (prev == null) {
-                    prev = isThisNodeAfterText ? (Dom) src :
-                        src._charNodesValue;
+                    prev = isThisNodeAfterText ? src : src._charNodesValue;
                 }
                 break;
             }
             default: {
-                assert n instanceof Xobj;
-                Xobj node = (Xobj) n;
-                prev = (Dom) node._prevSibling;
+                assert n instanceof NodeXobj;
+                NodeXobj node = (NodeXobj) n;
+                prev = (NodeXobj) node._prevSibling;
                 if ((prev == null || !(node instanceof AttrXobj) && prev instanceof AttrXobj) &&
                     node._parent != null) {
                     prev = node_getFirstChild((Dom) node._parent);
                 }
             }
         }
-        Dom temp = prev;
-        while (temp != null && (temp = node_getNextSibling(temp)) != n) {
+        Node temp = prev;
+        while (temp != null && (temp = node_getNextSibling((Dom) temp)) != n) {
             prev = temp;
         }
         return prev;
@@ -1813,25 +1350,7 @@ public final class DomImpl {
     //////////////////////////////////////////////////////////////////////////////////////
 
     public static boolean _node_hasAttributes(Dom n) {
-        Locale l = n.locale();
-
-        if (l.noSync()) {
-            l.enter();
-            try {
-                return node_hasAttributes(n);
-            } finally {
-                l.exit();
-            }
-        } else {
-            synchronized (l) {
-                l.enter();
-                try {
-                    return node_hasAttributes(n);
-                } finally {
-                    l.exit();
-                }
-            }
-        }
+        return syncWrap(n, DomImpl::node_hasAttributes);
     }
 
     public static boolean node_hasAttributes(Dom n) {
@@ -1839,9 +1358,7 @@ public final class DomImpl {
 
         if (n.nodeType() == ELEMENT) {
             Cur c = n.tempCur();
-
             hasAttrs = c.hasAttrs();
-
             c.release();
         }
 
@@ -1861,25 +1378,7 @@ public final class DomImpl {
     //////////////////////////////////////////////////////////////////////////////////////
 
     public static void _node_normalize(Dom n) {
-        Locale l = n.locale();
-
-        if (l.noSync()) {
-            l.enter();
-            try {
-                node_normalize(n);
-            } finally {
-                l.exit();
-            }
-        } else {
-            synchronized (l) {
-                l.enter();
-                try {
-                    node_normalize(n);
-                } finally {
-                    l.exit();
-                }
-            }
-        }
+        syncWrapVoid(n, DomImpl::node_normalize);
     }
 
     public static void node_normalize(Dom n) {
@@ -1977,52 +1476,33 @@ public final class DomImpl {
             throw new WrongDocumentErr("Child to add is from another document");
         }
 
-        Dom oc = null;
+        Dom oc;
 
         if (!(oldChild instanceof Dom) || (oc = (Dom) oldChild).locale() != l) {
             throw new WrongDocumentErr("Child to replace is from another document");
         }
 
-        Dom d;
-
-        if (l.noSync()) {
-            l.enter();
-            try {
-                d = node_replaceChild(p, nc, oc);
-            } finally {
-                l.exit();
-            }
-        } else {
-            synchronized (l) {
-                l.enter();
-                try {
-                    d = node_replaceChild(p, nc, oc);
-                } finally {
-                    l.exit();
-                }
-            }
-        }
-
-        return (Node) d;
+        Dom oc2 = oc;
+        return syncWrap(p, x -> node_replaceChild(x, nc, oc2));
     }
 
-    public static Dom node_replaceChild(Dom p, Dom newChild, Dom oldChild) {
+    public static Node node_replaceChild(Dom p, Dom newChild, Dom oldChild) {
         // Remove the old child firest to avoid a dom exception raised
         // when inserting two document elements
 
-        Dom nextNode = node_getNextSibling(oldChild);
+        Node nextNode = node_getNextSibling(oldChild);
 
         node_removeChild(p, oldChild);
 
         try {
-            node_insertBefore(p, newChild, nextNode);
+            node_insertBefore(p, newChild, (Dom) nextNode);
         } catch (DOMException e) {
-            node_insertBefore(p, oldChild, nextNode);
+            node_insertBefore(p, oldChild, (Dom) nextNode);
 
             throw e;
         }
 
-        return oldChild;
+        return (Node) oldChild;
     }
 
     //////////////////////////////////////////////////////////////////////////////////////
@@ -2049,37 +1529,18 @@ public final class DomImpl {
                 throw new WrongDocumentErr("Reference child is from another document");
             }
         }
+        Dom rc2 = rc;
 
-        Dom d;
-
-        if (l.noSync()) {
-            l.enter();
-            try {
-                d = node_insertBefore(p, nc, rc);
-            } finally {
-                l.exit();
-            }
-        } else {
-            synchronized (l) {
-                l.enter();
-                try {
-                    d = node_insertBefore(p, nc, rc);
-                } finally {
-                    l.exit();
-                }
-            }
-        }
-
-        return (Node) d;
+        return syncWrap(p, x -> node_insertBefore(x, nc, rc2));
     }
 
-    public static Dom node_insertBefore(Dom p, Dom nc, Dom rc) {
+    public static Node node_insertBefore(Dom p, Dom nc, final Dom rc) {
         assert nc != null;
 
         // Inserting self before self is a no-op
 
         if (nc == rc) {
-            return nc;
+            return (Node) nc;
         }
 
         if (rc != null && parent(rc) != p) {
@@ -2091,23 +1552,23 @@ public final class DomImpl {
         int nck = nc.nodeType();
 
         if (nck == DOCFRAG) {
-            for (Dom c = firstChild(nc); c != null; c = nextSibling(c)) {
-                validateNewChild(p, c);
+            for (Node c = firstChild(nc); c != null; c = nextSibling((Dom) c)) {
+                validateNewChild(p, (Dom) c);
             }
 
-            for (Dom c = firstChild(nc); c != null; ) {
-                Dom n = nextSibling(c);
+            for (Node c = firstChild(nc); c != null; ) {
+                Node n = nextSibling((Dom) c);
 
                 if (rc == null) {
-                    append(c, p);
+                    append((Dom) c, p);
                 } else {
-                    insert(c, rc);
+                    insert((Dom) c, rc);
                 }
 
                 c = n;
             }
 
-            return nc;
+            return (Node) nc;
         }
 
         //
@@ -2142,29 +1603,31 @@ public final class DomImpl {
                     if (rck == TEXT || rck == CDATA) {
                         // Quick and dirty impl....
 
-                        ArrayList charNodes = new ArrayList();
+                        List<Dom> charNodes = new ArrayList<>();
 
-                        while (rc != null && (rc.nodeType() == TEXT || rc.nodeType() == CDATA)) {
-                            Dom next = nextSibling(rc);
-                            charNodes.add(remove(rc));
-                            rc = next;
+                        Dom rc2 = rc;
+
+                        while (rc2 != null && (rc2.nodeType() == TEXT || rc2.nodeType() == CDATA)) {
+                            Node next = nextSibling(rc2);
+                            charNodes.add((Dom) remove(rc2));
+                            rc2 = (Dom) next;
                         }
 
-                        if (rc == null) {
+                        if (rc2 == null) {
                             append(nc, p);
                         } else {
-                            insert(nc, rc);
+                            insert(nc, rc2);
                         }
 
-                        rc = nextSibling(nc);
+                        rc2 = (Dom) nextSibling(nc);
 
-                        for (int i = 0; i < charNodes.size(); i++) {
-                            Dom n = (Dom) charNodes.get(i);
+                        for (Object charNode : charNodes) {
+                            Dom n = (Dom) charNode;
 
-                            if (rc == null) {
+                            if (rc2 == null) {
                                 append(n, p);
                             } else {
-                                insert(n, rc);
+                                insert(n, rc2);
                             }
                         }
                     } else if (rck == ENTITYREF) {
@@ -2232,7 +1695,7 @@ public final class DomImpl {
                 throw new RuntimeException("Unexpected child node type");
         }
 
-        return nc;
+        return (Node) nc;
     }
 
     //////////////////////////////////////////////////////////////////////////////////////
@@ -2252,30 +1715,10 @@ public final class DomImpl {
             throw new WrongDocumentErr("Child to remove is from another document");
         }
 
-        Dom d;
-
-        if (l.noSync()) {
-            l.enter();
-            try {
-                d = node_removeChild(p, c);
-            } finally {
-                l.exit();
-            }
-        } else {
-            synchronized (l) {
-                l.enter();
-                try {
-                    d = node_removeChild(p, c);
-                } finally {
-                    l.exit();
-                }
-            }
-        }
-
-        return (Node) d;
+        return syncWrap(p, x -> node_removeChild(x, c));
     }
 
-    public static Dom node_removeChild(Dom parent, Dom child) {
+    public static Node node_removeChild(Dom parent, Dom child) {
         if (parent(child) != parent) {
             throw new NotFoundErr("Child to remove is not a child of given parent");
         }
@@ -2295,19 +1738,13 @@ public final class DomImpl {
             case TEXT:
             case CDATA: {
                 Cur c = child.tempCur();
-
                 CharNode nodes = c.getCharNodes();
-
                 CharNode cn = (CharNode) child;
-
                 assert (cn.getDom() != null);
 
                 cn.setChars(c.moveChars(null, cn._cch), c._offSrc, c._cchSrc);
-
                 c.setCharNodes(CharNode.remove(nodes, cn));
-
                 c.release();
-
                 break;
             }
 
@@ -2323,7 +1760,7 @@ public final class DomImpl {
                 throw new RuntimeException("Unknown kind");
         }
 
-        return child;
+        return (Node) child;
     }
 
     //////////////////////////////////////////////////////////////////////////////////////
@@ -2331,32 +1768,10 @@ public final class DomImpl {
     //////////////////////////////////////////////////////////////////////////////////////
 
     public static Node _node_cloneNode(Dom n, boolean deep) {
-        Locale l = n.locale();
-
-        Dom c;
-
-        if (l.noSync()) {
-            l.enter();
-            try {
-                c = node_cloneNode(n, deep);
-            } finally {
-                l.exit();
-            }
-        } else {
-            synchronized (l) {
-                l.enter();
-                try {
-                    c = node_cloneNode(n, deep);
-                } finally {
-                    l.exit();
-                }
-            }
-        }
-
-        return (Node) c;
+        return syncWrap(n, p -> node_cloneNode(p, deep));
     }
 
-    public static Dom node_cloneNode(Dom n, boolean deep) {
+    public static Node node_cloneNode(Dom n, boolean deep) {
         Locale l = n.locale();
 
         Dom clone = null;
@@ -2432,15 +1847,10 @@ public final class DomImpl {
                 case TEXT:
                 case CDATA: {
                     Cur c = n.tempCur();
-
                     CharNode cn = n.nodeType() == TEXT ? l.createTextNode() : l.createCdataNode();
-
                     cn.setChars(c.getChars(((CharNode) n)._cch), c._offSrc, c._cchSrc);
-
                     clone = cn;
-
                     c.release();
-
                     break;
                 }
 
@@ -2455,7 +1865,7 @@ public final class DomImpl {
             }
         }
 
-        return clone;
+        return (Node) clone;
     }
 
     //////////////////////////////////////////////////////////////////////////////////////
@@ -2480,9 +1890,8 @@ public final class DomImpl {
         }
         QName name = n.getQName();
         // TODO - should return the correct namespace for xmlns ...
-        return name == null ? "" :
-            //name.getNamespaceURI().equals("")? null:
-            name.getNamespaceURI();
+        //name.getNamespaceURI().equals("")? null:
+        return name == null ? "" : name.getNamespaceURI();
     }
 
     //////////////////////////////////////////////////////////////////////////////////////
@@ -2490,25 +1899,7 @@ public final class DomImpl {
     //////////////////////////////////////////////////////////////////////////////////////
 
     public static void _node_setPrefix(Dom n, String prefix) {
-        Locale l = n.locale();
-
-        if (l.noSync()) {
-            l.enter();
-            try {
-                node_setPrefix(n, prefix);
-            } finally {
-                l.exit();
-            }
-        } else {
-            synchronized (l) {
-                l.enter();
-                try {
-                    node_setPrefix(n, prefix);
-                } finally {
-                    l.exit();
-                }
-            }
-        }
+        syncWrapVoid(n, p -> node_setPrefix(p, prefix));
     }
 
     public static void node_setPrefix(Dom n, String prefix) {
@@ -2528,7 +1919,6 @@ public final class DomImpl {
             prefix = validatePrefix(prefix, uri, local, n.nodeType() == ATTR);
 
             c.setName(n.locale().makeQName(uri, local, prefix));
-
             c.release();
         } else {
             validatePrefix(prefix, "", "", false);
@@ -2544,8 +1934,7 @@ public final class DomImpl {
             return null;
         }
         QName name = n.getQName();
-        return name == null ? "" :
-            name.getPrefix();
+        return name == null ? "" : name.getPrefix();
     }
 
     //////////////////////////////////////////////////////////////////////////////////////
@@ -2598,25 +1987,7 @@ public final class DomImpl {
     //////////////////////////////////////////////////////////////////////////////////////
 
     public static void _node_setNodeValue(Dom n, String nodeValue) {
-        Locale l = n.locale();
-
-        if (l.noSync()) {
-            l.enter();
-            try {
-                node_setNodeValue(n, nodeValue);
-            } finally {
-                l.exit();
-            }
-        } else {
-            synchronized (l) {
-                l.enter();
-                try {
-                    node_setNodeValue(n, nodeValue);
-                } finally {
-                    l.exit();
-                }
-            }
-        }
+        syncWrapVoid(n, p -> node_setNodeValue(p, nodeValue));
     }
 
     public static void node_setNodeValue(Dom n, String nodeValue) {
@@ -2661,12 +2032,12 @@ public final class DomImpl {
                     children.item(0).setNodeValue(nodeValue);
                 }
                 if (((AttrXobj) n).isId()) {
-                    Dom d = DomImpl.node_getOwnerDocument(n);
+                    Document d = DomImpl.node_getOwnerDocument(n);
                     String val = node_getNodeValue(n);
                     if (d instanceof DocumentXobj) {
-                        ((DocumentXobj) d).removeIdElement(val);
-                        ((DocumentXobj) d).addIdElement(nodeValue,
-                            attr_getOwnerElement(n));
+                        DocumentXobj dox = (DocumentXobj) d;
+                        dox.removeIdElement(val);
+                        dox.addIdElement(nodeValue, (Dom) attr_getOwnerElement(n));
                     }
                 }
 
@@ -2694,15 +2065,7 @@ public final class DomImpl {
     //////////////////////////////////////////////////////////////////////////////////////
 
     public static String _node_getNodeValue(Dom n) {
-        Locale l = n.locale();
-
-        if (l.noSync()) {
-            return node_getNodeValue(n);
-        } else {
-            synchronized (l) {
-                return node_getNodeValue(n);
-            }
-        }
+        return syncWrapNoEnter(n, DomImpl::node_getNodeValue);
     }
 
     public static String node_getNodeValue(Dom n) {
@@ -2748,6 +2111,7 @@ public final class DomImpl {
     //////////////////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////////////////
 
+    @SuppressWarnings("unused")
     public static Object _node_getUserData(Dom n, String key) {
         throw new DomLevel3NotImplemented();
     }
@@ -2756,6 +2120,7 @@ public final class DomImpl {
     //////////////////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////////////////
 
+    @SuppressWarnings("unused")
     public static Object _node_setUserData(Dom n, String key, Object data, UserDataHandler handler) {
         throw new DomLevel3NotImplemented();
     }
@@ -2764,6 +2129,7 @@ public final class DomImpl {
     //////////////////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////////////////
 
+    @SuppressWarnings("unused")
     public static Object _node_getFeature(Dom n, String feature, String version) {
         throw new DomLevel3NotImplemented();
     }
@@ -2772,6 +2138,7 @@ public final class DomImpl {
     //////////////////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////////////////
 
+    @SuppressWarnings("unused")
     public static boolean _node_isEqualNode(Dom n, Node arg) {
         throw new DomLevel3NotImplemented();
     }
@@ -2798,6 +2165,7 @@ public final class DomImpl {
     //////////////////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////////////////
 
+    @SuppressWarnings("unused")
     public static String _node_lookupNamespaceURI(Dom n, String prefix) {
         throw new DomLevel3NotImplemented();
     }
@@ -2806,6 +2174,7 @@ public final class DomImpl {
     //////////////////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////////////////
 
+    @SuppressWarnings("unused")
     public static boolean _node_isDefaultNamespace(Dom n, String namespaceURI) {
         throw new DomLevel3NotImplemented();
     }
@@ -2814,6 +2183,7 @@ public final class DomImpl {
     //////////////////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////////////////
 
+    @SuppressWarnings("unused")
     public static String _node_lookupPrefix(Dom n, String namespaceURI) {
         throw new DomLevel3NotImplemented();
     }
@@ -2822,6 +2192,7 @@ public final class DomImpl {
     //////////////////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////////////////
 
+    @SuppressWarnings("unused")
     public static void _node_setTextContent(Dom n, String textContent) {
         throw new DomLevel3NotImplemented();
     }
@@ -2830,6 +2201,7 @@ public final class DomImpl {
     //////////////////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////////////////
 
+    @SuppressWarnings("unused")
     public static String _node_getTextContent(Dom n) {
         throw new DomLevel3NotImplemented();
     }
@@ -2892,6 +2264,7 @@ public final class DomImpl {
     //////////////////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////////////////
 
+    @SuppressWarnings("unused")
     public static String _node_getBaseURI(Dom n) {
         throw new DomLevel3NotImplemented();
     }
@@ -2901,24 +2274,12 @@ public final class DomImpl {
     //////////////////////////////////////////////////////////////////////////////////////
 
     public static Node _childNodes_item(Dom n, int i) {
-        Locale l = n.locale();
-
-        Dom d;
-        if (i == 0) {
-            return _node_getFirstChild(n);
-        }
-        if (l.noSync()) {
-            d = childNodes_item(n, i);
-        } else {
-            synchronized (l) {
-                d = childNodes_item(n, i);
-            }
-        }
-
-        return (Node) d;
+        return i == 0
+            ? _node_getFirstChild(n)
+            : syncWrapNoEnter(n, p -> childNodes_item(p, i));
     }
 
-    public static Dom childNodes_item(Dom n, int i) {
+    public static Node childNodes_item(Dom n, int i) {
         if (i < 0) {
             return null;
         }
@@ -2947,7 +2308,7 @@ public final class DomImpl {
         if (i == 0) {
             return node_getFirstChild(n);
         }
-        return n.locale().findDomNthChild(n, i);
+        return (Node) n.locale().findDomNthChild(n, i);
     }
 
     //////////////////////////////////////////////////////////////////////////////////////
@@ -2955,7 +2316,6 @@ public final class DomImpl {
     //////////////////////////////////////////////////////////////////////////////////////
 
     public static int _childNodes_getLength(Dom n) {
-        Locale l = n.locale();
         assert n instanceof Xobj;
         int count;
         Xobj node = (Xobj) n;
@@ -2963,13 +2323,8 @@ public final class DomImpl {
             (count = node.getDomZeroOneChildren()) < 2) {
             return count;
         }
-        if (l.noSync()) {
-            return childNodes_getLength(n);
-        } else {
-            synchronized (l) {
-                return childNodes_getLength(n);
-            }
-        }
+
+        return syncWrapNoEnter(n, DomImpl::childNodes_getLength);
     }
 
     public static int childNodes_getLength(Dom n) {
@@ -3086,7 +2441,7 @@ public final class DomImpl {
     public static void _element_removeAttribute(Dom e, String name) {
         try {
             _attributes_removeNamedItem(e, name);
-        } catch (NotFoundErr ex) {
+        } catch (NotFoundErr ignored) {
         }
     }
 
@@ -3097,7 +2452,7 @@ public final class DomImpl {
     public static void _element_removeAttributeNS(Dom e, String uri, String local) {
         try {
             _attributes_removeNamedItemNS(e, uri, local);
-        } catch (NotFoundErr ex) {
+        } catch (NotFoundErr ignored) {
         }
     }
 
@@ -3122,39 +2477,24 @@ public final class DomImpl {
     //////////////////////////////////////////////////////////////////////////////////////
 
     public static void _element_setAttribute(Dom e, String name, String value) {
-        // TODO - validate all attr/element names in all apprpraite
-        // methdos
-
-        Locale l = e.locale();
-
-        if (l.noSync()) {
-            l.enter();
-            try {
-                element_setAttribute(e, name, value);
-            } finally {
-                l.exit();
-            }
-        } else {
-            synchronized (l) {
-                l.enter();
-                try {
-                    element_setAttribute(e, name, value);
-                } finally {
-                    l.exit();
-                }
-            }
-        }
+        // TODO - validate all attr/element names in all appropriate methods
+        syncWrapVoid(e, p -> element_setAttribute(p, name, value));
     }
 
     public static void element_setAttribute(Dom e, String name, String value) {
-        Dom a = attributes_getNamedItem(e, name);
+        Node a = attributes_getNamedItem(e, name);
 
         if (a == null) {
-            a = document_createAttribute(node_getOwnerDocument(e), name);
-            attributes_setNamedItem(e, a);
+            Dom e2 = (Dom) node_getOwnerDocument(e);
+            if (e2 == null) {
+                throw new NotFoundErr("Document element can't be determined.");
+            }
+
+            a = document_createAttribute(e2, name);
+            attributes_setNamedItem(e, (Dom) a);
         }
 
-        node_setNodeValue(a, value);
+        node_setNodeValue((Dom) a, value);
     }
 
     //////////////////////////////////////////////////////////////////////////////////////
@@ -3162,25 +2502,7 @@ public final class DomImpl {
     //////////////////////////////////////////////////////////////////////////////////////
 
     public static void _element_setAttributeNS(Dom e, String uri, String qname, String value) {
-        Locale l = e.locale();
-
-        if (l.noSync()) {
-            l.enter();
-            try {
-                element_setAttributeNS(e, uri, qname, value);
-            } finally {
-                l.exit();
-            }
-        } else {
-            synchronized (l) {
-                l.enter();
-                try {
-                    element_setAttributeNS(e, uri, qname, value);
-                } finally {
-                    l.exit();
-                }
-            }
-        }
+        syncWrapVoid(e, p -> element_setAttributeNS(p, uri, qname, value));
     }
 
     public static void element_setAttributeNS(Dom e, String uri, String qname, String value) {
@@ -3190,15 +2512,15 @@ public final class DomImpl {
         String local = name.getLocalPart();
         String prefix = validatePrefix(name.getPrefix(), uri, local, true);
 
-        Dom a = attributes_getNamedItemNS(e, uri, local);
+        Node a = attributes_getNamedItemNS(e, uri, local);
 
         if (a == null) {
-            a = document_createAttributeNS(node_getOwnerDocument(e), uri, local);
-            attributes_setNamedItemNS(e, a);
+            a = document_createAttributeNS((Dom) node_getOwnerDocument(e), uri, local);
+            attributes_setNamedItemNS(e, (Dom) a);
         }
 
-        node_setPrefix(a, prefix);
-        node_setNodeValue(a, value);
+        node_setPrefix((Dom) a, prefix);
+        node_setNodeValue((Dom) a, value);
     }
 
     //////////////////////////////////////////////////////////////////////////////////////
@@ -3206,26 +2528,7 @@ public final class DomImpl {
     //////////////////////////////////////////////////////////////////////////////////////
 
     public static NodeList _element_getElementsByTagName(Dom e, String name) {
-        Locale l = e.locale();
-
-        if (l.noSync()) {
-            l.enter();
-            try {
-                return element_getElementsByTagName(e, name);
-            } finally {
-                l.exit();
-            }
-        } else {
-            synchronized (l) {
-                l.enter();
-                try {
-                    return element_getElementsByTagName(e, name);
-                } finally {
-                    l.exit();
-                }
-            }
-        }
-
+        return syncWrap(e, p -> element_getElementsByTagName(p, name));
     }
 
     public static NodeList element_getElementsByTagName(Dom e, String name) {
@@ -3237,25 +2540,7 @@ public final class DomImpl {
     //////////////////////////////////////////////////////////////////////////////////////
 
     public static NodeList _element_getElementsByTagNameNS(Dom e, String uri, String local) {
-        Locale l = e.locale();
-
-        if (l.noSync()) {
-            l.enter();
-            try {
-                return element_getElementsByTagNameNS(e, uri, local);
-            } finally {
-                l.exit();
-            }
-        } else {
-            synchronized (l) {
-                l.enter();
-                try {
-                    return element_getElementsByTagNameNS(e, uri, local);
-                } finally {
-                    l.exit();
-                }
-            }
-        }
+        return syncWrap(e, p -> element_getElementsByTagNameNS(p, uri, local));
     }
 
     public static NodeList element_getElementsByTagNameNS(Dom e, String uri, String local) {
@@ -3267,30 +2552,11 @@ public final class DomImpl {
     //////////////////////////////////////////////////////////////////////////////////////
 
     public static int _attributes_getLength(Dom e) {
-        Locale l = e.locale();
-
-        if (l.noSync()) {
-            l.enter();
-            try {
-                return attributes_getLength(e);
-            } finally {
-                l.exit();
-            }
-        } else {
-            synchronized (l) {
-                l.enter();
-                try {
-                    return attributes_getLength(e);
-                } finally {
-                    l.exit();
-                }
-            }
-        }
+        return syncWrap(e, DomImpl::attributes_getLength);
     }
 
     public static int attributes_getLength(Dom e) {
         int n = 0;
-
         Cur c = e.tempCur();
 
         while (c.toNextAttr()) {
@@ -3298,7 +2564,6 @@ public final class DomImpl {
         }
 
         c.release();
-
         return n;
     }
 
@@ -3319,30 +2584,10 @@ public final class DomImpl {
             throw new WrongDocumentErr("Attr to set is from another document");
         }
 
-        Dom oldA;
-
-        if (l.noSync()) {
-            l.enter();
-            try {
-                oldA = attributes_setNamedItem(e, a);
-            } finally {
-                l.exit();
-            }
-        } else {
-            synchronized (l) {
-                l.enter();
-                try {
-                    oldA = attributes_setNamedItem(e, a);
-                } finally {
-                    l.exit();
-                }
-            }
-        }
-
-        return (Node) oldA;
+        return syncWrap(e, p -> attributes_setNamedItem(p, a));
     }
 
-    public static Dom attributes_setNamedItem(Dom e, Dom a) {
+    public static Node attributes_setNamedItem(Dom e, Dom a) {
         if (attr_getOwnerElement(a) != null) {
             throw new InuseAttributeError();
         }
@@ -3381,7 +2626,7 @@ public final class DomImpl {
 
         c.release();
 
-        return oldAttr;
+        return (Node) oldAttr;
     }
 
     //////////////////////////////////////////////////////////////////////////////////////
@@ -3389,39 +2634,15 @@ public final class DomImpl {
     //////////////////////////////////////////////////////////////////////////////////////
 
     public static Node _attributes_getNamedItem(Dom e, String name) {
-        Locale l = e.locale();
-
-        Dom n;
-
-        if (l.noSync()) {
-            l.enter();
-            try {
-                n = attributes_getNamedItem(e, name);
-            } finally {
-                l.exit();
-            }
-        } else {
-            synchronized (l) {
-                l.enter();
-                try {
-                    n = attributes_getNamedItem(e, name);
-                } finally {
-                    l.exit();
-                }
-            }
-        }
-
-        return (Node) n;
+        return syncWrap(e, p -> attributes_getNamedItem(e, name));
     }
 
-    public static Dom attributes_getNamedItem(Dom e, String name) {
+    public static Node attributes_getNamedItem(Dom e, String name) {
         Dom a = null;
-
         Cur c = e.tempCur();
 
         while (c.toNextAttr()) {
             Dom d = c.getDom();
-
             if (_node_getNodeName(d).equals(name)) {
                 a = d;
                 break;
@@ -3429,8 +2650,7 @@ public final class DomImpl {
         }
 
         c.release();
-
-        return a;
+        return (Node) a;
     }
 
     //////////////////////////////////////////////////////////////////////////////////////
@@ -3438,43 +2658,19 @@ public final class DomImpl {
     //////////////////////////////////////////////////////////////////////////////////////
 
     public static Node _attributes_getNamedItemNS(Dom e, String uri, String local) {
-        Locale l = e.locale();
-
-        Dom n;
-
-        if (l.noSync()) {
-            l.enter();
-            try {
-                n = attributes_getNamedItemNS(e, uri, local);
-            } finally {
-                l.exit();
-            }
-        } else {
-            synchronized (l) {
-                l.enter();
-                try {
-                    n = attributes_getNamedItemNS(e, uri, local);
-                } finally {
-                    l.exit();
-                }
-            }
-        }
-
-        return (Node) n;
+        return syncWrap(e, p -> attributes_getNamedItemNS(p, uri, local));
     }
 
-    public static Dom attributes_getNamedItemNS(Dom e, String uri, String local) {
+    public static Node attributes_getNamedItemNS(Dom e, String uri, String local) {
         if (uri == null) {
             uri = "";
         }
 
         Dom a = null;
-
         Cur c = e.tempCur();
 
         while (c.toNextAttr()) {
             Dom d = c.getDom();
-
             QName n = d.getQName();
 
             if (n.getNamespaceURI().equals(uri) && n.getLocalPart().equals(local)) {
@@ -3484,8 +2680,7 @@ public final class DomImpl {
         }
 
         c.release();
-
-        return a;
+        return (Node) a;
     }
 
     //////////////////////////////////////////////////////////////////////////////////////
@@ -3493,32 +2688,10 @@ public final class DomImpl {
     //////////////////////////////////////////////////////////////////////////////////////
 
     public static Node _attributes_removeNamedItem(Dom e, String name) {
-        Locale l = e.locale();
-
-        Dom n;
-
-        if (l.noSync()) {
-            l.enter();
-            try {
-                n = attributes_removeNamedItem(e, name);
-            } finally {
-                l.exit();
-            }
-        } else {
-            synchronized (l) {
-                l.enter();
-                try {
-                    n = attributes_removeNamedItem(e, name);
-                } finally {
-                    l.exit();
-                }
-            }
-        }
-
-        return (Node) n;
+        return syncWrap(e, p -> attributes_removeNamedItem(p, name));
     }
 
-    public static Dom attributes_removeNamedItem(Dom e, String name) {
+    public static Node attributes_removeNamedItem(Dom e, String name) {
         Dom oldAttr = null;
 
         Cur c = e.tempCur();
@@ -3532,7 +2705,7 @@ public final class DomImpl {
                 }
 
                 if (((AttrXobj) aa).isId()) {
-                    Dom d = DomImpl.node_getOwnerDocument(aa);
+                    Node d = DomImpl.node_getOwnerDocument(aa);
                     String val = node_getNodeValue(aa);
                     if (d instanceof DocumentXobj) {
                         ((DocumentXobj) d).removeIdElement(val);
@@ -3549,7 +2722,7 @@ public final class DomImpl {
             throw new NotFoundErr("Named item not found: " + name);
         }
 
-        return oldAttr;
+        return (Node) oldAttr;
     }
 
     //////////////////////////////////////////////////////////////////////////////////////
@@ -3557,32 +2730,10 @@ public final class DomImpl {
     //////////////////////////////////////////////////////////////////////////////////////
 
     public static Node _attributes_removeNamedItemNS(Dom e, String uri, String local) {
-        Locale l = e.locale();
-
-        Dom n;
-
-        if (l.noSync()) {
-            l.enter();
-            try {
-                n = attributes_removeNamedItemNS(e, uri, local);
-            } finally {
-                l.exit();
-            }
-        } else {
-            synchronized (l) {
-                l.enter();
-                try {
-                    n = attributes_removeNamedItemNS(e, uri, local);
-                } finally {
-                    l.exit();
-                }
-            }
-        }
-
-        return (Node) n;
+        return syncWrap(e, p -> attributes_removeNamedItemNS(p, uri, local));
     }
 
-    public static Dom attributes_removeNamedItemNS(Dom e, String uri, String local) {
+    public static Node attributes_removeNamedItemNS(Dom e, String uri, String local) {
         if (uri == null) {
             uri = "";
         }
@@ -3601,7 +2752,7 @@ public final class DomImpl {
                     oldAttr = aa;
                 }
                 if (((AttrXobj) aa).isId()) {
-                    Dom d = DomImpl.node_getOwnerDocument(aa);
+                    Node d = DomImpl.node_getOwnerDocument(aa);
                     String val = node_getNodeValue(aa);
                     if (d instanceof DocumentXobj) {
                         ((DocumentXobj) d).removeIdElement(val);
@@ -3619,7 +2770,7 @@ public final class DomImpl {
             throw new NotFoundErr("Named item not found: uri=" + uri + ", local=" + local);
         }
 
-        return oldAttr;
+        return (Node) oldAttr;
     }
 
     //////////////////////////////////////////////////////////////////////////////////////
@@ -3639,34 +2790,14 @@ public final class DomImpl {
             throw new WrongDocumentErr("Attr to set is from another document");
         }
 
-        Dom oldA;
-
-        if (l.noSync()) {
-            l.enter();
-            try {
-                oldA = attributes_setNamedItemNS(e, a);
-            } finally {
-                l.exit();
-            }
-        } else {
-            synchronized (l) {
-                l.enter();
-                try {
-                    oldA = attributes_setNamedItemNS(e, a);
-                } finally {
-                    l.exit();
-                }
-            }
-        }
-
-        return (Node) oldA;
+        return syncWrap(e, p -> attributes_setNamedItemNS(p, a));
     }
 
-    public static Dom attributes_setNamedItemNS(Dom e, Dom a) {
-        Dom owner = attr_getOwnerElement(a);
+    public static Node attributes_setNamedItemNS(Dom e, Dom a) {
+        Node owner = attr_getOwnerElement(a);
 
         if (owner == e) {
-            return a;
+            return (Node) a;
         }
 
         if (owner != null) {
@@ -3707,7 +2838,7 @@ public final class DomImpl {
 
         c.release();
 
-        return oldAttr;
+        return (Node) oldAttr;
     }
 
     //////////////////////////////////////////////////////////////////////////////////////
@@ -3715,32 +2846,10 @@ public final class DomImpl {
     //////////////////////////////////////////////////////////////////////////////////////
 
     public static Node _attributes_item(Dom e, int index) {
-        Locale l = e.locale();
-
-        Dom a;
-
-        if (l.noSync()) {
-            l.enter();
-            try {
-                a = attributes_item(e, index);
-            } finally {
-                l.exit();
-            }
-        } else {
-            synchronized (l) {
-                l.enter();
-                try {
-                    a = attributes_item(e, index);
-                } finally {
-                    l.exit();
-                }
-            }
-        }
-
-        return (Node) a;
+        return syncWrap(e, p -> attributes_item(p, index));
     }
 
-    public static Dom attributes_item(Dom e, int index) {
+    public static Node attributes_item(Dom e, int index) {
         if (index < 0) {
             return null;
         }
@@ -3758,7 +2867,7 @@ public final class DomImpl {
 
         c.release();
 
-        return a;
+        return (Node) a;
     }
 
     //////////////////////////////////////////////////////////////////////////////////////
@@ -3789,6 +2898,7 @@ public final class DomImpl {
     //////////////////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////////////////
 
+    @SuppressWarnings("unused")
     public static boolean _attr_getSpecified(Dom a) {
         // Can't tell the difference
         return true;
@@ -3799,32 +2909,10 @@ public final class DomImpl {
     //////////////////////////////////////////////////////////////////////////////////////
 
     public static Element _attr_getOwnerElement(Dom a) {
-        Locale l = a.locale();
-
-        Dom e;
-
-        if (l.noSync()) {
-            l.enter();
-            try {
-                e = attr_getOwnerElement(a);
-            } finally {
-                l.exit();
-            }
-        } else {
-            synchronized (l) {
-                l.enter();
-                try {
-                    e = attr_getOwnerElement(a);
-                } finally {
-                    l.exit();
-                }
-            }
-        }
-
-        return (Element) e;
+        return syncWrap(a, DomImpl::attr_getOwnerElement);
     }
 
-    public static Dom attr_getOwnerElement(Dom n) {
+    public static Element attr_getOwnerElement(Dom n) {
         Cur c = n.tempCur();
 
         if (!c.toParentRaw()) {
@@ -3833,10 +2921,8 @@ public final class DomImpl {
         }
 
         Dom p = c.getDom();
-
         c.release();
-
-        return p;
+        return (Element) p;
     }
 
     //////////////////////////////////////////////////////////////////////////////////////
@@ -3985,6 +3071,7 @@ public final class DomImpl {
     //////////////////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////////////////
 
+    @SuppressWarnings("unused")
     public static String _text_getWholeText(Dom t) {
         throw new DomLevel3NotImplemented();
     }
@@ -3993,6 +3080,7 @@ public final class DomImpl {
     //////////////////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////////////////
 
+    @SuppressWarnings("unused")
     public static boolean _text_isElementContentWhitespace(Dom t) {
         throw new DomLevel3NotImplemented();
     }
@@ -4001,6 +3089,7 @@ public final class DomImpl {
     //////////////////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////////////////
 
+    @SuppressWarnings("unused")
     public static Text _text_replaceWholeText(Dom t, String content) {
         throw new DomLevel3NotImplemented();
     }
@@ -4010,25 +3099,7 @@ public final class DomImpl {
     //////////////////////////////////////////////////////////////////////////////////////
 
     public static XMLStreamReader _getXmlStreamReader(Dom n) {
-        Locale l = n.locale();
-
-        if (l.noSync()) {
-            l.enter();
-            try {
-                return getXmlStreamReader(n);
-            } finally {
-                l.exit();
-            }
-        } else {
-            synchronized (l) {
-                l.enter();
-                try {
-                    return getXmlStreamReader(n);
-                } finally {
-                    l.exit();
-                }
-            }
-        }
+        return syncWrap(n, DomImpl::getXmlStreamReader);
     }
 
     public static XMLStreamReader getXmlStreamReader(Dom n) {
@@ -4087,34 +3158,13 @@ public final class DomImpl {
     //////////////////////////////////////////////////////////////////////////////////////
 
     public static XmlCursor _getXmlCursor(Dom n) {
-        Locale l = n.locale();
-
-        if (l.noSync()) {
-            l.enter();
-            try {
-                return getXmlCursor(n);
-            } finally {
-                l.exit();
-            }
-        } else {
-            synchronized (l) {
-                l.enter();
-                try {
-                    return getXmlCursor(n);
-                } finally {
-                    l.exit();
-                }
-            }
-        }
+        return syncWrap(n, DomImpl::getXmlCursor);
     }
 
     public static XmlCursor getXmlCursor(Dom n) {
         Cur c = n.tempCur();
-
         Cursor xc = new Cursor(c);
-
         c.release();
-
         return xc;
     }
 
@@ -4123,34 +3173,13 @@ public final class DomImpl {
     //////////////////////////////////////////////////////////////////////////////////////
 
     public static XmlObject _getXmlObject(Dom n) {
-        Locale l = n.locale();
-
-        if (l.noSync()) {
-            l.enter();
-            try {
-                return getXmlObject(n);
-            } finally {
-                l.exit();
-            }
-        } else {
-            synchronized (l) {
-                l.enter();
-                try {
-                    return getXmlObject(n);
-                } finally {
-                    l.exit();
-                }
-            }
-        }
+        return syncWrap(n, DomImpl::getXmlObject);
     }
 
     public static XmlObject getXmlObject(Dom n) {
         Cur c = n.tempCur();
-
         XmlObject x = c.getObject();
-
         c.release();
-
         return x;
     }
 
@@ -4164,27 +3193,8 @@ public final class DomImpl {
     //
 
     public static boolean _soapText_isComment(Dom n) {
-        Locale l = n.locale();
-
         org.apache.xmlbeans.impl.soap.Text text = (org.apache.xmlbeans.impl.soap.Text) n;
-
-        if (l.noSync()) {
-            l.enter();
-            try {
-                return l._saaj.soapText_isComment(text);
-            } finally {
-                l.exit();
-            }
-        } else {
-            synchronized (l) {
-                l.enter();
-                try {
-                    return l._saaj.soapText_isComment(text);
-                } finally {
-                    l.exit();
-                }
-            }
-        }
+        return syncWrap(n, p -> p.locale()._saaj.soapText_isComment(text));
     }
 
     //
@@ -4192,147 +3202,33 @@ public final class DomImpl {
     //
 
     public static void _soapNode_detachNode(Dom n) {
-        Locale l = n.locale();
-
         org.apache.xmlbeans.impl.soap.Node node = (org.apache.xmlbeans.impl.soap.Node) n;
-
-        if (l.noSync()) {
-            l.enter();
-            try {
-                l._saaj.soapNode_detachNode(node);
-            } finally {
-                l.exit();
-            }
-        } else {
-            synchronized (l) {
-                l.enter();
-                try {
-                    l._saaj.soapNode_detachNode(node);
-                } finally {
-                    l.exit();
-                }
-            }
-        }
+        syncWrapVoid(n, p -> p.locale()._saaj.soapNode_detachNode(node));
     }
 
     public static void _soapNode_recycleNode(Dom n) {
-        Locale l = n.locale();
-
         org.apache.xmlbeans.impl.soap.Node node = (org.apache.xmlbeans.impl.soap.Node) n;
-
-        if (l.noSync()) {
-            l.enter();
-            try {
-                l._saaj.soapNode_recycleNode(node);
-            } finally {
-                l.exit();
-            }
-        } else {
-            synchronized (l) {
-                l.enter();
-                try {
-                    l._saaj.soapNode_recycleNode(node);
-                } finally {
-                    l.exit();
-                }
-            }
-        }
+        syncWrapVoid(n, p -> p.locale()._saaj.soapNode_recycleNode(node));
     }
 
     public static String _soapNode_getValue(Dom n) {
-        Locale l = n.locale();
-
         org.apache.xmlbeans.impl.soap.Node node = (org.apache.xmlbeans.impl.soap.Node) n;
-
-        if (l.noSync()) {
-            l.enter();
-            try {
-                return l._saaj.soapNode_getValue(node);
-            } finally {
-                l.exit();
-            }
-        } else {
-            synchronized (l) {
-                l.enter();
-                try {
-                    return l._saaj.soapNode_getValue(node);
-                } finally {
-                    l.exit();
-                }
-            }
-        }
+        return syncWrap(n, p -> p.locale()._saaj.soapNode_getValue(node));
     }
 
     public static void _soapNode_setValue(Dom n, String value) {
-        Locale l = n.locale();
-
         org.apache.xmlbeans.impl.soap.Node node = (org.apache.xmlbeans.impl.soap.Node) n;
-
-        if (l.noSync()) {
-            l.enter();
-            try {
-                l._saaj.soapNode_setValue(node, value);
-            } finally {
-                l.exit();
-            }
-        } else {
-            synchronized (l) {
-                l.enter();
-                try {
-                    l._saaj.soapNode_setValue(node, value);
-                } finally {
-                    l.exit();
-                }
-            }
-        }
+        syncWrapVoid(n, p -> p.locale()._saaj.soapNode_setValue(node, value));
     }
 
     public static SOAPElement _soapNode_getParentElement(Dom n) {
-        Locale l = n.locale();
-
         org.apache.xmlbeans.impl.soap.Node node = (org.apache.xmlbeans.impl.soap.Node) n;
-
-        if (l.noSync()) {
-            l.enter();
-            try {
-                return l._saaj.soapNode_getParentElement(node);
-            } finally {
-                l.exit();
-            }
-        } else {
-            synchronized (l) {
-                l.enter();
-                try {
-                    return l._saaj.soapNode_getParentElement(node);
-                } finally {
-                    l.exit();
-                }
-            }
-        }
+        return syncWrap(n, p -> p.locale()._saaj.soapNode_getParentElement(node));
     }
 
     public static void _soapNode_setParentElement(Dom n, SOAPElement p) {
-        Locale l = n.locale();
-
         org.apache.xmlbeans.impl.soap.Node node = (org.apache.xmlbeans.impl.soap.Node) n;
-
-        if (l.noSync()) {
-            l.enter();
-            try {
-                l._saaj.soapNode_setParentElement(node, p);
-            } finally {
-                l.exit();
-            }
-        } else {
-            synchronized (l) {
-                l.enter();
-                try {
-                    l._saaj.soapNode_setParentElement(node, p);
-                } finally {
-                    l.exit();
-                }
-            }
-        }
+        syncWrapVoid(n, x -> x.locale()._saaj.soapNode_setParentElement(node, p));
     }
 
     //
@@ -4340,507 +3236,108 @@ public final class DomImpl {
     //
 
     public static void _soapElement_removeContents(Dom d) {
-        Locale l = d.locale();
-
         SOAPElement se = (SOAPElement) d;
-
-        if (l.noSync()) {
-            l.enter();
-            try {
-                l._saaj.soapElement_removeContents(se);
-            } finally {
-                l.exit();
-            }
-        } else {
-            synchronized (l) {
-                l.enter();
-                try {
-                    l._saaj.soapElement_removeContents(se);
-                } finally {
-                    l.exit();
-                }
-            }
-        }
+        syncWrapVoid(d, x -> x.locale()._saaj.soapElement_removeContents(se));
     }
 
     public static String _soapElement_getEncodingStyle(Dom d) {
-        Locale l = d.locale();
-
         SOAPElement se = (SOAPElement) d;
-
-        if (l.noSync()) {
-            l.enter();
-            try {
-                return l._saaj.soapElement_getEncodingStyle(se);
-            } finally {
-                l.exit();
-            }
-        } else {
-            synchronized (l) {
-                l.enter();
-                try {
-                    return l._saaj.soapElement_getEncodingStyle(se);
-                } finally {
-                    l.exit();
-                }
-            }
-        }
+        return syncWrap(d, p -> p.locale()._saaj.soapElement_getEncodingStyle(se));
     }
 
     public static void _soapElement_setEncodingStyle(Dom d, String encodingStyle) {
-        Locale l = d.locale();
-
         SOAPElement se = (SOAPElement) d;
-
-        if (l.noSync()) {
-            l.enter();
-            try {
-                l._saaj.soapElement_setEncodingStyle(se, encodingStyle);
-            } finally {
-                l.exit();
-            }
-        } else {
-            synchronized (l) {
-                l.enter();
-                try {
-                    l._saaj.soapElement_setEncodingStyle(se, encodingStyle);
-                } finally {
-                    l.exit();
-                }
-            }
-        }
+        syncWrapVoid(d, p -> p.locale()._saaj.soapElement_setEncodingStyle(se, encodingStyle));
     }
 
     public static boolean _soapElement_removeNamespaceDeclaration(Dom d, String prefix) {
-        Locale l = d.locale();
-
         SOAPElement se = (SOAPElement) d;
-
-        if (l.noSync()) {
-            l.enter();
-            try {
-                return l._saaj.soapElement_removeNamespaceDeclaration(se, prefix);
-            } finally {
-                l.exit();
-            }
-        } else {
-            synchronized (l) {
-                l.enter();
-                try {
-                    return l._saaj.soapElement_removeNamespaceDeclaration(se, prefix);
-                } finally {
-                    l.exit();
-                }
-            }
-        }
+        return syncWrap(d, p -> p.locale()._saaj.soapElement_removeNamespaceDeclaration(se, prefix));
     }
 
     public static Iterator _soapElement_getAllAttributes(Dom d) {
-        Locale l = d.locale();
-
         SOAPElement se = (SOAPElement) d;
-
-        if (l.noSync()) {
-            l.enter();
-            try {
-                return l._saaj.soapElement_getAllAttributes(se);
-            } finally {
-                l.exit();
-            }
-        } else {
-            synchronized (l) {
-                l.enter();
-                try {
-                    return l._saaj.soapElement_getAllAttributes(se);
-                } finally {
-                    l.exit();
-                }
-            }
-        }
+        return syncWrap(d, p -> p.locale()._saaj.soapElement_getAllAttributes(se));
     }
 
     public static Iterator _soapElement_getChildElements(Dom d) {
-        Locale l = d.locale();
-
         SOAPElement se = (SOAPElement) d;
-
-        if (l.noSync()) {
-            l.enter();
-            try {
-                return l._saaj.soapElement_getChildElements(se);
-            } finally {
-                l.exit();
-            }
-        } else {
-            synchronized (l) {
-                l.enter();
-                try {
-                    return l._saaj.soapElement_getChildElements(se);
-                } finally {
-                    l.exit();
-                }
-            }
-        }
+        return syncWrap(d, p -> p.locale()._saaj.soapElement_getChildElements(se));
     }
 
     public static Iterator _soapElement_getNamespacePrefixes(Dom d) {
-        Locale l = d.locale();
-
         SOAPElement se = (SOAPElement) d;
-
-        if (l.noSync()) {
-            l.enter();
-            try {
-                return l._saaj.soapElement_getNamespacePrefixes(se);
-            } finally {
-                l.exit();
-            }
-        } else {
-            synchronized (l) {
-                l.enter();
-                try {
-                    return l._saaj.soapElement_getNamespacePrefixes(se);
-                } finally {
-                    l.exit();
-                }
-            }
-        }
+        return syncWrap(d, p -> p.locale()._saaj.soapElement_getNamespacePrefixes(se));
     }
 
     public static SOAPElement _soapElement_addAttribute(Dom d, Name name, String value) throws SOAPException {
-        Locale l = d.locale();
-
         SOAPElement se = (SOAPElement) d;
-
-        if (l.noSync()) {
-            l.enter();
-            try {
-                return l._saaj.soapElement_addAttribute(se, name, value);
-            } finally {
-                l.exit();
-            }
-        } else {
-            synchronized (l) {
-                l.enter();
-                try {
-                    return l._saaj.soapElement_addAttribute(se, name, value);
-                } finally {
-                    l.exit();
-                }
-            }
-        }
+        return syncWrapEx(d, () -> d.locale()._saaj.soapElement_addAttribute(se, name, value));
     }
 
     public static SOAPElement _soapElement_addChildElement(Dom d, SOAPElement oldChild) throws SOAPException {
-        Locale l = d.locale();
-
         SOAPElement se = (SOAPElement) d;
-
-        if (l.noSync()) {
-            l.enter();
-            try {
-                return l._saaj.soapElement_addChildElement(se, oldChild);
-            } finally {
-                l.exit();
-            }
-        } else {
-            synchronized (l) {
-                l.enter();
-                try {
-                    return l._saaj.soapElement_addChildElement(se, oldChild);
-                } finally {
-                    l.exit();
-                }
-            }
-        }
+        return syncWrapEx(d, () -> d.locale()._saaj.soapElement_addChildElement(se, oldChild));
     }
 
     public static SOAPElement _soapElement_addChildElement(Dom d, Name name) throws SOAPException {
-        Locale l = d.locale();
-
         SOAPElement se = (SOAPElement) d;
-
-        if (l.noSync()) {
-            l.enter();
-            try {
-                return l._saaj.soapElement_addChildElement(se, name);
-            } finally {
-                l.exit();
-            }
-        } else {
-            synchronized (l) {
-                l.enter();
-                try {
-                    return l._saaj.soapElement_addChildElement(se, name);
-                } finally {
-                    l.exit();
-                }
-            }
-        }
+        return syncWrapEx(d, () -> d.locale()._saaj.soapElement_addChildElement(se, name));
     }
 
     public static SOAPElement _soapElement_addChildElement(Dom d, String localName) throws SOAPException {
-        Locale l = d.locale();
-
         SOAPElement se = (SOAPElement) d;
-
-        if (l.noSync()) {
-            l.enter();
-            try {
-                return l._saaj.soapElement_addChildElement(se, localName);
-            } finally {
-                l.exit();
-            }
-        } else {
-            synchronized (l) {
-                l.enter();
-                try {
-                    return l._saaj.soapElement_addChildElement(se, localName);
-                } finally {
-                    l.exit();
-                }
-            }
-        }
+        return syncWrapEx(d, () -> d.locale()._saaj.soapElement_addChildElement(se, localName));
     }
 
     public static SOAPElement _soapElement_addChildElement(Dom d, String localName, String prefix) throws SOAPException {
-        Locale l = d.locale();
-
         SOAPElement se = (SOAPElement) d;
-
-        if (l.noSync()) {
-            l.enter();
-            try {
-                return l._saaj.soapElement_addChildElement(se, localName, prefix);
-            } finally {
-                l.exit();
-            }
-        } else {
-            synchronized (l) {
-                l.enter();
-                try {
-                    return l._saaj.soapElement_addChildElement(se, localName, prefix);
-                } finally {
-                    l.exit();
-                }
-            }
-        }
+        return syncWrapEx(d, () -> d.locale()._saaj.soapElement_addChildElement(se, localName, prefix));
     }
 
     public static SOAPElement _soapElement_addChildElement(Dom d, String localName, String prefix, String uri) throws SOAPException {
-        Locale l = d.locale();
-
         SOAPElement se = (SOAPElement) d;
-
-        if (l.noSync()) {
-            l.enter();
-            try {
-                return l._saaj.soapElement_addChildElement(se, localName, prefix, uri);
-            } finally {
-                l.exit();
-            }
-        } else {
-            synchronized (l) {
-                l.enter();
-                try {
-                    return l._saaj.soapElement_addChildElement(se, localName, prefix, uri);
-                } finally {
-                    l.exit();
-                }
-            }
-        }
+        return syncWrapEx(d, () -> d.locale()._saaj.soapElement_addChildElement(se, localName, prefix, uri));
     }
 
     public static SOAPElement _soapElement_addNamespaceDeclaration(Dom d, String prefix, String uri) {
-        Locale l = d.locale();
-
         SOAPElement se = (SOAPElement) d;
-
-        if (l.noSync()) {
-            l.enter();
-            try {
-                return l._saaj.soapElement_addNamespaceDeclaration(se, prefix, uri);
-            } finally {
-                l.exit();
-            }
-        } else {
-            synchronized (l) {
-                l.enter();
-                try {
-                    return l._saaj.soapElement_addNamespaceDeclaration(se, prefix, uri);
-                } finally {
-                    l.exit();
-                }
-            }
-        }
+        return syncWrap(d, p -> p.locale()._saaj.soapElement_addNamespaceDeclaration(se, prefix, uri));
     }
 
     public static SOAPElement _soapElement_addTextNode(Dom d, String data) {
-        Locale l = d.locale();
-
         SOAPElement se = (SOAPElement) d;
-
-        if (l.noSync()) {
-            l.enter();
-            try {
-                return l._saaj.soapElement_addTextNode(se, data);
-            } finally {
-                l.exit();
-            }
-        } else {
-            synchronized (l) {
-                l.enter();
-                try {
-                    return l._saaj.soapElement_addTextNode(se, data);
-                } finally {
-                    l.exit();
-                }
-            }
-        }
+        return syncWrap(d, p -> p.locale()._saaj.soapElement_addTextNode(se, data));
     }
 
     public static String _soapElement_getAttributeValue(Dom d, Name name) {
-        Locale l = d.locale();
-
         SOAPElement se = (SOAPElement) d;
-
-        if (l.noSync()) {
-            l.enter();
-            try {
-                return l._saaj.soapElement_getAttributeValue(se, name);
-            } finally {
-                l.exit();
-            }
-        } else {
-            synchronized (l) {
-                l.enter();
-                try {
-                    return l._saaj.soapElement_getAttributeValue(se, name);
-                } finally {
-                    l.exit();
-                }
-            }
-        }
+        return syncWrap(d, p -> p.locale()._saaj.soapElement_getAttributeValue(se, name));
     }
 
     public static Iterator _soapElement_getChildElements(Dom d, Name name) {
-        Locale l = d.locale();
-
         SOAPElement se = (SOAPElement) d;
-
-        if (l.noSync()) {
-            l.enter();
-            try {
-                return l._saaj.soapElement_getChildElements(se, name);
-            } finally {
-                l.exit();
-            }
-        } else {
-            synchronized (l) {
-                l.enter();
-                try {
-                    return l._saaj.soapElement_getChildElements(se, name);
-                } finally {
-                    l.exit();
-                }
-            }
-        }
+        return syncWrap(d, p -> p.locale()._saaj.soapElement_getChildElements(se, name));
     }
 
     public static Name _soapElement_getElementName(Dom d) {
-        Locale l = d.locale();
-
         SOAPElement se = (SOAPElement) d;
-
-        if (l.noSync()) {
-            l.enter();
-            try {
-                return l._saaj.soapElement_getElementName(se);
-            } finally {
-                l.exit();
-            }
-        } else {
-            synchronized (l) {
-                l.enter();
-                try {
-                    return l._saaj.soapElement_getElementName(se);
-                } finally {
-                    l.exit();
-                }
-            }
-        }
+        return syncWrap(d, p -> p.locale()._saaj.soapElement_getElementName(se));
     }
 
     public static String _soapElement_getNamespaceURI(Dom d, String prefix) {
-        Locale l = d.locale();
-
         SOAPElement se = (SOAPElement) d;
-
-        if (l.noSync()) {
-            l.enter();
-            try {
-                return l._saaj.soapElement_getNamespaceURI(se, prefix);
-            } finally {
-                l.exit();
-            }
-        } else {
-            synchronized (l) {
-                l.enter();
-                try {
-                    return l._saaj.soapElement_getNamespaceURI(se, prefix);
-                } finally {
-                    l.exit();
-                }
-            }
-        }
+        return syncWrap(d, p -> p.locale()._saaj.soapElement_getNamespaceURI(se, prefix));
     }
 
     public static Iterator _soapElement_getVisibleNamespacePrefixes(Dom d) {
-        Locale l = d.locale();
-
         SOAPElement se = (SOAPElement) d;
-
-        if (l.noSync()) {
-            l.enter();
-            try {
-                return l._saaj.soapElement_getVisibleNamespacePrefixes(se);
-            } finally {
-                l.exit();
-            }
-        } else {
-            synchronized (l) {
-                l.enter();
-                try {
-                    return l._saaj.soapElement_getVisibleNamespacePrefixes(se);
-                } finally {
-                    l.exit();
-                }
-            }
-        }
+        return syncWrap(d, p -> p.locale()._saaj.soapElement_getVisibleNamespacePrefixes(se));
     }
 
     public static boolean _soapElement_removeAttribute(Dom d, Name name) {
-        Locale l = d.locale();
-
         SOAPElement se = (SOAPElement) d;
-
-        if (l.noSync()) {
-            l.enter();
-            try {
-                return l._saaj.soapElement_removeAttribute(se, name);
-            } finally {
-                l.exit();
-            }
-        } else {
-            synchronized (l) {
-                l.enter();
-                try {
-                    return l._saaj.soapElement_removeAttribute(se, name);
-                } finally {
-                    l.exit();
-                }
-            }
-        }
+        return syncWrap(d, p -> p.locale()._saaj.soapElement_removeAttribute(se, name));
     }
 
     //
@@ -4848,147 +3345,33 @@ public final class DomImpl {
     //
 
     public static SOAPBody _soapEnvelope_addBody(Dom d) throws SOAPException {
-        Locale l = d.locale();
-
         SOAPEnvelope se = (SOAPEnvelope) d;
-
-        if (l.noSync()) {
-            l.enter();
-            try {
-                return l._saaj.soapEnvelope_addBody(se);
-            } finally {
-                l.exit();
-            }
-        } else {
-            synchronized (l) {
-                l.enter();
-                try {
-                    return l._saaj.soapEnvelope_addBody(se);
-                } finally {
-                    l.exit();
-                }
-            }
-        }
+        return syncWrapEx(d, () -> d.locale()._saaj.soapEnvelope_addBody(se));
     }
 
     public static SOAPBody _soapEnvelope_getBody(Dom d) throws SOAPException {
-        Locale l = d.locale();
-
         SOAPEnvelope se = (SOAPEnvelope) d;
-
-        if (l.noSync()) {
-            l.enter();
-            try {
-                return l._saaj.soapEnvelope_getBody(se);
-            } finally {
-                l.exit();
-            }
-        } else {
-            synchronized (l) {
-                l.enter();
-                try {
-                    return l._saaj.soapEnvelope_getBody(se);
-                } finally {
-                    l.exit();
-                }
-            }
-        }
+        return syncWrapEx(d, () -> d.locale()._saaj.soapEnvelope_getBody(se));
     }
 
     public static SOAPHeader _soapEnvelope_getHeader(Dom d) throws SOAPException {
-        Locale l = d.locale();
-
         SOAPEnvelope se = (SOAPEnvelope) d;
-
-        if (l.noSync()) {
-            l.enter();
-            try {
-                return l._saaj.soapEnvelope_getHeader(se);
-            } finally {
-                l.exit();
-            }
-        } else {
-            synchronized (l) {
-                l.enter();
-                try {
-                    return l._saaj.soapEnvelope_getHeader(se);
-                } finally {
-                    l.exit();
-                }
-            }
-        }
+        return syncWrapEx(d, () -> d.locale()._saaj.soapEnvelope_getHeader(se));
     }
 
     public static SOAPHeader _soapEnvelope_addHeader(Dom d) throws SOAPException {
-        Locale l = d.locale();
-
         SOAPEnvelope se = (SOAPEnvelope) d;
-
-        if (l.noSync()) {
-            l.enter();
-            try {
-                return l._saaj.soapEnvelope_addHeader(se);
-            } finally {
-                l.exit();
-            }
-        } else {
-            synchronized (l) {
-                l.enter();
-                try {
-                    return l._saaj.soapEnvelope_addHeader(se);
-                } finally {
-                    l.exit();
-                }
-            }
-        }
+        return syncWrapEx(d, () -> d.locale()._saaj.soapEnvelope_addHeader(se));
     }
 
     public static Name _soapEnvelope_createName(Dom d, String localName) {
-        Locale l = d.locale();
-
         SOAPEnvelope se = (SOAPEnvelope) d;
-
-        if (l.noSync()) {
-            l.enter();
-            try {
-                return l._saaj.soapEnvelope_createName(se, localName);
-            } finally {
-                l.exit();
-            }
-        } else {
-            synchronized (l) {
-                l.enter();
-                try {
-                    return l._saaj.soapEnvelope_createName(se, localName);
-                } finally {
-                    l.exit();
-                }
-            }
-        }
+        return syncWrap(d, p -> p.locale()._saaj.soapEnvelope_createName(se, localName));
     }
 
     public static Name _soapEnvelope_createName(Dom d, String localName, String prefix, String namespaceURI) {
-        Locale l = d.locale();
-
         SOAPEnvelope se = (SOAPEnvelope) d;
-
-        if (l.noSync()) {
-            l.enter();
-            try {
-                return l._saaj.soapEnvelope_createName(se, localName, prefix, namespaceURI);
-            } finally {
-                l.exit();
-            }
-        } else {
-            synchronized (l) {
-                l.enter();
-                try {
-                    return l._saaj.soapEnvelope_createName(se, localName, prefix, namespaceURI);
-                } finally {
-                    l.exit();
-                }
-            }
-        }
+        return syncWrap(d, p -> p.locale()._saaj.soapEnvelope_createName(se, localName, prefix, namespaceURI));
     }
 
     //
@@ -4996,147 +3379,33 @@ public final class DomImpl {
     //
 
     public static Iterator soapHeader_examineAllHeaderElements(Dom d) {
-        Locale l = d.locale();
-
         SOAPHeader sh = (SOAPHeader) d;
-
-        if (l.noSync()) {
-            l.enter();
-            try {
-                return l._saaj.soapHeader_examineAllHeaderElements(sh);
-            } finally {
-                l.exit();
-            }
-        } else {
-            synchronized (l) {
-                l.enter();
-                try {
-                    return l._saaj.soapHeader_examineAllHeaderElements(sh);
-                } finally {
-                    l.exit();
-                }
-            }
-        }
+        return syncWrap(d, p -> p.locale()._saaj.soapHeader_examineAllHeaderElements(sh));
     }
 
     public static Iterator soapHeader_extractAllHeaderElements(Dom d) {
-        Locale l = d.locale();
-
         SOAPHeader sh = (SOAPHeader) d;
-
-        if (l.noSync()) {
-            l.enter();
-            try {
-                return l._saaj.soapHeader_extractAllHeaderElements(sh);
-            } finally {
-                l.exit();
-            }
-        } else {
-            synchronized (l) {
-                l.enter();
-                try {
-                    return l._saaj.soapHeader_extractAllHeaderElements(sh);
-                } finally {
-                    l.exit();
-                }
-            }
-        }
+        return syncWrap(d, p -> p.locale()._saaj.soapHeader_extractAllHeaderElements(sh));
     }
 
     public static Iterator soapHeader_examineHeaderElements(Dom d, String actor) {
-        Locale l = d.locale();
-
         SOAPHeader sh = (SOAPHeader) d;
-
-        if (l.noSync()) {
-            l.enter();
-            try {
-                return l._saaj.soapHeader_examineHeaderElements(sh, actor);
-            } finally {
-                l.exit();
-            }
-        } else {
-            synchronized (l) {
-                l.enter();
-                try {
-                    return l._saaj.soapHeader_examineHeaderElements(sh, actor);
-                } finally {
-                    l.exit();
-                }
-            }
-        }
+        return syncWrap(d, p -> p.locale()._saaj.soapHeader_examineHeaderElements(sh, actor));
     }
 
     public static Iterator soapHeader_examineMustUnderstandHeaderElements(Dom d, String mustUnderstandString) {
-        Locale l = d.locale();
-
         SOAPHeader sh = (SOAPHeader) d;
-
-        if (l.noSync()) {
-            l.enter();
-            try {
-                return l._saaj.soapHeader_examineMustUnderstandHeaderElements(sh, mustUnderstandString);
-            } finally {
-                l.exit();
-            }
-        } else {
-            synchronized (l) {
-                l.enter();
-                try {
-                    return l._saaj.soapHeader_examineMustUnderstandHeaderElements(sh, mustUnderstandString);
-                } finally {
-                    l.exit();
-                }
-            }
-        }
+        return syncWrap(d, p -> p.locale()._saaj.soapHeader_examineMustUnderstandHeaderElements(sh, mustUnderstandString));
     }
 
     public static Iterator soapHeader_extractHeaderElements(Dom d, String actor) {
-        Locale l = d.locale();
-
         SOAPHeader sh = (SOAPHeader) d;
-
-        if (l.noSync()) {
-            l.enter();
-            try {
-                return l._saaj.soapHeader_extractHeaderElements(sh, actor);
-            } finally {
-                l.exit();
-            }
-        } else {
-            synchronized (l) {
-                l.enter();
-                try {
-                    return l._saaj.soapHeader_extractHeaderElements(sh, actor);
-                } finally {
-                    l.exit();
-                }
-            }
-        }
+        return syncWrap(d, p -> p.locale()._saaj.soapHeader_extractHeaderElements(sh, actor));
     }
 
     public static SOAPHeaderElement soapHeader_addHeaderElement(Dom d, Name name) {
-        Locale l = d.locale();
-
         SOAPHeader sh = (SOAPHeader) d;
-
-        if (l.noSync()) {
-            l.enter();
-            try {
-                return l._saaj.soapHeader_addHeaderElement(sh, name);
-            } finally {
-                l.exit();
-            }
-        } else {
-            synchronized (l) {
-                l.enter();
-                try {
-                    return l._saaj.soapHeader_addHeaderElement(sh, name);
-                } finally {
-                    l.exit();
-                }
-            }
-        }
+        return syncWrap(d, p -> p.locale()._saaj.soapHeader_addHeaderElement(sh, name));
     }
 
     //
@@ -5144,171 +3413,38 @@ public final class DomImpl {
     //
 
     public static boolean soapBody_hasFault(Dom d) {
-        Locale l = d.locale();
-
         SOAPBody sb = (SOAPBody) d;
-
-        if (l.noSync()) {
-            l.enter();
-            try {
-                return l._saaj.soapBody_hasFault(sb);
-            } finally {
-                l.exit();
-            }
-        } else {
-            synchronized (l) {
-                l.enter();
-                try {
-                    return l._saaj.soapBody_hasFault(sb);
-                } finally {
-                    l.exit();
-                }
-            }
-        }
+        return syncWrap(d, p -> p.locale()._saaj.soapBody_hasFault(sb));
     }
 
     public static SOAPFault soapBody_addFault(Dom d) throws SOAPException {
-        Locale l = d.locale();
-
         SOAPBody sb = (SOAPBody) d;
-
-        if (l.noSync()) {
-            l.enter();
-            try {
-                return l._saaj.soapBody_addFault(sb);
-            } finally {
-                l.exit();
-            }
-        } else {
-            synchronized (l) {
-                l.enter();
-                try {
-                    return l._saaj.soapBody_addFault(sb);
-                } finally {
-                    l.exit();
-                }
-            }
-        }
+        return syncWrapEx(d, () -> d.locale()._saaj.soapBody_addFault(sb));
     }
 
     public static SOAPFault soapBody_getFault(Dom d) {
-        Locale l = d.locale();
-
         SOAPBody sb = (SOAPBody) d;
-
-        if (l.noSync()) {
-            l.enter();
-            try {
-                return l._saaj.soapBody_getFault(sb);
-            } finally {
-                l.exit();
-            }
-        } else {
-            synchronized (l) {
-                l.enter();
-                try {
-                    return l._saaj.soapBody_getFault(sb);
-                } finally {
-                    l.exit();
-                }
-            }
-        }
+        return syncWrap(d, p -> p.locale()._saaj.soapBody_getFault(sb));
     }
 
     public static SOAPBodyElement soapBody_addBodyElement(Dom d, Name name) {
-        Locale l = d.locale();
-
         SOAPBody sb = (SOAPBody) d;
-
-        if (l.noSync()) {
-            l.enter();
-            try {
-                return l._saaj.soapBody_addBodyElement(sb, name);
-            } finally {
-                l.exit();
-            }
-        } else {
-            synchronized (l) {
-                l.enter();
-                try {
-                    return l._saaj.soapBody_addBodyElement(sb, name);
-                } finally {
-                    l.exit();
-                }
-            }
-        }
+        return syncWrap(d, p -> p.locale()._saaj.soapBody_addBodyElement(sb, name));
     }
 
     public static SOAPBodyElement soapBody_addDocument(Dom d, Document document) {
-        Locale l = d.locale();
-
         SOAPBody sb = (SOAPBody) d;
-
-        if (l.noSync()) {
-            l.enter();
-            try {
-                return l._saaj.soapBody_addDocument(sb, document);
-            } finally {
-                l.exit();
-            }
-        } else {
-            synchronized (l) {
-                l.enter();
-                try {
-                    return l._saaj.soapBody_addDocument(sb, document);
-                } finally {
-                    l.exit();
-                }
-            }
-        }
+        return syncWrap(d, p -> p.locale()._saaj.soapBody_addDocument(sb, document));
     }
 
     public static SOAPFault soapBody_addFault(Dom d, Name name, String s) throws SOAPException {
-        Locale l = d.locale();
-
         SOAPBody sb = (SOAPBody) d;
-
-        if (l.noSync()) {
-            l.enter();
-            try {
-                return l._saaj.soapBody_addFault(sb, name, s);
-            } finally {
-                l.exit();
-            }
-        } else {
-            synchronized (l) {
-                l.enter();
-                try {
-                    return l._saaj.soapBody_addFault(sb, name, s);
-                } finally {
-                    l.exit();
-                }
-            }
-        }
+        return syncWrapEx(d, () -> d.locale()._saaj.soapBody_addFault(sb, name, s));
     }
 
     public static SOAPFault soapBody_addFault(Dom d, Name faultCode, String faultString, java.util.Locale locale) throws SOAPException {
-        Locale l = d.locale();
-
         SOAPBody sb = (SOAPBody) d;
-
-        if (l.noSync()) {
-            l.enter();
-            try {
-                return l._saaj.soapBody_addFault(sb, faultCode, faultString, locale);
-            } finally {
-                l.exit();
-            }
-        } else {
-            synchronized (l) {
-                l.enter();
-                try {
-                    return l._saaj.soapBody_addFault(sb, faultCode, faultString, locale);
-                } finally {
-                    l.exit();
-                }
-            }
-        }
+        return syncWrapEx(d, () -> d.locale()._saaj.soapBody_addFault(sb, faultCode, faultString, locale));
     }
 
     //
@@ -5316,291 +3452,69 @@ public final class DomImpl {
     //
 
     public static void soapFault_setFaultString(Dom d, String faultString) {
-        Locale l = d.locale();
-
         SOAPFault sf = (SOAPFault) d;
-
-        if (l.noSync()) {
-            l.enter();
-            try {
-                l._saaj.soapFault_setFaultString(sf, faultString);
-            } finally {
-                l.exit();
-            }
-        } else {
-            synchronized (l) {
-                l.enter();
-                try {
-                    l._saaj.soapFault_setFaultString(sf, faultString);
-                } finally {
-                    l.exit();
-                }
-            }
-        }
+        syncWrapVoid(d, p -> p.locale()._saaj.soapFault_setFaultString(sf, faultString));
     }
 
     public static void soapFault_setFaultString(Dom d, String faultString, java.util.Locale locale) {
-        Locale l = d.locale();
-
         SOAPFault sf = (SOAPFault) d;
-
-        if (l.noSync()) {
-            l.enter();
-            try {
-                l._saaj.soapFault_setFaultString(sf, faultString, locale);
-            } finally {
-                l.exit();
-            }
-        } else {
-            synchronized (l) {
-                l.enter();
-                try {
-                    l._saaj.soapFault_setFaultString(sf, faultString, locale);
-                } finally {
-                    l.exit();
-                }
-            }
-        }
+        syncWrapVoid(d, p -> p.locale()._saaj.soapFault_setFaultString(sf, faultString, locale));
     }
 
     public static void soapFault_setFaultCode(Dom d, Name faultCodeName) throws SOAPException {
-        Locale l = d.locale();
-
         SOAPFault sf = (SOAPFault) d;
-
-        if (l.noSync()) {
-            l.enter();
-            try {
-                l._saaj.soapFault_setFaultCode(sf, faultCodeName);
-            } finally {
-                l.exit();
-            }
-        } else {
-            synchronized (l) {
-                l.enter();
-                try {
-                    l._saaj.soapFault_setFaultCode(sf, faultCodeName);
-                } finally {
-                    l.exit();
-                }
-            }
-        }
+        syncWrapEx(d, () -> {
+            d.locale()._saaj.soapFault_setFaultCode(sf, faultCodeName);
+            return null;
+        });
     }
 
     public static void soapFault_setFaultActor(Dom d, String faultActorString) {
-        Locale l = d.locale();
-
         SOAPFault sf = (SOAPFault) d;
-
-        if (l.noSync()) {
-            l.enter();
-            try {
-                l._saaj.soapFault_setFaultActor(sf, faultActorString);
-            } finally {
-                l.exit();
-            }
-        } else {
-            synchronized (l) {
-                l.enter();
-                try {
-                    l._saaj.soapFault_setFaultActor(sf, faultActorString);
-                } finally {
-                    l.exit();
-                }
-            }
-        }
+        syncWrapVoid(d, p -> p.locale()._saaj.soapFault_setFaultActor(sf, faultActorString));
     }
 
     public static String soapFault_getFaultActor(Dom d) {
-        Locale l = d.locale();
-
         SOAPFault sf = (SOAPFault) d;
-
-        if (l.noSync()) {
-            l.enter();
-            try {
-                return l._saaj.soapFault_getFaultActor(sf);
-            } finally {
-                l.exit();
-            }
-        } else {
-            synchronized (l) {
-                l.enter();
-                try {
-                    return l._saaj.soapFault_getFaultActor(sf);
-                } finally {
-                    l.exit();
-                }
-            }
-        }
+        return syncWrap(d, p -> p.locale()._saaj.soapFault_getFaultActor(sf));
     }
 
     public static String soapFault_getFaultCode(Dom d) {
-        Locale l = d.locale();
-
         SOAPFault sf = (SOAPFault) d;
-
-        if (l.noSync()) {
-            l.enter();
-            try {
-                return l._saaj.soapFault_getFaultCode(sf);
-            } finally {
-                l.exit();
-            }
-        } else {
-            synchronized (l) {
-                l.enter();
-                try {
-                    return l._saaj.soapFault_getFaultCode(sf);
-                } finally {
-                    l.exit();
-                }
-            }
-        }
+        return syncWrap(d, p -> p.locale()._saaj.soapFault_getFaultCode(sf));
     }
 
     public static void soapFault_setFaultCode(Dom d, String faultCode) throws SOAPException {
-        Locale l = d.locale();
-
         SOAPFault sf = (SOAPFault) d;
-
-        if (l.noSync()) {
-            l.enter();
-            try {
-                l._saaj.soapFault_setFaultCode(sf, faultCode);
-            } finally {
-                l.exit();
-            }
-        } else {
-            synchronized (l) {
-                l.enter();
-                try {
-                    l._saaj.soapFault_setFaultCode(sf, faultCode);
-                } finally {
-                    l.exit();
-                }
-            }
-        }
+        syncWrapEx(d, () -> {
+            d.locale()._saaj.soapFault_setFaultCode(sf, faultCode);
+            return null;
+        });
     }
 
     public static java.util.Locale soapFault_getFaultStringLocale(Dom d) {
-        Locale l = d.locale();
-
         SOAPFault sf = (SOAPFault) d;
-
-        if (l.noSync()) {
-            l.enter();
-            try {
-                return l._saaj.soapFault_getFaultStringLocale(sf);
-            } finally {
-                l.exit();
-            }
-        } else {
-            synchronized (l) {
-                l.enter();
-                try {
-                    return l._saaj.soapFault_getFaultStringLocale(sf);
-                } finally {
-                    l.exit();
-                }
-            }
-        }
+        return syncWrap(d, p -> p.locale()._saaj.soapFault_getFaultStringLocale(sf));
     }
 
     public static Name soapFault_getFaultCodeAsName(Dom d) {
-        Locale l = d.locale();
-
         SOAPFault sf = (SOAPFault) d;
-
-        if (l.noSync()) {
-            l.enter();
-            try {
-                return l._saaj.soapFault_getFaultCodeAsName(sf);
-            } finally {
-                l.exit();
-            }
-        } else {
-            synchronized (l) {
-                l.enter();
-                try {
-                    return l._saaj.soapFault_getFaultCodeAsName(sf);
-                } finally {
-                    l.exit();
-                }
-            }
-        }
+        return syncWrap(d, p -> p.locale()._saaj.soapFault_getFaultCodeAsName(sf));
     }
 
     public static String soapFault_getFaultString(Dom d) {
-        Locale l = d.locale();
-
         SOAPFault sf = (SOAPFault) d;
-
-        if (l.noSync()) {
-            l.enter();
-            try {
-                return l._saaj.soapFault_getFaultString(sf);
-            } finally {
-                l.exit();
-            }
-        } else {
-            synchronized (l) {
-                l.enter();
-                try {
-                    return l._saaj.soapFault_getFaultString(sf);
-                } finally {
-                    l.exit();
-                }
-            }
-        }
+        return syncWrap(d, p -> p.locale()._saaj.soapFault_getFaultString(sf));
     }
 
     public static Detail soapFault_addDetail(Dom d) throws SOAPException {
-        Locale l = d.locale();
-
         SOAPFault sf = (SOAPFault) d;
-
-        if (l.noSync()) {
-            l.enter();
-            try {
-                return l._saaj.soapFault_addDetail(sf);
-            } finally {
-                l.exit();
-            }
-        } else {
-            synchronized (l) {
-                l.enter();
-                try {
-                    return l._saaj.soapFault_addDetail(sf);
-                } finally {
-                    l.exit();
-                }
-            }
-        }
+        return syncWrapEx(d, () -> d.locale()._saaj.soapFault_addDetail(sf));
     }
 
     public static Detail soapFault_getDetail(Dom d) {
-        Locale l = d.locale();
-
         SOAPFault sf = (SOAPFault) d;
-
-        if (l.noSync()) {
-            l.enter();
-            try {
-                return l._saaj.soapFault_getDetail(sf);
-            } finally {
-                l.exit();
-            }
-        } else {
-            synchronized (l) {
-                l.enter();
-                try {
-                    return l._saaj.soapFault_getDetail(sf);
-                } finally {
-                    l.exit();
-                }
-            }
-        }
+        return syncWrap(d, p -> p.locale()._saaj.soapFault_getDetail(sf));
     }
 
     //
@@ -5608,99 +3522,23 @@ public final class DomImpl {
     //
 
     public static void soapHeaderElement_setMustUnderstand(Dom d, boolean mustUnderstand) {
-        Locale l = d.locale();
-
         SOAPHeaderElement she = (SOAPHeaderElement) d;
-
-        if (l.noSync()) {
-            l.enter();
-            try {
-                l._saaj.soapHeaderElement_setMustUnderstand(she, mustUnderstand);
-            } finally {
-                l.exit();
-            }
-        } else {
-            synchronized (l) {
-                l.enter();
-                try {
-                    l._saaj.soapHeaderElement_setMustUnderstand(she, mustUnderstand);
-                } finally {
-                    l.exit();
-                }
-            }
-        }
+        syncWrapVoid(d, p -> p.locale()._saaj.soapHeaderElement_setMustUnderstand(she, mustUnderstand));
     }
 
     public static boolean soapHeaderElement_getMustUnderstand(Dom d) {
-        Locale l = d.locale();
-
         SOAPHeaderElement she = (SOAPHeaderElement) d;
-
-        if (l.noSync()) {
-            l.enter();
-            try {
-                return l._saaj.soapHeaderElement_getMustUnderstand(she);
-            } finally {
-                l.exit();
-            }
-        } else {
-            synchronized (l) {
-                l.enter();
-                try {
-                    return l._saaj.soapHeaderElement_getMustUnderstand(she);
-                } finally {
-                    l.exit();
-                }
-            }
-        }
+        return syncWrap(d, p -> p.locale()._saaj.soapHeaderElement_getMustUnderstand(she));
     }
 
     public static void soapHeaderElement_setActor(Dom d, String actor) {
-        Locale l = d.locale();
-
         SOAPHeaderElement she = (SOAPHeaderElement) d;
-
-        if (l.noSync()) {
-            l.enter();
-            try {
-                l._saaj.soapHeaderElement_setActor(she, actor);
-            } finally {
-                l.exit();
-            }
-        } else {
-            synchronized (l) {
-                l.enter();
-                try {
-                    l._saaj.soapHeaderElement_setActor(she, actor);
-                } finally {
-                    l.exit();
-                }
-            }
-        }
+        syncWrapVoid(d, p -> p.locale()._saaj.soapHeaderElement_setActor(she, actor));
     }
 
     public static String soapHeaderElement_getActor(Dom d) {
-        Locale l = d.locale();
-
         SOAPHeaderElement she = (SOAPHeaderElement) d;
-
-        if (l.noSync()) {
-            l.enter();
-            try {
-                return l._saaj.soapHeaderElement_getActor(she);
-            } finally {
-                l.exit();
-            }
-        } else {
-            synchronized (l) {
-                l.enter();
-                try {
-                    return l._saaj.soapHeaderElement_getActor(she);
-                } finally {
-                    l.exit();
-                }
-            }
-        }
+        return syncWrap(d, p -> p.locale()._saaj.soapHeaderElement_getActor(she));
     }
 
     //
@@ -5708,51 +3546,13 @@ public final class DomImpl {
     //
 
     public static DetailEntry detail_addDetailEntry(Dom d, Name name) {
-        Locale l = d.locale();
-
         Detail detail = (Detail) d;
-
-        if (l.noSync()) {
-            l.enter();
-            try {
-                return l._saaj.detail_addDetailEntry(detail, name);
-            } finally {
-                l.exit();
-            }
-        } else {
-            synchronized (l) {
-                l.enter();
-                try {
-                    return l._saaj.detail_addDetailEntry(detail, name);
-                } finally {
-                    l.exit();
-                }
-            }
-        }
+        return syncWrap(d, p -> p.locale()._saaj.detail_addDetailEntry(detail, name));
     }
 
     public static Iterator detail_getDetailEntries(Dom d) {
-        Locale l = d.locale();
-
         Detail detail = (Detail) d;
-
-        if (l.noSync()) {
-            l.enter();
-            try {
-                return l._saaj.detail_getDetailEntries(detail);
-            } finally {
-                l.exit();
-            }
-        } else {
-            synchronized (l) {
-                l.enter();
-                try {
-                    return l._saaj.detail_getDetailEntries(detail);
-                } finally {
-                    l.exit();
-                }
-            }
-        }
+        return syncWrap(d, p -> p.locale()._saaj.detail_getDetailEntries(detail));
     }
 
     //
@@ -5760,267 +3560,58 @@ public final class DomImpl {
     //
 
     public static void _soapPart_removeAllMimeHeaders(Dom d) {
-        Locale l = d.locale();
-
         SOAPPart sp = (SOAPPart) d;
-
-        if (l.noSync()) {
-            l.enter();
-            try {
-                l._saaj.soapPart_removeAllMimeHeaders(sp);
-            } finally {
-                l.exit();
-            }
-        } else {
-            synchronized (l) {
-                l.enter();
-                try {
-                    l._saaj.soapPart_removeAllMimeHeaders(sp);
-                } finally {
-                    l.exit();
-                }
-            }
-        }
+        syncWrapVoid(d, p -> p.locale()._saaj.soapPart_removeAllMimeHeaders(sp));
     }
 
     public static void _soapPart_removeMimeHeader(Dom d, String name) {
-        Locale l = d.locale();
-
         SOAPPart sp = (SOAPPart) d;
-
-        if (l.noSync()) {
-            l.enter();
-            try {
-                l._saaj.soapPart_removeMimeHeader(sp, name);
-            } finally {
-                l.exit();
-            }
-        } else {
-            synchronized (l) {
-                l.enter();
-                try {
-                    l._saaj.soapPart_removeMimeHeader(sp, name);
-                } finally {
-                    l.exit();
-                }
-            }
-        }
+        syncWrapVoid(d, p -> p.locale()._saaj.soapPart_removeMimeHeader(sp, name));
     }
 
     public static Iterator _soapPart_getAllMimeHeaders(Dom d) {
-        Locale l = d.locale();
-
         SOAPPart sp = (SOAPPart) d;
-
-        if (l.noSync()) {
-            l.enter();
-            try {
-                return l._saaj.soapPart_getAllMimeHeaders(sp);
-            } finally {
-                l.exit();
-            }
-        } else {
-            synchronized (l) {
-                l.enter();
-                try {
-                    return l._saaj.soapPart_getAllMimeHeaders(sp);
-                } finally {
-                    l.exit();
-                }
-            }
-        }
+        return syncWrap(d, p -> p.locale()._saaj.soapPart_getAllMimeHeaders(sp));
     }
 
     public static SOAPEnvelope _soapPart_getEnvelope(Dom d) {
-        Locale l = d.locale();
-
         SOAPPart sp = (SOAPPart) d;
-
-        if (l.noSync()) {
-            l.enter();
-            try {
-                return l._saaj.soapPart_getEnvelope(sp);
-            } finally {
-                l.exit();
-            }
-        } else {
-            synchronized (l) {
-                l.enter();
-                try {
-                    return l._saaj.soapPart_getEnvelope(sp);
-                } finally {
-                    l.exit();
-                }
-            }
-        }
+        return syncWrap(d, p -> p.locale()._saaj.soapPart_getEnvelope(sp));
     }
 
     public static Source _soapPart_getContent(Dom d) {
-        Locale l = d.locale();
-
         SOAPPart sp = (SOAPPart) d;
-
-        if (l.noSync()) {
-            l.enter();
-            try {
-                return l._saaj.soapPart_getContent(sp);
-            } finally {
-                l.exit();
-            }
-        } else {
-            synchronized (l) {
-                l.enter();
-                try {
-                    return l._saaj.soapPart_getContent(sp);
-                } finally {
-                    l.exit();
-                }
-            }
-        }
+        return syncWrap(d, p -> p.locale()._saaj.soapPart_getContent(sp));
     }
 
     public static void _soapPart_setContent(Dom d, Source source) {
-        Locale l = d.locale();
-
         SOAPPart sp = (SOAPPart) d;
-
-        if (l.noSync()) {
-            l.enter();
-            try {
-                l._saaj.soapPart_setContent(sp, source);
-            } finally {
-                l.exit();
-            }
-        } else {
-            synchronized (l) {
-                l.enter();
-                try {
-                    l._saaj.soapPart_setContent(sp, source);
-                } finally {
-                    l.exit();
-                }
-            }
-        }
+        syncWrapVoid(d, p -> p.locale()._saaj.soapPart_setContent(sp, source));
     }
 
     public static String[] _soapPart_getMimeHeader(Dom d, String name) {
-        Locale l = d.locale();
-
         SOAPPart sp = (SOAPPart) d;
-
-        if (l.noSync()) {
-            l.enter();
-            try {
-                return l._saaj.soapPart_getMimeHeader(sp, name);
-            } finally {
-                l.exit();
-            }
-        } else {
-            synchronized (l) {
-                l.enter();
-                try {
-                    return l._saaj.soapPart_getMimeHeader(sp, name);
-                } finally {
-                    l.exit();
-                }
-            }
-        }
+        return syncWrap(d, p -> p.locale()._saaj.soapPart_getMimeHeader(sp, name));
     }
 
     public static void _soapPart_addMimeHeader(Dom d, String name, String value) {
-        Locale l = d.locale();
-
         SOAPPart sp = (SOAPPart) d;
-
-        if (l.noSync()) {
-            l.enter();
-            try {
-                l._saaj.soapPart_addMimeHeader(sp, name, value);
-            } finally {
-                l.exit();
-            }
-        } else {
-            synchronized (l) {
-                l.enter();
-                try {
-                    l._saaj.soapPart_addMimeHeader(sp, name, value);
-                } finally {
-                    l.exit();
-                }
-            }
-        }
+        syncWrapVoid(d, p -> p.locale()._saaj.soapPart_addMimeHeader(sp, name, value));
     }
 
     public static void _soapPart_setMimeHeader(Dom d, String name, String value) {
-        Locale l = d.locale();
-
         SOAPPart sp = (SOAPPart) d;
-
-        if (l.noSync()) {
-            l.enter();
-            try {
-                l._saaj.soapPart_setMimeHeader(sp, name, value);
-            } finally {
-                l.exit();
-            }
-        } else {
-            synchronized (l) {
-                l.enter();
-                try {
-                    l._saaj.soapPart_setMimeHeader(sp, name, value);
-                } finally {
-                    l.exit();
-                }
-            }
-        }
+        syncWrapVoid(d, p -> p.locale()._saaj.soapPart_setMimeHeader(sp, name, value));
     }
 
     public static Iterator _soapPart_getMatchingMimeHeaders(Dom d, String[] names) {
-        Locale l = d.locale();
-
         SOAPPart sp = (SOAPPart) d;
-
-        if (l.noSync()) {
-            l.enter();
-            try {
-                return l._saaj.soapPart_getMatchingMimeHeaders(sp, names);
-            } finally {
-                l.exit();
-            }
-        } else {
-            synchronized (l) {
-                l.enter();
-                try {
-                    return l._saaj.soapPart_getMatchingMimeHeaders(sp, names);
-                } finally {
-                    l.exit();
-                }
-            }
-        }
+        return syncWrap(d, p -> p.locale()._saaj.soapPart_getMatchingMimeHeaders(sp, names));
     }
 
     public static Iterator _soapPart_getNonMatchingMimeHeaders(Dom d, String[] names) {
-        Locale l = d.locale();
-
         SOAPPart sp = (SOAPPart) d;
-
-        if (l.noSync()) {
-            l.enter();
-            try {
-                return l._saaj.soapPart_getNonMatchingMimeHeaders(sp, names);
-            } finally {
-                l.exit();
-            }
-        } else {
-            synchronized (l) {
-                l.enter();
-                try {
-                    return l._saaj.soapPart_getNonMatchingMimeHeaders(sp, names);
-                } finally {
-                    l.exit();
-                }
-            }
-        }
+        return syncWrap(d, p -> p.locale()._saaj.soapPart_getNonMatchingMimeHeaders(sp, names));
     }
 
     //
@@ -6032,25 +3623,7 @@ public final class DomImpl {
     }
 
     public static void saajCallback_setSaajData(Dom d, Object o) {
-        Locale l = d.locale();
-
-        if (l.noSync()) {
-            l.enter();
-            try {
-                impl_saajCallback_setSaajData(d, o);
-            } finally {
-                l.exit();
-            }
-        } else {
-            synchronized (l) {
-                l.enter();
-                try {
-                    impl_saajCallback_setSaajData(d, o);
-                } finally {
-                    l.exit();
-                }
-            }
-        }
+        syncWrapVoid(d, p -> impl_saajCallback_setSaajData(p, o));
     }
 
     public static void impl_saajCallback_setSaajData(Dom d, Object o) {
@@ -6078,25 +3651,7 @@ public final class DomImpl {
     }
 
     public static Object saajCallback_getSaajData(Dom d) {
-        Locale l = d.locale();
-
-        if (l.noSync()) {
-            l.enter();
-            try {
-                return impl_saajCallback_getSaajData(d);
-            } finally {
-                l.exit();
-            }
-        } else {
-            synchronized (l) {
-                l.enter();
-                try {
-                    return impl_saajCallback_getSaajData(d);
-                } finally {
-                    l.exit();
-                }
-            }
-        }
+        return syncWrap(d, DomImpl::impl_saajCallback_getSaajData);
     }
 
     public static Object impl_saajCallback_getSaajData(Dom d) {
@@ -6116,72 +3671,23 @@ public final class DomImpl {
     }
 
     public static Element saajCallback_createSoapElement(Dom d, QName name, QName parentName) {
-        Locale l = d.locale();
-
-        Dom e;
-
-        if (l.noSync()) {
-            l.enter();
-            try {
-                e = impl_saajCallback_createSoapElement(d, name, parentName);
-            } finally {
-                l.exit();
-            }
-        } else {
-            synchronized (l) {
-                l.enter();
-                try {
-                    e = impl_saajCallback_createSoapElement(d, name, parentName);
-                } finally {
-                    l.exit();
-                }
-            }
-        }
-
-        return (Element) e;
+        return syncWrap(d, p -> impl_saajCallback_createSoapElement(p, name, parentName));
     }
 
-    public static Dom impl_saajCallback_createSoapElement(Dom d, QName name, QName parentName) {
+    public static Element impl_saajCallback_createSoapElement(Dom d, QName name, QName parentName) {
         Cur c = d.locale().tempCur();
-
         c.createElement(name, parentName);
-
         Dom e = c.getDom();
-
         c.release();
-
-        return e;
-    }
-
-    public static Element saajCallback_importSoapElement(
-        Dom d, Element elem, boolean deep, QName parentName) {
-        Locale l = d.locale();
-
-        Dom e;
-
-        if (l.noSync()) {
-            l.enter();
-            try {
-                e = impl_saajCallback_importSoapElement(d, elem, deep, parentName);
-            } finally {
-                l.exit();
-            }
-        } else {
-            synchronized (l) {
-                l.enter();
-                try {
-                    e = impl_saajCallback_importSoapElement(d, elem, deep, parentName);
-                } finally {
-                    l.exit();
-                }
-            }
-        }
-
         return (Element) e;
     }
 
-    public static Dom impl_saajCallback_importSoapElement(
-        Dom d, Element elem, boolean deep, QName parentName) {
+    public static Element saajCallback_importSoapElement(Dom d, Element elem, boolean deep, QName parentName) {
+        return syncWrap(d, p -> impl_saajCallback_importSoapElement(p, elem, deep, parentName));
+    }
+
+    @SuppressWarnings("unused")
+    public static Element impl_saajCallback_importSoapElement(Dom d, Element elem, boolean deep, QName parentName) {
         // TODO -- need to rewrite DomImpl.document_importNode to use an Xcur
         // to create the new tree.  Then, I can pass the parentName to the new
         // fcn and use it to create the correct root parent
@@ -6191,38 +3697,16 @@ public final class DomImpl {
 
 
     public static Text saajCallback_ensureSoapTextNode(Dom d) {
-        Locale l = d.locale();
-
-        if (l.noSync()) {
-            l.enter();
-            try {
-                return impl_saajCallback_ensureSoapTextNode(d);
-            } finally {
-                l.exit();
-            }
-        } else {
-            synchronized (l) {
-                l.enter();
-                try {
-                    return impl_saajCallback_ensureSoapTextNode(d);
-                } finally {
-                    l.exit();
-                }
-            }
-        }
+        return syncWrap(d, DomImpl::impl_saajCallback_ensureSoapTextNode);
     }
 
     public static Text impl_saajCallback_ensureSoapTextNode(Dom d) {
-//        if (!(d instanceof Text))
-//        {
-//            Xcur x = d.tempCur();
-//
-//            x.moveTo
-//
-//            x.release();
-//        }
-//
-//        return (Text) d;
+        // if (!(d instanceof Text)) {
+        //     Xcur x = d.tempCur();
+        //     x.moveTo
+        //     x.release();
+        // }
+        // return (Text) d;
 
         return null;
     }
@@ -6232,5 +3716,77 @@ public final class DomImpl {
             super("DOM Level 3 Not implemented");
         }
     }
+
+
+    private interface WrapSoapEx<T> {
+        T get() throws SOAPException;
+    }
+
+    private static <T> T syncWrap(Dom d, Function<Dom, T> inner) {
+        return syncWrapHelper(d.locale(), true, () -> inner.apply(d));
+    }
+
+    private static <T> T syncWrapNoEnter(Dom d, Function<Dom, T> inner) {
+        return syncWrapHelper(d.locale(), false, () -> inner.apply(d));
+    }
+
+    private static void syncWrapVoid(Dom d, Consumer<Dom> inner) {
+        syncWrapHelper(d.locale(), true, () -> {
+            inner.accept(d);
+            return null;
+        });
+    }
+
+    private static <T> T syncWrapEx(Dom d, WrapSoapEx<T> inner) throws SOAPException {
+        return syncWrapHelperEx(d.locale(), true, inner);
+    }
+
+    private static <T> T syncWrapHelper(Locale l, boolean enter, Supplier<T> inner) {
+        if (l.noSync()) {
+            return syncWrapHelper2(l, enter, inner);
+        } else {
+            synchronized (l) {
+                return syncWrapHelper2(l, enter, inner);
+            }
+        }
+    }
+
+    private static <T> T syncWrapHelper2(Locale l, boolean enter, Supplier<T> inner) {
+        if (enter) {
+            l.enter();
+        }
+        try {
+            return inner.get();
+        } finally {
+            if (enter) {
+                l.exit();
+            }
+        }
+    }
+
+    private static <T> T syncWrapHelperEx(Locale l, boolean enter, WrapSoapEx<T> inner) throws SOAPException {
+        if (l.noSync()) {
+            return syncWrapHelperEx2(l, enter, inner);
+        } else {
+            synchronized (l) {
+                return syncWrapHelperEx2(l, enter, inner);
+            }
+        }
+    }
+
+    private static <T> T syncWrapHelperEx2(Locale l, boolean enter, WrapSoapEx<T> inner) throws SOAPException {
+        if (enter) {
+            l.enter();
+        }
+        try {
+            return inner.get();
+        } finally {
+            if (enter) {
+                l.exit();
+            }
+        }
+    }
+
+
 }
 
