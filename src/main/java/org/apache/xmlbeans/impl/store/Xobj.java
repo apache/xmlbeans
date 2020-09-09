@@ -31,29 +31,19 @@ import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+
+import static org.apache.xmlbeans.impl.store.Cur.*;
 
 // DOM Level 3
 
 abstract class Xobj implements TypeStore {
-    static final int TEXT = Cur.TEXT;
-    static final int ROOT = Cur.ROOT;
-    static final int ELEM = Cur.ELEM;
-    static final int ATTR = Cur.ATTR;
-    static final int COMMENT = Cur.COMMENT;
-    static final int PROCINST = Cur.PROCINST;
-
-    static final int END_POS = Cur.END_POS;
-    static final int NO_POS = Cur.NO_POS;
 
     Xobj(Locale l, int kind, int domType) {
         assert kind == ROOT || kind == ELEM || kind == ATTR || kind == COMMENT || kind == PROCINST;
 
         _locale = l;
         _bits = (domType << 4) + kind;
-    }
-
-    final boolean entered() {
-        return _locale.entered();
     }
 
     final int kind() {
@@ -99,10 +89,6 @@ abstract class Xobj implements TypeStore {
 
     final boolean isXmlns() {
         return isAttr() && Locale.isXmlns(_name);
-    }
-
-    final int cchValue() {
-        return _cchValue;
     }
 
     final int cchAfter() {
@@ -209,8 +195,6 @@ abstract class Xobj implements TypeStore {
     /**
      * can one use the _firstChild pointer to retrieve
      * the first DOM child
-     *
-     * @return
      */
     final protected boolean isFirstChildPtrDomUsable() {
         if (_firstChild == null &&
@@ -233,8 +217,6 @@ abstract class Xobj implements TypeStore {
     /**
      * can one use the _nextSibling pointer to retrieve
      * the next DOM sibling
-     *
-     * @return
      */
     final protected boolean isNextSiblingPtrDomUsable() {
         if (_charNodesAfter == null &&
@@ -250,18 +232,13 @@ abstract class Xobj implements TypeStore {
     /**
      * can one use the _charNodesValue pointer to retrieve
      * the next DOM sibling
-     *
-     * @return
      */
     final protected boolean isExistingCharNodesValueUsable() {
         if (_srcValue == null) {
             return false;
         }
-        if (_charNodesValue != null && _charNodesValue._next == null
-            && _charNodesValue._cch == _cchValue) {
-            return true;
-        }
-        return false;
+        return _charNodesValue != null && _charNodesValue._next == null
+               && _charNodesValue._cch == _cchValue;
     }
 
     final protected boolean isCharNodesValueUsable() {
@@ -274,8 +251,6 @@ abstract class Xobj implements TypeStore {
     /**
      * can one use the _charNodesAfter pointer to retrieve
      * the next DOM sibling
-     *
-     * @return
      */
     final protected boolean isCharNodesAfterUsable() {
         if (_srcAfter == null) {
@@ -357,7 +332,7 @@ abstract class Xobj implements TypeStore {
     }
 
     public void dump(PrintStream o, Object ref) {
-        Cur.dump(o, (Xobj) this, ref);
+        Cur.dump(o, this, ref);
     }
 
     public void dump(PrintStream o) {
@@ -404,7 +379,7 @@ abstract class Xobj implements TypeStore {
             offset = 0;
         }
 
-        return xIn == this && pIn >= p && pIn < p + (cch < 0 ? cchRight(p) : cch) + offset;
+        return xIn == this && pIn >= p && pIn < p + cch + offset;
     }
 
     // Is x/p just after the end of this
@@ -639,11 +614,7 @@ abstract class Xobj implements TypeStore {
     }
 
     final boolean isValid() {
-        if (isVacant() && (_cchValue != 0 || _user == null)) {
-            return false;
-        }
-
-        return true;
+        return !isVacant() || (_cchValue == 0 && _user != null);
     }
 
     final int posTemp() {
@@ -676,7 +647,6 @@ abstract class Xobj implements TypeStore {
     // left!
 
     final Xobj getDenormal(int p) {
-        assert END_POS == -1;
         assert !isRoot() || p == END_POS || p > 0;
 
         Xobj x = this;
@@ -730,11 +700,7 @@ abstract class Xobj implements TypeStore {
             }
         }
 
-        if (p == posAfter() - 1) {
-            return false;
-        }
-
-        return true;
+        return p != posAfter() - 1;
     }
 
     final Xobj walk(Xobj root, boolean walkChildren) {
@@ -751,7 +717,7 @@ abstract class Xobj implements TypeStore {
         return null;
     }
 
-    final Xobj removeXobj() {
+    final void removeXobj() {
         if (_parent != null) {
             if (_parent._firstChild == this) {
                 _parent._firstChild = _nextSibling;
@@ -774,10 +740,9 @@ abstract class Xobj implements TypeStore {
             _nextSibling = null;
         }
 
-        return this;
     }
 
-    final Xobj insertXobj(Xobj s) {
+    final void insertXobj(Xobj s) {
         assert _locale == s._locale;
         assert !s.isRoot() && !isRoot();
         assert s._parent == null;
@@ -798,7 +763,6 @@ abstract class Xobj implements TypeStore {
 
         _prevSibling = s;
 
-        return this;
     }
 
     final Xobj appendXobj(Xobj c) {
@@ -900,20 +864,6 @@ abstract class Xobj implements TypeStore {
         }
     }
 
-    static final void disbandXobjs(Xobj first, Xobj last) {
-        assert last._locale == first._locale;
-        assert first._parent == null && last._parent == null;
-        assert first._prevSibling == null;
-        assert last._nextSibling == null;
-        assert !first.isRoot();
-
-        while (first != null) {
-            Xobj next = first._nextSibling;
-            first._nextSibling = first._prevSibling = null;
-            first = next;
-        }
-    }
-
     // Potential attr is going to be moved/removed, invalidate parent if it is a special attr
 
     final void invalidateSpecialAttr(Xobj newParent) {
@@ -1002,8 +952,6 @@ abstract class Xobj implements TypeStore {
         // no bookmarks in the span of text to be removed.
 
         for (Bookmark b = _bookmarks; b != null; ) {
-            Bookmark next = b._next;
-
             // Similarly, as above, I can't call inChars here
 
             assert b._xobj == this;
@@ -1253,42 +1201,6 @@ abstract class Xobj implements TypeStore {
 
     String getValueAsString() {
         return getValueAsString(Locale.WS_PRESERVE);
-    }
-
-    String getString(int p, int cch) {
-        int cchRight = cchRight(p);
-
-        if (cchRight == 0) {
-            return "";
-        }
-
-        if (cch < 0 || cch > cchRight) {
-            cch = cchRight;
-        }
-
-        int pa = posAfter();
-
-        assert p > 0;
-
-        String s;
-
-        if (p >= pa) {
-            s = CharUtil.getString(_srcAfter, _offAfter + p - pa, cch);
-
-            if (p == pa && cch == _cchAfter) {
-                _srcAfter = s;
-                _offAfter = 0;
-            }
-        } else {
-            s = CharUtil.getString(_srcValue, _offValue + p - 1, cch);
-
-            if (p == 1 && cch == _cchValue) {
-                _srcValue = s;
-                _offValue = 0;
-            }
-        }
-
-        return s;
     }
 
     // Returns just chars just after the begin tag ... does not get all the text if there are
@@ -1872,7 +1784,7 @@ abstract class Xobj implements TypeStore {
 
         try {
             Cur c = tempCur();
-            Validate validate = new Validate(c, eventSink);
+            new Validate(c, eventSink);
             c.release();
         } finally {
             _locale.exit();
@@ -2072,7 +1984,8 @@ abstract class Xobj implements TypeStore {
         return null;
     }
 
-    public void find_all_element_users(QName name, List fillMeUp) {
+    @Override
+    public void find_all_element_users(QName name, List<TypeStoreUser> fillMeUp) {
         for (Xobj x = _firstChild; x != null; x = x._nextSibling) {
             if (x.isElem() && x._name.equals(name)) {
                 fillMeUp.add(x.getUser());
@@ -2080,7 +1993,8 @@ abstract class Xobj implements TypeStore {
         }
     }
 
-    public void find_all_element_users(QNameSet names, List fillMeUp) {
+    @Override
+    public void find_all_element_users(QNameSet names, List<TypeStoreUser> fillMeUp) {
         for (Xobj x = _firstChild; x != null; x = x._nextSibling) {
             if (x.isElem() && names.contains(x._name)) {
                 fillMeUp.add(x.getUser());
@@ -2346,7 +2260,6 @@ abstract class Xobj implements TypeStore {
     public TypeStoreUser copy(SchemaTypeLoader stl, SchemaType type, XmlOptions options) {
         //do not use a user's Factory method for copying.
         //XmlFactoryHook hook = XmlFactoryHook.ThreadContext.getHook();
-        Xobj destination = null;
         options = XmlOptions.maskNull(options);
         SchemaType sType = options.getDocumentType();
 
@@ -2359,11 +2272,8 @@ abstract class Xobj implements TypeStore {
             locale = Locale.getLocale(stl, options);
         }
 
-        if (sType.isDocumentType() || (sType.isNoType() && (this instanceof DocumentXobj))) {
-            destination = Cur.createDomDocumentRootXobj(locale, false);
-        } else {
-            destination = Cur.createDomDocumentRootXobj(locale, true);
-        }
+        boolean isFragment = !sType.isDocumentType() && !(sType.isNoType() && (this instanceof DocumentXobj));
+        Xobj destination = Cur.createDomDocumentRootXobj(locale, isFragment);
 
 
         locale.enter();
@@ -2375,8 +2285,7 @@ abstract class Xobj implements TypeStore {
             locale.exit();
         }
 
-        TypeStoreUser tsu = destination.copy_contents_from(this);
-        return tsu;
+        return destination.copy_contents_from(this);
     }
 
     public void array_setter(XmlObject[] sources, QName elementName) {
@@ -2387,19 +2296,19 @@ abstract class Xobj implements TypeStore {
 
             int m = sources.length;
 
-            ArrayList copies = new ArrayList();
-            ArrayList types = new ArrayList();
+            List<Xobj> copies = new ArrayList<>();
+            List<SchemaType> types = new ArrayList<>();
 
-            for (int i = 0; i < m; i++) {
+            for (XmlObject source : sources) {
                 // TODO - deal with null sources[ i ] here -- what to do?
 
-                if (sources[i] == null) {
+                if (source == null) {
                     throw new IllegalArgumentException("Array element null");
-                } else if (sources[i].isImmutable()) {
+                } else if (source.isImmutable()) {
                     copies.add(null);
                     types.add(null);
                 } else {
-                    Xobj x = ((Xobj) ((TypeStoreUser) sources[i]).get_store());
+                    Xobj x = ((Xobj) ((TypeStoreUser) source).get_store());
 
                     if (x._locale == _locale) {
                         copies.add(x.copyNode(_locale));
@@ -2413,7 +2322,7 @@ abstract class Xobj implements TypeStore {
                         }
                     }
 
-                    types.add(sources[i].schemaType());
+                    types.add(source.schemaType());
                 }
             }
 
@@ -2429,20 +2338,21 @@ abstract class Xobj implements TypeStore {
 
             assert m == n;
 
-            ArrayList elements = new ArrayList();
+            List<TypeStoreUser> elementsUser = new ArrayList<>();
 
-            find_all_element_users(elementName, elements);
+            find_all_element_users(elementName, elementsUser);
 
-            for (int i = 0; i < elements.size(); i++) {
-                elements.set(i, (Xobj) ((TypeStoreUser) elements.get(i)).get_store());
-            }
+            List<Xobj> elements = elementsUser.stream()
+                .map(TypeStoreUser::get_store)
+                .map(x -> (Xobj)x)
+                .collect(Collectors.toList());
 
             assert elements.size() == n;
 
             Cur c = tempCur();
 
             for (int i = 0; i < n; i++) {
-                Xobj x = (Xobj) elements.get(i);
+                Xobj x = elements.get(i);
 
                 if (sources[i].isImmutable()) {
                     x.getObject().set(sources[i]);
@@ -2452,9 +2362,9 @@ abstract class Xobj implements TypeStore {
                     c.moveTo(x);
                     c.next();
 
-                    Cur.moveNodeContents((Xobj) copies.get(i), c, true);
+                    Cur.moveNodeContents(copies.get(i), c, true);
 
-                    x.change_type((SchemaType) types.get(i));
+                    x.change_type(types.get(i));
                 }
             }
 
@@ -2468,7 +2378,7 @@ abstract class Xobj implements TypeStore {
         throw new RuntimeException("Not implemeneted");
     }
 
-    public XmlObject[] exec_query(String queryExpr, XmlOptions options) throws XmlException {
+    public XmlObject[] exec_query(String queryExpr, XmlOptions options) {
         _locale.enter();
 
         try {

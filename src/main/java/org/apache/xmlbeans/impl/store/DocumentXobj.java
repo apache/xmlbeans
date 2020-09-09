@@ -17,6 +17,8 @@ package org.apache.xmlbeans.impl.store;
 
 import org.w3c.dom.*;
 
+import static org.apache.xmlbeans.impl.store.Cur.ROOT;
+
 class DocumentXobj extends NodeXobj implements Document {
     DocumentXobj(Locale l) {
         super(l, ROOT, DomImpl.DOCUMENT);
@@ -79,9 +81,13 @@ class DocumentXobj extends NodeXobj implements Document {
     }
 
     public Element getElementById(String elementId) {
-        if (_idToElement == null) return null;
+        if (_idToElement == null) {
+            return null;
+        }
         Xobj o = (Xobj) _idToElement.get(elementId);
-        if (o == null) return null;
+        if (o == null) {
+            return null;
+        }
         if (!isInSameTree(o)) {
             _idToElement.remove(elementId);
         }
@@ -162,15 +168,17 @@ class DocumentXobj extends NodeXobj implements Document {
     }
 
     protected void addIdElement(String idVal, DomImpl.Dom e) {
-        if (_idToElement == null)
-            _idToElement = new java.util.Hashtable();
+        if (_idToElement == null) {
+            _idToElement = new java.util.Hashtable<>();
+        }
         _idToElement.put(idVal, e);
     }
 
     void removeIdElement(String idVal) {
-        if (_idToElement != null)
+        if (_idToElement != null) {
             _idToElement.remove(idVal);
+        }
     }
 
-    private java.util.Hashtable _idToElement;
+    private java.util.Hashtable<String,DomImpl.Dom> _idToElement;
 }

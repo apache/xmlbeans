@@ -18,6 +18,8 @@ package org.apache.xmlbeans.impl.store;
 import org.w3c.dom.Node;
 import org.w3c.dom.ProcessingInstruction;
 
+import static org.apache.xmlbeans.impl.store.Cur.PROCINST;
+
 class ProcInstXobj extends NodeXobj implements ProcessingInstruction {
     ProcInstXobj(Locale l, String target) {
         super(l, PROCINST, DomImpl.PROCINST);

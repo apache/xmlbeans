@@ -22,6 +22,8 @@ import org.w3c.dom.TypeInfo;
 
 import javax.xml.namespace.QName;
 
+import static org.apache.xmlbeans.impl.store.Cur.ATTR;
+
 class AttrXobj extends NamedNodeXobj implements Attr {
     AttrXobj(Locale l, QName name) {
         super(l, ATTR, DomImpl.ATTR);

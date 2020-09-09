@@ -302,7 +302,7 @@ public final class Cur {
             return new ElementXobj(l, name);
         }
 
-        Class c = l._saaj.identifyElement(name, parentName);
+        Class<?> c = l._saaj.identifyElement(name, parentName);
 
         if (c == SOAPElement.class) {
             return new SoapElementXobj(l, name);
@@ -1204,7 +1204,6 @@ public final class Cur {
 
         //noinspection StatementWithEmptyBody
         while (toNextAttr()) {
-            ;
         }
 
         return true;
@@ -2851,7 +2850,7 @@ public final class Cur {
 
         private QName checkName(QName name, boolean local) {
             if (_substituteNamespaces != null && (!local || name.getNamespaceURI().length() > 0)) {
-                String substituteUri = (String) _substituteNamespaces.get(name.getNamespaceURI());
+                String substituteUri = _substituteNamespaces.get(name.getNamespaceURI());
 
                 if (substituteUri != null) {
                     name = _locale.makeQName(substituteUri, name.getLocalPart(), name.getPrefix());
@@ -2890,7 +2889,7 @@ public final class Cur {
             // I change their value!
 
             if (_substituteNamespaces != null) {
-                String substituteUri = (String) _substituteNamespaces.get(uri);
+                String substituteUri = _substituteNamespaces.get(uri);
 
                 if (substituteUri != null) {
                     uri = substituteUri;
@@ -3078,7 +3077,6 @@ public final class Cur {
 
                     //noinspection StatementWithEmptyBody
                     while (c.toParent()) {
-                        ;
                     }
 
                     c.next();
@@ -3187,13 +3185,13 @@ public final class Cur {
         private Xobj _lastXobj;
         private int _lastPos;
 
-        private boolean _discardDocElem;
-        private QName _replaceDocElem;
+        private final boolean _discardDocElem;
+        private final QName _replaceDocElem;
         private final boolean _stripWhitespace;
         private final boolean _stripComments;
         private final boolean _stripProcinsts;
-        private final Map _substituteNamespaces;
-        private final Map _additionalNamespaces;
+        private final Map<String,String> _substituteNamespaces;
+        private final Map<String,String> _additionalNamespaces;
 
         private String _doctypeName;
         private String _doctypePublicId;

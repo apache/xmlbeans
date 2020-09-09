@@ -19,6 +19,8 @@ import org.w3c.dom.Comment;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import static org.apache.xmlbeans.impl.store.Cur.COMMENT;
+
 class CommentXobj extends NodeXobj implements Comment {
     CommentXobj(Locale l) {
         super(l, COMMENT, DomImpl.COMMENT);

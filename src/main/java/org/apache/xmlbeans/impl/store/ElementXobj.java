@@ -19,6 +19,8 @@ import org.w3c.dom.*;
 
 import javax.xml.namespace.QName;
 
+import static org.apache.xmlbeans.impl.store.Cur.ELEM;
+
 class ElementXobj extends NamedNodeXobj implements Element {
     ElementXobj(Locale l, QName name) {
         super(l, ELEM, DomImpl.ELEMENT);

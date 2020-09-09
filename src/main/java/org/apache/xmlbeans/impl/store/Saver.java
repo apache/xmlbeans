@@ -110,7 +110,7 @@ abstract class Saver {
         // If the default prefix has not been mapped, do so now
 
         if (getNamespaceForPrefix("") == null) {
-            _initialDefaultUri = new String("");
+            _initialDefaultUri = "";
             addMapping("", _initialDefaultUri);
         }
 
@@ -262,7 +262,7 @@ abstract class Saver {
             (ch >= 0x20 && ch <= 0xD7FF) ||
             (ch >= 0xE000 && ch <= 0xFFFD) ||
             // TODO: ch >= 0x10000 && ch <= 0x10FFFF is always false for a char, use codepoints/ints
-            (ch >= 0x10000 && ch <= 0x10FFFF) ||
+            // (ch >= 0x10000 && ch <= 0x10FFFF) ||
             (ch == 0x9) || (ch == 0xA) || (ch == 0xD)
         );
     }
@@ -2733,7 +2733,7 @@ abstract class Saver {
 
             String prefix = null;
 
-            if (uri != null && uri.length() != 0) {
+            if (!uri.isEmpty()) {
                 prefix = name.getPrefix();
                 String mappedUri = saver.getNamespaceForPrefix(prefix);
 

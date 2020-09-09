@@ -547,12 +547,7 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
                     new XmlRuntimeException(
                         "Cannot do XQuery on XML Value Objects");
             }
-
-            try {
-                return _typedArray(typeStore.exec_query(queryExpr, options));
-            } catch (XmlException e) {
-                throw new XmlRuntimeException(e);
-            }
+            return _typedArray(typeStore.exec_query(queryExpr, options));
         }
     }
 

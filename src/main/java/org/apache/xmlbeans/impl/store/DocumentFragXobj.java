@@ -17,6 +17,8 @@ package org.apache.xmlbeans.impl.store;
 
 import org.w3c.dom.DocumentFragment;
 
+import static org.apache.xmlbeans.impl.store.Cur.ROOT;
+
 class DocumentFragXobj extends NodeXobj implements DocumentFragment {
     DocumentFragXobj(Locale l) {
         super(l, ROOT, DomImpl.DOCFRAG);

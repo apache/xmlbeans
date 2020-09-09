@@ -15,18 +15,12 @@
 
 package org.apache.xmlbeans.impl.values;
 
-import org.apache.xmlbeans.SchemaField;
-import org.apache.xmlbeans.SchemaType;
-import org.apache.xmlbeans.SchemaTypeLoader;
-import org.apache.xmlbeans.XmlCursor;
-import org.apache.xmlbeans.XmlOptions;
-import org.apache.xmlbeans.XmlObject;
-import org.apache.xmlbeans.XmlException;
-import org.apache.xmlbeans.QNameSet;
-import java.util.List;
-import javax.xml.namespace.QName;
+import org.apache.xmlbeans.*;
 import org.apache.xmlbeans.impl.common.ValidatorListener;
 import org.apache.xmlbeans.impl.common.XmlLocale;
+
+import javax.xml.namespace.QName;
+import java.util.List;
 
 public interface TypeStore extends NamespaceManager
 {
@@ -81,10 +75,10 @@ public interface TypeStore extends NamespaceManager
     // BUGBUG (ericvas) 12111
     String fetch_text(int whitespaceRule);
 
-    public static int WS_UNSPECIFIED = 0;
-    public static int WS_PRESERVE = 1;
-    public static int WS_REPLACE = 2;
-    public static int WS_COLLAPSE = 3;
+    int WS_UNSPECIFIED = 0;
+    int WS_PRESERVE = 1;
+    int WS_REPLACE = 2;
+    int WS_COLLAPSE = 3;
 
     /**
      * A user of a TypeStore calls store_text when he wants the TypeStore
@@ -132,9 +126,9 @@ public interface TypeStore extends NamespaceManager
      */
     SchemaField get_schema_field();
 
-    public static final int NILLABLE = 1;
-    public static final int HASDEFAULT = 2;
-    public static final int FIXED = 4; // always set with HASDEFAULT
+    int NILLABLE = 1;
+    int HASDEFAULT = 2;
+    int FIXED = 4; // always set with HASDEFAULT
 
     /**
      * Called when the value has been nilled or unnilled, so the textstore
@@ -170,11 +164,6 @@ public interface TypeStore extends NamespaceManager
      * and then follow with an add_element_etc if we choose to,
      * without randomly catching exceptions.
      */
-// BUGBUG - this should be called find_element
-// BUGBUG - this should be called find_element
-// BUGBUG - this should be called find_element
-// BUGBUG - this should be called find_element
-// BUGBUG - this should be called find_element
     TypeStoreUser find_element_user(QName name, int i);
 
     /**
@@ -187,18 +176,14 @@ public interface TypeStore extends NamespaceManager
      * given name owned by this typestore, or the empty array of
      * TypeStoreUsers if none was found.
      */
-// BUGBUG - this should be called find_all_element
-// BUGBUG - this should be called find_all_element
-// BUGBUG - this should be called find_all_element
-// BUGBUG - this should be called find_all_element
-    void find_all_element_users(QName name, List fillMeUp);
+    void find_all_element_users(QName name, List<TypeStoreUser> fillMeUp);
 
 
     /**
      * Returns all TypeStoreUsers corresponding to elements with one
      * of the names is the QNameSet.
      */
-    void find_all_element_users(QNameSet name, List fillMeUp);
+    void find_all_element_users(QNameSet name, List<TypeStoreUser> fillMeUp);
 
     /**
      * Inserts a new element at the position that will make it
@@ -214,10 +199,6 @@ public interface TypeStore extends NamespaceManager
      * Should throw an IndexOutOfBoundsException if i < 0
      * or if i > # of elts
      */
-
-// BUGBUG - this should be called insert_element
-// BUGBUG - this should be called insert_element
-// BUGBUG - this should be called insert_element
     TypeStoreUser insert_element_user(QName name, int i);
 
     /**
@@ -233,10 +214,6 @@ public interface TypeStore extends NamespaceManager
      * Note that if there are no existing elements of the given
      * name, the same comment applies as with insert_element_user.
      */
-// BUGBUG - this should be called add_element
-// BUGBUG - this should be called add_element
-// BUGBUG - this should be called add_element
-// BUGBUG - this should be called add_element
     TypeStoreUser add_element_user(QName name);
 
     /**
@@ -327,7 +304,7 @@ public interface TypeStore extends NamespaceManager
      * 3. if i >= m and i < n, then the element #i and all its contents
      *    are removed.
      */
-    
+
     void array_setter ( XmlObject[] sources, QName elementName );
 
     /**
@@ -336,13 +313,12 @@ public interface TypeStore extends NamespaceManager
      */
     void visit_elements(TypeStoreVisitor visitor);
 
-    XmlObject[] exec_query ( String queryExpr, XmlOptions options )
-        throws XmlException;
+    XmlObject[] exec_query ( String queryExpr, XmlOptions options );
 
     /**
      * Returns the monitor object, used for synchronizing access to the doc.
      * @deprecated
-     */ 
+     */
     Object get_root_object();
 
     /**

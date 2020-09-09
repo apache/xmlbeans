@@ -17,89 +17,68 @@ package org.apache.xmlbeans.impl.tool;
 
 import org.apache.xmlbeans.SystemProperties;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Iterator;
-import java.util.Arrays;
-import java.io.File;
-import java.io.InputStream;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.io.FileFilter;
-import java.io.FileWriter;
+import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
 
-public class CodeGenUtil
-{
-    public static String DEFAULT_MEM_START = "8m";
-    public static String DEFAULT_MEM_MAX = "256m";
-    public static String DEFAULT_COMPILER = "javac";
-    public static String DEFAULT_JAR = "jar";
+public class CodeGenUtil {
+    public static final String DEFAULT_MEM_START = "8m";
+    public static final String DEFAULT_MEM_MAX = "256m";
+    public static final String DEFAULT_COMPILER = "javac";
+    public static final String DEFAULT_JAR = "jar";
 
     //workaround for Sun bug # 4723726
-    public static URI resolve(URI base, URI child)
-    {
+    public static URI resolve(URI base, URI child) {
         URI ruri = base.resolve(child);
-        
+
         //fix up normalization bug
-        if ("file".equals(ruri.getScheme()) && ! child.equals(ruri))
-        {
-            if (base.getPath().startsWith("//") && !ruri.getPath().startsWith("//"))
-            {
+        if ("file".equals(ruri.getScheme()) && !child.equals(ruri)) {
+            if (base.getPath().startsWith("//") && !ruri.getPath().startsWith("//")) {
                 String path = "///".concat(ruri.getPath());
-                try
-                {
+                try {
                     ruri = new URI("file", null, path, ruri.getQuery(), ruri.getFragment());
+                } catch (URISyntaxException ignored) {
                 }
-                catch(URISyntaxException uris)
-                {}
             }
         }
         return ruri;
     }
-    
-    static void addAllJavaFiles(List srcFiles, List args)
-    {
-        for (Iterator i = srcFiles.iterator(); i.hasNext(); )
-        {
-            File f = (File)i.next();
-            if (!f.isDirectory())
-            {
+
+    static void addAllJavaFiles(List<File> srcFiles, List<String> args) {
+        for (File f : srcFiles) {
+            if (f.isDirectory()) {
+                File[] files = f.listFiles(
+                    file -> (file.isFile() && file.getName().endsWith(".java")) || file.isDirectory()
+                );
+                if (files != null) {
+                    addAllJavaFiles(Arrays.asList(files), args);
+                }
+            } else {
                 args.add(quoteAndEscapeFilename(f.getAbsolutePath()));
-            }
-            else
-            {
-                List inside = (Arrays.asList(f.listFiles(
-                    new FileFilter()
-                    {
-                        public boolean accept(File file)
-                            { return (file.isFile() && file.getName().endsWith(".java")) || file.isDirectory(); }
-                    }
-                )));
-                addAllJavaFiles(inside, args);
             }
         }
     }
 
-    static private String quoteAndEscapeFilename(String filename)
-    {
+    static private String quoteAndEscapeFilename(String filename) {
         // don't quote if there's no space
-        if (filename.indexOf(" ") < 0)
+        if (!filename.contains(" ")) {
             return filename;
+        }
 
         // bizarre.  javac expects backslash escaping if we quote the classpath
         // bizarre also.  replaceAll expects replacement backslashes to be double escaped.
         return "\"" + filename.replaceAll("\\\\", "\\\\\\\\") + "\"";
     }
 
-    static private String quoteNoEscapeFilename(String filename)
-    {
+    static private String quoteNoEscapeFilename(String filename) {
         // don't quote if there's no space, and don't quote on linux
-        if (filename.indexOf(" ") < 0 || File.separatorChar == '/')
-            return filename;
-
-        return "\"" + filename + "\"";
+        return (!filename.contains(" ") || File.separatorChar == '/') ? filename : "\"" + filename + "\"";
     }
 
     /**
@@ -110,48 +89,40 @@ public class CodeGenUtil
      *
      * @deprecated
      */
-    static public boolean externalCompile(List srcFiles, File outdir, File[] cp, boolean debug)
-    {
+    public static boolean externalCompile(List<File> srcFiles, File outdir, File[] cp, boolean debug) {
         return externalCompile(srcFiles, outdir, cp, debug, DEFAULT_COMPILER, null, DEFAULT_MEM_START, DEFAULT_MEM_MAX, false, false);
     }
 
     // KHK: temporary to avoid build break
-    static public boolean externalCompile(List srcFiles, File outdir, File[] cp, boolean debug, String javacPath, String memStart, String memMax,  boolean quiet, boolean verbose)
-    {
+    public static boolean externalCompile(List<File> srcFiles, File outdir, File[] cp, boolean debug, String javacPath, String memStart, String memMax, boolean quiet, boolean verbose) {
         return externalCompile(srcFiles, outdir, cp, debug, javacPath, null, memStart, memMax, quiet, verbose);
     }
-    
+
     /**
      * Invokes javac on the generated source files in order to turn them
      * into binary files in the output directory.  This will return a list of
      * <code>GenFile</code>s for all of the classes produced or null if an
      * error occurred.
      */
-    static public boolean externalCompile(List srcFiles, File outdir, File[] cp, boolean debug, String javacPath, String genver, String memStart, String memMax,  boolean quiet, boolean verbose)
-    {
-        List args = new ArrayList();
+    public static boolean externalCompile(List<File> srcFiles, File outdir, File[] cp, boolean debug, String javacPath, String genver, String memStart, String memMax, boolean quiet, boolean verbose) {
+        List<String> args = new ArrayList<>();
 
         File javac = findJavaTool(javacPath == null ? DEFAULT_COMPILER : javacPath);
         assert (javac.exists()) : "compiler not found " + javac;
         args.add(javac.getAbsolutePath());
 
-        if (outdir == null)
-        {
+        if (outdir == null) {
             outdir = new File(".");
-        }
-        else
-        {
+        } else {
             args.add("-d");
             args.add(quoteAndEscapeFilename(outdir.getAbsolutePath()));
         }
 
-        if (cp == null)
-        {
+        if (cp == null) {
             cp = systemClasspath();
         }
 
-        if (cp.length > 0)
-        {
+        if (cp.length > 0) {
             StringBuilder classPath = new StringBuilder();
             // Add the output directory to the classpath.  We do this so that
             // javac will be able to find classes that were compiled
@@ -159,10 +130,9 @@ public class CodeGenUtil
             classPath.append(outdir.getAbsolutePath());
 
             // Add everything on our classpath.
-            for (int i = 0; i < cp.length; i++)
-            {
+            for (File file : cp) {
                 classPath.append(File.pathSeparator);
-                classPath.append(cp[i].getAbsolutePath());
+                classPath.append(file.getAbsolutePath());
             }
 
             args.add("-classpath");
@@ -171,8 +141,9 @@ public class CodeGenUtil
             args.add(quoteAndEscapeFilename(classPath.toString()));
         }
 
-        if (genver == null)
+        if (genver == null) {
             genver = "1.8";
+        }
 
         args.add("-source");
         args.add(genver);
@@ -182,49 +153,47 @@ public class CodeGenUtil
 
         args.add(debug ? "-g" : "-g:none");
 
-        if (verbose)
+        if (verbose) {
             args.add("-verbose");
+        }
 
         addAllJavaFiles(srcFiles, args);
 
         File clFile = null;
-        try
-        {
+        try {
             clFile = File.createTempFile("javac", "");
-            FileWriter fw = new FileWriter(clFile);
-            Iterator i = args.iterator();
-            for (i.next(); i.hasNext();)
-            {
-                String arg = (String)i.next();
-                fw.write(arg);
-                fw.write('\n');
+            try (Writer fw = Files.newBufferedWriter(clFile.toPath(), StandardCharsets.ISO_8859_1)) {
+                Iterator<String> i = args.iterator();
+                for (i.next(); i.hasNext(); ) {
+                    String arg = i.next();
+                    fw.write(arg);
+                    fw.write('\n');
+                }
             }
-            fw.close();
-            List newargs = new ArrayList();
+            List<String> newargs = new ArrayList<>();
             newargs.add(args.get(0));
-            
-            if (memStart != null && memStart.length() != 0)
+
+            if (memStart != null && memStart.length() != 0) {
                 newargs.add("-J-Xms" + memStart);
-            if (memMax != null && memMax.length() != 0)
+            }
+            if (memMax != null && memMax.length() != 0) {
                 newargs.add("-J-Xmx" + memMax);
-            
+            }
+
             newargs.add("@" + clFile.getAbsolutePath());
             args = newargs;
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             System.err.println("Could not create command-line file for javac");
         }
 
-        try
-        {
-            String[] strArgs = (String[]) args.toArray(new String[args.size()]);
+        try {
+            String[] strArgs = args.toArray(new String[0]);
 
-            if (verbose)
-            {
+            if (verbose) {
                 System.out.print("compile command:");
-                for (int i = 0; i < strArgs.length; i++)
-                    System.out.print(" " + strArgs[i]);
+                for (String strArg : strArgs) {
+                    System.out.print(" " + strArg);
+                }
                 System.out.println();
             }
 
@@ -233,13 +202,12 @@ public class CodeGenUtil
             StringBuilder errorBuffer = new StringBuilder();
             StringBuilder outputBuffer = new StringBuilder();
 
-            ThreadedReader out = new ThreadedReader(proc.getInputStream(), outputBuffer);
-            ThreadedReader err = new ThreadedReader(proc.getErrorStream(), errorBuffer);
+            Thread out = copy(proc.getInputStream(), outputBuffer);
+            Thread err = copy(proc.getErrorStream(), errorBuffer);
 
             proc.waitFor();
 
-            if (verbose || proc.exitValue() != 0)
-            {
+            if (verbose || proc.exitValue() != 0) {
                 if (outputBuffer.length() > 0) {
                     System.out.println(outputBuffer.toString());
                     System.out.flush();
@@ -248,50 +216,49 @@ public class CodeGenUtil
                     System.err.println(errorBuffer.toString());
                     System.err.flush();
                 }
-                
-                if (proc.exitValue() != 0)
+
+                if (proc.exitValue() != 0) {
                     return false;
+                }
             }
-        }
-        catch (Throwable e)
-        {
+        } catch (Throwable e) {
             System.err.println(e.toString());
             System.err.println(e.getCause());
             e.printStackTrace(System.err);
             return false;
         }
 
-        if (clFile != null)
+        if (clFile != null) {
             clFile.delete();
+        }
 
         return true;
     }
 
-    public static File[] systemClasspath()
-    {
-        List cp = new ArrayList();
-        String[] systemcp = SystemProperties.getProperty("java.class.path").split(File.pathSeparator);
-        for (int i = 0; i < systemcp.length; i++)
-        {
-            cp.add(new File(systemcp[i]));
+    public static File[] systemClasspath() {
+        List<File> cp = new ArrayList<>();
+        String jcp = SystemProperties.getProperty("java.class.path");
+        if (jcp != null) {
+            String[] systemcp = jcp.split(File.pathSeparator);
+            for (String s : systemcp) {
+                cp.add(new File(s));
+            }
         }
-        return (File[])cp.toArray(new File[cp.size()]);
+        return cp.toArray(new File[0]);
     }
 
-  /**
-   * @deprecated Use org.apache.xmlbeans.impl.common.JarHelper instead.
-   */
-    static public boolean externalJar(File srcdir, File outfile)
-    {
+    /**
+     * @deprecated Use org.apache.xmlbeans.impl.common.JarHelper instead.
+     */
+    public static boolean externalJar(File srcdir, File outfile) {
         return externalJar(srcdir, outfile, DEFAULT_JAR, false, false);
     }
 
-  /**
-   * @deprecated Use org.apache.xmlbeans.impl.common.JarHelper instead.
-   */
-    static public boolean externalJar(File srcdir, File outfile, String jarPath, boolean quiet, boolean verbose)
-    {
-        List args = new ArrayList();
+    /**
+     * @deprecated Use org.apache.xmlbeans.impl.common.JarHelper instead.
+     */
+    public static boolean externalJar(File srcdir, File outfile, String jarPath, boolean quiet, boolean verbose) {
+        List<String> args = new ArrayList<>();
 
         File jar = findJavaTool(jarPath == null ? DEFAULT_JAR : jarPath);
         assert (jar.exists()) : "jar not found " + jar;
@@ -305,15 +272,14 @@ public class CodeGenUtil
 
         args.add(".");
 
-        try
-        {
-            String[] strArgs = (String[]) args.toArray(new String[args.size()]);
+        try {
+            String[] strArgs = args.toArray(new String[0]);
 
-            if (verbose)
-            {
+            if (verbose) {
                 System.out.print("jar command:");
-                for (int i = 0; i < strArgs.length; i++)
-                    System.out.print(" " + strArgs[i]);
+                for (String strArg : strArgs) {
+                    System.out.print(" " + strArg);
+                }
                 System.out.println();
             }
 
@@ -322,13 +288,12 @@ public class CodeGenUtil
             StringBuilder errorBuffer = new StringBuilder();
             StringBuilder outputBuffer = new StringBuilder();
 
-            ThreadedReader out = new ThreadedReader(proc.getInputStream(), outputBuffer);
-            ThreadedReader err = new ThreadedReader(proc.getErrorStream(), errorBuffer);
+            Thread out = copy(proc.getInputStream(), outputBuffer);
+            Thread err = copy(proc.getErrorStream(), errorBuffer);
 
             proc.waitFor();
 
-            if (verbose || proc.exitValue() != 0)
-            {
+            if (verbose || proc.exitValue() != 0) {
                 if (outputBuffer.length() > 0) {
                     System.out.println(outputBuffer.toString());
                     System.out.flush();
@@ -338,12 +303,11 @@ public class CodeGenUtil
                     System.err.flush();
                 }
 
-                if (proc.exitValue() != 0)
+                if (proc.exitValue() != 0) {
                     return false;
+                }
             }
-        }
-        catch (Throwable e)
-        {
+        } catch (Throwable e) {
             e.printStackTrace(System.err);
             return false;
         }
@@ -353,9 +317,8 @@ public class CodeGenUtil
     /**
      * Look for tool in current directory and ${JAVA_HOME}/../bin and
      * try with .exe file extension.
-     */ 
-    private static File findJavaTool(String tool)
-    {
+     */
+    private static File findJavaTool(String tool) {
         File toolFile = new File(tool);
         if (toolFile.isFile()) {
             return toolFile;
@@ -365,16 +328,16 @@ public class CodeGenUtil
         if (result.isFile()) {
             return result;
         }
-        
+
         String home = SystemProperties.getProperty("java.home");
 
-        String sep  = File.separator;
+        String sep = File.separator;
         result = new File(home + sep + ".." + sep + "bin", tool);
-        
+
         if (result.isFile()) {
             return result;
         }
-        
+
         result = new File(result.getPath() + ".exe");
         if (result.isFile()) {
             return result;
@@ -398,27 +361,12 @@ public class CodeGenUtil
      * Reads the given input stream into the given buffer until there is
      * nothing left to read.
      */
-    static private class ThreadedReader
-    {
-        public ThreadedReader(InputStream stream, final StringBuilder output)
-        {
-            final BufferedReader reader =
-                new BufferedReader(new InputStreamReader(stream));
-
-            Thread readerThread = new Thread(new Runnable() {
-                public void run()
-                {
-                    String s;
-                    try
-                    {
-                        while ((s = reader.readLine()) != null)
-                            output.append(s + "\n");
-                    }
-                    catch (Exception e)
-                    {}
-                }
-            });
-            readerThread.start();
-        }
+    private static Thread copy(InputStream stream, final StringBuilder output) {
+        final BufferedReader reader = new BufferedReader(new InputStreamReader(stream, StandardCharsets.ISO_8859_1));
+        Thread readerThread = new Thread(() ->
+            reader.lines().forEach(s -> output.append(s).append("\n"))
+        );
+        readerThread.start();
+        return readerThread;
     }
 }
