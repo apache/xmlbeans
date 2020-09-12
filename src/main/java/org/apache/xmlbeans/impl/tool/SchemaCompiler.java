@@ -25,6 +25,7 @@ import org.apache.xmlbeans.impl.values.XmlListImpl;
 import org.apache.xmlbeans.impl.xb.xmlconfig.ConfigDocument;
 import org.apache.xmlbeans.impl.xb.xmlconfig.Extensionconfig;
 import org.apache.xmlbeans.impl.xb.xsdschema.SchemaDocument;
+import org.apache.xmlbeans.impl.xb.xsdschema.SchemaDocument.Schema;
 import org.xml.sax.EntityResolver;
 
 import java.io.File;
@@ -141,7 +142,6 @@ public class SchemaCompiler {
             return;
         }
 
-        args = cl.args();
         boolean verbose = (cl.getOpt("verbose") != null);
         boolean quiet = (cl.getOpt("quiet") != null);
         if (verbose) {
@@ -589,20 +589,6 @@ public class SchemaCompiler {
             this.javasource = javasource;
         }
 
-        /**
-         * @deprecated
-         */
-        public String getJar() {
-            return null;
-        }
-
-        /**
-         * @deprecated
-         */
-        public void setJar(String jar) {
-            // no op
-        }
-
         public Collection<XmlError> getErrorListener() {
             return errorListener;
         }
@@ -663,7 +649,7 @@ public class SchemaCompiler {
     private static SchemaTypeSystem loadTypeSystem(String name, File[] xsdFiles, File[] wsdlFiles, URL[] urlFiles, File[] configFiles,
                                                    File[] javaFiles, ResourceLoader cpResourceLoader,
                                                    boolean download, boolean noUpa, boolean noPvr, boolean noAnn, boolean noVDoc, boolean noExt,
-                                                   Set<String> mdefNamespaces, File baseDir, Map sourcesToCopyMap,
+                                                   Set<String> mdefNamespaces, File baseDir, Map<String, String> sourcesToCopyMap,
                                                    Collection<XmlError> outerErrorListener, File schemasDir, EntityResolver entResolver, File[] classpath, String javasource) {
         XmlErrorWatcher errorListener = new XmlErrorWatcher(outerErrorListener);
 
@@ -681,7 +667,7 @@ public class SchemaCompiler {
             SchemaTypeLoader loader = XmlBeans.typeLoaderForClassLoader(SchemaDocument.class.getClassLoader());
 
             // step 1, parse all the XSD files.
-            ArrayList<SchemaDocument.Schema> scontentlist = new ArrayList<>();
+            ArrayList<Schema> scontentlist = new ArrayList<>();
             if (xsdFiles != null) {
                 for (File xsdFile : xsdFiles) {
                     try {
@@ -766,7 +752,7 @@ public class SchemaCompiler {
                 }
             }
 
-            SchemaDocument.Schema[] sdocs = (SchemaDocument.Schema[]) scontentlist.toArray(new SchemaDocument.Schema[0]);
+            Schema[] sdocs = scontentlist.toArray(new Schema[0]);
 
             // now the config files.
             ArrayList<ConfigDocument.Config> cdoclist = new ArrayList<>();
@@ -855,7 +841,7 @@ public class SchemaCompiler {
     }
 
     private static void addSchema(String name, SchemaDocument schemadoc,
-                                  XmlErrorWatcher errorListener, boolean noVDoc, List<SchemaDocument.Schema> scontentlist) {
+                                  XmlErrorWatcher errorListener, boolean noVDoc, List<Schema> scontentlist) {
         StscState.addInfo(errorListener, "Loading schema file " + name);
         XmlOptions opts = new XmlOptions().setErrorListener(errorListener);
         if (noVDoc) {
@@ -868,7 +854,7 @@ public class SchemaCompiler {
 
     private static void addWsdlSchemas(String name,
                                        org.apache.xmlbeans.impl.xb.substwsdl.DefinitionsDocument wsdldoc,
-                                       XmlErrorWatcher errorListener, boolean noVDoc, List scontentlist) {
+                                       XmlErrorWatcher errorListener, boolean noVDoc, List<Schema> scontentlist) {
         if (wsdlContainsEncoded(wsdldoc)) {
             StscState.addWarning(errorListener, "The WSDL " + name + " uses SOAP encoding. SOAP encoding is not compatible with literal XML Schema.", XmlErrorCodes.GENERIC_ERROR, wsdldoc);
         }
@@ -879,18 +865,17 @@ public class SchemaCompiler {
         }
         XmlObject[] types = wsdldoc.getDefinitions().getTypesArray();
         int count = 0;
-        for (int j = 0; j < types.length; j++) {
-            XmlObject[] schemas = types[j].selectPath("declare namespace xs=\"http://www.w3.org/2001/XMLSchema\" xs:schema");
+        for (XmlObject type : types) {
+            Schema[] schemas = (Schema[]) type.selectPath("declare namespace xs=\"http://www.w3.org/2001/XMLSchema\" xs:schema");
             if (schemas.length == 0) {
                 StscState.addWarning(errorListener, "The WSDL " + name + " did not have any schema documents in namespace 'http://www.w3.org/2001/XMLSchema'", XmlErrorCodes.GENERIC_ERROR, wsdldoc);
                 continue;
             }
 
-            for (int k = 0; k < schemas.length; k++) {
-                if (schemas[k] instanceof SchemaDocument.Schema &&
-                    schemas[k].validate(opts)) {
+            for (Schema schema : schemas) {
+                if (schema.validate(opts)) {
                     count++;
-                    scontentlist.add(schemas[k]);
+                    scontentlist.add(schema);
                 }
             }
         }
@@ -924,7 +909,7 @@ public class SchemaCompiler {
         boolean noVDoc = params.isNoVDoc();
         boolean noExt = params.isNoExt();
         boolean incrSrcGen = params.isIncrementalSrcGen();
-        Collection outerErrorListener = params.getErrorListener();
+        Collection<XmlError> outerErrorListener = params.getErrorListener();
 
         String repackage = params.getRepackage();
 
@@ -941,8 +926,8 @@ public class SchemaCompiler {
         }
 
         SchemaCodePrinter codePrinter = params.getSchemaCodePrinter();
-        List extensions = params.getExtensions();
-        Set mdefNamespaces = params.getMdefNamespaces();
+        List<Extension> extensions = params.getExtensions();
+        Set<String> mdefNamespaces = params.getMdefNamespaces();
 
         EntityResolver cmdLineEntRes = params.getEntityResolver() == null ?
             ResolverUtil.resolverForCatalog(params.getCatalogFile()) : params.getEntityResolver();
@@ -955,12 +940,14 @@ public class SchemaCompiler {
 
         // Calculate the usenames based on the relativized filenames on the filesystem
         if (baseDir == null) {
-            baseDir = new File(SystemProperties.getProperty("user.dir"));
+            String userDir = SystemProperties.getProperty("user.dir");
+            assert (userDir != null);
+            baseDir = new File(userDir);
         }
 
         ResourceLoader cpResourceLoader = null;
 
-        Map sourcesToCopyMap = new HashMap();
+        Map<String, String> sourcesToCopyMap = new HashMap<>();
 
         if (classpath != null) {
             cpResourceLoader = new PathResourceLoader(classpath);
@@ -1005,12 +992,12 @@ public class SchemaCompiler {
             system.save(filer);
 
             // gen source files
-            result &= SchemaTypeSystemCompiler.generateTypes(system, filer, options);
+            result = SchemaTypeSystemCompiler.generateTypes(system, filer, options);
 
             if (incrSrcGen) {
                 // We have to delete extra source files that may be out of date
                 SchemaCodeGenerator.deleteObsoleteFiles(srcDir, srcDir,
-                    new HashSet(filer.getSourceFiles()));
+                    new HashSet<>(filer.getSourceFiles()));
             }
 
             if (result) {
@@ -1024,7 +1011,7 @@ public class SchemaCompiler {
             if (result && !nojavac) {
                 start = System.currentTimeMillis();
 
-                List sourcefiles = filer.getSourceFiles();
+                List<File> sourcefiles = filer.getSourceFiles();
 
                 if (javaFiles != null) {
                     sourcefiles.addAll(java.util.Arrays.asList(javaFiles));
@@ -1067,12 +1054,12 @@ public class SchemaCompiler {
         return result;
     }
 
-    private static void runExtensions(List extensions, SchemaTypeSystem system, File classesDir) {
+    private static void runExtensions(List<Extension> extensions, SchemaTypeSystem system, File classesDir) {
         if (extensions != null && extensions.size() > 0) {
-            SchemaCompilerExtension sce = null;
-            Iterator i = extensions.iterator();
-            Map extensionParms = null;
-            String classesDirName = null;
+            SchemaCompilerExtension sce;
+            Iterator<Extension> i = extensions.iterator();
+            Map<String, String> extensionParms;
+            String classesDirName;
             try {
                 classesDirName = classesDir.getCanonicalPath();
             } catch (java.io.IOException e) {
@@ -1081,7 +1068,7 @@ public class SchemaCompiler {
             }
 
             while (i.hasNext()) {
-                Extension extension = (Extension) i.next();
+                Extension extension = i.next();
                 try {
                     sce = (SchemaCompilerExtension) extension.getClassName().newInstance();
                 } catch (InstantiationException e) {
@@ -1095,10 +1082,8 @@ public class SchemaCompiler {
                 }
 
                 System.out.println("Running Extension: " + sce.getExtensionName());
-                extensionParms = new HashMap();
-                Iterator parmsi = extension.getParams().iterator();
-                while (parmsi.hasNext()) {
-                    Extension.Param p = (Extension.Param) parmsi.next();
+                extensionParms = new HashMap<>();
+                for (Extension.Param p : extension.getParams()) {
                     extensionParms.put(p.getName(), p.getValue());
                 }
                 extensionParms.put("classesDir", classesDirName);
@@ -1113,8 +1098,8 @@ public class SchemaCompiler {
         XmlObject[] useAttrs = wsdldoc.selectPath(
             "declare namespace soap='http://schemas.xmlsoap.org/wsdl/soap/' " +
             ".//soap:body/@use|.//soap:header/@use|.//soap:fault/@use");
-        for (int i = 0; i < useAttrs.length; i++) {
-            if ("encoded".equals(((SimpleValue) useAttrs[i]).getStringValue())) {
+        for (XmlObject useAttr : useAttrs) {
+            if ("encoded".equals(((SimpleValue) useAttr).getStringValue())) {
                 return true;
             }
         }
@@ -1123,10 +1108,6 @@ public class SchemaCompiler {
 
     private static final String CONFIG_URI = "http://xml.apache.org/xmlbeans/2004/02/xbean/config";
     private static final String COMPATIBILITY_CONFIG_URI = "http://www.bea.com/2002/09/xbean/config";
-    private static final Map MAP_COMPATIBILITY_CONFIG_URIS;
-
-    static {
-        MAP_COMPATIBILITY_CONFIG_URIS = new HashMap();
-        MAP_COMPATIBILITY_CONFIG_URIS.put(COMPATIBILITY_CONFIG_URI, CONFIG_URI);
-    }
+    private static final Map<String, String> MAP_COMPATIBILITY_CONFIG_URIS
+        = Collections.singletonMap(COMPATIBILITY_CONFIG_URI, CONFIG_URI);
 }

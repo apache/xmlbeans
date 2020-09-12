@@ -111,7 +111,7 @@ public abstract class JavaHexBinaryHolder extends XmlObjectBase {
     //because computing hashcode is expensive we'll cache it
     protected boolean _hashcached = false;
     protected int hashcode = 0;
-    protected static MessageDigest md5;
+    protected static final MessageDigest md5;
 
     static {
         try {

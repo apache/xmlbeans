@@ -15,14 +15,21 @@
 
 package org.apache.xmlbeans.impl.tool;
 
-import java.io.*;
-import java.util.*;
-import org.apache.xmlbeans.*;
+import org.apache.xmlbeans.XmlBeans;
+import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.XmlOptions;
 
-public class RunXQuery
-{
-    public static void printUsage()
-    {
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+
+public class RunXQuery {
+    public static void printUsage() {
         System.out.println("Run an XQuery against an XML instance");
         System.out.println("Usage:");
         System.out.println("xquery [-verbose] [-pretty] [-q <query> | -qf query.xq] [file.xml]*");
@@ -31,12 +38,11 @@ public class RunXQuery
         System.out.println(" -pretty pretty-prints the results");
         System.out.println(" -license prints license information");
         System.out.println(" the query is run on each XML file specified");
-        System.out.println("");
+        System.out.println();
     }
 
-    public static void main ( String[] args ) throws Exception
-    {
-        Set flags = new HashSet();
+    public static void main(String[] args) throws Exception {
+        Set<String> flags = new HashSet<>();
         flags.add("h");
         flags.add("help");
         flags.add("usage");
@@ -48,90 +54,82 @@ public class RunXQuery
         CommandLine cl =
             new CommandLine(
                 args, flags,
-                Arrays.asList( new String[] { "q", "qf" } ) );
-        
-        if (cl.getOpt("h") != null || cl.getOpt("help") != null || cl.getOpt("usage") != null)
-        {
+                Arrays.asList("q", "qf"));
+
+        if (cl.getOpt("h") != null || cl.getOpt("help") != null || cl.getOpt("usage") != null) {
             printUsage();
             System.exit(0);
             return;
         }
 
         String[] badopts = cl.getBadOpts();
-        if (badopts.length > 0)
-        {
-            for (int i = 0; i < badopts.length; i++)
-                System.out.println("Unrecognized option: " + badopts[i]);
+        if (badopts.length > 0) {
+            for (String badopt : badopts) {
+                System.out.println("Unrecognized option: " + badopt);
+            }
             printUsage();
             System.exit(0);
             return;
         }
 
-        if (cl.getOpt("license") != null)
-        {
+        if (cl.getOpt("license") != null) {
             CommandLine.printLicense();
             System.exit(0);
             return;
         }
 
-        if (cl.getOpt("version") != null)
-        {
+        if (cl.getOpt("version") != null) {
             CommandLine.printVersion();
             System.exit(0);
             return;
         }
 
         args = cl.args();
-        
-        if (args.length == 0)
-        {
+
+        if (args.length == 0) {
             printUsage();
             System.exit(0);
             return;
         }
 
-        boolean verbose = cl.getOpt( "verbose" ) != null;
-        boolean pretty = cl.getOpt( "pretty" ) != null;
+        boolean verbose = cl.getOpt("verbose") != null;
+        boolean pretty = cl.getOpt("pretty") != null;
 
         //
         // Get and compile the query
         //
-        
-        String query = cl.getOpt( "q" );
-        String queryfile = cl.getOpt( "qf" );
 
-        if (query == null && queryfile == null)
-        {
-            System.err.println( "No query specified" );
+        String query = cl.getOpt("q");
+        String queryfile = cl.getOpt("qf");
+
+        if (query == null && queryfile == null) {
+            System.err.println("No query specified");
             System.exit(0);
             return;
         }
-        
-        if (query != null && queryfile != null)
-        {
-            System.err.println( "Specify -qf or -q, not both." );
+
+        if (query != null && queryfile != null) {
+            System.err.println("Specify -qf or -q, not both.");
             System.exit(0);
             return;
         }
-        
-        try
-        {
-            if (queryfile != null)
-            {
-                File queryFile = new File( queryfile );
-                FileInputStream is = new FileInputStream( queryFile );
-                InputStreamReader r = new InputStreamReader( is );
-                
+
+        try {
+            if (queryfile != null) {
+                File queryFile = new File(queryfile);
+                FileInputStream is = new FileInputStream(queryFile);
+                InputStreamReader r = new InputStreamReader(is, StandardCharsets.ISO_8859_1);
+
                 StringBuilder sb = new StringBuilder();
 
-                for ( ; ; )
-                {
+                for (; ; ) {
                     int ch = r.read();
 
-                    if (ch < 0)
+                    if (ch < 0) {
                         break;
+                    }
 
-                    sb.append( (char) ch );
+                    sb.append((char) ch);
                 }
 
                 r.close();
@@ -139,28 +137,22 @@ public class RunXQuery
 
                 query = sb.toString();
             }
-        }
-        catch ( Throwable e )
-        {
-            System.err.println( "Cannot read query file: " + e.getMessage() );
+        } catch (Throwable e) {
+            System.err.println("Cannot read query file: " + e.getMessage());
             System.exit(1);
             return;
         }
 
-        if (verbose)
-        {
-            System.out.println( "Compile Query:" );
-            System.out.println( query );
+        if (verbose) {
+            System.out.println("Compile Query:");
+            System.out.println(query);
             System.out.println();
         }
-            
-        try
-        {
-            query= XmlBeans.compileQuery( query );
-        }
-        catch ( Exception e )
-        {
-            System.err.println( "Error compiling query: " + e.getMessage() );
+
+        try {
+            query = XmlBeans.compileQuery(query);
+        } catch (Exception e) {
+            System.err.println("Error compiling query: " + e.getMessage());
             System.exit(1);
             return;
         }
@@ -168,75 +160,65 @@ public class RunXQuery
         //
         // Get the instance
         //
-        
-        File[] files = cl.getFiles();
-        
-        for (int i = 0; i < files.length; i++)
-        {
-            XmlObject x;
-                
-            try
-            {
-                if (verbose)
-                {
-                    InputStream is = new FileInputStream( files[i] );
 
-                    for ( ; ; )
-                    {
+        File[] files = cl.getFiles();
+
+        for (File file : files) {
+            XmlObject x;
+
+            try {
+                if (verbose) {
+                    InputStream is = new FileInputStream(file);
+
+                    for (; ; ) {
                         int ch = is.read();
 
-                        if (ch < 0)
+                        if (ch < 0) {
                             break;
+                        }
 
-                        System.out.write( ch );
+                        System.out.write(ch);
                     }
-                    
+
                     is.close();
 
                     System.out.println();
                 }
-                
-                x = XmlObject.Factory.parse( files[i] );
-            }
-            catch ( Throwable e )
-            {
-                System.err.println( "Error parsing instance: " + e.getMessage() );
+
+                x = XmlObject.Factory.parse(file);
+            } catch (Throwable e) {
+                System.err.println("Error parsing instance: " + e.getMessage());
                 System.exit(1);
                 return;
             }
-            
-            if (verbose)
-            {
-                System.out.println( "Executing Query..." );
+
+            if (verbose) {
+                System.out.println("Executing Query...");
                 System.err.println();
             }
-    
-            XmlObject[] result = null;
-    
-            try
-            {
-                result = x.execQuery( query );
-            }
-            catch ( Throwable e )
-            {
-                System.err.println( "Error executing query: " + e.getMessage() );
+
+            XmlObject[] result;
+
+            try {
+                result = x.execQuery(query);
+            } catch (Throwable e) {
+                System.err.println("Error executing query: " + e.getMessage());
                 System.exit(1);
                 return;
             }
-    
-            if (verbose)
-            {
-                System.out.println( "Query Result:" );
+
+            if (verbose) {
+                System.out.println("Query Result:");
             }
-            
+
             XmlOptions opts = new XmlOptions();
             opts.setSaveOuter();
-            if (pretty)
+            if (pretty) {
                 opts.setSavePrettyPrint();
-            
-            for (int j = 0; j < result.length; j++)
-            {
-                result[j].save( System.out, opts );
+            }
+
+            for (XmlObject xmlObject : result) {
+                xmlObject.save(System.out, opts);
                 System.out.println();
             }
         }

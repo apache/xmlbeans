@@ -15,56 +15,57 @@
 
 package org.apache.xmlbeans.impl.tool;
 
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 
 
- /**
-  * An extension is a javabean that represents a SchemaCompilerExtension to be passed for callback into the
-  *  XmlBeans Schema Compiler.
-  */
+/**
+ * An extension is a javabean that represents a SchemaCompilerExtension to be passed for callback into the
+ * XmlBeans Schema Compiler.
+ */
 public class Extension {
-        private Class className;
-        private List params = new ArrayList();
+    private Class className;
+    private List<Param> params = new ArrayList<>();
 
-        public Class getClassName() {
-            return className;
+    public Class getClassName() {
+        return className;
+    }
+
+    public void setClassName(Class className) {
+        this.className = className;
+    }
+
+    public List<Param> getParams() {
+        return params;
+    }
+
+    public Param createParam() {
+        Param p = new Param();
+        params.add(p);
+        return p;
+    }
+
+    /**
+     * A Param is just a name value pair applicable to the extension.
+     */
+    public class Param {
+        private String name;
+        private String value;
+
+        public String getName() {
+            return name;
         }
 
-        public void setClassName(Class className) {
-            this.className = className;
-        }
-        public List getParams() {
-            return params;
+        public void setName(String name) {
+            this.name = name;
         }
 
-        public Param createParam() {
-            Param p = new Param();
-            params.add(p);
-            return p;
+        public String getValue() {
+            return value;
         }
 
-        /**
-         * A Param is just a name value pair applicable to the extension.
-         */
-        public class Param {
-            private String name;
-            private String value;
-
-            public String getName() {
-                return name;
-            }
-
-            public void setName(String name) {
-                this.name = name;
-            }
-
-            public String getValue() {
-                return value;
-            }
-
-            public void setValue(String value) {
-                this.value = value;
-            }
+        public void setValue(String value) {
+            this.value = value;
         }
     }
+}
