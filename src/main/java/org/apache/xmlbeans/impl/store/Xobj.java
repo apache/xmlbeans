@@ -1984,20 +1984,22 @@ abstract class Xobj implements TypeStore {
         return null;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
-    public void find_all_element_users(QName name, List<TypeStoreUser> fillMeUp) {
+    public <T extends XmlObject> void find_all_element_users(QName name, List<T> fillMeUp) {
         for (Xobj x = _firstChild; x != null; x = x._nextSibling) {
             if (x.isElem() && x._name.equals(name)) {
-                fillMeUp.add(x.getUser());
+                fillMeUp.add((T)x.getUser());
             }
         }
     }
 
+    @SuppressWarnings("unchecked")
     @Override
-    public void find_all_element_users(QNameSet names, List<TypeStoreUser> fillMeUp) {
+    public <T extends XmlObject>  void find_all_element_users(QNameSet names, List<T> fillMeUp) {
         for (Xobj x = _firstChild; x != null; x = x._nextSibling) {
             if (x.isElem() && names.contains(x._name)) {
-                fillMeUp.add(x.getUser());
+                fillMeUp.add((T)x.getUser());
             }
         }
     }
@@ -2338,11 +2340,12 @@ abstract class Xobj implements TypeStore {
 
             assert m == n;
 
-            List<TypeStoreUser> elementsUser = new ArrayList<>();
+            List<XmlObject> elementsUser = new ArrayList<>();
 
             find_all_element_users(elementName, elementsUser);
 
             List<Xobj> elements = elementsUser.stream()
+                .map(x -> (TypeStoreUser)x)
                 .map(TypeStoreUser::get_store)
                 .map(x -> (Xobj)x)
                 .collect(Collectors.toList());

@@ -176,14 +176,14 @@ public interface TypeStore extends NamespaceManager
      * given name owned by this typestore, or the empty array of
      * TypeStoreUsers if none was found.
      */
-    void find_all_element_users(QName name, List<TypeStoreUser> fillMeUp);
+    <T extends XmlObject> void find_all_element_users(QName name, List<T> fillMeUp);
 
 
     /**
      * Returns all TypeStoreUsers corresponding to elements with one
      * of the names is the QNameSet.
      */
-    void find_all_element_users(QNameSet name, List<TypeStoreUser> fillMeUp);
+    <T extends XmlObject> void find_all_element_users(QNameSet name, List<T> fillMeUp);
 
     /**
      * Inserts a new element at the position that will make it
