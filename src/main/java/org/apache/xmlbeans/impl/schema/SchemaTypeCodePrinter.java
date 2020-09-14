@@ -724,7 +724,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
     }
 
     void startBlock() throws IOException {
-        emit("{");
+        // emit("{");
         indent();
     }
 
@@ -1258,7 +1258,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
 
     void printConstructor(SchemaType sType, String shortName) throws IOException {
         emit("");
-        emit("public " + shortName + "(org.apache.xmlbeans.SchemaType sType)");
+        emit("public " + shortName + "(org.apache.xmlbeans.SchemaType sType) {");
         startBlock();
         emit("super(sType" + (sType.getSimpleVariety() == SchemaType.NOT_SIMPLE ?
             "" :
@@ -1268,7 +1268,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
 
         if (sType.getSimpleVariety() != SchemaType.NOT_SIMPLE) {
             emit("");
-            emit("protected " + shortName + "(org.apache.xmlbeans.SchemaType sType, boolean b)");
+            emit("protected " + shortName + "(org.apache.xmlbeans.SchemaType sType, boolean b) {");
             startBlock();
             emit("super(sType, b);");
             endBlock();
@@ -1289,7 +1289,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
         }
 
         emit("public " + (isInner ? "static " : "") + "class " + shortName +
-             " extends " + baseClass + " implements " + interfaces.toString());
+             " extends " + baseClass + " implements " + interfaces.toString() + " {");
 
         startBlock();
 
@@ -1348,138 +1348,96 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
         }
     }
 
-    void printJGetArrayValue(int javaType, String type, SchemaTypeImpl stype) throws IOException {
+    void printJGetArrayValue(int javaType, String type, SchemaTypeImpl stype, String setIdentifier) throws IOException {
         switch (javaType) {
             case SchemaProperty.XML_OBJECT:
-                emit(type + "[] result = new " + type + "[targetList.size()];");
-                emit("targetList.toArray(result);");
+                emit("return getXmlObjectArray(" + setIdentifier + ", new " + type + "[0]);");
                 break;
 
             case SchemaProperty.JAVA_ENUM:
-                emit(type + "[] result = new " + type + "[targetList.size()];");
-                emit("for (int i = 0, len = targetList.size() ; i < len ; i++)");
-                emit("    result[i] = (" + type + ")((org.apache.xmlbeans.SimpleValue)targetList.get(i)).getEnumValue();");
+                emit("return getEnumArray(" + setIdentifier + ", " + type + "[]::new);");
                 break;
 
             case SchemaProperty.JAVA_BOOLEAN:
-                emit("boolean[] result = new boolean[targetList.size()];");
-                emit("for (int i = 0, len = targetList.size() ; i < len ; i++)");
-                emit("    result[i] = ((org.apache.xmlbeans.SimpleValue)targetList.get(i)).getBooleanValue();");
+                emit("return getBooleanArray(" + setIdentifier + ");");
                 break;
 
             case SchemaProperty.JAVA_FLOAT:
-                emit("float[] result = new float[targetList.size()];");
-                emit("for (int i = 0, len = targetList.size() ; i < len ; i++)");
-                emit("    result[i] = ((org.apache.xmlbeans.SimpleValue)targetList.get(i)).getFloatValue();");
+                emit("return getFloatArray(" + setIdentifier + ");");
                 break;
 
             case SchemaProperty.JAVA_DOUBLE:
-                emit("double[] result = new double[targetList.size()];");
-                emit("for (int i = 0, len = targetList.size() ; i < len ; i++)");
-                emit("    result[i] = ((org.apache.xmlbeans.SimpleValue)targetList.get(i)).getDoubleValue();");
+                emit("return getDoubleArray(" + setIdentifier + ");");
                 break;
 
             case SchemaProperty.JAVA_BYTE:
-                emit("byte[] result = new byte[targetList.size()];");
-                emit("for (int i = 0, len = targetList.size() ; i < len ; i++)");
-                emit("    result[i] = ((org.apache.xmlbeans.SimpleValue)targetList.get(i)).getByteValue();");
+                emit("return getByteArray(" + setIdentifier + ");");
                 break;
 
             case SchemaProperty.JAVA_SHORT:
-                emit("short[] result = new short[targetList.size()];");
-                emit("for (int i = 0, len = targetList.size() ; i < len ; i++)");
-                emit("    result[i] = ((org.apache.xmlbeans.SimpleValue)targetList.get(i)).getShortValue();");
+                emit("return getShortArray(" + setIdentifier + ");");
                 break;
 
             case SchemaProperty.JAVA_INT:
-                emit("int[] result = new int[targetList.size()];");
-                emit("for (int i = 0, len = targetList.size() ; i < len ; i++)");
-                emit("    result[i] = ((org.apache.xmlbeans.SimpleValue)targetList.get(i)).getIntValue();");
+                emit("return getIntArray(" + setIdentifier + ");");
                 break;
 
             case SchemaProperty.JAVA_LONG:
-                emit("long[] result = new long[targetList.size()];");
-                emit("for (int i = 0, len = targetList.size() ; i < len ; i++)");
-                emit("    result[i] = ((org.apache.xmlbeans.SimpleValue)targetList.get(i)).getLongValue();");
+                emit("return getLongArray(" + setIdentifier + ");");
                 break;
 
             case SchemaProperty.JAVA_BIG_DECIMAL:
-                emit("java.math.BigDecimal[] result = new java.math.BigDecimal[targetList.size()];");
-                emit("for (int i = 0, len = targetList.size() ; i < len ; i++)");
-                emit("    result[i] = ((org.apache.xmlbeans.SimpleValue)targetList.get(i)).getBigDecimalValue();");
+                emit("return getObjectArray(" + setIdentifier + ", org.apache.xmlbeans.SimpleValue::getBigDecimalValue, java.math.BigDecimal[]::new);");
                 break;
 
             case SchemaProperty.JAVA_BIG_INTEGER:
-                emit("java.math.BigInteger[] result = new java.math.BigInteger[targetList.size()];");
-                emit("for (int i = 0, len = targetList.size() ; i < len ; i++)");
-                emit("    result[i] = ((org.apache.xmlbeans.SimpleValue)targetList.get(i)).getBigIntegerValue();");
+                emit("return getObjectArray(" + setIdentifier + ", org.apache.xmlbeans.SimpleValue::getBigIntegerValue, java.math.BigInteger[]::new);");
                 break;
 
             case SchemaProperty.JAVA_STRING:
-                emit("java.lang.String[] result = new java.lang.String[targetList.size()];");
-                emit("for (int i = 0, len = targetList.size() ; i < len ; i++)");
-                emit("    result[i] = ((org.apache.xmlbeans.SimpleValue)targetList.get(i)).getStringValue();");
+                emit("return getObjectArray(" + setIdentifier + ", org.apache.xmlbeans.SimpleValue::getStringValue, String[]::new);");
                 break;
 
             case SchemaProperty.JAVA_BYTE_ARRAY:
-                emit("byte[][] result = new byte[targetList.size()][];");
-                emit("for (int i = 0, len = targetList.size() ; i < len ; i++)");
-                emit("    result[i] = ((org.apache.xmlbeans.SimpleValue)targetList.get(i)).getByteArrayValue();");
+                emit("return getObjectArray(" + setIdentifier + ", org.apache.xmlbeans.SimpleValue::getByteArrayValue, byte[][]::new);");
                 break;
 
             case SchemaProperty.JAVA_CALENDAR:
-                emit("java.util.Calendar[] result = new java.util.Calendar[targetList.size()];");
-                emit("for (int i = 0, len = targetList.size() ; i < len ; i++)");
-                emit("    result[i] = ((org.apache.xmlbeans.SimpleValue)targetList.get(i)).getCalendarValue();");
+                emit("return getObjectArray(" + setIdentifier + ", org.apache.xmlbeans.SimpleValue::getCalendarValue, java.util.Calendar[]::new);");
                 break;
 
             case SchemaProperty.JAVA_DATE:
-                emit("java.util.Date[] result = new java.util.Date[targetList.size()];");
-                emit("for (int i = 0, len = targetList.size() ; i < len ; i++)");
-                emit("    result[i] = ((org.apache.xmlbeans.SimpleValue)targetList.get(i)).getDateValue();");
+                emit("return getObjectArray(" + setIdentifier + ", org.apache.xmlbeans.SimpleValue::getDateValue, java.util.Date[]::new);");
                 break;
 
             case SchemaProperty.JAVA_GDATE:
-                emit("org.apache.xmlbeans.GDate[] result = new org.apache.xmlbeans.GDate[targetList.size()];");
-                emit("for (int i = 0, len = targetList.size() ; i < len ; i++)");
-                emit("    result[i] = ((org.apache.xmlbeans.SimpleValue)targetList.get(i)).getGDateValue();");
+                emit("return getObjectArray(" + setIdentifier + ", org.apache.xmlbeans.SimpleValue::getGDateValue, org.apache.xmlbeans.GDate[]::new);");
                 break;
 
             case SchemaProperty.JAVA_GDURATION:
-                emit("org.apache.xmlbeans.GDuration[] result = new org.apache.xmlbeans.GDuration[targetList.size()];");
-                emit("for (int i = 0, len = targetList.size() ; i < len ; i++)");
-                emit("    result[i] = ((org.apache.xmlbeans.SimpleValue)targetList.get(i)).getGDurationValue();");
+                emit("return getObjectArray(" + setIdentifier + ", org.apache.xmlbeans.SimpleValue::getGDurationValue, org.apache.xmlbeans.GDuration[]::new);");
                 break;
 
             case SchemaProperty.JAVA_QNAME:
-                emit("javax.xml.namespace.QName[] result = new javax.xml.namespace.QName[targetList.size()];");
-                emit("for (int i = 0, len = targetList.size() ; i < len ; i++)");
-                emit("    result[i] = ((org.apache.xmlbeans.SimpleValue)targetList.get(i)).getQNameValue();");
+                emit("return getObjectArray(" + setIdentifier + ", org.apache.xmlbeans.SimpleValue::getQNameValue, javax.xml.namespace.QName[]::new);");
                 break;
 
             case SchemaProperty.JAVA_LIST:
-                emit("java.util.List[] result = new java.util.List[targetList.size()];");
-                emit("for (int i = 0, len = targetList.size() ; i < len ; i++)");
-                emit("    result[i] = ((org.apache.xmlbeans.SimpleValue)targetList.get(i)).getListValue();");
+                emit("return getObjectArray(" + setIdentifier + ", org.apache.xmlbeans.SimpleValue::getListValue, java.util.List[]::new);");
                 break;
 
             case SchemaProperty.JAVA_OBJECT:
-                emit("java.lang.Object[] result = new java.lang.Object[targetList.size()];");
-                emit("for (int i = 0, len = targetList.size() ; i < len ; i++)");
-                emit("    result[i] = ((org.apache.xmlbeans.SimpleValue)targetList.get(i)).getObjectValue();");
+                emit("return getObjectArray(" + setIdentifier + ", org.apache.xmlbeans.SimpleValue::getObjectValue, java.util.Object[]::new);");
                 break;
 
             case SchemaProperty.JAVA_USER:
-                emit(stype.getUserTypeName() + "[] result = new " + stype.getUserTypeName() + "[targetList.size()];");
-                emit("for (int i = 0, len = targetList.size() ; i < len ; i++)");
-                emit("    result[i] = " + getUserTypeStaticHandlerMethod(false, stype)
-                     + "((org.apache.xmlbeans.SimpleValue)targetList.get(i));");
+                // TOOD: replace lambda with method reference
+                emit("return getObjectArray(" + setIdentifier + ", e -> " + getUserTypeStaticHandlerMethod(false, stype) + "(e), " + stype.getUserTypeName() + "[]::new);");
                 break;
 
             default:
                 throw new IllegalStateException();
         }
-        emit("return result;");
     }
 
     void printJGetValue(int javaType, String type, SchemaTypeImpl stype) throws IOException {
@@ -1760,7 +1718,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
         PrePostExtension ext = sImpl.getPrePostExtension();
         if (ext != null) {
             if (ext.hasPreCall()) {
-                emit("if ( " + ext.getStaticHandler() + ".preSet(" + prePostOpString(opType) + ", this, " + identifier + ", " + isAttr + ", " + index + "))");
+                emit("if ( " + ext.getStaticHandler() + ".preSet(" + prePostOpString(opType) + ", this, " + identifier + ", " + isAttr + ", " + index + ")) {");
                 startBlock();
             }
         }
@@ -1829,7 +1787,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
             return;
         }
 
-        emit("if (target == null)");
+        emit("if (target == null) {");
 
         startBlock();
 
@@ -1867,10 +1825,10 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
 
         printJavaDoc("Gets " + (xget ? "(as xml) " : "") + "a List of " + propdesc + "s");
 
-        emit("public java.util.List<" + wrappedType + "> " + xgetMethod + listName + "()");
+        emit("public java.util.List<" + wrappedType + "> " + xgetMethod + listName + "() {");
         startBlock();
 
-        emit("final class " + listName + " extends java.util.AbstractList<" + wrappedType + ">");
+        emit("final class " + listName + " extends java.util.AbstractList<" + wrappedType + "> {");
         startBlock();
 
         // Object get(i)
@@ -1885,7 +1843,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
         if (_useJava15) {
             emit("@Override");
         }
-        emit("public " + wrappedType + " set(int i, " + wrappedType + " o)");
+        emit("public " + wrappedType + " set(int i, " + wrappedType + " o) {");
         startBlock();
         emit(wrappedType + " old = " + parentThis + xgetMethod + arrayName + "(i);");
         emit(parentThis + xsetMethod + arrayName + "(i, o);");
@@ -1909,7 +1867,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
         if (_useJava15) {
             emit("@Override");
         }
-        emit("public " + wrappedType + " remove(int i)");
+        emit("public " + wrappedType + " remove(int i) {");
         startBlock();
         emit(wrappedType + " old = " + parentThis + xgetMethod + arrayName + "(i);");
         emit(parentThis + "remove" + propertyName + "(i);");
@@ -1951,7 +1909,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
         if (singleton) {
             // Value getProp()
             printJavaDoc((several ? "Gets first " : "Gets the ") + propdesc);
-            emit("public " + type + " get" + propertyName + "()");
+            emit("public " + type + " get" + propertyName + "() {");
             startBlock();
             emitImplementationPreamble();
 
@@ -1959,12 +1917,12 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
 
             if (isAttr && (prop.hasDefault() == SchemaProperty.CONSISTENTLY ||
                            prop.hasFixed() == SchemaProperty.CONSISTENTLY)) {
-                emit("if (target == null)");
+                emit("if (target == null) {");
                 startBlock();
                 makeAttributeDefaultValue(jtargetType, prop, identifier);
                 endBlock();
             }
-            emit("if (target == null)");
+            emit("if (target == null) {");
             startBlock();
             makeMissingValue(javaType);
             endBlock();
@@ -1980,14 +1938,14 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
             if (!xmltype) {
                 // Value xgetProp()
                 printJavaDoc((several ? "Gets (as xml) first " : "Gets (as xml) the ") + propdesc);
-                emit("public " + xtype + " xget" + propertyName + "()");
+                emit("public " + xtype + " xget" + propertyName + "() {");
                 startBlock();
                 emitImplementationPreamble();
                 emitGetTarget(setIdentifier, identifier, isAttr, "0", NOTHING, xtype);
 
                 if (isAttr && (prop.hasDefault() == SchemaProperty.CONSISTENTLY ||
                                prop.hasFixed() == SchemaProperty.CONSISTENTLY)) {
-                    emit("if (target == null)");
+                    emit("if (target == null) {");
                     startBlock();
                     makeAttributeDefaultValue(xtype, prop, identifier);
                     endBlock();
@@ -2001,7 +1959,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
             if (nillable) {
                 // boolean isNilProp()
                 printJavaDoc((several ? "Tests for nil first " : "Tests for nil ") + propdesc);
-                emit("public boolean isNil" + propertyName + "()");
+                emit("public boolean isNil" + propertyName + "() {");
                 startBlock();
                 emitImplementationPreamble();
                 emitGetTarget(setIdentifier, identifier, isAttr, "0", NOTHING, xtype);
@@ -2016,7 +1974,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
         if (optional) {
             // boolean isSetProp()
             printJavaDoc((several ? "True if has at least one " : "True if has ") + propdesc);
-            emit("public boolean isSet" + propertyName + "()");
+            emit("public boolean isSet" + propertyName + "() {");
 
             startBlock();
             emitImplementationPreamble();
@@ -2047,25 +2005,16 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
 
             // Value[] getProp()
             printJavaDoc("Gets array of all " + propdesc + "s");
-            emit("public " + type + "[] get" + arrayName + "()");
+            emit("public " + type + "[] get" + arrayName + "() {");
             startBlock();
-            emitImplementationPreamble();
 
-            if (_useJava15) {
-                emit("java.util.List<" + xtype + "> targetList = new java.util.ArrayList<" + xtype + ">();");
-            } else {
-                emit("java.util.List targetList = new java.util.ArrayList();");
-            }
-            emit("get_store().find_all_element_users(" + setIdentifier + ", targetList);");
+            printJGetArrayValue(javaType, type, (SchemaTypeImpl) prop.getType(), setIdentifier);
 
-            printJGetArrayValue(javaType, type, (SchemaTypeImpl) prop.getType());
-
-            emitImplementationPostamble();
             endBlock();
 
             // Value getProp(int i)
             printJavaDoc("Gets ith " + propdesc);
-            emit("public " + type + " get" + arrayName + "(int i)");
+            emit("public " + type + " get" + arrayName + "(int i) {");
             startBlock();
             emitImplementationPreamble();
 
@@ -2082,7 +2031,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
 
                 // Value[] xgetProp()
                 printJavaDoc("Gets (as xml) array of all " + propdesc + "s");
-                emit("public " + xtype + "[] xget" + arrayName + "()");
+                emit("public " + xtype + "[] xget" + arrayName + "() {");
                 startBlock();
                 emitImplementationPreamble();
                 if (_useJava15) {
@@ -2099,7 +2048,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
 
                 // Value xgetProp(int i)
                 printJavaDoc("Gets (as xml) ith " + propdesc);
-                emit("public " + xtype + " xget" + arrayName + "(int i)");
+                emit("public " + xtype + " xget" + arrayName + "(int i) {");
                 startBlock();
                 emitImplementationPreamble();
                 emitGetTarget(setIdentifier, identifier, isAttr, "i", THROW_EXCEPTION, xtype);
@@ -2112,7 +2061,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
             if (nillable) {
                 // boolean isNil(int i);
                 printJavaDoc("Tests for nil ith " + propdesc);
-                emit("public boolean isNil" + arrayName + "(int i)");
+                emit("public boolean isNil" + arrayName + "(int i) {");
                 startBlock();
                 emitImplementationPreamble();
                 emitGetTarget(setIdentifier, identifier, isAttr, "i", THROW_EXCEPTION, xtype);
@@ -2123,7 +2072,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
 
             // int countProp();
             printJavaDoc("Returns number of " + propdesc);
-            emit("public int sizeOf" + arrayName + "()");
+            emit("public int sizeOf" + arrayName + "() {");
             startBlock();
             emitImplementationPreamble();
             emit("return get_store().count_elements(" + setIdentifier + ");");
@@ -2150,7 +2099,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
         if (singleton) {
             // void setProp(Value v);
             printJavaDoc((several ? "Sets first " : "Sets the ") + propdesc);
-            emit("public void set" + propertyName + "(" + type + " " + safeVarName + ")");
+            emit("public void set" + propertyName + "(" + type + " " + safeVarName + ") {");
             startBlock();
             if (xmltype && !isSubstGroup && !isAttr) {
                 emitPre(sType, PrePostExtension.OPERATION_SET, identifier, isAttr, several ? "0" : "-1");
@@ -2170,7 +2119,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
             if (!xmltype) {
                 // void xsetProp(Value v)
                 printJavaDoc((several ? "Sets (as xml) first " : "Sets (as xml) the ") + propdesc);
-                emit("public void xset" + propertyName + "(" + xtype + " " + safeVarName + ")");
+                emit("public void xset" + propertyName + "(" + xtype + " " + safeVarName + ") {");
                 startBlock();
                 emitImplementationPreamble();
                 emitPre(sType, PrePostExtension.OPERATION_SET, identifier, isAttr, several ? "0" : "-1");
@@ -2185,7 +2134,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
             if (xmltype && !several) {
                 // Value addNewProp()
                 printJavaDoc("Appends and returns a new empty " + propdesc);
-                emit("public " + xtype + " addNew" + propertyName + "()");
+                emit("public " + xtype + " addNew" + propertyName + "() {");
                 startBlock();
                 emitImplementationPreamble();
                 emitDeclareTarget(true, xtype);
@@ -2199,7 +2148,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
 
             if (nillable) {
                 printJavaDoc((several ? "Nils the first " : "Nils the ") + propdesc);
-                emit("public void setNil" + propertyName + "()");
+                emit("public void setNil" + propertyName + "() {");
                 startBlock();
                 emitImplementationPreamble();
                 emitPre(sType, PrePostExtension.OPERATION_SET, identifier, isAttr, several ? "0" : "-1");
@@ -2213,7 +2162,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
 
         if (optional) {
             printJavaDoc((several ? "Removes first " : "Unsets the ") + propdesc);
-            emit("public void unset" + propertyName + "()");
+            emit("public void unset" + propertyName + "() {");
             startBlock();
             emitImplementationPreamble();
             emitPre(sType, PrePostExtension.OPERATION_REMOVE, identifier, isAttr, several ? "0" : "-1");
@@ -2232,7 +2181,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
 
             if (xmltype) {
                 printJavaDoc("Sets array of all " + propdesc + "  WARNING: This method is not atomicaly synchronized.");
-                emit("public void set" + arrayName + "(" + type + "[] " + safeVarName + "Array)");
+                emit("public void set" + arrayName + "(" + type + "[] " + safeVarName + "Array) {");
                 startBlock();
                 // do not use synchronize (monitor()) {  and GlobalLock inside  } !!! deadlock
                 //emitImplementationPreamble();
@@ -2258,7 +2207,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
                 endBlock();
             } else {
                 printJavaDoc("Sets array of all " + propdesc);
-                emit("public void set" + arrayName + "(" + type + "[] " + safeVarName + "Array)");
+                emit("public void set" + arrayName + "(" + type + "[] " + safeVarName + "Array) {");
                 startBlock();
                 emitImplementationPreamble();
                 emitPre(sType, PrePostExtension.OPERATION_SET, identifier, isAttr);
@@ -2297,7 +2246,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
             }
 
             printJavaDoc("Sets ith " + propdesc);
-            emit("public void set" + arrayName + "(int i, " + type + " " + safeVarName + ")");
+            emit("public void set" + arrayName + "(int i, " + type + " " + safeVarName + ") {");
             startBlock();
             if (xmltype && !isSubstGroup) {
                 emitPre(sType, PrePostExtension.OPERATION_SET, identifier, isAttr, "i");
@@ -2316,7 +2265,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
 
             if (!xmltype) {
                 printJavaDoc("Sets (as xml) array of all " + propdesc);
-                emit("public void xset" + arrayName + "(" + xtype + "[]" + safeVarName + "Array)");
+                emit("public void xset" + arrayName + "(" + xtype + "[]" + safeVarName + "Array) {");
                 startBlock();
                 emitImplementationPreamble();
                 emitPre(sType, PrePostExtension.OPERATION_SET, identifier, isAttr);
@@ -2326,7 +2275,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
                 endBlock();
 
                 printJavaDoc("Sets (as xml) ith " + propdesc);
-                emit("public void xset" + arrayName + "(int i, " + xtype + " " + safeVarName + ")");
+                emit("public void xset" + arrayName + "(int i, " + xtype + " " + safeVarName + ") {");
                 startBlock();
                 emitImplementationPreamble();
                 emitPre(sType, PrePostExtension.OPERATION_SET, identifier, isAttr, "i");
@@ -2339,7 +2288,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
 
             if (nillable) {
                 printJavaDoc("Nils the ith " + propdesc);
-                emit("public void setNil" + arrayName + "(int i)");
+                emit("public void setNil" + arrayName + "(int i) {");
                 startBlock();
                 emitImplementationPreamble();
                 emitPre(sType, PrePostExtension.OPERATION_SET, identifier, isAttr, "i");
@@ -2352,7 +2301,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
 
             if (!xmltype) {
                 printJavaDoc("Inserts the value as the ith " + propdesc);
-                emit("public void insert" + propertyName + "(int i, " + type + " " + safeVarName + ")");
+                emit("public void insert" + propertyName + "(int i, " + type + " " + safeVarName + ") {");
                 startBlock();
                 emitImplementationPreamble();
                 emitPre(sType, PrePostExtension.OPERATION_INSERT, identifier, isAttr, "i");
@@ -2372,7 +2321,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
                 endBlock();
 
                 printJavaDoc("Appends the value as the last " + propdesc);
-                emit("public void add" + propertyName + "(" + type + " " + safeVarName + ")");
+                emit("public void add" + propertyName + "(" + type + " " + safeVarName + ") {");
                 startBlock();
                 emitImplementationPreamble();
                 emitDeclareTarget(true, jtargetType);
@@ -2385,7 +2334,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
             }
 
             printJavaDoc("Inserts and returns a new empty value (as xml) as the ith " + propdesc);
-            emit("public " + xtype + " insertNew" + propertyName + "(int i)");
+            emit("public " + xtype + " insertNew" + propertyName + "(int i) {");
             startBlock();
             emitImplementationPreamble();
             emitDeclareTarget(true, xtype);
@@ -2403,7 +2352,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
             endBlock();
 
             printJavaDoc("Appends and returns a new empty value (as xml) as the last " + propdesc);
-            emit("public " + xtype + " addNew" + propertyName + "()");
+            emit("public " + xtype + " addNew" + propertyName + "() {");
             startBlock();
             emitImplementationPreamble();
             emitDeclareTarget(true, xtype);
@@ -2415,7 +2364,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
             endBlock();
 
             printJavaDoc("Removes the ith " + propdesc);
-            emit("public void remove" + propertyName + "(int i)");
+            emit("public void remove" + propertyName + "(int i) {");
             startBlock();
             emitImplementationPreamble();
             emitPre(sType, PrePostExtension.OPERATION_REMOVE, identifier, isAttr, "i");
@@ -2600,6 +2549,8 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
         for (int i = 0; i < exceptions.length; i++) {
             decl.append((i == 0 ? " throws " : ", ") + exceptions[i]);
         }
+
+        decl.append(" {");
 
         emit(decl.toString());
     }

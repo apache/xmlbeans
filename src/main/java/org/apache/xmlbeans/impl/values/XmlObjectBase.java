@@ -33,6 +33,8 @@ import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.*;
+import java.util.function.Function;
+import java.util.function.IntFunction;
 
 public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlObject, SimpleValue {
     public static final short MAJOR_VERSION_NUMBER = (short) 1; // for serialization
@@ -3442,4 +3444,203 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
         }
         return sAttr.getDefaultValue();
     }
+
+    private List<XmlObjectBase> getBaseArray(QName elementName) {
+        check_orphaned();
+        List<XmlObjectBase> targetList = new java.util.ArrayList<>();
+        get_store().find_all_element_users(elementName, targetList);
+        return targetList;
+    }
+
+    private List<XmlObjectBase> getBaseArray(QNameSet elementSet) {
+        check_orphaned();
+        List<XmlObjectBase> targetList = new java.util.ArrayList<>();
+        get_store().find_all_element_users(elementSet, targetList);
+        return targetList;
+    }
+
+    protected <T> T[] getObjectArray(QName elementName, Function<SimpleValue, T> fun, IntFunction<T[]> arrayCon) {
+        synchronized (monitor()) {
+            return getBaseArray(elementName).stream().map(fun).toArray(arrayCon);
+        }
+    }
+
+    protected <T> T[] getEnumArray(QName elementName, IntFunction<T[]> arrayCon) {
+        synchronized (monitor()) {
+            return getBaseArray(elementName).stream().map(SimpleValue::getEnumValue).toArray(arrayCon);
+        }
+    }
+
+    protected boolean[] getBooleanArray(QName elementName) {
+        synchronized (monitor()) {
+            List<XmlObjectBase> targetList = getBaseArray(elementName);
+            boolean[] result = new boolean[targetList.size()];
+            for (int i = 0; i < result.length; i++) {
+                result[i] = ((org.apache.xmlbeans.SimpleValue)targetList.get(i)).getBooleanValue();
+            }
+            return result;
+        }
+    }
+
+    protected float[] getFloatArray(QName elementName) {
+        synchronized (monitor()) {
+            List<XmlObjectBase> targetList = getBaseArray(elementName);
+            float[] result = new float[targetList.size()];
+            for (int i = 0; i < result.length; i++) {
+                result[i] = ((org.apache.xmlbeans.SimpleValue)targetList.get(i)).getFloatValue();
+            }
+            return result;
+        }
+    }
+
+    protected double[] getDoubleArray(QName elementName) {
+        synchronized (monitor()) {
+            List<XmlObjectBase> targetList = getBaseArray(elementName);
+            return targetList.stream()
+                .map(org.apache.xmlbeans.SimpleValue.class::cast)
+                .mapToDouble(org.apache.xmlbeans.SimpleValue::getDoubleValue)
+                .toArray();
+        }
+    }
+
+    protected byte[] getByteArray(QName elementName) {
+        synchronized (monitor()) {
+            List<XmlObjectBase> targetList = getBaseArray(elementName);
+            byte[] result = new byte[targetList.size()];
+            for (int i = 0; i < result.length; i++) {
+                result[i] = ((org.apache.xmlbeans.SimpleValue)targetList.get(i)).getByteValue();
+            }
+            return result;
+        }
+    }
+
+    protected short[] getShortArray(QName elementName) {
+        synchronized (monitor()) {
+            List<XmlObjectBase> targetList = getBaseArray(elementName);
+            short[] result = new short[targetList.size()];
+            for (int i = 0; i < result.length; i++) {
+                result[i] = ((org.apache.xmlbeans.SimpleValue)targetList.get(i)).getShortValue();
+            }
+            return result;
+        }
+    }
+
+    protected int[] getIntArray(QName elementName) {
+        synchronized (monitor()) {
+            List<XmlObjectBase> targetList = getBaseArray(elementName);
+            return targetList.stream()
+                .map(org.apache.xmlbeans.SimpleValue.class::cast)
+                .mapToInt(org.apache.xmlbeans.SimpleValue::getIntValue)
+                .toArray();
+        }
+    }
+
+    protected long[] getLongArray(QName elementName) {
+        synchronized (monitor()) {
+            List<XmlObjectBase> targetList = getBaseArray(elementName);
+            return targetList.stream()
+                .map(org.apache.xmlbeans.SimpleValue.class::cast)
+                .mapToLong(org.apache.xmlbeans.SimpleValue::getLongValue)
+                .toArray();
+        }
+    }
+
+    protected <T extends XmlObject> T[] getXmlObjectArray(QName elementName, T[] arrayCon) {
+        synchronized (monitor()) {
+            return getBaseArray(elementName).toArray(arrayCon);
+        }
+    }
+
+    protected <T> T[] getObjectArray(QNameSet elementSet, Function<SimpleValue, T> fun, IntFunction<T[]> arrayCon) {
+        synchronized (monitor()) {
+            return getBaseArray(elementSet).stream().map(fun).toArray(arrayCon);
+        }
+    }
+
+    protected <T> T[] getEnumArray(QNameSet elementSet, IntFunction<T[]> arrayCon) {
+        synchronized (monitor()) {
+            return getBaseArray(elementSet).stream().map(SimpleValue::getEnumValue).toArray(arrayCon);
+        }
+    }
+
+    protected boolean[] getBooleanArray(QNameSet elementSet) {
+        synchronized (monitor()) {
+            List<XmlObjectBase> targetList = getBaseArray(elementSet);
+            boolean[] result = new boolean[targetList.size()];
+            for (int i = 0; i < result.length; i++) {
+                result[i] = ((org.apache.xmlbeans.SimpleValue)targetList.get(i)).getBooleanValue();
+            }
+            return result;
+        }
+    }
+
+    protected float[] getFloatArray(QNameSet elementSet) {
+        synchronized (monitor()) {
+            List<XmlObjectBase> targetList = getBaseArray(elementSet);
+            float[] result = new float[targetList.size()];
+            for (int i = 0; i < result.length; i++) {
+                result[i] = ((org.apache.xmlbeans.SimpleValue)targetList.get(i)).getFloatValue();
+            }
+            return result;
+        }
+    }
+
+    protected double[] getDoubleArray(QNameSet elementSet) {
+        synchronized (monitor()) {
+            List<XmlObjectBase> targetList = getBaseArray(elementSet);
+            return targetList.stream()
+                .map(org.apache.xmlbeans.SimpleValue.class::cast)
+                .mapToDouble(org.apache.xmlbeans.SimpleValue::getDoubleValue)
+                .toArray();
+        }
+    }
+
+    protected byte[] getByteArray(QNameSet elementSet) {
+        synchronized (monitor()) {
+            List<XmlObjectBase> targetList = getBaseArray(elementSet);
+            byte[] result = new byte[targetList.size()];
+            for (int i = 0; i < result.length; i++) {
+                result[i] = ((org.apache.xmlbeans.SimpleValue)targetList.get(i)).getByteValue();
+            }
+            return result;
+        }
+    }
+
+    protected short[] getShortArray(QNameSet elementSet) {
+        synchronized (monitor()) {
+            List<XmlObjectBase> targetList = getBaseArray(elementSet);
+            short[] result = new short[targetList.size()];
+            for (int i = 0; i < result.length; i++) {
+                result[i] = ((org.apache.xmlbeans.SimpleValue)targetList.get(i)).getShortValue();
+            }
+            return result;
+        }
+    }
+
+    protected int[] getIntArray(QNameSet elementSet) {
+        synchronized (monitor()) {
+            List<XmlObjectBase> targetList = getBaseArray(elementSet);
+            return targetList.stream()
+                .map(org.apache.xmlbeans.SimpleValue.class::cast)
+                .mapToInt(org.apache.xmlbeans.SimpleValue::getIntValue)
+                .toArray();
+        }
+    }
+
+    protected long[] getLongArray(QNameSet elementSet) {
+        synchronized (monitor()) {
+            List<XmlObjectBase> targetList = getBaseArray(elementSet);
+            return targetList.stream()
+                .map(org.apache.xmlbeans.SimpleValue.class::cast)
+                .mapToLong(org.apache.xmlbeans.SimpleValue::getLongValue)
+                .toArray();
+        }
+    }
+
+    protected <T extends XmlObject> T[] getXmlObjectArray(QNameSet elementSet, T[] arrayCon) {
+        synchronized (monitor()) {
+            return getBaseArray(elementSet).toArray(arrayCon);
+        }
+    }
+
 }
