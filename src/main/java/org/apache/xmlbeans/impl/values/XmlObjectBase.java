@@ -3643,4 +3643,21 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
         }
     }
 
+    protected <T extends XmlObject> T[] xgetArray(QName elementName, IntFunction<T[]> arrayCon) {
+        synchronized (monitor()) {
+            check_orphaned();
+            java.util.List<T> targetList = new java.util.ArrayList<>();
+            get_store().find_all_element_users(elementName, targetList);
+            return targetList.stream().toArray(arrayCon);
+        }
+    }
+
+    protected <T extends XmlObject> T[] xgetArray(QNameSet elementSet, IntFunction<T[]> arrayCon) {
+        synchronized (monitor()) {
+            check_orphaned();
+            java.util.List<T> targetList = new java.util.ArrayList<>();
+            get_store().find_all_element_users(elementSet, targetList);
+            return targetList.stream().toArray(arrayCon);
+        }
+    }
 }

@@ -2033,17 +2033,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
                 printJavaDoc("Gets (as xml) array of all " + propdesc + "s");
                 emit("public " + xtype + "[] xget" + arrayName + "() {");
                 startBlock();
-                emitImplementationPreamble();
-                if (_useJava15) {
-                    emit("java.util.List<" + xtype + "> targetList = new java.util.ArrayList<" + xtype + ">();");
-                } else {
-                    emit("java.util.List targetList = new java.util.ArrayList();");
-                }
-                emit("get_store().find_all_element_users(" + setIdentifier + ", targetList);");
-                emit(xtype + "[] result = new " + xtype + "[targetList.size()];");
-                emit("targetList.toArray(result);");
-                emit("return result;");
-                emitImplementationPostamble();
+                emit("return xgetArray(" + setIdentifier + ", " + xtype + "[]::new);");
                 endBlock();
 
                 // Value xgetProp(int i)
