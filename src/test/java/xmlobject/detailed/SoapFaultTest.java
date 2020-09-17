@@ -15,6 +15,7 @@
 
 package xmlobject.detailed;
 
+import org.apache.xmlbeans.XmlError;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
 import org.junit.Ignore;
@@ -39,7 +40,7 @@ public class SoapFaultTest {
     @Ignore
     public void testSetDetail() throws Exception {
         Fault fault = Fault.Factory.newInstance();
-        fault.setDetail(Detail.Factory.parse(XmlObject.Factory.parse("<foo/>").newXMLInputStream()));
+        fault.setDetail(Detail.Factory.parse(XmlObject.Factory.parse("<foo/>").newXMLStreamReader()));
 
         assertEquals("<detail><foo/></detail>", fault.xmlText());
         assertEquals("<xml-fragment><foo/></xml-fragment>", fault.getDetail().xmlText());
@@ -58,10 +59,10 @@ public class SoapFaultTest {
             XmlObject.Factory.parse("<foo/>").changeType(Detail.type));
 
         String expect = "<xml-fragment>" +
-            "<faultcode xmlns:soapenv=\"" + soapenv + "\">soapenv:foo</faultcode>" +
-            "<faultstring>Undefined</faultstring>" +
-            "<detail><foo/></detail>" +
-            "</xml-fragment>";
+                        "<faultcode xmlns:soapenv=\"" + soapenv + "\">soapenv:foo</faultcode>" +
+                        "<faultstring>Undefined</faultstring>" +
+                        "<detail><foo/></detail>" +
+                        "</xml-fragment>";
         assertEquals(expect, fault.xmlText());
         assertEquals(new QName(soapenv, "foo"), fault.getFaultcode());
         assertEquals("Undefined", fault.getFaultstring());
@@ -93,7 +94,7 @@ public class SoapFaultTest {
 
         Fault faultDoc = Fault.Factory.parse(soapFault);
         XmlOptions opt = new XmlOptions();
-        ArrayList errors = new ArrayList();
+        ArrayList<XmlError> errors = new ArrayList<>();
         opt.setErrorListener(errors);
         assertTrue(faultDoc.validate(opt));
         assertEquals(new QName(soapenv, "Server"), faultDoc.getFaultcode());

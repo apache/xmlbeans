@@ -15,55 +15,52 @@
 package random.common;
 
 
-import org.apache.xmlbeans.XmlCursor;
-import org.apache.xmlbeans.XmlBeans;
-import org.apache.xmlbeans.XmlObject;
-import org.apache.xmlbeans.XmlOptions;
-import org.apache.xmlbeans.SchemaType;
+import com.easypo.XmlCustomerBean;
+import com.easypo.XmlLineItemBean;
+import com.easypo.XmlPurchaseOrderDocumentBean.PurchaseOrder;
+import com.easypo.XmlShipperBean;
+import org.apache.xmlbeans.*;
 import org.apache.xmlbeans.impl.tool.CommandLine;
 import org.apache.xmlbeans.impl.values.XmlValueDisconnectedException;
 
+import javax.xml.namespace.QName;
+import javax.xml.stream.XMLStreamReader;
 import java.io.ByteArrayOutputStream;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Arrays;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import javax.xml.namespace.QName;
-
-import org.apache.xmlbeans.xml.stream.XMLInputStream;
-
-import com.easypo.XmlPurchaseOrderDocumentBean.PurchaseOrder;
-import com.easypo.XmlCustomerBean;
-import com.easypo.XmlLineItemBean;
-import com.easypo.XmlShipperBean;
+import java.util.ArrayList;
+import java.util.Calendar;
 
 public class Random implements Runnable {
 
-   static long seed;
-   static int iterations;
-   static int threads;
-   static int docs;
+    static long seed;
+    static int iterations;
+    static int threads;
+    static int docs;
 
 
     public static void runTest(CommandLine cl) {
         if (cl.getOpt("?") != null || cl.getOpt("help") != null ||
-                cl.args().length != 0)
+            cl.args().length != 0) {
             System.out.println(
-                    "Usage: random [-seed #] [-i iterations] [-t threads] [-docs docs] [-readonly] [-nosave]");
-        else {
+                "Usage: random [-seed #] [-i iterations] [-t threads] [-docs docs] [-readonly] [-nosave]");
+        } else {
             boolean readonly = false;
             boolean nosave = false;
             boolean noquery = false;
 
-            if (cl.getOpt("seed") != null)
+            if (cl.getOpt("seed") != null) {
                 seed = Long.parseLong(cl.getOpt("seed"));
-            if (cl.getOpt("i") != null)
+            }
+            if (cl.getOpt("i") != null) {
                 iterations = Integer.parseInt(cl.getOpt("i"));
-            if (cl.getOpt("t") != null)
+            }
+            if (cl.getOpt("t") != null) {
                 threads = Integer.parseInt(cl.getOpt("t"));
-            if (cl.getOpt("docs") != null)
+            }
+            if (cl.getOpt("docs") != null) {
                 docs = Integer.parseInt(cl.getOpt("docs"));
+            }
             noquery = (cl.getOpt("noquery") != null);
             readonly = (cl.getOpt("readonly") != null);
             nosave = (cl.getOpt("nosave") != null);
@@ -90,7 +87,7 @@ public class Random implements Runnable {
         for (int i = 0; i < iterations; i++) {
             for (int j = 0; j < threadCount; j++) {
                 Random runnable = new Random(seed, sharedDocs, readonly,
-                        nosave, noquery, threadCount > 1);
+                    nosave, noquery, threadCount > 1);
                 threads[j] = new Thread(runnable);
                 threads[j].start();
                 seed++;
@@ -98,8 +95,7 @@ public class Random implements Runnable {
             for (int j = 0; j < threadCount; j++) {
                 try {
                     threads[j].join();
-                }
-                catch (InterruptedException e) {
+                } catch (InterruptedException e) {
                     System.err.println("Thread interrupted");
                 }
             }
@@ -109,15 +105,16 @@ public class Random implements Runnable {
 
         System.err.println();
         System.err.println(
-                "Seconds to run random tests: " + (end - start) / 1000);
+            "Seconds to run random tests: " + (end - start) / 1000);
     }
 
     public void run() {
         System.err.print("\rSeed: " + _seed);
 
         try {
-            for (int d = 0; d < _docs.length; d++)
+            for (int d = 0; d < _docs.length; d++) {
                 _docs[d] = XmlObject.Factory.newInstance();
+            }
 
             _cursors = new ArrayList();
 
@@ -129,8 +126,7 @@ public class Random implements Runnable {
                     _iter++;
                     iterate();
                     good = true;
-                }
-                finally {
+                } finally {
                     if (!good) {
                         System.err.println();
                         System.err.println("Error on iteration " + _iter);
@@ -138,8 +134,7 @@ public class Random implements Runnable {
                     }
                 }
             }
-        }
-        catch (Throwable e) {
+        } catch (Throwable e) {
             System.err.println("Error on seed " + _seed);
             e.printStackTrace(System.err);
         }
@@ -199,16 +194,15 @@ public class Random implements Runnable {
                     interateLow();
                     break;
             }
-        }
-        catch (IllegalStateException e) {
-            if (!_interference)
+        } catch (IllegalStateException e) {
+            if (!_interference) {
                 throw e;
-        }
-        catch (IllegalArgumentException e) {
-            if (!_interference)
+            }
+        } catch (IllegalArgumentException e) {
+            if (!_interference) {
                 throw e;
-        }
-        catch (XmlValueDisconnectedException e) {
+            }
+        } catch (XmlValueDisconnectedException e) {
 
         }
     }
@@ -337,7 +331,7 @@ public class Random implements Runnable {
                 execQuery();
                 break;
             case 10:
-                xmlInputStream();
+                xmlStreamReader();
                 break;
             case 11:
                 docBytes();
@@ -364,31 +358,37 @@ public class Random implements Runnable {
         XmlCursor c = getCursor();
         c.push();
 
-        while (!(c.isContainer() || c.isAttr()))
-            if (c.toNextToken().isNone())
+        while (!(c.isContainer() || c.isAttr())) {
+            if (c.toNextToken().isNone()) {
                 break;
+            }
+        }
 
         if (!c.isEnddoc()) {
             XmlObject x = c.getObject();
             c.pop();
-            if (x == null)
+            if (x == null) {
                 throw new IllegalStateException(
-                        "getObject returned null - content must have changed");
+                    "getObject returned null - content must have changed");
+            }
             return x;
         }
 
         c.pop();
         c.push();
 
-        while (!(c.isContainer() || c.isAttr()))
-            if (c.toPrevToken().isNone())
+        while (!(c.isContainer() || c.isAttr())) {
+            if (c.toPrevToken().isNone()) {
                 break;
+            }
+        }
 
         XmlObject x = c.getObject();
         c.pop();
-        if (x == null)
+        if (x == null) {
             throw new IllegalStateException(
-                    "getObject returned null - content must have changed");
+                "getObject returned null - content must have changed");
+        }
         return x;
     }
 
@@ -413,11 +413,9 @@ public class Random implements Runnable {
             o = findObject();
             SchemaType type = findObject().schemaType();
             n = o.changeType(type);
-        }
-        catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
             return;
-        }
-        catch (IllegalStateException e) {
+        } catch (IllegalStateException e) {
             return;
         }
 
@@ -440,38 +438,40 @@ public class Random implements Runnable {
     private void setName() {
         XmlCursor c = findObject().newCursor();
 
-        if (!c.isStartdoc())
+        if (!c.isStartdoc()) {
             c.setName(getQName());
+        }
 
         c.dispose();
     }
 
     private void newDomNode() {
-        if (rnd(5) != 0)
+        if (rnd(5) != 0) {
             return;
+        }
 
         try {
             getCursor().newDomNode();
-        }
-        catch (IllegalStateException e) {
+        } catch (IllegalStateException e) {
         }
     }
 
-    private void xmlInputStream() throws Exception {
-        if (rnd(5) != 0)
+    private void xmlStreamReader() throws Exception {
+        if (rnd(5) != 0) {
             return;
+        }
 
-        XMLInputStream xis;
+        XMLStreamReader xis;
 
         try {
-            xis = getCursor().newXMLInputStream();
-        }
-        catch (IllegalStateException e) {
+            xis = getCursor().newXMLStreamReader();
+        } catch (IllegalStateException e) {
             return;
         }
 
-        while (xis.next() != null)
-            ;
+        while (xis.hasNext()) {
+            xis.next();
+        }
     }
 
     private void objectSet() {
@@ -488,14 +488,17 @@ public class Random implements Runnable {
             XmlCustomerBean o = (XmlCustomerBean) x;
             o.setName("Bob");
 
-            if (rnd(2) == 0)
+            if (rnd(2) == 0) {
                 o.setAge(23);
+            }
 
-            if (rnd(2) == 0)
+            if (rnd(2) == 0) {
                 o.setMoo(24);
+            }
 
-            if (rnd(2) == 0)
+            if (rnd(2) == 0) {
                 o.setPoo(200);
+            }
         } else if (x instanceof XmlLineItemBean) {
             XmlLineItemBean o = (XmlLineItemBean) x;
             o.setPerUnitOunces(new BigDecimal(122.44));
@@ -517,22 +520,25 @@ public class Random implements Runnable {
     }
 
     private void execQuery() {
-        if (_noquery)
+        if (_noquery) {
             return;
+        }
 
-        if (rnd(20) > 0)
+        if (rnd(20) > 0) {
             return;
+        }
 
         QName name = getQName();
 
         String query =
-                "declare namespace xxx='" + name.getNamespaceURI() + "' " +
-                ".//xxx:" + name.getLocalPart();
+            "declare namespace xxx='" + name.getNamespaceURI() + "' " +
+            ".//xxx:" + name.getLocalPart();
 
         XmlObject x = getCursor().execQuery(query).getObject();
 
-        if (rnd(3) == 0)
+        if (rnd(3) == 0) {
             _docs[rnd(_docs.length)] = x;
+        }
     }
 
     private void getObject() {
@@ -548,19 +554,18 @@ public class Random implements Runnable {
             getCursor().isInSameDocument(getCursor());
             getCursor().comparePosition(getCursor());
             getCursor().isAtSamePositionAs(getCursor());
-        }
-        catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
         }
     }
 
     private String[] _xmls =
-            {
-                "<a/>",
-            };
+        {
+            "<a/>",
+        };
 
     private String[] _schema_xmls =
-            {
-                "<po:purchase-order xmlns:po='http://openuri.org/easypo'>\n" +
+        {
+            "<po:purchase-order xmlns:po='http://openuri.org/easypo'>\n" +
             "<po:customer age='31' poo='200'>\n" +
             "<po:name>David Bau</po:name>\n" +
             "<po:address>Gladwyne, PA</po:address>\n" +
@@ -594,20 +599,20 @@ public class Random implements Runnable {
             "</po:shipper>\n" +
             "</po:purchase-order>\n" +
             "",
-            };
+        };
 
     private void loadDoc() throws Exception {
         if (rnd(15) == 0) {
             _docs[rnd(_docs.length)] =
-                    XmlObject.Factory.parse(_xmls[rnd(_xmls.length)]);
+                XmlObject.Factory.parse(_xmls[rnd(_xmls.length)]);
         }
     }
 
     private void loadSchemadDoc() throws Exception {
         if (rnd(4) == 0) {
             _docs[rnd(_docs.length)] =
-                    XmlObject.Factory.parse(
-                            _schema_xmls[rnd(_schema_xmls.length)]);
+                XmlObject.Factory.parse(
+                    _schema_xmls[rnd(_schema_xmls.length)]);
         }
     }
 
@@ -620,18 +625,19 @@ public class Random implements Runnable {
     }
 
     private char[] _chars =
-            {
-                'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n',
-                'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
-                '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
-                ' ', '<', '>', '&', '-', '?'
-            };
+        {
+            'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n',
+            'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
+            '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
+            ' ', '<', '>', '&', '-', '?'
+        };
 
     private void getTextValue() {
         XmlCursor c = getCursor();
 
-        if (c.isFinish() || c.isNamespace() || c.isText())
+        if (c.isFinish() || c.isNamespace() || c.isText()) {
             return;
+        }
 
         c.getTextValue();
     }
@@ -639,13 +645,15 @@ public class Random implements Runnable {
     private void setTextValue() {
         XmlCursor c = getCursor();
 
-        if (c.isFinish() || c.isNamespace() || c.isText())
+        if (c.isFinish() || c.isNamespace() || c.isText()) {
             return;
+        }
 
         StringBuilder sb = new StringBuilder();
 
-        for (int i = rnd(10); i >= 0; i--)
+        for (int i = rnd(10); i >= 0; i--) {
             sb.append(_chars[rnd(_chars.length)]);
+        }
 
         c.setTextValue(sb.toString());
     }
@@ -653,20 +661,16 @@ public class Random implements Runnable {
     private void moveText() {
         try {
             getCursor().moveChars(rnd(10), getCursor());
-        }
-        catch (IllegalArgumentException e) {
-        }
-        catch (IllegalStateException e) {
+        } catch (IllegalArgumentException e) {
+        } catch (IllegalStateException e) {
         }
     }
 
     private void copyText() {
         try {
             getCursor().copyChars(rnd(10), getCursor());
-        }
-        catch (IllegalArgumentException e) {
-        }
-        catch (IllegalStateException e) {
+        } catch (IllegalArgumentException e) {
+        } catch (IllegalStateException e) {
         }
     }
 
@@ -677,33 +681,31 @@ public class Random implements Runnable {
     private void insertComment() {
         try {
             getCursor().insertComment("poo");
-        }
-        catch (IllegalArgumentException e) {
-        }
-        catch (IllegalStateException e) {
+        } catch (IllegalArgumentException e) {
+        } catch (IllegalStateException e) {
         }
     }
 
     private void insertProcinst() {
         try {
             getCursor().insertProcInst("target", "val");
-        }
-        catch (IllegalArgumentException e) {
-        }
-        catch (IllegalStateException e) {
+        } catch (IllegalArgumentException e) {
+        } catch (IllegalStateException e) {
         }
     }
 
     private void insertText() {
         XmlCursor c = getCursor();
 
-        if (c.isAnyAttr() || c.isStartdoc())
+        if (c.isAnyAttr() || c.isStartdoc()) {
             return;
+        }
 
         StringBuilder sb = new StringBuilder();
 
-        for (int i = rnd(10); i >= 0; i--)
+        for (int i = rnd(10); i >= 0; i--) {
             sb.append(_chars[rnd(_chars.length)]);
+        }
 
         c.insertChars(sb.toString());
     }
@@ -753,8 +755,9 @@ public class Random implements Runnable {
     private void insertElem() throws Exception {
         XmlCursor c = getCursor();
 
-        if (c.isAnyAttr() || c.isStartdoc())
+        if (c.isAnyAttr() || c.isStartdoc()) {
             return;
+        }
 
         c.insertElement(getQName());
     }
@@ -762,11 +765,13 @@ public class Random implements Runnable {
     public void insertAttr() {
         XmlCursor c = getCursor();
 
-        while (!c.isEnddoc() && !c.isContainer())
+        while (!c.isEnddoc() && !c.isContainer()) {
             c.toNextToken();
+        }
 
-        if (c.isEnddoc())
+        if (c.isEnddoc()) {
             return;
+        }
 
         c.toNextToken();
 
@@ -782,48 +787,41 @@ public class Random implements Runnable {
     public void copyXmlContents() {
         try {
             getCursor().copyXmlContents(getCursor());
-        }
-        catch (IllegalArgumentException e) {
-        }
-        catch (IllegalStateException e) {
+        } catch (IllegalArgumentException e) {
+        } catch (IllegalStateException e) {
         }
     }
 
     public void copyXml() {
         try {
             getCursor().copyXml(getCursor());
-        }
-        catch (IllegalArgumentException e) {
-        }
-        catch (IllegalStateException e) {
+        } catch (IllegalArgumentException e) {
+        } catch (IllegalStateException e) {
         }
     }
 
     public void moveXmlContents() {
         try {
             getCursor().moveXmlContents(getCursor());
-        }
-        catch (IllegalArgumentException e) {
-        }
-        catch (IllegalStateException e) {
+        } catch (IllegalArgumentException e) {
+        } catch (IllegalStateException e) {
         }
     }
 
     public void moveXml() {
         try {
             getCursor().moveXml(getCursor());
-        }
-        catch (IllegalArgumentException e) {
-        }
-        catch (IllegalStateException e) {
+        } catch (IllegalArgumentException e) {
+        } catch (IllegalStateException e) {
         }
     }
 
     public void removeXml() {
         XmlCursor c = getCursor();
 
-        if (!c.isStartdoc() && !c.isFinish())
+        if (!c.isStartdoc() && !c.isFinish()) {
             c.removeXml();
+        }
     }
 
     public static class Bookmark extends XmlCursor.XmlBookmark {

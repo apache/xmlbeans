@@ -15,7 +15,6 @@
 
 package org.apache.xmlbeans;
 
-import org.apache.xmlbeans.xml.stream.XMLInputStream;
 import org.w3c.dom.Node;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
@@ -62,24 +61,6 @@ public interface XmlTokenSource {
      * document into memory.
      */
     XmlCursor newCursor();
-
-    /**
-     * Returns a new XmlInputStream.
-     * <p>
-     * The stream starts at the current begin-tag or begin-document
-     * position and ends at the matching end-tag or end-document.
-     * <p>
-     * This is a fail-fast stream, so if the underlying data is changed
-     * while the stream is being read, the stream throws a
-     * ConcurrentModificationException.
-     * <p>
-     * Throws an IllegalStateException if the XmlTokenSource is not
-     * positioned at begin-tag or begin-document (e.g., if it is at
-     * an attribute).
-     *
-     * @deprecated XMLInputStream was deprecated by XMLStreamReader from STaX - jsr173 API.
-     */
-    XMLInputStream newXMLInputStream();
 
     /**
      * Returns a new XMLStreamReader.
@@ -198,8 +179,18 @@ public interface XmlTokenSource {
     void save(Writer w) throws IOException;
 
     /**
-     * <p>Just like newXMLInputStream() but with any of a number of options. Use the
-     * <em>options</em> parameter to specify the following:</p>
+     * Returns a new XMLStreamReader.
+     * <p>
+     * The stream starts at the current begin-tag or begin-document
+     * position and ends at the matching end-tag or end-document.
+     * <p>
+     * This is a fail-fast stream, so if the underlying data is changed
+     * while the stream is being read, the stream throws a
+     * ConcurrentModificationException.
+     * <p>
+     * Throws an IllegalStateException if the XmlTokenSource is not
+     * positioned at begin-tag or begin-document (e.g., if it is at
+     * an attribute).
      *
      * <table>
      * <tr><th>To specify this</th><th>Use this method</th></tr>
@@ -278,17 +269,8 @@ public interface XmlTokenSource {
      * </tr>
      * </table>
      *
-     * @param options Any of the described options.
-     * @return A new validating XMLInputStream.
-     * @see XmlOptions
-     * @deprecated XMLInputStream was deprecated by XMLStreamReader from STaX - jsr173 API.
-     */
-    XMLInputStream newXMLInputStream(XmlOptions options);
-
-    /**
-     * Just like newXMLInputStream() but with options.
-     * Options map may be null.
-     *
+     * @param options Any of the described options. Options map may be null.
+     * @return A new validating XMLStreamReader.
      * @see XmlOptions
      */
     XMLStreamReader newXMLStreamReader(XmlOptions options);

@@ -15,9 +15,6 @@
 
 package org.apache.xmlbeans;
 
-import javax.xml.stream.XMLStreamReader;
-
-
 /**
  * Corresponds to the XML Schema
  * <a target="_blank" href="http://www.w3.org/TR/xmlschema-2/#unsignedInt">xs:unsignedInt</a> type.
@@ -26,24 +23,33 @@ import javax.xml.stream.XMLStreamReader;
  * Verified to be in the range 0..4294967295 when validating.
  * <p>
  * Convertible to Java long.
- */ 
-public interface XmlUnsignedInt extends XmlUnsignedLong
-{
-    /** The constant {@link SchemaType} object representing this schema type. */
-    public static final SchemaType type = XmlBeans.getBuiltinTypeSystem().typeForHandle("_BI_unsignedInt");
-    
-    /** Returns this value as a long */
+ */
+public interface XmlUnsignedInt extends XmlUnsignedLong {
+    /**
+     * The constant {@link SchemaType} object representing this schema type.
+     */
+    SchemaType type = XmlBeans.getBuiltinTypeSystem().typeForHandle("_BI_unsignedInt");
+
+    /**
+     * Returns this value as a long
+     */
     long getLongValue();
-    /** Sets this value as a long */
+
+    /**
+     * Sets this value as a long
+     */
     void setLongValue(long v);
 
     /**
      * Returns this value as a long
+     *
      * @deprecated replaced with {@link #getLongValue}
      **/
     long longValue();
+
     /**
      * Sets this value as a long
+     *
      * @deprecated replaced with {@link #setLongValue}
      **/
     void set(long v);
@@ -52,101 +58,129 @@ public interface XmlUnsignedInt extends XmlUnsignedLong
      * A class with methods for creating instances
      * of {@link XmlUnsignedInt}.
      */
-    public static final class Factory
-    {
-        /** Creates an empty instance of {@link XmlUnsignedInt} */
+    final class Factory {
+        /**
+         * Creates an empty instance of {@link XmlUnsignedInt}
+         */
         public static XmlUnsignedInt newInstance() {
-          return (XmlUnsignedInt) XmlBeans.getContextTypeLoader().newInstance( type, null ); }
-        
-        /** Creates an empty instance of {@link XmlUnsignedInt} */
+            return (XmlUnsignedInt) XmlBeans.getContextTypeLoader().newInstance(type, null);
+        }
+
+        /**
+         * Creates an empty instance of {@link XmlUnsignedInt}
+         */
         public static XmlUnsignedInt newInstance(org.apache.xmlbeans.XmlOptions options) {
-          return (XmlUnsignedInt) XmlBeans.getContextTypeLoader().newInstance( type, options ); }
-        
-        /** Creates an immutable {@link XmlUnsignedInt} value */
+            return (XmlUnsignedInt) XmlBeans.getContextTypeLoader().newInstance(type, options);
+        }
+
+        /**
+         * Creates an immutable {@link XmlUnsignedInt} value
+         */
         public static XmlUnsignedInt newValue(Object obj) {
-          return (XmlUnsignedInt) type.newValue( obj ); }
-        
-        /** Parses a {@link XmlUnsignedInt} fragment from a String. For example: "<code>&lt;xml-fragment&gt;1234567&lt;/xml-fragment&gt;</code>". */
+            return (XmlUnsignedInt) type.newValue(obj);
+        }
+
+        /**
+         * Parses a {@link XmlUnsignedInt} fragment from a String. For example: "<code>&lt;xml-fragment&gt;1234567&lt;/xml-fragment&gt;</code>".
+         */
         public static XmlUnsignedInt parse(java.lang.String s) throws org.apache.xmlbeans.XmlException {
-          return (XmlUnsignedInt) XmlBeans.getContextTypeLoader().parse( s, type, null ); }
-        
-        /** Parses a {@link XmlUnsignedInt} fragment from a String. For example: "<code>&lt;xml-fragment&gt;1234567&lt;/xml-fragment&gt;</code>". */
+            return (XmlUnsignedInt) XmlBeans.getContextTypeLoader().parse(s, type, null);
+        }
+
+        /**
+         * Parses a {@link XmlUnsignedInt} fragment from a String. For example: "<code>&lt;xml-fragment&gt;1234567&lt;/xml-fragment&gt;</code>".
+         */
         public static XmlUnsignedInt parse(java.lang.String s, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException {
-          return (XmlUnsignedInt) XmlBeans.getContextTypeLoader().parse( s, type, options ); }
-        
-        /** Parses a {@link XmlUnsignedInt} fragment from a File. */
+            return (XmlUnsignedInt) XmlBeans.getContextTypeLoader().parse(s, type, options);
+        }
+
+        /**
+         * Parses a {@link XmlUnsignedInt} fragment from a File.
+         */
         public static XmlUnsignedInt parse(java.io.File f) throws org.apache.xmlbeans.XmlException, java.io.IOException {
-          return (XmlUnsignedInt) XmlBeans.getContextTypeLoader().parse( f, type, null ); }
-        
-        /** Parses a {@link XmlUnsignedInt} fragment from a File. */
+            return (XmlUnsignedInt) XmlBeans.getContextTypeLoader().parse(f, type, null);
+        }
+
+        /**
+         * Parses a {@link XmlUnsignedInt} fragment from a File.
+         */
         public static XmlUnsignedInt parse(java.io.File f, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException, java.io.IOException {
-          return (XmlUnsignedInt) XmlBeans.getContextTypeLoader().parse( f, type, options ); }
-        
-        /** Parses a {@link XmlUnsignedInt} fragment from a URL. */
+            return (XmlUnsignedInt) XmlBeans.getContextTypeLoader().parse(f, type, options);
+        }
+
+        /**
+         * Parses a {@link XmlUnsignedInt} fragment from a URL.
+         */
         public static XmlUnsignedInt parse(java.net.URL u) throws org.apache.xmlbeans.XmlException, java.io.IOException {
-          return (XmlUnsignedInt) XmlBeans.getContextTypeLoader().parse( u, type, null ); }
+            return (XmlUnsignedInt) XmlBeans.getContextTypeLoader().parse(u, type, null);
+        }
 
-        /** Parses a {@link XmlUnsignedInt} fragment from a URL. */
+        /**
+         * Parses a {@link XmlUnsignedInt} fragment from a URL.
+         */
         public static XmlUnsignedInt parse(java.net.URL u, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException, java.io.IOException {
-          return (XmlUnsignedInt) XmlBeans.getContextTypeLoader().parse( u, type, options ); }
+            return (XmlUnsignedInt) XmlBeans.getContextTypeLoader().parse(u, type, options);
+        }
 
-        /** Parses a {@link XmlUnsignedInt} fragment from an InputStream. */
+        /**
+         * Parses a {@link XmlUnsignedInt} fragment from an InputStream.
+         */
         public static XmlUnsignedInt parse(java.io.InputStream is) throws org.apache.xmlbeans.XmlException, java.io.IOException {
-          return (XmlUnsignedInt) XmlBeans.getContextTypeLoader().parse( is, type, null ); }
-        
-        /** Parses a {@link XmlUnsignedInt} fragment from an InputStream. */
+            return (XmlUnsignedInt) XmlBeans.getContextTypeLoader().parse(is, type, null);
+        }
+
+        /**
+         * Parses a {@link XmlUnsignedInt} fragment from an InputStream.
+         */
         public static XmlUnsignedInt parse(java.io.InputStream is, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException, java.io.IOException {
-          return (XmlUnsignedInt) XmlBeans.getContextTypeLoader().parse( is, type, options ); }
-        
-        /** Parses a {@link XmlUnsignedInt} fragment from a Reader. */
+            return (XmlUnsignedInt) XmlBeans.getContextTypeLoader().parse(is, type, options);
+        }
+
+        /**
+         * Parses a {@link XmlUnsignedInt} fragment from a Reader.
+         */
         public static XmlUnsignedInt parse(java.io.Reader r) throws org.apache.xmlbeans.XmlException, java.io.IOException {
-          return (XmlUnsignedInt) XmlBeans.getContextTypeLoader().parse( r, type, null ); }
-        
-        /** Parses a {@link XmlUnsignedInt} fragment from a Reader. */
+            return (XmlUnsignedInt) XmlBeans.getContextTypeLoader().parse(r, type, null);
+        }
+
+        /**
+         * Parses a {@link XmlUnsignedInt} fragment from a Reader.
+         */
         public static XmlUnsignedInt parse(java.io.Reader r, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException, java.io.IOException {
-          return (XmlUnsignedInt) XmlBeans.getContextTypeLoader().parse( r, type, options ); }
-        
-        /** Parses a {@link XmlUnsignedInt} fragment from a DOM Node. */
+            return (XmlUnsignedInt) XmlBeans.getContextTypeLoader().parse(r, type, options);
+        }
+
+        /**
+         * Parses a {@link XmlUnsignedInt} fragment from a DOM Node.
+         */
         public static XmlUnsignedInt parse(org.w3c.dom.Node node) throws org.apache.xmlbeans.XmlException {
-          return (XmlUnsignedInt) XmlBeans.getContextTypeLoader().parse( node, type, null ); }
-        
-        /** Parses a {@link XmlUnsignedInt} fragment from a DOM Node. */
+            return (XmlUnsignedInt) XmlBeans.getContextTypeLoader().parse(node, type, null);
+        }
+
+        /**
+         * Parses a {@link XmlUnsignedInt} fragment from a DOM Node.
+         */
         public static XmlUnsignedInt parse(org.w3c.dom.Node node, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException {
-          return (XmlUnsignedInt) XmlBeans.getContextTypeLoader().parse( node, type, options ); }
-        
-        /** Parses a {@link XmlUnsignedInt} fragment from an XMLInputStream.
-         * @deprecated XMLInputStream was deprecated by XMLStreamReader from STaX - jsr173 API.
+            return (XmlUnsignedInt) XmlBeans.getContextTypeLoader().parse(node, type, options);
+        }
+
+        /**
+         * Parses a {@link XmlUnsignedInt} fragment from an XMLStreamReader.
          */
-        public static XmlUnsignedInt parse(org.apache.xmlbeans.xml.stream.XMLInputStream xis) throws org.apache.xmlbeans.XmlException, org.apache.xmlbeans.xml.stream.XMLStreamException {
-          return (XmlUnsignedInt) XmlBeans.getContextTypeLoader().parse( xis, type, null ); }
-        
-        /** Parses a {@link XmlUnsignedInt} fragment from an XMLInputStream.
-         * @deprecated XMLInputStream was deprecated by XMLStreamReader from STaX - jsr173 API.
-         */
-        public static XmlUnsignedInt parse(org.apache.xmlbeans.xml.stream.XMLInputStream xis, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException, org.apache.xmlbeans.xml.stream.XMLStreamException {
-          return (XmlUnsignedInt) XmlBeans.getContextTypeLoader().parse( xis, type, options ); }
-        
-        /** Parses a {@link XmlUnsignedInt} fragment from an XMLStreamReader. */
         public static XmlUnsignedInt parse(javax.xml.stream.XMLStreamReader xsr) throws org.apache.xmlbeans.XmlException {
-          return (XmlUnsignedInt) XmlBeans.getContextTypeLoader().parse( xsr, type, null ); }
-        
-        /** Parses a {@link XmlUnsignedInt} fragment from an XMLStreamReader. */
-        public static XmlUnsignedInt parse(javax.xml.stream.XMLStreamReader xsr, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException{
-          return (XmlUnsignedInt) XmlBeans.getContextTypeLoader().parse( xsr, type, options ); }
-        
-        /** Returns a validating XMLInputStream.
-         * @deprecated XMLInputStream was deprecated by XMLStreamReader from STaX - jsr173 API.
+            return (XmlUnsignedInt) XmlBeans.getContextTypeLoader().parse(xsr, type, null);
+        }
+
+        /**
+         * Parses a {@link XmlUnsignedInt} fragment from an XMLStreamReader.
          */
-        public static org.apache.xmlbeans.xml.stream.XMLInputStream newValidatingXMLInputStream(org.apache.xmlbeans.xml.stream.XMLInputStream xis) throws org.apache.xmlbeans.XmlException, org.apache.xmlbeans.xml.stream.XMLStreamException {
-          return XmlBeans.getContextTypeLoader().newValidatingXMLInputStream( xis, type, null ); }
-        
-        /** Returns a validating XMLInputStream.
-         * @deprecated XMLInputStream was deprecated by XMLStreamReader from STaX - jsr173 API.
-         */
-        public static org.apache.xmlbeans.xml.stream.XMLInputStream newValidatingXMLInputStream(org.apache.xmlbeans.xml.stream.XMLInputStream xis, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException, org.apache.xmlbeans.xml.stream.XMLStreamException {
-          return XmlBeans.getContextTypeLoader().newValidatingXMLInputStream( xis, type, options ); }
-        
-        private Factory() { } // No instance of this class allowed
+        public static XmlUnsignedInt parse(javax.xml.stream.XMLStreamReader xsr, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException {
+            return (XmlUnsignedInt) XmlBeans.getContextTypeLoader().parse(xsr, type, options);
+        }
+
+        private Factory() {
+            // No instance of this class allowed
+        }
     }
 }
 

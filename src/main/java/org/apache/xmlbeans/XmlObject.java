@@ -15,19 +15,15 @@
 
 package org.apache.xmlbeans;
 
-import org.apache.xmlbeans.xml.stream.XMLInputStream;
-import org.apache.xmlbeans.xml.stream.XMLStreamException;
-
-import javax.xml.stream.XMLStreamReader;
-import javax.xml.namespace.QName;
-
-import org.w3c.dom.Node;
 import org.w3c.dom.DOMImplementation;
+import org.w3c.dom.Node;
 
-import java.io.InputStream;
+import javax.xml.namespace.QName;
+import javax.xml.stream.XMLStreamReader;
 import java.io.File;
-import java.io.Reader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.Reader;
 
 /**
  * Corresponds to the XML Schema
@@ -59,7 +55,7 @@ import java.io.IOException;
  * <li>It is also simple to copy an XmlObject instance to or from a standard
  *     DOM tree or SAX stream.  Use {@link XmlObject.Factory#parse(Node)},
  *     for example, to load from DOM; use {@link XmlObject.Factory#newXmlSaxHandler}
- *     to load from SAX; use {@link #newDomNode()} to save to DOM; and use 
+ *     to load from SAX; use {@link #newDomNode()} to save to DOM; and use
  *     {@link #save(org.xml.sax.ContentHandler, org.xml.sax.ext.LexicalHandler)}
  *     to save to SAX.
  * <li>Use {@link #validate} to validate the subtree of XML under this
@@ -69,7 +65,7 @@ import java.io.IOException;
  * <li>Use {@link #newCursor} to access the full XML infoset, for example,
  *     if you need to determine interleaved element order or manipulate
  *     annotations, comments, or mixed content.  You can get an element name with
- *     a cursor by calling {@link XmlCursor#getName() cursor.getName()} when the 
+ *     a cursor by calling {@link XmlCursor#getName() cursor.getName()} when the
  *     cursor is positioned at an element's START token. See {@link XmlCursor}.
  * <li>Use {@link #selectPath} to find other XmlObjects in the subtree underneath
  *     this XmlObject using relative XPaths.  (In selectPath, "." indicates
@@ -131,12 +127,13 @@ import java.io.IOException;
  * If you need to implement XmlObject yourself, you should subclass
  * FilterXmlObject in order to delegate to another underlying XmlObject
  * implementation. This technique will allow you to use your code unchanged
- * with future versions of XMLBeans that add additional methods on XmlObject. 
- */ 
-public interface XmlObject extends XmlTokenSource
-{
-    /** The constant {@link SchemaType} object representing this schema type. */
-    public static final SchemaType type = XmlBeans.getBuiltinTypeSystem().typeForHandle("_BI_anyType");
+ * with future versions of XMLBeans that add additional methods on XmlObject.
+ */
+public interface XmlObject extends XmlTokenSource {
+    /**
+     * The constant {@link SchemaType} object representing this schema type.
+     */
+    SchemaType type = XmlBeans.getBuiltinTypeSystem().typeForHandle("_BI_anyType");
 
     /**
      * @return The schema type for this instance. This is a permanent,
@@ -161,16 +158,16 @@ public interface XmlObject extends XmlTokenSource
      * use the {@link XmlOptions#setErrorListener} method. With that method,
      * you can specify an object in which to store messages related to validation.
      * The following is a simple example.</p>
-     * 
+     *
      * <pre>
      * // Create an XmlOptions instance and set the error listener.
      * XmlOptions validateOptions = new XmlOptions();
      * ArrayList errorList = new ArrayList();
      * validateOptions.setErrorListener(errorList);
-     * 
+     *
      * // Validate the XML.
      * boolean isValid = newEmp.validate(validateOptions);
-     * 
+     *
      * // If the XML isn't valid, loop through the listener's contents,
      * // printing contained messages.
      * if (!isValid)
@@ -178,18 +175,17 @@ public interface XmlObject extends XmlTokenSource
      *      for (int i = 0; i &lt; errorList.size(); i++)
      *      {
      *          XmlError error = (XmlError)errorList.get(i);
-     *          
+     *
      *          System.out.println("\n");
      *          System.out.println("Message: " + error.getMessage() + "\n");
-     *          System.out.println("Location of invalid XML: " + 
+     *          System.out.println("Location of invalid XML: " +
      *              error.getCursorLocation().xmlText() + "\n");
      *      }
      * }
      * </pre>
      *
      * @param options An object that implements the {@link java.util.Collection
-     * Collection} interface.
-     *
+     *                Collection} interface.
      * @return true if the contents of this object are valid
      * accoring to schemaType().
      */
@@ -198,19 +194,19 @@ public interface XmlObject extends XmlTokenSource
     /**
      * Selects a path.  Path can be a string or precompiled path String.
      * <p>
-     *
+     * <p>
      * The path must be a relative path, where "." represents the
      * element or attribute containg this XmlObject, and it must select
      * only other elements or attributes.  If a non-element or non-attribute
      * is selected, an unchecked exception is thrown.
      * <p>
-     *
+     * <p>
      * The array that is returned contains all the selected
      * XmlObjects, within the same document, listed in document
      * order.  The actual array type of the result is inferred
      * from the closest common base type of selected results.
      * <p>
-     *
+     * <p>
      * Here is an example of usage.  Suppose we have a global
      * element definition for "owner" whose type is "person":
      *
@@ -222,7 +218,7 @@ public interface XmlObject extends XmlTokenSource
      *      &lt;/complexType&gt;
      *   &lt;/schema&gt;
      * </pre>
-     *
+     * <p>
      * and suppose "owner" tags can be scattered throughout the
      * document.  Then we can write the following code to find
      * them all:
@@ -237,7 +233,7 @@ public interface XmlObject extends XmlTokenSource
      *      "declare namespace s='http://www.openuri.org/sample' " +
      *      ".//s:owner");
      * </pre>
-     *
+     * <p>
      * Notice the way in which namespace declarations are done in XPath 2.0.
      * Since XPath can only navigate within an XML document - it cannot
      * construct new XML - the resulting XmlObjects all reside in
@@ -246,19 +242,18 @@ public interface XmlObject extends XmlTokenSource
      * @param path the xpath
      * @return an array of all selected XmlObjects
      */
-    XmlObject[] selectPath ( String path );
+    XmlObject[] selectPath(String path);
 
     /**
      * Selects a path, applying options.
      *
-     * @param path the xpath
+     * @param path    the xpath
      * @param options the options used to execute the xpath
      * @return an array of all selected XmlObjects
-     *
      * @see #selectPath(String)
      */
-    XmlObject[] selectPath ( String path, XmlOptions options );
-    
+    XmlObject[] selectPath(String path, XmlOptions options);
+
 
     /**
      * Executes a query.  Query can be a string or precompiled query String.
@@ -273,16 +268,15 @@ public interface XmlObject extends XmlTokenSource
      *
      * @param query The XQuery expression
      * @return an array of all selected XmlObjects
-     *
      * @see #selectPath(String)
      */
-    XmlObject[] execQuery ( String query );
+    XmlObject[] execQuery(String query);
 
     /**
      * Executes a query with options.
-     * 
+     * <p>
      * Use the <em>options</em> parameter to specify the following:</p>
-     * 
+     *
      * <table>
      * <tr><th>To specify this</th><th>Use this method</th></tr>
      * <tr>
@@ -315,7 +309,7 @@ public interface XmlObject extends XmlTokenSource
      *  <td>{@link XmlOptions#setLoadAdditionalNamespaces}</td>
      * </tr>
      * <tr>
-     *  <td>To trim the underlying XML text buffer immediately after constructing 
+     *  <td>To trim the underlying XML text buffer immediately after constructing
      *  a document, resulting in a smaller memory footprint.</td>
      *  <td>{@link XmlOptions#setLoadTrimTextBuffer}</td>
      * </tr>
@@ -323,17 +317,15 @@ public interface XmlObject extends XmlTokenSource
      *  <td>Whether value facets should be checked as they are set.</td>
      *  <td>{@link XmlOptions#setValidateOnSet}</td>
      * </tr>
-     * </table> 
-     * 
-     * @param query The XQuery expression.
+     * </table>
+     *
+     * @param query   The XQuery expression.
      * @param options Options as described.
-     *
      * @return an array of all selected XmlObjects
-     *
      * @see #execQuery(String)
      */
-    XmlObject[] execQuery ( String query, XmlOptions options );
-    
+    XmlObject[] execQuery(String query, XmlOptions options);
+
 
     /**
      * Changes the schema type associated with this data and
@@ -354,7 +346,7 @@ public interface XmlObject extends XmlTokenSource
      * any other XmlObject instances in the subtree are permanently
      * invalidated and should not be used. (They will return
      * XmlValueDisconnectedException if you try to use them.)
-     *
+     * <p>
      * If a type change is done on the interior of an Xml
      * tree, then xsi:type attributes are updated as needed.
      *
@@ -385,9 +377,8 @@ public interface XmlObject extends XmlTokenSource
      *
      * @param newName the new name
      * @param newType the new type
-     *
      * @return an XmlObject instance whose schemaType is the
-     *      new type and container name is the new name
+     * new type and container name is the new name
      */
     XmlObject substitute(QName newName, SchemaType newType);
 
@@ -447,11 +438,12 @@ public interface XmlObject extends XmlTokenSource
      * the XML document underneath the current object.  Note that
      * any parts of the XML document above or outside this XmlObject are
      * not copied.
-     *
+     * <p>
      * Note: The result object will be in the same synchronization domain as the source,
      * and additional synchronization is required for concurent access.
      * To use a different synchronization domain use setCopyUseNewSynchronizationDomain
      * option with copy(XmlOptions) method.
+     *
      * @see #copy(XmlOptions)
      * @see org.apache.xmlbeans.XmlOptions#setCopyUseNewSynchronizationDomain(boolean)
      */
@@ -463,11 +455,12 @@ public interface XmlObject extends XmlTokenSource
      * the XML document underneath the current object.  Note that
      * any parts of the XML document above or outside this XmlObject are
      * not copied.
-     *
+     * <p>
      * Note: The result object will be in the same synchronization domain as the source,
      * and additional synchronization is required for concurent access.
      * To use a different synchronization domain use setCopyUseNewSynchronizationDomain
      * option when creating the original XmlObject.
+     *
      * @see org.apache.xmlbeans.XmlOptions#setCopyUseNewSynchronizationDomain(boolean)
      */
     XmlObject copy(XmlOptions options);
@@ -524,20 +517,29 @@ public interface XmlObject extends XmlTokenSource
      */
     int compareValue(XmlObject obj);
 
-    /** LESS_THAN is -1. See {@link #compareValue}. */
+    /**
+     * LESS_THAN is -1. See {@link #compareValue}.
+     */
     static final int LESS_THAN = -1;
 
-    /** EQUAL is 0. See {@link #compareValue}. */
+    /**
+     * EQUAL is 0. See {@link #compareValue}.
+     */
     static final int EQUAL = 0;
 
-    /** GREATER_THAN is 1. See {@link #compareValue}. */
+    /**
+     * GREATER_THAN is 1. See {@link #compareValue}.
+     */
     static final int GREATER_THAN = 1;
 
-    /** NOT_EQUAL is 2. See {@link #compareValue}. */
+    /**
+     * NOT_EQUAL is 2. See {@link #compareValue}.
+     */
     static final int NOT_EQUAL = 2;
 
     /**
      * Selects the contents of the children elements with the given name.
+     *
      * @param elementName The name of the elements to be selected.
      * @return Returns the contents of the selected elements.
      */
@@ -545,7 +547,8 @@ public interface XmlObject extends XmlTokenSource
 
     /**
      * Selects the contents of the children elements with the given name.
-     * @param elementUri The URI of the elements to be selected.
+     *
+     * @param elementUri       The URI of the elements to be selected.
      * @param elementLocalName The local name of the elements to be selected.
      * @return Returns the contents of the selected elements.
      */
@@ -553,6 +556,7 @@ public interface XmlObject extends XmlTokenSource
 
     /**
      * Selects the contents of the children elements that are contained in the elementNameSet.
+     *
      * @param elementNameSet Set of element names to be selected.
      * @return Returns the contents of the selected elements.
      * @see SchemaType#qnameSetForWildcardElements()
@@ -562,6 +566,7 @@ public interface XmlObject extends XmlTokenSource
 
     /**
      * Selects the content of the attribute with the given name.
+     *
      * @param attributeName The name of the attribute to be selected.
      * @return Returns the contents of the selected attribute.
      */
@@ -569,7 +574,8 @@ public interface XmlObject extends XmlTokenSource
 
     /**
      * Selects the content of the attribute with the given name.
-     * @param attributeUri The URI of the attribute to be selected.
+     *
+     * @param attributeUri       The URI of the attribute to be selected.
      * @param attributeLocalName The local name of the attribute to be selected.
      * @return Returns the content of the selected attribute.
      */
@@ -577,6 +583,7 @@ public interface XmlObject extends XmlTokenSource
 
     /**
      * Selects the contents of the attributes that are contained in the elementNameSet.
+     *
      * @param attributeNameSet Set of attribute names to be selected.
      * @return Returns the contents of the selected attributes.
      * @see SchemaType#qnameSetForWildcardAttributes()
@@ -591,21 +598,21 @@ public interface XmlObject extends XmlTokenSource
      * returned by a factory will have the inferred type.  Otherwise
      * the Factory will returned an untyped document.
      */
-    public static final class Factory
-    {
+    final class Factory {
         /**
          * Creates a new, completely empty instance.
-         */ 
-        public static XmlObject newInstance ( ) {
-          return XmlBeans.getContextTypeLoader().newInstance( null, null ); }
-        
+         */
+        public static XmlObject newInstance() {
+            return XmlBeans.getContextTypeLoader().newInstance(null, null);
+        }
+
         /**
          * <p>Creates a new, completely empty instance, specifying options
          * for the root element's document type and/or whether to validate
          * value facets as they are set.</p>
-         * 
+         * <p>
          * Use the <em>options</em> parameter to specify the following:</p>
-         * 
+         *
          * <table>
          * <tr><th>To specify this</th><th>Use this method</th></tr>
          * <tr>
@@ -616,33 +623,38 @@ public interface XmlObject extends XmlTokenSource
          *  <td>Whether value facets should be checked as they are set.</td>
          *  <td>{@link XmlOptions#setValidateOnSet}</td>
          * </tr>
-         * </table> 
-         * 
-         * @param options Options specifying root document type and/or value facet 
-         * checking.
+         * </table>
+         *
+         * @param options Options specifying root document type and/or value facet
+         *                checking.
          * @return A new, empty instance of XmlObject.</li>
-         */ 
-        public static XmlObject newInstance ( XmlOptions options ) {
-          return XmlBeans.getContextTypeLoader().newInstance( null, options ); }
-        
+         */
+        public static XmlObject newInstance(XmlOptions options) {
+            return XmlBeans.getContextTypeLoader().newInstance(null, options);
+        }
+
         /**
          * Creates a new immutable value.
-         */ 
-        /** Creates an immutable {@link XmlObject} value */
-        public static XmlObject newValue ( Object obj ) {
-          return type.newValue( obj ); }
-        
+         */
+        /**
+         * Creates an immutable {@link XmlObject} value
+         */
+        public static XmlObject newValue(Object obj) {
+            return type.newValue(obj);
+        }
+
         /**
          * Parses the given {@link String} as XML.
-         */ 
-        public static XmlObject parse ( String xmlAsString ) throws XmlException {
-          return XmlBeans.getContextTypeLoader().parse( xmlAsString, null, null ); }
-        
+         */
+        public static XmlObject parse(String xmlAsString) throws XmlException {
+            return XmlBeans.getContextTypeLoader().parse(xmlAsString, null, null);
+        }
+
         /**
          * Parses the given {@link String} as XML.
-         * 
+         * <p>
          * Use the <em>options</em> parameter to specify the following:</p>
-         * 
+         *
          * <table>
          * <tr><th>To specify this</th><th>Use this method</th></tr>
          * <tr>
@@ -678,60 +690,67 @@ public interface XmlObject extends XmlTokenSource
          *  <td>{@link XmlOptions#setLoadAdditionalNamespaces}</td>
          * </tr>
          * <tr>
-         *  <td>To trim the underlying XML text buffer immediately after parsing 
+         *  <td>To trim the underlying XML text buffer immediately after parsing
          *  a document, resulting in a smaller memory footprint.</td>
          *  <td>{@link XmlOptions#setLoadTrimTextBuffer}</td>
          * </tr>
-         * </table> 
-         * 
+         * </table>
+         *
          * @param xmlAsString The string to parse.
-         * @param options Options as specified.
+         * @param options     Options as specified.
          * @return A new instance containing the specified XML.
-         */ 
-        public static XmlObject parse ( String xmlAsString, XmlOptions options ) throws XmlException {
-          return XmlBeans.getContextTypeLoader().parse( xmlAsString, null, options ); }
-        
-        /**
-         * Parses the given {@link File} as XML.
-         */ 
-        public static XmlObject parse ( File file ) throws XmlException, IOException {
-          return XmlBeans.getContextTypeLoader().parse( file, null, null ); }
+         */
+        public static XmlObject parse(String xmlAsString, XmlOptions options) throws XmlException {
+            return XmlBeans.getContextTypeLoader().parse(xmlAsString, null, options);
+        }
 
         /**
          * Parses the given {@link File} as XML.
-         */ 
-        public static XmlObject parse ( File file, XmlOptions options ) throws XmlException, IOException {
-          return XmlBeans.getContextTypeLoader().parse( file, null, options ); }
-        
+         */
+        public static XmlObject parse(File file) throws XmlException, IOException {
+            return XmlBeans.getContextTypeLoader().parse(file, null, null);
+        }
+
+        /**
+         * Parses the given {@link File} as XML.
+         */
+        public static XmlObject parse(File file, XmlOptions options) throws XmlException, IOException {
+            return XmlBeans.getContextTypeLoader().parse(file, null, options);
+        }
+
         /**
          * Downloads the given {@link java.net.URL} as XML.
-         */ 
+         */
         public static XmlObject parse(java.net.URL u) throws org.apache.xmlbeans.XmlException, java.io.IOException {
-          return XmlBeans.getContextTypeLoader().parse( u, null, null ); }
+            return XmlBeans.getContextTypeLoader().parse(u, null, null);
+        }
 
         /**
          * Downloads the given {@link java.net.URL} as XML.
-         */ 
+         */
         public static XmlObject parse(java.net.URL u, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException, java.io.IOException {
-          return XmlBeans.getContextTypeLoader().parse( u, null, options ); }
+            return XmlBeans.getContextTypeLoader().parse(u, null, options);
+        }
 
         /**
          * Decodes and parses the given {@link InputStream} as XML.
-         */ 
-        public static XmlObject parse ( InputStream is ) throws XmlException, IOException {
-          return XmlBeans.getContextTypeLoader().parse( is, null, null ); }
-        
+         */
+        public static XmlObject parse(InputStream is) throws XmlException, IOException {
+            return XmlBeans.getContextTypeLoader().parse(is, null, null);
+        }
+
         /**
          * Decodes and parses the given {@link XMLStreamReader} as XML.
-         */ 
-        public static XmlObject parse ( XMLStreamReader xsr ) throws XmlException {
-          return XmlBeans.getContextTypeLoader().parse( xsr, null, null ); }
-        
+         */
+        public static XmlObject parse(XMLStreamReader xsr) throws XmlException {
+            return XmlBeans.getContextTypeLoader().parse(xsr, null, null);
+        }
+
         /**
          * Decodes and parses the given {@link InputStream} as XML.
-         * 
+         * <p>
          * Use the <em>options</em> parameter to specify the following:</p>
-         * 
+         *
          * <table>
          * <tr><th>To specify this</th><th>Use this method</th></tr>
          * <tr>
@@ -771,116 +790,83 @@ public interface XmlObject extends XmlTokenSource
          *  <td>{@link XmlOptions#setLoadAdditionalNamespaces}</td>
          * </tr>
          * <tr>
-         *  <td>Trim the underlying XML text buffer immediately after parsing 
+         *  <td>Trim the underlying XML text buffer immediately after parsing
          *  a document, resulting in a smaller memory footprint.</td>
          *  <td>{@link XmlOptions#setLoadTrimTextBuffer}</td>
          * </tr>
-         * </table> 
-         */ 
-        public static XmlObject parse ( InputStream is, XmlOptions options ) throws XmlException, IOException {
-          return XmlBeans.getContextTypeLoader().parse( is, null, options ); }
-        
+         * </table>
+         */
+        public static XmlObject parse(InputStream is, XmlOptions options) throws XmlException, IOException {
+            return XmlBeans.getContextTypeLoader().parse(is, null, options);
+        }
+
         /**
          * Parses the given {@link XMLStreamReader} as XML.
-         */ 
-        public static XmlObject parse ( XMLStreamReader xsr, XmlOptions options ) throws XmlException {
-          return XmlBeans.getContextTypeLoader().parse( xsr, null, options ); }
-        
+         */
+        public static XmlObject parse(XMLStreamReader xsr, XmlOptions options) throws XmlException {
+            return XmlBeans.getContextTypeLoader().parse(xsr, null, options);
+        }
+
         /**
          * Parses the given {@link Reader} as XML.
-         */ 
-        public static XmlObject parse ( Reader r ) throws XmlException, IOException {
-          return XmlBeans.getContextTypeLoader().parse( r, null, null ); }
-        
+         */
+        public static XmlObject parse(Reader r) throws XmlException, IOException {
+            return XmlBeans.getContextTypeLoader().parse(r, null, null);
+        }
+
         /**
          * Parses the given {@link Reader} as XML.
-         */ 
-        public static XmlObject parse ( Reader r, XmlOptions options ) throws XmlException, IOException {
-          return XmlBeans.getContextTypeLoader().parse( r, null, options ); }
-        
+         */
+        public static XmlObject parse(Reader r, XmlOptions options) throws XmlException, IOException {
+            return XmlBeans.getContextTypeLoader().parse(r, null, options);
+        }
+
         /**
          * Converts the given DOM {@link Node} into an XmlObject.
-         */ 
-        public static XmlObject parse ( Node node ) throws XmlException {
-          return XmlBeans.getContextTypeLoader().parse( node, null, null ); }
-        
+         */
+        public static XmlObject parse(Node node) throws XmlException {
+            return XmlBeans.getContextTypeLoader().parse(node, null, null);
+        }
+
         /**
          * Converts the given DOM {@link Node} into an XmlObject.
-         */ 
-        public static XmlObject parse ( Node node, XmlOptions options ) throws XmlException {
-          return XmlBeans.getContextTypeLoader().parse( node, null, options ); }
-        
-        /**
-         * Loads the given {@link XMLInputStream} into an XmlObject.
-         * @deprecated XMLInputStream was deprecated by XMLStreamReader from STaX - jsr173 API.
          */
-        public static XmlObject parse ( XMLInputStream xis ) throws XmlException, XMLStreamException {
-          return XmlBeans.getContextTypeLoader().parse( xis, null, null ); }
-        
-        /**
-         * Loads the given {@link XMLInputStream} into an XmlObject.
-         * @deprecated XMLInputStream was deprecated by XMLStreamReader from STaX - jsr173 API.
-         */
-        public static XmlObject parse ( XMLInputStream xis, XmlOptions options ) throws XmlException, XMLStreamException {
-          return XmlBeans.getContextTypeLoader().parse( xis, null, options ); }
+        public static XmlObject parse(Node node, XmlOptions options) throws XmlException {
+            return XmlBeans.getContextTypeLoader().parse(node, null, options);
+        }
 
         /**
          * Returns an {@link XmlSaxHandler} that can load an XmlObject from SAX events.
-         */ 
-        public static XmlSaxHandler newXmlSaxHandler ( ) {
-          return XmlBeans.getContextTypeLoader().newXmlSaxHandler( null, null ); }
-            
+         */
+        public static XmlSaxHandler newXmlSaxHandler() {
+            return XmlBeans.getContextTypeLoader().newXmlSaxHandler(null, null);
+        }
+
         /**
          * Returns an {@link XmlSaxHandler} that can load an XmlObject from SAX events.
-         */ 
-        public static XmlSaxHandler newXmlSaxHandler ( XmlOptions options ) {
-          return XmlBeans.getContextTypeLoader().newXmlSaxHandler( null, options ); }
-            
+         */
+        public static XmlSaxHandler newXmlSaxHandler(XmlOptions options) {
+            return XmlBeans.getContextTypeLoader().newXmlSaxHandler(null, options);
+        }
+
         /**
          * Creates a new DOMImplementation object
-         */ 
-        public static DOMImplementation newDomImplementation ( ) {
-          return XmlBeans.getContextTypeLoader().newDomImplementation( null ); }
-        
+         */
+        public static DOMImplementation newDomImplementation() {
+            return XmlBeans.getContextTypeLoader().newDomImplementation(null);
+        }
+
         /**
          * Creates a new DOMImplementation object, taking options
-         */ 
-        public static DOMImplementation newDomImplementation ( XmlOptions options ) {
-          return XmlBeans.getContextTypeLoader().newDomImplementation( options ); }
-        
-        /**
-         * Returns a new validating {@link XMLInputStream} that throws exceptions when the input is not valid.
-         * @deprecated XMLInputStream was deprecated by XMLStreamReader from STaX - jsr173 API.
          */
-        public static XMLInputStream newValidatingXMLInputStream ( XMLInputStream xis ) throws XmlException, XMLStreamException {
-          return XmlBeans.getContextTypeLoader().newValidatingXMLInputStream( xis, null, null ); }
-        
-        /**
-         * Returns a new validating {@link XMLInputStream} that throws exceptions 
-         * when the input is not valid, specifying options
-         * for the root element's document type and/or the collection object to use
-         * as an error listener while validating.</p>
-         * 
-         * <p>Use the <em>options</em> parameter to specify the following:</p>
-         * 
-         * <ul>
-         * <li>A collection instance that should be used as an error listener during
-         * compilation, as described in {@link XmlOptions#setErrorListener}.</li>
-         * <li>The document type for the root element, as described in 
-         * {@link XmlOptions#setDocumentType(SchemaType)}.</li>
-         * </ul>
-         * 
-         * @param xis The basis for the new XMLInputStream.
-         * @param options Options specifying root document type and/or an error listener.
-         * @return A new validating XMLInputStream.
-         * @deprecated XMLInputStream was deprecated by XMLStreamReader from STaX - jsr173 API.
-         */
-        public static XMLInputStream newValidatingXMLInputStream ( XMLInputStream xis, XmlOptions options ) throws XmlException, XMLStreamException {
-          return XmlBeans.getContextTypeLoader().newValidatingXMLInputStream( xis, null, options ); }
-        
+        public static DOMImplementation newDomImplementation(XmlOptions options) {
+            return XmlBeans.getContextTypeLoader().newDomImplementation(options);
+        }
+
         /**
          * Instances cannot be created.
-         */ 
-        private Factory() { }
+         */
+        private Factory() {
+        }
     }
 }

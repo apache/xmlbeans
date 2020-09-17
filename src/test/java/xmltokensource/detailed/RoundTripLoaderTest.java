@@ -19,7 +19,6 @@ package xmltokensource.detailed;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
-import org.apache.xmlbeans.xml.stream.XMLInputStream;
 import org.junit.Before;
 import org.junit.Test;
 import org.w3c.dom.Node;
@@ -104,44 +103,6 @@ public class RoundTripLoaderTest extends BasicCursorTestCase {
         } finally {
             xc1.dispose();
         }
-    }
-
-    /**
-     * yana_kadiyska (3:25:15 PM): Eric, is this going to be impl
-     * on this release? Bug? store.Cursor._newXMLInputStream
-     * ericvasilik (3:26:01 PM): This is not a v2 feature. ...
-     * but otherwise, we should disable XMLInputStream tests
-     * <p>
-     * public void testNewReaderRoundTrip() throws Exception {
-     * _newReaderRoundTrip(null);
-     * }
-     * <p>
-     * public void testNewReaderWithOptionsRoundTrip() throws Exception {
-     * _newReaderRoundTrip(m_map);
-     * }
-     */
-
-    private void _newXMLInputStreamRoundTrip(XmlOptions map) throws Exception {
-        m_xo = XmlObject.Factory.parse(Common.XML_FOO_BAR_NESTED_SIBLINGS);
-        XMLInputStream xmlIs = m_xo.newXMLInputStream(map);
-        assertNotNull(xmlIs);
-        XmlObject xo = XmlObject.Factory.parse(xmlIs, map);
-        m_xc = m_xo.newCursor();
-        XmlCursor xc1 = xo.newCursor();
-        try {
-            compareDocTokens(m_xc, xc1);
-        } finally {
-            xc1.dispose();
-        }
-    }
-
-    @Test
-    public void testNewXMLInputStreamRoundTrip() throws Exception {
-        _newXMLInputStreamRoundTrip(null);
-    }
-
-    public void testNewXMLInputStreamWithOptionsRoundTrip() throws Exception {
-        _newXMLInputStreamRoundTrip(m_map);
     }
 
     private void _xmlTextRoundTrip(XmlOptions map) throws Exception {

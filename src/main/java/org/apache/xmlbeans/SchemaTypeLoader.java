@@ -15,20 +15,16 @@
 
 package org.apache.xmlbeans;
 
-import javax.xml.namespace.QName;
-import org.apache.xmlbeans.xml.stream.XMLInputStream;
-import org.apache.xmlbeans.xml.stream.XMLStreamException;
+import org.w3c.dom.DOMImplementation;
+import org.w3c.dom.Node;
 
+import javax.xml.namespace.QName;
+import javax.xml.stream.XMLStreamReader;
 import java.io.File;
-import java.io.InputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.Reader;
 import java.net.URL;
-
-import javax.xml.stream.XMLStreamReader;
-
-import org.w3c.dom.Node;
-import org.w3c.dom.DOMImplementation;
 
 /**
  * Represents a searchable set of XML Schema component definitions.
@@ -63,103 +59,165 @@ import org.w3c.dom.DOMImplementation;
  * A SchemaTypeLoader can be obtained by dynamically loading XSD files
  * using {@link XmlBeans#loadXsd}, or by assembling other SchemaTypeLoaders
  * or SchemaTypeSystems on a path using {@link XmlBeans#typeLoaderUnion}.
- * 
+ *
  * @see XmlBeans#loadXsd
  * @see XmlBeans#getContextTypeLoader
  * @see XmlBeans#typeLoaderUnion
  * @see SchemaTypeSystem
- */ 
-public interface SchemaTypeLoader
-{
-    /** Returns the type with the given name, or null if none. */
-    public SchemaType findType(QName name);
-
-    /** Returns the document type rooted at the given element name, or null if none. */
-    public SchemaType findDocumentType(QName name);
-    
-    /** Returns the attribute type containing the given attribute name, or null if none. */
-    public SchemaType findAttributeType(QName name);
-
-    /** Returns the global element defintion with the given name, or null if none. */
-    public SchemaGlobalElement findElement(QName name);
-
-    /** Returns the global attribute defintion with the given name, or null if none. */
-    public SchemaGlobalAttribute findAttribute(QName name);
-    
-    /** Returns the model group defintion with the given name, or null if none. */
-    public SchemaModelGroup findModelGroup(QName name);
-    
-    /** Returns the attribute group defintion with the given name, or null if none. */
-    public SchemaAttributeGroup findAttributeGroup(QName name);
-
-    /** True if the typeloader contains any definitions in the given namespace. */
-    public boolean isNamespaceDefined(String namespace);
-
-    /** Used for on-demand loading. */
-    public SchemaType.Ref findTypeRef(QName name);
-
-    /** Used for on-demand loading. */
-    public SchemaType.Ref findDocumentTypeRef(QName name);
-    
-    /** Used for on-demand loading. */
-    public SchemaType.Ref findAttributeTypeRef(QName name);
-
-    /** Used for on-demand loading. */
-    public SchemaGlobalElement.Ref findElementRef(QName name);
-
-    /** Used for on-demand loading. */
-    public SchemaGlobalAttribute.Ref findAttributeRef(QName name);
-    
-    /** Used for on-demand loading. */
-    public SchemaModelGroup.Ref findModelGroupRef(QName name);
-    
-    /** Used for on-demand loading. */
-    public SchemaAttributeGroup.Ref findAttributeGroupRef(QName name);
-
-    /** Used for on-demand loading. */
-    public SchemaIdentityConstraint.Ref findIdentityConstraintRef(QName name);
-
-    /** Finds a type for a given signature string */
-    public SchemaType typeForSignature(String signature);
-
-    /** Finds a type for a given fully-qualified XML Bean classname */
-    public SchemaType typeForClassname(String classname);
-
-    /** Loads original XSD source as a stream.  See {@link SchemaType#getSourceName}. */
-    public InputStream getSourceAsStream(String sourceName);
-    
-    /** Compiles an XPath */
-    public String compilePath(String pathExpr, XmlOptions options) throws XmlException;
-
-    /** Compiles an XQuery */
-    public String compileQuery(String queryExpr, XmlOptions options) throws XmlException;
-
-    /** Creates an instance of the given type. */
-    public XmlObject newInstance ( SchemaType type, XmlOptions options );
-    /** Parses an instance of the given type. */
-    public XmlObject parse ( String xmlText, SchemaType type, XmlOptions options ) throws XmlException;
-    /** Parses an instance of the given type. */
-    public XmlObject parse ( File file, SchemaType type, XmlOptions options ) throws XmlException, IOException;
-    /** Parses an instance of the given type. */
-    public XmlObject parse ( URL file, SchemaType type, XmlOptions options ) throws XmlException, IOException;
-    /** Parses an instance of the given type. */
-    public XmlObject parse ( InputStream jiois, SchemaType type, XmlOptions options ) throws XmlException, IOException;
-    /** Parses an instance of the given type. */
-    public XmlObject parse ( XMLStreamReader xsr, SchemaType type, XmlOptions options ) throws XmlException;
-    /** Parses an instance of the given type. */
-    public XmlObject parse ( Reader jior, SchemaType type, XmlOptions options ) throws XmlException, IOException;
-    /** Parses an instance of the given type. */
-    public XmlObject parse ( Node node, SchemaType type, XmlOptions options ) throws XmlException;
-    /** Parses an instance of the given type.
-     * @deprecated Deprecated by XMLStreamReader from STaX - jsr173 API.
+ */
+public interface SchemaTypeLoader {
+    /**
+     * Returns the type with the given name, or null if none.
      */
-    public XmlObject parse ( XMLInputStream xis, SchemaType type, XmlOptions options ) throws XmlException, XMLStreamException;
-    /** Returns an XmlSaxHandler that can parse an instance of the given type. */
-    public XmlSaxHandler newXmlSaxHandler ( SchemaType type, XmlOptions options );
-    /** Returns a DOMImplementation. */
-    public DOMImplementation newDomImplementation ( XmlOptions options );
-    /** Returns a validating XMLInputStream that will throw an exception if the XML is not valid
-     * @deprecated Deprecated by XMLStreamReader from STaX - jsr173 API.
+    SchemaType findType(QName name);
+
+    /**
+     * Returns the document type rooted at the given element name, or null if none.
      */
-    public XMLInputStream newValidatingXMLInputStream ( XMLInputStream xis, SchemaType type, XmlOptions options ) throws XmlException, XMLStreamException;
+    SchemaType findDocumentType(QName name);
+
+    /**
+     * Returns the attribute type containing the given attribute name, or null if none.
+     */
+    SchemaType findAttributeType(QName name);
+
+    /**
+     * Returns the global element defintion with the given name, or null if none.
+     */
+    SchemaGlobalElement findElement(QName name);
+
+    /**
+     * Returns the global attribute defintion with the given name, or null if none.
+     */
+    SchemaGlobalAttribute findAttribute(QName name);
+
+    /**
+     * Returns the model group defintion with the given name, or null if none.
+     */
+    SchemaModelGroup findModelGroup(QName name);
+
+    /**
+     * Returns the attribute group defintion with the given name, or null if none.
+     */
+    SchemaAttributeGroup findAttributeGroup(QName name);
+
+    /**
+     * True if the typeloader contains any definitions in the given namespace.
+     */
+    boolean isNamespaceDefined(String namespace);
+
+    /**
+     * Used for on-demand loading.
+     */
+    SchemaType.Ref findTypeRef(QName name);
+
+    /**
+     * Used for on-demand loading.
+     */
+    SchemaType.Ref findDocumentTypeRef(QName name);
+
+    /**
+     * Used for on-demand loading.
+     */
+    SchemaType.Ref findAttributeTypeRef(QName name);
+
+    /**
+     * Used for on-demand loading.
+     */
+    SchemaGlobalElement.Ref findElementRef(QName name);
+
+    /**
+     * Used for on-demand loading.
+     */
+    SchemaGlobalAttribute.Ref findAttributeRef(QName name);
+
+    /**
+     * Used for on-demand loading.
+     */
+    SchemaModelGroup.Ref findModelGroupRef(QName name);
+
+    /**
+     * Used for on-demand loading.
+     */
+    SchemaAttributeGroup.Ref findAttributeGroupRef(QName name);
+
+    /**
+     * Used for on-demand loading.
+     */
+    SchemaIdentityConstraint.Ref findIdentityConstraintRef(QName name);
+
+    /**
+     * Finds a type for a given signature string
+     */
+    SchemaType typeForSignature(String signature);
+
+    /**
+     * Finds a type for a given fully-qualified XML Bean classname
+     */
+    SchemaType typeForClassname(String classname);
+
+    /**
+     * Loads original XSD source as a stream.  See {@link SchemaType#getSourceName}.
+     */
+    InputStream getSourceAsStream(String sourceName);
+
+    /**
+     * Compiles an XPath
+     */
+    String compilePath(String pathExpr, XmlOptions options) throws XmlException;
+
+    /**
+     * Compiles an XQuery
+     */
+    String compileQuery(String queryExpr, XmlOptions options) throws XmlException;
+
+    /**
+     * Creates an instance of the given type.
+     */
+    XmlObject newInstance(SchemaType type, XmlOptions options);
+
+    /**
+     * Parses an instance of the given type.
+     */
+    XmlObject parse(String xmlText, SchemaType type, XmlOptions options) throws XmlException;
+
+    /**
+     * Parses an instance of the given type.
+     */
+    XmlObject parse(File file, SchemaType type, XmlOptions options) throws XmlException, IOException;
+
+    /**
+     * Parses an instance of the given type.
+     */
+    XmlObject parse(URL file, SchemaType type, XmlOptions options) throws XmlException, IOException;
+
+    /**
+     * Parses an instance of the given type.
+     */
+    XmlObject parse(InputStream jiois, SchemaType type, XmlOptions options) throws XmlException, IOException;
+
+    /**
+     * Parses an instance of the given type.
+     */
+    XmlObject parse(XMLStreamReader xsr, SchemaType type, XmlOptions options) throws XmlException;
+
+    /**
+     * Parses an instance of the given type.
+     */
+    XmlObject parse(Reader jior, SchemaType type, XmlOptions options) throws XmlException, IOException;
+
+    /**
+     * Parses an instance of the given type.
+     */
+    XmlObject parse(Node node, SchemaType type, XmlOptions options) throws XmlException;
+
+    /**
+     * Returns an XmlSaxHandler that can parse an instance of the given type.
+     */
+    XmlSaxHandler newXmlSaxHandler(SchemaType type, XmlOptions options);
+
+    /**
+     * Returns a DOMImplementation.
+     */
+    DOMImplementation newDomImplementation(XmlOptions options);
 }

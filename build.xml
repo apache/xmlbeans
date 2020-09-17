@@ -295,6 +295,10 @@
         <replaceHolder srcDir="build/bootstrap/generated-sources" rscDir="build/bootstrap/generated-resources" schemaName="sXMLTOOLS"/>
 
         <replace dir="build/bootstrap/generated-sources" token="schemaorg_apache_xmlbeans" value="org.apache.xmlbeans.metadata" includes="**/*.java"/>
+        <!-- remove deprecated and not supported XMLInputStream API -->
+        <replaceregexp match="^.*@deprecated.*XMLInputStream.*\r?\n.*\r?\n.*\r?\n.*\r?\n" replace="" flags="gm">
+            <fileset dir="build/bootstrap/generated-sources" includes="**/*.java"/>
+        </replaceregexp>
 
         <mkdir dir="build/classes"/>
         <mkdir dir="build/generated-sources"/>

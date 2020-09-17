@@ -25,7 +25,6 @@ import org.apache.xmlbeans.impl.store.Locale.ChangeListener;
 import org.apache.xmlbeans.impl.store.Saver.TextSaver;
 import org.apache.xmlbeans.impl.xpath.XPathEngine;
 import org.apache.xmlbeans.impl.xpath.XPathFactory;
-import org.apache.xmlbeans.xml.stream.XMLInputStream;
 import org.w3c.dom.Node;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
@@ -481,12 +480,6 @@ public final class Cursor implements XmlCursor, ChangeListener {
     // These simply delegate to the version of the method which takes XmlOptions
     //
 
-    /**
-     * @deprecated XMLInputStream was deprecated by XMLStreamReader from STaX - jsr173 API.
-     */
-    public XMLInputStream _newXMLInputStream() {
-        return _newXMLInputStream(null);
-    }
 
     public XMLStreamReader _newXMLStreamReader() {
         return _newXMLStreamReader(null);
@@ -534,13 +527,6 @@ public final class Cursor implements XmlCursor, ChangeListener {
 
     public XMLStreamReader _newXMLStreamReader(XmlOptions options) {
         return Jsr173.newXmlStreamReader(_cur, options);
-    }
-
-    /**
-     * @deprecated XMLInputStream was deprecated by XMLStreamReader from STaX - jsr173 API.
-     */
-    public XMLInputStream _newXMLInputStream(XmlOptions options) {
-        return new Saver.XmlInputStreamImpl(_cur, options);
     }
 
     public String _xmlText(XmlOptions options) {
@@ -1948,13 +1934,6 @@ public final class Cursor implements XmlCursor, ChangeListener {
         return syncWrap(() -> _newXMLStreamReader(options));
     }
 
-    /**
-     * @deprecated XMLInputStream was deprecated by XMLStreamReader from STaX - jsr173 API.
-     */
-    public XMLInputStream newXMLInputStream() {
-        return syncWrap((Supplier<XMLInputStream>) this::_newXMLInputStream);
-    }
-
     public String xmlText() {
         return syncWrap((Supplier<String>) this::_xmlText);
     }
@@ -1989,13 +1968,6 @@ public final class Cursor implements XmlCursor, ChangeListener {
 
     public void save(Writer w) throws IOException {
         syncWrapIOEx(() -> _save(w));
-    }
-
-    /**
-     * @deprecated XMLInputStream was deprecated by XMLStreamReader from STaX - jsr173 API.
-     */
-    public XMLInputStream newXMLInputStream(XmlOptions options) {
-        return syncWrap(() -> _newXMLInputStream(options));
     }
 
     public String xmlText(XmlOptions options) {

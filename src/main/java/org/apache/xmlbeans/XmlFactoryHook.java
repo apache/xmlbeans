@@ -15,18 +15,14 @@
 
 package org.apache.xmlbeans;
 
-import org.w3c.dom.Node;
 import org.w3c.dom.DOMImplementation;
+import org.w3c.dom.Node;
 
+import javax.xml.stream.XMLStreamReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
 import java.lang.ref.SoftReference;
-
-import javax.xml.stream.XMLStreamReader;
-
-import org.apache.xmlbeans.xml.stream.XMLInputStream;
-import org.apache.xmlbeans.xml.stream.XMLStreamException;
 
 /**
  * A hook for the XML Bean Factory mechanism.
@@ -44,7 +40,7 @@ import org.apache.xmlbeans.xml.stream.XMLStreamException;
  * // this results in a call to hook.parse(...)
  * XmlObject.Factory.parse(new File("test.xml"));
  * </pre>
- * 
+ * <p>
  * If the hook needs to turn around and invoke the built-in parsers, then
  * it should do so by calling the appropriate method on the passed
  * SchemaTypeLoader.  Since SchemaTypeLoader.parse() methods delegate
@@ -62,35 +58,52 @@ import org.apache.xmlbeans.xml.stream.XMLStreamException;
  * }
  * </pre>
  */
-public interface XmlFactoryHook
-{
-    /** Hooks Factory.newInstance calls */
-    public XmlObject newInstance ( SchemaTypeLoader loader, SchemaType type, XmlOptions options );
-    /** Hooks Factory.parse calls */
-    public XmlObject parse ( SchemaTypeLoader loader, String xmlText, SchemaType type, XmlOptions options ) throws XmlException;
-    /** Hooks Factory.parse calls */
-    public XmlObject parse ( SchemaTypeLoader loader, InputStream jiois, SchemaType type, XmlOptions options ) throws XmlException, IOException;
-    /** Hooks Factory.parse calls */
-    public XmlObject parse ( SchemaTypeLoader loader, XMLStreamReader xsr, SchemaType type, XmlOptions options ) throws XmlException;
-    /** Hooks Factory.parse calls */
-    public XmlObject parse ( SchemaTypeLoader loader, Reader jior, SchemaType type, XmlOptions options ) throws XmlException, IOException;
-    /** Hooks Factory.parse calls */
-    public XmlObject parse ( SchemaTypeLoader loader, Node node, SchemaType type, XmlOptions options ) throws XmlException;
-    /** Hooks Factory.parse calls
-      * @deprecated XMLInputStream was deprecated by XMLStreamReader from STaX - jsr173 API.
-      */
-    public XmlObject parse ( SchemaTypeLoader loader, XMLInputStream xis, SchemaType type, XmlOptions options ) throws XmlException, XMLStreamException;
-    /** Hooks Factory.newXmlSaxHandler calls */
-    public XmlSaxHandler newXmlSaxHandler ( SchemaTypeLoader loader, SchemaType type, XmlOptions options );
-    /** Hooks Factory.newDomImplementation calls */
-    public DOMImplementation newDomImplementation ( SchemaTypeLoader loader, XmlOptions options );
+public interface XmlFactoryHook {
+    /**
+     * Hooks Factory.newInstance calls
+     */
+    XmlObject newInstance(SchemaTypeLoader loader, SchemaType type, XmlOptions options);
+
+    /**
+     * Hooks Factory.parse calls
+     */
+    XmlObject parse(SchemaTypeLoader loader, String xmlText, SchemaType type, XmlOptions options) throws XmlException;
+
+    /**
+     * Hooks Factory.parse calls
+     */
+    XmlObject parse(SchemaTypeLoader loader, InputStream jiois, SchemaType type, XmlOptions options) throws XmlException, IOException;
+
+    /**
+     * Hooks Factory.parse calls
+     */
+    XmlObject parse(SchemaTypeLoader loader, XMLStreamReader xsr, SchemaType type, XmlOptions options) throws XmlException;
+
+    /**
+     * Hooks Factory.parse calls
+     */
+    XmlObject parse(SchemaTypeLoader loader, Reader jior, SchemaType type, XmlOptions options) throws XmlException, IOException;
+
+    /**
+     * Hooks Factory.parse calls
+     */
+    XmlObject parse(SchemaTypeLoader loader, Node node, SchemaType type, XmlOptions options) throws XmlException;
+
+    /**
+     * Hooks Factory.newXmlSaxHandler calls
+     */
+    XmlSaxHandler newXmlSaxHandler(SchemaTypeLoader loader, SchemaType type, XmlOptions options);
+
+    /**
+     * Hooks Factory.newDomImplementation calls
+     */
+    DOMImplementation newDomImplementation(SchemaTypeLoader loader, XmlOptions options);
 
     /**
      * Used to manage the XmlFactoryHook for the current thread.
-     */ 
-    public final static class ThreadContext
-    {
-        private static ThreadLocal threadHook = new ThreadLocal();
+     */
+    final class ThreadContext {
+        private static final ThreadLocal<SoftReference<XmlFactoryHook>> threadHook = new ThreadLocal<>();
 
         public static void clearThreadLocals() {
             threadHook.remove();
@@ -98,24 +111,21 @@ public interface XmlFactoryHook
 
         /**
          * Returns the current thread's hook, or null if none.
-         */ 
-        public static XmlFactoryHook getHook()
-        {
-            SoftReference softRef = (SoftReference)threadHook.get();
-            return softRef==null ? null : (XmlFactoryHook)softRef.get();
+         */
+        public static XmlFactoryHook getHook() {
+            SoftReference<XmlFactoryHook> softRef = threadHook.get();
+            return softRef == null ? null : softRef.get();
         }
 
         /**
          * Sets the hook for the current thread.
-         */ 
-        public static void setHook(XmlFactoryHook hook)
-        {
-            threadHook.set(new SoftReference(hook));
+         */
+        public static void setHook(XmlFactoryHook hook) {
+            threadHook.set(new SoftReference<>(hook));
         }
 
         // provided to prevent unwanted construction
-        private ThreadContext()
-        {
+        private ThreadContext() {
         }
     }
 }

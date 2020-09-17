@@ -15,16 +15,13 @@
 
 package org.apache.xmlbeans;
 
-import javax.xml.stream.XMLStreamReader;
-
-
 /**
  * Corresponds to the XML Schema
  * <a target="_blank" href="http://www.w3.org/TR/xmlschema-2/#string">xs:string</a> type.
  * <p>
  * A basic string in XML schema is not whitespace normalized.  If you
  * want your string type to be insensitive to variations in runs of
- * whitespace, consider using 
+ * whitespace, consider using
  * <a target="_blank" href="http://www.w3.org/TR/xmlschema-2/#token">xs:token</a>
  * (aka {@link XmlToken}) instead.
  * To forbid whitespace and permit just alphanumeric and other
@@ -33,111 +30,140 @@ import javax.xml.stream.XMLStreamReader;
  * (aka {@link XmlNMTOKEN}) instead.
  * <p>
  * Convertible to {@link String}.
- */ 
-public interface XmlString extends XmlAnySimpleType
-{
-    /** The constant {@link SchemaType} object representing this schema type. */
-    public static final SchemaType type = XmlBeans.getBuiltinTypeSystem().typeForHandle("_BI_string");
-    
+ */
+public interface XmlString extends XmlAnySimpleType {
+    /**
+     * The constant {@link SchemaType} object representing this schema type.
+     */
+    SchemaType type = XmlBeans.getBuiltinTypeSystem().typeForHandle("_BI_string");
+
     /**
      * A class with methods for creating instances
      * of {@link XmlString}.
      */
-    public static final class Factory
-    {
-        /** Creates an empty instance of {@link XmlString} */
+    final class Factory {
+        /**
+         * Creates an empty instance of {@link XmlString}
+         */
         public static XmlString newInstance() {
-          return (XmlString) XmlBeans.getContextTypeLoader().newInstance( type, null ); }
-        
-        /** Creates an empty instance of {@link XmlString} */
+            return (XmlString) XmlBeans.getContextTypeLoader().newInstance(type, null);
+        }
+
+        /**
+         * Creates an empty instance of {@link XmlString}
+         */
         public static XmlString newInstance(org.apache.xmlbeans.XmlOptions options) {
-          return (XmlString) XmlBeans.getContextTypeLoader().newInstance( type, options ); }
-        
-        /** Creates an immutable {@link XmlString} value */
+            return (XmlString) XmlBeans.getContextTypeLoader().newInstance(type, options);
+        }
+
+        /**
+         * Creates an immutable {@link XmlString} value
+         */
         public static XmlString newValue(Object obj) {
-          return (XmlString) type.newValue( obj ); }
-        
-        /** Parses a {@link XmlString} fragment from a String. For example: "<code>&lt;xml-fragment&gt; arbitrary string &lt;/xml-fragment&gt;</code>". */
+            return (XmlString) type.newValue(obj);
+        }
+
+        /**
+         * Parses a {@link XmlString} fragment from a String. For example: "<code>&lt;xml-fragment&gt; arbitrary string &lt;/xml-fragment&gt;</code>".
+         */
         public static XmlString parse(java.lang.String s) throws org.apache.xmlbeans.XmlException {
-          return (XmlString) XmlBeans.getContextTypeLoader().parse( s, type, null ); }
-        
-        /** Parses a {@link XmlString} fragment from a String. For example: "<code>&lt;xml-fragment&gt; arbitrary string &lt;/xml-fragment&gt;</code>". */
+            return (XmlString) XmlBeans.getContextTypeLoader().parse(s, type, null);
+        }
+
+        /**
+         * Parses a {@link XmlString} fragment from a String. For example: "<code>&lt;xml-fragment&gt; arbitrary string &lt;/xml-fragment&gt;</code>".
+         */
         public static XmlString parse(java.lang.String s, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException {
-          return (XmlString) XmlBeans.getContextTypeLoader().parse( s, type, options ); }
-        
-        /** Parses a {@link XmlString} fragment from a File. */
+            return (XmlString) XmlBeans.getContextTypeLoader().parse(s, type, options);
+        }
+
+        /**
+         * Parses a {@link XmlString} fragment from a File.
+         */
         public static XmlString parse(java.io.File f) throws org.apache.xmlbeans.XmlException, java.io.IOException {
-          return (XmlString) XmlBeans.getContextTypeLoader().parse( f, type, null ); }
-        
-        /** Parses a {@link XmlString} fragment from a File. */
+            return (XmlString) XmlBeans.getContextTypeLoader().parse(f, type, null);
+        }
+
+        /**
+         * Parses a {@link XmlString} fragment from a File.
+         */
         public static XmlString parse(java.io.File f, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException, java.io.IOException {
-          return (XmlString) XmlBeans.getContextTypeLoader().parse( f, type, options ); }
-        
-        /** Parses a {@link XmlString} fragment from a URL. */
+            return (XmlString) XmlBeans.getContextTypeLoader().parse(f, type, options);
+        }
+
+        /**
+         * Parses a {@link XmlString} fragment from a URL.
+         */
         public static XmlString parse(java.net.URL u) throws org.apache.xmlbeans.XmlException, java.io.IOException {
-          return (XmlString) XmlBeans.getContextTypeLoader().parse( u, type, null ); }
+            return (XmlString) XmlBeans.getContextTypeLoader().parse(u, type, null);
+        }
 
-        /** Parses a {@link XmlString} fragment from a URL. */
+        /**
+         * Parses a {@link XmlString} fragment from a URL.
+         */
         public static XmlString parse(java.net.URL u, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException, java.io.IOException {
-          return (XmlString) XmlBeans.getContextTypeLoader().parse( u, type, options ); }
+            return (XmlString) XmlBeans.getContextTypeLoader().parse(u, type, options);
+        }
 
-        /** Parses a {@link XmlString} fragment from an InputStream. */
+        /**
+         * Parses a {@link XmlString} fragment from an InputStream.
+         */
         public static XmlString parse(java.io.InputStream is) throws org.apache.xmlbeans.XmlException, java.io.IOException {
-          return (XmlString) XmlBeans.getContextTypeLoader().parse( is, type, null ); }
-        
-        /** Parses a {@link XmlString} fragment from an InputStream. */
+            return (XmlString) XmlBeans.getContextTypeLoader().parse(is, type, null);
+        }
+
+        /**
+         * Parses a {@link XmlString} fragment from an InputStream.
+         */
         public static XmlString parse(java.io.InputStream is, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException, java.io.IOException {
-          return (XmlString) XmlBeans.getContextTypeLoader().parse( is, type, options ); }
-        
-        /** Parses a {@link XmlString} fragment from a Reader. */
+            return (XmlString) XmlBeans.getContextTypeLoader().parse(is, type, options);
+        }
+
+        /**
+         * Parses a {@link XmlString} fragment from a Reader.
+         */
         public static XmlString parse(java.io.Reader r) throws org.apache.xmlbeans.XmlException, java.io.IOException {
-          return (XmlString) XmlBeans.getContextTypeLoader().parse( r, type, null ); }
-        
-        /** Parses a {@link XmlString} fragment from a Reader. */
+            return (XmlString) XmlBeans.getContextTypeLoader().parse(r, type, null);
+        }
+
+        /**
+         * Parses a {@link XmlString} fragment from a Reader.
+         */
         public static XmlString parse(java.io.Reader r, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException, java.io.IOException {
-          return (XmlString) XmlBeans.getContextTypeLoader().parse( r, type, options ); }
-        
-        /** Parses a {@link XmlString} fragment from a DOM Node. */
+            return (XmlString) XmlBeans.getContextTypeLoader().parse(r, type, options);
+        }
+
+        /**
+         * Parses a {@link XmlString} fragment from a DOM Node.
+         */
         public static XmlString parse(org.w3c.dom.Node node) throws org.apache.xmlbeans.XmlException {
-          return (XmlString) XmlBeans.getContextTypeLoader().parse( node, type, null ); }
-        
-        /** Parses a {@link XmlString} fragment from a DOM Node. */
+            return (XmlString) XmlBeans.getContextTypeLoader().parse(node, type, null);
+        }
+
+        /**
+         * Parses a {@link XmlString} fragment from a DOM Node.
+         */
         public static XmlString parse(org.w3c.dom.Node node, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException {
-          return (XmlString) XmlBeans.getContextTypeLoader().parse( node, type, options ); }
-        
-        /** Parses a {@link XmlString} fragment from an XMLInputStream.
-         * @deprecated XMLInputStream was deprecated by XMLStreamReader from STaX - jsr173 API.
+            return (XmlString) XmlBeans.getContextTypeLoader().parse(node, type, options);
+        }
+
+        /**
+         * Parses a {@link XmlString} fragment from an XMLStreamReader.
          */
-        public static XmlString parse(org.apache.xmlbeans.xml.stream.XMLInputStream xis) throws org.apache.xmlbeans.XmlException, org.apache.xmlbeans.xml.stream.XMLStreamException {
-          return (XmlString) XmlBeans.getContextTypeLoader().parse( xis, type, null ); }
-        
-        /** Parses a {@link XmlString} fragment from an XMLInputStream.
-         * @deprecated XMLInputStream was deprecated by XMLStreamReader from STaX - jsr173 API.
-         */
-        public static XmlString parse(org.apache.xmlbeans.xml.stream.XMLInputStream xis, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException, org.apache.xmlbeans.xml.stream.XMLStreamException {
-          return (XmlString) XmlBeans.getContextTypeLoader().parse( xis, type, options ); }
-        
-        /** Parses a {@link XmlString} fragment from an XMLStreamReader. */
         public static XmlString parse(javax.xml.stream.XMLStreamReader xsr) throws org.apache.xmlbeans.XmlException {
-          return (XmlString) XmlBeans.getContextTypeLoader().parse( xsr, type, null ); }
-        
-        /** Parses a {@link XmlString} fragment from an XMLStreamReader. */
-        public static XmlString parse(javax.xml.stream.XMLStreamReader xsr, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException{
-          return (XmlString) XmlBeans.getContextTypeLoader().parse( xsr, type, options ); }
-        
-        /** Returns a validating XMLInputStream.
-         * @deprecated XMLInputStream was deprecated by XMLStreamReader from STaX - jsr173 API.
+            return (XmlString) XmlBeans.getContextTypeLoader().parse(xsr, type, null);
+        }
+
+        /**
+         * Parses a {@link XmlString} fragment from an XMLStreamReader.
          */
-        public static org.apache.xmlbeans.xml.stream.XMLInputStream newValidatingXMLInputStream(org.apache.xmlbeans.xml.stream.XMLInputStream xis) throws org.apache.xmlbeans.XmlException, org.apache.xmlbeans.xml.stream.XMLStreamException {
-          return XmlBeans.getContextTypeLoader().newValidatingXMLInputStream( xis, type, null ); }
-        
-        /** Returns a validating XMLInputStream.
-         * @deprecated XMLInputStream was deprecated by XMLStreamReader from STaX - jsr173 API.
-         */
-        public static org.apache.xmlbeans.xml.stream.XMLInputStream newValidatingXMLInputStream(org.apache.xmlbeans.xml.stream.XMLInputStream xis, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException, org.apache.xmlbeans.xml.stream.XMLStreamException {
-          return XmlBeans.getContextTypeLoader().newValidatingXMLInputStream( xis, type, options ); }
-        
-        private Factory() { } // No instance of this class allowed
+        public static XmlString parse(javax.xml.stream.XMLStreamReader xsr, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException {
+            return (XmlString) XmlBeans.getContextTypeLoader().parse(xsr, type, options);
+        }
+
+        private Factory() {
+            // No instance of this class allowed
+        }
     }
 }
 

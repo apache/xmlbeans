@@ -32,7 +32,6 @@ import java.util.*;
 public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
     Writer _writer;
     int _indent;
-    boolean _useJava15;
 
 
     static final String LINE_SEPARATOR =
@@ -59,19 +58,11 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
 
     private static SchemaCodePrinter getPrinter(XmlOptions opt) {
         SchemaCodePrinter printer = opt == null ? null : opt.getSchemaCodePrinter();
-        return printer == null ? new SchemaTypeCodePrinter(opt) : printer;
+        return printer == null ? new SchemaTypeCodePrinter() : printer;
     }
 
-    public SchemaTypeCodePrinter(XmlOptions opt) {
+    public SchemaTypeCodePrinter() {
         _indent = 0;
-
-        String genversion = (opt == null) ? null : opt.getGenerateJavaVersion();
-
-        if (genversion == null) {
-            genversion = XmlOptions.GENERATE_JAVA_14;
-        }
-
-        _useJava15 = XmlOptions.GENERATE_JAVA_15.equals(genversion);
     }
 
     void indent() {
@@ -173,6 +164,9 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
     }
 
     static String prettyQName(QName qname) {
+        if (qname == null) {
+            return "";
+        }
         String result = qname.getLocalPart();
         if (qname.getNamespaceURI() != null) {
             result += "(@" + qname.getNamespaceURI() + ")";
@@ -229,7 +223,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
         SchemaTypeImpl sTypeI = (SchemaTypeImpl) sType;
         String ret = sTypeI.getFullJavaName();
 
-        while (sTypeI.isRedefinition()) {
+        while (sTypeI != null && sTypeI.isRedefinition()) {
             ret = sTypeI.getFullJavaName();
             sTypeI = (SchemaTypeImpl) sTypeI.getBaseType();
         }
@@ -258,7 +252,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
     }
 
     void printStaticTypeDeclaration(SchemaType sType, SchemaTypeSystem system) throws IOException {
-        emit("public static final org.apache.xmlbeans.SchemaType type = (org.apache.xmlbeans.SchemaType)");
+        emit("org.apache.xmlbeans.SchemaType type = (org.apache.xmlbeans.SchemaType)");
         indent();
         emit("Factory.getTypeLoader().resolveHandle(\"" + ((SchemaTypeSystemImpl) system).handleForType(sType) + "\");");
         outdent();
@@ -340,7 +334,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
         emit("");
         // BUGBUG - Can I use the name loader here?  could it be a
         // nested type name?  It is lower case!
-        emit("public static final class Factory");
+        emit("final class Factory");
         emit("{");
         indent();
 
@@ -356,26 +350,15 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
         }
 
         // Only need newInstance() for non-abstract types
-        if (sType.isAbstract()) {
-            emit("/** @deprecated No need to be able to create instances of abstract types */");
-            if (_useJava15) {
-                emit("@Deprecated");
-            }
-        }
-        emit("public static " + fullName + " newInstance() {");
-        emit("  return (" + fullName + ") getTypeLoader().newInstance( type, null ); }");
-        emit("");
+        if (!sType.isAbstract()) {
+            emit("public static " + fullName + " newInstance() {");
+            emit("  return (" + fullName + ") getTypeLoader().newInstance( type, null ); }");
+            emit("");
 
-        // Only need newInstance() for non-abstract types
-        if (sType.isAbstract()) {
-            emit("/** @deprecated No need to be able to create instances of abstract types */");
-            if (_useJava15) {
-                emit("@Deprecated");
-            }
+            emit("public static " + fullName + " newInstance(org.apache.xmlbeans.XmlOptions options) {");
+            emit("  return (" + fullName + ") getTypeLoader().newInstance( type, options ); }");
+            emit("");
         }
-        emit("public static " + fullName + " newInstance(org.apache.xmlbeans.XmlOptions options) {");
-        emit("  return (" + fullName + ") getTypeLoader().newInstance( type, options ); }");
-        emit("");
 
         if (fullFactory) {
             emit("/** @param xmlAsString the string value to parse */");
@@ -434,40 +417,6 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
 
             emit("public static " + fullName + " parse(org.w3c.dom.Node node, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException {");
             emit("  return (" + fullName + ") getTypeLoader().parse( node, type, options ); }");
-            emit("");
-
-            emit("/** @deprecated {@link org.apache.xmlbeans.xml.stream.XMLInputStream} */");
-            if (_useJava15) {
-                emit("@Deprecated");
-            }
-            emit("public static " + fullName + " parse(org.apache.xmlbeans.xml.stream.XMLInputStream xis) throws org.apache.xmlbeans.XmlException, org.apache.xmlbeans.xml.stream.XMLStreamException {");
-            emit("  return (" + fullName + ") getTypeLoader().parse( xis, type, null ); }");
-            emit("");
-
-            emit("/** @deprecated {@link org.apache.xmlbeans.xml.stream.XMLInputStream} */");
-            if (_useJava15) {
-                emit("@Deprecated");
-            }
-            emit("public static " + fullName + " parse(org.apache.xmlbeans.xml.stream.XMLInputStream xis, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException, org.apache.xmlbeans.xml.stream.XMLStreamException {");
-            emit("  return (" + fullName + ") getTypeLoader().parse( xis, type, options ); }");
-            emit("");
-
-            // Don't have XMLInputStream anymore
-            emit("/** @deprecated {@link org.apache.xmlbeans.xml.stream.XMLInputStream} */");
-            if (_useJava15) {
-                emit("@Deprecated");
-            }
-            emit("public static org.apache.xmlbeans.xml.stream.XMLInputStream newValidatingXMLInputStream(org.apache.xmlbeans.xml.stream.XMLInputStream xis) throws org.apache.xmlbeans.XmlException, org.apache.xmlbeans.xml.stream.XMLStreamException {");
-            emit("  return getTypeLoader().newValidatingXMLInputStream( xis, type, null ); }");
-            emit("");
-
-            // Don't have XMLInputStream anymore
-            emit("/** @deprecated {@link org.apache.xmlbeans.xml.stream.XMLInputStream} */");
-            if (_useJava15) {
-                emit("@Deprecated");
-            }
-            emit("public static org.apache.xmlbeans.xml.stream.XMLInputStream newValidatingXMLInputStream(org.apache.xmlbeans.xml.stream.XMLInputStream xis, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException, org.apache.xmlbeans.xml.stream.XMLStreamException {");
-            emit("  return getTypeLoader().newValidatingXMLInputStream( xis, type, options ); }");
             emit("");
         }
 
@@ -591,7 +540,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
         InterfaceExtension[] exts = sImpl.getInterfaceExtensions();
         if (exts != null) {
             for (InterfaceExtension ext : exts) {
-                sb.append(", " + ext.getInterface());
+                sb.append(", ").append(ext.getInterface());
             }
         }
 
@@ -615,68 +564,18 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
                 if (bits == SchemaType.SIZE_BIG_INTEGER) {
                     emit("java.math.BigInteger getBigIntegerValue();");
                     emit("void setBigIntegerValue(java.math.BigInteger bi);");
-                    emit("/** @deprecated */");
-                    if (_useJava15) {
-                        emit("@Deprecated");
-                    }
-                    emit("java.math.BigInteger bigIntegerValue();");
-                    emit("/** @deprecated */");
-                    if (_useJava15) {
-                        emit("@Deprecated");
-                    }
-                    emit("void set(java.math.BigInteger bi);");
                 } else if (bits == SchemaType.SIZE_LONG) {
                     emit("long getLongValue();");
                     emit("void setLongValue(long l);");
-                    emit("/** @deprecated */");
-                    if (_useJava15) {
-                        emit("@Deprecated");
-                    }
-                    emit("long longValue();");
-                    emit("/** @deprecated */");
-                    if (_useJava15) {
-                        emit("@Deprecated");
-                    }
-                    emit("void set(long l);");
                 } else if (bits == SchemaType.SIZE_INT) {
                     emit("int getIntValue();");
                     emit("void setIntValue(int i);");
-                    emit("/** @deprecated */");
-                    if (_useJava15) {
-                        emit("@Deprecated");
-                    }
-                    emit("int intValue();");
-                    emit("/** @deprecated */");
-                    if (_useJava15) {
-                        emit("@Deprecated");
-                    }
-                    emit("void set(int i);");
                 } else if (bits == SchemaType.SIZE_SHORT) {
                     emit("short getShortValue();");
                     emit("void setShortValue(short s);");
-                    emit("/** @deprecated */");
-                    if (_useJava15) {
-                        emit("@Deprecated");
-                    }
-                    emit("short shortValue();");
-                    emit("/** @deprecated */");
-                    if (_useJava15) {
-                        emit("@Deprecated");
-                    }
-                    emit("void set(short s);");
                 } else if (bits == SchemaType.SIZE_BYTE) {
                     emit("byte getByteValue();");
                     emit("void setByteValue(byte b);");
-                    emit("/** @deprecated */");
-                    if (_useJava15) {
-                        emit("@Deprecated");
-                    }
-                    emit("byte byteValue();");
-                    emit("/** @deprecated */");
-                    if (_useJava15) {
-                        emit("@Deprecated");
-                    }
-                    emit("void set(byte b);");
                 }
             }
         }
@@ -684,16 +583,6 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
         if (sType.getSimpleVariety() == SchemaType.UNION) {
             emit("java.lang.Object getObjectValue();");
             emit("void setObjectValue(java.lang.Object val);");
-            emit("/** @deprecated */");
-            if (_useJava15) {
-                emit("@Deprecated");
-            }
-            emit("java.lang.Object objectValue();");
-            emit("/** @deprecated */");
-            if (_useJava15) {
-                emit("@Deprecated");
-            }
-            emit("void objectSet(java.lang.Object val);");
             emit("org.apache.xmlbeans.SchemaType instanceType();");
             SchemaType ctype = sType.getUnionCommonBaseType();
             if (ctype != null && ctype.getSimpleVariety() != SchemaType.UNION) {
@@ -705,25 +594,10 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
             emit("java.util.List getListValue();");
             emit("java.util.List xgetListValue();");
             emit("void setListValue(java.util.List list);");
-            emit("/** @deprecated */");
-            if (_useJava15) {
-                emit("@Deprecated");
-            }
-            emit("java.util.List listValue();");
-            emit("/** @deprecated */");
-            if (_useJava15) {
-                emit("@Deprecated");
-            }
-            emit("java.util.List xlistValue();");
-            emit("/** @deprecated */");
-            if (_useJava15) {
-                emit("@Deprecated");
-            }
-            emit("void set(java.util.List list);");
         }
     }
 
-    void startBlock() throws IOException {
+    void startBlock() {
         // emit("{");
         indent();
     }
@@ -1043,15 +917,13 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
         if (several) {
             String arrayName = propertyName + "Array";
 
-            if (_useJava15) {
-                String wrappedType = type;
-                if (isJavaPrimitive(javaType)) {
-                    wrappedType = javaWrappedType(javaType);
-                }
-
-                printJavaDoc("Gets a List of " + propdesc + "s");
-                emit("java.util.List<" + wrappedType + "> get" + propertyName + "List();");
+            String wrappedType = type;
+            if (isJavaPrimitive(javaType)) {
+                wrappedType = javaWrappedType(javaType);
             }
+
+            printJavaDoc("Gets a List of " + propdesc + "s");
+            emit("java.util.List<" + wrappedType + "> get" + propertyName + "List();");
 
             printJavaDoc("Gets array of all " + propdesc + "s");
             emit(type + "[] get" + arrayName + "();");
@@ -1060,10 +932,8 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
             emit(type + " get" + arrayName + "(int i);");
 
             if (!xmltype) {
-                if (_useJava15) {
-                    printJavaDoc("Gets (as xml) a List of " + propdesc + "s");
-                    emit("java.util.List<" + xtype + "> xget" + propertyName + "List();");
-                }
+                printJavaDoc("Gets (as xml) a List of " + propdesc + "s");
+                emit("java.util.List<" + xtype + "> xget" + propertyName + "List();");
 
                 printJavaDoc("Gets (as xml) array of all " + propdesc + "s");
                 emit(xtype + "[] xget" + arrayName + "();");
@@ -1284,7 +1154,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
         if (sType.getSimpleVariety() == SchemaType.UNION) {
             SchemaType[] memberTypes = sType.getUnionMemberTypes();
             for (SchemaType memberType : memberTypes) {
-                interfaces.append(", " + memberType.getFullJavaName().replace('$', '.'));
+                interfaces.append(", ").append(memberType.getFullJavaName().replace('$', '.'));
             }
         }
 
@@ -1689,14 +1559,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
         emit("}");
     }
 
-    void emitDeclareTarget(boolean declareTarget, String xtype)
-        throws IOException {
-        if (declareTarget) {
-            emit(xtype + " target = null;");
-        }
-    }
-
-    void emitAddTarget(String identifier, boolean isAttr, boolean declareTarget, String xtype)
+    void emitAddTarget(String identifier, boolean isAttr, String xtype)
         throws IOException {
         if (isAttr) {
             emit("target = (" + xtype + ")get_store().add_attribute_user(" + identifier + ");");
@@ -1794,7 +1657,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
         switch (nullBehaviour) {
             case ADD_NEW_VALUE:
                 // target already emited, no need for emitDeclareTarget(false, xtype);
-                emitAddTarget(identifier, isAttr, false, xtype);
+                emitAddTarget(identifier, isAttr, xtype);
                 break;
 
             case THROW_EXCEPTION:
@@ -1813,7 +1676,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
 
     void printListGetter15Impl(String parentJavaName,
                                String propdesc, String propertyName,
-                               String wrappedType, String xtype,
+                               String wrappedType,
                                boolean xmltype, boolean xget)
         throws IOException {
         String arrayName = propertyName + "Array";
@@ -1832,17 +1695,13 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
         startBlock();
 
         // Object get(i)
-        if (_useJava15) {
-            emit("@Override");
-        }
+        emit("@Override");
         emit("public " + wrappedType + " get(int i)");
         emit("    { return " + parentThis + xgetMethod + arrayName + "(i); }");
         emit("");
 
         // Object set(i, o)
-        if (_useJava15) {
-            emit("@Override");
-        }
+        emit("@Override");
         emit("public " + wrappedType + " set(int i, " + wrappedType + " o) {");
         startBlock();
         emit(wrappedType + " old = " + parentThis + xgetMethod + arrayName + "(i);");
@@ -1852,9 +1711,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
         emit("");
 
         // void add(i, o)
-        if (_useJava15) {
-            emit("@Override");
-        }
+        emit("@Override");
         emit("public void add(int i, " + wrappedType + " o)");
         if (xmltype || xget) {
             emit("    { " + parentThis + "insertNew" + propertyName + "(i).set(o); }");
@@ -1864,9 +1721,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
         emit("");
 
         // Object remove(i)
-        if (_useJava15) {
-            emit("@Override");
-        }
+        emit("@Override");
         emit("public " + wrappedType + " remove(int i) {");
         startBlock();
         emit(wrappedType + " old = " + parentThis + xgetMethod + arrayName + "(i);");
@@ -1876,9 +1731,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
         emit("");
 
         // int size()
-        if (_useJava15) {
-            emit("@Override");
-        }
+        emit("@Override");
         emit("public int size()");
         emit("    { return " + parentThis + "sizeOf" + arrayName + "(); }");
         emit("");
@@ -1992,16 +1845,14 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
         if (several) {
             String arrayName = propertyName + "Array";
 
-            if (_useJava15) {
-                // use boxed type if the java type is a primitive and jdk1.5
-                // jdk1.5 will box/unbox for us
-                String wrappedType = type;
-                if (isJavaPrimitive(javaType)) {
-                    wrappedType = javaWrappedType(javaType);
-                }
-
-                printListGetter15Impl(parentJavaName, propdesc, propertyName, wrappedType, xtype, xmltype, false);
+            // use boxed type if the java type is a primitive and jdk1.5
+            // jdk1.5 will box/unbox for us
+            String wrappedType = type;
+            if (isJavaPrimitive(javaType)) {
+                wrappedType = javaWrappedType(javaType);
             }
+
+            printListGetter15Impl(parentJavaName, propdesc, propertyName, wrappedType, xmltype, false);
 
             // Value[] getProp()
             printJavaDoc("Gets array of all " + propdesc + "s");
@@ -2025,9 +1876,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
             endBlock();
 
             if (!xmltype) {
-                if (_useJava15) {
-                    printListGetter15Impl(parentJavaName, propdesc, propertyName, xtype, xtype, xmltype, true);
-                }
+                printListGetter15Impl(parentJavaName, propdesc, propertyName, xtype, false, true);
 
                 // Value[] xgetProp()
                 printJavaDoc("Gets (as xml) array of all " + propdesc + "s");
@@ -2081,7 +1930,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
 
         boolean xmltype = (javaType == SchemaProperty.XML_OBJECT);
         boolean isobj = (javaType == SchemaProperty.JAVA_OBJECT);
-        boolean isSubstGroup = identifier != setIdentifier;
+        boolean isSubstGroup = !Objects.equals(identifier, setIdentifier);
         String jtargetType = (isunion || !xmltype) ? "org.apache.xmlbeans.SimpleValue" : xtype;
 
         String propdesc = "\"" + qName.getLocalPart() + "\"" + (isAttr ? " attribute" : " element");
@@ -2092,10 +1941,10 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
             emit("public void set" + propertyName + "(" + type + " " + safeVarName + ") {");
             startBlock();
             if (xmltype && !isSubstGroup && !isAttr) {
-                emitPre(sType, PrePostExtension.OPERATION_SET, identifier, isAttr, several ? "0" : "-1");
+                emitPre(sType, PrePostExtension.OPERATION_SET, identifier, false, several ? "0" : "-1");
                 emit("generatedSetterHelperImpl(" + safeVarName + ", " + setIdentifier + ", 0, " +
                      "org.apache.xmlbeans.impl.values.XmlObjectBase.KIND_SETTERHELPER_SINGLETON);");
-                emitPost(sType, PrePostExtension.OPERATION_SET, identifier, isAttr, several ? "0" : "-1");
+                emitPost(sType, PrePostExtension.OPERATION_SET, identifier, false, several ? "0" : "-1");
             } else {
                 emitImplementationPreamble();
                 emitPre(sType, PrePostExtension.OPERATION_SET, identifier, isAttr, several ? "0" : "-1");
@@ -2127,9 +1976,9 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
                 emit("public " + xtype + " addNew" + propertyName + "() {");
                 startBlock();
                 emitImplementationPreamble();
-                emitDeclareTarget(true, xtype);
+                emit(xtype + " target = null;");
                 emitPre(sType, PrePostExtension.OPERATION_INSERT, identifier, isAttr);
-                emitAddTarget(identifier, isAttr, true, xtype);
+                emitAddTarget(identifier, isAttr, xtype);
                 emitPost(sType, PrePostExtension.OPERATION_INSERT, identifier, isAttr);
                 emit("return target;");
                 emitImplementationPostamble();
@@ -2314,9 +2163,9 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
                 emit("public void add" + propertyName + "(" + type + " " + safeVarName + ") {");
                 startBlock();
                 emitImplementationPreamble();
-                emitDeclareTarget(true, jtargetType);
+                emit(jtargetType + " target = null;");
                 emitPre(sType, PrePostExtension.OPERATION_INSERT, identifier, isAttr);
-                emitAddTarget(identifier, isAttr, true, jtargetType);
+                emitAddTarget(identifier, isAttr, jtargetType);
                 printJSetValue(javaType, safeVarName, (SchemaTypeImpl) prop.getType());
                 emitPost(sType, PrePostExtension.OPERATION_INSERT, identifier, isAttr);
                 emitImplementationPostamble();
@@ -2327,7 +2176,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
             emit("public " + xtype + " insertNew" + propertyName + "(int i) {");
             startBlock();
             emitImplementationPreamble();
-            emitDeclareTarget(true, xtype);
+            emit(xtype + " target = null;");
             emitPre(sType, PrePostExtension.OPERATION_INSERT, identifier, isAttr, "i");
             if (!isSubstGroup) {
                 emit("target = (" + xtype + ")get_store().insert_element_user(" + identifier + ", i);");
@@ -2345,9 +2194,9 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
             emit("public " + xtype + " addNew" + propertyName + "() {");
             startBlock();
             emitImplementationPreamble();
-            emitDeclareTarget(true, xtype);
+            emit(xtype + " target = null;");
             emitPre(sType, PrePostExtension.OPERATION_INSERT, identifier, isAttr);
-            emitAddTarget(identifier, isAttr, true, xtype);
+            emitAddTarget(identifier, isAttr, xtype);
             emitPost(sType, PrePostExtension.OPERATION_INSERT, identifier, isAttr);
             emit("return target;");
             emitImplementationPostamble();
@@ -2537,7 +2386,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
 
         String[] exceptions = method.getExceptionTypes();
         for (int i = 0; i < exceptions.length; i++) {
-            decl.append((i == 0 ? " throws " : ", ") + exceptions[i]);
+            decl.append(i == 0 ? " throws " : ", ").append(exceptions[i]);
         }
 
         decl.append(" {");
@@ -2556,7 +2405,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
 
         String[] params = method.getParameterTypes();
         for (int i = 0; i < params.length; i++) {
-            impl.append(", p" + i);
+            impl.append(", p").append(i);
         }
 
         impl.append(");");

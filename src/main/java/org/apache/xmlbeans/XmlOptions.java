@@ -157,8 +157,6 @@ public class XmlOptions implements java.io.Serializable {
 
 
     public static final int DEFAULT_ENTITY_EXPANSION_LIMIT = 2048;
-    public static final String GENERATE_JAVA_14 = "1.4";
-    public static final String GENERATE_JAVA_15 = "1.5";
 
     private static final XmlOptions EMPTY_OPTIONS;
 
@@ -1237,25 +1235,6 @@ public class XmlOptions implements java.io.Serializable {
 
     public SchemaCodePrinter getSchemaCodePrinter() {
         return (SchemaCodePrinter) get(XmlOptionsKeys.SCHEMA_CODE_PRINTER);
-    }
-
-    /**
-     * If this option is set, then the schema compiler will print java code
-     * that is compatible with the desired Java version.  If not set, the
-     * current Java version is used.  Currently, only "1.4" and "1.5" are
-     * supported.
-     *
-     * @param source A Java version number
-     * @see #GENERATE_JAVA_14
-     * @see #GENERATE_JAVA_15
-     * @see XmlBeans#compileXmlBeans
-     */
-    public XmlOptions setGenerateJavaVersion(String source) {
-        return set(XmlOptionsKeys.GENERATE_JAVA_VERSION, source);
-    }
-
-    public String getGenerateJavaVersion() {
-        return (String) get(XmlOptionsKeys.GENERATE_JAVA_VERSION);
     }
 
     /**

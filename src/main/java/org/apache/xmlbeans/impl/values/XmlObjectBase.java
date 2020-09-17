@@ -20,7 +20,6 @@ import org.apache.xmlbeans.impl.common.*;
 import org.apache.xmlbeans.impl.schema.SchemaTypeImpl;
 import org.apache.xmlbeans.impl.schema.SchemaTypeVisitorImpl;
 import org.apache.xmlbeans.impl.validator.Validator;
-import org.apache.xmlbeans.xml.stream.XMLInputStream;
 import org.w3c.dom.Node;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
@@ -125,25 +124,6 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
         XmlCursor cur = newCursorForce();
         try {
             return cur.documentProperties();
-        } finally {
-            cur.dispose();
-        }
-    }
-
-    /**
-     * @deprecated XMLInputStream was deprecated by XMLStreamReader from STaX - jsr173 API.
-     */
-    public XMLInputStream newXMLInputStream() {
-        return newXMLInputStream(null);
-    }
-
-    /**
-     * @deprecated XMLInputStream was deprecated by XMLStreamReader from STaX - jsr173 API.
-     */
-    public XMLInputStream newXMLInputStream(XmlOptions options) {
-        XmlCursor cur = newCursorForce();
-        try {
-            return cur.newXMLInputStream(makeInnerOptions(options));
         } finally {
             cur.dispose();
         }
@@ -3476,7 +3456,7 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
             List<XmlObjectBase> targetList = getBaseArray(elementName);
             boolean[] result = new boolean[targetList.size()];
             for (int i = 0; i < result.length; i++) {
-                result[i] = ((org.apache.xmlbeans.SimpleValue)targetList.get(i)).getBooleanValue();
+                result[i] = ((org.apache.xmlbeans.SimpleValue) targetList.get(i)).getBooleanValue();
             }
             return result;
         }
@@ -3487,7 +3467,7 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
             List<XmlObjectBase> targetList = getBaseArray(elementName);
             float[] result = new float[targetList.size()];
             for (int i = 0; i < result.length; i++) {
-                result[i] = ((org.apache.xmlbeans.SimpleValue)targetList.get(i)).getFloatValue();
+                result[i] = ((org.apache.xmlbeans.SimpleValue) targetList.get(i)).getFloatValue();
             }
             return result;
         }
@@ -3508,7 +3488,7 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
             List<XmlObjectBase> targetList = getBaseArray(elementName);
             byte[] result = new byte[targetList.size()];
             for (int i = 0; i < result.length; i++) {
-                result[i] = ((org.apache.xmlbeans.SimpleValue)targetList.get(i)).getByteValue();
+                result[i] = ((org.apache.xmlbeans.SimpleValue) targetList.get(i)).getByteValue();
             }
             return result;
         }
@@ -3519,7 +3499,7 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
             List<XmlObjectBase> targetList = getBaseArray(elementName);
             short[] result = new short[targetList.size()];
             for (int i = 0; i < result.length; i++) {
-                result[i] = ((org.apache.xmlbeans.SimpleValue)targetList.get(i)).getShortValue();
+                result[i] = ((org.apache.xmlbeans.SimpleValue) targetList.get(i)).getShortValue();
             }
             return result;
         }
@@ -3568,7 +3548,7 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
             List<XmlObjectBase> targetList = getBaseArray(elementSet);
             boolean[] result = new boolean[targetList.size()];
             for (int i = 0; i < result.length; i++) {
-                result[i] = ((org.apache.xmlbeans.SimpleValue)targetList.get(i)).getBooleanValue();
+                result[i] = ((org.apache.xmlbeans.SimpleValue) targetList.get(i)).getBooleanValue();
             }
             return result;
         }
@@ -3579,7 +3559,7 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
             List<XmlObjectBase> targetList = getBaseArray(elementSet);
             float[] result = new float[targetList.size()];
             for (int i = 0; i < result.length; i++) {
-                result[i] = ((org.apache.xmlbeans.SimpleValue)targetList.get(i)).getFloatValue();
+                result[i] = ((org.apache.xmlbeans.SimpleValue) targetList.get(i)).getFloatValue();
             }
             return result;
         }
@@ -3600,7 +3580,7 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
             List<XmlObjectBase> targetList = getBaseArray(elementSet);
             byte[] result = new byte[targetList.size()];
             for (int i = 0; i < result.length; i++) {
-                result[i] = ((org.apache.xmlbeans.SimpleValue)targetList.get(i)).getByteValue();
+                result[i] = ((org.apache.xmlbeans.SimpleValue) targetList.get(i)).getByteValue();
             }
             return result;
         }
@@ -3611,7 +3591,7 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
             List<XmlObjectBase> targetList = getBaseArray(elementSet);
             short[] result = new short[targetList.size()];
             for (int i = 0; i < result.length; i++) {
-                result[i] = ((org.apache.xmlbeans.SimpleValue)targetList.get(i)).getShortValue();
+                result[i] = ((org.apache.xmlbeans.SimpleValue) targetList.get(i)).getShortValue();
             }
             return result;
         }

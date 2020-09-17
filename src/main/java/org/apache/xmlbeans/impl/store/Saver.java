@@ -19,7 +19,10 @@ import org.apache.xmlbeans.SystemProperties;
 import org.apache.xmlbeans.XmlDocumentProperties;
 import org.apache.xmlbeans.XmlOptionCharEscapeMap;
 import org.apache.xmlbeans.XmlOptions;
-import org.apache.xmlbeans.impl.common.*;
+import org.apache.xmlbeans.impl.common.EncodingMap;
+import org.apache.xmlbeans.impl.common.QNameHelper;
+import org.apache.xmlbeans.impl.common.XmlEventBase;
+import org.apache.xmlbeans.impl.common.XmlNameImpl;
 import org.apache.xmlbeans.xml.stream.CharacterData;
 import org.apache.xmlbeans.xml.stream.*;
 import org.xml.sax.ContentHandler;
@@ -118,7 +121,8 @@ abstract class Saver {
             SynthNamespaceSaver saver = new SynthNamespaceSaver(c, options);
 
             //noinspection StatementWithEmptyBody
-            while (saver.process()) { }
+            while (saver.process()) {
+            }
 
             if (!saver._synthNamespaces.isEmpty()) {
                 _preComputedNamespaces = saver._synthNamespaces;
@@ -356,7 +360,8 @@ abstract class Saver {
             if (docTypeName == null) {
                 _cur.push();
                 //noinspection StatementWithEmptyBody
-                while (!_cur.isElem() && _cur.next()) { }
+                while (!_cur.isElem() && _cur.next()) {
+                }
                 if (_cur.isElem()) {
                     docTypeName = _cur.getName().getLocalPart();
                 }
@@ -453,7 +458,7 @@ abstract class Saver {
         // namespaces are mapped on the first container which has a name.
 
         if (_preComputedNamespaces != null) {
-            for (Map.Entry<String,String> entry : _preComputedNamespaces.entrySet()) {
+            for (Map.Entry<String, String> entry : _preComputedNamespaces.entrySet()) {
                 String uri = entry.getKey();
                 String prefix = entry.getValue();
                 boolean considerDefault = prefix.length() == 0 && !ensureDefaultEmpty;
@@ -792,7 +797,7 @@ abstract class Saver {
         return _prefixMap.get(prefix);
     }
 
-    protected Map<String,String> getPrefixMap() {
+    protected Map<String, String> getPrefixMap() {
         return _prefixMap;
     }
 
@@ -801,7 +806,7 @@ abstract class Saver {
     //
 
     static final class SynthNamespaceSaver extends Saver {
-        LinkedHashMap<String,String> _synthNamespaces = new LinkedHashMap<>();
+        LinkedHashMap<String, String> _synthNamespaces = new LinkedHashMap<>();
 
         SynthNamespaceSaver(Cur c, XmlOptions options) {
             super(c, options);
@@ -1730,7 +1735,8 @@ abstract class Saver {
             // create a String!
 
             //noinspection StatementWithEmptyBody
-            while (process()) { }
+            while (process()) {
+            }
 
             assert _out == 0;
 
@@ -1788,7 +1794,8 @@ abstract class Saver {
             try {
                 Saver saver = new OptimizedForSpeedSaver(cur, writer);
                 //noinspection StatementWithEmptyBody
-                while (saver.process()) { }
+                while (saver.process()) {
+                }
             } catch (SaverIOException e) {
                 throw (IOException) e.getCause();
             }
@@ -2816,7 +2823,7 @@ abstract class Saver {
 
         private static class StartElementImpl
             extends XmlEventImpl implements StartElement {
-            StartElementImpl(XMLName name, AttributeImpl attributes, AttributeImpl namespaces, Map<String,String> prefixMap) {
+            StartElementImpl(XMLName name, AttributeImpl attributes, AttributeImpl namespaces, Map<String, String> prefixMap) {
                 super(XMLEvent.START_ELEMENT);
 
                 _name = name;
@@ -2859,7 +2866,7 @@ abstract class Saver {
                 return _prefixMap.get(prefix == null ? "" : prefix);
             }
 
-            public Map<String,String> getNamespaceMap() {
+            public Map<String, String> getNamespaceMap() {
                 return _prefixMap;
             }
 
@@ -3002,7 +3009,7 @@ abstract class Saver {
             }
 
             private final XMLName _name;
-            private final Map<String,String> _prefixMap;
+            private final Map<String, String> _prefixMap;
 
             private final AttributeImpl _attributes;
             private final AttributeImpl _namespaces;
@@ -3153,24 +3160,6 @@ abstract class Saver {
         private XmlEventImpl _in, _out;
     }
 
-    static final class XmlInputStreamImpl extends GenericXmlInputStream {
-        XmlInputStreamImpl(Cur cur, XmlOptions options) {
-            _xmlInputStreamSaver =
-                new XmlInputStreamSaver(cur, options);
-
-            // Make the saver grind away just a bit to throw any exceptions
-            // related to the inability to create a stream on this xml
-
-            _xmlInputStreamSaver.process();
-        }
-
-        protected XMLEvent nextEvent() {
-            return _xmlInputStreamSaver.dequeue();
-        }
-
-        private final XmlInputStreamSaver _xmlInputStreamSaver;
-    }
-
     static final class SaxSaver extends Saver {
         SaxSaver(Cur c, XmlOptions options, ContentHandler ch, LexicalHandler lh)
             throws SAXException {
@@ -3186,7 +3175,8 @@ abstract class Saver {
 
             try {
                 //noinspection StatementWithEmptyBody
-                while (process()) { }
+                while (process()) {
+                }
             } catch (SaverSAXException e) {
                 throw e._saxException;
             }
