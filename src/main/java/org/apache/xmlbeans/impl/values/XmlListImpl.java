@@ -22,8 +22,10 @@ import org.apache.xmlbeans.impl.common.ValidationContext;
 import org.apache.xmlbeans.impl.common.XMLChar;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class XmlListImpl extends XmlObjectBase implements XmlAnySimpleType {
     public XmlListImpl(SchemaType type, boolean complex) {
@@ -43,27 +45,14 @@ public class XmlListImpl extends XmlObjectBase implements XmlAnySimpleType {
     // SIMPLE VALUE ACCESSORS BELOW -------------------------------------------
     // gets raw text value
 
-    private static String nullAsEmpty(String s) {
-        if (s == null) {
-            return "";
-        }
-        return s;
+    private static String compute_list_text(List<Object> xList) {
+        return xList.isEmpty() ? "" : xList.stream().map(XmlListImpl::object2String).collect(Collectors.joining(" "));
+
     }
 
-    private static String compute_list_text(List xList) {
-        if (xList.size() == 0) {
-            return "";
-        }
-
-        StringBuilder sb = new StringBuilder();
-        sb.append(nullAsEmpty(((SimpleValue) xList.get(0)).getStringValue()));
-
-        for (int i = 1; i < xList.size(); i++) {
-            sb.append(' ');
-            sb.append(nullAsEmpty(((SimpleValue) xList.get(i)).getStringValue()));
-        }
-
-        return sb.toString();
+    private static String object2String(Object o) {
+        String s = (o instanceof SimpleValue) ? ((SimpleValue) o).getStringValue() : o.toString();
+        return (s == null) ? "" : s;
     }
 
     protected String compute_text(NamespaceManager nsm) {
@@ -112,15 +101,15 @@ public class XmlListImpl extends XmlObjectBase implements XmlAnySimpleType {
             return EMPTY_STRINGARRAY;
         }
 
-        List result = new ArrayList();
+        List<String> result = new ArrayList<>();
         int i = 0;
-        int start = 0;
+        int start;
         for (; ; ) {
             while (i < s.length() && XMLChar.isSpace(s.charAt(i))) {
                 i += 1;
             }
             if (i >= s.length()) {
-                return (String[]) result.toArray(EMPTY_STRINGARRAY);
+                return result.toArray(EMPTY_STRINGARRAY);
             }
             start = i;
             while (i < s.length() && !XMLChar.isSpace(s.charAt(i))) {
@@ -133,39 +122,40 @@ public class XmlListImpl extends XmlObjectBase implements XmlAnySimpleType {
     public static XmlSimpleList lex(String s, SchemaType itemType, ValidationContext ctx, PrefixResolver resolver) {
         String[] parts = split_list(s);
 
-        XmlAnySimpleType[] newArray = new XmlAnySimpleType[parts.length];
+        Function<String, XmlAnySimpleType> fun = (str) -> {
+            try {
+                return itemType.newValue(str);
+            } catch (XmlValueOutOfRangeException e) {
+                Object[] obj = {"item '" + str + "' is not a valid value of " + QNameHelper.readable(itemType)};
+                ctx.invalid(XmlErrorCodes.LIST, obj);
+                return null;
+            }
+        };
         boolean pushed = false;
         if (resolver != null) {
             NamespaceContext.push(new NamespaceContext(resolver));
             pushed = true;
         }
-        int i = 0;
         try {
-            for (i = 0; i < parts.length; i++) {
-                try {
-                    newArray[i] = itemType.newValue(parts[i]);
-                } catch (XmlValueOutOfRangeException e) {
-                    ctx.invalid(XmlErrorCodes.LIST, new Object[]{"item '" + parts[i] + "' is not a valid value of " + QNameHelper.readable(itemType)});
-                }
-            }
+            List<? super Object> list = Stream.of(parts).map(fun).collect(Collectors.toList());
+            return new XmlSimpleList(list);
         } finally {
             if (pushed) {
                 NamespaceContext.pop();
             }
         }
-        return new XmlSimpleList(Arrays.asList(newArray));
     }
 
     protected void set_nil() {
         _value = null;
     }
 
-    public List xgetListValue() {
+    public List<?> xgetListValue() {
         check_dated();
         return _value;
     }
 
-    public List getListValue() {
+    public List<?> getListValue() {
         check_dated();
         if (_value == null) {
             return null;
@@ -173,9 +163,9 @@ public class XmlListImpl extends XmlObjectBase implements XmlAnySimpleType {
         if (_jvalue != null) {
             return _jvalue;
         }
-        List javaResult = new ArrayList();
-        for (int i = 0; i < _value.size(); i++) {
-            javaResult.add(java_value((XmlObject) _value.get(i)));
+        List<Object> javaResult = new ArrayList<>();
+        for (Object o : _value) {
+            javaResult.add(java_value((XmlObject) o));
         }
         _jvalue = new XmlSimpleList(javaResult);
         return _jvalue;
@@ -200,7 +190,7 @@ public class XmlListImpl extends XmlObjectBase implements XmlAnySimpleType {
                s.indexOf('\r') >= 0;
     }
 
-    public void set_list(List list) {
+    public void set_list(List<?> list) {
         SchemaType itemType = _schemaType.getListItemType();
         XmlSimpleList xList;
 
@@ -210,19 +200,19 @@ public class XmlListImpl extends XmlObjectBase implements XmlAnySimpleType {
             pushed = true;
         }
 
-        try {
-            XmlAnySimpleType[] newval = new XmlAnySimpleType[list.size()];
-            for (int i = 0; i < list.size(); i++) {
-                Object entry = list.get(i);
-                if ((entry instanceof XmlObject) && permits_inner_space((XmlObject) list.get(i))) {
-                    String stringrep = list.get(i).toString();
-                    if (contains_white_space(stringrep)) {
-                        throw new XmlValueOutOfRangeException();
-                    }
+        Function<Object, XmlAnySimpleType> fun = (entry) -> {
+            if ((entry instanceof XmlObject) && permits_inner_space((XmlObject) entry)) {
+                String stringrep = entry.toString();
+                if (contains_white_space(stringrep)) {
+                    throw new XmlValueOutOfRangeException();
                 }
-                newval[i] = itemType.newValue(entry);
             }
-            xList = new XmlSimpleList(Arrays.asList(newval));
+            return itemType.newValue(entry);
+        };
+
+        try {
+            List<? super Object> l = list.stream().map(fun).collect(Collectors.toList());
+            xList = new XmlSimpleList(l);
         } finally {
             if (pushed) {
                 NamespaceContext.pop();
@@ -242,8 +232,8 @@ public class XmlListImpl extends XmlObjectBase implements XmlAnySimpleType {
         XmlObject[] enumvals = sType.getEnumerationValues();
         checkEnum:
         if (enumvals != null) {
-            for (int i = 0; i < enumvals.length; i++) {
-                if (equal_xmlLists(items, ((XmlObjectBase) enumvals[i]).xgetListValue())) {
+            for (XmlObject enumval : enumvals) {
+                if (equal_xmlLists(items, ((XmlObjectBase) enumval).xgetListValue())) {
                     break checkEnum;
                 }
             }
@@ -257,21 +247,21 @@ public class XmlListImpl extends XmlObjectBase implements XmlAnySimpleType {
         if ((o = sType.getFacet(SchemaType.FACET_LENGTH)) != null) {
             if ((i = ((SimpleValue) o).getIntValue()) != items.size()) {
                 context.invalid(XmlErrorCodes.DATATYPE_LENGTH_VALID$LIST_LENGTH,
-                    new Object[]{items, new Integer(items.size()), new Integer(i), QNameHelper.readable(sType)});
+                    new Object[]{items, items.size(), i, QNameHelper.readable(sType)});
             }
         }
 
         if ((o = sType.getFacet(SchemaType.FACET_MIN_LENGTH)) != null) {
             if ((i = ((SimpleValue) o).getIntValue()) > items.size()) {
                 context.invalid(XmlErrorCodes.DATATYPE_MIN_LENGTH_VALID$LIST_LENGTH,
-                    new Object[]{items, new Integer(items.size()), new Integer(i), QNameHelper.readable(sType)});
+                    new Object[]{items, items.size(), i, QNameHelper.readable(sType)});
             }
         }
 
         if ((o = sType.getFacet(SchemaType.FACET_MAX_LENGTH)) != null) {
             if ((i = ((SimpleValue) o).getIntValue()) < items.size()) {
                 context.invalid(XmlErrorCodes.DATATYPE_MAX_LENGTH_VALID$LIST_LENGTH,
-                    new Object[]{items, new Integer(items.size()), new Integer(i), QNameHelper.readable(sType)});
+                    new Object[]{items, items.size(), i, QNameHelper.readable(sType)});
             }
         }
     }
@@ -284,7 +274,7 @@ public class XmlListImpl extends XmlObjectBase implements XmlAnySimpleType {
     }
 
 
-    private static boolean equal_xmlLists(List a, List b) {
+    private static boolean equal_xmlLists(List<?> a, List<?> b) {
         if (a.size() != b.size()) {
             return false;
         }

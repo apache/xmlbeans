@@ -68,7 +68,7 @@ public abstract class JavaStringHolderEx extends JavaStringHolder {
             int m = ((XmlObjectBase) len).getBigIntegerValue().intValue();
             if (v.length() != m) {
                 context.invalid(XmlErrorCodes.DATATYPE_LENGTH_VALID$STRING,
-                    new Object[]{"string", new Integer(v.length()), new Integer(m), QNameHelper.readable(sType)});
+                    new Object[]{"string", v.length(), m, QNameHelper.readable(sType)});
                 return;
             }
         }
@@ -79,7 +79,7 @@ public abstract class JavaStringHolderEx extends JavaStringHolder {
             int m = ((XmlObjectBase) min).getBigIntegerValue().intValue();
             if (v.length() < m) {
                 context.invalid(XmlErrorCodes.DATATYPE_MIN_LENGTH_VALID$STRING,
-                    new Object[]{"string", new Integer(v.length()), new Integer(m), QNameHelper.readable(sType)});
+                    new Object[]{"string", v.length(), m, QNameHelper.readable(sType)});
                 return;
             }
         }
@@ -90,7 +90,7 @@ public abstract class JavaStringHolderEx extends JavaStringHolder {
             int m = ((XmlObjectBase) max).getBigIntegerValue().intValue();
             if (v.length() > m) {
                 context.invalid(XmlErrorCodes.DATATYPE_MAX_LENGTH_VALID$STRING,
-                    new Object[]{"string", new Integer(v.length()), new Integer(m), QNameHelper.readable(sType)});
+                    new Object[]{"string", v.length(), m, QNameHelper.readable(sType)});
                 return;
             }
         }
@@ -102,8 +102,8 @@ public abstract class JavaStringHolderEx extends JavaStringHolder {
         // enum table hasn't been constructed yet.
         XmlAnySimpleType[] vals = sType.getEnumerationValues();
         if (vals != null) {
-            for (int i = 0; i < vals.length; i++) {
-                if (v.equals(vals[i].getStringValue())) {
+            for (XmlAnySimpleType val : vals) {
+                if (v.equals(val.getStringValue())) {
                     return;
                 }
             }

@@ -31,7 +31,6 @@ public class CodeGenUtil {
     public static final String DEFAULT_MEM_START = "8m";
     public static final String DEFAULT_MEM_MAX = "256m";
     public static final String DEFAULT_COMPILER = "javac";
-    public static final String DEFAULT_JAR = "jar";
 
     //workaround for Sun bug # 4723726
     public static URI resolve(URI base, URI child) {
@@ -76,10 +75,6 @@ public class CodeGenUtil {
         return "\"" + filename.replaceAll("\\\\", "\\\\\\\\") + "\"";
     }
 
-    static private String quoteNoEscapeFilename(String filename) {
-        // don't quote if there's no space, and don't quote on linux
-        return (!filename.contains(" ") || File.separatorChar == '/') ? filename : "\"" + filename + "\"";
-    }
 
     /**
      * Invokes javac on the generated source files in order to turn them
@@ -247,72 +242,6 @@ public class CodeGenUtil {
         return cp.toArray(new File[0]);
     }
 
-    /**
-     * @deprecated Use org.apache.xmlbeans.impl.common.JarHelper instead.
-     */
-    public static boolean externalJar(File srcdir, File outfile) {
-        return externalJar(srcdir, outfile, DEFAULT_JAR, false, false);
-    }
-
-    /**
-     * @deprecated Use org.apache.xmlbeans.impl.common.JarHelper instead.
-     */
-    public static boolean externalJar(File srcdir, File outfile, String jarPath, boolean quiet, boolean verbose) {
-        List<String> args = new ArrayList<>();
-
-        File jar = findJavaTool(jarPath == null ? DEFAULT_JAR : jarPath);
-        assert (jar.exists()) : "jar not found " + jar;
-        args.add(jar.getAbsolutePath());
-
-        args.add("cf");
-        args.add(quoteNoEscapeFilename(outfile.getAbsolutePath()));
-
-        args.add("-C");
-        args.add(quoteNoEscapeFilename(srcdir.getAbsolutePath()));
-
-        args.add(".");
-
-        try {
-            String[] strArgs = args.toArray(new String[0]);
-
-            if (verbose) {
-                System.out.print("jar command:");
-                for (String strArg : strArgs) {
-                    System.out.print(" " + strArg);
-                }
-                System.out.println();
-            }
-
-            final Process proc = Runtime.getRuntime().exec(strArgs);
-
-            StringBuilder errorBuffer = new StringBuilder();
-            StringBuilder outputBuffer = new StringBuilder();
-
-            Thread out = copy(proc.getInputStream(), outputBuffer);
-            Thread err = copy(proc.getErrorStream(), errorBuffer);
-
-            proc.waitFor();
-
-            if (verbose || proc.exitValue() != 0) {
-                if (outputBuffer.length() > 0) {
-                    System.out.println(outputBuffer.toString());
-                    System.out.flush();
-                }
-                if (errorBuffer.length() > 0) {
-                    System.err.println(errorBuffer.toString());
-                    System.err.flush();
-                }
-
-                if (proc.exitValue() != 0) {
-                    return false;
-                }
-            }
-        } catch (Throwable e) {
-            e.printStackTrace(System.err);
-            return false;
-        }
-        return true;
-    }
 
     /**
      * Look for tool in current directory and ${JAVA_HOME}/../bin and

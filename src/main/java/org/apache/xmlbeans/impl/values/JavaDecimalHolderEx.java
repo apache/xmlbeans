@@ -22,6 +22,7 @@ import org.apache.xmlbeans.impl.common.QNameHelper;
 import org.apache.xmlbeans.impl.common.ValidationContext;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 public abstract class JavaDecimalHolderEx extends JavaDecimalHolder {
     private final SchemaType _schemaType;
@@ -86,13 +87,14 @@ public abstract class JavaDecimalHolderEx extends JavaDecimalHolder {
             try {
                 // used only for side-effect - this does not change v despite
                 // the name of the method
-                v.setScale(scale);
+                // noinspection ResultOfMethodCallIgnored
+                v.setScale(scale, RoundingMode.UNNECESSARY);
             } catch (ArithmeticException e) {
                 // ArithmeticException will be thrown if cannot represent as an Integer
                 // with this scale - i.e. would need a fraction which would correspond
                 // to digits beyond the allowed number
                 context.invalid(XmlErrorCodes.DATATYPE_FRACTION_DIGITS_VALID,
-                    new Object[]{new Integer(v.scale()), v.toString(), new Integer(scale), QNameHelper.readable(sType)});
+                    new Object[]{v.scale(), v.toString(), scale, QNameHelper.readable(sType)});
                 return;
             }
         }
@@ -124,7 +126,7 @@ public abstract class JavaDecimalHolderEx extends JavaDecimalHolder {
 
             if (len > tdf) {
                 context.invalid(XmlErrorCodes.DATATYPE_TOTAL_DIGITS_VALID,
-                    new Object[]{new Integer(len), v.toString(), new Integer(tdf), QNameHelper.readable(sType)});
+                    new Object[]{len, v.toString(), tdf, QNameHelper.readable(sType)});
                 return;
             }
         }

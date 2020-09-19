@@ -27,17 +27,17 @@ import java.util.ListIterator;
  * contents, so two XmlSimpleLists are the same if they have the same
  * values in the same order.
  */
-public class XmlSimpleList implements List, java.io.Serializable {
+public class XmlSimpleList implements List<Object>, java.io.Serializable {
     private static final long serialVersionUID = 1L;
 
-    private List underlying;
+    private final List<Object> underlying;
 
     /**
      * Constructs an immutable XmlSimpleList that wraps (does not copy)
      * the given {@link List}.  All non-mutating methods delegate to
      * the underlying List instance.
      */
-    public XmlSimpleList(List list) {
+    public XmlSimpleList(List<Object> list) {
         this.underlying = list;
     }
 
@@ -73,13 +73,13 @@ public class XmlSimpleList implements List, java.io.Serializable {
      * Copies the collection to an array.
      */
     public Object[] toArray() {
-        return underlying.toArray();
+        return underlying.toArray(new Object[0]);
     }
 
     /**
      * Copies the collection to an array of a specified type.
      */
-    public Object[] toArray(Object[] a) {
+    public <T> T[] toArray(T[] a) {
         return underlying.toArray(a);
     }
 
@@ -177,16 +177,16 @@ public class XmlSimpleList implements List, java.io.Serializable {
     /**
      * Returns a view of the portion of this list between the specified fromIndex, inclusive, and toIndex, exclusive.
      */
-    public List subList(int from, int to) {
+    public List<Object> subList(int from, int to) {
         return new XmlSimpleList(underlying.subList(from, to));
     }
 
     /**
      * Returns an iterator over the elements in this list in proper sequence.
      */
-    public Iterator iterator() {
-        return new Iterator() {
-            Iterator i = underlying.iterator();
+    public Iterator<Object> iterator() {
+        return new Iterator<Object>() {
+            final Iterator<Object> i = underlying.iterator();
 
             public boolean hasNext() {
                 return i.hasNext();
@@ -205,16 +205,16 @@ public class XmlSimpleList implements List, java.io.Serializable {
     /**
      * Returns a list iterator of the elements in this list in proper sequence.
      */
-    public ListIterator listIterator() {
+    public ListIterator<Object> listIterator() {
         return listIterator(0);
     }
 
     /**
      * Returns a list iterator of the elements in this list in proper sequence, starting at the specified position in this list.
      */
-    public ListIterator listIterator(final int index) {
-        return new ListIterator() {
-            ListIterator i = underlying.listIterator(index);
+    public ListIterator<Object> listIterator(final int index) {
+        return new ListIterator<Object>() {
+            final ListIterator<Object> i = underlying.listIterator(index);
 
             public boolean hasNext() {
                 return i.hasNext();
@@ -296,7 +296,7 @@ public class XmlSimpleList implements List, java.io.Serializable {
             return false;
         }
         final XmlSimpleList xmlSimpleList = (XmlSimpleList) o;
-        List underlying2 = xmlSimpleList.underlying;
+        List<Object> underlying2 = xmlSimpleList.underlying;
         int size = underlying.size();
         if (size != underlying2.size()) {
             return false;
@@ -315,10 +315,8 @@ public class XmlSimpleList implements List, java.io.Serializable {
      * Combines the hash codes of all the list items.
      */
     public int hashCode() {
-        int size = underlying.size();
         int hash = 0;
-        for (int i = 0; i < size; i++) {
-            Object item = underlying.get(i);
+        for (Object item : underlying) {
             hash *= 19;
             hash += item.hashCode();
         }
