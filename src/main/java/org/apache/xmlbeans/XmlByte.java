@@ -29,27 +29,13 @@ public interface XmlByte extends XmlShort {
 
     /**
      * Returns this value as a byte
-     *
-     * @deprecated replaced by {@link #getByteValue}
-     **/
-    public byte byteValue();
-
-    /**
-     * Sets this value as a byte
-     *
-     * @deprecated replaced by {@link #setByteValue}
-     **/
-    public void set(byte s);
-
-    /**
-     * Returns this value as a byte
      */
-    public byte getByteValue();
+    byte getByteValue();
 
     /**
      * Sets this value as a byte
      */
-    public void setByteValue(byte s);
+    void setByteValue(byte s);
 
     /**
      * A class with methods for creating instances
@@ -59,119 +45,119 @@ public interface XmlByte extends XmlShort {
         /**
          * Creates an empty instance of {@link XmlByte}
          */
-        public static XmlByte newInstance() {
+        static XmlByte newInstance() {
             return (XmlByte) XmlBeans.getContextTypeLoader().newInstance(type, null);
         }
 
         /**
          * Creates an empty instance of {@link XmlByte}
          */
-        public static XmlByte newInstance(org.apache.xmlbeans.XmlOptions options) {
+        static XmlByte newInstance(org.apache.xmlbeans.XmlOptions options) {
             return (XmlByte) XmlBeans.getContextTypeLoader().newInstance(type, options);
         }
 
         /**
          * Creates an immutable {@link XmlByte} value
          */
-        public static XmlByte newValue(Object obj) {
+        static XmlByte newValue(Object obj) {
             return (XmlByte) type.newValue(obj);
         }
 
         /**
          * Parses a {@link XmlByte} fragment from a String. For example: "<code>&lt;xml-fragment&gt;123&lt;/xml-fragment&gt;</code>".
          */
-        public static XmlByte parse(java.lang.String s) throws org.apache.xmlbeans.XmlException {
+        static XmlByte parse(java.lang.String s) throws org.apache.xmlbeans.XmlException {
             return (XmlByte) XmlBeans.getContextTypeLoader().parse(s, type, null);
         }
 
         /**
          * Parses a {@link XmlByte} fragment from a String. For example: "<code>&lt;xml-fragment&gt;123&lt;/xml-fragment&gt;</code>".
          */
-        public static XmlByte parse(java.lang.String s, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException {
+        static XmlByte parse(java.lang.String s, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException {
             return (XmlByte) XmlBeans.getContextTypeLoader().parse(s, type, options);
         }
 
         /**
          * Parses a {@link XmlByte} fragment from a File.
          */
-        public static XmlByte parse(java.io.File f) throws org.apache.xmlbeans.XmlException, java.io.IOException {
+        static XmlByte parse(java.io.File f) throws org.apache.xmlbeans.XmlException, java.io.IOException {
             return (XmlByte) XmlBeans.getContextTypeLoader().parse(f, type, null);
         }
 
         /**
          * Parses a {@link XmlByte} fragment from a File.
          */
-        public static XmlByte parse(java.io.File f, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException, java.io.IOException {
+        static XmlByte parse(java.io.File f, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException, java.io.IOException {
             return (XmlByte) XmlBeans.getContextTypeLoader().parse(f, type, options);
         }
 
         /**
          * Parses a {@link XmlByte} fragment from a URL.
          */
-        public static XmlByte parse(java.net.URL u) throws org.apache.xmlbeans.XmlException, java.io.IOException {
+        static XmlByte parse(java.net.URL u) throws org.apache.xmlbeans.XmlException, java.io.IOException {
             return (XmlByte) XmlBeans.getContextTypeLoader().parse(u, type, null);
         }
 
         /**
          * Parses a {@link XmlByte} fragment from a URL.
          */
-        public static XmlByte parse(java.net.URL u, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException, java.io.IOException {
+        static XmlByte parse(java.net.URL u, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException, java.io.IOException {
             return (XmlByte) XmlBeans.getContextTypeLoader().parse(u, type, options);
         }
 
         /**
          * Parses a {@link XmlByte} fragment from an InputStream.
          */
-        public static XmlByte parse(java.io.InputStream is) throws org.apache.xmlbeans.XmlException, java.io.IOException {
+        static XmlByte parse(java.io.InputStream is) throws org.apache.xmlbeans.XmlException, java.io.IOException {
             return (XmlByte) XmlBeans.getContextTypeLoader().parse(is, type, null);
         }
 
         /**
          * Parses a {@link XmlByte} fragment from an InputStream.
          */
-        public static XmlByte parse(java.io.InputStream is, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException, java.io.IOException {
+        static XmlByte parse(java.io.InputStream is, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException, java.io.IOException {
             return (XmlByte) XmlBeans.getContextTypeLoader().parse(is, type, options);
         }
 
         /**
          * Parses a {@link XmlByte} fragment from a Reader.
          */
-        public static XmlByte parse(java.io.Reader r) throws org.apache.xmlbeans.XmlException, java.io.IOException {
+        static XmlByte parse(java.io.Reader r) throws org.apache.xmlbeans.XmlException, java.io.IOException {
             return (XmlByte) XmlBeans.getContextTypeLoader().parse(r, type, null);
         }
 
         /**
          * Parses a {@link XmlByte} fragment from a Reader.
          */
-        public static XmlByte parse(java.io.Reader r, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException, java.io.IOException {
+        static XmlByte parse(java.io.Reader r, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException, java.io.IOException {
             return (XmlByte) XmlBeans.getContextTypeLoader().parse(r, type, options);
         }
 
         /**
          * Parses a {@link XmlByte} fragment from a DOM Node.
          */
-        public static XmlByte parse(org.w3c.dom.Node node) throws org.apache.xmlbeans.XmlException {
+        static XmlByte parse(org.w3c.dom.Node node) throws org.apache.xmlbeans.XmlException {
             return (XmlByte) XmlBeans.getContextTypeLoader().parse(node, type, null);
         }
 
         /**
          * Parses a {@link XmlByte} fragment from a DOM Node.
          */
-        public static XmlByte parse(org.w3c.dom.Node node, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException {
+        static XmlByte parse(org.w3c.dom.Node node, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException {
             return (XmlByte) XmlBeans.getContextTypeLoader().parse(node, type, options);
         }
 
         /**
          * Parses a {@link XmlByte} fragment from an XMLStreamReader.
          */
-        public static XmlByte parse(javax.xml.stream.XMLStreamReader xsr) throws org.apache.xmlbeans.XmlException {
+        static XmlByte parse(javax.xml.stream.XMLStreamReader xsr) throws org.apache.xmlbeans.XmlException {
             return (XmlByte) XmlBeans.getContextTypeLoader().parse(xsr, type, null);
         }
 
         /**
          * Parses a {@link XmlByte} fragment from an XMLStreamReader.
          */
-        public static XmlByte parse(javax.xml.stream.XMLStreamReader xsr, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException {
+        static XmlByte parse(javax.xml.stream.XMLStreamReader xsr, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException {
             return (XmlByte) XmlBeans.getContextTypeLoader().parse(xsr, type, options);
         }
 

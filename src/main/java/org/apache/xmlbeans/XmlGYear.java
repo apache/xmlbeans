@@ -65,48 +65,6 @@ public interface XmlGYear extends XmlAnySimpleType {
     void setIntValue(int v);
 
     /**
-     * Returns this value as a {@link Calendar}
-     *
-     * @deprecated replaced with {@link #getCalendarValue}
-     **/
-    Calendar calendarValue();
-
-    /**
-     * Sets this value as a {@link Calendar}
-     *
-     * @deprecated replaced with {@link #setCalendarValue}
-     **/
-    void set(Calendar c);
-
-    /**
-     * Returns this value as a {@link GDate}
-     *
-     * @deprecated replaced with {@link #getGDateValue}
-     **/
-    GDate gDateValue();
-
-    /**
-     * Sets this value as a {@link GDateSpecification}
-     *
-     * @deprecated replaced with {@link #setGDateValue}
-     **/
-    void set(GDateSpecification gd);
-
-    /**
-     * Returns this value as an int from 1-31
-     *
-     * @deprecated replaced with {@link #getIntValue}
-     **/
-    int intValue();
-
-    /**
-     * Sets this value as an int from 1-31
-     *
-     * @deprecated replaced with {@link #setIntValue}
-     **/
-    void set(int v);
-
-    /**
      * A class with methods for creating instances
      * of {@link XmlGYear}.
      */

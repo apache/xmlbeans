@@ -29,20 +29,6 @@ public interface XmlAnySimpleType extends XmlObject {
 
     /**
      * Returns the value as a {@link String}
-     *
-     * @deprecated replaced by {@link #getStringValue}
-     **/
-    String stringValue();
-
-    /**
-     * Sets the value as a {@link String}
-     *
-     * @deprecated replaced by {@link #setStringValue}
-     **/
-    void set(String s);
-
-    /**
-     * Returns the value as a {@link String}
      **/
     String getStringValue();
 

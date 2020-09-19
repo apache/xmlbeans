@@ -593,7 +593,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
         if (sType.getSimpleVariety() == SchemaType.LIST) {
             emit("java.util.List getListValue();");
             emit("java.util.List xgetListValue();");
-            emit("void setListValue(java.util.List list);");
+            emit("void setListValue(java.util.List<?> list);");
         }
     }
 
@@ -660,8 +660,8 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
 
         if (!hasBase) {
             emit("");
-            emit("org.apache.xmlbeans.StringEnumAbstractBase enumValue();");
-            emit("void set(org.apache.xmlbeans.StringEnumAbstractBase e);");
+            emit("org.apache.xmlbeans.StringEnumAbstractBase getEnumValue();");
+            emit("void setEnumValue(org.apache.xmlbeans.StringEnumAbstractBase e);");
         }
 
         emit("");

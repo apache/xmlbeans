@@ -38,20 +38,6 @@ public interface XmlDouble extends XmlAnySimpleType {
     void setDoubleValue(double v);
 
     /**
-     * Returns this value as a double
-     *
-     * @deprecated replaced with {@link #getDoubleValue}
-     **/
-    double doubleValue();
-
-    /**
-     * Sets this value as a double
-     *
-     * @deprecated replaced with {@link #setDoubleValue}
-     **/
-    void set(double v);
-
-    /**
      * A class with methods for creating instances
      * of {@link XmlDouble}.
      */

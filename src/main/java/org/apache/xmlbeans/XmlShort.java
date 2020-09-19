@@ -31,26 +31,12 @@ public interface XmlShort extends XmlInt {
     /**
      * Returns this value as a short
      */
-    public short getShortValue();
+    short getShortValue();
 
     /**
      * Sets this value as a short
      */
-    public void setShortValue(short s);
-
-    /**
-     * Returns this value as a short
-     *
-     * @deprecated replaced with {@link #getShortValue}
-     **/
-    public short shortValue();
-
-    /**
-     * Sets this value as a short
-     *
-     * @deprecated replaced with {@link #setShortValue}
-     **/
-    public void set(short s);
+    void setShortValue(short s);
 
     /**
      * A class with methods for creating instances

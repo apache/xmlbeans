@@ -16,11 +16,11 @@
 package org.apache.xmlbeans;
 
 import javax.xml.namespace.QName;
-import java.util.List;
-import java.util.Date;
-import java.util.Calendar;
-import java.math.BigInteger;
 import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
 
 /**
  * All XmlObject implementations can be coerced to SimpleValue.
@@ -33,8 +33,7 @@ import java.math.BigDecimal;
  * or two unrelated integer restrictions that happen to fit
  * into an int.
  */
-public interface SimpleValue extends XmlObject
-{
+public interface SimpleValue extends XmlObject {
     /**
      * The same as getSchemaType unless this is a union instance
      * or nil value.
@@ -48,286 +47,200 @@ public interface SimpleValue extends XmlObject
      */
     SchemaType instanceType();
 
-    /** Returns the value as a {@link String}. */
+    /**
+     * Returns the value as a {@link String}.
+     */
     String getStringValue();
-    /** Returns the value as a boolean. */
+
+    /**
+     * Returns the value as a boolean.
+     */
     boolean getBooleanValue();
-    /** Returns the value as a byte. */
-    public byte getByteValue();
-    /** Returns the value as a short. */
-    public short getShortValue();
-    /** Returns the value as an int. */
-    public int getIntValue();
-    /** Returns the value as a long. */
-    public long getLongValue();
-    /** Returns the value as a {@link BigInteger}. */
-    public BigInteger getBigIntegerValue();
-    /** Returns the value as a {@link BigDecimal}. */
-    public BigDecimal getBigDecimalValue();
-    /** Returns the value as a float. */
-    public float getFloatValue();
-    /** Returns the value as a double. */
-    public double getDoubleValue();
-    /** Returns the value as a byte array. */
+
+    /**
+     * Returns the value as a byte.
+     */
+    byte getByteValue();
+
+    /**
+     * Returns the value as a short.
+     */
+    short getShortValue();
+
+    /**
+     * Returns the value as an int.
+     */
+    int getIntValue();
+
+    /**
+     * Returns the value as a long.
+     */
+    long getLongValue();
+
+    /**
+     * Returns the value as a {@link BigInteger}.
+     */
+    BigInteger getBigIntegerValue();
+
+    /**
+     * Returns the value as a {@link BigDecimal}.
+     */
+    BigDecimal getBigDecimalValue();
+
+    /**
+     * Returns the value as a float.
+     */
+    float getFloatValue();
+
+    /**
+     * Returns the value as a double.
+     */
+    double getDoubleValue();
+
+    /**
+     * Returns the value as a byte array.
+     */
     byte[] getByteArrayValue();
-    /** Returns the value as a {@link StringEnumAbstractBase}. */
+
+    /**
+     * Returns the value as a {@link StringEnumAbstractBase}.
+     */
     StringEnumAbstractBase getEnumValue();
-    /** Returns the value as a {@link Calendar}. */
+
+    /**
+     * Returns the value as a {@link Calendar}.
+     */
     Calendar getCalendarValue();
-    /** Returns the value as a {@link Date}. */
+
+    /**
+     * Returns the value as a {@link Date}.
+     */
     Date getDateValue();
-    /** Returns the value as a {@link GDate}. */
+
+    /**
+     * Returns the value as a {@link GDate}.
+     */
     GDate getGDateValue();
-    /** Returns the value as a {@link GDuration}. */
+
+    /**
+     * Returns the value as a {@link GDuration}.
+     */
     GDuration getGDurationValue();
-    /** Returns the value as a {@link QName}. */
+
+    /**
+     * Returns the value as a {@link QName}.
+     */
     QName getQNameValue();
-    /** Returns the value as a {@link List} of friendly Java objects (String, Integer, Byte, Short, Long, BigInteger, Decimal, Float, Double, byte[], Calendar, GDuration). */
+
+    /**
+     * Returns the value as a {@link List} of friendly Java objects (String, Integer, Byte, Short, Long, BigInteger, Decimal, Float, Double, byte[], Calendar, GDuration).
+     */
     List getListValue();
-    /** Returns the value as a {@link List} of XmlAnySimpleType objects. */
+
+    /**
+     * Returns the value as a {@link List} of XmlAnySimpleType objects.
+     */
     List xgetListValue();
 
-    /** Returns a union value as a its natural friendly Java object (String, Integer, Byte, Short, Long, BigInteger, Decimal, Float, Double, byte[], Calendar, GDuration). */
+    /**
+     * Returns a union value as a its natural friendly Java object (String, Integer, Byte, Short, Long, BigInteger, Decimal, Float, Double, byte[], Calendar, GDuration).
+     */
     Object getObjectValue();
 
     // following are simple type value setters
 
-    /** Sets the value as a {@link String}. */
+    /**
+     * Sets the value as a {@link String}.
+     */
     void setStringValue(String obj);
-    /** Sets the value as a boolean. */
+
+    /**
+     * Sets the value as a boolean.
+     */
     void setBooleanValue(boolean v);
-    /** Sets the value as a byte. */
-    void setByteValue(byte v);
-    /** Sets the value as a short. */
-    void setShortValue(short v);
-    /** Sets the value as an int. */
-    void setIntValue(int v);
-    /** Sets the value as a long. */
-    void setLongValue(long v);
-    /** Sets the value as a {@link BigInteger}. */
-    void setBigIntegerValue(BigInteger obj);
-    /** Sets the value as a {@link BigDecimal}. */
-    void setBigDecimalValue(BigDecimal obj);
-    /** Sets the value as a float. */
-    void setFloatValue(float v);
-    /** Sets the value as a double. */
-    void setDoubleValue(double v);
-    /** Sets the value as a byte array. */
-    void setByteArrayValue(byte[] obj);
-    /** Sets the value as a {@link StringEnumAbstractBase}. */
-    void setEnumValue(StringEnumAbstractBase obj);
-    /** Sets the value as a {@link Calendar}. */
-    void setCalendarValue(Calendar obj);
-    /** Sets the value as a {@link Date}. */
-    void setDateValue(Date obj);
-    /** Sets the value as a {@link GDate}. */
-    void setGDateValue(GDate obj);
-    /** Sets the value as a {@link GDuration}. */
-    void setGDurationValue(GDuration obj);
-    /** Sets the value as a {@link QName}. */
-    void setQNameValue(QName obj);
-    /** Sets the value as a {@link List}. */
-    void setListValue(List obj);
-    /** Sets the value as an arbitrary {@link Object}. */
-    void setObjectValue(Object obj);
 
-    /**
-     * Returns the value as a {@link String}. *
-     * @deprecated replaced with {@link #getStringValue}
-     */
-    String stringValue();
-    /**
-     * Returns the value as a boolean. *
-     * @deprecated replaced with {@link #getBooleanValue}
-     */
-    boolean booleanValue();
-    /**
-     * Returns the value as a byte. *
-     * @deprecated replaced with {@link #getByteValue}
-     */
-    public byte byteValue();
-    /**
-     * Returns the value as a short. *
-     * @deprecated replaced with {@link #getShortValue}
-     */
-    public short shortValue();
-    /**
-     * Returns the value as an int. *
-     * @deprecated replaced with {@link #getIntValue}
-     */
-    public int intValue();
-    /**
-     * Returns the value as a long. *
-     * @deprecated replaced with {@link #getLongValue}
-     */
-    public long longValue();
-    /**
-     * Returns the value as a {@link BigInteger}. *
-     * @deprecated replaced with {@link #getBigIntegerValue}
-     */
-    public BigInteger bigIntegerValue();
-    /**
-     * Returns the value as a {@link BigDecimal}. *
-     * @deprecated replaced with {@link #getBigDecimalValue}
-     */
-    public BigDecimal bigDecimalValue();
-    /**
-     * Returns the value as a float. *
-     * @deprecated replaced with {@link #getFloatValue}
-     */
-    public float floatValue();
-    /**
-     * Returns the value as a double. *
-     * @deprecated replaced with {@link #getDoubleValue}
-     */
-    public double doubleValue();
-    /**
-     * Returns the value as a byte array. *
-     * @deprecated replaced with {@link #getByteArrayValue}
-     */
-    byte[] byteArrayValue();
-    /**
-     * Returns the value as a {@link StringEnumAbstractBase}. *
-     * @deprecated replaced with {@link #getEnumValue}
-     */
-    StringEnumAbstractBase enumValue();
-    /**
-     * Returns the value as a {@link Calendar}. *
-     * @deprecated replaced with {@link #getCalendarValue}
-     */
-    Calendar calendarValue();
-    /**
-     * Returns the value as a {@link Date}. *
-     * @deprecated replaced with {@link #getDateValue}
-     */
-    Date dateValue();
-    /**
-     * Returns the value as a {@link GDate}. *
-     * @deprecated replaced with {@link #getGDateValue}
-     */
-    GDate gDateValue();
-    /**
-     * Returns the value as a {@link GDuration}. *
-     * @deprecated replaced with {@link #getGDurationValue}
-     */
-    GDuration gDurationValue();
-    /**
-     * Returns the value as a {@link QName}. *
-     * @deprecated replaced with {@link #getQNameValue}
-     */
-    QName qNameValue();
-    /**
-     * Returns the value as a {@link List} of friendly Java objects (String, Integer, Byte, Short, Long, BigInteger, Decimal, Float, Double, byte[], Calendar, GDuration). *
-     * @deprecated replaced with {@link #getListValue}
-     */
-    List listValue();
-    /**
-     * Returns the value as a {@link List} of XmlAnySimpleType objects. *
-     * @deprecated replaced with {@link #xgetListValue}
-     */
-    List xlistValue();
-    
-    /**
-     * Returns a union value as a its natural friendly Java object (String, Integer, Byte, Short, Long, BigInteger, Decimal, Float, Double, byte[], Calendar, GDuration). *
-     * @deprecated replaced with {@link #getObjectValue}
-     */
-    Object objectValue();
-
-    // following are simple type value setters
-
-    /**
-     * Sets the value as a {@link String}. *
-     * @deprecated replaced with {@link #setStringValue}
-     */
-    void set(String obj);
-    /**
-     * Sets the value as a boolean. *
-     * @deprecated replaced with {@link #setBooleanValue}
-     */
-    void set(boolean v);
     /**
      * Sets the value as a byte.
-     * @deprecated replaced with {@link #setByteValue}
-     **/
-    void set(byte v);
+     */
+    void setByteValue(byte v);
+
     /**
      * Sets the value as a short.
-     * @deprecated replaced with {@link #setShortValue}
-     **/
-    void set(short v);
+     */
+    void setShortValue(short v);
+
     /**
      * Sets the value as an int.
-     * @deprecated replaced with {@link #setIntValue}
-     **/
-    void set(int v);
+     */
+    void setIntValue(int v);
+
     /**
      * Sets the value as a long.
-     * @deprecated replaced with {@link #setLongValue}
-     **/
-    void set(long v);
+     */
+    void setLongValue(long v);
+
     /**
      * Sets the value as a {@link BigInteger}.
-     * @deprecated replaced with {@link #setBigIntegerValue}
-     **/
-    void set(BigInteger obj);
+     */
+    void setBigIntegerValue(BigInteger obj);
+
     /**
-     * Sets the value as a {@link BigDecimal}
-     * @deprecated replaced with {@link #setBigDecimalValue}
-     **/
-    void set(BigDecimal obj);
+     * Sets the value as a {@link BigDecimal}.
+     */
+    void setBigDecimalValue(BigDecimal obj);
+
     /**
      * Sets the value as a float.
-     * @deprecated replaced with {@link #setFloatValue}
-     **/
-    void set(float v);
+     */
+    void setFloatValue(float v);
+
     /**
      * Sets the value as a double.
-     * @deprecated replaced with {@link #setDoubleValue}
-     **/
-    void set(double v);
+     */
+    void setDoubleValue(double v);
+
     /**
      * Sets the value as a byte array.
-     * @deprecated replaced with {@link #setByteArrayValue}
-     **/
-    void set(byte[] obj);
+     */
+    void setByteArrayValue(byte[] obj);
+
     /**
      * Sets the value as a {@link StringEnumAbstractBase}.
-     * @deprecated replaced with {@link #setEnumValue}
-     **/
-    void set(StringEnumAbstractBase obj);
+     */
+    void setEnumValue(StringEnumAbstractBase obj);
+
     /**
      * Sets the value as a {@link Calendar}.
-     * @deprecated replaced with {@link #setCalendarValue}
-     **/
-    void set(Calendar obj);
+     */
+    void setCalendarValue(Calendar obj);
+
     /**
      * Sets the value as a {@link Date}.
-     * @deprecated replaced with {@link #setDateValue}
-     **/
-    void set(Date obj);
+     */
+    void setDateValue(Date obj);
+
     /**
      * Sets the value as a {@link GDate}.
-     * @deprecated replaced with {@link #setGDateValue}
-     **/
-    void set(GDateSpecification obj);
+     */
+    void setGDateValue(GDate obj);
+
     /**
      * Sets the value as a {@link GDuration}.
-     * @deprecated replaced with {@link #setGDurationValue}
-     **/
-    void set(GDurationSpecification obj);
+     */
+    void setGDurationValue(GDuration obj);
+
     /**
      * Sets the value as a {@link QName}.
-     * @deprecated replaced with {@link #setQNameValue}
-     **/
-    void set(QName obj);
+     */
+    void setQNameValue(QName obj);
+
     /**
      * Sets the value as a {@link List}.
-     * @deprecated replaced with {@link #setListValue}
-     **/
-    void set(List obj);
+     */
+    void setListValue(List<?> obj);
+
     /**
      * Sets the value as an arbitrary {@link Object}.
-     * @deprecated replaced with {@link #setObjectValue}
-     **/
-    void objectSet(Object obj);
+     */
+    void setObjectValue(Object obj);
 }

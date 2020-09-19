@@ -32,19 +32,19 @@ public class BindingConfigImpl extends BindingConfig {
     private final Map _prefixMap = new LinkedHashMap();
     private final Map _suffixMap = new LinkedHashMap();
     // uri prefix -> package
-    private final Map<Object,String> _packageMapByUriPrefix = new LinkedHashMap<>();
+    private final Map<Object, String> _packageMapByUriPrefix = new LinkedHashMap<>();
     // uri prefix -> name prefix
-    private final Map<Object,String> _prefixMapByUriPrefix = new LinkedHashMap<>();
+    private final Map<Object, String> _prefixMapByUriPrefix = new LinkedHashMap<>();
     // uri prefix -> name suffix
-    private final Map<Object,String> _suffixMapByUriPrefix = new LinkedHashMap<>();
-    private final Map<QName,String> _qnameTypeMap = new LinkedHashMap<>();
-    private final Map<QName,String> _qnameDocTypeMap = new LinkedHashMap<>();
-    private final Map<QName,String> _qnameElemMap = new LinkedHashMap<>();
-    private final Map<QName,String> _qnameAttMap = new LinkedHashMap<>();
+    private final Map<Object, String> _suffixMapByUriPrefix = new LinkedHashMap<>();
+    private final Map<QName, String> _qnameTypeMap = new LinkedHashMap<>();
+    private final Map<QName, String> _qnameDocTypeMap = new LinkedHashMap<>();
+    private final Map<QName, String> _qnameElemMap = new LinkedHashMap<>();
+    private final Map<QName, String> _qnameAttMap = new LinkedHashMap<>();
 
     private final List<InterfaceExtensionImpl> _interfaceExtensions = new ArrayList<>();
     private final List<PrePostExtensionImpl> _prePostExtensions = new ArrayList<>();
-    private final Map<QName,UserTypeImpl> _userTypes = new LinkedHashMap<>();
+    private final Map<QName, UserTypeImpl> _userTypes = new LinkedHashMap<>();
 
     public static BindingConfig forConfigDocuments(Config[] configs, File[] javaFiles, File[] classpath) {
         return new BindingConfigImpl(configs, javaFiles, classpath);
@@ -69,7 +69,7 @@ public class BindingConfigImpl extends BindingConfig {
                 String javaname = qnameconfig.getJavaname();
                 for (Object o : applyto) {
                     Qnametargetenum a = (Qnametargetenum) o;
-                    switch (a.enumValue().intValue()) {
+                    switch (a.getEnumValue().intValue()) {
                         case Qnametargetenum.INT_TYPE:
                             _qnameTypeMap.put(name, javaname);
                             break;
@@ -102,7 +102,7 @@ public class BindingConfigImpl extends BindingConfig {
     }
 
     void addInterfaceExtension(InterfaceExtensionImpl ext) {
-        if (ext==null) {
+        if (ext == null) {
             return;
         }
 
@@ -110,7 +110,7 @@ public class BindingConfigImpl extends BindingConfig {
     }
 
     void addPrePostExtension(PrePostExtensionImpl ext) {
-        if (ext==null) {
+        if (ext == null) {
             return;
         }
 
@@ -119,7 +119,7 @@ public class BindingConfigImpl extends BindingConfig {
 
     void secondPhaseValidation() {
         // validate interface methods collisions
-        Map<InterfaceExtension.MethodSignature,InterfaceExtension.MethodSignature> methodSignatures = new HashMap<>();
+        Map<InterfaceExtension.MethodSignature, InterfaceExtension.MethodSignature> methodSignatures = new HashMap<>();
 
         for (InterfaceExtensionImpl extension : _interfaceExtensions) {
 
@@ -154,7 +154,7 @@ public class BindingConfigImpl extends BindingConfig {
         }
     }
 
-    private static void recordNamespaceSetting(Object key, String value, Map<Object,String> result) {
+    private static void recordNamespaceSetting(Object key, String value, Map<Object, String> result) {
         if (value == null) {
             return;
         }
@@ -164,11 +164,11 @@ public class BindingConfigImpl extends BindingConfig {
             result.put(key, value);
         } else if (key instanceof List) {
             // map uris to value
-            ((List<?>)key).forEach(o -> result.put("##local".equals(o) ? "" : o, value));
+            ((List<?>) key).forEach(o -> result.put("##local".equals(o) ? "" : o, value));
         }
     }
 
-    private static void recordNamespacePrefixSetting(List list, String value, Map<Object,String> result) {
+    private static void recordNamespacePrefixSetting(List list, String value, Map<Object, String> result) {
         if (value == null) {
             return;
         }
@@ -183,10 +183,9 @@ public class BindingConfigImpl extends BindingConfig {
         Object key = ext.getFor();
 
 
-        if (key instanceof String && "*".equals(key))
+        if (key instanceof String && "*".equals(key)) {
             xbeanSet = NameSet.EVERYTHING;
-        else if (key instanceof List)
-        {
+        } else if (key instanceof List) {
             NameSetBuilder xbeanSetBuilder = new NameSetBuilder();
             for (Object o : (List) key) {
                 String xbeanName = (String) o;
@@ -195,11 +194,12 @@ public class BindingConfigImpl extends BindingConfig {
             xbeanSet = xbeanSetBuilder.toNameSet();
         }
 
-        if (xbeanSet == null)
+        if (xbeanSet == null) {
             error("Invalid value of attribute 'for' : '" + key + "'.", ext);
+        }
 
         Extensionconfig.Interface[] intfXO = ext.getInterfaceArray();
-        Extensionconfig.PrePostSet ppXO    = ext.getPrePostSet();
+        Extensionconfig.PrePostSet ppXO = ext.getPrePostSet();
 
         Parser loader = new Parser(javaFiles, classpath);
 
@@ -223,7 +223,7 @@ public class BindingConfigImpl extends BindingConfig {
         if (uri == null) {
             uri = "";
         }
-        String result = (String)map.get(uri);
+        String result = (String) map.get(uri);
         if (result != null) {
             return result;
         }
@@ -234,7 +234,7 @@ public class BindingConfigImpl extends BindingConfig {
             }
         }
 
-        return (String)map.get("##any");
+        return (String) map.get("##any");
     }
 
     private String lookupByUriPrefix(Map mapByUriPrefix, String uri) {
@@ -283,7 +283,9 @@ public class BindingConfigImpl extends BindingConfig {
         return lookup(_suffixMap, _suffixMapByUriPrefix, uri);
     }
 
-    /** @deprecated replaced with {@link #lookupJavanameForQName(QName, int)} */
+    /**
+     * @deprecated replaced with {@link #lookupJavanameForQName(QName, int)}
+     */
     public String lookupJavanameForQName(QName qname) {
         String result = _qnameTypeMap.get(qname);
         return result != null ? result : _qnameDocTypeMap.get(qname);
@@ -291,14 +293,14 @@ public class BindingConfigImpl extends BindingConfig {
 
     public String lookupJavanameForQName(QName qname, int kind) {
         switch (kind) {
-        case QNAME_TYPE:
-            return _qnameTypeMap.get(qname);
-        case QNAME_DOCUMENT_TYPE:
-            return _qnameDocTypeMap.get(qname);
-        case QNAME_ACCESSOR_ELEMENT:
-            return _qnameElemMap.get(qname);
-        case QNAME_ACCESSOR_ATTRIBUTE:
-            return _qnameAttMap.get(qname);
+            case QNAME_TYPE:
+                return _qnameTypeMap.get(qname);
+            case QNAME_DOCUMENT_TYPE:
+                return _qnameDocTypeMap.get(qname);
+            case QNAME_ACCESSOR_ELEMENT:
+                return _qnameElemMap.get(qname);
+            case QNAME_ACCESSOR_ATTRIBUTE:
+                return _qnameAttMap.get(qname);
         }
         return null;
     }

@@ -40,20 +40,6 @@ public interface XmlDecimal extends XmlAnySimpleType {
     void setBigDecimalValue(BigDecimal bd);
 
     /**
-     * Returns this value as a {@link BigDecimal}
-     *
-     * @deprecated replaced with {@link #getBigDecimalValue}
-     **/
-    BigDecimal bigDecimalValue();
-
-    /**
-     * Sets this value as a {@link BigDecimal}
-     *
-     * @deprecated replaced with {@link #setBigDecimalValue}
-     **/
-    void set(BigDecimal bd);
-
-    /**
      * A class with methods for creating instances
      * of {@link XmlDecimal}.
      */

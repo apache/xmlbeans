@@ -38,20 +38,6 @@ public interface XmlFloat extends XmlAnySimpleType {
     void setFloatValue(float v);
 
     /**
-     * Returns this value as a float
-     *
-     * @deprecated replaced by {@link #getFloatValue}
-     **/
-    float floatValue();
-
-    /**
-     * Sets this value as a float
-     *
-     * @deprecated replaced by {@link #setFloatValue}
-     **/
-    void set(float v);
-
-    /**
      * A class with methods for creating instances
      * of {@link XmlFloat}.
      */

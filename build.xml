@@ -66,9 +66,19 @@
             <loadresource property="versionDir">
                 <string>@{artifact}</string>
                 <filterchain>
-                    <replaceregex pattern="[^:]+:[^:]+:(.*)" replace="\1"/>
+                    <replaceregex pattern="[^:]+:[^:]+:([^:]+).*" replace="\1"/>
                 </filterchain>
             </loadresource>
+
+            <local name="classifier"/>
+            <loadresource property="classifier">
+                <string>@{artifact}</string>
+                <filterchain>
+                    <replaceregex pattern="[^:]+:[^:]+:[^:]+:?([^:]*)" replace="\1"/>
+                    <replaceregex pattern="(.+)" replace="-\1"/>
+                </filterchain>
+            </loadresource>
+            <property name="classifier" value=""/>
 
             <local name="version"/>
             <property name="version" value="${versionDir}" if:blank="@{snapshot}"/>
@@ -83,13 +93,23 @@
                 </filterchain>
             </loadresource>
 
+            <local name="jarName"/>
+            <property name="jarName" value="${artifactId}-${version}${classifier}.@{packaging}"/>
+
+            <!-- delete old versions -->
+            <delete failonerror="false">
+                <fileset dir="${usageDir}" excludes="${jarName}">
+                    <filename regex="^${artifactId}-[0-9].*${classifier}\.@{packaging}"/>
+                </fileset>
+            </delete>
+
             <local name="jarLoc"/>
             <property name="jarLoc" value="${usageDir}/@{target}" unless:blank="@{target}"/>
-            <property name="jarLoc" value="${usageDir}/${artifactId}-${version}.@{packaging}"/>
+            <property name="jarLoc" value="${usageDir}/${jarName}"/>
 
             <local name="urlLoc"/>
             <property name="urlLoc" value="@{url}" unless:blank="@{url}"/>
-            <property name="urlLoc" value="@{repo}/${groupDir}/${artifactId}/${versionDir}/${artifactId}-${version}.@{packaging}@{query}"/>
+            <property name="urlLoc" value="@{repo}/${groupDir}/${artifactId}/${versionDir}/${jarName}@{query}"/>
 
             <property name="@{prefix}.@{packaging}" value="${jarLoc}"/>
             <property name="@{prefix}.url" value="${urlLoc}"/>
@@ -296,9 +316,18 @@
 
         <replace dir="build/bootstrap/generated-sources" token="schemaorg_apache_xmlbeans" value="org.apache.xmlbeans.metadata" includes="**/*.java"/>
         <!-- remove deprecated and not supported XMLInputStream API -->
-        <replaceregexp match="^.*@deprecated.*XMLInputStream.*\r?\n.*\r?\n.*\r?\n.*\r?\n" replace="" flags="gm">
+        <replaceregexp match="^.*@deprecated.*(XMLInputStream|No need).*\r?\n.*\r?\n.*\r?\n.*\r?\n" replace="" flags="gm">
             <fileset dir="build/bootstrap/generated-sources" includes="**/*.java"/>
         </replaceregexp>
+        <replaceregexp match="^.*@deprecated.*\r?\n.*\r?\n" replace="" flags="gm">
+            <fileset dir="build/bootstrap/generated-sources" includes="**/*.java"/>
+        </replaceregexp>
+        <replace dir="build/bootstrap/generated-sources" token=" enumValue()" value=" getEnumValue()" includes="**/*.java"/>
+        <replace dir="build/bootstrap/generated-sources" token=" set(org.apache.xmlbeans.StringEnumAbstractBase" value=" setEnumValue(org.apache.xmlbeans.StringEnumAbstractBase" includes="**/*.java"/>
+        <replace dir="build/bootstrap/generated-sources" token="java.util.List list" value="java.util.List&lt;?&gt; list" includes="**/*.java"/>
+
+
+
 
         <mkdir dir="build/classes"/>
         <mkdir dir="build/generated-sources"/>

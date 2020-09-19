@@ -40,20 +40,6 @@ public interface XmlDuration extends XmlAnySimpleType {
     void setGDurationValue(GDuration gd);
 
     /**
-     * Returns this value as a {@link GDuration}
-     *
-     * @deprecated replaced with {@link #getGDurationValue}
-     **/
-    GDuration gDurationValue();
-
-    /**
-     * Sets this value as a {@link GDuration}
-     *
-     * @deprecated replaced with {@link #setGDurationValue}
-     **/
-    void set(GDurationSpecification gd);
-
-    /**
      * A class with methods for creating instances
      * of {@link XmlDuration}.
      */

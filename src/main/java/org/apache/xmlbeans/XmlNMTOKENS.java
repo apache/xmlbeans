@@ -44,29 +44,7 @@ public interface XmlNMTOKENS extends XmlAnySimpleType {
     /**
      * Sets the value as a {@link List}
      */
-    void setListValue(List l);
-
-    /**
-     * Returns the value as a {@link List} of {@link String} values
-     *
-     * @deprecated replaced by {@link #getListValue}
-     **/
-    List listValue();
-
-    /**
-     * Returns the value as a {@link List} of {@link XmlNMTOKEN} values
-     *
-     * @deprecated replaced by {@link #getListValue}
-     **/
-    List xlistValue();
-
-    /**
-     * Sets the value as a {@link List}
-     *
-     * @deprecated replaced by {@link #getListValue}
-     **/
-    void set(List l);
-
+    void setListValue(List<?> l);
 
     /**
      * A class with methods for creating instances

@@ -15,47 +15,46 @@
 
 package org.apache.xmlbeans.impl.values;
 
-import org.apache.xmlbeans.XmlErrorCodes;
 import org.apache.xmlbeans.SchemaType;
-import org.apache.xmlbeans.impl.common.ValidationContext;
+import org.apache.xmlbeans.XmlErrorCodes;
 import org.apache.xmlbeans.impl.common.QNameHelper;
+import org.apache.xmlbeans.impl.common.ValidationContext;
 
 
+public abstract class JavaBooleanHolderEx extends JavaBooleanHolder {
+    private final SchemaType _schemaType;
 
-public abstract class JavaBooleanHolderEx extends JavaBooleanHolder
-{
-    private SchemaType _schemaType;
+    public SchemaType schemaType() {
+        return _schemaType;
+    }
 
-    public SchemaType schemaType()
-        { return _schemaType; }
-
-    public static boolean validateLexical(String v, SchemaType sType, ValidationContext context)
-    {
+    public static boolean validateLexical(String v, SchemaType sType, ValidationContext context) {
         boolean b = JavaBooleanHolder.validateLexical(v, context);
         validatePattern(v, sType, context);
         return b;
     }
-    
-    public static void validatePattern(String v, SchemaType sType, ValidationContext context)
-    {
-        // the only new facet that can apply to booleans is pattern!
-        if (!sType.matchPatternFacet(v))
-            context.invalid(XmlErrorCodes.DATATYPE_VALID$PATTERN_VALID,
-                new Object[] { "boolean", v, QNameHelper.readable(sType) });
-    }
-    
-    public JavaBooleanHolderEx(SchemaType type, boolean complex)
-        { _schemaType = type; initComplexType(complex, false); }
 
-    protected void set_text(String s)
-    {
-        if (_validateOnSet())
+    public static void validatePattern(String v, SchemaType sType, ValidationContext context) {
+        // the only new facet that can apply to booleans is pattern!
+        if (!sType.matchPatternFacet(v)) {
+            context.invalid(XmlErrorCodes.DATATYPE_VALID$PATTERN_VALID,
+                new Object[]{"boolean", v, QNameHelper.readable(sType)});
+        }
+    }
+
+    public JavaBooleanHolderEx(SchemaType type, boolean complex) {
+        _schemaType = type;
+        initComplexType(complex, false);
+    }
+
+    protected void set_text(String s) {
+        if (_validateOnSet()) {
             validatePattern(s, _schemaType, _voorVc);
+        }
         super.set_text(s);
     }
 
-    protected void validate_simpleval(String lexical, ValidationContext ctx)
-    {
+    protected void validate_simpleval(String lexical, ValidationContext ctx) {
         validateLexical(lexical, schemaType(), ctx);
     }
 }

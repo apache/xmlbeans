@@ -45,20 +45,6 @@ public interface XmlInteger extends XmlDecimal {
     void setBigIntegerValue(BigInteger bi);
 
     /**
-     * Returns this value as a {@link BigInteger}
-     *
-     * @deprecated replaced with {@link #getBigIntegerValue}
-     **/
-    BigInteger bigIntegerValue();
-
-    /**
-     * Sets this value as a {@link BigInteger}
-     *
-     * @deprecated replaced with {@link #setBigIntegerValue}
-     **/
-    void set(BigInteger bi);
-
-    /**
      * A class with methods for creating instances
      * of {@link XmlInteger}.
      */

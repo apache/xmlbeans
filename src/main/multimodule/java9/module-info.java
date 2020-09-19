@@ -47,7 +47,7 @@ module org.apache.xmlbeans {
     // exports org.apache.xmlbeans.xml;
     exports org.apache.xmlbeans.xml.stream;
     exports org.apache.xmlbeans.xml.stream.events;
-    exports org.apache.xmlbeans.xml.stream.utils;
+    // exports org.apache.xmlbeans.xml.stream.utils;
 
     exports org.apache.xmlbeans.impl.xb.xmlconfig;
     exports org.apache.xmlbeans.impl.xb.xmlschema;

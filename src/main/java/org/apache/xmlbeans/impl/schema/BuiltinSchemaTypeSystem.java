@@ -15,34 +15,19 @@
 
 package org.apache.xmlbeans.impl.schema;
 
-import org.apache.xmlbeans.SchemaAnnotation;
-import org.apache.xmlbeans.SchemaTypeSystem;
-import org.apache.xmlbeans.SchemaType;
-import org.apache.xmlbeans.SchemaGlobalElement;
-import org.apache.xmlbeans.SchemaGlobalAttribute;
-import org.apache.xmlbeans.SchemaModelGroup;
-import org.apache.xmlbeans.SchemaAttributeGroup;
-import org.apache.xmlbeans.SchemaIdentityConstraint;
-import org.apache.xmlbeans.SchemaParticle;
-import org.apache.xmlbeans.QNameSet;
-import org.apache.xmlbeans.SchemaAttributeModel;
-import org.apache.xmlbeans.SchemaComponent;
-import org.apache.xmlbeans.Filer;
+import org.apache.xmlbeans.*;
 import org.apache.xmlbeans.impl.common.QNameHelper;
 import org.apache.xmlbeans.impl.values.XmlIntegerImpl;
-import org.apache.xmlbeans.impl.values.XmlValueOutOfRangeException;
 import org.apache.xmlbeans.impl.values.XmlStringImpl;
-import org.apache.xmlbeans.impl.regex.RegularExpression;
-import org.apache.xmlbeans.impl.regex.SchemaRegularExpression;
+import org.apache.xmlbeans.impl.values.XmlValueOutOfRangeException;
 
 import javax.xml.namespace.QName;
-
 import java.io.File;
 import java.io.InputStream;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.Collections;
 import java.math.BigInteger;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 public class BuiltinSchemaTypeSystem extends SchemaTypeLoaderBase implements SchemaTypeSystem
 {
@@ -375,7 +360,7 @@ public class BuiltinSchemaTypeSystem extends SchemaTypeLoaderBase implements Sch
         return null;
     }
 
-    public SchemaIdentityConstraint.Ref findIdentityConstraintRef(QName name) 
+    public SchemaIdentityConstraint.Ref findIdentityConstraintRef(QName name)
     {
         return null;
     }
@@ -511,7 +496,7 @@ public class BuiltinSchemaTypeSystem extends SchemaTypeLoaderBase implements Sch
         try
         {
             XmlIntegerImpl i = new XmlIntegerImpl();
-            i.set(bigInt);
+            i.setBigIntegerValue(bigInt);
             i.setImmutable();
             return new XmlValueRef(i);
         }
@@ -528,7 +513,7 @@ public class BuiltinSchemaTypeSystem extends SchemaTypeLoaderBase implements Sch
         try
         {
             XmlIntegerImpl i = new XmlIntegerImpl();
-            i.set(bigInt);
+            i.setBigIntegerValue(bigInt);
             i.setImmutable();
             return new XmlValueRef(i);
         }
@@ -546,7 +531,7 @@ public class BuiltinSchemaTypeSystem extends SchemaTypeLoaderBase implements Sch
         try
         {
             XmlStringImpl i = new XmlStringImpl();
-            i.set(str);
+            i.setStringValue(str);
             i.setImmutable();
             return new XmlValueRef(i);
         }
@@ -995,11 +980,12 @@ public class BuiltinSchemaTypeSystem extends SchemaTypeLoaderBase implements Sch
         switch (btc)
         {
             case SchemaType.BTC_LANGUAGE:
-                pattern = "[a-zA-Z]{1,8}(-[a-zA-Z0-9]{1,8})*"; // we used to have ([a-zA-Z]{2}|[iI]-[a-zA-Z]+|[xX]-[a-zA-Z]{1,8})(-[a-zA-Z]{1,8})*", but s4s uses the more lenient pattern to the left. 
+                // we used to have ([a-zA-Z]{2}|[iI]-[a-zA-Z]+|[xX]-[a-zA-Z]{1,8})(-[a-zA-Z]{1,8})*", but s4s uses the more lenient pattern to the left.
+                pattern = "[a-zA-Z]{1,8}(-[a-zA-Z0-9]{1,8})*";
                 hasPattern = true;
                 break;
             case SchemaType.BTC_NMTOKEN:
-                pattern = "\\c+"; 
+                pattern = "\\c+";
                 hasPattern = true;
                 break;
             case SchemaType.BTC_NAME:

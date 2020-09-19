@@ -17,40 +17,47 @@ package org.apache.xmlbeans.impl.values;
 
 import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.XmlObject;
-
 import org.apache.xmlbeans.impl.schema.BuiltinSchemaTypeSystem;
 
-public class JavaStringHolder extends XmlObjectBase
-{
-    public JavaStringHolder() {}
+public class JavaStringHolder extends XmlObjectBase {
+    public JavaStringHolder() {
+    }
 
-    public SchemaType schemaType()
-        { return BuiltinSchemaTypeSystem.ST_STRING; }
+    public SchemaType schemaType() {
+        return BuiltinSchemaTypeSystem.ST_STRING;
+    }
 
     private String _value;
 
-    protected int get_wscanon_rule()
-        { return SchemaType.WS_PRESERVE; }
+    protected int get_wscanon_rule() {
+        return SchemaType.WS_PRESERVE;
+    }
 
     // SIMPLE VALUE ACCESSORS BELOW -------------------------------------------
-    public String compute_text(NamespaceManager nsm) { return _value; }
-    protected void set_text(String s) { _value = s; }
-    protected void set_nil() { _value = null; }
+    public String compute_text(NamespaceManager nsm) {
+        return _value;
+    }
+
+    protected void set_text(String s) {
+        _value = s;
+    }
+
+    protected void set_nil() {
+        _value = null;
+    }
 
     // string setter and getter already handled by XmlObjectBase
 
     // comparators
-    protected boolean equal_to(XmlObject obj)
-    {
-        return _value.equals(((XmlObjectBase)obj).stringValue());
+    protected boolean equal_to(XmlObject obj) {
+        return _value.equals(((XmlObjectBase) obj).getStringValue());
     }
 
-    protected int value_hash_code()
-    {
+    protected int value_hash_code() {
         return _value.hashCode();
     }
-    protected boolean is_defaultable_ws(String v)
-    {
+
+    protected boolean is_defaultable_ws(String v) {
         return false;
     }
 }

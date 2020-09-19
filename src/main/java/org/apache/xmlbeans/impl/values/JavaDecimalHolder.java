@@ -15,9 +15,6 @@
 
 package org.apache.xmlbeans.impl.values;
 
-import java.math.BigDecimal;
-import java.math.BigInteger;
-
 import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.XmlErrorCodes;
 import org.apache.xmlbeans.XmlObject;
@@ -25,32 +22,36 @@ import org.apache.xmlbeans.impl.common.ValidationContext;
 import org.apache.xmlbeans.impl.schema.BuiltinSchemaTypeSystem;
 import org.apache.xmlbeans.impl.util.XsTypeConverter;
 
-public class JavaDecimalHolder extends XmlObjectBase
-{
-    public SchemaType schemaType()
-        { return BuiltinSchemaTypeSystem.ST_DECIMAL; }
+import java.math.BigDecimal;
+import java.math.BigInteger;
+
+public class JavaDecimalHolder extends XmlObjectBase {
+    public SchemaType schemaType() {
+        return BuiltinSchemaTypeSystem.ST_DECIMAL;
+    }
 
     private BigDecimal _value;
 
     // SIMPLE VALUE ACCESSORS BELOW -------------------------------------------
 
     // sets/gets raw text value
-    protected String compute_text(NamespaceManager nsm) { return XsTypeConverter.printDecimal(_value); }
-    protected void set_text(String s)
-    {
-        if (_validateOnSet())
+    protected String compute_text(NamespaceManager nsm) {
+        return XsTypeConverter.printDecimal(_value);
+    }
+
+    protected void set_text(String s) {
+        if (_validateOnSet()) {
             validateLexical(s, _voorVc);
+        }
 
         try {
             set_BigDecimal(new BigDecimal(s));
-        }
-        catch (NumberFormatException e)
-        {
-            _voorVc.invalid(XmlErrorCodes.DECIMAL, new Object[] { s });
+        } catch (NumberFormatException e) {
+            _voorVc.invalid(XmlErrorCodes.DECIMAL, new Object[]{s});
         }
     }
-    protected void set_nil()
-    {
+
+    protected void set_nil() {
         _value = null;
     }
 
@@ -58,101 +59,95 @@ public class JavaDecimalHolder extends XmlObjectBase
      * Performs lexical validation only.
      */
 
-    public static void validateLexical(String v, ValidationContext context)
-    {
+    public static void validateLexical(String v, ValidationContext context) {
         // TODO - will want to validate Chars with built in white space handling
         //        However, this fcn sometimes takes a value with wsr applied
         //        already
         int l = v.length();
         int i = 0;
 
-        if (i < l)
-        {
+        if (i < l) {
             int ch = v.charAt(i);
 
-            if (ch == '+' || ch == '-')
+            if (ch == '+' || ch == '-') {
                 i++;
+            }
         }
 
         boolean sawDot = false;
         boolean sawDigit = false;
 
-        for ( ; i < l ; i++ )
-        {
+        for (; i < l; i++) {
             int ch = v.charAt(i);
 
-            if (ch == '.')
-            {
-                if (sawDot)
-                {
+            if (ch == '.') {
+                if (sawDot) {
                     context.invalid(XmlErrorCodes.DECIMAL,
-                        new Object[] { "saw '.' more than once: " + v });
+                        new Object[]{"saw '.' more than once: " + v});
                     return;
                 }
 
                 sawDot = true;
-            }
-            else if (ch >= '0' && ch <= '9')
-            {
+            } else if (ch >= '0' && ch <= '9') {
                 sawDigit = true;
-            }
-            else
-            {
+            } else {
                 // TODO - may need to escape error char
                 context.invalid(XmlErrorCodes.DECIMAL,
-                    new Object[] { "unexpected char '" + ch + "'" });
+                    new Object[]{"unexpected char '" + ch + "'"});
                 return;
             }
         }
 
-        if (!sawDigit)
-        {
+        if (!sawDigit) {
             context.invalid(XmlErrorCodes.DECIMAL,
-                new Object[] { "expected at least one digit" });
-            return;
+                new Object[]{"expected at least one digit"});
         }
     }
 
     // numerics: fractional
-    public BigDecimal getBigDecimalValue() { check_dated(); return _value; }
+    public BigDecimal getBigDecimalValue() {
+        check_dated();
+        return _value;
+    }
 
     // setters
-    protected void set_BigDecimal(BigDecimal v) { _value = v; }
+    protected void set_BigDecimal(BigDecimal v) {
+        _value = v;
+    }
 
     // comparators
-    protected int compare_to(XmlObject decimal)
-    {
-        return _value.compareTo(((XmlObjectBase)decimal).bigDecimalValue());
-    }
-    protected boolean equal_to(XmlObject decimal)
-    {
-        return (_value.compareTo(((XmlObjectBase)decimal).bigDecimalValue())) == 0;
+    protected int compare_to(XmlObject decimal) {
+        return _value.compareTo(((XmlObjectBase) decimal).getBigDecimalValue());
     }
 
-    static private BigInteger _maxlong = BigInteger.valueOf(Long.MAX_VALUE);
-    static private BigInteger _minlong = BigInteger.valueOf(Long.MIN_VALUE);
+    protected boolean equal_to(XmlObject decimal) {
+        return (_value.compareTo(((XmlObjectBase) decimal).getBigDecimalValue())) == 0;
+    }
+
+    private static final BigInteger _maxlong = BigInteger.valueOf(Long.MAX_VALUE);
+    private static final BigInteger _minlong = BigInteger.valueOf(Long.MIN_VALUE);
 
     /**
      * Note, this is carefully aligned with hash codes for all xsd:decimal
      * primitives.
      */
-    protected int value_hash_code()
-    {
-        if (_value.scale() > 0)
-        {
-            if (_value.setScale(0, BigDecimal.ROUND_DOWN).compareTo(_value) != 0)
+    protected int value_hash_code() {
+        if (_value.scale() > 0) {
+            if (_value.setScale(0, BigDecimal.ROUND_DOWN).compareTo(_value) != 0) {
                 return decimalHashCode();
+            }
         }
 
         BigInteger intval = _value.toBigInteger();
 
         if (intval.compareTo(_maxlong) > 0 ||
-            intval.compareTo(_minlong) < 0)
+            intval.compareTo(_minlong) < 0) {
             return intval.hashCode();
+        }
 
         long longval = intval.longValue();
 
-        return (int)((longval >> 32) * 19 + longval);
+        return (int) ((longval >> 32) * 19 + longval);
     }
 
     /**
@@ -166,8 +161,11 @@ public class JavaDecimalHolder extends XmlObjectBase
         // Get decimal value as string, and strip off zeroes on the right
         String strValue = _value.toString();
         int i;
-        for (i = strValue.length() - 1 ; i >= 0 ; i --)
-            if (strValue.charAt(i) != '0') break;
+        for (i = strValue.length() - 1; i >= 0; i--) {
+            if (strValue.charAt(i) != '0') {
+                break;
+            }
+        }
 
         assert strValue.indexOf('.') < i;
 

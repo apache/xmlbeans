@@ -48,20 +48,6 @@ public interface XmlQName extends XmlAnySimpleType {
     void setQNameValue(QName name);
 
     /**
-     * Returns this value as a {@link QName}
-     *
-     * @deprecated replaced with {@link #getQNameValue}
-     **/
-    QName qNameValue();
-
-    /**
-     * Sets this value as a {@link QName}
-     *
-     * @deprecated replaced with {@link #setQNameValue}
-     **/
-    void set(QName name);
-
-    /**
      * A class with methods for creating instances
      * of {@link XmlQName}.
      */

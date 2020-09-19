@@ -29,20 +29,6 @@ public interface XmlBoolean extends XmlAnySimpleType {
 
     /**
      * Returns this value as a boolean
-     *
-     * @deprecated replaced by {@link #getBooleanValue}
-     **/
-    boolean booleanValue();
-
-    /**
-     * Sets this value as a boolean
-     *
-     * @deprecated replaced by {@link #setBooleanValue}
-     **/
-    void set(boolean v);
-
-    /**
-     * Returns this value as a boolean
      */
     boolean getBooleanValue();
 

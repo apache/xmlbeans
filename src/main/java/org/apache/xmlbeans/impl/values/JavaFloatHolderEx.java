@@ -16,97 +16,89 @@
 package org.apache.xmlbeans.impl.values;
 
 import org.apache.xmlbeans.SchemaType;
-import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlErrorCodes;
-import org.apache.xmlbeans.impl.common.ValidationContext;
+import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.impl.common.QNameHelper;
+import org.apache.xmlbeans.impl.common.ValidationContext;
 
 
+public abstract class JavaFloatHolderEx extends JavaFloatHolder {
+    public JavaFloatHolderEx(SchemaType type, boolean complex) {
+        _schemaType = type;
+        initComplexType(complex, false);
+    }
 
-public abstract class JavaFloatHolderEx extends JavaFloatHolder
-{
-    public JavaFloatHolderEx(SchemaType type, boolean complex)
-        { _schemaType = type; initComplexType(complex, false); }
-    
-    private SchemaType _schemaType;
+    private final SchemaType _schemaType;
 
-    public SchemaType schemaType()
-        { return _schemaType; }
+    public SchemaType schemaType() {
+        return _schemaType;
+    }
 
-    protected void set_float(float v)
-    {
-        if (_validateOnSet())
+    protected void set_float(float v) {
+        if (_validateOnSet()) {
             validateValue(v, _schemaType, _voorVc);
+        }
         super.set_float(v);
     }
-    
-    public static float validateLexical(String v, SchemaType sType, ValidationContext context)
-    {
+
+    public static float validateLexical(String v, SchemaType sType, ValidationContext context) {
         float f = JavaFloatHolder.validateLexical(v, context);
 
-        if (!sType.matchPatternFacet(v))
+        if (!sType.matchPatternFacet(v)) {
             context.invalid(XmlErrorCodes.DATATYPE_VALID$PATTERN_VALID,
-                new Object[] { "float", v, QNameHelper.readable(sType) });
-        
+                new Object[]{"float", v, QNameHelper.readable(sType)});
+        }
+
         return f;
     }
-    
-    public static void validateValue(float v, SchemaType sType, ValidationContext context)
-    {
+
+    public static void validateValue(float v, SchemaType sType, ValidationContext context) {
         XmlObject x;
         float f;
 
-        if ((x = sType.getFacet(SchemaType.FACET_MIN_EXCLUSIVE)) != null)
-        {
-            if (compare(v, f = ((XmlObjectBase)x).floatValue()) <= 0)
-            {
+        if ((x = sType.getFacet(SchemaType.FACET_MIN_EXCLUSIVE)) != null) {
+            if (compare(v, f = ((XmlObjectBase) x).getFloatValue()) <= 0) {
                 context.invalid(XmlErrorCodes.DATATYPE_MIN_EXCLUSIVE_VALID,
-                    new Object[] { "float", new Float(v), new Float(f), QNameHelper.readable(sType) });
+                    new Object[]{"float", v, f, QNameHelper.readable(sType)});
             }
         }
 
-        if ((x = sType.getFacet(SchemaType.FACET_MIN_INCLUSIVE)) != null)
-        {
-            if (compare(v, f = ((XmlObjectBase)x).floatValue()) < 0)
-            {
+        if ((x = sType.getFacet(SchemaType.FACET_MIN_INCLUSIVE)) != null) {
+            if (compare(v, f = ((XmlObjectBase) x).getFloatValue()) < 0) {
                 context.invalid(XmlErrorCodes.DATATYPE_MIN_INCLUSIVE_VALID,
-                    new Object[] { "float", new Float(v), new Float(f), QNameHelper.readable(sType) });
+                    new Object[]{"float", v, f, QNameHelper.readable(sType)});
             }
         }
-        
-        if ((x = sType.getFacet(SchemaType.FACET_MAX_INCLUSIVE)) != null)
-        {
-            if (compare(v, f = ((XmlObjectBase)x).floatValue()) > 0)
-            {
+
+        if ((x = sType.getFacet(SchemaType.FACET_MAX_INCLUSIVE)) != null) {
+            if (compare(v, f = ((XmlObjectBase) x).getFloatValue()) > 0) {
                 context.invalid(XmlErrorCodes.DATATYPE_MAX_INCLUSIVE_VALID,
-                    new Object[] { "float", new Float(v), new Float(f), QNameHelper.readable(sType) });
+                    new Object[]{"float", v, f, QNameHelper.readable(sType)});
             }
         }
-        
-        if ((x = sType.getFacet(SchemaType.FACET_MAX_EXCLUSIVE)) != null)
-        {
-            if (compare(v, f = ((XmlObjectBase)x).floatValue()) >= 0)
-            {
+
+        if ((x = sType.getFacet(SchemaType.FACET_MAX_EXCLUSIVE)) != null) {
+            if (compare(v, f = ((XmlObjectBase) x).getFloatValue()) >= 0) {
                 context.invalid(XmlErrorCodes.DATATYPE_MAX_EXCLUSIVE_VALID,
-                    new Object[] { "float", new Float(v), new Float(f), QNameHelper.readable(sType) });
+                    new Object[]{"float", v, f, QNameHelper.readable(sType)});
             }
         }
-        
+
         XmlObject[] vals = sType.getEnumerationValues();
-        if (vals != null)
-        {
-            for (int i = 0; i < vals.length; i++)
-                if (compare(v, ((XmlObjectBase)vals[i]).floatValue()) == 0)
+        if (vals != null) {
+            for (XmlObject val : vals) {
+                if (compare(v, ((XmlObjectBase) val).getFloatValue()) == 0) {
                     return;
+                }
+            }
             context.invalid(XmlErrorCodes.DATATYPE_ENUM_VALID,
-                new Object[] { "float", new Float(v), QNameHelper.readable(sType) });
+                new Object[]{"float", v, QNameHelper.readable(sType)});
         }
     }
-    
-    protected void validate_simpleval(String lexical, ValidationContext ctx)
-    {
+
+    protected void validate_simpleval(String lexical, ValidationContext ctx) {
         validateLexical(lexical, schemaType(), ctx);
-        validateValue(floatValue(), schemaType(), ctx);
+        validateValue(getFloatValue(), schemaType(), ctx);
     }
 
 }

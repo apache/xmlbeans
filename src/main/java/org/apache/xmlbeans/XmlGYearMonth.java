@@ -55,34 +55,6 @@ public interface XmlGYearMonth extends XmlAnySimpleType {
     void setGDateValue(GDate gd);
 
     /**
-     * Returns this value as a {@link Calendar}
-     *
-     * @deprecated replaced with {@link #getCalendarValue}
-     **/
-    Calendar calendarValue();
-
-    /**
-     * Sets this value as a {@link Calendar}
-     *
-     * @deprecated replaced with {@link #setCalendarValue}
-     **/
-    void set(Calendar c);
-
-    /**
-     * Returns this value as a {@link GDate}
-     *
-     * @deprecated replaced with {@link #getGDateValue}
-     **/
-    GDate gDateValue();
-
-    /**
-     * Sets this value as a {@link GDateSpecification}
-     *
-     * @deprecated replaced with {@link #setGDateValue}
-     **/
-    void set(GDateSpecification gd);
-
-    /**
      * A class with methods for creating instances
      * of {@link XmlGYearMonth}.
      */

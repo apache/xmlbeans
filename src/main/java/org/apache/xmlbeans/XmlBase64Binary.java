@@ -29,20 +29,6 @@ public interface XmlBase64Binary extends XmlAnySimpleType {
 
     /**
      * Returns this value as a byte array.
-     *
-     * @deprecated replaced by {@link #getByteArrayValue}
-     **/
-    byte[] byteArrayValue();
-
-    /**
-     * Sets this value as a byte array.
-     *
-     * @deprecated replaced by {@link #setByteArrayValue}
-     **/
-    void set(byte[] ba);
-
-    /**
-     * Returns this value as a byte array.
      **/
     byte[] getByteArrayValue();
 

@@ -41,48 +41,6 @@ public interface XmlDateTime extends XmlAnySimpleType {
 
     /**
      * Returns this value as a {@link Calendar}
-     *
-     * @deprecated replaced with {@link #getCalendarValue}
-     **/
-    Calendar calendarValue();
-
-    /**
-     * Sets this value as a {@link Calendar}
-     *
-     * @deprecated replaced with {@link #setCalendarValue}
-     **/
-    void set(Calendar c);
-
-    /**
-     * Returns this value as a {@link GDate}
-     *
-     * @deprecated replaced with {@link #getGDateValue}
-     **/
-    GDate gDateValue();
-
-    /**
-     * Sets this value as a {@link GDateSpecification}
-     *
-     * @deprecated replaced with {@link #setGDateValue}
-     **/
-    void set(GDateSpecification gd);
-
-    /**
-     * Returns this value as a {@link Date}
-     *
-     * @deprecated replaced with {@link #getDateValue}
-     **/
-    Date dateValue();
-
-    /**
-     * Sets this value as a {@link Date}
-     *
-     * @deprecated replaced with {@link #setDateValue}
-     **/
-    void set(Date d);
-
-    /**
-     * Returns this value as a {@link Calendar}
      */
     Calendar getCalendarValue();
 

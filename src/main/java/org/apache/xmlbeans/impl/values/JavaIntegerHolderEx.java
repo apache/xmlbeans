@@ -15,167 +15,154 @@
 
 package org.apache.xmlbeans.impl.values;
 
+import org.apache.xmlbeans.SchemaType;
+import org.apache.xmlbeans.XmlErrorCodes;
+import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.XmlPositiveInteger;
+import org.apache.xmlbeans.impl.common.QNameHelper;
+import org.apache.xmlbeans.impl.common.ValidationContext;
+
 import java.math.BigInteger;
 
-import org.apache.xmlbeans.XmlObject;
-import org.apache.xmlbeans.XmlErrorCodes;
-import org.apache.xmlbeans.SchemaType;
-import org.apache.xmlbeans.XmlPositiveInteger;
-import org.apache.xmlbeans.impl.common.ValidationContext;
-import org.apache.xmlbeans.impl.common.QNameHelper;
+public class JavaIntegerHolderEx extends JavaIntegerHolder {
+    public JavaIntegerHolderEx(SchemaType type, boolean complex) {
+        _schemaType = type;
+        initComplexType(complex, false);
+    }
 
-public class JavaIntegerHolderEx extends JavaIntegerHolder
-{
-    public JavaIntegerHolderEx(SchemaType type, boolean complex)
-        { _schemaType = type; initComplexType(complex, false); }
-    
-    private SchemaType _schemaType;
+    private final SchemaType _schemaType;
 
 
-    public SchemaType schemaType()
-        { return _schemaType; }
+    public SchemaType schemaType() {
+        return _schemaType;
+    }
 
-    protected void set_text(String s)
-    {
+    protected void set_text(String s) {
         BigInteger v = lex(s, _voorVc);
-        
-        if (_validateOnSet())
+
+        if (_validateOnSet()) {
             validateValue(v, _schemaType, _voorVc);
-    
-        if (_validateOnSet())
+        }
+
+        if (_validateOnSet()) {
             validateLexical(s, _schemaType, _voorVc);
+        }
 
         super.set_BigInteger(v);
     }
-    
-    protected void set_BigInteger(BigInteger v)
-    {
-        if (_validateOnSet())
+
+    protected void set_BigInteger(BigInteger v) {
+        if (_validateOnSet()) {
             validateValue(v, _schemaType, _voorVc);
+        }
 
         super.set_BigInteger(v);
     }
-    
-    public static void validateLexical(String v, SchemaType sType, ValidationContext context)
-    {
+
+    public static void validateLexical(String v, SchemaType sType, ValidationContext context) {
         JavaDecimalHolder.validateLexical(v, context);
-        if ( v.lastIndexOf('.')>=0 )
+        if (v.lastIndexOf('.') >= 0) {
             context.invalid(XmlErrorCodes.INTEGER,
-                new Object[] { v });
+                new Object[]{v});
+        }
 
         // check pattern
-        if (sType.hasPatternFacet())
-        {
-            if (!sType.matchPatternFacet(v))
-            {
+        if (sType.hasPatternFacet()) {
+            if (!sType.matchPatternFacet(v)) {
                 context.invalid(XmlErrorCodes.DATATYPE_VALID$PATTERN_VALID,
-                    new Object[] { "integer", v, QNameHelper.readable(sType) });
+                    new Object[]{"integer", v, QNameHelper.readable(sType)});
             }
         }
     }
 
-    private static void validateValue(BigInteger v, SchemaType sType, ValidationContext context)
-    {
+    private static void validateValue(BigInteger v, SchemaType sType, ValidationContext context) {
         // total digits
-        XmlPositiveInteger td = (XmlPositiveInteger)sType.getFacet(SchemaType.FACET_TOTAL_DIGITS);
-        if (td != null)
-        {
+        XmlPositiveInteger td = (XmlPositiveInteger) sType.getFacet(SchemaType.FACET_TOTAL_DIGITS);
+        if (td != null) {
             String temp = v.toString();
             int len = temp.length();
-            if (len > 0 && temp.charAt(0) == '-')
+            if (len > 0 && temp.charAt(0) == '-') {
                 len -= 1;
-            if (len > td.getBigIntegerValue().intValue())
-            {
+            }
+            if (len > td.getBigIntegerValue().intValue()) {
                 context.invalid(XmlErrorCodes.DATATYPE_TOTAL_DIGITS_VALID,
-                    new Object[] { new Integer(len), temp, new Integer(td.getBigIntegerValue().intValue()), QNameHelper.readable(sType) });
+                    new Object[]{len, temp, td.getBigIntegerValue().intValue(), QNameHelper.readable(sType)});
                 return;
             }
         }
 
         // min ex
         XmlObject mine = sType.getFacet(SchemaType.FACET_MIN_EXCLUSIVE);
-        if (mine != null)
-        {
+        if (mine != null) {
             BigInteger m = getBigIntegerValue(mine);
-            if (!(v.compareTo(m) > 0))
-            {
+            if (!(v.compareTo(m) > 0)) {
                 context.invalid(XmlErrorCodes.DATATYPE_MIN_EXCLUSIVE_VALID,
-                    new Object[] { "integer", v, m, QNameHelper.readable(sType) });
+                    new Object[]{"integer", v, m, QNameHelper.readable(sType)});
                 return;
             }
         }
 
         // min in
         XmlObject mini = sType.getFacet(SchemaType.FACET_MIN_INCLUSIVE);
-        if (mini != null)
-        {
+        if (mini != null) {
             BigInteger m = getBigIntegerValue(mini);
-            if (!(v.compareTo(m) >= 0))
-            {
+            if (!(v.compareTo(m) >= 0)) {
                 context.invalid(XmlErrorCodes.DATATYPE_MIN_INCLUSIVE_VALID,
-                    new Object[] { "integer", v, m, QNameHelper.readable(sType) });
+                    new Object[]{"integer", v, m, QNameHelper.readable(sType)});
                 return;
             }
         }
 
         // max in
         XmlObject maxi = sType.getFacet(SchemaType.FACET_MAX_INCLUSIVE);
-        if (maxi != null)
-        {
+        if (maxi != null) {
             BigInteger m = getBigIntegerValue(maxi);
-            if (!(v.compareTo(m) <= 0))
-            {
+            if (!(v.compareTo(m) <= 0)) {
                 context.invalid(XmlErrorCodes.DATATYPE_MAX_INCLUSIVE_VALID,
-                    new Object[] { "integer", v, m, QNameHelper.readable(sType) });
+                    new Object[]{"integer", v, m, QNameHelper.readable(sType)});
                 return;
             }
         }
 
         // max ex
         XmlObject maxe = sType.getFacet(SchemaType.FACET_MAX_EXCLUSIVE);
-        if (maxe != null)
-        {
+        if (maxe != null) {
             BigInteger m = getBigIntegerValue(maxe);
-            if (!(v.compareTo(m) < 0))
-            {
+            if (!(v.compareTo(m) < 0)) {
                 context.invalid(XmlErrorCodes.DATATYPE_MAX_EXCLUSIVE_VALID,
-                    new Object[] { "integer", v, m, QNameHelper.readable(sType) });
+                    new Object[]{"integer", v, m, QNameHelper.readable(sType)});
                 return;
             }
         }
 
         // enumeration
         XmlObject[] vals = sType.getEnumerationValues();
-        if (vals != null)
-        {
-            for (int i = 0; i < vals.length; i++)
-            {
-                if (v.equals(getBigIntegerValue(vals[i])))
+        if (vals != null) {
+            for (XmlObject val : vals) {
+                if (v.equals(getBigIntegerValue(val))) {
                     return;
+                }
             }
             context.invalid(XmlErrorCodes.DATATYPE_ENUM_VALID,
-                new Object[] { "integer", v, QNameHelper.readable(sType) });
+                new Object[]{"integer", v, QNameHelper.readable(sType)});
         }
     }
 
-    private static BigInteger getBigIntegerValue(XmlObject o)
-    {
+    private static BigInteger getBigIntegerValue(XmlObject o) {
         SchemaType s = o.schemaType();
-        switch (s.getDecimalSize()) 
-        {
+        switch (s.getDecimalSize()) {
             case SchemaType.SIZE_BIG_DECIMAL:
-                return ((XmlObjectBase)o).bigDecimalValue().toBigInteger();
+                return ((XmlObjectBase) o).getBigDecimalValue().toBigInteger();
             case SchemaType.SIZE_BIG_INTEGER:
-                return ((XmlObjectBase)o).bigIntegerValue();
+                return ((XmlObjectBase) o).getBigIntegerValue();
             default:
                 throw new IllegalStateException("Bad facet type for Big Int: " + s);
         }
     }
 
-    protected void validate_simpleval(String lexical, ValidationContext ctx)
-    {
+    protected void validate_simpleval(String lexical, ValidationContext ctx) {
         validateLexical(lexical, schemaType(), ctx);
         validateValue(getBigIntegerValue(), schemaType(), ctx);
     }
-    
+
 }

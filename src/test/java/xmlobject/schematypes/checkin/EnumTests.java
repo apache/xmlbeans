@@ -49,32 +49,32 @@ public class EnumTests {
         };
         Data[] data = doc.getStatusreport().getStatusArray();
         int t = 0;
-        for (int i = 0; i < data.length; i++) {
-            assertEquals(contents[t++], data[i].enumValue());
+        for (Data datum : data) {
+            assertEquals(contents[t++], datum.getEnumValue());
             // System.out.println("Target: " + data[i].getTarget() + ", value: " + data[i].enumValue());
-            assertEquals(contents[t++], data[i].getTarget());
+            assertEquals(contents[t++], datum.getTarget());
         }
     }
 
     @Test
-    public void testReport2() throws Exception {
+    public void testReport2() {
         StatusreportDocument doc = StatusreportDocument.Factory.newInstance();
         StatusreportDocument.Statusreport report = doc.addNewStatusreport();
 
         Data d = report.addNewStatus();
-        d.set(Quantity.ALL);
+        d.setEnumValue(Quantity.ALL);
         d.setTarget(Quantity.ALL);
 
         d = report.addNewStatus();
-        d.set(Quantity.FEW);
+        d.setEnumValue(Quantity.FEW);
         d.setTarget(Quantity.ALL);
 
         d = report.addNewStatus();
-        d.set(Quantity.MOST);
+        d.setEnumValue(Quantity.MOST);
         d.setTarget(Quantity.NONE);
 
         d = report.addNewStatus();
-        d.set(Quantity.NONE);
+        d.setEnumValue(Quantity.NONE);
         d.setTarget(Quantity.NONE);
 
         Quantity.Enum[] contents = {
@@ -89,15 +89,15 @@ public class EnumTests {
         };
         Data[] data = doc.getStatusreport().getStatusArray();
         int t = 0;
-        for (int i = 0; i < data.length; i++) {
-            assertEquals(contents[t++], data[i].enumValue());
+        for (Data datum : data) {
+            assertEquals(contents[t++], datum.getEnumValue());
             // System.out.println("Target: " + data[i].getTarget() + ", value: " + data[i].enumValue());
-            assertEquals(contents[t++], data[i].getTarget());
+            assertEquals(contents[t++], datum.getTarget());
         }
     }
 
     @Test
-    public void testReport3() throws Exception {
+    public void testReport3() {
         SalesreportDocument doc = SalesreportDocument.Factory.newInstance();
         SalesreportDocument.Salesreport report = doc.addNewSalesreport();
 
@@ -115,7 +115,7 @@ public class EnumTests {
 
         Unit[] xunits = report.xgetUnitArray();
         for (int i = 0; i < xunits.length; i++) {
-            assertEquals(contents[i], xunits[i].enumValue());
+            assertEquals(contents[i], xunits[i].getEnumValue());
         }
 
         Unit.Enum[] units = report.getUnitArray();

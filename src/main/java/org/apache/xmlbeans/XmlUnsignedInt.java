@@ -41,20 +41,6 @@ public interface XmlUnsignedInt extends XmlUnsignedLong {
     void setLongValue(long v);
 
     /**
-     * Returns this value as a long
-     *
-     * @deprecated replaced with {@link #getLongValue}
-     **/
-    long longValue();
-
-    /**
-     * Sets this value as a long
-     *
-     * @deprecated replaced with {@link #setLongValue}
-     **/
-    void set(long v);
-
-    /**
      * A class with methods for creating instances
      * of {@link XmlUnsignedInt}.
      */

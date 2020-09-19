@@ -41,20 +41,6 @@ public interface XmlUnsignedShort extends XmlUnsignedInt {
     void setIntValue(int v);
 
     /**
-     * Returns this value as an int
-     *
-     * @deprecated replaced with {@link #getIntValue}
-     **/
-    int intValue();
-
-    /**
-     * Sets this value as an int
-     *
-     * @deprecated replaced with {@link #setIntValue}
-     **/
-    void set(int v);
-
-    /**
      * A class with methods for creating instances
      * of {@link XmlUnsignedShort}.
      */
