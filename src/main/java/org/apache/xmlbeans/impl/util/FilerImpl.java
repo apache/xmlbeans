@@ -158,14 +158,12 @@ public class FilerImpl implements Filer {
             List<String> diffs = new ArrayList<>();
 
             try (StringReader sReader = new StringReader(str);
-                 FileReader fReader = new FileReader(_file)) {
-                Diff.readersAsText(sReader, "<generated>",
-                    fReader, _file.getName(), diffs);
+                 Reader fReader = Files.newBufferedReader(_file.toPath(), StandardCharsets.ISO_8859_1)) {
+                Diff.readersAsText(sReader, "<generated>", fReader, _file.getName(), diffs);
             }
 
             if (diffs.size() > 0) {
-                // Diffs encountered, replace the file on disk with text from
-                // the buffer
+                // Diffs encountered, replace the file on disk with text from the buffer
                 try (Writer fw = writerForFile(_file)) {
                     fw.write(str);
                 }

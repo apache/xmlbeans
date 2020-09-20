@@ -26,6 +26,7 @@ import javax.xml.namespace.QName;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public final class Validator
     implements ValidatorListener {
@@ -56,15 +57,15 @@ public final class Validator
             // TODO (dutta) Addtional Attributes for validation error have limited information
             //at this time but will be a part of the second round of refactoring
 
-            Validator.this.emitError(_event, message, null, null, null,
-                XmlValidationError.ATTRIBUTE_TYPE_INVALID, null);
+            Validator.this.emitError(_event, message, null, null,
+                XmlValidationError.ATTRIBUTE_TYPE_INVALID);
         }
 
         public void invalid(String code, Object[] args) {
             // TODO (dutta) Addtional Attributes for validation error have limited information
             //at this time but will be a part of the second round of refactoring
 
-            Validator.this.emitError(_event, code, args, null, null, null,
+            Validator.this.emitError(_event, code, args, null, null,
                 XmlValidationError.ATTRIBUTE_TYPE_INVALID, null);
         }
 
@@ -77,23 +78,23 @@ public final class Validator
 
     // KHK: remove this
     private void emitError(Event event, String message, QName offendingQName,
-                           SchemaType expectedSchemaType, List expectedQNames,
-                           int errorType, SchemaType badSchemaType) {
+                           SchemaType expectedSchemaType,
+                           int errorType) {
         emitError(event, message, null, null, XmlError.SEVERITY_ERROR, null, offendingQName, expectedSchemaType,
-            expectedQNames, errorType, badSchemaType);
+            null, errorType, null);
     }
 
     private void emitError(Event event, String code, Object[] args, QName offendingQName,
-                           SchemaType expectedSchemaType, List expectedQNames,
+                           SchemaType expectedSchemaType,
                            int errorType, SchemaType badSchemaType) {
         emitError(event, null, code, args, XmlError.SEVERITY_ERROR, null, offendingQName, expectedSchemaType,
-            expectedQNames, errorType, badSchemaType);
+            null, errorType, badSchemaType);
     }
 
     // KHK: remove 'message' parameter
     private void emitError(Event event, String message, String code, Object[] args, int severity,
                            QName fieldName, QName offendingQName,
-                           SchemaType expectedSchemaType, List expectedQNames,
+                           SchemaType expectedSchemaType, List<QName> expectedQNames,
                            int errorType, SchemaType badSchemaType) {
         _errorState++;
 
@@ -124,38 +125,16 @@ public final class Validator
     }
 
     private void emitFieldError(Event event, String code, Object[] args, QName offendingQName,
-                                SchemaType expectedSchemaType, List expectedQNames,
-                                int errorType, SchemaType badSchemaType) {
-        emitFieldError(event, null, code, args, XmlError.SEVERITY_ERROR, offendingQName,
-            expectedSchemaType, expectedQNames, errorType, badSchemaType);
-    }
-
-    private void emitFieldError(Event event, String message, String code, Object[] args, int severity, QName offendingQName,
-                                SchemaType expectedSchemaType, List expectedQNames,
+                                SchemaType expectedSchemaType, List<QName> expectedQNames,
                                 int errorType, SchemaType badSchemaType) {
         QName fieldName = null;
         if (_stateStack != null && _stateStack._field != null) {
             fieldName = _stateStack._field.getName();
         }
 
-        Validator.this.emitError(event, message, code, args, severity, fieldName, offendingQName, expectedSchemaType,
+        Validator.this.emitError(event, null, code, args, XmlError.SEVERITY_ERROR, fieldName, offendingQName, expectedSchemaType,
             expectedQNames, errorType, badSchemaType);
     }
-
-//    // For XmlEventListener.error
-//
-//    public void error ( XmlError error )
-//    {
-//        _errorState++;
-//
-//        if (_suspendErrors == 0)
-//        {
-//            _invalid = true;
-//
-//            if (_errorListener != null)
-//                _errorListener.add( error );
-//        }
-//    }
 
     public void nextEvent(int kind, Event event) {
         resetValues();
@@ -199,8 +178,8 @@ public final class Validator
         _wildcardElement = null;
         State state = topState();
 
-        SchemaType elementType = null;
-        SchemaField elementField = null;
+        SchemaType elementType;
+        SchemaField elementField;
 
         if (state == null) {
             elementType = _rootType;
@@ -222,7 +201,7 @@ public final class Validator
                 return;
             }
 
-            if (!state._isNil && state._field != null && state._field.isFixed()) {
+            if (state._field != null && state._field.isFixed()) {
                 emitFieldError(event, XmlErrorCodes.ELEM_LOCALLY_VALID$FIXED_WITH_CONTENT,
                     new Object[]{QNameHelper.pretty(state._field.getName())},
                     state._field.getName(), state._type, null,
@@ -305,10 +284,8 @@ public final class Validator
 
                     assert newField != null;
 
-                    if (newField != null) {
-                        elementField = newField;
-                        _localElement = newField;
-                    }
+                    elementField = newField;
+                    _localElement = newField;
                 } else {
                     elementField = (SchemaField) currentParticle;
                 }
@@ -362,7 +339,7 @@ public final class Validator
                 // not sure how to extract this one
                 emitFieldError(event, XmlErrorCodes.ELEM_LOCALLY_VALID$XSI_TYPE_INVALID_QNAME,
                     new Object[]{value}, event.getName(), xsiType, null,
-                    XmlValidationError.ELEMENT_TYPE_INVALID, state._type);
+                    XmlValidationError.ELEMENT_TYPE_INVALID, (state == null ? null : state._type));
 
                 _eatContent = 1;
 
@@ -453,17 +430,17 @@ public final class Validator
                 //todo (dutta) need to find a way to get the right type
                 emitError(event, XmlErrorCodes.ELEM_LOCALLY_VALID$ABSTRACT,
                     new Object[]{QNameHelper.pretty(sle.getName())},
-                    sle.getName(), null, null, XmlValidationError.ELEMENT_TYPE_INVALID, null);
+                    sle.getName(), null, XmlValidationError.ELEMENT_TYPE_INVALID, null);
 
                 _eatContent = 1;
                 return;
             }
         }
 
-        if (elementType != null && elementType.isAbstract()) {
+        if (elementType.isAbstract()) {
             emitError(event, XmlErrorCodes.ELEM_LOCALLY_VALID$ABSTRACT,
                 new Object[]{elementType},
-                event.getName(), elementType, null, XmlValidationError.ELEMENT_TYPE_INVALID, (state == null ? null : state._type));
+                event.getName(), elementType, XmlValidationError.ELEMENT_TYPE_INVALID, (state == null ? null : state._type));
 
             _eatContent = 1;
 
@@ -493,7 +470,7 @@ public final class Validator
 
         if (isNil && elementField != null && elementField.isFixed()) {
             emitFieldError(event, XmlErrorCodes.ELEM_LOCALLY_VALID$NIL_WITH_FIXED, null,
-                elementField == null ? null : elementField.getName(), elementType, null,
+                elementField.getName(), elementType, null,
                 XmlValidationError.ELEMENT_TYPE_INVALID, (state == null ? null : state._type));
         }
 
@@ -516,7 +493,7 @@ public final class Validator
         State state = topState();
 
         if (state._attrs == null) {
-            state._attrs = new HashSet();
+            state._attrs = new HashSet<>();
         }
 
         if (state._attrs.contains(attrName)) {
@@ -622,9 +599,7 @@ public final class Validator
         if (state._attrModel != null) {
             SchemaLocalAttribute[] attrs = state._attrModel.getAttributes();
 
-            for (int i = 0; i < attrs.length; i++) {
-                SchemaLocalAttribute sla = attrs[i];
-
+            for (SchemaLocalAttribute sla : attrs) {
                 if (state._attrs == null ||
                     !state._attrs.contains(sla.getName())) {
                     if (sla.getUse() == SchemaLocalAttribute.REQUIRED) {
@@ -744,13 +719,13 @@ public final class Validator
                     XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$ELEMENT_ONLY_WITH_TEXT);
 
                 emitError(event, errorCode, new Object[]{QNameHelper.pretty(e.getName())},
-                    e.getName(), field.getType(), null,
+                    e.getName(), field.getType(),
                     XmlValidationError.ELEMENT_TYPE_INVALID, null);
             } else {
                 // KHK: cvc-complex-type.2.1 or .2.3
                 // todo (dutta) offendingQName = not sure how to get this(event.getName()??);
                 emitError(event, "Can't have mixed content", event.getName(),
-                    state._type, null, XmlValidationError.ELEMENT_TYPE_INVALID, null);
+                    state._type, XmlValidationError.ELEMENT_TYPE_INVALID);
             }
         }
 
@@ -760,14 +735,12 @@ public final class Validator
     }
 
     private void findDetailedErrorBegin(Event event, State state, QName qName) {
-        ArrayList expectedNames = new ArrayList();
-        ArrayList optionalNames = new ArrayList();
+        ArrayList<QName> expectedNames = new ArrayList<>();
+        ArrayList<QName> optionalNames = new ArrayList<>();
 
         SchemaProperty[] eltProperties = state._type.getElementProperties();
-        for (int ii = 0; ii < eltProperties.length; ii++) {
+        for (SchemaProperty sProp : eltProperties) {
             //Get the element from the schema
-            SchemaProperty sProp = eltProperties[ii];
-
             // test if the element is valid
             if (state.test(sProp.getName())) {
                 if (0 == BigInteger.ZERO.compareTo(sProp.getMinOccurs())) {
@@ -778,20 +751,12 @@ public final class Validator
             }
         }
 
-        List names = (expectedNames.size() > 0 ? expectedNames : optionalNames);
+        List<QName> names = (expectedNames.size() > 0 ? expectedNames : optionalNames);
 
         if (names.size() > 0) {
-            StringBuilder buf = new StringBuilder();
-            for (Iterator iter = names.iterator(); iter.hasNext(); ) {
-                QName qname = (QName) iter.next();
-                buf.append(QNameHelper.pretty(qname));
-                if (iter.hasNext()) {
-                    buf.append(" ");
-                }
-            }
-
+            String buf = names.stream().map(QNameHelper::pretty).collect(Collectors.joining(" "));
             emitFieldError(event, XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$EXPECTED_DIFFERENT_ELEMENT,
-                new Object[]{new Integer(names.size()), buf.toString(), QNameHelper.pretty(qName)},
+                new Object[]{names.size(), buf, QNameHelper.pretty(qName)},
                 qName, null, names, XmlValidationError.INCORRECT_ELEMENT, state._type);
         } else {
             emitFieldError(event, XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$ELEMENT_NOT_ALLOWED,
@@ -803,13 +768,11 @@ public final class Validator
     private void findDetailedErrorEnd(Event event, State state) {
         SchemaProperty[] eltProperties = state._type.getElementProperties();
 
-        ArrayList expectedNames = new ArrayList();
-        ArrayList optionalNames = new ArrayList();
+        ArrayList<QName> expectedNames = new ArrayList<>();
+        ArrayList<QName> optionalNames = new ArrayList<>();
 
-        for (int ii = 0; ii < eltProperties.length; ii++) {
+        for (SchemaProperty sProp : eltProperties) {
             //Get the element from the schema
-            SchemaProperty sProp = eltProperties[ii];
-
             // test if the element is valid
             if (state.test(sProp.getName())) {
                 if (0 == BigInteger.ZERO.compareTo(sProp.getMinOccurs())) {
@@ -820,20 +783,13 @@ public final class Validator
             }
         }
 
-        List names = (expectedNames.size() > 0 ? expectedNames : optionalNames);
+        List<QName> names = (expectedNames.size() > 0 ? expectedNames : optionalNames);
 
         if (names.size() > 0) {
-            StringBuilder buf = new StringBuilder();
-            for (Iterator iter = names.iterator(); iter.hasNext(); ) {
-                QName qname = (QName) iter.next();
-                buf.append(QNameHelper.pretty(qname));
-                if (iter.hasNext()) {
-                    buf.append(" ");
-                }
-            }
+            String buf = names.stream().map(QNameHelper::pretty).collect(Collectors.joining(" "));
 
             emitFieldError(event, XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$MISSING_ELEMENT,
-                new Object[]{new Integer(names.size()), buf.toString()},
+                new Object[]{names.size(), buf},
                 null, null, names, XmlValidationError.INCORRECT_ELEMENT, state._type);
         } else {
             emitFieldError(event, XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$EXPECTED_ELEMENT,
@@ -842,7 +798,7 @@ public final class Validator
     }
 
 
-    private final class State {
+    private static final class State {
         boolean visit(QName name) {
             return _canHaveElements && _visitor.visit(name);
         }
@@ -876,7 +832,7 @@ public final class Validator
 
         SchemaAttributeModel _attrModel;
 
-        HashSet _attrs;
+        HashSet<QName> _attrs;
 
         State _next;
     }
@@ -952,7 +908,7 @@ public final class Validator
         _stateStack = state;
     }
 
-    private LinkedList _visitorPool = new LinkedList();
+    private final LinkedList<TypeStoreVisitor> _visitorPool = new LinkedList<>();
 
     private void poolVisitor(SchemaTypeVisitorImpl visitor) {
         _visitorPool.add(visitor);
@@ -999,7 +955,7 @@ public final class Validator
 
         if (type.isNoType()) {
             emitError(event, (field.isAttribute() ? XmlErrorCodes.ATTR_LOCALLY_VALID$NO_TYPE : XmlErrorCodes.ELEM_LOCALLY_VALID$NO_TYPE),
-                null, field.getName(), type, null, XmlValidationError.ELEMENT_TYPE_INVALID, null);
+                null, field.getName(), type, XmlValidationError.ELEMENT_TYPE_INVALID, null);
 
             return null;
         }
@@ -1064,7 +1020,7 @@ public final class Validator
                     // KHK: check for is cvc-complex-type.3.1 or cvc-au
                     emitError(event, XmlErrorCodes.ATTR_LOCALLY_VALID$FIXED,
                         new Object[]{value, fixedValue, QNameHelper.pretty(event.getName())},
-                        null, field.getType(), null, XmlValidationError.ELEMENT_TYPE_INVALID, null);
+                        null, field.getType(), XmlValidationError.ELEMENT_TYPE_INVALID, null);
                 } else {
                     String errorCode = null;
 
@@ -1077,9 +1033,8 @@ public final class Validator
                         assert false : "Element with fixed may not be EMPTY or ELEMENT_ONLY";
                     }
 
-                    emitError(event, errorCode,
-                        new Object[]{value, fixedValue},
-                        field.getName(), field.getType(), null, XmlValidationError.ELEMENT_TYPE_INVALID, null);
+                    emitError(event, errorCode, new Object[]{value, fixedValue},
+                        field.getName(), field.getType(), XmlValidationError.ELEMENT_TYPE_INVALID, null);
                 }
 
                 return null;
@@ -1287,7 +1242,7 @@ public final class Validator
         if (!type.matchPatternFacet(value)) {
             emitError(event, XmlErrorCodes.DATATYPE_VALID$PATTERN_VALID,
                 new Object[]{"list", value, QNameHelper.readable(type)},
-                null, type, null, XmlValidationError.LIST_INVALID, null);
+                null, type, XmlValidationError.LIST_INVALID, null);
         }
 
         String[] items = XmlListImpl.split_list(value);
@@ -1299,8 +1254,8 @@ public final class Validator
             if ((i = ((SimpleValue) o).getIntValue()) != items.length) {
                 //offending Qname not valid
                 emitError(event, XmlErrorCodes.DATATYPE_LENGTH_VALID$LIST_LENGTH,
-                    new Object[]{value, new Integer(items.length), new Integer(i), QNameHelper.readable(type)},
-                    null, type, null, XmlValidationError.LIST_INVALID, null);
+                    new Object[]{value, items.length, i, QNameHelper.readable(type)},
+                    null, type, XmlValidationError.LIST_INVALID, null);
             }
         }
 
@@ -1308,8 +1263,8 @@ public final class Validator
             if ((i = ((SimpleValue) o).getIntValue()) > items.length) {
                 //offending Qname not valid
                 emitError(event, XmlErrorCodes.DATATYPE_LENGTH_VALID$LIST_LENGTH,
-                    new Object[]{value, new Integer(items.length), new Integer(i), QNameHelper.readable(type)},
-                    null, type, null, XmlValidationError.LIST_INVALID, null);
+                    new Object[]{value, items.length, i, QNameHelper.readable(type)},
+                    null, type, XmlValidationError.LIST_INVALID, null);
             }
         }
 
@@ -1317,14 +1272,14 @@ public final class Validator
             if ((i = ((SimpleValue) o).getIntValue()) < items.length) {
                 //offending Qname not valid
                 emitError(event, XmlErrorCodes.DATATYPE_LENGTH_VALID$LIST_LENGTH,
-                    new Object[]{value, new Integer(items.length), new Integer(i), QNameHelper.readable(type)},
-                    null, type, null, XmlValidationError.LIST_INVALID, null);
+                    new Object[]{value, items.length, i, QNameHelper.readable(type)},
+                    null, type, XmlValidationError.LIST_INVALID, null);
             }
         }
 
         SchemaType itemType = type.getListItemType();
-        _listValue = new ArrayList();
-        _listTypes = new ArrayList();
+        _listValue = new ArrayList<>();
+        _listTypes = new ArrayList<>();
 
         for (i = 0; i < items.length; i++) {
             validateSimpleType(
@@ -1348,7 +1303,7 @@ public final class Validator
                     //offending Qname not valid ??
                     emitError(event, XmlErrorCodes.DATATYPE_ENUM_VALID,
                         new Object[]{"list", value, QNameHelper.readable(type)},
-                        null, type, null, XmlValidationError.LIST_INVALID, null);
+                        null, type, XmlValidationError.LIST_INVALID, null);
                 } finally {
                     NamespaceContext.pop();
                 }
@@ -1365,7 +1320,7 @@ public final class Validator
             //offending Qname not valid ??
             emitError(event, XmlErrorCodes.DATATYPE_VALID$PATTERN_VALID,
                 new Object[]{"union", value, QNameHelper.readable(type)},
-                null, type, null, XmlValidationError.UNION_INVALID, null);
+                null, type, XmlValidationError.UNION_INVALID, null);
         }
 
         int currentWsr = SchemaType.WS_PRESERVE;
@@ -1410,7 +1365,7 @@ public final class Validator
             //offending Qname not valid ??
             emitError(event, XmlErrorCodes.DATATYPE_VALID$UNION,
                 new Object[]{value, QNameHelper.readable(type)},
-                null, type, null, XmlValidationError.UNION_INVALID, null);
+                null, type, XmlValidationError.UNION_INVALID, null);
         } else {
             XmlObject[] unionEnumvals = type.getEnumerationValues();
 
@@ -1432,7 +1387,7 @@ public final class Validator
                         //offending Qname not valid ??
                         emitError(event, XmlErrorCodes.DATATYPE_ENUM_VALID,
                             new Object[]{"union", value, QNameHelper.readable(type)},
-                            null, type, null, XmlValidationError.UNION_INVALID, null);
+                            null, type, XmlValidationError.UNION_INVALID, null);
                     }
                 } catch (XmlValueOutOfRangeException e) {
                     // actually, the current union code always ends up here when invalid
@@ -1440,7 +1395,7 @@ public final class Validator
                     //offending Qname not valid ??
                     emitError(event, XmlErrorCodes.DATATYPE_ENUM_VALID,
                         new Object[]{"union", value, QNameHelper.readable(type)},
-                        null, type, null, XmlValidationError.UNION_INVALID, null);
+                        null, type, XmlValidationError.UNION_INVALID, null);
                 } finally {
                     NamespaceContext.pop();
                 }
@@ -1469,7 +1424,8 @@ public final class Validator
         }
 
         switch (type.getPrimitiveType().getBuiltinTypeCode()) {
-            case SchemaType.BTC_ANY_SIMPLE: {
+            case SchemaType.BTC_ANY_SIMPLE:
+            case SchemaType.BTC_ANY_URI: {
                 _listValue.add(_stringValue);
                 break;
             }
@@ -1489,22 +1445,19 @@ public final class Validator
                 break;
             }
             case SchemaType.BTC_FLOAT: {
-                _listValue.add(new Float(_floatValue));
+                _listValue.add(_floatValue);
                 _floatValue = 0;
                 break;
             }
             case SchemaType.BTC_DOUBLE: {
-                _listValue.add(new Double(_doubleValue));
+                _listValue.add(_doubleValue);
                 _doubleValue = 0;
                 break;
             }
-            case SchemaType.BTC_QNAME: {
+            case SchemaType.BTC_QNAME:
+            case SchemaType.BTC_NOTATION: {
                 _listValue.add(_qnameValue);
                 _qnameValue = null;
-                break;
-            }
-            case SchemaType.BTC_ANY_URI: {
-                _listTypes.add(_stringValue);
                 break;
             }
             case SchemaType.BTC_DATE_TIME:
@@ -1524,19 +1477,10 @@ public final class Validator
                 _gdurationValue = null;
                 break;
             }
-            case SchemaType.BTC_BASE_64_BINARY: {
-                _listValue.add(_byteArrayValue);
-                _byteArrayValue = null;
-                break;
-            }
+            case SchemaType.BTC_BASE_64_BINARY:
             case SchemaType.BTC_HEX_BINARY: {
                 _listValue.add(_byteArrayValue);
                 _byteArrayValue = null;
-                break;
-            }
-            case SchemaType.BTC_NOTATION: {
-                _listValue.add(_qnameValue);
-                _qnameValue = null;
                 break;
             }
 
@@ -1550,17 +1494,17 @@ public final class Validator
     //
 
     private boolean _invalid;
-    private SchemaType _rootType;
-    private SchemaField _rootField;
-    private SchemaTypeLoader _globalTypes;
+    private final SchemaType _rootType;
+    private final SchemaField _rootField;
+    private final SchemaTypeLoader _globalTypes;
     private State _stateStack;
     private int _errorState;
     private Collection<XmlError> _errorListener;
-    private boolean _treatLaxAsSkip;
-    private boolean _strict;
-    private ValidatorVC _vc;
+    private final boolean _treatLaxAsSkip;
+    private final boolean _strict;
+    private final ValidatorVC _vc;
     private int _suspendErrors;
-    private IdentityConstraint _constraintEngine;
+    private final IdentityConstraint _constraintEngine;
     private int _eatContent;
 
     private SchemaLocalElement _localElement;
@@ -1579,8 +1523,8 @@ public final class Validator
     private GDate _gdateValue;
     private GDuration _gdurationValue;
     private byte[] _byteArrayValue;
-    private List _listValue;
-    private List _listTypes;
+    private List<Object> _listValue;
+    private List<SchemaType> _listTypes;
 
     private void resetValues() {
         _localAttribute = null;
@@ -1597,7 +1541,6 @@ public final class Validator
         _listValue = null;
         _listTypes = null;
         _unionType = null;
-        _localAttribute = null;
     }
 
     /**
@@ -1700,11 +1643,11 @@ public final class Validator
         return _byteArrayValue;
     }
 
-    public List getListValue() {
+    public List<Object> getListValue() {
         return _listValue;
     }
 
-    public List getListTypes() {
+    public List<SchemaType> getListTypes() {
         return _listTypes;
     }
 
