@@ -15,9 +15,8 @@
 
 package org.apache.xmlbeans;
 
-import java.math.BigInteger;
-
 import javax.xml.namespace.QName;
+import java.math.BigInteger;
 
 /**
  * Represents a Schema particle definition.
@@ -33,44 +32,43 @@ import javax.xml.namespace.QName;
  * sequences, nonrepeating sequences with only one item, and so on.
  * (<a target="_blank" href="http://www.w3.org/TR/xmlschema-1/#cos-particle-restrict">Pointless particles</a>
  * are defined precisely in the XML Schema specification.)
- * 
+ *
  * @see SchemaType#getContentModel
  */
-public interface SchemaParticle
-{
+public interface SchemaParticle {
     /**
      * Returns the particle type ({@link #ALL}, {@link #CHOICE},
-     * {@link #SEQUENCE}, {@link #ELEMENT}, or {@link #WILDCARD}). 
-     */ 
+     * {@link #SEQUENCE}, {@link #ELEMENT}, or {@link #WILDCARD}).
+     */
     int getParticleType();
-    
+
     /**
      * An <a target="_blank" href="http://www.w3.org/TR/xmlschema-1/#declare-contentModel">xs:all</a> group.
      * See {@link #getParticleType}.
-     */ 
-    static final int ALL = 1;
+     */
+    int ALL = 1;
     /**
      * A <a target="_blank" href="http://www.w3.org/TR/xmlschema-1/#declare-contentModel">xs:choice</a> group.
      * See {@link #getParticleType}.
-     */ 
-    static final int CHOICE = 2;
+     */
+    int CHOICE = 2;
     /**
      * A <a target="_blank" href="http://www.w3.org/TR/xmlschema-1/#declare-contentModel">xs:sequence</a> group.
      * See {@link #getParticleType}.
-     */ 
-    static final int SEQUENCE = 3;
+     */
+    int SEQUENCE = 3;
     /**
      * An <a target="_blank" href="http://www.w3.org/TR/xmlschema-1/#declare-element">xs:element</a> particle.
      * This code means the particle can be coerced to {@link SchemaLocalElement}.
      * See {@link #getParticleType}.
-     */ 
-    static final int ELEMENT = 4;
+     */
+    int ELEMENT = 4;
     /**
      * An <a target="_blank" href="http://www.w3.org/TR/xmlschema-1/#declare-openness">xs:any</a> particle,
      * also known as an element wildcard.
      * See {@link #getParticleType}.
-     */ 
-    static final int WILDCARD = 5;
+     */
+    int WILDCARD = 5;
 
     /**
      * Returns the minOccurs value for this particle.
@@ -90,14 +88,14 @@ public interface SchemaParticle
      * convenience of a validating state machine that doesn't count
      * higher than MAX_INT anyway.
      */
-    public int getIntMinOccurs();
+    int getIntMinOccurs();
 
     /**
      * Returns the maxOccurs value, pegged to a 32-bit int for
      * convenience of a validating state machine that doesn't count
      * higher than MAX_INT anyway. Unbounded is given as MAX_INT.
      */
-    public int getIntMaxOccurs();
+    int getIntMaxOccurs();
 
 
     /**
@@ -151,19 +149,25 @@ public interface SchemaParticle
      */
     int getWildcardProcess();
 
-    /** <a target="_blank" href="http://www.w3.org/TR/xmlschema-1/#Wildcard_details">Strict wildcard</a> processing. See {@link #getWildcardProcess} */
-    static final int STRICT = 1;
-    /** <a target="_blank" href="http://www.w3.org/TR/xmlschema-1/#Wildcard_details">Lax wildcard</a> processing. See {@link #getWildcardProcess} */
-    static final int LAX = 2;
-    /** <a target="_blank" href="http://www.w3.org/TR/xmlschema-1/#Wildcard_details">Skip wildcard</a> processing. See {@link #getWildcardProcess} */
-    static final int SKIP = 3;
+    /**
+     * <a target="_blank" href="http://www.w3.org/TR/xmlschema-1/#Wildcard_details">Strict wildcard</a> processing. See {@link #getWildcardProcess}
+     */
+    int STRICT = 1;
+    /**
+     * <a target="_blank" href="http://www.w3.org/TR/xmlschema-1/#Wildcard_details">Lax wildcard</a> processing. See {@link #getWildcardProcess}
+     */
+    int LAX = 2;
+    /**
+     * <a target="_blank" href="http://www.w3.org/TR/xmlschema-1/#Wildcard_details">Skip wildcard</a> processing. See {@link #getWildcardProcess}
+     */
+    int SKIP = 3;
 
     /**
      * For elements only: the QName for the element use.
      * May be unqualified version of referenced element's name.
      */
     QName getName();
-    
+
     /**
      * For elements only: returns the type of the element.
      */
@@ -178,7 +182,7 @@ public interface SchemaParticle
      * For elements only: returns the default (or fixed) text value
      */
     String getDefaultText();
-    
+
     /**
      * For elements only: returns the default (or fixed) strongly-typed value
      */
@@ -193,5 +197,5 @@ public interface SchemaParticle
      * For elements only: true if is fixed value.
      */
     boolean isFixed();
-    
+
 }

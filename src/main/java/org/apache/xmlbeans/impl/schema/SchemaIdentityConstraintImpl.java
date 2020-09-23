@@ -23,7 +23,7 @@ import java.util.Collections;
 import java.util.Map;
 
 public class SchemaIdentityConstraintImpl implements SchemaIdentityConstraint {
-    private SchemaContainer _container;
+    private final SchemaContainer _container;
     private String _selector;
     private String[] _fields;
     private SchemaIdentityConstraint.Ref _key;
@@ -32,7 +32,7 @@ public class SchemaIdentityConstraintImpl implements SchemaIdentityConstraint {
     private XmlObject _parse;
     private Object _userData;
     private SchemaAnnotation _annotation;
-    private Map _nsMap = Collections.EMPTY_MAP;
+    private Map<String,String> _nsMap = Collections.emptyMap();
     private String _parseTNS;
     private boolean _chameleon;
     private String _filename;
@@ -80,11 +80,11 @@ public class SchemaIdentityConstraintImpl implements SchemaIdentityConstraint {
         return _annotation;
     }
 
-    public void setNSMap(Map nsMap) {
+    public void setNSMap(Map<String,String> nsMap) {
         _nsMap = nsMap;
     }
 
-    public Map getNSMap() {
+    public Map<String,String> getNSMap() {
         return Collections.unmodifiableMap(_nsMap);
     }
 
@@ -95,7 +95,7 @@ public class SchemaIdentityConstraintImpl implements SchemaIdentityConstraint {
 
     public void setFields(String[] fields) {
         assert fields != null && fields.length > 0;
-        _fields = fields;
+        _fields = fields.clone();
     }
 
     public String[] getFields() {
@@ -192,7 +192,7 @@ public class SchemaIdentityConstraintImpl implements SchemaIdentityConstraint {
         return getConstraintCategory() != CC_KEYREF || _key != null;
     }
 
-    private SchemaIdentityConstraint.Ref _selfref = new SchemaIdentityConstraint.Ref(this);
+    private final SchemaIdentityConstraint.Ref _selfref = new SchemaIdentityConstraint.Ref(this);
 
     public SchemaIdentityConstraint.Ref getRef() {
         return _selfref;

@@ -158,10 +158,6 @@ public class StscChecker {
      * Checks the default values of elements.<p/>
      * Also checks that the type of elements is not one of ID, IDREF, IDREFS, ENTITY, ENTITIES or
      * NOTATION as per XMLSchema part 2.
-     *
-     * @param model
-     * @param location
-     * @param parentType
      */
     private static void checkElementDefaults(SchemaParticle model, XmlObject location, SchemaType parentType) {
         if (model == null) {
@@ -317,6 +313,7 @@ public class StscChecker {
             XmlObject location = sType.getParseObject();
 
             SchemaType baseType = sType.getBaseType();
+            assert (baseType != null);
             if (baseType.isSimpleType()) {
                 state.error(XmlErrorCodes.SCHEMA_COMPLEX_TYPE$COMPLEX_CONTENT,
                     new Object[]{QNameHelper.pretty(baseType.getName())},
@@ -448,7 +445,7 @@ public class StscChecker {
      * @param baseModel    - The base schema particle
      * @param derivedModel - The derived (restricted) schema particle
      * @param errors       - Invalid restriction errors are put into this collection
-     * @param context
+     * @param context      . the context
      * @return boolean, true if valid restruction, false if invalid restriction
      * @
      */
@@ -487,11 +484,7 @@ public class StscChecker {
                             restrictionValid = nsSubset(baseModel, derivedModel, errors, context);
                             break;
                         case SchemaParticle.ALL:
-                            restrictionValid = nsRecurseCheckCardinality(baseModel, derivedModel, errors, context);
-                            break;
                         case SchemaParticle.CHOICE:
-                            restrictionValid = nsRecurseCheckCardinality(baseModel, derivedModel, errors, context);
-                            break;
                         case SchemaParticle.SEQUENCE:
                             restrictionValid = nsRecurseCheckCardinality(baseModel, derivedModel, errors, context);
                             break;
@@ -573,7 +566,6 @@ public class StscChecker {
         // mapAndSum is call if base: CHOICE, derived: SEQUENCE
         assert baseModel.getParticleType() == SchemaParticle.CHOICE;
         assert derivedModel.getParticleType() == SchemaParticle.SEQUENCE;
-        boolean mapAndSumValid = true;
         // Schema Component Constraint: Particle Derivation OK (Sequence:Choice -- MapAndSum)
         // For a sequence group particle to be a �valid restriction� of a choice group particle all of the following
         // must be true:
@@ -604,13 +596,11 @@ public class StscChecker {
                 }
             }
             if (!foundMatch) {
-                mapAndSumValid = false;
                 errors.add(XmlError.forObject(XmlErrorCodes.PARTICLE_DERIVATION_MAP_AND_SUM$MAP,
                     new Object[]{printParticle(derivedParticle)},
                     context));
                 // KHK: if we don't return false now, this error may get swallowed by an error produced below
                 return false;
-                //break;
             }
         }
 
@@ -631,6 +621,7 @@ public class StscChecker {
         //   2.1 The other's {max occurs} is unbounded.
         //   2.2 Both {max occurs} are numbers, and the particle's is less than or equal to the other's.
 
+        boolean mapAndSumValid = true;
         if (derivedRangeMin.compareTo(baseModel.getMinOccurs()) < 0) {
             mapAndSumValid = false;
             errors.add(XmlError.forObject(XmlErrorCodes.PARTICLE_DERIVATION_MAP_AND_SUM$SUM_MIN_OCCURS_GTE_MIN_OCCURS,
@@ -960,6 +951,8 @@ public class StscChecker {
                     // Check for valid Wildcard/Group derivation
                     nsRecurseCheckCardinality = nsRecurseCheckCardinality(asIfPart, particle, errors, context);
                     break;
+                default:
+                    break;
             }
             // If any particle is invalid then break the loop
             if (!nsRecurseCheckCardinality) {
@@ -991,6 +984,8 @@ public class StscChecker {
             case SchemaParticle.CHOICE:
                 minRange = getEffectiveMinRangeChoice(derivedModel);
                 maxRange = getEffectiveMaxRangeChoice(derivedModel);
+                break;
+            default:
                 break;
         }
 
@@ -1080,6 +1075,8 @@ public class StscChecker {
                         }
                     }
                     break;
+                default:
+                    break;
             }
             // if an unbounded has been found then we are done
             if (maxRange == null) {
@@ -1156,6 +1153,8 @@ public class StscChecker {
                         }
                     }
                     break;
+                default:
+                    break;
             }
             // if an unbounded has been found then we are done
             if (maxRange == null) {
@@ -1219,6 +1218,8 @@ public class StscChecker {
                         minRange = mrc;
                     }
                     break;
+                default:
+                    break;
             }
         }
         if (minRange == null) {
@@ -1255,6 +1256,8 @@ public class StscChecker {
                     break;
                 case SchemaParticle.CHOICE:
                     particleTotalMinOccurs = particleTotalMinOccurs.add(getEffectiveMinRangeChoice(particle));
+                    break;
+                default:
                     break;
             }
         }
@@ -1300,13 +1303,7 @@ public class StscChecker {
         // as defined by Wildcard allows Namespace Name (�3.10.4).
         if (baseModel.getWildcardSet().contains(derivedElement.getName())) {
             // 2 R's occurrence range is a valid restriction of B's occurrence range as defined by Occurrence Range OK (�3.9.6).
-            if (occurrenceRangeOK(baseModel, (SchemaParticle) derivedElement, errors, context)) {
-                nsCompat = true;
-            } else {
-                nsCompat = false;
-                // error already produced by occurrenceRangeOK
-                //errors.add(XmlError.forObject(formatOccurenceRangeMinError(baseModel, (SchemaParticle) derivedElement), context));
-            }
+            nsCompat = occurrenceRangeOK(baseModel, (SchemaParticle) derivedElement, errors, context);
         } else {
             nsCompat = false;
             errors.add(XmlError.forObject(XmlErrorCodes.PARTICLE_DERIVATION_NS_COMPAT$WILDCARD_VALID,

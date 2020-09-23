@@ -61,7 +61,7 @@ public class SchemaTypeSystemCompiler {
         }
 
         public void setSchemas(SchemaDocument.Schema[] schemas) {
-            this.schemas = schemas;
+            this.schemas = (schemas == null) ? null : schemas.clone();
         }
 
         public BindingConfig getConfig() {

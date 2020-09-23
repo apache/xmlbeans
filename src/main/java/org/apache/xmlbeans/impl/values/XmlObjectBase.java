@@ -461,7 +461,7 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
                 return input;
             }
         }
-        Class<?> desiredClass = commonType.getJavaClass();
+        Class<? extends XmlObject> desiredClass = commonType.getJavaClass();
         while (desiredClass == null) {
             commonType = commonType.getBaseType();
             if (XmlObject.type.equals(commonType)) {
@@ -1549,12 +1549,12 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
             new Object[]{getPrimitiveTypeName(), "QName"});
     }
 
-    public List getListValue() {
+    public List<?> getListValue() {
         throw new XmlValueNotSupportedException(XmlErrorCodes.EXCEPTION_VALUE_NOT_SUPPORTED_S2J,
             new Object[]{getPrimitiveTypeName(), "List"});
     }
 
-    public List xgetListValue() {
+    public List<?> xgetListValue() {
         throw new XmlValueNotSupportedException(XmlErrorCodes.EXCEPTION_VALUE_NOT_SUPPORTED_S2J,
             new Object[]{getPrimitiveTypeName(), "List"});
     }
@@ -2836,7 +2836,7 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
     private static class SerializedRootObject implements Serializable {
         private static final long serialVersionUID = 1;
 
-        transient Class<?> _xbeanClass;
+        transient Class<? extends XmlObject> _xbeanClass;
         transient XmlObject _impl;
 
         private SerializedRootObject(XmlObject impl) {
@@ -2861,13 +2861,14 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
             out.writeBoolean(false);
         }
 
+        @SuppressWarnings("unchecked")
         private void readObject(ObjectInputStream in) throws IOException {
             try {
                 // read class object first - this is
                 // first just for historical reasons - really
                 // it would be better to have the version numbers
                 // first
-                _xbeanClass = (Class<?>) in.readObject();
+                _xbeanClass = (Class<? extends XmlObject>) in.readObject();
 
                 int utfBytes = in.readUnsignedShort();
 
@@ -2891,16 +2892,13 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
                         break;
 
                     case 1:
-                        switch (minorVersionNum) {
-                            case 1:
-                                xmlText = (String) in.readObject();
-                                in.readBoolean(); // ignored
-                                break;
-
-                            default:
-                                throw new IOException("Deserialization error: " +
-                                                      "version number " + majorVersionNum + "." +
-                                                      minorVersionNum + " not supported.");
+                        if (minorVersionNum == 1) {
+                            xmlText = (String) in.readObject();
+                            in.readBoolean(); // ignored
+                        } else {
+                            throw new IOException("Deserialization error: " +
+                                                  "version number " + majorVersionNum + "." +
+                                                  minorVersionNum + " not supported.");
                         }
                         break;
 

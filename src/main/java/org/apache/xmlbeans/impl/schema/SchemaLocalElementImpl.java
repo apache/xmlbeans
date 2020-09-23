@@ -16,15 +16,14 @@
 package org.apache.xmlbeans.impl.schema;
 
 import org.apache.xmlbeans.SchemaAnnotation;
+import org.apache.xmlbeans.SchemaIdentityConstraint;
 import org.apache.xmlbeans.SchemaLocalElement;
 import org.apache.xmlbeans.SchemaParticle;
-import org.apache.xmlbeans.SchemaIdentityConstraint;
 import org.apache.xmlbeans.soap.SOAPArrayType;
 import org.apache.xmlbeans.soap.SchemaWSDLArrayType;
 
 public class SchemaLocalElementImpl extends SchemaParticleImpl
-        implements SchemaLocalElement, SchemaWSDLArrayType
-{
+    implements SchemaLocalElement, SchemaWSDLArrayType {
     private boolean _blockExt;
     private boolean _blockRest;
     private boolean _blockSubst;
@@ -34,73 +33,63 @@ public class SchemaLocalElementImpl extends SchemaParticleImpl
     private SchemaIdentityConstraint.Ref[] _constraints = new SchemaIdentityConstraint.Ref[0];
 
 
-    public SchemaLocalElementImpl()
-    {
+    public SchemaLocalElementImpl() {
         setParticleType(SchemaParticle.ELEMENT);
     }
 
-    public boolean blockExtension()
-    {
+    public boolean blockExtension() {
         return _blockExt;
     }
 
-    public boolean blockRestriction()
-    {
+    public boolean blockRestriction() {
         return _blockRest;
     }
 
-    public boolean blockSubstitution()
-    {
+    public boolean blockSubstitution() {
         return _blockSubst;
     }
 
-    public boolean isAbstract()
-    {
+    public boolean isAbstract() {
         return _abs;
     }
 
-    public void setAbstract(boolean abs)
-    {
+    public void setAbstract(boolean abs) {
         _abs = abs;
     }
 
-    public void setBlock(boolean extension, boolean restriction, boolean substitution)
-    {
+    public void setBlock(boolean extension, boolean restriction, boolean substitution) {
         mutate();
         _blockExt = extension;
         _blockRest = restriction;
         _blockSubst = substitution;
     }
 
-    public void setAnnotation(SchemaAnnotation ann)
-    {
+    public void setAnnotation(SchemaAnnotation ann) {
         _annotation = ann;
     }
 
-    public void setWsdlArrayType(SOAPArrayType arrayType)
-    {
+    public void setWsdlArrayType(SOAPArrayType arrayType) {
         _wsdlArrayType = arrayType;
     }
 
-    public SchemaAnnotation getAnnotation()
-    {
+    public SchemaAnnotation getAnnotation() {
         return _annotation;
     }
 
-    public SOAPArrayType getWSDLArrayType()
-    {
+    public SOAPArrayType getWSDLArrayType() {
         return _wsdlArrayType;
     }
 
     public void setIdentityConstraints(SchemaIdentityConstraint.Ref[] constraints) {
         mutate();
-        _constraints = constraints;
+        _constraints = (constraints == null) ? null : constraints.clone();
     }
 
     public SchemaIdentityConstraint[] getIdentityConstraints() {
         SchemaIdentityConstraint[] result = new SchemaIdentityConstraint[_constraints.length];
-        for (int i = 0 ; i < result.length ; i++)
+        for (int i = 0; i < result.length; i++) {
             result[i] = _constraints[i].get();
+        }
         return result;
     }
 

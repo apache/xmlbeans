@@ -15,20 +15,13 @@
 
 package org.apache.xmlbeans.impl.schema;
 
-import org.apache.xmlbeans.SchemaParticle;
-import org.apache.xmlbeans.QNameSet;
-import org.apache.xmlbeans.SchemaType;
-import org.apache.xmlbeans.XmlObject;
-import org.apache.xmlbeans.XmlAnySimpleType;
-import org.apache.xmlbeans.XmlQName;
+import org.apache.xmlbeans.*;
 import org.apache.xmlbeans.impl.values.NamespaceContext;
 
+import javax.xml.namespace.QName;
 import java.math.BigInteger;
 
-import javax.xml.namespace.QName;
-
-public class SchemaParticleImpl implements SchemaParticle
-{
+public class SchemaParticleImpl implements SchemaParticle {
     private int _particleType;
     private BigInteger _minOccurs;
     private BigInteger _maxOccurs;
@@ -52,82 +45,104 @@ public class SchemaParticleImpl implements SchemaParticle
     private Object _userData;
     private XmlValueRef _defaultValue;
 
-    protected void mutate()
-        { if (_isImmutable) throw new IllegalStateException(); }
+    protected void mutate() {
+        if (_isImmutable) {
+            throw new IllegalStateException();
+        }
+    }
 
-    public void setImmutable()
-        { mutate(); _isImmutable = true; }
+    public void setImmutable() {
+        mutate();
+        _isImmutable = true;
+    }
 
-    public boolean hasTransitionRules()
-        { return (_startSet != null); }
+    public boolean hasTransitionRules() {
+        return (_startSet != null);
+    }
 
-    public boolean hasTransitionNotes()
-        { return (_excludeNextSet != null); }
+    public boolean hasTransitionNotes() {
+        return (_excludeNextSet != null);
+    }
 
     public void setTransitionRules(QNameSet start,
-                                   boolean isSkippable)
-    {
+                                   boolean isSkippable) {
         _startSet = start;
         _isSkippable = isSkippable;
     }
 
-    public void setTransitionNotes(QNameSet excludeNext, boolean isDeterministic)
-    {
+    public void setTransitionNotes(QNameSet excludeNext, boolean isDeterministic) {
         _excludeNextSet = excludeNext;
         _isDeterministic = isDeterministic;
     }
 
-    public boolean canStartWithElement(QName name)
-        { return name != null && _startSet.contains(name); }
+    public boolean canStartWithElement(QName name) {
+        return name != null && _startSet.contains(name);
+    }
 
-    public QNameSet acceptedStartNames()
-        { return _startSet; }
+    public QNameSet acceptedStartNames() {
+        return _startSet;
+    }
 
-    public QNameSet getExcludeNextSet()
-        { return _excludeNextSet; }
+    public QNameSet getExcludeNextSet() {
+        return _excludeNextSet;
+    }
 
-    public boolean isSkippable()
-        { return _isSkippable; }
+    public boolean isSkippable() {
+        return _isSkippable;
+    }
 
-    public boolean isDeterministic()
-        { return _isDeterministic; }
+    public boolean isDeterministic() {
+        return _isDeterministic;
+    }
 
-    public int getParticleType()
-        { return _particleType; }
+    public int getParticleType() {
+        return _particleType;
+    }
 
-    public void setParticleType(int pType)
-        { mutate(); _particleType = pType; }
+    public void setParticleType(int pType) {
+        mutate();
+        _particleType = pType;
+    }
 
-    public boolean isSingleton()
-        { return _maxOccurs != null &&
-                 _maxOccurs.compareTo(BigInteger.ONE) == 0 &&
-                 _minOccurs.compareTo(BigInteger.ONE) == 0; }
+    public boolean isSingleton() {
+        return _maxOccurs != null &&
+               _maxOccurs.compareTo(BigInteger.ONE) == 0 &&
+               _minOccurs.compareTo(BigInteger.ONE) == 0;
+    }
 
-    public BigInteger getMinOccurs()
-        { return _minOccurs; }
+    public BigInteger getMinOccurs() {
+        return _minOccurs;
+    }
 
-    public void setMinOccurs(BigInteger min)
-        { mutate(); _minOccurs = min; _intMinOccurs = pegBigInteger(min); }
+    public void setMinOccurs(BigInteger min) {
+        mutate();
+        _minOccurs = min;
+        _intMinOccurs = pegBigInteger(min);
+    }
 
-    public int getIntMinOccurs()
-        { return _intMinOccurs; }
+    public int getIntMinOccurs() {
+        return _intMinOccurs;
+    }
 
-    public BigInteger getMaxOccurs()
-        { return _maxOccurs; }
+    public BigInteger getMaxOccurs() {
+        return _maxOccurs;
+    }
 
-    public int getIntMaxOccurs()
-        { return _intMaxOccurs; }
+    public int getIntMaxOccurs() {
+        return _intMaxOccurs;
+    }
 
-    public void setMaxOccurs(BigInteger max)
-        { mutate(); _maxOccurs = max; _intMaxOccurs = pegBigInteger(max); }
+    public void setMaxOccurs(BigInteger max) {
+        mutate();
+        _maxOccurs = max;
+        _intMaxOccurs = pegBigInteger(max);
+    }
 
-    public SchemaParticle[] getParticleChildren()
-    {
-        if (_particleChildren == null)
-        {
+    public SchemaParticle[] getParticleChildren() {
+        if (_particleChildren == null) {
             assert _particleType != SchemaParticle.ALL &&
-                _particleType != SchemaParticle.SEQUENCE &&
-                _particleType != SchemaParticle.CHOICE;
+                   _particleType != SchemaParticle.SEQUENCE &&
+                   _particleType != SchemaParticle.CHOICE;
             return null;
         }
         SchemaParticle[] result = new SchemaParticle[_particleChildren.length];
@@ -135,75 +150,97 @@ public class SchemaParticleImpl implements SchemaParticle
         return result;
     }
 
-    public void setParticleChildren(SchemaParticle[] children)
-        { mutate(); _particleChildren = children; }
+    public void setParticleChildren(SchemaParticle[] children) {
+        mutate();
+        _particleChildren = (children == null) ? null : children.clone();
+    }
 
-    public SchemaParticle getParticleChild(int i)
-        { return _particleChildren[i]; }
+    public SchemaParticle getParticleChild(int i) {
+        return _particleChildren[i];
+    }
 
-    public int countOfParticleChild()
-        { return _particleChildren == null ? 0 : _particleChildren.length; }
+    public int countOfParticleChild() {
+        return _particleChildren == null ? 0 : _particleChildren.length;
+    }
 
-    public void setWildcardSet(QNameSet set)
-        { mutate(); _wildcardSet = set; }
+    public void setWildcardSet(QNameSet set) {
+        mutate();
+        _wildcardSet = set;
+    }
 
-    public QNameSet getWildcardSet()
-        { return _wildcardSet; }
+    public QNameSet getWildcardSet() {
+        return _wildcardSet;
+    }
 
-    public void setWildcardProcess(int process)
-        { mutate(); _wildcardProcess = process; }
+    public void setWildcardProcess(int process) {
+        mutate();
+        _wildcardProcess = process;
+    }
 
-    public int getWildcardProcess()
-        { return _wildcardProcess; }
+    public int getWildcardProcess() {
+        return _wildcardProcess;
+    }
 
     private static final BigInteger _maxint = BigInteger.valueOf(Integer.MAX_VALUE);
 
-    private static final int pegBigInteger(BigInteger bi)
-    {
-        if (bi == null)
+    private static int pegBigInteger(BigInteger bi) {
+        if (bi == null) {
             return Integer.MAX_VALUE;
-        if (bi.signum() <= 0)
+        }
+        if (bi.signum() <= 0) {
             return 0;
-        if (bi.compareTo(_maxint) >= 0)
+        }
+        if (bi.compareTo(_maxint) >= 0) {
             return Integer.MAX_VALUE;
+        }
         return bi.intValue();
     }
 
-    public QName getName()
-        { return _qName; }
-
-    public void setNameAndTypeRef(QName formname, SchemaType.Ref typeref)
-        { mutate(); _qName = formname; _typeref = typeref; }
-
-    public boolean isTypeResolved()
-    {
-        return (_typeref != null);
+    public QName getName() {
+        return _qName;
     }
 
-    public void resolveTypeRef(SchemaType.Ref typeref)
-    {
-        if (_typeref != null)
-            throw new IllegalStateException();
+    public void setNameAndTypeRef(QName formname, SchemaType.Ref typeref) {
+        mutate();
+        _qName = formname;
         _typeref = typeref;
     }
 
-    public boolean isAttribute()
-        { return false; }
+    public boolean isTypeResolved() {
+        return (_typeref != null);
+    }
 
-    public SchemaType getType()
-        { if (_typeref == null) return null; return _typeref.get(); }
+    public void resolveTypeRef(SchemaType.Ref typeref) {
+        if (_typeref != null) {
+            throw new IllegalStateException();
+        }
+        _typeref = typeref;
+    }
 
-    public String getDefaultText()
-        { return _defaultText; }
+    public boolean isAttribute() {
+        return false;
+    }
 
-    public boolean isDefault()
-        { return _isDefault; }
+    public SchemaType getType() {
+        if (_typeref == null) {
+            return null;
+        }
+        return _typeref.get();
+    }
 
-    public boolean isFixed()
-        { return _isFixed; }
+    public String getDefaultText() {
+        return _defaultText;
+    }
 
-    public void setDefault(String deftext, boolean isFixed, XmlObject parseObject)
-    {
+    public boolean isDefault() {
+        return _isDefault;
+    }
+
+    public boolean isFixed() {
+        return _isFixed;
+    }
+
+    public void setDefault(String deftext, boolean isFixed, XmlObject parseObject) {
         mutate();
         _defaultText = deftext;
         _isDefault = (deftext != null);
@@ -211,27 +248,25 @@ public class SchemaParticleImpl implements SchemaParticle
         _parseObject = parseObject;
     }
 
-    public boolean isNillable()
-        { return _isNillable; }
+    public boolean isNillable() {
+        return _isNillable;
+    }
 
-    public void setNillable(boolean nillable)
-        { mutate(); _isNillable = nillable; }
+    public void setNillable(boolean nillable) {
+        mutate();
+        _isNillable = nillable;
+    }
 
-    public XmlAnySimpleType getDefaultValue()
-    {
-        if (_defaultValue != null)
+    public XmlAnySimpleType getDefaultValue() {
+        if (_defaultValue != null) {
             return _defaultValue.get();
-        if (_defaultText != null && XmlAnySimpleType.type.isAssignableFrom(getType()))
-        {
-            if (_parseObject != null && XmlQName.type.isAssignableFrom(getType()))
-            {
-                try
-                {
+        }
+        if (_defaultText != null && XmlAnySimpleType.type.isAssignableFrom(getType())) {
+            if (_parseObject != null && XmlQName.type.isAssignableFrom(getType())) {
+                try {
                     NamespaceContext.push(new NamespaceContext(_parseObject));
                     return getType().newValue(_defaultText);
-                }
-                finally
-                {
+                } finally {
                     NamespaceContext.pop();
                 }
             }
@@ -239,20 +274,17 @@ public class SchemaParticleImpl implements SchemaParticle
         }
         return null;
     }
-    
-    public void setDefaultValue(XmlValueRef defaultRef)
-    {
+
+    public void setDefaultValue(XmlValueRef defaultRef) {
         mutate();
         _defaultValue = defaultRef;
     }
 
-    public Object getUserData()
-    {
+    public Object getUserData() {
         return _userData;
     }
 
-    public void setUserData(Object data)
-    {
+    public void setUserData(Object data) {
         _userData = data;
     }
 }

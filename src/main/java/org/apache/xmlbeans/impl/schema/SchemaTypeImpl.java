@@ -63,14 +63,12 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory {
     private PrePostExtension _prepost;
 
     // runtime java type support: volatile because they're cached
-    private volatile Class _javaClass;
-    private volatile Class _javaEnumClass;
-    private volatile Class _javaImplClass;
-    private volatile Constructor _javaImplConstructor;
-    private volatile Constructor _javaImplConstructor2;
+    private volatile Class<? extends XmlObject> _javaClass;
+    private volatile Class<? extends StringEnumAbstractBase> _javaEnumClass;
+    private volatile Class<? extends XmlObjectBase> _javaImplClass;
+    private volatile Constructor<? extends XmlObjectBase> _javaImplConstructor;
+    private volatile Constructor<? extends XmlObjectBase> _javaImplConstructor2;
     private volatile boolean _implNotAvailable;
-    private volatile Class _userTypeClass;
-    private volatile Class _userTypeHandlerClass;
 
     // user data objects not persisted
     private volatile Object _userData;
@@ -84,10 +82,10 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory {
     // complex content support
     private SchemaParticle _contentModel;
     private volatile SchemaLocalElement[] _localElts; // lazily computed
-    private volatile Map _eltToIndexMap; // lazily computed
-    private volatile Map _attrToIndexMap; // lazily computed
-    private Map _propertyModelByElementName;
-    private Map _propertyModelByAttributeName;
+    private volatile Map<SchemaLocalElement, Integer> _eltToIndexMap; // lazily computed
+    private volatile Map<SchemaLocalAttribute, Integer> _attrToIndexMap; // lazily computed
+    private Map<QName, SchemaProperty> _propertyModelByElementName;
+    private Map<QName, SchemaProperty> _propertyModelByAttributeName;
     private boolean _hasAllContent;
     private boolean _orderSensitive;
     private QNameSet _typedWildcardElements;
@@ -95,7 +93,7 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory {
     private boolean _hasWildcardElements;
     private boolean _hasWildcardAttributes;
     // set of valid QNames that can be substituted for a property
-    private Set _validSubstitutions = Collections.EMPTY_SET;
+    private Set<QName> _validSubstitutions = Collections.emptySet();
 
     // simple content support
     private int _complexTypeVariety;
@@ -147,9 +145,9 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory {
     private XmlValueRef[] _enumerationValues;
     private SchemaType.Ref _baseEnumTyperef;
     private boolean _stringEnumEnsured;
-    private volatile Map _lookupStringEnum;
-    private volatile List _listOfStringEnum;
-    private volatile Map _lookupStringEnumEntry;
+    private volatile Map<String, StringEnumAbstractBase> _lookupStringEnum;
+    private volatile List<StringEnumAbstractBase> _listOfStringEnum;
+    private volatile Map<String, SchemaStringEnumEntry> _lookupStringEnumEntry;
     private SchemaStringEnumEntry[] _stringEnumEntries;
 
     // for lists only
@@ -174,7 +172,7 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory {
 
     // for document types only - only valid during compilation
     private QName _sg;
-    private List _sgMembers = new ArrayList();
+    private final List<QName> _sgMembers = new ArrayList<>();
 
     public boolean isUnloaded() {
         return _unloaded;
@@ -479,8 +477,10 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory {
             if (_containerFieldCode == 0) {
                 _containerField = _containerFieldRef == null ? null : (SchemaField) _containerFieldRef.getComponent();
             } else if (_containerFieldCode == 1) {
+                assert (outer != null);
                 _containerField = outer.getAttributeModel().getAttributes()[_containerFieldIndex];
             } else {
+                assert (outer != null);
                 _containerField = ((SchemaTypeImpl) outer).getLocalElementByIndex(_containerFieldIndex);
             }
             _containerFieldCode = -1;
@@ -535,9 +535,8 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory {
 
     public boolean isSkippedAnonymousType() {
         SchemaType outerType = getOuterType();
-        return ((outerType == null) ? false :
-            (outerType.getBaseType() == this ||
-             outerType.getContentBasedOnType() == this));
+        return (outerType != null && (outerType.getBaseType() == this ||
+                                      outerType.getContentBasedOnType() == this));
     }
 
     public String getShortJavaName() {
@@ -612,7 +611,7 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory {
 
     public void setInterfaceExtensions(InterfaceExtension[] interfaces) {
         assertResolved();
-        _interfaces = interfaces;
+        _interfaces = (interfaces == null) ? null : interfaces.clone();
     }
 
     public InterfaceExtension[] getInterfaceExtensions() {
@@ -653,31 +652,31 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory {
         return _contentModel;
     }
 
-    private static void buildEltList(List eltList, SchemaParticle contentModel) {
+    private static void buildEltList(List<SchemaLocalElement> eltList, SchemaParticle contentModel) {
         if (contentModel == null) {
             return;
         }
 
         switch (contentModel.getParticleType()) {
             case SchemaParticle.ELEMENT:
-                eltList.add(contentModel);
-                return;
+                eltList.add((SchemaLocalElement) contentModel);
+                break;
             case SchemaParticle.ALL:
             case SchemaParticle.CHOICE:
             case SchemaParticle.SEQUENCE:
                 for (int i = 0; i < contentModel.countOfParticleChild(); i++) {
                     buildEltList(eltList, contentModel.getParticleChild(i));
                 }
-                return;
+                break;
             default:
-                return;
+                break;
         }
     }
 
     private void buildLocalElts() {
-        List eltList = new ArrayList();
+        List<SchemaLocalElement> eltList = new ArrayList<>();
         buildEltList(eltList, _contentModel);
-        _localElts = (SchemaLocalElement[]) eltList.toArray(new SchemaLocalElement[eltList.size()]);
+        _localElts = eltList.toArray(new SchemaLocalElement[0]);
     }
 
     public SchemaLocalElement getLocalElementByIndex(int i) {
@@ -690,31 +689,31 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory {
     }
 
     public int getIndexForLocalElement(SchemaLocalElement elt) {
-        Map localEltMap = _eltToIndexMap;
+        Map<SchemaLocalElement, Integer> localEltMap = _eltToIndexMap;
         if (localEltMap == null) {
             if (_localElts == null) {
                 buildLocalElts();
             }
-            localEltMap = new HashMap();
+            localEltMap = new HashMap<>();
             for (int i = 0; i < _localElts.length; i++) {
-                localEltMap.put(_localElts[i], new Integer(i));
+                localEltMap.put(_localElts[i], i);
             }
             _eltToIndexMap = localEltMap;
         }
-        return ((Integer) localEltMap.get(elt)).intValue();
+        return localEltMap.get(elt);
     }
 
     public int getIndexForLocalAttribute(SchemaLocalAttribute attr) {
-        Map localAttrMap = _attrToIndexMap;
+        Map<SchemaLocalAttribute, Integer> localAttrMap = _attrToIndexMap;
         if (localAttrMap == null) {
-            localAttrMap = new HashMap();
+            localAttrMap = new HashMap<>();
             SchemaLocalAttribute[] attrs = this._attributeModel.getAttributes();
             for (int i = 0; i < attrs.length; i++) {
-                localAttrMap.put(attrs[i], new Integer(i));
+                localAttrMap.put(attrs[i], i);
             }
             _attrToIndexMap = localAttrMap;
         }
-        return ((Integer) localAttrMap.get(attr)).intValue();
+        return localAttrMap.get(attr);
     }
 
     public SchemaAttributeModel getAttributeModel() {
@@ -730,10 +729,10 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory {
             return getElementProperties();
         }
 
-        List list = new ArrayList();
+        List<SchemaProperty> list = new ArrayList<>();
         list.addAll(_propertyModelByElementName.values());
         list.addAll(_propertyModelByAttributeName.values());
-        return (SchemaProperty[]) list.toArray(new SchemaProperty[list.size()]);
+        return list.toArray(new SchemaProperty[0]);
     }
 
     private static final SchemaProperty[] NO_PROPERTIES = new SchemaProperty[0];
@@ -744,7 +743,7 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory {
             return getProperties();
         }
 
-        List results = new ArrayList();
+        List<SchemaProperty> results = new ArrayList<>();
 
         if (_propertyModelByElementName != null) {
             results.addAll(_propertyModelByElementName.values());
@@ -754,8 +753,8 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory {
             results.addAll(_propertyModelByAttributeName.values());
         }
 
-        for (Iterator it = results.iterator(); it.hasNext(); ) {
-            SchemaProperty prop = (SchemaProperty) it.next();
+        for (Iterator<SchemaProperty> it = results.iterator(); it.hasNext(); ) {
+            SchemaProperty prop = it.next();
             SchemaProperty baseProp = prop.isAttribute() ?
                 baseType.getAttributeProperty(prop.getName()) :
                 baseType.getElementProperty(prop.getName());
@@ -777,7 +776,7 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory {
 
         }
 
-        return (SchemaProperty[]) results.toArray(new SchemaProperty[results.size()]);
+        return results.toArray(new SchemaProperty[0]);
     }
 
     private static boolean eq(BigInteger a, BigInteger b) {
@@ -805,8 +804,7 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory {
             return NO_PROPERTIES;
         }
 
-        return (SchemaProperty[])
-            _propertyModelByElementName.values().toArray(new SchemaProperty[_propertyModelByElementName.size()]);
+        return _propertyModelByElementName.values().toArray(new SchemaProperty[0]);
     }
 
     public SchemaProperty[] getAttributeProperties() {
@@ -814,16 +812,15 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory {
             return NO_PROPERTIES;
         }
 
-        return (SchemaProperty[])
-            _propertyModelByAttributeName.values().toArray(new SchemaProperty[_propertyModelByAttributeName.size()]);
+        return _propertyModelByAttributeName.values().toArray(new SchemaProperty[0]);
     }
 
     public SchemaProperty getElementProperty(QName eltName) {
-        return _propertyModelByElementName == null ? null : (SchemaProperty) _propertyModelByElementName.get(eltName);
+        return _propertyModelByElementName == null ? null : _propertyModelByElementName.get(eltName);
     }
 
     public SchemaProperty getAttributeProperty(QName attrName) {
-        return _propertyModelByAttributeName == null ? null : (SchemaProperty) _propertyModelByAttributeName.get(attrName);
+        return _propertyModelByAttributeName == null ? null : _propertyModelByAttributeName.get(attrName);
     }
 
     public boolean hasAllContent() {
@@ -842,8 +839,8 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory {
     public void setContentModel(
         SchemaParticle contentModel,
         SchemaAttributeModel attrModel,
-        Map propertyModelByElementName,
-        Map propertyModelByAttributeName,
+        Map<QName, SchemaProperty> propertyModelByElementName,
+        Map<QName, SchemaProperty> propertyModelByAttributeName,
         boolean isAll) {
         assertResolving();
         _contentModel = contentModel;
@@ -855,14 +852,13 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory {
 
         // Add entries for each element property for substitution group members
         if (_propertyModelByElementName != null) {
-            _validSubstitutions = new LinkedHashSet();
-            Collection eltProps = _propertyModelByElementName.values();
-            for (Iterator it = eltProps.iterator(); it.hasNext(); ) {
-                SchemaProperty prop = (SchemaProperty) it.next();
+            _validSubstitutions = new LinkedHashSet<>();
+            Collection<SchemaProperty> eltProps = _propertyModelByElementName.values();
+            for (SchemaProperty prop : eltProps) {
                 QName[] names = prop.acceptedNames();
-                for (int i = 0; i < names.length; i++) {
-                    if (!_propertyModelByElementName.containsKey(names[i])) {
-                        _validSubstitutions.add(names[i]);
+                for (QName name : names) {
+                    if (!_propertyModelByElementName.containsKey(name)) {
+                        _validSubstitutions.add(name);
                     }
                 }
             }
@@ -891,8 +887,8 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory {
             return BuiltinSchemaTypeSystem.ST_NO_TYPE;
         }
 
-        SchemaType type = null;
-        SchemaProperty prop = (SchemaProperty) _propertyModelByElementName.get(eltName);
+        SchemaType type;
+        SchemaProperty prop = _propertyModelByElementName.get(eltName);
         if (prop != null) {
             type = prop.getType();
         } else {
@@ -925,9 +921,7 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory {
                     sghead = sghead.substitutionGroup();
                 }
                 */
-                if (type == null) {
-                    return BuiltinSchemaTypeSystem.ST_NO_TYPE;
-                }
+                return BuiltinSchemaTypeSystem.ST_NO_TYPE;
             }
         }
 
@@ -955,7 +949,7 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory {
             return BuiltinSchemaTypeSystem.ST_ANY_SIMPLE;
         }
 
-        SchemaProperty prop = (SchemaProperty) _propertyModelByAttributeName.get(attrName);
+        SchemaProperty prop = _propertyModelByAttributeName.get(attrName);
         if (prop != null) {
             return prop.getType();
         }
@@ -979,12 +973,12 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory {
      * things, they can't be refactored to share code, so exercise caution
      */
     public XmlObject createElementType(QName eltName, QName xsiType, SchemaTypeLoader wildcardTypeLoader) {
-        SchemaType type = null;
+        SchemaType type;
         SchemaProperty prop = null;
         if (isSimpleType() || !containsElements() || isNoType()) {
             type = BuiltinSchemaTypeSystem.ST_NO_TYPE;
         } else {
-            prop = (SchemaProperty) _propertyModelByElementName.get(eltName);
+            prop = _propertyModelByElementName.get(eltName);
             if (prop != null) {
                 type = prop.getType();
             } else if (_typedWildcardElements.contains(eltName) ||
@@ -1019,9 +1013,7 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory {
                     sghead = sghead.substitutionGroup();
                 }
                 */
-                if (type == null) {
-                    type = BuiltinSchemaTypeSystem.ST_NO_TYPE;
-                }
+                type = BuiltinSchemaTypeSystem.ST_NO_TYPE;
             }
 
             if (xsiType != null) {
@@ -1044,14 +1036,14 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory {
     }
 
     public XmlObject createAttributeType(QName attrName, SchemaTypeLoader wildcardTypeLoader) {
-        SchemaTypeImpl type = null;
+        SchemaTypeImpl type;
         SchemaProperty prop = null;
         if (isSimpleType() || isNoType()) {
             type = BuiltinSchemaTypeSystem.ST_NO_TYPE;
         } else if (isURType()) {
             type = BuiltinSchemaTypeSystem.ST_ANY_SIMPLE;
         } else {
-            prop = (SchemaProperty) _propertyModelByAttributeName.get(attrName);
+            prop = _propertyModelByAttributeName.get(attrName);
             if (prop != null) {
                 type = (SchemaTypeImpl) prop.getType();
             } else if (!_typedWildcardAttributes.contains(attrName)) {
@@ -1090,7 +1082,7 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory {
     }
 
     public void setAnonymousTypeRefs(SchemaType.Ref[] anonymousTyperefs) {
-        _anonymousTyperefs = anonymousTyperefs;
+        _anonymousTyperefs = anonymousTyperefs == null ? null : anonymousTyperefs.clone();
     }
 
 
@@ -1223,7 +1215,7 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory {
 
     public void setUnionMemberTypeRefs(SchemaType.Ref[] typerefs) {
         assertResolving();
-        _unionMemberTyperefs = typerefs;
+        _unionMemberTyperefs = typerefs == null ? null : typerefs.clone();
     }
 
     public int getAnonymousUnionMemberOrdinal() {
@@ -1272,14 +1264,14 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory {
         if (getSimpleVariety() != SchemaType.UNION) {
             throw new IllegalStateException("Operation is only supported on union types");
         }
-        Set constituentMemberTypes = new LinkedHashSet();
-        Set allSubTypes = new LinkedHashSet();
+        Set<SchemaType> constituentMemberTypes = new LinkedHashSet<>();
+        Set<SchemaType> allSubTypes = new LinkedHashSet<>();
         SchemaType commonBaseType = null;
 
         allSubTypes.add(this);
 
-        for (int i = 0; i < _unionMemberTyperefs.length; i++) {
-            SchemaTypeImpl mImpl = (SchemaTypeImpl) _unionMemberTyperefs[i].get();
+        for (Ref unionMemberTyperef : _unionMemberTyperefs) {
+            SchemaTypeImpl mImpl = (SchemaTypeImpl) unionMemberTyperef.get();
 
             switch (mImpl.getSimpleVariety()) {
                 case SchemaType.LIST:
@@ -1305,10 +1297,8 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory {
             }
         }
 
-        setUnionConstituentTypes((SchemaType[])
-            constituentMemberTypes.toArray(StscState.EMPTY_ST_ARRAY));
-        setUnionSubTypes((SchemaType[])
-            allSubTypes.toArray(StscState.EMPTY_ST_ARRAY));
+        setUnionConstituentTypes(constituentMemberTypes.toArray(StscState.EMPTY_ST_ARRAY));
+        setUnionSubTypes(allSubTypes.toArray(StscState.EMPTY_ST_ARRAY));
         setUnionCommonBaseType(commonBaseType);
     }
 
@@ -1327,8 +1317,7 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory {
     }
 
     public QName[] getSubstitutionGroupMembers() {
-        QName[] result = new QName[_sgMembers.size()];
-        return (QName[]) _sgMembers.toArray(result);
+        return _sgMembers.toArray(new QName[0]);
     }
 
     public int getWhiteSpaceRule() {
@@ -1369,8 +1358,8 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory {
 
     public void setBasicFacets(XmlValueRef[] values, boolean[] fixed) {
         assertResolving();
-        _facetArray = values;
-        _fixedFacetArray = fixed;
+        _facetArray = values == null ? null : values.clone();
+        _fixedFacetArray = fixed == null ? null : fixed.clone();
     }
 
     public int ordered() {
@@ -1461,7 +1450,7 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory {
 
     public void setPatterns(org.apache.xmlbeans.impl.regex.RegularExpression[] list) {
         assertResolving();
-        _patterns = list;
+        _patterns = list == null ? null : list.clone();
     }
 
     public XmlAnySimpleType[] getEnumerationValues() {
@@ -1479,7 +1468,7 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory {
 
     public void setEnumerationValues(XmlValueRef[] a) {
         assertResolving();
-        _enumerationValues = a;
+        _enumerationValues = a == null ? null : a.clone();
     }
 
     public StringEnumAbstractBase enumForString(String s) {
@@ -1487,7 +1476,7 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory {
         if (_lookupStringEnum == null) {
             return null;
         }
-        return (StringEnumAbstractBase) _lookupStringEnum.get(s);
+        return _lookupStringEnum.get(s);
     }
 
     public StringEnumAbstractBase enumForInt(int i) {
@@ -1495,7 +1484,7 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory {
         if (_listOfStringEnum == null || i < 0 || i >= _listOfStringEnum.size()) {
             return null;
         }
-        return (StringEnumAbstractBase) _listOfStringEnum.get(i);
+        return _listOfStringEnum.get(i);
     }
 
     public SchemaStringEnumEntry enumEntryForString(String s) {
@@ -1503,7 +1492,7 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory {
         if (_lookupStringEnumEntry == null) {
             return null;
         }
-        return (SchemaStringEnumEntry) _lookupStringEnumEntry.get(s);
+        return _lookupStringEnumEntry.get(s);
     }
 
     public SchemaType getBaseEnumType() {
@@ -1523,9 +1512,9 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory {
         return result;
     }
 
-    public void setStringEnumEntries(SchemaStringEnumEntry sEnums[]) {
+    public void setStringEnumEntries(SchemaStringEnumEntry[] sEnums) {
         assertJavaizing();
-        _stringEnumEntries = sEnums;
+        _stringEnumEntries = sEnums == null ? null : sEnums.clone();
     }
 
     private void ensureStringEnumInfo() {
@@ -1539,22 +1528,22 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory {
             return;
         }
 
-        Map lookupStringEnum = new HashMap(sEnums.length);
-        List listOfStringEnum = new ArrayList(sEnums.length + 1);
-        Map lookupStringEnumEntry = new HashMap(sEnums.length);
+        Map<String, StringEnumAbstractBase> lookupStringEnum = new HashMap<>(sEnums.length);
+        List<StringEnumAbstractBase> listOfStringEnum = new ArrayList<>(sEnums.length + 1);
+        Map<String, SchemaStringEnumEntry> lookupStringEnumEntry = new HashMap<>(sEnums.length);
 
-        for (int i = 0; i < sEnums.length; i++) {
-            lookupStringEnumEntry.put(sEnums[i].getString(), sEnums[i]);
+        for (SchemaStringEnumEntry sEnum : sEnums) {
+            lookupStringEnumEntry.put(sEnum.getString(), sEnum);
         }
 
-        Class jc = _baseEnumTyperef.get().getEnumJavaClass();
+        Class<? extends StringEnumAbstractBase> jc = _baseEnumTyperef.get().getEnumJavaClass();
         if (jc != null) {
             try {
                 StringEnumAbstractBase.Table table = (StringEnumAbstractBase.Table) jc.getField("table").get(null);
-                for (int i = 0; i < sEnums.length; i++) {
-                    int j = sEnums[i].getIntValue();
+                for (SchemaStringEnumEntry sEnum : sEnums) {
+                    int j = sEnum.getIntValue();
                     StringEnumAbstractBase enumVal = table.forInt(j);
-                    lookupStringEnum.put(sEnums[i].getString(), enumVal);
+                    lookupStringEnum.put(sEnum.getString(), enumVal);
                     while (listOfStringEnum.size() <= j) {
                         listOfStringEnum.add(null);
                     }
@@ -1569,9 +1558,9 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory {
         }
 
         if (jc == null) {
-            for (int i = 0; i < sEnums.length; i++) {
-                int j = sEnums[i].getIntValue();
-                String s = sEnums[i].getString();
+            for (SchemaStringEnumEntry sEnum : sEnums) {
+                int j = sEnum.getIntValue();
+                String s = sEnum.getString();
                 StringEnumAbstractBase enumVal = new StringEnumValue(s, j);
                 lookupStringEnum.put(s, enumVal);
                 while (listOfStringEnum.size() <= j) {
@@ -1620,11 +1609,11 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory {
 
         SchemaProperty[] eltProps = getElementProperties();
         SchemaParticle contentModel = getContentModel();
-        Map state = new HashMap();
+        Map<SchemaParticle, QNameSet> state = new HashMap<>();
         QNameSet allContents = computeAllContainedElements(contentModel, state);
 
-        for (int i = 0; i < eltProps.length; i++) {
-            SchemaPropertyImpl sImpl = (SchemaPropertyImpl) eltProps[i];
+        for (SchemaProperty eltProp : eltProps) {
+            SchemaPropertyImpl sImpl = (SchemaPropertyImpl) eltProp;
             QNameSet nde = computeNondelimitingElements(sImpl.getName(), contentModel, state);
             QNameSetBuilder builder = new QNameSetBuilder(allContents);
             builder.removeAll(nde);
@@ -1640,7 +1629,7 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory {
      * contentModel.  When appending an element, it comes before the first
      * one that is not in this set.
      */
-    private static QNameSet computeNondelimitingElements(QName target, SchemaParticle contentModel, Map state) {
+    private static QNameSet computeNondelimitingElements(QName target, SchemaParticle contentModel, Map<SchemaParticle, QNameSet> state) {
         QNameSet allContents = computeAllContainedElements(contentModel, state);
         if (!allContents.contains(target)) {
             return QNameSet.EMPTY;
@@ -1698,9 +1687,9 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory {
      * to record the results, so that if they are needed again later,
      * they do not need to be recomputed.
      */
-    private static QNameSet computeAllContainedElements(SchemaParticle contentModel, Map state) {
+    private static QNameSet computeAllContainedElements(SchemaParticle contentModel, Map<SchemaParticle, QNameSet> state) {
         // Remember previously computed results to avoid complexity explosion
-        QNameSet result = (QNameSet) state.get(contentModel);
+        QNameSet result = state.get(contentModel);
         if (result != null) {
             return result;
         }
@@ -1725,23 +1714,21 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory {
 
             case SchemaParticle.ELEMENT:
                 // Fix for XMLBEANS-228
-                result = ((SchemaLocalElementImpl) contentModel).acceptedStartNames();
+                result = contentModel.acceptedStartNames();
                 break;
         }
         state.put(contentModel, result);
         return result;
     }
 
-    public Class getJavaClass() {
+    @SuppressWarnings("unchecked")
+    public Class<? extends XmlObject> getJavaClass() {
         // This field is declared volatile and Class is immutable so this is allowed.
         if (_javaClass == null && getFullJavaName() != null) {
             try {
-                _javaClass = Class.forName(getFullJavaName(), false, getTypeSystem().getClassLoader());
+                _javaClass = (Class<? extends XmlObject>) Class.forName(getFullJavaName(), false, getTypeSystem().getClassLoader());
             } catch (ClassNotFoundException e) {
-//                This is a legitimate use, when users get a SchemaTypeSystem without compiling classes
-//                System.err.println("Could not find class name " + getFullJavaName());
-//                System.err.println("Searched in classloader " + getTypeSystem().getClassLoader());
-//                e.printStackTrace(System.err);
+                // This is a legitimate use, when users get a SchemaTypeSystem without compiling classes
                 _javaClass = null;
             }
         }
@@ -1749,7 +1736,8 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory {
         return _javaClass;
     }
 
-    public Class getJavaImplClass() {
+    @SuppressWarnings("unchecked")
+    public Class<? extends XmlObjectBase> getJavaImplClass() {
         if (_implNotAvailable) {
             return null;
         }
@@ -1757,7 +1745,7 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory {
         if (_javaImplClass == null) {
             try {
                 if (getFullJavaImplName() != null) {
-                    _javaImplClass = Class.forName(getFullJavaImplName(), false, getTypeSystem().getClassLoader());
+                    _javaImplClass = (Class<? extends XmlObjectBase>) Class.forName(getFullJavaImplName(), false, getTypeSystem().getClassLoader());
                 } else {
                     _implNotAvailable = true;
                 }
@@ -1769,42 +1757,14 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory {
         return _javaImplClass;
     }
 
-    public Class getUserTypeClass() {
-        // This field is declared volatile and Class is immutable so this is allowed.
-        if (_userTypeClass == null && getUserTypeName() != null) {
-            try {
-                _userTypeClass = Class.forName(_userTypeName, false,
-                    getTypeSystem().getClassLoader());
-            } catch (ClassNotFoundException e) {
-                _userTypeClass = null;
-            }
-        }
-
-        return _userTypeClass;
-    }
-
-    public Class getUserTypeHandlerClass() {
-        // This field is declared volatile and Class is immutable so this is allowed.
-        if (_userTypeHandlerClass == null && getUserTypeHandlerName() != null) {
-            try {
-                _userTypeHandlerClass = Class.forName(_userTypeHandler, false,
-                    getTypeSystem().getClassLoader());
-            } catch (ClassNotFoundException e) {
-                _userTypeHandlerClass = null;
-            }
-        }
-
-        return _userTypeHandlerClass;
-    }
-
-    public Constructor getJavaImplConstructor() {
+    public Constructor<? extends XmlObjectBase> getJavaImplConstructor() {
         if (_javaImplConstructor == null && !_implNotAvailable) {
-            final Class impl = getJavaImplClass();
+            final Class<? extends XmlObjectBase> impl = getJavaImplClass();
             if (impl == null) {
                 return null;
             }
             try {
-                _javaImplConstructor = impl.getConstructor(new Class[]{SchemaType.class});
+                _javaImplConstructor = impl.getConstructor(SchemaType.class);
             } catch (NoSuchMethodException e) {
                 e.printStackTrace();
             }
@@ -1814,14 +1774,14 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory {
 
     }
 
-    public Constructor getJavaImplConstructor2() {
+    public Constructor<? extends XmlObjectBase> getJavaImplConstructor2() {
         if (_javaImplConstructor2 == null && !_implNotAvailable) {
-            final Class impl = getJavaImplClass();
+            final Class<? extends XmlObjectBase> impl = getJavaImplClass();
             if (impl == null) {
                 return null;
             }
             try {
-                _javaImplConstructor2 = impl.getDeclaredConstructor(new Class[]{SchemaType.class, boolean.class});
+                _javaImplConstructor2 = impl.getDeclaredConstructor(SchemaType.class, boolean.class);
             } catch (NoSuchMethodException e) {
                 e.printStackTrace();
             }
@@ -1831,12 +1791,14 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory {
 
     }
 
-    public Class getEnumJavaClass() {
+    @SuppressWarnings("unchecked")
+    @Override
+    public Class<? extends StringEnumAbstractBase> getEnumJavaClass() {
         // This field is declared volatile and Class is immutable so this is allowed.
         if (_javaEnumClass == null) {
             if (getBaseEnumType() != null) {
                 try {
-                    _javaEnumClass = Class.forName(getBaseEnumType().getFullJavaName() + "$Enum", false, getTypeSystem().getClassLoader());
+                    _javaEnumClass = (Class<? extends StringEnumAbstractBase>) Class.forName(getBaseEnumType().getFullJavaName() + "$Enum", false, getTypeSystem().getClassLoader());
                 } catch (ClassNotFoundException e) {
                     _javaEnumClass = null;
                 }
@@ -1846,7 +1808,7 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory {
         return _javaEnumClass;
     }
 
-    public void setJavaClass(Class javaClass) {
+    public void setJavaClass(Class<? extends XmlObject> javaClass) {
         assertResolved();
         _javaClass = javaClass;
         setFullJavaName(javaClass.getName());
@@ -1863,8 +1825,7 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory {
 
     public XmlObject createUnwrappedNode() {
         // Todo: attach a new xml store!
-        XmlObject result = createUnattachedNode(null);
-        return result;
+        return createUnattachedNode(null);
     }
 
     /**
@@ -1918,11 +1879,10 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory {
 
         if (!isBuiltinType() && !isNoType()) {
             // System.out.println("Attempting to load impl class: " + getFullJavaImplName());
-            Constructor ctr = getJavaImplConstructor();
+            Constructor<? extends XmlObjectBase> ctr = getJavaImplConstructor();
             if (ctr != null) {
                 try {
-                    // System.out.println("Succeeded!");
-                    return (XmlObject) ctr.newInstance(_ctrArgs);
+                    return ctr.newInstance(_ctrArgs);
                 } catch (Exception e) {
                     System.out.println("Exception trying to instantiate impl class.");
                     e.printStackTrace();
@@ -1944,14 +1904,13 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory {
     private XmlObject createUnattachedSubclass(SchemaType sType) {
         if (!isBuiltinType() && !isNoType()) {
             // System.out.println("Attempting to load impl class: " + getFullJavaImplName());
-            Constructor ctr = getJavaImplConstructor2();
+            Constructor<? extends XmlObjectBase> ctr = getJavaImplConstructor2();
             if (ctr != null) {
                 boolean accessible = ctr.isAccessible();
                 try {
                     ctr.setAccessible(true);
-                    // System.out.println("Succeeded!");
                     try {
-                        return (XmlObject) ctr.newInstance(new Object[]{sType, sType.isSimpleType() ? Boolean.FALSE : Boolean.TRUE});
+                        return ctr.newInstance(sType, !sType.isSimpleType());
                     } catch (Exception e) {
                         System.out.println("Exception trying to instantiate impl class.");
                         e.printStackTrace();
@@ -1959,7 +1918,7 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory {
                         // Make a best-effort try to set the accessibility back to what it was
                         try {
                             ctr.setAccessible(accessible);
-                        } catch (SecurityException se) {
+                        } catch (SecurityException ignored) {
                         }
                     }
                 } catch (Exception e) {
@@ -2210,10 +2169,7 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory {
         while (sImpl2.getBaseDepth() > sImpl1.getBaseDepth()) {
             sImpl2 = (SchemaTypeImpl) sImpl2.getBaseType();
         }
-        for (; ; ) {
-            if (sImpl1.equals(sImpl2)) {
-                break;
-            }
+        while (!sImpl1.equals(sImpl2)) {
             sImpl1 = (SchemaTypeImpl) sImpl1.getBaseType();
             sImpl2 = (SchemaTypeImpl) sImpl2.getBaseType();
             assert (sImpl1 != null && sImpl2 != null); // must meet at anyType
@@ -2232,8 +2188,8 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory {
 
         if (getSimpleVariety() == UNION) {
             SchemaType[] members = getUnionMemberTypes();
-            for (int i = 0; i < members.length; i++) {
-                if (members[i].isAssignableFrom(type)) {
+            for (SchemaType member : members) {
+                if (member.isAssignableFrom(type)) {
                     return true;
                 }
             }
@@ -2337,7 +2293,7 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory {
         return _redefinition;
     }
 
-    private SchemaType.Ref _selfref = new SchemaType.Ref(this);
+    private final SchemaType.Ref _selfref = new SchemaType.Ref(this);
 
     public SchemaType.Ref getRef() {
         return _selfref;
@@ -2351,7 +2307,7 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory {
      * Gives access to the internals of element validation
      */
     private static class SequencerImpl implements SchemaTypeElementSequencer {
-        private SchemaTypeVisitorImpl _visitor;
+        private final SchemaTypeVisitorImpl _visitor;
 
         private SequencerImpl(SchemaTypeVisitorImpl visitor) {
             _visitor = visitor;
@@ -2396,8 +2352,7 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory {
         QNameSetBuilder qnsb = new QNameSetBuilder(wildcardSet);
         SchemaProperty[] props = this.getElementProperties();
 
-        for (int i = 0; i < props.length; i++) {
-            SchemaProperty prop = props[i];
+        for (SchemaProperty prop : props) {
             qnsb.remove(prop.getName());
         }
 
@@ -2441,8 +2396,7 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory {
 
         SchemaProperty[] props = this.getAttributeProperties();
 
-        for (int i = 0; i < props.length; i++) {
-            SchemaProperty prop = props[i];
+        for (SchemaProperty prop : props) {
             qnsb.remove(prop.getName());
         }
 
