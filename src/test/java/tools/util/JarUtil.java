@@ -14,47 +14,31 @@
  */
 package tools.util;
 
-import java.io.BufferedReader;
 import java.io.*;
-import java.net.JarURLConnection;
-import java.net.URL;
-import java.net.URLConnection;
-import java.nio.charset.Charset;
-import java.util.jar.JarFile;
-import java.util.jar.JarEntry;
+import java.nio.charset.StandardCharsets;
 
 /**
  * A utility class for getting data from jar files
  */
 public class JarUtil {
 
-    final static String EOL = System.getProperty("line.separator");
-
     /**
      * returns an File Object within the given jarFile as a String. jarFile must exist in classpath
      * pre: jar containing resource is in the classpath
-     *
-     * @param pathToResource
-     * @return File
      */
     public static File getResourceFromJarasFile(String pathToResource)
-            throws IOException {
+        throws IOException {
 
         String[] tokens = pathToResource.split("/");
         String fileName = tokens[tokens.length - 1];
         tokens = fileName.split("\\.");
-        String extension= (tokens.length < 2) ? null:"." + tokens[1];
-        String prefix= ( tokens[0].length()<3 ) ? tokens[0]+"abc":tokens[0];
-        File temp = File.createTempFile(prefix,extension );
+        String extension = (tokens.length < 2) ? null : "." + tokens[1];
+        String prefix = (tokens[0].length() < 3) ? tokens[0] + "abc" : tokens[0];
+        File temp = File.createTempFile(prefix, extension);
         temp.deleteOnExit();
-        PrintWriter pr = null;
-        try {
-            pr = new PrintWriter(new FileWriter(temp));
+        try (PrintWriter pr = new PrintWriter(new FileWriter(temp))) {
             String content = getResourceFromJar(pathToResource);
             pr.write(content);
-        }
-        finally {
-            if (pr != null) pr.close();
         }
         return temp;
     }
@@ -62,18 +46,14 @@ public class JarUtil {
 
     /**
      * returns the resource as String
-     *
-     * @param pathToResource
-     * @return String
      */
-
     public static String getResourceFromJar(String pathToResource)
-            throws IOException {
+        throws IOException {
 
         BufferedReader in = null;
         try {
             InputStream is = getResourceFromJarasStream(pathToResource);
-            in = new BufferedReader(new InputStreamReader(is, Charset.forName("UTF-8")));
+            in = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8));
             StringBuilder sb = new StringBuilder();
             char[] buf = new char[1024];
             for (int readChr; (readChr = in.read(buf)) > -1; ) {
@@ -89,18 +69,15 @@ public class JarUtil {
 
     /**
      * returns an item within the given jarFile as a Stream
-     *
-     * @param pathToResource
-     * @return String
      */
 
     public static InputStream getResourceFromJarasStream(String pathToResource)
-            throws IOException {
-         InputStream resource=ClassLoader.getSystemClassLoader().getResourceAsStream(
-                pathToResource);
-        if ( resource==null ){
-            throw new IOException(" Resource "+pathToResource+" was not found. " +
-                    "Make sure Jar w/ resource is on classpath");
+        throws IOException {
+        InputStream resource = ClassLoader.getSystemClassLoader().getResourceAsStream(
+            pathToResource);
+        if (resource == null) {
+            throw new IOException(" Resource " + pathToResource + " was not found. " +
+                                  "Make sure Jar w/ resource is on classpath");
         }
         return resource;
     }
