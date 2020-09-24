@@ -25,8 +25,8 @@ import java.nio.charset.StandardCharsets;
 public final class HexBin {
     static private final int BASELENGTH = 255;
     static private final int LOOKUPLENGTH = 16;
-    static private byte[] hexNumberTable = new byte[BASELENGTH];
-    static private byte[] lookUpHexAlphabet = new byte[LOOKUPLENGTH];
+    static private final byte[] hexNumberTable = new byte[BASELENGTH];
+    static private final byte[] lookUpHexAlphabet = new byte[LOOKUPLENGTH];
 
 
     static {
