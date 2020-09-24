@@ -28,6 +28,8 @@ import javax.xml.namespace.QName;
 import java.io.PrintStream;
 import java.util.Map;
 
+import static org.apache.xmlbeans.impl.values.TypeStore.WS_PRESERVE;
+
 // DOM Level 3
 
 
@@ -2303,7 +2305,7 @@ public final class Cur {
     String getCharsAsString() {
         assert isNormal() && _xobj != null;
 
-        return getCharsAsString(Locale.WS_PRESERVE);
+        return getCharsAsString(WS_PRESERVE);
     }
 
     String getCharsAsString(int wsr) {
@@ -3190,8 +3192,8 @@ public final class Cur {
         private final boolean _stripWhitespace;
         private final boolean _stripComments;
         private final boolean _stripProcinsts;
-        private final Map<String,String> _substituteNamespaces;
-        private final Map<String,String> _additionalNamespaces;
+        private final Map<String, String> _substituteNamespaces;
+        private final Map<String, String> _additionalNamespaces;
 
         private String _doctypeName;
         private String _doctypePublicId;

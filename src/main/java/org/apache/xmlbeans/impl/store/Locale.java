@@ -21,8 +21,6 @@ import org.apache.xmlbeans.impl.common.*;
 import org.apache.xmlbeans.impl.store.Cur.Locations;
 import org.apache.xmlbeans.impl.store.DomImpl.Dom;
 import org.apache.xmlbeans.impl.store.Saaj.SaajCallback;
-import org.apache.xmlbeans.impl.values.TypeStore;
-import org.apache.xmlbeans.xml.stream.XMLEvent;
 import org.w3c.dom.*;
 import org.xml.sax.*;
 import org.xml.sax.ext.DeclHandler;
@@ -40,6 +38,9 @@ import java.lang.ref.ReferenceQueue;
 import java.lang.ref.SoftReference;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
+
+import static org.apache.xmlbeans.impl.values.TypeStore.*;
 
 public final class Locale
     implements DOMImplementation, SaajCallback, XmlLocale {
@@ -51,11 +52,6 @@ public final class Locale
     static final int COMMENT = Cur.COMMENT;
     static final int PROCINST = Cur.PROCINST;
     static final int TEXT = Cur.TEXT;
-
-    static final int WS_UNSPECIFIED = TypeStore.WS_UNSPECIFIED;
-    static final int WS_PRESERVE = TypeStore.WS_PRESERVE;
-    static final int WS_REPLACE = TypeStore.WS_REPLACE;
-    static final int WS_COLLAPSE = TypeStore.WS_COLLAPSE;
 
     static final String _xsi = "http://www.w3.org/2001/XMLSchema-instance";
     static final String _schema = "http://www.w3.org/2001/XMLSchema";
@@ -286,15 +282,7 @@ public final class Locale
             return false;
         }
 
-        if (n1.getNamespaceURI() == n2.getNamespaceURI()) {
-            return true;
-        }
-
-        if (n1.getNamespaceURI() == null || n2.getNamespaceURI() == null) {
-            return false;
-        }
-
-        return n1.getNamespaceURI().equals(n2.getNamespaceURI());
+        return Objects.equals(n1.getNamespaceURI(), n2.getNamespaceURI());
     }
 
     private static void addNamespace(StringBuffer sb, QName name) {
@@ -341,12 +329,12 @@ public final class Locale
                         sb.append(" got ");
                         addNamespace(sb, name);
                     } else if (namespacesSame(docElemName, name)) {
-                        sb.append(": document element local name mismatch ");
-                        sb.append("expected " + docElemName.getLocalPart());
-                        sb.append(" got " + name.getLocalPart());
+                        sb.append(": document element local name mismatch expected ")
+                            .append(docElemName.getLocalPart())
+                            .append(" got ")
+                            .append(name.getLocalPart());
                     } else {
-                        sb.append(": document element mismatch ");
-                        sb.append("got ");
+                        sb.append(": document element mismatch got ");
                         sb.append(QNameHelper.pretty(name));
                     }
                 }
@@ -448,8 +436,6 @@ public final class Locale
 
             // Move to next token
 
-            assert k != ATTR;
-
             if (k != TEXT) {
                 start.toEnd();
             }
@@ -521,7 +507,7 @@ public final class Locale
 
     public static DOMImplementation newDomImplementation(SchemaTypeLoader stl,
                                                          XmlOptions options) {
-        return (DOMImplementation) getLocale(stl, options);
+        return getLocale(stl, options);
     }
 
     //
@@ -566,9 +552,8 @@ public final class Locale
 
     Cur parse(String s, SchemaType type, XmlOptions options)
         throws XmlException {
-        Reader r = new StringReader(s);
 
-        try {
+        try (Reader r = new StringReader(s)) {
             Cur c = getSaxLoader(options).load(this, new InputSource(r),
                 options);
 
@@ -579,11 +564,6 @@ public final class Locale
             assert false : "StringReader should not throw IOException";
 
             throw new XmlException(e.getMessage(), e);
-        } finally {
-            try {
-                r.close();
-            } catch (IOException e) {
-            }
         }
     }
 
@@ -638,14 +618,6 @@ public final class Locale
         c.release();
 
         return x;
-    }
-
-    private static void lineNumber(XMLEvent xe, LoadContext context) {
-        org.apache.xmlbeans.xml.stream.Location loc = xe.getLocation();
-
-        if (loc != null) {
-            context.lineNumber(loc.getLineNumber(), loc.getColumnNumber(), -1);
-        }
     }
 
     private static void lineNumber(XMLStreamReader xsr, LoadContext context) {
@@ -1037,7 +1009,7 @@ public final class Locale
     //
     //
 
-    private class XmlSaxHandlerImpl
+    private static class XmlSaxHandlerImpl
         extends SaxHandler
         implements XmlSaxHandler {
         XmlSaxHandlerImpl(Locale l, SchemaType type, XmlOptions options) {
@@ -1096,8 +1068,8 @@ public final class Locale
             }
         }
 
-        private SchemaType _type;
-        private XmlOptions _options;
+        private final SchemaType _type;
+        private final XmlOptions _options;
     }
 
     public static XmlSaxHandler newSaxHandler(SchemaTypeLoader stl,
@@ -1163,7 +1135,7 @@ public final class Locale
 
     static private class DocProps
         extends XmlDocumentProperties {
-        private HashMap _map = new HashMap();
+        private final HashMap<Object, Object> _map = new HashMap<>();
 
         public Object put(Object key, Object value) {
             return _map.put(key, value);
@@ -1182,7 +1154,6 @@ public final class Locale
         c.push();
 
         while (c.toParent()) {
-            ;
         }
 
         DocProps props = (DocProps) c.getBookmark(DocProps.class);
@@ -1305,7 +1276,7 @@ public final class Locale
                     return processWhiteSpaceRule(s, wsr);
                 }
             }
-        } else if (wsr == Locale.WS_COLLAPSE) {
+        } else if (wsr == WS_COLLAPSE) {
             if (CharUtil.isWhiteSpace(s.charAt(0)) ||
                 CharUtil.isWhiteSpace(s.charAt(l - 1))) {
                 return processWhiteSpaceRule(s, wsr);
@@ -1352,7 +1323,7 @@ public final class Locale
                 return;
             }
 
-            if (_wsr == Locale.WS_PRESERVE) {
+            if (_wsr == WS_PRESERVE) {
                 CharUtil.getString(_sb, src, off, cch);
                 return;
             }
@@ -1384,7 +1355,7 @@ public final class Locale
 
                     start = i + 1;
 
-                    if (_wsr == Locale.WS_REPLACE) {
+                    if (_wsr == WS_REPLACE) {
                         _sb.append(' ');
                     } else if (_state == NOSPACE_STATE) {
                         _state = SPACE_SEEN_STATE;
@@ -1414,26 +1385,22 @@ public final class Locale
         private int _wsr;
 
         private char[] _srcBuf = new char[1024];
-        private StringBuffer _sb;
+        private final StringBuffer _sb;
     }
 
-    private static ThreadLocal tl_scrubBuffer =
-        new ThreadLocal() {
-            protected Object initialValue() {
-                return new SoftReference(new ScrubBuffer());
-            }
-        };
+    private static final ThreadLocal<SoftReference<ScrubBuffer>> tl_scrubBuffer =
+        ThreadLocal.withInitial(() -> new SoftReference<>(new ScrubBuffer()));
 
     public static void clearThreadLocals() {
         tl_scrubBuffer.remove();
     }
 
     static ScrubBuffer getScrubBuffer(int wsr) {
-        SoftReference softRef = (SoftReference) tl_scrubBuffer.get();
-        ScrubBuffer scrubBuffer = (ScrubBuffer) (softRef).get();
+        SoftReference<ScrubBuffer> softRef = tl_scrubBuffer.get();
+        ScrubBuffer scrubBuffer = softRef.get();
         if (scrubBuffer == null) {
             scrubBuffer = new ScrubBuffer();
-            tl_scrubBuffer.set(new SoftReference(scrubBuffer));
+            tl_scrubBuffer.set(new SoftReference<>(scrubBuffer));
         }
 
         scrubBuffer.init(wsr);
@@ -1756,14 +1723,10 @@ public final class Locale
         return false;
     }
 
-    static void applyNamespaces(Cur c, Map namespaces) {
+    static void applyNamespaces(Cur c, Map<String, String> namespaces) {
         assert c.isContainer();
 
-        java.util.Iterator i = namespaces.keySet().iterator();
-
-        while (i.hasNext()) {
-            String prefix = (String) i.next();
-
+        for (String prefix : namespaces.keySet()) {
             // Usually, this is the predefined xml namespace
             if (!prefix.toLowerCase().startsWith("xml")) {
                 if (c.namespaceForPrefix(prefix, false) == null) {
@@ -1773,7 +1736,7 @@ public final class Locale
                     c.createAttr(c._locale.createXmlns(prefix));
                     c.next();
 
-                    c.insertString((String) namespaces.get(prefix));
+                    c.insertString(namespaces.get(prefix));
 
                     c.pop();
                 }

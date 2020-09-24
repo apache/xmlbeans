@@ -133,7 +133,7 @@ public abstract class JavaHexBinaryHolder extends XmlObjectBase {
         }
 
         byte[] res = md5.digest(_value);
-        return hashcode = res[0] << 24 + res[1] << 16 + res[2] << 8 + res[3];
+        return hashcode = (res[0] << 24) | (res[1] << 16) | (res[2] << 8) | res[3];
     }
 
 }

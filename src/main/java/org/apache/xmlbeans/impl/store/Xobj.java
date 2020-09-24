@@ -1114,7 +1114,7 @@ abstract class Xobj implements TypeStore {
 
         Object src = getChars(p, cch);
 
-        if (wsr == Locale.WS_PRESERVE) {
+        if (wsr == WS_PRESERVE) {
             return CharUtil.getString(src, _locale._offSrc, _locale._cchSrc);
         }
 
@@ -1130,20 +1130,18 @@ abstract class Xobj implements TypeStore {
         if (offset == posMax()) {
             offset = -1;
         }
-        return getCharsAsString(offset, cch,
-            Locale.WS_PRESERVE);
+        return getCharsAsString(offset, cch, WS_PRESERVE);
     }
 
     String getCharsValueAsString(int off, int cch) {
-        return getCharsAsString(off + 1, cch,
-            Locale.WS_PRESERVE);
+        return getCharsAsString(off + 1, cch, WS_PRESERVE);
     }
 
     String getValueAsString(int wsr) {
         if (!hasChildren()) {
             Object src = getFirstChars();
 
-            if (wsr == Locale.WS_PRESERVE) {
+            if (wsr == WS_PRESERVE) {
                 String s = CharUtil.getString(src, _locale._offSrc, _locale._cchSrc);
 
                 // Cache string to be able to use it later again
@@ -1200,7 +1198,7 @@ abstract class Xobj implements TypeStore {
     }
 
     String getValueAsString() {
-        return getValueAsString(Locale.WS_PRESERVE);
+        return getValueAsString(WS_PRESERVE);
     }
 
     // Returns just chars just after the begin tag ... does not get all the text if there are
@@ -1537,7 +1535,7 @@ abstract class Xobj implements TypeStore {
         // when I make the store capable of handling strong simple types this
         // can be done ...
 
-        String value = getValueAsString(Locale.WS_COLLAPSE);
+        String value = getValueAsString(WS_COLLAPSE);
 
         String prefix, localname;
 
@@ -1930,7 +1928,7 @@ abstract class Xobj implements TypeStore {
                 return false;
             }
 
-            String value = a.getValueAsString(Locale.WS_COLLAPSE);
+            String value = a.getValueAsString(WS_COLLAPSE);
 
             return value.equals("true") || value.equals("1");
         } finally {
@@ -1989,17 +1987,17 @@ abstract class Xobj implements TypeStore {
     public <T extends XmlObject> void find_all_element_users(QName name, List<T> fillMeUp) {
         for (Xobj x = _firstChild; x != null; x = x._nextSibling) {
             if (x.isElem() && x._name.equals(name)) {
-                fillMeUp.add((T)x.getUser());
+                fillMeUp.add((T) x.getUser());
             }
         }
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    public <T extends XmlObject>  void find_all_element_users(QNameSet names, List<T> fillMeUp) {
+    public <T extends XmlObject> void find_all_element_users(QNameSet names, List<T> fillMeUp) {
         for (Xobj x = _firstChild; x != null; x = x._nextSibling) {
             if (x.isElem() && names.contains(x._name)) {
-                fillMeUp.add((T)x.getUser());
+                fillMeUp.add((T) x.getUser());
             }
         }
     }
@@ -2345,9 +2343,9 @@ abstract class Xobj implements TypeStore {
             find_all_element_users(elementName, elementsUser);
 
             List<Xobj> elements = elementsUser.stream()
-                .map(x -> (TypeStoreUser)x)
+                .map(x -> (TypeStoreUser) x)
                 .map(TypeStoreUser::get_store)
-                .map(x -> (Xobj)x)
+                .map(x -> (Xobj) x)
                 .collect(Collectors.toList());
 
             assert elements.size() == n;
