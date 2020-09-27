@@ -24,6 +24,7 @@ import org.apache.xmlbeans.impl.util.XsTypeConverter;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.math.RoundingMode;
 
 public class JavaDecimalHolder extends XmlObjectBase {
     public SchemaType schemaType() {
@@ -133,7 +134,7 @@ public class JavaDecimalHolder extends XmlObjectBase {
      */
     protected int value_hash_code() {
         if (_value.scale() > 0) {
-            if (_value.setScale(0, BigDecimal.ROUND_DOWN).compareTo(_value) != 0) {
+            if (_value.setScale(0, RoundingMode.DOWN).compareTo(_value) != 0) {
                 return decimalHashCode();
             }
         }

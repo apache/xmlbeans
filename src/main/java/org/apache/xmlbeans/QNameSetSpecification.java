@@ -16,19 +16,17 @@
 package org.apache.xmlbeans;
 
 import javax.xml.namespace.QName;
-
 import java.util.Set;
 
 /**
  * Represents a lattice of finite and infinite sets of QNames.
- * 
+ *
  * @see QNameSet
  */
-public interface QNameSetSpecification
-{
+public interface QNameSetSpecification {
     /**
      * True if the set contains the given QName.
-     *
+     * <p>
      * Roughly equivalent to:
      *    (includedURIs() == null ?
      *           excludedURIs().contains(namespace) :
@@ -51,9 +49,9 @@ public interface QNameSetSpecification
 
     /**
      * True if the parameter is a subset of this set.
-     */ 
+     */
     boolean containsAll(QNameSetSpecification set);
-    
+
     /**
      * True if is disjoint from the specified set.
      */
@@ -88,7 +86,7 @@ public interface QNameSetSpecification
      * <p>
      * The same set as inverse().includedURIs().
      */
-    Set excludedURIs();
+    Set<String> excludedURIs();
 
     /**
      * The finite set of namespace URIs that are almost completely included in
@@ -101,7 +99,7 @@ public interface QNameSetSpecification
      * <p>
      * The same as inverse.excludedURIs().
      */
-    Set includedURIs();
+    Set<String> includedURIs();
 
     /**
      * The finite set of QNames that are excluded from the set within namespaces
@@ -113,7 +111,7 @@ public interface QNameSetSpecification
      * <p>
      * The same set as inverse().includedQNames().
      */
-    Set excludedQNamesInIncludedURIs();
+    Set<QName> excludedQNamesInIncludedURIs();
 
     /**
      * The finite set of QNames that are included in the set within namespaces
@@ -125,5 +123,5 @@ public interface QNameSetSpecification
      * <p>
      * The same as inverse().excludedQNames().
      */
-    Set includedQNamesInExcludedURIs();
+    Set<QName> includedQNamesInExcludedURIs();
 }

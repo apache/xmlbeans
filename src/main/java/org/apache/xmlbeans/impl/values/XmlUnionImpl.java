@@ -224,12 +224,12 @@ public class XmlUnionImpl extends XmlObjectBase implements XmlAnySimpleType {
         return _value == null ? null : ((SimpleValue) _value).getQNameValue();
     }
 
-    public List getListValue() {
+    public List<?> getListValue() {
         check_dated();
         return _value == null ? null : ((SimpleValue) _value).getListValue();
     }
 
-    public List xgetListValue() {
+    public List<? extends XmlAnySimpleType> xgetListValue() {
         check_dated();
         return _value == null ? null : ((SimpleValue) _value).xgetListValue();
     }

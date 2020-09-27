@@ -34,8 +34,12 @@ import java.io.*;
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.function.BiConsumer;
+import java.util.function.Function;
+import java.util.function.IntFunction;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -155,7 +159,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
         XBeanDebug.trace(XBeanDebug.TRACE_SCHEMA_LOADING, "Finished loading type system " + _name, -1);
     }
 
-    public SchemaTypeSystemImpl(Class indexclass) {
+    public SchemaTypeSystemImpl(Class<?> indexclass) {
         String fullname = indexclass.getName();
         _name = fullname.substring(0, fullname.lastIndexOf('.'));
         XBeanDebug.trace(XBeanDebug.TRACE_SCHEMA_LOADING, "Loading type system " + _name, 1);
@@ -165,10 +169,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
         _resourceLoader = new ClassLoaderResourceLoader(_classloader);
         try {
             initFromHeader();
-        } catch (RuntimeException e) {
-            XBeanDebug.logException(e);
-            throw e;
-        } catch (Error e) {
+        } catch (RuntimeException | Error e) {
             XBeanDebug.logException(e);
             throw e;
         }
@@ -194,7 +195,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
 
     public static SchemaTypeSystemImpl forName(String name, ClassLoader loader) {
         try {
-            Class c = Class.forName(name + "." + SchemaTypeCodePrinter.INDEX_CLASSNAME, true, loader);
+            Class<?> c = Class.forName(name + "." + SchemaTypeCodePrinter.INDEX_CLASSNAME, true, loader);
             return (SchemaTypeSystemImpl) c.getField("typeSystem").get(null);
         } catch (Throwable e) {
             return null;
@@ -208,10 +209,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
         _resourceLoader = resourceLoader;
         try {
             initFromHeader();
-        } catch (RuntimeException e) {
-            XBeanDebug.logException(e);
-            throw e;
-        } catch (Error e) {
+        } catch (RuntimeException | Error e) {
             XBeanDebug.logException(e);
             throw e;
         }
@@ -257,9 +255,9 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
             _namespaces = reader.readNamespaces();
 
             // support for redefine, at the end of the file
-            List typeNames = new ArrayList();
-            List modelGroupNames = new ArrayList();
-            List attributeGroupNames = new ArrayList();
+            List<QName> typeNames = new ArrayList<>();
+            List<QName> modelGroupNames = new ArrayList<>();
+            List<QName> attributeGroupNames = new ArrayList<>();
             if (reader.atLeast(2, 15, 0)) {
                 _redefinedGlobalTypes = reader.readQNameRefMapAsList(typeNames);
                 _redefinedModelGroups = reader.readQNameRefMapAsList(modelGroupNames);
@@ -301,21 +299,19 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
     }
 
     void savePointersForComponents(SchemaComponent[] components, String dir) {
-        for (int i = 0; i < components.length; i++) {
-            savePointerFile(dir + QNameHelper.hexsafedir(components[i].getName()), _name);
+        for (SchemaComponent component : components) {
+            savePointerFile(dir + QNameHelper.hexsafedir(component.getName()), _name);
         }
     }
 
-    void savePointersForClassnames(Set classnames, String dir) {
-        for (Iterator i = classnames.iterator(); i.hasNext(); ) {
-            String classname = (String) i.next();
+    void savePointersForClassnames(Set<String> classnames, String dir) {
+        for (String classname : classnames) {
             savePointerFile(dir + classname.replace('.', '/'), _name);
         }
     }
 
-    void savePointersForNamespaces(Set namespaces, String dir) {
-        for (Iterator i = namespaces.iterator(); i.hasNext(); ) {
-            String ns = (String) i.next();
+    void savePointersForNamespaces(Set<String> namespaces, String dir) {
+        for (String ns : namespaces) {
             savePointerFile(dir + QNameHelper.hexsafedir(new QName(ns, "xmlns")), _name);
         }
     }
@@ -446,7 +442,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
 
     // constant pool entry types
     private static final int CONSTANT_UTF8 = 1;
-    private static final int CONSTANT_UNICODE = 2;
+    // private static final int CONSTANT_UNICODE = 2;
     private static final int CONSTANT_INTEGER = 3;
     private static final int CONSTANT_FLOAT = 4;
     private static final int CONSTANT_LONG = 5;
@@ -491,72 +487,64 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
         return result;
     }
 
-    /**
-     * Only used in the nonbootstrapped case.
-     */
-    private Map buildTypeRefsByClassname() {
-        List allSeenTypes = new ArrayList();
-        Map result = new LinkedHashMap();
-        allSeenTypes.addAll(Arrays.asList(documentTypes()));
-        allSeenTypes.addAll(Arrays.asList(attributeTypes()));
-        allSeenTypes.addAll(Arrays.asList(globalTypes()));
-
-        // now fully javaize everything deeply.
-        for (int i = 0; i < allSeenTypes.size(); i++) {
-            SchemaType gType = (SchemaType) allSeenTypes.get(i);
-            String className = gType.getFullJavaName();
-            if (className != null) {
-                result.put(className.replace('$', '.'), gType.getRef());
-            }
-            allSeenTypes.addAll(Arrays.asList(gType.getAnonymousTypes()));
+    private Map<String, SchemaComponent.Ref> buildTypeRefsByClassname(Map<String, SchemaType> typesByClassname) {
+        Map<String, SchemaComponent.Ref> result = new LinkedHashMap<>();
+        for (String className : typesByClassname.keySet()) {
+            result.put(className, typesByClassname.get(className).getRef());
         }
         return result;
     }
 
-    private Map buildTypeRefsByClassname(Map typesByClassname) {
-        Map result = new LinkedHashMap();
-        for (Iterator i = typesByClassname.keySet().iterator(); i.hasNext(); ) {
-            String className = (String) i.next();
-            result.put(className, ((SchemaType) typesByClassname.get(className)).getRef());
+    private static Map<QName, SchemaComponent.Ref> buildComponentRefMap(SchemaComponent[] components) {
+        return buildComponentRefMap(Arrays.asList(components));
+    }
+
+    private static Map<QName, SchemaComponent.Ref> buildComponentRefMap(List<? extends SchemaComponent> components) {
+        return components.stream().collect(Collectors.toMap(SchemaComponent::getName, SchemaComponent::getComponentRef,
+            (u, v) -> v, LinkedHashMap::new));
+    }
+
+    private static List<SchemaComponent.Ref> buildComponentRefList(SchemaComponent[] components) {
+        return buildComponentRefList(Arrays.asList(components));
+    }
+
+    private static List<SchemaComponent.Ref> buildComponentRefList(List<? extends SchemaComponent> components) {
+        return components.stream().map(SchemaComponent::getComponentRef).collect(Collectors.toList());
+    }
+
+    private static Map<QName, SchemaComponent.Ref> buildDocumentMap(SchemaType[] types) {
+        return buildDocumentMap(Arrays.asList(types));
+    }
+
+    private static Map<QName, SchemaComponent.Ref> buildDocumentMap(List<? extends SchemaComponent> types) {
+        Map<QName, SchemaComponent.Ref> result = new LinkedHashMap<>();
+        for (SchemaComponent comp : types) {
+            SchemaType type = (SchemaType) comp;
+            result.put(type.getDocumentElementName(), type.getRef());
         }
         return result;
     }
 
-    private static Map buildComponentRefMap(SchemaComponent[] components) {
-        Map result = new LinkedHashMap();
-        for (int i = 0; i < components.length; i++) {
-            result.put(components[i].getName(), components[i].getComponentRef());
+    private static Map<QName, SchemaComponent.Ref> buildAttributeTypeMap(SchemaType[] types) {
+        Map<QName, SchemaComponent.Ref> result = new LinkedHashMap<>();
+        for (SchemaType type : types) {
+            result.put(type.getAttributeTypeAttributeName(), type.getRef());
         }
         return result;
     }
 
-    private static List buildComponentRefList(SchemaComponent[] components) {
-        List result = new ArrayList();
-        for (int i = 0; i < components.length; i++) {
-            result.add(components[i].getComponentRef());
-        }
-        return result;
-    }
-
-    private static Map buildDocumentMap(SchemaType[] types) {
-        Map result = new LinkedHashMap();
-        for (int i = 0; i < types.length; i++) {
-            result.put(types[i].getDocumentElementName(), types[i].getRef());
-        }
-        return result;
-    }
-
-    private static Map buildAttributeTypeMap(SchemaType[] types) {
-        Map result = new LinkedHashMap();
-        for (int i = 0; i < types.length; i++) {
-            result.put(types[i].getAttributeTypeAttributeName(), types[i].getRef());
+    private static Map<QName, SchemaComponent.Ref> buildAttributeTypeMap(List<? extends SchemaComponent> types) {
+        Map<QName, SchemaComponent.Ref> result = new LinkedHashMap<>();
+        for (SchemaComponent comp : types) {
+            SchemaType type = (SchemaType) comp;
+            result.put(type.getAttributeTypeAttributeName(), type.getRef());
         }
         return result;
     }
 
     // Container operation
     private SchemaContainer getContainer(String namespace) {
-        return (SchemaContainer) _containers.get(namespace);
+        return _containers.get(namespace);
     }
 
     private void addContainer(String namespace) {
@@ -574,78 +562,48 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
         return result;
     }
 
+    @SuppressWarnings("unchecked")
+    private <T extends SchemaComponent.Ref> void buildContainersHelper(Map<QName, SchemaComponent.Ref> elements, BiConsumer<SchemaContainer, T> adder) {
+        elements.forEach((k, v) -> adder.accept(getContainerNonNull(k.getNamespaceURI()), (T) v));
+    }
+
+    @SuppressWarnings("unchecked")
+    private <T extends SchemaComponent.Ref> void buildContainersHelper(List<SchemaComponent.Ref> refs, List<QName> names, BiConsumer<SchemaContainer, T> adder) {
+        Iterator<SchemaComponent.Ref> it = refs.iterator();
+        Iterator<QName> itname = names.iterator();
+        while (it.hasNext()) {
+            String ns = itname.next().getNamespaceURI();
+            SchemaContainer sc = getContainerNonNull(ns);
+            adder.accept(sc, (T) it.next());
+        }
+    }
+
     // Only called during init
-    private void buildContainers(List redefTypeNames, List redefModelGroupNames, List redefAttributeGroupNames) {
+    private void buildContainers(List<QName> redefTypeNames, List<QName> redefModelGroupNames, List<QName> redefAttributeGroupNames) {
         // This method walks the reference maps and copies said references
         // into the appropriate container
-        for (Iterator it = _globalElements.entrySet().iterator(); it.hasNext(); ) {
-            Map.Entry entry = (Map.Entry) it.next();
-            String ns = ((QName) entry.getKey()).getNamespaceURI();
-            getContainerNonNull(ns).addGlobalElement((SchemaGlobalElement.Ref) entry.getValue());
-        }
-        for (Iterator it = _globalAttributes.entrySet().iterator(); it.hasNext(); ) {
-            Map.Entry entry = (Map.Entry) it.next();
-            String ns = ((QName) entry.getKey()).getNamespaceURI();
-            getContainerNonNull(ns).addGlobalAttribute((SchemaGlobalAttribute.Ref) entry.getValue());
-        }
-        for (Iterator it = _modelGroups.entrySet().iterator(); it.hasNext(); ) {
-            Map.Entry entry = (Map.Entry) it.next();
-            String ns = ((QName) entry.getKey()).getNamespaceURI();
-            getContainerNonNull(ns).addModelGroup((SchemaModelGroup.Ref) entry.getValue());
-        }
-        for (Iterator it = _attributeGroups.entrySet().iterator(); it.hasNext(); ) {
-            Map.Entry entry = (Map.Entry) it.next();
-            String ns = ((QName) entry.getKey()).getNamespaceURI();
-            getContainerNonNull(ns).addAttributeGroup((SchemaAttributeGroup.Ref) entry.getValue());
-        }
-        for (Iterator it = _identityConstraints.entrySet().iterator(); it.hasNext(); ) {
-            Map.Entry entry = (Map.Entry) it.next();
-            String ns = ((QName) entry.getKey()).getNamespaceURI();
-            getContainerNonNull(ns).addIdentityConstraint((SchemaIdentityConstraint.Ref) entry.getValue());
-        }
-        for (Iterator it = _globalTypes.entrySet().iterator(); it.hasNext(); ) {
-            Map.Entry entry = (Map.Entry) it.next();
-            String ns = ((QName) entry.getKey()).getNamespaceURI();
-            getContainerNonNull(ns).addGlobalType((SchemaType.Ref) entry.getValue());
-        }
-        for (Iterator it = _documentTypes.entrySet().iterator(); it.hasNext(); ) {
-            Map.Entry entry = (Map.Entry) it.next();
-            String ns = ((QName) entry.getKey()).getNamespaceURI();
-            getContainerNonNull(ns).addDocumentType((SchemaType.Ref) entry.getValue());
-        }
-        for (Iterator it = _attributeTypes.entrySet().iterator(); it.hasNext(); ) {
-            Map.Entry entry = (Map.Entry) it.next();
-            String ns = ((QName) entry.getKey()).getNamespaceURI();
-            getContainerNonNull(ns).addAttributeType((SchemaType.Ref) entry.getValue());
-        }
+        buildContainersHelper(_globalElements, SchemaContainer::addGlobalElement);
+        buildContainersHelper(_globalAttributes, SchemaContainer::addGlobalAttribute);
+        buildContainersHelper(_modelGroups, SchemaContainer::addModelGroup);
+        buildContainersHelper(_attributeGroups, SchemaContainer::addAttributeGroup);
+        buildContainersHelper(_identityConstraints, SchemaContainer::addIdentityConstraint);
+        buildContainersHelper(_globalTypes, SchemaContainer::addGlobalType);
+        buildContainersHelper(_attributeTypes, SchemaContainer::addAttributeType);
+
         // Some earlier .xsb versions don't have records for redefinitions
         if (_redefinedGlobalTypes != null && _redefinedModelGroups != null &&
             _redefinedAttributeGroups != null) {
             assert _redefinedGlobalTypes.size() == redefTypeNames.size();
-            for (Iterator it = _redefinedGlobalTypes.iterator(), itname = redefTypeNames.iterator(); it.hasNext(); ) {
-                String ns = ((QName) itname.next()).getNamespaceURI();
-                getContainerNonNull(ns).addRedefinedType((SchemaType.Ref) it.next());
-            }
-            for (Iterator it = _redefinedModelGroups.iterator(), itname = redefModelGroupNames.iterator(); it.hasNext(); ) {
-                String ns = ((QName) itname.next()).getNamespaceURI();
-                getContainerNonNull(ns).addRedefinedModelGroup((SchemaModelGroup.Ref) it.next());
-            }
-            for (Iterator it = _redefinedAttributeGroups.iterator(), itname = redefAttributeGroupNames.iterator(); it.hasNext(); ) {
-                String ns = ((QName) itname.next()).getNamespaceURI();
-                getContainerNonNull(ns).addRedefinedAttributeGroup((SchemaAttributeGroup.Ref) it.next());
-            }
+            buildContainersHelper(_redefinedGlobalTypes, redefTypeNames, SchemaContainer::addRedefinedType);
+            buildContainersHelper(_redefinedModelGroups, redefModelGroupNames, SchemaContainer::addRedefinedModelGroup);
+            buildContainersHelper(_redefinedAttributeGroups, redefAttributeGroupNames, SchemaContainer::addRedefinedAttributeGroup);
         }
         // Some earlier .xsb versions don't have records for annotations
-        if (_annotations != null) {
-            for (Iterator it = _annotations.iterator(); it.hasNext(); ) {
-                SchemaAnnotation ann = (SchemaAnnotation) it.next();
-                // BUGBUG(radup)
-                getContainerNonNull("").addAnnotation(ann);
-            }
+        if (_annotations != null && !_annotations.isEmpty()) {
+            // BUGBUG(radup)
+            _annotations.forEach(getContainerNonNull("")::addAnnotation);
         }
-        for (Iterator it = _containers.values().iterator(); it.hasNext(); ) {
-            ((SchemaContainer) it.next()).setImmutable();
-        }
+        _containers.values().forEach(SchemaContainer::setImmutable);
     }
 
     /**
@@ -657,11 +615,25 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
      * even though they (as well as the typesystem itself) are immutable.
      */
     private void fixupContainers() {
-        for (Iterator it = _containers.values().iterator(); it.hasNext(); ) {
-            SchemaContainer container = (SchemaContainer) it.next();
+        for (SchemaContainer container : _containers.values()) {
             container.setTypeSystem(this);
             container.setImmutable();
         }
+    }
+
+    private void assertContainersHelper(Map<QName, SchemaComponent.Ref> comp, Function<SchemaContainer, List<? extends SchemaComponent>> fun, Function<List<? extends SchemaComponent>, ? extends Map<QName, SchemaComponent.Ref>> fun2) {
+        final Map<QName, SchemaComponent.Ref> temp = _containers.values().stream()
+            .map(fun).map(fun2 == null ? SchemaTypeSystemImpl::buildComponentRefMap : fun2)
+            .map(Map::entrySet).flatMap(Set::stream)
+            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+        assert comp.equals(temp);
+    }
+
+    private void assertContainersHelper(List<? extends SchemaComponent.Ref> comp, Function<SchemaContainer, List<? extends SchemaComponent>> fun) {
+        final Set<SchemaComponent.Ref> temp = _containers.values().stream()
+            .map(fun).map(SchemaTypeSystemImpl::buildComponentRefList)
+            .flatMap(List::stream).collect(Collectors.toSet());
+        assert new HashSet<>(comp).equals(temp);
     }
 
     private void assertContainersSynchronized() {
@@ -672,88 +644,32 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
         if (!assertEnabled) {
             return;
         }
-        // global elements
-        Map temp = new HashMap();
-        for (Iterator it = _containers.values().iterator(); it.hasNext(); ) {
-            temp.putAll(buildComponentRefMap((SchemaComponent[]) ((SchemaContainer) it.next()).globalElements().toArray(new SchemaComponent[0])));
-        }
-        assert _globalElements.equals(temp);
-        // global attributes
-        temp = new HashMap();
-        for (Iterator it = _containers.values().iterator(); it.hasNext(); ) {
-            temp.putAll(buildComponentRefMap((SchemaComponent[]) ((SchemaContainer) it.next()).globalAttributes().toArray(new SchemaComponent[0])));
-        }
-        assert _globalAttributes.equals(temp);
-        // model groups
-        temp = new HashMap();
-        for (Iterator it = _containers.values().iterator(); it.hasNext(); ) {
-            temp.putAll(buildComponentRefMap((SchemaComponent[]) ((SchemaContainer) it.next()).modelGroups().toArray(new SchemaComponent[0])));
-        }
-        assert _modelGroups.equals(temp);
-        // redefined model groups
-        Set temp2 = new HashSet();
-        for (Iterator it = _containers.values().iterator(); it.hasNext(); ) {
-            temp2.addAll(buildComponentRefList((SchemaComponent[]) ((SchemaContainer) it.next()).redefinedModelGroups().toArray(new SchemaComponent[0])));
-        }
-        assert new HashSet(_redefinedModelGroups).equals(temp2);
-        // attribute groups
-        temp = new HashMap();
-        for (Iterator it = _containers.values().iterator(); it.hasNext(); ) {
-            temp.putAll(buildComponentRefMap((SchemaComponent[]) ((SchemaContainer) it.next()).attributeGroups().toArray(new SchemaComponent[0])));
-        }
-        assert _attributeGroups.equals(temp);
-        // redefined attribute groups
-        temp2 = new HashSet();
-        for (Iterator it = _containers.values().iterator(); it.hasNext(); ) {
-            temp2.addAll(buildComponentRefList((SchemaComponent[]) ((SchemaContainer) it.next()).redefinedAttributeGroups().toArray(new SchemaComponent[0])));
-        }
-        assert new HashSet(_redefinedAttributeGroups).equals(temp2);
-        // global types
-        temp = new HashMap();
-        for (Iterator it = _containers.values().iterator(); it.hasNext(); ) {
-            temp.putAll(buildComponentRefMap((SchemaComponent[]) ((SchemaContainer) it.next()).globalTypes().toArray(new SchemaComponent[0])));
-        }
-        assert _globalTypes.equals(temp);
-        // redefined global types
-        temp2 = new HashSet();
-        for (Iterator it = _containers.values().iterator(); it.hasNext(); ) {
-            temp2.addAll(buildComponentRefList((SchemaComponent[]) ((SchemaContainer) it.next()).redefinedGlobalTypes().toArray(new SchemaComponent[0])));
-        }
-        assert new HashSet(_redefinedGlobalTypes).equals(temp2);
-        // document types
-        temp = new HashMap();
-        for (Iterator it = _containers.values().iterator(); it.hasNext(); ) {
-            temp.putAll(buildDocumentMap((SchemaType[]) ((SchemaContainer) it.next()).documentTypes().toArray(new SchemaType[0])));
-        }
-        assert _documentTypes.equals(temp);
-        // attribute types
-        temp = new HashMap();
-        for (Iterator it = _containers.values().iterator(); it.hasNext(); ) {
-            temp.putAll(buildAttributeTypeMap((SchemaType[]) ((SchemaContainer) it.next()).attributeTypes().toArray(new SchemaType[0])));
-        }
-        assert _attributeTypes.equals(temp);
-        // identity constraints
-        temp = new HashMap();
-        for (Iterator it = _containers.values().iterator(); it.hasNext(); ) {
-            temp.putAll(buildComponentRefMap((SchemaComponent[]) ((SchemaContainer) it.next()).identityConstraints().toArray(new SchemaComponent[0])));
-        }
-        assert _identityConstraints.equals(temp);
+
+        assertContainersHelper(_globalElements, SchemaContainer::globalElements, null);
+        assertContainersHelper(_globalAttributes, SchemaContainer::globalAttributes, null);
+        assertContainersHelper(_modelGroups, SchemaContainer::modelGroups, null);
+        assertContainersHelper(_modelGroups, SchemaContainer::modelGroups, null);
+        assertContainersHelper(_redefinedModelGroups, SchemaContainer::redefinedModelGroups);
+        assertContainersHelper(_attributeGroups, SchemaContainer::attributeGroups, null);
+        assertContainersHelper(_redefinedAttributeGroups, SchemaContainer::redefinedAttributeGroups);
+        assertContainersHelper(_globalTypes, SchemaContainer::globalTypes, null);
+        assertContainersHelper(_redefinedGlobalTypes, SchemaContainer::redefinedGlobalTypes);
+        assertContainersHelper(_documentTypes, SchemaContainer::documentTypes, SchemaTypeSystemImpl::buildDocumentMap);
+        assertContainersHelper(_attributeTypes, SchemaContainer::attributeTypes, SchemaTypeSystemImpl::buildAttributeTypeMap);
+        assertContainersHelper(_identityConstraints, SchemaContainer::identityConstraints, null);
+
         // annotations
-        temp2 = new HashSet();
-        for (Iterator it = _containers.values().iterator(); it.hasNext(); ) {
-            temp2.addAll(((SchemaContainer) it.next()).annotations());
-        }
-        assert new HashSet(_annotations).equals(temp2);
+        Set<SchemaAnnotation> temp3 = _containers.values().stream()
+            .map(SchemaContainer::annotations).flatMap(List::stream).collect(Collectors.toSet());
+        assert new HashSet<>(_annotations).equals(temp3);
         // namespaces
-        temp2 = new HashSet();
-        for (Iterator it = _containers.values().iterator(); it.hasNext(); ) {
-            temp2.add(((SchemaContainer) it.next()).getNamespace());
-        }
-        assert _namespaces.equals(temp2);
+        Set<String> temp4 = _containers.values().stream()
+            .map(SchemaContainer::getNamespace).collect(Collectors.toSet());
+        assert _namespaces.equals(temp4);
     }
 
     private static Random _random;
-    private static byte[] _mask = new byte[128 / 8];
+    private static final byte[] _mask = new byte[128 / 8];
 
     /**
      * Fun, fun.  Produce 128 bits of uniqueness randomly.
@@ -792,8 +708,8 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
                 // at least 10 bits of unqieueness, right?  Maybe even 50 or 60.
                 daos.writeInt(System.identityHashCode(SchemaTypeSystemImpl.class));
                 String[] props = new String[]{"user.name", "user.dir", "user.timezone", "user.country", "java.class.path", "java.home", "java.vendor", "java.version", "os.version"};
-                for (int i = 0; i < props.length; i++) {
-                    String prop = SystemProperties.getProperty(props[i]);
+                for (String s : props) {
+                    String prop = SystemProperties.getProperty(s);
                     if (prop != null) {
                         daos.writeUTF(prop);
                         daos.writeInt(System.identityHashCode(prop));
@@ -834,24 +750,6 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
         _classloader = null;
     }
 
-    public void loadFromBuilder(SchemaGlobalElement[] globalElements,
-                                SchemaGlobalAttribute[] globalAttributes,
-                                SchemaType[] globalTypes,
-                                SchemaType[] documentTypes,
-                                SchemaType[] attributeTypes) {
-        assert (_classloader == null);
-        _localHandles = new HandlePool();
-        _globalElements = buildComponentRefMap(globalElements);
-        _globalAttributes = buildComponentRefMap(globalAttributes);
-        _globalTypes = buildComponentRefMap(globalTypes);
-        _documentTypes = buildDocumentMap(documentTypes);
-        _attributeTypes = buildAttributeTypeMap(attributeTypes);
-        _typeRefsByClassname = buildTypeRefsByClassname();
-        buildContainers(Collections.EMPTY_LIST, Collections.EMPTY_LIST,
-            Collections.EMPTY_LIST);
-        _namespaces = new HashSet();
-    }
-
     public void loadFromStscState(StscState state) {
         assert (_classloader == null);
         _localHandles = new HandlePool();
@@ -868,7 +766,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
         _typeRefsByClassname = buildTypeRefsByClassname(state.typesByClassname());
         _identityConstraints = buildComponentRefMap(state.idConstraints());
         _annotations = state.annotations();
-        _namespaces = new HashSet(Arrays.asList(state.getNamespaces()));
+        _namespaces = new HashSet<>(Arrays.asList(state.getNamespaces()));
         _containers = state.getContainerMap();
         fixupContainers();
         // Checks that data in the containers matches the lookup maps
@@ -899,10 +797,10 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
     }
 
     static class StringPool {
-        private List intsToStrings = new ArrayList();
-        private Map stringsToInts = new HashMap();
-        private String _handle;
-        private String _name;
+        private final List<String> intsToStrings = new ArrayList<>();
+        private final Map<String, Integer> stringsToInts = new HashMap<>();
+        private final String _handle;
+        private final String _name;
 
         /**
          * Constructs an empty StringPool to be filled with strings.
@@ -917,20 +815,20 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
             if (str == null) {
                 return 0;
             }
-            Integer result = (Integer) stringsToInts.get(str);
+            Integer result = stringsToInts.get(str);
             if (result == null) {
-                result = new Integer(intsToStrings.size());
+                result = intsToStrings.size();
                 intsToStrings.add(str);
                 stringsToInts.put(str, result);
             }
-            return result.intValue();
+            return result;
         }
 
         String stringForCode(int code) {
             if (code == 0) {
                 return null;
             }
-            return (String) intsToStrings.get(code);
+            return intsToStrings.get(code);
         }
 
         void writeTo(DataOutputStream output) {
@@ -940,10 +838,12 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
 
             try {
                 output.writeShort(intsToStrings.size());
-                Iterator i = intsToStrings.iterator();
-                for (i.next(); i.hasNext(); ) {
-                    String str = (String) i.next();
-                    output.writeUTF(str);
+                boolean isNext = false;
+                for (String str : intsToStrings) {
+                    if (isNext) {
+                        output.writeUTF(str);
+                    }
+                    isNext = true;
                 }
             } catch (IOException e) {
                 throw new SchemaTypeLoaderException(e.getMessage(), _name, _handle, SchemaTypeLoaderException.IO_EXCEPTION, e);
@@ -971,8 +871,9 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
     }
 
     class HandlePool {
-        private Map _handlesToRefs = new LinkedHashMap();
-        private Map _componentsToHandles = new LinkedHashMap(); // populated on write
+        private final Map<String, SchemaComponent.Ref> _handlesToRefs = new LinkedHashMap<>();
+        // populated on write
+        private final Map<SchemaComponent, String> _componentsToHandles = new LinkedHashMap<>();
         private boolean _started;
 
         /**
@@ -1027,7 +928,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
             if (element.getTypeSystem() != getTypeSystem()) {
                 throw new IllegalArgumentException("Cannot supply handles for types from another type system");
             }
-            String handle = (String) _componentsToHandles.get(element);
+            String handle = _componentsToHandles.get(element);
             if (handle == null) {
                 handle = addUniqueHandle(element, NameUtil.upperCamelCase(element.getName().getLocalPart()) + "Element");
             }
@@ -1041,7 +942,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
             if (attribute.getTypeSystem() != getTypeSystem()) {
                 throw new IllegalArgumentException("Cannot supply handles for types from another type system");
             }
-            String handle = (String) _componentsToHandles.get(attribute);
+            String handle = _componentsToHandles.get(attribute);
             if (handle == null) {
                 handle = addUniqueHandle(attribute, NameUtil.upperCamelCase(attribute.getName().getLocalPart()) + "Attribute");
             }
@@ -1055,7 +956,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
             if (group.getTypeSystem() != getTypeSystem()) {
                 throw new IllegalArgumentException("Cannot supply handles for types from another type system");
             }
-            String handle = (String) _componentsToHandles.get(group);
+            String handle = _componentsToHandles.get(group);
             if (handle == null) {
                 handle = addUniqueHandle(group, NameUtil.upperCamelCase(group.getName().getLocalPart()) + "ModelGroup");
             }
@@ -1069,7 +970,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
             if (group.getTypeSystem() != getTypeSystem()) {
                 throw new IllegalArgumentException("Cannot supply handles for types from another type system");
             }
-            String handle = (String) _componentsToHandles.get(group);
+            String handle = _componentsToHandles.get(group);
             if (handle == null) {
                 handle = addUniqueHandle(group, NameUtil.upperCamelCase(group.getName().getLocalPart()) + "AttributeGroup");
             }
@@ -1083,7 +984,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
             if (idc.getTypeSystem() != getTypeSystem()) {
                 throw new IllegalArgumentException("Cannot supply handles for types from another type system");
             }
-            String handle = (String) _componentsToHandles.get(idc);
+            String handle = _componentsToHandles.get(idc);
             if (handle == null) {
                 handle = addUniqueHandle(idc, NameUtil.upperCamelCase(idc.getName().getLocalPart()) + "IdentityConstraint");
             }
@@ -1097,7 +998,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
             if (type.getTypeSystem() != getTypeSystem()) {
                 throw new IllegalArgumentException("Cannot supply handles for types from another type system");
             }
-            String handle = (String) _componentsToHandles.get(type);
+            String handle = _componentsToHandles.get(type);
             if (handle == null) {
                 QName name = type.getName();
                 String suffix = "";
@@ -1133,20 +1034,14 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
                 return null;
             }
 
-            return (SchemaComponent.Ref) _handlesToRefs.get(handle);
-        }
-
-        Set getAllHandles() {
-            return _handlesToRefs.keySet();
+            return _handlesToRefs.get(handle);
         }
 
         void startWriteMode() {
             _started = true;
-            _componentsToHandles = new LinkedHashMap();
-            for (Iterator i = _handlesToRefs.keySet().iterator(); i.hasNext(); ) {
-                String handle = (String) i.next();
-//                System.err.println("Writing preexisting handle " + handle);
-                SchemaComponent comp = ((SchemaComponent.Ref) _handlesToRefs.get(handle)).getComponent();
+            _componentsToHandles.clear();
+            for (String handle : _handlesToRefs.keySet()) {
+                SchemaComponent comp = _handlesToRefs.get(handle).getComponent();
                 _componentsToHandles.put(comp, handle);
             }
         }
@@ -1154,7 +1049,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
     }
 
     private final String _name;
-    private String _basePackage;
+    private final String _basePackage;
 
     // EXPERIMENTAL: recovery from compilation errors and partial type systems
     private boolean _incomplete = false;
@@ -1172,28 +1067,28 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
     private Filer _filer;
 
     // top-level annotations
-    private List _annotations;
+    private List<SchemaAnnotation> _annotations;
 
     // container
-    private Map _containers = new HashMap();
+    private Map<String, SchemaContainer> _containers = new HashMap<>();
     // dependencies
     private SchemaDependencies _deps;
 
-    private List _redefinedModelGroups;
-    private List _redefinedAttributeGroups;
-    private List _redefinedGlobalTypes;
+    private List<SchemaComponent.Ref> _redefinedModelGroups;
+    private List<SchemaComponent.Ref> _redefinedAttributeGroups;
+    private List<SchemaComponent.Ref> _redefinedGlobalTypes;
 
     // actual type system data, map QNames -> SchemaComponent.Ref
-    private Map _globalElements;
-    private Map _globalAttributes;
-    private Map _modelGroups;
-    private Map _attributeGroups;
-    private Map _globalTypes;
-    private Map _documentTypes;
-    private Map _attributeTypes;
-    private Map _identityConstraints = Collections.EMPTY_MAP;
-    private Map _typeRefsByClassname = new HashMap();
-    private Set _namespaces;
+    private Map<QName, SchemaComponent.Ref> _globalElements;
+    private Map<QName, SchemaComponent.Ref> _globalAttributes;
+    private Map<QName, SchemaComponent.Ref> _modelGroups;
+    private Map<QName, SchemaComponent.Ref> _attributeGroups;
+    private Map<QName, SchemaComponent.Ref> _globalTypes;
+    private Map<QName, SchemaComponent.Ref> _documentTypes;
+    private Map<QName, SchemaComponent.Ref> _attributeTypes;
+    private Map<QName, SchemaComponent.Ref> _identityConstraints = Collections.emptyMap();
+    private Map<String, SchemaComponent.Ref> _typeRefsByClassname = new HashMap<>();
+    private Set<String> _namespaces;
 
     static private final SchemaType[] EMPTY_ST_ARRAY = new SchemaType[0];
     static private final SchemaGlobalElement[] EMPTY_GE_ARRAY = new SchemaGlobalElement[0];
@@ -1238,12 +1133,12 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
     }
 
     void saveTypesRecursively(SchemaType[] types) {
-        for (int i = 0; i < types.length; i++) {
-            if (types[i].getTypeSystem() != getTypeSystem()) {
+        for (SchemaType type : types) {
+            if (type.getTypeSystem() != getTypeSystem()) {
                 continue;
             }
-            saveType(types[i]);
-            saveTypesRecursively(types[i].getAnonymousTypes());
+            saveType(type);
+            saveTypesRecursively(type.getAnonymousTypes());
         }
     }
 
@@ -1251,8 +1146,8 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
         if (_incomplete) {
             throw new IllegalStateException("This SchemaTypeSystem cannot be saved.");
         }
-        for (int i = 0; i < elts.length; i++) {
-            saveGlobalElement(elts[i]);
+        for (SchemaGlobalElement elt : elts) {
+            saveGlobalElement(elt);
         }
     }
 
@@ -1260,8 +1155,8 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
         if (_incomplete) {
             throw new IllegalStateException("This SchemaTypeSystem cannot be saved.");
         }
-        for (int i = 0; i < attrs.length; i++) {
-            saveGlobalAttribute(attrs[i]);
+        for (SchemaGlobalAttribute attr : attrs) {
+            saveGlobalAttribute(attr);
         }
     }
 
@@ -1269,8 +1164,8 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
         if (_incomplete) {
             throw new IllegalStateException("This SchemaTypeSystem cannot be saved.");
         }
-        for (int i = 0; i < groups.length; i++) {
-            saveModelGroup(groups[i]);
+        for (SchemaModelGroup group : groups) {
+            saveModelGroup(group);
         }
     }
 
@@ -1278,8 +1173,8 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
         if (_incomplete) {
             throw new IllegalStateException("This SchemaTypeSystem cannot be saved.");
         }
-        for (int i = 0; i < groups.length; i++) {
-            saveAttributeGroup(groups[i]);
+        for (SchemaAttributeGroup group : groups) {
+            saveAttributeGroup(group);
         }
     }
 
@@ -1287,8 +1182,8 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
         if (_incomplete) {
             throw new IllegalStateException("This SchemaTypeSystem cannot be saved.");
         }
-        for (int i = 0; i < idcs.length; i++) {
-            saveIdentityConstraint(idcs[i]);
+        for (SchemaIdentityConstraint idc : idcs) {
+            saveIdentityConstraint(idc);
         }
     }
 
@@ -1366,9 +1261,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
     }
 
     public static String crackPointer(InputStream stream) {
-        DataInputStream input = null;
-        try {
-            input = new DataInputStream(stream);
+        try (DataInputStream input = new DataInputStream(stream)) {
 
             int magic = input.readInt();
             if (magic != DATA_BABE) {
@@ -1386,7 +1279,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
                 return null;
             }
 
-            if (majorver > 2 || majorver == 2 && minorver >= 18) {
+            if (minorver >= 18) {
                 input.readShort(); // release number present in atLeast(2, 18, 0)
             }
 
@@ -1401,13 +1294,6 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
             return stringPool.stringForCode(input.readShort());
         } catch (IOException e) {
             return null;
-        } finally {
-            if (input != null) {
-                try {
-                    input.close();
-                } catch (IOException e) {
-                }
-            }
         }
     }
 
@@ -1627,13 +1513,10 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
 
         void writeHandlePool(HandlePool pool) {
             writeShort(pool._componentsToHandles.size());
-            for (Iterator i = pool._componentsToHandles.keySet().iterator(); i.hasNext(); ) {
-                SchemaComponent comp = (SchemaComponent) i.next();
-                String handle = (String) pool._componentsToHandles.get(comp);
-                int code = fileTypeFromComponentType(comp.getComponentType());
+            pool._componentsToHandles.forEach((comp, handle) -> {
                 writeString(handle);
-                writeShort(code);
-            }
+                writeShort(fileTypeFromComponentType(comp.getComponentType()));
+            });
         }
 
         void readHandlePool(HandlePool pool) {
@@ -1645,7 +1528,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
             for (int i = 0; i < size; i++) {
                 String handle = readString();
                 int code = readShort();
-                Object result;
+                SchemaComponent.Ref result;
                 switch (code) {
                     case FILETYPE_SCHEMATYPE:
                         result = new SchemaType.Ref(getTypeSystem(), handle);
@@ -1766,10 +1649,10 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
             }
             SchemaAnnotation.Attribute[] attributes = a.getAttributes();
             writeInt(attributes.length);
-            for (int i = 0; i < attributes.length; i++) {
-                QName name = attributes[i].getName();
-                String value = attributes[i].getValue();
-                String valueURI = attributes[i].getValueUri();
+            for (SchemaAnnotation.Attribute attribute : attributes) {
+                QName name = attribute.getName();
+                String value = attribute.getValue();
+                String valueURI = attribute.getValueUri();
                 writeQName(name);
                 writeString(value);
                 writeString(valueURI);
@@ -1778,18 +1661,15 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
             // Write documentation items
             XmlObject[] documentationItems = a.getUserInformation();
             writeInt(documentationItems.length);
-            XmlOptions opt = new XmlOptions().setSaveOuter().
-                setSaveAggressiveNamespaces();
-            for (int i = 0; i < documentationItems.length; i++) {
-                XmlObject doc = documentationItems[i];
+            XmlOptions opt = new XmlOptions().setSaveOuter().setSaveAggressiveNamespaces();
+            for (XmlObject doc : documentationItems) {
                 writeString(doc.xmlText(opt));
             }
 
             // Write application info items
             XmlObject[] appInfoItems = a.getApplicationInformation();
             writeInt(appInfoItems.length);
-            for (int i = 0; i < appInfoItems.length; i++) {
-                XmlObject doc = appInfoItems[i];
+            for (XmlObject doc : appInfoItems) {
                 writeString(doc.xmlText(opt));
             }
         }
@@ -1835,14 +1715,14 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
 
         void writeAnnotations(SchemaAnnotation[] anns) {
             writeInt(anns.length);
-            for (int i = 0; i < anns.length; i++) {
-                writeAnnotation(anns[i]);
+            for (SchemaAnnotation ann : anns) {
+                writeAnnotation(ann);
             }
         }
 
-        List readAnnotations() {
+        List<SchemaAnnotation> readAnnotations() {
             int n = readInt();
-            List result = new ArrayList(n);
+            List<SchemaAnnotation> result = new ArrayList<>(n);
             // BUGBUG(radup)
             SchemaContainer container = getContainerNonNull("");
             for (int i = 0; i < n; i++) {
@@ -1972,8 +1852,8 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
             writeHandle(type);
         }
 
-        Map readQNameRefMap() {
-            Map result = new HashMap();
+        Map<QName, SchemaComponent.Ref> readQNameRefMap() {
+            Map<QName, SchemaComponent.Ref> result = new HashMap<>();
             int size = readShort();
             for (int i = 0; i < size; i++) {
                 QName name = readQName();
@@ -1983,9 +1863,9 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
             return result;
         }
 
-        List readQNameRefMapAsList(List names) {
+        List<SchemaComponent.Ref> readQNameRefMapAsList(List<QName> names) {
             int size = readShort();
-            List result = new ArrayList(size);
+            List<SchemaComponent.Ref> result = new ArrayList<>(size);
             for (int i = 0; i < size; i++) {
                 QName name = readQName();
                 SchemaComponent.Ref obj = readHandle();
@@ -1997,25 +1877,25 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
 
         void writeQNameMap(SchemaComponent[] components) {
             writeShort(components.length);
-            for (int i = 0; i < components.length; i++) {
-                writeQName(components[i].getName());
-                writeHandle(components[i]);
+            for (SchemaComponent component : components) {
+                writeQName(component.getName());
+                writeHandle(component);
             }
         }
 
         void writeDocumentTypeMap(SchemaType[] doctypes) {
             writeShort(doctypes.length);
-            for (int i = 0; i < doctypes.length; i++) {
-                writeQName(doctypes[i].getDocumentElementName());
-                writeHandle(doctypes[i]);
+            for (SchemaType doctype : doctypes) {
+                writeQName(doctype.getDocumentElementName());
+                writeHandle(doctype);
             }
         }
 
         void writeAttributeTypeMap(SchemaType[] attrtypes) {
             writeShort(attrtypes.length);
-            for (int i = 0; i < attrtypes.length; i++) {
-                writeQName(attrtypes[i].getAttributeTypeAttributeName());
-                writeHandle(attrtypes[i]);
+            for (SchemaType attrtype : attrtypes) {
+                writeQName(attrtype.getAttributeTypeAttributeName());
+                writeHandle(attrtype);
             }
         }
 
@@ -2030,13 +1910,13 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
 
         void writeTypeArray(SchemaType[] array) {
             writeShort(array.length);
-            for (int i = 0; i < array.length; i++) {
-                writeHandle(array[i]);
+            for (SchemaType schemaType : array) {
+                writeHandle(schemaType);
             }
         }
 
-        Map readClassnameRefMap() {
-            Map result = new HashMap();
+        Map<String, SchemaComponent.Ref> readClassnameRefMap() {
+            Map<String, SchemaComponent.Ref> result = new HashMap<>();
             int size = readShort();
             for (int i = 0; i < size; i++) {
                 String name = readString();
@@ -2046,17 +1926,16 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
             return result;
         }
 
-        void writeClassnameMap(Map typesByClass) {
+        void writeClassnameMap(Map<String, SchemaComponent.Ref> typesByClass) {
             writeShort(typesByClass.size());
-            for (Iterator i = typesByClass.keySet().iterator(); i.hasNext(); ) {
-                String className = (String) i.next();
+            typesByClass.forEach((className, ref) -> {
                 writeString(className);
-                writeHandle(((SchemaType.Ref) typesByClass.get(className)).get());
-            }
+                writeHandle(((SchemaType.Ref) ref).get());
+            });
         }
 
-        Set readNamespaces() {
-            Set result = new HashSet();
+        Set<String> readNamespaces() {
+            Set<String> result = new HashSet<>();
             int size = readShort();
             for (int i = 0; i < size; i++) {
                 String ns = readString();
@@ -2065,12 +1944,9 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
             return result;
         }
 
-        void writeNamespaces(Set namespaces) {
+        void writeNamespaces(Set<String> namespaces) {
             writeShort(namespaces.size());
-            for (Iterator i = namespaces.iterator(); i.hasNext(); ) {
-                String ns = (String) i.next();
-                writeString(ns);
-            }
+            namespaces.forEach(this::writeString);
         }
 
         OutputStream getSaverStream(String name) {
@@ -2087,8 +1963,8 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
 
         void checkContainerNotNull(SchemaContainer container, QName name) {
             if (container == null) {
-                throw new LinkageError("Loading of resource " + _name + '.' + _handle +
-                                       "failed, information from " + _name + ".index.xsb is " +
+                throw new LinkageError("Loading of resource " + name + '.' + _handle +
+                                       "failed, information from " + name + ".index.xsb is " +
                                        " out of sync (or conflicting index files found)");
             }
         }
@@ -2187,7 +2063,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
                 impl.init(name, readString(), readShort() == 1,
                     atLeast(2, 22, 0) ? readString() : null,
                     atLeast(2, 22, 0) ? readString() : null,
-                    atLeast(2, 15, 0) ? readShort() == 1 : false,
+                    atLeast(2, 15, 0) && readShort() == 1,
                     GroupDocument.Factory.parse(readString()).getGroup(), readAnnotation(container), null);
                 if (atLeast(2, 21, 0)) {
                     impl.setFilename(readString());
@@ -2224,7 +2100,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
                 }
 
                 int mapCount = readShort();
-                Map nsMappings = new HashMap();
+                Map<String, String> nsMappings = new HashMap<>();
                 for (int i = 0; i < mapCount; i++) {
                     String prefix = readString();
                     String uri = readString();
@@ -2255,7 +2131,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
             try {
                 impl.init(name, readString(), readShort() == 1,
                     atLeast(2, 22, 0) ? readString() : null,
-                    atLeast(2, 15, 0) ? readShort() == 1 : false,
+                    atLeast(2, 15, 0) && readShort() == 1,
                     AttributeGroupDocument.Factory.parse(readString()).getAttributeGroup(),
                     readAnnotation(container), null);
                 if (atLeast(2, 21, 0)) {
@@ -2343,7 +2219,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
                     attrModel.setWildcardProcess(readShort());
 
                     // Attribute Property Table
-                    Map attrProperties = new LinkedHashMap();
+                    Map<QName, SchemaProperty> attrProperties = new LinkedHashMap<>();
                     int attrPropCount = readShort();
                     for (int i = 0; i < attrPropCount; i++) {
                         SchemaProperty prop = readPropertyData();
@@ -2354,7 +2230,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
                     }
 
                     SchemaParticle contentModel = null;
-                    Map elemProperties = null;
+                    Map<QName, SchemaProperty> elemProperties = null;
                     int isAll = 0;
 
                     if (complexVariety == SchemaType.ELEMENT_CONTENT || complexVariety == SchemaType.MIXED_CONTENT) {
@@ -2371,7 +2247,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
 
                         // Element Property Table
 
-                        elemProperties = new LinkedHashMap();
+                        elemProperties = new LinkedHashMap<>();
                         int elemPropCount = readShort();
                         for (int i = 0; i < elemPropCount; i++) {
                             SchemaProperty prop = readPropertyData();
@@ -2590,8 +2466,8 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
                 SchemaLocalAttribute[] attrs = attrModel.getAttributes();
 
                 writeShort(attrs.length);
-                for (int i = 0; i < attrs.length; i++) {
-                    writeAttributeData(attrs[i]);
+                for (SchemaLocalAttribute attr : attrs) {
+                    writeAttributeData(attr);
                 }
 
                 writeQNameSet(attrModel.getWildcardSet());
@@ -2600,8 +2476,8 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
                 // Attribute Property Table
                 SchemaProperty[] attrProperties = type.getAttributeProperties();
                 writeShort(attrProperties.length);
-                for (int i = 0; i < attrProperties.length; i++) {
-                    writePropertyData(attrProperties[i]);
+                for (SchemaProperty attrProperty : attrProperties) {
+                    writePropertyData(attrProperty);
                 }
 
                 if (type.getContentType() == SchemaType.ELEMENT_CONTENT ||
@@ -2620,8 +2496,8 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
                     // Element Property Table
                     SchemaProperty[] eltProperties = type.getElementProperties();
                     writeShort(eltProperties.length);
-                    for (int i = 0; i < eltProperties.length; i++) {
-                        writePropertyData(eltProperties[i]);
+                    for (SchemaProperty eltProperty : eltProperties) {
+                        writePropertyData(eltProperty);
                     }
                 }
             }
@@ -2649,8 +2525,8 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
 
                 org.apache.xmlbeans.impl.regex.RegularExpression[] patterns = ((SchemaTypeImpl) type).getPatternExpressions();
                 writeShort(patterns.length);
-                for (int i = 0; i < patterns.length; i++) {
-                    writeString(patterns[i].getPattern());
+                for (org.apache.xmlbeans.impl.regex.RegularExpression pattern : patterns) {
+                    writeString(pattern.getPattern());
                 }
 
                 XmlAnySimpleType[] enumValues = type.getEnumerationValues();
@@ -2658,8 +2534,8 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
                     writeShort(0);
                 } else {
                     writeShort(enumValues.length);
-                    for (int i = 0; i < enumValues.length; i++) {
-                        writeXmlValueObject(enumValues[i]);
+                    for (XmlAnySimpleType enumValue : enumValues) {
+                        writeXmlValueObject(enumValue);
                     }
                 }
 
@@ -2694,6 +2570,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
             writeString(type.getSourceName());
         }
 
+        /*
         void readExtensionsList() {
             int count = readShort();
             assert count == 0;
@@ -2704,6 +2581,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
                 readString();
             }
         }
+         */
 
         SchemaLocalAttribute readAttributeData() {
             SchemaLocalAttributeImpl result = new SchemaLocalAttributeImpl();
@@ -2736,8 +2614,8 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
 
             String[] fields = idc.getFields();
             writeShort(fields.length);
-            for (int i = 0; i < fields.length; i++) {
-                writeString(fields[i]);
+            for (String field : fields) {
+                writeString(field);
             }
 
 
@@ -2745,16 +2623,12 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
                 writeHandle(idc.getReferencedKey());
             }
 
-            Set mappings = idc.getNSMap().entrySet();
+            Map<String, String> mappings = idc.getNSMap();
             writeShort(mappings.size());
-            for (Iterator it = mappings.iterator(); it.hasNext(); ) {
-                Map.Entry e = (Map.Entry) it.next();
-                String prefix = (String) e.getKey();
-                String uri = (String) e.getValue();
-
+            mappings.forEach((prefix, uri) -> {
                 writeString(prefix);
                 writeString(uri);
-            }
+            });
             writeString(idc.getSourceName());
         }
 
@@ -2768,8 +2642,8 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
 
         void writeParticleArray(SchemaParticle[] spa) {
             writeShort(spa.length);
-            for (int i = 0; i < spa.length; i++) {
-                writeParticleData(spa[i]);
+            for (SchemaParticle schemaParticle : spa) {
+                writeParticleData(schemaParticle);
             }
         }
 
@@ -2900,16 +2774,16 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
 
                         QName[] substGroupMembers = gpart.substitutionGroupMembers();
                         writeShort(substGroupMembers.length);
-                        for (int i = 0; i < substGroupMembers.length; i++) {
-                            writeQName(substGroupMembers[i]);
+                        for (QName substGroupMember : substGroupMembers) {
+                            writeQName(substGroupMember);
                         }
                     }
 
                     SchemaIdentityConstraint[] idcs = lpart.getIdentityConstraints();
 
                     writeShort(idcs.length);
-                    for (int i = 0; i < idcs.length; i++) {
-                        writeHandle(idcs[i]);
+                    for (SchemaIdentityConstraint idc : idcs) {
+                        writeHandle(idc);
                     }
 
                     break;
@@ -2954,7 +2828,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
 
             if (!prop.isAttribute() && atLeast(2, 17, 0)) {
                 int size = readShort();
-                LinkedHashSet qnames = new LinkedHashSet(size);
+                Set<QName> qnames = new LinkedHashSet<>(size);
                 for (int i = 0; i < size; i++) {
                     qnames.add(readQName());
                 }
@@ -2987,8 +2861,8 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
             if (!prop.isAttribute()) {
                 QName[] names = prop.acceptedNames();
                 writeShort(names.length);
-                for (int i = 0; i < names.length; i++) {
-                    writeQName(names[i]);
+                for (QName name : names) {
+                    writeQName(name);
                 }
             }
         }
@@ -3031,8 +2905,9 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
                     return new XmlValueRef(typeref, null);
                 case 0xFFFF: {
                     int size = readShort();
-                    List values = new ArrayList();
-                    writeShort(values.size());
+                    List<XmlValueRef> values = new ArrayList<>();
+                    // BUGBUG: this was: writeShort(values.size());
+                    writeShort(size);
                     for (int i = 0; i < size; i++) {
                         values.add(readXmlValueObject());
                     }
@@ -3066,7 +2941,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
 
                 case SchemaType.BTC_FLOAT:
                 case SchemaType.BTC_DOUBLE:
-                    return new XmlValueRef(typeref, new Double(readDouble()));
+                    return new XmlValueRef(typeref, readDouble());
             }
         }
 
@@ -3082,11 +2957,9 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
                 writeShort(0);
             } else if (iType.getSimpleVariety() == SchemaType.LIST) {
                 writeShort(-1);
-                List values = ((XmlObjectBase) value).xgetListValue();
+                List<? extends XmlAnySimpleType> values = ((XmlObjectBase) value).xgetListValue();
                 writeShort(values.size());
-                for (Iterator i = values.iterator(); i.hasNext(); ) {
-                    writeXmlValueObject((XmlAnySimpleType) i.next());
-                }
+                values.forEach(this::writeXmlValueObject);
             } else {
                 int btc = iType.getPrimitiveType().getBuiltinTypeCode();
                 writeShort(btc);
@@ -3150,19 +3023,19 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
         QNameSet readQNameSet() {
             int flag = readShort();
 
-            Set uriSet = new HashSet();
+            Set<String> uriSet = new HashSet<>();
             int uriCount = readShort();
             for (int i = 0; i < uriCount; i++) {
                 uriSet.add(readString());
             }
 
-            Set qnameSet1 = new HashSet();
+            Set<QName> qnameSet1 = new HashSet<>();
             int qncount1 = readShort();
             for (int i = 0; i < qncount1; i++) {
                 qnameSet1.add(readQName());
             }
 
-            Set qnameSet2 = new HashSet();
+            Set<QName> qnameSet2 = new HashSet<>();
             int qncount2 = readShort();
             for (int i = 0; i < qncount2; i++) {
                 qnameSet2.add(readQName());
@@ -3179,23 +3052,18 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
             boolean invert = (set.excludedURIs() != null);
             writeShort(invert ? 1 : 0);
 
-            Set uriSet = invert ? set.excludedURIs() : set.includedURIs();
+            Set<String> uriSet = invert ? set.excludedURIs() : set.includedURIs();
+            assert (uriSet != null);
             writeShort(uriSet.size());
-            for (Iterator i = uriSet.iterator(); i.hasNext(); ) {
-                writeString((String) i.next());
-            }
+            uriSet.forEach(this::writeString);
 
-            Set qnameSet1 = invert ? set.excludedQNamesInIncludedURIs() : set.includedQNamesInExcludedURIs();
+            Set<QName> qnameSet1 = invert ? set.excludedQNamesInIncludedURIs() : set.includedQNamesInExcludedURIs();
             writeShort(qnameSet1.size());
-            for (Iterator i = qnameSet1.iterator(); i.hasNext(); ) {
-                writeQName((QName) i.next());
-            }
+            qnameSet1.forEach(this::writeQName);
 
-            Set qnameSet2 = invert ? set.includedQNamesInExcludedURIs() : set.excludedQNamesInIncludedURIs();
+            Set<QName> qnameSet2 = invert ? set.includedQNamesInExcludedURIs() : set.excludedQNamesInIncludedURIs();
             writeShort(qnameSet2.size());
-            for (Iterator i = qnameSet2.iterator(); i.hasNext(); ) {
-                writeQName((QName) i.next());
-            }
+            qnameSet2.forEach(this::writeQName);
         }
 
         byte[] readByteArray() {
@@ -3246,7 +3114,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
 
     }
 
-    static final byte[] SINGLE_ZERO_BYTE = new byte[]{(byte) 0};
+    static final byte[] SINGLE_ZERO_BYTE = {0};
 
     public SchemaType typeForHandle(String handle) {
         synchronized (_resolvedHandles) {
@@ -3263,7 +3131,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
         SchemaComponent result;
 
         synchronized (_resolvedHandles) {
-            result = (SchemaComponent) _resolvedHandles.get(handle);
+            result = _resolvedHandles.get(handle);
         }
         if (result == null) {
             XsbReader reader = new XsbReader(handle, 0xFFFF);
@@ -3301,14 +3169,14 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
                 if (!_resolvedHandles.containsKey(handle)) {
                     _resolvedHandles.put(handle, result);
                 } else {
-                    result = (SchemaComponent) _resolvedHandles.get(handle);
+                    result = _resolvedHandles.get(handle);
                 }
             }
         }
         return result;
     }
 
-    private final Map _resolvedHandles = new HashMap();
+    private final Map<String, SchemaComponent> _resolvedHandles = new HashMap<>();
     private boolean _allNonGroupHandlesResolved = false;
 
     public void resolve() {
@@ -3319,7 +3187,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
 
         XBeanDebug.trace(XBeanDebug.TRACE_SCHEMA_LOADING, "Resolving all handles for type system " + _name, 1);
 
-        List refs = new ArrayList();
+        List<SchemaComponent.Ref> refs = new ArrayList<>();
         refs.addAll(_globalElements.values());
         refs.addAll(_globalAttributes.values());
         refs.addAll(_globalTypes.values());
@@ -3327,9 +3195,9 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
         refs.addAll(_attributeTypes.values());
         refs.addAll(_identityConstraints.values());
 
-        for (Iterator i = refs.iterator(); i.hasNext(); ) {
-            SchemaComponent.Ref ref = (SchemaComponent.Ref) i.next();
-            ref.getComponent(); // Forces ref to be resolved
+        for (SchemaComponent.Ref ref : refs) {
+            // Forces ref to be resolved
+            ref.getComponent();
         }
 
         XBeanDebug.trace(XBeanDebug.TRACE_SCHEMA_LOADING, "Finished resolving type system " + _name, -1);
@@ -3373,30 +3241,21 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
         return (SchemaIdentityConstraint.Ref) _identityConstraints.get(name);
     }
 
-    public SchemaType[] globalTypes() {
-        if (_globalTypes.isEmpty()) {
-            return EMPTY_ST_ARRAY;
-        }
+    private static <T, U> U[] refHelper(Map<QName, SchemaComponent.Ref> map, Function<T, U> fun, IntFunction<U[]> target, U[] emptyTarget) {
+        return refHelper(map == null ? null : map.values(), fun, target, emptyTarget);
+    }
 
-        SchemaType[] result = new SchemaType[_globalTypes.size()];
-        int j = 0;
-        for (Iterator i = _globalTypes.values().iterator(); i.hasNext(); j++) {
-            result[j] = ((SchemaType.Ref) i.next()).get();
-        }
-        return result;
+    private static <T, U> U[] refHelper(Collection<SchemaComponent.Ref> list, Function<T, U> fun, IntFunction<U[]> target, U[] emptyTarget) {
+        //noinspection unchecked
+        return (list == null || list.isEmpty()) ? emptyTarget : list.stream().map(e -> (T) e).map(fun).toArray(target);
+    }
+
+    public SchemaType[] globalTypes() {
+        return refHelper(_globalTypes, SchemaType.Ref::get, SchemaType[]::new, EMPTY_ST_ARRAY);
     }
 
     public SchemaType[] redefinedGlobalTypes() {
-        if (_redefinedGlobalTypes == null || _redefinedGlobalTypes.isEmpty()) {
-            return EMPTY_ST_ARRAY;
-        }
-
-        SchemaType[] result = new SchemaType[_redefinedGlobalTypes.size()];
-        int j = 0;
-        for (Iterator i = _redefinedGlobalTypes.iterator(); i.hasNext(); j++) {
-            result[j] = ((SchemaType.Ref) i.next()).get();
-        }
-        return result;
+        return refHelper(_redefinedGlobalTypes, SchemaType.Ref::get, SchemaType[]::new, EMPTY_ST_ARRAY);
     }
 
     public InputStream getSourceAsStream(String sourceName) {
@@ -3408,139 +3267,47 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
     }
 
     SchemaContainer[] containers() {
-        SchemaContainer[] result = new SchemaContainer[_containers.size()];
-        int j = 0;
-        for (Iterator i = _containers.values().iterator(); i.hasNext(); j++) {
-            result[j] = (SchemaContainer) i.next();
-        }
-        return result;
+        return _containers.values().toArray(new SchemaContainer[0]);
     }
 
     public SchemaType[] documentTypes() {
-        if (_documentTypes.isEmpty()) {
-            return EMPTY_ST_ARRAY;
-        }
-
-        SchemaType[] result = new SchemaType[_documentTypes.size()];
-        int j = 0;
-        for (Iterator i = _documentTypes.values().iterator(); i.hasNext(); j++) {
-            result[j] = ((SchemaType.Ref) i.next()).get();
-        }
-        return result;
+        return refHelper(_documentTypes, SchemaType.Ref::get, SchemaType[]::new, EMPTY_ST_ARRAY);
     }
 
     public SchemaType[] attributeTypes() {
-        if (_attributeTypes.isEmpty()) {
-            return EMPTY_ST_ARRAY;
-        }
-
-        SchemaType[] result = new SchemaType[_attributeTypes.size()];
-        int j = 0;
-        for (Iterator i = _attributeTypes.values().iterator(); i.hasNext(); j++) {
-            result[j] = ((SchemaType.Ref) i.next()).get();
-        }
-        return result;
+        return refHelper(_attributeTypes, SchemaType.Ref::get, SchemaType[]::new, EMPTY_ST_ARRAY);
     }
 
     public SchemaGlobalElement[] globalElements() {
-        if (_globalElements.isEmpty()) {
-            return EMPTY_GE_ARRAY;
-        }
-
-        SchemaGlobalElement[] result = new SchemaGlobalElement[_globalElements.size()];
-        int j = 0;
-        for (Iterator i = _globalElements.values().iterator(); i.hasNext(); j++) {
-            result[j] = ((SchemaGlobalElement.Ref) i.next()).get();
-        }
-        return result;
+        return refHelper(_globalElements, SchemaGlobalElement.Ref::get, SchemaGlobalElement[]::new, EMPTY_GE_ARRAY);
     }
 
     public SchemaGlobalAttribute[] globalAttributes() {
-        if (_globalAttributes.isEmpty()) {
-            return EMPTY_GA_ARRAY;
-        }
-
-        SchemaGlobalAttribute[] result = new SchemaGlobalAttribute[_globalAttributes.size()];
-        int j = 0;
-        for (Iterator i = _globalAttributes.values().iterator(); i.hasNext(); j++) {
-            result[j] = ((SchemaGlobalAttribute.Ref) i.next()).get();
-        }
-        return result;
+        return refHelper(_globalAttributes, SchemaGlobalAttribute.Ref::get, SchemaGlobalAttribute[]::new, EMPTY_GA_ARRAY);
     }
 
     public SchemaModelGroup[] modelGroups() {
-        if (_modelGroups.isEmpty()) {
-            return EMPTY_MG_ARRAY;
-        }
-
-        SchemaModelGroup[] result = new SchemaModelGroup[_modelGroups.size()];
-        int j = 0;
-        for (Iterator i = _modelGroups.values().iterator(); i.hasNext(); j++) {
-            result[j] = ((SchemaModelGroup.Ref) i.next()).get();
-        }
-        return result;
+        return refHelper(_modelGroups, SchemaModelGroup.Ref::get, SchemaModelGroup[]::new, EMPTY_MG_ARRAY);
     }
 
     public SchemaModelGroup[] redefinedModelGroups() {
-        if (_redefinedModelGroups == null || _redefinedModelGroups.isEmpty()) {
-            return EMPTY_MG_ARRAY;
-        }
-
-        SchemaModelGroup[] result = new SchemaModelGroup[_redefinedModelGroups.size()];
-        int j = 0;
-        for (Iterator i = _redefinedModelGroups.iterator(); i.hasNext(); j++) {
-            result[j] = ((SchemaModelGroup.Ref) i.next()).get();
-        }
-        return result;
+        return refHelper(_redefinedModelGroups, SchemaModelGroup.Ref::get, SchemaModelGroup[]::new, EMPTY_MG_ARRAY);
     }
 
     public SchemaAttributeGroup[] attributeGroups() {
-        if (_attributeGroups.isEmpty()) {
-            return EMPTY_AG_ARRAY;
-        }
-
-        SchemaAttributeGroup[] result = new SchemaAttributeGroup[_attributeGroups.size()];
-        int j = 0;
-        for (Iterator i = _attributeGroups.values().iterator(); i.hasNext(); j++) {
-            result[j] = ((SchemaAttributeGroup.Ref) i.next()).get();
-        }
-        return result;
+        return refHelper(_attributeGroups, SchemaAttributeGroup.Ref::get, SchemaAttributeGroup[]::new, EMPTY_AG_ARRAY);
     }
 
     public SchemaAttributeGroup[] redefinedAttributeGroups() {
-        if (_redefinedAttributeGroups == null || _redefinedAttributeGroups.isEmpty()) {
-            return EMPTY_AG_ARRAY;
-        }
-
-        SchemaAttributeGroup[] result = new SchemaAttributeGroup[_redefinedAttributeGroups.size()];
-        int j = 0;
-        for (Iterator i = _redefinedAttributeGroups.iterator(); i.hasNext(); j++) {
-            result[j] = ((SchemaAttributeGroup.Ref) i.next()).get();
-        }
-        return result;
+        return refHelper(_redefinedAttributeGroups, SchemaAttributeGroup.Ref::get, SchemaAttributeGroup[]::new, EMPTY_AG_ARRAY);
     }
 
     public SchemaAnnotation[] annotations() {
-        if (_annotations == null || _annotations.isEmpty()) {
-            return EMPTY_ANN_ARRAY;
-        }
-
-        SchemaAnnotation[] result = new SchemaAnnotation[_annotations.size()];
-        result = (SchemaAnnotation[]) _annotations.toArray(result);
-        return result;
+        return (_annotations == null || _annotations.isEmpty()) ? EMPTY_ANN_ARRAY : _annotations.toArray(EMPTY_ANN_ARRAY);
     }
 
     public SchemaIdentityConstraint[] identityConstraints() {
-        if (_identityConstraints.isEmpty()) {
-            return EMPTY_IC_ARRAY;
-        }
-
-        SchemaIdentityConstraint[] result = new SchemaIdentityConstraint[_identityConstraints.size()];
-        int j = 0;
-        for (Iterator i = _identityConstraints.values().iterator(); i.hasNext(); j++) {
-            result[j] = ((SchemaIdentityConstraint.Ref) i.next()).get();
-        }
-        return result;
+        return refHelper(_identityConstraints, SchemaIdentityConstraint.Ref::get, SchemaIdentityConstraint[]::new, EMPTY_IC_ARRAY);
     }
 
     public ClassLoader getClassLoader() {
@@ -3560,10 +3327,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
     }
 
     public SchemaTypeSystem typeSystemForName(String name) {
-        if (_name != null && name.equals(_name)) {
-            return this;
-        }
-        return null;
+        return (name != null && name.equals(_name)) ? this : null;
     }
 
 

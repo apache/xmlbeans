@@ -135,12 +135,12 @@ public interface SimpleValue extends XmlObject {
     /**
      * Returns the value as a {@link List} of friendly Java objects (String, Integer, Byte, Short, Long, BigInteger, Decimal, Float, Double, byte[], Calendar, GDuration).
      */
-    List getListValue();
+    List<?> getListValue();
 
     /**
      * Returns the value as a {@link List} of XmlAnySimpleType objects.
      */
-    List xgetListValue();
+    List<? extends XmlAnySimpleType> xgetListValue();
 
     /**
      * Returns a union value as a its natural friendly Java object (String, Integer, Byte, Short, Long, BigInteger, Decimal, Float, Double, byte[], Calendar, GDuration).

@@ -15,10 +15,7 @@
 
 package org.apache.xmlbeans;
 
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-import java.util.ListIterator;
+import java.util.*;
 
 /**
  * The immutable {@link List} returned for XML simple list values.
@@ -27,17 +24,17 @@ import java.util.ListIterator;
  * contents, so two XmlSimpleLists are the same if they have the same
  * values in the same order.
  */
-public class XmlSimpleList implements List<Object>, java.io.Serializable {
+public class XmlSimpleList<T> implements List<T>, java.io.Serializable {
     private static final long serialVersionUID = 1L;
 
-    private final List<Object> underlying;
+    private final List<T> underlying;
 
     /**
      * Constructs an immutable XmlSimpleList that wraps (does not copy)
      * the given {@link List}.  All non-mutating methods delegate to
      * the underlying List instance.
      */
-    public XmlSimpleList(List<Object> list) {
+    public XmlSimpleList(List<T> list) {
         this.underlying = list;
     }
 
@@ -79,7 +76,8 @@ public class XmlSimpleList implements List<Object>, java.io.Serializable {
     /**
      * Copies the collection to an array of a specified type.
      */
-    public <T> T[] toArray(T[] a) {
+    @SuppressWarnings("SuspiciousToArrayCall")
+    public <X> X[] toArray(X[] a) {
         return underlying.toArray(a);
     }
 
@@ -128,14 +126,14 @@ public class XmlSimpleList implements List<Object>, java.io.Serializable {
     /**
      * Returns the object at the specified position in this list.
      */
-    public Object get(int index) {
+    public T get(int index) {
         return underlying.get(index);
     }
 
     /**
      * Unsupported because this list is immutable.
      */
-    public Object set(int index, Object element) {
+    public T set(int index, T element) {
         throw new UnsupportedOperationException();
     }
 
@@ -149,7 +147,7 @@ public class XmlSimpleList implements List<Object>, java.io.Serializable {
     /**
      * Unsupported because this list is immutable.
      */
-    public Object remove(int index) {
+    public T remove(int index) {
         throw new UnsupportedOperationException();
     }
 
@@ -177,22 +175,22 @@ public class XmlSimpleList implements List<Object>, java.io.Serializable {
     /**
      * Returns a view of the portion of this list between the specified fromIndex, inclusive, and toIndex, exclusive.
      */
-    public List<Object> subList(int from, int to) {
-        return new XmlSimpleList(underlying.subList(from, to));
+    public List<T> subList(int from, int to) {
+        return new XmlSimpleList<>(underlying.subList(from, to));
     }
 
     /**
      * Returns an iterator over the elements in this list in proper sequence.
      */
-    public Iterator<Object> iterator() {
-        return new Iterator<Object>() {
-            final Iterator<Object> i = underlying.iterator();
+    public Iterator<T> iterator() {
+        return new Iterator<T>() {
+            final Iterator<T> i = underlying.iterator();
 
             public boolean hasNext() {
                 return i.hasNext();
             }
 
-            public Object next() {
+            public T next() {
                 return i.next();
             }
 
@@ -205,22 +203,22 @@ public class XmlSimpleList implements List<Object>, java.io.Serializable {
     /**
      * Returns a list iterator of the elements in this list in proper sequence.
      */
-    public ListIterator<Object> listIterator() {
+    public ListIterator<T> listIterator() {
         return listIterator(0);
     }
 
     /**
      * Returns a list iterator of the elements in this list in proper sequence, starting at the specified position in this list.
      */
-    public ListIterator<Object> listIterator(final int index) {
-        return new ListIterator<Object>() {
-            final ListIterator<Object> i = underlying.listIterator(index);
+    public ListIterator<T> listIterator(final int index) {
+        return new ListIterator<T>() {
+            final ListIterator<T> i = underlying.listIterator(index);
 
             public boolean hasNext() {
                 return i.hasNext();
             }
 
-            public Object next() {
+            public T next() {
                 return i.next();
             }
 
@@ -228,7 +226,7 @@ public class XmlSimpleList implements List<Object>, java.io.Serializable {
                 return i.hasPrevious();
             }
 
-            public Object previous() {
+            public T previous() {
                 return i.previous();
             }
 
@@ -295,16 +293,14 @@ public class XmlSimpleList implements List<Object>, java.io.Serializable {
         if (!(o instanceof XmlSimpleList)) {
             return false;
         }
-        final XmlSimpleList xmlSimpleList = (XmlSimpleList) o;
-        List<Object> underlying2 = xmlSimpleList.underlying;
+        final XmlSimpleList<?> xmlSimpleList = (XmlSimpleList<?>) o;
+        List<?> underlying2 = xmlSimpleList.underlying;
         int size = underlying.size();
         if (size != underlying2.size()) {
             return false;
         }
         for (int i = 0; i < size; i++) {
-            Object item = underlying.get(i);
-            Object item2 = underlying2.get(i);
-            if (item == null ? item2 != null : !item.equals(item2)) {
+            if (!Objects.equals(underlying.get(i), underlying2.get(i))) {
                 return false;
             }
         }

@@ -16,8 +16,8 @@
 package org.apache.xmlbeans.impl.common;
 
 import org.apache.xmlbeans.SystemProperties;
-
 import org.xml.sax.EntityResolver;
+
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 
@@ -25,52 +25,43 @@ import java.lang.reflect.Method;
  * Author: Cezar Andrei (cezar.andrei at bea.com)
  * Date: Dec 3, 2003
  */
-public class ResolverUtil
-{
+public class ResolverUtil {
     private static EntityResolver _entityResolver = null;
 
-    static
-    {
-        try
-        {
+    static {
+        try {
             String erClassName = SystemProperties.getProperty("xmlbean.entityResolver");
             if (erClassName != null) {
-                Object o = Class.forName(erClassName).newInstance();
-                _entityResolver = (EntityResolver)o;
+                Object o = Class.forName(erClassName).getDeclaredConstructor().newInstance();
+                _entityResolver = (EntityResolver) o;
             }
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             _entityResolver = null;
         }
     }
 
-    public static EntityResolver getGlobalEntityResolver()
-    {
+    public static EntityResolver getGlobalEntityResolver() {
         return _entityResolver;
     }
 
-    public static EntityResolver resolverForCatalog(String catalogFile)
-    {
-        if (catalogFile==null)
+    public static EntityResolver resolverForCatalog(String catalogFile) {
+        if (catalogFile == null) {
             return null;
+        }
 
-        try
-        {
-            Class cmClass = Class.forName("org.apache.xml.resolver.CatalogManager");
-            Constructor cstrCm = cmClass.getConstructor();
+        try {
+            Class<?> cmClass = Class.forName("org.apache.xml.resolver.CatalogManager");
+            Constructor<?> cstrCm = cmClass.getDeclaredConstructor();
             Object cmObj = cstrCm.newInstance();
             Method cmMethod = cmClass.getMethod("setCatalogFiles", String.class);
             cmMethod.invoke(cmObj, catalogFile);
 
-            Class crClass = Class.forName("org.apache.xml.resolver.tools.CatalogResolver");
-            Constructor cstrCr = crClass.getConstructor(cmClass);
+            Class<?> crClass = Class.forName("org.apache.xml.resolver.tools.CatalogResolver");
+            Constructor<?> cstrCr = crClass.getDeclaredConstructor(cmClass);
             Object crObj = cstrCr.newInstance(cmObj);
 
-            return (EntityResolver)crObj;
-        }
-        catch( Exception e )
-        {
+            return (EntityResolver) crObj;
+        } catch (Exception e) {
             return null;
         }
     }

@@ -16,6 +16,7 @@
 package org.apache.xmlbeans;
 
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Corresponds to the Saver and XmlOptions.
@@ -44,73 +45,68 @@ import java.util.HashMap;
  *
  * </pre>
  */
-public class XmlOptionCharEscapeMap
-{
+public class XmlOptionCharEscapeMap {
     public static final int PREDEF_ENTITY = 0;
-    public static final int DECIMAL       = 1;
-    public static final int HEXADECIMAL   = 2;
+    public static final int DECIMAL = 1;
+    public static final int HEXADECIMAL = 2;
 
     // map of Character to String which will represent it in the output document
-    private HashMap _charMap;
+    private final Map<Character, String> _charMap;
 
     // internal HashMap just for predefined entities
-    private static final HashMap _predefEntities = new HashMap();
+    private static final Map<Character, String> _predefEntities = new HashMap<>();
+
     static {
-        _predefEntities.put(new Character('<'), "&lt;");
-        _predefEntities.put(new Character('>'), "&gt;");
-        _predefEntities.put(new Character('&'), "&amp;");
-        _predefEntities.put(new Character('\''), "&apos;");
-        _predefEntities.put(new Character('"'), "&quot;");
+        _predefEntities.put('<', "&lt;");
+        _predefEntities.put('>', "&gt;");
+        _predefEntities.put('&', "&amp;");
+        _predefEntities.put('\'', "&apos;");
+        _predefEntities.put('"', "&quot;");
     }
 
     /**
      * Construct a new XmlOptionCharEncoder.
      */
-    public XmlOptionCharEscapeMap()
-    {
-        _charMap = new HashMap();
+    public XmlOptionCharEscapeMap() {
+        _charMap = new HashMap<>();
     }
 
     /**
-     *  @return whether a character encoding exists for this character
+     * @return whether a character encoding exists for this character
      */
-    public boolean containsChar(char ch)
-    {
-        return _charMap.containsKey(new Character(ch));
+    public boolean containsChar(char ch) {
+        return _charMap.containsKey(ch);
     }
 
     /**
      * set up this character to be escaped in output documents
      * according to the given mode
      */
-    public void addMapping(char ch, int mode) throws XmlException
-    {
-        Character theChar = new Character(ch);
-        switch(mode)
-        {
+    public void addMapping(char ch, int mode) throws XmlException {
+        Character theChar = ch;
+        switch (mode) {
             case PREDEF_ENTITY:
-                String replString = (String)_predefEntities.get(theChar);
-                if ( replString == null )
-                {
+                String replString = _predefEntities.get(theChar);
+                if (replString == null) {
                     throw new XmlException("XmlOptionCharEscapeMap.addMapping(): " +
-                        "the PREDEF_ENTITY mode can only be used for the following " +
-                        "characters: <, >, &, \" and '");
+                                           "the PREDEF_ENTITY mode can only be used for the following " +
+                                           "characters: <, >, &, \" and '");
                 }
                 _charMap.put(theChar, replString);
                 break;
 
             case DECIMAL:
-                _charMap.put(theChar, "&#" + (int)ch + ";");
+                _charMap.put(theChar, "&#" + (int) ch + ";");
                 break;
 
             case HEXADECIMAL:
-                String hexCharPoint = Integer.toHexString((int)ch);
+                String hexCharPoint = Integer.toHexString(ch);
                 _charMap.put(theChar, "&#x" + hexCharPoint + ";");
                 break;
 
             default:
                 throw new XmlException("XmlOptionCharEscapeMap.addMapping(): " +
-                    "mode must be PREDEF_ENTITY, DECIMAL or HEXADECIMAL");
+                                       "mode must be PREDEF_ENTITY, DECIMAL or HEXADECIMAL");
         }
     }
 
@@ -118,16 +114,13 @@ public class XmlOptionCharEscapeMap
      * set up this contiguous set of characters to be escaped in
      * output documents according to the given mode
      */
-    public void addMappings(char ch1, char ch2, int mode) throws XmlException
-    {
-        if (ch1 > ch2)
-        {
+    public void addMappings(char ch1, char ch2, int mode) throws XmlException {
+        if (ch1 > ch2) {
             throw new XmlException("XmlOptionCharEscapeMap.addMappings(): " +
-                "ch1 must be <= ch2");
+                                   "ch1 must be <= ch2");
         }
 
-        for (char c = ch1; c <= ch2; c++)
-        {
+        for (char c = ch1; c <= ch2; c++) {
             addMapping(c, mode);
         }
     }
@@ -135,8 +128,7 @@ public class XmlOptionCharEscapeMap
     /**
      * returns the escaped String for the character
      */
-    public String getEscapedString(char ch)
-    {
-        return (String)_charMap.get(new Character(ch));
+    public String getEscapedString(char ch) {
+        return _charMap.get(ch);
     }
 }

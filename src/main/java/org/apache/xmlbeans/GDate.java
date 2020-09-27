@@ -37,13 +37,12 @@ import java.util.TimeZone;
  * the year, month, day-of-month, and time-of-day. Not all
  * operations are meaningful on all combinations.
  */
-public final class GDate implements GDateSpecification, java.io.Serializable
-{
+public final class GDate implements GDateSpecification, java.io.Serializable {
     private static final long serialVersionUID = 1L;
 
     // XMLSchema spec requires support only for years 1 to 9999, but XMLBeans covers more up to the following limitations
     // to avoid losing precision when transforming to a java.util.Date
-    static final int MAX_YEAR =  292277265;  // is Long.MAX_VALUE ms in years - 1 (for the 11month, 31days, 23h, 59m, 59sec case).
+    static final int MAX_YEAR = 292277265;  // is Long.MAX_VALUE ms in years - 1 (for the 11month, 31days, 23h, 59m, 59sec case).
     static final int MIN_YEAR = -292275295; // is Long.MIN_VALUE ms in years + 1970 + 1
 
     // for fast equality comparison, hashing, and serialization
@@ -61,214 +60,215 @@ public final class GDate implements GDateSpecification, java.io.Serializable
     private int _tzsign;
     private int _tzh;
     private int _tzm;
-    
-    
-    /* package */ static final BigDecimal _zero = BigDecimal.valueOf(0);
-    /* package */ static final BigDecimal _one = BigDecimal.valueOf(1);
+
+
+    /* package */ static final BigDecimal _zero = BigDecimal.ZERO;
+    /* package */ static final BigDecimal _one = BigDecimal.ONE;
 
     /**
      * Constructs a GDate based on a lexical representation.
      */
-    public GDate(CharSequence string)
-    {
+    public GDate(CharSequence string) {
         // first trim XML whitespace
         int len = string.length();
         int start = 0;
-        while (len > 0 && isSpace(string.charAt(len - 1)))
-            len -= 1;
-        while (start < len && isSpace(string.charAt(start)))
-            start += 1;
-
-        // pick optional timezone off the end
-        if (len - start >= 1 && string.charAt(len - 1) == 'Z')
-        {
-            _bits |= HAS_TIMEZONE;
+        while (len > 0 && isSpace(string.charAt(len - 1))) {
             len -= 1;
         }
-        else if (len - start >= 6)
-        timezone: {
-            int tzsign;
-            int tzhour;
-            int tzminute;
+        while (start < len && isSpace(string.charAt(start))) {
+            start += 1;
+        }
 
-            if (string.charAt(len - 3) != ':')
-                break timezone;
-
-            switch (string.charAt(len - 6))
-            {
-                case '-':
-                    tzsign = -1; break;
-                case '+':
-                    tzsign = 1; break;
-                default:
-                    break timezone;
-            }
-
-            tzhour = twoDigit(string, len - 5);
-            tzminute = twoDigit(string, len - 2);
-            if (tzhour > 14)
-                throw new IllegalArgumentException("time zone hour must be two digits between -14 and +14");
-            if (tzminute > 59)
-                throw new IllegalArgumentException("time zone minute must be two digits between 00 and 59");
+        // pick optional timezone off the end
+        if (len - start >= 1 && string.charAt(len - 1) == 'Z') {
             _bits |= HAS_TIMEZONE;
-            _tzsign = tzsign;
-            _tzh = tzhour;
-            _tzm = tzminute;
-            len -= 6;
+            len -= 1;
+        } else if (len - start >= 6) {
+            timezone:
+            {
+                int tzsign;
+                int tzhour;
+                int tzminute;
+
+                if (string.charAt(len - 3) != ':') {
+                    break timezone;
+                }
+
+                switch (string.charAt(len - 6)) {
+                    case '-':
+                        tzsign = -1;
+                        break;
+                    case '+':
+                        tzsign = 1;
+                        break;
+                    default:
+                        break timezone;
+                }
+
+                tzhour = twoDigit(string, len - 5);
+                tzminute = twoDigit(string, len - 2);
+                if (tzhour > 14) {
+                    throw new IllegalArgumentException("time zone hour must be two digits between -14 and +14");
+                }
+                if (tzminute > 59) {
+                    throw new IllegalArgumentException("time zone minute must be two digits between 00 and 59");
+                }
+                _bits |= HAS_TIMEZONE;
+                _tzsign = tzsign;
+                _tzh = tzhour;
+                _tzm = tzminute;
+                len -= 6;
+            }
         }
 
         // pick date fields off the beginning if it doesn't look like a time
-        if (start < len && (start + 2 >= len || string.charAt(start + 2) != ':'))
-        scandate:
-        {
-            // parse year sign
-            boolean negyear = false;
-            if (start < len && string.charAt(start) == '-')
+        if (start < len && (start + 2 >= len || string.charAt(start + 2) != ':')) {
+            scandate:
             {
-                negyear = true;
-                start += 1;
-            }
-
-            // scan year digits
-            int value = 0;
-            int digits = -start;
-            char ch;
-            boolean startsWithZero = start < len && digitVal(string.charAt(start))==0;
-
-            for (;;)
-            {
-                ch = start < len ? string.charAt(start) : '\0';
-                if (!isDigit(ch))
-                    break;
-                
-                if ( startsWithZero && start+digits>=4 )
-                    throw new IllegalArgumentException("year value starting with zero must be 4 or less digits: " + string);
-
-                value = value * 10 + digitVal(ch);
-                start += 1;
-            }
-            digits += start;
-            if (digits > 9)
-                throw new IllegalArgumentException("year too long (up to 9 digits)");
-            else if (digits >= 4)
-            {
-                _bits |= HAS_YEAR;
-                _CY =  negyear ? -value : value;
-                if (_CY == 0) throw new IllegalArgumentException("year must not be zero");
-            }
-            else if (digits > 0)
-                throw new IllegalArgumentException("year must be four digits (may pad with zeroes, e.g., 0560)");
-
-            if ( _CY > MAX_YEAR )
-                throw new IllegalArgumentException("year value not supported: too big, must be less than " + MAX_YEAR);
-
-            if ( _CY < MIN_YEAR )
-                throw new IllegalArgumentException("year values not supported: too small, must be bigger than " + MIN_YEAR);
-
-            // hyphen introduces a month
-            if (ch != '-')
-            {
-                if (negyear && !hasYear())
-                    throw new IllegalArgumentException(); // a single minus
-                else
-                    break scandate;
-            }
-            start += 1;
-
-            // two-digit month
-            if (len - start >= 2)
-            {
-                value = twoDigit(string, start);
-                if (value >= 1 && value <= 12)
-                {
-                    _bits |= HAS_MONTH;
-                    _M = value;
-                    start += 2;
+                // parse year sign
+                boolean negyear = false;
+                if (string.charAt(start) == '-') {
+                    negyear = true;
+                    start += 1;
                 }
-            }
 
-            // hyphen introduces a day
-            ch = start < len ? string.charAt(start) : '\0';
-            if (ch != '-')
-            {
-                if (!hasMonth())
-                    throw new IllegalArgumentException(); // minus after a year
-                else
-                    break scandate;
-            }
-            start += 1;
+                // scan year digits
+                int value = 0;
+                int digits = -start;
+                char ch;
+                boolean startsWithZero = start < len && digitVal(string.charAt(start)) == 0;
 
-            // two-digit day
-            if (len - start >= 2)
-            {
-                value = twoDigit(string, start);
-                if (value >= 1 && value <= 31)
-                {
-                    _bits |= HAS_DAY;
-                    _D = value;
-                    start += 2;
-                }
-            }
-
-            if (!hasDay())
-            {
-                // error in the original schema spec permits an extra '-' here
-                if (hasMonth() && !hasYear())
-                {
+                for (; ; ) {
                     ch = start < len ? string.charAt(start) : '\0';
-                    if (ch == '-')
-                    {
-                        start += 1;
+                    if (!isDigit(ch)) {
+                        break;
+                    }
+
+                    if (startsWithZero && start + digits >= 4) {
+                        throw new IllegalArgumentException("year value starting with zero must be 4 or less digits: " + string);
+                    }
+
+                    value = value * 10 + digitVal(ch);
+                    start += 1;
+                }
+                digits += start;
+                if (digits > 9) {
+                    throw new IllegalArgumentException("year too long (up to 9 digits)");
+                } else if (digits >= 4) {
+                    _bits |= HAS_YEAR;
+                    _CY = negyear ? -value : value;
+                    if (_CY == 0) {
+                        throw new IllegalArgumentException("year must not be zero");
+                    }
+                } else if (digits > 0) {
+                    throw new IllegalArgumentException("year must be four digits (may pad with zeroes, e.g., 0560)");
+                }
+
+                if (_CY > MAX_YEAR) {
+                    throw new IllegalArgumentException("year value not supported: too big, must be less than " + MAX_YEAR);
+                }
+
+                if (_CY < MIN_YEAR) {
+                    throw new IllegalArgumentException("year values not supported: too small, must be bigger than " + MIN_YEAR);
+                }
+
+                // hyphen introduces a month
+                if (ch != '-') {
+                    if (negyear && !hasYear()) {
+                        throw new IllegalArgumentException(); // a single minus
+                    } else {
                         break scandate;
                     }
                 }
-                throw new IllegalArgumentException(); // minus after a month
+                start += 1;
+
+                // two-digit month
+                if (len - start >= 2) {
+                    value = twoDigit(string, start);
+                    if (value >= 1 && value <= 12) {
+                        _bits |= HAS_MONTH;
+                        _M = value;
+                        start += 2;
+                    }
+                }
+
+                // hyphen introduces a day
+                ch = start < len ? string.charAt(start) : '\0';
+                if (ch != '-') {
+                    if (!hasMonth()) {
+                        throw new IllegalArgumentException(); // minus after a year
+                    } else {
+                        break scandate;
+                    }
+                }
+                start += 1;
+
+                // two-digit day
+                if (len - start >= 2) {
+                    value = twoDigit(string, start);
+                    if (value >= 1 && value <= 31) {
+                        _bits |= HAS_DAY;
+                        _D = value;
+                        start += 2;
+                    }
+                }
+
+                if (!hasDay()) {
+                    // error in the original schema spec permits an extra '-' here
+                    if (hasMonth() && !hasYear()) {
+                        ch = start < len ? string.charAt(start) : '\0';
+                        if (ch == '-') {
+                            start += 1;
+                            break scandate;
+                        }
+                    }
+                    throw new IllegalArgumentException(); // minus after a month
+                }
             }
         }
 
         // time
-        if (start < len)
-        {
-            if (hasYear() || hasMonth() || hasDay())
-            {
-                if (string.charAt(start) != 'T')
-                   throw new IllegalArgumentException("date and time must be separated by 'T'");
+        if (start < len) {
+            if (hasYear() || hasMonth() || hasDay()) {
+                if (string.charAt(start) != 'T') {
+                    throw new IllegalArgumentException("date and time must be separated by 'T'");
+                }
                 start += 1;
             }
 
-            if (len < start + 8 || string.charAt(start + 2) != ':' || string.charAt(start + 5) != ':')
+            if (len < start + 8 || string.charAt(start + 2) != ':' || string.charAt(start + 5) != ':') {
                 throw new IllegalArgumentException();
+            }
 
             int h = twoDigit(string, start);
-            if (h > 24)
+            if (h > 24) {
                 throw new IllegalArgumentException("hour must be between 00 and 23");
+            }
             int m = twoDigit(string, start + 3);
-            if (m >= 60)
+            if (m >= 60) {
                 throw new IllegalArgumentException("minute must be between 00 and 59");
+            }
             int s = twoDigit(string, start + 6);
-            if (s >= 60)
+            if (s >= 60) {
                 throw new IllegalArgumentException("second must be between 00 and 59");
+            }
 
             start += 8;
 
             BigDecimal fs = _zero;
-            if (start < len)
-            {
-                if (string.charAt(start) != '.')
+            if (start < len) {
+                if (string.charAt(start) != '.') {
                     throw new IllegalArgumentException();
-                if (start + 1 < len)
-                {
-                    for (int i = start + 1; i < len; i++)
-                    {
-                        if (!isDigit(string.charAt(i)))
+                }
+                if (start + 1 < len) {
+                    for (int i = start + 1; i < len; i++) {
+                        if (!isDigit(string.charAt(i))) {
                             throw new IllegalArgumentException();
+                        }
                     }
-                    try
-                    {
+                    try {
                         fs = new BigDecimal(string.subSequence(start, len).toString());
-                    }
-                    catch (Throwable e)
-                    {
+                    } catch (Throwable e) {
                         throw new IllegalArgumentException();
                     }
                 }
@@ -281,32 +281,29 @@ public final class GDate implements GDateSpecification, java.io.Serializable
             _fs = fs;
         }
 
-        if ( hasTime() && _h == 24 )
-        {
-            if ( _m != 0 || _s != 0 || _fs.compareTo(_zero) != 0 )
+        if (hasTime() && _h == 24) {
+            if (_m != 0 || _s != 0 || _fs.compareTo(_zero) != 0) {
                 throw new IllegalArgumentException("if hour is 24, minutes, seconds and fraction must be 0");
-            else
-            {   // normalize to next day if it has date or at least has day
-                if ( hasDate() )
-                {
+            } else {   // normalize to next day if it has date or at least has day
+                if (hasDate()) {
                     GDateBuilder gdb = new GDateBuilder(_CY, _M, _D, _h, _m, _s, _fs, _tzsign, _tzh, _tzm);
-                    gdb.normalize24h();                    
+                    gdb.normalize24h();
 
                     _D = gdb.getDay();
                     _M = gdb.getMonth();
                     _CY = gdb.getYear();
                     _h = 0;
-                }
-                else if ( hasDay() ) // if no date only days increment
+                } else if (hasDay()) // if no date only days increment
                 {
                     _D++;
                     _h = 0;
                 }
             }
         }
-        
-        if (!isValid())
+
+        if (!isValid()) {
             throw new IllegalArgumentException("invalid date");
+        }
     }
 
     /**
@@ -319,14 +316,13 @@ public final class GDate implements GDateSpecification, java.io.Serializable
      * do have a specified timezone.
      */
     public GDate(
-            int year,
-            int month,
-            int day,
-            int hour,
-            int minute,
-            int second,
-            BigDecimal fraction)
-    {
+        int year,
+        int month,
+        int day,
+        int hour,
+        int minute,
+        int second,
+        BigDecimal fraction) {
         _bits = HAS_YEAR | HAS_MONTH | HAS_DAY | HAS_TIME;
 
         _CY = year;
@@ -337,8 +333,9 @@ public final class GDate implements GDateSpecification, java.io.Serializable
         _s = second;
         _fs = fraction == null ? _zero : fraction;
 
-        if (!isValid())
+        if (!isValid()) {
             throw new IllegalArgumentException();
+        }
     }
 
     /**
@@ -350,17 +347,16 @@ public final class GDate implements GDateSpecification, java.io.Serializable
      * then use the constructor that does not include the timezone arguments.
      */
     public GDate(
-            int year,
-            int month,
-            int day,
-            int hour,
-            int minute,
-            int second,
-            BigDecimal fraction,
-            int tzSign,
-            int tzHour,
-            int tzMinute)
-    {
+        int year,
+        int month,
+        int day,
+        int hour,
+        int minute,
+        int second,
+        BigDecimal fraction,
+        int tzSign,
+        int tzHour,
+        int tzMinute) {
         _bits = HAS_TIMEZONE | HAS_YEAR | HAS_MONTH | HAS_DAY | HAS_TIME;
 
         _CY = year;
@@ -374,8 +370,9 @@ public final class GDate implements GDateSpecification, java.io.Serializable
         _tzh = tzHour;
         _tzm = tzMinute;
 
-        if (!isValid())
+        if (!isValid()) {
             throw new IllegalArgumentException();
+        }
     }
 
     /**
@@ -387,8 +384,7 @@ public final class GDate implements GDateSpecification, java.io.Serializable
      * date, the timezone on the east coast of the united states
      * translates to GMT-05:00 (EST) + 1:00 (DT offset) == GMT-04:00.
      */
-    public GDate(Date date)
-    {
+    public GDate(Date date) {
         // requires some date math, so ctor lives on GDateBuilder
         this(new GDateBuilder(date));
     }
@@ -404,8 +400,7 @@ public final class GDate implements GDateSpecification, java.io.Serializable
      * Note that org.apache.xmlbeans.XmlCalendar is stable if you re-get a set field,
      * so it does not have the same problem.
      */
-    public GDate(Calendar calendar)
-    {
+    public GDate(Calendar calendar) {
         // we must scrape the "isSet" information out before accessing anything
         boolean isSetYear = calendar.isSet(Calendar.YEAR);
         boolean isSetEra = calendar.isSet(Calendar.ERA);
@@ -420,22 +415,21 @@ public final class GDate implements GDateSpecification, java.io.Serializable
         boolean isSetZone = calendar.isSet(Calendar.ZONE_OFFSET);
         boolean isSetDst = calendar.isSet(Calendar.DST_OFFSET);
 
-        if (isSetYear)
-        {
+        if (isSetYear) {
             int y = calendar.get(Calendar.YEAR);
-            if (isSetEra && calendar instanceof GregorianCalendar)
-                if (calendar.get(Calendar.ERA) == GregorianCalendar.BC)
+            if (isSetEra && calendar instanceof GregorianCalendar) {
+                if (calendar.get(Calendar.ERA) == GregorianCalendar.BC) {
                     y = -y; //1 - y;
+                }
+            }
             _bits |= HAS_YEAR;
             _CY = y;
         }
-        if (isSetMonth)
-        {
+        if (isSetMonth) {
             _bits |= HAS_MONTH;
             _M = calendar.get(Calendar.MONTH) + 1; // !!note
         }
-        if (isSetDay)
-        {
+        if (isSetDay) {
             _bits |= HAS_DAY;
             _D = calendar.get(Calendar.DAY_OF_MONTH);
         }
@@ -446,37 +440,30 @@ public final class GDate implements GDateSpecification, java.io.Serializable
         int s = 0;
         BigDecimal fs = _zero;
 
-        if (isSetHourOfDay)
-        {
+        if (isSetHourOfDay) {
             h = calendar.get(Calendar.HOUR_OF_DAY);
             gotTime = true;
-        }
-        else if (isSetHour && isSetAmPm)
-        {
+        } else if (isSetHour && isSetAmPm) {
             h = calendar.get(Calendar.HOUR) + calendar.get(Calendar.AM_PM) * 12;
             gotTime = true;
         }
 
-        if (isSetMinute)
-        {
+        if (isSetMinute) {
             m = calendar.get(Calendar.MINUTE);
             gotTime = true;
         }
 
-        if (isSetSecond)
-        {
+        if (isSetSecond) {
             s = calendar.get(Calendar.SECOND);
             gotTime = true;
         }
 
-        if (isSetMillis)
-        {
+        if (isSetMillis) {
             fs = BigDecimal.valueOf(calendar.get(Calendar.MILLISECOND), 3);
             gotTime = true;
         }
 
-        if (gotTime)
-        {
+        if (gotTime) {
             _bits |= HAS_TIME;
             _h = h;
             _m = m;
@@ -484,28 +471,30 @@ public final class GDate implements GDateSpecification, java.io.Serializable
             _fs = fs;
         }
 
-        if (isSetZone)
-        {
+        if (isSetZone) {
             int zoneOffsetInMilliseconds = calendar.get(Calendar.ZONE_OFFSET);
-            if (isSetDst)
+            if (isSetDst) {
                 zoneOffsetInMilliseconds += calendar.get(Calendar.DST_OFFSET);
+            }
 
             _bits |= HAS_TIMEZONE;
-            if (zoneOffsetInMilliseconds == 0)
-            {
+            if (zoneOffsetInMilliseconds == 0) {
                 _tzsign = 0;
                 _tzh = 0;
                 _tzm = 0;
                 TimeZone zone = calendar.getTimeZone();
                 String id = zone.getID();
-                if (id != null && id.length() > 3) switch (id.charAt(3))
-                {
-                    case '+': _tzsign = 1; break;   // GMT+00:00
-                    case '-': _tzsign = -1; break;  // GMT-00:00
+                if (id != null && id.length() > 3) {
+                    switch (id.charAt(3)) {
+                        case '+':
+                            _tzsign = 1;
+                            break;   // GMT+00:00
+                        case '-':
+                            _tzsign = -1;
+                            break;  // GMT-00:00
+                    }
                 }
-            }
-            else
-            {
+            } else {
                 _tzsign = (zoneOffsetInMilliseconds < 0 ? -1 : +1);
                 zoneOffsetInMilliseconds = zoneOffsetInMilliseconds * _tzsign;
                 _tzh = zoneOffsetInMilliseconds / 3600000;
@@ -517,18 +506,15 @@ public final class GDate implements GDateSpecification, java.io.Serializable
     /**
      * Constructs a GDate based on another GDateSpecification.
      */
-    public GDate(GDateSpecification gdate)
-    {
-        if (gdate.hasTimeZone())
-        {
+    public GDate(GDateSpecification gdate) {
+        if (gdate.hasTimeZone()) {
             _bits |= HAS_TIMEZONE;
             _tzsign = gdate.getTimeZoneSign();
             _tzh = gdate.getTimeZoneHour();
             _tzm = gdate.getTimeZoneMinute();
         }
 
-        if (gdate.hasTime())
-        {
+        if (gdate.hasTime()) {
             _bits |= HAS_TIME;
             _h = gdate.getHour();
             _m = gdate.getMinute();
@@ -536,34 +522,30 @@ public final class GDate implements GDateSpecification, java.io.Serializable
             _fs = gdate.getFraction();
         }
 
-        if (gdate.hasDay())
-        {
+        if (gdate.hasDay()) {
             _bits |= HAS_DAY;
             _D = gdate.getDay();
         }
 
-        if (gdate.hasMonth())
-        {
+        if (gdate.hasMonth()) {
             _bits |= HAS_MONTH;
             _M = gdate.getMonth();
         }
 
-        if (gdate.hasYear())
-        {
+        if (gdate.hasYear()) {
             _bits |= HAS_YEAR;
             _CY = gdate.getYear();
         }
     }
 
-    /* package */ static final boolean isDigit(char ch)
-    {
-        return ((char)(ch - '0') <= '9' - '0'); // char is unsigned
+    /* package */
+    static boolean isDigit(char ch) {
+        return ((char) (ch - '0') <= '9' - '0'); // char is unsigned
     }
 
-    /* package */ static final boolean isSpace(char ch)
-    {
-        switch (ch)
-        {
+    /* package */
+    static boolean isSpace(char ch) {
+        switch (ch) {
             case ' ':
             case '\t':
             case '\r':
@@ -574,25 +556,24 @@ public final class GDate implements GDateSpecification, java.io.Serializable
         }
     }
 
-    /* package */ static final int digitVal(char ch)
-    {
+    /* package */
+    static int digitVal(char ch) {
         return (ch - '0');
     }
 
-    private static final int twoDigit(CharSequence str, int index)
-    {
+    private static int twoDigit(CharSequence str, int index) {
         char ch1 = str.charAt(index);
         char ch2 = str.charAt(index + 1);
-        if (!isDigit(ch1) || !isDigit(ch2))
+        if (!isDigit(ch1) || !isDigit(ch2)) {
             return 100; // not two digits
+        }
         return digitVal(ch1) * 10 + digitVal(ch2);
     }
 
     /**
      * Returns true: all GDate instances are immutable.
      */
-    public final boolean isImmutable()
-    {
+    public final boolean isImmutable() {
         return true;
     }
 
@@ -601,121 +582,136 @@ public final class GDate implements GDateSpecification, java.io.Serializable
      * contained by this GDate.  The five flags are
      * HAS_TIMEZONE, HAS_YEAR, HAS_MONTH, HAS_DAY, and HAS_TIME.
      */
-    public int getFlags()
-    {
+    public int getFlags() {
         return _bits;
     }
 
     /**
      * True if this date/time specification specifies a timezone.
      */
-    public final boolean hasTimeZone()
-        { return ((_bits & HAS_TIMEZONE) != 0); }
+    public final boolean hasTimeZone() {
+        return ((_bits & HAS_TIMEZONE) != 0);
+    }
 
     /**
      * True if this date/time specification specifies a year.
      */
-    public final boolean hasYear()
-        { return ((_bits & HAS_YEAR) != 0); }
+    public final boolean hasYear() {
+        return ((_bits & HAS_YEAR) != 0);
+    }
 
     /**
      * True if this date/time specification specifies a month-of-year.
      */
-    public final boolean hasMonth()
-        { return ((_bits & HAS_MONTH) != 0); }
+    public final boolean hasMonth() {
+        return ((_bits & HAS_MONTH) != 0);
+    }
 
     /**
      * True if this date/time specification specifies a day-of-month.
      */
-    public final boolean hasDay()
-        { return ((_bits & HAS_DAY) != 0); }
+    public final boolean hasDay() {
+        return ((_bits & HAS_DAY) != 0);
+    }
 
     /**
      * True if this date/time specification specifies a time-of-day.
      */
-    public final boolean hasTime()
-        { return ((_bits & HAS_TIME) != 0); }
+    public final boolean hasTime() {
+        return ((_bits & HAS_TIME) != 0);
+    }
 
     /**
      * True if this date/time specification specifies a full date (year, month, day)
      */
-    public final boolean hasDate()
-        { return ((_bits & (HAS_DAY | HAS_MONTH | HAS_YEAR)) == (HAS_DAY | HAS_MONTH | HAS_YEAR)); }
+    public final boolean hasDate() {
+        return ((_bits & (HAS_DAY | HAS_MONTH | HAS_YEAR)) == (HAS_DAY | HAS_MONTH | HAS_YEAR));
+    }
 
     /**
      * Gets the year. Should be a four-digit year specification.
      */
-    public final int getYear()
-        { return _CY;  }
+    public final int getYear() {
+        return _CY;
+    }
 
     /**
      * Gets the month-of-year. January is 1.
      */
-    public final int getMonth()
-        { return _M;  }
+    public final int getMonth() {
+        return _M;
+    }
 
     /**
      * Gets the day-of-month. The first day of each month is 1.
      */
-    public final int getDay()
-        { return _D; }
+    public final int getDay() {
+        return _D;
+    }
 
     /**
      * Gets the hour-of-day. Midnight is 0, and 11PM is 23.
      */
-    public final int getHour()
-        { return _h; }
+    public final int getHour() {
+        return _h;
+    }
 
     /**
      * Gets the minute-of-hour. Range from 0 to 59.
      */
-    public final int getMinute()
-        { return _m; }
+    public final int getMinute() {
+        return _m;
+    }
 
     /**
      * Gets the second-of-minute. Range from 0 to 59.
      */
-    public final int getSecond()
-        { return _s; }
+    public final int getSecond() {
+        return _s;
+    }
 
     /**
      * Gets the fraction-of-second. Range from 0 (inclusive) to 1 (exclusive).
      */
-    public final BigDecimal getFraction()
-        { return _fs; }
+    public final BigDecimal getFraction() {
+        return _fs;
+    }
 
     /**
      * Gets the time zone sign. For time zones east of GMT,
      * this is positive; for time zones west, this is negative.
      */
-    public final int getTimeZoneSign()
-        { return _tzsign; }
+    public final int getTimeZoneSign() {
+        return _tzsign;
+    }
 
     /**
      * Gets the time zone hour.
-     *
+     * <p>
      * This is always positive: for the sign, look at
      * getTimeZoneSign().
      */
-    public final int getTimeZoneHour()
-        { return _tzh; }
+    public final int getTimeZoneHour() {
+        return _tzh;
+    }
 
     /**
      * Gets the time zone minutes.
-     *
+     * <p>
      * This is always positive: for the sign, look at
      * getTimeZoneSign().
      */
-    public final int getTimeZoneMinute()
-        { return _tzm; }
+    public final int getTimeZoneMinute() {
+        return _tzm;
+    }
 
     /**
      * Gets the rounded millisecond value. Range from 0 to 999
      */
-    public int getMillisecond()
-    {
-        if (_fs == null)
+    public int getMillisecond() {
+        if (_fs == null) {
             return 0;
+        }
         return _fs.setScale(3, BigDecimal.ROUND_DOWN).unscaledValue().intValue();
     }
 
@@ -726,8 +722,7 @@ public final class GDate implements GDateSpecification, java.io.Serializable
      * Other recurring time specifications keep their timezone
      * information.
      */
-    public String canonicalString()
-    {
+    public String canonicalString() {
         ensureCanonicalString();
         return _canonicalString;
     }
@@ -736,8 +731,7 @@ public final class GDate implements GDateSpecification, java.io.Serializable
      * True if this GDate corresponds to a valid gregorian date value
      * in XML schema.
      */
-    public boolean isValid()
-    {
+    public boolean isValid() {
         return GDateBuilder.isValidGDate(this);
     }
 
@@ -746,8 +740,7 @@ public final class GDate implements GDateSpecification, java.io.Serializable
      * The Julian date (JD) is a continuous count of days from
      * 1 January 4713 BC.
      */
-    public int getJulianDate()
-    {
+    public int getJulianDate() {
         return GDateBuilder.julianDateForGDate(this);
     }
 
@@ -764,8 +757,7 @@ public final class GDate implements GDateSpecification, java.io.Serializable
      * This means that if it is important to understand which date fields
      * are set, you must call isSet() first before get().
      */
-    public XmlCalendar getCalendar()
-    {
+    public XmlCalendar getCalendar() {
         return new XmlCalendar(this);
     }
 
@@ -774,8 +766,7 @@ public final class GDate implements GDateSpecification, java.io.Serializable
      * Retrieves the value of the current time as a java.util.Date
      * instance.
      */
-    public Date getDate()
-    {
+    public Date getDate() {
         return GDateBuilder.dateForGDate(this);
     }
 
@@ -790,8 +781,7 @@ public final class GDate implements GDateSpecification, java.io.Serializable
      * Two instances are incomparable if they have different amounts
      * of information.
      */
-    public int compareToGDate(GDateSpecification datespec)
-    {
+    public int compareToGDate(GDateSpecification datespec) {
         return GDateBuilder.compareGDate(this, datespec);
     }
 
@@ -800,7 +790,7 @@ public final class GDate implements GDateSpecification, java.io.Serializable
      * contained in this instance, or 0 if the
      * instance doesn't contain information corresponding to a
      * Schema type.
-     * <p> 
+     * <p>
      * Value will be equal to
      * {@link SchemaType#BTC_NOT_BUILTIN},
      * {@link SchemaType#BTC_G_YEAR},
@@ -812,16 +802,14 @@ public final class GDate implements GDateSpecification, java.io.Serializable
      * {@link SchemaType#BTC_DATE_TIME}, or
      * {@link SchemaType#BTC_TIME}.
      */
-    public int getBuiltinTypeCode()
-    {
+    public int getBuiltinTypeCode() {
         return GDateBuilder.btcForFlags(_bits);
     }
 
     /**
      * Adds a duration to this GDate, and returns a new GDate.
      */
-    public GDate add(GDurationSpecification duration)
-    {
+    public GDate add(GDurationSpecification duration) {
         GDateBuilder builder = new GDateBuilder(this);
         builder.addGDuration(duration);
         return builder.toGDate();
@@ -830,8 +818,7 @@ public final class GDate implements GDateSpecification, java.io.Serializable
     /**
      * Adds a duration to this GDate, and returns a new GDate.
      */
-    public GDate subtract(GDurationSpecification duration)
-    {
+    public GDate subtract(GDurationSpecification duration) {
         GDateBuilder builder = new GDateBuilder(this);
         builder.subtractGDuration(duration);
         return builder.toGDate();
@@ -841,22 +828,22 @@ public final class GDate implements GDateSpecification, java.io.Serializable
      * GDate is an immutable class, and equality is computed based
      * on its canonical value.
      */
-    public boolean equals(Object obj)
-    {
-        if (obj == this)
+    public boolean equals(Object obj) {
+        if (obj == this) {
             return true;
-        if (!(obj instanceof GDate))
+        }
+        if (!(obj instanceof GDate)) {
             return false;
+        }
 
         ensureCanonicalString();
-        return _canonicalString.equals(((GDate)obj).canonicalString());
+        return _canonicalString.equals(((GDate) obj).canonicalString());
     }
 
     /**
      * Returns a hash code for this GDate.
      */
-    public int hashCode()
-    {
+    public int hashCode() {
         ensureCanonicalString();
         return _canonicalString.hashCode();
     }
@@ -868,25 +855,23 @@ public final class GDate implements GDateSpecification, java.io.Serializable
      * Other recurring time specifications keep their timezone
      * information.
      */
-    private void ensureCanonicalString()
-    {
-        if (_canonicalString != null)
+    private void ensureCanonicalString() {
+        if (_canonicalString != null) {
             return;
+        }
 
         boolean needNormalize =
             (hasTimeZone() && getTimeZoneSign() != 0 && hasTime() &&
-            ((hasDay() == hasMonth() && hasDay() == hasYear())));
+             ((hasDay() == hasMonth() && hasDay() == hasYear())));
 
-        if (!needNormalize && getFraction() != null && getFraction().scale() > 0)
-        {
+        if (!needNormalize && getFraction() != null && getFraction().scale() > 0) {
             BigInteger bi = getFraction().unscaledValue();
             needNormalize = (bi.mod(GDateBuilder.TEN).signum() == 0);
         }
 
-        if (!needNormalize)
+        if (!needNormalize) {
             _canonicalString = toString();
-        else
-        {
+        } else {
             GDateBuilder gdb = new GDateBuilder(this);
             gdb.normalize();
             _canonicalString = gdb.toString();
@@ -905,57 +890,54 @@ public final class GDate implements GDateSpecification, java.io.Serializable
      * timezones). To get a canonical string, use the canonicalString()
      * method.
      */
-    public String toString()
-    {
-        if (_string == null)
+    public String toString() {
+        if (_string == null) {
             _string = formatGDate(this);
+        }
         return _string;
     }
 
     private final static char[] _tensDigit =
-    {
-        '0', '0', '0', '0', '0', '0', '0', '0', '0', '0',
-        '1', '1', '1', '1', '1', '1', '1', '1', '1', '1',
-        '2', '2', '2', '2', '2', '2', '2', '2', '2', '2',
-        '3', '3', '3', '3', '3', '3', '3', '3', '3', '3',
-        '4', '4', '4', '4', '4', '4', '4', '4', '4', '4',
-        '5', '5', '5', '5', '5', '5', '5', '5', '5', '5',
-        '6', '6', '6', '6', '6', '6', '6', '6', '6', '6',
-        '7', '7', '7', '7', '7', '7', '7', '7', '7', '7',
-        '8', '8', '8', '8', '8', '8', '8', '8', '8', '8',
-        '9', '9', '9', '9', '9', '9', '9', '9', '9', '9',
-    };
+        {
+            '0', '0', '0', '0', '0', '0', '0', '0', '0', '0',
+            '1', '1', '1', '1', '1', '1', '1', '1', '1', '1',
+            '2', '2', '2', '2', '2', '2', '2', '2', '2', '2',
+            '3', '3', '3', '3', '3', '3', '3', '3', '3', '3',
+            '4', '4', '4', '4', '4', '4', '4', '4', '4', '4',
+            '5', '5', '5', '5', '5', '5', '5', '5', '5', '5',
+            '6', '6', '6', '6', '6', '6', '6', '6', '6', '6',
+            '7', '7', '7', '7', '7', '7', '7', '7', '7', '7',
+            '8', '8', '8', '8', '8', '8', '8', '8', '8', '8',
+            '9', '9', '9', '9', '9', '9', '9', '9', '9', '9',
+        };
     private final static char[] _onesDigit =
-    {
-        '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
-        '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
-        '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
-        '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
-        '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
-        '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
-        '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
-        '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
-        '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
-        '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
-    };
+        {
+            '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
+            '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
+            '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
+            '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
+            '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
+            '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
+            '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
+            '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
+            '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
+            '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
+        };
 
-    private static final int _padTwoAppend(char[] b, int i, int n)
-    {
-        assert(n >= 0 && n < 100);
+    private static int _padTwoAppend(char[] b, int i, int n) {
+        assert (n >= 0 && n < 100);
         b[i] = _tensDigit[n];
         b[i + 1] = _onesDigit[n];
         return i + 2;
     }
 
-    private static final int _padFourAppend(char[] b, int i, int n)
-    {
-        if (n < 0)
-        {
+    private static int _padFourAppend(char[] b, int n) {
+        int i = 0;
+        if (n < 0) {
             b[i++] = '-';
             n = -n;
         }
-        if (n >= 10000)
-        {
+        if (n >= 10000) {
             String s = Integer.toString(n);
             s.getChars(0, s.length(), b, i);
             return i + s.length();
@@ -968,55 +950,58 @@ public final class GDate implements GDateSpecification, java.io.Serializable
         b[i + 3] = _onesDigit[r];
         return i + 4;
     }
-    
+
     private static final TimeZone GMTZONE = TimeZone.getTimeZone("GMT");
     private static final TimeZone[] MINUSZONE =
-            {
-                TimeZone.getTimeZone("GMT-00:00"),
-                TimeZone.getTimeZone("GMT-01:00"),
-                TimeZone.getTimeZone("GMT-02:00"),
-                TimeZone.getTimeZone("GMT-03:00"),
-                TimeZone.getTimeZone("GMT-04:00"),
-                TimeZone.getTimeZone("GMT-05:00"),
-                TimeZone.getTimeZone("GMT-06:00"),
-                TimeZone.getTimeZone("GMT-07:00"),
-                TimeZone.getTimeZone("GMT-08:00"),
-                TimeZone.getTimeZone("GMT-09:00"),
-                TimeZone.getTimeZone("GMT-10:00"),
-                TimeZone.getTimeZone("GMT-11:00"),
-                TimeZone.getTimeZone("GMT-12:00"),
-                TimeZone.getTimeZone("GMT-13:00"),
-                TimeZone.getTimeZone("GMT-14:00"),
-            };
+        {
+            TimeZone.getTimeZone("GMT-00:00"),
+            TimeZone.getTimeZone("GMT-01:00"),
+            TimeZone.getTimeZone("GMT-02:00"),
+            TimeZone.getTimeZone("GMT-03:00"),
+            TimeZone.getTimeZone("GMT-04:00"),
+            TimeZone.getTimeZone("GMT-05:00"),
+            TimeZone.getTimeZone("GMT-06:00"),
+            TimeZone.getTimeZone("GMT-07:00"),
+            TimeZone.getTimeZone("GMT-08:00"),
+            TimeZone.getTimeZone("GMT-09:00"),
+            TimeZone.getTimeZone("GMT-10:00"),
+            TimeZone.getTimeZone("GMT-11:00"),
+            TimeZone.getTimeZone("GMT-12:00"),
+            TimeZone.getTimeZone("GMT-13:00"),
+            TimeZone.getTimeZone("GMT-14:00"),
+        };
     private static final TimeZone[] PLUSZONE =
-            {
-                TimeZone.getTimeZone("GMT+00:00"),
-                TimeZone.getTimeZone("GMT+01:00"),
-                TimeZone.getTimeZone("GMT+02:00"),
-                TimeZone.getTimeZone("GMT+03:00"),
-                TimeZone.getTimeZone("GMT+04:00"),
-                TimeZone.getTimeZone("GMT+05:00"),
-                TimeZone.getTimeZone("GMT+06:00"),
-                TimeZone.getTimeZone("GMT+07:00"),
-                TimeZone.getTimeZone("GMT+08:00"),
-                TimeZone.getTimeZone("GMT+09:00"),
-                TimeZone.getTimeZone("GMT+10:00"),
-                TimeZone.getTimeZone("GMT+11:00"),
-                TimeZone.getTimeZone("GMT+12:00"),
-                TimeZone.getTimeZone("GMT+13:00"),
-                TimeZone.getTimeZone("GMT+14:00"),
-            };
+        {
+            TimeZone.getTimeZone("GMT+00:00"),
+            TimeZone.getTimeZone("GMT+01:00"),
+            TimeZone.getTimeZone("GMT+02:00"),
+            TimeZone.getTimeZone("GMT+03:00"),
+            TimeZone.getTimeZone("GMT+04:00"),
+            TimeZone.getTimeZone("GMT+05:00"),
+            TimeZone.getTimeZone("GMT+06:00"),
+            TimeZone.getTimeZone("GMT+07:00"),
+            TimeZone.getTimeZone("GMT+08:00"),
+            TimeZone.getTimeZone("GMT+09:00"),
+            TimeZone.getTimeZone("GMT+10:00"),
+            TimeZone.getTimeZone("GMT+11:00"),
+            TimeZone.getTimeZone("GMT+12:00"),
+            TimeZone.getTimeZone("GMT+13:00"),
+            TimeZone.getTimeZone("GMT+14:00"),
+        };
 
-    /* package */ static final TimeZone timeZoneForGDate(GDateSpecification date)
-    {
+    /* package */
+    static TimeZone timeZoneForGDate(GDateSpecification date) {
         // use a cached timezone if integral; otherwise make a new one.
-        if (!date.hasTimeZone())
+        if (!date.hasTimeZone()) {
             return TimeZone.getDefault();
-        if (date.getTimeZoneSign() == 0)
+        }
+        if (date.getTimeZoneSign() == 0) {
             return GMTZONE;
-        if (date.getTimeZoneMinute() == 0 && date.getTimeZoneHour() <= 14 && date.getTimeZoneHour() >= 0)
+        }
+        if (date.getTimeZoneMinute() == 0 && date.getTimeZoneHour() <= 14 && date.getTimeZoneHour() >= 0) {
             return date.getTimeZoneSign() < 0 ? MINUSZONE[date.getTimeZoneHour()] : PLUSZONE[date.getTimeZoneHour()];
-        
+        }
+
         char[] zb = new char[9];
         zb[0] = 'G';
         zb[1] = 'M';
@@ -1027,9 +1012,9 @@ public final class GDate implements GDateSpecification, java.io.Serializable
         GDate._padTwoAppend(zb, 7, date.getTimeZoneMinute());
         return TimeZone.getTimeZone(new String(zb));
     }
-    
-    /* package */ static String formatGDate(GDateSpecification spec)
-    {
+
+    /* package */
+    static String formatGDate(GDateSpecification spec) {
         // We've used a char[] rather than a StringBuffer for a 4x speedup
         // -YY(10)YY-MM-DDTHH:MM:SS.FFFFFF+ZH:ZM
         // 1 + 10   + 3+ 3+ 3+ 3+ 3+1 + s + 3+ 3 = 33 + s
@@ -1037,59 +1022,57 @@ public final class GDate implements GDateSpecification, java.io.Serializable
         char[] message = new char[33 + (fs == null ? 0 : fs.scale())];
         int i = 0;
 
-        if (spec.hasYear() || spec.hasMonth() || spec.hasDay())
-        {
-            dmy: {
-                if (spec.hasYear())
-                    i = _padFourAppend(message, 0, spec.getYear());
-                else
+        if (spec.hasYear() || spec.hasMonth() || spec.hasDay()) {
+            dmy:
+            {
+                if (spec.hasYear()) {
+                    i = _padFourAppend(message, spec.getYear());
+                } else {
                     message[i++] = '-';
+                }
 
-                if (!(spec.hasMonth() || spec.hasDay()))
+                if (!(spec.hasMonth() || spec.hasDay())) {
                     break dmy;
+                }
 
                 message[i++] = '-';
-                if (spec.hasMonth())
+                if (spec.hasMonth()) {
                     i = _padTwoAppend(message, i, spec.getMonth());
+                }
 
-                if (!spec.hasDay())
+                if (!spec.hasDay()) {
                     break dmy;
+                }
 
                 message[i++] = '-';
                 i = _padTwoAppend(message, i, spec.getDay());
-                break dmy;
             }
-            if (spec.hasTime())
+            if (spec.hasTime()) {
                 message[i++] = 'T';
+            }
         }
 
-        if (spec.hasTime())
-        {
+        if (spec.hasTime()) {
             i = _padTwoAppend(message, i, spec.getHour());
             message[i++] = ':';
             i = _padTwoAppend(message, i, spec.getMinute());
             message[i++] = ':';
             i = _padTwoAppend(message, i, spec.getSecond());
-            if (fs != _zero) // (optimization ~3%)
+            if (fs != null && !_zero.equals(fs)) // (optimization ~3%)
             {
                 String frac = fs.toString();
                 int point = frac.indexOf('.');
-                if (point >= 0)
-                {
+                if (point >= 0) {
                     frac.getChars(point, frac.length(), message, i);
                     i += frac.length() - point;
                 }
             }
         }
 
-        if (spec.hasTimeZone())
-        {
-            if (spec.getTimeZoneSign() == 0)
-            {
+        if (spec.hasTimeZone()) {
+            if (spec.getTimeZoneSign() == 0) {
                 message[i++] = 'Z';
-            }
-            else
-            {
+            } else {
                 message[i++] = spec.getTimeZoneSign() > 0 ? '+' : '-';
                 i = _padTwoAppend(message, i, spec.getTimeZoneHour());
                 message[i++] = ':';

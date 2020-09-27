@@ -1554,7 +1554,7 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
             new Object[]{getPrimitiveTypeName(), "List"});
     }
 
-    public List<?> xgetListValue() {
+    public List<? extends XmlAnySimpleType> xgetListValue() {
         throw new XmlValueNotSupportedException(XmlErrorCodes.EXCEPTION_VALUE_NOT_SUPPORTED_S2J,
             new Object[]{getPrimitiveTypeName(), "List"});
     }

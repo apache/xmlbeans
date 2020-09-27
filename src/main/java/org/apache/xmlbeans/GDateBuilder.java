@@ -17,6 +17,7 @@ package org.apache.xmlbeans;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.math.RoundingMode;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
@@ -36,10 +37,9 @@ import java.util.TimeZone;
  * normalization is only possible if there is a time, or
  * a time together with a full date.
  */
-public final class GDateBuilder implements GDateSpecification, java.io.Serializable
-{
+public final class GDateBuilder implements GDateSpecification, java.io.Serializable {
     private static final long serialVersionUID = 1L;
-    
+
     private int _bits;
     private int _CY;
     private int _M;
@@ -55,46 +55,47 @@ public final class GDateBuilder implements GDateSpecification, java.io.Serializa
     /**
      * Constructs a GDateBuilder specifying no date or time
      */
-    public GDateBuilder()
-    {
+    public GDateBuilder() {
     }
 
     /**
      * Builds another GDateBuilder with the same value
      * as this one.
      */
-    public Object clone()
-    {
+    public Object clone() {
         return new GDateBuilder(this);
     }
 
     /**
      * Builds a GDate from this GDateBuilder.
      */
-    public GDate toGDate()
-    {
+    public GDate toGDate() {
         return new GDate(this);
     }
 
     /**
      * Construts a GDateBuilder by copying another GDateSpecificaiton.
      */
-    public GDateBuilder(GDateSpecification gdate)
-    {
-        if (gdate.hasTimeZone())
+    public GDateBuilder(GDateSpecification gdate) {
+        if (gdate.hasTimeZone()) {
             setTimeZone(gdate.getTimeZoneSign(), gdate.getTimeZoneHour(), gdate.getTimeZoneMinute());
+        }
 
-        if (gdate.hasTime())
+        if (gdate.hasTime()) {
             setTime(gdate.getHour(), gdate.getMinute(), gdate.getSecond(), gdate.getFraction());
+        }
 
-        if (gdate.hasDay())
+        if (gdate.hasDay()) {
             setDay(gdate.getDay());
+        }
 
-        if (gdate.hasMonth())
+        if (gdate.hasMonth()) {
             setMonth(gdate.getMonth());
+        }
 
-        if (gdate.hasYear())
+        if (gdate.hasYear()) {
             setYear(gdate.getYear());
+        }
     }
 
     // Forms:
@@ -119,14 +120,12 @@ public final class GDateBuilder implements GDateSpecification, java.io.Serializa
      * union of the lexical spaces of all the schema
      * date/time types (except for duration).
      */
-    public GDateBuilder(CharSequence string)
-    {
+    public GDateBuilder(CharSequence string) {
         this(new GDate(string));
     }
 
 
-    public GDateBuilder(Calendar calendar)
-    {
+    public GDateBuilder(Calendar calendar) {
         this(new GDate(calendar));
     }
 
@@ -138,28 +137,28 @@ public final class GDateBuilder implements GDateSpecification, java.io.Serializa
      * Note that by not specifying the timezone the GDateBuilder
      * becomes partially unordered with respect to timesthat do have a
      * specified timezone.
-     * 
-     * @param year The year
-     * @param month The month, from 1-12
-     * @param day The day of month, from 1-31
-     * @param hour The hour of day, from 0-23
-     * @param minute The minute of hour, from 0-59
-     * @param second The second of minute, from 0-59
-     * @param fraction The fraction of second, 0.0 to 0.999... (may be null) 
+     *
+     * @param year     The year
+     * @param month    The month, from 1-12
+     * @param day      The day of month, from 1-31
+     * @param hour     The hour of day, from 0-23
+     * @param minute   The minute of hour, from 0-59
+     * @param second   The second of minute, from 0-59
+     * @param fraction The fraction of second, 0.0 to 0.999... (may be null)
      */
     public GDateBuilder(
-            int year,
-            int month,
-            int day,
-            int hour,
-            int minute,
-            int second,
-            BigDecimal fraction)
-    {
+        int year,
+        int month,
+        int day,
+        int hour,
+        int minute,
+        int second,
+        BigDecimal fraction) {
         _bits = HAS_YEAR | HAS_MONTH | HAS_DAY | HAS_TIME;
 
-        if (year == 0)
+        if (year == 0) {
             throw new IllegalArgumentException();
+        }
 
         _CY = (year > 0 ? year : year + 1);
         _M = month;
@@ -169,8 +168,9 @@ public final class GDateBuilder implements GDateSpecification, java.io.Serializa
         _s = second;
         _fs = fraction == null ? GDate._zero : fraction;
 
-        if (!isValid())
+        if (!isValid()) {
             throw new IllegalArgumentException();
+        }
     }
 
     /**
@@ -184,33 +184,33 @@ public final class GDateBuilder implements GDateSpecification, java.io.Serializa
      * If you wish to have a time or date that isn't in a specified timezone,
      * then use the constructor that does not include the timezone arguments.
      *
-     * @param year the year
-     * @param month the month, from 1-12
-     * @param day the day of month, from 1-31
-     * @param hour the hour of day, from 0-23
-     * @param minute the minute of hour, from 0-59
-     * @param second the second of minute, from 0-59
+     * @param year     the year
+     * @param month    the month, from 1-12
+     * @param day      the day of month, from 1-31
+     * @param hour     the hour of day, from 0-23
+     * @param minute   the minute of hour, from 0-59
+     * @param second   the second of minute, from 0-59
      * @param fraction the fraction of second, 0.0 to 0.999... (may be null)
-     * @param tzSign the timezone offset sign, either +1, 0, or -1
-     * @param tzHour the timezone offset hour
-     * @param tzMinute the timezone offset minute 
+     * @param tzSign   the timezone offset sign, either +1, 0, or -1
+     * @param tzHour   the timezone offset hour
+     * @param tzMinute the timezone offset minute
      */
     public GDateBuilder(
-            int year,
-            int month,
-            int day,
-            int hour,
-            int minute,
-            int second,
-            BigDecimal fraction,
-            int tzSign,
-            int tzHour,
-            int tzMinute)
-    {
+        int year,
+        int month,
+        int day,
+        int hour,
+        int minute,
+        int second,
+        BigDecimal fraction,
+        int tzSign,
+        int tzHour,
+        int tzMinute) {
         _bits = HAS_TIMEZONE | HAS_YEAR | HAS_MONTH | HAS_DAY | HAS_TIME;
 
-        if (year == 0)
+        if (year == 0) {
             throw new IllegalArgumentException();
+        }
 
         _CY = (year > 0 ? year : year + 1);
         _M = month;
@@ -223,8 +223,9 @@ public final class GDateBuilder implements GDateSpecification, java.io.Serializa
         _tzh = tzHour;
         _tzm = tzMinute;
 
-        if (!isValid())
+        if (!isValid()) {
             throw new IllegalArgumentException();
+        }
     }
 
     /**
@@ -235,19 +236,17 @@ public final class GDateBuilder implements GDateSpecification, java.io.Serializa
      * For example, if eastern daylight time is in effect at the given
      * date, the timezone on the east coast of the united states
      * translates to GMT-05:00 (EST) + 1:00 (DT offset) == GMT-04:00.
-     * 
+     *
      * @param date the date object to copy
      */
-    public GDateBuilder(Date date)
-    {
+    public GDateBuilder(Date date) {
         setDate(date);
     }
 
     /**
      * True if the instance is immutable.
      */
-    public boolean isImmutable()
-    {
+    public boolean isImmutable() {
         return false;
     }
 
@@ -256,159 +255,180 @@ public final class GDateBuilder implements GDateSpecification, java.io.Serializa
      * contained by this GDate.  The five flags are
      * HAS_TIMEZONE, HAS_YEAR, HAS_MONTH, HAS_DAY, and HAS_TIME.
      */
-    public int getFlags()
-    {
+    public int getFlags() {
         return _bits;
     }
 
     /**
      * True if this date/time specification specifies a timezone.
      */
-    public final boolean hasTimeZone()
-        { return ((_bits & HAS_TIMEZONE) != 0); }
+    public final boolean hasTimeZone() {
+        return ((_bits & HAS_TIMEZONE) != 0);
+    }
 
     /**
      * True if this date/time specification specifies a year.
      */
-    public final boolean hasYear()
-        { return ((_bits & HAS_YEAR) != 0); }
+    public final boolean hasYear() {
+        return ((_bits & HAS_YEAR) != 0);
+    }
 
     /**
      * True if this date/time specification specifies a month-of-year.
      */
-    public final boolean hasMonth()
-        { return ((_bits & HAS_MONTH) != 0); }
+    public final boolean hasMonth() {
+        return ((_bits & HAS_MONTH) != 0);
+    }
 
     /**
      * True if this date/time specification specifies a day-of-month.
      */
-    public final boolean hasDay()
-        { return ((_bits & HAS_DAY) != 0); }
+    public final boolean hasDay() {
+        return ((_bits & HAS_DAY) != 0);
+    }
 
     /**
      * True if this date/time specification specifies a time-of-day.
      */
-    public final boolean hasTime()
-        { return ((_bits & HAS_TIME) != 0); }
+    public final boolean hasTime() {
+        return ((_bits & HAS_TIME) != 0);
+    }
 
     /**
      * True if this date/time specification specifies a full date (year, month, day)
      */
-    public final boolean hasDate()
-        { return ((_bits & (HAS_DAY | HAS_MONTH | HAS_YEAR)) == (HAS_DAY | HAS_MONTH | HAS_YEAR)); }
+    public final boolean hasDate() {
+        return ((_bits & (HAS_DAY | HAS_MONTH | HAS_YEAR)) == (HAS_DAY | HAS_MONTH | HAS_YEAR));
+    }
 
     /**
      * Gets the year. Should be a four-digit year specification.
      */
-    public final int getYear()
-        { return (_CY > 0 ? _CY : _CY - 1);  }
+    public final int getYear() {
+        return (_CY > 0 ? _CY : _CY - 1);
+    }
 
     /**
      * Gets the month-of-year. January is 1.
      */
-    public final int getMonth()
-        { return _M;  }
+    public final int getMonth() {
+        return _M;
+    }
 
     /**
      * Gets the day-of-month. The first day of each month is 1.
      */
-    public final int getDay()
-        { return _D; }
+    public final int getDay() {
+        return _D;
+    }
 
     /**
      * Gets the hour-of-day. Midnight is 0, and 11PM is 23.
      */
-    public final int getHour()
-        { return _h; }
+    public final int getHour() {
+        return _h;
+    }
 
     /**
      * Gets the minute-of-hour. Range from 0 to 59.
      */
-    public final int getMinute()
-        { return _m; }
+    public final int getMinute() {
+        return _m;
+    }
 
     /**
      * Gets the second-of-minute. Range from 0 to 59.
      */
-    public final int getSecond()
-        { return _s; }
+    public final int getSecond() {
+        return _s;
+    }
 
 
     /**
      * Gets the fraction-of-second. Range from 0 (inclusive) to 1 (exclusive).
      */
-    public final BigDecimal getFraction()
-        { return _fs; }
+    public final BigDecimal getFraction() {
+        return _fs;
+    }
 
 
     /**
      * Gets the rounded millisecond value. Range from 0 to 999
      */
-    public final int getMillisecond()
-    {
-        if (_fs == null || _fs == GDate._zero)
+    public final int getMillisecond() {
+        if (_fs == null || GDate._zero.equals(_fs)) {
             return 0;
-        return _fs.setScale(3, BigDecimal.ROUND_HALF_UP).unscaledValue().intValue();
+        }
+        return _fs.setScale(3, RoundingMode.HALF_UP).unscaledValue().intValue();
     }
 
     /**
      * Gets the time zone sign. For time zones east of GMT,
      * this is positive; for time zones west, this is negative.
      */
-    public final int getTimeZoneSign()
-        { return _tzsign; }
+    public final int getTimeZoneSign() {
+        return _tzsign;
+    }
 
     /**
      * Gets the time zone hour.
      * This is always positive: for the sign, look at
      * getTimeZoneSign().
      */
-    public final int getTimeZoneHour()
-        { return _tzh; }
+    public final int getTimeZoneHour() {
+        return _tzh;
+    }
 
     /**
      * Gets the time zone minutes.
      * This is always positive: for the sign, look at
      * getTimeZoneSign().
      */
-    public final int getTimeZoneMinute()
-        { return _tzm; }
+    public final int getTimeZoneMinute() {
+        return _tzm;
+    }
 
-    
 
     /**
      * Sets the year. Should be a four-digit year specification.
+     *
      * @param year the year
      */
-    public void setYear(int year)
-    {
-        if (year < GDate.MIN_YEAR || year > GDate.MAX_YEAR)
+    public void setYear(int year) {
+        if (year < GDate.MIN_YEAR || year > GDate.MAX_YEAR) {
             throw new IllegalArgumentException("year out of range");
-        if (year == 0)
+        }
+        if (year == 0) {
             throw new IllegalArgumentException("year cannot be 0");
-        _bits |= HAS_YEAR; _CY = (year > 0 ? year : year + 1);
+        }
+        _bits |= HAS_YEAR;
+        _CY = (year > 0 ? year : year + 1);
     }
 
     /**
      * Sets the month-of-year. January is 1.
+     *
      * @param month the month, from 1-12
      */
-    public void setMonth(int month)
-    {
-        if (month < 1 || month > 12)
+    public void setMonth(int month) {
+        if (month < 1 || month > 12) {
             throw new IllegalArgumentException("month out of range");
-        _bits |= HAS_MONTH; _M = month;
+        }
+        _bits |= HAS_MONTH;
+        _M = month;
     }
 
     /**
      * Sets the day-of-month. The first day of each month is 1.
+     *
      * @param day the day of month, from 1-31
      */
-    public void setDay(int day)
-    {
-        if (day < 1 || day > 31)
+    public void setDay(int day) {
+        if (day < 1 || day > 31) {
             throw new IllegalArgumentException("day out of range");
-        _bits |= HAS_DAY; _D = day;
+        }
+        _bits |= HAS_DAY;
+        _D = day;
     }
 
     /**
@@ -416,23 +436,28 @@ public final class GDateBuilder implements GDateSpecification, java.io.Serializa
      * minutes and seconds range from 0 to 59; and fractional
      * seconds range from 0 (inclusive) to 1 (exclusive).
      * The fraction can be null and is assumed to be zero.
-     * @param hour the hour of day, from 0-23 or 24 only if min, sec and fraction are 0
-     * @param minute the minute of hour, from 0-59
-     * @param second the second of minute, from 0-59
+     *
+     * @param hour     the hour of day, from 0-23 or 24 only if min, sec and fraction are 0
+     * @param minute   the minute of hour, from 0-59
+     * @param second   the second of minute, from 0-59
      * @param fraction the fraction of second, 0.0 to 0.999... (may be null)
      */
-    public void setTime(int hour, int minute, int second, BigDecimal fraction)
-    {
-        if (hour < 0 || hour > 24 )
+    public void setTime(int hour, int minute, int second, BigDecimal fraction) {
+        if (hour < 0 || hour > 24) {
             throw new IllegalArgumentException("hour out of range");
-        if (minute < 0 || minute > 59)
+        }
+        if (minute < 0 || minute > 59) {
             throw new IllegalArgumentException("minute out of range");
-        if (second < 0 || second > 59)
+        }
+        if (second < 0 || second > 59) {
             throw new IllegalArgumentException("second out of range");
-        if (fraction != null && (fraction.signum() < 0 || fraction.compareTo(GDate._one) > 1))
+        }
+        if (fraction != null && (fraction.signum() < 0 || GDate._one.compareTo(fraction) <= 0)) {
             throw new IllegalArgumentException("fraction out of range");
-        if ( hour == 24 && (minute!=0 || second!=0 || (fraction!=null && (GDate._zero.compareTo(fraction)!=0)) ))
+        }
+        if (hour == 24 && (minute != 0 || second != 0 || (fraction != null && (GDate._zero.compareTo(fraction) != 0)))) {
             throw new IllegalArgumentException("when hour is 24, min sec and fracton must be 0");
+        }
 
         _bits |= HAS_TIME;
         _h = hour;
@@ -450,41 +475,41 @@ public final class GDateBuilder implements GDateSpecification, java.io.Serializa
      * Timezones must be between -14:00 and +14:00. Sign
      * must be -1 or 1 (or 0 for UTC only), and the offset hours
      * and minute arguments must be nonnegative.
-     * 
-     * @param tzSign the timezone offset sign, either +1, 0, or -1
-     * @param tzHour the timezone offset hour
-     * @param tzMinute the timezone offset minute 
+     *
+     * @param tzSign   the timezone offset sign, either +1, 0, or -1
+     * @param tzHour   the timezone offset hour
+     * @param tzMinute the timezone offset minute
      */
-    public void setTimeZone(int tzSign, int tzHour, int tzMinute)
-    {
+    public void setTimeZone(int tzSign, int tzHour, int tzMinute) {
         if (!((tzSign == 0 && tzHour == 0 && tzMinute == 0) ||
               ((tzSign == -1 || tzSign == 1) &&
                (tzHour >= 0 && tzMinute >= 0) &&
-               (tzHour == 14 && tzMinute == 0 || tzHour < 14 && tzMinute < 60))))
+               (tzHour == 14 && tzMinute == 0 || tzHour < 14 && tzMinute < 60)))) {
             throw new IllegalArgumentException("time zone out of range (-14:00 to +14:00). (" +
-                (tzSign<0 ? "-" : "+") + tzHour + ":" + tzMinute + ")");
+                                               (tzSign < 0 ? "-" : "+") + tzHour + ":" + tzMinute + ")");
+        }
 
         _bits |= HAS_TIMEZONE;
         _tzsign = tzSign;
         _tzh = tzHour;
         _tzm = tzMinute;
     }
-    
+
     /**
      * Sets the time zone based on a number of offset minutes rather
      * than sign/hour/minute; for example, setTimeZone(-60) is the
      * same as setTimeZone(-1, 1, 0).
      */
-    public void setTimeZone(int tzTotalMinutes)
-    {
-        if (tzTotalMinutes < -14 * 60 || tzTotalMinutes > 14 * 60)
+    public void setTimeZone(int tzTotalMinutes) {
+        if (tzTotalMinutes < -14 * 60 || tzTotalMinutes > 14 * 60) {
             throw new IllegalArgumentException("time zone out of range (-840 to 840 minutes). (" + tzTotalMinutes + ")");
-        
-        int tzSign = tzTotalMinutes < 0 ? -1 : tzTotalMinutes > 0 ? 1 : 0;
+        }
+
+        int tzSign = Integer.compare(tzTotalMinutes, 0);
         tzTotalMinutes *= tzSign;
         int tzH = tzTotalMinutes / 60;
         int tzM = tzTotalMinutes - tzH * 60;
-        
+
         setTimeZone(tzSign, tzH, tzM);
     }
 
@@ -492,30 +517,35 @@ public final class GDateBuilder implements GDateSpecification, java.io.Serializa
      * Clears the year. After clearing, hasYear returns false and the
      * value of getYear is undefined.
      */
-    public void clearYear()
-        { _bits &= ~HAS_YEAR; _CY = 0;  }
+    public void clearYear() {
+        _bits &= ~HAS_YEAR;
+        _CY = 0;
+    }
 
     /**
      * Clears the month-of-year. After clearing. hasMonth returns false and
      * the value of getMonth is undefined.
      */
-    public void clearMonth()
-        { _bits &= ~HAS_MONTH; _M = 0;  }
+    public void clearMonth() {
+        _bits &= ~HAS_MONTH;
+        _M = 0;
+    }
 
     /**
      * Clears the day-of-month. After clearing. hasDay returns false and
      * the value of getDay is undefined.
      */
-    public void clearDay()
-        { _bits &= ~HAS_DAY; _D = 0;  }
+    public void clearDay() {
+        _bits &= ~HAS_DAY;
+        _D = 0;
+    }
 
     /**
      * Clears the time-of-day.
      * After clearing. hasTime returns false and
      * the value of getTime is undefined.
      */
-    public void clearTime()
-    {
+    public void clearTime() {
         _bits &= ~HAS_TIME;
         _h = 0;
         _m = 0;
@@ -528,8 +558,7 @@ public final class GDateBuilder implements GDateSpecification, java.io.Serializa
      * the value of getTimeZoneHour and getTimeZoneMinute are undefined.
      * Does not change the other time fields.
      */
-    public void clearTimeZone()
-    {
+    public void clearTimeZone() {
         _bits &= ~HAS_TIMEZONE;
         _tzsign = 0;
         _tzh = 0;
@@ -541,48 +570,52 @@ public final class GDateBuilder implements GDateSpecification, java.io.Serializa
      * can be invalid, for example, if you change the month to February
      * and the day-of-month is 31.
      */
-    public boolean isValid()
-    {
+    public boolean isValid() {
         return isValidGDate(this);
     }
 
-    /* package */ static final boolean isValidGDate(GDateSpecification date)
-    {
-        if (date.hasYear() && date.getYear() == 0)
+    /* package */
+    static boolean isValidGDate(GDateSpecification date) {
+        if (date.hasYear() && date.getYear() == 0) {
             return false;
+        }
 
-        if (date.hasMonth() && (date.getMonth() < 1 || date.getMonth() > 12))
+        if (date.hasMonth() && (date.getMonth() < 1 || date.getMonth() > 12)) {
             return false;
+        }
 
-        if (date.hasDay() && 
-            (date.getDay() < 1 || date.getDay() > 31 || 
-             date.getDay() > 28 && 
-             date.hasMonth() && 
-             (date.hasYear() ? 
-              date.getDay() > _maxDayInMonthFor((date.getYear() > 0 ? 
-                                                 date.getYear() : 
-                                                 date.getYear() + 1), 
-                                                date.getMonth()) : 
-              date.getDay() > _maxDayInMonth(date.getMonth()))))
+        if (date.hasDay() &&
+            (date.getDay() < 1 || date.getDay() > 31 ||
+             date.getDay() > 28 &&
+             date.hasMonth() &&
+             (date.hasYear() ?
+                 date.getDay() > _maxDayInMonthFor((date.getYear() > 0 ?
+                         date.getYear() :
+                         date.getYear() + 1),
+                     date.getMonth()) :
+                 date.getDay() > _maxDayInMonth(date.getMonth())))) {
             return false;
+        }
 
         if (date.hasTime() && ((date.getHour() < 0 || date.getHour() > 23 ||
-            date.getMinute() < 0 || date.getMinute() > 59 ||
-            date.getSecond() < 0 || date.getSecond() > 59 ||
-            date.getFraction().signum() < 0 || date.getFraction().compareTo(GDate._one) >= 0)  ) &&
+                                date.getMinute() < 0 || date.getMinute() > 59 ||
+                                date.getSecond() < 0 || date.getSecond() > 59 ||
+                                date.getFraction().signum() < 0 || date.getFraction().compareTo(GDate._one) >= 0)) &&
             // check for 24:00:00 valid format
             !(date.getHour() == 24 && date.getMinute() == 0 && date.getSecond() == 0 &&
-              date.getFraction().compareTo(GDate._zero) == 0 ) )
+              date.getFraction().compareTo(GDate._zero) == 0)) {
             return false;
+        }
 
         if (date.hasTimeZone() &&
             (!((date.getTimeZoneSign() == 0 && date.getTimeZoneHour() == 0 && date.getTimeZoneMinute() == 0) ||
-              ((date.getTimeZoneSign() == -1 || date.getTimeZoneSign() == +1) &&
+               ((date.getTimeZoneSign() == -1 || date.getTimeZoneSign() == +1) &&
                 // NB: allow +00:00 and -00:00
                 // (date.getTimeZoneHour() == 0 && date.getTimeZoneMinute() > 0 || date.getTimeZoneHour() > 0 && date.getTimeZoneMinute() >= 0) &&
-               (date.getTimeZoneHour() >= 0 && date.getTimeZoneMinute() >= 0) &&
-               (date.getTimeZoneHour() == 14 && date.getTimeZoneMinute() == 0 || date.getTimeZoneHour() < 14 && date.getTimeZoneMinute() < 60)))))
+                (date.getTimeZoneHour() >= 0 && date.getTimeZoneMinute() >= 0) &&
+                (date.getTimeZoneHour() == 14 && date.getTimeZoneMinute() == 0 || date.getTimeZoneHour() < 14 && date.getTimeZoneMinute() < 60))))) {
             return false;
+        }
 
         // everyting looks kosher
         return true;
@@ -599,76 +632,71 @@ public final class GDateBuilder implements GDateSpecification, java.io.Serializa
      * If a time or time and date is specified, this method normalizes the timezone
      * to UTC.
      */
-    public void normalize()
-    {
+    public void normalize() {
         // DateTime or Time, with TimeZone: normalize to UTC.
         // In the process all the fields will be normalized.
         if (hasDay() == hasMonth() && hasDay() == hasYear() &&
-            hasTimeZone() && hasTime() )
-        {
+            hasTimeZone() && hasTime()) {
             normalizeToTimeZone(0, 0, 0);
-        }
-        else
-        {
+        } else {
             // No timezone, or incomplete date.
             _normalizeTimeAndDate();
         }
 
         // remove trailing zeros from fractional seconds
-        if (hasTime() && _fs != null && _fs.scale() > 0)
-        {
-            if (_fs.signum() == 0)
+        if (hasTime() && _fs != null && _fs.scale() > 0) {
+            if (_fs.signum() == 0) {
                 _fs = GDate._zero;
-            else
-            {
+            } else {
                 BigInteger bi = _fs.unscaledValue();
                 String str = bi.toString();
                 int lastzero;
-                for (lastzero = str.length(); lastzero > 0; lastzero -= 1)
-                    if (str.charAt(lastzero - 1) != '0')
+                for (lastzero = str.length(); lastzero > 0; lastzero -= 1) {
+                    if (str.charAt(lastzero - 1) != '0') {
                         break;
-                if (lastzero < str.length())
-                    _fs = _fs.setScale(_fs.scale() - str.length() + lastzero);
+                    }
+                }
+                if (lastzero < str.length()) {
+                    _fs = _fs.setScale(_fs.scale() - str.length() + lastzero, RoundingMode.UNNECESSARY);
+                }
             }
         }
     }
 
-   /**
+    /**
      * Normalizes the instance when hour is 24. If day is present, hour 24 is equivalent to hour 00 next day.
      */
-    void normalize24h()
-    {
-        if ( !hasTime() || getHour()!=24 )
+    void normalize24h() {
+        if (!hasTime() || getHour() != 24) {
             return;
+        }
 
         _normalizeTimeAndDate();
     }
 
 
-    private void _normalizeTimeAndDate()
-    {
+    private void _normalizeTimeAndDate() {
         long carry = 0;
 
-        if (hasTime())
+        if (hasTime()) {
             carry = _normalizeTime();
-
-        if (hasDay())
-            _D += carry;
-
-        if (hasDate())
-        {
-            _normalizeDate();
         }
-        else if (hasMonth())
-        {
+
+        if (hasDay()) {
+            _D += carry;
+        }
+
+        if (hasDate()) {
+            _normalizeDate();
+        } else if (hasMonth()) {
             // with incomplete dates, just months can be normalized:
             // days stay denormalized.
-            if (_M < 1 || _M > 12)
-            {
+            if (_M < 1 || _M > 12) {
                 int temp = _M;
                 _M = _modulo(temp, 1, 13);
-                if (hasYear())
-                    _CY = _CY + (int)_fQuotient(temp, 1, 13);
+                if (hasYear()) {
+                    _CY = _CY + (int) _fQuotient(temp, 1, 13);
+                }
             }
         }
     }
@@ -680,24 +708,26 @@ public final class GDateBuilder implements GDateSpecification, java.io.Serializa
      * <p>
      * It is an error to operate on instances without a time or timezone, or
      * with a partially specified date.
-     * 
-     * @param tzSign the timezone offset sign, either +1, 0, or -1
-     * @param tzHour the timezone offset hour
-     * @param tzMinute the timezone offset minute 
+     *
+     * @param tzSign   the timezone offset sign, either +1, 0, or -1
+     * @param tzHour   the timezone offset hour
+     * @param tzMinute the timezone offset minute
      */
-    public void normalizeToTimeZone(int tzSign, int tzHour, int tzMinute)
-    {
+    public void normalizeToTimeZone(int tzSign, int tzHour, int tzMinute) {
         if (!((tzSign == 0 && tzHour == 0 && tzMinute == 0) ||
               ((tzSign == -1 || tzSign == 1) &&
                (tzHour >= 0 && tzMinute >= 0) &&
-               (tzHour == 14 && tzMinute == 0 || tzHour < 14 && tzMinute < 60))))
+               (tzHour == 14 && tzMinute == 0 || tzHour < 14 && tzMinute < 60)))) {
             throw new IllegalArgumentException("time zone must be between -14:00 and +14:00");
+        }
 
-        if (!hasTimeZone() || !hasTime())
+        if (!hasTimeZone() || !hasTime()) {
             throw new IllegalStateException("cannot normalize time zone without both time and timezone");
+        }
 
-        if (!(hasDay() == hasMonth() && hasDay() == hasYear()))
+        if (!(hasDay() == hasMonth() && hasDay() == hasYear())) {
             throw new IllegalStateException("cannot do date math without a complete date");
+        }
 
         int hshift = tzSign * tzHour - _tzsign * _tzh;
         int mshift = tzSign * tzMinute - _tzsign * _tzm;
@@ -713,40 +743,38 @@ public final class GDateBuilder implements GDateSpecification, java.io.Serializa
      * than sign/hour/minute; for example, normalizeToTimeZone(-60) is the
      * same as normalizeToTimeZone(-1, 1, 0).
      */
-    public void normalizeToTimeZone(int tzTotalMinutes)
-    {
-        if (tzTotalMinutes < -14 * 60 || tzTotalMinutes > 14 * 60)
+    public void normalizeToTimeZone(int tzTotalMinutes) {
+        if (tzTotalMinutes < -14 * 60 || tzTotalMinutes > 14 * 60) {
             throw new IllegalArgumentException("time zone out of range (-840 to 840 minutes). (" + tzTotalMinutes + ")");
-        
-        int tzSign = tzTotalMinutes < 0 ? -1 : tzTotalMinutes > 0 ? 1 : 0;
+        }
+
+        int tzSign = Integer.compare(tzTotalMinutes, 0);
         tzTotalMinutes *= tzSign;
         int tzH = tzTotalMinutes / 60;
         int tzM = tzTotalMinutes - tzH * 60;
-        
+
         normalizeToTimeZone(tzSign, tzH, tzM);
     }
 
 
     /**
      * Adds a given duration to the date/time.
-     * 
+     *
      * @param duration the duration to add
      */
-    public void addGDuration(GDurationSpecification duration)
-    {
+    public void addGDuration(GDurationSpecification duration) {
         addDuration(duration.getSign(), duration.getYear(), duration.getMonth(), duration.getDay(),
-                    duration.getHour(), duration.getMinute(), duration.getSecond(), duration.getFraction());
+            duration.getHour(), duration.getMinute(), duration.getSecond(), duration.getFraction());
     }
 
     /**
      * Subtracts a given duration from the date/time.
-     * 
+     *
      * @param duration the duration to subtract
      */
-    public void subtractGDuration(GDurationSpecification duration)
-    {
+    public void subtractGDuration(GDurationSpecification duration) {
         addDuration(-duration.getSign(), duration.getYear(), duration.getMonth(), duration.getDay(),
-                    duration.getHour(), duration.getMinute(), duration.getSecond(), duration.getFraction());
+            duration.getHour(), duration.getMinute(), duration.getSecond(), duration.getFraction());
     }
 
 
@@ -754,14 +782,12 @@ public final class GDateBuilder implements GDateSpecification, java.io.Serializa
      * Normalizes the date by carrying over to the year any months outside 1..12
      * and carrying over to the month any days outside 1..(days-in-month).
      */
-    private void _normalizeDate()
-    {
-        if (_M < 1 || _M > 12 || _D < 1 || _D > _maxDayInMonthFor(_CY, _M))
-        {
+    private void _normalizeDate() {
+        if (_M < 1 || _M > 12 || _D < 1 || _D > _maxDayInMonthFor(_CY, _M)) {
             // fix months first
             int temp = _M;
             _M = _modulo(temp, 1, 13);
-            _CY = _CY + (int)_fQuotient(temp, 1, 13);
+            _CY = _CY + (int) _fQuotient(temp, 1, 13);
 
             // then pull days out
             int extradays = _D - 1;
@@ -777,21 +803,18 @@ public final class GDateBuilder implements GDateSpecification, java.io.Serializa
      * and hours 0..24. Returns the number of days to carry over from normalizing
      * away more than 24 hours.
      */
-    private long _normalizeTime()
-    {
+    private long _normalizeTime() {
         long carry = 0;
         long temp;
 
         // fractions
-        if (_fs != null && (_fs.signum() < 0 || _fs.compareTo(GDate._one) >= 0))
-        {
-            BigDecimal bdcarry = _fs.setScale(0, BigDecimal.ROUND_FLOOR);
+        if (_fs != null && (_fs.signum() < 0 || _fs.compareTo(GDate._one) >= 0)) {
+            BigDecimal bdcarry = _fs.setScale(0, RoundingMode.FLOOR);
             _fs = _fs.subtract(bdcarry);
             carry = bdcarry.longValue();
         }
 
-        if (carry != 0 || _s < 0 || _s > 59 || _m < 0 || _m > 50 || _h < 0 || _h > 23)
-        {
+        if (carry != 0 || _s < 0 || _s > 59 || _m < 0 || _m > 50 || _h < 0 || _h > 23) {
             // seconds
             temp = _s + carry;
             carry = _fQuotient(temp, 60);
@@ -813,61 +836,61 @@ public final class GDateBuilder implements GDateSpecification, java.io.Serializa
 
     /**
      * Adds a given duration to the date/time.
-     * 
-     * @param sign +1 to add, -1 to subtract
-     * @param year the number of years to add
-     * @param month the number of months to add
-     * @param day the number of days to add
-     * @param hour the number of hours to add
-     * @param minute the number of minutes to add
-     * @param second the number of seconds to add
+     *
+     * @param sign     +1 to add, -1 to subtract
+     * @param year     the number of years to add
+     * @param month    the number of months to add
+     * @param day      the number of days to add
+     * @param hour     the number of hours to add
+     * @param minute   the number of minutes to add
+     * @param second   the number of seconds to add
      * @param fraction the number of fractional seconds to add (may be null)
      */
     public void addDuration(int sign, int year, int month, int day,
-                            int hour, int minute, int second, BigDecimal fraction)
-    {
+                            int hour, int minute, int second, BigDecimal fraction) {
         boolean timemath = hour != 0 || minute != 0 || second != 0 || fraction != null && fraction.signum() != 0;
-        if (timemath && !hasTime())
+        if (timemath && !hasTime()) {
             throw new IllegalStateException("cannot do time math without a complete time");
+        }
         boolean datemath = hasDay() && (day != 0 || timemath);
-        if (datemath && !hasDate())
+        if (datemath && !hasDate()) {
             throw new IllegalStateException("cannot do date math without a complete date");
+        }
 
         int temp;
 
         // months + years are easy
-        if (month != 0 || year != 0)
-        {
+        if (month != 0 || year != 0) {
             // Prepare the _D to be pegged before changing month
-            if (hasDay())
+            if (hasDay()) {
                 _normalizeDate();
+            }
 
             // Add months and years
             temp = _M + sign * month;
             _M = _modulo(temp, 1, 13);
-            _CY = _CY + sign * year + (int)_fQuotient(temp, 1, 13);
+            _CY = _CY + sign * year + (int) _fQuotient(temp, 1, 13);
 
             // In new month, day may need to be pegged before proceeding
-            if (hasDay())
-            {
-                assert(_D >= 1);
+            if (hasDay()) {
+                assert (_D >= 1);
                 temp = _maxDayInMonthFor(_CY, _M);
-                if (_D > temp)
+                if (_D > temp) {
                     _D = temp;
+                }
             }
         }
 
         long carry = 0;
 
-        if (timemath)
-        {
+        if (timemath) {
             // fractions
-            if (fraction != null && fraction.signum() != 0)
-            {
-                if (_fs.signum() == 0 && sign == 1)
+            if (fraction != null && fraction.signum() != 0) {
+                if (_fs.signum() == 0 && sign == 1) {
                     _fs = fraction;
-                else
+                } else {
                     _fs = (sign == 1) ? _fs.add(fraction) : _fs.subtract(fraction);
+                }
             }
 
             // seconds, minutes, hours
@@ -879,8 +902,7 @@ public final class GDateBuilder implements GDateSpecification, java.io.Serializa
             carry = _normalizeTime();
         }
 
-        if (datemath)
-        {
+        if (datemath) {
             // days: may require renormalization
             _D += sign * day + carry;
             _normalizeDate();
@@ -891,13 +913,14 @@ public final class GDateBuilder implements GDateSpecification, java.io.Serializa
      * Given {year,month} computes maximum
      * number of days for given month
      */
-    private static int _maxDayInMonthFor(int year, int month)
-    {
-        if (month == 4 || month == 6 || month == 9 || month == 11)
+    private static int _maxDayInMonthFor(int year, int month) {
+        if (month == 4 || month == 6 || month == 9 || month == 11) {
             return 30;
+        }
 
-        if (month == 2)
+        if (month == 2) {
             return (_isLeapYear(year) ? 29 : 28);
+        }
 
         return 31;
     }
@@ -906,13 +929,14 @@ public final class GDateBuilder implements GDateSpecification, java.io.Serializa
      * Given {year,month} computes maximum
      * number of days for given month
      */
-    private static int _maxDayInMonth(int month)
-    {
-        if (month == 4 || month == 6 || month == 9 || month == 11)
+    private static int _maxDayInMonth(int month) {
+        if (month == 4 || month == 6 || month == 9 || month == 11) {
             return 30;
+        }
 
-        if (month == 2)
+        if (month == 2) {
             return 29;
+        }
 
         return 31;
     }
@@ -922,8 +946,7 @@ public final class GDateBuilder implements GDateSpecification, java.io.Serializa
      * The Julian date (JD) is a continuous count of days from
      * 1 January 4713 BC.
      */
-    public final int getJulianDate()
-    {
+    public final int getJulianDate() {
         return julianDateForGDate(this);
     }
 
@@ -932,13 +955,13 @@ public final class GDateBuilder implements GDateSpecification, java.io.Serializa
      * Sets the Gregorian date based on the given Julian date.
      * The Julian date (JD) is a continuous count of days from
      * 1 January 4713 BC.
-     * 
+     *
      * @param julianday the julian day number
      */
-    public void setJulianDate(int julianday)
-    {
-        if (julianday < 0)
+    public void setJulianDate(int julianday) {
+        if (julianday < 0) {
             throw new IllegalArgumentException("date before year -4713");
+        }
 
         int temp;
         int qepoc;
@@ -968,17 +991,15 @@ public final class GDateBuilder implements GDateSpecification, java.io.Serializa
      * <p>
      * If you wish to normalize the timezone, e.g., to UTC, follow this with
      * a call to normalizeToTimeZone.
-     * 
+     *
      * @param date the Date object to copy
      */
-    public void setDate(Date date)
-    {
+    public void setDate(Date date) {
         // Default timezone
         TimeZone dtz = TimeZone.getDefault();
         int offset = dtz.getOffset(date.getTime());
         int offsetsign = 1;
-        if (offset < 0)
-        {
+        if (offset < 0) {
             offsetsign = -1;
             offset = -offset;
         }
@@ -987,7 +1008,7 @@ public final class GDateBuilder implements GDateSpecification, java.io.Serializa
         offsetmin = offsetmin - offsethr * 60;
 
         setTimeZone(offsetsign, offsethr, offsetmin);
-        
+
         // paranoia: tz.getOffset can return fractions of minutes, but we must round
         int roundedoffset = offsetsign * (offsethr * 60 + offsetmin) * 60 * 1000;
 
@@ -1003,21 +1024,21 @@ public final class GDateBuilder implements GDateSpecification, java.io.Serializa
 
         // Add a duration representing the number of milliseconds
         addGDuration(new GDuration(1, 0, 0, 0, 0, 0, 0,
-                BigDecimal.valueOf(date.getTime() + roundedoffset, 3)));
+            BigDecimal.valueOf(date.getTime() + roundedoffset, 3)));
 
         // special case: ss.000 -> ss
-        if (_fs.signum() == 0)
+        if (_fs.signum() == 0) {
             _fs = GDate._zero;
+        }
     }
-    
+
     /**
      * Copies a GDateSpecification, completely replacing the current
      * information in this GDateBuilder.
-     * 
+     *
      * @param gdate the GDateSpecification to copy
-     */ 
-    public void setGDate(GDateSpecification gdate)
-    {
+     */
+    public void setGDate(GDateSpecification gdate) {
         _bits = gdate.getFlags() & (HAS_TIMEZONE | HAS_YEAR | HAS_MONTH | HAS_DAY | HAS_TIME);
         int year = gdate.getYear();
         _CY = (year > 0 ? year : year + 1);
@@ -1046,8 +1067,7 @@ public final class GDateBuilder implements GDateSpecification, java.io.Serializa
      * This means that if it is important to understand which date fields
      * are set, you must call isSet() first before get().
      */
-    public XmlCalendar getCalendar()
-    {
+    public XmlCalendar getCalendar() {
         return new XmlCalendar(this);
     }
 
@@ -1055,32 +1075,33 @@ public final class GDateBuilder implements GDateSpecification, java.io.Serializa
      * Retrieves the value of the current time as a java.util.Date
      * instance.
      */
-    public Date getDate()
-    {
+    public Date getDate() {
         return dateForGDate(this);
     }
 
-    /* package */ static int julianDateForGDate(GDateSpecification date)
-    {
-        if (!date.hasDate())
+    /* package */
+    static int julianDateForGDate(GDateSpecification date) {
+        if (!date.hasDate()) {
             throw new IllegalStateException("cannot do date math without a complete date");
+        }
 
         // from http://aa.usno.navy.mil/faq/docs/JD_Formula.html
         int day = date.getDay();
         int month = date.getMonth();
         int year = date.getYear();
         year = (year > 0 ? year : year + 1);
-        int result = day-32075+1461*(year+4800+(month-14)/12)/4+
-            367*(month-2-(month-14)/12*12)/12-3*((year+4900+(month-14)/12)/100)/4;
+        int result = day - 32075 + 1461 * (year + 4800 + (month - 14) / 12) / 4 +
+                     367 * (month - 2 - (month - 14) / 12 * 12) / 12 - 3 * ((year + 4900 + (month - 14) / 12) / 100) / 4;
 
-        if (result < 0)
+        if (result < 0) {
             throw new IllegalStateException("date too far in the past (year allowed to -4713)");
+        }
 
         return result;
     }
 
-    /* package */ static Date dateForGDate(GDateSpecification date)
-    {
+    /* package */
+    static Date dateForGDate(GDateSpecification date) {
         long jDate = julianDateForGDate(date);
         long to1970Date = jDate - 2440588;
         long to1970Ms = 1000 * 60 * 60 * 24 * to1970Date;
@@ -1089,13 +1110,10 @@ public final class GDateBuilder implements GDateSpecification, java.io.Serializa
         to1970Ms += date.getSecond() * 1000;
         to1970Ms += date.getMinute() * 60 * 1000;
         to1970Ms += date.getHour() * 60 * 60 * 1000;
-        if (date.hasTimeZone())
-        {
+        if (date.hasTimeZone()) {
             to1970Ms -= (date.getTimeZoneMinute() * date.getTimeZoneSign()) * 60 * 1000;
             to1970Ms -= (date.getTimeZoneHour() * date.getTimeZoneSign()) * 60 * 60 * 1000;
-        }
-        else
-        {
+        } else {
             TimeZone def = TimeZone.getDefault();
             int offset = def.getOffset(to1970Ms);
             to1970Ms -= offset;
@@ -1107,8 +1125,7 @@ public final class GDateBuilder implements GDateSpecification, java.io.Serializa
     /**
      * True for leap years.
      */
-    private static boolean _isLeapYear(int year)
-    {
+    private static boolean _isLeapYear(int year) {
         // BUGBUG: Julian calendar?
         return ((year % 4 == 0) && ((year % 100 != 0) || (year % 400 == 0)));
     }
@@ -1116,10 +1133,10 @@ public final class GDateBuilder implements GDateSpecification, java.io.Serializa
     /**
      * fQuotient(a, b) = the greatest integer less than or equal to a/b
      */
-    private static final long _fQuotient(long a, int b)
-    {
-        if ((a < 0) == (b < 0))
+    private static long _fQuotient(long a, int b) {
+        if ((a < 0) == (b < 0)) {
             return a / b;
+        }
 
         return -((b - a - 1) / b);
     }
@@ -1127,26 +1144,23 @@ public final class GDateBuilder implements GDateSpecification, java.io.Serializa
     /**
      * modulo(a, b) = a - fQuotient(a,b)*b
      */
-    private static int _mod(long a, int b, long quotient)
-    {
-        return (int)(a - quotient*b) ;
+    private static int _mod(long a, int b, long quotient) {
+        return (int) (a - quotient * b);
     }
 
     /**
      * modulo(a - low, high - low) + low
      */
-    private static final int _modulo(long temp, int low, int high)
-    {
+    private static int _modulo(long temp, int low, int high) {
         long a = temp - low;
         int b = high - low;
-        return (_mod(a, b, _fQuotient(a, b)) + low) ;
+        return (_mod(a, b, _fQuotient(a, b)) + low);
     }
 
     /**
      * Quotient(a - low, high - low)
      */
-    private static final long _fQuotient(long temp, int low, int high)
-    {
+    private static long _fQuotient(long temp, int low, int high) {
         return _fQuotient(temp - low, high - low);
     }
 
@@ -1154,23 +1168,26 @@ public final class GDateBuilder implements GDateSpecification, java.io.Serializa
      * Sets to the first possible moment that matches the given
      * specification.
      */
-    private void _setToFirstMoment()
-    {
+    private void _setToFirstMoment() {
         // 1584 was the first leap year during which the Gregorian
         // calendar was in use: seems like the most reasonable "first"
         // year to use in absence of a year.
 
-        if (!hasYear())
+        if (!hasYear()) {
             setYear(1584);
+        }
 
-        if (!hasMonth())
+        if (!hasMonth()) {
             setMonth(1);
+        }
 
-        if (!hasDay())
+        if (!hasDay()) {
             setDay(1);
+        }
 
-        if (!hasTime())
+        if (!hasTime()) {
             setTime(0, 0, 0, GDate._zero);
+        }
     }
 
     /**
@@ -1183,41 +1200,37 @@ public final class GDateBuilder implements GDateSpecification, java.io.Serializa
      * </ul>
      * Two instances are incomparable if they have different amounts
      * of information.
-     * 
+     *
      * @param datespec the date to compare against
      */
-    public final int compareToGDate(GDateSpecification datespec)
-    {
+    public final int compareToGDate(GDateSpecification datespec) {
         return compareGDate(this, datespec);
     }
 
 
-    /* package */ static final int compareGDate(GDateSpecification tdate, GDateSpecification datespec)
-    {
+    /* package */
+    static int compareGDate(GDateSpecification tdate, GDateSpecification datespec) {
         // same amount of information: looks good
         int bitdiff = tdate.getFlags() ^ datespec.getFlags();
 
-        easy: if ((bitdiff & (HAS_YEAR | HAS_MONTH | HAS_DAY | HAS_TIME | HAS_TIMEZONE)) == 0)
-        {
+        if ((bitdiff & (HAS_YEAR | HAS_MONTH | HAS_DAY | HAS_TIME | HAS_TIMEZONE)) == 0) {
             // If the other date needs to be normalized to
             // our timezone, make a clone and do so if possible
             if (tdate.hasTimeZone() &&
                 (datespec.getTimeZoneHour() != tdate.getTimeZoneHour() ||
                  datespec.getTimeZoneMinute() != tdate.getTimeZoneMinute() ||
-                 datespec.getTimeZoneSign() != tdate.getTimeZoneSign()))
-            {
+                 datespec.getTimeZoneSign() != tdate.getTimeZoneSign())) {
                 datespec = new GDateBuilder(datespec);
 
                 int flags = tdate.getFlags() & (HAS_YEAR | HAS_MONTH | HAS_DAY);
-                if (flags != 0 && flags != (HAS_YEAR | HAS_MONTH | HAS_DAY) || !tdate.hasTime())
-                {
+                if (flags != 0 && flags != (HAS_YEAR | HAS_MONTH | HAS_DAY) || !tdate.hasTime()) {
                     // in these cases we'll need to fill in fields
-                    ((GDateBuilder)datespec)._setToFirstMoment();
+                    ((GDateBuilder) datespec)._setToFirstMoment();
                     tdate = new GDateBuilder(tdate);
-                    ((GDateBuilder)tdate)._setToFirstMoment();
+                    ((GDateBuilder) tdate)._setToFirstMoment();
                 }
 
-                ((GDateBuilder)datespec).normalizeToTimeZone(tdate.getTimeZoneSign(), tdate.getTimeZoneHour(), tdate.getTimeZoneMinute());
+                ((GDateBuilder) datespec).normalizeToTimeZone(tdate.getTimeZoneSign(), tdate.getTimeZoneHour(), tdate.getTimeZoneMinute());
             }
 
             // compare by field
@@ -1225,15 +1238,15 @@ public final class GDateBuilder implements GDateSpecification, java.io.Serializa
         }
 
         // different amounts of information (except timezone): not comparable
-        if ((bitdiff & (HAS_YEAR | HAS_MONTH | HAS_DAY | HAS_TIME)) != 0)
+        if ((bitdiff & (HAS_YEAR | HAS_MONTH | HAS_DAY | HAS_TIME)) != 0) {
             return 2;
+        }
 
         // The schema spec says we should try to compare with-timezone and
         // without-timezone specifications... Well, OK, sure, if they say so.
 
         // We don't have a timezone but the other does: reverse the call
-        if (!tdate.hasTimeZone())
-        {
+        if (!tdate.hasTimeZone()) {
             int result = compareGDate(datespec, tdate);
             return result == 2 ? 2 : -result;
         }
@@ -1246,20 +1259,14 @@ public final class GDateBuilder implements GDateSpecification, java.io.Serializa
         // To cover the one uncovered case: if one date is 02/28 and the
         // other date is 03/01, shift days closer by one to simulate being
         // the last day of the month within a leap year
-        if ((tdate.getFlags() & (HAS_YEAR | HAS_MONTH | HAS_DAY)) == (HAS_MONTH | HAS_DAY))
-        {
-            if (tdate.getDay() == 28 && tdate.getMonth() == 2)
-            {
-                if (datespec.getDay() == 01 && datespec.getMonth() == 3)
-                {
+        if ((tdate.getFlags() & (HAS_YEAR | HAS_MONTH | HAS_DAY)) == (HAS_MONTH | HAS_DAY)) {
+            if (tdate.getDay() == 28 && tdate.getMonth() == 2) {
+                if (datespec.getDay() == 1 && datespec.getMonth() == 3) {
                     pdate.setDay(29);
                 }
-            }
-            else if (datespec.getDay() == 28 && datespec.getMonth() == 2)
-            {
-                if (tdate.getDay() == 01 && tdate.getMonth() == 3)
-                {
-                    pdate.setMonth(02);
+            } else if (datespec.getDay() == 28 && datespec.getMonth() == 2) {
+                if (tdate.getDay() == 1 && tdate.getMonth() == 3) {
+                    pdate.setMonth(2);
                     pdate.setDay(29);
                 }
             }
@@ -1275,8 +1282,9 @@ public final class GDateBuilder implements GDateSpecification, java.io.Serializa
         qplusdate._setToFirstMoment();
         qplusdate.setTimeZone(1, 14, 0);
         qplusdate.normalizeToTimeZone(tdate.getTimeZoneSign(), tdate.getTimeZoneHour(), tdate.getTimeZoneMinute());
-        if (fieldwiseCompare(pdate, qplusdate) == -1)
+        if (fieldwiseCompare(pdate, qplusdate) == -1) {
             return -1;
+        }
 
         // P > Q if P > (Q with time zone -14:00)
         GDateBuilder qminusdate = qplusdate;
@@ -1284,8 +1292,9 @@ public final class GDateBuilder implements GDateSpecification, java.io.Serializa
         qminusdate._setToFirstMoment();
         qminusdate.setTimeZone(-1, 14, 0);
         qminusdate.normalizeToTimeZone(tdate.getTimeZoneSign(), tdate.getTimeZoneHour(), tdate.getTimeZoneMinute());
-        if (fieldwiseCompare(pdate, qminusdate) == 1)
+        if (fieldwiseCompare(pdate, qminusdate) == 1) {
             return 1;
+        }
 
         // P <> Q otherwise
         return 2;
@@ -1296,46 +1305,67 @@ public final class GDateBuilder implements GDateSpecification, java.io.Serializa
      * ignoring any timezone or has/doesn't have issues.
      * The data must have been digested first.
      */
-    private static int fieldwiseCompare(GDateSpecification tdate, GDateSpecification date)
-    {
-        if (tdate.hasYear())
-        {
+    private static int fieldwiseCompare(GDateSpecification tdate, GDateSpecification date) {
+        if (tdate.hasYear()) {
             int CY = date.getYear();
             int TCY = tdate.getYear();
-            if (TCY < CY) return -1;
-            if (TCY > CY) return 1;
+            if (TCY < CY) {
+                return -1;
+            }
+            if (TCY > CY) {
+                return 1;
+            }
         }
-        if (tdate.hasMonth())
-        {
+        if (tdate.hasMonth()) {
             int M = date.getMonth();
             int TM = tdate.getMonth();
-            if (TM < M) return -1;
-            if (TM > M) return 1;
+            if (TM < M) {
+                return -1;
+            }
+            if (TM > M) {
+                return 1;
+            }
         }
-        if (tdate.hasDay())
-        {
+        if (tdate.hasDay()) {
             int D = date.getDay();
             int TD = tdate.getDay();
-            if (TD < D) return -1;
-            if (TD > D) return 1;
+            if (TD < D) {
+                return -1;
+            }
+            if (TD > D) {
+                return 1;
+            }
         }
-        if (tdate.hasTime())
-        {
+        if (tdate.hasTime()) {
             int h = date.getHour();
             int th = tdate.getHour();
-            if (th < h) return -1;
-            if (th > h) return 1;
+            if (th < h) {
+                return -1;
+            }
+            if (th > h) {
+                return 1;
+            }
             int m = date.getMinute();
             int tm = tdate.getMinute();
-            if (tm < m) return -1;
-            if (tm > m) return 1;
+            if (tm < m) {
+                return -1;
+            }
+            if (tm > m) {
+                return 1;
+            }
             int s = date.getSecond();
             int ts = tdate.getSecond();
-            if (ts < s) return -1;
-            if (ts > s) return 1;
+            if (ts < s) {
+                return -1;
+            }
+            if (ts > s) {
+                return 1;
+            }
             BigDecimal fs = date.getFraction();
             BigDecimal tfs = tdate.getFraction();
-            if (tfs == null && fs == null) return 0;
+            if (tfs == null && fs == null) {
+                return 0;
+            }
             return (tfs == null ? GDate._zero : tfs).compareTo(fs == null ? GDate._zero : fs);
         }
 
@@ -1347,7 +1377,7 @@ public final class GDateBuilder implements GDateSpecification, java.io.Serializa
      * contained in this instance, or 0 if the
      * instance doesn't contain information corresponding to a
      * Schema type.
-     * <p> 
+     * <p>
      * Value will be equal to
      * {@link SchemaType#BTC_NOT_BUILTIN},
      * {@link SchemaType#BTC_G_YEAR},
@@ -1359,15 +1389,13 @@ public final class GDateBuilder implements GDateSpecification, java.io.Serializa
      * {@link SchemaType#BTC_DATE_TIME}, or
      * {@link SchemaType#BTC_TIME}.
      */
-    public final int getBuiltinTypeCode()
-    {
+    public final int getBuiltinTypeCode() {
         return btcForFlags(_bits);
     }
 
-    /* package */ static int btcForFlags(int flags)
-    {
-        switch (flags & (HAS_YEAR | HAS_MONTH | HAS_DAY | HAS_TIME))
-        {
+    /* package */
+    static int btcForFlags(int flags) {
+        switch (flags & (HAS_YEAR | HAS_MONTH | HAS_DAY | HAS_TIME)) {
             case HAS_YEAR:
                 return SchemaType.BTC_G_YEAR;
             case HAS_YEAR | HAS_MONTH:
@@ -1400,13 +1428,11 @@ public final class GDateBuilder implements GDateSpecification, java.io.Serializa
      * {@link SchemaType#BTC_DATE},
      * {@link SchemaType#BTC_DATE_TIME}, or
      * {@link SchemaType#BTC_TIME}.
-     * 
+     *
      * @param typeCode the type code to apply
      */
-    public void setBuiltinTypeCode(int typeCode)
-    {
-        switch (typeCode)
-        {
+    public void setBuiltinTypeCode(int typeCode) {
+        switch (typeCode) {
             case SchemaType.BTC_G_YEAR:
                 //HAS_YEAR
                 clearMonth();
@@ -1463,20 +1489,19 @@ public final class GDateBuilder implements GDateSpecification, java.io.Serializa
      * Other recurring time specifications keep their timezone
      * information.
      */
-    public String canonicalString()
-    {
+    public String canonicalString() {
         boolean needNormalize =
             (hasTimeZone() && getTimeZoneSign() != 0 && hasTime() &&
-            ((hasDay() == hasMonth() && hasDay() == hasYear())));
+             ((hasDay() == hasMonth() && hasDay() == hasYear())));
 
-        if (!needNormalize && getFraction()!=null && getFraction().scale() > 0)
-        {
+        if (!needNormalize && getFraction() != null && getFraction().scale() > 0) {
             BigInteger bi = getFraction().unscaledValue();
             needNormalize = (bi.mod(TEN).signum() == 0);
         }
 
-        if (!needNormalize)
+        if (!needNormalize) {
             return toString();
+        }
 
         GDateBuilder cdate = new GDateBuilder(this);
         cdate.normalize();
@@ -1495,8 +1520,7 @@ public final class GDateBuilder implements GDateSpecification, java.io.Serializa
      * timezones). To get a canonical string, use the canonicalString()
      * method.
      */
-    public final String toString()
-    {
+    public final String toString() {
         return GDate.formatGDate(this);
     }
 

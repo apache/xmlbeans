@@ -275,11 +275,11 @@ public abstract class FilterXmlObject implements XmlObject, SimpleValue, Delegat
         return ((SimpleValue) underlyingXmlObject()).getQNameValue();
     }
 
-    public List getListValue() {
+    public List<?> getListValue() {
         return ((SimpleValue) underlyingXmlObject()).getListValue();
     }
 
-    public List xgetListValue() {
+    public List<? extends XmlAnySimpleType> xgetListValue() {
         return ((SimpleValue) underlyingXmlObject()).xgetListValue();
     }
 

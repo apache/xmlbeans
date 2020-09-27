@@ -38,14 +38,14 @@ public class XmlListImpl extends XmlObjectBase implements XmlAnySimpleType {
     }
 
     private final SchemaType _schemaType;
-    private XmlSimpleList _value;
-    private XmlSimpleList _jvalue;
+    private XmlSimpleList<? extends XmlAnySimpleType> _value;
+    private XmlSimpleList<?> _jvalue;
 
 
     // SIMPLE VALUE ACCESSORS BELOW -------------------------------------------
     // gets raw text value
 
-    private static String compute_list_text(List<Object> xList) {
+    private static String compute_list_text(List<? extends XmlAnySimpleType> xList) {
         return xList.isEmpty() ? "" : xList.stream().map(XmlListImpl::object2String).collect(Collectors.joining(" "));
 
     }
@@ -61,7 +61,7 @@ public class XmlListImpl extends XmlObjectBase implements XmlAnySimpleType {
 
     protected boolean is_defaultable_ws(String v) {
         try {
-            XmlSimpleList savedValue = _value;
+            XmlSimpleList<? extends XmlAnySimpleType> savedValue = _value;
             set_text(v);
 
             // restore the saved value
@@ -82,7 +82,7 @@ public class XmlListImpl extends XmlObjectBase implements XmlAnySimpleType {
 
         SchemaType itemType = _schemaType.getListItemType();
 
-        XmlSimpleList newval = lex(s, itemType, _voorVc, has_store() ? get_store() : null);
+        XmlSimpleList<? extends XmlAnySimpleType> newval = lex(s, itemType, _voorVc, has_store() ? get_store() : null);
 
         // check enumeration
         if (_validateOnSet()) {
@@ -119,7 +119,7 @@ public class XmlListImpl extends XmlObjectBase implements XmlAnySimpleType {
         }
     }
 
-    public static XmlSimpleList lex(String s, SchemaType itemType, ValidationContext ctx, PrefixResolver resolver) {
+    public static XmlSimpleList<? extends XmlAnySimpleType> lex(String s, SchemaType itemType, ValidationContext ctx, PrefixResolver resolver) {
         String[] parts = split_list(s);
 
         Function<String, XmlAnySimpleType> fun = (str) -> {
@@ -137,8 +137,8 @@ public class XmlListImpl extends XmlObjectBase implements XmlAnySimpleType {
             pushed = true;
         }
         try {
-            List<? super Object> list = Stream.of(parts).map(fun).collect(Collectors.toList());
-            return new XmlSimpleList(list);
+            List<? extends XmlAnySimpleType> list = Stream.of(parts).map(fun).collect(Collectors.toList());
+            return new XmlSimpleList<>(list);
         } finally {
             if (pushed) {
                 NamespaceContext.pop();
@@ -150,7 +150,8 @@ public class XmlListImpl extends XmlObjectBase implements XmlAnySimpleType {
         _value = null;
     }
 
-    public List<?> xgetListValue() {
+    @Override
+    public XmlSimpleList<? extends XmlAnySimpleType> xgetListValue() {
         check_dated();
         return _value;
     }
@@ -167,7 +168,7 @@ public class XmlListImpl extends XmlObjectBase implements XmlAnySimpleType {
         for (Object o : _value) {
             javaResult.add(java_value((XmlObject) o));
         }
-        _jvalue = new XmlSimpleList(javaResult);
+        _jvalue = new XmlSimpleList<>(javaResult);
         return _jvalue;
     }
 
@@ -192,7 +193,7 @@ public class XmlListImpl extends XmlObjectBase implements XmlAnySimpleType {
 
     public void set_list(List<?> list) {
         SchemaType itemType = _schemaType.getListItemType();
-        XmlSimpleList xList;
+        XmlSimpleList<? extends XmlAnySimpleType> xList;
 
         boolean pushed = false;
         if (has_store()) {
@@ -211,8 +212,7 @@ public class XmlListImpl extends XmlObjectBase implements XmlAnySimpleType {
         };
 
         try {
-            List<? super Object> l = list.stream().map(fun).collect(Collectors.toList());
-            xList = new XmlSimpleList(l);
+            xList = new XmlSimpleList<>(list.stream().map(fun).collect(Collectors.toList()));
         } finally {
             if (pushed) {
                 NamespaceContext.pop();
@@ -228,7 +228,7 @@ public class XmlListImpl extends XmlObjectBase implements XmlAnySimpleType {
         _jvalue = null;
     }
 
-    public static void validateValue(XmlSimpleList items, SchemaType sType, ValidationContext context) {
+    public static void validateValue(XmlSimpleList<? extends XmlAnySimpleType> items, SchemaType sType, ValidationContext context) {
         XmlObject[] enumvals = sType.getEnumerationValues();
         checkEnum:
         if (enumvals != null) {
@@ -304,16 +304,11 @@ public class XmlListImpl extends XmlObjectBase implements XmlAnySimpleType {
             hash += _value.get(i).hashCode();
         }
 
-        if (i < _value.size()) {
-            hash *= 19;
-            hash += _value.get(i).hashCode();
-        }
-
         return hash;
     }
 
     protected void validate_simpleval(String lexical, ValidationContext ctx) {
-        validateValue((XmlSimpleList) xgetListValue(), schemaType(), ctx);
+        validateValue(xgetListValue(), schemaType(), ctx);
     }
 
 }

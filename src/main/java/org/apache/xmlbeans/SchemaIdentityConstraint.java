@@ -15,14 +15,12 @@
 
 package org.apache.xmlbeans;
 
-import javax.xml.namespace.QName;
 import java.util.Map;
 
 /**
  * Represents an identity constraint definition.
- */ 
-public interface SchemaIdentityConstraint extends SchemaComponent, SchemaAnnotated
-{
+ */
+public interface SchemaIdentityConstraint extends SchemaComponent, SchemaAnnotated {
     /**
      * Return the selector xpath as a string.
      */
@@ -44,18 +42,24 @@ public interface SchemaIdentityConstraint extends SchemaComponent, SchemaAnnotat
     Object getFieldPath(int index);
 
     /**
-     * Return a read-only copy of the namespace map. This is the 
+     * Return a read-only copy of the namespace map. This is the
      * set of prefix to URI mappings that were in scope in the
      * schema at the point at which this constraint was declared
      */
-    Map getNSMap();
+    Map<String, String> getNSMap();
 
-    /** A <a target="_blank" href="http://www.w3.org/TR/xmlschema-1/#declare-key">xs:key</a> constraint.  See {@link #getConstraintCategory}. */
-    public static final int CC_KEY = 1;
-    /** A <a target="_blank" href="http://www.w3.org/TR/xmlschema-1/#declare-key">xs:keyRef</a> constraint.  See {@link #getConstraintCategory}. */
-    public static final int CC_KEYREF = 2;
-    /** A <a target="_blank" href="http://www.w3.org/TR/xmlschema-1/#declare-key">xs:unique</a> constraint.  See {@link #getConstraintCategory}. */
-    public static final int CC_UNIQUE = 3;
+    /**
+     * A <a target="_blank" href="http://www.w3.org/TR/xmlschema-1/#declare-key">xs:key</a> constraint.  See {@link #getConstraintCategory}.
+     */
+    int CC_KEY = 1;
+    /**
+     * A <a target="_blank" href="http://www.w3.org/TR/xmlschema-1/#declare-key">xs:keyRef</a> constraint.  See {@link #getConstraintCategory}.
+     */
+    int CC_KEYREF = 2;
+    /**
+     * A <a target="_blank" href="http://www.w3.org/TR/xmlschema-1/#declare-key">xs:unique</a> constraint.  See {@link #getConstraintCategory}.
+     */
+    int CC_UNIQUE = 3;
 
     /**
      * Return the constraint category. Either {@link #CC_KEY}, {@link #CC_KEYREF},
@@ -71,26 +75,28 @@ public interface SchemaIdentityConstraint extends SchemaComponent, SchemaAnnotat
 
     /**
      * Used to allow on-demand loading of identity constraints.
-     * 
-     * @exclude
      */
-    public static final class Ref extends SchemaComponent.Ref
-    {
-        public Ref(SchemaIdentityConstraint idc)
-            { super(idc); }
+    final class Ref extends SchemaComponent.Ref {
+        public Ref(SchemaIdentityConstraint idc) {
+            super(idc);
+        }
 
-        public Ref(SchemaTypeSystem system, String handle)
-            { super(system, handle); }
+        public Ref(SchemaTypeSystem system, String handle) {
+            super(system, handle);
+        }
 
-        public final int getComponentType()
-            { return SchemaComponent.IDENTITY_CONSTRAINT; }
+        public final int getComponentType() {
+            return SchemaComponent.IDENTITY_CONSTRAINT;
+        }
 
-        public final SchemaIdentityConstraint get()
-            { return (SchemaIdentityConstraint)getComponent(); }
+        public final SchemaIdentityConstraint get() {
+            return (SchemaIdentityConstraint) getComponent();
+        }
     }
 
     /**
      * Returns user-specific information.
+     *
      * @see SchemaBookmark
      */
     Object getUserData();
