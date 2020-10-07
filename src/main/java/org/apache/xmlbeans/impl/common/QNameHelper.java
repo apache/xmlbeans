@@ -15,18 +15,18 @@
 
 package org.apache.xmlbeans.impl.common;
 
-import javax.xml.namespace.QName;
+import org.apache.xmlbeans.SchemaField;
+import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.xml.stream.XMLName;
 
+import javax.xml.namespace.QName;
+import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.Map;
-import java.util.HashMap;
 import java.util.Collections;
-import java.io.UnsupportedEncodingException;
-
-import org.apache.xmlbeans.SchemaType;
-import org.apache.xmlbeans.SchemaField;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
 
 public class QNameHelper
 {
@@ -36,10 +36,10 @@ public class QNameHelper
     {
         if (qname == null)
             return null;
-        
+
         return XMLNameHelper.forLNS( qname.getLocalPart(), qname.getNamespaceURI() );
     }
-    
+
     public static QName forLNS(String localname, String uri)
     {
         if (uri == null)
@@ -67,7 +67,7 @@ public class QNameHelper
 
         if (name.getNamespaceURI() == null || name.getNamespaceURI().length() == 0)
             return name.getLocalPart();
-        
+
         return name.getLocalPart() + "@" + name.getNamespaceURI();
     }
 
@@ -102,7 +102,7 @@ public class QNameHelper
     //
     // The reason for the "shortening" is to avoid filenames longer than about
     // 256 characters, which are prohibited on Windows NT.
-   
+
     public static final int MAX_NAME_LENGTH = 64;
     public static final String URI_SHA1_PREFIX = "URI_SHA_1_";
 
@@ -136,11 +136,11 @@ public class QNameHelper
                 }
             }
         }
-        
+
         // short enough? Done!
         if (result.length() <= MAX_NAME_LENGTH)
             return result.toString();
-        
+
         // too long? use SHA1
         try
         {
@@ -201,25 +201,25 @@ public class QNameHelper
         {
             return readable(sType.getName(), nsPrefix);
         }
-        
+
         if (sType.isAttributeType())
         {
             return "attribute type " + readable(sType.getAttributeTypeAttributeName(), nsPrefix);
         }
-        
+
         if (sType.isDocumentType())
         {
             return "document type " + readable(sType.getDocumentElementName(), nsPrefix);
         }
-        
+
         if (sType.isNoType() || sType.getOuterType() == null)
         {
             return "invalid type";
         }
-        
+
         SchemaType outerType = sType.getOuterType();
         SchemaField container = sType.getContainerField();
-        
+
         if (outerType.isAttributeType())
         {
             return "type of attribute " + readable(container.getName(), nsPrefix);
@@ -228,7 +228,7 @@ public class QNameHelper
         {
             return "type of element " + readable(container.getName(), nsPrefix);
         }
-            
+
         if (container != null)
         {
             if (container.isAttribute())
@@ -240,7 +240,7 @@ public class QNameHelper
                 return "type of " + container.getName().getLocalPart() + " element in " + readable(outerType, nsPrefix);
             }
         }
-        
+
         if (outerType.getBaseType() == sType)
             return "base type of " + readable(outerType, nsPrefix);
         else if (outerType.getSimpleVariety() == SchemaType.LIST)
@@ -248,9 +248,9 @@ public class QNameHelper
         else if (outerType.getSimpleVariety() == SchemaType.UNION)
             return "member type " + sType.getAnonymousUnionMemberOrdinal() + " of " + readable(outerType, nsPrefix);
         else
-            return "inner type in " + readable(outerType, nsPrefix); 
+            return "inner type in " + readable(outerType, nsPrefix);
     }
-    
+
     public static String readable(QName name)
     {
         return readable(name, WELL_KNOWN_PREFIXES);
@@ -265,13 +265,13 @@ public class QNameHelper
             return prefix + ":" + name.getLocalPart();
         return name.getLocalPart() + " in namespace " + name.getNamespaceURI();
     }
-    
+
     public static String suggestPrefix(String namespace)
     {
         String result = (String)WELL_KNOWN_PREFIXES.get(namespace);
         if (result != null)
             return result;
-        
+
         int len = namespace.length();
         int i = namespace.lastIndexOf('/');
         if (i > 0 && i == namespace.length() - 1)
@@ -279,21 +279,21 @@ public class QNameHelper
             len = i;
             i = namespace.lastIndexOf('/', i - 1);
         }
-        
+
         i += 1; // skip '/', also covers -1 case.
-        
+
         if (namespace.startsWith("www.", i))
         {
             i += 4; // "www.".length()
         }
-        
+
         while (i < len)
         {
             if (XMLChar.isNCNameStart(namespace.charAt(i)))
                 break;
             i += 1;
         }
-        
+
         for (int end = i + 1; end < len; end += 1)
         {
             if (!XMLChar.isNCName(namespace.charAt(end)) || !Character.isLetterOrDigit(namespace.charAt(end)))
@@ -302,7 +302,7 @@ public class QNameHelper
                 break;
             }
         }
-        
+
         // prefixes starting with "xml" are forbidden, so change "xmls" -> "xs"
         if (namespace.length() >= i + 3 && startsWithXml(namespace, i))
         {
@@ -310,7 +310,7 @@ public class QNameHelper
                 return "x" + Character.toLowerCase(namespace.charAt(i + 3));
             return "ns";
         }
-        
+
         if (len - i > 4) // four or less? leave it.
         {
             if (isVowel(namespace.charAt(i + 2)) && !isVowel(namespace.charAt(i + 3)))
@@ -318,28 +318,28 @@ public class QNameHelper
             else
                 len = i + 3; // more than four? truncate to 3.
         }
-        
+
         if (len - i == 0)
             return "ns";
-        
-        return namespace.substring(i, len).toLowerCase();
+
+        return namespace.substring(i, len).toLowerCase(Locale.ROOT);
     }
-    
+
     private static boolean startsWithXml(String s, int i)
     {
         if (s.length() < i + 3)
             return false;
-        
+
         if (s.charAt(i) != 'X' && s.charAt(i) != 'x')
             return false;
         if (s.charAt(i + 1) != 'M' && s.charAt(i + 1) != 'm')
             return false;
         if (s.charAt(i + 2) != 'L' && s.charAt(i + 2) != 'l')
             return false;
-        
+
         return true;
     }
-    
+
     private static boolean isVowel(char ch)
     {
         switch (ch)
@@ -359,7 +359,7 @@ public class QNameHelper
                 return false;
         }
     }
-    
+
     public static String namespace(SchemaType sType)
     {
         while (sType != null)

@@ -17,10 +17,12 @@ package org.apache.xmlbeans.impl.schema;
 
 import org.apache.xmlbeans.*;
 import org.apache.xmlbeans.impl.common.QNameHelper;
+import org.apache.xmlbeans.impl.common.XBeanDebug;
 import org.apache.xmlbeans.impl.values.*;
 
 import javax.xml.namespace.QName;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.math.BigInteger;
 import java.util.*;
 
@@ -1903,30 +1905,13 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory {
 
     private XmlObject createUnattachedSubclass(SchemaType sType) {
         if (!isBuiltinType() && !isNoType()) {
-            // System.out.println("Attempting to load impl class: " + getFullJavaImplName());
             Constructor<? extends XmlObjectBase> ctr = getJavaImplConstructor2();
-            if (ctr != null) {
-                boolean accessible = ctr.isAccessible();
-                try {
-                    ctr.setAccessible(true);
-                    try {
-                        return ctr.newInstance(sType, !sType.isSimpleType());
-                    } catch (Exception e) {
-                        System.out.println("Exception trying to instantiate impl class.");
-                        e.printStackTrace();
-                    } finally {
-                        // Make a best-effort try to set the accessibility back to what it was
-                        try {
-                            ctr.setAccessible(accessible);
-                        } catch (SecurityException ignored) {
-                        }
-                    }
-                } catch (Exception e) {
-                    System.out.println("Exception trying to instantiate impl class.");
-                    e.printStackTrace();
-                }
+            try {
+                return (ctr == null) ? null : ctr.newInstance(sType, !sType.isSimpleType());
+            } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
+                XBeanDebug.logException(e);
+                return null;
             }
-            return null;
         } else {
             return createBuiltinSubclass(sType);
         }

@@ -309,7 +309,7 @@ public class XMLBean extends MatchingTask {
         for (String s : paths) {
             int dot = s.lastIndexOf('.');
             if (dot > -1) {
-                String possExt = s.substring(dot).toLowerCase();
+                String possExt = s.substring(dot).toLowerCase(Locale.ROOT);
                 Set<File> set = _extRouter.get(possExt);
 
                 if (set != null) {

@@ -15,39 +15,16 @@
 
 package org.apache.xmlbeans.impl.schema;
 
-import java.io.InputStream;
-import java.io.File;
-import java.math.BigInteger;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Collections;
-import javax.xml.namespace.QName;
+import org.apache.xmlbeans.*;
 
-import org.apache.xmlbeans.QNameSet;
-import org.apache.xmlbeans.SchemaAnnotation;
-import org.apache.xmlbeans.SchemaAttributeGroup;
-import org.apache.xmlbeans.SchemaAttributeGroup;
-import org.apache.xmlbeans.SchemaAttributeModel;
-import org.apache.xmlbeans.SchemaComponent;
-import org.apache.xmlbeans.SchemaGlobalAttribute;
-import org.apache.xmlbeans.SchemaGlobalAttribute;
-import org.apache.xmlbeans.SchemaGlobalElement;
-import org.apache.xmlbeans.SchemaGlobalElement;
-import org.apache.xmlbeans.SchemaIdentityConstraint;
-import org.apache.xmlbeans.SchemaLocalAttribute;
-import org.apache.xmlbeans.SchemaModelGroup;
-import org.apache.xmlbeans.SchemaModelGroup;
-import org.apache.xmlbeans.SchemaParticle;
-import org.apache.xmlbeans.SchemaType;
-import org.apache.xmlbeans.SchemaTypeLoader;
-import org.apache.xmlbeans.SchemaTypeSystem;
-import org.apache.xmlbeans.XmlObject;
-import org.apache.xmlbeans.Filer;
+import javax.xml.namespace.QName;
+import java.io.File;
+import java.io.InputStream;
+import java.math.BigInteger;
+import java.util.*;
 
 public class SoapEncSchemaTypeSystem extends SchemaTypeLoaderBase
-    implements SchemaTypeSystem
-{
+    implements SchemaTypeSystem {
     public static final String SOAPENC = "http://schemas.xmlsoap.org/soap/encoding/";
     public static final String SOAP_ARRAY = "Array";
     public static final String ARRAY_TYPE = "arrayType";
@@ -62,25 +39,25 @@ public class SoapEncSchemaTypeSystem extends SchemaTypeLoaderBase
     private static final SchemaAnnotation[] EMPTY_SCHEMAANNOTATION_ARRAY = new SchemaAnnotation[0];
 
     // The global builtin type system
-    public static SchemaTypeSystem get()
-    {   return _global; }
+    public static SchemaTypeSystem get() {
+        return _global;
+    }
 
-    private static SoapEncSchemaTypeSystem _global = new SoapEncSchemaTypeSystem();
+    private static final SoapEncSchemaTypeSystem _global = new SoapEncSchemaTypeSystem();
 
-    private SchemaTypeImpl soapArray;
-    private SchemaGlobalAttributeImpl arrayType;
-    private Map _handlesToObjects = new HashMap();
-    private String soapArrayHandle;
-    private SchemaContainer _container = new SchemaContainer(SOAPENC);
+    private final SchemaTypeImpl soapArray;
+    private final SchemaGlobalAttributeImpl arrayType;
+    private final Map<String, SchemaComponent> _handlesToObjects = new HashMap<>();
+    private final String soapArrayHandle;
 
-    private SoapEncSchemaTypeSystem()
-    {
+    private SoapEncSchemaTypeSystem() {
         // soapenc:Array
+        SchemaContainer _container = new SchemaContainer(SOAPENC);
         _container.setTypeSystem(this);
         soapArray = new SchemaTypeImpl(_container, true);
         _container.addGlobalType(soapArray.getRef());
         soapArray.setName(new QName(SOAPENC, SOAP_ARRAY));
-        soapArrayHandle = SOAP_ARRAY.toLowerCase() + "type";
+        soapArrayHandle = SOAP_ARRAY.toLowerCase(Locale.ROOT) + "type";
         soapArray.setComplexTypeVariety(SchemaType.ELEMENT_CONTENT);
         soapArray.setBaseTypeRef(BuiltinSchemaTypeSystem.ST_ANY_TYPE.getRef());
         soapArray.setBaseDepth(1);
@@ -104,10 +81,9 @@ public class SoapEncSchemaTypeSystem extends SchemaTypeLoaderBase
 
         SchemaAttributeModelImpl attrModel = new SchemaAttributeModelImpl();
         attrModel.setWildcardProcess(SchemaAttributeModel.LAX);
-        HashSet excludedURI = new HashSet();
+        HashSet<String> excludedURI = new HashSet<>();
         excludedURI.add(SOAPENC);
-        attrModel.setWildcardSet(QNameSet.forSets(excludedURI, null, Collections.EMPTY_SET,
-                Collections.EMPTY_SET));
+        attrModel.setWildcardSet(QNameSet.forSets(excludedURI, null, Collections.emptySet(), Collections.emptySet()));
         SchemaLocalAttributeImpl attr = new SchemaLocalAttributeImpl();
         attr.init(new QName("", ATTR_ID), BuiltinSchemaTypeSystem.ST_ID.getRef(),
             SchemaLocalAttribute.OPTIONAL, null, null, null, false, null, null, null);
@@ -124,7 +100,7 @@ public class SoapEncSchemaTypeSystem extends SchemaTypeLoaderBase
         attr.init(new QName(SOAPENC, ATTR_OFFSET), BuiltinSchemaTypeSystem.ST_STRING.getRef(),
             SchemaLocalAttributeImpl.OPTIONAL, null, null, null, false, null, null, null);
         attrModel.addAttribute(attr);
-        soapArray.setContentModel(contentModel, attrModel, Collections.EMPTY_MAP, Collections.EMPTY_MAP, false);
+        soapArray.setContentModel(contentModel, attrModel, Collections.emptyMap(), Collections.emptyMap(), false);
 
         // soapenc:arrayType
         arrayType = new SchemaGlobalAttributeImpl(_container);
@@ -132,202 +108,172 @@ public class SoapEncSchemaTypeSystem extends SchemaTypeLoaderBase
         arrayType.init(new QName(SOAPENC, ARRAY_TYPE), BuiltinSchemaTypeSystem.ST_STRING.getRef(),
             SchemaLocalAttributeImpl.OPTIONAL, null, null, null, false, null, null, null);
         _handlesToObjects.put(soapArrayHandle, soapArray);
-        _handlesToObjects.put(ARRAY_TYPE.toLowerCase() + "attribute", arrayType);
+        _handlesToObjects.put(ARRAY_TYPE.toLowerCase(Locale.ROOT) + "attribute", arrayType);
         _container.setImmutable();
     }
 
     /**
      * Returns the name of this loader.
      */
-    public String getName()
-    {
+    public String getName() {
         return "schema.typesystem.soapenc.builtin";
     }
 
-    public SchemaType findType(QName qName)
-    {
+    public SchemaType findType(QName qName) {
         if (SOAPENC.equals(qName.getNamespaceURI()) &&
-            SOAP_ARRAY.equals(qName.getLocalPart()))
+            SOAP_ARRAY.equals(qName.getLocalPart())) {
             return soapArray;
-        else
+        } else {
             return null;
+        }
     }
 
-    public SchemaType findDocumentType(QName qName)
-    {
+    public SchemaType findDocumentType(QName qName) {
         return null;
     }
 
-    public SchemaType findAttributeType(QName qName)
-    {
+    public SchemaType findAttributeType(QName qName) {
         return null;
     }
 
-    public SchemaGlobalElement findElement(QName qName)
-    {
+    public SchemaGlobalElement findElement(QName qName) {
         return null;
     }
 
-    public SchemaGlobalAttribute findAttribute(QName qName)
-    {
+    public SchemaGlobalAttribute findAttribute(QName qName) {
         if (SOAPENC.equals(qName.getNamespaceURI()) &&
-            ARRAY_TYPE.equals(qName.getLocalPart()))
+            ARRAY_TYPE.equals(qName.getLocalPart())) {
             return arrayType;
-        else
+        } else {
             return null;
+        }
     }
 
-    public SchemaModelGroup findModelGroup(QName qName)
-    {
+    public SchemaModelGroup findModelGroup(QName qName) {
         return null;
     }
 
-    public SchemaAttributeGroup findAttributeGroup(QName qName)
-    {
+    public SchemaAttributeGroup findAttributeGroup(QName qName) {
         return null;
     }
 
-    public boolean isNamespaceDefined(String string)
-    {
+    public boolean isNamespaceDefined(String string) {
         return SOAPENC.equals(string);
     }
 
-    public SchemaType.Ref findTypeRef(QName qName)
-    {
+    public SchemaType.Ref findTypeRef(QName qName) {
         SchemaType type = findType(qName);
         return (type == null ? null : type.getRef());
     }
 
-    public SchemaType.Ref findDocumentTypeRef(QName qName)
-    {
+    public SchemaType.Ref findDocumentTypeRef(QName qName) {
         return null;
     }
 
-    public SchemaType.Ref findAttributeTypeRef(QName qName)
-    {
+    public SchemaType.Ref findAttributeTypeRef(QName qName) {
         return null;
     }
 
-    public SchemaGlobalElement.Ref findElementRef(QName qName)
-    {
+    public SchemaGlobalElement.Ref findElementRef(QName qName) {
         return null;
     }
 
-    public SchemaGlobalAttribute.Ref findAttributeRef(QName qName)
-    {
+    public SchemaGlobalAttribute.Ref findAttributeRef(QName qName) {
         SchemaGlobalAttribute attr = findAttribute(qName);
         return (attr == null ? null : attr.getRef());
     }
 
-    public SchemaModelGroup.Ref findModelGroupRef(QName qName)
-    {
+    public SchemaModelGroup.Ref findModelGroupRef(QName qName) {
         return null;
     }
 
-    public SchemaAttributeGroup.Ref findAttributeGroupRef(QName qName)
-    {
+    public SchemaAttributeGroup.Ref findAttributeGroupRef(QName qName) {
         return null;
     }
 
-    public SchemaIdentityConstraint.Ref findIdentityConstraintRef(QName qName)
-    {
+    public SchemaIdentityConstraint.Ref findIdentityConstraintRef(QName qName) {
         return null;
     }
 
-    public SchemaType typeForClassname(String string)
-    {
+    public SchemaType typeForClassname(String string) {
         return null;
     }
 
-    public InputStream getSourceAsStream(String string)
-    {
+    public InputStream getSourceAsStream(String string) {
         return null;            // no source
     }
 
     /**
      * Returns the classloader used by this loader for resolving types.
      */
-    public ClassLoader getClassLoader()
-    {
+    public ClassLoader getClassLoader() {
         return SoapEncSchemaTypeSystem.class.getClassLoader();
     }
 
     /**
      * Describe <code>resolve</code> method here.
-     *
      */
-    public void resolve()
-    {
-                                // don't need to do anything; already resolved
+    public void resolve() {
+        // don't need to do anything; already resolved
     }
 
     /**
      * @return an array consisting of a single type
      */
-    public SchemaType[] globalTypes()
-    {
-        return new SchemaType[] {soapArray};
+    public SchemaType[] globalTypes() {
+        return new SchemaType[]{soapArray};
     }
 
-    public SchemaType[] documentTypes()
-    {
+    public SchemaType[] documentTypes() {
         return EMPTY_SCHEMATYPE_ARRAY;
     }
 
-    public SchemaType[] attributeTypes()
-    {
+    public SchemaType[] attributeTypes() {
         return EMPTY_SCHEMATYPE_ARRAY;
     }
 
-    public SchemaGlobalElement[] globalElements()
-    {
+    public SchemaGlobalElement[] globalElements() {
         return EMPTY_SCHEMAELEMENT_ARRAY;
     }
 
-    public SchemaGlobalAttribute[] globalAttributes()
-    {
-        return new SchemaGlobalAttribute[] {arrayType};
+    public SchemaGlobalAttribute[] globalAttributes() {
+        return new SchemaGlobalAttribute[]{arrayType};
     }
 
-    public SchemaModelGroup[] modelGroups()
-    {
+    public SchemaModelGroup[] modelGroups() {
         return EMPTY_SCHEMAMODELGROUP_ARRAY;
     }
 
-    public SchemaAttributeGroup[] attributeGroups()
-    {
+    public SchemaAttributeGroup[] attributeGroups() {
         return EMPTY_SCHEMAATTRIBUTEGROUP_ARRAY;
     }
 
-    public SchemaAnnotation[] annotations()
-    {
+    public SchemaAnnotation[] annotations() {
         return EMPTY_SCHEMAANNOTATION_ARRAY;
     }
 
     /**
      * Returns the handle for the given type within this loader.
      */
-    public String handleForType(SchemaType type)
-    {
-        if (soapArray.equals(type))
+    public String handleForType(SchemaType type) {
+        if (soapArray.equals(type)) {
             return soapArrayHandle;
-        else
+        } else {
             return null;
-    }
-
-    /**
-     * 
-     */
-    public SchemaComponent resolveHandle(String string)
-    {
-        return (SchemaComponent) _handlesToObjects.get(string);
+        }
     }
 
     /**
      *
      */
-    public SchemaType typeForHandle(String string)
-    {
+    public SchemaComponent resolveHandle(String string) {
+        return _handlesToObjects.get(string);
+    }
+
+    /**
+     *
+     */
+    public SchemaType typeForHandle(String string) {
         return (SchemaType) _handlesToObjects.get(string);
     }
 
@@ -336,13 +282,11 @@ public class SoapEncSchemaTypeSystem extends SchemaTypeLoaderBase
      *
      * @param file a <code>File</code> value
      */
-    public void saveToDirectory(File file)
-    {
+    public void saveToDirectory(File file) {
         throw new UnsupportedOperationException("The builtin soap encoding schema type system cannot be saved.");
     }
 
-    public void save(Filer filer)
-    {
+    public void save(Filer filer) {
         throw new UnsupportedOperationException("The builtin soap encoding schema type system cannot be saved.");
     }
 }

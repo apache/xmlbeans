@@ -15,27 +15,24 @@
 
 package org.apache.xmlbeans.impl.common;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.lang.reflect.Method;
-import java.util.concurrent.TimeUnit;
-
-import javax.xml.XMLConstants;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.stream.events.Namespace;
-
 import org.apache.xmlbeans.XmlOptionsBean;
 import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 import org.xml.sax.ErrorHandler;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
+import javax.xml.XMLConstants;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.lang.reflect.Method;
+import java.util.concurrent.TimeUnit;
+
 public final class DocumentHelper {
-    private static XBLogger logger = XBLogFactory.getLogger(DocumentHelper.class);
+    private static final XBLogger logger = XBLogFactory.getLogger(DocumentHelper.class);
     private static long lastLog;
 
     private DocumentHelper() {}
@@ -58,7 +55,7 @@ public final class DocumentHelper {
         /** Prints the error message. */
         private void printError(int type, SAXParseException ex) {
             StringBuilder sb = new StringBuilder();
-            
+
             String systemId = ex.getSystemId();
             if (systemId != null) {
                 int index = systemId.lastIndexOf('/');
@@ -76,7 +73,7 @@ public final class DocumentHelper {
             logger.log(type, sb.toString(), ex);
         }
     }
-    
+
     /**
      * Creates a new document builder, with sensible defaults
      *
@@ -115,7 +112,7 @@ public final class DocumentHelper {
             logger.log(XBLogger.WARN, "Cannot set SAX feature because outdated XML parser in classpath", feature, ame);
         }
     }
-    
+
     private static void trySetXercesSecurityManager(DocumentBuilderFactory dbf, XmlOptionsBean options) {
         // Try built-in JVM one first, standalone if not
         for (String securityManagerClassName : new String[]{
@@ -123,7 +120,7 @@ public final class DocumentHelper {
                 "org.apache.xerces.util.SecurityManager"
         }) {
             try {
-                Object mgr = Class.forName(securityManagerClassName).newInstance();
+                Object mgr = Class.forName(securityManagerClassName).getDeclaredConstructor().newInstance();
                 Method setLimit = mgr.getClass().getMethod("setEntityExpansionLimit", Integer.TYPE);
                 setLimit.invoke(mgr, options.getEntityExpansionLimit());
                 dbf.setAttribute(XMLBeansConstants.SECURITY_MANAGER, mgr);
@@ -154,7 +151,7 @@ public final class DocumentHelper {
      * Parses the given stream via the default (sensible)
      * DocumentBuilder
      * @param inp Stream to read the XML data from
-     * @return the parsed Document 
+     * @return the parsed Document
      */
     public static Document readDocument(XmlOptionsBean xmlOptions, InputStream inp) throws IOException, SAXException {
         return newDocumentBuilder(xmlOptions).parse(inp);
@@ -164,7 +161,7 @@ public final class DocumentHelper {
      * Parses the given stream via the default (sensible)
      * DocumentBuilder
      * @param inp sax source to read the XML data from
-     * @return the parsed Document 
+     * @return the parsed Document
      */
     public static Document readDocument(XmlOptionsBean xmlOptions, InputSource inp) throws IOException, SAXException {
         return newDocumentBuilder(xmlOptions).parse(inp);

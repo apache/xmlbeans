@@ -1408,7 +1408,7 @@ public class XmlOptions implements java.io.Serializable {
     }
 
     private XmlOptions set(XmlOptionsKeys option, int value) {
-        return set(option, new Integer(value));
+        return set(option, (Integer)value);
     }
 
     private XmlOptions set(XmlOptionsKeys option, boolean value) {

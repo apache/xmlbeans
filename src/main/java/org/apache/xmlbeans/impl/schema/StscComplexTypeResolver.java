@@ -1384,7 +1384,7 @@ public class StscComplexTypeResolver {
     }
 
     private static <T> BinaryOperator<T> throwingMerger() {
-        return (u,v) -> { throw new IllegalStateException(String.format("Duplicate key %s", u)); };
+        return (u,v) -> { throw new IllegalStateException("Duplicate key "+u.toString()); };
     }
 
     static Map<QName, SchemaProperty> buildAttributePropertyModelByQName(SchemaAttributeModel attrModel, SchemaType owner) {

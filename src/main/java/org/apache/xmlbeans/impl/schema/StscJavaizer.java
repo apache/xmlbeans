@@ -98,12 +98,12 @@ public class StscJavaizer {
 
         InterfaceExtension[] exts = config.getInterfaceExtensions();
         for (InterfaceExtension ext : exts) {
-            if (usedNames.contains(ext.getInterface().toLowerCase())) {
+            if (usedNames.contains(ext.getInterface().toLowerCase(Locale.ROOT))) {
                 state.error("InterfaceExtension interface '" + ext.getInterface() + "' creates a name collision with one of the generated interfaces or classes.", XmlError.SEVERITY_ERROR, null);
             }
 
             String handler = ext.getStaticHandler();
-            if (handler != null && usedNames.contains(handler.toLowerCase())) {
+            if (handler != null && usedNames.contains(handler.toLowerCase(Locale.ROOT))) {
                 state.error("InterfaceExtension handler class '" + handler + "' creates a name collision with one of the generated interfaces or classes.", XmlError.SEVERITY_ERROR, null);
             }
         }
@@ -111,7 +111,7 @@ public class StscJavaizer {
         PrePostExtension[] prepost = config.getPrePostExtensions();
         for (PrePostExtension prePostExtension : prepost) {
             String handler = prePostExtension.getStaticHandler();
-            if (handler != null && usedNames.contains(handler.toLowerCase())) {
+            if (handler != null && usedNames.contains(handler.toLowerCase(Locale.ROOT))) {
                 state.error("PrePostExtension handler class '" + handler + "' creates a name collision with one of the generated interfaces or classes.", XmlError.SEVERITY_ERROR, null);
             }
         }
@@ -732,12 +732,12 @@ public class StscJavaizer {
         } else {
             uniqName = base;
         }
-        while (usedNames.contains(uniqName.toLowerCase()) || uniqName.equals(outermostPkg)) {
+        while (usedNames.contains(uniqName.toLowerCase(Locale.ROOT)) || uniqName.equals(outermostPkg)) {
             index++;
             uniqName = base + index;
         }
 
-        usedNames.add(uniqName.toLowerCase());
+        usedNames.add(uniqName.toLowerCase(Locale.ROOT));
 
         return uniqName;
     }
@@ -773,12 +773,12 @@ public class StscJavaizer {
 
         index = 1;
         String uniqName = base;
-        while (usedNames.contains(uniqName.toLowerCase())) {
+        while (usedNames.contains(uniqName.toLowerCase(Locale.ROOT))) {
             index++;
             uniqName = base + index;
         }
 
-        usedNames.add(uniqName.toLowerCase());
+        usedNames.add(uniqName.toLowerCase(Locale.ROOT));
 
         return uniqName;
     }

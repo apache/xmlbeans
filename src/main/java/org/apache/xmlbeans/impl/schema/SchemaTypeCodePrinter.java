@@ -233,9 +233,9 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
     private String getUserTypeStaticHandlerMethod(boolean encode, SchemaTypeImpl stype) {
         String unqualifiedName = stype.getName().getLocalPart();
         if (unqualifiedName.length() < 2) {
-            unqualifiedName = unqualifiedName.toUpperCase();
+            unqualifiedName = unqualifiedName.toUpperCase(Locale.ROOT);
         } else {
-            unqualifiedName = unqualifiedName.substring(0, 1).toUpperCase() + unqualifiedName.substring(1);
+            unqualifiedName = unqualifiedName.substring(0, 1).toUpperCase(Locale.ROOT) + unqualifiedName.substring(1);
         }
 
         if (encode) {
@@ -1513,7 +1513,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
             final QName name = prop.getName();
             results.put(name, identifiers);
             final String javaName = prop.getJavaPropertyName();
-            identifiers[0] = (javaName + "$" + (i * 2)).toUpperCase();
+            identifiers[0] = (javaName + "$" + (i * 2)).toUpperCase(Locale.ROOT);
             final String uriString = "\"" + name.getNamespaceURI() + "\"";
 
             emit("private static final javax.xml.namespace.QName " + identifiers[0] +
@@ -1527,7 +1527,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
                 final QName[] qnames = properties[i].acceptedNames();
 
                 if (qnames.length > 1) {
-                    identifiers[1] = (javaName + "$" + (i * 2 + 1)).toUpperCase();
+                    identifiers[1] = (javaName + "$" + (i * 2 + 1)).toUpperCase(Locale.ROOT);
 
                     emit("private static final org.apache.xmlbeans.QNameSet " + identifiers[1] +
                          " = org.apache.xmlbeans.QNameSet.forArray( new javax.xml.namespace.QName[] { ");

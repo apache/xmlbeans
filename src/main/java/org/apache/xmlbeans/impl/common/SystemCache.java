@@ -14,11 +14,11 @@
  */
 package org.apache.xmlbeans.impl.common;
 
-import java.lang.ref.SoftReference;
-import java.util.ArrayList;
-
 import org.apache.xmlbeans.SchemaTypeLoader;
 import org.apache.xmlbeans.SystemProperties;
+
+import java.lang.ref.SoftReference;
+import java.lang.reflect.InvocationTargetException;
 
 /**
  * This class encapsulates the caching strategy for XmlBeans.
@@ -28,88 +28,70 @@ import org.apache.xmlbeans.SystemProperties;
  * <p/>
  * This class works as a singleton and as a default implementation for the cache.
  * You can set a particular implementation using the "xmlbean.systemcacheimpl"
- * system property or using the static {@link set} method.
+ * system property or using the static {@link #set(SystemCache)} method.
  * Subclasses of this need to be thread-safe. An implementation can be replaced
  * at any time, so use of static variables is discouraged to ensure proper cleanup.
  */
-public class SystemCache
-{
+public class SystemCache {
     private static SystemCache INSTANCE = new SystemCache();
 
-    static
-    {
+    static {
         String cacheClass = SystemProperties.getProperty("xmlbean.systemcacheimpl");
         Object impl = null;
-        if (cacheClass != null)
-        {
-            try
-            {
-                impl = Class.forName(cacheClass).newInstance();
-                if (!(impl instanceof SystemCache))
-                throw new ClassCastException("Value for system property " +
-                    "\"xmlbean.systemcacheimpl\" points to a class (" + cacheClass +
-                    ") which does not derive from SystemCache");
-            }
-            catch (ClassNotFoundException cnfe)
-            {
+        if (cacheClass != null) {
+            try {
+                impl = Class.forName(cacheClass).getDeclaredConstructor().newInstance();
+                if (!(impl instanceof SystemCache)) {
+                    throw new ClassCastException("Value for system property " +
+                                                 "\"xmlbean.systemcacheimpl\" points to a class (" + cacheClass +
+                                                 ") which does not derive from SystemCache");
+                }
+            } catch (ClassNotFoundException cnfe) {
                 throw new RuntimeException("Cache class " + cacheClass +
-                    " specified by \"xmlbean.systemcacheimpl\" was not found.",
+                                           " specified by \"xmlbean.systemcacheimpl\" was not found.",
                     cnfe);
-            }
-            catch (InstantiationException ie)
-            {
+            } catch (InstantiationException | NoSuchMethodException | InvocationTargetException ie) {
                 throw new RuntimeException("Could not instantiate class " +
-                    cacheClass + " as specified by \"xmlbean.systemcacheimpl\"." +
-                    " An empty constructor may be missing.", ie);
-            }
-            catch (IllegalAccessException iae)
-            {
+                                           cacheClass + " as specified by \"xmlbean.systemcacheimpl\"." +
+                                           " An empty constructor may be missing.", ie);
+            } catch (IllegalAccessException iae) {
                 throw new RuntimeException("Could not instantiate class " +
-                    cacheClass + " as specified by \"xmlbean.systemcacheimpl\"." +
-                    " A public empty constructor may be missing.", iae);
+                                           cacheClass + " as specified by \"xmlbean.systemcacheimpl\"." +
+                                           " A public empty constructor may be missing.", iae);
             }
         }
-        if (impl != null)
+        if (impl != null) {
             INSTANCE = (SystemCache) impl;
+        }
     }
 
-    public static synchronized final void set(SystemCache instance)
-    {
+    public static synchronized void set(SystemCache instance) {
         INSTANCE = instance;
     }
 
-    public static final SystemCache get()
-    {
+    public static SystemCache get() {
         return INSTANCE;
     }
 
-    public SchemaTypeLoader getFromTypeLoaderCache(ClassLoader cl)
-    {
+    public SchemaTypeLoader getFromTypeLoaderCache(ClassLoader cl) {
         return null;
     }
 
-    public void addToTypeLoaderCache(SchemaTypeLoader stl, ClassLoader cl)
-    {
-        return;
+    public void addToTypeLoaderCache(SchemaTypeLoader stl, ClassLoader cl) {
     }
 
-    private ThreadLocal tl_saxLoaders = new ThreadLocal();
+    private ThreadLocal<SoftReference> tl_saxLoaders = new ThreadLocal<>();
 
     public void clearThreadLocals() {
         tl_saxLoaders.remove();
     }
 
-    public Object getSaxLoader()
-    {
-        SoftReference s = (SoftReference) tl_saxLoaders.get();
-        if (s == null)
-            return null;
-        else
-            return s.get();
+    public Object getSaxLoader() {
+        SoftReference s = tl_saxLoaders.get();
+        return s == null ? null : s.get();
     }
 
-    public void setSaxLoader(Object saxLoader)
-    {
+    public void setSaxLoader(Object saxLoader) {
         tl_saxLoaders.set(new SoftReference(saxLoader));
     }
 }

@@ -611,7 +611,7 @@ public class StscState {
 
     private static String crunchName(QName name) {
         // lowercase, and drop namespace.
-        return name.getLocalPart().toLowerCase();
+        return name.getLocalPart().toLowerCase(Locale.ROOT);
     }
 
     void addSpelling(QName name, SchemaComponent comp) {
@@ -1269,9 +1269,9 @@ public class StscState {
                     expected,
                     expectedName,
                     found,
-                    (foundName == null ? new Integer(0) : new Integer(1)),
+                    (foundName == null ? 0 : 1),
                     foundName,
-                    (sourceName == null ? new Integer(0) : new Integer(1)),
+                    (sourceName == null ? 0 : 1),
                     sourceName
                 },
                 loc);

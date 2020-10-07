@@ -883,7 +883,8 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
         }
 
         private String addUniqueHandle(SchemaComponent obj, String base) {
-            base = base.toLowerCase();  // we lowercase handles because of case-insensitive Windows filenames!!!
+            // we lowercase handles because of case-insensitive Windows filenames!!!
+            base = base.toLowerCase(Locale.ROOT);
             String handle = base;
             for (int index = 2; _handlesToRefs.containsKey(handle); index++) {
                 handle = base + index;
@@ -1016,7 +1017,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
                 }
 
                 String baseName;
-                String uniq = Integer.toHexString(type.toString().hashCode() | 0x80000000).substring(4).toUpperCase();
+                String uniq = Integer.toHexString(type.toString().hashCode() | 0x80000000).substring(4).toUpperCase(Locale.ROOT);
                 if (name == null) {
                     baseName = "Anon" + uniq + "Type";
                 } else {

@@ -1494,7 +1494,7 @@ abstract class Xobj implements TypeStore {
         // Sanitize the suggestion.
 
         if (suggestion != null &&
-            (suggestion.length() == 0 || suggestion.toLowerCase().startsWith("xml") ||
+            (suggestion.length() == 0 || suggestion.toLowerCase(java.util.Locale.ROOT).startsWith("xml") ||
              base.findXmlnsForPrefix(suggestion) != null)) {
             suggestion = null;
         }

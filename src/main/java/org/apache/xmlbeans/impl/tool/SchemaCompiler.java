@@ -30,6 +30,7 @@ import org.xml.sax.EntityResolver;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
 import java.net.URL;
 import java.util.*;
@@ -159,7 +160,7 @@ public class SchemaCompiler {
         if (codePrinterClass != null) {
             try {
                 codePrinter = (SchemaCodePrinter)
-                    Class.forName(codePrinterClass).newInstance();
+                    Class.forName(codePrinterClass).getDeclaredConstructor().newInstance();
             } catch (Exception e) {
                 System.err.println
                     ("Failed to load SchemaCodePrinter class " +
@@ -1050,12 +1051,12 @@ public class SchemaCompiler {
             while (i.hasNext()) {
                 Extension extension = i.next();
                 try {
-                    sce = (SchemaCompilerExtension) extension.getClassName().newInstance();
-                } catch (InstantiationException e) {
+                    sce = (SchemaCompilerExtension) extension.getClassName().getDeclaredConstructor().newInstance();
+                } catch (NoSuchMethodException | InstantiationException e) {
                     System.out.println("UNABLE to instantiate schema compiler extension:" + extension.getClassName().getName());
                     System.out.println("EXTENSION Class was not run");
                     break;
-                } catch (IllegalAccessException e) {
+                } catch (InvocationTargetException | IllegalAccessException e) {
                     System.out.println("ILLEGAL ACCESS Exception when attempting to instantiate schema compiler extension: " + extension.getClassName().getName());
                     System.out.println("EXTENSION Class was not run");
                     break;

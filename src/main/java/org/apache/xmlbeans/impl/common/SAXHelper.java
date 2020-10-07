@@ -100,7 +100,7 @@ public final class SAXHelper {
             "org.apache.xerces.util.SecurityManager"
         }) {
             try {
-                Object mgr = Class.forName(securityManagerClassName).newInstance();
+                Object mgr = Class.forName(securityManagerClassName).getDeclaredConstructor().newInstance();
                 Method setLimit = mgr.getClass().getMethod("setEntityExpansionLimit", Integer.TYPE);
                 setLimit.invoke(mgr, options.getEntityExpansionLimit());
                 xmlReader.setProperty(XMLBeansConstants.SECURITY_MANAGER, mgr);

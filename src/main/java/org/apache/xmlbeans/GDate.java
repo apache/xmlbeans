@@ -17,6 +17,7 @@ package org.apache.xmlbeans;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.math.RoundingMode;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -712,7 +713,7 @@ public final class GDate implements GDateSpecification, java.io.Serializable {
         if (_fs == null) {
             return 0;
         }
-        return _fs.setScale(3, BigDecimal.ROUND_DOWN).unscaledValue().intValue();
+        return _fs.setScale(3, RoundingMode.DOWN).unscaledValue().intValue();
     }
 
     /**

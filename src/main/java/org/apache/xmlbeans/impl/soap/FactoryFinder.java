@@ -15,14 +15,11 @@
 
 package org.apache.xmlbeans.impl.soap;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-
-import java.util.Properties;
 import org.apache.xmlbeans.SystemProperties;
+
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.util.Properties;
 
 /**
  * This class is used to locate factory classes for javax.xml.soap.
@@ -38,7 +35,7 @@ class FactoryFinder {
      * @throws SOAPException
      */
     private static Object newInstance(String factoryClassName) throws SOAPException {
-        ClassLoader classloader = null;
+        ClassLoader classloader;
         try {
             classloader = Thread.currentThread().getContextClassLoader();
         } catch (Exception exception) {
@@ -52,13 +49,14 @@ class FactoryFinder {
             } else {
                 try {
                     factory = classloader.loadClass(factoryClassName);
-                } catch (ClassNotFoundException cnfe) {}
+                } catch (ClassNotFoundException ignored) {
+                }
             }
             if (factory == null) {
                 classloader = FactoryFinder.class.getClassLoader();
                 factory = classloader.loadClass(factoryClassName);
             }
-            return factory.newInstance();
+            return factory.getDeclaredConstructor().newInstance();
         } catch (ClassNotFoundException classnotfoundexception) {
             throw new SOAPException("Provider " + factoryClassName + " not found", classnotfoundexception);
         } catch (Exception exception) {
@@ -81,7 +79,8 @@ class FactoryFinder {
             if (factoryClassName != null) {
                 return newInstance(factoryClassName);
             }
-        } catch (SecurityException securityexception) {}
+        } catch (SecurityException ignored) {
+        }
 
         try {
             String propertiesFileName = SystemProperties.getProperty("java.home")
@@ -96,21 +95,23 @@ class FactoryFinder {
                 String factoryClassName = properties.getProperty(factoryPropertyName);
                 return newInstance(factoryClassName);
             }
-        } catch (Exception exception1) {}
+        } catch (Exception ignored) {
+        }
 
         String factoryResource = "META-INF/services/" + factoryPropertyName;
 
         try {
             InputStream inputstream = getResource(factoryResource);
             if (inputstream != null) {
-                BufferedReader bufferedreader = new BufferedReader(new InputStreamReader(inputstream, "UTF-8"));
+                BufferedReader bufferedreader = new BufferedReader(new InputStreamReader(inputstream, StandardCharsets.UTF_8));
                 String factoryClassName = bufferedreader.readLine();
                 bufferedreader.close();
                 if ((factoryClassName != null) && !"".equals(factoryClassName)) {
                     return newInstance(factoryClassName);
                 }
             }
-        } catch (Exception exception2) {}
+        } catch (Exception ignored) {
+        }
 
         if (defaultFactoryClassName == null) {
             throw new SOAPException("Provider for " + factoryPropertyName + " cannot be found", null);
@@ -129,15 +130,16 @@ class FactoryFinder {
      * <code>getResourceAsStream()</code> on
      * <code>FactoryFinder.class.getClassLoader()</code>.
      *
-     * @param factoryResource  the resource name
-     * @return  an InputStream that can be used to read that resource, or
-     *              <code>null</code> if the resource could not be resolved
+     * @param factoryResource the resource name
+     * @return an InputStream that can be used to read that resource, or
+     * <code>null</code> if the resource could not be resolved
      */
     private static InputStream getResource(String factoryResource) {
         ClassLoader classloader = null;
         try {
             classloader = Thread.currentThread().getContextClassLoader();
-        } catch (SecurityException securityexception) {}
+        } catch (SecurityException ignored) {
+        }
 
         InputStream inputstream;
         if (classloader == null) {

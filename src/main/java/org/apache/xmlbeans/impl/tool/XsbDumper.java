@@ -45,22 +45,20 @@ public class XsbDumper {
             return;
         }
 
-        for (int i = 0; i < args.length; i++) {
-            dump(new File(args[i]), true);
+        for (String arg : args) {
+            dump(new File(arg), true);
         }
     }
 
     private static void dump(File file, boolean force) {
         if (file.isDirectory()) {
             File[] files = file.listFiles(
-                new FileFilter() {
-                    public boolean accept(File file) {
-                        return file.isDirectory() || file.isFile() && file.getName().endsWith(".xsb");
-                    }
-                }
+                file1 -> file1.isDirectory() || file1.isFile() && file1.getName().endsWith(".xsb")
             );
-            for (int i = 0; i < files.length; i++) {
-                dump(files[i], false);
+            if (files != null) {
+                for (File value : files) {
+                    dump(value, false);
+                }
             }
         } else if (file.getName().endsWith(".jar") || file.getName().endsWith(".zip")) {
             dumpZip(file);
@@ -78,9 +76,9 @@ public class XsbDumper {
     public static void dumpZip(File file) {
         try {
             ZipFile zipFile = new ZipFile(file);
-            Enumeration e = zipFile.entries();
+            Enumeration<? extends ZipEntry> e = zipFile.entries();
             while (e.hasMoreElements()) {
-                ZipEntry entry = (ZipEntry) e.nextElement();
+                ZipEntry entry = e.nextElement();
                 if (entry.getName().endsWith(".xsb")) {
                     System.out.println(entry.getName());
                     dump(zipFile.getInputStream(entry), "  ");
@@ -120,28 +118,20 @@ public class XsbDumper {
         flush();
     }
 
-    void emit() {
-        _out.println();
-        flush();
-    }
-
     void error(Exception e) {
         _out.println(e.toString());
         flush();
-        IllegalStateException e2 = new IllegalStateException(e.getMessage());
-        e2.initCause(e);
-        throw e2;
+        throw new IllegalStateException(e.getMessage(), e);
     }
 
     void error(String str) {
         _out.println(str);
         flush();
-        IllegalStateException e2 = new IllegalStateException(str);
-        throw e2;
+        throw new IllegalStateException(str);
     }
 
     private String _indent;
-    private PrintStream _out;
+    private final PrintStream _out;
 
     void indent() {
         _indent += "  ";
@@ -485,8 +475,8 @@ public class XsbDumper {
 
 
     class StringPool {
-        private List intsToStrings = new ArrayList();
-        private Map stringsToInts = new HashMap();
+        private final List<String> intsToStrings = new ArrayList<>();
+        private final Map<String, Integer> stringsToInts = new HashMap<>();
 
         StringPool() {
             intsToStrings.add(null);
@@ -496,20 +486,20 @@ public class XsbDumper {
             if (code == 0) {
                 return null;
             }
-            return (String) intsToStrings.get(code);
+            return intsToStrings.get(code);
         }
 
         int codeForString(String str) {
             if (str == null) {
                 return 0;
             }
-            Integer result = (Integer) stringsToInts.get(str);
+            Integer result = stringsToInts.get(str);
             if (result == null) {
-                result = new Integer(intsToStrings.size());
+                result = intsToStrings.size();
                 intsToStrings.add(str);
                 stringsToInts.put(str, result);
             }
-            return result.intValue();
+            return result;
         }
 
         void readFrom(DataInputStream input) {
@@ -1313,19 +1303,19 @@ public class XsbDumper {
     QNameSet readQNameSet() {
         int flag = readShort();
 
-        Set uriSet = new HashSet();
+        Set<String> uriSet = new HashSet<>();
         int uriCount = readShort();
         for (int i = 0; i < uriCount; i++) {
             uriSet.add(readString());
         }
 
-        Set qnameSet1 = new HashSet();
+        Set<QName> qnameSet1 = new HashSet<>();
         int qncount1 = readShort();
         for (int i = 0; i < qncount1; i++) {
             qnameSet1.add(readQName());
         }
 
-        Set qnameSet2 = new HashSet();
+        Set<QName> qnameSet2 = new HashSet<>();
         int qncount2 = readShort();
         for (int i = 0; i < qncount2; i++) {
             qnameSet2.add(readQName());
@@ -1363,8 +1353,6 @@ public class XsbDumper {
         }
         return new BigInteger(result);
     }
-
-    static final byte[] SINGLE_ZERO_BYTE = new byte[]{(byte) 0};
 
     private int _majorver;
     private int _minorver;

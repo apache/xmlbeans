@@ -29,76 +29,67 @@ public class NameUtil {
     public final static char AYAH = '\u06DD';
     public final static char ELHIZB = '\u06DE';
 
-    private final static boolean DEBUG = false;
+    private final static Set<String> javaWords = new HashSet<>(Arrays.asList(
+        "assert",
+        "abstract",
+        "boolean",
+        "break",
+        "byte",
+        "case",
+        "catch",
+        "char",
+        "class",
+        "const",
+        "continue",
+        "default",
+        "do",
+        "double",
+        "else",
+        "enum", // since JDK1.5
+        "extends",
+        "false", // not a keyword
+        "final",
+        "finally",
+        "float",
+        "for",
+        "goto",
+        "if",
+        "implements",
+        "import",
+        "instanceof",
+        "int",
+        "interface",
+        "long",
+        "native",
+        "new",
+        "null", // not a keyword
+        "package",
+        "private",
+        "protected",
+        "public",
+        "return",
+        "short",
+        "static",
+        "strictfp",
+        "super",
+        "switch",
+        "synchronized",
+        "this",
+        "threadsafe",
+        "throw",
+        "throws",
+        "transient",
+        "true", // not a keyword
+        "try",
+        "void",
+        "volatile",
+        "while"));
 
-    private final static Set javaWords = new HashSet(Arrays.asList(
-        new String[]
-            {
-                "assert",
-                "abstract",
-                "boolean",
-                "break",
-                "byte",
-                "case",
-                "catch",
-                "char",
-                "class",
-                "const",
-                "continue",
-                "default",
-                "do",
-                "double",
-                "else",
-                "enum", // since JDK1.5
-                "extends",
-                "false", // not a keyword
-                "final",
-                "finally",
-                "float",
-                "for",
-                "goto",
-                "if",
-                "implements",
-                "import",
-                "instanceof",
-                "int",
-                "interface",
-                "long",
-                "native",
-                "new",
-                "null", // not a keyword
-                "package",
-                "private",
-                "protected",
-                "public",
-                "return",
-                "short",
-                "static",
-                "strictfp",
-                "super",
-                "switch",
-                "synchronized",
-                "this",
-                "threadsafe",
-                "throw",
-                "throws",
-                "transient",
-                "true", // not a keyword
-                "try",
-                "void",
-                "volatile",
-                "while",
-            }
-    ));
-
-    private final static Set extraWords = new HashSet(Arrays.asList(
-        new String[]
-            {
-                "i",          // used for indexes
-                "target",     // used for parameter
-                "org",        // used for package names
-                "com",        // used for package names
-            }
+    private final static Set<String> extraWords = new HashSet<>(Arrays.asList(
+        "i",          // used for indexes
+        "target",     // used for parameter
+        "org",        // used for package names
+        "com"        // used for package names
     ));
 
     /*
@@ -192,111 +183,107 @@ public class NameUtil {
     ));
     */
 
-    private final static Set javaNames = new HashSet(Arrays.asList(
-        new String[]
-            {
-                // 1. all the Java.lang classes [1.4.1 JDK].
-                "CharSequence",
-                "Cloneable",
-                "Comparable",
-                "Runnable",
+    private final static Set<String> javaNames = new HashSet<>(Arrays.asList(
+        // 1. all the Java.lang classes [1.4.1 JDK].
+        "CharSequence",
+        "Cloneable",
+        "Comparable",
+        "Runnable",
 
-                "Boolean",
-                "Byte",
-                "Character",
-                "Class",
-                "ClassLoader",
-                "Compiler",
-                "Double",
-                "Float",
-                "InheritableThreadLocal",
-                "Integer",
-                "Long",
-                "Math",
-                "Number",
-                "Object",
-                "Package",
-                "Process",
-                "Runtime",
-                "RuntimePermission",
-                "SecurityManager",
-                "Short",
-                "StackTraceElement",
-                "StrictMath",
-                "String",
-                "StringBuffer",
-                "System",
-                "Thread",
-                "ThreadGroup",
-                "ThreadLocal",
-                "Throwable",
-                "Void",
+        "Boolean",
+        "Byte",
+        "Character",
+        "Class",
+        "ClassLoader",
+        "Compiler",
+        "Double",
+        "Float",
+        "InheritableThreadLocal",
+        "Integer",
+        "Long",
+        "Math",
+        "Number",
+        "Object",
+        "Package",
+        "Process",
+        "Runtime",
+        "RuntimePermission",
+        "SecurityManager",
+        "Short",
+        "StackTraceElement",
+        "StrictMath",
+        "String",
+        "StringBuffer",
+        "System",
+        "Thread",
+        "ThreadGroup",
+        "ThreadLocal",
+        "Throwable",
+        "Void",
 
-                "ArithmeticException",
-                "ArrayIndexOutOfBoundsException",
-                "ArrayStoreException",
-                "ClassCastException",
-                "ClassNotFoundException",
-                "CloneNotSupportedException",
-                "Exception",
-                "IllegalAccessException",
-                "IllegalArgumentException",
-                "IllegalMonitorStateException",
-                "IllegalStateException",
-                "IllegalThreadStateException",
-                "IndexOutOfBoundsException",
-                "InstantiationException",
-                "InterruptedException",
-                "NegativeArraySizeException",
-                "NoSuchFieldException",
-                "NoSuchMethodException",
-                "NullPointerException",
-                "NumberFormatException",
-                "RuntimeException",
-                "SecurityException",
-                "StringIndexOutOfBoundsException",
-                "UnsupportedOperationException",
+        "ArithmeticException",
+        "ArrayIndexOutOfBoundsException",
+        "ArrayStoreException",
+        "ClassCastException",
+        "ClassNotFoundException",
+        "CloneNotSupportedException",
+        "Exception",
+        "IllegalAccessException",
+        "IllegalArgumentException",
+        "IllegalMonitorStateException",
+        "IllegalStateException",
+        "IllegalThreadStateException",
+        "IndexOutOfBoundsException",
+        "InstantiationException",
+        "InterruptedException",
+        "NegativeArraySizeException",
+        "NoSuchFieldException",
+        "NoSuchMethodException",
+        "NullPointerException",
+        "NumberFormatException",
+        "RuntimeException",
+        "SecurityException",
+        "StringIndexOutOfBoundsException",
+        "UnsupportedOperationException",
 
-                "AbstractMethodError",
-                "AssertionError",
-                "ClassCircularityError",
-                "ClassFormatError",
-                "Error",
-                "ExceptionInInitializerError",
-                "IllegalAccessError",
-                "IncompatibleClassChangeError",
-                "InstantiationError",
-                "InternalError",
-                "LinkageError",
-                "NoClassDefFoundError",
-                "NoSuchFieldError",
-                "NoSuchMethodError",
-                "OutOfMemoryError",
-                "StackOverflowError",
-                "ThreadDeath",
-                "UnknownError",
-                "UnsatisfiedLinkError",
-                "UnsupportedClassVersionError",
-                "VerifyError",
-                "VirtualMachineError",
+        "AbstractMethodError",
+        "AssertionError",
+        "ClassCircularityError",
+        "ClassFormatError",
+        "Error",
+        "ExceptionInInitializerError",
+        "IllegalAccessError",
+        "IncompatibleClassChangeError",
+        "InstantiationError",
+        "InternalError",
+        "LinkageError",
+        "NoClassDefFoundError",
+        "NoSuchFieldError",
+        "NoSuchMethodError",
+        "OutOfMemoryError",
+        "StackOverflowError",
+        "ThreadDeath",
+        "UnknownError",
+        "UnsatisfiedLinkError",
+        "UnsupportedClassVersionError",
+        "VerifyError",
+        "VirtualMachineError",
 
-                // 2. other classes used as primitive types by xml beans
-                "BigInteger",
-                "BigDecimal",
-                "Enum",
-                "Date",
-                "GDate",
-                "GDuration",
-                "QName",
-                "List",
+        // 2. other classes used as primitive types by xml beans
+        "BigInteger",
+        "BigDecimal",
+        "Enum",
+        "Date",
+        "GDate",
+        "GDuration",
+        "QName",
+        "List",
 
-                // 3. the top few org.apache.xmlbeans names
-                "XmlObject",
-                "XmlCursor",
-                "XmlBeans",
-                "SchemaType",
-            }
-    ));
+        // 3. the top few org.apache.xmlbeans names
+        "XmlObject",
+        "XmlCursor",
+        "XmlBeans",
+        "SchemaType"));
 
     public static boolean isValidJavaIdentifier(String id) {
         if (id == null) {
@@ -333,9 +320,8 @@ public class NameUtil {
         String java_type = upperCamelCase(qname.getLocalPart(), useJaxRpcRules);
 
         String uri = qname.getNamespaceURI();
-        String java_pkg = null;
 
-        java_pkg = getPackageFromNamespace(uri, useJaxRpcRules);
+        String java_pkg = getPackageFromNamespace(uri, useJaxRpcRules);
 
         if (java_pkg != null) {
             return java_pkg + "." + java_type;
@@ -345,10 +331,9 @@ public class NameUtil {
     }
 
     private static final String JAVA_NS_PREFIX = "java:";
-    private static final String LANG_PREFIX = "java.";
 
-    public static String getNamespaceFromPackage(final Class clazz) {
-        Class curr_clazz = clazz;
+    public static String getNamespaceFromPackage(final Class<?> clazz) {
+        Class<?> curr_clazz = clazz;
 
         while (curr_clazz.isArray()) {
             curr_clazz = curr_clazz.getComponentType();
@@ -433,11 +418,11 @@ public class NameUtil {
         return buf.toString();
     }
 
-    private static List splitDNS(String dns) {
+    private static List<String> splitDNS(String dns) {
         // JAXB says: only split+reverse DNS if TLD matches known TLDs or ISO 3166
         // We are ignoring this now (TH)
 
-        List result = new ArrayList();
+        List<String> result = new ArrayList<>();
 
         int end = dns.length();
         int begin = dns.lastIndexOf('.');
@@ -451,7 +436,7 @@ public class NameUtil {
 
         // JAXB draft example implies removal of www
         if (result.size() >= 3 &&
-            ((String) result.get(result.size() - 1)).toLowerCase().equals("www")) {
+            result.get(result.size() - 1).toLowerCase(Locale.ROOT).equals("www")) {
             result.remove(result.size() - 1);
         }
 
@@ -465,7 +450,7 @@ public class NameUtil {
         if (i > 0 && (
             i + 1 + 2 == filename.length() ||
             i + 1 + 3 == filename.length() ||
-            "html".equals(filename.substring(i + 1).toLowerCase()))) {
+            "html".equals(filename.substring(i + 1).toLowerCase(Locale.ROOT)))) {
             return filename.substring(0, i);
         }
 
@@ -485,16 +470,16 @@ public class NameUtil {
         // apply draft JAXB rules
         int len = uri.length();
         int i = findSchemeColon(uri);
-        List result = null;
+        List<String> result;
 
         if (i == len - 1) {
             // XMLBEANS-57: colon is at end so just use scheme as the package name
-            result = new ArrayList();
+            result = new ArrayList<>();
             result.add(uri.substring(0, i));
         } else if (i >= 0 && uri.substring(0, i).equals("java")) {
             result = Arrays.asList(uri.substring(i + 1).split("\\."));
         } else {
-            result = new ArrayList();
+            result = new ArrayList<>();
             outer:
             for (i = i + 1; i < len; ) {
                 while (uri.charAt(i) == '/') {
@@ -512,19 +497,19 @@ public class NameUtil {
                 result.add(uri.substring(start, end));
             }
             if (result.size() > 1) {
-                result.set(result.size() - 1, processFilename((String) result.get(result.size() - 1)));
+                result.set(result.size() - 1, processFilename(result.get(result.size() - 1)));
             }
 
             if (result.size() > 0) {
-                List splitdns = splitDNS((String) result.get(0));
+                List<String> splitdns = splitDNS(result.get(0));
                 result.remove(0);
                 result.addAll(0, splitdns);
             }
         }
 
         StringBuilder buf = new StringBuilder();
-        for (Iterator it = result.iterator(); it.hasNext(); ) {
-            String part = nonJavaKeyword(lowerCamelCase((String) it.next(), useJaxRpcRules, true));
+        for (String s : result) {
+            String part = nonJavaKeyword(lowerCamelCase(s, useJaxRpcRules, true));
             if (part.length() > 0) {
                 buf.append(part);
                 buf.append('.');
@@ -534,14 +519,14 @@ public class NameUtil {
             return "noNamespace";
         }
         if (useJaxRpcRules) {
-            return buf.substring(0, buf.length() - 1).toLowerCase();
+            return buf.substring(0, buf.length() - 1).toLowerCase(Locale.ROOT);
         }
         return buf.substring(0, buf.length() - 1); // chop off extra dot
     }
 
     public static void main(String[] args) {
-        for (int i = 0; i < args.length; i++) {
-            System.out.println(upperCaseUnderbar(args[i]));
+        for (String arg : args) {
+            System.out.println(upperCaseUnderbar(arg));
         }
     }
 
@@ -553,20 +538,20 @@ public class NameUtil {
      */
     public static String upperCaseUnderbar(String xml_name) {
         StringBuilder buf = new StringBuilder();
-        List words = splitWords(xml_name, false);
+        List<String> words = splitWords(xml_name, false);
 
         final int sz = words.size() - 1;
-        if (sz >= 0 && !Character.isJavaIdentifierStart(((String) words.get(0)).charAt(0))) {
+        if (sz >= 0 && !Character.isJavaIdentifierStart(words.get(0).charAt(0))) {
             buf.append("X_");
         }
 
         for (int i = 0; i < sz; i++) {
-            buf.append((String) words.get(i));
+            buf.append(words.get(i));
             buf.append(USCORE);
         }
 
         if (sz >= 0) {
-            buf.append((String) words.get(sz));
+            buf.append(words.get(sz));
         }
 
         //upcase entire buffer
@@ -595,16 +580,15 @@ public class NameUtil {
      */
     public static String upperCamelCase(String xml_name, boolean useJaxRpcRules) {
         StringBuilder buf = new StringBuilder();
-        List words = splitWords(xml_name, useJaxRpcRules);
+        List<String> words = splitWords(xml_name, useJaxRpcRules);
 
         if (words.size() > 0) {
-            if (!Character.isJavaIdentifierStart(((String) words.get(0)).charAt(0))) {
+            if (!Character.isJavaIdentifierStart(words.get(0).charAt(0))) {
                 buf.append("X");
             }
 
-            Iterator itr = words.iterator();
-            while (itr.hasNext()) {
-                buf.append((String) itr.next());
+            for (String word : words) {
+                buf.append(word);
             }
         }
         return buf.toString();
@@ -629,20 +613,20 @@ public class NameUtil {
     public static String lowerCamelCase(String xml_name, boolean useJaxRpcRules,
                                         boolean fixGeneratedName) {
         StringBuilder buf = new StringBuilder();
-        List words = splitWords(xml_name, useJaxRpcRules);
+        List<String> words = splitWords(xml_name, useJaxRpcRules);
 
         if (words.size() > 0) {
-            String first = ((String) words.get(0)).toLowerCase();
+            String first = words.get(0).toLowerCase(Locale.ROOT);
             char f = first.charAt(0);
             if (!Character.isJavaIdentifierStart(f) && fixGeneratedName) {
                 buf.append("x");
             }
             buf.append(first);
 
-            Iterator itr = words.iterator();
+            Iterator<String> itr = words.iterator();
             itr.next(); // skip already-lowercased word
             while (itr.hasNext()) {
-                buf.append((String) itr.next());
+                buf.append(itr.next());
             }
         }
         return buf.toString();
@@ -665,14 +649,14 @@ public class NameUtil {
      * <p>
      * ncname is xml ncname (i.e. no colons).
      */
-    private static void addCapped(List list, String str) {
+    private static void addCapped(List<String> list, String str) {
         if (str.length() > 0) {
             list.add(upperCaseFirstLetter(str));
         }
     }
 
-    public static List splitWords(String name, boolean useJaxRpcRules) {
-        List list = new ArrayList();
+    public static List<String> splitWords(String name, boolean useJaxRpcRules) {
+        List<String> list = new ArrayList<>();
         int len = name.length();
         int start = 0;
         int prefix = START;
@@ -764,10 +748,7 @@ public class NameUtil {
      * prepends the letter "x".
      */
     public static String nonExtraKeyword(String word) {
-        if (isExtraReservedWord(word, true)) {
-            return word + "Value";
-        }
-        return word;
+        return isExtraReservedWord(word) ? word + "Value" : word;
     }
 
     /**
@@ -783,21 +764,11 @@ public class NameUtil {
     }
 
     private static boolean isJavaReservedWord(String word) {
-        return isJavaReservedWord(word, true);
+        return javaWords.contains(word.toLowerCase(Locale.ROOT));
     }
 
-    private static boolean isJavaReservedWord(String word, boolean ignore_case) {
-        if (ignore_case) {
-            word = word.toLowerCase();
-        }
-        return javaWords.contains(word);
-    }
-
-    private static boolean isExtraReservedWord(String word, boolean ignore_case) {
-        if (ignore_case) {
-            word = word.toLowerCase();
-        }
-        return extraWords.contains(word);
+    private static boolean isExtraReservedWord(String word) {
+        return extraWords.contains(word.toLowerCase(Locale.ROOT));
     }
 
     public static boolean isJavaCommonClassName(String word) {

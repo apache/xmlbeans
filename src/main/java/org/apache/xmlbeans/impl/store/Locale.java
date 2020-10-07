@@ -958,7 +958,7 @@ public final class Locale
                     String attrName = a.getNodeName();
                     String attrValue = a.getNodeValue();
 
-                    if (attrName.toLowerCase().startsWith("xmlns")) {
+                    if (attrName.toLowerCase(java.util.Locale.ROOT).startsWith("xmlns")) {
                         if (attrName.length() == 5) {
                             context.xmlns(null, attrValue);
                         } else {
@@ -1728,7 +1728,7 @@ public final class Locale
 
         for (String prefix : namespaces.keySet()) {
             // Usually, this is the predefined xml namespace
-            if (!prefix.toLowerCase().startsWith("xml")) {
+            if (!prefix.toLowerCase(java.util.Locale.ROOT).startsWith("xml")) {
                 if (c.namespaceForPrefix(prefix, false) == null) {
                     c.push();
 

@@ -101,7 +101,7 @@ public final class XBLogFactory {
                 @SuppressWarnings("unchecked")
                 Class<? extends XBLogger> loggerClass =
                     (Class<? extends XBLogger>) Class.forName(_loggerClassName);
-                logger = loggerClass.newInstance();
+                logger = loggerClass.getDeclaredConstructor().newInstance();
                 logger.initialize(cat);
             } catch(Exception e) {
                 // Give up and use the null logger
