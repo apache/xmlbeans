@@ -21,7 +21,7 @@
     <property name="jdk.version.class" value="1.8" description="JDK version of generated class files"/>
     <property name="compile.debug" value="true"/>
 
-    <property name="version.base" value="4.0.0"/>
+    <property name="version.base" value="4.0.1"/>
     <property name="version.rc" value=""/>
 
     <property name="cases.location" location="src/test/resources"/>
@@ -621,7 +621,7 @@
         </jar>
 
         <jar jarfile="build/xmlbeans-${version.base}-javadoc.jar" update="false" index="false">
-            <fileset dir="." includes="LICENSE.txt,NOTICE.txt,docs/**"/>
+            <fileset dir="." includes="LICENSE.txt,NOTICE.txt"/>
             <fileset dir="build/javadocs"/>
             <manifest>
                 <section name="org/apache/xmlbeans/">
@@ -687,7 +687,7 @@
         </tar>
 
         <zip destfile="build/xmlbeans-bin-${version.base}-${tstamp.dist}.zip" update="false">
-            <zipfileset dir="." includes="LICENSE.txt,NOTICE.txt,docs/**" prefix="${prefix}"/>
+            <zipfileset dir="." includes="LICENSE.txt,NOTICE.txt" prefix="${prefix}"/>
             <zipfileset dir="samples" includes="Any/**,DateTime/**,MixedContent/**,OrderMatters/**,SchemaEnum/**,Validation/**,XQueryXPath/**,XsdConfig/**" prefix="${prefix}/samples"/>
             <zipfileset dir="src/main/shell" prefix="${prefix}/bin"/>
             <zipfileset dir="xkit" prefix="${prefix}"/>
@@ -701,7 +701,7 @@
             </zipfileset>
         </zip>
         <tar destfile="build/xmlbeans-bin-${version.base}-${tstamp.dist}.tgz" compression="gzip" longfile="posix">
-            <tarfileset dir="." includes="LICENSE.txt,NOTICE.txt,docs/**" prefix="${prefix}"/>
+            <tarfileset dir="." includes="LICENSE.txt,NOTICE.txt" prefix="${prefix}"/>
             <tarfileset dir="samples" includes="Any/**,DateTime/**,MixedContent/**,OrderMatters/**,SchemaEnum/**,Validation/**,XQueryXPath/**,XsdConfig/**" prefix="${prefix}/samples"/>
             <tarfileset dir="src/main/shell" prefix="${prefix}/bin"/>
             <tarfileset dir="xkit" prefix="${prefix}"/>
@@ -912,7 +912,7 @@
                   effort="max"
                   failOnError="true">
             <fileset dir="build">
-                <include name="xmlbeans-4.0.0.jar"/>
+                <include name="xmlbeans-4.0.1.jar"/>
             </fileset>
             <auxClasspath path="${xml-apis.jar}"/>
             <auxClasspath path="${saxon.jar}"/>

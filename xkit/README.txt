@@ -13,7 +13,7 @@
  *  limitations under the License.
  */
 
-XMLBeans Development Kit Version 3.1.0
+XMLBeans Development Kit Version 4.0.1
 
 
 Welcome to XMLBeans!
@@ -21,30 +21,22 @@ Welcome to XMLBeans!
 
 Kit contents:
 
-(1) One copy of xbean.jar, which contains XMLBeans.
-    Should work on any JDK 1.6.x or newer.
-    ./lib/xbean.jar
+(1) One copy of xmlbeans-4.0.1.jar, which contains XMLBeans.
+    Should work on any JDK 1.8.x or newer.
+    ./lib/xmlbeans-4.0.1.jar
 
-(2) One copy of resolver.jar from Apache xml-commons. See scomp
-    documentation for when it is needed.
-    ./lib/resolver.jar
-
-(3) License information for XML Beans and included libraries
+(2) License information for XML Beans and included libraries
     ./LICENSE.txt
     ./NOTICE.txt
 
-(4) One folder full of command-line scripts, pointing to the
+(3) One folder full of command-line scripts, pointing to the
     useful main() functions in the JAR.
     ./bin
 
-(5) A copy of the plain javadoc tree for org.apache.xmlbeans.*
+(4) A copy of the plain javadoc tree for org.apache.xmlbeans.*
     ./docs/javadocs
 
-(6) A preliminary collection of nicely formatted user-level
-    documentation HTML
-    ./docs/guide
-
-(7) Samples that show the use of the XMLBeans API. (You'll
+(5) Samples that show the use of the XMLBeans API. (You'll
     also find more samples at the XMLBeans web site.)
     ./samples
 
@@ -52,7 +44,7 @@ Where to start?
 
 (1) Setup.
 
-    1. Make sure you have a JDK 1.6.x or later installed; that
+    1. Make sure you have a JDK 1.8.x or later installed; that
        java[.exe] is on your path and that JAVA_HOME/bin contains
        java[.exe], javac[.exe], and jar[.exe].
 
@@ -61,13 +53,13 @@ Where to start?
 
     3. Put the scripts in ./bin on your path.
 
-    4. To test your setup, run "scomp" with no arguments.  You should 
-       get a "usage" message. 
+    4. To test your setup, run "scomp" with no arguments.  You should
+       get a "usage" message.
 
 
 (2) Get to know XMLBeans basics.
 
-    1. Use the tutorial located at the XMLBeans web site: 
+    1. Use the tutorial located at the XMLBeans web site:
        http://xmlbeans.apache.org/documentation/tutorial_getstarted.html.
        This provides a hands-on introduction to the most commonly
        used technologies in XMLBeans.
@@ -77,7 +69,7 @@ Where to start?
        or at the web site
        (http://xmlbeans.apache.org/docs/2.2.0/guide/conGettingStartedwithXMLBeans.html).
 
-    3. Explore the samples provided with the release (./samples) or 
+    3. Explore the samples provided with the release (./samples) or
        at the XMLBeans web site (http://xmlbeans.apache.org/samples/index.html).
 
 
@@ -170,12 +162,12 @@ Where to start?
       systems or programmatically compiling Schema files.
 
     With that, you're ready to navigate the Javadoc and play
-    with the code.  Also, try reading some of our 
+    with the code.  Also, try reading some of our
     docs that are included in ./docs, as well as samples included
     in ./samples
 
-(5) Try some of the other utilities included in the ./bin directory; 
-    you can also see a few examples of XMLBean techniques in their 
+(5) Try some of the other utilities included in the ./bin directory;
+    you can also see a few examples of XMLBean techniques in their
     source code.
 
      * "xpretty instance.xml" pretty-prints an XML instance
@@ -215,7 +207,7 @@ Where to start?
      * "inst2xsd mydoc.xml" will generate a [set of] XmlSchema
        file based on the instance document provided. This is
        useful as a starting point in authoring an XmlSchema
-       document. 
+       document.
 
      * "xsd2inst schema.xsd -name root" will generate a
        sample xml document with root "root", based on the
