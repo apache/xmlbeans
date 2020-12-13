@@ -42,16 +42,36 @@ public final class DocumentHelper {
     private static class DocHelperErrorHandler implements ErrorHandler {
 
         public void warning(SAXParseException exception) throws SAXException {
-            logger.warn("Warning when parsing XML", exception);
+            logger.warn(asString(exception), exception);
         }
 
         public void error(SAXParseException exception) throws SAXException {
-            logger.error("Error when parsing XML", exception);
+            logger.error(asString(exception), exception);
         }
 
         public void fatalError(SAXParseException exception) throws SAXException {
-            logger.error("FatalError when parsing XML", exception);
+            logger.error(asString(exception), exception);
             throw exception;
+        }
+
+        private String asString(SAXParseException ex) {
+            StringBuilder sb = new StringBuilder();
+
+            String systemId = ex.getSystemId();
+            if (systemId != null) {
+                int index = systemId.lastIndexOf('/');
+                if (index != -1)
+                    systemId = systemId.substring(index + 1);
+                sb.append(systemId);
+            }
+            sb.append(':');
+            sb.append(ex.getLineNumber());
+            sb.append(':');
+            sb.append(ex.getColumnNumber());
+            sb.append(": ");
+            sb.append(ex.getMessage());
+
+            return sb.toString();
         }
     }
 
