@@ -16,6 +16,8 @@
 package org.apache.xmlbeans.impl.common;
 
 import org.apache.xmlbeans.XmlOptionsBean;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.xml.sax.ErrorHandler;
 import org.xml.sax.InputSource;
@@ -32,7 +34,7 @@ import java.lang.reflect.Method;
 import java.util.concurrent.TimeUnit;
 
 public final class DocumentHelper {
-    private static final XBLogger logger = XBLogFactory.getLogger(DocumentHelper.class);
+    private static final Logger logger = LoggerFactory.getLogger(DocumentHelper.class);
     private static long lastLog;
 
     private DocumentHelper() {}
@@ -40,37 +42,16 @@ public final class DocumentHelper {
     private static class DocHelperErrorHandler implements ErrorHandler {
 
         public void warning(SAXParseException exception) throws SAXException {
-            printError(XBLogger.WARN, exception);
+            logger.warn("Warning when parsing XML", exception);
         }
 
         public void error(SAXParseException exception) throws SAXException {
-            printError(XBLogger.ERROR, exception);
+            logger.error("Error when parsing XML", exception);
         }
 
         public void fatalError(SAXParseException exception) throws SAXException {
-            printError(XBLogger.FATAL, exception);
+            logger.error("FatalError when parsing XML", exception);
             throw exception;
-        }
-
-        /** Prints the error message. */
-        private void printError(int type, SAXParseException ex) {
-            StringBuilder sb = new StringBuilder();
-
-            String systemId = ex.getSystemId();
-            if (systemId != null) {
-                int index = systemId.lastIndexOf('/');
-                if (index != -1)
-                    systemId = systemId.substring(index + 1);
-                sb.append(systemId);
-            }
-            sb.append(':');
-            sb.append(ex.getLineNumber());
-            sb.append(':');
-            sb.append(ex.getColumnNumber());
-            sb.append(": ");
-            sb.append(ex.getMessage());
-
-            logger.log(type, sb.toString(), ex);
         }
     }
 
@@ -107,9 +88,9 @@ public final class DocumentHelper {
         try {
             dbf.setFeature(feature, enabled);
         } catch (Exception e) {
-            logger.log(XBLogger.WARN, "SAX Feature unsupported", feature, e);
+            logger.warn("SAX Feature unsupported {}", feature, e);
         } catch (AbstractMethodError ame) {
-            logger.log(XBLogger.WARN, "Cannot set SAX feature because outdated XML parser in classpath", feature, ame);
+            logger.warn("Cannot set SAX feature {} because of outdated XML parser in classpath", feature, ame);
         }
     }
 
@@ -130,7 +111,7 @@ public final class DocumentHelper {
                 // continue without log, this is expected in some setups
             } catch (Throwable e) {     // NOSONAR - also catch things like NoClassDefError here
                 if(System.currentTimeMillis() > lastLog + TimeUnit.MINUTES.toMillis(5)) {
-                    logger.log(XBLogger.WARN, "DocumentBuilderFactory Security Manager could not be setup [log suppressed for 5 minutes]", e);
+                    logger.warn("DocumentBuilderFactory Security Manager could not be setup [log suppressed for 5 minutes]", e);
                     lastLog = System.currentTimeMillis();
                 }
             }
@@ -141,7 +122,7 @@ public final class DocumentHelper {
             dbf.setAttribute(XMLBeansConstants.ENTITY_EXPANSION_LIMIT, options.getEntityExpansionLimit());
         } catch (Throwable e) {
             if(System.currentTimeMillis() > lastLog + TimeUnit.MINUTES.toMillis(5)) {
-                logger.log(XBLogger.WARN, "DocumentBuilderFactory Entity Expansion Limit could not be setup [log suppressed for 5 minutes]", e);
+                logger.warn("DocumentBuilderFactory Entity Expansion Limit could not be setup [log suppressed for 5 minutes]", e);
                 lastLog = System.currentTimeMillis();
             }
         }
