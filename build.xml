@@ -369,6 +369,7 @@
 
         <!-- now generate new xmlbeans re-/sources and remove the traces of the oldxbean generated re-/sources -->
         <path id="oldschemas">
+            <pathelement location="${slf4j-api.jar}"/>
             <pathelement location="${ant.jar}"/>
             <pathelement location="${ant-junit.jar}"/>
             <pathelement location="${ant-junit4.jar}"/>

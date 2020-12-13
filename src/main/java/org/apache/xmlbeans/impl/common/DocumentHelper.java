@@ -88,7 +88,7 @@ public final class DocumentHelper {
         try {
             dbf.setFeature(feature, enabled);
         } catch (Exception e) {
-            logger.warn("SAX Feature unsupported {}", feature, e);
+            logger.warn("SAX Feature unsupported: {}", feature, e);
         } catch (AbstractMethodError ame) {
             logger.warn("Cannot set SAX feature {} because of outdated XML parser in classpath", feature, ame);
         }
