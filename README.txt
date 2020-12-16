@@ -43,6 +43,7 @@ http://wiki.apache.org/xmlbeans
 ./test/docs/*                       for running tests
 
 XmlBeans depends on the following external libraries:
+- slf4j-api [http://www.slf4j.org/] for logging
 - javaparser-core (O) [https://github.com/javaparser/javaparser]
 - Saxon-HE (O) [http://saxon.sourceforge.net/]
   for XPath/XQuery in XmlBeans
