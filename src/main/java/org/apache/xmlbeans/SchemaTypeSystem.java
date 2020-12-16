@@ -119,7 +119,7 @@ import java.io.File;
  * for (int i = 0; i < allSeenTypes.size(); i++)
  * {
  *     SchemaType sType = (SchemaType)allSeenTypes.get(i);
- *     System.out.prinlnt("Visiting " + sType.toString());
+ *     System.out.println("Visiting " + sType.toString());
  *     allSeenTypes.addAll(Arrays.asList(sType.getAnonymousTypes()));
  * }
  * </pre>

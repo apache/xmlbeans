@@ -70,7 +70,7 @@ import javax.xml.namespace.QName;
  *     only at the root of an instance, they are otherwise just like
  *     ordinary complex types.
  * <li>Simple types can be detected using {@link #isSimpleType}.
- *     Complex types are consdered to be all the types that are
+ *     Complex types are considered to be all the types that are
  *     not simple.
  * <li>Simple types are divided into three varieties: atomic types,
  *     list types, and union types.  Which variety of simple type
