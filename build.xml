@@ -120,6 +120,7 @@
 
     <!-- dependencies -->
     <dependency prefix="xml-apis" artifact="xml-apis:xml-apis:1.4.01" usage="java8"/>
+    <dependency prefix="slf4j-api" artifact="org.slf4j:slf4j-api:1.7.30" usage="main"/>
     <dependency prefix="saxon" artifact="net.sf.saxon:Saxon-HE:10.2" usage="main"/>
     <dependency prefix="ant" artifact="org.apache.ant:ant:1.10.8" usage="main"/>
     <dependency prefix="javaparser.core" artifact="com.github.javaparser:javaparser-core:3.16.1" usage="main"/>
@@ -137,7 +138,8 @@
     <dependency prefix="forbidden" artifact="de.thetaphi:forbiddenapis:3.0.1" usage="util"/>
 
     <!-- test dependencies -->
-    <dependency prefix="junit" artifact="junit:junit:4.13" usage="tests"/>
+    <dependency prefix="junit" artifact="junit:junit:4.13.1" usage="tests"/>
+    <dependency prefix="slf4j-simple" artifact="org.slf4j:slf4j-simple:1.7.30" usage="tests"/>
     <dependency prefix="ant-junit" artifact="org.apache.ant:ant-junit:1.10.8" usage="tests"/>
     <dependency prefix="ant-junit4" artifact="org.apache.ant:ant-junit4:1.10.8" usage="tests"/>
     <dependency prefix="hamcrest" artifact="org.hamcrest:hamcrest:2.2" usage="tests"/>
@@ -151,6 +153,8 @@
         <pathelement location="${ant-junit.jar}"/>
         <pathelement location="${ant-junit4.jar}"/>
         <pathelement location="${saxon.jar}"/>
+        <pathelement location="${slf4j-api.jar}"/>
+        <pathelement location="${slf4j-simple.jar}"/>
         <pathelement location="test/lib/w3c_domts.jar"/>
         <pathelement location="${junit.jar}"/>
         <pathelement location="${hamcrest.jar}"/>
@@ -188,6 +192,8 @@
                     <available file="${old.xmlbeans.jar}"/>
                     <available file="${javaparser.core.jar}"/>
                     <available file="${saxon.jar}"/>
+                    <available file="${slf4j-api.jar}"/>
+                    <available file="${slf4j-simple.jar}"/>
                     <available file="${junit.jar}"/>
                     <available file="${hamcrest.jar}"/>
                     <available file="${xerces.jar}"/>
@@ -217,6 +223,8 @@
         <downloadfile dest="${old.xmlbeans.jar}" src="${old.xmlbeans.url}"/>
         <downloadfile dest="${javaparser.core.jar}" src="${javaparser.core.url}"/>
         <downloadfile dest="${saxon.jar}" src="${saxon.url}"/>
+        <downloadfile dest="${slf4j-api.jar}" src="${slf4j-api.url}"/>
+        <downloadfile dest="${slf4j-simple.jar}" src="${slf4j-simple.url}"/>
         <downloadfile dest="${junit.jar}" src="${junit.url}"/>
         <downloadfile dest="${hamcrest.jar}" src="${hamcrest.url}"/>
         <downloadfile dest="${xerces.jar}" src="${xerces.url}"/>
@@ -346,6 +354,7 @@
                 <pathelement location="${ant-junit.jar}"/>
                 <pathelement location="${ant-junit4.jar}"/>
                 <pathelement location="${saxon.jar}"/>
+                <pathelement location="${slf4j-api.jar}"/>
                 <pathelement location="${javaparser.core.jar}"/>
             </classpath>
         </javac>
@@ -360,6 +369,7 @@
 
         <!-- now generate new xmlbeans re-/sources and remove the traces of the oldxbean generated re-/sources -->
         <path id="oldschemas">
+            <pathelement location="${slf4j-api.jar}"/>
             <pathelement location="${ant.jar}"/>
             <pathelement location="${ant-junit.jar}"/>
             <pathelement location="${ant-junit4.jar}"/>
@@ -387,6 +397,7 @@
                source="${jdk.version.source}">
             <src refid="sources"/>
             <classpath path="${saxon.jar}"/>
+            <classpath path="${slf4j-api.jar}"/>
         </javac>
 
         <javac release="9"

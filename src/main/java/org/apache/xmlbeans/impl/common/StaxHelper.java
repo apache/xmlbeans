@@ -20,12 +20,14 @@ import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLOutputFactory;
 
 import org.apache.xmlbeans.XmlOptionsBean;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Provides handy methods for working with StAX parsers and readers
  */
 public final class StaxHelper {
-    private static final XBLogger logger = XBLogFactory.getLogger(StaxHelper.class);
+    private static final Logger logger = LoggerFactory.getLogger(StaxHelper.class);
 
     private StaxHelper() {}
 
@@ -61,9 +63,9 @@ public final class StaxHelper {
         try {
             factory.setProperty(feature, flag);
         } catch (Exception e) {
-            logger.log(XBLogger.WARN, "StAX Property unsupported", feature, e);
+            logger.warn("StAX Property unsupported: {}", feature, e);
         } catch (AbstractMethodError ame) {
-            logger.log(XBLogger.WARN, "Cannot set StAX property because outdated StAX parser in classpath", feature, ame);
+            logger.warn("Cannot set StAX property {} because outdated StAX parser in classpath", feature, ame);
         }
     }
 
@@ -71,9 +73,9 @@ public final class StaxHelper {
         try {
             factory.setProperty(feature, flag);
         } catch (Exception e) {
-            logger.log(XBLogger.WARN, "StAX Property unsupported", feature, e);
+            logger.warn("StAX Property unsupported: {}", feature, e);
         } catch (AbstractMethodError ame) {
-            logger.log(XBLogger.WARN, "Cannot set StAX property because outdated StAX parser in classpath", feature, ame);
+            logger.warn("Cannot set StAX property {} because outdated StAX parser in classpath", feature, ame);
         }
     }
 }
