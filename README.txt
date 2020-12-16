@@ -43,13 +43,8 @@ http://wiki.apache.org/xmlbeans
 ./test/docs/*                       for running tests
 
 XmlBeans depends on the following external libraries:
-- jsr173_1.0_api.jar
-- jam-0.1.0-src.jar [http://annogen.codehaus.org/JAM] for the extension
-  feature using plain .java files
-- tools.jar (O) from the JDK, dependency of jam-0.1.0-src
-- resolver.jar (O) [http://xml.apache.org/commons/components/resolver/]
-  for apache-commons catalog files that are used in entity resolving
-- saxon9.0.0.4j (O) [http://sourceforge.net/projects/saxon/]
+- javaparser-core (O) [https://github.com/javaparser/javaparser]
+- Saxon-HE (O) [http://saxon.sourceforge.net/]
   for XPath/XQuery in XmlBeans
 (O) means that the library is optional
 
