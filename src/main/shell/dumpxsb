@@ -16,7 +16,7 @@
 ##
 
 #XSB file dumper
-#Prints the contents of an xsb file in human-readmble form
+#Prints the contents of an xsb file in human-readable form
 
 echo `dirname $0`
 

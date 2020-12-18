@@ -21,7 +21,7 @@
 
 if [ -z "$XMLBEANS_LIB" ]; then . `dirname $0`/_setlib; fi
 
-cp=$XMLBEANS_LIB/*:$XMLBEANS_LIB/jsr173_1.0_ri.jar
+cp=$XMLBEANS_LIB/*
 
 case "`uname`" in
     CYGWIN*)

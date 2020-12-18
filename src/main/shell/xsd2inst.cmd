@@ -24,7 +24,6 @@ if "%XMLBEANS_LIB%" EQU "" call "%~dp0_setlib"
 
 set cp=
 set cp=%cp%;%XMLBEANS_LIB%\*
-set cp=%cp%;%XMLBEANS_LIB%\jsr173_1.0_api.jar
 
 java -classpath "%cp%" org.apache.xmlbeans.impl.xsd2inst.SchemaInstanceGenerator %*
 

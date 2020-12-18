@@ -712,6 +712,12 @@
                 <include name="xmlbeans-${version.base}-javadoc.jar"/>
                 <include name="xmlbeans-${version.base}-sources.jar"/>
             </zipfileset>
+            <zipfileset dir="lib/main" prefix="${prefix}/lib">
+                <include name="slf4j-*.jar"/>
+            </zipfileset>
+            <zipfileset dir="lib/tests" prefix="${prefix}/lib">
+                <include name="slf4j-*.jar"/>
+            </zipfileset>
         </zip>
         <tar destfile="build/xmlbeans-bin-${version.base}-${tstamp.dist}.tgz" compression="gzip" longfile="posix">
             <tarfileset dir="." includes="LICENSE.txt,NOTICE.txt" prefix="${prefix}"/>
@@ -725,6 +731,12 @@
                 <include name="xmlbeans-${version.base}.jar"/>
                 <include name="xmlbeans-${version.base}-javadoc.jar"/>
                 <include name="xmlbeans-${version.base}-sources.jar"/>
+            </tarfileset>
+            <tarfileset dir="lib/main" prefix="${prefix}/lib">
+                <include name="slf4j-*.jar"/>
+            </tarfileset>
+            <tarfileset dir="lib/tests" prefix="${prefix}/lib">
+                <include name="slf4j-*.jar"/>
             </tarfileset>
         </tar>
 
