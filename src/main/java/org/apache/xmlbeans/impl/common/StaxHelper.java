@@ -15,19 +15,19 @@
 
 package org.apache.xmlbeans.impl.common;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.xmlbeans.XmlOptionsBean;
+
 import javax.xml.stream.XMLEventFactory;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLOutputFactory;
-
-import org.apache.xmlbeans.XmlOptionsBean;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Provides handy methods for working with StAX parsers and readers
  */
 public final class StaxHelper {
-    private static final Logger logger = LoggerFactory.getLogger(StaxHelper.class);
+    private static final Logger LOG = LogManager.getLogger(StaxHelper.class);
 
     private StaxHelper() {}
 
@@ -58,14 +58,14 @@ public final class StaxHelper {
     public static XMLEventFactory newXMLEventFactory(XmlOptionsBean options) {
         return XMLEventFactory.newFactory();
     }
-            
+
     private static void trySetProperty(XMLInputFactory factory, String feature, boolean flag) {
         try {
             factory.setProperty(feature, flag);
         } catch (Exception e) {
-            logger.warn("StAX Property unsupported: {}", feature, e);
+            LOG.atWarn().withThrowable(e).log("StAX Property unsupported: {}", feature);
         } catch (AbstractMethodError ame) {
-            logger.warn("Cannot set StAX property {} because outdated StAX parser in classpath", feature, ame);
+            LOG.atWarn().withThrowable(ame).log("Cannot set StAX property {} because outdated StAX parser in classpath", feature);
         }
     }
 
@@ -73,9 +73,9 @@ public final class StaxHelper {
         try {
             factory.setProperty(feature, flag);
         } catch (Exception e) {
-            logger.warn("StAX Property unsupported: {}", feature, e);
+            LOG.atWarn().withThrowable(e).log("StAX Property unsupported: {}", feature);
         } catch (AbstractMethodError ame) {
-            logger.warn("Cannot set StAX property {} because outdated StAX parser in classpath", feature, ame);
+            LOG.atWarn().withThrowable(ame).log("Cannot set StAX property {} because outdated StAX parser in classpath", feature);
         }
     }
 }

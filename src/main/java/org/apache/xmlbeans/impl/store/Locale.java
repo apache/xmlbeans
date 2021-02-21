@@ -15,14 +15,17 @@
 
 package org.apache.xmlbeans.impl.store;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.xmlbeans.*;
 import org.apache.xmlbeans.XmlCursor.XmlBookmark;
-import org.apache.xmlbeans.impl.common.*;
+import org.apache.xmlbeans.impl.common.QNameHelper;
+import org.apache.xmlbeans.impl.common.ResolverUtil;
+import org.apache.xmlbeans.impl.common.SAXHelper;
+import org.apache.xmlbeans.impl.common.XmlLocale;
 import org.apache.xmlbeans.impl.store.Cur.Locations;
 import org.apache.xmlbeans.impl.store.DomImpl.Dom;
 import org.apache.xmlbeans.impl.store.Saaj.SaajCallback;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.w3c.dom.*;
 import org.xml.sax.*;
 import org.xml.sax.ext.DeclHandler;
@@ -46,7 +49,7 @@ import static org.apache.xmlbeans.impl.values.TypeStore.*;
 
 public final class Locale
     implements DOMImplementation, SaajCallback, XmlLocale {
-    private static final Logger logger = LoggerFactory.getLogger(Locale.class);
+    private static final Logger LOG = LogManager.getLogger(Locale.class);
 
     static final int ROOT = Cur.ROOT;
     static final int ELEM = Cur.ELEM;
@@ -1914,7 +1917,7 @@ public final class Locale
 
 
         // the "better" cache should never walk more than 1/2 len
-        Dom x = null;
+        Dom x;
         boolean bInvalidate = (db - _domNthCache_B._len / 2 > 0) &&
                               (db - _domNthCache_B._len / 2 - domNthCache.BLITZ_BOUNDARY > 0);
         boolean aInvalidate = (da - _domNthCache_A._len / 2 > 0) &&
@@ -2003,7 +2006,7 @@ public final class Locale
             }
 
             if (_len == -1) {
-                Dom x = null;
+                Dom x;
 
                 if (_child != null && _n != -1) {
                     x = _child;
@@ -2294,7 +2297,7 @@ public final class Locale
         return !_noSync;
     }
 
-    static final boolean isWhiteSpace(String s) {
+    static boolean isWhiteSpace(String s) {
         int l = s.length();
 
         while (l-- > 0) {
@@ -2306,7 +2309,7 @@ public final class Locale
         return true;
     }
 
-    static final boolean isWhiteSpace(StringBuffer sb) {
+    static boolean isWhiteSpace(StringBuffer sb) {
         int l = sb.length();
 
         while (l-- > 0) {
@@ -2616,7 +2619,7 @@ public final class Locale
             }
         }
 
-        public void characters(char ch[], int start, int length)
+        public void characters(char[] ch, int start, int length)
             throws SAXException {
             _context.text(ch, start, length);
 
@@ -2634,11 +2637,11 @@ public final class Locale
             }
         }
 
-        public void ignorableWhitespace(char ch[], int start, int length)
+        public void ignorableWhitespace(char[] ch, int start, int length)
             throws SAXException {
         }
 
-        public void comment(char ch[], int start, int length)
+        public void comment(char[] ch, int start, int length)
             throws SAXException {
             _context.comment(ch, start, length);
         }
@@ -2759,7 +2762,7 @@ public final class Locale
             try {
                 _xr.setProperty("http://xml.org/sax/properties/declaration-handler", this);
             } catch (Throwable e) {
-                logger.warn("SAX Declaration Handler is not supported", e);
+                LOG.atWarn().withThrowable(e).log("SAX Declaration Handler is not supported");
             }
         }
 
@@ -2830,7 +2833,7 @@ public final class Locale
             throw e;
         }
 
-        private XMLReader _xr;
+        private final XMLReader _xr;
     }
 
     private Dom load(InputSource is, XmlOptions options)
@@ -2974,7 +2977,7 @@ public final class Locale
 
     private static final class DefaultQNameFactory
         implements QNameFactory {
-        private QNameCache _cache = XmlBeans.getQNameCache();
+        private final QNameCache _cache = XmlBeans.getQNameCache();
 
         public QName getQName(String uri, String local) {
             return _cache.getName(uri, local, "");
@@ -3005,7 +3008,7 @@ public final class Locale
 
     private static final class LocalDocumentQNameFactory
         implements QNameFactory {
-        private QNameCache _cache = new QNameCache(32);
+        private final QNameCache _cache = new QNameCache(32);
 
         public QName getQName(String uri, String local) {
             return _cache.getName(uri, local, "");

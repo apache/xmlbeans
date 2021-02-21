@@ -15,9 +15,9 @@
 
 package org.apache.xmlbeans.impl.common;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.xmlbeans.XmlOptionsBean;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.xml.sax.ErrorHandler;
 import org.xml.sax.InputSource;
@@ -34,7 +34,7 @@ import java.lang.reflect.Method;
 import java.util.concurrent.TimeUnit;
 
 public final class DocumentHelper {
-    private static final Logger logger = LoggerFactory.getLogger(DocumentHelper.class);
+    private static final Logger LOG = LogManager.getLogger(DocumentHelper.class);
     private static long lastLog;
 
     private DocumentHelper() {}
@@ -42,15 +42,15 @@ public final class DocumentHelper {
     private static class DocHelperErrorHandler implements ErrorHandler {
 
         public void warning(SAXParseException exception) throws SAXException {
-            logger.warn(asString(exception), exception);
+            LOG.atWarn().withThrowable(exception).log(asString(exception));
         }
 
         public void error(SAXParseException exception) throws SAXException {
-            logger.error(asString(exception), exception);
+            LOG.atError().withThrowable(exception).log(asString(exception));
         }
 
         public void fatalError(SAXParseException exception) throws SAXException {
-            logger.error(asString(exception), exception);
+            LOG.atFatal().withThrowable(exception).log(asString(exception));
             throw exception;
         }
 
@@ -93,7 +93,7 @@ public final class DocumentHelper {
         }
     }
 
-    private static final DocumentBuilderFactory documentBuilderFactory(XmlOptionsBean options) {
+    private static DocumentBuilderFactory documentBuilderFactory(XmlOptionsBean options) {
         DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
         documentBuilderFactory.setNamespaceAware(true);
         documentBuilderFactory.setValidating(false);
@@ -108,9 +108,9 @@ public final class DocumentHelper {
         try {
             dbf.setFeature(feature, enabled);
         } catch (Exception e) {
-            logger.warn("SAX Feature unsupported: {}", feature, e);
+            LOG.atWarn().withThrowable(e).log("SAX Feature unsupported: {}", feature);
         } catch (AbstractMethodError ame) {
-            logger.warn("Cannot set SAX feature {} because of outdated XML parser in classpath", feature, ame);
+            LOG.atWarn().withThrowable(ame).log("Cannot set SAX feature {} because of outdated XML parser in classpath", feature);
         }
     }
 
@@ -131,7 +131,7 @@ public final class DocumentHelper {
                 // continue without log, this is expected in some setups
             } catch (Throwable e) {     // NOSONAR - also catch things like NoClassDefError here
                 if(System.currentTimeMillis() > lastLog + TimeUnit.MINUTES.toMillis(5)) {
-                    logger.warn("DocumentBuilderFactory Security Manager could not be setup [log suppressed for 5 minutes]", e);
+                    LOG.atWarn().withThrowable(e).log("DocumentBuilderFactory Security Manager could not be setup [log suppressed for 5 minutes]");
                     lastLog = System.currentTimeMillis();
                 }
             }
@@ -142,7 +142,7 @@ public final class DocumentHelper {
             dbf.setAttribute(XMLBeansConstants.ENTITY_EXPANSION_LIMIT, options.getEntityExpansionLimit());
         } catch (Throwable e) {
             if(System.currentTimeMillis() > lastLog + TimeUnit.MINUTES.toMillis(5)) {
-                logger.warn("DocumentBuilderFactory Entity Expansion Limit could not be setup [log suppressed for 5 minutes]", e);
+                LOG.atWarn().withThrowable(e).log("DocumentBuilderFactory Entity Expansion Limit could not be setup [log suppressed for 5 minutes]");
                 lastLog = System.currentTimeMillis();
             }
         }

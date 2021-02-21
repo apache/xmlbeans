@@ -18,7 +18,7 @@
 module org.apache.xmlbeans {
     requires java.xml;
     requires jdk.xml.dom;
-    requires org.slf4j;
+    requires org.apache.logging.log4j;
     requires static ant;
     requires static com.github.javaparser.core;
     requires static Saxon.HE;
