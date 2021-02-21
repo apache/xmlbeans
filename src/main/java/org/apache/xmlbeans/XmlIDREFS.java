@@ -15,6 +15,8 @@
 
 package org.apache.xmlbeans;
 
+import org.apache.xmlbeans.impl.schema.XmlObjectFactory;
+
 import java.util.List;
 
 
@@ -30,10 +32,12 @@ import java.util.List;
  * Convertible to a {@link List}.
  */
 public interface XmlIDREFS extends XmlAnySimpleType {
+    XmlObjectFactory<XmlIDREFS> Factory = new XmlObjectFactory<>("_BI_IDREFS");
+
     /**
      * The constant {@link SchemaType} object representing this schema type.
      */
-    SchemaType type = XmlBeans.getBuiltinTypeSystem().typeForHandle("_BI_IDREFS");
+    SchemaType type = Factory.getType();
 
     /**
      * Returns the value as a {@link List} of {@link String} values
@@ -49,134 +53,5 @@ public interface XmlIDREFS extends XmlAnySimpleType {
      * Sets the value as a {@link List}
      */
     void setListValue(List<?> l);
-
-    /**
-     * A class with methods for creating instances
-     * of {@link XmlIDREFS}.
-     */
-    final class Factory {
-        /**
-         * Creates an empty instance of {@link XmlIDREFS}
-         */
-        public static XmlIDREFS newInstance() {
-            return (XmlIDREFS) XmlBeans.getContextTypeLoader().newInstance(type, null);
-        }
-
-        /**
-         * Creates an empty instance of {@link XmlIDREFS}
-         */
-        public static XmlIDREFS newInstance(org.apache.xmlbeans.XmlOptions options) {
-            return (XmlIDREFS) XmlBeans.getContextTypeLoader().newInstance(type, options);
-        }
-
-        /**
-         * Creates an immutable {@link XmlIDREFS} value
-         */
-        public static XmlIDREFS newValue(Object obj) {
-            return (XmlIDREFS) type.newValue(obj);
-        }
-
-        /**
-         * Parses a {@link XmlIDREFS} fragment from a String.
-         */
-        public static XmlIDREFS parse(java.lang.String s) throws org.apache.xmlbeans.XmlException {
-            return (XmlIDREFS) XmlBeans.getContextTypeLoader().parse(s, type, null);
-        }
-
-        /**
-         * Parses a {@link XmlIDREFS} fragment from a String.
-         */
-        public static XmlIDREFS parse(java.lang.String s, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException {
-            return (XmlIDREFS) XmlBeans.getContextTypeLoader().parse(s, type, options);
-        }
-
-        /**
-         * Parses a {@link XmlIDREFS} fragment from a File.
-         */
-        public static XmlIDREFS parse(java.io.File f) throws org.apache.xmlbeans.XmlException, java.io.IOException {
-            return (XmlIDREFS) XmlBeans.getContextTypeLoader().parse(f, type, null);
-        }
-
-        /**
-         * Parses a {@link XmlIDREFS} fragment from a File.
-         */
-        public static XmlIDREFS parse(java.io.File f, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException, java.io.IOException {
-            return (XmlIDREFS) XmlBeans.getContextTypeLoader().parse(f, type, options);
-        }
-
-        /**
-         * Parses a {@link XmlIDREFS} fragment from a URL.
-         */
-        public static XmlIDREFS parse(java.net.URL u) throws org.apache.xmlbeans.XmlException, java.io.IOException {
-            return (XmlIDREFS) XmlBeans.getContextTypeLoader().parse(u, type, null);
-        }
-
-        /**
-         * Parses a {@link XmlIDREFS} fragment from a URL.
-         */
-        public static XmlIDREFS parse(java.net.URL u, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException, java.io.IOException {
-            return (XmlIDREFS) XmlBeans.getContextTypeLoader().parse(u, type, options);
-        }
-
-        /**
-         * Parses a {@link XmlIDREFS} fragment from an InputStream.
-         */
-        public static XmlIDREFS parse(java.io.InputStream is) throws org.apache.xmlbeans.XmlException, java.io.IOException {
-            return (XmlIDREFS) XmlBeans.getContextTypeLoader().parse(is, type, null);
-        }
-
-        /**
-         * Parses a {@link XmlIDREFS} fragment from an InputStream.
-         */
-        public static XmlIDREFS parse(java.io.InputStream is, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException, java.io.IOException {
-            return (XmlIDREFS) XmlBeans.getContextTypeLoader().parse(is, type, options);
-        }
-
-        /**
-         * Parses a {@link XmlIDREFS} fragment from a Reader.
-         */
-        public static XmlIDREFS parse(java.io.Reader r) throws org.apache.xmlbeans.XmlException, java.io.IOException {
-            return (XmlIDREFS) XmlBeans.getContextTypeLoader().parse(r, type, null);
-        }
-
-        /**
-         * Parses a {@link XmlIDREFS} fragment from a Reader.
-         */
-        public static XmlIDREFS parse(java.io.Reader r, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException, java.io.IOException {
-            return (XmlIDREFS) XmlBeans.getContextTypeLoader().parse(r, type, options);
-        }
-
-        /**
-         * Parses a {@link XmlIDREFS} fragment from a DOM Node.
-         */
-        public static XmlIDREFS parse(org.w3c.dom.Node node) throws org.apache.xmlbeans.XmlException {
-            return (XmlIDREFS) XmlBeans.getContextTypeLoader().parse(node, type, null);
-        }
-
-        /**
-         * Parses a {@link XmlIDREFS} fragment from a DOM Node.
-         */
-        public static XmlIDREFS parse(org.w3c.dom.Node node, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException {
-            return (XmlIDREFS) XmlBeans.getContextTypeLoader().parse(node, type, options);
-        }
-
-        /**
-         * Parses a {@link XmlIDREFS} fragment from an XMLStreamReader.
-         */
-        public static XmlIDREFS parse(javax.xml.stream.XMLStreamReader xsr) throws org.apache.xmlbeans.XmlException {
-            return (XmlIDREFS) XmlBeans.getContextTypeLoader().parse(xsr, type, null);
-        }
-
-        /**
-         * Parses a {@link XmlIDREFS} fragment from an XMLStreamReader.
-         */
-        public static XmlIDREFS parse(javax.xml.stream.XMLStreamReader xsr, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException {
-            return (XmlIDREFS) XmlBeans.getContextTypeLoader().parse(xsr, type, options);
-        }
-
-        private Factory() {
-            // No instance of this class allowed
-        }
-    }
 }
 

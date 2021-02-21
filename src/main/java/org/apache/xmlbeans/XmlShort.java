@@ -15,6 +15,8 @@
 
 package org.apache.xmlbeans;
 
+import org.apache.xmlbeans.impl.schema.XmlObjectFactory;
+
 /**
  * Corresponds to the XML Schema
  * <a target="_blank" href="http://www.w3.org/TR/xmlschema-2/#short">xs:short</a> type.
@@ -23,10 +25,12 @@ package org.apache.xmlbeans;
  * Naturally, convertible to a Java short.
  */
 public interface XmlShort extends XmlInt {
+    XmlObjectFactory<XmlShort> Factory = new XmlObjectFactory<>("_BI_short");
+
     /**
      * The constant {@link SchemaType} object representing this schema type.
      */
-    SchemaType type = XmlBeans.getBuiltinTypeSystem().typeForHandle("_BI_short");
+    SchemaType type = Factory.getType();
 
     /**
      * Returns this value as a short
@@ -37,134 +41,5 @@ public interface XmlShort extends XmlInt {
      * Sets this value as a short
      */
     void setShortValue(short s);
-
-    /**
-     * A class with methods for creating instances
-     * of {@link XmlShort}.
-     */
-    final class Factory {
-        /**
-         * Creates an empty instance of {@link XmlShort}
-         */
-        public static XmlShort newInstance() {
-            return (XmlShort) XmlBeans.getContextTypeLoader().newInstance(type, null);
-        }
-
-        /**
-         * Creates an empty instance of {@link XmlShort}
-         */
-        public static XmlShort newInstance(org.apache.xmlbeans.XmlOptions options) {
-            return (XmlShort) XmlBeans.getContextTypeLoader().newInstance(type, options);
-        }
-
-        /**
-         * Creates an immutable {@link XmlShort} value
-         */
-        public static XmlShort newValue(Object obj) {
-            return (XmlShort) type.newValue(obj);
-        }
-
-        /**
-         * Parses a {@link XmlShort} fragment from a String. For example: "<code>&lt;xml-fragment&gt;12345&lt;/xml-fragment&gt;</code>".
-         */
-        public static XmlShort parse(java.lang.String s) throws org.apache.xmlbeans.XmlException {
-            return (XmlShort) XmlBeans.getContextTypeLoader().parse(s, type, null);
-        }
-
-        /**
-         * Parses a {@link XmlShort} fragment from a String. For example: "<code>&lt;xml-fragment&gt;12345&lt;/xml-fragment&gt;</code>".
-         */
-        public static XmlShort parse(java.lang.String s, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException {
-            return (XmlShort) XmlBeans.getContextTypeLoader().parse(s, type, options);
-        }
-
-        /**
-         * Parses a {@link XmlShort} fragment from a File.
-         */
-        public static XmlShort parse(java.io.File f) throws org.apache.xmlbeans.XmlException, java.io.IOException {
-            return (XmlShort) XmlBeans.getContextTypeLoader().parse(f, type, null);
-        }
-
-        /**
-         * Parses a {@link XmlShort} fragment from a File.
-         */
-        public static XmlShort parse(java.io.File f, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException, java.io.IOException {
-            return (XmlShort) XmlBeans.getContextTypeLoader().parse(f, type, options);
-        }
-
-        /**
-         * Parses a {@link XmlShort} fragment from a URL.
-         */
-        public static XmlShort parse(java.net.URL u) throws org.apache.xmlbeans.XmlException, java.io.IOException {
-            return (XmlShort) XmlBeans.getContextTypeLoader().parse(u, type, null);
-        }
-
-        /**
-         * Parses a {@link XmlShort} fragment from a URL.
-         */
-        public static XmlShort parse(java.net.URL u, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException, java.io.IOException {
-            return (XmlShort) XmlBeans.getContextTypeLoader().parse(u, type, options);
-        }
-
-        /**
-         * Parses a {@link XmlShort} fragment from an InputStream.
-         */
-        public static XmlShort parse(java.io.InputStream is) throws org.apache.xmlbeans.XmlException, java.io.IOException {
-            return (XmlShort) XmlBeans.getContextTypeLoader().parse(is, type, null);
-        }
-
-        /**
-         * Parses a {@link XmlShort} fragment from an InputStream.
-         */
-        public static XmlShort parse(java.io.InputStream is, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException, java.io.IOException {
-            return (XmlShort) XmlBeans.getContextTypeLoader().parse(is, type, options);
-        }
-
-        /**
-         * Parses a {@link XmlShort} fragment from a Reader.
-         */
-        public static XmlShort parse(java.io.Reader r) throws org.apache.xmlbeans.XmlException, java.io.IOException {
-            return (XmlShort) XmlBeans.getContextTypeLoader().parse(r, type, null);
-        }
-
-        /**
-         * Parses a {@link XmlShort} fragment from a Reader.
-         */
-        public static XmlShort parse(java.io.Reader r, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException, java.io.IOException {
-            return (XmlShort) XmlBeans.getContextTypeLoader().parse(r, type, options);
-        }
-
-        /**
-         * Parses a {@link XmlShort} fragment from a DOM Node.
-         */
-        public static XmlShort parse(org.w3c.dom.Node node) throws org.apache.xmlbeans.XmlException {
-            return (XmlShort) XmlBeans.getContextTypeLoader().parse(node, type, null);
-        }
-
-        /**
-         * Parses a {@link XmlShort} fragment from a DOM Node.
-         */
-        public static XmlShort parse(org.w3c.dom.Node node, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException {
-            return (XmlShort) XmlBeans.getContextTypeLoader().parse(node, type, options);
-        }
-
-        /**
-         * Parses a {@link XmlShort} fragment from an XMLStreamReader.
-         */
-        public static XmlShort parse(javax.xml.stream.XMLStreamReader xsr) throws org.apache.xmlbeans.XmlException {
-            return (XmlShort) XmlBeans.getContextTypeLoader().parse(xsr, type, null);
-        }
-
-        /**
-         * Parses a {@link XmlShort} fragment from an XMLStreamReader.
-         */
-        public static XmlShort parse(javax.xml.stream.XMLStreamReader xsr, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException {
-            return (XmlShort) XmlBeans.getContextTypeLoader().parse(xsr, type, options);
-        }
-
-        private Factory() {
-            // No instance of this class allowed
-        }
-    }
 }
 

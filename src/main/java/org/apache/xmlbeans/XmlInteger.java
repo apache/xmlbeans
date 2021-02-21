@@ -15,6 +15,8 @@
 
 package org.apache.xmlbeans;
 
+import org.apache.xmlbeans.impl.schema.XmlObjectFactory;
+
 import java.math.BigInteger;
 
 /**
@@ -29,10 +31,12 @@ import java.math.BigInteger;
  * Convertible to a Java {@link BigInteger}.
  */
 public interface XmlInteger extends XmlDecimal {
+    XmlObjectFactory<XmlInteger> Factory = new XmlObjectFactory<>("_BI_integer");
+
     /**
      * The constant {@link SchemaType} object representing this schema type.
      */
-    SchemaType type = XmlBeans.getBuiltinTypeSystem().typeForHandle("_BI_integer");
+    SchemaType type = Factory.getType();
 
     /**
      * Returns this value as a {@link BigInteger}
@@ -43,134 +47,5 @@ public interface XmlInteger extends XmlDecimal {
      * Sets this value as a {@link BigInteger}
      */
     void setBigIntegerValue(BigInteger bi);
-
-    /**
-     * A class with methods for creating instances
-     * of {@link XmlInteger}.
-     */
-    final class Factory {
-        /**
-         * Creates an empty instance of {@link XmlInteger}
-         */
-        public static XmlInteger newInstance() {
-            return (XmlInteger) XmlBeans.getContextTypeLoader().newInstance(type, null);
-        }
-
-        /**
-         * Creates an empty instance of {@link XmlInteger}
-         */
-        public static XmlInteger newInstance(org.apache.xmlbeans.XmlOptions options) {
-            return (XmlInteger) XmlBeans.getContextTypeLoader().newInstance(type, options);
-        }
-
-        /**
-         * Creates an immutable {@link XmlInteger} value
-         */
-        public static XmlInteger newValue(Object obj) {
-            return (XmlInteger) type.newValue(obj);
-        }
-
-        /**
-         * Parses a {@link XmlInteger} fragment from a String. For example: "<code>&lt;xml-fragment&gt;1234567890&lt;/xml-fragment&gt;</code>".
-         */
-        public static XmlInteger parse(java.lang.String s) throws org.apache.xmlbeans.XmlException {
-            return (XmlInteger) XmlBeans.getContextTypeLoader().parse(s, type, null);
-        }
-
-        /**
-         * Parses a {@link XmlInteger} fragment from a String. For example: "<code>&lt;xml-fragment&gt;1234567890&lt;/xml-fragment&gt;</code>".
-         */
-        public static XmlInteger parse(java.lang.String s, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException {
-            return (XmlInteger) XmlBeans.getContextTypeLoader().parse(s, type, options);
-        }
-
-        /**
-         * Parses a {@link XmlInteger} fragment from a File.
-         */
-        public static XmlInteger parse(java.io.File f) throws org.apache.xmlbeans.XmlException, java.io.IOException {
-            return (XmlInteger) XmlBeans.getContextTypeLoader().parse(f, type, null);
-        }
-
-        /**
-         * Parses a {@link XmlInteger} fragment from a File.
-         */
-        public static XmlInteger parse(java.io.File f, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException, java.io.IOException {
-            return (XmlInteger) XmlBeans.getContextTypeLoader().parse(f, type, options);
-        }
-
-        /**
-         * Parses a {@link XmlInteger} fragment from a URL.
-         */
-        public static XmlInteger parse(java.net.URL u) throws org.apache.xmlbeans.XmlException, java.io.IOException {
-            return (XmlInteger) XmlBeans.getContextTypeLoader().parse(u, type, null);
-        }
-
-        /**
-         * Parses a {@link XmlInteger} fragment from a URL.
-         */
-        public static XmlInteger parse(java.net.URL u, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException, java.io.IOException {
-            return (XmlInteger) XmlBeans.getContextTypeLoader().parse(u, type, options);
-        }
-
-        /**
-         * Parses a {@link XmlInteger} fragment from an InputStream.
-         */
-        public static XmlInteger parse(java.io.InputStream is) throws org.apache.xmlbeans.XmlException, java.io.IOException {
-            return (XmlInteger) XmlBeans.getContextTypeLoader().parse(is, type, null);
-        }
-
-        /**
-         * Parses a {@link XmlInteger} fragment from an InputStream.
-         */
-        public static XmlInteger parse(java.io.InputStream is, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException, java.io.IOException {
-            return (XmlInteger) XmlBeans.getContextTypeLoader().parse(is, type, options);
-        }
-
-        /**
-         * Parses a {@link XmlInteger} fragment from a Reader.
-         */
-        public static XmlInteger parse(java.io.Reader r) throws org.apache.xmlbeans.XmlException, java.io.IOException {
-            return (XmlInteger) XmlBeans.getContextTypeLoader().parse(r, type, null);
-        }
-
-        /**
-         * Parses a {@link XmlInteger} fragment from a Reader.
-         */
-        public static XmlInteger parse(java.io.Reader r, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException, java.io.IOException {
-            return (XmlInteger) XmlBeans.getContextTypeLoader().parse(r, type, options);
-        }
-
-        /**
-         * Parses a {@link XmlInteger} fragment from a DOM Node.
-         */
-        public static XmlInteger parse(org.w3c.dom.Node node) throws org.apache.xmlbeans.XmlException {
-            return (XmlInteger) XmlBeans.getContextTypeLoader().parse(node, type, null);
-        }
-
-        /**
-         * Parses a {@link XmlInteger} fragment from a DOM Node.
-         */
-        public static XmlInteger parse(org.w3c.dom.Node node, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException {
-            return (XmlInteger) XmlBeans.getContextTypeLoader().parse(node, type, options);
-        }
-
-        /**
-         * Parses a {@link XmlInteger} fragment from an XMLStreamReader.
-         */
-        public static XmlInteger parse(javax.xml.stream.XMLStreamReader xsr) throws org.apache.xmlbeans.XmlException {
-            return (XmlInteger) XmlBeans.getContextTypeLoader().parse(xsr, type, null);
-        }
-
-        /**
-         * Parses a {@link XmlInteger} fragment from an XMLStreamReader.
-         */
-        public static XmlInteger parse(javax.xml.stream.XMLStreamReader xsr, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException {
-            return (XmlInteger) XmlBeans.getContextTypeLoader().parse(xsr, type, options);
-        }
-
-        private Factory() {
-            // No instance of this class allowed
-        }
-    }
 }
 

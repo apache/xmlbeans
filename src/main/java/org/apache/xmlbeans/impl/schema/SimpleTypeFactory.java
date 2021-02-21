@@ -1,4 +1,4 @@
-/*   Copyright 2004 The Apache Software Foundation
+/*   Copyright 2017, 2018 The Apache Software Foundation
  *
  *   Licensed under the Apache License, Version 2.0 (the "License");
  *   you may not use this file except in compliance with the License.
@@ -13,22 +13,17 @@
  *  limitations under the License.
  */
 
-package org.apache.xmlbeans;
+package org.apache.xmlbeans.impl.schema;
 
-import org.apache.xmlbeans.impl.schema.XmlObjectFactory;
+import org.apache.xmlbeans.SchemaTypeSystem;
 
-/**
- * Corresponds to the XML Schema
- * <a target="_blank" href="http://www.w3.org/TR/xmlschema-2/#anyURI">xs:anyURI</a> type.
- * <p>
- * Convertible to {@link String}.
- */
-public interface XmlAnyURI extends XmlAnySimpleType {
-    XmlObjectFactory<XmlAnyURI> Factory = new XmlObjectFactory<>("_BI_anyURI");
+@SuppressWarnings("unchecked")
+public class SimpleTypeFactory<T> extends ElementFactory<T> {
+    public SimpleTypeFactory(SchemaTypeSystem typeSystem, String typeHandle) {
+        super(typeSystem, typeHandle);
+    }
 
-    /**
-     * The constant {@link SchemaType} object representing this schema type.
-     */
-    SchemaType type = Factory.getType();
+    public T newValue(java.lang.Object obj) {
+        return (T) getType().newValue(obj);
+    }
 }
-

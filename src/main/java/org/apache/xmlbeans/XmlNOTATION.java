@@ -15,6 +15,8 @@
 
 package org.apache.xmlbeans;
 
+import org.apache.xmlbeans.impl.schema.XmlObjectFactory;
+
 /**
  * Corresponds to the XML Schema
  * <a target="_blank" href="http://www.w3.org/TR/xmlschema-2/#NOTATION">xs:NOTATION</a> type.
@@ -26,138 +28,11 @@ package org.apache.xmlbeans;
  * Convertible to {@link String}.
  */
 public interface XmlNOTATION extends XmlAnySimpleType {
+    XmlObjectFactory<XmlNOTATION> Factory = new XmlObjectFactory<>("_BI_NOTATION");
+
     /**
      * The constant {@link SchemaType} object representing this schema type.
      */
-    SchemaType type = XmlBeans.getBuiltinTypeSystem().typeForHandle("_BI_NOTATION");
-
-    /**
-     * A class with methods for creating instances
-     * of {@link XmlNOTATION}.
-     */
-    final class Factory {
-        /**
-         * Creates an empty instance of {@link XmlNOTATION}
-         */
-        public static XmlNOTATION newInstance() {
-            return (XmlNOTATION) XmlBeans.getContextTypeLoader().newInstance(type, null);
-        }
-
-        /**
-         * Creates an empty instance of {@link XmlNOTATION}
-         */
-        public static XmlNOTATION newInstance(org.apache.xmlbeans.XmlOptions options) {
-            return (XmlNOTATION) XmlBeans.getContextTypeLoader().newInstance(type, options);
-        }
-
-        /**
-         * Creates an immutable {@link XmlNOTATION} value
-         */
-        public static XmlNOTATION newValue(Object obj) {
-            return (XmlNOTATION) type.newValue(obj);
-        }
-
-        /**
-         * Parses a {@link XmlNOTATION} fragment from a String.
-         */
-        public static XmlNOTATION parse(java.lang.String s) throws org.apache.xmlbeans.XmlException {
-            return (XmlNOTATION) XmlBeans.getContextTypeLoader().parse(s, type, null);
-        }
-
-        /**
-         * Parses a {@link XmlNOTATION} fragment from a String.
-         */
-        public static XmlNOTATION parse(java.lang.String s, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException {
-            return (XmlNOTATION) XmlBeans.getContextTypeLoader().parse(s, type, options);
-        }
-
-        /**
-         * Parses a {@link XmlNOTATION} fragment from a File.
-         */
-        public static XmlNOTATION parse(java.io.File f) throws org.apache.xmlbeans.XmlException, java.io.IOException {
-            return (XmlNOTATION) XmlBeans.getContextTypeLoader().parse(f, type, null);
-        }
-
-        /**
-         * Parses a {@link XmlNOTATION} fragment from a File.
-         */
-        public static XmlNOTATION parse(java.io.File f, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException, java.io.IOException {
-            return (XmlNOTATION) XmlBeans.getContextTypeLoader().parse(f, type, options);
-        }
-
-        /**
-         * Parses a {@link XmlNOTATION} fragment from a URL.
-         */
-        public static XmlNOTATION parse(java.net.URL u) throws org.apache.xmlbeans.XmlException, java.io.IOException {
-            return (XmlNOTATION) XmlBeans.getContextTypeLoader().parse(u, type, null);
-        }
-
-        /**
-         * Parses a {@link XmlNOTATION} fragment from a URL.
-         */
-        public static XmlNOTATION parse(java.net.URL u, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException, java.io.IOException {
-            return (XmlNOTATION) XmlBeans.getContextTypeLoader().parse(u, type, options);
-        }
-
-        /**
-         * Parses a {@link XmlNOTATION} fragment from an InputStream.
-         */
-        public static XmlNOTATION parse(java.io.InputStream is) throws org.apache.xmlbeans.XmlException, java.io.IOException {
-            return (XmlNOTATION) XmlBeans.getContextTypeLoader().parse(is, type, null);
-        }
-
-        /**
-         * Parses a {@link XmlNOTATION} fragment from an InputStream.
-         */
-        public static XmlNOTATION parse(java.io.InputStream is, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException, java.io.IOException {
-            return (XmlNOTATION) XmlBeans.getContextTypeLoader().parse(is, type, options);
-        }
-
-        /**
-         * Parses a {@link XmlNOTATION} fragment from a Reader.
-         */
-        public static XmlNOTATION parse(java.io.Reader r) throws org.apache.xmlbeans.XmlException, java.io.IOException {
-            return (XmlNOTATION) XmlBeans.getContextTypeLoader().parse(r, type, null);
-        }
-
-        /**
-         * Parses a {@link XmlNOTATION} fragment from a Reader.
-         */
-        public static XmlNOTATION parse(java.io.Reader r, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException, java.io.IOException {
-            return (XmlNOTATION) XmlBeans.getContextTypeLoader().parse(r, type, options);
-        }
-
-        /**
-         * Parses a {@link XmlNOTATION} fragment from a DOM Node.
-         */
-        public static XmlNOTATION parse(org.w3c.dom.Node node) throws org.apache.xmlbeans.XmlException {
-            return (XmlNOTATION) XmlBeans.getContextTypeLoader().parse(node, type, null);
-        }
-
-        /**
-         * Parses a {@link XmlNOTATION} fragment from a DOM Node.
-         */
-        public static XmlNOTATION parse(org.w3c.dom.Node node, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException {
-            return (XmlNOTATION) XmlBeans.getContextTypeLoader().parse(node, type, options);
-        }
-
-        /**
-         * Parses a {@link XmlNOTATION} fragment from an XMLStreamReader.
-         */
-        public static XmlNOTATION parse(javax.xml.stream.XMLStreamReader xsr) throws org.apache.xmlbeans.XmlException {
-            return (XmlNOTATION) XmlBeans.getContextTypeLoader().parse(xsr, type, null);
-        }
-
-        /**
-         * Parses a {@link XmlNOTATION} fragment from an XMLStreamReader.
-         */
-        public static XmlNOTATION parse(javax.xml.stream.XMLStreamReader xsr, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException {
-            return (XmlNOTATION) XmlBeans.getContextTypeLoader().parse(xsr, type, options);
-        }
-
-        private Factory() {
-            // No instance of this class allowed
-        }
-    }
+    SchemaType type = Factory.getType();
 }
 

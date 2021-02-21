@@ -16,6 +16,7 @@ package compile.scomp.common;
 
 import org.apache.xmlbeans.*;
 import org.apache.xmlbeans.impl.tool.Diff;
+import org.apache.xmlbeans.impl.tool.Parameters;
 import org.apache.xmlbeans.impl.tool.SchemaCodeGenerator;
 import org.apache.xmlbeans.impl.tool.SchemaCompiler;
 import org.apache.xmlbeans.impl.xb.xsdschema.SchemaDocument;
@@ -109,23 +110,23 @@ public class CompileTestBase extends CompileCommon {
         return fList;
     }
 
-    protected SchemaCompiler.Parameters getCompilerParams() {
-        SchemaCompiler.Parameters params = new SchemaCompiler.Parameters();
+    protected Parameters getCompilerParams() {
+        Parameters params = new Parameters();
         params.setDownload(true);
         params.setVerbose(true);
         return params;
     }
 
 
-    protected SchemaCompiler.Parameters getIncrCompilerParams() {
-        SchemaCompiler.Parameters params = getCompilerParams();
+    protected Parameters getIncrCompilerParams() {
+        Parameters params = getCompilerParams();
         params.setIncrementalSrcGen(true);
         return params;
     }
 
     protected boolean runCompiler(File[] schemas, String srcDir,
                                   String classesDir, String outputDir,
-                                  SchemaCompiler.Parameters params) {
+                                  Parameters params) {
 
         File srcdir = xbeanOutput(srcDir);
         File classesdir = xbeanOutput(classesDir);

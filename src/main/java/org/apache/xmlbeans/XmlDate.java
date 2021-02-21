@@ -15,6 +15,8 @@
 
 package org.apache.xmlbeans;
 
+import org.apache.xmlbeans.impl.schema.XmlObjectFactory;
+
 import java.util.Calendar;
 import java.util.Date;
 
@@ -29,10 +31,12 @@ import java.util.Date;
  * @see GDate
  */
 public interface XmlDate extends XmlAnySimpleType {
+    XmlObjectFactory<XmlDate> Factory = new XmlObjectFactory<>("_BI_date");
+
     /**
      * The constant {@link SchemaType} object representing this schema type.
      */
-    SchemaType type = XmlBeans.getBuiltinTypeSystem().typeForHandle("_BI_date");
+    SchemaType type = Factory.getType();
 
     /**
      * Returns this value as a {@link Calendar}
@@ -63,134 +67,5 @@ public interface XmlDate extends XmlAnySimpleType {
      * Sets this value as a {@link Date}
      */
     void setDateValue(Date d);
-
-    /**
-     * A class with methods for creating instances
-     * of {@link XmlDate}.
-     */
-    final class Factory {
-        /**
-         * Creates an empty instance of {@link XmlDate}
-         */
-        public static XmlDate newInstance() {
-            return (XmlDate) XmlBeans.getContextTypeLoader().newInstance(type, null);
-        }
-
-        /**
-         * Creates an empty instance of {@link XmlDate}
-         */
-        public static XmlDate newInstance(org.apache.xmlbeans.XmlOptions options) {
-            return (XmlDate) XmlBeans.getContextTypeLoader().newInstance(type, options);
-        }
-
-        /**
-         * Creates an immutable {@link XmlDate} value
-         */
-        public static XmlDate newValue(Object obj) {
-            return (XmlDate) type.newValue(obj);
-        }
-
-        /**
-         * Parses a {@link XmlDate} fragment from a String. For example: "<code>&lt;xml-fragment&gt;2003-06-14&lt;/xml-fragment&gt;</code>".
-         */
-        public static XmlDate parse(java.lang.String s) throws org.apache.xmlbeans.XmlException {
-            return (XmlDate) XmlBeans.getContextTypeLoader().parse(s, type, null);
-        }
-
-        /**
-         * Parses a {@link XmlDate} fragment from a String. For example: "<code>&lt;xml-fragment&gt;2003-06-14&lt;/xml-fragment&gt;</code>".
-         */
-        public static XmlDate parse(java.lang.String s, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException {
-            return (XmlDate) XmlBeans.getContextTypeLoader().parse(s, type, options);
-        }
-
-        /**
-         * Parses a {@link XmlDate} fragment from a File.
-         */
-        public static XmlDate parse(java.io.File f) throws org.apache.xmlbeans.XmlException, java.io.IOException {
-            return (XmlDate) XmlBeans.getContextTypeLoader().parse(f, type, null);
-        }
-
-        /**
-         * Parses a {@link XmlDate} fragment from a File.
-         */
-        public static XmlDate parse(java.io.File f, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException, java.io.IOException {
-            return (XmlDate) XmlBeans.getContextTypeLoader().parse(f, type, options);
-        }
-
-        /**
-         * Parses a {@link XmlDate} fragment from a URL.
-         */
-        public static XmlDate parse(java.net.URL u) throws org.apache.xmlbeans.XmlException, java.io.IOException {
-            return (XmlDate) XmlBeans.getContextTypeLoader().parse(u, type, null);
-        }
-
-        /**
-         * Parses a {@link XmlDate} fragment from a URL.
-         */
-        public static XmlDate parse(java.net.URL u, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException, java.io.IOException {
-            return (XmlDate) XmlBeans.getContextTypeLoader().parse(u, type, options);
-        }
-
-        /**
-         * Parses a {@link XmlDate} fragment from an InputStream.
-         */
-        public static XmlDate parse(java.io.InputStream is) throws org.apache.xmlbeans.XmlException, java.io.IOException {
-            return (XmlDate) XmlBeans.getContextTypeLoader().parse(is, type, null);
-        }
-
-        /**
-         * Parses a {@link XmlDate} fragment from an InputStream.
-         */
-        public static XmlDate parse(java.io.InputStream is, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException, java.io.IOException {
-            return (XmlDate) XmlBeans.getContextTypeLoader().parse(is, type, options);
-        }
-
-        /**
-         * Parses a {@link XmlDate} fragment from a Reader.
-         */
-        public static XmlDate parse(java.io.Reader r) throws org.apache.xmlbeans.XmlException, java.io.IOException {
-            return (XmlDate) XmlBeans.getContextTypeLoader().parse(r, type, null);
-        }
-
-        /**
-         * Parses a {@link XmlDate} fragment from a Reader.
-         */
-        public static XmlDate parse(java.io.Reader r, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException, java.io.IOException {
-            return (XmlDate) XmlBeans.getContextTypeLoader().parse(r, type, options);
-        }
-
-        /**
-         * Parses a {@link XmlDate} fragment from a DOM Node.
-         */
-        public static XmlDate parse(org.w3c.dom.Node node) throws org.apache.xmlbeans.XmlException {
-            return (XmlDate) XmlBeans.getContextTypeLoader().parse(node, type, null);
-        }
-
-        /**
-         * Parses a {@link XmlDate} fragment from a DOM Node.
-         */
-        public static XmlDate parse(org.w3c.dom.Node node, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException {
-            return (XmlDate) XmlBeans.getContextTypeLoader().parse(node, type, options);
-        }
-
-        /**
-         * Parses a {@link XmlDate} fragment from an XMLStreamReader.
-         */
-        public static XmlDate parse(javax.xml.stream.XMLStreamReader xsr) throws org.apache.xmlbeans.XmlException {
-            return (XmlDate) XmlBeans.getContextTypeLoader().parse(xsr, type, null);
-        }
-
-        /**
-         * Parses a {@link XmlDate} fragment from an XMLStreamReader.
-         */
-        public static XmlDate parse(javax.xml.stream.XMLStreamReader xsr, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException {
-            return (XmlDate) XmlBeans.getContextTypeLoader().parse(xsr, type, options);
-        }
-
-        private Factory() {
-            // No instance of this class allowed
-        }
-    }
 }
 

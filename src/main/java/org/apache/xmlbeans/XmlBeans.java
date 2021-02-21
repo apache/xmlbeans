@@ -232,7 +232,7 @@ public final class XmlBeans {
      * linking, and returns a unioned typeloader that is suitable for
      * creating instances.
      */
-    public static SchemaTypeLoader loadXsd(XmlObject[] schemas) throws XmlException {
+    public static SchemaTypeLoader loadXsd(XmlObject... schemas) throws XmlException {
         return loadXsd(schemas, null);
     }
 

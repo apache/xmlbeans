@@ -15,6 +15,8 @@
 
 package org.apache.xmlbeans;
 
+import org.apache.xmlbeans.impl.schema.XmlObjectFactory;
+
 import java.util.Calendar;
 
 
@@ -29,10 +31,12 @@ import java.util.Calendar;
  * @see GDate
  */
 public interface XmlGYear extends XmlAnySimpleType {
+    XmlObjectFactory<XmlGYear> Factory = new XmlObjectFactory<>("_BI_gYear");
+
     /**
      * The constant {@link SchemaType} object representing this schema type.
      */
-    SchemaType type = XmlBeans.getBuiltinTypeSystem().typeForHandle("_BI_gYear");
+    SchemaType type = Factory.getType();
 
     /**
      * Returns this value as a {@link Calendar}
@@ -63,134 +67,5 @@ public interface XmlGYear extends XmlAnySimpleType {
      * Sets this value as an int from 1-31
      */
     void setIntValue(int v);
-
-    /**
-     * A class with methods for creating instances
-     * of {@link XmlGYear}.
-     */
-    final class Factory {
-        /**
-         * Creates an empty instance of {@link XmlGYear}
-         */
-        public static XmlGYear newInstance() {
-            return (XmlGYear) XmlBeans.getContextTypeLoader().newInstance(type, null);
-        }
-
-        /**
-         * Creates an empty instance of {@link XmlGYear}
-         */
-        public static XmlGYear newInstance(org.apache.xmlbeans.XmlOptions options) {
-            return (XmlGYear) XmlBeans.getContextTypeLoader().newInstance(type, options);
-        }
-
-        /**
-         * Creates an immutable {@link XmlGYear} value
-         */
-        public static XmlGYear newValue(Object obj) {
-            return (XmlGYear) type.newValue(obj);
-        }
-
-        /**
-         * Parses a {@link XmlGYear} fragment from a String. For example: "<code>&lt;xml-fragment&gt;2003&lt;/xml-fragment&gt;</code>".
-         */
-        public static XmlGYear parse(java.lang.String s) throws org.apache.xmlbeans.XmlException {
-            return (XmlGYear) XmlBeans.getContextTypeLoader().parse(s, type, null);
-        }
-
-        /**
-         * Parses a {@link XmlGYear} fragment from a String. For example: "<code>&lt;xml-fragment&gt;2003&lt;/xml-fragment&gt;</code>".
-         */
-        public static XmlGYear parse(java.lang.String s, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException {
-            return (XmlGYear) XmlBeans.getContextTypeLoader().parse(s, type, options);
-        }
-
-        /**
-         * Parses a {@link XmlGYear} fragment from a File.
-         */
-        public static XmlGYear parse(java.io.File f) throws org.apache.xmlbeans.XmlException, java.io.IOException {
-            return (XmlGYear) XmlBeans.getContextTypeLoader().parse(f, type, null);
-        }
-
-        /**
-         * Parses a {@link XmlGYear} fragment from a File.
-         */
-        public static XmlGYear parse(java.io.File f, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException, java.io.IOException {
-            return (XmlGYear) XmlBeans.getContextTypeLoader().parse(f, type, options);
-        }
-
-        /**
-         * Parses a {@link XmlGYear} fragment from a URL.
-         */
-        public static XmlGYear parse(java.net.URL u) throws org.apache.xmlbeans.XmlException, java.io.IOException {
-            return (XmlGYear) XmlBeans.getContextTypeLoader().parse(u, type, null);
-        }
-
-        /**
-         * Parses a {@link XmlGYear} fragment from a URL.
-         */
-        public static XmlGYear parse(java.net.URL u, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException, java.io.IOException {
-            return (XmlGYear) XmlBeans.getContextTypeLoader().parse(u, type, options);
-        }
-
-        /**
-         * Parses a {@link XmlGYear} fragment from an InputStream.
-         */
-        public static XmlGYear parse(java.io.InputStream is) throws org.apache.xmlbeans.XmlException, java.io.IOException {
-            return (XmlGYear) XmlBeans.getContextTypeLoader().parse(is, type, null);
-        }
-
-        /**
-         * Parses a {@link XmlGYear} fragment from an InputStream.
-         */
-        public static XmlGYear parse(java.io.InputStream is, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException, java.io.IOException {
-            return (XmlGYear) XmlBeans.getContextTypeLoader().parse(is, type, options);
-        }
-
-        /**
-         * Parses a {@link XmlGYear} fragment from a Reader.
-         */
-        public static XmlGYear parse(java.io.Reader r) throws org.apache.xmlbeans.XmlException, java.io.IOException {
-            return (XmlGYear) XmlBeans.getContextTypeLoader().parse(r, type, null);
-        }
-
-        /**
-         * Parses a {@link XmlGYear} fragment from a Reader.
-         */
-        public static XmlGYear parse(java.io.Reader r, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException, java.io.IOException {
-            return (XmlGYear) XmlBeans.getContextTypeLoader().parse(r, type, options);
-        }
-
-        /**
-         * Parses a {@link XmlGYear} fragment from a DOM Node.
-         */
-        public static XmlGYear parse(org.w3c.dom.Node node) throws org.apache.xmlbeans.XmlException {
-            return (XmlGYear) XmlBeans.getContextTypeLoader().parse(node, type, null);
-        }
-
-        /**
-         * Parses a {@link XmlGYear} fragment from a DOM Node.
-         */
-        public static XmlGYear parse(org.w3c.dom.Node node, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException {
-            return (XmlGYear) XmlBeans.getContextTypeLoader().parse(node, type, options);
-        }
-
-        /**
-         * Parses a {@link XmlGYear} fragment from an XMLStreamReader.
-         */
-        public static XmlGYear parse(javax.xml.stream.XMLStreamReader xsr) throws org.apache.xmlbeans.XmlException {
-            return (XmlGYear) XmlBeans.getContextTypeLoader().parse(xsr, type, null);
-        }
-
-        /**
-         * Parses a {@link XmlGYear} fragment from an XMLStreamReader.
-         */
-        public static XmlGYear parse(javax.xml.stream.XMLStreamReader xsr, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException {
-            return (XmlGYear) XmlBeans.getContextTypeLoader().parse(xsr, type, options);
-        }
-
-        private Factory() {
-            // No instance of this class allowed
-        }
-    }
 }
 

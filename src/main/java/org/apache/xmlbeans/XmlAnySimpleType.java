@@ -15,6 +15,8 @@
 
 package org.apache.xmlbeans;
 
+import org.apache.xmlbeans.impl.schema.XmlObjectFactory;
+
 /**
  * Corresponds to the XML Schema
  * <a target="_blank" href="http://www.w3.org/TR/xmlschema-1/#Simple_Type_Definition">xs:anySimpleType</a> type.
@@ -22,10 +24,11 @@ package org.apache.xmlbeans;
  * All simple types are convertible to {@link String}.
  */
 public interface XmlAnySimpleType extends XmlObject {
+    XmlObjectFactory<XmlAnySimpleType> Factory = new XmlObjectFactory<>("_BI_anySimpleType");
     /**
      * The constant {@link SchemaType} object representing this schema type.
      */
-    SchemaType type = XmlBeans.getBuiltinTypeSystem().typeForHandle("_BI_anySimpleType");
+    SchemaType type = Factory.getType();
 
     /**
      * Returns the value as a {@link String}
@@ -36,134 +39,5 @@ public interface XmlAnySimpleType extends XmlObject {
      * Sets the value as a {@link String}
      **/
     void setStringValue(String s);
-
-    /**
-     * A class with methods for creating instances
-     * of {@link XmlAnySimpleType}.
-     */
-    final class Factory {
-        /**
-         * Creates an empty instance of {@link XmlAnySimpleType}
-         */
-        public static XmlAnySimpleType newInstance() {
-            return (XmlAnySimpleType) XmlBeans.getContextTypeLoader().newInstance(type, null);
-        }
-
-        /**
-         * Creates an empty instance of {@link XmlAnySimpleType}
-         */
-        public static XmlAnySimpleType newInstance(org.apache.xmlbeans.XmlOptions options) {
-            return (XmlAnySimpleType) XmlBeans.getContextTypeLoader().newInstance(type, options);
-        }
-
-        /**
-         * Creates an immutable {@link XmlAnySimpleType} value
-         */
-        public static XmlAnySimpleType newValue(Object obj) {
-            return type.newValue(obj);
-        }
-
-        /**
-         * Parses a {@link XmlAnySimpleType} fragment from a String. For example: "<code>&lt;xml-fragment&gt;anything&lt;/xml-fragment&gt;</code>".
-         */
-        public static XmlAnySimpleType parse(java.lang.String s) throws org.apache.xmlbeans.XmlException {
-            return (XmlAnySimpleType) XmlBeans.getContextTypeLoader().parse(s, type, null);
-        }
-
-        /**
-         * Parses a {@link XmlAnySimpleType} fragment from a String. For example: "<code>&lt;xml-fragment&gt;anything&lt;/xml-fragment&gt;</code>".
-         */
-        public static XmlAnySimpleType parse(java.lang.String s, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException {
-            return (XmlAnySimpleType) XmlBeans.getContextTypeLoader().parse(s, type, options);
-        }
-
-        /**
-         * Parses a {@link XmlAnySimpleType} fragment from a File.
-         */
-        public static XmlAnySimpleType parse(java.io.File f) throws org.apache.xmlbeans.XmlException, java.io.IOException {
-            return (XmlAnySimpleType) XmlBeans.getContextTypeLoader().parse(f, type, null);
-        }
-
-        /**
-         * Parses a {@link XmlAnySimpleType} fragment from a File.
-         */
-        public static XmlAnySimpleType parse(java.io.File f, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException, java.io.IOException {
-            return (XmlAnySimpleType) XmlBeans.getContextTypeLoader().parse(f, type, options);
-        }
-
-        /**
-         * Parses a {@link XmlAnySimpleType} fragment from a URL.
-         */
-        public static XmlAnySimpleType parse(java.net.URL u) throws org.apache.xmlbeans.XmlException, java.io.IOException {
-            return (XmlAnySimpleType) XmlBeans.getContextTypeLoader().parse(u, type, null);
-        }
-
-        /**
-         * Parses a {@link XmlAnySimpleType} fragment from a URL.
-         */
-        public static XmlAnySimpleType parse(java.net.URL u, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException, java.io.IOException {
-            return (XmlAnySimpleType) XmlBeans.getContextTypeLoader().parse(u, type, options);
-        }
-
-        /**
-         * Parses a {@link XmlAnySimpleType} fragment from an InputStream.
-         */
-        public static XmlAnySimpleType parse(java.io.InputStream is) throws org.apache.xmlbeans.XmlException, java.io.IOException {
-            return (XmlAnySimpleType) XmlBeans.getContextTypeLoader().parse(is, type, null);
-        }
-
-        /**
-         * Parses a {@link XmlAnySimpleType} fragment from an InputStream.
-         */
-        public static XmlAnySimpleType parse(java.io.InputStream is, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException, java.io.IOException {
-            return (XmlAnySimpleType) XmlBeans.getContextTypeLoader().parse(is, type, options);
-        }
-
-        /**
-         * Parses a {@link XmlAnySimpleType} fragment from a Reader.
-         */
-        public static XmlAnySimpleType parse(java.io.Reader r) throws org.apache.xmlbeans.XmlException, java.io.IOException {
-            return (XmlAnySimpleType) XmlBeans.getContextTypeLoader().parse(r, type, null);
-        }
-
-        /**
-         * Parses a {@link XmlAnySimpleType} fragment from a Reader.
-         */
-        public static XmlAnySimpleType parse(java.io.Reader r, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException, java.io.IOException {
-            return (XmlAnySimpleType) XmlBeans.getContextTypeLoader().parse(r, type, options);
-        }
-
-        /**
-         * Parses a {@link XmlAnySimpleType} fragment from a DOM Node.
-         */
-        public static XmlAnySimpleType parse(org.w3c.dom.Node node) throws org.apache.xmlbeans.XmlException {
-            return (XmlAnySimpleType) XmlBeans.getContextTypeLoader().parse(node, type, null);
-        }
-
-        /**
-         * Parses a {@link XmlAnySimpleType} fragment from a DOM Node.
-         */
-        public static XmlAnySimpleType parse(org.w3c.dom.Node node, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException {
-            return (XmlAnySimpleType) XmlBeans.getContextTypeLoader().parse(node, type, options);
-        }
-
-        /**
-         * Parses a {@link XmlAnySimpleType} fragment from an XMLStreamReader.
-         */
-        public static XmlAnySimpleType parse(javax.xml.stream.XMLStreamReader xsr) throws org.apache.xmlbeans.XmlException {
-            return (XmlAnySimpleType) XmlBeans.getContextTypeLoader().parse(xsr, type, null);
-        }
-
-        /**
-         * Parses a {@link XmlAnySimpleType} fragment from an XMLStreamReader.
-         */
-        public static XmlAnySimpleType parse(javax.xml.stream.XMLStreamReader xsr, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException {
-            return (XmlAnySimpleType) XmlBeans.getContextTypeLoader().parse(xsr, type, options);
-        }
-
-        private Factory() {
-            // No instance of this class allowed
-        }
-    }
 }
 

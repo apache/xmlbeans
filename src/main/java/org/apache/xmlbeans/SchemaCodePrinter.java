@@ -24,8 +24,23 @@ import java.io.Writer;
  */
 
 public interface SchemaCodePrinter {
-    void printTypeImpl(Writer writer, SchemaType sType) throws IOException;
+    // implement a method of each pair ... otherwise a stackoverflow is inevitable ...
+    @Deprecated
+    default void printTypeImpl(Writer writer, SchemaType sType) throws IOException {
+        printTypeImpl(writer, sType, null);
+    }
 
-    void printType(Writer writer, SchemaType sType) throws IOException;
+    default void printTypeImpl(Writer writer, SchemaType sType, XmlOptions opt) throws IOException {
+        printTypeImpl(writer, sType);
+    }
+
+    @Deprecated
+    default void printType(Writer writer, SchemaType sType) throws IOException {
+        printType(writer, sType, null);
+    }
+
+    default void printType(Writer writer, SchemaType sType, XmlOptions opt) throws IOException {
+        printType(writer, sType);
+    }
 }
 

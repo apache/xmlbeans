@@ -16,6 +16,7 @@
 package org.apache.xmlbeans.impl.tool;
 
 import org.apache.xmlbeans.*;
+import org.apache.xmlbeans.XmlOptions.BeanMethod;
 import org.apache.xmlbeans.impl.common.*;
 import org.apache.xmlbeans.impl.config.BindingConfigImpl;
 import org.apache.xmlbeans.impl.repackage.Repackager;
@@ -62,6 +63,8 @@ public class SchemaCompiler {
         System.out.println("    -license - prints license information");
         System.out.println("    -allowmdef \"[ns] [ns] [ns]\" - ignores multiple defs in given namespaces (use ##local for no-namespace)");
         System.out.println("    -catalog [file] -  catalog file for org.apache.xml.resolver.tools.CatalogResolver. (Note: needs resolver.jar from http://xml.apache.org/commons/components/resolver/index.html)");
+        System.out.println("    -partialMethods [list] -  comma separated list of bean methods to be generated. Use \"-\" to negate and \"ALL\" for all." );
+        System.out.println("                              processed left-to-right, e.g. \"ALL,-GET_LIST\" exclude java.util.List getters - see XmlOptions.BeanMethod" );
         /* Undocumented feature - pass in one schema compiler extension and related parameters
         System.out.println("    -repackage - repackage specification");
         System.out.println("    -extension - registers a schema compiler extension");
@@ -111,6 +114,8 @@ public class SchemaCompiler {
         opts.add("extensionParms");
         opts.add("allowmdef");
         opts.add("catalog");
+        opts.add("partialMethods");
+
         CommandLine cl = new CommandLine(args, flags, opts);
 
         if (cl.getOpt("h") != null || cl.getOpt("help") != null || cl.getOpt("usage") != null) {
@@ -298,6 +303,8 @@ public class SchemaCompiler {
 
         String catString = cl.getOpt("catalog");
 
+        String partialMethods = cl.getOpt("partialMethods");
+
         Parameters params = new Parameters();
         params.setBaseDir(baseDir);
         params.setXsdFiles(xsdFiles);
@@ -329,7 +336,7 @@ public class SchemaCompiler {
         params.setMdefNamespaces(mdefNamespaces);
         params.setCatalogFile(catString);
         params.setSchemaCodePrinter(codePrinter);
-
+        params.setPartialMethods(parsePartialMethods(partialMethods));
         boolean result = compile(params);
 
         if (tempdir != null) {
@@ -341,297 +348,6 @@ public class SchemaCompiler {
         }
 
         System.exit(0);
-    }
-
-    public static class Parameters {
-        private File baseDir;
-        private File[] xsdFiles;
-        private File[] wsdlFiles;
-        private File[] javaFiles;
-        private File[] configFiles;
-        private URL[] urlFiles;
-        private File[] classpath;
-        private File outputJar;
-        private String name;
-        private File srcDir;
-        private File classesDir;
-        private String memoryInitialSize;
-        private String memoryMaximumSize;
-        private String compiler;
-        private boolean nojavac;
-        private boolean quiet;
-        private boolean verbose;
-        private boolean download;
-        private Collection<XmlError> errorListener;
-        private boolean noUpa;
-        private boolean noPvr;
-        private boolean noAnn;
-        private boolean noVDoc;
-        private boolean noExt;
-        private boolean debug;
-        private boolean incrementalSrcGen;
-        private String repackage;
-        private List<Extension> extensions = Collections.emptyList();
-        private Set<String> mdefNamespaces = Collections.emptySet();
-        private String catalogFile;
-        private SchemaCodePrinter schemaCodePrinter;
-        private EntityResolver entityResolver;
-
-        public File getBaseDir() {
-            return baseDir;
-        }
-
-        public void setBaseDir(File baseDir) {
-            this.baseDir = baseDir;
-        }
-
-        public File[] getXsdFiles() {
-            return xsdFiles;
-        }
-
-        public void setXsdFiles(File[] xsdFiles) {
-            this.xsdFiles = xsdFiles;
-        }
-
-        public File[] getWsdlFiles() {
-            return wsdlFiles;
-        }
-
-        public void setWsdlFiles(File[] wsdlFiles) {
-            this.wsdlFiles = wsdlFiles;
-        }
-
-        public File[] getJavaFiles() {
-            return javaFiles;
-        }
-
-        public void setJavaFiles(File[] javaFiles) {
-            this.javaFiles = javaFiles;
-        }
-
-        public File[] getConfigFiles() {
-            return configFiles;
-        }
-
-        public void setConfigFiles(File[] configFiles) {
-            this.configFiles = configFiles;
-        }
-
-        public URL[] getUrlFiles() {
-            return urlFiles;
-        }
-
-        public void setUrlFiles(URL[] urlFiles) {
-            this.urlFiles = urlFiles;
-        }
-
-        public File[] getClasspath() {
-            return classpath;
-        }
-
-        public void setClasspath(File[] classpath) {
-            this.classpath = classpath;
-        }
-
-        public File getOutputJar() {
-            return outputJar;
-        }
-
-        public void setOutputJar(File outputJar) {
-            this.outputJar = outputJar;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public void setName(String name) {
-            this.name = name;
-        }
-
-        public File getSrcDir() {
-            return srcDir;
-        }
-
-        public void setSrcDir(File srcDir) {
-            this.srcDir = srcDir;
-        }
-
-        public File getClassesDir() {
-            return classesDir;
-        }
-
-        public void setClassesDir(File classesDir) {
-            this.classesDir = classesDir;
-        }
-
-        public boolean isNojavac() {
-            return nojavac;
-        }
-
-        public void setNojavac(boolean nojavac) {
-            this.nojavac = nojavac;
-        }
-
-        public boolean isQuiet() {
-            return quiet;
-        }
-
-        public void setQuiet(boolean quiet) {
-            this.quiet = quiet;
-        }
-
-        public boolean isVerbose() {
-            return verbose;
-        }
-
-        public void setVerbose(boolean verbose) {
-            this.verbose = verbose;
-        }
-
-        public boolean isDownload() {
-            return download;
-        }
-
-        public void setDownload(boolean download) {
-            this.download = download;
-        }
-
-        public boolean isNoUpa() {
-            return noUpa;
-        }
-
-        public void setNoUpa(boolean noUpa) {
-            this.noUpa = noUpa;
-        }
-
-        public boolean isNoPvr() {
-            return noPvr;
-        }
-
-        public void setNoPvr(boolean noPvr) {
-            this.noPvr = noPvr;
-        }
-
-        public boolean isNoAnn() {
-            return noAnn;
-        }
-
-        public void setNoAnn(boolean noAnn) {
-            this.noAnn = noAnn;
-        }
-
-        public boolean isNoVDoc() {
-            return noVDoc;
-        }
-
-        public void setNoVDoc(boolean newNoVDoc) {
-            this.noVDoc = newNoVDoc;
-        }
-
-        public boolean isNoExt() {
-            return noExt;
-        }
-
-        public void setNoExt(boolean newNoExt) {
-            this.noExt = newNoExt;
-        }
-
-        public boolean isIncrementalSrcGen() {
-            return incrementalSrcGen;
-        }
-
-        public void setIncrementalSrcGen(boolean incrSrcGen) {
-            this.incrementalSrcGen = incrSrcGen;
-        }
-
-        public boolean isDebug() {
-            return debug;
-        }
-
-        public void setDebug(boolean debug) {
-            this.debug = debug;
-        }
-
-        public String getMemoryInitialSize() {
-            return memoryInitialSize;
-        }
-
-        public void setMemoryInitialSize(String memoryInitialSize) {
-            this.memoryInitialSize = memoryInitialSize;
-        }
-
-        public String getMemoryMaximumSize() {
-            return memoryMaximumSize;
-        }
-
-        public void setMemoryMaximumSize(String memoryMaximumSize) {
-            this.memoryMaximumSize = memoryMaximumSize;
-        }
-
-        public String getCompiler() {
-            return compiler;
-        }
-
-        public void setCompiler(String compiler) {
-            this.compiler = compiler;
-        }
-
-        public Collection<XmlError> getErrorListener() {
-            return errorListener;
-        }
-
-        public void setErrorListener(Collection<XmlError> errorListener) {
-            this.errorListener = errorListener;
-        }
-
-        public String getRepackage() {
-            return repackage;
-        }
-
-        public void setRepackage(String newRepackage) {
-            repackage = newRepackage;
-        }
-
-        public List<Extension> getExtensions() {
-            return extensions;
-        }
-
-        public void setExtensions(List<Extension> extensions) {
-            this.extensions = extensions;
-        }
-
-        public Set<String> getMdefNamespaces() {
-            return mdefNamespaces;
-        }
-
-        public void setMdefNamespaces(Set<String> mdefNamespaces) {
-            this.mdefNamespaces = mdefNamespaces;
-        }
-
-        public String getCatalogFile() {
-            return catalogFile;
-        }
-
-        public void setCatalogFile(String catalogPropFile) {
-            this.catalogFile = catalogPropFile;
-        }
-
-        public SchemaCodePrinter getSchemaCodePrinter() {
-            return schemaCodePrinter;
-        }
-
-        public void setSchemaCodePrinter(SchemaCodePrinter schemaCodePrinter) {
-            this.schemaCodePrinter = schemaCodePrinter;
-        }
-
-        public EntityResolver getEntityResolver() {
-            return entityResolver;
-        }
-
-        public void setEntityResolver(EntityResolver entityResolver) {
-            this.entityResolver = entityResolver;
-        }
     }
 
     private static SchemaTypeSystem loadTypeSystem(String name, File[] xsdFiles, File[] wsdlFiles, URL[] urlFiles, File[] configFiles,
@@ -894,6 +610,7 @@ public class SchemaCompiler {
         boolean noExt = params.isNoExt();
         boolean incrSrcGen = params.isIncrementalSrcGen();
         Collection<XmlError> outerErrorListener = params.getErrorListener();
+        Set<BeanMethod> partialMethods = params.getPartialMethods();
 
         String repackage = params.getRepackage();
 
@@ -968,6 +685,7 @@ public class SchemaCompiler {
             if (codePrinter != null) {
                 options.setSchemaCodePrinter(codePrinter);
             }
+            options.setCompilePartialMethod(partialMethods);
 
             // save .xsb files
             system.save(filer);
@@ -1033,6 +751,26 @@ public class SchemaCompiler {
             cpResourceLoader.close();
         }
         return result;
+    }
+
+    static Set<BeanMethod> parsePartialMethods(String partialMethods) {
+        final Set<BeanMethod> beanMethods = new HashSet<>();
+        if (partialMethods != null) {
+            for (String pm : partialMethods.split(",")) {
+                if ("ALL".equals(pm)) {
+                    beanMethods.addAll(Arrays.asList(BeanMethod.values()));
+                    continue;
+                }
+                boolean neg = pm.startsWith("-");
+                BeanMethod bm = BeanMethod.valueOf(pm.substring(neg ? 1 : 0));
+                if (neg) {
+                    beanMethods.remove(bm);
+                } else {
+                    beanMethods.add(bm);
+                }
+            }
+        }
+        return beanMethods.isEmpty() ? null : beanMethods;
     }
 
     private static void runExtensions(List<Extension> extensions, SchemaTypeSystem system, File classesDir) {

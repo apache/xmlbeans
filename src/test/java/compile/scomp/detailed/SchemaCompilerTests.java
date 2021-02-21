@@ -15,6 +15,7 @@
 package compile.scomp.detailed;
 
 import common.Common;
+import org.apache.xmlbeans.impl.tool.Parameters;
 import org.apache.xmlbeans.impl.tool.SchemaCompiler;
 import org.junit.Test;
 
@@ -41,7 +42,7 @@ public class SchemaCompilerTests extends Common
                               String testName)
     {
         List errors = new ArrayList();
-        SchemaCompiler.Parameters params = new SchemaCompiler.Parameters();
+        Parameters params = new Parameters();
         params.setXsdFiles(xsdFiles);
         params.setErrorListener(errors);
         params.setSrcDir(new File(schemaCompOutputDirPath + outputDirName + P + "src"));
@@ -57,7 +58,7 @@ public class SchemaCompilerTests extends Common
     public void testUnionRedefine()
     {
         File[] xsdFiles =
-            new File[] { new File(scompTestFilesRoot + "union_initial.xsd"), 
+            new File[] { new File(scompTestFilesRoot + "union_initial.xsd"),
                          new File(scompTestFilesRoot + "union_redefine.xsd") };
         String outputDirName = "unionred";
         String testname = "testUnionRedefine";
@@ -70,7 +71,7 @@ public class SchemaCompilerTests extends Common
     @Test
     public void testEnumerationRedefine1()
     {
-        File[] xsdFiles = 
+        File[] xsdFiles =
             new File[] { new File(scompTestFilesRoot + "enum1.xsd_"),
                          new File(scompTestFilesRoot + "enum1_redefine.xsd_") };
         String outputDirName = "enumRedef1";
@@ -84,7 +85,7 @@ public class SchemaCompilerTests extends Common
     @Test
     public void testEnumerationRedefine2()
     {
-        File[] xsdFiles = 
+        File[] xsdFiles =
             new File[] { new File(scompTestFilesRoot + "enum2.xsd_"),
                          new File(scompTestFilesRoot + "enum2_redefine.xsd_") };
         String outputDirName = "enumRedef2";
@@ -98,7 +99,7 @@ public class SchemaCompilerTests extends Common
     @Test
     public void testEnumerationRedefine3()
     {
-        File[] xsdFiles = 
+        File[] xsdFiles =
             new File[] { new File(scompTestFilesRoot + "enum1.xsd_"),
                          new File(scompTestFilesRoot + "enum3.xsd_"),
                          new File(scompTestFilesRoot + "enum3_redefine.xsd_") };
@@ -126,7 +127,7 @@ public class SchemaCompilerTests extends Common
         String outputDirName = "methodsColide_jira205";
 
         List errors = new ArrayList();
-        SchemaCompiler.Parameters params = new SchemaCompiler.Parameters();
+        Parameters params = new Parameters();
         params.setXsdFiles(xsdFiles);
         params.setConfigFiles(configFiles);
         params.setJavaFiles(javaFiles);
@@ -155,7 +156,7 @@ public class SchemaCompilerTests extends Common
         String outputDirName = "noExt";
 
         List errors = new ArrayList();
-        SchemaCompiler.Parameters params = new SchemaCompiler.Parameters();
+        Parameters params = new Parameters();
         params.setXsdFiles(xsdFiles);
         params.setConfigFiles(configFiles);
         // no java files, if noExt flag doesn't work should fail for not finding the java files  params.setJavaFiles(javaFiles);

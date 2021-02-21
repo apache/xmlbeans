@@ -380,9 +380,14 @@ public class SchemaTypeSystemCompiler {
 
             String fjn = type.getFullJavaName();
 
+            SchemaCodePrinter printer = (options == null) ? null : options.getSchemaCodePrinter();
+            if (printer == null) {
+                printer = new SchemaTypeCodePrinter();
+            }
+
             try (Writer writer = filer.createSourceFile(fjn)) {
                 // Generate interface class
-                SchemaTypeCodePrinter.printType(writer, type, options);
+                printer.printType(writer, type, options);
             } catch (IOException e) {
                 System.err.println("IO Error " + e);
                 success = false;
@@ -392,7 +397,7 @@ public class SchemaTypeSystemCompiler {
 
             try (Writer writer = filer.createSourceFile(fjn)) {
                 // Generate Implementation class
-                SchemaTypeCodePrinter.printTypeImpl(writer, type, options);
+                printer.printTypeImpl(writer, type, options);
             } catch (IOException e) {
                 System.err.println("IO Error " + e);
                 success = false;

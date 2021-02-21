@@ -15,11 +15,11 @@
 
 package org.apache.xmlbeans;
 
-import java.util.GregorianCalendar;
+import java.math.BigDecimal;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.TimeZone;
-import java.math.BigDecimal;
 
 /**
  * An XML Schema compatible subclass of {@link java.util.GregorianCalendar GregorianCalendar}.
@@ -56,8 +56,8 @@ import java.math.BigDecimal;
  * from {@link GregorianCalendar}, which chooses 1970. The reason 0 is preferable
  * is that it is a leap year and so it permits the date --2-29 to be specified
  * stably. A different default year can be chosen via the static method
- * {@link #setDefaultYear(int) XmlCalendar.setDefaultYear()}, or by setting the 
- * system property "user.defaultyear". If you do change this value, you should 
+ * {@link #setDefaultYear(int) XmlCalendar.setDefaultYear()}, or by setting the
+ * system property "user.defaultyear". If you do change this value, you should
  * pick another leap year such as 2000 and avoid non-leap years such as 1900.
  * </li>
  * <li>
@@ -78,32 +78,32 @@ import java.math.BigDecimal;
  * of information.
  * </li>
  * </ol>
- */ 
+ */
 public class XmlCalendar extends GregorianCalendar
 {
     /**
      * Constructs an XmlCalendar for a standard XML
      * schema formatted date string.
-     * 
+     *
      * The parser accepts any of the following formats:
-     * 
+     *
      * YYYY-MM-DDThh:mm:ss          - dateTime
      * YYYY-MM-DD                   - date
      *            hh:mm:ss          - time
      * YYYY                         - gYear
      *    --MM                      - gMonth
      *      ---DD                   - gDay
-     * 
+     *
      * The parser actually accepts all 16 combinations of subsets of
      * fields (Y, M, D, T) using the same scheme, even for combinations
      * that are not defined as types in the schema spec, such as
      * year, day, and time:
-     * 
+     *
      * YYYY--DDThh:mm:ss            - [everything but month specified]
-     * 
+     *
      * In the string, each field must be padded to its full width, for
      * example, January must be --01, not just --1.
-     * 
+     *
      * In particular, a year must be padded to at least four digits, so
      * "98" is not a valid year, although "1998" and "0098" are both valid
      * years, unambiguously 19 centuries separated from each other.  A year
@@ -115,34 +115,34 @@ public class XmlCalendar extends GregorianCalendar
      * or simple offsets from UTC in the range "-14:00" to "+14:00",
      * for example: "14:30:00-05:00" specifies 2:30 PM in the
      * afternoon at UTC-05:00, which is the same as EST.
-     * 
+     *
      * If a timezone is not specified, the default TimeZone is used.
-     */ 
+     */
     public XmlCalendar(String xmlSchemaDateString)
     {
         this(new GDate(xmlSchemaDateString)); // use GDate to parse
     }
-    
+
     /**
      * Constructs an XmlCalendar from a GDate.
-     * 
+     *
      * If the instance is not completed, you can round-trip to an
      * equivalent GDate by writing "new GDate(new XmlCalendar(gdate))".
      * However, if you access any of the unset fields of the calendar, all
      * the fields will be automatically filled in, so partial dates
      * without timezones or other fields will not round-trip after access.
-     */ 
+     */
     public XmlCalendar(GDateSpecification date)
     {
         this(GDate.timeZoneForGDate(date), date);
     }
-    
+
     private XmlCalendar(TimeZone tz, GDateSpecification date)
     {
         super(tz);
         setGregorianChange(_beginningOfTime); // proleptic
         clear();
-        
+
         if (date.hasYear())
         {
             int y = date.getYear(); // is never 0
@@ -176,10 +176,10 @@ public class XmlCalendar extends GregorianCalendar
             set(Calendar.DST_OFFSET, 0); // note!!  if we don't do this, then GregorianCalendar will pick up DST from the time zone
         }
     }
-    
+
     /**
      * Constructs an XmlCalendar from a Date.
-     * 
+     *
      * The default TimeZone is used for computing the various fields.
      */
     public XmlCalendar(Date date)
@@ -187,7 +187,7 @@ public class XmlCalendar extends GregorianCalendar
         this(TimeZone.getDefault(), new GDate(date));
         complete();
     }
-    
+
     /**
      * Constructs an XmlCalendar with the specified year, month, day,
      * hours, minutes, seconds, and optional fractional seconds, in
@@ -204,7 +204,7 @@ public class XmlCalendar extends GregorianCalendar
     {
         this(TimeZone.getDefault(), new GDate(year, month, day, hour, minute, second, fraction));
     }
-    
+
     /**
      * Constructs an XmlCalendar with the specified year, month, day,
      * hours, minutes, seconds, and optional fractional seconds, in
@@ -224,11 +224,11 @@ public class XmlCalendar extends GregorianCalendar
     {
         this(new GDate(year, month, day, hour, minute, second, fraction, tzSign, tzHour, tzMinute));
     }
-    
+
 
     /**
      * Gets the value for a given time field.
-     * 
+     *
      * Unlike the GregorianCalendar implementation, the get() does not
      * force a complete of all fields.  If you wish to force a completion
      * of all the fields, call getTime() first.
@@ -243,19 +243,19 @@ public class XmlCalendar extends GregorianCalendar
 
     /**
      * Constructs an empty instance with no fields set.
-     */ 
+     */
     public XmlCalendar()
     {
         setGregorianChange(_beginningOfTime); // proleptic
         clear();
     }
-    
+
     private static int defaultYear = Integer.MIN_VALUE;
-    private static final int DEFAULT_DEFAULT_YEAR = 0; 
-    
+    private static final int DEFAULT_DEFAULT_YEAR = 0;
+
     /**
      * Returns the default year that is used when no year is specified.
-     */ 
+     */
     public static int getDefaultYear()
     {
         if (defaultYear == Integer.MIN_VALUE)
@@ -275,19 +275,19 @@ public class XmlCalendar extends GregorianCalendar
         }
         return defaultYear;
     }
-    
+
     /**
      * Sets the default year to be used when no year is specified.
-     */ 
+     */
     public static void setDefaultYear(int year)
     {
         defaultYear = year;
     }
-    
+
     /**
      * Overrides GregorianCalendar.computeTime to apply a different
      * default year.  (It must be a leap year.)
-     */ 
+     */
     protected void computeTime()
     {
         boolean unsetYear = !isSet(YEAR);
@@ -303,9 +303,9 @@ public class XmlCalendar extends GregorianCalendar
                 clear(YEAR);
         }
     }
-        
-    private static Date _beginningOfTime = new Date(Long.MIN_VALUE);
-    
+
+    private static final Date _beginningOfTime = new Date(Long.MIN_VALUE);
+
     /**
      * Prints the XmlCalendar using a standard XML Schema
      * format, as described in XmlCalendar(String s).

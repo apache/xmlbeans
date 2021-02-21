@@ -13,24 +13,22 @@
  *  limitations under the License.
  */
 
-package org.apache.xmlbeans;
+package org.apache.xmlbeans.impl.schema;
 
-import org.apache.xmlbeans.impl.schema.XmlObjectFactory;
+import org.apache.xmlbeans.SchemaTypeSystem;
 
-/**
- * Corresponds to the XML Schema
- * <a target="_blank" href="http://www.w3.org/TR/xmlschema-2/#language">xs:language</a> type.
- * <p>
- * This type is intended to represent an standard ISO language code string.
- * <p>
- * Convertible to a Java {@link String}.
- */
-public interface XmlLanguage extends XmlToken {
-    XmlObjectFactory<XmlLanguage> Factory = new XmlObjectFactory<>("_BI_language");
+@SuppressWarnings("unchecked")
+public class DocumentFactory<T> extends AbstractDocumentFactory<T> {
+    public DocumentFactory(SchemaTypeSystem typeSystem, String typeHandle) {
+        super(typeSystem, typeHandle);
+    }
 
-    /**
-     * The constant {@link SchemaType} object representing this schema type.
-     */
-    SchemaType type = Factory.getType();
+    public T newInstance() {
+        return (T) getTypeLoader().newInstance(getType(), null);
+    }
+
+
+    public T newInstance(org.apache.xmlbeans.XmlOptions options) {
+        return (T) getTypeLoader().newInstance(getType(), options);
+    }
 }
-

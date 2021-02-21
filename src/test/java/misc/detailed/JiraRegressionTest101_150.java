@@ -18,6 +18,7 @@ package misc.detailed;
 import misc.common.JiraTestBase;
 import org.apache.xmlbeans.XmlError;
 import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.impl.tool.Parameters;
 import org.apache.xmlbeans.impl.tool.SchemaCompiler;
 import org.junit.Test;
 
@@ -39,7 +40,7 @@ public class JiraRegressionTest101_150 extends JiraTestBase
     @Test
     public void test_jira_xmlbeans102a() throws Exception{
         // set the parameters similar to those in the bug
-        SchemaCompiler.Parameters params = new SchemaCompiler.Parameters();
+        Parameters params = new Parameters();
         params.setXsdFiles(new File[]{new File(JIRA_CASES + "xmlbeans_102.xsd")});
         params.setOutputJar(new File(outputroot+P+"xmlbeans_102.jar"));
         File outputDir = new File(outputroot + P + "xmlbeans_102");
@@ -62,7 +63,7 @@ public class JiraRegressionTest101_150 extends JiraTestBase
     public void test_jira_xmlbeans102b() {
         //Assert.fail("test_jira_xmlbeans102: Infinite loop after completion of parsing" );
 
-        SchemaCompiler.Parameters params = new SchemaCompiler.Parameters();
+        Parameters params = new Parameters();
         params.setOutputJar(new File(schemaCompOutputDirPath + "jira102.jar"));
         params.setClassesDir(schemaCompClassesDir);
 

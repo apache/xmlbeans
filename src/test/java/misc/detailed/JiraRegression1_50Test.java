@@ -16,6 +16,7 @@ package misc.detailed;
 
 import misc.common.JiraTestBase;
 import org.apache.xmlbeans.*;
+import org.apache.xmlbeans.impl.tool.Parameters;
 import org.apache.xmlbeans.impl.tool.SchemaCompiler;
 import org.apache.xmlbeans.impl.xb.xsdschema.SchemaDocument;
 import org.junit.Ignore;
@@ -74,7 +75,7 @@ public class JiraRegression1_50Test extends JiraTestBase {
     public void test_jira_xmlbeans04() {
         List errors = new ArrayList();
 
-        SchemaCompiler.Parameters params = new SchemaCompiler.Parameters();
+        Parameters params = new Parameters();
         params.setXsdFiles(new File[]{new File(scompTestFilesRoot + "xmlbeans_04.xsd_")});
         params.setErrorListener(errors);
         params.setSrcDir(schemaCompSrcDir);
@@ -260,7 +261,7 @@ public class JiraRegression1_50Test extends JiraTestBase {
     public void test_jira_xmlbeans34() throws Exception {
         List errors = new ArrayList();
 
-        SchemaCompiler.Parameters params = new SchemaCompiler.Parameters();
+        Parameters params = new Parameters();
         params.setXsdFiles(new File[]{new File(scompTestFilesRoot + "xmlbeans_34b.xsd_")});
         params.setErrorListener(errors);
         params.setSrcDir(schemaCompSrcDir);
@@ -437,7 +438,7 @@ public class JiraRegression1_50Test extends JiraTestBase {
     */
     public void test_jira_xmlbeans49() {
         List errors = new ArrayList();
-        SchemaCompiler.Parameters params = new SchemaCompiler.Parameters();
+        Parameters params = new Parameters();
         params.setXsdFiles(new File[]{new File(scompTestFilesRoot + "xmlbeans_49.xsd_")});
         params.setErrorListener(errors);
         params.setSrcDir(schemaCompSrcDir);

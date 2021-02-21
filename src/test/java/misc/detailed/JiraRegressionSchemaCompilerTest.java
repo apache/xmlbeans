@@ -16,6 +16,7 @@ package misc.detailed;
 
 import misc.common.JiraTestBase;
 import org.apache.xmlbeans.XmlError;
+import org.apache.xmlbeans.impl.tool.Parameters;
 import org.apache.xmlbeans.impl.tool.SchemaCompiler;
 import org.junit.Test;
 
@@ -34,7 +35,7 @@ public class JiraRegressionSchemaCompilerTest extends JiraTestBase {
     {
         System.out.println(xsdFiles[0].getAbsolutePath());
         List errors = new ArrayList();
-        SchemaCompiler.Parameters params = new SchemaCompiler.Parameters();
+        Parameters params = new Parameters();
         params.setXsdFiles(xsdFiles);
         params.setErrorListener(errors);
         params.setSrcDir(new File(schemaCompOutputDirPath + outputDirName + P + "src"));
@@ -80,7 +81,7 @@ public class JiraRegressionSchemaCompilerTest extends JiraTestBase {
     @Test
     public void test_jira_xmlbeans239()
     {
-        /* complexType with complexContent extending base type with 
+        /* complexType with complexContent extending base type with
            simpleContent is valid */
         File[] xsdFiles =
             new File[] { new File(scompTestFilesRoot + "xmlbeans_239a.xsd_") };

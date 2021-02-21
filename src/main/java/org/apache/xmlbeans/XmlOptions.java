@@ -133,6 +133,7 @@ public class XmlOptions implements java.io.Serializable {
         COMPILE_DOWNLOAD_URLS,
         COMPILE_MDEF_NAMESPACES,
         COMPILE_PARTIAL_TYPESYSTEM,
+        COMPILE_PARTIAL_METHODS,
         VALIDATE_ON_SET,
         VALIDATE_TREAT_LAX_AS_SKIP,
         VALIDATE_STRICT,
@@ -1389,6 +1390,33 @@ public class XmlOptions implements java.io.Serializable {
         Boolean flag = (Boolean) get(XmlOptionsKeys.ATTTRIBUTE_VALIDATION_COMPAT_MODE);
         return flag != null && flag;
     }
+
+    public enum BeanMethod {
+        GET, XGET, IS_SET, IS_NIL, IS_NIL_IDX, SET, SET_NIL, SET_NIL_IDX, XSET, UNSET,
+        GET_ARRAY, XGET_ARRAY, GET_IDX, XGET_IDX, XSET_ARRAY, XSET_IDX,
+        SIZE_OF_ARRAY, SET_ARRAY, SET_IDX,
+        INSERT_IDX, INSERT_NEW_IDX,
+        ADD, ADD_NEW, REMOVE_IDX,
+        GET_LIST, XGET_LIST, SET_LIST,
+        INSTANCE_TYPE
+    }
+
+    /**
+     * @return the list of methods to be generated in the XmlBean or {@code null} for all
+     */
+    @SuppressWarnings("unchecked")
+    public Set<BeanMethod> getCompilePartialMethod() {
+        return (Set<BeanMethod>)get(XmlOptionsKeys.COMPILE_PARTIAL_METHODS);
+    }
+
+    public void setCompilePartialMethod(Set<BeanMethod> list) {
+        if (list == null || list.isEmpty()) {
+            remove(XmlOptionsKeys.COMPILE_PARTIAL_METHODS);
+        } else {
+            set(XmlOptionsKeys.COMPILE_PARTIAL_METHODS, list);
+        }
+    }
+
 
     /**
      * If passed null, returns an empty options object.  Otherwise, returns its argument.

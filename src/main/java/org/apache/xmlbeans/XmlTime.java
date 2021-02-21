@@ -15,6 +15,8 @@
 
 package org.apache.xmlbeans;
 
+import org.apache.xmlbeans.impl.schema.XmlObjectFactory;
+
 import java.util.Calendar;
 
 
@@ -29,10 +31,12 @@ import java.util.Calendar;
  * @see GDate
  */
 public interface XmlTime extends XmlAnySimpleType {
+    XmlObjectFactory<XmlTime> Factory = new XmlObjectFactory<>("_BI_time");
+
     /**
      * The constant {@link SchemaType} object representing this schema type.
      */
-    SchemaType type = XmlBeans.getBuiltinTypeSystem().typeForHandle("_BI_time");
+    SchemaType type = Factory.getType();
 
     /**
      * Returns this value as a {@link Calendar}
@@ -53,134 +57,5 @@ public interface XmlTime extends XmlAnySimpleType {
      * Sets this value as a {@link GDateSpecification}
      */
     void setGDateValue(GDate gd);
-
-    /**
-     * A class with methods for creating instances
-     * of {@link XmlTime}.
-     */
-    final class Factory {
-        /**
-         * Creates an empty instance of {@link XmlTime}
-         */
-        public static XmlTime newInstance() {
-            return (XmlTime) XmlBeans.getContextTypeLoader().newInstance(type, null);
-        }
-
-        /**
-         * Creates an empty instance of {@link XmlTime}
-         */
-        public static XmlTime newInstance(org.apache.xmlbeans.XmlOptions options) {
-            return (XmlTime) XmlBeans.getContextTypeLoader().newInstance(type, options);
-        }
-
-        /**
-         * Creates an immutable {@link XmlTime} value
-         */
-        public static XmlTime newValue(Object obj) {
-            return (XmlTime) type.newValue(obj);
-        }
-
-        /**
-         * Parses a {@link XmlTime} fragment from a String. For example: "<code>&lt;xml-fragment&gt;12:00:00&lt;/xml-fragment&gt;</code>".
-         */
-        public static XmlTime parse(java.lang.String s) throws org.apache.xmlbeans.XmlException {
-            return (XmlTime) XmlBeans.getContextTypeLoader().parse(s, type, null);
-        }
-
-        /**
-         * Parses a {@link XmlTime} fragment from a String. For example: "<code>&lt;xml-fragment&gt;12:00:00&lt;/xml-fragment&gt;</code>".
-         */
-        public static XmlTime parse(java.lang.String s, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException {
-            return (XmlTime) XmlBeans.getContextTypeLoader().parse(s, type, options);
-        }
-
-        /**
-         * Parses a {@link XmlTime} fragment from a File.
-         */
-        public static XmlTime parse(java.io.File f) throws org.apache.xmlbeans.XmlException, java.io.IOException {
-            return (XmlTime) XmlBeans.getContextTypeLoader().parse(f, type, null);
-        }
-
-        /**
-         * Parses a {@link XmlTime} fragment from a File.
-         */
-        public static XmlTime parse(java.io.File f, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException, java.io.IOException {
-            return (XmlTime) XmlBeans.getContextTypeLoader().parse(f, type, options);
-        }
-
-        /**
-         * Parses a {@link XmlTime} fragment from a URL.
-         */
-        public static XmlTime parse(java.net.URL u) throws org.apache.xmlbeans.XmlException, java.io.IOException {
-            return (XmlTime) XmlBeans.getContextTypeLoader().parse(u, type, null);
-        }
-
-        /**
-         * Parses a {@link XmlTime} fragment from a URL.
-         */
-        public static XmlTime parse(java.net.URL u, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException, java.io.IOException {
-            return (XmlTime) XmlBeans.getContextTypeLoader().parse(u, type, options);
-        }
-
-        /**
-         * Parses a {@link XmlTime} fragment from an InputStream.
-         */
-        public static XmlTime parse(java.io.InputStream is) throws org.apache.xmlbeans.XmlException, java.io.IOException {
-            return (XmlTime) XmlBeans.getContextTypeLoader().parse(is, type, null);
-        }
-
-        /**
-         * Parses a {@link XmlTime} fragment from an InputStream.
-         */
-        public static XmlTime parse(java.io.InputStream is, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException, java.io.IOException {
-            return (XmlTime) XmlBeans.getContextTypeLoader().parse(is, type, options);
-        }
-
-        /**
-         * Parses a {@link XmlTime} fragment from a Reader.
-         */
-        public static XmlTime parse(java.io.Reader r) throws org.apache.xmlbeans.XmlException, java.io.IOException {
-            return (XmlTime) XmlBeans.getContextTypeLoader().parse(r, type, null);
-        }
-
-        /**
-         * Parses a {@link XmlTime} fragment from a Reader.
-         */
-        public static XmlTime parse(java.io.Reader r, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException, java.io.IOException {
-            return (XmlTime) XmlBeans.getContextTypeLoader().parse(r, type, options);
-        }
-
-        /**
-         * Parses a {@link XmlTime} fragment from a DOM Node.
-         */
-        public static XmlTime parse(org.w3c.dom.Node node) throws org.apache.xmlbeans.XmlException {
-            return (XmlTime) XmlBeans.getContextTypeLoader().parse(node, type, null);
-        }
-
-        /**
-         * Parses a {@link XmlTime} fragment from a DOM Node.
-         */
-        public static XmlTime parse(org.w3c.dom.Node node, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException {
-            return (XmlTime) XmlBeans.getContextTypeLoader().parse(node, type, options);
-        }
-
-        /**
-         * Parses a {@link XmlTime} fragment from an XMLStreamReader.
-         */
-        public static XmlTime parse(javax.xml.stream.XMLStreamReader xsr) throws org.apache.xmlbeans.XmlException {
-            return (XmlTime) XmlBeans.getContextTypeLoader().parse(xsr, type, null);
-        }
-
-        /**
-         * Parses a {@link XmlTime} fragment from an XMLStreamReader.
-         */
-        public static XmlTime parse(javax.xml.stream.XMLStreamReader xsr, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException {
-            return (XmlTime) XmlBeans.getContextTypeLoader().parse(xsr, type, options);
-        }
-
-        private Factory() {
-            // No instance of this class allowed
-        }
-    }
 }
 

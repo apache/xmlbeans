@@ -22,6 +22,7 @@ import net.orthogony.xml.sample.structure.ARootDocument;
 import net.orthogony.xml.sample.structure.ChildType;
 import org.apache.beehive.netui.tools.testrecorder.x2004.session.RecorderSessionDocument;
 import org.apache.xmlbeans.*;
+import org.apache.xmlbeans.impl.tool.Parameters;
 import org.apache.xmlbeans.impl.tool.SchemaCompiler;
 import org.apache.xmlbeans.impl.xb.xmlconfig.ConfigDocument;
 import org.junit.Assert;
@@ -90,7 +91,7 @@ public class JiraRegression50_100Test extends JiraTestBase
     public void test_jira_xmlbeans54() throws Exception {
         List errors = new ArrayList();
 
-        SchemaCompiler.Parameters params = new SchemaCompiler.Parameters();
+        Parameters params = new Parameters();
         params.setXsdFiles(new File[]{new File(scompTestFilesRoot + "xmlbeans_54.xsd_")});
         params.setErrorListener(errors);
         params.setSrcDir(schemaCompSrcDir);
@@ -165,7 +166,7 @@ public class JiraRegression50_100Test extends JiraTestBase
         File classDir = new File(outputDir + P + "classes");
         classDir.mkdirs();
 
-        SchemaCompiler.Parameters params = new SchemaCompiler.Parameters();
+        Parameters params = new Parameters();
         params.setXsdFiles(new File[]{new File(JIRA_CASES + "xmlbeans_57.xml")});
         params.setErrorListener(errorList);
         params.setSrcDir(srcDir);
@@ -204,7 +205,7 @@ public class JiraRegression50_100Test extends JiraTestBase
     @Ignore("the url doesn't exist anymore ...")
     public void test_jira_xmlbeans58() throws Exception {
         List errors = new ArrayList();
-        SchemaCompiler.Parameters params = new SchemaCompiler.Parameters();
+        Parameters params = new Parameters();
 
         // old url has been retired
         //params.setUrlFiles(new URL[]{new URL("http://devresource.hp.com/drc/specifications/wsrf/interfaces/WS-BrokeredNotification-1-0.wsdl")});
@@ -237,7 +238,7 @@ public class JiraRegression50_100Test extends JiraTestBase
         File classDir = new File(outputDir + P + "classes");
         classDir.mkdirs();
 
-        SchemaCompiler.Parameters params = new SchemaCompiler.Parameters();
+        Parameters params = new Parameters();
         params.setWsdlFiles(new File[]{new File(JIRA_CASES + "xmlbeans_62.xml")});
         params.setErrorListener(errorList);
         params.setSrcDir(srcDir);
@@ -582,7 +583,7 @@ public class JiraRegression50_100Test extends JiraTestBase
     @Test
     public void test_jira_xmlbeans88() throws Exception {
         List errors = new ArrayList();
-        SchemaCompiler.Parameters params = new SchemaCompiler.Parameters();
+        Parameters params = new Parameters();
 
         params.setUrlFiles(new URL[]{new URL("http://developer.ebay.com/webservices/latest/eBaySvc.wsdl")});
         params.setErrorListener(errors);

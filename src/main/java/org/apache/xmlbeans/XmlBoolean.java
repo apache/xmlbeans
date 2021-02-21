@@ -15,6 +15,8 @@
 
 package org.apache.xmlbeans;
 
+import org.apache.xmlbeans.impl.schema.XmlObjectFactory;
+
 /**
  * Corresponds to the XML Schema
  * <a target="_blank" href="http://www.w3.org/TR/xmlschema-2/#boolean">xs:boolean</a> type.
@@ -22,6 +24,8 @@ package org.apache.xmlbeans;
  * Naturally, convertible to Java boolean.
  */
 public interface XmlBoolean extends XmlAnySimpleType {
+    XmlObjectFactory<XmlBoolean> Factory = new XmlObjectFactory<>("_BI_boolean");
+
     /**
      * The constant {@link SchemaType} object representing this schema type.
      */
@@ -36,134 +40,5 @@ public interface XmlBoolean extends XmlAnySimpleType {
      * Sets this value as a boolean
      */
     void setBooleanValue(boolean v);
-
-    /**
-     * A class with methods for creating instances
-     * of {@link XmlBoolean}.
-     */
-    final class Factory {
-        /**
-         * Creates an empty instance of {@link XmlBoolean}
-         */
-        public static XmlBoolean newInstance() {
-            return (XmlBoolean) XmlBeans.getContextTypeLoader().newInstance(type, null);
-        }
-
-        /**
-         * Creates an empty instance of {@link XmlBoolean}
-         */
-        public static XmlBoolean newInstance(org.apache.xmlbeans.XmlOptions options) {
-            return (XmlBoolean) XmlBeans.getContextTypeLoader().newInstance(type, options);
-        }
-
-        /**
-         * Creates an immutable {@link XmlBoolean} value
-         */
-        public static XmlBoolean newValue(Object obj) {
-            return (XmlBoolean) type.newValue(obj);
-        }
-
-        /**
-         * Parses a {@link XmlBoolean} fragment from a String. For example: "<code>&lt;xml-fragment&gt;true&lt;/xml-fragment&gt;</code>".
-         */
-        public static XmlBoolean parse(java.lang.String s) throws org.apache.xmlbeans.XmlException {
-            return (XmlBoolean) XmlBeans.getContextTypeLoader().parse(s, type, null);
-        }
-
-        /**
-         * Parses a {@link XmlBoolean} fragment from a String. For example: "<code>&lt;xml-fragment&gt;true&lt;/xml-fragment&gt;</code>".
-         */
-        public static XmlBoolean parse(java.lang.String s, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException {
-            return (XmlBoolean) XmlBeans.getContextTypeLoader().parse(s, type, options);
-        }
-
-        /**
-         * Parses a {@link XmlBoolean} fragment from a File.
-         */
-        public static XmlBoolean parse(java.io.File f) throws org.apache.xmlbeans.XmlException, java.io.IOException {
-            return (XmlBoolean) XmlBeans.getContextTypeLoader().parse(f, type, null);
-        }
-
-        /**
-         * Parses a {@link XmlBoolean} fragment from a File.
-         */
-        public static XmlBoolean parse(java.io.File f, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException, java.io.IOException {
-            return (XmlBoolean) XmlBeans.getContextTypeLoader().parse(f, type, options);
-        }
-
-        /**
-         * Parses a {@link XmlBoolean} fragment from a URL.
-         */
-        public static XmlBoolean parse(java.net.URL u) throws org.apache.xmlbeans.XmlException, java.io.IOException {
-            return (XmlBoolean) XmlBeans.getContextTypeLoader().parse(u, type, null);
-        }
-
-        /**
-         * Parses a {@link XmlBoolean} fragment from a URL.
-         */
-        public static XmlBoolean parse(java.net.URL u, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException, java.io.IOException {
-            return (XmlBoolean) XmlBeans.getContextTypeLoader().parse(u, type, options);
-        }
-
-        /**
-         * Parses a {@link XmlBoolean} fragment from an InputStream.
-         */
-        public static XmlBoolean parse(java.io.InputStream is) throws org.apache.xmlbeans.XmlException, java.io.IOException {
-            return (XmlBoolean) XmlBeans.getContextTypeLoader().parse(is, type, null);
-        }
-
-        /**
-         * Parses a {@link XmlBoolean} fragment from an InputStream.
-         */
-        public static XmlBoolean parse(java.io.InputStream is, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException, java.io.IOException {
-            return (XmlBoolean) XmlBeans.getContextTypeLoader().parse(is, type, options);
-        }
-
-        /**
-         * Parses a {@link XmlBoolean} fragment from a Reader.
-         */
-        public static XmlBoolean parse(java.io.Reader r) throws org.apache.xmlbeans.XmlException, java.io.IOException {
-            return (XmlBoolean) XmlBeans.getContextTypeLoader().parse(r, type, null);
-        }
-
-        /**
-         * Parses a {@link XmlBoolean} fragment from a Reader.
-         */
-        public static XmlBoolean parse(java.io.Reader r, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException, java.io.IOException {
-            return (XmlBoolean) XmlBeans.getContextTypeLoader().parse(r, type, options);
-        }
-
-        /**
-         * Parses a {@link XmlBoolean} fragment from a DOM Node.
-         */
-        public static XmlBoolean parse(org.w3c.dom.Node node) throws org.apache.xmlbeans.XmlException {
-            return (XmlBoolean) XmlBeans.getContextTypeLoader().parse(node, type, null);
-        }
-
-        /**
-         * Parses a {@link XmlBoolean} fragment from a DOM Node.
-         */
-        public static XmlBoolean parse(org.w3c.dom.Node node, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException {
-            return (XmlBoolean) XmlBeans.getContextTypeLoader().parse(node, type, options);
-        }
-
-        /**
-         * Parses a {@link XmlBoolean} fragment from an XMLStreamReader.
-         */
-        public static XmlBoolean parse(javax.xml.stream.XMLStreamReader xsr) throws org.apache.xmlbeans.XmlException {
-            return (XmlBoolean) XmlBeans.getContextTypeLoader().parse(xsr, type, null);
-        }
-
-        /**
-         * Parses a {@link XmlBoolean} fragment from an XMLStreamReader.
-         */
-        public static XmlBoolean parse(javax.xml.stream.XMLStreamReader xsr, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException {
-            return (XmlBoolean) XmlBeans.getContextTypeLoader().parse(xsr, type, options);
-        }
-
-        private Factory() {
-            // No instance of this class allowed
-        }
-    }
 }
 

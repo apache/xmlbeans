@@ -15,6 +15,8 @@
 
 package org.apache.xmlbeans;
 
+import org.apache.xmlbeans.impl.schema.XmlObjectFactory;
+
 /**
  * Corresponds to the XML Schema
  * <a target="_blank" href="http://www.w3.org/TR/xmlschema-2/#token">xs:token</a> type.
@@ -36,138 +38,11 @@ package org.apache.xmlbeans;
  * Convertible to {@link String}.
  */
 public interface XmlToken extends XmlNormalizedString {
+    XmlObjectFactory<XmlToken> Factory = new XmlObjectFactory<>("_BI_token");
+
     /**
      * The constant {@link SchemaType} object representing this schema type.
      */
-    SchemaType type = XmlBeans.getBuiltinTypeSystem().typeForHandle("_BI_token");
-
-    /**
-     * A class with methods for creating instances
-     * of {@link XmlToken}.
-     */
-    final class Factory {
-        /**
-         * Creates an empty instance of {@link XmlToken}
-         */
-        public static XmlToken newInstance() {
-            return (XmlToken) XmlBeans.getContextTypeLoader().newInstance(type, null);
-        }
-
-        /**
-         * Creates an empty instance of {@link XmlToken}
-         */
-        public static XmlToken newInstance(org.apache.xmlbeans.XmlOptions options) {
-            return (XmlToken) XmlBeans.getContextTypeLoader().newInstance(type, options);
-        }
-
-        /**
-         * Creates an immutable {@link XmlToken} value
-         */
-        public static XmlToken newValue(Object obj) {
-            return (XmlToken) type.newValue(obj);
-        }
-
-        /**
-         * Parses a {@link XmlToken} fragment from a String. For example: "<code>&lt;xml-fragment&gt;string to collapse&lt;/xml-fragment&gt;</code>".
-         */
-        public static XmlToken parse(java.lang.String s) throws org.apache.xmlbeans.XmlException {
-            return (XmlToken) XmlBeans.getContextTypeLoader().parse(s, type, null);
-        }
-
-        /**
-         * Parses a {@link XmlToken} fragment from a String. For example: "<code>&lt;xml-fragment&gt;string to collapse&lt;/xml-fragment&gt;</code>".
-         */
-        public static XmlToken parse(java.lang.String s, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException {
-            return (XmlToken) XmlBeans.getContextTypeLoader().parse(s, type, options);
-        }
-
-        /**
-         * Parses a {@link XmlToken} fragment from a File.
-         */
-        public static XmlToken parse(java.io.File f) throws org.apache.xmlbeans.XmlException, java.io.IOException {
-            return (XmlToken) XmlBeans.getContextTypeLoader().parse(f, type, null);
-        }
-
-        /**
-         * Parses a {@link XmlToken} fragment from a File.
-         */
-        public static XmlToken parse(java.io.File f, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException, java.io.IOException {
-            return (XmlToken) XmlBeans.getContextTypeLoader().parse(f, type, options);
-        }
-
-        /**
-         * Parses a {@link XmlToken} fragment from a URL.
-         */
-        public static XmlToken parse(java.net.URL u) throws org.apache.xmlbeans.XmlException, java.io.IOException {
-            return (XmlToken) XmlBeans.getContextTypeLoader().parse(u, type, null);
-        }
-
-        /**
-         * Parses a {@link XmlToken} fragment from a URL.
-         */
-        public static XmlToken parse(java.net.URL u, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException, java.io.IOException {
-            return (XmlToken) XmlBeans.getContextTypeLoader().parse(u, type, options);
-        }
-
-        /**
-         * Parses a {@link XmlToken} fragment from an InputStream.
-         */
-        public static XmlToken parse(java.io.InputStream is) throws org.apache.xmlbeans.XmlException, java.io.IOException {
-            return (XmlToken) XmlBeans.getContextTypeLoader().parse(is, type, null);
-        }
-
-        /**
-         * Parses a {@link XmlToken} fragment from an InputStream.
-         */
-        public static XmlToken parse(java.io.InputStream is, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException, java.io.IOException {
-            return (XmlToken) XmlBeans.getContextTypeLoader().parse(is, type, options);
-        }
-
-        /**
-         * Parses a {@link XmlToken} fragment from a Reader.
-         */
-        public static XmlToken parse(java.io.Reader r) throws org.apache.xmlbeans.XmlException, java.io.IOException {
-            return (XmlToken) XmlBeans.getContextTypeLoader().parse(r, type, null);
-        }
-
-        /**
-         * Parses a {@link XmlToken} fragment from a Reader.
-         */
-        public static XmlToken parse(java.io.Reader r, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException, java.io.IOException {
-            return (XmlToken) XmlBeans.getContextTypeLoader().parse(r, type, options);
-        }
-
-        /**
-         * Parses a {@link XmlToken} fragment from a DOM Node.
-         */
-        public static XmlToken parse(org.w3c.dom.Node node) throws org.apache.xmlbeans.XmlException {
-            return (XmlToken) XmlBeans.getContextTypeLoader().parse(node, type, null);
-        }
-
-        /**
-         * Parses a {@link XmlToken} fragment from a DOM Node.
-         */
-        public static XmlToken parse(org.w3c.dom.Node node, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException {
-            return (XmlToken) XmlBeans.getContextTypeLoader().parse(node, type, options);
-        }
-
-        /**
-         * Parses a {@link XmlToken} fragment from an XMLStreamReader.
-         */
-        public static XmlToken parse(javax.xml.stream.XMLStreamReader xsr) throws org.apache.xmlbeans.XmlException {
-            return (XmlToken) XmlBeans.getContextTypeLoader().parse(xsr, type, null);
-        }
-
-        /**
-         * Parses a {@link XmlToken} fragment from an XMLStreamReader.
-         */
-        public static XmlToken parse(javax.xml.stream.XMLStreamReader xsr, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException {
-            return (XmlToken) XmlBeans.getContextTypeLoader().parse(xsr, type, options);
-        }
-
-        private Factory() {
-            // No instance of this class allowed
-        }
-    }
+    SchemaType type = Factory.getType();
 }
 

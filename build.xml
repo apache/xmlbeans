@@ -332,6 +332,9 @@
         <replaceregexp match="^.*@deprecated.*\r?\n.*\r?\n" replace="" flags="gm">
             <fileset dir="build/bootstrap/generated-sources" includes="**/*.java"/>
         </replaceregexp>
+        <replaceregexp match='^(\s+).*type =[^\n]*\r?\n.*\((.*)\.class[^"]+"([^"]+)"[^"]+("[^"]+").*$' replace="\1org.apache.xmlbeans.impl.schema.XmlObjectFactory&lt;\2> Factory = new org.apache.xmlbeans.impl.schema.XmlObjectFactory&lt;>(\3.TypeSystemHolder.typeSystem, \4);&#10;\1org.apache.xmlbeans.SchemaType type = Factory.getType();" flags="gm">
+            <fileset dir="build/bootstrap/generated-sources" includes="**/*.java" excludes="**/impl/xb/*/impl/**"/>
+        </replaceregexp>
         <replace dir="build/bootstrap/generated-sources" token=" enumValue()" value=" getEnumValue()" includes="**/*.java"/>
         <replace dir="build/bootstrap/generated-sources" token=" set(org.apache.xmlbeans.StringEnumAbstractBase" value=" setEnumValue(org.apache.xmlbeans.StringEnumAbstractBase" includes="**/*.java"/>
         <replace dir="build/bootstrap/generated-sources" token="java.util.List list" value="java.util.List&lt;?&gt; list" includes="**/*.java"/>
@@ -382,8 +385,8 @@
 
         <schemaCompProd classpathref="oldschemas" dest="build"/>
 
-        <!-- delete old schema classes -->
-        <delete dir="build/classes/org/apache/xmlbeans/impl/xb"/>
+        <!-- delete old schema classes and classes referencing on them -->
+        <delete dir="build/classes/org/apache/xmlbeans" excludes="metadata/**"/>
     </target>
 
     <target name="compile" depends="process-resources" description="Compile sources and resources">
@@ -400,6 +403,8 @@
             <src refid="sources"/>
             <classpath path="${saxon.jar}"/>
             <classpath path="${slf4j-api.jar}"/>
+            <classpath path="${javaparser.core.jar}"/>
+            <classpath path="${ant.jar}"/>
         </javac>
 
         <javac release="9"
@@ -763,6 +768,7 @@
                 <exclude name="test/resources/xbean/dom/W3C/level2/core/files/**"/>
                 <exclude name="test/resources/xbean/xmlobject/soap-envelope.xsd"/>
                 <exclude name="test/resources/xbean/xmlobject/soap12-encoding.xsd"/>
+                <exclude name="test/resources/xbean/compile/scomp/partials/**"/>
             </fileset>
         </rat:report>
 

@@ -15,6 +15,8 @@
 
 package org.apache.xmlbeans;
 
+import org.apache.xmlbeans.impl.schema.XmlObjectFactory;
+
 /**
  * Corresponds to the XML Schema
  * <a target="_blank" href="http://www.w3.org/TR/xmlschema-2/#unsignedShort">xs:unsignedShort</a> type.
@@ -25,10 +27,12 @@ package org.apache.xmlbeans;
  * Convertible to a Java int.
  */
 public interface XmlUnsignedShort extends XmlUnsignedInt {
+    XmlObjectFactory<XmlUnsignedShort> Factory = new XmlObjectFactory<>("_BI_unsignedShort");
+
     /**
      * The constant {@link SchemaType} object representing this schema type.
      */
-    SchemaType type = XmlBeans.getBuiltinTypeSystem().typeForHandle("_BI_unsignedShort");
+    SchemaType type = Factory.getType();
 
     /**
      * Returns this value as an int
@@ -39,134 +43,5 @@ public interface XmlUnsignedShort extends XmlUnsignedInt {
      * Sets this value as an int
      */
     void setIntValue(int v);
-
-    /**
-     * A class with methods for creating instances
-     * of {@link XmlUnsignedShort}.
-     */
-    final class Factory {
-        /**
-         * Creates an empty instance of {@link XmlUnsignedShort}
-         */
-        public static XmlUnsignedShort newInstance() {
-            return (XmlUnsignedShort) XmlBeans.getContextTypeLoader().newInstance(type, null);
-        }
-
-        /**
-         * Creates an empty instance of {@link XmlUnsignedShort}
-         */
-        public static XmlUnsignedShort newInstance(org.apache.xmlbeans.XmlOptions options) {
-            return (XmlUnsignedShort) XmlBeans.getContextTypeLoader().newInstance(type, options);
-        }
-
-        /**
-         * Creates an immutable {@link XmlUnsignedShort} value
-         */
-        public static XmlUnsignedShort newValue(Object obj) {
-            return (XmlUnsignedShort) type.newValue(obj);
-        }
-
-        /**
-         * Parses a {@link XmlUnsignedShort} fragment from a String. For example: "<code>&lt;xml-fragment&gt;12345&lt;/xml-fragment&gt;</code>".
-         */
-        public static XmlUnsignedShort parse(java.lang.String s) throws org.apache.xmlbeans.XmlException {
-            return (XmlUnsignedShort) XmlBeans.getContextTypeLoader().parse(s, type, null);
-        }
-
-        /**
-         * Parses a {@link XmlUnsignedShort} fragment from a String. For example: "<code>&lt;xml-fragment&gt;12345&lt;/xml-fragment&gt;</code>".
-         */
-        public static XmlUnsignedShort parse(java.lang.String s, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException {
-            return (XmlUnsignedShort) XmlBeans.getContextTypeLoader().parse(s, type, options);
-        }
-
-        /**
-         * Parses a {@link XmlUnsignedShort} fragment from a File.
-         */
-        public static XmlUnsignedShort parse(java.io.File f) throws org.apache.xmlbeans.XmlException, java.io.IOException {
-            return (XmlUnsignedShort) XmlBeans.getContextTypeLoader().parse(f, type, null);
-        }
-
-        /**
-         * Parses a {@link XmlUnsignedShort} fragment from a File.
-         */
-        public static XmlUnsignedShort parse(java.io.File f, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException, java.io.IOException {
-            return (XmlUnsignedShort) XmlBeans.getContextTypeLoader().parse(f, type, options);
-        }
-
-        /**
-         * Parses a {@link XmlUnsignedShort} fragment from a URL.
-         */
-        public static XmlUnsignedShort parse(java.net.URL u) throws org.apache.xmlbeans.XmlException, java.io.IOException {
-            return (XmlUnsignedShort) XmlBeans.getContextTypeLoader().parse(u, type, null);
-        }
-
-        /**
-         * Parses a {@link XmlUnsignedShort} fragment from a URL.
-         */
-        public static XmlUnsignedShort parse(java.net.URL u, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException, java.io.IOException {
-            return (XmlUnsignedShort) XmlBeans.getContextTypeLoader().parse(u, type, options);
-        }
-
-        /**
-         * Parses a {@link XmlUnsignedShort} fragment from an InputStream.
-         */
-        public static XmlUnsignedShort parse(java.io.InputStream is) throws org.apache.xmlbeans.XmlException, java.io.IOException {
-            return (XmlUnsignedShort) XmlBeans.getContextTypeLoader().parse(is, type, null);
-        }
-
-        /**
-         * Parses a {@link XmlUnsignedShort} fragment from an InputStream.
-         */
-        public static XmlUnsignedShort parse(java.io.InputStream is, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException, java.io.IOException {
-            return (XmlUnsignedShort) XmlBeans.getContextTypeLoader().parse(is, type, options);
-        }
-
-        /**
-         * Parses a {@link XmlUnsignedShort} fragment from a Reader.
-         */
-        public static XmlUnsignedShort parse(java.io.Reader r) throws org.apache.xmlbeans.XmlException, java.io.IOException {
-            return (XmlUnsignedShort) XmlBeans.getContextTypeLoader().parse(r, type, null);
-        }
-
-        /**
-         * Parses a {@link XmlUnsignedShort} fragment from a Reader.
-         */
-        public static XmlUnsignedShort parse(java.io.Reader r, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException, java.io.IOException {
-            return (XmlUnsignedShort) XmlBeans.getContextTypeLoader().parse(r, type, options);
-        }
-
-        /**
-         * Parses a {@link XmlUnsignedShort} fragment from a DOM Node.
-         */
-        public static XmlUnsignedShort parse(org.w3c.dom.Node node) throws org.apache.xmlbeans.XmlException {
-            return (XmlUnsignedShort) XmlBeans.getContextTypeLoader().parse(node, type, null);
-        }
-
-        /**
-         * Parses a {@link XmlUnsignedShort} fragment from a DOM Node.
-         */
-        public static XmlUnsignedShort parse(org.w3c.dom.Node node, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException {
-            return (XmlUnsignedShort) XmlBeans.getContextTypeLoader().parse(node, type, options);
-        }
-
-        /**
-         * Parses a {@link XmlUnsignedShort} fragment from an XMLStreamReader.
-         */
-        public static XmlUnsignedShort parse(javax.xml.stream.XMLStreamReader xsr) throws org.apache.xmlbeans.XmlException {
-            return (XmlUnsignedShort) XmlBeans.getContextTypeLoader().parse(xsr, type, null);
-        }
-
-        /**
-         * Parses a {@link XmlUnsignedShort} fragment from an XMLStreamReader.
-         */
-        public static XmlUnsignedShort parse(javax.xml.stream.XMLStreamReader xsr, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException {
-            return (XmlUnsignedShort) XmlBeans.getContextTypeLoader().parse(xsr, type, options);
-        }
-
-        private Factory() {
-            // No instance of this class allowed
-        }
-    }
 }
 

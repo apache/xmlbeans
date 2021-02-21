@@ -15,6 +15,8 @@
 
 package org.apache.xmlbeans;
 
+import org.apache.xmlbeans.impl.schema.XmlObjectFactory;
+
 /**
  * Corresponds to the XML Schema
  * <a target="_blank" href="http://www.w3.org/TR/xmlschema-2/#Name">xs:Name</a> type.
@@ -28,138 +30,11 @@ package org.apache.xmlbeans;
  * Convertible to {@link String}.
  */
 public interface XmlName extends XmlToken {
+    XmlObjectFactory<XmlName> Factory = new XmlObjectFactory<>("_BI_Name");
+
     /**
      * The constant {@link SchemaType} object representing this schema type.
      */
-    SchemaType type = XmlBeans.getBuiltinTypeSystem().typeForHandle("_BI_Name");
-
-    /**
-     * A class with methods for creating instances
-     * of {@link XmlName}.
-     */
-    final class Factory {
-        /**
-         * Creates an empty instance of {@link XmlName}
-         */
-        public static XmlName newInstance() {
-            return (XmlName) XmlBeans.getContextTypeLoader().newInstance(type, null);
-        }
-
-        /**
-         * Creates an empty instance of {@link XmlName}
-         */
-        public static XmlName newInstance(org.apache.xmlbeans.XmlOptions options) {
-            return (XmlName) XmlBeans.getContextTypeLoader().newInstance(type, options);
-        }
-
-        /**
-         * Creates an immutable {@link XmlName} value
-         */
-        public static XmlName newValue(Object obj) {
-            return (XmlName) type.newValue(obj);
-        }
-
-        /**
-         * Parses a {@link XmlName} fragment from a String. For example: "<code>&lt;xml-fragment&gt;My:Name&lt;/xml-fragment&gt;</code>".
-         */
-        public static XmlName parse(java.lang.String s) throws org.apache.xmlbeans.XmlException {
-            return (XmlName) XmlBeans.getContextTypeLoader().parse(s, type, null);
-        }
-
-        /**
-         * Parses a {@link XmlName} fragment from a String. For example: "<code>&lt;xml-fragment&gt;My:Name&lt;/xml-fragment&gt;</code>".
-         */
-        public static XmlName parse(java.lang.String s, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException {
-            return (XmlName) XmlBeans.getContextTypeLoader().parse(s, type, options);
-        }
-
-        /**
-         * Parses a {@link XmlName} fragment from a File.
-         */
-        public static XmlName parse(java.io.File f) throws org.apache.xmlbeans.XmlException, java.io.IOException {
-            return (XmlName) XmlBeans.getContextTypeLoader().parse(f, type, null);
-        }
-
-        /**
-         * Parses a {@link XmlName} fragment from a File.
-         */
-        public static XmlName parse(java.io.File f, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException, java.io.IOException {
-            return (XmlName) XmlBeans.getContextTypeLoader().parse(f, type, options);
-        }
-
-        /**
-         * Parses a {@link XmlName} fragment from a URL.
-         */
-        public static XmlName parse(java.net.URL u) throws org.apache.xmlbeans.XmlException, java.io.IOException {
-            return (XmlName) XmlBeans.getContextTypeLoader().parse(u, type, null);
-        }
-
-        /**
-         * Parses a {@link XmlName} fragment from a URL.
-         */
-        public static XmlName parse(java.net.URL u, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException, java.io.IOException {
-            return (XmlName) XmlBeans.getContextTypeLoader().parse(u, type, options);
-        }
-
-        /**
-         * Parses a {@link XmlName} fragment from an InputStream.
-         */
-        public static XmlName parse(java.io.InputStream is) throws org.apache.xmlbeans.XmlException, java.io.IOException {
-            return (XmlName) XmlBeans.getContextTypeLoader().parse(is, type, null);
-        }
-
-        /**
-         * Parses a {@link XmlName} fragment from an InputStream.
-         */
-        public static XmlName parse(java.io.InputStream is, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException, java.io.IOException {
-            return (XmlName) XmlBeans.getContextTypeLoader().parse(is, type, options);
-        }
-
-        /**
-         * Parses a {@link XmlName} fragment from a Reader.
-         */
-        public static XmlName parse(java.io.Reader r) throws org.apache.xmlbeans.XmlException, java.io.IOException {
-            return (XmlName) XmlBeans.getContextTypeLoader().parse(r, type, null);
-        }
-
-        /**
-         * Parses a {@link XmlName} fragment from a Reader.
-         */
-        public static XmlName parse(java.io.Reader r, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException, java.io.IOException {
-            return (XmlName) XmlBeans.getContextTypeLoader().parse(r, type, options);
-        }
-
-        /**
-         * Parses a {@link XmlName} fragment from a DOM Node.
-         */
-        public static XmlName parse(org.w3c.dom.Node node) throws org.apache.xmlbeans.XmlException {
-            return (XmlName) XmlBeans.getContextTypeLoader().parse(node, type, null);
-        }
-
-        /**
-         * Parses a {@link XmlName} fragment from a DOM Node.
-         */
-        public static XmlName parse(org.w3c.dom.Node node, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException {
-            return (XmlName) XmlBeans.getContextTypeLoader().parse(node, type, options);
-        }
-
-        /**
-         * Parses a {@link XmlName} fragment from an XMLStreamReader.
-         */
-        public static XmlName parse(javax.xml.stream.XMLStreamReader xsr) throws org.apache.xmlbeans.XmlException {
-            return (XmlName) XmlBeans.getContextTypeLoader().parse(xsr, type, null);
-        }
-
-        /**
-         * Parses a {@link XmlName} fragment from an XMLStreamReader.
-         */
-        public static XmlName parse(javax.xml.stream.XMLStreamReader xsr, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException {
-            return (XmlName) XmlBeans.getContextTypeLoader().parse(xsr, type, options);
-        }
-
-        private Factory() {
-            // No instance of this class allowed
-        }
-    }
+    SchemaType type = Factory.getType();
 }
 

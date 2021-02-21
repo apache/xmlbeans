@@ -19,6 +19,7 @@ import misc.common.JiraTestBase;
 import net.eads.space.scoexml.test.TestExponentDocument;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
+import org.apache.xmlbeans.impl.tool.Parameters;
 import org.apache.xmlbeans.impl.tool.SchemaCompiler;
 import org.junit.Test;
 
@@ -91,7 +92,7 @@ public class JiraRegression151_200Test extends JiraTestBase
         List errors = new ArrayList();
 
         // compile with nopvr, goes thro fine
-        SchemaCompiler.Parameters params = new SchemaCompiler.Parameters();
+        Parameters params = new Parameters();
         params.setXsdFiles(new File[]{new File(scompTestFilesRoot + "xmlbeans_184_vdx_data_V1.04.xsd_")});
         params.setErrorListener(errors);
         params.setSrcDir(schemaCompSrcDir);

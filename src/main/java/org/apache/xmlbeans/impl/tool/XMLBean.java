@@ -25,6 +25,7 @@ import org.apache.tools.ant.types.FileSet;
 import org.apache.tools.ant.types.Path;
 import org.apache.tools.ant.types.Reference;
 import org.apache.xmlbeans.XmlError;
+import org.apache.xmlbeans.XmlOptions;
 import org.apache.xmlbeans.impl.common.IOUtil;
 
 import java.io.File;
@@ -82,7 +83,8 @@ public class XMLBean extends MatchingTask {
         memoryInitialSize,
         memoryMaximumSize,
         catalog,
-        repackage;
+        repackage,
+        partialMethods;
 
     private final List<Extension> extensions = new ArrayList<>();
 
@@ -203,7 +205,7 @@ public class XMLBean extends MatchingTask {
             }
 
             // generate the source
-            SchemaCompiler.Parameters params = new SchemaCompiler.Parameters();
+            Parameters params = new Parameters();
             params.setBaseDir(theBasedir);
             params.setXsdFiles(xsdArray);
             params.setWsdlFiles(wsdlArray);
@@ -229,6 +231,7 @@ public class XMLBean extends MatchingTask {
             params.setNoVDoc(novdoc);
             params.setNoExt(noext);
             params.setRepackage(repackage);
+            params.setPartialMethods(SchemaCompiler.parsePartialMethods(partialMethods));
             success = SchemaCompiler.compile(params);
 
             if (success && !srconly) {
@@ -762,6 +765,20 @@ public class XMLBean extends MatchingTask {
 
     public void setRepackage(String repackage) {
         this.repackage = repackage;
+    }
+
+    public String getPartialMethods() {
+        return partialMethods;
+    }
+
+    /**
+     * Comma separated list of bean methods to be generated. Use "-" to negate and "ALL" for all.
+     * processed left-to-right, e.g. "ALL,-GET_LIST" exclude java.util.List getters
+     *
+     * @see XmlOptions.BeanMethod
+     */
+    public void setPartialMethods(String partialMethods) {
+        this.partialMethods = partialMethods;
     }
 
     private static URI uriFromFile(File f) {
