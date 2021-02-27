@@ -617,7 +617,7 @@
     </target>
 
     <target name="package" depends="compile,javadocs" description="Builds our jars in the build directory">
-        <jar jarfile="build/xmlbeans-${version.base}.jar" update="false" index="true">
+        <jar jarfile="build/xmlbeans-${version.base}.jar" update="false" index="true" duplicate="preserve">
             <fileset dir="build/classes" excludes="org/apache/xmlbeans/impl/schema/TypeSystemHolder.template"/>
             <fileset dir="." includes="LICENSE.txt,NOTICE.txt"/>
             <fileset dir="build/generated-resources"/>
@@ -638,7 +638,7 @@
             </manifest>
         </jar>
 
-        <jar jarfile="build/xmlbeans-${version.base}-javadoc.jar" update="false" index="false">
+        <jar jarfile="build/xmlbeans-${version.base}-javadoc.jar" update="false" index="false" duplicate="preserve">
             <fileset dir="." includes="LICENSE.txt,NOTICE.txt"/>
             <fileset dir="build/javadocs"/>
             <manifest>
