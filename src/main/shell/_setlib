@@ -20,12 +20,14 @@ if [ -z "$XMLBEANS_HOME" ]; then
 fi
 
 XMLBEANS_LIB=
-if [ -f "$XMLBEANS_HOME"/build/lib/xmlbeans*.jar ]; then
+if ls $XMLBEANS_HOME/build/lib/xmlbeans*.jar 1> /dev/null 2>&1; then
     XMLBEANS_LIB=$XMLBEANS_HOME/build/lib
 fi
-if [ -f "$XMLBEANS_HOME"/lib/xmlbeans*.jar ]; then
+if ls $XMLBEANS_HOME/lib/xmlbeans*.jar 1> /dev/null 2>&1; then
     XMLBEANS_LIB=$XMLBEANS_HOME/lib
 fi
+
+echo XMLBEANS_LIB=$XMLBEANS_LIB
 
 if [ -z "$XMLBEANS_LIB" ]; then
     echo "ERROR: Could not find xmlbeans*.jar, try set XMLBEANS_LIB to the directory containing xmlbeans*.jar"
