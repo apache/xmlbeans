@@ -639,7 +639,7 @@ public class SchemaCompiler {
 
         long start = System.currentTimeMillis();
 
-        // Calculate the usenames based on the relativized filenames on the filesystem
+        // Calculate the basenames based on the relativized filenames on the filesystem
         if (baseDir == null) {
             String userDir = SystemProperties.getProperty("user.dir");
             assert (userDir != null);
@@ -686,6 +686,7 @@ public class SchemaCompiler {
                 options.setSchemaCodePrinter(codePrinter);
             }
             options.setCompilePartialMethod(partialMethods);
+            options.setCompileNoAnnotations(noAnn);
 
             // save .xsb files
             system.save(filer);

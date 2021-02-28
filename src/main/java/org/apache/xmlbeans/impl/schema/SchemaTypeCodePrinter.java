@@ -1560,7 +1560,9 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
         String arrayName = propertyName + "Array";
 
         printJavaDoc("Gets " + (xget ? "(as xml) " : "") + "a List of " + propdesc + "s");
-        emit("@Override");
+        if (!opt.isCompileNoAnnotations()) {
+            emit("@Override");
+        }
         emit("public java.util.List<" + wrappedType + "> " + (xget ? "xget" : "get") + propertyName + "List() {");
         startBlock();
 
@@ -1624,7 +1626,9 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
             if (bmList == null || bmList.contains(BeanMethod.GET)) {
                 // Value getProp()
                 printJavaDoc((several ? "Gets first " : "Gets the ") + propdesc);
-                emit("@Override");
+                if (!opt.isCompileNoAnnotations()) {
+                    emit("@Override");
+                }
                 emit("public " + type + " get" + propertyName + "() {");
                 startBlock();
                 emitImplementationPreamble();
@@ -1653,7 +1657,9 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
             if (!xmltype && (bmList == null || bmList.contains(BeanMethod.XGET))) {
                 // Value xgetProp()
                 printJavaDoc((several ? "Gets (as xml) first " : "Gets (as xml) the ") + propdesc);
-                emit("@Override");
+                if (!opt.isCompileNoAnnotations()) {
+                    emit("@Override");
+                }
                 emit("public " + xtype + " xget" + propertyName + "() {");
                 startBlock();
                 emitImplementationPreamble();
@@ -1675,7 +1681,9 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
             if (nillable && (bmList == null || bmList.contains(BeanMethod.IS_NIL))) {
                 // boolean isNilProp()
                 printJavaDoc((several ? "Tests for nil first " : "Tests for nil ") + propdesc);
-                emit("@Override");
+                if (!opt.isCompileNoAnnotations()) {
+                    emit("@Override");
+                }
                 emit("public boolean isNil" + propertyName + "() {");
                 startBlock();
                 emitImplementationPreamble();
@@ -1691,7 +1699,9 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
         if (prop.extendsJavaOption() && (bmList == null || bmList.contains(BeanMethod.IS_SET))) {
             // boolean isSetProp()
             printJavaDoc((several ? "True if has at least one " : "True if has ") + propdesc);
-            emit("@Override");
+            if (!opt.isCompileNoAnnotations()) {
+                emit("@Override");
+            }
             emit("public boolean isSet" + propertyName + "() {");
 
             startBlock();
@@ -1722,7 +1732,9 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
             if (bmList == null || bmList.contains(BeanMethod.GET_ARRAY)) {
                 // Value[] getProp()
                 printJavaDoc("Gets array of all " + propdesc + "s");
-                emit("@Override");
+                if (!opt.isCompileNoAnnotations()) {
+                    emit("@Override");
+                }
                 emit("public " + type + "[] get" + arrayName + "() {");
                 startBlock();
 
@@ -1734,7 +1746,9 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
             if (bmList == null || bmList.contains(BeanMethod.GET_IDX)) {
                 // Value getProp(int i)
                 printJavaDoc("Gets ith " + propdesc);
-                emit("@Override");
+                if (!opt.isCompileNoAnnotations()) {
+                    emit("@Override");
+                }
                 emit("public " + type + " get" + arrayName + "(int i) {");
                 startBlock();
                 emitImplementationPreamble();
@@ -1753,7 +1767,9 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
             if (!xmltype && (bmList == null || bmList.contains(BeanMethod.XGET_ARRAY))) {
                 // Value[] xgetProp()
                 printJavaDoc("Gets (as xml) array of all " + propdesc + "s");
-                emit("@Override");
+                if (!opt.isCompileNoAnnotations()) {
+                    emit("@Override");
+                }
                 emit("public " + xtype + "[] xget" + arrayName + "() {");
                 startBlock();
                 emit("return xgetArray(" + setIdentifier + ", " + xtype + "[]::new);");
@@ -1763,7 +1779,9 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
             if (!xmltype && (bmList == null || bmList.contains(BeanMethod.XGET_IDX))) {
                 // Value xgetProp(int i)
                 printJavaDoc("Gets (as xml) ith " + propdesc);
-                emit("@Override");
+                if (!opt.isCompileNoAnnotations()) {
+                    emit("@Override");
+                }
                 emit("public " + xtype + " xget" + arrayName + "(int i) {");
                 startBlock();
                 emitImplementationPreamble();
@@ -1776,7 +1794,9 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
             if (nillable && (bmList == null || bmList.contains(BeanMethod.IS_NIL_IDX))) {
                 // boolean isNil(int i);
                 printJavaDoc("Tests for nil ith " + propdesc);
-                emit("@Override");
+                if (!opt.isCompileNoAnnotations()) {
+                    emit("@Override");
+                }
                 emit("public boolean isNil" + arrayName + "(int i) {");
                 startBlock();
                 emitImplementationPreamble();
@@ -1789,7 +1809,9 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
             // int countProp();
             if (bmList == null || bmList.contains(BeanMethod.SIZE_OF_ARRAY)) {
                 printJavaDoc("Returns number of " + propdesc);
-                emit("@Override");
+                if (!opt.isCompileNoAnnotations()) {
+                    emit("@Override");
+                }
                 emit("public int sizeOf" + arrayName + "() {");
                 startBlock();
                 emitImplementationPreamble();
@@ -1828,7 +1850,9 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
             if (bmList == null || bmList.contains(BeanMethod.SET)) {
                 // void setProp(Value v);
                 printJavaDoc((several ? "Sets first " : "Sets the ") + propdesc);
-                emit("@Override");
+                if (!opt.isCompileNoAnnotations()) {
+                    emit("@Override");
+                }
                 emit("public void set" + propertyName + "(" + type + " " + safeVarName + ") {");
                 startBlock();
                 if (xmltype && !isSubstGroup && !isAttr) {
@@ -1850,7 +1874,9 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
             if (!xmltype && (bmList == null || bmList.contains(BeanMethod.XSET))) {
                 // void xsetProp(Value v)
                 printJavaDoc((several ? "Sets (as xml) first " : "Sets (as xml) the ") + propdesc);
-                emit("@Override");
+                if (!opt.isCompileNoAnnotations()) {
+                    emit("@Override");
+                }
                 emit("public void xset" + propertyName + "(" + xtype + " " + safeVarName + ") {");
                 startBlock();
                 emitImplementationPreamble();
@@ -1866,7 +1892,9 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
             if (xmltype && !several && (bmList == null || bmList.contains(BeanMethod.ADD_NEW))) {
                 // Value addNewProp()
                 printJavaDoc("Appends and returns a new empty " + propdesc);
-                emit("@Override");
+                if (!opt.isCompileNoAnnotations()) {
+                    emit("@Override");
+                }
                 emit("public " + xtype + " addNew" + propertyName + "() {");
                 startBlock();
                 emitImplementationPreamble();
@@ -1881,7 +1909,9 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
 
             if (nillable && (bmList == null || bmList.contains(BeanMethod.SET_NIL))) {
                 printJavaDoc((several ? "Nils the first " : "Nils the ") + propdesc);
-                emit("@Override");
+                if (!opt.isCompileNoAnnotations()) {
+                    emit("@Override");
+                }
                 emit("public void setNil" + propertyName + "() {");
                 startBlock();
                 emitImplementationPreamble();
@@ -1896,7 +1926,9 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
 
         if (prop.extendsJavaOption() && (bmList == null || bmList.contains(BeanMethod.UNSET))) {
             printJavaDoc((several ? "Removes first " : "Unsets the ") + propdesc);
-            emit("@Override");
+            if (!opt.isCompileNoAnnotations()) {
+                emit("@Override");
+            }
             emit("public void unset" + propertyName + "() {");
             startBlock();
             emitImplementationPreamble();
@@ -1917,7 +1949,9 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
             if (bmList == null || bmList.contains(BeanMethod.SET_ARRAY)) {
                 if (xmltype) {
                     printJavaDoc("Sets array of all " + propdesc + "  WARNING: This method is not atomicaly synchronized.");
-                    emit("@Override");
+                    if (!opt.isCompileNoAnnotations()) {
+                        emit("@Override");
+                    }
                     emit("public void set" + arrayName + "(" + type + "[] " + safeVarName + "Array) {");
                     startBlock();
                     // do not use synchronize (monitor()) {  and GlobalLock inside  } !!! deadlock
@@ -1944,7 +1978,9 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
                     endBlock();
                 } else {
                     printJavaDoc("Sets array of all " + propdesc);
-                    emit("@Override");
+                    if (!opt.isCompileNoAnnotations()) {
+                        emit("@Override");
+                    }
                     emit("public void set" + arrayName + "(" + type + "[] " + safeVarName + "Array) {");
                     startBlock();
                     emitImplementationPreamble();
@@ -1986,7 +2022,9 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
 
             if (bmList == null || bmList.contains(BeanMethod.SET_IDX)) {
                 printJavaDoc("Sets ith " + propdesc);
-                emit("@Override");
+                if (!opt.isCompileNoAnnotations()) {
+                    emit("@Override");
+                }
                 emit("public void set" + arrayName + "(int i, " + type + " " + safeVarName + ") {");
                 startBlock();
                 if (xmltype && !isSubstGroup) {
@@ -2007,7 +2045,9 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
 
             if (!xmltype && (bmList == null || bmList.contains(BeanMethod.XSET_ARRAY))) {
                 printJavaDoc("Sets (as xml) array of all " + propdesc);
-                emit("@Override");
+                if (!opt.isCompileNoAnnotations()) {
+                    emit("@Override");
+                }
                 emit("public void xset" + arrayName + "(" + xtype + "[]" + safeVarName + "Array) {");
                 startBlock();
                 emitImplementationPreamble();
@@ -2020,7 +2060,9 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
 
             if (!xmltype && (bmList == null || bmList.contains(BeanMethod.XSET_IDX))) {
                 printJavaDoc("Sets (as xml) ith " + propdesc);
-                emit("@Override");
+                if (!opt.isCompileNoAnnotations()) {
+                    emit("@Override");
+                }
                 emit("public void xset" + arrayName + "(int i, " + xtype + " " + safeVarName + ") {");
                 startBlock();
                 emitImplementationPreamble();
@@ -2034,7 +2076,9 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
 
             if (nillable && (bmList == null || bmList.contains(BeanMethod.SET_NIL_IDX))) {
                 printJavaDoc("Nils the ith " + propdesc);
-                emit("@Override");
+                if (!opt.isCompileNoAnnotations()) {
+                    emit("@Override");
+                }
                 emit("public void setNil" + arrayName + "(int i) {");
                 startBlock();
                 emitImplementationPreamble();
@@ -2048,7 +2092,9 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
 
             if (!xmltype && (bmList == null || bmList.contains(BeanMethod.INSERT_IDX))) {
                 printJavaDoc("Inserts the value as the ith " + propdesc);
-                emit("@Override");
+                if (!opt.isCompileNoAnnotations()) {
+                    emit("@Override");
+                }
                 emit("public void insert" + propertyName + "(int i, " + type + " " + safeVarName + ") {");
                 startBlock();
                 emitImplementationPreamble();
@@ -2071,7 +2117,9 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
 
             if (!xmltype && (bmList == null || bmList.contains(BeanMethod.ADD))) {
                 printJavaDoc("Appends the value as the last " + propdesc);
-                emit("@Override");
+                if (!opt.isCompileNoAnnotations()) {
+                    emit("@Override");
+                }
                 emit("public void add" + propertyName + "(" + type + " " + safeVarName + ") {");
                 startBlock();
                 emitImplementationPreamble();
@@ -2086,7 +2134,9 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
 
             if (bmList == null || bmList.contains(BeanMethod.INSERT_NEW_IDX)) {
                 printJavaDoc("Inserts and returns a new empty value (as xml) as the ith " + propdesc);
-                emit("@Override");
+                if (!opt.isCompileNoAnnotations()) {
+                    emit("@Override");
+                }
                 emit("public " + xtype + " insertNew" + propertyName + "(int i) {");
                 startBlock();
                 emitImplementationPreamble();
@@ -2107,7 +2157,9 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
 
             if (bmList == null || bmList.contains(BeanMethod.ADD_NEW)) {
                 printJavaDoc("Appends and returns a new empty value (as xml) as the last " + propdesc);
-                emit("@Override");
+                if (!opt.isCompileNoAnnotations()) {
+                    emit("@Override");
+                }
                 emit("public " + xtype + " addNew" + propertyName + "() {");
                 startBlock();
                 emitImplementationPreamble();
@@ -2122,7 +2174,9 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
 
             if (bmList == null || bmList.contains(BeanMethod.REMOVE_IDX)) {
                 printJavaDoc("Removes the ith " + propdesc);
-                emit("@Override");
+                if (!opt.isCompileNoAnnotations()) {
+                    emit("@Override");
+                }
                 emit("public void remove" + propertyName + "(int i) {");
                 startBlock();
                 emitImplementationPreamble();

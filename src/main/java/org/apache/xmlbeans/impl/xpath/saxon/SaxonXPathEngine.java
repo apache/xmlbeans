@@ -32,7 +32,7 @@ import java.util.List;
 
 public class SaxonXPathEngine extends XPathExecutionContext implements XPathEngine {
     // full datetime format: yyyy-MM-dd'T'HH:mm:ss'Z'
-    private final DateFormat xmlDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+    private final DateFormat xmlDateFormat = new SimpleDateFormat("yyyy-MM-dd", java.util.Locale.ROOT);
 
     private Cur _cur;
     private SaxonXPath _engine;

@@ -46,6 +46,7 @@ import java.util.*;
  * for instructions on FileSets if you are unfamiliar with their usage.
  */
 
+@SuppressWarnings("unused")
 public class XMLBean extends MatchingTask {
     private final List<FileSet> schemas = new ArrayList<>();
 
@@ -101,7 +102,7 @@ public class XMLBean extends MatchingTask {
         //required
         if (schemas.size() == 0
             && schema == null
-            && fileset.getDir(project) == null) {
+            && fileset.getDir(getProject()) == null) {
             String msg = "The 'schema' or 'dir' attribute or a nested fileset is required.";
             if (failonerror) {
                 throw new BuildException(msg);
@@ -129,12 +130,12 @@ public class XMLBean extends MatchingTask {
             }
         }
 
-        if (fileset.getDir(project) != null) {
+        if (fileset.getDir(getProject()) != null) {
             schemas.add(fileset);
         }
 
         for (FileSet fs : schemas) {
-            FileScanner scanner = fs.getDirectoryScanner(project);
+            FileScanner scanner = fs.getDirectoryScanner(getProject());
             File basedir = scanner.getBasedir();
             String[] paths = scanner.getIncludedFiles();
 
@@ -190,7 +191,7 @@ public class XMLBean extends MatchingTask {
 
             // use the system classpath if user didn't provide any
             if (classpath == null) {
-                classpath = new Path(project);
+                classpath = new Path(getProject());
                 classpath.concatSystemClasspath();
             }
 
@@ -239,7 +240,7 @@ public class XMLBean extends MatchingTask {
 
                 // compile the source
                 Javac javac = new Javac();
-                javac.setProject(project);
+                javac.setProject(getProject());
                 javac.setTaskName(getTaskName());
                 javac.setClasspath(classpath);
                 if (compiler != null) {
@@ -258,7 +259,7 @@ public class XMLBean extends MatchingTask {
                 javac.setIncludeantruntime(includeAntRuntime);
                 javac.setIncludejavaruntime(includeJavaRuntime);
                 javac.setNowarn(nowarn);
-                javac.setSrcdir(new Path(project, srcgendir.getAbsolutePath()));
+                javac.setSrcdir(new Path(getProject(), srcgendir.getAbsolutePath()));
                 if (memoryInitialSize != null) {
                     javac.setMemoryInitialSize(memoryInitialSize);
                 }
@@ -277,7 +278,7 @@ public class XMLBean extends MatchingTask {
                 if (destfile != null) {
                     // jar the compiled classes
                     Jar jar = new Jar();
-                    jar.setProject(project);
+                    jar.setProject(getProject());
                     jar.setTaskName(getTaskName());
                     jar.setBasedir(classgendir);
                     jar.setDestFile(destfile);
@@ -363,7 +364,7 @@ public class XMLBean extends MatchingTask {
      */
     public Path createClasspath() {
         if (classpath == null) {
-            classpath = new Path(project);
+            classpath = new Path(getProject());
         }
         return classpath.createPath();
     }
@@ -375,7 +376,7 @@ public class XMLBean extends MatchingTask {
      */
     public void setClasspathRef(Reference classpathref) {
         if (classpath == null) {
-            classpath = new Path(project);
+            classpath = new Path(getProject());
         }
 
         classpath.createPath().setRefid(classpathref);
@@ -803,7 +804,7 @@ public class XMLBean extends MatchingTask {
 
         public ErrorLogger(boolean noisy) {
             _noisy = noisy;
-            _baseURI = uriFromFile(project.getBaseDir());
+            _baseURI = uriFromFile(getProject().getBaseDir());
         }
 
         public boolean add(XmlError err) {

@@ -502,7 +502,7 @@ public class StscState {
     }
 
     /**
-     * True if no particle valid (restriciton) option is set
+     * True if no particle valid (restriction) option is set
      */
     public boolean noPvr() {
         return _noPvr;

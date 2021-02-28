@@ -145,6 +145,22 @@
     <dependency prefix="hamcrest" artifact="org.hamcrest:hamcrest:2.2" usage="tests"/>
     <dependency prefix="xerces" artifact="xerces:xercesImpl:2.12.0" usage="tests"/>
 
+    <!-- maven plugin dependencies -->
+    <dependency prefix="maven-core" artifact="org.apache.maven:maven-core:3.6.3" usage="maven-plugin"/>
+    <dependency prefix="maven-model" artifact="org.apache.maven:maven-model:3.6.3" usage="maven-plugin"/>
+    <dependency prefix="maven-plugin-api" artifact="org.apache.maven:maven-plugin-api:3.6.3" usage="maven-plugin"/>
+    <dependency prefix="maven-plugin-annotations" artifact="org.apache.maven.plugin-tools:maven-plugin-annotations:3.6.0" usage="maven-plugin"/>
+    <!-- only necessary to compile against JDK8 internals - for Java9+ there's a mulitmodule implementation -->
+    <dependency prefix="xml-resolver" artifact="com.sun.org.apache.xml.internal:resolver:20050927" usage="maven-plugin"/>
+
+    <path id="maven-plugin">
+        <pathelement location="${maven-core.jar}"/>
+        <pathelement location="${maven-model.jar}"/>
+        <pathelement location="${maven-plugin-api.jar}"/>
+        <pathelement location="${maven-plugin-annotations.jar}"/>
+        <pathelement location="${xml-resolver.jar}"/>
+    </path>
+
     <path id="xmlbeans-test">
         <pathelement location="build/classes"/>
         <pathelement location="build/generated-resources"/>
@@ -161,6 +177,7 @@
         <pathelement location="${xerces.jar}"/>
         <pathelement location="${xml-apis.jar}" if:true="${isJava8}"/>
         <pathelement location="${javaparser.core.jar}"/>
+        <path refid="maven-plugin"/>
     </path>
 
     <path id="sources">
@@ -202,6 +219,11 @@
                     <available file="${ant.jar}"/>
                     <available file="${ant-junit.jar}"/>
                     <available file="${ant-junit4.jar}"/>
+                    <available file="${maven-core.jar}"/>
+                    <available file="${maven-model.jar}"/>
+                    <available file="${maven-plugin-api.jar}"/>
+                    <available file="${maven-plugin-annotations.jar}"/>
+                    <available file="${xml-resolver.jar}"/>
                 </and>
                 <isset property="disconnected"/>
             </or>
@@ -233,7 +255,11 @@
         <downloadfile dest="${ant.jar}" src="${ant.url}"/>
         <downloadfile dest="${ant-junit.jar}" src="${ant-junit.url}"/>
         <downloadfile dest="${ant-junit4.jar}" src="${ant-junit4.url}"/>
-
+        <downloadfile dest="${maven-core.jar}" src="${maven-core.url}"/>
+        <downloadfile dest="${maven-model.jar}" src="${maven-model.url}"/>
+        <downloadfile dest="${maven-plugin-api.jar}" src="${maven-plugin-api.url}"/>
+        <downloadfile dest="${maven-plugin-annotations.jar}" src="${maven-plugin-annotations.url}"/>
+        <downloadfile dest="${xml-resolver.jar}" src="${xml-resolver.url}"/>
     </target>
 
     <macrodef name="schemaComp">
@@ -289,6 +315,7 @@
                 <src path="@{srcDir}/org/apache/xmlbeans/metadata/system/@{schemaName}"/>
                 <classpath>
                     <pathelement location="${old.xmlbeans.jar}"/>
+                    <path refid="maven-plugin"/>
                 </classpath>
             </javac>
         </sequential>
@@ -338,9 +365,6 @@
         <replace dir="build/bootstrap/generated-sources" token=" set(org.apache.xmlbeans.StringEnumAbstractBase" value=" setEnumValue(org.apache.xmlbeans.StringEnumAbstractBase" includes="**/*.java"/>
         <replace dir="build/bootstrap/generated-sources" token="java.util.List list" value="java.util.List&lt;?&gt; list" includes="**/*.java"/>
 
-
-
-
         <mkdir dir="build/classes"/>
         <mkdir dir="build/generated-sources"/>
         <javac release="8"
@@ -360,6 +384,7 @@
                 <pathelement location="${saxon.jar}"/>
                 <pathelement location="${log4j-api.jar}"/>
                 <pathelement location="${javaparser.core.jar}"/>
+                <path refid="maven-plugin"/>
             </classpath>
         </javac>
         <mkdir dir="build/generated-resources/org/apache/xmlbeans/impl/schema"/>
@@ -381,6 +406,7 @@
             <pathelement location="build/classes"/>
             <pathelement location="build/bootstrap/generated-resources"/>
             <dirset dir="src/main/resources" includes="*" excludes="maven"/>
+            <path refid="maven-plugin"/>
         </path>
 
         <schemaCompProd classpathref="oldschemas" dest="build"/>
@@ -405,6 +431,7 @@
             <classpath path="${log4j-api.jar}"/>
             <classpath path="${javaparser.core.jar}"/>
             <classpath path="${ant.jar}"/>
+            <classpath refid="maven-plugin"/>
         </javac>
 
         <javac release="9"
@@ -606,6 +633,7 @@
             <classpath>
                 <pathelement location="build/classes"/>
                 <fileset dir="lib/main" includes="*.jar"/>
+                <fileset dir="lib/maven-plugin" includes="*.jar"/>
             </classpath>
             <excludepackage name="org.apache.xmlbeans.impl.repackage.*"/>
             <excludepackage name="org.apache.xmlbeans.impl.xb.*"/>
@@ -616,14 +644,21 @@
         </javadoc>
     </target>
 
-    <target name="package" depends="compile,javadocs" description="Builds our jars in the build directory">
+    <target name="package" depends="compile,javadocs" description="Builds our jars in the build directory"><!--  -->
+        <copy todir="build/maven">
+            <fileset dir="src/main/resources/maven"/>
+            <filterset>
+                <filter token="VERSION" value="${version.base}"/>
+            </filterset>
+        </copy>
         <jar jarfile="build/xmlbeans-${version.base}.jar" update="false" index="true" duplicate="preserve">
             <fileset dir="build/classes" excludes="org/apache/xmlbeans/impl/schema/TypeSystemHolder.template"/>
             <fileset dir="." includes="LICENSE.txt,NOTICE.txt"/>
             <fileset dir="build/generated-resources"/>
-            <zipfileset dir="src/main/multimodule/java9" prefix="META-INF/versions/9" excludes="*.java"/>
+            <zipfileset dir="src/main/multimodule/java9" prefix="META-INF/versions/9" excludes="**/*.java"/>
+            <zipfileset dir="build/maven" prefix="META-INF/maven"/>
             <mappedresources>
-                <fileset dir="src/main/resources" excludes="maven"/>
+                <fileset dir="src/main/resources" excludes="maven/**"/>
                 <cutdirsmapper dirs="1"/>
             </mappedresources>
             <manifest>
@@ -846,7 +881,7 @@
     </target>
 
     <target name="mvn-install" depends="maven.ant.tasks-check,package" description="Install XmlBeans artifacts into the local repository. Equivalent of 'mvn install'">
-        <copy file="${basedir}/src/main/resources/maven/pom.xml" todir="${basedir}/build" filtering="true">
+        <copy file="${basedir}/src/main/resources/maven/org.apache.xmlbeans/xmlbeans/pom.xml" todir="${basedir}/build" filtering="true">
             <filterset>
                 <filter token="VERSION" value="${version.base}"/>
             </filterset>
