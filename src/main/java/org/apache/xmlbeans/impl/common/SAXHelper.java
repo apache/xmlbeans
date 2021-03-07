@@ -18,7 +18,6 @@ package org.apache.xmlbeans.impl.common;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.xmlbeans.XmlOptions;
-import org.apache.xmlbeans.XmlOptionsBean;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -27,7 +26,6 @@ import org.xml.sax.XMLReader;
 import javax.xml.XMLConstants;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParserFactory;
-import java.io.IOException;
 import java.io.StringReader;
 import java.lang.reflect.Method;
 import java.util.concurrent.TimeUnit;
@@ -53,16 +51,11 @@ public final class SAXHelper {
         return xmlReader;
     }
 
-    public static final EntityResolver IGNORING_ENTITY_RESOLVER = new EntityResolver() {
-        @Override
-        public InputSource resolveEntity(String publicId, String systemId)
-            throws SAXException, IOException {
-            return new InputSource(new StringReader(""));
-        }
-    };
+    public static final EntityResolver IGNORING_ENTITY_RESOLVER =
+        (publicId, systemId) -> new InputSource(new StringReader(""));
 
     static SAXParserFactory saxFactory() {
-        return saxFactory(new XmlOptionsBean());
+        return saxFactory(new XmlOptions());
     }
 
     static SAXParserFactory saxFactory(XmlOptions options) {

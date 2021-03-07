@@ -37,8 +37,6 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.function.Supplier;
 
-import static org.apache.xmlbeans.impl.values.TypeStore.WS_PRESERVE;
-
 public final class Cursor implements XmlCursor, ChangeListener {
     static final int ROOT = Cur.ROOT;
     static final int ELEM = Cur.ELEM;
@@ -1049,7 +1047,7 @@ public final class Cursor implements XmlCursor, ChangeListener {
         // If there are no children (hopefully the common case), I can get the text faster.
 
         if (_cur.hasChildren()) {
-            return Locale.getTextValue(_cur, WS_PRESERVE, chars, offset, max);
+            return Locale.getTextValue(_cur, chars, offset, max);
         }
 
         // Fast way

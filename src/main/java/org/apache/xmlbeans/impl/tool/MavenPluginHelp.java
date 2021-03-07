@@ -19,15 +19,14 @@ import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.xmlbeans.XmlOptions;
+import org.apache.xmlbeans.impl.common.DocumentHelper;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -77,10 +76,8 @@ public class MavenPluginHelp extends AbstractMojo {
     private Document build() throws MojoExecutionException {
         getLog().debug("load plugin-help.xml: " + PLUGIN_HELP_PATH);
         try (InputStream is = getClass().getResourceAsStream(PLUGIN_HELP_PATH)) {
-            DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-            DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-            return dBuilder.parse(is);
-        } catch (IOException | ParserConfigurationException | SAXException e) {
+            return DocumentHelper.readDocument(new XmlOptions(), is);
+        } catch (IOException | SAXException e) {
             throw new MojoExecutionException(e.getMessage(), e);
         }
     }
@@ -154,10 +151,10 @@ public class MavenPluginHelp extends AbstractMojo {
         throws MojoExecutionException {
         List<Node> namedChild = findNamedChild(node, elementName);
         if (namedChild.isEmpty()) {
-            throw new MojoExecutionException("Could not find " + elementName + " in plugin-help.xml");
+            throw new MojoExecutionException("Could not find " + elementName + " in plugin.xml");
         }
         if (namedChild.size() > 1) {
-            throw new MojoExecutionException("Multiple " + elementName + " in plugin-help.xml");
+            throw new MojoExecutionException("Multiple " + elementName + " in plugin.xml");
         }
         return namedChild.get(0);
     }
@@ -181,7 +178,7 @@ public class MavenPluginHelp extends AbstractMojo {
             return null;
         }
         if (elementsByTagName.size() > 1) {
-            throw new MojoExecutionException("Multiple " + elementName + "in plugin-help.xml");
+            throw new MojoExecutionException("Multiple " + elementName + "in plugin.xml");
         }
         return elementsByTagName.get(0);
     }

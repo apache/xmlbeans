@@ -17,7 +17,7 @@ package org.apache.xmlbeans.impl.common;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.apache.xmlbeans.XmlOptionsBean;
+import org.apache.xmlbeans.XmlOptions;
 
 import javax.xml.stream.XMLEventFactory;
 import javax.xml.stream.XMLInputFactory;
@@ -34,7 +34,7 @@ public final class StaxHelper {
     /**
      * Creates a new StAX XMLInputFactory, with sensible defaults
      */
-    public static XMLInputFactory newXMLInputFactory(XmlOptionsBean options) {
+    public static XMLInputFactory newXMLInputFactory(XmlOptions options) {
         XMLInputFactory factory = XMLInputFactory.newFactory();
         trySetProperty(factory, XMLInputFactory.IS_NAMESPACE_AWARE, true);
         trySetProperty(factory, XMLInputFactory.IS_VALIDATING, false);
@@ -46,7 +46,7 @@ public final class StaxHelper {
     /**
      * Creates a new StAX XMLOutputFactory, with sensible defaults
      */
-    public static XMLOutputFactory newXMLOutputFactory(XmlOptionsBean options) {
+    public static XMLOutputFactory newXMLOutputFactory(XmlOptions options) {
         XMLOutputFactory factory = XMLOutputFactory.newFactory();
         trySetProperty(factory, XMLOutputFactory.IS_REPAIRING_NAMESPACES, true);
         return factory;
@@ -55,7 +55,7 @@ public final class StaxHelper {
     /**
      * Creates a new StAX XMLEventFactory, with sensible defaults
      */
-    public static XMLEventFactory newXMLEventFactory(XmlOptionsBean options) {
+    public static XMLEventFactory newXMLEventFactory(XmlOptions options) {
         return XMLEventFactory.newFactory();
     }
 

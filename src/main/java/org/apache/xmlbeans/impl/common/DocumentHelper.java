@@ -17,7 +17,7 @@ package org.apache.xmlbeans.impl.common;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.apache.xmlbeans.XmlOptionsBean;
+import org.apache.xmlbeans.XmlOptions;
 import org.w3c.dom.Document;
 import org.xml.sax.ErrorHandler;
 import org.xml.sax.InputSource;
@@ -78,11 +78,11 @@ public final class DocumentHelper {
     /**
      * Creates a new document builder, with sensible defaults
      *
-     * @param xmlOptions
+     * @param xmlOptions the factory option
      * @throws IllegalStateException If creating the DocumentBuilder fails, e.g.
      *  due to {@link ParserConfigurationException}.
      */
-    public static DocumentBuilder newDocumentBuilder(XmlOptionsBean xmlOptions) {
+    public static DocumentBuilder newDocumentBuilder(XmlOptions xmlOptions) {
         try {
             DocumentBuilder documentBuilder = documentBuilderFactory(xmlOptions).newDocumentBuilder();
             documentBuilder.setEntityResolver(SAXHelper.IGNORING_ENTITY_RESOLVER);
@@ -93,7 +93,7 @@ public final class DocumentHelper {
         }
     }
 
-    private static DocumentBuilderFactory documentBuilderFactory(XmlOptionsBean options) {
+    private static DocumentBuilderFactory documentBuilderFactory(XmlOptions options) {
         DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
         documentBuilderFactory.setNamespaceAware(true);
         documentBuilderFactory.setValidating(false);
@@ -114,7 +114,7 @@ public final class DocumentHelper {
         }
     }
 
-    private static void trySetXercesSecurityManager(DocumentBuilderFactory dbf, XmlOptionsBean options) {
+    private static void trySetXercesSecurityManager(DocumentBuilderFactory dbf, XmlOptions options) {
         // Try built-in JVM one first, standalone if not
         for (String securityManagerClassName : new String[]{
                 //"com.sun.org.apache.xerces.internal.util.SecurityManager",
@@ -154,7 +154,7 @@ public final class DocumentHelper {
      * @param inp Stream to read the XML data from
      * @return the parsed Document
      */
-    public static Document readDocument(XmlOptionsBean xmlOptions, InputStream inp) throws IOException, SAXException {
+    public static Document readDocument(XmlOptions xmlOptions, InputStream inp) throws IOException, SAXException {
         return newDocumentBuilder(xmlOptions).parse(inp);
     }
 
@@ -164,12 +164,12 @@ public final class DocumentHelper {
      * @param inp sax source to read the XML data from
      * @return the parsed Document
      */
-    public static Document readDocument(XmlOptionsBean xmlOptions, InputSource inp) throws IOException, SAXException {
+    public static Document readDocument(XmlOptions xmlOptions, InputSource inp) throws IOException, SAXException {
         return newDocumentBuilder(xmlOptions).parse(inp);
     }
 
     // must only be used to create empty documents, do not use it for parsing!
-    private static final DocumentBuilder documentBuilderSingleton = newDocumentBuilder(new XmlOptionsBean());
+    private static final DocumentBuilder documentBuilderSingleton = newDocumentBuilder(new XmlOptions());
 
     /**
      * Creates a new DOM Document

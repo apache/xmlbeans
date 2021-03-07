@@ -15,29 +15,17 @@
 
 package org.apache.xmlbeans.impl.tool;
 
-import org.apache.xmlbeans.SchemaTypeLoader;
-import org.apache.xmlbeans.XmlBeans;
-import org.apache.xmlbeans.XmlException;
-import org.apache.xmlbeans.XmlObject;
-import org.apache.xmlbeans.XmlOptions;
-import org.apache.xmlbeans.XmlOptionsBean;
-import org.apache.xmlbeans.XmlError;
+import org.apache.xmlbeans.*;
 import org.apache.xmlbeans.impl.common.StaxHelper;
 import org.apache.xmlbeans.impl.validator.ValidatingXMLStreamReader;
 
-import javax.xml.stream.XMLInputFactory;
-import javax.xml.stream.XMLStreamReader;
-import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.Location;
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
-import java.util.HashSet;
+import java.util.*;
 
 public class StreamInstanceValidator
 {
@@ -173,7 +161,7 @@ public class StreamInstanceValidator
             errors.clear();
 
             try {
-                final XMLInputFactory xmlInputFactory = StaxHelper.newXMLInputFactory(new XmlOptionsBean(options));
+                final XMLInputFactory xmlInputFactory = StaxHelper.newXMLInputFactory(new XmlOptions(options));
 
                 final FileInputStream fis = new FileInputStream(file);
                 final XMLStreamReader rdr =

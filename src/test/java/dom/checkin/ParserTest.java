@@ -16,7 +16,7 @@
 
 package dom.checkin;
 
-import org.apache.xmlbeans.XmlOptionsBean;
+import org.apache.xmlbeans.XmlOptions;
 import org.apache.xmlbeans.impl.common.SAXHelper;
 import org.apache.xmlbeans.impl.common.StaxHelper;
 import org.apache.xmlbeans.impl.common.XMLBeansConstants;
@@ -37,7 +37,7 @@ public class ParserTest {
 
     @Test
     public void testXmlOptionsDefaults() {
-        XmlOptionsBean options = new XmlOptionsBean();
+        XmlOptions options = new XmlOptions();
         assertEquals(2048, options.getEntityExpansionLimit());
         assertFalse(options.isLoadDTDGrammar());
         assertFalse(options.isLoadExternalDTD());
@@ -45,7 +45,7 @@ public class ParserTest {
 
     @Test
     public void testXMLBeansConstantsOverrides() {
-        XmlOptionsBean options = new XmlOptionsBean();
+        XmlOptions options = new XmlOptions();
         options.setEntityExpansionLimit(1);
         options.setLoadDTDGrammar(true);
         options.setLoadExternalDTD(true);
@@ -56,7 +56,7 @@ public class ParserTest {
 
     @Test
     public void testXmlInputFactoryPropertyDefaults() {
-        XmlOptionsBean options = new XmlOptionsBean();
+        XmlOptions options = new XmlOptions();
         XMLInputFactory factory = StaxHelper.newXMLInputFactory(options);
         assertEquals(true, factory.getProperty(XMLInputFactory.IS_NAMESPACE_AWARE));
         assertEquals(false, factory.getProperty(XMLInputFactory.IS_VALIDATING));
@@ -66,7 +66,7 @@ public class ParserTest {
 
     @Test
     public void testXmlInputFactoryPropertyOverrides() {
-        XmlOptionsBean options = new XmlOptionsBean();
+        XmlOptions options = new XmlOptions();
         options.setEntityExpansionLimit(1);
         options.setLoadDTDGrammar(true);
         options.setLoadExternalDTD(true);
@@ -77,7 +77,7 @@ public class ParserTest {
 
     @Test
     public void testXMLReader() throws Exception {
-        XmlOptionsBean options = new XmlOptionsBean();
+        XmlOptions options = new XmlOptions();
         XMLReader reader = SAXHelper.newXMLReader(options);
         assertNotSame(reader, SAXHelper.newXMLReader(options));
         assertFalse(reader.getFeature(XMLBeansConstants.FEATURE_LOAD_DTD_GRAMMAR));
@@ -90,7 +90,7 @@ public class ParserTest {
 
     @Test
     public void testXMLReaderOverrides() throws Exception {
-        XmlOptionsBean options = new XmlOptionsBean();
+        XmlOptions options = new XmlOptions();
         options.setEntityExpansionLimit(1);
         options.setLoadDTDGrammar(true);
         options.setLoadExternalDTD(true);

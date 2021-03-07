@@ -18,7 +18,6 @@ package xmlcursor.jsr173.common;
 
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlObject;
-import org.apache.xmlbeans.impl.store.Public2;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -99,37 +98,6 @@ public abstract class IsXXXTest {
 //        assertFalse(m_stream.isWhiteSpace());
 
         assertFalse(m_stream.hasNext());
-    }
-
-    /**
-     * Not Impl
-     */
-    @Test
-    @Ignore
-    public void testNextTag() throws Exception {
-        try {
-            m_stream.nextTag();
-            fail("shouldn't jump to next tag");
-        } catch (IllegalStateException e) {
-        }
-        XmlCursor cur = Public2.newStore();
-        cur.toNextToken();
-        cur.insertComment("cmt");
-        cur.beginElement("foobar");
-        cur.insertChars("   \n");
-        cur.toNextToken();
-        cur.insertProcInst("xml-foo", "http://foo.org");
-        cur.insertElement("foobar1");
-        m_stream = cur.newXMLStreamReader();
-        assertEquals(XMLStreamConstants.START_ELEMENT, m_stream.nextTag());
-        assertEquals("fooabar", m_stream.getLocalName());
-        assertEquals(XMLStreamConstants.END_ELEMENT, m_stream.nextTag());
-        assertEquals("fooabar", m_stream.getLocalName());
-
-        assertEquals(XMLStreamConstants.START_ELEMENT, m_stream.nextTag());
-        assertEquals("fooabar1", m_stream.getLocalName());
-        assertEquals(XMLStreamConstants.END_ELEMENT, m_stream.nextTag());
-        assertEquals("fooabar1", m_stream.getLocalName());
     }
 
     @Before
