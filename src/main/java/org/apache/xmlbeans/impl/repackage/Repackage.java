@@ -335,7 +335,7 @@ public class Repackage {
 
     StringBuffer readInputStream(InputStream is) throws IOException {
         try (Reader r = new InputStreamReader(is, StandardCharsets.ISO_8859_1);
-            StringWriter w = new StringWriter()) {
+             StringWriter w = new StringWriter()) {
             copy(r, w);
             return w.getBuffer();
         }
@@ -344,13 +344,10 @@ public class Repackage {
     public static void copyFile(File from, File to) throws IOException {
         to.getParentFile().mkdirs();
 
-        FileInputStream in = new FileInputStream(from);
-        FileOutputStream out = new FileOutputStream(to);
-
-        copy(in, out);
-
-        out.close();
-        in.close();
+        try (FileInputStream in = new FileInputStream(from);
+             FileOutputStream out = new FileOutputStream(to)) {
+            copy(in, out);
+        }
     }
 
     public static void copy(InputStream in, OutputStream out) throws IOException {

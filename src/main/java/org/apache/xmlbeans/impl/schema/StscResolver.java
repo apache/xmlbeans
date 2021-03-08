@@ -132,7 +132,7 @@ public class StscResolver {
             substitutionGroup = StscState.get().findDocumentType(
                 substitutionGroup.getSubstitutionGroup(), substitutionGroup.getChameleonNamespace(), null/*no dependency added*/);
 
-            assert substitutionGroup != null : "Could not find document type for: " + substitutionGroup.getSubstitutionGroup();
+            assert substitutionGroup != null : "Could not find document type for substitutionGroup";
 
             if (!resolveSubstitutionGroup(substitutionGroup)) {
                 substitutionGroup = null; // cyclic dependency - no subst group

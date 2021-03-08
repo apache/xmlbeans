@@ -27,6 +27,8 @@ import net.sf.saxon.query.StaticQueryContext;
 import net.sf.saxon.query.XQueryExpression;
 import net.sf.saxon.type.BuiltInAtomicType;
 import net.sf.saxon.value.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.xmlbeans.*;
 import org.apache.xmlbeans.impl.store.Cur;
 import org.apache.xmlbeans.impl.store.Cursor;
@@ -50,6 +52,8 @@ import java.util.ListIterator;
 import java.util.Map;
 
 public class SaxonXQuery implements XQuery {
+    private static final Logger LOG = LogManager.getLogger(SaxonXQuery.class);
+
     private final XQueryExpression xquery;
     private final String contextVar;
     private final Configuration config;
@@ -94,18 +98,74 @@ public class SaxonXQuery implements XQuery {
         _version = c.getLocale().version();
         _cur = c.weakCur(this);
         this._options = options;
-        return objectExecute();
+
+        Map<String, Object> bindings = XmlOptions.maskNull(_options).getXqueryVariables();
+        List<Object> resultsList = execQuery(_cur.getDom(), bindings);
+
+        XmlObject[] result = new XmlObject[resultsList.size()];
+        for (int i = 0; i < resultsList.size(); i++) {
+            //copy objects into the locale
+            Locale l = Locale.getLocale(_cur.getLocale().getSchemaTypeLoader(), _options);
+
+            l.enter();
+            Object node = resultsList.get(i);
+            Cur res;
+            try {
+                //typed function results of XQuery
+                if (!(node instanceof Node)) {
+                    res = l.load("<xml-fragment/>").tempCur();
+                    res.setValue(node.toString());
+                    SchemaType type = getType(node);
+                    Locale.autoTypeDocument(res, type, null);
+                    result[i] = res.getObject();
+                } else {
+                    res = loadNode(l, (Node) node);
+                }
+                result[i] = res.getObject();
+            } catch (XmlException e) {
+                throw new RuntimeException(e);
+            } finally {
+                l.exit();
+            }
+            res.release();
+        }
+        release();
+        return result;
     }
 
     public XmlCursor cursorExecute(Cur c, XmlOptions options) {
         _version = c.getLocale().version();
         _cur = c.weakCur(this);
         this._options = options;
-        return cursorExecute();
+
+        Map<String, Object> bindings = XmlOptions.maskNull(_options).getXqueryVariables();
+        List<Object> resultsList = execQuery(_cur.getDom(), bindings);
+
+        int i;
+
+        Locale locale = Locale.getLocale(_cur.getLocale().getSchemaTypeLoader(), _options);
+        locale.enter();
+        Locale.LoadContext _context = new Cur.CurLoadContext(locale, _options);
+        Cursor resultCur = null;
+        try {
+            for (i = 0; i < resultsList.size(); i++) {
+                loadNodeHelper(locale, (Node) resultsList.get(i), _context);
+            }
+            Cur c2 = _context.finish();
+            Locale.associateSourceName(c, _options);
+            Locale.autoTypeDocument(c, null, _options);
+            resultCur = new Cursor(c2);
+        } catch (XmlException e) {
+            LOG.atInfo().withThrowable(e).log("Can't autotype document");
+        } finally {
+            locale.exit();
+        }
+        release();
+        return resultCur;
     }
 
 
-    public List execQuery(Object node, Map variableBindings) {
+    public List<Object> execQuery(Object node, Map<String,Object> variableBindings) {
         try {
             Node contextNode = (Node) node;
 
@@ -120,7 +180,7 @@ public class SaxonXQuery implements XQuery {
             dc.setParameter(new StructuredQName("", null, contextVar), root);
             // Set the other variables
             if (variableBindings != null) {
-                for (Map.Entry<String, Object> me : ((Map<String, Object>) variableBindings).entrySet()) {
+                for (Map.Entry<String, Object> me : variableBindings.entrySet()) {
                     StructuredQName key = new StructuredQName("", null, me.getKey());
                     Object value = me.getValue();
                     if (value instanceof XmlTokenSource) {
@@ -230,56 +290,10 @@ public class SaxonXQuery implements XQuery {
             }
             return htm;
         } else {
-            return new ObjectValue(value);
+            return new ObjectValue<>(value);
         }
     }
 
-
-    public XmlObject[] objectExecute() {
-        if (_cur != null && _version != _cur.getLocale().version())
-        //throw new ConcurrentModificationException
-        // ("Document changed during select")
-        {
-            ;
-        }
-
-        Map<String, Object> bindings = XmlOptions.maskNull(_options).getXqueryVariables();
-        List resultsList = execQuery(_cur.getDom(), bindings);
-
-        XmlObject[] result = new XmlObject[resultsList.size()];
-        int i;
-        for (i = 0; i < resultsList.size(); i++) {
-            //copy objects into the locale
-            Locale l = Locale.getLocale(_cur.getLocale().getSchemaTypeLoader(), _options);
-
-            l.enter();
-            Object node = resultsList.get(i);
-            Cur res = null;
-            try {
-                //typed function results of XQuery
-                if (!(node instanceof Node)) {
-                    //TODO: exact same code as Path.java
-                    //make a common super-class and pull this--what to name that
-                    //superclass???
-                    res = l.load("<xml-fragment/>").tempCur();
-                    res.setValue(node.toString());
-                    SchemaType type = getType(node);
-                    Locale.autoTypeDocument(res, type, null);
-                    result[i] = res.getObject();
-                } else {
-                    res = loadNode(l, (Node) node);
-                }
-                result[i] = res.getObject();
-            } catch (XmlException e) {
-                throw new RuntimeException(e);
-            } finally {
-                l.exit();
-            }
-            res.release();
-        }
-        release();
-        return result;
-    }
 
     private SchemaType getType(Object node) {
         SchemaType type;
@@ -304,40 +318,6 @@ public class SaxonXQuery implements XQuery {
         }
         return type;
     }
-
-    public XmlCursor cursorExecute() {
-        if (_cur != null && _version != _cur.getLocale().version())
-        //throw new ConcurrentModificationException
-        // ("Document changed during select")
-        {
-            ;
-        }
-
-        Map<String, Object> bindings = XmlOptions.maskNull(_options).getXqueryVariables();
-        List resultsList = execQuery(_cur.getDom(), bindings);
-
-        int i;
-
-        Locale locale = Locale.getLocale(_cur.getLocale().getSchemaTypeLoader(), _options);
-        locale.enter();
-        Locale.LoadContext _context = new Cur.CurLoadContext(locale, _options);
-        Cursor resultCur = null;
-        try {
-            for (i = 0; i < resultsList.size(); i++) {
-                loadNodeHelper(locale, (Node) resultsList.get(i), _context);
-            }
-            Cur c = _context.finish();
-            Locale.associateSourceName(c, _options);
-            Locale.autoTypeDocument(c, null, _options);
-            resultCur = new Cursor(c);
-        } catch (Exception e) {
-        } finally {
-            locale.exit();
-        }
-        release();
-        return resultCur;
-    }
-
 
     public void release() {
         if (_cur != null) {

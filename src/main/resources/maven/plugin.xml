@@ -20,7 +20,7 @@
 
 <plugin>
     <name>xmlbeans</name>
-    <description></description>
+    <description>Maven plugin for Apache XmlBeans</description>
     <groupId>org.apache.xmlbeans</groupId>
     <artifactId>xmlbeans</artifactId>
     <version>@VERSION@</version>

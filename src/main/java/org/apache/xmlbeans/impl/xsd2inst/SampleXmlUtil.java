@@ -246,8 +246,7 @@ public class SampleXmlUtil {
     }
 
     // a bit from the Aenid
-    public static final String[] WORDS = new String[]
-        {
+    private static final String[] WORDS = {
             "ipsa", "iovis", "rapidum", "iaculata", "e", "nubibus", "ignem",
             "disiecitque", "rates", "evertitque", "aequora", "ventis",
             "illum", "exspirantem", "transfixo", "pectore", "flammas",

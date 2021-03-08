@@ -15,86 +15,9 @@
 
 package org.apache.xmlbeans.impl.common;
 
-import org.apache.xmlbeans.SystemProperties;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.PrintStream;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class XBeanDebug {
-    public static final int TRACE_SCHEMA_LOADING = 0x0001;
-    public static final String traceProp = "org.apache.xmlbeans.impl.debug";
-    public static final String defaultProp = ""; // "TRACE_SCHEMA_LOADING";
-
-    private static int _enabled = initializeBitsFromProperty();
-    private static int _indent = 0;
-
-    private static int initializeBitsFromProperty() {
-        String prop = SystemProperties.getProperty(traceProp, defaultProp);
-        return (prop.contains("TRACE_SCHEMA_LOADING")) ? TRACE_SCHEMA_LOADING : 0;
-    }
-
-    public static void enable(int bits) {
-        _enabled = _enabled | bits;
-    }
-
-    public static void disable(int bits) {
-        _enabled = _enabled & ~bits;
-    }
-
-    public static void trace(int bits, String message, int indent) {
-        if (test(bits)) {
-            synchronized (XBeanDebug.class) {
-                if (indent < 0) {
-                    _indent += indent;
-                }
-
-                String _indentspace = "                                                                                ";
-                String spaces = _indent < 0 ? "" : _indent > _indentspace.length() ? _indentspace : _indentspace.substring(0, _indent);
-                String logmessage = Thread.currentThread().getName() + ": " + spaces + message + "\n";
-                System.err.print(logmessage);
-
-                if (indent > 0) {
-                    _indent += indent;
-                }
-            }
-        }
-    }
-
-    public static boolean test(int bits) {
-        return (_enabled & bits) != 0;
-    }
-
-    static PrintStream _err;
-
-    public static String log(String message) {
-        log(message, null);
-        return message;
-    }
-
-    public static String logStackTrace(String message) {
-        log(message, new Throwable());
-        return message;
-    }
-
-    private synchronized static String log(String message, Throwable stackTrace) {
-        if (_err == null) {
-            try {
-                File diagnosticFile = File.createTempFile("xmlbeandebug", ".log");
-                _err = new PrintStream(diagnosticFile, "UTF-8");
-                System.err.println("Diagnostic XML Bean debug log file created: " + diagnosticFile);
-            } catch (IOException e) {
-                _err = System.err;
-            }
-        }
-        _err.println(message);
-        if (stackTrace != null) {
-            stackTrace.printStackTrace(_err);
-        }
-        return message;
-    }
-
-    public static void logException(Throwable t) {
-        log(t.getMessage(), t);
-    }
+    public static final Logger LOG = LogManager.getLogger(XBeanDebug.class);
 }

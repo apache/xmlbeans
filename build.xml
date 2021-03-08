@@ -21,7 +21,7 @@
     <property name="jdk.version.class" value="1.8" description="JDK version of generated class files"/>
     <property name="compile.debug" value="true"/>
 
-    <property name="version.base" value="4.0.1"/>
+    <property name="version.base" value="5.0.0"/>
     <property name="version.rc" value=""/>
 
     <property name="cases.location" location="src/test/resources"/>
@@ -978,7 +978,7 @@
                   effort="max"
                   failOnError="true">
             <fileset dir="build">
-                <include name="xmlbeans-4.0.1.jar"/>
+                <include name="xmlbeans-5.0.0.jar"/>
             </fileset>
             <auxClasspath path="${xml-apis.jar}"/>
             <auxClasspath path="${saxon.jar}"/>

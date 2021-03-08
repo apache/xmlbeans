@@ -15,41 +15,35 @@
 
 package org.apache.xmlbeans.impl.common;
 
-import java.io.Reader;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
-import java.io.UnsupportedEncodingException;
-import java.io.IOException;
+import java.io.*;
 
-public class ReaderInputStream extends PushedInputStream
-{
-    private Reader reader;
-    private Writer writer;
-    private char[] buf;
-    public static int defaultBufferSize = 2048;
+public class ReaderInputStream extends PushedInputStream {
+    public static final int defaultBufferSize = 2048;
 
-    public ReaderInputStream(Reader reader, String encoding) throws UnsupportedEncodingException
-    {
+    private final Reader reader;
+    private final Writer writer;
+    private final char[] buf;
+
+    public ReaderInputStream(Reader reader, String encoding) throws UnsupportedEncodingException {
         this(reader, encoding, defaultBufferSize);
     }
 
-    public ReaderInputStream(Reader reader, String encoding, int bufferSize) throws UnsupportedEncodingException
-    {
-        if (bufferSize <= 0)
+    public ReaderInputStream(Reader reader, String encoding, int bufferSize) throws UnsupportedEncodingException {
+        if (bufferSize <= 0) {
             throw new IllegalArgumentException("Buffer size <= 0");
+        }
 
         this.reader = reader;
         this.writer = new OutputStreamWriter(getOutputStream(), encoding);
         buf = new char[bufferSize];
     }
 
-    public void fill(int requestedBytes) throws IOException
-    {
-        do
-        {
+    public void fill(int requestedBytes) throws IOException {
+        do {
             int chars = reader.read(buf);
-            if (chars < 0)
+            if (chars < 0) {
                 return;
+            }
 
             writer.write(buf, 0, chars);
             writer.flush();

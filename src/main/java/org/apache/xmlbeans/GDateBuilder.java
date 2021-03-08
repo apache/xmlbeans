@@ -904,7 +904,7 @@ public final class GDateBuilder implements GDateSpecification, java.io.Serializa
 
         if (datemath) {
             // days: may require renormalization
-            _D += sign * day + carry;
+            _D += (long) sign * day + carry;
             _normalizeDate();
         }
     }
@@ -918,11 +918,8 @@ public final class GDateBuilder implements GDateSpecification, java.io.Serializa
             return 30;
         }
 
-        if (month == 2) {
-            return (_isLeapYear(year) ? 29 : 28);
-        }
+        return month == 2 ? (_isLeapYear(year) ? 29 : 28) : 31;
 
-        return 31;
     }
 
     /**
@@ -934,11 +931,8 @@ public final class GDateBuilder implements GDateSpecification, java.io.Serializa
             return 30;
         }
 
-        if (month == 2) {
-            return 29;
-        }
+        return month == 2 ? 29 : 31;
 
-        return 31;
     }
 
     /**
@@ -1107,12 +1101,12 @@ public final class GDateBuilder implements GDateSpecification, java.io.Serializa
         long to1970Ms = 1000 * 60 * 60 * 24 * to1970Date;
 
         to1970Ms += date.getMillisecond();
-        to1970Ms += date.getSecond() * 1000;
-        to1970Ms += date.getMinute() * 60 * 1000;
-        to1970Ms += date.getHour() * 60 * 60 * 1000;
+        to1970Ms += date.getSecond() * 1000L;
+        to1970Ms += date.getMinute() * 60 * 1000L;
+        to1970Ms += date.getHour() * 60 * 60 * 1000L;
         if (date.hasTimeZone()) {
-            to1970Ms -= (date.getTimeZoneMinute() * date.getTimeZoneSign()) * 60 * 1000;
-            to1970Ms -= (date.getTimeZoneHour() * date.getTimeZoneSign()) * 60 * 60 * 1000;
+            to1970Ms -= date.getTimeZoneMinute() * date.getTimeZoneSign() * 60 * 1000L;
+            to1970Ms -= date.getTimeZoneHour() * date.getTimeZoneSign() * 60 * 60 * 1000L;
         } else {
             TimeZone def = TimeZone.getDefault();
             int offset = def.getOffset(to1970Ms);
@@ -1134,11 +1128,8 @@ public final class GDateBuilder implements GDateSpecification, java.io.Serializa
      * fQuotient(a, b) = the greatest integer less than or equal to a/b
      */
     private static long _fQuotient(long a, int b) {
-        if ((a < 0) == (b < 0)) {
-            return a / b;
-        }
+        return ((a < 0) == (b < 0)) ? (a / b) : -((b - a - 1) / b);
 
-        return -((b - a - 1) / b);
     }
 
     /**

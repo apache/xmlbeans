@@ -1909,7 +1909,7 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory {
             try {
                 return (ctr == null) ? null : ctr.newInstance(sType, !sType.isSimpleType());
             } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
-                XBeanDebug.logException(e);
+                XBeanDebug.LOG.atDebug().withThrowable(e).log(e.getMessage());
                 return null;
             }
         } else {

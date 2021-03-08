@@ -16,10 +16,7 @@
 package org.apache.xmlbeans.impl.schema;
 
 import org.apache.xmlbeans.*;
-import org.apache.xmlbeans.impl.common.DefaultClassLoaderResourceLoader;
-import org.apache.xmlbeans.impl.common.NameUtil;
-import org.apache.xmlbeans.impl.common.QNameHelper;
-import org.apache.xmlbeans.impl.common.XBeanDebug;
+import org.apache.xmlbeans.impl.common.*;
 import org.apache.xmlbeans.impl.repackage.Repackager;
 import org.apache.xmlbeans.impl.util.FilerImpl;
 import org.apache.xmlbeans.impl.util.HexBin;
@@ -40,8 +37,6 @@ import java.util.function.IntFunction;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
 
 public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements SchemaTypeSystem {
     public static final int DATA_BABE = 0xDA7ABABE;
@@ -120,17 +115,6 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
      * a new package.
      */
     public static String METADATA_PACKAGE_GEN = "org/apache/xmlbeans/metadata";
-//    public static String METADATA_PACKAGE_GEN;
-//    static
-//    {
-//        // fix for maven classloader
-//        Package stsPackage = SchemaTypeSystem.class.getPackage();
-//        String stsPackageName = (stsPackage==null) ?
-//            SchemaTypeSystem.class.getName().substring(0, SchemaTypeSystem.class.getName().lastIndexOf(".")) :
-//            stsPackage.getName();
-//
-//        METADATA_PACKAGE_GEN = stsPackageName.replace('.', '/') + "/metadata";
-//    }
 
     private static String nameToPathString(String nameForSystem) {
         nameForSystem = nameForSystem.replace('.', '/');
@@ -145,7 +129,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
     protected SchemaTypeSystemImpl() {
         String fullname = getClass().getName();
         _name = fullname.substring(0, fullname.lastIndexOf('.'));
-        XBeanDebug.trace(XBeanDebug.TRACE_SCHEMA_LOADING, "Loading type system " + _name, 1);
+        XBeanDebug.LOG.atTrace().log("Loading type system {}", _name);
         _basePackage = nameToPathString(_name);
         _classloader = getClass().getClassLoader();
         _linker = this;
@@ -153,16 +137,16 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
         try {
             initFromHeader();
         } catch (Error | RuntimeException e) {
-            XBeanDebug.logException(e);
+            XBeanDebug.LOG.atDebug().withThrowable(e).log(e.getMessage());
             throw e;
         }
-        XBeanDebug.trace(XBeanDebug.TRACE_SCHEMA_LOADING, "Finished loading type system " + _name, -1);
+        XBeanDebug.LOG.atTrace().log("Finished loading type system {}", _name);
     }
 
     public SchemaTypeSystemImpl(Class<?> indexclass) {
         String fullname = indexclass.getName();
         _name = fullname.substring(0, fullname.lastIndexOf('.'));
-        XBeanDebug.trace(XBeanDebug.TRACE_SCHEMA_LOADING, "Loading type system " + _name, 1);
+        XBeanDebug.LOG.atTrace().log("Loading type system {}", _name);
         _basePackage = nameToPathString(_name);
         _classloader = indexclass.getClassLoader();
         _linker = SchemaTypeLoaderImpl.build(null, null, _classloader, getMetadataPath());
@@ -170,27 +154,10 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
         try {
             initFromHeader();
         } catch (RuntimeException | Error e) {
-            XBeanDebug.logException(e);
+            XBeanDebug.LOG.atDebug().withThrowable(e).log(e.getMessage());
             throw e;
         }
-        XBeanDebug.trace(XBeanDebug.TRACE_SCHEMA_LOADING, "Finished loading type system " + _name, -1);
-    }
-
-    public static boolean fileContainsTypeSystem(File file, String name) {
-        String indexname = nameToPathString(name) + "index.xsb";
-
-        if (file.isDirectory()) {
-            return (new File(file, indexname)).isFile();
-        } else {
-            try (ZipFile zipfile = new ZipFile(file)) {
-                ZipEntry entry = zipfile.getEntry(indexname);
-                return (entry != null && !entry.isDirectory());
-            } catch (IOException e) {
-                XBeanDebug.log("Problem loading SchemaTypeSystem, zipfilename " + file);
-                XBeanDebug.logException(e);
-                throw new SchemaTypeLoaderException(e.getMessage(), name, "index", SchemaTypeLoaderException.IO_EXCEPTION, e);
-            }
-        }
+        XBeanDebug.LOG.atTrace().log("Finished loading type system {}", _name);
     }
 
     public static SchemaTypeSystemImpl forName(String name, ClassLoader loader) {
@@ -210,13 +177,13 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
         try {
             initFromHeader();
         } catch (RuntimeException | Error e) {
-            XBeanDebug.logException(e);
+            XBeanDebug.LOG.atDebug().withThrowable(e).log(e.getMessage());
             throw e;
         }
     }
 
     private void initFromHeader() {
-        XBeanDebug.trace(XBeanDebug.TRACE_SCHEMA_LOADING, "Reading unresolved handles for type system " + _name, 0);
+        XBeanDebug.LOG.atTrace().log("Reading unresolved handles for type system {}", _name);
         XsbReader reader = null;
         try {
             // Read the index file, which starts with a header.
@@ -400,7 +367,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
 
             // we're done with the class' constant pool,
             // we can just copy the rest of the bytes
-            copy(in, out);
+            IOUtil.copyCompletely(in, out);
         } catch (IOException e) {
             // ok
         }
@@ -418,22 +385,6 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
         }
         throw new SchemaTypeLoaderException("couldn't find resource: " + HOLDER_TEMPLATE_CLASSFILE,
             _name, null, SchemaTypeLoaderException.IO_EXCEPTION);
-    }
-
-    private static long copy(InputStream inp, OutputStream out) throws IOException {
-        final byte[] buff = new byte[4096];
-        long totalCount = 0;
-        int readBytes;
-        do {
-            int todoBytes = buff.length;
-            readBytes = inp.read(buff, 0, todoBytes);
-            if (readBytes > 0) {
-                out.write(buff, 0, readBytes);
-                totalCount += readBytes;
-            }
-        } while (readBytes >= 0);
-
-        return totalCount;
     }
 
     private static final String HOLDER_TEMPLATE_CLASS = "org.apache.xmlbeans.impl.schema.TypeSystemHolder";
@@ -636,6 +587,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
         assert new HashSet<>(comp).equals(temp);
     }
 
+    @SuppressWarnings({"AssertWithSideEffects", "ConstantConditions"})
     private void assertContainersSynchronized() {
         boolean assertEnabled = false;
         // This code basically checks whether asserts are enabled so we don't do
@@ -724,7 +676,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
                     _mask[j] += i;
                 }
             } catch (IOException e) {
-                XBeanDebug.logException(e);
+                XBeanDebug.LOG.atDebug().withThrowable(e).log(e.getMessage());
             }
 
             _random = new Random(System.currentTimeMillis());
@@ -3139,27 +3091,27 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
             int filetype = reader.getActualFiletype();
             switch (filetype) {
                 case FILETYPE_SCHEMATYPE:
-                    XBeanDebug.trace(XBeanDebug.TRACE_SCHEMA_LOADING, "Resolving type for handle " + handle, 0);
+                    XBeanDebug.LOG.atTrace().log("Resolving type for handle {}", handle);
                     result = reader.finishLoadingType();
                     break;
                 case FILETYPE_SCHEMAELEMENT:
-                    XBeanDebug.trace(XBeanDebug.TRACE_SCHEMA_LOADING, "Resolving element for handle " + handle, 0);
+                    XBeanDebug.LOG.atTrace().log("Resolving element for handle {}", handle);
                     result = reader.finishLoadingElement();
                     break;
                 case FILETYPE_SCHEMAATTRIBUTE:
-                    XBeanDebug.trace(XBeanDebug.TRACE_SCHEMA_LOADING, "Resolving attribute for handle " + handle, 0);
+                    XBeanDebug.LOG.atTrace().log("Resolving attribute for handle {}", handle);
                     result = reader.finishLoadingAttribute();
                     break;
                 case FILETYPE_SCHEMAMODELGROUP:
-                    XBeanDebug.trace(XBeanDebug.TRACE_SCHEMA_LOADING, "Resolving model group for handle " + handle, 0);
+                    XBeanDebug.LOG.atTrace().log("Resolving model group for handle {}", handle);
                     result = reader.finishLoadingModelGroup();
                     break;
                 case FILETYPE_SCHEMAATTRIBUTEGROUP:
-                    XBeanDebug.trace(XBeanDebug.TRACE_SCHEMA_LOADING, "Resolving attribute group for handle " + handle, 0);
+                    XBeanDebug.LOG.atTrace().log("Resolving attribute group for handle {}", handle);
                     result = reader.finishLoadingAttributeGroup();
                     break;
                 case FILETYPE_SCHEMAIDENTITYCONSTRAINT:
-                    XBeanDebug.trace(XBeanDebug.TRACE_SCHEMA_LOADING, "Resolving id constraint for handle " + handle, 0);
+                    XBeanDebug.LOG.atTrace().log("Resolving id constraint for handle {}", handle);
                     result = reader.finishLoadingIdentityConstraint();
                     break;
                 default:
@@ -3181,12 +3133,12 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
     private boolean _allNonGroupHandlesResolved = false;
 
     public void resolve() {
-        XBeanDebug.trace(XBeanDebug.TRACE_SCHEMA_LOADING, "Resolve called type system " + _name, 0);
+        XBeanDebug.LOG.atTrace().log("Resolve called type system {}", _name);
         if (_allNonGroupHandlesResolved) {
             return;
         }
 
-        XBeanDebug.trace(XBeanDebug.TRACE_SCHEMA_LOADING, "Resolving all handles for type system " + _name, 1);
+        XBeanDebug.LOG.atTrace().log("Resolving all handles for type system {}", _name);
 
         List<SchemaComponent.Ref> refs = new ArrayList<>();
         refs.addAll(_globalElements.values());
@@ -3201,7 +3153,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
             ref.getComponent();
         }
 
-        XBeanDebug.trace(XBeanDebug.TRACE_SCHEMA_LOADING, "Finished resolving type system " + _name, -1);
+        XBeanDebug.LOG.atTrace().log("Finished resolving type system {}", _name);
         _allNonGroupHandlesResolved = true;
     }
 
@@ -3327,13 +3279,8 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
         return _name;
     }
 
-    public SchemaTypeSystem typeSystemForName(String name) {
-        return (name != null && name.equals(_name)) ? this : null;
-    }
-
-
     /**
-     * Provide method to be overriden by user typesystems using a different metadata path
+     * Provide method to be overridden by user typesystems using a different metadata path
      *
      * @return the metadata directory
      * @since XmlBeans 3.1.0

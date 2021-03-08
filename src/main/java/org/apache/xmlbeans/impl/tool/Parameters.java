@@ -75,47 +75,47 @@ public class Parameters {
     }
 
     public void setXsdFiles(File... xsdFiles) {
-        this.xsdFiles = xsdFiles;
+        this.xsdFiles = xsdFiles == null ? null : xsdFiles.clone();
     }
 
     public File[] getWsdlFiles() {
         return wsdlFiles;
     }
 
-    public void setWsdlFiles(File[] wsdlFiles) {
-        this.wsdlFiles = wsdlFiles;
+    public void setWsdlFiles(File... wsdlFiles) {
+        this.wsdlFiles = wsdlFiles == null ? null : wsdlFiles.clone();
     }
 
     public File[] getJavaFiles() {
         return javaFiles;
     }
 
-    public void setJavaFiles(File[] javaFiles) {
-        this.javaFiles = javaFiles;
+    public void setJavaFiles(File... javaFiles) {
+        this.javaFiles = javaFiles == null ? null : javaFiles.clone();
     }
 
     public File[] getConfigFiles() {
         return configFiles;
     }
 
-    public void setConfigFiles(File[] configFiles) {
-        this.configFiles = configFiles;
+    public void setConfigFiles(File... configFiles) {
+        this.configFiles = configFiles == null ? null : configFiles.clone();
     }
 
     public URL[] getUrlFiles() {
         return urlFiles;
     }
 
-    public void setUrlFiles(URL[] urlFiles) {
-        this.urlFiles = urlFiles;
+    public void setUrlFiles(URL... urlFiles) {
+        this.urlFiles = urlFiles == null ? null : urlFiles.clone();
     }
 
     public File[] getClasspath() {
         return classpath;
     }
 
-    public void setClasspath(File[] classpath) {
-        this.classpath = classpath;
+    public void setClasspath(File... classpath) {
+        this.classpath = classpath == null ? null : classpath.clone();
     }
 
     public File getOutputJar() {

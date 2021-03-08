@@ -319,10 +319,10 @@ public class SchemaTypeLoaderImpl extends SchemaTypeLoaderBase {
     }
 
     SchemaTypeSystemImpl getTypeSystemOnClassloader(String name) {
-        XBeanDebug.trace(XBeanDebug.TRACE_SCHEMA_LOADING, "Finding type system " + name + " on classloader", 0);
+        XBeanDebug.LOG.atTrace().log("Finding type system {} on classloader", name);
         SchemaTypeSystemImpl result = _classLoaderTypeSystems.get(name);
         if (result == null) {
-            XBeanDebug.trace(XBeanDebug.TRACE_SCHEMA_LOADING, "Type system " + name + " not cached - consulting field", 0);
+            XBeanDebug.LOG.atTrace().log("Type system {}} not cached - consulting field", name);
             result = SchemaTypeSystemImpl.forName(name, _classLoader);
             _classLoaderTypeSystems.put(name, result);
         }
