@@ -1,3 +1,11 @@
+Changes in V5.0.0 since V4.0.0
+
+* XMLBEANS-554:	xmlbean doesn't support the "javasource" attribute
+* XMLBEANS-551:	use log4j-2 for logging
+* XMLBEANS-557: Duplicate classes in jar
+* XMLBEANS-486: Provide Maven plugin
+* XMLBEANS-555: Partial method generation and remove inner factory classes
+
 Changes in V4.0.0 since V3.1.0
 
 * XMLBEANS-548: XmlDocumentProperties.setStandalone is ignored when saving
@@ -8,7 +16,7 @@ Changes in V4.0.0 since V3.1.0
 
 Changes in V3.1.0 since V3.0.2
 
-* update build and deployment artifacts to standardize naming and remove unused items 
+* update build and deployment artifacts to standardize naming and remove unused items
 * XMLBEANS-502: Allow to clear all ThreadLocals from the current thread
 * XMLBEANS-503: Allow to specify -nowarn in the Ant task
 * XMLBEANS-537: Add missing StscState.end() to avoid memory leaks
@@ -48,38 +56,38 @@ assertion error or ArrayIndexOutOfBoundsException in replace)
 
 Changes in V2.6.0 since V2.5.0
 
-* Add new xml option CopyUseNewSynchronizationDomain used for copy.  
-This fixes the scenario when copy and access (ex. selectPath) are used 
+* Add new xml option CopyUseNewSynchronizationDomain used for copy.
+This fixes the scenario when copy and access (ex. selectPath) are used
 in a multithreading environment.
 * Entitize \r when not in pretty print, this helps with maintaining \r
 entities.
 * Fix validation of integer value containing dot char.
 * Fix chars  in comments to avoid errors in IntelliJ under linux.
 * Update durations to latest spec.
-* Fix for compiling schema that contains complex type with simple 
+* Fix for compiling schema that contains complex type with simple
 content that has facets defined in the base simple type
 * Fix for Piccolo lexer when read method returns 0.
-* Fix to preserve the CDATA bookmarks when copy from one xmlobject to 
+* Fix to preserve the CDATA bookmarks when copy from one xmlobject to
 another.
-* Fix bug when resizing circular buffer in saver's output stream 
+* Fix bug when resizing circular buffer in saver's output stream
 implementation.
-* Fix for bug when not specifing type for a particle in derived schema 
+* Fix for bug when not specifing type for a particle in derived schema
 type and when minOccurs is 0.
 * Fixed error messages when contain base and derived type names.
-* Introducing a default maximum entity replacement limit of 10kb, it can 
+* Introducing a default maximum entity replacement limit of 10kb, it can
 be controled by using the option XmlOptions.setLoadEntityBytesLimit.
 * Fixed javadoc for inst2xsd and xsd2inst tools.
 * Fix NPE in SchemaTypeImpl.getEnumJavaClass().
 * Added multiple entry points and refactored code for xsd2inst code.
 * Remove org.w3c.dom files from xbean.jar.
 * Add another xpath and xquery interface implementation.
-* Add src/xmlinputstream classes org.apache.xmlbeans.xml.stream.* to 
+* Add src/xmlinputstream classes org.apache.xmlbeans.xml.stream.* to
 xmlpublic.jar.
 * Make bootstrap run twice to avoid GUMP error emails.
 * Fix for bug XMLBEANS-396: GML 3.1.1 generated code fails to compile.
-* Fix for bug XMLBEANS-412: Pattern facet regex requires dash - to be 
+* Fix for bug XMLBEANS-412: Pattern facet regex requires dash - to be
 escaped.
-* Fix for bug XMLBEANS-414: error cvc-complex-type.2.1: Element 'XXXX' 
+* Fix for bug XMLBEANS-414: error cvc-complex-type.2.1: Element 'XXXX'
 with empty content type cannot have text or element content.
 
 Changes in V2.5.0 since V2.4.0
