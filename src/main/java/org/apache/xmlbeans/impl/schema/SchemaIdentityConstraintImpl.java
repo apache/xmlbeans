@@ -122,10 +122,10 @@ public class SchemaIdentityConstraintImpl implements SchemaIdentityConstraint {
         // TODO: Need the namespace map - requires store support
         _selectorPath = XPath.compileXPath(_selector, _nsMap);
 
-        _fieldPaths = new XPath[_fields.length];
-        for (int i = 0; i < _fieldPaths.length; i++) {
-            _fieldPaths[i] = XPath.compileXPath(_fields[i], _nsMap);
-        }
+        XPath[] fieldPaths = new XPath[_fields.length];
+        for (int i = 0 ; i < fieldPaths.length ; i++)
+            fieldPaths[i] = XPath.compileXPath(_fields[i], _nsMap);
+        _fieldPaths = fieldPaths;
     }
 
     public void setReferencedKey(SchemaIdentityConstraint.Ref key) {
