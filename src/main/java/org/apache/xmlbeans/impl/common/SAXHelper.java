@@ -94,9 +94,17 @@ public final class SAXHelper {
             //"com.sun.org.apache.xerces.internal.util.SecurityManager",
             "org.apache.xerces.util.SecurityManager"
         }) {
+            Class<?> clazz;
             try {
-                Object mgr = Class.forName(securityManagerClassName).getDeclaredConstructor().newInstance();
-                Method setLimit = mgr.getClass().getMethod("setEntityExpansionLimit", Integer.TYPE);
+                clazz = Class.forName(securityManagerClassName);
+            } catch (Throwable e) { // NOSONAR
+                // xerces is not available on class-/modulepath
+                continue;
+            }
+
+            try {
+                Object mgr = clazz.getDeclaredConstructor().newInstance();
+                Method setLimit = clazz.getMethod("setEntityExpansionLimit", Integer.TYPE);
                 setLimit.invoke(mgr, options.getEntityExpansionLimit());
                 xmlReader.setProperty(XMLBeansConstants.SECURITY_MANAGER, mgr);
                 // Stop once one can be setup without error
