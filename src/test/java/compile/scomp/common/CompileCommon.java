@@ -16,33 +16,8 @@ package compile.scomp.common;
 
 import common.Common;
 
-import java.util.Vector;
-
 public class CompileCommon extends Common{
 
     public static String fileLocation = XBEAN_CASE_ROOT +P + "compile" + P + "scomp" + P;
-
-    /** compare contents of two vectors */
-    public static void comparefNameVectors(Vector act, Vector exp) throws Exception
-    {
-        if (exp == null)
-            throw new Exception("Exp was null");
-        if (act == null)
-            throw new Exception("Act was null");
-
-        if (exp.size() != act.size())
-            throw new Exception("Size was not the same exp.size:" + exp.size() + " act.size:" + act.size());
-
-        //use Vector.equals to compare
-        if (!act.equals(exp))
-            throw new Exception("Expected FNames did Not Match");
-
-        //check sequence is as expected (not sure if vector.equals does this
-        for (int i = 0; i < exp.size(); i++) {
-            if (!exp.get(i).equals(act.get(i)))
-                throw new Exception("Item[" + i + "]-was not as expected" +
-                        "ACT[" + i + "]-" + act.get(i) + " != EXP[" + i + "]-" + exp.get(i));
-        }
-    }
 
 }

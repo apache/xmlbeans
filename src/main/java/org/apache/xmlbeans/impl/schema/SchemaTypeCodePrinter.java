@@ -18,6 +18,7 @@ package org.apache.xmlbeans.impl.schema;
 import org.apache.xmlbeans.*;
 import org.apache.xmlbeans.XmlOptions.BeanMethod;
 import org.apache.xmlbeans.impl.common.NameUtil;
+import org.apache.xmlbeans.impl.repackage.Repackager;
 
 import javax.xml.namespace.QName;
 import java.io.IOException;
@@ -2375,5 +2376,29 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
             }
             sType = sType.getBaseType();
         }
+    }
+
+    public void printHolder(Writer writer, SchemaTypeSystem system, XmlOptions opt, Repackager repackager) throws IOException {
+        _writer = writer;
+
+        String sysPack = system.getName();
+        if (repackager != null) {
+            sysPack = repackager.repackage(new StringBuffer(sysPack)).toString();
+        }
+        emit("package "+sysPack+";");
+        emit("");
+        emit("import org.apache.xmlbeans.impl.schema.SchemaTypeSystemImpl;");
+        emit("");
+        emit("public final class TypeSystemHolder extends SchemaTypeSystemImpl {");
+        indent();
+        emit("public static final TypeSystemHolder typeSystem = new TypeSystemHolder();");
+        emit("");
+        emit("private TypeSystemHolder() {");
+        indent();
+        emit("super(TypeSystemHolder.class);");
+        outdent();
+        emit("}");
+        outdent();
+        emit("}");
     }
 }

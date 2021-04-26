@@ -389,13 +389,6 @@
         </javac>
         <mkdir dir="build/generated-resources/org/apache/xmlbeans/impl/schema"/>
 
-        <!-- need to provide the template also in classes - generated-resources will be ignored on bootstrapping -->
-        <move file="build/classes/org/apache/xmlbeans/impl/schema/TypeSystemHolder.class"
-              tofile="build/classes/org/apache/xmlbeans/impl/schema/TypeSystemHolder.template"/>
-
-        <copy file="build/classes/org/apache/xmlbeans/impl/schema/TypeSystemHolder.template"
-              todir="build/generated-resources/org/apache/xmlbeans/impl/schema"/>
-
         <!-- now generate new xmlbeans re-/sources and remove the traces of the oldxbean generated re-/sources -->
         <path id="oldschemas">
             <pathelement location="${log4j-api.jar}"/>

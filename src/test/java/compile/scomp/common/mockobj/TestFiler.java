@@ -14,75 +14,62 @@
  */
 package compile.scomp.common.mockobj;
 
+import common.Common;
 import org.apache.xmlbeans.Filer;
 import org.apache.xmlbeans.impl.util.FilerImpl;
 
 import java.io.File;
-import java.io.OutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.Writer;
-import java.util.Vector;
-import common.Common;
+import java.util.ArrayList;
+import java.util.List;
 
-/**
- *
- *
- */
-public class TestFiler implements Filer
-{
-    private String P = File.separator;
-    private FilerImpl impl;
+public class TestFiler implements Filer {
+    private final FilerImpl impl;
     private boolean isCreateBinaryFile;
     private boolean isCreateSourceFile;
-    private Vector binFileVec;
-    private Vector srcFileVec;
+    private final List<String> binFileVec = new ArrayList<>();
+    private final List<String> srcFileVec = new ArrayList<>();
 
-    public TestFiler()
-    {
+    public TestFiler() {
+        String p = File.separator;
         String base = new File(Common.OUTPUTROOT).getAbsolutePath() +
-                P + "filer" + P;
+                      p + "filer" + p;
         String sClass = base + "classes";
         String sSrc = base + "src";
         File fClass = new File(sClass);
         File fSrc = new File(sSrc);
         impl = new FilerImpl(fClass, fSrc, null, true, false);
-        binFileVec = new Vector();
-        srcFileVec = new Vector();
     }
 
-    public OutputStream createBinaryFile(String typename) throws IOException
-    {
+    public OutputStream createBinaryFile(String typename) throws IOException {
         System.out.println("BFS: TypeName: " + typename);
         isCreateBinaryFile = true;
         binFileVec.add(typename);
         return impl.createBinaryFile(typename);
     }
 
-    public Writer createSourceFile(String typename) throws IOException
-    {
+    public Writer createSourceFile(String typename) throws IOException {
         System.out.println("SF: TypeName: " + typename);
         srcFileVec.add(typename);
         isCreateSourceFile = true;
         return impl.createSourceFile(typename);
     }
 
-    public boolean isCreateBinaryFile()
-    {
+    public boolean isCreateBinaryFile() {
         return isCreateBinaryFile;
     }
 
-    public boolean isCreateSourceFile()
-    {
+    public boolean isCreateSourceFile() {
         return isCreateSourceFile;
     }
 
-    public Vector getBinFileVec()
-    {
+    public List<String> getBinFileVec() {
         return binFileVec;
     }
 
-    public Vector getSrcFileVec()
-    {
+    public List<String> getSrcFileVec() {
         return srcFileVec;
     }
 }

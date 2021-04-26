@@ -15,6 +15,8 @@
 
 package org.apache.xmlbeans;
 
+import org.apache.xmlbeans.impl.repackage.Repackager;
+
 import java.io.IOException;
 import java.io.Writer;
 
@@ -42,5 +44,7 @@ public interface SchemaCodePrinter {
     default void printType(Writer writer, SchemaType sType, XmlOptions opt) throws IOException {
         printType(writer, sType);
     }
+
+    void printHolder(Writer writer, SchemaTypeSystem system, XmlOptions opt, Repackager repackager) throws IOException;
 }
 

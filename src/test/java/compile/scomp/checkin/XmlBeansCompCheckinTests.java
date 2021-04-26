@@ -14,7 +14,6 @@
  */
 package compile.scomp.checkin;
 
-import compile.scomp.common.CompileCommon;
 import compile.scomp.common.CompileTestBase;
 import compile.scomp.common.mockobj.TestFiler;
 import org.apache.xmlbeans.*;
@@ -24,34 +23,37 @@ import org.junit.Test;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.Arrays;
 import java.util.List;
-import java.util.Vector;
 
 import static org.junit.Assert.*;
 
 public class XmlBeansCompCheckinTests extends CompileTestBase
 {   public final List xm_errors = new ArrayList();
     public final XmlOptions xm_opts = new XmlOptions();
-    final Vector expBinType = new Vector();
-    final Vector expSrcType = new Vector();
+    final List<String> expBinType;
+    final List<String> expSrcType;
 
     public XmlBeansCompCheckinTests() {
-        expBinType.add("org/apache/xmlbeans/metadata/system/apiCompile/atypedb57type.xsb");
-        expBinType.add("org/apache/xmlbeans/metadata/system/apiCompile/elname429edoctype.xsb");
-        expBinType.add("org/apache/xmlbeans/metadata/system/apiCompile/elnameelement.xsb");
-        expBinType.add("org/apache/xmlbeans/metadata/system/apiCompile/index.xsb");
-        expBinType.add("org/apache/xmlbeans/metadata/element/http_3A_2F_2Fbaz/elName.xsb");
-        expBinType.add("org/apache/xmlbeans/metadata/type/http_3A_2F_2Fbaz/aType.xsb");
-        expBinType.add("org/apache/xmlbeans/metadata/namespace/http_3A_2F_2Fbaz/xmlns.xsb");
-        expBinType.add("org/apache/xmlbeans/metadata/javaname/baz/ElNameDocument.xsb");
-        expBinType.add("org/apache/xmlbeans/metadata/javaname/baz/AType.xsb");
-        expBinType.add("org/apache/xmlbeans/metadata/system/apiCompile/TypeSystemHolder.class");
+        expBinType = Arrays.asList(
+            "org/apache/xmlbeans/metadata/system/apiCompile/atypedb57type.xsb",
+            "org/apache/xmlbeans/metadata/system/apiCompile/elname429edoctype.xsb",
+            "org/apache/xmlbeans/metadata/system/apiCompile/elnameelement.xsb",
+            "org/apache/xmlbeans/metadata/system/apiCompile/index.xsb",
+            "org/apache/xmlbeans/metadata/element/http_3A_2F_2Fbaz/elName.xsb",
+            "org/apache/xmlbeans/metadata/type/http_3A_2F_2Fbaz/aType.xsb",
+            "org/apache/xmlbeans/metadata/namespace/http_3A_2F_2Fbaz/xmlns.xsb",
+            "org/apache/xmlbeans/metadata/javaname/baz/ElNameDocument.xsb",
+            "org/apache/xmlbeans/metadata/javaname/baz/AType.xsb"
+        );
 
-        expSrcType.add("baz.AType");
-        expSrcType.add("baz.impl.ATypeImpl");
-        expSrcType.add("baz.ElNameDocument");
-        expSrcType.add("baz.impl.ElNameDocumentImpl");
+        expSrcType = Arrays.asList(
+            "org.apache.xmlbeans.metadata.system.apiCompile.TypeSystemHolder",
+            "baz.AType",
+            "baz.impl.ATypeImpl",
+            "baz.ElNameDocument",
+            "baz.impl.ElNameDocumentImpl"
+        );
 
         xm_opts.setErrorListener(xm_errors);
         xm_opts.setSavePrettyPrint();
@@ -89,11 +91,8 @@ public class XmlBeansCompCheckinTests extends CompileTestBase
         if (!f.isCreateSourceFile())
             throw new Exception("Source File method not invoked");
 
-        System.out.println("BIN");
-        CompileCommon.comparefNameVectors(f.getBinFileVec(), expBinType);
-        System.out.println("SRC");
-        CompileCommon.comparefNameVectors(f.getSrcFileVec(), expSrcType);
-
+        comparefNameVectors(f.getBinFileVec(), expBinType);
+        comparefNameVectors(f.getSrcFileVec(), expSrcType);
     }
 
     /**
@@ -102,16 +101,11 @@ public class XmlBeansCompCheckinTests extends CompileTestBase
     @Test
     public void test_sts_noSave() throws Exception
     {
-        XmlObject obj1 = XmlObject.Factory.parse(forXsd);
-        XmlObject[] schemas = new XmlObject[]{obj1};
-        XmlObject obj2 = XmlObject.Factory.parse(incrXsd);
-        XmlObject[] schemas2 = new XmlObject[]{obj2};
         XmlObject obj3 = XmlObject.Factory.parse(errXsd);
         XmlObject[] schemas3 = new XmlObject[]{obj3};
 
         SchemaTypeSystem sts;
-        TestFiler f = new TestFiler();
-        ArrayList err = new ArrayList();
+        ArrayList<XmlError> err = new ArrayList<>();
         XmlOptions opt = new XmlOptions().setErrorListener(err);
         opt.setCompilePartialTypesystem();
 
@@ -124,13 +118,11 @@ public class XmlBeansCompCheckinTests extends CompileTestBase
             // print out the recovered xm_errors
             if (!err.isEmpty()) {
                 System.out.println("Schema invalid: partial schema type system recovered");
-                for (Iterator i = err.iterator(); i.hasNext();) {
-                    XmlError xErr = (XmlError) i.next();
+                for (XmlError xErr : err) {
                     System.out.println(xErr);
 
                     if ((xErr.getErrorCode().compareTo("src-resolve") == 0) &&
-                            (xErr.getMessage().compareTo("type 'bType@http://baz' not found.") ==
-                            0))
+                        (xErr.getMessage().compareTo("type 'bType@http://baz' not found.") == 0))
                         psom_expError = true;
                 }
             }
@@ -144,8 +136,7 @@ public class XmlBeansCompCheckinTests extends CompileTestBase
             if (err.isEmpty())
                 System.err.println(e.getMessage());
             else
-                for (Iterator i = err.iterator(); i.hasNext();)
-                    System.err.println(i.next());
+                for (Object o : err) System.err.println(o);
             throw e;
         }
 
@@ -191,12 +182,8 @@ public class XmlBeansCompCheckinTests extends CompileTestBase
         }
 
         //make sure nothing was written
-        assertTrue("Filer -Bin- Partial SOM " +
-            "output dir needed to be empty",
-            tf.getBinFileVec().size() == 0);
-        assertTrue("Filer -SRC- Partial SOM " +
-            "output dir needed to be empty",
-            tf.getSrcFileVec().size() == 0);
+        assertEquals("Filer -Bin- Partial SOM output dir needed to be empty", 0, tf.getBinFileVec().size());
+        assertEquals("Filer -SRC- Partial SOM output dir needed to be empty", 0, tf.getSrcFileVec().size());
 
         assertFalse("Filer Create Source File " +
             "method should not have been invoked",
@@ -207,41 +194,27 @@ public class XmlBeansCompCheckinTests extends CompileTestBase
             tf.isCreateBinaryFile());
 
         // Check using filer in partial SOM compilation
-        try {
-            tf = new TestFiler();
+        tf = new TestFiler();
 
-            assertTrue("Filer Source should have been size 0",
-                    tf.getBinFileVec().size() == 0);
+        assertEquals("Filer Source should have been size 0", 0, tf.getBinFileVec().size());
 
-            //reset data
-            sts = null;
-            err.clear();
+        //reset data
+        sts = null;
+        err.clear();
 
-            //filer methods on partial SOM should not be returned
-            sts = XmlBeans.compileXmlBeans(null,
-                    null, schemas3, null,
-                    XmlBeans.getBuiltinTypeSystem(), tf, opt);
+        //filer methods on partial SOM should not be returned
+        sts = XmlBeans.compileXmlBeans(null,
+                null, schemas3, null,
+                XmlBeans.getBuiltinTypeSystem(), tf, opt);
 
-            assertTrue("Errors was not empty", !err.isEmpty());
-            //make sure nothing was written
-            assertTrue("Filer -Bin- Partial SOM " +
-                    "output dir needed to be empty",
-                    tf.getBinFileVec().size() == 0);
-            assertTrue("Filer -SRC- Partial SOM " +
-                    "output dir needed to be empty",
-                    tf.getSrcFileVec().size() == 0);
+        assertFalse("Errors was not empty", err.isEmpty());
+        //make sure nothing was written
+        assertEquals("Filer -Bin- Partial SOM output dir needed to be empty", 0, tf.getBinFileVec().size());
+        assertEquals("Filer -SRC- Partial SOM output dir needed to be empty", 0, tf.getSrcFileVec().size());
 
-            assertFalse("Filer Create Source File " +
-                    "method should not have been invoked",
-                    tf.isCreateSourceFile());
+        assertFalse("Filer Create Source File method should not have been invoked", tf.isCreateSourceFile());
 
-            assertFalse("Filer Create Binary File " +
-                    "method should not have been invoked",
-                    tf.isCreateBinaryFile());
-        } catch (Exception e) {
-            throw e;
-        }
-
+        assertFalse("Filer Create Binary File method should not have been invoked", tf.isCreateBinaryFile());
 
         System.out.println("Save Verification passed");
 
@@ -256,8 +229,6 @@ public class XmlBeansCompCheckinTests extends CompileTestBase
     {
         XmlObject obj1 = XmlObject.Factory.parse(forXsd);
         XmlObject[] schemas = new XmlObject[]{obj1};
-
-        TestFiler f = new TestFiler();
 
         SchemaTypeSystem apiSts = XmlBeans.compileXmlBeans(null, null,
                 schemas, null, XmlBeans.getBuiltinTypeSystem(), null, null);
@@ -297,4 +268,31 @@ public class XmlBeansCompCheckinTests extends CompileTestBase
 
     }
 
+
+    /** compare contents of two vectors */
+    private static void comparefNameVectors(List<String> act, List<String> exp) throws Exception {
+        if (exp == null) {
+            throw new Exception("Exp was null");
+        }
+        if (act == null) {
+            throw new Exception("Act was null");
+        }
+
+        if (exp.size() != act.size()) {
+            throw new Exception("Size was not the same exp.size:" + exp.size() + " act.size:" + act.size());
+        }
+
+        //use Vector.equals to compare
+        if (!act.equals(exp)) {
+            throw new Exception("Expected FNames did Not Match");
+        }
+
+        //check sequence is as expected (not sure if vector.equals does this
+        for (int i = 0; i < exp.size(); i++) {
+            if (!exp.get(i).equals(act.get(i))) {
+                throw new Exception("Item[" + i + "]-was not as expected" +
+                                    "ACT[" + i + "]-" + act.get(i) + " != EXP[" + i + "]-" + exp.get(i));
+            }
+        }
+    }
 }

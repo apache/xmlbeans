@@ -17,6 +17,8 @@ package org.apache.xmlbeans.impl.schema;
 
 import org.apache.xmlbeans.*;
 import org.apache.xmlbeans.impl.common.XmlErrorWatcher;
+import org.apache.xmlbeans.impl.repackage.Repackager;
+import org.apache.xmlbeans.impl.util.FilerImpl;
 import org.apache.xmlbeans.impl.xb.xsdschema.SchemaDocument;
 import org.apache.xmlbeans.impl.xb.xsdschema.SchemaDocument.Schema;
 
@@ -370,6 +372,22 @@ public class SchemaTypeSystemCompiler {
         types.addAll(Arrays.asList(system.documentTypes()));
         types.addAll(Arrays.asList(system.attributeTypes()));
 
+
+        SchemaCodePrinter printer = (options == null) ? null : options.getSchemaCodePrinter();
+        if (printer == null) {
+            printer = new SchemaTypeCodePrinter();
+        }
+
+        String indexClassName = SchemaTypeCodePrinter.indexClassForSystem(system);
+
+        try (Writer out = filer.createSourceFile(indexClassName)) {
+            Repackager repackager = (filer instanceof FilerImpl) ? ((FilerImpl) filer).getRepackager() : null;
+            printer.printHolder(out, system, options, repackager);
+        } catch (IOException e) {
+            System.err.println("IO Error " + e);
+            success = false;
+        }
+
         for (SchemaType type : types) {
             if (type.isBuiltinType()) {
                 continue;
@@ -379,11 +397,6 @@ public class SchemaTypeSystemCompiler {
             }
 
             String fjn = type.getFullJavaName();
-
-            SchemaCodePrinter printer = (options == null) ? null : options.getSchemaCodePrinter();
-            if (printer == null) {
-                printer = new SchemaTypeCodePrinter();
-            }
 
             try (Writer writer = filer.createSourceFile(fjn)) {
                 // Generate interface class

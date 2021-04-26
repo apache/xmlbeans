@@ -16,8 +16,9 @@
 package org.apache.xmlbeans.impl.schema;
 
 import org.apache.xmlbeans.*;
-import org.apache.xmlbeans.impl.common.*;
-import org.apache.xmlbeans.impl.repackage.Repackager;
+import org.apache.xmlbeans.impl.common.NameUtil;
+import org.apache.xmlbeans.impl.common.QNameHelper;
+import org.apache.xmlbeans.impl.common.XBeanDebug;
 import org.apache.xmlbeans.impl.util.FilerImpl;
 import org.apache.xmlbeans.impl.util.HexBin;
 import org.apache.xmlbeans.impl.values.XmlObjectBase;
@@ -291,152 +292,8 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
         saver.writeEnd();
     }
 
-    /**
-     * The strategy here is to copy the compiled TypeSystemHolder.template class
-     * to a new TypeSystemHolder.class needed by the schema type system.  When
-     * saving a loader, we read the TypeSystemHolder.template class file and
-     * swap out the utf8 string constants with new ones to create a new
-     * TypeSystemHolder class file.  This saves us the need to rely on javac
-     * to compile a generated .java file into the class file.
-     * <p>
-     * See the JVM spec on how to interpret the bytes of a class file.
-     */
-    void saveLoader() {
-        String indexClassName = SchemaTypeCodePrinter.indexClassForSystem(this);
-        String[] replace = makeClassStrings(indexClassName);
-        assert replace.length == HOLDER_TEMPLATE_NAMES.length;
-
-        Repackager repackager = null;
-        if (_filer instanceof FilerImpl) {
-            repackager = ((FilerImpl) _filer).getRepackager();
-        }
-
-        final String outName = indexClassName.replace('.', '/') + ".class";
-        try (DataInputStream in = new DataInputStream(getHolder());
-             DataOutputStream out = new DataOutputStream(_filer.createBinaryFile(outName))) {
-
-            // java magic
-            out.writeInt(in.readInt());
-
-            // java minor and major version
-            out.writeShort(in.readUnsignedShort());
-            out.writeShort(in.readUnsignedShort());
-
-            int poolsize = in.readUnsignedShort();
-            out.writeShort(poolsize);
-
-            // the constant pool is indexed from 1 to poolsize-1
-            for (int i = 1; i < poolsize; i++) {
-                int tag = in.readUnsignedByte();
-                out.writeByte(tag);
-
-                switch (tag) {
-                    case CONSTANT_UTF8:
-                        String value = in.readUTF();
-                        out.writeUTF(repackageConstant(value, replace, repackager));
-                        break;
-
-                    case CONSTANT_CLASS:
-                    case CONSTANT_STRING:
-                        out.writeShort(in.readUnsignedShort());
-                        break;
-
-                    case CONSTANT_NAMEANDTYPE:
-                    case CONSTANT_METHOD:
-                    case CONSTANT_FIELD:
-                    case CONSTANT_INTERFACEMETHOD:
-                        out.writeShort(in.readUnsignedShort());
-                        out.writeShort(in.readUnsignedShort());
-                        break;
-
-                    case CONSTANT_INTEGER:
-                    case CONSTANT_FLOAT:
-                        out.writeInt(in.readInt());
-                        break;
-
-                    case CONSTANT_LONG:
-                    case CONSTANT_DOUBLE:
-                        out.writeInt(in.readInt());
-                        out.writeInt(in.readInt());
-                        break;
-
-                    default:
-                        throw new RuntimeException("Unexpected constant type: " + tag);
-                }
-            }
-
-            // we're done with the class' constant pool,
-            // we can just copy the rest of the bytes
-            IOUtil.copyCompletely(in, out);
-        } catch (IOException e) {
-            // ok
-        }
-    }
-
-    private InputStream getHolder() {
-        InputStream is = SchemaTypeSystemImpl.class.getResourceAsStream(HOLDER_TEMPLATE_CLASSFILE);
-        if (is != null) {
-            return is;
-        }
-        DefaultClassLoaderResourceLoader clLoader = new DefaultClassLoaderResourceLoader();
-        is = clLoader.getResourceAsStream(HOLDER_TEMPLATE_CLASSFILE);
-        if (is != null) {
-            return is;
-        }
-        throw new SchemaTypeLoaderException("couldn't find resource: " + HOLDER_TEMPLATE_CLASSFILE,
-            _name, null, SchemaTypeLoaderException.IO_EXCEPTION);
-    }
-
-    private static final String HOLDER_TEMPLATE_CLASS = "org.apache.xmlbeans.impl.schema.TypeSystemHolder";
-    private static final String HOLDER_TEMPLATE_CLASSFILE = "TypeSystemHolder.template";
-    private static final String[] HOLDER_TEMPLATE_NAMES = makeClassStrings(HOLDER_TEMPLATE_CLASS);
-
-    // constant pool entry types
-    private static final int CONSTANT_UTF8 = 1;
-    // private static final int CONSTANT_UNICODE = 2;
-    private static final int CONSTANT_INTEGER = 3;
-    private static final int CONSTANT_FLOAT = 4;
-    private static final int CONSTANT_LONG = 5;
-    private static final int CONSTANT_DOUBLE = 6;
-    private static final int CONSTANT_CLASS = 7;
-    private static final int CONSTANT_STRING = 8;
-    private static final int CONSTANT_FIELD = 9;
-    private static final int CONSTANT_METHOD = 10;
-    private static final int CONSTANT_INTERFACEMETHOD = 11;
-    private static final int CONSTANT_NAMEANDTYPE = 12;
-
     // MAX_UNSIGNED_SHORT
     private static final int MAX_UNSIGNED_SHORT = Short.MAX_VALUE * 2 + 1;
-
-    private static String repackageConstant(String value, String[] replace, Repackager repackager) {
-        for (int i = 0; i < HOLDER_TEMPLATE_NAMES.length; i++) {
-            if (HOLDER_TEMPLATE_NAMES[i].equals(value)) {
-                return replace[i];
-            }
-        }
-
-        if (repackager != null) {
-            return repackager.repackage(new StringBuffer(value)).toString();
-        }
-
-        return value;
-    }
-
-    /**
-     * Construct an array of Strings found in a class file for a classname.
-     * For the class name 'a.b.C' it will generate an array of:
-     * 'a.b.C', 'a/b/C', 'La/b/C;', and 'class$a$b$C'.
-     */
-    private static String[] makeClassStrings(String classname) {
-        String[] result = new String[4];
-
-        result[0] = classname;
-        result[1] = classname.replace('.', '/');
-        result[2] = "L" + result[1] + ";";
-        result[3] = "class$" + classname.replace('.', '$');
-
-        return result;
-    }
 
     private Map<String, SchemaComponent.Ref> buildTypeRefsByClassname(Map<String, SchemaType> typesByClassname) {
         Map<String, SchemaComponent.Ref> result = new LinkedHashMap<>();
@@ -1081,8 +938,6 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
 
         saveIndex();
         savePointers();
-
-        saveLoader();
     }
 
     void saveTypesRecursively(SchemaType[] types) {
@@ -1926,7 +1781,6 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
          * Finishes loading an element after the header has already been loaded.
          */
         public SchemaGlobalElement finishLoadingElement() {
-            String handle = null;
             try {
                 int particleType = readShort();
                 if (particleType != SchemaParticle.ELEMENT) {
@@ -1981,7 +1835,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
             } catch (SchemaTypeLoaderException e) {
                 throw e;
             } catch (Exception e) {
-                throw new SchemaTypeLoaderException("Cannot load type from typesystem", _name, handle, SchemaTypeLoaderException.NESTED_EXCEPTION, e);
+                throw new SchemaTypeLoaderException("Cannot load type from typesystem", _name, null, SchemaTypeLoaderException.NESTED_EXCEPTION, e);
             } finally {
                 readEnd();
             }
@@ -3287,7 +3141,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
      */
     public String getMetadataPath() {
         Matcher m = packPat.matcher(_name);
-        m.find();
-        return m.group(1).replace('.', '/');
+        String n = m.find() ? m.group(1) : _name;
+        return n.replace('.', '/');
     }
 }
