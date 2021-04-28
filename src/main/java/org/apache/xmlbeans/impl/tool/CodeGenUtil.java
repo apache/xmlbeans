@@ -22,6 +22,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.security.CodeSource;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -232,6 +233,13 @@ public class CodeGenUtil {
 
     public static File[] systemClasspath() {
         List<File> cp = new ArrayList<>();
+        CodeSource cs = CodeGenUtil.class.getProtectionDomain().getCodeSource();
+        if (cs != null) {
+            cp.add(new File(cs.getLocation().getPath()));
+        } else {
+            System.err.println("Can't determine path of xmlbeans-*.jar - specify classpath explicitly!");
+        }
+
         String jcp = SystemProperties.getProperty("java.class.path");
         if (jcp != null) {
             String[] systemcp = jcp.split(File.pathSeparator);

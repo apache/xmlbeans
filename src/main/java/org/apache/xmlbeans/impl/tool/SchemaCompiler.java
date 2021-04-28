@@ -65,8 +65,8 @@ public class SchemaCompiler {
         System.out.println("    -catalog [file] -  catalog file for org.apache.xml.resolver.tools.CatalogResolver. (Note: needs resolver.jar from http://xml.apache.org/commons/components/resolver/index.html)");
         System.out.println("    -partialMethods [list] -  comma separated list of bean methods to be generated. Use \"-\" to negate and \"ALL\" for all." );
         System.out.println("                              processed left-to-right, e.g. \"ALL,-GET_LIST\" exclude java.util.List getters - see XmlOptions.BeanMethod" );
+        System.out.println("    -repackage - repackage specification, e.g. \"org.apache.xmlbeans.metadata:mypackage.metadata\" to change the metadata directory");
         /* Undocumented feature - pass in one schema compiler extension and related parameters
-        System.out.println("    -repackage - repackage specification");
         System.out.println("    -extension - registers a schema compiler extension");
         System.out.println("    -extensionParms - specify parameters for the compiler extension");
         System.out.println("    -schemaCodePrinter - specify SchemaCodePrinter class");

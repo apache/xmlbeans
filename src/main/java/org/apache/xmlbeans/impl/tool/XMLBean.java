@@ -574,7 +574,7 @@ public class XMLBean extends MatchingTask {
 
     /**
      * One or more SchemaCompiler extensions can be passed in via the &lt;extension> subelement.
-     * Schema Compiler extensions must implement the interface com.xbean.too.SchemaCompilerExtension
+     * Schema Compiler extensions must implement the interface org.apache.xmlbeans.impl.tool.SchemaCompilerExtension
      */
     public Extension createExtension() {
         Extension e = new Extension();

@@ -130,7 +130,7 @@
                     <type>java.lang.String</type>
                     <required>false</required>
                     <editable>true</editable>
-                    <description></description>
+                    <description>Comma-separated list of jars and class folders</description>
                 </parameter>
                 <parameter>
                     <name>classTargetDir</name>
@@ -150,8 +150,8 @@
                     <name>resources</name>
                     <type>java.util.List</type>
                     <required>false</required>
-                    <editable>true</editable>
-                    <description></description>
+                    <editable>false</editable>
+                    <description>Singleton list containing the output directory for resources (output only, i.e. inputs are overridden)</description>
                 </parameter>
                 <parameter>
                     <name>sourceDir</name>
@@ -190,17 +190,20 @@
                 </parameter>
                 <parameter>
                     <name>mdefNamespaces</name>
-                    <type>java.lang.String</type>
+                    <type>java.util.List</type>
                     <required>false</required>
                     <editable>true</editable>
-                    <description>
+                    <description><![CDATA[
                         If this option is set, then the schema compiler will permit and
                         ignore multiple definitions of the same component (element, attribute,
                         type, etc) names in the given namespaces.  If multiple definitions
                         with the same name appear, the definitions that happen to be processed
                         last will be ignored.
 
-                        a comma-seperated list of namespace URIs
+                        Format:
+                        <mdefNamespaces>
+                            <mdefNamespace>http://lazy.dev/duplicated/namespace</mdefNamespace>
+                        <mdefNamespaces>]]>
                     </description>
                 </parameter>
                 <parameter>
@@ -263,12 +266,89 @@
                     <editable>true</editable>
                     <description>do not validate contents of documentation-tags</description>
                 </parameter>
+                <parameter>
+                    <name>download</name>
+                    <type>boolean</type>
+                    <required>false</required>
+                    <editable>true</editable>
+                    <description>permit network downloads for imports and includes</description>
+                </parameter>
+                <parameter>
+                    <name>debug</name>
+                    <type>boolean</type>
+                    <required>false</required>
+                    <editable>true</editable>
+                    <description>compile with debug symbols</description>
+                </parameter>
+                <parameter>
+                    <name>sourceOnly</name>
+                    <type>boolean</type>
+                    <required>false</required>
+                    <editable>true</editable>
+                    <description>do not compile .java files or jar the output</description>
+                </parameter>
+                <parameter>
+                    <name>basedir</name>
+                    <type>java.io.File</type>
+                    <required>false</required>
+                    <editable>true</editable>
+                    <description>basedir of the source files - defaults to the directory of the first source file</description>
+                </parameter>
+                <parameter>
+                    <name>compiler</name>
+                    <type>java.lang.String</type>
+                    <required>false</required>
+                    <editable>true</editable>
+                    <description>path to the javac compiler</description>
+                </parameter>
+                <parameter>
+                    <name>memoryInitialSize</name>
+                    <type>java.lang.String</type>
+                    <required>false</required>
+                    <editable>true</editable>
+                    <description>initial memory for external java compiler</description>
+                </parameter>
+                <parameter>
+                    <name>memoryMaximumSize</name>
+                    <type>java.lang.String</type>
+                    <required>false</required>
+                    <editable>true</editable>
+                    <description>maximum memory for external java compiler</description>
+                </parameter>
+                <parameter>
+                    <name>outputJar</name>
+                    <type>java.io.File</type>
+                    <required>false</required>
+                    <editable>true</editable>
+                    <description>the name of the output jar</description>
+                </parameter>
+                <parameter>
+                    <name>extensions</name>
+                    <type>java.util.List</type>
+                    <required>false</required>
+                    <editable>true</editable>
+                    <description><![CDATA[(experimental) registers a schema compiler extensions implementing org.apache.xmlbeans.impl.tool.SchemaCompilerExtension
+
+                    Example:
+					<extensions>
+						<extension>
+							<className>org.custom.MySchemaCompilerExtension</className>
+							<params>
+								<param>
+									<name>name</name>
+									<value>value</value>
+								</param>
+							</params>
+						</extension>
+					</extensions>
+                ]]></description>
+                </parameter>
             </parameters>
             <configuration>
                 <project implementation="org.apache.maven.project.MavenProject" default-value="${project}"/>
                 <buildSchemas implementation="boolean" default-value="true"/>
                 <sourceDir implementation="java.lang.String" default-value="${project.basedir}/src/main/schema"/>
-                <sourceSchemas implementation="java.lang.String" default-value="*.xsd,*.wsdl"/>
+                <sourceSchemas implementation="java.lang.String" default-value="*.xsd,*.wsdl,*.java"/>
                 <xmlConfigs implementation="java.lang.String" default-value="${project.basedir}/src/schema/xmlconfig.xml"/>
                 <javaTargetDir implementation="java.lang.String" default-value="${project.basedir}/target/generated-sources"/>
                 <classTargetDir implementation="java.lang.String" default-value="${project.basedir}/target/generated-resources"/>
@@ -281,6 +361,12 @@
                 <noPvr implementation="boolean" default-value="false"/>
                 <noAnn implementation="boolean" default-value="false"/>
                 <noVDoc implementation="boolean" default-value="false"/>
+                <download implementation="boolean" default-value="false"/>
+                <debug implementation="boolean" default-value="false"/>
+                <sourceOnly implementation="boolean" default-value="true"/>
+                <memoryInitialSize implementation="java.lang.String" default-value="8m"/>
+                <memoryMaximumSize implementation="java.lang.String" default-value="256m"/>
+                <outputJar implementation="java.io.File" default-value="${project.basedir}/target/${project.artifactId}-${project.version}-xmltypes.jar"/>
             </configuration>
         </mojo>
     </mojos>
@@ -290,176 +376,11 @@
             <artifactId>maven-plugin-api</artifactId>
             <version>3.6.1</version>
         </dependency>
-<!--        <dependency>-->
-<!--            <groupId>org.apache.maven</groupId>-->
-<!--            <artifactId>maven-model</artifactId>-->
-<!--            <version>3.6.1</version>-->
-<!--        </dependency>-->
-<!--        <dependency>-->
-<!--            <groupId>org.apache.maven</groupId>-->
-<!--            <artifactId>maven-artifact</artifactId>-->
-<!--            <version>3.6.1</version>-->
-<!--        </dependency>-->
-<!--        <dependency>-->
-<!--            <groupId>org.apache.commons</groupId>-->
-<!--            <artifactId>commons-lang3</artifactId>-->
-<!--            <version>3.8.1</version>-->
-<!--        </dependency>-->
-<!--        <dependency>-->
-<!--            <groupId>org.eclipse.sisu</groupId>-->
-<!--            <artifactId>org.eclipse.sisu.plexus</artifactId>-->
-<!--            <version>0.3.3</version>-->
-<!--        </dependency>-->
-<!--        <dependency>-->
-<!--            <groupId>javax.enterprise</groupId>-->
-<!--            <artifactId>cdi-api</artifactId>-->
-<!--            <version>1.0</version>-->
-<!--        </dependency>-->
-<!--        <dependency>-->
-<!--            <groupId>javax.annotation</groupId>-->
-<!--            <artifactId>jsr250-api</artifactId>-->
-<!--            <version>1.0</version>-->
-<!--        </dependency>-->
-<!--        <dependency>-->
-<!--            <groupId>javax.inject</groupId>-->
-<!--            <artifactId>javax.inject</artifactId>-->
-<!--            <version>1</version>-->
-<!--        </dependency>-->
-<!--        <dependency>-->
-<!--            <groupId>org.eclipse.sisu</groupId>-->
-<!--            <artifactId>org.eclipse.sisu.inject</artifactId>-->
-<!--            <version>0.3.3</version>-->
-<!--        </dependency>-->
-<!--        <dependency>-->
-<!--            <groupId>org.codehaus.plexus</groupId>-->
-<!--            <artifactId>plexus-component-annotations</artifactId>-->
-<!--            <version>1.5.5</version>-->
-<!--        </dependency>-->
-<!--        <dependency>-->
-<!--            <groupId>org.codehaus.plexus</groupId>-->
-<!--            <artifactId>plexus-utils</artifactId>-->
-<!--            <version>3.2.0</version>-->
-<!--        </dependency>-->
-<!--        <dependency>-->
-<!--            <groupId>org.codehaus.plexus</groupId>-->
-<!--            <artifactId>plexus-classworlds</artifactId>-->
-<!--            <version>2.6.0</version>-->
-<!--        </dependency>-->
-<!--        <dependency>-->
-<!--            <groupId>org.apache.maven.shared</groupId>-->
-<!--            <artifactId>file-management</artifactId>-->
-<!--            <version>3.0.0</version>-->
-<!--        </dependency>-->
-<!--        <dependency>-->
-<!--            <groupId>org.apache.maven.shared</groupId>-->
-<!--            <artifactId>maven-shared-io</artifactId>-->
-<!--            <version>3.0.0</version>-->
-<!--        </dependency>-->
-<!--        <dependency>-->
-<!--            <groupId>org.apache.maven</groupId>-->
-<!--            <artifactId>maven-compat</artifactId>-->
-<!--            <version>3.0</version>-->
-<!--        </dependency>-->
-<!--        <dependency>-->
-<!--            <groupId>org.apache.maven</groupId>-->
-<!--            <artifactId>maven-model-builder</artifactId>-->
-<!--            <version>3.0</version>-->
-<!--        </dependency>-->
-<!--        <dependency>-->
-<!--            <groupId>org.apache.maven</groupId>-->
-<!--            <artifactId>maven-settings</artifactId>-->
-<!--            <version>3.0</version>-->
-<!--        </dependency>-->
         <dependency>
             <groupId>org.apache.maven</groupId>
             <artifactId>maven-core</artifactId>
             <version>3.0</version>
         </dependency>
-<!--        <dependency>-->
-<!--            <groupId>org.apache.maven</groupId>-->
-<!--            <artifactId>maven-settings-builder</artifactId>-->
-<!--            <version>3.0</version>-->
-<!--        </dependency>-->
-<!--        <dependency>-->
-<!--            <groupId>org.apache.maven</groupId>-->
-<!--            <artifactId>maven-repository-metadata</artifactId>-->
-<!--            <version>3.0</version>-->
-<!--        </dependency>-->
-<!--        <dependency>-->
-<!--            <groupId>org.apache.maven</groupId>-->
-<!--            <artifactId>maven-aether-provider</artifactId>-->
-<!--            <version>3.0</version>-->
-<!--        </dependency>-->
-<!--        <dependency>-->
-<!--            <groupId>org.sonatype.aether</groupId>-->
-<!--            <artifactId>aether-impl</artifactId>-->
-<!--            <version>1.7</version>-->
-<!--        </dependency>-->
-<!--        <dependency>-->
-<!--            <groupId>org.sonatype.aether</groupId>-->
-<!--            <artifactId>aether-spi</artifactId>-->
-<!--            <version>1.7</version>-->
-<!--        </dependency>-->
-<!--        <dependency>-->
-<!--            <groupId>org.sonatype.aether</groupId>-->
-<!--            <artifactId>aether-api</artifactId>-->
-<!--            <version>1.7</version>-->
-<!--        </dependency>-->
-<!--        <dependency>-->
-<!--            <groupId>org.sonatype.aether</groupId>-->
-<!--            <artifactId>aether-util</artifactId>-->
-<!--            <version>1.7</version>-->
-<!--        </dependency>-->
-<!--        <dependency>-->
-<!--            <groupId>org.sonatype.plexus</groupId>-->
-<!--            <artifactId>plexus-sec-dispatcher</artifactId>-->
-<!--            <version>1.3</version>-->
-<!--        </dependency>-->
-<!--        <dependency>-->
-<!--            <groupId>org.sonatype.plexus</groupId>-->
-<!--            <artifactId>plexus-cipher</artifactId>-->
-<!--            <version>1.4</version>-->
-<!--        </dependency>-->
-<!--        <dependency>-->
-<!--            <groupId>org.codehaus.plexus</groupId>-->
-<!--            <artifactId>plexus-interpolation</artifactId>-->
-<!--            <version>1.14</version>-->
-<!--        </dependency>-->
-<!--        <dependency>-->
-<!--            <groupId>org.sonatype.sisu</groupId>-->
-<!--            <artifactId>sisu-inject-plexus</artifactId>-->
-<!--            <version>1.4.2</version>-->
-<!--        </dependency>-->
-<!--        <dependency>-->
-<!--            <groupId>org.sonatype.sisu</groupId>-->
-<!--            <artifactId>sisu-inject-bean</artifactId>-->
-<!--            <version>1.4.2</version>-->
-<!--        </dependency>-->
-<!--        <dependency>-->
-<!--            <groupId>org.sonatype.sisu</groupId>-->
-<!--            <artifactId>sisu-guice</artifactId>-->
-<!--            <version>2.1.7</version>-->
-<!--        </dependency>-->
-<!--        <dependency>-->
-<!--            <groupId>org.apache.maven.wagon</groupId>-->
-<!--            <artifactId>wagon-provider-api</artifactId>-->
-<!--            <version>2.10</version>-->
-<!--        </dependency>-->
-<!--        <dependency>-->
-<!--            <groupId>org.apache.maven.shared</groupId>-->
-<!--            <artifactId>maven-shared-utils</artifactId>-->
-<!--            <version>3.0.0</version>-->
-<!--        </dependency>-->
-<!--        <dependency>-->
-<!--            <groupId>commons-io</groupId>-->
-<!--            <artifactId>commons-io</artifactId>-->
-<!--            <version>2.4</version>-->
-<!--        </dependency>-->
-<!--        <dependency>-->
-<!--            <groupId>com.google.code.findbugs</groupId>-->
-<!--            <artifactId>jsr305</artifactId>-->
-<!--            <version>2.0.1</version>-->
-<!--        </dependency>-->
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-api</artifactId>

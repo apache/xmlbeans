@@ -24,15 +24,19 @@ import java.util.List;
  * XmlBeans Schema Compiler.
  */
 public class Extension {
-    private Class className;
-    private List<Param> params = new ArrayList<>();
+    private Class<?> className;
+    private final List<Param> params = new ArrayList<>();
 
-    public Class getClassName() {
+    public Class<?> getClassName() {
         return className;
     }
 
-    public void setClassName(Class className) {
+    public void setClassName(Class<?> className) {
         this.className = className;
+    }
+
+    public void setClassName(String className) throws ClassNotFoundException {
+        this.className = Class.forName(className);
     }
 
     public List<Param> getParams() {
@@ -48,7 +52,7 @@ public class Extension {
     /**
      * A Param is just a name value pair applicable to the extension.
      */
-    public class Param {
+    public static class Param {
         private String name;
         private String value;
 

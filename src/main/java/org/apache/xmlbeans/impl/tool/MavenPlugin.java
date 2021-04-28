@@ -56,7 +56,7 @@ public class MavenPlugin extends AbstractMojo {
     private String sourceDir;
 
     /** sourceSchemas is a comma-delimited list of all the schemas you want to compile */
-    @Parameter( defaultValue = "*.xsd,*.wsdl" )
+    @Parameter( defaultValue = "*.xsd,*.wsdl,*.java" )
     private String sourceSchemas;
 
     /** xmlConfigs points to your xmlconfig.xml file */
@@ -128,10 +128,10 @@ public class MavenPlugin extends AbstractMojo {
      * with the same name appear, the definitions that happen to be processed
      * last will be ignored.
      *
-     * a comma-seperated list of namespace URIs
+     * a list of namespace URIs
      */
     @Parameter
-    private String mdefNamespaces;
+    private List<String> mdefNamespaces;
 
     /**
      * Only generate a subset of the bean methods. Comma-seperated list of the following method types:
@@ -147,6 +147,33 @@ public class MavenPlugin extends AbstractMojo {
      */
     @Parameter
     private String partialMethods;
+
+    @Parameter( defaultValue = "false" )
+    private boolean download;
+
+    @Parameter( defaultValue = "true" )
+    private boolean sourceOnly;
+
+    @Parameter
+    private File basedir;
+
+    @Parameter
+    private String compiler;
+
+    @Parameter( defaultValue = CodeGenUtil.DEFAULT_MEM_START )
+    private String memoryInitialSize;
+
+    @Parameter( defaultValue = CodeGenUtil.DEFAULT_MEM_MAX )
+    private String memoryMaximumSize;
+
+    @Parameter( defaultValue = "${project.basedir}/target/${project.artifactId}-${project.version}-xmltypes.jar" )
+    private File outputJar;
+
+    @Parameter( defaultValue = "false" )
+    private boolean debug;
+
+    @Parameter
+    private List<Extension> extensions;
 
     public void execute() throws MojoExecutionException, MojoFailureException {
         if (sourceDir == null || sourceDir.isEmpty() || !new File(sourceDir).isDirectory()) {
@@ -165,8 +192,9 @@ public class MavenPlugin extends AbstractMojo {
             getLog().debug("classPath is null");
         }
 
-        List<File> xsds = new ArrayList<>();
-        List<File> wsdls = new ArrayList<>();
+        final List<File> xsds = new ArrayList<>();
+        final List<File> wsdls = new ArrayList<>();
+        final List<File> javas = new ArrayList<>();
         File base = new File(sourceDir);
         Resource resource = new Resource();
         resource.setDirectory(sourceDir);
@@ -184,8 +212,19 @@ public class MavenPlugin extends AbstractMojo {
         File[] schemaFiles = Objects.requireNonNull(base.listFiles((dir, name) ->
             !name.endsWith(".xsdconfig") && pat.matcher(name).matches()));
         for (File sf : schemaFiles) {
-            (sf.getName().endsWith(".wsdl") ? wsdls : xsds).add(sf);
-            resource.addInclude(sf.getName());
+            String name = sf.getName();
+            switch (name.replaceAll(".*\\.", "")) {
+                case "wsdl":
+                    wsdls.add(sf);
+                    break;
+                case "java":
+                    javas.add(sf);
+                    break;
+                default:
+                    xsds.add(sf);
+                    break;
+            }
+            resource.addInclude(name);
         }
 
         resources = Collections.singletonList(resource);
@@ -215,22 +254,15 @@ public class MavenPlugin extends AbstractMojo {
             entityResolver = new PassThroughResolver(cl, entityResolver, sourceDirURI, baseSchemaLocation);
 
             Parameters params = new Parameters();
-            if (!xsds.isEmpty()) {
-                params.setXsdFiles(xsds.toArray(new File[0]));
-            }
-            if (!wsdls.isEmpty()) {
-                params.setWsdlFiles(wsdls.toArray(new File[0]));
-            }
-            if (!configs.isEmpty()) {
-                params.setConfigFiles(configs.toArray(new File[0]));
-            }
-            if (!classPathList.isEmpty()) {
-                params.setClasspath(classPathList.toArray(new File[0]));
-            }
+            params.setXsdFiles(files(xsds));
+            params.setWsdlFiles(files(wsdls));
+            params.setJavaFiles(files(javas));
+            params.setConfigFiles(files(configs));
+            params.setClasspath(files(classPathList));
             params.setName(name);
             params.setSrcDir(new File(javaTargetDir));
             params.setClassesDir(new File(classTargetDir));
-            params.setNojavac(true);
+            params.setNojavac(sourceOnly);
             params.setVerbose(verbose);
             params.setEntityResolver(entityResolver);
             params.setQuiet(quite);
@@ -242,7 +274,7 @@ public class MavenPlugin extends AbstractMojo {
                 params.setRepackage("org.apache.xmlbeans.metadata:"+repackage);
             }
             if (mdefNamespaces != null && !mdefNamespaces.isEmpty()) {
-                params.setMdefNamespaces(new HashSet<>(Arrays.asList(mdefNamespaces.split(","))));
+                params.setMdefNamespaces(new HashSet<>(mdefNamespaces));
             }
             List<XmlError> errorList = new ArrayList<>();
             params.setErrorListener(errorList);
@@ -250,15 +282,14 @@ public class MavenPlugin extends AbstractMojo {
             if (partialMethods != null && !partialMethods.isEmpty()) {
                 params.setPartialMethods(parsePartialMethods(partialMethods));
             }
-//            params.setBaseDir(null);
-//            params.setJavaFiles(new File[0]);
-//            params.setCompiler(null);
-//            params.setMemoryInitialSize(null);
-//            params.setMemoryMaximumSize(null);
-//            params.setOutputJar(null);
-//            params.setDownload(false);
-//            params.setDebug(debug);
-//            params.setExtensions(null);
+            params.setDownload(download);
+            params.setBaseDir(basedir);
+            params.setCompiler(compiler);
+            params.setMemoryInitialSize(memoryInitialSize);
+            params.setMemoryMaximumSize(memoryMaximumSize);
+            params.setOutputJar(outputJar);
+            params.setDebug(debug);
+            params.setExtensions(extensions);
 
             boolean result = SchemaCompiler.compile(params);
 
@@ -274,6 +305,10 @@ public class MavenPlugin extends AbstractMojo {
             project.addCompileSourceRoot(javaTargetDir);
         }
 
+    }
+
+    private static File[] files(List<File> files) {
+        return (files == null || files.isEmpty()) ? null : files.toArray(new File[0]);
     }
 
     private static class PassThroughResolver implements EntityResolver {
