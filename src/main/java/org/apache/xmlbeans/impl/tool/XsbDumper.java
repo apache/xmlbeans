@@ -18,6 +18,7 @@ package org.apache.xmlbeans.impl.tool;
 import org.apache.xmlbeans.*;
 import org.apache.xmlbeans.impl.common.QNameHelper;
 import org.apache.xmlbeans.impl.util.HexBin;
+import org.apache.xmlbeans.impl.util.LongUTFDataInputStream;
 import org.apache.xmlbeans.soap.SOAPArrayType;
 
 import javax.xml.namespace.QName;
@@ -103,7 +104,7 @@ public class XsbDumper {
     }
 
     private XsbDumper(InputStream stream, String indent, PrintStream ostream) {
-        _input = new DataInputStream(stream);
+        _input = new LongUTFDataInputStream(stream);
         _indent = indent;
         _out = ostream;
     }
@@ -501,7 +502,7 @@ public class XsbDumper {
             return result;
         }
 
-        void readFrom(DataInputStream input) {
+        void readFrom(LongUTFDataInputStream input) {
             if (intsToStrings.size() != 1 || stringsToInts.size() != 0) {
                 throw new IllegalStateException();
             }
@@ -511,7 +512,7 @@ public class XsbDumper {
                 emit("String pool (" + size + "):");
                 indent();
                 for (int i = 1; i < size; i++) {
-                    String str = input.readUTF();
+                    String str = input.readLongUTF();
                     int code = codeForString(str);
                     if (code != i) {
                         throw new IllegalStateException();
@@ -526,7 +527,7 @@ public class XsbDumper {
     }
 
     // active while loading one type.
-    DataInputStream _input;
+    LongUTFDataInputStream _input;
     StringPool _stringPool;
 
     int readShort() {

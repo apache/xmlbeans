@@ -21,6 +21,8 @@ import org.apache.xmlbeans.impl.common.QNameHelper;
 import org.apache.xmlbeans.impl.common.XBeanDebug;
 import org.apache.xmlbeans.impl.util.FilerImpl;
 import org.apache.xmlbeans.impl.util.HexBin;
+import org.apache.xmlbeans.impl.util.LongUTFDataInputStream;
+import org.apache.xmlbeans.impl.util.LongUTFDataOutputStream;
 import org.apache.xmlbeans.impl.values.XmlObjectBase;
 import org.apache.xmlbeans.impl.xb.xsdschema.AttributeGroupDocument;
 import org.apache.xmlbeans.impl.xb.xsdschema.GroupDocument;
@@ -512,7 +514,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
         if (_random == null) {
             try {
                 ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                DataOutputStream daos = new DataOutputStream(baos);
+                LongUTFDataOutputStream daos = new LongUTFDataOutputStream(baos);
 
                 // at least 10 bits of unqieueness, right?  Maybe even 50 or 60.
                 daos.writeInt(System.identityHashCode(SchemaTypeSystemImpl.class));
@@ -640,7 +642,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
             return intsToStrings.get(code);
         }
 
-        void writeTo(DataOutputStream output) {
+        void writeTo(LongUTFDataOutputStream output) {
             if (intsToStrings.size() >= MAX_UNSIGNED_SHORT) {
                 throw new SchemaTypeLoaderException("Too many strings (" + intsToStrings.size() + ")", _name, _handle, SchemaTypeLoaderException.INT_TOO_LARGE);
             }
@@ -650,7 +652,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
                 boolean isNext = false;
                 for (String str : intsToStrings) {
                     if (isNext) {
-                        output.writeUTF(str);
+                        output.writeLongUTF(str);
                     }
                     isNext = true;
                 }
@@ -659,7 +661,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
             }
         }
 
-        void readFrom(DataInputStream input) {
+        void readFrom(LongUTFDataInputStream input) {
             if (intsToStrings.size() != 1 || stringsToInts.size() != 0) {
                 throw new IllegalStateException();
             }
@@ -667,7 +669,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
             try {
                 int size = input.readUnsignedShort();
                 for (int i = 1; i < size; i++) {
-                    String str = input.readUTF().intern();
+                    String str = input.readLongUTF().intern();
                     int code = codeForString(str);
                     if (code != i) {
                         throw new IllegalStateException();
@@ -1069,7 +1071,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
     }
 
     public static String crackPointer(InputStream stream) {
-        try (DataInputStream input = new DataInputStream(stream)) {
+        try (LongUTFDataInputStream input = new LongUTFDataInputStream(stream)) {
 
             int magic = input.readInt();
             if (magic != DATA_BABE) {
@@ -1106,8 +1108,8 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
     }
 
     private class XsbReader {
-        DataInputStream _input;
-        DataOutputStream _output;
+        LongUTFDataInputStream _input;
+        LongUTFDataOutputStream _output;
         StringPool _stringPool;
         String _handle;
         private int _majorver;
@@ -1122,7 +1124,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
                 throw new SchemaTypeLoaderException("XML-BEANS compiled schema: Could not locate compiled schema resource " + resourcename, _name, handle, SchemaTypeLoaderException.NO_RESOURCE);
             }
 
-            _input = new DataInputStream(rawinput);
+            _input = new LongUTFDataInputStream(rawinput);
             _handle = handle;
 
             int magic = readInt();
@@ -1220,7 +1222,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
                 throw new SchemaTypeLoaderException("Could not write compiled schema resource " + resourcename, _name, handle, SchemaTypeLoaderException.NOT_WRITEABLE);
             }
 
-            _output = new DataOutputStream(rawoutput);
+            _output = new LongUTFDataOutputStream(rawoutput);
             _handle = handle;
 
             writeInt(DATA_BABE);

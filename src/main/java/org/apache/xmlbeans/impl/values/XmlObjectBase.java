@@ -19,6 +19,7 @@ import org.apache.xmlbeans.*;
 import org.apache.xmlbeans.impl.common.*;
 import org.apache.xmlbeans.impl.schema.SchemaTypeImpl;
 import org.apache.xmlbeans.impl.schema.SchemaTypeVisitorImpl;
+import org.apache.xmlbeans.impl.util.LongUTFDataInputStream;
 import org.apache.xmlbeans.impl.validator.Validator;
 import org.w3c.dom.Node;
 import org.xml.sax.ContentHandler;
@@ -2964,11 +2965,11 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
             // now set up a DataInputStream to read those
             // bytes as a UTF-8 String i.e. as though we'd never
             // read the first 2 bytes from the original stream
-            DataInputStream dis = null;
+            LongUTFDataInputStream dis = null;
             String str;
             try {
-                dis = new DataInputStream(new ByteArrayInputStream(bArray));
-                str = dis.readUTF();
+                dis = new LongUTFDataInputStream(new ByteArrayInputStream(bArray));
+                str = dis.readLongUTF();
             } finally {
                 if (dis != null) {
                     dis.close();
