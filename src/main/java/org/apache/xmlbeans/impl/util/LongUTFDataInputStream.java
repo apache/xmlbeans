@@ -15,10 +15,12 @@
 
 package org.apache.xmlbeans.impl.util;
 
-import java.io.*;
+import java.io.DataInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UTFDataFormatException;
 
-import static org.apache.xmlbeans.impl.util.LongUTFDataOutputStream.DATA_OUTPUT_CHUNKS;
-import static org.apache.xmlbeans.impl.util.LongUTFDataOutputStream.LONG_UTF_MAGIC;
+import static org.apache.xmlbeans.impl.util.LongUTFDataOutputStream.MAX_UNSIGNED_SHORT;
 
 /**
  * This class works around the size limitation of UTF strings (&lt; 64kb) of DataInputStream
@@ -26,31 +28,27 @@ import static org.apache.xmlbeans.impl.util.LongUTFDataOutputStream.LONG_UTF_MAG
  */
 public class LongUTFDataInputStream extends DataInputStream {
     public LongUTFDataInputStream(InputStream in) {
-        super(wrap(in));
-    }
-
-    private static InputStream wrap(InputStream is) {
-        return is.markSupported() ? is : new BufferedInputStream(is);
+        super(in);
     }
 
     private interface IOCall {
         byte onebyte(int[] readBuf, int[] fillBuf, int[] readLen) throws IOException;
     }
 
-    public String readLongUTF() throws IOException {
-        mark(6);
-        int utfLen1 = readShort() & 0x0000FFFF;
-        if (utfLen1 < DATA_OUTPUT_CHUNKS) {
-            reset();
-            return readUTF();
-        }
-        int magic = readInt();
-        if (magic != LONG_UTF_MAGIC) {
-            reset();
-            return readUTF();
-        }
+    public int readUnsignedShortOrInt() throws IOException {
+        return readUnsignedShortOrInt(this);
+    }
 
-        final int utfLen = readInt();
+    public static int readUnsignedShortOrInt(DataInputStream dis) throws IOException {
+        int value = dis.readUnsignedShort();
+        if (value == MAX_UNSIGNED_SHORT) {
+            value = dis.readInt();
+        }
+        return value;
+    }
+
+    public String readLongUTF() throws IOException {
+        final int utfLen = readUnsignedShortOrInt();
         StringBuilder sb = new StringBuilder(utfLen/2);
         final byte[] bytearr = new byte[4096];
 

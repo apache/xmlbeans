@@ -24,15 +24,26 @@ import java.io.OutputStream;
  * and needs to be used with LongUTFDataInputStream
  */
 public class LongUTFDataOutputStream extends DataOutputStream {
-    /**
-     * Max. chunk size for string part to be output to DataOutputStream is 64kb
-     */
-    static final int DATA_OUTPUT_CHUNKS = 0x0000FFFF;
-
-    static final int LONG_UTF_MAGIC = 0xDA7A_DA7A;
+    // MAX_UNSIGNED_SHORT - actually (+1) but for the magic value we use the reduced value
+    static final int MAX_UNSIGNED_SHORT = Short.MAX_VALUE * 2;
 
     public LongUTFDataOutputStream(OutputStream out) {
         super(out);
+    }
+
+    public void writeShortOrInt(int value) throws IOException {
+        writeShortOrInt(this, value);
+    }
+
+    public static void writeShortOrInt(DataOutputStream dos, int value) throws IOException {
+        // there are two values (0xFFFE and 0xFFFF) which are incompatible to the older (writeShort)
+        // implementation, i.e. if old schemas based on writeShort are processed
+        if (value < MAX_UNSIGNED_SHORT) {
+            dos.writeShort(value);
+        } else {
+            dos.writeShort(MAX_UNSIGNED_SHORT);
+            dos.writeInt(value);
+        }
     }
 
     /**
@@ -44,14 +55,7 @@ public class LongUTFDataOutputStream extends DataOutputStream {
     public void writeLongUTF(String str) throws IOException {
         // DataOutputStream allows only 64k chunks - see XMLBeans-235
         final int utfLen = countUTF(str);
-        if (utfLen < DATA_OUTPUT_CHUNKS) {
-            writeUTF(str);
-            return;
-        }
-
-        writeShort(0xFFFF);
-        writeInt(LONG_UTF_MAGIC);
-        writeInt(utfLen);
+        writeShortOrInt(utfLen);
 
         final byte[] bytearr = new byte[4096];
         final int strlen = str.length();

@@ -636,19 +636,13 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
         }
 
         String stringForCode(int code) {
-            if (code == 0) {
-                return null;
-            }
-            return intsToStrings.get(code);
+            return code == 0 ? null : intsToStrings.get(code);
         }
 
         void writeTo(LongUTFDataOutputStream output) {
-            if (intsToStrings.size() >= MAX_UNSIGNED_SHORT) {
-                throw new SchemaTypeLoaderException("Too many strings (" + intsToStrings.size() + ")", _name, _handle, SchemaTypeLoaderException.INT_TOO_LARGE);
-            }
-
             try {
-                output.writeShort(intsToStrings.size());
+                int cnt = intsToStrings.size();
+                output.writeShortOrInt(cnt);
                 boolean isNext = false;
                 for (String str : intsToStrings) {
                     if (isNext) {
@@ -667,7 +661,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
             }
 
             try {
-                int size = input.readUnsignedShort();
+                int size = input.readUnsignedShortOrInt();
                 for (int i = 1; i < size; i++) {
                     String str = input.readLongUTF().intern();
                     int code = codeForString(str);
@@ -1386,6 +1380,24 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
             }
         }
 
+        int readUnsignedShortOrInt() {
+            try {
+                return _input.readUnsignedShortOrInt();
+            } catch (IOException e) {
+                throw new SchemaTypeLoaderException(e.getMessage(), _name, _handle, SchemaTypeLoaderException.IO_EXCEPTION, e);
+            }
+        }
+
+        void writeShortOrInt(int s) {
+            if (_output != null) {
+                try {
+                    _output.writeShortOrInt(s);
+                } catch (IOException e) {
+                    throw new SchemaTypeLoaderException(e.getMessage(), _name, _handle, SchemaTypeLoaderException.IO_EXCEPTION, e);
+                }
+            }
+        }
+
         int readInt() {
             try {
                 return _input.readInt();
@@ -1405,12 +1417,13 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
         }
 
         String readString() {
-            return _stringPool.stringForCode(readShort());
+            int code = readUnsignedShortOrInt();
+            return _stringPool.stringForCode(code);
         }
 
         void writeString(String str) {
             int code = _stringPool.codeForString(str);
-            writeShort(code);
+            writeShortOrInt(code);
         }
 
         QName readQName() {
@@ -2118,7 +2131,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
 
                     impl.setBaseEnumTypeRef(readTypeRef());
                     if (isStringEnum) {
-                        int seCount = readShort();
+                        int seCount = readUnsignedShortOrInt();
                         SchemaStringEnumEntry[] entries = new SchemaStringEnumEntry[seCount];
                         for (int i = 0; i < seCount; i++) {
                             entries[i] = new SchemaStringEnumEntryImpl(readString(), readShort(), readString());
@@ -2342,7 +2355,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
                 if (enumValues == null) {
                     writeShort(0);
                 } else {
-                    writeShort(enumValues.length);
+                    writeShortOrInt(enumValues.length);
                     for (XmlAnySimpleType enumValue : enumValues) {
                         writeXmlValueObject(enumValue);
                     }

@@ -18,13 +18,13 @@
             xmlns:xsd="http://www.w3.org/2001/XMLSchema"
             xmlns="http://xmlbeans.apache.org/largeEnum">
 
-    <xsd:element name="root">
+    <xsd:element name="rootAnnon">
         <xsd:complexType>
-            <xsd:attribute name="nonsense" type="LargeEnum" use="required" />
+            <xsd:attribute name="nonsense" type="LargeEnum1" use="required" />
         </xsd:complexType>
     </xsd:element>
 
-    <xsd:simpleType name="LargeEnum">
+    <xsd:simpleType name="LargeEnum1">
     <xsd:annotation>
         <xsd:documentation>
             Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus nec mauris ac

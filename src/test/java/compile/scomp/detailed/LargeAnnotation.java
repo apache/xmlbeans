@@ -55,12 +55,15 @@ public class LargeAnnotation {
             }
         }
 
-        targetStringLength = 0xFFFF;
+        // actually +1, but here it's used as a magic number
+        final int MAX_SHORT = Short.MAX_VALUE*2;
+
+        targetStringLength = MAX_SHORT;
         try (ByteArrayOutputStream bos = new ByteArrayOutputStream(targetStringLength + 3)) {
             try (LongUTFDataOutputStream ldos = new LongUTFDataOutputStream(bos)) {
                 String exp;
                 {
-                    char[] chs = new char[0xFFFF];
+                    char[] chs = new char[MAX_SHORT-1];
                     Arrays.fill(chs, 'a');
                     exp = new String(chs);
                 }
@@ -76,10 +79,10 @@ public class LargeAnnotation {
 
             String exp;
             {
-                char[] chs = new char[0xFFFF];
+                char[] chs = new char[MAX_SHORT];
                 Arrays.fill(chs, 'a');
-                chs[0xFFFD] = '\u1234';
-                chs[0xFFFE] = '\u5678';
+                chs[MAX_SHORT-2] = '\u1234';
+                chs[MAX_SHORT-1] = '\u5678';
                 exp = new String(chs);
             }
 
@@ -103,7 +106,7 @@ public class LargeAnnotation {
 
 
     @Test
-    public void bug235() throws XmlException, IOException {
+    public void bug235and556() throws XmlException, IOException {
         ArrayList<XmlError> err = new ArrayList<>();
         XmlOptions xm_opt = new XmlOptions().setErrorListener(err);
         xm_opt.setSavePrettyPrint();
