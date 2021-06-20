@@ -13,7 +13,7 @@
      See the License for the specific language governing permissions and
      limitations under the License. -->
 
-<xs:schema targetNamespace="http://openuri/org/xbeans36" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:p="http://openuri/org/xbeans36" elementFormDefault="qualified" attributeFormDefault="unqualified" xsi:schemaLocation="http://www.w3.org/2001/XMLSchema http://www.w3.org/2001/XMLSchema.xsd">
+<xs:schema targetNamespace="http://openuri/org/xbeans36" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:p="http://openuri/org/xbeans36" elementFormDefault="qualified" attributeFormDefault="unqualified" xsi:schemaLocation="http://www.w3.org/2001/XMLSchema XMLSchema.xsd">
     <xs:element name="config_test">
         <xs:annotation>
             <xs:documentation>XPL root element</xs:documentation>

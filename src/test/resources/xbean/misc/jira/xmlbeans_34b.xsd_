@@ -13,10 +13,12 @@
      See the License for the specific language governing permissions and
      limitations under the License. -->
 
-<xsd:schema targetNamespace="http://openuri.org/this" xmlns:dsig="http://www.w3.org/2000/09/xmldsig#" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://openuri.org/this" xmlns:sl10="http://openuri.org/" elementFormDefault="qualified" attributeFormDefault="unqualified" version="1.1.0">
+<xsd:schema targetNamespace="http://openuri.org/this" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+            xmlns="http://openuri.org/this" xmlns:sl10="http://openuri.org/" elementFormDefault="qualified"
+            attributeFormDefault="unqualified" version="1.1.0">
 
-<xsd:import namespace="http://www.w3.org/2000/09/xmldsig#" schemaLocation="http://www.w3.org/TR/xmldsig-core/xmldsig-core-schema.xsd"/>
-<xsd:import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="http://www.w3.org/2001/xml.xsd"/>
+<xsd:import namespace="http://www.w3.org/2000/09/xmldsig#" schemaLocation="xmldsig-core-schema.xsd"/>
+<xsd:import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="XML.xsd"/>
 <xsd:import namespace="http://openuri.org/" schemaLocation="xmlbeans_34a.xsd_"/>
 
     <!--### Verify XML Signature Response ###-->

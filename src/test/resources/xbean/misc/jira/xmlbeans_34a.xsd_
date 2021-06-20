@@ -13,9 +13,11 @@
      See the License for the specific language governing permissions and
      limitations under the License. -->
 
-<xsd:schema targetNamespace="http://openuri.org/" xmlns="http://openuri.org/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:dsig="http://www.w3.org/2000/09/xmldsig#" elementFormDefault="qualified" attributeFormDefault="unqualified" version="1.1.0">
-  <xsd:import namespace="http://www.w3.org/2000/09/xmldsig#" schemaLocation="http://www.w3.org/TR/xmldsig-core/xmldsig-core-schema.xsd"/>
-  <xsd:import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="http://www.w3.org/2001/xml.xsd"/>
+<xsd:schema targetNamespace="http://openuri.org/" xmlns="http://openuri.org/"
+            xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+            elementFormDefault="qualified" attributeFormDefault="unqualified" version="1.1.0">
+  <xsd:import namespace="http://www.w3.org/2000/09/xmldsig#" schemaLocation="xmldsig-core-schema.xsd"/>
+  <xsd:import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="XML.xsd"/>
 
 
   <xsd:complexType name="CheckResultType">
