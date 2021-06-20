@@ -19,8 +19,7 @@ import org.apache.xmlbeans.impl.schema.SimpleTypeFactory;
  *
  * This is a complex type.
  */
-public interface RootDocument extends org.apache.xmlbeans.XmlObject
-{
+public interface RootDocument extends org.apache.xmlbeans.XmlObject {
     DocumentFactory<partials.RootDocument> Factory = new DocumentFactory<>(org.apache.xmlbeans.metadata.system.Partials.TypeSystemHolder.typeSystem, "rootc8d7doctype");
     org.apache.xmlbeans.SchemaType type = Factory.getType();
 
@@ -51,8 +50,7 @@ public interface RootDocument extends org.apache.xmlbeans.XmlObject
      *
      * This is a complex type.
      */
-    public interface Root extends org.apache.xmlbeans.XmlObject
-    {
+    public interface Root extends org.apache.xmlbeans.XmlObject {
         ElementFactory<partials.RootDocument.Root> Factory = new ElementFactory<>(org.apache.xmlbeans.metadata.system.Partials.TypeSystemHolder.typeSystem, "root8a55elemtype");
         org.apache.xmlbeans.SchemaType type = Factory.getType();
 

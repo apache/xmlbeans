@@ -16,11 +16,16 @@ package tools.inst2xsd.checkin;
 
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.impl.inst2xsd.Inst2XsdOptions;
+import org.junit.FixMethodOrder;
 import org.junit.Test;
+import org.junit.runners.MethodSorters;
 import tools.inst2xsd.common.Inst2XsdTestBase;
 
 import java.io.File;
 
+// need to order tests, as "atest_examples_component" didn't work anymore in combination with the other
+// tests since XMLBEANS-82
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class Inst2XsdCheckinTest extends Inst2XsdTestBase {
 
     @Test
@@ -196,9 +201,8 @@ public class Inst2XsdCheckinTest extends Inst2XsdTestBase {
                 XmlObject.Factory.parse(new File(SCHEMA_CASES_DIR + "examples" + P + "cdcatalog_ss0.xsd")));
     }
 
-    //component
     @Test
-    public void test_examples_component() throws Exception {
+    public void atest_examples_component() throws Exception {
         XmlObject inst = XmlObject.Factory.parse(new File(SCHEMA_CASES_DIR + "examples" + P + "component.xml"));
 
         log("-= Venetian Options =-");

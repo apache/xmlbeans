@@ -1108,4 +1108,17 @@ public interface SchemaType extends SchemaComponent, SchemaAnnotated {
      * @return the constructed QNameSet
      */
     QNameSet qnameSetForWildcardAttributes();
+
+    /**
+     * returns user specified documentation
+     *
+     * <xs:complexType ...>
+     *   <xs:annotation>
+     *      <xs:documentation>
+     *          getDocumentation method will return whatever stuff here.
+     *      </xs:docmentation>
+     *   </xs:annotation>
+     * </xs complexType>
+     */
+    String getDocumentation();
 }

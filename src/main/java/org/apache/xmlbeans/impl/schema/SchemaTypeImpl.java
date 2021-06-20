@@ -19,6 +19,9 @@ import org.apache.xmlbeans.*;
 import org.apache.xmlbeans.impl.common.QNameHelper;
 import org.apache.xmlbeans.impl.common.XBeanDebug;
 import org.apache.xmlbeans.impl.values.*;
+import org.apache.xmlbeans.impl.xb.xsdschema.AnnotationDocument.Annotation;
+import org.apache.xmlbeans.impl.xb.xsdschema.DocumentationDocument.Documentation;
+import org.apache.xmlbeans.impl.xb.xsdschema.Element;
 
 import javax.xml.namespace.QName;
 import java.lang.reflect.Constructor;
@@ -175,6 +178,8 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory {
     // for document types only - only valid during compilation
     private QName _sg;
     private final List<QName> _sgMembers = new ArrayList<>();
+
+    private String _documentation;
 
     public boolean isUnloaded() {
         return _unloaded;
@@ -867,9 +872,9 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory {
         }
     }
 
-    private boolean containsElements() {
-        return getContentType() == ELEMENT_CONTENT ||
-               getContentType() == MIXED_CONTENT;
+    private boolean noElements() {
+        return getContentType() != ELEMENT_CONTENT &&
+               getContentType() != MIXED_CONTENT;
     }
 
     public boolean hasAttributeWildcards() {
@@ -885,7 +890,7 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory {
     }
 
     public SchemaType getElementType(QName eltName, QName xsiType, SchemaTypeLoader wildcardTypeLoader) {
-        if (isSimpleType() || !containsElements() || isNoType()) {
+        if (isSimpleType() || noElements() || isNoType()) {
             return BuiltinSchemaTypeSystem.ST_NO_TYPE;
         }
 
@@ -977,7 +982,7 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory {
     public XmlObject createElementType(QName eltName, QName xsiType, SchemaTypeLoader wildcardTypeLoader) {
         SchemaType type;
         SchemaProperty prop = null;
-        if (isSimpleType() || !containsElements() || isNoType()) {
+        if (isSimpleType() || noElements() || isNoType()) {
             type = BuiltinSchemaTypeSystem.ST_NO_TYPE;
         } else {
             prop = _propertyModelByElementName.get(eltName);
@@ -2248,6 +2253,7 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory {
         _elemFormDefault = elemFormDefault;
         _attFormDefault = attFormDefault;
         _redefinition = redefinition;
+        _documentation = parseDocumentation(_parseObject);
     }
 
     public XmlObject getParseObject() {
@@ -2386,5 +2392,38 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory {
         }
 
         return qnsb.toQNameSet();
+    }
+
+    public String getDocumentation()
+    {
+        return _documentation;
+    }
+
+    private static String parseDocumentation(XmlObject lcti){
+        String str = lcti.toString();
+        Element el;
+        try {
+            el = Element.Factory.parse(str);
+        } catch (Throwable ignore) {
+            return "";
+        }
+
+        Annotation ann = el.getAnnotation();
+        if (ann == null || ann.sizeOfDocumentationArray() == 0) {
+            return "";
+        }
+
+        StringBuilder docBody = new StringBuilder();
+        for (Documentation documentation : ann.getDocumentationArray()) {
+            XmlCursor c = documentation.newCursor();
+            try {
+                if (c.getChars() != null) {
+                    docBody.append(c.getTextValue());
+                }
+            } finally {
+                c.dispose();
+            }
+        }
+        return docBody.toString();
     }
 }

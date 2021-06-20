@@ -34,15 +34,11 @@ public class RootDocumentImpl extends org.apache.xmlbeans.impl.values.XmlComplex
      */
     @Override
     public partials.RootDocument.Root getRoot() {
-        synchronized (monitor())
-        {
+        synchronized (monitor()) {
             check_orphaned();
             partials.RootDocument.Root target = null;
             target = (partials.RootDocument.Root)get_store().find_element_user(PROPERTY_QNAME[0], 0);
-            if (target == null) {
-                return null;
-            }
-            return target;
+            return (target == null) ? null : target;
         }
     }
 // </GET>
@@ -63,8 +59,7 @@ public class RootDocumentImpl extends org.apache.xmlbeans.impl.values.XmlComplex
      */
     @Override
     public partials.RootDocument.Root addNewRoot() {
-        synchronized (monitor())
-        {
+        synchronized (monitor()) {
             check_orphaned();
             partials.RootDocument.Root target = null;
             target = (partials.RootDocument.Root)get_store().add_element_user(PROPERTY_QNAME[0]);
@@ -98,15 +93,11 @@ public class RootDocumentImpl extends org.apache.xmlbeans.impl.values.XmlComplex
          */
         @Override
         public java.math.BigDecimal getSingle() {
-            synchronized (monitor())
-            {
+            synchronized (monitor()) {
                 check_orphaned();
                 org.apache.xmlbeans.SimpleValue target = null;
                 target = (org.apache.xmlbeans.SimpleValue)get_store().find_element_user(PROPERTY_QNAME[0], 0);
-                if (target == null) {
-                    return null;
-                }
-                return target.getBigDecimalValue();
+                return (target == null) ? null : target.getBigDecimalValue();
             }
         }
 // </GET>
@@ -117,8 +108,7 @@ public class RootDocumentImpl extends org.apache.xmlbeans.impl.values.XmlComplex
          */
         @Override
         public org.apache.xmlbeans.XmlDecimal xgetSingle() {
-            synchronized (monitor())
-            {
+            synchronized (monitor()) {
                 check_orphaned();
                 org.apache.xmlbeans.XmlDecimal target = null;
                 target = (org.apache.xmlbeans.XmlDecimal)get_store().find_element_user(PROPERTY_QNAME[0], 0);
@@ -133,13 +123,11 @@ public class RootDocumentImpl extends org.apache.xmlbeans.impl.values.XmlComplex
          */
         @Override
         public boolean isNilSingle() {
-            synchronized (monitor())
-            {
+            synchronized (monitor()) {
                 check_orphaned();
                 org.apache.xmlbeans.XmlDecimal target = null;
                 target = (org.apache.xmlbeans.XmlDecimal)get_store().find_element_user(PROPERTY_QNAME[0], 0);
-                if (target == null) return false;
-                return target.isNil();
+                return target != null && target.isNil();
             }
         }
 // </IS_NIL>
@@ -150,8 +138,7 @@ public class RootDocumentImpl extends org.apache.xmlbeans.impl.values.XmlComplex
          */
         @Override
         public boolean isSetSingle() {
-            synchronized (monitor())
-            {
+            synchronized (monitor()) {
                 check_orphaned();
                 return get_store().count_elements(PROPERTY_QNAME[0]) != 0;
             }
@@ -164,8 +151,7 @@ public class RootDocumentImpl extends org.apache.xmlbeans.impl.values.XmlComplex
          */
         @Override
         public void setSingle(java.math.BigDecimal single) {
-            synchronized (monitor())
-            {
+            synchronized (monitor()) {
                 check_orphaned();
                 org.apache.xmlbeans.SimpleValue target = null;
                 target = (org.apache.xmlbeans.SimpleValue)get_store().find_element_user(PROPERTY_QNAME[0], 0);
@@ -183,8 +169,7 @@ public class RootDocumentImpl extends org.apache.xmlbeans.impl.values.XmlComplex
          */
         @Override
         public void xsetSingle(org.apache.xmlbeans.XmlDecimal single) {
-            synchronized (monitor())
-            {
+            synchronized (monitor()) {
                 check_orphaned();
                 org.apache.xmlbeans.XmlDecimal target = null;
                 target = (org.apache.xmlbeans.XmlDecimal)get_store().find_element_user(PROPERTY_QNAME[0], 0);
@@ -202,8 +187,7 @@ public class RootDocumentImpl extends org.apache.xmlbeans.impl.values.XmlComplex
          */
         @Override
         public void setNilSingle() {
-            synchronized (monitor())
-            {
+            synchronized (monitor()) {
                 check_orphaned();
                 org.apache.xmlbeans.XmlDecimal target = null;
                 target = (org.apache.xmlbeans.XmlDecimal)get_store().find_element_user(PROPERTY_QNAME[0], 0);
@@ -221,8 +205,7 @@ public class RootDocumentImpl extends org.apache.xmlbeans.impl.values.XmlComplex
          */
         @Override
         public void unsetSingle() {
-            synchronized (monitor())
-            {
+            synchronized (monitor()) {
                 check_orphaned();
                 get_store().remove_element(PROPERTY_QNAME[0], 0);
             }
@@ -235,15 +218,11 @@ public class RootDocumentImpl extends org.apache.xmlbeans.impl.values.XmlComplex
          */
         @Override
         public partials.XmlBeanchen getComplex() {
-            synchronized (monitor())
-            {
+            synchronized (monitor()) {
                 check_orphaned();
                 partials.XmlBeanchen target = null;
                 target = (partials.XmlBeanchen)get_store().find_element_user(PROPERTY_QNAME[1], 0);
-                if (target == null) {
-                    return null;
-                }
-                return target;
+                return (target == null) ? null : target;
             }
         }
 // </GET>
@@ -254,8 +233,7 @@ public class RootDocumentImpl extends org.apache.xmlbeans.impl.values.XmlComplex
          */
         @Override
         public boolean isSetComplex() {
-            synchronized (monitor())
-            {
+            synchronized (monitor()) {
                 check_orphaned();
                 return get_store().count_elements(PROPERTY_QNAME[1]) != 0;
             }
@@ -278,8 +256,7 @@ public class RootDocumentImpl extends org.apache.xmlbeans.impl.values.XmlComplex
          */
         @Override
         public partials.XmlBeanchen addNewComplex() {
-            synchronized (monitor())
-            {
+            synchronized (monitor()) {
                 check_orphaned();
                 partials.XmlBeanchen target = null;
                 target = (partials.XmlBeanchen)get_store().add_element_user(PROPERTY_QNAME[1]);
@@ -294,8 +271,7 @@ public class RootDocumentImpl extends org.apache.xmlbeans.impl.values.XmlComplex
          */
         @Override
         public void unsetComplex() {
-            synchronized (monitor())
-            {
+            synchronized (monitor()) {
                 check_orphaned();
                 get_store().remove_element(PROPERTY_QNAME[1], 0);
             }
@@ -308,8 +284,7 @@ public class RootDocumentImpl extends org.apache.xmlbeans.impl.values.XmlComplex
          */
         @Override
         public java.util.List<java.math.BigDecimal> getPrimitiveListList() {
-            synchronized (monitor())
-            {
+            synchronized (monitor()) {
                 check_orphaned();
                 return new org.apache.xmlbeans.impl.values.JavaListObject<>(
 // <GET_IDX>
@@ -363,8 +338,7 @@ public class RootDocumentImpl extends org.apache.xmlbeans.impl.values.XmlComplex
          */
         @Override
         public java.math.BigDecimal getPrimitiveListArray(int i) {
-            synchronized (monitor())
-            {
+            synchronized (monitor()) {
                 check_orphaned();
                 org.apache.xmlbeans.SimpleValue target = null;
                 target = (org.apache.xmlbeans.SimpleValue)get_store().find_element_user(PROPERTY_QNAME[2], i);
@@ -382,8 +356,7 @@ public class RootDocumentImpl extends org.apache.xmlbeans.impl.values.XmlComplex
          */
         @Override
         public java.util.List<org.apache.xmlbeans.XmlDecimal> xgetPrimitiveListList() {
-            synchronized (monitor())
-            {
+            synchronized (monitor()) {
                 check_orphaned();
                 return new org.apache.xmlbeans.impl.values.JavaListXmlObject<>(
 // <XGET_IDX>
@@ -437,8 +410,7 @@ public class RootDocumentImpl extends org.apache.xmlbeans.impl.values.XmlComplex
          */
         @Override
         public org.apache.xmlbeans.XmlDecimal xgetPrimitiveListArray(int i) {
-            synchronized (monitor())
-            {
+            synchronized (monitor()) {
                 check_orphaned();
                 org.apache.xmlbeans.XmlDecimal target = null;
                 target = (org.apache.xmlbeans.XmlDecimal)get_store().find_element_user(PROPERTY_QNAME[2], i);
@@ -456,8 +428,7 @@ public class RootDocumentImpl extends org.apache.xmlbeans.impl.values.XmlComplex
          */
         @Override
         public boolean isNilPrimitiveListArray(int i) {
-            synchronized (monitor())
-            {
+            synchronized (monitor()) {
                 check_orphaned();
                 org.apache.xmlbeans.XmlDecimal target = null;
                 target = (org.apache.xmlbeans.XmlDecimal)get_store().find_element_user(PROPERTY_QNAME[2], i);
@@ -475,8 +446,7 @@ public class RootDocumentImpl extends org.apache.xmlbeans.impl.values.XmlComplex
          */
         @Override
         public int sizeOfPrimitiveListArray() {
-            synchronized (monitor())
-            {
+            synchronized (monitor()) {
                 check_orphaned();
                 return get_store().count_elements(PROPERTY_QNAME[2]);
             }
@@ -489,8 +459,7 @@ public class RootDocumentImpl extends org.apache.xmlbeans.impl.values.XmlComplex
          */
         @Override
         public void setPrimitiveListArray(java.math.BigDecimal[] primitiveListArray) {
-            synchronized (monitor())
-            {
+            synchronized (monitor()) {
                 check_orphaned();
                 arraySetterHelper(primitiveListArray, PROPERTY_QNAME[2]);
             }
@@ -503,8 +472,7 @@ public class RootDocumentImpl extends org.apache.xmlbeans.impl.values.XmlComplex
          */
         @Override
         public void setPrimitiveListArray(int i, java.math.BigDecimal primitiveList) {
-            synchronized (monitor())
-            {
+            synchronized (monitor()) {
                 check_orphaned();
                 org.apache.xmlbeans.SimpleValue target = null;
                 target = (org.apache.xmlbeans.SimpleValue)get_store().find_element_user(PROPERTY_QNAME[2], i);
@@ -522,8 +490,7 @@ public class RootDocumentImpl extends org.apache.xmlbeans.impl.values.XmlComplex
          */
         @Override
         public void xsetPrimitiveListArray(org.apache.xmlbeans.XmlDecimal[]primitiveListArray) {
-            synchronized (monitor())
-            {
+            synchronized (monitor()) {
                 check_orphaned();
                 arraySetterHelper(primitiveListArray, PROPERTY_QNAME[2]);
             }
@@ -536,8 +503,7 @@ public class RootDocumentImpl extends org.apache.xmlbeans.impl.values.XmlComplex
          */
         @Override
         public void xsetPrimitiveListArray(int i, org.apache.xmlbeans.XmlDecimal primitiveList) {
-            synchronized (monitor())
-            {
+            synchronized (monitor()) {
                 check_orphaned();
                 org.apache.xmlbeans.XmlDecimal target = null;
                 target = (org.apache.xmlbeans.XmlDecimal)get_store().find_element_user(PROPERTY_QNAME[2], i);
@@ -555,8 +521,7 @@ public class RootDocumentImpl extends org.apache.xmlbeans.impl.values.XmlComplex
          */
         @Override
         public void setNilPrimitiveListArray(int i) {
-            synchronized (monitor())
-            {
+            synchronized (monitor()) {
                 check_orphaned();
                 org.apache.xmlbeans.XmlDecimal target = null;
                 target = (org.apache.xmlbeans.XmlDecimal)get_store().find_element_user(PROPERTY_QNAME[2], i);
@@ -574,10 +539,9 @@ public class RootDocumentImpl extends org.apache.xmlbeans.impl.values.XmlComplex
          */
         @Override
         public void insertPrimitiveList(int i, java.math.BigDecimal primitiveList) {
-            synchronized (monitor())
-            {
+            synchronized (monitor()) {
                 check_orphaned();
-                org.apache.xmlbeans.SimpleValue target = 
+                org.apache.xmlbeans.SimpleValue target =
                     (org.apache.xmlbeans.SimpleValue)get_store().insert_element_user(PROPERTY_QNAME[2], i);
                 target.setBigDecimalValue(primitiveList);
             }
@@ -590,8 +554,7 @@ public class RootDocumentImpl extends org.apache.xmlbeans.impl.values.XmlComplex
          */
         @Override
         public void addPrimitiveList(java.math.BigDecimal primitiveList) {
-            synchronized (monitor())
-            {
+            synchronized (monitor()) {
                 check_orphaned();
                 org.apache.xmlbeans.SimpleValue target = null;
                 target = (org.apache.xmlbeans.SimpleValue)get_store().add_element_user(PROPERTY_QNAME[2]);
@@ -606,8 +569,7 @@ public class RootDocumentImpl extends org.apache.xmlbeans.impl.values.XmlComplex
          */
         @Override
         public org.apache.xmlbeans.XmlDecimal insertNewPrimitiveList(int i) {
-            synchronized (monitor())
-            {
+            synchronized (monitor()) {
                 check_orphaned();
                 org.apache.xmlbeans.XmlDecimal target = null;
                 target = (org.apache.xmlbeans.XmlDecimal)get_store().insert_element_user(PROPERTY_QNAME[2], i);
@@ -622,8 +584,7 @@ public class RootDocumentImpl extends org.apache.xmlbeans.impl.values.XmlComplex
          */
         @Override
         public org.apache.xmlbeans.XmlDecimal addNewPrimitiveList() {
-            synchronized (monitor())
-            {
+            synchronized (monitor()) {
                 check_orphaned();
                 org.apache.xmlbeans.XmlDecimal target = null;
                 target = (org.apache.xmlbeans.XmlDecimal)get_store().add_element_user(PROPERTY_QNAME[2]);
@@ -638,8 +599,7 @@ public class RootDocumentImpl extends org.apache.xmlbeans.impl.values.XmlComplex
          */
         @Override
         public void removePrimitiveList(int i) {
-            synchronized (monitor())
-            {
+            synchronized (monitor()) {
                 check_orphaned();
                 get_store().remove_element(PROPERTY_QNAME[2], i);
             }
@@ -652,8 +612,7 @@ public class RootDocumentImpl extends org.apache.xmlbeans.impl.values.XmlComplex
          */
         @Override
         public java.util.List<partials.XmlBeanchen> getComplexListList() {
-            synchronized (monitor())
-            {
+            synchronized (monitor()) {
                 check_orphaned();
                 return new org.apache.xmlbeans.impl.values.JavaListXmlObject<>(
 // <GET_IDX>
@@ -707,8 +666,7 @@ public class RootDocumentImpl extends org.apache.xmlbeans.impl.values.XmlComplex
          */
         @Override
         public partials.XmlBeanchen getComplexListArray(int i) {
-            synchronized (monitor())
-            {
+            synchronized (monitor()) {
                 check_orphaned();
                 partials.XmlBeanchen target = null;
                 target = (partials.XmlBeanchen)get_store().find_element_user(PROPERTY_QNAME[3], i);
@@ -726,8 +684,7 @@ public class RootDocumentImpl extends org.apache.xmlbeans.impl.values.XmlComplex
          */
         @Override
         public int sizeOfComplexListArray() {
-            synchronized (monitor())
-            {
+            synchronized (monitor()) {
                 check_orphaned();
                 return get_store().count_elements(PROPERTY_QNAME[3]);
             }
@@ -761,8 +718,7 @@ public class RootDocumentImpl extends org.apache.xmlbeans.impl.values.XmlComplex
          */
         @Override
         public partials.XmlBeanchen insertNewComplexList(int i) {
-            synchronized (monitor())
-            {
+            synchronized (monitor()) {
                 check_orphaned();
                 partials.XmlBeanchen target = null;
                 target = (partials.XmlBeanchen)get_store().insert_element_user(PROPERTY_QNAME[3], i);
@@ -777,8 +733,7 @@ public class RootDocumentImpl extends org.apache.xmlbeans.impl.values.XmlComplex
          */
         @Override
         public partials.XmlBeanchen addNewComplexList() {
-            synchronized (monitor())
-            {
+            synchronized (monitor()) {
                 check_orphaned();
                 partials.XmlBeanchen target = null;
                 target = (partials.XmlBeanchen)get_store().add_element_user(PROPERTY_QNAME[3]);
@@ -793,8 +748,7 @@ public class RootDocumentImpl extends org.apache.xmlbeans.impl.values.XmlComplex
          */
         @Override
         public void removeComplexList(int i) {
-            synchronized (monitor())
-            {
+            synchronized (monitor()) {
                 check_orphaned();
                 get_store().remove_element(PROPERTY_QNAME[3], i);
             }

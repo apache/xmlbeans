@@ -198,4 +198,16 @@ public interface SchemaParticle {
      */
     boolean isFixed();
 
+     /**
+     * Returns user specified documentation
+     *
+     * <xs:element ... >
+     *   <xs:annotation>
+     *     <xs:documentation>
+     *      getDocumentation method will return whatever stuff here.
+     *     </xs:documentation>
+     *   </xs:annotation>
+     * </xs:element>
+     */
+    String getDocumentation();
 }

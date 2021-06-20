@@ -15,22 +15,14 @@
 
 package org.apache.xmlbeans.impl.schema;
 
-import org.apache.xmlbeans.SchemaComponent;
-import org.apache.xmlbeans.SchemaType;
-import org.apache.xmlbeans.SchemaGlobalElement;
-import org.apache.xmlbeans.SchemaGlobalAttribute;
-import org.apache.xmlbeans.SchemaProperty;
-import org.apache.xmlbeans.XmlObject;
-import org.apache.xmlbeans.SchemaField;
 import org.apache.xmlbeans.QNameSet;
+import org.apache.xmlbeans.SchemaProperty;
+import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.XmlAnySimpleType;
-import org.apache.xmlbeans.XmlQName;
-import org.apache.xmlbeans.impl.values.NamespaceContext;
-
-import java.math.BigInteger;
-import java.util.Set;
 
 import javax.xml.namespace.QName;
+import java.math.BigInteger;
+import java.util.Set;
 
 public class SchemaPropertyImpl implements SchemaProperty
 {
@@ -53,7 +45,8 @@ public class SchemaPropertyImpl implements SchemaProperty
     private int _javaTypeCode;
     private QNameSet _javaSetterDelimiter;
     private XmlValueRef _defaultValue;
-    private Set _acceptedNames;
+    private Set<QName> _acceptedNames;
+    private String _documentation;
 
     private void mutate()
         { if (_isImmutable) throw new IllegalStateException(); }
@@ -128,22 +121,18 @@ public class SchemaPropertyImpl implements SchemaProperty
     void setJavaSetterDelimiter(QNameSet set)
         { _javaSetterDelimiter = set; }
 
-    public QName[] acceptedNames()
-    { 
-        if (_acceptedNames == null)
-            return new QName[] { _name };
-
-        return (QName[])_acceptedNames.toArray(new QName[_acceptedNames.size()]); 
+    public QName[] acceptedNames() {
+        return _acceptedNames == null ? new QName[]{_name} : _acceptedNames.toArray(new QName[0]);
     }
 
-    public void setAcceptedNames(Set set)
+    public void setAcceptedNames(Set<QName> set)
     {
-        mutate(); 
+        mutate();
         _acceptedNames = set;
     }
     public void setAcceptedNames(QNameSet set)
-    { 
-        mutate(); 
+    {
+        mutate();
         _acceptedNames = set.includedQNamesInExcludedURIs();
     }
 
@@ -189,7 +178,7 @@ public class SchemaPropertyImpl implements SchemaProperty
             return _defaultValue.get();
         return null;
     }
-    
+
     public void setDefaultValue(XmlValueRef defaultRef)
     {
         mutate();
@@ -201,4 +190,12 @@ public class SchemaPropertyImpl implements SchemaProperty
 
     public void setJavaTypeCode(int code)
         { mutate(); _javaTypeCode = code; }
+
+    public String getDocumentation() {
+        return _documentation;
+    }
+
+    public void setDocumentation(String documentation) {
+        _documentation = documentation;
+    }
 }

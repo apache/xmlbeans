@@ -1485,6 +1485,10 @@ public class StscComplexTypeResolver {
         sPropImpl.setMinOccurs(use.getMinOccurs());
         sPropImpl.setMaxOccurs(use.getMaxOccurs());
 
+        if(use instanceof SchemaParticle){
+            sPropImpl.setDocumentation(((SchemaParticle)use).getDocumentation());
+        }
+
         if (use instanceof SchemaLocalElementImpl) {
             SchemaLocalElementImpl elt = (SchemaLocalElementImpl) use;
             sPropImpl.setAcceptedNames(elt.acceptedStartNames());

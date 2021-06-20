@@ -17,6 +17,9 @@ package org.apache.xmlbeans.impl.schema;
 
 import org.apache.xmlbeans.*;
 import org.apache.xmlbeans.impl.values.NamespaceContext;
+import org.apache.xmlbeans.impl.xb.xsdschema.AnnotationDocument.Annotation;
+import org.apache.xmlbeans.impl.xb.xsdschema.DocumentationDocument.Documentation;
+import org.apache.xmlbeans.impl.xb.xsdschema.Element;
 
 import javax.xml.namespace.QName;
 import java.math.BigInteger;
@@ -44,6 +47,7 @@ public class SchemaParticleImpl implements SchemaParticle {
     protected XmlObject _parseObject;
     private Object _userData;
     private XmlValueRef _defaultValue;
+    private String _documentation;
 
     protected void mutate() {
         if (_isImmutable) {
@@ -246,6 +250,7 @@ public class SchemaParticleImpl implements SchemaParticle {
         _isDefault = (deftext != null);
         _isFixed = isFixed;
         _parseObject = parseObject;
+        _documentation = parseDocumentation(_parseObject);
     }
 
     public boolean isNillable() {
@@ -286,5 +291,32 @@ public class SchemaParticleImpl implements SchemaParticle {
 
     public void setUserData(Object data) {
         _userData = data;
+    }
+
+    public String getDocumentation(){
+        return _documentation;
+    }
+
+    private static String parseDocumentation(XmlObject parseObject){
+        try {
+            if (parseObject instanceof Element) {
+                Element e = (Element) parseObject;
+                if (e.getAnnotation() != null) {
+                    Annotation a = e.getAnnotation();
+                    if (a.getDocumentationArray() != null) {
+                        Documentation[] docArray = a.getDocumentationArray();
+                        StringBuilder sb = new StringBuilder();
+                        for (Documentation documentation : docArray) {
+                            XmlCursor c = documentation.newCursor();
+                            sb.append(c.getTextValue());
+                        }
+                        return sb.toString();
+                    }
+                }
+            }
+        } catch (Exception e) {
+            return "";
+        }
+        return "";
     }
 }

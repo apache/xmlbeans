@@ -185,6 +185,11 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
         }
 
         emit("/**");
+        if(sType.getDocumentation() != null && sType.getDocumentation().length() > 0){
+            emit(" *");
+            printJavaDocBody(sType.getDocumentation());
+            emit(" *");
+        }
         if (sType.isDocumentType()) {
             emit(" * A document containing one " + prettyQName(name) + " element.");
         } else if (sType.isAttributeType()) {
@@ -333,6 +338,9 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
     }
 
     void printTopComment(SchemaType sType) throws IOException {
+        // if(sType.getDocumentation() != null && sType.getDocumentation().length() > 0){
+        //     printJavaDocParagraph(sType.getDocumentation());
+        // }
         emit("/*");
         if (sType.getName() != null) {
             emit(" * XML Type:  " + sType.getName().getLocalPart());
@@ -382,8 +390,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
 
         String baseInterface = findJavaType(sType.getBaseType());
 
-        emit("public interface " + shortName + " extends " + baseInterface + getExtensionInterfaces(sType));
-        emit("{");
+        emit("public interface " + shortName + " extends " + baseInterface + getExtensionInterfaces(sType) + " {");
         indent();
         emitSpecializedAccessors(sType);
     }
@@ -486,7 +493,41 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
         emit(" */");
     }
 
-    public static String javaStringEscape(String str) {
+    void printJavaDocParagraph(String s) throws IOException{
+        emit("");
+        emit("/**");
+        printJavaDocBody(s);
+        emit(" */");
+    }
+
+    //  removes newline, tabs and white spaces.
+    String cleanUpString(String s){
+        s = s.replace("\n", "");
+        s = s.replace("\t", "");
+        return s.trim();
+    }
+
+    void printJavaDocBody(String s) throws IOException{
+
+        int start = 0;
+        int newLineIndex = s.indexOf("\n");
+
+        if(newLineIndex == -1){
+            emit(" * " + s);
+        }else{
+            if(newLineIndex == 0){
+                newLineIndex = s.indexOf("\n", newLineIndex + 1);
+            }
+            while(newLineIndex > 0){
+                emit(" * " + cleanUpString(s.substring(start, newLineIndex)));
+                start = newLineIndex;
+                newLineIndex = s.indexOf("\n", start + 1);
+            }
+        }
+    }
+
+    public static String javaStringEscape(String str)
+    {
         // forbidden: \n, \r, \", \\.
         test:
         {
@@ -550,9 +591,9 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
             }
             String constName = entry.getEnumName();
             if (hasBase) {
-                emit("static final " + baseEnumClass + ".Enum " + constName + " = " + baseEnumClass + "." + constName + ";");
+                emit(baseEnumClass + ".Enum " + constName + " = " + baseEnumClass + "." + constName + ";");
             } else {
-                emit("static final Enum " + constName + " = Enum.forString(\"" + javaStringEscape(enumValue) + "\");");
+                emit("Enum " + constName + " = Enum.forString(\"" + javaStringEscape(enumValue) + "\");");
             }
         }
         emit("");
@@ -562,9 +603,9 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
             }
             String constName = "INT_" + entry.getEnumName();
             if (hasBase) {
-                emit("static final int " + constName + " = " + baseEnumClass + "." + constName + ";");
+                emit("int " + constName + " = " + baseEnumClass + "." + constName + ";");
             } else {
-                emit("static final int " + constName + " = Enum." + constName + ";");
+                emit("int " + constName + " = Enum." + constName + ";");
             }
         }
         if (!hasBase) {
@@ -586,22 +627,25 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
             emit(" * public constructor. See the constants defined within this");
             emit(" * class for all the valid values.");
             emit(" */");
-            emit("static final class Enum extends org.apache.xmlbeans.StringEnumAbstractBase");
-            emit("{");
+            emit("final class Enum extends org.apache.xmlbeans.StringEnumAbstractBase {");
             indent();
             emit("/**");
             emit(" * Returns the enum value for a string, or null if none.");
             emit(" */");
-            emit("public static Enum forString(java.lang.String s)");
-            emit("    { return (Enum)table.forString(s); }");
+            emit("public static Enum forString(java.lang.String s) {");
+            emit("    return (Enum)table.forString(s);");
+            emit("}");
+            emit("");
             emit("/**");
             emit(" * Returns the enum value corresponding to an int, or null if none.");
             emit(" */");
-            emit("public static Enum forInt(int i)");
-            emit("    { return (Enum)table.forInt(i); }");
+            emit("public static Enum forInt(int i) {");
+            emit("    return (Enum)table.forInt(i);");
+            emit("}");
             emit("");
-            emit("private Enum(java.lang.String s, int i)");
-            emit("    { super(s, i); }");
+            emit("private Enum(java.lang.String s, int i) {");
+            emit("    super(s, i);");
+            emit("}");
             emit("");
             for (SchemaStringEnumEntry entry : entries) {
                 String constName = "INT_" + entry.getEnumName();
@@ -610,11 +654,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
             }
             emit("");
             emit("public static final org.apache.xmlbeans.StringEnumAbstractBase.Table table =");
-            emit("    new org.apache.xmlbeans.StringEnumAbstractBase.Table");
-            emit("(");
-            indent();
-            emit("new Enum[]");
-            emit("{");
+            emit("    new org.apache.xmlbeans.StringEnumAbstractBase.Table(new Enum[] {");
             indent();
             for (SchemaStringEnumEntry entry : entries) {
                 String enumValue = entry.getString();
@@ -622,11 +662,11 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
                 emit("new Enum(\"" + javaStringEscape(enumValue) + "\", " + constName + "),");
             }
             outdent();
-            emit("}");
-            outdent();
-            emit(");");
+            emit("});");
             emit("private static final long serialVersionUID = 1L;");
-            emit("private java.lang.Object readResolve() { return forInt(intValue()); } ");
+            emit("private java.lang.Object readResolve() {");
+            emit("    return forInt(intValue());");
+            emit("}");
             outdent();
             emit("}");
         }
@@ -764,12 +804,17 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
         String xtype = xmlTypeForProperty(prop);
         boolean nillable = prop.hasNillable() != SchemaProperty.NEVER;
         boolean several = prop.extendsJavaArray();
+        String propertyDocumentation = prop.getDocumentation();
 
         String propdesc = "\"" + prop.getName().getLocalPart() + "\"" + (prop.isAttribute() ? " attribute" : " element");
         boolean xmltype = (javaType == SchemaProperty.XML_OBJECT);
 
         if (prop.extendsJavaSingleton()) {
-            printJavaDoc((several ? "Gets first " : "Gets the ") + propdesc, BeanMethod.GET);
+            if(propertyDocumentation != null && propertyDocumentation.length() > 0){
+                printJavaDocParagraph(propertyDocumentation);
+            }else {
+                printJavaDoc((several ? "Gets first " : "Gets the ") + propdesc, BeanMethod.GET);
+            }
             emit(type + " get" + propertyName + "();", BeanMethod.GET);
 
             if (!xmltype) {
@@ -784,11 +829,19 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
         }
 
         if (prop.extendsJavaOption()) {
-            printJavaDoc((several ? "True if has at least one " : "True if has ") + propdesc, BeanMethod.IS_SET);
+            if(propertyDocumentation != null && propertyDocumentation.length() > 0){
+                printJavaDocParagraph(propertyDocumentation);
+            }else {
+                printJavaDoc((several ? "True if has at least one " : "True if has ") + propdesc, BeanMethod.IS_SET);
+            }
             emit("boolean isSet" + propertyName + "();", BeanMethod.IS_SET);
         }
 
         if (several) {
+            if(propertyDocumentation != null && propertyDocumentation.length() > 0){
+                printJavaDocParagraph(propertyDocumentation);
+            }
+
             String arrayName = propertyName + "Array";
 
             String wrappedType = type;
@@ -796,10 +849,18 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
                 wrappedType = javaWrappedType(javaType);
             }
 
-            printJavaDoc("Gets a List of " + propdesc + "s", BeanMethod.GET_LIST);
+            if(propertyDocumentation != null && propertyDocumentation.length() > 0){
+                printJavaDocParagraph(propertyDocumentation);
+            }else{
+                printJavaDoc("Gets a List of " + propdesc + "s", BeanMethod.GET_LIST);
+            }
             emit("java.util.List<" + wrappedType + "> get" + propertyName + "List();", BeanMethod.GET_LIST);
 
-            printJavaDoc("Gets array of all " + propdesc + "s", BeanMethod.GET_ARRAY);
+            if(propertyDocumentation != null && propertyDocumentation.length() > 0){
+                printJavaDocParagraph(propertyDocumentation);
+            }else{
+                printJavaDoc("Gets array of all " + propdesc + "s", BeanMethod.GET_ARRAY);
+            }
             emit(type + "[] get" + arrayName + "();", BeanMethod.GET_ARRAY);
 
             printJavaDoc("Gets ith " + propdesc, BeanMethod.GET_IDX);
@@ -837,6 +898,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
         boolean optional = prop.extendsJavaOption();
         boolean several = prop.extendsJavaArray();
         boolean singleton = prop.extendsJavaSingleton();
+        String propertyDocumentation = prop.getDocumentation();
 
         String safeVarName = NameUtil.nonJavaKeyword(NameUtil.lowerCamelCase(propertyName));
         if (safeVarName.equals("i")) {
@@ -847,7 +909,11 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
         String propdesc = "\"" + qName.getLocalPart() + "\"" + (isAttr ? " attribute" : " element");
 
         if (singleton) {
-            printJavaDoc((several ? "Sets first " : "Sets the ") + propdesc, BeanMethod.SET);
+            if(propertyDocumentation != null && propertyDocumentation.length() > 0) {
+                printJavaDocParagraph(propertyDocumentation);
+            } else {
+                printJavaDoc((several ? "Sets first " : "Sets the ") + propdesc, BeanMethod.SET);
+            }
             emit("void set" + propertyName + "(" + type + " " + safeVarName + ");", BeanMethod.SET);
 
             if (!xmltype) {
@@ -867,17 +933,29 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
         }
 
         if (optional) {
-            printJavaDoc((several ? "Removes first " : "Unsets the ") + propdesc, BeanMethod.UNSET);
+            if(propertyDocumentation != null && propertyDocumentation.length() > 0) {
+                printJavaDocParagraph(propertyDocumentation);
+            } else {
+                printJavaDoc((several ? "Removes first " : "Unsets the ") + propdesc, BeanMethod.UNSET);
+            }
             emit("void unset" + propertyName + "();", BeanMethod.UNSET);
         }
 
         if (several) {
             String arrayName = propertyName + "Array";
 
-            printJavaDoc("Sets array of all " + propdesc, BeanMethod.SET_ARRAY);
+            if(propertyDocumentation != null && propertyDocumentation.length() > 0) {
+                printJavaDocParagraph(propertyDocumentation);
+            } else {
+                printJavaDoc("Sets array of all " + propdesc, BeanMethod.SET_ARRAY);
+            }
             emit("void set" + arrayName + "(" + type + "[] " + safeVarName + "Array);", BeanMethod.SET_ARRAY);
 
-            printJavaDoc("Sets ith " + propdesc, BeanMethod.SET_IDX);
+            if(propertyDocumentation != null && propertyDocumentation.length() > 0) {
+                printJavaDocParagraph(propertyDocumentation);
+            } else {
+                printJavaDoc("Sets ith " + propdesc, BeanMethod.SET_IDX);
+            }
             emit("void set" + arrayName + "(int i, " + type + " " + safeVarName + ");", BeanMethod.SET_IDX);
 
             if (!xmltype) {
@@ -1040,7 +1118,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
         }
 
         emit("public " + (isInner ? "static " : "") + "class " + shortName +
-             " extends " + baseClass + " implements " + interfaces.toString() + " {");
+             " extends " + baseClass + " implements " + interfaces + " {");
 
         startBlock();
 
@@ -1056,29 +1134,24 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
         emit("target = (" + fullName + ")get_default_attribute_value(" + identifier + ");");
     }
 
-    void makeMissingValue(int javaType) throws IOException {
+    String makeMissingValue(int javaType) throws IOException {
         switch (javaType) {
             case SchemaProperty.JAVA_BOOLEAN:
-                emit("return false;");
-                break;
+                return "false";
 
             case SchemaProperty.JAVA_FLOAT:
-                emit("return 0.0f;");
-                break;
+                return "0.0f";
 
             case SchemaProperty.JAVA_DOUBLE:
-                emit("return 0.0;");
-                break;
+                return "0.0";
 
             case SchemaProperty.JAVA_BYTE:
             case SchemaProperty.JAVA_SHORT:
             case SchemaProperty.JAVA_INT:
-                emit("return 0;");
-                break;
+                return "0";
 
             case SchemaProperty.JAVA_LONG:
-                emit("return 0L;");
-                break;
+                return "0L";
 
             default:
             case SchemaProperty.XML_OBJECT:
@@ -1094,8 +1167,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
             case SchemaProperty.JAVA_CALENDAR:
             case SchemaProperty.JAVA_ENUM:
             case SchemaProperty.JAVA_OBJECT:
-                emit("return null;");
-                break;
+                return "null";
         }
     }
 
@@ -1193,97 +1265,74 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
         emit("return get" +em.replace("#ID#", setIdentifier), BeanMethod.GET_ARRAY);
     }
 
-    void printJGetValue(int javaType, String type, SchemaTypeImpl stype) throws IOException {
-        String em;
+    String printJGetValue(int javaType, String type, SchemaTypeImpl stype) throws IOException {
         switch (javaType) {
             case SchemaProperty.XML_OBJECT:
-                em = "target";
-                break;
+                return "target";
 
             case SchemaProperty.JAVA_BOOLEAN:
-                em = "target.getBooleanValue()";
-                break;
+                return "target.getBooleanValue()";
 
             case SchemaProperty.JAVA_FLOAT:
-                em = "target.getFloatValue()";
-                break;
+                return "target.getFloatValue()";
 
             case SchemaProperty.JAVA_DOUBLE:
-                em = "target.getDoubleValue()";
-                break;
+                return "target.getDoubleValue()";
 
             case SchemaProperty.JAVA_BYTE:
-                em = "target.getByteValue()";
-                break;
+                return "target.getByteValue()";
 
             case SchemaProperty.JAVA_SHORT:
-                em = "target.getShortValue()";
-                break;
+                return "target.getShortValue()";
 
             case SchemaProperty.JAVA_INT:
-                em = "target.getIntValue()";
-                break;
+                return "target.getIntValue()";
 
             case SchemaProperty.JAVA_LONG:
-                em = "target.getLongValue()";
-                break;
+                return "target.getLongValue()";
 
             case SchemaProperty.JAVA_BIG_DECIMAL:
-                em = "target.getBigDecimalValue()";
-                break;
+                return "target.getBigDecimalValue()";
 
             case SchemaProperty.JAVA_BIG_INTEGER:
-                em = "target.getBigIntegerValue()";
-                break;
+                return "target.getBigIntegerValue()";
 
             case SchemaProperty.JAVA_STRING:
-                em = "target.getStringValue()";
-                break;
+                return "target.getStringValue()";
 
             case SchemaProperty.JAVA_BYTE_ARRAY:
-                em = "target.getByteArrayValue()";
-                break;
+                return "target.getByteArrayValue()";
 
             case SchemaProperty.JAVA_GDATE:
-                em = "target.getGDateValue()";
-                break;
+                return "target.getGDateValue()";
 
             case SchemaProperty.JAVA_GDURATION:
-                em = "target.getGDurationValue()";
-                break;
+                return "target.getGDurationValue()";
 
             case SchemaProperty.JAVA_CALENDAR:
-                em = "target.getCalendarValue()";
-                break;
+                return "target.getCalendarValue()";
 
             case SchemaProperty.JAVA_DATE:
-                em = "target.getDateValue()";
-                break;
+                return "target.getDateValue()";
 
             case SchemaProperty.JAVA_QNAME:
-                em = "target.getQNameValue()";
-                break;
+                return "target.getQNameValue()";
 
             case SchemaProperty.JAVA_LIST:
-                em = "target.getListValue()";
-                break;
+                return "target.getListValue()";
 
             case SchemaProperty.JAVA_ENUM:
-                em = "(" + type + ")target.getEnumValue()";
-                break;
+                return "(" + type + ")target.getEnumValue()";
 
             case SchemaProperty.JAVA_OBJECT:
-                em = "target.getObjectValue()";
-                break;
+                return "target.getObjectValue()";
 
             case SchemaProperty.JAVA_USER:
-                em = getUserTypeStaticHandlerMethod(false, stype) + "(target)";
-                break;
+                return getUserTypeStaticHandlerMethod(false, stype) + "(target)";
 
             default:
                 throw new IllegalStateException();
         }
-        emit("return " + em + ";");
     }
 
     void printJSetValue(int javaType, String safeVarName, SchemaTypeImpl stype) throws IOException {
@@ -1428,8 +1477,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
     }
 
     void emitImplementationPreamble() throws IOException {
-        emit("synchronized (monitor())");
-        emit("{");
+        emit("synchronized (monitor()) {");
         indent();
         emit("check_orphaned();");
     }
@@ -1615,6 +1663,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
         final int javaType = prop.getJavaTypeCode();
         final boolean isAttr = prop.isAttribute();
         final String propertyName = prop.getJavaPropertyName();
+        String propertyDocumentation = prop.getDocumentation();
 
         String propdesc = "\"" + qName.getLocalPart() + "\"" + (isAttr ? " attribute" : " element");
         boolean xmltype = (javaType == SchemaProperty.XML_OBJECT);
@@ -1626,7 +1675,11 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
         if (prop.extendsJavaSingleton()) {
             if (bmList == null || bmList.contains(BeanMethod.GET)) {
                 // Value getProp()
-                printJavaDoc((several ? "Gets first " : "Gets the ") + propdesc);
+                if(propertyDocumentation != null && propertyDocumentation.length() > 0){
+                    printJavaDocParagraph(propertyDocumentation);
+                } else {
+                    printJavaDoc((several ? "Gets first " : "Gets the ") + propdesc);
+                }
                 if (!opt.isCompileNoAnnotations()) {
                     emit("@Override");
                 }
@@ -1643,12 +1696,9 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
                     makeAttributeDefaultValue(jtargetType, prop, identifier);
                     endBlock();
                 }
-                emit("if (target == null) {");
-                startBlock();
-                makeMissingValue(javaType);
-                endBlock();
 
-                printJGetValue(javaType, type, (SchemaTypeImpl) prop.getType());
+                emit("return (target == null) ? " + makeMissingValue(javaType) +
+                     " : " + printJGetValue(javaType, type, (SchemaTypeImpl) prop.getType()) + ";");
 
                 emitImplementationPostamble();
 
@@ -1690,8 +1740,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
                 emitImplementationPreamble();
                 emitGetTarget(setIdentifier, identifier, isAttr, "0", NOTHING, xtype);
 
-                emit("if (target == null) return false;");
-                emit("return target.isNil();");
+                emit("return target != null && target.isNil();");
                 emitImplementationPostamble();
                 endBlock();
             }
@@ -1755,7 +1804,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
                 emitImplementationPreamble();
 
                 emitGetTarget(setIdentifier, identifier, isAttr, "i", THROW_EXCEPTION, jtargetType);
-                printJGetValue(javaType, type, (SchemaTypeImpl) prop.getType());
+                emit("return " + printJGetValue(javaType, type, (SchemaTypeImpl) prop.getType()) + ";");
 
                 emitImplementationPostamble();
                 endBlock();
@@ -2100,7 +2149,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
                 startBlock();
                 emitImplementationPreamble();
                 emitPre(sType, PrePostExtension.OPERATION_INSERT, identifier, isAttr, "i");
-                emit(jtargetType + " target = ");
+                emit(jtargetType + " target =");
                 indent();
                 if (!isSubstGroup) {
                     emit("(" + jtargetType + ")get_store().insert_element_user(" + identifier + ", i);");
