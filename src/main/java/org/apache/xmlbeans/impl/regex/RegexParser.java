@@ -16,7 +16,6 @@
 package org.apache.xmlbeans.impl.regex;
 
 import java.util.Locale;
-import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 import java.util.Vector;
 
@@ -50,6 +49,8 @@ class RegexParser {
     static final int T_CONDITION = 23;          // '(?('
     static final int T_XMLSCHEMA_CC_SUBTRACTION = 24; // '-[' in a character class
 
+    private static final String BUNDLE_PKG = "org.apache.xmlbeans.impl.regex.message";
+
     static class ReferencePosition {
         int refNumber;
         int position;
@@ -82,19 +83,14 @@ class RegexParser {
     }
 
     public void setLocale(Locale locale) {
-        try {
-            this.resources = ResourceBundle.getBundle("org.apache.xmlbeans.impl.regex.message", locale);
-        } catch (MissingResourceException mre) {
-            throw new RuntimeException("Installation Problem???  Couldn't load messages: "
-                                       +mre.getMessage());
-        }
+        this.resources = ResourceBundle.getBundle(BUNDLE_PKG, locale, RegexParser.class.getClassLoader());
     }
 
     final ParseException ex(String key, int loc) {
         return new ParseException(this.resources.getString(key), loc);
     }
 
-    private final boolean isSet(int flag) {
+    private boolean isSet(int flag) {
         return (this.options & flag) == flag;
     }
 
@@ -249,7 +245,7 @@ class RegexParser {
                 throw ex("parser.next.2", this.offset-2);
             }
             break;
-            
+
           case '\\':
             ret = T_BACKSOLIDUS;
             if (this.offset >= this.regexlen)
@@ -270,7 +266,7 @@ class RegexParser {
      *            | atom (('*' | '+' | '?' | minmax ) '?'? )?)
      *            | '(?=' regex ')'  | '(?!' regex ')'  | '(?&lt;=' regex ')'  | '(?&lt;!' regex ')'
      * atom ::= char | '.' | range | '(' regex ')' | '(?:' regex ')' | '\' [0-9]
-     *          | '\w' | '\W' | '\d' | '\D' | '\s' | '\S' | category-block 
+     *          | '\w' | '\W' | '\d' | '\D' | '\s' | '\S' | category-block
      */
     Token parseRegex() throws ParseException {
         Token tok = this.parseTerm();
@@ -564,7 +560,7 @@ class RegexParser {
      * min ::= [0-9]+
      * max ::= [0-9]+
      */
-    Token parseFactor() throws ParseException {        
+    Token parseFactor() throws ParseException {
         int ch = this.read();
         Token tok;
         switch (ch) {
@@ -623,7 +619,7 @@ class RegexParser {
                    if (off >= this.regexlen) {
                        throw ex("parser.quantifier.3", this.offset);
                    }
-                   else if ((ch = this.regex.charAt(off++)) >= '0' && ch <= '9') {                       
+                   else if ((ch = this.regex.charAt(off++)) >= '0' && ch <= '9') {
 
                         max = ch -'0';       // {min,max}
                         while (off < this.regexlen
@@ -638,7 +634,7 @@ class RegexParser {
                             throw ex("parser.quantifier.4", this.offset);
                    }
                    else { // assume {min,}
-                        max = -1;           
+                        max = -1;
                     }
                 }
 
@@ -830,7 +826,7 @@ class RegexParser {
                     c = this.processCIinCharacterClass(tok, c);
                     if (c < 0)  end = true;
                     break;
-                    
+
                   case 'p':
                   case 'P':
                     int pstart = this.offset;
