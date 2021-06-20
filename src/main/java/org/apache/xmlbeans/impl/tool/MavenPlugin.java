@@ -172,6 +172,10 @@ public class MavenPlugin extends AbstractMojo {
     @Parameter( defaultValue = "false" )
     private boolean debug;
 
+    /** copy annotations to javadoc of generated sources - default: false */
+    @Parameter( defaultValue = "false" )
+    private boolean copyAnn;
+
     @Parameter
     private List<Extension> extensions;
 
@@ -269,6 +273,7 @@ public class MavenPlugin extends AbstractMojo {
             params.setNoUpa(noUpa);
             params.setNoPvr(noPvr);
             params.setNoAnn(noAnn);
+            params.setCopyAnn(copyAnn);
             params.setNoVDoc(noVDoc);
             if (repackage != null && !repackage.isEmpty()) {
                 params.setRepackage("org.apache.xmlbeans.metadata:"+repackage);

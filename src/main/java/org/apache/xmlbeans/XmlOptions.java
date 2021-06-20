@@ -134,6 +134,7 @@ public class XmlOptions implements java.io.Serializable {
         COMPILE_MDEF_NAMESPACES,
         COMPILE_PARTIAL_TYPESYSTEM,
         COMPILE_PARTIAL_METHODS,
+        COMPILE_ANNOTATION_JAVADOC,
         VALIDATE_ON_SET,
         VALIDATE_TREAT_LAX_AS_SKIP,
         VALIDATE_STRICT,
@@ -1369,6 +1370,7 @@ public class XmlOptions implements java.io.Serializable {
         return flag != null && flag;
     }
 
+
     public XmlOptions setXPathUseXmlBeans() {
         return setXPathUseSaxon(true);
     }
@@ -1379,6 +1381,26 @@ public class XmlOptions implements java.io.Serializable {
 
     public boolean isXPathUseXmlBeans() {
         Boolean flag = (Boolean) get(XmlOptionsKeys.XPATH_USE_XMLBEANS);
+        return flag != null && flag;
+    }
+
+    public XmlOptions setCompileAnnotationAsJavadoc() {
+        return setCompileAnnotationAsJavadoc(true);
+    }
+
+    /**
+     * When generating the schema sources, copy over the schema annotations to the javadoc.
+     * Be aware basic code injection is filtered, but annotation based RCE aren't filtered.
+     * So think twice before activating this on untrusted schemas!
+     *
+     * @param useAnnotationAsJavadoc {@code true} = copy the annotation - defaults to {@code false}
+     */
+    public XmlOptions setCompileAnnotationAsJavadoc(boolean useAnnotationAsJavadoc) {
+        return set(XmlOptionsKeys.COMPILE_ANNOTATION_JAVADOC, useAnnotationAsJavadoc);
+    }
+
+    public boolean isCompileAnnotationAsJavadoc() {
+        Boolean flag = (Boolean) get(XmlOptionsKeys.COMPILE_ANNOTATION_JAVADOC);
         return flag != null && flag;
     }
 

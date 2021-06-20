@@ -66,6 +66,7 @@ public class SchemaCompiler {
         System.out.println("    -partialMethods [list] -  comma separated list of bean methods to be generated. Use \"-\" to negate and \"ALL\" for all." );
         System.out.println("                              processed left-to-right, e.g. \"ALL,-GET_LIST\" exclude java.util.List getters - see XmlOptions.BeanMethod" );
         System.out.println("    -repackage - repackage specification, e.g. \"org.apache.xmlbeans.metadata:mypackage.metadata\" to change the metadata directory");
+        System.out.println("    -copyann - copy schema annotations to javadoc (default false) - don't activate on untrusted schema sources!");
         /* Undocumented feature - pass in one schema compiler extension and related parameters
         System.out.println("    -extension - registers a schema compiler extension");
         System.out.println("    -extensionParms - specify parameters for the compiler extension");
@@ -115,6 +116,7 @@ public class SchemaCompiler {
         opts.add("allowmdef");
         opts.add("catalog");
         opts.add("partialMethods");
+        opts.add("copyann");
 
         CommandLine cl = new CommandLine(args, flags, opts);
 
@@ -183,6 +185,7 @@ public class SchemaCompiler {
         boolean noExt = (cl.getOpt("noext") != null);
         boolean nojavac = (cl.getOpt("srconly") != null);
         boolean debug = (cl.getOpt("debug") != null);
+        boolean copyAnn = (cl.getOpt("copyann") != null);
 
         String allowmdef = cl.getOpt("allowmdef");
         Set<String> mdefNamespaces = (allowmdef == null ? Collections.emptySet() :
@@ -337,6 +340,7 @@ public class SchemaCompiler {
         params.setCatalogFile(catString);
         params.setSchemaCodePrinter(codePrinter);
         params.setPartialMethods(parsePartialMethods(partialMethods));
+        params.setCopyAnn(copyAnn);
         boolean result = compile(params);
 
         if (tempdir != null) {
@@ -609,6 +613,7 @@ public class SchemaCompiler {
         boolean noVDoc = params.isNoVDoc();
         boolean noExt = params.isNoExt();
         boolean incrSrcGen = params.isIncrementalSrcGen();
+        boolean copyAnn = params.isCopyAnn();
         Collection<XmlError> outerErrorListener = params.getErrorListener();
         Set<BeanMethod> partialMethods = params.getPartialMethods();
 
@@ -687,6 +692,7 @@ public class SchemaCompiler {
             }
             options.setCompilePartialMethod(partialMethods);
             options.setCompileNoAnnotations(noAnn);
+            options.setCompileAnnotationAsJavadoc(copyAnn);
 
             // save .xsb files
             system.save(filer);

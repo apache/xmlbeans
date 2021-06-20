@@ -185,7 +185,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
         }
 
         emit("/**");
-        if(sType.getDocumentation() != null && sType.getDocumentation().length() > 0){
+        if (opt.isCompileAnnotationAsJavadoc() && sType.getDocumentation() != null && sType.getDocumentation().length() > 0){
             emit(" *");
             printJavaDocBody(sType.getDocumentation());
             emit(" *");
@@ -500,29 +500,15 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
         emit(" */");
     }
 
-    //  removes newline, tabs and white spaces.
-    String cleanUpString(String s){
-        s = s.replace("\n", "");
-        s = s.replace("\t", "");
-        return s.trim();
-    }
+    void printJavaDocBody(String doc) throws IOException{
+        // add some poor mans code injection protection
+        // this is not protecting against annotation based RCEs like CVE-2018-16621
+        String docClean = doc.trim()
+            .replace("\t", "")
+            .replace("*/", "* /");
 
-    void printJavaDocBody(String s) throws IOException{
-
-        int start = 0;
-        int newLineIndex = s.indexOf("\n");
-
-        if(newLineIndex == -1){
+        for (String s : docClean.split("[\\n\\r]+")) {
             emit(" * " + s);
-        }else{
-            if(newLineIndex == 0){
-                newLineIndex = s.indexOf("\n", newLineIndex + 1);
-            }
-            while(newLineIndex > 0){
-                emit(" * " + cleanUpString(s.substring(start, newLineIndex)));
-                start = newLineIndex;
-                newLineIndex = s.indexOf("\n", start + 1);
-            }
         }
     }
 
@@ -810,7 +796,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
         boolean xmltype = (javaType == SchemaProperty.XML_OBJECT);
 
         if (prop.extendsJavaSingleton()) {
-            if(propertyDocumentation != null && propertyDocumentation.length() > 0){
+            if (opt.isCompileAnnotationAsJavadoc() && propertyDocumentation != null && propertyDocumentation.length() > 0){
                 printJavaDocParagraph(propertyDocumentation);
             }else {
                 printJavaDoc((several ? "Gets first " : "Gets the ") + propdesc, BeanMethod.GET);
@@ -829,7 +815,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
         }
 
         if (prop.extendsJavaOption()) {
-            if(propertyDocumentation != null && propertyDocumentation.length() > 0){
+            if (opt.isCompileAnnotationAsJavadoc() && propertyDocumentation != null && propertyDocumentation.length() > 0){
                 printJavaDocParagraph(propertyDocumentation);
             }else {
                 printJavaDoc((several ? "True if has at least one " : "True if has ") + propdesc, BeanMethod.IS_SET);
@@ -838,7 +824,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
         }
 
         if (several) {
-            if(propertyDocumentation != null && propertyDocumentation.length() > 0){
+            if (opt.isCompileAnnotationAsJavadoc() && propertyDocumentation != null && propertyDocumentation.length() > 0){
                 printJavaDocParagraph(propertyDocumentation);
             }
 
@@ -849,14 +835,14 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
                 wrappedType = javaWrappedType(javaType);
             }
 
-            if(propertyDocumentation != null && propertyDocumentation.length() > 0){
+            if (opt.isCompileAnnotationAsJavadoc() && propertyDocumentation != null && propertyDocumentation.length() > 0){
                 printJavaDocParagraph(propertyDocumentation);
             }else{
                 printJavaDoc("Gets a List of " + propdesc + "s", BeanMethod.GET_LIST);
             }
             emit("java.util.List<" + wrappedType + "> get" + propertyName + "List();", BeanMethod.GET_LIST);
 
-            if(propertyDocumentation != null && propertyDocumentation.length() > 0){
+            if (opt.isCompileAnnotationAsJavadoc() && propertyDocumentation != null && propertyDocumentation.length() > 0){
                 printJavaDocParagraph(propertyDocumentation);
             }else{
                 printJavaDoc("Gets array of all " + propdesc + "s", BeanMethod.GET_ARRAY);
@@ -909,7 +895,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
         String propdesc = "\"" + qName.getLocalPart() + "\"" + (isAttr ? " attribute" : " element");
 
         if (singleton) {
-            if(propertyDocumentation != null && propertyDocumentation.length() > 0) {
+            if (opt.isCompileAnnotationAsJavadoc() && propertyDocumentation != null && propertyDocumentation.length() > 0) {
                 printJavaDocParagraph(propertyDocumentation);
             } else {
                 printJavaDoc((several ? "Sets first " : "Sets the ") + propdesc, BeanMethod.SET);
@@ -933,7 +919,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
         }
 
         if (optional) {
-            if(propertyDocumentation != null && propertyDocumentation.length() > 0) {
+            if (opt.isCompileAnnotationAsJavadoc() && propertyDocumentation != null && propertyDocumentation.length() > 0) {
                 printJavaDocParagraph(propertyDocumentation);
             } else {
                 printJavaDoc((several ? "Removes first " : "Unsets the ") + propdesc, BeanMethod.UNSET);
@@ -944,14 +930,14 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
         if (several) {
             String arrayName = propertyName + "Array";
 
-            if(propertyDocumentation != null && propertyDocumentation.length() > 0) {
+            if(opt.isCompileAnnotationAsJavadoc() && propertyDocumentation != null && propertyDocumentation.length() > 0) {
                 printJavaDocParagraph(propertyDocumentation);
             } else {
                 printJavaDoc("Sets array of all " + propdesc, BeanMethod.SET_ARRAY);
             }
             emit("void set" + arrayName + "(" + type + "[] " + safeVarName + "Array);", BeanMethod.SET_ARRAY);
 
-            if(propertyDocumentation != null && propertyDocumentation.length() > 0) {
+            if (opt.isCompileAnnotationAsJavadoc() && propertyDocumentation != null && propertyDocumentation.length() > 0) {
                 printJavaDocParagraph(propertyDocumentation);
             } else {
                 printJavaDoc("Sets ith " + propdesc, BeanMethod.SET_IDX);
@@ -1675,7 +1661,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
         if (prop.extendsJavaSingleton()) {
             if (bmList == null || bmList.contains(BeanMethod.GET)) {
                 // Value getProp()
-                if(propertyDocumentation != null && propertyDocumentation.length() > 0){
+                if(opt.isCompileAnnotationAsJavadoc() && propertyDocumentation != null && propertyDocumentation.length() > 0){
                     printJavaDocParagraph(propertyDocumentation);
                 } else {
                     printJavaDoc((several ? "Gets first " : "Gets the ") + propdesc);

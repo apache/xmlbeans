@@ -53,6 +53,7 @@ public class Parameters {
     private boolean noVDoc;
     private boolean noExt;
     private boolean debug;
+    private boolean copyAnn;
     private boolean incrementalSrcGen;
     private String repackage;
     private List<Extension> extensions = Collections.emptyList();
@@ -276,6 +277,14 @@ public class Parameters {
 
     public void setRepackage(String newRepackage) {
         repackage = newRepackage;
+    }
+
+    public boolean isCopyAnn() {
+        return copyAnn;
+    }
+
+    public void setCopyAnn(boolean newCopyAnn) {
+        copyAnn = newCopyAnn;
     }
 
     public List<Extension> getExtensions() {

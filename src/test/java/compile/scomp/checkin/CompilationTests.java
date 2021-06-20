@@ -432,6 +432,30 @@ public class CompilationTests {
         }
     }
 
+    @Test
+    public void annotation2javadoc() throws Exception {
+        deltree(xbeanOutput("compile/scomp/javadoc"));
+        File srcdir = xbeanOutput("compile/scomp/javadoc/src");
+        File classesdir = xbeanOutput("compile/scomp/javadoc/classes");
+        File outputjar = xbeanOutput("compile/scomp/javadoc/javadoc.jar");
+        Parameters params = new Parameters();
+        params.setXsdFiles(xbeanCase("schemacompiler/javadoc.xsd"));
+        params.setSrcDir(srcdir);
+        params.setClassesDir(classesdir);
+        params.setOutputJar(outputjar);
+        params.setName("javadoc");
+        SchemaCompiler.compile(params);
+
+        Path p = new File(srcdir, "javadoc/RootDocument.java").toPath();
+        String act = new String(Files.readAllBytes(p), StandardCharsets.UTF_8);
+        assertFalse(act.contains("* / heck, I'm smart"));
+
+        params.setCopyAnn(true);
+        SchemaCompiler.compile(params);
+
+        act = new String(Files.readAllBytes(p), StandardCharsets.UTF_8);
+        assertTrue(act.contains("* / heck, I'm smart"));
+    }
 
     //TESTENV:
 

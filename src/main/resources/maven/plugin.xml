@@ -343,6 +343,13 @@
 					</extensions>
                 ]]></description>
                 </parameter>
+                <parameter>
+                    <name>copyAnn</name>
+                    <type>boolean</type>
+                    <required>false</required>
+                    <editable>true</editable>
+                    <description>copy annotation to javadoc of generated source - don't use on untrusted schemas/sources!</description>
+                </parameter>
             </parameters>
             <configuration>
                 <project implementation="org.apache.maven.project.MavenProject" default-value="${project}"/>
@@ -360,6 +367,7 @@
                 <noUpa implementation="boolean" default-value="false"/>
                 <noPvr implementation="boolean" default-value="false"/>
                 <noAnn implementation="boolean" default-value="false"/>
+                <copyAnn implementation="boolean" default-value="false"/>
                 <noVDoc implementation="boolean" default-value="false"/>
                 <download implementation="boolean" default-value="false"/>
                 <debug implementation="boolean" default-value="false"/>
