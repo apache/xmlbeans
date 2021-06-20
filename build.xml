@@ -358,6 +358,9 @@
         <replaceregexp match="^.*@deprecated.*\r?\n.*\r?\n" replace="" flags="gm">
             <fileset dir="build/bootstrap/generated-sources" includes="**/*.java"/>
         </replaceregexp>
+        <replaceregexp match='public static final class Factory.*No instance of this class allowed\n\s\}' replace="" flags="gm">
+            <fileset dir="build/bootstrap/generated-sources" includes="**/*.java"/>
+        </replaceregexp>
         <replaceregexp match='^(\s+).*type =[^\n]*\r?\n.*\((.*)\.class[^"]+"([^"]+)"[^"]+("[^"]+").*$' replace="\1org.apache.xmlbeans.impl.schema.XmlObjectFactory&lt;\2> Factory = new org.apache.xmlbeans.impl.schema.XmlObjectFactory&lt;>(\3.TypeSystemHolder.typeSystem, \4);&#10;\1org.apache.xmlbeans.SchemaType type = Factory.getType();" flags="gm">
             <fileset dir="build/bootstrap/generated-sources" includes="**/*.java" excludes="**/impl/xb/*/impl/**"/>
         </replaceregexp>
@@ -377,7 +380,6 @@
             <src refid="sources"/>
             <src path="build/bootstrap/generated-sources"/>
             <classpath>
-                <path refid="oldxbean"/>
                 <pathelement location="${ant.jar}"/>
                 <pathelement location="${ant-junit.jar}"/>
                 <pathelement location="${ant-junit4.jar}"/>
