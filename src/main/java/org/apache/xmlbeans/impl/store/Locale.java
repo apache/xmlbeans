@@ -2043,7 +2043,6 @@ public final class Locale
     }
 
     public void exit() {
-        // assert _numTempFramesLeft >= 0;
         //asserts computed frame fits between 0 and _tempFrames.length
         assert _numTempFramesLeft >= 0 &&
                (_numTempFramesLeft <= _tempFrames.length - 1) :
@@ -2052,14 +2051,13 @@ public final class Locale
 
         int frame = _tempFrames.length - ++_numTempFramesLeft;
 
+        // no dead loop - _tempFrames is modified in Cur.release() and the next Cur is taken
+        // the place of the current one - basically this releases all following Curs
+        // usually _tempFrames[frame] == null, as the Cur has been released before
         while (_tempFrames[frame] != null) {
             _tempFrames[frame].release();
         }
     }
-
-    //
-    //
-    //
 
     public boolean noSync() {
         return _noSync;
