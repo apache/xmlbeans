@@ -23,7 +23,6 @@ import org.apache.xmlbeans.impl.common.QNameHelper;
 import org.apache.xmlbeans.impl.common.ValidationContext;
 import org.apache.xmlbeans.impl.schema.BuiltinSchemaTypeSystem;
 
-import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
@@ -59,8 +58,7 @@ public abstract class JavaBase64Holder extends XmlObjectBase {
 
     public static byte[] lex(String v, ValidationContext c) {
         try {
-            byte[] vBytes = v.getBytes(StandardCharsets.UTF_8);
-            return Base64.getDecoder().decode(vBytes);
+            return Base64.getDecoder().decode(v);
         } catch (IllegalArgumentException e) {
             // TODO - get a decent error with line numbers and such here
             c.invalid(XmlErrorCodes.BASE64BINARY, new Object[]{"not encoded properly"});
