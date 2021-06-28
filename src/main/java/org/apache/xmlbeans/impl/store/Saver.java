@@ -1570,14 +1570,22 @@ abstract class Saver {
 
             if (used > 0) {
                 if (_in > _out) {
+                    // Data in the middle (between _in and _out, i must be between those)
                     assert i == -1 || (i >= _out && i < _in);
                     System.arraycopy(_buf, _out, newBuf, 0, used);
                     i -= _out;
                 } else {
+                    // Data is on the edges: Oldest part from _in to end,
+                    // newest part from 0 to _out.
+                    // it must be in either of those regions
                     assert i == -1 || (i >= _out || i < _in);
-                    System.arraycopy(_buf, _out, newBuf, 0, used - _in);
-                    System.arraycopy(_buf, 0, newBuf, used - _in, _in);
-                    i = i >= _out ? i - _out : i + _out;
+                    int oldestSize = used - _in;
+                    System.arraycopy( _buf, _out, newBuf, 0, oldestSize );
+                    System.arraycopy( _buf, 0, newBuf, oldestSize, _in );
+                    // newBuf now contains oldest data now at [0,oldestSize) and newest at [oldestSize,oldestSize+_in)
+                    // Where was i? If past _out, i was in the oldest part, so adjust back by start of the oldest part
+                    // Or: i was in the newest part, and should now be adjusted forward to where the newest part is now
+                    i = (i >= _out) ? i - _out : i + oldestSize;
                 }
 
                 _out = 0;
