@@ -17,6 +17,7 @@ package compile.scomp.som.detailed;
 import compile.scomp.som.common.SomTestBase;
 import org.apache.xmlbeans.SchemaTypeSystem;
 import org.apache.xmlbeans.XmlBeans;
+import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlOptions;
 import org.junit.After;
 import org.junit.Before;
@@ -24,6 +25,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -40,7 +42,7 @@ public class PartialSOMDetailedTest extends SomTestBase {
 
         // populate the XmlOptions
         if (errors == null) {
-            errors = new ArrayList();
+            errors = new ArrayList<>();
         }
         if (options == null) {
             options = (new XmlOptions()).setErrorListener(errors);
@@ -63,7 +65,7 @@ public class PartialSOMDetailedTest extends SomTestBase {
     }
 
     @Test
-    public void testAddDataTypesList() {
+    public void testAddDataTypesList() throws IOException, XmlException {
         System.out.println("Inside test case testAddDataTypesList()");
 
         // Step 1 : create a PSOM from an incomplete/invalid xsd (datatypes.xsd) with unresolved references to various types
@@ -96,7 +98,7 @@ public class PartialSOMDetailedTest extends SomTestBase {
     }
 
     @Test
-    public void testDeleteReusableGroups() {
+    public void testDeleteReusableGroups() throws IOException, XmlException {
         System.out.println("Inside test case testDeleteSubstitutionGroups()");
 
         // Step 1: read in a clean XSD groups_added.xsd
@@ -178,7 +180,7 @@ public class PartialSOMDetailedTest extends SomTestBase {
     }
 
     @Test
-    public void testModifyDataTypesList() {
+    public void testModifyDataTypesList() throws IOException, XmlException {
         System.out.println("Inside test case testModifyDataTypes()");
 
         // 1. remove one of the constituent types for the union and test to see if union is anySimpleType
@@ -283,7 +285,7 @@ public class PartialSOMDetailedTest extends SomTestBase {
     }
 
     @Test
-    public void testDeleteDerivedTypes() {
+    public void testDeleteDerivedTypes() throws IOException, XmlException {
         System.out.println("Inside test case testDeleteDerivedTypes()");
 
         // Step 1: read in a clean XSD derived_types_added.xsd with base and derived types to create a base schema with no unresolved components
@@ -344,7 +346,7 @@ public class PartialSOMDetailedTest extends SomTestBase {
     }
 
     @Test
-    public void testModifyReusableGroups() {
+    public void testModifyReusableGroups() throws IOException, XmlException {
         System.out.println("Inside test case testModifyReusableGroups()");
 
         // Step 1: read in a clean XSD groups_added.xsd
@@ -432,7 +434,7 @@ public class PartialSOMDetailedTest extends SomTestBase {
     }
 
     @Test
-    public void testModifyDerivedTypes() {
+    public void testModifyDerivedTypes() throws IOException, XmlException {
         System.out.println("Inside test case testModifyDerivedTypes()");
 
         // Step 1: read in a clean XSD derived_types_added.xsd
@@ -529,7 +531,7 @@ public class PartialSOMDetailedTest extends SomTestBase {
     }
 
     @Test
-    public void testNameSpacesImportFile() {
+    public void testNameSpacesImportFile() throws IOException, XmlException {
         System.out.println("Inside test case testNameSpacesImportFile()");
 
         // Step 1: read in an xsd that imports from another xsd file providing file name only
@@ -550,7 +552,7 @@ public class PartialSOMDetailedTest extends SomTestBase {
     }
 
     @Test
-    public void testNameSpacesWithInclude() {
+    public void testNameSpacesWithInclude() throws IOException, XmlException {
         System.out.println("Inside test case testNameSpacesWithInclude()");
 
         // Step 1: read in an xsd that includes another namespace in xsd file namespaces2.xsd
@@ -578,7 +580,7 @@ public class PartialSOMDetailedTest extends SomTestBase {
 
     @Test
     @Ignore
-    public void testNameSpacesImportFileWithPath() {
+    public void testNameSpacesImportFileWithPath() throws IOException, XmlException {
         System.out.println("Inside test case testNameSpacesImportFileWithPath()");
 
         //Step 1: read in an xsd that does not have any imports
