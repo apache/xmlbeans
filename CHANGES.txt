@@ -1,3 +1,5 @@
+# not updated anymore since V5.0.1 - use http://xmlbeans.apache.org/status.html instead
+
 Changes in V5.0.0 since V4.0.0
 
 * XMLBEANS-554:	xmlbean doesn't support the "javasource" attribute
