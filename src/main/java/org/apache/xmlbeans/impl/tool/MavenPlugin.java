@@ -273,7 +273,7 @@ public class MavenPlugin extends AbstractMojo {
             params.setNojavac(sourceOnly);
             params.setVerbose(verbose);
             params.setEntityResolver(entityResolver);
-            params.setQuiet(quiet && quiet); //setting either quiet or quite to false will disable quiet mode
+            params.setQuiet(quiet && quite); //setting either quiet or quite to false will disable quiet mode
             params.setNoUpa(noUpa);
             params.setNoPvr(noPvr);
             params.setNoAnn(noAnn);
