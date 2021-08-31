@@ -99,6 +99,10 @@ public class MavenPlugin extends AbstractMojo {
 
     /** no output  - default: true */
     @Parameter( defaultValue = "true" )
+    private boolean quiet;
+
+    /** no output (deprecated - use quiet instead) - default: true */
+    @Parameter( defaultValue = "true" )
     private boolean quite;
 
     /** deactivate unique particle attribution - default: false */
@@ -269,7 +273,7 @@ public class MavenPlugin extends AbstractMojo {
             params.setNojavac(sourceOnly);
             params.setVerbose(verbose);
             params.setEntityResolver(entityResolver);
-            params.setQuiet(quite);
+            params.setQuiet(quiet && quiet); //setting either quiet or quite to false will disable quiet mode
             params.setNoUpa(noUpa);
             params.setNoPvr(noPvr);
             params.setNoAnn(noAnn);

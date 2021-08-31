@@ -232,11 +232,18 @@
                     <description>verbose output</description>
                 </parameter>
                 <parameter>
+                    <name>quiet</name>
+                    <type>boolean</type>
+                    <required>false</required>
+                    <editable>true</editable>
+                    <description>no output (replaces quite parameter instead - since 5.0.2)</description>
+                </parameter>
+                <parameter>
                     <name>quite</name>
                     <type>boolean</type>
                     <required>false</required>
                     <editable>true</editable>
-                    <description>no output</description>
+                    <description>no output (use quiet parameter instead - since 5.0.2)</description>
                 </parameter>
                 <parameter>
                     <name>noUpa</name>
