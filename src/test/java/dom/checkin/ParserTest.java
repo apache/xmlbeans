@@ -17,15 +17,18 @@
 package dom.checkin;
 
 import org.apache.xmlbeans.XmlOptions;
+import org.apache.xmlbeans.impl.common.DocumentHelper;
 import org.apache.xmlbeans.impl.common.SAXHelper;
 import org.apache.xmlbeans.impl.common.StaxHelper;
 import org.apache.xmlbeans.impl.common.XMLBeansConstants;
 import org.junit.Test;
 import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 
-import javax.xml.stream.XMLInputFactory;
 import java.io.ByteArrayInputStream;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.stream.XMLInputFactory;
 
 import static org.junit.Assert.*;
 
@@ -89,10 +92,11 @@ public class ParserTest {
         assertEquals(SAXHelper.IGNORING_ENTITY_RESOLVER, reader.getEntityResolver());
         assertNotNull(reader.getProperty(XMLBeansConstants.SECURITY_MANAGER));
 
-        reader.parse(new InputSource(new ByteArrayInputStream("<xml></xml>".getBytes("UTF-8"))));
+        String xmlWithDtd = "<!DOCTYPE foo [<!ELEMENT t ANY><!ENTITY xe \"TEST XXE\"> ]>\n<xml>&xe;</xml>";
+        reader.parse(new InputSource(new ByteArrayInputStream(xmlWithDtd.getBytes("UTF-8"))));
     }
 
-    @Test
+    @Test(expected = SAXException.class)
     public void testXMLReaderOverrides() throws Exception {
         XmlOptions options = new XmlOptions();
         options.setEntityExpansionLimit(1);
@@ -107,6 +111,31 @@ public class ParserTest {
         assertEquals(SAXHelper.IGNORING_ENTITY_RESOLVER, reader.getEntityResolver());
         assertNotNull(reader.getProperty(XMLBeansConstants.SECURITY_MANAGER));
 
-        reader.parse(new InputSource(new ByteArrayInputStream("<xml></xml>".getBytes("UTF-8"))));
+        String xmlWithDtd = "<!DOCTYPE foo [<!ELEMENT t ANY><!ENTITY xe \"TEST XXE\"> ]>\n<xml>&xe;</xml>";
+        reader.parse(new InputSource(new ByteArrayInputStream(xmlWithDtd.getBytes("UTF-8"))));
+    }
+
+    @Test
+    public void testDocumentBuilder() throws Exception {
+        XmlOptions options = new XmlOptions();
+        DocumentBuilder builder = DocumentHelper.newDocumentBuilder(options);
+        assertNotSame(builder, DocumentHelper.newDocumentBuilder(options));
+
+        String xmlWithDtd = "<!DOCTYPE foo [<!ELEMENT t ANY><!ENTITY xe \"TEST XXE\"> ]>\n<xml>&xe;</xml>";
+        builder.parse(new InputSource(new ByteArrayInputStream(xmlWithDtd.getBytes("UTF-8"))));
+    }
+
+    @Test(expected = SAXException.class)
+    public void testDocumentBuilderOverrides() throws Exception {
+        XmlOptions options = new XmlOptions();
+        options.setEntityExpansionLimit(1);
+        options.setLoadDTDGrammar(true);
+        options.setLoadExternalDTD(true);
+        options.setDisallowDocTypeDeclaration(true);
+        DocumentBuilder builder = DocumentHelper.newDocumentBuilder(options);
+        assertNotSame(builder, DocumentHelper.newDocumentBuilder(options));
+
+        String xmlWithDtd = "<!DOCTYPE foo [<!ELEMENT t ANY><!ENTITY xe \"TEST XXE\"> ]>\n<xml>&xe;</xml>";
+        builder.parse(new InputSource(new ByteArrayInputStream(xmlWithDtd.getBytes("UTF-8"))));
     }
 }
