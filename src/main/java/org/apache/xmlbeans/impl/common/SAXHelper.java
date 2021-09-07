@@ -65,6 +65,7 @@ public final class SAXHelper {
         trySetSAXFeature(saxFactory, XMLConstants.FEATURE_SECURE_PROCESSING, true);
         trySetSAXFeature(saxFactory, XMLBeansConstants.FEATURE_LOAD_DTD_GRAMMAR, options.isLoadDTDGrammar());
         trySetSAXFeature(saxFactory, XMLBeansConstants.FEATURE_LOAD_EXTERNAL_DTD, options.isLoadExternalDTD());
+        trySetSAXFeature(saxFactory, XMLBeansConstants.FEATURE_DISALLOW_DOCTYPE_DECL, options.disallowDocTypeDeclaration());
         return saxFactory;
     }
 

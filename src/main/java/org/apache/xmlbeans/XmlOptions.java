@@ -150,6 +150,7 @@ public class XmlOptions implements java.io.Serializable {
         ENTITY_EXPANSION_LIMIT,
         LOAD_DTD_GRAMMAR,
         LOAD_EXTERNAL_DTD,
+        DISALLOW_DOCTYPE_DECLARATION,
         SAAJ_IMPL,
         LOAD_USE_LOCALE_CHAR_UTIL,
         XPATH_USE_SAXON,
@@ -1327,6 +1328,32 @@ public class XmlOptions implements java.io.Serializable {
 
     public boolean isLoadExternalDTD() {
         Boolean flag = (Boolean) get(XmlOptionsKeys.LOAD_EXTERNAL_DTD);
+        return flag != null && flag;
+    }
+
+    /**
+     * Controls whether DocType declarations are disallowed during XML parsing. If they are disallowed,
+     * the parser will throw an exception if a DocType declaration is encountered.
+     * The default value is false.
+     *
+     * @param disallowDocTypeDeclaration {@code true}, if DocType declarations are to be disallowed
+     * @return this
+     * @since 5.0.2
+     */
+    public XmlOptions setDisallowDocTypeDeclaration(boolean disallowDocTypeDeclaration) {
+        return set(XmlOptionsKeys.DISALLOW_DOCTYPE_DECLARATION, disallowDocTypeDeclaration);
+    }
+
+    /**
+     * Returns whether DocType declarations are disallowed during XML parsing. If they are disallowed,
+     * the parser will throw an exception if a DocType declaration is encountered.
+     * The default value is false.
+     *
+     * @return boolean
+     * @since 5.0.2
+     */
+    public boolean disallowDocTypeDeclaration() {
+        Boolean flag = (Boolean) get(XmlOptionsKeys.DISALLOW_DOCTYPE_DECLARATION);
         return flag != null && flag;
     }
 

@@ -41,6 +41,7 @@ public class ParserTest {
         assertEquals(2048, options.getEntityExpansionLimit());
         assertFalse(options.isLoadDTDGrammar());
         assertFalse(options.isLoadExternalDTD());
+        assertFalse(options.disallowDocTypeDeclaration());
     }
 
     @Test
@@ -49,9 +50,11 @@ public class ParserTest {
         options.setEntityExpansionLimit(1);
         options.setLoadDTDGrammar(true);
         options.setLoadExternalDTD(true);
+        options.setDisallowDocTypeDeclaration(true);
         assertEquals(1, options.getEntityExpansionLimit());
         assertTrue(options.isLoadDTDGrammar());
         assertTrue(options.isLoadExternalDTD());
+        assertTrue(options.disallowDocTypeDeclaration());
     }
 
     @Test
@@ -82,6 +85,7 @@ public class ParserTest {
         assertNotSame(reader, SAXHelper.newXMLReader(options));
         assertFalse(reader.getFeature(XMLBeansConstants.FEATURE_LOAD_DTD_GRAMMAR));
         assertFalse(reader.getFeature(XMLBeansConstants.FEATURE_LOAD_EXTERNAL_DTD));
+        assertFalse(reader.getFeature(XMLBeansConstants.FEATURE_DISALLOW_DOCTYPE_DECL));
         assertEquals(SAXHelper.IGNORING_ENTITY_RESOLVER, reader.getEntityResolver());
         assertNotNull(reader.getProperty(XMLBeansConstants.SECURITY_MANAGER));
 
@@ -94,10 +98,12 @@ public class ParserTest {
         options.setEntityExpansionLimit(1);
         options.setLoadDTDGrammar(true);
         options.setLoadExternalDTD(true);
+        options.setDisallowDocTypeDeclaration(true);
         XMLReader reader = SAXHelper.newXMLReader(options);
         assertNotSame(reader, SAXHelper.newXMLReader(options));
         assertTrue(reader.getFeature(XMLBeansConstants.FEATURE_LOAD_DTD_GRAMMAR));
         assertTrue(reader.getFeature(XMLBeansConstants.FEATURE_LOAD_EXTERNAL_DTD));
+        assertTrue(reader.getFeature(XMLBeansConstants.FEATURE_DISALLOW_DOCTYPE_DECL));
         assertEquals(SAXHelper.IGNORING_ENTITY_RESOLVER, reader.getEntityResolver());
         assertNotNull(reader.getProperty(XMLBeansConstants.SECURITY_MANAGER));
 
