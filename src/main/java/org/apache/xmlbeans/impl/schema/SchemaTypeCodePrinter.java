@@ -1237,7 +1237,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
                 break;
 
             case SchemaProperty.JAVA_OBJECT:
-                em = "ObjectArray(#ID#, org.apache.xmlbeans.SimpleValue::getObjectValue, java.util.Object[]::new);";
+                em = "ObjectArray(#ID#, org.apache.xmlbeans.SimpleValue::getObjectValue, java.lang.Object[]::new);";
                 break;
 
             case SchemaProperty.JAVA_USER:
