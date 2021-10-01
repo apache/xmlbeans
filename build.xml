@@ -903,7 +903,7 @@
         <dependency prefix="spotbugs" artifact="com.github.spotbugs:spotbugs:4.4.1" usage="${spotbugs.lib}" target="spotbugs.jar"/>
         <dependency prefix="spotbugs-ant" artifact="com.github.spotbugs:spotbugs-ant:4.4.1" usage="${spotbugs.lib}" target="spotbugs-ant.jar"/>
         <dependency prefix="spotbugs-anno" artifact="com.github.spotbugs:spotbugs-annotations:4.4.1" usage="${spotbugs.lib}" target="spotbugs-annotations.jar"/>
-        <dependency prefix="spotbugs.asm" artifact="org.ow2.asm:asm:9.0" usage="${spotbugs.lib}"/>
+        <dependency prefix="spotbugs.asm" artifact="org.ow2.asm:asm:9.2" usage="${spotbugs.lib}"/>
         <dependency prefix="spotbugs.asm-analysis" artifact="org.ow2.asm:asm-analysis:9.2" usage="${spotbugs.lib}"/>
         <dependency prefix="spotbugs.asm-commons" artifact="org.ow2.asm:asm-commons:9.2" usage="${spotbugs.lib}"/>
         <dependency prefix="spotbugs.asm-tree" artifact="org.ow2.asm:asm-tree:9.2" usage="${spotbugs.lib}"/>
