@@ -913,7 +913,7 @@
         <dependency prefix="spotbugs.jaxen" artifact="jaxen:jaxen:1.2.0" usage="${spotbugs.lib}"/>
         <dependency prefix="spotbugs.bcel" artifact="org.apache.bcel:bcel:6.5.0" usage="${spotbugs.lib}"/>
         <dependency prefix="spotbugs.slf4j-api" artifact="org.slf4j:slf4j-api:1.8.0-beta4" usage="${spotbugs.lib}"/>
-        <dependency prefix="spotbugs.commons-lang3" artifact="org.apache.commons:commons-lang3:3.11" usage="${spotbugs.lib}"/>
+        <dependency prefix="spotbugs.commons-lang3" artifact="org.apache.commons:commons-lang3:3.12.0" usage="${spotbugs.lib}"/>
         <dependency prefix="spotbugs.commons-text" artifact="org.apache.commons:commons-text:1.9" usage="${spotbugs.lib}"/>
         <dependency prefix="spotbugs.jcip-annotations" artifact="net.jcip:jcip-annotations:1.0" usage="${spotbugs.lib}"/>
         <dependency prefix="spotbugs.icu4j" artifact="com.ibm.icu:icu4j:68.2" usage="${spotbugs.lib}" target="icu4j-63.1.jar"/>
