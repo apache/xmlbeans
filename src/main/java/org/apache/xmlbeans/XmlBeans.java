@@ -38,7 +38,7 @@ public final class XmlBeans {
     private static final String TYPE_SYSTEM_FIELD = "typeSystem";
 
     private static String XMLBEANS_TITLE = "org.apache.xmlbeans";
-    private static String XMLBEANS_VERSION = "5.0.2-SNAPSHOT";
+    private static String XMLBEANS_VERSION = "5.0.2";
     private static String XMLBEANS_VENDOR = "Apache Software Foundation";
 
     static {
