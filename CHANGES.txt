@@ -2,7 +2,7 @@
 
 Changes in V5.0.0 since V4.0.0
 
-* XMLBEANS-554:	xmlbean doesn't support the "javasource" attribute
+* XMLBEANS-554:	xmlbeans doesn't support the "javasource" attribute
 * XMLBEANS-551:	use log4j-2 for logging
 * XMLBEANS-557: Duplicate classes in jar
 * XMLBEANS-486: Provide Maven plugin
