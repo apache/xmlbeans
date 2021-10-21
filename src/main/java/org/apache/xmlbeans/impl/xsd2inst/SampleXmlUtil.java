@@ -44,6 +44,10 @@ public class SampleXmlUtil {
         _soapEnc = soapEnc;
     }
 
+    /**
+     * @param sType a schema type
+     * @return Sample XML as a string
+     */
     public static String createSampleForType(SchemaType sType) {
         XmlObject object = XmlObject.Factory.newInstance();
         XmlCursor cursor = object.newCursor();
@@ -60,6 +64,32 @@ public class SampleXmlUtil {
         options.setSavePrettyPrint();
         options.setSavePrettyPrintIndent(2);
         options.setSaveAggressiveNamespaces();
+        return object.xmlText(options);
+    }
+
+    /**
+     * @param element a {code SchemaGlobalElement}
+     * @return Sample XML as a string
+     * @since v5.0.3
+     */
+    public static String createSampleForType(SchemaGlobalElement element) {
+        SchemaType sType = element.getType();
+        XmlObject object = XmlObject.Factory.newInstance();
+        XmlCursor cursor = object.newCursor();
+        // Skip the document node
+        cursor.toNextToken();
+        // Using the type and the cursor, call the utility method to get a
+        // sample XML payload for that Schema element
+        new SampleXmlUtil(false).createSampleForType(sType, cursor);
+        // Cursor now contains the sample payload
+        // Pretty print the result.  Note that the cursor is positioned at the
+        // end of the doc so we use the original xml object that the cursor was
+        // created upon to do the xmlText() against.
+        XmlOptions options = new XmlOptions();
+        options.setSavePrettyPrint();
+        options.setSavePrettyPrintIndent(2);
+        options.setSaveAggressiveNamespaces();
+        options.setSaveSyntheticDocumentElement(element.getName());
         return object.xmlText(options);
     }
 
