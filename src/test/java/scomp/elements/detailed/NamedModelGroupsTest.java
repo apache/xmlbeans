@@ -26,9 +26,9 @@ import java.util.GregorianCalendar;
 
 import static org.junit.Assert.assertTrue;
 
-public class NamedModelGroupsTest extends BaseCase{
+public class NamedModelGroupsTest extends BaseCase {
     @Test
-     public void testValid() throws Throwable{
+    public void testValid() throws Exception {
         EmployeePerformanceDocument doc =
             EmployeePerformanceDocument.Factory.newInstance();
         EmployeePerf elt = doc.addNewEmployeePerformance();
