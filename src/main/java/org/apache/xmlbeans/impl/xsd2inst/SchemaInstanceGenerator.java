@@ -198,59 +198,6 @@ public class SchemaInstanceGenerator
 
         String result = xsd2inst(schemas, rootName, options);
 
-/*        SchemaTypeSystem sts = null;
-        if (schemas.length > 0)
-        {
-            Collection errors = new ArrayList();
-            XmlOptions compileOptions = new XmlOptions();
-            if (dl)
-                compileOptions.setCompileDownloadUrls();
-            if (nopvr)
-                compileOptions.setCompileNoPvrRule();
-            if (noupa)
-                compileOptions.setCompileNoUpaRule();
-
-            try
-            {
-                sts = XmlBeans.compileXsd(schemas, XmlBeans.getBuiltinTypeSystem(), compileOptions);
-            }
-            catch (Exception e)
-            {
-                if (errors.isEmpty() || !(e instanceof XmlException))
-                    e.printStackTrace();
-
-                System.out.println("Schema compilation errors: ");
-                for (Iterator i = errors.iterator(); i.hasNext(); )
-                    System.out.println(i.next());
-            }
-        }
-
-        if (sts == null)
-        {
-            System.out.println("No Schemas to process.");
-            return;
-        }
-        SchemaType[] globalElems = sts.documentTypes();
-        SchemaType elem = null;
-        for (int i = 0; i < globalElems.length; i++)
-        {
-            if (rootName.equals(globalElems[i].getDocumentElementName().getLocalPart()))
-            {
-                elem = globalElems[i];
-                break;
-            }
-        }
-
-        if (elem == null)
-        {
-            System.out.println("Could not find a global element with name \"" + rootName + "\"");
-            return;
-        }
-
-        // Now generate it
-        String result = SampleXmlUtil.createSampleForType(elem);
-*/
-
         System.out.println(result);
 
         return;
