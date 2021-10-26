@@ -68,11 +68,11 @@ public class SampleXmlUtil {
     }
 
     /**
-     * @param element a {code SchemaGlobalElement}
+     * @param element a {code SchemaField}
      * @return Sample XML as a string
      * @since v5.0.3
      */
-    public static String createSampleForType(SchemaGlobalElement element) {
+    public static String createSampleForType(SchemaField element) {
         SchemaType sType = element.getType();
         XmlObject object = XmlObject.Factory.newInstance();
         XmlCursor cursor = object.newCursor();
