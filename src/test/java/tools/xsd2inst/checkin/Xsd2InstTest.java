@@ -37,7 +37,7 @@ public class Xsd2InstTest extends TestCase {
         String result = SchemaInstanceGenerator.xsd2inst(new XmlObject[]{xobj}, "price-quote", options);
         assertTrue("price-quote element found?", result.contains("<price-quote>"));
         assertTrue("stock-symbol element found?", result.contains("<stock-symbol>string</stock-symbol>"));
-        assertTrue("stock-price element found?", result.contains("<stock-price>"));
+        assertTrue("stock-price element found?", result.contains("<stock-price>string</stock-price>"));
         try (InputStream docStream = new ByteArrayInputStream(result.getBytes(StandardCharsets.UTF_8))) {
             assertNotNull(DocumentHelper.readDocument(new XmlOptions(), docStream));
         }
@@ -56,7 +56,7 @@ public class Xsd2InstTest extends TestCase {
         String result = SampleXmlUtil.createSampleForType(element);
         assertTrue("price-quote element found?", result.contains("<price-quote>"));
         assertTrue("stock-symbol element found?", result.contains("<stock-symbol>string</stock-symbol>"));
-        assertTrue("stock-price element found?", result.contains("<stock-price>"));
+        assertTrue("stock-price element found?", result.contains("<stock-price>string</stock-price>"));
         try (InputStream docStream = new ByteArrayInputStream(result.getBytes(StandardCharsets.UTF_8))) {
             assertNotNull(DocumentHelper.readDocument(new XmlOptions(), docStream));
         }
