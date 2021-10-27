@@ -15,9 +15,9 @@
 package tools.xsd2inst.checkin;
 
 import junit.framework.TestCase;
-import org.apache.xmlbeans.XmlObject;
-import org.apache.xmlbeans.XmlOptions;
+import org.apache.xmlbeans.*;
 import org.apache.xmlbeans.impl.common.DocumentHelper;
+import org.apache.xmlbeans.impl.xsd2inst.SampleXmlUtil;
 import org.apache.xmlbeans.impl.xsd2inst.SchemaInstanceGenerator;
 
 import java.io.ByteArrayInputStream;
@@ -34,7 +34,26 @@ public class Xsd2InstTest extends TestCase {
                     (new XmlOptions()).setLoadLineNumbers().setLoadMessageDigest());
         }
         SchemaInstanceGenerator.Xsd2InstOptions options = new SchemaInstanceGenerator.Xsd2InstOptions();
-        String result = SchemaInstanceGenerator.xsd2inst(new XmlObject[] {xobj}, "price-quote", options);
+        String result = SchemaInstanceGenerator.xsd2inst(new XmlObject[]{xobj}, "price-quote", options);
+        assertTrue("price-quote element found?", result.contains("<price-quote>"));
+        assertTrue("stock-symbol element found?", result.contains("<stock-symbol>string</stock-symbol>"));
+        assertTrue("stock-price element found?", result.contains("<stock-price>"));
+        try (InputStream docStream = new ByteArrayInputStream(result.getBytes(StandardCharsets.UTF_8))) {
+            assertNotNull(DocumentHelper.readDocument(new XmlOptions(), docStream));
+        }
+    }
+
+    public void testSampleXmlUtil() throws Exception {
+        XmlObject xobj;
+        try (InputStream xsdStream = Xsd2InstTest.class.getResourceAsStream(
+                "/xbean/compile/scomp/pricequote/PriceQuote.xsd")) {
+            xobj = XmlObject.Factory.parse(xsdStream,
+                    (new XmlOptions()).setLoadLineNumbers().setLoadMessageDigest());
+        }
+        SchemaTypeSystem sts = XmlBeans.compileXsd(new XmlObject[]{xobj}, XmlBeans.getBuiltinTypeSystem(), new XmlOptions());
+        SchemaGlobalElement[] elements = sts.globalElements();
+        SchemaGlobalElement element = elements[0];
+        String result = SampleXmlUtil.createSampleForType(element);
         assertTrue("price-quote element found?", result.contains("<price-quote>"));
         assertTrue("stock-symbol element found?", result.contains("<stock-symbol>string</stock-symbol>"));
         assertTrue("stock-price element found?", result.contains("<stock-price>"));
