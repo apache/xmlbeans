@@ -120,9 +120,9 @@
 
     <!-- dependencies -->
     <dependency prefix="xml-apis" artifact="xml-apis:xml-apis:1.4.01" usage="java8"/>
-    <dependency prefix="log4j-api" artifact="org.apache.logging.log4j:log4j-api:2.16.0" usage="main"/>
+    <dependency prefix="log4j-api" artifact="org.apache.logging.log4j:log4j-api:2.17.0" usage="main"/>
     <dependency prefix="saxon" artifact="net.sf.saxon:Saxon-HE:10.6" usage="main"/>
-    <dependency prefix="ant" artifact="org.apache.ant:ant:1.10.11" usage="main"/>
+    <dependency prefix="ant" artifact="org.apache.ant:ant:1.10.12" usage="main"/>
     <dependency prefix="javaparser.core" artifact="com.github.javaparser:javaparser-core:3.23.1" usage="main"/>
 
     <!-- previous xmlbeans version is used to bootstrap necessary schema bindings -->
@@ -139,9 +139,9 @@
 
     <!-- test dependencies -->
     <dependency prefix="junit" artifact="junit:junit:4.13.2" usage="tests"/>
-    <dependency prefix="log4j-core" artifact="org.apache.logging.log4j:log4j-core:2.16.0" usage="tests"/>
-    <dependency prefix="ant-junit" artifact="org.apache.ant:ant-junit:1.10.11" usage="tests"/>
-    <dependency prefix="ant-junit4" artifact="org.apache.ant:ant-junit4:1.10.11" usage="tests"/>
+    <dependency prefix="log4j-core" artifact="org.apache.logging.log4j:log4j-core:2.17.0" usage="tests"/>
+    <dependency prefix="ant-junit" artifact="org.apache.ant:ant-junit:1.10.12" usage="tests"/>
+    <dependency prefix="ant-junit4" artifact="org.apache.ant:ant-junit4:1.10.12" usage="tests"/>
     <dependency prefix="hamcrest" artifact="org.hamcrest:hamcrest:2.2" usage="tests"/>
     <dependency prefix="xerces" artifact="xerces:xercesImpl:2.12.1" usage="tests"/>
 
@@ -917,9 +917,9 @@
         <dependency prefix="spotbugs.commons-text" artifact="org.apache.commons:commons-text:1.9" usage="${spotbugs.lib}"/>
         <dependency prefix="spotbugs.jcip-annotations" artifact="net.jcip:jcip-annotations:1.0" usage="${spotbugs.lib}"/>
         <dependency prefix="spotbugs.icu4j" artifact="com.ibm.icu:icu4j:68.2" usage="${spotbugs.lib}" target="icu4j-63.1.jar"/>
-        <dependency prefix="spotbugs.log4j-api" artifact="org.apache.logging.log4j:log4j-api:2.16.0" usage="${spotbugs.lib}"/>
-        <dependency prefix="spotbugs.log4j-core" artifact="org.apache.logging.log4j:log4j-core:2.16.0" usage="${spotbugs.lib}"/>
-        <dependency prefix="spotbugs.log4j-slf4j18-impl" artifact="org.apache.logging.log4j:log4j-slf4j18-impl:2.16.0" usage="${spotbugs.lib}"/>
+        <dependency prefix="spotbugs.log4j-api" artifact="org.apache.logging.log4j:log4j-api:2.17.0" usage="${spotbugs.lib}"/>
+        <dependency prefix="spotbugs.log4j-core" artifact="org.apache.logging.log4j:log4j-core:2.17.0" usage="${spotbugs.lib}"/>
+        <dependency prefix="spotbugs.log4j-slf4j18-impl" artifact="org.apache.logging.log4j:log4j-slf4j18-impl:2.17.0" usage="${spotbugs.lib}"/>
         <dependency prefix="spotbugs.saxon" artifact="net.sf.saxon:Saxon-HE:9.9.1-8" usage="${spotbugs.lib}"/>
 
         <mkdir dir="${basedir}${spotbugs.lib}/config"/>
