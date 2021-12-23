@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema elementFormDefault="qualified" attributeFormDefault="unqualified" targetNamespace="XmlToStringTest2Xsd.xsd" xmlns:ns1="XmlToStringTest1Xsd.xsd" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:this="XmlToStringTest2Xsd.xsd">
+  <xs:import namespace="XmlToStringTest1Xsd.xsd" schemaLocation="xmltostringtest1xsd.xsd"/>
+  <xs:complexType name="Ns2T1">
+    <xs:sequence>
+      <xs:element name="Ns2T1E1" type="ns1:Ns1T1"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="Ns2E1" type="this:Ns2T1"/>
+</xs:schema>

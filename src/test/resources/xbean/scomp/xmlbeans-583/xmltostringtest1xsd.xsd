@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema elementFormDefault="qualified" attributeFormDefault="unqualified" targetNamespace="XmlToStringTest1Xsd.xsd" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:this="XmlToStringTest1Xsd.xsd">
+  <xs:complexType name="Ns1T1">
+    <xs:sequence>
+      <xs:element name="Ns1T1E1" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+</xs:schema>
