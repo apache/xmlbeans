@@ -538,7 +538,7 @@ abstract class Saver {
     }
 
     private void addNewFrameMapping(String prefix, String uri, boolean ensureDefaultEmpty) {
-        // If the prefix maps to "", this don't include this mapping 'cause it's not well formed.
+        // If the prefix maps to "", then don't include this mapping 'cause it's not well formed.
         // Also, if we want to make sure that the default namespace is always "", then check that
         // here as well.
 
@@ -942,9 +942,22 @@ abstract class Saver {
         }
 
         private void emitNamespacesHelper() {
+            LinkedHashMap<String, String> nsMap = new LinkedHashMap<>();
             for (iterateMappings(); hasMapping(); nextMapping()) {
+                String prefix = mappingPrefix();
+                String uri = mappingUri();
+                if (nsMap.containsKey(prefix)) {
+                    //only overwrite the nsMap entry for the prefix if the stored entry has prefix="" and uri=""
+                    if (prefix.length() == 0 && nsMap.get(prefix).length() == 0) {
+                        nsMap.put(prefix, uri);
+                    }
+                } else {
+                    nsMap.put(prefix, uri);
+                }
+            }
+            for (Map.Entry<String, String> nsEntry : nsMap.entrySet()) {
                 emit(' ');
-                emitXmlns(mappingPrefix(), mappingUri());
+                emitXmlns(nsEntry.getKey(), nsEntry.getValue());
             }
         }
 

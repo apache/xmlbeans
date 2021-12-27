@@ -22,6 +22,7 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.io.PrintStream;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Date: Feb 8, 2005
@@ -29,86 +30,72 @@ import java.util.ArrayList;
  */
 public class SampleRunner {
 
-    private ArrayList samples;
-    private Project proj;
-    private Target target;
+    private List<File> samples;
     private String XMLBEANS_HOME;
     private SamplesBuildFileTest runSampleTest;
 
 
     @Before
-    protected void setUp() throws Exception {
-        proj = new Project();
+    public void setUp() throws Exception {
+        Project proj = new Project();
         proj.setName("Samples Task Tests");
-        XMLBEANS_HOME = proj.getBaseDir().getAbsolutePath();
-        samples = new ArrayList();
+        XMLBEANS_HOME = new File(proj.getBaseDir(), "build").getAbsolutePath();
+        samples = new ArrayList<>();
         runSampleTest = new SamplesBuildFileTest();
     }
 
     @Test
     public void testSamples() throws Exception {
         loadSampleDirs(new File("./samples"));
-        ArrayList exceptions = new ArrayList();
-        for (int i = 0; i < samples.size(); i++)
-        {
+        List<Object> exceptions = new ArrayList<>();
+        for (File sample : samples) {
 
-            runSampleTest.call_samples_task(
-                ((File) samples.get(i)).getAbsolutePath()
-                , "test");
+            runSampleTest.call_samples_task(sample.getAbsolutePath(), "test");
             BuildException e;
-            if ((e = runSampleTest.getAnyExceptions()) != null)
-            {
-                exceptions.add(((File) samples.get(i)).getAbsolutePath());
-                exceptions.add(e.getException());
+            if ((e = runSampleTest.getAnyExceptions()) != null) {
+                exceptions.add(sample.getAbsolutePath());
+                exceptions.add(e.getCause());
             }
         }
-        if (exceptions.size() != 0)
+        if (exceptions.size() != 0) {
             throw new RuntimeException(getMessageFromExceptions(exceptions));
+        }
 
     }
 
-    private String getMessageFromExceptions(ArrayList ex)
-    {
+    private String getMessageFromExceptions(List<Object> ex) {
         StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < ex.size(); i += 2)
-        {
-            sb.append("\n\nFILE:" + (String) ex.get(i));
-            sb.append(
-                "\n **Error: " + ((BuildException) ex.get(i + 1)).getMessage());
+        for (int i = 0; i < ex.size(); i += 2) {
+            sb.append("\n\nFILE:").append(ex.get(i));
+            sb.append("\n **Error: ").append(((BuildException) ex.get(i + 1)).getMessage());
         }
         return sb.toString();
     }
 
-    private void loadSampleDirs(File dir)
-    {
+    private void loadSampleDirs(File dir) {
         assert dir != null && dir.exists();
         File[] files = dir.listFiles(new BuildFilter());
-        assert files.length == 1;
+        assert (files != null && files.length == 1);
         samples.add(files[0]);
 
     }
 
-    private class BuildFilter
-        implements FilenameFilter
-    {
-        public boolean accept(File file, String name)
-        {
+    private static class BuildFilter
+        implements FilenameFilter {
+        public boolean accept(File file, String name) {
             return name.equals("build.xml");
         }
     }
 
     private class SamplesBuildFileTest extends BuildFileTest {
-        public void call_samples_task(String projectPath, String taskName)
-        {
+        public void call_samples_task(String projectPath, String taskName) {
             configureProject(projectPath);
             Project proj = getProject();
             proj.setProperty("xmlbeans.home", XMLBEANS_HOME);
             executeTarget(proj.getDefaultTarget());
         }
 
-        public BuildException getAnyExceptions()
-            throws Exception
-        {
+        public BuildException getAnyExceptions() {
             return this.getBuildException();
         }
     }
@@ -160,25 +147,26 @@ abstract class BuildFileTest {
     }
 
     /**
-     *  set up to run the named project
+     * set up to run the named project
      *
-     * @param  filename name of project file to run
+     * @param filename name of project file to run
      */
     protected void configureProject(String filename) throws BuildException {
         logBuffer = new StringBuilder();
         fullLogBuffer = new StringBuilder();
         project = new Project();
         project.init();
-        project.setUserProperty( "ant.file" , new File(filename).getAbsolutePath() );
+        project.setUserProperty("ant.file", new File(filename).getAbsolutePath());
         project.addBuildListener(new BuildFileTest.AntTestListener());
         //ProjectHelper.configureProject(project, new File(filename));
         ProjectHelper.getProjectHelper().parse(project, new File(filename));
     }
 
     /**
-     *  execute a target we have set up
-     * @pre configureProject has been called
-     * @param  targetName  target to run
+     * execute a target we have set up.
+     * configureProject needs to be called before
+     *
+     * @param targetName target to run
      */
     protected void executeTarget(String targetName) {
         PrintStream sysOut = System.out;
@@ -220,7 +208,7 @@ abstract class BuildFileTest {
      */
     private class AntOutputStream extends java.io.OutputStream {
         public void write(int b) {
-            outBuffer.append((char)b);
+            outBuffer.append((char) b);
         }
     }
 
@@ -229,63 +217,63 @@ abstract class BuildFileTest {
      */
     private class AntTestListener implements BuildListener {
         /**
-         *  Fired before any targets are started.
+         * Fired before any targets are started.
          */
         public void buildStarted(BuildEvent event) {
         }
 
         /**
-         *  Fired after the last target has finished. This event
-         *  will still be thrown if an error occured during the build.
+         * Fired after the last target has finished. This event
+         * will still be thrown if an error occured during the build.
          *
-         *  @see BuildEvent#getException()
+         * @see BuildEvent#getException()
          */
         public void buildFinished(BuildEvent event) {
         }
 
         /**
-         *  Fired when a target is started.
+         * Fired when a target is started.
          *
-         *  @see BuildEvent#getTarget()
+         * @see BuildEvent#getTarget()
          */
         public void targetStarted(BuildEvent event) {
             //System.out.println("targetStarted " + event.getTarget().getName());
         }
 
         /**
-         *  Fired when a target has finished. This event will
-         *  still be thrown if an error occured during the build.
+         * Fired when a target has finished. This event will
+         * still be thrown if an error occured during the build.
          *
-         *  @see BuildEvent#getException()
+         * @see BuildEvent#getException()
          */
         public void targetFinished(BuildEvent event) {
             //System.out.println("targetFinished " + event.getTarget().getName());
         }
 
         /**
-         *  Fired when a task is started.
+         * Fired when a task is started.
          *
-         *  @see BuildEvent#getTask()
+         * @see BuildEvent#getTask()
          */
         public void taskStarted(BuildEvent event) {
             //System.out.println("taskStarted " + event.getTask().getTaskName());
         }
 
         /**
-         *  Fired when a task has finished. This event will still
-         *  be throw if an error occured during the build.
+         * Fired when a task has finished. This event will still
+         * be throw if an error occured during the build.
          *
-         *  @see BuildEvent#getException()
+         * @see BuildEvent#getException()
          */
         public void taskFinished(BuildEvent event) {
             //System.out.println("taskFinished " + event.getTask().getTaskName());
         }
 
         /**
-         *  Fired whenever a message is logged.
+         * Fired whenever a message is logged.
          *
-         *  @see BuildEvent#getMessage()
-         *  @see BuildEvent#getPriority()
+         * @see BuildEvent#getMessage()
+         * @see BuildEvent#getPriority()
          */
         public void messageLogged(BuildEvent event) {
             if (event.getPriority() == Project.MSG_INFO ||

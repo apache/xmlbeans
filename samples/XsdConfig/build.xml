@@ -13,7 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
  -->
- 
+
 <project name="xsdconfig" default="build">
 	<property environment="env"/>
 
@@ -22,35 +22,27 @@ limitations under the License.
         <fileset dir="build/lib" includes="schemas_xsdconfig.jar"/>
         <pathelement path="build/classes"/>
     </path>
-    
+
      <path id="Xsd.path">
         <path refid="xmlbeans.path"/>
         <fileset dir="build/lib" includes="schemas_xsd.jar"/>
         <pathelement path="build/classes"/>
     </path>
-    
+
     <target name="init">
         <property name="xmlbeans.home" value="${env.XMLBEANS_HOME}"/>
         <echo message="xmlbeans.home: ${xmlbeans.home}"/>
 
-        <!-- check for xbean.jar from binary distribution -->
-        <available
-            property="xmlbeans.lib"
-            value="${xmlbeans.home}/lib"
-            file="${xmlbeans.home}/lib/xbean.jar" />
+        <!-- check for xmlbeans-*.jar from binary distribution -->
+        <pathconvert property="xmlbeans.lib" setonempty="false" pathsep=" ">
+            <path><fileset dir="${xmlbeans.home}/libs" includes="xmlbeans-*.jar" /></path>
+        </pathconvert>
 
-        <!-- check for xbean.jar compiled from source -->
-        <available
-            property="xmlbeans.lib"
-            value="${xmlbeans.home}/build/lib"
-            file="${xmlbeans.home}/build/lib/xbean.jar" />
-
-        <fail message="Set XMLBEANS_HOME in your enviornment."
-            unless="xmlbeans.lib"/>
+        <fail message="Set XMLBEANS_HOME in your enviornment." unless="xmlbeans.lib"/>
 
         <echo message="xmlbeans.lib: ${xmlbeans.lib}"/>
         <path id="xmlbeans.path">
-            <fileset dir="${xmlbeans.lib}" includes="*.jar"/>
+            <fileset dir="${xmlbeans.home}/libs" includes="*.jar"/>
         </path>
 
         <taskdef name="xmlbean"
@@ -68,90 +60,90 @@ limitations under the License.
 
     <target name="build" depends="init,schemas_xsd.jar, schemas_xsdconfig.jar,XsdConfig.classes">
     </target>
-    
+
      <target name="schemas_xsd.check">
         <uptodate property="schemas_xsd.notRequired"
             targetfile="build/lib/schemas_xsd.jar">
             <srcfiles dir="schemas" includes="**/*.xsd"/>
         </uptodate>
-        
+
     </target>
-    
-	 <target name="schemas_xsdconfig.check">       
+
+	 <target name="schemas_xsdconfig.check">
         <uptodate property="schemas_xsdconfig.notRequired"
             targetfile="build/lib/schemas_xsdconfig.jar">
             <srcfiles dir="schemas" includes="**/*.xsd **/*.xsdconfig"/>
         </uptodate>
-        
-    </target>	
-		
-	<target name="schemas_xsdconfig.jar" depends="init,schemas_xsdconfig.check"  
-         unless="schemas_xsdconfig.notRequired"> 
+
+    </target>
+
+	<target name="schemas_xsdconfig.jar" depends="init,schemas_xsdconfig.check"
+         unless="schemas_xsdconfig.notRequired">
         <mkdir dir="build/lib"/>
-			 		
-		<!-- Generating with XSD and XsdConfig file -->            
+
+		<!-- Generating with XSD and XsdConfig file -->
          <xmlbean schema="schemas"
             destfile="build/lib/schemas_xsdconfig.jar"
             srcgendir="build/src/xsdconfig"
             classpathref="xmlbeans.path"
             debug="on"
-            />			        	
+            />
     </target>
 
-    <target name="schemas_xsd.jar" depends="init,schemas_xsd.check"  
-         unless="schemas_xsd.notRequired"> 
+    <target name="schemas_xsd.jar" depends="init,schemas_xsd.check"
+         unless="schemas_xsd.notRequired">
         <mkdir dir="build/lib"/>
-        				
+
 		<!-- Generating with XSD only (no config file) -->
         <xmlbean schema="schemas/catalog.xsd"
             destfile="build/lib/schemas_xsd.jar"
             srcgendir="build/src/xsd"
             classpathref="xmlbeans.path"
             debug="on"
-            />             	
+            />
     </target>
-    
-    
+
+
 
      <target name="XsdConfig.classes" depends="init">
         <mkdir dir="build/classes"/>
-		
+
         <javac srcdir="src" includes="org/apache/xmlbeans/samples/xsdconfig/CatalogXsdConfig.java org/apache/xmlbeans/samples/xsdconfig/XsdConfigTest.java"
             destdir="build/classes"
             classpathref="XsdConfig.path"
             debug="on"
             source="1.8"
-            />  
+            />
         <javac srcdir="src" includes="org/apache/xmlbeans/samples/xsdconfig/CatalogXsd.java org/apache/xmlbeans/samples/xsdconfig/XsdTest.java "
             destdir="build/classes"
             classpathref="Xsd.path"
             debug="on"
             source="1.8"
-            />  
-            
+            />
+
     </target>
-  
+
     <!-- ========================== run ==== -->
 
     <target name="run" depends="init,build">
-        <echo message="============================== running Xsd Sample (With XSD only - no Config)"/>  
+        <echo message="============================== running Xsd Sample (With XSD only - no Config)"/>
         <java
             classname="org.apache.xmlbeans.samples.xsdconfig.CatalogXsd"
             classpathref="Xsd.path"
             fork="true">
             <arg line="xml/catalog.xml"/>
         </java>
-        
+
         <echo message="============================== running Xsd Sample (With XSD and XsdConfig)"/>
         <java
             classname="org.apache.xmlbeans.samples.xsdconfig.CatalogXsdConfig"
             classpathref="XsdConfig.path"
             fork="true">
             <arg line="xml/catalog.xml"/>
-        </java> 
+        </java>
     </target>
-    
-    
+
+
     <!-- ========================== test ==== -->
 
     <target name="test" depends="init,build">
@@ -162,7 +154,7 @@ limitations under the License.
             fork="true">
             <arg line="xml/catalog.xml"/>
         </java>
-        
+
         <echo message="============================== testing XsdConfigTest"/>
         <java
             classname="org.apache.xmlbeans.samples.xsdconfig.XsdConfigTest"
@@ -171,5 +163,5 @@ limitations under the License.
             <arg line="xml/catalog.xml"/>
         </java>
     </target>
-  
+
 </project>

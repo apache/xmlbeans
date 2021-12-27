@@ -18,6 +18,8 @@ package scomp.contentType.simple.detailed;
 import org.apache.xmlbeans.XmlErrorCodes;
 import org.apache.xmlbeans.XmlSimpleList;
 import org.apache.xmlbeans.impl.values.XmlValueNotSupportedException;
+import org.apache.xmlbeans.impl.values.XmlValueOutOfRangeException;
+import org.junit.Ignore;
 import org.junit.Test;
 import scomp.common.BaseCase;
 import xbean.scomp.contentType.list.*;
@@ -33,8 +35,8 @@ public class ListType extends BaseCase {
     public void testListTypeAnonymous() throws Throwable {
         ListEltTokenDocument doc =
                 ListEltTokenDocument.Factory.newInstance();
-        assertEquals(null, doc.getListEltToken());
-        List values = new LinkedList();
+        assertNull(doc.getListEltToken());
+        List<Object> values = new LinkedList<>();
         values.add("lstsmall");
         values.add("lstmedium");
         doc.setListEltToken(values);
@@ -45,7 +47,7 @@ public class ListType extends BaseCase {
             showErrors();
             throw t;
         }
-        values.set(0, new Integer(4));
+        values.set(0, 4);
 
         // since the list has enumerations, it contains a fixed number of Java constants in the xobj
         // which are checked for types and an exception is expected irrespective of validateOnSet XmlOption
@@ -84,10 +86,10 @@ public class ListType extends BaseCase {
             //immutable list
             assertTrue(result instanceof XmlSimpleList);
         }
-        List arrayList = new ArrayList();
+        List<String> arrayList = new ArrayList<>();
         arrayList.add("foobar");
-        List newList = new XmlSimpleList(arrayList);
-        gst.setListValue(newList);
+        List<String> newList = new XmlSimpleList<>(arrayList);
+        assertThrows(XmlValueOutOfRangeException.class, () -> gst.setListValue(newList));
         doc.xsetListEltInt(gst);
          try {
             assertTrue(doc.validate(validateOptions));
@@ -98,7 +100,7 @@ public class ListType extends BaseCase {
         }
     }
 
-    @Test
+    @Ignore
     public void testListofLists() {
         //also,a list of union that contains a list is not OK
         fail("Compile Time eror");
@@ -111,11 +113,11 @@ public class ListType extends BaseCase {
     public void testListofUnions() throws Throwable {
         ListUnionDocument doc =
                 ListUnionDocument.Factory.newInstance();
-        List arrayList = new ArrayList();
+        List<Object> arrayList = new ArrayList<>();
         arrayList.add("small");
         arrayList.add("large");
-        arrayList.add(new Integer(-1));
-        arrayList.add(new Integer(2));
+        arrayList.add(-1);
+        arrayList.add(2);
         doc.setListUnion(arrayList);
 
         try {
@@ -136,7 +138,7 @@ public class ListType extends BaseCase {
                 "</ListUnion>";
         ListUnionDocument doc =
                 ListUnionDocument.Factory.parse(input);
-        assertTrue(!doc.validate(validateOptions));
+        assertFalse(doc.validate(validateOptions));
         showErrors();
         String[] errExpected = new String[]{
             XmlErrorCodes.DATATYPE_VALID$UNION
@@ -150,11 +152,11 @@ public class ListType extends BaseCase {
     public void testListofUnions2() throws Throwable {
         ListUnion2Document doc =
                 ListUnion2Document.Factory.newInstance();
-        List arrayList = new ArrayList();
+        List<Object> arrayList = new ArrayList<>();
         arrayList.add("small");
         arrayList.add("large");
-        arrayList.add(new Integer(-1));
-        arrayList.add(new Integer(2));
+        arrayList.add(-1);
+        arrayList.add(2);
         arrayList.add("addVal1");
         arrayList.add("addVal2");
         arrayList.add("addVal3");

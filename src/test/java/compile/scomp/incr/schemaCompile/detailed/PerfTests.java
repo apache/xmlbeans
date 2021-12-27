@@ -40,7 +40,7 @@ public class PerfTests extends CompileTestBase {
         sanity = CompileCommon.xbeanOutput(sanityPath);
         outincr = CompileCommon.xbeanOutput(incrPath);
 
-        errors = new ArrayList();
+        errors = new ArrayList<>();
         xm = new XmlOptions();
         xm.setErrorListener(errors);
         xm.setSavePrettyPrint();

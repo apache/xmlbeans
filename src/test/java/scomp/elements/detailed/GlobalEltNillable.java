@@ -56,8 +56,7 @@ public class GlobalEltNillable extends BaseCase {
         XmlOptions options = new XmlOptions();
         options.setValidateOnSet();
 
-        GlobalEltNotNillableDocument testElt = GlobalEltNotNillableDocument
-                .Factory.newInstance(options);
+        GlobalEltNotNillableDocument testElt = GlobalEltNotNillableDocument.Factory.newInstance(options);
         try {
             testElt.setNil();
             fail("Expected XmlValueNotNillableException");
@@ -72,14 +71,17 @@ public class GlobalEltNillable extends BaseCase {
         catch (XmlValueNotNillableException e) {
         }
 
+        options.setValidateOnSet(false);
+        testElt = GlobalEltNotNillableDocument.Factory.newInstance(options);
         testElt.setGlobalEltNotNillable(null);
+
         //assert that value is cleared
         assertEquals("<glob:GlobalEltNotNillable " +
                 "xsi:nil=\"true\" " +
                 "xmlns:glob=\"http://xbean/scomp/element/GlobalEltNillable\" " +
                 "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"/>"
                 ,testElt.xmlText());
-        assertTrue(!testElt.validate(validateOptions));
+        assertFalse(testElt.validate(validateOptions));
         assertEquals(1, errorList.size());
         showErrors();
         String[] errExpected =
@@ -206,7 +208,7 @@ public class GlobalEltNillable extends BaseCase {
             throw t;
         }
         testElt.getGlobalEltComplex().setNil();
-        assertEquals("<pre:GlobalEltComplex " +                 
+        assertEquals("<pre:GlobalEltComplex " +
                 "testattribute=\"foobar\" " +
                 "xsi:nil=\"true\" " +
                 "xmlns:pre=\"http://xbean/scomp/element/GlobalEltNillable\" " +

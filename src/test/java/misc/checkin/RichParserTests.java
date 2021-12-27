@@ -124,13 +124,13 @@ public class RichParserTests {
         else if ("double".equals(ln))
         {
             double v = attIndex>-1 ? xs.getAttributeDoubleValue(attIndex) : xs.getDoubleValue();
-            assertEquals("double expected: " + doubles[doublesIdx] + "  actual: " + v, new Double(doubles[doublesIdx++]), new Double(v));
+            assertEquals("double expected: " + doubles[doublesIdx] + "  actual: " + v, doubles[doublesIdx++], v, 0.0);
             // makeing new Doubles because Double.NaN==Double.NaN is false;
         }
         else if ("float".equals(ln))
         {
             float v = attIndex>-1 ? xs.getAttributeFloatValue(attIndex) : xs.getFloatValue();
-            assertEquals("float expected: " + floats[floatsIdx] + "  actual: " + v, new Float(floats[floatsIdx++]), new Float(v));
+            assertEquals("float expected: " + floats[floatsIdx] + "  actual: " + v, floats[floatsIdx++], v, 0.0f);
             // makeing new Floats because Float.NaN==Float.NaN is false;
         }
         else if ("decimal".equals(ln))

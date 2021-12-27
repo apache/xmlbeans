@@ -47,7 +47,7 @@ public class CompileTestBase extends CompileCommon {
     public File out;
     public File outincr;
     public File sanity;
-    public List errors;
+    public List<XmlError> errors;
     public XmlOptions xm;
 
     //schemas to use

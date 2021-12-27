@@ -14,27 +14,21 @@
  */
 package xmlobject.extensions.interfaceFeature.multInterfaces.checkin;
 
-import interfaceFeature.xbean.multInterfaces.purchaseOrder.PurchaseOrderDocument;
-import interfaceFeature.xbean.multInterfaces.purchaseOrder.PurchaseOrderType;
 import interfaceFeature.xbean.multInterfaces.purchaseOrder.Items;
 import interfaceFeature.xbean.multInterfaces.purchaseOrder.Items.Item;
+import interfaceFeature.xbean.multInterfaces.purchaseOrder.PurchaseOrderDocument;
+import interfaceFeature.xbean.multInterfaces.purchaseOrder.PurchaseOrderType;
+import org.apache.xmlbeans.XmlObject;
+import org.junit.Test;
 
 import java.math.BigDecimal;
 
-import org.apache.xmlbeans.XmlObject;
+import static org.junit.Assert.assertEquals;
 
+public class MultInterfacesTest {
 
-import junit.framework.*;
-
-public class MultInterfacesTest extends TestCase {
-
-    public MultInterfacesTest(String s) {
-        super(s);
-    }
-
+    @Test
     public void test() {
-
-
         PurchaseOrderDocument poDoc = null;
 
         poDoc = PurchaseOrderDocument.Factory.newInstance();

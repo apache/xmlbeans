@@ -31,7 +31,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 
 import static org.junit.Assert.assertNotSame;
@@ -49,7 +49,7 @@ public class ModelGroupTests extends CompileTestBase {
         sanity = CompileCommon.xbeanOutput(sanityPath);
         outincr = CompileCommon.xbeanOutput(incrPath);
 
-        errors = new ArrayList();
+        errors = new ArrayList<>();
         xm = new XmlOptions();
         xm.setErrorListener(errors);
         xm.setSavePrettyPrint();
@@ -69,7 +69,7 @@ public class ModelGroupTests extends CompileTestBase {
 
     private XmlObject[] getSchema(File objFile, String schemaString) throws IOException, XmlException {
         FileOutputStream fos = new FileOutputStream(objFile);
-        OutputStreamWriter osw = new OutputStreamWriter(fos, Charset.forName("UTF-8"));
+        OutputStreamWriter osw = new OutputStreamWriter(fos, StandardCharsets.UTF_8);
         if (!schemaString.startsWith("<?xml")) {
             osw.write(getSchemaTop("baz"));
         }

@@ -1,0 +1,349 @@
+plugins {
+    id 'java'
+    id 'java-library'
+    id 'idea'
+}
+
+sourceCompatibility = JavaVersion.VERSION_1_8
+targetCompatibility = JavaVersion.VERSION_1_8
+
+repositories {
+    mavenCentral()
+    maven {
+        url 'https://repository.apache.org/content/repositories/releases'
+    }
+    maven {
+        url 'https://repository.apache.org/content/repositories/staging'
+    }
+}
+
+configurations {
+    bootstrap
+    genresources
+    java9
+}
+
+def testSchemas =  [
+    [dir:'test/tools/lib',path:'xsl',name:'sTOOLS'],
+    [dir:'src/test/resources/xbean/compile/scomp',path:'detailed',name:'sLAX'],
+    [dir:'src/test/resources/xbean',path:'dom',name:'sDOM'],
+    [dir:'src/test/resources/xbean',path:'xmlcursor',name:'sXMLCURSOR'],
+    [dir:'src/test/resources/xbean',path:'scomp',name:'sSCOMP'],
+    [dir:'src/test/resources/xbean',path:'simple',name:'sSIMPLE'],
+    [dir:'src/test/resources/xbean',path:'ValidatingStream',name:'sVALIDATE'],
+    [dir:'src/test/resources/xbean',path:'usertype',name:'sUSERTYPE'],
+    [dir:'build/schemas/sTRANXML',path:'tranxml',name:'sTRANXML'],
+    [dir:'src/test/resources/xbean/xmlobject',path:'CR192525.xsd defaults.xsd easypo.xsd easypo.xsdconfig enumtest.xsd enumtest.xsdconfig inttest.xsd listandunion.xsd nameworld.xsd numerals.xsd redefine2.xsd SelectAttribute.xsd SelectChildren.xsd selectChldAttTest.xsd soap-envelope.xsd soapfaults.xsd substgroup.xsd substgroup2.xsd Test.xsd Test36510.xsd Test40907.xsd version3.xsd', name:'sXMLOBJECT'],
+    [dir:'src/test/resources/xbean/misc/jira',path:'xmlbeans_33b.xsd xmlbeans_46.xsd xmlbeans_48.xsd xmlbeans_64.xsd xmlbeans_68.xsd xmlbeans_71.xsd xmlbeans_98.xsd xmlbeans_99.xsd xmlbeans_105.xsd xmlbeans_175.xsd xmlbeans_177.xsd xmlbeans_177a.xsd xmlbeans_208.xsd xmlbeans_228.xsd xmlbeans_307_maxallowedenum.xsd xmlbeans_307_morethanallowedenum.xsd', name:'sJIRA' ],
+    [dir:'src/test/resources/xbean',path:'xmltokensource',name:'sTOKENSOURCE']
+] + xsdDirs(file('src/test/resources/xbean/extensions')).withIndex().collect { element, index ->
+    // the extensions need to be generated separately, because the *.xsdconfigs have overlapping definitions
+    [dir:'src/test/resources/xbean/extensions',path:element,name:"sEXT${index}"]
+}
+
+//
+
+sourceSets {
+    main {
+        java {
+            srcDir files('build/generated/sources/base/main/java').builtBy('base_SchemaGen')
+        }
+        resources {
+            srcDir files('build/generated/sources/base/main/resources').builtBy('base_SchemaGen')
+        }
+    }
+    test {
+        java {
+            testSchemas.each {
+                srcDir files("build/generated/sources/${it.name}/test/java").builtBy("${it.name}_SchemaGen")
+            }
+        }
+        resources {
+            testSchemas.each {
+                srcDir files("build/generated/sources/${it.name}/test/resources").builtBy("${it.name}_SchemaGen")
+            }
+        }
+    }
+}
+
+dependencies {
+
+    implementation 'org.apache.logging.log4j:log4j-api:2.17.0'
+    implementation 'net.sf.saxon:Saxon-HE:10.6'
+    implementation 'org.apache.ant:ant:1.10.12'
+    implementation 'com.github.javaparser:javaparser-core:3.23.1'
+    implementation 'com.github.javaparser:javaparser-symbol-solver-core:3.23.1'
+
+    // only for java 8
+    if (JavaVersion.current() == JavaVersion.VERSION_1_8) {
+        implementation 'xml-apis:xml-apis:1.4.01'
+    }
+    // only necessary to compile against JDK8 internals - for Java9+ there's a multimodule implementation
+    implementation 'com.sun.org.apache.xml.internal:resolver:20050927'
+
+    testImplementation 'junit:junit:4.13.2'
+    testImplementation 'org.apache.logging.log4j:log4j-core:2.17.0'
+    testImplementation 'org.apache.ant:ant-junit:1.10.12'
+    testImplementation 'org.apache.ant:ant-junit4:1.10.12'
+    testImplementation 'org.hamcrest:hamcrest:2.2'
+    testImplementation('xerces:xercesImpl:2.12.1') {
+        if (JavaVersion.current() != JavaVersion.VERSION_1_8) {
+            exclude group: 'xml-apis', module: 'xml-apis'
+        }
+    }
+    // Currently a lot of w3c tests fail
+    testImplementation files('test/lib/w3c_domts.jar')
+
+    // maven plugin dependencies
+    implementation('org.apache.maven:maven-core:3.8.4')
+    implementation 'org.apache.maven:maven-model:3.8.4'
+    implementation('org.apache.maven:maven-plugin-api:3.8.4')
+    implementation 'org.apache.maven.plugin-tools:maven-plugin-annotations:3.6.2'
+
+
+    // previous xmlbeans version is used to bootstrap necessary schema bindings
+    bootstrap 'org.apache.xmlbeans:xmlbeans:5.0.2'
+    bootstrap 'org.apache.logging.log4j:log4j-core:2.17.0'
+
+    genresources 'org.apache.logging.log4j:log4j-core:2.17.0'
+    genresources project.files('build/generated/classes/bootstrap/main')
+    genresources project.files('build/generated/sources/bootstrap/main/resources')
+    genresources project.files('src/main/resources')
+    genresources 'com.github.javaparser:javaparser-core:3.23.1'
+    genresources 'com.github.javaparser:javaparser-symbol-solver-core:3.23.1'
+
+    // need an own configuration for Java9 builds, as the maven plugin module-config is overlapping lot
+    java9 'org.apache.logging.log4j:log4j-api:2.17.0'
+    java9 'net.sf.saxon:Saxon-HE:10.6'
+    java9 'org.apache.ant:ant:1.10.12'
+    java9 'com.github.javaparser:javaparser-core:3.23.1'
+    java9('com.github.javaparser:javaparser-symbol-solver-core:3.23.1') {
+        exclude group: 'com.google.guava', module: 'guava'
+    }
+
+}
+
+wrapper {
+    // https://stackoverflow.com/a/54741656/2066598
+    gradleVersion = '7.3.3'
+}
+
+def extCP = files(configurations.testCompileClasspath + sourceSets.main.output.files + sourceSets.main.resources.srcDirs)
+testSchemas.each {
+    schemaGenTask(it.name, 'test', (it.name =~ /sEXT/ ? extCP : configurations.genresources), it.dir, "${it.path}:${it.name}")
+}
+
+task adjustWrapperPropertiesFile {
+    doLast {
+        ant.replaceregexp(match:'^#.*', replace:'', flags:'g', byline:true) {
+            fileset(dir: project.projectDir, includes: 'gradle/wrapper/gradle-wrapper.properties')
+        }
+        new File(project.projectDir, 'gradle/wrapper/gradle-wrapper.properties').with { it.text = it.readLines().findAll { it }.sort().join('\n') }
+        ant.fixcrlf(file: 'gradle/wrapper/gradle-wrapper.properties', eol: 'lf')
+    }
+}
+wrapper.finalizedBy adjustWrapperPropertiesFile
+
+// https://discuss.gradle.org/t/passing-arguments-to-a-task/8427
+def schemaGenTask(String baseName, String mainTest, FileCollection beansPath, String xsdDir, String... xsdIncludes) {
+    String srcDir = "build/generated/sources/${baseName}/${mainTest}/java"
+    String rscDir = "build/generated/sources/${baseName}/${mainTest}/resources"
+
+    Map<String,String> map = xsdIncludes.collectEntries{it.split(':')}
+
+    return tasks.create("${baseName}_SchemaGen") {
+
+        FileTree inputFiles = fileTree(dir: xsdDir, includes: map.keySet().collect{ it.split(' ')}.flatten())
+
+        it.inputs.files(inputFiles)
+        it.outputs.dir(srcDir)
+        it.outputs.dir(rscDir)
+        it.outputs.cacheIf { true }
+
+        doLast {
+            ant.mkdir(dir:srcDir)
+            ant.mkdir(dir:rscDir)
+
+            // https://www.reddit.com/r/gradle/comments/aaqofp/extend_javaexec_task_with_additional/
+            map.each {xmlEntry ->
+                javaexec {
+                    classpath beansPath
+                    mainClass = "org.apache.xmlbeans.impl.tool.SchemaCompiler"
+                    jvmArgs "-ea"
+                    args = [ "-name", xmlEntry.value, "-quiet", "-srconly", "-noann", "-d", rscDir, "-src", srcDir ] + xmlEntry.key.split(' ').collect{"${xsdDir}/${it}"}
+                    if (baseName =~ /sEXT/) {
+                        args += ['src/test/java/xmlobject/extensions']
+                    }
+                    if (baseName =~ /sUSERTYPE/) {
+//                        debugOptions {
+//                            enabled = true
+//                            port = 5006
+//                            server = true
+//                            suspend = true
+//                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+
+schemaGenTask('bootstrap', 'main', configurations.bootstrap, 'src/main/schema', 'xml:sXMLLANG','xsd:sXMLSCHEMA','config:sXMLCONFIG','tools:sXMLTOOLS')
+task bootstrapMigrate(type: JavaCompile) {
+    dependsOn 'bootstrap_SchemaGen'
+    source files('build/generated/sources/bootstrap/main/java', 'src/main/java')
+    destinationDirectory = layout.buildDirectory.dir('generated/classes/bootstrap/main')
+    classpath = configurations.compileClasspath
+    outputs.cacheIf { true }
+}
+
+// base_SchemaGen
+schemaGenTask('base', 'main', configurations.genresources, 'src/main/schema', 'xml:sXMLLANG','xsd:sXMLSCHEMA','config:sXMLCONFIG','tools:sXMLTOOLS')
+base_SchemaGen.dependsOn 'bootstrapMigrate'
+
+task unpackTranXml(type: Copy) {
+    from tarTree(resources.bzip2('src/test/resources/xbean/tranxml.tar.bz2'))
+    into 'build/schemas/sTRANXML/tranxml'
+    include 'tranxml/Version4.0/schemas/StandAlone/CarLocationMessage_40_LX.xsd'
+    includeEmptyDirs = false
+    eachFile { path = name }
+    outputs.cacheIf { true }
+}
+
+sTRANXML_SchemaGen.dependsOn 'unpackTranXml'
+
+compileTestJava {
+    dependsOn 'jar'
+    dependsOn testSchemas.collect {"${it.name}_SchemaGen" }
+}
+
+task compileJava9(type: JavaCompile) {
+    dependsOn 'compileJava'
+    onlyIf { JavaVersion.current() != JavaVersion.VERSION_1_8 }
+
+    sourceCompatibility = 9
+    targetCompatibility = 9
+    destinationDirectory = file('build/classes/java9/main/META-INF/versions/9')
+    source = file('src/main/java9')
+    classpath = files()
+    options.compilerArgs = [
+        '--patch-module', "org.apache.xmlbeans=${sourceSets.main.output.asPath}",
+        '--module-path',  files(sourceSets.main.output.files + configurations.java9.asFileTree.files).asPath
+    ]
+}
+
+task cacheJava9(type: Copy) {
+    dependsOn 'compileJava9'
+    onlyIf { JavaVersion.current() != JavaVersion.VERSION_1_8 }
+
+    from(file('build/classes/java9/main/META-INF/versions/9'))
+    into('src/main/java9')
+}
+
+
+
+processTestResources {
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
+}
+
+task export4anttest(type: Copy) {
+    dependsOn 'jar'
+    into "build/libs"
+    from configurations.java9
+}
+
+test {
+    dependsOn 'export4anttest'
+
+    useJUnit()
+
+    // the w3c_domts.jar is scanned by junit. Up till now, only the test referenced in the ibmtests class were used
+    // now we need to disable a few failing ones
+    filter {
+        excludeTest('org.w3c.domts.level2.core.getElementsByTagNameNS08', null)
+        excludeTest('org.w3c.domts.level2.core.hasAttribute02', null)
+        excludeTest('org.w3c.domts.level2.core.hc_attrcreatedocumentfragment', null)
+        excludeTest('org.w3c.domts.level2.core.importNode07', null)
+        excludeTest('org.w3c.domts.level2.core.localName03', null)
+        excludeTest('org.w3c.domts.level2.core.nodegetnamespaceuri03', null)
+        excludeTest('org.w3c.domts.level2.core.nodegetprefix03', null)
+        excludeTest('org.w3c.domts.level2.core.nodesetprefix05', null)
+        excludeTest('org.w3c.domts.level2.core.prefix02', null)
+        excludeTest('org.w3c.domts.level2.core.prefix04', null)
+        excludeTest('org.w3c.domts.level2.core.prefix07', null)
+        excludeTest('org.w3c.domts.level2.core.removeNamedItemNS03', null)
+        excludeTest('org.w3c.domts.level2.core.documentimportnode03', null)
+        excludeTest('org.w3c.domts.level2.core.documentimportnode08', null)
+        excludeTest('org.w3c.domts.level2.core.domimplementationcreatedocumenttype02', null)
+        excludeTest('org.w3c.domts.level2.core.domimplementationcreatedocumenttype04', null)
+        excludeTest('org.w3c.domts.level2.core.elementgetattributenodens03', null)
+        excludeTest('org.w3c.domts.level2.core.elementgetattributens02', null)
+        excludeTest('org.w3c.domts.level2.core.elementhasattribute02', null)
+        excludeTest('org.w3c.domts.level2.core.elementsetattributenodens06', null)
+        excludeTest('org.w3c.domts.level2.core.namednodemapgetnameditemns01', null)
+        excludeTest('org.w3c.domts.level2.core.namednodemapremovenameditemns02', null)
+        excludeTest('org.w3c.domts.level2.core.namednodemapremovenameditemns05', null)
+        excludeTest('org.w3c.domts.level2.core.namednodemapsetnameditemns05', null)
+        excludeTest('org.w3c.domts.level2.core.namednodemapsetnameditemns09', null)
+        excludeTest('org.w3c.domts.level2.core.namednodemapsetnameditemns10', null)
+        excludeTest('org.w3c.domts.level2.core.nodegetnamespaceuri03', null)
+        excludeTest('org.w3c.domts.level2.core.nodegetownerdocument01', null)
+        excludeTest('org.w3c.domts.level2.core.nodegetprefix03', null)
+        excludeTest('org.w3c.domts.level2.core.nodehasattributes02', null)
+        excludeTest('org.w3c.domts.level2.core.nodeissupported03', null)
+        excludeTest('org.w3c.domts.level2.core.nodeissupported04', null)
+        excludeTest('org.w3c.domts.level2.core.nodesetprefix04', null)
+        excludeTest('org.w3c.domts.level2.core.nodesetprefix05', null)
+    }
+}
+
+idea {
+    module {
+        generatedSourceDirs += file('build/generated/sources/base/main/java')
+        generatedSourceDirs += files( testSchemas.collect {"build/generated/sources/${it.name}/test/java" } )
+        // setting those has no effect and there's no generatedResourceDirs
+        generatedSourceDirs += file('build/generated/sources/base/main/resources')
+        generatedSourceDirs += files( testSchemas.collect {"build/generated/sources/${it.name}/test/resources" } )
+    }
+}
+
+jar {
+    dependsOn 'cacheJava9'
+
+    from(project.rootDir) {
+        include 'NOTICE.txt'
+        include 'LICENSE.txt'
+        into 'META-INF'
+    }
+
+    from('src/main/java9') {
+        exclude '**/*.java'
+        into 'META-INF'
+    }
+
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
+
+    manifest {
+        attributes('Multi-Release':'true')
+        attributes([
+                'Comment': "Apache XmlBeans version ${project.version}",
+                'Specification-Title': 'Apache XmlBeans',
+                'Specification-Version': project.version,
+                'Specification-Vendor': 'The Apache Software Foundation',
+                'Implementation-Title': 'Apache XmlBeans',
+                'Implementation-Version': project.version,
+                'Implementation-Vendor': 'org.apache.xmlbeans',
+                'Implementation-Vendor-Id': 'The Apache Software Foundation'
+        ], 'org/apache/xmlbeans/'
+        )
+    }
+}
+
+Set<File> xsdDirs(File parent) {
+    Set<File> xsdDirs = [] as Set<File>
+    parent.eachDirRecurse {dirIt ->
+        dirIt.eachFileMatch(groovy.io.FileType.FILES, ~/.*\.xsd.*/, { xsdDirs << parent.toPath().relativize(dirIt.toPath()).toFile() })
+    }
+    return xsdDirs
+}

@@ -20,11 +20,17 @@ import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.body.Parameter;
 import com.github.javaparser.ast.type.ReferenceType;
+import com.github.javaparser.ast.type.Type;
+import com.github.javaparser.ast.type.TypeParameter;
+import com.github.javaparser.resolution.MethodUsage;
+import com.github.javaparser.resolution.declarations.ResolvedTypeParameterDeclaration;
+import com.github.javaparser.resolution.types.ResolvedType;
 import org.apache.xmlbeans.InterfaceExtension;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.impl.xb.xmlconfig.Extensionconfig;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 import java.util.stream.Stream;
 
@@ -59,7 +65,7 @@ public class InterfaceExtensionImpl implements InterfaceExtension {
             return result;
         }
 
-        if (!result.validateMethods(interfaceJClass, delegateJClass, intfXO))
+        if (!result.validateMethods(loader, interfaceJClass, delegateJClass, intfXO))
             return null;
 
         return result;
@@ -81,7 +87,7 @@ public class InterfaceExtensionImpl implements InterfaceExtension {
         final String ent = isInterface ? "Interface" : "Class";
         ClassOrInterfaceDeclaration cls = loader.loadSource(clsStr);
 
-        if (cls==null) {
+        if (cls == null) {
             BindingConfigImpl.error(ent + " '" + clsStr + "' not found.", loc);
             return null;
         }
@@ -97,8 +103,9 @@ public class InterfaceExtensionImpl implements InterfaceExtension {
         return cls;
     }
 
-    private boolean validateMethods(ClassOrInterfaceDeclaration interfaceJClass, ClassOrInterfaceDeclaration delegateJClass, XmlObject loc) {
-        _methods = interfaceJClass.getMethods().stream()
+    private boolean validateMethods(Parser loader, ClassOrInterfaceDeclaration interfaceJClass, ClassOrInterfaceDeclaration delegateJClass, XmlObject loc) {
+        _methods = interfaceJClass.resolve().getAllMethods().stream()
+            .filter(m -> !Object.class.getName().equals(m.declaringType().getQualifiedName()))
             .map(m -> validateMethod(interfaceJClass, delegateJClass, m, loc))
             .map(m -> m == null ? null : new MethodSignatureImpl(getStaticHandler(), m))
             .toArray(MethodSignatureImpl[]::new);
@@ -107,48 +114,90 @@ public class InterfaceExtensionImpl implements InterfaceExtension {
     }
 
     private MethodDeclaration validateMethod(ClassOrInterfaceDeclaration interfaceJClass,
-         ClassOrInterfaceDeclaration delegateJClass, MethodDeclaration method, XmlObject loc) {
+        ClassOrInterfaceDeclaration delegateJClass, MethodUsage ifMethod, XmlObject loc) {
+        String methodName = ifMethod.getName();
 
-        String methodName = method.getName().asString();
-
-        String[] delegateParams = Stream.concat(
-            Stream.of("org.apache.xmlbeans.XmlObject"),
-            Stream.of(paramStrings(method.getParameters()))
-        ).toArray(String[]::new);
-
-        MethodDeclaration handlerMethod = getMethod(delegateJClass, methodName, delegateParams);
+        MethodDeclaration delMethod = delegateJClass.getMethodsByName(methodName).stream()
+            .filter(mDel -> matchParams(ifMethod, mDel)).findFirst().orElse(null);
 
         String delegateFQN = delegateJClass.getFullyQualifiedName().orElse("");
-        String methodFQN =  methodName + "(" + method.getParameters().toString() + ")";
+        String methodFQN =  methodName + "(" + ifMethod.getParamTypes().toString() + ")";
         String interfaceFQN = interfaceJClass.getFullyQualifiedName().orElse("");
 
-        if (handlerMethod == null) {
+        if (delMethod == null) {
             BindingConfigImpl.error("Handler class '" + delegateFQN + "' does not contain method " + methodFQN, loc);
             return null;
         }
 
         // check for throws exceptions
-        if (!Arrays.equals(exceptionStrings(method), exceptionStrings(handlerMethod))) {
+        String[] ifEx = ifMethod.getDeclaration().getSpecifiedExceptions().stream().map(ResolvedType::describe).sorted().toArray(String[]::new);
+        String[] delEx = delMethod.getThrownExceptions().stream().map(Type::resolve).map(ResolvedType::describe).sorted().toArray(String[]::new);
+
+        if (!Arrays.equals(ifEx, delEx)) {
             BindingConfigImpl.error("Handler method '" + delegateFQN + "." + methodName + "' must declare the same " +
-            "exceptions as the interface method '" + interfaceFQN + "." + methodFQN, loc);
+                                    "exceptions as the interface method '" + interfaceFQN + "." + methodFQN, loc);
             return null;
         }
 
-        if (!handlerMethod.isPublic() || !handlerMethod.isStatic()) {
-            BindingConfigImpl.error("Method '" + delegateJClass.getFullyQualifiedName() + "." +
-            methodFQN + "' must be declared public and static.", loc);
+        if (!delMethod.isPublic() || !delMethod.isStatic()) {
+            BindingConfigImpl.error("Method '" + delegateFQN + "." + methodFQN + "' must be declared public and static.", loc);
             return null;
         }
 
-        String returnType = method.getTypeAsString();
-        if (!returnType.equals(handlerMethod.getTypeAsString())) {
+
+        if (!ifMethod.getDeclaration().getReturnType().equals(delMethod.resolve().getReturnType())) {
+            String returnType = ifMethod.getDeclaration().getReturnType().describe();
             BindingConfigImpl.error("Return type for method '" + returnType + " " + delegateFQN + "." + methodName +
-            "(...)' does not match the return type of the interface method :'" + returnType + "'.", loc);
+                                    "(...)' does not match the return type of the interface method :'" + returnType + "'.", loc);
             return null;
         }
 
-        return method;
+        return delMethod;
     }
+
+//    private MethodDeclaration validateMethod(ClassOrInterfaceDeclaration interfaceJClass,
+//         ClassOrInterfaceDeclaration delegateJClass, MethodDeclaration method, XmlObject loc) {
+//
+//        String methodName = method.getName().asString();
+//
+//        String[] delegateParams = Stream.concat(
+//            Stream.of("org.apache.xmlbeans.XmlObject"),
+//            Stream.of(paramStrings(method.getParameters()))
+//        ).toArray(String[]::new);
+//
+//        MethodDeclaration handlerMethod = getMethod(delegateJClass, methodName, delegateParams);
+//
+//        String delegateFQN = delegateJClass.getFullyQualifiedName().orElse("");
+//        String methodFQN =  methodName + "(" + method.getParameters().toString() + ")";
+//        String interfaceFQN = interfaceJClass.getFullyQualifiedName().orElse("");
+//
+//        if (handlerMethod == null) {
+//            BindingConfigImpl.error("Handler class '" + delegateFQN + "' does not contain method " + methodFQN, loc);
+//            return null;
+//        }
+//
+//        // check for throws exceptions
+//        if (!Arrays.equals(exceptionStrings(method), exceptionStrings(handlerMethod))) {
+//            BindingConfigImpl.error("Handler method '" + delegateFQN + "." + methodName + "' must declare the same " +
+//            "exceptions as the interface method '" + interfaceFQN + "." + methodFQN, loc);
+//            return null;
+//        }
+//
+//        if (!handlerMethod.isPublic() || !handlerMethod.isStatic()) {
+//            BindingConfigImpl.error("Method '" + delegateJClass.getFullyQualifiedName() + "." +
+//            methodFQN + "' must be declared public and static.", loc);
+//            return null;
+//        }
+//
+//        String returnType = method.getTypeAsString();
+//        if (!returnType.equals(handlerMethod.getTypeAsString())) {
+//            BindingConfigImpl.error("Return type for method '" + returnType + " " + delegateFQN + "." + methodName +
+//            "(...)' does not match the return type of the interface method :'" + returnType + "'.", loc);
+//            return null;
+//        }
+//
+//        return method;
+//    }
 
     static MethodDeclaration getMethod(ClassOrInterfaceDeclaration cls, String name, String[] paramTypes) {
         // cls.getMethodsBySignature only checks the type name as-is ... i.e. if the type name is imported
@@ -158,12 +207,47 @@ public class InterfaceExtensionImpl implements InterfaceExtension {
             .findFirst().orElse(null);
     }
 
-    private static String[] paramStrings(NodeList<Parameter> params) {
-        return params.stream().map(Parameter::getTypeAsString).toArray(String[]::new);
+
+    private static String[] paramStrings(List<ResolvedTypeParameterDeclaration> params) {
+        return params.stream().map(ResolvedTypeParameterDeclaration::getClassName).toArray(String[]::new);
+    }
+
+    private static String[] paramStrings(NodeList<?> params) {
+        return params.stream().map(p -> {
+            if (p instanceof Parameter) {
+                return ((Parameter)p).getTypeAsString();
+            } else if (p instanceof TypeParameter) {
+                return ((TypeParameter)p).getNameAsString();
+            } else {
+                return "unknown";
+            }
+        }).toArray(String[]::new);
     }
 
     private static String[] exceptionStrings(MethodDeclaration method) {
         return method.getThrownExceptions().stream().map(ReferenceType::asString).toArray(String[]::new);
+    }
+
+    private static boolean matchParams(MethodUsage mIf, MethodDeclaration mDel) {
+        // the delegate needs to have the XmlObject as first parameter
+        List<ResolvedType> pIf = mIf.getParamTypes();
+        NodeList<Parameter> pDel = mDel.getParameters();
+        if (pDel.size() != pIf.size()+1) {
+            return false;
+        }
+
+        if (!XmlObject.class.getName().equals(pDel.get(0).resolve().describeType())) {
+            return false;
+        }
+
+        // the other parameters need to match
+        int idx = 1;
+        for (ResolvedType rt : pIf) {
+            if (!rt.describe().equals(pDel.get(idx++).resolve().describeType())) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private static boolean parameterMatches(String[] params1, String[] params2) {
@@ -228,6 +312,7 @@ public class InterfaceExtensionImpl implements InterfaceExtension {
         private final String _name;
         private final String _return;
         private final String[] _params;
+        private final String[] _paramNames;
         private final String[] _exceptions;
 
         MethodSignatureImpl(String intfName, MethodDeclaration method) {
@@ -241,11 +326,13 @@ public class InterfaceExtensionImpl implements InterfaceExtension {
             _name = method.getName().asString();
             _return = replaceInner(method.getTypeAsString());
 
-            _params = method.getParameters().stream().map(Parameter::getTypeAsString).
+            _params = method.getParameters().stream().map(p -> p.getType().resolve().describe()).
                 map(MethodSignatureImpl::replaceInner).toArray(String[]::new);
 
             _exceptions = method.getThrownExceptions().stream().map(ReferenceType::asString).
                 map(MethodSignatureImpl::replaceInner).toArray(String[]::new);
+
+            _paramNames = method.getParameters().stream().map(p -> p.getNameAsString()).toArray(String[]::new);
         }
 
         private static String replaceInner(String classname) {
@@ -266,6 +353,10 @@ public class InterfaceExtensionImpl implements InterfaceExtension {
 
         public String[] getParameterTypes() {
             return _params;
+        }
+
+        public String[] getParameterNames() {
+            return _paramNames;
         }
 
         public String[] getExceptionTypes() {

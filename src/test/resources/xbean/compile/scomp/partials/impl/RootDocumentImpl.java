@@ -10,6 +10,7 @@ package partials.impl;
 
 import javax.xml.namespace.QName;
 import org.apache.xmlbeans.QNameSet;
+import org.apache.xmlbeans.XmlObject;
 
 /**
  * A document containing one root(@partials) element.
