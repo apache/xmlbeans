@@ -201,7 +201,7 @@ public final class Cursor implements XmlCursor, ChangeListener {
     // change from a phantom ref to a soft/weak ref so I can know what
     // to do when I dequeue from the old q.
 
-    public void _dispose() {
+    public void _close() {
         _cur.release();
         _cur = null;
     }
@@ -614,10 +614,9 @@ public final class Cursor implements XmlCursor, ChangeListener {
 
         boolean seenElement = false;
 
-        XmlCursor c = newCursor();
-        int token = c.toNextToken().intValue();
+        try (XmlCursor c = newCursor()) {
+            int token = c.toNextToken().intValue();
 
-        try {
             LOOP:
             for (; ; ) {
                 switch (token) {
@@ -655,8 +654,6 @@ public final class Cursor implements XmlCursor, ChangeListener {
                         break LOOP;
                 }
             }
-        } finally {
-            c.dispose();
         }
 
         return !seenElement;
@@ -1908,10 +1905,17 @@ public final class Cursor implements XmlCursor, ChangeListener {
         return _cur._locale.noSync();
     }
 
-    public void dispose() {
+    @Override
+    public void close() {
         if (_cur != null) {
-            syncWrap(this::_dispose);
+            syncWrap(this::_close);
         }
+    }
+
+    @Override
+    @Deprecated
+    public void dispose() {
+        close();
     }
 
     public Object monitor() {

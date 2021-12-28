@@ -128,7 +128,7 @@ import java.util.Map;
  * creating a brand new instance of an empty document. Also note that
  * attributes may only follow container tokens (STARTDOC or START)
  */
-public interface XmlCursor extends XmlTokenSource {
+public interface XmlCursor extends XmlTokenSource, AutoCloseable {
     /**
      * An enumeration that identifies the type of an XML token.
      */
@@ -335,11 +335,29 @@ public interface XmlCursor extends XmlTokenSource {
      * So, explicitly disposing a cursor allows the underlying implementation
      * to release its responsibility of maintaining its position.
      * <p>
-     * After a cursor has been disposed, it may not be used again.  It can
+     * After a cursor has been closed, it may not be used again.  It can
      * throw IllegalStateException or NullPointerException if used after
      * disposal.
+     * <p>
+     * XmlCursor implements <code>java.lang.AutoCloseable</code> and the
+     * try-with-resources pattern is recommended.<br/><br/>
+     * <p>
+     * Note: Future major release will remove this default implementation.
      */
 
+    default void close() {
+        this.dispose();
+    }
+
+    /**
+     * Deallocates resources needed to manage the cursor. For details see
+     * {@link #close()}. XmlCursor implements <code>java.lang.AutoCloseable</code>
+     * and the try-with-resources pattern is recommended.
+     *
+     * @see #close()
+     */
+
+    @Deprecated
     void dispose();
 
     /**
