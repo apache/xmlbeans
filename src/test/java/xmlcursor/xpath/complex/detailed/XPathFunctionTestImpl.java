@@ -17,6 +17,7 @@ package xmlcursor.xpath.complex.detailed;
 
 import org.apache.xmlbeans.XmlObject;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import xmlcursor.xpath.common.XPathFunctionTest;
 
@@ -99,6 +100,7 @@ public class XPathFunctionTestImpl extends XPathFunctionTest {
     }
 
     @Test
+    @Ignore
     public void testExternalFunction() throws Exception {
         String query = "" +
             "declare function local:toc($book-or-section as element()) as element()*;" +

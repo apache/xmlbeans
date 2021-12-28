@@ -70,8 +70,7 @@ public class StoreTestsXqrl {
         assertEquals("<bar xmlns:a=\"a.com\"/>", c.xmlText());
     }
 
-    @Test
-    private void testTextFrag(String actual, String expected) {
+    public void testTextFrag(String actual, String expected) {
         String pre = "<xml-fragment>";
 
         String post = "</xml-fragment>";

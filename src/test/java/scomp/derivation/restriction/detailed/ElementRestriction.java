@@ -18,6 +18,7 @@ import org.apache.xmlbeans.XmlDecimal;
 import org.apache.xmlbeans.XmlErrorCodes;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlString;
+import org.apache.xmlbeans.impl.values.XmlAnyTypeImpl;
 import org.junit.Test;
 import scomp.common.BaseCase;
 import xbean.scomp.derivation.elementRestriction.ElementDocument;
@@ -69,7 +70,7 @@ public class ElementRestriction extends BaseCase {
         String[] errExpected = new String[]{
             XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$EXPECTED_DIFFERENT_ELEMENT,
             XmlErrorCodes.ELEM_LOCALLY_VALID$FIXED_VALID_MIXED_CONTENT,
-            XmlErrorCodes.DATATYPE_FRACTION_DIGITS_VALID,
+            XmlErrorCodes.INTEGER,
         };
         assertTrue(compareErrorCodes(errExpected));
 
@@ -79,7 +80,7 @@ public class ElementRestriction extends BaseCase {
         elt.setB(bValue);
         elt.setD(3);
         assertEquals("myval",
-                ((XmlString)elt.getB()).getStringValue());
+                ((XmlAnyTypeImpl)elt.getB()).getStringValue());
         try {
             assertTrue(doc.validate(validateOptions));
         }

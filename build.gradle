@@ -91,8 +91,6 @@ dependencies {
             exclude group: 'xml-apis', module: 'xml-apis'
         }
     }
-    // Currently a lot of w3c tests fail
-    testImplementation files('test/lib/w3c_domts.jar')
 
     // maven plugin dependencies
     implementation('org.apache.maven:maven-core:3.8.4')
@@ -255,47 +253,7 @@ task export4anttest(type: Copy) {
 
 test {
     dependsOn 'export4anttest'
-
     useJUnit()
-
-    // the w3c_domts.jar is scanned by junit. Up till now, only the test referenced in the ibmtests class were used
-    // now we need to disable a few failing ones
-    filter {
-        excludeTest('org.w3c.domts.level2.core.getElementsByTagNameNS08', null)
-        excludeTest('org.w3c.domts.level2.core.hasAttribute02', null)
-        excludeTest('org.w3c.domts.level2.core.hc_attrcreatedocumentfragment', null)
-        excludeTest('org.w3c.domts.level2.core.importNode07', null)
-        excludeTest('org.w3c.domts.level2.core.localName03', null)
-        excludeTest('org.w3c.domts.level2.core.nodegetnamespaceuri03', null)
-        excludeTest('org.w3c.domts.level2.core.nodegetprefix03', null)
-        excludeTest('org.w3c.domts.level2.core.nodesetprefix05', null)
-        excludeTest('org.w3c.domts.level2.core.prefix02', null)
-        excludeTest('org.w3c.domts.level2.core.prefix04', null)
-        excludeTest('org.w3c.domts.level2.core.prefix07', null)
-        excludeTest('org.w3c.domts.level2.core.removeNamedItemNS03', null)
-        excludeTest('org.w3c.domts.level2.core.documentimportnode03', null)
-        excludeTest('org.w3c.domts.level2.core.documentimportnode08', null)
-        excludeTest('org.w3c.domts.level2.core.domimplementationcreatedocumenttype02', null)
-        excludeTest('org.w3c.domts.level2.core.domimplementationcreatedocumenttype04', null)
-        excludeTest('org.w3c.domts.level2.core.elementgetattributenodens03', null)
-        excludeTest('org.w3c.domts.level2.core.elementgetattributens02', null)
-        excludeTest('org.w3c.domts.level2.core.elementhasattribute02', null)
-        excludeTest('org.w3c.domts.level2.core.elementsetattributenodens06', null)
-        excludeTest('org.w3c.domts.level2.core.namednodemapgetnameditemns01', null)
-        excludeTest('org.w3c.domts.level2.core.namednodemapremovenameditemns02', null)
-        excludeTest('org.w3c.domts.level2.core.namednodemapremovenameditemns05', null)
-        excludeTest('org.w3c.domts.level2.core.namednodemapsetnameditemns05', null)
-        excludeTest('org.w3c.domts.level2.core.namednodemapsetnameditemns09', null)
-        excludeTest('org.w3c.domts.level2.core.namednodemapsetnameditemns10', null)
-        excludeTest('org.w3c.domts.level2.core.nodegetnamespaceuri03', null)
-        excludeTest('org.w3c.domts.level2.core.nodegetownerdocument01', null)
-        excludeTest('org.w3c.domts.level2.core.nodegetprefix03', null)
-        excludeTest('org.w3c.domts.level2.core.nodehasattributes02', null)
-        excludeTest('org.w3c.domts.level2.core.nodeissupported03', null)
-        excludeTest('org.w3c.domts.level2.core.nodeissupported04', null)
-        excludeTest('org.w3c.domts.level2.core.nodesetprefix04', null)
-        excludeTest('org.w3c.domts.level2.core.nodesetprefix05', null)
-    }
 }
 
 idea {
