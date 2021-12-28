@@ -1323,6 +1323,7 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
             if (wasNilled) {
                 get_store().invalidate_nil();
             }
+            _flags &= ~(FLAGS_DATED);
         } else {
             _textsource = null;
         }

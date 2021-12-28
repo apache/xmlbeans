@@ -33,37 +33,7 @@ import java.lang.reflect.InvocationTargetException;
  * at any time, so use of static variables is discouraged to ensure proper cleanup.
  */
 public class SystemCache {
-    private static SystemCache INSTANCE = new SystemCache();
-
-    static {
-        String cacheClass = SystemProperties.getProperty("xmlbean.systemcacheimpl");
-        Object impl = null;
-        if (cacheClass != null) {
-            try {
-                impl = Class.forName(cacheClass).getDeclaredConstructor().newInstance();
-                if (!(impl instanceof SystemCache)) {
-                    throw new ClassCastException("Value for system property " +
-                                                 "\"xmlbean.systemcacheimpl\" points to a class (" + cacheClass +
-                                                 ") which does not derive from SystemCache");
-                }
-            } catch (ClassNotFoundException cnfe) {
-                throw new RuntimeException("Cache class " + cacheClass +
-                                           " specified by \"xmlbean.systemcacheimpl\" was not found.",
-                    cnfe);
-            } catch (InstantiationException | NoSuchMethodException | InvocationTargetException ie) {
-                throw new RuntimeException("Could not instantiate class " +
-                                           cacheClass + " as specified by \"xmlbean.systemcacheimpl\"." +
-                                           " An empty constructor may be missing.", ie);
-            } catch (IllegalAccessException iae) {
-                throw new RuntimeException("Could not instantiate class " +
-                                           cacheClass + " as specified by \"xmlbean.systemcacheimpl\"." +
-                                           " A public empty constructor may be missing.", iae);
-            }
-        }
-        if (impl != null) {
-            INSTANCE = (SystemCache) impl;
-        }
-    }
+    private static SystemCache INSTANCE = initCache();
 
     public static synchronized void set(SystemCache instance) {
         INSTANCE = instance;
@@ -82,6 +52,7 @@ public class SystemCache {
 
     private ThreadLocal<SoftReference> tl_saxLoaders = new ThreadLocal<>();
 
+
     public void clearThreadLocals() {
         tl_saxLoaders.remove();
     }
@@ -93,5 +64,25 @@ public class SystemCache {
 
     public void setSaxLoader(Object saxLoader) {
         tl_saxLoaders.set(new SoftReference(saxLoader));
+    }
+
+
+    private static SystemCache initCache() {
+        String cacheClass = SystemProperties.getProperty("xmlbean.systemcacheimpl");
+        if (cacheClass == null) {
+            return new SystemCache();
+        }
+        String errPrefix = "Could not instantiate class " + cacheClass + " as specified by \"xmlbean.systemcacheimpl\". ";
+        try {
+            return (SystemCache) Class.forName(cacheClass).getDeclaredConstructor().newInstance();
+        } catch (ClassCastException cce) {
+            throw new ClassCastException(errPrefix + "Class does not derive from SystemCache.");
+        } catch (ClassNotFoundException cnfe) {
+            throw new RuntimeException(errPrefix + "Class was not found.", cnfe);
+        } catch (InstantiationException | NoSuchMethodException | InvocationTargetException ie) {
+            throw new RuntimeException(errPrefix + "An empty constructor may be missing.", ie);
+        } catch (IllegalAccessException iae) {
+            throw new RuntimeException(errPrefix + "A public empty constructor may be missing.", iae);
+        }
     }
 }
