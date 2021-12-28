@@ -44,7 +44,7 @@ public class CopyXmlContentsTest extends BasicCursorTestCase {
 		XmlCursor xc1 = XmlObject.Factory.parse(sDoc2).newCursor();
 		toNextTokenOfType(m_xc, TokenType.START);
 		toNextTokenOfType(xc1, TokenType.START);
-		xc1.dispose();
+		xc1.close();
 		m_xc.copyXmlContents(xc1);
 	}
 
@@ -53,14 +53,14 @@ public class CopyXmlContentsTest extends BasicCursorTestCase {
 		String sDoc1 = Common.XML_FOO_DIGITS;
 		String sDoc2 = Common.XML_FOO_2ATTR_TEXT;
 		m_xc = XmlObject.Factory.parse(sDoc1).newCursor();
-		XmlCursor xc1 = XmlObject.Factory.parse(sDoc2).newCursor();
-		toNextTokenOfType(m_xc, TokenType.START);
-		toNextTokenOfType(xc1, TokenType.TEXT);
-		m_xc.copyXmlContents(xc1);
-		xc1.toParent();
-		// verify xc1
-		assertEquals("01234text", xc1.getTextValue());
-		xc1.dispose();
+		try (XmlCursor xc1 = XmlObject.Factory.parse(sDoc2).newCursor()) {
+    		toNextTokenOfType(m_xc, TokenType.START);
+    		toNextTokenOfType(xc1, TokenType.TEXT);
+    		m_xc.copyXmlContents(xc1);
+    		xc1.toParent();
+    		// verify xc1
+    		assertEquals("01234text", xc1.getTextValue());
+		}
 
 		// verify m_xc
 		toNextTokenOfType(m_xc, TokenType.TEXT); //get to the text

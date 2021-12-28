@@ -990,10 +990,11 @@ public class SampleXmlUtil {
     }
 
     private static String formatQName(XmlCursor xmlc, QName qName) {
-        XmlCursor parent = xmlc.newCursor();
-        parent.toParent();
-        String prefix = parent.prefixForNamespace(qName.getNamespaceURI());
-        parent.dispose();
+        String prefix;
+        try (XmlCursor parent = xmlc.newCursor()) {
+            parent.toParent();
+            prefix = parent.prefixForNamespace(qName.getNamespaceURI());
+        }
         String name;
         if (prefix == null || prefix.length() == 0) {
             name = qName.getLocalPart();

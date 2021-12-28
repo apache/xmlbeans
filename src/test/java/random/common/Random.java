@@ -438,13 +438,11 @@ public class Random implements Runnable {
     }
 
     private void setName() {
-        XmlCursor c = findObject().newCursor();
-
-        if (!c.isStartdoc()) {
-            c.setName(getQName());
+        try (XmlCursor c = findObject().newCursor()) {
+            if (!c.isStartdoc()) {
+                c.setName(getQName());
+            }
         }
-
-        c.dispose();
     }
 
     private void newDomNode() {

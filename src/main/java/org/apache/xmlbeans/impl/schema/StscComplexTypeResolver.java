@@ -48,9 +48,7 @@ public class StscComplexTypeResolver {
     }
 
     static Schema getSchema(XmlObject o) {
-        XmlCursor c = o.newCursor();
-
-        try {
+        try (XmlCursor c = o.newCursor()) {
             while (c.toParent()) {
                 o = c.getObject();
 
@@ -58,8 +56,6 @@ public class StscComplexTypeResolver {
                     return (Schema) o;
                 }
             }
-        } finally {
-            c.dispose();
         }
 
         return null;
@@ -1246,22 +1242,22 @@ public class StscComplexTypeResolver {
         }
 
         if (hasChildren) {
-            XmlCursor cur = parseTree.newCursor();
             List<SchemaParticle> accumulate = new ArrayList<>();
-            for (boolean more = cur.toFirstChild(); more; more = cur.toNextSibling()) {
-                int code = translateParticleCode(cur.getName());
-                if (code == 0) {
-                    continue;
+            try (XmlCursor cur = parseTree.newCursor()) {
+                for (boolean more = cur.toFirstChild(); more; more = cur.toNextSibling()) {
+                    int code = translateParticleCode(cur.getName());
+                    if (code == 0) {
+                        continue;
+                    }
+                    addMinusPointlessParticles(accumulate,
+                        translateContentModel(outerType,
+                            cur.getObject(), targetNamespace, chameleon,
+                            elemFormDefault, attFormDefault, code,
+                            anonymousTypes, elementModel, true, redefinitionFor),
+                        sPart.getParticleType());
                 }
-                addMinusPointlessParticles(accumulate,
-                    translateContentModel(outerType,
-                        cur.getObject(), targetNamespace, chameleon,
-                        elemFormDefault, attFormDefault, code,
-                        anonymousTypes, elementModel, true, redefinitionFor),
-                    sPart.getParticleType());
             }
             sPart.setParticleChildren(accumulate.toArray(new SchemaParticle[0]));
-            cur.dispose();
         }
 
 

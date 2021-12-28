@@ -125,8 +125,7 @@ public class XPathTests {
 
     @Test
     public void testConformance() {
-        XmlCursor actual = doc.newCursor();
-        try {
+        try (XmlCursor actual = doc.newCursor()) {
             actual.selectPath(xpath);
 
             if (actual.getSelectionCount() == 0) {
@@ -136,8 +135,6 @@ public class XPathTests {
 
             XmlObject[] expXO = Stream.of(expected).map(XPathTests::parse).toArray(XmlObject[]::new);
             XPathCommon.compare(actual, expXO);
-        } finally {
-            actual.dispose();
         }
     }
 

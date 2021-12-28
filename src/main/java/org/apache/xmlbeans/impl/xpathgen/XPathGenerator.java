@@ -92,22 +92,22 @@ public class XPathGenerator
             return ".";
         assert node.isStart();
         QName name = node.getName();
-        XmlCursor d = node.newCursor();
-        if (!node.toParent())
-            return "/" + name;
         int elemIndex = 0, i = 1;
-        node.push();
-        if (!node.toChild(name))
-            throw new IllegalStateException("Must have at least one child with name: " + name);
-        do
-        {
-            if (node.isAtSamePositionAs(d))
-                elemIndex = i;
-            else
-                i++;
-        } while (node.toNextSibling(name));
-        node.pop();
-        d.dispose();
+        try (XmlCursor d = node.newCursor()) {
+            if (!node.toParent())
+                return "/" + name;
+            node.push();
+            if (!node.toChild(name))
+                throw new IllegalStateException("Must have at least one child with name: " + name);
+            do
+            {
+                if (node.isAtSamePositionAs(d))
+                    elemIndex = i;
+                else
+                    i++;
+            } while (node.toNextSibling(name));
+            node.pop();
+        }
         String pathToParent = generateInternal(node, context, nsctx);
         return  i == 1 ? pathToParent + '/' + qnameToString(name, nsctx) :
             pathToParent + '/' + qnameToString(name, nsctx) + '[' + elemIndex + ']';

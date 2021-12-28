@@ -44,14 +44,14 @@ public class CopyTest extends BasicCursorTestCase {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_DIGITS);
         m_xc = m_xo.newCursor();
         XmlObject xo = XmlObject.Factory.parse(Common.XML_FOO_2ATTR_TEXT);
-        XmlCursor xc1 = xo.newCursor();
-        toNextTokenOfType(m_xc, TokenType.TEXT);
-        toNextTokenOfType(xc1, TokenType.TEXT);
-        m_xc.copyXml(xc1);
-        xc1.toParent();
-        // verify xc1
-        assertEquals("01234text", xc1.getTextValue());
-        xc1.dispose();
+        try (XmlCursor xc1 = xo.newCursor()) {
+            toNextTokenOfType(m_xc, TokenType.TEXT);
+            toNextTokenOfType(xc1, TokenType.TEXT);
+            m_xc.copyXml(xc1);
+            xc1.toParent();
+            // verify xc1
+            assertEquals("01234text", xc1.getTextValue());
+        }
         // verify m_xc
         assertEquals("01234", m_xc.getChars());
     }
@@ -69,34 +69,32 @@ public class CopyTest extends BasicCursorTestCase {
         XmlObject xobj1 = XmlObject.Factory.parse(
                 JarUtil.getResourceFromJar("xbean/xmlcursor/po.xml"));
 
-        XmlCursor xc0 = xobj0.newCursor();
-        XmlCursor xc1 = xobj1.newCursor();
+        try (XmlCursor xc0 = xobj0.newCursor();
+            XmlCursor xc1 = xobj1.newCursor()) {
+            xc0.selectPath(Common.CLM_NS_XQUERY_DEFAULT + " .//Initial");
+            xc0.toNextSelection();
+             String sQuery=
+                     "declare namespace po=\"http://xbean.test/xmlcursor/PurchaseOrder\"; "+
+                     ".//po:zip";
+            xc1.selectPath( sQuery );
+            xc1.toNextSelection();
 
-        xc0.selectPath(Common.CLM_NS_XQUERY_DEFAULT + " .//Initial");
-        xc0.toNextSelection();
-         String sQuery=
-                 "declare namespace po=\"http://xbean.test/xmlcursor/PurchaseOrder\"; "+
-                 ".//po:zip";
-        xc1.selectPath( sQuery );
-        xc1.toNextSelection();
-
-        xc0.copyXml(xc1); // should copy the <Initial>GATX</Initial> element plus the default namespace
-        xc1.toPrevSibling();
-        // verify xc1
-        String sExpected = "<ver:Initial " +
-                "xmlns:po=\"http://xbean.test/xmlcursor/PurchaseOrder\" " +
-                "xmlns:ver=\"http://www.tranxml.org/TranXML/Version4.0\">" +
-                "GATX</ver:Initial>";
-        assertEquals(sExpected, xc1.xmlText());
-        // verify xc0
-        // should contain all the namespaces for the document
-        assertEquals(
-                "<Initial xmlns=\"" + Common.CLM_NS + "\" " +
-                Common.CLM_XSI_NS +
-                ">GATX</Initial>",
-                xc0.xmlText());
-        xc0.dispose();
-        xc1.dispose();
+            xc0.copyXml(xc1); // should copy the <Initial>GATX</Initial> element plus the default namespace
+            xc1.toPrevSibling();
+            // verify xc1
+            String sExpected = "<ver:Initial " +
+                    "xmlns:po=\"http://xbean.test/xmlcursor/PurchaseOrder\" " +
+                    "xmlns:ver=\"http://www.tranxml.org/TranXML/Version4.0\">" +
+                    "GATX</ver:Initial>";
+            assertEquals(sExpected, xc1.xmlText());
+            // verify xc0
+            // should contain all the namespaces for the document
+            assertEquals(
+                    "<Initial xmlns=\"" + Common.CLM_NS + "\" " +
+                    Common.CLM_XSI_NS +
+                    ">GATX</Initial>",
+                    xc0.xmlText());
+        }
 
     }
 
@@ -113,49 +111,46 @@ public class CopyTest extends BasicCursorTestCase {
         XmlObject xobj1 = XmlObject.Factory.parse(
                 JarUtil.getResourceFromJar(Common.TRANXML_FILE_XMLCURSOR_PO));
 
-        XmlCursor xc0 = xobj0.newCursor();
-        XmlCursor xc1 = xobj1.newCursor();
+        try (XmlCursor xc0 = xobj0.newCursor();
+            XmlCursor xc1 = xobj1.newCursor()) {
+            xc0.selectPath(Common.CLM_NS_XQUERY_DEFAULT + " .//Initial");
+            xc0.toNextSelection();
 
-        xc0.selectPath(Common.CLM_NS_XQUERY_DEFAULT + " .//Initial");
-        xc0.toNextSelection();
+            String sQuery=
+                     "declare namespace po=\"http://xbean.test/xmlcursor/PurchaseOrder\"; "+
+                     ".//po:zip";
+            xc1.selectPath( sQuery );
+            xc1.selectPath( sQuery );
+            xc1.toNextSelection();
 
-         String sQuery=
-                 "declare namespace po=\"http://xbean.test/xmlcursor/PurchaseOrder\"; "+
-                 ".//po:zip";
-        xc1.selectPath( sQuery );
-        xc1.selectPath( sQuery );
-        xc1.toNextSelection();
+            xc1.copyXml(xc0); // should copy the <zip>90952</zip> element
+            // verify xc1
+            assertEquals(
+                    "<po:zip xmlns:po=\"http://xbean.test/xmlcursor/PurchaseOrder\">90952</po:zip>",
+                    xc1.xmlText());
+            // verify xc0
+            // should contain all the namespaces for the document
+            xc0.toPrevSibling();
+            // assertEquals("<zip xmlns=\"" + Common.CLM_NS + "\" " + Common.CLM_XSI_NS + ">90952</zip>", xc0.xmlText());
+            String sExpected = "<po:zip " +
+                    "xmlns=\"http://www.tranxml.org/TranXML/Version4.0\" " +
+                    "xmlns:xsi=\"http://www.w3.org/2000/10/XMLSchema-instance\" " +
+                    "xmlns:po=\"http://xbean.test/xmlcursor/PurchaseOrder\">" +
+                    "90952</po:zip>";
 
-        xc1.copyXml(xc0); // should copy the <zip>90952</zip> element
-        // verify xc1
-        assertEquals(
-                "<po:zip xmlns:po=\"http://xbean.test/xmlcursor/PurchaseOrder\">90952</po:zip>",
-                xc1.xmlText());
-        // verify xc0
-        // should contain all the namespaces for the document
-        xc0.toPrevSibling();
-        // assertEquals("<zip xmlns=\"" + Common.CLM_NS + "\" " + Common.CLM_XSI_NS + ">90952</zip>", xc0.xmlText());
-        String sExpected = "<po:zip " +
-                "xmlns=\"http://www.tranxml.org/TranXML/Version4.0\" " +
-                "xmlns:xsi=\"http://www.w3.org/2000/10/XMLSchema-instance\" " +
-                "xmlns:po=\"http://xbean.test/xmlcursor/PurchaseOrder\">" +
-                "90952</po:zip>";
-
-        assertEquals(sExpected, xc0.xmlText());
-        xc0.dispose();
-        xc1.dispose();
-
+            assertEquals(sExpected, xc0.xmlText());
+        }
     }
 
     @Test
     public void testCopySameLocation() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_DIGITS);
         m_xc = m_xo.newCursor();
-        XmlCursor xc1 = m_xo.newCursor();
-        toNextTokenOfType(m_xc, TokenType.TEXT);
-        toNextTokenOfType(xc1, TokenType.TEXT);
-        m_xc.copyXml(xc1);
-        xc1.dispose();
+        try (XmlCursor xc1 = m_xo.newCursor()) {
+            toNextTokenOfType(m_xc, TokenType.TEXT);
+            toNextTokenOfType(xc1, TokenType.TEXT);
+            m_xc.copyXml(xc1);
+        }
         m_xc.toParent();
         assertEquals("0123401234", m_xc.getTextValue());
     }
@@ -167,17 +162,17 @@ public class CopyTest extends BasicCursorTestCase {
 
         String ns="declare namespace po=\"http://xbean.test/xmlcursor/PurchaseOrder\"; ";
         m_xc = m_xo.newCursor();
-        XmlCursor xc1 = m_xo.newCursor();
-        m_xc.selectPath(ns+" .//po:shipTo/po:city");
-        m_xc.toNextSelection();
-        xc1.selectPath(ns +" .//po:billTo/po:city");
-        xc1.toNextSelection();
-        m_xc.copyXml(xc1);
-        xc1.toPrevToken();
-        xc1.toPrevToken();
-        // verify xc1
-        assertEquals("Mill Valley", xc1.getChars());
-        xc1.dispose();
+        try (XmlCursor xc1 = m_xo.newCursor()) {
+            m_xc.selectPath(ns+" .//po:shipTo/po:city");
+            m_xc.toNextSelection();
+            xc1.selectPath(ns +" .//po:billTo/po:city");
+            xc1.toNextSelection();
+            m_xc.copyXml(xc1);
+            xc1.toPrevToken();
+            xc1.toPrevToken();
+            // verify xc1
+            assertEquals("Mill Valley", xc1.getChars());
+        }
         // verify m_xc
         assertEquals("Mill Valley", m_xc.getTextValue());
 

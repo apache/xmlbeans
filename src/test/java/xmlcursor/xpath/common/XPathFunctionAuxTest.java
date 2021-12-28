@@ -46,11 +46,11 @@ public class XPathFunctionAuxTest extends BasicCursorTestCase {
         XmlObject[] exXml1 = new XmlObject[]{XmlObject.Factory.parse(ex1R1)};
 
         System.out.println("Test 1: " + ex1Simple);
-        XmlCursor x1 = xDoc.newCursor();
-        x1.selectPath(ex1Simple);
-        XPathCommon.display(x1);
-        XPathCommon.compare(x1, exXml1);
-        x1.dispose();
+        try (XmlCursor x1 = xDoc.newCursor()) {
+            x1.selectPath(ex1Simple);
+            XPathCommon.display(x1);
+            XPathCommon.compare(x1, exXml1);
+        }
     }
 
     @Test

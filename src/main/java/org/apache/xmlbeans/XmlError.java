@@ -104,22 +104,20 @@ public class XmlError implements java.io.Serializable {
             // Hunt down the line/column/offset
             source = cursor.documentProperties().getSourceName();
 
-            XmlCursor c = cursor.newCursor();
+            try (XmlCursor c = cursor.newCursor()) {
+                XmlLineNumber ln =
+                    (XmlLineNumber) c.getBookmark(XmlLineNumber.class);
 
-            XmlLineNumber ln =
-                (XmlLineNumber) c.getBookmark(XmlLineNumber.class);
+                if (ln == null) {
+                    ln = (XmlLineNumber) c.toPrevBookmark(XmlLineNumber.class);
+                }
 
-            if (ln == null) {
-                ln = (XmlLineNumber) c.toPrevBookmark(XmlLineNumber.class);
+                if (ln != null) {
+                    line = ln.getLine();
+                    column = ln.getColumn();
+                    offset = ln.getOffset();
+                }
             }
-
-            if (ln != null) {
-                line = ln.getLine();
-                column = ln.getColumn();
-                offset = ln.getOffset();
-            }
-
-            c.dispose();
         }
 
         _message = message;

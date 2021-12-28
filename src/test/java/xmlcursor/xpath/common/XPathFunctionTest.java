@@ -44,31 +44,30 @@ public abstract class XPathFunctionTest extends BaseXPathTest {
         String ex0Simple =getQuery("testFunctionCount",0) ;
         String ex0Simple1 =getQuery("testFunctionCount",1) ;
         System.out.println("Test 0: " + ex0Simple);
-        XmlCursor x0 = XmlObject.Factory.parse(
+        try (XmlCursor x0 = XmlObject.Factory.parse(
                 "<foo><cd>1</cd><cd>2</cd></foo>")
                 .newCursor();
-        XmlCursor x01 = x0.newCursor();
-        /* XmlCursor countCheck = x0.newCursor();
-           countCheck.selectPath("count(.//cd)");
-           countCheck.toNextSelection();
-           System.out.println(" Global count "+countCheck.xmlText());
-        */
-        String sExpectedResult = "<cd>2</cd>" ;
+            XmlCursor x01 = x0.newCursor()) {
+            /* XmlCursor countCheck = x0.newCursor();
+               countCheck.selectPath("count(.//cd)");
+               countCheck.toNextSelection();
+               System.out.println(" Global count "+countCheck.xmlText());
+            */
+            String sExpectedResult = "<cd>2</cd>" ;
 
-        x01.selectPath(ex0Simple1);
-        assertEquals(1, x01.getSelectionCount());
-        x01.toNextSelection();
-        assertEquals(sExpectedResult, x01.xmlText());
-        x01.dispose();
+            x01.selectPath(ex0Simple1);
+            assertEquals(1, x01.getSelectionCount());
+            x01.toNextSelection();
+            assertEquals(sExpectedResult, x01.xmlText());
 
-        sExpectedResult = "<xml-fragment>2</xml-fragment>";
-        x0.selectPath(ex0Simple);
-        XPathCommon.display(x0);
-        assertEquals(1, x0.getSelectionCount());
-        x0.toNextSelection();
-        //XPathCommon.compare(x0, new XmlObject[]{XmlObject.Factory.parse("<a>foo</a>")});
-        assertEquals(sExpectedResult, x0.xmlText());
-        x0.dispose();
+            sExpectedResult = "<xml-fragment>2</xml-fragment>";
+            x0.selectPath(ex0Simple);
+            XPathCommon.display(x0);
+            assertEquals(1, x0.getSelectionCount());
+            x0.toNextSelection();
+            //XPathCommon.compare(x0, new XmlObject[]{XmlObject.Factory.parse("<a>foo</a>")});
+            assertEquals(sExpectedResult, x0.xmlText());
+        }
 
     }
 
@@ -98,30 +97,30 @@ public abstract class XPathFunctionTest extends BaseXPathTest {
 
 
         System.out.println("Test 1: " + ex1Simple);
-        XmlCursor x1 = xDoc.newCursor();
-        x1.toChild("catalog");
-        System.out.println(x1.currentTokenType());
-        System.out.println(x1.getName());
-        x1.selectPath(ex1Simple);
-        //XPathCommon.display(x1);
-        //assertEquals(1,x1.getSelectionCount());
-        XPathCommon.compare(x1, exXml1);
-        //assertEquals(ex1R1, x1.xmlText());
-        x1.dispose();
+        try (XmlCursor x1 = xDoc.newCursor()) {
+            x1.toChild("catalog");
+            System.out.println(x1.currentTokenType());
+            System.out.println(x1.getName());
+            x1.selectPath(ex1Simple);
+            //XPathCommon.display(x1);
+            //assertEquals(1,x1.getSelectionCount());
+            XPathCommon.compare(x1, exXml1);
+            //assertEquals(ex1R1, x1.xmlText());
+        }
 
         System.out.println("Test 2: " + ex2Simple);
-        XmlCursor x2 = xDoc.newCursor();
-        x2.selectPath(ex2Simple);
-        XPathCommon.display(x2);
-        assertFalse(x2.toNextSelection());
-        x2.dispose();
+        try (XmlCursor x2 = xDoc.newCursor()) {
+            x2.selectPath(ex2Simple);
+            XPathCommon.display(x2);
+            assertFalse(x2.toNextSelection());
+        }
 
         System.out.println("Test 3: " + ex3Simple);
-        XmlCursor x3 = xDoc.newCursor();
-        x3.selectPath(ex3Simple);
-        XPathCommon.display(x3);
-        XPathCommon.compare(x3, exXml3);
-        x3.dispose();
+        try (XmlCursor x3 = xDoc.newCursor()) {
+            x3.selectPath(ex3Simple);
+            XPathCommon.display(x3);
+            XPathCommon.compare(x3, exXml3);
+        }
     }
 
     /**
@@ -143,11 +142,11 @@ public abstract class XPathFunctionTest extends BaseXPathTest {
         XmlObject[] exXml1 = new XmlObject[]{XmlObject.Factory.parse(ex1R1)};
 
         System.out.println("Test 1: " + ex1Simple);
-        XmlCursor x1 = xDoc.newCursor();
-        x1.selectPath(ex1Simple);
-        XPathCommon.display(x1);
-        XPathCommon.compare(x1, exXml1);
-        x1.dispose();
+        try (XmlCursor x1 = xDoc.newCursor()) {
+            x1.selectPath(ex1Simple);
+            XPathCommon.display(x1);
+            XPathCommon.compare(x1, exXml1);
+        }
     }
 
     /**

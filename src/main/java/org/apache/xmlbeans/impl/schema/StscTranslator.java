@@ -993,9 +993,10 @@ public class StscTranslator {
         }
 
         SOAPArrayType wat = null;
-        XmlCursor c = xsdElt.newCursor();
-        String arrayType = c.getAttributeText(WSDL_ARRAYTYPE_NAME);
-        c.dispose();
+        String arrayType;
+        try (XmlCursor c = xsdElt.newCursor()) {
+            arrayType = c.getAttributeText(WSDL_ARRAYTYPE_NAME);
+        }
         if (arrayType != null) {
             try {
                 wat = new SOAPArrayType(arrayType, new NamespaceContext(xsdElt));
@@ -1206,13 +1207,12 @@ public class StscTranslator {
         ic.setUserData(getUserData(parseIC));
 
         // Set the ns map
-        XmlCursor c = parseIC.newCursor();
         Map<String, String> nsMap = new HashMap<>();
-
-        c.getAllNamespaces(nsMap);
+        try (XmlCursor c = parseIC.newCursor()) {
+            c.getAllNamespaces(nsMap);
+        }
         nsMap.remove(""); // Remove the default mapping. This cannot be used by the xpath expressions.
         ic.setNSMap(nsMap);
-        c.dispose();
 
         String[] fields = new String[fieldElts.length];
         for (int j = 0; j < fields.length; j++) {
@@ -1461,9 +1461,10 @@ public class StscTranslator {
         }
 
         SOAPArrayType wat = null;
-        XmlCursor c = xsdAttr.newCursor();
-        String arrayType = c.getAttributeText(WSDL_ARRAYTYPE_NAME);
-        c.dispose();
+        String arrayType;
+        try (XmlCursor c = xsdAttr.newCursor()) {
+            arrayType = c.getAttributeText(WSDL_ARRAYTYPE_NAME);
+        }
         if (arrayType != null) {
             try {
                 wat = new SOAPArrayType(arrayType, new NamespaceContext(xsdAttr));
@@ -1560,10 +1561,9 @@ public class StscTranslator {
     }
 
     private static boolean isEmptySchema(Schema schema) {
-        XmlCursor cursor = schema.newCursor();
-        boolean result = !cursor.toFirstChild();
-        cursor.dispose();
-        return result;
+        try (XmlCursor cursor = schema.newCursor()) {
+            return !cursor.toFirstChild();
+        }
     }
 
     private static boolean isReservedTypeName(QName name) {

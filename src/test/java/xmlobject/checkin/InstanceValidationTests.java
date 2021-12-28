@@ -1872,10 +1872,10 @@ public class InstanceValidationTests {
                 stl.parse((String) validInstances[i], null, options);
 
             if (!startOnDocument) {
-                XmlCursor c = x.newCursor();
-                c.toFirstChild();
-                x = c.getObject();
-                c.dispose();
+                try (XmlCursor c = x.newCursor()) {
+                    c.toFirstChild();
+                    x = c.getObject();
+                }
             }
 
             List<XmlError> xel = new ArrayList<>();
@@ -1905,10 +1905,10 @@ public class InstanceValidationTests {
                 x = stl.parse((String) invalidInstances[i], null, options);
 
                 if (!startOnDocument) {
-                    XmlCursor c = x.newCursor();
-                    c.toFirstChild();
-                    x = c.getObject();
-                    c.dispose();
+                    try (XmlCursor c = x.newCursor()) {
+                        c.toFirstChild();
+                        x = c.getObject();
+                    }
                 }
 
                 boolean isValid = x.validate();

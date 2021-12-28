@@ -35,10 +35,9 @@ public class CursorVsObjectSetGetTextTest {
                 (CarLocationMessageDocument) XmlObject.Factory.parse(
                         JarUtil.getResourceFromJar(Common.TRANXML_FILE_CLM));
         assertNotNull(clm);
-        XmlCursor xc = clm.newCursor();
         GeographicLocation[] aGL = new GeographicLocation[3];
 
-        try {
+        try (XmlCursor xc = clm.newCursor()) {
             xc.selectPath(Common.CLM_NS_XQUERY_DEFAULT +
                           "$this//GeographicLocation");
             xc.toNextSelection();
@@ -67,8 +66,6 @@ public class CursorVsObjectSetGetTextTest {
             for (int i = 0; i < 3; i++) {
                 assertEquals("PORTLAND", aGL[i].getCityName().getStringValue());
             }
-        } finally {
-            xc.dispose();
         }
     }
 

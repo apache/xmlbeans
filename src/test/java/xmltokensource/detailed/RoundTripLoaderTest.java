@@ -47,11 +47,8 @@ public class RoundTripLoaderTest extends BasicCursorTestCase {
         assertNotNull(doc);
         XmlObject xo = XmlObject.Factory.parse(doc, map);
         m_xc = m_xo.newCursor();
-        XmlCursor xc1 = xo.newCursor();
-        try {
+        try (XmlCursor xc1 = xo.newCursor()) {
             compareDocTokens(m_xc, xc1);
-        } finally {
-            xc1.dispose();
         }
     }
 
@@ -72,11 +69,8 @@ public class RoundTripLoaderTest extends BasicCursorTestCase {
         XmlOptions options = new XmlOptions(map);
         XmlObject xo = XmlObject.Factory.parse(is, options);
         m_xc = m_xo.newCursor();
-        XmlCursor xc1 = xo.newCursor();
-        try {
+        try (XmlCursor xc1 = xo.newCursor()) {
             compareDocTokens(m_xc, xc1);
-        } finally {
-            xc1.dispose();
         }
     }
 
@@ -112,11 +106,8 @@ public class RoundTripLoaderTest extends BasicCursorTestCase {
         XmlOptions options = new XmlOptions(map);
         XmlObject xo = XmlObject.Factory.parse(sXml, options);
         m_xc = m_xo.newCursor();
-        XmlCursor xc1 = xo.newCursor();
-        try {
+        try (XmlCursor xc1 = xo.newCursor()) {
             compareDocTokens(m_xc, xc1);
-        } finally {
-            xc1.dispose();
         }
     }
 

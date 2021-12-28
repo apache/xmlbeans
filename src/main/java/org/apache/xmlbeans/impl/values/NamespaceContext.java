@@ -141,13 +141,13 @@ public class NamespaceContext implements PrefixResolver
                 if (obj instanceof TypeStoreUser)
                     return ((TypeStoreUser)obj).get_store().getNamespaceForPrefix(prefix);
 
-                XmlCursor cur = ((XmlObject)_obj).newCursor();
-                if (cur != null)
-                {
-                    if (cur.currentTokenType() == XmlCursor.TokenType.ATTR)
-                        cur.toParent();
-                    try { return cur.namespaceForPrefix(prefix); }
-                    finally { cur.dispose(); }
+                try (XmlCursor cur = ((XmlObject)_obj).newCursor()) {
+                    if (cur != null)
+                    {
+                        if (cur.currentTokenType() == XmlCursor.TokenType.ATTR)
+                            cur.toParent();
+                        return cur.namespaceForPrefix(prefix);
+                    }
                 }
             }
             

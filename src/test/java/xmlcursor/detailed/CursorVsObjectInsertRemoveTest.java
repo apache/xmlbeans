@@ -48,9 +48,8 @@ public class CursorVsObjectInsertRemoveTest {
         assertNotNull("Expected non-null GeographicLocation object", glDest);
         glDest.setPostalCode("90210");
         glDest.setCountryCode("US");
-        XmlCursor xcPostalCode = glDest.xgetPostalCode().newCursor();
-        XmlCursor xcCountryCode = glDest.xgetCountryCode().newCursor();
-        try {
+        try (XmlCursor xcPostalCode = glDest.xgetPostalCode().newCursor();
+            XmlCursor xcCountryCode = glDest.xgetCountryCode().newCursor()) {
             assertEquals("90210", xcPostalCode.getTextValue());
             assertEquals("US", xcCountryCode.getTextValue());
             xcPostalCode.setTextValue("90310");
@@ -61,9 +60,6 @@ public class CursorVsObjectInsertRemoveTest {
             assertEquals("CountryCode", xcPostalCode.getName().getLocalPart());
             xcCountryCode.removeXml();
             assertEquals(sEventStatusText, xc.getTextValue());
-        } finally {
-            xcPostalCode.dispose();
-            xcCountryCode.dispose();
         }
     }
 

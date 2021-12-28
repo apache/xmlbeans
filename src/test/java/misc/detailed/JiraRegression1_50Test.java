@@ -173,11 +173,11 @@ public class JiraRegression1_50Test extends JiraTestBase {
     public void test_jira_xmlbeans14() throws Exception {
         XmlObject xObj = XmlObject.Factory.parse("<Baz/>");
         // add element
-        XmlCursor xCursor = xObj.newCursor();
-        xCursor.toFirstContentToken();
-        xCursor.insertElementWithText(new QName("Some uri", "SomeName"), "SomeValue");
-        xCursor.insertElementWithText(new QName("Some uri", "SomeName1"), "SomeValue1");
-        xCursor.dispose();
+        try (XmlCursor xCursor = xObj.newCursor()) {
+            xCursor.toFirstContentToken();
+            xCursor.insertElementWithText(new QName("Some uri", "SomeName"), "SomeValue");
+            xCursor.insertElementWithText(new QName("Some uri", "SomeName1"), "SomeValue1");
+        }
 
         // debug
         xObj.save(System.out);

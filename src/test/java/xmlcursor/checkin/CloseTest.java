@@ -22,14 +22,14 @@ import xmlcursor.common.BasicCursorTestCase;
 import xmlcursor.common.Common;
 
 
-public class DisposeTest extends BasicCursorTestCase {
+public class CloseTest extends BasicCursorTestCase {
 
     @Test
-    public void testMultipleDispose() throws Exception {
+    public void testMultipleClose() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO);
         m_xc = m_xo.newCursor();
-        m_xc.dispose();
-        m_xc.dispose();
+        m_xc.close();
+        m_xc.close();
     }
 }
 

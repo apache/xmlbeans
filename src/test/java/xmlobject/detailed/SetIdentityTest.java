@@ -36,12 +36,13 @@ public class SetIdentityTest {
         CarLocationMessageDocument clm =
                 (CarLocationMessageDocument) XmlObject.Factory.parse(
                         JarUtil.getResourceFromJar(Common.TRANXML_FILE_CLM));
-        XmlCursor xc = clm.newCursor();
 
-        xc.selectPath(Common.CLM_NS_XQUERY_DEFAULT + "$this//GeographicLocation");
-        xc.toNextSelection();
-        GeographicLocation gl = (GeographicLocation) xc.getObject();
-        xc.dispose();
+        GeographicLocation gl;
+        try (XmlCursor xc = clm.newCursor()) {
+            xc.selectPath(Common.CLM_NS_XQUERY_DEFAULT + "$this//GeographicLocation");
+            xc.toNextSelection();
+            gl = (GeographicLocation) xc.getObject();
+        }
         LocationIdentifier li = gl.addNewLocationIdentifier();
         li.setQualifier(CodeList309.FR);
         CodeList309 cl309 = li.xgetQualifier();
@@ -49,7 +50,6 @@ public class SetIdentityTest {
         li.xsetQualifier(cl309);
         gl.setLocationIdentifier(li);
         assertEquals(CodeList309.FR, gl.getLocationIdentifier().getQualifier());
-
     }
 
 }

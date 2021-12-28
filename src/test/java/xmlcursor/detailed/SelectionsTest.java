@@ -108,21 +108,19 @@ public class SelectionsTest extends BasicCursorTestCase {
 			"declare namespace ns='http://xbean.test/xmlcursor/CR196679'" +
 				"$this/ns:value";
 
-		XmlCursor cursor = test.newCursor();
-		cursor.push();
-		cursor.selectPath(queryName);
-		cursor.toNextSelection();
+		try (XmlCursor cursor = test.newCursor()) {
+    		cursor.push();
+    		cursor.selectPath(queryName);
+    		cursor.toNextSelection();
 
-		assertEquals("myTest", cursor.getTextValue());
+    		assertEquals("myTest", cursor.getTextValue());
 
-		cursor.pop();
-		cursor.selectPath(queryValue);
-		cursor.toNextSelection();
+    		cursor.pop();
+    		cursor.selectPath(queryValue);
+    		cursor.toNextSelection();
 
-		assertEquals("5", cursor.getTextValue());//expected output is value=5
-
-		cursor.dispose();
-
+    		assertEquals("5", cursor.getTextValue());//expected output is value=5
+		}
 	}
 
 	@Before

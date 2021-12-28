@@ -104,12 +104,9 @@ public class XmlTextTest extends BasicCursorTestCase {
         m_xo = XmlObject.Factory.parse(
             JarUtil.getResourceFromJar(Common.TRANXML_FILE_CLM));
         m_xc = m_xo.newCursor();
-        XmlCursor xc1 = m_xo.newCursor();
-        xc1.toFirstChild();
-        try {
+        try (XmlCursor xc1 = m_xo.newCursor()) {
+            xc1.toFirstChild();
             assertEquals(m_xc.xmlText().replaceFirst("(?s)<!--.*-->", ""), xc1.xmlText());
-        } finally {
-            xc1.dispose();
         }
     }
 

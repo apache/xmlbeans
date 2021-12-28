@@ -31,27 +31,21 @@ public class IsInSameDocumentTest extends BasicCursorTestCase {
     @Test
     public void testSameDocSTARTDOCandENDDOC() throws Exception {
         m_xc = XmlObject.Factory.parse(Common.XML_FOO_1ATTR_TEXT).newCursor();
-        XmlCursor xc0 = m_xc.newCursor();
-        xc0.toEndDoc();
-        try {
+        try (XmlCursor xc0 = m_xc.newCursor()) {
+            xc0.toEndDoc();
             assertTrue(m_xc.isInSameDocument(xc0));
             assertTrue(xc0.isInSameDocument(m_xc));
-        } finally {
-            xc0.dispose();
         }
     }
 
     @Test
     public void testSameDocNAMESPACEandATTR() throws Exception {
         m_xc = XmlObject.Factory.parse(Common.XML_FOO_DIGITS).newCursor();
-        XmlCursor xc0 = m_xc.newCursor();
-        try {
+        try (XmlCursor xc0 = m_xc.newCursor()) {
             toNextTokenOfType(m_xc, TokenType.NAMESPACE);
             toNextTokenOfType(xc0, TokenType.ATTR);
             assertTrue(m_xc.isInSameDocument(xc0));
             assertTrue(xc0.isInSameDocument(m_xc));
-        } finally {
-            xc0.dispose();
         }
     }
 
@@ -64,29 +58,25 @@ public class IsInSameDocumentTest extends BasicCursorTestCase {
     @Test
     public void testSameDocDifferentDocs() throws Exception {
         m_xc = XmlObject.Factory.parse(Common.XML_FOO_1ATTR_TEXT).newCursor();
-        XmlCursor xc0 = XmlObject.Factory.parse(Common.XML_FOO_1ATTR_TEXT).newCursor();
-        toNextTokenOfType(m_xc, TokenType.TEXT);
-        toNextTokenOfType(xc0, TokenType.TEXT);
-        try {
+        try (XmlCursor xc0 = XmlObject.Factory.parse(Common.XML_FOO_1ATTR_TEXT).newCursor()) {
+            toNextTokenOfType(m_xc, TokenType.TEXT);
+            toNextTokenOfType(xc0, TokenType.TEXT);
+
             assertFalse(m_xc.isInSameDocument(xc0));
             assertFalse(xc0.isInSameDocument(m_xc));
-        } finally {
-            xc0.dispose();
         }
     }
 
     @Test
     public void testSameDocTEXTpositional() throws Exception {
         m_xc = XmlObject.Factory.parse(Common.XML_FOO_1ATTR_TEXT).newCursor();
-        XmlCursor xc0 = m_xc.newCursor();
-        toNextTokenOfType(m_xc, TokenType.TEXT);
-        toNextTokenOfType(xc0, TokenType.TEXT);
-        xc0.toNextChar(2);
-        try {
+        try (XmlCursor xc0 = m_xc.newCursor()) {
+            toNextTokenOfType(m_xc, TokenType.TEXT);
+            toNextTokenOfType(xc0, TokenType.TEXT);
+            xc0.toNextChar(2);
+
             assertTrue(m_xc.isInSameDocument(xc0));
             assertTrue(xc0.isInSameDocument(m_xc));
-        } finally {
-            xc0.dispose();
         }
     }
 }

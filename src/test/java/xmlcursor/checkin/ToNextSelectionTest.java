@@ -72,12 +72,9 @@ public class ToNextSelectionTest extends BasicCursorTestCase {
     public void testToNextSelectionOtherCursor() throws Exception {
         String sXml = "<foo><b>0</b><b>1</b><b>2</b><b>3</b><b>4</b><b>5</b><b>6</b></foo>";
         m_xc = XmlObject.Factory.parse(sXml).newCursor();
-        XmlCursor xc0 = m_xc.newCursor();
-        try {
+        try (XmlCursor xc0 = m_xc.newCursor()) {
             m_xc.selectPath("$this//b");
             assertFalse(xc0.toNextSelection());
-        } finally {
-            xc0.dispose();
         }
     }
 
@@ -85,8 +82,7 @@ public class ToNextSelectionTest extends BasicCursorTestCase {
     public void testToNextSelectionTwoCursorsDifferentSelections() throws Exception {
         String sXml = "<foo><a>X</a><b>0</b><a>Y</a><b>1</b><a>Z</a><b>2</b></foo>";
         m_xc = XmlObject.Factory.parse(sXml).newCursor();
-        XmlCursor xc0 = m_xc.newCursor();
-        try {
+        try (XmlCursor xc0 = m_xc.newCursor()) {
             xc0.selectPath("$this//a");
             xc0.toNextSelection();
             assertEquals(3, xc0.getSelectionCount());
@@ -97,8 +93,6 @@ public class ToNextSelectionTest extends BasicCursorTestCase {
             assertEquals("Y", xc0.getTextValue());
             assertTrue(m_xc.toNextSelection());
             assertEquals("1", m_xc.getTextValue());
-        } finally {
-            xc0.dispose();
         }
     }
 
@@ -106,8 +100,7 @@ public class ToNextSelectionTest extends BasicCursorTestCase {
     public void testToNextSelectionTwoCursorsSameSelections() throws Exception {
         String sXml = "<foo><a>X</a><b>0</b><a>Y</a><b>1</b><a>Z</a><b>2</b></foo>";
         m_xc = XmlObject.Factory.parse(sXml).newCursor();
-        XmlCursor xc0 = m_xc.newCursor();
-        try {
+        try (XmlCursor xc0 = m_xc.newCursor()) {
             xc0.selectPath("$this//b");
             xc0.toNextSelection();
             assertEquals(3, xc0.getSelectionCount());
@@ -124,8 +117,6 @@ public class ToNextSelectionTest extends BasicCursorTestCase {
             assertEquals("2", m_xc.getTextValue());
             assertFalse(xc0.toNextSelection());
             assertFalse(m_xc.toNextSelection());
-        } finally {
-            xc0.dispose();
         }
     }
 }

@@ -42,9 +42,8 @@ public class MultipleCopyFromCursorTest {
             (CarLocationMessageDocument) XmlObject.Factory.parse(
                 JarUtil.getResourceFromJar(Common.TRANXML_FILE_CLM));
         assertNotNull(clm);
-        XmlCursor xc = clm.newCursor();
         XmlCursor[] aCursors = new XmlCursor[3];
-        try {
+        try (XmlCursor xc = clm.newCursor()) {
             xc.selectPath(Common.CLM_NS_XQUERY_DEFAULT +
                           "$this//GeographicLocation");
             xc.toNextSelection();
@@ -119,9 +118,8 @@ public class MultipleCopyFromCursorTest {
             }
 
         } finally {
-            xc.dispose();
             for (int i = 0; i < 3; i++) {
-                aCursors[i].dispose();
+                aCursors[i].close();
             }
         }
     }

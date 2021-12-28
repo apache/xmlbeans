@@ -63,30 +63,30 @@ public class XQueryVariableBindingTest extends Common
     /** test the automatic binding of $this to the current node: selectPath() */
     @Test
     public void testThisVariable1() throws Exception {
-        XmlCursor xc = _testDocCursor1();
-        xc.toFirstChild(); //<elem1>
-        xc.toFirstChild(); //<elem11>
-        xc.selectPath("//*[@idRef=$this/@id]");
-        _verifySelection(xc);
-        xc.clearSelections();
-        xc.dispose();
+        try (XmlCursor xc = _testDocCursor1()) {
+            xc.toFirstChild(); //<elem1>
+            xc.toFirstChild(); //<elem11>
+            xc.selectPath("//*[@idRef=$this/@id]");
+            _verifySelection(xc);
+            xc.clearSelections();
+        }
     }
 
     // this fails: see JIRA issue XMLBEANS-276
     /** test the binding of a variable to the current node: selectPath() */
     @Test
     public void testCurrentNodeVariable1() throws Exception {
-        XmlCursor xc = _testDocCursor1();
-        xc.toFirstChild();
-        xc.toFirstChild();
-        XmlOptions opts = new XmlOptions();
-        opts.setXqueryCurrentNodeVar("cur");
-        //String varDecl = "declare variable $cur external; ";
-        //xc.selectPath(varDecl + "//*[@idRef=$cur/@id]", opts);
-        xc.selectPath("//*[@idRef=$cur/@id]", opts);
-        _verifySelection(xc);
-        xc.clearSelections();
-        xc.dispose();
+        try (XmlCursor xc = _testDocCursor1()) {
+            xc.toFirstChild();
+            xc.toFirstChild();
+            XmlOptions opts = new XmlOptions();
+            opts.setXqueryCurrentNodeVar("cur");
+            //String varDecl = "declare variable $cur external; ";
+            //xc.selectPath(varDecl + "//*[@idRef=$cur/@id]", opts);
+            xc.selectPath("//*[@idRef=$cur/@id]", opts);
+            _verifySelection(xc);
+            xc.clearSelections();
+        }
     }
 
     private XmlCursor _testDocCursor2() throws Exception {
@@ -108,24 +108,20 @@ public class XQueryVariableBindingTest extends Common
     @Test
     public void testThisVariable2() throws Exception
     {
-        XmlCursor xc = _testDocCursor2();
-        // xc.toNextToken();
         String q =
             "for $e in $this/employees/employee " +
             "let $s := $e/address/state " +
             "where $s = 'WA' " +
             "return $e//phone[@location='work']";
-        XmlCursor qc = xc.execQuery(q);
-        _verifyQueryResult(qc);
-        xc.dispose();
-        qc.dispose();
+        try (XmlCursor xc = _testDocCursor2();
+            XmlCursor qc = xc.execQuery(q)) {
+            _verifyQueryResult(qc);
+        }
     }
 
     /** test the binding of a variable to the current node: execQuery() */
     @Test
     public void testCurrentNodeVariable2() throws Exception {
-        XmlCursor xc = _testDocCursor2();
-        // xc.toNextToken();
         String q =
             "for $e in $cur/employees/employee " +
             "let $s := $e/address/state " +
@@ -133,12 +129,10 @@ public class XQueryVariableBindingTest extends Common
             "return $e//phone[@location='work']";
         XmlOptions opts = new XmlOptions();
         opts.setXqueryCurrentNodeVar("cur");
-        //String varDecl = "declare variable $cur external; ";
-        //XmlCursor qc = xc.execQuery(varDecl + q, opts);
-        XmlCursor qc = xc.execQuery(q, opts);
-        _verifyQueryResult(qc);
-        xc.dispose();
-        qc.dispose();
+        try (XmlCursor xc = _testDocCursor2();
+            XmlCursor qc = xc.execQuery(q, opts)) {
+            _verifyQueryResult(qc);
+        }
     }
 
     private XmlObject[] _execute(XmlObject xo, Map m, String q) {

@@ -48,16 +48,14 @@ public class ToLastChildElementTest extends BasicCursorTestCase {
         m_xc = XmlObject.Factory.parse("<foo>early<bar>text<char>zap</char><dar>yap</dar></bar></foo>").newCursor();
         toNextTokenOfType(m_xc, TokenType.TEXT);
         assertEquals("early", m_xc.getChars());
-        XmlCursor xc0 = m_xc.newCursor();
-        xc0.toNextSibling();
-        try {
+        try (XmlCursor xc0 = m_xc.newCursor()) {
+            xc0.toNextSibling();
+
             assertEquals("textzapyap", xc0.getTextValue());
             xc0.toLastChild();
             assertEquals("yap", xc0.getTextValue());
             assertTrue(m_xc.toLastChild());
             assertEquals("yap", m_xc.getTextValue());
-        } finally {
-            xc0.dispose();
         }
     }
 

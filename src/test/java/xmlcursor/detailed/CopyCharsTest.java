@@ -38,11 +38,8 @@ public class CopyCharsTest extends BasicCursorTestCase {
     public void testCopyCharsNegative() throws Exception {
         m_xo = XmlObject.Factory.parse("<foo><bar>0123</bar><bar>WXYZ</bar></foo>");
         m_xc = m_xo.newCursor();
-        toNextTokenOfType(m_xc, TokenType.TEXT);
-        XmlCursor xc0 = m_xc.newCursor();
-        toNextTokenOfType(m_xc, TokenType.TEXT);
-        XmlCursor xc1 = m_xc.newCursor();
-        try {
+        try (XmlCursor xc0 = toNextTokenOfTypeCursor(m_xc, TokenType.TEXT);
+            XmlCursor xc1 = toNextTokenOfTypeCursor(m_xc, TokenType.TEXT)) {
             assertFalse(xc0.isAtSamePositionAs(xc1));
             assertEquals(4, xc1.copyChars(-1, xc0));
             assertEquals(TokenType.TEXT, xc0.currentTokenType());
@@ -54,9 +51,6 @@ public class CopyCharsTest extends BasicCursorTestCase {
             assertEquals(TokenType.TEXT, xc1.currentTokenType());
             assertEquals(TokenType.START, xc1.prevTokenType());
             assertEquals("WXYZ", xc1.getTextValue());
-        } finally {
-            xc0.dispose();
-            xc1.dispose();
         }
     }
 
@@ -64,11 +58,8 @@ public class CopyCharsTest extends BasicCursorTestCase {
     public void testCopyCharsZero() throws Exception {
         m_xo = XmlObject.Factory.parse("<foo><bar>0123</bar><bar>WXYZ</bar></foo>");
         m_xc = m_xo.newCursor();
-        toNextTokenOfType(m_xc, TokenType.TEXT);
-        XmlCursor xc0 = m_xc.newCursor();
-        toNextTokenOfType(m_xc, TokenType.TEXT);
-        XmlCursor xc1 = m_xc.newCursor();
-        try {
+        try (XmlCursor xc0 = toNextTokenOfTypeCursor(m_xc, TokenType.TEXT);
+            XmlCursor xc1 = toNextTokenOfTypeCursor(m_xc, TokenType.TEXT)) {
             assertFalse(xc0.isAtSamePositionAs(xc1));
             assertEquals(0, xc1.copyChars(0, xc0));
             assertEquals("0123", xc0.getTextValue());
@@ -76,9 +67,6 @@ public class CopyCharsTest extends BasicCursorTestCase {
             assertEquals("0123", xc0.getTextValue());
             assertEquals(TokenType.TEXT, xc1.currentTokenType());
             assertEquals("WXYZ", xc1.getTextValue());
-        } finally {
-            xc0.dispose();
-            xc1.dispose();
         }
     }
 
@@ -86,19 +74,14 @@ public class CopyCharsTest extends BasicCursorTestCase {
     public void testCopyCharsThis() throws Exception {
         m_xo = XmlObject.Factory.parse("<foo><bar>0123</bar><bar>WXYZ</bar></foo>");
         m_xc = m_xo.newCursor();
-        toNextTokenOfType(m_xc, TokenType.TEXT);
-        XmlCursor xc0 = m_xc.newCursor();
-        XmlCursor xc1 = m_xc.newCursor();
-        try {
+        try (XmlCursor xc0 = toNextTokenOfTypeCursor(m_xc, TokenType.TEXT);
+            XmlCursor xc1 = m_xc.newCursor()) {
             assertTrue(xc0.isAtSamePositionAs(xc1));
             assertEquals(4, xc1.copyChars(4, xc0));
             assertEquals("0123", xc0.getTextValue());
             xc0.toPrevToken();
             assertEquals("01230123", xc0.getTextValue());
             assertEquals("0123", xc1.getTextValue());
-        } finally {
-            xc0.dispose();
-            xc1.dispose();
         }
     }
 
@@ -106,11 +89,8 @@ public class CopyCharsTest extends BasicCursorTestCase {
     public void testCopyCharsGTmax() throws Exception {
         m_xo = XmlObject.Factory.parse("<foo><bar>0123</bar><bar>WXYZ</bar></foo>");
         m_xc = m_xo.newCursor();
-        toNextTokenOfType(m_xc, TokenType.TEXT);
-        XmlCursor xc0 = m_xc.newCursor();
-        toNextTokenOfType(m_xc, TokenType.TEXT);
-        XmlCursor xc1 = m_xc.newCursor();
-        try {
+        try (XmlCursor xc0 = toNextTokenOfTypeCursor(m_xc, TokenType.TEXT);
+            XmlCursor xc1 = toNextTokenOfTypeCursor(m_xc, TokenType.TEXT)) {
             assertFalse(xc0.isAtSamePositionAs(xc1));
             assertEquals(4, xc1.copyChars(1000, xc0));
             // verify xc0
@@ -119,9 +99,6 @@ public class CopyCharsTest extends BasicCursorTestCase {
             assertEquals("WXYZ0123", xc0.getTextValue());
             // verify xc1
             assertEquals("WXYZ", xc1.getTextValue());
-        } finally {
-            xc0.dispose();
-            xc1.dispose();
         }
     }
 
@@ -130,14 +107,14 @@ public class CopyCharsTest extends BasicCursorTestCase {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_DIGITS);
         m_xc = m_xo.newCursor();
         XmlObject xo = XmlObject.Factory.parse(Common.XML_FOO_2ATTR_TEXT);
-        XmlCursor xc1 = xo.newCursor();
-        toNextTokenOfType(m_xc, TokenType.TEXT);
-        toNextTokenOfType(xc1, TokenType.TEXT);
-        assertEquals(5, m_xc.copyChars(5, xc1));
-        assertEquals(5,xc1.toPrevChar(5));
-        // verify xc1
-        assertEquals("01234text", xc1.getTextValue());
-        xc1.dispose();
+        try (XmlCursor xc1 = xo.newCursor()) {
+            toNextTokenOfType(m_xc, TokenType.TEXT);
+            toNextTokenOfType(xc1, TokenType.TEXT);
+            assertEquals(5, m_xc.copyChars(5, xc1));
+            assertEquals(5,xc1.toPrevChar(5));
+            // verify xc1
+            assertEquals("01234text", xc1.getTextValue());
+        }
         // verify m_xc
         assertEquals("01234", m_xc.getTextValue());
     }
@@ -147,9 +124,10 @@ public class CopyCharsTest extends BasicCursorTestCase {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_DIGITS);
         m_xc = m_xo.newCursor();
         XmlObject xo = XmlObject.Factory.newInstance();
-        XmlCursor xc1 = xo.newCursor();
-        toNextTokenOfType(m_xc, TokenType.TEXT);
-        assertEquals(5, m_xc.copyChars(5, xc1));
+        try (XmlCursor xc1 = xo.newCursor()) {
+            toNextTokenOfType(m_xc, TokenType.TEXT);
+            assertEquals(5, m_xc.copyChars(5, xc1));
+        }
     }
 }
 

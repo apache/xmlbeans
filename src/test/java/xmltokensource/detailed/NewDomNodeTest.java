@@ -112,11 +112,8 @@ public class NewDomNodeTest extends BasicCursorTestCase {
         assertNotNull(doc);
         XmlObject xo = XmlObject.Factory.parse(doc);
         m_xc = m_xo.newCursor();
-        XmlCursor xc1 = xo.newCursor();
-        try {
+        try (XmlCursor xc1 = xo.newCursor()) {
             compareDocTokens(m_xc, xc1);
-        } finally {
-            xc1.dispose();
         }
     }
 }

@@ -33,7 +33,7 @@ public class BasicCursorTestCase {
     public void tearDown() throws Exception {
         m_xo = null;
         if (m_xc != null) {
-            m_xc.dispose();
+            m_xc.close();
             m_xc = null;
         }
     }
@@ -50,6 +50,11 @@ public class BasicCursorTestCase {
                 fail("Expected Token not found! " + tt.toString());
         }
         assertEquals(tt, xc.currentTokenType());
+    }
+
+    public XmlCursor toNextTokenOfTypeCursor(XmlCursor xc, TokenType tt) throws IllegalArgumentException {
+        toNextTokenOfType(xc, tt);
+        return xc.newCursor();
     }
 
     public void toPrevTokenOfType(XmlCursor xc, TokenType tt)

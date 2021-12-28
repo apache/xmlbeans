@@ -234,10 +234,11 @@ public class TypeSystemHolder
                 XmlQName xqname = XmlQName.Factory.newValue(value);
 
                 org.apache.xmlbeans.impl.xb.xsdschema.NoFixedFacet enumSElem = restriction.addNewEnumeration();
-                XmlCursor xc  = enumSElem.newCursor();
 
-                String newPrefix = xc.prefixForNamespace(value.getNamespaceURI());
-                xc.dispose();
+                String newPrefix;
+                try (XmlCursor xc  = enumSElem.newCursor()) {
+                    newPrefix = xc.prefixForNamespace(value.getNamespaceURI());
+                }
 
                 enumSElem.setValue( XmlQName.Factory.newValue(
                     new QName(value.getNamespaceURI(), value.getLocalPart(), newPrefix)));
