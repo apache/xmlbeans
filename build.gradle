@@ -2,6 +2,7 @@ plugins {
     id 'java'
     id 'java-library'
     id 'idea'
+    id 'distribution'
 }
 
 sourceCompatibility = JavaVersion.VERSION_1_8
@@ -211,6 +212,15 @@ task unpackTranXml(type: Copy) {
 
 sTRANXML_SchemaGen.dependsOn 'unpackTranXml'
 
+java {
+    withJavadocJar()
+    withSourcesJar()
+}
+
+task allJavaDoc(type: Javadoc) {
+    source sourceSets.main.allJava
+}
+
 compileTestJava {
     dependsOn 'jar'
     dependsOn testSchemas.collect {"${it.name}_SchemaGen" }
@@ -269,6 +279,8 @@ idea {
 jar {
     dependsOn 'cacheJava9'
 
+    archiveBaseName = "xmlbeans-${XMLBeansVersion}"
+
     from(project.rootDir) {
         include 'NOTICE.txt'
         include 'LICENSE.txt'
@@ -285,16 +297,57 @@ jar {
     manifest {
         attributes('Multi-Release':'true')
         attributes([
-                'Comment': "Apache XmlBeans version ${project.version}",
+                'Comment': "Apache XmlBeans version ${XMLBeansVersion}",
                 'Specification-Title': 'Apache XmlBeans',
-                'Specification-Version': project.version,
+                'Specification-Version': XMLBeansVersion,
                 'Specification-Vendor': 'The Apache Software Foundation',
                 'Implementation-Title': 'Apache XmlBeans',
-                'Implementation-Version': project.version,
+                'Implementation-Version': XMLBeansVersion,
                 'Implementation-Vendor': 'org.apache.xmlbeans',
                 'Implementation-Vendor-Id': 'The Apache Software Foundation'
         ], 'org/apache/xmlbeans/'
         )
+    }
+}
+
+distributions {
+//    dependsOn 'jar'
+
+    def version = XMLBeansVersion
+    def date = new Date().format('yyyyMMdd')
+    String root = "xmlbeans-${version}/"
+
+    def xbDep = configurations.compileClasspath
+
+    bin {
+        // for this to work, project.version shouldn't be defined
+        distributionBaseName = "xmlbeans-bin-${version}-${date}"
+
+        contents {
+            from('build/libs') {
+                include 'xmlbeans-*.jar'
+                include 'log4j-api*.jar'
+                into 'lib'
+            }
+            from ('xkit')
+            from ('samples') {
+                into 'samples'
+            }
+            from ('src/main/shell') {
+                into 'bin'
+            }
+            from ('.') {
+                include 'LICENSE.txt'
+                include 'NOTICE.txt'
+            }
+
+            includeEmptyDirs = false
+            duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+
+            eachFile {
+                path = root + path.replaceAll("^[^/]+/","")
+            }
+        }
     }
 }
 
@@ -305,3 +358,4 @@ Set<File> xsdDirs(File parent) {
     }
     return xsdDirs
 }
+

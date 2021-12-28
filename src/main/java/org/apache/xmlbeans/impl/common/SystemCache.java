@@ -39,7 +39,7 @@ public class SystemCache {
         INSTANCE = instance;
     }
 
-    public static SystemCache get() {
+    public static synchronized SystemCache get() {
         return INSTANCE;
     }
 
