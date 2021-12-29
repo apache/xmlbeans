@@ -80,7 +80,7 @@ public class CodeGenUtil {
     /**
      * Invokes javac on the generated source files in order to turn them
      * into binary files in the output directory.  This will return a list of
-     * <code>GenFile</code>s for all of the classes produced or null if an
+     * {@code GenFile}s for all of the classes produced or null if an
      * error occurred.
      *
      * @deprecated
@@ -97,7 +97,7 @@ public class CodeGenUtil {
     /**
      * Invokes javac on the generated source files in order to turn them
      * into binary files in the output directory.  This will return a list of
-     * <code>GenFile</code>s for all of the classes produced or null if an
+     * {@code GenFile}s for all of the classes produced or null if an
      * error occurred.
      */
     public static boolean externalCompile(List<File> srcFiles, File outdir, File[] cp, boolean debug, String javacPath, String genver, String memStart, String memMax, boolean quiet, boolean verbose) {

@@ -50,7 +50,7 @@ public class StscChecker {
 
     /**
      * The following code checks rule #5 of http://www.w3.org/TR/xmlschema-1/#coss-ct
-     * as well as attribute + element default/fixed validity. <p/>
+     * as well as attribute + element default/fixed validity.<p>
      * Checks that xs:NOTATION is not used directly
      */
     public static void checkFields(SchemaTypeImpl sType) {
@@ -448,7 +448,6 @@ public class StscChecker {
      * @param errors       - Invalid restriction errors are put into this collection
      * @param context      . the context
      * @return boolean, true if valid restruction, false if invalid restriction
-     * @
      */
     public static boolean isParticleValidRestriction(SchemaParticle baseModel, SchemaParticle derivedModel, Collection<XmlError> errors, XmlObject context) {
         boolean restrictionValid = false;

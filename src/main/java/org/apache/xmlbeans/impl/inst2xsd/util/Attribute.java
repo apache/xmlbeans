@@ -16,9 +16,6 @@ package org.apache.xmlbeans.impl.inst2xsd.util;
 
 import javax.xml.namespace.QName;
 
-/**
- * @author Cezar Andrei (cezar.andrei at bea.com) Date: Jul 18, 2004
- */
 public class Attribute
 {
     private QName _name;

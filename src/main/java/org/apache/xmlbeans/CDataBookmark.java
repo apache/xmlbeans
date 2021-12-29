@@ -15,32 +15,32 @@
 package org.apache.xmlbeans;
 
 /**
- * Represents a CDATA bookmark.<p>
+ * Represents a CDATA bookmark.
  * <p>
  * When XmlOption UseCDataBookmarks is setted on parse methods,
  * the loader will set these CDataBookmarks in the store on the respective
- * TEXT fields that were represented as CDATA.<p>
+ * TEXT fields that were represented as CDATA.
  * <p>
  * Users can modify the 'look' of TEXT fields, by annotating them with
- * this bookmark, or remove the bookmark.<p>
+ * this bookmark, or remove the bookmark.
  * <p>
  * Additionaly if setted on save methods, the output will look for these
  * bookmarks and will output the text as CDATA.
  * Note: The SaveCDataEntityCountThreshold and SaveCDataLengthThreshold
- * options and their default values still apply.<p>
+ * options and their default values still apply.
  * <p>
  * Note: Due to the store representation, a CDATA will not be recognized
  * if it is imediately after non CDATA text and all text following it will
  * be considered CDATA.<br>
  * Example:<br>
- * <pre>
- * &lt;a&gt;&lt;![CDATA[cdata text]]&gt;&lt;/a&gt;               - is considered as: &lt;a&gt;&lt;![CDATA[cdata text]]&gt;&lt;/a&gt;
- * &lt;b&gt;&lt;![CDATA[cdata text]]&gt; regular text&lt;/b&gt;  - is considered as: &lt;b&gt;&lt;![CDATA[cdata text regular text]]&gt;&lt;/b&gt;
- * &lt;c&gt;text &lt;![CDATA[cdata text]]&gt;&lt;/c&gt;          - is considered as: &lt;c&gt;text cdata text&lt;/c&gt;
- * </pre>
+ * <pre>{@code
+ * <a><![CDATA[cdata text]]></a>               - is considered as: <a><![CDATA[cdata text]]></a>
+ * <b><![CDATA[cdata text]]> regular text</b>  - is considered as: <b><![CDATA[cdata text regular text]]></b>
+ * <c>text <![CDATA[cdata text]]></c>          - is considered as: <c>text cdata text</c>
+ * }</pre>
  *
  * @see XmlOptions#setUseCDataBookmarks()
- * @see org.apache.xmlbeans.XmlObject.Factory#parse(String, XmlOptions)
+ * @see org.apache.xmlbeans.impl.schema.XmlObjectFactory#parse(String, XmlOptions)
  * @see org.apache.xmlbeans.XmlObject#save(java.io.OutputStream, XmlOptions)
  * @see XmlOptions#setSaveCDataEntityCountThreshold(int)
  * @see XmlOptions#setSaveCDataLengthThreshold(int)

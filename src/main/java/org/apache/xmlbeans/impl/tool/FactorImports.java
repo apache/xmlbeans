@@ -29,7 +29,7 @@ import java.util.*;
 /**
  * This program takes a collection of .xsd files as input, finds all duplicate
  * name definitions, and factors out the first instance of each of those into
- * a common.xsd file, adding an appropriate <import> statement in the original
+ * a common.xsd file, adding an appropriate {@code <import>} statement in the original
  * xsd file.
  */
 public class FactorImports {

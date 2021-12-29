@@ -14,19 +14,15 @@
  */
 package org.apache.xmlbeans.impl.validator;
 
-import org.apache.xmlbeans.SchemaType;
-import org.apache.xmlbeans.SchemaTypeLoader;
-import org.apache.xmlbeans.XmlCursor;
-import org.apache.xmlbeans.XmlError;
-import org.apache.xmlbeans.XmlOptions;
+import org.apache.xmlbeans.*;
+import org.apache.xmlbeans.impl.common.QNameHelper;
 import org.apache.xmlbeans.impl.common.ValidatorListener;
 import org.apache.xmlbeans.impl.common.XmlWhitespace;
-import org.apache.xmlbeans.impl.common.QNameHelper;
 
 import javax.xml.namespace.QName;
+import javax.xml.stream.Location;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
-import javax.xml.stream.Location;
 import javax.xml.stream.events.XMLEvent;
 import javax.xml.stream.util.StreamReaderDelegate;
 import java.util.ArrayList;
@@ -36,17 +32,14 @@ import java.util.List;
 /**
  * This class is a wrapper over a generic XMLStreamReader that provides validation.
  * There are 3 cases:
- * <br/> 1) the XMLStreamReader represents a document, it contains only one element document
+ * <br> 1) the XMLStreamReader represents a document, it contains only one element document
  *          - in this case the user schema type should be null or it should be a document SchemaType
- * <br/> 2) the XMLStreamReader represents an xml-fragment (content only) - must have at least one user type or xsi:type
- * <br/>     a) it has an xsi:type - if user schema type is available it has to be a base type of xsi:type
- * <br/>     b) it doesn't have xsi:type - user must provide a schema type
+ * <br> 2) the XMLStreamReader represents an xml-fragment (content only) - must have at least one user type or xsi:type
+ * <br>     a) it has an xsi:type - if user schema type is available it has to be a base type of xsi:type
+ * <br>     b) it doesn't have xsi:type - user must provide a schema type
  *         otherwise will error and will not do validation
- * <br/> 3) the XMLStreamReader represents a global attribute - i.e. user schema type is null and only one attribute
- * <br/>
- *
- * @author Cezar Andrei (cezar.andrei at bea.com)
- * Date: Feb 13, 2004
+ * <br> 3) the XMLStreamReader represents a global attribute - i.e. user schema type is null and only one attribute
+ * <br>
  */
 public class ValidatingXMLStreamReader
     extends StreamReaderDelegate

@@ -33,8 +33,6 @@ import java.util.Map;
  * Same as {@link BuiltinSchemaTypeSystem} but adds three extra types
  * (<i>dayTimeDuration</i>, <i>yearMonthDuration</i> and <i>anyAtomicType</i>)
  * and makes all the primitives extend <i>anyAtomicType</i>.
- *
- * @author Radu Preotiuc
  */
 @SuppressWarnings("unused")
 public class XQuerySchemaTypeSystem extends SchemaTypeLoaderBase implements

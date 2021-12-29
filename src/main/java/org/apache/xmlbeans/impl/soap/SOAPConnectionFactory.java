@@ -16,25 +16,25 @@
 package org.apache.xmlbeans.impl.soap;
 
 /**
- * A factory for creating <code>SOAPConnection</code> objects. Implementation of
- * this class is optional. If <code>SOAPConnectionFactory.newInstance()</code>
- * throws an <code>UnsupportedOperationException</code> then the implementation
+ * A factory for creating {@code SOAPConnection} objects. Implementation of
+ * this class is optional. If {@code SOAPConnectionFactory.newInstance()}
+ * throws an {@code UnsupportedOperationException} then the implementation
  * does not support the SAAJ communication infrastructure. Otherwise
- * <code>SOAPConnection</code> objects can be created by calling
- * <code>createConnection()</code> on the newly created
- * <code>SOAPConnectionFactory</code> object.
+ * {@code SOAPConnection} objects can be created by calling
+ * {@code createConnection()} on the newly created
+ * {@code SOAPConnectionFactory} object.
  */
 public abstract class SOAPConnectionFactory {
 
     public SOAPConnectionFactory() {}
 
     /**
-     * Creates an instance of the default <CODE>
-     * SOAPConnectionFactory</CODE> object.
-     * @return a new instance of a default <CODE>
-     *     SOAPConnectionFactory</CODE> object
+     * Creates an instance of the default {@code
+     * SOAPConnectionFactory} object.
+     * @return a new instance of a default {@code
+     *     SOAPConnectionFactory} object
      * @throws  SOAPException  if there was an error creating
-     *     the <CODE>SOAPConnectionFactory
+     *     the {@code SOAPConnectionFactory}
      * @throws UnsupportedOperationException  if newInstance is not supported.
      */
     public static SOAPConnectionFactory newInstance()
@@ -50,10 +50,10 @@ public abstract class SOAPConnectionFactory {
     }
 
     /**
-     * Create a new <CODE>SOAPConnection</CODE>.
-     * @return the new <CODE>SOAPConnection</CODE> object.
+     * Create a new {@code SOAPConnection}.
+     * @return the new {@code SOAPConnection} object.
      * @throws  SOAPException if there was an exception
-     *     creating the <CODE>SOAPConnection</CODE> object.
+     *     creating the {@code SOAPConnection} object.
      */
     public abstract SOAPConnection createConnection() throws SOAPException;
 

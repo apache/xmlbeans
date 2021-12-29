@@ -19,14 +19,14 @@ import java.util.Iterator;
 import java.util.Vector;
 
 /**
- * A container for <CODE>MimeHeader</CODE> objects, which
+ * A container for {@code MimeHeader} objects, which
  *   represent the MIME headers present in a MIME part of a
- *   message.</P>
- *
- *   <P>This class is used primarily when an application wants to
+ *   message.
+ *   <P>
+ *   This class is used primarily when an application wants to
  *   retrieve specific attachments based on certain MIME headers and
  *   values. This class will most likely be used by implementations
- *   of <CODE>AttachmentPart</CODE> and other MIME dependent parts
+ *   of {@code AttachmentPart} and other MIME dependent parts
  *   of the JAXM API.
  * @see SOAPMessage#getAttachments() SOAPMessage.getAttachments()
  * @see AttachmentPart AttachmentPart
@@ -47,8 +47,8 @@ public class MimeHeaders {
                            : mimeheader;
                 }
 
-                for (int i = 0; i < names.length; i++) {
-                    if (!mimeheader.getName().equalsIgnoreCase(names[i])) {
+                for (String name : names) {
+                    if (!mimeheader.getName().equalsIgnoreCase(name)) {
                         continue;
                     }
 
@@ -97,15 +97,15 @@ public class MimeHeaders {
             iterator.remove();
         }
 
-        private boolean match;
+        private final boolean match;
 
-        private Iterator iterator;
+        private final Iterator iterator;
 
-        private String names[];
+        private final String[] names;
 
         private Object nextHeader;
 
-        MatchingIterator(String as[], boolean flag) {
+        MatchingIterator(String[] as, boolean flag) {
 
             match    = flag;
             names    = as;
@@ -115,8 +115,8 @@ public class MimeHeaders {
 
     /**
      * Constructs
-     *   a default <CODE>MimeHeaders</CODE> object initialized with
-     *   an empty <CODE>Vector</CODE> object.
+     *   a default {@code MimeHeaders} object initialized with
+     *   an empty {@code Vector} object.
      */
     public MimeHeaders() {
         headers = new Vector();
@@ -124,10 +124,10 @@ public class MimeHeaders {
 
     /**
      * Returns all of the values for the specified header as an
-     * array of <CODE>String</CODE> objects.
+     * array of {@code String} objects.
      * @param   name  the name of the header for which
      *     values will be returned
-     * @return a <CODE>String</CODE> array with all of the values
+     * @return a {@code String} array with all of the values
      *     for the specified header
      * @see #setHeader(java.lang.String, java.lang.String) setHeader(java.lang.String, java.lang.String)
      */
@@ -147,7 +147,7 @@ public class MimeHeaders {
         if (vector.size() == 0) {
             return null;
         } else {
-            String as[] = new String[vector.size()];
+            String[] as = new String[vector.size()];
 
             vector.copyInto(as);
 
@@ -163,9 +163,9 @@ public class MimeHeaders {
      *
      *   <P>Note that RFC822 headers can contain only US-ASCII
      *   characters.</P>
-     * @param  name a <CODE>String</CODE> with the
+     * @param  name a {@code String} with the
      *     name of the header for which to search
-     * @param  value a <CODE>String</CODE> with the
+     * @param  value a {@code String} with the
      *     value that will replace the current value of the
      *     specified header
      * @throws java.lang.IllegalArgumentException if there was a
@@ -202,15 +202,15 @@ public class MimeHeaders {
     }
 
     /**
-     * Adds a <CODE>MimeHeader</CODE> object with the specified
-     *   name and value to this <CODE>MimeHeaders</CODE> object's
+     * Adds a {@code MimeHeader} object with the specified
+     *   name and value to this {@code MimeHeaders} object's
      *   list of headers.
      *
      *   <P>Note that RFC822 headers can contain only US-ASCII
      *   characters.</P>
-     * @param  name   a <CODE>String</CODE> with the
+     * @param  name   a {@code String} with the
      *     name of the header to be added
-     * @param  value  a <CODE>String</CODE> with the
+     * @param  value  a {@code String} with the
      *     value of the header to be added
      * @throws java.lang.IllegalArgumentException if
      *     there was a problem in the mime header name or value
@@ -239,9 +239,9 @@ public class MimeHeaders {
     }
 
     /**
-     * Remove all <CODE>MimeHeader</CODE> objects whose name
+     * Remove all {@code MimeHeader} objects whose name
      * matches the the given name.
-     * @param  name  a <CODE>String</CODE> with the
+     * @param  name  a {@code String} with the
      *     name of the header for which to search
      */
     public void removeHeader(String name) {
@@ -256,54 +256,54 @@ public class MimeHeaders {
     }
 
     /**
-     * Removes all the header entries from this <CODE>
-     * MimeHeaders</CODE> object.
+     * Removes all the header entries from this {@code
+     * MimeHeaders} object.
      */
     public void removeAllHeaders() {
         headers.removeAllElements();
     }
 
     /**
-     * Returns all the headers in this <CODE>MimeHeaders</CODE>
+     * Returns all the headers in this {@code MimeHeaders}
      * object.
-     * @return  an <CODE>Iterator</CODE> object over this <CODE>
-     *     MimeHeaders</CODE> object's list of <CODE>
-     *     MimeHeader</CODE> objects
+     * @return  an {@code Iterator} object over this {@code
+     *     MimeHeaders} object's list of {@code
+     *     MimeHeader} objects
      */
     public Iterator getAllHeaders() {
         return headers.iterator();
     }
 
     /**
-     * Returns all the <CODE>MimeHeader</CODE> objects whose
+     * Returns all the {@code MimeHeader} objects whose
      * name matches a name in the given array of names.
-     * @param   names an array of <CODE>String</CODE>
+     * @param   names an array of {@code String}
      *    objects with the names for which to search
-     * @return  an <CODE>Iterator</CODE> object over the <CODE>
-     *     MimeHeader</CODE> objects whose name matches one of the
+     * @return  an {@code Iterator} object over the {@code
+     *     MimeHeader} objects whose name matches one of the
      *     names in the given list
      */
-    public Iterator getMatchingHeaders(String names[]) {
+    public Iterator getMatchingHeaders(String[] names) {
         return new MatchingIterator(names, true);
     }
 
     /**
-     * Returns all of the <CODE>MimeHeader</CODE> objects whose
+     * Returns all of the {@code MimeHeader} objects whose
      * name does not match a name in the given array of names.
-     * @param   names  an array of <CODE>String</CODE>
+     * @param   names  an array of {@code String}
      *     objects with the names for which to search
-     * @return an <CODE>Iterator</CODE> object over the <CODE>
-     *     MimeHeader</CODE> objects whose name does not match one
+     * @return an {@code Iterator} object over the {@code
+     *     MimeHeader} objects whose name does not match one
      *     of the names in the given list
      */
-    public Iterator getNonMatchingHeaders(String names[]) {
+    public Iterator getNonMatchingHeaders(String[] names) {
         return new MatchingIterator(names, false);
     }
 
     // fixme: does this need to be a Vector? Will a non-synchronized impl of
     // List do?
     /**
-     * A <code>Vector</code> containing the headers as <code>MimeHeader</code>
+     * A {@code Vector} containing the headers as {@code MimeHeader}
      *              instances.
      */
     protected Vector headers;

@@ -24,102 +24,102 @@ import java.util.Locale;
  * element in a SOAP message. A SOAP body element consists of XML data
  * that affects the way the application-specific content is processed.
  * <P>
- * A <code>SOAPBody</code> object contains <code>SOAPBodyElement</code>
+ * A {@code SOAPBody} object contains {@code SOAPBodyElement}
  * objects, which have the content for the SOAP body.
- * A <code>SOAPFault</code> object, which carries status and/or
- * error information, is an example of a <code>SOAPBodyElement</code> object.
+ * A {@code SOAPFault} object, which carries status and/or
+ * error information, is an example of a {@code SOAPBodyElement} object.
  * @see SOAPFault SOAPFault
  */
 public interface SOAPBody extends SOAPElement {
 
     /**
-     * Creates a new <code>SOAPFault</code> object and adds it to
-     * this <code>SOAPBody</code> object.
-     * @return the new <code>SOAPFault</code> object
+     * Creates a new {@code SOAPFault} object and adds it to
+     * this {@code SOAPBody} object.
+     * @return the new {@code SOAPFault} object
      * @throws  SOAPException if there is a SOAP error
      */
-    public abstract SOAPFault addFault() throws SOAPException;
+    SOAPFault addFault() throws SOAPException;
 
     /**
-     * Indicates whether a <code>SOAPFault</code> object exists in
-     * this <code>SOAPBody</code> object.
-     * @return <code>true</code> if a <code>SOAPFault</code> object exists in
-     *     this <code>SOAPBody</code> object; <code>false</code>
+     * Indicates whether a {@code SOAPFault} object exists in
+     * this {@code SOAPBody} object.
+     * @return {@code true} if a {@code SOAPFault} object exists in
+     *     this {@code SOAPBody} object; {@code false}
      *     otherwise
      */
-    public abstract boolean hasFault();
+    boolean hasFault();
 
     /**
-     * Returns the <code>SOAPFault</code> object in this <code>SOAPBody</code>
+     * Returns the {@code SOAPFault} object in this {@code SOAPBody}
      * object.
-     * @return the <code>SOAPFault</code> object in this <code>SOAPBody</code>
+     * @return the {@code SOAPFault} object in this {@code SOAPBody}
      *    object
      */
-    public abstract SOAPFault getFault();
+    SOAPFault getFault();
 
     /**
-     * Creates a new <code>SOAPBodyElement</code> object with the
-     * specified name and adds it to this <code>SOAPBody</code> object.
-     * @param name a <code>Name</code> object with the name for the new
-     *   <code>SOAPBodyElement</code> object
-     * @return the new <code>SOAPBodyElement</code> object
+     * Creates a new {@code SOAPBodyElement} object with the
+     * specified name and adds it to this {@code SOAPBody} object.
+     * @param name a {@code Name} object with the name for the new
+     *   {@code SOAPBodyElement} object
+     * @return the new {@code SOAPBodyElement} object
      * @throws SOAPException  if a SOAP error occurs
      */
-    public abstract SOAPBodyElement addBodyElement(Name name)
+    SOAPBodyElement addBodyElement(Name name)
         throws SOAPException;
 
     /**
-     * Creates a new <code>SOAPFault</code> object and adds it to this
-     * <code>SOAPBody</code> object. The new <code>SOAPFault</code> will have a
-     * <code>faultcode</code> element that is set to the <code>faultCode</code>
-     * parameter and a <code>faultstring</code> set to <code>faultstring</code>
-     * and localized to <code>locale</code>.
+     * Creates a new {@code SOAPFault} object and adds it to this
+     * {@code SOAPBody} object. The new {@code SOAPFault} will have a
+     * {@code faultcode} element that is set to the {@code faultCode}
+     * parameter and a {@code faultstring} set to {@code faultstring}
+     * and localized to {@code locale}.
      *
-     * @param faultCode a <code>Name</code> object giving the fault code to be
+     * @param faultCode a {@code Name} object giving the fault code to be
      *              set; must be one of the fault codes defined in the SOAP 1.1
      *              specification and of type QName
-     * @param faultString a <code>String</code> giving an explanation of the
+     * @param faultString a {@code String} giving an explanation of the
      *              fault
-     * @param locale a <code>Locale</code> object indicating the native language
-     *              of the <ocde>faultString</code>
-     * @return the new <code>SOAPFault</code> object
+     * @param locale a {@code Locale} object indicating the native language
+     *              of the {@code faultString}
+     * @return the new {@code SOAPFault} object
      * @throws SOAPException  if there is a SOAP error
      */
-    public abstract SOAPFault addFault(Name faultCode,
-                                       String faultString,
-                                       Locale locale) throws SOAPException;
+    SOAPFault addFault(Name faultCode,
+                       String faultString,
+                       Locale locale) throws SOAPException;
 
     /**
-     * Creates a new <code>SOAPFault</code> object and adds it to this
-     * <code>SOAPBody</code> object. The new <code>SOAPFault</code> will have a
-     * <code>faultcode</code> element that is set to the <code>faultCode</code>
-     * parameter and a <code>faultstring</code> set to <code>faultstring</code>.
+     * Creates a new {@code SOAPFault} object and adds it to this
+     * {@code SOAPBody} object. The new {@code SOAPFault} will have a
+     * {@code faultcode} element that is set to the {@code faultCode}
+     * parameter and a {@code faultstring} set to {@code faultstring}.
      *
-     * @param faultCode a <code>Name</code> object giving the fault code to be
+     * @param faultCode a {@code Name} object giving the fault code to be
      *              set; must be one of the fault codes defined in the SOAP 1.1
      *              specification and of type QName
-     * @param faultString a <code>String</code> giving an explanation of the
+     * @param faultString a {@code String} giving an explanation of the
      *              fault
-     * @return the new <code>SOAPFault</code> object
+     * @return the new {@code SOAPFault} object
      * @throws SOAPException  if there is a SOAP error
      */
-    public abstract SOAPFault addFault(Name faultCode, String faultString) throws SOAPException;
+    SOAPFault addFault(Name faultCode, String faultString) throws SOAPException;
 
     /**
-     * Adds the root node of the DOM <code>Document</code> to this
-     * <code>SOAPBody</code> object.
+     * Adds the root node of the DOM {@code Document} to this
+     * {@code SOAPBody} object.
      * <p>
-     * Calling this method invalidates the <code>document</code> parameter. The
+     * Calling this method invalidates the {@code document} parameter. The
      * client application should discard all references to this
-     * <code>Document</code> and its contents upon calling
-     * <code>addDocument</code>. The behavior of an application that continues
+     * {@code Document} and its contents upon calling
+     * {@code addDocument}. The behavior of an application that continues
      * to use such references is undefined.
      *
-     * @param document the <code>Document</code> object whose root node will be
-     *              added to this <code>SOAPBody</code>
-     * @return the <code>SOAPBodyElement</code> that represents the root node
+     * @param document the {@code Document} object whose root node will be
+     *              added to this {@code SOAPBody}
+     * @return the {@code SOAPBodyElement} that represents the root node
      *              that was added
-     * @throws SOAPException if the <code>Document</code> cannot be added
+     * @throws SOAPException if the {@code Document} cannot be added
      */
-    public abstract SOAPBodyElement addDocument(Document document) throws SOAPException;
+    SOAPBodyElement addDocument(Document document) throws SOAPException;
     }

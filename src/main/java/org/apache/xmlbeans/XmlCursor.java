@@ -26,7 +26,7 @@ import java.util.Map;
  * <p>
  * The tokens themselves are not exposed as objects, but their type and properties
  * are discoverable through methods on the cursor.  In particular, the general
- * category of token is represented by a {@link XmlCursor.TokenType TokenType}.<br/><br/>
+ * category of token is represented by a {@link XmlCursor.TokenType TokenType}.
  * <p>
  * You use an XmlCursor instance to navigate through and manipulate an XML
  * instance document.
@@ -37,9 +37,9 @@ import java.util.Map;
  * calling the {@link XmlTokenSource#newCursor() newCursor} method
  * exposed by an object representing
  * the XML, whether it was parsed into a strong type compiled from
- * schema or an {@link XmlObject XmlObject} (as in the no-schema case).<br/><br/>
+ * schema or an {@link XmlObject XmlObject} (as in the no-schema case).
  * <p>
- * With an XmlCursor, you can also: <br/><br/>
+ * With an XmlCursor, you can also:
  *
  * <ul>
  * <li>Execute XQuery and XPath expressions against the XML with the
@@ -60,7 +60,7 @@ import java.util.Map;
  * its end, an attribute, comment, and so on. XmlCursor methods such as
  * toNextToken, toNextSibling, toParent, and so on move the cursor
  * among tokens. Each token's category is of a particular <em>type</em>, represented
- * by one of the nine types defined by the {@link XmlCursor.TokenType TokenType} class. <br/><br/>
+ * by one of the nine types defined by the {@link XmlCursor.TokenType TokenType} class.
  * <p>
  * When you get a new cursor for a whole instance document, the cursor is
  * intially located before the STARTDOC token. This token, which has no analogy
@@ -71,11 +71,11 @@ import java.util.Map;
  * located immediately before this token is at the very end of the document.
  * It is not possible to position the cursor after the ENDDOC token.
  * Thus, the STARTDOC and ENDDOC tokens are effectively "bookends" for the content of
- * the document.<br/><br/>
+ * the document.
  * <p>
  * For example, for the following XML, if you were the navigate a cursor
  * through the XML document using toNextToken(), the list of token types that
- * follows represents the token sequence you would encounter. <br/><br/>
+ * follows represents the token sequence you would encounter.
  *
  * <pre>
  * &lt;sample x='y'&gt;
@@ -83,21 +83,21 @@ import java.util.Map;
  * &lt;/sample&gt;
  * </pre>
  * <p>
- * STARTDOC <br/>
- * START (sample) <br/>
- * ATTR (x='y') <br/>
- * TEXT ("\n    ") <br/>
- * START (value) <br/>
- * TEXT ("foo") <br/>
- * END (value) <br/>
- * TEXT ("\n") <br/>
- * END (sample)<br/>
- * ENDDOC <br/><br/>
+ * STARTDOC <br>
+ * START (sample) <br>
+ * ATTR (x='y') <br>
+ * TEXT ("\n    ") <br>
+ * START (value) <br>
+ * TEXT ("foo") <br>
+ * END (value) <br>
+ * TEXT ("\n") <br>
+ * END (sample)<br>
+ * ENDDOC
  * <p>
  * When there are no more tokens available, hasNextToken() returns
  * false and toNextToken() returns the special token type NONE and does not move
  * the cursor.
- * <br/><br/>
+ *
  * <p>
  * The {@link #currentTokenType() currentTokenType()} method
  * will return the type of the token that is immediately after the cursor.
@@ -106,16 +106,16 @@ import java.util.Map;
  * isStartdoc(), isText(), isAttr(), and so on. Each returns a boolean
  * value indicating whether the token that follows the cursor is the type
  * in question.
- * <br/><br/>
+ *
  * <p>
  * A few other methods determine whether the token is of a kind that may include
  * multiple token types. The isAnyAttr() method, for example, returns true if
  * the token immediately following the cursor is any kind of attribute,
  * including those of the ATTR token type and xmlns attributes.
- * <br/><br/>
+ *
  * <p>
  * Legitimate sequences of tokens for an XML document are described
- * by the following Backus-Naur Form (BNF): <br/>
+ * by the following Backus-Naur Form (BNF): <br>
  *
  * <pre>
  * &lt;doc&gt; ::= STARTDOC &lt;attributes&gt; &lt;content&gt; ENDDOC
@@ -330,14 +330,14 @@ public interface XmlCursor extends XmlTokenSource {
      * Deallocates resources needed to manage the cursor, rendering this cursor
      * inoperable. Because cursors are managed by a mechanism which stores the
      * XML, simply letting a cursor go out of scope and having the garbage collector
-     * attempt to reclaim it may not produce desirable performance.<br/><br/>
+     * attempt to reclaim it may not produce desirable performance.
      * <p>
      * So, explicitly disposing a cursor allows the underlying implementation
-     * to release its responsibility of maintaining its position.<br/><br/>
+     * to release its responsibility of maintaining its position.
      * <p>
      * After a cursor has been disposed, it may not be used again.  It can
      * throw IllegalStateException or NullPointerException if used after
-     * disposal.<br/><br/>
+     * disposal.
      */
 
     void dispose();
@@ -374,7 +374,7 @@ public interface XmlCursor extends XmlTokenSource {
      * Executes the specified XPath expression against the XML that this
      * cursor is in.  The cursor's position does not change.  To navigate to the
      * selections, use {@link #hasNextSelection} and {@link #toNextSelection} (similar to
-     * {@link java.util.Iterator}).<br/><br/>
+     * {@link java.util.Iterator}).
      * <p>
      * The root referred to by the expression should be given as
      * a dot. The following is an example path expression:
@@ -393,7 +393,7 @@ public interface XmlCursor extends XmlTokenSource {
      * Executes the specified XPath expression against the XML that this
      * cursor is in. The cursor's position does not change.  To navigate to the
      * selections, use hasNextSelection and toNextSelection (similar to
-     * java.util.Iterator).<br/><br/>
+     * java.util.Iterator).
      * <p>
      * The root referred to by the expression should be given as
      * a dot. The following is an example path expression:
@@ -519,7 +519,7 @@ public interface XmlCursor extends XmlTokenSource {
      * the URI is the namespace defined. For PROCINST, the local part
      * is the target and the uri is "".
      * <p>
-     * In the following example, <code>xmlObject</code> represents
+     * In the following example, {@code xmlObject} represents
      * an XML instance whose root element is not preceded by any other XML.
      * This code prints the root element name (here, the local name, or
      * name without URI).
@@ -552,7 +552,7 @@ public interface XmlCursor extends XmlTokenSource {
      * then parents are queried. The prefix can be "" or null to indicate
      * a search for the default namespace.  To conform with the
      * XML spec, the default namespace will return the no-namespace ("")
-     * if it is not mapped.<br/><br/>
+     * if it is not mapped.
      * <p>
      * Note that this queries the current state of the document. When the
      * document is persisted, the saving mechanism may synthesize namespaces
@@ -599,11 +599,11 @@ public interface XmlCursor extends XmlTokenSource {
 
     /**
      * Returns the strongly-typed XmlObject at the current START,
-     * STARTDOC, or ATTR. <br/><br/>
+     * STARTDOC, or ATTR.
      * <p>
      * The strongly-typed object can be cast to the strongly-typed
      * XBean interface corresponding to the XML Schema Type given
-     * by result.getSchemaType().<br/><br/>
+     * by result.getSchemaType().
      * <p>
      * If a more specific type cannot be determined, an XmlObject
      * whose schema type is anyType will be returned.
@@ -618,14 +618,14 @@ public interface XmlCursor extends XmlTokenSource {
      * Returns the type of the current token. By definition, the current
      * token is the token immediately to the right of the cursor.
      * If you're in the middle of text, before a character, you get TEXT.
-     * You can't dive into the text of an ATTR, COMMENT or PROCINST.<br/><br/>
+     * You can't dive into the text of an ATTR, COMMENT or PROCINST.
      * <p>
      * As an alternative, it may be more convenient for you to use one of the
      * methods that test for a particular token type. These include the methods
      * isStart(), isStartdoc(), isText(), isAttr(), and so on. Each returns a boolean
      * value indicating whether the token that follows the cursor is the type
      * in question.
-     * <br/><br/>
+     *
      *
      * @return The TokenType instance for the token at the cursor's current
      * location.
@@ -755,7 +755,7 @@ public interface XmlCursor extends XmlTokenSource {
 
     /**
      * Returns the type of the previous token. By definition, the previous
-     * token is the token immediately to the left of the cursor.<br/><br/>
+     * token is the token immediately to the left of the cursor.
      * <p>
      * If you're in the middle of text, after a character, you get TEXT.
      *
@@ -811,11 +811,11 @@ public interface XmlCursor extends XmlTokenSource {
     /**
      * Moves the cursor to the first token in the content of the current
      * START or STARTDOC. That is, the first token after all ATTR and NAMESPACE
-     * tokens associated with this START.<br/><br/>
+     * tokens associated with this START.
      * <p>
      * If the current token is not a START or STARTDOC, the cursor is not
      * moved and NONE is returned. If the current START or STARTDOC
-     * has no content, the cursor is moved to the END or ENDDOC token.<br/><br/>
+     * has no content, the cursor is moved to the END or ENDDOC token.
      *
      * @return The new current token type.
      */
@@ -825,7 +825,7 @@ public interface XmlCursor extends XmlTokenSource {
 
     /**
      * Moves the cursor to the END or ENDDOC token corresponding to the
-     * current START or STARTDOC, and returns END or ENDDOC. <br/><br/>
+     * current START or STARTDOC, and returns END or ENDDOC.
      * <p>
      * If the current token is not a START or STARTDOC, the cursor is not
      * moved and NONE is returned.
@@ -840,10 +840,10 @@ public interface XmlCursor extends XmlTokenSource {
      * stops at the next non-TEXT token. Returns the number of characters
      * actually moved across, which is guaranteed to be less than or equal to
      * <em>maxCharacterCount</em>. If there is no further text, or if
-     * there is no text at all, returns zero.<br/><br/>
+     * there is no text at all, returns zero.
      * <p>
      * Note this does not dive into attribute values, comment contents,
-     * processing instruction contents, etc., but only content text.<br/><br/>
+     * processing instruction contents, etc., but only content text.
      * <p>
      * You can pass maxCharacterCount &lt; 0 to move over all the text to the
      * right. This has the same effect as toNextToken, but returns the amount
@@ -897,7 +897,7 @@ public interface XmlCursor extends XmlTokenSource {
 
     /**
      * Moves the cursor to the parent element or STARTDOC, or returns
-     * false and does not move the cursor if there is no parent.<br/><br/>
+     * false and does not move the cursor if there is no parent.
      * <p>
      * Works if you're in attributes or content. Returns false only if at
      * STARTDOC. Note that the parent of an END token is the corresponding
@@ -911,7 +911,7 @@ public interface XmlCursor extends XmlTokenSource {
 
     /**
      * Moves the cursor to the first child element, or returns false and
-     * does not move the cursor if there are no element children. <br/><br/>
+     * does not move the cursor if there are no element children.
      * <p>
      * If the cursor is not currently in an element, it moves into the
      * first child element of the next element.
@@ -1019,20 +1019,20 @@ public interface XmlCursor extends XmlTokenSource {
     /**
      * Moves the cursor to the first attribute of this element, or
      * returns false and does not move the cursor if there are no
-     * attributes. The order of attributes is arbitrary, but stable.<br/><br/>
+     * attributes. The order of attributes is arbitrary, but stable.
      * <p>
      * If the cursor is on a STARTDOC of a document-fragment, this method will
-     * move it to the first top level attribute if one exists.<br></br>
+     * move it to the first top level attribute if one exists.
      * <p>
      * xmlns attributes (namespace declarations) are not considered
-     * attributes by this function.<br/><br/>
+     * attributes by this function.
      * <p>
      * The cursor must be on a START or STARTDOC (in the case of a
      * document fragment with top level attributes) for this method to
      * succeed.
      * <p>
      * Example for looping through attributes:
-     * <pre>
+     * <pre>{@code
      *      XmlCursor cursor = ... //cursor on START or STARTDOC
      *      if (cursor.toFirstAttribute())
      *      {
@@ -1044,7 +1044,7 @@ public interface XmlCursor extends XmlTokenSource {
      *          }
      *          while (cursor.toNextAttribute());
      *      }
-     * </pre>
+     * }</pre>
      *
      * @return true if the cursor was moved; otherwise, false.
      */
@@ -1054,10 +1054,10 @@ public interface XmlCursor extends XmlTokenSource {
     /**
      * Moves the cursor to the last attribute of this element, or
      * returns false and does not move the cursor if there are no
-     * attributes. The order of attributes is arbitrary, but stable.<br/><br/>
+     * attributes. The order of attributes is arbitrary, but stable.
      * <p>
      * xmlns attributes (namespace declarations) are not considered
-     * attributes by this function.<br/><br/>
+     * attributes by this function.
      * <p>
      * The cursor must be on a START or STARTDOC for this method
      * to succeed.
@@ -1070,10 +1070,10 @@ public interface XmlCursor extends XmlTokenSource {
     /**
      * Moves the cursor to the next sibling attribute, or returns
      * false and does not move the cursor if there is no next
-     * sibling attribute. The order of attributes is arbitrary, but stable.<br/><br/>
+     * sibling attribute. The order of attributes is arbitrary, but stable.
      * <p>
      * xmlns attributes (namespace declarations) are not considered
-     * attributes by this function.<br/><br/>
+     * attributes by this function.
      * <p>
      * The cursor must be on an attribute for this method to succeed.
      *
@@ -1086,10 +1086,10 @@ public interface XmlCursor extends XmlTokenSource {
     /**
      * Moves the cursor to the previous sibling attribute, or returns
      * false and does not move the cursor if there is no previous
-     * sibling attribute. The order of attributes is arbitrary, but stable.<br/><br/>
+     * sibling attribute. The order of attributes is arbitrary, but stable.
      * <p>
      * xmlns attributes (namespace declarations) are not considered
-     * attributes by this function.<br/><br/>
+     * attributes by this function.
      * <p>
      * The cursor must be on an attribute for this method to succeed.
      *
@@ -1132,24 +1132,24 @@ public interface XmlCursor extends XmlTokenSource {
 
     /**
      * Gets the text value of the current document, element, attribute,
-     * comment, procinst or text token. <br/><br/>
+     * comment, procinst or text token.
      * <p>
      * When getting the text value of an element, non-text content such
      * as comments and processing instructions are ignored and text is concatenated.
      * For elements that have nested element children, this
      * returns the concatenated text of all mixed content and the
      * text of all the element children, recursing in first-to-last
-     * depthfirst order.<br/><br/>
+     * depthfirst order.
      * <p>
-     * For attributes, including namespaces, this returns the attribute value.<br/><br/>
+     * For attributes, including namespaces, this returns the attribute value.
      * <p>
      * For comments and processing instructions, this returns the text content
      * of the comment or PI, not including the delimiting sequences &lt;!-- --&gt;, &lt;? ?&gt;.
      * For a PI, the name of the PI is also not included.
-     * <br/><br/>
-     * The value of an empty tag is the empty string.<br/><br/>
+     *
+     * The value of an empty tag is the empty string.
      * <p>
-     * If the current token is END or ENDDOC, this throws an {@link java.lang.IllegalStateException}.<br/><br/>
+     * If the current token is END or ENDDOC, this throws an {@link java.lang.IllegalStateException}.
      *
      * @return The text value of the current token if the token's type is
      * START, STARTDOC, TEXT, ATTR, COMMENT, PROCINST, or NAMESPACE; null
@@ -1162,24 +1162,24 @@ public interface XmlCursor extends XmlTokenSource {
      * Copies the text value of the current document, element, attribute,
      * comment, processing instruction or text token, counting right from
      * this cursor's location up to <em>maxCharacterCount</em>,
-     * and copies the returned text into <em>returnedChars</em>. <br/><br/>
+     * and copies the returned text into <em>returnedChars</em>.
      * <p>
      * When getting the text value of an element, non-text content such
      * as comments and processing instructions are ignored and text is concatenated.
      * For elements that have nested element children, this
      * returns the concatenated text of all mixed content and the
      * text of all the element children, recursing in first-to-last
-     * depthfirst order.<br/><br/>
+     * depthfirst order.
      * <p>
-     * For attributes, including namespaces, this returns the attribute value.<br/><br/>
+     * For attributes, including namespaces, this returns the attribute value.
      * <p>
      * For comments and processing instructions, this returns the text contents
      * of the comment or PI, not including the delimiting sequences &lt;!-- --&gt;, &lt;? ?&gt;. For
-     * a PI, the text will not include the name of the PI.<br/><br/>
+     * a PI, the text will not include the name of the PI.
      * <p>
-     * If the current token is END or ENDDOC, this throws an {@link java.lang.IllegalStateException}.<br/><br/>
+     * If the current token is END or ENDDOC, this throws an {@link java.lang.IllegalStateException}.
      * <p>
-     * The value of an empty tag is the empty string.<br/><br/>
+     * The value of an empty tag is the empty string.
      *
      * @param returnedChars     A character array to hold the returned characters.
      * @param offset            The position within returnedChars to which the first of the
@@ -1193,17 +1193,8 @@ public interface XmlCursor extends XmlTokenSource {
     int getTextValue(char[] returnedChars, int offset, int maxCharacterCount);
 
     /**
-     * Returns the characters of the current TEXT token.  If the current token
-     * is not TEXT, returns "".  If in the middle of a TEXT token, returns
-     * those chars to the right of the cursor of the TEXT token.
-     *
-     * @return The requested text; an empty string if the current token type is
-     * not TEXT.
-     */
-
-    /**
      * Sets the text value of the XML at this cursor's location if that XML's
-     * token type is START, STARTDOC, ATTR, COMMENT or PROCINST. <br/><br/>
+     * token type is START, STARTDOC, ATTR, COMMENT or PROCINST.
      * <p>
      * For elements that have nested children this first removes all
      * the content of the element and replaces it with the given text.
@@ -1218,7 +1209,7 @@ public interface XmlCursor extends XmlTokenSource {
     /**
      * Sets the text value of the XML at this cursor's location (if that XML's
      * token type is START, STARTDOC, ATTR, COMMENT or PROCINST) to the
-     * contents of the specified character array. <br/><br/>
+     * contents of the specified character array.
      * <p>
      * For elements that have nested children this first removes all
      * the content of the element and replaces it with the given text.
@@ -1288,11 +1279,11 @@ public interface XmlCursor extends XmlTokenSource {
 
     /**
      * Returns an integer indicating whether this cursor is before,
-     * after, or at the same position as the specified cursor. <br/><br/>
+     * after, or at the same position as the specified cursor.
      *
-     * <code>a.comparePosition(b) < 0</code> means a is to the left of b.<br/>
-     * <code>a.comparePosition(b) == 0</code> means a is at the same position as b.<br/>
-     * <code>a.comparePosition(b) > 0</code> means a is to the right of b.<br/><br/>
+     * {@code a.comparePosition(b) < 0} means a is to the left of b.<br>
+     * {@code a.comparePosition(b) == 0} means a is at the same position as b.<br>
+     * {@code a.comparePosition(b) > 0} means a is to the right of b.
      * <p>
      * The sort order of cursors in the document is the token order.
      * For example, if cursor "a" is at a START token and the cursor "b"
@@ -1314,7 +1305,7 @@ public interface XmlCursor extends XmlTokenSource {
     /**
      * Determines if this cursor is to the left of (or before)
      * the specified cursor. Note that this is the same as
-     * <code>a.comparePosition(b) &lt; 0 </code>
+     * {@code a.comparePosition(b) &lt; 0 }
      *
      * @param cursor The cursor whose position should be compared
      *               with this cursor.
@@ -1327,7 +1318,7 @@ public interface XmlCursor extends XmlTokenSource {
     /**
      * Determines if this cursor is at the same position as
      * the specified cursor. Note that this is the same as
-     * <code>a.comparePosition(b) == 0 </code>
+     * {@code a.comparePosition(b) == 0 }
      *
      * @param cursor The cursor whose position should be compared
      *               with this cursor.
@@ -1340,7 +1331,7 @@ public interface XmlCursor extends XmlTokenSource {
     /**
      * Determines if this cursor is to the right of (or after)
      * the specified cursor. Note that this is the same as
-     * <code>a.comparePosition(b) &gt; 0 </code>
+     * {@code a.comparePosition(b) &gt; 0 }
      *
      * @param cursor The cursor whose position should be compared
      *               with this cursor.
@@ -1352,10 +1343,10 @@ public interface XmlCursor extends XmlTokenSource {
 
     /**
      * Executes the specified XQuery expression against the XML this
-     * cursor is in. <br/><br/>
+     * cursor is in.
      * <p>
      * The query may be a String or a compiled query. You can precompile
-     * an XQuery expression using the XmlBeans.compileQuery method. <br/><br>
+     * an XQuery expression using the XmlBeans.compileQuery method.
      * <p>
      * The root referred to by the expression should be given as
      * a dot. The following is an example path expression:
@@ -1372,7 +1363,7 @@ public interface XmlCursor extends XmlTokenSource {
 
     /**
      * Executes the specified XQuery expression against the XML this
-     * cursor is in, and using the specified options. <br/><br/>
+     * cursor is in, and using the specified options.
      *
      * @param query   The XQuery expression to execute.
      * @param options Options for the query. For example, you can call

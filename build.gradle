@@ -217,9 +217,25 @@ java {
     withSourcesJar()
 }
 
-task allJavaDoc(type: Javadoc) {
-    source sourceSets.main.allJava
+
+javadoc {
+    failOnError = true
+    maxMemory = "1024M"
+    doFirst {
+        options {
+            if (JavaVersion.current() != JavaVersion.VERSION_1_8) {
+                addBooleanOption('html5', true)
+            }
+            addBooleanOption('Xdoclint:all,-missing', true)
+            links 'https://poi.apache.org/apidocs/dev/'
+            links 'https://docs.oracle.com/javase/8/docs/api/'
+            links 'https://xmlbeans.apache.org/docs/5.0.0/'
+            source = "1.8"
+        }
+    }
 }
+
+check.dependsOn 'javadoc'
 
 compileTestJava {
     dependsOn 'jar'

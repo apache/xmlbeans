@@ -26,17 +26,17 @@ import java.util.*;
 
 /**
  * Identity constraint engine. Performs streaming validation of identity constraints.
- * This includes key, keyref, & unique, as well as ID & IDRef.
+ * This includes key, keyref and unique, as well as ID and IDRef.
  */
 public class IdentityConstraint {
 
     private ConstraintState _constraintStack;
     private ElementState _elementStack;
-    private Collection _errorListener;
+    private final Collection<XmlError> _errorListener;
     private boolean _invalid;
-    private boolean _trackIdrefs; // We only track idrefs if validating from the root element
+    private final boolean _trackIdrefs; // We only track idrefs if validating from the root element
 
-    public IdentityConstraint(Collection errorListener, boolean trackIdrefs) {
+    public IdentityConstraint(Collection<XmlError> errorListener, boolean trackIdrefs) {
         _errorListener = errorListener;
         _trackIdrefs = trackIdrefs;
     }
@@ -241,7 +241,7 @@ public class IdentityConstraint {
 
     public class SelectorState extends ConstraintState {
         SchemaIdentityConstraint _constraint;
-        Set _values = new LinkedHashSet();
+        Set<XmlObjectList> _values = new LinkedHashSet<>();
         XPathExecutionContext _context;
 
         SelectorState(SchemaIdentityConstraint constraint, Event e, SchemaType st) {
@@ -304,22 +304,21 @@ public class IdentityConstraint {
     }
 
     public class KeyrefState extends SelectorState {
-        Map _keyValues = new HashMap();
-        private Object CHILD_ADDED = new Object();
-        private Object CHILD_REMOVED = new Object();
-        private Object SELF_ADDED = new Object();
+        Map<XmlObjectList,Object> _keyValues = new HashMap<>();
+        private final Object CHILD_ADDED = new Object();
+        private final Object CHILD_REMOVED = new Object();
+        private final Object SELF_ADDED = new Object();
 
         KeyrefState(SchemaIdentityConstraint constraint, Event e, SchemaType st) {
             super(constraint, e, st);
         }
 
-        void addKeyValues(final Set values, boolean child) {
-            /** If the key values are added by children, then if two or
+        void addKeyValues(final Set<XmlObjectList> values, boolean child) {
+            /* If the key values are added by children, then if two or
              more children add the same value, the value dissapears from the map
              but if is added by the element in question directly then it will
              be present in the map regardless of what children contained */
-            for (Iterator it = values.iterator(); it.hasNext(); ) {
-                Object key = it.next();
+            for (XmlObjectList key : values) {
                 Object value = _keyValues.get(key);
                 if (value == null) {
                     _keyValues.put(key, child ? CHILD_ADDED : SELF_ADDED);
@@ -337,7 +336,7 @@ public class IdentityConstraint {
             }
         }
 
-        private boolean hasKeyValue(Object key) {
+        private boolean hasKeyValue(XmlObjectList key) {
             Object value = _keyValues.get(key);
             return value != null && value != CHILD_REMOVED;
         }
@@ -356,9 +355,7 @@ public class IdentityConstraint {
 
 
             // validate all values have been seen
-            for (Iterator it = _values.iterator(); it.hasNext(); ) {
-
-                XmlObjectList fields = (XmlObjectList) it.next();
+            for (XmlObjectList fields : _values) {
                 if (fields.unfilled() < 0 && !hasKeyValue(fields)) {
                     // KHK: cvc-identity-constraint.4.3 ?
                     emitError(e, XmlErrorCodes.IDENTITY_CONSTRAINT_VALID$KEYREF_KEY_NOT_FOUND,
@@ -517,7 +514,7 @@ public class IdentityConstraint {
     }
 
     public class IdState extends ConstraintState {
-        Set _values = new LinkedHashSet();
+        Set<XmlObjectList> _values = new LinkedHashSet<>();
 
         IdState() {
         }
@@ -578,11 +575,11 @@ public class IdentityConstraint {
 
     public class IdRefState extends ConstraintState {
         IdState _ids;
-        List _values;
+        List<XmlObjectList> _values;
 
         IdRefState(IdState ids) {
             _ids = ids;
-            _values = new ArrayList();
+            _values = new ArrayList<>();
         }
 
         private void handleValue(Event e, SchemaType st, String value) {
@@ -606,9 +603,9 @@ public class IdentityConstraint {
                 List l = lv.xgetListValue();
 
                 // Add one value for each idref in the list
-                for (int i = 0; i < l.size(); i++) {
+                for (Object o : l) {
                     XmlObjectList xmlValue = new XmlObjectList(1);
-                    XmlIDREF idref = (XmlIDREF) l.get(i);
+                    XmlIDREF idref = (XmlIDREF) o;
                     xmlValue.set(idref, 0);
                     _values.add(xmlValue);
                 }
@@ -640,8 +637,7 @@ public class IdentityConstraint {
 
         void remove(Event e) {
             // Validate each ref has a corresponding ID
-            for (Iterator it = _values.iterator(); it.hasNext(); ) {
-                Object o = it.next();
+            for (XmlObjectList o : _values) {
                 if (!_ids._values.contains(o)) {
                     // KHK: cvc-id.1
                     emitError(e, "ID not found for IDRef value '" + o + "'");

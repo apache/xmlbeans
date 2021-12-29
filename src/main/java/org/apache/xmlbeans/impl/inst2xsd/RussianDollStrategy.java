@@ -30,10 +30,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * @author Cezar Andrei ( cezar.andrei at bea.com )
- * Date: Jul 26, 2004
- */
 public class RussianDollStrategy
     implements XsdGenStrategy {
     static final String _xsi = "http://www.w3.org/2001/XMLSchema-instance";

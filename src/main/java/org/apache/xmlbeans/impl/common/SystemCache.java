@@ -25,7 +25,7 @@ import java.lang.reflect.InvocationTargetException;
  * By subclassing this, a client of XmlBeans can implement caches that are
  * more suitable for different applications using information that XmlBeans
  * cannot know.
- * <p/>
+ * <p>
  * This class works as a singleton and as a default implementation for the cache.
  * You can set a particular implementation using the "xmlbean.systemcacheimpl"
  * system property or using the static {@link #set(SystemCache)} method.

@@ -14,27 +14,18 @@
  */
 package org.apache.xmlbeans.impl.validator;
 
-import org.apache.xmlbeans.SchemaType;
-import org.apache.xmlbeans.SchemaLocalElement;
-import org.apache.xmlbeans.SchemaParticle;
-import org.apache.xmlbeans.SchemaLocalAttribute;
-import org.apache.xmlbeans.SchemaAttributeModel;
-import org.apache.xmlbeans.GDate;
-import org.apache.xmlbeans.GDuration;
+import org.apache.xmlbeans.*;
 
-import javax.xml.stream.XMLStreamReader;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.events.XMLEvent;
 import javax.xml.namespace.QName;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
+import javax.xml.stream.events.XMLEvent;
 import java.math.BigDecimal;
 import java.util.List;
 
 /**
  * Extension of {@link ValidatingXMLStreamReader} to provide Post Schema Validation Info
  * over an XMLStreamReader.
- *
- * @author Cezar Andrei (cezar.andrei at bea.com)
- *         Date: Aug 17, 2004
  */
 public class ValidatingInfoXMLStreamReader
     extends ValidatingXMLStreamReader

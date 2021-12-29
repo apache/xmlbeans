@@ -23,19 +23,19 @@ import java.util.Iterator;
  *   application-specific content is processed by the message
  *   provider. For example, transaction semantics, authentication
  *   information, and so on, can be specified as the content of a
- *   <CODE>SOAPHeader</CODE> object.</P>
+ *   {@code SOAPHeader} object.</P>
  *
- *   <P>A <CODE>SOAPEnvelope</CODE> object contains an empty <CODE>
- *   SOAPHeader</CODE> object by default. If the <CODE>
- *   SOAPHeader</CODE> object, which is optional, is not needed, it
+ *   <P>A {@code SOAPEnvelope} object contains an empty {@code
+ *   SOAPHeader} object by default. If the {@code
+ *   SOAPHeader} object, which is optional, is not needed, it
  *   can be retrieved and deleted with the following line of code.
- *   The variable <I>se</I> is a <CODE>SOAPEnvelope</CODE>
+ *   The variable <I>se</I> is a {@code SOAPEnvelope}
  *   object.</P>
  * <PRE>
  *     se.getHeader().detachNode();
  * </PRE>
- *   A <CODE>SOAPHeader</CODE> object is created with the <CODE>
- *   SOAPEnvelope</CODE> method <CODE>addHeader</CODE>. This method,
+ *   A {@code SOAPHeader} object is created with the {@code
+ *   SOAPEnvelope} method {@code addHeader}. This method,
  *   which creates a new header and adds it to the envelope, may be
  *   called only after the existing header has been removed.
  * <PRE>
@@ -43,14 +43,14 @@ import java.util.Iterator;
  *     SOAPHeader sh = se.addHeader();
  * </PRE>
  *
- *   <P>A <CODE>SOAPHeader</CODE> object can have only <CODE>
- *   SOAPHeaderElement</CODE> objects as its immediate children. The
- *   method <CODE>addHeaderElement</CODE> creates a new <CODE>
- *   HeaderElement</CODE> object and adds it to the <CODE>
- *   SOAPHeader</CODE> object. In the following line of code, the
- *   argument to the method <CODE>addHeaderElement</CODE> is a
- *   <CODE>Name</CODE> object that is the name for the new <CODE>
- *   HeaderElement</CODE> object.</P>
+ *   <P>A {@code SOAPHeader} object can have only {@code
+ *   SOAPHeaderElement} objects as its immediate children. The
+ *   method {@code addHeaderElement} creates a new {@code
+ *   HeaderElement} object and adds it to the {@code
+ *   SOAPHeader} object. In the following line of code, the
+ *   argument to the method {@code addHeaderElement} is a
+ *   {@code Name} object that is the name for the new {@code
+ *   HeaderElement} object.</P>
  * <PRE>
  *     SOAPHeaderElement shElement = sh.addHeaderElement(name);
  * </PRE>
@@ -59,91 +59,91 @@ import java.util.Iterator;
 public interface SOAPHeader extends SOAPElement {
 
     /**
-     * Creates a new <CODE>SOAPHeaderElement</CODE> object
+     * Creates a new {@code SOAPHeaderElement} object
      * initialized with the specified name and adds it to this
-     * <CODE>SOAPHeader</CODE> object.
-     * @param   name a <CODE>Name</CODE> object with
-     *     the name of the new <CODE>SOAPHeaderElement</CODE>
+     * {@code SOAPHeader} object.
+     * @param   name a {@code Name} object with
+     *     the name of the new {@code SOAPHeaderElement}
      *     object
-     * @return the new <CODE>SOAPHeaderElement</CODE> object that
-     *     was inserted into this <CODE>SOAPHeader</CODE>
+     * @return the new {@code SOAPHeaderElement} object that
+     *     was inserted into this {@code SOAPHeader}
      *     object
      * @throws  SOAPException if a SOAP error occurs
      */
-    public abstract SOAPHeaderElement addHeaderElement(Name name)
+    SOAPHeaderElement addHeaderElement(Name name)
         throws SOAPException;
 
     /**
-     * Returns a list of all the <CODE>SOAPHeaderElement</CODE>
-     * objects in this <CODE>SOAPHeader</CODE> object that have the
+     * Returns a list of all the {@code SOAPHeaderElement}
+     * objects in this {@code SOAPHeader} object that have the
      * the specified actor. An actor is a global attribute that
      * indicates the intermediate parties to whom the message should
      * be sent. An actor receives the message and then sends it to
      * the next actor. The default actor is the ultimate intended
      * recipient for the message, so if no actor attribute is
-     * included in a <CODE>SOAPHeader</CODE> object, the message is
+     * included in a {@code SOAPHeader} object, the message is
      * sent to its ultimate destination.
-     * @param   actor  a <CODE>String</CODE> giving the
+     * @param   actor  a {@code String} giving the
      *     URI of the actor for which to search
-     * @return an <CODE>Iterator</CODE> object over all the <CODE>
-     *     SOAPHeaderElement</CODE> objects that contain the
+     * @return an {@code Iterator} object over all the {@code
+     *     SOAPHeaderElement} objects that contain the
      *     specified actor
      * @see #extractHeaderElements(java.lang.String) extractHeaderElements(java.lang.String)
      */
-    public abstract Iterator examineHeaderElements(String actor);
+    Iterator examineHeaderElements(String actor);
 
     /**
-     * Returns a list of all the <CODE>SOAPHeaderElement</CODE>
-     *   objects in this <CODE>SOAPHeader</CODE> object that have
-     *   the the specified actor and detaches them from this <CODE>
-     *   SOAPHeader</CODE> object.
+     * Returns a list of all the {@code SOAPHeaderElement}
+     *   objects in this {@code SOAPHeader} object that have
+     *   the the specified actor and detaches them from this {@code
+     *   SOAPHeader} object.
      *
      *   <P>This method allows an actor to process only the parts of
-     *   the <CODE>SOAPHeader</CODE> object that apply to it and to
+     *   the {@code SOAPHeader} object that apply to it and to
      *   remove them before passing the message on to the next
      *   actor.
-     * @param   actor  a <CODE>String</CODE> giving the
+     * @param   actor  a {@code String} giving the
      *     URI of the actor for which to search
-     * @return an <CODE>Iterator</CODE> object over all the <CODE>
-     *     SOAPHeaderElement</CODE> objects that contain the
+     * @return an {@code Iterator} object over all the {@code
+     *     SOAPHeaderElement} objects that contain the
      *     specified actor
      * @see #examineHeaderElements(java.lang.String) examineHeaderElements(java.lang.String)
      */
-    public abstract Iterator extractHeaderElements(String actor);
+    Iterator extractHeaderElements(String actor);
 
     /**
-     * Returns an <code>Iterator</code> over all the
-     * <code>SOAPHeaderElement</code> objects in this <code>SOAPHeader</code>
+     * Returns an {@code Iterator} over all the
+     * {@code SOAPHeaderElement} objects in this {@code SOAPHeader}
      * object that have the specified actor and that have a MustUnderstand
-     * attribute whose value is equivalent to <code>true</code>.
+     * attribute whose value is equivalent to {@code true}.
      *
-     * @param actor a <code>String</code> giving the URI of the actor for which
+     * @param actor a {@code String} giving the URI of the actor for which
      *              to search
-     * @return an <code>Iterator</code> object over all the
-     *              <code>SOAPHeaderElement</code> objects that contain the
+     * @return an {@code Iterator} object over all the
+     *              {@code SOAPHeaderElement} objects that contain the
      *              specified actor and are marked as MustUnderstand
      */
-    public abstract Iterator examineMustUnderstandHeaderElements(String actor);
+    Iterator examineMustUnderstandHeaderElements(String actor);
 
     /**
-     * Returns an <code>Iterator</code> over all the
-     * <code>SOAPHeaderElement</code> objects in this <code>SOAPHeader</code>
+     * Returns an {@code Iterator} over all the
+     * {@code SOAPHeaderElement} objects in this {@code SOAPHeader}
      * object.
      *
-     * @return an <code>Iterator</code> object over all the
-     *              <code>SOAPHeaderElement</code> objects contained by this
-     *              <code>SOAPHeader</code>
+     * @return an {@code Iterator} object over all the
+     *              {@code SOAPHeaderElement} objects contained by this
+     *              {@code SOAPHeader}
      */
-    public abstract Iterator examineAllHeaderElements();
+    Iterator examineAllHeaderElements();
 
     /**
-     * Returns an <code>Iterator</code> over all the
-     * <code>SOAPHeaderElement</code> objects in this <code>SOAPHeader </code>
-     * object and detaches them from this <code>SOAPHeader</code> object.
+     * Returns an {@code Iterator} over all the
+     * {@code SOAPHeaderElement} objects in this {@code SOAPHeader }
+     * object and detaches them from this {@code SOAPHeader} object.
      *
-     * @return an <code>Iterator</code> object over all the
-     *              <code>SOAPHeaderElement</code> objects contained by this
-     *              <code>SOAPHeader</code>
+     * @return an {@code Iterator} object over all the
+     *              {@code SOAPHeaderElement} objects contained by this
+     *              {@code SOAPHeader}
      */
-    public abstract Iterator extractAllHeaderElements();
+    Iterator extractAllHeaderElements();
 }

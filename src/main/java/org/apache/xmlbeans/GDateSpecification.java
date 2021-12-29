@@ -24,7 +24,7 @@ import java.util.Date;
  * Both the immutable GDate and the mutable GDateBuilder are
  * GDateSpecifications.  Use this interface where you want to
  * allow callers to pass any implementation of a GDate.
- * 
+ *
  * @see GDate
  * @see XmlCalendar
  */
@@ -182,14 +182,14 @@ public interface GDateSpecification
     /**
      * Comparison to another GDate.
      * <ul>
-     * <li>Returns -1 if this < date. (less-than)
+     * <li>Returns -1 if this &lt; date. (less-than)
      * <li>Returns 0 if this == date. (equal)
-     * <li>Returns 1 if this > date. (greater-than)
-     * <li>Returns 2 if this <> date. (incomparable)
+     * <li>Returns 1 if this &gt; date. (greater-than)
+     * <li>Returns 2 if this &lt;&gt; date. (incomparable)
      * </ul>
      * Two instances are incomparable if they have different amounts
      * of information.
-     * 
+     *
      * @param gdatespec the date to compare against.
      */
     int compareToGDate(GDateSpecification gdatespec);
@@ -199,7 +199,7 @@ public interface GDateSpecification
      * contained in this instance, or 0 if the
      * instance doesn't contain information corresponding to a
      * Schema type.
-     * <p> 
+     * <p>
      * Value will be equal to
      * {@link SchemaType#BTC_NOT_BUILTIN},
      * {@link SchemaType#BTC_G_YEAR},

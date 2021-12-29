@@ -24,19 +24,11 @@ package org.apache.xmlbeans.impl.common;
  * A series of convenience methods are supplied to ease the burden
  * of the developer. Because inlining the checks can improve per
  * character performance, the tables of character properties are
- * public. Using the character as an index into the <code>CHARS</code>
+ * public. Using the character as an index into the {@code CHARS}
  * array and applying the appropriate mask flag (e.g.
- * <code>MASK_VALID</code>), yields the same results as calling the
+ * {@code MASK_VALID}), yields the same results as calling the
  * convenience methods. There is one exception: check the comments
- * for the <code>isValid</code> method for details.
- *
- * @author Glenn Marcy, IBM
- * @author Andy Clark, IBM
- * @author Eric Ye, IBM
- * @author Arnaud  Le Hors, IBM
- * @author Rahul Srivastava, Sun Microsystems Inc.
- *
- * @version $Id$
+ * for the {@code isValid} method for details.
  */
 public class XMLChar {
 
@@ -61,10 +53,10 @@ public class XMLChar {
 
     /** Pubid character mask. */
     public static final int MASK_PUBID = 0x10;
-    
-    /** 
+
+    /**
      * Content character mask. Special characters are those that can
-     * be considered the start of markup, such as '&lt;' and '&amp;'. 
+     * be considered the start of markup, such as '&lt;' and '&amp;'.
      * The various newline characters are considered special as well.
      * All other valid XML characters can be considered content.
      * <p>
@@ -83,13 +75,13 @@ public class XMLChar {
     //
 
     static {
-        
+
         //
         // [2] Char ::= #x9 | #xA | #xD | [#x20-#xD7FF] |
         //              [#xE000-#xFFFD] | [#x10000-#x10FFFF]
         //
 
-        int charRange[] = { 
+        int charRange[] = {
             0x0009, 0x000A, 0x000D, 0x000D, 0x0020, 0xD7FF, 0xE000, 0xFFFD,
         };
 
@@ -97,7 +89,7 @@ public class XMLChar {
         // [3] S ::= (#x20 | #x9 | #xD | #xA)+
         //
 
-        int spaceChar[] = { 
+        int spaceChar[] = {
             0x0020, 0x0009, 0x000D, 0x000A,
         };
 
@@ -106,7 +98,7 @@ public class XMLChar {
         //                  CombiningChar | Extender
         //
 
-        int nameChar[] = { 
+        int nameChar[] = {
             0x002D, 0x002E, // '-' and '.'
         };
 
@@ -114,7 +106,7 @@ public class XMLChar {
         // [5] Name ::= (Letter | '_' | ':') (NameChar)*
         //
 
-        int nameStartChar[] = { 
+        int nameStartChar[] = {
             0x003A, 0x005F, // ':' and '_'
         };
 
@@ -276,7 +268,7 @@ public class XMLChar {
 
         // set name start characters
         for (int i = 0; i < nameStartChar.length; i++) {
-            CHARS[nameStartChar[i]] |= MASK_NAME_START | MASK_NAME | 
+            CHARS[nameStartChar[i]] |= MASK_NAME_START | MASK_NAME |
                                        MASK_NCNAME_START | MASK_NCNAME;
         }
         for (int i = 0; i < letterRange.length; i += 2) {
@@ -397,7 +389,7 @@ public class XMLChar {
      * also checks the surrogate character range from 0x10000 to 0x10FFFF.
      * <p>
      * If the program chooses to apply the mask directly to the
-     * <code>CHARS</code> array, then they are responsible for checking
+     * {@code CHARS} array, then they are responsible for checking
      * the surrogate character range.
      *
      * @param c The character to check.
@@ -536,7 +528,7 @@ public class XMLChar {
         }
         return true;
     } // isValidName(String):boolean
-    
+
 
     /*
      * from the namespace rec
@@ -572,7 +564,7 @@ public class XMLChar {
      * in the XML 1.0 Recommendation
      *
      * @param nmtoken string to check
-     * @return true if nmtoken is a valid Nmtoken 
+     * @return true if nmtoken is a valid Nmtoken
      */
     public static boolean isValidNmtoken(String nmtoken) {
         if (nmtoken.length() == 0)

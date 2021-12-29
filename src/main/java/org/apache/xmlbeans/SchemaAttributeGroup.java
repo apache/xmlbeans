@@ -27,7 +27,7 @@ import javax.xml.namespace.QName;
  * in the logical model of a schema type system, an attribute
  * group doesn't represent anything. Its contents are merged
  * into the logical model at parse time.
- * 
+ *
  * @see SchemaTypeLoader#findAttributeGroup
  */
 public interface SchemaAttributeGroup extends SchemaComponent, SchemaAnnotated
@@ -44,8 +44,6 @@ public interface SchemaAttributeGroup extends SchemaComponent, SchemaAnnotated
 
     /**
      * Used to allow on-demand loading of attribute groups.
-     * 
-     * @exclude
      */
     public final static class Ref extends SchemaComponent.Ref
     {

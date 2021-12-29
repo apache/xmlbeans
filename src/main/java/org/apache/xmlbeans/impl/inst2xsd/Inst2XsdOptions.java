@@ -15,8 +15,6 @@
 package org.apache.xmlbeans.impl.inst2xsd;
 
 /**
- * @author Cezar Andrei (cezar.andrei at bea.com) Date: Jul 19, 2004
-
      Options:
        * Design
           o Russian Doll Design - local elements and local types
@@ -27,7 +25,7 @@ package org.apache.xmlbeans.impl.inst2xsd;
           o always xsd:string
        * Use enumeration - when there are multiple valid values in a list
           o never
-          o only if not more than the value (default 10)- number option 
+          o only if not more than the value (default 10)- number option
  */
 public class Inst2XsdOptions
 {

@@ -26,9 +26,8 @@ import java.util.Map;
  * latter option applies only to the 5 characters defined as predefined entities
  * in the XML Spec).
  * <p>
- * <ul>
  * For example:
- * <pre>
+ * <pre>{@code
  *      XmlOptionCharEscapeMap escapes = new XmlOptionCharEscapeMap();
  *      escapes.addMapping('A', XmlOptionCharEscapeMap.HEXADECIMAL);
  *      escapes.addMapping('B', XmlOptionCharEscapeMap.DECIMAL);
@@ -43,7 +42,7 @@ import java.util.Map;
  *      B being printed as &#66;
  *      > being printed as &gt;
  *
- * </pre>
+ * }</pre>
  */
 public class XmlOptionCharEscapeMap {
     public static final int PREDEF_ENTITY = 0;

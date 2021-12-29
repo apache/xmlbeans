@@ -42,8 +42,6 @@ public interface SchemaModelGroup extends SchemaComponent, SchemaAnnotated
 
     /**
      * Used to allow on-demand loading of model groups.
-     * 
-     * @exclude
      */
     public final static class Ref extends SchemaComponent.Ref
     {

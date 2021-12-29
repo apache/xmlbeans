@@ -17,15 +17,13 @@ package org.apache.xmlbeans;
 
 /**
  * Represents a global attribute definition
- * 
+ *
  * @see SchemaTypeLoader#findAttribute
- */ 
+ */
 public interface SchemaGlobalAttribute extends SchemaLocalAttribute, SchemaComponent
 {
     /**
      * Used to allow on-demand loading of elements.
-     * 
-     * @exclude
      */
     public final static class Ref extends SchemaComponent.Ref
     {

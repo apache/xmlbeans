@@ -14,22 +14,18 @@
  */
 package org.apache.xmlbeans.impl.inst2xsd.util;
 
-import org.apache.xmlbeans.impl.xb.xsdschema.SchemaDocument;
-import org.apache.xmlbeans.XmlString;
-import org.apache.xmlbeans.XmlQName;
 import org.apache.xmlbeans.XmlCursor;
+import org.apache.xmlbeans.XmlQName;
+import org.apache.xmlbeans.XmlString;
+import org.apache.xmlbeans.impl.xb.xsdschema.SchemaDocument;
 
 import javax.xml.namespace.QName;
 import java.math.BigInteger;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.LinkedHashMap;
-import java.util.HashMap;
+import java.util.Map;
 
-/**
- * @author Cezar Andrei (cezar.andrei at bea.com) Date: Jul 16, 2004
- */
 public class TypeSystemHolder
 {
     Map _globalElements;   // QName -> Element

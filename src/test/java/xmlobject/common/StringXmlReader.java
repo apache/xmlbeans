@@ -16,11 +16,9 @@
 package xmlobject.common;
 
 
-import org.apache.xmlbeans.XmlBeans;
-import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlException;
-import org.apache.xmlbeans.XmlCursor.TokenType;
+import org.apache.xmlbeans.XmlObject;
 
 /**
  *  StringXmlReader: A class that implements Runnable. It creates an XMLBean for a given XML
@@ -45,7 +43,7 @@ public class StringXmlReader implements Runnable {
     }
 
     /**
-     *  Implements the <code>Runnable</code> Interface
+     *  Implements the {@code Runnable} Interface
      */
     public void run() {
         // Read in the xml file

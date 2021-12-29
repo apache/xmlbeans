@@ -35,7 +35,7 @@ public interface PrePostExtension
      * Returns true if the static handler class has a preSet() method
      * with the following signature:
      * <br>
-     * <code>public static boolean preSet(int, org.apache.xmlbeans.XmlObject, javax.xml.namespace.QName, boolean, int};</code>
+     * {@code public static boolean preSet(int, org.apache.xmlbeans.XmlObject, javax.xml.namespace.QName, boolean, int};}
      */
     boolean hasPreCall();
 
@@ -43,7 +43,7 @@ public interface PrePostExtension
      * Returns true if the static handler class has a preSet() method
      * with the following signature:
      * <br>
-     * <code>public static void postSet(int, org.apache.xmlbeans.XmlObject, javax.xml.namespace.QName, boolean, int};</code>
+     * {@code public static void postSet(int, org.apache.xmlbeans.XmlObject, javax.xml.namespace.QName, boolean, int};}
      */
     boolean hasPostCall();
 

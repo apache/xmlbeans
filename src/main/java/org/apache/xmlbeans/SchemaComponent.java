@@ -25,7 +25,7 @@ import javax.xml.namespace.QName;
  * types, element, and attributes do not appear in the global lookup table.
  * Also note that other information items such as particles, facets, and
  * so on are not globally indexed, so are not SchemaComponents.
- * 
+ *
  * @see SchemaType
  * @see SchemaGlobalElement
  * @see SchemaGlobalAttribute
@@ -71,8 +71,8 @@ public interface SchemaComponent
 
     /**
      * The name of resource that represends the source .xsd in which this component was defined (if known)
-     * <br/>See: {@link org.apache.xmlbeans.SchemaTypeLoader#getSourceAsStream(String)}
-     * <br/><br/>Example:<pre>
+     * <br>See: {@link org.apache.xmlbeans.SchemaTypeLoader#getSourceAsStream(String)}
+     * <br><br>Example:<pre>
      *   SchemaType schemaType = ..;
      *   InputStream is = schemaType.getTypeSystem().getSourceAsStream(schemaType.getSourceName());
      * </pre>
@@ -82,8 +82,6 @@ public interface SchemaComponent
     /**
      * A lazy reference to a component. Used by SchemaTypeLoaders to
      * avoid loading components until they are actually needed.
-     * 
-     * @exclude
      */
     public static abstract class Ref
     {
@@ -119,9 +117,9 @@ public interface SchemaComponent
             return _schemaComponent;
         }
     }
-    
+
     /**
      * Used for on-demand loading of schema components.
-     */ 
+     */
     public Ref getComponentRef();
 }

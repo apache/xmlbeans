@@ -65,6 +65,7 @@ public class XmlObjectFactory<T> extends DocumentFactory<T> {
      * Use the <em>options</em> parameter to specify the following:</p>
      *
      * <table>
+     * <caption>Option parameter</caption>
      * <tr><th>To specify this</th><th>Use this method</th></tr>
      * <tr>
      *  <td>The document type for the root element.</td>
@@ -78,7 +79,7 @@ public class XmlObjectFactory<T> extends DocumentFactory<T> {
      *
      * @param options Options specifying root document type and/or value facet
      *                checking.
-     * @return A new, empty instance of XmlObject.</li>
+     * @return A new, empty instance of XmlObject.
      */
     @Override
     public T newInstance(XmlOptions options) {
@@ -106,6 +107,7 @@ public class XmlObjectFactory<T> extends DocumentFactory<T> {
      * Use the <em>options</em> parameter to specify the following:</p>
      *
      * <table>
+     * <caption>Option parameter</caption>
      * <tr><th>To specify this</th><th>Use this method</th></tr>
      * <tr>
      *  <td>The document type for the root element.</td>
@@ -209,6 +211,7 @@ public class XmlObjectFactory<T> extends DocumentFactory<T> {
      * Use the <em>options</em> parameter to specify the following:</p>
      *
      * <table>
+     * <caption>Option parameter</caption>
      * <tr><th>To specify this</th><th>Use this method</th></tr>
      * <tr>
      *  <td>The character encoding to use when parsing or writing a document.</td>
