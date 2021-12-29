@@ -20,6 +20,8 @@ limitations under the License.
     <target name="clean" depends="
         clean-SampleTemplate,
         clean-MixedContent,
+        clean-Validation,
+        clean-Any,
         clean-OrderMatters,
         clean-vxsdb,
         clean-SchemaEnum,
@@ -35,8 +37,16 @@ limitations under the License.
         <ant dir="SampleTemplate" target="clean"/>
     </target>
 
+    <target name="clean-Any">
+        <ant dir="Any" target="clean"/>
+    </target>
+
     <target name="clean-MixedContent">
         <ant dir="MixedContent" target="clean"/>
+    </target>
+
+    <target name="clean-Validation">
+        <ant dir="Validation" target="clean"/>
     </target>
 
     <target name="clean-OrderMatters">
@@ -71,12 +81,14 @@ limitations under the License.
 
     <target name="build" depends="
         build-SampleTemplate,
+        build-Any,
         build-MixedContent,
         build-OrderMatters,
         build-SchemaEnum,
         build-AbstractTypes,
         build-SubstitutionGroup,
         build-DateTime,
+        build-Validation,
 	    build-XsdConfig
 	">
     <!-- build-vxsdb,-->
@@ -86,8 +98,16 @@ limitations under the License.
         <ant dir="SampleTemplate" target="build" inheritAll="true"/>
     </target>
 
+    <target name="build-Any">
+        <ant dir="Any" target="build" inheritAll="true"/>
+    </target>
+
     <target name="build-MixedContent">
         <ant dir="MixedContent" target="build" inheritAll="true"/>
+    </target>
+
+    <target name="build-Validation">
+        <ant dir="Validation" target="build" inheritAll="true"/>
     </target>
 
     <target name="build-OrderMatters">
@@ -123,12 +143,14 @@ limitations under the License.
 
     <target name="test" depends="
         test-SampleTemplate,
+        test-Any,
         test-MixedContent,
         test-OrderMatters,
         test-SchemaEnum,
         test-AbstractTypes,
         test-SubstitutionGroup,
         test-DateTime,
+        test-Validation,
 	    test-XsdConfig
 	">
     <!-- test-vxsdb,-->
@@ -138,8 +160,16 @@ limitations under the License.
         <ant dir="SampleTemplate" target="test"/>
     </target>
 
+    <target name="test-Any">
+        <ant dir="Any" target="test"/>
+    </target>
+
     <target name="test-MixedContent">
         <ant dir="MixedContent" target="test"/>
+    </target>
+
+    <target name="test-Validation">
+        <ant dir="Validation" target="test"/>
     </target>
 
     <target name="test-OrderMatters">
@@ -174,13 +204,15 @@ limitations under the License.
 
     <target name="dist" depends="
         dist-SampleTemplate,
+        dist-Any,
         dist-MixedContent,
         dist-OrderMatters,
         dist-SchemaEnum,
         dist-AbstractTypes,
         dist-SubstitutionGroup,
         dist-DateTime,
-	dist-XsdConfig
+        dist-Validation,
+	    dist-XsdConfig
 	">
     <!-- dist-vxsdb,-->
 
@@ -213,6 +245,21 @@ limitations under the License.
     </target>
 
 
+    <target name="dist-Any">
+        <mkdir dir="build"/>
+        <zip destfile="build/Any.zip"
+            basedir="."
+            includes="Any/**"
+            excludes="Any/build/**"
+            />
+        <tar destfile="build/Any.tgz"
+            basedir="."
+            includes="Any/**"
+            excludes="Any/build/**"
+            compression="gzip"
+            />
+    </target>
+
     <target name="dist-MixedContent">
         <mkdir dir="build"/>
         <zip destfile="build/MixedContent.zip"
@@ -224,6 +271,21 @@ limitations under the License.
             basedir="."
             includes="MixedContent/**"
             excludes="MixedContent/build/**"
+            compression="gzip"
+            />
+    </target>
+
+    <target name="dist-Validation">
+        <mkdir dir="build"/>
+        <zip destfile="build/Validation.zip"
+            basedir="."
+            includes="Validation/**"
+            excludes="Validation/build/**"
+            />
+        <tar destfile="build/Validation.tgz"
+            basedir="."
+            includes="Validation/**"
+            excludes="Validation/build/**"
             compression="gzip"
             />
     </target>

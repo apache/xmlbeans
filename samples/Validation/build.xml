@@ -68,7 +68,7 @@ limitations under the License.
 
         <xmlbean schema="schemas"
             destfile="build/lib/schemas.jar"
-            srcgendir="src"
+            srcgendir="build/generated-sources"
             classpathref="xmlbeans.path"
             debug="on"
             />
@@ -82,7 +82,10 @@ limitations under the License.
             classpathref="Validation.path"
             debug="on"
             source="1.8"
-            />
+            >
+            <src path="src"/>
+            <src path="build/generated-sources"/>
+        </javac>
     </target>
 
     <!-- ========================== run ==== -->

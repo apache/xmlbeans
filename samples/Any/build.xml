@@ -68,7 +68,7 @@ limitations under the License.
 
         <xmlbean schema="schemas"
             destfile="build/lib/schemas.jar"
-            srcgendir="src"
+            srcgendir="build/generated-sources"
             classpathref="xmlbeans.path"
             debug="on"
             />
@@ -76,13 +76,17 @@ limitations under the License.
 
     <target name="Any.classes" depends="init">
         <mkdir dir="build/classes"/>
+        <mkdir dir="build/generated-sources"/>
 
-        <javac srcdir="src"
+        <javac
             destdir="build/classes"
             classpathref="Any.path"
             debug="on"
             source="1.8"
-            />
+            >
+            <src path="src"/>
+            <src path="build/generated-sources"/>
+        </javac>
     </target>
 
     <!-- ========================== run ==== -->
