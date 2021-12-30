@@ -18,6 +18,7 @@ import org.apache.xmlbeans.*;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.time.OffsetDateTime;
 import java.util.Calendar;
 
 import static org.junit.Assert.assertEquals;
@@ -35,13 +36,36 @@ public class TypesTest {
 
     @Test
     public void testDate() {
+        boolean negativeOffset = OffsetDateTime.now().getOffset().getTotalSeconds() < 0;
         res = o.selectPath("xs:date(\"2000-01-01\")");
         assertEquals(1, res.length);
         Calendar d = ((XmlDate) res[0]).getCalendarValue();
-        assertEquals(2000, d.get(Calendar.YEAR));
-//        assertEquals(
-//            "<xml-fragment>Fri Dec 31 16:00:00 PST 1999</xml-fragment>",
-//            d.xmlText());
+        if (negativeOffset) {
+            assertEquals(1999, d.get(Calendar.YEAR));
+            assertEquals(11, d.get(Calendar.MONTH));
+            assertEquals(31, d.get(Calendar.DAY_OF_MONTH));
+        } else {
+            assertEquals(2000, d.get(Calendar.YEAR));
+            assertEquals(0, d.get(Calendar.MONTH));
+            assertEquals(1, d.get(Calendar.DAY_OF_MONTH));
+        }
+    }
+
+    @Test
+    public void testZDate() {
+        boolean negativeOffset = OffsetDateTime.now().getOffset().getTotalSeconds() < 0;
+        res = o.selectPath("xs:date(\"2000-01-01Z\")");
+        assertEquals(1, res.length);
+        Calendar d = ((XmlDate) res[0]).getCalendarValue();
+        if (negativeOffset) {
+            assertEquals(1999, d.get(Calendar.YEAR));
+            assertEquals(11, d.get(Calendar.MONTH));
+            assertEquals(31, d.get(Calendar.DAY_OF_MONTH));
+        } else {
+            assertEquals(2000, d.get(Calendar.YEAR));
+            assertEquals(0, d.get(Calendar.MONTH));
+            assertEquals(1, d.get(Calendar.DAY_OF_MONTH));
+        }
     }
 
     @Test

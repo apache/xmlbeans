@@ -96,6 +96,13 @@ limitations under the License.
         <category rdf:resource="http://projects.apache.org/category/xml"/>
         <release>
             <Version>
+                <name>XMLBeans v5.0.3</name>
+                <created>2021-12-29</created>
+                <revision>5.0.3</revision>
+            </Version>
+        </release>
+        <release>
+            <Version>
                 <name>XMLBeans v5.0.2</name>
                 <created>2021-10-20</created>
                 <revision>5.0.2</revision>
