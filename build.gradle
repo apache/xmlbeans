@@ -36,6 +36,7 @@ plugins {
     id('org.nosphere.apache.rat') version '0.7.0'
     id('de.thetaphi.forbiddenapis') version '3.2'
     id 'jacoco'
+    id 'com.github.spotbugs' version '5.0.3'
 }
 
 // Only add the plugin for Sonar if enabled
@@ -422,6 +423,12 @@ distributions {
                 include 'javaparser*.jar'
                 into 'lib'
             }
+            from(sourcesJar) {
+                into 'lib'
+            }
+            from(javadocJar) {
+                into 'lib'
+            }
             from ('xkit')
             from ('samples') {
                 into 'samples'
@@ -465,18 +472,22 @@ distributions {
     }
 }
 
+[binDistTar, binDistZip]*.dependsOn 'jar'
+[binDistTar, binDistZip]*.dependsOn 'export4anttest'
+[srcDistTar, srcDistZip]*.dependsOn 'cacheJava9'
+
 tasks.withType(Tar) {
     compression = Compression.GZIP
     archiveExtension = 'tgz'
 }
 
 
-//binDistZip.dependsOn ['jar', 'javadocJar', 'sourcesJar']
-
 task jenkins() {
     dependsOn 'check'
     dependsOn 'jacocoTestReport'
     dependsOn 'rat'
+    dependsOn 'spotbugsMain'
+    dependsOn 'spotbugsTest'
     dependsOn 'binDistZip'
     dependsOn 'binDistTar'
     dependsOn 'srcDistZip'
@@ -550,6 +561,39 @@ jacocoTestReport {
     }
 }
 
+spotbugs {
+    ignoreFailures = true
+    showStackTraces = false
+    showProgress = false
+}
+
+spotbugsMain {
+    reports {
+        xml {
+            required = true
+            outputLocation = file("build/reports/spotbugs/main/spotbugs.xml")
+        }
+        html {
+            required = true
+            outputLocation = file("build/reports/spotbugs/main/spotbugs.html")
+            stylesheet = 'fancy-hist.xsl'
+        }
+    }
+}
+
+spotbugsTest {
+    reports {
+        xml {
+            required = true
+            outputLocation = file("build/reports/spotbugs/test/spotbugs.xml")
+        }
+        html {
+            required = true
+            outputLocation = file("build/reports/spotbugs/test/spotbugs.html")
+            stylesheet = 'fancy-hist.xsl'
+        }
+    }
+}
 
 Set<File> xsdDirs(File parent) {
     Set<File> xsdDirs = [] as Set<File>
