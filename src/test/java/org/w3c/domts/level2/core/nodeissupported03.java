@@ -26,9 +26,9 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.DocumentType;
-import org.w3c.domts.DOMTestCase;
 
 import static org.junit.Assert.assertFalse;
+import static org.w3c.domts.DOMTest.load;
 
 
 /**
@@ -40,7 +40,7 @@ import static org.junit.Assert.assertFalse;
  *
  * @see <a href="http://www.w3.org/TR/DOM-Level-2-Core/core#Level-2-Core-Node-supports">http://www.w3.org/TR/DOM-Level-2-Core/core#Level-2-Core-Node-supports</a>
  */
-public class nodeissupported03 extends DOMTestCase {
+public class nodeissupported03 {
     @Test
     @Ignore
     public void testRun() throws Throwable {

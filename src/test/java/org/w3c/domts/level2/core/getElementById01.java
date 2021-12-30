@@ -26,9 +26,9 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.domts.DOMTestCase;
 
 import static org.junit.Assert.assertEquals;
+import static org.w3c.domts.DOMTest.load;
 
 
 /**
@@ -41,7 +41,7 @@ import static org.junit.Assert.assertEquals;
  * @see <a href="http://www.w3.org/TR/DOM-Level-2-Core/core#ID-104682815">http://www.w3.org/TR/DOM-Level-2-Core/core#ID-104682815</a>
  * @see <a href="http://www.w3.org/Bugs/Public/show_bug.cgi?id=383">http://www.w3.org/Bugs/Public/show_bug.cgi?id=383</a>
  */
-public class getElementById01 extends DOMTestCase {
+public class getElementById01 {
     @Test
     @Ignore
     public void testRun() throws Throwable {

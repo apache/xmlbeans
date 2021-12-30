@@ -24,9 +24,9 @@ package org.w3c.domts.level2.core;
 
 import org.junit.Test;
 import org.w3c.dom.*;
-import org.w3c.domts.DOMTestCase;
 
 import static org.junit.Assert.assertTrue;
+import static org.w3c.domts.DOMTest.load;
 
 
 /**
@@ -42,7 +42,7 @@ import static org.junit.Assert.assertTrue;
  * @see <a href="http://www.w3.org/TR/DOM-Level-2-Core/core#ID-ElSetAttrNS">http://www.w3.org/TR/DOM-Level-2-Core/core#ID-ElSetAttrNS</a>
  * @see <a href="http://www.w3.org/TR/DOM-Level-2-Core/core#xpointer(id('ID-ElSetAttrNS')/raises/exception[@name='DOMException']/descr/p[substring-before(.,':')='INVALID_CHARACTER_ERR'])">http://www.w3.org/TR/DOM-Level-2-Core/core#xpointer(id('ID-ElSetAttrNS')/raises/exception[@name='DOMException']/descr/p[substring-before(.,':')='INVALID_CHARACTER_ERR'])</a>
  */
-public class setAttributeNS01 extends DOMTestCase {
+public class setAttributeNS01 {
     @Test
     public void testRun() throws Throwable {
         String namespaceURI = "http://www.nist.gov";

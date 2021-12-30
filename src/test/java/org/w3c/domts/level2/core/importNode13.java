@@ -28,10 +28,11 @@ import org.w3c.dom.Document;
 import org.w3c.dom.DocumentType;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Notation;
-import org.w3c.domts.DOMTestCase;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import static org.w3c.domts.DOMTest.assertURIEquals;
+import static org.w3c.domts.DOMTest.load;
 
 
 /**
@@ -46,7 +47,7 @@ import static org.junit.Assert.assertNull;
  *
  * @see <a href="http://www.w3.org/TR/DOM-Level-2-Core/core#Core-Document-importNode">http://www.w3.org/TR/DOM-Level-2-Core/core#Core-Document-importNode</a>
  */
-public class importNode13 extends DOMTestCase {
+public class importNode13 {
     @Test
     @Ignore
     public void testRun() throws Throwable {
@@ -69,7 +70,7 @@ public class importNode13 extends DOMTestCase {
         ownerDocument = aNode.getOwnerDocument();
         docType = ownerDocument.getDoctype();
         system = docType.getSystemId();
-        assertURIEquals("systemId", null, null, null, "staffNS.dtd", null, null, null, null, system);
+        assertURIEquals("systemId", "staffNS.dtd", system);
         publicVal = aNode.getPublicId();
         assertEquals("publicId", "notation1File", publicVal);
         system = aNode.getSystemId();

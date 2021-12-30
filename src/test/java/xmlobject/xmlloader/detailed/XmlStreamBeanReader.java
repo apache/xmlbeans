@@ -25,6 +25,7 @@ import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import java.io.ByteArrayInputStream;
+import java.nio.charset.StandardCharsets;
 
 import static org.junit.Assert.assertEquals;
 
@@ -56,7 +57,7 @@ public class XmlStreamBeanReader {
             " </cc:customer>\n" +
             " </cc:credit-card-data>";
 
-        XMLStreamReader reader = XMLInputFactory.newInstance().createXMLStreamReader(new ByteArrayInputStream(creditCardXmlwPrefix.getBytes()));
+        XMLStreamReader reader = XMLInputFactory.newInstance().createXMLStreamReader(new ByteArrayInputStream(creditCardXmlwPrefix.getBytes(StandardCharsets.UTF_8)));
         CreditCardDataDocument ccdoc = (CreditCardDataDocument) XmlObject.Factory.parse(reader, new XmlOptions().setDocumentType(CreditCardDataDocument.type));
         assertEquals(1, ccdoc.getCreditCardData().getCustomerArray(0).getId());
     }

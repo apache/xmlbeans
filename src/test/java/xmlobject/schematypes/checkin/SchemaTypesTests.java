@@ -28,6 +28,7 @@ import javax.xml.namespace.QName;
 import java.io.IOException;
 import java.io.InputStream;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -81,13 +82,11 @@ public class SchemaTypesTests {
         Person.Gender.Enum g = person.getGender();
         assertEquals(Person.Gender.MALE, g);
 
-        assertEquals("EGIQTWYZJ", new String(person.getHex()));
-        assertEquals("This string is base64Binary encoded!",
-                            new String(person.getBase64()));
+        assertEquals("EGIQTWYZJ", new String(person.getHex(), UTF_8));
+        assertEquals("This string is base64Binary encoded!", new String(person.getBase64(), UTF_8));
 
-        assertEquals("GGIQTWYGG", new String(person.getHexAtt()));
-        assertEquals("This string is base64Binary encoded!",
-                            new String(person.getBase64Att()));
+        assertEquals("GGIQTWYGG", new String(person.getHexAtt(), UTF_8));
+        assertEquals("This string is base64Binary encoded!", new String(person.getBase64Att(), UTF_8));
 
         assertEquals("{some_uri}localname", person.getQnameAtt().toString());
         assertEquals("{http://openuri.org/xstypes/test}openuri_org_localname", person.getQname().toString());
@@ -109,20 +108,17 @@ public class SchemaTypesTests {
         person.setFirstname("George");
         assertEquals("George", person.getFirstname());
 
-        person.setHex("hex encoding".getBytes());
-        assertEquals("hex encoding", new String(person.getHex()));
+        person.setHex("hex encoding".getBytes(UTF_8));
+        assertEquals("hex encoding", new String(person.getHex(), UTF_8));
 
-        person.setBase64("base64 encoded".getBytes());
-        assertEquals("base64 encoded",
-                            new String(person.getBase64()));
+        person.setBase64("base64 encoded".getBytes(UTF_8));
+        assertEquals("base64 encoded", new String(person.getBase64(), UTF_8));
 
-        person.setHexAtt("hex encoding in attributes".getBytes());
-        assertEquals("hex encoding in attributes",
-                            new String(person.getHexAtt()));
+        person.setHexAtt("hex encoding in attributes".getBytes(UTF_8));
+        assertEquals("hex encoding in attributes", new String(person.getHexAtt(), UTF_8));
 
-        person.setBase64Att("This string is base64Binary encoded!".getBytes());
-        assertEquals("This string is base64Binary encoded!",
-                            new String(person.getBase64Att()));
+        person.setBase64Att("This string is base64Binary encoded!".getBytes(UTF_8));
+        assertEquals("This string is base64Binary encoded!", new String(person.getBase64Att(), UTF_8));
 
         person.setAnyuri("a.c:7001");
         assertEquals("a.c:7001", person.getAnyuri());

@@ -28,9 +28,9 @@ import org.w3c.dom.Document;
 import org.w3c.dom.DocumentType;
 import org.w3c.dom.Entity;
 import org.w3c.dom.NamedNodeMap;
-import org.w3c.domts.DOMTestCase;
 
 import static org.junit.Assert.assertNull;
+import static org.w3c.domts.DOMTest.load;
 
 
 /**
@@ -40,7 +40,7 @@ import static org.junit.Assert.assertNull;
  * @see <a href="http://www.w3.org/TR/DOM-Level-2-Core/core#ID-getNamedItemNS">http://www.w3.org/TR/DOM-Level-2-Core/core#ID-getNamedItemNS</a>
  * @see <a href="http://www.w3.org/Bugs/Public/show_bug.cgi?id=259">http://www.w3.org/Bugs/Public/show_bug.cgi?id=259</a>
  */
-public class getNamedItemNS03 extends DOMTestCase {
+public class getNamedItemNS03 {
     @Test
     @Ignore
     public void testRun() throws Throwable {

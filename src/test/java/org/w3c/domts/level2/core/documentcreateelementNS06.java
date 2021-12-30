@@ -24,9 +24,9 @@ package org.w3c.domts.level2.core;
 
 import org.junit.Test;
 import org.w3c.dom.*;
-import org.w3c.domts.DOMTestCase;
 
 import static org.junit.Assert.assertTrue;
+import static org.w3c.domts.DOMTest.load;
 
 
 /**
@@ -40,7 +40,7 @@ import static org.junit.Assert.assertTrue;
  * @see <a href="http://www.w3.org/TR/DOM-Level-2-Core/core">http://www.w3.org/TR/DOM-Level-2-Core/core</a>
  * @see <a href="http://www.w3.org/TR/DOM-Level-2-Core/core#ID-DocCrElNS">http://www.w3.org/TR/DOM-Level-2-Core/core#ID-DocCrElNS</a>
  */
-public class documentcreateelementNS06 extends DOMTestCase {
+public class documentcreateelementNS06 {
     @Test
     public void testRun() throws Throwable {
         Document doc;

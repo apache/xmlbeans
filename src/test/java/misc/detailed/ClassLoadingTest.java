@@ -15,16 +15,17 @@
 
 package misc.detailed;
 
-import org.apache.xmlbeans.*;
+import org.apache.xmlbeans.XmlError;
+import org.apache.xmlbeans.XmlOptions;
 import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Random;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.ArrayList;
+import java.util.Random;
 
 @Ignore("needs to be updated to current jars")
 public class ClassLoadingTest {
@@ -35,13 +36,13 @@ public class ClassLoadingTest {
         private boolean _result;
         private Random rand;
         XmlOptions xm;
-        ArrayList errors;
+        ArrayList<XmlError> errors;
 
         public CompilationThread()
         {
             rand = new Random();
             xm = new XmlOptions();
-            ArrayList errors = new ArrayList();
+            ArrayList<XmlError> errors = new ArrayList<>();
             xm.setErrorListener(errors);
             xm.setValidateOnSet();
         }
@@ -72,19 +73,19 @@ public class ClassLoadingTest {
                 File xbeanFile = new File(xbean_home + "/build/lib/xbean.jar");
                 if (!xbeanFile.exists())
                     throw new Exception("File does not exist");
-                URL xbeanjar = xbeanFile.toURL();
+                URL xbeanjar = xbeanFile.toURI().toURL();
                 File xmlpublicFile = new File(xbean_home + "/build/lib/xmlpublic.jar");
                 if (!xmlpublicFile.exists())
                     throw new Exception("File does not exist");
-                URL xmlpublicjar = xmlpublicFile.toURL();
+                URL xmlpublicjar = xmlpublicFile.toURI().toURL();
                 File jsr173File = new File(xbean_home + "/build/lib/jsr173.jar");
                 if (!jsr173File.exists())
                     throw new Exception("File does not exist");
-                URL jsr173jar = new URL(jsr173File.toURL().toString());
+                URL jsr173jar = new URL(jsr173File.toURI().toURL().toString());
                 File jsr173_apiFile = new File(xbean_home + "/build/lib/jsr173_1.0_api.jar");
                 if (!jsr173_apiFile.exists())
                     throw new Exception("File does not exist");
-                URL jsr173_apijar = jsr173_apiFile.toURL();
+                URL jsr173_apijar = jsr173_apiFile.toURI().toURL();
                 File jsr173_riFile = new File(xbean_home + "/build/lib/jsr173_1.0_ri.jar");
                 if (!jsr173_riFile.exists())
                     throw new Exception("File does not exist");
@@ -92,16 +93,16 @@ public class ClassLoadingTest {
                 File junitFile = new File(xbean_home + "/external/lib/junit.jar");
                 if (!junitFile.exists())
                     throw new Exception("File does not exist");
-                URL junitjar = junitFile.toURL();
+                URL junitjar = junitFile.toURI().toURL();
 
                 File xmlcursorFile = new File(xbean_home + "/build/test/lib/schemajars/xmlcursor.jar");
                 if (!xmlcursorFile.exists())
                     throw new Exception("File does not exist");
-                URL xmlcursorjar = xmlcursorFile.toURL();
+                URL xmlcursorjar = xmlcursorFile.toURI().toURL();
                 File validatingFile = new File(xbean_home + "/build/test/lib/schemajars/ValidatingStream.jar");
                 if (!validatingFile.exists())
                     throw new Exception("File does not exist");
-                URL validating = validatingFile.toURL();
+                URL validating = validatingFile.toURI().toURL();
 
 
                 //URLClassLoader allLoader = new URLClassLoader(new URL[]{xbeanjar, xmlpublicjar,

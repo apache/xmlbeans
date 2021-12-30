@@ -22,9 +22,9 @@ package org.w3c.domts.level2.core;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.w3c.dom.*;
-import org.w3c.domts.DOMTestCase;
 
 import static org.junit.Assert.fail;
+import static org.w3c.domts.DOMTest.load;
 
 
 /**
@@ -34,7 +34,7 @@ import static org.junit.Assert.fail;
  * @see <a href="http://www.w3.org/TR/DOM-Level-2-Core/core#ID-D46829EF">http://www.w3.org/TR/DOM-Level-2-Core/core#ID-D46829EF</a>
  * @see <a href="http://www.w3.org/TR/DOM-Level-2-Core/core#ID-removeNamedItemNS">http://www.w3.org/TR/DOM-Level-2-Core/core#ID-removeNamedItemNS</a>
  */
-public class hc_notationsremovenameditemns1 extends DOMTestCase {
+public class hc_notationsremovenameditemns1 {
     @Test
     @Ignore
     public void testRun() throws Throwable {

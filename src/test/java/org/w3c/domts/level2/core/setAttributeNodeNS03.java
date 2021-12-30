@@ -24,9 +24,9 @@ package org.w3c.domts.level2.core;
 
 import org.junit.Test;
 import org.w3c.dom.*;
-import org.w3c.domts.DOMTestCase;
 
 import static org.junit.Assert.assertNull;
+import static org.w3c.domts.DOMTest.load;
 
 
 /**
@@ -43,7 +43,7 @@ import static org.junit.Assert.assertNull;
  *
  * @see <a href="http://www.w3.org/TR/DOM-Level-2-Core/core#ID-ElSetAtNodeNS">http://www.w3.org/TR/DOM-Level-2-Core/core#ID-ElSetAtNodeNS</a>
  */
-public class setAttributeNodeNS03 extends DOMTestCase {
+public class setAttributeNodeNS03 {
     @Test
     public void testRun() throws Throwable {
         String namespaceURI = "http://www.newattr.com";

@@ -27,10 +27,10 @@ import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Document;
 import org.w3c.dom.DocumentType;
 import org.w3c.dom.Element;
-import org.w3c.domts.DOMTestCase;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.w3c.domts.DOMTest.load;
 
 
 /**
@@ -43,7 +43,7 @@ import static org.junit.Assert.assertNull;
  * @see <a href="http://www.w3.org/Bugs/Public/show_bug.cgi?id=259">http://www.w3.org/Bugs/Public/show_bug.cgi?id=259</a>
  */
 //TODO: fix when Doctypes
-public class nodegetownerdocument02 extends DOMTestCase {
+public class nodegetownerdocument02 {
     @Test
     public void testRun() throws Throwable {
         Document doc;

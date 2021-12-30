@@ -26,7 +26,9 @@ import org.junit.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
-import org.w3c.domts.DOMTestCase;
+
+import static org.junit.Assert.assertEquals;
+import static org.w3c.domts.DOMTest.load;
 
 
 /**
@@ -40,7 +42,7 @@ import org.w3c.domts.DOMTestCase;
  * "0".
  * * @see <a href="http://www.w3.org/TR/DOM-Level-2-Core/core#ID-1938918D">http://www.w3.org/TR/DOM-Level-2-Core/core#ID-1938918D</a>
  */
-public class getElementsByTagNameNS13 extends DOMTestCase {
+public class getElementsByTagNameNS13 {
     @Test
     public void testRun() throws Throwable {
         Document doc;
@@ -49,7 +51,7 @@ public class getElementsByTagNameNS13 extends DOMTestCase {
         doc = load("staffNS", false);
         docElem = doc.getDocumentElement();
         elementList = docElem.getElementsByTagNameNS("http://www.nomatch.com", "address");
-        assertSize("matchSize", 0, elementList);
+        assertEquals("matchSize", 0, elementList.getLength());
 
     }
 

@@ -25,9 +25,9 @@ package org.w3c.domts.level2.core;
 import org.junit.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.ProcessingInstruction;
-import org.w3c.domts.DOMTestCase;
 
 import static org.junit.Assert.assertEquals;
+import static org.w3c.domts.DOMTest.load;
 
 
 /**
@@ -42,7 +42,7 @@ import static org.junit.Assert.assertEquals;
  * @see <a href="http://www.w3.org/TR/DOM-Level-2-Core/core">http://www.w3.org/TR/DOM-Level-2-Core/core</a>
  * @see <a href="http://www.w3.org/TR/DOM-Level-2-Core/core#Core-Document-importNode">http://www.w3.org/TR/DOM-Level-2-Core/core#Core-Document-importNode</a>
  */
-public class documentimportnode18 extends DOMTestCase {
+public class documentimportnode18 {
     @Test
     public void testRun() throws Throwable {
         Document doc;

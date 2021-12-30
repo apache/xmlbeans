@@ -26,9 +26,9 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.DocumentType;
-import org.w3c.domts.DOMTestCase;
 
 import static org.junit.Assert.assertFalse;
+import static org.w3c.domts.DOMTest.load;
 
 
 /**
@@ -39,7 +39,7 @@ import static org.junit.Assert.assertFalse;
  *
  * @see <a href="http://www.w3.org/TR/DOM-Level-2-Core/core#ID-NodeHasAttrs">http://www.w3.org/TR/DOM-Level-2-Core/core#ID-NodeHasAttrs</a>
  */
-public class nodehasattributes02 extends DOMTestCase {
+public class nodehasattributes02 {
     @Test
     @Ignore
     public void testRun() throws Throwable {

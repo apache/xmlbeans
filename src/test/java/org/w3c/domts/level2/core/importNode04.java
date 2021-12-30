@@ -24,9 +24,9 @@ package org.w3c.domts.level2.core;
 
 import org.junit.Test;
 import org.w3c.dom.*;
-import org.w3c.domts.DOMTestCase;
 
 import static org.junit.Assert.assertEquals;
+import static org.w3c.domts.DOMTest.load;
 
 
 /**
@@ -42,7 +42,7 @@ import static org.junit.Assert.assertEquals;
  *
  * @see <a href="http://www.w3.org/TR/DOM-Level-2-Core/core#Core-Document-importNode">http://www.w3.org/TR/DOM-Level-2-Core/core#Core-Document-importNode</a>
  */
-public class importNode04 extends DOMTestCase {
+public class importNode04 {
     @Test
     public void testRun() throws Throwable {
         Document doc;
@@ -60,7 +60,7 @@ public class importNode04 extends DOMTestCase {
         aNode = docFrag.appendChild(comment);
         aNode = doc.importNode(docFrag, true);
         children = aNode.getChildNodes();
-        assertSize("throw_Size", 1, children);
+        assertEquals("throw_Size", 1, children.getLength());
         child = aNode.getFirstChild();
         childValue = child.getNodeValue();
         assertEquals("descendant1", "descendant1", childValue);

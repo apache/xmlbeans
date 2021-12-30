@@ -25,9 +25,9 @@ package org.w3c.domts.level2.core;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.w3c.dom.*;
-import org.w3c.domts.DOMTestCase;
 
 import static org.junit.Assert.assertEquals;
+import static org.w3c.domts.DOMTest.load;
 
 
 /**
@@ -39,7 +39,7 @@ import static org.junit.Assert.assertEquals;
  * @see <a href="http://www.w3.org/TR/DOM-Level-2-Core/core#Attr-ownerElement">http://www.w3.org/TR/DOM-Level-2-Core/core#Attr-ownerElement</a>
  * @see <a href="http://www.w3.org/Bugs/Public/show_bug.cgi?id=259">http://www.w3.org/Bugs/Public/show_bug.cgi?id=259</a>
  */
-public class attrgetownerelement01 extends DOMTestCase {
+public class attrgetownerelement01 {
 
     @Test
     @Ignore

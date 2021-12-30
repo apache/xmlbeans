@@ -26,10 +26,10 @@ import org.junit.Test;
 import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Document;
 import org.w3c.dom.DocumentType;
-import org.w3c.domts.DOMTestCase;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import static org.w3c.domts.DOMTest.load;
 
 
 /**
@@ -45,7 +45,7 @@ import static org.junit.Assert.assertNull;
  *
  * @see <a href="http://www.w3.org/TR/DOM-Level-2-Core/core#Level-2-Core-DOM-createDocument">http://www.w3.org/TR/DOM-Level-2-Core/core#Level-2-Core-DOM-createDocument</a>
  */
-public class createDocument07 extends DOMTestCase {
+public class createDocument07 {
     @Test
     public void testRun() throws Throwable {
         String namespaceURI = "http://www.ecommerce.org/schema";

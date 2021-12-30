@@ -27,9 +27,9 @@ import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.w3c.domts.DOMTestCase;
 
 import static org.junit.Assert.assertTrue;
+import static org.w3c.domts.DOMTest.load;
 
 
 /**
@@ -44,7 +44,7 @@ import static org.junit.Assert.assertTrue;
  * @see <a href="http://www.w3.org/TR/DOM-Level-2-Core/core#ID-NodeNSPrefix">http://www.w3.org/TR/DOM-Level-2-Core/core#ID-NodeNSPrefix</a>
  * @see <a href="http://www.w3.org/TR/DOM-Level-2-Core/core#xpointer(id('ID-NodeNSPrefix')/setraises/exception[@name='DOMException']/descr/p[substring-before(.,':')='NAMESPACE_ERR'])">http://www.w3.org/TR/DOM-Level-2-Core/core#xpointer(id('ID-NodeNSPrefix')/setraises/exception[@name='DOMException']/descr/p[substring-before(.,':')='NAMESPACE_ERR'])</a>
  */
-public class prefix07 extends DOMTestCase {
+public class prefix07 {
     @Test
     public void testRun() throws Throwable {
         Document doc;

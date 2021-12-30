@@ -25,9 +25,9 @@ package org.w3c.domts.level2.core;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.w3c.dom.*;
-import org.w3c.domts.DOMTestCase;
 
 import static org.junit.Assert.assertNull;
+import static org.w3c.domts.DOMTest.load;
 
 
 /**
@@ -40,7 +40,7 @@ import static org.junit.Assert.assertNull;
  * @see <a href="http://www.w3.org/Bugs/Public/show_bug.cgi?id=407">http://www.w3.org/Bugs/Public/show_bug.cgi?id=407</a>
  * @see <a href="http://lists.w3.org/Archives/Member/w3c-dom-ig/2003Nov/0016.html">http://lists.w3.org/Archives/Member/w3c-dom-ig/2003Nov/0016.html</a>
  */
-public class namednodemapgetnameditemns01 extends DOMTestCase {
+public class namednodemapgetnameditemns01 {
     @Test
     @Ignore
     public void testRun() throws Throwable {

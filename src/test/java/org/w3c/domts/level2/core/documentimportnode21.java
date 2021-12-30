@@ -25,10 +25,10 @@ package org.w3c.domts.level2.core;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.w3c.dom.*;
-import org.w3c.domts.DOMTestCase;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.w3c.domts.DOMTest.load;
 
 
 /**
@@ -48,7 +48,7 @@ import static org.junit.Assert.assertTrue;
  * @see <a href="http://www.w3.org/TR/DOM-Level-2-Core/core">http://www.w3.org/TR/DOM-Level-2-Core/core</a>
  * @see <a href="http://www.w3.org/TR/DOM-Level-2-Core/core#Core-Document-importNode">http://www.w3.org/TR/DOM-Level-2-Core/core#Core-Document-importNode</a>
  */
-public class documentimportnode21 extends DOMTestCase {
+public class documentimportnode21 {
     @Test
     @Ignore
     public void testRun() throws Throwable {

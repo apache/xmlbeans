@@ -15,6 +15,8 @@
 
 package org.apache.xmlbeans;
 
+import org.apache.xmlbeans.impl.util.SuppressForbidden;
+
 import java.math.BigDecimal;
 import java.util.Calendar;
 import java.util.Date;
@@ -81,6 +83,13 @@ import java.util.TimeZone;
  */
 public class XmlCalendar extends GregorianCalendar
 {
+    private static int defaultYear = Integer.MIN_VALUE;
+    private static final int DEFAULT_DEFAULT_YEAR = 0;
+    private static final Date _beginningOfTime = new Date(Long.MIN_VALUE);
+
+
+
+
     /**
      * Constructs an XmlCalendar for a standard XML
      * schema formatted date string.
@@ -137,6 +146,7 @@ public class XmlCalendar extends GregorianCalendar
         this(GDate.timeZoneForGDate(date), date);
     }
 
+    @SuppressForbidden("Locale is not known and we don't have a general class to set the default locale")
     private XmlCalendar(TimeZone tz, GDateSpecification date)
     {
         super(tz);
@@ -244,14 +254,12 @@ public class XmlCalendar extends GregorianCalendar
     /**
      * Constructs an empty instance with no fields set.
      */
+    @SuppressForbidden("Locale is not known and we don't have a general class to set the default locale")
     public XmlCalendar()
     {
         setGregorianChange(_beginningOfTime); // proleptic
         clear();
     }
-
-    private static int defaultYear = Integer.MIN_VALUE;
-    private static final int DEFAULT_DEFAULT_YEAR = 0;
 
     /**
      * Returns the default year that is used when no year is specified.
@@ -303,8 +311,6 @@ public class XmlCalendar extends GregorianCalendar
                 clear(YEAR);
         }
     }
-
-    private static final Date _beginningOfTime = new Date(Long.MIN_VALUE);
 
     /**
      * Prints the XmlCalendar using a standard XML Schema

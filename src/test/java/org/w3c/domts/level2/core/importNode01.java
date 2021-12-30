@@ -25,9 +25,10 @@ package org.w3c.domts.level2.core;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.w3c.dom.*;
-import org.w3c.domts.DOMTestCase;
 
 import static org.junit.Assert.*;
+import static org.w3c.domts.DOMTest.assertURIEquals;
+import static org.w3c.domts.DOMTest.load;
 
 
 /**
@@ -46,7 +47,7 @@ import static org.junit.Assert.*;
  *
  * @see <a href="http://www.w3.org/TR/DOM-Level-2-Core/core#Core-Document-importNode">http://www.w3.org/TR/DOM-Level-2-Core/core#Core-Document-importNode</a>
  */
-public class importNode01 extends DOMTestCase {
+public class importNode01 {
     @Test
     @Ignore
     public void testRun() throws Throwable {
@@ -80,13 +81,13 @@ public class importNode01 extends DOMTestCase {
         docType = ownerDocument.getDoctype();
         system = docType.getSystemId();
         assertNotNull("aNode", aNode);
-        assertURIEquals("systemId", null, null, null, "staffNS.dtd", null, null, null, null, system);
+        assertURIEquals("systemId", "staffNS.dtd", system);
         attrOwnerElement = ((Attr) /*Node */aNode).getOwnerElement();
         assertNull("ownerElement", attrOwnerElement);
         specified = ((Attr) /*Node */aNode).getSpecified();
         assertTrue("specified", specified);
         childList = aNode.getChildNodes();
-        assertSize("childList", 1, childList);
+        assertEquals("childList", 1, childList.getLength());
         nodeName = aNode.getNodeName();
         assertEquals("nodeName", "elem:attr1", nodeName);
         child = aNode.getFirstChild();

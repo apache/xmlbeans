@@ -24,10 +24,10 @@ import org.w3c.dom.Document;
 import org.w3c.dom.DocumentFragment;
 import org.w3c.dom.Node;
 import org.w3c.dom.Text;
-import org.w3c.domts.DOMTestCase;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import static org.w3c.domts.DOMTest.load;
 
 
 /**
@@ -41,7 +41,7 @@ import static org.junit.Assert.assertNull;
 /**
  * TODO: add this back
  */
-public class hc_nodedocumentfragmentnormalize1 extends DOMTestCase {
+public class hc_nodedocumentfragmentnormalize1 {
     @Test
     public void testRun() throws Throwable {
         Document doc;

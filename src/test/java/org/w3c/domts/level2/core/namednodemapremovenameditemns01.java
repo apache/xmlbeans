@@ -24,9 +24,9 @@ package org.w3c.domts.level2.core;
 
 import org.junit.Test;
 import org.w3c.dom.*;
-import org.w3c.domts.DOMTestCase;
 
 import static org.junit.Assert.assertNull;
+import static org.w3c.domts.DOMTest.load;
 
 
 /**
@@ -36,7 +36,7 @@ import static org.junit.Assert.assertNull;
  *
  * @see <a href="http://www.w3.org/TR/DOM-Level-2-Core/core#ID-D58B193">http://www.w3.org/TR/DOM-Level-2-Core/core#ID-D58B193</a>
  */
-public class namednodemapremovenameditemns01 extends DOMTestCase {
+public class namednodemapremovenameditemns01 {
     @Test
     public void testRun() throws Throwable {
         Document doc;

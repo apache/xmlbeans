@@ -27,9 +27,9 @@ import org.w3c.dom.Document;
 import org.w3c.dom.DocumentFragment;
 import org.w3c.dom.DocumentType;
 import org.w3c.dom.Node;
-import org.w3c.domts.DOMTestCase;
 
 import static org.junit.Assert.assertFalse;
+import static org.w3c.domts.DOMTest.load;
 
 
 /**
@@ -45,7 +45,7 @@ import static org.junit.Assert.assertFalse;
  * @see <a href="http://www.w3.org/TR/DOM-Level-2-Core/core#Core-Document-importNode">http://www.w3.org/TR/DOM-Level-2-Core/core#Core-Document-importNode</a>
  * @see <a href="http://www.w3.org/TR/DOM-Level-2-Core/core#ID-Core-DocType-systemId">http://www.w3.org/TR/DOM-Level-2-Core/core#ID-Core-DocType-systemId</a>
  */
-public class importNode08 extends DOMTestCase {
+public class importNode08 {
     @Test
     public void testRun() throws Throwable {
         Document doc;

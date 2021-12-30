@@ -26,9 +26,9 @@ import org.junit.Test;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.domts.DOMTestCase;
 
 import static org.junit.Assert.assertTrue;
+import static org.w3c.domts.DOMTest.load;
 
 
 /**
@@ -40,7 +40,7 @@ import static org.junit.Assert.assertTrue;
  * @see <a href="http://www.w3.org/TR/DOM-Level-2-Core/core#ID-ElSetAttrNS">http://www.w3.org/TR/DOM-Level-2-Core/core#ID-ElSetAttrNS</a>
  * @see <a href="http://www.w3.org/Bugs/Public/show_bug.cgi?id=259">http://www.w3.org/Bugs/Public/show_bug.cgi?id=259</a>
  */
-public class elementsetattributens05 extends DOMTestCase {
+public class elementsetattributens05 {
     @Test
     public void testRun() throws Throwable {
         Document doc;

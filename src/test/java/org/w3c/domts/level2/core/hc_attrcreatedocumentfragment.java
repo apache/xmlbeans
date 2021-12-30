@@ -21,9 +21,9 @@ package org.w3c.domts.level2.core;
 
 import org.junit.Test;
 import org.w3c.dom.*;
-import org.w3c.domts.DOMTestCase;
 
 import static org.junit.Assert.assertEquals;
+import static org.w3c.domts.DOMTest.load;
 
 
 /**
@@ -39,7 +39,7 @@ import static org.junit.Assert.assertEquals;
  * @see <a href="http://lists.w3.org/Archives/Public/www-dom-ts/2003Jun/0011.html">http://lists.w3.org/Archives/Public/www-dom-ts/2003Jun/0011.html</a>
  * @see <a href="http://www.w3.org/Bugs/Public/show_bug.cgi?id=184">http://www.w3.org/Bugs/Public/show_bug.cgi?id=184</a>
  */
-public class hc_attrcreatedocumentfragment extends DOMTestCase {
+public class hc_attrcreatedocumentfragment {
     @Test
     public void testRun() throws Throwable {
         Document doc;
@@ -62,7 +62,7 @@ public class hc_attrcreatedocumentfragment extends DOMTestCase {
             attribute = (Attr) attributes.item(indexd428e69);
             attrName = attribute.getNodeName();
 
-            if (equals("lang", attrName)) {
+            if ("lang".equals(attrName)) {
                 langAttrCount += 1;
             }
         }

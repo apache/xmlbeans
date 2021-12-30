@@ -26,9 +26,9 @@ import org.junit.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
-import org.w3c.domts.DOMTestCase;
 
 import static org.junit.Assert.assertEquals;
+import static org.w3c.domts.DOMTest.load;
 
 
 /**
@@ -44,7 +44,7 @@ import static org.junit.Assert.assertEquals;
  *
  * @see <a href="http://www.w3.org/TR/DOM-Level-2-Core/core#ID-getElBTNNS">http://www.w3.org/TR/DOM-Level-2-Core/core#ID-getElBTNNS</a>
  */
-public class getElementsByTagNameNS02 extends DOMTestCase {
+public class getElementsByTagNameNS02 {
     @Test
     public void testRun() throws Throwable {
         Document doc;
@@ -54,7 +54,7 @@ public class getElementsByTagNameNS02 extends DOMTestCase {
         String lname;
         doc = load("staffNS", false);
         newList = doc.getElementsByTagNameNS("*", "employee");
-        assertSize("employeeCount", 5, newList);
+        assertEquals("employeeCount", 5, newList.getLength());
         newElement = (Element) newList.item(3);
         prefix = newElement.getPrefix();
         assertEquals("prefix", "emp", prefix);

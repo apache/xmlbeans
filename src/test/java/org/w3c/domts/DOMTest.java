@@ -48,39 +48,65 @@
 package org.w3c.domts;
 
 import dom.common.Loader;
-import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Document;
 import tools.util.JarUtil;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * This is an abstract base class for generated DOM tests
  */
 
-public abstract class DOMTest {
-    private Document _XBeanDoc;
-
-    public DOMImplementation getImplementation() {
-        return _XBeanDoc.getImplementation();
-    }
-
-    public Document load(String docURI, boolean willBeModified)
-        throws DOMTestLoadException {
-
-
+public final class DOMTest {
+    public static Document load(String docURI, boolean willBeModified) throws DOMTestLoadException {
         try {
             String sXml = JarUtil.getResourceFromJar(
                 "xbean/dom/W3C/level2/core/files/" + docURI + ".xml");
             Loader _loader = Loader.getLoader();
-            _XBeanDoc = _loader.load(sXml);
+            return _loader.load(sXml);
         } catch (Exception e) {
             throw new DOMTestLoadException(e);
         }
-        return _XBeanDoc;
     }
 
-    abstract public String getTargetURI();
-
-    public final boolean isExpandEntityReferences() {
+    public static boolean isExpandEntityReferences() {
         return false;
+    }
+
+
+    public static void assertURIEquals(String assertID, String file, String actual) {
+        //  URI must be non-null
+        assertNotNull(assertID, actual);
+
+        String uri = actual;
+
+        int lastPound = actual.lastIndexOf("#");
+        if (lastPound != -1) {
+            // substring before pound
+            uri = actual.substring(0, lastPound);
+        }
+
+        int lastQuestion = uri.lastIndexOf("?");
+        if (lastQuestion != -1) {
+            // substring before pound
+            uri = actual.substring(0, lastQuestion);
+        }
+
+        int firstColon = uri.indexOf(":");
+        int firstSlash = uri.indexOf("/");
+        String actualPath = uri;
+        if (firstColon != -1 && firstColon < firstSlash) {
+            actualPath = uri.substring(firstColon + 1);
+        }
+
+        String actualFile = actualPath;
+        if (file != null) {
+            int finalSlash = actualPath.lastIndexOf("/");
+            if (finalSlash != -1) {
+                actualFile = actualPath.substring(finalSlash + 1);
+            }
+            assertEquals(assertID, file, actualFile);
+        }
     }
 }

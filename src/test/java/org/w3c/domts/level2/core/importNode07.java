@@ -22,15 +22,16 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
+import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
-import org.w3c.domts.DOMTestCase;
 
 import static org.junit.Assert.assertEquals;
+import static org.w3c.domts.DOMTest.load;
 
 
 /**
@@ -47,7 +48,7 @@ import static org.junit.Assert.assertEquals;
  * @see <a href="http://www.w3.org/TR/DOM-Level-2-Core/core#Core-Document-importNode">http://www.w3.org/TR/DOM-Level-2-Core/core#Core-Document-importNode</a>
  * @see <a href="http://www.w3.org/Bugs/Public/show_bug.cgi?id=238">http://www.w3.org/Bugs/Public/show_bug.cgi?id=238</a>
  */
-public class importNode07 extends DOMTestCase {
+public class importNode07 {
     @Test
     @Ignore("default attribute not supported")
     public void testRun() throws Throwable {
@@ -66,7 +67,7 @@ public class importNode07 extends DOMTestCase {
         element = aNewDoc.createElementNS(namespaceURI, qualifiedName);
         aNode = doc.importNode(element, false);
         attributes = aNode.getAttributes();
-        assertSize("throw_Size", 1, attributes);
+        Assert.assertEquals("throw_Size", 1, attributes.getLength());
         name = aNode.getNodeName();
         assertEquals("nodeName", "emp:employee", name);
         attr = attributes.item(0);

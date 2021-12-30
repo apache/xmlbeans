@@ -26,7 +26,9 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.DocumentType;
-import org.w3c.domts.DOMTestCase;
+
+import static org.w3c.domts.DOMTest.assertURIEquals;
+import static org.w3c.domts.DOMTest.load;
 
 
 /**
@@ -39,7 +41,7 @@ import org.w3c.domts.DOMTestCase;
  *
  * @see <a href="http://www.w3.org/TR/DOM-Level-2-Core/core#ID-Core-DocType-systemId">http://www.w3.org/TR/DOM-Level-2-Core/core#ID-Core-DocType-systemId</a>
  */
-public class systemId01 extends DOMTestCase {
+public class systemId01 {
     @Test
     @Ignore
     public void testRun() throws Throwable {
@@ -50,7 +52,7 @@ public class systemId01 extends DOMTestCase {
         doc = load("staffNS", false);
         docType = doc.getDoctype();
         systemId = docType.getSystemId();
-        assertURIEquals("systemId", null, null, null, "staffNS.dtd", null, null, null, null, systemId);
+        assertURIEquals("systemId", "staffNS.dtd", systemId);
 
     }
 

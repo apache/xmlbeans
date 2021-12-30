@@ -24,10 +24,10 @@ package org.w3c.domts.level2.core;
 
 import org.junit.Test;
 import org.w3c.dom.*;
-import org.w3c.domts.DOMTestCase;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import static org.w3c.domts.DOMTest.load;
 
 
 /**
@@ -41,7 +41,7 @@ import static org.junit.Assert.assertNull;
  * @see <a href="http://www.w3.org/Bugs/Public/show_bug.cgi?id=259">http://www.w3.org/Bugs/Public/show_bug.cgi?id=259</a>
  * @see <a href="http://www.w3.org/Bugs/Public/show_bug.cgi?id=402">http://www.w3.org/Bugs/Public/show_bug.cgi?id=402</a>
  */
-public class documentimportnode14 extends DOMTestCase {
+public class documentimportnode14 {
     @Test
     public void testRun() throws Throwable {
         Document doc;
@@ -59,7 +59,7 @@ public class documentimportnode14 extends DOMTestCase {
         doc = load("staffNS", true);
         childList = doc.getElementsByTagNameNS("*", "employee");
         employeeElem = childList.item(3);
-        domImpl = getImplementation();
+        domImpl = doc.getImplementation();
         newDoc = domImpl.createDocument(nullNS, "staff", nullDocType);
         imported = newDoc.importNode(employeeElem, true);
         attrNode = ((Element) /*Node */imported).getAttributeNodeNS(nullNS, "defaultAttr");

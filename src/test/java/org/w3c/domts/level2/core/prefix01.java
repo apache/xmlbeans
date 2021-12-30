@@ -25,9 +25,9 @@ package org.w3c.domts.level2.core;
 import org.junit.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
-import org.w3c.domts.DOMTestCase;
 
 import static org.junit.Assert.assertNull;
+import static org.w3c.domts.DOMTest.load;
 
 
 /**
@@ -42,7 +42,7 @@ import static org.junit.Assert.assertNull;
  *
  * @see <a href="http://www.w3.org/TR/DOM-Level-2-Core/core#ID-NodeNSPrefix">http://www.w3.org/TR/DOM-Level-2-Core/core#ID-NodeNSPrefix</a>
  */
-public class prefix01 extends DOMTestCase {
+public class prefix01 {
     @Test
     public void testRun() throws Throwable {
         Document doc;

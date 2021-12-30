@@ -27,10 +27,10 @@ import org.junit.Test;
 import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Document;
 import org.w3c.dom.DocumentType;
-import org.w3c.domts.DOMTestCase;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.w3c.domts.DOMTest.load;
 
 
 /**
@@ -43,7 +43,7 @@ import static org.junit.Assert.assertNull;
  *
  * @see <a href="http://www.w3.org/TR/DOM-Level-2-Core/core#Level-2-Core-DOM-createDocType">http://www.w3.org/TR/DOM-Level-2-Core/core#Level-2-Core-DOM-createDocType</a>
  */
-public class domimplementationcreatedocumenttype02 extends DOMTestCase {
+public class domimplementationcreatedocumenttype02 {
     @Test
     @Ignore
     public void testRun() throws Throwable {

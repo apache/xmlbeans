@@ -26,9 +26,9 @@ import org.junit.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
-import org.w3c.domts.DOMTestCase;
 
 import static org.junit.Assert.assertTrue;
+import static org.w3c.domts.DOMTest.load;
 
 
 /**
@@ -42,7 +42,7 @@ import static org.junit.Assert.assertTrue;
  *
  * @see <a href="http://www.w3.org/TR/DOM-Level-2-Core/core#ID-ElHasAttrNS">http://www.w3.org/TR/DOM-Level-2-Core/core#ID-ElHasAttrNS</a>
  */
-public class hasAttributeNS05 extends DOMTestCase {
+public class hasAttributeNS05 {
     @Test
     public void testRun() throws Throwable {
         String localName = "domestic";

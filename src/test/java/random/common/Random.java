@@ -30,6 +30,8 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Locale;
+import java.util.TimeZone;
 
 public class Random implements Runnable {
 
@@ -483,7 +485,7 @@ public class Random implements Runnable {
 
         if (x instanceof PurchaseOrder) {
             PurchaseOrder o = (PurchaseOrder) x;
-            o.setDate(Calendar.getInstance());
+            o.setDate(Calendar.getInstance(TimeZone.getTimeZone("UTC"), Locale.ROOT));
         } else if (x instanceof XmlCustomerBean) {
             XmlCustomerBean o = (XmlCustomerBean) x;
             o.setName("Bob");

@@ -25,10 +25,10 @@ package org.w3c.domts.level2.core;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.w3c.dom.*;
-import org.w3c.domts.DOMTestCase;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import static org.w3c.domts.DOMTest.load;
 
 
 /**
@@ -47,7 +47,7 @@ import static org.junit.Assert.assertNull;
 /**
  * @ignore true: ER, etc
  */
-public class documentimportnode22 extends DOMTestCase {
+public class documentimportnode22 {
     @Test
     @Ignore
     public void testRun() throws Throwable {

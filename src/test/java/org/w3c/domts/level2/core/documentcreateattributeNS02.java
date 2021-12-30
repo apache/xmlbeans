@@ -25,9 +25,9 @@ package org.w3c.domts.level2.core;
 import org.junit.Test;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
-import org.w3c.domts.DOMTestCase;
 
 import static org.junit.Assert.assertEquals;
+import static org.w3c.domts.DOMTest.load;
 
 
 /**
@@ -39,7 +39,7 @@ import static org.junit.Assert.assertEquals;
  * @see <a href="http://www.w3.org/TR/DOM-Level-2-Core/core#ID-DocCrAttrNS">http://www.w3.org/TR/DOM-Level-2-Core/core#ID-DocCrAttrNS</a>
  */
 //BUG:eric's code treats QName as a localname here
-public class documentcreateattributeNS02 extends DOMTestCase {
+public class documentcreateattributeNS02 {
     @Test
     public void testRun() throws Throwable {
         Document doc;

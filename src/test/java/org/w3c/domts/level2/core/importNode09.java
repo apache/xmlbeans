@@ -28,9 +28,10 @@ import org.w3c.dom.Document;
 import org.w3c.dom.DocumentType;
 import org.w3c.dom.Entity;
 import org.w3c.dom.NamedNodeMap;
-import org.w3c.domts.DOMTestCase;
 
 import static org.junit.Assert.assertEquals;
+import static org.w3c.domts.DOMTest.assertURIEquals;
+import static org.w3c.domts.DOMTest.load;
 
 
 /**
@@ -45,7 +46,7 @@ import static org.junit.Assert.assertEquals;
  *
  * @see <a href="http://www.w3.org/TR/DOM-Level-2-Core/core#Core-Document-importNode">http://www.w3.org/TR/DOM-Level-2-Core/core#Core-Document-importNode</a>
  */
-public class importNode09 extends DOMTestCase {
+public class importNode09 {
     @Test
     @Ignore
     public void testRun() throws Throwable {
@@ -70,13 +71,13 @@ public class importNode09 extends DOMTestCase {
         ownerDocument = entity1.getOwnerDocument();
         docType = ownerDocument.getDoctype();
         system = docType.getSystemId();
-        assertURIEquals("dtdSystemId", null, null, null, "staffNS.dtd", null, null, null, null, system);
+        assertURIEquals("dtdSystemId", "staffNS.dtd", system);
         entityName = entity1.getNodeName();
         assertEquals("entityName", "ent6", entityName);
         publicVal = entity1.getPublicId();
         assertEquals("entityPublicId", "uri", publicVal);
         system = entity1.getSystemId();
-        assertURIEquals("entitySystemId", null, null, null, "file", null, null, null, null, system);
+        assertURIEquals("entitySystemId", "file", system);
         notationName = entity1.getNotationName();
         assertEquals("notationName", "notation2", notationName);
 

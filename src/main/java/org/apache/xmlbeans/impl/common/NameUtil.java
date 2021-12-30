@@ -554,14 +554,7 @@ public class NameUtil {
             buf.append(words.get(sz));
         }
 
-        //upcase entire buffer
-        final int len = buf.length();
-        for (int j = 0; j < len; j++) {
-            char c = buf.charAt(j);
-            buf.setCharAt(j, Character.toUpperCase(c));
-        }
-
-        return buf.toString();
+        return buf.toString().toUpperCase(Locale.ROOT);
     }
 
     /**
@@ -633,7 +626,7 @@ public class NameUtil {
     }
 
     public static String upperCaseFirstLetter(String s) {
-        if (s.length() == 0 || Character.isUpperCase(s.charAt(0))) {
+        if (s.isEmpty() || Character.isUpperCase(s.charAt(0))) {
             return s;
         }
 

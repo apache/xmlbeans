@@ -25,7 +25,9 @@ package org.w3c.domts.level2.core;
 import org.junit.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
-import org.w3c.domts.DOMTestCase;
+
+import static org.junit.Assert.assertEquals;
+import static org.w3c.domts.DOMTest.load;
 
 
 /**
@@ -44,7 +46,7 @@ import org.w3c.domts.DOMTestCase;
  *
  */
 
-public class getElementsByTagNameNS01 extends DOMTestCase {
+public class getElementsByTagNameNS01 {
     @Test
     public void testRun() throws Throwable {
         String namespaceURI = "*";
@@ -55,7 +57,7 @@ public class getElementsByTagNameNS01 extends DOMTestCase {
         newList = doc.getElementsByTagNameNS(namespaceURI, localName);
 
         //Yana: claim is 37, I counted 36
-        assertSize("throw_Size", 36, newList);
+        assertEquals("throw_Size", 36, newList.getLength());
 
     }
 

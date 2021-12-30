@@ -28,9 +28,9 @@ import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.DocumentType;
 import org.w3c.dom.Node;
-import org.w3c.domts.DOMTestCase;
 
 import static org.junit.Assert.assertTrue;
+import static org.w3c.domts.DOMTest.load;
 
 
 /**
@@ -49,7 +49,7 @@ import static org.junit.Assert.assertTrue;
 /**
  * @ ignore true
  */
-public class documentimportnode07 extends DOMTestCase {
+public class documentimportnode07 {
     @Test
     @Ignore
     public void testRun() throws Throwable {

@@ -25,7 +25,9 @@ package org.w3c.domts.level2.core;
 import org.junit.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
-import org.w3c.domts.DOMTestCase;
+
+import static org.junit.Assert.assertEquals;
+import static org.w3c.domts.DOMTest.load;
 
 
 /**
@@ -41,14 +43,14 @@ import org.w3c.domts.DOMTestCase;
  *
  * @see <a href="http://www.w3.org/TR/DOM-Level-2-Core/core#ID-getElBTNNS">http://www.w3.org/TR/DOM-Level-2-Core/core#ID-getElBTNNS</a>
  */
-public class getElementsByTagNameNS07 extends DOMTestCase {
+public class getElementsByTagNameNS07 {
     @Test
     public void testRun() throws Throwable {
         Document doc;
         NodeList elementList;
         doc = load("staffNS", false);
         elementList = doc.getElementsByTagNameNS("http://www.nist.gov", "address");
-        assertSize("addresses", 3, elementList);
+        assertEquals("addresses", 3, elementList.getLength());
 
     }
 

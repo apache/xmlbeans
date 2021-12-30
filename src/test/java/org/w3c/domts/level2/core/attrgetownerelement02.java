@@ -26,7 +26,9 @@ import org.junit.Test;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.domts.DOMTestCase;
+
+import static org.junit.Assert.assertEquals;
+import static org.w3c.domts.DOMTest.load;
 
 
 /**
@@ -37,7 +39,7 @@ import org.w3c.domts.DOMTestCase;
  *
  * @see <a href="http://www.w3.org/TR/DOM-Level-2-Core/core#Attr-ownerElement">http://www.w3.org/TR/DOM-Level-2-Core/core#Attr-ownerElement</a>
  */
-public class attrgetownerelement02 extends DOMTestCase {
+public class attrgetownerelement02 {
 
     @Test
     public void testRun() throws Throwable {
@@ -53,8 +55,7 @@ public class attrgetownerelement02 extends DOMTestCase {
         newAttr = element.setAttributeNodeNS(attr);
         ownerElement = attr.getOwnerElement();
         ownerElementName = ownerElement.getNodeName();
-        assertEqualsIgnoreCase("attrgetownerelement02", "root", ownerElementName);
-
+        assertEquals("attrgetownerelement02", "root", ownerElementName);
     }
 
     /**

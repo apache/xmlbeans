@@ -25,9 +25,9 @@ package org.w3c.domts.level2.core;
 import org.junit.Test;
 import org.w3c.dom.CharacterData;
 import org.w3c.dom.*;
-import org.w3c.domts.DOMTestCase;
 
 import static org.junit.Assert.assertEquals;
+import static org.w3c.domts.DOMTest.load;
 
 
 /**
@@ -47,7 +47,7 @@ import static org.junit.Assert.assertEquals;
  */
 
 
-public class normalize01 extends DOMTestCase {
+public class normalize01 {
 
 
     @Test

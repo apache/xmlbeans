@@ -25,10 +25,11 @@ package org.w3c.domts.level2.core;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.w3c.dom.*;
-import org.w3c.domts.DOMTestCase;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.w3c.domts.DOMTest.assertURIEquals;
+import static org.w3c.domts.DOMTest.load;
 
 
 /**
@@ -42,7 +43,7 @@ import static org.junit.Assert.assertNotNull;
  *
  * @see <a href="http://www.w3.org/TR/DOM-Level-2-Core/core#Core-Document-importNode">http://www.w3.org/TR/DOM-Level-2-Core/core#Core-Document-importNode</a>
  */
-public class importNode12 extends DOMTestCase {
+public class importNode12 {
     @Test
     @Ignore
     public void testRun() throws Throwable {
@@ -68,7 +69,7 @@ public class importNode12 extends DOMTestCase {
         ownerDocument = entity1.getOwnerDocument();
         docType = ownerDocument.getDoctype();
         system = docType.getSystemId();
-        assertURIEquals("systemId", null, null, null, "staffNS.dtd", null, null, null, null, system);
+        assertURIEquals("systemId", "staffNS.dtd", system);
         entityName = entity1.getNodeName();
         assertEquals("entityName", "ent4", entityName);
         child = entity1.getFirstChild();

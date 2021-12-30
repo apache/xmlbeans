@@ -34,15 +34,13 @@ import org.apache.xmlbeans.impl.tool.Diff;
 import org.junit.Assert;
 
 import javax.xml.namespace.QName;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -72,7 +70,7 @@ public class SomTestBase extends CompileTestBase {
         String logFileName = somOutputRootDir + P + "SOM_INSPECTION_RESULT_" + runid + ".txt";
         File outfile = new File(logFileName);
 
-        try (PrintWriter out = new PrintWriter(new FileWriter(outfile, true))) {
+        try (PrintWriter out = new PrintWriter(new OutputStreamWriter(new FileOutputStream(outfile,true), UTF_8))) {
 
             out.println("\n Call to inspectPSOM .. .. .. ..");
             out.println("\n\n =======================================================");

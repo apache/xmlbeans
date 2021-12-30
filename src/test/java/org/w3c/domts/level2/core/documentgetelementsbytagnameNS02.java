@@ -27,7 +27,9 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.w3c.domts.DOMTestCase;
+
+import static org.junit.Assert.assertEquals;
+import static org.w3c.domts.DOMTest.load;
 
 
 /**
@@ -42,7 +44,7 @@ import org.w3c.domts.DOMTestCase;
  * @see <a href="http://www.w3.org/TR/DOM-Level-2-Core/core">http://www.w3.org/TR/DOM-Level-2-Core/core</a>
  * @see <a href="http://www.w3.org/TR/DOM-Level-2-Core/core#ID-getElBTNNS">http://www.w3.org/TR/DOM-Level-2-Core/core#ID-getElBTNNS</a>
  */
-public class documentgetelementsbytagnameNS02 extends DOMTestCase {
+public class documentgetelementsbytagnameNS02 {
     @Test
     public void testRun() throws Throwable {
         Document doc;
@@ -55,8 +57,7 @@ public class documentgetelementsbytagnameNS02 extends DOMTestCase {
         element = doc.createElementNS("test", "employeeId");
         appendedChild = docElem.appendChild(element);
         childList = doc.getElementsByTagNameNS("*", "employeeId");
-        assertSize("documentgetelementsbytagnameNS02", 6, childList);
-
+        assertEquals("documentgetelementsbytagnameNS02", 6, childList.getLength());
     }
 
     /**

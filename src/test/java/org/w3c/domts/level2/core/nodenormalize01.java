@@ -25,7 +25,9 @@ package org.w3c.domts.level2.core;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.w3c.dom.*;
-import org.w3c.domts.DOMTestCase;
+
+import static org.junit.Assert.assertEquals;
+import static org.w3c.domts.DOMTest.load;
 
 
 /**
@@ -39,7 +41,7 @@ import org.w3c.domts.DOMTestCase;
  *
  * @see <a href="http://www.w3.org/TR/DOM-Level-2-Core/core#ID-normalize">http://www.w3.org/TR/DOM-Level-2-Core/core#ID-normalize</a>
  */
-public class nodenormalize01 extends DOMTestCase {
+public class nodenormalize01 {
     @Test
     @Ignore("entity reference")
     public void testRun() throws Throwable {
@@ -123,34 +125,34 @@ public class nodenormalize01 extends DOMTestCase {
         appendedChild = element7.appendChild(text3);
         appendedChild = element1.appendChild(element7);
         elementList = element1.getChildNodes();
-        assertSize("nodeNormalize01_1Bef", 6, elementList);
+        assertEquals("nodeNormalize01_1Bef", 6, elementList.getLength());
         elementList = element2.getChildNodes();
-        assertSize("nodeNormalize01_2Bef", 3, elementList);
+        assertEquals("nodeNormalize01_2Bef", 3, elementList.getLength());
         elementList = element3.getChildNodes();
-        assertSize("nodeNormalize01_3Bef", 3, elementList);
+        assertEquals("nodeNormalize01_3Bef", 3, elementList.getLength());
         elementList = element4.getChildNodes();
-        assertSize("nodeNormalize01_4Bef", 3, elementList);
+        assertEquals("nodeNormalize01_4Bef", 3, elementList.getLength());
         elementList = element5.getChildNodes();
-        assertSize("nodeNormalize01_5Bef", 3, elementList);
+        assertEquals("nodeNormalize01_5Bef", 3, elementList.getLength());
         elementList = element6.getChildNodes();
-        assertSize("nodeNormalize01_6Bef", 3, elementList);
+        assertEquals("nodeNormalize01_6Bef", 3, elementList.getLength());
         elementList = element7.getChildNodes();
-        assertSize("nodeNormalize01_7Bef", 4, elementList);
+        assertEquals("nodeNormalize01_7Bef", 4, elementList.getLength());
         newDoc.normalize();
         elementList = element1.getChildNodes();
-        assertSize("nodeNormalize01_1Aft", 6, elementList);
+        assertEquals("nodeNormalize01_1Aft", 6, elementList.getLength());
         elementList = element2.getChildNodes();
-        assertSize("nodeNormalize01_2Aft", 1, elementList);
+        assertEquals("nodeNormalize01_2Aft", 1, elementList.getLength());
         elementList = element3.getChildNodes();
-        assertSize("nodeNormalize01_3Aft", 2, elementList);
+        assertEquals("nodeNormalize01_3Aft", 2, elementList.getLength());
         elementList = element4.getChildNodes();
-        assertSize("nodeNormalize01_4Aft", 2, elementList);
+        assertEquals("nodeNormalize01_4Aft", 2, elementList.getLength());
         elementList = element5.getChildNodes();
-        assertSize("nodeNormalize01_5Aft", 2, elementList);
+        assertEquals("nodeNormalize01_5Aft", 2, elementList.getLength());
         elementList = element6.getChildNodes();
-        assertSize("nodeNormalize01_6Aft", 2, elementList);
+        assertEquals("nodeNormalize01_6Aft", 2, elementList.getLength());
         elementList = element7.getChildNodes();
-        assertSize("nodeNormalize01_7Aft", 2, elementList);
+        assertEquals("nodeNormalize01_7Aft", 2, elementList.getLength());
 
     }
 

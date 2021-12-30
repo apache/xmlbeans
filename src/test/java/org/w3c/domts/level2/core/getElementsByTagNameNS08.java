@@ -26,7 +26,9 @@ import org.junit.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
-import org.w3c.domts.DOMTestCase;
+
+import static org.junit.Assert.assertEquals;
+import static org.w3c.domts.DOMTest.load;
 
 
 /**
@@ -44,7 +46,7 @@ import org.w3c.domts.DOMTestCase;
 /**
  *
  */
-public class getElementsByTagNameNS08 extends DOMTestCase {
+public class getElementsByTagNameNS08 {
     @Test
     public void testRun() throws Throwable {
         Document doc;
@@ -57,8 +59,7 @@ public class getElementsByTagNameNS08 extends DOMTestCase {
 
         // 35, without the document element which we used to get the elements
         System.out.println(docElem.getOwnerDocument().getImplementation());
-        assertSize("listSize" + docElem.getOwnerDocument().getImplementation(), 35, newList);
-
+        assertEquals("listSize" + docElem.getOwnerDocument().getImplementation(), 35, newList.getLength());
     }
 
     /**

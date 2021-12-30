@@ -15,6 +15,19 @@
    limitations under the License.
 ==================================================================== */
 
+buildscript {
+    repositories {
+        maven { url 'https://plugins.gradle.org/m2/' }
+        // mavenCentral()
+    }
+
+    dependencies {
+        // classpath 'org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:3.3'
+        classpath 'de.thetaphi:forbiddenapis:3.2'
+    }
+}
+
+
 plugins {
     id 'java'
     id 'java-library'
@@ -23,17 +36,15 @@ plugins {
     id('org.nosphere.apache.rat') version '0.7.0'
 }
 
+apply plugin: 'de.thetaphi.forbiddenapis'
+
 sourceCompatibility = JavaVersion.VERSION_1_8
 targetCompatibility = JavaVersion.VERSION_1_8
 
 repositories {
     mavenCentral()
-    maven {
-        url 'https://repository.apache.org/content/repositories/releases'
-    }
-    maven {
-        url 'https://repository.apache.org/content/repositories/staging'
-    }
+    maven { url 'https://repository.apache.org/content/repositories/releases' }
+    maven { url 'https://repository.apache.org/content/repositories/staging' }
 }
 
 configurations {
@@ -342,7 +353,17 @@ jar {
     }
 }
 
+javadocJar {
+    archiveBaseName = "xmlbeans-${XMLBeansVersion}"
+}
+
+sourcesJar {
+    archiveBaseName = "xmlbeans-${XMLBeansVersion}"
+}
+
 rat {
+    dependsOn 'cacheJava9'
+
     excludes = [
         'tmp',
         'out',
@@ -376,22 +397,20 @@ rat {
 }
 
 distributions {
-//    dependsOn 'jar'
 
-    def version = XMLBeansVersion
     def date = new Date().format('yyyyMMdd')
-    String root = "xmlbeans-${version}/"
-
-    def xbDep = configurations.compileClasspath
+    String root = "xmlbeans-${XMLBeansVersion}/"
 
     bin {
+
         // for this to work, project.version shouldn't be defined
-        distributionBaseName = "xmlbeans-bin-${version}-${date}"
+        distributionBaseName = "xmlbeans-bin-${XMLBeansVersion}-${date}"
 
         contents {
             from('build/libs') {
                 include 'xmlbeans-*.jar'
                 include 'log4j-api*.jar'
+                include 'javaparser*.jar'
                 into 'lib'
             }
             from ('xkit')
@@ -414,13 +433,44 @@ distributions {
             }
         }
     }
+    src {
+        distributionBaseName = "xmlbeans-src-${XMLBeansVersion}-${date}"
+        contents {
+            from(".") {
+                exclude 'tmp'
+                exclude 'out'
+                exclude 'gradle*'
+                exclude '.gradle'
+                exclude '.idea'
+                exclude 'build'
+                exclude '**/build'
+            }
+
+            includeEmptyDirs = false
+            duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+
+            eachFile {
+                path = root + path.replaceAll("^[^/]+/","")
+            }
+        }
+    }
 }
+
+tasks.withType(Tar) {
+    compression = Compression.GZIP
+    archiveExtension = 'tgz'
+}
+
+
+//binDistZip.dependsOn ['jar', 'javadocJar', 'sourcesJar']
 
 task jenkins() {
     dependsOn 'check'
-    dependsOn 'javadoc'
     dependsOn 'rat'
     dependsOn 'binDistZip'
+    dependsOn 'binDistTar'
+    dependsOn 'srcDistZip'
+    dependsOn 'srcDistTar'
 }
 
 clean {
@@ -428,6 +478,19 @@ clean {
         fileset(dir:"samples", includes:"*/build/**")
     }
 }
+
+forbiddenApis {
+    bundledSignatures = [ 'jdk-unsafe', 'jdk-deprecated', 'jdk-internal', 'jdk-non-portable', 'jdk-reflection' ]
+    //
+    // signaturesFiles = files('src/test/resources/forbiddenApis/forbidden-signatures.txt')
+    ignoreFailures = false
+    suppressAnnotations = [ 'org.apache.xmlbeans.impl.util.SuppressForbidden' ]
+    // forbiddenapis bundled signatures max supported version is 14
+    targetCompatibility = (JavaVersion.VERSION_14.isCompatibleWith(JavaVersion.current()) ? JavaVersion.current() : JavaVersion.VERSION_14)
+}
+
+//forbiddenApisMain.onlyIf { false }
+forbiddenApisTest.onlyIf { false }
 
 Set<File> xsdDirs(File parent) {
     Set<File> xsdDirs = [] as Set<File>
