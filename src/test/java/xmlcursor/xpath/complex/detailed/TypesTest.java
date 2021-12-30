@@ -52,6 +52,23 @@ public class TypesTest {
     }
 
     @Test
+    public void testZDate() {
+        boolean negativeOffset = OffsetDateTime.now().getOffset().getTotalSeconds() < 0;
+        res = o.selectPath("xs:date(\"2000-01-01Z\")");
+        assertEquals(1, res.length);
+        Calendar d = ((XmlDate) res[0]).getCalendarValue();
+        if (negativeOffset) {
+            assertEquals(1999, d.get(Calendar.YEAR));
+            assertEquals(11, d.get(Calendar.MONTH));
+            assertEquals(31, d.get(Calendar.DAY_OF_MONTH));
+        } else {
+            assertEquals(2000, d.get(Calendar.YEAR));
+            assertEquals(0, d.get(Calendar.MONTH));
+            assertEquals(1, d.get(Calendar.DAY_OF_MONTH));
+        }
+    }
+
+    @Test
     public void testDecimal() {
         res = o.selectPath(
             "seconds-from-dateTime(xs:dateTime('1997-07-16T19:20:30+01:00'))");
