@@ -34,9 +34,18 @@ plugins {
     id 'idea'
     id 'distribution'
     id('org.nosphere.apache.rat') version '0.7.0'
+    id('de.thetaphi.forbiddenapis') version '3.2'
+    id 'jacoco'
 }
 
-apply plugin: 'de.thetaphi.forbiddenapis'
+// Only add the plugin for Sonar if enabled
+if (project.hasProperty('enableSonar')) {
+    println 'Enabling Sonar support'
+    apply plugin: 'org.sonarqube'
+}
+
+
+
 
 sourceCompatibility = JavaVersion.VERSION_1_8
 targetCompatibility = JavaVersion.VERSION_1_8
@@ -466,6 +475,7 @@ tasks.withType(Tar) {
 
 task jenkins() {
     dependsOn 'check'
+    dependsOn 'jacocoTestReport'
     dependsOn 'rat'
     dependsOn 'binDistZip'
     dependsOn 'binDistTar'
@@ -491,6 +501,55 @@ forbiddenApis {
 
 //forbiddenApisMain.onlyIf { false }
 forbiddenApisTest.onlyIf { false }
+
+
+if (project.hasProperty('enableSonar')) {
+    // See https://docs.sonarqube.org/latest/analysis/scan/sonarscanner-for-gradle/ and
+    // https://docs.sonarqube.org/display/SONARQUBE52/Analyzing+with+SonarQube+Scanner+for+Gradle
+    // for documentation of properties.
+    //
+    // Some additional properties are currently set in the Jenkins-DSL, see jenksin/create_jobs.groovy
+    //
+    sonarqube {
+        properties {
+            // as we currently use build/<module>/ as project-basedir, we need to tell Sonar to use
+            // the root-folder as "basedir" for the projects
+            property "sonar.projectBaseDir", "$projectDir"
+            // currently supported providers on Jenkins: "hg,git": property "sonar.scm.provider", "svn"
+
+            // the plugin seems to not detect our non-standard build-layout
+            property "sonar.junit.reportPaths", "$projectDir/build/test-results/test"
+
+            // the Gradle run will report an invalid directory for 'ooxml-schema', but it seems to still work fine
+            property "sonar.coverage.jacoco.xmlReportPaths", "$projectDir/build/reports/jacoco/test/jacocoTestReport.xml"
+
+            // somehow the version was not use properly
+            property "sonar.projectVersion", version
+        }
+    }
+}
+
+
+jacoco {
+    toolVersion = '0.8.7'
+}
+
+test {
+    jacoco {
+        excludes = [
+            // this is necessary to make JaCoCo work with JDK 18 for now
+            'sun/**',
+            'javax/**',
+        ]
+    }
+}
+
+jacocoTestReport {
+    reports {
+        xml.required = true
+    }
+}
+
 
 Set<File> xsdDirs(File parent) {
     Set<File> xsdDirs = [] as Set<File>
