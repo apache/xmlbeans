@@ -17,6 +17,7 @@
 package misc.detailed;
 
 import org.apache.xmlbeans.impl.common.SystemCache;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -24,7 +25,13 @@ import static org.junit.Assert.assertNull;
 
 public class SystemCacheTests {
     @Test
+    @Ignore("invalid test")
     public void testSystemCacheImplFromAPITest() {
+        // Test ignored:
+        // this test is dangerous if we eventually execute tests in parallel and
+        // also the premise that the SystemCache instance is the default is wrong,
+        // as SchemaTypeLoaderImpl overrides the SystemCache
+
         // store the default SystemCache implementation before switch
         SystemCache defaultImpl = SystemCache.get();
 

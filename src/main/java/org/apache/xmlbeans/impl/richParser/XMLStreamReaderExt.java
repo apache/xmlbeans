@@ -20,13 +20,13 @@ import org.apache.xmlbeans.GDuration;
 import org.apache.xmlbeans.XmlCalendar;
 import org.apache.xmlbeans.impl.common.XmlWhitespace;
 
-import javax.xml.stream.XMLStreamReader;
-import javax.xml.stream.XMLStreamException;
 import javax.xml.namespace.QName;
-import java.math.BigInteger;
-import java.math.BigDecimal;
-import java.util.Date;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
 import java.io.InputStream;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.util.Date;
 
 /**
  * This interface extends the simple XMLStreamReader interface adding
@@ -215,7 +215,7 @@ public interface XMLStreamReaderExt
     /** Sets the default value for the next getXXXValue() call.
      *  For example:
      *     setDefaultValue("7");
-     *     //the xml looks like: <int>  </int>
+     *     //the xml looks like: {@code <int>  </int>}
      *     int i = getIntValue(); // returns 7
      *     // from now on the default value will not apply anymore
      * Note: Works for getAttributeXXXValue(...) too.

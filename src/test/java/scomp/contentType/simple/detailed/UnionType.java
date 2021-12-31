@@ -64,7 +64,7 @@ public class UnionType extends BaseCase {
             throw t;
         }
         doc.setUnionElt(5);
-        assertTrue(!doc.validate(validateOptions));
+        assertFalse(doc.validate(validateOptions));
         showErrors();
         String[] errExpected = new String[]{
             XmlErrorCodes.DATATYPE_VALID$UNION};
@@ -105,12 +105,10 @@ public class UnionType extends BaseCase {
                 "-2" +
                 "</UnionElt>";
         UnionEltDocument doc = UnionEltDocument.Factory.parse(input);
-        assertTrue(!doc.validate(validateOptions));
+        assertFalse(doc.validate(validateOptions));
         showErrors();
-        String[] errExpected = new String[]{
-            XmlErrorCodes.DATATYPE_MIN_EXCLUSIVE_VALID};
-                    assertTrue(compareErrorCodes(errExpected));
-
+        String[] errExpected = {XmlErrorCodes.DATATYPE_MIN_INCLUSIVE_VALID};
+        assertTrue(compareErrorCodes(errExpected));
     }
 
     /**
@@ -170,7 +168,7 @@ public class UnionType extends BaseCase {
         {
             doc.setUnionOfUnions("foobar");
 
-            assertTrue(!doc.validate(validateOptions));
+            assertFalse(doc.validate(validateOptions));
 
             showErrors();
             String[] errExpected = new String[]{"cvc-attribute"};
@@ -231,7 +229,7 @@ public class UnionType extends BaseCase {
     @Test
     public void testUnionOfLists() throws Throwable {
         UnionOfListsDocument doc = UnionOfListsDocument.Factory.newInstance();
-        List vals = new ArrayList();
+        List<Object> vals = new ArrayList<>();
         vals.add("small");
         vals.add(-1);
         vals.add(-2);
@@ -265,7 +263,7 @@ public class UnionType extends BaseCase {
         //mixing and matching should not be allowed
         //the list shoudl have exactly one of the 2 union types
         vals.add("lstsmall");
-        vals.add(new Integer(-1));
+        vals.add(-1);
 
         // if the type in a union and cannot be converted into any of the union types, and in this case
         // since the list have enumerations, an exception is expected irrespective of validateOnSet XmlOption

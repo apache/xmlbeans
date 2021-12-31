@@ -58,8 +58,8 @@ import javax.xml.namespace.QName;
  * <li>There is another universal base type that is the base type
  *     for all simple types.  This is the {@link XmlAnySimpleType#type},
  *     corresponding to xs:anySimpleType.   Only XmlObject.type and
- *     XmlAnySimpleType.type return <code>true</code> for {@link #isURType}, and
- *     only XmlBeans.NO_TYPE returns <code>true</code> for {@link #isNoType}.
+ *     XmlAnySimpleType.type return {@code true} for {@link #isURType}, and
+ *     only XmlBeans.NO_TYPE returns {@code true} for {@link #isNoType}.
  * <li>The two "special" kinds of types that are generated that
  *     do not formally exist in the actual Schema specification are
  *     document types and global attribute types (corresponding to
@@ -1082,12 +1082,14 @@ public interface SchemaType extends SchemaComponent, SchemaAnnotated {
      * Returns a QNameSet of elements that may exist in wildcard
      * buchets and are not explicitly defined in this schema type.
      * Note: In this example:
+     * <pre>{@code
      * <xs:complexType name="exampleType">
      * <xs:sequence>
      * <xs:element name="someElement" type='xs:string' />
      * <xs:any namespace="##targetNamespace" />
      * </xs:sequence>
      * </xs:complexType>
+     * }</pre>
      * the returned QNameSet will not contain the qname of 'someElement'.
      *
      * @return the constructed QNameSet
@@ -1098,11 +1100,13 @@ public interface SchemaType extends SchemaComponent, SchemaAnnotated {
      * Returns a QNameSet of attributes that may exist in wildcard
      * buchets and are not explicitly defined in this schema type.
      * Note: In this example:
+     * <pre>{@code
      * <xs:complexType name="exampleType">
      * ...
      * <xs:attribute name='someAttribute' type='xs:string' />
      * <xs:anyAttribute namespace="##targetNamespace" />
      * </xs:complexType>
+     * }</pre>
      * the returned QNameSet will not contain the qname of 'someAttribute'.
      *
      * @return the constructed QNameSet
@@ -1111,7 +1115,7 @@ public interface SchemaType extends SchemaComponent, SchemaAnnotated {
 
     /**
      * returns user specified documentation
-     *
+     * <pre>{@code
      * <xs:complexType ...>
      *   <xs:annotation>
      *      <xs:documentation>
@@ -1119,6 +1123,7 @@ public interface SchemaType extends SchemaComponent, SchemaAnnotated {
      *      </xs:docmentation>
      *   </xs:annotation>
      * </xs complexType>
+     * }</pre>
      */
     String getDocumentation();
 }

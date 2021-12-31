@@ -19,21 +19,21 @@ import javax.xml.transform.Source;
 import java.util.Iterator;
 
 /**
- * <P>The container for the SOAP-specific portion of a <CODE>
- * SOAPMessage</CODE> object. All messages are required to have a
- * SOAP part, so when a <CODE>SOAPMessage</CODE> object is
- * created, it will automatically have a <CODE>SOAPPart</CODE>
+ * <P>The container for the SOAP-specific portion of a {@code
+ * SOAPMessage} object. All messages are required to have a
+ * SOAP part, so when a {@code SOAPMessage} object is
+ * created, it will automatically have a {@code SOAPPart}
  * object.</P>
  *
- * <P>A <CODE>SOAPPart</CODE> object is a MIME part and has the
+ * <P>A {@code SOAPPart} object is a MIME part and has the
  * MIME headers Content-Id, Content-Location, and Content-Type.
- * Because the value of Content-Type must be "text/xml", a <CODE>
- * SOAPPart</CODE> object automatically has a MIME header of
+ * Because the value of Content-Type must be "text/xml", a {@code
+ * SOAPPart} object automatically has a MIME header of
  * Content-Type with its value set to "text/xml". The value must
  * be "text/xml" because content in the SOAP part of a message
  * must be in XML format. Content that is not of type "text/xml"
- * must be in an <CODE>AttachmentPart</CODE> object rather than in
- * the <CODE>SOAPPart</CODE> object.</P>
+ * must be in an {@code AttachmentPart} object rather than in
+ * the {@code SOAPPart} object.</P>
  *
  * <P>When a message is sent, its SOAP part must have the MIME
  * header Content-Type set to "text/xml". Or, from the other
@@ -41,31 +41,31 @@ import java.util.Iterator;
  * have the MIME header Content-Type with a value of
  * "text/xml".</P>
  *
- * <P>A client can access the <CODE>SOAPPart</CODE> object of a
- * <CODE>SOAPMessage</CODE> object by calling the method <CODE>
- * SOAPMessage.getSOAPPart</CODE>. The following line of code, in
- * which <CODE>message</CODE> is a <CODE>SOAPMessage</CODE>
+ * <P>A client can access the {@code SOAPPart} object of a
+ * {@code SOAPMessage} object by calling the method {@code
+ * SOAPMessage.getSOAPPart}. The following line of code, in
+ * which {@code message} is a {@code SOAPMessage}
  * object, retrieves the SOAP part of a message.</P>
  * <PRE>
  * SOAPPart soapPart = message.getSOAPPart();
  * </PRE>
  *
- * <P>A <CODE>SOAPPart</CODE> object contains a <CODE>
- * SOAPEnvelope</CODE> object, which in turn contains a <CODE>
- * SOAPBody</CODE> object and a <CODE>SOAPHeader</CODE> object.
- * The <CODE>SOAPPart</CODE> method <CODE>getEnvelope</CODE> can
- * be used to retrieve the <CODE>SOAPEnvelope</CODE> object.</P>
+ * <P>A {@code SOAPPart} object contains a {@code
+ * SOAPEnvelope} object, which in turn contains a {@code
+ * SOAPBody} object and a {@code SOAPHeader} object.
+ * The {@code SOAPPart} method {@code getEnvelope} can
+ * be used to retrieve the {@code SOAPEnvelope} object.</P>
  */
 public abstract class SOAPPart implements org.w3c.dom.Document {
 
     public SOAPPart() {}
 
     /**
-     * Gets the <CODE>SOAPEnvelope</CODE> object associated with
-     * this <CODE>SOAPPart</CODE> object. Once the SOAP envelope is
+     * Gets the {@code SOAPEnvelope} object associated with
+     * this {@code SOAPPart} object. Once the SOAP envelope is
      * obtained, it can be used to get its contents.
-     * @return the <CODE>SOAPEnvelope</CODE> object for this <CODE>
-     *     SOAPPart</CODE> object
+     * @return the {@code SOAPEnvelope} object for this {@code
+     *     SOAPPart} object
      * @throws  SOAPException if there is a SOAP error
      */
     public abstract SOAPEnvelope getEnvelope() throws SOAPException;
@@ -73,13 +73,13 @@ public abstract class SOAPPart implements org.w3c.dom.Document {
     /**
      * Retrieves the value of the MIME header whose name is
      * "Content-Id".
-     * @return  a <CODE>String</CODE> giving the value of the MIME
+     * @return  a {@code String} giving the value of the MIME
      *     header named "Content-Id"
      * @see #setContentId(java.lang.String) setContentId(java.lang.String)
      */
     public String getContentId() {
 
-        String as[] = getMimeHeader("Content-Id");
+        String[] as = getMimeHeader("Content-Id");
 
         if (as != null && as.length > 0) {
             return as[0];
@@ -91,13 +91,13 @@ public abstract class SOAPPart implements org.w3c.dom.Document {
     /**
      * Retrieves the value of the MIME header whose name is
      * "Content-Location".
-     * @return a <CODE>String</CODE> giving the value of the MIME
+     * @return a {@code String} giving the value of the MIME
      *     header whose name is "Content-Location"
      * @see #setContentLocation(java.lang.String) setContentLocation(java.lang.String)
      */
     public String getContentLocation() {
 
-        String as[] = getMimeHeader("Content-Location");
+        String[] as = getMimeHeader("Content-Location");
 
         if (as != null && as.length > 0) {
             return as[0];
@@ -108,8 +108,8 @@ public abstract class SOAPPart implements org.w3c.dom.Document {
 
     /**
      * Sets the value of the MIME header named "Content-Id" to
-     * the given <CODE>String</CODE>.
-     * @param  contentId  a <CODE>String</CODE> giving
+     * the given {@code String}.
+     * @param  contentId  a {@code String} giving
      *     the value of the MIME header "Content-Id"
      * @throws java.lang.IllegalArgumentException if
      *     there is a problem in setting the content id
@@ -121,8 +121,8 @@ public abstract class SOAPPart implements org.w3c.dom.Document {
 
     /**
      * Sets the value of the MIME header "Content-Location" to
-     * the given <CODE>String</CODE>.
-     * @param  contentLocation a <CODE>String</CODE>
+     * the given {@code String}.
+     * @param  contentLocation a {@code String}
      *     giving the value of the MIME header
      *     "Content-Location"
      * @throws java.lang.IllegalArgumentException if
@@ -135,24 +135,24 @@ public abstract class SOAPPart implements org.w3c.dom.Document {
 
     /**
      * Removes all MIME headers that match the given name.
-     * @param  header  a <CODE>String</CODE> giving
+     * @param  header  a {@code String} giving
      *     the name of the MIME header(s) to be removed
      */
     public abstract void removeMimeHeader(String header);
 
     /**
-     * Removes all the <CODE>MimeHeader</CODE> objects for this
-     * <CODE>SOAPEnvelope</CODE> object.
+     * Removes all the {@code MimeHeader} objects for this
+     * {@code SOAPEnvelope} object.
      */
     public abstract void removeAllMimeHeaders();
 
     /**
-     * Gets all the values of the <CODE>MimeHeader</CODE> object
-     * in this <CODE>SOAPPart</CODE> object that is identified by
-     * the given <CODE>String</CODE>.
+     * Gets all the values of the {@code MimeHeader} object
+     * in this {@code SOAPPart} object that is identified by
+     * the given {@code String}.
      * @param   name  the name of the header; example:
      *     "Content-Type"
-     * @return a <CODE>String</CODE> array giving all the values for
+     * @return a {@code String} array giving all the values for
      *     the specified header
      * @see #setMimeHeader(java.lang.String, java.lang.String) setMimeHeader(java.lang.String, java.lang.String)
      */
@@ -170,13 +170,13 @@ public abstract class SOAPPart implements org.w3c.dom.Document {
      *
      *   <P>Note that RFC822 headers can contain only US-ASCII
      *   characters.</P>
-     * @param  name a <CODE>String</CODE> giving the
+     * @param  name a {@code String} giving the
      *     header name for which to search
-     * @param  value a <CODE>String</CODE> giving the
+     * @param  value a {@code String} giving the
      *     value to be set. This value will be substituted for the
      *     current value(s) of the first header that is a match if
      *     there is one. If there is no match, this value will be
-     *     the value for a new <CODE>MimeHeader</CODE> object.
+     *     the value for a new {@code MimeHeader} object.
      * @throws java.lang.IllegalArgumentException if
      *     there was a problem with the specified mime header name
      *     or value
@@ -186,18 +186,18 @@ public abstract class SOAPPart implements org.w3c.dom.Document {
     public abstract void setMimeHeader(String name, String value);
 
     /**
-     *  Creates a <CODE>MimeHeader</CODE> object with the specified
-     *   name and value and adds it to this <CODE>SOAPPart</CODE>
-     *   object. If a <CODE>MimeHeader</CODE> with the specified
+     *  Creates a {@code MimeHeader} object with the specified
+     *   name and value and adds it to this {@code SOAPPart}
+     *   object. If a {@code MimeHeader} with the specified
      *   name already exists, this method adds the specified value
      *   to the already existing value(s).
      *
      *   <P>Note that RFC822 headers can contain only US-ASCII
      *   characters.</P>
      *
-     * @param  name a <CODE>String</CODE> giving the
+     * @param  name a {@code String} giving the
      *     header name
-     * @param  value a <CODE>String</CODE> giving the
+     * @param  value a {@code String} giving the
      *     value to be set or added
      * @throws java.lang.IllegalArgumentException if
      * there was a problem with the specified mime header name
@@ -206,41 +206,41 @@ public abstract class SOAPPart implements org.w3c.dom.Document {
     public abstract void addMimeHeader(String name, String value);
 
     /**
-     * Retrieves all the headers for this <CODE>SOAPPart</CODE>
-     * object as an iterator over the <CODE>MimeHeader</CODE>
+     * Retrieves all the headers for this {@code SOAPPart}
+     * object as an iterator over the {@code MimeHeader}
      * objects.
-     * @return an <CODE>Iterator</CODE> object with all of the Mime
-     *     headers for this <CODE>SOAPPart</CODE> object
+     * @return an {@code Iterator} object with all of the Mime
+     *     headers for this {@code SOAPPart} object
      */
     public abstract Iterator getAllMimeHeaders();
 
     /**
-     * Retrieves all <CODE>MimeHeader</CODE> objects that match
+     * Retrieves all {@code MimeHeader} objects that match
      * a name in the given array.
-     * @param   names a <CODE>String</CODE> array with
+     * @param   names a {@code String} array with
      *     the name(s) of the MIME headers to be returned
      * @return all of the MIME headers that match one of the names
-     *     in the given array, returned as an <CODE>Iterator</CODE>
+     *     in the given array, returned as an {@code Iterator}
      *     object
      */
-    public abstract Iterator getMatchingMimeHeaders(String names[]);
+    public abstract Iterator getMatchingMimeHeaders(String[] names);
 
     /**
-     * Retrieves all <CODE>MimeHeader</CODE> objects whose name
+     * Retrieves all {@code MimeHeader} objects whose name
      * does not match a name in the given array.
-     * @param   names a <CODE>String</CODE> array with
+     * @param   names a {@code String} array with
      *     the name(s) of the MIME headers not to be returned
-     * @return all of the MIME headers in this <CODE>SOAPPart</CODE>
+     * @return all of the MIME headers in this {@code SOAPPart}
      *     object except those that match one of the names in the
      *     given array. The nonmatching MIME headers are returned as
-     *     an <CODE>Iterator</CODE> object.
+     *     an {@code Iterator} object.
      */
-    public abstract Iterator getNonMatchingMimeHeaders(String names[]);
+    public abstract Iterator getNonMatchingMimeHeaders(String[] names);
 
     /**
-     * Sets the content of the <CODE>SOAPEnvelope</CODE> object
-     * with the data from the given <CODE>Source</CODE> object.
-     * @param   source javax.xml.transform.Source</CODE> object with the data to
+     * Sets the content of the {@code SOAPEnvelope} object
+     * with the data from the given {@code Source} object.
+     * @param   source {@code javax.xml.transform.Source} object with the data to
      *     be set
      * @throws  SOAPException if there is a problem in
      *     setting the source
@@ -249,12 +249,12 @@ public abstract class SOAPPart implements org.w3c.dom.Document {
     public abstract void setContent(Source source) throws SOAPException;
 
     /**
-     * Returns the content of the SOAPEnvelope as a JAXP <CODE>
-     * Source</CODE> object.
-     * @return the content as a <CODE>
-     *     javax.xml.transform.Source</CODE> object
+     * Returns the content of the SOAPEnvelope as a JAXP {@code
+     * Source} object.
+     * @return the content as a {@code
+     *     javax.xml.transform.Source} object
      * @throws  SOAPException  if the implementation cannot
-     *     convert the specified <CODE>Source</CODE> object
+     *     convert the specified {@code Source} object
      * @see #setContent(javax.xml.transform.Source) setContent(javax.xml.transform.Source)
      */
     public abstract Source getContent() throws SOAPException;

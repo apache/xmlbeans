@@ -65,14 +65,14 @@ public interface XmlBase64Binary extends XmlAnySimpleType {
         }
 
         /**
-         * Parses a {@link XmlBase64Binary} fragment from a String. For example: "<code>&lt;xml-fragment&gt;VGhpcyBzdHJp&lt;/xml-fragment&gt;</code>".
+         * Parses a {@link XmlBase64Binary} fragment from a String. For example: "{@code &lt;xml-fragment&gt;VGhpcyBzdHJp&lt;/xml-fragment&gt;}".
          */
         public static XmlBase64Binary parse(java.lang.String s) throws org.apache.xmlbeans.XmlException {
             return (XmlBase64Binary) XmlBeans.getContextTypeLoader().parse(s, type, null);
         }
 
         /**
-         * Parses a {@link XmlBase64Binary} fragment from a String. For example: "<code>&lt;xml-fragment&gt;VGhpcyBzdHJp&lt;/xml-fragment&gt;</code>".
+         * Parses a {@link XmlBase64Binary} fragment from a String. For example: "{@code &lt;xml-fragment&gt;VGhpcyBzdHJp&lt;/xml-fragment&gt;}".
          */
         public static XmlBase64Binary parse(java.lang.String s, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException {
             return (XmlBase64Binary) XmlBeans.getContextTypeLoader().parse(s, type, options);

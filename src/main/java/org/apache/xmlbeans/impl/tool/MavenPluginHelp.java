@@ -34,7 +34,7 @@ import java.util.List;
 
 /**
  * Display help information on xmlbeans-maven-plugin.<br>
- * Call <code>mvn xmlbeans.plugin:help -Ddetail=true -Dgoal=&lt;goal-name&gt;</code> to display parameter details.
+ * Call {@code mvn xmlbeans.plugin:help -Ddetail=true -Dgoal=&lt;goal-name&gt;} to display parameter details.
  */
 @Mojo(name = "help", requiresProject = false, threadSafe = true)
 public class MavenPluginHelp extends AbstractMojo {
@@ -45,7 +45,7 @@ public class MavenPluginHelp extends AbstractMojo {
 
 
     /**
-     * If <code>true</code>, display all settable properties for each goal.
+     * If {@code true}, display all settable properties for each goal.
      */
     @Parameter(property = "detail", defaultValue = "false")
     private boolean detail;
@@ -248,13 +248,13 @@ public class MavenPluginHelp extends AbstractMojo {
     }
 
     /**
-     * <p>Repeat a String <code>n</code> times to form a new string.</p>
+     * <p>Repeat a String {@code n} times to form a new string.</p>
      *
      * @param str    String to repeat
      * @param repeat number of times to repeat str
      * @return String with repeated String
-     * @throws NegativeArraySizeException if <code>repeat &lt; 0</code>
-     * @throws NullPointerException       if str is <code>null</code>
+     * @throws NegativeArraySizeException if {@code repeat &lt; 0}
+     * @throws NullPointerException       if str is {@code null}
      */
     private static String repeat(String str, int repeat) {
         StringBuilder buffer = new StringBuilder(repeat * str.length());
@@ -270,8 +270,8 @@ public class MavenPluginHelp extends AbstractMojo {
      * Append a description to the buffer by respecting the indentSize and lineLength parameters.
      * <b>Note</b>: The last character is always a new line.
      *
-     * @param sb          The buffer to append the description, not <code>null</code>.
-     * @param description The description, not <code>null</code>.
+     * @param sb          The buffer to append the description, not {@code null}.
+     * @param description The description, not {@code null}.
      * @param indent      The base indentation level of each line, must not be negative.
      */
     private void append(StringBuilder sb, String description, int indent) {
@@ -283,12 +283,12 @@ public class MavenPluginHelp extends AbstractMojo {
     /**
      * Splits the specified text into lines of convenient display length.
      *
-     * @param text       The text to split into lines, must not be <code>null</code>.
+     * @param text       The text to split into lines, must not be {@code null}.
      * @param indent     The base indentation level of each line, must not be negative.
      * @param indentSize The size of each indentation, must not be negative.
      * @param lineLength The length of the line, must not be negative.
-     * @return The sequence of display lines, never <code>null</code>.
-     * @throws NegativeArraySizeException if <code>indent &lt; 0</code>
+     * @return The sequence of display lines, never {@code null}.
+     * @throws NegativeArraySizeException if {@code indent &lt; 0}
      */
     private static List<String> toLines(String text, int indent, int indentSize, int lineLength) {
         List<String> lines = new ArrayList<>();
@@ -307,8 +307,8 @@ public class MavenPluginHelp extends AbstractMojo {
     /**
      * Adds the specified line to the output sequence, performing line wrapping if necessary.
      *
-     * @param lines      The sequence of display lines, must not be <code>null</code>.
-     * @param line       The line to add, must not be <code>null</code>.
+     * @param lines      The sequence of display lines, must not be {@code null}.
+     * @param line       The line to add, must not be {@code null}.
      * @param indentSize The size of each indentation, must not be negative.
      * @param lineLength The length of the line, must not be negative.
      */
@@ -346,7 +346,7 @@ public class MavenPluginHelp extends AbstractMojo {
     /**
      * Gets the indentation level of the specified line.
      *
-     * @param line The line whose indentation level should be retrieved, must not be <code>null</code>.
+     * @param line The line whose indentation level should be retrieved, must not be {@code null}.
      * @return The indentation level of the line.
      */
     private static int getIndentLevel(String line) {

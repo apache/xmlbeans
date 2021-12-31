@@ -571,16 +571,16 @@ public class SchemaCompiler {
         XmlObject[] types = wsdldoc.getDefinitions().getTypesArray();
         int count = 0;
         for (XmlObject type : types) {
-            Schema[] schemas = (Schema[]) type.selectPath("declare namespace xs=\"http://www.w3.org/2001/XMLSchema\" xs:schema");
+            XmlObject[] schemas = type.selectPath("declare namespace xs=\"http://www.w3.org/2001/XMLSchema\" xs:schema");
             if (schemas.length == 0) {
                 StscState.addWarning(errorListener, "The WSDL " + name + " did not have any schema documents in namespace 'http://www.w3.org/2001/XMLSchema'", XmlErrorCodes.GENERIC_ERROR, wsdldoc);
                 continue;
             }
 
-            for (Schema schema : schemas) {
+            for (XmlObject schema : schemas) {
                 if (schema.validate(opts)) {
                     count++;
-                    scontentlist.add(schema);
+                    scontentlist.add((Schema)schema);
                 }
             }
         }

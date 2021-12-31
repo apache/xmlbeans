@@ -22,6 +22,7 @@ import org.junit.Test;
 import tools.util.JarUtil;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 /**
  * Verifies XPath using functions
@@ -80,8 +81,7 @@ public abstract class XPathFunctionTest extends BaseXPathTest {
     public void testFunctionId() throws Exception {
         XmlObject xDoc = XmlObject.Factory.parse(
                 JarUtil.getResourceFromJar("xbean/xmlcursor/xpath/cdcatalog.xml"));
-        //System.out.println(xDoc.xmlText());
-        String ex1Simple =getQuery("testFunctionId",0); //"id(\"bobdylan\")"
+        String ex1Simple = getQuery("testFunctionId",0); //"id(\"bobdylan\")"
 
         String ex1R1 = "<cd id=\"bobdylan\">" +
                 "<title>Empire Burlesque</title>" +
@@ -91,10 +91,8 @@ public abstract class XPathFunctionTest extends BaseXPathTest {
         XmlObject[] exXml1 = new XmlObject[]{XmlObject.Factory.parse(ex1R1)};
 
         String ex2Simple = getQuery("testFunctionId",1); //"id(\"foobar\")"
-        String ex2R1 = "<cd/>";
-        XmlObject[] exXml2 = new XmlObject[]{XmlObject.Factory.parse(ex2R1)};
 
-        String ex3Simple = getQuery("testFunctionId",2); //"id(\"*\")/child::cd[position()=3]"
+        String ex3Simple = getQuery("testFunctionId",2); //"//child::cd[position()=3]"
         String ex3R1 = "<cd id=\"id3\"><title>Greatest Hits</title><artist>Dolly Parton</artist><country>USA</country><company>RCA</company><price>9.90</price><year>1982</year></cd>";
         XmlObject[] exXml3 = new XmlObject[]{XmlObject.Factory.parse(ex3R1)};
 
@@ -115,7 +113,7 @@ public abstract class XPathFunctionTest extends BaseXPathTest {
         XmlCursor x2 = xDoc.newCursor();
         x2.selectPath(ex2Simple);
         XPathCommon.display(x2);
-        XPathCommon.compare(x2, exXml2);
+        assertFalse(x2.toNextSelection());
         x2.dispose();
 
         System.out.println("Test 3: " + ex3Simple);

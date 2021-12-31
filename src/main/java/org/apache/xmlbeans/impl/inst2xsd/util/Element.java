@@ -16,9 +16,6 @@ package org.apache.xmlbeans.impl.inst2xsd.util;
 
 import javax.xml.namespace.QName;
 
-/**
- * @author Cezar Andrei (cezar.andrei at bea.com) Date: Jul 16, 2004
- */
 public class Element
 {
     private QName _name = null; // if isRef is true is the name of the referenced name

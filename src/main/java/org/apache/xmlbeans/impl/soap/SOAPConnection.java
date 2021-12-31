@@ -19,15 +19,15 @@ package org.apache.xmlbeans.impl.soap;
  * A point-to-point connection that a client can use for sending messages
  * directly to a remote party (represented by a URL, for instance).
  * <p>
- * A client can obtain a <code>SOAPConnection</code> object simply by
+ * A client can obtain a {@code SOAPConnection} object simply by
  * calling the following static method.
  * <pre>
  *
  *      SOAPConnection con = SOAPConnection.newInstance();
  * </pre>
- * A <code>SOAPConnection</code> object can be used to send messages
+ * A {@code SOAPConnection} object can be used to send messages
  * directly to a URL following the request/response paradigm.  That is,
- * messages are sent using the method <code>call</code>, which sends the
+ * messages are sent using the method {@code call}, which sends the
  * message and then waits until it gets a reply.
  */
 public abstract class SOAPConnection {
@@ -37,15 +37,15 @@ public abstract class SOAPConnection {
     /**
      * Sends the given message to the specified endpoint and
      * blocks until it has returned the response.
-     * @param request the <CODE>SOAPMessage</CODE>
+     * @param request the {@code SOAPMessage}
      *     object to be sent
-     * @param endpoint an <code>Object</code> that identifies
+     * @param endpoint an {@code Object} that identifies
      *            where the message should be sent. It is required to
      *            support Objects of type
-     *            <code>java.lang.String</code>,
-     *            <code>java.net.URL</code>, and when JAXM is present
-     *            <code>javax.xml.messaging.URLEndpoint</code>
-     * @return the <CODE>SOAPMessage</CODE> object that is the
+     *            {@code java.lang.String},
+     *            {@code java.net.URL}, and when JAXM is present
+     *            {@code javax.xml.messaging.URLEndpoint}
+     * @return the {@code SOAPMessage} object that is the
      *     response to the message that was sent
      * @throws  SOAPException if there is a SOAP error
      */
@@ -53,7 +53,7 @@ public abstract class SOAPConnection {
         throws SOAPException;
 
     /**
-     * Closes this <CODE>SOAPConnection</CODE> object.
+     * Closes this {@code SOAPConnection} object.
      * @throws  SOAPException if there is a SOAP error
      */
     public abstract void close() throws SOAPException;

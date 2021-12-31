@@ -19,7 +19,7 @@ import javax.xml.namespace.QName;
 
 /**
  * Represents a global element definition.
- * 
+ *
  * @see SchemaTypeLoader#findElement
  */
 public interface SchemaGlobalElement extends SchemaLocalElement, SchemaComponent
@@ -33,7 +33,7 @@ public interface SchemaGlobalElement extends SchemaLocalElement, SchemaComponent
 
     /**
      * The element that is the head of this element's substitution
-     * group, or <code>null</code> if this element is not a member
+     * group, or {@code null} if this element is not a member
      * of a substitution group.
      */
     SchemaGlobalElement substitutionGroup();
@@ -58,8 +58,6 @@ public interface SchemaGlobalElement extends SchemaLocalElement, SchemaComponent
 
     /**
      * Used to allow on-demand loading of elements.
-     * 
-     * @exclude
      */
     public final static class Ref extends SchemaComponent.Ref
     {

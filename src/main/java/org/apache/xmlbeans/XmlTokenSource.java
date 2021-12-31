@@ -193,6 +193,7 @@ public interface XmlTokenSource {
      * an attribute).
      *
      * <table>
+     * <caption>Method overview</caption>
      * <tr><th>To specify this</th><th>Use this method</th></tr>
      * <tr>
      *  <td>The character encoding to use when converting the character

@@ -67,24 +67,20 @@ public class SaxonXPath implements Path {
      * Select all nodes that are selectable by this XPath
      * expression. If multiple nodes match, multiple nodes
      * will be returned.
-     * <p/>
-     * <p/>
+     * <p>
      * <b>NOTE:</b> In most cases, nodes will be returned
      * in document-order, as defined by the XML Canonicalization
      * specification.  The exception occurs when using XPath
-     * expressions involving the <code>union</code> operator
+     * expressions involving the {@code union} operator
      * (denoted with the pipe '|' character).
-     * </p>
-     * <p/>
-     * <p/>
+     * <p>
      * <b>NOTE:</b> Param node must be a DOM node which will be used
      * during the xpath execution and iteration through the results.
      * A call of node.dispose() must be done after reading all results.
-     * </p>
      *
      * @param node The node, nodeset or Context object for evaluation.
      *             This value can be null.
-     * @return The <code>List</code> of all items selected
+     * @return The {@code List} of all items selected
      * by this XPath expression.
      */
     public List selectNodes(Object node) {
@@ -135,15 +131,15 @@ public class SaxonXPath implements Path {
 
     /**
      * According to the Saxon javadoc:
-     * <code>getUnderlyingNode</code> in <code>NodeWrapper</code> implements
-     * the method specified in the interface <code>VirtualNode</code>, and
+     * {@code getUnderlyingNode} in {@code NodeWrapper} implements
+     * the method specified in the interface {@code VirtualNode}, and
      * the specification of the latter says that it may return another
-     * <code>VirtualNode</code>, and you may have to drill down through
+     * {@code VirtualNode}, and you may have to drill down through
      * several layers of wrapping.
      * To be safe, this method is provided to drill down through multiple
      * layers of wrapping.
      *
-     * @param v The <code>VirtualNode</code>
+     * @param v The {@code VirtualNode}
      * @return The underlying node
      */
     private static Node getUnderlyingNode(VirtualNode v) {

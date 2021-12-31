@@ -55,8 +55,8 @@ public class SchemaTypeLoaderImpl extends SchemaTypeLoaderBase {
 
     private static class SchemaTypeLoaderCache extends SystemCache {
         // The following maintains a cache of SchemaTypeLoaders per ClassLoader per Thread.
-        // I use soft references to allow the garbage collector to reclain the type loaders
-        // and/pr class loaders at will.
+        // I use soft references to allow the garbage collector to reclaim the type loaders
+        // and/or class loaders at will.
 
         private final ThreadLocal<List<SoftReference<SchemaTypeLoaderImpl>>> _cachedTypeSystems = ThreadLocal.withInitial(ArrayList::new);
 
@@ -596,8 +596,6 @@ public class SchemaTypeLoaderImpl extends SchemaTypeLoaderBase {
     private static final SchemaTypeLoader[] EMPTY_SCHEMATYPELOADER_ARRAY = new SchemaTypeLoader[0];
 
     static {
-        if (SystemCache.get() != null) {
-            SystemCache.set(new SchemaTypeLoaderCache());
-        }
+        SystemCache.set(new SchemaTypeLoaderCache());
     }
 }

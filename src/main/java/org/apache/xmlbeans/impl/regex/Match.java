@@ -18,7 +18,7 @@ package org.apache.xmlbeans.impl.regex;
 import java.text.CharacterIterator;
 
 /**
- * 
+ *
  * An instance of this class has ranges captured in matching.
  *
  * @see RegularExpression#matches(char[], int, int, Match)
@@ -26,7 +26,6 @@ import java.text.CharacterIterator;
  * @see RegularExpression#matches(java.text.CharacterIterator, Match)
  * @see RegularExpression#matches(java.lang.String, int, int, Match)
  * @see RegularExpression#matches(java.lang.String, Match)
- * @author TAMURA Kent &lt;kent@trl.ibm.co.jp&gt;
  */
 public class Match implements Cloneable {
     int[] beginpos = null;
@@ -129,7 +128,7 @@ public class Match implements Cloneable {
     /**
      * Return a start position in the target text matched to specified regular expression group.
      *
-     * @param index Less than <code>getNumberOfGroups()</code>.
+     * @param index Less than {@code getNumberOfGroups()}.
      */
     public int getBeginning(int index) {
         if (this.beginpos == null)
@@ -143,7 +142,7 @@ public class Match implements Cloneable {
     /**
      * Return an end position in the target text matched to specified regular expression group.
      *
-     * @param index Less than <code>getNumberOfGroups()</code>.
+     * @param index Less than {@code getNumberOfGroups()}.
      */
     public int getEnd(int index) {
         if (this.endpos == null)
@@ -157,7 +156,7 @@ public class Match implements Cloneable {
     /**
      * Return an substring of the target text matched to specified regular expression group.
      *
-     * @param index Less than <code>getNumberOfGroups()</code>.
+     * @param index Less than {@code getNumberOfGroups()}.
      */
     public String getCapturedText(int index) {
         if (this.beginpos == null)

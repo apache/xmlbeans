@@ -109,7 +109,7 @@ public class BMPattern {
     }
     /**
      *
-     * @return -1 if <var>chars</char> does not contain this pattern.
+     * @return -1 if {@code chars} does not contain this pattern.
      */
     public int matches(char[] chars, int start, int limit) {
         if (this.ignoreCase)  return this.matchesIgnoreCase(chars, start, limit);
@@ -158,7 +158,7 @@ public class BMPattern {
         }
         return -1;
     }
-    
+
     int matchesIgnoreCase(String text, int start, int limit) {
         int plength = this.pattern.length;
         if (plength == 0)  return start;

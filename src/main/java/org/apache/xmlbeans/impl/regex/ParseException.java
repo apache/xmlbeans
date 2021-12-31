@@ -15,10 +15,6 @@
 
 package org.apache.xmlbeans.impl.regex;
 
-/**
- *
- * @author TAMURA Kent &lt;kent@trl.ibm.co.jp&gt;
- */
 public class ParseException extends RuntimeException {
     int location;
 

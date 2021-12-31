@@ -32,7 +32,6 @@ import javax.xml.namespace.QName;
  * <p>
  * On this base class you will find a number of common facilities that
  * all XML Bean classes provide:
- * <p>
  * <ul>
  * <li>Every XML Bean class has an inner Factory class for creating and parsing
  *     instances, including XmlObject. Use {@link XmlObjectFactory} itself
@@ -191,30 +190,27 @@ public interface XmlObject extends XmlTokenSource {
     /**
      * Selects a path.  Path can be a string or precompiled path String.
      * <p>
-     * <p>
      * The path must be a relative path, where "." represents the
      * element or attribute containing this XmlObject, and it must select
      * only other elements or attributes.  If a non-element or non-attribute
      * is selected, an unchecked exception is thrown.
-     * <p>
      * <p>
      * The array that is returned contains all the selected
      * XmlObjects, within the same document, listed in document
      * order.  The actual array type of the result is inferred
      * from the closest common base type of selected results.
      * <p>
-     * <p>
      * Here is an example of usage.  Suppose we have a global
      * element definition for "owner" whose type is "person":
      *
-     * <pre>
-     *   &lt;schema targetNamespace="http://openuri.org/sample"&gt;
-     *      &lt;element name="owner" type="person"/&gt;
-     *      &lt;complexType name="person"&gt;
+     * <pre>{@code
+     *   <schema targetNamespace="http://openuri.org/sample">
+     *      <element name="owner" type="person"/>
+     *      <complexType name="person">
      *         [...]
-     *      &lt;/complexType&gt;
-     *   &lt;/schema&gt;
-     * </pre>
+     *      </complexType>
+     *   </schema>
+     * }</pre>
      * <p>
      * and suppose "owner" tags can be scattered throughout the
      * document.  Then we can write the following code to find
@@ -275,6 +271,7 @@ public interface XmlObject extends XmlTokenSource {
      * Use the <em>options</em> parameter to specify the following:</p>
      *
      * <table>
+     * <caption>Method overview</caption>
      * <tr><th>To specify this</th><th>Use this method</th></tr>
      * <tr>
      *  <td>The document type for the root element.</td>
@@ -330,7 +327,7 @@ public interface XmlObject extends XmlTokenSource {
      * new type.
      * <p>
      * Returns the new XmlObject if the type change was successful,
-     * the old XmlObject if no changes could be made. <p/>
+     * the old XmlObject if no changes could be made. <p>
      * Certain type changes may be prohibited in the interior of an xml
      * tree due to schema type system constraints (that is, due
      * to a parent container within which the newly specified
@@ -357,12 +354,12 @@ public interface XmlObject extends XmlTokenSource {
      * new type and container name is the new name.
      * <p>
      * Returns the new XmlObject if the substitution was successful,
-     * the old XmlObject if no changes could be made. <p/>
+     * the old XmlObject if no changes could be made. <p>
      * In order for the operation to succeed, several conditions must hold:
      * <ul><li> the container of this type must be an element </li>
-     * <li> a global element with the name <code>newName</code> must exist
+     * <li> a global element with the name {@code newName} must exist
      * and must be in the substitution group of the containing element </li>
-     * <li> the <code>newType</code> type must be consistent with the declared
+     * <li> the {@code newType} type must be consistent with the declared
      * type of the new element </li></ul>
      * <p>
      * If the type change is allowed, then the new XmlObject should
@@ -403,7 +400,7 @@ public interface XmlObject extends XmlTokenSource {
      * Note that when producing XML any object other than very root of the
      * document, then you are guaranteed to be looking at only a fragment
      * of XML, i.e., just the contents of an element or attribute, and
-     * and we will produce a string that starts with an <code>&lt;xml-fragment&gt;</code> tag.
+     * and we will produce a string that starts with an {@code <xml-fragment>} tag.
      * The XmlOptions.setSaveOuter() option on xmlText can be used to produce
      * the actual element name above the object if you wish.
      *

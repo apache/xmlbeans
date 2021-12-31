@@ -14,28 +14,17 @@
  */
 package org.apache.xmlbeans.impl.inst2xsd;
 
-import org.apache.xmlbeans.SchemaTypeLoader;
-import org.apache.xmlbeans.XmlBeans;
-import org.apache.xmlbeans.XmlException;
-import org.apache.xmlbeans.XmlObject;
-import org.apache.xmlbeans.XmlOptions;
-import org.apache.xmlbeans.XmlError;
-import org.apache.xmlbeans.impl.xb.xsdschema.SchemaDocument;
+import org.apache.xmlbeans.*;
 import org.apache.xmlbeans.impl.inst2xsd.util.TypeSystemHolder;
 import org.apache.xmlbeans.impl.tool.CommandLine;
+import org.apache.xmlbeans.impl.xb.xsdschema.SchemaDocument;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.Reader;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.Set;
-import java.util.HashSet;
+import java.util.*;
 
 /**
- * @author Cezar Andrei (cezar.andrei at bea.com) Date: Jul 16, 2004
- *
  * This class generates a set of XMLSchemas from an instance XML document.
  *
  * How it works:

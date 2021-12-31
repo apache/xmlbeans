@@ -101,8 +101,8 @@ public class XPathFunctionTestImpl extends XPathFunctionTest {
     @Test
     public void testExternalFunction() throws Exception {
         String query = "" +
-            "declare function local:toc($book-or-section as element()) as element()*;" +
-            " local:toc($book-or-section/section)";
+            "declare function local:toc($book-or-section as element()) as element()* { $book-or-section/section }; " +
+            "local:toc(book)";
         String input =
             "<book>\n" +
             "  <title>Data on the Web</title>\n" +
@@ -153,8 +153,7 @@ public class XPathFunctionTestImpl extends XPathFunctionTest {
             "  </section>\n" +
             "</book>";
         XmlObject o = XmlObject.Factory.parse(input);
-        XmlObject[] res = o.selectPath(query);
-        assertEquals(1, res.length);
-        assertEquals("", res[0].xmlText());
+        XmlObject[] res = o.execQuery(query);
+        assertEquals(2, res.length);
     }
 }

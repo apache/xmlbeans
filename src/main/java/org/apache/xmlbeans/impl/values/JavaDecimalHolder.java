@@ -153,7 +153,7 @@ public class JavaDecimalHolder extends XmlObjectBase {
 
     /**
      * This method will has BigDecimals with the same arithmetic value to
-     * the same hash code (eg, 2.3 & 2.30 will have the same hash.)
+     * the same hash code (eg, 2.3 &amp; 2.30 will have the same hash.)
      * This differs from BigDecimal.hashCode()
      */
     protected int decimalHashCode() {

@@ -319,6 +319,11 @@ public final class DomImpl {
 
     private static String validatePrefix(
         String prefix, String uri, String local, boolean isAttr) {
+
+        if (prefix != null && prefix.contains(":")) {
+            throw new NamespaceErr("Invalid prefix - contains ':' character");
+        }
+
         validateNcName(prefix);
 
         if (prefix == null) {

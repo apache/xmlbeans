@@ -2325,12 +2325,14 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory {
      * Returns a QNameSet of elements that may exist in wildcard
      * buchets and are not explicitly defined in this schema type.
      * Note: In this example:
+     * <pre>{@code
      * <xs:complexType name="exampleType">
      * <xs:sequence>
      * <xs:element name="someElement" type='xs:string' />
      * <xs:any namespace="##targetNamespace" />
      * </xs:sequence>
      * </xs:complexType>
+     * }</pre>
      * the returned QNameSet will not contain the qname of 'someElement'.
      *
      * @return the constructed QNameSet
@@ -2366,11 +2368,13 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory {
      * Returns a QNameSet of attributes that may exist in wildcard
      * buchets and are not explicitly defined in this schema type.
      * Note: In this example:
+     * <pre>{@code
      * <xs:complexType name="exampleType">
      * ...
      * <xs:attribute name='someAttribute' type='xs:string' />
      * <xs:anyAttribute namespace="##targetNamespace" />
      * </xs:complexType>
+     * }</pre>
      * the returned QNameSet will not contain the qname of 'someAttribute'.
      *
      * @return the constructed QNameSet

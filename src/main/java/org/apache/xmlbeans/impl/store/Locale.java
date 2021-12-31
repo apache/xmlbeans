@@ -2177,7 +2177,10 @@ public final class Locale
 
         protected boolean isAttrOfTypeId(QName aqn, QName eqn) {
             if (_idAttrs == null) {
-                return false;
+                // as most documents are either without schema or based on xml schema
+                // which ID attributes aren't promoted by the SAXParser, the workaround
+                // is to simply accept all "id" attributes
+                return "id".equalsIgnoreCase(aqn.getLocalPart());
             }
             String pre = aqn.getPrefix();
             String lName = aqn.getLocalPart();
@@ -2459,6 +2462,7 @@ public final class Locale
 
         //DeclHandler
         public void attributeDecl(String eName, String aName, String type, String valueDefault, String value) {
+            // the DeclHandler is only called for DTD based documents
             if (type.equals("ID")) {
                 _context.addIdAttr(eName, aName);
             }

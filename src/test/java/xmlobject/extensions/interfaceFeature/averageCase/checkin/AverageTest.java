@@ -15,22 +15,19 @@
 
 package xmlobject.extensions.interfaceFeature.averageCase.checkin;
 
-import interfaceFeature.xbean.averageCase.purchaseOrder.PurchaseOrderDocument ;
-import interfaceFeature.xbean.averageCase.purchaseOrder.PurchaseOrderType;
 import interfaceFeature.xbean.averageCase.purchaseOrder.Items;
-
-import junit.framework.*;
+import interfaceFeature.xbean.averageCase.purchaseOrder.PurchaseOrderDocument;
+import interfaceFeature.xbean.averageCase.purchaseOrder.PurchaseOrderType;
+import org.junit.Test;
 
 import java.math.BigDecimal;
 
+import static org.junit.Assert.assertEquals;
 
 
-public class AverageTest extends TestCase{
+public class AverageTest {
 
-        public  AverageTest(String s){
-            super(s);
-        }
-
+    @Test
 	public void test(){
 
          PurchaseOrderDocument poDoc ;

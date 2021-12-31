@@ -20,10 +20,6 @@ package org.apache.xmlbeans.impl.regex;
  *
  * This is copied from https://raw.githubusercontent.com/apache/xerces2-j/trunk/src/org/apache/xerces/util/IntStack.java
  * and is used by RegularExpression.java
- *
- * @author  Andy Clark, IBM
- *
- * @version $Id$
  */
 final class IntStack {
 

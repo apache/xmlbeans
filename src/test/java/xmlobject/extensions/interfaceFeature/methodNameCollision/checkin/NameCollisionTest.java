@@ -14,21 +14,20 @@
  */
 package xmlobject.extensions.interfaceFeature.methodNameCollision.checkin;
 
-import junit.framework.TestCase;
 import interfaceFeature.xbean.methodNameCollision.company.CompanyDocument;
 import interfaceFeature.xbean.methodNameCollision.company.CompanyType;
-import interfaceFeature.xbean.methodNameCollision.company.DepartmentType;
 import interfaceFeature.xbean.methodNameCollision.company.ConsultantType;
+import interfaceFeature.xbean.methodNameCollision.company.DepartmentType;
+import org.apache.xmlbeans.XmlString;
+import org.junit.Test;
 import xmlobject.extensions.interfaceFeature.methodNameCollision.existing.IFoo;
 
-import org.apache.xmlbeans.XmlString;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
-public class NameCollisionTest extends TestCase {
+public class NameCollisionTest {
 
-    public NameCollisionTest(String s) {
-        super(s);
-    }
-
+    @Test
     public void test() {
         CompanyDocument poDoc;
 

@@ -30,7 +30,7 @@ public class SchemaCodeGenerator {
     /**
      * Saves a SchemaTypeSystem to the specified directory.
      *
-     * @param system     the <code>SchemaTypeSystem</code> to save
+     * @param system     the {@code SchemaTypeSystem} to save
      * @param classesDir the destination directory for xsb's
      * @param sourceFile if present, the TypeSystemHolder source will be
      *                   generated in this file for subsequent compilation,

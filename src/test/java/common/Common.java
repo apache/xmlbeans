@@ -15,12 +15,13 @@
 package common;
 
 import org.apache.xmlbeans.*;
-import org.junit.Assert;
 
 import javax.xml.namespace.QName;
 import java.io.File;
-import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Objects;
 
 import static org.junit.Assert.assertNotNull;
 
@@ -36,7 +37,7 @@ public class Common {
     public static String OUTPUTROOT = FWROOT + P + "build" + P + "test" + P + "output";
 
 
-    public final LinkedList errorList = new LinkedList();
+    public final List<XmlError> errorList = new LinkedList<>();
     public final XmlOptions xmOpts = new XmlOptions();
 
     public Common() {
@@ -47,9 +48,6 @@ public class Common {
      * If System.property for 'xbean.rootdir' == null
      * use '.' as basePath
      * '.' should be where the build.xml file lives
-     *
-     * @return
-     * @throws IllegalStateException
      */
     public static String getRootFile() throws IllegalStateException {
         String baseDir = System.getProperty("xbean.rootdir");
@@ -64,8 +62,6 @@ public class Common {
      * If System.property for 'cases.location' == null
      * use '.' as basePath and add src/test/resources.
      * should be where the build.xml file lives
-     *
-     * @throws IllegalStateException
      */
     public static String getCaseLocation() throws IllegalStateException {
         String baseDir = System.getProperty("cases.location");
@@ -79,7 +75,6 @@ public class Common {
     /**
      * Gets a case file from under CASEROOT with location passed in as strPath
      *
-     * @param strPath
      * @return file Object for references location
      */
     public static File xbeanCase(String strPath) {
@@ -89,7 +84,6 @@ public class Common {
     /**
      * Creates directory under output directory as noted by strPath
      *
-     * @param strPath
      * @return File Object specified by strPath
      */
     public static File xbeanOutput(String strPath) {
@@ -101,15 +95,12 @@ public class Common {
 
     /**
      * Recursively deletes files under specified directory
-     *
-     * @param dir
      */
     public static void deltree(File dir) {
         if (dir.exists()) {
             if (dir.isDirectory()) {
-                String[] list = dir.list();
-                for (int i = 0; i < list.length; i++) {
-                    deltree(new File(dir, list[i]));
+                for (String s : Objects.requireNonNull(dir.list())) {
+                    deltree(new File(dir, s));
                 }
             }
             if (!dir.delete()) {
@@ -120,30 +111,12 @@ public class Common {
     }
 
     /**
-     * Convenience method for displaying errorListener contents after validation
-     *
-     * @param errors
-     */
-    public static void listErrors(List errors) {
-        for (int i = 0; i < errors.size(); i++) {
-            XmlError error = (XmlError) errors.get(i);
-            if (error.getSeverity() == XmlError.SEVERITY_ERROR) {
-                System.out.println(error.toString());
-            }
-        }
-    }
-
-    /**
      * check list of errors/warnings/msgs and print them. Return true if errors found
-     *
-     * @param errors
-     * @return
      */
-    public static boolean printOptionErrMsgs(Collection errors) {
+    public static boolean printOptionErrMsgs(List<XmlError> errors) {
         boolean errFound = false;
         if (!errors.isEmpty()) {
-            for (Iterator i = errors.iterator(); i.hasNext(); ) {
-                XmlError eacherr = (XmlError) i.next();
+            for (XmlError eacherr : errors) {
                 int errSeverity = eacherr.getSeverity();
                 if (errSeverity == XmlError.SEVERITY_ERROR) {
                     System.out.println("Err Msg (s) at line #" + eacherr.getLine() + ": " + eacherr.getMessage());
@@ -161,11 +134,6 @@ public class Common {
 
     /**
      * Validate schemas to instance based on the docType
-     *
-     * @param schemas
-     * @param instances
-     * @param docType
-     * @throws Exception
      */
     public static void validateInstance(String[] schemas, String[] instances, QName docType) throws Exception {
         SchemaTypeLoader stl = makeSchemaTypeLoader(schemas);
@@ -173,13 +141,12 @@ public class Common {
 
         if (docType != null) {
             SchemaType docSchema = stl.findDocumentType(docType);
-            Assert.assertTrue(docSchema != null);
+            assertNotNull(docSchema);
             options.setDocumentType(docSchema);
         }
 
         for (int i = 0; i < instances.length; i++) {
-            XmlObject x =
-                stl.parse((String) instances[i], null, options);
+            XmlObject x = stl.parse(instances[i], null, options);
 
             //if (!startOnDocument) {
             //    XmlCursor c = x.newCursor();
@@ -196,73 +163,20 @@ public class Common {
 
             if (!isValid) {
                 StringBuilder errorTxt = new StringBuilder("Invalid doc, expected a valid doc: ");
-                errorTxt.append("Instance(" + i + "): ");
+                errorTxt.append("Instance(").append(i).append("): ");
                 errorTxt.append(x.xmlText());
                 errorTxt.append("Errors: ");
                 for (XmlError xmlError : xel) {
-                    errorTxt.append(xmlError + "\n");
+                    errorTxt.append(xmlError).append("\n");
                 }
-                System.err.println(errorTxt.toString());
-                throw new Exception("Instance not valid\n" + errorTxt.toString());
+                System.err.println(errorTxt);
+                throw new Exception("Instance not valid\n" + errorTxt);
             }
-        }
-    }
-
-
-    /**
-     * Convenience method for creating an XmlObject from a String
-     *
-     * @param XsdAsString
-     * @return
-     */
-    public static XmlObject compileXsdString(String XsdAsString) {
-        XmlObject xobj = null;
-        try {
-            xobj = XmlObject.Factory.parse(XsdAsString);
-        } catch (XmlException xme) {
-            if (!xme.getErrors().isEmpty()) {
-                for (Iterator itr = xme.getErrors().iterator(); itr.hasNext(); ) {
-                    System.out.println("Parse Errors :" + itr.next());
-                }
-            }
-        } finally {
-            assertNotNull(xobj);
-            return xobj;
-        }
-    }
-
-
-    /**
-     * Convenience method for creating an XmlObject from a File referenced as a String of the path to the file
-     *
-     * @param XsdFilePath
-     * @return
-     */
-    public static XmlObject compileXsdFile(String XsdFilePath) {
-        XmlObject xobj = null;
-        try {
-            xobj = XmlObject.Factory.parse(new File(XsdFilePath));
-        } catch (XmlException xme) {
-            if (!xme.getErrors().isEmpty()) {
-                for (Iterator itr = xme.getErrors().iterator(); itr.hasNext(); ) {
-                    System.out.println("Parse Errors :" + itr.next());
-                }
-            }
-        } catch (IOException ioe) {
-            ioe.printStackTrace();
-            ioe.getMessage();
-        } finally {
-            assertNotNull(xobj);
-            return xobj;
         }
     }
 
     /**
      * Convenience method to create a SchemaTypeLoader from a set of xsds
-     *
-     * @param schemas
-     * @return
-     * @throws Exception
      */
     public static SchemaTypeLoader makeSchemaTypeLoader(String[] schemas)
         throws Exception {
@@ -277,27 +191,16 @@ public class Common {
     }
 
     /**
-     * Is the JVM being used a 1.4 version?
-     * Used for tests involving the javasource=1.5 compilation setting
-     *
-     * @return true if java.version starts with 1.4
-     */
-    public static boolean isJDK14() {
-        return System.getProperty("java.version").startsWith("1.4");
-    }
-
-    /**
      * Convenience class for creating tests in a multithreaded env
      */
     public static abstract class TestThread extends Thread {
         protected Throwable _throwable;
         protected boolean _result;
         protected XmlOptions xm;
-        protected ArrayList errors;
+        protected List<XmlError> errors = new ArrayList<>();
 
         public TestThread() {
             xm = new XmlOptions();
-            ArrayList errors = new ArrayList();
             xm.setErrorListener(errors);
             xm.setValidateOnSet();
         }

@@ -13,7 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
  -->
- 
+
 <project name="DateTime" default="build">
 	<property environment="env"/>
 
@@ -22,29 +22,21 @@ limitations under the License.
         <fileset dir="build/lib" includes="*.jar"/>
         <pathelement path="build/classes"/>
     </path>
-    
+
     <target name="init">
         <property name="xmlbeans.home" value="${env.XMLBEANS_HOME}"/>
         <echo message="xmlbeans.home: ${xmlbeans.home}"/>
 
-        <!-- check for xbean.jar from binary distribution -->
-        <available
-            property="xmlbeans.lib"
-            value="${xmlbeans.home}/lib"
-            file="${xmlbeans.home}/lib/xbean.jar" />
+        <!-- check for xmlbeans-*.jar from binary distribution -->
+        <pathconvert property="xmlbeans.lib" setonempty="false" pathsep=" ">
+            <path><fileset dir="${xmlbeans.home}/libs" includes="xmlbeans-*.jar" /></path>
+        </pathconvert>
 
-        <!-- check for xbean.jar compiled from source -->
-        <available
-            property="xmlbeans.lib"
-            value="${xmlbeans.home}/build/lib"
-            file="${xmlbeans.home}/build/lib/xbean.jar" />
-
-        <fail message="Set XMLBEANS_HOME in your enviornment."
-            unless="xmlbeans.lib"/>
+        <fail message="Set XMLBEANS_HOME in your enviornment." unless="xmlbeans.lib"/>
 
         <echo message="xmlbeans.lib: ${xmlbeans.lib}"/>
         <path id="xmlbeans.path">
-            <fileset dir="${xmlbeans.lib}" includes="*.jar"/>
+            <fileset dir="${xmlbeans.home}/libs" includes="*.jar"/>
         </path>
 
         <taskdef name="xmlbean"
@@ -62,7 +54,7 @@ limitations under the License.
 
     <target name="build" depends="init,schemas.jar,DateTime.classes">
     </target>
-    
+
      <target name="schemas.check">
         <uptodate property="schemas.notRequired"
             targetfile="build/lib/schemas.jar">
@@ -84,15 +76,15 @@ limitations under the License.
 
     <target name="DateTime.classes" depends="init">
         <mkdir dir="build/classes"/>
-		
+
         <javac srcdir="src"
             destdir="build/classes"
             classpathref="DateTime.path"
             debug="on"
             source="1.8"
-            />  
+            />
     </target>
-     	
+
  	 <!-- ========================== run ==== -->
 
     <target name="run" depends="init,build">
@@ -104,7 +96,7 @@ limitations under the License.
             <arg line="xml/datetimesample.xml xml/newdatetimesample.xml"/>
         </java>
     </target>
-  
+
      <!-- ========================== test ==== -->
 
     <target name="test" depends="init,build">
@@ -117,5 +109,5 @@ limitations under the License.
         </java>
     </target>
 
-    
+
 </project>

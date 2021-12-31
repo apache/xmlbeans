@@ -1,0 +1,420 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+
+-->
+
+<plugin>
+    <name>xmlbeans</name>
+    <description>Maven plugin for Apache XmlBeans</description>
+    <groupId>org.apache.xmlbeans</groupId>
+    <artifactId>xmlbeans</artifactId>
+    <version>@VERSION@</version>
+    <goalPrefix>xmlbeans.plugin</goalPrefix>
+    <isolatedRealm>false</isolatedRealm>
+    <inheritedByDefault>true</inheritedByDefault>
+    <mojos>
+        <mojo>
+            <goal>help</goal>
+            <description>Display help information on xmlbeans-maven-plugin.&lt;br&gt;
+                Call &lt;code&gt;mvn xmlbeans.plugin:help -Ddetail=true -Dgoal=&amp;lt;goal-name&amp;gt;&lt;/code&gt; to display parameter details.</description>
+            <requiresDirectInvocation>false</requiresDirectInvocation>
+            <requiresProject>false</requiresProject>
+            <requiresReports>false</requiresReports>
+            <aggregator>false</aggregator>
+            <requiresOnline>false</requiresOnline>
+            <inheritedByDefault>true</inheritedByDefault>
+            <implementation>org.apache.xmlbeans.impl.tool.MavenPluginHelp</implementation>
+            <language>java</language>
+            <instantiationStrategy>per-lookup</instantiationStrategy>
+            <executionStrategy>once-per-session</executionStrategy>
+            <threadSafe>true</threadSafe>
+            <parameters>
+                <parameter>
+                    <name>detail</name>
+                    <type>boolean</type>
+                    <required>false</required>
+                    <editable>true</editable>
+                    <description>If &lt;code&gt;true&lt;/code&gt;, display all settable properties for each goal.</description>
+                </parameter>
+                <parameter>
+                    <name>goal</name>
+                    <type>java.lang.String</type>
+                    <required>false</required>
+                    <editable>true</editable>
+                    <description>The name of the goal for which to show help. If unspecified, all goals will be displayed.</description>
+                </parameter>
+                <parameter>
+                    <name>indentSize</name>
+                    <type>int</type>
+                    <required>false</required>
+                    <editable>true</editable>
+                    <description>The number of spaces per indentation level, should be positive.</description>
+                </parameter>
+                <parameter>
+                    <name>lineLength</name>
+                    <type>int</type>
+                    <required>false</required>
+                    <editable>true</editable>
+                    <description>The maximum length of a display line, should be positive.</description>
+                </parameter>
+            </parameters>
+            <configuration>
+                <detail implementation="boolean" default-value="false">${detail}</detail>
+                <goal implementation="java.lang.String">${goal}</goal>
+                <indentSize implementation="int" default-value="2">${indentSize}</indentSize>
+                <lineLength implementation="int" default-value="80">${lineLength}</lineLength>
+            </configuration>
+        </mojo>
+        <mojo>
+            <goal>compile</goal>
+            <requiresDirectInvocation>false</requiresDirectInvocation>
+            <requiresProject>false</requiresProject>
+            <requiresReports>false</requiresReports>
+            <aggregator>false</aggregator>
+            <requiresOnline>false</requiresOnline>
+            <inheritedByDefault>true</inheritedByDefault>
+            <phase>generate-sources</phase>
+            <executePhase>generate-sources</executePhase>
+            <executeGoal>compile</executeGoal>
+            <implementation>org.apache.xmlbeans.impl.tool.MavenPlugin</implementation>
+            <language>java</language>
+            <instantiationStrategy>per-lookup</instantiationStrategy>
+            <executionStrategy>once-per-session</executionStrategy>
+            <threadSafe>false</threadSafe>
+            <parameters>
+                <parameter>
+                    <name>project</name>
+                    <type>org.apache.maven.project.MavenProject</type>
+                    <required>true</required>
+                    <editable>false</editable>
+                    <description>reference to the project</description>
+                </parameter>
+                <parameter>
+                    <name>baseSchemaLocation</name>
+                    <type>java.lang.String</type>
+                    <required>false</required>
+                    <editable>true</editable>
+                    <description>destination directory of the copied xsd files</description>
+                </parameter>
+                <parameter>
+                    <name>buildSchemas</name>
+                    <type>boolean</type>
+                    <required>false</required>
+                    <editable>true</editable>
+                    <description>buildSchemas sets build process of the generated sources</description>
+                </parameter>
+                <parameter>
+                    <name>catalogLocation</name>
+                    <type>java.lang.String</type>
+                    <required>false</required>
+                    <editable>true</editable>
+                    <description>catalogLocation is the location of an entity resolver catalog to use for resolving namespace to schema locations.</description>
+                </parameter>
+                <parameter>
+                    <name>classPath</name>
+                    <type>java.lang.String</type>
+                    <required>false</required>
+                    <editable>true</editable>
+                    <description>Comma-separated list of jars and class folders</description>
+                </parameter>
+                <parameter>
+                    <name>classTargetDir</name>
+                    <type>java.lang.String</type>
+                    <required>false</required>
+                    <editable>true</editable>
+                    <description>classTargetDir is where you want compiled class files to appear</description>
+                </parameter>
+                <parameter>
+                    <name>javaTargetDir</name>
+                    <type>java.lang.String</type>
+                    <required>false</required>
+                    <editable>true</editable>
+                    <description>javaTargetdir is where you want generated java source to appear</description>
+                </parameter>
+                <parameter>
+                    <name>resources</name>
+                    <type>java.util.List</type>
+                    <required>false</required>
+                    <editable>false</editable>
+                    <description>Singleton list containing the output directory for resources (output only, i.e. inputs are overridden)</description>
+                </parameter>
+                <parameter>
+                    <name>sourceDir</name>
+                    <type>java.lang.String</type>
+                    <required>false</required>
+                    <editable>true</editable>
+                    <description>sourceDir is a base directory for the list in sourceschema</description>
+                </parameter>
+                <parameter>
+                    <name>sourceSchemas</name>
+                    <type>java.lang.String</type>
+                    <required>false</required>
+                    <editable>true</editable>
+                    <description>sourceSchemas is a comma-delimited list of all the schemas you want to compile</description>
+                </parameter>
+                <parameter>
+                    <name>xmlConfigs</name>
+                    <type>java.lang.String</type>
+                    <required>false</required>
+                    <editable>true</editable>
+                    <description>xmlConfigs points to your xmlconfig.xml file</description>
+                </parameter>
+                <parameter>
+                    <name>name</name>
+                    <type>java.lang.String</type>
+                    <required>false</required>
+                    <editable>true</editable>
+                    <description>schema system name</description>
+                </parameter>
+                <parameter>
+                    <name>repackage</name>
+                    <type>java.lang.String</type>
+                    <required>false</required>
+                    <editable>true</editable>
+                    <description>Metadata package name. If explicitly set empty, generates to org.apache.xmlbeans.metadata</description>
+                </parameter>
+                <parameter>
+                    <name>mdefNamespaces</name>
+                    <type>java.util.List</type>
+                    <required>false</required>
+                    <editable>true</editable>
+                    <description><![CDATA[
+                        If this option is set, then the schema compiler will permit and
+                        ignore multiple definitions of the same component (element, attribute,
+                        type, etc) names in the given namespaces.  If multiple definitions
+                        with the same name appear, the definitions that happen to be processed
+                        last will be ignored.
+
+                        Format:
+                        <mdefNamespaces>
+                            <mdefNamespace>http://lazy.dev/duplicated/namespace</mdefNamespace>
+                        <mdefNamespaces>]]>
+                    </description>
+                </parameter>
+                <parameter>
+                    <name>partialMethods</name>
+                    <type>java.lang.String</type>
+                    <required>false</required>
+                    <editable>true</editable>
+                    <description>
+                        Only generate a subset of the bean methods. Comma-seperated list of the following method types:
+                        GET, XGET, IS_SET, IS_NIL, IS_NIL_IDX, SET, SET_NIL, SET_NIL_IDX, XSET, UNSET,
+                        GET_ARRAY, XGET_ARRAY, GET_IDX, XGET_IDX, XSET_ARRAY, XSET_IDX,
+                        SIZE_OF_ARRAY, SET_ARRAY, SET_IDX,
+                        INSERT_IDX, INSERT_NEW_IDX,
+                        ADD, ADD_NEW, REMOVE_IDX,
+                        GET_LIST, XGET_LIST, SET_LIST,
+                        INSTANCE_TYPE
+
+                        Example: "ALL,-GET_LIST,-XGET_LIST" excludes GET_LIST and XGET_LIST methods
+                    </description>
+                </parameter>
+                <parameter>
+                    <name>verbose</name>
+                    <type>boolean</type>
+                    <required>false</required>
+                    <editable>true</editable>
+                    <description>verbose output</description>
+                </parameter>
+                <parameter>
+                    <name>quiet</name>
+                    <type>boolean</type>
+                    <required>false</required>
+                    <editable>true</editable>
+                    <description>no output (replaces quite parameter instead - since 5.0.2)</description>
+                </parameter>
+                <parameter>
+                    <name>quite</name>
+                    <type>boolean</type>
+                    <required>false</required>
+                    <editable>true</editable>
+                    <description>no output (use quiet parameter instead - since 5.0.2)</description>
+                </parameter>
+                <parameter>
+                    <name>noUpa</name>
+                    <type>boolean</type>
+                    <required>false</required>
+                    <editable>true</editable>
+                    <description>deactivate unique particle attribution</description>
+                </parameter>
+                <parameter>
+                    <name>noPvr</name>
+                    <type>boolean</type>
+                    <required>false</required>
+                    <editable>true</editable>
+                    <description>deactivate particle valid (restriction)</description>
+                </parameter>
+                <parameter>
+                    <name>noAnn</name>
+                    <type>boolean</type>
+                    <required>false</required>
+                    <editable>true</editable>
+                    <description>deactivate annotation generation</description>
+                </parameter>
+                <parameter>
+                    <name>noVDoc</name>
+                    <type>boolean</type>
+                    <required>false</required>
+                    <editable>true</editable>
+                    <description>do not validate contents of documentation-tags</description>
+                </parameter>
+                <parameter>
+                    <name>download</name>
+                    <type>boolean</type>
+                    <required>false</required>
+                    <editable>true</editable>
+                    <description>permit network downloads for imports and includes</description>
+                </parameter>
+                <parameter>
+                    <name>debug</name>
+                    <type>boolean</type>
+                    <required>false</required>
+                    <editable>true</editable>
+                    <description>compile with debug symbols</description>
+                </parameter>
+                <parameter>
+                    <name>sourceOnly</name>
+                    <type>boolean</type>
+                    <required>false</required>
+                    <editable>true</editable>
+                    <description>do not compile .java files or jar the output</description>
+                </parameter>
+                <parameter>
+                    <name>basedir</name>
+                    <type>java.io.File</type>
+                    <required>false</required>
+                    <editable>true</editable>
+                    <description>basedir of the source files - defaults to the directory of the first source file</description>
+                </parameter>
+                <parameter>
+                    <name>compiler</name>
+                    <type>java.lang.String</type>
+                    <required>false</required>
+                    <editable>true</editable>
+                    <description>path to the javac compiler</description>
+                </parameter>
+                <parameter>
+                    <name>memoryInitialSize</name>
+                    <type>java.lang.String</type>
+                    <required>false</required>
+                    <editable>true</editable>
+                    <description>initial memory for external java compiler</description>
+                </parameter>
+                <parameter>
+                    <name>memoryMaximumSize</name>
+                    <type>java.lang.String</type>
+                    <required>false</required>
+                    <editable>true</editable>
+                    <description>maximum memory for external java compiler</description>
+                </parameter>
+                <parameter>
+                    <name>outputJar</name>
+                    <type>java.io.File</type>
+                    <required>false</required>
+                    <editable>true</editable>
+                    <description>the name of the output jar</description>
+                </parameter>
+                <parameter>
+                    <name>extensions</name>
+                    <type>java.util.List</type>
+                    <required>false</required>
+                    <editable>true</editable>
+                    <description><![CDATA[(experimental) registers a schema compiler extensions implementing org.apache.xmlbeans.impl.tool.SchemaCompilerExtension
+
+                    Example:
+					<extensions>
+						<extension>
+							<className>org.custom.MySchemaCompilerExtension</className>
+							<params>
+								<param>
+									<name>name</name>
+									<value>value</value>
+								</param>
+							</params>
+						</extension>
+					</extensions>
+                ]]></description>
+                </parameter>
+                <parameter>
+                    <name>copyAnn</name>
+                    <type>boolean</type>
+                    <required>false</required>
+                    <editable>true</editable>
+                    <description>copy annotation to javadoc of generated source - don't use on untrusted schemas/sources!</description>
+                </parameter>
+            </parameters>
+            <configuration>
+                <project implementation="org.apache.maven.project.MavenProject" default-value="${project}"/>
+                <buildSchemas implementation="boolean" default-value="true"/>
+                <sourceDir implementation="java.lang.String" default-value="${project.basedir}/src/main/schema"/>
+                <sourceSchemas implementation="java.lang.String" default-value="*.xsd,*.wsdl,*.java"/>
+                <xmlConfigs implementation="java.lang.String" default-value="${project.basedir}/src/schema/xmlconfig.xml"/>
+                <javaTargetDir implementation="java.lang.String" default-value="${project.basedir}/target/generated-sources"/>
+                <classTargetDir implementation="java.lang.String" default-value="${project.basedir}/target/generated-resources"/>
+                <baseSchemaLocation implementation="java.lang.String" default-value="schemaorg_apache_xmlbeans/src"/>
+                <name implementation="java.lang.String" default-value="${project.artifactId}"/>
+                <repackage implementation="java.lang.String" default-value="${project.groupId}.${project.artifactId}.metadata"/>
+                <verbose implementation="boolean" default-value="false"/>
+                <quite implementation="boolean" default-value="true"/>
+                <noUpa implementation="boolean" default-value="false"/>
+                <noPvr implementation="boolean" default-value="false"/>
+                <noAnn implementation="boolean" default-value="false"/>
+                <copyAnn implementation="boolean" default-value="false"/>
+                <noVDoc implementation="boolean" default-value="false"/>
+                <download implementation="boolean" default-value="false"/>
+                <debug implementation="boolean" default-value="false"/>
+                <sourceOnly implementation="boolean" default-value="true"/>
+                <memoryInitialSize implementation="java.lang.String" default-value="8m"/>
+                <memoryMaximumSize implementation="java.lang.String" default-value="256m"/>
+                <outputJar implementation="java.io.File" default-value="${project.basedir}/target/${project.artifactId}-${project.version}-xmltypes.jar"/>
+            </configuration>
+        </mojo>
+    </mojos>
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.maven</groupId>
+            <artifactId>maven-plugin-api</artifactId>
+            <version>3.6.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.maven</groupId>
+            <artifactId>maven-core</artifactId>
+            <version>3.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-api</artifactId>
+            <version>2.17.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-core</artifactId>
+            <version>2.17.0</version>
+        </dependency>
+        <dependency>
+            <groupId>net.sf.saxon</groupId>
+            <artifactId>Saxon-HE</artifactId>
+            <version>10.6</version>
+        </dependency>
+        <dependency>
+            <groupId>com.github.javaparser</groupId>
+            <artifactId>javaparser-core</artifactId>
+            <version>3.23.1</version>
+        </dependency>
+    </dependencies>
+</plugin>

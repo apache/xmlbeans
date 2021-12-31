@@ -20,13 +20,15 @@ limitations under the License.
     <target name="clean" depends="
         clean-SampleTemplate,
         clean-MixedContent,
+        clean-Validation,
+        clean-Any,
         clean-OrderMatters,
         clean-vxsdb,
         clean-SchemaEnum,
         clean-AbstractTypes,
         clean-SubstitutionGroup,
         clean-DateTime,
-	clean-XsdConfig
+	    clean-XsdConfig
 	">
         <delete dir="build"/>
     </target>
@@ -35,8 +37,16 @@ limitations under the License.
         <ant dir="SampleTemplate" target="clean"/>
     </target>
 
+    <target name="clean-Any">
+        <ant dir="Any" target="clean"/>
+    </target>
+
     <target name="clean-MixedContent">
         <ant dir="MixedContent" target="clean"/>
+    </target>
+
+    <target name="clean-Validation">
+        <ant dir="Validation" target="clean"/>
     </target>
 
     <target name="clean-OrderMatters">
@@ -71,51 +81,61 @@ limitations under the License.
 
     <target name="build" depends="
         build-SampleTemplate,
+        build-Any,
         build-MixedContent,
         build-OrderMatters,
-        build-vxsdb,
         build-SchemaEnum,
         build-AbstractTypes,
         build-SubstitutionGroup,
         build-DateTime,
-	build-XsdConfig
+        build-Validation,
+	    build-XsdConfig
 	">
+    <!-- build-vxsdb,-->
     </target>
 
     <target name="build-SampleTemplate">
-        <ant dir="SampleTemplate" target="build"/>
+        <ant dir="SampleTemplate" target="build" inheritAll="true"/>
+    </target>
+
+    <target name="build-Any">
+        <ant dir="Any" target="build" inheritAll="true"/>
     </target>
 
     <target name="build-MixedContent">
-        <ant dir="MixedContent" target="build"/>
+        <ant dir="MixedContent" target="build" inheritAll="true"/>
+    </target>
+
+    <target name="build-Validation">
+        <ant dir="Validation" target="build" inheritAll="true"/>
     </target>
 
     <target name="build-OrderMatters">
-        <ant dir="OrderMatters" target="build"/>
+        <ant dir="OrderMatters" target="build" inheritAll="true"/>
     </target>
 
     <target name="build-vxsdb">
-        <ant dir="vxsdb" target="build"/>
+        <ant dir="vxsdb" target="build" inheritAll="true"/>
     </target>
 
     <target name="build-SchemaEnum">
-        <ant dir="SchemaEnum" target="build"/>
+        <ant dir="SchemaEnum" target="build" inheritAll="true"/>
     </target>
 
     <target name="build-AbstractTypes">
-        <ant dir="AbstractTypes" target="build"/>
+        <ant dir="AbstractTypes" target="build" inheritAll="true"/>
     </target>
 
     <target name="build-SubstitutionGroup">
-        <ant dir="SubstitutionGroup" target="build"/>
+        <ant dir="SubstitutionGroup" target="build" inheritAll="true"/>
     </target>
 
     <target name="build-DateTime">
-        <ant dir="DateTime" target="build"/>
+        <ant dir="DateTime" target="build" inheritAll="true"/>
     </target>
-    
+
     <target name="build-XsdConfig">
-        <ant dir="XsdConfig" target="build"/>
+        <ant dir="XsdConfig" target="build" inheritAll="true"/>
     </target>
 
     <!-- ========================== test ==== -->
@@ -123,23 +143,33 @@ limitations under the License.
 
     <target name="test" depends="
         test-SampleTemplate,
+        test-Any,
         test-MixedContent,
         test-OrderMatters,
-        test-vxsdb,
         test-SchemaEnum,
         test-AbstractTypes,
         test-SubstitutionGroup,
         test-DateTime,
-	test-XsdConfig
+        test-Validation,
+	    test-XsdConfig
 	">
+    <!-- test-vxsdb,-->
     </target>
 
     <target name="test-SampleTemplate">
         <ant dir="SampleTemplate" target="test"/>
     </target>
 
+    <target name="test-Any">
+        <ant dir="Any" target="test"/>
+    </target>
+
     <target name="test-MixedContent">
         <ant dir="MixedContent" target="test"/>
+    </target>
+
+    <target name="test-Validation">
+        <ant dir="Validation" target="test"/>
     </target>
 
     <target name="test-OrderMatters">
@@ -174,15 +204,18 @@ limitations under the License.
 
     <target name="dist" depends="
         dist-SampleTemplate,
+        dist-Any,
         dist-MixedContent,
         dist-OrderMatters,
-        dist-vxsdb,
         dist-SchemaEnum,
         dist-AbstractTypes,
         dist-SubstitutionGroup,
         dist-DateTime,
-	dist-XsdConfig
+        dist-Validation,
+	    dist-XsdConfig
 	">
+    <!-- dist-vxsdb,-->
+
         <zip destfile="build/samples.zip"
             basedir=".."
             includes="samples/**"
@@ -212,6 +245,21 @@ limitations under the License.
     </target>
 
 
+    <target name="dist-Any">
+        <mkdir dir="build"/>
+        <zip destfile="build/Any.zip"
+            basedir="."
+            includes="Any/**"
+            excludes="Any/build/**"
+            />
+        <tar destfile="build/Any.tgz"
+            basedir="."
+            includes="Any/**"
+            excludes="Any/build/**"
+            compression="gzip"
+            />
+    </target>
+
     <target name="dist-MixedContent">
         <mkdir dir="build"/>
         <zip destfile="build/MixedContent.zip"
@@ -223,6 +271,21 @@ limitations under the License.
             basedir="."
             includes="MixedContent/**"
             excludes="MixedContent/build/**"
+            compression="gzip"
+            />
+    </target>
+
+    <target name="dist-Validation">
+        <mkdir dir="build"/>
+        <zip destfile="build/Validation.zip"
+            basedir="."
+            includes="Validation/**"
+            excludes="Validation/build/**"
+            />
+        <tar destfile="build/Validation.tgz"
+            basedir="."
+            includes="Validation/**"
+            excludes="Validation/build/**"
             compression="gzip"
             />
     </target>

@@ -15,14 +15,15 @@
 
 package scomp.derivation.restriction.facets.detailed;
 
+import org.apache.xmlbeans.XmlErrorCodes;
 import org.junit.Test;
 import scomp.common.BaseCase;
-import xbean.scomp.derivation.facets.union.UnionPatternEltDocument;
+import xbean.scomp.derivation.facets.union.SmallEnumUnion;
 import xbean.scomp.derivation.facets.union.SmallPatternUnion;
 import xbean.scomp.derivation.facets.union.UnionEnumEltDocument;
-import xbean.scomp.derivation.facets.union.SmallEnumUnion;
-import org.apache.xmlbeans.XmlErrorCodes;
+import xbean.scomp.derivation.facets.union.UnionPatternEltDocument;
 
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -42,7 +43,7 @@ public class UnionRestriction extends BaseCase {
             showErrors();
             throw t;
         }
-        doc.setUnionPatternElt(new Integer(1));
+        doc.setUnionPatternElt(1);
         try {
             assertTrue(doc.validate(validateOptions));
         } catch (Throwable t) {
@@ -50,7 +51,7 @@ public class UnionRestriction extends BaseCase {
             throw t;
         }
         SmallPatternUnion elt = SmallPatternUnion.Factory.newInstance();
-        elt.setObjectValue(new Integer(2));
+        elt.setObjectValue(2);
         doc.xsetUnionPatternElt(elt);
         try {
             assertTrue(doc.validate(validateOptions));
@@ -58,8 +59,8 @@ public class UnionRestriction extends BaseCase {
             showErrors();
             throw t;
         }
-        doc.setUnionPatternElt(new Integer(-1));
-        assertTrue(!doc.validate(validateOptions));
+        doc.setUnionPatternElt(-1);
+        assertFalse(doc.validate(validateOptions));
         showErrors();
         String[] errExpected = new String[]{
             XmlErrorCodes.DATATYPE_VALID$PATTERN_VALID
@@ -77,7 +78,7 @@ public class UnionRestriction extends BaseCase {
             showErrors();
             throw t;
         }
-        doc.setUnionEnumElt(new Integer(1));
+        doc.setUnionEnumElt(1);
         try {
             assertTrue(doc.validate(validateOptions));
         } catch (Throwable t) {
@@ -85,7 +86,7 @@ public class UnionRestriction extends BaseCase {
             throw t;
         }
         SmallEnumUnion elt = SmallEnumUnion.Factory.newInstance();
-        elt.setObjectValue(new Integer(-1));
+        elt.setObjectValue(-1);
         doc.xsetUnionEnumElt(elt);
         try {
             assertTrue(doc.validate(validateOptions));
@@ -93,8 +94,8 @@ public class UnionRestriction extends BaseCase {
             showErrors();
             throw t;
         }
-        doc.setUnionEnumElt(new Integer(2));
-        assertTrue(!doc.validate(validateOptions));
+        doc.setUnionEnumElt(2);
+        assertFalse(doc.validate(validateOptions));
         showErrors();
         String[] errExpected = new String[]{
             XmlErrorCodes.DATATYPE_ENUM_VALID

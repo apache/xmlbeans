@@ -412,10 +412,10 @@ public class GDurationBuilder implements GDurationSpecification, java.io.Seriali
     /**
      * Comparison to another GDuration.
      * <ul>
-     * <li>Returns -1 if this < duration. (less-than)
+     * <li>Returns -1 if this &lt; duration. (less-than)
      * <li>Returns 0 if this == duration. (equal)
-     * <li>Returns 1 if this > duration. (greater-than)
-     * <li>Returns 2 if this <> duration. (incomparable)
+     * <li>Returns 1 if this &gt; duration. (greater-than)
+     * <li>Returns 2 if this &lt;&gt; duration. (incomparable)
      * </ul>
      * Two instances are incomparable if they have different amounts
      * of information.

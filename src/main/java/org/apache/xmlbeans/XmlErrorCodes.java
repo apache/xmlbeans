@@ -976,7 +976,7 @@ public abstract class XmlErrorCodes
     public static final String ATTR_NOTATION_TYPE_FORBIDDEN = "enumeration-required-notation-attr";
 
     /**
-     * <a href="http://www.w3c.org/TR/xmlschema-2/#NOTATION">XMLSchema Datatypes 1.0: Definition of type NOTATION</>
+     * <a href="http://www.w3c.org/TR/xmlschema-2/#NOTATION">XMLSchema Datatypes 1.0: Definition of type NOTATION</a>
      */
     public static final String ATTR_COMPATIBILITY_TARGETNS = "notation-targetns-attr";
 
@@ -1149,12 +1149,12 @@ public abstract class XmlErrorCodes
     public static final String ELEM_DEFAULT_VALID$MIXED_AND_EMPTIABLE = "cos-valid-default.2.2.2";
 
     /**
-     * <a href="http://www.w3c.org/TR/xmlschema-2/#ID">XMLSchema Datatypes 1.0: Definitions of types ID, IDREF, IDREFS, ENTITY, ENTITIES, NOTATION</>
+     * <a href="http://www.w3c.org/TR/xmlschema-2/#ID">XMLSchema Datatypes 1.0: Definitions of types ID, IDREF, IDREFS, ENTITY, ENTITIES, NOTATION</a>
      */
     public static final String ELEM_COMPATIBILITY_TYPE = "id-idref-idrefs-entity-entities-notation";
 
     /**
-     * <a href="http://www.w3c.org/TR/xmlschema-2/#NOTATION">XMLSchema Datatypes 1.0: Definition of type NOTATION</>
+     * <a href="http://www.w3c.org/TR/xmlschema-2/#NOTATION">XMLSchema Datatypes 1.0: Definition of type NOTATION</a>
      */
     public static final String ELEM_COMPATIBILITY_TARGETNS = "notation-targetns-elem";
 
@@ -1845,7 +1845,7 @@ public abstract class XmlErrorCodes
      * <blockquote>
      * <b>NOTE: </b>
      * The <i>only</i> substantive function of the value <i>prohibited</i> for the
-     * <code>use</code> attribute of an <a href="http://www.w3c.org/TR/xmlschema-1/#element-attribute" class="eltref">&lt;attribute&gt;</a> is in establishing
+     * {@code use} attribute of an <a href="http://www.w3c.org/TR/xmlschema-1/#element-attribute" class="eltref">&lt;attribute&gt;</a> is in establishing
      * the correspondence between a complex type defined by restriction and its XML
      * representation.  It serves to prevent inheritance of an identically named attribute
      * use from the <a href="http://www.w3c.org/TR/xmlschema-1/#ct-base_type_definition" class="propref">{base type definition}</a>.

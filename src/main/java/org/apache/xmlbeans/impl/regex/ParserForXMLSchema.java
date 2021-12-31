@@ -20,8 +20,6 @@ import java.util.Locale;
 
 /**
  * A regular expression parser for the XML Schema.
- *
- * @author TAMURA Kent &lt;kent@trl.ibm.co.jp&gt;
  */
 class ParserForXMLSchema extends RegexParser {
 
@@ -203,7 +201,7 @@ class ParserForXMLSchema extends RegexParser {
                     c = this.processCIinCharacterClass(tok, c);
                     if (c < 0)  end = true;
                     break;
-                    
+
                   case 'p':
                   case 'P':
                     int pstart = this.offset;
@@ -288,7 +286,7 @@ class ParserForXMLSchema extends RegexParser {
     protected RangeToken parseSetOperations() throws ParseException {
         throw this.ex("parser.process.1", this.offset);
     }
- 
+
     Token getTokenForShorthand(int ch) {
         switch (ch) {
           case 'd':

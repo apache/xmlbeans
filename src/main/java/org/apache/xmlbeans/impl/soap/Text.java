@@ -16,17 +16,17 @@
 package org.apache.xmlbeans.impl.soap;
 
 /**
- * A representation of a node whose value is text. A <CODE>
- *   Text</CODE> object may represent text that is content or text
+ * A representation of a node whose value is text. A {@code
+ *   Text} object may represent text that is content or text
  *   that is a comment.
  */
 public interface Text extends Node, org.w3c.dom.Text {
 
     /**
-     * Retrieves whether this <CODE>Text</CODE> object
+     * Retrieves whether this {@code Text} object
      * represents a comment.
-     * @return  <CODE>true</CODE> if this <CODE>Text</CODE> object is
-     *     a comment; <CODE>false</CODE> otherwise
+     * @return  {@code true} if this {@code Text} object is
+     *     a comment; {@code false} otherwise
      */
-    public abstract boolean isComment();
+    boolean isComment();
 }

@@ -17,61 +17,61 @@ package org.apache.xmlbeans.impl.soap;
 
 /**
  *     <P>An object representing the contents in the SOAP header part
- *   of the SOAP envelope. The immediate children of a <CODE>
- *   SOAPHeader</CODE> object can be represented only as <CODE>
- *   SOAPHeaderElement</CODE> objects.</P>
+ *   of the SOAP envelope. The immediate children of a {@code
+ *   SOAPHeader} object can be represented only as {@code
+ *   SOAPHeaderElement} objects.</P>
  *
- *   <P>A <CODE>SOAPHeaderElement</CODE> object can have other
- *   <CODE>SOAPElement</CODE> objects as its children.</P>
+ *   <P>A {@code SOAPHeaderElement} object can have other
+ *   {@code SOAPElement} objects as its children.</P>
  */
 public interface SOAPHeaderElement extends SOAPElement {
 
     /**
-     * Sets the actor associated with this <CODE>
-     * SOAPHeaderElement</CODE> object to the specified actor. The
-     * default value of an actor is: <CODE>
-     * SOAPConstants.URI_SOAP_ACTOR_NEXT</CODE>
-     * @param  actorURI  a <CODE>String</CODE> giving
+     * Sets the actor associated with this {@code
+     * SOAPHeaderElement} object to the specified actor. The
+     * default value of an actor is: {@code
+     * SOAPConstants.URI_SOAP_ACTOR_NEXT}
+     * @param  actorURI  a {@code String} giving
      *     the URI of the actor to set
      * @see #getActor() getActor()
      * @throws java.lang.IllegalArgumentException if
      *     there is a problem in setting the actor.
      */
-    public abstract void setActor(String actorURI);
+    void setActor(String actorURI);
 
     /**
-     * Returns the uri of the actor associated with this <CODE>
-     * SOAPHeaderElement</CODE> object.
-     * @return  a <CODE>String</CODE> giving the URI of the
+     * Returns the uri of the actor associated with this {@code
+     * SOAPHeaderElement} object.
+     * @return  a {@code String} giving the URI of the
      *     actor
      * @see #setActor(java.lang.String) setActor(java.lang.String)
      */
-    public abstract String getActor();
+    String getActor();
 
     /**
-     * Sets the mustUnderstand attribute for this <CODE>
-     *   SOAPHeaderElement</CODE> object to be on or off.
+     * Sets the mustUnderstand attribute for this {@code
+     *   SOAPHeaderElement} object to be on or off.
      *
      *   <P>If the mustUnderstand attribute is on, the actor who
-     *   receives the <CODE>SOAPHeaderElement</CODE> must process it
-     *   correctly. This ensures, for example, that if the <CODE>
-     *   SOAPHeaderElement</CODE> object modifies the message, that
+     *   receives the {@code SOAPHeaderElement} must process it
+     *   correctly. This ensures, for example, that if the {@code
+     *   SOAPHeaderElement} object modifies the message, that
      *   the message is being modified correctly.</P>
-     * @param  mustUnderstand  <CODE>true</CODE> to
-     *     set the mustUnderstand attribute on; <CODE>false</CODE>
+     * @param  mustUnderstand  {@code true} to
+     *     set the mustUnderstand attribute on; {@code false}
      *     to turn if off
      * @throws java.lang.IllegalArgumentException if
      *     there is a problem in setting the actor.
      * @see #getMustUnderstand() getMustUnderstand()
      */
-    public abstract void setMustUnderstand(boolean mustUnderstand);
+    void setMustUnderstand(boolean mustUnderstand);
 
     /**
      * Returns whether the mustUnderstand attribute for this
-     * <CODE>SOAPHeaderElement</CODE> object is turned on.
-     * @return  <CODE>true</CODE> if the mustUnderstand attribute of
-     *     this <CODE>SOAPHeaderElement</CODE> object is turned on;
-     *     <CODE>false</CODE> otherwise
+     * {@code SOAPHeaderElement} object is turned on.
+     * @return  {@code true} if the mustUnderstand attribute of
+     *     this {@code SOAPHeaderElement} object is turned on;
+     *     {@code false} otherwise
      */
-    public abstract boolean getMustUnderstand();
+    boolean getMustUnderstand();
 }

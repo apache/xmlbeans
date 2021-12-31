@@ -15,22 +15,18 @@
 package xmlobject.extensions.interfaceFeature.readOnlyBean.checkin;
 
 
+import interfaceFeature.xbean.readOnlyBean.purchaseOrder.Items;
 import interfaceFeature.xbean.readOnlyBean.purchaseOrder.PurchaseOrderDocument;
 import interfaceFeature.xbean.readOnlyBean.purchaseOrder.PurchaseOrderType;
-import interfaceFeature.xbean.readOnlyBean.purchaseOrder.Items;
-
+import org.junit.Test;
 
 import java.math.BigDecimal;
 
-import junit.framework.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
-public class ReadOnlyTest extends TestCase {
-
-
-    public ReadOnlyTest(String s) {
-        super(s);
-    }
-
+public class ReadOnlyTest {
+    @Test
     public void test() {
 
         PurchaseOrderDocument poDoc;
@@ -75,8 +71,6 @@ public class ReadOnlyTest extends TestCase {
             System.exit(-1);
         }
 
-
         assertTrue(!poDoc.validate());
     }
-
 }

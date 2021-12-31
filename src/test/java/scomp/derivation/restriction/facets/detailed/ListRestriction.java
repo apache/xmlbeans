@@ -22,8 +22,7 @@ import xbean.scomp.derivation.facets.list.*;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  */
@@ -31,12 +30,12 @@ public class ListRestriction extends BaseCase {
     @Test
     public void testLengthFacet() throws Throwable {
         LengthEltDocument doc = LengthEltDocument.Factory.newInstance();
-        List vals = new ArrayList();
+        List<String> vals = new ArrayList<>();
         vals.add("lstsmall");
 
         doc.setLengthElt(vals);
         //this should be too short
-        assertTrue(!doc.validate(validateOptions));
+        assertFalse(doc.validate(validateOptions));
         showErrors();
         String[] errExpected = new String[]{
             XmlErrorCodes.DATATYPE_LENGTH_VALID$LIST_LENGTH};
@@ -54,7 +53,7 @@ public class ListRestriction extends BaseCase {
         vals.add("lstsmall");
         doc.setLengthElt(vals);
         clearErrors();
-        assertTrue(!doc.validate(validateOptions));
+        assertFalse(doc.validate(validateOptions));
         showErrors();
         errExpected = new String[]{
             XmlErrorCodes.DATATYPE_LENGTH_VALID$LIST_LENGTH
@@ -91,7 +90,7 @@ public class ListRestriction extends BaseCase {
 
         assertEquals("lstlarge",
                 (String) doc.xgetMinLengthElt().getListValue().get(0));
-        assertTrue(!doc.validate(validateOptions));
+        assertFalse(doc.validate(validateOptions));
         showErrors();
         String[] errExpected = new String[]{
             XmlErrorCodes.DATATYPE_LENGTH_VALID$LIST_LENGTH
@@ -108,14 +107,14 @@ public class ListRestriction extends BaseCase {
                 "lstsmall lstlarge lstsmall" +
                 "</MaxLengthElt>";
         MaxLengthEltDocument doc = MaxLengthEltDocument.Factory.parse(input);
-        assertTrue(!doc.validate(validateOptions));
+        assertFalse(doc.validate(validateOptions));
         showErrors();
         String[] errExpected = new String[]{
             XmlErrorCodes.DATATYPE_LENGTH_VALID$LIST_LENGTH};
         assertTrue(compareErrorCodes(errExpected));
 
         MaxLengthFacet elt = MaxLengthFacet.Factory.newInstance();
-        List vals = new ArrayList();
+        List<String> vals = new ArrayList<>();
         vals.add("lstsmall");
         vals.add("lstsmall");
         //why is there no xsetListValue method here?
@@ -135,7 +134,7 @@ public class ListRestriction extends BaseCase {
     @Test
     public void testEnum() throws Throwable {
         EnumEltDocument doc = EnumEltDocument.Factory.newInstance();
-        List vals = new ArrayList();
+        List<Object> vals = new ArrayList<>();
         vals.add("small");
         vals.add("medium");
         vals.add("large");
@@ -147,9 +146,9 @@ public class ListRestriction extends BaseCase {
             throw t;
         }
         vals.clear();
-        vals.add(new Integer(2));
-        vals.add(new Integer(3));
-        vals.add(new Integer(1));
+        vals.add(2);
+        vals.add(3);
+        vals.add(1);
         doc.setEnumElt(vals);
         try {
             assertTrue(doc.validate(validateOptions));
@@ -160,9 +159,9 @@ public class ListRestriction extends BaseCase {
 
         vals.clear();
         vals.add("small");
-        vals.add(new Integer(10));
+        vals.add(10);
         doc.setEnumElt(vals);
-        assertTrue(!doc.validate(validateOptions));
+        assertFalse(doc.validate(validateOptions));
         showErrors();
         String[] errExpected = new String[]{
             XmlErrorCodes.DATATYPE_VALID$UNION
@@ -174,13 +173,13 @@ public class ListRestriction extends BaseCase {
     @Test
     public void testPattern() throws Throwable {
         PatternEltDocument doc = PatternEltDocument.Factory.newInstance();
-        List vals = new ArrayList();
-        vals.add(new Integer(152));
-        vals.add(new Integer(154));
-        vals.add(new Integer(156));
-        vals.add(new Integer(918));
+        List<Integer> vals = new ArrayList<>();
+        vals.add(152);
+        vals.add(154);
+        vals.add(156);
+        vals.add(918);
 
-        vals.add(new Integer(342));
+        vals.add(342);
         doc.setPatternElt(vals);
         try {
             assertTrue(doc.validate(validateOptions));

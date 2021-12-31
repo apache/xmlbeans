@@ -1,0 +1,605 @@
+/* ====================================================================
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+==================================================================== */
+
+buildscript {
+    repositories {
+        maven { url 'https://plugins.gradle.org/m2/' }
+        // mavenCentral()
+    }
+
+    dependencies {
+        // classpath 'org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:3.3'
+        classpath 'de.thetaphi:forbiddenapis:3.2'
+    }
+}
+
+
+plugins {
+    id 'java'
+    id 'java-library'
+    id 'idea'
+    id 'distribution'
+    id('org.nosphere.apache.rat') version '0.7.0'
+    id('de.thetaphi.forbiddenapis') version '3.2'
+    id 'jacoco'
+    id 'com.github.spotbugs' version '5.0.3'
+}
+
+// Only add the plugin for Sonar if enabled
+if (project.hasProperty('enableSonar')) {
+    println 'Enabling Sonar support'
+    apply plugin: 'org.sonarqube'
+}
+
+
+
+
+sourceCompatibility = JavaVersion.VERSION_1_8
+targetCompatibility = JavaVersion.VERSION_1_8
+
+repositories {
+    mavenCentral()
+    maven { url 'https://repository.apache.org/content/repositories/releases' }
+    maven { url 'https://repository.apache.org/content/repositories/staging' }
+}
+
+configurations {
+    bootstrap
+    genresources
+    java9
+}
+
+def testSchemas =  [
+    [dir:'test/tools/lib',path:'xsl',name:'sTOOLS'],
+    [dir:'src/test/resources/xbean/compile/scomp',path:'detailed',name:'sLAX'],
+    [dir:'src/test/resources/xbean',path:'dom',name:'sDOM'],
+    [dir:'src/test/resources/xbean',path:'xmlcursor',name:'sXMLCURSOR'],
+    [dir:'src/test/resources/xbean',path:'scomp',name:'sSCOMP'],
+    [dir:'src/test/resources/xbean',path:'simple',name:'sSIMPLE'],
+    [dir:'src/test/resources/xbean',path:'ValidatingStream',name:'sVALIDATE'],
+    [dir:'src/test/resources/xbean',path:'usertype',name:'sUSERTYPE'],
+    [dir:'build/schemas/sTRANXML',path:'tranxml',name:'sTRANXML'],
+    [dir:'src/test/resources/xbean/xmlobject',path:'CR192525.xsd defaults.xsd easypo.xsd easypo.xsdconfig enumtest.xsd enumtest.xsdconfig inttest.xsd listandunion.xsd nameworld.xsd numerals.xsd redefine2.xsd SelectAttribute.xsd SelectChildren.xsd selectChldAttTest.xsd soap-envelope.xsd soapfaults.xsd substgroup.xsd substgroup2.xsd Test.xsd Test36510.xsd Test40907.xsd version3.xsd', name:'sXMLOBJECT'],
+    [dir:'src/test/resources/xbean/misc/jira',path:'xmlbeans_33b.xsd xmlbeans_46.xsd xmlbeans_48.xsd xmlbeans_64.xsd xmlbeans_68.xsd xmlbeans_71.xsd xmlbeans_98.xsd xmlbeans_99.xsd xmlbeans_105.xsd xmlbeans_175.xsd xmlbeans_177.xsd xmlbeans_177a.xsd xmlbeans_208.xsd xmlbeans_228.xsd xmlbeans_307_maxallowedenum.xsd xmlbeans_307_morethanallowedenum.xsd', name:'sJIRA' ],
+    [dir:'src/test/resources/xbean',path:'xmltokensource',name:'sTOKENSOURCE']
+] + xsdDirs(file('src/test/resources/xbean/extensions')).withIndex().collect { element, index ->
+    // the extensions need to be generated separately, because the *.xsdconfigs have overlapping definitions
+    [dir:'src/test/resources/xbean/extensions',path:element,name:"sEXT${index}"]
+}
+
+//
+
+sourceSets {
+    main {
+        java {
+            srcDir files('build/generated/sources/base/main/java').builtBy('base_SchemaGen')
+        }
+        resources {
+            srcDir files('build/generated/sources/base/main/resources').builtBy('base_SchemaGen')
+        }
+    }
+    test {
+        java {
+            testSchemas.each {
+                srcDir files("build/generated/sources/${it.name}/test/java").builtBy("${it.name}_SchemaGen")
+            }
+        }
+        resources {
+            testSchemas.each {
+                srcDir files("build/generated/sources/${it.name}/test/resources").builtBy("${it.name}_SchemaGen")
+            }
+        }
+    }
+}
+
+dependencies {
+
+    implementation 'org.apache.logging.log4j:log4j-api:2.17.0'
+    implementation 'net.sf.saxon:Saxon-HE:10.6'
+    implementation 'org.apache.ant:ant:1.10.12'
+    implementation 'com.github.javaparser:javaparser-core:3.23.1'
+    implementation 'com.github.javaparser:javaparser-symbol-solver-core:3.23.1'
+
+    // only for java 8
+    if (JavaVersion.current() == JavaVersion.VERSION_1_8) {
+        implementation 'xml-apis:xml-apis:1.4.01'
+    }
+    // only necessary to compile against JDK8 internals - for Java9+ there's a multimodule implementation
+    implementation 'com.sun.org.apache.xml.internal:resolver:20050927'
+
+    testImplementation 'junit:junit:4.13.2'
+    testImplementation 'org.apache.logging.log4j:log4j-core:2.17.0'
+    testImplementation 'org.apache.ant:ant-junit:1.10.12'
+    testImplementation 'org.apache.ant:ant-junit4:1.10.12'
+    testImplementation 'org.hamcrest:hamcrest:2.2'
+    testImplementation('xerces:xercesImpl:2.12.1') {
+        if (JavaVersion.current() != JavaVersion.VERSION_1_8) {
+            exclude group: 'xml-apis', module: 'xml-apis'
+        }
+    }
+
+    // maven plugin dependencies
+    implementation('org.apache.maven:maven-core:3.8.4')
+    implementation 'org.apache.maven:maven-model:3.8.4'
+    implementation('org.apache.maven:maven-plugin-api:3.8.4')
+    implementation 'org.apache.maven.plugin-tools:maven-plugin-annotations:3.6.2'
+
+
+    // previous xmlbeans version is used to bootstrap necessary schema bindings
+    bootstrap 'org.apache.xmlbeans:xmlbeans:5.0.2'
+    bootstrap 'org.apache.logging.log4j:log4j-core:2.17.0'
+
+    genresources 'org.apache.logging.log4j:log4j-core:2.17.0'
+    genresources project.files('build/generated/classes/bootstrap/main')
+    genresources project.files('build/generated/sources/bootstrap/main/resources')
+    genresources project.files('src/main/resources')
+    genresources 'com.github.javaparser:javaparser-core:3.23.1'
+    genresources 'com.github.javaparser:javaparser-symbol-solver-core:3.23.1'
+
+    // need an own configuration for Java9 builds, as the maven plugin module-config is overlapping lot
+    java9 'org.apache.logging.log4j:log4j-api:2.17.0'
+    java9 'net.sf.saxon:Saxon-HE:10.6'
+    java9 'org.apache.ant:ant:1.10.12'
+    java9 'com.github.javaparser:javaparser-core:3.23.1'
+    java9('com.github.javaparser:javaparser-symbol-solver-core:3.23.1') {
+        exclude group: 'com.google.guava', module: 'guava'
+    }
+
+}
+
+wrapper {
+    // https://stackoverflow.com/a/54741656/2066598
+    gradleVersion = '7.3.3'
+}
+
+def extCP = files(configurations.testCompileClasspath + sourceSets.main.output.files + sourceSets.main.resources.srcDirs)
+testSchemas.each {
+    schemaGenTask(it.name, 'test', (it.name =~ /sEXT/ ? extCP : configurations.genresources), it.dir, "${it.path}:${it.name}")
+}
+
+task adjustWrapperPropertiesFile {
+    doLast {
+        ant.replaceregexp(match:'^#.*', replace:'', flags:'g', byline:true) {
+            fileset(dir: project.projectDir, includes: 'gradle/wrapper/gradle-wrapper.properties')
+        }
+        new File(project.projectDir, 'gradle/wrapper/gradle-wrapper.properties').with { it.text = it.readLines().findAll { it }.sort().join('\n') }
+        ant.fixcrlf(file: 'gradle/wrapper/gradle-wrapper.properties', eol: 'lf')
+    }
+}
+wrapper.finalizedBy adjustWrapperPropertiesFile
+
+// https://discuss.gradle.org/t/passing-arguments-to-a-task/8427
+def schemaGenTask(String baseName, String mainTest, FileCollection beansPath, String xsdDir, String... xsdIncludes) {
+    String srcDir = "build/generated/sources/${baseName}/${mainTest}/java"
+    String rscDir = "build/generated/sources/${baseName}/${mainTest}/resources"
+
+    Map<String,String> map = xsdIncludes.collectEntries{it.split(':')}
+
+    return tasks.create("${baseName}_SchemaGen") {
+
+        FileTree inputFiles = fileTree(dir: xsdDir, includes: map.keySet().collect{ it.split(' ')}.flatten())
+
+        it.inputs.files(inputFiles)
+        it.outputs.dir(srcDir)
+        it.outputs.dir(rscDir)
+        it.outputs.cacheIf { true }
+
+        doLast {
+            ant.mkdir(dir:srcDir)
+            ant.mkdir(dir:rscDir)
+
+            // https://www.reddit.com/r/gradle/comments/aaqofp/extend_javaexec_task_with_additional/
+            map.each {xmlEntry ->
+                javaexec {
+                    classpath beansPath
+                    mainClass = "org.apache.xmlbeans.impl.tool.SchemaCompiler"
+                    jvmArgs "-ea"
+                    args = [ "-name", xmlEntry.value, "-quiet", "-srconly", "-noann", "-d", rscDir, "-src", srcDir ] + xmlEntry.key.split(' ').collect{"${xsdDir}/${it}"}
+                    if (baseName =~ /sEXT/) {
+                        args += ['src/test/java/xmlobject/extensions']
+                    }
+                    if (baseName =~ /sUSERTYPE/) {
+//                        debugOptions {
+//                            enabled = true
+//                            port = 5006
+//                            server = true
+//                            suspend = true
+//                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+
+schemaGenTask('bootstrap', 'main', configurations.bootstrap, 'src/main/schema', 'xml:sXMLLANG','xsd:sXMLSCHEMA','config:sXMLCONFIG','tools:sXMLTOOLS')
+task bootstrapMigrate(type: JavaCompile) {
+    dependsOn 'bootstrap_SchemaGen'
+    source files('build/generated/sources/bootstrap/main/java', 'src/main/java')
+    destinationDirectory = layout.buildDirectory.dir('generated/classes/bootstrap/main')
+    classpath = configurations.compileClasspath
+    outputs.cacheIf { true }
+}
+
+// base_SchemaGen
+schemaGenTask('base', 'main', configurations.genresources, 'src/main/schema', 'xml:sXMLLANG','xsd:sXMLSCHEMA','config:sXMLCONFIG','tools:sXMLTOOLS')
+base_SchemaGen.dependsOn 'bootstrapMigrate'
+
+task unpackTranXml(type: Copy) {
+    from tarTree(resources.bzip2('src/test/resources/xbean/tranxml.tar.bz2'))
+    into 'build/schemas/sTRANXML/tranxml'
+    include 'tranxml/Version4.0/schemas/StandAlone/CarLocationMessage_40_LX.xsd'
+    includeEmptyDirs = false
+    eachFile { path = name }
+    outputs.cacheIf { true }
+}
+
+sTRANXML_SchemaGen.dependsOn 'unpackTranXml'
+
+java {
+    withJavadocJar()
+    withSourcesJar()
+}
+
+
+javadoc {
+    failOnError = true
+    maxMemory = "1024M"
+    doFirst {
+        options {
+            if (JavaVersion.current() != JavaVersion.VERSION_1_8) {
+                addBooleanOption('html5', true)
+            }
+            addBooleanOption('Xdoclint:all,-missing', true)
+            links 'https://poi.apache.org/apidocs/dev/'
+            links 'https://docs.oracle.com/javase/8/docs/api/'
+            links 'https://xmlbeans.apache.org/docs/5.0.0/'
+            source = "1.8"
+        }
+    }
+}
+
+compileTestJava {
+    dependsOn 'jar'
+    dependsOn testSchemas.collect {"${it.name}_SchemaGen" }
+}
+
+task compileJava9(type: JavaCompile) {
+    dependsOn 'compileJava'
+    onlyIf { JavaVersion.current() != JavaVersion.VERSION_1_8 }
+
+    sourceCompatibility = 9
+    targetCompatibility = 9
+    destinationDirectory = file('build/classes/java9/main/META-INF/versions/9')
+    source = file('src/main/java9')
+    classpath = files()
+    options.compilerArgs = [
+        '--patch-module', "org.apache.xmlbeans=${sourceSets.main.output.asPath}",
+        '--module-path',  files(sourceSets.main.output.files + configurations.java9.asFileTree.files).asPath
+    ]
+}
+
+task cacheJava9(type: Copy) {
+    dependsOn 'compileJava9'
+    onlyIf { JavaVersion.current() != JavaVersion.VERSION_1_8 }
+
+    from(file('build/classes/java9/main/META-INF/versions/9'))
+    into('src/main/java9')
+}
+
+
+
+processTestResources {
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
+}
+
+task export4anttest(type: Copy) {
+    dependsOn 'jar'
+    into "build/libs"
+    from configurations.java9
+}
+
+test {
+    dependsOn 'export4anttest'
+    useJUnit()
+}
+
+idea {
+    module {
+        generatedSourceDirs += file('build/generated/sources/base/main/java')
+        generatedSourceDirs += files( testSchemas.collect {"build/generated/sources/${it.name}/test/java" } )
+        // setting those has no effect and there's no generatedResourceDirs
+        generatedSourceDirs += file('build/generated/sources/base/main/resources')
+        generatedSourceDirs += files( testSchemas.collect {"build/generated/sources/${it.name}/test/resources" } )
+    }
+}
+
+jar {
+    dependsOn 'cacheJava9'
+
+    archiveBaseName = "xmlbeans-${XMLBeansVersion}"
+
+    from(project.rootDir) {
+        include 'NOTICE.txt'
+        include 'LICENSE.txt'
+        into 'META-INF'
+    }
+
+    from('src/main/java9') {
+        exclude '**/*.java'
+        into 'META-INF'
+    }
+
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
+
+    manifest {
+        attributes('Multi-Release':'true')
+        attributes([
+                'Comment': "Apache XmlBeans version ${XMLBeansVersion}",
+                'Specification-Title': 'Apache XmlBeans',
+                'Specification-Version': XMLBeansVersion,
+                'Specification-Vendor': 'The Apache Software Foundation',
+                'Implementation-Title': 'Apache XmlBeans',
+                'Implementation-Version': XMLBeansVersion,
+                'Implementation-Vendor': 'org.apache.xmlbeans',
+                'Implementation-Vendor-Id': 'The Apache Software Foundation'
+        ], 'org/apache/xmlbeans/'
+        )
+    }
+}
+
+javadocJar {
+    archiveBaseName = "xmlbeans-${XMLBeansVersion}"
+}
+
+sourcesJar {
+    archiveBaseName = "xmlbeans-${XMLBeansVersion}"
+}
+
+rat {
+    dependsOn 'cacheJava9'
+
+    excludes = [
+        'tmp',
+        'out',
+        'build',
+        '.gradle',
+        '.idea',
+        'src/test/java/org/w3c/**',
+        'samples/*/build',
+        'test/perf',
+        'test/docs',
+        '**/*.iml',
+        '**/XML.xsd',
+        '**/XMLSchema.xsd',
+        '**/zvon*.xml',
+        '**/xmldsig-core-schema.xsd',
+        'src/test/resources/xbean/xmlobject/japanese',
+        'src/test/resources/xbean/compile/scomp/j2ee',
+        'src/test/resources/xbean/dom/W3C/level2/core/files',
+        'src/test/resources/xbean/xmlobject/soap-envelope.xsd',
+        'src/test/resources/xbean/xmlobject/soap12-encoding.xsd',
+        'src/test/resources/xbean/compile/scomp/partials',
+        'src/test/resources/xbean/dom/W3C/level2',
+        'xbeanenv.*',
+        'CHANGES.txt',
+        'SECURITY.md',
+        '.travis.yml'
+    ]
+
+    // Prints the list of files with unapproved licences to the console, defaults to false
+    verbose = true
+}
+
+distributions {
+
+    def date = new Date().format('yyyyMMdd')
+    String root = "xmlbeans-${XMLBeansVersion}/"
+
+    bin {
+
+        // for this to work, project.version shouldn't be defined
+        distributionBaseName = "xmlbeans-bin-${XMLBeansVersion}-${date}"
+
+        contents {
+            from('build/libs') {
+                include 'xmlbeans-*.jar'
+                include 'log4j-api*.jar'
+                include 'javaparser*.jar'
+                into 'lib'
+            }
+            from(sourcesJar) {
+                into 'lib'
+            }
+            from(javadocJar) {
+                into 'lib'
+            }
+            from ('xkit')
+            from ('samples') {
+                into 'samples'
+            }
+            from ('src/main/shell') {
+                into 'bin'
+            }
+            from ('.') {
+                include 'LICENSE.txt'
+                include 'NOTICE.txt'
+            }
+
+            includeEmptyDirs = false
+            duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+
+            eachFile {
+                path = root + path.replaceAll("^[^/]+/","")
+            }
+        }
+    }
+    src {
+        distributionBaseName = "xmlbeans-src-${XMLBeansVersion}-${date}"
+        contents {
+            from(".") {
+                exclude 'tmp'
+                exclude 'out'
+                exclude 'gradle*'
+                exclude '.gradle'
+                exclude '.idea'
+                exclude 'build'
+                exclude '**/build'
+            }
+
+            includeEmptyDirs = false
+            duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+
+            eachFile {
+                path = root + path.replaceAll("^[^/]+/","")
+            }
+        }
+    }
+}
+
+[binDistTar, binDistZip]*.dependsOn 'jar'
+[binDistTar, binDistZip]*.dependsOn 'export4anttest'
+[srcDistTar, srcDistZip]*.dependsOn 'cacheJava9'
+
+tasks.withType(Tar) {
+    compression = Compression.GZIP
+    archiveExtension = 'tgz'
+}
+
+
+task jenkins() {
+    dependsOn 'check'
+    dependsOn 'jacocoTestReport'
+    dependsOn 'rat'
+    dependsOn 'spotbugsMain'
+    dependsOn 'spotbugsTest'
+    dependsOn 'binDistZip'
+    dependsOn 'binDistTar'
+    dependsOn 'srcDistZip'
+    dependsOn 'srcDistTar'
+}
+
+clean {
+    ant.delete(includeemptydirs:true) {
+        fileset(dir:"samples", includes:"*/build/**")
+    }
+}
+
+forbiddenApis {
+    bundledSignatures = [ 'jdk-unsafe', 'jdk-deprecated', 'jdk-internal', 'jdk-non-portable', 'jdk-reflection' ]
+    //
+    // signaturesFiles = files('src/test/resources/forbiddenApis/forbidden-signatures.txt')
+    ignoreFailures = false
+    suppressAnnotations = [ 'org.apache.xmlbeans.impl.util.SuppressForbidden' ]
+    // forbiddenapis bundled signatures max supported version is 14
+    targetCompatibility = (JavaVersion.VERSION_14.isCompatibleWith(JavaVersion.current()) ? JavaVersion.current() : JavaVersion.VERSION_14)
+}
+
+//forbiddenApisMain.onlyIf { false }
+forbiddenApisTest.onlyIf { false }
+
+
+if (project.hasProperty('enableSonar')) {
+    // See https://docs.sonarqube.org/latest/analysis/scan/sonarscanner-for-gradle/ and
+    // https://docs.sonarqube.org/display/SONARQUBE52/Analyzing+with+SonarQube+Scanner+for+Gradle
+    // for documentation of properties.
+    //
+    // Some additional properties are currently set in the Jenkins-DSL, see jenksin/create_jobs.groovy
+    //
+    sonarqube {
+        properties {
+            // as we currently use build/<module>/ as project-basedir, we need to tell Sonar to use
+            // the root-folder as "basedir" for the projects
+            property "sonar.projectBaseDir", "$projectDir"
+            // currently supported providers on Jenkins: "hg,git": property "sonar.scm.provider", "svn"
+
+            // the plugin seems to not detect our non-standard build-layout
+            property "sonar.junit.reportPaths", "$projectDir/build/test-results/test"
+
+            // the Gradle run will report an invalid directory for 'ooxml-schema', but it seems to still work fine
+            property "sonar.coverage.jacoco.xmlReportPaths", "$projectDir/build/reports/jacoco/test/jacocoTestReport.xml"
+
+            // somehow the version was not use properly
+            property "sonar.projectVersion", version
+        }
+    }
+}
+
+
+jacoco {
+    toolVersion = '0.8.7'
+}
+
+test {
+    jacoco {
+        excludes = [
+            // this is necessary to make JaCoCo work with JDK 18 for now
+            'sun/**',
+            'javax/**',
+        ]
+    }
+}
+
+jacocoTestReport {
+    reports {
+        xml.required = true
+    }
+}
+
+spotbugs {
+    ignoreFailures = true
+    showStackTraces = false
+    showProgress = false
+}
+
+spotbugsMain {
+    reports {
+        xml {
+            required = true
+            outputLocation = file("build/reports/spotbugs/main/spotbugs.xml")
+        }
+        html {
+            required = true
+            outputLocation = file("build/reports/spotbugs/main/spotbugs.html")
+            stylesheet = 'fancy-hist.xsl'
+        }
+    }
+}
+
+spotbugsTest {
+    reports {
+        xml {
+            required = true
+            outputLocation = file("build/reports/spotbugs/test/spotbugs.xml")
+        }
+        html {
+            required = true
+            outputLocation = file("build/reports/spotbugs/test/spotbugs.html")
+            stylesheet = 'fancy-hist.xsl'
+        }
+    }
+}
+
+Set<File> xsdDirs(File parent) {
+    Set<File> xsdDirs = [] as Set<File>
+    parent.eachDirRecurse {dirIt ->
+        dirIt.eachFileMatch(groovy.io.FileType.FILES, ~/.*\.xsd.*/, { xsdDirs << parent.toPath().relativize(dirIt.toPath()).toFile() })
+    }
+    return xsdDirs
+}
+

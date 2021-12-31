@@ -19,17 +19,17 @@ import java.io.IOException;
 import java.io.InputStream;
 
 /**
- * <P>A factory for creating <CODE>SOAPMessage</CODE> objects.</P>
+ * <P>A factory for creating {@code SOAPMessage} objects.</P>
  *
  *   <P>A JAXM client performs the following steps to create a
  *   message.</P>
  *
  *   <UL>
  *     <LI>
- *       Creates a <CODE>MessageFactory</CODE> object from a <CODE>
- *       ProviderConnection</CODE> object (<CODE>con</CODE> in the
- *       following line of code). The <CODE>String</CODE> passed to
- *       the <CODE>createMessageFactory</CODE> method is the name of
+ *       Creates a {@code MessageFactory} object from a {@code
+ *       ProviderConnection} object ({@code con} in the
+ *       following line of code). The {@code String} passed to
+ *       the {@code createMessageFactory} method is the name of
  *       of a messaging profile, which must be the URL for the
  *       schema.
  * <PRE>
@@ -38,59 +38,59 @@ import java.io.InputStream;
  *     </LI>
  *
  *     <LI>
- *       Calls the method <CODE>createMessage</CODE> on the <CODE>
- *       MessageFactory</CODE> object. All messages produced by this
- *       <CODE>MessageFactory</CODE> object will have the header
+ *       Calls the method {@code createMessage} on the {@code
+ *       MessageFactory} object. All messages produced by this
+ *       {@code MessageFactory} object will have the header
  *       information appropriate for the messaging profile that was
- *       specified when the <CODE>MessageFactory</CODE> object was
+ *       specified when the {@code MessageFactory} object was
  *       created.
  * <PRE>
  *      SOAPMessage m = mf.createMessage();
  * </PRE>
  *     </LI>
  *   </UL>
- *   It is also possible to create a <CODE>MessageFactory</CODE>
- *   object using the method <CODE>newInstance</CODE>, as shown in
+ *   It is also possible to create a {@code MessageFactory}
+ *   object using the method {@code newInstance}, as shown in
  *   the following line of code.
  * <PRE>
  *      MessageFactory mf = MessageFactory.newInstance();
  * </PRE>
  *   A standalone client (a client that is not running in a
- *   container) can use the <CODE>newInstance</CODE> method to
- *   create a <CODE>MessageFactory</CODE> object.
+ *   container) can use the {@code newInstance} method to
+ *   create a {@code MessageFactory} object.
  *
- *   <P>All <CODE>MessageFactory</CODE> objects, regardless of how
- *   they are created, will produce <CODE>SOAPMessage</CODE> objects
+ *   <P>All {@code MessageFactory} objects, regardless of how
+ *   they are created, will produce {@code SOAPMessage} objects
  *   that have the following elements by default:</P>
  *
  *   <UL>
- *     <LI>A <CODE>SOAPPart</CODE> object</LI>
+ *     <LI>A {@code SOAPPart} object</LI>
  *
- *     <LI>A <CODE>SOAPEnvelope</CODE> object</LI>
+ *     <LI>A {@code SOAPEnvelope} object</LI>
  *
- *     <LI>A <CODE>SOAPBody</CODE> object</LI>
+ *     <LI>A {@code SOAPBody} object</LI>
  *
- *     <LI>A <CODE>SOAPHeader</CODE> object</LI>
+ *     <LI>A {@code SOAPHeader} object</LI>
  *   </UL>
- *   If a <CODE>MessageFactory</CODE> object was created using a
- *   <CODE>ProviderConnection</CODE> object, which means that it was
+ *   If a {@code MessageFactory} object was created using a
+ *   {@code ProviderConnection} object, which means that it was
  *   initialized with a specified profile, it will produce messages
  *   that also come prepopulated with additional entries in the
- *   <CODE>SOAPHeader</CODE> object and the <CODE>SOAPBody</CODE>
- *   object. The content of a new <CODE>SOAPMessage</CODE> object
- *   depends on which of the two <CODE>MessageFactory</CODE> methods
+ *   {@code SOAPHeader} object and the {@code SOAPBody}
+ *   object. The content of a new {@code SOAPMessage} object
+ *   depends on which of the two {@code MessageFactory} methods
  *   is used to create it.
  *
  *   <UL>
- *     <LI><CODE>createMessage()</CODE> -- message has no
+ *     <LI>{@code createMessage()} -- message has no
  *     content<BR>
  *      This is the method clients would normally use to create a
  *     request message.</LI>
  *
- *     <LI><CODE>createMessage(MimeHeaders,
- *     java.io.InputStream)</CODE> -- message has content from the
- *     <CODE>InputStream</CODE> object and headers from the <CODE>
- *     MimeHeaders</CODE> object<BR>
+ *     <LI>{@code createMessage(MimeHeaders,
+ *     java.io.InputStream)} -- message has content from the
+ *     {@code InputStream} object and headers from the {@code
+ *     MimeHeaders} object<BR>
  *      This method can be used internally by a service
  *     implementation to create a message that is a response to a
  *     request.</LI>
@@ -103,12 +103,12 @@ public abstract class MessageFactory {
     public MessageFactory() {}
 
     /**
-     * Creates a new <CODE>MessageFactory</CODE> object that is
+     * Creates a new {@code MessageFactory} object that is
      * an instance of the default implementation.
-     * @return a new <CODE>MessageFactory</CODE> object
+     * @return a new {@code MessageFactory} object
      * @throws  SOAPException  if there was an error in
-     *     creating the default implementation of the <CODE>
-     *     MessageFactory</CODE>
+     *     creating the default implementation of the {@code
+     *     MessageFactory}
      */
     public static MessageFactory newInstance() throws SOAPException {
 
@@ -123,36 +123,36 @@ public abstract class MessageFactory {
     }
 
     /**
-     * Creates a new <CODE>SOAPMessage</CODE> object with the
-     *   default <CODE>SOAPPart</CODE>, <CODE>SOAPEnvelope</CODE>,
-     *   <CODE>SOAPBody</CODE>, and <CODE>SOAPHeader</CODE> objects.
+     * Creates a new {@code SOAPMessage} object with the
+     *   default {@code SOAPPart}, {@code SOAPEnvelope},
+     *   {@code SOAPBody}, and {@code SOAPHeader} objects.
      *   Profile-specific message factories can choose to
-     *   prepopulate the <CODE>SOAPMessage</CODE> object with
+     *   prepopulate the {@code SOAPMessage} object with
      *   profile-specific headers.
      *
-     *   <P>Content can be added to this message's <CODE>
-     *   SOAPPart</CODE> object, and the message can be sent "as is"
+     *   <P>Content can be added to this message's {@code
+     *   SOAPPart} object, and the message can be sent "as is"
      *   when a message containing only a SOAP part is sufficient.
-     *   Otherwise, the <CODE>SOAPMessage</CODE> object needs to
-     *   create one or more <CODE>AttachmentPart</CODE> objects and
+     *   Otherwise, the {@code SOAPMessage} object needs to
+     *   create one or more {@code AttachmentPart} objects and
      *   add them to itself. Any content that is not in XML format
-     *   must be in an <CODE>AttachmentPart</CODE> object.</P>
-     * @return  a new <CODE>SOAPMessage</CODE> object
+     *   must be in an {@code AttachmentPart} object.</P>
+     * @return  a new {@code SOAPMessage} object
      * @throws  SOAPException if a SOAP error occurs
      */
     public abstract SOAPMessage createMessage() throws SOAPException;
 
     /**
-     * Internalizes the contents of the given <CODE>
-     * InputStream</CODE> object into a new <CODE>SOAPMessage</CODE>
-     * object and returns the <CODE>SOAPMessage</CODE> object.
+     * Internalizes the contents of the given {@code
+     * InputStream} object into a new {@code SOAPMessage}
+     * object and returns the {@code SOAPMessage} object.
      * @param   mimeheaders    the transport-specific headers
      *     passed to the message in a transport-independent fashion
      *     for creation of the message
-     * @param   inputstream    the <CODE>InputStream</CODE> object
+     * @param   inputstream    the {@code InputStream} object
      *     that contains the data for a message
-     * @return a new <CODE>SOAPMessage</CODE> object containing the
-     *     data from the given <CODE>InputStream</CODE> object
+     * @return a new {@code SOAPMessage} object containing the
+     *     data from the given {@code InputStream} object
      * @throws  IOException    if there is a
      *     problem in reading data from the input stream
      * @throws  SOAPException  if the message is invalid

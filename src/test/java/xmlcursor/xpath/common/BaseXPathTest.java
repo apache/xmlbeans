@@ -76,7 +76,7 @@ public abstract class BaseXPathTest extends BasicCursorTestCase {
         testMap.put("testFunctionId", new String[]{
             "id(\"bobdylan\")",
             "id(\"foobar\")",
-            "id(\"*\")/child::cd[position()=3]"});
+            "//child::cd[position()=3]"});
 
         testMap.put("testFunctionLast", new String[]{
             "/catalog/cd[last()]"});

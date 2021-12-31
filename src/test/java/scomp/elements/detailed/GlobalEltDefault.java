@@ -49,10 +49,9 @@ public class GlobalEltDefault extends BaseCase {
     //default value is used
     @Test
     public void testIntType() throws Throwable {
-        GlobalEltDefaultIntDocument testDoc
-            = GlobalEltDefaultIntDocument.Factory
-            .newInstance();
+        GlobalEltDefaultIntDocument testDoc = GlobalEltDefaultIntDocument.Factory.newInstance();
         assertEquals(0, testDoc.getGlobalEltDefaultInt());
+        testDoc.setGlobalEltDefaultInt(5);
         try {
             assertTrue(testDoc.validate(validateOptions));
         } catch (Throwable t) {

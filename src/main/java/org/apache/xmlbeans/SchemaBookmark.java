@@ -19,7 +19,7 @@ package org.apache.xmlbeans;
  * Represents a Schema bookmark. The XMLSchema compiler will copy the value
  * returned by {@link #getValue} when this bookmark is found in the XMLStore
  * to the corresponding Schema* objects, and the value will be accessible using
- * the <code>getUserInfo</code> method on these objects.
+ * the {@code getUserInfo} method on these objects.
  *
  * @see SchemaType
  * @see SchemaField

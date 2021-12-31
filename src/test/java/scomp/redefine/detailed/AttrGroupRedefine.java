@@ -18,11 +18,10 @@ import org.junit.Test;
 import scomp.common.BaseCase;
 import xbean.scomp.redefine.attrGroupRedefine.AttrGroupEltDocument;
 
-
 import java.lang.reflect.Method;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.assertThrows;
 
 public class AttrGroupRedefine extends BaseCase{
 
@@ -31,26 +30,18 @@ public class AttrGroupRedefine extends BaseCase{
      * visible anymore
      */
     @Test
-    public void testCodeGeneration() {
+    public void testCodeGeneration() throws NoSuchMethodException {
         AttrGroupEltDocument doc = AttrGroupEltDocument.Factory.newInstance();
         AttrGroupEltDocument.AttrGroupElt elt = doc.addNewAttrGroupElt();
 
-        try {
-            elt.getClass().getDeclaredField("attr2");
-            fail("field should be redefined");
-        } catch (NoSuchFieldException e) {
-        }
+        assertThrows( "field should be redefined", NoSuchFieldException.class,
+            () -> elt.getClass().getDeclaredField("attr2"));
 
 
-        try {
-            elt.getClass().getDeclaredMethod("getAttr1");
-            elt.getClass().getDeclaredMethod("getAttr2A");
+        elt.getClass().getDeclaredMethod("getAttr1");
+        elt.getClass().getDeclaredMethod("getAttr2A");
 
-            Method m = elt.getClass().getDeclaredMethod("getAttr3A");
-            assertEquals(m.getReturnType(), Class.forName("java.lang.Integer.TYPE"));
-        } catch (NoSuchMethodException e) {
-            fail("Fields not redefined");
-        } catch (ClassNotFoundException e1) {
-        }
+        Method m = elt.getClass().getDeclaredMethod("getAttr3A");
+        assertEquals(m.getReturnType(), java.lang.Integer.TYPE);
     }
 }

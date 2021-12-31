@@ -25,7 +25,7 @@ import java.math.BigInteger;
  * <a target="_blank" href="http://www.w3.org/TR/xmlschema-2/#unsignedLong">xs:unsignedLong</a> type.
  * One of the derived types based on <a target="_blank" href="http://www.w3.org/TR/xmlschema-2/#decimal">xs:decimal</a>.
  * <p>
- * Verified to be in the range 0..2<super>64</super>-1 when validating.
+ * Verified to be in the range 0..2^64 -1 when validating.
  * <p>
  * Convertible to {@link BigInteger}.
  */

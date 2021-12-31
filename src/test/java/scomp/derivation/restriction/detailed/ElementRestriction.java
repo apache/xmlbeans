@@ -14,17 +14,17 @@
  */
 package scomp.derivation.restriction.detailed;
 
-import org.junit.Test;
-import xbean.scomp.derivation.elementRestriction.ElementDocument;
-import xbean.scomp.derivation.elementRestriction.RestrictedEltT;
+import org.apache.xmlbeans.XmlDecimal;
+import org.apache.xmlbeans.XmlErrorCodes;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlString;
-import org.apache.xmlbeans.XmlErrorCodes;
-import org.apache.xmlbeans.XmlDecimal;
+import org.apache.xmlbeans.impl.values.XmlAnyTypeImpl;
+import org.junit.Test;
 import scomp.common.BaseCase;
+import xbean.scomp.derivation.elementRestriction.ElementDocument;
+import xbean.scomp.derivation.elementRestriction.RestrictedEltT;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 
 public class ElementRestriction extends BaseCase {
@@ -65,12 +65,12 @@ public class ElementRestriction extends BaseCase {
         XmlDecimal dValue = XmlDecimal.Factory.newInstance();
         dValue.setBigDecimalValue(new java.math.BigDecimal("3.5"));
         elt.setD(dValue);
-        assertTrue(!doc.validate(validateOptions));
+        assertFalse(doc.validate(validateOptions));
         showErrors();
         String[] errExpected = new String[]{
             XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$EXPECTED_DIFFERENT_ELEMENT,
             XmlErrorCodes.ELEM_LOCALLY_VALID$FIXED_VALID_MIXED_CONTENT,
-            XmlErrorCodes.DATATYPE_FRACTION_DIGITS_VALID,
+            XmlErrorCodes.INTEGER,
         };
         assertTrue(compareErrorCodes(errExpected));
 
@@ -78,9 +78,9 @@ public class ElementRestriction extends BaseCase {
         elt.removeA(2);
         bValue.setStringValue("myval");
         elt.setB(bValue);
-        elt.setD(new Integer(3));
+        elt.setD(3);
         assertEquals("myval",
-                ((XmlString)elt.getB()).getStringValue());
+                ((XmlAnyTypeImpl)elt.getB()).getStringValue());
         try {
             assertTrue(doc.validate(validateOptions));
         }

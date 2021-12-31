@@ -17,10 +17,10 @@ package org.apache.xmlbeans.impl.soap;
 
 /**
  * A representation of the contents in
- * a <code>SOAPFault</code> object.  The <code>Detail</code> interface
- * is a <code>SOAPFaultElement</code> object that has been defined.
+ * a {@code SOAPFault} object.  The {@code Detail} interface
+ * is a {@code SOAPFaultElement} object that has been defined.
  * <p>
- * Content is added to a <code>SOAPFaultElement</code> using the
- * <code>SOAPElement</code> method <code>addTextNode</code>.
+ * Content is added to a {@code SOAPFaultElement} using the
+ * {@code SOAPElement} method {@code addTextNode}.
  */
 public interface SOAPFaultElement extends SOAPElement {}

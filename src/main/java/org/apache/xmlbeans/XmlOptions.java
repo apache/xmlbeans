@@ -28,55 +28,56 @@ import java.util.*;
  * <p>
  * There are two styles for using XmlOptions: multiline setup, and single-line use.
  * Here are two examples.  First, multiline style:
- * <pre>
+ * <pre>{@code
  * XmlOptions opts = new XmlOptions();
  * opts.setSavePrettyPrint();
  * opts.setSavePrettyPrintIndent(4);
  * System.out.println(xobj.xmlText(opts));
- * </pre>
+ * }</pre>
  * <p>
  * The alternative is single-line usage:
- * <pre>
+ * <pre>{@code
  * System.out.println(xobj.xmlText(
  *     new XmlOptions().setSavePrettyPrint().setSavePrettyPrintIndent(4)));
- * </pre>
+ * }</pre>
  * <p>
  * Table showing where each option gets used.
  * Note that:
  * <ul>
- * <li>options available for <code>newInstance</code> methods will also
- * apply for <code>parse</code> methods</li>
- * <li>options used for <code>validate</code> methods are also used for
- * <code>compile</code> methods, since compilation usually implies
+ * <li>options available for {@code newInstance} methods will also
+ * apply for {@code parse} methods</li>
+ * <li>options used for {@code validate} methods are also used for
+ * {@code compile} methods, since compilation usually implies
  * validation against Schema for Schemas</li>
  * </ul>
  *
  * <table border="1">
+ * <caption>Option matrix</caption>
  * <tr>
- *   <th align="center"><code>newInstance</code> methods</th>
- *   <th align="center"><code>parse</code> methods</th>
- *   <th align="center"><code>validate</code> methods</th>
- *   <th align="center"><code>compile</code> methods</th>
- *   <th align="center"><code>save</code> and <code>xmlText</code>methods</th>
+ *   <th>{@code newInstance} methods</th>
+ *   <th>{@code parse} methods</th>
+ *   <th>{@code validate} methods</th>
+ *   <th>{@code compile} methods</th>
+ *   <th>{@code save} and {@code xmlText}methods</th>
  * </tr>
  * <tr>
- *   <td align="center"><code>setDocumentType</code><br/>
- *                      <code>setDocumentSourceName</code><br/>
- *                      <code>setValidateOnSet</code><br/>
- *                      <code>setUnsynchronized</code></td>
- *   <td align="center"><code>setLoad***</code><br/>
- *                      <code>setEntityResolver</code></td>
- *   <td align="center"><code>setErrorListener</code><br/>
- *                      <code>setValidateTreatLaxAsSkip</code>
- *                      <code>setValidateStrict</code></td>
- *   <td align="center"><code>setErrorListener</code><br/>
- *                      <code>setCompile***</code><br/>
- *                      <code>setEntityResolver</code><br/>
- *                      <code>setBaseURI</code><br/>
- *                      <code>setGenerateJavaVersion</code></td>
- *   <td align="center"><code>setSave***</code><br/>
- *                      <code>setUseDefaultNamespace</code><br/>
- *                      <code>setCharacterEncoding</code></td>
+ *   <td>{@code setDocumentType}<br>
+ *       {@code setDocumentSourceName}<br>
+ *       {@code setValidateOnSet}<br>
+ *       {@code setUnsynchronized}</td>
+ *   <td>{@code setLoad***}<br>
+ *       {@code setEntityResolver}</td>
+ *   <td>{@code setErrorListener}<br>
+ *       {@code setValidateTreatLaxAsSkip}
+ *       {@code setValidateStrict}</td>
+ *   <td>{@code setErrorListener}<br>
+ *       {@code setCompile***}<br>
+ *       {@code setEntityResolver}<br>
+ *       {@code setBaseURI}<br>
+ *       {@code setGenerateJavaVersion}</td>
+ *   <td>{@code setSave***}<br>
+ *       {@code setUseDefaultNamespace}<br>
+ *       {@code setCharacterEncoding}</td>
  * </tr>
  * </table>
  */
@@ -232,7 +233,7 @@ public class XmlOptions implements java.io.Serializable {
 
 
     /**
-     * When used with <code>setSavePrettyPrint</code> this sets the indent
+     * When used with {@code setSavePrettyPrint} this sets the indent
      * amount to use.
      *
      * @param indent the indent amount to use
@@ -249,7 +250,7 @@ public class XmlOptions implements java.io.Serializable {
     }
 
     /**
-     * When used with <code>setSavePrettyPrint</code> this sets the offset
+     * When used with {@code setSavePrettyPrint} this sets the offset
      * amount to use.
      *
      * @param offset the offset amount to use
@@ -270,7 +271,7 @@ public class XmlOptions implements java.io.Serializable {
      * encoding to use.
      *
      * @param encoding the character encoding
-     * @see XmlObject.Factory#parse(java.io.File, XmlOptions)
+     * @see org.apache.xmlbeans.impl.schema.XmlObjectFactory#parse(java.io.File, XmlOptions)
      * @see XmlTokenSource#save(java.io.File, XmlOptions)
      */
     public XmlOptions setCharacterEncoding(String encoding) {
@@ -284,10 +285,10 @@ public class XmlOptions implements java.io.Serializable {
     /**
      * When parsing a document, this sets the type of the root
      * element. If this is set, the parser will not try to guess
-     * the type based on the document's <code>QName</code>.
+     * the type based on the document's {@code QName}.
      *
      * @param type The root element's document type.
-     * @see XmlObject.Factory#parse(java.io.File, XmlOptions)
+     * @see org.apache.xmlbeans.impl.schema.XmlObjectFactory#parse(java.io.File, XmlOptions)
      */
     public XmlOptions setDocumentType(SchemaType type) {
         return set(XmlOptionsKeys.DOCUMENT_TYPE, type);
@@ -308,7 +309,7 @@ public class XmlOptions implements java.io.Serializable {
      * <p>The following simple example illustrates using an error listener
      * during validation.</p>
      *
-     * <pre>
+     * <pre>{@code
      * // Create an XmlOptions instance and set the error listener.
      * XmlOptions validateOptions = new XmlOptions();
      * ArrayList errorList = new ArrayList();
@@ -331,12 +332,12 @@ public class XmlOptions implements java.io.Serializable {
      *              error.getCursorLocation().xmlText() + "\n");
      *      }
      * }
-     * </pre>
+     * }</pre>
      *
      * @param c A collection that will be filled with {@link XmlError} objects
      *          via {@link Collection#add}
      * @see XmlError
-     * @see XmlObject.Factory#parse(java.io.File, XmlOptions)
+     * @see org.apache.xmlbeans.impl.schema.XmlObjectFactory#parse(java.io.File, XmlOptions)
      * @see XmlObject#validate(XmlOptions)
      * @see XmlBeans#compileXsd
      * @see XmlOptions#setLoadLineNumbers
@@ -540,7 +541,7 @@ public class XmlOptions implements java.io.Serializable {
 
     /**
      * This option controls whether saving saves out the XML
-     * declaration (<?xml ... ?>
+     * declaration {@code <?xml ... ?>}
      *
      * @see XmlTokenSource#save(java.io.File, XmlOptions)
      * @see XmlTokenSource#xmlText(XmlOptions)
@@ -561,11 +562,12 @@ public class XmlOptions implements java.io.Serializable {
     /**
      * This option controls when saving will use CDATA blocks.
      * CDATA will be used if the folowing condition is true:
-     * <br/>textLength > cdataLengthThreshold && entityCount > cdataEntityCountThreshold
-     * <br/>The default value of cdataLengthThreshold is 32.
-     * <br/>
-     * <br/>Use the folowing values for these cases:
+     * <br>{@code textLength > cdataLengthThreshold && entityCount > cdataEntityCountThreshold}
+     * <br>The default value of cdataLengthThreshold is 32.
+     * <br>
+     * <br>Use the folowing values for these cases:
      * <table border=1>
+     * <caption>Option matrix</caption>
      * <tr><th>Scenario</th> <th>cdataLengthThreshold</th> <th>cdataEntityCountThreshold</th></tr>
      * <tr><td>Every text is CDATA</td> <td>0</td> <td>-1</td></tr>
      * <tr><td>Only text that has an entity is CDATA</td> <td>0</td> <td>0</td></tr>
@@ -588,8 +590,8 @@ public class XmlOptions implements java.io.Serializable {
     /**
      * This option controls when saving will use CDATA blocks.
      * CDATA will be used if the folowing condition is true:
-     * <br/>textLength > cdataLengthThreshold && entityCount > cdataEntityCountThreshold
-     * <br/>The default value of cdataEntityCountThreshold is 5.
+     * <br>{@code textLength > cdataLengthThreshold && entityCount > cdataEntityCountThreshold}
+     * <br>The default value of cdataEntityCountThreshold is 5.
      *
      * @see XmlOptions#setSaveCDataLengthThreshold(int)
      */
@@ -613,36 +615,34 @@ public class XmlOptions implements java.io.Serializable {
      *
      * <p><b>Note: Due to the store representation, a CDATA will not be recognized
      * if it is imediately after non CDATA text and all text following it will
-     * be considered CDATA.</b><br/>
+     * be considered CDATA.</b><br>
      * Example:<br>
-     * <pre>
-     * &lt;a>&lt;![CDATA[cdata text]]>&lt;/a>               - is considered as: &lt;a>&lt;![CDATA[cdata text]]>&lt;/a>
-     * &lt;b>&lt;![CDATA[cdata text]]> regular text&lt;/b>  - is considered as: &lt;b>&lt;![CDATA[cdata text regular text]]>&lt;/b>
-     * &lt;c>text &lt;![CDATA[cdata text]]>&lt;/c>          - is considered as: &lt;c>text cdata text&lt;/c>
-     * </pre>
-     * </p>
+     * <pre>{@code
+     * <a><![CDATA[cdata text]]></a>               - is considered as: <a><![CDATA[cdata text]]></a>
+     * <b><![CDATA[cdata text]]> regular text</b>  - is considered as: <b><![CDATA[cdata text regular text]]></b>
+     * <c>text <![CDATA[cdata text]]></c>          - is considered as: <c>text cdata text</c>
+     * }</pre>
      *
      * <p>Sample code:
-     * <pre>
-     * String xmlText = "&lt;a>\n" +
-     * "&lt;a>&lt;![CDATA[cdata text]]>&lt;/a>\n" +
-     * "&lt;b>&lt;![CDATA[cdata text]]> regular text&lt;/b>\n" +
-     * "&lt;c>text &lt;![CDATA[cdata text]]>&lt;/c>\n" +
-     * "&lt;/a>";
+     * <pre>{@code
+     * String xmlText = "<a>\n" +
+     * "<a><![CDATA[cdata text]]></a>\n" +
+     * "<b><![CDATA[cdata text]]> regular text</b>\n" +
+     * "<c>text <![CDATA[cdata text]]></c>\n" +
+     * "</a>";
      * System.out.println(xmlText);
      *
      * XmlOptions opts = new XmlOptions();
      * opts.setUseCDataBookmarks();
      *
-     * XmlObject xo = XmlObject.Factory.parse( xmlText , opts);
+     * XmlObject xo = org.apache.xmlbeans.impl.schema.XmlObjectFactory.parse( xmlText , opts);
      *
      * System.out.println("xo1:\n" + xo.xmlText(opts));
      * System.out.println("\n");
      *
      * opts.setSavePrettyPrint();
      * System.out.println("xo2:\n" + xo.xmlText(opts));
-     * </pre>
-     * </p>
+     * }</pre>
      *
      * @see CDataBookmark
      * @see CDataBookmark#CDATA_BOOKMARK
@@ -678,7 +678,7 @@ public class XmlOptions implements java.io.Serializable {
      * given QName when parsing.  If null is supplied, the document element
      * is removed.
      *
-     * @see XmlObject.Factory#parse(java.io.File, XmlOptions)
+     * @see org.apache.xmlbeans.impl.schema.XmlObjectFactory#parse(java.io.File, XmlOptions)
      */
     public XmlOptions setLoadReplaceDocumentElement(QName replacement) {
         return set(XmlOptionsKeys.LOAD_REPLACE_DOCUMENT_ELEMENT, replacement);
@@ -693,7 +693,7 @@ public class XmlOptions implements java.io.Serializable {
      * when parsing a document.  Can be used to save memory on large
      * documents when you know there is no mixed content.
      *
-     * @see XmlObject.Factory#parse(java.io.File, XmlOptions)
+     * @see org.apache.xmlbeans.impl.schema.XmlObjectFactory#parse(java.io.File, XmlOptions)
      */
     public XmlOptions setLoadStripWhitespace() {
         return setLoadStripWhitespace(true);
@@ -711,7 +711,7 @@ public class XmlOptions implements java.io.Serializable {
      * If this option is set, all comments are stripped when parsing
      * a document.
      *
-     * @see XmlObject.Factory#parse(java.io.File, XmlOptions)
+     * @see org.apache.xmlbeans.impl.schema.XmlObjectFactory#parse(java.io.File, XmlOptions)
      */
     public XmlOptions setLoadStripComments() {
         return setLoadStripComments(true);
@@ -729,7 +729,7 @@ public class XmlOptions implements java.io.Serializable {
      * If this option is set, all processing instructions
      * are stripped when parsing a document.
      *
-     * @see XmlObject.Factory#parse(java.io.File, XmlOptions)
+     * @see org.apache.xmlbeans.impl.schema.XmlObjectFactory#parse(java.io.File, XmlOptions)
      */
     public XmlOptions setLoadStripProcinsts() {
         return setLoadStripProcinsts(true);
@@ -748,11 +748,11 @@ public class XmlOptions implements java.io.Serializable {
      * in the store when parsing a document.  This is particularly
      * useful when you want {@link XmlError} objects to contain
      * line numbers.
-     * <br/>Note: This adds line numbers info only for start tags.
+     * <br>Note: This adds line numbers info only for start tags.
      * For line number info on end tags use:
      * {@link XmlOptions#setLoadLineNumbersEndElement()}
      *
-     * @see XmlObject.Factory#parse(java.io.File, XmlOptions)
+     * @see org.apache.xmlbeans.impl.schema.XmlObjectFactory#parse(java.io.File, XmlOptions)
      * @see XmlError
      */
     public XmlOptions setLoadLineNumbers() {
@@ -804,7 +804,7 @@ public class XmlOptions implements java.io.Serializable {
      * definitions without a target namespace.
      *
      * @param substNamespaces a map of document URIs to replacement URIs
-     * @see XmlObject.Factory#parse(java.io.File, XmlOptions)
+     * @see org.apache.xmlbeans.impl.schema.XmlObjectFactory#parse(java.io.File, XmlOptions)
      */
     public XmlOptions setLoadSubstituteNamespaces(Map<String, String> substNamespaces) {
         return set(XmlOptionsKeys.LOAD_SUBSTITUTE_NAMESPACES, substNamespaces);
@@ -821,7 +821,7 @@ public class XmlOptions implements java.io.Serializable {
      * footprint.  Use this option if you are loading a large number
      * of unchanging documents that will stay in memory for some time.
      *
-     * @see XmlObject.Factory#parse(java.io.File, XmlOptions)
+     * @see org.apache.xmlbeans.impl.schema.XmlObjectFactory#parse(java.io.File, XmlOptions)
      */
     public XmlOptions setLoadTrimTextBuffer() {
         return setLoadTrimTextBuffer(true);
@@ -840,7 +840,7 @@ public class XmlOptions implements java.io.Serializable {
      * a document.
      *
      * @param nses additional namespace mappings
-     * @see XmlObject.Factory#parse(java.io.File, XmlOptions)
+     * @see org.apache.xmlbeans.impl.schema.XmlObjectFactory#parse(java.io.File, XmlOptions)
      */
     public XmlOptions setLoadAdditionalNamespaces(Map<String, String> nses) {
         return set(XmlOptionsKeys.LOAD_ADDITIONAL_NAMESPACES, nses);
@@ -860,7 +860,7 @@ public class XmlOptions implements java.io.Serializable {
      * The schema compiler uses message digests to detect and eliminate
      * duplicate imported xsd files.
      *
-     * @see XmlObject.Factory#parse(java.io.File, XmlOptions)
+     * @see org.apache.xmlbeans.impl.schema.XmlObjectFactory#parse(java.io.File, XmlOptions)
      */
     public XmlOptions setLoadMessageDigest() {
         return setLoadMessageDigest(true);
@@ -879,7 +879,7 @@ public class XmlOptions implements java.io.Serializable {
      * documents (unless an explicit entity resolver is specified).
      * Use this option to turn on entity resolving by default.
      *
-     * @see XmlObject.Factory#parse(java.io.File, XmlOptions)
+     * @see org.apache.xmlbeans.impl.schema.XmlObjectFactory#parse(java.io.File, XmlOptions)
      */
     public XmlOptions setLoadUseDefaultResolver() {
         return setLoadUseDefaultResolver(true);
@@ -900,7 +900,7 @@ public class XmlOptions implements java.io.Serializable {
      * For using the default JDK's SAX parser use:
      * xmlOptions.setLoadUseXMLReader( SAXParserFactory.newInstance().newSAXParser().getXMLReader() );
      *
-     * @see XmlObject.Factory#parse(java.io.File, XmlOptions)
+     * @see org.apache.xmlbeans.impl.schema.XmlObjectFactory#parse(java.io.File, XmlOptions)
      */
     public XmlOptions setLoadUseXMLReader(XMLReader xmlReader) {
         return set(XmlOptionsKeys.LOAD_USE_XMLREADER, xmlReader);
@@ -954,7 +954,7 @@ public class XmlOptions implements java.io.Serializable {
      * source; otherwise, for example, when parsing a String,
      * you can use this option to specify the source name yourself.
      *
-     * @see XmlObject.Factory#parse(java.lang.String, XmlOptions)
+     * @see org.apache.xmlbeans.impl.schema.XmlObjectFactory#parse(java.lang.String, XmlOptions)
      */
     public XmlOptions setDocumentSourceName(String documentSourceName) {
         return set(XmlOptionsKeys.DOCUMENT_SOURCE_NAME, documentSourceName);
@@ -965,9 +965,9 @@ public class XmlOptions implements java.io.Serializable {
     }
 
     /**
-     * This option allows for <code>QName</code> substitution during schema compilation.
+     * This option allows for {@code QName} substitution during schema compilation.
      *
-     * @param nameMap a map from <code>QName</code>s to substitute <code>QName</code>s.
+     * @param nameMap a map from {@code QName}s to substitute {@code QName}s.
      * @see XmlBeans#compileXsd
      */
     public XmlOptions setCompileSubstituteNames(Map<QName, QName> nameMap) {
@@ -981,7 +981,7 @@ public class XmlOptions implements java.io.Serializable {
 
     /**
      * If this option is set, validation is not done on the Schema XmlBeans
-     * when building a <code>SchemaTypeSystem</code>
+     * when building a {@code SchemaTypeSystem}
      *
      * @see XmlBeans#compileXsd
      */
@@ -995,7 +995,7 @@ public class XmlOptions implements java.io.Serializable {
 
     /**
      * If this option is set, the unique particle attribution rule is not
-     * enforced when building a <code>SchemaTypeSystem</code>. See
+     * enforced when building a {@code SchemaTypeSystem}. See
      * <a target="_blank" href="http://www.w3.org/TR/xmlschema-1/#non-ambig">Appendix H of the XML Schema specification</a>
      * for information on the UPA rule.
      *
@@ -1015,7 +1015,7 @@ public class XmlOptions implements java.io.Serializable {
 
     /**
      * If this option is set, the particle valid (restriciton) rule is not
-     * enforced when building a <code>SchemaTypeSystem</code>. See
+     * enforced when building a {@code SchemaTypeSystem}. See
      * <a target="_blank" href="http://www.w3.org/TR/xmlschema-1/#cos-particle-restrict">Section 3.9.6 of the XML Schema specification</a>
      * for information on the PVR rule.
      *
@@ -1110,7 +1110,7 @@ public class XmlOptions implements java.io.Serializable {
      * is introducing invalid values in an XML document, but it
      * slows performance.
      *
-     * @see XmlObject.Factory#parse(java.io.File, XmlOptions)
+     * @see org.apache.xmlbeans.impl.schema.XmlObjectFactory#parse(java.io.File, XmlOptions)
      */
     public XmlOptions setValidateOnSet() {
         return setValidateOnSet(true);
@@ -1125,7 +1125,7 @@ public class XmlOptions implements java.io.Serializable {
     }
 
     /**
-     * Instructs the validator to skip elements matching an <any>
+     * Instructs the validator to skip elements matching an {@code <any>}
      * particle with contentModel="lax". This is useful because,
      * in certain situations, XmlBeans will find types on the
      * classpath that the document author did not anticipate.

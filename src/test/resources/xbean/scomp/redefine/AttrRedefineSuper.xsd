@@ -23,7 +23,7 @@
         <xs:attributeGroup name="AttrGroup">
             <xs:attribute name="attr1" type="xs:string"/>
             <xs:attribute name="attr2a" type="xs:date"/>
-            <xs:attribute name="attr3" type="xs:int"/>
+            <xs:attribute name="attr3a" type="xs:int"/>
         </xs:attributeGroup>
     </xs:redefine>
 

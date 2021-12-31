@@ -16,21 +16,15 @@
 package org.apache.xmlbeans;
 
 import javax.xml.namespace.QName;
-
-import java.util.Set;
-import java.util.HashSet;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-import java.util.ArrayList;
+import java.util.*;
 
 /**
  * Used to build {@link QNameSet QNameSets}.
- */ 
+ */
 public class QNameSetBuilder implements QNameSetSpecification, java.io.Serializable
 {
     private static final long serialVersionUID = 1L;
-    
+
     private boolean _inverted;
     private Set _includedURIs;
     private Set _excludedQNames;
@@ -75,11 +69,11 @@ public class QNameSetBuilder implements QNameSetSpecification, java.io.Serializa
      * Constructs a QNameSetBuilder whose inital contents are given by
      * the four sets.  Exactly one of either excludedURIs or includedURIs must
      * be non-null.
-     * 
+     *
      * @param excludedURIs the finite set of namespace URI strings to exclude from the set, or null if this set is infinite
      * @param includedURIs the finite set of namespace URI strings to include in the set, or null if this set is infinite
      * @param excludedQNamesInIncludedURIs the finite set of exceptional QNames to exclude from the included namespaces
-     * @param excludedQNamesInIncludedURIs the finite set of exceptional QNames to include that are in the excluded namespaces
+     * @param includedQNamesInExcludedURIs the finite set of exceptional QNames to include that are in the excluded namespaces
      */
     public QNameSetBuilder(Set excludedURIs, Set includedURIs, Set excludedQNamesInIncludedURIs, Set includedQNamesInExcludedURIs)
     {
@@ -106,7 +100,7 @@ public class QNameSetBuilder implements QNameSetSpecification, java.io.Serializa
      * Constructs a QNameSetBuilder whose initial contents are given
      * as a list of namespace URIs, using the same format used by wildcards
      * in XSD files.
-     * 
+     *
      * @param str a wildcard namespace specification string such as "##any",
      *        "##other", "##local", "##targetNamespace", or a space-separated
      *        list of URIs.
@@ -156,7 +150,7 @@ public class QNameSetBuilder implements QNameSetSpecification, java.io.Serializa
             addNamespace(adduri);
         }
     }
-    
+
     /**
      * Local xml names are hased using "" as the namespace.
      */
@@ -165,9 +159,9 @@ public class QNameSetBuilder implements QNameSetSpecification, java.io.Serializa
         String ns = QName.getNamespaceURI();
         return ns == null ? "" : ns;
     }
-    
+
     private static final String[] EMPTY_STRINGARRAY = new String[0];
-    
+
     private static boolean isSpace(char ch)
     {
         switch (ch)
@@ -186,7 +180,7 @@ public class QNameSetBuilder implements QNameSetSpecification, java.io.Serializa
     {
         if (s.length() == 0)
             return EMPTY_STRINGARRAY;
-                
+
         List result = new ArrayList();
         int i = 0;
         int start = 0;
@@ -202,7 +196,7 @@ public class QNameSetBuilder implements QNameSetSpecification, java.io.Serializa
             result.add(s.substring(start, i));
         }
     }
-    
+
     /**
      * Remove all xml names from qnameset whose namespace matches the uri.
      */
@@ -319,7 +313,7 @@ public class QNameSetBuilder implements QNameSetSpecification, java.io.Serializa
     {
         if (!_inverted && set.excludedURIs() != null)
             return false;
-        
+
         return inverse().isDisjoint(set);
     }
 
@@ -679,7 +673,7 @@ public class QNameSetBuilder implements QNameSetSpecification, java.io.Serializa
 
     /**
      * Returns a string representation useful for debugging, subject to change.
-     */ 
+     */
     public String toString()
     {
         StringBuilder sb = new StringBuilder();
@@ -709,11 +703,11 @@ public class QNameSetBuilder implements QNameSetSpecification, java.io.Serializa
         sb.append(')');
         return sb.toString();
     }
-    
+
     /**
      * Returns a {@link QNameSet} equivalent to the current state of this
      * QNameSetBuilder.
-     */ 
+     */
     public QNameSet toQNameSet()
     {
         return QNameSet.forSpecification(this);

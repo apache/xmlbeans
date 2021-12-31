@@ -39,10 +39,10 @@ import java.io.File;
  * <p>
  * For example, the following code compiles the schema in myXSDFile
  * in the presence of only the minimal builtin type system.
- * The resulting SchemaTypeSystem <code>sts</code> contains only the definitions
+ * The resulting SchemaTypeSystem {@code sts} contains only the definitions
  * from myXSD file.  In order to load and validate an instance within
  * the context of those types, we must next construct a
- * {@link SchemaTypeLoader} <code>stl</code> that contains both
+ * {@link SchemaTypeLoader} {@code stl} that contains both
  * the builtin type system and the types defined within the myXSD file.
  * <pre>
  * SchemaTypeSystem sts = XmlBeans.compileXsd(new XmlObject[]
@@ -88,7 +88,7 @@ import java.io.File;
  *   <li> {@link #attributeTypes()} returns all the attribute types.
  *   </ul>
  * </ol>
- * 
+ *
  * <p>
  * A document type is a type that contains a single global element; there
  * is one document type for each global element definition in a
@@ -111,7 +111,7 @@ import java.io.File;
  * <p>The following code is a standard treewalk that visits every
  * {@link SchemaType} in the SchemaTypeSystem once, including nested
  * definitions.
- * <pre>
+ * <pre>{@code
  * List allSeenTypes = new ArrayList();
  * allSeenTypes.addAll(Arrays.asList(typeSystem.documentTypes()));
  * allSeenTypes.addAll(Arrays.asList(typeSystem.attributeTypes()));
@@ -122,87 +122,87 @@ import java.io.File;
  *     System.out.println("Visiting " + sType.toString());
  *     allSeenTypes.addAll(Arrays.asList(sType.getAnonymousTypes()));
  * }
- * </pre>
+ * }</pre>
  *
- * @see SchemaType 
- * @see SchemaTypeLoader 
+ * @see SchemaType
+ * @see SchemaTypeLoader
  * @see XmlBeans#compileXsd
  * @see XmlBeans#typeLoaderUnion
  * @see XmlBeans#getBuiltinTypeSystem
- */ 
+ */
 public interface SchemaTypeSystem extends SchemaTypeLoader
 {
     /**
      * Returns the name of this loader.
      */
-    public String getName();
+    String getName();
 
     /**
      * Returns the global types defined in this loader.
      */
-    public org.apache.xmlbeans.SchemaType[] globalTypes();
+    org.apache.xmlbeans.SchemaType[] globalTypes();
 
     /**
      * Returns the document types defined in this loader.
      */
-    public org.apache.xmlbeans.SchemaType[] documentTypes();
+    org.apache.xmlbeans.SchemaType[] documentTypes();
 
     /**
      * Returns the attribute types defined in this loader.
      */
-    public org.apache.xmlbeans.SchemaType[] attributeTypes();
+    org.apache.xmlbeans.SchemaType[] attributeTypes();
 
     /**
      * Returns the global elements defined in this loader.
      */
-    public SchemaGlobalElement[] globalElements();
+    SchemaGlobalElement[] globalElements();
 
     /**
      * Returns the global attributes defined in this loader.
      */
-    public SchemaGlobalAttribute[] globalAttributes();
+    SchemaGlobalAttribute[] globalAttributes();
 
     /**
      * Returns the model groups defined in this loader.
      */
-    public SchemaModelGroup[] modelGroups();
+    SchemaModelGroup[] modelGroups();
 
     /**
      * Returns the attribute groups defined in this loader.
      */
-    public SchemaAttributeGroup[] attributeGroups();
+    SchemaAttributeGroup[] attributeGroups();
 
     /**
      * Returns the top-level annotations */
-    public SchemaAnnotation[] annotations();
+    SchemaAnnotation[] annotations();
 
     /**
      * Initializes a type system (resolves all handles within the type system).
      */
-    public void resolve();
+    void resolve();
 
     /**
      * Locates a type, element, or attribute using the handle.
      */
-    public SchemaComponent resolveHandle(String handle);
+    SchemaComponent resolveHandle(String handle);
 
     /**
      * Locates a type, element, or attribute using the handle.
      */
-    public SchemaType typeForHandle(String handle);
+    SchemaType typeForHandle(String handle);
 
     /**
      * Returns the classloader used by this loader for resolving types.
      */
-    public ClassLoader getClassLoader();
+    ClassLoader getClassLoader();
 
     /**
      * Saves this type system to a directory.
      */
-    public void saveToDirectory(File classDir);
+    void saveToDirectory(File classDir);
 
     /**
      * Saves this type system using a Filer
      */
-    public void save(Filer filer);
+    void save(Filer filer);
 }

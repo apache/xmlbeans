@@ -211,7 +211,7 @@ public class SoapEncSchemaTypeSystem extends SchemaTypeLoaderBase
     }
 
     /**
-     * Describe <code>resolve</code> method here.
+     * Describe {@code resolve} method here.
      */
     public void resolve() {
         // don't need to do anything; already resolved
@@ -278,9 +278,9 @@ public class SoapEncSchemaTypeSystem extends SchemaTypeLoaderBase
     }
 
     /**
-     * Describe <code>saveToDirectory</code> method here.
+     * Describe {@code saveToDirectory} method here.
      *
-     * @param file a <code>File</code> value
+     * @param file a {@code File} value
      */
     public void saveToDirectory(File file) {
         throw new UnsupportedOperationException("The builtin soap encoding schema type system cannot be saved.");

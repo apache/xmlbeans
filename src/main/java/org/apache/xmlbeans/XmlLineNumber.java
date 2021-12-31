@@ -22,52 +22,52 @@ import org.apache.xmlbeans.XmlCursor.XmlBookmark;
  * If a document is parsed with line numbers
  * enabled, these bookmarks will be placed at appropriate locations
  * within the document.
- * 
- * @see XmlOptions#setLoadLineNumbers 
+ *
+ * @see XmlOptions#setLoadLineNumbers
  */
 public class XmlLineNumber extends XmlBookmark
 {
     /**
      * Constructs a line number with no column or offset information.
      * @param line the line number - the first line is 1
-     */ 
+     */
     public XmlLineNumber ( int line ) { this( line, -1, -1 ); }
-    
+
     /**
      * Constructs a line number and column with no file offset information.
      * @param line the line number - the first line is 1
-     * @param line the column number - the first column is 1
+     * @param column the column number - the first column is 1
      */
     public XmlLineNumber ( int line, int column ) { this( line, column, -1 ); }
-    
+
     /**
      * Constructs a line number and column with no file offset information.
      * @param line the line number - the first line is 1
-     * @param line the column number - the first column is 1
-     * @param line the file character offset - the first character in the file is 0
+     * @param column the column number - the first column is 1
+     * @param offset the file character offset - the first character in the file is 0
      */
     public XmlLineNumber ( int line, int column, int offset )
     {
         super( false );
-        
+
         _line = line;
         _column = column;
         _offset = offset;
     }
-    
+
     /**
      * Returns the 1-based line number, or -1 if not known.
-     */ 
+     */
     public int getLine   ( ) { return _line;   }
-    
+
     /**
      * Returns the 1-based column number, or -1 if not known.
-     */ 
+     */
     public int getColumn ( ) { return _column; }
-    
+
     /**
      * Returns the 0-based file offset number, or -1 if not known.
-     */ 
+     */
     public int getOffset ( ) { return _offset; }
 
     private int _line, _column, _offset;

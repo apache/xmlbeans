@@ -18,8 +18,8 @@ package org.apache.xmlbeans.impl.xpathgen;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlCursor.TokenType;
 
-import javax.xml.namespace.QName;
 import javax.xml.namespace.NamespaceContext;
+import javax.xml.namespace.QName;
 
 /**
  * Generates an XPath String that points to a given position in an XML document
@@ -27,16 +27,16 @@ import javax.xml.namespace.NamespaceContext;
 public class XPathGenerator
 {
     /**
-     * Generates an XPath pointing to the position in the document indicated by <code>node</code>.
-     * <p>If the <code>context</code> parameter is null, the XPath is absolute, otherwise the
-     * XPath will be relative to the position indicated by <code>context</code>.</p>
-     * <p>Note: the cursor position for the <code>node</code> parameter is not preserved</p>
+     * Generates an XPath pointing to the position in the document indicated by {@code node}.
+     * <p>If the {@code context} parameter is null, the XPath is absolute, otherwise the
+     * XPath will be relative to the position indicated by {@code context}.</p>
+     * <p>Note: the cursor position for the {@code node} parameter is not preserved</p>
      * @param node the position in the document that the generated path will point to
      * @param context the context node; the generated path will be relative to it if not null and if
-     * pointing to an element on the path from the document root to <code>node</code>
+     * pointing to an element on the path from the document root to {@code node}
      * @param nsctx a namespace context that will be used to obtain prefixes; a (non-default)
      * namespace mapping must be available for all required namespace URIs
-     * @return the generated path as a <code>String</code>
+     * @return the generated path as a {@code String}
      * @throws XPathGenerationException if the path could not be generated: the cursor is in a bad
      * position (like over a comment) or no prefix mapping was found for one of the namespace URIs
      */
@@ -138,9 +138,9 @@ public class XPathGenerator
     }
 
     /**
-     * Computes how many text nodes the 
+     * Computes how many text nodes the
      * @param c the position in the document
-     * @return how many text nodes occur before the position determined by <code>c</code>
+     * @return how many text nodes occur before the position determined by {@code c}
      */
     private static int countTextTokens(XmlCursor c)
     {

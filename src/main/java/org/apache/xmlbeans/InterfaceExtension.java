@@ -44,6 +44,9 @@ public interface InterfaceExtension
         /** Returns the fully qualified type name of the parameter types in order. */
         String[] getParameterTypes();
 
+        /** Returns the name of the parameter */
+        String[] getParameterNames();
+
         /** Returns the fully qualified type name of the exception types. */
         String[] getExceptionTypes();
     }

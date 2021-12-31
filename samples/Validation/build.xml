@@ -26,25 +26,17 @@ limitations under the License.
         <property name="xmlbeans.home" value="${env.XMLBEANS_HOME}"/>
         <echo message="xmlbeans.home: ${xmlbeans.home}"/>
 
-        <!-- check for xbean.jar from binary distribution -->
-        <available
-            property="xmlbeans.lib"
-            value="${xmlbeans.home}/lib"
-            file="${xmlbeans.home}/lib/xbean.jar" />
+        <!-- check for xmlbeans-*.jar from binary distribution -->
+        <pathconvert property="xmlbeans.lib" setonempty="false" pathsep=" ">
+            <path><fileset dir="${xmlbeans.home}/libs" includes="xmlbeans-*.jar" /></path>
+        </pathconvert>
 
-        <!-- check for xbean.jar compiled from source -->
-        <available
-            property="xmlbeans.lib"
-            value="${xmlbeans.home}/build/lib"
-            file="${xmlbeans.home}/build/lib/xbean.jar" />
-
-        <fail message="Set XMLBEANS_HOME in your environment."
-            unless="xmlbeans.lib"/>
+        <fail message="Set XMLBEANS_HOME in your enviornment." unless="xmlbeans.lib"/>
 
         <echo message="xmlbeans.lib: ${xmlbeans.lib}"/>
-    	
+
         <path id="xmlbeans.path">
-            <fileset dir="${xmlbeans.lib}" includes="*.jar"/>
+            <fileset dir="${xmlbeans.home}/libs" includes="*.jar"/>
         </path>
 
         <taskdef name="xmlbean"
@@ -76,7 +68,7 @@ limitations under the License.
 
         <xmlbean schema="schemas"
             destfile="build/lib/schemas.jar"
-            srcgendir="src"
+            srcgendir="build/generated-sources"
             classpathref="xmlbeans.path"
             debug="on"
             />
@@ -90,7 +82,10 @@ limitations under the License.
             classpathref="Validation.path"
             debug="on"
             source="1.8"
-            />
+            >
+            <src path="src"/>
+            <src path="build/generated-sources"/>
+        </javac>
     </target>
 
     <!-- ========================== run ==== -->

@@ -22,9 +22,6 @@ import javax.xml.namespace.QName;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * @author Cezar Andrei (cezar.andrei at bea.com) Date: Jul 16, 2004
- */
 public class Type {
     private QName _name;
 

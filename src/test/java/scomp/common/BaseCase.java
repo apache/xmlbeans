@@ -21,33 +21,32 @@ import org.junit.Before;
 import java.util.ArrayList;
 
 public class BaseCase {
-    protected boolean bVerbose = true;
+    protected boolean bVerbose = false;
 
     protected XmlOptions validateOptions;
-    protected ArrayList errorList;
+    protected final ArrayList<XmlError> errorList = new ArrayList<>();
 
     @Before
     public void setUp() {
         validateOptions = new XmlOptions();
-        errorList = new ArrayList();
+        errorList.clear();
         validateOptions.setErrorListener(errorList);
     }
 
     protected void clearErrors() {
         //reset error list for next time
-        errorList = new ArrayList();
+        errorList.clear();
         validateOptions.setErrorListener(errorList);
     }
 
     public void showErrors() {
         if (bVerbose)
-            for (int i = 0; i < errorList.size(); i++) {
-                XmlError error = (XmlError) errorList.get(i);
+            for (XmlError error : errorList) {
                 System.out.println("\n");
                 System.out.println("Message: " + error.getMessage() + "\n");
-                if (error.getCursorLocation() != null)
-                    System.out.println("Location of invalid XML: " +
-                            error.getCursorLocation().xmlText() + "\n");
+                if (error.getCursorLocation() != null) {
+                    System.out.println("Location of invalid XML: " + error.getCursorLocation().xmlText() + "\n");
+                }
             }
 
     }
@@ -56,7 +55,7 @@ public class BaseCase {
     public boolean compareErrorCodes(String[] expected) {
         if ( errorList.size() != expected.length){
             System.err.println(stringOfCodes(expected,errorList));
-                           
+
            return false;
         }
         StringBuilder errMessage = new StringBuilder();

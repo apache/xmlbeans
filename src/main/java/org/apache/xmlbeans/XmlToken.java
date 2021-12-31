@@ -28,8 +28,8 @@ import org.apache.xmlbeans.impl.schema.XmlObjectFactory;
  * and furthermore, all contiguous runs of space are collapsed to single spaces,
  * and leading and trailing spaces are trimmed.
  * <p>
- * If you want <code>"&nbsp;&nbsp;high&nbsp;&nbsp;priority&nbsp;&nbsp;"</code>
- * to be equivalent to <code>"high priority"</code>, you should consider
+ * If you want {@code "&nbsp;&nbsp;high&nbsp;&nbsp;priority&nbsp;&nbsp;"}
+ * to be equivalent to {@code "high priority"}, you should consider
  * using xs:token or a subtype of xs:token.
  * <p>
  * When the {@link #getStringValue()} is obtained from an XmlToken, the normalized,

@@ -14,17 +14,20 @@
  */
 package xmlobject.extensions.prePostFeature.ValueRestriction.checkin;
 
-import junit.framework.TestCase;
-import prePostFeature.xbean.valueRestriction.company.*;
 import org.apache.xmlbeans.XmlString;
+import org.junit.Test;
+import prePostFeature.xbean.valueRestriction.company.CompanyDocument;
+import prePostFeature.xbean.valueRestriction.company.CompanyType;
+import prePostFeature.xbean.valueRestriction.company.ConsultantType;
+import prePostFeature.xbean.valueRestriction.company.DepartmentType;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 
-public class ValueRestrictionTest extends TestCase {
+public class ValueRestrictionTest {
 
-    public ValueRestrictionTest(String s) {
-        super(s);
-    }
-
+    @Test
     public void test() throws Exception {
 
         CompanyDocument poDoc;

@@ -38,43 +38,43 @@ public abstract class XmlDocumentProperties
      * be any String.
      * @param sourceName the name to set
      * @see XmlOptions#setDocumentSourceName
-    */ 
+    */
     public void   setSourceName ( String sourceName ) { put( SOURCE_NAME, sourceName ); }
     /**
      * Returns the name of the XML document file.  Typically a URL, but may
      * be any String.
      * @see XmlOptions#setDocumentSourceName
-     */ 
+     */
     public String getSourceName ( ) { return (String) get( SOURCE_NAME ); }
-    
+
     /**
      * Sets the encoding to use for the XML document.  Should be a valid
      * XML encoding string.
      * @param encoding the ISO encoding name
      * @see XmlOptions#setCharacterEncoding
-     */ 
+     */
     public void   setEncoding ( String encoding ) { put( ENCODING, encoding ); }
     /**
      * Returns the encoding used for the XML document, as an ISO encoding name.
      * @see XmlOptions#setCharacterEncoding
-     */ 
+     */
     public String getEncoding ( ) { return (String) get( ENCODING ); }
-    
+
     /**
-     * Sets the XML version string to use in the &lt&#63;xml&#63;&gt; declaration.
+     * Sets the XML version string to use in the {@code <xml>} declaration.
      * (The XML specification is quite stable at "1.0".)
      * @param version the XML version string
-     */ 
+     */
     public void   setVersion ( String version ) { put( VERSION, version ); }
     /**
-     * Returns the XML version string used in the &lt&#63;xml&#63;&gt; declaration.
-     */ 
+     * Returns the XML version string used in the {@code <xml>} declaration.
+     */
     public String getVersion ( ) { return (String) get( VERSION ); }
-    
+
     /**
      * Sets the standalone property.
      * @param standalone whether standalone is true or not
-     */ 
+     */
     public void setStandalone ( boolean standalone ) { put( STANDALONE, standalone ? "true" : null ); }
     /**
      * Returns the standalone property
@@ -85,49 +85,49 @@ public abstract class XmlDocumentProperties
     }
 
     /**
-     * Sets the DOCTYPE name use in the &lt&#33;DOCTYPE&gt; declaration.
+     * Sets the DOCTYPE name use in the {@code <!DOCTYPE>} declaration.
      * @param doctypename the doctypename
-     */ 
+     */
     public void   setDoctypeName ( String doctypename ) { put( DOCTYPE_NAME, doctypename ); }
     /**
-     * Returns the DOCTYPE name used in the &lt&#33;DOCTYPE&gt; declaration.
-     */ 
+     * Returns the DOCTYPE name used in the {@code <!DOCTYPE>} declaration.
+     */
     public String getDoctypeName ( ) { return (String) get( DOCTYPE_NAME ); }
-    
+
     /**
-     * Sets the DOCTYPE public ID to use in the &lt&#33;DOCTYPE&gt; declaration.
+     * Sets the DOCTYPE public ID to use in the {@code <!DOCTYPE>} declaration.
      * @param publicid the public ID
-     */ 
+     */
     public void   setDoctypePublicId ( String publicid ) { put( DOCTYPE_PUBLIC_ID, publicid ); }
     /**
-     * Returns the DOCTYPE public ID used in the &lt&#33;DOCTYPE&gt; declaration.
-     */ 
+     * Returns the DOCTYPE public ID used in the {@code <!DOCTYPE>} declaration.
+     */
     public String getDoctypePublicId ( ) { return (String) get( DOCTYPE_PUBLIC_ID ); }
-    
+
     /**
-     * Sets the DOCTYPE system ID to use in the &lt&#33;DOCTYPE&gt; declaration.
+     * Sets the DOCTYPE system ID to use in the {@code <!DOCTYPE>} declaration.
      * @param systemid the system ID
-     */ 
+     */
     public void   setDoctypeSystemId ( String systemid ) { put( DOCTYPE_SYSTEM_ID, systemid ); }
     /**
-     * Returns the DOCTYPE system ID used in the &lt&#33;DOCTYPE&gt; declaration.
+     * Returns the DOCTYPE system ID used in the {@code <!DOCTYPE>} declaration.
      */
     public String getDoctypeSystemId ( ) { return (String) get( DOCTYPE_SYSTEM_ID ); }
 
     /**
      * Sets the message digest used to summarize the document.
      * @param digest the bytes of the digest
-     * 
+     *
      * @see XmlOptions#setLoadMessageDigest
-     */ 
+     */
     public void   setMessageDigest( byte[] digest ) { put( MESSAGE_DIGEST, digest ); }
     /**
      * Returns the message digest used to summarize the document.
-     * 
+     *
      * @see XmlOptions#setLoadMessageDigest
-     */ 
+     */
     public byte[] getMessageDigest( ) { return (byte[]) get( MESSAGE_DIGEST ); }
-    
+
     /**
      * Used to store the original name (a String) for
      * the source from which the XML document was loaded.
@@ -138,37 +138,37 @@ public abstract class XmlDocumentProperties
      * both automatically set this value to the filename.
      */
     public static final Object SOURCE_NAME = new Object();
-    
+
     /**
      * Document encoding
      */
     public static final Object ENCODING = new Object();
-    
+
     /**
      * Document version
      */
     public static final Object VERSION = new Object();
-    
+
     /**
      * Document standlone
      */
     public static final Object STANDALONE = new Object();
-    
+
     /**
      * Doc type name
      */
     public static final Object DOCTYPE_NAME = new Object();
-    
+
     /**
      * Doc type public id
      */
     public static final Object DOCTYPE_PUBLIC_ID = new Object();
-    
+
     /**
      * Doc type system id
      */
     public static final Object DOCTYPE_SYSTEM_ID = new Object();
-    
+
     /**
      * SHA message digest
      */
@@ -182,7 +182,7 @@ public abstract class XmlDocumentProperties
      * @param value The value to attach to the document.
      */
     public abstract Object put ( Object key, Object value );
-    
+
     /**
      * Returns a value previously attached to a document using set.
      *

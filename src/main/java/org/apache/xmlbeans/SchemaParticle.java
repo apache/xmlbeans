@@ -200,7 +200,7 @@ public interface SchemaParticle {
 
      /**
      * Returns user specified documentation
-     *
+     * <pre>{@code
      * <xs:element ... >
      *   <xs:annotation>
      *     <xs:documentation>
@@ -208,6 +208,7 @@ public interface SchemaParticle {
      *     </xs:documentation>
      *   </xs:annotation>
      * </xs:element>
+     * }</pre>
      */
     String getDocumentation();
 }

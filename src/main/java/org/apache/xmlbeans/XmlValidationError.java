@@ -18,10 +18,9 @@
 */
 package org.apache.xmlbeans;
 
-import java.util.List;
-
 import javax.xml.namespace.QName;
 import javax.xml.stream.Location;
+import java.util.List;
 
 /**
  * The XmlValidationError class extends the {@link XmlError }XMLError class. The XML Validator contains
@@ -29,7 +28,7 @@ import javax.xml.stream.Location;
  * <p>
  * To extract the validation error cast the errors to XmlValidationError instead of
  * XmlError for example:
- * <br/>
+ * <br>
  * <pre>
  * xobj.validate(new XmlOptions().setErrorListener(errors))
  * for (Iterator it = errors.iterator(); it.hasNext(); )
@@ -56,54 +55,54 @@ import javax.xml.stream.Location;
  * XMLValidationError are populated based on the error type.
  * </p>
  * if errortype == INCORRECT_ELEMENT then
- * <br/>
+ * <br>
  *      offendingQName, badSchemaType will always be present, however expectedSchemaType and
  *      expectedQNames are available only if it is possible to determine them during vaildation.
- *<br/>
+ *<br>
  *
  * <p>
  * if errortype == ELEMENT_NOT_ALLOWED then
- * <br/>
+ * <br>
  *      badSchemaType will always be present, however expectedSchemaType and
  *      offendingQName are available only if it is possible to determine them during vaildation.
- * <br/>
+ * <br>
  *
  * <p>
  * if errortype == INCORRECT_ATTRIBUTE then
- * <br/>
+ * <br>
  *      offendingQName, badSchemaType will always be present
- * <br/>
+ * <br>
  *
  * <p>
  * if errortype == ATTRIBUTE_TYPE_INVALID  then
- * <br/>
+ * <br>
  *      no other addtional attributes are populated
- * <br/>
+ * <br>
  *
  * <p>
  * if errortype == LIST_INVALID  then
- * <br/>
+ * <br>
  *      expectedSchemaType will always be present
- * <br/>
+ * <br>
  *
  * <p>
  * if errortype == UNION_INVALID  then
- * <br/>
+ * <br>
  *      expectedSchemaType will always be present
- * <br/>
+ * <br>
  *
  *
  * <p>
  * if errortype == NIL_ELEMENT  then
- * <br/>
+ * <br>
  *      offendingQName, expectedSchemaType and badSchemaType  will always be present
- * <br/>
+ * <br>
  *
  * <p>
  * if errortype == ELEMENT_TYPE_INVALID  then
- * <br/>
+ * <br>
  *      offendingQName  will always be present, other attributes may be available
- * <br/>
+ * <br>
  */
 
 public class XmlValidationError extends XmlError

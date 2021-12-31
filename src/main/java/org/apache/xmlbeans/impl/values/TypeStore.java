@@ -196,8 +196,8 @@ public interface TypeStore extends NamespaceManager
      * it should be inserted adjacent to existing elements with
      * the same name.
      *
-     * Should throw an IndexOutOfBoundsException if i < 0
-     * or if i > # of elts
+     * Should throw an IndexOutOfBoundsException if i &lt; 0
+     * or if i &gt; # of elts
      */
     TypeStoreUser insert_element_user(QName name, int i);
 
@@ -219,8 +219,8 @@ public interface TypeStore extends NamespaceManager
     /**
      * Removes the ith element with the given name.
      *
-     * Should throw an IndexOutOfBoundsException if i < 0
-     * or if i > # of elts-1.
+     * Should throw an IndexOutOfBoundsException if i &lt; 0
+     * or if i &gt; # of elts-1.
      */
     void remove_element(QName name, int i);
 
@@ -296,12 +296,12 @@ public interface TypeStore extends NamespaceManager
      * If there are n current elements of the given name and m elements
      * in the source array, there are several cases for individual elements:
      *
-     * 1. If i < n and i < m, then the contents of the ith source are copied
+     * 1. If i &lt; n and i &lt; m, then the contents of the ith source are copied
      *    underneath the ith element; the ith element is not moved, but its
      *    TypeStoreUser is disconnected.
-     * 2. if i >= n and i < m, then first enough new elements are appended
+     * 2. if i &gt;= n and i &lt; m, then first enough new elements are appended
      *    so that there is an element with the name i, then rule #1 is followed.
-     * 3. if i >= m and i < n, then the element #i and all its contents
+     * 3. if i &gt;= m and i &lt; n, then the element #i and all its contents
      *    are removed.
      */
 

@@ -124,15 +124,15 @@ class FactoryFinder {
      * Returns an input stream for the specified resource.
      *
      * <p>This method will firstly try
-     * <code>ClassLoader.getSystemResourceAsStream()</code> then
+     * {@code ClassLoader.getSystemResourceAsStream()} then
      * the class loader of the current thread with
-     * <code>getResourceAsStream()</code> and finally attempt
-     * <code>getResourceAsStream()</code> on
-     * <code>FactoryFinder.class.getClassLoader()</code>.
+     * {@code getResourceAsStream()} and finally attempt
+     * {@code getResourceAsStream()} on
+     * {@code FactoryFinder.class.getClassLoader()}.
      *
      * @param factoryResource the resource name
      * @return an InputStream that can be used to read that resource, or
-     * <code>null</code> if the resource could not be resolved
+     * {@code null} if the resource could not be resolved
      */
     private static InputStream getResource(String factoryResource) {
         ClassLoader classloader = null;

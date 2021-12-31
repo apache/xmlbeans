@@ -145,6 +145,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
         emit("");
         emit("import javax.xml.namespace.QName;");
         emit("import org.apache.xmlbeans.QNameSet;");
+        emit("import org.apache.xmlbeans.XmlObject;");
         emit("");
         printInnerTypeImpl(sType, sType.getTypeSystem(), false);
     }
@@ -2352,12 +2353,15 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
         decl.append("public ").append(method.getReturnType());
         decl.append(" ").append(method.getName()).append("(");
 
+        // first parameter is always XmlObject, i.e. which is "this" and therefore doesn't need
+        // to be in the method declaration of the type implementation
         String[] paramTypes = method.getParameterTypes();
-        for (int i = 0; i < paramTypes.length; i++) {
-            if (i != 0) {
+        String[] paramNames = method.getParameterNames();
+        for (int i = 1; i < paramTypes.length; i++) {
+            if (i > 1) {
                 decl.append(", ");
             }
-            decl.append(paramTypes[i]).append(" p").append(i);
+            decl.append(paramTypes[i]).append(" ").append(paramNames[i]);
         }
 
         decl.append(")");
@@ -2382,8 +2386,9 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
         impl.append(handler).append(".").append(method.getName()).append("(this");
 
         String[] params = method.getParameterTypes();
-        for (int i = 0; i < params.length; i++) {
-            impl.append(", p").append(i);
+        String[] paramsNames = method.getParameterNames();
+        for (int i = 1; i < params.length; i++) {
+            impl.append(", ").append(paramsNames[i]);
         }
 
         impl.append(");");

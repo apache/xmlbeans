@@ -16,51 +16,97 @@
 package org.apache.xmlbeans.impl.config;
 
 import com.github.javaparser.ParseResult;
+import com.github.javaparser.ParserConfiguration;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
-import com.github.javaparser.ast.body.TypeDeclaration;
+import com.github.javaparser.symbolsolver.JavaSymbolSolver;
+import com.github.javaparser.symbolsolver.resolution.typesolvers.ClassLoaderTypeSolver;
+import com.github.javaparser.symbolsolver.resolution.typesolvers.CombinedTypeSolver;
+import com.github.javaparser.symbolsolver.resolution.typesolvers.ReflectionTypeSolver;
+import com.github.javaparser.utils.ProjectRoot;
 import com.github.javaparser.utils.SourceRoot;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.function.Predicate;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Stream;
+
+import static com.github.javaparser.ParserConfiguration.LanguageLevel.BLEEDING_EDGE;
 
 class Parser {
-    final File[] javaFiles;
-    final File[] classpath;
-
+    private final File[] javaFiles;
+    private final File[] classpath;
+    private final ParserConfiguration pc;
+    private final ProjectRoot projectRoot;
+    private final CombinedTypeSolver combinedTypeSolver = new CombinedTypeSolver();
 
     public Parser(File[] javaFiles, File[] classpath) {
         this.javaFiles = (javaFiles != null) ? javaFiles.clone() : new File[0];
         this.classpath = (classpath != null) ? classpath.clone() : new File[0];
+
+        pc = new ParserConfiguration();
+        pc.setLanguageLevel(BLEEDING_EDGE);
+
+        URL[] urls = Stream.of(this.classpath).map(Parser::fileToURL).filter(Objects::nonNull).toArray(URL[]::new);
+        combinedTypeSolver.add(new ClassLoaderTypeSolver(new URLClassLoader(urls, getClass().getClassLoader())));
+        combinedTypeSolver.add(new ReflectionTypeSolver());
+
+        JavaSymbolSolver symbolSolver = new JavaSymbolSolver(combinedTypeSolver);
+        pc.setSymbolResolver(symbolSolver);
+
+        if (this.javaFiles.length > 0) {
+            ChildSolverCollectionStrategy solver = new ChildSolverCollectionStrategy(pc, combinedTypeSolver);
+
+            Stream.of(this.javaFiles)
+                .map(f -> f.isDirectory() ? f : f.getParentFile())
+                .map(File::toPath)
+                .distinct()
+                .forEach(solver::collect);
+
+            projectRoot = solver.collectAll();
+        } else {
+            projectRoot = null;
+        }
     }
 
     public ClassOrInterfaceDeclaration loadSource(String className) {
         final String fileName = className.replace('.','/') +".java";
-        for (File f : javaFiles) {
-            final String filePath = f.getPath();
-            if (filePath.replace('\\','/').endsWith(fileName)) {
-                // remove filename from path - don't use replace because of different path separator
-                final String rootPath = filePath.substring(0, filePath.length()-fileName.length());
-                final String startPackage = className.indexOf('.') == -1 ? "" : className.substring(0, className.lastIndexOf('.'));
-                final String simpleName = startPackage.isEmpty() ? className : className.substring(startPackage.length()+1);
-                SourceRoot sourceRoot = new SourceRoot(new File(rootPath).toPath());
-                try {
-                    ParseResult<CompilationUnit> pcu = sourceRoot.tryToParse(startPackage, simpleName+".java");
-                    ClassOrInterfaceDeclaration cls = pcu.getResult().flatMap(cu -> cu.getTypes().stream()
-                        .filter(matchType(className))
-                        .map(t -> (ClassOrInterfaceDeclaration) t).findFirst()).orElse(null);
-                    return cls;
-                } catch (IOException e) {
-                    return null;
-                }
-            }
+        if (projectRoot == null) {
+            // TODO: check if this is called, when no sources are specified
+//            ParseResult<CompilationUnit> blub = new JavaParser(pc).parse(fileName);
+//            boolean suc = blub.isSuccessful();
+            return null;
+        } else {
+            return projectRoot.getSourceRoots().stream().map(sr -> parseOrNull(sr, fileName))
+                .filter(Objects::nonNull)
+                .filter(ParseResult::isSuccessful)
+                .map(ParseResult::getResult)
+                .map(Optional::get)
+                .flatMap(cu -> cu.getTypes().stream())
+                .filter(ClassOrInterfaceDeclaration.class::isInstance)
+                .filter(t -> className.equals(t.getFullyQualifiedName().orElse(null)))
+                .map(ClassOrInterfaceDeclaration.class::cast)
+                .findFirst().orElse(null);
         }
-        return null;
     }
 
-    private static Predicate<TypeDeclaration<?>> matchType(String className) {
-        return (t) -> t instanceof  ClassOrInterfaceDeclaration &&
-                      t.getFullyQualifiedName().map(fqn -> fqn.equals(className)).orElse(false);
+    private static URL fileToURL(File file) {
+        try {
+            return file.toURI().toURL();
+        } catch (MalformedURLException ignored) {
+            return null;
+        }
+    }
+
+    private ParseResult<CompilationUnit> parseOrNull(SourceRoot sr, String fileName) {
+        try {
+            return sr.tryToParse("", fileName, pc);
+        } catch (IOException ignroed) {
+            return null;
+        }
     }
 }
