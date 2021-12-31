@@ -78,11 +78,16 @@ limitations under the License.
         <mkdir dir="build/classes"/>
         <mkdir dir="build/generated-sources"/>
 
+        <pathconvert property="exe">
+            <fileset dir="${env.JAVA_HOME}" includes="bin/javac, bin/javac.exe, ../bin/javac, ../bin/javac.exe"/>
+        </pathconvert>
+
         <javac
             destdir="build/classes"
             classpathref="Any.path"
             debug="on"
             source="1.8"
+            executable="${exe}"
             >
             <src path="src"/>
             <src path="build/generated-sources"/>

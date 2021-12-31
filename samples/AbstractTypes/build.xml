@@ -77,7 +77,13 @@ limitations under the License.
                 <path refid="xmlbeans.path"/>
             </classpath>
         </scomp>
-        <javac srcdir="src" destdir="build" debug="on" source="1.8">
+
+        <pathconvert property="exe">
+            <fileset dir="${env.JAVA_HOME}" includes="bin/javac, bin/javac.exe, ../bin/javac, ../bin/javac.exe"/>
+        </pathconvert>
+
+
+        <javac srcdir="src" destdir="build" debug="on" source="1.8" executable="${exe}">
             <classpath>
                 <path refid="xmlbeans.path"/>
                 <pathelement location="build/${abstract.jar}"/>
