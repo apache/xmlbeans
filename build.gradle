@@ -63,6 +63,13 @@ configurations {
     java9
 }
 
+ext {
+    antVersion = '1.10.12'
+    javaparserVersion = '3.23.1'
+    log4jVersion = '2.17.1'
+    saxonVersion = '10.6'
+}
+
 def testSchemas =  [
     [dir:'test/tools/lib',path:'xsl',name:'sTOOLS'],
     [dir:'src/test/resources/xbean/compile/scomp',path:'detailed',name:'sLAX'],
@@ -108,11 +115,11 @@ sourceSets {
 
 dependencies {
 
-    implementation 'org.apache.logging.log4j:log4j-api:2.17.1'
-    implementation 'net.sf.saxon:Saxon-HE:10.6'
-    implementation 'org.apache.ant:ant:1.10.12'
-    implementation 'com.github.javaparser:javaparser-core:3.23.1'
-    implementation 'com.github.javaparser:javaparser-symbol-solver-core:3.23.1'
+    implementation "org.apache.logging.log4j:log4j-api:${log4jVersion}"
+    implementation "net.sf.saxon:Saxon-HE:${saxonVersion}"
+    implementation "org.apache.ant:ant:${antVersion}"
+    implementation "com.github.javaparser:javaparser-core:${javaparserVersion}"
+    implementation "com.github.javaparser:javaparser-symbol-solver-core:${javaparserVersion}"
 
     // only for java 8
     if (JavaVersion.current() == JavaVersion.VERSION_1_8) {
@@ -122,9 +129,9 @@ dependencies {
     implementation 'com.sun.org.apache.xml.internal:resolver:20050927'
 
     testImplementation 'junit:junit:4.13.2'
-    testImplementation 'org.apache.logging.log4j:log4j-core:2.17.1'
-    testImplementation 'org.apache.ant:ant-junit:1.10.12'
-    testImplementation 'org.apache.ant:ant-junit4:1.10.12'
+    testImplementation "org.apache.logging.log4j:log4j-core:${log4jVersion}"
+    testImplementation "org.apache.ant:ant-junit:${antVersion}"
+    testImplementation "org.apache.ant:ant-junit4:${antVersion}"
     testImplementation 'org.hamcrest:hamcrest:2.2'
     testImplementation('xerces:xercesImpl:2.12.1') {
         if (JavaVersion.current() != JavaVersion.VERSION_1_8) {
@@ -141,21 +148,21 @@ dependencies {
 
     // previous xmlbeans version is used to bootstrap necessary schema bindings
     bootstrap 'org.apache.xmlbeans:xmlbeans:5.0.2'
-    bootstrap 'org.apache.logging.log4j:log4j-core:2.17.1'
+    bootstrap "org.apache.logging.log4j:log4j-core:${log4jVersion}"
 
-    genresources 'org.apache.logging.log4j:log4j-core:2.17.1'
+    genresources "org.apache.logging.log4j:log4j-core:${log4jVersion}"
     genresources project.files('build/generated/classes/bootstrap/main')
     genresources project.files('build/generated/sources/bootstrap/main/resources')
     genresources project.files('src/main/resources')
-    genresources 'com.github.javaparser:javaparser-core:3.23.1'
-    genresources 'com.github.javaparser:javaparser-symbol-solver-core:3.23.1'
+    genresources "com.github.javaparser:javaparser-core:${javaparserVersion}"
+    genresources "com.github.javaparser:javaparser-symbol-solver-core:${javaparserVersion}"
 
     // need an own configuration for Java9 builds, as the maven plugin module-config is overlapping lot
-    java9 'org.apache.logging.log4j:log4j-api:2.17.1'
-    java9 'net.sf.saxon:Saxon-HE:10.6'
-    java9 'org.apache.ant:ant:1.10.12'
-    java9 'com.github.javaparser:javaparser-core:3.23.1'
-    java9('com.github.javaparser:javaparser-symbol-solver-core:3.23.1') {
+    java9 "org.apache.logging.log4j:log4j-api:${log4jVersion}"
+    java9 "net.sf.saxon:Saxon-HE:${saxonVersion}"
+    java9 "org.apache.ant:ant:${antVersion}"
+    java9 "com.github.javaparser:javaparser-core:${javaparserVersion}"
+    java9("com.github.javaparser:javaparser-symbol-solver-core:${javaparserVersion}") {
         exclude group: 'com.google.guava', module: 'guava'
     }
 

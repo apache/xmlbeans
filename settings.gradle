@@ -14,6 +14,3 @@
  */
 
 rootProject.name = 'xmlbeans'
-
-//include 'poi', 'poi-ooxml-full', 'poi-ooxml-lite-agent', 'poi-scratchpad',
-//        'poi-ooxml', 'poi-excelant', 'poi-examples', 'poi-integration' , 'poi-ooxml-lite'
