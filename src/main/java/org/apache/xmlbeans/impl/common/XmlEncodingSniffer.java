@@ -27,52 +27,12 @@ public class XmlEncodingSniffer
     /**
      * Sniffs the given XML stream for encoding information.
      *
-     * After a sniffer is constructed, it can return either a stream
-     * (which is a buffered stream wrapper of the original) or a reader
-     * (which applies the proper encoding).
-     *
-     * @param stream           The stream to sniff
-     * @param encodingOverride The XML (IANA) name for the overriding encoding
-     */
-    public XmlEncodingSniffer(InputStream stream, String encodingOverride)
-        throws IOException, UnsupportedEncodingException
-    {
-        _stream = stream;
-
-        if (encodingOverride != null)
-            _xmlencoding = EncodingMap.getJava2IANAMapping(encodingOverride);
-
-        if (_xmlencoding == null)
-            _xmlencoding = encodingOverride;
-
-        if (_xmlencoding == null)
-        {
-            SniffedXmlInputStream sniffed = new SniffedXmlInputStream(_stream);
-            _xmlencoding = sniffed.getXmlEncoding();
-            assert(_xmlencoding != null);
-            _stream = sniffed;
-        }
-
-        _javaencoding = EncodingMap.getIANA2JavaMapping(_xmlencoding);
-
-        // we allow you to use Java's encoding names in XML even though you're
-        // not supposed to.
-
-        if (_javaencoding == null)
-            _javaencoding = _xmlencoding;
-    }
-
-    /**
-     * Sniffs the given XML stream for encoding information.
-     *
      * After a sniffer is constructed, it can return either a reader
      * (which is a buffered stream wrapper of the original) or a stream
      * (which applies the proper encoding).
      *
      * @param reader           The reader to sniff
      * @param encodingDefault  The Java name for the default encoding to apply, UTF-8 if null.
-     * @throws IOException
-     * @throws UnsupportedEncodingException
      */
     public XmlEncodingSniffer(Reader reader, String encodingDefault)
             throws IOException, UnsupportedEncodingException

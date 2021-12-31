@@ -78,7 +78,6 @@ public final class HexBin {
     /**
      * array of byte to encode
      *
-     * @param binaryData
      * @return return encode binary array
      */
     static public byte[] encode(byte[] binaryData) {
