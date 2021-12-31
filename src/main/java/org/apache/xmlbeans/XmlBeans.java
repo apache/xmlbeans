@@ -38,7 +38,7 @@ public final class XmlBeans {
     private static final String TYPE_SYSTEM_FIELD = "typeSystem";
 
     private static String XMLBEANS_TITLE = "org.apache.xmlbeans";
-    private static String XMLBEANS_VERSION = "5.0.3";
+    private static String XMLBEANS_VERSION = "unknown";
     private static String XMLBEANS_VENDOR = "Apache Software Foundation";
 
     static {
@@ -55,7 +55,7 @@ public final class XmlBeans {
      * the value of
      * {@link Package#getImplementationTitle() XmlBeans.class.getPackage().getImplementationTitle()}.
      */
-    public static final String getTitle() {
+    public static String getTitle() {
         return XMLBEANS_TITLE;
     }
 
@@ -64,7 +64,7 @@ public final class XmlBeans {
      * the value of
      * {@link Package#getImplementationVendor() XmlBeans.class.getPackage().getImplementationVendor()}.
      */
-    public static final String getVendor() {
+    public static String getVendor() {
         return XMLBEANS_VENDOR;
     }
 
@@ -73,7 +73,7 @@ public final class XmlBeans {
      * the value of
      * {@link Package#getImplementationVersion() XmlBeans.class.getPackage().getImplementationVersion()}.
      */
-    public static final String getVersion() {
+    public static String getVersion() {
         return XMLBEANS_VERSION;
     }
 
