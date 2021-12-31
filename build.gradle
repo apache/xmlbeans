@@ -399,7 +399,8 @@ rat {
         'xbeanenv.*',
         'CHANGES.txt',
         'SECURITY.md',
-        '.travis.yml'
+        '.travis.yml',
+        'build.javacheck.xml'
     ]
 
     // Prints the list of files with unapproved licences to the console, defaults to false
