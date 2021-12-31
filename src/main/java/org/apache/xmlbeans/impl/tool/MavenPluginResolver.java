@@ -17,11 +17,13 @@ package org.apache.xmlbeans.impl.tool;
 
 import com.sun.org.apache.xml.internal.resolver.CatalogManager;
 import com.sun.org.apache.xml.internal.resolver.tools.CatalogResolver;
+import org.apache.xmlbeans.impl.util.SuppressForbidden;
 import org.xml.sax.EntityResolver;
 
 /**
  * Helper class for XML catalogs, which is provided as Java 8 and Java 9+ version (multi release)
  */
+@SuppressForbidden("class is available in Java 8 and multi-release version handles newer official package namespace")
 public class MavenPluginResolver {
     public static EntityResolver getResolver(String catalogLocation) {
         if (catalogLocation == null) {
