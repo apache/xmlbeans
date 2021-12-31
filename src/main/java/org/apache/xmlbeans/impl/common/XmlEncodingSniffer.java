@@ -15,11 +15,7 @@
 
 package org.apache.xmlbeans.impl.common;
 
-import java.io.Reader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
-import java.io.IOException;
+import java.io.*;
 
 public class XmlEncodingSniffer
 {
@@ -37,14 +33,12 @@ public class XmlEncodingSniffer
      *
      * @param stream           The stream to sniff
      * @param encodingOverride The XML (IANA) name for the overriding encoding
-     * @throws IOException
-     * @throws UnsupportedEncodingException
      */
     public XmlEncodingSniffer(InputStream stream, String encodingOverride)
         throws IOException, UnsupportedEncodingException
     {
         _stream = stream;
-        
+
         if (encodingOverride != null)
             _xmlencoding = EncodingMap.getJava2IANAMapping(encodingOverride);
 
@@ -60,10 +54,10 @@ public class XmlEncodingSniffer
         }
 
         _javaencoding = EncodingMap.getIANA2JavaMapping(_xmlencoding);
-        
+
         // we allow you to use Java's encoding names in XML even though you're
         // not supposed to.
-        
+
         if (_javaencoding == null)
             _javaencoding = _xmlencoding;
     }
@@ -85,7 +79,7 @@ public class XmlEncodingSniffer
     {
         if (encodingDefault == null)
             encodingDefault = "UTF-8";
-        
+
         SniffedXmlReader sniffedReader = new SniffedXmlReader(reader);
         _reader = sniffedReader;
         _xmlencoding = sniffedReader.getXmlEncoding();
@@ -101,12 +95,12 @@ public class XmlEncodingSniffer
 
         if (_xmlencoding == null)
             _xmlencoding = "UTF-8";
-        
+
         // we allow you to use Java's encoding names in XML even though you're
         // not supposed to.
-        
+
         _javaencoding = EncodingMap.getIANA2JavaMapping(_xmlencoding);
-        
+
         if (_javaencoding == null)
             _javaencoding = _xmlencoding;
     }

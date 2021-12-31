@@ -225,7 +225,7 @@ public interface GDateSpecification
     /**
      * The natural string representation. This represents the information
      * that is available, including timezone. For types that correspond
-     * to defined schema types (schemaBuiltinTypeCode() > 0),
+     * to defined schema types (schemaBuiltinTypeCode() &gt; 0),
      * this provides the natural lexical representation.
      *
      * When both time and timezone are specified, this string is not

@@ -61,7 +61,7 @@ public class Inst2XsdOptions
        o Russian Doll Design
        o Salami Slice Design
        o Venetian Blind Design
-     * @param designType
+
      * @see #DESIGN_RUSSIAN_DOLL
      * @see #DESIGN_SALAMI_SLICE
      * @see #DESIGN_VENETIAN_BLIND

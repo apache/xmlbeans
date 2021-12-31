@@ -53,7 +53,7 @@ public interface Node extends org.w3c.dom.Node {
      *    this {@code Node} object or {@code null} if this
      *    {@code Node} object is root
      * @throws java.lang.UnsupportedOperationException if the whole tree is not kept in memory
-     * @see #setParentElement(javax.xml.soap.SOAPElement) setParentElement(javax.xml.soap.SOAPElement)
+     * @see #setParentElement(SOAPElement)
      */
     public abstract SOAPElement getParentElement();
 

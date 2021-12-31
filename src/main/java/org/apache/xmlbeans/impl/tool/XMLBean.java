@@ -510,7 +510,7 @@ public class XMLBean extends MatchingTask {
      * Keyword list to be appended to the -g command-line switch.
      * <p>
      * This will be ignored by all implementations except modern
-     * and classic(ver >= 1.2). Legal values are none or a
+     * and classic(ver &gt;= 1.2). Legal values are none or a
      * comma-separated list of the following keywords: lines, vars,
      * and source. If debuglevel is not specified, by default, :none
      * will be appended to -g. If debug is not turned on, this attribute
@@ -573,7 +573,7 @@ public class XMLBean extends MatchingTask {
     }
 
     /**
-     * One or more SchemaCompiler extensions can be passed in via the &lt;extension> subelement.
+     * One or more SchemaCompiler extensions can be passed in via the {@code <extension>} subelement.
      * Schema Compiler extensions must implement the interface org.apache.xmlbeans.impl.tool.SchemaCompilerExtension
      */
     public Extension createExtension() {
@@ -584,7 +584,7 @@ public class XMLBean extends MatchingTask {
 
     /**
      * One or more namespaces in which duplicate definitions are to be ignored
-     * can be passed in via the &lt;ignoreDuplicatesInNamespaces> subelement.
+     * can be passed in via the {@code <ignoreDuplicatesInNamespaces>} subelement.
      */
     public void setIgnoreDuplicatesInNamespaces(String namespaces) {
         mdefnamespaces = new HashSet<>();

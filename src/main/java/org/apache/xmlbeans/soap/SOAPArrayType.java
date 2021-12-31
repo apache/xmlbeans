@@ -144,7 +144,7 @@ public final class SOAPArrayType {
      * E.g.,
      * Nested foo:bar[,][][,,][1,2]
      * Dimensions [6,7,8]
-     * Result -> foo:bar[,][][,,][,][6,7,8]
+     * Result -&gt; foo:bar[,][][,,][,][6,7,8]
      */
     public SOAPArrayType(SOAPArrayType nested, int[] dimensions) {
         _type = nested._type;
@@ -236,7 +236,7 @@ public final class SOAPArrayType {
 
     /**
      * True if this array contains nested arrays. Equivalent
-     * to (getRanks().length > 0).
+     * to (getRanks().length &gt; 0).
      */
     public boolean containsNestedArrays() {
         return (_ranks.length > 0);

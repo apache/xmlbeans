@@ -39,7 +39,6 @@ public class NameSetBuilder
 
     /**
      * Adds a name to the representing NameSet
-     * @param name
      */
     public void add(String name) {
         if (_isFinite) {

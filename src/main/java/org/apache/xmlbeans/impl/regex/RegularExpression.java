@@ -49,10 +49,10 @@ import java.util.Stack;
  * </dl>
  *
  * <h3>Case-insensitive matching</h3>
- * <pre>
- * RegularExpression re = new RegularExpression(<var>regex</var>, "i");
+ * <pre>{@code
+ * RegularExpression re = new RegularExpression(regex, "i");
  * if (re.matches(text) >= 0) { ...}
- * </pre>
+ * }</pre>
  *
  * <h3>Options</h3>
  * <p>You can specify options to {@link #RegularExpression(java.lang.String, java.lang.String)}
@@ -67,12 +67,12 @@ import java.util.Stack;
  *   <dt><a id="S_OPTION"><code>"s"</code></a>
  *   <dd class="REGEX">. matches any one character.
  *   <dt><a id="U_OPTION"><code>"u"</code></a>
- *   <dd class="REGEX">Redefines \d \D \w \W \s \S \b \B \&lt; \> as becoming to Unicode.
+ *   <dd class="REGEX">Redefines \d \D \w \W \s \S \b \B \&lt; \&gt; as becoming to Unicode.
  *   <dt><a id="W_OPTION"><code>"w"</code></a>
- *   <dd class="REGEX">By this option, \b \B \&lt; \> are processed with the method of
+ *   <dd class="REGEX">By this option, \b \B \&lt; \&gt; are processed with the method of
  *      'Unicode Regular Expression Guidelines' Revision 4.
  *      When "w" and "u" are specified at the same time,
- *      \b \B \&lt; \> are processed for the "w" option.
+ *      \b \B \&lt; \&gt; are processed for the "w" option.
  *   <dt><a id="COMMA_OPTION"><code>","</code></a>
  *   <dd>The parser treats a comma in a character class as a range separator.
  *      [a,b] matches a or , or b without this option.
@@ -163,7 +163,7 @@ import java.util.Stack;
  *         <li class="REGEX">A character (including \e \f \n \r \t \u005cx<var>HH</var> \u005cx{<var>HHHH</var>} \u005cv<var>HHHHHH</var>)
  *             <p>This range matches the character.
  *         <li class="REGEX"><var>C<sub>1</sub></var>-<var>C<sub>2</sub></var>
- *             <p>This range matches a character which has a code point that is >= <var>C<sub>1</sub></var>'s code point and &lt;= <var>C<sub>2</sub></var>'s code point.
+ *             <p>This range matches a character which has a code point that is &gt;= <var>C<sub>1</sub></var>'s code point and &lt;= <var>C<sub>2</sub></var>'s code point.
  *         <li class="REGEX">A POSIX character class: [:alpha:] [:alnum:] [:ascii:] [:cntrl:] [:digit:] [:graph:] [:lower:] [:print:] [:punct:] [:space:] [:upper:] [:xdigit:],
  *             and negative POSIX character classes in Perl like [:^alpha:]
  *             <p>...
@@ -324,7 +324,7 @@ import java.util.Stack;
  *
  *       <dt class="REGEX">\1 \2 \3 \4 \5 \6 \7 \8 \9
  *
- *       <dt class="REGEX">(?><var>X</var>)
+ *       <dt class="REGEX">(?&gt;<var>X</var>)
  *       <dd>Independent expression group. ................
  *
  *       <dt class="REGEX">(?<var>options</var>:<var>X</var>)
@@ -422,10 +422,10 @@ import java.util.Stack;
  * minmax ::= '{' ([0-9]+ | [0-9]+ ',' | ',' [0-9]+ | [0-9]+ ',' [0-9]+) '}'
  * atom ::= char | '.' | char-class | '(' regex ')' | '(?:' regex ')' | '\' [0-9]
  *          | '\w' | '\W' | '\d' | '\D' | '\s' | '\S' | category-block | '\X'
- *          | '(?>' regex ')' | '(?' options ':' regex ')'
+ *          | '(?&gt;' regex ')' | '(?' options ':' regex ')'
  *          | '(?' ('(' [0-9] ')' | '(' anchors ')' | looks) term ('|' term)? ')'
  * options ::= [imsw]* ('-' [imsw]+)?
- * anchors ::= '^' | '$' | '\A' | '\Z' | '\z' | '\b' | '\B' | '\&lt;' | '\>'
+ * anchors ::= '^' | '$' | '\A' | '\Z' | '\z' | '\b' | '\B' | '\&lt;' | '\&gt;'
  * looks ::= '(?=' regex ')'  | '(?!' regex ')'
  *           | '(?&lt;=' regex ')' | '(?&lt;!' regex ')'
  * char ::= '\\' | '\' [efnrtv] | '\c' [@-_] | code-point | character-1

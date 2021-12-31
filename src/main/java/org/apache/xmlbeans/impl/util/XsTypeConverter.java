@@ -643,7 +643,6 @@ public final class XsTypeConverter {
      *
      * @param lexical_value the lexical value
      * @return same input value if input value is in the lexical space
-     * @throws InvalidLexicalValueException
      */
     public static CharSequence lexAnyURI(CharSequence lexical_value) {
         /*  // Reg exp from RFC2396, but it's too forgiving for XQTS

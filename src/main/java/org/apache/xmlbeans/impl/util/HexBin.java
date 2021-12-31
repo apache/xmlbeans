@@ -53,9 +53,6 @@ public final class HexBin {
 
     /**
      * byte to be tested if it is Base64 alphabet
-     *
-     * @param octect
-     * @return
      */
     static boolean isHex(byte octect) {
         return (hexNumberTable[octect] != -1);
