@@ -25,11 +25,14 @@
     </description>
 
     <target name="build" depends="init,getdeps" description="Compile the sample code">
-        <pathconvert property="exe">
-            <fileset dir="${env.JAVA_HOME}" includes="bin/javac, bin/javac.exe, ../bin/javac, ../bin/javac.exe"/>
+        <pathconvert property="exe" setonempty="false">
+            <fileset dir="${env.JAVA_HOME}/bin" includes="javac, javac.exe"/>
+        </pathconvert>
+        <pathconvert property="exe" setonempty="false">
+            <fileset dir="${env.JAVA_HOME}/../bin" includes="javac, javac.exe"/>
         </pathconvert>
 
-        <javac srcdir="src/java" destdir="build" executable="${exe}">
+        <javac srcdir="src/java" destdir="build" executable="${exe}" fork="yes">
             <classpath>
                 <pathelement location="lib/ant-1.6.2.jar" />
                 <pathelement location="lib/commons-logging-1.0.3.jar" />

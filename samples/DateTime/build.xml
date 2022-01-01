@@ -77,8 +77,11 @@ limitations under the License.
     <target name="DateTime.classes" depends="init">
         <mkdir dir="build/classes"/>
 
-        <pathconvert property="exe">
-            <fileset dir="${env.JAVA_HOME}" includes="bin/javac, bin/javac.exe, ../bin/javac, ../bin/javac.exe"/>
+        <pathconvert property="exe" setonempty="false">
+            <fileset dir="${env.JAVA_HOME}/bin" includes="javac, javac.exe"/>
+        </pathconvert>
+        <pathconvert property="exe" setonempty="false">
+            <fileset dir="${env.JAVA_HOME}/../bin" includes="javac, javac.exe"/>
         </pathconvert>
 
         <javac srcdir="src"
@@ -87,6 +90,7 @@ limitations under the License.
             debug="on"
             source="1.8"
             executable="${exe}"
+            fork="yes"
             />
     </target>
 

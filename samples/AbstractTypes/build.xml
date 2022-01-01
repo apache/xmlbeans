@@ -78,12 +78,14 @@ limitations under the License.
             </classpath>
         </scomp>
 
-        <pathconvert property="exe">
-            <fileset dir="${env.JAVA_HOME}" includes="bin/javac, bin/javac.exe, ../bin/javac, ../bin/javac.exe"/>
+        <pathconvert property="exe" setonempty="false">
+            <fileset dir="${env.JAVA_HOME}/bin" includes="javac, javac.exe"/>
+        </pathconvert>
+        <pathconvert property="exe" setonempty="false">
+            <fileset dir="${env.JAVA_HOME}/../bin" includes="javac, javac.exe"/>
         </pathconvert>
 
-
-        <javac srcdir="src" destdir="build" debug="on" source="1.8" executable="${exe}">
+        <javac srcdir="src" destdir="build" debug="on" source="1.8" executable="${exe}" fork="yes">
             <classpath>
                 <path refid="xmlbeans.path"/>
                 <pathelement location="build/${abstract.jar}"/>

@@ -108,16 +108,20 @@ limitations under the License.
      <target name="XsdConfig.classes" depends="init">
         <mkdir dir="build/classes"/>
 
-         <pathconvert property="exe">
-             <fileset dir="${env.JAVA_HOME}" includes="bin/javac, bin/javac.exe, ../bin/javac, ../bin/javac.exe"/>
+         <pathconvert property="exe" setonempty="false">
+             <fileset dir="${env.JAVA_HOME}/bin" includes="javac, javac.exe"/>
+         </pathconvert>
+         <pathconvert property="exe" setonempty="false">
+             <fileset dir="${env.JAVA_HOME}/../bin" includes="javac, javac.exe"/>
          </pathconvert>
 
-        <javac srcdir="src" includes="org/apache/xmlbeans/samples/xsdconfig/CatalogXsdConfig.java org/apache/xmlbeans/samples/xsdconfig/XsdConfigTest.java"
+         <javac srcdir="src" includes="org/apache/xmlbeans/samples/xsdconfig/CatalogXsdConfig.java org/apache/xmlbeans/samples/xsdconfig/XsdConfigTest.java"
             destdir="build/classes"
             classpathref="XsdConfig.path"
             debug="on"
             source="1.8"
             executable="${exe}"
+            fork="yes"
             />
         <javac srcdir="src" includes="org/apache/xmlbeans/samples/xsdconfig/CatalogXsd.java org/apache/xmlbeans/samples/xsdconfig/XsdTest.java "
             destdir="build/classes"
@@ -125,6 +129,7 @@ limitations under the License.
             debug="on"
             source="1.8"
             executable="${exe}"
+            fork="yes"
             />
 
     </target>
