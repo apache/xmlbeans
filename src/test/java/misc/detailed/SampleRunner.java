@@ -16,6 +16,7 @@ package misc.detailed;
 
 import org.apache.tools.ant.*;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
@@ -45,6 +46,7 @@ public class SampleRunner {
     }
 
     @Test
+    @Ignore
     public void testSamples() throws Exception {
         loadSampleDirs(new File("./samples"));
         List<Object> exceptions = new ArrayList<>();
