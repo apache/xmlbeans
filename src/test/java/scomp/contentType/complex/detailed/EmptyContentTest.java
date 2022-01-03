@@ -66,6 +66,6 @@ public class EmptyContentTest extends BaseCase {
 
         elt.unsetEmptyAttr();
         assertTrue(!elt.isSetEmptyAttr());
-        assertTrue(elt.validate());     
+        assertTrue(elt.validate());
     }
 }

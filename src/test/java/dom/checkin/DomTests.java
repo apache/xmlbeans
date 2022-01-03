@@ -74,7 +74,7 @@ public class DomTests {
 //
 //        System.out.println( x.xmlText() );
 //    }
-    
+
     @Test
     public void testDom()
             throws Exception {

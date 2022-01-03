@@ -109,7 +109,7 @@ public class NamespaceContext implements PrefixResolver
     {
         getNamespaceContextStack().push(next);
     }
-            
+
     public static void pop()
     {
         NamespaceContextStack nsContextStack = getNamespaceContextStack();
@@ -128,7 +128,7 @@ public class NamespaceContext implements PrefixResolver
     {
         if (prefix != null && prefix.equals("xml"))
             return "http://www.w3.org/XML/1998/namespace";
-        
+
         switch (_code)
         {
             case XML_OBJECT:
@@ -150,19 +150,19 @@ public class NamespaceContext implements PrefixResolver
                     }
                 }
             }
-            
+
             case MAP:
                 return (String)((Map)_obj).get(prefix);
-                
+
             case TYPE_STORE:
                 return ((TypeStore)_obj).getNamespaceForPrefix(prefix);
-                
+
             case START_ELEMENT:
                 return ((StartElement)_obj).getNamespaceUri(prefix);
-                
+
             case RESOLVER:
                 return ((PrefixResolver)_obj).getNamespaceForPrefix(prefix);
-                
+
             default:
                 assert false : "Improperly initialized NamespaceContext.";
                 return null;

@@ -85,7 +85,7 @@ public class SchemaAnnotationImpl implements SchemaAnnotation
             for (int i = 0; i <  n; i++)
             {
                 String doc = _documentationAsXml[i];
-                try 
+                try
                 {
                     _documentation[i] = DocumentationDocument.Factory.
                         parse(doc).getDocumentation();
@@ -154,7 +154,7 @@ public class SchemaAnnotationImpl implements SchemaAnnotation
             // Now the attributes on the annotation element
             addNoSchemaAttributes(ann, attrArray);
         }
-        
+
         result._attributes =
             (AttributeImpl[]) attrArray.toArray(new AttributeImpl[attrArray.size()]);
         return result;

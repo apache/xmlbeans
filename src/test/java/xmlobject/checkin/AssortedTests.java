@@ -157,12 +157,12 @@ public class AssortedTests {
         xobj = xcur.getObject();
         String result = xobj.toString();
         System.out.println(result);
-        
+
         xcur.toFirstChild();
         xcur.toFirstChild();
         xcur.toFirstContentToken();
         xcur.insertChars("<html><body>this is a test</body></html>");
-        
+
         System.out.println(xobj);
         */
     }
