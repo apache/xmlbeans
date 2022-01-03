@@ -17,6 +17,7 @@ package org.apache.xmlbeans.impl.xpathgen;
 
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlCursor.TokenType;
+import org.apache.xmlbeans.XmlObject;
 
 import javax.xml.namespace.NamespaceContext;
 import javax.xml.namespace.QName;
@@ -146,23 +147,24 @@ public class XPathGenerator
     {
         int k = 0;
         int l = 0;
-        XmlCursor d = c.newCursor();
-        c.push();
-        c.toParent();
-        TokenType tt = c.toFirstContentToken();
-        while (!tt.isEnd())
-        {
-            if (tt.isText())
+        try (XmlCursor d = c.newCursor()) {
+            c.push();
+            c.toParent();
+            TokenType tt = c.toFirstContentToken();
+            while (!tt.isEnd())
             {
-                if (c.comparePosition(d) > 0)
-                    // We have moved after the initial position
-                    l++;
-                else
-                    k++;
+                if (tt.isText())
+                {
+                    if (c.comparePosition(d) > 0)
+                        // We have moved after the initial position
+                        l++;
+                    else
+                        k++;
+                }
+                else if (tt.isStart())
+                    c.toEndToken();
+                tt = c.toNextToken();
             }
-            else if (tt.isStart())
-                c.toEndToken();
-            tt = c.toNextToken();
         }
         c.pop();
         return l == 0 ? 0 : k;
@@ -191,33 +193,36 @@ public class XPathGenerator
                 return null;
             }
         };
-        XmlCursor c = org.apache.xmlbeans.XmlObject.Factory.parse(xml).newCursor();
-        c.toFirstContentToken(); // on <root>
-        c.toFirstContentToken(); // on <a>
-        c.toFirstChild();        // on <b>
-        c.toFirstChild();        // on <c>
-        c.push(); System.out.println(generateXPath(c, null, ns)); c.pop();
-        c.toNextSibling();
-        c.toNextSibling();       // on the last <c>
-        c.push(); System.out.println(generateXPath(c, null, ns)); c.pop();
-        XmlCursor d = c.newCursor();
-        d.toParent();
-        c.push(); System.out.println(generateXPath(c, d, ns)); c.pop();
-        d.toParent();
-        c.push(); System.out.println(generateXPath(c, d, ns)); c.pop();
-        c.toFirstContentToken(); // on text content of the last <c>
-        c.push(); System.out.println(generateXPath(c, d, ns)); c.pop();
-        c.toParent();
-        c.toPrevToken();         // on text content before the last <c>
-        c.push(); System.out.println(generateXPath(c, d, ns)); c.pop();
-        c.toParent();            // on <b>
-        c.push(); System.out.println(generateXPath(c, d, ns)); c.pop();
-        c.toFirstAttribute();    // on the "foo" attribute
-        c.push(); System.out.println(generateXPath(c, d, ns)); c.pop();
-        c.toParent();
-        c.toParent();
-        c.toNextToken();         // on the "xmlns:ns" attribute
-        c.push(); System.out.println(generateXPath(c, d, ns)); c.pop();
-        c.push(); System.out.println(generateXPath(c, null, ns)); c.pop();
+
+        try (XmlCursor c = XmlObject.Factory.parse(xml).newCursor()) {
+            c.toFirstContentToken(); // on <root>
+            c.toFirstContentToken(); // on <a>
+            c.toFirstChild();        // on <b>
+            c.toFirstChild();        // on <c>
+            c.push(); System.out.println(generateXPath(c, null, ns)); c.pop();
+            c.toNextSibling();
+            c.toNextSibling();       // on the last <c>
+            c.push(); System.out.println(generateXPath(c, null, ns)); c.pop();
+            try (XmlCursor d = c.newCursor()) {
+                d.toParent();
+                c.push(); System.out.println(generateXPath(c, d, ns)); c.pop();
+                d.toParent();
+                c.push(); System.out.println(generateXPath(c, d, ns)); c.pop();
+                c.toFirstContentToken(); // on text content of the last <c>
+                c.push(); System.out.println(generateXPath(c, d, ns)); c.pop();
+                c.toParent();
+                c.toPrevToken();         // on text content before the last <c>
+                c.push(); System.out.println(generateXPath(c, d, ns)); c.pop();
+                c.toParent();            // on <b>
+                c.push(); System.out.println(generateXPath(c, d, ns)); c.pop();
+                c.toFirstAttribute();    // on the "foo" attribute
+                c.push(); System.out.println(generateXPath(c, d, ns)); c.pop();
+                c.toParent();
+                c.toParent();
+                c.toNextToken();         // on the "xmlns:ns" attribute
+                c.push(); System.out.println(generateXPath(c, d, ns)); c.pop();
+            }
+            c.push(); System.out.println(generateXPath(c, null, ns)); c.pop();
+        }
     }
 }

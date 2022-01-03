@@ -185,26 +185,27 @@ public class CopyTest extends BasicCursorTestCase {
         m_xo = XmlObject.Factory.parse(
                 JarUtil.getResourceFromJar(Common.TRANXML_FILE_XMLCURSOR_PO));
         m_xc = m_xo.newCursor();
-        XmlCursor xc1 = m_xo.newCursor();
-        m_xc.selectPath(ns+" .//po:shipTo/po:city");
-        m_xc.toNextSelection();
-        xc1.selectPath(ns+" .//po:billTo/po:city");
-        xc1.toNextSelection();
-        xc1.toNextToken();
-        xc1.toNextChar(4);  // should be at 'T' in "Old Town"
-        m_xc.copyXml(xc1);     // should be "Old <city>Mill Valley</city>Town"
-        // verify xc1
-        xc1.toPrevToken();
-        assertEquals(TokenType.END, xc1.currentTokenType());
-        xc1.toPrevToken();
-        assertEquals("Mill Valley", xc1.getChars());
-        xc1.toPrevToken();
-        assertEquals(TokenType.START, xc1.currentTokenType());
-        assertEquals(new QName("city").getLocalPart(),
-                xc1.getName().getLocalPart());
-        xc1.toPrevToken();
-        assertEquals("Old ", xc1.getChars());
-        // verify m_xc
-        assertEquals("<po:city "+exp_ns+">Mill Valley</po:city>", m_xc.xmlText());
+        try (XmlCursor xc1 = m_xo.newCursor()) {
+            m_xc.selectPath(ns+" .//po:shipTo/po:city");
+            m_xc.toNextSelection();
+            xc1.selectPath(ns+" .//po:billTo/po:city");
+            xc1.toNextSelection();
+            xc1.toNextToken();
+            xc1.toNextChar(4);  // should be at 'T' in "Old Town"
+            m_xc.copyXml(xc1);     // should be "Old <city>Mill Valley</city>Town"
+            // verify xc1
+            xc1.toPrevToken();
+            assertEquals(TokenType.END, xc1.currentTokenType());
+            xc1.toPrevToken();
+            assertEquals("Mill Valley", xc1.getChars());
+            xc1.toPrevToken();
+            assertEquals(TokenType.START, xc1.currentTokenType());
+            assertEquals(new QName("city").getLocalPart(),
+                    xc1.getName().getLocalPart());
+            xc1.toPrevToken();
+            assertEquals("Old ", xc1.getChars());
+            // verify m_xc
+            assertEquals("<po:city "+exp_ns+">Mill Valley</po:city>", m_xc.xmlText());
+        }
     }
 }

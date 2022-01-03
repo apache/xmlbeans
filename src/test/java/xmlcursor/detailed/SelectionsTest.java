@@ -35,34 +35,35 @@ public class SelectionsTest extends BasicCursorTestCase {
     //average case test
 	@Test
 	public void testNormalCase() throws Exception {
-		XmlCursor m_xc1 = m_xo.newCursor();
-		int nSelectionsCount = 7;
-		m_xc.selectPath("$this//a");
-		assertFalse(m_xc.hasNextSelection());
-		assertFalse(m_xc.toNextSelection());
-		assertEquals(0, m_xc.getSelectionCount());
+	    try (XmlCursor m_xc1 = m_xo.newCursor()) {
+    		int nSelectionsCount = 7;
+    		m_xc.selectPath("$this//a");
+    		assertFalse(m_xc.hasNextSelection());
+    		assertFalse(m_xc.toNextSelection());
+    		assertEquals(0, m_xc.getSelectionCount());
 
-		m_xc.selectPath("$this//b");
-		m_xc1.toFirstChild();
-		m_xc1.toFirstChild();
-		do {
-			m_xc1.addToSelection();
-		} while (m_xc1.toNextSibling());
-		assertEquals(nSelectionsCount, m_xc.getSelectionCount());
-		int i = 0;
-		while (m_xc.hasNextSelection()) {
-			m_xc.toNextSelection();
-			assertEquals("" + i, m_xc.getTextValue());
-			i++;
-		}
-		int j = 0;
-		while (m_xc1.hasNextSelection()) {
-			m_xc1.toSelection(j);
-			assertEquals("" + j, m_xc1.getTextValue());
-			j++;
-		}
-		assertEquals(nSelectionsCount, j);
-		assertEquals(nSelectionsCount, i);
+    		m_xc.selectPath("$this//b");
+    		m_xc1.toFirstChild();
+    		m_xc1.toFirstChild();
+    		do {
+    			m_xc1.addToSelection();
+    		} while (m_xc1.toNextSibling());
+    		assertEquals(nSelectionsCount, m_xc.getSelectionCount());
+    		int i = 0;
+    		while (m_xc.hasNextSelection()) {
+    			m_xc.toNextSelection();
+    			assertEquals("" + i, m_xc.getTextValue());
+    			i++;
+    		}
+    		int j = 0;
+    		while (m_xc1.hasNextSelection()) {
+    			m_xc1.toSelection(j);
+    			assertEquals("" + j, m_xc1.getTextValue());
+    			j++;
+    		}
+    		assertEquals(nSelectionsCount, j);
+    		assertEquals(nSelectionsCount, i);
+	    }
 	}
 
 	@Test

@@ -356,6 +356,7 @@ public class XmlComplexContentImpl extends XmlObjectBase {
                     ((XmlObjectBase) user).set(sources[j]);
                 }
                 for (i++, j++; i < sources.length; i++, j++) {
+                    // Cursor is implicitly closed
                     XmlCursor c = sources[i].isImmutable() ? null : sources[i].newCursor();
                     if (c != null && c.toParent() && c.getObject() == this) {
                         c.close();

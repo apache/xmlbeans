@@ -30,18 +30,20 @@ import static org.junit.Assert.*;
 public class MultipleCursorSetTest {
     @Test
     public void testMultipleCursorSet() throws Exception {
-        XmlCursor xc = XmlObject.Factory.parse(JarUtil.getResourceFromJar(
-                Common.TRANXML_FILE_CLM)).newCursor();
-        xc.selectPath(Common.CLM_NS_XQUERY_DEFAULT +
-                      "$this//EquipmentNumber");
-        xc.toNextSelection();
-        XmlString xs = (XmlString) xc.getObject();
-        assertEquals("123456", xs.getStringValue());
-        assertEquals(TokenType.TEXT, xc.toNextToken());
         XmlCursor[] aCursors = new XmlCursor[6];
-        for (int i = 0; i < 6; i++) {
-            xc.toNextChar(1);
-            aCursors[i] = xc.newCursor();
+        XmlString xs;
+        try (XmlCursor xc = XmlObject.Factory.parse(JarUtil.getResourceFromJar(
+                    Common.TRANXML_FILE_CLM)).newCursor()) {
+            xc.selectPath(Common.CLM_NS_XQUERY_DEFAULT +
+                          "$this//EquipmentNumber");
+            xc.toNextSelection();
+            xs = (XmlString) xc.getObject();
+            assertEquals("123456", xs.getStringValue());
+            assertEquals(TokenType.TEXT, xc.toNextToken());
+            for (int i = 0; i < 6; i++) {
+                xc.toNextChar(1);
+                aCursors[i] = xc.newCursor();
+            }
         }
         for (int i = 0; i < 6; i++) {
             for (int j = 0; j != i && j < 6; j++) {

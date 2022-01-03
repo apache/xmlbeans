@@ -35,14 +35,13 @@ public class MixedContentRestriction extends BaseCase{
         elt.setChild1(new BigInteger("10"));
         elt.setChild2(BigInteger.ZERO);
         //insert text b/n the 2 elements
-        XmlCursor cur=elt.newCursor();
-        cur.toFirstContentToken();
-        assertTrue(cur.toNextSibling());
-        cur.insertChars("My chars");
-          try {
+        try (XmlCursor cur = elt.newCursor()) {
+            cur.toFirstContentToken();
+            assertTrue(cur.toNextSibling());
+            cur.insertChars("My chars");
+
             assertTrue( doc.validate(validateOptions));
-        }
-        catch (Throwable t) {
+        } catch (Throwable t) {
             showErrors();
             throw t;
         }
@@ -53,32 +52,30 @@ public class MixedContentRestriction extends BaseCase{
 
     @Test
     public void testRestrictedEltOnly() throws Throwable{
-       ElementOnlyEltDocument doc=ElementOnlyEltDocument.Factory.newInstance();
+        ElementOnlyEltDocument doc=ElementOnlyEltDocument.Factory.newInstance();
         RestrictedEltT elt=doc.addNewElementOnlyElt();
         assertTrue( !elt.isSetChild1());
         elt.setChild1(new BigInteger("10"));
         elt.setChild2(BigInteger.ZERO);
         //insert text b/n the 2 elements
-        XmlCursor cur=elt.newCursor();
-       cur.toFirstContentToken();
-        assertTrue(cur.toNextSibling());
-        cur.insertChars("My chars");
-        assertTrue( !doc.validate(validateOptions));
-        showErrors();
-        String[] errExpected = new String[]{
-            XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$ELEMENT_ONLY_WITH_TEXT};
-                            assertTrue(compareErrorCodes(errExpected));
+        try (XmlCursor cur = elt.newCursor()) {
+            cur.toFirstContentToken();
+            assertTrue(cur.toNextSibling());
+            cur.insertChars("My chars");
+            assertTrue( !doc.validate(validateOptions));
+            showErrors();
+            String[] errExpected = new String[]{
+                XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$ELEMENT_ONLY_WITH_TEXT};
+                                assertTrue(compareErrorCodes(errExpected));
 
-        //should be valid w/o the Text there
-        cur.toPrevToken();
-         assertEquals("<xml-fragment>" +
-                "<child1>10</child1>My chars<child2>0</child2>" +
-                "</xml-fragment>", elt.xmlText());
-       assertTrue(cur.removeXml());
-        try {
+            //should be valid w/o the Text there
+            cur.toPrevToken();
+            assertEquals("<xml-fragment>" +
+                    "<child1>10</child1>My chars<child2>0</child2>" +
+                    "</xml-fragment>", elt.xmlText());
+            assertTrue(cur.removeXml());
             assertTrue( doc.validate(validateOptions));
-        }
-        catch (Throwable t) {
+        } catch (Throwable t) {
             showErrors();
             throw t;
         }

@@ -53,22 +53,24 @@ public class QNameTests {
                 "<any " + ns + " xsi:type='xs:QName' xmlns:xxx='xxx.com'>" +
                     "xxx:abc</any>", null, null);
 
-        XmlCursor sourceCursor = sourceDocument.newCursor();
+        XmlQName sourceQName;
+        try (XmlCursor sourceCursor = sourceDocument.newCursor()) {
+            sourceCursor.toFirstChild();
 
-        sourceCursor.toFirstChild();
-
-        XmlQName sourceQName = (XmlQName) sourceCursor.getObject();
+            sourceQName = (XmlQName) sourceCursor.getObject();
+        }
 
         XmlObject targetDocument =
             stl.parse(
                 "<any " + ns + " xsi:type='xs:QName'>" +
                     "</any>", null, null);
 
-        XmlCursor targetCursor = targetDocument.newCursor();
+        XmlQName targetQName;
+        try (XmlCursor targetCursor = targetDocument.newCursor()) {
+            targetCursor.toFirstChild();
 
-        targetCursor.toFirstChild();
-
-        XmlQName targetQName = (XmlQName) targetCursor.getObject();
+            targetQName = (XmlQName) targetCursor.getObject();
+        }
 
         targetQName.set(sourceQName);
 
@@ -83,13 +85,11 @@ public class QNameTests {
                 "<any " + ns + " xsi:type='xs:QName' xmlns:xxx='xxx.com'>" +
                     "</any>", null, null);
 
-        targetCursor = targetDocument.newCursor();
+        try (XmlCursor targetCursor = targetDocument.newCursor()) {
+            targetCursor.toFirstChild();
 
-        targetCursor.toFirstChild();
+            targetQName = (XmlQName) targetCursor.getObject();
 
-        targetQName = (XmlQName) targetCursor.getObject();
-
-        try {
             targetQName.setStringValue("zzz:abc");
             fail("Must fail");
         } catch (Throwable t) {

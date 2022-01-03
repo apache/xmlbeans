@@ -697,13 +697,14 @@ public class StscTranslator {
     }
 
     static FormChoice findElementFormDefault(XmlObject obj) {
-        XmlCursor cur = obj.newCursor();
-        while (cur.getObject().schemaType() != Schema.type) {
-            if (!cur.toParent()) {
-                return null;
+        try (XmlCursor cur = obj.newCursor()) {
+            while (cur.getObject().schemaType() != Schema.type) {
+                if (!cur.toParent()) {
+                    return null;
+                }
             }
+            return ((Schema) cur.getObject()).xgetElementFormDefault();
         }
-        return ((Schema) cur.getObject()).xgetElementFormDefault();
     }
 
     public static boolean uriMatch(String s1, String s2) {
@@ -1271,13 +1272,14 @@ public class StscTranslator {
     }
 
     static FormChoice findAttributeFormDefault(XmlObject obj) {
-        XmlCursor cur = obj.newCursor();
-        while (cur.getObject().schemaType() != Schema.type) {
-            if (!cur.toParent()) {
-                return null;
+        try (XmlCursor cur = obj.newCursor()) {
+            while (cur.getObject().schemaType() != Schema.type) {
+                if (!cur.toParent()) {
+                    return null;
+                }
             }
+            return ((Schema) cur.getObject()).xgetAttributeFormDefault();
         }
-        return ((Schema) cur.getObject()).xgetAttributeFormDefault();
     }
 
     static SchemaLocalAttributeImpl translateAttribute(
@@ -1552,7 +1554,10 @@ public class StscTranslator {
 
 
     private static Object getUserData(XmlObject pos) {
-        XmlCursor.XmlBookmark b = pos.newCursor().getBookmark(SchemaBookmark.class);
+        XmlCursor.XmlBookmark b;
+        try (XmlCursor c = pos.newCursor()) {
+            b = c.getBookmark(SchemaBookmark.class);
+        }
         if (b instanceof SchemaBookmark) {
             return ((SchemaBookmark) b).getValue();
         } else {

@@ -37,15 +37,16 @@ public class CursorVsObjectAttributeTest {
     public void testAttributeSet() throws Exception {
         CarLocationMessageDocument clmDoc = CarLocationMessageDocument.Factory.parse(
             JarUtil.getResourceFromJar(Common.TRANXML_FILE_CLM));
-        XmlCursor xc = clmDoc.newCursor();
-        xc.toFirstChild();
-        CarLocationMessage clm = (CarLocationMessage) xc.getObject();
+        try (XmlCursor xc = clmDoc.newCursor()) {
+            xc.toFirstChild();
+            CarLocationMessage clm = (CarLocationMessage) xc.getObject();
 
-        clm.setVersion("XyZ");
-        QName name = new QName("Version");
-        assertEquals("XyZ", xc.getAttributeText(name));
-        xc.setAttributeText(name, "012");
-        assertEquals("012", clm.getVersion());
+            clm.setVersion("XyZ");
+            QName name = new QName("Version");
+            assertEquals("XyZ", xc.getAttributeText(name));
+            xc.setAttributeText(name, "012");
+            assertEquals("012", clm.getVersion());
+        }
     }
 
     @Test
@@ -53,17 +54,18 @@ public class CursorVsObjectAttributeTest {
         CarLocationMessageDocument clmDoc =
             (CarLocationMessageDocument) XmlObject.Factory.parse(
                 JarUtil.getResourceFromJar(Common.TRANXML_FILE_CLM));
-        XmlCursor xc = clmDoc.newCursor();
-        xc.toFirstChild();
-        CarLocationMessage clm = (CarLocationMessage) xc.getObject();
-        QName name = new QName("Version");
-        assertEquals("CLM", xc.getAttributeText(name));
-        clm.unsetVersion();
-        assertNull(xc.getAttributeText(name));
-        xc.setAttributeText(name, "012");
-        assertEquals("012", clm.getVersion());
-        xc.removeAttribute(name);
-        assertNull(clm.getVersion());
+        try (XmlCursor xc = clmDoc.newCursor()) {
+            xc.toFirstChild();
+            CarLocationMessage clm = (CarLocationMessage) xc.getObject();
+            QName name = new QName("Version");
+            assertEquals("CLM", xc.getAttributeText(name));
+            clm.unsetVersion();
+            assertNull(xc.getAttributeText(name));
+            xc.setAttributeText(name, "012");
+            assertEquals("012", clm.getVersion());
+            xc.removeAttribute(name);
+            assertNull(clm.getVersion());
+        }
     }
 
     @Test
@@ -74,16 +76,17 @@ public class CursorVsObjectAttributeTest {
         CarLocationMessageDocument clmDoc =
             (CarLocationMessageDocument) XmlObject.Factory.parse(
                 JarUtil.getResourceFromJar(Common.TRANXML_FILE_CLM), map);
-        XmlCursor xc = clmDoc.newCursor();
-        xc.toFirstChild();
-        CarLocationMessage clm = (CarLocationMessage) xc.getObject();
-        QName name = new QName("Version");
-        assertEquals("CLM", xc.getAttributeText(name));
-        clm.unsetVersion();
-        assertNull(xc.getAttributeText(name));
-        xc.toFirstChild();
-        assertEquals(TokenType.START, xc.currentTokenType());
-        xc.insertAttributeWithValue(name, "012");
-        assertEquals("012", clm.getVersion());
+        try (XmlCursor xc = clmDoc.newCursor()) {
+            xc.toFirstChild();
+            CarLocationMessage clm = (CarLocationMessage) xc.getObject();
+            QName name = new QName("Version");
+            assertEquals("CLM", xc.getAttributeText(name));
+            clm.unsetVersion();
+            assertNull(xc.getAttributeText(name));
+            xc.toFirstChild();
+            assertEquals(TokenType.START, xc.currentTokenType());
+            xc.insertAttributeWithValue(name, "012");
+            assertEquals("012", clm.getVersion());
+        }
     }
 }

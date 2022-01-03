@@ -42,7 +42,10 @@ public class StoreTests {
     private void streamTest(String xml)
         throws Exception {
         XmlObject x1 = XmlObject.Factory.parse(xml);
-        XmlObject x2 = XmlObject.Factory.parse(x1.newCursor().newXMLStreamReader());
+        XmlObject x2;
+        try (XmlCursor c = x1.newCursor()) {
+            x2 = XmlObject.Factory.parse(c.newXMLStreamReader());
+        }
 
         String x1Text = x1.xmlText();
         String x2Text = x2.xmlText();
@@ -79,23 +82,25 @@ public class StoreTests {
 
         xDst = XmlObject.Factory.parse("<bar/>");
         xSrc = XmlObject.Factory.parse("<foo/>");
-        XmlCursor c = xDst.newCursor();
-        c.toNextToken();
-        xDst = c.getObject();
-        xDst.set(xSrc);
-        c.toStartDoc();
-        xDst = c.getObject();
+        try (XmlCursor c = xDst.newCursor()) {
+            c.toNextToken();
+            xDst = c.getObject();
+            xDst.set(xSrc);
+            c.toStartDoc();
+            xDst = c.getObject();
+        }
         assertEquals("<bar><foo/></bar>", xDst.xmlText());
 
         xDst = XmlObject.Factory.parse("<bar x='y'/>");
         xSrc = XmlObject.Factory.parse("<foo>moo</foo>");
-        c = xDst.newCursor();
-        c.toNextToken();
-        c.toNextToken();
-        xDst = c.getObject();
-        xDst.set(xSrc);
-        c.toStartDoc();
-        xDst = c.getObject();
+        try (XmlCursor c = xDst.newCursor()) {
+            c.toNextToken();
+            c.toNextToken();
+            xDst = c.getObject();
+            xDst.set(xSrc);
+            c.toStartDoc();
+            xDst = c.getObject();
+        }
         assertEquals("<bar x=\"moo\"/>", xDst.xmlText());
     }
 
@@ -129,16 +134,17 @@ public class StoreTests {
     @Test
     public void testCursorStack() throws Exception {
         XmlObject x = XmlObject.Factory.parse("<foo x='y'/>");
-        XmlCursor c = x.newCursor();
-        c.push();
-        c.toNextToken();
-        c.push();
-        c.toNextToken();
-        assertTrue(c.isAttr());
-        c.pop();
-        assertTrue(c.isStart());
-        c.pop();
-        assertTrue(c.isStartdoc());
+        try (XmlCursor c = x.newCursor()) {
+            c.push();
+            c.toNextToken();
+            c.push();
+            c.toNextToken();
+            assertTrue(c.isAttr());
+            c.pop();
+            assertTrue(c.isStart());
+            c.pop();
+            assertTrue(c.isStartdoc());
+        }
     }
 
     @Test
@@ -152,13 +158,13 @@ public class StoreTests {
         options.setSaveImplicitNamespaces(namespaces);
 
         XmlObject x = XmlObject.Factory.newInstance();
-        XmlCursor c = x.newCursor();
+        try (XmlCursor c = x.newCursor()) {
+            c.toNextToken();
 
-        c.toNextToken();
-
-        c.beginElement("a", "foo.com");
-        c.beginElement("b", "default.com");
-        c.beginElement("c", "bar.com");
+            c.beginElement("a", "foo.com");
+            c.beginElement("b", "default.com");
+            c.beginElement("c", "bar.com");
+        }
 
         assertEquals("<foo:a><b><bar:c/></b></foo:a>", x.xmlText(options));
     }
@@ -383,39 +389,39 @@ public class StoreTests {
         int line = 1;
         int col = 1;
 
-        XmlCursor c =
-            XmlObject.Factory.parse(
+        try (XmlCursor c = XmlObject.Factory.parse(
                 xml, new XmlOptions().setLoadLineNumbers()).
-                newCursor();
+                newCursor()) {
 
-        for (int i = 0; i < xml.length(); i++) {
-            char ch = xml.charAt(i);
+            for (int i = 0; i < xml.length(); i++) {
+                char ch = xml.charAt(i);
 
-            if (ch == '<' && Character.isLetter(xml.charAt(i + 1))) {
-                while (!c.currentTokenType().isStart()) {
+                if (ch == '<' && Character.isLetter(xml.charAt(i + 1))) {
+                    while (!c.currentTokenType().isStart()) {
+                        c.toNextToken();
+                    }
+
+                    assertTrue(c.currentTokenType().isStart());
+
+                    XmlLineNumber ln =
+                        (XmlLineNumber)
+                            c.getBookmark(XmlLineNumber.class);
+
+                    assertNotNull(ln);
+
+                    assertTrue(ln.getLine() == -1 || ln.getLine() == line);
+                    assertTrue(ln.getColumn() == -1 || ln.getColumn() == col);
+                    assertTrue(ln.getOffset() == -1 || ln.getOffset() == i);
+
                     c.toNextToken();
                 }
 
-                assertTrue(c.currentTokenType().isStart());
-
-                XmlLineNumber ln =
-                    (XmlLineNumber)
-                        c.getBookmark(XmlLineNumber.class);
-
-                assertNotNull(ln);
-
-                assertTrue(ln.getLine() == -1 || ln.getLine() == line);
-                assertTrue(ln.getColumn() == -1 || ln.getColumn() == col);
-                assertTrue(ln.getOffset() == -1 || ln.getOffset() == i);
-
-                c.toNextToken();
-            }
-
-            if (ch == '\n') {
-                line++;
-                col = 1;
-            } else {
-                col++;
+                if (ch == '\n') {
+                    line++;
+                    col = 1;
+                } else {
+                    col++;
+                }
             }
         }
     }
@@ -714,74 +720,76 @@ public class StoreTests {
         throws Exception {
         XmlObject x = XmlObject.Factory.parse("<foo x='y'>abcdefg<!---->xy</foo>");
 
-        XmlCursor c = x.newCursor();
-        MyMark m1 = new MyMark();
-        c.setBookmark(m1);
+        try (XmlCursor c = x.newCursor()) {
+            MyMark m1 = new MyMark();
+            c.setBookmark(m1);
 
-        c.toNextToken();
-        MyMark m2 = new MyMark();
-        c.setBookmark(m2);
+            c.toNextToken();
+            MyMark m2 = new MyMark();
+            c.setBookmark(m2);
 
-        c.toNextToken();
-        MyMark m3 = new MyMark();
-        c.setBookmark(m3);
+            c.toNextToken();
+            MyMark m3 = new MyMark();
+            c.setBookmark(m3);
 
-        c.toNextToken();
-        MyMark m4 = new MyMark();
-        c.setBookmark(m4);
+            c.toNextToken();
+            MyMark m4 = new MyMark();
+            c.setBookmark(m4);
 
-        c.toNextChar(1);
-        MyMark m5 = new MyMark();
-        c.setBookmark(m5);
+            c.toNextChar(1);
+            MyMark m5 = new MyMark();
+            c.setBookmark(m5);
 
-        c.toNextChar(3);
-        MyMark m6 = new MyMark();
-        c.setBookmark(m6);
+            c.toNextChar(3);
+            MyMark m6 = new MyMark();
+            c.setBookmark(m6);
 
-        c.toNextToken();
-        c.toNextToken();
-        c.toNextToken();
-        MyMark m7 = new MyMark();
-        c.setBookmark(m7);
+            c.toNextToken();
+            c.toNextToken();
+            c.toNextToken();
+            MyMark m7 = new MyMark();
+            c.setBookmark(m7);
 
-        c.toNextToken();
-        MyMark m8 = new MyMark();
-        c.setBookmark(m8);
+            c.toNextToken();
+            MyMark m8 = new MyMark();
+            c.setBookmark(m8);
 
-        c.toStartDoc();
+            c.toStartDoc();
 
-        assertSame(c.getBookmark(MyMark.class), m1);
-        assertSame(c.toNextBookmark(MyMark.class), m2);
-        assertSame(c.toNextBookmark(MyMark.class), m3);
-        assertSame(c.toNextBookmark(MyMark.class), m4);
-        assertSame(c.toNextBookmark(MyMark.class), m5);
-        assertSame(c.toNextBookmark(MyMark.class), m6);
-        assertSame(c.toNextBookmark(MyMark.class), m7);
-        assertSame(c.toNextBookmark(MyMark.class), m8);
-        assertNull(c.toNextBookmark(MyMark.class));
+            assertSame(c.getBookmark(MyMark.class), m1);
+            assertSame(c.toNextBookmark(MyMark.class), m2);
+            assertSame(c.toNextBookmark(MyMark.class), m3);
+            assertSame(c.toNextBookmark(MyMark.class), m4);
+            assertSame(c.toNextBookmark(MyMark.class), m5);
+            assertSame(c.toNextBookmark(MyMark.class), m6);
+            assertSame(c.toNextBookmark(MyMark.class), m7);
+            assertSame(c.toNextBookmark(MyMark.class), m8);
+            assertNull(c.toNextBookmark(MyMark.class));
 
-        c.toEndDoc();
+            c.toEndDoc();
 
-        assertSame(c.getBookmark(MyMark.class), m8);
-        assertSame(c.toPrevBookmark(MyMark.class), m7);
-        assertSame(c.toPrevBookmark(MyMark.class), m6);
-        assertSame(c.toPrevBookmark(MyMark.class), m5);
-        assertSame(c.toPrevBookmark(MyMark.class), m4);
-        assertSame(c.toPrevBookmark(MyMark.class), m3);
-        assertSame(c.toPrevBookmark(MyMark.class), m2);
-        assertSame(c.toPrevBookmark(MyMark.class), m1);
-        assertNull(c.toPrevBookmark(MyMark.class));
+            assertSame(c.getBookmark(MyMark.class), m8);
+            assertSame(c.toPrevBookmark(MyMark.class), m7);
+            assertSame(c.toPrevBookmark(MyMark.class), m6);
+            assertSame(c.toPrevBookmark(MyMark.class), m5);
+            assertSame(c.toPrevBookmark(MyMark.class), m4);
+            assertSame(c.toPrevBookmark(MyMark.class), m3);
+            assertSame(c.toPrevBookmark(MyMark.class), m2);
+            assertSame(c.toPrevBookmark(MyMark.class), m1);
+            assertNull(c.toPrevBookmark(MyMark.class));
+        }
     }
 
     @Test
     public void testSetName()
         throws Exception {
         XmlObject x = XmlObject.Factory.parse("<foo x='a'/>");
-        XmlCursor c = x.newCursor();
-        c.toNextToken();
-        c.setName(new QName("bar"));
-        c.toNextToken();
-        c.setName(new QName("y"));
+        try (XmlCursor c = x.newCursor()) {
+            c.toNextToken();
+            c.setName(new QName("bar"));
+            c.toNextToken();
+            c.setName(new QName("y"));
+        }
 
         assertEquals("<bar y=\"a\"/>", x.xmlText());
     }
@@ -792,21 +800,21 @@ public class StoreTests {
     @Test
     public void testBasicXml()
         throws Exception {
-        XmlCursor c = XmlObject.Factory.parse(Common.XML_ATTR_TEXT, null).newCursor();
+        try (XmlCursor c = XmlObject.Factory.parse(Common.XML_ATTR_TEXT, null).newCursor()) {
+            int n = 0;
 
-        int n = 0;
+            for (; ; ) {
+                TokenType t = c.toNextToken();
 
-        for (; ; ) {
-            TokenType t = c.toNextToken();
+                n++;
 
-            n++;
-
-            if (t == TokenType.NONE) {
-                break;
+                if (t == TokenType.NONE) {
+                    break;
+                }
             }
-        }
 
-        assertEquals(6, n);
+            assertEquals(6, n);
+        }
     }
 
     //
@@ -818,24 +826,23 @@ public class StoreTests {
         throws Exception {
         ArrayList<TokenType> l = new ArrayList<>();
 
-        XmlCursor c = XmlObject.Factory.parse(Common.XML_ATTR_TEXT, null).newCursor();
+        try (XmlCursor c = XmlObject.Factory.parse(Common.XML_ATTR_TEXT, null).newCursor()) {
+            do {
+                // System.err.println(c.currentTokenType());
+                l.add(c.currentTokenType());
 
+            } while (c.toNextToken() != TokenType.NONE);
 
-        do {
-            // System.err.println(c.currentTokenType());
-            l.add(c.currentTokenType());
+            c.toEndDoc();
+            // System.err.println("Reversing");
 
-        } while (c.toNextToken() != TokenType.NONE);
+            for (int i = l.size() - 1; ; i--) {
+                // System.err.println(c.currentTokenType());
+                assertEquals(l.get(i), c.currentTokenType());
 
-        c.toEndDoc();
-        // System.err.println("Reversing");
-
-        for (int i = l.size() - 1; ; i--) {
-            // System.err.println(c.currentTokenType());
-            assertEquals(l.get(i), c.currentTokenType());
-
-            if (c.toPrevToken() == TokenType.NONE) {
-                break;
+                if (c.toPrevToken() == TokenType.NONE) {
+                    break;
+                }
             }
         }
     }
@@ -845,34 +852,36 @@ public class StoreTests {
     @Test(expected = IllegalStateException.class)
     public void testIllegalTextInsert()
         throws Exception {
-        XmlCursor c = XmlObject.Factory.parse(Common.XML_ATTR_TEXT, null).newCursor();
-        c.insertChars("Ho ho ho");
+        try (XmlCursor c = XmlObject.Factory.parse(Common.XML_ATTR_TEXT, null).newCursor()) {
+            c.insertChars("Ho ho ho");
+        }
     }
 
     // Make sure getText works in a basic way
     @Test
     public void testgetText()
         throws Exception {
-        XmlCursor c = XmlObject.Factory.parse(Common.XML_ATTR_TEXT, null).newCursor();
-        assertEquals("ab", c.getTextValue()); // Doc node
+        try (XmlCursor c = XmlObject.Factory.parse(Common.XML_ATTR_TEXT, null).newCursor()) {
+            assertEquals("ab", c.getTextValue()); // Doc node
 
-        c.toNextToken();
-        assertEquals("ab", c.getTextValue()); // Doc elem
+            c.toNextToken();
+            assertEquals("ab", c.getTextValue()); // Doc elem
 
-        c.toNextToken();
-        assertEquals("y", c.getTextValue()); // Attr x
+            c.toNextToken();
+            assertEquals("y", c.getTextValue()); // Attr x
 
-        c.toNextToken();
-        assertEquals("ab", c.getChars()); // Text
+            c.toNextToken();
+            assertEquals("ab", c.getChars()); // Text
 
-        c.toNextChar(1);
-        assertEquals("b", c.getChars()); // Text
+            c.toNextChar(1);
+            assertEquals("b", c.getChars()); // Text
 
-        c.toNextToken();
-        assertEquals(0, c.getChars().length());       // End tag
+            c.toNextToken();
+            assertEquals(0, c.getChars().length());       // End tag
 
-        c.toNextToken();
-        assertEquals(0, c.getChars().length());       // End doc
+            c.toNextToken();
+            assertEquals(0, c.getChars().length());       // End doc
+        }
     }
 
     //
@@ -880,8 +889,9 @@ public class StoreTests {
     //
 
     private void doSaverTest(String xml) throws Exception {
-        XmlCursor c = XmlObject.Factory.parse(xml).newCursor();
-        assertEquals(xml, c.xmlText());
+        try (XmlCursor c = XmlObject.Factory.parse(xml).newCursor()) {
+            assertEquals(xml, c.xmlText());
+        }
     }
 
     private void doSaveTest(String xml) throws Exception {
@@ -894,8 +904,9 @@ public class StoreTests {
         String xml = "<foo>Unable to render embedded object: <![CDATA[>>>>>>>><<<<<<<<<<<]]></foo>";
         String expected = "<foo><![CDATA[Unable to render embedded object: >>>>>>>><<<<<<<<<<<]]></foo>";
         XmlOptions options = new XmlOptions().setSaveCDataLengthThreshold(0);
-        XmlCursor c = XmlObject.Factory.parse(xml, options).newCursor();
-        assertEquals(expected, c.xmlText(options));
+        try (XmlCursor c = XmlObject.Factory.parse(xml, options).newCursor()) {
+            assertEquals(expected, c.xmlText(options));
+        }
     }
 
     @Test
@@ -915,21 +926,21 @@ public class StoreTests {
         XmlObject x =
             XmlObject.Factory.parse("<foo xmlns:a='a.com'><bar xmlns:a='b.com'/></foo>");
 
-        XmlCursor c = x.newCursor();
+        try (XmlCursor c = x.newCursor()) {
+            c.toFirstChild();
+            c.toFirstChild();
 
-        c.toFirstChild();
-        c.toFirstChild();
+            assertEquals("<bar xmlns:a=\"b.com\"/>", c.xmlText());
 
-        assertEquals("<bar xmlns:a=\"b.com\"/>", c.xmlText());
+            x = XmlObject.Factory.parse("<foo xmlns:a='a.com'><bar/></foo>");
+        }
 
-        x = XmlObject.Factory.parse("<foo xmlns:a='a.com'><bar/></foo>");
+        try (XmlCursor c = x.newCursor()) {
+            c.toFirstChild();
+            c.toFirstChild();
 
-        c = x.newCursor();
-
-        c.toFirstChild();
-        c.toFirstChild();
-
-        assertEquals("<bar xmlns:a=\"a.com\"/>", c.xmlText());
+            assertEquals("<bar xmlns:a=\"a.com\"/>", c.xmlText());
+        }
     }
 
 
@@ -1035,17 +1046,17 @@ public class StoreTests {
     public void testOps()
         throws Exception {
         XmlObject x, x2, y;
-        XmlCursor cFrom, cTo, cTemp, cTemp2, c, d;
         XmlBookmark anno;
 
         //
 
         x = XmlObject.Factory.parse("<foo>abcdef</foo>");
-        cFrom = navDoc(x, "d");
-        cTo = navNewCursor(cFrom, "");
-        assertTrue(cFrom.moveXml(cTo));
-        cFrom.insertChars("[FROM]");
-        cTo.insertChars("[TO]");
+        try (XmlCursor cFrom = navDoc(x, "d");
+            XmlCursor cTo = navNewCursor(cFrom, "")) {
+            assertTrue(cFrom.moveXml(cTo));
+            cFrom.insertChars("[FROM]");
+            cTo.insertChars("[TO]");
+        }
 
         XmlOptions options = new XmlOptions();
 
@@ -1059,11 +1070,12 @@ public class StoreTests {
 
         x = XmlObject.Factory.parse("<foo>abcdef</foo>");
 
-        cFrom = navDoc(x, "d");
-        cTo = navNewCursor(cFrom, "ttt");
-        assertTrue(cFrom.moveXml(cTo));
-        cFrom.insertChars("[FROM]");
-        cTo.insertChars("[TO]");
+        try (XmlCursor cFrom = navDoc(x, "d");
+            XmlCursor cTo = navNewCursor(cFrom, "ttt")) {
+            assertTrue(cFrom.moveXml(cTo));
+            cFrom.insertChars("[FROM]");
+            cTo.insertChars("[TO]");
+        }
 
         assertTrue(
             x.xmlText(options).equals("<bar><foo>abcdef</foo>[FROM][TO]</bar>") ||
@@ -1073,11 +1085,12 @@ public class StoreTests {
 
         x = XmlObject.Factory.parse("<foo>abcdef</foo>");
 
-        cFrom = navDoc(x, "d");
-        cTo = navNewCursor(cFrom, "t3c");
-        assertFalse(cFrom.moveXml(cTo));
-        cFrom.insertChars("[FROM]");
-        cTo.insertChars("[TO]");
+        try (XmlCursor cFrom = navDoc(x, "d");
+            XmlCursor cTo = navNewCursor(cFrom, "t3c")) {
+            assertFalse(cFrom.moveXml(cTo));
+            cFrom.insertChars("[FROM]");
+            cTo.insertChars("[TO]");
+        }
 
         assertEquals("<bar>[FROM]<foo>abc[TO]def</foo></bar>", x.xmlText(options));
 
@@ -1085,11 +1098,12 @@ public class StoreTests {
 
         x = XmlObject.Factory.parse("<r><a>xyz</a><b>pqr</b></r>");
 
-        cFrom = navDoc(x, "dd");
-        cTo = navNewCursor(cFrom, "r-1t");
-        assertTrue(cFrom.moveXml(cTo));
-        cFrom.insertChars("[FROM]");
-        cTo.insertChars("[TO]");
+        try (XmlCursor cFrom = navDoc(x, "dd");
+            XmlCursor cTo = navNewCursor(cFrom, "r-1t")) {
+            assertTrue(cFrom.moveXml(cTo));
+            cFrom.insertChars("[FROM]");
+            cTo.insertChars("[TO]");
+        }
 
         assertEquals("<r>[FROM]<b>pqr</b><a>xyz</a>[TO]</r>", x.xmlText());
 
@@ -1097,11 +1111,12 @@ public class StoreTests {
 
         x = XmlObject.Factory.parse("<r><a>xyz</a><b>pqr</b>AB</r>");
 
-        cFrom = navDoc(x, "dd");
-        cTo = navNewCursor(cFrom, "r-1t-1c");
-        assertTrue(cFrom.moveXml(cTo));
-        cFrom.insertChars("[FROM]");
-        cTo.insertChars("[TO]");
+        try (XmlCursor cFrom = navDoc(x, "dd");
+            XmlCursor cTo = navNewCursor(cFrom, "r-1t-1c")) {
+            assertTrue(cFrom.moveXml(cTo));
+            cFrom.insertChars("[FROM]");
+            cTo.insertChars("[TO]");
+        }
 
         assertEquals("<r>[FROM]<b>pqr</b>A<a>xyz</a>[TO]B</r>", x.xmlText());
 
@@ -1109,11 +1124,12 @@ public class StoreTests {
 
         x = XmlObject.Factory.parse("<r><a>xyz</a><b>pqr</b>AB</r>");
 
-        cFrom = navDoc(x, "dd");
-        cTo = navNewCursor(cFrom, "stc");
-        assertTrue(cFrom.moveXml(cTo));
-        cFrom.insertChars("[FROM]");
-        cTo.insertChars("[TO]");
+        try (XmlCursor cFrom = navDoc(x, "dd");
+            XmlCursor cTo = navNewCursor(cFrom, "stc")) {
+            assertTrue(cFrom.moveXml(cTo));
+            cFrom.insertChars("[FROM]");
+            cTo.insertChars("[TO]");
+        }
 
         assertEquals("<r>[FROM]<b>p<a>xyz</a>[TO]qr</b>AB</r>", x.xmlText());
 
@@ -1121,11 +1137,12 @@ public class StoreTests {
 
         x = XmlObject.Factory.parse("<r><a>xyz</a><b>pqr</b>AB</r>");
 
-        cFrom = navDoc(x, "dd");
-        cTo = navDoc(x, "d");
-        assertTrue(cFrom.moveXml(cTo));
-        cFrom.insertChars("[FROM]");
-        cTo.insertChars("[TO]");
+        try (XmlCursor cFrom = navDoc(x, "dd");
+            XmlCursor cTo = navDoc(x, "d")) {
+            assertTrue(cFrom.moveXml(cTo));
+            cFrom.insertChars("[FROM]");
+            cTo.insertChars("[TO]");
+        }
 
         testTextFrag(x.xmlText(), "<a>xyz</a>[TO]<r>[FROM]<b>pqr</b>AB</r>");
 
@@ -1133,11 +1150,12 @@ public class StoreTests {
 
         x = XmlObject.Factory.parse("<r><a>xyz</a><b>pqr</b>AB</r>");
 
-        cFrom = navDoc(x, "dd");
-        cTo = navDoc(x, "r");
-        assertTrue(cFrom.moveXml(cTo));
-        cFrom.insertChars("[FROM]");
-        cTo.insertChars("[TO]");
+        try (XmlCursor cFrom = navDoc(x, "dd");
+            XmlCursor cTo = navDoc(x, "r")) {
+            assertTrue(cFrom.moveXml(cTo));
+            cFrom.insertChars("[FROM]");
+            cTo.insertChars("[TO]");
+        }
 
         assertEquals("<bar><r>[FROM]<b>pqr</b>AB</r><a>xyz</a>[TO]</bar>", x.xmlText(options));
 
@@ -1146,11 +1164,12 @@ public class StoreTests {
         x = XmlObject.Factory.parse("<r><a>xyz</a></r>");
         x2 = XmlObject.Factory.parse("<s></s>");
 
-        cFrom = navDoc(x, "dd");
-        cTo = navDoc(x2, "dt");
-        assertTrue(cFrom.moveXml(cTo));
-        cFrom.insertChars("[FROM]");
-        cTo.insertChars("[TO]");
+        try (XmlCursor cFrom = navDoc(x, "dd");
+            XmlCursor cTo = navDoc(x2, "dt")) {
+            assertTrue(cFrom.moveXml(cTo));
+            cFrom.insertChars("[FROM]");
+            cTo.insertChars("[TO]");
+        }
 
         assertEquals("<r>[FROM]</r>", x.xmlText());
         assertEquals("<s><a>xyz</a>[TO]</s>", x2.xmlText());
@@ -1159,13 +1178,14 @@ public class StoreTests {
 
         x = XmlObject.Factory.parse("<r><a>pq</a><b></b></r>");
 
-        cFrom = navDoc(x, "dd");
-        cTo = navDoc(x, "ddst");
-        cTemp = navDoc(x, "ddt1c");
-        assertTrue(cFrom.moveXml(cTo));
-        cFrom.insertChars("[FROM]");
-        cTo.insertChars("[TO]");
-        cTemp.insertChars("[TEMP]");
+        try (XmlCursor cFrom = navDoc(x, "dd");
+            XmlCursor cTo = navDoc(x, "ddst");
+            XmlCursor cTemp = navDoc(x, "ddt1c")) {
+            assertTrue(cFrom.moveXml(cTo));
+            cFrom.insertChars("[FROM]");
+            cTo.insertChars("[TO]");
+            cTemp.insertChars("[TEMP]");
+        }
 
         assertEquals("<r>[FROM][TEMP]<b><a>pq</a>[TO]</b></r>", x.xmlText());
 
@@ -1173,11 +1193,12 @@ public class StoreTests {
 
         x = XmlObject.Factory.parse("<foo>abcdef</foo>");
 
-        cFrom = navDoc(x, "2t2c");
-        cTo = navNewCursor(cFrom, "-1c");
-        cFrom.moveChars(2, cTo);
-        cFrom.insertChars("[FROM]");
-        cTo.insertChars("[TO]");
+        try (XmlCursor cFrom = navDoc(x, "2t2c");
+            XmlCursor cTo = navNewCursor(cFrom, "-1c")) {
+            cFrom.moveChars(2, cTo);
+            cFrom.insertChars("[FROM]");
+            cTo.insertChars("[TO]");
+        }
 
         assertEquals("<foo>acd[TO]b[FROM]ef</foo>", x.xmlText());
 
@@ -1185,11 +1206,12 @@ public class StoreTests {
 
         x = XmlObject.Factory.parse("<foo>abcdef</foo>");
 
-        cFrom = navDoc(x, "2t2c");
-        cTo = navNewCursor(cFrom, "3c");
-        cFrom.moveChars(2, cTo);
-        cFrom.insertChars("[FROM]");
-        cTo.insertChars("[TO]");
+        try (XmlCursor cFrom = navDoc(x, "2t2c");
+            XmlCursor cTo = navNewCursor(cFrom, "3c")) {
+            cFrom.moveChars(2, cTo);
+            cFrom.insertChars("[FROM]");
+            cTo.insertChars("[TO]");
+        }
 
         assertEquals("<foo>ab[FROM]ecd[TO]f</foo>", x.xmlText());
 
@@ -1197,11 +1219,12 @@ public class StoreTests {
 
         x = XmlObject.Factory.parse("<bar><foo>abcdef</foo><foo>123456</foo></bar>");
 
-        cFrom = navDoc(x, "3t2c");
-        cTo = navNewCursor(cFrom, "3t3c");
-        cFrom.moveChars(2, cTo);
-        cFrom.insertChars("[FROM]");
-        cTo.insertChars("[TO]");
+        try (XmlCursor cFrom = navDoc(x, "3t2c");
+            XmlCursor cTo = navNewCursor(cFrom, "3t3c")) {
+            cFrom.moveChars(2, cTo);
+            cFrom.insertChars("[FROM]");
+            cTo.insertChars("[TO]");
+        }
 
         assertEquals("<bar><foo>ab[FROM]ef</foo><foo>123cd[TO]456</foo></bar>", x.xmlText());
 
@@ -1209,11 +1232,12 @@ public class StoreTests {
 
         x = XmlObject.Factory.parse("<bar><foo>abcdef</foo><foo>123456</foo></bar>");
 
-        cFrom = navDoc(x, "2d");
-        cTo = navDoc(x, "2dst2c");
-        assertTrue(cFrom.copyXml(cTo));
-        cFrom.insertChars("[FROM]");
-        cTo.insertChars("[TO]");
+        try (XmlCursor cFrom = navDoc(x, "2d");
+            XmlCursor cTo = navDoc(x, "2dst2c")) {
+            assertTrue(cFrom.copyXml(cTo));
+            cFrom.insertChars("[FROM]");
+            cTo.insertChars("[TO]");
+        }
 
         assertEquals(x.xmlText(),
             "<bar>[FROM]<foo>abcdef</foo><foo>12" +
@@ -1224,11 +1248,12 @@ public class StoreTests {
         x = XmlObject.Factory.parse("<r><a>xyz</a></r>");
         x2 = XmlObject.Factory.parse("<s></s>");
 
-        cFrom = navDoc(x, "dd");
-        cTo = navDoc(x2, "dt");
-        assertTrue(cFrom.copyXml(cTo));
-        cFrom.insertChars("[FROM]");
-        cTo.insertChars("[TO]");
+        try (XmlCursor cFrom = navDoc(x, "dd");
+            XmlCursor cTo = navDoc(x2, "dt")) {
+            assertTrue(cFrom.copyXml(cTo));
+            cFrom.insertChars("[FROM]");
+            cTo.insertChars("[TO]");
+        }
 
         assertEquals("<r>[FROM]<a>xyz</a></r>", x.xmlText());
         assertEquals("<s><a>xyz</a>[TO]</s>", x2.xmlText());
@@ -1238,11 +1263,12 @@ public class StoreTests {
         x = XmlObject.Factory.parse(
             "<bar><foo>abcdef</foo>blah<foo>123456</foo></bar>");
 
-        cFrom = navDoc(x, "2d");
-        cTo = navDoc(x, "2dst2c");
-        assertTrue(cFrom.copyXml(cTo));
-        cFrom.insertChars("[FROM]");
-        cTo.insertChars("[TO]");
+        try (XmlCursor cFrom = navDoc(x, "2d");
+            XmlCursor cTo = navDoc(x, "2dst2c")) {
+            assertTrue(cFrom.copyXml(cTo));
+            cFrom.insertChars("[FROM]");
+            cTo.insertChars("[TO]");
+        }
 
         assertEquals(x.xmlText(), "<bar>[FROM]<foo>abcdef</foo>blah<foo>12" +
                                   "<foo>abcdef</foo>[TO]3456</foo></bar>");
@@ -1252,13 +1278,14 @@ public class StoreTests {
         x = XmlObject.Factory.parse(
             "<bar><foo x='y'>abcdef</foo><foo>123456</foo>7890</bar>");
 
-        cFrom = navDoc(x, "2dt");
-        cTo = navDoc(x, "2dst");
-        cTemp = navDoc(x, "2dst3c");
-        cTemp2 = navDoc(x, "2ds3t2c");
-        assertTrue(cFrom.copyXml(cTo));
-        cTemp.insertChars("[TEMP]");
-        cTemp2.insertChars("[TEMP2]");
+        try (XmlCursor cFrom = navDoc(x, "2dt");
+            XmlCursor cTo = navDoc(x, "2dst");
+            XmlCursor cTemp = navDoc(x, "2dst3c");
+            XmlCursor cTemp2 = navDoc(x, "2ds3t2c")) {
+            assertTrue(cFrom.copyXml(cTo));
+            cTemp.insertChars("[TEMP]");
+            cTemp2.insertChars("[TEMP2]");
+        }
 
         assertEquals(x.xmlText(),
             "<bar><foo x=\"y\">abcdef</foo>" +
@@ -1269,13 +1296,13 @@ public class StoreTests {
         x = XmlObject.Factory.parse(
             "<bar>xy<foo x='y'>abcdef</foo>pqr<foo>123456</foo></bar>");
 
-        cFrom = navDoc(x, "2d");
-        cTo = navDoc(x, "2ds-2c");
+        try (XmlCursor cFrom = navDoc(x, "2d");
+            XmlCursor cTo = navDoc(x, "2ds-2c")) {
+            assertTrue(cFrom.removeXml());
 
-        assertTrue(cFrom.removeXml());
-
-        cFrom.insertChars("[FROM]");
-        cTo.insertChars("[TO]");
+            cFrom.insertChars("[FROM]");
+            cTo.insertChars("[TO]");
+        }
 
         assertEquals("<bar>xy[FROM]p[TO]qr<foo>123456</foo></bar>", x.xmlText());
 
@@ -1284,13 +1311,13 @@ public class StoreTests {
         x = XmlObject.Factory.parse(
             "<bar>xy<foo x='y'>abcdef</foo>pqr<foo>123456</foo></bar>");
 
-        cFrom = navDoc(x, "2d2t2c");
-        cTo = navDoc(x, "2d2t5c");
+        try (XmlCursor cFrom = navDoc(x, "2d2t2c");
+            XmlCursor cTo = navDoc(x, "2d2t5c")) {
+            cFrom.removeChars(2);
 
-        cFrom.removeChars(2);
-
-        cFrom.insertChars("[FROM]");
-        cTo.insertChars("[TO]");
+            cFrom.insertChars("[FROM]");
+            cTo.insertChars("[TO]");
+        }
 
         assertEquals(x.xmlText(),
             "<bar>xy<foo x=\"y\">ab[FROM]e[TO]f" +
@@ -1300,13 +1327,13 @@ public class StoreTests {
 
         x = XmlObject.Factory.parse("<bar><!---->abc</bar>");
 
-        cFrom = navDoc(x, "tt");
-        cTo = navDoc(x, "tttc");
+        try (XmlCursor cFrom = navDoc(x, "tt");
+            XmlCursor cTo = navDoc(x, "tttc")) {
+            assertTrue(cFrom.removeXml());
 
-        assertTrue(cFrom.removeXml());
-
-        cFrom.insertChars("[FROM]");
-        cTo.insertChars("[TO]");
+            cFrom.insertChars("[FROM]");
+            cTo.insertChars("[TO]");
+        }
 
         assertEquals("<bar>[FROM]a[TO]bc</bar>", x.xmlText());
 
@@ -1314,12 +1341,13 @@ public class StoreTests {
 
         x = XmlObject.Factory.newInstance();
 
-        cTo = navDoc(x, "t");
-        cTo.insertElement("boo");
-        cTo.toPrevToken();
-        cTo.insertElement("moo");
-        cTo.toPrevToken();
-        cTo.insertElement("goo");
+        try (XmlCursor cTo = navDoc(x, "t")) {
+            cTo.insertElement("boo");
+            cTo.toPrevToken();
+            cTo.insertElement("moo");
+            cTo.toPrevToken();
+            cTo.insertElement("goo");
+        }
 
         assertEquals("<boo><moo><goo/></moo></boo>", x.xmlText());
 
@@ -1327,34 +1355,39 @@ public class StoreTests {
 
         x = XmlObject.Factory.newInstance();
 
-        cTo = navDoc(x, "t");
-        cTo.insertElement("boo");
-        cTo.toPrevToken();
-        cTo.insertElement("moo");
-        cTo.toPrevToken();
-        cTo.insertAttributeWithValue("x", "y");
+        try (XmlCursor cTo = navDoc(x, "t")) {
+            cTo.insertElement("boo");
+            cTo.toPrevToken();
+            cTo.insertElement("moo");
+            cTo.toPrevToken();
+            cTo.insertAttributeWithValue("x", "y");
+        }
 
         assertEquals("<boo><moo x=\"y\"/></boo>", x.xmlText());
 
         //
 
         x = XmlObject.Factory.parse("<bar x='y'>abc</bar>");
-        cTo = navDoc(x, "tt");
-        cTo.insertAttributeWithValue("p", "q");
+        try (XmlCursor cTo = navDoc(x, "tt")) {
+            cTo.insertAttributeWithValue("p", "q");
+        }
 
         assertEquals("<bar p=\"q\" x=\"y\">abc</bar>", x.xmlText());
 
         // Text XmlBookmark
 
         x = XmlObject.Factory.parse("<r><foo>abc</foo><bar></bar></r>");
-        cFrom = navDoc(x, "tt");
-        anno = new Anno();
-        cFrom.setBookmark(anno);
-        cTo = navDoc(x, "6t");
-        assertTrue(cFrom.moveXml(cTo));
-        cFrom.insertChars("[FROM]");
-        cTo.insertChars("[TO]");
-        anno.createCursor().insertChars("[ANNO]");
+        try (XmlCursor cFrom = navDoc(x, "tt");
+            XmlCursor cTo = navDoc(x, "6t")) {
+            anno = new Anno();
+            cFrom.setBookmark(anno);
+            assertTrue(cFrom.moveXml(cTo));
+            cFrom.insertChars("[FROM]");
+            cTo.insertChars("[TO]");
+            try (XmlCursor c = anno.createCursor()) {
+                c.insertChars("[ANNO]");
+            }
+        }
 
         assertEquals("<r>[FROM]<bar>[ANNO]<foo>abc</foo>[TO]</bar></r>", x.xmlText());
 
@@ -1362,31 +1395,38 @@ public class StoreTests {
 
         x = XmlObject.Factory.parse("<foo x='y'>abc</foo>");
         y = XmlObject.Factory.newInstance();
-        d = y.newCursor();
-        d.toNextToken();
-        x.newCursor().moveXmlContents(d);
+        try (XmlCursor d = y.newCursor()) {
+            d.toNextToken();
+            try (XmlCursor c = x.newCursor()) {
+                c.moveXmlContents(d);
+            }
+        }
         assertEquals("<foo x=\"y\">abc</foo>", y.xmlText());
 
         x = XmlObject.Factory.parse("<bar><foo x='y'>abc</foo></bar>");
         y = XmlObject.Factory.newInstance();
-        c = x.newCursor();
-        c.toNextToken();
-        d = y.newCursor();
-        d.toNextToken();
-        c.moveXmlContents(d);
+        try (XmlCursor c = x.newCursor();
+            XmlCursor d = y.newCursor()) {
+            c.toNextToken();
+            d.toNextToken();
+            c.moveXmlContents(d);
+        }
         assertEquals("<foo x=\"y\">abc</foo>", y.xmlText());
 
         x = XmlObject.Factory.parse("<bar><foo x='y'>abc</foo></bar>");
-        c = x.newCursor();
-        c.toNextToken();
-        c.removeXmlContents();
+        try (XmlCursor c = x.newCursor()) {
+            c.toNextToken();
+            c.removeXmlContents();
+        }
         assertEquals("<bar/>", x.xmlText());
 
         x = XmlObject.Factory.parse("<foo x='y'>abc</foo>");
         y = XmlObject.Factory.newInstance();
-        d = y.newCursor();
-        d.toNextToken();
-        x.newCursor().copyXmlContents(d);
+        try (XmlCursor d = y.newCursor();
+            XmlCursor  e = x.newCursor()) {
+            d.toNextToken();
+            e.copyXmlContents(d);
+        }
         assertEquals("<foo x=\"y\">abc</foo>", y.xmlText());
     }
 
@@ -1396,7 +1436,7 @@ public class StoreTests {
     @Test
     public void testSave() throws Exception {
         XmlObject x;
-        XmlCursor cTo;
+        XmlOptions options;
 
         //
 
@@ -1414,8 +1454,9 @@ public class StoreTests {
 
         x = XmlObject.Factory.parse("<foo></foo>");
 
-        cTo = navDoc(x, "dt");
-        cTo.insertChars("&<");
+        try (XmlCursor cTo = navDoc(x, "dt")) {
+            cTo.insertChars("&<");
+        }
 
         assertEquals("<foo>&amp;&lt;</foo>", x.xmlText());
 
@@ -1423,83 +1464,80 @@ public class StoreTests {
 
         x = XmlObject.Factory.parse("<foo><boo>bar</boo></foo>");
 
-        cTo = navDoc(x, "dt");
-
-        assertEquals("<boo>bar</boo>", cTo.xmlText());
+        try (XmlCursor cTo = navDoc(x, "dt")) {
+            assertEquals("<boo>bar</boo>", cTo.xmlText());
+        }
 
         //
 
         x = XmlObject.Factory.parse("<foo><boo x=\"y\">bar</boo></foo>");
 
-        cTo = navDoc(x, "dt");
-
-        assertEquals("<boo x=\"y\">bar</boo>", cTo.xmlText());
+        try (XmlCursor cTo = navDoc(x, "dt")) {
+            assertEquals("<boo x=\"y\">bar</boo>", cTo.xmlText());
+        }
 
         // Tests fragment saving and loading
 
         x = XmlObject.Factory.parse("<foo>Eric</foo>");
 
-        cTo = navDoc(x, "dt");
+        try (XmlCursor cTo = navDoc(x, "dt")) {
+            x = XmlObject.Factory.parse(cTo.xmlText());
+        }
 
-        x = XmlObject.Factory.parse(cTo.xmlText());
-
-        cTo = navDoc(x, "");
-
-        assertEquals("Eric", cTo.getTextValue());
+        try (XmlCursor cTo = navDoc(x, "")) {
+            assertEquals("Eric", cTo.getTextValue());
+        }
 
         // test save where I replace the name of an element
 
         x = XmlObject.Factory.parse("<foo>Eric</foo>");
 
-        cTo = navDoc(x, "d");
-
-        XmlOptions options = new XmlOptions();
-
+        options = new XmlOptions();
         options.setSaveSyntheticDocumentElement(new QName(null, "bar"));
+        try (XmlCursor cTo = navDoc(x, "d")) {
+            x = XmlObject.Factory.parse(cTo.xmlText(options));
+        }
 
-        x = XmlObject.Factory.parse(cTo.xmlText(options));
-
-        cTo = navDoc(x, "");
-
-        assertEquals("<bar>Eric</bar>", cTo.xmlText());
+        try (XmlCursor cTo = navDoc(x, "")) {
+            assertEquals("<bar>Eric</bar>", cTo.xmlText());
+        }
 
         // test save where I replace the name of the document
 
         x = XmlObject.Factory.parse("<foo>Eric</foo>");
 
-        cTo = navDoc(x, "");
+        try (XmlCursor cTo = navDoc(x, "")) {
+            options = new XmlOptions();
+            options.setSaveSyntheticDocumentElement(new QName(null, "bar"));
 
-        options = new XmlOptions();
+            x = XmlObject.Factory.parse(cTo.xmlText(options));
+        }
 
-        options.setSaveSyntheticDocumentElement(new QName(null, "bar"));
-
-        x = XmlObject.Factory.parse(cTo.xmlText(options));
-
-        cTo = navDoc(x, "");
-
-        assertEquals("<bar><foo>Eric</foo></bar>", cTo.xmlText());
+        try (XmlCursor cTo = navDoc(x, "")) {
+            assertEquals("<bar><foo>Eric</foo></bar>", cTo.xmlText());
+        }
 
         x = XmlObject.Factory.parse("<a xmlns='foo'/>");
 
-        XmlCursor c = x.newCursor();
+        try (XmlCursor c = x.newCursor()) {
+            c.toFirstContentToken();
+            c.toFirstContentToken();
 
-        c.toFirstContentToken();
-        c.toFirstContentToken();
+            c.insertElement("b");
+            c.toPrevSibling();
+            assertEquals("b", c.getName().getLocalPart());
+            assertEquals(0, c.getName().getNamespaceURI().length());
 
-        c.insertElement("b");
-        c.toPrevSibling();
-        assertEquals("b", c.getName().getLocalPart());
-        assertEquals(0, c.getName().getNamespaceURI().length());
+            x = XmlObject.Factory.parse(x.xmlText());
+        }
 
-        x = XmlObject.Factory.parse(x.xmlText());
+        try (XmlCursor c = x.newCursor()) {
+            c.toFirstContentToken();
+            c.toFirstContentToken();
 
-        c = x.newCursor();
-
-        c.toFirstContentToken();
-        c.toFirstContentToken();
-
-        assertEquals("b", c.getName().getLocalPart());
-        assertEquals(0, c.getName().getNamespaceURI().length());
+            assertEquals("b", c.getName().getLocalPart());
+            assertEquals(0, c.getName().getNamespaceURI().length());
+        }
     }
 
     private void testTextFrag(String actual, String expected) {
@@ -1517,55 +1555,46 @@ public class StoreTests {
     @Test
     public void testSaveFrag() {
         XmlObject x;
-        XmlCursor c;
 
         x = XmlObject.Factory.newInstance();
 
-        c = x.newCursor();
-
-        c.toNextToken();
-
-        c.insertChars("Eric");
-
+        try (XmlCursor c = x.newCursor()) {
+            c.toNextToken();
+            c.insertChars("Eric");
+        }
         testTextFrag(x.xmlText(), "Eric");
 
         //
 
         x = XmlObject.Factory.newInstance();
 
-        c = x.newCursor();
-
-        c.toNextToken();
-
-        c.insertComment("");
-        c.insertChars("x");
-
+        try (XmlCursor c = x.newCursor()) {
+            c.toNextToken();
+            c.insertComment("");
+            c.insertChars("x");
+        }
         testTextFrag(x.xmlText(), "<!---->x");
 
         //
 
         x = XmlObject.Factory.newInstance();
 
-        c = x.newCursor();
-
-        c.toNextToken();
-
-        c.insertElement("foo");
-        c.insertChars("x");
-
+        try (XmlCursor c = x.newCursor()) {
+            c.toNextToken();
+            c.insertElement("foo");
+            c.insertChars("x");
+        }
         testTextFrag(x.xmlText(), "<foo/>x");
 
         //
 
         x = XmlObject.Factory.newInstance();
 
-        c = x.newCursor();
-
-        c.toNextToken();
-
-        c.insertElement("foo");
-        c.insertElement("bar");
-
+        try (XmlCursor c = x.newCursor()) {
+            c.toNextToken();
+            c.insertElement("foo");
+            c.insertElement("bar");
+        }
         testTextFrag(x.xmlText(), "<foo/><bar/>");
     }
 
@@ -1580,9 +1609,9 @@ public class StoreTests {
             XmlObject.Factory.parse(
                 "<bar p='q' x='y'>ab<foo>xy</foo>cd</bar>", options);
 
-        XmlCursor c = navDoc(x, "t");
-
-        assertSame(c.currentTokenType(), TokenType.ATTR);
+        try (XmlCursor c = navDoc(x, "t")) {
+            assertSame(c.currentTokenType(), TokenType.ATTR);
+        }
 
         String open = "xmlns:open='http://www.openuri.org/fragment'";
 
@@ -1591,37 +1620,36 @@ public class StoreTests {
                 "<open:fragment p='q' x='y' " + open +
                 ">ab<foo>xy</foo>cd</open:fragment>");
 
-        c = navDoc(x, "t");
-
-        assertSame(c.currentTokenType(), TokenType.ATTR);
+        try (XmlCursor c = navDoc(x, "t")) {
+            assertSame(c.currentTokenType(), TokenType.ATTR);
+        }
     }
 
     @Test
     public void testCompare() throws Exception {
         XmlObject x;
-        XmlCursor cFrom, cTo;
 
         // Forward navigation
 
         x = XmlObject.Factory.parse("<bar p='q' x='y'>ab<foo>xy</foo>cd</bar>");
 
-        cFrom = navDoc(x, "");
-        cTo = navDoc(x, "");
+        try (XmlCursor cFrom = navDoc(x, "");
+            XmlCursor cTo = navDoc(x, "")){
+            for (; ; ) {
+                assertEquals(0, cFrom.comparePosition(cTo));
+                assertTrue(cFrom.isAtSamePositionAs(cTo));
 
-        for (; ; ) {
-            assertEquals(0, cFrom.comparePosition(cTo));
-            assertTrue(cFrom.isAtSamePositionAs(cTo));
+                TokenType tt = cFrom.currentTokenType();
 
-            TokenType tt = cFrom.currentTokenType();
-
-            if (tt == TokenType.ENDDOC) {
-                break;
-            } else if (tt == TokenType.TEXT) {
-                cFrom.toNextChar(1);
-                cTo.toNextChar(1);
-            } else {
-                cFrom.toNextToken();
-                cTo.toNextToken();
+                if (tt == TokenType.ENDDOC) {
+                    break;
+                } else if (tt == TokenType.TEXT) {
+                    cFrom.toNextChar(1);
+                    cTo.toNextChar(1);
+                } else {
+                    cFrom.toNextToken();
+                    cTo.toNextToken();
+                }
             }
         }
 
@@ -1629,19 +1657,19 @@ public class StoreTests {
 
         x = XmlObject.Factory.parse("<bar p='q' x='y'>ab<foo>xy</foo>cd</bar>");
 
-        cFrom = navDoc(x, "r");
-        cTo = navDoc(x, "r");
+        try (XmlCursor cFrom = navDoc(x, "r");
+            XmlCursor cTo = navDoc(x, "r")) {
+            for (; ; ) {
+                assertEquals(0, cFrom.comparePosition(cTo));
+                assertTrue(cFrom.isAtSamePositionAs(cTo));
 
-        for (; ; ) {
-            assertEquals(0, cFrom.comparePosition(cTo));
-            assertTrue(cFrom.isAtSamePositionAs(cTo));
-
-            if (cFrom.toPrevChar(1) == 1) {
-                cTo.toPrevChar(1);
-            } else if (cFrom.toPrevToken() != TokenType.NONE) {
-                cTo.toPrevToken();
-            } else {
-                break;
+                if (cFrom.toPrevChar(1) == 1) {
+                    cTo.toPrevChar(1);
+                } else if (cFrom.toPrevToken() != TokenType.NONE) {
+                    cTo.toPrevToken();
+                } else {
+                    break;
+                }
             }
         }
 
@@ -1650,34 +1678,34 @@ public class StoreTests {
         x = XmlObject.Factory.parse(
             "<bar p='q' x='y'>ab<foo>xy</foo>c<f y='x'>xy</f>d</bar>");
 
-        cFrom = navDoc(x, "");
-
-        for (; ; ) {
-            boolean passed = false;
-
-            cTo = navDoc(x, "");
-
+        try (XmlCursor cFrom = navDoc(x, "")) {
             for (; ; ) {
-                if (cTo.isAtSamePositionAs(cFrom)) {
-                    assertFalse(passed);
-                    passed = true;
-                } else if (cTo.isLeftOf(cFrom)) {
-                    assertFalse(passed);
-                } else {
-                    assertTrue(passed);
-                    assertTrue(cTo.isRightOf(cFrom));
-                }
+                boolean passed = false;
 
-                if (cTo.toNextChar(1) != 1) {
-                    if (cTo.toNextToken() == TokenType.ENDDOC) {
-                        break;
+                try (XmlCursor cTo = navDoc(x, "")) {
+                    for (; ; ) {
+                        if (cTo.isAtSamePositionAs(cFrom)) {
+                            assertFalse(passed);
+                            passed = true;
+                        } else if (cTo.isLeftOf(cFrom)) {
+                            assertFalse(passed);
+                        } else {
+                            assertTrue(passed);
+                            assertTrue(cTo.isRightOf(cFrom));
+                        }
+
+                        if (cTo.toNextChar(1) != 1) {
+                            if (cTo.toNextToken() == TokenType.ENDDOC) {
+                                break;
+                            }
+                        }
                     }
                 }
-            }
 
-            if (cFrom.toNextChar(1) != 1) {
-                if (cFrom.toNextToken() == TokenType.ENDDOC) {
-                    break;
+                if (cFrom.toNextChar(1) != 1) {
+                    if (cFrom.toNextToken() == TokenType.ENDDOC) {
+                        break;
+                    }
                 }
             }
         }
@@ -1687,9 +1715,10 @@ public class StoreTests {
     public void testAttrSetter()
         throws Exception {
         XmlObject x = XmlObject.Factory.parse("<foo/>");
-        XmlCursor c = x.newCursor();
-        c.toNextToken();
-        c.setAttributeText(new QName(null, "x"), "hardehar");
+        try (XmlCursor c = x.newCursor()) {
+            c.toNextToken();
+            c.setAttributeText(new QName(null, "x"), "hardehar");
+        }
         assertEquals("<foo x=\"hardehar\"/>", x.xmlText());
     }
 
@@ -1697,124 +1726,130 @@ public class StoreTests {
     public void testNavigation()
         throws Exception {
         XmlObject x = XmlObject.Factory.parse("<a><x/><y/><z/></a>");
-        XmlCursor c = x.newCursor();
-        assertFalse(c.toNextSibling());
-        assertFalse(c.toPrevSibling());
-        assertFalse(c.toFirstAttribute());
-        assertFalse(c.toLastAttribute());
-        c.toNextToken();
-        c.toNextToken();
-        assertTrue(c.toNextSibling());
-        assertEquals("y", c.getName().getLocalPart());
-        assertTrue(c.toNextSibling());
-        assertEquals("z", c.getName().getLocalPart());
-        assertFalse(c.toNextSibling());
+        try (XmlCursor c = x.newCursor()) {
+            assertFalse(c.toNextSibling());
+            assertFalse(c.toPrevSibling());
+            assertFalse(c.toFirstAttribute());
+            assertFalse(c.toLastAttribute());
+            c.toNextToken();
+            c.toNextToken();
+            assertTrue(c.toNextSibling());
+            assertEquals("y", c.getName().getLocalPart());
+            assertTrue(c.toNextSibling());
+            assertEquals("z", c.getName().getLocalPart());
+            assertFalse(c.toNextSibling());
+        }
 
         x = XmlObject.Factory.parse("<a p='q' m='n'><x/><y/><z/></a>");
-        c = x.newCursor();
-        c.toNextToken();
-        c.toNextToken();
-        assertTrue(c.currentTokenType().isAttr());
-        assertFalse(c.toPrevSibling());
-        assertTrue(c.currentTokenType().isAttr());
-        assertTrue(c.toNextSibling());
-        assertEquals("x", c.getName().getLocalPart());
+        try (XmlCursor c = x.newCursor()) {
+            c.toNextToken();
+            c.toNextToken();
+            assertTrue(c.currentTokenType().isAttr());
+            assertFalse(c.toPrevSibling());
+            assertTrue(c.currentTokenType().isAttr());
+            assertTrue(c.toNextSibling());
+            assertEquals("x", c.getName().getLocalPart());
 
-        c.toEndDoc();
-        c.toPrevToken();
-        assertTrue(c.toPrevSibling());
-        assertEquals("z", c.getName().getLocalPart());
-        assertTrue(c.toPrevSibling());
-        assertEquals("y", c.getName().getLocalPart());
-        assertTrue(c.toPrevSibling());
-        assertEquals("x", c.getName().getLocalPart());
-        assertFalse(c.toPrevSibling());
+            c.toEndDoc();
+            c.toPrevToken();
+            assertTrue(c.toPrevSibling());
+            assertEquals("z", c.getName().getLocalPart());
+            assertTrue(c.toPrevSibling());
+            assertEquals("y", c.getName().getLocalPart());
+            assertTrue(c.toPrevSibling());
+            assertEquals("x", c.getName().getLocalPart());
+            assertFalse(c.toPrevSibling());
 
-        c.toEndDoc();
-        c.toPrevToken();
-        assertTrue(c.toParent());
-        assertEquals("a", c.getName().getLocalPart());
+            c.toEndDoc();
+            c.toPrevToken();
+            assertTrue(c.toParent());
+            assertEquals("a", c.getName().getLocalPart());
 
-        c.toEndDoc();
-        assertTrue(c.toParent());
-        assertTrue(c.currentTokenType().isStartdoc());
+            c.toEndDoc();
+            assertTrue(c.toParent());
+            assertTrue(c.currentTokenType().isStartdoc());
+        }
 
         x = XmlObject.Factory.parse("<a>moo<!---->foo</a>");
-        c = x.newCursor();
-        c.toStartDoc();
-        c.toNextToken();
-        c.toNextToken();
-        c.toNextToken();
-        assertTrue(c.toParent());
-        assertEquals("a", c.getName().getLocalPart());
+            try (XmlCursor c = x.newCursor()) {
+            c.toStartDoc();
+            c.toNextToken();
+            c.toNextToken();
+            c.toNextToken();
+            assertTrue(c.toParent());
+            assertEquals("a", c.getName().getLocalPart());
 
-        c.toStartDoc();
-        c.toNextToken();
-        c.toNextToken();
-        c.toNextToken();
-        c.toNextToken();
-        assertTrue(c.toParent());
-        assertEquals("a", c.getName().getLocalPart());
+            c.toStartDoc();
+            c.toNextToken();
+            c.toNextToken();
+            c.toNextToken();
+            c.toNextToken();
+            assertTrue(c.toParent());
+            assertEquals("a", c.getName().getLocalPart());
 
-        c.toStartDoc();
-        c.toNextToken();
-        c.toNextToken();
-        c.toNextToken();
-        c.toNextToken();
-        c.toNextChar(2);
-        assertTrue(c.toParent());
-        assertEquals("a", c.getName().getLocalPart());
+            c.toStartDoc();
+            c.toNextToken();
+            c.toNextToken();
+            c.toNextToken();
+            c.toNextToken();
+            c.toNextChar(2);
+            assertTrue(c.toParent());
+            assertEquals("a", c.getName().getLocalPart());
+        }
 
         x = XmlObject.Factory.parse("<foo>early<bar>text<char>zap</char></bar></foo>");
-        c = x.newCursor();
-        c.toNextToken();
-        c.toNextToken();
-        assertTrue(c.toFirstChild());
-        assertEquals("zap", c.getTextValue());
+        try (XmlCursor c = x.newCursor()) {
+            c.toNextToken();
+            c.toNextToken();
+            assertTrue(c.toFirstChild());
+            assertEquals("zap", c.getTextValue());
+        }
     }
 
     @Test
     public void testGetName()
         throws Exception {
         XmlObject x = XmlObject.Factory.parse("<a x='y'>eric<!----><?moo?></a>");
-        XmlCursor c = x.newCursor();
-        assertNull(c.getName());
-        assertFalse(c.toNextToken().isNone());
-        assertEquals("a", c.getName().getLocalPart());
-        assertEquals(0, c.getName().getNamespaceURI().length());
-        assertFalse(c.toNextToken().isNone());
-        assertEquals("x", c.getName().getLocalPart());
-        assertEquals(0, c.getName().getNamespaceURI().length());
-        assertFalse(c.toNextToken().isNone());
-        assertNull(c.getName());
-        assertFalse(c.toNextToken().isNone());
-        assertNull(c.getName());
-        assertFalse(c.toNextToken().isNone());
-        assertEquals("moo", c.getName().getLocalPart());
-        assertEquals(0, c.getName().getNamespaceURI().length());
-        assertFalse(c.toNextToken().isNone());
-        assertNull(c.getName());
-        assertFalse(c.toNextToken().isNone());
-        assertNull(c.getName());
-        assertTrue(c.toNextToken().isNone());
+        try (XmlCursor c = x.newCursor()) {
+            assertNull(c.getName());
+            assertFalse(c.toNextToken().isNone());
+            assertEquals("a", c.getName().getLocalPart());
+            assertEquals(0, c.getName().getNamespaceURI().length());
+            assertFalse(c.toNextToken().isNone());
+            assertEquals("x", c.getName().getLocalPart());
+            assertEquals(0, c.getName().getNamespaceURI().length());
+            assertFalse(c.toNextToken().isNone());
+            assertNull(c.getName());
+            assertFalse(c.toNextToken().isNone());
+            assertNull(c.getName());
+            assertFalse(c.toNextToken().isNone());
+            assertEquals("moo", c.getName().getLocalPart());
+            assertEquals(0, c.getName().getNamespaceURI().length());
+            assertFalse(c.toNextToken().isNone());
+            assertNull(c.getName());
+            assertFalse(c.toNextToken().isNone());
+            assertNull(c.getName());
+            assertTrue(c.toNextToken().isNone());
+        }
     }
 
     @Test
     public void testGetChars()
         throws Exception {
         XmlObject x = XmlObject.Factory.parse("<foo>abcdefghijkl</foo>");
-        XmlCursor c = x.newCursor();
-        c.toNextToken();
-        c.toNextToken();
-        c.toNextChar(2);
+        try (XmlCursor c = x.newCursor()) {
+            c.toNextToken();
+            c.toNextToken();
+            c.toNextChar(2);
 
-        char[] buf = new char[3];
-        int n = c.getChars(buf, 0, 400);
+            char[] buf = new char[3];
+            int n = c.getChars(buf, 0, 400);
 
-        assertEquals(3, n);
-        assertEquals('c', buf[0]);
-        assertEquals('d', buf[1]);
-        assertEquals('e', buf[2]);
+            assertEquals(3, n);
+            assertEquals('c', buf[0]);
+            assertEquals('d', buf[1]);
+            assertEquals('e', buf[2]);
+        }
     }
 
     @Test
@@ -1829,31 +1864,31 @@ public class StoreTests {
 
         XmlObject x = XmlObject.Factory.parse("<a xmlns='foo' xmlns:a='a' a:x='y'/>", options);
 
-        XmlCursor c = x.newCursor();
+        try (XmlCursor c = x.newCursor()) {
+            c.toNextToken();
+            assertEquals("moo", c.getName().getNamespaceURI());
 
-        c.toNextToken();
-        assertEquals("moo", c.getName().getNamespaceURI());
+            c.toNextToken();
+            assertEquals("moo", c.getName().getNamespaceURI());
 
-        c.toNextToken();
-        assertEquals("moo", c.getName().getNamespaceURI());
+            c.toNextToken();
+            assertEquals("b", c.getName().getNamespaceURI());
 
-        c.toNextToken();
-        assertEquals("b", c.getName().getNamespaceURI());
-
-        c.toNextToken();
-        assertEquals("b", c.getName().getNamespaceURI());
+            c.toNextToken();
+            assertEquals("b", c.getName().getNamespaceURI());
+        }
     }
 
     @Test
     public void testNamespaceInsertion() {
         XmlObject x = XmlObject.Factory.newInstance();
 
-        XmlCursor c = x.newCursor();
-
-        c.toNextToken();
-        c.insertElement("foo", "http://p.com");
-        c.toPrevToken();
-        c.insertNamespace("p", "http://p.com");
+        try (XmlCursor c = x.newCursor()) {
+            c.toNextToken();
+            c.insertElement("foo", "http://p.com");
+            c.toPrevToken();
+            c.insertNamespace("p", "http://p.com");
+        }
 
         assertEquals("<p:foo xmlns:p=\"http://p.com\"/>", x.xmlText());
     }
@@ -1879,18 +1914,20 @@ public class StoreTests {
     public void testNil()
         throws Exception {
         XmlObject x = noNamespace.CanBeNilDocument.Factory.parse("<canBeNil/>");
-        XmlCursor c = x.newCursor();
-        c.toFirstChild();
-        XmlObject fc = c.getObject();
-        assertFalse(fc.isNil());
-        fc.setNil();
-        assertTrue(fc.isNil());
-        assertEquals("<canBeNil xsi:nil=\"true\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"/>", x.xmlText());
-        c.toNextToken();
-        assertTrue(c.isAttr());
-        c.removeXml();
-        assertEquals("<canBeNil/>", x.xmlText());
-        assertFalse(fc.isNil());
+        try (XmlCursor c = x.newCursor()) {
+            c.toFirstChild();
+            XmlObject fc = c.getObject();
+
+            assertFalse(fc.isNil());
+            fc.setNil();
+            assertTrue(fc.isNil());
+            assertEquals("<canBeNil xsi:nil=\"true\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"/>", x.xmlText());
+            c.toNextToken();
+            assertTrue(c.isAttr());
+            c.removeXml();
+            assertEquals("<canBeNil/>", x.xmlText());
+            assertFalse(fc.isNil());
+        }
     }
 
     @Test

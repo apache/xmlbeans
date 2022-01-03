@@ -102,27 +102,28 @@ public abstract class GeneralMethodsTest {
 
     @Before
     public void setUp() throws Exception {
-        XmlCursor cur = XmlObject.Factory.newInstance().newCursor();
-        cur.toNextToken();
+        try (XmlCursor cur = XmlObject.Factory.newInstance().newCursor()) {
+            cur.toNextToken();
 
-        cur.insertAttributeWithValue(new QName("foo.org", "at0", "pre"),
-            "val0");
-        cur.insertAttributeWithValue(new QName("", "at1", "pre"), "val1");
-        cur.insertNamespace("pre", "foons.bar.org");
-        cur.beginElement(new QName("foo.org", "foo", ""));
-        cur.insertAttribute("localName");
-        cur.insertChars("some text");
-        cur.toNextToken();
-        cur.toNextToken();//end elt
-        cur.insertProcInst("xml-stylesheet", "http://foobar");
+            cur.insertAttributeWithValue(new QName("foo.org", "at0", "pre"),
+                "val0");
+            cur.insertAttributeWithValue(new QName("", "at1", "pre"), "val1");
+            cur.insertNamespace("pre", "foons.bar.org");
+            cur.beginElement(new QName("foo.org", "foo", ""));
+            cur.insertAttribute("localName");
+            cur.insertChars("some text");
+            cur.toNextToken();
+            cur.toNextToken();//end elt
+            cur.insertProcInst("xml-stylesheet", "http://foobar");
 
-        cur.toStartDoc();
-        XmlDocumentProperties opt = cur.documentProperties();
+            cur.toStartDoc();
+            XmlDocumentProperties opt = cur.documentProperties();
 
-        m_stream1 = getStream(cur);
+            m_stream1 = getStream(cur);
 
-        opt.setEncoding("utf-8");
-        m_stream = getStream(cur);
+            opt.setEncoding("utf-8");
+            m_stream = getStream(cur);
+        }
 
     }
 

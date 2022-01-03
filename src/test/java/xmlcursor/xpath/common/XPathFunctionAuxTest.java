@@ -199,44 +199,45 @@ public class XPathFunctionAuxTest extends BasicCursorTestCase {
             "<price at=\"val1\">2</price>" +
             "</bar><bar1>3.00</bar1></foo>";
         m_xc = XmlObject.Factory.parse(sXml).newCursor();
-        XmlCursor _startPos = m_xc.newCursor();
 
-        String sXPath = "boolean(//foo/text())";//"boolean(//foo/text())";
-        m_xc.push();
-        m_xc.selectPath(sXPath);
-        m_xc.toNextSelection();
-        assertEquals(Common.wrapInXmlFrag("false"), m_xc.xmlText());
-        m_xc.clearSelections();
+        try (XmlCursor _startPos = m_xc.newCursor()) {
+            String sXPath = "boolean(//foo/text())";//"boolean(//foo/text())";
+            m_xc.push();
+            m_xc.selectPath(sXPath);
+            m_xc.toNextSelection();
+            assertEquals(Common.wrapInXmlFrag("false"), m_xc.xmlText());
+            m_xc.clearSelections();
 
-        //need to reset cursor since it's on a bool outside the doc
-        m_xc.pop();
-        //number
-        m_xc.selectPath("boolean(//price/text())");
-        m_xc.toNextSelection();
-        assertEquals(Common.wrapInXmlFrag("true"), m_xc.xmlText());
-        m_xc.clearSelections();
+            //need to reset cursor since it's on a bool outside the doc
+            m_xc.pop();
+            //number
+            m_xc.selectPath("boolean(//price/text())");
+            m_xc.toNextSelection();
+            assertEquals(Common.wrapInXmlFrag("true"), m_xc.xmlText());
+            m_xc.clearSelections();
 
 
-        //number
-        assertTrue(m_xc.toCursor(_startPos));
-        //boolean of Nan is false
-        m_xc.selectPath("boolean(number(name(//price[position()=last()])))");
-        m_xc.toNextSelection();
-        assertEquals(Common.wrapInXmlFrag("false"), m_xc.xmlText());
-        m_xc.clearSelections();
+            //number
+            assertTrue(m_xc.toCursor(_startPos));
+            //boolean of Nan is false
+            m_xc.selectPath("boolean(number(name(//price[position()=last()])))");
+            m_xc.toNextSelection();
+            assertEquals(Common.wrapInXmlFrag("false"), m_xc.xmlText());
+            m_xc.clearSelections();
 
-        //node-set
-        m_xc.toCursor(_startPos);
-        m_xc.selectPath("boolean(//price)");
-        m_xc.toNextSelection();
-        assertEquals(Common.wrapInXmlFrag("true"), m_xc.xmlText());
-        m_xc.clearSelections();
+            //node-set
+            m_xc.toCursor(_startPos);
+            m_xc.selectPath("boolean(//price)");
+            m_xc.toNextSelection();
+            assertEquals(Common.wrapInXmlFrag("true"), m_xc.xmlText());
+            m_xc.clearSelections();
 
-        m_xc.toCursor(_startPos);
-        m_xc.selectPath("boolean(//barK)");
-        m_xc.toNextSelection();
-        assertEquals(Common.wrapInXmlFrag("false"), m_xc.xmlText());
-        m_xc.clearSelections();
+            m_xc.toCursor(_startPos);
+            m_xc.selectPath("boolean(//barK)");
+            m_xc.toNextSelection();
+            assertEquals(Common.wrapInXmlFrag("false"), m_xc.xmlText());
+            m_xc.clearSelections();
+        }
     }
 
     @Test

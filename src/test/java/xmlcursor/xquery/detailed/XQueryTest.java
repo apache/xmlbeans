@@ -35,13 +35,14 @@ public class XQueryTest {
         InputStream input = JarUtil.getResourceFromJarasStream("xbean/xmlcursor/XQueryInput.xml");
 
         XmlObject o = XmlObject.Factory.parse(input);
-        XmlCursor c = o.newCursor();
-        XmlCursor c1 = c.execQuery(xq);
-        c1.toFirstContentToken();
-        assertEquals("<employee>\n" +
-                     "\t\t<name>Bob</name>\n" +
-                     "\t\t<ssn>1000</ssn>\n" +
-                     "\t</employee>", c1.xmlText());
+        try (XmlCursor c = o.newCursor();
+            XmlCursor c1 = c.execQuery(xq)) {
+            c1.toFirstContentToken();
+            assertEquals("<employee>\n" +
+                         "\t\t<name>Bob</name>\n" +
+                         "\t\t<ssn>1000</ssn>\n" +
+                         "\t</employee>", c1.xmlText());
+        }
 
         XmlObject[] res = o.execQuery(xq);
         EmpT employeeType = (EmpT) res[0];
@@ -173,15 +174,17 @@ public class XQueryTest {
         String query = "<result>{.},{count(//employee)}</result>";
         String input = "<foo><a><b>text</b>more text</a></foo>";
         XmlObject o = XmlObject.Factory.parse(input);
-        XmlCursor c = o.newCursor();
 
-        XmlObject[] res = o.execQuery("//a");
-        assertEquals("<a><b>text</b>more text</a>", res[0].xmlText());
+        try (XmlCursor c = o.newCursor()) {
+            XmlObject[] res = o.execQuery("//a");
+            assertEquals("<a><b>text</b>more text</a>", res[0].xmlText());
 
-        XmlCursor cur = c.execQuery("//a");
-        // assertEquals(1, cur.getSelectionCount());
-        cur.toFirstContentToken();
-        assertEquals("<a><b>text</b>more text</a>", cur.xmlText());
+            try (XmlCursor cur = c.execQuery("//a")) {
+                // assertEquals(1, cur.getSelectionCount());
+                cur.toFirstContentToken();
+                assertEquals("<a><b>text</b>more text</a>", cur.xmlText());
+            }
+        }
     }
 
     @Test

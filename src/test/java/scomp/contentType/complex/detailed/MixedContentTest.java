@@ -70,8 +70,9 @@ public class MixedContentTest extends BaseCase {
         testElt = doc.addNewMixedType();
         assertNull(testElt.getChild1());
         assertNull(testElt.xgetChild1());
-        XmlCursor cur = testElt.newCursor();
-        cur.insertChars("Random mixed content");
+        try (XmlCursor cur = testElt.newCursor()) {
+            cur.insertChars("Random mixed content");
+        }
         assertTrue( !testElt.validate(validateOptions) );
         showErrors();
         String[] errExpected = new String[]{
@@ -98,15 +99,15 @@ public class MixedContentTest extends BaseCase {
             showErrors();
             throw t;
         }
-        XmlCursor cur = testElt.newCursor();
-        cur.toFirstContentToken();
-        cur.insertChars("Random mixed content");
-        //move past child1
-        cur.toNextToken();
-        cur.toNextToken();
-         cur.toNextToken();
-        cur.insertChars("Random mixed content1");
-        try {
+        try (XmlCursor cur = testElt.newCursor()) {
+            cur.toFirstContentToken();
+            cur.insertChars("Random mixed content");
+            //move past child1
+            cur.toNextToken();
+            cur.toNextToken();
+            cur.toNextToken();
+            cur.insertChars("Random mixed content1");
+
             assertTrue(testElt.validate());
         }
         catch (Throwable t) {
@@ -125,38 +126,34 @@ public class MixedContentTest extends BaseCase {
         testElt.setChild2(new BigInteger("5"));
         testElt.setChild3(new BigInteger("1"));
         testElt.setChild1(new BigInteger("0"));
-        XmlCursor cur = testElt.newCursor();
-        cur.toFirstContentToken();
-        cur.insertChars("Random mixed content");
-        //move past child1
-        cur.toNextToken();
-        cur.toNextToken();
-         cur.toNextToken();
-        cur.insertChars("Random mixed content1");
-        try {
+        try (XmlCursor cur = testElt.newCursor()) {
+            cur.toFirstContentToken();
+            cur.insertChars("Random mixed content");
+            //move past child1
+            cur.toNextToken();
+            cur.toNextToken();
+            cur.toNextToken();
+            cur.insertChars("Random mixed content1");
             assertTrue(testElt.validate(validateOptions));
-        }
-        catch (Throwable t) {
+            assertEquals("<xml-fragment>Random mixed content" +
+                    "<child1>0</child1>Random mixed content1<child2>5</child2>" +
+                    "<child3>1</child3></xml-fragment>",testElt.xmlText() );
+            //to child1
+            cur.toPrevToken();
+            cur.toPrevToken();
+            cur.toPrevToken();
+            cur.toPrevToken();
+            assertEquals(XmlCursor.TokenType.START, cur.currentTokenType());
+            assertTrue(cur.removeXml());
+            assertEquals(null,testElt.getChild1());
+
+            assertEquals("<xml-fragment>Random mixed content" +
+                    "Random mixed content1<child2>5</child2>" +
+                    "<child3>1</child3></xml-fragment>",testElt.xmlText() );
+        } catch (Throwable t) {
             showErrors();
             throw t;
         }
-        assertEquals("<xml-fragment>Random mixed content" +
-                "<child1>0</child1>Random mixed content1<child2>5</child2>" +
-                "<child3>1</child3></xml-fragment>",testElt.xmlText() );
-        //to child1
-        cur.toPrevToken();
-        cur.toPrevToken();
-         cur.toPrevToken();
-         cur.toPrevToken();
-        assertEquals(XmlCursor.TokenType.START, cur.currentTokenType());
-        assertTrue(cur.removeXml());
-         assertEquals(null,testElt.getChild1());
-
-       assertEquals("<xml-fragment>Random mixed content" +
-                "Random mixed content1<child2>5</child2>" +
-                "<child3>1</child3></xml-fragment>",testElt.xmlText() );
-       
-
     }
 
     /**

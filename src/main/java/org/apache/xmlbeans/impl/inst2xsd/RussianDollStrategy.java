@@ -38,25 +38,27 @@ public class RussianDollStrategy
 
     public void processDoc(XmlObject[] instances, Inst2XsdOptions options, TypeSystemHolder typeSystemHolder) {
         for (XmlObject instance : instances) {
-            XmlCursor xc = instance.newCursor();
-            // xc on start doc
+            try (XmlCursor xc = instance.newCursor()) {
+                // xc on start doc
 
-            StringBuilder comment = new StringBuilder();
+                StringBuilder comment = new StringBuilder();
 
-            while (!xc.isStart()) {
-                xc.toNextToken();
-                if (xc.isComment()) {
-                    comment.append(xc.getTextValue());
-                } else if (xc.isEnddoc()) {
-                    return;
+                while (!xc.isStart()) {
+                    xc.toNextToken();
+                    if (xc.isComment()) {
+                        comment.append(xc.getTextValue());
+                    } else if (xc.isEnddoc()) {
+                        return;
+                    }
                 }
+
+                // xc now on the root element
+
+                Element withElem = processElement(xc, comment.toString(), options, typeSystemHolder);
+                withElem.setGlobal(true);
+
+                addGlobalElement(withElem, typeSystemHolder, options);
             }
-            // xc now on the root element
-
-            Element withElem = processElement(xc, comment.toString(), options, typeSystemHolder);
-            withElem.setGlobal(true);
-
-            addGlobalElement(withElem, typeSystemHolder, options);
         }
     }
 

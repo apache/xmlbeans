@@ -85,13 +85,14 @@ public class Block extends BaseCase {
             bs
         });
 
-         XmlCursor cur=doc.newCursor();
-        cur.toFirstContentToken();
-        cur.toNextToken();
-          cur.toNextToken();
-          cur.toNextToken();
-        assertEquals(XmlCursor.TokenType.START,cur.currentTokenType());
-        cur.setName(new QName("http://xbean/scomp/substGroup/Block","businessShirt","pre"));
+        try (XmlCursor cur = doc.newCursor()) {
+            cur.toFirstContentToken();
+            cur.toNextToken();
+            cur.toNextToken();
+            cur.toNextToken();
+            assertEquals(XmlCursor.TokenType.START,cur.currentTokenType());
+            cur.setName(new QName("http://xbean/scomp/substGroup/Block","businessShirt","pre"));
+        }
         System.out.println("*************** "+doc.xmlText());
 
         try {

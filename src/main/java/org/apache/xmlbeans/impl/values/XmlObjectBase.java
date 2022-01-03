@@ -241,9 +241,10 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
 
         XmlObject x = XmlObject.Factory.newInstance(options);
 
-        XmlCursor c = x.newCursor();
-        c.toNextToken();
-        c.insertChars(value);
+        try (XmlCursor c = x.newCursor()) {
+            c.toNextToken();
+            c.insertChars(value);
+        }
 
         return x;
     }

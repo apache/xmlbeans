@@ -155,32 +155,36 @@ public class SchemaTypesTests {
         Person person = doc.getCustomer();
 
         XmlObject xmlobj;
-        XmlCursor xmlcurs;
 
         person.setFirstname("George");
         xmlobj = person.xgetFirstname();
-        xmlcurs = xmlobj.newCursor();
-        assertEquals("George", xmlcurs.getTextValue() );
+        try (XmlCursor xmlcurs = xmlobj.newCursor()) {
+            assertEquals("George", xmlcurs.getTextValue() );
+        }
 
         person.setQnameAtt( new QName("http://ggg.com","hhh") );
         xmlobj = person.xgetQnameAtt();
-        xmlcurs = xmlobj.newCursor();
-        assertEquals("ggg:hhh", xmlcurs.getTextValue() );
+        try (XmlCursor xmlcurs = xmlobj.newCursor()) {
+            assertEquals("ggg:hhh", xmlcurs.getTextValue() );
+        }
 
         person.setQname( new QName("http://ggg.com/gggAgain","kkk") );
         xmlobj = person.xgetQname();
-        xmlcurs = xmlobj.newCursor();
-        assertEquals("ggg1:kkk", xmlcurs.getTextValue() );
+        try (XmlCursor xmlcurs = xmlobj.newCursor()) {
+            assertEquals("ggg1:kkk", xmlcurs.getTextValue() );
+        }
 
         person.setAnyuri( "crossgain.com" );
         xmlobj = person.xgetAnyuri();
-        xmlcurs = xmlobj.newCursor();
-        assertEquals("crossgain.com", xmlcurs.getTextValue() );
+        try (XmlCursor xmlcurs = xmlobj.newCursor()) {
+            assertEquals("crossgain.com", xmlcurs.getTextValue() );
+        }
 
         person.setAnyuriAtt( "www.crossgain.com" );
         xmlobj = person.xgetAnyuriAtt();
-        xmlcurs = xmlobj.newCursor();
-        assertEquals("www.crossgain.com", xmlcurs.getTextValue() );
+        try (XmlCursor xmlcurs = xmlobj.newCursor()) {
+            assertEquals("www.crossgain.com", xmlcurs.getTextValue() );
+        }
 
         //person.setNotation("GIF");
         //xmlobj = person.getNotation();

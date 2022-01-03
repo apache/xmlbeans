@@ -50,12 +50,13 @@ public class SampleXmlUtil {
      */
     public static String createSampleForType(SchemaType sType) {
         XmlObject object = XmlObject.Factory.newInstance();
-        XmlCursor cursor = object.newCursor();
-        // Skip the document node
-        cursor.toNextToken();
-        // Using the type and the cursor, call the utility method to get a
-        // sample XML payload for that Schema element
-        new SampleXmlUtil(false).createSampleForType(sType, cursor);
+        try (XmlCursor cursor = object.newCursor()) {
+            // Skip the document node
+            cursor.toNextToken();
+            // Using the type and the cursor, call the utility method to get a
+            // sample XML payload for that Schema element
+            new SampleXmlUtil(false).createSampleForType(sType, cursor);
+        }
         // Cursor now contains the sample payload
         // Pretty print the result.  Note that the cursor is positioned at the
         // end of the doc so we use the original xml object that the cursor was
@@ -75,12 +76,13 @@ public class SampleXmlUtil {
     public static String createSampleForType(SchemaField element) {
         SchemaType sType = element.getType();
         XmlObject object = XmlObject.Factory.newInstance();
-        XmlCursor cursor = object.newCursor();
-        // Skip the document node
-        cursor.toNextToken();
-        // Using the type and the cursor, call the utility method to get a
-        // sample XML payload for that Schema element
-        new SampleXmlUtil(false).createSampleForType(sType, cursor);
+        try (XmlCursor cursor = object.newCursor()) {
+            // Skip the document node
+            cursor.toNextToken();
+            // Using the type and the cursor, call the utility method to get a
+            // sample XML payload for that Schema element
+            new SampleXmlUtil(false).createSampleForType(sType, cursor);
+        }
         // Cursor now contains the sample payload
         // Pretty print the result.  Note that the cursor is positioned at the
         // end of the doc so we use the original xml object that the cursor was

@@ -96,12 +96,18 @@ public class XPathCommon {
     }
 
     public static void compare(XmlObject rObj, XmlObject rSet) {
-        check(rObj.newCursor(), rSet.newCursor());
+        try (XmlCursor cObj = rObj.newCursor();
+            XmlCursor cSet = rSet.newCursor()) {
+            check(cObj, cSet);
+        }
     }
 
     public static void compare(XmlObject[] rObj, XmlObject[] rSet) {
         for (int i=0; i < Math.min(rObj.length,rSet.length); i++) {
-            check(rObj[i].newCursor(), rSet[i].newCursor());
+            try (XmlCursor cObj = rObj[i].newCursor();
+                XmlCursor cSet = rSet[i].newCursor()) {
+                check(cObj, cSet);
+            }
         }
 
         Assert.assertEquals(rSet.length, rObj.length);
@@ -110,7 +116,9 @@ public class XPathCommon {
     public static void compare(XmlCursor rObj, XmlObject[] rSet) {
         int curLen = rObj.getSelectionCount();
         for (int i=0; i < Math.min(curLen,rSet.length) && rObj.toNextSelection(); i++) {
-            check(rObj, rSet[i].newCursor());
+            try (XmlCursor cSet = rSet[i].newCursor()) {
+                check(rObj, cSet);
+            }
         }
 
         Assert.assertEquals(rSet.length, curLen);

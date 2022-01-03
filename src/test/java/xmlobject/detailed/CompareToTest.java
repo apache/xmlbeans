@@ -96,10 +96,11 @@ public class CompareToTest {
     public void testCompareValue() throws Exception {
         m_xo = XmlObject.Factory.parse(
             JarUtil.getResourceFromJar(Common.TRANXML_FILE_CLM));
-        XmlCursor m_xc = m_xo.newCursor();
-        m_xc.toFirstChild();
-        XmlObject xo = m_xc.getObject();
-        assertEquals(XmlObject.NOT_EQUAL, m_xo.compareValue(xo));
+        try (XmlCursor m_xc = m_xo.newCursor()) {
+            m_xc.toFirstChild();
+            XmlObject xo = m_xc.getObject();
+            assertEquals(XmlObject.NOT_EQUAL, m_xo.compareValue(xo));
+        }
     }
 
     private XmlObject m_xo;

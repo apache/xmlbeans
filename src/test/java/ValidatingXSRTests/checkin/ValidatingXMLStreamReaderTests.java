@@ -104,10 +104,11 @@ public class ValidatingXMLStreamReaderTests {
     public void testValidateGlobalAtt1() throws XMLStreamException
     {
         XmlObject xo = XmlObject.Factory.newInstance();
-        XmlCursor xc = xo.newCursor();
-        xc.toNextToken();
+        try (XmlCursor xc = xo.newCursor()) {
+            xc.toNextToken();
 
-        xc.insertAttributeWithValue("price", URI_NUMERALS, "23.5");
+            xc.insertAttributeWithValue("price", URI_NUMERALS, "23.5");
+        }
 
         XMLStreamReader xsr = xo.newXMLStreamReader(new XmlOptions().setSaveOuter());
         Collection errors = new ArrayList();

@@ -69,12 +69,12 @@ public class ChoiceTest extends BaseCase {
         MixedChoiceT elt = doc.addNewMixedChoiceElt();
         assertTrue(!elt.isSetChild1());
         elt.setChild1(new BigInteger("10"));
-        XmlCursor cur = elt.newCursor();
-        assertEquals(XmlCursor.TokenType.START, cur.toFirstContentToken());
-        cur.toEndToken(); //past child one
-        cur.toNextToken();
-        cur.insertChars("foobar");
-        try {
+        try (XmlCursor cur = elt.newCursor()) {
+            assertEquals(XmlCursor.TokenType.START, cur.toFirstContentToken());
+            cur.toEndToken(); //past child one
+            cur.toNextToken();
+            cur.insertChars("foobar");
+
             assertTrue(doc.validate(validateOptions));
         } catch (Throwable t) {
             showErrors();

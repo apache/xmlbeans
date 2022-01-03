@@ -62,17 +62,17 @@ public class PreserveNamespaces
         assertTrue(XmlComparator.lenientlyCompareTwoXmlStrings(env1.getEnvelope().getBody().xmlText(), env2.getEnvelope().getBody().xmlText(), diag));
 
         // navigate to the dFahrenhiet element and check for the XSD namespace
-        XmlCursor env2Cursor = env2.newCursor();
-        assertTrue(env2Cursor.toFirstChild());      // <Envelope>
-        assertTrue(env2Cursor.toFirstChild());      // <Body>
-        assertTrue(env2Cursor.toFirstChild());      // <ConvertTemperature>
-        if (env2Cursor.toFirstChild())               // <dFahrenheit>
-        {
-            assertEquals("Element name mismatch!", env2Cursor.getName(), new QName("", "dFahrenheit"));
-            assertEquals("Element val mismatch!", "88", env2Cursor.getTextValue());
-            assertEquals("XSD Namespace has been dropped", "http://www.w3.org/2001/XMLSchema", env2Cursor.namespaceForPrefix("xsd"));
+        try (XmlCursor env2Cursor = env2.newCursor()) {
+            assertTrue(env2Cursor.toFirstChild());      // <Envelope>
+            assertTrue(env2Cursor.toFirstChild());      // <Body>
+            assertTrue(env2Cursor.toFirstChild());      // <ConvertTemperature>
+            if (env2Cursor.toFirstChild())               // <dFahrenheit>
+            {
+                assertEquals("Element name mismatch!", env2Cursor.getName(), new QName("", "dFahrenheit"));
+                assertEquals("Element val mismatch!", "88", env2Cursor.getTextValue());
+                assertEquals("XSD Namespace has been dropped", "http://www.w3.org/2001/XMLSchema", env2Cursor.namespaceForPrefix("xsd"));
+            }
         }
-
     }
 
     @Test
@@ -96,15 +96,15 @@ public class PreserveNamespaces
         assertTrue("new envelope has missing XSD namespace declaration", XmlComparator.lenientlyCompareTwoXmlStrings(env1.getEnvelope().getBody().xmlText(), env2.getEnvelope().getBody().xmlText(), diag));
 
         // navigate to the 'element' element and check for the XSD namespace
-        XmlCursor env2Cursor = env2.newCursor();
-        assertTrue(env2Cursor.toFirstChild());      // <Envelope>
-        assertTrue(env2Cursor.toFirstChild());      // <Body>
-        if (env2Cursor.toFirstChild())              // <element>
-        {
-            assertEquals("Element name mismatch!", env2Cursor.getName(), new QName("http://www.w3.org/2001/XMLSchema", "element"));
-            assertEquals("XSD Namespace has been dropped", "http://www.w3.org/2001/XMLSchema", env2Cursor.namespaceForPrefix("xsd"));
+        try (XmlCursor env2Cursor = env2.newCursor()) {
+            assertTrue(env2Cursor.toFirstChild());      // <Envelope>
+            assertTrue(env2Cursor.toFirstChild());      // <Body>
+            if (env2Cursor.toFirstChild())              // <element>
+            {
+                assertEquals("Element name mismatch!", env2Cursor.getName(), new QName("http://www.w3.org/2001/XMLSchema", "element"));
+                assertEquals("XSD Namespace has been dropped", "http://www.w3.org/2001/XMLSchema", env2Cursor.namespaceForPrefix("xsd"));
+            }
         }
-
     }
 
     @Test
@@ -128,16 +128,16 @@ public class PreserveNamespaces
         assertTrue("new envelope has missing XSD namespace declaration", XmlComparator.lenientlyCompareTwoXmlStrings(env1.getEnvelope().getBody().xmlText(), env2.getEnvelope().getBody().xmlText(), diag));
 
         // navigate to the soap element and check for the 'soap' namespace
-        XmlCursor env2Cursor = env2.newCursor();
-        assertTrue(env2Cursor.toFirstChild());      // <Envelope>
-        assertTrue(env2Cursor.toFirstChild());      // <Body>
-        assertTrue(env2Cursor.toFirstChild());      // <Fault>
-        if (env2Cursor.toFirstChild())              // <faultcode>
-        {
-            assertEquals("Element name mismatch!", env2Cursor.getName(), new QName("", "faultcode"));
-            assertEquals("soap Namespace has been dropped", "http://schemas.xmlsoap.org/soap/envelope/", env2Cursor.namespaceForPrefix("soap"));
+        try (XmlCursor env2Cursor = env2.newCursor()) {
+            assertTrue(env2Cursor.toFirstChild());      // <Envelope>
+            assertTrue(env2Cursor.toFirstChild());      // <Body>
+            assertTrue(env2Cursor.toFirstChild());      // <Fault>
+            if (env2Cursor.toFirstChild())              // <faultcode>
+            {
+                assertEquals("Element name mismatch!", env2Cursor.getName(), new QName("", "faultcode"));
+                assertEquals("soap Namespace has been dropped", "http://schemas.xmlsoap.org/soap/envelope/", env2Cursor.namespaceForPrefix("soap"));
+            }
         }
-
     }
 
 }

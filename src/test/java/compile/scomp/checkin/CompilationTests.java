@@ -266,8 +266,10 @@ public class CompilationTests {
             }
         assertTrue("Could not find the \"person\" complex type", found);
         // Set the bookmark
-        SchemaBookmark sb = new SchemaBookmark("MyBookmark");
-        cTypes[i].newCursor().setBookmark(sb);
+        try (XmlCursor c = cTypes[i].newCursor()) {
+            SchemaBookmark sb = new SchemaBookmark("MyBookmark");
+            c.setBookmark(sb);
+        }
         // Compile it into STS
         SchemaTypeSystem sts = XmlBeans.compileXsd(new XmlObject[]{parsed},
             XmlBeans.getBuiltinTypeSystem(), null);

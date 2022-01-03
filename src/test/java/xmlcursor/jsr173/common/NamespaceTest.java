@@ -249,26 +249,27 @@ public abstract class NamespaceTest {
 
     @Before
     public void setUp() throws Exception {
-        XmlCursor cur = XmlObject.Factory.newInstance().newCursor();
-        cur.toNextToken();
+        try (XmlCursor cur = XmlObject.Factory.newInstance().newCursor()) {
+            cur.toNextToken();
 
-        cur.insertAttributeWithValue(new QName("foo.org", "at0", "pre"),
-            "val0");
-        cur.insertNamespace("pre0", "bea.com");
+            cur.insertAttributeWithValue(new QName("foo.org", "at0", "pre"),
+                "val0");
+            cur.insertNamespace("pre0", "bea.com");
 
-        cur.beginElement(new QName("foo.org", "foo", ""));
-        cur.insertNamespace("pre", "foons.bar.org");
-        cur.insertNamespace("pre1", "foons1.bar1.org1");
-        cur.insertChars("some text");
-        cur.toNextToken();
-        cur.toNextToken();//end elt
-        cur.insertProcInst("xml-stylesheet", "http://foobar");
-        cur.insertChars("\t");
-        cur.insertComment(" some comment ");
+            cur.beginElement(new QName("foo.org", "foo", ""));
+            cur.insertNamespace("pre", "foons.bar.org");
+            cur.insertNamespace("pre1", "foons1.bar1.org1");
+            cur.insertChars("some text");
+            cur.toNextToken();
+            cur.toNextToken();//end elt
+            cur.insertProcInst("xml-stylesheet", "http://foobar");
+            cur.insertChars("\t");
+            cur.insertComment(" some comment ");
 
-        cur.toStartDoc();
+            cur.toStartDoc();
 
-        m_stream = getStream(cur);
+            m_stream = getStream(cur);
+        }
     }
 
     @After

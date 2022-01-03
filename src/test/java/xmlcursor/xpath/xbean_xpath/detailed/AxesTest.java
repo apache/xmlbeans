@@ -56,19 +56,21 @@ public class AxesTest {
         String sExpected =
             "<bar at0=\"val0\" xmlns:pre=\"http://uri.com\">" +
             "<pre:baz baz:at0=\"val1\" xmlns:baz=\"http://uri\"/>txt child</bar>";
-        XmlCursor c = XmlObject.Factory.parse(sXmlChild).newCursor();
-        c.selectPath(sQuery1);
-        assertEquals(1, c.getSelectionCount());
-        c.toNextSelection();
-        assertEquals(sExpected, c.xmlText());
 
-        sQuery1 = "$this/foo/child::bar";
-        c.clearSelections();
-        c.toStartDoc();
-        c.selectPath(sQuery1, options);
-        assertEquals(1, c.getSelectionCount());
-        c.toNextSelection();
-        assertEquals(sExpected, c.xmlText());
+        try (XmlCursor c = XmlObject.Factory.parse(sXmlChild).newCursor()) {
+            c.selectPath(sQuery1);
+            assertEquals(1, c.getSelectionCount());
+            c.toNextSelection();
+            assertEquals(sExpected, c.xmlText());
+
+            sQuery1 = "$this/foo/child::bar";
+            c.clearSelections();
+            c.toStartDoc();
+            c.selectPath(sQuery1, options);
+            assertEquals(1, c.getSelectionCount());
+            c.toNextSelection();
+            assertEquals(sExpected, c.xmlText());
+        }
     }
 
     @Test
@@ -77,12 +79,13 @@ public class AxesTest {
         String sExpected =
             "<bar at0=\"val0\" xmlns:pre=\"http://uri.com\">" +
             "<pre:baz baz:at0=\"val1\" xmlns:baz=\"http://uri\"/>txt child</bar>";
-        XmlCursor c = XmlObject.Factory.parse(sXmlChild).newCursor();
 
-        c.selectPath(sQuery1, options);
-        assertEquals(1, c.getSelectionCount());
-        c.toNextSelection();
-        assertEquals(sExpected, c.xmlText());
+        try (XmlCursor c = XmlObject.Factory.parse(sXmlChild).newCursor()) {
+            c.selectPath(sQuery1, options);
+            assertEquals(1, c.getSelectionCount());
+            c.toNextSelection();
+            assertEquals(sExpected, c.xmlText());
+        }
     }
 
     @Test
@@ -91,19 +94,23 @@ public class AxesTest {
         String sExpected =
             "<bar at0=\"val0\" xmlns:pre=\"http://uri.com\">" +
             "<pre:baz baz:at0=\"val1\" xmlns:baz=\"http://uri\"/>txt child</bar>";
-        XmlCursor c = XmlObject.Factory.parse(sXmlChild).newCursor();
-        c.selectPath(sQuery1, options);
-        assertEquals(1, c.getSelectionCount());
-        c.toNextSelection();
-        assertEquals(sExpected, c.xmlText());
+
+        try (XmlCursor c = XmlObject.Factory.parse(sXmlChild).newCursor()) {
+            c.selectPath(sQuery1, options);
+            assertEquals(1, c.getSelectionCount());
+            c.toNextSelection();
+            assertEquals(sExpected, c.xmlText());
+        }
     }
 
     @Test
     public void testChildAxisDNE() throws XmlException {
         String sQuery1 = "$this/foo/./baz";
-        XmlCursor c = XmlObject.Factory.parse(sXmlChild).newCursor();
-        c.selectPath(sQuery1, options);
-        assertEquals(0, c.getSelectionCount());
+
+        try (XmlCursor c = XmlObject.Factory.parse(sXmlChild).newCursor()) {
+            c.selectPath(sQuery1, options);
+            assertEquals(0, c.getSelectionCount());
+        }
     }
 
     @Test
@@ -112,15 +119,16 @@ public class AxesTest {
         String sQuery1 = "./descendant::foo";
         String sExpected = "<foo at0=\"val0\" xmlns:pre=\"http://uri.com\">" +
                            "<pre:baz  baz:at0=\"val1\" xmlns:baz=\"http://uri\"/>txt child</foo>";
-        XmlCursor c = XmlObject.Factory.parse(sXmlDesc).newCursor();
 
-        assertEquals(XmlCursor.TokenType.START, c.toNextToken());
-        assertEquals("foo", c.getName().getLocalPart());
+        try (XmlCursor c = XmlObject.Factory.parse(sXmlDesc).newCursor()) {
+            assertEquals(XmlCursor.TokenType.START, c.toNextToken());
+            assertEquals("foo", c.getName().getLocalPart());
 
-        c.selectPath(sQuery1, options);
-        assertEquals(1, c.getSelectionCount());
-        c.toNextSelection();
-        assertEquals(sExpected, c.xmlText());
+            c.selectPath(sQuery1, options);
+            assertEquals(1, c.getSelectionCount());
+            c.toNextSelection();
+            assertEquals(sExpected, c.xmlText());
+        }
     }
 
     @Test
@@ -128,14 +136,15 @@ public class AxesTest {
         String sQuery1 = ".//foo";
         String sExpected = "<foo at0=\"val0\" xmlns:pre=\"http://uri.com\">" +
                            "<pre:baz baz:at0=\"val1\" xmlns:baz=\"http://uri\"/>txt child</foo>";
-        XmlCursor c = XmlObject.Factory.parse(sXmlDesc).newCursor();
 
-        assertEquals(XmlCursor.TokenType.START, c.toNextToken());
+        try (XmlCursor c = XmlObject.Factory.parse(sXmlDesc).newCursor()) {
+            assertEquals(XmlCursor.TokenType.START, c.toNextToken());
 
-        c.selectPath(sQuery1, options);
-        assertEquals(1, c.getSelectionCount());
-        c.toNextSelection();
-        assertEquals(sExpected, c.xmlText());
+            c.selectPath(sQuery1, options);
+            assertEquals(1, c.getSelectionCount());
+            c.toNextSelection();
+            assertEquals(sExpected, c.xmlText());
+        }
     }
 
     @Test
@@ -144,236 +153,249 @@ public class AxesTest {
         String sQuery1 = "$this/descendant::foo/.";
         String sExpected = "<foo at0=\"val0\" xmlns:pre=\"http://uri.com\">" +
                            "<pre:baz  baz:at0=\"val1\" xmlns:baz=\"http://uri\"/>txt child</foo>";
-        XmlCursor c = XmlObject.Factory.parse(sXmlDesc).newCursor();
-        assertEquals(XmlCursor.TokenType.START, c.toNextToken());
-        c.selectPath(sQuery1, options);
-        assertEquals(1, c.getSelectionCount());
-        c.toNextSelection();
-        assertEquals(sExpected, c.xmlText());
+
+        try (XmlCursor c = XmlObject.Factory.parse(sXmlDesc).newCursor()) {
+            assertEquals(XmlCursor.TokenType.START, c.toNextToken());
+            c.selectPath(sQuery1, options);
+            assertEquals(1, c.getSelectionCount());
+            c.toNextSelection();
+            assertEquals(sExpected, c.xmlText());
+        }
     }
 
     @Test
     @Ignore
     public void testDescAxisDNE() throws XmlException {
         String sQuery1 = "$this/descendant::baz";
-        XmlCursor c = XmlObject.Factory.parse(sXmlDesc).newCursor();
-        assertEquals(XmlCursor.TokenType.START, c.toNextToken());
-        c.selectPath(sQuery1, options);
-        assertEquals(0, c.getSelectionCount());
+
+        try (XmlCursor c = XmlObject.Factory.parse(sXmlDesc).newCursor()) {
+            assertEquals(XmlCursor.TokenType.START, c.toNextToken());
+            c.selectPath(sQuery1, options);
+            assertEquals(0, c.getSelectionCount());
+        }
     }
 
     @Test
     public void testChildAttribute() throws XmlException {
         String sExpected = "<xml-fragment at0=\"val0\" xmlns:pre=\"http://uri.com\"/>";
         String sQuery1 = "$this/foo/bar/attribute::at0";
-        XmlCursor c = XmlObject.Factory.parse(sXmlChild).newCursor();
-        c.selectPath(sQuery1, options);
-        assertEquals(1, c.getSelectionCount());
-        c.toNextSelection();
-        assertEquals(sExpected, c.xmlText());
+
+        try (XmlCursor c = XmlObject.Factory.parse(sXmlChild).newCursor()) {
+            c.selectPath(sQuery1, options);
+            assertEquals(1, c.getSelectionCount());
+            c.toNextSelection();
+            assertEquals(sExpected, c.xmlText());
+        }
     }
 
     @Test
     public void testChildAttributeAbbrev() throws XmlException {
         String sExpected = "<xml-fragment at0=\"val0\" xmlns:pre=\"http://uri.com\"/>";
         String sQuery1 = "$this/foo/bar/@at0";
-        XmlCursor c = XmlObject.Factory.parse(sXmlChild).newCursor();
-        c.selectPath(sQuery1, options);
-        assertEquals(1, c.getSelectionCount());
-        c.toNextSelection();
-        assertEquals(sExpected, c.xmlText());
+
+        try (XmlCursor c = XmlObject.Factory.parse(sXmlChild).newCursor()) {
+            c.selectPath(sQuery1, options);
+            assertEquals(1, c.getSelectionCount());
+            c.toNextSelection();
+            assertEquals(sExpected, c.xmlText());
+        }
     }
 
     @Test
     public void testDescAttribute() throws XmlException {
         String sExpected = "<xml-fragment at0=\"val0\" xmlns:pre=\"http://uri.com\"/>";
         String sQuery1 = "$this//attribute::at0";
-        XmlCursor c = XmlObject.Factory.parse(sXmlChild).newCursor();
-        assertEquals(XmlCursor.TokenType.START, c.toNextToken());
-        c.selectPath(sQuery1, options);
-        assertEquals(1, c.getSelectionCount());
-        c.toNextSelection();
-        assertEquals(sExpected, c.xmlText());
+
+        try (XmlCursor c = XmlObject.Factory.parse(sXmlChild).newCursor()) {
+            assertEquals(XmlCursor.TokenType.START, c.toNextToken());
+            c.selectPath(sQuery1, options);
+            assertEquals(1, c.getSelectionCount());
+            c.toNextSelection();
+            assertEquals(sExpected, c.xmlText());
+        }
     }
 
     @Test
     @Ignore
     public void testDescendantOrSelfAxis() throws XmlException {
-
         String sQuery1 = "./descendant-or-self::foo";
-        XmlCursor c = XmlObject.Factory.parse(sXmlDesc).newCursor();
-        String[] sExpected = {
-            c.xmlText()
-            , "<foo at0=\"val0\" xmlns:pre=\"http://uri.com\">" +
-              "<pre:baz  baz:at0=\"val1\"" +
-              " xmlns:baz=\"http://uri\"/>txt child</foo>"
-        };
 
-
-        assertEquals(XmlCursor.TokenType.START, c.toNextToken());
-        assertEquals("foo", c.getName().getLocalPart());
-
-        c.selectPath(sQuery1, options);
-        assertEquals(2, c.getSelectionCount());
-        c.toNextSelection();
-        assertEquals(sExpected[0], c.xmlText());
-        c.toNextSelection();
-        assertEquals(sExpected[1], c.xmlText());
-
-
-    }
-
-    @Test
-    @Ignore
-    public void testDescendantOrSelfAxisDot() throws XmlException {
-        String sQuery1 = "./descendant-or-self::foo";
-        XmlCursor c = XmlObject.Factory.parse(sXmlDesc).newCursor();
-        String[] sExpected = new String[]
-            {
+        try (XmlCursor c = XmlObject.Factory.parse(sXmlDesc).newCursor()) {
+            String[] sExpected = {
                 c.xmlText()
                 , "<foo at0=\"val0\" xmlns:pre=\"http://uri.com\">" +
                   "<pre:baz  baz:at0=\"val1\"" +
                   " xmlns:baz=\"http://uri\"/>txt child</foo>"
             };
 
+            assertEquals(XmlCursor.TokenType.START, c.toNextToken());
+            assertEquals("foo", c.getName().getLocalPart());
 
-        assertEquals(XmlCursor.TokenType.START, c.toNextToken());
-        c.selectPath(sQuery1, options);
+            c.selectPath(sQuery1, options);
+            assertEquals(2, c.getSelectionCount());
+            c.toNextSelection();
+            assertEquals(sExpected[0], c.xmlText());
+            c.toNextSelection();
+            assertEquals(sExpected[1], c.xmlText());
+        }
+    }
 
-        c.selectPath(sQuery1, options);
-        assertEquals(2, c.getSelectionCount());
-        c.toNextSelection();
-        assertEquals(sExpected[0], c.xmlText());
-        c.toNextSelection();
-        assertEquals(sExpected[1], c.xmlText());
+    @Test
+    @Ignore
+    public void testDescendantOrSelfAxisDot() throws XmlException {
+        String sQuery1 = "./descendant-or-self::foo";
+
+        try (XmlCursor c = XmlObject.Factory.parse(sXmlDesc).newCursor()) {
+            String[] sExpected = new String[]
+                {
+                    c.xmlText()
+                    , "<foo at0=\"val0\" xmlns:pre=\"http://uri.com\">" +
+                      "<pre:baz  baz:at0=\"val1\"" +
+                      " xmlns:baz=\"http://uri\"/>txt child</foo>"
+                };
+
+
+            assertEquals(XmlCursor.TokenType.START, c.toNextToken());
+            c.selectPath(sQuery1, options);
+
+            c.selectPath(sQuery1, options);
+            assertEquals(2, c.getSelectionCount());
+            c.toNextSelection();
+            assertEquals(sExpected[0], c.xmlText());
+            c.toNextSelection();
+            assertEquals(sExpected[1], c.xmlText());
+        }
     }
 
     @Test
     @Ignore
     public void testDescendantOrSelfAxisDNE() throws XmlException {
-
         String sQuery1 = "$this/descendant-or-self::baz";
-        XmlCursor c = XmlObject.Factory.parse(sXmlDesc).newCursor();
-        assertEquals(XmlCursor.TokenType.START, c.toNextToken());
-        c.selectPath(sQuery1, options);
-        assertEquals(0, c.getSelectionCount());
 
+        try (XmlCursor c = XmlObject.Factory.parse(sXmlDesc).newCursor()) {
+            assertEquals(XmlCursor.TokenType.START, c.toNextToken());
+            c.selectPath(sQuery1, options);
+            assertEquals(0, c.getSelectionCount());
+        }
     }
 
     @Test
     @Ignore
     public void testSelfAxis() throws XmlException {
         String sQuery1 = "$this/self::foo";
-        XmlCursor c = XmlObject.Factory.parse(sXmlDesc).newCursor();
-        String sExpected =
-            c.xmlText();
 
-        assertEquals(XmlCursor.TokenType.START, c.toNextToken());
-        assertEquals("foo", c.getName().getLocalPart());
+        try (XmlCursor c = XmlObject.Factory.parse(sXmlDesc).newCursor()) {
+            String sExpected = c.xmlText();
 
-        c.selectPath(sQuery1, options);
-        assertEquals(1, c.getSelectionCount());
-        c.toNextSelection();
-        assertEquals(sExpected, c.xmlText());
+            assertEquals(XmlCursor.TokenType.START, c.toNextToken());
+            assertEquals("foo", c.getName().getLocalPart());
+
+            c.selectPath(sQuery1, options);
+            assertEquals(1, c.getSelectionCount());
+            c.toNextSelection();
+            assertEquals(sExpected, c.xmlText());
+        }
     }
 
     @Test
     public void testSelfAxisAbbrev() throws XmlException {
         String sQuery1 = ".";
-        XmlCursor c = XmlObject.Factory.parse(sXmlChild).newCursor();
-        String sExpected =
-            c.xmlText();
 
-        assertEquals(XmlCursor.TokenType.START, c.toNextToken());
-        assertEquals("foo", c.getName().getLocalPart());
+        try (XmlCursor c = XmlObject.Factory.parse(sXmlChild).newCursor()) {
+            String sExpected = c.xmlText();
 
-        c.selectPath(sQuery1, options);
-        assertEquals(1, c.getSelectionCount());
-        c.toNextSelection();
-        assertEquals(sExpected, c.xmlText());
+            assertEquals(XmlCursor.TokenType.START, c.toNextToken());
+            assertEquals("foo", c.getName().getLocalPart());
+
+            c.selectPath(sQuery1, options);
+            assertEquals(1, c.getSelectionCount());
+            c.toNextSelection();
+            assertEquals(sExpected, c.xmlText());
+        }
     }
 
     @Test
     @Ignore
     public void testSelfAxisDot() throws XmlException {
-
         String sQuery1 = "./self::foo";
-        XmlCursor c = XmlObject.Factory.parse(sXmlDesc).newCursor();
-        String sExpected =
-            c.xmlText();
 
-        assertEquals(XmlCursor.TokenType.START, c.toNextToken());
-        assertEquals("foo", c.getName().getLocalPart());
+        try (XmlCursor c = XmlObject.Factory.parse(sXmlDesc).newCursor()) {
+            String sExpected = c.xmlText();
 
-        c.selectPath(sQuery1, options);
-        assertEquals(1, c.getSelectionCount());
-        c.toNextSelection();
-        assertEquals(sExpected, c.xmlText());
+            assertEquals(XmlCursor.TokenType.START, c.toNextToken());
+            assertEquals("foo", c.getName().getLocalPart());
+
+            c.selectPath(sQuery1, options);
+            assertEquals(1, c.getSelectionCount());
+            c.toNextSelection();
+            assertEquals(sExpected, c.xmlText());
+        }
     }
 
     @Test
     @Ignore
     public void testSelfAxisDNE() throws XmlException {
-
         String sQuery1 = "$this/self::baz";
-        XmlCursor c = XmlObject.Factory.parse(sXmlDesc).newCursor();
-        assertEquals(XmlCursor.TokenType.START, c.toNextToken());
-        c.selectPath(sQuery1, options);
-        assertEquals(0, c.getSelectionCount());
 
+        try (XmlCursor c = XmlObject.Factory.parse(sXmlDesc).newCursor()) {
+            assertEquals(XmlCursor.TokenType.START, c.toNextToken());
+            c.selectPath(sQuery1, options);
+            assertEquals(0, c.getSelectionCount());
+        }
     }
 
     @Test
     @Ignore
     public void testNamespaceAxis() throws XmlException {
-
         String sQuery1 = "$this/namespace::http://uri.com";
-        XmlCursor c = XmlObject.Factory.parse(sXmlDesc).newCursor();
-        String sExpected =
-            c.xmlText();
 
-        assertEquals(XmlCursor.TokenType.START, c.toNextToken());
-        assertEquals(XmlCursor.TokenType.TEXT, c.toNextToken());
-        assertEquals(XmlCursor.TokenType.START, c.toNextToken());
-        assertEquals("foo", c.getName().getLocalPart());
+        try (XmlCursor c = XmlObject.Factory.parse(sXmlDesc).newCursor()) {
+            String sExpected = c.xmlText();
 
-        c.selectPath(sQuery1, options);
-        assertEquals(1, c.getSelectionCount());
-        c.toNextSelection();
-        assertEquals(sExpected, c.xmlText());
+            assertEquals(XmlCursor.TokenType.START, c.toNextToken());
+            assertEquals(XmlCursor.TokenType.TEXT, c.toNextToken());
+            assertEquals(XmlCursor.TokenType.START, c.toNextToken());
+            assertEquals("foo", c.getName().getLocalPart());
+
+            c.selectPath(sQuery1, options);
+            assertEquals(1, c.getSelectionCount());
+            c.toNextSelection();
+            assertEquals(sExpected, c.xmlText());
+        }
     }
 
     @Test
     @Ignore
     public void testNamespaceAxisDot() throws XmlException {
-
         String sQuery1 = "./*/namespace::http://uri.com";
-        XmlCursor c = XmlObject.Factory.parse(sXmlDesc).newCursor();
-        String sExpected =
-            c.xmlText();
 
-        assertEquals(XmlCursor.TokenType.START, c.toNextToken());
-        assertEquals("foo", c.getName().getLocalPart());
+        try (XmlCursor c = XmlObject.Factory.parse(sXmlDesc).newCursor()) {
+            String sExpected = c.xmlText();
 
-        c.selectPath(sQuery1, options);
-        assertEquals(1, c.getSelectionCount());
-        c.toNextSelection();
-        assertEquals(sExpected, c.xmlText());
+            assertEquals(XmlCursor.TokenType.START, c.toNextToken());
+            assertEquals("foo", c.getName().getLocalPart());
+
+            c.selectPath(sQuery1, options);
+            assertEquals(1, c.getSelectionCount());
+            c.toNextSelection();
+            assertEquals(sExpected, c.xmlText());
+        }
     }
 
     @Test
     @Ignore
     public void testNamespaceAxisDNE() throws XmlException {
-
         String sQuery1 = "$this/namespace::*";
-        XmlCursor c = XmlObject.Factory.parse(sXmlDesc).newCursor();
-        assertEquals(XmlCursor.TokenType.START, c.toNextToken());
-        assertEquals(XmlCursor.TokenType.TEXT, c.toNextToken());
-        assertEquals(XmlCursor.TokenType.START, c.toNextToken());
-        //to namespace
-        assertEquals(XmlCursor.TokenType.NAMESPACE, c.toNextToken());
-        c.selectPath(sQuery1, options);
-        assertEquals(0, c.getSelectionCount());
+
+        try (XmlCursor c = XmlObject.Factory.parse(sXmlDesc).newCursor()) {
+            assertEquals(XmlCursor.TokenType.START, c.toNextToken());
+            assertEquals(XmlCursor.TokenType.TEXT, c.toNextToken());
+            assertEquals(XmlCursor.TokenType.START, c.toNextToken());
+            //to namespace
+            assertEquals(XmlCursor.TokenType.NAMESPACE, c.toNextToken());
+            c.selectPath(sQuery1, options);
+            assertEquals(0, c.getSelectionCount());
+        }
     }
 }
 

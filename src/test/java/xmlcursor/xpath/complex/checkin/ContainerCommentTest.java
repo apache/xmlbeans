@@ -47,23 +47,25 @@ public class ContainerCommentTest {
         String m_namespaceDeclaration =
             "declare namespace xq='http://xmlbeans.apache.org/samples/xquery/employees';";
 
-        XmlCursor cursor = employees.newCursor();
-        cursor.toNextToken();
+        try (XmlCursor cursor = employees.newCursor()) {
+            cursor.toNextToken();
 
-        cursor.selectPath(m_namespaceDeclaration + "$this//xq:employee");
-        if (cursor.getSelectionCount() > 0) {
-            cursor.toNextSelection();
-
-            String[] names = new String[cursor.getSelectionCount()];
-
-            for (int i = 0; i < cursor.getSelectionCount(); i++) {
-                XmlCursor nameCursor = cursor.newCursor();
-                nameCursor.selectPath(m_namespaceDeclaration +
-                                      "$this/xq:name/text()");
-                nameCursor.toNextSelection();
-                names[i] = nameCursor.getTextValue();
+            cursor.selectPath(m_namespaceDeclaration + "$this//xq:employee");
+            if (cursor.getSelectionCount() > 0) {
                 cursor.toNextSelection();
-                System.out.println(names[i]);
+
+                String[] names = new String[cursor.getSelectionCount()];
+
+                for (int i = 0; i < cursor.getSelectionCount(); i++) {
+                    try (XmlCursor nameCursor = cursor.newCursor()) {
+                        nameCursor.selectPath(m_namespaceDeclaration +
+                                              "$this/xq:name/text()");
+                        nameCursor.toNextSelection();
+                        names[i] = nameCursor.getTextValue();
+                    }
+                    cursor.toNextSelection();
+                    System.out.println(names[i]);
+                }
             }
         }
     }

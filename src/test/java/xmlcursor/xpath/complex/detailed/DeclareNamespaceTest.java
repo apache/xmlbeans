@@ -37,18 +37,21 @@ public class DeclareNamespaceTest {
         //"for $e in ./a return <doc>{ $e } </doc>"
         */
         String query = "declare namespace ack='abc'; .//@ack:attr";
-        XmlCursor s1 = s.newCursor();
-        s1.selectPath(query);
-        assertEquals(1, s1.getSelectionCount());
-        s1.toNextSelection();
-        assertEquals(s1.xmlText(),
-            "<xml-fragment ack:attr=\"val1\" xmlns:ack=\"abc\"/>");
+        try (XmlCursor s1 = s.newCursor()) {
+            s1.selectPath(query);
+            assertEquals(1, s1.getSelectionCount());
+            s1.toNextSelection();
+            assertEquals(s1.xmlText(),
+                "<xml-fragment ack:attr=\"val1\" xmlns:ack=\"abc\"/>");
+        }
 
         res = s.execQuery(query);
-        XmlCursor c1 = s.newCursor();
-        c1.toFirstContentToken();
+        XmlObject o;
+        try (XmlCursor c1 = s.newCursor()) {
+            c1.toFirstContentToken();
+            o = c1.getObject();
+        }
 
-        XmlObject o = c1.getObject();
         assertNotSame(o, res[0]);
         assertEquals(res[0].xmlText(),
             "<xml-fragment ack:attr=\"val1\" xmlns:ack=\"abc\"/>");
@@ -69,12 +72,12 @@ public class DeclareNamespaceTest {
         assertEquals( s1.xmlText(),"<b xmlns=\"abc\">bar</b>");
         */
         res = s.execQuery(query);
-        XmlCursor c1 = s.newCursor();
-        c1.toFirstContentToken();
-
-        XmlObject o = c1.getObject();
-        assertNotSame(o, res[0]);
-        assertEquals(res[0].xmlText(), "<abc:b xmlns:abc=\"abc\">bar</abc:b>");
+        try (XmlCursor c1 = s.newCursor()) {
+            c1.toFirstContentToken();
+            XmlObject o = c1.getObject();
+            assertNotSame(o, res[0]);
+            assertEquals(res[0].xmlText(), "<abc:b xmlns:abc=\"abc\">bar</abc:b>");
+        }
     }
 
     @Test
@@ -120,22 +123,24 @@ public class DeclareNamespaceTest {
 
     @Test
     public void testSequenceIntersect() throws Exception {
-        XmlCursor o = XmlObject.Factory.parse("<a><b>1</b>1</a>").newCursor();
-        o.selectPath("//b intersect //b");
-        assertEquals(1, o.getSelectionCount());
-        o.toNextSelection();
-        assertEquals("<b>1</b>", o.xmlText());
+        try (XmlCursor o = XmlObject.Factory.parse("<a><b>1</b>1</a>").newCursor()) {
+            o.selectPath("//b intersect //b");
+            assertEquals(1, o.getSelectionCount());
+            o.toNextSelection();
+            assertEquals("<b>1</b>", o.xmlText());
+        }
     }
 
     @Test
     public void testSequenceExcept() throws Exception {
-        XmlCursor o = XmlObject.Factory.parse("<a><b>1</b>1</a>").newCursor();
-        o.selectPath("/a except /a");
-        assertEquals(0, o.getSelectionCount());
-        o.selectPath("//* except //b");
-        assertEquals(1, o.getSelectionCount());
-        o.toNextSelection();
-        assertEquals("<a><b>1</b>1</a>", o.xmlText());
+        try (XmlCursor o = XmlObject.Factory.parse("<a><b>1</b>1</a>").newCursor()) {
+            o.selectPath("/a except /a");
+            assertEquals(0, o.getSelectionCount());
+            o.selectPath("//* except //b");
+            assertEquals(1, o.getSelectionCount());
+            o.toNextSelection();
+            assertEquals("<a><b>1</b>1</a>", o.xmlText());
+        }
     }
 
     //If an operand of union, intersect, or except
@@ -143,8 +148,9 @@ public class DeclareNamespaceTest {
 
     @Test(expected = RuntimeException.class)
     public void testSequenceTypeError() throws XmlException {
-        XmlCursor o = XmlObject.Factory.parse("<a/>").newCursor();
-        o.selectPath("(0 to 4) except (0 to 4)");
-        o.toNextSelection();
+        try (XmlCursor o = XmlObject.Factory.parse("<a/>").newCursor()) {
+            o.selectPath("(0 to 4) except (0 to 4)");
+            o.toNextSelection();
+        }
     }
 }

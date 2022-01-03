@@ -819,176 +819,176 @@ public class StscComplexTypeResolver {
             baseModel = baseType.getAttributeModel();
         }
 
-        XmlCursor cur = parseTree.newCursor();
+        try (XmlCursor cur = parseTree.newCursor()) {
+            for (boolean more = cur.toFirstChild(); more; more = cur.toNextSibling()) {
+                switch (translateAttributeCode(cur.getName())) {
+                    case ATTRIBUTE_CODE: {
+                        Attribute xsdattr = (Attribute) cur.getObject();
 
-        for (boolean more = cur.toFirstChild(); more; more = cur.toNextSibling()) {
-            switch (translateAttributeCode(cur.getName())) {
-                case ATTRIBUTE_CODE: {
-                    Attribute xsdattr = (Attribute) cur.getObject();
+                        SchemaLocalAttribute sAttr = StscTranslator.translateAttribute(xsdattr, targetNamespace, formDefault, chameleon, anonymousTypes, outerType, baseModel, true);
+                        if (sAttr == null) {
+                            continue;
+                        }
 
-                    SchemaLocalAttribute sAttr = StscTranslator.translateAttribute(xsdattr, targetNamespace, formDefault, chameleon, anonymousTypes, outerType, baseModel, true);
-                    if (sAttr == null) {
-                        continue;
-                    }
+                        if (seenAttributes.contains(sAttr.getName())) {
+                            state.error(XmlErrorCodes.COMPLEX_TYPE_PROPERTIES$DUPLICATE_ATTRIBUTE,
+                                new Object[]{QNameHelper.pretty(sAttr.getName()), QNameHelper.pretty(outerType.getName())},
+                                xsdattr.xgetName());
+                            continue; // ignore the duplicate attr
+                        }
 
-                    if (seenAttributes.contains(sAttr.getName())) {
-                        state.error(XmlErrorCodes.COMPLEX_TYPE_PROPERTIES$DUPLICATE_ATTRIBUTE,
-                            new Object[]{QNameHelper.pretty(sAttr.getName()), QNameHelper.pretty(outerType.getName())},
-                            xsdattr.xgetName());
-                        continue; // ignore the duplicate attr
-                    }
+                        seenAttributes.add(sAttr.getName());
 
-                    seenAttributes.add(sAttr.getName());
-
-                    if (baseModel != null) {
-                        SchemaLocalAttribute baseAttr = baseModel.getAttribute(sAttr.getName());
-                        if (baseAttr == null) {
-                            if (!extension) {
-                                if (!baseModel.getWildcardSet().contains(sAttr.getName())) {
-                                    state.error(XmlErrorCodes.COMPLEX_TYPE_RESTRICTION$ATTR_IN_BASE_WILDCARD_SET,
-                                        new Object[]{QNameHelper.pretty(sAttr.getName()), QNameHelper.pretty(outerType.getName())}, xsdattr);
-                                }
-                            }
-                        } else {
-                            if (extension) {
-                                // KHK: cos-ct-extends.1.2?
-                                if (sAttr.getUse() == SchemaLocalAttribute.PROHIBITED) {
-                                    state.error("An extension cannot prohibit an attribute from the base type; use restriction instead.", XmlErrorCodes.DUPLICATE_ATTRIBUTE_NAME, xsdattr.xgetUse());
-                                }
-                            } else {
-                                if (sAttr.getUse() != SchemaLocalAttribute.REQUIRED) {
-                                    if (baseAttr.getUse() == SchemaLocalAttribute.REQUIRED) {
-                                        state.error(XmlErrorCodes.COMPLEX_TYPE_RESTRICTION$ATTR_REQUIRED,
+                        if (baseModel != null) {
+                            SchemaLocalAttribute baseAttr = baseModel.getAttribute(sAttr.getName());
+                            if (baseAttr == null) {
+                                if (!extension) {
+                                    if (!baseModel.getWildcardSet().contains(sAttr.getName())) {
+                                        state.error(XmlErrorCodes.COMPLEX_TYPE_RESTRICTION$ATTR_IN_BASE_WILDCARD_SET,
                                             new Object[]{QNameHelper.pretty(sAttr.getName()), QNameHelper.pretty(outerType.getName())}, xsdattr);
                                     }
-
+                                }
+                            } else {
+                                if (extension) {
+                                    // KHK: cos-ct-extends.1.2?
                                     if (sAttr.getUse() == SchemaLocalAttribute.PROHIBITED) {
-                                        result.removeProhibitedAttribute(sAttr.getName());
+                                        state.error("An extension cannot prohibit an attribute from the base type; use restriction instead.", XmlErrorCodes.DUPLICATE_ATTRIBUTE_NAME, xsdattr.xgetUse());
+                                    }
+                                } else {
+                                    if (sAttr.getUse() != SchemaLocalAttribute.REQUIRED) {
+                                        if (baseAttr.getUse() == SchemaLocalAttribute.REQUIRED) {
+                                            state.error(XmlErrorCodes.COMPLEX_TYPE_RESTRICTION$ATTR_REQUIRED,
+                                                new Object[]{QNameHelper.pretty(sAttr.getName()), QNameHelper.pretty(outerType.getName())}, xsdattr);
+                                        }
+
+                                        if (sAttr.getUse() == SchemaLocalAttribute.PROHIBITED) {
+                                            result.removeProhibitedAttribute(sAttr.getName());
+                                        }
                                     }
                                 }
                             }
                         }
-                    }
 
-                    if (sAttr.getUse() != SchemaLocalAttribute.PROHIBITED) {
-                        result.addAttribute(sAttr);
-                    } else {
-                        // attribute is prohibited. If it has an anonymous type remove
-                        // it from the list (this will prevent inclusion of any anonymous
-                        // types defined within the prohibited attribute which would
-                        // otherwise attempt to refer to the prohibited attribute at
-                        // save() time)
-                        SchemaType attrType = sAttr.getType();
-                        if (anonymousTypes != null) {
-                            anonymousTypes.remove(attrType);
+                        if (sAttr.getUse() != SchemaLocalAttribute.PROHIBITED) {
+                            result.addAttribute(sAttr);
+                        } else {
+                            // attribute is prohibited. If it has an anonymous type remove
+                            // it from the list (this will prevent inclusion of any anonymous
+                            // types defined within the prohibited attribute which would
+                            // otherwise attempt to refer to the prohibited attribute at
+                            // save() time)
+                            SchemaType attrType = sAttr.getType();
+                            if (anonymousTypes != null) {
+                                anonymousTypes.remove(attrType);
+                            }
                         }
-                    }
 
-                    if (sAttr.getDefaultText() != null && !sAttr.isFixed()) {
-                        if (sAttr.getUse() != SchemaLocalAttribute.OPTIONAL) {
-                            state.error(XmlErrorCodes.SCHEMA_ATTR$DEFAULT_AND_USE_OPTIONAL,
-                                new Object[]{QNameHelper.pretty(sAttr.getName())}, xsdattr);
+                        if (sAttr.getDefaultText() != null && !sAttr.isFixed()) {
+                            if (sAttr.getUse() != SchemaLocalAttribute.OPTIONAL) {
+                                state.error(XmlErrorCodes.SCHEMA_ATTR$DEFAULT_AND_USE_OPTIONAL,
+                                    new Object[]{QNameHelper.pretty(sAttr.getName())}, xsdattr);
+                            }
                         }
-                    }
 
 
-                    break;
-                }
-                case ANY_ATTRIBUTE_CODE: {
-                    Wildcard xsdwc = (Wildcard) cur.getObject();
-                    if (seenWildcard) {
-                        // KHK: ?
-                        state.error("Only one attribute wildcard allowed", XmlErrorCodes.DUPLICATE_ANY_ATTRIBUTE, xsdwc);
-                        continue; // ignore the extra wildcard
+                        break;
                     }
-                    seenWildcard = true;
-                    NamespaceList nsList = xsdwc.xgetNamespace();
-                    String nsText;
-                    if (nsList == null) {
-                        nsText = "##any";
-                    } else {
-                        nsText = nsList.getStringValue();
-                    }
-                    QNameSet wcset = QNameSet.forWildcardNamespaceString(nsText, targetNamespace);
-
-                    if (baseModel != null && !extension) {
-                        if (baseModel.getWildcardSet() == null) {
-                            state.error(XmlErrorCodes.COMPLEX_TYPE_RESTRICTION$BASE_HAS_ATTR_WILDCARD, null, xsdwc);
+                    case ANY_ATTRIBUTE_CODE: {
+                        Wildcard xsdwc = (Wildcard) cur.getObject();
+                        if (seenWildcard) {
+                            // KHK: ?
+                            state.error("Only one attribute wildcard allowed", XmlErrorCodes.DUPLICATE_ANY_ATTRIBUTE, xsdwc);
                             continue; // ignore the extra wildcard
-                        } else if (!baseModel.getWildcardSet().containsAll(wcset)) {
-                            state.error(XmlErrorCodes.COMPLEX_TYPE_RESTRICTION$ATTR_WILDCARD_SUBSET,
-                                new Object[]{nsText}, xsdwc);
-                            continue; // ignore the restriction
                         }
-                    }
+                        seenWildcard = true;
+                        NamespaceList nsList = xsdwc.xgetNamespace();
+                        String nsText;
+                        if (nsList == null) {
+                            nsText = "##any";
+                        } else {
+                            nsText = nsList.getStringValue();
+                        }
+                        QNameSet wcset = QNameSet.forWildcardNamespaceString(nsText, targetNamespace);
 
-                    int wcprocess = translateWildcardProcess(xsdwc.xgetProcessContents());
-                    if (result.getWildcardProcess() == SchemaAttributeModel.NONE) {
-                        result.setWildcardSet(wcset);
-                        result.setWildcardProcess(wcprocess);
-                    } else {
-                        if (extension) {
-                            result.setWildcardSet(wcset.union(result.getWildcardSet()));
+                        if (baseModel != null && !extension) {
+                            if (baseModel.getWildcardSet() == null) {
+                                state.error(XmlErrorCodes.COMPLEX_TYPE_RESTRICTION$BASE_HAS_ATTR_WILDCARD, null, xsdwc);
+                                continue; // ignore the extra wildcard
+                            } else if (!baseModel.getWildcardSet().containsAll(wcset)) {
+                                state.error(XmlErrorCodes.COMPLEX_TYPE_RESTRICTION$ATTR_WILDCARD_SUBSET,
+                                    new Object[]{nsText}, xsdwc);
+                                continue; // ignore the restriction
+                            }
+                        }
+
+                        int wcprocess = translateWildcardProcess(xsdwc.xgetProcessContents());
+                        if (result.getWildcardProcess() == SchemaAttributeModel.NONE) {
+                            result.setWildcardSet(wcset);
                             result.setWildcardProcess(wcprocess);
                         } else {
-                            result.setWildcardSet(wcset.intersect(result.getWildcardSet()));
-                            // keep old process
-                        }
-                    }
-                    break;
-                }
-                case ATTRIBUTE_GROUP_CODE: {
-                    AttributeGroupRef xsdag = (AttributeGroupRef) cur.getObject();
-                    QName ref = xsdag.getRef();
-                    if (ref == null) {
-                        // KHK: s4s
-                        state.error("Attribute group reference must have a ref attribute", XmlErrorCodes.ATTRIBUTE_GROUP_MISSING_REF, xsdag);
-                        continue;
-                    }
-                    SchemaAttributeGroupImpl group;
-                    if (redefinitionFor != null) {
-                        group = state.findRedefinedAttributeGroup(ref, chameleon ? targetNamespace : null, redefinitionFor);
-                        if (group != null &&
-                            redefinitionFor.getName().equals(group.getName())) {
-                            if (seenRedefinition) {
-                                state.error(XmlErrorCodes.SCHEMA_REDEFINE$ATTR_GROUP_SELF_REF,
-                                    new Object[]{QNameHelper.pretty(redefinitionFor.getName())}, xsdag);
+                            if (extension) {
+                                result.setWildcardSet(wcset.union(result.getWildcardSet()));
+                                result.setWildcardProcess(wcprocess);
+                            } else {
+                                result.setWildcardSet(wcset.intersect(result.getWildcardSet()));
+                                // keep old process
                             }
-                            seenRedefinition = true;
                         }
-                    } else {
-                        group = state.findAttributeGroup(ref, chameleon ? targetNamespace : null, targetNamespace);
+                        break;
                     }
-                    if (group == null) {
-                        state.notFoundError(ref, SchemaType.ATTRIBUTE_GROUP, xsdag.xgetRef(), true);
-                        continue;
-                    }
-                    if (state.isProcessing(group)) {
-                        state.error(XmlErrorCodes.SCHEMA_ATTR_GROUP$SELF_REF,
-                            new Object[]{QNameHelper.pretty(group.getName())}, group.getParseObject());
-                        continue;
-                    }
-                    String subTargetNamespace = targetNamespace;
-                    if (group.getTargetNamespace() != null) {
-                        subTargetNamespace = group.getTargetNamespace();
-                        chameleon = group.getChameleonNamespace() != null;
-                    }
+                    case ATTRIBUTE_GROUP_CODE: {
+                        AttributeGroupRef xsdag = (AttributeGroupRef) cur.getObject();
+                        QName ref = xsdag.getRef();
+                        if (ref == null) {
+                            // KHK: s4s
+                            state.error("Attribute group reference must have a ref attribute", XmlErrorCodes.ATTRIBUTE_GROUP_MISSING_REF, xsdag);
+                            continue;
+                        }
+                        SchemaAttributeGroupImpl group;
+                        if (redefinitionFor != null) {
+                            group = state.findRedefinedAttributeGroup(ref, chameleon ? targetNamespace : null, redefinitionFor);
+                            if (group != null &&
+                                redefinitionFor.getName().equals(group.getName())) {
+                                if (seenRedefinition) {
+                                    state.error(XmlErrorCodes.SCHEMA_REDEFINE$ATTR_GROUP_SELF_REF,
+                                        new Object[]{QNameHelper.pretty(redefinitionFor.getName())}, xsdag);
+                                }
+                                seenRedefinition = true;
+                            }
+                        } else {
+                            group = state.findAttributeGroup(ref, chameleon ? targetNamespace : null, targetNamespace);
+                        }
+                        if (group == null) {
+                            state.notFoundError(ref, SchemaType.ATTRIBUTE_GROUP, xsdag.xgetRef(), true);
+                            continue;
+                        }
+                        if (state.isProcessing(group)) {
+                            state.error(XmlErrorCodes.SCHEMA_ATTR_GROUP$SELF_REF,
+                                new Object[]{QNameHelper.pretty(group.getName())}, group.getParseObject());
+                            continue;
+                        }
+                        String subTargetNamespace = targetNamespace;
+                        if (group.getTargetNamespace() != null) {
+                            subTargetNamespace = group.getTargetNamespace();
+                            chameleon = group.getChameleonNamespace() != null;
+                        }
 
-                    state.startProcessing(group);
-                    SchemaAttributeGroupImpl nestedRedefinitionFor = null;
-                    if (group.isRedefinition()) {
-                        nestedRedefinitionFor = group;
+                        state.startProcessing(group);
+                        SchemaAttributeGroupImpl nestedRedefinitionFor = null;
+                        if (group.isRedefinition()) {
+                            nestedRedefinitionFor = group;
+                        }
+                        translateAttributeModel(group.getParseObject(), subTargetNamespace, chameleon,
+                            group.getFormDefault(),
+                            anonymousTypes, outerType, seenAttributes, result, baseType,
+                            extension, nestedRedefinitionFor);
+                        state.finishProcessing(group);
+                        break;
                     }
-                    translateAttributeModel(group.getParseObject(), subTargetNamespace, chameleon,
-                        group.getFormDefault(),
-                        anonymousTypes, outerType, seenAttributes, result, baseType,
-                        extension, nestedRedefinitionFor);
-                    state.finishProcessing(group);
-                    break;
+                    default:
+                        // skip things that are not part of the attribute model.
+                        break;
                 }
-                default:
-                    // skip things that are not part of the attribute model.
-                    break;
             }
         }
         // If this is restriction and no wildcard was present, then
@@ -1176,12 +1176,13 @@ public class StscComplexTypeResolver {
                 }
 
                 // no go to the child.
-                XmlCursor cur = group.getParseObject().newCursor();
-                for (boolean more = cur.toFirstChild(); more; more = cur.toNextSibling()) {
-                    particleCode = translateParticleCode(cur.getName());
-                    if (particleCode != 0) {
-                        parseTree = cur.getObject();
-                        break;
+                try (XmlCursor cur = group.getParseObject().newCursor()) {
+                    for (boolean more = cur.toFirstChild(); more; more = cur.toNextSibling()) {
+                        particleCode = translateParticleCode(cur.getName());
+                        if (particleCode != 0) {
+                            parseTree = cur.getObject();
+                            break;
+                        }
                     }
                 }
                 if (particleCode == 0) {
@@ -1876,7 +1877,9 @@ public class StscComplexTypeResolver {
         if (parseEg == null) {
             return 0;
         }
-        return translateParticleCode(parseEg.newCursor().getName());
+        try (XmlCursor c = parseEg.newCursor()) {
+            return translateParticleCode(c.getName());
+        }
     }
 
     private static int translateParticleCode(QName name) {

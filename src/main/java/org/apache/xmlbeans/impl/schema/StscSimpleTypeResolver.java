@@ -584,272 +584,273 @@ public class StscSimpleTypeResolver {
         List<RegularExpression> patterns = null;
 
         if (restriction != null) {
-            XmlCursor cur = restriction.newCursor();
-            for (boolean more = cur.toFirstChild(); more; more = cur.toNextSibling()) {
-                QName facetQName = cur.getName();
-                String facetName = facetQName.getLocalPart();
-                int code = translateFacetCode(facetQName);
-                if (code == -1) {
-                    continue;
-                }
+            try (XmlCursor cur = restriction.newCursor()) {
+                for (boolean more = cur.toFirstChild(); more; more = cur.toNextSibling()) {
+                    QName facetQName = cur.getName();
+                    String facetName = facetQName.getLocalPart();
+                    int code = translateFacetCode(facetQName);
+                    if (code == -1) {
+                        continue;
+                    }
 
-                Facet facet = (Facet) cur.getObject();
+                    Facet facet = (Facet) cur.getObject();
 
-                if (!facetAppliesToType(code, baseImpl)) {
-                    state.error(XmlErrorCodes.FACETS_APPLICABLE,
-                        new Object[]{facetName, QNameHelper.pretty(baseImpl.getName())}, facet);
-                    continue;
-                } else if (baseImpl.getSimpleVariety() == SchemaType.ATOMIC &&
-                           baseImpl.getPrimitiveType().getBuiltinTypeCode() == SchemaType.BTC_NOTATION
-                           && (code == SchemaType.FACET_LENGTH || code == SchemaType.FACET_MIN_LENGTH ||
-                               code == SchemaType.FACET_MAX_LENGTH)) {
-                    state.warning(XmlErrorCodes.FACETS_DEPRECATED_NOTATION,
-                        new Object[]{facetName, QNameHelper.pretty(baseImpl.getName())}, facet);
-                }
-                if (seenFacet[code] && !isMultipleFacet(code)) {
-                    state.error(XmlErrorCodes.DATATYPE_SINGLE_FACET_VALUE, null, facet);
-                    continue;
-                }
-                seenFacet[code] = true;
+                    if (!facetAppliesToType(code, baseImpl)) {
+                        state.error(XmlErrorCodes.FACETS_APPLICABLE,
+                            new Object[]{facetName, QNameHelper.pretty(baseImpl.getName())}, facet);
+                        continue;
+                    } else if (baseImpl.getSimpleVariety() == SchemaType.ATOMIC &&
+                               baseImpl.getPrimitiveType().getBuiltinTypeCode() == SchemaType.BTC_NOTATION
+                               && (code == SchemaType.FACET_LENGTH || code == SchemaType.FACET_MIN_LENGTH ||
+                                   code == SchemaType.FACET_MAX_LENGTH)) {
+                        state.warning(XmlErrorCodes.FACETS_DEPRECATED_NOTATION,
+                            new Object[]{facetName, QNameHelper.pretty(baseImpl.getName())}, facet);
+                    }
+                    if (seenFacet[code] && !isMultipleFacet(code)) {
+                        state.error(XmlErrorCodes.DATATYPE_SINGLE_FACET_VALUE, null, facet);
+                        continue;
+                    }
+                    seenFacet[code] = true;
 
-                switch (code) {
-                    case SchemaType.FACET_LENGTH:
-//                        if (myFacets[SchemaType.FACET_MIN_LENGTH] != null ||
-//                            myFacets[SchemaType.FACET_MAX_LENGTH] != null)
-//                        {
-//                            state.error(XmlErrorCodes.DATATYPE_LENGTH, null, facet);
-//                            continue;
-//                        }
-                        XmlInteger len = StscTranslator.buildNnInteger(facet.getValue());
-                        if (len == null) {
-                            state.error("Must be a nonnegative integer", XmlErrorCodes.FACET_VALUE_MALFORMED, facet);
-                            continue;
-                        }
-                        if (fixedFacets[code] && !myFacets[code].valueEquals(len)) {
-                            state.error(XmlErrorCodes.FACET_FIXED, new Object[]{facetName}, facet);
-                            continue;
-                        }
-                        if (myFacets[SchemaType.FACET_MIN_LENGTH] != null) {
-                            // An error for 'length' and 'minLength' to be specified at the same time
-                            // except if the base type had the same value for 'minLength' also
-                            XmlAnySimpleType baseMinLength = baseImpl.getFacet(SchemaType.FACET_MIN_LENGTH);
-                            if (!(baseMinLength != null &&
-                                  baseMinLength.valueEquals(myFacets[SchemaType.FACET_MIN_LENGTH]) &&
-                                  baseMinLength.compareValue(len) <= 0)) {
-                                state.error(XmlErrorCodes.DATATYPE_LENGTH, null, facet);
+                    switch (code) {
+                        case SchemaType.FACET_LENGTH:
+//                            if (myFacets[SchemaType.FACET_MIN_LENGTH] != null ||
+//                                myFacets[SchemaType.FACET_MAX_LENGTH] != null)
+//                            {
+//                                state.error(XmlErrorCodes.DATATYPE_LENGTH, null, facet);
+//                                continue;
+//                            }
+                            XmlInteger len = StscTranslator.buildNnInteger(facet.getValue());
+                            if (len == null) {
+                                state.error("Must be a nonnegative integer", XmlErrorCodes.FACET_VALUE_MALFORMED, facet);
                                 continue;
                             }
-                        }
-                        if (myFacets[SchemaType.FACET_MAX_LENGTH] != null) {
-                            // An error for 'length' and 'maxLength' to be specified at the same time
-                            // except if the base type had the same value for 'maxLength' also
-                            XmlAnySimpleType baseMaxLength = baseImpl.getFacet(SchemaType.FACET_MAX_LENGTH);
-                            if (!(baseMaxLength != null &&
-                                  baseMaxLength.valueEquals(myFacets[SchemaType.FACET_MAX_LENGTH]) &&
-                                  baseMaxLength.compareValue(len) >= 0)) {
-                                state.error(XmlErrorCodes.DATATYPE_LENGTH, null, facet);
+                            if (fixedFacets[code] && !myFacets[code].valueEquals(len)) {
+                                state.error(XmlErrorCodes.FACET_FIXED, new Object[]{facetName}, facet);
                                 continue;
                             }
-                        }
-                        myFacets[code] = len;
-                        break;
-
-                    case SchemaType.FACET_MIN_LENGTH:
-                    case SchemaType.FACET_MAX_LENGTH:
-                        XmlInteger mlen = StscTranslator.buildNnInteger(facet.getValue());
-                        if (mlen == null) {
-                            state.error("Must be a nonnegative integer", XmlErrorCodes.FACET_VALUE_MALFORMED, facet);
-                            continue;
-                        }
-                        if (fixedFacets[code] && !myFacets[code].valueEquals(mlen)) {
-                            state.error(XmlErrorCodes.FACET_FIXED, new Object[]{facetName}, facet);
-                            continue;
-                        }
-                        if (myFacets[SchemaType.FACET_LENGTH] != null) {
-                            // It's an error for 'length' and 'minLength'/'maxLength' to be
-                            // specified at the same time, except for the case when
-                            // the base type had the same value for 'minLength'/'maxLength'
-                            // and the two values are consistent
-                            XmlAnySimpleType baseMinMaxLength = baseImpl.getFacet(code);
-                            if (!(baseMinMaxLength != null &&
-                                  baseMinMaxLength.valueEquals(mlen) &&
-                                  (code == SchemaType.FACET_MIN_LENGTH ?
-                                      baseMinMaxLength.compareTo(myFacets[SchemaType.FACET_LENGTH]) <= 0 :
-                                      baseMinMaxLength.compareTo(myFacets[SchemaType.FACET_LENGTH]) >= 0))) {
-                                state.error(XmlErrorCodes.DATATYPE_LENGTH, null, facet);
-                                continue;
+                            if (myFacets[SchemaType.FACET_MIN_LENGTH] != null) {
+                                // An error for 'length' and 'minLength' to be specified at the same time
+                                // except if the base type had the same value for 'minLength' also
+                                XmlAnySimpleType baseMinLength = baseImpl.getFacet(SchemaType.FACET_MIN_LENGTH);
+                                if (!(baseMinLength != null &&
+                                      baseMinLength.valueEquals(myFacets[SchemaType.FACET_MIN_LENGTH]) &&
+                                      baseMinLength.compareValue(len) <= 0)) {
+                                    state.error(XmlErrorCodes.DATATYPE_LENGTH, null, facet);
+                                    continue;
+                                }
                             }
-                        }
-                        if (myFacets[SchemaType.FACET_MAX_LENGTH] != null) {
-                            if (mlen.compareValue(myFacets[SchemaType.FACET_MAX_LENGTH]) > 0) {
-                                state.error(XmlErrorCodes.DATATYPE_MAX_LENGTH_RESTRICTION, null, facet);
-                                continue;
+                            if (myFacets[SchemaType.FACET_MAX_LENGTH] != null) {
+                                // An error for 'length' and 'maxLength' to be specified at the same time
+                                // except if the base type had the same value for 'maxLength' also
+                                XmlAnySimpleType baseMaxLength = baseImpl.getFacet(SchemaType.FACET_MAX_LENGTH);
+                                if (!(baseMaxLength != null &&
+                                      baseMaxLength.valueEquals(myFacets[SchemaType.FACET_MAX_LENGTH]) &&
+                                      baseMaxLength.compareValue(len) >= 0)) {
+                                    state.error(XmlErrorCodes.DATATYPE_LENGTH, null, facet);
+                                    continue;
+                                }
                             }
-                        }
-                        if (myFacets[SchemaType.FACET_MIN_LENGTH] != null) {
-                            if (mlen.compareValue(myFacets[SchemaType.FACET_MIN_LENGTH]) < 0) {
-                                state.error(XmlErrorCodes.DATATYPE_MIN_LENGTH_RESTRICTION, null, facet);
-                                continue;
-                            }
-                        }
-                        myFacets[code] = mlen;
-                        break;
-
-                    case SchemaType.FACET_TOTAL_DIGITS:
-                        XmlPositiveInteger dig = StscTranslator.buildPosInteger(facet.getValue());
-                        if (dig == null) {
-                            state.error("Must be a positive integer", XmlErrorCodes.FACET_VALUE_MALFORMED, facet);
+                            myFacets[code] = len;
                             break;
-                        }
-                        if (fixedFacets[code] && !myFacets[code].valueEquals(dig)) {
-                            state.error(XmlErrorCodes.FACET_FIXED, new Object[]{facetName}, facet);
-                            continue;
-                        }
-                        if (myFacets[SchemaType.FACET_TOTAL_DIGITS] != null) {
-                            if (dig.compareValue(myFacets[SchemaType.FACET_TOTAL_DIGITS]) > 0) {
-                                state.error(XmlErrorCodes.DATATYPE_TOTAL_DIGITS_RESTRICTION, null, facet);
-                            }
-                        }
-                        myFacets[code] = dig;
-                        break;
 
-                    case SchemaType.FACET_FRACTION_DIGITS:
-                        XmlNonNegativeInteger fdig = StscTranslator.buildNnInteger(facet.getValue());
-                        if (fdig == null) {
-                            state.error("Must be a nonnegative integer", XmlErrorCodes.FACET_VALUE_MALFORMED, facet);
-                            break;
-                        }
-                        if (fixedFacets[code] && !myFacets[code].valueEquals(fdig)) {
-                            state.error(XmlErrorCodes.FACET_FIXED, new Object[]{facetName}, facet);
-                            continue;
-                        }
-                        if (myFacets[SchemaType.FACET_FRACTION_DIGITS] != null) {
-                            if (fdig.compareValue(myFacets[SchemaType.FACET_FRACTION_DIGITS]) > 0) {
-                                state.error(XmlErrorCodes.DATATYPE_FRACTION_DIGITS_RESTRICTION, null, facet);
-                            }
-                        }
-                        if (myFacets[SchemaType.FACET_TOTAL_DIGITS] != null) {
-                            if (fdig.compareValue(myFacets[SchemaType.FACET_TOTAL_DIGITS]) > 0) {
-                                state.error(XmlErrorCodes.DATATYPE_FRACTION_DIGITS_LE_TOTAL_DIGITS, null, facet);
-                            }
-                        }
-                        myFacets[code] = fdig;
-                        break;
-
-                    case SchemaType.FACET_MIN_EXCLUSIVE:
-                    case SchemaType.FACET_MIN_INCLUSIVE:
-                    case SchemaType.FACET_MAX_INCLUSIVE:
-                    case SchemaType.FACET_MAX_EXCLUSIVE:
-
-                        if (seenFacet[other_similar_limit(code)]) {
-                            state.error("Cannot define both inclusive and exclusive limit in the same restriciton", XmlErrorCodes.FACET_DUPLICATED, facet);
-                            continue;
-                        }
-                        boolean ismin = (code == SchemaType.FACET_MIN_EXCLUSIVE || code == SchemaType.FACET_MIN_INCLUSIVE);
-                        boolean isexclusive = (code == SchemaType.FACET_MIN_EXCLUSIVE || code == SchemaType.FACET_MAX_EXCLUSIVE);
-
-                        XmlAnySimpleType limit;
-                        try {
-                            limit = baseImpl.newValue(facet.getValue(), true);
-                        } catch (XmlValueOutOfRangeException e) {
-                            // note: this guarantees that the limit is a valid number in the
-                            // base data type!!
-                            switch (code) {
-                                case SchemaType.FACET_MIN_EXCLUSIVE:
-                                    state.error(XmlErrorCodes.DATATYPE_MIN_EXCLUSIVE_RESTRICTION,
-                                        new Object[]{e.getMessage()}, facet);
-                                    break;
-                                case SchemaType.FACET_MIN_INCLUSIVE:
-                                    state.error(XmlErrorCodes.DATATYPE_MIN_INCLUSIVE_RESTRICTION,
-                                        new Object[]{e.getMessage()}, facet);
-                                    break;
-                                case SchemaType.FACET_MAX_INCLUSIVE:
-                                    state.error(XmlErrorCodes.DATATYPE_MAX_INCLUSIVE_RESTRICTION,
-                                        new Object[]{e.getMessage()}, facet);
-                                    break;
-                                case SchemaType.FACET_MAX_EXCLUSIVE:
-                                    state.error(XmlErrorCodes.DATATYPE_MAX_EXCLUSIVE_RESTRICTION,
-                                        new Object[]{e.getMessage()}, facet);
-                                    break;
-                            }
-
-                            // BUGBUG: if there are actual schemas that redefine min/maxExclusive,
-                            // they will need this rule relaxed for them!!
-                            continue;
-                        }
-                        if (fixedFacets[code] && !myFacets[code].valueEquals(limit)) {
-                            state.error(XmlErrorCodes.FACET_FIXED, new Object[]{facetName}, facet);
-                            continue;
-                        }
-                        if (myFacets[code] != null) {
-                            SchemaType limitSType = limit.schemaType();
-                            if (limitSType != null && !limitSType.isSimpleType() &&
-                                limitSType.getContentType() == SchemaType.SIMPLE_CONTENT) {
-                                // in the case of complex types with simple content that has facets
-                                // we need to compare values based on the content type
-                                limit = baseImpl.getContentBasedOnType().newValue(facet.getValue());
-                            }
-
-                            int comparison = limit.compareValue(myFacets[code]);
-                            if (comparison == 2 || comparison == (ismin ? -1 : 1)) {
-                                state.error(ismin ?
-                                        (isexclusive ?
-                                            "Must be greater than or equal to previous minExclusive" :
-                                            "Must be greater than or equal to previous minInclusive") :
-                                        (isexclusive ?
-                                            "Must be less than or equal to previous maxExclusive" :
-                                            "Must be less than or equal to previous maxInclusive"),
-                                    XmlErrorCodes.FACET_VALUE_MALFORMED, facet);
+                        case SchemaType.FACET_MIN_LENGTH:
+                        case SchemaType.FACET_MAX_LENGTH:
+                            XmlInteger mlen = StscTranslator.buildNnInteger(facet.getValue());
+                            if (mlen == null) {
+                                state.error("Must be a nonnegative integer", XmlErrorCodes.FACET_VALUE_MALFORMED, facet);
                                 continue;
                             }
-                        }
-                        myFacets[code] = limit;
-                        myFacets[other_similar_limit(code)] = null;
-                        break;
+                            if (fixedFacets[code] && !myFacets[code].valueEquals(mlen)) {
+                                state.error(XmlErrorCodes.FACET_FIXED, new Object[]{facetName}, facet);
+                                continue;
+                            }
+                            if (myFacets[SchemaType.FACET_LENGTH] != null) {
+                                // It's an error for 'length' and 'minLength'/'maxLength' to be
+                                // specified at the same time, except for the case when
+                                // the base type had the same value for 'minLength'/'maxLength'
+                                // and the two values are consistent
+                                XmlAnySimpleType baseMinMaxLength = baseImpl.getFacet(code);
+                                if (!(baseMinMaxLength != null &&
+                                      baseMinMaxLength.valueEquals(mlen) &&
+                                      (code == SchemaType.FACET_MIN_LENGTH ?
+                                          baseMinMaxLength.compareTo(myFacets[SchemaType.FACET_LENGTH]) <= 0 :
+                                          baseMinMaxLength.compareTo(myFacets[SchemaType.FACET_LENGTH]) >= 0))) {
+                                    state.error(XmlErrorCodes.DATATYPE_LENGTH, null, facet);
+                                    continue;
+                                }
+                            }
+                            if (myFacets[SchemaType.FACET_MAX_LENGTH] != null) {
+                                if (mlen.compareValue(myFacets[SchemaType.FACET_MAX_LENGTH]) > 0) {
+                                    state.error(XmlErrorCodes.DATATYPE_MAX_LENGTH_RESTRICTION, null, facet);
+                                    continue;
+                                }
+                            }
+                            if (myFacets[SchemaType.FACET_MIN_LENGTH] != null) {
+                                if (mlen.compareValue(myFacets[SchemaType.FACET_MIN_LENGTH]) < 0) {
+                                    state.error(XmlErrorCodes.DATATYPE_MIN_LENGTH_RESTRICTION, null, facet);
+                                    continue;
+                                }
+                            }
+                            myFacets[code] = mlen;
+                            break;
 
-                    case SchemaType.FACET_WHITE_SPACE:
-                        wsr = translateWhitespaceCode(facet.getValue());
-                        if (baseImpl.getWhiteSpaceRule() > wsr) {
-                            wsr = SchemaType.WS_UNSPECIFIED;
-                            state.error(XmlErrorCodes.DATATYPE_WHITESPACE_RESTRICTION, null, facet);
-                            continue;
-                        }
-                        myFacets[code] = StscState.build_wsstring(wsr).get();
-                        break;
+                        case SchemaType.FACET_TOTAL_DIGITS:
+                            XmlPositiveInteger dig = StscTranslator.buildPosInteger(facet.getValue());
+                            if (dig == null) {
+                                state.error("Must be a positive integer", XmlErrorCodes.FACET_VALUE_MALFORMED, facet);
+                                break;
+                            }
+                            if (fixedFacets[code] && !myFacets[code].valueEquals(dig)) {
+                                state.error(XmlErrorCodes.FACET_FIXED, new Object[]{facetName}, facet);
+                                continue;
+                            }
+                            if (myFacets[SchemaType.FACET_TOTAL_DIGITS] != null) {
+                                if (dig.compareValue(myFacets[SchemaType.FACET_TOTAL_DIGITS]) > 0) {
+                                    state.error(XmlErrorCodes.DATATYPE_TOTAL_DIGITS_RESTRICTION, null, facet);
+                                }
+                            }
+                            myFacets[code] = dig;
+                            break;
 
-                    case SchemaType.FACET_ENUMERATION:
-                        XmlAnySimpleType enumval;
-                        try {
-                            enumval = baseImpl.newValue(facet.getValue(), true);
-                            // enumval.set(facet.getValue());
-                            // ((XmlObjectBase)enumval).setImmutable();
-                        } catch (XmlValueOutOfRangeException e) {
-                            state.error(XmlErrorCodes.DATATYPE_ENUM_RESTRICTION, new Object[]{facet.getValue().getStringValue(), e.getMessage()}, facet);
-                            continue;
-                        }
-                        if (enumeratedValues == null) {
-                            enumeratedValues = new ArrayList<>();
-                        }
-                        enumeratedValues.add(enumval);
-                        break;
+                        case SchemaType.FACET_FRACTION_DIGITS:
+                            XmlNonNegativeInteger fdig = StscTranslator.buildNnInteger(facet.getValue());
+                            if (fdig == null) {
+                                state.error("Must be a nonnegative integer", XmlErrorCodes.FACET_VALUE_MALFORMED, facet);
+                                break;
+                            }
+                            if (fixedFacets[code] && !myFacets[code].valueEquals(fdig)) {
+                                state.error(XmlErrorCodes.FACET_FIXED, new Object[]{facetName}, facet);
+                                continue;
+                            }
+                            if (myFacets[SchemaType.FACET_FRACTION_DIGITS] != null) {
+                                if (fdig.compareValue(myFacets[SchemaType.FACET_FRACTION_DIGITS]) > 0) {
+                                    state.error(XmlErrorCodes.DATATYPE_FRACTION_DIGITS_RESTRICTION, null, facet);
+                                }
+                            }
+                            if (myFacets[SchemaType.FACET_TOTAL_DIGITS] != null) {
+                                if (fdig.compareValue(myFacets[SchemaType.FACET_TOTAL_DIGITS]) > 0) {
+                                    state.error(XmlErrorCodes.DATATYPE_FRACTION_DIGITS_LE_TOTAL_DIGITS, null, facet);
+                                }
+                            }
+                            myFacets[code] = fdig;
+                            break;
 
-                    case SchemaType.FACET_PATTERN:
-                        RegularExpression p;
-                        try {
-                            p = new RegularExpression(facet.getValue().getStringValue(), "X");
-                        } catch (ParseException e) {
-                            state.error(XmlErrorCodes.PATTERN_REGEX, new Object[]{facet.getValue().getStringValue(), e.getMessage()}, facet);
-                            continue;
-                        }
-                        if (patterns == null) {
-                            patterns = new ArrayList<>();
-                        }
-                        patterns.add(p);
-                        break;
-                }
+                        case SchemaType.FACET_MIN_EXCLUSIVE:
+                        case SchemaType.FACET_MIN_INCLUSIVE:
+                        case SchemaType.FACET_MAX_INCLUSIVE:
+                        case SchemaType.FACET_MAX_EXCLUSIVE:
 
-                if (facet.getFixed()) {
-                    fixedFacets[code] = true;
+                            if (seenFacet[other_similar_limit(code)]) {
+                                state.error("Cannot define both inclusive and exclusive limit in the same restriciton", XmlErrorCodes.FACET_DUPLICATED, facet);
+                                continue;
+                            }
+                            boolean ismin = (code == SchemaType.FACET_MIN_EXCLUSIVE || code == SchemaType.FACET_MIN_INCLUSIVE);
+                            boolean isexclusive = (code == SchemaType.FACET_MIN_EXCLUSIVE || code == SchemaType.FACET_MAX_EXCLUSIVE);
+
+                            XmlAnySimpleType limit;
+                            try {
+                                limit = baseImpl.newValue(facet.getValue(), true);
+                            } catch (XmlValueOutOfRangeException e) {
+                                // note: this guarantees that the limit is a valid number in the
+                                // base data type!!
+                                switch (code) {
+                                    case SchemaType.FACET_MIN_EXCLUSIVE:
+                                        state.error(XmlErrorCodes.DATATYPE_MIN_EXCLUSIVE_RESTRICTION,
+                                            new Object[]{e.getMessage()}, facet);
+                                        break;
+                                    case SchemaType.FACET_MIN_INCLUSIVE:
+                                        state.error(XmlErrorCodes.DATATYPE_MIN_INCLUSIVE_RESTRICTION,
+                                            new Object[]{e.getMessage()}, facet);
+                                        break;
+                                    case SchemaType.FACET_MAX_INCLUSIVE:
+                                        state.error(XmlErrorCodes.DATATYPE_MAX_INCLUSIVE_RESTRICTION,
+                                            new Object[]{e.getMessage()}, facet);
+                                        break;
+                                    case SchemaType.FACET_MAX_EXCLUSIVE:
+                                        state.error(XmlErrorCodes.DATATYPE_MAX_EXCLUSIVE_RESTRICTION,
+                                            new Object[]{e.getMessage()}, facet);
+                                        break;
+                                }
+
+                                // BUGBUG: if there are actual schemas that redefine min/maxExclusive,
+                                // they will need this rule relaxed for them!!
+                                continue;
+                            }
+                            if (fixedFacets[code] && !myFacets[code].valueEquals(limit)) {
+                                state.error(XmlErrorCodes.FACET_FIXED, new Object[]{facetName}, facet);
+                                continue;
+                            }
+                            if (myFacets[code] != null) {
+                                SchemaType limitSType = limit.schemaType();
+                                if (limitSType != null && !limitSType.isSimpleType() &&
+                                    limitSType.getContentType() == SchemaType.SIMPLE_CONTENT) {
+                                    // in the case of complex types with simple content that has facets
+                                    // we need to compare values based on the content type
+                                    limit = baseImpl.getContentBasedOnType().newValue(facet.getValue());
+                                }
+
+                                int comparison = limit.compareValue(myFacets[code]);
+                                if (comparison == 2 || comparison == (ismin ? -1 : 1)) {
+                                    state.error(ismin ?
+                                            (isexclusive ?
+                                                "Must be greater than or equal to previous minExclusive" :
+                                                "Must be greater than or equal to previous minInclusive") :
+                                            (isexclusive ?
+                                                "Must be less than or equal to previous maxExclusive" :
+                                                "Must be less than or equal to previous maxInclusive"),
+                                        XmlErrorCodes.FACET_VALUE_MALFORMED, facet);
+                                    continue;
+                                }
+                            }
+                            myFacets[code] = limit;
+                            myFacets[other_similar_limit(code)] = null;
+                            break;
+
+                        case SchemaType.FACET_WHITE_SPACE:
+                            wsr = translateWhitespaceCode(facet.getValue());
+                            if (baseImpl.getWhiteSpaceRule() > wsr) {
+                                wsr = SchemaType.WS_UNSPECIFIED;
+                                state.error(XmlErrorCodes.DATATYPE_WHITESPACE_RESTRICTION, null, facet);
+                                continue;
+                            }
+                            myFacets[code] = StscState.build_wsstring(wsr).get();
+                            break;
+
+                        case SchemaType.FACET_ENUMERATION:
+                            XmlAnySimpleType enumval;
+                            try {
+                                enumval = baseImpl.newValue(facet.getValue(), true);
+                                // enumval.set(facet.getValue());
+                                // ((XmlObjectBase)enumval).setImmutable();
+                            } catch (XmlValueOutOfRangeException e) {
+                                state.error(XmlErrorCodes.DATATYPE_ENUM_RESTRICTION, new Object[]{facet.getValue().getStringValue(), e.getMessage()}, facet);
+                                continue;
+                            }
+                            if (enumeratedValues == null) {
+                                enumeratedValues = new ArrayList<>();
+                            }
+                            enumeratedValues.add(enumval);
+                            break;
+
+                        case SchemaType.FACET_PATTERN:
+                            RegularExpression p;
+                            try {
+                                p = new RegularExpression(facet.getValue().getStringValue(), "X");
+                            } catch (ParseException e) {
+                                state.error(XmlErrorCodes.PATTERN_REGEX, new Object[]{facet.getValue().getStringValue(), e.getMessage()}, facet);
+                                continue;
+                            }
+                            if (patterns == null) {
+                                patterns = new ArrayList<>();
+                            }
+                            patterns.add(p);
+                            break;
+                    }
+
+                    if (facet.getFixed()) {
+                        fixedFacets[code] = true;
+                    }
                 }
             }
         }

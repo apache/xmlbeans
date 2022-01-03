@@ -33,9 +33,10 @@ public class EmptyContentTest extends BaseCase {
         assertTrue(!elt.isSetEmptyAttr());
         elt.setEmptyAttr("foobar");
         assertTrue(elt.validate());
-        XmlCursor cur = elt.newCursor();
-        cur.toFirstContentToken();
-        cur.beginElement("foobarElt");
+        try (XmlCursor cur = elt.newCursor()) {
+            cur.toFirstContentToken();
+            cur.beginElement("foobarElt");
+        }
         assertTrue(!elt.validate(validateOptions));
         showErrors();
         String[] errExpected = new String[]{

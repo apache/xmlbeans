@@ -47,10 +47,11 @@ public class EmptyContentRestriction extends BaseCase {
             showErrors();
             throw t;
         }
-        XmlCursor cur = elt.newCursor();
-        cur.toFirstContentToken();
-        cur.toNextToken();
-        cur.beginElement("foobar");
+        try (XmlCursor cur = elt.newCursor()) {
+            cur.toFirstContentToken();
+            cur.toNextToken();
+            cur.beginElement("foobar");
+        }
         assertEquals("<xml-fragment>" +
                 "<emt:RestrictedEmptyElt emptyAttr=\"myval\" " +
                 "xmlns:emt=\"http://xbean/scomp/derivation/Emtpy\"/>" +

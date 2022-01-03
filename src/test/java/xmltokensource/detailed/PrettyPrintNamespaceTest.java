@@ -30,12 +30,13 @@ public class PrettyPrintNamespaceTest {
     public void testWithNewInstance()
             throws Exception {
         XmlObject x = XmlObject.Factory.newInstance();
-        XmlCursor c = x.newCursor();
 
-        c.toNextToken();
-        c.beginElement("a", "aaaa");
-        c.insertAttribute("a", "aaaa");
-        c.insertNamespace("", "aaaa");
+        try (XmlCursor c = x.newCursor()) {
+            c.toNextToken();
+            c.beginElement("a", "aaaa");
+            c.insertAttribute("a", "aaaa");
+            c.insertNamespace("", "aaaa");
+        }
 
         String str =
                 "<a aaaa:a=\"\" xmlns=\"aaaa\" xmlns:aaaa=\"aaaa\"/>";

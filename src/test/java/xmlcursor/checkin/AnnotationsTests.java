@@ -32,31 +32,31 @@ public class AnnotationsTests {
     //
     @Test
     public void testBasicXml() throws Exception {
-        XmlCursor c = XmlObject.Factory.parse(Common.XML_ATTR_TEXT, null).newCursor();
+        try (XmlCursor c = XmlObject.Factory.parse(Common.XML_ATTR_TEXT, null).newCursor()) {
+            TestBookmark a1 = new TestBookmark();
 
-        TestBookmark a1 = new TestBookmark();
+            c.setBookmark(a1);
 
-        c.setBookmark(a1);
+            TestBookmark a2 = new TestBookmark();
 
-        TestBookmark a2 = new TestBookmark();
+            c.toNextToken();
+            c.toNextToken();
 
-        c.toNextToken();
-        c.toNextToken();
+            c.setBookmark(a2);
 
-        c.setBookmark(a2);
+            c.toPrevToken();
+            c.toPrevToken();
 
-        c.toPrevToken();
-        c.toPrevToken();
+            assertEquals(c.getBookmark(TestBookmark.class), a1);
 
-        assertEquals(c.getBookmark(TestBookmark.class), a1);
+            c.toNextToken();
+            c.toNextToken();
 
-        c.toNextToken();
-        c.toNextToken();
+            assertEquals(c.getBookmark(TestBookmark.class), a2);
 
-        assertEquals(c.getBookmark(TestBookmark.class), a2);
+            c.toNextToken();
 
-        c.toNextToken();
-
-        assertNull(c.getBookmark(TestBookmark.class));
+            assertNull(c.getBookmark(TestBookmark.class));
+        }
     }
 }

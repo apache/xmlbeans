@@ -62,12 +62,13 @@ public abstract class PITest {
 
     @Before
     public void setUp() throws Exception {
-        XmlCursor cur = XmlObject.Factory.newInstance().newCursor();
-        cur.toNextToken();
-        cur.insertProcInst("xml-stylesheet", "http://foobar");
-        cur.insertElement("foobar");
-        cur.toStartDoc();
-        m_stream = getStream(cur);
+        try (XmlCursor cur = XmlObject.Factory.newInstance().newCursor()) {
+            cur.toNextToken();
+            cur.insertProcInst("xml-stylesheet", "http://foobar");
+            cur.insertElement("foobar");
+            cur.toStartDoc();
+            m_stream = getStream(cur);
+        }
     }
 
     @After

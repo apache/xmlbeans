@@ -25,10 +25,11 @@ public class XPathTestsMisc {
     public void testDelete() throws Exception {
         String query = "*";
 
-        XmlCursor xc = XmlObject.Factory.parse(XPathTests.XML).newCursor();
-        xc.selectPath(query);
-        while (xc.toNextSelection()) {
-            System.out.println(xc.xmlText());
+        try (XmlCursor xc = XmlObject.Factory.parse(XPathTests.XML).newCursor()) {
+            xc.selectPath(query);
+            while (xc.toNextSelection()) {
+                System.out.println(xc.xmlText());
+            }
         }
     }
 
