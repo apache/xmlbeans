@@ -36,7 +36,8 @@ plugins {
     id('org.nosphere.apache.rat') version '0.7.0'
     id('de.thetaphi.forbiddenapis') version '3.2'
     id 'jacoco'
-    id 'com.github.spotbugs' version '5.0.3'
+    id 'com.github.spotbugs' version '4.8.0'
+    id 'org.cyclonedx.bom' version '1.4.1'
 }
 
 // Only add the plugin for Sonar if enabled
