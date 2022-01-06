@@ -201,7 +201,7 @@ public final class Cursor implements XmlCursor, ChangeListener {
     // change from a phantom ref to a soft/weak ref so I can know what
     // to do when I dequeue from the old q.
 
-    public void _close() {
+    public void _dispose() {
         _cur.release();
         _cur = null;
     }
@@ -1908,7 +1908,7 @@ public final class Cursor implements XmlCursor, ChangeListener {
     @Override
     public void close() {
         if (_cur != null) {
-            syncWrap(this::_close);
+            syncWrap(this::_dispose);
         }
     }
 
