@@ -5,4 +5,4 @@ jdk:
 install: /bin/true
 before_script: /bin/true
 script:
-- ./gradlew test
+- ./gradlew javadoc test

@@ -340,7 +340,7 @@ public interface XmlCursor extends XmlTokenSource, AutoCloseable {
      * disposal.
      * <p>
      * XmlCursor implements <code>java.lang.AutoCloseable</code> and the
-     * try-with-resources pattern is recommended.<br/><br/>
+     * try-with-resources pattern is recommended.
      * <p>
      * Note: Future major release will remove this default implementation.
      */
