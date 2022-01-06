@@ -22,6 +22,8 @@ import net.sf.saxon.om.NodeInfo;
 import net.sf.saxon.om.SequenceTool;
 import net.sf.saxon.sxpath.*;
 import net.sf.saxon.tree.wrapper.VirtualNode;
+import net.sf.saxon.value.DateTimeValue;
+import net.sf.saxon.value.GDateValue;
 import org.apache.xmlbeans.XmlOptions;
 import org.apache.xmlbeans.impl.store.Cur;
 import org.apache.xmlbeans.impl.xpath.Path;
@@ -115,6 +117,10 @@ public class SaxonXPath implements Path {
                     retNodes.add(n);
                 } else if (o instanceof NodeInfo) {
                     retNodes.add(o.getStringValue());
+                } else if (o instanceof GDateValue) {
+                    retNodes.add(o);
+                } else if (o instanceof DateTimeValue) {
+                    retNodes.add(o);
                 } else {
                     retNodes.add(SequenceTool.convertToJava(o));
                 }

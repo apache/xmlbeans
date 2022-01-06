@@ -15,6 +15,8 @@
 
 package org.apache.xmlbeans.impl.xpath.saxon;
 
+import net.sf.saxon.value.DateTimeValue;
+import net.sf.saxon.value.GDateValue;
 import org.apache.xmlbeans.*;
 import org.apache.xmlbeans.impl.store.Cur;
 import org.apache.xmlbeans.impl.store.DomImpl;
@@ -69,6 +71,8 @@ public class SaxonXPathEngine extends XPathExecutionContext implements XPathEngi
                 String value;
                 if (obj instanceof Date) {
                     value = xmlDateFormat.format((Date) obj);
+                } else if (obj instanceof GDateValue) {
+                    value = ((GDateValue) obj).getStringValue();
                 } else if (obj instanceof BigDecimal) {
                     value = ((BigDecimal) obj).toPlainString();
                 } else {
@@ -119,8 +123,10 @@ public class SaxonXPathEngine extends XPathExecutionContext implements XPathEngi
             type = XmlBoolean.type;
         } else if (node instanceof String) {
             type = XmlString.type;
-        } else if (node instanceof Date) {
+        } else if (node instanceof GDateValue) {
             type = XmlDate.type;
+        } else if (node instanceof DateTimeValue) {
+            type = XmlDateTime.type;
         } else {
             type = XmlAnySimpleType.type;
         }
