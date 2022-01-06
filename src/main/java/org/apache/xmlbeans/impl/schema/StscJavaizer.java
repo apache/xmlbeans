@@ -15,6 +15,8 @@
 
 package org.apache.xmlbeans.impl.schema;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.xmlbeans.*;
 import org.apache.xmlbeans.impl.common.NameUtil;
 
@@ -23,6 +25,8 @@ import java.math.BigInteger;
 import java.util.*;
 
 public class StscJavaizer {
+
+    private static final Logger LOG = LogManager.getLogger(StscJavaizer.class);
 
     /**
      * XMLBEANS-307
@@ -81,11 +85,11 @@ public class StscJavaizer {
                 sImpl.setFullJavaName(pickFullJavaClassName(usedNames, findTopName(sImpl), pickedName, sImpl.isDocumentType(), sImpl.isAttributeType()));
                 sImpl.setFullJavaImplName(pickFullJavaImplName(usedNames, sImpl.getFullJavaName()));
 
-                setUserTypes(sImpl, state);
-
                 setExtensions(sImpl, state);
             }
         }
+
+        setUserTypes(state);
 
         verifyInterfaceNameCollisions(usedNames, state);
     }
@@ -117,14 +121,18 @@ public class StscJavaizer {
         }
     }
 
-    private static void setUserTypes(SchemaTypeImpl sImpl, StscState state) {
+    private static void setUserTypes(StscState state) {
         BindingConfig config = state.getBindingConfig();
 
         if (config != null) {
-            UserType utype = config.lookupUserTypeForQName(sImpl.getName());
-            if (utype != null) {
-                sImpl.setUserTypeName(utype.getJavaName());
-                sImpl.setUserTypeHandlerName(utype.getStaticHandler());
+            for (UserType utype : config.getUserTypes()) {
+                SchemaTypeImpl sImpl = state.findGlobalType(utype.getName(), null, null);
+                if (sImpl != null) {
+                    sImpl.setUserTypeName(utype.getJavaName());
+                    sImpl.setUserTypeHandlerName(utype.getStaticHandler());
+                } else {
+                    LOG.atWarn().log("Cannot match user type for {}", utype.getName());
+                }
             }
         }
     }

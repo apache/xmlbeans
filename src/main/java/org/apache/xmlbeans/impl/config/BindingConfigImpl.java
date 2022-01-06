@@ -309,6 +309,10 @@ public class BindingConfigImpl extends BindingConfig {
         return qname == null ? null : _userTypes.get(qname);
     }
 
+    public UserType[] getUserTypes() {
+        return this._userTypes.values().toArray(new UserType[0]);
+    }
+
     public InterfaceExtension[] getInterfaceExtensions() {
         return _interfaceExtensions.toArray(new InterfaceExtension[0]);
     }
