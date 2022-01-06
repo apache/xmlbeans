@@ -73,6 +73,8 @@ public class SaxonXPathEngine extends XPathExecutionContext implements XPathEngi
                     value = xmlDateFormat.format((Date) obj);
                 } else if (obj instanceof GDateValue) {
                     value = ((GDateValue) obj).getStringValue();
+                } else if (obj instanceof DateTimeValue) {
+                    value = ((DateTimeValue) obj).getStringValue();
                 } else if (obj instanceof BigDecimal) {
                     value = ((BigDecimal) obj).toPlainString();
                 } else {
