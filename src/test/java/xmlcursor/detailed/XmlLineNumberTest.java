@@ -47,20 +47,22 @@ public class XmlLineNumberTest extends Common {
         XmlOptions opt = new XmlOptions();
         opt.setLoadLineNumbers();
         XmlObject xo = XmlObject.Factory.parse(f, opt);
-        XmlCursor c = xo.newCursor();
-        c.toFirstChild();
-        assertEquals(XmlCursor.TokenType.START, c.currentTokenType());
-        XmlLineNumber ln = (XmlLineNumber) c.getBookmark(XmlLineNumber.class);
-        assertNotNull(ln);
-        assertEquals(16, ln.getLine());
-        c.toFirstChild();
-        ln = (XmlLineNumber) c.getBookmark(XmlLineNumber.class);
-        assertEquals(17, ln.getLine());
-        c.toEndToken();
-        assertEquals(XmlCursor.TokenType.END, c.currentTokenType());
-        ln = (XmlLineNumber) c.getBookmark(XmlLineNumber.class);
-        // no bookmark at END
-        assertNull(ln);
+
+        try (XmlCursor c = xo.newCursor()) {
+            c.toFirstChild();
+            assertEquals(XmlCursor.TokenType.START, c.currentTokenType());
+            XmlLineNumber ln = (XmlLineNumber) c.getBookmark(XmlLineNumber.class);
+            assertNotNull(ln);
+            assertEquals(16, ln.getLine());
+            c.toFirstChild();
+            ln = (XmlLineNumber) c.getBookmark(XmlLineNumber.class);
+            assertEquals(17, ln.getLine());
+            c.toEndToken();
+            assertEquals(XmlCursor.TokenType.END, c.currentTokenType());
+            ln = (XmlLineNumber) c.getBookmark(XmlLineNumber.class);
+            // no bookmark at END
+            assertNull(ln);
+        }
     }
 
     /**
@@ -73,21 +75,23 @@ public class XmlLineNumberTest extends Common {
         XmlOptions opt = new XmlOptions();
         opt.setLoadLineNumbersEndElement();
         XmlObject xo = XmlObject.Factory.parse(f, opt);
-        XmlCursor c = xo.newCursor();
-        c.toFirstChild();
-        assertEquals(XmlCursor.TokenType.START, c.currentTokenType());
-        XmlLineNumber ln = (XmlLineNumber) c.getBookmark(XmlLineNumber.class);
-        assertNotNull(ln);
-        assertEquals(16, ln.getLine());
-        c.toFirstChild();
-        ln = (XmlLineNumber) c.getBookmark(XmlLineNumber.class);
-        assertEquals(17, ln.getLine());
-        c.toEndToken();
-        assertEquals(XmlCursor.TokenType.END, c.currentTokenType());
-        ln = (XmlLineNumber) c.getBookmark(XmlLineNumber.class);
-        // there is a bookmark at END
-        assertNotNull(ln);
-        assertEquals(34, ln.getLine());
+
+        try (XmlCursor c = xo.newCursor()) {
+            c.toFirstChild();
+            assertEquals(XmlCursor.TokenType.START, c.currentTokenType());
+            XmlLineNumber ln = (XmlLineNumber) c.getBookmark(XmlLineNumber.class);
+            assertNotNull(ln);
+            assertEquals(16, ln.getLine());
+            c.toFirstChild();
+            ln = (XmlLineNumber) c.getBookmark(XmlLineNumber.class);
+            assertEquals(17, ln.getLine());
+            c.toEndToken();
+            assertEquals(XmlCursor.TokenType.END, c.currentTokenType());
+            ln = (XmlLineNumber) c.getBookmark(XmlLineNumber.class);
+            // there is a bookmark at END
+            assertNotNull(ln);
+            assertEquals(34, ln.getLine());
+        }
     }
 
     /**
@@ -98,23 +102,25 @@ public class XmlLineNumberTest extends Common {
     public void testLineNumber1() throws Exception {
         XmlOptions opt = new XmlOptions().setLoadLineNumbers();
         XmlObject xo = XmlObject.Factory.parse(xml, opt);
-        XmlCursor c = xo.newCursor();
-        c.toFirstContentToken();
-        c.toFirstChild();
-        XmlLineNumber ln = (XmlLineNumber) c.getBookmark(XmlLineNumber.class);
-        assertEquals(1, ln.getLine());
-        assertEquals(50, ln.getColumn());
-        // offset is not implemented
-        assertEquals(-1, ln.getOffset());
-        c.toFirstChild();
-        ln = (XmlLineNumber) c.getBookmark(XmlLineNumber.class);
-        assertEquals(2, ln.getLine());
-        assertEquals(10, ln.getColumn());
-        c.toFirstChild();
-        ln = (XmlLineNumber) c.getBookmark(XmlLineNumber.class);
-        assertEquals(3, ln.getLine());
-        // finishes after reading after <first_name> + 2xtabs
-        assertEquals(14, ln.getColumn());
+
+        try (XmlCursor c = xo.newCursor()) {
+            c.toFirstContentToken();
+            c.toFirstChild();
+            XmlLineNumber ln = (XmlLineNumber) c.getBookmark(XmlLineNumber.class);
+            assertEquals(1, ln.getLine());
+            assertEquals(50, ln.getColumn());
+            // offset is not implemented
+            assertEquals(-1, ln.getOffset());
+            c.toFirstChild();
+            ln = (XmlLineNumber) c.getBookmark(XmlLineNumber.class);
+            assertEquals(2, ln.getLine());
+            assertEquals(10, ln.getColumn());
+            c.toFirstChild();
+            ln = (XmlLineNumber) c.getBookmark(XmlLineNumber.class);
+            assertEquals(3, ln.getLine());
+            // finishes after reading after <first_name> + 2xtabs
+            assertEquals(14, ln.getColumn());
+        }
     }
 
     /**
@@ -127,28 +133,30 @@ public class XmlLineNumberTest extends Common {
         XmlOptions opt = new XmlOptions();
         opt.setLoadLineNumbersEndElement();
         XmlObject xo = XmlObject.Factory.parse(f, opt);
-        XmlCursor c = xo.newCursor();
-        c.toFirstContentToken();
-        c.toFirstChild();
-        XmlLineNumber ln = (XmlLineNumber) c.getBookmark(XmlLineNumber.class);
-        assertEquals(17, ln.getLine());
-        assertEquals(15, ln.getColumn());
-        assertEquals(-1, ln.getOffset());
-        c.toFirstChild();
-        c.push();
-        ln = (XmlLineNumber) c.getBookmark(XmlLineNumber.class);
-        assertEquals(18, ln.getLine());
-        assertEquals(13, ln.getColumn());
-        c.toEndToken();
-        ln = (XmlLineNumber) c.getBookmark(XmlLineNumber.class);
-        assertEquals(18, ln.getLine());
-        assertEquals(33, ln.getColumn());
-        c.pop();
-        c.toNextSibling(); //address
-        c.toEndToken();
-        ln = (XmlLineNumber) c.getBookmark(XmlLineNumber.class);
-        assertEquals(24, ln.getLine());
-        assertEquals(17, ln.getColumn());
-        assertEquals(-1, ln.getOffset());
+
+        try (XmlCursor c = xo.newCursor()) {
+            c.toFirstContentToken();
+            c.toFirstChild();
+            XmlLineNumber ln = (XmlLineNumber) c.getBookmark(XmlLineNumber.class);
+            assertEquals(17, ln.getLine());
+            assertEquals(15, ln.getColumn());
+            assertEquals(-1, ln.getOffset());
+            c.toFirstChild();
+            c.push();
+            ln = (XmlLineNumber) c.getBookmark(XmlLineNumber.class);
+            assertEquals(18, ln.getLine());
+            assertEquals(13, ln.getColumn());
+            c.toEndToken();
+            ln = (XmlLineNumber) c.getBookmark(XmlLineNumber.class);
+            assertEquals(18, ln.getLine());
+            assertEquals(33, ln.getColumn());
+            c.pop();
+            c.toNextSibling(); //address
+            c.toEndToken();
+            ln = (XmlLineNumber) c.getBookmark(XmlLineNumber.class);
+            assertEquals(24, ln.getLine());
+            assertEquals(17, ln.getColumn());
+            assertEquals(-1, ln.getOffset());
+        }
     }
 }

@@ -30,13 +30,11 @@ public class ToCursorTest extends BasicCursorTestCase {
     @Test
     public void testToCursorMoves() throws Exception {
         m_xc = XmlObject.Factory.parse(Common.XML_FOO_1ATTR_TEXT).newCursor();
-        XmlCursor xc0 = m_xc.newCursor();
-        xc0.toEndDoc();
-        try {
+        try (XmlCursor xc0 = m_xc.newCursor()) {
+            xc0.toEndDoc();
+
             assertTrue(m_xc.toCursor(xc0));
             assertTrue(xc0.isAtSamePositionAs(m_xc));
-        } finally {
-            xc0.dispose();
         }
     }
 
@@ -53,15 +51,13 @@ public class ToCursorTest extends BasicCursorTestCase {
     @Test
     public void testToCursorDifferentDocs() throws Exception {
         m_xc = XmlObject.Factory.parse(Common.XML_FOO_1ATTR_TEXT).newCursor();
-        XmlCursor xc0 = XmlObject.Factory.parse(Common.XML_FOO_1ATTR_TEXT).newCursor();
-        toNextTokenOfType(m_xc, TokenType.TEXT);
-        String s = m_xc.xmlText();
-        toNextTokenOfType(xc0, TokenType.TEXT);
-        try {
+        try (XmlCursor xc0 = XmlObject.Factory.parse(Common.XML_FOO_1ATTR_TEXT).newCursor()) {
+            toNextTokenOfType(m_xc, TokenType.TEXT);
+            String s = m_xc.xmlText();
+            toNextTokenOfType(xc0, TokenType.TEXT);
+
             assertFalse(m_xc.toCursor(xc0));
             assertEquals(s, m_xc.xmlText());
-        } finally {
-            xc0.dispose();
         }
     }
 

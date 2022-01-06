@@ -35,17 +35,18 @@ public class MixedContentExtension extends BaseCase {
         ExtendedMixedT elt = doc.addNewExtendedMixedElt();
         elt.setExtendedAttr("FOOBAR_val");
         elt.setChild1(new BigInteger("10"));
-        XmlCursor cur = elt.newCursor();
-        cur.toFirstContentToken();
-        cur.beginElement("Child2");
-        cur.toNextToken();
-        cur.insertChars("2");
-        elt.setChild3(BigInteger.ONE);
-        cur.toFirstContentToken();
-        cur.toEndToken();
-        cur.toNextToken();
-         cur.toNextToken();
-        cur.insertChars(" SOME CDATA HERE");
+        try (XmlCursor cur = elt.newCursor()) {
+            cur.toFirstContentToken();
+            cur.beginElement("Child2");
+            cur.toNextToken();
+            cur.insertChars("2");
+            elt.setChild3(BigInteger.ONE);
+            cur.toFirstContentToken();
+            cur.toEndToken();
+            cur.toNextToken();
+            cur.toNextToken();
+            cur.insertChars(" SOME CDATA HERE");
+        }
         String resultStr=
                 "<com:ExtendedMixedElt extendedAttr=\"FOOBAR_val\" " +
                 "xmlns:com=\"http://xbean/scomp/derivation/ComplexExtension\">" +
@@ -78,18 +79,18 @@ public class MixedContentExtension extends BaseCase {
         ExtendedMixedT elt = doc.addNewExtendedMixedElt();
         elt.setExtendedAttr("FOOBAR_val");
         elt.setChild1(new BigInteger("10"));
-        XmlCursor cur = elt.newCursor();
-        cur.toEndToken();
-        cur.beginElement("child2");
-        cur.insertChars("2");
-        cur.toNextToken();
+        try (XmlCursor cur = elt.newCursor()) {
+            cur.toEndToken();
+            cur.beginElement("child2");
+            cur.insertChars("2");
+            cur.toNextToken();
 
-        cur.insertComment("My comment");
-        elt.setChild3(BigInteger.ONE);
-        cur.toFirstContentToken();
-        cur.toEndToken();
-         cur.insertChars("SOME CDATA HERE");
-        try {
+            cur.insertComment("My comment");
+            elt.setChild3(BigInteger.ONE);
+            cur.toFirstContentToken();
+            cur.toEndToken();
+            cur.insertChars("SOME CDATA HERE");
+
             assertTrue( doc.validate(validateOptions) );
         }
         catch (Throwable t) {

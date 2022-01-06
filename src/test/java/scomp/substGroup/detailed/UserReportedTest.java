@@ -15,6 +15,7 @@
 
 package scomp.substGroup.detailed;
 
+import org.apache.xmlbeans.XmlCursor;
 import org.junit.Test;
 import scomp.common.BaseCase;
 import xbean.scomp.substGroup.userReported.ADocument;
@@ -62,8 +63,12 @@ public class UserReportedTest extends BaseCase{
         RootDocument.Root m = mdoc.addNewRoot();
         m.setAArray(arr);
         T[] arr1=m.getAArray();
-        arr1[2].newCursor().setName(new QName("http://xbean/scomp/substGroup/UserReported","b"));
-        arr1[4].newCursor().setName(new QName("http://xbean/scomp/substGroup/UserReported","b"));
+        try (XmlCursor c = arr1[2].newCursor()) {
+            c.setName(new QName("http://xbean/scomp/substGroup/UserReported","b"));
+        }
+        try (XmlCursor c = arr1[4].newCursor()) {
+            c.setName(new QName("http://xbean/scomp/substGroup/UserReported","b"));
+        }
 
        /* if (! mdoc.toString().equals(input))
            throw new Exception(mdoc.toString());

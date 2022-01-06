@@ -335,12 +335,11 @@ public class XmlComplexContentImpl extends XmlObjectBase {
             if (sources[i].isImmutable()) {
                 continue;
             }
-            XmlCursor c = sources[i].newCursor();
-            if (c.toParent() && c.getObject() == this) {
-                c.dispose();
-                break;
+            try (XmlCursor c = sources[i].newCursor()) {
+                if (c.toParent() && c.getObject() == this) {
+                    break;
+                }
             }
-            c.dispose();
         }
         if (i < sources.length) {
             TypeStoreUser current = (set == null) ? store.find_element_user(elemName, 0) : store.find_element_user(set, 0);
@@ -357,9 +356,10 @@ public class XmlComplexContentImpl extends XmlObjectBase {
                     ((XmlObjectBase) user).set(sources[j]);
                 }
                 for (i++, j++; i < sources.length; i++, j++) {
+                    // Cursor is implicitly closed
                     XmlCursor c = sources[i].isImmutable() ? null : sources[i].newCursor();
                     if (c != null && c.toParent() && c.getObject() == this) {
-                        c.dispose();
+                        c.close();
                         current = (set == null) ? store.find_element_user(elemName, j) : store.find_element_user(set, j);
                         if (current != sources[i]) {
                             // Fall back to the general case
@@ -367,7 +367,7 @@ public class XmlComplexContentImpl extends XmlObjectBase {
                         }
                     } else {
                         if (c != null) {
-                            c.dispose();
+                            c.close();
                         }
                         // Insert before the current element
                         TypeStoreUser user = (set == null) ? store.insert_element_user(elemName, j) : store.insert_element_user(set, elemName, j);

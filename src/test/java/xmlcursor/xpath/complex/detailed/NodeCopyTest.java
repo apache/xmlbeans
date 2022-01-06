@@ -35,14 +35,18 @@ public class NodeCopyTest {
         assertEquals( res[0].xmlText(),"<xml-fragment ack:attr=\"val1\" xmlns:ack=\"abc\">foo<b>bar</b></xml-fragment>");
         //"for $e in ./a return <doc>{ $e } </doc>"
         */
-        XmlCursor s1 = s.newCursor().execQuery("./a");
-        assertEquals("<a ack:attr=\"val1\" xmlns:ack=\"abc\">foo<b>bar</b></a>", s1.xmlText());
+        try (XmlCursor c = s.newCursor();
+            XmlCursor s1 = c.execQuery("./a")) {
+            assertEquals("<a ack:attr=\"val1\" xmlns:ack=\"abc\">foo<b>bar</b></a>", s1.xmlText());
+        }
 
         res = s.execQuery("./a");
-        XmlCursor c1 = s.newCursor();
-        c1.toFirstContentToken();
+        XmlObject o;
+        try (XmlCursor c1 = s.newCursor()) {
+            c1.toFirstContentToken();
+            o = c1.getObject();
+        }
 
-        XmlObject o = c1.getObject();
         assertNotSame(o, res[0]);
         assertEquals("<a ack:attr=\"val1\" xmlns:ack=\"abc\">foo<b>bar</b></a>", res[0].xmlText());
     }
@@ -87,23 +91,21 @@ public class NodeCopyTest {
     @Test
     public void testDeleteMe() throws Exception {
         XmlObject t = XmlObject.Factory.parse("<a><b/><b/></a>");
-        XmlCursor cursor =
-            t.newCursor();
-        System.out.println(cursor.getObject());
-        // use xpath to select elements
-        cursor.selectPath("*/*");
+        try (XmlCursor cursor = t.newCursor()) {
+            System.out.println(cursor.getObject());
+            // use xpath to select elements
+            cursor.selectPath("*/*");
 
-        System.out.println("cnt " + cursor.getSelectionCount());
-        // iterate over the selection
-        while (cursor.toNextSelection()) {
-            // two views of the same data:
-            // move back and forth between XmlObject <-> XmlCursor
-            XmlObject trans = cursor.getObject();
+            System.out.println("cnt " + cursor.getSelectionCount());
+            // iterate over the selection
+            while (cursor.toNextSelection()) {
+                // two views of the same data:
+                // move back and forth between XmlObject <-> XmlCursor
+                XmlObject trans = cursor.getObject();
 
-            System.out.println("Trans " + trans.xmlText());
-            System.out.println("xmlText " + cursor.xmlText());
-
+                System.out.println("Trans " + trans.xmlText());
+                System.out.println("xmlText " + cursor.xmlText());
+            }
         }
-
     }
 }

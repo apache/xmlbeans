@@ -43,11 +43,12 @@ public class AttrGroupTest extends BaseCase {
         elt.setVersion(new BigDecimal(new BigInteger("10")));
         elt.setGlobalAttr(new BigDecimal(BigInteger.ONE));
         //add a wildcard attr: ##other, lax
-        XmlCursor cur = elt.newCursor();
-        //move to document element
-        cur.toNextToken();
-        cur.insertAttribute(new QName("http://org.apache.sample", "attr",
-                "pre"));
+        try (XmlCursor cur = elt.newCursor()) {
+            //move to document element
+            cur.toNextToken();
+            cur.insertAttribute(new QName("http://org.apache.sample", "attr",
+                    "pre"));
+        }
         String[] errExpected=new String[]{
             XmlErrorCodes
                 .ELEM_COMPLEX_TYPE_LOCALLY_VALID$MISSING_REQUIRED_ATTRIBUTE};

@@ -79,9 +79,10 @@ public class ElementOnlyContentTest extends BaseCase {
         testElt.setChild2(new BigInteger("5"));
         testElt.setChild3(new BigInteger("1"));
         assertTrue(testElt.validate());
-        XmlCursor cur = testElt.newCursor();
-        cur.toFirstContentToken();
-        cur.insertChars("Random mixed content");
+        try (XmlCursor cur = testElt.newCursor()) {
+            cur.toFirstContentToken();
+            cur.insertChars("Random mixed content");
+        }
         System.out.println(testElt.xmlText());
         assertTrue(!testElt.validate(validateOptions));
         showErrors();

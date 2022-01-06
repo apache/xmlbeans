@@ -36,14 +36,12 @@ public class ToPrevElementTest extends BasicCursorTestCase {
     @Test
     public void testToPrevElementFromENDDOC() throws Exception {
         m_xc = XmlObject.Factory.parse("<foo>early<bar>text</bar></foo>").newCursor();
-        XmlCursor xc0 = m_xc.newCursor();
-        xc0.toFirstChild();
-        m_xc.toEndDoc();
-        m_xc.toPrevSibling();
-        try {
+        try (XmlCursor xc0 = m_xc.newCursor()) {
+            xc0.toFirstChild();
+            m_xc.toEndDoc();
+            m_xc.toPrevSibling();
+
             assertTrue(m_xc.isAtSamePositionAs(xc0));
-        } finally {
-            xc0.dispose();
         }
     }
 

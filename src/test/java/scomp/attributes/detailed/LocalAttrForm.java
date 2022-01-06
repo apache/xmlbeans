@@ -20,6 +20,7 @@ import xbean.scomp.namespace.attributeFormDefault.AttributeUnqualifiedDocument;
 
 import javax.xml.namespace.QName;
 
+import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlErrorCodes;
 
 import static org.junit.Assert.assertTrue;
@@ -47,19 +48,16 @@ public class LocalAttrForm extends BaseCase{
             throw t;
         }
 
-        doc.getAttributeUnqualified().getLocalAttribute().
-                newCursor()
-                .setName(new QName(
-                        "http://xbean/scomp/namespace/AttributeFormDefault",
-                        "LocalAttribute"));
-         assertTrue( !doc.validate(validateOptions) );
+        try (XmlCursor c = doc.getAttributeUnqualified().getLocalAttribute().newCursor()) {
+            c.setName(new QName(
+                "http://xbean/scomp/namespace/AttributeFormDefault",
+                "LocalAttribute"));
+        }
+        assertTrue( !doc.validate(validateOptions) );
         System.out.println(doc.xmlText());
         showErrors();
         String[] errExpected = new String[]
         {XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$NO_WILDCARD};
             assertTrue(compareErrorCodes(errExpected));
-        
-
-
     }
 }

@@ -513,9 +513,10 @@ public class JiraRegression50_100Test extends JiraTestBase
         //XmlObject[] resSet = xb81.selectPath("$this//MatchedRecord[TableName=\"ABC\"]/TableName");
         XmlObject[] resSet = xb81.selectPath(".//MatchedRecord[TableName=\"ABC\"]/TableName");
         assertEquals(resSet.length , 1);
-        XmlCursor cursor = xb81.newCursor();
-        //cursor.selectPath("$this//MatchedRecord[TableName=\"ABC\"]/TableName");
-        cursor.selectPath(".//MatchedRecord[TableName=\"ABC\"]/TableName");
+        try (XmlCursor cursor = xb81.newCursor()) {
+            //cursor.selectPath("$this//MatchedRecord[TableName=\"ABC\"]/TableName");
+            cursor.selectPath(".//MatchedRecord[TableName=\"ABC\"]/TableName");
+        }
     }
 
     /**
@@ -629,10 +630,11 @@ public class JiraRegression50_100Test extends JiraTestBase
         child.setQualifiedData(new QName(datanamespace, "IAmQualified"));
 
         // Add a schema location attribute to the doc element
-        XmlCursor c = root.newCursor();
-        c.toNextToken();
-        c.insertAttributeWithValue("schemaLocation", xsinamespace,
-                structnamespace + " " + schemaloc);
+        try (XmlCursor c = root.newCursor()) {
+            c.toNextToken();
+            c.insertAttributeWithValue("schemaLocation", xsinamespace,
+                    structnamespace + " " + schemaloc);
+        }
 
         //String expXML = doc.xmlText(options.setSavePrettyPrint())
         // save as XML text using the options

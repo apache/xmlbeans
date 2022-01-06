@@ -70,9 +70,10 @@ public class AnonymousTest extends BaseCase {
         assertEquals(5, testElt.getChild2().intValue());
         assertTrue(XmlInteger.Factory.parse("<xml-fragment>5</xml-fragment>")
             .valueEquals(testElt.xgetChild2()));
-        XmlCursor cur = testElt.newCursor();
-        cur.toFirstContentToken();
-        cur.insertChars("Random mixed content");
+        try (XmlCursor cur = testElt.newCursor()) {
+            cur.toFirstContentToken();
+            cur.insertChars("Random mixed content");
+        }
         testElt.setChild3(new BigInteger("1"));
         assertEquals("<xml-fragment>Random mixed content" +
             "<child2>5</child2>" +

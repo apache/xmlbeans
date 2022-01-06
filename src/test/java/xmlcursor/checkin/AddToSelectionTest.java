@@ -58,17 +58,17 @@ public class AddToSelectionTest extends BasicCursorTestCase {
         assertEquals(4, m_xc.getSelectionCount());
 
         //check results
-        XmlCursor m_xc1 = XmlObject.Factory.parse(sXml).newCursor();
-        m_xc.toSelection(0); //reset cursor
-        int i = m_xc.getSelectionCount();
-        while ((tok = m_xc1.toNextToken()) != XmlCursor.TokenType.NONE) {
-            //assertEquals(true,m_xc.hasNextSelection());
-            assertEquals(m_xc.toNextToken(), tok);
-            m_xc.toNextSelection();
+        try (XmlCursor m_xc1 = XmlObject.Factory.parse(sXml).newCursor()) {
+            m_xc.toSelection(0); //reset cursor
+            int i = m_xc.getSelectionCount();
+            while ((tok = m_xc1.toNextToken()) != XmlCursor.TokenType.NONE) {
+                //assertEquals(true,m_xc.hasNextSelection());
+                assertEquals(m_xc.toNextToken(), tok);
+                m_xc.toNextSelection();
+            }
+            //second cursor should be at the end of selections too...
+            assertFalse(m_xc.toNextSelection());
         }
-        //second cursor should be at the end of selections too...
-        assertFalse(m_xc.toNextSelection());
-        m_xc1.dispose();
     }
 
     @Test
@@ -85,8 +85,8 @@ public class AddToSelectionTest extends BasicCursorTestCase {
     }
 
     @Test(expected = Throwable.class)
-    public void testAddAfterDispose() {
-        m_xc.dispose();
+    public void testAddAfterClose() {
+        m_xc.close();
         m_xc.addToSelection();
 
     }

@@ -34,21 +34,20 @@ public class XPathTest {
                 "</b>" +
                 "<c>val3</c>" +
                 "</a>");
-        final XmlCursor c = obj.newCursor();
+        try (XmlCursor c = obj.newCursor()) {
+            c.selectPath(".//b/c");
 
-        c.selectPath(".//b/c");
+            int selCount = c.getSelectionCount();
+            assertEquals("SelectionCount", 1, selCount);
 
-        int selCount = c.getSelectionCount();
-        assertEquals("SelectionCount", 1, selCount);
+            while (c.hasNextSelection()) {
+                c.toNextSelection();
 
-        while (c.hasNextSelection()) {
-            c.toNextSelection();
-
-            assertTrue("OnStartElement", c.isStart());
-            assertEquals("TextValue", "val1", c.getTextValue());
-            System.out.println(" -> " + c.getObject());
+                assertTrue("OnStartElement", c.isStart());
+                assertEquals("TextValue", "val1", c.getTextValue());
+                System.out.println(" -> " + c.getObject());
+            }
         }
-        c.dispose();
     }
 
     @Test
@@ -64,29 +63,27 @@ public class XPathTest {
                 "</b>" +
                 "<c>val4</c>" +
                 "</a>");
-        final XmlCursor c = obj.newCursor();
+        try (XmlCursor c = obj.newCursor()) {
+            c.selectPath(".//b/c");
 
-        c.selectPath(".//b/c");
+            int selCount = c.getSelectionCount();
+            assertEquals("SelectionCount", 2, selCount);
 
-        int selCount = c.getSelectionCount();
-        assertEquals("SelectionCount", 2, selCount);
+            assertTrue("hasNextSelection", c.hasNextSelection());
+            c.toNextSelection();
 
-        assertTrue("hasNextSelection", c.hasNextSelection());
-        c.toNextSelection();
-
-        System.out.println(" -> " + c.getObject());
-        assertTrue("OnStartElement", c.isStart());
-        assertEquals("TextValue", "val1", c.getTextValue());
+            System.out.println(" -> " + c.getObject());
+            assertTrue("OnStartElement", c.isStart());
+            assertEquals("TextValue", "val1", c.getTextValue());
 
 
-        assertTrue("hasNextSelection2", c.hasNextSelection());
-        c.toNextSelection();
+            assertTrue("hasNextSelection2", c.hasNextSelection());
+            c.toNextSelection();
 
-        System.out.println(" -> " + c.getObject());
-        assertTrue("OnStartElement2", c.isStart());
-        assertEquals("TextValue2", "val3", c.getTextValue());
-
-        c.dispose();
+            System.out.println(" -> " + c.getObject());
+            assertTrue("OnStartElement2", c.isStart());
+            assertEquals("TextValue2", "val3", c.getTextValue());
+        }
     }
 
     @Test
@@ -106,20 +103,20 @@ public class XPathTest {
                 "</b>" +
                 "<c>val4</c>" +
                 "</a>");
-        final XmlCursor c = obj.newCursor();
 
-        c.selectPath(".//b/c//c");
+        try (XmlCursor c = obj.newCursor()) {
+            c.selectPath(".//b/c//c");
 
-        int selCount = c.getSelectionCount();
-        assertEquals("SelectionCount", 1, selCount);
+            int selCount = c.getSelectionCount();
+            assertEquals("SelectionCount", 1, selCount);
 
-        while (c.hasNextSelection()) {
-            c.toNextSelection();
+            while (c.hasNextSelection()) {
+                c.toNextSelection();
 
-            System.out.println(" -> " + c.getObject());
-            assertTrue("OnStartElement", c.isStart());
-            assertEquals("TextValue", "val5", c.getTextValue());
+                System.out.println(" -> " + c.getObject());
+                assertTrue("OnStartElement", c.isStart());
+                assertEquals("TextValue", "val5", c.getTextValue());
+            }
         }
-        c.dispose();
     }
 }

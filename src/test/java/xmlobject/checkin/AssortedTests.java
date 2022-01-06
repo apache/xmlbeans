@@ -36,20 +36,21 @@ public class AssortedTests {
     @Test
     public void testSaverCharEscaping() throws XmlException {
         XmlObject xdoc = XmlObject.Factory.parse("<test>something</test>");
-        XmlCursor cur = xdoc.newCursor();
-        cur.toFirstChild();
-        // valid chars
-        cur.setTextValue("<something or other:\u03C0\uD7FF>");
-        assertEquals("<test>&lt;something or other:\u03C0\uD7FF></test>", xdoc.toString());
+        try (XmlCursor cur = xdoc.newCursor()) {
+            cur.toFirstChild();
+            // valid chars
+            cur.setTextValue("<something or other:\u03C0\uD7FF>");
+            assertEquals("<test>&lt;something or other:\u03C0\uD7FF></test>", xdoc.toString());
 
-        // invalid chars - control chars, FFFF/FFFE, etc
-        cur.setTextValue("<something\0or\1other:\u0045\u001F>");
-        assertEquals("<test>&lt;something?or?other:\u0045?></test>", xdoc.toString());
+            // invalid chars - control chars, FFFF/FFFE, etc
+            cur.setTextValue("<something\0or\1other:\u0045\u001F>");
+            assertEquals("<test>&lt;something?or?other:\u0045?></test>", xdoc.toString());
 
-        String greekChars = "\uD835\uDF4A\uD835\uDF4B\uD835\uDF4C\uD835\uDF4D\uD835\uDF4E\uD835\uDF4F\uD835\uDF50\uD835"
-                            + "\uDF51\uD835\uDF52\uD835\uDF53\uD835\uDF54\uD835\uDF55";
-        cur.setTextValue(greekChars);
-        assertEquals("<test>" + greekChars + "</test>", xdoc.toString());
+            String greekChars = "\uD835\uDF4A\uD835\uDF4B\uD835\uDF4C\uD835\uDF4D\uD835\uDF4E\uD835\uDF4F\uD835\uDF50\uD835"
+                                + "\uDF51\uD835\uDF52\uD835\uDF53\uD835\uDF54\uD835\uDF55";
+            cur.setTextValue(greekChars);
+            assertEquals("<test>" + greekChars + "</test>", xdoc.toString());
+        }
     }
 
     // bug 26140/26104
@@ -156,12 +157,12 @@ public class AssortedTests {
         xobj = xcur.getObject();
         String result = xobj.toString();
         System.out.println(result);
-        
+
         xcur.toFirstChild();
         xcur.toFirstChild();
         xcur.toFirstContentToken();
         xcur.insertChars("<html><body>this is a test</body></html>");
-        
+
         System.out.println(xobj);
         */
     }
@@ -186,6 +187,7 @@ public class AssortedTests {
         int i = 0;
         try {
             for (i = 0; i < 2000 * 1000; i++) {
+                // Cursor not closed intentionally
                 XmlCursor cur = obj.newCursor();
                 // cur.dispose(); skipping this depends on finalization or else OOM
             }

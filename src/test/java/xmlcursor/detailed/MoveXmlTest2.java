@@ -112,21 +112,21 @@ public class MoveXmlTest2 extends BasicCursorTestCase
     public void testMovedAttrNameCollision() throws Exception
     {
 
-        m_xc1 = XmlObject.Factory.parse(sTestXml).newCursor();
-        toNextTokenOfType(m_xc, TokenType.START);//m_xc on book at0
-        toNextTokenOfType(m_xc1, TokenType.START);
-        toNextTokenOfType(m_xc1, TokenType.START);
-        //toNextTokenOfType(m_xc1,TokenType.END);//to author
-        assertTrue(m_xc1.toFirstAttribute());
-        assertTrue(m_xc.toFirstAttribute()); //at0 in book
-        if (m_xc.moveXml(m_xc1)) {
-            toPrevTokenOfType(m_xc1, TokenType.START);
-            m_xc1.toFirstAttribute();
-            assertEquals(m_xc1.getName().getLocalPart(), "at0");
-            assertTrue(m_xc1.toNextAttribute());
-            assertEquals(m_xc1.getName().getLocalPart(), "at0");
+        try (XmlCursor m_xc2 = XmlObject.Factory.parse(sTestXml).newCursor()) {
+            toNextTokenOfType(m_xc, TokenType.START);//m_xc on book at0
+            toNextTokenOfType(m_xc2, TokenType.START);
+            toNextTokenOfType(m_xc2, TokenType.START);
+            //toNextTokenOfType(m_xc2,TokenType.END);//to author
+            assertTrue(m_xc2.toFirstAttribute());
+            assertTrue(m_xc.toFirstAttribute()); //at0 in book
+            if (m_xc.moveXml(m_xc2)) {
+                toPrevTokenOfType(m_xc2, TokenType.START);
+                m_xc2.toFirstAttribute();
+                assertEquals(m_xc2.getName().getLocalPart(), "at0");
+                assertTrue(m_xc2.toNextAttribute());
+                assertEquals(m_xc2.getName().getLocalPart(), "at0");
+            }
         }
-        m_xc1.dispose();
     }
 
     /**
@@ -183,7 +183,7 @@ public class MoveXmlTest2 extends BasicCursorTestCase
     {
         super.tearDown();
         if (m_xc1 != null) {
-            m_xc1.dispose();
+            m_xc1.close();
             m_xc1 = null;
         }
     }

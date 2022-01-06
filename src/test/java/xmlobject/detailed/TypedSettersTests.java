@@ -83,13 +83,14 @@ public class TypedSettersTests {
         throws Exception {
         XmlObject x = XmlObject.Factory.parse("<xyzzy/>");
         XmlObject x2 = XmlObject.Factory.parse("<bubba>moo</bubba>");
-        XmlCursor c = x.newCursor();
-        XmlCursor c2 = x2.newCursor();
 
-        c.toNextToken();
-        c2.toNextToken();
+        try (XmlCursor c = x.newCursor();
+            XmlCursor c2 = x2.newCursor()) {
+            c.toNextToken();
+            c2.toNextToken();
 
-        c.getObject().set(c2.getObject());
+            c.getObject().set(c2.getObject());
+        }
 
         assertEquals("<xyzzy>moo</xyzzy>", x.xmlText());
     }
@@ -99,15 +100,16 @@ public class TypedSettersTests {
         throws Exception {
         XmlObject x = XmlObject.Factory.parse("<xyzzy a=''/>");
         XmlObject x2 = XmlObject.Factory.parse("<bubba b='moo'/>");
-        XmlCursor c = x.newCursor();
-        XmlCursor c2 = x2.newCursor();
 
-        c.toNextToken();
-        c.toNextToken();
-        c2.toNextToken();
-        c2.toNextToken();
+        try (XmlCursor c = x.newCursor();
+            XmlCursor c2 = x2.newCursor()) {
+            c.toNextToken();
+            c.toNextToken();
+            c2.toNextToken();
+            c2.toNextToken();
 
-        c.getObject().set(c2.getObject());
+            c.getObject().set(c2.getObject());
+        }
 
         assertEquals("<xyzzy a=\"moo\"/>", x.xmlText());
     }

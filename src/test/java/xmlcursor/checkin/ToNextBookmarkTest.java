@@ -37,20 +37,19 @@ public class ToNextBookmarkTest extends BasicCursorTestCase {
         m_xc = m_xo.newCursor();
         toNextTokenOfType(m_xc, TokenType.START);
         m_xc.setBookmark(_theBookmark);
-        XmlCursor xc0 = m_xc.newCursor();
-        toNextTokenOfType(m_xc, TokenType.END);
-        m_xc.setBookmark(_theBookmark1);
-        XmlCursor xc1 = m_xc.newCursor();
-        m_xc.toStartDoc();
-        try {
-            assertEquals(_theBookmark, m_xc.toNextBookmark(SimpleBookmark.class));
-            assertTrue(m_xc.isAtSamePositionAs(xc0));
-            assertEquals(_theBookmark1, m_xc.toNextBookmark(SimpleBookmark.class));
-            assertTrue(m_xc.isAtSamePositionAs(xc1));
-            assertNull(m_xc.toNextBookmark(SimpleBookmark.class));
-        } finally {
-            xc0.dispose();
-            xc1.dispose();
+        try (XmlCursor xc0 = m_xc.newCursor()) {
+            toNextTokenOfType(m_xc, TokenType.END);
+            m_xc.setBookmark(_theBookmark1);
+
+            try (XmlCursor xc1 = m_xc.newCursor()) {
+                m_xc.toStartDoc();
+
+                assertEquals(_theBookmark, m_xc.toNextBookmark(SimpleBookmark.class));
+                assertTrue(m_xc.isAtSamePositionAs(xc0));
+                assertEquals(_theBookmark1, m_xc.toNextBookmark(SimpleBookmark.class));
+                assertTrue(m_xc.isAtSamePositionAs(xc1));
+                assertNull(m_xc.toNextBookmark(SimpleBookmark.class));
+            }
         }
     }
 
@@ -72,20 +71,19 @@ public class ToNextBookmarkTest extends BasicCursorTestCase {
         m_xc = m_xo.newCursor();
         toNextTokenOfType(m_xc, TokenType.START);
         m_xc.setBookmark(_theBookmark);
-        XmlCursor xc0 = m_xc.newCursor();
-        toNextTokenOfType(m_xc, TokenType.END);
-        m_xc.setBookmark(_difBookmark);
-        XmlCursor xc1 = m_xc.newCursor();
-        m_xc.toStartDoc();
-        try {
-            assertEquals(_theBookmark, m_xc.toNextBookmark(SimpleBookmark.class));
-            assertTrue(m_xc.isAtSamePositionAs(xc0));
-            assertNull(m_xc.toNextBookmark(SimpleBookmark.class));
-            assertEquals(_difBookmark, m_xc.toNextBookmark(DifferentBookmark.class));
-            assertTrue(m_xc.isAtSamePositionAs(xc1));
-        } finally {
-            xc0.dispose();
-            xc1.dispose();
+        try (XmlCursor xc0 = m_xc.newCursor()) {
+            toNextTokenOfType(m_xc, TokenType.END);
+            m_xc.setBookmark(_difBookmark);
+
+            try (XmlCursor xc1 = m_xc.newCursor()) {
+                m_xc.toStartDoc();
+
+                assertEquals(_theBookmark, m_xc.toNextBookmark(SimpleBookmark.class));
+                assertTrue(m_xc.isAtSamePositionAs(xc0));
+                assertNull(m_xc.toNextBookmark(SimpleBookmark.class));
+                assertEquals(_difBookmark, m_xc.toNextBookmark(DifferentBookmark.class));
+                assertTrue(m_xc.isAtSamePositionAs(xc1));
+            }
         }
     }
 
@@ -100,13 +98,11 @@ public class ToNextBookmarkTest extends BasicCursorTestCase {
         m_xc.toPrevChar(2);
         assertEquals(3, m_xc.removeChars(3));  // '2' should be deleted, along w/ bookmark
         assertEquals("34", m_xc.getChars());
-        XmlCursor xc1 = m_xc.newCursor();
-        xc1.toStartDoc();
-        try {
+        try (XmlCursor xc1 = m_xc.newCursor()) {
+            xc1.toStartDoc();
+
             assertNull(xc1.toNextBookmark(SimpleBookmark.class));
             assertEquals(TokenType.STARTDOC, xc1.currentTokenType());
-        } finally {
-            xc1.dispose();
         }
     }
 

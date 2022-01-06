@@ -109,7 +109,7 @@ public class NamespaceContext implements PrefixResolver
     {
         getNamespaceContextStack().push(next);
     }
-            
+
     public static void pop()
     {
         NamespaceContextStack nsContextStack = getNamespaceContextStack();
@@ -128,7 +128,7 @@ public class NamespaceContext implements PrefixResolver
     {
         if (prefix != null && prefix.equals("xml"))
             return "http://www.w3.org/XML/1998/namespace";
-        
+
         switch (_code)
         {
             case XML_OBJECT:
@@ -141,28 +141,28 @@ public class NamespaceContext implements PrefixResolver
                 if (obj instanceof TypeStoreUser)
                     return ((TypeStoreUser)obj).get_store().getNamespaceForPrefix(prefix);
 
-                XmlCursor cur = ((XmlObject)_obj).newCursor();
-                if (cur != null)
-                {
-                    if (cur.currentTokenType() == XmlCursor.TokenType.ATTR)
-                        cur.toParent();
-                    try { return cur.namespaceForPrefix(prefix); }
-                    finally { cur.dispose(); }
+                try (XmlCursor cur = ((XmlObject)_obj).newCursor()) {
+                    if (cur != null)
+                    {
+                        if (cur.currentTokenType() == XmlCursor.TokenType.ATTR)
+                            cur.toParent();
+                        return cur.namespaceForPrefix(prefix);
+                    }
                 }
             }
-            
+
             case MAP:
                 return (String)((Map)_obj).get(prefix);
-                
+
             case TYPE_STORE:
                 return ((TypeStore)_obj).getNamespaceForPrefix(prefix);
-                
+
             case START_ELEMENT:
                 return ((StartElement)_obj).getNamespaceUri(prefix);
-                
+
             case RESOLVER:
                 return ((PrefixResolver)_obj).getNamespaceForPrefix(prefix);
-                
+
             default:
                 assert false : "Improperly initialized NamespaceContext.";
                 return null;

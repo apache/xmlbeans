@@ -85,7 +85,7 @@ public class SchemaAnnotationImpl implements SchemaAnnotation
             for (int i = 0; i <  n; i++)
             {
                 String doc = _documentationAsXml[i];
-                try 
+                try
                 {
                     _documentation[i] = DocumentationDocument.Factory.
                         parse(doc).getDocumentation();
@@ -154,7 +154,7 @@ public class SchemaAnnotationImpl implements SchemaAnnotation
             // Now the attributes on the annotation element
             addNoSchemaAttributes(ann, attrArray);
         }
-        
+
         result._attributes =
             (AttributeImpl[]) attrArray.toArray(new AttributeImpl[attrArray.size()]);
         return result;
@@ -162,33 +162,33 @@ public class SchemaAnnotationImpl implements SchemaAnnotation
 
     private static void addNoSchemaAttributes(XmlObject elem, List attrList)
     {
-        XmlCursor cursor = elem.newCursor();
-        boolean hasAttributes = cursor.toFirstAttribute();
-        while (hasAttributes)
-        {
-            QName name = cursor.getName();
-            String namespaceURI = name.getNamespaceURI();
-            if ("".equals(namespaceURI) ||
-                "http://www.w3.org/2001/XMLSchema".equals(namespaceURI))
-                ; // no nothing
-            else
+        try (XmlCursor cursor = elem.newCursor()) {
+            boolean hasAttributes = cursor.toFirstAttribute();
+            while (hasAttributes)
             {
-                String attValue = cursor.getTextValue();
-                String valUri;
-                String prefix;
-                if (attValue.indexOf(':') > 0)
-                    prefix = attValue.substring(0, attValue.indexOf(':'));
+                QName name = cursor.getName();
+                String namespaceURI = name.getNamespaceURI();
+                if ("".equals(namespaceURI) ||
+                    "http://www.w3.org/2001/XMLSchema".equals(namespaceURI))
+                    ; // no nothing
                 else
-                    prefix = "";
-                cursor.push();
-                cursor.toParent();
-                valUri = cursor.namespaceForPrefix(prefix);
-                cursor.pop();
-                attrList.add(new AttributeImpl(name, attValue, valUri)); //add the attribute
+                {
+                    String attValue = cursor.getTextValue();
+                    String valUri;
+                    String prefix;
+                    if (attValue.indexOf(':') > 0)
+                        prefix = attValue.substring(0, attValue.indexOf(':'));
+                    else
+                        prefix = "";
+                    cursor.push();
+                    cursor.toParent();
+                    valUri = cursor.namespaceForPrefix(prefix);
+                    cursor.pop();
+                    attrList.add(new AttributeImpl(name, attValue, valUri)); //add the attribute
+                }
+                hasAttributes = cursor.toNextAttribute();
             }
-            hasAttributes = cursor.toNextAttribute();
         }
-        cursor.dispose();
     }
 
     private SchemaAnnotationImpl(SchemaContainer c)

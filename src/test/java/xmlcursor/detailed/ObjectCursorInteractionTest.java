@@ -39,21 +39,18 @@ public class ObjectCursorInteractionTest {
         // LocationDocument locDoc = (LocationDocument) XmlObject.Factory.parse(sXml);
         LocationDocument locDoc = LocationDocument.Factory.parse(sXml);
         Location loc = locDoc.getLocation();
-        XmlCursor xc0 = loc.newCursor();
-        assertEquals("DALLAS", loc.getCityName());
-        loc = null;
-        System.gc();
-        try {
+        try (XmlCursor xc0 = loc.newCursor()) {
+            assertEquals("DALLAS", loc.getCityName());
+            loc = null;
+            System.gc();
             Thread.sleep(1000);
             xc0.toFirstChild();
             assertEquals("DALLAS", xc0.getTextValue());
-        } finally {
-            xc0.dispose();
         }
     }
 
     @Test
-    public void testCursorDisposalEffectOnObject() throws Exception {
+    public void testCursorCloseEffectOnObject() throws Exception {
         String sNamespace = "xmlns:loc=\"http://xbean.test/xmlcursor/Location\"";
         String sXml = "<loc:Location " + sNamespace + ">" +
                       "<loc:CityName>DALLAS</loc:CityName><loc:StateCode>TX</loc:StateCode></loc:Location>";
@@ -62,23 +59,20 @@ public class ObjectCursorInteractionTest {
         assertTrue(locDoc.validate());
         Location loc0 = locDoc.getLocation();
         Location loc1 = locDoc.getLocation();
-        XmlCursor xc0 = loc0.newCursor();
-        XmlCursor xc1 = loc1.newCursor();
 
-        xc0.toFirstChild();
-        xc1.toFirstChild();
-        xc0.setTextValue("AUSTIN");
-        try {
+        try (XmlCursor xc0 = loc0.newCursor();
+            XmlCursor xc1 = loc1.newCursor()) {
+            xc0.toFirstChild();
+            xc1.toFirstChild();
+            xc0.setTextValue("AUSTIN");
+
             assertEquals("AUSTIN", loc0.getCityName());
             loc1.setCityName("SAN ANTONIO");
-            xc0.dispose();
+            xc0.close();
             assertEquals("SAN ANTONIO", xc1.getTextValue());
             xc1.setTextValue("HOUSTON");
-            xc1.dispose();
+            xc1.close();
             assertEquals("HOUSTON", loc0.getCityName());
-        } finally {
-            xc0.dispose();
-            xc1.dispose();
         }
     }
 
@@ -120,7 +114,7 @@ public class ObjectCursorInteractionTest {
             xc0 = loc0.newCursor();
             assertEquals(sXml1, xc0.xmlText());
         } finally {
-            xc0.dispose();
+            xc0.close();
         }
     }
 
@@ -167,8 +161,8 @@ public class ObjectCursorInteractionTest {
             assertEquals("US", loc0.getCountryCode());
 
         } finally {
-            xc0.dispose();
-            xc1.dispose();
+            xc0.close();
+            xc1.close();
         }
     }
 

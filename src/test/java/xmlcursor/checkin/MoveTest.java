@@ -44,14 +44,14 @@ public class MoveTest extends BasicCursorTestCase {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_DIGITS);
         m_xc = m_xo.newCursor();
         XmlObject xo = XmlObject.Factory.parse(Common.XML_FOO_2ATTR_TEXT);
-        XmlCursor xc1 = xo.newCursor();
-        toNextTokenOfType(m_xc, TokenType.TEXT);
-        toNextTokenOfType(xc1, TokenType.TEXT);
-        m_xc.moveXml(xc1);
-        xc1.toParent();
-        // verify xc1
-        assertEquals("01234text", xc1.getTextValue());
-        xc1.dispose();
+        try (XmlCursor xc1 = xo.newCursor()) {
+            toNextTokenOfType(m_xc, TokenType.TEXT);
+            toNextTokenOfType(xc1, TokenType.TEXT);
+            m_xc.moveXml(xc1);
+            xc1.toParent();
+            // verify xc1
+            assertEquals("01234text", xc1.getTextValue());
+        }
         // verify m_xc
         assertEquals(TokenType.END, m_xc.currentTokenType());
     }
@@ -64,48 +64,44 @@ public class MoveTest extends BasicCursorTestCase {
         XmlObject xobj1 = XmlObject.Factory.parse(
                 JarUtil.getResourceFromJar(Common.TRANXML_FILE_XMLCURSOR_PO));
 
-        XmlCursor xc0 = xobj0.newCursor();
-        XmlCursor xc1 = xobj1.newCursor();
+        try (XmlCursor xc0 = xobj0.newCursor();
+            XmlCursor xc1 = xobj1.newCursor()) {
+            xc0.selectPath(Common.CLM_NS_XQUERY_DEFAULT + ".//Initial");
+            xc0.toNextSelection();
 
-        xc0.selectPath(Common.CLM_NS_XQUERY_DEFAULT + ".//Initial");
-        xc0.toNextSelection();
-
-        String sQuery=
-                "declare namespace po=\"http://xbean.test/xmlcursor/PurchaseOrder\"; "+
-                ".//po:zip";
-        xc1.selectPath( sQuery );
-        assertTrue( 0 < xc1.getSelectionCount());
-        xc1.toNextSelection();
-
-
-        xc0.moveXml(xc1); // should move the <Initial>GATX</Initial> element plus the namespace
+            String sQuery=
+                    "declare namespace po=\"http://xbean.test/xmlcursor/PurchaseOrder\"; "+
+                    ".//po:zip";
+            xc1.selectPath( sQuery );
+            assertTrue( 0 < xc1.getSelectionCount());
+            xc1.toNextSelection();
 
 
-        xc1.toPrevSibling();
-        // verify xc1
-        String sExpected = "<ver:Initial " +
-                "xmlns:po=\"http://xbean.test/xmlcursor/PurchaseOrder\" " +
-                "xmlns:ver=\"http://www.tranxml.org/TranXML/Version4.0\">" +
-                "GATX</ver:Initial>";
-        assertEquals(sExpected, xc1.xmlText());
-        // verify xc0
-        xc0.toNextToken();  // skip the whitespace token
-        assertEquals("123456", xc0.getTextValue());
+            xc0.moveXml(xc1); // should move the <Initial>GATX</Initial> element plus the namespace
 
-        xc0.dispose();
-        xc1.dispose();
 
+            xc1.toPrevSibling();
+            // verify xc1
+            String sExpected = "<ver:Initial " +
+                    "xmlns:po=\"http://xbean.test/xmlcursor/PurchaseOrder\" " +
+                    "xmlns:ver=\"http://www.tranxml.org/TranXML/Version4.0\">" +
+                    "GATX</ver:Initial>";
+            assertEquals(sExpected, xc1.xmlText());
+            // verify xc0
+            xc0.toNextToken();  // skip the whitespace token
+            assertEquals("123456", xc0.getTextValue());
+        }
     }
 
     @Test
     public void testMoveSameLocation() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_DIGITS);
         m_xc = m_xo.newCursor();
-        XmlCursor xc1 = m_xo.newCursor();
-        toNextTokenOfType(m_xc, TokenType.TEXT);
-        toNextTokenOfType(xc1, TokenType.TEXT);
-        m_xc.moveXml(xc1);
-        xc1.dispose();
+        try (XmlCursor xc1 = m_xo.newCursor()) {
+            toNextTokenOfType(m_xc, TokenType.TEXT);
+            toNextTokenOfType(xc1, TokenType.TEXT);
+            m_xc.moveXml(xc1);
+        }
         assertEquals("01234", m_xc.getChars());
     }
 
@@ -116,17 +112,18 @@ public class MoveTest extends BasicCursorTestCase {
         String ns="declare namespace po=\"http://xbean.test/xmlcursor/PurchaseOrder\"; ";
 
         m_xc = m_xo.newCursor();
-        XmlCursor xc1 = m_xo.newCursor();
-        m_xc.selectPath(ns+" .//po:shipTo/po:city");
-        m_xc.toNextSelection();
-        xc1.selectPath(ns +" .//po:billTo/po:city");
-        xc1.toNextSelection();
-        m_xc.moveXml(xc1);
-        xc1.toPrevToken();
-        xc1.toPrevToken();
+        try (XmlCursor xc1 = m_xo.newCursor()) {
+            m_xc.selectPath(ns+" .//po:shipTo/po:city");
+            m_xc.toNextSelection();
+            xc1.selectPath(ns +" .//po:billTo/po:city");
+            xc1.toNextSelection();
+            m_xc.moveXml(xc1);
+            xc1.toPrevToken();
+            xc1.toPrevToken();
 
-        // verify xc1
-        assertEquals("Mill Valley", xc1.getChars());
+            // verify xc1
+            assertEquals("Mill Valley", xc1.getChars());
+        }
 
         // verify m_xc
         m_xc.toNextToken(); // skip the whitespace token
@@ -141,26 +138,27 @@ public class MoveTest extends BasicCursorTestCase {
         String ns="declare namespace po=\"http://xbean.test/xmlcursor/PurchaseOrder\"; ";
 
         m_xc = m_xo.newCursor();
-        XmlCursor xc1 = m_xo.newCursor();
-        m_xc.selectPath(ns+" .//po:shipTo/po:city");
-        m_xc.toNextSelection();
-        xc1.selectPath(ns+" .//po:billTo/po:city");
-        xc1.toNextSelection();
-        xc1.toNextToken();
-        xc1.toNextChar(4);  // should be at 'T' in "Old Town"
-        m_xc.moveXml(xc1);     // should be "Old <city>Mill Valley</city>Town"
-        // verify xc1
-        xc1.toPrevToken();
-        assertEquals(TokenType.END, xc1.currentTokenType());
-        xc1.toPrevToken();
-        assertEquals("Mill Valley", xc1.getChars());
-        xc1.toPrevToken();
-        assertEquals(TokenType.START, xc1.currentTokenType());
-        assertEquals(new QName("city").getLocalPart(),
-                xc1.getName().getLocalPart());
-        xc1.toPrevToken();
+        try (XmlCursor xc1 = m_xo.newCursor()) {
+            m_xc.selectPath(ns+" .//po:shipTo/po:city");
+            m_xc.toNextSelection();
+            xc1.selectPath(ns+" .//po:billTo/po:city");
+            xc1.toNextSelection();
+            xc1.toNextToken();
+            xc1.toNextChar(4);  // should be at 'T' in "Old Town"
+            m_xc.moveXml(xc1);     // should be "Old <city>Mill Valley</city>Town"
+            // verify xc1
+            xc1.toPrevToken();
+            assertEquals(TokenType.END, xc1.currentTokenType());
+            xc1.toPrevToken();
+            assertEquals("Mill Valley", xc1.getChars());
+            xc1.toPrevToken();
+            assertEquals(TokenType.START, xc1.currentTokenType());
+            assertEquals(new QName("city").getLocalPart(),
+                    xc1.getName().getLocalPart());
+            xc1.toPrevToken();
 
-        assertEquals("Old ", xc1.getChars());
+            assertEquals("Old ", xc1.getChars());
+        }
         // verify m_xc
         m_xc.toNextToken(); // skip the whitespace token
 

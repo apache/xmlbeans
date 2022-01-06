@@ -307,8 +307,9 @@ public class SchemaParticleImpl implements SchemaParticle {
                         Documentation[] docArray = a.getDocumentationArray();
                         StringBuilder sb = new StringBuilder();
                         for (Documentation documentation : docArray) {
-                            XmlCursor c = documentation.newCursor();
-                            sb.append(c.getTextValue());
+                            try (XmlCursor c = documentation.newCursor()) {
+                                sb.append(c.getTextValue());
+                            }
                         }
                         return sb.toString();
                     }

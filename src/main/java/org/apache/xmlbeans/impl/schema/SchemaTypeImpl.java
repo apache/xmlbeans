@@ -2419,13 +2419,10 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory {
 
         StringBuilder docBody = new StringBuilder();
         for (Documentation documentation : ann.getDocumentationArray()) {
-            XmlCursor c = documentation.newCursor();
-            try {
+            try (XmlCursor c = documentation.newCursor()) {
                 if (c.getChars() != null) {
                     docBody.append(c.getTextValue());
                 }
-            } finally {
-                c.dispose();
             }
         }
         return docBody.toString();

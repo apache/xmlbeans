@@ -74,7 +74,7 @@ public class DomTests {
 //
 //        System.out.println( x.xmlText() );
 //    }
-    
+
     @Test
     public void testDom()
             throws Exception {
@@ -102,14 +102,14 @@ public class DomTests {
 
         XmlObject x = XmlObject.Factory.parse(xx);
 
-        XmlCursor c = x.newCursor();
+        try (XmlCursor c = x.newCursor()) {
+            for (; ;) {
+                Node n = c.newDomNode();
+                XmlObject.Factory.parse(n);
 
-        for (; ;) {
-            Node n = c.newDomNode();
-            XmlObject.Factory.parse(n);
-
-            if (c.toNextToken().isNone())
-                break;
+                if (c.toNextToken().isNone())
+                    break;
+            }
         }
     }
 }

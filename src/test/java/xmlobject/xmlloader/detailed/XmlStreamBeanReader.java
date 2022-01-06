@@ -66,11 +66,12 @@ public class XmlStreamBeanReader {
     @Test
     public void testXmlStreamReaderException() throws XMLStreamException {
         XmlObject xo = XmlObject.Factory.newInstance();
-        XmlCursor xc = xo.newCursor();
-        xc.toNextToken();
+        try (XmlCursor xc = xo.newCursor()) {
+            xc.toNextToken();
 
-        xc.insertElementWithText("int", "http://openuri.org/testNumerals", "5");
-        xc.insertElementWithText("float", "http://openuri.org/testNumerals", "7.654321");
+            xc.insertElementWithText("int", "http://openuri.org/testNumerals", "5");
+            xc.insertElementWithText("float", "http://openuri.org/testNumerals", "7.654321");
+        }
 
         XMLStreamReader xsr = xo.newXMLStreamReader();
 

@@ -204,8 +204,7 @@ public class XPathTest extends BasicCursorTestCase {
     @Test
     public void zvonExample() throws IOException, XmlException {
         XmlObject xDoc = XmlObject.Factory.parse(JarUtil.getResourceFromJar("xbean/xmlcursor/xpath/zvon"+dataset+".xml"));
-        XmlCursor x1 = xDoc.newCursor();
-        try {
+        try (XmlCursor x1 = xDoc.newCursor()) {
             x1.selectPath(xpath);
 
             XmlObject[] exp = new XmlObject[expected.length];
@@ -214,8 +213,6 @@ public class XPathTest extends BasicCursorTestCase {
             }
 
             XPathCommon.compare(x1, exp);
-        } finally {
-            x1.dispose();
         }
     }
 }

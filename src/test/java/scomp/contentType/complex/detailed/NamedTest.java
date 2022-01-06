@@ -71,9 +71,10 @@ public class NamedTest extends BaseCase {
         expected.setBigIntegerValue(new BigInteger("5"));
         assertTrue(expected.valueEquals(testElt.xgetChild2()));
 
-        XmlCursor cur = testElt.newCursor();
-        cur.toFirstContentToken();
-        cur.insertChars("Random mixed content");
+        try (XmlCursor cur = testElt.newCursor()) {
+            cur.toFirstContentToken();
+            cur.insertChars("Random mixed content");
+        }
         testElt.setChild3(new BigInteger("1"));
         assertEquals("<xml-fragment>Random mixed content" +
                 "<child2>5</child2><child3>1</child3></xml-fragment>",

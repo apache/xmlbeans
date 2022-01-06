@@ -118,7 +118,7 @@ public class Random implements Runnable {
                 _docs[d] = XmlObject.Factory.newInstance();
             }
 
-            _cursors = new ArrayList();
+            _cursors = new ArrayList<>();
 
             int nIterations = rnd(60000) + 5000;
 
@@ -136,6 +136,9 @@ public class Random implements Runnable {
                     }
                 }
             }
+
+            _cursors.forEach(XmlCursor::close);
+            _cursors = null;
         } catch (Throwable e) {
             System.err.println("Error on seed " + _seed);
             e.printStackTrace(System.err);
@@ -145,7 +148,7 @@ public class Random implements Runnable {
     private java.util.Random _rnd;
 
     private XmlObject[] _docs; // shared among threads!!
-    private ArrayList _cursors;
+    private ArrayList<XmlCursor> _cursors;
     private long _seed;
     private int _iter;
     private boolean _readonly;
@@ -171,7 +174,7 @@ public class Random implements Runnable {
             return c;
         }
 
-        return (XmlCursor) _cursors.get(rnd(n));
+        return _cursors.get(rnd(n));
     }
 
     private void iterate() throws Exception {
@@ -323,9 +326,9 @@ public class Random implements Runnable {
                 getObject();
                 break;
             case 7:
-                newCursor();
+                try (XmlCursor c = newCursor()) {
+                }
                 break;
-
             case 8:
                 validate();
                 break;
@@ -433,18 +436,16 @@ public class Random implements Runnable {
         getCursor().prevTokenType();
     }
 
-    private void newCursor() {
-        findObject().newCursor();
+    private XmlCursor newCursor() {
+        return findObject().newCursor();
     }
 
     private void setName() {
-        XmlCursor c = findObject().newCursor();
-
-        if (!c.isStartdoc()) {
-            c.setName(getQName());
+        try (XmlCursor c = newCursor()) {
+            if (!c.isStartdoc()) {
+                c.setName(getQName());
+            }
         }
-
-        c.dispose();
     }
 
     private void newDomNode() {

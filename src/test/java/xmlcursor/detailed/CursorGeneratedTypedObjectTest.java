@@ -45,50 +45,47 @@ public class CursorGeneratedTypedObjectTest {
             "<loc:StateCode>TX</loc:StateCode>" +
             "</loc:Location>";
         LocationDocument locDoc = LocationDocument.Factory.parse(sXml);
-        XmlCursor xc = locDoc.newCursor();
-        xc.toFirstChild();
-        LocationDocument.Location loc = (LocationDocument.Location) xc.getObject();
-        assertTrue(loc.validate());
-        XmlCursor xc0 = xc.newCursor();
-
-        xc0.toEndDoc();
-        xc0.toPrevToken();
-        //  xc0.insertElementWithText("SubdivisionCode", "xyz");
-        xc0.insertElementWithText(
-            new QName("http://xbean.test/xmlcursor/Location", "SubdivisionCode", "loc"),
-            "xyz");
-        xc0.toCursor(xc);
-
-
-        String sExpectedXML =
-            "<loc:Location " + sNamespace + ">" +
-            "<loc:CityName>DALLAS</loc:CityName>" +
-            "<loc:StateCode>TX</loc:StateCode>" +
-            "<loc:SubdivisionCode>xyz</loc:SubdivisionCode>" +
-            "</loc:Location>";
-
-        String sOExpectedXML =
-            "<xml-fragment " + sNamespace + ">" +
-            "<loc:CityName>DALLAS</loc:CityName>" +
-            "<loc:StateCode>TX</loc:StateCode>" +
-            "<loc:SubdivisionCode>xyz</loc:SubdivisionCode>" +
-            "</xml-fragment>";
-        XmlOptions map = new XmlOptions();
-        //map.put(XmlOptions.SAVE_PRETTY_PRINT, "");
-        //map.put(XmlOptions.SAVE_PRETTY_PRINT_INDENT, new Integer(-1));
-        try {
-            assertEquals(sExpectedXML, xc0.xmlText(map));
-            loc = (LocationDocument.Location) xc0.getObject();
-            assertEquals(sOExpectedXML, loc.xmlText());
+        try (XmlCursor xc = locDoc.newCursor()) {
+            xc.toFirstChild();
+            LocationDocument.Location loc = (LocationDocument.Location) xc.getObject();
             assertTrue(loc.validate());
-            assertEquals("DALLAS", loc.getCityName());
-            assertEquals("TX", loc.getStateCode());
-            assertEquals("xyz", loc.getSubdivisionCode());
-        } finally {
-            xc.dispose();
-            xc0.dispose();
-        }
 
+            try (XmlCursor xc0 = xc.newCursor()) {
+                xc0.toEndDoc();
+                xc0.toPrevToken();
+                //  xc0.insertElementWithText("SubdivisionCode", "xyz");
+                xc0.insertElementWithText(
+                    new QName("http://xbean.test/xmlcursor/Location", "SubdivisionCode", "loc"),
+                    "xyz");
+                xc0.toCursor(xc);
+
+
+                String sExpectedXML =
+                    "<loc:Location " + sNamespace + ">" +
+                    "<loc:CityName>DALLAS</loc:CityName>" +
+                    "<loc:StateCode>TX</loc:StateCode>" +
+                    "<loc:SubdivisionCode>xyz</loc:SubdivisionCode>" +
+                    "</loc:Location>";
+
+                String sOExpectedXML =
+                    "<xml-fragment " + sNamespace + ">" +
+                    "<loc:CityName>DALLAS</loc:CityName>" +
+                    "<loc:StateCode>TX</loc:StateCode>" +
+                    "<loc:SubdivisionCode>xyz</loc:SubdivisionCode>" +
+                    "</xml-fragment>";
+                XmlOptions map = new XmlOptions();
+                //map.put(XmlOptions.SAVE_PRETTY_PRINT, "");
+                //map.put(XmlOptions.SAVE_PRETTY_PRINT_INDENT, new Integer(-1));
+
+                assertEquals(sExpectedXML, xc0.xmlText(map));
+                loc = (LocationDocument.Location) xc0.getObject();
+                assertEquals(sOExpectedXML, loc.xmlText());
+                assertTrue(loc.validate());
+                assertEquals("DALLAS", loc.getCityName());
+                assertEquals("TX", loc.getStateCode());
+                assertEquals("xyz", loc.getSubdivisionCode());
+            }
+        }
     }
 
     @Test
@@ -97,71 +94,68 @@ public class CursorGeneratedTypedObjectTest {
         CarLocationMessageDocument clm = CarLocationMessageDocument.Factory.parse(
             JarUtil.getResourceFromJar(
                 Common.TRANXML_FILE_CLM));
-        XmlCursor xc = clm.newCursor();
-        xc.selectPath(Common.CLM_NS_XQUERY_DEFAULT +
-                      "$this//GeographicLocation");
-        xc.toNextSelection();
+        try (XmlCursor xc = clm.newCursor()) {
+            xc.selectPath(Common.CLM_NS_XQUERY_DEFAULT +
+                          "$this//GeographicLocation");
+            xc.toNextSelection();
 
-        GeographicLocationDocument.GeographicLocation gl0 = (GeographicLocationDocument.GeographicLocation) xc.getObject();
-        assertTrue(gl0.validate());
+            GeographicLocationDocument.GeographicLocation gl0 = (GeographicLocationDocument.GeographicLocation) xc.getObject();
+            assertTrue(gl0.validate());
 
-        XmlCursor xc0 = xc.newCursor();
-        try {
-            xc0.toLastChild();
-            assertEquals("TX", xc0.getTextValue());
-            xc0.toNextToken();
-            xc0.toNextToken();
-            xc0.toNextToken();
-            xc0.toNextToken();
-            assertEquals(TokenType.END, xc0.currentTokenType());
+            try (XmlCursor xc0 = xc.newCursor()) {
+                xc0.toLastChild();
+                assertEquals("TX", xc0.getTextValue());
+                xc0.toNextToken();
+                xc0.toNextToken();
+                xc0.toNextToken();
+                xc0.toNextToken();
+                assertEquals(TokenType.END, xc0.currentTokenType());
 
-            xc0.beginElement("LocationIdentifier",
-                "http://www.tranxml.org/TranXML/Version4.0");
-            xc0.insertAttributeWithValue("Qualifier", "FR");
-            xc0.toEndToken();
-            xc0.toNextToken();//move past the end token
-            xc0.insertElementWithText("CountrySubdivisionCode",
-                "http://www.tranxml.org/TranXML/Version4.0", "xyz");
-            xc0.toCursor(xc);
+                xc0.beginElement("LocationIdentifier",
+                    "http://www.tranxml.org/TranXML/Version4.0");
+                xc0.insertAttributeWithValue("Qualifier", "FR");
+                xc0.toEndToken();
+                xc0.toNextToken();//move past the end token
+                xc0.insertElementWithText("CountrySubdivisionCode",
+                    "http://www.tranxml.org/TranXML/Version4.0", "xyz");
+                xc0.toCursor(xc);
 
-            String sExpectedXML =
-                "<GeographicLocation " + sNamespace + ">\n" +
-                "\t\t\t<CityName>DALLAS</CityName>\n" +
-                "\t\t\t<StateOrProvinceCode>TX</StateOrProvinceCode>\n" +
-                "\t\t<LocationIdentifier Qualifier=\"FR\"/><CountrySubdivisionCode>xyz</CountrySubdivisionCode>" +
-                "</GeographicLocation>";
+                String sExpectedXML =
+                    "<GeographicLocation " + sNamespace + ">\n" +
+                    "\t\t\t<CityName>DALLAS</CityName>\n" +
+                    "\t\t\t<StateOrProvinceCode>TX</StateOrProvinceCode>\n" +
+                    "\t\t<LocationIdentifier Qualifier=\"FR\"/><CountrySubdivisionCode>xyz</CountrySubdivisionCode>" +
+                    "</GeographicLocation>";
 
-            XmlOptions map = new XmlOptions();
-            //  map.put(XmlOptions.SAVE_PRETTY_PRINT, "");
-            //  map.put(XmlOptions.SAVE_PRETTY_PRINT_INDENT, new Integer(-1));
-            assertEquals(sExpectedXML, xc0.xmlText());
+                XmlOptions map = new XmlOptions();
+                //  map.put(XmlOptions.SAVE_PRETTY_PRINT, "");
+                //  map.put(XmlOptions.SAVE_PRETTY_PRINT_INDENT, new Integer(-1));
+                assertEquals(sExpectedXML, xc0.xmlText());
 
-            String sOExpectedXML =
-                "<xml-fragment xmlns:xsi=\"http://www.w3.org/2000/10/XMLSchema-instance\">\n" +
-                "\t\t\t<ver:CityName xmlns:ver=\"http://www.tranxml.org/TranXML/Version4.0\">" +
-                "DALLAS</ver:CityName>\n" +
-                "\t\t\t<ver:StateOrProvinceCode xmlns:ver=\"http://www.tranxml.org/TranXML/Version4.0\">" +
-                "TX</ver:StateOrProvinceCode>\n" +
-                "\t\t<ver:LocationIdentifier Qualifier=\"FR\" " +
-                "xmlns:ver=\"http://www.tranxml.org/TranXML/Version4.0\"/>" +
-                "<ver:CountrySubdivisionCode xmlns:ver=\"http://www.tranxml.org/TranXML/Version4.0\">xyz" +
-                "</ver:CountrySubdivisionCode></xml-fragment>";
+                String sOExpectedXML =
+                    "<xml-fragment xmlns:xsi=\"http://www.w3.org/2000/10/XMLSchema-instance\">\n" +
+                    "\t\t\t<ver:CityName xmlns:ver=\"http://www.tranxml.org/TranXML/Version4.0\">" +
+                    "DALLAS</ver:CityName>\n" +
+                    "\t\t\t<ver:StateOrProvinceCode xmlns:ver=\"http://www.tranxml.org/TranXML/Version4.0\">" +
+                    "TX</ver:StateOrProvinceCode>\n" +
+                    "\t\t<ver:LocationIdentifier Qualifier=\"FR\" " +
+                    "xmlns:ver=\"http://www.tranxml.org/TranXML/Version4.0\"/>" +
+                    "<ver:CountrySubdivisionCode xmlns:ver=\"http://www.tranxml.org/TranXML/Version4.0\">xyz" +
+                    "</ver:CountrySubdivisionCode></xml-fragment>";
 
-            GeographicLocationDocument.GeographicLocation gl = (GeographicLocationDocument.GeographicLocation) xc0.getObject();
-            assertEquals(sOExpectedXML, gl.xmlText(map));
-            assertTrue(gl.validate());
+                GeographicLocationDocument.GeographicLocation gl = (GeographicLocationDocument.GeographicLocation) xc0.getObject();
+                assertEquals(sOExpectedXML, gl.xmlText(map));
+                assertTrue(gl.validate());
 
 
-            assertEquals("DALLAS", gl.getCityName().getStringValue());
-            assertEquals("TX", gl.getStateOrProvinceCode());
-            LocationIdentifierDocument.LocationIdentifier li = gl.getLocationIdentifier();
-            assertNotNull("LocationIdentifier unexpectedly null", li);
-            assertEquals(CodeList309.FR,
-                gl.getLocationIdentifier().getQualifier());
-            assertEquals("xyz", gl.getCountrySubdivisionCode());
-        } finally {
-            xc.dispose();
-            xc0.dispose();
+                assertEquals("DALLAS", gl.getCityName().getStringValue());
+                assertEquals("TX", gl.getStateOrProvinceCode());
+                LocationIdentifierDocument.LocationIdentifier li = gl.getLocationIdentifier();
+                assertNotNull("LocationIdentifier unexpectedly null", li);
+                assertEquals(CodeList309.FR,
+                    gl.getLocationIdentifier().getQualifier());
+                assertEquals("xyz", gl.getCountrySubdivisionCode());
+            }
         }
     }
 
@@ -171,37 +165,34 @@ public class CursorGeneratedTypedObjectTest {
         String sFF = "<First>Fred</First><Last>Flintstone</Last>";
         String sXml = "<Person xmlns=\"person\"><Name>" + sFF +
                       "</Name></Person>";
-        XmlCursor xc = XmlObject.Factory.parse(sXml).newCursor();
-        PersonDocument pdoc = (PersonDocument) xc.getObject();
+        try (XmlCursor xc = XmlObject.Factory.parse(sXml).newCursor()) {
+            PersonDocument pdoc = (PersonDocument) xc.getObject();
 
-        xc.toFirstChild();
-        XmlCursor xcPlaceHolder = xc.newCursor();
+            xc.toFirstChild();
 
-        try {
-            Person p = (Person) xc.getObject();
-            assertTrue(p.validate());
-            // move to </Person>
-            xc.toEndToken();
+            try (XmlCursor xcPlaceHolder = xc.newCursor()) {
+                Person p = (Person) xc.getObject();
+                assertTrue(p.validate());
+                // move to </Person>
+                xc.toEndToken();
 
-            xc.insertElement("Sibling", "person");
-            xc.toPrevToken();
-            xc.insertElement("Name", "person");
-            xc.toPrevToken();
-            xc.insertElementWithText("First", "person", "Barney");
-            xc.insertElementWithText("Last", "person", "Rubble");
+                xc.insertElement("Sibling", "person");
+                xc.toPrevToken();
+                xc.insertElement("Name", "person");
+                xc.toPrevToken();
+                xc.insertElementWithText("First", "person", "Barney");
+                xc.insertElementWithText("Last", "person", "Rubble");
 
-            p = (Person) xcPlaceHolder.getObject();
-            assertTrue(p.validate());
+                p = (Person) xcPlaceHolder.getObject();
+                assertTrue(p.validate());
 
-            assertEquals("Fred", p.getName().getFirst());
-            assertEquals("Flintstone", p.getName().getLast());
-            Person[] ap = p.getSiblingArray();
-            assertEquals(1, ap.length);
-            assertEquals("Barney", ap[0].getName().getFirst());
-            assertEquals("Rubble", ap[0].getName().getLast());
-        } finally {
-            xc.dispose();
-            xcPlaceHolder.dispose();
+                assertEquals("Fred", p.getName().getFirst());
+                assertEquals("Flintstone", p.getName().getLast());
+                Person[] ap = p.getSiblingArray();
+                assertEquals(1, ap.length);
+                assertEquals("Barney", ap[0].getName().getFirst());
+                assertEquals("Rubble", ap[0].getName().getLast());
+            }
         }
     }
 }

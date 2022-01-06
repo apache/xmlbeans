@@ -1205,16 +1205,16 @@ public class InstanceValidationTests {
                 "<hee yee='3'><haw>66</haw></hee>",
                 null, null);
 
-        XmlCursor c = x.newCursor();
+        try (XmlCursor c = x.newCursor()) {
+            do {
+                XmlObject obj = c.getObject();
 
-        do {
-            XmlObject obj = c.getObject();
+                if (obj != null) {
+                    obj.validate();
+                }
 
-            if (obj != null) {
-                obj.validate();
-            }
-
-        } while (!c.toNextToken().isNone());
+            } while (!c.toNextToken().isNone());
+        }
 
         // invalid
 
@@ -1225,26 +1225,27 @@ public class InstanceValidationTests {
 
         assertTrue(!x.validate());
 
-        c = x.newCursor();
-        c.toNextToken();
-        c.toNextToken();
+        try (XmlCursor c = x.newCursor()) {
+            c.toNextToken();
+            c.toNextToken();
 
-        assertTrue(!c.getObject().validate());
+            assertTrue(!c.getObject().validate());
+        }
 
         // No schema
 
         x = XmlObject.Factory.parse("<foo x='y'>asas<bar>asas</bar></foo>");
 
-        c = x.newCursor();
+        try (XmlCursor c = x.newCursor()) {
+            do {
+                XmlObject obj = c.getObject();
 
-        do {
-            XmlObject obj = c.getObject();
+                if (obj != null) {
+                    obj.validate();
+                }
 
-            if (obj != null) {
-                obj.validate();
-            }
-
-        } while (!c.toNextToken().isNone());
+            } while (!c.toNextToken().isNone());
+        }
     }
 
     @Test(expected = XmlException.class)
@@ -1299,28 +1300,28 @@ public class InstanceValidationTests {
 
         assertTrue(x.validate());
 
-        XmlCursor c = x.newCursor();
+        try (XmlCursor c = x.newCursor()) {
+            c.toFirstChild();
 
-        c.toFirstChild();
+            XmlObject base = c.getObject();
 
-        XmlObject base = c.getObject();
+            c.toEndToken();
+            c.insertElement("bar");
 
-        c.toEndToken();
-        c.insertElement("bar");
+            assertTrue(!x.validate());
 
-        assertTrue(!x.validate());
+            c.toPrevSibling();
 
-        c.toPrevSibling();
+            c.removeXml();
 
-        c.removeXml();
+            assertTrue(x.validate());
 
-        assertTrue(x.validate());
+            base.changeType(stl.findType(new QName("derived")));
 
-        base.changeType(stl.findType(new QName("derived")));
+            c.insertElement("bar");
 
-        c.insertElement("bar");
-
-        assertTrue(x.validate());
+            assertTrue(x.validate());
+        }
     }
 
     // Tests abstract & block attributes on ComplexType
@@ -1872,10 +1873,10 @@ public class InstanceValidationTests {
                 stl.parse((String) validInstances[i], null, options);
 
             if (!startOnDocument) {
-                XmlCursor c = x.newCursor();
-                c.toFirstChild();
-                x = c.getObject();
-                c.dispose();
+                try (XmlCursor c = x.newCursor()) {
+                    c.toFirstChild();
+                    x = c.getObject();
+                }
             }
 
             List<XmlError> xel = new ArrayList<>();
@@ -1905,10 +1906,10 @@ public class InstanceValidationTests {
                 x = stl.parse((String) invalidInstances[i], null, options);
 
                 if (!startOnDocument) {
-                    XmlCursor c = x.newCursor();
-                    c.toFirstChild();
-                    x = c.getObject();
-                    c.dispose();
+                    try (XmlCursor c = x.newCursor()) {
+                        c.toFirstChild();
+                        x = c.getObject();
+                    }
                 }
 
                 boolean isValid = x.validate();

@@ -98,7 +98,7 @@ public class SchemaResourceManager extends BaseSchemaResourceManager
             System.exit(0);
             return;
         }
-        
+
         args = cl.args();
 
         boolean sync = (cl.getOpt("sync") != null);

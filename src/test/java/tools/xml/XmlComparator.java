@@ -125,13 +125,13 @@ public class XmlComparator
         XmlObject xobj1 = XmlObject.Factory.parse(actual);
         XmlObject xobj2 = XmlObject.Factory.parse(expect);
 
-        XmlCursor cur1 = xobj1.newCursor();
-        XmlCursor cur2 = xobj2.newCursor();
+        try (XmlCursor cur1 = xobj1.newCursor();
+            XmlCursor cur2 = xobj2.newCursor()) {
+            cur1.toFirstChild();
+            cur2.toFirstChild();
 
-        cur1.toFirstChild();
-        cur2.toFirstChild();
-
-        return lenientlyCompareTwoXmlStrings(cur1,  cur2, diag);
+            return lenientlyCompareTwoXmlStrings(cur1,  cur2, diag);
+        }
     }
 
     /**

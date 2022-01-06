@@ -26,44 +26,53 @@ import static org.junit.Assert.assertEquals;
 public class XPathNodeTest {
     @Test
     public void testNodeEquality() throws Exception {
-        XmlCursor c = XmlObject.Factory.parse(
-            "<root><book isbn='012345' id='09876'/></root>")
-            .newCursor();
-        c.selectPath("//book[@isbn='012345'] is //book[@id='09876']");
-        assertEquals(1, c.getSelectionCount());
-        c.toNextSelection();
-        assertEquals(Common.wrapInXmlFrag("true"), c.xmlText());
+        try (XmlCursor c = XmlObject.Factory.parse(
+                "<root><book isbn='012345' id='09876'/></root>")
+                .newCursor()) {
+            c.selectPath("//book[@isbn='012345'] is //book[@id='09876']");
+            assertEquals(1, c.getSelectionCount());
+            c.toNextSelection();
+            assertEquals(Common.wrapInXmlFrag("true"), c.xmlText());
+        }
     }
 
     @Test
     public void testNodeOrder() throws Exception {
-        XmlCursor c = XmlObject.Factory.parse(
-            "<root><book isbn='012345'/><book id='09876'/></root>")
-            .newCursor();
-        c.selectPath("//book[@isbn='012345'] << //book[@id='09876']");
-        assertEquals(1, c.getSelectionCount());
-        c.toNextSelection();
-        assertEquals(Common.wrapInXmlFrag("true"), c.xmlText());
+        try (XmlCursor c = XmlObject.Factory.parse(
+                "<root><book isbn='012345'/><book id='09876'/></root>")
+                .newCursor()) {
+            c.selectPath("//book[@isbn='012345'] << //book[@id='09876']");
+            assertEquals(1, c.getSelectionCount());
+            c.toNextSelection();
+            assertEquals(Common.wrapInXmlFrag("true"), c.xmlText());
 
-        c.selectPath("//book[@isbn='012345'] >> //book[@id='09876']");
-        assertEquals(1, c.getSelectionCount());
-        c.toNextSelection();
-        assertEquals(Common.wrapInXmlFrag("false"), c.xmlText());
+            c.selectPath("//book[@isbn='012345'] >> //book[@id='09876']");
+            assertEquals(1, c.getSelectionCount());
+            c.toNextSelection();
+            assertEquals(Common.wrapInXmlFrag("false"), c.xmlText());
+        }
     }
 
     @Test
     public void testParent() throws Exception {
         String input = "<A><B><C></C></B></A>";
         XmlObject o;
-        XmlCursor c = XmlObject.Factory.parse(input).newCursor();
-        c.toFirstContentToken();
-        c.toFirstChild();
-        c.toFirstChild();
-        o = c.getObject();
-        assertEquals("<C/>", o.newCursor().xmlText());
+        try (XmlCursor c = XmlObject.Factory.parse(input).newCursor()) {
+            c.toFirstContentToken();
+            c.toFirstChild();
+            c.toFirstChild();
+            o = c.getObject();
+        }
+        assertEquals("<C/>", xmlText(o));
         XmlObject[] res = o.selectPath("..");
         assertEquals(1, res.length);
-        assertEquals("<B><C/></B>", res[0].newCursor().xmlText());
+        assertEquals("<B><C/></B>", xmlText(res[0]));
+    }
+
+    private String xmlText(XmlObject o) {
+        try (XmlCursor c = o.newCursor()) {
+            return c.xmlText();
+        }
     }
 
     @Test
@@ -79,18 +88,27 @@ public class XPathNodeTest {
             "</Validity></Content></AttributeCertificate>";
 
         XmlObject o;
-        XmlCursor c = XmlObject.Factory.parse(input).newCursor();
-        c.toFirstContentToken();
-        c.toFirstChild();
-        c.toFirstChild();
-        o = c.getObject();
-        QName qn = o.newCursor().getName();
+        try (XmlCursor c = XmlObject.Factory.parse(input).newCursor()) {
+            c.toFirstContentToken();
+            c.toFirstChild();
+            c.toFirstChild();
+            o = c.getObject();
+        }
+
+        QName qn = getName(o);
         assertEquals("http://www.eurecom.fr/security/xac#", qn.getNamespaceURI());
         assertEquals("Validity", qn.getLocalPart());
         XmlObject[] res = o.selectPath("..");
         assertEquals(1, res.length);
-        qn = res[0].newCursor().getName();
+        XmlObject x = res[0];
+        qn = getName(x);
         assertEquals("http://www.eurecom.fr/security/xac#", qn.getNamespaceURI());
         assertEquals("Content", qn.getLocalPart());
+    }
+
+    private QName getName(XmlObject o) {
+        try (XmlCursor c = o.newCursor()) {
+            return c.getName();
+        }
     }
 }

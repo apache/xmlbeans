@@ -55,9 +55,10 @@ public class DirtyCacheTests {
         testElt.setChild3(new BigInteger("1"));
         testElt.setChild1(new BigInteger("0"));
 
-        XmlCursor cur = testElt.newCursor();
-        cur.toFirstContentToken();
-        cur.insertChars("Random mixed content");
+        try (XmlCursor cur = testElt.newCursor()) {
+            cur.toFirstContentToken();
+            cur.insertChars("Random mixed content");
+        }
         Node n = o.getDomNode();
         n = n.getFirstChild();
         n = n.getFirstChild();

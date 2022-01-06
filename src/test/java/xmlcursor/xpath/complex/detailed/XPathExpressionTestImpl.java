@@ -81,80 +81,85 @@ public class XPathExpressionTestImpl extends XPathExpressionTest {
             "<xml-fragment>Suciu</xml-fragment>",
             "<title>Data on the Web</title>"
             };
-        XmlCursor c = XmlObject.Factory.parse(sXml).newCursor();
-        c.selectPath(query);
-        verifySelection(c, exp);
+        try (XmlCursor c = XmlObject.Factory.parse(sXml).newCursor()) {
+            c.selectPath(query);
+            verifySelection(c, exp);
+        }
     }
 
     @Test
     public void testFor_1() throws Exception {
-        XmlCursor c = XmlObject.Factory.parse("<a/>").newCursor();
-        String query = "for $i in (10, 20),\n" +
-            "    $j in (1, 2)\n" +
-            "return ($i + $j)";
-        c.selectPath(query);
-        String[] expected = new String[] {
-            Common.wrapInXmlFrag("11"),
-            Common.wrapInXmlFrag("12"),
-            Common.wrapInXmlFrag("21"),
-            Common.wrapInXmlFrag("22")
-        };
-        verifySelection(c, expected);
+        try (XmlCursor c = XmlObject.Factory.parse("<a/>").newCursor()) {
+            String query = "for $i in (10, 20),\n" +
+                "    $j in (1, 2)\n" +
+                "return ($i + $j)";
+            c.selectPath(query);
+            String[] expected = new String[] {
+                Common.wrapInXmlFrag("11"),
+                Common.wrapInXmlFrag("12"),
+                Common.wrapInXmlFrag("21"),
+                Common.wrapInXmlFrag("22")
+            };
+            verifySelection(c, expected);
+        }
     }
 
     @Test
     public void testFor_2() throws Exception {
-        XmlCursor c = XmlObject.Factory.parse("<a/>").newCursor();
-        String query = "sum (for $i in (10, 20)" +
-            "return $i)";
-        c.selectPath(query);
-        assertEquals(1, c.getSelectionCount());
-        c.toNextSelection();
-        assertEquals(Common.wrapInXmlFrag("30"), c.xmlText());
+        try (XmlCursor c = XmlObject.Factory.parse("<a/>").newCursor()) {
+            String query = "sum (for $i in (10, 20)" +
+                "return $i)";
+            c.selectPath(query);
+            assertEquals(1, c.getSelectionCount());
+            c.toNextSelection();
+            assertEquals(Common.wrapInXmlFrag("30"), c.xmlText());
+        }
     }
 
     @Test
     public void testIf() throws Exception {
-        XmlCursor c = XmlObject.Factory.parse("<root>" +
-            "<book price='20'>Pooh</book>" +
-            "<cd price='25'>Pooh</cd>" +
-            "<book price='50'>Maid</book>" +
-            "<cd price='25'>Maid</cd>" +
-            "</root>").newCursor();
-        String query = "if (//book[1]/@price) " +
-            "  then //book[1] " +
-            "  else 0";
-        c.selectPath(query);
-        assertEquals(1, c.getSelectionCount());
-        c.toNextSelection();
-        assertEquals("<book price=\"20\">Pooh</book>", c.xmlText());
+        try (XmlCursor c = XmlObject.Factory.parse("<root>" +
+                "<book price='20'>Pooh</book>" +
+                "<cd price='25'>Pooh</cd>" +
+                "<book price='50'>Maid</book>" +
+                "<cd price='25'>Maid</cd>" +
+                "</root>").newCursor()) {
+            String query = "if (//book[1]/@price) " +
+                "  then //book[1] " +
+                "  else 0";
+            c.selectPath(query);
+            assertEquals(1, c.getSelectionCount());
+            c.toNextSelection();
+            assertEquals("<book price=\"20\">Pooh</book>", c.xmlText());
 
-        query = "for $b1 in //book, $b2 in //cd " +
-            "return " +
-            "if ( $b1/@price < $b2/@price )" +
-            " then $b1" +
-            " else $b2";
-        c.selectPath(query);
-        assertEquals(4, c.getSelectionCount());
-        c.toNextSelection();
-        assertEquals("<book price=\"20\">Pooh</book>", c.xmlText());
-        c.toNextSelection();
-        assertEquals("<book price=\"20\">Pooh</book>", c.xmlText());
-        c.toNextSelection();
-        assertEquals("<cd price=\"25\">Pooh</cd>", c.xmlText());
-        c.toNextSelection();
-        assertEquals("<cd price=\"25\">Maid</cd>", c.xmlText());
+            query = "for $b1 in //book, $b2 in //cd " +
+                "return " +
+                "if ( $b1/@price < $b2/@price )" +
+                " then $b1" +
+                " else $b2";
+            c.selectPath(query);
+            assertEquals(4, c.getSelectionCount());
+            c.toNextSelection();
+            assertEquals("<book price=\"20\">Pooh</book>", c.xmlText());
+            c.toNextSelection();
+            assertEquals("<book price=\"20\">Pooh</book>", c.xmlText());
+            c.toNextSelection();
+            assertEquals("<cd price=\"25\">Pooh</cd>", c.xmlText());
+            c.toNextSelection();
+            assertEquals("<cd price=\"25\">Maid</cd>", c.xmlText());
+        }
     }
 
     @Test
     public void testQuantifiedExpression() throws Exception {
-        XmlCursor c = XmlObject.Factory.parse("<root></root>").newCursor();
-        String query =
-            "some $x in (1, 2, 3), $y in (2, 3, 4) " +
-            "satisfies $x + $y = 4";
-        c.selectPath(query);
-        assertEquals(1, c.getSelectionCount());
-        c.toNextSelection();
-        assertEquals("<xml-fragment>true</xml-fragment>", c.xmlText());
+        try (XmlCursor c = XmlObject.Factory.parse("<root></root>").newCursor()) {
+            String query =
+                "some $x in (1, 2, 3), $y in (2, 3, 4) " +
+                "satisfies $x + $y = 4";
+            c.selectPath(query);
+            assertEquals(1, c.getSelectionCount());
+            c.toNextSelection();
+            assertEquals("<xml-fragment>true</xml-fragment>", c.xmlText());
+        }
     }
 }

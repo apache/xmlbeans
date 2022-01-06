@@ -38,13 +38,10 @@ public class ComparePositionTest extends BasicCursorTestCase {
     @Test(expected = IllegalArgumentException.class)
     public void testComparePositionDifferentDocs() throws Exception {
         m_xc = XmlObject.Factory.parse(Common.XML_FOO_1ATTR_TEXT).newCursor();
-        XmlCursor xc0 = XmlObject.Factory.parse(Common.XML_FOO_1ATTR_TEXT).newCursor();
-        m_xc.toFirstChild();
-        xc0.toFirstChild();
-        try {
+        try (XmlCursor xc0 = XmlObject.Factory.parse(Common.XML_FOO_1ATTR_TEXT).newCursor()) {
+            m_xc.toFirstChild();
+            xc0.toFirstChild();
             m_xc.comparePosition(xc0);
-        } finally {
-            xc0.dispose();
         }
     }
 
@@ -58,42 +55,33 @@ public class ComparePositionTest extends BasicCursorTestCase {
     @Test
     public void testComparePositionRightInTEXT() throws Exception {
         m_xc = XmlObject.Factory.parse(Common.XML_FOO_1ATTR_TEXT).newCursor();
-        XmlCursor xc0 = m_xc.newCursor();
-        try {
+        try (XmlCursor xc0 = m_xc.newCursor()) {
             toNextTokenOfType(m_xc, TokenType.TEXT);
             toNextTokenOfType(xc0, TokenType.TEXT);
             xc0.toNextChar(1);
             assertEquals(-1, m_xc.comparePosition(xc0));
-        } finally {
-            xc0.dispose();
         }
     }
 
     @Test
     public void testComparePositionLeftInTEXT() throws Exception {
         m_xc = XmlObject.Factory.parse(Common.XML_FOO_1ATTR_TEXT).newCursor();
-        XmlCursor xc0 = m_xc.newCursor();
-        try {
+        try (XmlCursor xc0 = m_xc.newCursor()) {
             toNextTokenOfType(m_xc, TokenType.TEXT);
             toNextTokenOfType(xc0, TokenType.TEXT);
             m_xc.toNextChar(1);
             assertEquals(1, m_xc.comparePosition(xc0));
-        } finally {
-            xc0.dispose();
         }
     }
 
     @Test
     public void testComparePositionENDandENDDOC() throws Exception {
         m_xc = XmlObject.Factory.parse(Common.XML_FOO_1ATTR_TEXT).newCursor();
-        XmlCursor xc0 = m_xc.newCursor();
-        try {
+        try (XmlCursor xc0 = m_xc.newCursor()) {
             m_xc.toEndDoc();
             xc0.toEndDoc();
             xc0.toPrevToken();
             assertEquals(1, m_xc.comparePosition(xc0));
-        } finally {
-            xc0.dispose();
         }
     }
 }

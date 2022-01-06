@@ -198,21 +198,22 @@ public abstract class CharactersTest {
 
     @Before
     public void setUp() throws Exception {
-        XmlCursor cur = XmlObject.Factory.newInstance().newCursor();
-        cur.toNextToken();
+        try (XmlCursor cur = XmlObject.Factory.newInstance().newCursor()) {
+            cur.toNextToken();
 
-        //   cur.insertAttributeWithValue(new QName("foo.org", "at0", "pre"), "val0");
-        cur.insertComment(" some comment ");
-        cur.beginElement(new QName("foo.org", "foo", ""));
-        cur.insertAttribute("localName");
-        cur.insertChars("some text");
-        cur.insertElement("foo2");
-        cur.toNextToken(); //close foo elt
-        cur.insertChars("\t");
+            //   cur.insertAttributeWithValue(new QName("foo.org", "at0", "pre"), "val0");
+            cur.insertComment(" some comment ");
+            cur.beginElement(new QName("foo.org", "foo", ""));
+            cur.insertAttribute("localName");
+            cur.insertChars("some text");
+            cur.insertElement("foo2");
+            cur.toNextToken(); //close foo elt
+            cur.insertChars("\t");
 
 
-        cur.toStartDoc();
-        m_stream = getStream(cur);
+            cur.toStartDoc();
+            m_stream = getStream(cur);
+        }
     }
 
     @After

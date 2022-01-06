@@ -58,9 +58,8 @@ public class StringXmlReader implements Runnable {
             return;
         }
 
-        try {
+        try (XmlCursor cur = x.newCursor()) {
             // Walk through the XML
-            XmlCursor cur = x.newCursor();
             cur.toStartDoc();
             do {
                 // Sleep for 10 milliseconds
@@ -73,7 +72,6 @@ public class StringXmlReader implements Runnable {
                 //System.out.println("["+tName+"]: " + cur.currentTokenType().toString());
                 cur.toNextToken();
             } while (cur.hasNextToken());
-            cur.dispose();
         } catch (Exception e) {
             System.out.println("Exception in thread " + tName);
             e.printStackTrace();

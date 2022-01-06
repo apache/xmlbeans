@@ -15,7 +15,6 @@
 
 package org.apache.xmlbeans.impl.tool;
 
-import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
 import org.apache.xmlbeans.impl.common.IOUtil;
@@ -164,8 +163,6 @@ public class SchemaCopy {
         try {
             URL sourceURL = source.toURL();
             XmlObject xobj = XmlObject.Factory.parse(sourceURL, loadOptions);
-            XmlCursor xcur = xobj.newCursor();
-            xcur.toFirstChild();
 
             Map<URI,URI> result = new LinkedHashMap<>();
 

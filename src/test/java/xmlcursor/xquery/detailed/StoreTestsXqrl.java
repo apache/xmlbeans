@@ -26,10 +26,11 @@ import static org.junit.Assert.assertTrue;
 //Used to be a checkin
 public class StoreTestsXqrl {
     private void doTokenTest(String xml) throws Exception {
-        XmlCursor c = XmlObject.Factory.parse(xml).newCursor();
-        //String s = c.execQuery( "$this" ).xmlText();
-        String s = c.execQuery(".").xmlText();
-        assertEquals(s, xml);
+        try (XmlCursor c = XmlObject.Factory.parse(xml).newCursor();
+            XmlCursor cq = c.execQuery(".")) {
+            String s = cq.xmlText();
+            assertEquals(s, xml);
+        }
     }
 
     private void doSaveTest(String xml) throws Exception {
@@ -53,21 +54,21 @@ public class StoreTestsXqrl {
         XmlObject x =
             XmlObject.Factory.parse("<foo xmlns:a='a.com'><bar xmlns:a='b.com'/></foo>");
 
-        XmlCursor c = x.newCursor();
+        try (XmlCursor c = x.newCursor()) {
+            c.toFirstChild();
+            c.toFirstChild();
 
-        c.toFirstChild();
-        c.toFirstChild();
-
-        assertEquals("<bar xmlns:a=\"b.com\"/>", c.xmlText());
+            assertEquals("<bar xmlns:a=\"b.com\"/>", c.xmlText());
+        }
 
         x = XmlObject.Factory.parse("<foo xmlns:a='a.com'><bar/></foo>");
 
-        c = x.newCursor();
+        try (XmlCursor c = x.newCursor()) {
+            c.toFirstChild();
+            c.toFirstChild();
 
-        c.toFirstChild();
-        c.toFirstChild();
-
-        assertEquals("<bar xmlns:a=\"a.com\"/>", c.xmlText());
+            assertEquals("<bar xmlns:a=\"a.com\"/>", c.xmlText());
+        }
     }
 
     public void testTextFrag(String actual, String expected) {
@@ -88,24 +89,26 @@ public class StoreTestsXqrl {
     @Test
     public void testXQuery()
         throws Exception {
-        XmlCursor c =
-            XmlObject.Factory.parse(
+        try (XmlCursor c = XmlObject.Factory.parse(
                 "<foo><bar>1</bar><bar>2</bar></foo>").newCursor();
+            XmlCursor cq = c.execQuery("for $b in //bar order by ($b) descending return $b")) {
+            String s = cq.xmlText();
 
-        String s =
-            c.execQuery("for $b in //bar order by ($b) " +
-                        "descending return $b").xmlText();
+            testTextFrag(s, "<bar>2</bar><bar>1</bar>");
+        }
 
-        testTextFrag(s, "<bar>2</bar><bar>1</bar>");
+        try (XmlCursor c = XmlObject.Factory.parse("<foo></foo>").newCursor()) {
+            c.toNextToken();
+            c.toNextToken();
+            c.insertElement("boo", "boo.com");
+            c.toStartDoc();
 
-        c = XmlObject.Factory.parse("<foo></foo>").newCursor();
-        c.toNextToken();
-        c.toNextToken();
-        c.insertElement("boo", "boo.com");
-        c.toStartDoc();
-
-        assertEquals("<foo><boo:boo xmlns:boo=\"boo.com\"/></foo>",
-            c.execQuery(".").xmlText());
+            try (XmlCursor cq = c.execQuery(".")) {
+                String s = cq.xmlText();
+                assertEquals("<foo><boo:boo xmlns:boo=\"boo.com\"/></foo>",
+                    s);
+            }
+        }
     }
 
     @Test
@@ -114,63 +117,63 @@ public class StoreTestsXqrl {
             XmlObject.Factory.parse(
                 "<foo><bar>1</bar><bar>2</bar><bar>3</bar></foo>");
 
-        XmlCursor c = x.newCursor();
+        try (XmlCursor c = x.newCursor()) {
+            c.selectPath("//bar");
 
-        c.selectPath("//bar");
+            assertTrue(c.toNextSelection());
+            assertEquals("<bar>1</bar>", c.xmlText());
 
-        assertTrue(c.toNextSelection());
-        assertEquals("<bar>1</bar>", c.xmlText());
+            assertTrue(c.toNextSelection());
+            assertEquals("<bar>2</bar>", c.xmlText());
 
-        assertTrue(c.toNextSelection());
-        assertEquals("<bar>2</bar>", c.xmlText());
+            assertTrue(c.toNextSelection());
+            assertEquals("<bar>3</bar>", c.xmlText());
 
-        assertTrue(c.toNextSelection());
-        assertEquals("<bar>3</bar>", c.xmlText());
+            assertTrue(!c.toNextSelection());
 
-        assertTrue(!c.toNextSelection());
+            x =
+                XmlObject.Factory.parse(
+                    "<foo><bar x='1'/><bar x='2'/><bar x='3'/></foo>");
+        }
 
-        x =
-            XmlObject.Factory.parse(
-                "<foo><bar x='1'/><bar x='2'/><bar x='3'/></foo>");
+        try (XmlCursor c = x.newCursor()) {
+            //c.selectPath( "$this//@x" );
+            c.selectPath(".//@x");
 
-        c = x.newCursor();
+            assertTrue(c.toNextSelection());
+            assertTrue(c.currentTokenType().isAttr());
+            assertEquals("1", c.getTextValue());
 
-        //c.selectPath( "$this//@x" );
-        c.selectPath(".//@x");
+            assertTrue(c.toNextSelection());
+            assertTrue(c.currentTokenType().isAttr());
+            assertEquals("2", c.getTextValue());
 
-        assertTrue(c.toNextSelection());
-        assertTrue(c.currentTokenType().isAttr());
-        assertEquals("1", c.getTextValue());
+            assertTrue(c.toNextSelection());
+            assertTrue(c.currentTokenType().isAttr());
+            assertEquals("3", c.getTextValue());
 
-        assertTrue(c.toNextSelection());
-        assertTrue(c.currentTokenType().isAttr());
-        assertEquals("2", c.getTextValue());
+            assertTrue(!c.toNextSelection());
 
-        assertTrue(c.toNextSelection());
-        assertTrue(c.currentTokenType().isAttr());
-        assertEquals("3", c.getTextValue());
+            x = XmlObject.Factory.parse(
+                "<foo><bar>1</bar><bar>2</bar><bar>3</bar></foo>");
+        }
 
-        assertTrue(!c.toNextSelection());
+        try (XmlCursor c = x.newCursor()) {
+            c.selectPath("//text()");
 
-        x = XmlObject.Factory.parse(
-            "<foo><bar>1</bar><bar>2</bar><bar>3</bar></foo>");
+            assertTrue(c.toNextSelection());
+            assertTrue(c.currentTokenType().isText());
+            assertEquals("1", c.getChars());
 
-        c = x.newCursor();
+            assertTrue(c.toNextSelection());
+            assertTrue(c.currentTokenType().isText());
+            assertEquals("2", c.getChars());
 
-        c.selectPath("//text()");
+            assertTrue(c.toNextSelection());
+            assertTrue(c.currentTokenType().isText());
+            assertEquals("3", c.getChars());
 
-        assertTrue(c.toNextSelection());
-        assertTrue(c.currentTokenType().isText());
-        assertEquals("1", c.getChars());
-
-        assertTrue(c.toNextSelection());
-        assertTrue(c.currentTokenType().isText());
-        assertEquals("2", c.getChars());
-
-        assertTrue(c.toNextSelection());
-        assertTrue(c.currentTokenType().isText());
-        assertEquals("3", c.getChars());
-
-        assertTrue(!c.toNextSelection());
+            assertTrue(!c.toNextSelection());
+        }
     }
 }

@@ -37,7 +37,6 @@ public class CursorLocations extends BasicCursorTestCase {
 
     @Test(expected = IllegalArgumentException.class)
     public void testLocation() throws Exception {
-        XmlCursor xc1, xc2, xc3, xc4;
         XmlObject m_xo1;
 
 
@@ -45,286 +44,257 @@ public class CursorLocations extends BasicCursorTestCase {
                 JarUtil.getResourceFromJar(Common.TRANXML_FILE_XMLCURSOR_PO));
         m_xo1 = XmlObject.Factory.parse(Common.XML_FOO_BAR_TEXT);
 
+        try (XmlCursor xc1 = m_xo.newCursor();
+            XmlCursor xc2 = m_xo.newCursor();
+            XmlCursor xc3 = m_xo1.newCursor()) {
+            toNextTokenOfType(xc2, TokenType.END);
+            toNextTokenOfType(xc3, TokenType.START);
 
-        xc1 = m_xo.newCursor();
-        xc2 = m_xo.newCursor();
-        xc3 = m_xo1.newCursor();
+    
+            //start w/ xc1 at beg of doc
+            //xc2 at end of first elt (po:name)
+            while (xc1.isLeftOf(xc2)) {
+                assertFalse(xc1.isRightOf(xc2));
+                assertTrue(xc2.isRightOf(xc1));
+                assertTrue(xc1.isInSameDocument(xc2));
+                assertFalse(xc2.isAtSamePositionAs(xc1));
+                assertFalse(xc1.isAtSamePositionAs(xc2));
+                assertEquals(1, xc2.comparePosition(xc1));
+                assertEquals(-1, xc1.comparePosition(xc2));
+                //	System.out.println(xc1.currentTokenType() + "       " +  xc2.currentTokenType());
+                xc1.toNextToken();
+                xc2.toPrevToken();
+            }
+            //xc1 & xc2 @ shipTo
+            toNextTokenOfType(xc1,TokenType.TEXT);
+            toNextTokenOfType(xc2,TokenType.TEXT);
+            assertEquals("Current Token Type ",
+                    xc1.currentTokenType(),
+                    xc2.currentTokenType());
+            //both @ Alice Smith
+            toNextTokenOfType(xc1,TokenType.TEXT);
+            toNextTokenOfType(xc2,TokenType.TEXT);
+            assertEquals(XmlCursor.TokenType.TEXT,
+                    xc1.currentTokenType());
+            //these are only equivalent if the cursor is on a TEXT token
+            assertEquals(xc1.getChars(), xc1.getTextValue());
+            assertEquals(xc1.getChars(), xc2.getTextValue());
+
+            assertTrue(xc1.isAtSamePositionAs(xc2));
+            xc2.toNextChar(10);
 
 
-        toNextTokenOfType(xc2, TokenType.END);
-        toNextTokenOfType(xc3, TokenType.START);
+            //comparing two cursors in the middle of text
 
-
-       //start w/ xc1 at beg of doc
-        //xc2 at end of first elt (po:name)
-        while (xc1.isLeftOf(xc2)) {
-            assertFalse(xc1.isRightOf(xc2));
+            assertEquals(xc2.toPrevChar(4), xc1.toNextChar(4));
             assertTrue(xc2.isRightOf(xc1));
-            assertTrue(xc1.isInSameDocument(xc2));
-            assertFalse(xc2.isAtSamePositionAs(xc1));
+            assertFalse(xc1.isRightOf(xc2));
+            assertFalse(xc2.isLeftOf(xc1));
             assertFalse(xc1.isAtSamePositionAs(xc2));
             assertEquals(1, xc2.comparePosition(xc1));
-            assertEquals(-1, xc1.comparePosition(xc2));
-            //	System.out.println(xc1.currentTokenType() + "       " +  xc2.currentTokenType());
-            xc1.toNextToken();
+            assertTrue(xc1.isInSameDocument(xc2));
+            xc1.toNextChar(2);
+            assertEquals(0, xc2.comparePosition(xc1));
+            assertEquals(xc1.currentTokenType(), xc2.currentTokenType());
+
+            //Comparing the same cursor to itself
+            xc1.toNextChar(1);
+            assertFalse(xc1.isRightOf(xc1));
+            assertEquals(0, xc2.comparePosition(xc2));
+            assertTrue(xc2.isInSameDocument(xc2));
+            assertTrue(xc2.isAtSamePositionAs(xc2));
+
             xc2.toPrevToken();
-        }
-        //xc1 & xc2 @ shipTo
-       toNextTokenOfType(xc1,TokenType.TEXT);
-       toNextTokenOfType(xc2,TokenType.TEXT);
-       assertEquals("Current Token Type ",
-               xc1.currentTokenType(),
-               xc2.currentTokenType());
-        //both @ Alice Smith
-         toNextTokenOfType(xc1,TokenType.TEXT);
-       toNextTokenOfType(xc2,TokenType.TEXT);
-        assertEquals(XmlCursor.TokenType.TEXT,
-                xc1.currentTokenType());
-        //these are only equivalent if the cursor is on a TEXT token
-        assertEquals(xc1.getChars(), xc1.getTextValue());
-        assertEquals(xc1.getChars(), xc2.getTextValue());
+            //xc2 on Alice
+            assertEquals(TokenType.TEXT, xc2.toPrevToken());
+            //put the bookmark on S*mith
+            xc1.setBookmark(_theBookmark0);
 
-        assertTrue(xc1.isAtSamePositionAs(xc2));
-        xc2.toNextChar(10);
+            //moving xml and bookmark to a
+            // different location
+            assertTrue(xc1.moveXml(xc3));
+            try (XmlCursor xc4 = _theBookmark0.createCursor();
+                XmlCursor debug=xc1.newCursor()) {
+                assertNotNull(xc4);
 
+                toPrevTokenOfType(debug,TokenType.START);
+                assertTrue(xc4.isInSameDocument(xc3));
+                assertEquals(-1, xc4.comparePosition(xc3));
+                // assertEquals(TokenType.TEXT, xc3.toPrevToken());
+                assertEquals(4,xc3.toPrevChar(4));
+                assertEquals(0, xc4.comparePosition(xc3));
 
-//comparing two cursors in the middle of text
+                //comparing in  two different documents
+                assertFalse(xc2.isInSameDocument(xc3));
 
-        assertEquals(xc2.toPrevChar(4), xc1.toNextChar(4));
-        assertTrue(xc2.isRightOf(xc1));
-        assertFalse(xc1.isRightOf(xc2));
-        assertFalse(xc2.isLeftOf(xc1));
-        assertFalse(xc1.isAtSamePositionAs(xc2));
-        assertEquals(1, xc2.comparePosition(xc1));
-        assertTrue(xc1.isInSameDocument(xc2));
-        xc1.toNextChar(2);
-        assertEquals(0, xc2.comparePosition(xc1));
-        assertEquals(xc1.currentTokenType(), xc2.currentTokenType());
-
-        //Comparing the same cursor to itself
-        xc1.toNextChar(1);
-        assertFalse(xc1.isRightOf(xc1));
-        assertEquals(0, xc2.comparePosition(xc2));
-        assertTrue(xc2.isInSameDocument(xc2));
-        assertTrue(xc2.isAtSamePositionAs(xc2));
-
-        xc2.toPrevToken();
-        //xc2 on Alice
-        assertEquals(TokenType.TEXT, xc2.toPrevToken());
-        //put the bookmark on S*mith
-        xc1.setBookmark(_theBookmark0);
-
-        //moving xml and bookmark to a
-        // different location
-        assertTrue(xc1.moveXml(xc3));
-        xc4 = _theBookmark0.createCursor();
-        assertNotNull(xc4);
-
-        XmlCursor debug=xc4.newCursor();
-        XmlCursor debug1=xc1.newCursor();
-
-        toPrevTokenOfType(debug1,TokenType.START);
-        assertTrue(xc4.isInSameDocument(xc3));
-        assertEquals(-1, xc4.comparePosition(xc3));
-        // assertEquals(TokenType.TEXT, xc3.toPrevToken());
-        assertEquals(4,xc3.toPrevChar(4));
-        assertEquals(0, xc4.comparePosition(xc3));
-
-        //comparing in  two different documents
-        assertFalse(xc2.isInSameDocument(xc3));
-
-
-        try {
-            xc4.isLeftOf(xc2);
-        } finally {
-            xc1.dispose();
-            xc2.dispose();
-            xc3.dispose();
-            xc4.dispose();
+                xc4.isLeftOf(xc2);
+            }
         }
     }
 
     @Test
     public void testLocationATTR() throws Exception {
-        XmlCursor xc1, xc2;
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_5ATTR_TEXT);
 
-        xc1 = m_xo.newCursor();
-        xc2 = m_xo.newCursor();
+        try (XmlCursor xc1 = m_xo.newCursor();
+            XmlCursor xc2 = m_xo.newCursor()) {
+            toNextTokenOfType(xc1, TokenType.ATTR);
+            toNextTokenOfType(xc2, TokenType.ATTR);
 
-        toNextTokenOfType(xc1, TokenType.ATTR);
-        toNextTokenOfType(xc2, TokenType.ATTR);
+            int i = 0;
+            while (xc2.currentTokenType() == TokenType.ATTR) {
+                xc2.toNextToken();
+                ++i;
+            }
 
-        int i = 0;
-        while (xc2.currentTokenType() == TokenType.ATTR) {
-            xc2.toNextToken();
-            ++i;
-        }
-
-        assertEquals(5, i);
-        xc2.toPrevToken();
-
-        //moving betweenAttributes. one cursor is at the last ATTR and other is at first ATTR.
-        while (xc1.isLeftOf(xc2)) {
-            assertFalse(xc1.isRightOf(xc2));
-            assertTrue(xc2.isRightOf(xc1));
-            assertTrue(xc1.isInSameDocument(xc2));
-            assertFalse(xc2.isAtSamePositionAs(xc1));
-            assertFalse(xc1.isAtSamePositionAs(xc2));
-            assertEquals(1, xc2.comparePosition(xc1));
-            assertEquals(-1, xc1.comparePosition(xc2));
-            //	System.out.println(xc1.currentTokenType() + "       " +  xc2.currentTokenType());
-            xc1.toNextToken();
+            assertEquals(5, i);
             xc2.toPrevToken();
+
+            //moving betweenAttributes. one cursor is at the last ATTR and other is at first ATTR.
+            while (xc1.isLeftOf(xc2)) {
+                assertFalse(xc1.isRightOf(xc2));
+                assertTrue(xc2.isRightOf(xc1));
+                assertTrue(xc1.isInSameDocument(xc2));
+                assertFalse(xc2.isAtSamePositionAs(xc1));
+                assertFalse(xc1.isAtSamePositionAs(xc2));
+                assertEquals(1, xc2.comparePosition(xc1));
+                assertEquals(-1, xc1.comparePosition(xc2));
+                //	System.out.println(xc1.currentTokenType() + "       " +  xc2.currentTokenType());
+                xc1.toNextToken();
+                xc2.toPrevToken();
+            }
+            assertTrue(xc1.isAtSamePositionAs(xc2));
+
+            //inserting and then comparing to make sure cursors move properly.
+            xc2.insertAttributeWithValue("attr5", "val5");
+            assertEquals(0, xc1.comparePosition(xc2));
+
+            xc2.toPrevToken();
+            assertEquals("val5", xc2.getTextValue());
         }
-        assertTrue(xc1.isAtSamePositionAs(xc2));
-
-        //inserting and then comparing to make sure cursors move properly.
-        xc2.insertAttributeWithValue("attr5", "val5");
-        assertEquals(0, xc1.comparePosition(xc2));
-
-        xc2.toPrevToken();
-        assertEquals("val5", xc2.getTextValue());
-
-        xc1.dispose();
-        xc2.dispose();
-
     }
 
     @Test
     public void testLocationTEXTMiddle() throws Exception {
-        XmlCursor xc1, xc2, xc3;
         m_xo = XmlObject.Factory.parse(Common.XML_TEXT_MIDDLE);
 
-        xc1 = m_xo.newCursor();
-        xc2 = m_xo.newCursor();
-        xc3 = m_xo.newCursor();
+        try (XmlCursor xc1 = m_xo.newCursor();
+            XmlCursor xc2 = m_xo.newCursor();
+            XmlCursor xc3 = m_xo.newCursor()) {
+            //	 while(xc2.currentTokenType() != TokenType.ENDDOC)
+            //	{
+            //    System.out.println(xc2.currentTokenType());
+            //    xc2.toNextToken();
+            // }
 
+            // moving cursor to right locations. one is in middle of mixed content.
+            // the others is in middle of text of first node and last node
 
-        //	 while(xc2.currentTokenType() != TokenType.ENDDOC)
-        //	{
-        //    System.out.println(xc2.currentTokenType());
-        //    xc2.toNextToken();
-        // }
+            toNextTokenOfType(xc1, TokenType.TEXT);
+            toNextTokenOfType(xc2, TokenType.TEXT);
+            toNextTokenOfType(xc3, TokenType.START);
+            toNextTokenOfType(xc2, TokenType.TEXT);
+            xc1.toNextChar(4);
+            xc2.toNextChar(5);
+            xc3.toEndToken();
+            xc3.toPrevToken();
+            xc3.toPrevChar(3);
 
-        // moving cursor to right locations. one is in middle of mixed content.
-        // the others is in middle of text of first node and last node
+            //comparing positions
+            assertEquals(-1, xc2.comparePosition(xc3));
+            assertTrue(xc2.isRightOf(xc1));
+            assertTrue(xc1.isInSameDocument(xc2));
+            assertFalse(xc2.isAtSamePositionAs(xc3));
 
-        toNextTokenOfType(xc1, TokenType.TEXT);
-        toNextTokenOfType(xc2, TokenType.TEXT);
-        toNextTokenOfType(xc3, TokenType.START);
-        toNextTokenOfType(xc2, TokenType.TEXT);
-        xc1.toNextChar(4);
-        xc2.toNextChar(5);
-        xc3.toEndToken();
-        xc3.toPrevToken();
-        xc3.toPrevChar(3);
+            //moving cursors
+            xc3.toPrevChar(2);
+            xc2.toNextChar(1);
 
-        //comparing positions
-        assertEquals(-1, xc2.comparePosition(xc3));
-        assertTrue(xc2.isRightOf(xc1));
-        assertTrue(xc1.isInSameDocument(xc2));
-        assertFalse(xc2.isAtSamePositionAs(xc3));
+            //comparing position once again
+            assertEquals(-1, xc2.comparePosition(xc3));
+            assertTrue(xc2.isRightOf(xc1));
+            assertTrue(xc1.isInSameDocument(xc2));
+            assertFalse(xc2.isAtSamePositionAs(xc3));
 
-        //moving cursors
-        xc3.toPrevChar(2);
-        xc2.toNextChar(1);
-
-        //comparing position once again
-        assertEquals(-1, xc2.comparePosition(xc3));
-        assertTrue(xc2.isRightOf(xc1));
-        assertTrue(xc1.isInSameDocument(xc2));
-        assertFalse(xc2.isAtSamePositionAs(xc3));
-
-        //moving and bringing them to identical positions
-        xc3.toPrevToken();
-        xc2.toNextChar(2);
-        assertTrue(xc2.isAtSamePositionAs(xc3));
-
-        xc1.dispose();
-        xc2.dispose();
-        xc3.dispose();
+            //moving and bringing them to identical positions
+            xc3.toPrevToken();
+            xc2.toNextChar(2);
+            assertTrue(xc2.isAtSamePositionAs(xc3));
+        }
     }
 
     @Test
     public void testXmlObjectUsingCursor() throws Exception {
-        XmlCursor xc1, xc2, xc3;
-
-       PurchaseOrderDocument pod = PurchaseOrderDocument.Factory.parse(
+        PurchaseOrderDocument pod = PurchaseOrderDocument.Factory.parse(
                  JarUtil.getResourceFromJar(Common.TRANXML_FILE_XMLCURSOR_PO));
-        xc1 = pod.newCursor();
-        xc2 = pod.newCursor();
-        xc3 = pod.newCursor();
+
+        try (XmlCursor xc1 = pod.newCursor();
+            XmlCursor xc2 = pod.newCursor();
+            XmlCursor xc3 = pod.newCursor()) {
+            //moving cursor location so that it comes to zip under shipto
+
+            toNextTokenOfType(xc1, TokenType.START);
+            toNextTokenOfType(xc1, TokenType.START);
+            toNextTokenOfType(xc2, TokenType.START);
+            toNextTokenOfType(xc2, TokenType.START);
+            toNextTokenOfType(xc3, TokenType.START);
+            toNextTokenOfType(xc3, TokenType.START);
+
+            xc1.toEndToken();
+            xc2.toEndToken();
+            xc3.toEndToken();
+
+            toPrevTokenOfType(xc1, TokenType.TEXT);
+            toPrevTokenOfType(xc1, TokenType.TEXT);
+            toPrevTokenOfType(xc2, TokenType.TEXT);
+            toPrevTokenOfType(xc2, TokenType.TEXT);
+            toPrevTokenOfType(xc3, TokenType.TEXT);
+            toPrevTokenOfType(xc3, TokenType.TEXT);
+            //all cursors are now at: 90952
+            assertEquals(xc1.getChars(), xc2.getChars(), xc3.getChars());
+            //at 52
+            xc2.toNextChar(3);
+            //after 90952
+            xc3.toNextChar(5);
+            assertFalse(xc2.isAtSamePositionAs(xc3));
+            assertFalse(xc3.isAtSamePositionAs(xc1));
 
 
-        //moving cursor location so that it comes to zip under shipto
+            //setting zip value through the object .
+            // once the set occurs comparing postions of cursors.
+            PurchaseOrderType pt = pod.getPurchaseOrder();
+            USAddress usa = pt.getShipTo();
+            usa.setZip(new BigDecimal(500));
 
-        toNextTokenOfType(xc1, TokenType.START);
-        toNextTokenOfType(xc1, TokenType.START);
-        toNextTokenOfType(xc2, TokenType.START);
-        toNextTokenOfType(xc2, TokenType.START);
-        toNextTokenOfType(xc3, TokenType.START);
-        toNextTokenOfType(xc3, TokenType.START);
+            assertEquals(500,usa.getZip().intValue());
+             //Any cursors in the value of an Element/attr should be positioned
+            // at the end of the elem/attr after the strong setter
+            assertTrue(xc2.isAtSamePositionAs(xc3));
+            assertTrue(xc3.isAtSamePositionAs(xc1));
 
-        xc1.toEndToken();
-        xc2.toEndToken();
-        xc3.toEndToken();
-
-        toPrevTokenOfType(xc1, TokenType.TEXT);
-        toPrevTokenOfType(xc1, TokenType.TEXT);
-        toPrevTokenOfType(xc2, TokenType.TEXT);
-        toPrevTokenOfType(xc2, TokenType.TEXT);
-        toPrevTokenOfType(xc3, TokenType.TEXT);
-        toPrevTokenOfType(xc3, TokenType.TEXT);
-        //all cursors are now at: 90952
-        assertEquals(xc1.getChars(), xc2.getChars(), xc3.getChars());
-        //at 52
-        xc2.toNextChar(3);
-        //after 90952
-        xc3.toNextChar(5);
-        assertFalse(xc2.isAtSamePositionAs(xc3));
-        assertFalse(xc3.isAtSamePositionAs(xc1));
+            assertEquals(TokenType.END,xc1.currentTokenType());
 
 
-        //setting zip value through the object .
-        // once the set occurs comparing postions of cursors.
-        PurchaseOrderType pt = pod.getPurchaseOrder();
-        USAddress usa = pt.getShipTo();
-        usa.setZip(new BigDecimal(500));
+            // inserting an element through the cursor under zip and then doing
+            // a set of a valid value through object..
 
-        assertEquals(500,usa.getZip().intValue());
-         //Any cursors in the value of an Element/attr should be positioned
-        // at the end of the elem/attr after the strong setter
-        assertTrue(xc2.isAtSamePositionAs(xc3));
-        assertTrue(xc3.isAtSamePositionAs(xc1));
+            xc1.insertElementWithText("foo", "text");
+            toPrevTokenOfType(xc1, TokenType.START);
+            toPrevTokenOfType(xc1, TokenType.START);
+            //System.out.println("here" + xc1.getTextValue());
 
-        assertEquals(TokenType.END,xc1.currentTokenType());
+            toNextTokenOfType(xc1, TokenType.START);
 
+            xc1.toNextChar(2);
+            usa.setZip(new BigDecimal(90852));
 
-        // inserting an element through the cursor under zip and then doing
-        // a set of a valid value through object..
-
-        xc1.insertElementWithText("foo", "text");
-        toPrevTokenOfType(xc1, TokenType.START);
-        toPrevTokenOfType(xc1, TokenType.START);
-        //System.out.println("here" + xc1.getTextValue());
-
-        toNextTokenOfType(xc1, TokenType.START);
-
-        xc1.toNextChar(2);
-        usa.setZip(new BigDecimal(90852));
-
-        assertTrue(xc2.isAtSamePositionAs(xc3));
-        assertTrue(xc3.isAtSamePositionAs(xc1));
-        //cursors at the end of element
-        xc1.toPrevToken();
-        //assertEquals(5,xc1.toPrevChar(5));
-        assertEquals("90852", xc1.getChars());
-
-
-        xc1.dispose();
-        xc2.dispose();
-        xc3.dispose();
+            assertTrue(xc2.isAtSamePositionAs(xc3));
+            assertTrue(xc3.isAtSamePositionAs(xc1));
+            //cursors at the end of element
+            xc1.toPrevToken();
+            //assertEquals(5,xc1.toPrevChar(5));
+            assertEquals("90852", xc1.getChars());
+        }
     }
 
 

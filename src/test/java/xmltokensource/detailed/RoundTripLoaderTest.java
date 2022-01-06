@@ -26,7 +26,6 @@ import xmlcursor.common.BasicCursorTestCase;
 import xmlcursor.common.Common;
 
 import java.io.InputStream;
-import java.io.Reader;
 
 import static org.junit.Assert.assertNotNull;
 
@@ -47,11 +46,8 @@ public class RoundTripLoaderTest extends BasicCursorTestCase {
         assertNotNull(doc);
         XmlObject xo = XmlObject.Factory.parse(doc, map);
         m_xc = m_xo.newCursor();
-        XmlCursor xc1 = xo.newCursor();
-        try {
+        try (XmlCursor xc1 = xo.newCursor()) {
             compareDocTokens(m_xc, xc1);
-        } finally {
-            xc1.dispose();
         }
     }
 
@@ -72,11 +68,8 @@ public class RoundTripLoaderTest extends BasicCursorTestCase {
         XmlOptions options = new XmlOptions(map);
         XmlObject xo = XmlObject.Factory.parse(is, options);
         m_xc = m_xo.newCursor();
-        XmlCursor xc1 = xo.newCursor();
-        try {
+        try (XmlCursor xc1 = xo.newCursor()) {
             compareDocTokens(m_xc, xc1);
-        } finally {
-            xc1.dispose();
         }
     }
 
@@ -90,21 +83,6 @@ public class RoundTripLoaderTest extends BasicCursorTestCase {
         _newInputStreamRoundTrip(m_map);
     }
 
-    private void _newReaderRoundTrip(XmlOptions map) throws Exception {
-        m_xo = XmlObject.Factory.parse(Common.XML_FOO_BAR_NESTED_SIBLINGS);
-        Reader reader = m_xo.newReader(map);
-        assertNotNull(reader);
-        XmlOptions options = new XmlOptions(map);
-        XmlObject xo = XmlObject.Factory.parse(reader, options);
-        m_xc = m_xo.newCursor();
-        XmlCursor xc1 = xo.newCursor();
-        try {
-            compareDocTokens(m_xc, xc1);
-        } finally {
-            xc1.dispose();
-        }
-    }
-
     private void _xmlTextRoundTrip(XmlOptions map) throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_BAR_NESTED_SIBLINGS);
         String sXml = m_xo.xmlText(map);
@@ -112,11 +90,8 @@ public class RoundTripLoaderTest extends BasicCursorTestCase {
         XmlOptions options = new XmlOptions(map);
         XmlObject xo = XmlObject.Factory.parse(sXml, options);
         m_xc = m_xo.newCursor();
-        XmlCursor xc1 = xo.newCursor();
-        try {
+        try (XmlCursor xc1 = xo.newCursor()) {
             compareDocTokens(m_xc, xc1);
-        } finally {
-            xc1.dispose();
         }
     }
 

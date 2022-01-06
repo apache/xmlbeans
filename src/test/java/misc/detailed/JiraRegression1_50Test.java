@@ -48,12 +48,12 @@ public class JiraRegression1_50Test extends JiraTestBase {
         XmlOptions options = new XmlOptions().setErrorListener(errors);
         try {
             myxmlobj = XmlObject.Factory.parse(xmlstringbuf.toString(), options);
-            XmlCursor cur = myxmlobj.newCursor();
-            XmlError xmlerr = XmlError.forObject("This is my custom error message", XmlError.SEVERITY_ERROR, myxmlobj);
+            try (XmlCursor cur = myxmlobj.newCursor()) {
+                XmlError xmlerr = XmlError.forObject("This is my custom error message", XmlError.SEVERITY_ERROR, myxmlobj);
 
-            // call an API on the cursor : verification of cursor not being disposed
-            System.out.println("Cursor Text Value: " + cur.getTextValue());
-
+                // call an API on the cursor : verification of cursor not being disposed
+                System.out.println("Cursor Text Value: " + cur.getTextValue());
+            }
         } catch (XmlException xme) {
             if (!xme.getErrors().isEmpty()) {
                 for (Iterator itr = xme.getErrors().iterator(); itr.hasNext();) {
@@ -173,11 +173,11 @@ public class JiraRegression1_50Test extends JiraTestBase {
     public void test_jira_xmlbeans14() throws Exception {
         XmlObject xObj = XmlObject.Factory.parse("<Baz/>");
         // add element
-        XmlCursor xCursor = xObj.newCursor();
-        xCursor.toFirstContentToken();
-        xCursor.insertElementWithText(new QName("Some uri", "SomeName"), "SomeValue");
-        xCursor.insertElementWithText(new QName("Some uri", "SomeName1"), "SomeValue1");
-        xCursor.dispose();
+        try (XmlCursor xCursor = xObj.newCursor()) {
+            xCursor.toFirstContentToken();
+            xCursor.insertElementWithText(new QName("Some uri", "SomeName"), "SomeValue");
+            xCursor.insertElementWithText(new QName("Some uri", "SomeName1"), "SomeValue1");
+        }
 
         // debug
         xObj.save(System.out);

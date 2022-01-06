@@ -38,25 +38,27 @@ public class RussianDollStrategy
 
     public void processDoc(XmlObject[] instances, Inst2XsdOptions options, TypeSystemHolder typeSystemHolder) {
         for (XmlObject instance : instances) {
-            XmlCursor xc = instance.newCursor();
-            // xc on start doc
+            try (XmlCursor xc = instance.newCursor()) {
+                // xc on start doc
 
-            StringBuilder comment = new StringBuilder();
+                StringBuilder comment = new StringBuilder();
 
-            while (!xc.isStart()) {
-                xc.toNextToken();
-                if (xc.isComment()) {
-                    comment.append(xc.getTextValue());
-                } else if (xc.isEnddoc()) {
-                    return;
+                while (!xc.isStart()) {
+                    xc.toNextToken();
+                    if (xc.isComment()) {
+                        comment.append(xc.getTextValue());
+                    } else if (xc.isEnddoc()) {
+                        return;
+                    }
                 }
+
+                // xc now on the root element
+
+                Element withElem = processElement(xc, comment.toString(), options, typeSystemHolder);
+                withElem.setGlobal(true);
+
+                addGlobalElement(withElem, typeSystemHolder, options);
             }
-            // xc now on the root element
-
-            Element withElem = processElement(xc, comment.toString(), options, typeSystemHolder);
-            withElem.setGlobal(true);
-
-            addGlobalElement(withElem, typeSystemHolder, options);
         }
     }
 
@@ -164,27 +166,27 @@ public class RussianDollStrategy
         } else {
             // simple content
             // hack workaround for being able to call xc.getNamespaceForPrefix()
-            XmlCursor xcForNamespaces = xc.newCursor();
-            xcForNamespaces.toParent();
+            try (XmlCursor xcForNamespaces = xc.newCursor()) {
+                xcForNamespaces.toParent();
 
-            if (attributes.size() > 0) {
-                elemType.setContentType(Type.COMPLEX_TYPE_SIMPLE_CONTENT);
+                if (attributes.size() > 0) {
+                    elemType.setContentType(Type.COMPLEX_TYPE_SIMPLE_CONTENT);
 
-                Type extendedType = Type.createNamedType(
-                    processSimpleContentType(textBuff.toString(), options, xcForNamespaces), Type.SIMPLE_TYPE_SIMPLE_CONTENT);
-                elemType.setExtensionType(extendedType);
+                    Type extendedType = Type.createNamedType(
+                        processSimpleContentType(textBuff.toString(), options, xcForNamespaces), Type.SIMPLE_TYPE_SIMPLE_CONTENT);
+                    elemType.setExtensionType(extendedType);
 
-                processAttributesInComplexType(elemType, attributes);
-            } else {
-                elemType.setContentType(Type.SIMPLE_TYPE_SIMPLE_CONTENT);
-                elemType.setName(processSimpleContentType(textBuff.toString(), options, xcForNamespaces));
+                    processAttributesInComplexType(elemType, attributes);
+                } else {
+                    elemType.setContentType(Type.SIMPLE_TYPE_SIMPLE_CONTENT);
+                    elemType.setName(processSimpleContentType(textBuff.toString(), options, xcForNamespaces));
 
-                // add enumeration value
-                String enumValue = XmlString.type.getName().equals(elemType.getName()) ? textBuff.toString() : collapsedText;
-                elemType.addEnumerationValue(enumValue, xcForNamespaces);
+                    // add enumeration value
+                    String enumValue = XmlString.type.getName().equals(elemType.getName()) ? textBuff.toString() : collapsedText;
+                    elemType.addEnumerationValue(enumValue, xcForNamespaces);
+                }
+                // end hack
             }
-
-            xcForNamespaces.dispose(); // end hack
         }
 
         checkIfReferenceToGlobalTypeIsNeeded(element, typeSystemHolder, options);
@@ -267,13 +269,13 @@ public class RussianDollStrategy
 
         attribute.setName(attName);
 
-        XmlCursor parent = xc.newCursor();
-        parent.toParent();
+        Type simpleContentType;
+        try (XmlCursor parent = xc.newCursor()) {
+            parent.toParent();
 
-        Type simpleContentType = Type.createNamedType(
-            processSimpleContentType(xc.getTextValue(), options, parent), Type.SIMPLE_TYPE_SIMPLE_CONTENT);
-
-        parent.dispose();
+            simpleContentType = Type.createNamedType(
+                processSimpleContentType(xc.getTextValue(), options, parent), Type.SIMPLE_TYPE_SIMPLE_CONTENT);
+        }
 
         attribute.setType(simpleContentType);
 

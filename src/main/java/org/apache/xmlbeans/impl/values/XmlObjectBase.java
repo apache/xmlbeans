@@ -122,11 +122,8 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
     }
 
     public XmlDocumentProperties documentProperties() {
-        XmlCursor cur = newCursorForce();
-        try {
+        try (XmlCursor cur = newCursorForce()) {
             return cur.documentProperties();
-        } finally {
-            cur.dispose();
         }
     }
 
@@ -135,11 +132,8 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
     }
 
     public XMLStreamReader newXMLStreamReader(XmlOptions options) {
-        XmlCursor cur = newCursorForce();
-        try {
+        try (XmlCursor cur = newCursorForce()) {
             return cur.newXMLStreamReader(makeInnerOptions(options));
-        } finally {
-            cur.dispose();
         }
     }
 
@@ -148,11 +142,8 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
     }
 
     public InputStream newInputStream(XmlOptions options) {
-        XmlCursor cur = newCursorForce();
-        try {
+        try (XmlCursor cur = newCursorForce()) {
             return cur.newInputStream(makeInnerOptions(options));
-        } finally {
-            cur.dispose();
         }
     }
 
@@ -161,20 +152,14 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
     }
 
     public Reader newReader(XmlOptions options) {
-        XmlCursor cur = newCursorForce();
-        try {
+        try (XmlCursor cur = newCursorForce()) {
             return cur.newReader(makeInnerOptions(options));
-        } finally {
-            cur.dispose();
         }
     }
 
     public Node getDomNode() {
-        XmlCursor cur = newCursorForce();
-        try {
+        try (XmlCursor cur = newCursorForce()) {
             return cur.getDomNode();
-        } finally {
-            cur.dispose();
         }
     }
 
@@ -183,47 +168,32 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
     }
 
     public Node newDomNode(XmlOptions options) {
-        XmlCursor cur = newCursorForce();
-        try {
+        try (XmlCursor cur = newCursorForce()) {
             return cur.newDomNode(makeInnerOptions(options));
-        } finally {
-            cur.dispose();
         }
     }
 
     public void save(ContentHandler ch, LexicalHandler lh, XmlOptions options) throws SAXException {
-        XmlCursor cur = newCursorForce();
-        try {
+        try (XmlCursor cur = newCursorForce()) {
             cur.save(ch, lh, makeInnerOptions(options));
-        } finally {
-            cur.dispose();
         }
     }
 
     public void save(File file, XmlOptions options) throws IOException {
-        XmlCursor cur = newCursorForce();
-        try {
+        try (XmlCursor cur = newCursorForce()) {
             cur.save(file, makeInnerOptions(options));
-        } finally {
-            cur.dispose();
         }
     }
 
     public void save(OutputStream os, XmlOptions options) throws IOException {
-        XmlCursor cur = newCursorForce();
-        try {
+        try (XmlCursor cur = newCursorForce()) {
             cur.save(os, makeInnerOptions(options));
-        } finally {
-            cur.dispose();
         }
     }
 
     public void save(Writer w, XmlOptions options) throws IOException {
-        XmlCursor cur = newCursorForce();
-        try {
+        try (XmlCursor cur = newCursorForce()) {
             cur.save(w, makeInnerOptions(options));
-        } finally {
-            cur.dispose();
         }
     }
 
@@ -244,11 +214,8 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
     }
 
     public void dump() {
-        XmlCursor cur = newCursorForce();
-        try {
+        try (XmlCursor cur = newCursorForce()) {
             cur.dump();
-        } finally {
-            cur.dispose();
         }
     }
 
@@ -274,9 +241,10 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
 
         XmlObject x = XmlObject.Factory.newInstance(options);
 
-        XmlCursor c = x.newCursor();
-        c.toNextToken();
-        c.insertChars(value);
+        try (XmlCursor c = x.newCursor()) {
+            c.toNextToken();
+            c.insertChars(value);
+        }
 
         return x;
     }
@@ -485,13 +453,12 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
 
         // all user-level code; doesn't need to be synchronized
 
-        XmlCursor c = newCursor();
 
-        if (c == null) {
-            throw new XmlValueDisconnectedException();
-        }
+        try (XmlCursor c = newCursor()) {
+            if (c == null) {
+                throw new XmlValueDisconnectedException();
+            }
 
-        try {
             c.selectPath(path, options);
 
             if (!c.hasNextSelection()) {
@@ -510,8 +477,6 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
                     }
                 }
             }
-        } finally {
-            c.dispose();
         }
 
         return _typedArray(selections);
@@ -1478,12 +1443,8 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
     }
 
     public String xmlText(XmlOptions options) {
-        XmlCursor cur = newCursorForce();
-
-        try {
+        try (XmlCursor cur = newCursorForce()) {
             return cur.xmlText(makeInnerOptions(options));
-        } finally {
-            cur.dispose();
         }
     }
 
@@ -2636,8 +2597,7 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
      * Selects the contents of the children elements with the given name.
      */
     public XmlObject[] selectChildren(QName elementName) {
-        XmlCursor xc = this.newCursor();
-        try {
+        try (XmlCursor xc = this.newCursor()) {
             if (!xc.isContainer()) {
                 return EMPTY_RESULT;
             }
@@ -2656,8 +2616,6 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
             } else {
                 return result.toArray(EMPTY_RESULT);
             }
-        } finally {
-            xc.dispose();
         }
     }
 
@@ -2676,8 +2634,7 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
             throw new IllegalArgumentException();
         }
 
-        XmlCursor xc = this.newCursor();
-        try {
+        try (XmlCursor xc = this.newCursor()) {
             if (!xc.isContainer()) {
                 return EMPTY_RESULT;
             }
@@ -2699,8 +2656,6 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
             } else {
                 return result.toArray(EMPTY_RESULT);
             }
-        } finally {
-            xc.dispose();
         }
     }
 
@@ -2708,9 +2663,7 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
      * Selects the content of the attribute with the given name.
      */
     public XmlObject selectAttribute(QName attributeName) {
-        XmlCursor xc = this.newCursor();
-
-        try {
+        try (XmlCursor xc = this.newCursor()) {
             if (!xc.isContainer()) {
                 return null;
             }
@@ -2725,8 +2678,6 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
                 while (xc.toNextAttribute());
             }
             return null;
-        } finally {
-            xc.dispose();
         }
     }
 
@@ -2745,8 +2696,7 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
             throw new IllegalArgumentException();
         }
 
-        XmlCursor xc = this.newCursor();
-        try {
+        try (XmlCursor xc = this.newCursor()) {
             if (!xc.isContainer()) {
                 return EMPTY_RESULT;
             }
@@ -2768,8 +2718,6 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
             } else {
                 return result.toArray(EMPTY_RESULT);
             }
-        } finally {
-            xc.dispose();
         }
     }
 
@@ -2806,28 +2754,26 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
      * True if the object is at the root of the document.
      */
     private boolean isRootXmlObject() {
-        XmlCursor cur = newCursor();
-        if (cur == null) {
-            return false;
-        }
+        try (XmlCursor cur = newCursor()) {
+            if (cur == null) {
+                return false;
+            }
 
-        boolean result = !cur.toParent();
-        cur.dispose();
-        return result;
+            return !cur.toParent();
+        }
     }
 
     /**
      * Gets the root XmlObject for this document.
      */
     private XmlObject getRootXmlObject() {
-        XmlCursor cur = newCursor();
-        if (cur == null) {
-            return this;
+        try (XmlCursor cur = newCursor()) {
+            if (cur == null) {
+                return this;
+            }
+            cur.toStartDoc();
+            return cur.getObject();
         }
-        cur.toStartDoc();
-        XmlObject result = cur.getObject();
-        cur.dispose();
-        return result;
     }
 
     /**
@@ -3018,30 +2964,30 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
         }
 
         private int distanceToRoot() {
-            XmlCursor cur = _impl.newCursor();
             int count = 0;
-            while (!cur.toPrevToken().isNone()) {
-                if (!cur.currentTokenType().isNamespace()) {
-                    count += 1;
-                    // System.out.println("Count: " + count + " " + cur.currentTokenType().toString() + " " + QName.pretty(cur.getName()));
+            try (XmlCursor cur = _impl.newCursor()) {
+                while (!cur.toPrevToken().isNone()) {
+                    if (!cur.currentTokenType().isNamespace()) {
+                        count += 1;
+                        // System.out.println("Count: " + count + " " + cur.currentTokenType().toString() + " " + QName.pretty(cur.getName()));
+                    }
                 }
             }
-            cur.dispose();
             return count;
         }
 
         private XmlObject objectAtDistance(int count) {
-            XmlCursor cur = _root.newCursor();
-            while (count > 0) {
-                cur.toNextToken();
-                if (!cur.currentTokenType().isNamespace()) {
-                    count -= 1;
-                    // System.out.println("Count: " + count + " " + cur.currentTokenType().toString() + " " + QName.pretty(cur.getName()));
+            try (XmlCursor cur = _root.newCursor()) {
+                while (count > 0) {
+                    cur.toNextToken();
+                    if (!cur.currentTokenType().isNamespace()) {
+                        count -= 1;
+                        // System.out.println("Count: " + count + " " + cur.currentTokenType().toString() + " " + QName.pretty(cur.getName()));
+                    }
                 }
+                XmlObject result = cur.getObject();
+                return result;
             }
-            XmlObject result = cur.getObject();
-            cur.dispose();
-            return result;
         }
     }
 

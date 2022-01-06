@@ -44,7 +44,7 @@ public class CopyXmlContentsTest extends BasicCursorTestCase {
 		XmlCursor xc1 = XmlObject.Factory.parse(sDoc2).newCursor();
 		toNextTokenOfType(m_xc, TokenType.START);
 		toNextTokenOfType(xc1, TokenType.START);
-		xc1.dispose();
+		xc1.close();
 		m_xc.copyXmlContents(xc1);
 	}
 
@@ -53,14 +53,14 @@ public class CopyXmlContentsTest extends BasicCursorTestCase {
 		String sDoc1 = Common.XML_FOO_DIGITS;
 		String sDoc2 = Common.XML_FOO_2ATTR_TEXT;
 		m_xc = XmlObject.Factory.parse(sDoc1).newCursor();
-		XmlCursor xc1 = XmlObject.Factory.parse(sDoc2).newCursor();
-		toNextTokenOfType(m_xc, TokenType.START);
-		toNextTokenOfType(xc1, TokenType.TEXT);
-		m_xc.copyXmlContents(xc1);
-		xc1.toParent();
-		// verify xc1
-		assertEquals("01234text", xc1.getTextValue());
-		xc1.dispose();
+		try (XmlCursor xc1 = XmlObject.Factory.parse(sDoc2).newCursor()) {
+    		toNextTokenOfType(m_xc, TokenType.START);
+    		toNextTokenOfType(xc1, TokenType.TEXT);
+    		m_xc.copyXmlContents(xc1);
+    		xc1.toParent();
+    		// verify xc1
+    		assertEquals("01234text", xc1.getTextValue());
+		}
 
 		// verify m_xc
 		toNextTokenOfType(m_xc, TokenType.TEXT); //get to the text
@@ -73,11 +73,12 @@ public class CopyXmlContentsTest extends BasicCursorTestCase {
 		String sDoc1 = Common.XML_FOO_DIGITS;
 		String sDoc2 = Common.XML_FOO_2ATTR_TEXT;
 		m_xc = XmlObject.Factory.parse(sDoc1).newCursor();
-		XmlCursor xc1 = XmlObject.Factory.parse(sDoc2).newCursor();
-		toNextTokenOfType(m_xc, TokenType.TEXT);
-		toNextTokenOfType(xc1, TokenType.START);
-		boolean result = m_xc.copyXmlContents(xc1);
-		assertFalse(result);
+		try (XmlCursor xc1 = XmlObject.Factory.parse(sDoc2).newCursor()) {
+    		toNextTokenOfType(m_xc, TokenType.TEXT);
+    		toNextTokenOfType(xc1, TokenType.START);
+    		boolean result = m_xc.copyXmlContents(xc1);
+    		assertFalse(result);
+		}
 	}
 
 	@Test
@@ -117,37 +118,42 @@ public class CopyXmlContentsTest extends BasicCursorTestCase {
 	public void testCopyWholeDoc() throws Exception {
 		String sDoc1 = Common.XML_FOO_BAR_WS_TEXT;
 		String sDoc2 = "<root></root>";
-		m_xc = XmlObject.Factory.parse(sDoc1).newCursor();
-		XmlCursor xc1 = XmlObject.Factory.parse(sDoc2).newCursor();
-		xc1.toFirstChild();
-		String sExpectedXml = m_xc.xmlText();
-		boolean result = m_xc.copyXmlContents(xc1);
-		toPrevTokenOfType(xc1, TokenType.STARTDOC);
-		toNextTokenOfType(xc1, TokenType.START);
-		assertEquals(sExpectedXml, xc1.xmlText());
+
+		try (XmlCursor xc1 = XmlObject.Factory.parse(sDoc1).newCursor();
+		    XmlCursor xc2 = XmlObject.Factory.parse(sDoc2).newCursor()) {
+    		xc2.toFirstChild();
+    		String sExpectedXml = xc1.xmlText();
+    		boolean result = xc1.copyXmlContents(xc2);
+    		toPrevTokenOfType(xc2, TokenType.STARTDOC);
+    		toNextTokenOfType(xc2, TokenType.START);
+    		assertEquals(sExpectedXml, xc2.xmlText());
+		}
 
 		//namespaces are not copied
 		sDoc1 = Common.XML_FOO_NS_PREFIX;
 		sDoc2 = "<root></root>";
-		m_xc = XmlObject.Factory.parse(sDoc1).newCursor();
-		xc1 = XmlObject.Factory.parse(sDoc2).newCursor();
-		sExpectedXml = m_xc.xmlText();
-		xc1.toFirstChild();
+		try (XmlCursor xc1 = XmlObject.Factory.parse(sDoc1).newCursor();
+		    XmlCursor xc2 = XmlObject.Factory.parse(sDoc2).newCursor()) {
+		    String sExpectedXml = xc1.xmlText();
+    		xc2.toFirstChild();
 
-		result = m_xc.copyXmlContents(xc1);
-		toPrevTokenOfType(xc1, TokenType.STARTDOC);
-		assertNotEquals(sExpectedXml, xc1.xmlText());
+    		boolean result = xc1.copyXmlContents(xc2);
+    		toPrevTokenOfType(xc2, TokenType.STARTDOC);
+    		assertNotEquals(sExpectedXml, xc2.xmlText());
 
-		//attributes are not copied
-		sDoc1 = Common.XML_FOO_2ATTR;
-		sDoc2 = "<root></root>";
-		m_xc = XmlObject.Factory.parse(sDoc1).newCursor();
-		xc1 = XmlObject.Factory.parse(sDoc2).newCursor();
-		sExpectedXml = m_xc.xmlText();
-		xc1.toFirstChild();
+    		//attributes are not copied
+    		sDoc1 = Common.XML_FOO_2ATTR;
+    		sDoc2 = "<root></root>";
+		}
 
-		result = m_xc.copyXmlContents(xc1);
-		toPrevTokenOfType(xc1, TokenType.STARTDOC);
-		assertNotEquals(sExpectedXml, xc1.xmlText());
+		try (XmlCursor xc1 = XmlObject.Factory.parse(sDoc1).newCursor();
+    	    XmlCursor xc2 = XmlObject.Factory.parse(sDoc2).newCursor()) {
+    	    String sExpectedXml = xc1.xmlText();
+    		xc2.toFirstChild();
+
+    		boolean result = xc1.copyXmlContents(xc2);
+    		toPrevTokenOfType(xc2, TokenType.STARTDOC);
+    		assertNotEquals(sExpectedXml, xc2.xmlText());
+		}
 	}
 }

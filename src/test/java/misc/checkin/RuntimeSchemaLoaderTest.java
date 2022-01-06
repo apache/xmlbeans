@@ -68,23 +68,24 @@ public class RuntimeSchemaLoaderTest {
                         new QName("http://openuri.org/test/dyntest",
                                 "wrappedwildcard")),
                 result.schemaType());
-        XmlCursor cur = result.newCursor();
-        Assert.assertTrue("Should have a root element", cur.toFirstChild());
-        result = cur.getObject();
-        assertEquals(
-                "E=wrappedwildcard|D=wrappedwildcard@http://openuri.org/test/dyntest",
-                result.schemaType().toString());
-        assertEquals(
-                loader.findElement(
-                        new QName("http://openuri.org/test/dyntest",
-                                "wrappedwildcard"))
-                .getType(),
-                result.schemaType());
-        Assert.assertTrue("Should have a first child", cur.toFirstChild());
-        assertEquals(
-                new QName("http://www.w3.org/2001/XMLSchema", "schema"),
-                cur.getName());
-        XmlObject obj = cur.getObject();
-        assertEquals(Schema.type, obj.schemaType());
+        try (XmlCursor cur = result.newCursor()) {
+            Assert.assertTrue("Should have a root element", cur.toFirstChild());
+            result = cur.getObject();
+            assertEquals(
+                    "E=wrappedwildcard|D=wrappedwildcard@http://openuri.org/test/dyntest",
+                    result.schemaType().toString());
+            assertEquals(
+                    loader.findElement(
+                            new QName("http://openuri.org/test/dyntest",
+                                    "wrappedwildcard"))
+                    .getType(),
+                    result.schemaType());
+            Assert.assertTrue("Should have a first child", cur.toFirstChild());
+            assertEquals(
+                    new QName("http://www.w3.org/2001/XMLSchema", "schema"),
+                    cur.getName());
+            XmlObject obj = cur.getObject();
+            assertEquals(Schema.type, obj.schemaType());
+        }
     }
 }

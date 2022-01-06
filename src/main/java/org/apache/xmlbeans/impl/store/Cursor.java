@@ -614,10 +614,9 @@ public final class Cursor implements XmlCursor, ChangeListener {
 
         boolean seenElement = false;
 
-        XmlCursor c = newCursor();
-        int token = c.toNextToken().intValue();
+        try (XmlCursor c = newCursor()) {
+            int token = c.toNextToken().intValue();
 
-        try {
             LOOP:
             for (; ; ) {
                 switch (token) {
@@ -655,8 +654,6 @@ public final class Cursor implements XmlCursor, ChangeListener {
                         break LOOP;
                 }
             }
-        } finally {
-            c.dispose();
         }
 
         return !seenElement;
@@ -1908,10 +1905,17 @@ public final class Cursor implements XmlCursor, ChangeListener {
         return _cur._locale.noSync();
     }
 
-    public void dispose() {
+    @Override
+    public void close() {
         if (_cur != null) {
             syncWrap(this::_dispose);
         }
+    }
+
+    @Override
+    @Deprecated
+    public void dispose() {
+        close();
     }
 
     public Object monitor() {
