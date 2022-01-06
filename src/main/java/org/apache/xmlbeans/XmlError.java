@@ -51,7 +51,6 @@ public class XmlError implements java.io.Serializable {
     private final int _column;
     private int _offset = -1;
 
-    // TODO Never disposed?
     private transient XmlCursor _cursor;
 
     /**

@@ -1460,10 +1460,6 @@ public interface XmlCursor extends XmlTokenSource, AutoCloseable {
          * @param c the cursor to be moved
          * @return the given cursor moved to this bookmark
          */
-        // TODO Problematic API for an AutoCloseable XmlCursor, it returns the same
-        // cursor or a new one, client code would need to check if it is different
-        // in order to close it
-        @SuppressWarnings("resource")
         public final XmlCursor toBookmark(XmlCursor c) {
             return c == null || !c.toBookmark(this) ? createCursor() : c;
         }
