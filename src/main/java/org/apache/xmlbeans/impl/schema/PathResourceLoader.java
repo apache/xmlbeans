@@ -35,7 +35,7 @@ public class PathResourceLoader implements ResourceLoader
 
     public PathResourceLoader(File[] filepath)
     {
-        List pathlist = new ArrayList();
+        List<ResourceLoader> pathlist = new ArrayList<>();
         for (int i = 0; i < filepath.length; i++)
         {
             try
@@ -48,7 +48,7 @@ public class PathResourceLoader implements ResourceLoader
                 continue; // can't read a file on classpath? skip it.
             }
         }
-        _path = (ResourceLoader[])pathlist.toArray(new ResourceLoader[pathlist.size()]);
+        _path = pathlist.toArray(new ResourceLoader[pathlist.size()]);
     }
 
     public InputStream getResourceAsStream(String resourceName)

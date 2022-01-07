@@ -38,9 +38,9 @@ public class CommandLine
         if (flags == null || scheme == null)
             throw new IllegalArgumentException("collection required (use Collections.EMPTY_SET if no options)");
 
-        _options = new LinkedHashMap();
-        ArrayList badopts = new ArrayList();
-        ArrayList endargs = new ArrayList();
+        _options = new LinkedHashMap<>();
+        ArrayList<String> badopts = new ArrayList<>();
+        ArrayList<String> endargs = new ArrayList<>();
 
         for (int i = 0; i < args.length; i++)
         {
@@ -69,8 +69,8 @@ public class CommandLine
             }
         }
 
-        _badopts = (String[])badopts.toArray(new String[badopts.size()]);
-        _args = (String[])endargs.toArray(new String[endargs.size()]);
+        _badopts = badopts.toArray(new String[badopts.size()]);
+        _args = endargs.toArray(new String[endargs.size()]);
     }
 
     public static void printLicense()
@@ -90,7 +90,7 @@ public class CommandLine
         System.out.println(XmlBeans.getVendor() + ", " + XmlBeans.getTitle() + ".XmlBeans version " + XmlBeans.getVersion());
     }
 
-    private Map _options;
+    private Map<String, String> _options;
     private String[] _badopts;
     private String[] _args;
 
@@ -113,7 +113,7 @@ public class CommandLine
 
     private static List collectFiles(File[] dirs)
     {
-        List files = new ArrayList();
+        List<File> files = new ArrayList<>();
         for (int i = 0; i < dirs.length; i++)
         {
             File f = dirs[i];
@@ -129,13 +129,13 @@ public class CommandLine
         return files;
     }
 
-    private List _files;
-    private List _urls;
+    private List<File> _files;
+    private List<URL> _urls;
     private File _baseDir;
     private static final File[] EMPTY_FILEARRAY = new File[0];
     private static final URL[] EMPTY_URLARRAY = new URL[0];
 
-    private List getFileList()
+    private List<File> getFileList()
     {
         if (_files == null)
         {
@@ -174,7 +174,7 @@ public class CommandLine
         if (_urls == null)
         {
             String[] args = args();
-            List urls = new ArrayList();
+            List<URL> urls = new ArrayList<>();
 
             for (int i = 0; i < args.length; i++)
             {
@@ -209,7 +209,7 @@ public class CommandLine
 
     public File[] getFiles()
     {
-        return (File[])getFileList().toArray(EMPTY_FILEARRAY);
+        return getFileList().toArray(EMPTY_FILEARRAY);
     }
 
     public File getBaseDir()
@@ -219,13 +219,13 @@ public class CommandLine
 
     public File[] filesEndingWith(String ext)
     {
-        List result = new ArrayList();
-        for (Iterator i = getFileList().iterator(); i.hasNext(); )
+        List<File> result = new ArrayList<>();
+        for (Iterator<File> i = getFileList().iterator(); i.hasNext(); )
         {
-            File f = (File)i.next();
+            File f = i.next();
             if (f.getName().endsWith(ext) && !looksLikeURL(f.getPath()))
                 result.add(f);
         }
-        return (File[])result.toArray(EMPTY_FILEARRAY);
+        return result.toArray(EMPTY_FILEARRAY);
     }
 }

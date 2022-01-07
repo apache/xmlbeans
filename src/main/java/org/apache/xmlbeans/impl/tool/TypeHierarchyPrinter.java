@@ -15,6 +15,7 @@
 
 package org.apache.xmlbeans.impl.tool;
 
+import org.apache.xmlbeans.XmlError;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
 import org.apache.xmlbeans.XmlBeans;
@@ -129,12 +130,12 @@ public class TypeHierarchyPrinter
         }
 
 
-        XmlObject[] schemas = (XmlObject[])sdocs.toArray(new XmlObject[0]);
+        XmlObject[] schemas = sdocs.toArray(new XmlObject[0]);
 
         // step 2: compile all the schemas
         SchemaTypeLoader linkTo = null;
         SchemaTypeSystem typeSystem;
-        Collection compErrors = new ArrayList();
+        Collection<XmlError> compErrors = new ArrayList<>();
         XmlOptions schemaOptions = new XmlOptions();
         schemaOptions.setErrorListener(compErrors);
         schemaOptions.setCompileDownloadUrls();
@@ -157,7 +158,7 @@ public class TypeHierarchyPrinter
             System.out.println("Schema invalid:" + (partial ? " couldn't recover from errors" : ""));
             if (compErrors.isEmpty())
                 System.out.println(e.getMessage());
-            else for (Iterator i = compErrors.iterator(); i.hasNext(); )
+            else for (Iterator<XmlError> i = compErrors.iterator(); i.hasNext(); )
                 System.out.println(i.next());
             return;
         }
@@ -166,28 +167,28 @@ public class TypeHierarchyPrinter
         if (partial && !compErrors.isEmpty())
         {
             System.out.println("Schema invalid: partial schema type system recovered");
-            for (Iterator i = compErrors.iterator(); i.hasNext(); )
+            for (Iterator<XmlError> i = compErrors.iterator(); i.hasNext(); )
                 System.out.println(i.next());
         }
 
         // step 3: go through all the types, and note their base types and namespaces
-        Map prefixes = new HashMap();
+        Map<String, String> prefixes = new HashMap<>();
         prefixes.put("http://www.w3.org/XML/1998/namespace", "xml");
         prefixes.put("http://www.w3.org/2001/XMLSchema", "xs");
         System.out.println("xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"");
 
         // This will be a map of (base SchemaType -> Collection of directly dervied types)
-        Map childTypes = new HashMap();
+        Map<SchemaType, Collection<SchemaType>> childTypes = new HashMap<>();
 
         // breadthfirst traversal of the type containment tree
-        List allSeenTypes = new ArrayList();
+        List<SchemaType> allSeenTypes = new ArrayList<>();
         allSeenTypes.addAll(Arrays.asList(typeSystem.documentTypes()));
         allSeenTypes.addAll(Arrays.asList(typeSystem.attributeTypes()));
         allSeenTypes.addAll(Arrays.asList(typeSystem.globalTypes()));
 
         for (int i = 0; i < allSeenTypes.size(); i++)
         {
-            SchemaType sType = (SchemaType)allSeenTypes.get(i);
+            SchemaType sType = allSeenTypes.get(i);
 
             // recurse through nested anonymous types as well
             if (!noanon)
@@ -201,10 +202,10 @@ public class TypeHierarchyPrinter
             noteNamespace(prefixes, sType);
 
             // enter this type in the list of children of its base type
-            Collection children = (Collection)childTypes.get(sType.getBaseType());
+            Collection children = childTypes.get(sType.getBaseType());
             if (children == null)
             {
-                children = new ArrayList();
+                children = new ArrayList<>();
                 childTypes.put(sType.getBaseType(), children);
 
                 // the first time a builtin type is seen, add it too (to get a complete tree up to anyType)
@@ -215,7 +216,7 @@ public class TypeHierarchyPrinter
         }
 
         // step 4: print the tree, starting from xs:anyType (i.e., XmlObject.type)
-        List typesToPrint = new ArrayList();
+        List typesToPrint = new ArrayList<>();
         typesToPrint.add(XmlObject.type);
         StringBuilder spaces = new StringBuilder();
         while (!typesToPrint.isEmpty())
@@ -226,7 +227,7 @@ public class TypeHierarchyPrinter
             else
             {
                 System.out.println(spaces + "+-" + QNameHelper.readable(sType, prefixes) + notes(sType));
-                Collection children = (Collection)childTypes.get(sType);
+                Collection<SchemaType> children = childTypes.get(sType);
                 if (children != null && children.size() > 0)
                 {
                     spaces.append(typesToPrint.size() == 0 || typesToPrint.get(typesToPrint.size() - 1) == null ? "  " : "| ");

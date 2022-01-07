@@ -53,10 +53,10 @@ public class XmlValueRef
                 _obj = type.newValue(_initVal);
             else
             {
-                List actualVals = new ArrayList();
-                for (Iterator i = ((List)_initVal).iterator(); i.hasNext(); )
+                List<XmlAnySimpleType> actualVals = new ArrayList<>();
+                for (Iterator<XmlValueRef> i = ((List<XmlValueRef>)_initVal).iterator(); i.hasNext(); )
                 {
-                    XmlValueRef ref = (XmlValueRef)i.next();
+                    XmlValueRef ref = i.next();
                     actualVals.add(ref.get());
                 }
                 _obj = type.newValue(actualVals);

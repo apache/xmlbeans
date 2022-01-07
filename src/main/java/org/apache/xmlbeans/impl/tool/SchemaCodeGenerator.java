@@ -154,17 +154,17 @@ public class SchemaCodeGenerator {
     private static int triesRemaining = 0;
 
     private static boolean tryNowThatItsLater() {
-        List files;
+        List<File> files;
 
         synchronized (deleteFileQueue) {
-            files = new ArrayList(deleteFileQueue);
+            files = new ArrayList<>(deleteFileQueue);
             deleteFileQueue.clear();
         }
 
-        List retry = new ArrayList();
+        List<File> retry = new ArrayList<>();
 
-        for (Iterator i = files.iterator(); i.hasNext(); ) {
-            File file = (File) i.next();
+        for (Iterator<File> i = files.iterator(); i.hasNext(); ) {
+            File file = i.next();
             tryToDelete(file);
             if (file.exists()) {
                 retry.add(file);

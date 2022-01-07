@@ -112,10 +112,10 @@ public class StreamInstanceValidator
             }
         }
 
-        XmlObject[] schemas = (XmlObject[])sdocs.toArray(new XmlObject[0]);
+        XmlObject[] schemas = sdocs.toArray(new XmlObject[0]);
 
         SchemaTypeLoader sLoader = null;
-        Collection compErrors = new ArrayList();
+        Collection<XmlError> compErrors = new ArrayList<>();
         XmlOptions schemaOptions = new XmlOptions();
         schemaOptions.setErrorListener(compErrors);
         if (dl)
@@ -137,7 +137,7 @@ public class StreamInstanceValidator
                 e.printStackTrace(System.err);
             }
             System.out.println("Schema invalid");
-            for (Iterator i = compErrors.iterator(); i.hasNext();)
+            for (Iterator<XmlError> i = compErrors.iterator(); i.hasNext();)
                 System.out.println(i.next());
             return;
         }
@@ -151,7 +151,7 @@ public class StreamInstanceValidator
                                      final XmlOptions options)
     {
         final ValidatingXMLStreamReader vsr = new ValidatingXMLStreamReader();
-        final Collection errors = new ArrayList();
+        final Collection<XmlError> errors = new ArrayList<>();
 
         for (int i = 0; i < instanceFiles.length; i++) {
             final File file = instanceFiles[i];

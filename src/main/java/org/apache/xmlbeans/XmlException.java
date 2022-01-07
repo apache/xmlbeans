@@ -66,12 +66,12 @@ public class XmlException extends Exception
     /**
      * Constructs an XmlException from a message, a cause, and a collection of {@link XmlError XmlErrors}.
      */
-    public XmlException ( String m, Throwable t, Collection errors )
+    public XmlException ( String m, Throwable t, Collection<XmlError> errors )
     {
         super( m, t );
 
         if (errors != null)
-            _errors = Collections.unmodifiableList( new ArrayList( errors ) );
+            _errors = Collections.unmodifiableList( new ArrayList<>( errors ) );
     }
 
     /**
@@ -85,7 +85,7 @@ public class XmlException extends Exception
         Collection<XmlError> errors = xmlRuntimeException.getErrors();
 
         if (errors != null)
-            _errors = Collections.unmodifiableList( new ArrayList( errors ) );
+            _errors = Collections.unmodifiableList( new ArrayList<>( errors ) );
     }
 
     /**

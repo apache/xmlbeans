@@ -136,7 +136,7 @@ public class SchemaAnnotationImpl implements SchemaAnnotation
 
         SchemaAnnotationImpl result = new SchemaAnnotationImpl(c);
         // Retrieving attributes, first attributes on the enclosing element
-        ArrayList attrArray = new ArrayList(2);
+        ArrayList<AttributeImpl> attrArray = new ArrayList<>(2);
         addNoSchemaAttributes(elem, attrArray);
         if (ann == null)
         {
@@ -160,7 +160,7 @@ public class SchemaAnnotationImpl implements SchemaAnnotation
         return result;
     }
 
-    private static void addNoSchemaAttributes(XmlObject elem, List attrList)
+    private static void addNoSchemaAttributes(XmlObject elem, List<AttributeImpl> attrList)
     {
         try (XmlCursor cursor = elem.newCursor()) {
             boolean hasAttributes = cursor.toFirstAttribute();

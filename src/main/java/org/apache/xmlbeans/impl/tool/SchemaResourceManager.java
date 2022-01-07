@@ -55,7 +55,7 @@ public class SchemaResourceManager extends BaseSchemaResourceManager
             return;
         }
 
-        Set flags = new HashSet();
+        Set<String> flags = new HashSet<>();
         flags.add("h");
         flags.add("help");
         flags.add("usage");
@@ -65,7 +65,7 @@ public class SchemaResourceManager extends BaseSchemaResourceManager
         flags.add("refresh");
         flags.add("recurse");
 
-        Set opts = new HashSet();
+        Set<String> opts = new HashSet<>();
         opts.add("dir");
         CommandLine cl = new CommandLine(args, flags, opts);
         if (cl.getOpt("h") != null || cl.getOpt("help") != null || cl.getOpt("usage") != null)
@@ -124,8 +124,8 @@ public class SchemaResourceManager extends BaseSchemaResourceManager
             return;
         }
 
-        List uriList = new ArrayList();
-        List fileList = new ArrayList();
+        List<String> uriList = new ArrayList<>();
+        List<File> fileList = new ArrayList<>();
         for (int i = 0; i < args.length; i++)
         {
             if (looksLikeURL(args[i]))
@@ -139,9 +139,9 @@ public class SchemaResourceManager extends BaseSchemaResourceManager
         }
 
         // deal with files that are not in the proper directory
-        for (Iterator i = fileList.iterator(); i.hasNext(); )
+        for (Iterator<File> i = fileList.iterator(); i.hasNext(); )
         {
-            File file = (File)i.next();
+            File file = i.next();
             if (!isInDirectory(file, directory))
             {
                 System.err.println("File not within directory: " + file);
@@ -281,7 +281,7 @@ public class SchemaResourceManager extends BaseSchemaResourceManager
      */
     private static List collectXSDFiles(File[] dirs)
     {
-        List files = new ArrayList();
+        List<File> files = new ArrayList<>();
         for (int i = 0; i < dirs.length; i++)
         {
             File f = dirs[i];

@@ -75,7 +75,7 @@ public class NamespaceContext implements PrefixResolver
     private static final class NamespaceContextStack
     {
         NamespaceContext current;
-        ArrayList stack = new ArrayList();
+        ArrayList<NamespaceContext> stack = new ArrayList<>();
         final void push(NamespaceContext next)
         {
             stack.add(current);
@@ -83,7 +83,7 @@ public class NamespaceContext implements PrefixResolver
         }
         final void pop()
         {
-            current = (NamespaceContext)stack.get(stack.size() - 1);
+            current = stack.get(stack.size() - 1);
             stack.remove(stack.size() - 1);
         }
     }

@@ -41,14 +41,14 @@ public class StscResolver {
             resolveSubstitutionGroup((SchemaTypeImpl) documentTypes[i]);
         }
 
-        List allSeenTypes = new ArrayList();
+        List<SchemaType> allSeenTypes = new ArrayList<>();
         allSeenTypes.addAll(Arrays.asList(state.documentTypes()));
         allSeenTypes.addAll(Arrays.asList(state.attributeTypes()));
         allSeenTypes.addAll(Arrays.asList(state.redefinedGlobalTypes()));
         allSeenTypes.addAll(Arrays.asList(state.globalTypes()));
 
         for (int i = 0; i < allSeenTypes.size(); i++) {
-            SchemaType gType = (SchemaType) allSeenTypes.get(i);
+            SchemaType gType = allSeenTypes.get(i);
             resolveType((SchemaTypeImpl) gType);
             allSeenTypes.addAll(Arrays.asList(gType.getAnonymousTypes()));
         }

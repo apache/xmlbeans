@@ -49,12 +49,12 @@ public class XmlRuntimeException extends RuntimeException
     /**
      * Constructs an XmlRuntimeException from a message, a cause, and a collection of XmlErrors.
      */ 
-    public XmlRuntimeException ( String m, Throwable t, Collection errors )
+    public XmlRuntimeException ( String m, Throwable t, Collection<XmlError> errors )
     {
         super( m, t );
 
         if (errors != null)
-            _errors = Collections.unmodifiableList( new ArrayList(errors) );
+            _errors = Collections.unmodifiableList( new ArrayList<>(errors) );
     }
 
     /**
@@ -83,7 +83,7 @@ public class XmlRuntimeException extends RuntimeException
         Collection<XmlError> errors = xmlException.getErrors();
 
         if (errors != null)
-            _errors = Collections.unmodifiableList( new ArrayList( errors ) );
+            _errors = Collections.unmodifiableList( new ArrayList<>( errors ) );
     }
     
     /**
