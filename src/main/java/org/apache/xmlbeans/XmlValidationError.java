@@ -24,14 +24,14 @@ import java.util.List;
 
 /**
  * The XmlValidationError class extends the {@link XmlError }XMLError class. The XML Validator contains
- * extra attributes that can be used to construct the XML validation error programatically.
+ * extra attributes that can be used to construct the XML validation error programmatically.
  * <p>
  * To extract the validation error cast the errors to XmlValidationError instead of
  * XmlError for example:
  * <br>
  * <pre>
  * xobj.validate(new XmlOptions().setErrorListener(errors))
- * for (Iterator<XmlError> it = errors.iterator(); it.hasNext(); )
+ * for (Iterator&lt;XmlError&gt; it = errors.iterator(); it.hasNext(); )
  * {
  *      XmlError err = it.next());
  *      if (err instanceof XmlValidationError)
