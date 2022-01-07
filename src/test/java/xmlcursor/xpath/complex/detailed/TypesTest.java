@@ -51,6 +51,32 @@ public class TypesTest {
         assertEquals(2000, d.get(Calendar.YEAR));
         assertEquals(0, d.get(Calendar.MONTH));
         assertEquals(1, d.get(Calendar.DAY_OF_MONTH));
+        assertEquals(0, d.get(Calendar.ZONE_OFFSET));
+    }
+
+    @Test
+    public void testCaliforniaDate() {
+        res = o.selectPath("xs:date(\"2000-01-01-08:00\")");
+        assertEquals(1, res.length);
+        Calendar d = ((XmlDate) res[0]).getCalendarValue();
+        assertEquals(2000, d.get(Calendar.YEAR));
+        assertEquals(0, d.get(Calendar.MONTH));
+        assertEquals(1, d.get(Calendar.DAY_OF_MONTH));
+        assertEquals((-8 * 60 * 60 * 1000), d.get(Calendar.ZONE_OFFSET));
+    }
+
+    @Test
+    public void testDateTime() {
+        res = o.selectPath("xs:dateTime(\"2000-01-01T15:03:06.123\")");
+        assertEquals(1, res.length);
+        Calendar d = ((XmlDateTime) res[0]).getCalendarValue();
+        assertEquals(2000, d.get(Calendar.YEAR));
+        assertEquals(0, d.get(Calendar.MONTH));
+        assertEquals(1, d.get(Calendar.DAY_OF_MONTH));
+        assertEquals(15, d.get(Calendar.HOUR_OF_DAY));
+        assertEquals(3, d.get(Calendar.MINUTE));
+        assertEquals(6, d.get(Calendar.SECOND));
+        assertEquals(123, d.get(Calendar.MILLISECOND));
     }
 
     @Test
