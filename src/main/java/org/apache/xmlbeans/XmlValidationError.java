@@ -31,9 +31,9 @@ import java.util.List;
  * <br>
  * <pre>
  * xobj.validate(new XmlOptions().setErrorListener(errors))
- * for (Iterator it = errors.iterator(); it.hasNext(); )
+ * for (Iterator<XmlError> it = errors.iterator(); it.hasNext(); )
  * {
- *      XmlError err = (XmlError)it.next());
+ *      XmlError err = it.next());
  *      if (err instanceof XmlValidationError)
  *      {
  *          XmlValidationError validationError = (XmlValidationError) err;
@@ -126,7 +126,7 @@ public class XmlValidationError extends XmlError
     private QName _offendingQName;
     private SchemaType _expectedSchemaType;
 
-    private List _expectedQNames;
+    private List<QName> _expectedQNames;
     private int _errorType;
 
     private SchemaType _badSchemaType;
@@ -138,7 +138,7 @@ public class XmlValidationError extends XmlError
     // KHK: remove this
     private XmlValidationError(String message, int severity,
        XmlCursor cursor, QName fieldQName, QName offendingQname, SchemaType expectedSchemaType,
-       List expectedQNames, int errorType, SchemaType badSchemaType)
+       List<QName> expectedQNames, int errorType, SchemaType badSchemaType)
     {
         super(message, (String)null, severity, cursor);
 
@@ -156,7 +156,7 @@ public class XmlValidationError extends XmlError
      */
     private XmlValidationError(String code, Object[] args, int severity,
        XmlCursor cursor, QName fieldQName, QName offendingQname, SchemaType expectedSchemaType,
-       List expectedQNames, int errorType, SchemaType badSchemaType)
+       List<QName> expectedQNames, int errorType, SchemaType badSchemaType)
     {
         super(code, args, severity, cursor);
 
@@ -175,7 +175,7 @@ public class XmlValidationError extends XmlError
     // KHK: remove this
     private XmlValidationError(String message, int severity,
        Location loc, QName fieldQName, QName offendingQname, SchemaType expectedSchemaType,
-       List expectedQNames, int errorType, SchemaType badSchemaType)
+       List<QName> expectedQNames, int errorType, SchemaType badSchemaType)
     {
         super(message, (String)null, severity, loc);
 
@@ -193,7 +193,7 @@ public class XmlValidationError extends XmlError
      */
     private XmlValidationError(String code, Object[] args, int severity,
         Location loc, QName fieldQName, QName offendingQname, SchemaType expectedSchemaType,
-        List expectedQNames, int errorType, SchemaType badSchemaType)
+        List<QName> expectedQNames, int errorType, SchemaType badSchemaType)
     {
         super(code, args, severity, loc);
 
@@ -207,7 +207,7 @@ public class XmlValidationError extends XmlError
 
     public static XmlValidationError forCursorWithDetails( String message, String code, Object[] args, int severity,
        XmlCursor cursor, QName fieldQName, QName offendingQname, SchemaType expectedSchemaType,
-       List expectedQNames, int errorType, SchemaType badSchemaType)
+       List<QName> expectedQNames, int errorType, SchemaType badSchemaType)
     {
         if (code == null)
             return new XmlValidationError(message, severity, cursor, fieldQName, offendingQname,
@@ -219,7 +219,7 @@ public class XmlValidationError extends XmlError
 
     public static XmlValidationError forLocationWithDetails( String message, String code, Object[] args, int severity,
         Location location, QName fieldQName, QName offendingQname, SchemaType expectedSchemaType,
-        List expectedQNames, int errorType, SchemaType badSchemaType)
+        List<QName> expectedQNames, int errorType, SchemaType badSchemaType)
     {
         if (code == null)
             return new XmlValidationError(message, severity, location, fieldQName, offendingQname,
@@ -269,12 +269,12 @@ public class XmlValidationError extends XmlError
         this._errorType = _errorType;
     }
 
-    public List getExpectedQNames()
+    public List<QName> getExpectedQNames()
     {
         return _expectedQNames;
     }
 
-    public void setExpectedQNames(List _expectedQNames)
+    public void setExpectedQNames(List<QName> _expectedQNames)
     {
         this._expectedQNames = _expectedQNames;
     }

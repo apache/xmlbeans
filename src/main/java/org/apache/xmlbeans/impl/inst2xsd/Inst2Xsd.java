@@ -298,7 +298,7 @@ public class Inst2Xsd
     private static boolean validateInstances(SchemaDocument[] sDocs, XmlObject[] instances)
     {
         SchemaTypeLoader sLoader;
-        Collection compErrors = new ArrayList();
+        Collection<XmlError> compErrors = new ArrayList();
         XmlOptions schemaOptions = new XmlOptions();
         schemaOptions.setErrorListener(compErrors);
         try
@@ -312,9 +312,9 @@ public class Inst2Xsd
                 e.printStackTrace(System.out);
             }
             System.out.println("\n-------------------\n\nInvalid schemas.");
-            for (Iterator errors = compErrors.iterator(); errors.hasNext(); )
+            for (Iterator<XmlError> errors = compErrors.iterator(); errors.hasNext(); )
             {
-                XmlError xe = (XmlError)errors.next();
+                XmlError xe = errors.next();
                 System.out.println(xe.getLine() + ":" + xe.getColumn() + " " + xe.getMessage());
             }
             return false;
@@ -339,7 +339,7 @@ public class Inst2Xsd
                 continue;
             }
 
-            Collection errors = new ArrayList();
+            Collection<XmlError> errors = new ArrayList();
 
             if (xobj.schemaType() == XmlObject.type)
             {
@@ -352,9 +352,9 @@ public class Inst2Xsd
             else
             {
                 System.out.println("Instance[" + i + "] NOT valid - " + instances[i].documentProperties().getSourceName());
-                for (Iterator it = errors.iterator(); it.hasNext(); )
+                for (Iterator<XmlError> it = errors.iterator(); it.hasNext(); )
                 {
-                    XmlError xe = (XmlError)it.next();
+                    XmlError xe = it.next();
                     System.out.println(xe.getLine() + ":" + xe.getColumn() + " " + xe.getMessage());
                 }
                 result = false;

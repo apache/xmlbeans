@@ -26,9 +26,9 @@ public class QNameSetBuilder implements QNameSetSpecification, java.io.Serializa
     private static final long serialVersionUID = 1L;
 
     private boolean _inverted;
-    private Set _includedURIs;
-    private Set _excludedQNames;
-    private Set _includedQNames;
+    private Set<String> _includedURIs;
+    private Set<QName> _excludedQNames;
+    private Set<QName> _includedQNames;
 
     /**
      * Constructs an empty QNameSetBuilder.
@@ -36,9 +36,9 @@ public class QNameSetBuilder implements QNameSetSpecification, java.io.Serializa
     public QNameSetBuilder()
     {
         _inverted = false;
-        _includedURIs = new HashSet();
-        _excludedQNames = new HashSet();
-        _includedQNames = new HashSet();
+        _includedURIs = new HashSet<>();
+        _excludedQNames = new HashSet<>();
+        _includedQNames = new HashSet<>();
     }
 
     /**
@@ -48,20 +48,20 @@ public class QNameSetBuilder implements QNameSetSpecification, java.io.Serializa
      */
     public QNameSetBuilder(QNameSetSpecification set)
     {
-        Set includedURIs = set.includedURIs();
+        Set<String> includedURIs = set.includedURIs();
         if (includedURIs != null)
         {
             _inverted = false;
-            _includedURIs = new HashSet(includedURIs);
-            _excludedQNames = new HashSet(set.excludedQNamesInIncludedURIs());
-            _includedQNames = new HashSet(set.includedQNamesInExcludedURIs());
+            _includedURIs = new HashSet<>(includedURIs);
+            _excludedQNames = new HashSet<>(set.excludedQNamesInIncludedURIs());
+            _includedQNames = new HashSet<>(set.includedQNamesInExcludedURIs());
         }
         else
         {
             _inverted = true;
-            _includedURIs = new HashSet(set.excludedURIs());
-            _excludedQNames = new HashSet(set.includedQNamesInExcludedURIs());
-            _includedQNames = new HashSet(set.excludedQNamesInIncludedURIs());
+            _includedURIs = new HashSet<>(set.excludedURIs());
+            _excludedQNames = new HashSet<>(set.includedQNamesInExcludedURIs());
+            _includedQNames = new HashSet<>(set.excludedQNamesInIncludedURIs());
         }
     }
 
@@ -75,7 +75,7 @@ public class QNameSetBuilder implements QNameSetSpecification, java.io.Serializa
      * @param excludedQNamesInIncludedURIs the finite set of exceptional QNames to exclude from the included namespaces
      * @param includedQNamesInExcludedURIs the finite set of exceptional QNames to include that are in the excluded namespaces
      */
-    public QNameSetBuilder(Set excludedURIs, Set includedURIs, Set excludedQNamesInIncludedURIs, Set includedQNamesInExcludedURIs)
+    public QNameSetBuilder(Set<String> excludedURIs, Set<String> includedURIs, Set excludedQNamesInIncludedURIs, Set includedQNamesInExcludedURIs)
     {
         if (includedURIs != null && excludedURIs == null)
         {
@@ -181,7 +181,7 @@ public class QNameSetBuilder implements QNameSetSpecification, java.io.Serializa
         if (s.length() == 0)
             return EMPTY_STRINGARRAY;
 
-        List<String> result = new ArrayList();
+        List<String> result = new ArrayList<>();
         int i = 0;
         int start = 0;
         for (;;)
@@ -189,7 +189,7 @@ public class QNameSetBuilder implements QNameSetSpecification, java.io.Serializa
             while (i < s.length() && isSpace(s.charAt(i)))
                 i += 1;
             if (i >= s.length())
-                return (String[])result.toArray(EMPTY_STRINGARRAY);
+                return result.toArray(EMPTY_STRINGARRAY);
             start = i;
             while (i < s.length() && !isSpace(s.charAt(i)))
                 i += 1;
@@ -200,11 +200,11 @@ public class QNameSetBuilder implements QNameSetSpecification, java.io.Serializa
     /**
      * Remove all xml names from qnameset whose namespace matches the uri.
      */
-    private static void removeAllMatchingNs(String uri, Set qnameset)
+    private static void removeAllMatchingNs(String uri, Set<QName> qnameset)
     {
-        for (Iterator i = qnameset.iterator(); i.hasNext(); )
+        for (Iterator<QName> i = qnameset.iterator(); i.hasNext(); )
         {
-            if (uri.equals(nsFromName((QName)i.next())))
+            if (uri.equals(nsFromName(i.next())))
                 i.remove();
         }
     }
@@ -213,11 +213,11 @@ public class QNameSetBuilder implements QNameSetSpecification, java.io.Serializa
      * Remove all xml names from qnameset whose namespace is in the
      * first set of uris but not the second.
      */
-    private static void removeAllMatchingFirstOnly(Set setFirst, Set setSecond, Set qnameset)
+    private static void removeAllMatchingFirstOnly(Set<String> setFirst, Set<String> setSecond, Set<QName> qnameset)
     {
-        for (Iterator i = qnameset.iterator(); i.hasNext(); )
+        for (Iterator<QName> i = qnameset.iterator(); i.hasNext(); )
         {
-            String ns = nsFromName((QName)i.next());
+            String ns = nsFromName(i.next());
             if (setFirst.contains(ns) && !setSecond.contains(ns))
                 i.remove();
         }
@@ -227,11 +227,11 @@ public class QNameSetBuilder implements QNameSetSpecification, java.io.Serializa
      * Remove all xml names from qnameset whose namespace is in both
      * sets of uris.
      */
-    private static void removeAllMatchingBoth(Set setFirst, Set setSecond, Set qnameset)
+    private static void removeAllMatchingBoth(Set<String> setFirst, Set<String> setSecond, Set<QName> qnameset)
     {
-        for (Iterator i = qnameset.iterator(); i.hasNext(); )
+        for (Iterator<QName> i = qnameset.iterator(); i.hasNext(); )
         {
-            String ns = nsFromName((QName)i.next());
+            String ns = nsFromName(i.next());
             if (setFirst.contains(ns) && setSecond.contains(ns))
                 i.remove();
         }
@@ -241,11 +241,11 @@ public class QNameSetBuilder implements QNameSetSpecification, java.io.Serializa
      * Remove all xml names from qnameset whose namespace is in neither
      * set of uris.
      */
-    private static void removeAllMatchingNeither(Set setFirst, Set setSecond, Set qnameset)
+    private static void removeAllMatchingNeither(Set<String> setFirst, Set<String> setSecond, Set<QName> qnameset)
     {
-        for (Iterator i = qnameset.iterator(); i.hasNext(); )
+        for (Iterator<QName> i = qnameset.iterator(); i.hasNext(); )
         {
-            String ns = nsFromName((QName)i.next());
+            String ns = nsFromName(i.next());
             if (!setFirst.contains(ns) && !setSecond.contains(ns))
                 i.remove();
         }
@@ -337,7 +337,7 @@ public class QNameSetBuilder implements QNameSetSpecification, java.io.Serializa
         Set otherIncludeURIs = set2.includedURIs();
         if (otherIncludeURIs != null)
         {
-            for (Iterator i = includeURIs.iterator(); i.hasNext(); )
+            for (Iterator<String> i = includeURIs.iterator(); i.hasNext(); )
             {
                 if (otherIncludeURIs.contains(i.next()))
                     return false;
@@ -346,23 +346,23 @@ public class QNameSetBuilder implements QNameSetSpecification, java.io.Serializa
         else
         {
             Set otherExcludeURIs = set2.excludedURIs();
-            for (Iterator i = includeURIs.iterator(); i.hasNext(); )
+            for (Iterator<String> i = includeURIs.iterator(); i.hasNext(); )
             {
                 if (!otherExcludeURIs.contains(i.next()))
                     return false;
             }
         }
 
-        for (Iterator i = set1.includedQNamesInExcludedURIs().iterator(); i.hasNext(); )
+        for (Iterator<QName> i = set1.includedQNamesInExcludedURIs().iterator(); i.hasNext(); )
         {
-            if (set2.contains((QName)i.next()))
+            if (set2.contains(i.next()))
                 return false;
         }
 
         if (includeURIs.size() > 0)
-            for (Iterator i = set2.includedQNamesInExcludedURIs().iterator(); i.hasNext(); )
+            for (Iterator<QName> i = set2.includedQNamesInExcludedURIs().iterator(); i.hasNext(); )
         {
-            if (set1.contains((QName)i.next()))
+            if (set1.contains(i.next()))
                 return false;
         }
 
@@ -498,30 +498,30 @@ public class QNameSetBuilder implements QNameSetSpecification, java.io.Serializa
     /**
      * Implementation of add(set) that ignores inversion.
      */
-    private void addAllImpl(Set includedURIs, Set excludedURIs, Set includedQNames, Set excludedQNames)
+    private void addAllImpl(Set<String> includedURIs, Set<String> excludedURIs, Set<QName> includedQNames, Set<QName> excludedQNames)
     {
         boolean exclude = (excludedURIs != null);
         Set specialURIs = exclude ? excludedURIs : includedURIs;
 
-        for (Iterator i = _excludedQNames.iterator(); i.hasNext(); )
+        for (Iterator<QName> i = _excludedQNames.iterator(); i.hasNext(); )
         {
-            QName name = (QName)i.next();
+            QName name = i.next();
             String uri = nsFromName(name);
             if ((exclude ^ specialURIs.contains(uri)) && !excludedQNames.contains(name))
                 i.remove();
         }
 
-        for (Iterator i = excludedQNames.iterator(); i.hasNext(); )
+        for (Iterator<QName> i = excludedQNames.iterator(); i.hasNext(); )
         {
-            QName name = (QName)i.next();
+            QName name = i.next();
             String uri = nsFromName(name);
             if (!_includedURIs.contains(uri) && !_includedQNames.contains(name))
                 _excludedQNames.add(name);
         }
 
-        for (Iterator i = includedQNames.iterator(); i.hasNext(); )
+        for (Iterator<QName> i = includedQNames.iterator(); i.hasNext(); )
         {
-            QName name = (QName)i.next();
+            QName name = i.next();
             String uri = nsFromName(name);
             if (!_includedURIs.contains(uri))
                 _includedQNames.add(name);
@@ -537,16 +537,16 @@ public class QNameSetBuilder implements QNameSetSpecification, java.io.Serializa
         else
         {
             removeAllMatchingNeither(excludedURIs, _includedURIs, _includedQNames);
-            for (Iterator i = _includedURIs.iterator(); i.hasNext(); )
+            for (Iterator<String> i = _includedURIs.iterator(); i.hasNext(); )
             {
-                String uri = (String)i.next();
+                String uri = i.next();
                 if (!excludedURIs.contains(uri))
                     i.remove();
             }
 
-            for (Iterator i = excludedURIs.iterator(); i.hasNext(); )
+            for (Iterator<String> i = excludedURIs.iterator(); i.hasNext(); )
             {
-                String uri = (String)i.next();
+                String uri = i.next();
                 if (!_includedURIs.contains(uri))
                     _includedURIs.add(uri);
                 else
@@ -594,9 +594,9 @@ public class QNameSetBuilder implements QNameSetSpecification, java.io.Serializa
         boolean exclude = (excludedURIs != null);
         Set specialURIs = exclude ? excludedURIs : includedURIs;
 
-        for (Iterator i = _includedQNames.iterator(); i.hasNext(); )
+        for (Iterator<QName> i = _includedQNames.iterator(); i.hasNext(); )
         {
-            QName name = (QName)i.next();
+            QName name = i.next();
             String uri = nsFromName(name);
             if (exclude ^ specialURIs.contains(uri))
             {
@@ -610,17 +610,17 @@ public class QNameSetBuilder implements QNameSetSpecification, java.io.Serializa
             }
         }
 
-        for (Iterator i = includedQNames.iterator(); i.hasNext(); )
+        for (Iterator<QName> i = includedQNames.iterator(); i.hasNext(); )
         {
-            QName name = (QName)i.next();
+            QName name = i.next();
             String uri = nsFromName(name);
             if (_includedURIs.contains(uri))
                 _excludedQNames.add(name);
         }
 
-        for (Iterator i = excludedQNames.iterator(); i.hasNext(); )
+        for (Iterator<QName> i = excludedQNames.iterator(); i.hasNext(); )
         {
-            QName name = (QName)i.next();
+            QName name = i.next();
             String uri = nsFromName(name);
             if (_includedURIs.contains(uri) && !_excludedQNames.contains(name))
                 _includedQNames.add(name);
@@ -635,31 +635,31 @@ public class QNameSetBuilder implements QNameSetSpecification, java.io.Serializa
             removeAllMatchingBoth(_includedURIs, includedURIs, _excludedQNames);
         }
 
-        for (Iterator i = _includedURIs.iterator(); i.hasNext(); )
+        for (Iterator<String> i = _includedURIs.iterator(); i.hasNext(); )
         {
             if (exclude ^ specialURIs.contains(i.next()))
                 i.remove();
         }
     }
 
-    public Set excludedURIs()
+    public Set<String> excludedURIs()
     {
         if (_inverted) return Collections.unmodifiableSet(_includedURIs);
         return null;
     }
 
-    public Set includedURIs()
+    public Set<String> includedURIs()
     {
         if (!_inverted) return _includedURIs;
         return null;
     }
 
-    public Set excludedQNamesInIncludedURIs()
+    public Set<QName> excludedQNamesInIncludedURIs()
     {
         return Collections.unmodifiableSet(_inverted ? _includedQNames : _excludedQNames);
     }
 
-    public Set includedQNamesInExcludedURIs()
+    public Set<QName> includedQNamesInExcludedURIs()
     {
         return Collections.unmodifiableSet(_inverted ? _excludedQNames : _includedQNames);
     }
@@ -679,22 +679,22 @@ public class QNameSetBuilder implements QNameSetSpecification, java.io.Serializa
         StringBuilder sb = new StringBuilder();
         sb.append("QNameSetBuilder");
         sb.append(_inverted ? "-(" : "+(");
-        for (Iterator i = _includedURIs.iterator(); i.hasNext(); )
+        for (Iterator<String> i = _includedURIs.iterator(); i.hasNext(); )
         {
             sb.append("+*@");
             sb.append(i.next());
             sb.append(", ");
         }
-        for (Iterator i = _excludedQNames.iterator(); i.hasNext(); )
+        for (Iterator<QName> i = _excludedQNames.iterator(); i.hasNext(); )
         {
             sb.append("-");
-            sb.append(prettyQName((QName)i.next()));
+            sb.append(prettyQName(i.next()));
             sb.append(", ");
         }
-        for (Iterator i = _includedQNames.iterator(); i.hasNext(); )
+        for (Iterator<QName> i = _includedQNames.iterator(); i.hasNext(); )
         {
             sb.append("+");
-            sb.append(prettyQName((QName)i.next()));
+            sb.append(prettyQName(i.next()));
             sb.append(", ");
         }
         int index = sb.lastIndexOf(", ");

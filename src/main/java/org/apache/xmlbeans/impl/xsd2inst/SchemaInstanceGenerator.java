@@ -18,6 +18,7 @@ package org.apache.xmlbeans.impl.xsd2inst;
 import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.SchemaTypeSystem;
 import org.apache.xmlbeans.XmlBeans;
+import org.apache.xmlbeans.XmlError;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
@@ -29,6 +30,7 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -245,7 +247,9 @@ public class SchemaInstanceGenerator
         SchemaTypeSystem sts = null;
         if (schemas.length > 0)
         {
+            List<XmlError> errors = new ArrayList<>();
             XmlOptions compileOptions = new XmlOptions();
+            compileOptions.setErrorListener(errors);
             if (options.isNetworkDownloads())
                 compileOptions.setCompileDownloadUrls();
             if (options.isNopvr())
@@ -259,7 +263,12 @@ public class SchemaInstanceGenerator
             }
             catch (Exception e)
             {
-                e.printStackTrace();
+                if (errors.isEmpty() || !(e instanceof XmlException))
+                    e.printStackTrace();
+
+                System.out.println("Schema compilation errors: ");
+                for (Iterator<XmlError> i = errors.iterator(); i.hasNext(); )
+                    System.out.println(i.next());
             }
         }
 
