@@ -71,15 +71,15 @@ class SoapElementXobj extends ElementXobj implements SOAPElement, org.apache.xml
         return DomImpl._soapElement_removeNamespaceDeclaration(this, prefix);
     }
 
-    public Iterator getAllAttributes() {
+    public Iterator<Name> getAllAttributes() {
         return DomImpl._soapElement_getAllAttributes(this);
     }
 
-    public Iterator getChildElements() {
+    public Iterator<SOAPElement> getChildElements() {
         return DomImpl._soapElement_getChildElements(this);
     }
 
-    public Iterator getNamespacePrefixes() {
+    public Iterator<String> getNamespacePrefixes() {
         return DomImpl._soapElement_getNamespacePrefixes(this);
     }
 
@@ -119,7 +119,7 @@ class SoapElementXobj extends ElementXobj implements SOAPElement, org.apache.xml
         return DomImpl._soapElement_getAttributeValue(this, name);
     }
 
-    public Iterator getChildElements(Name name) {
+    public Iterator<SOAPElement> getChildElements(Name name) {
         return DomImpl._soapElement_getChildElements(this, name);
     }
 
@@ -131,7 +131,7 @@ class SoapElementXobj extends ElementXobj implements SOAPElement, org.apache.xml
         return DomImpl._soapElement_getNamespaceURI(this, prefix);
     }
 
-    public Iterator getVisibleNamespacePrefixes() {
+    public Iterator<String> getVisibleNamespacePrefixes() {
         return DomImpl._soapElement_getVisibleNamespacePrefixes(this);
     }
 

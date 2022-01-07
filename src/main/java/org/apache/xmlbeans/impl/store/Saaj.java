@@ -15,32 +15,27 @@
 
 package org.apache.xmlbeans.impl.store;
 
-import javax.xml.namespace.QName;
-
-import java.util.Iterator;
-import java.util.Locale;
-
-
-import javax.xml.transform.Source;
-
 import org.apache.xmlbeans.impl.soap.Detail;
 import org.apache.xmlbeans.impl.soap.DetailEntry;
-import org.apache.xmlbeans.impl.soap.MimeHeaders;
+import org.apache.xmlbeans.impl.soap.MimeHeader;
 import org.apache.xmlbeans.impl.soap.Name;
 import org.apache.xmlbeans.impl.soap.SOAPBody;
 import org.apache.xmlbeans.impl.soap.SOAPBodyElement;
 import org.apache.xmlbeans.impl.soap.SOAPElement;
 import org.apache.xmlbeans.impl.soap.SOAPEnvelope;
 import org.apache.xmlbeans.impl.soap.SOAPException;
-import org.apache.xmlbeans.impl.soap.SOAPFactory;
 import org.apache.xmlbeans.impl.soap.SOAPFault;
 import org.apache.xmlbeans.impl.soap.SOAPHeader;
 import org.apache.xmlbeans.impl.soap.SOAPHeaderElement;
 import org.apache.xmlbeans.impl.soap.SOAPPart;
 import org.w3c.dom.Document;
-import org.w3c.dom.Node;
 import org.w3c.dom.Element;
-import org.w3c.dom.Text;
+import org.w3c.dom.Node;
+
+import javax.xml.namespace.QName;
+import javax.xml.transform.Source;
+import java.util.Iterator;
+import java.util.Locale;
 
 public interface Saaj
 {
@@ -70,9 +65,9 @@ public interface Saaj
     String      soapElement_getEncodingStyle            ( SOAPElement soapElement );
     void        soapElement_setEncodingStyle            ( SOAPElement soapElement, String encodingStyle );
     boolean     soapElement_removeNamespaceDeclaration  ( SOAPElement soapElement, String prefix );
-    Iterator    soapElement_getAllAttributes            ( SOAPElement soapElement );
-    Iterator    soapElement_getChildElements            ( SOAPElement parent );
-    Iterator    soapElement_getNamespacePrefixes        ( SOAPElement soapElement );
+    Iterator<Name>         soapElement_getAllAttributes            ( SOAPElement soapElement );
+    Iterator<SOAPElement>  soapElement_getChildElements            ( SOAPElement parent );
+    Iterator<String>       soapElement_getNamespacePrefixes        ( SOAPElement soapElement );
     SOAPElement soapElement_addAttribute                ( SOAPElement soapElement, Name name, String value ) throws SOAPException;
     SOAPElement soapElement_addChildElement             ( SOAPElement parent, SOAPElement oldChild ) throws SOAPException;
     SOAPElement soapElement_addChildElement             ( SOAPElement soapElement, Name name ) throws SOAPException;
@@ -104,15 +99,15 @@ public interface Saaj
 
     void         soapPart_removeAllMimeHeaders      ( SOAPPart soapPart );
     void         soapPart_removeMimeHeader          ( SOAPPart soapPart, String name );
-    Iterator     soapPart_getAllMimeHeaders         ( SOAPPart soapPart );
+    Iterator<MimeHeader> soapPart_getAllMimeHeaders         (SOAPPart soapPart );
     SOAPEnvelope soapPart_getEnvelope               ( SOAPPart soapPart );
     Source       soapPart_getContent                ( SOAPPart soapPart );
     void         soapPart_setContent                ( SOAPPart soapPart, Source source );
     String[]     soapPart_getMimeHeader             ( SOAPPart soapPart, String name );
     void         soapPart_addMimeHeader             ( SOAPPart soapPart, String name, String value );
     void         soapPart_setMimeHeader             ( SOAPPart soapPart, String name, String value );
-    Iterator     soapPart_getMatchingMimeHeaders    ( SOAPPart soapPart, String[] names );
-    Iterator     soapPart_getNonMatchingMimeHeaders ( SOAPPart soapPart, String[] names );
+    Iterator<MimeHeader> soapPart_getMatchingMimeHeaders    ( SOAPPart soapPart, String[] names );
+    Iterator<MimeHeader> soapPart_getNonMatchingMimeHeaders ( SOAPPart soapPart, String[] names );
 
     boolean         soapBody_hasFault       ( SOAPBody soapBody );
     SOAPFault       soapBody_addFault       ( SOAPBody soapBody ) throws SOAPException;
@@ -143,5 +138,5 @@ public interface Saaj
     boolean soapText_isComment ( org.apache.xmlbeans.impl.soap.Text text );
 
     DetailEntry detail_addDetailEntry   ( Detail detail, Name name );
-    Iterator    detail_getDetailEntries ( Detail detail );
+    Iterator<DetailEntry> detail_getDetailEntries ( Detail detail );
 }

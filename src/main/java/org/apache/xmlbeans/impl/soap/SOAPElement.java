@@ -174,7 +174,7 @@ public interface SOAPElement extends Node, org.w3c.dom.Element {
      * value of each attribute.
      * @return  an iterator over the names of the attributes
      */
-    public abstract Iterator getAllAttributes();
+    public abstract Iterator<Name> getAllAttributes();
 
     /**
      * Returns the URI of the namespace that has the given

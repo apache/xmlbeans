@@ -15,6 +15,7 @@
 
 package org.apache.xmlbeans.impl.store;
 
+import org.apache.xmlbeans.impl.soap.MimeHeader;
 import org.apache.xmlbeans.impl.soap.SOAPEnvelope;
 import org.apache.xmlbeans.impl.soap.SOAPPart;
 import org.w3c.dom.*;
@@ -350,7 +351,7 @@ class SoapPartDom extends SOAPPart implements DomImpl.Dom, Document, NodeList {
         DomImpl._soapPart_removeMimeHeader(this, name);
     }
 
-    public Iterator getAllMimeHeaders() {
+    public Iterator<MimeHeader> getAllMimeHeaders() {
         return DomImpl._soapPart_getAllMimeHeaders(this);
     }
 
@@ -378,11 +379,11 @@ class SoapPartDom extends SOAPPart implements DomImpl.Dom, Document, NodeList {
         DomImpl._soapPart_setMimeHeader(this, name, value);
     }
 
-    public Iterator getMatchingMimeHeaders(String[] names) {
+    public Iterator<MimeHeader> getMatchingMimeHeaders(String[] names) {
         return DomImpl._soapPart_getMatchingMimeHeaders(this, names);
     }
 
-    public Iterator getNonMatchingMimeHeaders(String[] names) {
+    public Iterator<MimeHeader> getNonMatchingMimeHeaders(String[] names) {
         return DomImpl._soapPart_getNonMatchingMimeHeaders(this, names);
     }
 

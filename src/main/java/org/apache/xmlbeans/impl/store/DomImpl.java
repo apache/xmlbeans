@@ -3260,17 +3260,17 @@ public final class DomImpl {
         return syncWrap(d, p -> p.locale()._saaj.soapElement_removeNamespaceDeclaration(se, prefix));
     }
 
-    public static Iterator _soapElement_getAllAttributes(Dom d) {
+    public static Iterator<Name> _soapElement_getAllAttributes(Dom d) {
         SOAPElement se = (SOAPElement) d;
         return syncWrap(d, p -> p.locale()._saaj.soapElement_getAllAttributes(se));
     }
 
-    public static Iterator _soapElement_getChildElements(Dom d) {
+    public static Iterator<SOAPElement> _soapElement_getChildElements(Dom d) {
         SOAPElement se = (SOAPElement) d;
         return syncWrap(d, p -> p.locale()._saaj.soapElement_getChildElements(se));
     }
 
-    public static Iterator _soapElement_getNamespacePrefixes(Dom d) {
+    public static Iterator<String> _soapElement_getNamespacePrefixes(Dom d) {
         SOAPElement se = (SOAPElement) d;
         return syncWrap(d, p -> p.locale()._saaj.soapElement_getNamespacePrefixes(se));
     }
@@ -3320,7 +3320,7 @@ public final class DomImpl {
         return syncWrap(d, p -> p.locale()._saaj.soapElement_getAttributeValue(se, name));
     }
 
-    public static Iterator _soapElement_getChildElements(Dom d, Name name) {
+    public static Iterator<SOAPElement> _soapElement_getChildElements(Dom d, Name name) {
         SOAPElement se = (SOAPElement) d;
         return syncWrap(d, p -> p.locale()._saaj.soapElement_getChildElements(se, name));
     }
@@ -3335,7 +3335,7 @@ public final class DomImpl {
         return syncWrap(d, p -> p.locale()._saaj.soapElement_getNamespaceURI(se, prefix));
     }
 
-    public static Iterator _soapElement_getVisibleNamespacePrefixes(Dom d) {
+    public static Iterator<String> _soapElement_getVisibleNamespacePrefixes(Dom d) {
         SOAPElement se = (SOAPElement) d;
         return syncWrap(d, p -> p.locale()._saaj.soapElement_getVisibleNamespacePrefixes(se));
     }
@@ -3555,7 +3555,7 @@ public final class DomImpl {
         return syncWrap(d, p -> p.locale()._saaj.detail_addDetailEntry(detail, name));
     }
 
-    public static Iterator detail_getDetailEntries(Dom d) {
+    public static Iterator<DetailEntry> detail_getDetailEntries(Dom d) {
         Detail detail = (Detail) d;
         return syncWrap(d, p -> p.locale()._saaj.detail_getDetailEntries(detail));
     }
@@ -3609,12 +3609,12 @@ public final class DomImpl {
         syncWrapVoid(d, p -> p.locale()._saaj.soapPart_setMimeHeader(sp, name, value));
     }
 
-    public static Iterator _soapPart_getMatchingMimeHeaders(Dom d, String[] names) {
+    public static Iterator<MimeHeader> _soapPart_getMatchingMimeHeaders(Dom d, String[] names) {
         SOAPPart sp = (SOAPPart) d;
         return syncWrap(d, p -> p.locale()._saaj.soapPart_getMatchingMimeHeaders(sp, names));
     }
 
-    public static Iterator _soapPart_getNonMatchingMimeHeaders(Dom d, String[] names) {
+    public static Iterator<MimeHeader> _soapPart_getNonMatchingMimeHeaders(Dom d, String[] names) {
         SOAPPart sp = (SOAPPart) d;
         return syncWrap(d, p -> p.locale()._saaj.soapPart_getNonMatchingMimeHeaders(sp, names));
     }

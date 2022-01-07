@@ -35,7 +35,7 @@ class DetailXobj extends SoapFaultElementXobj implements Detail {
         return DomImpl.detail_addDetailEntry(this, name);
     }
 
-    public Iterator getDetailEntries() {
+    public Iterator<DetailEntry> getDetailEntries() {
         return DomImpl.detail_getDetailEntries(this);
     }
 }
