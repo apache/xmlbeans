@@ -93,7 +93,7 @@ public class TypeSystemHolder
     public SchemaDocument[] getSchemaDocuments()
     {
         // recompute everything, should cache it and track changes
-        Map<String, SchemaDocument> nsToSchemaDocs = new LinkedHashMap();
+        Map<String, SchemaDocument> nsToSchemaDocs = new LinkedHashMap<>();
 
         for (Iterator<QName> iterator = _globalElements.keySet().iterator(); iterator.hasNext();)
         {

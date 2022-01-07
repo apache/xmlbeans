@@ -28,9 +28,9 @@ import java.util.*;
  * An implementation of BindingConfig
  */
 public class BindingConfigImpl extends BindingConfig {
-    private final Map _packageMap = new LinkedHashMap();
-    private final Map _prefixMap = new LinkedHashMap();
-    private final Map _suffixMap = new LinkedHashMap();
+    private final Map<Object, String> _packageMap = new LinkedHashMap<>();
+    private final Map<Object, String> _prefixMap = new LinkedHashMap<>();
+    private final Map<Object, String> _suffixMap = new LinkedHashMap<>();
     // uri prefix -> package
     private final Map<Object, String> _packageMapByUriPrefix = new LinkedHashMap<>();
     // uri prefix -> name prefix
@@ -219,11 +219,11 @@ public class BindingConfigImpl extends BindingConfig {
     }
 
 
-    private String lookup(Map map, Map mapByUriPrefix, String uri) {
+    private String lookup(Map<Object, String> map, Map<Object, String> mapByUriPrefix, String uri) {
         if (uri == null) {
             uri = "";
         }
-        String result = (String) map.get(uri);
+        String result = map.get(uri);
         if (result != null) {
             return result;
         }
@@ -234,27 +234,29 @@ public class BindingConfigImpl extends BindingConfig {
             }
         }
 
-        return (String) map.get("##any");
+        return map.get("##any");
     }
 
-    private String lookupByUriPrefix(Map mapByUriPrefix, String uri) {
+    private String lookupByUriPrefix(Map<Object, String> mapByUriPrefix, String uri) {
         if (uri == null) {
             return null;
         }
         if (!mapByUriPrefix.isEmpty()) {
             String uriprefix = null;
             for (Object o : mapByUriPrefix.keySet()) {
-                String nextprefix = (String) o;
-                if (uriprefix != null && nextprefix.length() < uriprefix.length()) {
-                    continue;
-                }
-                if (uri.startsWith(nextprefix)) {
-                    uriprefix = nextprefix;
+                if (o instanceof String) {
+                    String nextprefix = (String) o;
+                    if (uriprefix != null && nextprefix.length() < uriprefix.length()) {
+                        continue;
+                    }
+                    if (uri.startsWith(nextprefix)) {
+                        uriprefix = nextprefix;
+                    }
                 }
             }
 
             if (uriprefix != null) {
-                return (String) mapByUriPrefix.get(uriprefix);
+                return mapByUriPrefix.get(uriprefix);
             }
         }
         return null;

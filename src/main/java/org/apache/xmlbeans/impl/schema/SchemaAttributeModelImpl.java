@@ -27,20 +27,20 @@ import java.util.LinkedHashMap;
 
 public class SchemaAttributeModelImpl implements SchemaAttributeModel
 {
-    private Map attrMap;
+    private Map<QName, SchemaLocalAttribute> attrMap;
     private QNameSet wcSet;
     private int wcProcess;
 
     public SchemaAttributeModelImpl()
     {
-        attrMap = new LinkedHashMap();
+        attrMap = new LinkedHashMap<>();
         wcSet = null;
         wcProcess = NONE;
     }
 
     public SchemaAttributeModelImpl(SchemaAttributeModel sam)
     {
-        attrMap = new LinkedHashMap();
+        attrMap = new LinkedHashMap<>();
         if (sam == null)
         {
             wcSet = null;

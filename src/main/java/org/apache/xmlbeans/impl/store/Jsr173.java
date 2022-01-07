@@ -921,12 +921,12 @@ public class Jsr173 {
             return prefix;
         }
 
-        public Iterator getPrefixes(String namespaceURI) {
+        public Iterator<String> getPrefixes(String namespaceURI) {
             checkChanged();
 
             // BUGBUG - get only one for now ...
 
-            HashMap map = new HashMap();
+            HashMap<String, String> map = new HashMap<>();
 
             map.put(namespaceURI, getPrefix(namespaceURI));
 

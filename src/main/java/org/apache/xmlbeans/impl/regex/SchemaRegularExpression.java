@@ -35,11 +35,11 @@ public class SchemaRegularExpression extends RegularExpression
         return new RegularExpression(s, "X");
     }
 
-    static final Map knownPatterns = buildKnownPatternMap();
+    static final Map<String, SchemaRegularExpression> knownPatterns = buildKnownPatternMap();
 
-    private static Map buildKnownPatternMap()
+    private static Map<String, SchemaRegularExpression> buildKnownPatternMap()
     {
-        Map result = new HashMap();
+        Map<String, SchemaRegularExpression> result = new HashMap<>();
         result.put("\\c+", new SchemaRegularExpression("\\c+")
             { public boolean matches(String s) { return XMLChar.isValidNmtoken(s); } } );
         result.put("\\i\\c*", new SchemaRegularExpression("\\i\\c*")

@@ -195,7 +195,7 @@ public class QNameHelper
         return readable(sType, WELL_KNOWN_PREFIXES);
     }
 
-    public static String readable(SchemaType sType, Map nsPrefix)
+    public static String readable(SchemaType sType, Map<String, String> nsPrefix)
     {
         if (sType.getName() != null)
         {
@@ -256,11 +256,11 @@ public class QNameHelper
         return readable(name, WELL_KNOWN_PREFIXES);
     }
 
-    public static String readable(QName name, Map prefixes)
+    public static String readable(QName name, Map<String, String> prefixes)
     {
         if (name.getNamespaceURI().length() == 0)
             return name.getLocalPart();
-        String prefix = (String)prefixes.get(name.getNamespaceURI());
+        String prefix = prefixes.get(name.getNamespaceURI());
         if (prefix != null)
             return prefix + ":" + name.getLocalPart();
         return name.getLocalPart() + " in namespace " + name.getNamespaceURI();
