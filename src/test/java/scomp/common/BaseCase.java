@@ -53,39 +53,37 @@ public class BaseCase {
 
     //TODO: compare regardless of order
     public boolean compareErrorCodes(String[] expected) {
-        if ( errorList.size() != expected.length){
-            System.err.println(stringOfCodes(expected,errorList));
+        if (errorList.size() != expected.length) {
+            System.err.println(stringOfCodes(expected, errorList));
 
-           return false;
+            return false;
         }
         StringBuilder errMessage = new StringBuilder();
         for (int i = 0; i < errorList.size(); i++) {
-            XmlError error = (XmlError) errorList.get(i);
-            if ( error.getErrorCode() == null )
-              errMessage.append("Kevin needs a code here "+error.getMessage()+"\n");
+            XmlError error = errorList.get(i);
+            if (error.getErrorCode() == null)
+                errMessage.append("Kevin needs a code here " + error.getMessage() + "\n");
 
-            if (!expected[i].equals(error.getErrorCode())){
+            if (!expected[i].equals(error.getErrorCode())) {
                 if (errMessage.length() > 0)
                     System.err.println(errMessage);
-                ArrayList exp=new ArrayList();
 
-                System.err.println(stringOfCodes(expected,errorList));
+                System.err.println(stringOfCodes(expected, errorList));
                 return false;
             }
         }
         return true;
     }
 
-    public String stringOfCodes(String[] errorCodes, ArrayList actual_errorCodes)
-    {
+    public String stringOfCodes(String[] errorCodes, ArrayList<XmlError> actual_errorCodes) {
         StringBuilder res = new StringBuilder();
         res.append("\n Expected codes:\n");
-        int i=0;
-        for (;i < errorCodes.length; i++ )
-            res.append( errorCodes[i]+"\n" );
+        int i = 0;
+        for (; i < errorCodes.length; i++)
+            res.append(errorCodes[i] + "\n");
         res.append("\nBut Got: \n");
-        for ( i=0 ;i < actual_errorCodes.size(); i++ )
-            res.append( actual_errorCodes.get(i)+"\n" );
+        for (i = 0; i < actual_errorCodes.size(); i++)
+            res.append(actual_errorCodes.get(i) + "\n");
 
         return res.toString();
     }
