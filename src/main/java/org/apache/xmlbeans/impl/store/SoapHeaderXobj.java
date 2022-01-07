@@ -31,23 +31,23 @@ class SoapHeaderXobj extends SoapElementXobj implements SOAPHeader {
         return new SoapHeaderXobj(l, _name);
     }
 
-    public Iterator examineAllHeaderElements() {
+    public Iterator<SOAPHeaderElement> examineAllHeaderElements() {
         return DomImpl.soapHeader_examineAllHeaderElements(this);
     }
 
-    public Iterator extractAllHeaderElements() {
+    public Iterator<SOAPHeaderElement> extractAllHeaderElements() {
         return DomImpl.soapHeader_extractAllHeaderElements(this);
     }
 
-    public Iterator examineHeaderElements(String actor) {
+    public Iterator<SOAPHeaderElement> examineHeaderElements(String actor) {
         return DomImpl.soapHeader_examineHeaderElements(this, actor);
     }
 
-    public Iterator examineMustUnderstandHeaderElements(String mustUnderstandString) {
+    public Iterator<SOAPHeaderElement> examineMustUnderstandHeaderElements(String mustUnderstandString) {
         return DomImpl.soapHeader_examineMustUnderstandHeaderElements(this, mustUnderstandString);
     }
 
-    public Iterator extractHeaderElements(String actor) {
+    public Iterator<SOAPHeaderElement> extractHeaderElements(String actor) {
         return DomImpl.soapHeader_extractHeaderElements(this, actor);
     }
 

@@ -90,11 +90,11 @@ public interface Saaj
     Name       soapEnvelope_createName ( SOAPEnvelope soapEnvelope, String localName );
     Name       soapEnvelope_createName ( SOAPEnvelope soapEnvelope, String localName, String prefix, String namespaceURI );
 
-    Iterator          soapHeader_examineAllHeaderElements            ( SOAPHeader soapHeader );
-    Iterator          soapHeader_extractAllHeaderElements            ( SOAPHeader soapHeader );
-    Iterator          soapHeader_examineHeaderElements               ( SOAPHeader soapHeader, String actor );
-    Iterator          soapHeader_examineMustUnderstandHeaderElements ( SOAPHeader soapHeader, String mustUnderstandString );
-    Iterator          soapHeader_extractHeaderElements               ( SOAPHeader soapHeader, String actor );
+    Iterator<SOAPHeaderElement> soapHeader_examineAllHeaderElements            ( SOAPHeader soapHeader );
+    Iterator<SOAPHeaderElement> soapHeader_extractAllHeaderElements            ( SOAPHeader soapHeader );
+    Iterator<SOAPHeaderElement> soapHeader_examineHeaderElements               ( SOAPHeader soapHeader, String actor );
+    Iterator<SOAPHeaderElement> soapHeader_examineMustUnderstandHeaderElements ( SOAPHeader soapHeader, String mustUnderstandString );
+    Iterator<SOAPHeaderElement> soapHeader_extractHeaderElements               ( SOAPHeader soapHeader, String actor );
     SOAPHeaderElement soapHeader_addHeaderElement                    ( SOAPHeader soapHeader, Name name );
 
     void         soapPart_removeAllMimeHeaders      ( SOAPPart soapPart );

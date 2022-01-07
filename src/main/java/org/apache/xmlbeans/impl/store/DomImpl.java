@@ -3383,27 +3383,27 @@ public final class DomImpl {
     // Soap Header
     //
 
-    public static Iterator soapHeader_examineAllHeaderElements(Dom d) {
+    public static Iterator<SOAPHeaderElement> soapHeader_examineAllHeaderElements(Dom d) {
         SOAPHeader sh = (SOAPHeader) d;
         return syncWrap(d, p -> p.locale()._saaj.soapHeader_examineAllHeaderElements(sh));
     }
 
-    public static Iterator soapHeader_extractAllHeaderElements(Dom d) {
+    public static Iterator<SOAPHeaderElement> soapHeader_extractAllHeaderElements(Dom d) {
         SOAPHeader sh = (SOAPHeader) d;
         return syncWrap(d, p -> p.locale()._saaj.soapHeader_extractAllHeaderElements(sh));
     }
 
-    public static Iterator soapHeader_examineHeaderElements(Dom d, String actor) {
+    public static Iterator<SOAPHeaderElement> soapHeader_examineHeaderElements(Dom d, String actor) {
         SOAPHeader sh = (SOAPHeader) d;
         return syncWrap(d, p -> p.locale()._saaj.soapHeader_examineHeaderElements(sh, actor));
     }
 
-    public static Iterator soapHeader_examineMustUnderstandHeaderElements(Dom d, String mustUnderstandString) {
+    public static Iterator<SOAPHeaderElement> soapHeader_examineMustUnderstandHeaderElements(Dom d, String mustUnderstandString) {
         SOAPHeader sh = (SOAPHeader) d;
         return syncWrap(d, p -> p.locale()._saaj.soapHeader_examineMustUnderstandHeaderElements(sh, mustUnderstandString));
     }
 
-    public static Iterator soapHeader_extractHeaderElements(Dom d, String actor) {
+    public static Iterator<SOAPHeaderElement> soapHeader_extractHeaderElements(Dom d, String actor) {
         SOAPHeader sh = (SOAPHeader) d;
         return syncWrap(d, p -> p.locale()._saaj.soapHeader_extractHeaderElements(sh, actor));
     }
@@ -3574,7 +3574,7 @@ public final class DomImpl {
         syncWrapVoid(d, p -> p.locale()._saaj.soapPart_removeMimeHeader(sp, name));
     }
 
-    public static Iterator _soapPart_getAllMimeHeaders(Dom d) {
+    public static Iterator<MimeHeader> _soapPart_getAllMimeHeaders(Dom d) {
         SOAPPart sp = (SOAPPart) d;
         return syncWrap(d, p -> p.locale()._saaj.soapPart_getAllMimeHeaders(sp));
     }
