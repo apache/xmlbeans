@@ -18,6 +18,7 @@ import org.apache.xmlbeans.*;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.time.OffsetDateTime;
 import java.util.Calendar;
 
 import static org.junit.Assert.assertEquals;
@@ -25,27 +26,27 @@ import static org.junit.Assert.assertTrue;
 
 public class TypesTest {
     private XmlObject o;
-    private XmlObject[] res;
 
     @Before
-    public void setUp()
-        throws Exception {
+    public void setUp() throws Exception {
         o = XmlObject.Factory.parse("<a/>");
     }
 
     @Test
     public void testDate() {
-        res = o.selectPath("xs:date(\"2000-01-01\")");
+        int offsetSeconds = OffsetDateTime.now().getOffset().getTotalSeconds();
+        XmlObject[] res = o.selectPath("xs:date(\"2000-01-01\")");
         assertEquals(1, res.length);
         Calendar d = ((XmlDate) res[0]).getCalendarValue();
         assertEquals(2000, d.get(Calendar.YEAR));
         assertEquals(0, d.get(Calendar.MONTH));
         assertEquals(1, d.get(Calendar.DAY_OF_MONTH));
+        assertEquals((offsetSeconds * 1000), d.get(Calendar.ZONE_OFFSET));
     }
 
     @Test
     public void testZDate() {
-        res = o.selectPath("xs:date(\"2000-01-01Z\")");
+        XmlObject[] res = o.selectPath("xs:date(\"2000-01-01Z\")");
         assertEquals(1, res.length);
         Calendar d = ((XmlDate) res[0]).getCalendarValue();
         assertEquals(2000, d.get(Calendar.YEAR));
@@ -56,7 +57,7 @@ public class TypesTest {
 
     @Test
     public void testCaliforniaDate() {
-        res = o.selectPath("xs:date(\"2000-01-01-08:00\")");
+        XmlObject[] res = o.selectPath("xs:date(\"2000-01-01-08:00\")");
         assertEquals(1, res.length);
         Calendar d = ((XmlDate) res[0]).getCalendarValue();
         assertEquals(2000, d.get(Calendar.YEAR));
@@ -67,7 +68,8 @@ public class TypesTest {
 
     @Test
     public void testDateTime() {
-        res = o.selectPath("xs:dateTime(\"2000-01-01T15:03:06.123\")");
+        int offsetSeconds = OffsetDateTime.now().getOffset().getTotalSeconds();
+        XmlObject[] res = o.selectPath("xs:dateTime(\"2000-01-01T15:03:06.123\")");
         assertEquals(1, res.length);
         Calendar d = ((XmlDateTime) res[0]).getCalendarValue();
         assertEquals(2000, d.get(Calendar.YEAR));
@@ -77,11 +79,12 @@ public class TypesTest {
         assertEquals(3, d.get(Calendar.MINUTE));
         assertEquals(6, d.get(Calendar.SECOND));
         assertEquals(123, d.get(Calendar.MILLISECOND));
+        assertEquals((offsetSeconds * 1000), d.get(Calendar.ZONE_OFFSET));
     }
 
     @Test
     public void testZDateTime() {
-        res = o.selectPath("xs:dateTime(\"2000-01-01T15:03:06.123Z\")");
+        XmlObject[] res = o.selectPath("xs:dateTime(\"2000-01-01T15:03:06.123Z\")");
         assertEquals(1, res.length);
         Calendar d = ((XmlDateTime) res[0]).getCalendarValue();
         assertEquals(2000, d.get(Calendar.YEAR));
@@ -91,13 +94,12 @@ public class TypesTest {
         assertEquals(3, d.get(Calendar.MINUTE));
         assertEquals(6, d.get(Calendar.SECOND));
         assertEquals(123, d.get(Calendar.MILLISECOND));
-        assertEquals(0, d.get(Calendar.ZONE_OFFSET));
         assertEquals(0, d.get(Calendar.ZONE_OFFSET));
     }
 
     @Test
     public void testCaliforniaDateTime() {
-        res = o.selectPath("xs:dateTime(\"2000-01-01T15:03:06.123-08:00\")");
+        XmlObject[] res = o.selectPath("xs:dateTime(\"2000-01-01T15:03:06.123-08:00\")");
         assertEquals(1, res.length);
         Calendar d = ((XmlDateTime) res[0]).getCalendarValue();
         assertEquals(2000, d.get(Calendar.YEAR));
@@ -112,7 +114,7 @@ public class TypesTest {
 
     @Test
     public void testDecimal() {
-        res = o.selectPath(
+        XmlObject[] res = o.selectPath(
             "seconds-from-dateTime(xs:dateTime('1997-07-16T19:20:30+01:00'))");
         assertEquals(1, res.length);
         XmlDecimal dec = ((XmlDecimal) res[0]);
@@ -123,7 +125,7 @@ public class TypesTest {
     //representation
     @Test
     public void testDuration() {
-        res = o.selectPath("xs:dayTimeDuration(\"PT12H\")*4");
+        XmlObject[] res = o.selectPath("xs:dayTimeDuration(\"PT12H\")*4");
         assertEquals(1, res.length);
         //System.out.println(res[0].schemaType());
         String s = res[0].xmlText();
