@@ -43,8 +43,8 @@ public class Sax2Dom
 
     private Node _root = null;
     private Document _document = null;
-    private Stack _nodeStk = new Stack();
-    private Vector _namespaceDecls = null;
+    private Stack<Node> _nodeStk = new Stack<>();
+    private Vector<String> _namespaceDecls = null;
 
     public Sax2Dom() throws ParserConfigurationException
     {
@@ -77,7 +77,7 @@ public class Sax2Dom
 
     public void characters(char[] ch, int start, int length)
     {
-        final Node last = (Node) _nodeStk.peek();
+        final Node last = _nodeStk.peek();
 
         // No text nodes can be children of root (DOM006 exception)
         if (last != _document)
@@ -108,17 +108,16 @@ public class Sax2Dom
             final int nDecls = _namespaceDecls.size();
             for (int i = 0; i < nDecls; i++)
             {
-                final String prefix = (String) _namespaceDecls.elementAt(i++);
+                final String prefix = _namespaceDecls.elementAt(i++);
 
                 if (prefix == null || prefix.equals(EMPTYSTRING))
                 {
-                    tmp.setAttributeNS(XMLNS_URI, XMLNS_PREFIX,
-                            (String) _namespaceDecls.elementAt(i));
+                    tmp.setAttributeNS(XMLNS_URI, XMLNS_PREFIX, _namespaceDecls.elementAt(i));
                 }
                 else
                 {
                     tmp.setAttributeNS(XMLNS_URI, XMLNS_STRING + prefix,
-                            (String) _namespaceDecls.elementAt(i));
+                            _namespaceDecls.elementAt(i));
                 }
             }
             _namespaceDecls.clear();
@@ -140,7 +139,7 @@ public class Sax2Dom
         }
 
         // Append this new node onto current stack node
-        Node last = (Node) _nodeStk.peek();
+        Node last = _nodeStk.peek();
         last.appendChild(tmp);
 
         // Push this node onto stack
@@ -180,7 +179,7 @@ public class Sax2Dom
      */
     public void processingInstruction(String target, String data)
     {
-        final Node last = (Node) _nodeStk.peek();
+        final Node last = _nodeStk.peek();
         ProcessingInstruction pi = _document.createProcessingInstruction(
                 target, data);
         if (pi != null) last.appendChild(pi);
@@ -208,7 +207,7 @@ public class Sax2Dom
      */
     public void comment(char[] ch, int start, int length)
     {
-        final Node last = (Node) _nodeStk.peek();
+        final Node last = _nodeStk.peek();
         Comment comment = _document.createComment(new String(ch, start, length));
         if (comment != null) last.appendChild(comment);
     }

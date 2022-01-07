@@ -32,7 +32,8 @@ public class SystemProperties {
                 return null;
             }
         }
-        return (String) propertyH.get(key);
+        Object ret = propertyH.get(key);
+        return ret == null ? null : ret.toString();
     }
 
     public static String getProperty(String key, String defaultValue) {

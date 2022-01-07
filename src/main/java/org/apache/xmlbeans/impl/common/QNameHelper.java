@@ -30,7 +30,7 @@ import java.util.Map;
 
 public class QNameHelper
 {
-    private static final Map WELL_KNOWN_PREFIXES = buildWKP();
+    private static final Map<String, String> WELL_KNOWN_PREFIXES = buildWKP();
 
     public static XMLName getXMLName(QName qname)
     {
@@ -178,9 +178,9 @@ public class QNameHelper
         return hexsafe(name.getNamespaceURI()) + "/" + hexsafe(name.getLocalPart());
     }
 
-    private static Map buildWKP()
+    private static Map<String, String> buildWKP()
     {
-        Map result = new HashMap();
+        Map<String, String> result = new HashMap<>();
         result.put("http://www.w3.org/XML/1998/namespace", "xml");
         result.put("http://www.w3.org/2001/XMLSchema", "xs");
         result.put("http://www.w3.org/2001/XMLSchema-instance", "xsi");

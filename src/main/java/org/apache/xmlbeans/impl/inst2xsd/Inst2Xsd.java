@@ -298,7 +298,7 @@ public class Inst2Xsd
     private static boolean validateInstances(SchemaDocument[] sDocs, XmlObject[] instances)
     {
         SchemaTypeLoader sLoader;
-        Collection<XmlError> compErrors = new ArrayList();
+        Collection<XmlError> compErrors = new ArrayList<>();
         XmlOptions schemaOptions = new XmlOptions();
         schemaOptions.setErrorListener(compErrors);
         try
@@ -339,7 +339,7 @@ public class Inst2Xsd
                 continue;
             }
 
-            Collection<XmlError> errors = new ArrayList();
+            Collection<XmlError> errors = new ArrayList<>();
 
             if (xobj.schemaType() == XmlObject.type)
             {

@@ -54,7 +54,7 @@ public class ValidatingXMLStreamReader
     private SchemaType _contentType;
     private SchemaTypeLoader _stl;
     private XmlOptions _options;
-    private Collection _errorListener;
+    private Collection<XmlError> _errorListener;
     protected Validator _validator;
     private final ElementEventImpl _elemEvent;
     private final AttributeEventImpl _attEvent;
@@ -67,8 +67,8 @@ public class ValidatingXMLStreamReader
     private final int STATE_ATTBUFFERING = 2;
     private final int STATE_ERROR = 3;
 
-    private List _attNamesList;
-    private List _attValuesList;
+    private List<QName> _attNamesList;
+    private List<String> _attValuesList;
     private SchemaType _xsiType;
 
     private int _depth;
@@ -96,7 +96,7 @@ public class ValidatingXMLStreamReader
      * @param errorListener Errors and warnings listener
      */
     public void init(XMLStreamReader xsr, boolean startWithCurrentEvent, SchemaType contentType,
-                     SchemaTypeLoader stl, XmlOptions options, Collection errorListener)
+                     SchemaTypeLoader stl, XmlOptions options, Collection<XmlError> errorListener)
     {
         _packTextXmlStreamReader.init(xsr);
 
@@ -598,8 +598,8 @@ public class ValidatingXMLStreamReader
 
                     if (_attNamesList==null)
                     {
-                        _attNamesList = new ArrayList();
-                        _attValuesList = new ArrayList();
+                        _attNamesList = new ArrayList<>();
+                        _attValuesList = new ArrayList<>();
                     }
                     // skip xsi:type xsi:nil xsi:schemaLocation xsi:noNamespaceSchemaLocation
                     if (isSpecialAttribute(qname))
@@ -813,8 +813,8 @@ public class ValidatingXMLStreamReader
         }
         else
         {
-            _simpleEvent._qname = (QName)_attNamesList.get(attIndex);
-            _simpleEvent._text = (String)_attValuesList.get(attIndex);
+            _simpleEvent._qname = _attNamesList.get(attIndex);
+            _simpleEvent._text = _attValuesList.get(attIndex);
             event = _simpleEvent;
         }
 

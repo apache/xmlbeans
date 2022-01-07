@@ -108,7 +108,7 @@ public class CommandLine
 
     public String getOpt(String opt)
     {
-        return (String)_options.get(opt);
+        return _options.get(opt);
     }
 
     private static List collectFiles(File[] dirs)
