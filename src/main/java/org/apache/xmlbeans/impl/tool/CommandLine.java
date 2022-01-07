@@ -33,7 +33,7 @@ import java.util.Map;
 
 public class CommandLine
 {
-    public CommandLine(String[] args, Collection flags, Collection scheme)
+    public CommandLine(String[] args, Collection<String> flags, Collection<String> scheme)
     {
         if (flags == null || scheme == null)
             throw new IllegalArgumentException("collection required (use Collections.EMPTY_SET if no options)");

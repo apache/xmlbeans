@@ -158,7 +158,7 @@ public interface XmlObject extends XmlTokenSource {
      * <pre>
      * // Create an XmlOptions instance and set the error listener.
      * XmlOptions validateOptions = new XmlOptions();
-     * ArrayList<XmlError> errorList = new ArrayList<>();
+     * ArrayList&lt;XmlError&gt; errorList = new ArrayList&lt;&gt;();
      * validateOptions.setErrorListener(errorList);
      *
      * // Validate the XML.

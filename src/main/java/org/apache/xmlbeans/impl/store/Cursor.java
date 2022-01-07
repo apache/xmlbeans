@@ -1305,7 +1305,7 @@ public final class Cursor implements XmlCursor, ChangeListener {
         }
     }
 
-    public void _getAllBookmarkRefs(Collection listToFill) {
+    public void _getAllBookmarkRefs(Collection<Object> listToFill) {
         if (listToFill != null) {
             for (Bookmark b = _cur._xobj._bookmarks; b != null; b = b._next) {
                 if (b._value instanceof XmlBookmark) {
@@ -2330,7 +2330,8 @@ public final class Cursor implements XmlCursor, ChangeListener {
         syncWrap(() -> _clearBookmark(key));
     }
 
-    public void getAllBookmarkRefs(Collection listToFill) {
+    @Override
+    public void getAllBookmarkRefs(Collection<Object> listToFill) {
         syncWrap(() -> _getAllBookmarkRefs(listToFill));
     }
 

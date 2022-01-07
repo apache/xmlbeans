@@ -72,7 +72,7 @@ public final class XsTypeConverter {
         }
     }
 
-    public static float lexFloat(CharSequence cs, Collection errors) {
+    public static float lexFloat(CharSequence cs, Collection<XmlError> errors) {
         try {
             return lexFloat(cs);
         } catch (NumberFormatException e) {
@@ -127,7 +127,7 @@ public final class XsTypeConverter {
         }
     }
 
-    public static double lexDouble(CharSequence cs, Collection errors) {
+    public static double lexDouble(CharSequence cs, Collection<XmlError> errors) {
         try {
             return lexDouble(cs);
         } catch (NumberFormatException e) {
@@ -229,7 +229,7 @@ public final class XsTypeConverter {
         return new BigInteger(trimInitialPlus(v));
     }
 
-    public static BigInteger lexInteger(CharSequence cs, Collection errors) {
+    public static BigInteger lexInteger(CharSequence cs, Collection<XmlError> errors) {
         try {
             return lexInteger(cs);
         } catch (NumberFormatException e) {
@@ -250,7 +250,7 @@ public final class XsTypeConverter {
         return Long.parseLong(trimInitialPlus(v));
     }
 
-    public static long lexLong(CharSequence cs, Collection errors) {
+    public static long lexLong(CharSequence cs, Collection<XmlError> errors) {
         try {
             return lexLong(cs);
         } catch (NumberFormatException e) {
@@ -271,7 +271,7 @@ public final class XsTypeConverter {
         return parseShort(cs);
     }
 
-    public static short lexShort(CharSequence cs, Collection errors) {
+    public static short lexShort(CharSequence cs, Collection<XmlError> errors) {
         try {
             return lexShort(cs);
         } catch (NumberFormatException e) {
@@ -292,7 +292,7 @@ public final class XsTypeConverter {
         return parseInt(cs);
     }
 
-    public static int lexInt(CharSequence cs, Collection errors) {
+    public static int lexInt(CharSequence cs, Collection<XmlError> errors) {
         try {
             return lexInt(cs);
         } catch (NumberFormatException e) {
@@ -313,7 +313,7 @@ public final class XsTypeConverter {
         return parseByte(cs);
     }
 
-    public static byte lexByte(CharSequence cs, Collection errors) {
+    public static byte lexByte(CharSequence cs, Collection<XmlError> errors) {
         try {
             return lexByte(cs);
         } catch (NumberFormatException e) {
@@ -421,7 +421,7 @@ public final class XsTypeConverter {
         return new QName(uri, localname);
     }
 
-    public static QName lexQName(String xsd_qname, Collection errors,
+    public static QName lexQName(String xsd_qname, Collection<XmlError> errors,
                                  NamespaceContext nscontext) {
         try {
             return lexQName(xsd_qname, nscontext);
@@ -433,7 +433,7 @@ public final class XsTypeConverter {
     }
 
     public static String printQName(QName qname, NamespaceContext nsContext,
-                                    Collection errors) {
+                                    Collection<XmlError> errors) {
         final String uri = qname.getNamespaceURI();
         assert uri != null; //qname is not allowed to have null uri values
         final String prefix;
@@ -469,7 +469,7 @@ public final class XsTypeConverter {
         return new GDate(charSeq);
     }
 
-    public static GDate lexGDate(String xsd_gdate, Collection errors) {
+    public static GDate lexGDate(String xsd_gdate, Collection<XmlError> errors) {
         try {
             return lexGDate(xsd_gdate);
         } catch (IllegalArgumentException e) {
@@ -478,7 +478,7 @@ public final class XsTypeConverter {
         }
     }
 
-    public static String printGDate(GDate gdate, Collection errors) {
+    public static String printGDate(GDate gdate, Collection<XmlError> errors) {
         return gdate.toString();
     }
 

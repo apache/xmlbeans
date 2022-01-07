@@ -202,7 +202,7 @@ public class TypeHierarchyPrinter
             noteNamespace(prefixes, sType);
 
             // enter this type in the list of children of its base type
-            Collection children = childTypes.get(sType.getBaseType());
+            Collection<SchemaType> children = childTypes.get(sType.getBaseType());
             if (children == null)
             {
                 children = new ArrayList<>();

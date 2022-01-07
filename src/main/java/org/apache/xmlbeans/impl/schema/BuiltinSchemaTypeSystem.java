@@ -209,11 +209,11 @@ public class BuiltinSchemaTypeSystem extends SchemaTypeLoaderBase implements Sch
         }
     }
 
-    private Map _typeMap = new HashMap();
+    private Map<QName, SchemaType> _typeMap = new HashMap<>();
     private SchemaTypeImpl[] _typeArray = new SchemaTypeImpl[SchemaType.BTC_LAST_BUILTIN + 1];
-    private Map _handlesToObjects = new HashMap();
-    private Map _objectsToHandles = new HashMap();
-    private Map _typesByClassname = new HashMap();
+    private Map<String, SchemaType> _handlesToObjects = new HashMap<>();
+    private Map<SchemaType, String> _objectsToHandles = new HashMap<>();
+    private Map<String, SchemaType> _typesByClassname = new HashMap<>();
     private SchemaContainer _container = new SchemaContainer("http://www.w3.org/2001/XMLSchema");
 
     private SchemaTypeImpl getBuiltinType(int btc)
@@ -300,7 +300,7 @@ public class BuiltinSchemaTypeSystem extends SchemaTypeLoaderBase implements Sch
 
     public SchemaType findType(QName name)
     {
-        return (SchemaType)_typeMap.get(name);
+        return _typeMap.get(name);
     }
 
 
@@ -367,7 +367,7 @@ public class BuiltinSchemaTypeSystem extends SchemaTypeLoaderBase implements Sch
 
     public SchemaType typeForClassname(String classname)
     {
-        return (SchemaType)_typesByClassname.get(classname);
+        return _typesByClassname.get(classname);
     }
 
     public InputStream getSourceAsStream(String sourceName)
@@ -446,7 +446,7 @@ public class BuiltinSchemaTypeSystem extends SchemaTypeLoaderBase implements Sch
      */
     public String handleForType(SchemaType type)
     {
-        return (String)_objectsToHandles.get(type);
+        return _objectsToHandles.get(type);
     }
 
     /**
@@ -567,13 +567,10 @@ public class BuiltinSchemaTypeSystem extends SchemaTypeLoaderBase implements Sch
 
     public SchemaType typeForHandle(String handle)
     {
-        return (SchemaType)_handlesToObjects.get(handle);
+        return _handlesToObjects.get(handle);
     }
 
-    public SchemaComponent resolveHandle(String handle)
-    {
-        return (SchemaComponent)_handlesToObjects.get(handle);
-    }
+    public SchemaComponent resolveHandle(String handle) { return _handlesToObjects.get(handle); }
 
     /**
      * Links a type.

@@ -17,6 +17,7 @@ package org.apache.xmlbeans.impl.validator;
 
 import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.XmlCursor;
+import org.apache.xmlbeans.XmlError;
 import org.apache.xmlbeans.impl.common.PrefixResolver;
 import org.apache.xmlbeans.impl.common.ValidatorListener;
 import org.apache.xmlbeans.impl.common.XmlWhitespace;
@@ -103,7 +104,7 @@ public class ValidatorUtil
     }
 
     public static boolean validateSimpleType (
-        SchemaType type, String value, Collection errors, PrefixResolver prefixResolver )
+            SchemaType type, String value, Collection<XmlError> errors, PrefixResolver prefixResolver )
     {
         if (!type.isSimpleType() && type.getContentType() != SchemaType.SIMPLE_CONTENT)
         {

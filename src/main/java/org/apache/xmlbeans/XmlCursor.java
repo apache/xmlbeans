@@ -1553,7 +1553,7 @@ public interface XmlCursor extends XmlTokenSource, AutoCloseable {
      *                   returned by this method.
      */
 
-    void getAllBookmarkRefs(Collection listToFill);
+    void getAllBookmarkRefs(Collection<Object> listToFill);
 
     /**
      * Removes the XML that is immediately after this cursor.
