@@ -98,7 +98,7 @@ public class StreamInstanceValidator
         File[] instanceFiles = cl.filesEndingWith(".xml");
         File[] jarFiles = cl.filesEndingWith(".jar");
 
-        List sdocs = new ArrayList();
+        List<XmlObject> sdocs = new ArrayList<>();
 
         final XmlOptions options = (new XmlOptions()).setLoadLineNumbers();
         for (int i = 0; i < schemaFiles.length; i++) {

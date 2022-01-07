@@ -113,7 +113,7 @@ public class TypeHierarchyPrinter
         File[] jarFiles = cl.filesEndingWith(".jar");
 
         // step 1: load all the files
-        List sdocs = new ArrayList();
+        List<XmlObject> sdocs = new ArrayList<>();
         for (int i = 0; i < schemaFiles.length; i++)
         {
             try

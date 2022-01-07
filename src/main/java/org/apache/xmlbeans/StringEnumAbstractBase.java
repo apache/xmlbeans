@@ -62,12 +62,13 @@ public class StringEnumAbstractBase implements java.io.Serializable
      */ 
     public static final class Table
     {
-        private Map _map;
-        private List _list;
+        private Map<String, StringEnumAbstractBase> _map;
+        private List<StringEnumAbstractBase> _list;
+
         public Table(StringEnumAbstractBase[] array)
         {
-            _map = new HashMap(array.length);
-            _list = new ArrayList(array.length + 1);
+            _map = new HashMap<>(array.length);
+            _list = new ArrayList<>(array.length + 1);
             for (int i = 0; i < array.length; i++)
             {
                 _map.put(array[i].toString(), array[i]);
@@ -81,14 +82,14 @@ public class StringEnumAbstractBase implements java.io.Serializable
         /** Returns the singleton for a {@link String}, or null if none. */
         public StringEnumAbstractBase forString(String s)
         {
-            return (StringEnumAbstractBase)_map.get(s);
+            return _map.get(s);
         }
         /** Returns the singleton for an int code, or null if none. */
         public StringEnumAbstractBase forInt(int i)
         {
             if (i < 0 || i > _list.size())
                 return null;
-            return (StringEnumAbstractBase)_list.get(i);
+            return _list.get(i);
         }
         /** Returns the last valid int code (the first is 1; zero is not used). */
         public int lastInt()

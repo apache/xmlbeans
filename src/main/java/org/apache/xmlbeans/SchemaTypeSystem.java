@@ -112,13 +112,13 @@ import java.io.File;
  * {@link SchemaType} in the SchemaTypeSystem once, including nested
  * definitions.
  * <pre>{@code
- * List allSeenTypes = new ArrayList();
+ * List<SchemaType> allSeenTypes = new ArrayList();
  * allSeenTypes.addAll(Arrays.asList(typeSystem.documentTypes()));
  * allSeenTypes.addAll(Arrays.asList(typeSystem.attributeTypes()));
  * allSeenTypes.addAll(Arrays.asList(typeSystem.globalTypes()));
  * for (int i = 0; i < allSeenTypes.size(); i++)
  * {
- *     SchemaType sType = (SchemaType)allSeenTypes.get(i);
+ *     SchemaType sType = allSeenTypes.get(i);
  *     System.out.println("Visiting " + sType.toString());
  *     allSeenTypes.addAll(Arrays.asList(sType.getAnonymousTypes()));
  * }

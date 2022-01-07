@@ -152,7 +152,7 @@ public class QNameSetBuilder implements QNameSetSpecification, java.io.Serializa
     }
 
     /**
-     * Local xml names are hased using "" as the namespace.
+     * Local xml names are created using "" as the namespace.
      */
     private static String nsFromName(QName QName)
     {
@@ -181,7 +181,7 @@ public class QNameSetBuilder implements QNameSetSpecification, java.io.Serializa
         if (s.length() == 0)
             return EMPTY_STRINGARRAY;
 
-        List result = new ArrayList();
+        List<String> result = new ArrayList();
         int i = 0;
         int start = 0;
         for (;;)

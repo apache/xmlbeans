@@ -15,25 +15,22 @@
 
 package org.apache.xmlbeans.impl.xsd2inst;
 
+import org.apache.xmlbeans.SchemaType;
+import org.apache.xmlbeans.SchemaTypeSystem;
+import org.apache.xmlbeans.XmlBeans;
+import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.XmlOptions;
+import org.apache.xmlbeans.impl.tool.CommandLine;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
 import java.util.ArrayList;
-import java.io.File;
 import java.util.HashSet;
-import org.apache.xmlbeans.XmlOptions;
-import org.apache.xmlbeans.XmlBeans;
-import org.apache.xmlbeans.SchemaTypeSystem;
-import org.apache.xmlbeans.SchemaType;
-import org.apache.xmlbeans.impl.xsd2inst.SampleXmlUtil;
-import java.util.Set;
-import org.apache.xmlbeans.XmlException;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Collection;
-import org.apache.xmlbeans.impl.tool.CommandLine;
+import java.util.Set;
 
 public class SchemaInstanceGenerator
 {
@@ -174,7 +171,7 @@ public class SchemaInstanceGenerator
         }
 
         // Process Schema files
-        List sdocs = new ArrayList();
+        List<XmlObject> sdocs = new ArrayList<>();
         for (int i = 0; i < schemaFiles.length; i++)
         {
             try
@@ -189,7 +186,7 @@ public class SchemaInstanceGenerator
             }
         }
 
-        XmlObject[] schemas = (XmlObject[]) sdocs.toArray(new XmlObject[sdocs.size()]);
+        XmlObject[] schemas = sdocs.toArray(new XmlObject[sdocs.size()]);
 
         Xsd2InstOptions options = new Xsd2InstOptions();
         options.setNetworkDownloads(dl);
@@ -222,7 +219,7 @@ public class SchemaInstanceGenerator
     public static String xsd2inst(Reader[] schemaReaders, String rootName, Xsd2InstOptions options)
     {
         // Process Schema files
-        List sdocs = new ArrayList();
+        List<XmlObject> sdocs = new ArrayList<>();
         for (int i = 0; i < schemaReaders.length; i++)
         {
             try
@@ -237,7 +234,7 @@ public class SchemaInstanceGenerator
             }
         }
 
-        XmlObject[] schemas = (XmlObject[]) sdocs.toArray(new XmlObject[sdocs.size()]);
+        XmlObject[] schemas = sdocs.toArray(new XmlObject[sdocs.size()]);
 
         return xsd2inst(schemas, rootName, options);
     }
@@ -248,7 +245,6 @@ public class SchemaInstanceGenerator
         SchemaTypeSystem sts = null;
         if (schemas.length > 0)
         {
-            Collection errors = new ArrayList();
             XmlOptions compileOptions = new XmlOptions();
             if (options.isNetworkDownloads())
                 compileOptions.setCompileDownloadUrls();
@@ -263,12 +259,7 @@ public class SchemaInstanceGenerator
             }
             catch (Exception e)
             {
-                if (errors.isEmpty() || !(e instanceof XmlException))
-                    e.printStackTrace();
-
-                System.out.println("Schema compilation errors: ");
-                for (Iterator i = errors.iterator(); i.hasNext(); )
-                    System.out.println(i.next());
+                e.printStackTrace();
             }
         }
 
