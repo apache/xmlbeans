@@ -80,6 +80,37 @@ public class TypesTest {
     }
 
     @Test
+    public void testZDateTime() {
+        res = o.selectPath("xs:dateTime(\"2000-01-01T15:03:06.123Z\")");
+        assertEquals(1, res.length);
+        Calendar d = ((XmlDateTime) res[0]).getCalendarValue();
+        assertEquals(2000, d.get(Calendar.YEAR));
+        assertEquals(0, d.get(Calendar.MONTH));
+        assertEquals(1, d.get(Calendar.DAY_OF_MONTH));
+        assertEquals(15, d.get(Calendar.HOUR_OF_DAY));
+        assertEquals(3, d.get(Calendar.MINUTE));
+        assertEquals(6, d.get(Calendar.SECOND));
+        assertEquals(123, d.get(Calendar.MILLISECOND));
+        assertEquals(0, d.get(Calendar.ZONE_OFFSET));
+        assertEquals(0, d.get(Calendar.ZONE_OFFSET));
+    }
+
+    @Test
+    public void testCaliforniaDateTime() {
+        res = o.selectPath("xs:dateTime(\"2000-01-01T15:03:06.123-08:00\")");
+        assertEquals(1, res.length);
+        Calendar d = ((XmlDateTime) res[0]).getCalendarValue();
+        assertEquals(2000, d.get(Calendar.YEAR));
+        assertEquals(0, d.get(Calendar.MONTH));
+        assertEquals(1, d.get(Calendar.DAY_OF_MONTH));
+        assertEquals(15, d.get(Calendar.HOUR_OF_DAY));
+        assertEquals(3, d.get(Calendar.MINUTE));
+        assertEquals(6, d.get(Calendar.SECOND));
+        assertEquals(123, d.get(Calendar.MILLISECOND));
+        assertEquals((-8 * 60 * 60 * 1000), d.get(Calendar.ZONE_OFFSET));
+    }
+
+    @Test
     public void testDecimal() {
         res = o.selectPath(
             "seconds-from-dateTime(xs:dateTime('1997-07-16T19:20:30+01:00'))");
@@ -94,17 +125,17 @@ public class TypesTest {
     public void testDuration() {
         res = o.selectPath("xs:dayTimeDuration(\"PT12H\")*4");
         assertEquals(1, res.length);
-        System.out.println(res[0].schemaType());
+        //System.out.println(res[0].schemaType());
         String s = res[0].xmlText();
-        System.out.println(s);
+        //System.out.println(s);
         int i = s.indexOf("(\"");
         int j = s.indexOf("\")");
         assertTrue(0 < i);
         assertTrue(i < j);
         String duration = s.substring(i + 2, j);
-        System.out.println(duration);
+        //System.out.println(duration);
         GDurationSpecification gDur = new GDurationBuilder(duration);
-        System.out.println(gDur.getDay());
+        //System.out.println(gDur.getDay());
         assertEquals(2, gDur.getDay());
     }
 
@@ -118,15 +149,15 @@ public class TypesTest {
         res = o.selectPath("hours-from-dateTime(" +
                            "current-dateTime()) cast as xs:integer");
         assertEquals(1, res.length);
-        System.out.println(res[0].schemaType());
+        //System.out.println(res[0].schemaType());
         XmlLong xl = ((XmlLong) res[0]);
-        System.out.println(xl.xmlText());
+        //System.out.println(xl.xmlText());
 
         //Java type is string...
         res = o.selectPath("current-time()");
         assertEquals(1, res.length);
-        System.out.println(res[0].schemaType());
-        System.out.println(res[0].xmlText());
+        //System.out.println(res[0].schemaType());
+        //System.out.println(res[0].xmlText());
         XmlTime time = XmlTime.Factory.parse(res[0].xmlText());
         System.out.println(time.xmlText());
 
