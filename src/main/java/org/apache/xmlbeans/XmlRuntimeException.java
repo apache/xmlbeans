@@ -80,7 +80,7 @@ public class XmlRuntimeException extends RuntimeException
     {
         super( xmlException.getMessage(), xmlException.getCause() );
 
-        Collection errors = xmlException.getErrors();
+        Collection<XmlError> errors = xmlException.getErrors();
 
         if (errors != null)
             _errors = Collections.unmodifiableList( new ArrayList( errors ) );
@@ -94,16 +94,16 @@ public class XmlRuntimeException extends RuntimeException
         if (_errors == null || _errors.size() == 0)
             return null;
 
-        return (XmlError) _errors.get( 0 );
+        return _errors.get( 0 );
     }
     
     /**
      * Returns the collection of {@link XmlError XmlErrors} that caused this exception, if any.
      */ 
-    public Collection getErrors ( )
+    public Collection<XmlError> getErrors ( )
     {
         return _errors;
     }
 
-    private List _errors;
+    private List<XmlError> _errors;
 }
