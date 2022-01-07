@@ -28,15 +28,15 @@ import java.util.Map;
 
 public class TypeSystemHolder
 {
-    Map _globalElements;   // QName -> Element
-    Map _globalAttributes; // QName -> Attribute
-    Map _globalTypes;      // QName -> Type
+    Map<QName, Element> _globalElements;   // QName -> Element
+    Map<QName, Attribute> _globalAttributes; // QName -> Attribute
+    Map<QName, Type> _globalTypes;      // QName -> Type
 
     public TypeSystemHolder()
     {
-        _globalElements = new LinkedHashMap();
-        _globalAttributes = new LinkedHashMap();
-        _globalTypes = new LinkedHashMap();
+        _globalElements = new LinkedHashMap<>();
+        _globalAttributes = new LinkedHashMap<>();
+        _globalTypes = new LinkedHashMap<>();
     }
 
     public void addGlobalElement(Element element)
@@ -47,13 +47,13 @@ public class TypeSystemHolder
 
     public Element getGlobalElement(QName name)
     {
-        return (Element)_globalElements.get(name);
+        return _globalElements.get(name);
     }
 
     public Element[] getGlobalElements()
     {
-        Collection col = _globalElements.values();
-        return (Element[])col.toArray(new Element[col.size()]);
+        Collection<Element> col = _globalElements.values();
+        return col.toArray(new Element[col.size()]);
     }
 
     public void addGlobalAttribute(Attribute attribute)
@@ -64,13 +64,13 @@ public class TypeSystemHolder
 
     public Attribute getGlobalAttribute(QName name)
     {
-        return (Attribute)_globalAttributes.get(name);
+        return _globalAttributes.get(name);
     }
 
     public Attribute[] getGlobalAttributes()
     {
-        Collection col = _globalAttributes.values();
-        return (Attribute[])col.toArray(new Attribute[col.size()]);
+        Collection<Attribute> col = _globalAttributes.values();
+        return col.toArray(new Attribute[col.size()]);
     }
 
     public void addGlobalType(Type type)
@@ -81,54 +81,54 @@ public class TypeSystemHolder
 
     public Type getGlobalType(QName name)
     {
-        return (Type)_globalTypes.get(name);
+        return _globalTypes.get(name);
     }
 
     public Type[] getGlobalTypes()
     {
-        Collection col = _globalTypes.values();
-        return (Type[])col.toArray(new Type[col.size()]);
+        Collection<Type> col = _globalTypes.values();
+        return col.toArray(new Type[col.size()]);
     }
 
     public SchemaDocument[] getSchemaDocuments()
     {
         // recompute everything, should cache it and track changes
-        Map nsToSchemaDocs = new LinkedHashMap();
+        Map<String, SchemaDocument> nsToSchemaDocs = new LinkedHashMap();
 
-        for (Iterator iterator = _globalElements.keySet().iterator(); iterator.hasNext();)
+        for (Iterator<QName> iterator = _globalElements.keySet().iterator(); iterator.hasNext();)
         {
-            QName globalElemName = (QName) iterator.next();
+            QName globalElemName = iterator.next();
             String tns = globalElemName.getNamespaceURI();
             SchemaDocument schDoc = getSchemaDocumentForTNS(nsToSchemaDocs, tns);
 
-            fillUpGlobalElement((Element)_globalElements.get(globalElemName), schDoc, tns);
+            fillUpGlobalElement(_globalElements.get(globalElemName), schDoc, tns);
         }
 
-        for (Iterator iterator = _globalAttributes.keySet().iterator(); iterator.hasNext();)
+        for (Iterator<QName> iterator = _globalAttributes.keySet().iterator(); iterator.hasNext();)
         {
-            QName globalAttName = (QName) iterator.next();
+            QName globalAttName = iterator.next();
             String tns = globalAttName.getNamespaceURI();
             SchemaDocument schDoc = getSchemaDocumentForTNS(nsToSchemaDocs, tns);
 
-            fillUpGlobalAttribute((Attribute)_globalAttributes.get(globalAttName), schDoc, tns);
+            fillUpGlobalAttribute(_globalAttributes.get(globalAttName), schDoc, tns);
         }
 
-        for (Iterator iterator = _globalTypes.keySet().iterator(); iterator.hasNext();)
+        for (Iterator<QName> iterator = _globalTypes.keySet().iterator(); iterator.hasNext();)
         {
-            QName globalTypeName = (QName) iterator.next();
+            QName globalTypeName = iterator.next();
             String tns = globalTypeName.getNamespaceURI();
             SchemaDocument schDoc = getSchemaDocumentForTNS(nsToSchemaDocs, tns);
 
-            fillUpGlobalType((Type)_globalTypes.get(globalTypeName), schDoc, tns);
+            fillUpGlobalType(_globalTypes.get(globalTypeName), schDoc, tns);
         }
 
-        Collection schDocColl = nsToSchemaDocs.values();
-        return (SchemaDocument[])schDocColl.toArray(new SchemaDocument[schDocColl.size()]);
+        Collection<SchemaDocument> schDocColl = nsToSchemaDocs.values();
+        return schDocColl.toArray(new SchemaDocument[schDocColl.size()]);
     }
 
-    private static SchemaDocument getSchemaDocumentForTNS(Map nsToSchemaDocs, String tns)
+    private static SchemaDocument getSchemaDocumentForTNS(Map<String, SchemaDocument> nsToSchemaDocs, String tns)
     {
-        SchemaDocument schDoc = (SchemaDocument)nsToSchemaDocs.get(tns);
+        SchemaDocument schDoc = nsToSchemaDocs.get(tns);
         if (schDoc==null)
         {
             schDoc = SchemaDocument.Factory.newInstance();
