@@ -1679,7 +1679,7 @@ public class Jsr173 {
             }
         }
 
-        public Iterator getPrefixes(String namespaceURI) {
+        public Iterator<String> getPrefixes(String namespaceURI) {
             synchronized (_l) {
                 _l.enter();
                 try {
@@ -2171,7 +2171,7 @@ public class Jsr173 {
             }
         }
 
-        public Iterator getPrefixes(String namespaceURI) {
+        public Iterator<String> getPrefixes(String namespaceURI) {
             try {
                 _l.enter();
                 return _xs.getPrefixes(namespaceURI);

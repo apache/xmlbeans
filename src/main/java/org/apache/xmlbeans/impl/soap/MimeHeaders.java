@@ -33,13 +33,13 @@ import java.util.Vector;
  */
 public class MimeHeaders {
 
-    class MatchingIterator implements Iterator {
+    class MatchingIterator implements Iterator<MimeHeader> {
 
-        private Object nextMatch() {
+        private MimeHeader nextMatch() {
 
             label0:
             while (iterator.hasNext()) {
-                MimeHeader mimeheader = (MimeHeader) iterator.next();
+                MimeHeader mimeheader = iterator.next();
 
                 if (names == null) {
                     return match
@@ -76,10 +76,10 @@ public class MimeHeaders {
             return nextHeader != null;
         }
 
-        public Object next() {
+        public MimeHeader next() {
 
             if (nextHeader != null) {
-                Object obj = nextHeader;
+                MimeHeader obj = nextHeader;
 
                 nextHeader = null;
 
@@ -99,11 +99,11 @@ public class MimeHeaders {
 
         private final boolean match;
 
-        private final Iterator iterator;
+        private final Iterator<MimeHeader> iterator;
 
         private final String[] names;
 
-        private Object nextHeader;
+        private MimeHeader nextHeader;
 
         MatchingIterator(String[] as, boolean flag) {
 
@@ -119,7 +119,7 @@ public class MimeHeaders {
      *   an empty {@code Vector} object.
      */
     public MimeHeaders() {
-        headers = new Vector();
+        headers = new Vector<>();
     }
 
     /**
@@ -133,10 +133,10 @@ public class MimeHeaders {
      */
     public String[] getHeader(String name) {
 
-        Vector vector = new Vector();
+        Vector vector = new Vector<>();
 
         for (int i = 0; i < headers.size(); i++) {
-            MimeHeader mimeheader = (MimeHeader) headers.elementAt(i);
+            MimeHeader mimeheader = headers.elementAt(i);
 
             if (mimeheader.getName().equalsIgnoreCase(name)
                     && (mimeheader.getValue() != null)) {
@@ -182,7 +182,7 @@ public class MimeHeaders {
         }
 
         for (int i = 0; i < headers.size(); i++) {
-            MimeHeader mimeheader = (MimeHeader) headers.elementAt(i);
+            MimeHeader mimeheader = headers.elementAt(i);
 
             if (mimeheader.getName().equalsIgnoreCase(name)) {
                 if (!flag) {
@@ -226,7 +226,7 @@ public class MimeHeaders {
         int i = headers.size();
 
         for (int j = i - 1; j >= 0; j--) {
-            MimeHeader mimeheader = (MimeHeader) headers.elementAt(j);
+            MimeHeader mimeheader = headers.elementAt(j);
 
             if (mimeheader.getName().equalsIgnoreCase(name)) {
                 headers.insertElementAt(new MimeHeader(name, value), j + 1);
@@ -270,7 +270,7 @@ public class MimeHeaders {
      *     MimeHeaders} object's list of {@code
      *     MimeHeader} objects
      */
-    public Iterator getAllHeaders() {
+    public Iterator<MimeHeader> getAllHeaders() {
         return headers.iterator();
     }
 
@@ -283,7 +283,7 @@ public class MimeHeaders {
      *     MimeHeader} objects whose name matches one of the
      *     names in the given list
      */
-    public Iterator getMatchingHeaders(String[] names) {
+    public Iterator<MimeHeader> getMatchingHeaders(String[] names) {
         return new MatchingIterator(names, true);
     }
 
@@ -296,7 +296,7 @@ public class MimeHeaders {
      *     MimeHeader} objects whose name does not match one
      *     of the names in the given list
      */
-    public Iterator getNonMatchingHeaders(String[] names) {
+    public Iterator<MimeHeader> getNonMatchingHeaders(String[] names) {
         return new MatchingIterator(names, false);
     }
 
@@ -306,5 +306,5 @@ public class MimeHeaders {
      * A {@code Vector} containing the headers as {@code MimeHeader}
      *              instances.
      */
-    protected Vector headers;
+    protected Vector<MimeHeader> headers;
 }
