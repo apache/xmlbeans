@@ -15,7 +15,6 @@
 
 package org.apache.xmlbeans.impl.schema;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.xmlbeans.*;
 import org.apache.xmlbeans.impl.common.IOUtil;
 import org.apache.xmlbeans.impl.common.XmlEncodingSniffer;
