@@ -88,10 +88,10 @@ class FactoryFinder {
                                         + File.separator + "jaxm.properties";
             File file = new File(propertiesFileName);
             if (file.exists()) {
-                FileInputStream fileInput = new FileInputStream(file);
                 Properties properties = new Properties();
-                properties.load(fileInput);
-                fileInput.close();
+                try (FileInputStream fileInput = new FileInputStream(file)) {
+                    properties.load(fileInput);
+                }
                 String factoryClassName = properties.getProperty(factoryPropertyName);
                 return newInstance(factoryClassName);
             }
@@ -103,9 +103,10 @@ class FactoryFinder {
         try {
             InputStream inputstream = getResource(factoryResource);
             if (inputstream != null) {
-                BufferedReader bufferedreader = new BufferedReader(new InputStreamReader(inputstream, StandardCharsets.UTF_8));
-                String factoryClassName = bufferedreader.readLine();
-                bufferedreader.close();
+                String factoryClassName;
+                try (BufferedReader bufferedreader = new BufferedReader(new InputStreamReader(inputstream, StandardCharsets.UTF_8))) {
+                    factoryClassName = bufferedreader.readLine();
+                }
                 if ((factoryClassName != null) && !"".equals(factoryClassName)) {
                     return newInstance(factoryClassName);
                 }
