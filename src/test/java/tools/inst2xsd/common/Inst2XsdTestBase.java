@@ -376,7 +376,7 @@ public class Inst2XsdTestBase extends Common {
     private static boolean validateInstances(SchemaDocument[] sDocs, XmlObject[] instances) {
 
         SchemaTypeLoader sLoader;
-        Collection compErrors = new ArrayList();
+        Collection<XmlError> compErrors = new ArrayList<>();
         XmlOptions schemaOptions = new XmlOptions();
         schemaOptions.setErrorListener(compErrors);
         try {
@@ -407,7 +407,7 @@ public class Inst2XsdTestBase extends Common {
                 continue;
             }
 
-            Collection errors = new ArrayList();
+            Collection<XmlError> errors = new ArrayList<>();
 
             if (xobj.schemaType() == XmlObject.type) {
                 System.out.println(instance + " NOT valid.  ");
