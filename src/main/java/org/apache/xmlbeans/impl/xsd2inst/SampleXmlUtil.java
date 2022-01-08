@@ -95,7 +95,7 @@ public class SampleXmlUtil {
         return object.xmlText(options);
     }
 
-    Random _picker = new Random(1);
+    Random _picker = new Random();
 
     /**
      * Cursor position
