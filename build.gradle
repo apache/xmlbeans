@@ -18,11 +18,11 @@
 buildscript {
     repositories {
         maven { url 'https://plugins.gradle.org/m2/' }
-        // mavenCentral()
+        mavenCentral()
     }
 
     dependencies {
-        // classpath 'org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:3.3'
+        classpath 'org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:3.3'
         classpath 'de.thetaphi:forbiddenapis:3.2'
     }
 }
@@ -650,6 +650,32 @@ spotbugsTest {
             required = true
             outputLocation = file("build/reports/spotbugs/test/spotbugs.html")
             stylesheet = 'fancy-hist.xsl'
+        }
+    }
+}
+
+if (project.hasProperty('enableSonar')) {
+    // See https://docs.sonarqube.org/latest/analysis/scan/sonarscanner-for-gradle/ and
+    // https://docs.sonarqube.org/display/SONARQUBE52/Analyzing+with+SonarQube+Scanner+for+Gradle
+    // for documentation of properties.
+    //
+    // Some additional properties are currently set in the Jenkins-DSL, see jenksin/create_jobs.groovy
+    //
+    sonarqube {
+        properties {
+            // as we currently use build/<module>/ as project-basedir, we need to tell Sonar to use
+            // the root-folder as "basedir" for the projects
+            property "sonar.projectBaseDir", "$projectDir"
+            // currently supported providers on Jenkins: "hg,git": property "sonar.scm.provider", "svn"
+
+            // the plugin seems to not detect our non-standard build-layout
+            property "sonar.junit.reportPaths", "$projectDir/build/test-results/test"
+
+            // the Gradle run will report an invalid directory for 'ooxml-schema', but it seems to still work fine
+            property "sonar.coverage.jacoco.xmlReportPaths", "$projectDir/build/reports/jacoco/test/jacocoTestReport.xml"
+
+            // somehow the version was not use properly
+            property "sonar.projectVersion", version
         }
     }
 }
