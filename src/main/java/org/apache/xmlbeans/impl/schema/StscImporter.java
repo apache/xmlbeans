@@ -15,6 +15,7 @@
 
 package org.apache.xmlbeans.impl.schema;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.xmlbeans.*;
 import org.apache.xmlbeans.impl.common.IOUtil;
 import org.apache.xmlbeans.impl.common.XmlEncodingSniffer;
@@ -790,8 +791,9 @@ public class StscImporter {
 
                 CharArrayReader car = copy(reader);
                 XmlEncodingSniffer xes = new XmlEncodingSniffer(car, null);
-                Writer out = new OutputStreamWriter(new FileOutputStream(targetFile), xes.getXmlEncoding());
-                IOUtil.copyCompletely(car, out);
+                try (Writer out = new OutputStreamWriter(new FileOutputStream(targetFile), xes.getXmlEncoding())) {
+                    IOUtil.copyCompletely(car, out);
+                }
 
                 car.reset();
                 return car;
@@ -819,8 +821,9 @@ public class StscImporter {
 
                 ByteArrayInputStream bais = copy(bytes);
 
-                FileOutputStream out = new FileOutputStream(targetFile);
-                IOUtil.copyCompletely(bais, out);
+                try (FileOutputStream out = new FileOutputStream(targetFile)) {
+                    IOUtil.copyCompletely(bais, out);
+                }
 
                 bais.reset();
                 return bais;
@@ -837,11 +840,11 @@ public class StscImporter {
 
                 File targetFile = new File(state.getSchemasDir(), schemalocation);
                 if (forceCopy || !targetFile.exists()) {
+                    InputStream in = null;
                     try {
                         File parentDir = new File(targetFile.getParent());
                         IOUtil.createDir(parentDir, null);
 
-                        InputStream in = null;
                         URL url = new URL(urlLoc);
                         // Copy the file from filepath to schema[METADATA_PACKAGE_GEN]/src/<schemaFile>
                         try {
@@ -860,6 +863,14 @@ public class StscImporter {
                     } catch (IOException e) {
                         System.err.println("IO Error " + e);
                         // failure = true; - not cause for failure
+                    } finally {
+                        if (in != null) {
+                            try {
+                                in.close();
+                            } catch (Exception e) {
+                                // ignore
+                            }
+                        }
                     }
                 }
             }
@@ -867,26 +878,26 @@ public class StscImporter {
 
         private static ByteArrayInputStream copy(InputStream is) throws IOException {
             byte[] buf = new byte[1024];
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+                int bytesRead;
+                while ((bytesRead = is.read(buf, 0, 1024)) > 0) {
+                    baos.write(buf, 0, bytesRead);
+                }
 
-            int bytesRead;
-            while ((bytesRead = is.read(buf, 0, 1024)) > 0) {
-                baos.write(buf, 0, bytesRead);
+                return new ByteArrayInputStream(baos.toByteArray());
             }
-
-            return new ByteArrayInputStream(baos.toByteArray());
         }
 
         private static CharArrayReader copy(Reader is) throws IOException {
             char[] buf = new char[1024];
-            CharArrayWriter baos = new CharArrayWriter();
+            try (CharArrayWriter charArrayWriter = new CharArrayWriter()) {
+                int charRead;
+                while ((charRead = is.read(buf, 0, 1024)) > 0) {
+                    charArrayWriter.write(buf, 0, charRead);
+                }
 
-            int bytesRead;
-            while ((bytesRead = is.read(buf, 0, 1024)) > 0) {
-                baos.write(buf, 0, bytesRead);
+                return new CharArrayReader(charArrayWriter.toCharArray());
             }
-
-            return new CharArrayReader(baos.toCharArray());
         }
     }
 }
