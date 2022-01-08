@@ -150,7 +150,7 @@ public class SchemaCodeGenerator {
         }
     }
 
-    private static Set deleteFileQueue = new HashSet();
+    private static Set<File> deleteFileQueue = new HashSet<>();
     private static int triesRemaining = 0;
 
     private static boolean tryNowThatItsLater() {

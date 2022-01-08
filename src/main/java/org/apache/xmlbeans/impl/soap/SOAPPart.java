@@ -212,7 +212,7 @@ public abstract class SOAPPart implements org.w3c.dom.Document {
      * @return an {@code Iterator} object with all of the Mime
      *     headers for this {@code SOAPPart} object
      */
-    public abstract Iterator getAllMimeHeaders();
+    public abstract Iterator<MimeHeader> getAllMimeHeaders();
 
     /**
      * Retrieves all {@code MimeHeader} objects that match
@@ -223,7 +223,7 @@ public abstract class SOAPPart implements org.w3c.dom.Document {
      *     in the given array, returned as an {@code Iterator}
      *     object
      */
-    public abstract Iterator getMatchingMimeHeaders(String[] names);
+    public abstract Iterator<MimeHeader> getMatchingMimeHeaders(String[] names);
 
     /**
      * Retrieves all {@code MimeHeader} objects whose name
@@ -235,7 +235,7 @@ public abstract class SOAPPart implements org.w3c.dom.Document {
      *     given array. The nonmatching MIME headers are returned as
      *     an {@code Iterator} object.
      */
-    public abstract Iterator getNonMatchingMimeHeaders(String[] names);
+    public abstract Iterator<MimeHeader> getNonMatchingMimeHeaders(String[] names);
 
     /**
      * Sets the content of the {@code SOAPEnvelope} object

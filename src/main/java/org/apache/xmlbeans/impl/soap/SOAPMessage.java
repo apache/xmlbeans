@@ -143,7 +143,7 @@ public abstract class SOAPMessage {
      * @return  an iterator over all the attachments in this
      *     message
      */
-    public abstract Iterator getAttachments();
+    public abstract Iterator<AttachmentPart> getAttachments();
 
     /**
      * Retrieves all the {@code AttachmentPart} objects
@@ -156,7 +156,7 @@ public abstract class SOAPMessage {
      * @return an iterator over all attachments that have a header
      *     that matches one of the given headers
      */
-    public abstract Iterator getAttachments(MimeHeaders headers);
+    public abstract Iterator<AttachmentPart> getAttachments(MimeHeaders headers);
 
     /**
      * Adds the given {@code AttachmentPart} object to this

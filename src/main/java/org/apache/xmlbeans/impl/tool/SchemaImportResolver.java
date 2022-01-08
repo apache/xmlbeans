@@ -66,9 +66,9 @@ public abstract class SchemaImportResolver
 
     protected final void resolveImports(SchemaResource[] resources)
     {
-        LinkedList queueOfResources = new LinkedList(Arrays.asList(resources));
-        LinkedList queueOfLocators = new LinkedList();
-        Set seenResources = new HashSet();
+        LinkedList<SchemaResource> queueOfResources = new LinkedList<>(Arrays.asList(resources));
+        LinkedList<SchemaLocator> queueOfLocators = new LinkedList<>();
+        Set<SchemaResource> seenResources = new HashSet<>();
 
         for (;;)
         {
@@ -78,12 +78,12 @@ public abstract class SchemaImportResolver
             if (!queueOfResources.isEmpty())
             {
                 // either off the initial queue
-                nextResource = (SchemaResource)queueOfResources.removeFirst();
+                nextResource = queueOfResources.removeFirst();
             }
             else if (!queueOfLocators.isEmpty())
             {
                 // or off the list of locators
-                SchemaLocator locator = (SchemaLocator)queueOfLocators.removeFirst();
+                SchemaLocator locator = queueOfLocators.removeFirst();
                 nextResource = lookupResource(locator.namespace, locator.schemaLocation);
                 if (nextResource == null)
                     continue;

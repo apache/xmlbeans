@@ -45,7 +45,7 @@ public class InstanceValidator {
      * @return exitCode
      */
     public static int extraMain(String[] args) {
-        Set flags = new HashSet();
+        Set<String> flags = new HashSet<>();
         flags.add("h");
         flags.add("help");
         flags.add("usage");

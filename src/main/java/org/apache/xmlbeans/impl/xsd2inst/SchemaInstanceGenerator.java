@@ -115,8 +115,8 @@ public class SchemaInstanceGenerator
 
     public static void main(String[] args)
     {
-        Set flags = new HashSet();
-        Set opts = new HashSet();
+        Set<String> flags = new HashSet<>();
+        Set<String> opts = new HashSet<>();
         flags.add("h");
         flags.add("help");
         flags.add("usage");

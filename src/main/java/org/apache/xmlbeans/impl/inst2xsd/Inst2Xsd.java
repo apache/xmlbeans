@@ -42,7 +42,7 @@ public class Inst2Xsd
             return;
         }
 
-        Set flags = new HashSet();
+        Set<String> flags = new HashSet<>();
         flags.add("h");
         flags.add("help");
         flags.add("usage");
@@ -51,7 +51,7 @@ public class Inst2Xsd
         flags.add("verbose");
         flags.add("validate");
 
-        Set opts = new HashSet();
+        Set<String> opts = new HashSet<>();
         opts.add("design");
         opts.add("simple-content-types");
         opts.add("enumerations");

@@ -41,7 +41,7 @@ public class PrettyPrinter
 
     public static void main(String[] args)
     {
-        Set flags = new HashSet();
+        Set<String> flags = new HashSet<>();
         flags.add("h");
         flags.add("help");
         flags.add("usage");

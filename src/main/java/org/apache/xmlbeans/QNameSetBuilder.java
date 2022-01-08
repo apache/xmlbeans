@@ -75,21 +75,21 @@ public class QNameSetBuilder implements QNameSetSpecification, java.io.Serializa
      * @param excludedQNamesInIncludedURIs the finite set of exceptional QNames to exclude from the included namespaces
      * @param includedQNamesInExcludedURIs the finite set of exceptional QNames to include that are in the excluded namespaces
      */
-    public QNameSetBuilder(Set<String> excludedURIs, Set<String> includedURIs, Set excludedQNamesInIncludedURIs, Set includedQNamesInExcludedURIs)
+    public QNameSetBuilder(Set<String> excludedURIs, Set<String> includedURIs, Set<QName> excludedQNamesInIncludedURIs, Set<QName> includedQNamesInExcludedURIs)
     {
         if (includedURIs != null && excludedURIs == null)
         {
             _inverted = false;
-            _includedURIs = new HashSet(includedURIs);
-            _excludedQNames = new HashSet(excludedQNamesInIncludedURIs);
-            _includedQNames = new HashSet(includedQNamesInExcludedURIs);
+            _includedURIs = new HashSet<>(includedURIs);
+            _excludedQNames = new HashSet<>(excludedQNamesInIncludedURIs);
+            _includedQNames = new HashSet<>(includedQNamesInExcludedURIs);
         }
         else if (excludedURIs != null && includedURIs == null)
         {
             _inverted = true;
-            _includedURIs = new HashSet(excludedURIs);
-            _excludedQNames = new HashSet(includedQNamesInExcludedURIs);
-            _includedQNames = new HashSet(excludedQNamesInIncludedURIs);
+            _includedURIs = new HashSet<>(excludedURIs);
+            _excludedQNames = new HashSet<>(includedQNamesInExcludedURIs);
+            _includedQNames = new HashSet<>(excludedQNamesInIncludedURIs);
         }
         else
             throw new IllegalArgumentException("Exactly one of excludedURIs and includedURIs must be null");
@@ -333,8 +333,8 @@ public class QNameSetBuilder implements QNameSetSpecification, java.io.Serializa
 
     private boolean isDisjointImpl(QNameSetSpecification set1, QNameSetSpecification set2)
     {
-        Set includeURIs = set1.includedURIs();
-        Set otherIncludeURIs = set2.includedURIs();
+        Set<String> includeURIs = set1.includedURIs();
+        Set<String> otherIncludeURIs = set2.includedURIs();
         if (otherIncludeURIs != null)
         {
             for (Iterator<String> i = includeURIs.iterator(); i.hasNext(); )
@@ -345,7 +345,7 @@ public class QNameSetBuilder implements QNameSetSpecification, java.io.Serializa
         }
         else
         {
-            Set otherExcludeURIs = set2.excludedURIs();
+            Set<String> otherExcludeURIs = set2.excludedURIs();
             for (Iterator<String> i = includeURIs.iterator(); i.hasNext(); )
             {
                 if (!otherExcludeURIs.contains(i.next()))
@@ -402,7 +402,7 @@ public class QNameSetBuilder implements QNameSetSpecification, java.io.Serializa
 
     /**
      * Adds an entire namespace URI of QNames to this QNameSetBuilder.
-     * The empty string is used to signifiy the (local) no-namespace.
+     * The empty string is used to signify the (local) no-namespace.
      */
     public void addNamespace(String uri)
     {

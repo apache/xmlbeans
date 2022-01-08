@@ -56,7 +56,7 @@ public class TypeHierarchyPrinter
 
     public static void main(String[] args) throws Exception
     {
-        Set flags = new HashSet();
+        Set<String> flags = new HashSet<>();
         flags.add("h");
         flags.add("help");
         flags.add("usage");

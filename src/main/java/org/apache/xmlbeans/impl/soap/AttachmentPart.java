@@ -351,7 +351,7 @@ public abstract class AttachmentPart {
      * @return  an {@code Iterator} object with all of the Mime
      *     headers for this {@code AttachmentPart} object
      */
-    public abstract Iterator getAllMimeHeaders();
+    public abstract Iterator<MimeHeader> getAllMimeHeaders();
 
     /**
      * Retrieves all {@code MimeHeader} objects that match
@@ -362,7 +362,7 @@ public abstract class AttachmentPart {
      *     in the given array as an {@code Iterator}
      *     object
      */
-    public abstract Iterator getMatchingMimeHeaders(String[] names);
+    public abstract Iterator<MimeHeader> getMatchingMimeHeaders(String[] names);
 
     /**
      * Retrieves all {@code MimeHeader} objects whose name
@@ -375,5 +375,5 @@ public abstract class AttachmentPart {
      *     headers are returned as an {@code Iterator}
      *     object.
      */
-    public abstract Iterator getNonMatchingMimeHeaders(String[] names);
+    public abstract Iterator<MimeHeader> getNonMatchingMimeHeaders(String[] names);
 }
