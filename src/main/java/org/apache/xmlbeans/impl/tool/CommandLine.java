@@ -111,7 +111,7 @@ public class CommandLine
         return _options.get(opt);
     }
 
-    private static List collectFiles(File[] dirs)
+    private static List<File> collectFiles(File[] dirs)
     {
         List<File> files = new ArrayList<>();
         for (int i = 0; i < dirs.length; i++)
@@ -169,7 +169,7 @@ public class CommandLine
         return _files;
     }
 
-    private List getUrlList()
+    private List<URL> getUrlList()
     {
         if (_urls == null)
         {

@@ -38,12 +38,12 @@ public interface XmlENTITIES extends XmlAnySimpleType {
     /**
      * Returns the value as a {@link List} of {@link String} values
      */
-    List getListValue();
+    List<?> getListValue();
 
     /**
      * Returns the value as a {@link List} of {@link XmlENTITY} values
      **/
-    List xgetListValue();
+    List<? extends XmlAnySimpleType> xgetListValue();
 
     /**
      * Sets the value as a {@link List}

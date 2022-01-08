@@ -64,7 +64,7 @@ public class BindingConfigImpl extends BindingConfig {
 
             Qnameconfig[] qnc = config.getQnameArray();
             for (Qnameconfig qnameconfig : qnc) {
-                List applyto = qnameconfig.xgetTarget().xgetListValue();
+                List<? extends XmlAnySimpleType> applyto = qnameconfig.xgetTarget().xgetListValue();
                 QName name = qnameconfig.getName();
                 String javaname = qnameconfig.getJavaname();
                 for (Object o : applyto) {

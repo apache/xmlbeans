@@ -600,13 +600,12 @@ public class IdentityConstraint {
                     return;
                 }
 
-                List l = lv.xgetListValue();
+                List<? extends XmlAnySimpleType> l = lv.xgetListValue();
 
                 // Add one value for each idref in the list
-                for (Object o : l) {
+                for (XmlAnySimpleType o : l) {
                     XmlObjectList xmlValue = new XmlObjectList(1);
-                    XmlIDREF idref = (XmlIDREF) o;
-                    xmlValue.set(idref, 0);
+                    xmlValue.set(o, 0);
                     _values.add(xmlValue);
                 }
             } else if (XmlIDREF.type.isAssignableFrom(st)) {

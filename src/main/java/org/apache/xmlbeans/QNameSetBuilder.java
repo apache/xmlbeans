@@ -501,7 +501,7 @@ public class QNameSetBuilder implements QNameSetSpecification, java.io.Serializa
     private void addAllImpl(Set<String> includedURIs, Set<String> excludedURIs, Set<QName> includedQNames, Set<QName> excludedQNames)
     {
         boolean exclude = (excludedURIs != null);
-        Set specialURIs = exclude ? excludedURIs : includedURIs;
+        Set<String> specialURIs = exclude ? excludedURIs : includedURIs;
 
         for (Iterator<QName> i = _excludedQNames.iterator(); i.hasNext(); )
         {
@@ -552,7 +552,7 @@ public class QNameSetBuilder implements QNameSetSpecification, java.io.Serializa
                 else
                     _includedURIs.remove(uri);
             }
-            Set temp = _excludedQNames;
+            Set<QName> temp = _excludedQNames;
             _excludedQNames = _includedQNames;
             _includedQNames = temp;
             _inverted = !_inverted;
@@ -589,10 +589,10 @@ public class QNameSetBuilder implements QNameSetSpecification, java.io.Serializa
     /**
      * Implementation of remove(set) that ignores inversion.
      */
-    private void removeAllImpl(Set includedURIs, Set excludedURIs, Set includedQNames, Set excludedQNames)
+    private void removeAllImpl(Set<String> includedURIs, Set<String> excludedURIs, Set<QName> includedQNames, Set<QName> excludedQNames)
     {
         boolean exclude = (excludedURIs != null);
-        Set specialURIs = exclude ? excludedURIs : includedURIs;
+        Set<String> specialURIs = exclude ? excludedURIs : includedURIs;
 
         for (Iterator<QName> i = _includedQNames.iterator(); i.hasNext(); )
         {

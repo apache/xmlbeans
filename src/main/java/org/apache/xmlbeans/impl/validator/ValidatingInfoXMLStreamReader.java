@@ -153,12 +153,12 @@ public class ValidatingInfoXMLStreamReader
         return _validator==null ? null : _validator.getByteArrayValue();
     }
 
-    public List getListValue()
+    public List<?> getListValue()
     {
         return _validator==null ? null : _validator.getListValue();
     }
 
-    public List getListTypes()
+    public List<SchemaType> getListTypes()
     {
         return _validator==null ? null : _validator.getListTypes();
     }
