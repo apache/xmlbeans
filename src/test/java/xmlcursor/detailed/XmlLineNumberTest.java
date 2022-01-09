@@ -14,7 +14,6 @@
  */
 package xmlcursor.detailed;
 
-import common.Common;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlLineNumber;
 import org.apache.xmlbeans.XmlObject;
@@ -23,9 +22,11 @@ import org.junit.Test;
 
 import java.io.File;
 
+import static common.Common.P;
+import static common.Common.XBEAN_CASE_ROOT;
 import static org.junit.Assert.*;
 
-public class XmlLineNumberTest extends Common {
+public class XmlLineNumberTest {
     public static final String xml =
         "<people><person born=\"1912\" died=\"1954\" id=\"p342\">\n" +
         "    <name>\n" +
@@ -34,8 +35,7 @@ public class XmlLineNumberTest extends Common {
         "</name>\n" +
         "</person></people>";
 
-    public static final String xmlFile =
-        XBEAN_CASE_ROOT + P + "xmlcursor" + P + "Employees.xml";
+    public static final String xmlFile = XBEAN_CASE_ROOT + P + "xmlcursor" + P + "Employees.xml";
 
     /**
      * test obtaining XmlLineNumber bookmark with option

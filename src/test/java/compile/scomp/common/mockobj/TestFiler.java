@@ -34,24 +34,21 @@ public class TestFiler implements Filer {
 
     public TestFiler() {
         String p = File.separator;
-        String base = new File(Common.OUTPUTROOT).getAbsolutePath() +
-                      p + "filer" + p;
+        String base = new File(Common.OUTPUTROOT).getAbsolutePath() + p + "filer" + p;
         String sClass = base + "classes";
         String sSrc = base + "src";
         File fClass = new File(sClass);
         File fSrc = new File(sSrc);
-        impl = new FilerImpl(fClass, fSrc, null, true, false);
+        impl = new FilerImpl(fClass, fSrc, null, false, false);
     }
 
     public OutputStream createBinaryFile(String typename) throws IOException {
-        System.out.println("BFS: TypeName: " + typename);
         isCreateBinaryFile = true;
         binFileVec.add(typename);
         return impl.createBinaryFile(typename);
     }
 
     public Writer createSourceFile(String typename) throws IOException {
-        System.out.println("SF: TypeName: " + typename);
         srcFileVec.add(typename);
         isCreateSourceFile = true;
         return impl.createSourceFile(typename);

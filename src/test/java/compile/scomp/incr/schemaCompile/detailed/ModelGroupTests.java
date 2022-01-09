@@ -15,12 +15,7 @@
 
 package compile.scomp.incr.schemaCompile.detailed;
 
-import compile.scomp.common.CompileCommon;
-import compile.scomp.common.CompileTestBase;
-import org.apache.xmlbeans.SchemaTypeSystem;
-import org.apache.xmlbeans.XmlException;
-import org.apache.xmlbeans.XmlObject;
-import org.apache.xmlbeans.XmlOptions;
+import org.apache.xmlbeans.*;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -33,26 +28,33 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.List;
 
+import static compile.scomp.common.CompileTestBase.*;
+import static compile.scomp.incr.schemaCompile.detailed.IncrCompilationTests.getBaseSchema;
 import static org.junit.Assert.assertNotSame;
 
 
 @Ignore("Currently all tests receive a duplicate schema entry exception")
-public class ModelGroupTests extends CompileTestBase {
+public class ModelGroupTests {
 
-    File obj1File, obj2File;
+    private static final File outincr = xbeanOutput(INCR_PATH);
+    private static final File out = xbeanOutput(OUT_PATH);
+
+    private final List<XmlError> errors = new ArrayList<>();
+    private final XmlOptions xm = new XmlOptions();
+
+    private File obj1File, obj2File;
+
+    public ModelGroupTests() {
+        xm.setErrorListener(errors);
+        xm.setSavePrettyPrint();
+    }
 
     @Before
     public void setUp() throws IOException {
-        CompileCommon.deltree(CompileCommon.xbeanOutput(outputDir));
-        out = CompileCommon.xbeanOutput(outPath);
-        sanity = CompileCommon.xbeanOutput(sanityPath);
-        outincr = CompileCommon.xbeanOutput(incrPath);
-
-        errors = new ArrayList<>();
-        xm = new XmlOptions();
-        xm.setErrorListener(errors);
-        xm.setSavePrettyPrint();
+        clearOutputDirs();
+        errors.clear();
 
         obj1File = File.createTempFile("obj1_", ".xsd");
         obj2File = File.createTempFile("obj2_", ".xsd");
@@ -60,9 +62,6 @@ public class ModelGroupTests extends CompileTestBase {
 
     @After
     public void tearDown() throws Exception {
-        if (errors.size() > 0) {
-            errors.clear();
-        }
         obj1File.delete();
         obj2File.delete();
     }
@@ -104,10 +103,9 @@ public class ModelGroupTests extends CompileTestBase {
                 "</xs:sequence>" +
                 "</xs:complexType>");
 
-        SchemaTypeSystem base = compileSchemas(schemas, builtin, xm);
-        SchemaTypeSystem incr = incrCompileXsd(base, schemas2, builtin, xm);
+        SchemaTypeSystem base = compileSchemas(schemas, out, xm);
+        SchemaTypeSystem incr = incrCompileXsd(base, schemas2, outincr, xm);
 
-        echoSts(base, incr);
         QName[] baseTypes = new QName[]{new QName("http://baz", "elName")};
         QName[] incrTypes = new QName[]{new QName("http://baz", "elName")};
 
@@ -125,26 +123,25 @@ public class ModelGroupTests extends CompileTestBase {
     public void test_model_seq2choicechange() throws Exception {
         //XmlObject.Factory.parse(getBaseSchema("baz","elName", "elType", "attrName","attrType"));
         XmlObject[] schemas = getSchema(obj1File,
-                "<xs:element name=\"elName\" type=\"bas:aType\" xmlns:bas=\"http://baz\" />" +
-                "<xs:complexType name=\"aType\">" +
-                "<xs:sequence>" +
-                "<xs:element name=\"a\" type=\"xs:string\" />" +
-                "<xs:element name=\"b\" type=\"xs:string\" />" +
-                "</xs:sequence>" +
-                "</xs:complexType>");
+            "<xs:element name=\"elName\" type=\"bas:aType\" xmlns:bas=\"http://baz\" />" +
+            "<xs:complexType name=\"aType\">" +
+            "<xs:sequence>" +
+            "<xs:element name=\"a\" type=\"xs:string\" />" +
+            "<xs:element name=\"b\" type=\"xs:string\" />" +
+            "</xs:sequence>" +
+            "</xs:complexType>");
         XmlObject[] schemas2 = getSchema(obj2File,
-                "<xs:element name=\"elName\" type=\"bas:aType\" xmlns:bas=\"http://baz\" />" +
-                "<xs:complexType name=\"aType\">" +
-                "<xs:choice>" +
-                "<xs:element name=\"a\" type=\"xs:string\" />" +
-                "<xs:element name=\"b\" type=\"xs:string\" />" +
-                "</xs:choice>" +
-                "</xs:complexType>");
+            "<xs:element name=\"elName\" type=\"bas:aType\" xmlns:bas=\"http://baz\" />" +
+            "<xs:complexType name=\"aType\">" +
+            "<xs:choice>" +
+            "<xs:element name=\"a\" type=\"xs:string\" />" +
+            "<xs:element name=\"b\" type=\"xs:string\" />" +
+            "</xs:choice>" +
+            "</xs:complexType>");
 
-        SchemaTypeSystem base = compileSchemas(schemas, builtin, xm);
-        SchemaTypeSystem incr = incrCompileXsd(base, schemas2, builtin, xm);
+        SchemaTypeSystem base = compileSchemas(schemas, out, xm);
+        SchemaTypeSystem incr = incrCompileXsd(base, schemas2, outincr, xm);
 
-        echoSts(base, incr);
         QName[] baseTypes = new QName[]{new QName("http://baz", "elName")};
         QName[] incrTypes = new QName[]{new QName("http://baz", "elName")};
 
@@ -159,22 +156,20 @@ public class ModelGroupTests extends CompileTestBase {
 
     @Test
     public void test_model_seq2choicechange_diffns() throws Exception {
-        //XmlObject.Factory.parse(getBaseSchema("baz","elName", "elType", "attrName","attrType"));
-        XmlObject[] schemas = getSchema(obj1File,
-            getBaseSchema("bar", "elName", "string", "attrName", "string"));
+        XmlObject[] schemas = {XmlObject.Factory.parse(getBaseSchema("bar", "elName", "attrName", "string"))};
+
         XmlObject[] schemas2 = getSchema(obj2File,
-                "<xs:element name=\"elName\" type=\"bas:aType\" xmlns:bas=\"http://baz\" />" +
-                "<xs:complexType name=\"aType\">" +
-                "<xs:sequence>" +
-                "<xs:element name=\"a\" type=\"xs:string\" />" +
-                "<xs:element name=\"b\" type=\"xs:string\" />" +
-                "</xs:sequence>" +
-                "</xs:complexType>");
+            "<xs:element name=\"elName\" type=\"bas:aType\" xmlns:bas=\"http://baz\" />" +
+            "<xs:complexType name=\"aType\">" +
+            "<xs:sequence>" +
+            "<xs:element name=\"a\" type=\"xs:string\" />" +
+            "<xs:element name=\"b\" type=\"xs:string\" />" +
+            "</xs:sequence>" +
+            "</xs:complexType>");
 
-        SchemaTypeSystem base = compileSchemas(schemas, builtin, xm);
-        SchemaTypeSystem incr = incrCompileXsd(base, schemas2, builtin, xm);
+        SchemaTypeSystem base = compileSchemas(schemas, out, xm);
+        SchemaTypeSystem incr = incrCompileXsd(base, schemas2, outincr, xm);
 
-        echoSts(base, incr);
         QName[] baseTypes = new QName[]{new QName("http://bar", "elName")};
         QName[] incrTypes = new QName[]{new QName("http://baz", "elName")};
 
@@ -208,10 +203,9 @@ public class ModelGroupTests extends CompileTestBase {
                 "</xs:all>" +
                 "</xs:complexType>");
 
-        SchemaTypeSystem base = compileSchemas(schemas, builtin, xm);
-        SchemaTypeSystem incr = incrCompileXsd(base, schemas2, builtin, xm);
+        SchemaTypeSystem base = compileSchemas(schemas, out, xm);
+        SchemaTypeSystem incr = incrCompileXsd(base, schemas2, outincr, xm);
 
-        echoSts(base, incr);
         QName[] baseTypes = new QName[]{new QName("http://baz", "elName")};
         QName[] incrTypes = new QName[]{new QName("http://baz", "elName")};
 
@@ -245,10 +239,9 @@ public class ModelGroupTests extends CompileTestBase {
                 "</xs:sequence>" +
                 "</xs:complexType>");
 
-        SchemaTypeSystem base = compileSchemas(schemas, builtin, xm);
-        SchemaTypeSystem incr = incrCompileXsd(base, schemas2, builtin, xm);
+        SchemaTypeSystem base = compileSchemas(schemas, out, xm);
+        SchemaTypeSystem incr = incrCompileXsd(base, schemas2, outincr, xm);
 
-        echoSts(base, incr);
         QName[] baseTypes = new QName[]{new QName("http://baz", "elName")};
         QName[] incrTypes = new QName[]{new QName("http://baz", "elName")};
 
@@ -282,10 +275,9 @@ public class ModelGroupTests extends CompileTestBase {
                 "</xs:choice>" +
                 "</xs:complexType>");
 
-        SchemaTypeSystem base = compileSchemas(schemas, builtin, xm);
-        SchemaTypeSystem incr = incrCompileXsd(base, schemas2, builtin, xm);
+        SchemaTypeSystem base = compileSchemas(schemas, out, xm);
+        SchemaTypeSystem incr = incrCompileXsd(base, schemas2, outincr, xm);
 
-        echoSts(base, incr);
         QName[] baseTypes = new QName[]{new QName("http://baz", "elName")};
         QName[] incrTypes = new QName[]{new QName("http://baz", "elName")};
 
@@ -319,10 +311,9 @@ public class ModelGroupTests extends CompileTestBase {
                 "</xs:all>" +
                 "</xs:complexType>");
 
-        SchemaTypeSystem base = compileSchemas(schemas, builtin, xm);
-        SchemaTypeSystem incr = incrCompileXsd(base, schemas2, builtin, xm);
+        SchemaTypeSystem base = compileSchemas(schemas, out, xm);
+        SchemaTypeSystem incr = incrCompileXsd(base, schemas2, outincr, xm);
 
-        echoSts(base, incr);
         QName[] baseTypes = new QName[]{new QName("http://baz", "elName")};
         QName[] incrTypes = new QName[]{new QName("http://baz", "elName")};
 

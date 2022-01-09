@@ -15,80 +15,102 @@
 
 package compile.scomp.incr.schemaCompile.detailed;
 
-import compile.scomp.common.CompileCommon;
-import compile.scomp.common.CompileTestBase;
 import org.apache.xmlbeans.SchemaTypeSystem;
+import org.apache.xmlbeans.XmlError;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
 import javax.xml.namespace.QName;
+import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.List;
 
+import static compile.scomp.common.CompileTestBase.*;
+import static java.nio.file.StandardOpenOption.CREATE;
+import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
 import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertTrue;
 
 
-public class PerfTests extends CompileTestBase {
-    @Before
-    public void setUp() throws IOException {
-        CompileCommon.deltree(CompileCommon.xbeanOutput(outputDir));
-        out = CompileCommon.xbeanOutput(outPath);
-        sanity = CompileCommon.xbeanOutput(sanityPath);
-        outincr = CompileCommon.xbeanOutput(incrPath);
+public class PerfTests {
 
-        errors = new ArrayList<>();
-        xm = new XmlOptions();
+    private static final File outincr = xbeanOutput(INCR_PATH);
+    private static final File out = xbeanOutput(OUT_PATH);
+    private static final File OBJ_FILE_1 = new File(out, "obj1.xsd");
+    private static final File OBJ_FILE_2 = new File(outincr, "obj2.xsd");
+
+    private static final String XSD1 =
+        getSchemaTop("baz") +
+       "<xs:element name=\"elName\" type=\"bas:aType\" xmlns:bas=\"http://baz\" />" +
+       "<xs:complexType name=\"aType\">" +
+       "<xs:choice>" +
+       "<xs:element name=\"a\" type=\"xs:string\" />" +
+       "<xs:element name=\"b\" type=\"xs:string\" />" +
+       "</xs:choice>" +
+       "</xs:complexType>" +
+       getSchemaBottom();
+
+    private static final String XSD2 =
+        getSchemaTop("baz") +
+        "<xs:redefine schemaLocation=\"" + OBJ_FILE_1.toURI() + "\">" +
+        "<xs:complexType name=\"aType\">" +
+        "<xs:sequence>" +
+        "<xs:element name=\"a\" type=\"xs:string\" />" +
+        "<xs:element name=\"b\" type=\"xs:string\" />" +
+        "</xs:sequence>" +
+        "</xs:complexType>" +
+        "</xs:redefine>" +
+        getSchemaBottom();
+
+
+    private final List<XmlError> errors = new ArrayList<>();
+    private final XmlOptions xm = new XmlOptions();
+
+    public PerfTests() {
         xm.setErrorListener(errors);
         xm.setSavePrettyPrint();
     }
 
-    @After
-    public void tearDown() throws Exception {
-        if (errors.size() > 0)
-            errors.clear();
+    @Before
+    public void setUp() throws IOException {
+        clearOutputDirs();
+        errors.clear();
     }
 
-    @Ignore("throws duplicate global type")
     @Test
+    @Ignore("works in standalone, doesn't work in Jenkins")
     public void test_perf_choice2seqchange() throws Exception {
-        //XmlObject.Factory.parse(getBaseSchema("baz","elName", "elType", "attrName","attrType"));
-        XmlObject obj1 = XmlObject.Factory.parse(getSchemaTop("baz") +
-                "<xs:element name=\"elName\" type=\"bas:aType\" xmlns:bas=\"http://baz\" />" +
-                "<xs:complexType name=\"aType\">" +
-                "<xs:choice>" +
-                "<xs:element name=\"a\" type=\"xs:string\" />" +
-                "<xs:element name=\"b\" type=\"xs:string\" />" +
-                "</xs:choice>" +
-                "</xs:complexType>" + getSchemaBottom());
-        XmlObject obj2 = XmlObject.Factory.parse(getSchemaTop("baz") +
-                "<xs:element name=\"elName\" type=\"bas:aType\" xmlns:bas=\"http://baz\" />" +
-                "<xs:complexType name=\"aType\">" +
-                "<xs:sequence>" +
-                "<xs:element name=\"a\" type=\"xs:string\" />" +
-                "<xs:element name=\"b\" type=\"xs:string\" />" +
-                "</xs:sequence>" +
-                "</xs:complexType>" + getSchemaBottom());
+
+        Files.write(OBJ_FILE_1.toPath(), XSD1.getBytes(StandardCharsets.UTF_8), CREATE, TRUNCATE_EXISTING);
+        Files.write(OBJ_FILE_2.toPath(), XSD2.getBytes(StandardCharsets.UTF_8), CREATE, TRUNCATE_EXISTING);
+
+        XmlObject obj1 = XmlObject.Factory.parse(OBJ_FILE_1);
+        XmlObject obj2 = XmlObject.Factory.parse(OBJ_FILE_2);
         XmlObject[] schemas = new XmlObject[]{obj1};
         XmlObject[] schemas2 = new XmlObject[]{obj2};
-        schemas[0].documentProperties().setSourceName("obj1");
-        schemas2[0].documentProperties().setSourceName("obj2");
 
         long initBase = System.currentTimeMillis();
-        SchemaTypeSystem base = compileSchemas(schemas, builtin, xm);
+        SchemaTypeSystem base = compileSchemas(schemas, out, xm);
         long endBase = System.currentTimeMillis();
 
         long initIncr = System.currentTimeMillis();
-        SchemaTypeSystem incr = incrCompileXsd(base, schemas2, builtin, xm);
+        SchemaTypeSystem incr = incrCompileXsd(base, schemas2, outincr, xm);
         long endIncr = System.currentTimeMillis();
 
-        checkPerf(initBase, endBase, initIncr, endIncr);
-        echoSts(base, incr);
-        QName[] baseTypes = new QName[]{new QName("http://baz", "elName")};
-        QName[] incrTypes = new QName[]{new QName("http://baz", "elName")};
+        long initTime = endBase - initBase;
+        long incrTime = endIncr - initIncr;
+        long diffTime = initTime - incrTime;
+
+        assertTrue("Perf Time Increased: " + diffTime, diffTime > 0);
+
+        QName[] baseTypes = {new QName("http://baz", "elName")};
+        QName[] incrTypes = {new QName("http://baz", "elName")};
 
         findElementbyQName(base, baseTypes);
         findElementbyQName(incr, incrTypes);
@@ -98,7 +120,4 @@ public class PerfTests extends CompileTestBase {
         compareandPopErrors(out, outincr, errors);
         handleErrors(errors);
     }
-
-
-
 }

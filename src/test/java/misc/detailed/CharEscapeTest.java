@@ -14,7 +14,6 @@
  */
 package misc.detailed;
 
-import common.Common;
 import jira.xmlbeans177.TestListDocument;
 import jira.xmlbeans177A.TestListADocument;
 import org.apache.xmlbeans.XmlException;
@@ -25,17 +24,13 @@ import org.junit.Test;
 import java.io.File;
 import java.util.HashMap;
 
+import static common.Common.P;
+import static common.Common.XBEAN_CASE_ROOT;
 import static org.junit.Assert.*;
 
-public class CharEscapeTest extends Common
-{
-    static final String inputFile =
-        XBEAN_CASE_ROOT + P + "misc" + P + "jira" + P + "xmlbeans_177.xml";
-    static final String inputFile2 =
-        XBEAN_CASE_ROOT + P + "misc" + P + "jira" + P + "xmlbeans_177a.xml";
-    //static final String outputDir = OUTPUTROOT + P + "misc";
-    //static final String outputFile1 = "xmlbeans_177_out1.xml";
-    //static final String outputFile2 = "xmlbeans_177_out2.xml";
+public class CharEscapeTest {
+    static final String inputFile = XBEAN_CASE_ROOT + P + "misc" + P + "jira" + P + "xmlbeans_177.xml";
+    static final String inputFile2 = XBEAN_CASE_ROOT + P + "misc" + P + "jira" + P + "xmlbeans_177a.xml";
 
     static final String start = "<jira:testList xmlns:jira=\"http://jira/xmlbeans_177\">";
     static final String end = "</jira:testList>";

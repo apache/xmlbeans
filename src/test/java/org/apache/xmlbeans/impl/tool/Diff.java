@@ -16,6 +16,7 @@
 package org.apache.xmlbeans.impl.tool;
 
 import org.apache.xmlbeans.SystemProperties;
+import org.apache.xmlbeans.XmlError;
 import org.apache.xmlbeans.impl.schema.SchemaTypeSystemImpl;
 
 import java.io.*;
@@ -23,6 +24,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
+import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 
 public class Diff {
@@ -42,7 +44,7 @@ public class Diff {
             System.out.println("File \"" + args[1] + "\" not found.");
             return;
         }
-        List<String> result = new ArrayList<>();
+        List<XmlError> result = new ArrayList<>();
         if (file1.isDirectory()) {
             if (!file2.isDirectory()) {
                 System.out.println("Both parameters have to be directories if the first parameter is a directory.");
@@ -66,7 +68,7 @@ public class Diff {
             System.out.println("No differences encountered.");
         } else {
             System.out.println("Differences:");
-            for (String s : result) {
+            for (XmlError s : result) {
                 System.out.println(s);
             }
         }
@@ -76,7 +78,7 @@ public class Diff {
      * Diffs the contents of two jars, looking only at the schema typesystems
      * saved inside those jars
      */
-    public static void jarsAsTypeSystems(JarFile jar1, JarFile jar2, List<String> diffs) {
+    public static void jarsAsTypeSystems(JarFile jar1, JarFile jar2, List<XmlError> diffs) {
         Enumeration<JarEntry> entries1 = jar1.entries();
         Enumeration<JarEntry> entries2 = jar2.entries();
         List<ZipEntry> list1 = new ArrayList<>();
@@ -113,24 +115,20 @@ public class Diff {
                 i2++; // Move to next pair
             } else if (dif < 0) {
                 // dir1 contains a file that dir2 doesn't
-                diffs.add("Jar \"" + jar1.getName() + "\" contains an extra file: \"" +
-                          name1 + "\"");
+                diffs.add(XmlError.forMessage("Jar \"" + jar1.getName() + "\" contains an extra file: \"" + name1 + "\""));
                 i1++;
             } else {
                 // dir2 contains a file that dir1 doesn't
-                diffs.add("Jar \"" + jar2.getName() + "\" contains an extra file: \"" +
-                          name2 + "\"");
+                diffs.add(XmlError.forMessage("Jar \"" + jar2.getName() + "\" contains an extra file: \"" + name2 + "\""));
                 i2++;
             }
         }
         while (i1 < files1.length) {
-            diffs.add("Jar \"" + jar1.getName() + "\" contains an extra file: \"" +
-                      files1[i1].getName() + "\"");
+            diffs.add(XmlError.forMessage("Jar \"" + jar1.getName() + "\" contains an extra file: \"" + files1[i1].getName() + "\""));
             i1++;
         }
         while (i2 < files2.length) {
-            diffs.add("Jar \"" + jar2.getName() + "\" contains an extra file: \"" +
-                      files2[i2].getName() + "\"");
+            diffs.add(XmlError.forMessage("Jar \"" + jar2.getName() + "\" contains an extra file: \"" + files2[i2].getName() + "\""));
             i2++;
         }
     }
@@ -141,7 +139,7 @@ public class Diff {
      * Updated diffs with a list of differences (for the time being, strings
      * describing the difference)
      */
-    public static void dirsAsTypeSystems(File dir1, File dir2, List<String> diffs) {
+    public static void dirsAsTypeSystems(File dir1, File dir2, List<XmlError> diffs) {
         assert dir1.isDirectory() : "Parameters must be directories";
         assert dir2.isDirectory() : "Parameters must be directories";
 
@@ -168,13 +166,11 @@ public class Diff {
                     temp2 = null;
                 }
                 if (files1.length > 1) {
-                    diffs.add("More than one typesystem found in dir \"" +
-                              dir1.getName() + "\"");
+                    diffs.add(XmlError.forMessage("More than one typesystem found in dir \"" + dir1.getName() + "\""));
                     return;
                 }
                 if (files2.length > 1) {
-                    diffs.add("More than one typesystem found in dir \"" +
-                              dir2.getName() + "\"");
+                    diffs.add(XmlError.forMessage("More than one typesystem found in dir \"" + dir2.getName() + "\""));
                     return;
                 }
             }
@@ -190,10 +186,10 @@ public class Diff {
             return;
         } else if (temp1 == null || temp2 == null) {
             if (temp1 == null) {
-                diffs.add("No typesystems found in dir \"" + dir1 + "\"");
+                diffs.add(XmlError.forMessage("No typesystems found in dir \"" + dir1 + "\""));
             }
             if (temp2 == null) {
-                diffs.add("No typesystems found in dir \"" + dir2 + "\"");
+                diffs.add(XmlError.forMessage("No typesystems found in dir \"" + dir2 + "\""));
             }
             return;
         } else {
@@ -225,24 +221,20 @@ public class Diff {
                 i2++; // Move to next pair
             } else if (dif < 0) {
                 // dir1 contains a file that dir2 doesn't
-                diffs.add("Dir \"" + dir1.getName() + "\" contains an extra file: \"" +
-                          name1 + "\"");
+                diffs.add(XmlError.forMessage("Dir \"" + dir1.getName() + "\" contains an extra file: \"" + name1 + "\""));
                 i1++;
             } else {
                 // dir2 contains a file that dir1 doesn't
-                diffs.add("Dir \"" + dir2.getName() + "\" contains an extra file: \"" +
-                          name2 + "\"");
+                diffs.add(XmlError.forMessage("Dir \"" + dir2.getName() + "\" contains an extra file: \"" + name2 + "\""));
                 i2++;
             }
         }
         while (i1 < files1.length) {
-            diffs.add("Dir \"" + dir1.getName() + "\" contains an extra file: \"" +
-                      files1[i1].getName() + "\"");
+            diffs.add(XmlError.forMessage("Dir \"" + dir1.getName() + "\" contains an extra file: \"" + files1[i1].getName() + "\""));
             i1++;
         }
         while (i2 < files2.length) {
-            diffs.add("Dir \"" + dir2.getName() + "\" contains an extra file: \"" +
-                      files2[i2].getName() + "\"");
+            diffs.add(XmlError.forMessage("Dir \"" + dir2.getName() + "\" contains an extra file: \"" + files2[i2].getName() + "\""));
             i2++;
         }
     }
@@ -256,7 +248,7 @@ public class Diff {
      * Diffs the two given files assuming they are in xsb format
      * Updates diffs with differences in string format
      */
-    public static void filesAsXsb(File file1, File file2, List<String> diffs) {
+    public static void filesAsXsb(File file1, File file2, List<XmlError> diffs) {
         assert file1.exists() : "File \"" + file1.getAbsolutePath() + "\" does not exist.";
         assert file2.exists() : "File \"" + file2.getAbsolutePath() + "\" does not exist.";
         try (FileInputStream stream1 = new FileInputStream(file1);
@@ -267,7 +259,7 @@ public class Diff {
     }
 
     public static void zipEntriesAsXsb(ZipEntry file1, JarFile jar1,
-                                       ZipEntry file2, JarFile jar2, List<String> diffs) {
+                                       ZipEntry file2, JarFile jar2, List<XmlError> diffs) {
         try (InputStream stream1 = jar1.getInputStream(file1);
              InputStream stream2 = jar2.getInputStream(file2)) {
             streamsAsXsb(stream1, file1.getName(), stream2, file2.getName(), diffs);
@@ -276,7 +268,7 @@ public class Diff {
     }
 
     public static void streamsAsXsb(InputStream stream1, String name1,
-                                    InputStream stream2, String name2, List<String> diffs)
+                                    InputStream stream2, String name2, List<XmlError> diffs)
         throws IOException {
         String charset = StandardCharsets.UTF_8.name();
         ByteArrayOutputStream buf1 = new ByteArrayOutputStream();
@@ -284,7 +276,7 @@ public class Diff {
         XsbDumper.dump(stream1, "", new PrintStream(buf1, true, charset));
         XsbDumper.dump(stream2, "", new PrintStream(buf2, true, charset));
         readersAsText(new StringReader(buf1.toString(charset)), name1,
-            new StringReader(buf2.toString(charset)), name2, diffs);
+            new StringReader(buf2.toString(charset)), name2, diffs.stream().map(XmlError::getMessage).collect(Collectors.toList()));
     }
 
     public static void readersAsText(Reader r1, String name1, Reader r2, String name2,

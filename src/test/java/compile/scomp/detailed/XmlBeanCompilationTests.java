@@ -20,15 +20,17 @@ import compile.scomp.common.mockobj.TestBindingConfig;
 import compile.scomp.common.mockobj.TestFiler;
 import org.apache.xmlbeans.*;
 import org.apache.xmlbeans.impl.xb.xmlconfig.ConfigDocument;
-import org.junit.After;
 import org.junit.Test;
 
 import javax.xml.namespace.QName;
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Stream;
 
+import static common.Common.*;
+import static compile.scomp.common.CompileTestBase.*;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 
@@ -36,21 +38,7 @@ import static org.junit.Assert.assertTrue;
  * Ensure that several compilation mechanisms all generate
  * the same schematypesystem
  */
-public class XmlBeanCompilationTests extends CompileTestBase {
-    private final List<XmlError> xm_errors = new ArrayList<>();
-    private final XmlOptions xm_opts = new XmlOptions();
-
-    public XmlBeanCompilationTests() {
-        xm_opts.setErrorListener(xm_errors);
-        xm_opts.setSavePrettyPrint();
-    }
-
-    @After
-    public void tearDown() throws Exception {
-        if (xm_errors.size() > 0) {
-            xm_errors.clear();
-        }
-    }
+public class XmlBeanCompilationTests {
 
     /**
      * Filer != null for BindingConfig to be used
@@ -60,19 +48,13 @@ public class XmlBeanCompilationTests extends CompileTestBase {
         TestFiler f = new TestFiler();
         //initialize all of the values
         String extCaseDir = XBEAN_CASE_ROOT + P + "extensions" + P;
-        String extSrcDir = getRootFile() + P +
-                           "src" + P + "test" + P + "java" + P + "xmlobject" + P + "extensions" + P;
+        String extSrcDir = getRootFile() + P + "src" + P + "test" + P + "java" + P + "xmlobject" + P + "extensions" + P;
         File[] cPath = CompileTestBase.getClassPath();
         String dir = extCaseDir + P + "interfaceFeature" + P + "averageCase";
-        String dir2 = extCaseDir + P + "prePostFeature" + P +
-                      "ValueRestriction";
+        String dir2 = extCaseDir + P + "prePostFeature" + P + "ValueRestriction";
 
-        ConfigDocument.Config bConf = ConfigDocument.Factory.parse(
-            new File(dir + P + "po.xsdconfig"))
-            .getConfig();
-        ConfigDocument.Config cConf = ConfigDocument.Factory.parse(
-            new File(dir2 + P + "company.xsdconfig"))
-            .getConfig();
+        ConfigDocument.Config bConf = ConfigDocument.Factory.parse(new File(dir + P + "po.xsdconfig")).getConfig();
+        ConfigDocument.Config cConf = ConfigDocument.Factory.parse(new File(dir2 + P + "company.xsdconfig")).getConfig();
 
         String simpleConfig = "<xb:config " +
                               "xmlns:xb=\"http://xml.apache.org/xmlbeans/2004/02/xbean/config\"\n" +
@@ -83,57 +65,38 @@ public class XmlBeanCompilationTests extends CompileTestBase {
         ConfigDocument.Config confDoc = ConfigDocument.Factory.parse(simpleConfig).getConfig();
         ConfigDocument.Config[] confs = new ConfigDocument.Config[]{bConf, confDoc, cConf};
 
-        String fooHandlerPath = extSrcDir + P + "interfaceFeature" + P +
-                                "averageCase" + P + "existing" + P + "FooHandler.java";
-        String iFooPath = extSrcDir + P + "interfaceFeature" + P +
-                          "averageCase" + P + "existing" + P + "IFoo.java";
-        String iSetterPath = extSrcDir + P + "prePostFeature" + P +
-                             "ValueRestriction" + P + "existing" + P + "ISetter.java";
-        String setterHandlerPath = extSrcDir + P + "prePostFeature" + P +
-                                   "ValueRestriction" + P + "existing" + P + "SetterHandler.java";
-
-
-        File[] fList = new File[]{new File(fooHandlerPath), new File(iFooPath),
-            new File(iSetterPath),
-            new File(setterHandlerPath)};
+        File[] fList = Stream.of(
+            "averageCase" + P + "existing" + P + "FooHandler.java",
+            "averageCase" + P + "existing" + P + "IFoo.java",
+            "ValueRestriction" + P + "existing" + P + "ISetter.java",
+            "ValueRestriction" + P + "existing" + P + "SetterHandler.java"
+        ).map(path -> new File(extSrcDir + P + "interfaceFeature" + P + path)).toArray(File[]::new);
 
         //use created BindingConfig
         TestBindingConfig bind = new TestBindingConfig(confs, fList, cPath);
 
         //set XSDs
         XmlObject obj1 = XmlObject.Factory.parse(new File(dir + P + "po.xsd"));
-        XmlObject obj2 = XmlObject.Factory.parse(
-            new File(dir2 + P + "company.xsd"));
-        XmlObject[] schemas = new XmlObject[]{obj1, obj2};
+        XmlObject obj2 = XmlObject.Factory.parse(new File(dir2 + P + "company.xsd"));
+        XmlObject[] schemas = {obj1, obj2};
 
         //filer must be present on this method
+        List<XmlError> xm_errors = new ArrayList<>();
+        XmlOptions xm_opts = new XmlOptions();
+        xm_opts.setErrorListener(xm_errors);
+        xm_opts.setSavePrettyPrint();
+
         SchemaTypeSystem apiSts = XmlBeans.compileXmlBeans("apiCompile", null,
             schemas, bind, XmlBeans.getBuiltinTypeSystem(), f, xm_opts);
 
-        if (!bind.isIslookupPrefixForNamespace()) {
-            throw new Exception("isIslookupPrefixForNamespace not invoked");
-        }
-        if (!bind.isIslookupPackageForNamespace()) {
-            throw new Exception("isIslookupPackageForNamespace not invoked");
-        }
-        if (!bind.isIslookupSuffixForNamespace()) {
-            throw new Exception("isIslookupSuffixForNamespace not invoked");
-        }
-        if (!bind.isIslookupJavanameForQName()) {
-            throw new Exception("isIslookupJavanameForQName not invoked");
-        }
-        if (!bind.isIsgetInterfaceExtensionsString()) {
-            throw new Exception("isIsgetInterfaceExtensionsString not invoked");
-        }
-        if (!bind.isIsgetInterfaceExtensions()) {
-            throw new Exception("isIsgetInterfaceExtensions not invoked");
-        }
-        if (!bind.isIsgetPrePostExtensions()) {
-            throw new Exception("isIsgetPrePostExtensions not invoked");
-        }
-        if (!bind.isIsgetPrePostExtensionsString()) {
-            throw new Exception("isIsgetPrePostExtensionsString not invoked");
-        }
+        assertTrue("isIslookupPrefixForNamespace not invoked", bind.isIslookupPrefixForNamespace());
+        assertTrue("isIslookupPackageForNamespace not invoked", bind.isIslookupPackageForNamespace());
+        assertTrue("isIslookupSuffixForNamespace not invoked", bind.isIslookupSuffixForNamespace());
+        assertTrue("isIslookupJavanameForQName not invoked", bind.isIslookupJavanameForQName());
+        assertTrue("isIsgetInterfaceExtensionsString not invoked", bind.isIsgetInterfaceExtensionsString());
+        assertTrue("isIsgetInterfaceExtensions not invoked", bind.isIsgetInterfaceExtensions());
+        assertTrue("isIsgetPrePostExtensions not invoked", bind.isIsgetPrePostExtensions());
+        assertTrue("isIsgetPrePostExtensionsString not invoked", bind.isIsgetPrePostExtensionsString());
     }
 
     /**
@@ -142,169 +105,63 @@ public class XmlBeanCompilationTests extends CompileTestBase {
      */
     @Test
     public void test_incrCompile() throws Exception {
-        XmlObject obj1 = XmlObject.Factory.parse(forXsd);
+        XmlObject obj1 = XmlObject.Factory.parse(FOR_XSD);
         obj1.documentProperties().setSourceName("OBJ1");
-        XmlObject[] schemas = new XmlObject[]{obj1};
+        XmlObject[] schemas = {obj1};
         QName sts1 = new QName("http://baz", "elName");
 
-        XmlObject obj2 = XmlObject.Factory.parse(incrXsd);
+        XmlObject obj2 = XmlObject.Factory.parse(INCR_XSD);
         obj2.documentProperties().setSourceName("OBJ2");
-        XmlObject[] schemas2 = new XmlObject[]{obj2};
+        XmlObject[] schemas2 = {obj2};
         QName sts2 = new QName("http://bar", "elName");
 
-        XmlObject obj3 = XmlObject.Factory.parse(errXsd);
+        XmlObject obj3 = XmlObject.Factory.parse(ERR_XSD);
         obj3.documentProperties().setSourceName("OBJ3");
-        XmlObject[] schemas3 = new XmlObject[]{obj3};
+        XmlObject[] schemas3 = {obj3};
         QName sts3 = new QName("http://bar", "elErrName");
 
         SchemaTypeSystem sts;
-        ArrayList err = new ArrayList();
+        List<XmlError> err = new ArrayList<>();
         XmlOptions opt = new XmlOptions().setErrorListener(err);
         opt.setCompilePartialTypesystem();
 
         //BASIC COMPILATION
-        sts = XmlBeans.compileXmlBeans(null,
-            null, schemas, null,
-            XmlBeans.getBuiltinTypeSystem(), null, opt);
+        sts = XmlBeans.compileXmlBeans(null, null, schemas, null, XmlBeans.getBuiltinTypeSystem(), null, opt);
 
         assertTrue("Errors should have been empty", err.isEmpty());
         // find element in the type System
-        if (!findGlobalElement(sts.globalElements(), sts1)) {
-            throw new Exception(
-                "Could Not find Type from first Type System: " + sts1);
-        }
+        assertTrue("Could Not find Type from first Type System: " + sts1, findGlobalElement(sts.globalElements(), sts1));
 
         //SIMPLE INCR COMPILATION
-        sts = XmlBeans.compileXmlBeans(null,
-            sts, schemas2, null,
-            XmlBeans.getBuiltinTypeSystem(), null, opt);
+        sts = XmlBeans.compileXmlBeans(null, sts, schemas2, null, XmlBeans.getBuiltinTypeSystem(), null, opt);
         assertTrue("Errors should have been empty", err.isEmpty());
+
         // find element in the type System
+        assertTrue("Could Not find Type from first Type System: " + sts1, findGlobalElement(sts.globalElements(), sts1));
+        assertTrue("Could Not find Type from 2nd Type System: " + sts2, findGlobalElement(sts.globalElements(), sts2));
 
-        if (!findGlobalElement(sts.globalElements(), sts1)) {
-            throw new Exception("Could Not find Type from first Type System: " +
-                                sts1);
-        }
-
-        if (!findGlobalElement(sts.globalElements(), sts2)) {
-            throw new Exception("Could Not find Type from 2nd Type System: " +
-                                sts2);
-        }
-
-        System.out.println("Building over Existing");
         //BUILDING OFF BASE SIMPLE INCR COMPILATION
-        sts = XmlBeans.compileXmlBeans(null,
-            sts, schemas2, null,
-            sts, null, opt);
+        sts = XmlBeans.compileXmlBeans(null, sts, schemas2, null, sts, null, opt);
         assertTrue("Errors should have been empty", err.isEmpty());
+
         // find element in the type System
-
-        if (!findGlobalElement(sts.globalElements(), sts1)) {
-            throw new Exception("Could Not find Type from first Type System: " +
-                                sts1);
-        }
-
-        if (!findGlobalElement(sts.globalElements(), sts2)) {
-            throw new Exception("Could Not find Type from 2nd Type System: " +
-                                sts2);
-        }
+        assertTrue("Could Not find Type from first Type System: " + sts1, findGlobalElement(sts.globalElements(), sts1));
+        assertTrue("Could Not find Type from 2nd Type System: " + sts2, findGlobalElement(sts.globalElements(), sts2));
 
         //INCR COMPILATION WITH RECOVERABLE ERROR
         err.clear();
-        SchemaTypeSystem b = XmlBeans.compileXmlBeans(null,
-            sts, schemas3, null,
-            XmlBeans.getBuiltinTypeSystem(), null, opt);
+        SchemaTypeSystem b = XmlBeans.compileXmlBeans(null, sts, schemas3, null, XmlBeans.getBuiltinTypeSystem(), null, opt);
         // find element in the type System
-        if (!findGlobalElement(b.globalElements(), sts1)) {
-            throw new Exception("Could Not find Type from first Type System: " +
-                                sts1);
-        }
+        assertTrue("Could Not find Type from first Type System: " + sts1, findGlobalElement(b.globalElements(), sts1));
 
-        if (!findGlobalElement(b.globalElements(), sts2)) {
-            throw new Exception("Could Not find Type from 2nd Type System: " +
-                                sts2);
-        }
+        assertTrue("Could Not find Type from 2nd Type System: " + sts2, findGlobalElement(b.globalElements(), sts2));
 
-        if (!findGlobalElement(b.globalElements(), sts3)) {
-            throw new Exception("Could Not find Type from 3rd Type System: " +
-                                sts3);
-        }
+        assertTrue("Could Not find Type from 3rd Type System: " + sts3, findGlobalElement(b.globalElements(), sts3));
 
-        printSTS(b);
-
-        //INSPECT ERRORS
-        boolean psom_expError = false;
-        // print out the recovered xm_errors
-        if (!err.isEmpty()) {
-            System.out.println(
-                "Schema invalid: partial schema type system recovered");
-            for (Iterator i = err.iterator(); i.hasNext(); ) {
-                XmlError xErr = (XmlError) i.next();
-                System.out.println(xErr);
-                //compare to the expected xm_errors
-                if ((xErr.getErrorCode().compareTo("src-resolve") == 0) &&
-                    (xErr.getMessage().compareTo(
-                        "type 'bType@http://baz' not found.") ==
-                     0)) {
-                    psom_expError = true;
-                }
-            }
-        }
-        if (!psom_expError) {
-            throw new Exception("Error Code was not as Expected");
-        }
-
-
+        //compare to the expected xm_errors
+        assertEquals(1, err.size());
+        XmlError xErr = err.get(0);
+        assertEquals("src-resolve", xErr.getErrorCode());
+        assertEquals("type 'bType@http://baz' not found.", xErr.getMessage());
     }
-
-/*
-    @Test
-    public void test_diff_compilationMethods() throws IOException,
-        XmlException, Exception {
-
-
-        //initialize the schema compiler
-        SchemaCompiler.Parameters params = new SchemaCompiler.Parameters();
-        params.setXsdFiles(new File[]{scompFile});
-        params.setSrcDir(scompDirFile);
-        params.setClassesDir(scompDirFile);
-
-        //save out schema for use in scomp later
-        XmlObject obj1 = XmlObject.Factory.parse(forXsd);
-        obj1.save(scompFile);
-
-        //scomp saved out schema
-        SchemaCompiler.compile(params);
-
-        //use new api to get typesystem
-        XmlObject[] schemas = new XmlObject[]{obj1};
-        SchemaTypeSystem apiSts = XmlBeans.compileXmlBeans("apiCompile", null,
-            schemas, null, XmlBeans.getBuiltinTypeSystem(), null, xm_opts);
-
-        //use alternative api to get typesystem
-        SchemaTypeSystem altSts = XmlBeans.compileXsd(schemas,
-            XmlBeans.getBuiltinTypeSystem(), null);
-
-        //save out sts for diff later
-        SchemaCodeGenerator.saveTypeSystem(apiSts, apiDirFile, null, null,
-            null);
-        SchemaCodeGenerator.saveTypeSystem(altSts, baseDirFile, null, null,
-            null);
-
-        //diff new api to old api
-        xm_errors = null;
-        xm_errors = new ArrayList();
-        Diff.dirsAsTypeSystems(apiDirFile, baseDirFile, xm_errors);
-        if (xm_errors.size() >= 1)
-            throw new Exception("API STS ERRORS: " + xm_errors.toString());
-
-        //diff scomp sts to new api
-        xm_errors = null;
-        xm_errors = new ArrayList();
-        Diff.dirsAsTypeSystems(apiDirFile, scompDirFile, xm_errors);
-        if (xm_errors.size() >= 1)
-            throw new Exception("API SCOMP ERRORS: " + xm_errors.toString());
-    }
-*/
-
 }

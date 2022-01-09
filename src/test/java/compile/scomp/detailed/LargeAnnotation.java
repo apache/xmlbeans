@@ -15,7 +15,6 @@
 
 package compile.scomp.detailed;
 
-import compile.scomp.common.CompileCommon;
 import org.apache.xmlbeans.*;
 import org.apache.xmlbeans.impl.util.LongUTFDataInputStream;
 import org.apache.xmlbeans.impl.util.LongUTFDataOutputStream;
@@ -26,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Random;
 
+import static common.Common.SCOMP_CASE_ROOT;
 import static org.junit.Assert.*;
 
 public class LargeAnnotation {
@@ -111,7 +111,7 @@ public class LargeAnnotation {
         XmlOptions xm_opt = new XmlOptions().setErrorListener(err);
         xm_opt.setSavePrettyPrint();
 
-        File dir = new File(CompileCommon.fileLocation + "/largeAnnotation");
+        File dir = new File(SCOMP_CASE_ROOT + "/largeAnnotation");
         File[] files = dir.listFiles((x) -> x.getName().endsWith(".xsd"));
         assertNotNull(files);
         XmlObject[] schemas = new XmlObject[files.length];
@@ -119,8 +119,7 @@ public class LargeAnnotation {
             schemas[i] = XmlObject.Factory.parse(files[i]);
         }
 
-        SchemaTypeSystem sts = XmlBeans.compileXmlBeans(null, null,
+        XmlBeans.compileXmlBeans(null, null,
             schemas, null, XmlBeans.getBuiltinTypeSystem(), null, xm_opt);
-
     }
 }

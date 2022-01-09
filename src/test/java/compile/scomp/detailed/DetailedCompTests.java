@@ -15,7 +15,6 @@
 
 package compile.scomp.detailed;
 
-import compile.scomp.common.CompileCommon;
 import org.apache.xmlbeans.*;
 import org.apache.xmlbeans.impl.xb.xsdschema.SchemaDocument;
 import org.junit.Test;
@@ -25,6 +24,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Iterator;
 
+import static common.Common.SCOMP_CASE_ROOT;
 import static org.junit.Assert.*;
 
 
@@ -42,8 +42,7 @@ public class DetailedCompTests {
         XmlOptions xm_opt = new XmlOptions().setErrorListener(err);
         xm_opt.setSavePrettyPrint();
 
-        XmlObject xObj = XmlObject.Factory.parse(
-                new File(CompileCommon.fileLocation+"/detailed/laxDoc.xsd"));
+        XmlObject xObj = XmlObject.Factory.parse(new File(SCOMP_CASE_ROOT + "/detailed/laxDoc.xsd"));
         XmlObject[] schemas = new XmlObject[]{xObj};
 
 

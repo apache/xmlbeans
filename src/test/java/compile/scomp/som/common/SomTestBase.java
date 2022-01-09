@@ -28,23 +28,22 @@
  */
 package compile.scomp.som.common;
 
-import compile.scomp.common.CompileTestBase;
 import org.apache.xmlbeans.*;
 import org.apache.xmlbeans.impl.tool.Diff;
 import org.junit.Assert;
 
 import javax.xml.namespace.QName;
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Stream;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static common.Common.*;
+import static org.junit.Assert.*;
 
-public class SomTestBase extends CompileTestBase {
+public class SomTestBase {
     public static String casesRootDir = XBEAN_CASE_ROOT + P + "compile" + P + "som" + P;
     public static String somOutputRootDir = OUTPUTROOT + P + "som" + P;
     public static long runid;
@@ -59,146 +58,91 @@ public class SomTestBase extends CompileTestBase {
                                   int expectedGlobalElems,
                                   int expectedGlobalAttrs,
                                   int expectedGlobalTypes,
-                                  int expectedAttrGroups) throws IOException {
-        // System.outs written to a log file in the build\test\output\som directory, one file per run
-        // ex. SOM_INSPECTION_RESULT_1107129259405.txt
+                                  int expectedAttrGroups) {
+        schematypesys.resolve();
+        // dummy call
+        schematypesys.isNamespaceDefined("TestNameSpace");
+        assertNotNull(schematypesys.getName());
 
-        File outDir = new File(somOutputRootDir);
-        assertTrue(outDir.exists() || outDir.mkdir());
+        // # of global attributes
+        assertEquals("Incorrect Number of Global Attributes in STS " + schematypesys.getName(), expectedGlobalAttrs, schematypesys.globalAttributes().length);
+        for (SchemaGlobalAttribute sga : schematypesys.globalAttributes()) {
+            assertNotNull(sga.getName());
+            assertNotNull(sga.getType());
+        }
 
-        // check if file exists already
-        String logFileName = somOutputRootDir + P + "SOM_INSPECTION_RESULT_" + runid + ".txt";
-        File outfile = new File(logFileName);
+        // # of global elements
+        assertEquals("Incorrect Number of Global Elements in STS " + schematypesys.getName(), expectedGlobalElems, schematypesys.globalElements().length);
+        for (SchemaGlobalElement sge : schematypesys.globalElements()) {
+            assertNotNull(sge.getName());
+            assertNotNull(sge.getType());
+        }
 
-        try (PrintWriter out = new PrintWriter(new OutputStreamWriter(new FileOutputStream(outfile,true), UTF_8))) {
+        // # of global Types
+        assertEquals("Incorrect Number of Global Types in STS " + schematypesys.getName(), expectedGlobalTypes, schematypesys.globalTypes().length);
+        for (SchemaType st : schematypesys.globalTypes()) {
+            assertNotNull(st.getName());
+        }
 
-            out.println("\n Call to inspectPSOM .. .. .. ..");
-            out.println("\n\n =======================================================");
-            out.println("Now Inspecting SOM for STS : " + schematypesys.getName());
-            out.println("=======================================================");
-            out.println("Input Params : #elems (" + expectedGlobalElems + "), #attr (" + expectedGlobalAttrs
-                        + "), #types (" + expectedGlobalTypes + "), #attr groups (" + expectedAttrGroups + ")");
-            out.println("-------------------------------------------------------");
+        // # of attribute Groups
+        assertEquals("Incorrect Number of Attribute Groups in STS " + schematypesys.getName(), expectedAttrGroups, schematypesys.attributeGroups().length);
+        for (SchemaAttributeGroup sag : schematypesys.attributeGroups()) {
+            assertNotNull(sag.getName());
+            assertNotNull(sag.getTypeSystem());
+        }
 
-            out.println("New STUFF -------------------------------------------------------");
-            schematypesys.resolve();
-            if (schematypesys.isNamespaceDefined("TestNameSpace")) {
-                out.println("Name Space 'TestNameSpace' for this STS is define ..");
-            } else {
-                out.println("No Name Space 'TestNameSpace' for this STS is NOT ndefine ..");
-            }
-            out.println("End New STUFF -------------------------------------------------------");
+        assertNotNull("Invalid Model Groups Collection returned in STS ", schematypesys.documentTypes());
+        for (SchemaModelGroup smg : schematypesys.modelGroups()) {
+            assertNotNull(smg.getName());
+            assertNotNull(smg.getTypeSystem());
+        }
 
-            // walk thro the SOM here
-            out.println("----- Loader Name      :" + schematypesys.getName());
+        assertNotNull("Invalid Annotations Collection returned in STS ", schematypesys.annotations());
+        for (SchemaAnnotation sa : schematypesys.annotations()) {
+            assertTrue(Stream.of(sa.getApplicationInformation()).allMatch(Objects::nonNull));
+            assertTrue(Stream.of(sa.getUserInformation()).allMatch(Objects::nonNull));
+        }
 
-            // # of global attributes
-            out.println("----- # Global Attributes :" + schematypesys.globalAttributes().length);
-            assertEquals("Incorrect Number of Global Attributes in STS " + schematypesys.getName(), expectedGlobalAttrs, schematypesys.globalAttributes().length);
-            for (SchemaGlobalAttribute sga : schematypesys.globalAttributes()) {
-                out.println("\t------> Attr Name  :" + sga.getName());
-                out.println("\t------> Attr Type  :" + sga.getType());
-            }
+        assertNotNull("Invalid Attribute Types Collection returned in STS ", schematypesys.attributeTypes());
+        for (SchemaType st : schematypesys.attributeTypes()) {
+            assertTrue(st.isAnonymousType() || st.getName() != null);
+            assertNotNull(st.getTypeSystem());
+        }
 
-            // # of global elements
-            out.println("----- # Global Elements :" + schematypesys.globalElements().length);
-            assertEquals("Incorrect Number of Global Elements in STS " + schematypesys.getName(), expectedGlobalElems, schematypesys.globalElements().length);
-            for (SchemaGlobalElement sge : schematypesys.globalElements()) {
-                out.println("\t------> Elem Name :" + sge.getName());
-                out.println("\t------> Elem Type :" + sge.getType());
-            }
+        assertNotNull("Invalid Document Types Collection returned in STS ", schematypesys.documentTypes());
+        for (SchemaType st : schematypesys.documentTypes()) {
+            assertTrue(st.isAnonymousType() || st.getName() != null);
+            assertNotNull(st.getTypeSystem());
+        }
 
-            // # of global Types
-            out.println("----- # Global Types :" + schematypesys.globalTypes().length);
-            assertEquals("Incorrect Number of Global Types in STS " + schematypesys.getName(), expectedGlobalTypes, schematypesys.globalTypes().length);
-            for (SchemaType st : schematypesys.globalTypes()) {
-                out.println("\t------> TypeName:" + st.getName());
-            }
+        // walk through the Schema Types of this STS in detail
+        for (SchemaType schema : schematypesys.globalTypes()) {
+            assertNotNull(schema.getName());
 
-            // # of attribute Groups
-            out.println("----- # of Attribute Groups :" + schematypesys.attributeGroups().length);
-            assertEquals("Incorrect Number of Attribute Groups in STS " + schematypesys.getName(), expectedAttrGroups, schematypesys.attributeGroups().length);
-            for (SchemaAttributeGroup sag : schematypesys.attributeGroups()) {
-                out.println("\t------> Attr Group Name :" + sag.getName());
-                out.println("\t------> Attr STS   :" + sag.getTypeSystem());
-            }
+            schema.isCompiled();
 
-            out.println("----- # of Model Groups :" + schematypesys.modelGroups().length);
-            Assert.assertNotNull("Invalid Model Groups Collection returned in STS ", schematypesys.documentTypes());
-            for (SchemaModelGroup smg : schematypesys.modelGroups()) {
-                out.println("\t------> Model Group Name:" + smg.getName());
-                out.println("\t------> Model Group STS :" + smg.getTypeSystem());
-            }
+            assertNotNull(schema.getContentType());
+            assertNotNull(schema.getName());
+            // assertNotNull(schema.getDocumentElementName());
+            // assertNotNull(schema.getAnnotation());
+            // assertNotNull(schema.getFullJavaName());
+            // assertNotNull(schema.getFullJavaImplName());
+            // assertNotNull(schema.getJavaClass());
+            // assertNotNull(schema.getSourceName());
 
-            out.println("----- # of Schema Annotations :" + schematypesys.annotations().length);
-            Assert.assertNotNull("Invalid Annotations Collection returned in STS ", schematypesys.annotations());
-            for (SchemaAnnotation sa : schematypesys.annotations()) {
-                out.println("\t------> Annotation Application Info Array :" + Arrays.toString(sa.getApplicationInformation()));
-                out.println("\t------> Annotation User Info Array :" + Arrays.toString(sa.getUserInformation()));
-            }
 
-            out.println("----- # of Attribute Types :" + schematypesys.attributeTypes().length);
-            Assert.assertNotNull("Invalid Attribute Types Collection returned in STS ", schematypesys.attributeTypes());
-
-            for (SchemaType st : schematypesys.attributeTypes()) {
-                out.println("\t------> Attr Type Name :" + st.getName());
-                out.println("\t------> Attr STS :" + st.getTypeSystem());
+            // get Elements and Attributes
+            for (SchemaProperty schemaProperty : schema.getProperties()) {
+                assertNotNull(schemaProperty.getName());
             }
 
-            out.println("----- # of Document Types :" + schematypesys.documentTypes().length);
-            Assert.assertNotNull("Invalid Document Types Collection returned in STS ", schematypesys.documentTypes());
-            for (SchemaType st : schematypesys.documentTypes()) {
-                out.println("\t------> Doc Type Name :" + st.getName());
-                out.println("\t------> Doc Type STS  :" + st.getTypeSystem());
+            // other api's to look for
+            for (SchemaProperty schemaProperty : schema.getDerivedProperties()) {
+                assertNotNull(schemaProperty.getName());
             }
 
-            // walk through the Schema Types of this STS in detail
-            out.println("\t=======================================================");
-            out.println("\tWalking thro Global Schema TYpes for STS : " + schematypesys.getName());
-            out.println("\t=======================================================");
-            for (SchemaType schema : schematypesys.globalTypes()) {
-                out.println("\n\t Schema Type :" + schema.getName());
-                out.println("\t=======================================================");
-
-                out.println("\t----Acessing New Schema Type ......");
-                if (schema.isCompiled()) {
-                    out.println("\t----This Schema has been successfully compiled");
-                } else {
-                    out.println("\t----This Schema has NOT compiled successfully yet");
-                }
-
-                out.println("\t----Content Type: " + schema.getContentType());
-                out.println("\t----Name: " + schema.getName());
-                out.println("\t----Doc Elem Name : " + schema.getDocumentElementName());
-                out.println("\t----Annotation (class) : " + schema.getAnnotation());
-                out.println("\t----Java Name : " + schema.getFullJavaName());
-                out.println("\t----Java Imp Name : " + schema.getFullJavaImplName());
-                out.println("\t----Java Class Name : " + schema.getJavaClass());
-                out.println("\t----XSD src File Name : " + schema.getSourceName());
-
-
-                // get Elements and Attributes
-                out.println("\t Elements & Attributes for Schema Type :" + schema.getName());
-                out.println("\t=======================================================");
-                SchemaProperty[] spropsArr = schema.getProperties();
-                for (SchemaProperty schemaProperty : spropsArr) {
-                    out.println("\t:::-> Each prop name : " + schemaProperty.getName());
-                }
-                out.println("\t=======================================================");
-
-                // other api's to look for
-                SchemaProperty[] sderviedpropArr = schema.getDerivedProperties();
-                for (SchemaProperty schemaProperty : sderviedpropArr) {
-                    out.println("\t+++-> Each derived prop name : " + schemaProperty.getName());
-                }
-
-                // TODO anonymus types
-                //schema.getAnonymousTypes();
-
-            }
-            out.println("-------------------------------------------------------");
-
-            out.println("Output for SchemaTypeSystem " + schematypesys.getName());
+            // TODO anonymus types
+            //schema.getAnonymousTypes();
         }
     }
 
@@ -209,19 +153,13 @@ public class SomTestBase extends CompileTestBase {
         return sga != null;
     }
 
-    public boolean lookForElemInSTS(SchemaTypeSystem tgtSTS,
-                                    String sElemLocalName) {
+    public boolean lookForElemInSTS(SchemaTypeSystem tgtSTS, String sElemLocalName) {
         // The QName for the find is constructed using the local name since the schemas have no namespace
-        SchemaGlobalElement sge = tgtSTS.findElement(new QName(sElemLocalName));
-
-        return sge != null;
+        return tgtSTS.findElement(new QName(sElemLocalName)) != null;
     }
 
-    public boolean lookForIdentityConstraint(SchemaTypeSystem sts,
-                                             String ConstraintLocalName) {
-
-        SchemaIdentityConstraint.Ref icref = sts.findIdentityConstraintRef(new QName(ConstraintLocalName));
-        return icref != null;
+    public boolean lookForIdentityConstraint(SchemaTypeSystem sts, String ConstraintLocalName) {
+        return sts.findIdentityConstraintRef(new QName(ConstraintLocalName)) != null;
     }
 
     public boolean checkPSOMSave(SchemaTypeSystem tgtSTS) {
@@ -256,7 +194,7 @@ public class SomTestBase extends CompileTestBase {
             return false;
         }
 
-        List<String> diff = new ArrayList<>();
+        List<XmlError> diff = new ArrayList<>();
         Diff.filesAsXsb(sts1, sts2, diff);
         if (diff.isEmpty()) {
             return true;

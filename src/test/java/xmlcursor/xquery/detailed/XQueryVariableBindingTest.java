@@ -14,7 +14,6 @@
  */
 package xmlcursor.xquery.detailed;
 
-import common.Common;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
@@ -24,13 +23,14 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
+import static common.Common.P;
+import static common.Common.XBEAN_CASE_ROOT;
 import static org.junit.Assert.*;
 
 /** This class tests the use of XmlOptions in binding XQuery variables */
-public class XQueryVariableBindingTest extends Common
+public class XQueryVariableBindingTest
 {
-    public static final String XQUERY_CASE_DIR =
-        XBEAN_CASE_ROOT + P + "xmlcursor" + P + "xquery";
+    public static final String XQUERY_CASE_DIR = XBEAN_CASE_ROOT + P + "xmlcursor" + P + "xquery";
     public static File dir = new File(XQUERY_CASE_DIR);
 
     private XmlCursor _testDocCursor1() throws Exception {

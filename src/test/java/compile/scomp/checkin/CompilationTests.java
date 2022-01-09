@@ -15,7 +15,6 @@
 
 package compile.scomp.checkin;
 
-import compile.scomp.common.CompileCommon;
 import org.apache.xmlbeans.*;
 import org.apache.xmlbeans.XmlOptions.BeanMethod;
 import org.apache.xmlbeans.impl.common.QNameHelper;
@@ -42,6 +41,7 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.stream.Stream;
 
+import static common.Common.SCOMP_CASE_ROOT;
 import static common.Common.getRootFile;
 import static java.util.Collections.singletonList;
 import static org.junit.Assert.*;
@@ -52,7 +52,6 @@ public class CompilationTests {
     private static final File fwroot = new File(getRootFile());
 
     //location of files under "cases folder"
-    private static final String fileLocation = CompileCommon.fileLocation;
     private static final File outputroot = new File(fwroot, "build/test/output");
 
 
@@ -244,10 +243,10 @@ public class CompilationTests {
         String oldPropValue = System.getProperty("xmlbeans.diff.diffIndex");
         System.setProperty("xmlbeans.diff.diffIndex", "false");
         errors.clear();
-        List<String> diffs = new ArrayList<>();
+        List<XmlError> diffs = new ArrayList<>();
         Diff.dirsAsTypeSystems(out, outincr, diffs);
         System.setProperty("xmlbeans.diff.diffIndex", oldPropValue == null ? "true" : oldPropValue);
-        assertEquals("Differences encountered:" + String.join("\n", diffs), 0, diffs.size());
+        assertEquals("Differences encountered", 0, diffs.size());
     }
 
     @Test
@@ -304,7 +303,7 @@ public class CompilationTests {
         assertTrue("Build failed", SchemaCompiler.compile(params));
 
         // Then, compile java classes
-        File javasrc = new File(CompileCommon.fileLocation+"/simple");
+        File javasrc = new File(SCOMP_CASE_ROOT + "/simple");
         File javaclasses = xbeanOutput("compile/scomp/simple/javaclasses");
         javaclasses.mkdirs();
         File[] testcp = Stream.concat(Stream.of(CodeGenUtil.systemClasspath()), Stream.of(outputjar)).toArray(File[]::new);
@@ -470,7 +469,7 @@ public class CompilationTests {
     }
 
     private static File xbeanCase(String str) {
-        return new File(fileLocation, str);
+        return new File(SCOMP_CASE_ROOT, str);
     }
 
     private static File xbeanOutput(String str) {

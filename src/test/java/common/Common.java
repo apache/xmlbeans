@@ -32,6 +32,7 @@ public class Common {
     public static String FWROOT = getRootFile();
     public static String CASEROOT = getCaseLocation();
     public static String XBEAN_CASE_ROOT = getCaseLocation() + P + "xbean";
+    public static String SCOMP_CASE_ROOT = XBEAN_CASE_ROOT + P + "compile" + P + "scomp" + P;
 
     //location of files under "cases folder"
     public static String OUTPUTROOT = FWROOT + P + "build" + P + "test" + P + "output";
@@ -87,9 +88,8 @@ public class Common {
      * @return File Object specified by strPath
      */
     public static File xbeanOutput(String strPath) {
-        File result = (new File(OUTPUTROOT, strPath));
-        File parentdir = result.getParentFile();
-        parentdir.mkdirs();
+        File result = new File(OUTPUTROOT, strPath);
+        result.mkdirs();
         return result;
     }
 

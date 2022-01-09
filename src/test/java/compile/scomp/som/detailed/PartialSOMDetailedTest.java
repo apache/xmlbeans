@@ -512,8 +512,7 @@ public class PartialSOMDetailedTest extends SomTestBase {
         assertNotNull("Schema Type System created is Null.", modifiedSTS);
 
         // no recovearble errors   just added another type
-        assertFalse("valid PSOM",
-            printRecoveredErrors());
+        assertFalse("valid PSOM", printRecoveredErrors());
 
         // the tests - Walk thro the valid SOM
         //inspectSOM(modifiedSTS, 13, 0, 14, 0);
@@ -547,8 +546,7 @@ public class PartialSOMDetailedTest extends SomTestBase {
         assertNotNull("Schema Type System created is Null.", baseSTS);
 
         // there should be NO recovearble errors   this should not be a partial Schema
-        assertFalse("Recovered Errors for Valid Schema",
-            printRecoveredErrors());
+        assertFalse("Recovered Errors for Valid Schema", printRecoveredErrors());
     }
 
     @Test
@@ -565,12 +563,10 @@ public class PartialSOMDetailedTest extends SomTestBase {
         assertNotNull("Schema Type System created is Null.", baseSTS);
 
         // there should be NO recovearble errors - this should not be a partial Schema
-        assertFalse("Recovered Errors for Valid Schema",
-            printRecoveredErrors());
+        assertFalse("Recovered Errors for Valid Schema", printRecoveredErrors());
 
         // Test for saving of the SOM - should go thro
-        assertTrue("Valid SOM " + baseSTS.getName() + "Save failed!",
-            checkPSOMSave(baseSTS));
+        assertTrue("Valid SOM " + baseSTS.getName() + "Save failed!", checkPSOMSave(baseSTS));
 
         // the tests - Walk thro the valid SOM
         inspectSOM(baseSTS, 2, 0, 1, 0);
@@ -593,12 +589,10 @@ public class PartialSOMDetailedTest extends SomTestBase {
         assertNotNull("Schema Type System created is Null.", baseSTS);
 
         // there should be NO recovearble errors - this should not be a partial Schema
-        assertFalse("Recovered Errors for Valid Schema",
-            printRecoveredErrors());
+        assertFalse("Recovered Errors for Valid Schema", printRecoveredErrors());
 
         // Test for saving of the SOM - should go thro
-        assertTrue("Valid SOM " + baseSTS.getName() + "Save failed!",
-            checkPSOMSave(baseSTS));
+        assertTrue("Valid SOM " + baseSTS.getName() + "Save failed!", checkPSOMSave(baseSTS));
 
         // the tests - Walk thro the valid SOM
         inspectSOM(baseSTS, 1, 0, 0, 0);
@@ -611,8 +605,7 @@ public class PartialSOMDetailedTest extends SomTestBase {
         assertNotNull("Schema Type System created is Null.", modifiedSTS);
 
         // no recovearble errors   just added another type
-        assertFalse("valid PSOM",
-            printRecoveredErrors());
+        assertFalse("valid PSOM", printRecoveredErrors());
 
         // the tests - Walk thro the valid SOM
         inspectSOM(modifiedSTS, 2, 0, 1, 0);

@@ -14,7 +14,7 @@
  */
 package compile.scomp.detailed;
 
-import common.Common;
+import org.apache.xmlbeans.XmlError;
 import org.apache.xmlbeans.impl.tool.Parameters;
 import org.apache.xmlbeans.impl.tool.SchemaCompiler;
 import org.junit.Test;
@@ -23,7 +23,8 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.fail;
+import static common.Common.*;
+import static org.junit.Assert.assertFalse;
 
 /**
  * This class contains tests that need to invoke the SchemaCompiler class which is
@@ -32,33 +33,24 @@ import static org.junit.Assert.fail;
  * The tests need to be run with cmd line param that points to the test case root directory and xmlbeans root
  * ex: -Dcases.location=D:\svnnew\xmlbeans\trunk\test\cases -Dxbean.rootdir=D:\svnnew\xmlbeans\trunk
  */
-public class SchemaCompilerTests extends Common
-{
+public class SchemaCompilerTests {
     public static String scompTestFilesRoot = XBEAN_CASE_ROOT + P + "compile" + P + "scomp" + P + "schemacompiler" + P;
     public static String schemaCompOutputDirPath = OUTPUTROOT + P + "compile" + P + "scomp" + P;
 
-    private void _testCompile(File[] xsdFiles,
-                              String outputDirName,
-                              String testName)
-    {
-        List errors = new ArrayList();
+    private void _testCompile(File[] xsdFiles, String outputDirName, String testName) {
+        List<XmlError> errors = new ArrayList<>();
         Parameters params = new Parameters();
         params.setXsdFiles(xsdFiles);
         params.setErrorListener(errors);
         params.setSrcDir(new File(schemaCompOutputDirPath + outputDirName + P + "src"));
         params.setClassesDir(new File(schemaCompOutputDirPath + outputDirName + P + "classes"));
         SchemaCompiler.compile(params);
-        if (printOptionErrMsgs(errors))
-        {
-            fail(testName + "(): failure when executing scomp");
-        }
+        assertFalse(testName + "(): failure when executing scomp", printOptionErrMsgs(errors));
     }
 
     @Test
-    public void testUnionRedefine()
-    {
-        File[] xsdFiles =
-            new File[] { new File(scompTestFilesRoot + "union_initial.xsd"),
+    public void testUnionRedefine() {
+        File[] xsdFiles = { new File(scompTestFilesRoot + "union_initial.xsd"),
                          new File(scompTestFilesRoot + "union_redefine.xsd") };
         String outputDirName = "unionred";
         String testname = "testUnionRedefine";
@@ -69,10 +61,8 @@ public class SchemaCompilerTests extends Common
         involving an enumeration fails.
      */
     @Test
-    public void testEnumerationRedefine1()
-    {
-        File[] xsdFiles =
-            new File[] { new File(scompTestFilesRoot + "enum1.xsd_"),
+    public void testEnumerationRedefine1() {
+        File[] xsdFiles = { new File(scompTestFilesRoot + "enum1.xsd_"),
                          new File(scompTestFilesRoot + "enum1_redefine.xsd_") };
         String outputDirName = "enumRedef1";
         String testname = "testEnumerationRedefine1";
@@ -83,10 +73,8 @@ public class SchemaCompilerTests extends Common
         involving an enumeration fails.
      */
     @Test
-    public void testEnumerationRedefine2()
-    {
-        File[] xsdFiles =
-            new File[] { new File(scompTestFilesRoot + "enum2.xsd_"),
+    public void testEnumerationRedefine2() {
+        File[] xsdFiles ={ new File(scompTestFilesRoot + "enum2.xsd_"),
                          new File(scompTestFilesRoot + "enum2_redefine.xsd_") };
         String outputDirName = "enumRedef2";
         String testname = "testEnumerationRedefine2";
@@ -97,10 +85,8 @@ public class SchemaCompilerTests extends Common
         involving an enumeration fails.
      */
     @Test
-    public void testEnumerationRedefine3()
-    {
-        File[] xsdFiles =
-            new File[] { new File(scompTestFilesRoot + "enum1.xsd_"),
+    public void testEnumerationRedefine3() {
+        File[] xsdFiles = { new File(scompTestFilesRoot + "enum1.xsd_"),
                          new File(scompTestFilesRoot + "enum3.xsd_"),
                          new File(scompTestFilesRoot + "enum3_redefine.xsd_") };
         String outputDirName = "enumRedef3";
@@ -113,20 +99,16 @@ public class SchemaCompilerTests extends Common
      * using static handlers for extension interfaces with same method names
      */
     @Test
-    public void testExtensionHandlerMethodNameCollision()
-    {
-        File[] xsdFiles =
-            new File[] { new File(scompTestFilesRoot + "methodsColide_jira205_278.xsd_") };
-        File[] configFiles =
-            new File[] { new File(scompTestFilesRoot + "methodsColide_jira205_278.xsdconfig_") };
-        File[] javaFiles =
-            new File[] { new File(scompTestFilesRoot + "ext" + P + "I1.java"),
+    public void testExtensionHandlerMethodNameCollision() {
+        File[] xsdFiles = { new File(scompTestFilesRoot + "methodsColide_jira205_278.xsd_") };
+        File[] configFiles = { new File(scompTestFilesRoot + "methodsColide_jira205_278.xsdconfig_") };
+        File[] javaFiles = { new File(scompTestFilesRoot + "ext" + P + "I1.java"),
                          new File(scompTestFilesRoot + "ext" + P + "H1.java"),
                          new File(scompTestFilesRoot + "ext" + P + "I2.java"),
                          new File(scompTestFilesRoot + "ext" + P + "H2.java")};
         String outputDirName = "methodsColide_jira205";
 
-        List errors = new ArrayList();
+        List<XmlError> errors = new ArrayList<>();
         Parameters params = new Parameters();
         params.setXsdFiles(xsdFiles);
         params.setConfigFiles(configFiles);
@@ -136,10 +118,7 @@ public class SchemaCompilerTests extends Common
         params.setClassesDir(new File(schemaCompOutputDirPath + outputDirName + P + "classes"));
 
         SchemaCompiler.compile(params);
-        if (printOptionErrMsgs(errors))
-        {
-            fail("testExtensionHandlerMethodNameCollision(): failure when executing scomp");
-        }
+        assertFalse("testExtensionHandlerMethodNameCollision(): failure when executing scomp", printOptionErrMsgs(errors));
     }
 
     /**
@@ -147,15 +126,12 @@ public class SchemaCompilerTests extends Common
      * -noext flag for compilation
      */
     @Test
-    public void testNoExt()
-    {
-        File[] xsdFiles =
-            new File[] { new File(scompTestFilesRoot + "methodsColide_jira205_278.xsd_") };
-        File[] configFiles =
-            new File[] { new File(scompTestFilesRoot + "methodsColide_jira205_278.xsdconfig_") };
+    public void testNoExt() {
+        File[] xsdFiles = { new File(scompTestFilesRoot + "methodsColide_jira205_278.xsd_") };
+        File[] configFiles = { new File(scompTestFilesRoot + "methodsColide_jira205_278.xsdconfig_") };
         String outputDirName = "noExt";
 
-        List errors = new ArrayList();
+        List<XmlError> errors = new ArrayList<>();
         Parameters params = new Parameters();
         params.setXsdFiles(xsdFiles);
         params.setConfigFiles(configFiles);
@@ -168,9 +144,6 @@ public class SchemaCompilerTests extends Common
         params.setNoExt(true);
 
         SchemaCompiler.compile(params);
-        if (printOptionErrMsgs(errors))
-        {
-            fail("testNoExt(): failure when executing scomp");
-        }
+        assertFalse("testNoExt(): failure when executing scomp", printOptionErrMsgs(errors));
     }
 }
