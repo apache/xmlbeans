@@ -1122,27 +1122,29 @@ public class RegularExpression implements java.io.Serializable {
                         if (refno <= 0 || refno >= this.nofparen) {
                             throw new RuntimeException("Internal Error: Reference number must be more than zero: "+refno);
                         }
-                        if (con.match.getBeginning(refno) < 0 || con.match.getEnd(refno) < 0) {
-                            returned = true;
-                            break;
-                        }
-                        int o2 = con.match.getBeginning(refno);
-                        int literallen = con.match.getEnd(refno)-o2;
-                        if (dx > 0) {
-                            if (!target.regionMatches(isSetIgnoreCase, offset, con.limit, o2, literallen)) {
+                        if (con.match != null) {
+                            if (con.match.getBeginning(refno) < 0 || con.match.getEnd(refno) < 0) {
                                 returned = true;
                                 break;
                             }
-                            offset += literallen;
-                        }
-                        else {
-                            if (!target.regionMatches(isSetIgnoreCase, offset-literallen, con.limit, o2, literallen)) {
-                                returned = true;
-                                break;
+                            int o2 = con.match.getBeginning(refno);
+                            int literallen = con.match.getEnd(refno)-o2;
+                            if (dx > 0) {
+                                if (!target.regionMatches(isSetIgnoreCase, offset, con.limit, o2, literallen)) {
+                                    returned = true;
+                                    break;
+                                }
+                                offset += literallen;
                             }
-                            offset -= literallen;
+                            else {
+                                if (!target.regionMatches(isSetIgnoreCase, offset-literallen, con.limit, o2, literallen)) {
+                                    returned = true;
+                                    break;
+                                }
+                                offset -= literallen;
+                            }
+                            op = op.next;
                         }
-                        op = op.next;
                     }
                     break;
 
@@ -1271,7 +1273,7 @@ public class RegularExpression implements java.io.Serializable {
                             if (cop.refNumber >= this.nofparen) {
                                 throw new RuntimeException("Internal Error: Reference number must be more than zero: "+cop.refNumber);
                             }
-                            if (con.match.getBeginning(cop.refNumber) >= 0
+                            if (con.match != null && con.match.getBeginning(cop.refNumber) >= 0
                                     && con.match.getEnd(cop.refNumber) >= 0) {
                                 op = cop.yes;
                             }
@@ -1347,7 +1349,7 @@ public class RegularExpression implements java.io.Serializable {
                     case Op.CAPTURE:
                         final int refno = op.getData();
                         final int saved = dataStack.pop();
-                        if (retValue < 0) {
+                        if (con.match != null && retValue < 0) {
                             if (refno > 0) {
                                 con.match.setBeginning(refno, saved);
                             }
