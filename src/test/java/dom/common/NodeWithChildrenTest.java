@@ -15,13 +15,12 @@
 
 package dom.common;
 
-import org.junit.Ignore;
 import org.junit.Test;
+import org.w3c.dom.CharacterData;
 import org.w3c.dom.*;
 
 import static org.junit.Assert.*;
 
-@Ignore
 public abstract class NodeWithChildrenTest extends NodeTest {
 
     @Test
@@ -42,27 +41,18 @@ public abstract class NodeWithChildrenTest extends NodeTest {
 
     @Test
     public void testRemoveChildDiffImpl() throws Exception {
-
-        Node toRemove=NodeTest.getApacheNode(sXml,true,'E');
-        try {
-            super.testRemoveChild(toRemove);
-            fail("Removing node from a different impl");
-        } catch (DOMException de) {
-            assertEquals(de.code, DOMException.WRONG_DOCUMENT_ERR);
-        }
-
+        Node toRemove = NodeTest.getApacheNode(sXml,true,'E');
+        DOMException de = assertThrows("Removing node from a different impl",
+            DOMException.class, () -> super.testRemoveChild(toRemove));
+        assertEquals(de.code, DOMException.WRONG_DOCUMENT_ERR);
     }
 
     @Test
     public void testRemoveChildDiffDoc() throws Exception {
-        Node toRemove=m_docNS.getDocumentElement();
-        try {
-            super.testRemoveChild(toRemove);
-            fail("Removing node from a different doc");
-        } catch (DOMException de) {
-            assertEquals(de.code, DOMException.WRONG_DOCUMENT_ERR);
-        }
-
+        Node toRemove = m_docNS.getDocumentElement();
+        DOMException de = assertThrows("Removing node from a different doc",
+            DOMException.class, () -> super.testRemoveChild(toRemove));
+        assertEquals(de.code, DOMException.WRONG_DOCUMENT_ERR);
     }
 
     @Test
@@ -81,14 +71,11 @@ public abstract class NodeWithChildrenTest extends NodeTest {
     public void testReplaceChild() {
         NodeList children = m_node.getChildNodes();
         int pos = children.getLength() / 2;
-        Node newNode;
-        if (m_node instanceof Document)
-               newNode= m_doc.createElement("fooBAR");
-        else
-                 newNode=m_doc.createTextNode("fooBAR");
+        Node newNode = (m_node instanceof Document)
+            ? m_doc.createElement("fooBAR")
+            : m_doc.createTextNode("fooBAR");
         Node node = children.item(pos);
         super.testReplaceChild(newNode, node);
-
     }
 
     @Test
@@ -116,19 +103,18 @@ public abstract class NodeWithChildrenTest extends NodeTest {
     @Test
     public void testReplaceChildNull() {
         Node node = null;
-        Node newNode;
-        if (m_node instanceof Document)
-            newNode = ((Document) m_node).createElement("fooBAR");
-        else
-            newNode = m_node.getOwnerDocument().createElement("fooBAR");
+        Node newNode = (m_node instanceof Document)
+            ? ((Document) m_node).createElement("fooBAR")
+            : m_node.getOwnerDocument().createElement("fooBAR");
         super.testReplaceChild(newNode, node);
     }
 
     @Test
     public void testReplaceChildDNE() {
 
-        if (!(m_doc instanceof Document))
+        if (m_doc == null) {
             assertEquals(m_doc, m_node.getOwnerDocument());
+        }
 
         //node to replace is not a child
         Node node =m_doc.createElement("foobar");
@@ -221,13 +207,17 @@ public abstract class NodeWithChildrenTest extends NodeTest {
     public void testInsertBeforeInvalidRefNode() {
         Node child = m_doc.createElementNS("org.foo.www", "foonode");
         Node target = m_doc.createElement("foo");
-        try {
-            super.testInsertBefore(child, target);
-            fail("Insert cannot happen");
-        } catch (DOMException de) {
-            System.err.println(de.getMessage() + " " + de.code);
-            assertEquals(DOMException.NOT_FOUND_ERR, de.code);
-        }
+
+        DOMException de = assertThrows(DOMException.class, () -> super.testInsertBefore(child, target));
+        assertEquals(DOMException.NOT_FOUND_ERR, de.code);
+
+//        try {
+//            super.testInsertBefore(child, target);
+//            fail("Insert cannot happen");
+//        } catch (DOMException de) {
+//            System.err.println(de.getMessage() + " " + de.code);
+//            assertEquals(DOMException.NOT_FOUND_ERR, de.code);
+//        }
     }
 
     @Test

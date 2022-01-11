@@ -26,6 +26,7 @@ import xbean.dom.dumbNS.RootDocument;
 
 import java.math.BigInteger;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
 public class DirtyCacheTests {
@@ -37,12 +38,12 @@ public class DirtyCacheTests {
         Node n = o.getDomNode();
         n = n.getFirstChild();
         n = n.getFirstChild();
-        n = n.getFirstChild();//text
-        String s = n.getNodeValue();
-        System.out.println(n.getNodeName() + " " + s);
+        n = n.getFirstChild();
+        assertEquals("#text", n.getNodeName());
+        assertEquals("30", n.getNodeValue());
         t.setChild1(new BigInteger("5"));
-        s = n.getNodeValue();
-        System.out.println(n.getNodeName() + " " + s);
+        assertEquals("#text", n.getNodeName());
+        assertEquals("5", n.getNodeValue());
     }
 
     @Test
@@ -63,13 +64,13 @@ public class DirtyCacheTests {
         n = n.getFirstChild();
         n = n.getFirstChild();
 
-        String s = n.getNodeValue();
-        System.out.println(n.getNodeName() + " " + s);
+        assertEquals("#text", n.getNodeName());
+        assertEquals("Random mixed content", n.getNodeValue());
         n = n.getNextSibling();
         n = n.getFirstChild();
 
-        s = n.getNodeValue();
-        System.out.println(n.getNodeName() + " " + s);
+        assertEquals("#text", n.getNodeName());
+        assertEquals("0", n.getNodeValue());
     }
 
     @Test
@@ -81,6 +82,7 @@ public class DirtyCacheTests {
         n = n.getFirstChild();
         n = n.getAttributes().getNamedItem("b");
 
-        System.out.println(n.getNodeName() + " " + n.getNodeValue());
+        assertEquals("b", n.getNodeName());
+        assertEquals("5", n.getNodeValue());
     }
 }

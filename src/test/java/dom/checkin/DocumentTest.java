@@ -18,9 +18,11 @@ package dom.checkin;
 
 import dom.common.NodeWithChildrenTest;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.w3c.dom.*;
 import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -29,6 +31,16 @@ import static org.junit.Assert.*;
 
 
 public class DocumentTest extends NodeWithChildrenTest {
+
+    public void moveToNode() {
+        m_node = m_doc;
+    }
+
+    @Before
+    public void setUp() throws Exception {
+        super.setUp();
+        moveToNode();
+    }
 
 
     public DocumentTest() {
@@ -94,85 +106,55 @@ public class DocumentTest extends NodeWithChildrenTest {
 
     @Test
     public void testAppendChild() {
-        try {
-            super.testAppendChild();
-        }
-        catch (DOMException de) {
-            assertEquals(DOMException.HIERARCHY_REQUEST_ERR, de.code);
-        }
+        DOMException de = assertThrows(DOMException.class, super::testAppendChild);
+        assertEquals(DOMException.HIERARCHY_REQUEST_ERR, de.code);
     }
 
     @Test
     public void testInsertBefore() {
-        try {
-            super.testInsertBefore();
-        }
-        catch (DOMException de) {
-            assertEquals(DOMException.HIERARCHY_REQUEST_ERR, de.code);
-        }
+        DOMException de = assertThrows(DOMException.class, super::testInsertBefore);
+        assertEquals(DOMException.HIERARCHY_REQUEST_ERR, de.code);
     }
 
     @Test
     public void testInsertBeforeNullTarget() {
-        try {
-            super.testInsertBeforeNullTarget();
-        }
-        catch (DOMException de) {
-            assertEquals(DOMException.HIERARCHY_REQUEST_ERR, de.code);
-        }
+        DOMException de = assertThrows(DOMException.class, super::testInsertBeforeNullTarget);
+        assertEquals(DOMException.HIERARCHY_REQUEST_ERR, de.code);
     }
 
     @Test
     public void testInsertExistingNode() {
-        try {
-            super.testInsertExistingNode(m_node.getFirstChild());
-        }
-        catch (DOMException de) {
-            assertEquals(DOMException.HIERARCHY_REQUEST_ERR, de.code);
-        }
+        DOMException de = assertThrows(DOMException.class, () -> super.testInsertExistingNode(m_node.getFirstChild()));
+        assertEquals(DOMException.HIERARCHY_REQUEST_ERR, de.code);
     }
 
-    @Test
-    public void testInsertBeforeInvalidRefNode() {
-        try {
-            super.testInsertBeforeInvalidRefNode();
-        }
-        catch (DOMException de) {
-            assertEquals(DOMException.HIERARCHY_REQUEST_ERR, de.code);
-        }
-        catch (AssertionError af) {
-            assertEquals(((DOMException) af.getCause()).code,
-                    DOMException.HIERARCHY_REQUEST_ERR);
-        }
-    }
+//    @Test
+//    public void testAppendChildIllegal0() {
+//        try {
+//            super.testAppendChildIllegal0();
+//        }
+//        catch (DOMException de) {
+//            assertEquals(DOMException.HIERARCHY_REQUEST_ERR, de.code);
+//        }
+//        catch (AssertionError af) {
+//            assertEquals(((DOMException) af.getCause()).code,
+//                    DOMException.HIERARCHY_REQUEST_ERR);
+//        }
+//    }
 
-    @Test
-    public void testAppendChildIllegal0() {
-        try {
-            super.testAppendChildIllegal0();
-        }
-        catch (DOMException de) {
-            assertEquals(DOMException.HIERARCHY_REQUEST_ERR, de.code);
-        }
-        catch (AssertionError af) {
-            assertEquals(((DOMException) af.getCause()).code,
-                    DOMException.HIERARCHY_REQUEST_ERR);
-        }
-    }
-
-    @Test
-    public void testAppendChildIllegal1() {
-        try {
-            super.testAppendChildIllegal1();
-        }
-        catch (DOMException de) {
-            assertEquals(DOMException.HIERARCHY_REQUEST_ERR, de.code);
-        }
-        catch (AssertionError af) {
-            assertEquals(((DOMException) af.getCause()).code,
-                    DOMException.HIERARCHY_REQUEST_ERR);
-        }
-    }
+//    @Test
+//    public void testAppendChildIllegal1() {
+//        try {
+//            super.testAppendChildIllegal1();
+//        }
+//        catch (DOMException de) {
+//            assertEquals(DOMException.HIERARCHY_REQUEST_ERR, de.code);
+//        }
+//        catch (AssertionError af) {
+//            assertEquals(((DOMException) af.getCause()).code,
+//                    DOMException.HIERARCHY_REQUEST_ERR);
+//        }
+//    }
 
     @Test
     public void testGetChildNodes() {
@@ -186,51 +168,38 @@ public class DocumentTest extends NodeWithChildrenTest {
 
     @Test
     public void testInsertExisitingNode() {
-        Node child = m_doc.getFirstChild().getFirstChild();//some text
-        if (child == m_node)
+        Node child = m_doc.getFirstChild().getFirstChild();
+        if (child == m_node) {
             child = m_doc.getLastChild();
-        try{
-         super.testInsertExistingNode(child);
-        }catch (DOMException de){
-            //never can insert anything unless doc is empty
-            assertEquals(DOMException.HIERARCHY_REQUEST_ERR, de.code);
-
         }
+        Node c = child;
+        DOMException de = assertThrows(DOMException.class, () -> super.testInsertExistingNode(c));
+        //never can insert anything unless doc is empty
+        assertEquals(DOMException.HIERARCHY_REQUEST_ERR, de.code);
     }
 
     @Test
     public void testAppendChildExisting() {
         Node child = m_node.getFirstChild().getFirstChild();
-        try {
-            super.testAppendChildExisting(child);
-        }
-        catch (DOMException de) {
-            assertEquals(DOMException.HIERARCHY_REQUEST_ERR, de.code);
-        }
+        DOMException de = assertThrows(DOMException.class, () -> super.testAppendChildExisting(child));
+        assertEquals(DOMException.HIERARCHY_REQUEST_ERR, de.code);
     }
 
+    @Ignore
     public void testNormalize() {
         //unque doc child--normalize in elt. or text or comment, etc
     }
 
     @Test
     public void testInsertBeforeDocFrag() {
-        try {
-            super.testInsertBeforeDocFrag();
-        }
-        catch (DOMException de) {
-            assertEquals(DOMException.HIERARCHY_REQUEST_ERR, de.code);
-        }
+        DOMException de = assertThrows(DOMException.class, super::testInsertBeforeDocFrag);
+        assertEquals(DOMException.HIERARCHY_REQUEST_ERR, de.code);
     }
 
     @Test
     public void testAppendChildDocFrag() {
-        try {
-            super.testAppendChildDocFrag();
-        }
-        catch (DOMException de) {
-            assertEquals(DOMException.HIERARCHY_REQUEST_ERR, de.code);
-        }
+        DOMException de = assertThrows(DOMException.class, super::testAppendChildDocFrag);
+        assertEquals(DOMException.HIERARCHY_REQUEST_ERR, de.code);
     }
 
     @Test
@@ -252,12 +221,8 @@ public class DocumentTest extends NodeWithChildrenTest {
 
     @Test
     public void testReplaceChildDocFrag() {
-        try {
-            super.testReplaceChildDocFrag();
-        }
-        catch (DOMException de) {
-            assertEquals(DOMException.HIERARCHY_REQUEST_ERR, de.code);
-        }
+        DOMException de = assertThrows(DOMException.class, super::testReplaceChildDocFrag);
+        assertEquals(DOMException.HIERARCHY_REQUEST_ERR, de.code);
     }
 
     @Test
@@ -326,38 +291,16 @@ public class DocumentTest extends NodeWithChildrenTest {
 
     @Test
     public void testCreateProcessingInstruction() {
-        ProcessingInstruction pi = null;
-        try {
-            pi = m_doc.createProcessingInstruction("xml", "version 1.0");
-            assertNull(pi.getParentNode());
-            assertEquals(m_doc, pi.getOwnerDocument());
-            fail(" this is a no-go");
-        }
-        catch (Throwable t) {
-            //TODO: ensure right exception here
-        }
-        String val = null;
-        pi = m_doc.createProcessingInstruction("xml-foo", val);
+        DOMException de1 = assertThrows(DOMException.class, () -> m_doc.createProcessingInstruction("xml", "version 1.0"));
+        assertEquals(DOMException.INVALID_CHARACTER_ERR, de1.code);
+
+        ProcessingInstruction pi = m_doc.createProcessingInstruction("xml-foo", null);
         assertEquals("", pi.getData());
 
+        assertThrows("PI target can't be null", IllegalArgumentException.class, () -> m_doc.createProcessingInstruction(null, "foo"));
 
-        try {
-            pi = m_doc.createProcessingInstruction(null, "foo");
-            fail("PI target can't be null");
-        }
-        catch (IllegalArgumentException e) {
-
-        }
-
-
-        try {
-            pi = m_doc.createProcessingInstruction("invalid@", "foo");
-            fail("Invalid pi name");
-        }
-        catch (DOMException de) {
-            assertEquals(DOMException.INVALID_CHARACTER_ERR, de.code);
-        }
-
+        DOMException de3 = assertThrows("Invalid pi name", DOMException.class, () -> m_doc.createProcessingInstruction("invalid@", "foo"));
+        assertEquals(DOMException.INVALID_CHARACTER_ERR, de3.code);
     }
 
     @Test
@@ -443,26 +386,20 @@ public class DocumentTest extends NodeWithChildrenTest {
     @Test
     public void testGetElementsByTagNameNS_DNE() {
         m_node = m_docNS;
-        NodeList result = ((Document) m_node).getElementsByTagNameNS("uri:foo",
-                "zed");
+        NodeList result = ((Document) m_node).getElementsByTagNameNS("uri:foo", "zed");
         assertEquals(0, result.getLength());
 
-        result =
-                ((Document) m_node).getElementsByTagNameNS("foo:uri_DNE",
-                        "foo");
+        result = ((Document) m_node).getElementsByTagNameNS("foo:uri_DNE", "foo");
         assertEquals(0, result.getLength());
-
     }
 
     @Test
     public void testGetImplementation() {
-        assertTrue(
-                m_doc.getImplementation().toString().startsWith(
-                        "org.apache.xmlbeans.impl.store"));
+        assertTrue(m_doc.getImplementation().toString().startsWith("org.apache.xmlbeans.impl.store"));
     }
 
     @Test
-    public void testImportNode() {
+    public void testImportNode() throws IOException, SAXException {
 
         Node toImport = m_docNS.getFirstChild();
         ((Document) m_node).importNode(toImport, true);
@@ -472,15 +409,7 @@ public class DocumentTest extends NodeWithChildrenTest {
 
         org.apache.xerces.parsers.DOMParser parser = new org.apache.xerces.parsers.DOMParser();
 
-        try {
-            parser.parse(new InputSource(new StringReader(sXmlNS)));
-        }
-        catch (org.xml.sax.SAXException se) {
-            se.printStackTrace();
-        }
-        catch (IOException ioe) {
-            ioe.printStackTrace(System.err);
-        }
+        parser.parse(new InputSource(new StringReader(sXmlNS)));
 
         Document xercesDocument = parser.getDocument();
         assertNotNull(xercesDocument);
@@ -550,23 +479,11 @@ public class DocumentTest extends NodeWithChildrenTest {
      */
     @Test
     public void testImportDocument() {
-        DOMException e1 = null;
-        try {
-            m_docNS.importNode(m_doc, false);
-        }
-        catch (DOMException de) {
-            e1 = de;
-        }
-        try {
-            m_docNS.importNode(m_doc, true);
-            fail("This should fail");
-        }
-        catch (DOMException de) {
-            assertEquals(DOMException.NOT_SUPPORTED_ERR, de.code);
-        }
-        if (e1 == null)
-            fail("Cant import doc node");
+        DOMException e1 = assertThrows(DOMException.class, () -> m_docNS.importNode(m_doc, false));
         assertEquals(DOMException.NOT_SUPPORTED_ERR, e1.code);
+
+        DOMException e2 = assertThrows(DOMException.class, () -> m_docNS.importNode(m_doc, true));
+        assertEquals(DOMException.NOT_SUPPORTED_ERR, e2.code);
     }
 
 
@@ -602,23 +519,25 @@ public class DocumentTest extends NodeWithChildrenTest {
         assertEquals(imported.getOwnerDocument(), m_docNS);
     }
 
-    /**
+    /*
      * DOCUMENT_TYPE_NODE
      * Test in ../ImportUnsupportedNodes
      */
-    /**
+    /*
      * ENTITY_NODE
      * Test in ../ImportUnsupportedNodes
      */
 
-    /**
+    /*
      * ENTITY_REFERENCE_NODE
      * Test in ../ImportUnsupportedNodes
      */
-    /**
+    /*
      * NOTATION_NODE
      * Test in ../ImportUnsupportedNodes
      */
+
+
     /**
      * PROCESSING_INSTRUCTION_NODE
      * The imported node copies its target and data
@@ -668,8 +587,7 @@ public class DocumentTest extends NodeWithChildrenTest {
         txt = m_doc.createComment("some text");
         m_doc.getFirstChild().appendChild(txt);
         assertNull(imported.getParentNode());
-        imported =
-                m_docNS.importNode(m_doc.getFirstChild().getLastChild(), false);
+        imported = m_docNS.importNode(m_doc.getFirstChild().getLastChild(), false);
 
         assertEquals(Node.COMMENT_NODE, imported.getNodeType());
         assertEquals("some text", ((Comment) imported).getData());
@@ -681,19 +599,7 @@ public class DocumentTest extends NodeWithChildrenTest {
 
     @Test
     public void testImportNodeNull() {
-        Node _Null = null;
-        ((Document) m_node).importNode(_Null, true);
-        ((Document) m_node).importNode(_Null, false);
-
-    }
-
-    public void moveToNode() {
-        m_node = m_doc;
-    }
-
-    @Before
-    public void setUp() throws Exception {
-        super.setUp();
-        moveToNode();
+        ((Document) m_node).importNode(null, true);
+        ((Document) m_node).importNode(null, false);
     }
 }
