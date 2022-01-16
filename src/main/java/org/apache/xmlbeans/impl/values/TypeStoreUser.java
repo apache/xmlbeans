@@ -49,7 +49,7 @@ public interface TypeStoreUser
     /**
      * A store will call back on invalidate_value when its text has
      * changed and it therefore knows that any cached type value is
-     * invalid. It is the responsibilty of the type to call fetch_text
+     * invalid. It is the responsibility of the type to call fetch_text
      * and reparse next time the user does a strongly-typed get.
      */
     void invalidate_value();
@@ -87,7 +87,7 @@ public interface TypeStoreUser
     void invalidate_nilvalue();
 
     /**
-     * A store calls back on invalidate_element_order when a rearrangment
+     * A store calls back on invalidate_element_order when a rearrangement
      * of sibling elements to the left of this element means that the
      * nillable value may no longer be valid.
      */
@@ -149,7 +149,7 @@ public interface TypeStoreUser
 
     /**
      * Returns the elementflags, if they're consistent. If they're
-     * not, returns -1, and requires a vistor walk.
+     * not, returns -1, and requires a visitor walk.
      */
     int get_elementflags(QName eltName);
 
