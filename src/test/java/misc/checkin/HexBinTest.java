@@ -15,6 +15,7 @@
 
 package misc.checkin;
 
+import net.sf.saxon.str.StringView;
 import net.sf.saxon.trans.XPathException;
 import net.sf.saxon.value.HexBinaryValue;
 import org.apache.xmlbeans.impl.util.HexBin;
@@ -47,7 +48,7 @@ public class HexBinTest {
         String exp = "3c3f786d6c2076657273696f6e3d22312e302220656e636f64696e673d225554462d38223f3e61";
         String enc = HexBin.encode(in);
 
-        HexBinaryValue val = new HexBinaryValue(enc);
+        HexBinaryValue val = new HexBinaryValue(StringView.tidy(enc));
         String saxIn = new String(val.getBinaryValue(), StandardCharsets.UTF_8);
 
         assertEquals(exp, enc.toLowerCase(Locale.ROOT));

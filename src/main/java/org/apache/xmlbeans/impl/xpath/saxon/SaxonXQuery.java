@@ -25,6 +25,7 @@ import net.sf.saxon.om.StructuredQName;
 import net.sf.saxon.query.DynamicQueryContext;
 import net.sf.saxon.query.StaticQueryContext;
 import net.sf.saxon.query.XQueryExpression;
+import net.sf.saxon.str.StringView;
 import net.sf.saxon.type.BuiltInAtomicType;
 import net.sf.saxon.value.*;
 import org.apache.logging.log4j.LogManager;
@@ -253,26 +254,29 @@ public class SaxonXQuery implements XQuery {
             XMLGregorianCalendar g = (XMLGregorianCalendar) value;
             QName gtype = g.getXMLSchemaType();
             if (gtype.equals(DatatypeConstants.DATETIME)) {
-                return DateTimeValue.makeDateTimeValue(value.toString(), config.getConversionRules()).asAtomic();
+                return DateTimeValue.makeDateTimeValue(StringView.tidy(value.toString()),
+                        config.getConversionRules()).asAtomic();
             } else if (gtype.equals(DatatypeConstants.DATE)) {
-                return DateValue.makeDateValue(value.toString(), config.getConversionRules()).asAtomic();
+                return DateValue.makeDateValue(StringView.tidy(value.toString()), config.getConversionRules()).asAtomic();
             } else if (gtype.equals(DatatypeConstants.TIME)) {
-                return TimeValue.makeTimeValue(value.toString()).asAtomic();
+                return TimeValue.makeTimeValue(StringView.tidy(value.toString())).asAtomic();
             } else if (gtype.equals(DatatypeConstants.GYEAR)) {
-                return GYearValue.makeGYearValue(value.toString(), config.getConversionRules()).asAtomic();
+                return GYearValue.makeGYearValue(StringView.tidy(value.toString()),
+                        config.getConversionRules()).asAtomic();
             } else if (gtype.equals(DatatypeConstants.GYEARMONTH)) {
-                return GYearMonthValue.makeGYearMonthValue(value.toString(), config.getConversionRules()).asAtomic();
+                return GYearMonthValue.makeGYearMonthValue(StringView.tidy(value.toString()),
+                        config.getConversionRules()).asAtomic();
             } else if (gtype.equals(DatatypeConstants.GMONTH)) {
                 // a workaround for W3C schema bug
                 String val = value.toString();
                 if (val.endsWith("--")) {
                     val = val.substring(0, val.length() - 2);
                 }
-                return GMonthValue.makeGMonthValue(val).asAtomic();
+                return GMonthValue.makeGMonthValue(StringView.tidy(val)).asAtomic();
             } else if (gtype.equals(DatatypeConstants.GMONTHDAY)) {
-                return GMonthDayValue.makeGMonthDayValue(value.toString()).asAtomic();
+                return GMonthDayValue.makeGMonthDayValue(StringView.tidy(value.toString())).asAtomic();
             } else if (gtype.equals(DatatypeConstants.GDAY)) {
-                return GDayValue.makeGDayValue(value.toString()).asAtomic();
+                return GDayValue.makeGDayValue(StringView.tidy(value.toString())).asAtomic();
             } else {
                 throw new AssertionError("Unknown Gregorian date type");
             }
