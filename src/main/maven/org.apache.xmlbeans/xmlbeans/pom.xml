@@ -89,6 +89,12 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
+            <groupId>org.xmlresolver</groupId>
+            <artifactId>xmlresolver</artifactId>
+            <version>4.1.2</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
             <groupId>com.github.javaparser</groupId>
             <artifactId>javaparser-core</artifactId>
             <version>3.23.1</version>
