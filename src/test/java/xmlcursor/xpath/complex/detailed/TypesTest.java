@@ -117,7 +117,7 @@ public class TypesTest {
         XmlObject[] res = o.selectPath(
             "seconds-from-dateTime(xs:dateTime('1997-07-16T19:20:30+01:00'))");
         assertEquals(1, res.length);
-        XmlDecimal dec = ((XmlDecimal) res[0]);
+        XmlDecimal dec = (XmlDecimal) res[0];
         assertEquals("<xml-fragment>30</xml-fragment>", dec.xmlText());
     }
 
@@ -130,13 +130,9 @@ public class TypesTest {
         //System.out.println(res[0].schemaType());
         String s = res[0].xmlText();
         //System.out.println(s);
-        int i = s.indexOf("(\"");
-        int j = s.indexOf("\")");
-        assertTrue(0 < i);
-        assertTrue(i < j);
-        String duration = s.substring(i + 2, j);
+        assertEquals("<xml-fragment>P2D</xml-fragment>", s);
         //System.out.println(duration);
-        GDurationSpecification gDur = new GDurationBuilder(duration);
+        GDurationSpecification gDur = new GDurationBuilder("P2D");
         //System.out.println(gDur.getDay());
         assertEquals(2, gDur.getDay());
     }
