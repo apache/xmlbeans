@@ -135,11 +135,12 @@ dependencies {
     testImplementation "org.apache.ant:ant-junit:${antVersion}"
     testImplementation "org.apache.ant:ant-junit4:${antVersion}"
     testImplementation 'org.hamcrest:hamcrest:2.2'
-    testImplementation('xerces:xercesImpl:2.12.1') {
+    testImplementation('xerces:xercesImpl:2.12.2') {
         if (JavaVersion.current() != JavaVersion.VERSION_1_8) {
             exclude group: 'xml-apis', module: 'xml-apis'
         }
     }
+    testRuntimeOnly 'org.xmlresolver:xmlresolver:4.1.2'
 
     // maven plugin dependencies
     implementation('org.apache.maven:maven-core:3.8.4')
