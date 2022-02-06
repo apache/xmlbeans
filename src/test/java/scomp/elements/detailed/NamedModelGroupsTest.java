@@ -14,37 +14,32 @@
  */
 package scomp.elements.detailed;
 
-import org.junit.Test;
-import scomp.common.BaseCase;
+import org.junit.jupiter.api.Test;
 import xbean.scomp.element.namedModelGroup.EmployeePerf;
 import xbean.scomp.element.namedModelGroup.EmployeePerformanceDocument;
 import xbean.scomp.element.namedModelGroup.ManagerDocument;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.Calendar;
 import java.util.GregorianCalendar;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static scomp.common.BaseCase.createOptions;
 
-public class NamedModelGroupsTest extends BaseCase {
+public class NamedModelGroupsTest {
     @Test
-    public void testValid() throws Exception {
-        EmployeePerformanceDocument doc =
-            EmployeePerformanceDocument.Factory.newInstance();
+    void testValid() {
+        EmployeePerformanceDocument doc = EmployeePerformanceDocument.Factory.newInstance();
         EmployeePerf elt = doc.addNewEmployeePerformance();
         ManagerDocument.Manager m = elt.addNewManager();
         m.setDepartment("Marketing");
         m.setLastName("Smith");
 
         elt.setComment("Horrible performance by employee Potatohead");
-        elt.setDate(new GregorianCalendar(2004, 8, 12));
+        elt.setDate(new GregorianCalendar(2004, Calendar.SEPTEMBER, 12));
         elt.setGrade(new BigDecimal(new BigInteger("10")));
         elt.setManager(m);
-        try {
-            assertTrue(doc.validate(validateOptions));
-        } catch (Throwable t) {
-            showErrors();
-            throw t;
-        }
+        assertTrue(doc.validate(createOptions()));
     }
 }

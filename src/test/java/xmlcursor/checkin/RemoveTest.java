@@ -17,105 +17,94 @@
 package xmlcursor.checkin;
 
 
+import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlCursor.TokenType;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.impl.values.XmlValueDisconnectedException;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import test.xbean.xmlcursor.purchaseOrder.USAddress;
-import tools.util.JarUtil;
-import xmlcursor.common.BasicCursorTestCase;
 import xmlcursor.common.Common;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
+import static xmlcursor.common.BasicCursorTestCase.*;
 
-public class RemoveTest extends BasicCursorTestCase {
-    @Test(expected = IllegalStateException.class)
-    public void testRemoveFromSTARTDOC() throws Exception {
-        m_xo = XmlObject.Factory.parse(Common.XML_FOO_DIGITS);
-        m_xc = m_xo.newCursor();
-        m_xc.removeXml();
+public class RemoveTest {
+    @Test
+    void testRemoveFromSTARTDOC() throws Exception {
+        try (XmlCursor m_xc = cur(Common.XML_FOO_DIGITS)) {
+            assertThrows(IllegalStateException.class,  m_xc::removeXml);
+        }
     }
 
     @Test
-    public void testRemoveFromFirstChild() throws Exception {
-        m_xo = XmlObject.Factory.parse(Common.XML_FOO_DIGITS);
-        m_xc = m_xo.newCursor();
-        m_xc.toFirstChild();
-        m_xc.removeXml();
-        assertEquals(TokenType.ENDDOC, m_xc.currentTokenType());
+    void testRemoveFromFirstChild() throws Exception {
+        try (XmlCursor m_xc = cur(Common.XML_FOO_DIGITS)) {
+            m_xc.toFirstChild();
+            m_xc.removeXml();
+            assertEquals(TokenType.ENDDOC, m_xc.currentTokenType());
+        }
     }
 
     @Test
-    public void testRemoveAllText() throws Exception {
-        m_xo = XmlObject.Factory.parse(Common.XML_FOO_BAR_TEXT);
-        m_xc = m_xo.newCursor();
-        toNextTokenOfType(m_xc, TokenType.TEXT);
-        m_xc.removeXml();
-        assertEquals(TokenType.END, m_xc.currentTokenType());
-        m_xc.toStartDoc();
-        assertEquals("<foo><bar/></foo>", m_xc.xmlText());
+    void testRemoveAllText() throws Exception {
+        try (XmlCursor m_xc = cur(Common.XML_FOO_BAR_TEXT)) {
+            toNextTokenOfType(m_xc, TokenType.TEXT);
+            m_xc.removeXml();
+            assertEquals(TokenType.END, m_xc.currentTokenType());
+            m_xc.toStartDoc();
+            assertEquals("<foo><bar/></foo>", m_xc.xmlText());
+        }
     }
 
     @Test
-    public void testRemovePartialText() throws Exception {
-        m_xo = XmlObject.Factory.parse(Common.XML_FOO_BAR_TEXT);
-        m_xc = m_xo.newCursor();
-        toNextTokenOfType(m_xc, TokenType.TEXT);
-        m_xc.toNextChar(2);
-        assertEquals("xt", m_xc.getChars());
-        m_xc.removeXml();
-        assertEquals(TokenType.END, m_xc.currentTokenType());
-        m_xc.toStartDoc();
-        assertEquals("<foo><bar>te</bar></foo>", m_xc.xmlText());
+    void testRemovePartialText() throws Exception {
+        try (XmlCursor m_xc = cur(Common.XML_FOO_BAR_TEXT)) {
+            toNextTokenOfType(m_xc, TokenType.TEXT);
+            m_xc.toNextChar(2);
+            assertEquals("xt", m_xc.getChars());
+            m_xc.removeXml();
+            assertEquals(TokenType.END, m_xc.currentTokenType());
+            m_xc.toStartDoc();
+            assertEquals("<foo><bar>te</bar></foo>", m_xc.xmlText());
+        }
     }
 
     @Test
-    public void testRemoveFromATTR() throws Exception {
-        m_xo = XmlObject.Factory.parse(Common.XML_FOO_2ATTR_TEXT);
-        m_xc = m_xo.newCursor();
-        toNextTokenOfType(m_xc, TokenType.ATTR);
-        m_xc.removeXml();
-        assertEquals(TokenType.ATTR, m_xc.currentTokenType());
-        m_xc.toStartDoc();
-        assertEquals("<foo attr1=\"val1\">text</foo>", m_xc.xmlText());
+    void testRemoveFromATTR() throws Exception {
+        try (XmlCursor m_xc = cur(Common.XML_FOO_2ATTR_TEXT)) {
+            toNextTokenOfType(m_xc, TokenType.ATTR);
+            m_xc.removeXml();
+            assertEquals(TokenType.ATTR, m_xc.currentTokenType());
+            m_xc.toStartDoc();
+            assertEquals("<foo attr1=\"val1\">text</foo>", m_xc.xmlText());
+        }
     }
 
-    @Test(expected = XmlValueDisconnectedException.class)
-    public void testRemoveAffectOnXmlObjectGetXXX() throws Exception {
-        //  m_xo =XmlObject.Factory.parse(JarUtil.getResourceFromJar(
-        //          Common.XMLCASES_JAR, Common.TRANXML_FILE_XMLCURSOR_PO));
-        //XmlObject.Factory.parse(Common.XML_PURCHASEORDER);
-        m_xo = XmlObject.Factory.parse(JarUtil.getResourceFromJar(
-                "xbean/xmlcursor/po.xml"));
-        m_xc = m_xo.newCursor();
-        String sQuery=
-                 "declare namespace po=\"http://xbean.test/xmlcursor/PurchaseOrder\";"+
-                 "$this//po:shipTo";
-        m_xc.selectPath( sQuery );
-        m_xc.toNextSelection();
-        XmlObject xo = m_xc.getObject();
-        USAddress usa = (USAddress) xo;
-        m_xc.removeXml();
-        usa.getCity();
+    @Test
+    void testRemoveAffectOnXmlObjectGetXXX() throws Exception {
+        String sQuery = "declare namespace po=\"http://xbean.test/xmlcursor/PurchaseOrder\";$this//po:shipTo";
+        try (XmlCursor m_xc = jcur("xbean/xmlcursor/po.xml")) {
+            m_xc.selectPath(sQuery);
+            m_xc.toNextSelection();
+            XmlObject xo = m_xc.getObject();
+            USAddress usa = (USAddress) xo;
+            m_xc.removeXml();
+            assertThrows(XmlValueDisconnectedException.class, usa::getCity);
+        }
     }
 
-    @Test(expected = XmlValueDisconnectedException.class)
-    public void testRemoveAffectOnXmlObjectNewCursor() throws Exception {
-        // m_xo = XmlObject.Factory.parse(Common.XML_PURCHASEORDER);
-        m_xo = XmlObject.Factory.parse(JarUtil.getResourceFromJar(
-              "xbean/xmlcursor/po.xml"));
-        m_xc = m_xo.newCursor();
-         String sQuery=
-                 "declare namespace po=\"http://xbean.test/xmlcursor/PurchaseOrder\";"+
-                 "$this//po:shipTo";
-        m_xc.selectPath( sQuery );
-        m_xc.toNextSelection();
-        XmlObject xo = m_xc.getObject();
-        USAddress usa = (USAddress) xo;
-        m_xc.removeXml();
-        assertNotNull("USAddress object expected non-null, but is null", usa);
-        m_xc = usa.newCursor();
+    @Test
+    void testRemoveAffectOnXmlObjectNewCursor() throws Exception {
+        String sQuery = "declare namespace po=\"http://xbean.test/xmlcursor/PurchaseOrder\";$this//po:shipTo";
+        try (XmlCursor m_xc = jcur("xbean/xmlcursor/po.xml")) {
+            m_xc.selectPath(sQuery);
+            m_xc.toNextSelection();
+            XmlObject xo = m_xc.getObject();
+            USAddress usa = (USAddress) xo;
+            m_xc.removeXml();
+            assertNotNull(usa, "USAddress object expected non-null, but is null");
+            assertThrows(XmlValueDisconnectedException.class, usa::newCursor);
+        }
     }
 }
 

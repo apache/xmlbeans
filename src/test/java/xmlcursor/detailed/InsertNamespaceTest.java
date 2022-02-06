@@ -16,93 +16,95 @@
 
 package xmlcursor.detailed;
 
+import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlCursor.TokenType;
-import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
-import org.junit.Ignore;
-import org.junit.Test;
-import xmlcursor.common.BasicCursorTestCase;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import xmlcursor.common.Common;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static xmlcursor.common.BasicCursorTestCase.cur;
+import static xmlcursor.common.BasicCursorTestCase.toNextTokenOfType;
 
 
-public class InsertNamespaceTest extends BasicCursorTestCase {
+public class InsertNamespaceTest {
     @Test
-    public void testInsertNamespaceAfterSTART() throws Exception {
-        m_xo = XmlObject.Factory.parse(Common.XML_FOO_2ATTR_TEXT);
-        m_xc = m_xo.newCursor();
-        toNextTokenOfType(m_xc, TokenType.TEXT);
-        m_xc.insertNamespace("prefix", "value");
-        m_xc.toStartDoc();
-        XmlOptions map = new XmlOptions();
-        map.setSaveNamespacesFirst(true);
-        assertEquals("<foo xmlns:prefix=\"value\" attr0=\"val0\" attr1=\"val1\">text</foo>", m_xc.xmlText(map));
-    }
-
-    @Test
-    public void testInsertNamespaceAfterATTR() throws Exception {
-        m_xo = XmlObject.Factory.parse(Common.XML_FOO_2ATTR_TEXT);
-        m_xc = m_xo.newCursor();
-        toNextTokenOfType(m_xc, TokenType.ATTR);
-        toNextTokenOfType(m_xc, TokenType.ATTR);
-        m_xc.insertNamespace("prefix", "value");
-        m_xc.toStartDoc();
-        XmlOptions map = new XmlOptions();
-        map.setSaveNamespacesFirst();
-        assertEquals("<foo xmlns:prefix=\"value\" attr0=\"val0\" attr1=\"val1\">text</foo>", m_xc.xmlText(map));
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testInsertNamespaceInsideTEXT() throws Exception {
-        m_xo = XmlObject.Factory.parse(Common.XML_FOO_2ATTR_TEXT);
-        m_xc = m_xo.newCursor();
-        toNextTokenOfType(m_xc, TokenType.TEXT);
-        m_xc.toNextChar(2);
-        assertEquals("xt", m_xc.getChars());
-        m_xc.insertNamespace("prefix", "value");
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testInsertNamespaceFromSTARTDOC() throws Exception {
-        m_xo = XmlObject.Factory.parse(Common.XML_FOO_2ATTR_TEXT);
-        m_xc = m_xo.newCursor();
-        m_xc.insertNamespace("prefix", "value");
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testInsertNamespaceAfterPROCINST() throws Exception {
-        m_xo = XmlObject.Factory.parse(Common.XML_FOO_PROCINST);
-        m_xc = m_xo.newCursor();
-        toNextTokenOfType(m_xc, TokenType.PROCINST);
-        m_xc.toNextToken();
-        m_xc.insertNamespace("prefix", "value");
+    void testInsertNamespaceAfterSTART() throws Exception {
+        try (XmlCursor m_xc = cur(Common.XML_FOO_2ATTR_TEXT)) {
+            toNextTokenOfType(m_xc, TokenType.TEXT);
+            m_xc.insertNamespace("prefix", "value");
+            m_xc.toStartDoc();
+            XmlOptions map = new XmlOptions();
+            map.setSaveNamespacesFirst(true);
+            assertEquals("<foo xmlns:prefix=\"value\" attr0=\"val0\" attr1=\"val1\">text</foo>", m_xc.xmlText(map));
+        }
     }
 
     @Test
-    public void testInsertNamespaceAfterNAMESPACE() throws Exception {
-        m_xo = XmlObject.Factory.parse(Common.XML_FOO_NS);
-        m_xc = m_xo.newCursor();
-        toNextTokenOfType(m_xc, TokenType.NAMESPACE);
-        m_xc.toNextToken();
-        m_xc.insertNamespace("prefix", "value");
-        m_xc.toStartDoc();
-        assertEquals("<foo xmlns=\"http://www.foo.org\" xmlns:prefix=\"value\"/>", m_xc.xmlText());
+    void testInsertNamespaceAfterATTR() throws Exception {
+        try (XmlCursor m_xc = cur(Common.XML_FOO_2ATTR_TEXT)) {
+            toNextTokenOfType(m_xc, TokenType.ATTR);
+            toNextTokenOfType(m_xc, TokenType.ATTR);
+            m_xc.insertNamespace("prefix", "value");
+            m_xc.toStartDoc();
+            XmlOptions map = new XmlOptions();
+            map.setSaveNamespacesFirst();
+            assertEquals("<foo xmlns:prefix=\"value\" attr0=\"val0\" attr1=\"val1\">text</foo>", m_xc.xmlText(map));
+        }
     }
 
     @Test
-    public void testInsertDuplicateNamespace() throws Exception {
-        m_xo = XmlObject.Factory.parse(Common.XML_FOO_TEXT);
-        m_xc = m_xo.newCursor();
-        toNextTokenOfType(m_xc, TokenType.TEXT);
-        m_xc.insertNamespace("prefix", "http://www.foo.org");
-        m_xc.insertNamespace("prefix", "http://www.foo.org");
-        m_xc.toStartDoc();
-        assertEquals("<foo xmlns:prefix=\"http://www.foo.org\">text</foo>", m_xc.xmlText());
+    void testInsertNamespaceInsideTEXT() throws Exception {
+        try (XmlCursor m_xc = cur(Common.XML_FOO_2ATTR_TEXT)) {
+            toNextTokenOfType(m_xc, TokenType.TEXT);
+            m_xc.toNextChar(2);
+            assertEquals("xt", m_xc.getChars());
+            assertThrows(IllegalArgumentException.class, () -> m_xc.insertNamespace("prefix", "value"));
+        }
     }
 
     @Test
-    @Ignore
+    void testInsertNamespaceFromSTARTDOC() throws Exception {
+        try (XmlCursor m_xc = cur(Common.XML_FOO_2ATTR_TEXT)) {
+            assertThrows(IllegalArgumentException.class, () -> m_xc.insertNamespace("prefix", "value"));
+        }
+    }
+
+    @Test
+    void testInsertNamespaceAfterPROCINST() throws Exception {
+        try (XmlCursor m_xc = cur(Common.XML_FOO_PROCINST)) {
+            toNextTokenOfType(m_xc, TokenType.PROCINST);
+            m_xc.toNextToken();
+            assertThrows(IllegalArgumentException.class, () -> m_xc.insertNamespace("prefix", "value"));
+        }
+    }
+
+    @Test
+    void testInsertNamespaceAfterNAMESPACE() throws Exception {
+        try (XmlCursor m_xc = cur(Common.XML_FOO_NS)) {
+            toNextTokenOfType(m_xc, TokenType.NAMESPACE);
+            m_xc.toNextToken();
+            m_xc.insertNamespace("prefix", "value");
+            m_xc.toStartDoc();
+            assertEquals("<foo xmlns=\"http://www.foo.org\" xmlns:prefix=\"value\"/>", m_xc.xmlText());
+        }
+    }
+
+    @Test
+    void testInsertDuplicateNamespace() throws Exception {
+        try (XmlCursor m_xc = cur(Common.XML_FOO_TEXT)) {
+            toNextTokenOfType(m_xc, TokenType.TEXT);
+            m_xc.insertNamespace("prefix", "http://www.foo.org");
+            m_xc.insertNamespace("prefix", "http://www.foo.org");
+            m_xc.toStartDoc();
+            assertEquals("<foo xmlns:prefix=\"http://www.foo.org\">text</foo>", m_xc.xmlText());
+        }
+    }
+
+    @Test
+    @Disabled
     public void testInsertNamespaceWithNullPrefix() throws Exception {
         // According to Eric V...  This test is not valid
         // Eric's comments:
@@ -124,25 +126,25 @@ public class InsertNamespaceTest extends BasicCursorTestCase {
     }
 
     @Test
-    public void testInsertNamespaceWithNullValue() throws Exception {
-        m_xo = XmlObject.Factory.parse(Common.XML_FOO);
-        m_xc = m_xo.newCursor();
-        toNextTokenOfType(m_xc, TokenType.END);
+    void testInsertNamespaceWithNullValue() throws Exception {
+        try (XmlCursor m_xc = cur(Common.XML_FOO)) {
+            toNextTokenOfType(m_xc, TokenType.END);
 
-        //EricV: this should be OK, but make sure the saver
-        // doesn't serialize it since it's not legal XML
+            //EricV: this should be OK, but make sure the saver
+            // doesn't serialize it since it's not legal XML
 
-        m_xc.insertNamespace("prefix", null);
-        m_xc.toStartDoc();
-        assertEquals("<foo/>", m_xc.xmlText());
+            m_xc.insertNamespace("prefix", null);
+            m_xc.toStartDoc();
+            assertEquals("<foo/>", m_xc.xmlText());
+        }
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testInsertEmptyNamespace() throws Exception {
-        m_xo = XmlObject.Factory.parse(Common.XML_FOO_TEXT);
-        m_xc = m_xo.newCursor();
-        toNextTokenOfType(m_xc, TokenType.END);
-        m_xc.insertNamespace("", "");
+    @Test
+    void testInsertEmptyNamespace() throws Exception {
+        try (XmlCursor m_xc = cur(Common.XML_FOO_TEXT)) {
+            toNextTokenOfType(m_xc, TokenType.END);
+            assertThrows(IllegalArgumentException.class, () -> m_xc.insertNamespace("", ""));
+        }
     }
 }
 

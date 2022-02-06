@@ -17,37 +17,40 @@
 package xmlcursor.detailed;
 
 
-import org.apache.xmlbeans.XmlObject;
-import org.junit.Before;
-import org.junit.Test;
-import xmlcursor.common.BasicCursorTestCase;
+import org.apache.xmlbeans.XmlCursor;
+import org.apache.xmlbeans.XmlException;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static xmlcursor.common.BasicCursorTestCase.cur;
 
-public class PushPopTest extends BasicCursorTestCase {
+public class PushPopTest {
 
-    private String sDoc = "<foo xmlns:edi='http://ecommerce.org/schema'><?xml-stylesheet type=\"text/xsl\" xmlns=\"http://openuri.org/shipping/\"?><!-- the 'price' element's namespace is http://ecommerce.org/schema -->  <edi:price units='Euro' date='12-12-03'>32.18</edi:price> </foo>";
+    private static  final String XML =
+        "<foo xmlns:edi='http://ecommerce.org/schema'>" +
+        "<?xml-stylesheet type=\"text/xsl\" xmlns=\"http://openuri.org/shipping/\"?>" +
+        "<!-- the 'price' element's namespace is http://ecommerce.org/schema -->  " +
+        "<edi:price units='Euro' date='12-12-03'>32.18</edi:price> </foo>";
 
     @Test
-    public void testPopEmpty() {
-        assertFalse(m_xc.pop());
+    void testPopEmpty() throws XmlException {
+        try (XmlCursor m_xc = cur(XML)) {
+            assertFalse(m_xc.pop());
+        }
     }
 
     @Test
-    public void testPushNTimes() {
-        int nCount = 100;
-        for (int i = 0; i < nCount; i++)
-            m_xc.push();
-        boolean result = true;
-        for (int i = 0; i < nCount; i++)
-            result &= m_xc.pop();
-        assertTrue(result);
-        assertFalse(m_xc.pop());
-    }
-
-    @Before
-    public void setUp() throws Exception {
-        m_xc = XmlObject.Factory.parse(sDoc).newCursor();
+    void testPushNTimes() throws XmlException {
+        final int nCount = 100;
+        try (XmlCursor m_xc = cur(XML)) {
+            for (int i = 0; i < nCount; i++) {
+                m_xc.push();
+            }
+            for (int i = 0; i < nCount; i++) {
+                assertTrue(m_xc.pop());
+            }
+            assertFalse(m_xc.pop());
+        }
     }
 }

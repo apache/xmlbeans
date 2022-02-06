@@ -22,13 +22,13 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -43,30 +43,20 @@ import static org.w3c.domts.DOMTest.load;
  */
 public class elementsetattributenodens02 {
     @Test
-    public void testRun() throws Throwable {
-        Document doc;
-        Element element;
-        Element element2;
-        Attr attribute;
-        Attr attributeCloned;
-        Attr newAttr;
-        NodeList elementList;
-        String attrName;
-        String attrValue;
+    void testRun() throws Throwable {
         String nullNS = null;
 
-        doc = load("staffNS", true);
-        elementList = doc.getElementsByTagNameNS("http://www.nist.gov", "address");
-        element = (Element) elementList.item(1);
-        attribute = element.getAttributeNodeNS(nullNS, "street");
-        attributeCloned = (Attr) attribute.cloneNode(true);
-        element2 = (Element) elementList.item(2);
-        newAttr = element2.setAttributeNodeNS(attributeCloned);
-        attrName = newAttr.getNodeName();
-        attrValue = newAttr.getNodeValue();
-        assertEquals("elementsetattributenodens02_attrName", "street", attrName);
-        assertEquals("elementsetattributenodens02_attrValue", "Yes", attrValue);
-
+        Document doc = load("staffNS", true);
+        NodeList elementList = doc.getElementsByTagNameNS("http://www.nist.gov", "address");
+        Element element = (Element) elementList.item(1);
+        Attr attribute = element.getAttributeNodeNS(nullNS, "street");
+        Attr attributeCloned = (Attr) attribute.cloneNode(true);
+        Element element2 = (Element) elementList.item(2);
+        Attr newAttr = element2.setAttributeNodeNS(attributeCloned);
+        String attrName = newAttr.getNodeName();
+        String attrValue = newAttr.getNodeValue();
+        assertEquals("street", attrName, "elementsetattributenodens02_attrName");
+        assertEquals("Yes", attrValue, "elementsetattributenodens02_attrValue");
     }
 
     /**

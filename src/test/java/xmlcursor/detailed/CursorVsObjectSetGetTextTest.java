@@ -17,29 +17,25 @@
 package  xmlcursor.detailed;
 
 import org.apache.xmlbeans.XmlCursor;
-import org.apache.xmlbeans.XmlObject;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.tranxml.tranXML.version40.CarLocationMessageDocument;
 import org.tranxml.tranXML.version40.CityNameDocument.CityName;
 import org.tranxml.tranXML.version40.GeographicLocationDocument.GeographicLocation;
-import tools.util.JarUtil;
 import xmlcursor.common.Common;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
+import static xmlcursor.common.BasicCursorTestCase.jobj;
 
 
 public class CursorVsObjectSetGetTextTest {
     @Test
-    public void testSetGet() throws Exception {
-        CarLocationMessageDocument clm =
-                (CarLocationMessageDocument) XmlObject.Factory.parse(
-                        JarUtil.getResourceFromJar(Common.TRANXML_FILE_CLM));
+    void testSetGet() throws Exception {
+        CarLocationMessageDocument clm = (CarLocationMessageDocument) jobj(Common.TRANXML_FILE_CLM);
         assertNotNull(clm);
         GeographicLocation[] aGL = new GeographicLocation[3];
 
         try (XmlCursor xc = clm.newCursor()) {
-            xc.selectPath(Common.CLM_NS_XQUERY_DEFAULT +
-                          "$this//GeographicLocation");
+            xc.selectPath(Common.CLM_NS_XQUERY_DEFAULT + "$this//GeographicLocation");
             xc.toNextSelection();
             for (int i = 0; i < 3; i++) {
                 aGL[i] = (GeographicLocation) xc.getObject();
@@ -51,8 +47,7 @@ public class CursorVsObjectSetGetTextTest {
                 aGL[i].setCityName(cname);
             }
             xc.toStartDoc();
-            xc.selectPath(Common.CLM_NS_XQUERY_DEFAULT +
-                          "$this//GeographicLocation");
+            xc.selectPath(Common.CLM_NS_XQUERY_DEFAULT + "$this//GeographicLocation");
 
             xc.toNextSelection();
 
@@ -66,15 +61,6 @@ public class CursorVsObjectSetGetTextTest {
             for (int i = 0; i < 3; i++) {
                 assertEquals("PORTLAND", aGL[i].getCityName().getStringValue());
             }
-        }
-    }
-
-
-    class Bookmark extends XmlCursor.XmlBookmark {
-        public String text;
-
-        Bookmark(String text) {
-            this.text = text;
         }
     }
 }

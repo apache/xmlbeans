@@ -17,8 +17,8 @@ package scomp.contentType.complex.modelGroup.detailed;
 
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlErrorCodes;
-import org.junit.Test;
-import scomp.common.BaseCase;
+import org.apache.xmlbeans.XmlOptions;
+import org.junit.jupiter.api.Test;
 import xbean.scomp.contentType.modelGroup.ChoiceEltDocument;
 import xbean.scomp.contentType.modelGroup.ChoiceT;
 import xbean.scomp.contentType.modelGroup.MixedChoiceEltDocument;
@@ -26,48 +26,43 @@ import xbean.scomp.contentType.modelGroup.MixedChoiceT;
 
 import java.math.BigInteger;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
+import static scomp.common.BaseCase.createOptions;
+import static scomp.common.BaseCase.getErrorCodes;
 
 //TODO: assert that order of elements in a choice group doesn't matter
-public class ChoiceTest extends BaseCase {
+public class ChoiceTest {
     @Test
-    public void testValidCase() throws Throwable {
+    void testValidCase() throws Throwable {
         ChoiceEltDocument doc = ChoiceEltDocument.Factory.newInstance();
         ChoiceT elt = doc.addNewChoiceElt();
         elt.addChild3(new BigInteger("10"));
         elt.addChild3(BigInteger.ZERO);
-        try {
-            assertTrue(doc.validate(validateOptions));
-        } catch (Throwable t) {
-            showErrors();
-            throw t;
-        }
+        assertTrue(doc.validate(createOptions()));
     }
 
     //more than 1 from choice group
     //TODO: test should pass but error message not good
     @Test
-    public void testChoiceViolation() throws Throwable {
+    void testChoiceViolation() throws Throwable {
         ChoiceEltDocument doc = ChoiceEltDocument.Factory.newInstance();
         ChoiceT elt = doc.addNewChoiceElt();
         elt.addChild2("foobar");
         elt.addChild3(new BigInteger("10"));
         elt.addChild3(BigInteger.ZERO);
 
-        assertTrue(!doc.validate(validateOptions));
-        showErrors();
-        String[] errExpected = new String[]{
-            XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$ELEMENT_NOT_ALLOWED
-        };
-        assertTrue(compareErrorCodes(errExpected));
+        XmlOptions validateOptions = createOptions();
+        assertFalse(doc.validate(validateOptions));
+        String[] errExpected = {XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$ELEMENT_NOT_ALLOWED};
+        assertArrayEquals(errExpected, getErrorCodes(validateOptions));
 
     }
 
-    public void testMixedChoice() throws Throwable {
+    @Test
+    void testMixedChoice() throws Throwable {
         MixedChoiceEltDocument doc = MixedChoiceEltDocument.Factory.newInstance();
         MixedChoiceT elt = doc.addNewMixedChoiceElt();
-        assertTrue(!elt.isSetChild1());
+        assertFalse(elt.isSetChild1());
         elt.setChild1(new BigInteger("10"));
         try (XmlCursor cur = elt.newCursor()) {
             assertEquals(XmlCursor.TokenType.START, cur.toFirstContentToken());
@@ -75,10 +70,7 @@ public class ChoiceTest extends BaseCase {
             cur.toNextToken();
             cur.insertChars("foobar");
 
-            assertTrue(doc.validate(validateOptions));
-        } catch (Throwable t) {
-            showErrors();
-            throw t;
+            assertTrue(doc.validate(createOptions()));
         }
         assertEquals("<xml-fragment><child1>10</child1>foobar</xml-fragment>", elt.xmlText());
     }

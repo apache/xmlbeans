@@ -19,16 +19,16 @@ import interfaceFeature.xbean.multInterfaces.purchaseOrder.Items.Item;
 import interfaceFeature.xbean.multInterfaces.purchaseOrder.PurchaseOrderDocument;
 import interfaceFeature.xbean.multInterfaces.purchaseOrder.PurchaseOrderType;
 import org.apache.xmlbeans.XmlObject;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class MultInterfacesTest {
 
     @Test
-    public void test() {
+    void test() {
         PurchaseOrderDocument poDoc = null;
 
         poDoc = PurchaseOrderDocument.Factory.newInstance();
@@ -45,50 +45,49 @@ public class MultInterfacesTest {
         po.setItems(items);
 
         StringBuilder sb = new StringBuilder();
-        sb.append(
-                "<pur:purchaseOrder xmlns:pur=\"http://xbean.interface_feature/multInterfaces/PurchaseOrder\">");
-
+        sb.append("<pur:purchaseOrder xmlns:pur=\"http://xbean.interface_feature/multInterfaces/PurchaseOrder\">");
         sb.append("<pur:items>");
 
         StringBuilder sbContent = new StringBuilder();
-        for (int i = 0; i < LEN; i++)
-            sbContent.append("<pur:item><pur:USPrice>"+i+"</pur:USPrice></pur:item>");
+        for (int i = 0; i < LEN; i++) {
+            sbContent.append("<pur:item><pur:USPrice>" + i + "</pur:USPrice></pur:item>");
+        }
 
         int pos = sb.length();
         sb.append("</pur:items></pur:purchaseOrder>");
 
-        String sExpected = sb.subSequence(0, pos) +
-                sbContent.toString() +
-                sb.subSequence(pos, sb.length());
+        String sExpected = sb.subSequence(0, pos) + sbContent.toString() + sb.subSequence(pos, sb.length());
         assertEquals(sExpected, poDoc.xmlText());
 
 
         assertEquals(0, poDoc.getMinPrice());
-        int price=10;
+        int price = 10;
 
-        poDoc.setMinPrice((double)price);
+        poDoc.setMinPrice((double) price);
 
         sbContent = new StringBuilder();
-        for (int i = 0; i < LEN; i++)
-           if( i< price )
-            sbContent.append("<pur:item><pur:USPrice>"+price+"</pur:USPrice></pur:item>");
-            else
-             sbContent.append("<pur:item><pur:USPrice>"+i+"</pur:USPrice></pur:item>");
+        for (int i = 0; i < LEN; i++) {
+            if (i < price) {
+                sbContent.append("<pur:item><pur:USPrice>" + price + "</pur:USPrice></pur:item>");
+            } else {
+                sbContent.append("<pur:item><pur:USPrice>" + i + "</pur:USPrice></pur:item>");
+            }
+        }
         sExpected = sb.subSequence(0, pos) +
-                sbContent.toString() +
-                sb.subSequence(pos, sb.length());
+                    sbContent.toString() +
+                    sb.subSequence(pos, sb.length());
         assertEquals(sExpected, poDoc.xmlText());
 
         assertEquals(price, poDoc.getMinPrice());
 
-        int expTotal=(price-1)*price+(price+1+LEN) * (LEN-price) / 2;
-        assertEquals(expTotal,poDoc.getTotal());
+        int expTotal = (price - 1) * price + (price + 1 + LEN) * (LEN - price) / 2;
+        assertEquals(expTotal, poDoc.getTotal());
 
         XmlObject item = poDoc.getCheapestItem();
 
-       Item expected=it[0];
+        Item expected = it[0];
         expected.setUSPrice(new BigDecimal(30d));
- //       assertEquals(expected, item );
+        //       assertEquals(expected, item );
     }
 
 }

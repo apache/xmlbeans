@@ -15,421 +15,379 @@
 
 package scomp.namespace.detailed;
 
-import org.apache.xmlbeans.XmlErrorCodes;
-import org.apache.xmlbeans.XmlInt;
-import org.apache.xmlbeans.XmlObject;
-import org.apache.xmlbeans.XmlString;
-import org.junit.Ignore;
-import org.junit.Test;
-import scomp.common.BaseCase;
+import org.apache.xmlbeans.*;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import xbean.scomp.namespace.elementWC.*;
 
 import javax.xml.namespace.QName;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
+import static scomp.common.BaseCase.createOptions;
+import static scomp.common.BaseCase.getErrorCodes;
 
-/**
- */
 //TODO: no test on minOccurs maxOccurs here
-public class ElementWC extends BaseCase {
+public class ElementWC {
     @Test
-    public void testAnyLaxLegal() throws Throwable {
-        AnyLaxDocument doc = AnyLaxDocument.Factory
-                .parse("<AnyLax " +
-                "xmlns=\"http://xbean/scomp/namespace/ElementWC\" " +
-                "xmlns:foobar=\"http://foo\">" +
-                "<foobar:child/></AnyLax>");
-        assertTrue(doc.validate(validateOptions));
+    void testAnyLaxLegal() throws XmlException {
+        AnyLaxDocument doc = AnyLaxDocument.Factory.parse(
+            "<AnyLax " +
+            "xmlns=\"http://xbean/scomp/namespace/ElementWC\" " +
+            "xmlns:foobar=\"http://foo\">" +
+            "<foobar:child/></AnyLax>");
+        assertTrue(doc.validate(createOptions()));
     }
 
     /**
      * Is it possible to have an illegal LAX/Any--think not
      */
-    @Ignore
+    @Disabled
     @Test
-    public void testAnyLaxIllegal() throws Throwable {
-        AnyLaxDocument doc = AnyLaxDocument.Factory
-                .parse("<AnyLax " +
-                "xmlns=\"http://xbean/scomp/namespace/ElementWC\" >" +
-                "<child/></AnyLax>");
-        assertTrue(!doc.validate(validateOptions));
-        String[] errExpected = new String[]{"cvc-attribute"};
-        assertTrue(compareErrorCodes(errExpected));
-
+    void testAnyLaxIllegal() throws XmlException {
+        AnyLaxDocument doc = AnyLaxDocument.Factory.parse(
+            "<AnyLax " +
+            "xmlns=\"http://xbean/scomp/namespace/ElementWC\" >" +
+            "<child/></AnyLax>");
+        XmlOptions validateOptions = createOptions();
+        assertFalse(doc.validate(validateOptions));
+        String[] errExpected = new String[]{XmlErrorCodes.ATTR_LOCALLY_VALID};
+        assertArrayEquals(errExpected, getErrorCodes(validateOptions));
     }
 
     @Test
-    public void testAnySkipLegal() throws Throwable {
-        AnySkipDocument doc = AnySkipDocument.Factory
-                .parse("<AnySkip " +
-                "xmlns=\"http://xbean/scomp/namespace/ElementWC\" " +
-                "xmlns:foobar=\"http://foo\">" +
-                "<foobar:child/></AnySkip>");
-        assertTrue(doc.validate(validateOptions));
+    void testAnySkipLegal() throws XmlException {
+        AnySkipDocument doc = AnySkipDocument.Factory.parse(
+            "<AnySkip " +
+            "xmlns=\"http://xbean/scomp/namespace/ElementWC\" " +
+            "xmlns:foobar=\"http://foo\">" +
+            "<foobar:child/></AnySkip>");
+        assertTrue(doc.validate(createOptions()));
     }
 
     /**
      * Everything is legal here
-     * public void testAnySkipIllegal() throws Throwable {
+     * public void testAnySkipIllegal() throws XmlException {
      * }
      */
     //no NS is legal too
     @Test
-    public void testAnyStrictLegal() throws Throwable {
-        AnyStrictDocument doc = AnyStrictDocument.Factory
-                .parse("<ns:AnyStrict" +
-                " xmlns:ns=\"http://xbean/scomp/namespace/ElementWC\"" +
-                " xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" " +
-                " xmlns:elt=\"http://xbean/scomp/element/GlobalEltDefault\"" +
-                // " xsi:schemaLocation=\"http://xbean/scomp/element/GlobalEltDefault " +
-                //  "GlobalEltDefault.xsd\"
-                "> " +
-                "<elt:GlobalEltDefaultStr/></ns:AnyStrict>");
-        if (!doc.validate(validateOptions))
-            showErrors();
+    void testAnyStrictLegal() throws XmlException {
+        AnyStrictDocument doc = AnyStrictDocument.Factory.parse(
+            "<ns:AnyStrict" +
+            " xmlns:ns=\"http://xbean/scomp/namespace/ElementWC\"" +
+            " xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" " +
+            " xmlns:elt=\"http://xbean/scomp/element/GlobalEltDefault\"" +
+            // " xsi:schemaLocation=\"http://xbean/scomp/element/GlobalEltDefault " +
+            //  "GlobalEltDefault.xsd\"
+            "> " +
+            "<elt:GlobalEltDefaultStr/></ns:AnyStrict>");
+        XmlOptions validateOptions = createOptions();
         assertTrue(doc.validate(validateOptions));
-        XmlObject[] arr=doc.getAnyStrict()
-                .selectChildren(new QName(
-                        "http://xbean/scomp/element/GlobalEltDefault",
-                        "GlobalEltDefaultStr","elt"));
-        assertEquals(arr[0].schemaType(),XmlString.type);
+        XmlObject[] arr = doc.getAnyStrict().selectChildren(
+            new QName("http://xbean/scomp/element/GlobalEltDefault", "GlobalEltDefaultStr", "elt"));
+        assertEquals(XmlString.type, arr[0].schemaType());
     }
 
     @Test
-    public void testAnyStrictIllegal() throws Throwable {
-        AnyStrictDocument doc = AnyStrictDocument.Factory
-                .parse("<AnyStrict " +
-                "xmlns=\"http://xbean/scomp/namespace/ElementWC\" " +
-                "xmlns:foobar=\"http://foo\">" +
-                "<foobar:child/></AnyStrict>");
-        assertTrue(!doc.validate(validateOptions));
-        showErrors();
-        String[] errExpected = new String[]{
-            XmlErrorCodes.ASSESS_ELEM_SCHEMA_VALID$NOT_RESOLVED
-        };
-        assertTrue(compareErrorCodes(errExpected));
-
+    void testAnyStrictIllegal() throws XmlException {
+        AnyStrictDocument doc = AnyStrictDocument.Factory.parse(
+            "<AnyStrict " +
+            "xmlns=\"http://xbean/scomp/namespace/ElementWC\" " +
+            "xmlns:foobar=\"http://foo\">" +
+            "<foobar:child/></AnyStrict>");
+        XmlOptions validateOptions = createOptions();
+        assertFalse(doc.validate(validateOptions));
+        String[] errExpected = {XmlErrorCodes.ASSESS_ELEM_SCHEMA_VALID$NOT_RESOLVED};
+        assertArrayEquals(errExpected, getErrorCodes(validateOptions));
     }
 
     @Test
-    public void testOtherLaxLegal() throws Throwable {
-        OtherLaxDocument doc = OtherLaxDocument.Factory
-                .parse("<foo:OtherLax " +
-                "xmlns:foo=\"http://xbean/scomp/namespace/ElementWC\" " +
-                "xmlns:foobar=\"http:apache.org\" >" +
-                "<foobar:child/></foo:OtherLax>");
-        assertTrue(doc.validate(validateOptions));
+    void testOtherLaxLegal() throws XmlException {
+        OtherLaxDocument doc = OtherLaxDocument.Factory.parse(
+            "<foo:OtherLax " +
+            "xmlns:foo=\"http://xbean/scomp/namespace/ElementWC\" " +
+            "xmlns:foobar=\"http:apache.org\" >" +
+            "<foobar:child/></foo:OtherLax>");
+        assertTrue(doc.validate(createOptions()));
     }
 
     //can not be in target NS
     //cannot be in noNS
     @Test
-    public void testOtherLaxIllegal() throws Throwable {
-        OtherLaxDocument doc = OtherLaxDocument.Factory
-                .parse("<foo:OtherLax " +
-                "xmlns:foo=\"http://xbean/scomp/namespace/ElementWC\"> " +
-                "<foo:child/></foo:OtherLax>");
-        assertTrue(!doc.validate(validateOptions));
-        showErrors();
-        doc = OtherLaxDocument.Factory
-                .parse("<foo:OtherLax " +
-                "xmlns:foo=\"http://xbean/scomp/namespace/ElementWC\"> " +
-                "<child/></foo:OtherLax>");
-        assertTrue(!doc.validate(validateOptions));
-        showErrors();
+    void testOtherLaxIllegal() throws XmlException {
+        OtherLaxDocument doc = OtherLaxDocument.Factory.parse(
+            "<foo:OtherLax " +
+            "xmlns:foo=\"http://xbean/scomp/namespace/ElementWC\"> " +
+            "<foo:child/></foo:OtherLax>");
+        assertFalse(doc.validate(createOptions()));
+        doc = OtherLaxDocument.Factory.parse(
+            "<foo:OtherLax " +
+            "xmlns:foo=\"http://xbean/scomp/namespace/ElementWC\"> " +
+            "<child/></foo:OtherLax>");
+        assertFalse(doc.validate(createOptions()));
     }
 
     @Test
-    public void testOtherSkipLegal() throws Throwable {
-        OtherSkipDocument doc = OtherSkipDocument.Factory
-                .parse("<foo:OtherSkip " +
-                "xmlns:foo=\"http://xbean/scomp/namespace/ElementWC\"" +
-                "  xmlns:elt=\"http://xbean/scomp/attribute/GlobalEltDefault\">" +
-                "<elt:child/></foo:OtherSkip>");
-        assertTrue(doc.validate(validateOptions));
+    void testOtherSkipLegal() throws XmlException {
+        OtherSkipDocument doc = OtherSkipDocument.Factory.parse(
+            "<foo:OtherSkip " +
+            "xmlns:foo=\"http://xbean/scomp/namespace/ElementWC\"" +
+            "  xmlns:elt=\"http://xbean/scomp/attribute/GlobalEltDefault\">" +
+            "<elt:child/></foo:OtherSkip>");
+        assertTrue(doc.validate(createOptions()));
     }
 
     //no ns not allowed by the wc
     @Test
-    public void testOtherSkipIllegal() throws Throwable {
-        OtherSkipDocument doc = OtherSkipDocument.Factory
-                .parse("<foo:OtherSkip " +
-                "xmlns:foo=\"http://xbean/scomp/namespace/ElementWC\" >" +
-                "<child/></foo:OtherSkip>");
-        assertTrue(!doc.validate(validateOptions));
-        showErrors();
+    void testOtherSkipIllegal() throws XmlException {
+        OtherSkipDocument doc = OtherSkipDocument.Factory.parse(
+            "<foo:OtherSkip " +
+            "xmlns:foo=\"http://xbean/scomp/namespace/ElementWC\" >" +
+            "<child/></foo:OtherSkip>");
+        assertFalse(doc.validate(createOptions()));
     }
+
     //"http://xbean/scomp/element/GlobalEltDefault"
     @Test
-    public void testOtherStrictLegal() throws Throwable {
-        OtherStrictDocument doc = OtherStrictDocument.Factory
-                .parse("<foo:OtherStrict xmlns:foo=\"http://xbean/scomp/namespace/ElementWC\"" +
-                "  xmlns:elt=\"http://xbean/scomp/element/GlobalEltDefault\">" +
-                "<elt:GlobalEltDefaultStr/></foo:OtherStrict>");
-        if (!doc.validate(validateOptions))
-            showErrors();
-        assertTrue(doc.validate(validateOptions));
-
+    void testOtherStrictLegal() throws XmlException {
+        OtherStrictDocument doc = OtherStrictDocument.Factory.parse(
+            "<foo:OtherStrict xmlns:foo=\"http://xbean/scomp/namespace/ElementWC\"" +
+            "  xmlns:elt=\"http://xbean/scomp/element/GlobalEltDefault\">" +
+            "<elt:GlobalEltDefaultStr/></foo:OtherStrict>");
+        assertTrue(doc.validate(createOptions()));
     }
 
     @Test
-    public void testOtherStrictIllegal() throws Throwable {
-        OtherStrictDocument doc = OtherStrictDocument.Factory
-                .parse("<foo:OtherStrict " +
-                "xmlns:foo=\"http://xbean/scomp/namespace/ElementWC\"" +
-                " xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" " +
-                " xmlns:elt=\"http://xbean/scomp/element/GlobalEltDefault\"" +
-                " xsi:schemaLocation=\"http://xbean/scomp/element/GlobalEltDefault.xsd\"> " +
-                "<elt:GlobalEltDefaultInt> foo " +
-                "</elt:GlobalEltDefaultInt>" +
-                "</foo:OtherStrict>");
-        assertTrue(!doc.validate(validateOptions));
-        showErrors();
+    void testOtherStrictIllegal() throws XmlException {
+        OtherStrictDocument doc = OtherStrictDocument.Factory.parse(
+            "<foo:OtherStrict " +
+            "xmlns:foo=\"http://xbean/scomp/namespace/ElementWC\"" +
+            " xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" " +
+            " xmlns:elt=\"http://xbean/scomp/element/GlobalEltDefault\"" +
+            " xsi:schemaLocation=\"http://xbean/scomp/element/GlobalEltDefault.xsd\"> " +
+            "<elt:GlobalEltDefaultInt> foo " +
+            "</elt:GlobalEltDefaultInt>" +
+            "</foo:OtherStrict>");
+        assertFalse(doc.validate(createOptions()));
     }
 
     //no declaration for this attr, no error on Lax
     @Test
-    public void testListLaxLegal() throws Throwable {
-        ListLaxDocument doc = ListLaxDocument.Factory
-                .parse("<foo:ListLax " +
-                " xmlns:foo=\"http://xbean/scomp/namespace/ElementWC\"" +
-                "  xmlns:at=\"http://apache.org\">" +
-                " <at:child/></foo:ListLax>");
-        assertTrue(doc.validate(validateOptions));
+    void testListLaxLegal() throws XmlException {
+        ListLaxDocument doc = ListLaxDocument.Factory.parse(
+            "<foo:ListLax " +
+            " xmlns:foo=\"http://xbean/scomp/namespace/ElementWC\"" +
+            "  xmlns:at=\"http://apache.org\">" +
+            " <at:child/></foo:ListLax>");
+        assertTrue(doc.validate(createOptions()));
     }
 
     @Test
-    public void testListLaxIllegal() throws Throwable {
-        ListLaxDocument doc = ListLaxDocument.Factory
-                .parse("<foo:ListLax " +
-                " xmlns:foo=\"http://xbean/scomp/namespace/ElementWC\"" +
-                "  xmlns:at=\"http://xbean/scomp/attribute/GlobalAttrDefault\">" +
-                " <at:child/></foo:ListLax>");
-        assertTrue(!doc.validate(validateOptions));
-        showErrors();
+    void testListLaxIllegal() throws XmlException {
+        ListLaxDocument doc = ListLaxDocument.Factory.parse(
+            "<foo:ListLax " +
+            " xmlns:foo=\"http://xbean/scomp/namespace/ElementWC\"" +
+            "  xmlns:at=\"http://xbean/scomp/attribute/GlobalAttrDefault\">" +
+            " <at:child/></foo:ListLax>");
+        assertFalse(doc.validate(createOptions()));
     }
 
     @Test
-    public void testListSkipLegal() throws Throwable {
-        ListSkipDocument doc = ListSkipDocument.Factory
-                .parse("<foo:ListSkip " +
-                " xmlns:foo=\"http://xbean/scomp/namespace/ElementWC\"" +
-                "  xmlns:at=\"http://apache.org\">" +
-                " <at:child/></foo:ListSkip>");
-        assertTrue(doc.validate(validateOptions));
+    void testListSkipLegal() throws XmlException {
+        ListSkipDocument doc = ListSkipDocument.Factory.parse(
+            "<foo:ListSkip " +
+            " xmlns:foo=\"http://xbean/scomp/namespace/ElementWC\"" +
+            "  xmlns:at=\"http://apache.org\">" +
+            " <at:child/></foo:ListSkip>");
+        assertTrue(doc.validate(createOptions()));
     }
 
     @Test
-    public void testListSkipIllegal() throws Throwable {
-        ListSkipDocument doc = ListSkipDocument.Factory
-                .parse("<foo:ListSkip " +
-                " xmlns:foo=\"http://xbean/scomp/namespace/ElementWC\"" +
-                "  xmlns:at=\"http://apache_org.org\">" +
-                " <at:child/></foo:ListSkip>");
-        assertTrue(!doc.validate(validateOptions));
-        showErrors();
+    void testListSkipIllegal() throws XmlException {
+        ListSkipDocument doc = ListSkipDocument.Factory.parse(
+            "<foo:ListSkip " +
+            " xmlns:foo=\"http://xbean/scomp/namespace/ElementWC\"" +
+            "  xmlns:at=\"http://apache_org.org\">" +
+            " <at:child/></foo:ListSkip>");
+        assertFalse(doc.validate(createOptions()));
     }
 
     @Test
-    public void testListStrictLegal() throws Throwable {
-        ListStrictDocument doc = ListStrictDocument.Factory
-                .parse("<foo:ListStrict " +
-                 "xmlns:foo=\"http://xbean/scomp/namespace/ElementWC\"" +
-                " xmlns:elt=\"http://xbean/scomp/element/GlobalEltDefault\">" +
-                " <elt:GlobalEltDefaultInt/>" +
-                "</foo:ListStrict>");
-        if (!doc.validate(validateOptions)) {
-            showErrors();
-            fail("testFailed");
-        }
-
+    void testListStrictLegal() throws XmlException {
+        ListStrictDocument doc = ListStrictDocument.Factory.parse(
+            "<foo:ListStrict " +
+            "xmlns:foo=\"http://xbean/scomp/namespace/ElementWC\"" +
+            " xmlns:elt=\"http://xbean/scomp/element/GlobalEltDefault\">" +
+            " <elt:GlobalEltDefaultInt/>" +
+            "</foo:ListStrict>");
+        assertTrue(doc.validate(createOptions()));
     }
 
     //element will not be found
     @Test
-    public void testListStrictIllegal() throws Throwable {
-        ListStrictDocument doc = ListStrictDocument.Factory
-                .parse("<foo:ListStrict " +
-                " xmlns:foo=\"http://xbean/scomp/namespace/ElementWC\"" +
-                "  xmlns:at=\"http://apache.org\">" +
-                " <at:child/></foo:ListStrict>");
-        assertTrue(!doc.validate(validateOptions));
-        showErrors();
-        String[] errExpected = new String[]{
+    void testListStrictIllegal() throws XmlException {
+        ListStrictDocument doc = ListStrictDocument.Factory.parse(
+            "<foo:ListStrict " +
+            " xmlns:foo=\"http://xbean/scomp/namespace/ElementWC\"" +
+            "  xmlns:at=\"http://apache.org\">" +
+            " <at:child/></foo:ListStrict>");
+        XmlOptions validateOptions = createOptions();
+        assertFalse(doc.validate(validateOptions));
+        String[] errExpected = {
             XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$ELEMENT_NOT_ALLOWED,
             XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$EXPECTED_ELEMENT
         };
-        assertTrue(compareErrorCodes(errExpected));
-
+        assertArrayEquals(errExpected, getErrorCodes(validateOptions));
     }
 
     //replacement elements MUST be in the
     //  current target NS
     @Test
-    public void testTargetLaxLegal() throws Throwable {
-        TargetLaxDocument doc = TargetLaxDocument.Factory
-                .parse("<foo:TargetLax" +
-                " xmlns:foo=\"http://xbean/scomp/namespace/ElementWC\">" +
-                "<foo:LocalElt>2</foo:LocalElt></foo:TargetLax>");
-        if (!doc.validate(validateOptions))
-            showErrors();
-        assertTrue(doc.validate(validateOptions));
-        XmlObject[] arr=doc.getTargetLax().selectChildren("http://xbean/scomp/namespace/ElementWC","LocalElt");
-        assertEquals(arr[0].schemaType(),XmlInt.type);
+    void testTargetLaxLegal() throws XmlException {
+        TargetLaxDocument doc = TargetLaxDocument.Factory.parse(
+            "<foo:TargetLax" +
+            " xmlns:foo=\"http://xbean/scomp/namespace/ElementWC\">" +
+            "<foo:LocalElt>2</foo:LocalElt></foo:TargetLax>");
+        assertTrue(doc.validate(createOptions()));
+        XmlObject[] arr = doc.getTargetLax().selectChildren("http://xbean/scomp/namespace/ElementWC", "LocalElt");
+        assertEquals(XmlInt.type, arr[0].schemaType());
     }
 
     //no such element in the NS
     @Test
-    public void testTargetLaxIllegal() throws Throwable {
-        TargetLaxDocument doc = TargetLaxDocument.Factory
-                .parse("<foo:TargetLax " +
-                " xmlns:foo=\"http://xbean/scomp/namespace/ElementWC\"" +
-                "  xmlns:at=\"http://xbean/scomp/attribute/GlobalAttrDefault\">" +
-                " <at:child/></foo:TargetLax>");
-        assertTrue(!doc.validate(validateOptions));
-        showErrors();
-        String[] errExpected = new String[]{
-              XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$ELEMENT_NOT_ALLOWED,
+    void testTargetLaxIllegal() throws XmlException {
+        TargetLaxDocument doc = TargetLaxDocument.Factory.parse(
+            "<foo:TargetLax " +
+            " xmlns:foo=\"http://xbean/scomp/namespace/ElementWC\"" +
+            "  xmlns:at=\"http://xbean/scomp/attribute/GlobalAttrDefault\">" +
+            " <at:child/></foo:TargetLax>");
+        XmlOptions validateOptions = createOptions();
+        assertFalse(doc.validate(validateOptions));
+        String[] errExpected = {
+            XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$ELEMENT_NOT_ALLOWED,
             XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$EXPECTED_ELEMENT
         };
-        assertTrue(compareErrorCodes(errExpected));
-
+        assertArrayEquals(errExpected, getErrorCodes(validateOptions));
     }
 
     @Test
-    public void testTargetSkipLegal() throws Throwable {
-        TargetSkipDocument doc = TargetSkipDocument.Factory
-                .parse("<foo:TargetSkip " +
-                " xmlns:foo=\"http://xbean/scomp/namespace/ElementWC\">" +
-                " <foo:child/></foo:TargetSkip>");
-        assertTrue(doc.validate(validateOptions));
+    void testTargetSkipLegal() throws XmlException {
+        TargetSkipDocument doc = TargetSkipDocument.Factory.parse(
+            "<foo:TargetSkip " +
+            " xmlns:foo=\"http://xbean/scomp/namespace/ElementWC\">" +
+            " <foo:child/></foo:TargetSkip>");
+        assertTrue(doc.validate(createOptions()));
     }
 
     /**
      * can a test ever be illegal here?
      */
     @Test
-    public void testTargetSkipIllegal() throws Throwable {
-        TargetSkipDocument doc = TargetSkipDocument.Factory
-                .parse("<foo:TargetSkip " +
-                " xmlns:foo=\"http://xbean/scomp/namespace/ElementWC\">" +
-                " <child/></foo:TargetSkip>");
-        assertTrue(!doc.validate(validateOptions));
-        showErrors();
-        String[] errExpected = new String[]{
+    void testTargetSkipIllegal() throws XmlException {
+        TargetSkipDocument doc = TargetSkipDocument.Factory.parse(
+            "<foo:TargetSkip " +
+            " xmlns:foo=\"http://xbean/scomp/namespace/ElementWC\">" +
+            " <child/></foo:TargetSkip>");
+        XmlOptions validateOptions = createOptions();
+        assertFalse(doc.validate(validateOptions));
+        String[] errExpected = {
             XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$ELEMENT_NOT_ALLOWED,
             XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$EXPECTED_ELEMENT
         };
-        assertTrue(compareErrorCodes(errExpected));
+        assertArrayEquals(errExpected, getErrorCodes(validateOptions));
 
     }
 
     @Test
-    public void testTargetStrictLegal() throws Throwable {
-        TargetStrictDocument doc = TargetStrictDocument.Factory
-                .parse("<foo:TargetStrict " +
-                " xmlns:foo=\"http://xbean/scomp/namespace/ElementWC\">" +
-                "<foo:LocalElt>2</foo:LocalElt></foo:TargetStrict>");
-        try{
-        assertTrue(doc.validate(validateOptions));
-        }catch(Throwable t){
-                showErrors();
-                throw t;
-            }
+    void testTargetStrictLegal() throws XmlException {
+        TargetStrictDocument doc = TargetStrictDocument.Factory.parse(
+            "<foo:TargetStrict " +
+            " xmlns:foo=\"http://xbean/scomp/namespace/ElementWC\">" +
+            "<foo:LocalElt>2</foo:LocalElt></foo:TargetStrict>");
+        assertTrue(doc.validate(createOptions()));
     }
 
     @Test
-    public void testTargetStrictIllegal() throws Throwable {
-        TargetStrictDocument doc = TargetStrictDocument.Factory
-                .parse("<foo:TargetStrict " +
-                " xmlns:foo=\"http://xbean/scomp/namespace/ElementWC\">" +
-                " <foo:child/></foo:TargetStrict>");
-        assertTrue(!doc.validate(validateOptions));
-        showErrors();
-        String[] errExpected = new String[]{
-            XmlErrorCodes.ASSESS_ELEM_SCHEMA_VALID$NOT_RESOLVED
-        };
-        assertTrue(compareErrorCodes(errExpected));
-
+    void testTargetStrictIllegal() throws XmlException {
+        TargetStrictDocument doc = TargetStrictDocument.Factory.parse(
+            "<foo:TargetStrict " +
+            " xmlns:foo=\"http://xbean/scomp/namespace/ElementWC\">" +
+            " <foo:child/></foo:TargetStrict>");
+        XmlOptions validateOptions = createOptions();
+        assertFalse(doc.validate(validateOptions));
+        String[] errExpected = {XmlErrorCodes.ASSESS_ELEM_SCHEMA_VALID$NOT_RESOLVED};
+        assertArrayEquals(errExpected, getErrorCodes(validateOptions));
     }
 
     @Test
-    public void testLocalLaxLegal() throws Throwable {
-        LocalLaxDocument doc = LocalLaxDocument.Factory
-                .parse("<foo:LocalLax " +
-                " xmlns:foo=\"http://xbean/scomp/namespace/ElementWC\">" +
-                " <child/></foo:LocalLax>");
-        assertTrue(doc.validate(validateOptions));
+    void testLocalLaxLegal() throws XmlException {
+        LocalLaxDocument doc = LocalLaxDocument.Factory.parse(
+            "<foo:LocalLax " +
+            " xmlns:foo=\"http://xbean/scomp/namespace/ElementWC\">" +
+            " <child/></foo:LocalLax>");
+        assertTrue(doc.validate(createOptions()));
     }
 
     //no such child in current NS
     @Test
-    public void testLocalLaxIllegal() throws Throwable {
-        LocalLaxDocument doc = LocalLaxDocument.Factory
-                .parse("<foo:LocalLax " +
-                " xmlns:foo=\"http://xbean/scomp/namespace/ElementWC\">" +
-                " <foo:child/></foo:LocalLax>");
-        assertTrue(!doc.validate(validateOptions));
-        showErrors();
+    void testLocalLaxIllegal() throws XmlException {
+        LocalLaxDocument doc = LocalLaxDocument.Factory.parse(
+            "<foo:LocalLax " +
+            " xmlns:foo=\"http://xbean/scomp/namespace/ElementWC\">" +
+            " <foo:child/></foo:LocalLax>");
+        XmlOptions validateOptions = createOptions();
+        assertFalse(doc.validate(validateOptions));
         String[] errExpected = new String[]{
-              XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$ELEMENT_NOT_ALLOWED,
+            XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$ELEMENT_NOT_ALLOWED,
             XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$EXPECTED_ELEMENT
         };
-        assertTrue(compareErrorCodes(errExpected));
-
+        assertArrayEquals(errExpected, getErrorCodes(validateOptions));
     }
 
     @Test
-    public void testLocalSkipLegal() throws Throwable {
-        LocalSkipDocument doc = LocalSkipDocument.Factory
-                .parse("<foo:LocalSkip " +
-                " xmlns:foo=\"http://xbean/scomp/namespace/ElementWC\">" +
-                " <child/></foo:LocalSkip>");
-        assertTrue(doc.validate(validateOptions));
+    void testLocalSkipLegal() throws XmlException {
+        LocalSkipDocument doc = LocalSkipDocument.Factory.parse(
+            "<foo:LocalSkip " +
+            " xmlns:foo=\"http://xbean/scomp/namespace/ElementWC\">" +
+            " <child/></foo:LocalSkip>");
+        assertTrue(doc.validate(createOptions()));
     }
 
     /**
      * can a test ever be illegal here?
      */
-    @Ignore
+    @Disabled
     @Test
-    public void testLocalSkipIllegal() throws Throwable {
-        LocalSkipDocument doc = LocalSkipDocument.Factory
-                .parse("<foo:LocalSkip " +
-                " xmlns:foo=\"http://xbean/scomp/namespace/ElementWC\">" +
-                " <child/></foo:LocalSkip>");
-        assertTrue(!doc.validate(validateOptions));
-        showErrors();
-        String[] errExpected = new String[]{"cvc-attribute"};
-        assertTrue(compareErrorCodes(errExpected));
-
+    void testLocalSkipIllegal() throws XmlException {
+        LocalSkipDocument doc = LocalSkipDocument.Factory.parse(
+            "<foo:LocalSkip " +
+            " xmlns:foo=\"http://xbean/scomp/namespace/ElementWC\">" +
+            " <child/></foo:LocalSkip>");
+        XmlOptions validateOptions = createOptions();
+        assertFalse(doc.validate(validateOptions));
+        String[] errExpected = {XmlErrorCodes.ATTR_LOCALLY_VALID};
+        assertArrayEquals(errExpected, getErrorCodes(validateOptions));
     }
 
     @Test
-    public void testLocalStrictIllegal() throws Throwable {
-        LocalStrictDocument doc = LocalStrictDocument.Factory
-                .parse("<foo:LocalStrict " +
-                " xmlns:foo=\"http://xbean/scomp/namespace/ElementWC\">" +
-                " <child/></foo:LocalStrict>");
-        assertTrue(!doc.validate(validateOptions));
-        showErrors();
-        String[] errExpected = new String[]{
-            XmlErrorCodes.ASSESS_ELEM_SCHEMA_VALID$NOT_RESOLVED
-        };
-        assertTrue(compareErrorCodes(errExpected));
-
+    void testLocalStrictIllegal() throws XmlException {
+        LocalStrictDocument doc = LocalStrictDocument.Factory.parse(
+            "<foo:LocalStrict " +
+            " xmlns:foo=\"http://xbean/scomp/namespace/ElementWC\">" +
+            " <child/></foo:LocalStrict>");
+        XmlOptions validateOptions = createOptions();
+        assertFalse(doc.validate(validateOptions));
+        String[] errExpected = {XmlErrorCodes.ASSESS_ELEM_SCHEMA_VALID$NOT_RESOLVED};
+        assertArrayEquals(errExpected, getErrorCodes(validateOptions));
     }
 
     @Test
-    public void testLocalStrictLegal() throws Throwable {
-        LocalStrictDocument doc = LocalStrictDocument.Factory
-                .parse("<foo:LocalStrict " +
-                " xmlns:foo=\"http://xbean/scomp/namespace/ElementWC\">" +
-                "<NoNSElt>2</NoNSElt></foo:LocalStrict>");
-        if (!doc.validate(validateOptions)) {
-            showErrors();
-            fail("test failed");
-        }
+    void testLocalStrictLegal() throws XmlException {
+        LocalStrictDocument doc = LocalStrictDocument.Factory.parse(
+            "<foo:LocalStrict " +
+            " xmlns:foo=\"http://xbean/scomp/namespace/ElementWC\">" +
+            "<NoNSElt>2</NoNSElt></foo:LocalStrict>");
+        assertTrue(doc.validate(createOptions()));
     }
 }
 

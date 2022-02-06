@@ -18,12 +18,14 @@ import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.impl.inst2xsd.Inst2Xsd;
 import org.apache.xmlbeans.impl.inst2xsd.Inst2XsdOptions;
 import org.apache.xmlbeans.impl.xb.xsdschema.SchemaDocument;
-import org.junit.Test;
-import tools.inst2xsd.common.Inst2XsdTestBase;
+import org.junit.jupiter.api.Test;
 
 import java.io.FileReader;
 
-public class Inst2XsdMiscTest extends Inst2XsdTestBase {
+import static tools.inst2xsd.common.Inst2XsdCommon.getDefaultInstOptions;
+import static tools.inst2xsd.common.Inst2XsdTestBase.*;
+
+public class Inst2XsdMiscTest {
 
     public static final String EXPBASEXML = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
             "<xs:schema attributeFormDefault=\"unqualified\" elementFormDefault=\"qualified\" targetNamespace=\"baseNamespace\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\">\n" +
@@ -54,32 +56,28 @@ public class Inst2XsdMiscTest extends Inst2XsdTestBase {
             "</xs:schema>";
 
     @Test
-    public void test_usingReader() throws Exception {
+    void test_usingReader() throws Exception {
         FileReader[] fReader = new FileReader[]{new FileReader(BASEXML)};
-        SchemaDocument[] doc = Inst2Xsd.inst2xsd( fReader, common.getDefaultInstOptions());
+        SchemaDocument[] doc = Inst2Xsd.inst2xsd( fReader, getDefaultInstOptions());
         checkLength(doc, 1);
-        log(doc[0]);
-        log(XmlObject.Factory.parse(EXPBASEXML));
         compare(doc[0],XmlObject.Factory.parse(EXPBASEXML) );
     }
 
     @Test
-    public void test_nulloptions() throws Exception {
+    void test_nulloptions() throws Exception {
         FileReader[] fReader = new FileReader[]{new FileReader(BASEXML)};
         SchemaDocument[] doc = Inst2Xsd.inst2xsd(fReader, null);
         checkLength(doc, 1);
-        log(doc[0]);
         compare(doc[0], XmlObject.Factory.parse(EXPBASEXML));
     }
 
     @Test
-    public void test_notverboseoptions() throws Exception {
+    void test_notverboseoptions() throws Exception {
         FileReader[] fReader = new FileReader[]{new FileReader(BASEXML)};
-        Inst2XsdOptions opts = common.getDefaultInstOptions();
+        Inst2XsdOptions opts = getDefaultInstOptions();
         opts.setVerbose(false);
         SchemaDocument[] doc = Inst2Xsd.inst2xsd(fReader, opts);
         checkLength(doc, 1);
-        log(doc[0]);
         compare(doc[0], XmlObject.Factory.parse(EXPBASEXML));
     }
 
@@ -125,7 +123,7 @@ public class Inst2XsdMiscTest extends Inst2XsdTestBase {
 
     /*
     public void test_simpleContentString_Salami() throws Exception {
-        Inst2XsdOptions opt = common.getSalamiOptions();
+        Inst2XsdOptions opt = getSalamiOptions();
         opt.setSimpleContentTypes(Inst2XsdOptions.SIMPLE_CONTENT_TYPES_STRING);
         XmlObject[] api = runInst2Xsd(new XmlObject[]{XmlObject.Factory.parse(common.base)}, opt);
         checkLength(api, 1);

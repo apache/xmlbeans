@@ -17,49 +17,49 @@
 package xmlcursor.checkin;
 
 import org.apache.xmlbeans.XmlCursor;
-import org.apache.xmlbeans.XmlObject;
-import org.junit.Test;
-import xmlcursor.common.BasicCursorTestCase;
+import org.junit.jupiter.api.Test;
 import xmlcursor.common.Common;
 
-import java.util.Vector;
+import java.util.ArrayList;
+import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static xmlcursor.common.BasicCursorTestCase.cur;
 
-public class GetAllBookmarkRefsTest extends BasicCursorTestCase {
-    private Bookmark0 _theBookmark0 = new Bookmark0("value0");
-    private Bookmark1 _theBookmark1 = new Bookmark1("value1");
-    private Bookmark2 _theBookmark2 = new Bookmark2("value2");
+public class GetAllBookmarkRefsTest {
+    private static final Bookmark0 _theBookmark0 = new Bookmark0("value0");
+    private static final Bookmark1 _theBookmark1 = new Bookmark1("value1");
+    private static final Bookmark2 _theBookmark2 = new Bookmark2("value2");
 
     @Test
-    public void testGetAll() throws Exception {
-        m_xo = XmlObject.Factory.parse(Common.XML_FOO_TEXT);
-        m_xc = m_xo.newCursor();
-        m_xc.setBookmark(_theBookmark0);
-        m_xc.setBookmark(_theBookmark1);
-        m_xc.setBookmark(_theBookmark2);
+    void testGetAll() throws Exception {
+        try (XmlCursor m_xc = cur(Common.XML_FOO_TEXT)) {
+            m_xc.setBookmark(_theBookmark0);
+            m_xc.setBookmark(_theBookmark1);
+            m_xc.setBookmark(_theBookmark2);
 
-        Vector v = new Vector();
-        m_xc.getAllBookmarkRefs(v);
-        assertEquals(3, v.size());
-        assertEquals("value0", ((Bookmark0) v.elementAt(0)).text);
-        assertEquals("value1", ((Bookmark1) v.elementAt(1)).text);
-        assertEquals("value2", ((Bookmark2) v.elementAt(2)).text);
+            List<Object> v = new ArrayList<>();
+            m_xc.getAllBookmarkRefs(v);
+            assertEquals(3, v.size());
+            assertEquals("value0", ((Bookmark0) v.get(0)).text);
+            assertEquals("value1", ((Bookmark1) v.get(1)).text);
+            assertEquals("value2", ((Bookmark2) v.get(2)).text);
+        }
     }
 
     @Test
-    public void testGetAllNullListToFill() throws Exception {
-        m_xo = XmlObject.Factory.parse(Common.XML_FOO_TEXT);
-        m_xc = m_xo.newCursor();
-        m_xc.setBookmark(_theBookmark0);
-        m_xc.setBookmark(_theBookmark1);
-        m_xc.setBookmark(_theBookmark2);
-        m_xc.getAllBookmarkRefs(null);
-        assertTrue(true);
+    void testGetAllNullListToFill() throws Exception {
+        try (XmlCursor m_xc = cur(Common.XML_FOO_TEXT)) {
+            m_xc.setBookmark(_theBookmark0);
+            m_xc.setBookmark(_theBookmark1);
+            m_xc.setBookmark(_theBookmark2);
+            m_xc.getAllBookmarkRefs(null);
+            assertTrue(true);
+        }
     }
 
-    public class Bookmark0 extends XmlCursor.XmlBookmark {
+    private static class Bookmark0 extends XmlCursor.XmlBookmark {
         public String text;
 
         Bookmark0(String text) {
@@ -67,7 +67,7 @@ public class GetAllBookmarkRefsTest extends BasicCursorTestCase {
         }
     }
 
-    public class Bookmark1 extends XmlCursor.XmlBookmark {
+    private static class Bookmark1 extends XmlCursor.XmlBookmark {
         public String text;
 
         Bookmark1(String text) {
@@ -75,7 +75,7 @@ public class GetAllBookmarkRefsTest extends BasicCursorTestCase {
         }
     }
 
-    public class Bookmark2 extends XmlCursor.XmlBookmark {
+    private static class Bookmark2 extends XmlCursor.XmlBookmark {
         public String text;
 
         Bookmark2(String text) {

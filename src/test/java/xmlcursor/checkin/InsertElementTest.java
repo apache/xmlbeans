@@ -16,115 +16,114 @@
 
 package xmlcursor.checkin;
 
+import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlCursor.TokenType;
-import org.apache.xmlbeans.XmlObject;
-import org.junit.Test;
-import tools.util.JarUtil;
-import xmlcursor.common.BasicCursorTestCase;
+import org.junit.jupiter.api.Test;
 import xmlcursor.common.Common;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static xmlcursor.common.BasicCursorTestCase.*;
 
-public class InsertElementTest extends BasicCursorTestCase {
-    @Test(expected = IllegalArgumentException.class)
-    public void testInsertElementNullName() throws Exception {
-        m_xo = XmlObject.Factory.parse(Common.XML_FOO_DIGITS);
-        m_xc = m_xo.newCursor();
-        toNextTokenOfType(m_xc, TokenType.START);
-        m_xc.insertElementWithText(null, "uri", "value");
-    }
+public class InsertElementTest {
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testInsertElementEmptyStringName() throws Exception {
-        m_xo = XmlObject.Factory.parse(Common.XML_FOO_DIGITS);
-        m_xc = m_xo.newCursor();
-        toNextTokenOfType(m_xc, TokenType.START);
-        m_xc.insertElementWithText("", "uri", "value");
+    @Test
+    void testInsertElementNullName() throws Exception {
+        try (XmlCursor m_xc = cur(Common.XML_FOO_DIGITS)) {
+            toNextTokenOfType(m_xc, TokenType.START);
+            assertThrows(IllegalArgumentException.class, () -> m_xc.insertElementWithText(null, "uri", "value"));
+        }
     }
 
     @Test
-    public void testInsertElementNullUri() throws Exception {
-        m_xo = XmlObject.Factory.parse(Common.XML_FOO_DIGITS);
-        m_xc = m_xo.newCursor();
-        toNextTokenOfType(m_xc, TokenType.START);
-        m_xc.insertElementWithText("name", null, "value");
-        m_xc.toPrevSibling();
-        assertEquals("<name>value</name>", m_xc.xmlText());
+    void testInsertElementEmptyStringName() throws Exception {
+        try (XmlCursor m_xc = cur(Common.XML_FOO_DIGITS)) {
+            toNextTokenOfType(m_xc, TokenType.START);
+            assertThrows(IllegalArgumentException.class, () -> m_xc.insertElementWithText("", "uri", "value"));
+        }
     }
 
     @Test
-    public void testInsertElementNullText() throws Exception {
-        m_xo = XmlObject.Factory.parse(Common.XML_FOO_DIGITS);
-        m_xc = m_xo.newCursor();
-        toNextTokenOfType(m_xc, TokenType.START);
-        m_xc.insertElementWithText("name", "uri", null);
-        m_xc.toPrevSibling();
-        assertEquals("<uri:name xmlns:uri=\"uri\"/>", m_xc.xmlText());
+    void testInsertElementNullUri() throws Exception {
+        try (XmlCursor m_xc = cur(Common.XML_FOO_DIGITS)) {
+            toNextTokenOfType(m_xc, TokenType.START);
+            m_xc.insertElementWithText("name", null, "value");
+            m_xc.toPrevSibling();
+            assertEquals("<name>value</name>", m_xc.xmlText());
+        }
     }
 
     @Test
-    public void testInsertElementEmptyStringText() throws Exception {
-        m_xo = XmlObject.Factory.parse(Common.XML_FOO_DIGITS);
-        m_xc = m_xo.newCursor();
-        toNextTokenOfType(m_xc, TokenType.START);
-        m_xc.insertElementWithText("name", null, "");
-        m_xc.toPrevSibling();
-        assertEquals("<name/>", m_xc.xmlText());
+    void testInsertElementNullText() throws Exception {
+        try (XmlCursor m_xc = cur(Common.XML_FOO_DIGITS)) {
+            toNextTokenOfType(m_xc, TokenType.START);
+            m_xc.insertElementWithText("name", "uri", null);
+            m_xc.toPrevSibling();
+            assertEquals("<uri:name xmlns:uri=\"uri\"/>", m_xc.xmlText());
+        }
     }
 
     @Test
-    public void testInsertElementInMiddleOfTEXT() throws Exception {
-        m_xo = XmlObject.Factory.parse(Common.XML_FOO_TEXT);
-        m_xc = m_xo.newCursor();
-        toNextTokenOfType(m_xc, TokenType.TEXT);
-        m_xc.toNextChar(2);
-        assertEquals("xt", m_xc.getChars());
-        m_xc.insertElementWithText("name", null, "value");
-        m_xc.toStartDoc();
-        assertEquals("<foo>te<name>value</name>xt</foo>", m_xc.xmlText());
+    void testInsertElementEmptyStringText() throws Exception {
+        try (XmlCursor m_xc = cur(Common.XML_FOO_DIGITS)) {
+            toNextTokenOfType(m_xc, TokenType.START);
+            m_xc.insertElementWithText("name", null, "");
+            m_xc.toPrevSibling();
+            assertEquals("<name/>", m_xc.xmlText());
+        }
     }
 
     @Test
-    public void testInsertElementAtEND() throws Exception {
-        m_xo = XmlObject.Factory.parse(Common.XML_FOO_TEXT);
-        m_xc = m_xo.newCursor();
-        toNextTokenOfType(m_xc, TokenType.END);
-        m_xc.insertElementWithText("name", null, "value");
-        m_xc.toStartDoc();
-        assertEquals("<foo>text<name>value</name></foo>", m_xc.xmlText());
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testInsertElementAtSTARTDOC() throws Exception {
-        m_xo = XmlObject.Factory.parse(Common.XML_FOO_TEXT);
-        m_xc = m_xo.newCursor();
-        m_xc.insertElementWithText("name", null, "value");
+    void testInsertElementInMiddleOfTEXT() throws Exception {
+        try (XmlCursor m_xc = cur(Common.XML_FOO_TEXT)) {
+            toNextTokenOfType(m_xc, TokenType.TEXT);
+            m_xc.toNextChar(2);
+            assertEquals("xt", m_xc.getChars());
+            m_xc.insertElementWithText("name", null, "value");
+            m_xc.toStartDoc();
+            assertEquals("<foo>te<name>value</name>xt</foo>", m_xc.xmlText());
+        }
     }
 
     @Test
-    public void testInsertElementAtENDDOC() throws Exception {
-        m_xo = XmlObject.Factory.parse(Common.XML_FOO_TEXT);
-        m_xc = m_xo.newCursor();
-        toNextTokenOfType(m_xc, TokenType.ENDDOC);
-        m_xc.insertElementWithText("name", null, "value");
-        m_xc.toStartDoc();
-        assertEquals(Common.wrapInXmlFrag("<foo>text</foo><name>value</name>"), m_xc.xmlText());
+    void testInsertElementAtEND() throws Exception {
+        try (XmlCursor m_xc = cur(Common.XML_FOO_TEXT)) {
+            toNextTokenOfType(m_xc, TokenType.END);
+            m_xc.insertElementWithText("name", null, "value");
+            m_xc.toStartDoc();
+            assertEquals("<foo>text<name>value</name></foo>", m_xc.xmlText());
+        }
     }
 
     @Test
-    public void testInsertElementInStoreWithNamespace() throws Exception {
-        m_xo = XmlObject.Factory.parse(
-                 JarUtil.getResourceFromJar(Common.TRANXML_FILE_CLM));
-        m_xc = m_xo.newCursor();
-        m_xc.selectPath(Common.CLM_NS_XQUERY_DEFAULT +
-                        ".//FleetID");
-        m_xc.toNextSelection();
-        m_xc.insertElementWithText("name", "uri", "value");
-        m_xc.toPrevSibling();
-        assertEquals("<uri:name xmlns=\"" +
-                     Common.CLM_NS + "\" " +
-                     Common.CLM_XSI_NS + " " +
-                     "xmlns:uri=\"uri\">value</uri:name>", m_xc.xmlText());
+    void testInsertElementAtSTARTDOC() throws Exception {
+        try (XmlCursor m_xc = cur(Common.XML_FOO_TEXT)) {
+            assertThrows(IllegalArgumentException.class, () -> m_xc.insertElementWithText("name", null, "value"));
+        }
+    }
+
+    @Test
+    void testInsertElementAtENDDOC() throws Exception {
+        try (XmlCursor m_xc = cur(Common.XML_FOO_TEXT)) {
+            toNextTokenOfType(m_xc, TokenType.ENDDOC);
+            m_xc.insertElementWithText("name", null, "value");
+            m_xc.toStartDoc();
+            assertEquals(Common.wrapInXmlFrag("<foo>text</foo><name>value</name>"), m_xc.xmlText());
+        }
+    }
+
+    @Test
+    void testInsertElementInStoreWithNamespace() throws Exception {
+        try (XmlCursor m_xc = jcur(Common.TRANXML_FILE_CLM)) {
+            m_xc.selectPath(Common.CLM_NS_XQUERY_DEFAULT + ".//FleetID");
+            m_xc.toNextSelection();
+            m_xc.insertElementWithText("name", "uri", "value");
+            m_xc.toPrevSibling();
+            assertEquals("<uri:name xmlns=\"" +
+                                    Common.CLM_NS + "\" " +
+                                    Common.CLM_XSI_NS + " " +
+                                    "xmlns:uri=\"uri\">value</uri:name>", m_xc.xmlText());
+        }
     }
 }
 

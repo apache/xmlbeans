@@ -22,12 +22,12 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -42,17 +42,12 @@ import static org.w3c.domts.DOMTest.load;
  */
 public class elementhasattributens01 {
     @Test
-    public void testRun() throws Throwable {
-        Document doc;
-        Element element;
-        boolean state;
-        NodeList elementList;
-        doc = load("staffNS", false);
-        elementList = doc.getElementsByTagNameNS("*", "employee");
-        element = (Element) elementList.item(0);
-        state = element.hasAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns");
-        assertTrue("elementhasattributens01", state);
-
+    void testRun() throws Throwable {
+        Document doc = load("staffNS", false);
+        NodeList elementList = doc.getElementsByTagNameNS("*", "employee");
+        Element element = (Element) elementList.item(0);
+        boolean state = element.hasAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns");
+        assertTrue(state, "elementhasattributens01");
     }
 
     /**

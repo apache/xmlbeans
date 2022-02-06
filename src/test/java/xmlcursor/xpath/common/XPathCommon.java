@@ -19,10 +19,10 @@ import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
-import org.junit.Assert;
 import tools.xml.XmlComparator;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class XPathCommon {
 
@@ -86,10 +86,10 @@ public class XPathCommon {
                 expected.xmlText(), diag);
 
             assertTrue(
-                "***********************\nFound difference: \nactual=\n'" +
+                match, "***********************\nFound difference: \nactual=\n'" +
                 actual.xmlText() +
                 "'\nexpected=\n'" + expected.xmlText()
-                + "'\ndiagnostic=" + diag, match);
+                + "'\ndiagnostic=" + diag);
         } catch (XmlException e) {
             throw new RuntimeException(e);
         }
@@ -110,7 +110,7 @@ public class XPathCommon {
             }
         }
 
-        Assert.assertEquals(rSet.length, rObj.length);
+        assertEquals(rSet.length, rObj.length);
     }
 
     public static void compare(XmlCursor rObj, XmlObject[] rSet) {
@@ -121,6 +121,6 @@ public class XPathCommon {
             }
         }
 
-        Assert.assertEquals(rSet.length, curLen);
+        assertEquals(rSet.length, curLen);
     }
 }

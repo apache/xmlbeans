@@ -22,12 +22,12 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -40,20 +40,14 @@ import static org.w3c.domts.DOMTest.load;
  */
 public class elementgetattributenodens02 {
     @Test
-    public void testRun() throws Throwable {
-        Document doc;
-        Element element;
-        Attr attribute;
-        Attr newAttribute1;
-        String attrValue;
-        doc = load("staffNS", false);
-        element = doc.createElementNS("namespaceURI", "root");
-        attribute = doc.createAttributeNS("http://www.w3.org/DOM/Level2", "l2:att");
-        newAttribute1 = element.setAttributeNodeNS(attribute);
+    void testRun() throws Throwable {
+        Document doc = load("staffNS", false);
+        Element element = doc.createElementNS("namespaceURI", "root");
+        Attr attribute = doc.createAttributeNS("http://www.w3.org/DOM/Level2", "l2:att");
+        Attr newAttribute1 = element.setAttributeNodeNS(attribute);
         attribute = element.getAttributeNodeNS("http://www.w3.org/DOM/Level2", "att");
-        attrValue = attribute.getNodeValue();
-        assertEquals("elementgetattributenodens02", "", attrValue);
-
+        String attrValue = attribute.getNodeValue();
+        assertEquals("", attrValue, "elementgetattributenodens02");
     }
 
     /**

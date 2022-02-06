@@ -14,91 +14,70 @@
  */
 package scomp.contentType.complex.detailed;
 
-import org.apache.xmlbeans.XmlCursor;
-import org.apache.xmlbeans.XmlErrorCodes;
-import org.apache.xmlbeans.XmlException;
-import org.apache.xmlbeans.XmlInteger;
-import org.junit.Before;
-import org.junit.Test;
-import scomp.common.BaseCase;
+import org.apache.xmlbeans.*;
+import org.junit.jupiter.api.Test;
 import xbean.scomp.contentType.complexTypeTest.MixedFixedEltDocument;
 import xbean.scomp.contentType.complexTypeTest.MixedT;
 import xbean.scomp.contentType.complexTypeTest.MixedTypeDocument;
 
 import java.math.BigInteger;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
+import static scomp.common.BaseCase.createOptions;
+import static scomp.common.BaseCase.getErrorCodes;
 
-public class MixedContentTest extends BaseCase {
+public class MixedContentTest {
 
     @Test
-    public void testElementsOnly() throws Throwable {
-
-        testElt = doc.addNewMixedType();
+    void testElementsOnly() throws Throwable {
+        MixedTypeDocument doc = MixedTypeDocument.Factory.newInstance();
+        MixedT testElt = doc.addNewMixedType();
         assertNull(testElt.getChild1());
         assertNull(testElt.xgetChild1());
         testElt.setChild2(new BigInteger("5"));
         testElt.setChild3(new BigInteger("1"));
         testElt.setChild1(new BigInteger("0"));
         assertEquals("<xml-fragment><child1>0</child1><child2>5</child2>" +
-                "<child3>1</child3></xml-fragment>",
-                testElt.xmlText());
+                                "<child3>1</child3></xml-fragment>", testElt.xmlText());
 
         testElt.xsetChild2(
-                XmlInteger.Factory.parse("<xml-fragment>3</xml-fragment>"));
+            XmlInteger.Factory.parse("<xml-fragment>3</xml-fragment>"));
         assertEquals("<xml-fragment><child1>0</child1><child2>3</child2>" +
-                "<child3>1</child3></xml-fragment>",
-                testElt.xmlText());
-        try {
-            assertTrue(testElt.validate(validateOptions));
-        }
-        catch (Throwable t) {
-            showErrors();
-            throw t;
-        }
+                                "<child3>1</child3></xml-fragment>", testElt.xmlText());
+        assertTrue(testElt.validate(createOptions()));
     }
 
     /**
      * Note that the mixed model in XML Schema differs fundamentally from the
      * mixed model in XML 1.0. Under the XML Schema mixed model, the order and
-     *  number of child elements appearing in an instance must agree with the
+     * number of child elements appearing in an instance must agree with the
      * order and number of child elements specified in the model
      */
     @Test
-    public void testTextOnly() {
-
-        testElt = doc.addNewMixedType();
+    void testTextOnly() {
+        MixedTypeDocument doc = MixedTypeDocument.Factory.newInstance();
+        MixedT testElt = doc.addNewMixedType();
         assertNull(testElt.getChild1());
         assertNull(testElt.xgetChild1());
         try (XmlCursor cur = testElt.newCursor()) {
             cur.insertChars("Random mixed content");
         }
-        assertTrue( !testElt.validate(validateOptions) );
-        showErrors();
-        String[] errExpected = new String[]{
-             XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$MISSING_ELEMENT
-        };
-            assertTrue(compareErrorCodes(errExpected));
-
-
+        XmlOptions validateOptions = createOptions();
+        assertFalse(testElt.validate(validateOptions));
+        String[] errExpected = {XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$MISSING_ELEMENT};
+        assertArrayEquals(errExpected, getErrorCodes(validateOptions));
     }
 
     @Test
-    public void testMixed() throws Throwable {
-         testElt = doc.addNewMixedType();
+    void testMixed() {
+        MixedTypeDocument doc = MixedTypeDocument.Factory.newInstance();
+        MixedT testElt = doc.addNewMixedType();
         assertNull(testElt.getChild1());
         assertNull(testElt.xgetChild1());
         testElt.setChild2(new BigInteger("5"));
         testElt.setChild3(new BigInteger("1"));
         testElt.setChild1(new BigInteger("0"));
-         try {
-            assertTrue(testElt.validate());
-        }
-        catch (Throwable t) {
-            testElt.validate(validateOptions);
-            showErrors();
-            throw t;
-        }
+        assertTrue(testElt.validate());
         try (XmlCursor cur = testElt.newCursor()) {
             cur.toFirstContentToken();
             cur.insertChars("Random mixed content");
@@ -109,20 +88,16 @@ public class MixedContentTest extends BaseCase {
             cur.insertChars("Random mixed content1");
 
             assertTrue(testElt.validate());
-        }
-        catch (Throwable t) {
-            testElt.validate(validateOptions);
-            showErrors();
-            throw t;
         }
         assertEquals("<xml-fragment>Random mixed content" +
-                "<child1>0</child1>Random mixed content1<child2>5</child2>" +
-                "<child3>1</child3></xml-fragment>",testElt.xmlText() );
+                                "<child1>0</child1>Random mixed content1<child2>5</child2>" +
+                                "<child3>1</child3></xml-fragment>", testElt.xmlText());
     }
 
     @Test
-    public void testInsertDelete() throws Throwable{
-        testElt = doc.addNewMixedType();
+    void testInsertDelete() {
+        MixedTypeDocument doc = MixedTypeDocument.Factory.newInstance();
+        MixedT testElt = doc.addNewMixedType();
         testElt.setChild2(new BigInteger("5"));
         testElt.setChild3(new BigInteger("1"));
         testElt.setChild1(new BigInteger("0"));
@@ -134,10 +109,10 @@ public class MixedContentTest extends BaseCase {
             cur.toNextToken();
             cur.toNextToken();
             cur.insertChars("Random mixed content1");
-            assertTrue(testElt.validate(validateOptions));
+            assertTrue(testElt.validate(createOptions()));
             assertEquals("<xml-fragment>Random mixed content" +
-                    "<child1>0</child1>Random mixed content1<child2>5</child2>" +
-                    "<child3>1</child3></xml-fragment>",testElt.xmlText() );
+                                    "<child1>0</child1>Random mixed content1<child2>5</child2>" +
+                                    "<child3>1</child3></xml-fragment>", testElt.xmlText());
             //to child1
             cur.toPrevToken();
             cur.toPrevToken();
@@ -145,14 +120,11 @@ public class MixedContentTest extends BaseCase {
             cur.toPrevToken();
             assertEquals(XmlCursor.TokenType.START, cur.currentTokenType());
             assertTrue(cur.removeXml());
-            assertEquals(null,testElt.getChild1());
+            assertNull(testElt.getChild1());
 
             assertEquals("<xml-fragment>Random mixed content" +
-                    "Random mixed content1<child2>5</child2>" +
-                    "<child3>1</child3></xml-fragment>",testElt.xmlText() );
-        } catch (Throwable t) {
-            showErrors();
-            throw t;
+                                    "Random mixed content1<child2>5</child2>" +
+                                    "<child3>1</child3></xml-fragment>", testElt.xmlText());
         }
     }
 
@@ -164,30 +136,17 @@ public class MixedContentTest extends BaseCase {
      * if there is a fixed value constraint, the element may not have element children.
      */
     @Test
-    public void testMixedFixed() throws XmlException{
-        MixedFixedEltDocument doc=
-              MixedFixedEltDocument.Factory
-        .parse("<pre:MixedFixedElt " +
-                " xmlns:pre=\"http://xbean/scomp/contentType/ComplexTypeTest\">" +
-                "<a/>abc</pre:MixedFixedElt>");
+    void testMixedFixed() throws XmlException {
+        String input =
+            "<pre:MixedFixedElt " +
+            " xmlns:pre=\"http://xbean/scomp/contentType/ComplexTypeTest\">" +
+            "<a/>abc</pre:MixedFixedElt>";
 
-        assertTrue (! doc.validate(validateOptions));
-        showErrors();
-        String[] expected=new String[]
-        {XmlErrorCodes.ELEM_LOCALLY_VALID$FIXED_WITH_CONTENT};
-        assertTrue(compareErrorCodes(expected));
-
+        MixedFixedEltDocument doc = MixedFixedEltDocument.Factory.parse(input);
+        XmlOptions validateOptions = createOptions();
+        assertFalse(doc.validate(validateOptions));
+        String[] expected = {XmlErrorCodes.ELEM_LOCALLY_VALID$FIXED_WITH_CONTENT};
+        assertArrayEquals(expected, getErrorCodes(validateOptions));
     }
-
-    @Before
-    public void setUp() {
-        doc = MixedTypeDocument.Factory.newInstance();
-        testElt = doc.getMixedType();
-        assertNull(testElt);
-        super.setUp();
-    }
-
-    private MixedTypeDocument doc;
-    private MixedT testElt;
 
 }

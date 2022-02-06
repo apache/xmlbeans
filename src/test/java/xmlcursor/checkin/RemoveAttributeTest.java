@@ -16,71 +16,72 @@
 
 package xmlcursor.checkin;
 
+import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlCursor.TokenType;
-import org.apache.xmlbeans.XmlObject;
-import org.junit.Test;
-import xmlcursor.common.BasicCursorTestCase;
+import org.junit.jupiter.api.Test;
 import xmlcursor.common.Common;
 
 import javax.xml.namespace.QName;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
+import static xmlcursor.common.BasicCursorTestCase.cur;
+import static xmlcursor.common.BasicCursorTestCase.toNextTokenOfType;
 
 
-public class RemoveAttributeTest extends BasicCursorTestCase {
+public class RemoveAttributeTest {
     @Test
-    public void testRemoveAttributeValidAttrFromSTART() throws Exception {
-        m_xo = XmlObject.Factory.parse(Common.XML_FOO_2ATTR_TEXT);
-        m_xc = m_xo.newCursor();
-        toNextTokenOfType(m_xc, TokenType.START);
-        QName name = new QName("attr1");
-        assertTrue(m_xc.removeAttribute(name));
-        assertNull(m_xc.getAttributeText(name));
+    void testRemoveAttributeValidAttrFromSTART() throws Exception {
+        try (XmlCursor m_xc = cur(Common.XML_FOO_2ATTR_TEXT)) {
+            toNextTokenOfType(m_xc, TokenType.START);
+            QName name = new QName("attr1");
+            assertTrue(m_xc.removeAttribute(name));
+            assertNull(m_xc.getAttributeText(name));
+        }
     }
 
     @Test
-    public void testRemoveAttributeInvalidAttrFromSTART() throws Exception {
-        m_xo = XmlObject.Factory.parse(Common.XML_FOO_2ATTR_TEXT);
-        m_xc = m_xo.newCursor();
-        toNextTokenOfType(m_xc, TokenType.START);
-        QName name = new QName("invalid");
-        assertFalse(m_xc.removeAttribute(name));
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testRemoveAttributeNullAttrFromSTART() throws Exception {
-        m_xo = XmlObject.Factory.parse(Common.XML_FOO_2ATTR_TEXT);
-        m_xc = m_xo.newCursor();
-        toNextTokenOfType(m_xc, TokenType.START);
-        QName name = new QName("dummy");
-        m_xc.removeAttribute(null);
+    void testRemoveAttributeInvalidAttrFromSTART() throws Exception {
+        try (XmlCursor m_xc = cur(Common.XML_FOO_2ATTR_TEXT)) {
+            toNextTokenOfType(m_xc, TokenType.START);
+            QName name = new QName("invalid");
+            assertFalse(m_xc.removeAttribute(name));
+        }
     }
 
     @Test
-    public void testRemoveAttributeFromPROCINST() throws Exception {
-        m_xo = XmlObject.Factory.parse(Common.XML_FOO_PROCINST);
-        m_xc = m_xo.newCursor();
-        toNextTokenOfType(m_xc, TokenType.PROCINST);
-        QName name = new QName("type");
-        assertFalse(m_xc.removeAttribute(name));
+    void testRemoveAttributeNullAttrFromSTART() throws Exception {
+        try (XmlCursor m_xc = cur(Common.XML_FOO_2ATTR_TEXT)) {
+            toNextTokenOfType(m_xc, TokenType.START);
+            QName name = new QName("dummy");
+            assertThrows(IllegalArgumentException.class, () -> m_xc.removeAttribute(null));
+        }
     }
 
     @Test
-    public void testRemoveAttributeXMLNS() throws Exception {
-        m_xo = XmlObject.Factory.parse(Common.XML_FOO_DIGITS);
-        m_xc = m_xo.newCursor();
-        toNextTokenOfType(m_xc, TokenType.START);
-        QName name = new QName("xmlns");
-        assertFalse(m_xc.removeAttribute(name));
+    void testRemoveAttributeFromPROCINST() throws Exception {
+        try (XmlCursor m_xc = cur(Common.XML_FOO_PROCINST)) {
+            toNextTokenOfType(m_xc, TokenType.PROCINST);
+            QName name = new QName("type");
+            assertFalse(m_xc.removeAttribute(name));
+        }
     }
 
     @Test
-    public void testRemoveAttributeFromEND() throws Exception {
-        m_xo = XmlObject.Factory.parse(Common.XML_FOO_2ATTR_TEXT);
-        m_xc = m_xo.newCursor();
-        toNextTokenOfType(m_xc, TokenType.END);
-        QName name = new QName("attr1");
-        assertFalse(m_xc.removeAttribute(name));
+    void testRemoveAttributeXMLNS() throws Exception {
+        try (XmlCursor m_xc = cur(Common.XML_FOO_DIGITS)) {
+            toNextTokenOfType(m_xc, TokenType.START);
+            QName name = new QName("xmlns");
+            assertFalse(m_xc.removeAttribute(name));
+        }
+    }
+
+    @Test
+    void testRemoveAttributeFromEND() throws Exception {
+        try (XmlCursor m_xc = cur(Common.XML_FOO_2ATTR_TEXT)) {
+            toNextTokenOfType(m_xc, TokenType.END);
+            QName name = new QName("attr1");
+            assertFalse(m_xc.removeAttribute(name));
+        }
     }
 }
 

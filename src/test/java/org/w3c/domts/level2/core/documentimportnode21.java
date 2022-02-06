@@ -22,12 +22,12 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.*;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -50,60 +50,38 @@ import static org.w3c.domts.DOMTest.load;
  */
 public class documentimportnode21 {
     @Test
-    @Ignore
+    @Disabled
     public void testRun() throws Throwable {
-        Document doc;
         DocumentType docTypeNull = null;
 
-        Document docImp;
-        DOMImplementation domImpl;
-        NodeList addressList;
-        NodeList addressChildList;
-        Element element;
-        EntityReference entRef2;
-        EntityReference entRefImp2;
-        EntityReference entRef3;
-        EntityReference entRefImp3;
-        String nodeName2;
-        String nodeName3;
-        String nodeNameImp2;
-        String nodeNameImp3;
-        NodeList nodes;
-        Node nodeImp3;
-        Node nodeImp2;
-        String nodeValueImp2;
-        String nodeValueImp3;
-        doc = load("staffNS", true);
-        domImpl = doc.getImplementation();
-        docImp = domImpl.createDocument("http://www.w3.org/DOM/Test", "a:b", docTypeNull);
-        addressList = doc.getElementsByTagName("address");
-        element = (Element) addressList.item(1);
-        addressChildList = element.getChildNodes();
-        assertTrue(addressChildList.item(0).getClass().getName()
-            , addressChildList.item(0) instanceof EntityReference);
-        assertTrue(addressChildList.item(2).getClass().getName()
-            , addressChildList.item(2) instanceof EntityReference);
-        entRef2 = (EntityReference) addressChildList.item(0);
-        entRef3 = (EntityReference) addressChildList.item(2);
-        entRefImp2 = (EntityReference) docImp.importNode(entRef2, true);
-        entRefImp3 = (EntityReference) docImp.importNode(entRef3, false);
-        nodeName2 = entRef2.getNodeName();
-        nodeName3 = entRef3.getNodeName();
-        nodeNameImp2 = entRefImp2.getNodeName();
-        nodeNameImp3 = entRefImp3.getNodeName();
-        assertEquals("documentimportnode21_Ent2NodeName", nodeName2, nodeNameImp2);
-        assertEquals("documentimportnode21_Ent3NodeName", nodeName3, nodeNameImp3);
+        Document doc = load("staffNS", true);
+        DOMImplementation domImpl = doc.getImplementation();
+        Document docImp = domImpl.createDocument("http://www.w3.org/DOM/Test", "a:b", docTypeNull);
+        NodeList addressList = doc.getElementsByTagName("address");
+        Element element = (Element) addressList.item(1);
+        NodeList addressChildList = element.getChildNodes();
+        assertTrue(addressChildList.item(0) instanceof EntityReference, addressChildList.item(0).getClass().getName());
+        assertTrue(addressChildList.item(2) instanceof EntityReference, addressChildList.item(2).getClass().getName());
+        EntityReference entRef2 = (EntityReference) addressChildList.item(0);
+        EntityReference entRef3 = (EntityReference) addressChildList.item(2);
+        EntityReference entRefImp2 = (EntityReference) docImp.importNode(entRef2, true);
+        EntityReference entRefImp3 = (EntityReference) docImp.importNode(entRef3, false);
+        String nodeName2 = entRef2.getNodeName();
+        String nodeName3 = entRef3.getNodeName();
+        String nodeNameImp2 = entRefImp2.getNodeName();
+        String nodeNameImp3 = entRefImp3.getNodeName();
+        assertEquals(nodeName2, nodeNameImp2, "documentimportnode21_Ent2NodeName");
+        assertEquals(nodeName3, nodeNameImp3, "documentimportnode21_Ent3NodeName");
         entRefImp2 = (EntityReference) doc.importNode(entRef2, true);
         entRefImp3 = (EntityReference) doc.importNode(entRef3, false);
-        nodes = entRefImp2.getChildNodes();
-        nodeImp2 = nodes.item(0);
-        nodeValueImp2 = nodeImp2.getNodeValue();
+        NodeList nodes = entRefImp2.getChildNodes();
+        Node nodeImp2 = nodes.item(0);
+        String nodeValueImp2 = nodeImp2.getNodeValue();
         nodes = entRefImp3.getChildNodes();
-        nodeImp3 = nodes.item(0);
-        nodeValueImp3 = nodeImp3.getNodeValue();
-        assertEquals("documentimportnode21_Ent2NodeValue", "1900 Dallas Road", nodeValueImp2);
-        assertEquals("documentimportnode21_Ent3Nodevalue", "Texas", nodeValueImp3);
-
+        Node nodeImp3 = nodes.item(0);
+        String nodeValueImp3 = nodeImp3.getNodeValue();
+        assertEquals("1900 Dallas Road", nodeValueImp2, "documentimportnode21_Ent2NodeValue");
+        assertEquals("Texas", nodeValueImp3, "documentimportnode21_Ent3Nodevalue");
     }
 
     /**

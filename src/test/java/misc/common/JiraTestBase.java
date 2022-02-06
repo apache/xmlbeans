@@ -25,8 +25,7 @@ import java.io.File;
 public class JiraTestBase extends Common
 {
     //location of files under "cases folder"
-    public static String JIRA_CASES = XBEAN_CASE_ROOT + P + "misc" +
-                                        P + "jira" + P;
+    public static String JIRA_CASES = XBEAN_CASE_ROOT + P + "misc" + P + "jira" + P;
     public static File outputroot = new File(OUTPUTROOT+P+"jiraoutput");
 
     public static String scompTestFilesRoot = XBEAN_CASE_ROOT + P + "misc" + P + "jira" + P;

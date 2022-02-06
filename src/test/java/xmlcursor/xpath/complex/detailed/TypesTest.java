@@ -15,25 +15,26 @@
 package xmlcursor.xpath.complex.detailed;
 
 import org.apache.xmlbeans.*;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.time.OffsetDateTime;
 import java.util.Calendar;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class TypesTest {
     private XmlObject o;
 
-    @Before
+    // TODO: add asserts - convert system.out.printlns to asserts
+
+    @BeforeEach
     public void setUp() throws Exception {
         o = XmlObject.Factory.parse("<a/>");
     }
 
     @Test
-    public void testDate() {
+    void testDate() {
         int offsetSeconds = OffsetDateTime.now().getOffset().getTotalSeconds();
         XmlObject[] res = o.selectPath("xs:date(\"2000-01-01\")");
         assertEquals(1, res.length);
@@ -45,7 +46,7 @@ public class TypesTest {
     }
 
     @Test
-    public void testZDate() {
+    void testZDate() {
         XmlObject[] res = o.selectPath("xs:date(\"2000-01-01Z\")");
         assertEquals(1, res.length);
         Calendar d = ((XmlDate) res[0]).getCalendarValue();
@@ -56,7 +57,7 @@ public class TypesTest {
     }
 
     @Test
-    public void testCaliforniaDate() {
+    void testCaliforniaDate() {
         XmlObject[] res = o.selectPath("xs:date(\"2000-01-01-08:00\")");
         assertEquals(1, res.length);
         Calendar d = ((XmlDate) res[0]).getCalendarValue();
@@ -67,7 +68,7 @@ public class TypesTest {
     }
 
     @Test
-    public void testDateTime() {
+    void testDateTime() {
         int offsetSeconds = OffsetDateTime.now().getOffset().getTotalSeconds();
         XmlObject[] res = o.selectPath("xs:dateTime(\"2000-01-01T15:03:06.123\")");
         assertEquals(1, res.length);
@@ -83,7 +84,7 @@ public class TypesTest {
     }
 
     @Test
-    public void testZDateTime() {
+    void testZDateTime() {
         XmlObject[] res = o.selectPath("xs:dateTime(\"2000-01-01T15:03:06.123Z\")");
         assertEquals(1, res.length);
         Calendar d = ((XmlDateTime) res[0]).getCalendarValue();
@@ -98,7 +99,7 @@ public class TypesTest {
     }
 
     @Test
-    public void testCaliforniaDateTime() {
+    void testCaliforniaDateTime() {
         XmlObject[] res = o.selectPath("xs:dateTime(\"2000-01-01T15:03:06.123-08:00\")");
         assertEquals(1, res.length);
         Calendar d = ((XmlDateTime) res[0]).getCalendarValue();
@@ -113,9 +114,8 @@ public class TypesTest {
     }
 
     @Test
-    public void testDecimal() {
-        XmlObject[] res = o.selectPath(
-            "seconds-from-dateTime(xs:dateTime('1997-07-16T19:20:30+01:00'))");
+    void testDecimal() {
+        XmlObject[] res = o.selectPath("seconds-from-dateTime(xs:dateTime('1997-07-16T19:20:30+01:00'))");
         assertEquals(1, res.length);
         XmlDecimal dec = (XmlDecimal) res[0];
         assertEquals("<xml-fragment>30</xml-fragment>", dec.xmlText());
@@ -124,7 +124,7 @@ public class TypesTest {
     //Saxon returns string here, though the string is a valid duration
     //representation
     @Test
-    public void testDuration() {
+    void testDuration() {
         XmlObject[] res = o.selectPath("xs:dayTimeDuration(\"PT12H\")*4");
         assertEquals(1, res.length);
         //System.out.println(res[0].schemaType());
@@ -138,14 +138,12 @@ public class TypesTest {
     }
 
     @Test
-    public void testTypes() throws Exception {
-        XmlObject o = XmlObject.Factory.parse(
-            "<a xml:base='abc'>foo<b>bar</b></a>");
-        XmlObject[] res = null;
+    void testTypes() throws Exception {
+        XmlObject o = XmlObject.Factory.parse("<a xml:base='abc'>foo<b>bar</b></a>");
 
         //Long
-        res = o.selectPath("hours-from-dateTime(" +
-                           "current-dateTime()) cast as xs:integer");
+        XmlObject[] res = o.selectPath("hours-from-dateTime(" +
+                                       "current-dateTime()) cast as xs:integer");
         assertEquals(1, res.length);
         //System.out.println(res[0].schemaType());
         XmlLong xl = ((XmlLong) res[0]);

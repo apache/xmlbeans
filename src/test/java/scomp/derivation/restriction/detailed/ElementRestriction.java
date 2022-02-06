@@ -14,20 +14,18 @@
  */
 package scomp.derivation.restriction.detailed;
 
-import org.apache.xmlbeans.XmlDecimal;
-import org.apache.xmlbeans.XmlErrorCodes;
-import org.apache.xmlbeans.XmlObject;
-import org.apache.xmlbeans.XmlString;
+import org.apache.xmlbeans.*;
 import org.apache.xmlbeans.impl.values.XmlAnyTypeImpl;
-import org.junit.Test;
-import scomp.common.BaseCase;
+import org.junit.jupiter.api.Test;
 import xbean.scomp.derivation.elementRestriction.ElementDocument;
 import xbean.scomp.derivation.elementRestriction.RestrictedEltT;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
+import static scomp.common.BaseCase.createOptions;
+import static scomp.common.BaseCase.getErrorCodes;
 
 
-public class ElementRestriction extends BaseCase {
+public class ElementRestriction {
     /**
      * <xsd:complexType name="SequenceT">
      * <xsd:sequence>
@@ -48,7 +46,7 @@ public class ElementRestriction extends BaseCase {
      * </xsd:complexType>
      */
     @Test
-    public void testRestrictedElement() throws Throwable {
+    void testRestrictedElement() throws Throwable {
         ElementDocument doc = ElementDocument.Factory.newInstance();
         RestrictedEltT elt = doc.addNewElement();
         XmlString aValue = XmlString.Factory.newInstance();
@@ -65,29 +63,21 @@ public class ElementRestriction extends BaseCase {
         XmlDecimal dValue = XmlDecimal.Factory.newInstance();
         dValue.setBigDecimalValue(new java.math.BigDecimal("3.5"));
         elt.setD(dValue);
+
+        XmlOptions validateOptions = createOptions();
         assertFalse(doc.validate(validateOptions));
-        showErrors();
-        String[] errExpected = new String[]{
+        String[] errExpected = {
             XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$EXPECTED_DIFFERENT_ELEMENT,
             XmlErrorCodes.ELEM_LOCALLY_VALID$FIXED_VALID_MIXED_CONTENT,
             XmlErrorCodes.INTEGER,
         };
-        assertTrue(compareErrorCodes(errExpected));
-
+        assertArrayEquals(errExpected, getErrorCodes(validateOptions));
 
         elt.removeA(2);
         bValue.setStringValue("myval");
         elt.setB(bValue);
         elt.setD(3);
-        assertEquals("myval",
-                ((XmlAnyTypeImpl)elt.getB()).getStringValue());
-        try {
-            assertTrue(doc.validate(validateOptions));
-        }
-        catch (Throwable t) {
-            showErrors();
-            throw t;
-        }
-
+        assertEquals("myval", ((XmlAnyTypeImpl)elt.getB()).getStringValue());
+        assertTrue(doc.validate(validateOptions));
     }
 }

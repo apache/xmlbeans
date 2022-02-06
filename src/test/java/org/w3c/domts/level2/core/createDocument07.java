@@ -22,13 +22,13 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Document;
 import org.w3c.dom.DocumentType;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -47,24 +47,18 @@ import static org.w3c.domts.DOMTest.load;
  */
 public class createDocument07 {
     @Test
-    public void testRun() throws Throwable {
+    void testRun() throws Throwable {
         String namespaceURI = "http://www.ecommerce.org/schema";
         String qualifiedName = "y:x";
-        Document doc;
         DocumentType docType = null;
 
-        DOMImplementation domImpl;
-        Document aNewDoc;
-        String nodeName;
-        String nodeValue;
-        doc = load("staffNS", false);
-        domImpl = doc.getImplementation();
-        aNewDoc = domImpl.createDocument(namespaceURI, qualifiedName, docType);
-        nodeName = aNewDoc.getNodeName();
-        nodeValue = aNewDoc.getNodeValue();
-        assertEquals("nodeName", "#document", nodeName);
-        assertNull("nodeValue", nodeValue);
-
+        Document doc = load("staffNS", false);
+        DOMImplementation domImpl = doc.getImplementation();
+        Document aNewDoc = domImpl.createDocument(namespaceURI, qualifiedName, docType);
+        String nodeName = aNewDoc.getNodeName();
+        String nodeValue = aNewDoc.getNodeValue();
+        assertEquals("#document", nodeName, "nodeName");
+        assertNull(nodeValue, "nodeValue");
     }
 
     /**

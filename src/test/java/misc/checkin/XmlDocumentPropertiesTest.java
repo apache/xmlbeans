@@ -15,20 +15,20 @@
 
 package misc.checkin;
 
+import org.apache.xmlbeans.XmlDocumentProperties;
+import org.junit.jupiter.api.Test;
+
 import java.util.HashMap;
 
-import org.apache.xmlbeans.XmlBeans;
-import org.apache.xmlbeans.XmlDocumentProperties;
-import org.junit.Test;
-
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class XmlDocumentPropertiesTest {
 
     @Test
-    public void testSetStandalone() {
+    void testSetStandalone() {
         XmlDocumentProperties props = new XmlDocumentProperties() {
-            HashMap<Object, Object> props = new HashMap<>();
+            final HashMap<Object, Object> props = new HashMap<>();
             @Override
             public Object put ( Object key, Object value ) {
                 return props.put(key, value);

@@ -14,13 +14,13 @@
  */
 package tools.inst2xsd.detailed;
 
-import org.junit.Ignore;
-import org.junit.Test;
-import tools.inst2xsd.common.Inst2XsdTestBase;
-import org.apache.xmlbeans.XmlObject;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
-@Ignore
-public class DetailedLCDTest extends Inst2XsdTestBase {
+import static tools.inst2xsd.common.Inst2XsdTestBase.runLCDTypeCheckTest;
+
+@Disabled
+public class DetailedLCDTest {
 
     // List of precedence for smart simple primitive type determination
     // byte, short, int, long, integer, float, double, decimal,
@@ -67,17 +67,15 @@ public class DetailedLCDTest extends Inst2XsdTestBase {
     } */
 
     @Test
-    public void test_lcd_anyuri() throws Exception {
-        runLCDTypeCheckTest("abc",
-                "http://www.math.uio.no/faq/compression-faq/part1.html", "string");
-        runLCDTypeCheckTest("http://www.math.uio.no/faq/compression-faq/part1.html",
-                "http://www.example.com/doc.html#ID5", "anyURI");
+    void test_lcd_anyuri() throws Exception {
+        runLCDTypeCheckTest("abc", "http://www.math.uio.no/faq/compression-faq/part1.html", "string");
+        runLCDTypeCheckTest("http://www.math.uio.no/faq/compression-faq/part1.html", "http://www.example.com/doc.html#ID5", "anyURI");
         runLCDTypeCheckTest("123", "www.math.uio.no/faq/compression-faq/part1.html", "string");
         //runLCDTypeCheckTest("ftp://ftp.is.co.za/rfc/rfc1808.txt", "gopher://spinaltap.micro.umn.edu/00/Weather/California/Los%20Angeles", "anyURI");
     }
 
     @Test
-    public void test_lcd_byte() throws Exception {
+    void test_lcd_byte() throws Exception {
         runLCDTypeCheckTest("122", "123", "byte");
         runLCDTypeCheckTest("-1", "+100", "byte");
         runLCDTypeCheckTest("0", "-1", "byte");
@@ -104,7 +102,7 @@ public class DetailedLCDTest extends Inst2XsdTestBase {
     }
 
     @Test
-    public void test_lcd_short() throws Exception {
+    void test_lcd_short() throws Exception {
         runLCDTypeCheckTest("32767","-129", "short");
         runLCDTypeCheckTest("-32768","128", "short");
         runLCDTypeCheckTest("3000","3000", "short");
@@ -128,7 +126,7 @@ public class DetailedLCDTest extends Inst2XsdTestBase {
     }
 
     @Test
-    public void test_lcd_int() throws Exception {
+    void test_lcd_int() throws Exception {
         runLCDTypeCheckTest("32768","39000", "int");
         runLCDTypeCheckTest("32768","32768", "int");
         runLCDTypeCheckTest("-39000","-32769", "int");
@@ -153,7 +151,7 @@ public class DetailedLCDTest extends Inst2XsdTestBase {
     }
 
     @Test
-    public void test_lcd_long() throws Exception {
+    void test_lcd_long() throws Exception {
         runLCDTypeCheckTest("-9223372036854775808","2147483648", "long");
         runLCDTypeCheckTest("-9223372036854775808","-2147483649", "long");
         runLCDTypeCheckTest("-2150000000","-2150000000", "long");
@@ -172,7 +170,7 @@ public class DetailedLCDTest extends Inst2XsdTestBase {
     }
 
     @Test
-    public void test_lcd_integer() throws Exception {
+    void test_lcd_integer() throws Exception {
         runLCDTypeCheckTest("9223372036854775808","9300000000000000000", "integer");
         runLCDTypeCheckTest("9223372036854775808","-9300000000000000000", "integer");
         runLCDTypeCheckTest("9223372036854775808","-9223372036854775809", "integer");
@@ -187,7 +185,7 @@ public class DetailedLCDTest extends Inst2XsdTestBase {
     }
 
     @Test
-    public void test_lcd_float() throws Exception {
+    void test_lcd_float() throws Exception {
         runLCDTypeCheckTest("+100000.00","12.78e-2", "float");
         runLCDTypeCheckTest("+100000.00","1267.43233E12", "float");
         runLCDTypeCheckTest("12","-1E4", "float");
@@ -233,13 +231,13 @@ public class DetailedLCDTest extends Inst2XsdTestBase {
     //}
 
     @Test
-    public void test_lcd_date() throws Exception {
+    void test_lcd_date() throws Exception {
         runLCDTypeCheckTest("abc", "1999-05-31", "string");
         runLCDTypeCheckTest("1999-06-15","1999-05-31", "date");
     }
 
     @Test
-    public void test_lcd_dateTime() throws Exception {
+    void test_lcd_dateTime() throws Exception {
         runLCDTypeCheckTest("abc", "1999-05-31T13:20:00-05:00", "string");
         runLCDTypeCheckTest("1999-05-31T13:20:00-08:00","1999-05-31T13:20:00-05:00", "dateTime");
         runLCDTypeCheckTest("1999-05-31T13:20:00-06:00","2000-03-04T20:00:00Z", "dateTime");
@@ -247,7 +245,7 @@ public class DetailedLCDTest extends Inst2XsdTestBase {
     }
 
     @Test
-    public void test_lcd_time() throws Exception {
+    void test_lcd_time() throws Exception {
         runLCDTypeCheckTest("abc", "13:20:00-05:00", "string");
         runLCDTypeCheckTest("00:00:00","13:20:00-05:00", "time");
         runLCDTypeCheckTest("13:20:00Z","00:00:00", "time");

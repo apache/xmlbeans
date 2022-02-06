@@ -22,12 +22,13 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -42,22 +43,12 @@ import static org.w3c.domts.DOMTest.load;
  */
 public class nodesetprefix06 {
     @Test
-    public void testRun() throws Throwable {
-        Document doc;
-        Element element;
-        doc = load("staffNS", true);
-        element = doc.createElementNS("http://www.w3.org/DOM/Test/L2", "dom:elem");
+    void testRun() throws Throwable {
+        Document doc = load("staffNS", true);
+        Element element = doc.createElementNS("http://www.w3.org/DOM/Test/L2", "dom:elem");
 
-        {
-            boolean success = false;
-            try {
-                element.setPrefix("xml");
-            } catch (DOMException ex) {
-                success = (ex.code == DOMException.NAMESPACE_ERR);
-            }
-            assertTrue("elementsetattributens06", success);
-        }
-
+        DOMException ex = assertThrows(DOMException.class, () -> element.setPrefix("xml"));
+        assertEquals(DOMException.NAMESPACE_ERR, ex.code, "elementsetattributens06");
     }
 
     /**

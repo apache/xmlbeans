@@ -23,7 +23,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class Common {
     public static final String NEWLINE = System.getProperty("line.separator");
@@ -113,22 +113,9 @@ public class Common {
     /**
      * check list of errors/warnings/msgs and print them. Return true if errors found
      */
-    public static boolean printOptionErrMsgs(List<XmlError> errors) {
-        boolean errFound = false;
-        if (!errors.isEmpty()) {
-            for (XmlError eacherr : errors) {
-                int errSeverity = eacherr.getSeverity();
-                if (errSeverity == XmlError.SEVERITY_ERROR) {
-                    System.out.println("Err Msg (s) at line #" + eacherr.getLine() + ": " + eacherr.getMessage());
-                    errFound = true;
-                } else if (errSeverity == XmlError.SEVERITY_WARNING) {
-                    System.out.println("Warning Msg (s) at line #" + eacherr.getLine() + ": " + eacherr.getMessage());
-                } else if (errSeverity == XmlError.SEVERITY_INFO) {
-                    System.out.println("Info Msg (s) at line #" + eacherr.getLine() + ": " + eacherr.getMessage());
-                }
-            }
-            errors.clear();
-        }
+    public static boolean hasSevereError(List<XmlError> errors) {
+        boolean errFound = errors.stream().anyMatch(e -> e.getSeverity() == XmlError.SEVERITY_ERROR);
+        errors.clear();
         return errFound;
     }
 

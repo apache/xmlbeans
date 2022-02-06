@@ -22,11 +22,11 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -42,41 +42,24 @@ import static org.w3c.domts.DOMTest.load;
  */
 public class nodeissupported02 {
     @Test
-    public void testRun() throws Throwable {
-        Document doc;
-        Attr attribute;
+    void testRun() throws Throwable {
         String version = "";
         String version1 = "1.0";
         String version2 = "2.0";
-        String featureCore;
-        String featureXML;
-        boolean success;
-        java.util.List featuresXML = new java.util.ArrayList();
-        featuresXML.add("XML");
-        featuresXML.add("xmL");
+        String[] featuresXML = { "XML", "xmL" };
+        String[] featuresCore = { "Core", "CORE" };
 
-        java.util.List featuresCore = new java.util.ArrayList();
-        featuresCore.add("Core");
-        featuresCore.add("CORE");
-
-        doc = load("staffNS", false);
-        attribute = doc.createAttribute("TestAttr");
-        for (int indexd514e63 = 0; indexd514e63 < featuresXML.size(); indexd514e63++) {
-            featureXML = (String) featuresXML.get(indexd514e63);
-            success = attribute.isSupported(featureXML, version);
-            assertTrue("nodeissupported02_XML1", success);
-            success = attribute.isSupported(featureXML, version1);
-            assertTrue("nodeissupported02_XML2", success);
+        Document doc = load("staffNS", false);
+        Attr attribute = doc.createAttribute("TestAttr");
+        for (String featureXML : featuresXML) {
+            assertTrue(attribute.isSupported(featureXML, version), "nodeissupported02_XML1");
+            assertTrue(attribute.isSupported(featureXML, version1), "nodeissupported02_XML2");
         }
-        for (int indexd514e74 = 0; indexd514e74 < featuresCore.size(); indexd514e74++) {
-            featureCore = (String) featuresCore.get(indexd514e74);
-            success = attribute.isSupported(featureCore, version);
-            assertTrue("nodeissupported02_Core1", success);
-            success = attribute.isSupported(featureCore, version1);
-            success = attribute.isSupported(featureCore, version2);
-            assertTrue("nodeissupported02_Core3", success);
+        for (String featureCore : featuresCore) {
+            assertTrue(attribute.isSupported(featureCore, version), "nodeissupported02_Core1");
+            assertTrue(attribute.isSupported(featureCore, version1), "nodeissupported02_Core2");
+            assertTrue(attribute.isSupported(featureCore, version2), "nodeissupported02_Core3");
         }
-
     }
 
     /**

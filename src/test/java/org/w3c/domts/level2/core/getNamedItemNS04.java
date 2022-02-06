@@ -22,14 +22,14 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.DocumentType;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Notation;
 
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -42,20 +42,15 @@ import static org.w3c.domts.DOMTest.load;
  */
 public class getNamedItemNS04 {
     @Test
-    @Ignore
+    @Disabled
     public void testRun() throws Throwable {
-        Document doc;
-        DocumentType docType;
-        NamedNodeMap notations;
-        Notation notation;
         String nullNS = null;
 
-        doc = load("staffNS", false);
-        docType = doc.getDoctype();
-        notations = docType.getNotations();
-        notation = (Notation) notations.getNamedItemNS(nullNS, "notation1");
-        assertNull("notationNull", notation);
-
+        Document doc = load("staffNS", false);
+        DocumentType docType = doc.getDoctype();
+        NamedNodeMap notations = docType.getNotations();
+        Notation notation = (Notation) notations.getNamedItemNS(nullNS, "notation1");
+        assertNull(notation, "notationNull");
     }
 
     /**

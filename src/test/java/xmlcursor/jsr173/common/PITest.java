@@ -18,62 +18,53 @@ package xmlcursor.jsr173.common;
 
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlObject;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 /**
  * Methods tested:
  * getPIData
  * getPITarget
  */
-@Ignore("abstract class")
-public abstract class PITest {
+public class PITest {
 
-    private XMLStreamReader m_stream;
 
-    public abstract XMLStreamReader getStream(XmlCursor c) throws Exception;
-
-    @Test
-    public void testGetPiData() throws XMLStreamException {
-        assertEquals(XMLStreamConstants.PROCESSING_INSTRUCTION,
-            m_stream.next());
-        assertEquals("http://foobar", m_stream.getPIData());
-        assertEquals(XMLStreamConstants.START_ELEMENT, m_stream.next());
-        assertNull(m_stream.getPIData());
+    private static XmlCursor cur() {
+        XmlCursor cur = XmlObject.Factory.newInstance().newCursor();
+        cur.toNextToken();
+        cur.insertProcInst("xml-stylesheet", "http://foobar");
+        cur.insertElement("foobar");
+        cur.toStartDoc();
+        return cur;
     }
 
     @Test
-    public void testGetPiTarget() throws XMLStreamException {
-        assertEquals(XMLStreamConstants.PROCESSING_INSTRUCTION,
-            m_stream.next());
-        assertEquals("xml-stylesheet", m_stream.getPITarget());
-        assertEquals(XMLStreamConstants.START_ELEMENT, m_stream.next());
-        assertNull(m_stream.getPITarget());
-    }
-
-    @Before
-    public void setUp() throws Exception {
-        try (XmlCursor cur = XmlObject.Factory.newInstance().newCursor()) {
-            cur.toNextToken();
-            cur.insertProcInst("xml-stylesheet", "http://foobar");
-            cur.insertElement("foobar");
-            cur.toStartDoc();
-            m_stream = getStream(cur);
+    void testGetPiData() throws XMLStreamException {
+        try (XmlCursor cur = cur()) {
+            XMLStreamReader m_stream = cur.newXMLStreamReader();
+            assertEquals(XMLStreamConstants.PROCESSING_INSTRUCTION, m_stream.next());
+            assertEquals("http://foobar", m_stream.getPIData());
+            assertEquals(XMLStreamConstants.START_ELEMENT, m_stream.next());
+            assertNull(m_stream.getPIData());
+            m_stream.close();
         }
     }
 
-    @After
-    public void tearDown() throws Exception {
-        if (m_stream != null)
+    @Test
+    void testGetPiTarget() throws XMLStreamException {
+        try (XmlCursor cur = cur()) {
+            XMLStreamReader m_stream = cur.newXMLStreamReader();
+            assertEquals(XMLStreamConstants.PROCESSING_INSTRUCTION, m_stream.next());
+            assertEquals("xml-stylesheet", m_stream.getPITarget());
+            assertEquals(XMLStreamConstants.START_ELEMENT, m_stream.next());
+            assertNull(m_stream.getPITarget());
             m_stream.close();
+        }
     }
 }

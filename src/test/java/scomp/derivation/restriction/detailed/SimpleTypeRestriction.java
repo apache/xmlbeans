@@ -16,8 +16,7 @@
 
 package scomp.derivation.restriction.detailed;
 
-import org.junit.Test;
-import scomp.common.BaseCase;
+import org.junit.jupiter.api.Test;
 import xbean.scomp.derivation.facets.dateTimePattern.DateTimes;
 import xbean.scomp.derivation.facets.dateTimePattern.DateTimesDocument;
 import xbean.scomp.derivation.simpleTypeRestriction.SmallPantSizeEltDocument;
@@ -25,43 +24,31 @@ import xbean.scomp.derivation.simpleTypeRestriction.SmallPantSizeEltDocument;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static scomp.common.BaseCase.createOptions;
 
-public class SimpleTypeRestriction extends BaseCase{
+public class SimpleTypeRestriction {
 
     @Test
-    public void testPatternRestriction()throws Throwable{
+    void testPatternRestriction() throws Throwable {
         SmallPantSizeEltDocument doc = SmallPantSizeEltDocument.Factory.newInstance();
         doc.setSmallPantSizeElt(8);
         //doc.setSmallPantSizeElt(6);
-        try {
-            assertTrue(doc.validate(validateOptions));
-        } catch (Throwable t) {
-            showErrors();
-            throw t;
-        }
+        assertTrue(doc.validate(createOptions()));
     }
 
     @Test
-    public void testDateTimeRestriction() throws Throwable{
-       DateTimesDocument doc=
-               DateTimesDocument.Factory.newInstance();
-        Calendar c=new GregorianCalendar(2004,8,10);
-        DateTimes date=DateTimes.Factory.newInstance();
+    void testDateTimeRestriction() throws Throwable {
+        DateTimesDocument doc = DateTimesDocument.Factory.newInstance();
+        Calendar c = new GregorianCalendar(2004, Calendar.SEPTEMBER, 10);
+        DateTimes date = DateTimes.Factory.newInstance();
         date.setExtendedDate1(c);
         date.setExtendedDate2("2004-08-10");
-        c.set(2004,8,10,12,10);
+        c.set(2004, Calendar.SEPTEMBER, 10, 12, 10);
         date.setExtendedDateTime1(c);
         date.setExtendedDateTime2(c);
         date.setExtendedDateTimeAny3(c);
 
-        System.out.println(
-                date.getExtendedDate1()+"\n"+
-                 date.getExtendedDate2()+"\n"+
-                 date.getExtendedDateTime1()+"\n"+
-                 date.getExtendedDateTime2()+"\n"+
-                 date.getExtendedDateTimeAny3()+"\n"
-        );
-
+        // TODO: add asserts
     }
 }

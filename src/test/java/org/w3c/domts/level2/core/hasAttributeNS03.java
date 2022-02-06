@@ -22,12 +22,12 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
-import static org.junit.Assert.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -44,19 +44,14 @@ import static org.w3c.domts.DOMTest.load;
  */
 public class hasAttributeNS03 {
     @Test
-    public void testRun() throws Throwable {
+    void testRun() throws Throwable {
         String localName = "blank";
         String namespaceURI = "http://www.nist.gov";
-        Document doc;
-        NodeList elementList;
-        Element testNode;
-        boolean state;
-        doc = load("staffNS", false);
-        elementList = doc.getElementsByTagName("emp:address");
-        testNode = (Element) elementList.item(0);
-        state = testNode.hasAttributeNS(namespaceURI, localName);
-        assertFalse("throw_False", state);
-
+        Document doc = load("staffNS", false);
+        NodeList elementList = doc.getElementsByTagName("emp:address");
+        Element testNode = (Element) elementList.item(0);
+        boolean state = testNode.hasAttributeNS(namespaceURI, localName);
+        assertFalse(state, "throw_False");
     }
 
     /**

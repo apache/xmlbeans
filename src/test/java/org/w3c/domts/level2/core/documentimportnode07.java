@@ -22,14 +22,15 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.DocumentType;
 import org.w3c.dom.Node;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -51,24 +52,14 @@ import static org.w3c.domts.DOMTest.load;
  */
 public class documentimportnode07 {
     @Test
-    @Ignore
+    @Disabled
     public void testRun() throws Throwable {
-        Document doc;
         Node imported;
-        DocumentType docType;
-        doc = load("staffNS", true);
-        docType = doc.getDoctype();
+        Document doc = load("staffNS", true);
+        DocumentType docType = doc.getDoctype();
 
-        {
-            boolean success = false;
-            try {
-                imported = doc.importNode(docType, true);
-            } catch (DOMException ex) {
-                success = (ex.code == DOMException.NOT_SUPPORTED_ERR);
-            }
-            assertTrue("documentimportnode07", success);
-        }
-
+        DOMException ex = assertThrows(DOMException.class, () -> doc.importNode(docType, true));
+        assertEquals(DOMException.NOT_SUPPORTED_ERR, ex.code, "documentimportnode07");
     }
 
     /**

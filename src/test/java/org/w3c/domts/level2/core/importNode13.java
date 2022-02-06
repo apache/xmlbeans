@@ -22,15 +22,15 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.DocumentType;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Notation;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.w3c.domts.DOMTest.assertURIEquals;
 import static org.w3c.domts.DOMTest.load;
 
@@ -49,33 +49,22 @@ import static org.w3c.domts.DOMTest.load;
  */
 public class importNode13 {
     @Test
-    @Ignore
+    @Disabled
     public void testRun() throws Throwable {
-        Document doc;
-        Document aNewDoc;
-        DocumentType doc1Type;
-        NamedNodeMap notationList;
-        Notation notation;
-        Notation aNode;
-        Document ownerDocument;
-        DocumentType docType;
-        String system;
-        String publicVal;
-        doc = load("staffNS", true);
-        aNewDoc = load("staffNS", true);
-        doc1Type = aNewDoc.getDoctype();
-        notationList = doc1Type.getNotations();
-        notation = (Notation) notationList.getNamedItem("notation1");
-        aNode = (Notation) doc.importNode(notation, false);
-        ownerDocument = aNode.getOwnerDocument();
-        docType = ownerDocument.getDoctype();
-        system = docType.getSystemId();
+        Document doc = load("staffNS", true);
+        Document aNewDoc = load("staffNS", true);
+        DocumentType doc1Type = aNewDoc.getDoctype();
+        NamedNodeMap notationList = doc1Type.getNotations();
+        Notation notation = (Notation) notationList.getNamedItem("notation1");
+        Notation aNode = (Notation) doc.importNode(notation, false);
+        Document ownerDocument = aNode.getOwnerDocument();
+        DocumentType docType = ownerDocument.getDoctype();
+        String system = docType.getSystemId();
         assertURIEquals("systemId", "staffNS.dtd", system);
-        publicVal = aNode.getPublicId();
-        assertEquals("publicId", "notation1File", publicVal);
+        String publicVal = aNode.getPublicId();
+        assertEquals("notation1File", publicVal, "publicId");
         system = aNode.getSystemId();
-        assertNull("notationSystemId", system);
-
+        assertNull(system, "notationSystemId");
     }
 
     /**

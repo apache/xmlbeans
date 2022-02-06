@@ -19,18 +19,19 @@ package xmlcursor.detailed;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlCursor.TokenType;
 import org.apache.xmlbeans.XmlObject;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.tranxml.tranXML.version40.CarLocationMessageDocument;
 import org.tranxml.tranXML.version40.EventStatusDocument.EventStatus;
 import org.tranxml.tranXML.version40.GeographicLocationDocument.GeographicLocation;
 import tools.util.JarUtil;
 import xmlcursor.common.Common;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class CursorVsObjectInsertRemoveTest {
     @Test
-    public void testInsertRemove() throws Exception {
+    void testInsertRemove() throws Exception {
         CarLocationMessageDocument clm =
             (CarLocationMessageDocument) XmlObject.Factory.parse(
                 JarUtil.getResourceFromJar(Common.TRANXML_FILE_CLM));
@@ -43,12 +44,12 @@ public class CursorVsObjectInsertRemoveTest {
             assertEquals("EventStatus", xc.getName().getLocalPart());
             EventStatus eventStatus;
             eventStatus = (EventStatus) xc.getObject();
-            assertNotNull("Expected non-null EventStatus object", eventStatus);
+            assertNotNull(eventStatus, "Expected non-null EventStatus object");
             String sEventStatusText;
             sEventStatusText = xc.getTextValue();
 
             GeographicLocation glDest = eventStatus.getDestination().getGeographicLocation();
-            assertNotNull("Expected non-null GeographicLocation object", glDest);
+            assertNotNull(glDest, "Expected non-null GeographicLocation object");
             glDest.setPostalCode("90210");
             glDest.setCountryCode("US");
             try (XmlCursor xcPostalCode = glDest.xgetPostalCode().newCursor();

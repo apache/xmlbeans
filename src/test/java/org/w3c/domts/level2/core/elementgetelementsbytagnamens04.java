@@ -22,13 +22,13 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -46,29 +46,21 @@ import static org.w3c.domts.DOMTest.load;
  */
 public class elementgetelementsbytagnamens04 {
     @Test
-    public void testRun() throws Throwable {
-        Document doc;
-        Element element;
-        Element child1;
-        Element child2;
-        Element child3;
-        Node appendedChild;
-        NodeList elementList;
+    void testRun() throws Throwable {
         String nullNS = null;
 
-        doc = load("staffNS", false);
-        element = doc.createElementNS("http://www.w3.org/DOM", "root");
-        child1 = doc.createElementNS("http://www.w3.org/DOM/Level1", "dom:child");
-        child2 = doc.createElementNS(nullNS, "child");
-        child3 = doc.createElementNS("http://www.w3.org/DOM/Level2", "dom:child");
-        appendedChild = element.appendChild(child1);
+        Document doc = load("staffNS", false);
+        Element element = doc.createElementNS("http://www.w3.org/DOM", "root");
+        Element child1 = doc.createElementNS("http://www.w3.org/DOM/Level1", "dom:child");
+        Element child2 = doc.createElementNS(nullNS, "child");
+        Element child3 = doc.createElementNS("http://www.w3.org/DOM/Level2", "dom:child");
+        Node appendedChild = element.appendChild(child1);
         appendedChild = element.appendChild(child2);
         appendedChild = element.appendChild(child3);
-        elementList = element.getElementsByTagNameNS(nullNS, "child");
-        assertEquals("elementgetelementsbytagnamens04_1", 1, elementList.getLength());
+        NodeList elementList = element.getElementsByTagNameNS(nullNS, "child");
+        assertEquals(1, elementList.getLength(), "elementgetelementsbytagnamens04_1");
         elementList = element.getElementsByTagNameNS("*", "child");
-        assertEquals("elementgetelementsbytagnamens04_2", 3, elementList.getLength());
-
+        assertEquals(3, elementList.getLength(), "elementgetelementsbytagnamens04_2");
     }
 
     /**

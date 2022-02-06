@@ -18,16 +18,14 @@ package xmlcursor.jsr173.common;
 
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlObject;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamConstants;
+import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Methods tested
@@ -39,186 +37,186 @@ import static org.junit.Assert.*;
  * Token Types should be DTD, ER, Chars, Comment, Space
  * currently DTD and ER are Not Impl
  */
-@Ignore("abstract class")
-public abstract class CharactersTest {
+public class CharactersTest {
 
-    private XMLStreamReader m_stream;
 
-    public abstract XMLStreamReader getStream(XmlCursor c) throws Exception;
+    private static XmlCursor cur() {
+        XmlCursor cur = XmlObject.Factory.newInstance().newCursor();
+        cur.toNextToken();
+
+        //   cur.insertAttributeWithValue(new QName("foo.org", "at0", "pre"), "val0");
+        cur.insertComment(" some comment ");
+        cur.beginElement(new QName("foo.org", "foo", ""));
+        cur.insertAttribute("localName");
+        cur.insertChars("some text");
+        cur.insertElement("foo2");
+        cur.toNextToken(); //close foo elt
+        cur.insertChars("\t");
+        cur.toStartDoc();
+
+        return cur;
+    }
 
     @Test
-    public void testHasText() throws Exception {
-        assertEquals(XMLStreamConstants.START_DOCUMENT,
-            m_stream.getEventType());
+    void testHasText() throws XMLStreamException {
+        try (XmlCursor cur = cur()) {
+            XMLStreamReader m_stream = cur.newXMLStreamReader();
 
-        // assertEquals( XMLStreamConstants.ATTRIBUTE, m_stream.next()  );
-        //  assertFalse( m_stream.hasText() );
+            assertEquals(XMLStreamConstants.START_DOCUMENT, m_stream.getEventType());
 
-        assertEquals(XMLStreamConstants.COMMENT, m_stream.next());
-        assertTrue(m_stream.hasText());
+            // assertEquals( XMLStreamConstants.ATTRIBUTE, m_stream.next()  );
+            //  assertFalse( m_stream.hasText() );
 
-        assertEquals(XMLStreamConstants.START_ELEMENT, m_stream.next());
-        assertFalse(m_stream.hasText());
+            assertEquals(XMLStreamConstants.COMMENT, m_stream.next());
+            assertTrue(m_stream.hasText());
 
-        assertEquals(XMLStreamConstants.CHARACTERS, m_stream.next());
-        assertTrue(m_stream.hasText());
+            assertEquals(XMLStreamConstants.START_ELEMENT, m_stream.next());
+            assertFalse(m_stream.hasText());
 
-        assertEquals(XMLStreamConstants.START_ELEMENT, m_stream.next());
-        assertFalse(m_stream.hasText());
-        assertEquals(XMLStreamConstants.END_ELEMENT, m_stream.next());
-        assertFalse(m_stream.hasText());
-        assertEquals(XMLStreamConstants.END_ELEMENT, m_stream.next());
-        assertFalse(m_stream.hasText());
+            assertEquals(XMLStreamConstants.CHARACTERS, m_stream.next());
+            assertTrue(m_stream.hasText());
 
-        assertEquals(XMLStreamConstants.CHARACTERS, m_stream.next());
+            assertEquals(XMLStreamConstants.START_ELEMENT, m_stream.next());
+            assertFalse(m_stream.hasText());
+            assertEquals(XMLStreamConstants.END_ELEMENT, m_stream.next());
+            assertFalse(m_stream.hasText());
+            assertEquals(XMLStreamConstants.END_ELEMENT, m_stream.next());
+            assertFalse(m_stream.hasText());
+
+            assertEquals(XMLStreamConstants.CHARACTERS, m_stream.next());
 //           assertTrue(  m_stream.isWhiteSpace());
-        assertTrue(m_stream.hasText());
+            assertTrue(m_stream.hasText());
+
+            m_stream.close();
+        }
     }
 
     //also testing getTextStart and getTextLength
     @Test
-    public void testGetTextCharacters() throws Exception {
-        try {
+    void testGetTextCharacters() throws Exception {
+        try (XmlCursor cur = cur()) {
+            XMLStreamReader m_stream = cur.newXMLStreamReader();
+
             assertEquals(XMLStreamConstants.START_DOCUMENT, m_stream.getEventType());
-            m_stream.getTextLength();
-            fail("Illegal State");
-        } catch (IllegalStateException e) {
-        }
+            assertThrows(IllegalStateException.class, m_stream::getTextLength);
 
-        assertEquals(XMLStreamConstants.COMMENT, m_stream.next());
-        char[] result = m_stream.getTextCharacters();
-        assertEquals(" some comment ", new String(result).substring(m_stream.getTextStart(),
-            m_stream.getTextLength()));
+            assertEquals(XMLStreamConstants.COMMENT, m_stream.next());
+            char[] result = m_stream.getTextCharacters();
+            assertEquals(" some comment ", new String(result).substring(m_stream.getTextStart(),
+                m_stream.getTextLength()));
 
-        try {
             assertEquals(XMLStreamConstants.START_ELEMENT, m_stream.next());
-            m_stream.getTextLength();
-            fail("Illegal State");
-        } catch (IllegalStateException e) {
-        }
+            assertThrows(IllegalStateException.class, m_stream::getTextLength);
 
+            assertEquals(XMLStreamConstants.CHARACTERS, m_stream.next());
+            result = m_stream.getTextCharacters();
+            assertEquals("some text", new String(result).substring(m_stream.getTextStart(), m_stream.getTextLength()));
 
-        assertEquals(XMLStreamConstants.CHARACTERS, m_stream.next());
-        result = m_stream.getTextCharacters();
-        assertEquals("some text", new String(result).substring(m_stream.getTextStart(),
-            m_stream.getTextLength()));
-
-        m_stream.next();
-        m_stream.next();//skip empty elt
-        m_stream.next(); //end foo
-        assertEquals(XMLStreamConstants.CHARACTERS, m_stream.next());
-        result = m_stream.getTextCharacters();
-        assertEquals("\t", new String(result).substring(m_stream.getTextStart(),
-            m_stream.getTextLength()));
-        try {
             m_stream.next();
-            m_stream.getTextLength();
-            fail("Illegal State");
-        } catch (IllegalStateException e) {
+            m_stream.next();//skip empty elt
+            m_stream.next(); //end foo
+            assertEquals(XMLStreamConstants.CHARACTERS, m_stream.next());
+            result = m_stream.getTextCharacters();
+            assertEquals("\t", new String(result).substring(m_stream.getTextStart(), m_stream.getTextLength()));
+            m_stream.next();
+            assertThrows(IllegalStateException.class, m_stream::getTextLength);
+
+            m_stream.close();
         }
-    }
 
-    @Test(expected = IndexOutOfBoundsException.class)
-    public void testGetTextCharactersBufferNegStart() throws Exception {
-        m_stream.next();
-        m_stream.getTextCharacters(-1, new char[10], 12, 12);
-    }
-
-    @Test(expected = NullPointerException.class)
-    public void testGetTextCharactersBufferNull() throws Exception {
-        m_stream.next();
-        m_stream.getTextCharacters(0, null, 12, 12);
-    }
-
-    @Test(expected = IndexOutOfBoundsException.class)
-    public void testGetTextCharactersLargeSrcOff() throws Exception {
-        m_stream.next();
-        m_stream.getTextCharacters(110, new char[10], 0, 9);
-    }
-
-    @Test(expected = IndexOutOfBoundsException.class)
-    public void testGetTextCharactersLargeTrgOff() throws Exception {
-        m_stream.next();
-        m_stream.getTextCharacters(110, new char[10], 10, 9);
-    }
-
-    @Test(expected = IndexOutOfBoundsException.class)
-    public void testGetTextCharactersLargeLen() throws Exception {
-        m_stream.next();
-        char[] buff = new char[9];
-        m_stream.getTextCharacters(0, buff, 0, 30);
-    }
-
-    //off+len past end
-    @Test(expected = IndexOutOfBoundsException.class)
-    public void testGetTextCharactersLargeSum() throws Exception {
-        m_stream.next();
-        char[] buff = new char[9];
-        m_stream.getTextCharacters(0, buff, 3, 10);
     }
 
     @Test
-    public void testGetText() throws Exception {
-        try {
-            assertEquals(XMLStreamConstants.START_DOCUMENT, m_stream.getEventType());
-            m_stream.getText();
-            fail("Illegal State");
-        } catch (IllegalStateException e) {
-        }
-
-        assertEquals(XMLStreamConstants.COMMENT, m_stream.next());
-        String result = m_stream.getText();
-        assertEquals(" some comment ", result);
-
-        try {
-            assertEquals(XMLStreamConstants.START_ELEMENT, m_stream.next());
-            m_stream.getText();
-            fail("Illegal State");
-        } catch (IllegalStateException e) {
-        }
-
-
-        assertEquals(XMLStreamConstants.CHARACTERS, m_stream.next());
-        result = m_stream.getText();
-        assertEquals("some text", result);
-
-        m_stream.next();
-        m_stream.next();//skip empty elt
-        m_stream.next(); //end foo
-        assertEquals(XMLStreamConstants.CHARACTERS, m_stream.next());
-        result = m_stream.getText();
-        assertEquals("\t", result);
-        try {
+    void testGetTextCharactersBufferNegStart() throws Exception {
+        try (XmlCursor cur = cur()) {
+            XMLStreamReader m_stream = cur.newXMLStreamReader();
             m_stream.next();
-            m_stream.getText();
-            fail("Illegal State");
-        } catch (IllegalStateException e) {
-        }
-    }
-
-    @Before
-    public void setUp() throws Exception {
-        try (XmlCursor cur = XmlObject.Factory.newInstance().newCursor()) {
-            cur.toNextToken();
-
-            //   cur.insertAttributeWithValue(new QName("foo.org", "at0", "pre"), "val0");
-            cur.insertComment(" some comment ");
-            cur.beginElement(new QName("foo.org", "foo", ""));
-            cur.insertAttribute("localName");
-            cur.insertChars("some text");
-            cur.insertElement("foo2");
-            cur.toNextToken(); //close foo elt
-            cur.insertChars("\t");
-
-
-            cur.toStartDoc();
-            m_stream = getStream(cur);
-        }
-    }
-
-    @After
-    public void tearDown() throws Exception {
-        if (m_stream != null)
+            assertThrows(IndexOutOfBoundsException.class, () -> m_stream.getTextCharacters(-1, new char[10], 12, 12));
             m_stream.close();
+        }
+    }
+
+    @Test
+    void testGetTextCharactersBufferNull() throws Exception {
+        try (XmlCursor cur = cur()) {
+            XMLStreamReader m_stream = cur.newXMLStreamReader();
+            m_stream.next();
+            assertThrows(NullPointerException.class, () -> m_stream.getTextCharacters(0, null, 12, 12));
+            m_stream.close();
+        }
+    }
+
+    @Test
+    void testGetTextCharactersLargeSrcOff() throws Exception {
+        try (XmlCursor cur = cur()) {
+            XMLStreamReader m_stream = cur.newXMLStreamReader();
+            m_stream.next();
+            assertThrows(IndexOutOfBoundsException.class, () -> m_stream.getTextCharacters(110, new char[10], 0, 9));
+            m_stream.close();
+        }
+    }
+
+    @Test
+    void testGetTextCharactersLargeTrgOff() throws Exception {
+        try (XmlCursor cur = cur()) {
+            XMLStreamReader m_stream = cur.newXMLStreamReader();
+            m_stream.next();
+            assertThrows(IndexOutOfBoundsException.class, () -> m_stream.getTextCharacters(110, new char[10], 10, 9));
+            m_stream.close();
+        }
+    }
+
+    @Test
+    void testGetTextCharactersLargeLen() throws Exception {
+        try (XmlCursor cur = cur()) {
+            XMLStreamReader m_stream = cur.newXMLStreamReader();
+            m_stream.next();
+            char[] buff = new char[9];
+            assertThrows(IndexOutOfBoundsException.class, () -> m_stream.getTextCharacters(0, buff, 0, 30));
+            m_stream.close();
+        }
+    }
+
+    //off+len past end
+    @Test
+    void testGetTextCharactersLargeSum() throws Exception {
+        try (XmlCursor cur = cur()) {
+            XMLStreamReader m_stream = cur.newXMLStreamReader();
+            m_stream.next();
+            char[] buff = new char[9];
+            assertThrows(IndexOutOfBoundsException.class, () -> m_stream.getTextCharacters(0, buff, 3, 10));
+            m_stream.close();
+        }
+    }
+
+    @Test
+    void testGetText() throws Exception {
+        try (XmlCursor cur = cur()) {
+            XMLStreamReader m_stream = cur.newXMLStreamReader();
+            assertEquals(XMLStreamConstants.START_DOCUMENT, m_stream.getEventType());
+            assertThrows(IllegalStateException.class, m_stream::getText);
+
+            assertEquals(XMLStreamConstants.COMMENT, m_stream.next());
+            String result = m_stream.getText();
+            assertEquals(" some comment ", result);
+
+            assertEquals(XMLStreamConstants.START_ELEMENT, m_stream.next());
+            assertThrows(IllegalStateException.class, m_stream::getText);
+
+            assertEquals(XMLStreamConstants.CHARACTERS, m_stream.next());
+            result = m_stream.getText();
+            assertEquals("some text", result);
+
+            m_stream.next();
+            m_stream.next();//skip empty elt
+            m_stream.next(); //end foo
+            assertEquals(XMLStreamConstants.CHARACTERS, m_stream.next());
+            result = m_stream.getText();
+            assertEquals("\t", result);
+            m_stream.next();
+            assertThrows(IllegalStateException.class, m_stream::getText);
+
+            m_stream.close();
+        }
     }
 }

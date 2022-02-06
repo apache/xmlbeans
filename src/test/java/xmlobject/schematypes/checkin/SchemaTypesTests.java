@@ -18,42 +18,34 @@ package xmlobject.schematypes.checkin;
 
 import org.apache.xmlbeans.*;
 import org.apache.xmlbeans.impl.xb.xsdschema.SchemaDocument;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.openuri.def.DefaultsDocument;
 import org.openuri.xstypes.test.CustomerDocument;
 import org.openuri.xstypes.test.Person;
-import tools.util.JarUtil;
 
 import javax.xml.namespace.QName;
 import java.io.IOException;
 import java.io.InputStream;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static xmlcursor.common.BasicCursorTestCase.jobj;
 
 public class SchemaTypesTests {
-
-    private CustomerDocument doc;
-
-    private void ensureDoc()
-        throws Exception {
-        if (doc == null) {
-            doc = (CustomerDocument)
-                XmlObject.Factory.parse(
-                    JarUtil.getResourceFromJarasFile("xbean/xmlobject/person.xml"));
-        }
+    private static CustomerDocument getDoc() throws Exception {
+        return (CustomerDocument) jobj("xbean/xmlobject/person.xml");
     }
 
     @Test
-    public void testDefaults() {
+    void testDefaults() {
         DefaultsDocument doc = DefaultsDocument.Factory.newInstance();
         DefaultsDocument.Defaults defs = doc.addNewDefaults();
         assertEquals(783, defs.getCool()); // this is the default value
     }
 
     @Test
-    public void testSourceName() throws IOException, XmlException {
+    void testSourceName() throws IOException, XmlException {
         String name = DefaultsDocument.type.getSourceName();
         assertEquals("defaults.xsd", name);
         InputStream str = XmlBeans.getContextTypeLoader().getSourceAsStream("defaults.xsd");
@@ -62,22 +54,20 @@ public class SchemaTypesTests {
     }
 
     @Test
-    public void testRead() throws Exception {
-        ensureDoc();
+    void testRead() throws Exception {
+        CustomerDocument doc = getDoc();
 
         // Move from the root to the root customer element
         Person person = doc.getCustomer();
         assertEquals("Howdy", person.getFirstname());
-        assertEquals(4,   person.sizeOfNumberArray());
+        assertEquals(4, person.sizeOfNumberArray());
         assertEquals(436, person.getNumberArray(0));
         assertEquals(123, person.getNumberArray(1));
-        assertEquals(44,  person.getNumberArray(2));
+        assertEquals(44, person.getNumberArray(2));
         assertEquals(933, person.getNumberArray(3));
-        assertEquals(2,   person.sizeOfBirthdayArray());
-        assertEquals(new XmlCalendar("1998-08-26Z"),
-             person.getBirthdayArray(0));
-        assertEquals(new XmlCalendar("2000-08-06-08:00"),
-             person.getBirthdayArray(1));
+        assertEquals(2, person.sizeOfBirthdayArray());
+        assertEquals(new XmlCalendar("1998-08-26Z"), person.getBirthdayArray(0));
+        assertEquals(new XmlCalendar("2000-08-06-08:00"), person.getBirthdayArray(1));
 
         Person.Gender.Enum g = person.getGender();
         assertEquals(Person.Gender.MALE, g);
@@ -100,8 +90,8 @@ public class SchemaTypesTests {
     }
 
     @Test
-    public void testWriteRead() throws Exception {
-        ensureDoc();
+    void testWriteRead() throws Exception {
+        CustomerDocument doc = getDoc();
         // Move from the root to the root customer element
         Person person = doc.getCustomer();
 
@@ -126,10 +116,10 @@ public class SchemaTypesTests {
         person.setAnyuriAtt("b.d:7002");
         assertEquals("b.d:7002", person.getAnyuriAtt());
 
-        person.setQnameAtt(new QName("aaa","bbb"));
+        person.setQnameAtt(new QName("aaa", "bbb"));
         assertEquals("{aaa}bbb", person.getQnameAtt().toString());
 
-        person.setQname(new QName("ddd","eee"));
+        person.setQname(new QName("ddd", "eee"));
         assertEquals("{ddd}eee", person.getQname().toString());
 
         //Exception: src/xmlstore/org/apache/xmlbeans/impl/store/Type.java(189): user == _user failed
@@ -149,8 +139,8 @@ public class SchemaTypesTests {
     }
 
     @Test
-    public void testStoreWrite() throws Exception {
-        ensureDoc();
+    void testStoreWrite() throws Exception {
+        CustomerDocument doc = getDoc();
         // Move from the root to the root customer element
         Person person = doc.getCustomer();
 
@@ -159,31 +149,31 @@ public class SchemaTypesTests {
         person.setFirstname("George");
         xmlobj = person.xgetFirstname();
         try (XmlCursor xmlcurs = xmlobj.newCursor()) {
-            assertEquals("George", xmlcurs.getTextValue() );
+            assertEquals("George", xmlcurs.getTextValue());
         }
 
-        person.setQnameAtt( new QName("http://ggg.com","hhh") );
+        person.setQnameAtt(new QName("http://ggg.com", "hhh"));
         xmlobj = person.xgetQnameAtt();
         try (XmlCursor xmlcurs = xmlobj.newCursor()) {
-            assertEquals("ggg:hhh", xmlcurs.getTextValue() );
+            assertEquals("ggg:hhh", xmlcurs.getTextValue());
         }
 
-        person.setQname( new QName("http://ggg.com/gggAgain","kkk") );
+        person.setQname(new QName("http://ggg.com/gggAgain", "kkk"));
         xmlobj = person.xgetQname();
         try (XmlCursor xmlcurs = xmlobj.newCursor()) {
-            assertEquals("ggg1:kkk", xmlcurs.getTextValue() );
+            assertEquals("ggg1:kkk", xmlcurs.getTextValue());
         }
 
-        person.setAnyuri( "crossgain.com" );
+        person.setAnyuri("crossgain.com");
         xmlobj = person.xgetAnyuri();
         try (XmlCursor xmlcurs = xmlobj.newCursor()) {
-            assertEquals("crossgain.com", xmlcurs.getTextValue() );
+            assertEquals("crossgain.com", xmlcurs.getTextValue());
         }
 
-        person.setAnyuriAtt( "www.crossgain.com" );
+        person.setAnyuriAtt("www.crossgain.com");
         xmlobj = person.xgetAnyuriAtt();
         try (XmlCursor xmlcurs = xmlobj.newCursor()) {
-            assertEquals("www.crossgain.com", xmlcurs.getTextValue() );
+            assertEquals("www.crossgain.com", xmlcurs.getTextValue());
         }
 
         //person.setNotation("GIF");

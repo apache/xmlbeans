@@ -19,33 +19,42 @@ package dom.checkin;
 import dom.common.Loader;
 import dom.common.NodeTest;
 import dom.common.TestSetup;
-import org.junit.Before;
-import org.junit.Test;
+import org.apache.xmlbeans.XmlObject;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.*;
 
-import org.apache.xmlbeans.XmlObject;
-
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class NamedNodeMapTest implements TestSetup {
-    Document m_doc;
-    Document m_docNS;
-    Node m_node;
-    NamedNodeMap m_nodeMap;
-    String sXml = "<foo at0=\"val0\" at1=\"val1\" at2=\"val2\" at3=\"val3\" at4=\"val4\"><bar bat0=\"val0\">abc</bar></foo>";
-    String sXmlNS = "<foo xmlns:myns=\"uri:foo\" at0=\"val0\" myns:at0=\"val01\" at2=\"val2\" at3=\"val3\" myns:at4=\"val4\">  <bar>abc</bar></foo>";
-    Node result;
-    int nCount = 5;
+    private Document m_doc;
+    private Document m_docNS;
+    private Node m_node;
+    private NamedNodeMap m_nodeMap;
+    private final String sXml = "<foo at0=\"val0\" at1=\"val1\" at2=\"val2\" at3=\"val3\" at4=\"val4\"><bar bat0=\"val0\">abc</bar></foo>";
+    private final String sXmlNS = "<foo xmlns:myns=\"uri:foo\" at0=\"val0\" myns:at0=\"val01\" at2=\"val2\" at3=\"val3\" myns:at4=\"val4\">  <bar>abc</bar></foo>";
+    private Node result;
+    private int nCount = 5;
+    private Loader _loader;
+
+
+    @BeforeEach
+    public void setUp() throws Exception {
+        m_doc = (org.w3c.dom.Document) XmlObject.Factory.parse( sXml ).getDomNode();
+        m_docNS = (org.w3c.dom.Document) XmlObject.Factory.parse( sXmlNS ).getDomNode();
+        moveToNode();
+    }
 
 
     @Test
-    public void testLength() {
+    void testLength() {
         //assertEquals(m_nodeMap.length,nCount);
         assertEquals(m_nodeMap.getLength(), nCount);
     }
 
     @Test
-    public void testGetNamedItem() {
+    void testGetNamedItem() {
         result = m_nodeMap.getNamedItem("at0");
         assertEquals("val0", result.getNodeValue());
 
@@ -54,13 +63,13 @@ public class NamedNodeMapTest implements TestSetup {
     }
 
     @Test
-    public void testGetNamedItemDNE() {
+    void testGetNamedItemDNE() {
         result = m_nodeMap.getNamedItem("attt4");
-        assertEquals(null, result);
+        assertNull(result);
     }
 
     @Test
-    public void testGetNamedItemNS() {
+    void testGetNamedItemNS() {
         m_nodeMap = m_docNS.getFirstChild().getAttributes();
 
         result = m_nodeMap.getNamedItemNS("uri:foo", "at0");
@@ -79,17 +88,17 @@ public class NamedNodeMapTest implements TestSetup {
     }
 
     @Test
-    public void testGetNamedItemNS_DNE() {
+    void testGetNamedItemNS_DNE() {
         m_nodeMap = m_docNS.getFirstChild().getAttributes();
 
         result = m_nodeMap.getNamedItemNS("uri:fol", "at0");
-        assertEquals(null, result);
+        assertNull(result);
 
         result = m_nodeMap.getNamedItemNS("uri:foo", "at1");
-        assertEquals(null, result);
+        assertNull(result);
 
         result = m_nodeMap.getNamedItemNS("uri:foo", null);
-        assertEquals(null, result);
+        assertNull(result);
 
         /*  This test is only possible if "" neq null
             result=m_nodeMap.getNamedItemNS("","at4");
@@ -98,7 +107,7 @@ public class NamedNodeMapTest implements TestSetup {
     }
 
     @Test
-    public void testItem() {
+    void testItem() {
         result = m_nodeMap.item(0);
         assertEquals("val0", result.getNodeValue());
         result = m_nodeMap.item(3);
@@ -106,13 +115,13 @@ public class NamedNodeMapTest implements TestSetup {
     }
 
     @Test
-    public void testItemNeg() {
+    void testItemNeg() {
         assertNotNull(m_nodeMap);
         assertNull(m_nodeMap.item(-1));
     }
 
     @Test
-    public void testItemLarge() {
+    void testItemLarge() {
         assertNotNull(m_nodeMap);
         assertNull(m_nodeMap.item(m_nodeMap.getLength() + 1));
     }
@@ -123,10 +132,10 @@ public class NamedNodeMapTest implements TestSetup {
      * attr w/ default val
      */
     @Test
-    public void testRemoveNamedItemNull() {
+    void testRemoveNamedItemNull() {
         try {
             m_nodeMap.removeNamedItem(null);
-            fail("removing a non-existing value");
+            Assertions.fail("removing a non-existing value");
         }
         catch (DOMException de) {
             assertEquals(de.code, DOMException.NOT_FOUND_ERR);
@@ -134,10 +143,10 @@ public class NamedNodeMapTest implements TestSetup {
     }
 
     @Test
-    public void testRemoveNamedItem() {
+    void testRemoveNamedItem() {
         try {
             m_nodeMap.removeNamedItem("at7");
-            fail("removing a non-existing value");
+            Assertions.fail("removing a non-existing value");
         }
         catch (DOMException de) {
             assertEquals(de.code, DOMException.NOT_FOUND_ERR);
@@ -152,7 +161,7 @@ public class NamedNodeMapTest implements TestSetup {
     }
 
     @Test
-    public void testRemoveNamedItemNS() {
+    void testRemoveNamedItemNS() {
         m_node = m_docNS.getDocumentElement();
         m_nodeMap = m_node.getAttributes();
         result = m_nodeMap.getNamedItemNS("uri:foo", "at0");
@@ -160,8 +169,9 @@ public class NamedNodeMapTest implements TestSetup {
 
         nCount = m_node.getAttributes().getLength();
 
-        if (bDTD)
+        if (bDTD) {
             assertEquals(m_nodeMap.getNamedItem("at0").getNodeValue(), "val0"); //default ns attr still here
+        }
 
         result = m_nodeMap.getNamedItemNS("uri:foo", "at4");
         assertEquals(result, m_nodeMap.removeNamedItemNS("uri:foo", "at4"));
@@ -175,19 +185,18 @@ public class NamedNodeMapTest implements TestSetup {
         assertEquals(m_node.getAttributes().getLength(), nCount - 2);
 
         //liveness test
-        assertEquals(nCount - 2,
-                m_docNS.getFirstChild().getAttributes().getLength());
+        assertEquals(nCount - 2, m_docNS.getFirstChild().getAttributes().getLength());
         assertNull(m_docNS.getFirstChild().getAttributes().getNamedItem("at3"));
     }
 
     @Test
-    public void testRemoveNamedItemNS_DNE() {
+    void testRemoveNamedItemNS_DNE() {
         m_nodeMap = m_docNS.getFirstChild().getAttributes();
         int nLen = m_node.getAttributes().getLength();
         try {
             result = m_nodeMap.removeNamedItemNS("uri:fo1", "at0");
             if (m_node.getAttributes().getLength() != nLen)
-                fail("removing a non-existing attr");
+                Assertions.fail("removing a non-existing attr");
         }
         catch (DOMException de) {
             assertEquals(de.code, DOMException.NOT_FOUND_ERR);
@@ -196,7 +205,7 @@ public class NamedNodeMapTest implements TestSetup {
         try {
             result = m_nodeMap.getNamedItemNS("uri:fo1", null);
             if (result != null)
-                fail("removing a non-existing attr");
+                Assertions.fail("removing a non-existing attr");
         }
         catch (DOMException de) {
             assertEquals(de.code, DOMException.NOT_FOUND_ERR);
@@ -210,7 +219,7 @@ public class NamedNodeMapTest implements TestSetup {
      * node not an attr
      */
     @Test
-    public void testSetNamedItem() {
+    void testSetNamedItem() {
         Node newAt = m_doc.createAttribute("newAt");
         ((Attr) newAt).setValue("newval");
         m_nodeMap.setNamedItem(newAt);
@@ -223,7 +232,7 @@ public class NamedNodeMapTest implements TestSetup {
         ((Attr) newAt).setValue("newval");
         try {
             m_nodeMap.setNamedItem(newAt);
-            fail("Inserting node created from a different doc");
+            Assertions.fail("Inserting node created from a different doc");
         }
         catch (DOMException de) {
             assertEquals(de.code, DOMException.WRONG_DOCUMENT_ERR);
@@ -233,7 +242,7 @@ public class NamedNodeMapTest implements TestSetup {
         newAt = m_node.getFirstChild().getAttributes().getNamedItem("bat0");
         try {
             m_nodeMap.setNamedItem(newAt);
-            fail("Inserting node in use");
+            Assertions.fail("Inserting node in use");
         }
         catch (DOMException de) {
             assertEquals(de.code, DOMException.INUSE_ATTRIBUTE_ERR);
@@ -243,7 +252,7 @@ public class NamedNodeMapTest implements TestSetup {
         newAt = m_doc.createElement("newElt");
         try {
             m_nodeMap.setNamedItem(newAt);
-            fail("Inserting node  different doc");
+            Assertions.fail("Inserting node  different doc");
         }
         catch (DOMException de) {
             assertEquals(de.code, DOMException.HIERARCHY_REQUEST_ERR);
@@ -251,17 +260,17 @@ public class NamedNodeMapTest implements TestSetup {
 
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testSetNamedItemNull() {
-        m_nodeMap.setNamedItem(null);
+    @Test
+    void testSetNamedItemNull() {
+        assertThrows(IllegalArgumentException.class, () -> m_nodeMap.setNamedItem(null));
     }
 
     @Test
-    public void testSetNamedItemDiffImpl() throws Exception {
+    void testSetNamedItemDiffImpl() throws Exception {
         Node toSet = NodeTest.getApacheNode(sXml, false, 'A');
         try {
             m_nodeMap.setNamedItem(toSet);
-            fail("Inserting node  different impl");
+            Assertions.fail("Inserting node  different impl");
         }
         catch (DOMException de) {
             assertEquals(de.code, DOMException.WRONG_DOCUMENT_ERR);
@@ -269,7 +278,7 @@ public class NamedNodeMapTest implements TestSetup {
     }
 
     @Test
-    public void testSetNamedItemNS() {
+    void testSetNamedItemNS() {
         Attr newAt = m_doc.createAttributeNS("uri:foo", "newAt");
         newAt.setValue("newval");
         m_nodeMap.setNamedItemNS(newAt);
@@ -293,17 +302,17 @@ public class NamedNodeMapTest implements TestSetup {
         //the path cases are the same as in SetNamedItem
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testSetNamedItemNSNull() {
-        m_nodeMap.setNamedItemNS(null);
+    @Test
+    void testSetNamedItemNSNull() {
+        assertThrows(IllegalArgumentException.class, () -> m_nodeMap.setNamedItemNS(null));
     }
 
     @Test
-    public void testSetNamedItemNSDiffImpl() throws Exception {
+    void testSetNamedItemNSDiffImpl() throws Exception {
         Node toSet = NodeTest.getApacheNode(sXml, true, 'A');
         try {
             m_nodeMap.setNamedItemNS(toSet);
-            fail("Inserting node  different impl");
+            Assertions.fail("Inserting node  different impl");
         }
         catch (DOMException de) {
             assertEquals(de.code, DOMException.WRONG_DOCUMENT_ERR);
@@ -312,11 +321,11 @@ public class NamedNodeMapTest implements TestSetup {
 
     //try to set a node of a diff type than the current collection
     @Test
-    public void testSetNamedItemDiffType() throws Exception {
+    void testSetNamedItemDiffType() throws Exception {
         Node toSet = m_doc.createElement("foobar");
         try {
             m_nodeMap.setNamedItem(toSet);
-            fail("Inserting node  different impl");
+            Assertions.fail("Inserting node  different impl");
         }
         catch (DOMException de) {
             assertEquals(de.code, DOMException.HIERARCHY_REQUEST_ERR);
@@ -324,11 +333,11 @@ public class NamedNodeMapTest implements TestSetup {
     }
 
     @Test
-    public void testSetNamedItemNSDiffType() throws Exception {
+    void testSetNamedItemNSDiffType() throws Exception {
         Node toSet = m_doc.createElementNS("foo:org", "com:foobar");
         try {
             m_nodeMap.setNamedItemNS(toSet);
-            fail("Inserting node  different impl");
+            Assertions.fail("Inserting node  different impl");
         }
         catch (DOMException de) {
             assertEquals(de.code, DOMException.HIERARCHY_REQUEST_ERR);
@@ -344,22 +353,9 @@ public class NamedNodeMapTest implements TestSetup {
 
     public void loadSync() throws Exception {
         _loader = Loader.getLoader();
-
-        if (sXml == null && sXmlNS == null) throw new IllegalArgumentException(
-                "Test bug : Initialize xml strings");
-        m_doc = (org.w3c.dom.Document) _loader.loadSync(sXml);
-        if (sXmlNS != null && sXmlNS.length() > 0)
-            m_docNS = (org.w3c.dom.Document) _loader.loadSync(sXmlNS);
+        m_doc = _loader.loadSync(sXml);
+        m_docNS = _loader.loadSync(sXmlNS);
 
     }
-
-    @Before
-    public void setUp() throws Exception {
-        m_doc = (org.w3c.dom.Document) XmlObject.Factory.parse( sXml ).getDomNode();
-        m_docNS = (org.w3c.dom.Document) XmlObject.Factory.parse( sXmlNS ).getDomNode();
-        moveToNode();
-    }
-
-    private Loader _loader;
 }
 

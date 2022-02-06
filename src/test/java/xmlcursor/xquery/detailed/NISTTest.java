@@ -18,79 +18,60 @@ import common.Common;
 import noNamespace.TestCase;
 import noNamespace.TestSuiteDocument;
 import noNamespace.TestSuiteDocument.TestSuite.TestGroup;
+import org.apache.commons.io.IOUtils;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
-import org.junit.Ignore;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TestWatcher;
-import org.junit.runner.Description;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@Ignore("Too many XMLBeans unrelated errors")
-@RunWith(Parameterized.class)
+@Disabled("Too many XMLBeans unrelated errors")
 public class NISTTest {
 
     private static ZipFile zf;
 
-    @Rule
-    public final QueryFailed queryLog = new QueryFailed();
-
-    @SuppressWarnings("DefaultAnnotationParam")
-    @Parameterized.Parameter(value = 0)
-    public String groupName;
-
-    @Parameterized.Parameter(value = 1)
-    public String testName;
-
-    @Parameterized.Parameter(value = 2)
-    public TestCase testCase;
-
-    private String query;
-
-    @Parameterized.Parameters(name = "{index}: {0} {1}")
-    public static Iterable<Object[]> files() throws IOException, XmlException {
+    public static Stream<Arguments> files() throws IOException, XmlException {
         zf = new ZipFile(Common.getCaseLocation()+"/xbean/xmlcursor/xquery/xmlQuery.zip");
-
         ZipEntry e = zf.getEntry("testSuite/NIST/files/catalog.xml");
-        InputStream is = zf.getInputStream(e);
-        TestSuiteDocument doc = TestSuiteDocument.Factory.parse(is);
 
-        List<Object[]> files = new ArrayList<Object[]>();
-        for (TestGroup xg : doc.getTestSuite().getTestGroupArray()) {
-            String groupName = xg.getName();
-            for (TestCase tc : xg.getTestCaseArray()) {
-                String testName = tc.getName();
-                files.add(new Object[]{groupName, testName, tc});
+        try (InputStream is = zf.getInputStream(e)) {
+            TestSuiteDocument doc = TestSuiteDocument.Factory.parse(is);
 
-                // NIST BUG: folder is called testSuite but appears as testsuite in desc. file
-                String filePath = tc.getFilePath()
-                    .replaceAll("testsuite", "testSuite")
-                    .replace((char) 92, '/');
-                tc.setFilePath(filePath);
+            List<Arguments> files = new ArrayList<>();
+            for (TestGroup xg : doc.getTestSuite().getTestGroupArray()) {
+                String groupName = xg.getName();
+                for (TestCase tc : xg.getTestCaseArray()) {
+                    String testName = tc.getName();
+                    files.add(Arguments.of(groupName, testName, tc));
+
+                    // NIST BUG: folder is called testSuite but appears as testsuite in desc. file
+                    String filePath = tc.getFilePath()
+                        .replaceAll("testsuite", "testSuite")
+                        .replace((char) 92, '/');
+                    tc.setFilePath(filePath);
+                }
             }
+            return files.stream();
         }
-        is.close();
-
-        return files;
     }
 
-    @Test
-    public void bla() throws Exception {
+    @ParameterizedTest(name = "{index}: {0} {1}")
+    @MethodSource("files")
+    void bla(String groupName, String testName, TestCase testCase) throws Exception {
         //bad comment syntax in suite
-        query = getString(testCase.getFilePath()+testCase.getName()+".xq")
+        String query = getString(testCase.getFilePath() + testCase.getName() + ".xq")
             .replace("{--", "(:")
             .replace("--}", ":)");
 
@@ -106,27 +87,9 @@ public class NISTTest {
     }
 
     private static String getString(String zipFile) throws IOException {
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
         ZipEntry queryFile = zf.getEntry(zipFile);
-        InputStream is = zf.getInputStream(queryFile);
-        byte[] buf = new byte[4096];
-        for (int readBytes; (readBytes = is.read(buf)) > -1; ) {
-            bos.write(buf, 0, readBytes);
-        }
-        is.close();
-        return new String(bos.toByteArray(), Charset.forName("UTF-8"));
-    }
-
-
-
-    private class QueryFailed extends TestWatcher {
-        @Override
-        protected void failed(Throwable e, Description description) {
-            System.out.println(
-                "Description:\n"+
-                testCase.getQuery().getDescription().getStringValue()+
-                "\n\nQuery:\n"+
-                query);
+        try (InputStream is = zf.getInputStream(queryFile)) {
+            return new String(IOUtils.toByteArray(is), StandardCharsets.UTF_8);
         }
     }
 }

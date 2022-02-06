@@ -18,7 +18,7 @@ package compile.scomp.detailed;
 import org.apache.xmlbeans.*;
 import org.apache.xmlbeans.impl.util.LongUTFDataInputStream;
 import org.apache.xmlbeans.impl.util.LongUTFDataOutputStream;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -26,11 +26,11 @@ import java.util.Arrays;
 import java.util.Random;
 
 import static common.Common.SCOMP_CASE_ROOT;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class LargeAnnotation {
     @Test
-    public void longUTFInOutput() throws IOException {
+    void longUTFInOutput() throws IOException {
         int leftLimit = 48; // numeral '0'
         int rightLimit = 0x01FF_FFFF;
         int targetStringLength = 0x0001_FFFF;
@@ -106,7 +106,7 @@ public class LargeAnnotation {
 
 
     @Test
-    public void bug235and556() throws XmlException, IOException {
+    void bug235and556() throws XmlException, IOException {
         ArrayList<XmlError> err = new ArrayList<>();
         XmlOptions xm_opt = new XmlOptions().setErrorListener(err);
         xm_opt.setSavePrettyPrint();

@@ -15,94 +15,87 @@
 package scomp.substGroup.detailed;
 
 import org.apache.xmlbeans.XmlErrorCodes;
-import org.junit.Test;
-import scomp.common.BaseCase;
+import org.apache.xmlbeans.XmlOptions;
+import org.junit.jupiter.api.Test;
 import xbean.scomp.substGroup.oneLevel.*;
 
 import java.math.BigInteger;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
+import static scomp.common.BaseCase.createOptions;
+import static scomp.common.BaseCase.getErrorCodes;
 
-public class OneLevel extends BaseCase {
+public class OneLevel {
 
     @Test
-    public void testValidSubstParse() throws Throwable {
+    void testValidSubstParse() throws Throwable {
         String input =
-                "<items xmlns=\"http://xbean/scomp/substGroup/OneLevel\">" +
-                "<shirt>" +
-                " <number>SKU25</number>" +
-                " <name>Oxford Shirt</name>" +
-                " <size>12</size>" +
-                " <color>blue</color>" +
-                "</shirt>" +
-                "<product>" +
-                " <number>SKU45</number>" +
-                "   <name>Accessory</name>" +
-                "</product>" +
-                "<hat>" +
-                " <number>SKU35</number>" +
-                " <name>Sombrero</name>" +
-                " <size>4</size>" +
-                "</hat>" +
-                "<umbrella>" +
-                " <number>SKU15</number>" +
-                "   <name>Umbrella</name>" +
-                "</umbrella>" +
-                "</items>";
+            "<items xmlns=\"http://xbean/scomp/substGroup/OneLevel\">" +
+            "<shirt>" +
+            " <number>SKU25</number>" +
+            " <name>Oxford Shirt</name>" +
+            " <size>12</size>" +
+            " <color>blue</color>" +
+            "</shirt>" +
+            "<product>" +
+            " <number>SKU45</number>" +
+            "   <name>Accessory</name>" +
+            "</product>" +
+            "<hat>" +
+            " <number>SKU35</number>" +
+            " <name>Sombrero</name>" +
+            " <size>4</size>" +
+            "</hat>" +
+            "<umbrella>" +
+            " <number>SKU15</number>" +
+            "   <name>Umbrella</name>" +
+            "</umbrella>" +
+            "</items>";
         ItemsDocument doc = ItemsDocument.Factory.parse(input);
-        try {
-            assertTrue(doc.validate(validateOptions));
-        } catch (Throwable t) {
-            showErrors();
-            throw t;
-        }
-
+        assertTrue(doc.validate(createOptions()));
     }
 
     /**
      * Test error message. 1 product too many
      */
     @Test
-    public void testValidSubstParseInvalid() throws Throwable {
+    void testValidSubstParseInvalid() throws Throwable {
         String input =
-                "<items xmlns=\"http://xbean/scomp/substGroup/OneLevel\">" +
-                "<shirt>" +
-                " <number>SKU25</number>" +
-                " <name>Oxford Shirt</name>" +
-                " <size>12</size>" +
-                " <color>blue</color>" +
-                "</shirt>" +
-                "<product>" +
-                " <number>SKU45</number>" +
-                "   <name>Accessory</name>" +
-                "</product>" +
-                "<hat>" +
-                " <number>SKU35</number>" +
-                " <name>Sombrero</name>" +
-                " <size>4</size>" +
-                "</hat>" +
-                "<umbrella>" +
-                " <number>SKU15</number>" +
-                "   <name>Umbrella</name>" +
-                "</umbrella>" +
-                "<hat>" +
-                " <number>SKU35</number>" +
-                " <name>Sombrero</name>" +
-                " <size>4</size>" +
-                "</hat>" +
-                "</items>";
+            "<items xmlns=\"http://xbean/scomp/substGroup/OneLevel\">" +
+            "<shirt>" +
+            " <number>SKU25</number>" +
+            " <name>Oxford Shirt</name>" +
+            " <size>12</size>" +
+            " <color>blue</color>" +
+            "</shirt>" +
+            "<product>" +
+            " <number>SKU45</number>" +
+            "   <name>Accessory</name>" +
+            "</product>" +
+            "<hat>" +
+            " <number>SKU35</number>" +
+            " <name>Sombrero</name>" +
+            " <size>4</size>" +
+            "</hat>" +
+            "<umbrella>" +
+            " <number>SKU15</number>" +
+            "   <name>Umbrella</name>" +
+            "</umbrella>" +
+            "<hat>" +
+            " <number>SKU35</number>" +
+            " <name>Sombrero</name>" +
+            " <size>4</size>" +
+            "</hat>" +
+            "</items>";
         ItemsDocument doc = ItemsDocument.Factory.parse(input);
-
-        assertTrue(!doc.validate(validateOptions));
-        String[] errExpected = new String[]{
-            XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$ELEMENT_NOT_ALLOWED
-                  };
-        assertTrue(compareErrorCodes(
-                errExpected));
+        XmlOptions validateOptions = createOptions();
+        assertFalse(doc.validate(validateOptions));
+        String[] errExpected = {XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$ELEMENT_NOT_ALLOWED};
+        assertArrayEquals(errExpected, getErrorCodes(validateOptions));
     }
 
     @Test
-    public void testValidSubstBuild() throws Throwable {
+    void testValidSubstBuild() throws Throwable {
         ItemsDocument doc = ItemsDocument.Factory.newInstance();
         ItemType items = doc.addNewItems();
         HatType hat = HatType.Factory.newInstance();
@@ -110,11 +103,11 @@ public class OneLevel extends BaseCase {
         hat.setNumber("SKU84");
         hat.setSize(new BigInteger("10"));
 
-        /*   This doesn't work
-        ProductType hat = elt.addNewProduct();
-        ((HatType)hat).setNumber(3);
-        ShirtType shirt = (ShirtType) elt.addNewProduct();
-        */
+        //   This doesn't work
+        // ProductType hat = elt.addNewProduct();
+        // ((HatType)hat).setNumber(3);
+        // ShirtType shirt = (ShirtType) elt.addNewProduct();
+
         ShirtType shirt = ShirtType.Factory.newInstance();
         shirt.setName("Funny Shirt");
         shirt.setNumber("SKU54");
@@ -125,13 +118,6 @@ public class OneLevel extends BaseCase {
         genericProd.setNumber("32");
 
         items.setProductArray(new ProductType[]{hat, shirt, genericProd});
-        try {
-            assertTrue(doc.validate(validateOptions));
-        } catch (Throwable t) {
-            showErrors();
-            throw t;
-        }
-
-        //TODO: what to do with the umbrella here???
+        assertTrue(doc.validate(createOptions()));
     }
 }

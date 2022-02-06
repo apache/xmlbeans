@@ -22,14 +22,14 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Document;
 import org.w3c.dom.DocumentType;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -45,41 +45,23 @@ import static org.w3c.domts.DOMTest.load;
  */
 public class domimplementationcreatedocumenttype02 {
     @Test
-    @Ignore
+    @Disabled
     public void testRun() throws Throwable {
-        Document doc;
-        DOMImplementation domImpl;
-        DocumentType newDocType;
-        Document ownerDocument;
         String publicId = "http://www.w3.org/DOM/Test/dom2.dtd";
         String systemId = "dom2.dtd";
-        String qualifiedName;
-        java.util.List qualifiedNames = new java.util.ArrayList();
-        qualifiedNames.add("_:_");
-        qualifiedNames.add("_:h0");
-        qualifiedNames.add("_:test");
-        // qualifiedNames.add(new Double("_:_."));
-        qualifiedNames.add("_:a-");
-        qualifiedNames.add("l_:_");
-        qualifiedNames.add("ns:_0");
-        qualifiedNames.add("ns:a0");
-        qualifiedNames.add("ns0:test");
-        //  qualifiedNames.add(new Double("ns:EEE."));
-        qualifiedNames.add("ns:_-");
-        //  qualifiedNames.add(new Double("a.b:c"));
-        //   qualifiedNames.add(new Double("a-b:c.j"));
-        qualifiedNames.add("a-b:c");
+        String[] qualifiedNames = {
+            "_:_", "_:h0", "_:test", "_:a-", "l_:_", "ns:_0", "ns:a0", "ns0:test", "ns:_-", "a-b:c"
+            /*  ,"_:_.", "ns:EEE.", "a.b:c", "a-b:c.j" */
+        };
 
-        doc = load("staffNS", false);
-        domImpl = doc.getImplementation();
-        for (int indexd356e88 = 0; indexd356e88 < qualifiedNames.size(); indexd356e88++) {
-            qualifiedName = (String) qualifiedNames.get(indexd356e88);
-            newDocType = domImpl.createDocumentType(qualifiedName, publicId, systemId);
-            assertNotNull("domimplementationcreatedocumenttype02_newDocType", newDocType);
-            ownerDocument = newDocType.getOwnerDocument();
-            assertNull("domimplementationcreatedocumenttype02_ownerDocument", ownerDocument);
+        Document doc = load("staffNS", false);
+        DOMImplementation domImpl = doc.getImplementation();
+        for (String qualifiedName : qualifiedNames) {
+            DocumentType newDocType = domImpl.createDocumentType(qualifiedName, publicId, systemId);
+            assertNotNull(newDocType, "domimplementationcreatedocumenttype02_newDocType");
+            Document ownerDocument = newDocType.getOwnerDocument();
+            assertNull(ownerDocument, "domimplementationcreatedocumenttype02_ownerDocument");
         }
-
     }
 
     /**

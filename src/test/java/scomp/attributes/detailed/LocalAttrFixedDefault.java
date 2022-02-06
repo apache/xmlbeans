@@ -15,15 +15,16 @@
 package scomp.attributes.detailed;
 
 import org.apache.xmlbeans.XmlErrorCodes;
-import org.junit.Test;
-import scomp.common.BaseCase;
+import org.apache.xmlbeans.XmlOptions;
+import org.junit.jupiter.api.Test;
 import xbean.scomp.attribute.localAttrFixedDefault.LocalAttrFixedDefaultDocument;
 import xbean.scomp.attribute.localAttrFixedDefault.LocalAttrFixedDefaultT;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
+import static scomp.common.BaseCase.createOptions;
+import static scomp.common.BaseCase.getErrorCodes;
 
-public class LocalAttrFixedDefault extends BaseCase {
+public class LocalAttrFixedDefault {
     /**
      * Verify that a local attribute can add a fixed value but can not overwrite
      * an existing fixed val
@@ -32,29 +33,19 @@ public class LocalAttrFixedDefault extends BaseCase {
     //ensure default val is shadowed locally
     //fixed can not be...
     @Test
-    public void testDefault() throws Throwable {
-        LocalAttrFixedDefaultT testDoc =
-            LocalAttrFixedDefaultDocument.Factory.newInstance()
-                .addNewLocalAttrFixedDefault();
+    void testDefault() throws Throwable {
+        LocalAttrFixedDefaultT testDoc = LocalAttrFixedDefaultDocument.Factory.newInstance().addNewLocalAttrFixedDefault();
         assertTrue(testDoc.validate());
         assertEquals(2, testDoc.getAttDefault().intValue());
         //second fixed value is ignored
         testDoc.setAttFixed("NEWXBeanAttrStr");
-        assertTrue(!testDoc.validate(validateOptions));
-        showErrors();
-        String[] errExpected = new String[]{
-            XmlErrorCodes.ATTR_LOCALLY_VALID$FIXED
-        };
-        assertTrue(compareErrorCodes(errExpected));
+        XmlOptions validateOptions = createOptions();
+        assertFalse(testDoc.validate(validateOptions));
+        String[] errExpected = {XmlErrorCodes.ATTR_LOCALLY_VALID$FIXED};
+        assertArrayEquals(errExpected, getErrorCodes(validateOptions));
 
 
         testDoc.setAttFixed("XBeanAttrStr");
-        try {
-            assertTrue(testDoc.validate(validateOptions));
-        } catch (Throwable t) {
-            showErrors();
-            throw t;
-        }
-
+        assertTrue(testDoc.validate(validateOptions));
     }
 }

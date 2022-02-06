@@ -22,10 +22,10 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.*;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -47,29 +47,20 @@ import static org.w3c.domts.DOMTest.load;
  */
 public class setAttributeNS04 {
     @Test
-    public void testRun() throws Throwable {
-        Document doc;
-        NodeList elementList;
-        Node testAddr;
-        Attr addrAttr;
-        String resultAttr;
-        String resultNamespaceURI;
-        String resultLocalName;
-        String resultPrefix;
-        doc = load("staffNS", true);
-        elementList = doc.getElementsByTagName("emp:address");
-        testAddr = elementList.item(0);
+    void testRun() throws Throwable {
+        Document doc = load("staffNS", true);
+        NodeList elementList = doc.getElementsByTagName("emp:address");
+        Node testAddr = elementList.item(0);
         ((Element) /*Node */testAddr).setAttributeNS("http://www.nist.gov", "newprefix:zone", "newValue");
-        addrAttr = ((Element) /*Node */testAddr).getAttributeNodeNS("http://www.nist.gov", "zone");
-        resultAttr = ((Element) /*Node */testAddr).getAttributeNS("http://www.nist.gov", "zone");
-        assertEquals("attrValue", "newValue", resultAttr);
-        resultNamespaceURI = addrAttr.getNamespaceURI();
-        assertEquals("nsuri", "http://www.nist.gov", resultNamespaceURI);
-        resultLocalName = addrAttr.getLocalName();
-        assertEquals("lname", "zone", resultLocalName);
-        resultPrefix = addrAttr.getPrefix();
-        assertEquals("prefix", "newprefix", resultPrefix);
-
+        Attr addrAttr = ((Element) /*Node */testAddr).getAttributeNodeNS("http://www.nist.gov", "zone");
+        String resultAttr = ((Element) /*Node */testAddr).getAttributeNS("http://www.nist.gov", "zone");
+        assertEquals("newValue", resultAttr, "attrValue");
+        String resultNamespaceURI = addrAttr.getNamespaceURI();
+        assertEquals("http://www.nist.gov", resultNamespaceURI, "nsuri");
+        String resultLocalName = addrAttr.getLocalName();
+        assertEquals("zone", resultLocalName, "lname");
+        String resultPrefix = addrAttr.getPrefix();
+        assertEquals("newprefix", resultPrefix, "prefix");
     }
 
     /**

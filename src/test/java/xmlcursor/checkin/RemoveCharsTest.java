@@ -16,66 +16,67 @@
 
 package xmlcursor.checkin;
 
+import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlCursor.TokenType;
-import org.apache.xmlbeans.XmlObject;
-import org.junit.Test;
-import xmlcursor.common.BasicCursorTestCase;
+import org.junit.jupiter.api.Test;
 import xmlcursor.common.Common;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static xmlcursor.common.BasicCursorTestCase.cur;
+import static xmlcursor.common.BasicCursorTestCase.toNextTokenOfType;
 
 
-public class RemoveCharsTest extends BasicCursorTestCase {
+public class RemoveCharsTest {
     @Test
-    public void testRemoveCharsLTLengthFromTEXT() throws Exception {
-        m_xo = XmlObject.Factory.parse(Common.XML_FOO_DIGITS);
-        m_xc = m_xo.newCursor();
-        toNextTokenOfType(m_xc, TokenType.TEXT);
-        assertEquals(3, m_xc.removeChars(3));
-        assertEquals("34", m_xc.getChars());
+    void testRemoveCharsLTLengthFromTEXT() throws Exception {
+        try (XmlCursor m_xc = cur(Common.XML_FOO_DIGITS)) {
+            toNextTokenOfType(m_xc, TokenType.TEXT);
+            assertEquals(3, m_xc.removeChars(3));
+            assertEquals("34", m_xc.getChars());
+        }
     }
 
     @Test
-    public void testRemoveCharsGTLengthFromTEXT() throws Exception {
-        m_xo = XmlObject.Factory.parse(Common.XML_FOO_DIGITS);
-        m_xc = m_xo.newCursor();
-        toNextTokenOfType(m_xc, TokenType.TEXT);
-        assertEquals(5, m_xc.removeChars(10));
-        assertEquals(TokenType.END, m_xc.currentTokenType());
+    void testRemoveCharsGTLengthFromTEXT() throws Exception {
+        try (XmlCursor m_xc = cur(Common.XML_FOO_DIGITS)) {
+            toNextTokenOfType(m_xc, TokenType.TEXT);
+            assertEquals(5, m_xc.removeChars(10));
+            assertEquals(TokenType.END, m_xc.currentTokenType());
+        }
     }
 
     @Test
-    public void testRemoveCharsNegativeFromTEXT() throws Exception {
-        m_xo = XmlObject.Factory.parse(Common.XML_FOO_DIGITS);
-        m_xc = m_xo.newCursor();
-        toNextTokenOfType(m_xc, TokenType.TEXT);
-        assertEquals(5, m_xc.removeChars(-1));
-        assertEquals(TokenType.END, m_xc.currentTokenType());
+    void testRemoveCharsNegativeFromTEXT() throws Exception {
+        try (XmlCursor m_xc = cur(Common.XML_FOO_DIGITS)) {
+            toNextTokenOfType(m_xc, TokenType.TEXT);
+            assertEquals(5, m_xc.removeChars(-1));
+            assertEquals(TokenType.END, m_xc.currentTokenType());
+        }
     }
 
     @Test
-    public void testRemoveCharsZeroFromTEXT() throws Exception {
-        m_xo = XmlObject.Factory.parse(Common.XML_FOO_DIGITS);
-        m_xc = m_xo.newCursor();
-        toNextTokenOfType(m_xc, TokenType.TEXT);
-        assertEquals(0, m_xc.removeChars(0));
-        assertEquals("01234", m_xc.getChars());
+    void testRemoveCharsZeroFromTEXT() throws Exception {
+        try (XmlCursor m_xc = cur(Common.XML_FOO_DIGITS)) {
+            toNextTokenOfType(m_xc, TokenType.TEXT);
+            assertEquals(0, m_xc.removeChars(0));
+            assertEquals("01234", m_xc.getChars());
+        }
     }
 
     @Test
-    public void testRemoveCharsFromPROCINST() throws Exception {
-        m_xo = XmlObject.Factory.parse(Common.XML_FOO_PROCINST);
-        m_xc = m_xo.newCursor();
-        toNextTokenOfType(m_xc, TokenType.PROCINST);
-        assertEquals(0, m_xc.removeChars(3));
+    void testRemoveCharsFromPROCINST() throws Exception {
+        try (XmlCursor m_xc = cur(Common.XML_FOO_PROCINST)) {
+            toNextTokenOfType(m_xc, TokenType.PROCINST);
+            assertEquals(0, m_xc.removeChars(3));
+        }
     }
 
     @Test
-    public void testRemoveCharsFromNAMESPACE() throws Exception {
-        m_xo = XmlObject.Factory.parse(Common.XML_FOO_NS);
-        m_xc = m_xo.newCursor();
-        toNextTokenOfType(m_xc, TokenType.NAMESPACE);
-        assertEquals(0, m_xc.removeChars(3));
+    void testRemoveCharsFromNAMESPACE() throws Exception {
+        try (XmlCursor m_xc = cur(Common.XML_FOO_NS)) {
+            toNextTokenOfType(m_xc, TokenType.NAMESPACE);
+            assertEquals(0, m_xc.removeChars(3));
+        }
     }
 }
 

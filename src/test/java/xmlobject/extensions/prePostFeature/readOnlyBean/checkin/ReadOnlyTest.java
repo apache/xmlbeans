@@ -15,49 +15,48 @@
 
 package xmlobject.extensions.prePostFeature.readOnlyBean.checkin;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import prePostFeature.xbean.readOnlyBean.purchaseOrder.Items;
 import prePostFeature.xbean.readOnlyBean.purchaseOrder.PurchaseOrderDocument;
 import prePostFeature.xbean.readOnlyBean.purchaseOrder.PurchaseOrderType;
 
 import java.math.BigDecimal;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 public class ReadOnlyTest {
     @Test
-    public void test(){
+    void test() {
 
-         PurchaseOrderDocument poDoc ;
+        PurchaseOrderDocument poDoc;
 
-         poDoc= PurchaseOrderDocument.Factory.newInstance();
-         PurchaseOrderType po=poDoc.addNewPurchaseOrder();
-
-
-         int LEN=20;
-
-         Items.Item[] it= new Items.Item[LEN];
-         for (int i=0; i< LEN; i++){
-                it[i]=Items.Item.Factory.newInstance();
-                it[i].setUSPrice(new BigDecimal(""+ 4 ));
-         }
-         Items items= Items.Factory.newInstance();
-         items.setItemArray(it);
-         po.setItems(items);
+        poDoc = PurchaseOrderDocument.Factory.newInstance();
+        PurchaseOrderType po = poDoc.addNewPurchaseOrder();
 
 
-             String sExpected =
-        "<pur:purchaseOrder xmlns:pur=\"http://xbean.prePost_feature/readOnlyBean/PurchaseOrder\"/>";
+        int LEN = 20;
+
+        Items.Item[] it = new Items.Item[LEN];
+        for (int i = 0; i < LEN; i++) {
+            it[i] = Items.Item.Factory.newInstance();
+            it[i].setUSPrice(new BigDecimal("" + 4));
+        }
+        Items items = Items.Factory.newInstance();
+        items.setItemArray(it);
+        po.setItems(items);
 
 
-           it[0].setPrice(10);
-
-        assertEquals( sExpected, poDoc.xmlText());
-
+        String sExpected =
+            "<pur:purchaseOrder xmlns:pur=\"http://xbean.prePost_feature/readOnlyBean/PurchaseOrder\"/>";
 
 
-       assertTrue ( !poDoc.validate() );
+        it[0].setPrice(10);
+
+        assertEquals(sExpected, poDoc.xmlText());
+
+
+        assertFalse(poDoc.validate());
     }
 
 }

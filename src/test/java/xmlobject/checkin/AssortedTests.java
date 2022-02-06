@@ -23,18 +23,18 @@ import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlTime;
 import org.apache.xmlbeans.impl.xb.xsdschema.SchemaDocument;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import xint.test.PositionDocument;
 
 import java.math.BigInteger;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class AssortedTests {
     // bug 27489
     @Test
-    public void testSaverCharEscaping() throws XmlException {
+    void testSaverCharEscaping() throws XmlException {
         XmlObject xdoc = XmlObject.Factory.parse("<test>something</test>");
         try (XmlCursor cur = xdoc.newCursor()) {
             cur.toFirstChild();
@@ -55,17 +55,17 @@ public class AssortedTests {
 
     // bug 26140/26104
     @Test
-    public void testNoTypeInvalid() throws XmlException {
+    void testNoTypeInvalid() throws XmlException {
         XmlObject xdoc = XmlObject.Factory.parse("<test-no-type>something</test-no-type>");
-        assertTrue("Untyped document should be invalid", !xdoc.validate());
+        assertFalse(xdoc.validate(), "Untyped document should be invalid");
 
         xdoc = XmlObject.Factory.parse("<x:blah xmlns:x=\"http://no-type.com/\"/>");
-        assertTrue("Untyped document should be invalid", !xdoc.validate());
+        assertFalse(xdoc.validate(), "Untyped document should be invalid");
     }
 
     // bug 26790
     @Test
-    public void testComplexSetter() throws XmlException {
+    void testComplexSetter() throws XmlException {
         XmlPurchaseOrderDocumentBean xdoc = XmlPurchaseOrderDocumentBean.Factory.parse(
             "<purchase-order xmlns='http://openuri.org/easypo'>" +
             "<customer>" +
@@ -117,7 +117,7 @@ public class AssortedTests {
 
     // bug 45338
     @Test
-    public void testComplexGetter() throws Exception {
+    void testComplexGetter() throws Exception {
         XmlPurchaseOrderDocumentBean xdoc =
             XmlPurchaseOrderDocumentBean.Factory.parse(
                 "<purchase-order xmlns='http://openuri.org/easypo'" +
@@ -146,7 +146,7 @@ public class AssortedTests {
     }
 
     @Test
-    @Ignore
+    @Disabled
     public void testPrettyPrint() throws Exception {
         XmlObject xobj = XmlObject.Factory.parse("<test xmlns:x='foo'>&lt;SHOULDNOTBEATAG&gt;<a>simple<b/></a>&lt;ALSOSHOULDNOTBEATAG&gt;</test>");
         // System.out.println(xobj);
@@ -168,7 +168,7 @@ public class AssortedTests {
     }
 
     @Test
-    @Ignore
+    @Disabled
     public void testQNameCopy() throws Exception {
         SchemaDocument xobj = SchemaDocument.Factory.parse(
             "<xs:schema xmlns:xs='http://www.w3.org/2001/XMLSchema'>" +
@@ -176,12 +176,11 @@ public class AssortedTests {
         SchemaDocument xobj2 = SchemaDocument.Factory.parse(
             "<xsd:schema xmlns:xsd='http://www.w3.org/2001/XMLSchema'/>");
         xobj2.getSchema().addNewElement().set(xobj.getSchema().getElementArray(0));
-        System.out.println(xobj2);
     }
 
     // don't run on normal drt because it's too slow: about 20-30 secs
     @Test
-    @Ignore
+    @Disabled
     public void testCursorFinalize() {
         XmlObject obj = XmlObject.Factory.newInstance();
         int i = 0;
@@ -198,7 +197,7 @@ public class AssortedTests {
     }
 
     @Test
-    public void testOutOfRange() throws Exception {
+    void testOutOfRange() throws Exception {
         PositionDocument doc = PositionDocument.Factory.parse("<position xmlns='java:int.test'><lat>43</lat><lon>037</lon></position>");
         assertEquals(43, doc.getPosition().getLat());
         assertEquals(37, doc.getPosition().getLon());
@@ -207,13 +206,13 @@ public class AssortedTests {
         doc = PositionDocument.Factory.parse("<position xmlns='java:int.test'><lat>443</lat><lon>737</lon></position>");
         assertEquals(443, doc.getPosition().getLat());
         assertEquals(737, doc.getPosition().getLon());
-        assertTrue(!doc.validate());
+        assertFalse(doc.validate());
 
         doc.getPosition().setLat((short) -300);
         doc.getPosition().setLon((short) 32767);
         assertEquals(-300, doc.getPosition().getLat());
         assertEquals(32767, doc.getPosition().getLon());
-        assertTrue(!doc.validate());
+        assertFalse(doc.validate());
 
         doc.getPosition().setLat((short) 43);
         doc.getPosition().setLon((short) 127);
@@ -223,7 +222,7 @@ public class AssortedTests {
     }
 
     @Test
-    public void testParse() throws Exception {
+    void testParse() throws Exception {
         XmlTime xt = XmlTime.Factory.parse("<xml-fragment>12:00:00</xml-fragment>");
         assertEquals("12:00:00", xt.getCalendarValue().toString());
     }

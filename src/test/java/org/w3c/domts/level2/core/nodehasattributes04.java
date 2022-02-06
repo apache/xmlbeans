@@ -22,10 +22,10 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.*;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -39,33 +39,21 @@ import static org.w3c.domts.DOMTest.load;
  */
 public class nodehasattributes04 {
     @Test
-    public void testRun() throws Throwable {
-        Document doc;
-        Document newDoc;
+    void testRun() throws Throwable {
         DocumentType docType = null;
 
-        DOMImplementation domImpl;
-        Element element;
-        Element elementTest;
-        Element elementDoc;
-        Attr attribute;
-        Node setNode;
-        Node appendedChild;
-        NodeList elementList;
-        boolean hasAttributes;
-        doc = load("staffNS", false);
-        domImpl = doc.getImplementation();
-        newDoc = domImpl.createDocument("http://www.w3.org/DOM/Test", "test", docType);
-        element = newDoc.createElementNS("http://www.w3.org/DOM/Test", "dom:elem");
-        attribute = newDoc.createAttribute("attr");
-        setNode = element.setAttributeNode(attribute);
-        elementDoc = newDoc.getDocumentElement();
-        appendedChild = elementDoc.appendChild(element);
-        elementList = newDoc.getElementsByTagNameNS("http://www.w3.org/DOM/Test", "elem");
-        elementTest = (Element) elementList.item(0);
-        hasAttributes = elementTest.hasAttributes();
-        assertTrue("nodehasattributes04", hasAttributes);
-
+        Document doc = load("staffNS", false);
+        DOMImplementation domImpl = doc.getImplementation();
+        Document newDoc = domImpl.createDocument("http://www.w3.org/DOM/Test", "test", docType);
+        Element element = newDoc.createElementNS("http://www.w3.org/DOM/Test", "dom:elem");
+        Attr attribute = newDoc.createAttribute("attr");
+        Node setNode = element.setAttributeNode(attribute);
+        Element elementDoc = newDoc.getDocumentElement();
+        Node appendedChild = elementDoc.appendChild(element);
+        NodeList elementList = newDoc.getElementsByTagNameNS("http://www.w3.org/DOM/Test", "elem");
+        Element elementTest = (Element) elementList.item(0);
+        boolean hasAttributes = elementTest.hasAttributes();
+        assertTrue(hasAttributes, "nodehasattributes04");
     }
 
     /**

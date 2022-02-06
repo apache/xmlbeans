@@ -19,17 +19,17 @@ import net.sf.saxon.str.StringView;
 import net.sf.saxon.trans.XPathException;
 import net.sf.saxon.value.HexBinaryValue;
 import org.apache.xmlbeans.impl.util.HexBin;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Locale;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class HexBinTest {
 
     @Test
-    public void testSurrogate() throws Exception {
+    void testSurrogate() throws Exception {
         String exp = "ABC\ud83c\udf09123";
         String enc = HexBin.encode(exp);
         String dec = HexBin.decode(enc);
@@ -37,7 +37,7 @@ public class HexBinTest {
     }
 
     @Test
-    public void knownValue() throws XPathException {
+    void knownValue() throws XPathException {
         // I've looked for comparison values but the following definition seems to be wrong,
         // because Saxon also returns the same encoded value
         // see http://books.xmlschemata.org/relaxng/ch19-77143.html

@@ -14,11 +14,13 @@
  */
 package tools.inst2xsd.detailed;
 
-import org.junit.Test;
-import tools.inst2xsd.common.Inst2XsdTestBase;
 import org.apache.xmlbeans.XmlObject;
+import org.junit.jupiter.api.Test;
 
-public class Inst2XsdDetailedAttrTest extends Inst2XsdTestBase {
+import static tools.inst2xsd.common.Inst2XsdTestBase.getAttrTypeXml;
+import static tools.inst2xsd.common.Inst2XsdTestBase.runAttrTypeChecking;
+
+public class Inst2XsdDetailedAttrTest {
 
     // List of precedence for smart simple primitive type determination
     // byte, short, int, long, integer, float, double, decimal,
@@ -70,7 +72,7 @@ public class Inst2XsdDetailedAttrTest extends Inst2XsdTestBase {
     //}
 
     @Test
-    public void test_attranyuri() throws Exception {
+    void test_attranyuri() throws Exception {
         runAttrTypeChecking(getAttrTypeXml("http://www.math.uio.no/faq/compression-faq/part1.html"), "anyURI");
         runAttrTypeChecking(getAttrTypeXml("http://www.example.com/doc.html#ID5"), "anyURI");
         runAttrTypeChecking(getAttrTypeXml("www.math.uio.no/faq/compression-faq/part1.html"), "anyURI");
@@ -87,7 +89,7 @@ public class Inst2XsdDetailedAttrTest extends Inst2XsdTestBase {
      * true, false are strings
      */
     @Test
-    public void test_attrboolean() throws Exception {
+    void test_attrboolean() throws Exception {
         runAttrTypeChecking(getAttrTypeXml("true"), "string");
         runAttrTypeChecking(getAttrTypeXml("false"), "string");
 
@@ -96,7 +98,7 @@ public class Inst2XsdDetailedAttrTest extends Inst2XsdTestBase {
     }
 
     @Test
-    public void test_attrQName() throws Exception {
+    void test_attrQName() throws Exception {
         XmlObject xsdString = XmlObject.Factory.parse("<a xmlns=\"attrTests\" " +
                 "xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" a=\"xsd:string\"></a>");
 

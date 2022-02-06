@@ -18,58 +18,57 @@ package  xmlcursor.detailed;
 
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlCursor.TokenType;
-import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlString;
-import org.junit.Test;
-import tools.util.JarUtil;
+import org.junit.jupiter.api.Test;
 import xmlcursor.common.Common;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
+import static xmlcursor.common.BasicCursorTestCase.jcur;
 
 
 public class MultipleCursorSetTest {
     @Test
-    public void testMultipleCursorSet() throws Exception {
-        XmlCursor[] aCursors = new XmlCursor[6];
-        XmlString xs;
-        try (XmlCursor xc = XmlObject.Factory.parse(JarUtil.getResourceFromJar(
-                    Common.TRANXML_FILE_CLM)).newCursor()) {
-            xc.selectPath(Common.CLM_NS_XQUERY_DEFAULT +
-                          "$this//EquipmentNumber");
+    void testMultipleCursorSet() throws Exception {
+
+        try (XmlCursor xc = jcur(Common.TRANXML_FILE_CLM)) {
+            xc.selectPath(Common.CLM_NS_XQUERY_DEFAULT + "$this//EquipmentNumber");
             xc.toNextSelection();
-            xs = (XmlString) xc.getObject();
+            final XmlString xs = (XmlString) xc.getObject();
             assertEquals("123456", xs.getStringValue());
             assertEquals(TokenType.TEXT, xc.toNextToken());
-            for (int i = 0; i < 6; i++) {
-                xc.toNextChar(1);
-                aCursors[i] = xc.newCursor();
+
+            try (XmlCursor x0 = nextCur(xc);
+                 XmlCursor x1 = nextCur(xc);
+                 XmlCursor x2 = nextCur(xc);
+                 XmlCursor x3 = nextCur(xc);
+                 XmlCursor x4 = nextCur(xc);
+                 XmlCursor x5 = nextCur(xc);
+            ) {
+                xc.close();
+
+                XmlCursor[] aCursors = { x0, x1, x2, x3, x4, x5 };
+                for (XmlCursor cur1 : aCursors) {
+                    for (XmlCursor cur2 : aCursors) {
+                        if (cur1 != cur2) {
+                            assertFalse(cur1.isAtSamePositionAs(cur2));
+                        }
+                    }
+                }
+                xs.setStringValue("XYZ");
+                for (XmlCursor cur1 : aCursors) {
+                    for (XmlCursor cur2 : aCursors) {
+                        assertTrue(cur1.isAtSamePositionAs(cur2));
+                    }
+                    assertThrows(IllegalStateException.class, cur1::getTextValue);
+                }
+                assertEquals("XYZ", xs.getStringValue());
             }
         }
-        for (int i = 0; i < 6; i++) {
-            for (int j = 0; j != i && j < 6; j++) {
-                assertFalse(aCursors[i].isAtSamePositionAs(aCursors[j]));
-            }
-        }
-        xs.setStringValue("XYZ");
-        for (int i = 0; i < 6; i++) {
-            for (int j = 0; j < 6; j++) {
-                assertTrue(aCursors[i].isAtSamePositionAs(aCursors[j]));
-            }
-            // System.out.println(aCursors[i].currentTokenType());
-            // assertEquals(null, aCursors[i].getTextValue());
-
-            try {
-
-                aCursors[i].getTextValue();
-                fail("Expecting IllegalStateException");
-            } catch (IllegalStateException e) {
-            }
-
-
-        }
-        assertEquals("XYZ", xs.getStringValue());
-
     }
 
+    private static XmlCursor nextCur(XmlCursor xc) {
+        xc.toNextChar(1);
+        return xc.newCursor();
+    }
 }
 

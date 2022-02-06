@@ -15,23 +15,17 @@
 
 package scomp.elements.detailed;
 
-import org.junit.Test;
-import scomp.common.BaseCase;
+import org.junit.jupiter.api.Test;
 import xbean.scomp.element.globalEltDefault.IDElementDocument;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static scomp.common.BaseCase.createOptions;
 
-public class GlobalEltId extends BaseCase{
+public class GlobalEltId {
     @Test
-    public void testRun() throws Throwable {
-        IDElementDocument doc =
-            IDElementDocument.Factory.newInstance();
+    void testRun() throws Throwable {
+        IDElementDocument doc = IDElementDocument.Factory.newInstance();
         doc.addNewIDElement().setID("IDAttr");
-        try {
-            assertTrue(doc.validate(validateOptions));
-        } catch (Throwable t) {
-            showErrors();
-            throw t;
-        }
+        assertTrue(doc.validate(createOptions()));
     }
 }

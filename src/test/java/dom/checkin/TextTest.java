@@ -18,15 +18,15 @@ package dom.checkin;
 
 
 import dom.common.CharacterDataTest;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
 import org.w3c.dom.Text;
 import xmlcursor.common.Common;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
 public class TextTest extends CharacterDataTest {
@@ -36,45 +36,45 @@ public class TextTest extends CharacterDataTest {
     }
 
     @Test
-    public void testNodeName() {
+    void testNodeName() {
         assertEquals("#text", m_node.getNodeName());
     }
 
     @Test
-    public void testNodeType() {
+    void testNodeType() {
         assertEquals(Node.TEXT_NODE, m_node.getNodeType());
     }
 
     @Test
-    public void testNodeValue() {
+    void testNodeValue() {
         assertEquals("extended", m_node.getNodeValue());
     }
 
     @Test
-    public void testNextSibling() {
+    void testNextSibling() {
         Node nxtSibling = m_node.getNextSibling();
         assertEquals(null, nxtSibling);
     }
 
     @Test
-    public void testPreviousSibling() {
+    void testPreviousSibling() {
         Node prSibling = m_node.getPreviousSibling();
         assertEquals("bar", prSibling.getLocalName());
         assertEquals("text", ((Text) prSibling.getFirstChild()).getData());
     }
 
     @Test
-    public void testParent() {
+    void testParent() {
         Node parent = m_node.getParentNode();
         assertEquals(m_doc.getFirstChild(), parent);
         assertEquals("foo", parent.getLocalName());
     }
 
     @Test
-    public void testSplitTextNegative() {
+    void testSplitTextNegative() {
         try {
             ((Text) m_node).splitText(-1);
-            fail("Deleting OOB chars");
+            Assertions.fail("Deleting OOB chars");
         }
         catch (DOMException de) {
             assertEquals(de.code, DOMException.INDEX_SIZE_ERR);
@@ -82,10 +82,10 @@ public class TextTest extends CharacterDataTest {
     }
 
     @Test
-    public void testSplitTextLarge() {
+    void testSplitTextLarge() {
         try {
             ((Text) m_node).splitText(((Text) m_node).getLength() + 1);
-            fail("Deleting OOB chars");
+            Assertions.fail("Deleting OOB chars");
         }
         catch (DOMException de) {
             assertEquals(de.code, DOMException.INDEX_SIZE_ERR);
@@ -93,7 +93,7 @@ public class TextTest extends CharacterDataTest {
     }
 
     @Test
-    public void testSplitText() {
+    void testSplitText() {
         Node parent = m_node.getParentNode();
         int nChildCount = parent.getChildNodes().getLength();
         ((Text) m_node).splitText(2);
@@ -101,7 +101,7 @@ public class TextTest extends CharacterDataTest {
     }
 
     @Test
-    public void testSplitTextBorder() {
+    void testSplitTextBorder() {
         Node parent = m_node.getParentNode();
         int nChildCount = parent.getChildNodes().getLength();
         ((Text) m_node).splitText(((Text) m_node).getLength());
@@ -112,14 +112,14 @@ public class TextTest extends CharacterDataTest {
 
     //code coverage case; not sure why it's important
     @Test
-    public void testSplitTextNoParent() {
+    void testSplitTextNoParent() {
         m_node = m_doc.createTextNode("foobar");
         ((Text) m_node).splitText(3);
         assertEquals("foo", m_node.getNodeValue());
     }
 
     @Test
-    public void testSetNodeValue() {
+    void testSetNodeValue() {
         m_node.setNodeValue("new text value");
         assertEquals("new text value", m_node.getNodeValue());
     }
@@ -128,16 +128,16 @@ public class TextTest extends CharacterDataTest {
         m_node = m_doc.getFirstChild().getChildNodes().item(1);//"extended"
     }
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         super.setUp();
         moveToNode();
     }
 
     @Test
-    public void testDelete()throws Exception{
+    void testDelete()throws Exception{
         org.apache.xmlbeans.XmlObject o= org.apache.xmlbeans.XmlObject.Factory.parse("<foo/>");
         Node d = o.newDomNode();
-        assertEquals("foo",d.getFirstChild().getLocalName());
+        assertEquals("foo", d.getFirstChild().getLocalName());
     }
 }

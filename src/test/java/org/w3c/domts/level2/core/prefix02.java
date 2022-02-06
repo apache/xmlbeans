@@ -22,12 +22,12 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -45,20 +45,14 @@ import static org.w3c.domts.DOMTest.load;
  */
 public class prefix02 {
     @Test
-    public void testRun() throws Throwable {
-        Document doc;
-        NodeList elementList;
-        Node testEmployee;
-        Node textNode;
-        String prefix;
+    void testRun() throws Throwable {
         String sExpected = null;
-        doc = load("staffNS", false);
-        elementList = doc.getElementsByTagName("emp:employeeId");
-        testEmployee = elementList.item(0);
-        textNode = testEmployee.getFirstChild();
-        prefix = textNode.getPrefix();
-        assertEquals("textNodePrefix", sExpected, prefix);
-
+        Document doc = load("staffNS", false);
+        NodeList elementList = doc.getElementsByTagName("emp:employeeId");
+        Node testEmployee = elementList.item(0);
+        Node textNode = testEmployee.getFirstChild();
+        String prefix = textNode.getPrefix();
+        assertEquals(sExpected, prefix, "textNodePrefix");
     }
 
     /**

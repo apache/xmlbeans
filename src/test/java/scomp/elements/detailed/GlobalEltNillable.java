@@ -16,29 +16,31 @@
 package scomp.elements.detailed;
 
 import org.apache.xmlbeans.XmlErrorCodes;
+import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlOptions;
 import org.apache.xmlbeans.impl.values.XmlValueNotNillableException;
-import org.junit.Test;
-import scomp.common.BaseCase;
+import org.junit.jupiter.api.Test;
 import xbean.scomp.element.globalEltNillable.*;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
+import static scomp.common.BaseCase.createOptions;
+import static scomp.common.BaseCase.getErrorCodes;
 
-public class GlobalEltNillable extends BaseCase {
+public class GlobalEltNillable {
 
     //xsi:nil illegal in instance if the elt is not nillable
     @Test
-    public void testNillableFalse() throws Exception {
-        GlobalEltNotNillableDocument testElt = GlobalEltNotNillableDocument
-                .Factory.parse("<GlobalEltNotNillable" +
-                "   xmlns=\"http://xbean/scomp/element/GlobalEltNillable\"" +
-                " xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"" +
-                " xsi:nil=\"false\"/>");
-        assertTrue(!testElt.validate(validateOptions));
-        assertEquals(1, errorList.size());
-        String[] errExpected = new String[]{
-            XmlErrorCodes.ELEM_LOCALLY_VALID$NOT_NILLABLE};
-             assertTrue(compareErrorCodes(errExpected));
+    void testNillableFalse() throws XmlException {
+        String input =
+            "<GlobalEltNotNillable" +
+            "   xmlns=\"http://xbean/scomp/element/GlobalEltNillable\"" +
+            " xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"" +
+            " xsi:nil=\"false\"/>";
+        GlobalEltNotNillableDocument testElt = GlobalEltNotNillableDocument.Factory.parse(input);
+        XmlOptions validateOptions = createOptions();
+        assertFalse(testElt.validate(validateOptions));
+        String[] errExpected = {XmlErrorCodes.ELEM_LOCALLY_VALID$NOT_NILLABLE};
+        assertArrayEquals(errExpected, getErrorCodes(validateOptions));
     }
 
     /**
@@ -50,108 +52,84 @@ public class GlobalEltNillable extends BaseCase {
      * element, will also add the "xsi:nil" attribute.
      */
     @Test
-    public void testNotNillable() {
+    void testNotNillable() {
 
         // XmlValueNotNillableException should be thrown only when validateOnSet property is set
         XmlOptions options = new XmlOptions();
         options.setValidateOnSet();
 
-        GlobalEltNotNillableDocument testElt = GlobalEltNotNillableDocument.Factory.newInstance(options);
-        try {
-            testElt.setNil();
-            fail("Expected XmlValueNotNillableException");
-        }
-        catch (XmlValueNotNillableException e) {
-        }
-
-        try {
-            testElt.set(null);
-            fail("Expected XmlValueNotNillableException");
-        }
-        catch (XmlValueNotNillableException e) {
-        }
+        GlobalEltNotNillableDocument testElt1 = GlobalEltNotNillableDocument.Factory.newInstance(options);
+        assertThrows(XmlValueNotNillableException.class, testElt1::setNil);
+        assertThrows(XmlValueNotNillableException.class, () -> testElt1.set(null));
 
         options.setValidateOnSet(false);
-        testElt = GlobalEltNotNillableDocument.Factory.newInstance(options);
+        GlobalEltNotNillableDocument testElt = GlobalEltNotNillableDocument.Factory.newInstance(options);
         testElt.setGlobalEltNotNillable(null);
 
         //assert that value is cleared
         assertEquals("<glob:GlobalEltNotNillable " +
-                "xsi:nil=\"true\" " +
-                "xmlns:glob=\"http://xbean/scomp/element/GlobalEltNillable\" " +
-                "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"/>"
-                ,testElt.xmlText());
+                                "xsi:nil=\"true\" " +
+                                "xmlns:glob=\"http://xbean/scomp/element/GlobalEltNillable\" " +
+                                "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"/>", testElt.xmlText());
+
+        XmlOptions validateOptions = createOptions();
         assertFalse(testElt.validate(validateOptions));
-        assertEquals(1, errorList.size());
-        showErrors();
-        String[] errExpected =
-                new String[]{
-                    XmlErrorCodes.ELEM_LOCALLY_VALID$NOT_NILLABLE};
-             assertTrue(compareErrorCodes(errExpected));
+        String[] errExpected = {XmlErrorCodes.ELEM_LOCALLY_VALID$NOT_NILLABLE};
+        assertArrayEquals(errExpected, getErrorCodes(validateOptions));
     }
 
     //for nillable, fixed value cannot be specified (instance error) :
     // Walmsley p.137 footnote
     @Test
-    public void testNillableFixed() throws Exception {
-        GlobalEltNillableFixedDocument testElt = GlobalEltNillableFixedDocument
-                .Factory.parse("<GlobalEltNillableFixed" +
-                "   xmlns=\"http://xbean/scomp/element/GlobalEltNillable\"" +
-                "   xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"" +
-                "   xsi:nil=\"true\"" +
-                "/>");
+    void testNillableFixed() throws XmlException {
+        String input =
+            "<GlobalEltNillableFixed" +
+            "   xmlns=\"http://xbean/scomp/element/GlobalEltNillable\"" +
+            "   xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"" +
+            "   xsi:nil=\"true\"" +
+            "/>";
+        GlobalEltNillableFixedDocument testElt = GlobalEltNillableFixedDocument.Factory.parse(input);
+        XmlOptions validateOptions = createOptions();
         assertFalse(testElt.validate(validateOptions));
-        assertEquals(1, errorList.size());
-        showErrors();
-               String[] errExpected = new String[]{XmlErrorCodes.ELEM_LOCALLY_VALID$NIL_WITH_FIXED};
-                    assertTrue(compareErrorCodes(errExpected));
+        String[] errExpected = {XmlErrorCodes.ELEM_LOCALLY_VALID$NIL_WITH_FIXED};
+        assertArrayEquals(errExpected, getErrorCodes(validateOptions));
     }
 
     @Test
-    public void testNillableInt() throws Exception {
-        GlobalEltNillableIntDocument testElt = GlobalEltNillableIntDocument
-                .Factory.parse("<GlobalEltNillableInt" +
-                "   xmlns=\"http://xbean/scomp/element/GlobalEltNillable\"" +
-                " xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"" +
-                " xsi:nil=\"true\"/>");
+    void testNillableInt() throws XmlException {
+        String input =
+            "<GlobalEltNillableInt" +
+            "   xmlns=\"http://xbean/scomp/element/GlobalEltNillable\"" +
+            " xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"" +
+            " xsi:nil=\"true\"/>";
+        GlobalEltNillableIntDocument testElt = GlobalEltNillableIntDocument.Factory.parse(input);
 
-        try {
-            assertTrue(testElt.validate(validateOptions));
-        }
-        catch (Throwable t) {
-            showErrors();
-        }
-        assertTrue ( testElt.isNilGlobalEltNillableInt());
+        XmlOptions validateOptions = createOptions();
+        assertTrue(testElt.validate(validateOptions));
+        assertTrue(testElt.isNilGlobalEltNillableInt());
         assertEquals(0, testElt.getGlobalEltNillableInt());
 
         //after setting the value, the nil attribute should be gone
         testElt.setGlobalEltNillableInt(3);
-        assertEquals(
-                "<GlobalEltNillableInt" +
-                " xmlns=\"http://xbean/scomp/element/GlobalEltNillable\"" +
-                " xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"" +
-                ">3</GlobalEltNillableInt>",
-                testElt.xmlText() );
-
-
+        assertEquals("<GlobalEltNillableInt" +
+                            " xmlns=\"http://xbean/scomp/element/GlobalEltNillable\"" +
+                            " xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"" +
+                            ">3</GlobalEltNillableInt>", testElt.xmlText());
     }
 
 
     //default value not filled in for nillable elts when xsi:nil=true
     // $TODO: check w/ Kevin--what is the value of a nillable attr if it's a primitive type????
     @Test
-    public void testNillableDefault() throws Exception {
-        GlobalEltNillableDefaultDocument testElt = GlobalEltNillableDefaultDocument
-                .Factory.parse("<GlobalEltNillableDefault" +
-                "   xmlns=\"http://xbean/scomp/element/GlobalEltNillable\"" +
-                " xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"" +
-                " xsi:nil=\"true\"/>");
-        try {
-            assertTrue(testElt.validate(validateOptions));
-        }
-        catch (Throwable t) {
-            showErrors();
-        }
+    void testNillableDefault() throws Exception {
+        String input =
+            "<GlobalEltNillableDefault" +
+            "   xmlns=\"http://xbean/scomp/element/GlobalEltNillable\"" +
+            " xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"" +
+            " xsi:nil=\"true\"/>";
+        GlobalEltNillableDefaultDocument testElt = GlobalEltNillableDefaultDocument.Factory.parse(input);
+        XmlOptions validateOptions = createOptions();
+        assertTrue(testElt.validate(validateOptions));
 
         assertEquals(0, testElt.getGlobalEltNillableDefault());
     }
@@ -159,69 +137,50 @@ public class GlobalEltNillable extends BaseCase {
     // An element with xsi:nil="true" may not have any element content but it
     //  may still carry attributes.
     @Test
-    public void testComplexNillable() throws Throwable {
-        GlobalEltComplexDocument testElt = GlobalEltComplexDocument
-                .Factory.parse("<GlobalEltComplex" +
-                "   xmlns=\"http://xbean/scomp/element/GlobalEltNillable\"" +
-                " xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"" +
-                " xsi:nil=\"true\"><nestedElt/></GlobalEltComplex>");
-        assertTrue(!testElt.validate(validateOptions));
-        assertEquals(1, errorList.size());
+    void testComplexNillable() throws XmlException {
+        String input =
+            "<GlobalEltComplex" +
+            "   xmlns=\"http://xbean/scomp/element/GlobalEltNillable\"" +
+            " xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"" +
+            " xsi:nil=\"true\"><nestedElt/></GlobalEltComplex>";
+        GlobalEltComplexDocument testElt = GlobalEltComplexDocument.Factory.parse(input);
+        XmlOptions validateOptions = createOptions();
+        assertFalse(testElt.validate(validateOptions));
+        String[] errExpected = {XmlErrorCodes.ELEM_LOCALLY_VALID$NIL_WITH_CONTENT};
+        assertArrayEquals(errExpected, getErrorCodes(validateOptions));
 
-        showErrors();
-        String[] errExpected = new String[]{
-            XmlErrorCodes.ELEM_LOCALLY_VALID$NIL_WITH_CONTENT};
-             assertTrue(compareErrorCodes(errExpected));
-
-        testElt = GlobalEltComplexDocument
-                .Factory.parse("<GlobalEltComplex" +
-                "   xmlns=\"http://xbean/scomp/element/GlobalEltNillable\"" +
-                " xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"" +
-                " xsi:nil=\"true\" testattribute=\"foobar\"/>");
-        try {
-            assertTrue(testElt.validate(validateOptions));
-        }
-        catch (Throwable t) {
-            showErrors();
-            throw t;
-        }
-
+        input =
+            "<GlobalEltComplex" +
+            "   xmlns=\"http://xbean/scomp/element/GlobalEltNillable\"" +
+            " xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"" +
+            " xsi:nil=\"true\" testattribute=\"foobar\"/>";
+        testElt = GlobalEltComplexDocument.Factory.parse(input);
+        assertTrue(testElt.validate(validateOptions));
     }
 
-    /** calling setNil should inserts
+    /**
+     * calling setNil should inserts
      * attr and delete value
      */
     @Test
-    public void testDelete() throws Throwable{
-        GlobalEltComplexDocument  testElt = GlobalEltComplexDocument
-                .Factory.parse("<pre:GlobalEltComplex" +
-                "   xmlns:pre=\"http://xbean/scomp/element/GlobalEltNillable\"" +
-                " xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"" +
-                " testattribute=\"foobar\">" +
-                "<nestedElt>" +
-                "foo</nestedElt></pre:GlobalEltComplex>");
-        try {
-            assertTrue(testElt.validate(validateOptions));
-        }
-        catch (Throwable t) {
-            showErrors();
-            throw t;
-        }
+    void testDelete() throws XmlException {
+        String input =
+            "<pre:GlobalEltComplex" +
+            "   xmlns:pre=\"http://xbean/scomp/element/GlobalEltNillable\"" +
+            " xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"" +
+            " testattribute=\"foobar\">" +
+            "<nestedElt>" +
+            "foo</nestedElt></pre:GlobalEltComplex>";
+        GlobalEltComplexDocument testElt = GlobalEltComplexDocument.Factory.parse(input);
+        XmlOptions validateOptions = createOptions();
+        assertTrue(testElt.validate(validateOptions));
         testElt.getGlobalEltComplex().setNil();
         assertEquals("<pre:GlobalEltComplex " +
-                "testattribute=\"foobar\" " +
-                "xsi:nil=\"true\" " +
-                "xmlns:pre=\"http://xbean/scomp/element/GlobalEltNillable\" " +
-                "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"/>",
-                testElt.xmlText());
-         try {
-            assertTrue(testElt.validate(validateOptions));
-        }
-        catch (Throwable t) {
-            showErrors();
-            throw t;
-        }
-
+                                "testattribute=\"foobar\" " +
+                                "xsi:nil=\"true\" " +
+                                "xmlns:pre=\"http://xbean/scomp/element/GlobalEltNillable\" " +
+                                "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"/>", testElt.xmlText());
+        assertTrue(testElt.validate(validateOptions));
     }
 
 }

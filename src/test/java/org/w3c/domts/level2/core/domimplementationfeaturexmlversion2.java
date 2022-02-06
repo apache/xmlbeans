@@ -22,11 +22,11 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Document;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -47,15 +47,11 @@ import static org.w3c.domts.DOMTest.load;
 
 public class domimplementationfeaturexmlversion2 {
     @Test
-    public void testRun() throws Throwable {
-        Document doc;
-        DOMImplementation domImpl;
-        boolean state;
-        doc = load("staff", false);
-        domImpl = doc.getImplementation();
-        state = domImpl.hasFeature("xml", "2.0");
-        assertTrue("domimplementationFeaturexmlVersion2Assert", state);
-
+    void testRun() throws Throwable {
+        Document doc = load("staff", false);
+        DOMImplementation domImpl = doc.getImplementation();
+        boolean state = domImpl.hasFeature("xml", "2.0");
+        assertTrue(state, "domimplementationFeaturexmlVersion2Assert");
     }
 
     /**

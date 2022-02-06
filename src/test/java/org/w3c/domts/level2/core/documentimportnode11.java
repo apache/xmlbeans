@@ -22,13 +22,13 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -46,22 +46,15 @@ import static org.w3c.domts.DOMTest.load;
  */
 public class documentimportnode11 {
     @Test
-    public void testRun() throws Throwable {
-        Document doc;
-        Element docElement;
-        Node imported;
-        boolean success;
-        String nodeNameOrig;
-        String nodeNameImported;
-        doc = load("staffNS", true);
-        docElement = doc.getDocumentElement();
-        imported = doc.importNode(docElement, false);
-        success = imported.hasChildNodes();
-        assertFalse("documentimportnode11", success);
-        nodeNameImported = imported.getNodeName();
-        nodeNameOrig = docElement.getNodeName();
-        assertEquals("documentimportnode11_NodeName", nodeNameImported, nodeNameOrig);
-
+    void testRun() throws Throwable {
+        Document doc = load("staffNS", true);
+        Element docElement = doc.getDocumentElement();
+        Node imported = doc.importNode(docElement, false);
+        boolean success = imported.hasChildNodes();
+        assertFalse(success, "documentimportnode11");
+        String nodeNameImported = imported.getNodeName();
+        String nodeNameOrig = docElement.getNodeName();
+        assertEquals(nodeNameImported, nodeNameOrig, "documentimportnode11_NodeName");
     }
 
     /**

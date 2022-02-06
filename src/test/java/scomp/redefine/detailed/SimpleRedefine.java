@@ -14,51 +14,37 @@
  */
 package scomp.redefine.detailed;
 
-import org.junit.Test;
-import scomp.common.BaseCase;
+import org.junit.jupiter.api.Test;
 import xbean.scomp.redefine.simpleRedefined.NewSizeEltDocument;
 import xbean.scomp.redefine.simpleRedefined.OldColorEltDocument;
 import xbean.scomp.redefine.simpleRedefined.OldSizeEltDocument;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static scomp.common.BaseCase.createOptions;
 
-public class SimpleRedefine extends BaseCase {
+public class SimpleRedefine {
 
     /**
      * test that fields from the old type def are not
      * visible anymore: only valid range for sizeT should be 3-20
      */
     @Test
-    public void testCodeGeneration() throws Throwable{
-         NewSizeEltDocument doc = NewSizeEltDocument.Factory.newInstance();
-         OldColorEltDocument doc1 = OldColorEltDocument.Factory.newInstance();
-         OldSizeEltDocument doc2 = OldSizeEltDocument.Factory.newInstance();
+    void testCodeGeneration() throws Throwable {
+        NewSizeEltDocument doc = NewSizeEltDocument.Factory.newInstance();
+        OldColorEltDocument doc1 = OldColorEltDocument.Factory.newInstance();
+        OldSizeEltDocument doc2 = OldSizeEltDocument.Factory.newInstance();
 
-         doc.setNewSizeElt(3);
+        doc.setNewSizeElt(3);
+        assertTrue(doc.validate(createOptions()));
 
-         try {
-             assertTrue(doc.validate(validateOptions));
-         } catch (Throwable t) {
-             showErrors();
-             throw t;
-         }
-         doc.setNewSizeElt(21);
-         assertTrue(!doc.validate(validateOptions));
-         showErrors();
-         clearErrors();
+        doc.setNewSizeElt(21);
+        assertFalse(doc.validate(createOptions()));
 
-         doc2.setOldSizeElt(21);
-         assertTrue(!doc.validate(validateOptions));
-         showErrors();
-         clearErrors();
+        doc2.setOldSizeElt(21);
+        assertFalse(doc.validate(createOptions()));
 
-         doc1.setOldColorElt("white");
-
-         try {
-             assertTrue(doc1.validate(validateOptions));
-         } catch (Throwable t) {
-             showErrors();
-             throw t;
-         }
+        doc1.setOldColorElt("white");
+        assertTrue(doc1.validate(createOptions()));
     }
 }

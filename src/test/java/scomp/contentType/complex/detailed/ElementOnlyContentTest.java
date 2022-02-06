@@ -18,63 +18,54 @@ package scomp.contentType.complex.detailed;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlErrorCodes;
 import org.apache.xmlbeans.XmlInteger;
-import org.junit.Test;
-import scomp.common.BaseCase;
+import org.apache.xmlbeans.XmlOptions;
+import org.junit.jupiter.api.Test;
 import xbean.scomp.contentType.complexTypeTest.ElementT;
 import xbean.scomp.contentType.complexTypeTest.EltTypeDocument;
 
 import java.math.BigInteger;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
+import static scomp.common.BaseCase.createOptions;
+import static scomp.common.BaseCase.getErrorCodes;
 
-public class ElementOnlyContentTest extends BaseCase {
+public class ElementOnlyContentTest {
 
     /**
      * Element only content
      */
     @Test
-    public void testElementOnly() throws Throwable {
+    void testElementOnly() throws Throwable {
         EltTypeDocument doc = EltTypeDocument.Factory.newInstance();
         ElementT testElt
                 = doc.getEltType();
-        assertEquals(null, testElt);
+        assertNull(testElt);
         testElt = doc.addNewEltType();
-        assertEquals(null, testElt.getChild1());
-        assertEquals(null, testElt.xgetChild1());
+        assertNull(testElt.getChild1());
+        assertNull(testElt.xgetChild1());
         testElt.setChild1(new BigInteger("10"));
         testElt.setChild2(new BigInteger("5"));
         testElt.setChild3(new BigInteger("1"));
         assertEquals("<xml-fragment><child1>10</child1><child2>5</child2>" +
-                "<child3>1</child3></xml-fragment>",
-                testElt.xmlText());
+                                "<child3>1</child3></xml-fragment>", testElt.xmlText());
 
-        testElt.xsetChild2(
-                XmlInteger.Factory.parse("<xml-fragment>3</xml-fragment>"));
+        testElt.xsetChild2(XmlInteger.Factory.parse("<xml-fragment>3</xml-fragment>"));
         assertEquals("<xml-fragment><child1>10</child1><child2>3</child2>" +
-                "<child3>1</child3></xml-fragment>",
-                testElt.xmlText());
-        try {
-            assertTrue(doc.validate(validateOptions));
-        }
-        catch (Throwable t) {
-            showErrors();
-            throw t;
-        }
+                                "<child3>1</child3></xml-fragment>", testElt.xmlText());
+        assertTrue(doc.validate(createOptions()));
     }
 
     /**
      * Mixed content is invalid for element only types
      */
     @Test
-    public void testInvalidContent() {
+    void testInvalidContent() {
         EltTypeDocument doc = EltTypeDocument.Factory.newInstance();
-        ElementT testElt
-                = doc.getEltType();
-        assertEquals(null, testElt);
+        ElementT testElt = doc.getEltType();
+        assertNull(testElt);
         testElt = doc.addNewEltType();
-        assertEquals(null, testElt.getChild1());
-        assertEquals(null, testElt.xgetChild1());
+        assertNull(testElt.getChild1());
+        assertNull(testElt.xgetChild1());
         testElt.setChild1(new BigInteger("10"));
         testElt.setChild2(new BigInteger("5"));
         testElt.setChild3(new BigInteger("1"));
@@ -83,13 +74,10 @@ public class ElementOnlyContentTest extends BaseCase {
             cur.toFirstContentToken();
             cur.insertChars("Random mixed content");
         }
-        System.out.println(testElt.xmlText());
-        assertTrue(!testElt.validate(validateOptions));
-        showErrors();
-        String[] errExpected = new String[]{
-            XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$ELEMENT_ONLY_WITH_TEXT};
-            assertTrue(compareErrorCodes(errExpected));
-
+        XmlOptions validateOptions = createOptions();
+        assertFalse(testElt.validate(validateOptions));
+        String[] errExpected = {XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$ELEMENT_ONLY_WITH_TEXT};
+        assertArrayEquals(errExpected, getErrorCodes(validateOptions));
     }
 
 }

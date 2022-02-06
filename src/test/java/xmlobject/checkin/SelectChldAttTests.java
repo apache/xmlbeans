@@ -18,125 +18,121 @@ package xmlobject.checkin;
 import org.apache.xml.test.selectChldAtt.DocDocument;
 import org.apache.xml.test.selectChldAtt.TypeExtendedC;
 import org.apache.xmlbeans.*;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import javax.xml.namespace.QName;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
+import java.util.stream.Stream;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class SelectChldAttTests {
     private static final String XSI_URI = "http://www.w3.org/2001/XMLSchema-instance";
 
+    private static final String URI = "http://xml.apache.org/test/selectChldAtt";
+
+    private static final String XML =
+        "<doc xmlns='" + URI + "'>\n" +
+        "  <int>7</int>\n" +
+        "  <string> ... some text ... </string>\n" +
+
+        "  <elemA price='4.321'>\n" +
+        "    <topLevelElement> this is wildcard bucket </topLevelElement>\n" +
+        "  </elemA>\n" +
+
+        "  <elemB xmlns:p='uri:other_namespace' \n" +
+        "       p:att='attribute in #other namespace'>\n" +
+        "    <someElement>2</someElement>\n" +
+        "    <p:otherElement> element in #other namespace </p:otherElement>\n" +
+        "  </elemB>\n" +
+
+        "  <elemC xmlns:xsi='" + XSI_URI + "' \n" +
+        "         xmlns:p='uri_other_namespace' \n" +
+        "         xsi:type='typeExtendedC' \n" +
+        "         att1='attribute from typeC' \n" +
+        "         aditionalAtt='attribute added in type extension' \n" +
+        "         p:validAtt='attribute in any bucket' >\n" +
+        "    <someElement> element from typeC </someElement>\n" +
+        "    <p:validElement> element in the 'any' bucket for typeExtendedC </p:validElement>\n" +
+        "    <aditionalElement> element from typeExtendedC </aditionalElement>\n" +
+        "  </elemC>\n" +
+        "</doc>";
+
+
     @Test
-    public void testSelect() throws XmlException {
-        String uri = "http://xml.apache.org/test/selectChldAtt";
-
-        String xml = "<doc xmlns='" + uri + "'>\n" +
-            "  <int>7</int>\n" +
-            "  <string> ... some text ... </string>\n" +
-
-            "  <elemA price='4.321'>\n" +
-            "    <topLevelElement> this is wildcard bucket </topLevelElement>\n" +
-            "  </elemA>\n" +
-
-            "  <elemB xmlns:p='uri:other_namespace' \n" +
-            "       p:att='attribute in #other namespace'>\n" +
-            "    <someElement>2</someElement>\n" +
-            "    <p:otherElement> element in #other namespace </p:otherElement>\n" +
-            "  </elemB>\n" +
-
-            "  <elemC xmlns:xsi='" + XSI_URI + "' \n" +
-            "         xmlns:p='uri_other_namespace' \n" +
-            "         xsi:type='typeExtendedC' \n" +
-            "         att1='attribute from typeC' \n" +
-            "         aditionalAtt='attribute added in type extension' \n" +
-            "         p:validAtt='attribute in any bucket' >\n" +
-            "    <someElement> element from typeC </someElement>\n" +
-            "    <p:validElement> element in the 'any' bucket for typeExtendedC </p:validElement>\n" +
-            "    <aditionalElement> element from typeExtendedC </aditionalElement>\n" +
-            "  </elemC>\n" +
-            "</doc>";
-
-        DocDocument document = DocDocument.Factory.parse(xml);
+    void testSelect() throws XmlException {
+        DocDocument document = DocDocument.Factory.parse(XML);
         DocDocument.Doc doc = document.getDoc();
-        Collection errors = new ArrayList();
-        assertTrue("Valid instance", doc.validate(new XmlOptions().setErrorListener(errors)));
-        printErrors(errors);
-
-        XmlObject xo;
-        XmlObject[] xos;
+        Collection<XmlError> errors = new ArrayList<>();
+        assertTrue(doc.validate(new XmlOptions().setErrorListener(errors)), "Valid instance");
 
         // select a known element
-        xos = doc.selectChildren(new QName(uri, "int"));
-        //print("1 selectChildren 'int' : ", xos);
-        assertTrue("1 selectChildren 'int' : ", verifyResult(xos, new String[]{"<xml-fragment>7</xml-fragment>"}));
+        String[] act1 = toArray(doc.selectChildren(new QName(URI, "int")));
+        String[] exp1 = {"<xml-fragment>7</xml-fragment>"};
+        assertArrayEquals(exp1, act1, "1 selectChildren 'int'");
 
-        xos = doc.selectChildren(uri, "string");
-        //print("2 selectChildren 'string' : ", xos);
-        assertTrue("2 selectChildren 'string' : ", verifyResult(xos, new String[]{"<xml-fragment> ... some text ... </xml-fragment>"}));
+        String[] act2 = toArray(doc.selectChildren(URI, "string"));
+        String[] exp2 = {"<xml-fragment> ... some text ... </xml-fragment>"};
+        assertArrayEquals(exp2, act2, "2 selectChildren 'string'");
 
         // elemA
-        xos = doc.selectChildren(new QName(uri, "elemA"));
-        //print("3 selectChildren 'elemA' : ", xos);
-        assertTrue("3 selectChildren 'elemA' : ",
-            verifyResult(xos, new String[]{"<xml-fragment price=\"4.321\" xmlns:sel=\"" + uri + "\">\n" +
-                "  <sel:topLevelElement> this is wildcard bucket </sel:topLevelElement>\n" +
-                "</xml-fragment>"}));
+        String[] act3 = toArray(doc.selectChildren(new QName(URI, "elemA")));
+        String[] exp3 = {
+            "<xml-fragment price=\"4.321\" xmlns:sel=\"" + URI + "\">" +
+            "  <sel:topLevelElement> this is wildcard bucket </sel:topLevelElement>" +
+            "</xml-fragment>"
+        };
+        assertArrayEquals(exp3, act3, "3 selectChildren 'elemA'");
 
         // select a known attribute
-        xo = xos[0].selectAttribute(new QName("", "price"));
-        //print("4     selectAttribute 'price' : ", xo);
-        assertTrue("4     selectAttribute 'price' : ",
-            verifyResult(xo, "<xml-fragment>4.321</xml-fragment>"));
+        final XmlObject xo1 = doc.selectChildren(new QName(URI, "elemA"))[0];
+        String[] act4 = toArray(xo1.selectAttribute(new QName("", "price")));
+        String[] exp4 = {"<xml-fragment>4.321</xml-fragment>"};
+        assertArrayEquals(exp4, act4, "4     selectAttribute 'price'");
 
         // select all attributes
-        QNameSet qns = QNameSet.forWildcardNamespaceString("##any", uri);
-        xos = xos[0].selectAttributes(qns);
-        //print("5     selectAttributes set'##any' :", xos);
-        assertTrue("5     selectAttributes set'##any' :",
-            verifyResult(xos, new String[]{"<xml-fragment>4.321</xml-fragment>"}));
+        String[] act5 = toArray(xo1.selectAttributes(QNameSet.forWildcardNamespaceString("##any", URI)));
+        String[] exp5 = {"<xml-fragment>4.321</xml-fragment>"};
+        assertArrayEquals(exp5, act5, "5     selectAttributes set'##any'");
 
         // elemB
-        xos = doc.selectChildren(new QName(uri, "elemB"));
-        //print("6 selectChildren 'elemB' : ", xos);
+        final XmlObject xo6 = doc.selectChildren(new QName(URI, "elemB"))[0];
+        assertNotNull(xo6, "6 selectChildren 'elemB'");
 
-        //print("7     selectChildren set'##other' : " , xos[0].selectChildren(QNameSet.forWildcardNamespaceString("##other", uri)));
-        assertTrue("7     selectChildren set'##other' : ",
-            verifyResult(xos[0].selectChildren(QNameSet.forWildcardNamespaceString("##other", uri))
-                , new String[]{"<xml-fragment xmlns:p=\"uri:other_namespace\"> element in #other namespace </xml-fragment>"}));
-        //print("8     selectAttributes set'##other' : ", xos[0].selectAttributes(QNameSet.forWildcardNamespaceString("##other", uri)));
-        assertTrue("8     selectAttributes set'##other' : ",
-            verifyResult(xos[0].selectAttributes(QNameSet.forWildcardNamespaceString("##other", uri)),
-                new String[]{"<xml-fragment xmlns:p=\"uri:other_namespace\">attribute in #other namespace</xml-fragment>"}));
+        String[] act7 = toArray(xo6.selectChildren(QNameSet.forWildcardNamespaceString("##other", URI)));
+        String[] exp7 = {"<xml-fragment xmlns:p=\"uri:other_namespace\"> element in #other namespace </xml-fragment>"};
+        assertArrayEquals(exp7, act7, "7     selectChildren set'##other'");
+
+        String[] act8 = toArray(xo6.selectAttributes(QNameSet.forWildcardNamespaceString("##other", URI)));
+        String[] exp8 = {"<xml-fragment xmlns:p=\"uri:other_namespace\">attribute in #other namespace</xml-fragment>"};
+        assertArrayEquals(exp8, act8, "8     selectAttributes set'##other'");
 
         // elemC
-        xos = doc.selectChildren(new QName(uri, "elemC"));
-        //print("9 selectChildren 'elemC' : ", xos);
-        //print("10    selectChildren set'##any' : " , xos[0].selectChildren(QNameSet.forWildcardNamespaceString("##any", uri)));
-        assertTrue("10    selectChildren set'##any' : ",
-            verifyResult(xos[0].selectChildren(QNameSet.forWildcardNamespaceString("##any", uri))
-                , new String[]{"<xml-fragment xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:p=\"uri_other_namespace\"> element from typeC </xml-fragment>",
-                    "<xml-fragment xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:p=\"uri_other_namespace\"> element in the 'any' bucket for typeExtendedC </xml-fragment>",
-                    "<xml-fragment xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:p=\"uri_other_namespace\"> element from typeExtendedC </xml-fragment>"}));
+        XmlObject xo9 = doc.selectChildren(new QName(URI, "elemC"))[0];
+        assertNotNull(xo9, "9 selectChildren 'elemC'");
+
+        String[] act10 = toArray(xo9.selectChildren(QNameSet.forWildcardNamespaceString("##any", URI)));
+        String[] exp10 = {
+            "<xml-fragment xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:p=\"uri_other_namespace\"> element from typeC </xml-fragment>",
+            "<xml-fragment xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:p=\"uri_other_namespace\"> element in the 'any' bucket for typeExtendedC </xml-fragment>",
+            "<xml-fragment xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:p=\"uri_other_namespace\"> element from typeExtendedC </xml-fragment>"
+        };
+        assertArrayEquals(exp10, act10, "10    selectChildren set'##any'");
 
         // select elements in the any bucket by excluding the the known elements
         QNameSetBuilder qnsb = new QNameSetBuilder();
-        qnsb.add(new QName(uri, "someElement"));
-        qnsb.add(new QName(uri, "aditionalElement"));
+        qnsb.add(new QName(URI, "someElement"));
+        qnsb.add(new QName(URI, "aditionalElement"));
         qnsb.invert();
 
-        //print("11a    selectChildren in the any bucket for typeExtendedC: " , xos[0].selectChildren(qnsb.toQNameSet()));
-        assertTrue("11a    selectChildren in the any bucket for typeExtendedC: ",
-            verifyResult(xos[0].selectChildren(qnsb.toQNameSet()),
-                new String[]{"<xml-fragment xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:p=\"uri_other_namespace\"> element in the 'any' bucket for typeExtendedC </xml-fragment>"}));
+        String[] act11a = toArray(xo9.selectChildren(qnsb.toQNameSet()));
+        String[] exp11a = {"<xml-fragment xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:p=\"uri_other_namespace\"> element in the 'any' bucket for typeExtendedC </xml-fragment>"};
+        assertArrayEquals(exp11a, act11a, "11a    selectChildren in the any bucket for typeExtendedC");
 
-        //print("11b    selectChildren in the any bucket for typeExtendedC: " , xos[0].selectChildren(TypeExtendedC.type.qnameSetForWildcardElements()));
-        assertTrue("11b    selectChildren in the any bucket for typeExtendedC: ",
-            verifyResult(xos[0].selectChildren(TypeExtendedC.type.qnameSetForWildcardElements()),
-                new String[]{"<xml-fragment xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:p=\"uri_other_namespace\"> element in the 'any' bucket for typeExtendedC </xml-fragment>"}));
+        String[] act11b = toArray(xo9.selectChildren(TypeExtendedC.type.qnameSetForWildcardElements()));
+        String[] exp11b = {"<xml-fragment xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:p=\"uri_other_namespace\"> element in the 'any' bucket for typeExtendedC </xml-fragment>"};
+        assertArrayEquals(exp11b, act11b, "11b    selectChildren in the any bucket for typeExtendedC");
 
         // select attributes in the any bucket by excluding the the known attributes
         qnsb = new QNameSetBuilder();
@@ -145,83 +141,19 @@ public class SelectChldAttTests {
         qnsb.add(new QName(XSI_URI, "type"));
         qnsb.invert();
 
-        //print("12a    selectChildren in the any bucket for typeExtendedC: " , xos[0].selectAttributes(qnsb.toQNameSet()));
-        assertTrue("12a    selectChildren in the any bucket for typeExtendedC: ",
-            verifyResult(xos[0].selectAttributes(qnsb.toQNameSet()),
-                new String[]{"<xml-fragment xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:p=\"uri_other_namespace\">attribute in any bucket</xml-fragment>"}));
-        //print("12b    selectChildren in the any bucket for typeExtendedC: " , xos[0].selectAttributes(TypeExtendedC.type.qnameSetForWildcardAttributes()));
-        assertTrue("12b    selectChildren in the any bucket for typeExtendedC: ",
-            verifyResult(xos[0].selectAttributes(TypeExtendedC.type.qnameSetForWildcardAttributes()),
-                new String[]{"<xml-fragment xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:p=\"uri_other_namespace\">typeExtendedC</xml-fragment>",
-                    "<xml-fragment xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:p=\"uri_other_namespace\">attribute in any bucket</xml-fragment>"}));
+        String[] act12a = toArray(xo9.selectAttributes(qnsb.toQNameSet()));
+        String[] exp12a = {"<xml-fragment xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:p=\"uri_other_namespace\">attribute in any bucket</xml-fragment>"};
+        assertArrayEquals(exp12a, act12a, "12a    selectChildren in the any bucket for typeExtendedC");
+
+        String[] act12b = toArray(xo9.selectAttributes(TypeExtendedC.type.qnameSetForWildcardAttributes()));
+        String[] exp12b = {
+            "<xml-fragment xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:p=\"uri_other_namespace\">typeExtendedC</xml-fragment>",
+            "<xml-fragment xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:p=\"uri_other_namespace\">attribute in any bucket</xml-fragment>"
+        };
+        assertArrayEquals(exp12b, act12b, "12b    selectChildren in the any bucket for typeExtendedC");
     }
 
-    private static void printErrors(Collection errors) {
-        for (Iterator i = errors.iterator(); i.hasNext(); ) {
-            System.out.println("ERROR: " + i.next());
-        }
-    }
-
-    private static boolean verifyResult(XmlObject[] xos, String[] expected) {
-        if (xos == null && expected == null)
-            return true;
-
-        if (xos == null || expected == null)
-            return false;
-
-        if (xos.length != expected.length)
-            return false;
-
-        for (int i = 0; i < xos.length; i++) {
-            XmlObject xo = xos[i];
-            if (!equalsIgnoreNewLine(xo.toString(), expected[i])) {
-                System.out.println("ERROR:\n    Actual:\n" + xo.toString() + "\n   Expected:\n" + expected[i]);
-                return false;
-            }
-        }
-        return true;
-    }
-
-    private static boolean verifyResult(XmlObject xo, String expected) {
-        if (xo == null && expected == null)
-            return true;
-
-        if (xo == null || expected == null)
-            return false;
-
-        if (!xo.toString().equals(expected)) {
-            System.out.println("ERROR:\n    Actual:\n" + xo.toString() + "\n   Expected:\n" + expected);
-            return false;
-        } else
-            return true;
-    }
-
-    private static boolean equalsIgnoreNewLine(String s1, String s2) {
-        if (s1 == null && s2 == null)
-            return true;
-
-        if (s1 == null || s2 == null)
-            return false;
-
-        int i1 = 0, i2 = 0;
-        while (i1 < s1.length() || i2 < s2.length()) {
-            if (s1.charAt(i1) == '\n' || s1.charAt(i1) == '\r') {
-                i1++;
-                continue;
-            }
-
-            if (s2.charAt(i2) == '\n' || s2.charAt(i2) == '\r') {
-                i2++;
-                continue;
-            }
-
-            if (s1.charAt(i1) != s2.charAt(i2))
-                return false;
-
-            i1++;
-            i2++;
-        }
-
-        return (i1 == s1.length()) && (i2 == s2.length());
+    private static String[] toArray(XmlObject... xos) {
+        return Stream.of(xos).map(XmlObject::toString).map(s -> s.replaceAll("[\\r\\n]", "")).toArray(String[]::new);
     }
 }

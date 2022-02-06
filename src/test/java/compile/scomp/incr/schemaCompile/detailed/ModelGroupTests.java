@@ -16,10 +16,10 @@
 package compile.scomp.incr.schemaCompile.detailed;
 
 import org.apache.xmlbeans.*;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import javax.xml.namespace.QName;
 import java.io.File;
@@ -32,10 +32,10 @@ import java.util.List;
 
 import static compile.scomp.common.CompileTestBase.*;
 import static compile.scomp.incr.schemaCompile.detailed.IncrCompilationTests.getBaseSchema;
-import static org.junit.Assert.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
 
 
-@Ignore("Currently all tests receive a duplicate schema entry exception")
+@Disabled("Currently all tests receive a duplicate schema entry exception")
 public class ModelGroupTests {
 
     private static final File outincr = xbeanOutput(INCR_PATH);
@@ -51,7 +51,7 @@ public class ModelGroupTests {
         xm.setSavePrettyPrint();
     }
 
-    @Before
+    @BeforeEach
     public void setUp() throws IOException {
         clearOutputDirs();
         errors.clear();
@@ -60,7 +60,7 @@ public class ModelGroupTests {
         obj2File = File.createTempFile("obj2_", ".xsd");
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
         obj1File.delete();
         obj2File.delete();
@@ -84,7 +84,7 @@ public class ModelGroupTests {
     }
 
     @Test
-    public void test_model_diffns_choice2seqchange() throws Exception {
+    void test_model_diffns_choice2seqchange() throws Exception {
         //XmlObject.Factory.parse(getBaseSchema("baz","elName", "elType", "attrName","attrType"));
         XmlObject[] schemas = getSchema(obj1File,
                 "<xs:element name=\"elName\" type=\"bas:aType\" xmlns:bas=\"http://baz\" />" +
@@ -120,7 +120,7 @@ public class ModelGroupTests {
     }
 
     @Test
-    public void test_model_seq2choicechange() throws Exception {
+    void test_model_seq2choicechange() throws Exception {
         //XmlObject.Factory.parse(getBaseSchema("baz","elName", "elType", "attrName","attrType"));
         XmlObject[] schemas = getSchema(obj1File,
             "<xs:element name=\"elName\" type=\"bas:aType\" xmlns:bas=\"http://baz\" />" +
@@ -155,7 +155,7 @@ public class ModelGroupTests {
     }
 
     @Test
-    public void test_model_seq2choicechange_diffns() throws Exception {
+    void test_model_seq2choicechange_diffns() throws Exception {
         XmlObject[] schemas = {XmlObject.Factory.parse(getBaseSchema("bar", "elName", "attrName", "string"))};
 
         XmlObject[] schemas2 = getSchema(obj2File,
@@ -184,7 +184,7 @@ public class ModelGroupTests {
     }
 
     @Test
-    public void test_model_seq2allchange() throws Exception {
+    void test_model_seq2allchange() throws Exception {
         //XmlObject.Factory.parse(getBaseSchema("baz","elName", "elType", "attrName","attrType"));
         XmlObject[] schemas = getSchema(obj1File,
                 "<xs:element name=\"elName\" type=\"bas:aType\" xmlns:bas=\"http://baz\" />" +
@@ -220,7 +220,7 @@ public class ModelGroupTests {
     }
 
     @Test
-    public void test_model_all2seqchange() throws Exception {
+    void test_model_all2seqchange() throws Exception {
         //XmlObject.Factory.parse(getBaseSchema("baz","elName", "elType", "attrName","attrType"));
         XmlObject[] schemas = getSchema(obj1File,
                 "<xs:element name=\"elName\" type=\"bas:aType\" xmlns:bas=\"http://baz\" />" +
@@ -256,7 +256,7 @@ public class ModelGroupTests {
     }
 
     @Test
-    public void test_model_all2choicechange() throws Exception {
+    void test_model_all2choicechange() throws Exception {
         //XmlObject.Factory.parse(getBaseSchema("baz","elName", "elType", "attrName","attrType"));
         XmlObject[] schemas = getSchema(obj1File,
                 "<xs:element name=\"elName\" type=\"bas:aType\" xmlns:bas=\"http://baz\" />" +
@@ -292,7 +292,7 @@ public class ModelGroupTests {
     }
 
     @Test
-    public void test_model_choice2choicechange() throws Exception {
+    void test_model_choice2choicechange() throws Exception {
         //XmlObject.Factory.parse(getBaseSchema("baz","elName", "elType", "attrName","attrType"));
         XmlObject[] schemas = getSchema(obj1File,
                 "<xs:element name=\"elName\" type=\"bas:aType\" xmlns:bas=\"http://baz\" />" +

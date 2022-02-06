@@ -22,12 +22,12 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.*;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -43,67 +43,41 @@ import static org.w3c.domts.DOMTest.load;
  * @see <a href="http://www.w3.org/TR/DOM-Level-2-Core/core">http://www.w3.org/TR/DOM-Level-2-Core/core</a>
  * @see <a href="http://www.w3.org/TR/DOM-Level-2-Core/core#Core-Document-importNode">http://www.w3.org/TR/DOM-Level-2-Core/core#Core-Document-importNode</a>
  */
-
-/**
- * @ignore true: ER, etc
- */
 public class documentimportnode22 {
     @Test
-    @Ignore
+    @Disabled("ER, etc")
     public void testRun() throws Throwable {
-        Document doc;
         DocumentType docTypeNull = null;
 
-        Document docImp;
-        DOMImplementation domImpl;
-        DocumentType docType;
-        NamedNodeMap nodeMap;
-        Notation notation1;
-        Notation notation2;
-        Notation notationImp1;
-        Notation notationImp2;
-        Notation notationImpNew1;
-        Notation notationImpNew2;
-        String publicId1;
-        String publicId1Imp;
-        String publicId1NewImp;
-        String publicId2Imp;
-        String publicId2NewImp;
-        String systemId1Imp;
-        String systemId1NewImp;
-        String systemId2;
-        String systemId2Imp;
-        String systemId2NewImp;
-        doc = load("staffNS", true);
-        domImpl = doc.getImplementation();
-        docType = doc.getDoctype();
-        docImp = domImpl.createDocument("http://www.w3.org/DOM/Test", "a:b", docTypeNull);
-        nodeMap = docType.getNotations();
-        notation1 = (Notation) nodeMap.getNamedItem("notation1");
-        notation2 = (Notation) nodeMap.getNamedItem("notation2");
-        notationImp1 = (Notation) doc.importNode(notation1, true);
-        notationImp2 = (Notation) doc.importNode(notation2, false);
-        notationImpNew1 = (Notation) docImp.importNode(notation1, false);
-        notationImpNew2 = (Notation) docImp.importNode(notation2, true);
-        publicId1 = notation1.getPublicId();
-        publicId1Imp = notation1.getPublicId();
-        publicId1NewImp = notation1.getPublicId();
-        systemId1Imp = notation1.getSystemId();
-        systemId1NewImp = notation1.getSystemId();
-        publicId2Imp = notation2.getPublicId();
-        publicId2NewImp = notation2.getPublicId();
-        systemId2 = notation2.getSystemId();
-        systemId2Imp = notation2.getSystemId();
-        systemId2NewImp = notation2.getSystemId();
-        assertEquals("documentimportnode22_N1PID", publicId1, publicId1Imp);
-        assertEquals("documentimportnode22_N1NPID", publicId1, publicId1NewImp);
-        assertNull("documentimportnode22_N1SID", systemId1Imp);
-        assertNull("documentimportnode22_N1NSID", systemId1NewImp);
-        assertEquals("documentimportnode22_N2SID", systemId2, systemId2Imp);
-        assertEquals("documentimportnode22_N2NSID", systemId2, systemId2NewImp);
-        assertNull("documentimportnode22_N2PID", publicId2Imp);
-        assertNull("documentimportnode22_N2NPID", publicId2Imp);
-
+        Document doc = load("staffNS", true);
+        DOMImplementation domImpl = doc.getImplementation();
+        DocumentType docType = doc.getDoctype();
+        Document docImp = domImpl.createDocument("http://www.w3.org/DOM/Test", "a:b", docTypeNull);
+        NamedNodeMap nodeMap = docType.getNotations();
+        Notation notation1 = (Notation) nodeMap.getNamedItem("notation1");
+        Notation notation2 = (Notation) nodeMap.getNamedItem("notation2");
+        Notation notationImp1 = (Notation) doc.importNode(notation1, true);
+        Notation notationImp2 = (Notation) doc.importNode(notation2, false);
+        Notation notationImpNew1 = (Notation) docImp.importNode(notation1, false);
+        Notation notationImpNew2 = (Notation) docImp.importNode(notation2, true);
+        String publicId1 = notation1.getPublicId();
+        String publicId1Imp = notation1.getPublicId();
+        String publicId1NewImp = notation1.getPublicId();
+        String systemId1Imp = notation1.getSystemId();
+        String systemId1NewImp = notation1.getSystemId();
+        String publicId2Imp = notation2.getPublicId();
+        String publicId2NewImp = notation2.getPublicId();
+        String systemId2 = notation2.getSystemId();
+        String systemId2Imp = notation2.getSystemId();
+        String systemId2NewImp = notation2.getSystemId();
+        assertEquals(publicId1, publicId1Imp, "documentimportnode22_N1PID");
+        assertEquals(publicId1, publicId1NewImp, "documentimportnode22_N1NPID");
+        assertNull(systemId1Imp, "documentimportnode22_N1SID");
+        assertNull(systemId1NewImp, "documentimportnode22_N1NSID");
+        assertEquals(systemId2, systemId2Imp, "documentimportnode22_N2SID");
+        assertEquals(systemId2, systemId2NewImp, "documentimportnode22_N2NSID");
+        assertNull(publicId2Imp, "documentimportnode22_N2PID");
+        assertNull(publicId2Imp, "documentimportnode22_N2NPID");
     }
 
     /**

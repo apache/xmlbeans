@@ -22,12 +22,14 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import static org.junit.Assert.assertEquals;
+import java.util.stream.IntStream;
+
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -45,29 +47,16 @@ import static org.w3c.domts.DOMTest.load;
  */
 public class getElementsByTagNameNS04 {
     @Test
-    public void testRun() throws Throwable {
-        Document doc;
-        NodeList elementList;
-        Node child;
-        String childName;
-        java.util.List result = new java.util.ArrayList();
+    void testRun() throws Throwable {
+        String[] expectedResult = { "address", "address", "address", "emp:address", "address" };
 
-        java.util.List expectedResult = new java.util.ArrayList();
-        expectedResult.add("address");
-        expectedResult.add("address");
-        expectedResult.add("address");
-        expectedResult.add("emp:address");
-        expectedResult.add("address");
+        Document doc = load("staffNS", false);
+        NodeList elementList = doc.getElementsByTagNameNS("*", "address");
 
-        doc = load("staffNS", false);
-        elementList = doc.getElementsByTagNameNS("*", "address");
-        for (int indexd402e59 = 0; indexd402e59 < elementList.getLength(); indexd402e59++) {
-            child = elementList.item(indexd402e59);
-            childName = child.getNodeName();
-            result.add(childName);
-        }
-        assertEquals("nodeNames", expectedResult, result);
+        String[] result = IntStream.range(0, elementList.getLength())
+            .mapToObj(elementList::item).map(Node::getNodeName).toArray(String[]::new);
 
+        assertArrayEquals(expectedResult, result, "nodeNames");
     }
 
     /**

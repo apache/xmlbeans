@@ -22,10 +22,11 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.*;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -45,26 +46,14 @@ import static org.w3c.domts.DOMTest.load;
  */
 public class prefix09 {
     @Test
-    public void testRun() throws Throwable {
-        Document doc;
-        NodeList elementList;
-        Element addrNode;
-        Attr addrAttr;
-        doc = load("staffNS", true);
-        elementList = doc.getElementsByTagName("address");
-        addrNode = (Element) elementList.item(3);
-        addrAttr = addrNode.getAttributeNode("xmlns");
+    void testRun() throws Throwable {
+        Document doc = load("staffNS", true);
+        NodeList elementList = doc.getElementsByTagName("address");
+        Element addrNode = (Element) elementList.item(3);
+        Attr addrAttr = addrNode.getAttributeNode("xmlns");
 
-        {
-            boolean success = false;
-            try {
-                addrAttr.setPrefix("xxx");
-            } catch (DOMException ex) {
-                success = (ex.code == DOMException.NAMESPACE_ERR);
-            }
-            assertTrue("throw_NAMESPACE_ERR", success);
-        }
-
+        DOMException ex = assertThrows(DOMException.class, () -> addrAttr.setPrefix("xxx"));
+        assertEquals(DOMException.NAMESPACE_ERR, ex.code, "throw_NAMESPACE_ERR");
     }
 
     /**

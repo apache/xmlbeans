@@ -17,14 +17,14 @@
 package dom.checkin;
 
 import dom.common.Loader;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Document;
 import org.w3c.dom.DocumentType;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class DomImplementationTest {
 
@@ -42,7 +42,7 @@ public class DomImplementationTest {
 
     //$TODO: non null doctype
     @Test
-    public void testCreateDocument() {
+    void testCreateDocument() {
         String sUri = "http://foo.org";
         String sQName = "qname";
         result = m_imp.createDocument(sUri, sQName, m_docType);
@@ -54,7 +54,7 @@ public class DomImplementationTest {
     //$TODO: implem. w/o "XML" feature; WRONG_DOCUMENT_ERR
     //NOT_SUPPORTED_ERR
     @Test
-    public void testCreateDocumentInvalid() {
+    void testCreateDocumentInvalid() {
         String sUri = "http://foo.org";
         String sQName = "<qname";
         try {
@@ -85,7 +85,7 @@ public class DomImplementationTest {
     }
 
     @Test
-    public void testHasFeature() {
+    void testHasFeature() {
         String[] features = {
             "Core", "XML", "Events", "MutationEvents", "Range", "Traversal", "HTML", "Views", "StyleSheets", "CSS", "CSS2", "UIEvents", "HTMLEvents"
         };
@@ -101,7 +101,7 @@ public class DomImplementationTest {
     }
 
     @Test
-    public void testHasFeatureIlegal() {
+    void testHasFeatureIlegal() {
         assertFalse(m_imp.hasFeature(null, "2.0"));
         assertFalse(m_imp.hasFeature("foobar", "2.0"));
         assertFalse(m_imp.hasFeature("xml", "-2"));
@@ -119,11 +119,11 @@ public class DomImplementationTest {
 
 
         if (sXmlNS.length() > 0)
-            m_docNS = (org.w3c.dom.Document) _loader.loadSync(sXmlNS);
+            m_docNS = _loader.loadSync(sXmlNS);
 
     }
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         _loader = Loader.getLoader();
         m_docNS = (org.w3c.dom.Document) _loader.load(sXmlNS);

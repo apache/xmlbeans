@@ -18,44 +18,47 @@ package xmlcursor.checkin;
 
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlCursor.TokenType;
-import org.apache.xmlbeans.XmlObject;
-import org.junit.Test;
-import xmlcursor.common.BasicCursorTestCase;
+import org.junit.jupiter.api.Test;
 import xmlcursor.common.Common;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static xmlcursor.common.BasicCursorTestCase.cur;
+import static xmlcursor.common.BasicCursorTestCase.toNextTokenOfType;
 
 
-public class ComparePositionTest extends BasicCursorTestCase {
+public class ComparePositionTest {
+
     @Test
-    public void testComparePositionThis() throws Exception {
-        m_xo = XmlObject.Factory.parse(Common.XML_FOO_1ATTR_TEXT);
-        m_xc = m_xo.newCursor();
-        m_xc.toFirstChild();
-        assertEquals(0, m_xc.comparePosition(m_xc));
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testComparePositionDifferentDocs() throws Exception {
-        m_xc = XmlObject.Factory.parse(Common.XML_FOO_1ATTR_TEXT).newCursor();
-        try (XmlCursor xc0 = XmlObject.Factory.parse(Common.XML_FOO_1ATTR_TEXT).newCursor()) {
+    void testComparePositionThis() throws Exception {
+        try (XmlCursor m_xc = cur(Common.XML_FOO_1ATTR_TEXT)) {
             m_xc.toFirstChild();
-            xc0.toFirstChild();
-            m_xc.comparePosition(xc0);
+            assertEquals(0, m_xc.comparePosition(m_xc));
         }
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testComparePositionNull() throws Exception {
-        m_xc = XmlObject.Factory.parse(Common.XML_FOO_1ATTR_TEXT).newCursor();
-        m_xc.toFirstChild();
-        m_xc.comparePosition(null);
+    @Test
+    void testComparePositionDifferentDocs() throws Exception {
+        try (XmlCursor m_xc = cur(Common.XML_FOO_1ATTR_TEXT);
+             XmlCursor xc0 = cur(Common.XML_FOO_1ATTR_TEXT)) {
+            m_xc.toFirstChild();
+            xc0.toFirstChild();
+            assertThrows(IllegalArgumentException.class, () -> m_xc.comparePosition(xc0));
+        }
     }
 
     @Test
-    public void testComparePositionRightInTEXT() throws Exception {
-        m_xc = XmlObject.Factory.parse(Common.XML_FOO_1ATTR_TEXT).newCursor();
-        try (XmlCursor xc0 = m_xc.newCursor()) {
+    void testComparePositionNull() throws Exception {
+        try (XmlCursor m_xc = cur(Common.XML_FOO_1ATTR_TEXT)) {
+            m_xc.toFirstChild();
+            assertThrows(IllegalArgumentException.class, () -> m_xc.comparePosition(null));
+        }
+    }
+
+    @Test
+    void testComparePositionRightInTEXT() throws Exception {
+        try (XmlCursor m_xc = cur(Common.XML_FOO_1ATTR_TEXT);
+             XmlCursor xc0 = m_xc.newCursor()) {
             toNextTokenOfType(m_xc, TokenType.TEXT);
             toNextTokenOfType(xc0, TokenType.TEXT);
             xc0.toNextChar(1);
@@ -64,9 +67,9 @@ public class ComparePositionTest extends BasicCursorTestCase {
     }
 
     @Test
-    public void testComparePositionLeftInTEXT() throws Exception {
-        m_xc = XmlObject.Factory.parse(Common.XML_FOO_1ATTR_TEXT).newCursor();
-        try (XmlCursor xc0 = m_xc.newCursor()) {
+    void testComparePositionLeftInTEXT() throws Exception {
+        try (XmlCursor m_xc = cur(Common.XML_FOO_1ATTR_TEXT);
+             XmlCursor xc0 = m_xc.newCursor()) {
             toNextTokenOfType(m_xc, TokenType.TEXT);
             toNextTokenOfType(xc0, TokenType.TEXT);
             m_xc.toNextChar(1);
@@ -75,9 +78,9 @@ public class ComparePositionTest extends BasicCursorTestCase {
     }
 
     @Test
-    public void testComparePositionENDandENDDOC() throws Exception {
-        m_xc = XmlObject.Factory.parse(Common.XML_FOO_1ATTR_TEXT).newCursor();
-        try (XmlCursor xc0 = m_xc.newCursor()) {
+    void testComparePositionENDandENDDOC() throws Exception {
+        try (XmlCursor m_xc = cur(Common.XML_FOO_1ATTR_TEXT);
+             XmlCursor xc0 = m_xc.newCursor()) {
             m_xc.toEndDoc();
             xc0.toEndDoc();
             xc0.toPrevToken();

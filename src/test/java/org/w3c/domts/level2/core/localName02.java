@@ -22,11 +22,11 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -44,16 +44,13 @@ import static org.w3c.domts.DOMTest.load;
  */
 public class localName02 {
     @Test
-    public void testRun() throws Throwable {
-        Document doc;
-        Node createdNode;
-        String localName;
-        doc = load("staffNS", false);
-        createdNode = doc.createElement("test:employee");
-        localName = createdNode.getLocalName();
-        assertNull("throw_Null," +
-                   "Expected: nodeName attribute set to tagName, and localName, " +
-                   "prefix, and namespaceURI set to null", localName);
+    void testRun() throws Throwable {
+        Document doc = load("staffNS", false);
+        Node createdNode = doc.createElement("test:employee");
+        String localName = createdNode.getLocalName();
+        assertNull(localName, "throw_Null," +
+                                         "Expected: nodeName attribute set to tagName, and localName, " +
+                                         "prefix, and namespaceURI set to null");
 
     }
 

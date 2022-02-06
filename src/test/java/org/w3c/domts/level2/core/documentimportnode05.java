@@ -22,12 +22,12 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -46,28 +46,19 @@ import static org.w3c.domts.DOMTest.load;
  */
 public class documentimportnode05 {
     @Test
-    public void testRun() throws Throwable {
-        Document doc;
-        Document docImported;
-        Attr attr;
-        Node importedAttr;
-        String nodeName;
-        int nodeType;
-        String nodeValue;
-        String namespaceURI;
-        doc = load("staffNS", true);
-        docImported = load("staff", true);
-        attr = doc.createAttributeNS("http://www.w3.org/DOM/Test", "a_:b0");
-        importedAttr = docImported.importNode(attr, false);
-        nodeName = importedAttr.getNodeName();
-        nodeValue = importedAttr.getNodeValue();
-        nodeType = importedAttr.getNodeType();
-        namespaceURI = importedAttr.getNamespaceURI();
-        assertEquals("documentimportnode05_nodeName", "a_:b0", nodeName);
-        assertEquals("documentimportnode05_nodeType", 2, nodeType);
-        assertEquals("documentimportnode05_nodeValue", "", nodeValue);
-        assertEquals("documentimportnode05_namespaceURI", "http://www.w3.org/DOM/Test", namespaceURI);
-
+    void testRun() throws Throwable {
+        Document doc = load("staffNS", true);
+        Document docImported = load("staff", true);
+        Attr attr = doc.createAttributeNS("http://www.w3.org/DOM/Test", "a_:b0");
+        Node importedAttr = docImported.importNode(attr, false);
+        String nodeName = importedAttr.getNodeName();
+        String nodeValue = importedAttr.getNodeValue();
+        int nodeType = importedAttr.getNodeType();
+        String namespaceURI = importedAttr.getNamespaceURI();
+        assertEquals("a_:b0", nodeName, "documentimportnode05_nodeName");
+        assertEquals(2, nodeType, "documentimportnode05_nodeType");
+        assertEquals("", nodeValue, "documentimportnode05_nodeValue");
+        assertEquals("http://www.w3.org/DOM/Test", namespaceURI, "documentimportnode05_namespaceURI");
     }
 
     /**

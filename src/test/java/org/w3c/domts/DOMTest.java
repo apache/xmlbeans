@@ -51,8 +51,9 @@ import dom.common.Loader;
 import org.w3c.dom.Document;
 import tools.util.JarUtil;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 
 /**
  * This is an abstract base class for generated DOM tests

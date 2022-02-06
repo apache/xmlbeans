@@ -16,11 +16,10 @@
 
 package dom.checkin;
 
-
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 
 public class DocumentFragmentSyncTest extends DocumentFragmentTest {
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         super.loadSync();
         super.moveToNode();

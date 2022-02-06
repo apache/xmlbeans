@@ -17,24 +17,19 @@
 package xmlobject.detailed;
 
 import org.apache.xmlbeans.XmlObject;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.tranxml.tranXML.version40.CarLocationMessageDocument;
-import tools.util.JarUtil;
-import xmlcursor.common.BasicCursorTestCase;
 import xmlcursor.common.Common;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static xmlcursor.common.BasicCursorTestCase.jobj;
 
-public class ValueEqualsTest extends BasicCursorTestCase {
+public class ValueEqualsTest  {
     @Test
-    public void testValueEqualsTrue() throws Exception {
-        CarLocationMessageDocument clmDoc = (CarLocationMessageDocument)
-                XmlObject.Factory.parse(
-                           JarUtil.getResourceFromJar(Common.TRANXML_FILE_CLM));
-        m_xo = XmlObject.Factory.parse(
-                   JarUtil.getResourceFromJar(Common.TRANXML_FILE_CLM));
-        assertEquals(true, clmDoc.valueEquals(m_xo));
+    void testValueEqualsTrue() throws Exception {
+        CarLocationMessageDocument clmDoc = (CarLocationMessageDocument) jobj(Common.TRANXML_FILE_CLM);
+        XmlObject m_xo = jobj(Common.TRANXML_FILE_CLM);
+        assertTrue(clmDoc.valueEquals(m_xo));
     }
 
 }

@@ -15,15 +15,15 @@
 package xmlcursor.xquery.checkin;
 
 import org.apache.xmlbeans.XmlObject;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class QueryEngineTests {
     // Execute repeated queries to test picking up of the query engine from classpath
     // This test is following rev 292446
     @Test
-    public void testQueryEngineSelection() throws Exception {
+    void testQueryEngineSelection() throws Exception {
         XmlObject o = XmlObject.Factory.parse("<foo><a><b/></a></foo>");
         XmlObject[] res = o.execQuery("(//a/b)");
         String expectedRes = "<b/>";

@@ -19,19 +19,18 @@ import com.easypo.XmlLineItemBean;
 import com.easypo.XmlPurchaseOrderDocumentBean;
 import com.easypo.XmlPurchaseOrderDocumentBean.PurchaseOrder;
 import com.easypo.XmlShipperBean;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class CreationTests {
     @Test
-    public void testCreatePo() {
-        XmlPurchaseOrderDocumentBean doc =
-            XmlPurchaseOrderDocumentBean.Factory.newInstance();
+    void testCreatePo() {
+        XmlPurchaseOrderDocumentBean doc = XmlPurchaseOrderDocumentBean.Factory.newInstance();
 
         PurchaseOrder order = doc.addNewPurchaseOrder();
         order.addNewCustomer().setName("David Bau");

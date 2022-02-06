@@ -18,7 +18,7 @@ import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.openuri.bea.samples.workshop.CreditCardDataDocument;
 
 import javax.xml.stream.XMLInputFactory;
@@ -27,35 +27,36 @@ import javax.xml.stream.XMLStreamReader;
 import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class XmlStreamBeanReader {
 
+    private static final String creditCardXmlwPrefix =
+        " <cc:credit-card-data xmlns:cc=\"http://openuri.org/bea/samples/workshop\">\n" +
+        " <cc:customer id=\"1\">\n" +
+        " <cc:card name=\"MasterCard\" number=\"15385\">\n" +
+        " <cc:available-credit>0</cc:available-credit>\n" +
+        " <cc:credit-used>0</cc:credit-used>\n" +
+        " </cc:card>\n" +
+        " <cc:card name=\"Visa\" number=\"12346\">\n" +
+        " <cc:available-credit>0</cc:available-credit>\n" +
+        " <cc:credit-used>0</cc:credit-used>\n" +
+        " </cc:card>\n" +
+        " </cc:customer>\n" +
+        " <cc:customer id=\"2\">\n" +
+        " <cc:card name=\"MasterCard\" number=\"String\">\n" +
+        " <cc:available-credit>0</cc:available-credit>\n" +
+        " <cc:credit-used>0</cc:credit-used>\n" +
+        " </cc:card>\n" +
+        " <cc:card name=\"MasterCard\" number=\"String\">\n" +
+        " <cc:available-credit>0</cc:available-credit>\n" +
+        " <cc:credit-used>0</cc:credit-used>\n" +
+        " </cc:card>\n" +
+        " </cc:customer>\n" +
+        " </cc:credit-card-data>";
 
     @Test
-    public void testXMLStreamReaderLoader() throws XMLStreamException, XmlException {
-        String creditCardXmlwPrefix = " <cc:credit-card-data xmlns:cc=\"http://openuri.org/bea/samples/workshop\">\n" +
-            " <cc:customer id=\"1\">\n" +
-            " <cc:card name=\"MasterCard\" number=\"15385\">\n" +
-            " <cc:available-credit>0</cc:available-credit>\n" +
-            " <cc:credit-used>0</cc:credit-used>\n" +
-            " </cc:card>\n" +
-            " <cc:card name=\"Visa\" number=\"12346\">\n" +
-            " <cc:available-credit>0</cc:available-credit>\n" +
-            " <cc:credit-used>0</cc:credit-used>\n" +
-            " </cc:card>\n" +
-            " </cc:customer>\n" +
-            " <cc:customer id=\"2\">\n" +
-            " <cc:card name=\"MasterCard\" number=\"String\">\n" +
-            " <cc:available-credit>0</cc:available-credit>\n" +
-            " <cc:credit-used>0</cc:credit-used>\n" +
-            " </cc:card>\n" +
-            " <cc:card name=\"MasterCard\" number=\"String\">\n" +
-            " <cc:available-credit>0</cc:available-credit>\n" +
-            " <cc:credit-used>0</cc:credit-used>\n" +
-            " </cc:card>\n" +
-            " </cc:customer>\n" +
-            " </cc:credit-card-data>";
+    void testXMLStreamReaderLoader() throws XMLStreamException, XmlException {
 
         XMLStreamReader reader = XMLInputFactory.newInstance().createXMLStreamReader(new ByteArrayInputStream(creditCardXmlwPrefix.getBytes(StandardCharsets.UTF_8)));
         CreditCardDataDocument ccdoc = (CreditCardDataDocument) XmlObject.Factory.parse(reader, new XmlOptions().setDocumentType(CreditCardDataDocument.type));
@@ -64,7 +65,7 @@ public class XmlStreamBeanReader {
 
     // test for IllegalStateException thrown on using XmlStreamReader
     @Test
-    public void testXmlStreamReaderException() throws XMLStreamException {
+    void testXmlStreamReaderException() throws XMLStreamException {
         XmlObject xo = XmlObject.Factory.newInstance();
         try (XmlCursor xc = xo.newCursor()) {
             xc.toNextToken();

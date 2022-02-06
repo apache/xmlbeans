@@ -15,15 +15,15 @@
 
 package xmlobject.detailed;
 
-import org.junit.Assert;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlInt;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertSame;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
 public class TypedSettersTests {
@@ -62,15 +62,21 @@ public class TypedSettersTests {
             } else
                 i--;
 
-            if (id.equals("schema"))
-                sb.append(schemaNs);
-            else if (id.equals("xsi"))
-                sb.append(instanceNs);
-            else if (id.equals("type")) {
-                Assert.assertTrue(arg.length() > 0);
-                sb.append("xsi:type=\"" + arg + "\"");
-            } else
-                Assert.fail();
+            switch (id) {
+                case "schema":
+                    sb.append(schemaNs);
+                    break;
+                case "xsi":
+                    sb.append(instanceNs);
+                    break;
+                case "type":
+                    assertTrue(arg.length() > 0);
+                    sb.append("xsi:type=\"").append(arg).append("\"");
+                    break;
+                default:
+                    Assertions.fail();
+                    break;
+            }
         }
 
         return sb.toString();
@@ -79,8 +85,7 @@ public class TypedSettersTests {
     private static final String nses = schemaNs + " " + instanceNs;
 
     @Test
-    public void testJavaNoTypeSingletonElement()
-        throws Exception {
+    void testJavaNoTypeSingletonElement() throws Exception {
         XmlObject x = XmlObject.Factory.parse("<xyzzy/>");
         XmlObject x2 = XmlObject.Factory.parse("<bubba>moo</bubba>");
 
@@ -96,8 +101,7 @@ public class TypedSettersTests {
     }
 
     @Test
-    public void testJavaNoTypeSingletonAttribute()
-        throws Exception {
+    void testJavaNoTypeSingletonAttribute() throws Exception {
         XmlObject x = XmlObject.Factory.parse("<xyzzy a=''/>");
         XmlObject x2 = XmlObject.Factory.parse("<bubba b='moo'/>");
 
@@ -115,18 +119,14 @@ public class TypedSettersTests {
     }
 
     @Test
-    public void testJavaNoTypeSingletonElementWithXsiType()
-        throws Exception {
+    void testJavaNoTypeSingletonElementWithXsiType() throws Exception {
         XmlObject x = XmlObject.Factory.parse("<xyzzy/>", new XmlOptions()
             .setDocumentType(XmlObject.type));
         String input = fmt("<xml-fragment $type(xs:int) $xsi $schema>" +
             "69</xml-fragment>");
         //String input=
         XmlObject x2 = XmlObject.Factory.parse(input);
-
-
-        assertSame(x2.schemaType(), XmlInt.type);
-
+        Assertions.assertSame(x2.schemaType(), XmlInt.type);
     }
 
 }

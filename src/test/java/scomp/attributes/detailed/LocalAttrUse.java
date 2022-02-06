@@ -17,8 +17,8 @@ package scomp.attributes.detailed;
 
 import org.apache.xmlbeans.XmlErrorCodes;
 import org.apache.xmlbeans.XmlException;
-import org.junit.Test;
-import scomp.common.BaseCase;
+import org.apache.xmlbeans.XmlOptions;
+import org.junit.jupiter.api.Test;
 import xbean.scomp.attribute.localAttrUse.LocalAttrUseDocDocument;
 import xbean.scomp.attribute.localAttrUse.LocalAttrUseT;
 import xbean.scomp.derivation.attributeUseProhibited.AttrProhibitedEltDocument;
@@ -27,31 +27,27 @@ import xbean.scomp.derivation.attributeUseProhibited.AttrUseProhibited;
 import java.math.BigInteger;
 import java.util.Calendar;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
+import static scomp.common.BaseCase.createOptions;
+import static scomp.common.BaseCase.getErrorCodes;
 
-public class LocalAttrUse extends BaseCase {
+public class LocalAttrUse {
     /**
      * Default use of an attribute should be optional
      * Optional attributes can be missing
      */
     @Test
-    public void testDefaultOptional() throws Throwable {
-        //figure out the deal w/ namespaces here...
-        LocalAttrUseT testDoc =
-                LocalAttrUseDocDocument.Factory.parse("<pre:LocalAttrUseDoc" +
-                " xmlns:pre=\"http://xbean/scomp/attribute/LocalAttrUse\" " +
-                "attRequired=\"1\" " +
-                "pre:attRequiredDefault=\"XBeanDef\" " +
-                "pre:attRequiredFixed=\"XBeanFix\"/>")
-                .getLocalAttrUseDoc();
+    void testDefaultOptional() throws Throwable {
+        String localAttDoc =
+            "<pre:LocalAttrUseDoc" +
+            " xmlns:pre=\"http://xbean/scomp/attribute/LocalAttrUse\" " +
+            "attRequired=\"1\" " +
+            "pre:attRequiredDefault=\"XBeanDef\" " +
+            "pre:attRequiredFixed=\"XBeanFix\"/>";
 
-        try {
-            assertTrue(testDoc.validate(validateOptions));
-        } catch (Throwable t) {
-            showErrors();
-            throw t;
-        }
+        //figure out the deal w/ namespaces here...
+        LocalAttrUseT testDoc = LocalAttrUseDocDocument.Factory.parse(localAttDoc).getLocalAttrUseDoc();
+        assertTrue(testDoc.validate(createOptions()));
     }
 
 
@@ -59,11 +55,10 @@ public class LocalAttrUse extends BaseCase {
      * test that an optional attr is not set before it is set
      */
     @Test
-    public void testOptional() throws Throwable {
-        LocalAttrUseDocDocument testDoc =
-                LocalAttrUseDocDocument.Factory.newInstance();
+    void testOptional() throws Throwable {
+        LocalAttrUseDocDocument testDoc = LocalAttrUseDocDocument.Factory.newInstance();
         LocalAttrUseT att = testDoc.addNewLocalAttrUseDoc();
-        assertTrue(!att.isSetLastPasswordUpdate());
+        assertFalse(att.isSetLastPasswordUpdate());
         att.setLastPasswordUpdate(Calendar.getInstance());
         assertTrue(att.isSetLastPasswordUpdate());
     }
@@ -72,126 +67,109 @@ public class LocalAttrUse extends BaseCase {
      * test that an optional attr is not set before it is set
      */
     @Test
-    public void testOptionalParse() throws Throwable {
-        LocalAttrUseT testDoc =
-                LocalAttrUseDocDocument.Factory.parse("<pre:LocalAttrUseDoc" +
-                " xmlns:pre=\"http://xbean/scomp/attribute/LocalAttrUse\" " +
-                "attRequired=\"1\" " +
-                "pre:attRequiredDefault=\"XBeanDef\" " +
-                "pre:attRequiredFixed=\"XBeanFix\"/>")
-                .getLocalAttrUseDoc();
-        assertTrue(!testDoc.isSetLastPasswordUpdate());
+    void testOptionalParse() throws Throwable {
+        String localAttDoc =
+            "<pre:LocalAttrUseDoc" +
+            " xmlns:pre=\"http://xbean/scomp/attribute/LocalAttrUse\" " +
+            "attRequired=\"1\" " +
+            "pre:attRequiredDefault=\"XBeanDef\" " +
+            "pre:attRequiredFixed=\"XBeanFix\"/>";
+        LocalAttrUseT testDoc = LocalAttrUseDocDocument.Factory.parse(localAttDoc).getLocalAttrUseDoc();
+        assertFalse(testDoc.isSetLastPasswordUpdate());
 
         testDoc.setLastPasswordUpdate(Calendar.getInstance());
         assertTrue(testDoc.isSetLastPasswordUpdate());
-
     }
 
     @Test
-    public void testRequired() throws XmlException {
+    void testRequired() throws XmlException {
+        String localAttDoc =
+            "<pre:LocalAttrUseDoc" +
+            " xmlns:pre=\"http://xbean/scomp/attribute/LocalAttrUse\" " +
+            "pre:attRequiredFixed=\"XBeanAttrStr\"" +
+            " attRequired=\"34\"" +
+            " />";
+
         //required attRequired is missing
-        LocalAttrUseT testDoc =
-                LocalAttrUseDocDocument.Factory.parse("<pre:LocalAttrUseDoc" +
-                " xmlns:pre=\"http://xbean/scomp/attribute/LocalAttrUse\" " +
-                "pre:attRequiredFixed=\"XBeanAttrStr\"" +
-                " attRequired=\"34\"" +
-                " />").getLocalAttrUseDoc();
+        LocalAttrUseT testDoc = LocalAttrUseDocDocument.Factory.parse(localAttDoc).getLocalAttrUseDoc();
         //catch XML error and assert message here
-        assertTrue(!testDoc.validate(validateOptions));
+        XmlOptions validateOptions = createOptions();
+        assertFalse(testDoc.validate(validateOptions));
 
 
         //default required should not be explicitly needed?
         //assertEquals(1, errorList.size());
 
-        showErrors();
-        String[] errExpected = new String[]{
+        String[] errExpected = {
             XmlErrorCodes.ATTR_LOCALLY_VALID$FIXED,
-            XmlErrorCodes.
-                      ELEM_COMPLEX_TYPE_LOCALLY_VALID$MISSING_REQUIRED_ATTRIBUTE
-                  };
-        assertTrue(compareErrorCodes(errExpected));
-
-
+            XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$MISSING_REQUIRED_ATTRIBUTE
+        };
+        assertArrayEquals(errExpected, getErrorCodes(validateOptions));
     }
 
     /**
      * can not overwrite an existing value
      */
     @Test
-    public void testRequiredFixed() throws XmlException {
-        LocalAttrUseT testDoc =
-                LocalAttrUseDocDocument.Factory.parse("<foo:LocalAttrUseDoc" +
-                " xmlns:foo=\"http://xbean/scomp/attribute/LocalAttrUse\" " +
-                "foo:attRequiredFixed=\"foobar\" " +
-                " />").getLocalAttrUseDoc();
+    void testRequiredFixed() throws XmlException {
+        String localAttDoc =
+            "<foo:LocalAttrUseDoc" +
+            " xmlns:foo=\"http://xbean/scomp/attribute/LocalAttrUse\" " +
+            "foo:attRequiredFixed=\"foobar\" " +
+            " />";
+        LocalAttrUseT testDoc = LocalAttrUseDocDocument.Factory.parse(localAttDoc).getLocalAttrUseDoc();
         //catch XML error and assert message here
-        assertTrue(!testDoc.validate(validateOptions));
+        XmlOptions validateOptions = createOptions();
+        assertFalse(testDoc.validate(validateOptions));
         assertEquals("foobar", testDoc.getAttRequiredFixed());
-        showErrors();
         //attr locally valid for fixed val
-        String[] errExpected = new String[]{
-           XmlErrorCodes.ATTR_LOCALLY_VALID$FIXED,
-           XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$MISSING_REQUIRED_ATTRIBUTE ,
-           XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$MISSING_REQUIRED_ATTRIBUTE
-                      };
-        assertTrue(compareErrorCodes(errExpected));
-
+        String[] errExpected = {
+            XmlErrorCodes.ATTR_LOCALLY_VALID$FIXED,
+            XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$MISSING_REQUIRED_ATTRIBUTE,
+            XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$MISSING_REQUIRED_ATTRIBUTE
+        };
+        assertArrayEquals(errExpected, getErrorCodes(validateOptions));
     }
 
     @Test
-    public void testRequiredDefault() throws XmlException {
-        LocalAttrUseT testDoc =
-                LocalAttrUseDocDocument.Factory.parse("<pre:LocalAttrUseDoc" +
-                " xmlns:pre=\"http://xbean/scomp/attribute/LocalAttrUse\" " +
-                "pre:attRequiredDefault=\"newval\" " +
-                " />").getLocalAttrUseDoc();
+    void testRequiredDefault() throws XmlException {
+        String localAttDoc =
+            "<pre:LocalAttrUseDoc" +
+            " xmlns:pre=\"http://xbean/scomp/attribute/LocalAttrUse\" " +
+            "pre:attRequiredDefault=\"newval\" " +
+            " />";
+        LocalAttrUseT testDoc = LocalAttrUseDocDocument.Factory.parse(localAttDoc).getLocalAttrUseDoc();
         //catch XML error and assert message here
-        assertTrue(!testDoc.validate(validateOptions));
+        XmlOptions validateOptions = createOptions();
+        assertFalse(testDoc.validate(validateOptions));
         assertEquals("newval", testDoc.getAttRequiredDefault());
-        showErrors();
-        String[] errExpected = new String[]{
-           XmlErrorCodes.
-           ELEM_COMPLEX_TYPE_LOCALLY_VALID$MISSING_REQUIRED_ATTRIBUTE
-          ,
-           XmlErrorCodes.
-                     ELEM_COMPLEX_TYPE_LOCALLY_VALID$MISSING_REQUIRED_ATTRIBUTE
-                  };
-        assertTrue(compareErrorCodes(errExpected));
-
+        String[] errExpected = {
+            XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$MISSING_REQUIRED_ATTRIBUTE,
+            XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$MISSING_REQUIRED_ATTRIBUTE
+        };
+        assertArrayEquals(errExpected, getErrorCodes(validateOptions));
     }
 
     @Test
-    public void testUseProhibited() throws Throwable {
-        AttrProhibitedEltDocument doc =
-                AttrProhibitedEltDocument.Factory.newInstance();
+    void testUseProhibited() throws Throwable {
+        AttrProhibitedEltDocument doc = AttrProhibitedEltDocument.Factory.newInstance();
         AttrUseProhibited elt = doc.addNewAttrProhibitedElt();
         elt.setAttRequiredFixed("XBeanFix");
         elt.setAttRequired(new BigInteger("10"));
         elt.setAttRequiredDefault("boo");
-        try {
-            assertTrue(elt.validate(validateOptions));
-        } catch (Throwable t) {
-            showErrors();
-            throw t;
-        }
+        XmlOptions validateOptions = createOptions();
+        assertTrue(elt.validate(validateOptions));
         //use here is prohibited
         elt.setAttOpt("bla");
-        assertTrue(!elt.validate(validateOptions));
-        showErrors();
+        assertFalse(elt.validate(validateOptions));
         //does Kevin have the right code here? doesn't seem so to me?
         String[] errExpected = new String[]{
             XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$NO_WILDCARD
         };
-        assertTrue(compareErrorCodes(errExpected));
-
+        assertArrayEquals(errExpected, getErrorCodes(validateOptions));
 
         elt.unsetAttOpt();
-        try {
-            assertTrue(elt.validate(validateOptions));
-        } catch (Throwable t) {
-            showErrors();
-            throw t;
-        }
+        assertTrue(elt.validate(validateOptions));
     }
 
 }

@@ -22,13 +22,12 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.DocumentFragment;
-import org.w3c.dom.DocumentType;
 import org.w3c.dom.Node;
 
-import static org.junit.Assert.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -47,27 +46,18 @@ import static org.w3c.domts.DOMTest.load;
  */
 public class importNode08 {
     @Test
-    public void testRun() throws Throwable {
-        Document doc;
-        Document aNewDoc;
-        DocumentFragment docFrag;
-        Node aNode;
-        boolean hasChild;
-        Document ownerDocument;
-        DocumentType docType;
-        String system;
-        doc = load("staffNS", true);
-        aNewDoc = load("staffNS", true);
-        docFrag = aNewDoc.createDocumentFragment();
-        aNode = doc.importNode(docFrag, false);
-        hasChild = aNode.hasChildNodes();
-        assertFalse("hasChild", hasChild);
-        ownerDocument = aNode.getOwnerDocument();
+    void testRun() throws Throwable {
+        Document doc = load("staffNS", true);
+        Document aNewDoc = load("staffNS", true);
+        DocumentFragment docFrag = aNewDoc.createDocumentFragment();
+        Node aNode = doc.importNode(docFrag, false);
+        boolean hasChild = aNode.hasChildNodes();
+        assertFalse(hasChild, "hasChild");
+        Document ownerDocument = aNode.getOwnerDocument();
         //TODO: docType
-        //    docType = ownerDocument.getDoctype();
-        //    system = docType.getSystemId();
+        //    DocumentType docType = ownerDocument.getDoctype();
+        //    String system = docType.getSystemId();
         //    assertURIEquals("system", null, null, null, "staffNS.dtd", null, null, null, null, system);
-
     }
 
     /**

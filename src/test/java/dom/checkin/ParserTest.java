@@ -21,16 +21,17 @@ import org.apache.xmlbeans.impl.common.DocumentHelper;
 import org.apache.xmlbeans.impl.common.SAXHelper;
 import org.apache.xmlbeans.impl.common.StaxHelper;
 import org.apache.xmlbeans.impl.common.XMLBeansConstants;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 
-import java.io.ByteArrayInputStream;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.stream.XMLInputFactory;
+import java.io.ByteArrayInputStream;
 
-import static org.junit.Assert.*;
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Tests for XML Parser settings
@@ -39,7 +40,7 @@ import static org.junit.Assert.*;
 public class ParserTest {
 
     @Test
-    public void testXmlOptionsDefaults() {
+    void testXmlOptionsDefaults() {
         XmlOptions options = new XmlOptions();
         assertEquals(2048, options.getEntityExpansionLimit());
         assertFalse(options.isLoadDTDGrammar());
@@ -48,7 +49,7 @@ public class ParserTest {
     }
 
     @Test
-    public void testXMLBeansConstantsOverrides() {
+    void testXMLBeansConstantsOverrides() {
         XmlOptions options = new XmlOptions();
         options.setEntityExpansionLimit(1);
         options.setLoadDTDGrammar(true);
@@ -61,7 +62,7 @@ public class ParserTest {
     }
 
     @Test
-    public void testXmlInputFactoryPropertyDefaults() {
+    void testXmlInputFactoryPropertyDefaults() {
         XmlOptions options = new XmlOptions();
         XMLInputFactory factory = StaxHelper.newXMLInputFactory(options);
         assertEquals(true, factory.getProperty(XMLInputFactory.IS_NAMESPACE_AWARE));
@@ -71,7 +72,7 @@ public class ParserTest {
     }
 
     @Test
-    public void testXmlInputFactoryPropertyOverrides() {
+    void testXmlInputFactoryPropertyOverrides() {
         XmlOptions options = new XmlOptions();
         options.setEntityExpansionLimit(1);
         options.setLoadDTDGrammar(true);
@@ -82,7 +83,7 @@ public class ParserTest {
     }
 
     @Test
-    public void testXMLReader() throws Exception {
+    void testXMLReader() throws Exception {
         XmlOptions options = new XmlOptions();
         XMLReader reader = SAXHelper.newXMLReader(options);
         assertNotSame(reader, SAXHelper.newXMLReader(options));
@@ -93,11 +94,11 @@ public class ParserTest {
         assertNotNull(reader.getProperty(XMLBeansConstants.SECURITY_MANAGER));
 
         String xmlWithDtd = "<!DOCTYPE foo [<!ELEMENT t ANY><!ENTITY xe \"TEST XXE\"> ]>\n<xml>&xe;</xml>";
-        reader.parse(new InputSource(new ByteArrayInputStream(xmlWithDtd.getBytes("UTF-8"))));
+        reader.parse(new InputSource(new ByteArrayInputStream(xmlWithDtd.getBytes(UTF_8))));
     }
 
-    @Test(expected = SAXException.class)
-    public void testXMLReaderOverrides() throws Exception {
+    @Test
+    void testXMLReaderOverrides() throws Exception {
         XmlOptions options = new XmlOptions();
         options.setEntityExpansionLimit(1);
         options.setLoadDTDGrammar(true);
@@ -112,21 +113,22 @@ public class ParserTest {
         assertNotNull(reader.getProperty(XMLBeansConstants.SECURITY_MANAGER));
 
         String xmlWithDtd = "<!DOCTYPE foo [<!ELEMENT t ANY><!ENTITY xe \"TEST XXE\"> ]>\n<xml>&xe;</xml>";
-        reader.parse(new InputSource(new ByteArrayInputStream(xmlWithDtd.getBytes("UTF-8"))));
+        InputSource is = new InputSource(new ByteArrayInputStream(xmlWithDtd.getBytes(UTF_8)));
+        assertThrows(SAXException.class, () -> reader.parse(is));
     }
 
     @Test
-    public void testDocumentBuilder() throws Exception {
+    void testDocumentBuilder() throws Exception {
         XmlOptions options = new XmlOptions();
         DocumentBuilder builder = DocumentHelper.newDocumentBuilder(options);
         assertNotSame(builder, DocumentHelper.newDocumentBuilder(options));
 
         String xmlWithDtd = "<!DOCTYPE foo [<!ELEMENT t ANY><!ENTITY xe \"TEST XXE\"> ]>\n<xml>&xe;</xml>";
-        builder.parse(new InputSource(new ByteArrayInputStream(xmlWithDtd.getBytes("UTF-8"))));
+        builder.parse(new InputSource(new ByteArrayInputStream(xmlWithDtd.getBytes(UTF_8))));
     }
 
-    @Test(expected = SAXException.class)
-    public void testDocumentBuilderOverrides() throws Exception {
+    @Test
+    void testDocumentBuilderOverrides() {
         XmlOptions options = new XmlOptions();
         options.setEntityExpansionLimit(1);
         options.setLoadDTDGrammar(true);
@@ -136,6 +138,7 @@ public class ParserTest {
         assertNotSame(builder, DocumentHelper.newDocumentBuilder(options));
 
         String xmlWithDtd = "<!DOCTYPE foo [<!ELEMENT t ANY><!ENTITY xe \"TEST XXE\"> ]>\n<xml>&xe;</xml>";
-        builder.parse(new InputSource(new ByteArrayInputStream(xmlWithDtd.getBytes("UTF-8"))));
+        InputSource is = new InputSource(new ByteArrayInputStream(xmlWithDtd.getBytes(UTF_8)));
+        assertThrows(SAXException.class, () -> builder.parse(is));
     }
 }

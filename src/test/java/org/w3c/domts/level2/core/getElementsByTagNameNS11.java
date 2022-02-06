@@ -22,13 +22,15 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import static org.junit.Assert.assertEquals;
+import java.util.stream.IntStream;
+
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -46,31 +48,17 @@ import static org.w3c.domts.DOMTest.load;
  */
 public class getElementsByTagNameNS11 {
     @Test
-    public void testRun() throws Throwable {
-        Document doc;
-        Element docElem;
-        NodeList elementList;
-        Node child;
-        String childName;
-        java.util.List result = new java.util.ArrayList();
+    void testRun() throws Throwable {
+        String[] expectedResult = {"address", "address", "address", "emp:address", "address"};
 
-        java.util.List expectedResult = new java.util.ArrayList();
-        expectedResult.add("address");
-        expectedResult.add("address");
-        expectedResult.add("address");
-        expectedResult.add("emp:address");
-        expectedResult.add("address");
+        Document doc = load("staffNS", false);
+        Element docElem = doc.getDocumentElement();
+        NodeList elementList = docElem.getElementsByTagNameNS("*", "address");
 
-        doc = load("staffNS", false);
-        docElem = doc.getDocumentElement();
-        elementList = docElem.getElementsByTagNameNS("*", "address");
-        for (int indexd409e60 = 0; indexd409e60 < elementList.getLength(); indexd409e60++) {
-            child = elementList.item(indexd409e60);
-            childName = child.getNodeName();
-            result.add(childName);
-        }
-        assertEquals("nodeNames", expectedResult, result);
+        String[] result = IntStream.range(0, elementList.getLength())
+            .mapToObj(elementList::item).map(Node::getNodeName).toArray(String[]::new);
 
+        assertArrayEquals(expectedResult, result, "nodeNames");
     }
 
     /**

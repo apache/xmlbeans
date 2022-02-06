@@ -15,14 +15,13 @@
 package xmlobject.detailed;
 
 import org.apache.xmlbeans.impl.tool.CodeGenUtil;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import tools.util.JarUtil;
 
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
-
-import static org.junit.Assert.assertTrue;
 
 /**
  * JUnit Test file to test XmlObject Abstract base class
@@ -34,15 +33,13 @@ public class XmlObjectAbstractClassTest {
      * The test entry point.
      */
     @Test
-    public void testAbstractBaseClass() throws Exception {
+    void testAbstractBaseClass() throws Exception {
         // create the source file
         //String src = JarUtil.getResourceFromJarasStream(Common.XMLCASES_JAR, "xbean/xmlobject/SimpleXmlObject.java.txt");
         File to = new File("build/SimpleXmlObject.java");
-        InputStreamReader r = new InputStreamReader(
-            JarUtil.getResourceFromJarasStream(
-                "xbean/xmlobject/SimpleXmlObject.java.txt"));
-        assertTrue("Could not create source file", copyTo(r, to));
-        assertTrue("Could not compile SimpleXmlObject.java", compileFile(to));
+        InputStreamReader r = new InputStreamReader(JarUtil.getResourceFromJarasStream("xbean/xmlobject/SimpleXmlObject.java.txt"));
+        Assertions.assertDoesNotThrow(() -> copyTo(r, to));
+        Assertions.assertDoesNotThrow(() -> compileFile(to));
         to.deleteOnExit();
     }
 
@@ -66,58 +63,43 @@ public class XmlObjectAbstractClassTest {
     /**
      * Copies a file. If destination file exists it will be overwritten
      */
-    private boolean copyTo(InputStreamReader src, File to) {
-        try {
-            // inputstream to read in the file
-            BufferedReader in = new BufferedReader(src);
+    private void copyTo(InputStreamReader src, File to) throws IOException {
+        // inputstream to read in the file
+        BufferedReader in = new BufferedReader(src);
 
-            // delete the existing file
-            to.delete();
-            to.createNewFile();
-            // outputstream to write out the java file
-            FileOutputStream fos = new FileOutputStream(to);
-            int b;
+        // delete the existing file
+        to.delete();
+        to.createNewFile();
+        // outputstream to write out the java file
+        FileOutputStream fos = new FileOutputStream(to);
+        int b;
 
-            while ((b = in.read()) != -1) {
-                fos.write(b);
-            }
-
-            in.close();
-            fos.close();
-        } catch (Exception ioe) {
-            System.out.println("Could not create source file: " + ioe);
-            ioe.printStackTrace();
-            return false;
+        while ((b = in.read()) != -1) {
+            fos.write(b);
         }
 
-        return true;
+        in.close();
+        fos.close();
     }
 
     /**
      * Copies a file. If destination file exists it will be overwritten
      */
-    private boolean copyTo(File src, File to) {
-        try {
-            // inputstream to read in the file
-            FileInputStream fis = new FileInputStream(src);
+    private void copyTo(File src, File to) throws IOException {
+        // inputstream to read in the file
+        FileInputStream fis = new FileInputStream(src);
 
-            // delete the existing file
-            to.delete();
-            to.createNewFile();
-            // outputstream to write out the java file
-            FileOutputStream fos = new FileOutputStream(to);
-            int b;
+        // delete the existing file
+        to.delete();
+        to.createNewFile();
+        // outputstream to write out the java file
+        FileOutputStream fos = new FileOutputStream(to);
+        int b;
 
-            while ((b = fis.read()) != -1) {
-                fos.write(b);
-            }
-            fis.close();
-            fos.close();
-        } catch (Exception ioe) {
-            System.out.println("Could not create source file: " + ioe);
-            return false;
+        while ((b = fis.read()) != -1) {
+            fos.write(b);
         }
-
-        return true;
+        fis.close();
+        fos.close();
     }
 }

@@ -16,31 +16,33 @@ package misc.detailed;
 
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import javax.xml.stream.XMLStreamReader;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Adapted from testcase submitted by Brian Bonner for JIRA issue
  * XMLBEANS-222, based on comments by Cezar Andrei.
  */
 public class XMLStreamReaderTest {
-    private static final String soapMsg = "<SOAP:Envelope xmlns:SOAP=\"http://schemas.xmlsoap.org/soap/envelope/\" "
-            + "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
-            + "xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\">"
-            + "<SOAP:Body>"
-            + "<PriceandAvailabilityResponse xmlns=\"http://www.foobar.com\">"
-            + "<Header/>"
-            + "<Body>"
-            + "<UPC xsi:nil=\"true\"/>"
-            + "</Body>"
-            + "</PriceandAvailabilityResponse>"
-            + "</SOAP:Body>"
-            + "</SOAP:Envelope>";
+    private static final String soapMsg =
+        "<SOAP:Envelope xmlns:SOAP=\"http://schemas.xmlsoap.org/soap/envelope/\" "
+        + "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
+        + "xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\">"
+        + "<SOAP:Body>"
+        + "<PriceandAvailabilityResponse xmlns=\"http://www.foobar.com\">"
+        + "<Header/>"
+        + "<Body>"
+        + "<UPC xsi:nil=\"true\"/>"
+        + "</Body>"
+        + "</PriceandAvailabilityResponse>"
+        + "</SOAP:Body>"
+        + "</SOAP:Envelope>";
+
     @Test
-    public void testXmlStreamReader1() throws Exception {
+    void testXmlStreamReader1() throws Exception {
         XmlObject object = XmlObject.Factory.parse(soapMsg);
 
         XmlOptions opts = new XmlOptions().setSaveOuter();
@@ -57,42 +59,38 @@ public class XMLStreamReaderTest {
                         foundXsiNamespace = true;
                     }
                     System.out.println("Namespace "
-                            + reader.getNamespacePrefix(i) + ": "
-                            + reader.getNamespaceURI(i));
+                                       + reader.getNamespacePrefix(i) + ": "
+                                       + reader.getNamespaceURI(i));
                 }
             }
         }
-        assertTrue("xsi namespace is not found", foundXsiNamespace);
+        assertTrue(foundXsiNamespace, "xsi namespace is not found");
     }
 
     @Test
-    public void testXmlStreamReader2() throws Exception {
+    void testXmlStreamReader2() throws Exception {
         XmlObject object = XmlObject.Factory.parse(soapMsg);
 
         XMLStreamReader reader = object.newXMLStreamReader();
 
         boolean foundXsiNamespace = false;
         int event = reader.getEventType();
-        do
-        {
-            if (event == XMLStreamReader.START_ELEMENT)
-            {
+        do {
+            if (event == XMLStreamReader.START_ELEMENT) {
                 System.out.println("namespace count: " + reader.getNamespaceCount());
-                for (int i = 0; i < reader.getNamespaceCount(); i++)
-                {
-                    if (reader.getNamespacePrefix(i).equals("xsi"))
-                    {
+                for (int i = 0; i < reader.getNamespaceCount(); i++) {
+                    if (reader.getNamespacePrefix(i).equals("xsi")) {
                         foundXsiNamespace = true;
                     }
                     System.out.println("Namespace "
-                            + reader.getNamespacePrefix(i) + ": "
-                            + reader.getNamespaceURI(i));
+                                       + reader.getNamespacePrefix(i) + ": "
+                                       + reader.getNamespaceURI(i));
                 }
             }
             event = reader.next();
         }
         while (reader.hasNext());
-        assertTrue("xsi namespace is not found", foundXsiNamespace);
+        assertTrue(foundXsiNamespace, "xsi namespace is not found");
     }
 
 }

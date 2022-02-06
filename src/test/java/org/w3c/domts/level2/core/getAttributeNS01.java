@@ -22,13 +22,13 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -44,21 +44,16 @@ import static org.w3c.domts.DOMTest.load;
  */
 public class getAttributeNS01 {
     @Test
-    @Ignore
+    @Disabled
     public void testRun() throws Throwable {
         String namespaceURI = "http://www.nist.gov";
         String localName = "district";
         String qualifiedName = "emp:district";
-        Document doc;
-        NodeList elementList;
-        Element testAddr;
-        String attrValue;
-        doc = load("staffNS", false);
-        elementList = doc.getElementsByTagName("emp:address");
-        testAddr = (Element) elementList.item(0);
-        attrValue = testAddr.getAttributeNS(namespaceURI, localName);
-        assertEquals("attrValue", "DISTRICT", attrValue);
-
+        Document doc = load("staffNS", false);
+        NodeList elementList = doc.getElementsByTagName("emp:address");
+        Element testAddr = (Element) elementList.item(0);
+        String attrValue = testAddr.getAttributeNS(namespaceURI, localName);
+        assertEquals("DISTRICT", attrValue, "attrValue");
     }
 
     /**

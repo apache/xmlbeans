@@ -22,13 +22,14 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Document;
 import org.w3c.dom.DocumentType;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -45,27 +46,17 @@ import static org.w3c.domts.DOMTest.load;
  */
 public class domimplementationcreatedocument05 {
     @Test
-    public void testRun() throws Throwable {
-        Document doc;
-        DOMImplementation domImpl;
-        Document newDoc;
+    void testRun() throws Throwable {
         String namespaceURI = "http://www.w3.org/xml/1998/namespace";
         String qualifiedName = "xml:root";
         DocumentType docType = null;
 
-        doc = load("staffNS", false);
-        domImpl = doc.getImplementation();
+        Document doc = load("staffNS", false);
+        DOMImplementation domImpl = doc.getImplementation();
 
-        {
-            boolean success = false;
-            try {
-                newDoc = domImpl.createDocument(namespaceURI, qualifiedName, docType);
-            } catch (DOMException ex) {
-                success = (ex.code == DOMException.NAMESPACE_ERR);
-            }
-            assertTrue("domimplementationcreatedocument05, NS  http://www.w3.org/xml/1998/namespace and a qualifiedName that has the prefix xml", success);
-        }
-
+        DOMException ex = assertThrows(DOMException.class, () -> domImpl.createDocument(namespaceURI, qualifiedName, docType));
+        assertEquals(DOMException.NAMESPACE_ERR, ex.code,
+            "domimplementationcreatedocument05, NS  http://www.w3.org/xml/1998/namespace and a qualifiedName that has the prefix xml");
     }
 
     /**

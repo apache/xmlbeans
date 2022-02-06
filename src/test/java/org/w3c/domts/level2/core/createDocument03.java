@@ -22,14 +22,15 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Document;
 import org.w3c.dom.DocumentType;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -48,28 +49,16 @@ import static org.w3c.domts.DOMTest.load;
  */
 public class createDocument03 {
     @Test
-    @Ignore
+    @Disabled
     public void testRun() throws Throwable {
         String namespaceURI = "http://www.ecommerce.org/schema";
         String qualifiedName = "namespaceURI:x";
-        Document doc;
-        DocumentType docType;
-        DOMImplementation domImpl;
-        Document aNewDoc;
-        doc = load("staffNS", false);
-        docType = doc.getDoctype();
-        domImpl = doc.getImplementation();
+        Document doc = load("staffNS", false);
+        DocumentType docType = doc.getDoctype();
+        DOMImplementation domImpl = doc.getImplementation();
 
-        {
-            boolean success = false;
-            try {
-                aNewDoc = domImpl.createDocument(namespaceURI, qualifiedName, docType);
-            } catch (DOMException ex) {
-                success = (ex.code == DOMException.WRONG_DOCUMENT_ERR);
-            }
-            assertTrue("throw_WRONG_DOCUMENT_ERR", success);
-        }
-
+        DOMException ex = assertThrows(DOMException.class, () -> domImpl.createDocument(namespaceURI, qualifiedName, docType));
+        assertEquals(DOMException.WRONG_DOCUMENT_ERR, ex.code, "throw_WRONG_DOCUMENT_ERR");
     }
 
     /**

@@ -20,7 +20,7 @@ import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlCursor.TokenType;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.tranxml.tranXML.version40.CarLocationMessageDocument;
 import org.tranxml.tranXML.version40.CarLocationMessageDocument.CarLocationMessage;
 import tools.util.JarUtil;
@@ -28,13 +28,14 @@ import xmlcursor.common.Common;
 
 import javax.xml.namespace.QName;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static xmlcursor.common.BasicCursorTestCase.jobj;
 
 
 public class CursorVsObjectAttributeTest {
     @Test
-    public void testAttributeSet() throws Exception {
+    void testAttributeSet() throws Exception {
         CarLocationMessageDocument clmDoc = CarLocationMessageDocument.Factory.parse(
             JarUtil.getResourceFromJar(Common.TRANXML_FILE_CLM));
         try (XmlCursor xc = clmDoc.newCursor()) {
@@ -50,10 +51,8 @@ public class CursorVsObjectAttributeTest {
     }
 
     @Test
-    public void testAttributeUnsetRemove() throws Exception {
-        CarLocationMessageDocument clmDoc =
-            (CarLocationMessageDocument) XmlObject.Factory.parse(
-                JarUtil.getResourceFromJar(Common.TRANXML_FILE_CLM));
+    void testAttributeUnsetRemove() throws Exception {
+        CarLocationMessageDocument clmDoc = (CarLocationMessageDocument)jobj(Common.TRANXML_FILE_CLM);
         try (XmlCursor xc = clmDoc.newCursor()) {
             xc.toFirstChild();
             CarLocationMessage clm = (CarLocationMessage) xc.getObject();
@@ -69,7 +68,7 @@ public class CursorVsObjectAttributeTest {
     }
 
     @Test
-    public void testAttributeInsert() throws Exception {
+    void testAttributeInsert() throws Exception {
         XmlOptions map = new XmlOptions();
         map.setLoadStripWhitespace();
 

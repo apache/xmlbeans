@@ -22,13 +22,13 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Document;
 import org.w3c.dom.DocumentType;
 import org.w3c.dom.NodeList;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -45,20 +45,15 @@ import static org.w3c.domts.DOMTest.load;
  */
 public class documentgetelementsbytagnameNS01 {
     @Test
-    public void testRun() throws Throwable {
-        Document doc;
-        Document newDoc;
+    void testRun() throws Throwable {
         DocumentType docType = null;
-
-        DOMImplementation domImpl;
-        NodeList childList;
         String nullNS = null;
 
-        doc = load("staffNS", false);
-        domImpl = doc.getImplementation();
-        newDoc = domImpl.createDocument(nullNS, "root", docType);
-        childList = newDoc.getElementsByTagNameNS("*", "*");
-        assertEquals("documentgetelementsbytagnameNS01", 1, childList.getLength());
+        Document doc = load("staffNS", false);
+        DOMImplementation domImpl = doc.getImplementation();
+        Document newDoc = domImpl.createDocument(nullNS, "root", docType);
+        NodeList childList = newDoc.getElementsByTagNameNS("*", "*");
+        assertEquals(1, childList.getLength(), "documentgetelementsbytagnameNS01");
     }
 
     /**

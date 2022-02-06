@@ -18,16 +18,13 @@ package xmlcursor.jsr173.common;
 
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlObject;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamReader;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 
 /**
@@ -40,242 +37,220 @@ import static org.junit.Assert.*;
  * getNamespaceURI  x 3
  * getPrefix
  */
-@Ignore("abstract class")
-public abstract class NamespaceTest {
+public class NamespaceTest {
 
-    private XMLStreamReader m_stream;
+    private static XmlCursor cur() {
+        XmlCursor cur = XmlObject.Factory.newInstance().newCursor();
+        cur.toNextToken();
 
-    //only valid at TAGs and ER
-    //TODO: ER
+        cur.insertAttributeWithValue(new QName("foo.org", "at0", "pre"),
+            "val0");
+        cur.insertNamespace("pre0", "bea.com");
 
-    public abstract XMLStreamReader getStream(XmlCursor c) throws Exception;
+        cur.beginElement(new QName("foo.org", "foo", ""));
+        cur.insertNamespace("pre", "foons.bar.org");
+        cur.insertNamespace("pre1", "foons1.bar1.org1");
+        cur.insertChars("some text");
+        cur.toNextToken();
+        cur.toNextToken();//end elt
+        cur.insertProcInst("xml-stylesheet", "http://foobar");
+        cur.insertChars("\t");
+        cur.insertComment(" some comment ");
 
-    @Test
-    public void testGetLocalName() throws Exception {
-        try {
-            m_stream.getLocalName();
-            fail("no name at startdoc");
-        } catch (IllegalStateException e) {
-        }
+        cur.toStartDoc();
 
-        m_stream.next();
-        m_stream.next();
-        assertEquals(XMLStreamConstants.START_ELEMENT, m_stream.next());
-        assertEquals("foo", m_stream.getLocalName());
-        m_stream.next();
-        assertEquals(XMLStreamConstants.END_ELEMENT, m_stream.next());
-        assertEquals("foo", m_stream.getLocalName());
+        return cur;
     }
 
     @Test
-    public void testGetName() {
-        //test in Element--only valid for Element events
-    }
+    void testGetLocalName() throws Exception {
+        try (XmlCursor cur = cur()) {
+            XMLStreamReader m_stream = cur.newXMLStreamReader();
 
-    @Test
-    public void testGetPrefix() throws Exception {
-        assertEquals(XMLStreamConstants.START_DOCUMENT,
-            m_stream.getEventType());
-
-        try {
-            assertNull(m_stream.getPrefix());
-            fail("no prefix here");
-        } catch (IllegalStateException e) {
-        }
-        //  assertFalse( m_stream.hasText() );
-        assertEquals(XMLStreamConstants.ATTRIBUTE, m_stream.next());
-        try {
-            assertNull(m_stream.getPrefix());
-            fail("no prefix here");
-        } catch (IllegalStateException e) {
-        }
-
-        assertEquals(XMLStreamConstants.NAMESPACE, m_stream.next());
-        try {
-            assertNull(m_stream.getPrefix());
-            fail("no prefix here");
-        } catch (IllegalStateException e) {
-        }
-
-        assertEquals(XMLStreamConstants.START_ELEMENT, m_stream.next());
-        assertEquals("", m_stream.getPrefix());
-
-        assertEquals(XMLStreamConstants.CHARACTERS, m_stream.next());
-        try {
-            assertNull(m_stream.getPrefix());
-            fail("no prefix here");
-        } catch (IllegalStateException e) {
-        }
-
-        assertEquals(XMLStreamConstants.END_ELEMENT, m_stream.next());
-        assertEquals("", m_stream.getPrefix());
-        assertEquals(XMLStreamConstants.PROCESSING_INSTRUCTION, m_stream.next());
-        try {
-            assertNull(m_stream.getPrefix());
-            fail("no prefix here");
-        } catch (IllegalStateException e) {
-        }
-
-        assertEquals(XMLStreamConstants.CHARACTERS, m_stream.next());
-
-        assertEquals(XMLStreamConstants.COMMENT, m_stream.next());
-        try {
-            assertNull(m_stream.getPrefix());
-            fail("no prefix here");
-        } catch (IllegalStateException e) {
+            assertThrows(IllegalStateException.class, m_stream::getLocalName, "no name at startdoc");
+            m_stream.next();
+            m_stream.next();
+            assertEquals(XMLStreamConstants.START_ELEMENT, m_stream.next());
+            assertEquals("foo", m_stream.getLocalName());
+            m_stream.next();
+            assertEquals(XMLStreamConstants.END_ELEMENT, m_stream.next());
+            assertEquals("foo", m_stream.getLocalName());
+            m_stream.close();
         }
     }
 
     @Test
-    public void testGetNamespaceContext() throws Exception {
-        //assertEquals(XMLStreamConstants.ATTRIBUTE, m_stream.next());
-        //assertEquals("", m_stream.getNamespaceContext().getNamespaceURI(""));
-        //assertEquals("", m_stream.getNamespaceContext().getPrefix("foo.org"));
-        //java.util.Iterator it = m_stream.getNamespaceContext().getPrefixes("foo.bar");
+    void testGetPrefix() throws Exception {
+        try (XmlCursor cur = cur()) {
+            XMLStreamReader m_stream = cur.newXMLStreamReader();
+            assertEquals(XMLStreamConstants.START_DOCUMENT, m_stream.getEventType());
+            assertThrows(IllegalStateException.class, m_stream::getPrefix, "no prefix here");
 
-        m_stream.next();
-        m_stream.next();
-        m_stream.next();
+            //  assertFalse( m_stream.hasText() );
+            assertEquals(XMLStreamConstants.ATTRIBUTE, m_stream.next());
+            assertThrows(IllegalStateException.class, m_stream::getPrefix, "no prefix here");
 
-        assertEquals(XMLStreamConstants.CHARACTERS, m_stream.next());
-        //assertEquals("", m_stream.getNamespaceContext().getNamespaceURI(""))  ;
-        //assertEquals("", m_stream.getNamespaceContext().getPrefix("foo.bar"))  ;
-        assertNull(m_stream.getNamespaceContext().getPrefix("foo.bar"));
-        java.util.Iterator it = m_stream.getNamespaceContext().getPrefixes("foo.bar");
-    }
+            assertEquals(XMLStreamConstants.NAMESPACE, m_stream.next());
+            assertThrows(IllegalStateException.class, m_stream::getPrefix, "no prefix here");
 
-    /**
-     * only valid at Tags and NS decl
-     */
-    @Test
-    public void testGetNamespaceCount() throws Exception {
-        m_stream.next();
-        assertEquals(XMLStreamConstants.NAMESPACE, m_stream.next());
-        assertEquals(1, m_stream.getNamespaceCount());
+            assertEquals(XMLStreamConstants.START_ELEMENT, m_stream.next());
+            assertEquals("", m_stream.getPrefix());
 
-        assertEquals(XMLStreamConstants.START_ELEMENT, m_stream.next());
-        assertEquals(2, m_stream.getNamespaceCount());
-
-        //java.lang.IllegalStateException
-        // - if this is not a START_ELEMENT, END_ELEMENT or NAMESPACE
-        try {
             assertEquals(XMLStreamConstants.CHARACTERS, m_stream.next());
-            m_stream.getNamespaceCount();
-            fail("can't do this on a txt node");
-        } catch (IllegalStateException e) {
-        }
+            assertThrows(IllegalStateException.class, m_stream::getPrefix, "no prefix here");
 
-        assertEquals(XMLStreamConstants.END_ELEMENT, m_stream.next());
-        assertEquals(2, m_stream.getNamespaceCount());
+            assertEquals(XMLStreamConstants.END_ELEMENT, m_stream.next());
+            assertEquals("", m_stream.getPrefix());
+            assertEquals(XMLStreamConstants.PROCESSING_INSTRUCTION, m_stream.next());
+            assertThrows(IllegalStateException.class, m_stream::getPrefix, "no prefix here");
+
+            assertEquals(XMLStreamConstants.CHARACTERS, m_stream.next());
+
+            assertEquals(XMLStreamConstants.COMMENT, m_stream.next());
+            assertThrows(IllegalStateException.class, m_stream::getPrefix, "no prefix here");
+
+            m_stream.close();
+        }
+    }
+
+    @Test
+    void testGetNamespaceContext() throws Exception {
+        try (XmlCursor cur = cur()) {
+            XMLStreamReader m_stream = cur.newXMLStreamReader();
+
+            m_stream.next();
+            m_stream.next();
+            m_stream.next();
+
+            assertEquals(XMLStreamConstants.CHARACTERS, m_stream.next());
+            assertNull(m_stream.getNamespaceContext().getPrefix("foo.bar"));
+            assertNotNull(m_stream.getNamespaceContext().getPrefixes("foo.bar"));
+
+            m_stream.close();
+        }
     }
 
     /**
      * only valid at Tags and NS decl
      */
     @Test
-    public void testGetNamespacePrefix() throws Exception {
-        m_stream.next();
-        assertEquals(XMLStreamConstants.NAMESPACE, m_stream.next());
-        assertEquals("pre0", m_stream.getNamespacePrefix(0));
+    void testGetNamespaceCount() throws Exception {
+        try (XmlCursor cur = cur()) {
+            XMLStreamReader m_stream = cur.newXMLStreamReader();
+            m_stream.next();
+            assertEquals(XMLStreamConstants.NAMESPACE, m_stream.next());
+            assertEquals(1, m_stream.getNamespaceCount());
 
-        assertEquals(XMLStreamConstants.START_ELEMENT, m_stream.next());
-        assertEquals("pre", m_stream.getNamespacePrefix(0));
-        assertEquals("pre1", m_stream.getNamespacePrefix(1));
-        //java.lang.IllegalStateException
-        // - if this is not a START_ELEMENT, END_ELEMENT or NAMESPACE
+            assertEquals(XMLStreamConstants.START_ELEMENT, m_stream.next());
+            assertEquals(2, m_stream.getNamespaceCount());
 
-        try {
+            //java.lang.IllegalStateException
+            // - if this is not a START_ELEMENT, END_ELEMENT or NAMESPACE
+
+            assertEquals(XMLStreamConstants.CHARACTERS, m_stream.next());
+            assertThrows(IllegalStateException.class, m_stream::getNamespaceCount, "can't do this on a txt node");
+
+            assertEquals(XMLStreamConstants.END_ELEMENT, m_stream.next());
+            assertEquals(2, m_stream.getNamespaceCount());
+
+            m_stream.close();
+        }
+    }
+
+    /**
+     * only valid at Tags and NS decl
+     */
+    @Test
+    void testGetNamespacePrefix() throws Exception {
+        try (XmlCursor cur = cur()) {
+            XMLStreamReader m_stream = cur.newXMLStreamReader();
+            m_stream.next();
+
+            assertEquals(XMLStreamConstants.NAMESPACE, m_stream.next());
+            assertEquals("pre0", m_stream.getNamespacePrefix(0));
+
+            assertEquals(XMLStreamConstants.START_ELEMENT, m_stream.next());
+            assertEquals("pre", m_stream.getNamespacePrefix(0));
+            assertEquals("pre1", m_stream.getNamespacePrefix(1));
+            //java.lang.IllegalStateException
+            // - if this is not a START_ELEMENT, END_ELEMENT or NAMESPACE
+
             assertEquals(XMLStreamConstants.CHARACTERS, m_stream.next());
             assertEquals(XMLStreamConstants.CHARACTERS, m_stream.getEventType());
-            m_stream.getNamespacePrefix(0);
-            fail("can't do this on a txt node");
-        } catch (IllegalStateException e) {
+            assertThrows(IllegalStateException.class, () -> m_stream.getNamespacePrefix(0), "can't do this on a txt node");
+
+            assertEquals(XMLStreamConstants.END_ELEMENT, m_stream.next());
+            assertEquals("pre", m_stream.getNamespacePrefix(0));
+            assertEquals("pre1", m_stream.getNamespacePrefix(1));
+            m_stream.close();
         }
-
-        assertEquals(XMLStreamConstants.END_ELEMENT, m_stream.next());
-        assertEquals("pre", m_stream.getNamespacePrefix(0));
-        assertEquals("pre1", m_stream.getNamespacePrefix(1));
     }
 
-    @Test(expected = IndexOutOfBoundsException.class)
-    public void testGetNamespacePrefixNeg() throws Exception {
-        m_stream.next();
-        assertEquals(XMLStreamConstants.NAMESPACE, m_stream.next());
-        m_stream.getNamespacePrefix(-1);
+    @Test
+    void testGetNamespacePrefixNeg() throws Exception {
+        try (XmlCursor cur = cur()) {
+            XMLStreamReader m_stream = cur.newXMLStreamReader();
+            m_stream.next();
+            assertEquals(XMLStreamConstants.NAMESPACE, m_stream.next());
+            assertThrows(IndexOutOfBoundsException.class, () -> m_stream.getNamespacePrefix(-1));
+            m_stream.close();
+        }
     }
 
-    @Test(expected = IndexOutOfBoundsException.class)
-    public void testGetNamespacePrefixLarge() throws Exception {
-        m_stream.next();
-        assertEquals(XMLStreamConstants.NAMESPACE, m_stream.next());
-        assertEquals("", m_stream.getNamespacePrefix(3));
+    @Test
+    void testGetNamespacePrefixLarge() throws Exception {
+        try (XmlCursor cur = cur()) {
+            XMLStreamReader m_stream = cur.newXMLStreamReader();
+            m_stream.next();
+            assertEquals(XMLStreamConstants.NAMESPACE, m_stream.next());
+            assertThrows(IndexOutOfBoundsException.class, () -> m_stream.getNamespacePrefix(3));
+            m_stream.close();
+        }
     }
 
     //3 methods here
     @Test
-    public void testGetNamespaceURI() throws Exception {
-        m_stream.next();
-        assertEquals(XMLStreamConstants.NAMESPACE, m_stream.next());
-        assertEquals("bea.com", m_stream.getNamespaceURI(0));
+    void testGetNamespaceURI() throws Exception {
+        try (XmlCursor cur = cur()) {
+            XMLStreamReader m_stream = cur.newXMLStreamReader();
+            m_stream.next();
+            assertEquals(XMLStreamConstants.NAMESPACE, m_stream.next());
+            assertEquals("bea.com", m_stream.getNamespaceURI(0));
 
-        assertEquals(XMLStreamConstants.START_ELEMENT, m_stream.next());
-        assertEquals("foons.bar.org", m_stream.getNamespaceURI(0));
-        assertEquals("foons1.bar1.org1", m_stream.getNamespaceURI(1));
-        try {
+            assertEquals(XMLStreamConstants.START_ELEMENT, m_stream.next());
+            assertEquals("foons.bar.org", m_stream.getNamespaceURI(0));
+            assertEquals("foons1.bar1.org1", m_stream.getNamespaceURI(1));
             assertEquals(XMLStreamConstants.CHARACTERS, m_stream.next());
-            m_stream.getNamespaceURI(0);
-            fail("can't do this on a txt node");
-        } catch (IllegalStateException e) {
-        }
+            assertThrows(IllegalStateException.class, () -> m_stream.getNamespaceURI(0), "can't do this on a txt node");
 
-        assertEquals(XMLStreamConstants.END_ELEMENT, m_stream.next());
-        assertEquals("foons.bar.org", m_stream.getNamespaceURI(0));
-        assertEquals("foons1.bar1.org1", m_stream.getNamespaceURI(1));
-    }
+            assertEquals(XMLStreamConstants.END_ELEMENT, m_stream.next());
+            assertEquals("foons.bar.org", m_stream.getNamespaceURI(0));
+            assertEquals("foons1.bar1.org1", m_stream.getNamespaceURI(1));
 
-    @Test(expected = IndexOutOfBoundsException.class)
-    public void testGetNamespaceURINeg() throws Exception {
-        m_stream.next();
-        assertEquals(XMLStreamConstants.NAMESPACE, m_stream.next());
-        assertEquals("", m_stream.getNamespaceURI(-1));
-    }
-
-    @Test(expected = IndexOutOfBoundsException.class)
-    public void testGetNamespaceURILarge() throws Exception {
-        m_stream.next();
-        assertEquals(XMLStreamConstants.NAMESPACE, m_stream.next());
-        assertEquals("", m_stream.getNamespaceURI(3));
-    }
-
-    @Before
-    public void setUp() throws Exception {
-        try (XmlCursor cur = XmlObject.Factory.newInstance().newCursor()) {
-            cur.toNextToken();
-
-            cur.insertAttributeWithValue(new QName("foo.org", "at0", "pre"),
-                "val0");
-            cur.insertNamespace("pre0", "bea.com");
-
-            cur.beginElement(new QName("foo.org", "foo", ""));
-            cur.insertNamespace("pre", "foons.bar.org");
-            cur.insertNamespace("pre1", "foons1.bar1.org1");
-            cur.insertChars("some text");
-            cur.toNextToken();
-            cur.toNextToken();//end elt
-            cur.insertProcInst("xml-stylesheet", "http://foobar");
-            cur.insertChars("\t");
-            cur.insertComment(" some comment ");
-
-            cur.toStartDoc();
-
-            m_stream = getStream(cur);
-        }
-    }
-
-    @After
-    public void tearDown() throws Exception {
-        if (m_stream != null)
             m_stream.close();
+        }
+    }
+
+    @Test
+    void testGetNamespaceURINeg() throws Exception {
+        try (XmlCursor cur = cur()) {
+            XMLStreamReader m_stream = cur.newXMLStreamReader();
+            m_stream.next();
+            assertEquals(XMLStreamConstants.NAMESPACE, m_stream.next());
+            assertThrows(IndexOutOfBoundsException.class, () -> m_stream.getNamespaceURI(-1));
+            m_stream.close();
+        }
+    }
+
+    @Test
+    void testGetNamespaceURILarge() throws Exception {
+        try (XmlCursor cur = cur()) {
+            XMLStreamReader m_stream = cur.newXMLStreamReader();
+            m_stream.next();
+            assertEquals(XMLStreamConstants.NAMESPACE, m_stream.next());
+            assertThrows(IndexOutOfBoundsException.class, () -> m_stream.getNamespaceURI(3));
+            m_stream.close();
+        }
     }
 }
 

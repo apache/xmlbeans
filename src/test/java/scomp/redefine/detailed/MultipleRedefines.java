@@ -16,16 +16,14 @@ package scomp.redefine.detailed;
 
 import org.apache.xmlbeans.*;
 import org.apache.xmlbeans.impl.xb.xsdschema.SchemaDocument;
-import org.junit.Assert;
-import org.junit.Test;
-import scomp.common.BaseCase;
+import org.junit.jupiter.api.Test;
 
 import javax.xml.namespace.QName;
-import java.util.Iterator;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
+import static scomp.common.BaseCase.createOptions;
 
-public class MultipleRedefines extends BaseCase {
+public class MultipleRedefines {
     private static final String[] MULTIPLE_SCHEMAS = {
         "<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\">" +
         "    <xs:complexType name=\"T\">" +
@@ -166,17 +164,15 @@ public class MultipleRedefines extends BaseCase {
         "A.xsd", "B.xsd", "C.xsd", "D.xsd"};
 
     @Test
-    public void testMultipleRedefines() throws Exception {
+    void testMultipleRedefines() throws Exception {
         int N = MULTIPLE_SCHEMAS.length;
         SchemaDocument[] sdocs = new SchemaDocument[N];
-        for (int i = 0; i < N; i++)
-        {
+        for (int i = 0; i < N; i++) {
             sdocs[i] = SchemaDocument.Factory.parse(MULTIPLE_SCHEMAS[i]);
             sdocs[i].documentProperties().setSourceName(MULTIPLE_SCHEMAS_NAME[i]);
         }
 
-        SchemaTypeSystem ts = XmlBeans.compileXsd(sdocs,
-            XmlBeans.getBuiltinTypeSystem(), validateOptions);
+        SchemaTypeSystem ts = XmlBeans.compileXsd(sdocs, XmlBeans.getBuiltinTypeSystem(), createOptions());
         assertNotNull(ts);
 
         SchemaType t = ts.findType(new QName("", "T"));
@@ -187,8 +183,9 @@ public class MultipleRedefines extends BaseCase {
         assertEquals(p.getParticleType(), SchemaParticle.SEQUENCE);
         SchemaParticle[] elts = p.getParticleChildren();
         assertEquals(elts.length, 4);
-        for (int i = 0; i < elts.length; i++)
-            assertEquals(elts[i].getParticleType(), SchemaParticle.ELEMENT);
+        for (SchemaParticle elt : elts) {
+            assertEquals(elt.getParticleType(), SchemaParticle.ELEMENT);
+        }
 
         assertEquals("A", elts[0].getName().getLocalPart());
         assertEquals("B", elts[1].getName().getLocalPart());
@@ -197,34 +194,19 @@ public class MultipleRedefines extends BaseCase {
     }
 
     @Test
-    public void testCircularRedefines() throws Exception
-    {
+    void testCircularRedefines() throws Exception {
         int N =CIRCULAR_SCHEMAS.length;
         SchemaDocument[] sdocs = new SchemaDocument[N];
-        for (int i = 0; i < N; i++)
-        {
+        for (int i = 0; i < N; i++) {
             sdocs[i] = SchemaDocument.Factory.parse(CIRCULAR_SCHEMAS[i]);
             sdocs[i].documentProperties().setSourceName(CIRCULAR_SCHEMAS_NAME[i]);
         }
 
-        setUp();
-        boolean caught = false;
-        try
-        {
-            SchemaTypeSystem ts = XmlBeans.compileXsd(sdocs,
-                XmlBeans.getBuiltinTypeSystem(), validateOptions);
-        }
-        catch (XmlException e)
-        {
-            caught = true;
-            Iterator it = errorList.iterator();
-            XmlError err = (XmlError) it.next();
-            Assert.assertFalse(it.hasNext());
-            String message = err.getMessage();
-            // TODO check an error code instead
-            assertTrue(message.toLowerCase().indexOf("circular") >= 0);
-        }
-        clearErrors();
-        assertTrue("Compilation should fail", caught);
+        XmlOptions validateOptions = createOptions();
+        XmlException e = assertThrows(XmlException.class, () ->
+            XmlBeans.compileXsd(sdocs, XmlBeans.getBuiltinTypeSystem(), validateOptions));
+
+        XmlError xe = validateOptions.getErrorListener().iterator().next();
+        assertTrue(xe.getMessage().contains("circular"));
     }
 }

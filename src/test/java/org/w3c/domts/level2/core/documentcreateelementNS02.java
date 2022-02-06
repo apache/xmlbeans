@@ -22,12 +22,12 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -42,24 +42,13 @@ import static org.w3c.domts.DOMTest.load;
  */
 public class documentcreateelementNS02 {
     @Test
-    public void testRun() throws Throwable {
-        Document doc;
-        Element element;
+    void testRun() throws Throwable {
         String namespaceURI = null;
 
         String qualifiedName = "^^";
-        doc = load("staffNS", false);
-
-        {
-            boolean success = false;
-            try {
-                element = doc.createElementNS(namespaceURI, qualifiedName);
-            } catch (DOMException ex) {
-                success = (ex.code == DOMException.INVALID_CHARACTER_ERR);
-            }
-            assertTrue("documentcreateelementNS02", success);
-        }
-
+        Document doc = load("staffNS", false);
+        DOMException ex = assertThrows(DOMException.class, () -> doc.createElementNS(namespaceURI, qualifiedName));
+        assertEquals(DOMException.INVALID_CHARACTER_ERR, ex.code, "documentcreateelementNS02");
     }
 
     /**

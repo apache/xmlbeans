@@ -14,10 +14,11 @@
  */
 package xmlobject.checkin;
 
+import org.apache.xmlbeans.XmlError;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlOptions;
 import org.example.prod.NewSizeDocument;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.openuri.versionstest.ElementDocument;
 import org.openuri.versionstest.Type;
 import org.openuri.versionstest.TypeX;
@@ -25,11 +26,11 @@ import org.openuri.versionstest.TypeX;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class RedefineTest {
     @Test
-    public void testRedefine() throws XmlException {
+    void testRedefine() throws XmlException {
         String xml = "<newSize xmlns='http://example.org/prod'>7</newSize>";
         NewSizeDocument nsDoc = NewSizeDocument.Factory.parse(xml);
 
@@ -41,7 +42,7 @@ public class RedefineTest {
 
         nsDoc.setNewSize(20);
 
-        List errors = new ArrayList();
+        List<XmlError> errors = new ArrayList<>();
         XmlOptions options = new XmlOptions();
         options.setErrorListener(errors);
 
@@ -53,7 +54,7 @@ public class RedefineTest {
     }
 
     @Test
-    public void testMultipleRedefine() throws XmlException {
+    void testMultipleRedefine() throws XmlException {
         String xml = "<v:element xmlns:v='http://openuri.org/versionstest'>" +
             "<aa>AA</aa><a>A</a><b>B</b><c>C</c>" + "</v:element>";
         ElementDocument doc = ElementDocument.Factory.parse(xml);

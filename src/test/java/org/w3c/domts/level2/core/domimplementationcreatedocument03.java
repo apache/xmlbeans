@@ -22,12 +22,12 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Document;
 import org.w3c.dom.DocumentType;
 
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -42,38 +42,21 @@ import static org.w3c.domts.DOMTest.load;
  * @see <a href="http://www.w3.org/TR/DOM-Level-2-Core/core#Level-2-Core-DOM-createDocument">http://www.w3.org/TR/DOM-Level-2-Core/core#Level-2-Core-DOM-createDocument</a>
  */
 public class domimplementationcreatedocument03 {
-
-
     @Test
-    public void testRun() throws Throwable {
-        Document doc;
-        DOMImplementation domImpl;
-        Document newDoc;
+    void testRun() throws Throwable {
         DocumentType docType = null;
-
         String namespaceURI = "http://www.w3.org/DOMTest/L2";
-        String qualifiedName;
-        java.util.List qualifiedNames = new java.util.ArrayList();
-        qualifiedNames.add("_:_");
-        qualifiedNames.add("_:h0");
-        qualifiedNames.add("_:test");
-        qualifiedNames.add("l_:_");
-        qualifiedNames.add("ns:_0");
-        qualifiedNames.add("ns:a0");
-        qualifiedNames.add("ns0:test");
-        // qualifiedNames.add(new Double("a.b:c"));
-        qualifiedNames.add("a.b:c");
-        qualifiedNames.add("a-b:c");
-        qualifiedNames.add("a-b:c");
 
-        doc = load("staffNS", false);
-        domImpl = doc.getImplementation();
-        for (int indexd351e76 = 0; indexd351e76 < qualifiedNames.size(); indexd351e76++) {
-            qualifiedName = (String) qualifiedNames.get(indexd351e76);
-            newDoc = domImpl.createDocument(namespaceURI, qualifiedName, docType);
-            assertNotNull("domimplementationcreatedocument03", newDoc);
+        String[] qualifiedNames = {
+            "_:_", "_:h0", "_:test", "l_:_", "ns:_0", "ns:a0", "ns0:test", "a.b:c", "a-b:c", "a-b:c" /* , "a.b:c" */
+        };
+
+        Document doc = load("staffNS", false);
+        DOMImplementation domImpl = doc.getImplementation();
+        for (String qualifiedName : qualifiedNames) {
+            Document newDoc = domImpl.createDocument(namespaceURI, qualifiedName, docType);
+            assertNotNull(newDoc, "domimplementationcreatedocument03");
         }
-
     }
 
     /**

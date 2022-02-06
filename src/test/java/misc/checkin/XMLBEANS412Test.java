@@ -17,88 +17,66 @@ package misc.checkin;
 
 import org.apache.xmlbeans.impl.regex.ParseException;
 import org.apache.xmlbeans.impl.regex.RegularExpression;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.StringTokenizer;
 
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class XMLBEANS412Test {
-    static String PassedPosCharGroups = "-,\\-,--,\\--,---,\\---,--\\-,\\--\\-,-\\--,\\-\\--,-a,\\-a,a-,"+
-            "a\\-,a-b,a\\-b,a\\--,-a-z,\\-a-z,a-z-,a-z\\-,a-z\\-0-9,a\\-z-,a\\-z\\-,a\\-z\\-0-9,"+
-            "-0-9,0-9-,0-9aaa,0-9a-,a-z\\--/,A-F0-9.+-,-A-F0-9.+,A-F0-9.+\\-,\\-A-F0-9.+";
+    static String PassedPosCharGroups =
+        "-,\\-,--,\\--,---,\\---,--\\-,\\--\\-,-\\--,\\-\\--,-a,\\-a,a-," +
+        "a\\-,a-b,a\\-b,a\\--,-a-z,\\-a-z,a-z-,a-z\\-,a-z\\-0-9,a\\-z-,a\\-z\\-,a\\-z\\-0-9," +
+        "-0-9,0-9-,0-9aaa,0-9a-,a-z\\--/,A-F0-9.+-,-A-F0-9.+,A-F0-9.+\\-,\\-A-F0-9.+";
 
-    static String FailedPosCharGroups =  "[a--],[a-z-0-9],[a\\-z-0-9],[0-9--],[0-9a--],[0-9-a],[0-9-a-z]";
-    static String MiscPassedPatterns = "([\\.a-zA-Z0-9_-])+@([a-zA-Z0-9_-])+(([a-zA-Z0-9_-])*\\.([a-zA-Z0-9_-])+)+";
+    static String FailedPosCharGroups =
+        "[a--],[a-z-0-9],[a\\-z-0-9],[0-9--],[0-9a--],[0-9-a],[0-9-a-z]";
+    static String MiscPassedPatterns =
+        "([\\.a-zA-Z0-9_-])+@([a-zA-Z0-9_-])+(([a-zA-Z0-9_-])*\\.([a-zA-Z0-9_-])+)+";
 
     @Test
-    public void testPassedPosCharGroupPatterns()
-    {
-        StringTokenizer tok = new StringTokenizer(PassedPosCharGroups,",");
+    void testPassedPosCharGroupPatterns() {
+        StringTokenizer tok = new StringTokenizer(PassedPosCharGroups, ",");
         while (tok.hasMoreElements()) {
             String pattern = "[" + tok.nextToken() + "]";
-            try {
-                new RegularExpression(pattern, "X");
-            } catch (ParseException e) {
-                fail("Pattern " + pattern + " failed due to " + e.getMessage());
-            }
+            new RegularExpression(pattern, "X");
         }
     }
 
     @Test
-    public void testNegatedPassedPosCharGroupPatterns()
-    {
-        StringTokenizer tok = new StringTokenizer(PassedPosCharGroups,",");
+    void testNegatedPassedPosCharGroupPatterns() {
+        StringTokenizer tok = new StringTokenizer(PassedPosCharGroups, ",");
         while (tok.hasMoreElements()) {
             String pattern = "[^" + tok.nextToken() + "]";
-            try {
-                new RegularExpression(pattern, "X");
-            } catch (ParseException e) {
-                fail("Pattern " + pattern + " failed due to " + e.getMessage());
-            }
+            new RegularExpression(pattern, "X");
         }
     }
 
     @Test
-    public void testFailedPosCharGroupPatterns()
-    {
-        StringTokenizer tok = new StringTokenizer(FailedPosCharGroups,",");
+    void testFailedPosCharGroupPatterns() {
+        StringTokenizer tok = new StringTokenizer(FailedPosCharGroups, ",");
         while (tok.hasMoreElements()) {
             String pattern = "[" + tok.nextToken() + "]";
-            try {
-                new RegularExpression(pattern,"X");
-            } catch (ParseException e) {
-                continue;
-            }
-            fail("Pattern " + pattern + " did not fail.");
+            assertThrows(ParseException.class, () -> new RegularExpression(pattern, "X"));
         }
     }
 
     @Test
-    public void testNegatedFailedPosCharGroupPatterns()
-    {
-        StringTokenizer tok = new StringTokenizer(FailedPosCharGroups,",");
+    void testNegatedFailedPosCharGroupPatterns() {
+        StringTokenizer tok = new StringTokenizer(FailedPosCharGroups, ",");
         while (tok.hasMoreElements()) {
             String pattern = "[^" + tok.nextToken() + "]";
-            try {
-                new RegularExpression(pattern,"X");
-            } catch (ParseException e) {
-                continue;
-            }
-            fail("Pattern " + pattern + " did not fail.");
+            assertThrows(ParseException.class, () -> new RegularExpression(pattern, "X"));
         }
     }
 
     @Test
-    public void testMiscPassedPatterns() {
-        StringTokenizer tok = new StringTokenizer(MiscPassedPatterns,",");
+    void testMiscPassedPatterns() {
+        StringTokenizer tok = new StringTokenizer(MiscPassedPatterns, ",");
         while (tok.hasMoreElements()) {
             String pattern = tok.nextToken();
-            try {
-                new RegularExpression(pattern, "X");
-            } catch (ParseException e) {
-                fail("Pattern " + pattern + " failed due to " + e.getMessage());
-            }
+            assertDoesNotThrow(() -> new RegularExpression(pattern, "X"));
         }
     }
 }

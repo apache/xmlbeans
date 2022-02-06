@@ -18,21 +18,21 @@ package xmlobject.checkin;
 import com.easypo.XmlPurchaseOrderDocumentBean;
 import com.easypo.XmlPurchaseOrderDocumentBean.PurchaseOrder;
 import org.apache.xmlbeans.XmlException;
-import org.apache.xmlbeans.XmlObject;
-import org.junit.Test;
-import tools.util.JarUtil;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
+import static xmlcursor.common.BasicCursorTestCase.jobj;
 
 public class EasyPoTests {
     @Test
-    public void testEasyPo() throws Exception {
-        XmlPurchaseOrderDocumentBean doc = (XmlPurchaseOrderDocumentBean)
-            XmlObject.Factory.parse(JarUtil.getResourceFromJarasFile(
-                "xbean/xmlobject/easypo1.xml"));
+    void testEasyPo() throws Exception {
+        XmlPurchaseOrderDocumentBean doc = (XmlPurchaseOrderDocumentBean) jobj("xbean/xmlobject/easypo1.xml");
         assertFalse(doc.isNil());
         PurchaseOrder order = doc.getPurchaseOrder();
         assertEquals("David Bau", order.getCustomer().getName());
@@ -62,43 +62,20 @@ public class EasyPoTests {
     }
 
     @Test
-    public void testSimpleAutoValidaiton() throws Exception {
-        XmlPurchaseOrderDocumentBean.Factory.parse(
-            "<purchase-order xmlns='http://openuri.org/easypo'/>");
+    void testAutoValidationOk() {
+        Assertions.assertDoesNotThrow(() -> XmlPurchaseOrderDocumentBean.Factory.parse(
+            "<purchase-order xmlns='http://openuri.org/easypo'/>"));
+    }
 
-        try {
-            XmlPurchaseOrderDocumentBean.Factory.parse(
-                "<purchase-orde xmlns='http://openuri.org/easypo'/>");
-            fail();
-        } catch (XmlException e) {
-        }
-
-        try {
-            XmlPurchaseOrderDocumentBean.Factory.parse(
-                "<purchase-order xmlns='http://openuri.org/easyp'/>");
-            fail();
-        } catch (XmlException e) {
-        }
-
-        try {
-            XmlPurchaseOrderDocumentBean.Factory.parse(
-                "<f:fragment xmlns:f='http://www.openuri.org/fragment'/>");
-            fail();
-        } catch (XmlException e) {
-        }
-
-        try {
-            XmlPurchaseOrderDocumentBean.Factory.parse(
-                "<f:fragment xmlns:f='http://www.openuri.org/fragment'><a/></f:fragment>");
-            fail();
-        } catch (XmlException e) {
-        }
-
-        try {
-            XmlPurchaseOrderDocumentBean.Factory.parse(
-                "<f:fragment xmlns:f='http://www.openuri.org/fragment'><a/><a/></f:fragment>");
-            fail();
-        } catch (XmlException e) {
-        }
+    @ParameterizedTest
+    @ValueSource(strings = {
+        "<purchase-orde xmlns='http://openuri.org/easypo'/>",
+        "<purchase-order xmlns='http://openuri.org/easyp'/>",
+        "<f:fragment xmlns:f='http://www.openuri.org/fragment'/>",
+        "<f:fragment xmlns:f='http://www.openuri.org/fragment'><a/></f:fragment>",
+        "<f:fragment xmlns:f='http://www.openuri.org/fragment'><a/><a/></f:fragment>"
+    })
+    void testSimpleAutoValidationNok(String xml) {
+        assertThrows(XmlException.class, () -> XmlPurchaseOrderDocumentBean.Factory.parse(xml));
     }
 }

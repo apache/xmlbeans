@@ -22,13 +22,13 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -46,34 +46,22 @@ import static org.w3c.domts.DOMTest.load;
  */
 public class elementsetattributenodens01 {
     @Test
-    public void testRun() throws Throwable {
-        Document doc;
-        Element element;
-        Attr attribute1;
-        Attr attribute2;
-        Attr attrNode;
-        String attrName;
-        String attrNS;
-        String attrValue;
-        NamedNodeMap attributes;
-        Attr newAttribute;
-        int length;
-        doc = load("staff", true);
-        element = doc.createElementNS("http://www.w3.org/DOM/Test/Level2", "new:element");
-        attribute1 = doc.createAttributeNS("http://www.w3.org/DOM/Test/att1", "p1:att");
-        attribute2 = doc.createAttributeNS("http://www.w3.org/DOM/Test/att1", "p2:att");
+    void testRun() throws Throwable {
+        Document doc = load("staff", true);
+        Element element = doc.createElementNS("http://www.w3.org/DOM/Test/Level2", "new:element");
+        Attr attribute1 = doc.createAttributeNS("http://www.w3.org/DOM/Test/att1", "p1:att");
+        Attr attribute2 = doc.createAttributeNS("http://www.w3.org/DOM/Test/att1", "p2:att");
         attribute2.setValue("value2");
-        newAttribute = element.setAttributeNodeNS(attribute1);
+        Attr newAttribute = element.setAttributeNodeNS(attribute1);
         newAttribute = element.setAttributeNodeNS(attribute2);
-        attrNode = element.getAttributeNodeNS("http://www.w3.org/DOM/Test/att1", "att");
-        attrName = attrNode.getNodeName();
-        attrNS = attrNode.getNamespaceURI();
-        assertEquals("elementsetattributenodens01_attrName", "p2:att", attrName);
-        assertEquals("elementsetattributenodens01_attrNS", "http://www.w3.org/DOM/Test/att1", attrNS);
-        attributes = element.getAttributes();
-        length = attributes.getLength();
-        assertEquals("length", 1, length);
-
+        Attr attrNode = element.getAttributeNodeNS("http://www.w3.org/DOM/Test/att1", "att");
+        String attrName = attrNode.getNodeName();
+        String attrNS = attrNode.getNamespaceURI();
+        assertEquals("p2:att", attrName, "elementsetattributenodens01_attrName");
+        assertEquals("http://www.w3.org/DOM/Test/att1", attrNS, "elementsetattributenodens01_attrNS");
+        NamedNodeMap attributes = element.getAttributes();
+        int length = attributes.getLength();
+        assertEquals(1, length, "length");
     }
 
     /**

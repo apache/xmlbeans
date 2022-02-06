@@ -19,14 +19,14 @@ package dom.checkin;
 
 import dom.common.Loader;
 import dom.common.TestSetup;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class NodeListTest implements TestSetup {
 
@@ -38,35 +38,35 @@ public class NodeListTest implements TestSetup {
     int nCount = 5;
 
     @Test
-    public void testLength() {
+    void testLength() {
         assertEquals(m_nodeList.getLength(), nCount);
     }
 
     @Test
-    public void testItem() {
+    void testItem() {
         for (int i = 0; i < m_nodeList.getLength(); i++)
             assertEquals("ch" + i, m_nodeList.item(i).getNodeName());
     }
 
     @Test
-    public void testItemNeg() {
+    void testItemNeg() {
         assertNull(m_nodeList.item(-1));
     }
 
     @Test
-    public void testItemLarge() {
+    void testItemLarge() {
         assertNull(m_nodeList.item(nCount + 1));
     }
 
     @Test
-    public void voidTestLive() {
+    void voidTestLive() {
         m_node.removeChild(m_nodeList.item(1));//"ch1"
         assertEquals(m_nodeList.getLength(), nCount - 1);
         assertEquals("ch2", m_nodeList.item(1).getNodeName());
     }
 
     @Test
-    public void moveToNode() {
+    void moveToNode() {
         m_node = m_doc.getFirstChild();
         m_nodeList = m_node.getChildNodes();
     }
@@ -77,7 +77,7 @@ public class NodeListTest implements TestSetup {
 
     }
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         _loader = Loader.getLoader();
         m_doc = (org.w3c.dom.Document) _loader.load(sXml);

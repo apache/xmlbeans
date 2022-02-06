@@ -16,62 +16,69 @@
 
 package xmlcursor.checkin;
 
+import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlCursor.TokenType;
-import org.apache.xmlbeans.XmlObject;
-import org.junit.Test;
-import xmlcursor.common.BasicCursorTestCase;
+import org.junit.jupiter.api.Test;
 import xmlcursor.common.Common;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
+import static xmlcursor.common.BasicCursorTestCase.cur;
+import static xmlcursor.common.BasicCursorTestCase.toNextTokenOfType;
 
 
-public class ToLastAttributeTest extends BasicCursorTestCase {
+public class ToLastAttributeTest {
 
     @Test
-    public void testToLastAttrSTARTDOC() throws Exception {
-        m_xc = XmlObject.Factory.parse("<foo>text</foo>").newCursor();
-        m_xc.toLastChild();
-        m_xc.insertAttributeWithValue("attr0", "val0");
-        m_xc.insertAttributeWithValue("attr1", "val1");
-        m_xc.toStartDoc();
-        assertTrue(m_xc.toLastAttribute());
-        assertEquals("val1", m_xc.getTextValue());
+    void testToLastAttrSTARTDOC() throws Exception {
+        try (XmlCursor m_xc = cur("<foo>text</foo>")) {
+            m_xc.toLastChild();
+            m_xc.insertAttributeWithValue("attr0", "val0");
+            m_xc.insertAttributeWithValue("attr1", "val1");
+            m_xc.toStartDoc();
+            assertTrue(m_xc.toLastAttribute());
+            assertEquals("val1", m_xc.getTextValue());
+        }
     }
 
     @Test
-    public void testToLastAttrSTARTmoreThan1ATTR() throws Exception {
-        m_xc = XmlObject.Factory.parse(Common.XML_FOO_2ATTR_TEXT).newCursor();
-        toNextTokenOfType(m_xc, TokenType.START);
-        assertTrue(m_xc.toLastAttribute());
-        assertEquals("val1", m_xc.getTextValue());
+    void testToLastAttrSTARTmoreThan1ATTR() throws Exception {
+        try (XmlCursor m_xc = cur(Common.XML_FOO_2ATTR_TEXT)) {
+            toNextTokenOfType(m_xc, TokenType.START);
+            assertTrue(m_xc.toLastAttribute());
+            assertEquals("val1", m_xc.getTextValue());
+        }
     }
 
     @Test
-    public void testToLastAttrFrom1stATTR() throws Exception {
-        m_xc = XmlObject.Factory.parse(Common.XML_FOO_2ATTR_TEXT).newCursor();
-        toNextTokenOfType(m_xc, TokenType.ATTR);
-        assertFalse(m_xc.toLastAttribute());
+    void testToLastAttrFrom1stATTR() throws Exception {
+        try (XmlCursor m_xc = cur(Common.XML_FOO_2ATTR_TEXT)) {
+            toNextTokenOfType(m_xc, TokenType.ATTR);
+            assertFalse(m_xc.toLastAttribute());
+        }
     }
 
     @Test
-    public void testToLastAttrZeroATTR() throws Exception {
-        m_xc = XmlObject.Factory.parse(Common.XML_FOO_TEXT).newCursor();
-        toNextTokenOfType(m_xc, TokenType.START);
-        assertFalse(m_xc.toLastAttribute());
+    void testToLastAttrZeroATTR() throws Exception {
+        try (XmlCursor m_xc = cur(Common.XML_FOO_TEXT)) {
+            toNextTokenOfType(m_xc, TokenType.START);
+            assertFalse(m_xc.toLastAttribute());
+        }
     }
 
     @Test
-    public void testToLastAttrFromTEXT() throws Exception {
-        m_xc = XmlObject.Factory.parse(Common.XML_FOO_2ATTR_TEXT).newCursor();
-        toNextTokenOfType(m_xc, TokenType.TEXT);
-        assertFalse(m_xc.toLastAttribute());
+    void testToLastAttrFromTEXT() throws Exception {
+        try (XmlCursor m_xc = cur(Common.XML_FOO_2ATTR_TEXT)) {
+            toNextTokenOfType(m_xc, TokenType.TEXT);
+            assertFalse(m_xc.toLastAttribute());
+        }
     }
 
     @Test
-    public void testToLastAttrWithXMLNS() throws Exception {
-        m_xc = XmlObject.Factory.parse("<foo xmlns=\"http://www.foo.org\">text</foo>").newCursor();
-        toNextTokenOfType(m_xc, TokenType.START);
-        assertFalse(m_xc.toLastAttribute());
+    void testToLastAttrWithXMLNS() throws Exception {
+        try (XmlCursor m_xc = cur("<foo xmlns=\"http://www.foo.org\">text</foo>")) {
+            toNextTokenOfType(m_xc, TokenType.START);
+            assertFalse(m_xc.toLastAttribute());
+        }
     }
 }
 

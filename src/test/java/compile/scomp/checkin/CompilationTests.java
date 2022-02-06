@@ -22,19 +22,21 @@ import org.apache.xmlbeans.impl.tool.*;
 import org.apache.xmlbeans.impl.util.FilerImpl;
 import org.apache.xmlbeans.impl.xb.xsdschema.SchemaDocument;
 import org.apache.xmlbeans.impl.xb.xsdschema.TopLevelComplexType;
-import org.junit.Assert;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.JUnitCore;
-import org.junit.runner.Result;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.platform.launcher.Launcher;
+import org.junit.platform.launcher.LauncherDiscoveryRequest;
+import org.junit.platform.launcher.core.LauncherDiscoveryRequestBuilder;
+import org.junit.platform.launcher.core.LauncherFactory;
+import org.junit.platform.launcher.listeners.SummaryGeneratingListener;
+import org.junit.platform.launcher.listeners.TestExecutionSummary;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLClassLoader;
+import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -44,7 +46,9 @@ import java.util.stream.Stream;
 import static common.Common.SCOMP_CASE_ROOT;
 import static common.Common.getRootFile;
 import static java.util.Collections.singletonList;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.platform.engine.discovery.DiscoverySelectors.selectClass;
+import static org.junit.platform.engine.discovery.DiscoverySelectors.selectClasspathRoots;
 
 
 @SuppressWarnings({"SpellCheckingInspection", "ResultOfMethodCallIgnored"})
@@ -133,7 +137,7 @@ public class CompilationTests {
 
 
     @Test
-    public void testJ2EE() {
+    void testJ2EE() {
         deltree(xbeanOutput("compile/scomp/j2ee"));
         // First, compile schema
         File srcdir = xbeanOutput("compile/scomp/j2ee/j2eeconfigxml/src");
@@ -159,12 +163,12 @@ public class CompilationTests {
         StringWriter message = new StringWriter();
         if (!result)
             dumpErrors(errors, new PrintWriter(message));
-        assertTrue("Build failed:" + message, result);
-        assertTrue("Cannot find " + outputjar, outputjar.exists());
+        assertTrue(result, "Build failed:" + message);
+        assertTrue(outputjar.exists(), "Cannot find " + outputjar);
     }
 
     @Test
-    public void testIncrementalCompilation() throws IOException, XmlException {
+    void testIncrementalCompilation() throws IOException, XmlException {
         File[] files = new File[]{
             xbeanCase("incr/incr1.xsd"),
             xbeanCase("incr/incr3.xsd"),
@@ -188,7 +192,7 @@ public class CompilationTests {
         XmlOptions options = (new XmlOptions()).setErrorListener(errors);
         SchemaTypeSystem builtin = XmlBeans.getBuiltinTypeSystem();
         system = XmlBeans.compileXsd(schemas, builtin, options);
-        Assert.assertNotNull("Compilation failed during inititial compile.", system);
+        assertNotNull(system, "Compilation failed during inititial compile.");
         System.out.println("-= Initial Compile =-");
 
         for (int i = 0; i < system.globalTypes().length; i++) {
@@ -208,7 +212,7 @@ public class CompilationTests {
         schemas1[0].documentProperties().setSourceName(url);
         errors.clear();
         system = XmlBeans.compileXsd(system, schemas1, builtin, options);
-        Assert.assertNotNull("Compilation failed during incremental compile.", system);
+        assertNotNull(system, "Compilation failed during incremental compile.");
         SchemaCodeGenerator.saveTypeSystem(system, outincr, null, null, null);
         System.out.println("-= Incremental Compile =-");
         for (int i = 0; i < system.globalTypes().length; i++) {
@@ -224,7 +228,7 @@ public class CompilationTests {
         errors.clear();
         schemas[n - 2] = schemas1[0];
         system = XmlBeans.compileXsd(schemas, builtin, options);
-        Assert.assertNotNull("Compilation failed during reference compile.", system);
+        assertNotNull(system, "Compilation failed during reference compile.");
         Filer filer = new FilerImpl(out, null, null, false, false);
         system.save(filer);
 
@@ -246,11 +250,11 @@ public class CompilationTests {
         List<XmlError> diffs = new ArrayList<>();
         Diff.dirsAsTypeSystems(out, outincr, diffs);
         System.setProperty("xmlbeans.diff.diffIndex", oldPropValue == null ? "true" : oldPropValue);
-        assertEquals("Differences encountered", 0, diffs.size());
+        assertEquals(0, diffs.size(), "Differences encountered");
     }
 
     @Test
-    public void testSchemaBookmarks() throws XmlException, IOException {
+    void testSchemaBookmarks() throws XmlException, IOException {
         File srcSchema = xbeanCase("../../simple/person/person.xsd");
         // Parse
         SchemaDocument.Schema parsed = SchemaDocument.Factory.parse(srcSchema).getSchema();
@@ -263,7 +267,7 @@ public class CompilationTests {
                 found = true;
                 break;
             }
-        assertTrue("Could not find the \"person\" complex type", found);
+        assertTrue(found, "Could not find the \"person\" complex type");
         // Set the bookmark
         try (XmlCursor c = cTypes[i].newCursor()) {
             SchemaBookmark sb = new SchemaBookmark("MyBookmark");
@@ -272,17 +276,17 @@ public class CompilationTests {
         // Compile it into STS
         SchemaTypeSystem sts = XmlBeans.compileXsd(new XmlObject[]{parsed},
             XmlBeans.getBuiltinTypeSystem(), null);
-        Assert.assertNotNull("Could not compile person.xsd", sts);
+        assertNotNull(sts, "Could not compile person.xsd");
         SchemaType personType = sts.findType(QNameHelper.forLNS("person", "http://openuri.org/mytest"));
-        Assert.assertNotNull("Could not find the \"person\" schema type", personType);
+        assertNotNull(personType, "Could not find the \"person\" schema type");
         // Check that the bookmark made it through
         Object val = personType.getUserData();
-        Assert.assertNotNull("Schema user data not found!", val);
-        Assert.assertEquals("MyBookmark", val);
+        assertNotNull(val, "Schema user data not found!");
+        assertEquals("MyBookmark", val);
     }
 
     @Test
-    public void testSimple() throws MalformedURLException, ClassNotFoundException {
+    void testSimple() throws MalformedURLException, ClassNotFoundException, URISyntaxException {
         deltree(xbeanOutput("compile/scomp/simple"));
         // First, compile schema
 
@@ -300,24 +304,35 @@ public class CompilationTests {
         params.setSrcDir(srcdir);
         params.setClassesDir(classesdir);
         params.setOutputJar(outputjar);
-        assertTrue("Build failed", SchemaCompiler.compile(params));
+        assertTrue(SchemaCompiler.compile(params), "Build failed");
 
         // Then, compile java classes
-        File javasrc = new File(SCOMP_CASE_ROOT + "/simple");
+        File javasrc = new File("src/test/java/scomp/simple");
         File javaclasses = xbeanOutput("compile/scomp/simple/javaclasses");
         javaclasses.mkdirs();
         File[] testcp = Stream.concat(Stream.of(CodeGenUtil.systemClasspath()), Stream.of(outputjar)).toArray(File[]::new);
         CodeGenUtil.externalCompile(singletonList(javasrc), javaclasses, testcp, true);
 
         // Then run the test
-        URLClassLoader childcl = new URLClassLoader(new URL[]{outputjar.toURI().toURL()}, CompilationTests.class.getClassLoader());
-        Class<?> cl = childcl.loadClass("scomp.simple.SimplePersonTest");
-        Result result = JUnitCore.runClasses(cl);
-        assertEquals(0, result.getFailureCount());
+        final LauncherDiscoveryRequest request = LauncherDiscoveryRequestBuilder.request().selectors(
+                selectClass("scomp.simple.SimplePersonTest"),
+                selectClasspathRoots(Collections.singleton(outputjar.toPath())).get(0)
+            )
+            .build();
+
+        final Launcher launcher = LauncherFactory.create();
+        final SummaryGeneratingListener listener = new SummaryGeneratingListener();
+
+        launcher.registerTestExecutionListeners(listener);
+        launcher.execute(request);
+
+        TestExecutionSummary summary = listener.getSummary();
+        assertEquals(1, summary.getTestsSucceededCount());
+        assertEquals(0, summary.getTestsFailedCount());
     }
 
     @Test
-    @Ignore
+    @Disabled
     public void testDownload() {
         deltree(xbeanOutput("compile/scomp/include"));
 
@@ -331,8 +346,8 @@ public class CompilationTests {
             params.setSrcDir(srcdir);
             params.setClassesDir(classesdir);
             params.setOutputJar(outputjar);
-            assertFalse("Build should have failed", SchemaCompiler.compile(params));
-            assertFalse("Should not have created " + outputjar, outputjar.exists());
+            assertFalse(SchemaCompiler.compile(params), "Build should have failed");
+            assertFalse(outputjar.exists(), "Should not have created " + outputjar);
         }
 
         {
@@ -346,13 +361,13 @@ public class CompilationTests {
             params.setSrcDir(srcdir);
             params.setClassesDir(classesdir);
             params.setOutputJar(outputjar);
-            assertTrue("Build failed", SchemaCompiler.compile(params));
-            assertTrue("Cannout find " + outputjar, outputjar.exists());
+            assertTrue(SchemaCompiler.compile(params), "Build failed");
+            assertTrue(outputjar.exists(), "Cannout find " + outputjar);
         }
     }
 
     @Test
-    public void testPricequote() {
+    void testPricequote() {
         deltree(xbeanOutput("compile/scomp/pricequote"));
         // First, compile schema
         File srcdir = xbeanOutput("compile/scomp/pricequote/src");
@@ -363,23 +378,23 @@ public class CompilationTests {
         params.setSrcDir(srcdir);
         params.setClassesDir(classesdir);
         params.setOutputJar(outputjar);
-        assertTrue("Build failed " + fwroot, SchemaCompiler.compile(params));
-        assertTrue("Cannout find " + outputjar, outputjar.exists());
+        assertTrue(SchemaCompiler.compile(params), "Build failed " + fwroot);
+        assertTrue(outputjar.exists(), "Cannout find " + outputjar);
     }
 
     @Test
-    public void testInvalid() throws XmlException {
+    void testInvalid() throws XmlException {
         for (String schemaFile : invalidSchemas) {
             // Parse the invalid schema files
             SchemaDocument schema = SchemaDocument.Factory.parse(schemaFile);
             // Now compile the invalid schemas, test that they fail
-            assertThrows("Schema should have failed to compile:\n" + schemaFile, XmlException.class,
-                () -> XmlBeans.loadXsd(schema));
+            assertThrows(XmlException.class, () -> XmlBeans.loadXsd(schema),
+                "Schema should have failed to compile:\n" + schemaFile);
         }
     }
 
     @Test
-    public void testValid() throws XmlException {
+    void testValid() throws XmlException {
         for (String schemaFile : validSchemas) {
             // Parse the valid schema files
             SchemaDocument schema = SchemaDocument.Factory.parse(schemaFile);
@@ -390,7 +405,7 @@ public class CompilationTests {
     }
 
     @Test
-    public void partials() throws InterruptedException, IOException {
+    void partials() throws InterruptedException, IOException {
         String[] files = {"partials/RootDocument.java", "partials/impl/RootDocumentImpl.java"};
         String[] templ = new String[files.length];
         for (int i=0; i<files.length; i++) {
@@ -428,13 +443,13 @@ public class CompilationTests {
                 exp = exp.replaceAll("(?m)^.*<[^>]+_ELSE>(?s).+?</[^>]+_ELSE>$\\n", "");
                 // remove unused markers
                 exp = exp.replaceAll("(?m)^.*//.*<.*>$\\n", "");
-                assertEquals(files[i] + " - " + removeMethod + " failed", exp, act);
+                assertEquals(exp, act, files[i] + " - " + removeMethod + " failed");
             }
         }
     }
 
     @Test
-    public void annotation2javadoc() throws Exception {
+    void annotation2javadoc() throws Exception {
         deltree(xbeanOutput("compile/scomp/javadoc"));
         File srcdir = xbeanOutput("compile/scomp/javadoc/src");
         File classesdir = xbeanOutput("compile/scomp/javadoc/classes");

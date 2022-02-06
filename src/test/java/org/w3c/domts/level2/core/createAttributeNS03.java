@@ -22,12 +22,12 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Test;
-import org.w3c.dom.Attr;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -46,55 +46,17 @@ import static org.w3c.domts.DOMTest.load;
  */
 public class createAttributeNS03 {
     @Test
-    public void testRun() throws Throwable {
+    void testRun() throws Throwable {
         String namespaceURI = "http://www.wedding.com/";
-        String qualifiedName;
-        Document doc;
-        Attr newAttr;
-        java.util.List illegalQNames = new java.util.ArrayList();
-        illegalQNames.add("person:{");
-        illegalQNames.add("person:}");
-        illegalQNames.add("person:~");
-        illegalQNames.add("person:'");
-        illegalQNames.add("person:!");
-        illegalQNames.add("person:@");
-        illegalQNames.add("person:#");
-        illegalQNames.add("person:$");
-        illegalQNames.add("person:%");
-        illegalQNames.add("person:^");
-        illegalQNames.add("person:&");
-        illegalQNames.add("person:*");
-        illegalQNames.add("person:(");
-        illegalQNames.add("person:)");
-        illegalQNames.add("person:+");
-        illegalQNames.add("person:=");
-        illegalQNames.add("person:[");
-        illegalQNames.add("person:]");
-        illegalQNames.add("person:\\");
-        illegalQNames.add("person:/");
-        illegalQNames.add("person:;");
-        illegalQNames.add("person:`");
-        illegalQNames.add("person:<");
-        illegalQNames.add("person:>");
-        illegalQNames.add("person:,");
-        illegalQNames.add("person:a ");
-        illegalQNames.add("person:\"");
-
-        doc = load("staffNS", false);
-        for (int indexd292e121 = 0; indexd292e121 < illegalQNames.size(); indexd292e121++) {
-            qualifiedName = (String) illegalQNames.get(indexd292e121);
-
-            {
-                boolean success = false;
-                try {
-                    newAttr = doc.createAttributeNS(namespaceURI, qualifiedName);
-                } catch (DOMException ex) {
-                    success = (ex.code == DOMException.INVALID_CHARACTER_ERR);
-                }
-                assertTrue("throw_INVALID_CHARACTER_ERR", success);
-            }
+        Document doc = load("staffNS", false);
+        String[] illeagalChars = {
+            "{", "}", "~", "'", "!", "@", "#", "$", "%", "^", "&", "*", "(", ")",
+            "+", "=", "[", "]", "\\", "/", ";", "`", "<", ">", ",", "a ", "\""
+        };
+        for (String ic : illeagalChars) {
+            DOMException ex = assertThrows(DOMException.class, () -> doc.createAttributeNS(namespaceURI, "person:"+ic));
+            assertEquals(DOMException.INVALID_CHARACTER_ERR, ex.code, "throw_INVALID_CHARACTER_ERR");
         }
-
     }
 
     /**

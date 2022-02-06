@@ -17,42 +17,37 @@ package xmlcursor.xquery.detailed;
 
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlObject;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 
 //Used to be a checkin
 public class StoreTestsXqrl {
-    private void doTokenTest(String xml) throws Exception {
+    @ParameterizedTest
+    @ValueSource(strings = {
+        "<foo xmlns=\"foo.com\"><bar>1</bar></foo>",
+        "<foo><!--comment--><?target foo?></foo>",
+        "<foo>a<bar>b</bar>c<bar>d</bar>e</foo>",
+        "<foo xmlns:x=\"y\"><bar xmlns:x=\"z\"/></foo>",
+        "<foo x=\"y\" p=\"r\"/>",
+        "<bar>xxxxsssssssssssssss</bar>"
+    })
+    void doSaveTest(String xml) throws Exception {
+        if (xml.startsWith("<bar>")) xml = xml.replace("s", "<foo>aaa</foo>bbb");
+
         try (XmlCursor c = XmlObject.Factory.parse(xml).newCursor();
-            XmlCursor cq = c.execQuery(".")) {
+             XmlCursor cq = c.execQuery(".")) {
             String s = cq.xmlText();
             assertEquals(s, xml);
         }
     }
 
-    private void doSaveTest(String xml) throws Exception {
-        doTokenTest(xml);
-    }
-
     @Test
-    public void testSaving() throws Exception {
-        doSaveTest("<foo xmlns=\"foo.com\"><bar>1</bar></foo>");
-        doSaveTest("<foo><!--comment--><?target foo?></foo>");
-        doSaveTest("<foo>a<bar>b</bar>c<bar>d</bar>e</foo>");
-        doSaveTest("<foo xmlns:x=\"y\"><bar xmlns:x=\"z\"/></foo>");
-        doSaveTest("<foo x=\"y\" p=\"r\"/>");
-
-        String s = "<foo>aaa</foo>bbb";
-        s = s + s + s + s + s + s + s + s + s + s + s + s + s + s + s;
-        s = "<bar>xxxx" + s + "</bar>";
-
-        doSaveTest(s);
-
-        XmlObject x =
-            XmlObject.Factory.parse("<foo xmlns:a='a.com'><bar xmlns:a='b.com'/></foo>");
+    void testSaving() throws Exception {
+        XmlObject x = XmlObject.Factory.parse("<foo xmlns:a='a.com'><bar xmlns:a='b.com'/></foo>");
 
         try (XmlCursor c = x.newCursor()) {
             c.toFirstChild();
@@ -71,30 +66,21 @@ public class StoreTestsXqrl {
         }
     }
 
-    public void testTextFrag(String actual, String expected) {
-        String pre = "<xml-fragment>";
-
-        String post = "</xml-fragment>";
-
-        assertTrue(actual.startsWith(pre));
-        assertTrue(actual.endsWith(post));
-
-        assertEquals(expected, actual.substring(
-            pre.length(), actual.length() - post.length()));
-    }
-
     //
     // Make sure XQuery works (tests the saver too)
     //
     @Test
-    public void testXQuery()
-        throws Exception {
+    void testXQuery() throws Exception {
+        String pre = "<xml-fragment>";
+        String post = "</xml-fragment>";
         try (XmlCursor c = XmlObject.Factory.parse(
                 "<foo><bar>1</bar><bar>2</bar></foo>").newCursor();
             XmlCursor cq = c.execQuery("for $b in //bar order by ($b) descending return $b")) {
-            String s = cq.xmlText();
+            String actual = cq.xmlText();
 
-            testTextFrag(s, "<bar>2</bar><bar>1</bar>");
+            assertTrue(actual.startsWith(pre));
+            assertTrue(actual.endsWith(post));
+            assertEquals("<bar>2</bar><bar>1</bar>", actual.substring(pre.length(), actual.length() - post.length()));
         }
 
         try (XmlCursor c = XmlObject.Factory.parse("<foo></foo>").newCursor()) {
@@ -105,14 +91,13 @@ public class StoreTestsXqrl {
 
             try (XmlCursor cq = c.execQuery(".")) {
                 String s = cq.xmlText();
-                assertEquals("<foo><boo:boo xmlns:boo=\"boo.com\"/></foo>",
-                    s);
+                assertEquals("<foo><boo:boo xmlns:boo=\"boo.com\"/></foo>", s);
             }
         }
     }
 
     @Test
-    public void testPathing() throws Exception {
+    void testPathing() throws Exception {
         XmlObject x =
             XmlObject.Factory.parse(
                 "<foo><bar>1</bar><bar>2</bar><bar>3</bar></foo>");
@@ -129,11 +114,9 @@ public class StoreTestsXqrl {
             assertTrue(c.toNextSelection());
             assertEquals("<bar>3</bar>", c.xmlText());
 
-            assertTrue(!c.toNextSelection());
+            assertFalse(c.toNextSelection());
 
-            x =
-                XmlObject.Factory.parse(
-                    "<foo><bar x='1'/><bar x='2'/><bar x='3'/></foo>");
+            x = XmlObject.Factory.parse("<foo><bar x='1'/><bar x='2'/><bar x='3'/></foo>");
         }
 
         try (XmlCursor c = x.newCursor()) {
@@ -152,10 +135,9 @@ public class StoreTestsXqrl {
             assertTrue(c.currentTokenType().isAttr());
             assertEquals("3", c.getTextValue());
 
-            assertTrue(!c.toNextSelection());
+            assertFalse(c.toNextSelection());
 
-            x = XmlObject.Factory.parse(
-                "<foo><bar>1</bar><bar>2</bar><bar>3</bar></foo>");
+            x = XmlObject.Factory.parse("<foo><bar>1</bar><bar>2</bar><bar>3</bar></foo>");
         }
 
         try (XmlCursor c = x.newCursor()) {
@@ -173,7 +155,7 @@ public class StoreTestsXqrl {
             assertTrue(c.currentTokenType().isText());
             assertEquals("3", c.getChars());
 
-            assertTrue(!c.toNextSelection());
+            assertFalse(c.toNextSelection());
         }
     }
 }

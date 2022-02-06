@@ -19,16 +19,16 @@ import interfaceFeature.xbean.methodNameCollision.company.CompanyType;
 import interfaceFeature.xbean.methodNameCollision.company.ConsultantType;
 import interfaceFeature.xbean.methodNameCollision.company.DepartmentType;
 import org.apache.xmlbeans.XmlString;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import xmlobject.extensions.interfaceFeature.methodNameCollision.existing.IFoo;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class NameCollisionTest {
 
     @Test
-    public void test() {
+    void test() {
         CompanyDocument poDoc;
 
         poDoc = CompanyDocument.Factory.newInstance();

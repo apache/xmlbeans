@@ -19,8 +19,11 @@ import org.apache.xmlbeans.*;
 import org.apache.xmlbeans.XmlCursor.TokenType;
 import org.apache.xmlbeans.XmlCursor.XmlBookmark;
 import org.apache.xmlbeans.impl.xb.xsdschema.SchemaDocument;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.xml.sax.*;
 import org.xml.sax.ext.LexicalHandler;
 import xmlcursor.common.Common;
@@ -31,16 +34,35 @@ import javax.xml.parsers.SAXParserFactory;
 import java.io.StringReader;
 import java.util.*;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
+import static xmlcursor.common.BasicCursorTestCase.cur;
+import static xmlcursor.common.BasicCursorTestCase.obj;
 
 public class StoreTests {
 
     static String[] _args;
     static String _test;
 
-
-    private void streamTest(String xml)
-        throws Exception {
+    @ParameterizedTest
+    @ValueSource(strings = {
+        "<a/>",
+        "<a x='y'/>",
+        "<a><b>foo</b></a>",
+        "<a><b>fo<!--moo-->o<?goof ball?>dsfdf</b></a>",
+        "<a xmlns='nnn'></a>",
+        "<a x='y'><!---->x<b/><c p='q'>z</c></a>",
+        "<a x='y'><!----><b>moo</b><c p='q'></c></a>",
+        "<a>asa<b/>sdsd<c>aaz</c>adsasd</a>",
+        "<a><?target value?></a>",
+        "<n:a xmlns:n='nnn'></n:a>",
+        "<j:a x='y' p='q' xmlns:j='k'></j:a>",
+        "<foo xmlns=\"foo.com\"><bar>1</bar></foo>",
+        "<foo><!--comment--><?target foo?></foo>",
+        "<foo>a<bar>b</bar>c<bar>d</bar>e</foo>",
+        "<foo xmlns:x=\"y\"><bar xmlns:x=\"z\"/></foo>",
+        "<foo x=\"y\" p=\"r\"/>"
+    })
+    void testXMLStreamReader(String xml) throws Exception {
         XmlObject x1 = XmlObject.Factory.parse(xml);
         XmlObject x2;
         try (XmlCursor c = x1.newCursor()) {
@@ -54,27 +76,7 @@ public class StoreTests {
     }
 
     @Test
-    public void testXMLStreamReader() throws Exception {
-        streamTest("<a/>");
-        streamTest("<a x='y'/>");
-        streamTest("<a><b>foo</b></a>");
-        streamTest("<a><b>fo<!--moo-->o<?goof ball?>dsfdf</b></a>");
-        streamTest("<a xmlns='nnn'></a>");
-        streamTest("<a x='y'><!---->x<b/><c p='q'>z</c></a>");
-        streamTest("<a x='y'><!----><b>moo</b><c p='q'></c></a>");
-        streamTest("<a>asa<b/>sdsd<c>aaz</c>adsasd</a>");
-        streamTest("<a><?target value?></a>");
-        streamTest("<n:a xmlns:n='nnn'></n:a>");
-        streamTest("<j:a x='y' p='q' xmlns:j='k'></j:a>");
-        streamTest("<foo xmlns=\"foo.com\"><bar>1</bar></foo>");
-        streamTest("<foo><!--comment--><?target foo?></foo>");
-        streamTest("<foo>a<bar>b</bar>c<bar>d</bar>e</foo>");
-        streamTest("<foo xmlns:x=\"y\"><bar xmlns:x=\"z\"/></foo>");
-        streamTest("<foo x=\"y\" p=\"r\"/>");
-    }
-
-    @Test
-    public void testReplaceContents() throws Exception {
+    void testReplaceContents() throws Exception {
         XmlObject xDst = XmlObject.Factory.newInstance();
         XmlObject xSrc = XmlObject.Factory.parse("<foo/>");
         XmlObject newDst = xDst.set(xSrc);
@@ -104,37 +106,35 @@ public class StoreTests {
         assertEquals("<bar x=\"moo\"/>", xDst.xmlText());
     }
 
-    @Test(expected = Exception.class)
-    public void testSniffing() throws Exception {
+    @Test
+    void testSniffing() throws Exception {
         XmlObject x;
 
-        x = XmlObject.Factory.parse("<xoo/>");
-        assertSame(x.schemaType(), XmlBeans.NO_TYPE);
+        x = obj("<xoo/>");
+        Assertions.assertSame(x.schemaType(), XmlBeans.NO_TYPE);
 
-        x = XmlObject.Factory.parse(
-            "<schema xmlns='http://www.w3.org/2001/XMLSchema'/>");
-        assertSame(x.schemaType(), SchemaDocument.type);
+        x = obj("<schema xmlns='http://www.w3.org/2001/XMLSchema'/>");
+        Assertions.assertSame(x.schemaType(), SchemaDocument.type);
 
-        x = XmlObject.Factory.parse(
-            "<schema xmlns='http://www.w3.org/2001/XMLSchema/moo'/>");
-        assertSame(x.schemaType(), XmlBeans.NO_TYPE);
+        x = obj("<schema xmlns='http://www.w3.org/2001/XMLSchema/moo'/>");
+        Assertions.assertSame(x.schemaType(), XmlBeans.NO_TYPE);
 
-        x = XmlObject.Factory.parse(
-            "<schema xmlns='http://www.w3.org/2001/XMLSchema'/>");
-        assertSame(x.schemaType(), SchemaDocument.type);
+        x = obj("<schema xmlns='http://www.w3.org/2001/XMLSchema'/>");
+        Assertions.assertSame(x.schemaType(), SchemaDocument.type);
 
         x = org.apache.xmlbeans.impl.xb.xsdschema.SchemaDocument.Factory.parse(
             "<schema xmlns='http://www.w3.org/2001/XMLSchema'/>");
-        assertSame(x.schemaType(), SchemaDocument.type);
+        Assertions.assertSame(x.schemaType(), SchemaDocument.type);
 
-        org.apache.xmlbeans.impl.xb.xsdschema.SchemaDocument.Factory.parse(
-            "<schema xmlns='http://www.w3.org/2001/XMLSchema/moo'/>");
+        assertThrows(Exception.class, () ->
+            org.apache.xmlbeans.impl.xb.xsdschema.SchemaDocument.Factory.parse(
+                "<schema xmlns='http://www.w3.org/2001/XMLSchema/moo'/>")
+        );
     }
 
     @Test
-    public void testCursorStack() throws Exception {
-        XmlObject x = XmlObject.Factory.parse("<foo x='y'/>");
-        try (XmlCursor c = x.newCursor()) {
+    void testCursorStack() throws Exception {
+        try (XmlCursor c = cur("<foo x='y'/>")) {
             c.push();
             c.toNextToken();
             c.push();
@@ -148,7 +148,7 @@ public class StoreTests {
     }
 
     @Test
-    public void testImplicitNamespaces() {
+    void testImplicitNamespaces() {
         Map<String, String> namespaces = new HashMap<>();
         namespaces.put("foo", "foo.com");
         namespaces.put("bar", "bar.com");
@@ -328,8 +328,17 @@ public class StoreTests {
         private final StringBuilder _sb = new StringBuilder();
     }
 
-    private void doTestSaxSaver(String xml)
-        throws Exception {
+    @ParameterizedTest
+    @ValueSource(strings = {
+        "<a xmlns='nnn'></a>",
+        "<a x='y'><!---->x<b/><c p='q'>z</c></a>",
+        "<a x='y'><!----><b>moo</b><c p='q'></c></a>",
+        "<a>asa<b/>sdsd<c>aaz</c>adsasd</a>",
+        "<a><?target value?></a>",
+        "<n:a xmlns:n='nnn'></n:a>",
+        "<j:a x='y' p='q' xmlns:j='k'></j:a>"
+    })
+    void testSaxSaver(String xml) throws Exception {
         // ME
 
         Content content2 = new Content();
@@ -362,19 +371,7 @@ public class StoreTests {
     }
 
     @Test
-    public void testSaxSaver()
-        throws Exception {
-        doTestSaxSaver("<a xmlns='nnn'></a>");
-        doTestSaxSaver("<a x='y'><!---->x<b/><c p='q'>z</c></a>");
-        doTestSaxSaver("<a x='y'><!----><b>moo</b><c p='q'></c></a>");
-        doTestSaxSaver("<a>asa<b/>sdsd<c>aaz</c>adsasd</a>");
-        doTestSaxSaver("<a><?target value?></a>");
-        doTestSaxSaver("<n:a xmlns:n='nnn'></n:a>");
-        doTestSaxSaver("<j:a x='y' p='q' xmlns:j='k'></j:a>");
-    }
-
-    @Test
-    @Ignore
+    @Disabled
     public void testParsing() throws Exception {
         Random r = new Random(1);
 
@@ -391,7 +388,7 @@ public class StoreTests {
 
         try (XmlCursor c = XmlObject.Factory.parse(
                 xml, new XmlOptions().setLoadLineNumbers()).
-                newCursor()) {
+            newCursor()) {
 
             for (int i = 0; i < xml.length(); i++) {
                 char ch = xml.charAt(i);
@@ -427,7 +424,7 @@ public class StoreTests {
     }
 
     @Test
-    @Ignore
+    @Disabled
     public void testLineNumbers() throws Exception {
         Random r = new Random(1);
 
@@ -635,7 +632,7 @@ public class StoreTests {
                     whitespaces();
                 }
 
-                HashMap<String,Object> attrs = new HashMap<>();
+                HashMap<String, Object> attrs = new HashMap<>();
 
                 for (int i = r.nextInt(3); i > 0; i--) {
                     append(' ');
@@ -644,7 +641,6 @@ public class StoreTests {
 
                     do {
                         aname = makeNcName();
-
                     } while (attrs.containsKey(aname));
 
                     attrs.put(aname, null);
@@ -716,7 +712,7 @@ public class StoreTests {
     }
 
     @Test
-    public void testBookmarks()
+    void testBookmarks()
         throws Exception {
         XmlObject x = XmlObject.Factory.parse("<foo x='y'>abcdefg<!---->xy</foo>");
 
@@ -756,33 +752,32 @@ public class StoreTests {
 
             c.toStartDoc();
 
-            assertSame(c.getBookmark(MyMark.class), m1);
-            assertSame(c.toNextBookmark(MyMark.class), m2);
-            assertSame(c.toNextBookmark(MyMark.class), m3);
-            assertSame(c.toNextBookmark(MyMark.class), m4);
-            assertSame(c.toNextBookmark(MyMark.class), m5);
-            assertSame(c.toNextBookmark(MyMark.class), m6);
-            assertSame(c.toNextBookmark(MyMark.class), m7);
-            assertSame(c.toNextBookmark(MyMark.class), m8);
+            Assertions.assertSame(c.getBookmark(MyMark.class), m1);
+            Assertions.assertSame(c.toNextBookmark(MyMark.class), m2);
+            Assertions.assertSame(c.toNextBookmark(MyMark.class), m3);
+            Assertions.assertSame(c.toNextBookmark(MyMark.class), m4);
+            Assertions.assertSame(c.toNextBookmark(MyMark.class), m5);
+            Assertions.assertSame(c.toNextBookmark(MyMark.class), m6);
+            Assertions.assertSame(c.toNextBookmark(MyMark.class), m7);
+            Assertions.assertSame(c.toNextBookmark(MyMark.class), m8);
             assertNull(c.toNextBookmark(MyMark.class));
 
             c.toEndDoc();
 
-            assertSame(c.getBookmark(MyMark.class), m8);
-            assertSame(c.toPrevBookmark(MyMark.class), m7);
-            assertSame(c.toPrevBookmark(MyMark.class), m6);
-            assertSame(c.toPrevBookmark(MyMark.class), m5);
-            assertSame(c.toPrevBookmark(MyMark.class), m4);
-            assertSame(c.toPrevBookmark(MyMark.class), m3);
-            assertSame(c.toPrevBookmark(MyMark.class), m2);
-            assertSame(c.toPrevBookmark(MyMark.class), m1);
+            Assertions.assertSame(c.getBookmark(MyMark.class), m8);
+            Assertions.assertSame(c.toPrevBookmark(MyMark.class), m7);
+            Assertions.assertSame(c.toPrevBookmark(MyMark.class), m6);
+            Assertions.assertSame(c.toPrevBookmark(MyMark.class), m5);
+            Assertions.assertSame(c.toPrevBookmark(MyMark.class), m4);
+            Assertions.assertSame(c.toPrevBookmark(MyMark.class), m3);
+            Assertions.assertSame(c.toPrevBookmark(MyMark.class), m2);
+            Assertions.assertSame(c.toPrevBookmark(MyMark.class), m1);
             assertNull(c.toPrevBookmark(MyMark.class));
         }
     }
 
     @Test
-    public void testSetName()
-        throws Exception {
+    void testSetName() throws Exception {
         XmlObject x = XmlObject.Factory.parse("<foo x='a'/>");
         try (XmlCursor c = x.newCursor()) {
             c.toNextToken();
@@ -798,8 +793,7 @@ public class StoreTests {
     // Basic load up a file and iterate through it
     //
     @Test
-    public void testBasicXml()
-        throws Exception {
+    void testBasicXml() throws Exception {
         try (XmlCursor c = XmlObject.Factory.parse(Common.XML_ATTR_TEXT, null).newCursor()) {
             int n = 0;
 
@@ -822,8 +816,7 @@ public class StoreTests {
     // going backward
     //
     @Test
-    public void testConsistentTokenOrder()
-        throws Exception {
+    void testConsistentTokenOrder() throws Exception {
         ArrayList<TokenType> l = new ArrayList<>();
 
         try (XmlCursor c = XmlObject.Factory.parse(Common.XML_ATTR_TEXT, null).newCursor()) {
@@ -847,20 +840,17 @@ public class StoreTests {
         }
     }
 
-    // Make sure you can't insert text before the doc begin
-    // going backward
-    @Test(expected = IllegalStateException.class)
-    public void testIllegalTextInsert()
-        throws Exception {
+    // Make sure you can't insert text before the doc begin going backward
+    @Test
+    void testIllegalTextInsert() throws Exception {
         try (XmlCursor c = XmlObject.Factory.parse(Common.XML_ATTR_TEXT, null).newCursor()) {
-            c.insertChars("Ho ho ho");
+            assertThrows(IllegalStateException.class, () -> c.insertChars("Ho ho ho"));
         }
     }
 
     // Make sure getText works in a basic way
     @Test
-    public void testgetText()
-        throws Exception {
+    void testgetText() throws Exception {
         try (XmlCursor c = XmlObject.Factory.parse(Common.XML_ATTR_TEXT, null).newCursor()) {
             assertEquals("ab", c.getTextValue()); // Doc node
 
@@ -899,7 +889,7 @@ public class StoreTests {
     }
 
     @Test
-    public void testCDATA() throws Exception {
+    void testCDATA() throws Exception {
         // https://issues.apache.org/jira/browse/XMLBEANS-404
         String xml = "<foo>Unable to render embedded object: <![CDATA[>>>>>>>><<<<<<<<<<<]]></foo>";
         String expected = "<foo><![CDATA[Unable to render embedded object: >>>>>>>><<<<<<<<<<<]]></foo>";
@@ -910,7 +900,7 @@ public class StoreTests {
     }
 
     @Test
-    public void testSaving() throws Exception {
+    void testSaving() throws Exception {
         doSaveTest("<foo xmlns=\"foo.com\"><bar>1</bar></foo>");
         doSaveTest("<foo><!--comment--><?target foo?></foo>");
         doSaveTest("<foo>a<bar>b</bar>c<bar>d</bar>e</foo>");
@@ -1032,7 +1022,7 @@ public class StoreTests {
                     assertTrue(c.toFirstChild());
                 }
             } else {
-                fail();
+                Assertions.fail();
             }
 
             n = 0;
@@ -1043,8 +1033,7 @@ public class StoreTests {
     }
 
     @Test
-    public void testOps()
-        throws Exception {
+    void testOps() throws Exception {
         XmlObject x, x2, y;
         XmlBookmark anno;
 
@@ -1052,7 +1041,7 @@ public class StoreTests {
 
         x = XmlObject.Factory.parse("<foo>abcdef</foo>");
         try (XmlCursor cFrom = navDoc(x, "d");
-            XmlCursor cTo = navNewCursor(cFrom, "")) {
+             XmlCursor cTo = navNewCursor(cFrom, "")) {
             assertTrue(cFrom.moveXml(cTo));
             cFrom.insertChars("[FROM]");
             cTo.insertChars("[TO]");
@@ -1062,31 +1051,29 @@ public class StoreTests {
 
         options.setSaveSyntheticDocumentElement(new QName(null, "bar"));
 
-        assertTrue(
-            x.xmlText(options).equals("<bar>[TO]<foo>abcdef</foo>[FROM]</bar>") ||
-            x.xmlText(options).equals("<bar>[FROM]<foo>abcdef</foo>[TO]</bar>"));
+        assertTrue(x.xmlText(options).equals("<bar>[TO]<foo>abcdef</foo>[FROM]</bar>") ||
+                              x.xmlText(options).equals("<bar>[FROM]<foo>abcdef</foo>[TO]</bar>"));
 
         //
 
         x = XmlObject.Factory.parse("<foo>abcdef</foo>");
 
         try (XmlCursor cFrom = navDoc(x, "d");
-            XmlCursor cTo = navNewCursor(cFrom, "ttt")) {
+             XmlCursor cTo = navNewCursor(cFrom, "ttt")) {
             assertTrue(cFrom.moveXml(cTo));
             cFrom.insertChars("[FROM]");
             cTo.insertChars("[TO]");
         }
 
-        assertTrue(
-            x.xmlText(options).equals("<bar><foo>abcdef</foo>[FROM][TO]</bar>") ||
-            x.xmlText(options).equals("<bar><foo>abcdef</foo>[TO][FROM]</bar>"));
+        assertTrue(x.xmlText(options).equals("<bar><foo>abcdef</foo>[FROM][TO]</bar>") ||
+                              x.xmlText(options).equals("<bar><foo>abcdef</foo>[TO][FROM]</bar>"));
 
         //
 
         x = XmlObject.Factory.parse("<foo>abcdef</foo>");
 
         try (XmlCursor cFrom = navDoc(x, "d");
-            XmlCursor cTo = navNewCursor(cFrom, "t3c")) {
+             XmlCursor cTo = navNewCursor(cFrom, "t3c")) {
             assertFalse(cFrom.moveXml(cTo));
             cFrom.insertChars("[FROM]");
             cTo.insertChars("[TO]");
@@ -1099,7 +1086,7 @@ public class StoreTests {
         x = XmlObject.Factory.parse("<r><a>xyz</a><b>pqr</b></r>");
 
         try (XmlCursor cFrom = navDoc(x, "dd");
-            XmlCursor cTo = navNewCursor(cFrom, "r-1t")) {
+             XmlCursor cTo = navNewCursor(cFrom, "r-1t")) {
             assertTrue(cFrom.moveXml(cTo));
             cFrom.insertChars("[FROM]");
             cTo.insertChars("[TO]");
@@ -1112,7 +1099,7 @@ public class StoreTests {
         x = XmlObject.Factory.parse("<r><a>xyz</a><b>pqr</b>AB</r>");
 
         try (XmlCursor cFrom = navDoc(x, "dd");
-            XmlCursor cTo = navNewCursor(cFrom, "r-1t-1c")) {
+             XmlCursor cTo = navNewCursor(cFrom, "r-1t-1c")) {
             assertTrue(cFrom.moveXml(cTo));
             cFrom.insertChars("[FROM]");
             cTo.insertChars("[TO]");
@@ -1125,7 +1112,7 @@ public class StoreTests {
         x = XmlObject.Factory.parse("<r><a>xyz</a><b>pqr</b>AB</r>");
 
         try (XmlCursor cFrom = navDoc(x, "dd");
-            XmlCursor cTo = navNewCursor(cFrom, "stc")) {
+             XmlCursor cTo = navNewCursor(cFrom, "stc")) {
             assertTrue(cFrom.moveXml(cTo));
             cFrom.insertChars("[FROM]");
             cTo.insertChars("[TO]");
@@ -1138,7 +1125,7 @@ public class StoreTests {
         x = XmlObject.Factory.parse("<r><a>xyz</a><b>pqr</b>AB</r>");
 
         try (XmlCursor cFrom = navDoc(x, "dd");
-            XmlCursor cTo = navDoc(x, "d")) {
+             XmlCursor cTo = navDoc(x, "d")) {
             assertTrue(cFrom.moveXml(cTo));
             cFrom.insertChars("[FROM]");
             cTo.insertChars("[TO]");
@@ -1151,7 +1138,7 @@ public class StoreTests {
         x = XmlObject.Factory.parse("<r><a>xyz</a><b>pqr</b>AB</r>");
 
         try (XmlCursor cFrom = navDoc(x, "dd");
-            XmlCursor cTo = navDoc(x, "r")) {
+             XmlCursor cTo = navDoc(x, "r")) {
             assertTrue(cFrom.moveXml(cTo));
             cFrom.insertChars("[FROM]");
             cTo.insertChars("[TO]");
@@ -1165,7 +1152,7 @@ public class StoreTests {
         x2 = XmlObject.Factory.parse("<s></s>");
 
         try (XmlCursor cFrom = navDoc(x, "dd");
-            XmlCursor cTo = navDoc(x2, "dt")) {
+             XmlCursor cTo = navDoc(x2, "dt")) {
             assertTrue(cFrom.moveXml(cTo));
             cFrom.insertChars("[FROM]");
             cTo.insertChars("[TO]");
@@ -1179,8 +1166,8 @@ public class StoreTests {
         x = XmlObject.Factory.parse("<r><a>pq</a><b></b></r>");
 
         try (XmlCursor cFrom = navDoc(x, "dd");
-            XmlCursor cTo = navDoc(x, "ddst");
-            XmlCursor cTemp = navDoc(x, "ddt1c")) {
+             XmlCursor cTo = navDoc(x, "ddst");
+             XmlCursor cTemp = navDoc(x, "ddt1c")) {
             assertTrue(cFrom.moveXml(cTo));
             cFrom.insertChars("[FROM]");
             cTo.insertChars("[TO]");
@@ -1194,7 +1181,7 @@ public class StoreTests {
         x = XmlObject.Factory.parse("<foo>abcdef</foo>");
 
         try (XmlCursor cFrom = navDoc(x, "2t2c");
-            XmlCursor cTo = navNewCursor(cFrom, "-1c")) {
+             XmlCursor cTo = navNewCursor(cFrom, "-1c")) {
             cFrom.moveChars(2, cTo);
             cFrom.insertChars("[FROM]");
             cTo.insertChars("[TO]");
@@ -1207,7 +1194,7 @@ public class StoreTests {
         x = XmlObject.Factory.parse("<foo>abcdef</foo>");
 
         try (XmlCursor cFrom = navDoc(x, "2t2c");
-            XmlCursor cTo = navNewCursor(cFrom, "3c")) {
+             XmlCursor cTo = navNewCursor(cFrom, "3c")) {
             cFrom.moveChars(2, cTo);
             cFrom.insertChars("[FROM]");
             cTo.insertChars("[TO]");
@@ -1220,7 +1207,7 @@ public class StoreTests {
         x = XmlObject.Factory.parse("<bar><foo>abcdef</foo><foo>123456</foo></bar>");
 
         try (XmlCursor cFrom = navDoc(x, "3t2c");
-            XmlCursor cTo = navNewCursor(cFrom, "3t3c")) {
+             XmlCursor cTo = navNewCursor(cFrom, "3t3c")) {
             cFrom.moveChars(2, cTo);
             cFrom.insertChars("[FROM]");
             cTo.insertChars("[TO]");
@@ -1233,15 +1220,14 @@ public class StoreTests {
         x = XmlObject.Factory.parse("<bar><foo>abcdef</foo><foo>123456</foo></bar>");
 
         try (XmlCursor cFrom = navDoc(x, "2d");
-            XmlCursor cTo = navDoc(x, "2dst2c")) {
+             XmlCursor cTo = navDoc(x, "2dst2c")) {
             assertTrue(cFrom.copyXml(cTo));
             cFrom.insertChars("[FROM]");
             cTo.insertChars("[TO]");
         }
 
-        assertEquals(x.xmlText(),
-            "<bar>[FROM]<foo>abcdef</foo><foo>12" +
-            "<foo>abcdef</foo>[TO]3456</foo></bar>");
+        assertEquals(x.xmlText(), "<bar>[FROM]<foo>abcdef</foo><foo>12" +
+                                             "<foo>abcdef</foo>[TO]3456</foo></bar>");
 
         //
 
@@ -1249,7 +1235,7 @@ public class StoreTests {
         x2 = XmlObject.Factory.parse("<s></s>");
 
         try (XmlCursor cFrom = navDoc(x, "dd");
-            XmlCursor cTo = navDoc(x2, "dt")) {
+             XmlCursor cTo = navDoc(x2, "dt")) {
             assertTrue(cFrom.copyXml(cTo));
             cFrom.insertChars("[FROM]");
             cTo.insertChars("[TO]");
@@ -1264,14 +1250,14 @@ public class StoreTests {
             "<bar><foo>abcdef</foo>blah<foo>123456</foo></bar>");
 
         try (XmlCursor cFrom = navDoc(x, "2d");
-            XmlCursor cTo = navDoc(x, "2dst2c")) {
+             XmlCursor cTo = navDoc(x, "2dst2c")) {
             assertTrue(cFrom.copyXml(cTo));
             cFrom.insertChars("[FROM]");
             cTo.insertChars("[TO]");
         }
 
         assertEquals(x.xmlText(), "<bar>[FROM]<foo>abcdef</foo>blah<foo>12" +
-                                  "<foo>abcdef</foo>[TO]3456</foo></bar>");
+                                             "<foo>abcdef</foo>[TO]3456</foo></bar>");
 
         //
 
@@ -1279,17 +1265,16 @@ public class StoreTests {
             "<bar><foo x='y'>abcdef</foo><foo>123456</foo>7890</bar>");
 
         try (XmlCursor cFrom = navDoc(x, "2dt");
-            XmlCursor cTo = navDoc(x, "2dst");
-            XmlCursor cTemp = navDoc(x, "2dst3c");
-            XmlCursor cTemp2 = navDoc(x, "2ds3t2c")) {
+             XmlCursor cTo = navDoc(x, "2dst");
+             XmlCursor cTemp = navDoc(x, "2dst3c");
+             XmlCursor cTemp2 = navDoc(x, "2ds3t2c")) {
             assertTrue(cFrom.copyXml(cTo));
             cTemp.insertChars("[TEMP]");
             cTemp2.insertChars("[TEMP2]");
         }
 
-        assertEquals(x.xmlText(),
-            "<bar><foo x=\"y\">abcdef</foo>" +
-            "<foo x=\"y\">123[TEMP]456</foo>78[TEMP2]90</bar>");
+        assertEquals(x.xmlText(), "<bar><foo x=\"y\">abcdef</foo>" +
+                                             "<foo x=\"y\">123[TEMP]456</foo>78[TEMP2]90</bar>");
 
         //
 
@@ -1297,7 +1282,7 @@ public class StoreTests {
             "<bar>xy<foo x='y'>abcdef</foo>pqr<foo>123456</foo></bar>");
 
         try (XmlCursor cFrom = navDoc(x, "2d");
-            XmlCursor cTo = navDoc(x, "2ds-2c")) {
+             XmlCursor cTo = navDoc(x, "2ds-2c")) {
             assertTrue(cFrom.removeXml());
 
             cFrom.insertChars("[FROM]");
@@ -1312,23 +1297,22 @@ public class StoreTests {
             "<bar>xy<foo x='y'>abcdef</foo>pqr<foo>123456</foo></bar>");
 
         try (XmlCursor cFrom = navDoc(x, "2d2t2c");
-            XmlCursor cTo = navDoc(x, "2d2t5c")) {
+             XmlCursor cTo = navDoc(x, "2d2t5c")) {
             cFrom.removeChars(2);
 
             cFrom.insertChars("[FROM]");
             cTo.insertChars("[TO]");
         }
 
-        assertEquals(x.xmlText(),
-            "<bar>xy<foo x=\"y\">ab[FROM]e[TO]f" +
-            "</foo>pqr<foo>123456</foo></bar>");
+        assertEquals(x.xmlText(), "<bar>xy<foo x=\"y\">ab[FROM]e[TO]f" +
+                                             "</foo>pqr<foo>123456</foo></bar>");
 
         //
 
         x = XmlObject.Factory.parse("<bar><!---->abc</bar>");
 
         try (XmlCursor cFrom = navDoc(x, "tt");
-            XmlCursor cTo = navDoc(x, "tttc")) {
+             XmlCursor cTo = navDoc(x, "tttc")) {
             assertTrue(cFrom.removeXml());
 
             cFrom.insertChars("[FROM]");
@@ -1378,7 +1362,7 @@ public class StoreTests {
 
         x = XmlObject.Factory.parse("<r><foo>abc</foo><bar></bar></r>");
         try (XmlCursor cFrom = navDoc(x, "tt");
-            XmlCursor cTo = navDoc(x, "6t")) {
+             XmlCursor cTo = navDoc(x, "6t")) {
             anno = new Anno();
             cFrom.setBookmark(anno);
             assertTrue(cFrom.moveXml(cTo));
@@ -1406,7 +1390,7 @@ public class StoreTests {
         x = XmlObject.Factory.parse("<bar><foo x='y'>abc</foo></bar>");
         y = XmlObject.Factory.newInstance();
         try (XmlCursor c = x.newCursor();
-            XmlCursor d = y.newCursor()) {
+             XmlCursor d = y.newCursor()) {
             c.toNextToken();
             d.toNextToken();
             c.moveXmlContents(d);
@@ -1423,7 +1407,7 @@ public class StoreTests {
         x = XmlObject.Factory.parse("<foo x='y'>abc</foo>");
         y = XmlObject.Factory.newInstance();
         try (XmlCursor d = y.newCursor();
-            XmlCursor  e = x.newCursor()) {
+             XmlCursor e = x.newCursor()) {
             d.toNextToken();
             e.copyXmlContents(d);
         }
@@ -1434,7 +1418,7 @@ public class StoreTests {
     }
 
     @Test
-    public void testSave() throws Exception {
+    void testSave() throws Exception {
         XmlObject x;
         XmlOptions options;
 
@@ -1553,7 +1537,7 @@ public class StoreTests {
     }
 
     @Test
-    public void testSaveFrag() {
+    void testSaveFrag() {
         XmlObject x;
 
         x = XmlObject.Factory.newInstance();
@@ -1599,7 +1583,7 @@ public class StoreTests {
     }
 
     @Test
-    public void testLoad() throws Exception {
+    void testLoad() throws Exception {
         XmlObject x;
 
         XmlOptions options = new XmlOptions();
@@ -1610,7 +1594,7 @@ public class StoreTests {
                 "<bar p='q' x='y'>ab<foo>xy</foo>cd</bar>", options);
 
         try (XmlCursor c = navDoc(x, "t")) {
-            assertSame(c.currentTokenType(), TokenType.ATTR);
+            Assertions.assertSame(c.currentTokenType(), TokenType.ATTR);
         }
 
         String open = "xmlns:open='http://www.openuri.org/fragment'";
@@ -1621,12 +1605,12 @@ public class StoreTests {
                 ">ab<foo>xy</foo>cd</open:fragment>");
 
         try (XmlCursor c = navDoc(x, "t")) {
-            assertSame(c.currentTokenType(), TokenType.ATTR);
+            Assertions.assertSame(c.currentTokenType(), TokenType.ATTR);
         }
     }
 
     @Test
-    public void testCompare() throws Exception {
+    void testCompare() throws Exception {
         XmlObject x;
 
         // Forward navigation
@@ -1634,7 +1618,7 @@ public class StoreTests {
         x = XmlObject.Factory.parse("<bar p='q' x='y'>ab<foo>xy</foo>cd</bar>");
 
         try (XmlCursor cFrom = navDoc(x, "");
-            XmlCursor cTo = navDoc(x, "")){
+             XmlCursor cTo = navDoc(x, "")) {
             for (; ; ) {
                 assertEquals(0, cFrom.comparePosition(cTo));
                 assertTrue(cFrom.isAtSamePositionAs(cTo));
@@ -1658,7 +1642,7 @@ public class StoreTests {
         x = XmlObject.Factory.parse("<bar p='q' x='y'>ab<foo>xy</foo>cd</bar>");
 
         try (XmlCursor cFrom = navDoc(x, "r");
-            XmlCursor cTo = navDoc(x, "r")) {
+             XmlCursor cTo = navDoc(x, "r")) {
             for (; ; ) {
                 assertEquals(0, cFrom.comparePosition(cTo));
                 assertTrue(cFrom.isAtSamePositionAs(cTo));
@@ -1712,8 +1696,7 @@ public class StoreTests {
     }
 
     @Test
-    public void testAttrSetter()
-        throws Exception {
+    void testAttrSetter() throws Exception {
         XmlObject x = XmlObject.Factory.parse("<foo/>");
         try (XmlCursor c = x.newCursor()) {
             c.toNextToken();
@@ -1723,8 +1706,7 @@ public class StoreTests {
     }
 
     @Test
-    public void testNavigation()
-        throws Exception {
+    void testNavigation() throws Exception {
         XmlObject x = XmlObject.Factory.parse("<a><x/><y/><z/></a>");
         try (XmlCursor c = x.newCursor()) {
             assertFalse(c.toNextSibling());
@@ -1771,7 +1753,7 @@ public class StoreTests {
         }
 
         x = XmlObject.Factory.parse("<a>moo<!---->foo</a>");
-            try (XmlCursor c = x.newCursor()) {
+        try (XmlCursor c = x.newCursor()) {
             c.toStartDoc();
             c.toNextToken();
             c.toNextToken();
@@ -1807,8 +1789,7 @@ public class StoreTests {
     }
 
     @Test
-    public void testGetName()
-        throws Exception {
+    void testGetName() throws Exception {
         XmlObject x = XmlObject.Factory.parse("<a x='y'>eric<!----><?moo?></a>");
         try (XmlCursor c = x.newCursor()) {
             assertNull(c.getName());
@@ -1834,8 +1815,7 @@ public class StoreTests {
     }
 
     @Test
-    public void testGetChars()
-        throws Exception {
+    void testGetChars() throws Exception {
         XmlObject x = XmlObject.Factory.parse("<foo>abcdefghijkl</foo>");
         try (XmlCursor c = x.newCursor()) {
             c.toNextToken();
@@ -1853,8 +1833,7 @@ public class StoreTests {
     }
 
     @Test
-    public void testNamespaceSubstitution()
-        throws Exception {
+    void testNamespaceSubstitution() throws Exception {
         HashMap<String, String> subs = new HashMap<>();
         subs.put("foo", "moo");
         subs.put("a", "b");
@@ -1880,7 +1859,7 @@ public class StoreTests {
     }
 
     @Test
-    public void testNamespaceInsertion() {
+    void testNamespaceInsertion() {
         XmlObject x = XmlObject.Factory.newInstance();
 
         try (XmlCursor c = x.newCursor()) {
@@ -1907,12 +1886,11 @@ public class StoreTests {
             return;
         }
 
-        fail();
+        Assertions.fail();
     }
 
     @Test
-    public void testNil()
-        throws Exception {
+    void testNil() throws Exception {
         XmlObject x = noNamespace.CanBeNilDocument.Factory.parse("<canBeNil/>");
         try (XmlCursor c = x.newCursor()) {
             c.toFirstChild();
@@ -1931,8 +1909,7 @@ public class StoreTests {
     }
 
     @Test
-    public void testParser()
-        throws Exception {
+    void testParser() throws Exception {
         dotestParserErrors("<hee yee='five'><haw>66</haw></any>");
         dotestParserErrors("<foo></moo>");
         dotestParserErrors("<a><foo></moo></a>");
@@ -1955,8 +1932,7 @@ public class StoreTests {
     }
 
     @Test
-    public void testSaxParser()
-        throws Exception {
+    void testSaxParser() throws Exception {
         String xml = "<a x='y'><!---->x<b/><c p='q'>z</c></a>";
 
         SAXParserFactory spf = SAXParserFactory.newInstance();
@@ -1965,21 +1941,11 @@ public class StoreTests {
         InputSource is = new InputSource(new StringReader(xml));
         XmlSaxHandler sh = XmlObject.Factory.newXmlSaxHandler();
 
-        xr.setFeature(
-            "http://xml.org/sax/features/namespace-prefixes",
-            true);
-
-        xr.setFeature(
-            "http://xml.org/sax/features/namespaces", true);
-
-        xr.setFeature(
-            "http://xml.org/sax/features/validation", false);
-
+        xr.setFeature("http://xml.org/sax/features/namespace-prefixes", true);
+        xr.setFeature("http://xml.org/sax/features/namespaces", true);
+        xr.setFeature("http://xml.org/sax/features/validation", false);
         xr.setContentHandler(sh.getContentHandler());
-
-        xr.setProperty(
-            "http://xml.org/sax/properties/lexical-handler",
-            sh.getLexicalHandler());
+        xr.setProperty("http://xml.org/sax/properties/lexical-handler", sh.getLexicalHandler());
 
         xr.parse(is);
 
@@ -1991,8 +1957,7 @@ public class StoreTests {
     }
 
     @Test
-    public void testAdditionalNamespaces()
-        throws Exception {
+    void testAdditionalNamespaces() throws Exception {
         String xml = "<a xmlns:a='aNS'><a:b/></a>";
 
         Map<String, String> map = new LinkedHashMap<>();

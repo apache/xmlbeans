@@ -19,38 +19,32 @@ package xmlcursor.detailed;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlCursor.TokenType;
 import org.apache.xmlbeans.XmlObject;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import test.xbean.xmlcursor.purchaseOrder.PurchaseOrderDocument;
 import test.xbean.xmlcursor.purchaseOrder.PurchaseOrderType;
 import test.xbean.xmlcursor.purchaseOrder.USAddress;
 import tools.util.JarUtil;
-import xmlcursor.common.BasicCursorTestCase;
 import xmlcursor.common.Common;
 
 import java.math.BigDecimal;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
+import static xmlcursor.common.BasicCursorTestCase.*;
 
-public class CursorLocations extends BasicCursorTestCase {
+public class CursorLocations {
 
-    private Bookmark0 _theBookmark0 = new Bookmark0("value0");
+    private static final Bookmark0 _theBookmark0 = new Bookmark0("value0");
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testLocation() throws Exception {
-        XmlObject m_xo1;
-
-
-        m_xo = XmlObject.Factory.parse(
-                JarUtil.getResourceFromJar(Common.TRANXML_FILE_XMLCURSOR_PO));
-        m_xo1 = XmlObject.Factory.parse(Common.XML_FOO_BAR_TEXT);
-
+    @Test
+    void testLocation() throws Exception {
+        XmlObject m_xo = jobj(Common.TRANXML_FILE_XMLCURSOR_PO);
         try (XmlCursor xc1 = m_xo.newCursor();
             XmlCursor xc2 = m_xo.newCursor();
-            XmlCursor xc3 = m_xo1.newCursor()) {
+            XmlCursor xc3 = cur(Common.XML_FOO_BAR_TEXT)) {
             toNextTokenOfType(xc2, TokenType.END);
             toNextTokenOfType(xc3, TokenType.START);
 
-    
+
             //start w/ xc1 at beg of doc
             //xc2 at end of first elt (po:name)
             while (xc1.isLeftOf(xc2)) {
@@ -68,14 +62,11 @@ public class CursorLocations extends BasicCursorTestCase {
             //xc1 & xc2 @ shipTo
             toNextTokenOfType(xc1,TokenType.TEXT);
             toNextTokenOfType(xc2,TokenType.TEXT);
-            assertEquals("Current Token Type ",
-                    xc1.currentTokenType(),
-                    xc2.currentTokenType());
+            assertEquals(xc1.currentTokenType(), xc2.currentTokenType(), "Current Token Type ");
             //both @ Alice Smith
             toNextTokenOfType(xc1,TokenType.TEXT);
             toNextTokenOfType(xc2,TokenType.TEXT);
-            assertEquals(XmlCursor.TokenType.TEXT,
-                    xc1.currentTokenType());
+            assertEquals(TokenType.TEXT, xc1.currentTokenType());
             //these are only equivalent if the cursor is on a TEXT token
             assertEquals(xc1.getChars(), xc1.getTextValue());
             assertEquals(xc1.getChars(), xc2.getTextValue());
@@ -121,20 +112,20 @@ public class CursorLocations extends BasicCursorTestCase {
                 assertTrue(xc4.isInSameDocument(xc3));
                 assertEquals(-1, xc4.comparePosition(xc3));
                 // assertEquals(TokenType.TEXT, xc3.toPrevToken());
-                assertEquals(4,xc3.toPrevChar(4));
+                assertEquals(4, xc3.toPrevChar(4));
                 assertEquals(0, xc4.comparePosition(xc3));
 
                 //comparing in  two different documents
                 assertFalse(xc2.isInSameDocument(xc3));
 
-                xc4.isLeftOf(xc2);
+                assertThrows(IllegalArgumentException.class, () -> xc4.isLeftOf(xc2));
             }
         }
     }
 
     @Test
-    public void testLocationATTR() throws Exception {
-        m_xo = XmlObject.Factory.parse(Common.XML_FOO_5ATTR_TEXT);
+    void testLocationATTR() throws Exception {
+        XmlObject m_xo = obj(Common.XML_FOO_5ATTR_TEXT);
 
         try (XmlCursor xc1 = m_xo.newCursor();
             XmlCursor xc2 = m_xo.newCursor()) {
@@ -175,8 +166,8 @@ public class CursorLocations extends BasicCursorTestCase {
     }
 
     @Test
-    public void testLocationTEXTMiddle() throws Exception {
-        m_xo = XmlObject.Factory.parse(Common.XML_TEXT_MIDDLE);
+    void testLocationTEXTMiddle() throws Exception {
+        XmlObject m_xo = obj(Common.XML_TEXT_MIDDLE);
 
         try (XmlCursor xc1 = m_xo.newCursor();
             XmlCursor xc2 = m_xo.newCursor();
@@ -224,7 +215,7 @@ public class CursorLocations extends BasicCursorTestCase {
     }
 
     @Test
-    public void testXmlObjectUsingCursor() throws Exception {
+    void testXmlObjectUsingCursor() throws Exception {
         PurchaseOrderDocument pod = PurchaseOrderDocument.Factory.parse(
                  JarUtil.getResourceFromJar(Common.TRANXML_FILE_XMLCURSOR_PO));
 
@@ -251,7 +242,7 @@ public class CursorLocations extends BasicCursorTestCase {
             toPrevTokenOfType(xc3, TokenType.TEXT);
             toPrevTokenOfType(xc3, TokenType.TEXT);
             //all cursors are now at: 90952
-            assertEquals(xc1.getChars(), xc2.getChars(), xc3.getChars());
+            assertEquals(xc2.getChars(), xc3.getChars(), xc1.getChars());
             //at 52
             xc2.toNextChar(3);
             //after 90952
@@ -266,13 +257,13 @@ public class CursorLocations extends BasicCursorTestCase {
             USAddress usa = pt.getShipTo();
             usa.setZip(new BigDecimal(500));
 
-            assertEquals(500,usa.getZip().intValue());
+            assertEquals(500, usa.getZip().intValue());
              //Any cursors in the value of an Element/attr should be positioned
             // at the end of the elem/attr after the strong setter
             assertTrue(xc2.isAtSamePositionAs(xc3));
             assertTrue(xc3.isAtSamePositionAs(xc1));
 
-            assertEquals(TokenType.END,xc1.currentTokenType());
+            assertEquals(TokenType.END, xc1.currentTokenType());
 
 
             // inserting an element through the cursor under zip and then doing
@@ -298,7 +289,7 @@ public class CursorLocations extends BasicCursorTestCase {
     }
 
 
-    public class Bookmark0 extends XmlCursor.XmlBookmark {
+    private static class Bookmark0 extends XmlCursor.XmlBookmark {
         public String text;
 
         Bookmark0(String text) {

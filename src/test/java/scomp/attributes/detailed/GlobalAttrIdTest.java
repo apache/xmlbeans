@@ -14,33 +14,21 @@
  */
 package scomp.attributes.detailed;
 
-import org.junit.Test;
-import scomp.common.BaseCase;
-import xbean.scomp.attribute.globalAttrId.GlobalAttrIdT;
+import org.junit.jupiter.api.Test;
 import xbean.scomp.attribute.globalAttrId.GlobalAttrIdDocument;
-import xbean.scomp.attribute.globalAttrId.IDRefT;
-import org.apache.xmlbeans.XmlString;
 
-import javax.xml.namespace.QName;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static scomp.common.BaseCase.createOptions;
 
-import static org.junit.Assert.assertTrue;
-
-public class GlobalAttrIdTest extends BaseCase {
+public class GlobalAttrIdTest {
     @Test
-    public void testId() throws Throwable {
-        GlobalAttrIdDocument testDoc =
-                GlobalAttrIdDocument.Factory.newInstance();
+    void testId() throws Throwable {
+        GlobalAttrIdDocument testDoc = GlobalAttrIdDocument.Factory.newInstance();
         GlobalAttrIdDocument.GlobalAttrId elt = testDoc.addNewGlobalAttrId();
         elt.addNewIDElement().setId1("foobar");
 
         elt.addNewIDRefElement().setIdref1("foobar");
 
-        try {
-            assertTrue(testDoc.validate(validateOptions));
-        }
-        catch (Throwable t) {
-            showErrors();
-            throw t;
-        }
+        assertTrue(testDoc.validate(createOptions()));
     }
 }

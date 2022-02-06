@@ -22,10 +22,11 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.*;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -49,35 +50,19 @@ import static org.w3c.domts.DOMTest.load;
  */
 public class setAttributeNodeNS01 {
     @Test
-    public void testRun() throws Throwable {
+    void testRun() throws Throwable {
         String namespaceURI = "http://www.newattr.com";
         String qualifiedName = "emp:newAttr";
-        Document doc;
-        Element newElement;
-        Attr newAttr;
-        NodeList elementList;
-        Node testAddr;
-        Node appendedChild;
-        Attr setAttr1;
-        Attr setAttr2;
-        doc = load("staffNS", true);
-        elementList = doc.getElementsByTagName("emp:address");
-        testAddr = elementList.item(0);
-        newElement = doc.createElement("newElement");
-        appendedChild = testAddr.appendChild(newElement);
-        newAttr = doc.createAttributeNS(namespaceURI, qualifiedName);
-        setAttr1 = newElement.setAttributeNodeNS(newAttr);
+        Document doc = load("staffNS", true);
+        NodeList elementList = doc.getElementsByTagName("emp:address");
+        Node testAddr = elementList.item(0);
+        Element newElement = doc.createElement("newElement");
+        Node appendedChild = testAddr.appendChild(newElement);
+        Attr newAttr = doc.createAttributeNS(namespaceURI, qualifiedName);
+        Attr setAttr1 = newElement.setAttributeNodeNS(newAttr);
 
-        {
-            boolean success = false;
-            try {
-                setAttr2 = ((Element) /*Node */testAddr).setAttributeNodeNS(newAttr);
-            } catch (DOMException ex) {
-                success = (ex.code == DOMException.INUSE_ATTRIBUTE_ERR);
-            }
-            assertTrue("throw_INUSE_ATTRIBUTE_ERR", success);
-        }
-
+        DOMException ex = assertThrows(DOMException.class, () -> ((Element) /*Node */testAddr).setAttributeNodeNS(newAttr));
+        assertEquals(DOMException.INUSE_ATTRIBUTE_ERR, ex.code, "throw_INUSE_ATTRIBUTE_ERR");
     }
 
     /**

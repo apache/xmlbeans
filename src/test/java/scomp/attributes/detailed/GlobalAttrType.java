@@ -14,34 +14,31 @@
  */
 package scomp.attributes.detailed;
 
-import org.junit.Test;
-import scomp.common.BaseCase;
-import org.apache.xmlbeans.*;
+import org.apache.xmlbeans.XmlDouble;
+import org.apache.xmlbeans.XmlInteger;
+import org.apache.xmlbeans.XmlString;
+import org.junit.jupiter.api.Test;
 import xbean.scomp.attribute.globalAttrType.GlobalAttrTypeDocDocument;
 import xbean.scomp.attribute.globalAttrType.GlobalAttrTypeT;
 
-import java.util.ArrayList;
 import java.math.BigInteger;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static scomp.common.BaseCase.createOptions;
 
-public class GlobalAttrType extends BaseCase {
+public class GlobalAttrType {
     @Test
-    public void testAllValid() throws Throwable {
-        GlobalAttrTypeT testDoc =
-                GlobalAttrTypeDocDocument.Factory.parse("<pre:GlobalAttrTypeDoc" +
-                " xmlns:pre=\"http://xbean/scomp/attribute/GlobalAttrType\" " +
-                "pre:attSimple=\"XBeanAttrStr\" " +
-                "pre:attAnyType=\" 1 \" " +
-                "pre:attAnonymous=\" 1 \" />").getGlobalAttrTypeDoc();
-        try {
-            assertTrue(testDoc.validate(validateOptions));
-        }
-        catch (Throwable t) {
-          showErrors();
-          throw t;
-        }
+    void testAllValid() throws Throwable {
+        String input =
+            "<pre:GlobalAttrTypeDoc" +
+            " xmlns:pre=\"http://xbean/scomp/attribute/GlobalAttrType\" " +
+            "pre:attSimple=\"XBeanAttrStr\" " +
+            "pre:attAnyType=\" 1 \" " +
+            "pre:attAnonymous=\" 1 \" />";
+
+        GlobalAttrTypeT testDoc = GlobalAttrTypeDocDocument.Factory.parse(input).getGlobalAttrTypeDoc();
+        assertTrue(testDoc.validate(createOptions()));
 
         assertTrue(testDoc.isSetAttSimple());
         assertEquals("XBeanAttrStr", testDoc.getAttSimple());
@@ -53,96 +50,54 @@ public class GlobalAttrType extends BaseCase {
      * This should awlays be valid
      */
     @Test
-    public void testAnyType() throws Throwable {
-        GlobalAttrTypeT testDoc =
-                GlobalAttrTypeDocDocument.Factory.parse("<pre:GlobalAttrTypeDoc" +
-                " xmlns:pre=\"http://xbean/scomp/attribute/GlobalAttrType\" " +
-                " pre:attAnyType=\" 1 \" " +
-                " />").getGlobalAttrTypeDoc();
+    void testAnyType() throws Throwable {
+        String input =
+            "<pre:GlobalAttrTypeDoc" +
+            " xmlns:pre=\"http://xbean/scomp/attribute/GlobalAttrType\" " +
+            " pre:attAnyType=\" 1 \" " +
+            " />";
 
-        try {
-            assertTrue(testDoc.validate(validateOptions));
-        }
-        catch (Throwable t) {
-            showErrors();
-            throw t;
-        }
+        GlobalAttrTypeT testDoc = GlobalAttrTypeDocDocument.Factory.parse(input).getGlobalAttrTypeDoc();
+        assertTrue(testDoc.validate(createOptions()));
 
         assertEquals(" 1 ", testDoc.getAttAnyType().getStringValue());
-        try {
-            assertTrue(testDoc.validate(validateOptions));
-        }
-        catch (Throwable t) {
-            showErrors();
-            throw t;
-        }
+        assertTrue(testDoc.validate(createOptions()));
         XmlInteger ival = XmlInteger.Factory.newInstance();
         ival.setBigIntegerValue(BigInteger.ZERO);
 
         testDoc.setAttAnyType(ival);
 
         // assertEquals(BigInteger.ZERO,testDoc.getAttAnyType().changeType(XmlInteger.type));
-        assertEquals(BigInteger.ZERO.toString(),
-        testDoc.getAttAnyType().getStringValue());
+        assertEquals(BigInteger.ZERO.toString(), testDoc.getAttAnyType().getStringValue());
 
-        try {
-            assertTrue(testDoc.validate(validateOptions));
-        }
-        catch (Throwable t) {
-            showErrors();
-            throw t;
-        }
+        assertTrue(testDoc.validate(createOptions()));
         XmlString sval = XmlString.Factory.newInstance();
         sval.setStringValue("foobar");
         testDoc.setAttAnyType(sval);
         assertEquals("foobar", testDoc.getAttAnyType().getStringValue());
-        try {
-            assertTrue(testDoc.validate(validateOptions));
-        }
-        catch (Throwable t) {
-            showErrors();
-            throw t;
-        }
+        assertTrue(testDoc.validate(createOptions()));
 
         XmlDouble fval = XmlDouble.Factory.newInstance();
         fval.setDoubleValue(-0.01);
         testDoc.setAttAnyType(fval);
         assertEquals("-0.01", testDoc.getAttAnyType().getStringValue());
-        try {
-            assertTrue(testDoc.validate(validateOptions));
-        }
-        catch (Throwable t) {
-            showErrors();
-            throw t;
-        }
+        assertTrue(testDoc.validate(createOptions()));
     }
 
     @Test
-    public void testAnonType() throws Throwable {
-        GlobalAttrTypeT testDoc =
-                GlobalAttrTypeDocDocument.Factory
-                .parse("<pre:GlobalAttrTypeDoc" +
-                " xmlns:pre=\"http://xbean/scomp/attribute/GlobalAttrType\" " +
-                "pre:attAnonymous=\" 1 \" " +
-                " />").getGlobalAttrTypeDoc();
-        try {
-            assertTrue(testDoc.validate(validateOptions));
-        }
-        catch (Throwable t) {
-            showErrors();
-            throw t;
-        }
+    void testAnonType() throws Throwable {
+        String input =
+            "<pre:GlobalAttrTypeDoc" +
+            " xmlns:pre=\"http://xbean/scomp/attribute/GlobalAttrType\" " +
+            "pre:attAnonymous=\" 1 \" " +
+            " />";
+        GlobalAttrTypeT testDoc = GlobalAttrTypeDocDocument.Factory.parse(input).getGlobalAttrTypeDoc();
+        assertTrue(testDoc.validate(createOptions()));
 
         assertEquals(1, testDoc.getAttAnonymous().intValue());
 
         testDoc.setAttAnonymous( BigInteger.ZERO );
         assertEquals(0, testDoc.getAttAnonymous().intValue());
-        try {
-            assertTrue(testDoc.validate(validateOptions));
-        }
-        catch (Throwable t) {
-            showErrors();
-            throw t;
-        }
+        assertTrue(testDoc.validate(createOptions()));
     }
 }

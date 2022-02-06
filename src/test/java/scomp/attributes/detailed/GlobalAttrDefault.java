@@ -16,20 +16,21 @@ package scomp.attributes.detailed;
 
 import org.apache.xmlbeans.XmlErrorCodes;
 import org.apache.xmlbeans.XmlException;
-import org.junit.Test;
-import scomp.common.BaseCase;
+import org.apache.xmlbeans.XmlOptions;
+import org.junit.jupiter.api.Test;
 import xbean.scomp.attribute.globalAttrDefault.GlobalAttrDefaultDocDocument;
 import xbean.scomp.attribute.globalAttrDefault.GlobalAttrDefaultT;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
+import static scomp.common.BaseCase.createOptions;
+import static scomp.common.BaseCase.getErrorCodes;
 
-public class GlobalAttrDefault extends BaseCase {
+public class GlobalAttrDefault {
     /**
      * If value is missing default should appear
      */
     @Test
-    public void testMissing() {
+    void testMissing() {
         GlobalAttrDefaultT testDoc =
                 GlobalAttrDefaultDocDocument.Factory.newInstance()
                 .addNewGlobalAttrDefaultDoc();
@@ -40,7 +41,7 @@ public class GlobalAttrDefault extends BaseCase {
      * Test val preservation
      */
     @Test
-    public void testPresent() {
+    void testPresent() {
         GlobalAttrDefaultT testDoc =
                 GlobalAttrDefaultDocDocument.Factory.newInstance()
                 .addNewGlobalAttrDefaultDoc();
@@ -52,38 +53,30 @@ public class GlobalAttrDefault extends BaseCase {
      * Test empty string: should be preserved
      */
     @Test
-    public void testPresentEmpty() throws Throwable {
+    void testPresentEmpty() throws Throwable {
         GlobalAttrDefaultT testDoc =
             GlobalAttrDefaultDocDocument.Factory.parse("<pre:GlobalAttrDefaultDoc" +
                 " xmlns:pre=\"http://xbean/scomp/attribute/GlobalAttrDefault\" " +
                 " pre:testattribute=\"\"/>").getGlobalAttrDefaultDoc();
         assertEquals("", testDoc.getTestattribute());
-        try {
-            assertTrue(testDoc.validate(validateOptions));
-        } catch (Throwable t) {
-            showErrors();
-            throw t;
-        }
+        assertTrue(testDoc.validate(createOptions()));
     }
 
 
     /**
      * Type mismatch
      */
-    public void testBadType() throws XmlException {
+    @Test
+    void testBadType() throws XmlException {
         GlobalAttrDefaultT testDoc =
                 GlobalAttrDefaultDocDocument.Factory.parse("<pre:GlobalAttrDefaultDoc" +
                 " xmlns:pre=\"http://xbean/scomp/attribute/GlobalAttrDefault\" " +
                 "pre:testattributeInt=\"\"/>").getGlobalAttrDefaultDoc();
-        String[] errExpected=new String[]{
-            XmlErrorCodes.DECIMAL
-        };
-        assertTrue(!testDoc.validate(validateOptions));
-        assertEquals(1, errorList.size());
-        showErrors();
-        assertTrue(compareErrorCodes(errExpected));
+        XmlOptions validateOptions = createOptions();
+        assertFalse(testDoc.validate(validateOptions));
 
-
+        String[] errExpected={XmlErrorCodes.DECIMAL};
+        assertArrayEquals(errExpected, getErrorCodes(validateOptions));
     }
 
 

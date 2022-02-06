@@ -22,12 +22,12 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.*;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -45,26 +45,19 @@ import static org.w3c.domts.DOMTest.load;
  */
 public class namednodemapremovenameditemns02 {
     @Test
-    @Ignore
+    @Disabled
     public void testRun() throws Throwable {
-        Document doc;
-        NamedNodeMap attributes;
-        Node element;
-        Attr attribute;
-        NodeList elementList;
-        String attrValue;
         String nullNS = null;
 
-        doc = load("staffNS", true);
-        elementList = doc.getElementsByTagNameNS("http://www.nist.gov", "employee");
-        element = elementList.item(1);
-        attributes = element.getAttributes();
-        attribute = (Attr) attributes.removeNamedItemNS(nullNS, "defaultAttr");
+        Document doc = load("staffNS", true);
+        NodeList elementList = doc.getElementsByTagNameNS("http://www.nist.gov", "employee");
+        Node element = elementList.item(1);
+        NamedNodeMap attributes = element.getAttributes();
+        Attr attribute = (Attr) attributes.removeNamedItemNS(nullNS, "defaultAttr");
         attribute = (Attr) attributes.getNamedItemNS(nullNS, "defaultAttr");
-        attrValue = attribute.getNodeValue();
-        assertNotNull("namednodemapremovenameditemns02", attribute);
-        assertEquals("namednodemapremovenameditemns02_attrValue", "defaultVal", attrValue);
-
+        String attrValue = attribute.getNodeValue();
+        assertNotNull(attribute, "namednodemapremovenameditemns02");
+        assertEquals("defaultVal", attrValue, "namednodemapremovenameditemns02_attrValue");
     }
 
     /**

@@ -16,9 +16,9 @@
 package scomp.substGroup.restriction.detailed;
 
 import org.apache.xmlbeans.XmlErrorCodes;
+import org.apache.xmlbeans.XmlOptions;
 import org.apache.xmlbeans.XmlString;
-import org.junit.Test;
-import scomp.common.BaseCase;
+import org.junit.jupiter.api.Test;
 import xbean.scomp.substGroup.deep.BusinessShirtType;
 import xbean.scomp.substGroup.deep.ItemType;
 import xbean.scomp.substGroup.deep.ItemsDocument;
@@ -31,119 +31,101 @@ import xbean.scomp.substGroup.xabstract.BeachUmbrellaT;
 
 import java.math.BigInteger;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
+import static scomp.common.BaseCase.createOptions;
+import static scomp.common.BaseCase.getErrorCodes;
 
 /**
+ *
  */
-public class Abstract extends BaseCase {
+public class Abstract {
     @Test
-    public void testAbstractInvalid() throws Throwable {
+    void testAbstractInvalid() throws Throwable {
         //umbrella not OK here
         String input =
-                "<base:items xmlns:pre=\"http://xbean/scomp/substGroup/Abstract\"" +
-                " xmlns:base=\"http://xbean/scomp/substGroup/Deep\">" +
-                "<base:product>" +
-                " <number>SKU45</number>" +
-                "   <name>Accessory</name>" +
-                "</base:product>" +
-                "<pre:umbrella>" +
-                " <number>SKU15</number>" +
-                "   <name>Umbrella</name>" +
-                "</pre:umbrella>" +
-                "<base:casualBShirt>" +
-                " <number>SKU25</number>" +
-                " <name>Oxford Shirt</name>" +
-                " <size>12</size>" +
-                " <color>blue</color>" +
-                "<pokadotColor>yellow</pokadotColor>" +
-                "</base:casualBShirt>" +
-                "</base:items>";
+            "<base:items xmlns:pre=\"http://xbean/scomp/substGroup/Abstract\"" +
+            " xmlns:base=\"http://xbean/scomp/substGroup/Deep\">" +
+            "<base:product>" +
+            " <number>SKU45</number>" +
+            "   <name>Accessory</name>" +
+            "</base:product>" +
+            "<pre:umbrella>" +
+            " <number>SKU15</number>" +
+            "   <name>Umbrella</name>" +
+            "</pre:umbrella>" +
+            "<base:casualBShirt>" +
+            " <number>SKU25</number>" +
+            " <name>Oxford Shirt</name>" +
+            " <size>12</size>" +
+            " <color>blue</color>" +
+            "<pokadotColor>yellow</pokadotColor>" +
+            "</base:casualBShirt>" +
+            "</base:items>";
         ItemsDocument doc = ItemsDocument.Factory.parse(input);
-        assertTrue(!doc.validate(validateOptions));
-        showErrors();
-
+        assertFalse(doc.validate(createOptions()));
     }
 
     @Test
-    public void testParseValid() throws Throwable {
+    void testParseValid() throws Throwable {
         String input =
-                "<base:items xmlns:pre=\"http://xbean/scomp/substGroup/Abstract\"" +
-                " xmlns:base=\"http://xbean/scomp/substGroup/Deep\">" +
-                "<base:product>" +
-                " <number>SKU45</number>" +
-                "   <name>Accessory</name>" +
-                "</base:product>" +
-                "<pre:beachumbrella diameter=\"19.5\">" +
-                " <number>SKU15</number>" +
-                "   <name>Umbrella</name>" +
-                "</pre:beachumbrella>" +
-                "<base:casualBShirt>" +
-                " <number>SKU25</number>" +
-                " <name>Oxford Shirt</name>" +
-                " <size>12</size>" +
-                " <color>blue</color>" +
-                "<pokadotColor>yellow</pokadotColor>" +
-                "</base:casualBShirt>" +
-                "</base:items>";
+            "<base:items xmlns:pre=\"http://xbean/scomp/substGroup/Abstract\"" +
+            " xmlns:base=\"http://xbean/scomp/substGroup/Deep\">" +
+            "<base:product>" +
+            " <number>SKU45</number>" +
+            "   <name>Accessory</name>" +
+            "</base:product>" +
+            "<pre:beachumbrella diameter=\"19.5\">" +
+            " <number>SKU15</number>" +
+            "   <name>Umbrella</name>" +
+            "</pre:beachumbrella>" +
+            "<base:casualBShirt>" +
+            " <number>SKU25</number>" +
+            " <name>Oxford Shirt</name>" +
+            " <size>12</size>" +
+            " <color>blue</color>" +
+            "<pokadotColor>yellow</pokadotColor>" +
+            "</base:casualBShirt>" +
+            "</base:items>";
         ItemsDocument doc = ItemsDocument.Factory.parse(input);
-        try {
-            assertTrue(doc.validate(validateOptions));
-        }
-        catch (Throwable t) {
-            showErrors();
-            throw t;
-        }
-
+        assertTrue(doc.validate(createOptions()));
     }
 
     @Test
-    public void testBuildValid() throws Throwable {
-           ItemsDocument doc = ItemsDocument.Factory.newInstance();
-            BusinessShirtType bs = BusinessShirtType.Factory.newInstance();
+    void testBuildValid() throws Throwable {
+        ItemsDocument doc = ItemsDocument.Factory.newInstance();
+        BusinessShirtType bs = BusinessShirtType.Factory.newInstance();
         bs.setName("Oxford Shirt");
         bs.setNumber("SKU35");
         bs.setColor("blue");
         bs.setSize(new BigInteger("10"));
-       ItemType it= doc.addNewItems();
-       BeachUmbrellaT um=BeachUmbrellaT.Factory.newInstance();
+        ItemType it = doc.addNewItems();
+        BeachUmbrellaT um = BeachUmbrellaT.Factory.newInstance();
         um.setDiameter(1.5f);
         um.xsetName(null);
         um.setNumber("SKU_Umbrella");
-       it.setProductArray(new ProductType[]{bs,um});
-       assertTrue(! doc.validate());
-        XmlString name=XmlString.Factory.newInstance();
+        it.setProductArray(new ProductType[]{bs, um});
+        assertFalse(doc.validate());
+        XmlString name = XmlString.Factory.newInstance();
         name.setStringValue("foobar");
-         um.xsetName(name);
-           it.setProductArray(new ProductType[]{bs,um});
-          try {
-            assertTrue(doc.validate(validateOptions));
-        }
-        catch (Throwable t) {
-              System.out.println(doc.xmlText());
-            showErrors();
-            throw t;
-        }
+        um.xsetName(name);
+        it.setProductArray(new ProductType[]{bs, um});
+        assertTrue(doc.validate(createOptions()));
     }
 
     //user described problem
     @Test
-    public void testUserAbstract(){
+    void testUserAbstract() {
 
-        RootDocument doc=RootDocument.Factory
-                .newInstance();
-        Bar barElt=doc.addNewRoot();
+        RootDocument doc = RootDocument.Factory.newInstance();
+        Bar barElt = doc.addNewRoot();
         barElt.insertNewFoo(0);
 
-        AbstractFoo elt= barElt.getFooArray()[0];
-        assertTrue (! doc.validate(validateOptions));
-        String[] errExpected = new String[]{
-            XmlErrorCodes.ELEM_LOCALLY_VALID$ABSTRACT
-                   };
-             assertTrue(compareErrorCodes(errExpected));
+        AbstractFoo elt = barElt.getFooArray()[0];
+        XmlOptions validateOptions = createOptions();
+        assertFalse(doc.validate(validateOptions));
+        String[] errExpected = {XmlErrorCodes.ELEM_LOCALLY_VALID$ABSTRACT};
+        assertArrayEquals(errExpected, getErrorCodes(validateOptions));
         elt.changeType(GenericFoo.type);
-         assertTrue ( doc.validate(validateOptions));
-
-
+        assertTrue(doc.validate(validateOptions));
     }
-
 }

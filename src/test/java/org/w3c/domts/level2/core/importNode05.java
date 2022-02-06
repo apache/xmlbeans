@@ -22,15 +22,15 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.DocumentType;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.w3c.domts.DOMTest.assertURIEquals;
 import static org.w3c.domts.DOMTest.load;
 
@@ -50,30 +50,20 @@ import static org.w3c.domts.DOMTest.load;
  */
 public class importNode05 {
     @Test
-    @Ignore
+    @Disabled
     public void testRun() throws Throwable {
-        Document doc;
-        Document aNewDoc;
-        Element element;
-        Node aNode;
-        boolean hasChild;
-        Document ownerDocument;
-        DocumentType docType;
-        String system;
-        String name;
-        doc = load("staffNS", true);
-        aNewDoc = load("staffNS", true);
-        element = aNewDoc.getElementById("CANADA");
-        aNode = doc.importNode(element, false);
-        hasChild = aNode.hasChildNodes();
-        assertFalse("hasChild", hasChild);
-        ownerDocument = aNode.getOwnerDocument();
-        docType = ownerDocument.getDoctype();
-        system = docType.getSystemId();
+        Document doc = load("staffNS", true);
+        Document aNewDoc = load("staffNS", true);
+        Element element = aNewDoc.getElementById("CANADA");
+        Node aNode = doc.importNode(element, false);
+        boolean hasChild = aNode.hasChildNodes();
+        assertFalse(hasChild, "hasChild");
+        Document ownerDocument = aNode.getOwnerDocument();
+        DocumentType docType = ownerDocument.getDoctype();
+        String system = docType.getSystemId();
         assertURIEquals("dtdSystemId", "staffNS.dtd", system);
-        name = aNode.getNodeName();
-        assertEquals("nodeName", "emp:address", name);
-
+        String name = aNode.getNodeName();
+        assertEquals("emp:address", name, "nodeName");
     }
 
     /**

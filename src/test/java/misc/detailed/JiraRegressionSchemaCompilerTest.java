@@ -18,23 +18,18 @@ import misc.common.JiraTestBase;
 import org.apache.xmlbeans.XmlError;
 import org.apache.xmlbeans.impl.tool.Parameters;
 import org.apache.xmlbeans.impl.tool.SchemaCompiler;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class JiraRegressionSchemaCompilerTest extends JiraTestBase {
-    private List _testCompile(File[] xsdFiles,
-                              String outputDirName)
-    {
-        System.out.println(xsdFiles[0].getAbsolutePath());
-        List errors = new ArrayList();
+    private List<XmlError> _testCompile(File[] xsdFiles, String outputDirName) {
+        List<XmlError> errors = new ArrayList<>();
         Parameters params = new Parameters();
         params.setXsdFiles(xsdFiles);
         params.setErrorListener(errors);
@@ -45,79 +40,48 @@ public class JiraRegressionSchemaCompilerTest extends JiraTestBase {
         return errors;
     }
 
-    private boolean findErrMsg(Collection errors, String msg)
-    {
-        boolean errFound = false;
-        if (!errors.isEmpty())
-        {
-            for (Iterator i = errors.iterator(); i.hasNext();)
-            {
-                XmlError err = (XmlError) i.next();
-                int errSeverity = err.getSeverity();
-                if (errSeverity == XmlError.SEVERITY_ERROR)
-                {
-                    if (msg.equals(err.getMessage()))
-                        errFound = true;
-                }
-            }
-        }
+    private boolean findErrMsg(List<XmlError> errors, String msg) {
+        boolean errFound = errors.stream().anyMatch(e -> e.getSeverity() == XmlError.SEVERITY_ERROR && msg.equals(e.getMessage()));
         errors.clear();
         return errFound;
     }
 
     @Test
-    public void test_jira_xmlbeans236()
-    {
-        File[] xsdFiles =
-            new File[] { new File(scompTestFilesRoot + "xmlbeans_236.xsd_") };
+    void test_jira_xmlbeans236() {
+        File[] xsdFiles = {new File(scompTestFilesRoot + "xmlbeans_236.xsd_")};
         String outputDirName = "xmlbeans_236";
-        List errors = _testCompile(xsdFiles, outputDirName);
-        if (printOptionErrMsgs(errors))
-        {
-            fail("test_jira_xmlbeans236(): failure when executing scomp");
-        }
+        List<XmlError> errors = _testCompile(xsdFiles, outputDirName);
+        assertFalse(hasSevereError(errors),"test_jira_xmlbeans236(): failure when executing scomp");
     }
 
     @Test
-    public void test_jira_xmlbeans239()
-    {
+    void test_jira_xmlbeans239() {
         /* complexType with complexContent extending base type with
            simpleContent is valid */
-        File[] xsdFiles =
-            new File[] { new File(scompTestFilesRoot + "xmlbeans_239a.xsd_") };
+        File[] xsdFiles = {new File(scompTestFilesRoot + "xmlbeans_239a.xsd_")};
         String outputDirName = "xmlbeans_239";
-        List errors = _testCompile(xsdFiles, outputDirName);
-        if (printOptionErrMsgs(errors))
-        {
-            fail("test_jira_xmlbeans239(): failure when executing scomp");
-        }
+        List<XmlError> errors = _testCompile(xsdFiles, outputDirName);
+        assertFalse(hasSevereError(errors),"test_jira_xmlbeans239(): failure when executing scomp");
 
         /* complexType with complexContent extending simpleType is not valid */
-        xsdFiles =
-            new File[] { new File(scompTestFilesRoot + "xmlbeans_239b.xsd_") };
+        xsdFiles = new File[]{new File(scompTestFilesRoot + "xmlbeans_239b.xsd_")};
         errors = _testCompile(xsdFiles, outputDirName);
         String msg = "Type 'dtSTRING@http://www.test.bmecat.org' is being used as the base type for a complexContent definition. To do this the base type must be a complex type.";
         assertTrue(findErrMsg(errors, msg));
 
         /* complexType with complexContent extending base type with
            simpleContent cannot add particles */
-        xsdFiles =
-            new File[] { new File(scompTestFilesRoot + "xmlbeans_239c.xsd_") };
+        xsdFiles = new File[]{new File(scompTestFilesRoot + "xmlbeans_239c.xsd_")};
         errors = _testCompile(xsdFiles, outputDirName);
         msg = "This type extends a base type 'dtMLSTRING@http://www.test.bmecat.org' which has simpleContent. In that case this type cannot add particles.";
         assertTrue(findErrMsg(errors, msg));
     }
 
     @Test
-    public void test_jira_xmlbeans251()
-    {
-        File[] xsdFiles =
-            new File[] { new File(scompTestFilesRoot + "xmlbeans_251.xsd_") };
+    void test_jira_xmlbeans251() {
+        File[] xsdFiles = {new File(scompTestFilesRoot + "xmlbeans_251.xsd_")};
         String outputDirName = "xmlbeans_251";
-        List errors = _testCompile(xsdFiles, outputDirName);
-        if (printOptionErrMsgs(errors))
-        {
-            fail("test_jira_xmlbeans251(): failure when executing scomp");
-        }
+        List<XmlError> errors = _testCompile(xsdFiles, outputDirName);
+        assertFalse(hasSevereError(errors), "test_jira_xmlbeans251(): failure when executing scomp");
     }
 }

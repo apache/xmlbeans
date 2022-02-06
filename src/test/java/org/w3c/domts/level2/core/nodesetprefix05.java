@@ -22,12 +22,13 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -40,33 +41,16 @@ import static org.w3c.domts.DOMTest.load;
  */
 public class nodesetprefix05 {
     @Test
-    public void testRun() throws Throwable {
-        Document doc;
-        Element element;
-        String prefixValue;
-        java.util.List prefixValues = new java.util.ArrayList();
-        prefixValues.add("_:");
-        prefixValues.add(":0");
-        prefixValues.add(":");
-        prefixValues.add("_::");
-        prefixValues.add("a:0:c");
+    void testRun() throws Throwable {
+        ;
+        String[] prefixValues = { "_:", ":0", ":", "_::", "a:0:c" };
 
-        doc = load("staffNS", true);
-        element = doc.createElementNS("http://www.w3.org/DOM/Test/L2", "dom:elem");
-        for (int indexd523e55 = 0; indexd523e55 < prefixValues.size(); indexd523e55++) {
-            prefixValue = (String) prefixValues.get(indexd523e55);
-
-            {
-                boolean success = false;
-                try {
-                    element.setPrefix(prefixValue);
-                } catch (DOMException ex) {
-                    success = (ex.code == DOMException.NAMESPACE_ERR);
-                }
-                assertTrue("nodesetprefix05", success);
-            }
+        Document doc = load("staffNS", true);
+        Element element = doc.createElementNS("http://www.w3.org/DOM/Test/L2", "dom:elem");
+        for (String prefixValue : prefixValues) {
+            DOMException ex = assertThrows(DOMException.class, () -> element.setPrefix(prefixValue));
+            assertEquals(DOMException.NAMESPACE_ERR, ex.code, "nodesetprefix05");
         }
-
     }
 
     /**

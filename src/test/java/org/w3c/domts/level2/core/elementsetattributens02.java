@@ -22,13 +22,13 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -42,23 +42,16 @@ import static org.w3c.domts.DOMTest.load;
  */
 public class elementsetattributens02 {
     @Test
-    public void testRun() throws Throwable {
-        Document doc;
-        Element element;
-        Attr attribute;
-        NodeList elementList;
-        String attrName;
-        String attrValue;
-        doc = load("staff", true);
-        elementList = doc.getElementsByTagNameNS("*", "address");
-        element = (Element) elementList.item(0);
+    void testRun() throws Throwable {
+        Document doc = load("staff", true);
+        NodeList elementList = doc.getElementsByTagNameNS("*", "address");
+        Element element = (Element) elementList.item(0);
         element.setAttributeNS("http://www.w3.org/DOM/Test/setAttributeNS", "this:street", "Silver Street");
-        attribute = element.getAttributeNodeNS("http://www.w3.org/DOM/Test/setAttributeNS", "street");
-        attrName = attribute.getNodeName();
-        attrValue = attribute.getNodeValue();
-        assertEquals("elementsetattributens02_attrName", "this:street", attrName);
-        assertEquals("elementsetattributens02_attrValue", "Silver Street", attrValue);
-
+        Attr attribute = element.getAttributeNodeNS("http://www.w3.org/DOM/Test/setAttributeNS", "street");
+        String attrName = attribute.getNodeName();
+        String attrValue = attribute.getNodeValue();
+        assertEquals("this:street", attrName, "elementsetattributens02_attrName");
+        assertEquals("Silver Street", attrValue, "elementsetattributens02_attrValue");
     }
 
     /**

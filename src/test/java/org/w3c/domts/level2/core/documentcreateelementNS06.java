@@ -22,10 +22,14 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Test;
-import org.w3c.dom.*;
+import org.junit.jupiter.api.Test;
+import org.w3c.dom.DOMException;
+import org.w3c.dom.DOMImplementation;
+import org.w3c.dom.Document;
+import org.w3c.dom.DocumentType;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -42,29 +46,17 @@ import static org.w3c.domts.DOMTest.load;
  */
 public class documentcreateelementNS06 {
     @Test
-    public void testRun() throws Throwable {
-        Document doc;
-        Document newDoc;
+    void testRun() throws Throwable {
         DocumentType docType = null;
 
-        DOMImplementation domImpl;
-        Element element;
         String namespaceURI = "http://www.w3.org/xml/1998/namespace ";
         String qualifiedName = "xml:root";
-        doc = load("staffNS", false);
-        domImpl = doc.getImplementation();
-        newDoc = domImpl.createDocument("http://www.w3.org/DOM/Test", "dom:doc", docType);
+        Document doc = load("staffNS", false);
+        DOMImplementation domImpl = doc.getImplementation();
+        Document newDoc = domImpl.createDocument("http://www.w3.org/DOM/Test", "dom:doc", docType);
 
-        {
-            boolean success = false;
-            try {
-                element = newDoc.createElementNS(namespaceURI, qualifiedName);
-            } catch (DOMException ex) {
-                success = (ex.code == DOMException.NAMESPACE_ERR);
-            }
-            assertTrue("documentcreateelementNS06,xml:root and namespaceURI as http://www.w3.org/xml/1998/namespace ", success);
-        }
-
+        DOMException ex = assertThrows(DOMException.class, () -> newDoc.createElementNS(namespaceURI, qualifiedName));
+        assertEquals(DOMException.NAMESPACE_ERR, ex.code, "documentcreateelementNS06,xml:root and namespaceURI as http://www.w3.org/xml/1998/namespace");
     }
 
     /**

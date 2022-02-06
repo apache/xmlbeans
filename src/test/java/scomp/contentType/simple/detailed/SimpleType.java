@@ -14,43 +14,33 @@
  */
 package scomp.contentType.simple.detailed;
 
-import org.junit.Test;
-import scomp.common.BaseCase;
-import xbean.scomp.contentType.simpleType.PantSizeEltDocument;
 import org.apache.xmlbeans.XmlErrorCodes;
+import org.apache.xmlbeans.XmlOptions;
+import org.junit.jupiter.api.Test;
+import xbean.scomp.contentType.simpleType.PantSizeEltDocument;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
+import static scomp.common.BaseCase.createOptions;
+import static scomp.common.BaseCase.getErrorCodes;
 
-public class SimpleType extends BaseCase {
+public class SimpleType {
     @Test
-    public void testPattern() throws Throwable {
+    void testPattern() throws Throwable {
         PantSizeEltDocument size = PantSizeEltDocument.Factory.newInstance();
         size.setPantSizeElt(16);
         //size> max inclusive
-        assertTrue(!size.validate(validateOptions));
-        showErrors();
-        String[] errExpected = new String[]{
-            XmlErrorCodes.DATATYPE_MAX_INCLUSIVE_VALID
-        };
-        assertTrue(compareErrorCodes(errExpected));
+        XmlOptions validateOptions = createOptions();
+        assertFalse(size.validate(validateOptions));
+        String[] errExpected = {XmlErrorCodes.DATATYPE_MAX_INCLUSIVE_VALID};
+        assertArrayEquals(errExpected, getErrorCodes(validateOptions));
 
         size.setPantSizeElt(-1);
-        showErrors();
-        clearErrors();
-        assertTrue(!size.validate(validateOptions));
-        errExpected = new String[]{
-            XmlErrorCodes.DATATYPE_VALID$PATTERN_VALID
-        };
-        assertTrue(compareErrorCodes(errExpected));
-
+        validateOptions.getErrorListener().clear();
+        assertFalse(size.validate(validateOptions));
+        errExpected = new String[]{XmlErrorCodes.DATATYPE_VALID$PATTERN_VALID};
+        assertArrayEquals(errExpected, getErrorCodes(validateOptions));
 
         size.setPantSizeElt(14);
-        try {
-            assertTrue(size.validate(validateOptions));
-        } catch (Throwable t) {
-            showErrors();
-            throw t;
-        }
-
+        assertTrue(size.validate(validateOptions));
     }
 }

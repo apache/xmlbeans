@@ -22,12 +22,12 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -49,25 +49,14 @@ import static org.w3c.domts.DOMTest.load;
  */
 public class createElementNS04 {
     @Test
-    public void testRun() throws Throwable {
+    void testRun() throws Throwable {
         String namespaceURI = "http://www.w3.org/XML/1998/namespaces";
         String qualifiedName = "xml:element1";
-        Document doc;
-        Element newElement;
-        doc = load("staffNS", false);
+        Document doc = load("staffNS", false);
 
-        {
-            boolean success = false;
-            try {
-                newElement = doc.createElementNS(namespaceURI, qualifiedName);
-            } catch (DOMException ex) {
-                success = (ex.code == DOMException.NAMESPACE_ERR);
-            }
-            assertTrue("throw_NAMESPACE_ERR, qualifiedName has an \"xml\" prefix and the namespaceURI is different\n" +
-                       "\n" +
-                       "   from http://www.w3.org/XML/1998/namespace", success);
-        }
-
+        DOMException ex = assertThrows(DOMException.class, () -> doc.createElementNS(namespaceURI, qualifiedName));
+        assertEquals(DOMException.NAMESPACE_ERR, ex.code,
+            "throw_NAMESPACE_ERR, qualifiedName has an \"xml\" prefix and the namespaceURI is different from http://www.w3.org/XML/1998/namespace");
     }
 
     /**

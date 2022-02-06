@@ -22,12 +22,12 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Test;
-import org.w3c.dom.Attr;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -44,23 +44,13 @@ import static org.w3c.domts.DOMTest.load;
  */
 public class documentcreateattributeNS07 {
     @Test
-    public void testRun() throws Throwable {
-        Document doc;
-        Attr attribute;
+    void testRun() throws Throwable {
         String namespaceURI = "http://www.W3.org/2000/xmlns";
         String qualifiedName = "xmlns";
-        doc = load("staffNS", false);
+        Document doc = load("staffNS", false);
 
-        {
-            boolean success = false;
-            try {
-                attribute = doc.createAttributeNS(namespaceURI, qualifiedName);
-            } catch (DOMException ex) {
-                success = (ex.code == DOMException.NAMESPACE_ERR);
-            }
-            assertTrue("documentcreateattributeNS07, qualifiedName as xmlns and namespaceURI as http://www.W3.org/2000/xmlns", success);
-        }
-
+        DOMException ex = assertThrows(DOMException.class, () -> doc.createAttributeNS(namespaceURI, qualifiedName));
+        assertEquals(DOMException.NAMESPACE_ERR, ex.code, "documentcreateattributeNS07, qualifiedName as xmlns and namespaceURI as http://www.W3.org/2000/xmlns");
     }
 
     /**

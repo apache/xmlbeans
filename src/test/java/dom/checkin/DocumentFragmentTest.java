@@ -17,11 +17,11 @@
 package dom.checkin;
 
 import dom.common.NodeWithChildrenTest;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Node;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 
 public class DocumentFragmentTest extends NodeWithChildrenTest {
@@ -37,53 +37,53 @@ public class DocumentFragmentTest extends NodeWithChildrenTest {
     }
 
     @Test
-    public void testNodeName() {
+    void testNodeName() {
         assertEquals("#document-fragment", m_node.getNodeName());
     }
 
     @Test
-    public void testNodeType() {
+    void testNodeType() {
         assertEquals(Node.DOCUMENT_FRAGMENT_NODE, m_node.getNodeType());
     }
 
     @Test
-    public void testNodeValue() {
+    void testNodeValue() {
         assertNull(m_node.getNodeValue());
     }
 
     @Test
-    public void testNextSibling() {
+    void testNextSibling() {
         assertNull(m_node.getNextSibling());
     }
 
     @Test
-    public void testPreviousSibling() {
+    void testPreviousSibling() {
         assertNotNull(m_node);
         assertNull(m_node.getPreviousSibling());
     }
 
     @Test
-    public void testParent() {
+    void testParent() {
         assertNull(m_node.getParentNode());
     }
 
     @Test
-    public void testGetChildNodes() {
+    protected void testGetChildNodes() {
         assertEquals(1, m_node.getChildNodes().getLength());
     }
 
     @Test
-    public void testFirstChild() {
+    protected void testFirstChild() {
         assertEquals("foo", m_node.getFirstChild().getNodeName());
     }
 
     @Test
-    public void testLastChild() {
+    protected void testLastChild() {
         assertEquals("foo", m_node.getLastChild().getNodeName());
     }
 
     @Test
-    public void testInsertExisitingNode() {
+    void testInsertExisitingNode() {
         Node child = m_doc.getFirstChild().getFirstChild();//some text
         if (child == m_node)
             child = m_doc.getLastChild();
@@ -91,21 +91,21 @@ public class DocumentFragmentTest extends NodeWithChildrenTest {
     }
 
     @Test
-    public void testAppendChildExisting() {
+    void testAppendChildExisting() {
         Node child = m_doc.getFirstChild().getFirstChild();//some text
         if (child == m_node)
             child = m_doc.getLastChild();
         //if still the same, SOL
         super.testAppendChildExisting(child);
     }
-        
+
     public void moveToNode() {
         m_node = m_doc.createDocumentFragment();
         m_node.appendChild(m_doc.createElement("foo"));
 
     }
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         super.setUp();
         moveToNode();

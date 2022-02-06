@@ -22,13 +22,13 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.CDATASection;
 import org.w3c.dom.Document;
 import org.w3c.dom.DocumentType;
 import org.w3c.dom.Node;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -45,30 +45,20 @@ import static org.w3c.domts.DOMTest.load;
  */
 public class importNode02 {
     @Test
-    public void testRun() throws Throwable {
-        Document doc;
-        Document aNewDoc;
-        CDATASection cDataSec;
-        Node aNode;
-        Document ownerDocument;
-        DocumentType docType;
-        String system;
-        String value;
-        doc = load("staffNS", true);
-        aNewDoc = load("staffNS", true);
-        cDataSec = aNewDoc.createCDATASection("this is CDATASection data");
-        aNode = doc.importNode(cDataSec, false);
-        ownerDocument = aNode.getOwnerDocument();
-        docType = ownerDocument.getDoctype();
+    void testRun() throws Throwable {
+        Document doc = load("staffNS", true);
+        Document aNewDoc = load("staffNS", true);
+        CDATASection cDataSec = aNewDoc.createCDATASection("this is CDATASection data");
+        Node aNode = doc.importNode(cDataSec, false);
+        Document ownerDocument = aNode.getOwnerDocument();
+        DocumentType docType = ownerDocument.getDoctype();
 
-/* TODO:
-	system = docType.getSystemId();
-      assertURIEquals("dtdSystemId", null, null, null, "staffNS.dtd", null, null, null, null, system);
+        // TODO:
+	    // String system = docType.getSystemId();
+        // assertURIEquals("dtdSystemId", "staffNS.dtd", system);
 
-*/
-        value = aNode.getNodeValue();
-        assertEquals("nodeValue", "this is CDATASection data", value);
-
+        String value = aNode.getNodeValue();
+        assertEquals("this is CDATASection data", value, "nodeValue");
     }
 
     /**

@@ -22,10 +22,10 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.*;
 
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -38,20 +38,14 @@ import static org.w3c.domts.DOMTest.load;
  */
 public class namednodemapremovenameditemns01 {
     @Test
-    public void testRun() throws Throwable {
-        Document doc;
-        NamedNodeMap attributes;
-        Node element;
-        Attr attribute;
-        NodeList elementList;
-        doc = load("staffNS", true);
-        elementList = doc.getElementsByTagNameNS("http://www.nist.gov", "address");
-        element = elementList.item(1);
-        attributes = element.getAttributes();
-        attribute = (Attr) attributes.removeNamedItemNS("http://www.nist.gov", "domestic");
+    void testRun() throws Throwable {
+        Document doc = load("staffNS", true);
+        NodeList elementList = doc.getElementsByTagNameNS("http://www.nist.gov", "address");
+        Node element = elementList.item(1);
+        NamedNodeMap attributes = element.getAttributes();
+        Attr attribute = (Attr) attributes.removeNamedItemNS("http://www.nist.gov", "domestic");
         attribute = (Attr) attributes.getNamedItemNS("http://www.nist.gov", "domestic");
-        assertNull("namednodemapremovenameditemns01", attribute);
-
+        assertNull(attribute, "namednodemapremovenameditemns01");
     }
 
     /**

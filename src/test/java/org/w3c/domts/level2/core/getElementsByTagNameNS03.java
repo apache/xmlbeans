@@ -22,12 +22,14 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import static org.junit.Assert.assertEquals;
+import java.util.stream.IntStream;
+
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -45,38 +47,18 @@ import static org.w3c.domts.DOMTest.load;
  */
 public class getElementsByTagNameNS03 {
     @Test
-    public void testRun() throws Throwable {
-        Document doc;
-        NodeList elementList;
-        Node child;
-        String childName;
-        java.util.List result = new java.util.ArrayList();
+    void testRun() throws Throwable {
+        String[] expectedResult = {
+            "employee", "employeeId", "name", "position", "salary", "gender", "address", "emp:employee",
+            "emp:employeeId", "emp:position", "emp:salary", "emp:gender", "emp:address", "address"
+        };
 
-        java.util.List expectedResult = new java.util.ArrayList();
-        expectedResult.add("employee");
-        expectedResult.add("employeeId");
-        expectedResult.add("name");
-        expectedResult.add("position");
-        expectedResult.add("salary");
-        expectedResult.add("gender");
-        expectedResult.add("address");
-        expectedResult.add("emp:employee");
-        expectedResult.add("emp:employeeId");
-        expectedResult.add("emp:position");
-        expectedResult.add("emp:salary");
-        expectedResult.add("emp:gender");
-        expectedResult.add("emp:address");
-        expectedResult.add("address");
+        Document doc = load("staffNS", false);
+        NodeList elementList = doc.getElementsByTagNameNS("http://www.nist.gov", "*");
+        String[] result = IntStream.range(0, elementList.getLength())
+            .mapToObj(elementList::item).map(Node::getNodeName).toArray(String[]::new);
 
-        doc = load("staffNS", false);
-        elementList = doc.getElementsByTagNameNS("http://www.nist.gov", "*");
-        for (int indexd401e88 = 0; indexd401e88 < elementList.getLength(); indexd401e88++) {
-            child = elementList.item(indexd401e88);
-            childName = child.getNodeName();
-            result.add(childName);
-        }
-        assertEquals("nodeNames", expectedResult, result);
-
+        assertArrayEquals(expectedResult, result, "nodeNames");
     }
 
     /**

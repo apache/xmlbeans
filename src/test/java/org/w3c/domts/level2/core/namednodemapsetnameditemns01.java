@@ -22,10 +22,10 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.*;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -41,25 +41,16 @@ import static org.w3c.domts.DOMTest.load;
  */
 public class namednodemapsetnameditemns01 {
     @Test
-    public void testRun() throws Throwable {
-        Document doc;
-        NamedNodeMap attributes;
-        Node element;
-        Attr attribute;
-        Attr newAttribute;
-        Attr newAttr1;
-        NodeList elementList;
-        String attrName;
-        doc = load("staffNS", true);
-        elementList = doc.getElementsByTagNameNS("http://www.nist.gov", "address");
-        element = elementList.item(0);
-        attributes = element.getAttributes();
-        newAttr1 = doc.createAttributeNS("http://www.w3.org/DOM/L1", "streets");
-        newAttribute = ((Element) /*Node */element).setAttributeNodeNS(newAttr1);
-        attribute = (Attr) attributes.getNamedItemNS("http://www.w3.org/DOM/L1", "streets");
-        attrName = attribute.getNodeName();
-        assertEquals("namednodemapsetnameditemns01", "streets", attrName);
-
+    void testRun() throws Throwable {
+        Document doc = load("staffNS", true);
+        NodeList elementList = doc.getElementsByTagNameNS("http://www.nist.gov", "address");
+        Node element = elementList.item(0);
+        NamedNodeMap attributes = element.getAttributes();
+        Attr newAttr1 = doc.createAttributeNS("http://www.w3.org/DOM/L1", "streets");
+        Attr newAttribute = ((Element) /*Node */element).setAttributeNodeNS(newAttr1);
+        Attr attribute = (Attr) attributes.getNamedItemNS("http://www.w3.org/DOM/L1", "streets");
+        String attrName = attribute.getNodeName();
+        assertEquals("streets", attrName, "namednodemapsetnameditemns01");
     }
 
     /**

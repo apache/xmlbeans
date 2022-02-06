@@ -19,7 +19,7 @@ import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlCursor.TokenType;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.tranxml.tranXML.version40.CarLocationMessageDocument;
 import org.tranxml.tranXML.version40.CodeList309;
 import org.tranxml.tranXML.version40.GeographicLocationDocument;
@@ -32,12 +32,12 @@ import xmlcursor.common.Common;
 
 import javax.xml.namespace.QName;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 
 public class CursorGeneratedTypedObjectTest {
     @Test
-    public void testGetObjectValidateLocation() throws Exception {
+    void testGetObjectValidateLocation() throws Exception {
         String sNamespace = "xmlns:loc=\"http://xbean.test/xmlcursor/Location\"";
         String sXml =
             "<loc:Location " + sNamespace + ">" +
@@ -89,14 +89,12 @@ public class CursorGeneratedTypedObjectTest {
     }
 
     @Test
-    public void testGetObjectGL() throws Exception {
+    void testGetObjectGL() throws Exception {
         String sNamespace = "xmlns=\"http://www.tranxml.org/TranXML/Version4.0\" xmlns:xsi=\"http://www.w3.org/2000/10/XMLSchema-instance\"";
         CarLocationMessageDocument clm = CarLocationMessageDocument.Factory.parse(
-            JarUtil.getResourceFromJar(
-                Common.TRANXML_FILE_CLM));
+            JarUtil.getResourceFromJar(Common.TRANXML_FILE_CLM));
         try (XmlCursor xc = clm.newCursor()) {
-            xc.selectPath(Common.CLM_NS_XQUERY_DEFAULT +
-                          "$this//GeographicLocation");
+            xc.selectPath(Common.CLM_NS_XQUERY_DEFAULT + "$this//GeographicLocation");
             xc.toNextSelection();
 
             GeographicLocationDocument.GeographicLocation gl0 = (GeographicLocationDocument.GeographicLocation) xc.getObject();
@@ -151,9 +149,8 @@ public class CursorGeneratedTypedObjectTest {
                 assertEquals("DALLAS", gl.getCityName().getStringValue());
                 assertEquals("TX", gl.getStateOrProvinceCode());
                 LocationIdentifierDocument.LocationIdentifier li = gl.getLocationIdentifier();
-                assertNotNull("LocationIdentifier unexpectedly null", li);
-                assertEquals(CodeList309.FR,
-                    gl.getLocationIdentifier().getQualifier());
+                assertNotNull(li, "LocationIdentifier unexpectedly null");
+                assertEquals(CodeList309.FR, gl.getLocationIdentifier().getQualifier());
                 assertEquals("xyz", gl.getCountrySubdivisionCode());
             }
         }
@@ -161,7 +158,7 @@ public class CursorGeneratedTypedObjectTest {
 
 
     @Test
-    public void testGetObjectPerson() throws Exception {
+    void testGetObjectPerson() throws Exception {
         String sFF = "<First>Fred</First><Last>Flintstone</Last>";
         String sXml = "<Person xmlns=\"person\"><Name>" + sFF +
                       "</Name></Person>";

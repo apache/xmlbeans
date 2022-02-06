@@ -16,8 +16,8 @@
 package random.checkin;
 
 import org.apache.xmlbeans.impl.tool.CommandLine;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import random.common.Random;
 
 import java.util.Arrays;
@@ -25,12 +25,12 @@ import java.util.Arrays;
 
 public class RandomTest {
 
-     long seed;
+    long seed;
     int iterations;
     int threads;
     int docs;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         seed = System.currentTimeMillis();
         iterations = Integer.MAX_VALUE;
@@ -39,11 +39,11 @@ public class RandomTest {
     }
 
     @Test
-    public void testNoQuery() {
+    void testNoQuery() {
         String[] args = new String[]{"-seed", "0", "-i", "20", "-noquery"};
         CommandLine cl = new CommandLine(args,
-                Arrays.asList(new String[]{"?", "help", "readonly", "noquery", "nosave"}),
-                Arrays.asList(new String[]{"seed", "i", "t", "docs", "?", "help"}));
+                Arrays.asList("?", "help", "readonly", "noquery", "nosave"),
+                Arrays.asList("seed", "i", "t", "docs", "?", "help"));
          Random.runTest(cl);
     }
 }

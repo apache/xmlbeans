@@ -22,13 +22,13 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -47,26 +47,18 @@ import static org.w3c.domts.DOMTest.load;
  */
 public class setNamedItemNS05 {
     @Test
-    public void testRun() throws Throwable {
+    void testRun() throws Throwable {
         String namespaceURI = "http://www.usa.com";
         String qualifiedName = "dmstc:domestic";
-        Document doc;
-        Node arg;
-        NodeList elementList;
-        Node testAddress;
-        NamedNodeMap attributes;
-        Node retnode;
-        String value;
-        doc = load("staffNS", true);
-        arg = doc.createAttributeNS(namespaceURI, qualifiedName);
+        Document doc = load("staffNS", true);
+        Node arg = doc.createAttributeNS(namespaceURI, qualifiedName);
         arg.setNodeValue("newValue");
-        elementList = doc.getElementsByTagName("address");
-        testAddress = elementList.item(0);
-        attributes = testAddress.getAttributes();
-        retnode = attributes.setNamedItemNS(arg);
-        value = retnode.getNodeValue();
-        assertEquals("throw_Equals", "Yes", value);
-
+        NodeList elementList = doc.getElementsByTagName("address");
+        Node testAddress = elementList.item(0);
+        NamedNodeMap attributes = testAddress.getAttributes();
+        Node retnode = attributes.setNamedItemNS(arg);
+        String value = retnode.getNodeValue();
+        assertEquals("Yes", value, "throw_Equals");
     }
 
     /**

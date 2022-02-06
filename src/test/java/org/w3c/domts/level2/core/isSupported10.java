@@ -22,11 +22,11 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -49,15 +49,11 @@ import static org.w3c.domts.DOMTest.load;
  */
 public class isSupported10 {
     @Test
-    public void testRun() throws Throwable {
-        Document doc;
-        Node rootNode;
-        boolean state;
-        doc = load("staff", false);
-        rootNode = doc.getDocumentElement();
-        state = rootNode.isSupported("CORE", "2.0");
-        assertTrue("throw_True", state);
-
+    void testRun() throws Throwable {
+        Document doc = load("staff", false);
+        Node rootNode = doc.getDocumentElement();
+        boolean state = rootNode.isSupported("CORE", "2.0");
+        assertTrue(state, "throw_True");
     }
 
     /**

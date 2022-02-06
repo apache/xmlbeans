@@ -22,10 +22,13 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Test;
-import org.w3c.dom.*;
+import org.junit.jupiter.api.Test;
+import org.w3c.dom.Attr;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NamedNodeMap;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -39,26 +42,18 @@ import static org.w3c.domts.DOMTest.load;
  */
 public class namednodemapgetnameditemns03 {
     @Test
-    public void testRun() throws Throwable {
-        Document doc;
-        NamedNodeMap attributes;
-        Node element;
-        Attr attribute;
-        Attr newAttr1;
-        Attr newAttr2;
-        Attr newAttribute;
+    void testRun() throws Throwable {
         String attrName;
-        doc = load("staffNS", false);
-        element = doc.createElementNS("http://www.w3.org/DOM/Test", "root");
-        newAttr1 = doc.createAttributeNS("http://www.w3.org/DOM/L1", "L1:att");
-        newAttribute = ((Element) /*Node */element).setAttributeNodeNS(newAttr1);
-        newAttr2 = doc.createAttributeNS("http://www.w3.org/DOM/L2", "L2:att");
-        newAttribute = ((Element) /*Node */element).setAttributeNodeNS(newAttr2);
-        attributes = element.getAttributes();
-        attribute = (Attr) attributes.getNamedItemNS("http://www.w3.org/DOM/L2", "att");
+        Document doc = load("staffNS", false);
+        Element element = doc.createElementNS("http://www.w3.org/DOM/Test", "root");
+        Attr newAttr1 = doc.createAttributeNS("http://www.w3.org/DOM/L1", "L1:att");
+        element.setAttributeNodeNS(newAttr1);
+        Attr newAttr2 = doc.createAttributeNS("http://www.w3.org/DOM/L2", "L2:att");
+        element.setAttributeNodeNS(newAttr2);
+        NamedNodeMap attributes = element.getAttributes();
+        Attr attribute = (Attr) attributes.getNamedItemNS("http://www.w3.org/DOM/L2", "att");
         attrName = attribute.getNodeName();
-        assertEquals("namednodemapgetnameditemns03", "L2:att", attrName);
-
+        assertEquals("L2:att", attrName, "namednodemapgetnameditemns03");
     }
 
     /**

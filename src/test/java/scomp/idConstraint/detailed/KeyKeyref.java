@@ -16,44 +16,41 @@
 package scomp.idConstraint.detailed;
 
 import org.apache.xmlbeans.XmlErrorCodes;
+import org.apache.xmlbeans.XmlException;
+import org.apache.xmlbeans.XmlOptions;
 import org.apache.xmlbeans.XmlString;
-import org.junit.Test;
-import scomp.common.BaseCase;
+import org.junit.jupiter.api.Test;
 import xbean.scomp.idConstraint.constraint.*;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
+import static scomp.common.BaseCase.createOptions;
+import static scomp.common.BaseCase.getErrorCodes;
 
-public class KeyKeyref extends BaseCase {
+public class KeyKeyref {
 
     @Test
-    public void testUnique() throws Throwable {
+    void testUnique() throws XmlException {
         String input =
-                "<con:productList xmlns:con=\"http://xbean/scomp/idConstraint/Constraint\">" +
-                " <con:product>" +
-                " <con:department con:name=\"Marketing\"/>" +
-                " <con:id>FooBarChart</con:id>" +
-                "</con:product>" +
-                "<con:product>" +
-                " <con:department con:name=\"7345\"/>" +
-                " <con:id>FooBarChart</con:id>" +
-                "</con:product>" +
-                "</con:productList>";
+            "<con:productList xmlns:con=\"http://xbean/scomp/idConstraint/Constraint\">" +
+            " <con:product>" +
+            " <con:department con:name=\"Marketing\"/>" +
+            " <con:id>FooBarChart</con:id>" +
+            "</con:product>" +
+            "<con:product>" +
+            " <con:department con:name=\"7345\"/>" +
+            " <con:id>FooBarChart</con:id>" +
+            "</con:product>" +
+            "</con:productList>";
 
         ProductListDocument doc = ProductListDocument.Factory.parse(input);
-        try {
-            assertTrue(doc.validate(validateOptions));
-        } catch (Throwable t) {
-            showErrors();
-            throw t;
-        }
-
+        assertTrue(doc.validate(createOptions()));
     }
 
     /**
      * field combo not unique in instance  (a and c are the same)
      */
     @Test
-    public void testUniqueIllegal() throws Throwable {
+    void testUniqueIllegal() {
         ProductListDocument doc = ProductListDocument.Factory.newInstance();
         ProductListType products = ProductListType.Factory.newInstance();
         ProductType a = products.addNewProduct();
@@ -73,16 +70,10 @@ public class KeyKeyref extends BaseCase {
         c.setId("0");
         doc.setProductList(products);
 
-        System.out.println(doc.xmlText());
-
-        assertTrue(!doc.validate(validateOptions));
-        showErrors();
-        String[] errExpected = new String[]{
-            XmlErrorCodes.IDENTITY_CONSTRAINT_VALID$DUPLICATE_UNIQUE
-        };
-        assertTrue(compareErrorCodes(errExpected));
-
-
+        XmlOptions validateOptions = createOptions();
+        assertFalse(doc.validate(validateOptions));
+        String[] errExpected = {XmlErrorCodes.IDENTITY_CONSTRAINT_VALID$DUPLICATE_UNIQUE};
+        assertArrayEquals(errExpected, getErrorCodes(validateOptions));
     }
 
     /**
@@ -90,162 +81,145 @@ public class KeyKeyref extends BaseCase {
      * Only one dept can appear in the first product
      */
     @Test
-    public void testUniqueIllegal2() throws Throwable {
+    void testUniqueIllegal2() throws XmlException {
         String input =
-                "<con:productList xmlns:con=\"http://xbean/scomp/idConstraint/Constraint\">" +
-                " <con:product>" +
-                " <con:department con:name=\"Marketing\"/>" +
-                " <con:department con:name=\"Management\"/>" +
-                " <con:id>FooBarChart</con:id>" +
-                "</con:product>" +
-                "<con:product>" +
-                " <con:department con:name=\"7345\"/>" +
-                " <con:id>FooBarChart</con:id>" +
-                "</con:product>" +
-                "</con:productList>";
+            "<con:productList xmlns:con=\"http://xbean/scomp/idConstraint/Constraint\">" +
+            " <con:product>" +
+            " <con:department con:name=\"Marketing\"/>" +
+            " <con:department con:name=\"Management\"/>" +
+            " <con:id>FooBarChart</con:id>" +
+            "</con:product>" +
+            "<con:product>" +
+            " <con:department con:name=\"7345\"/>" +
+            " <con:id>FooBarChart</con:id>" +
+            "</con:product>" +
+            "</con:productList>";
 
-        ProductListDocument doc = ProductListDocument
-                .Factory.parse(input);
+        ProductListDocument doc = ProductListDocument.Factory.parse(input);
 
-        assertTrue(!doc.validate(validateOptions));
-        showErrors();
+        assertFalse(doc.validate(createOptions()));
     }
 
 
     @Test
-    public void testKey() throws Throwable {
+    void testKey() throws XmlException {
         String input =
-                "<con:KeyProductList xmlns:con=\"http://xbean/scomp/idConstraint/Constraint\">" +
-                " <con:product>" +
-                " <con:department con:name=\"Marketing\"/>" +
-                " <con:id>FooBarChart</con:id>" +
-                "</con:product>" +
-                "<con:product>" +
-                " <con:department con:name=\"7345\"/>" +
-                " <con:id>FooBarChart</con:id>" +
-                "</con:product>" +
-                "</con:KeyProductList>";
+            "<con:KeyProductList xmlns:con=\"http://xbean/scomp/idConstraint/Constraint\">" +
+            " <con:product>" +
+            " <con:department con:name=\"Marketing\"/>" +
+            " <con:id>FooBarChart</con:id>" +
+            "</con:product>" +
+            "<con:product>" +
+            " <con:department con:name=\"7345\"/>" +
+            " <con:id>FooBarChart</con:id>" +
+            "</con:product>" +
+            "</con:KeyProductList>";
 
         KeyProductListDocument doc = KeyProductListDocument.Factory.parse(input);
-        try {
-            assertTrue(doc.validate(validateOptions));
-        } catch (Throwable t) {
-            showErrors();
-            throw t;
-        }
+        assertTrue(doc.validate(createOptions()));
     }
 
     /**
      * null key in instance:missing dept in first product
      */
     @Test
-    public void testKeyIllegal() throws Throwable {
+    void testKeyIllegal() throws XmlException {
         String input =
-                "<xs:KeyProductList xmlns:xs=\"http://xbean/scomp/idConstraint/Constraint\">" +
-                " <xs:product>" +
-                " <xs:id>FooBarChart</xs:id>" +
-                "</xs:product>" +
-                "<xs:product>" +
-                " <xs:department xs:name=\"7345\"/>" +
-                " <xs:id>FooBarChart</xs:id>" +
-                "</xs:product>" +
-                "</xs:KeyProductList>";
+            "<xs:KeyProductList xmlns:xs=\"http://xbean/scomp/idConstraint/Constraint\">" +
+            " <xs:product>" +
+            " <xs:id>FooBarChart</xs:id>" +
+            "</xs:product>" +
+            "<xs:product>" +
+            " <xs:department xs:name=\"7345\"/>" +
+            " <xs:id>FooBarChart</xs:id>" +
+            "</xs:product>" +
+            "</xs:KeyProductList>";
 
         KeyProductListDocument doc = KeyProductListDocument.Factory.parse(input);
 
-        assertTrue(!doc.validate(validateOptions));
-        showErrors();
+        XmlOptions validateOptions = createOptions();
+        assertFalse(doc.validate(validateOptions));
         //TODO: is this the right error
-        String[] errExpected = new String[]{
+        String[] errExpected = {
             XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$EXPECTED_DIFFERENT_ELEMENT,
-           XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$MISSING_ELEMENT
+            XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$MISSING_ELEMENT
         };
-        assertTrue(compareErrorCodes(errExpected));
-
+        assertArrayEquals(errExpected, getErrorCodes(validateOptions));
     }
 
 
     @Test
-    public void testKeyRef() throws Throwable {
+    void testKeyRef() throws XmlException {
         String input =
-                "<con:CompanyDB xmlns:con=\"http://xbean/scomp/idConstraint/Constraint\">" +
-                "<con:KeyProductList >" +
-                " <con:product>" +
-                " <con:department con:name=\"Marketing\"/>" +
-                " <con:id>FooBarChart</con:id>" +
-                "</con:product>" +
-                "<con:product>" +
-                " <con:department con:name=\"7345\"/>" +
-                " <con:id>FooBarChart</con:id>" +
-                "</con:product>" +
-                "</con:KeyProductList>" +
-                "<con:order>" +
-                "   <con:customerName>Bozo</con:customerName>" +
-                "   <con:item con:deptId=\"7345\"" +
-                "   con:SKU='FooBarChart'>" +
-                "  </con:item>" +
-                "</con:order>" +
-                "<con:order>" +
-                "   <con:customerName>Bozo</con:customerName>" +
-                "   <con:item con:deptId=\"7345\"" +
-                "        con:SKU=\"FooBarChart\">" +
-                "  </con:item>" +
-                "</con:order>" +
-                "</con:CompanyDB>";
+            "<con:CompanyDB xmlns:con=\"http://xbean/scomp/idConstraint/Constraint\">" +
+            "<con:KeyProductList >" +
+            " <con:product>" +
+            " <con:department con:name=\"Marketing\"/>" +
+            " <con:id>FooBarChart</con:id>" +
+            "</con:product>" +
+            "<con:product>" +
+            " <con:department con:name=\"7345\"/>" +
+            " <con:id>FooBarChart</con:id>" +
+            "</con:product>" +
+            "</con:KeyProductList>" +
+            "<con:order>" +
+            "   <con:customerName>Bozo</con:customerName>" +
+            "   <con:item con:deptId=\"7345\"" +
+            "   con:SKU='FooBarChart'>" +
+            "  </con:item>" +
+            "</con:order>" +
+            "<con:order>" +
+            "   <con:customerName>Bozo</con:customerName>" +
+            "   <con:item con:deptId=\"7345\"" +
+            "        con:SKU=\"FooBarChart\">" +
+            "  </con:item>" +
+            "</con:order>" +
+            "</con:CompanyDB>";
 
         CompanyDBDocument doc = CompanyDBDocument.Factory.parse(input);
-        try {
-            assertTrue(doc.validate(validateOptions));
-        } catch (Throwable t) {
-            showErrors();
-            throw t;
-        }
-
-
+        assertTrue(doc.validate(createOptions()));
     }
 
     // Invalid xml instance with 2 problems :
     // a) the values for the key & key ref elems are not the same
     // b) The keyref/key elems are duplicated
     @Test
-    public void testKeyRefIllegal() throws Throwable {
+    void testKeyRefIllegal() throws XmlException {
 
         String input =
-                "<con:CompanyDB xmlns:con=\"http://xbean/scomp/idConstraint/Constraint\">" +
-                "<con:KeyProductList >" +
-                " <con:product>" +
-                " <con:department con:name=\"Marketing\"/>" +
-                " <con:id>FooBarChart</con:id>" +
-                "</con:product>" +
-                " <con:product>" +
-                " <con:department con:name=\"Marketing\"/>" +
-                " <con:id>FooBarChart</con:id>" +
-                "</con:product>" +
-                "</con:KeyProductList>" +
-                "<con:order>" +
-                "   <con:customerName>Bozo</con:customerName>" +
-                "   <con:item con:deptId=\"7345\"" +
-                "   con:SKU=\"ID1\">" +
-                "  </con:item>" +
-                "</con:order>" +
-                "<con:order>" +
-                "   <con:customerName>Bozo</con:customerName>" +
-                "   <con:item con:deptId=\"7345\"" +
-                "   con:SKU=\"ID1\">" +
-                "  </con:item>" +
-                "</con:order>" +
-                "</con:CompanyDB>";
+            "<con:CompanyDB xmlns:con=\"http://xbean/scomp/idConstraint/Constraint\">" +
+            "<con:KeyProductList >" +
+            " <con:product>" +
+            " <con:department con:name=\"Marketing\"/>" +
+            " <con:id>FooBarChart</con:id>" +
+            "</con:product>" +
+            " <con:product>" +
+            " <con:department con:name=\"Marketing\"/>" +
+            " <con:id>FooBarChart</con:id>" +
+            "</con:product>" +
+            "</con:KeyProductList>" +
+            "<con:order>" +
+            "   <con:customerName>Bozo</con:customerName>" +
+            "   <con:item con:deptId=\"7345\"" +
+            "   con:SKU=\"ID1\">" +
+            "  </con:item>" +
+            "</con:order>" +
+            "<con:order>" +
+            "   <con:customerName>Bozo</con:customerName>" +
+            "   <con:item con:deptId=\"7345\"" +
+            "   con:SKU=\"ID1\">" +
+            "  </con:item>" +
+            "</con:order>" +
+            "</con:CompanyDB>";
 
         CompanyDBDocument doc = CompanyDBDocument.Factory.parse(input);
-        assertTrue(!doc.validate(validateOptions));
-        showErrors();
-        String[] errExpected = new String[]{
+        XmlOptions validateOptions = createOptions();
+        assertFalse(doc.validate(validateOptions));
+        String[] errExpected = {
             XmlErrorCodes.IDENTITY_CONSTRAINT_VALID$DUPLICATE_KEY,
             XmlErrorCodes.IDENTITY_CONSTRAINT_VALID$KEYREF_KEY_NOT_FOUND
         };
-        assertTrue(compareErrorCodes(errExpected));
-
-
+        assertArrayEquals(errExpected, getErrorCodes(validateOptions));
     }
 
 }

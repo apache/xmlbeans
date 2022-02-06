@@ -16,84 +16,94 @@
 
 package xmlcursor.checkin;
 
+import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlCursor.TokenType;
 import org.apache.xmlbeans.XmlObject;
-import org.junit.Test;
-import xmlcursor.common.BasicCursorTestCase;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static xmlcursor.common.BasicCursorTestCase.cur;
+import static xmlcursor.common.BasicCursorTestCase.toNextTokenOfType;
 
-public class ToFirstContentTokenTest extends BasicCursorTestCase {
+public class ToFirstContentTokenTest {
 
     @Test
-    public void testToFirstContentTokenFromSTARTDOC() throws Exception {
-        m_xc = XmlObject.Factory.parse("<foo>early<bar>text</bar></foo>").newCursor();
-        m_xc.toFirstChild();
-        m_xc.insertAttributeWithValue("attr0", "val0");
-        m_xc.insertNamespace("nsx", "valx");
-        m_xc.toStartDoc();
-        assertEquals(TokenType.START, m_xc.toFirstContentToken());
-        assertEquals("earlytext", m_xc.getTextValue());
+    void testToFirstContentTokenFromSTARTDOC() throws Exception {
+        try (XmlCursor m_xc = cur("<foo>early<bar>text</bar></foo>")) {
+            m_xc.toFirstChild();
+            m_xc.insertAttributeWithValue("attr0", "val0");
+            m_xc.insertNamespace("nsx", "valx");
+            m_xc.toStartDoc();
+            assertEquals(TokenType.START, m_xc.toFirstContentToken());
+            assertEquals("earlytext", m_xc.getTextValue());
+        }
     }
 
     @Test
-    public void testToFirstContentTokenFromATTR() throws Exception {
-        m_xc = XmlObject.Factory.parse("<foo attr0=\"val0\" xmlns=\"nsuri\">early<bar>text</bar></foo>").newCursor();
-        toNextTokenOfType(m_xc, TokenType.ATTR);
-        assertEquals(TokenType.NONE, m_xc.toFirstContentToken());
-        assertEquals(TokenType.ATTR, m_xc.currentTokenType());
-        assertEquals("val0", m_xc.getTextValue());
+    void testToFirstContentTokenFromATTR() throws Exception {
+        try (XmlCursor m_xc = cur("<foo attr0=\"val0\" xmlns=\"nsuri\">early<bar>text</bar></foo>")) {
+            toNextTokenOfType(m_xc, TokenType.ATTR);
+            assertEquals(TokenType.NONE, m_xc.toFirstContentToken());
+            assertEquals(TokenType.ATTR, m_xc.currentTokenType());
+            assertEquals("val0", m_xc.getTextValue());
+        }
     }
 
     @Test
-    public void testToFirstContentTokenFromNAMESPACE() throws Exception {
-        m_xc = XmlObject.Factory.parse("<foo attr0=\"val0\" xmlns=\"nsuri\">early<bar>text</bar></foo>").newCursor();
-        toNextTokenOfType(m_xc, TokenType.NAMESPACE);
-        assertEquals(TokenType.NONE, m_xc.toFirstContentToken());
-        assertEquals(TokenType.NAMESPACE, m_xc.currentTokenType());
+    void testToFirstContentTokenFromNAMESPACE() throws Exception {
+        try (XmlCursor m_xc = cur("<foo attr0=\"val0\" xmlns=\"nsuri\">early<bar>text</bar></foo>")) {
+            toNextTokenOfType(m_xc, TokenType.NAMESPACE);
+            assertEquals(TokenType.NONE, m_xc.toFirstContentToken());
+            assertEquals(TokenType.NAMESPACE, m_xc.currentTokenType());
 
-        assertEquals(m_xc.getTextValue(),"nsuri");
+            assertEquals(m_xc.getTextValue(), "nsuri");
+        }
     }
 
     @Test
-    public void testToFirstContentTokenFromSTARTwithContent() throws Exception {
-        m_xc = XmlObject.Factory.parse("<foo attr0=\"val0\" xmlns=\"nsuri\">early<bar>text</bar></foo>").newCursor();
-        toNextTokenOfType(m_xc, TokenType.START);
-        assertEquals(TokenType.TEXT, m_xc.toFirstContentToken());
-        assertEquals("early", m_xc.getChars());
+    void testToFirstContentTokenFromSTARTwithContent() throws Exception {
+        try (XmlCursor m_xc = cur("<foo attr0=\"val0\" xmlns=\"nsuri\">early<bar>text</bar></foo>")) {
+            toNextTokenOfType(m_xc, TokenType.START);
+            assertEquals(TokenType.TEXT, m_xc.toFirstContentToken());
+            assertEquals("early", m_xc.getChars());
+        }
     }
 
     @Test
-    public void testToFirstContentTokenFromSTARTnoContent() throws Exception {
-        m_xc = XmlObject.Factory.parse("<foo attr0=\"val0\" xmlns=\"nsuri\"></foo>").newCursor();
-        toNextTokenOfType(m_xc, TokenType.START);
-        assertEquals(TokenType.END, m_xc.toFirstContentToken());
-        m_xc.toNextToken();
-        assertEquals(TokenType.ENDDOC, m_xc.currentTokenType());
+    void testToFirstContentTokenFromSTARTnoContent() throws Exception {
+        try (XmlCursor m_xc = cur("<foo attr0=\"val0\" xmlns=\"nsuri\"></foo>")) {
+            toNextTokenOfType(m_xc, TokenType.START);
+            assertEquals(TokenType.END, m_xc.toFirstContentToken());
+            m_xc.toNextToken();
+            assertEquals(TokenType.ENDDOC, m_xc.currentTokenType());
+        }
     }
 
     @Test
-    public void testToFirstContentTokenEmptyDocument() throws Exception {
-        m_xc = XmlObject.Factory.newInstance().newCursor();
-        assertEquals(TokenType.STARTDOC, m_xc.currentTokenType());
-        assertEquals(TokenType.ENDDOC, m_xc.toFirstContentToken());
+    void testToFirstContentTokenEmptyDocument() throws Exception {
+        try (XmlCursor m_xc = XmlObject.Factory.newInstance().newCursor()) {
+            assertEquals(TokenType.STARTDOC, m_xc.currentTokenType());
+            assertEquals(TokenType.ENDDOC, m_xc.toFirstContentToken());
+        }
     }
 
     @Test
-    public void testToFirstContentTokenFromTEXT() throws Exception {
-        m_xc = XmlObject.Factory.parse("<foo attr0=\"val0\" xmlns=\"nsuri\"><bar>text</bar></foo>").newCursor();
-        toNextTokenOfType(m_xc, TokenType.TEXT);
-        assertEquals(TokenType.NONE, m_xc.toFirstContentToken());
-        assertEquals("text", m_xc.getChars());
+    void testToFirstContentTokenFromTEXT() throws Exception {
+        try (XmlCursor m_xc = cur("<foo attr0=\"val0\" xmlns=\"nsuri\"><bar>text</bar></foo>")) {
+            toNextTokenOfType(m_xc, TokenType.TEXT);
+            assertEquals(TokenType.NONE, m_xc.toFirstContentToken());
+            assertEquals("text", m_xc.getChars());
+        }
     }
 
     @Test
-    public void testToFirstContentTokenFromTEXTmiddle() throws Exception {
-        m_xc = XmlObject.Factory.parse("<foo attr0=\"val0\" xmlns=\"nsuri\"><bar>text</bar></foo>").newCursor();
-        toNextTokenOfType(m_xc, TokenType.TEXT);
-        m_xc.toNextChar(2);
-        assertEquals(TokenType.NONE, m_xc.toFirstContentToken());
-        assertEquals("xt", m_xc.getChars());
+    void testToFirstContentTokenFromTEXTmiddle() throws Exception {
+        try (XmlCursor m_xc = cur("<foo attr0=\"val0\" xmlns=\"nsuri\"><bar>text</bar></foo>")) {
+            toNextTokenOfType(m_xc, TokenType.TEXT);
+            m_xc.toNextChar(2);
+            assertEquals(TokenType.NONE, m_xc.toFirstContentToken());
+            assertEquals("xt", m_xc.getChars());
+        }
     }
 }
 

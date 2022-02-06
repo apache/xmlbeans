@@ -19,9 +19,9 @@ import org.apache.xmlbeans.SchemaTypeSystem;
 import org.apache.xmlbeans.XmlError;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import javax.xml.namespace.QName;
 import java.io.File;
@@ -34,8 +34,8 @@ import java.util.List;
 import static compile.scomp.common.CompileTestBase.*;
 import static java.nio.file.StandardOpenOption.CREATE;
 import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
 public class PerfTests {
@@ -77,14 +77,14 @@ public class PerfTests {
         xm.setSavePrettyPrint();
     }
 
-    @Before
+    @BeforeEach
     public void setUp() throws IOException {
         clearOutputDirs();
         errors.clear();
     }
 
     @Test
-    @Ignore("works in standalone, doesn't work in Jenkins")
+    @Disabled("works in standalone, doesn't work in Jenkins")
     public void test_perf_choice2seqchange() throws Exception {
 
         Files.write(OBJ_FILE_1.toPath(), XSD1.getBytes(StandardCharsets.UTF_8), CREATE, TRUNCATE_EXISTING);
@@ -107,7 +107,7 @@ public class PerfTests {
         long incrTime = endIncr - initIncr;
         long diffTime = initTime - incrTime;
 
-        assertTrue("Perf Time Increased: " + diffTime, diffTime > 0);
+        assertTrue(diffTime > 0, "Perf Time Increased: " + diffTime);
 
         QName[] baseTypes = {new QName("http://baz", "elName")};
         QName[] incrTypes = {new QName("http://baz", "elName")};

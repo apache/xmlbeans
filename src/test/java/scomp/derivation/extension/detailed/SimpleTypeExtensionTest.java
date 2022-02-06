@@ -15,61 +15,36 @@
 
 package scomp.derivation.extension.detailed;
 
-import org.junit.Test;
+import org.apache.xmlbeans.impl.values.XmlValueOutOfRangeException;
+import org.junit.jupiter.api.Test;
 import xbean.scomp.derivation.simpleExtension.SimpleExtensionEltDocument;
 import xbean.scomp.derivation.simpleExtension.SimpleExtensionT;
-import scomp.common.BaseCase;
-import org.apache.xmlbeans.impl.values.XmlValueOutOfRangeException;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
+import static scomp.common.BaseCase.createOptions;
 
-public class SimpleTypeExtensionTest extends BaseCase {
+public class SimpleTypeExtensionTest {
 
     @Test
-    public void testExtension() throws Throwable {
+    void testExtension() throws Throwable {
         SimpleExtensionEltDocument doc = SimpleExtensionEltDocument.Factory.newInstance();
         SimpleExtensionT elt = doc.addNewSimpleExtensionElt();
 
-        assertTrue(!doc.validate(validateOptions));
-
-        String[] errExpected = new String[]{"cvc-attribute"};
-//        assertTrue(compareErrorCodes(errExpected));
+        assertFalse(doc.validate(createOptions()));
 
         elt.setStringValue("1");
         assertTrue(elt.validate());
         elt.setAttribute("ATTR_VAL");
-        try{
         assertTrue(doc.validate());
-        }catch(Throwable t){
-            showErrors();
-            throw t;
-        }
         assertEquals("ATTR_VAL", elt.getAttribute());
         elt.unsetAttribute();
-        assertEquals(null, elt.getAttribute());
-        assertTrue(!elt.isSetAttribute());
+        assertNull(elt.getAttribute());
+        assertFalse(elt.isSetAttribute());
 
         // why does type mismatch show up as XmlValueOutOfRangeException ?
         // updated: ok, since a setStringValue is used for an integer, this is a case where set value cannot be converted
         // into any of the possible valid types. Hence an exception is
         // throw irrespective of the setValidateOnSet XmlOption
-        boolean voeThrown = false;
-        try{
-            elt.setStringValue("foobar");
-            //assertTrue(!elt.validate(validateOptions));
-
-            //errExpected = new String[]{"cvc-attribute"};
-            //assertTrue(compareErrorCodes(errExpected));
-        }
-        catch (XmlValueOutOfRangeException voe){
-            voeThrown = true;
-        }
-        finally{
-            if(!voeThrown)
-                fail("Expected XmlValueOutOfRangeException here");
-        }
-
-
+        assertThrows(XmlValueOutOfRangeException.class, () -> elt.setStringValue("foobar"));
     }
-
 }

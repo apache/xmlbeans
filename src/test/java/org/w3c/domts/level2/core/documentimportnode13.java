@@ -22,12 +22,12 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -45,21 +45,14 @@ import static org.w3c.domts.DOMTest.load;
  */
 public class documentimportnode13 {
     @Test
-    public void testRun() throws Throwable {
-        Document doc;
-        NodeList childList;
-        Node imported;
-        NodeList importedList;
-        Node employeeElem;
-        int importedLen;
-        doc = load("staffNS", true);
-        childList = doc.getElementsByTagNameNS("*", "employee");
-        employeeElem = childList.item(0);
-        imported = doc.importNode(employeeElem, false);
-        importedList = imported.getChildNodes();
-        importedLen = importedList.getLength();
-        assertEquals("documentimportnode13", 0, importedLen);
-
+    void testRun() throws Throwable {
+        Document doc = load("staffNS", true);
+        NodeList childList = doc.getElementsByTagNameNS("*", "employee");
+        Node employeeElem = childList.item(0);
+        Node imported = doc.importNode(employeeElem, false);
+        NodeList importedList = imported.getChildNodes();
+        int importedLen = importedList.getLength();
+        assertEquals(0, importedLen, "documentimportnode13");
     }
 
     /**

@@ -22,12 +22,12 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -45,18 +45,13 @@ import static org.w3c.domts.DOMTest.load;
  */
 public class localName03 {
     @Test
-    public void testRun() throws Throwable {
-        Document doc;
-        NodeList elementList;
-        Node testEmployee;
-        Node textNode;
-        String localName;
-        doc = load("staffNS", false);
-        elementList = doc.getElementsByTagName("employeeId");
-        testEmployee = elementList.item(0);
-        textNode = testEmployee.getFirstChild();
-        localName = textNode.getLocalName();
-        assertNull("textNodeLocalName", localName);
+    void testRun() throws Throwable {
+        Document doc = load("staffNS", false);
+        NodeList elementList = doc.getElementsByTagName("employeeId");
+        Node testEmployee = elementList.item(0);
+        Node textNode = testEmployee.getFirstChild();
+        String localName = textNode.getLocalName();
+        assertNull(localName, "textNodeLocalName");
     }
 
     /**

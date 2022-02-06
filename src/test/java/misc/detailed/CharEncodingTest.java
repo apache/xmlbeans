@@ -16,36 +16,42 @@
 
 package misc.detailed;
 
-import misc.common.ParsersBase;
+import org.apache.xmlbeans.XmlError;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+import org.xml.sax.XMLReader;
 
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParserFactory;
+import java.io.IOException;
+import java.io.StringReader;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class CharEncodingTest extends ParsersBase {
+public class CharEncodingTest {
 
     // Piccolo fails when trying to parse I18N chars in some QNames
     // String 2 fails with piccolo and hence with xbeans
     @Test
-    public void testCharEncodingI18N() {
+    void testCharEncodingI18N() throws ParserConfigurationException, IOException, SAXException {
         String I18N_test_string1 = "<i18n xmlns:\u00c1\u00c1\u00c1=\"\u00c1\u00c1\u00c1\" type=\"\u00c1\u00c1\u00c1:t\"/>";
         String I18N_test_string2 = "<i18n xmlns:\u30af\u30af\u30af=\"\u30af\u30af\u30af\" type=\"\u30af\u30af\u30af:t\"/>";
 
         parseXmlWithSAXAPI(I18N_test_string1,
-                "Xerces",
-                "org.apache.xerces.parsers.SAXParser",
-                "org.apache.xerces.jaxp.SAXParserFactoryImpl");
+            "Xerces",
+            "org.apache.xerces.parsers.SAXParser",
+            "org.apache.xerces.jaxp.SAXParserFactoryImpl");
 
         parseXmlWithSAXAPI(I18N_test_string2,
-                "Xerces",
-                "org.apache.xerces.parsers.SAXParser",
-                "org.apache.xerces.jaxp.SAXParserFactoryImpl");
+            "Xerces",
+            "org.apache.xerces.parsers.SAXParser",
+            "org.apache.xerces.jaxp.SAXParserFactoryImpl");
 
     }
 
@@ -53,40 +59,55 @@ public class CharEncodingTest extends ParsersBase {
     // refer : http://cafeconleche.org/SAXTest/results/com.bluecast.xml.Piccolo/xmltest/valid/not-sa/009.xml.html
     // results for the SAX conformance suite. This has been fixed in newer versions of Piccolo
     @Test
-    public void testExternalPublicIdentifier() {
+    void testExternalPublicIdentifier() throws XmlException, ParserConfigurationException, IOException, SAXException {
         // repro using piccolo and other parsers via JAXP API
-        String netPubEntity = "<!DOCTYPE doc PUBLIC \"whatever\" \"http://www.w3.org/2001/XMLSchema.dtd\" [\n" +
-                "<!ATTLIST doc a2 CDATA \"v2\">\n" +
-                "]>\n" +
-                "<doc></doc>\n" +
-                "";
+        String netPubEntity =
+            "<!DOCTYPE doc PUBLIC \"whatever\" \"http://www.w3.org/2001/XMLSchema.dtd\" [\n" +
+            "<!ATTLIST doc a2 CDATA \"v2\">\n" +
+            "]>\n" +
+            "<doc></doc>\n" +
+            "";
 
         parseXmlWithSAXAPI(netPubEntity,
-                "Xerces",
-                "org.apache.xerces.parsers.SAXParser",
-                "org.apache.xerces.jaxp.SAXParserFactoryImpl");
+            "Xerces",
+            "org.apache.xerces.parsers.SAXParser",
+            "org.apache.xerces.jaxp.SAXParserFactoryImpl");
 
         // parse same string using scomp
         XmlOptions options = new XmlOptions();
-        List errors = new ArrayList();
+        List<XmlError> errors = new ArrayList<>();
         options.setErrorListener(errors);
-        try {
-            XmlObject.Factory.parse(netPubEntity, options);
-        }
-        catch (XmlException xme) {
-            xme.printStackTrace();
-            fail("XML Exception when parsing external PUBLIC identifier");
-        }
+        XmlObject.Factory.parse(netPubEntity, options);
 
-        boolean parseerr = false;
-        for (Iterator iterator = errors.iterator(); iterator.hasNext();) {
-            System.out.println("Parse Error:" + iterator.next());
-            parseerr = true;
-        }
-
-        if (parseerr) {
-            fail("Errors when parsing external PUBLIC identifier");
-        }
+        assertTrue(errors.isEmpty(), "Errors when parsing external PUBLIC identifier");
     }
+
+
+    // for reference  - the values for System Properties to switch between different parser implementaion for JAXP
+    // ----------------------------------------------------------------------------------------------------------
+    // System Property                               Parser                        Value
+    // ----------------------------------------------------------------------------------------------------------
+    // javax.xml.parsers.DocumentBuilderFactory     Xerces              org.apache.xerces.jaxp.DocumentBuilderFactoryImpl
+    //
+    // org.xml.sax.driver                           Xerces              org.apache.xerces.parsers.SAXParser
+    //
+    // javax.xml.parsers.SAXParserFactory           Xerces              org.apache.xerces.jaxp.SAXParserFactoryImpl
+    // ----------------------------------------------------------------------------------------------------------
+
+    // This method parsers the input xml string using the SAX API with the parser specified using the
+    // "javax.xml.parsers.SAXParserFactory" and "org.xml.sax.driver" system properties
+    public void parseXmlWithSAXAPI(String xmlInput, String parserName, String saxdriverprop, String saxparserfactoryprop)
+        throws ParserConfigurationException, SAXException, IOException {
+        // Set the system props to pick the appropriate parser implementation
+        System.setProperty("org.xml.sax.driver", saxdriverprop);
+        System.setProperty("javax.xml.parsers.SAXParserFactory", saxparserfactoryprop);
+
+        SAXParserFactory saxparserfactory = SAXParserFactory.newInstance();
+        saxparserfactory.setNamespaceAware(false);
+
+        XMLReader xmlreader = saxparserfactory.newSAXParser().getXMLReader();
+        xmlreader.parse(new InputSource(new StringReader(xmlInput)));
+    }
+
 }
 

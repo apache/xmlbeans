@@ -15,8 +15,9 @@
 package scomp.derivation.restriction.facets.detailed;
 
 import org.apache.xmlbeans.XmlErrorCodes;
-import org.junit.Test;
-import scomp.common.BaseCase;
+import org.apache.xmlbeans.XmlException;
+import org.apache.xmlbeans.XmlOptions;
+import org.junit.jupiter.api.Test;
 import xbean.scomp.derivation.facets.facets.*;
 
 import java.math.BigDecimal;
@@ -24,257 +25,180 @@ import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.TimeZone;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
+import static scomp.common.BaseCase.createOptions;
+import static scomp.common.BaseCase.getErrorCodes;
 
 /**
+ *
  */
-public class FacetsTest extends BaseCase {
+public class FacetsTest {
     @Test
-    public void testMinMaxInclusiveElt() throws Throwable {
-        MinMaxInclusiveEltDocument doc =
-                MinMaxInclusiveEltDocument.Factory.newInstance();
+    void testMinMaxInclusiveElt() {
+        MinMaxInclusiveEltDocument doc = MinMaxInclusiveEltDocument.Factory.newInstance();
         doc.setMinMaxInclusiveElt(3);
-        try {
-            assertTrue(doc.validate(validateOptions));
-        } catch (Throwable t) {
-            showErrors();
-            throw t;
-        }
-        String[] errExpected = new String[]{
-            XmlErrorCodes.DATATYPE_MIN_INCLUSIVE_VALID};
+        XmlOptions validateOptions = createOptions();
+        assertTrue(doc.validate(validateOptions));
+        String[] errExpected = {XmlErrorCodes.DATATYPE_MIN_INCLUSIVE_VALID};
 
         doc.setMinMaxInclusiveElt(1);
-        assertTrue(!doc.validate(validateOptions));
-        assertTrue(compareErrorCodes(errExpected));
+        assertFalse(doc.validate(validateOptions));
+        assertArrayEquals(errExpected, getErrorCodes(validateOptions));
 
-        clearErrors();
-        errExpected = new String[]{
-            XmlErrorCodes.DATATYPE_MAX_INCLUSIVE_VALID};
+        validateOptions.getErrorListener().clear();
+        errExpected = new String[]{XmlErrorCodes.DATATYPE_MAX_INCLUSIVE_VALID};
         doc.setMinMaxInclusiveElt(11);
-        assertTrue(!doc.validate(validateOptions));
-        assertTrue(compareErrorCodes(errExpected));
-
+        assertFalse(doc.validate(validateOptions));
+        assertArrayEquals(errExpected, getErrorCodes(validateOptions));
     }
 
     @Test
-    public void testMinMaxInclusiveDateElt() throws Throwable {
-        MinMaxInclusiveDateEltDocument doc =
-                MinMaxInclusiveDateEltDocument.Factory.newInstance();
+    void testMinMaxInclusiveDateElt() {
+        MinMaxInclusiveDateEltDocument doc = MinMaxInclusiveDateEltDocument.Factory.newInstance();
         TimeZone tz = TimeZone.getDefault();
         Calendar c = new GregorianCalendar(tz);
-        c.set(2003, 11, 24);
+        c.set(2003, Calendar.DECEMBER, 24);
         doc.setMinMaxInclusiveDateElt(c);
-        try {
-            assertTrue(doc.validate(validateOptions));
-        } catch (Throwable t) {
-            showErrors();
-            throw t;
-        }
+        XmlOptions validateOptions = createOptions();
+        assertTrue(doc.validate(validateOptions));
         c = new GregorianCalendar(2003, 11, 28);
         doc.setMinMaxInclusiveDateElt(c);
-        String[] errExpected = new String[]{
-            XmlErrorCodes.DATATYPE_MAX_INCLUSIVE_VALID};
-        assertTrue(!doc.validate(validateOptions));
-        assertTrue(compareErrorCodes(errExpected));
-
-
+        String[] errExpected = {XmlErrorCodes.DATATYPE_MAX_INCLUSIVE_VALID};
+        assertFalse(doc.validate(validateOptions));
+        assertArrayEquals(errExpected, getErrorCodes(validateOptions));
     }
 
     //valid range should be 3-9
     @Test
-    public void testMinMaxExclusiveElt() throws Throwable {
-        MinMaxExclusiveEltDocument doc =
-                MinMaxExclusiveEltDocument.Factory.newInstance();
-        String[] errExpected = new String[]{
-            XmlErrorCodes.DATATYPE_MIN_EXCLUSIVE_VALID};
+    void testMinMaxExclusiveElt() {
+        MinMaxExclusiveEltDocument doc = MinMaxExclusiveEltDocument.Factory.newInstance();
+        String[] errExpected = {XmlErrorCodes.DATATYPE_MIN_EXCLUSIVE_VALID};
 
         doc.setMinMaxExclusiveElt(2);
-        assertTrue(!doc.validate(validateOptions));
-        assertTrue(compareErrorCodes(errExpected));
+        XmlOptions validateOptions = createOptions();
+        assertFalse(doc.validate(validateOptions));
+        assertArrayEquals(errExpected, getErrorCodes(validateOptions));
         doc.setMinMaxExclusiveElt(3);
-        try {
-            assertTrue(doc.validate(validateOptions));
-        } catch (Throwable t) {
-            showErrors();
-            throw t;
-        }
-        doc.setMinMaxExclusiveElt(9);
-        try {
-            assertTrue(doc.validate(validateOptions));
-        } catch (Throwable t) {
-            showErrors();
-            throw t;
-        }
 
+        assertTrue(doc.validate(validateOptions));
+        doc.setMinMaxExclusiveElt(9);
+        assertTrue(doc.validate(validateOptions));
     }
 
     //valid range is 12-11 12-24-2003
     @Test
-    public void testMinMaxExclusiveDateElt() throws Throwable {
+    void testMinMaxExclusiveDateElt() {
         MinMaxExclusiveDateEltDocument doc = MinMaxExclusiveDateEltDocument.Factory.newInstance();
-        Calendar c = new GregorianCalendar(2003, 11, 25);
+        Calendar c = new GregorianCalendar(2003, Calendar.DECEMBER, 25);
         doc.setMinMaxExclusiveDateElt(c);
-        String[] errExpected = new String[]{
-            XmlErrorCodes.DATATYPE_MAX_EXCLUSIVE_VALID};
-        assertTrue(!doc.validate(validateOptions));
-        assertTrue(compareErrorCodes(errExpected));
+        String[] errExpected = {XmlErrorCodes.DATATYPE_MAX_EXCLUSIVE_VALID};
+        XmlOptions validateOptions = createOptions();
+        assertFalse(doc.validate(validateOptions));
+        assertArrayEquals(errExpected, getErrorCodes(validateOptions));
 
-        c = new GregorianCalendar(2003, 11, 11);
+        c = new GregorianCalendar(2003, Calendar.DECEMBER, 11);
         doc.setMinMaxExclusiveDateElt(c);
-        try {
-            assertTrue(doc.validate(validateOptions));
-        } catch (Throwable t) {
-            showErrors();
-            throw t;
-        }
-
-
+        assertTrue(doc.validate(validateOptions));
     }
 
     @Test
-    public void testLengthElt() throws Throwable {
+    void testLengthElt() {
         LengthEltDocument doc = LengthEltDocument.Factory.newInstance();
         doc.setLengthElt("foobar");
-        String[] errExpected = new String[]{
-            XmlErrorCodes.DATATYPE_LENGTH_VALID$STRING};
+        String[] errExpected = new String[]{XmlErrorCodes.DATATYPE_LENGTH_VALID$STRING};
 
-        assertTrue(!doc.validate(validateOptions));
-        assertTrue(compareErrorCodes(errExpected));
+        XmlOptions validateOptions = createOptions();
+        assertFalse(doc.validate(validateOptions));
+        assertArrayEquals(errExpected, getErrorCodes(validateOptions));
 
         doc.setLengthElt("f");
-        clearErrors();
-        assertTrue(!doc.validate(validateOptions));
-        assertTrue(compareErrorCodes(errExpected));
+        validateOptions.getErrorListener().clear();
+        assertFalse(doc.validate(validateOptions));
+        assertArrayEquals(errExpected, getErrorCodes(validateOptions));
 
         doc.setLengthElt("fo");
-        try {
-            assertTrue(doc.validate(validateOptions));
-        } catch (Throwable t) {
-            showErrors();
-            throw t;
-        }
+        assertTrue(doc.validate(validateOptions));
     }
 
     @Test
-    public void testMinMaxLengthElt() throws Throwable {
+    void testMinMaxLengthElt() {
         MinMaxLengthEltDocument doc = MinMaxLengthEltDocument.Factory.newInstance();
-        String[] errExpected = new String[]{
-            XmlErrorCodes.DATATYPE_MAX_LENGTH_VALID$STRING};
+        String[] errExpected = {XmlErrorCodes.DATATYPE_MAX_LENGTH_VALID$STRING};
 
         doc.setMinMaxLengthElt("foobar");
-        assertTrue(!doc.validate(validateOptions));
-        assertTrue(compareErrorCodes(errExpected));
+        XmlOptions validateOptions = createOptions();
+        assertFalse(doc.validate(validateOptions));
+        assertArrayEquals(errExpected, getErrorCodes(validateOptions));
 
         doc.setMinMaxLengthElt("f");
-        errExpected = new String[]{
-            XmlErrorCodes.DATATYPE_MIN_LENGTH_VALID$STRING};
-        clearErrors();
-        assertTrue(!doc.validate(validateOptions));
-        assertTrue(compareErrorCodes(errExpected));
+        errExpected = new String[]{XmlErrorCodes.DATATYPE_MIN_LENGTH_VALID$STRING};
+        validateOptions.getErrorListener().clear();
+        assertFalse(doc.validate(validateOptions));
+        assertArrayEquals(errExpected, getErrorCodes(validateOptions));
 
         doc.setMinMaxLengthElt("fo");
-        try {
-            assertTrue(doc.validate(validateOptions));
-        } catch (Throwable t) {
-            showErrors();
-            throw t;
-        }
+        assertTrue(doc.validate(validateOptions));
         doc.setMinMaxLengthElt("fooba");
-        try {
-            assertTrue(doc.validate(validateOptions));
-        } catch (Throwable t) {
-            showErrors();
-            throw t;
-        }
-
+        assertTrue(doc.validate(validateOptions));
     }
 
     @Test
-    public void testDigitsElt() throws Throwable {
+    void testDigitsElt() {
         DigitsEltDocument doc = DigitsEltDocument.Factory.newInstance();
-        String[] errExpected = new String[]{
-            XmlErrorCodes.DATATYPE_TOTAL_DIGITS_VALID};
+        String[] errExpected = {XmlErrorCodes.DATATYPE_TOTAL_DIGITS_VALID};
 
         doc.setDigitsElt(new BigDecimal("234.25"));
-        assertTrue(!doc.validate(validateOptions));
-        assertTrue(compareErrorCodes(errExpected));
+        XmlOptions validateOptions = createOptions();
+        assertFalse(doc.validate(validateOptions));
+        assertArrayEquals(errExpected, getErrorCodes(validateOptions));
 
         doc.setDigitsElt(new BigDecimal("12.13"));
-        try {
-            assertTrue(doc.validate(validateOptions));
-        } catch (Throwable t) {
-            showErrors();
-            throw t;
-        }
-        clearErrors();
-        errExpected = new String[]{
-            XmlErrorCodes.DATATYPE_FRACTION_DIGITS_VALID};
+        assertTrue(doc.validate(validateOptions));
+        validateOptions.getErrorListener().clear();
+        errExpected = new String[]{XmlErrorCodes.DATATYPE_FRACTION_DIGITS_VALID};
         doc.setDigitsElt(new BigDecimal(".145"));
-        assertTrue(!doc.validate(validateOptions));
-        assertTrue(compareErrorCodes(errExpected));
-
+        assertFalse(doc.validate(validateOptions));
+        assertArrayEquals(errExpected, getErrorCodes(validateOptions));
     }
 
     @Test
-    public void testWSElt() throws Throwable {
-        WSPreserveEltDocument doc = WSPreserveEltDocument.Factory.parse("<WSPreserveElt " +
-                "xmlns=\"http://xbean/scomp/derivation/facets/Facets\">" +
-                "This is a\ttest.\nThe resulting string should preserve all whitespace     tabs and carriage returns as is\n" +
-                "</WSPreserveElt>");
+    void testWSElt() throws XmlException {
+        String input =
+            "<WSPreserveElt xmlns=\"http://xbean/scomp/derivation/facets/Facets\">" +
+            "This is a\ttest.\nThe resulting string should preserve all whitespace     tabs and carriage returns as is\n" +
+            "</WSPreserveElt>";
+        WSPreserveEltDocument doc = WSPreserveEltDocument.Factory.parse(input);
 
-
-        try {
-            assertTrue(doc.validate(validateOptions));
-        }
-        catch (Throwable t) {
-            showErrors();
-            throw t;
-        }
+        assertTrue(doc.validate(createOptions()));
 
         String expected = "This is a\ttest.\nThe resulting string should preserve all whitespace     tabs and carriage returns as is\n";
         assertEquals(expected, doc.getWSPreserveElt());
     }
 
     @Test
-    public void testEnumElt() throws Throwable {
-
+    void testEnumElt() throws XmlException {
         EnumEltDocument doc = EnumEltDocument.Factory.newInstance();
         doc.setEnumElt(EnumT.A);
-        try {
-            assertTrue(doc.validate(validateOptions));
-        } catch (Throwable t) {
-            showErrors();
-            throw t;
-        }
-        doc = EnumEltDocument.Factory.parse("<EnumElt xmlns=\"http://xbean/scomp/derivation/facets/Facets\">" +
-                "foo" +
-                "</EnumElt>");
-        String[] errExpected = new String[]{
-            XmlErrorCodes.DATATYPE_ENUM_VALID};
+        XmlOptions validateOptions = createOptions();
+        assertTrue(doc.validate(validateOptions));
+        doc = EnumEltDocument.Factory.parse(
+            "<EnumElt xmlns=\"http://xbean/scomp/derivation/facets/Facets\">foo</EnumElt>");
+        String[] errExpected = {XmlErrorCodes.DATATYPE_ENUM_VALID};
 
-        assertTrue(!doc.validate(validateOptions));
-        assertTrue(compareErrorCodes(errExpected));
-
+        assertFalse(doc.validate(validateOptions));
+        assertArrayEquals(errExpected, getErrorCodes(validateOptions));
     }
 
     @Test
-    public void testPatternElt() throws Throwable {
+    void testPatternElt() {
         PatternEltDocument doc = PatternEltDocument.Factory.newInstance();
         doc.setPatternElt("aedaedaed");
-        try {
-            assertTrue(doc.validate(validateOptions));
-        } catch (Throwable t) {
-            showErrors();
-            throw t;
-        }
-        String[] errExpected = new String[]{
-            XmlErrorCodes.DATATYPE_VALID$PATTERN_VALID};
+        XmlOptions validateOptions = createOptions();
+        assertTrue(doc.validate(validateOptions));
+        String[] errExpected = new String[]{XmlErrorCodes.DATATYPE_VALID$PATTERN_VALID};
 
         doc.setPatternElt("abdadad");
-        assertTrue(!doc.validate(validateOptions));
-        assertTrue(compareErrorCodes(errExpected));
-
-
+        assertFalse(doc.validate(validateOptions));
+        assertArrayEquals(errExpected, getErrorCodes(validateOptions));
     }
 }

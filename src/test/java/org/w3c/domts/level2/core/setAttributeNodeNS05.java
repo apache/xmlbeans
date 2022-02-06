@@ -22,10 +22,11 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.*;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -49,31 +50,17 @@ import static org.w3c.domts.DOMTest.load;
  */
 public class setAttributeNodeNS05 {
     @Test
-    public void testRun() throws Throwable {
+    void testRun() throws Throwable {
         String namespaceURI = "http://www.newattr.com";
         String qualifiedName = "emp:newAttr";
-        Document doc1;
-        Document doc2;
-        Attr newAttr;
-        NodeList elementList;
-        Node testAddr;
-        Attr setAttr1;
-        doc1 = load("staffNS", true);
-        doc2 = load("staffNS", true);
-        newAttr = doc2.createAttributeNS(namespaceURI, qualifiedName);
-        elementList = doc1.getElementsByTagName("emp:address");
-        testAddr = elementList.item(0);
+        Document doc1 = load("staffNS", true);
+        Document doc2 = load("staffNS", true);
+        Attr newAttr = doc2.createAttributeNS(namespaceURI, qualifiedName);
+        NodeList elementList = doc1.getElementsByTagName("emp:address");
+        Node testAddr = elementList.item(0);
 
-        {
-            boolean success = false;
-            try {
-                setAttr1 = ((Element) /*Node */testAddr).setAttributeNodeNS(newAttr);
-            } catch (DOMException ex) {
-                success = (ex.code == DOMException.WRONG_DOCUMENT_ERR);
-            }
-            assertTrue("throw_WRONG_DOCUMENT_ERR", success);
-        }
-
+        DOMException ex = assertThrows(DOMException.class, () -> ((Element) /*Node */testAddr).setAttributeNodeNS(newAttr));
+        assertEquals(DOMException.WRONG_DOCUMENT_ERR, ex.code, "throw_WRONG_DOCUMENT_ERR");
     }
 
     /**

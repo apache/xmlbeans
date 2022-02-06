@@ -22,14 +22,14 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Document;
 import org.w3c.dom.DocumentType;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -45,36 +45,22 @@ import static org.w3c.domts.DOMTest.load;
  */
 public class domimplementationcreatedocumenttype01 {
     @Test
-    @Ignore
+    @Disabled
     public void testRun() throws Throwable {
-        Document doc;
-        DOMImplementation domImpl;
-        DocumentType newDocType;
-        Document ownerDocument;
         String qualifiedName = "test:root";
-        String publicId;
-        String systemId;
-        java.util.List publicIds = new java.util.ArrayList();
-        publicIds.add("1234");
-        publicIds.add("test");
+        String[] publicIds = { "1234", "test" };
+        String[] systemIds = { "", "test" };
 
-        java.util.List systemIds = new java.util.ArrayList();
-        systemIds.add("");
-        systemIds.add("test");
-
-        doc = load("staffNS", false);
-        domImpl = doc.getImplementation();
-        for (int indexd355e61 = 0; indexd355e61 < publicIds.size(); indexd355e61++) {
-            publicId = (String) publicIds.get(indexd355e61);
-            for (int indexd355e63 = 0; indexd355e63 < systemIds.size(); indexd355e63++) {
-                systemId = (String) systemIds.get(indexd355e63);
-                newDocType = domImpl.createDocumentType(qualifiedName, publicId, systemId);
-                assertNotNull("domimplementationcreatedocumenttype01_newDocType", newDocType);
-                ownerDocument = newDocType.getOwnerDocument();
-                assertNull("domimplementationcreatedocumenttype01_ownerDocument", ownerDocument);
+        Document doc = load("staffNS", false);
+        DOMImplementation domImpl = doc.getImplementation();
+        for (String publicId : publicIds) {
+            for (String systemId : systemIds) {
+                DocumentType newDocType = domImpl.createDocumentType(qualifiedName, publicId, systemId);
+                assertNotNull(newDocType, "domimplementationcreatedocumenttype01_newDocType");
+                Document ownerDocument = newDocType.getOwnerDocument();
+                assertNull(ownerDocument, "domimplementationcreatedocumenttype01_ownerDocument");
             }
         }
-
     }
 
     /**

@@ -22,13 +22,13 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -43,18 +43,13 @@ import static org.w3c.domts.DOMTest.load;
  */
 public class prefix04 {
     @Test
-    @Ignore
+    @Disabled
     public void testRun() throws Throwable {
-        Document doc;
-        NodeList elementList;
-        Node testEmployee;
-        String prefix;
-        doc = load("staffNS", false);
-        elementList = doc.getElementsByTagName("employee");
-        testEmployee = elementList.item(0);
-        prefix = testEmployee.getPrefix();
-        assertNull("throw_Null", prefix);
-
+        Document doc = load("staffNS", false);
+        NodeList elementList = doc.getElementsByTagName("employee");
+        Node testEmployee = elementList.item(0);
+        String prefix = testEmployee.getPrefix();
+        assertNull(prefix, "throw_Null");
     }
 
     /**

@@ -22,12 +22,12 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -43,32 +43,22 @@ import static org.w3c.domts.DOMTest.load;
  */
 public class nodegetnamespaceuri03 {
     @Test
-    public void testRun() throws Throwable {
-        Document doc;
-        Element element;
-        Element elementNS;
-        Attr attr;
-        Attr attrNS;
-        String elemNSURI;
-        String elemNSURINull;
-        String attrNSURI;
-        String attrNSURINull;
+    void testRun() throws Throwable {
         String nullNS = null;
 
-        doc = load("staff", false);
-        element = doc.createElementNS(nullNS, "elem");
-        elementNS = doc.createElementNS("http://www.w3.org/DOM/Test/elem", "qual:qelem");
-        attr = doc.createAttributeNS(nullNS, "attr");
-        attrNS = doc.createAttributeNS("http://www.w3.org/DOM/Test/attr", "qual:qattr");
-        elemNSURI = elementNS.getNamespaceURI();
-        elemNSURINull = element.getNamespaceURI();
-        attrNSURI = attrNS.getNamespaceURI();
-        attrNSURINull = attr.getNamespaceURI();
-        assertEquals("nodegetnamespaceuri03_elemNSURI", "http://www.w3.org/DOM/Test/elem", elemNSURI);
-        assertEquals("nodegetnamespaceuri03_1", "", elemNSURINull);
-        assertEquals("nodegetnamespaceuri03_attrNSURI", "http://www.w3.org/DOM/Test/attr", attrNSURI);
-        assertEquals("nodegetnamespaceuri03_2", "", attrNSURINull);
-
+        Document doc = load("staff", false);
+        Element element = doc.createElementNS(nullNS, "elem");
+        Element elementNS = doc.createElementNS("http://www.w3.org/DOM/Test/elem", "qual:qelem");
+        Attr attr = doc.createAttributeNS(nullNS, "attr");
+        Attr attrNS = doc.createAttributeNS("http://www.w3.org/DOM/Test/attr", "qual:qattr");
+        String elemNSURI = elementNS.getNamespaceURI();
+        String elemNSURINull = element.getNamespaceURI();
+        String attrNSURI = attrNS.getNamespaceURI();
+        String attrNSURINull = attr.getNamespaceURI();
+        assertEquals("http://www.w3.org/DOM/Test/elem", elemNSURI, "nodegetnamespaceuri03_elemNSURI");
+        assertEquals("", elemNSURINull, "nodegetnamespaceuri03_1");
+        assertEquals("http://www.w3.org/DOM/Test/attr", attrNSURI, "nodegetnamespaceuri03_attrNSURI");
+        assertEquals("", attrNSURINull, "nodegetnamespaceuri03_2");
     }
 
     /**

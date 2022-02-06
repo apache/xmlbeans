@@ -22,13 +22,14 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -48,24 +49,13 @@ import static org.w3c.domts.DOMTest.load;
  */
 public class prefix10 {
     @Test
-    public void testRun() throws Throwable {
-        Document doc;
-        NodeList elementList;
-        Node employeeNode;
-        doc = load("staffNS", true);
-        elementList = doc.getElementsByTagName("employee");
-        employeeNode = elementList.item(1);
+    void testRun() throws Throwable {
+        Document doc = load("staffNS", true);
+        NodeList elementList = doc.getElementsByTagName("employee");
+        Node employeeNode = elementList.item(1);
 
-        {
-            boolean success = false;
-            try {
-                employeeNode.setPrefix("xml");
-            } catch (DOMException ex) {
-                success = (ex.code == DOMException.NAMESPACE_ERR);
-            }
-            assertTrue("throw_NAMESPACE_ERR", success);
-        }
-
+        DOMException ex = assertThrows(DOMException.class, () -> employeeNode.setPrefix("xml"));
+        assertEquals(DOMException.NAMESPACE_ERR, ex.code, "throw_NAMESPACE_ERR");
     }
 
     /**

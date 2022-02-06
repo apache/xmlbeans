@@ -19,11 +19,15 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Ignore;
-import org.junit.Test;
-import org.w3c.dom.*;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.w3c.dom.DOMException;
+import org.w3c.dom.Document;
+import org.w3c.dom.DocumentType;
+import org.w3c.dom.NamedNodeMap;
 
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -36,31 +40,14 @@ import static org.w3c.domts.DOMTest.load;
  */
 public class hc_notationsremovenameditemns1 {
     @Test
-    @Ignore
+    @Disabled
     public void testRun() throws Throwable {
-        Document doc;
-        NamedNodeMap notations;
-        DocumentType docType;
-        Node retval;
-        doc = load("hc_staff", true);
-        docType = doc.getDoctype();
-        notations = docType.getNotations();
+        Document doc = load("hc_staff", true);
+        DocumentType docType = doc.getDoctype();
+        NamedNodeMap notations = docType.getNotations();
 
-        try {
-            retval = notations.removeNamedItemNS("http://www.w3.org/1999/xhtml", "alpha");
-            fail("throw_NO_MOD_OR_NOT_FOUND_ERR");
-
-        } catch (DOMException ex) {
-            switch (ex.code) {
-                case 7:
-                    break;
-                case 8:
-                    break;
-                default:
-                    throw ex;
-            }
-        }
-
+        DOMException ex = assertThrows(DOMException.class, () -> notations.removeNamedItemNS("http://www.w3.org/1999/xhtml", "alpha"));
+        assertTrue(ex.code == 7 || ex.code == 8, "throw_NO_MOD_OR_NOT_FOUND_ERR");
     }
 
     /**

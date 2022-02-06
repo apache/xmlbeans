@@ -22,7 +22,7 @@ import com.easypo.XmlPurchaseOrderDocumentBean.PurchaseOrder;
 import com.easypo.XmlShipperBean;
 import org.apache.xmlbeans.*;
 import org.apache.xmlbeans.impl.xb.xsdschema.SchemaDocument;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.xml.sax.InputSource;
 import tools.util.JarUtil;
 
@@ -32,12 +32,12 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class SerializationTests {
     @Test
-    public void testXmlObjectSerialization() throws Exception {
+    void testXmlObjectSerialization() throws Exception {
         String simpleDocument = "<simpleDoc><nestedTag attr=\"sample\">43</nestedTag></simpleDoc>";
         XmlObject doc = XmlObject.Factory.parse(simpleDocument);
 
@@ -59,7 +59,7 @@ public class SerializationTests {
     }
 
     @Test
-    public void testXBeanSerialization() throws Exception {
+    void testXBeanSerialization() throws Exception {
         XmlPurchaseOrderDocumentBean doc = XmlPurchaseOrderDocumentBean.Factory.newInstance();
         PurchaseOrder order = doc.addNewPurchaseOrder();
         order.addNewCustomer().setName("David Bau");
@@ -129,7 +129,7 @@ public class SerializationTests {
     }
 
     @Test
-    public void testWsdlSerialization() throws IOException, XmlException {
+    void testWsdlSerialization() throws IOException, XmlException {
         // test for TextSaver
         File wsdlFile = JarUtil.getResourceFromJarasFile("xbean/xmlobject/wsdl.xml");
 

@@ -22,12 +22,12 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -44,25 +44,14 @@ import static org.w3c.domts.DOMTest.load;
  */
 public class documentcreateelementNS05 {
     @Test
-    public void testRun() throws Throwable {
-        Document doc;
-        Element element;
+    void testRun() throws Throwable {
         String namespaceURI = null;
 
         String qualifiedName = "null:xml";
-        doc = load("staffNS", false);
+        Document doc = load("staffNS", false);
 
-        {
-            boolean success = false;
-            try {
-                element = doc.createElementNS(namespaceURI, qualifiedName);
-            } catch (DOMException ex) {
-                success = (ex.code == DOMException.NAMESPACE_ERR);
-            }
-            assertTrue("documentcreateelementNS05, null value for" +
-                       "    namespaceURI, and a valid qualifiedName", success);
-        }
-
+        DOMException ex = assertThrows(DOMException.class, () -> doc.createElementNS(namespaceURI, qualifiedName));
+        assertEquals(DOMException.NAMESPACE_ERR, ex.code, "documentcreateelementNS05, null value for namespaceURI, and a valid qualifiedName");
     }
 
     /**

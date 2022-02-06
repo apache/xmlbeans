@@ -22,10 +22,10 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.*;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -40,28 +40,18 @@ import static org.w3c.domts.DOMTest.load;
  */
 public class attrgetownerelement05 {
     @Test
-    public void testRun() throws Throwable {
-        Document doc;
-        Node element;
-        Element ownerElement;
-        Element parentElement;
-        NodeList elementList;
-        String ownerElementName;
-        Attr attr;
-        Node removedChild;
-        NamedNodeMap nodeMap;
-        String nullNS = null;
+    void testRun() throws Throwable {
 
-        doc = load("staffNS", true);
-        elementList = doc.getElementsByTagNameNS("*", "address");
-        element = elementList.item(1);
-        parentElement = (Element) element.getParentNode();
-        nodeMap = element.getAttributes();
-        removedChild = parentElement.removeChild(element);
-        attr = (Attr) nodeMap.getNamedItemNS(nullNS, "street");
-        ownerElement = attr.getOwnerElement();
-        ownerElementName = ownerElement.getNodeName();
-        assertEquals("attrgetownerelement05", "address", ownerElementName);
+        Document doc = load("staffNS", true);
+        NodeList elementList = doc.getElementsByTagNameNS("*", "address");
+        Node element = elementList.item(1);
+        Element parentElement = (Element) element.getParentNode();
+        NamedNodeMap nodeMap = element.getAttributes();
+        parentElement.removeChild(element);
+        Attr attr = (Attr) nodeMap.getNamedItemNS(null, "street");
+        Element ownerElement = attr.getOwnerElement();
+        String ownerElementName = ownerElement.getNodeName();
+        assertEquals("address", ownerElementName, "attrgetownerelement05");
 
     }
 

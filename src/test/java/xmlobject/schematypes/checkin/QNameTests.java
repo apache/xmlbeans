@@ -16,29 +16,21 @@
 package xmlobject.schematypes.checkin;
 
 import org.apache.xmlbeans.*;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class QNameTests {
-    static String[] _args;
-    static String _test;
-
     @Test
-    public void testQName() throws Exception {
+    void testQName() throws Exception {
         String schema =
             "<xs:schema xmlns:xs='http://www.w3.org/2001/XMLSchema'>\n" +
-            "" +
             "  <xs:element name='any'>\n" +
             "  </xs:element>\n" +
-            "" +
-            "</xs:schema>\n" +
-            "";
+            "</xs:schema>";
 
-        SchemaTypeLoader stl =
-            XmlBeans.loadXsd(new XmlObject[]{
-                XmlObject.Factory.parse(schema)});
+        SchemaTypeLoader stl = XmlBeans.loadXsd(XmlObject.Factory.parse(schema));
 
         //
         // Test the set_XMLName function on XmlQNameImpl
@@ -46,57 +38,37 @@ public class QNameTests {
 
         String ns =
             "xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' " +
-                "xmlns:xs='http://www.w3.org/2001/XMLSchema'";
+            "xmlns:xs='http://www.w3.org/2001/XMLSchema'";
 
         XmlObject sourceDocument =
-            stl.parse(
-                "<any " + ns + " xsi:type='xs:QName' xmlns:xxx='xxx.com'>" +
-                    "xxx:abc</any>", null, null);
+            stl.parse("<any " + ns + " xsi:type='xs:QName' xmlns:xxx='xxx.com'>xxx:abc</any>", null, null);
 
         XmlQName sourceQName;
         try (XmlCursor sourceCursor = sourceDocument.newCursor()) {
             sourceCursor.toFirstChild();
-
             sourceQName = (XmlQName) sourceCursor.getObject();
         }
 
-        XmlObject targetDocument =
-            stl.parse(
-                "<any " + ns + " xsi:type='xs:QName'>" +
-                    "</any>", null, null);
+        XmlObject targetDocument = stl.parse("<any " + ns + " xsi:type='xs:QName'></any>", null, null);
 
-        XmlQName targetQName;
         try (XmlCursor targetCursor = targetDocument.newCursor()) {
             targetCursor.toFirstChild();
-
-            targetQName = (XmlQName) targetCursor.getObject();
+            XmlQName targetQName = (XmlQName) targetCursor.getObject();
+            targetQName.set(sourceQName);
+            assertEquals("xxx.com", targetQName.getQNameValue().getNamespaceURI());
         }
-
-        targetQName.set(sourceQName);
-
-        assertEquals("xxx.com", targetQName.getQNameValue().getNamespaceURI());
 
         //
         // Test the set_text function on XmlQNameImpl
         //
-
-        targetDocument =
-            stl.parse(
-                "<any " + ns + " xsi:type='xs:QName' xmlns:xxx='xxx.com'>" +
-                    "</any>", null, null);
+        targetDocument = stl.parse("<any " + ns + " xsi:type='xs:QName' xmlns:xxx='xxx.com'></any>", null, null);
 
         try (XmlCursor targetCursor = targetDocument.newCursor()) {
             targetCursor.toFirstChild();
-
-            targetQName = (XmlQName) targetCursor.getObject();
-
-            targetQName.setStringValue("zzz:abc");
-            fail("Must fail");
-        } catch (Throwable t) {
+            XmlQName targetQName = (XmlQName) targetCursor.getObject();
+            assertThrows(Throwable.class, () -> targetQName.setStringValue("zzz:abc"));
+            targetQName.setStringValue("xxx:abc");
+            assertEquals("xxx.com", targetQName.getQNameValue().getNamespaceURI());
         }
-
-        targetQName.setStringValue("xxx:abc");
-
-        assertEquals("xxx.com", targetQName.getQNameValue().getNamespaceURI());
     }
 }

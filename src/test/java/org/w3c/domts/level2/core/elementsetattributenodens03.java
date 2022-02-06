@@ -22,10 +22,11 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.*;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -40,31 +41,17 @@ import static org.w3c.domts.DOMTest.load;
  */
 public class elementsetattributenodens03 {
     @Test
-    public void testRun() throws Throwable {
-        Document doc;
-        Element element1;
-        Element element2;
-        Attr attribute;
-        Attr newAttribute;
-        NodeList elementList;
+    void testRun() throws Throwable {
         String nullNS = null;
 
-        doc = load("staffNS", true);
-        elementList = doc.getElementsByTagNameNS("http://www.nist.gov", "address");
-        element1 = (Element) elementList.item(1);
-        attribute = element1.getAttributeNodeNS(nullNS, "street");
-        element2 = (Element) elementList.item(2);
+        Document doc = load("staffNS", true);
+        NodeList elementList = doc.getElementsByTagNameNS("http://www.nist.gov", "address");
+        Element element1 = (Element) elementList.item(1);
+        Attr attribute = element1.getAttributeNodeNS(nullNS, "street");
+        Element element2 = (Element) elementList.item(2);
 
-        {
-            boolean success = false;
-            try {
-                newAttribute = element2.setAttributeNodeNS(attribute);
-            } catch (DOMException ex) {
-                success = (ex.code == DOMException.INUSE_ATTRIBUTE_ERR);
-            }
-            assertTrue("elementsetattributenodens03", success);
-        }
-
+        DOMException ex = assertThrows(DOMException.class, () -> element2.setAttributeNodeNS(attribute));
+        assertEquals(DOMException.INUSE_ATTRIBUTE_ERR, ex.code, "elementsetattributenodens03");
     }
 
     /**

@@ -18,113 +18,85 @@ package xmlcursor.detailed;
 
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlCursor.TokenType;
-import org.apache.xmlbeans.XmlObject;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import xmlcursor.common.BasicCursorTestCase;
+import org.apache.xmlbeans.XmlException;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
+import static xmlcursor.common.BasicCursorTestCase.*;
 
-public class MoveXmlTest2 extends BasicCursorTestCase
-        {
+public class MoveXmlTest2 {
 
-    private static String sTestXml = "<bk:book xmlns:bk='urn:loc.gov:books' at0=\"value0\"><!--BOOK COMMENT-->text0<author at0=\"v0\" at1=\"value1\"/></bk:book>";
-    private static XmlCursor m_xc1;
+    private static final String XML = "<bk:book xmlns:bk='urn:loc.gov:books' at0=\"value0\"><!--BOOK COMMENT-->text0<author at0=\"v0\" at1=\"value1\"/></bk:book>";
+    private static final String TARGET = "<target></target>";
 
     @Test
-    public void testNormalCase()
-    {
-        String sExpectedTrg1 = "<!--BOOK COMMENT--><target/>";
-        String sExpectedSrc1 = "<bk:book at0=\"value0\" " +
-                "xmlns:bk=\"urn:loc.gov:books\">" +
-                "text0<author at0=\"v0\" at1=\"value1\"/></bk:book>";
+    void testNormalCase() throws XmlException {
+        String sExpectedSrc = "<bk:book at0=\"value0\" xmlns:bk=\"urn:loc.gov:books\">text0<author at0=\"v0\" at1=\"value1\"/></bk:book>";
+
+        try (XmlCursor m_xc = cur(XML); XmlCursor m_xc1 = cur(TARGET)) {
+            toNextTokenOfType(m_xc1, TokenType.START);
+            toNextTokenOfType(m_xc, TokenType.COMMENT);
+            m_xc.moveXml(m_xc1);
+            toPrevTokenOfType(m_xc, TokenType.STARTDOC);
+            toPrevTokenOfType(m_xc1, TokenType.STARTDOC);
+            assertEquals(sExpectedSrc, m_xc.xmlText());
+            assertEquals("<!--BOOK COMMENT--><target/>", m_xc1.xmlText());
 
 
-        toNextTokenOfType(m_xc1, TokenType.START);
-        toNextTokenOfType(m_xc, TokenType.COMMENT);
-        m_xc.moveXml(m_xc1);
-        toPrevTokenOfType(m_xc, TokenType.STARTDOC);
-        toPrevTokenOfType(m_xc1, TokenType.STARTDOC);
-        assertEquals(m_xc.xmlText(), sExpectedSrc1);
-        assertEquals(m_xc1.xmlText(), sExpectedTrg1);
-
-
-        sExpectedTrg1 =
-                "<!--BOOK COMMENT--><target xmlns:bk=\"urn:loc.gov:books\"/>";
-        sExpectedSrc1 = "<bk:book " +
-                "at0=\"value0\" " +
-                "xmlns:bk=\"urn:loc.gov:books\">" +
-                "text0<author at0=\"v0\" at1=\"value1\"/>" +
-                "</bk:book>";
-
-        //copy the namespace declaration exlplicitly
-        toNextTokenOfType(m_xc1, TokenType.END);
-        toNextTokenOfType(m_xc, TokenType.NAMESPACE);
-        m_xc.moveXml(m_xc1);
-
-        toPrevTokenOfType(m_xc, TokenType.STARTDOC);
-        toPrevTokenOfType(m_xc1, TokenType.STARTDOC);
-
-        assertEquals(m_xc1.xmlText(), sExpectedTrg1);
-        assertEquals(m_xc.xmlText(), sExpectedSrc1);
-
-
+            //copy the namespace declaration exlplicitly
+            toNextTokenOfType(m_xc1, TokenType.END);
+            toNextTokenOfType(m_xc, TokenType.NAMESPACE);
+            m_xc.moveXml(m_xc1);
+            toPrevTokenOfType(m_xc, TokenType.STARTDOC);
+            toPrevTokenOfType(m_xc1, TokenType.STARTDOC);
+            assertEquals("<!--BOOK COMMENT--><target xmlns:bk=\"urn:loc.gov:books\"/>", m_xc1.xmlText());
+            assertEquals(sExpectedSrc, m_xc.xmlText());
+        }
     }
 
     //to here at END
-    @Test(expected = IllegalArgumentException.class)
-    public void testMoveNoop()
-    {
-
-        toNextTokenOfType(m_xc1, TokenType.START);
-        toNextTokenOfType(m_xc, TokenType.END);
-        try {
-            m_xc.moveXml(m_xc1);
-            fail(" need IllegalArgumentException");
-        } catch (IllegalArgumentException e) {}
-        toPrevTokenOfType(m_xc, TokenType.STARTDOC);
-        toPrevTokenOfType(m_xc1, TokenType.STARTDOC);
-
-        toNextTokenOfType(m_xc1, TokenType.START);
-        toNextTokenOfType(m_xc, TokenType.ENDDOC);
-        m_xc.moveXml(m_xc1);
-    }
-
     @Test
-    public void testInvalidToCursorPos()
-    {
-        //position the cursor within a tag <a <movedXML/>...</a>
-        toNextTokenOfType(m_xc, TokenType.START);//m_xc on book at0
-        assertTrue(m_xc.toFirstAttribute()); //at0 in book
-        toNextTokenOfType(m_xc1, TokenType.START);
-        try {
-            if (m_xc1.moveXml(m_xc)) {
+    void testMoveNoop() throws XmlException {
+        try (XmlCursor m_xc = cur(XML); XmlCursor m_xc1 = cur(TARGET)) {
+            toNextTokenOfType(m_xc1, TokenType.START);
+            toNextTokenOfType(m_xc, TokenType.END);
+            assertThrows(IllegalArgumentException.class, () -> m_xc.moveXml(m_xc1));
+            toPrevTokenOfType(m_xc, TokenType.STARTDOC);
+            toPrevTokenOfType(m_xc1, TokenType.STARTDOC);
 
-                fail("Should not be able to move the XML here ");
-            }
-        } catch (Exception e) {
-            System.err.println(e.getMessage());
+            toNextTokenOfType(m_xc1, TokenType.START);
+            toNextTokenOfType(m_xc, TokenType.ENDDOC);
+            assertThrows(IllegalArgumentException.class, () -> m_xc.moveXml(m_xc1));
         }
     }
 
     @Test
-    public void testMovedAttrNameCollision() throws Exception
-    {
-
-        try (XmlCursor m_xc2 = XmlObject.Factory.parse(sTestXml).newCursor()) {
+    void testInvalidToCursorPos() throws XmlException {
+        try (XmlCursor m_xc = cur(XML); XmlCursor m_xc1 = cur(TARGET)) {
+            //position the cursor within a tag <a <movedXML/>...</a>
             toNextTokenOfType(m_xc, TokenType.START);//m_xc on book at0
-            toNextTokenOfType(m_xc2, TokenType.START);
-            toNextTokenOfType(m_xc2, TokenType.START);
-            //toNextTokenOfType(m_xc2,TokenType.END);//to author
-            assertTrue(m_xc2.toFirstAttribute());
             assertTrue(m_xc.toFirstAttribute()); //at0 in book
-            if (m_xc.moveXml(m_xc2)) {
-                toPrevTokenOfType(m_xc2, TokenType.START);
-                m_xc2.toFirstAttribute();
-                assertEquals(m_xc2.getName().getLocalPart(), "at0");
-                assertTrue(m_xc2.toNextAttribute());
-                assertEquals(m_xc2.getName().getLocalPart(), "at0");
+            toNextTokenOfType(m_xc1, TokenType.START);
+            assertThrows(Exception.class, () -> m_xc1.moveXml(m_xc));
+        }
+    }
+
+    @Test
+    void testMovedAttrNameCollision() throws Exception {
+
+        try (XmlCursor m_xc = cur(XML); XmlCursor m_xc1 = cur(XML)) {
+            toNextTokenOfType(m_xc, TokenType.START);//m_xc on book at0
+            toNextTokenOfType(m_xc1, TokenType.START);
+            toNextTokenOfType(m_xc1, TokenType.START);
+            //toNextTokenOfType(m_xc1,TokenType.END);//to author
+            assertTrue(m_xc1.toFirstAttribute());
+            assertTrue(m_xc.toFirstAttribute()); //at0 in book
+            if (m_xc.moveXml(m_xc1)) {
+                toPrevTokenOfType(m_xc1, TokenType.START);
+                m_xc1.toFirstAttribute();
+                assertEquals("at0", m_xc1.getName().getLocalPart());
+                assertTrue(m_xc1.toNextAttribute());
+                assertEquals("at0", m_xc1.getName().getLocalPart());
             }
         }
     }
@@ -135,56 +107,32 @@ public class MoveXmlTest2 extends BasicCursorTestCase
      * $NOTE: legal here
      */
     @Test
-    public void testInvalidXml()
-    {
-        toNextTokenOfType(m_xc, TokenType.START);
-        toNextTokenOfType(m_xc1, TokenType.START);
-        assertTrue(m_xc.moveXml(m_xc1));
-    }
-
-    @Test
-    public void testNull()
-    {
-        toNextTokenOfType(m_xc, TokenType.START);
-        try {
-            m_xc.moveXml(null);
-            fail("toHere null");
-        } catch (Exception e) {
-            System.err.println(e.getMessage());
+    void testInvalidXml() throws XmlException {
+        try (XmlCursor m_xc = cur(XML); XmlCursor m_xc1 = cur(TARGET)) {
+            toNextTokenOfType(m_xc, TokenType.START);
+            toNextTokenOfType(m_xc1, TokenType.START);
+            assertTrue(m_xc.moveXml(m_xc1));
         }
     }
 
     @Test
-    public void testSelf()
-    {
-        String sExpectedResult = m_xc.xmlText();
-        toNextTokenOfType(m_xc, TokenType.START);
-        try {
+    void testNull() throws XmlException {
+        try (XmlCursor m_xc = cur(XML)) {
+            toNextTokenOfType(m_xc, TokenType.START);
+            assertThrows(Exception.class, () -> m_xc.moveXml(null));
+        }
+    }
 
+    @Test
+    void testSelf() throws XmlException {
+        try (XmlCursor m_xc = cur(XML)) {
+            String sExpectedResult = m_xc.xmlText();
+            toNextTokenOfType(m_xc, TokenType.START);
             if (m_xc.moveXml(m_xc)) {
                 m_xc.toStartDoc();
                 assertEquals(sExpectedResult, m_xc.xmlText());
             }
-        } catch (Exception e) {
-            System.err.println(e.getMessage());
         }
     }
 
-    @Before
-    public void setUp() throws Exception
-    {
-        m_xc = XmlObject.Factory.parse(sTestXml).newCursor();
-        String sTargetXml = "<target></target>";
-        m_xc1 = XmlObject.Factory.parse(sTargetXml).newCursor();
-    }
-
-    @After
-    public void tearDown() throws Exception
-    {
-        super.tearDown();
-        if (m_xc1 != null) {
-            m_xc1.close();
-            m_xc1 = null;
-        }
-    }
 }

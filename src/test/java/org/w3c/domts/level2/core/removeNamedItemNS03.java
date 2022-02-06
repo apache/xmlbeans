@@ -22,12 +22,11 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.*;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.w3c.domts.DOMTest.isExpandEntityReferences;
 import static org.w3c.domts.DOMTest.load;
 
@@ -49,46 +48,32 @@ import static org.w3c.domts.DOMTest.load;
  */
 public class removeNamedItemNS03 {
     @Test
-    @Ignore
+    @Disabled
     public void testRun() throws Throwable {
         String namespaceURI = "http://www.w3.org/2000/xmlns/";
         String localName = "local1";
-        Document doc;
-        NodeList elementList;
-        Node testAddress;
-        NodeList nList;
-        Node child;
-        NodeList n2List;
-        Node child2;
-        NamedNodeMap attributes;
-        Node removedNode;
-        doc = load("staffNS", true);
+        Document doc = load("staffNS", true);
 
+        Node child;
         if (!isExpandEntityReferences()) {
-            elementList = doc.getElementsByTagName("gender");
-            testAddress = elementList.item(1);  //YK: was 2 but 2 is ER
-            nList = testAddress.getChildNodes();
+            NodeList elementList = doc.getElementsByTagName("gender");
+            //YK: was 2 but 2 is ER
+            Node testAddress = elementList.item(1);
+            NodeList nList = testAddress.getChildNodes();
             child = nList.item(0);
         } else {
             child = doc.createEntityReference("ent4");
         }
+
         //child is now the text val of the gender
-        //n2List = child.getChildNodes();
-        //  child2 = n2List.item(0);
-        child2 = child;
-        assertNotNull("notnull", child2);
-        attributes = child2.getAttributes();
+        // NodeList n2List = child.getChildNodes();
+        // child2 = n2List.item(0);
+        Node child2 = child;
+        assertNotNull(child2, "notnull");
+        NamedNodeMap attributes = child2.getAttributes();
 
-        {
-            boolean success = false;
-            try {
-                removedNode = attributes.removeNamedItemNS(namespaceURI, localName);
-            } catch (DOMException ex) {
-                success = (ex.code == DOMException.NO_MODIFICATION_ALLOWED_ERR);
-            }
-            assertTrue("throw_NO_MODIFICATION_ALLOWED_ERR", success);
-        }
-
+        DOMException ex = assertThrows(DOMException.class, () -> attributes.removeNamedItemNS(namespaceURI, localName));
+        assertEquals(DOMException.NO_MODIFICATION_ALLOWED_ERR, ex.code, "throw_NO_MODIFICATION_ALLOWED_ERR");
     }
 
     /**

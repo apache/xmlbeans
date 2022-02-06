@@ -22,10 +22,11 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.*;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -43,39 +44,21 @@ import static org.w3c.domts.DOMTest.load;
  */
 public class namednodemapsetnameditemns03 {
     @Test
-    public void testRun() throws Throwable {
-        Document doc;
-        Document docAlt;
-        NamedNodeMap attributes;
-        NamedNodeMap attributesAlt;
-        NodeList elementList;
-        NodeList elementListAlt;
-        Element element;
-        Element elementAlt;
-        Attr attr;
-        Node newNode;
+    void testRun() throws Throwable {
         String nullNS = null;
 
-        doc = load("staffNS", true);
-        elementList = doc.getElementsByTagNameNS("*", "address");
-        element = (Element) elementList.item(1);
-        attributes = element.getAttributes();
-        docAlt = load("staffNS", true);
-        elementListAlt = docAlt.getElementsByTagNameNS("*", "address");
-        elementAlt = (Element) elementListAlt.item(1);
-        attributesAlt = elementAlt.getAttributes();
-        attr = (Attr) attributesAlt.getNamedItemNS(nullNS, "street");
+        Document doc = load("staffNS", true);
+        NodeList elementList = doc.getElementsByTagNameNS("*", "address");
+        Element element = (Element) elementList.item(1);
+        NamedNodeMap attributes = element.getAttributes();
+        Document docAlt = load("staffNS", true);
+        NodeList elementListAlt = docAlt.getElementsByTagNameNS("*", "address");
+        Element elementAlt = (Element) elementListAlt.item(1);
+        NamedNodeMap attributesAlt = elementAlt.getAttributes();
+        Attr attr = (Attr) attributesAlt.getNamedItemNS(nullNS, "street");
 
-        {
-            boolean success = false;
-            try {
-                newNode = attributes.setNamedItemNS(attr);
-            } catch (DOMException ex) {
-                success = (ex.code == DOMException.WRONG_DOCUMENT_ERR);
-            }
-            assertTrue("namednodemapsetnameditemns03", success);
-        }
-
+        DOMException ex = assertThrows(DOMException.class, () -> attributes.setNamedItemNS(attr));
+        assertEquals(DOMException.WRONG_DOCUMENT_ERR, ex.code, "namednodemapsetnameditemns03");
     }
 
     /**

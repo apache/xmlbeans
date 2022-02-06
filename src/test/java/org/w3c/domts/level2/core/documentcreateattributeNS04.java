@@ -22,12 +22,12 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Test;
-import org.w3c.dom.Attr;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -43,34 +43,15 @@ import static org.w3c.domts.DOMTest.load;
  */
 public class documentcreateattributeNS04 {
     @Test
-    public void testRun() throws Throwable {
-        Document doc;
-        Attr attribute;
+    void testRun() throws Throwable {
         String namespaceURI = "http://www.w3.org/DOM/Test/Level2";
-        String qualifiedName;
-        java.util.List qualifiedNames = new java.util.ArrayList();
-        qualifiedNames.add("_:");
-        qualifiedNames.add(":0a");
-        qualifiedNames.add(":");
-        qualifiedNames.add("a:b:c");
-        qualifiedNames.add("_::a");
+        String[] qualifiedNames = { "_:", ":0a", ":", "a:b:c", "_::a" };
 
-        doc = load("staffNS", false);
-        for (int indexd313e55 = 0; indexd313e55 < qualifiedNames.size(); indexd313e55++) {
-            qualifiedName = (String) qualifiedNames.get(indexd313e55);
-
-            {
-                boolean success = false;
-                try {
-                    attribute = doc.createAttributeNS(namespaceURI, qualifiedName);
-                } catch (DOMException ex) {
-                    success = (ex.code == DOMException.NAMESPACE_ERR);
-                }
-                assertTrue("documentcreateattributeNS04,valid value for " +
-                           "    namespaceURI, and malformed qualifiedNames", success);
-            }
+        Document doc = load("staffNS", false);
+        for (String qualifiedName : qualifiedNames) {
+            DOMException ex = assertThrows(DOMException.class, () -> doc.createAttributeNS(namespaceURI, qualifiedName));
+            assertEquals(DOMException.NAMESPACE_ERR, ex.code, "documentcreateattributeNS04,valid value for namespaceURI, and malformed qualifiedNames");
         }
-
     }
 
     /**

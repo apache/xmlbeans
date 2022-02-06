@@ -17,58 +17,43 @@ package scomp.namespace.detailed;
 
 import org.apache.xmlbeans.XmlAnySimpleType;
 import org.apache.xmlbeans.XmlErrorCodes;
-import org.junit.Test;
-import scomp.common.BaseCase;
+import org.apache.xmlbeans.XmlOptions;
+import org.junit.jupiter.api.Test;
 import xbean.scomp.namespace.attributeFormDefault.AttributeFormDefaultEltDocument;
 import xbean.scomp.namespace.attributeFormDefault.ElementT;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
+import static scomp.common.BaseCase.createOptions;
+import static scomp.common.BaseCase.getErrorCodes;
 
 /**
- * 
+ *
  */
-public class AttrFormDefault extends BaseCase {
+public class AttrFormDefault {
     @Test
-    public void testValid() throws Throwable {
-        AttributeFormDefaultEltDocument doc =
-                AttributeFormDefaultEltDocument.Factory.parse("<ns:AttributeFormDefaultElt " +
-                "xmlns:ns=\"http://xbean/scomp/namespace/AttributeFormDefault\"" +
-                " ns:localAttr=\"foobar\"/>");
-
-        try {
-            doc.validate(validateOptions);
-        }
-        catch (Throwable t) {
-            showErrors();
-            throw t;
-        }
+    void testValid() throws Throwable {
+        String input =
+            "<ns:AttributeFormDefaultElt xmlns:ns=\"http://xbean/scomp/namespace/AttributeFormDefault\" ns:localAttr=\"foobar\"/>";
+        AttributeFormDefaultEltDocument doc = AttributeFormDefaultEltDocument.Factory.parse(input);
+        XmlOptions validateOptions = createOptions();
+        doc.validate(validateOptions);
     }
 
     @Test
-    public void testInvalid() throws Throwable {
-        AttributeFormDefaultEltDocument doc =
-            AttributeFormDefaultEltDocument.Factory.newInstance();
+    void testInvalid() throws Throwable {
+        AttributeFormDefaultEltDocument doc = AttributeFormDefaultEltDocument.Factory.newInstance();
         ElementT elt = doc.addNewAttributeFormDefaultElt();
         XmlAnySimpleType val = XmlAnySimpleType.Factory.newInstance();
         val.setStringValue("345");
         elt.setLocalAttr(val);
-        try {
-            assertTrue(doc.validate(validateOptions));
-        } catch (Throwable t) {
-            showErrors();
-            throw t;
-        }
+        XmlOptions validateOptions = createOptions();
+        assertTrue(doc.validate(validateOptions));
 
-        doc =
-            AttributeFormDefaultEltDocument.Factory.parse("<ns:AttributeFormDefaultElt " +
-                "xmlns:ns=\"http://xbean/scomp/namespace/AttributeFormDefault\"" +
-                " localAttr=\"foobar\"/>");
-        assertTrue(!doc.validate(validateOptions));
-        showErrors();
-        String[] errExpected = new String[]{
-            XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$NO_WILDCARD
-        };
-        assertTrue(compareErrorCodes(errExpected));
-
+        String input =
+            "<ns:AttributeFormDefaultElt xmlns:ns=\"http://xbean/scomp/namespace/AttributeFormDefault\" localAttr=\"foobar\"/>";
+        doc = AttributeFormDefaultEltDocument.Factory.parse(input);
+        assertFalse(doc.validate(validateOptions));
+        String[] errExpected = {XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$NO_WILDCARD};
+        assertArrayEquals(errExpected, getErrorCodes(validateOptions));
     }
 }

@@ -16,16 +16,16 @@
 package misc.checkin;
 
 import org.apache.xmlbeans.XmlBeans;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class VersionTest {
 
 
     // Test the getVersion API
     @Test
-    public void testXBeansVersion() {
+    void testXBeansVersion() {
         String version = XmlBeans.getVersion();
         assertNotNull(version);
     }

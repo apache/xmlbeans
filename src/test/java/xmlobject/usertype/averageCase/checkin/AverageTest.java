@@ -17,7 +17,7 @@ package xmlobject.usertype.averageCase.checkin;
 
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.impl.values.XmlValueOutOfRangeException;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import usertype.xbean.averageCase.purchaseOrder.Items;
 import usertype.xbean.averageCase.purchaseOrder.PurchaseOrderDocument;
 import usertype.xbean.averageCase.purchaseOrder.PurchaseOrderType;
@@ -25,13 +25,14 @@ import xmlobject.usertype.averageCase.existing.SKU;
 
 import java.math.BigDecimal;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 
 public class AverageTest {
 
     @Test
-    public void test(){
+    void test(){
         PurchaseOrderDocument poDoc = PurchaseOrderDocument.Factory.newInstance();
         PurchaseOrderType po=poDoc.addNewPurchaseOrder();
         int LEN=20;
@@ -52,8 +53,8 @@ public class AverageTest {
         }
     }
 
-    @Test(expected = XmlValueOutOfRangeException.class)
-    public void testBadInput() throws XmlException{
+    @Test
+    void testBadInput() throws XmlException{
         String sb =
             "<purchaseOrder xmlns=\"http://xbean.usertype/averageCase/PurchaseOrder\">" +
             "<items><item partNum=\"000-AB\"><USPrice>2</USPrice></item>" +
@@ -72,7 +73,7 @@ public class AverageTest {
         assertEquals(0, sku.getDigits());
         assertEquals("AB", sku.getLetters());
 
-        it[1].getPartNum();
+        assertThrows(XmlValueOutOfRangeException.class, it[1]::getPartNum);
         // Invalid SKU format should fail
     }
 }

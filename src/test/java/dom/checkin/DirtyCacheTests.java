@@ -16,7 +16,7 @@
 package dom.checkin;
 
 import org.apache.xmlbeans.XmlCursor;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Node;
 import xbean.dom.complexTypeTest.ElementT;
 import xbean.dom.complexTypeTest.EltTypeDocument;
@@ -26,12 +26,12 @@ import xbean.dom.dumbNS.RootDocument;
 
 import java.math.BigInteger;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class DirtyCacheTests {
     @Test
-    public void testDirtyValue() throws Exception {
+    void testDirtyValue() throws Exception {
         EltTypeDocument o = EltTypeDocument.Factory.newInstance();
         ElementT t = o.addNewEltType();
         t.setChild1(new BigInteger("30"));
@@ -47,7 +47,7 @@ public class DirtyCacheTests {
     }
 
     @Test
-    public void testDirtyValue1() throws Exception {
+    void testDirtyValue1() throws Exception {
         MixedTypeDocument o = MixedTypeDocument.Factory.newInstance();
         MixedT testElt = o.addNewMixedType();
         assertNull(testElt.getChild1());
@@ -74,7 +74,7 @@ public class DirtyCacheTests {
     }
 
     @Test
-    public void testDirtyValue2() throws Exception {
+    void testDirtyValue2() throws Exception {
         RootDocument o = RootDocument.Factory.newInstance();
         RootDocument.Root testElt = o.addNewRoot();
         testElt.setB(new BigInteger("5"));

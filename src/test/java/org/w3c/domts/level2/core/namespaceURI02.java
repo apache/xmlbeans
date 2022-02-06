@@ -22,13 +22,13 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -44,18 +44,13 @@ import static org.w3c.domts.DOMTest.load;
  */
 public class namespaceURI02 {
     @Test
-    public void testRun() throws Throwable {
-        Document doc;
-        NodeList elementList;
-        Element testAddr;
-        Attr addrAttr;
-        String attrNamespaceURI;
-        doc = load("staffNS", false);
-        elementList = doc.getElementsByTagName("emp:address");
-        testAddr = (Element) elementList.item(0);
-        addrAttr = testAddr.getAttributeNodeNS("http://www.nist.gov", "domestic");
-        attrNamespaceURI = addrAttr.getNamespaceURI();
-        assertEquals("namespaceURI", "http://www.nist.gov", attrNamespaceURI);
+    void testRun() throws Throwable {
+        Document doc = load("staffNS", false);
+        NodeList elementList = doc.getElementsByTagName("emp:address");
+        Element testAddr = (Element) elementList.item(0);
+        Attr addrAttr = testAddr.getAttributeNodeNS("http://www.nist.gov", "domestic");
+        String attrNamespaceURI = addrAttr.getNamespaceURI();
+        assertEquals("http://www.nist.gov", attrNamespaceURI, "namespaceURI");
 
     }
 

@@ -17,7 +17,7 @@
 package xmlobject.detailed;
 
 import org.apache.xmlbeans.XmlInteger;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.DocumentFragment;
 import org.w3c.dom.Node;
 
@@ -27,17 +27,17 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.math.BigInteger;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class SerializationDetailedTests {
 
     @Test
-    public void testDocFragmentSerialization() throws Exception {
+    void testDocFragmentSerialization() throws Exception {
         XmlInteger xmlInt = XmlInteger.Factory.newInstance();
         xmlInt.setBigIntegerValue(new BigInteger("10"));
 
         Node node = xmlInt.getDomNode();
-        assertTrue("DOM node from XmlObject not instance of DocumentFragment (it is a " + node + ")", node instanceof DocumentFragment);
+        assertTrue(node instanceof DocumentFragment, "DOM node from XmlObject not instance of DocumentFragment (it is a " + node + ")");
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         ObjectOutputStream oos = new ObjectOutputStream(out);
@@ -49,7 +49,7 @@ public class SerializationDetailedTests {
         XmlInteger deserialized = (XmlInteger) ois.readObject();
 
         node = deserialized.getDomNode();
-        assertTrue("DOM node from deserialized XmlObject not instance of DocumentFragment (it is a " + node + ")", node instanceof DocumentFragment);
+        assertTrue(node instanceof DocumentFragment, "DOM node from deserialized XmlObject not instance of DocumentFragment (it is a " + node + ")");
     }
 
 }

@@ -22,12 +22,12 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.*;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.w3c.domts.DOMTest.assertURIEquals;
 import static org.w3c.domts.DOMTest.load;
 
@@ -45,38 +45,25 @@ import static org.w3c.domts.DOMTest.load;
  */
 public class importNode12 {
     @Test
-    @Ignore
+    @Disabled
     public void testRun() throws Throwable {
-        Document doc;
-        Document aNewDoc;
-        DocumentType doc1Type;
-        NamedNodeMap entityList;
-        Entity entity2;
-        Entity entity1;
-        Document ownerDocument;
-        DocumentType docType;
-        String system;
-        String entityName;
-        Node child;
-        String childName;
-        doc = load("staffNS", true);
-        aNewDoc = load("staffNS", true);
+        Document doc = load("staffNS", true);
+        Document aNewDoc = load("staffNS", true);
 
-        doc1Type = aNewDoc.getDoctype();
-        entityList = doc1Type.getEntities();
-        entity2 = (Entity) entityList.getNamedItem("ent4");
-        entity1 = (Entity) doc.importNode(entity2, true);
-        ownerDocument = entity1.getOwnerDocument();
-        docType = ownerDocument.getDoctype();
-        system = docType.getSystemId();
+        DocumentType doc1Type = aNewDoc.getDoctype();
+        NamedNodeMap entityList = doc1Type.getEntities();
+        Entity entity2 = (Entity) entityList.getNamedItem("ent4");
+        Entity entity1 = (Entity) doc.importNode(entity2, true);
+        Document ownerDocument = entity1.getOwnerDocument();
+        DocumentType docType = ownerDocument.getDoctype();
+        String system = docType.getSystemId();
         assertURIEquals("systemId", "staffNS.dtd", system);
-        entityName = entity1.getNodeName();
-        assertEquals("entityName", "ent4", entityName);
-        child = entity1.getFirstChild();
-        assertNotNull("notnull", child);
-        childName = child.getNodeName();
-        assertEquals("childName", "entElement1", childName);
-
+        String entityName = entity1.getNodeName();
+        assertEquals("ent4", entityName, "entityName");
+        Node child = entity1.getFirstChild();
+        assertNotNull(child, "notnull");
+        String childName = child.getNodeName();
+        assertEquals("entElement1", childName, "childName");
     }
 
     /**

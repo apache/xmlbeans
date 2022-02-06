@@ -15,39 +15,35 @@
 package scomp.derivation.restriction.detailed;
 
 import org.apache.xmlbeans.XmlErrorCodes;
-import org.junit.Test;
-import scomp.common.BaseCase;
+import org.apache.xmlbeans.XmlOptions;
+import org.junit.jupiter.api.Test;
 import xbean.scomp.derivation.simpleExtension.SimpleRestrictionEltDocument;
 import xbean.scomp.derivation.simpleExtension.SimpleRestrictionT;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
+import static scomp.common.BaseCase.createOptions;
+import static scomp.common.BaseCase.getErrorCodes;
 
-public class SimpleContentRestrictionTest extends BaseCase {
+public class SimpleContentRestrictionTest {
     @Test
-    public void testLegalValues() throws Throwable {
+    void testLegalValues() throws Throwable {
         SimpleRestrictionEltDocument doc = SimpleRestrictionEltDocument.Factory.newInstance();
         SimpleRestrictionT elt = doc.addNewSimpleRestrictionElt();
         elt.setIntValue(3);
-        try {
-            assertTrue(doc.validate(validateOptions));
-        } catch (Throwable t) {
-            showErrors();
-            throw t;
-        }
+        assertTrue(doc.validate(createOptions()));
     }
 
     @Test
-    public void testIllegalValues() throws Throwable {
+    void testIllegalValues() throws Throwable {
         SimpleRestrictionEltDocument doc = SimpleRestrictionEltDocument.Factory.newInstance();
         SimpleRestrictionT elt = doc.addNewSimpleRestrictionElt();
         elt.setIntValue(5);
 
-        assertTrue(!doc.validate(validateOptions));
+        XmlOptions validateOptions = createOptions();
 
-        showErrors();
-        String[] errExpected = new String[]{
-            XmlErrorCodes.DATATYPE_MAX_INCLUSIVE_VALID
-        };
-        assertTrue(compareErrorCodes(errExpected));
+        assertFalse(doc.validate(validateOptions));
+
+        String[] errExpected = {XmlErrorCodes.DATATYPE_MAX_INCLUSIVE_VALID};
+        assertArrayEquals(errExpected, getErrorCodes(validateOptions));
     }
 }

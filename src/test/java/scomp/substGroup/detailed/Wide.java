@@ -16,8 +16,8 @@
 package scomp.substGroup.detailed;
 
 import org.apache.xmlbeans.XmlErrorCodes;
-import org.junit.Test;
-import scomp.common.BaseCase;
+import org.apache.xmlbeans.XmlOptions;
+import org.junit.jupiter.api.Test;
 import xbean.scomp.substGroup.deep.ItemType;
 import xbean.scomp.substGroup.deep.ItemsDocument;
 import xbean.scomp.substGroup.deep.ProductType;
@@ -26,78 +26,71 @@ import xbean.scomp.substGroup.wide.BusinessShirtType;
 
 import java.math.BigInteger;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
+import static scomp.common.BaseCase.createOptions;
+import static scomp.common.BaseCase.getErrorCodes;
 
-public class Wide extends BaseCase {
+public class Wide {
     @Test
-    public void testValidSubstParse() throws Throwable {
+    void testValidSubstParse() throws Throwable {
         String input =
-                "<base:items xmlns:pre=\"http://xbean/scomp/substGroup/Wide\"" +
-                " xmlns:base=\"http://xbean/scomp/substGroup/Deep\">" +
-                "<pre:businessshirt>" +
-                " <number>SKU25</number>" +
-                " <name>Oxford Shirt</name>" +
-                " <size>12</size>" +
-                " <color>white</color>" +
-                "</pre:businessshirt>" +
-                "<base:product>" +
-                " <number>SKU45</number>" +
-                "   <name>Accessory</name>" +
-                "</base:product>" +
-                "<pre:beachumbrella diameter=\"1.43\">" +
-                " <number>SKU15</number>" +
-                "   <name>Umbrella</name>" +
-                "</pre:beachumbrella>" +
-                "</base:items>";
+            "<base:items xmlns:pre=\"http://xbean/scomp/substGroup/Wide\"" +
+            " xmlns:base=\"http://xbean/scomp/substGroup/Deep\">" +
+            "<pre:businessshirt>" +
+            " <number>SKU25</number>" +
+            " <name>Oxford Shirt</name>" +
+            " <size>12</size>" +
+            " <color>white</color>" +
+            "</pre:businessshirt>" +
+            "<base:product>" +
+            " <number>SKU45</number>" +
+            "   <name>Accessory</name>" +
+            "</base:product>" +
+            "<pre:beachumbrella diameter=\"1.43\">" +
+            " <number>SKU15</number>" +
+            "   <name>Umbrella</name>" +
+            "</pre:beachumbrella>" +
+            "</base:items>";
         ItemsDocument doc = ItemsDocument.Factory.parse(input);
-        try {
-            assertTrue(doc.validate(validateOptions));
-        } catch (Throwable t) {
-            showErrors();
-            throw t;
-        }
-
+        assertTrue(doc.validate(createOptions()));
     }
 
     /**
      * Test error message. 1 product too many
-     *
-     * @throws Throwable
      */
-    public void testValidSubstParseInvalid() throws Throwable {
+    @Test
+    void testValidSubstParseInvalid() throws Throwable {
         String input =
-                "<base:items xmlns:pre=\"http://xbean/scomp/substGroup/Wide\"" +
-                " xmlns:base=\"http://xbean/scomp/substGroup/Deep\">" +
-                "<pre:businessshirt>" +
-                " <number>SKU25</number>" +
-                " <name>Oxford Shirt</name>" +
-                " <size>12</size>" +
-                " <color>white</color>" +
-                "</pre:businessshirt>" +
-                "<base:product>" +
-                " <number>SKU45</number>" +
-                "   <name>Accessory</name>" +
-                "</base:product>" +
-                "<pre:beachumbrella diameter=\"1.43\">" +
-                " <number>SKU15</number>" +
-                "   <name>Umbrella</name>" +
-                "</pre:beachumbrella>" +
-                "<pre:baseballhat TeamName=\"Mariners\">" +
-                " <number>SKU15</number>" +
-                "   <name>Umbrella</name>" +
-                "</pre:baseballhat>" +
-                "</base:items>";
+            "<base:items xmlns:pre=\"http://xbean/scomp/substGroup/Wide\"" +
+            " xmlns:base=\"http://xbean/scomp/substGroup/Deep\">" +
+            "<pre:businessshirt>" +
+            " <number>SKU25</number>" +
+            " <name>Oxford Shirt</name>" +
+            " <size>12</size>" +
+            " <color>white</color>" +
+            "</pre:businessshirt>" +
+            "<base:product>" +
+            " <number>SKU45</number>" +
+            "   <name>Accessory</name>" +
+            "</base:product>" +
+            "<pre:beachumbrella diameter=\"1.43\">" +
+            " <number>SKU15</number>" +
+            "   <name>Umbrella</name>" +
+            "</pre:beachumbrella>" +
+            "<pre:baseballhat TeamName=\"Mariners\">" +
+            " <number>SKU15</number>" +
+            "   <name>Umbrella</name>" +
+            "</pre:baseballhat>" +
+            "</base:items>";
         ItemsDocument doc = ItemsDocument.Factory.parse(input);
-
-        assertTrue(!doc.validate(validateOptions));
-        String[] errExpected = new String[]{
-            XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$ELEMENT_NOT_ALLOWED
-        };
-        assertTrue(compareErrorCodes(errExpected));
-
+        XmlOptions validateOptions = createOptions();
+        assertFalse(doc.validate(validateOptions));
+        String[] errExpected = {XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$ELEMENT_NOT_ALLOWED};
+        assertArrayEquals(errExpected, getErrorCodes(validateOptions));
     }
 
-    public void testValidSubstBuild() throws Throwable {
+    @Test
+    void testValidSubstBuild() throws Throwable {
         ItemsDocument doc = ItemsDocument.Factory.newInstance();
         ItemType items = doc.addNewItems();
         BusinessShirtType bShirt = BusinessShirtType.Factory.newInstance();
@@ -116,23 +109,16 @@ public class Wide extends BaseCase {
         genericProd.setNumber("32");
         items.setProductArray(new ProductType[]{bShirt, bu, genericProd});
         //shirt must be white
-        assertTrue(!doc.validate(validateOptions));
-        String[] errExpected = new String[]{
-            XmlErrorCodes.DATATYPE_VALID$PATTERN_VALID
-        };
-        assertTrue(compareErrorCodes(errExpected));
-
+        XmlOptions validateOptions = createOptions();
+        assertFalse(doc.validate(validateOptions));
+        String[] errExpected = {XmlErrorCodes.DATATYPE_VALID$PATTERN_VALID};
+        assertArrayEquals(errExpected, getErrorCodes(validateOptions));
 
         //TODO: is the object being copied? Should this change the color?
         bShirt.setColor("white");
-        items.setProductArray(0,bShirt);
+        items.setProductArray(0, bShirt);
 
-        try {
-            assertTrue(doc.validate(validateOptions));
-        } catch (Throwable t) {
-            showErrors();
-            throw t;
-        }
+        assertTrue(doc.validate(validateOptions));
     }
 
 

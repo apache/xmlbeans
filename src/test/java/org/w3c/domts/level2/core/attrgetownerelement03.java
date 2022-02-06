@@ -22,12 +22,12 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -42,14 +42,11 @@ import static org.w3c.domts.DOMTest.load;
  */
 public class attrgetownerelement03 {
     @Test
-    public void testRun() throws Throwable {
-        Document doc;
-        Node ownerElement;
-        Attr attr;
-        doc = load("staffNS", false);
-        attr = doc.createAttributeNS("http://www.w3.org/DOM", "dom:attr");
-        ownerElement = attr.getOwnerElement();
-        assertNull("attrgetownerelement03", ownerElement);
+    void testRun() throws Throwable {
+        Document doc = load("staffNS", false);
+        Attr attr = doc.createAttributeNS("http://www.w3.org/DOM", "dom:attr");
+        Node ownerElement = attr.getOwnerElement();
+        assertNull(ownerElement, "attrgetownerelement03");
 
     }
 

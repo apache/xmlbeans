@@ -15,48 +15,29 @@
 
 package scomp.elements.detailed;
 
-import org.junit.Test;
-import scomp.common.BaseCase;
+import org.junit.jupiter.api.Test;
 import xbean.scomp.element.globalEltDefault.GlobalEltDefaultIntDocument;
 import xbean.scomp.element.globalEltDefault.GlobalEltDefaultStrDocument;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
+import static scomp.common.BaseCase.createOptions;
 
-public class GlobalEltDefault extends BaseCase {
+public class GlobalEltDefault {
     //empty string is OK considered , so default value is ignored
     @Test
-    public void testStringType() throws Throwable {
-        GlobalEltDefaultStrDocument testDoc = GlobalEltDefaultStrDocument
-            .Factory.newInstance();
-        assertEquals(null, testDoc.getGlobalEltDefaultStr());
-/*try{
-    assertTrue(testDoc.validate(validateOptions));
-}catch(Throwable t){
-    showErrors();
-    throw t;
-} */
+    void testStringType() throws Throwable {
+        GlobalEltDefaultStrDocument testDoc = GlobalEltDefaultStrDocument.Factory.newInstance();
+        assertNull(testDoc.getGlobalEltDefaultStr());
         testDoc.setGlobalEltDefaultStr("foo");
-        try {
-            assertTrue(testDoc.validate(validateOptions));
-        } catch (Throwable t) {
-            showErrors();
-            throw t;
-        }
-
+        assertTrue(testDoc.validate(createOptions()));
     }
 
     //default value is used
     @Test
-    public void testIntType() throws Throwable {
+    void testIntType() throws Throwable {
         GlobalEltDefaultIntDocument testDoc = GlobalEltDefaultIntDocument.Factory.newInstance();
         assertEquals(0, testDoc.getGlobalEltDefaultInt());
         testDoc.setGlobalEltDefaultInt(5);
-        try {
-            assertTrue(testDoc.validate(validateOptions));
-        } catch (Throwable t) {
-            showErrors();
-            throw t;
-        }
+        assertTrue(testDoc.validate(createOptions()));
     }
 }

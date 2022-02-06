@@ -16,58 +16,55 @@
 
 package xmlcursor.checkin;
 
+import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlCursor.TokenType;
-import org.apache.xmlbeans.XmlObject;
-import org.junit.Test;
-import tools.util.JarUtil;
-import xmlcursor.common.BasicCursorTestCase;
+import org.junit.jupiter.api.Test;
 import xmlcursor.common.Common;
 
 import javax.xml.namespace.QName;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
+import static xmlcursor.common.BasicCursorTestCase.*;
 
 
-public class SetAttributeTextTest extends BasicCursorTestCase {
+public class SetAttributeTextTest {
     @Test
-    public void testSetAttributeTextFromSTARTOn2ndATTR() throws Exception {
-        m_xo = XmlObject.Factory.parse(Common.XML_FOO_2ATTR_TEXT);
-        m_xc = m_xo.newCursor();
-        toNextTokenOfType(m_xc, TokenType.START);
-        QName name = new QName("attr2");
-        assertTrue(m_xc.setAttributeText(name, "newval2"));
-        assertEquals("newval2", m_xc.getAttributeText(name));
+    void testSetAttributeTextFromSTARTOn2ndATTR() throws Exception {
+        try (XmlCursor m_xc = cur(Common.XML_FOO_2ATTR_TEXT)) {
+            toNextTokenOfType(m_xc, TokenType.START);
+            QName name = new QName("attr2");
+            assertTrue(m_xc.setAttributeText(name, "newval2"));
+            assertEquals("newval2", m_xc.getAttributeText(name));
+        }
     }
 
     @Test
-    public void testSetAttributeTextNewName() throws Exception {
-        m_xo = XmlObject.Factory.parse(Common.XML_FOO_2ATTR_TEXT);
-        m_xc = m_xo.newCursor();
-        toNextTokenOfType(m_xc, TokenType.START);
-        QName name = new QName("newname");
-        assertTrue(m_xc.setAttributeText(name, "newval2"));
-        assertEquals("newval2", m_xc.getAttributeText(name));
+    void testSetAttributeTextNewName() throws Exception {
+        try (XmlCursor m_xc = cur(Common.XML_FOO_2ATTR_TEXT)) {
+            toNextTokenOfType(m_xc, TokenType.START);
+            QName name = new QName("newname");
+            assertTrue(m_xc.setAttributeText(name, "newval2"));
+            assertEquals("newval2", m_xc.getAttributeText(name));
+        }
     }
 
     @Test
-    public void testSetAttributeTextFromSTARTChildHasATTR() throws Exception {
-        m_xo = XmlObject.Factory.parse(
-                 JarUtil.getResourceFromJar(Common.TRANXML_FILE_XMLCURSOR_PO));
-        m_xc = m_xo.newCursor();
-        m_xc.selectPath("$this//purchaseOrder");
-        QName name = new QName("country");
-        assertTrue(m_xc.setAttributeText(name, "Finland"));
-        assertEquals("Finland", m_xc.getAttributeText(name));
+    void testSetAttributeTextFromSTARTChildHasATTR() throws Exception {
+        try (XmlCursor m_xc = jcur(Common.TRANXML_FILE_XMLCURSOR_PO)) {
+            m_xc.selectPath("$this//purchaseOrder");
+            QName name = new QName("country");
+            assertTrue(m_xc.setAttributeText(name, "Finland"));
+            assertEquals("Finland", m_xc.getAttributeText(name));
+        }
     }
 
     @Test
-    public void testSetAttributeTextFromATTR() throws Exception {
-        m_xo = XmlObject.Factory.parse(
-                 JarUtil.getResourceFromJar(Common.TRANXML_FILE_XMLCURSOR_PO));
-        m_xc = m_xo.newCursor();
-        toNextTokenOfType(m_xc, TokenType.ATTR);
-        QName name = new QName("orderDate");
-        assertFalse(m_xc.setAttributeText(name, "2003-01-10"));
+    void testSetAttributeTextFromATTR() throws Exception {
+        try (XmlCursor m_xc = jcur(Common.TRANXML_FILE_XMLCURSOR_PO)) {
+            toNextTokenOfType(m_xc, TokenType.ATTR);
+            QName name = new QName("orderDate");
+            assertFalse(m_xc.setAttributeText(name, "2003-01-10"));
+        }
     }
 }
 

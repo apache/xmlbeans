@@ -15,10 +15,12 @@
 package tools.inst2xsd.detailed;
 
 import org.apache.xmlbeans.XmlObject;
-import org.junit.Test;
-import tools.inst2xsd.common.Inst2XsdTestBase;
+import org.junit.jupiter.api.Test;
 
-public class Inst2XsdDetailedTypeTest extends Inst2XsdTestBase {
+import static tools.inst2xsd.common.Inst2XsdTestBase.getTypeXml;
+import static tools.inst2xsd.common.Inst2XsdTestBase.runTypeChecking;
+
+public class Inst2XsdDetailedTypeTest {
 
     // List of precedence for smart simple primitive type determination
     // byte, short, int, long, integer, float, double, decimal,
@@ -65,7 +67,7 @@ public class Inst2XsdDetailedTypeTest extends Inst2XsdTestBase {
     //}
 
     @Test
-    public void test_anyuri() throws Exception {
+    void test_anyuri() throws Exception {
         runTypeChecking(getTypeXml("http://www.math.uio.no/faq/compression-faq/part1.html"), "anyURI");
         runTypeChecking(getTypeXml("http://www.example.com/doc.html#ID5"), "anyURI");
         runTypeChecking(getTypeXml("www.math.uio.no/faq/compression-faq/part1.html"), "anyURI");
@@ -85,7 +87,7 @@ public class Inst2XsdDetailedTypeTest extends Inst2XsdTestBase {
      *
      */
     @Test
-    public void test_boolean() throws Exception {
+    void test_boolean() throws Exception {
         //runTypeChecking(getTypeXml("true"), "boolean");
         //runTypeChecking(getTypeXml("false"), "boolean");
         runTypeChecking(getTypeXml("true"), "string");
@@ -94,7 +96,7 @@ public class Inst2XsdDetailedTypeTest extends Inst2XsdTestBase {
     }
 
     @Test
-    public void test_QName() throws Exception {
+    void test_QName() throws Exception {
         XmlObject xsdString = XmlObject.Factory.parse("<a xmlns=\"typeTests\" " +
                         "xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" >xsd:string</a>");
         XmlObject xsiint = XmlObject.Factory.parse("<a xmlns=\"typeTests\" " +

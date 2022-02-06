@@ -22,10 +22,11 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.*;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -47,29 +48,16 @@ import static org.w3c.domts.DOMTest.load;
  */
 public class removeNamedItemNS02 {
     @Test
-    public void testRun() throws Throwable {
+    void testRun() throws Throwable {
         String namespaceURI = "http://www.usa.com";
         String localName = "domest";
-        Document doc;
-        NodeList elementList;
-        Node testAddress;
-        NamedNodeMap attributes;
-        Node removedNode;
-        doc = load("staffNS", true);
-        elementList = doc.getElementsByTagName("address");
-        testAddress = elementList.item(1);
-        attributes = testAddress.getAttributes();
+        Document doc = load("staffNS", true);
+        NodeList elementList = doc.getElementsByTagName("address");
+        Node testAddress = elementList.item(1);
+        NamedNodeMap attributes = testAddress.getAttributes();
 
-        {
-            boolean success = false;
-            try {
-                removedNode = attributes.removeNamedItemNS(namespaceURI, localName);
-            } catch (DOMException ex) {
-                success = (ex.code == DOMException.NOT_FOUND_ERR);
-            }
-            assertTrue("throw_NOT_FOUND_ERR", success);
-        }
-
+        DOMException ex = assertThrows(DOMException.class, () -> attributes.removeNamedItemNS(namespaceURI, localName));
+        assertEquals(DOMException.NOT_FOUND_ERR, ex.code, "throw_NOT_FOUND_ERR");
     }
 
     /**

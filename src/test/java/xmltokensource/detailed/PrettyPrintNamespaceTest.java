@@ -19,16 +19,15 @@ import com.mtest.SubInfo;
 import com.mtest.TestDocument;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlObject;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
 public class PrettyPrintNamespaceTest {
 
     @Test
-    public void testWithNewInstance()
-            throws Exception {
+    void testWithNewInstance() throws Exception {
         XmlObject x = XmlObject.Factory.newInstance();
 
         try (XmlCursor c = x.newCursor()) {
@@ -38,16 +37,14 @@ public class PrettyPrintNamespaceTest {
             c.insertNamespace("", "aaaa");
         }
 
-        String str =
-                "<a aaaa:a=\"\" xmlns=\"aaaa\" xmlns:aaaa=\"aaaa\"/>";
+        String str = "<a aaaa:a=\"\" xmlns=\"aaaa\" xmlns:aaaa=\"aaaa\"/>";
 
-        assertEquals("XmlText() Failed.", x.xmlText(), str);
-        assertEquals("toString() Failed.", x.toString().trim(), str);
+        assertEquals(x.xmlText(), str, "XmlText() Failed.");
+        assertEquals(x.toString().trim(), str, "toString() Failed.");
     }
 
     @Test
-    public void testWithInstanceFromSchema()
-            throws Exception {
+    void testWithInstanceFromSchema() throws Exception {
         String xml = "<mt:Test xmlns:mt=\"http://www.mtest.com\"> <mt:desc/> </mt:Test>";
         TestDocument doc = TestDocument.Factory.parse(xml);
         SubInfo subInfo = SubInfo.Factory.newInstance();
@@ -55,17 +52,19 @@ public class PrettyPrintNamespaceTest {
         subInfo.setSubdesc("there");
         doc.setTest(subInfo);
         String lnSep = System.getProperty("line.separator");
-        String str1 = "<mtes:Test xsi:type=\"mtes:SubInfo\" xmlns:mtes=\"http://www.mtest.com\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">" + lnSep +
-                "  <mtes:desc>hi</mtes:desc>" + lnSep +
-                "  <mtes:subdesc>there</mtes:subdesc>" + lnSep +
-                "</mtes:Test>";
-        String str2 = "<mtes:Test xsi:type=\"mtes:SubInfo\" xmlns:mtes=\"http://www.mtest.com\" " +
-                "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">" +
-                "<mtes:desc>hi</mtes:desc>" +
-                "<mtes:subdesc>there</mtes:subdesc>" +
-                "</mtes:Test>";
+        String str1 =
+            "<mtes:Test xsi:type=\"mtes:SubInfo\" xmlns:mtes=\"http://www.mtest.com\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">" + lnSep +
+            "  <mtes:desc>hi</mtes:desc>" + lnSep +
+            "  <mtes:subdesc>there</mtes:subdesc>" + lnSep +
+            "</mtes:Test>";
+        String str2 =
+            "<mtes:Test xsi:type=\"mtes:SubInfo\" xmlns:mtes=\"http://www.mtest.com\" " +
+            "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">" +
+            "<mtes:desc>hi</mtes:desc>" +
+            "<mtes:subdesc>there</mtes:subdesc>" +
+            "</mtes:Test>";
 
-        assertEquals("XmlText() Failed.", doc.xmlText(), str2);
-        assertEquals("toString() Failed.", doc.toString().trim(), str1);
+        assertEquals(doc.xmlText(), str2, "XmlText() Failed.");
+        assertEquals(doc.toString().trim(), str1, "toString() Failed.");
     }
 }

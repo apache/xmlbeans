@@ -22,10 +22,13 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Test;
-import org.w3c.dom.*;
+import org.junit.jupiter.api.Test;
+import org.w3c.dom.Attr;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NamedNodeMap;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -39,27 +42,18 @@ import static org.w3c.domts.DOMTest.load;
  */
 public class namednodemapremovenameditemns03 {
     @Test
-    public void testRun() throws Throwable {
-        Document doc;
-        NamedNodeMap attributes;
-        Node element;
-        Attr attribute;
-        Attr newAttribute;
-        Attr attribute1;
-        Attr attribute2;
-        String nodeName;
-        doc = load("staffNS", true);
-        element = doc.createElementNS("http://www.w3.org/DOM/Test", "root");
-        attribute1 = doc.createAttributeNS("http://www.w3.org/DOM/L1", "L1:att");
-        newAttribute = ((Element) /*Node */element).setAttributeNodeNS(attribute1);
-        attribute2 = doc.createAttributeNS("http://www.w3.org/DOM/L2", "L2:att");
-        newAttribute = ((Element) /*Node */element).setAttributeNodeNS(attribute2);
-        attributes = element.getAttributes();
-        attribute = (Attr) attributes.removeNamedItemNS("http://www.w3.org/DOM/L1", "att");
+    void testRun() throws Throwable {
+        Document doc = load("staffNS", true);
+        Element element = doc.createElementNS("http://www.w3.org/DOM/Test", "root");
+        Attr attribute1 = doc.createAttributeNS("http://www.w3.org/DOM/L1", "L1:att");
+        element.setAttributeNodeNS(attribute1);
+        Attr attribute2 = doc.createAttributeNS("http://www.w3.org/DOM/L2", "L2:att");
+        element.setAttributeNodeNS(attribute2);
+        NamedNodeMap attributes = element.getAttributes();
+        Attr attribute = (Attr) attributes.removeNamedItemNS("http://www.w3.org/DOM/L1", "att");
         attribute = (Attr) attributes.getNamedItemNS("http://www.w3.org/DOM/L2", "att");
-        nodeName = attribute.getNodeName();
-        assertEquals("namednodemapremovenameditemns02", "L2:att", nodeName);
-
+        String nodeName = attribute.getNodeName();
+        assertEquals("L2:att", nodeName, "namednodemapremovenameditemns02");
     }
 
     /**

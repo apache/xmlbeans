@@ -22,14 +22,14 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Document;
 import org.w3c.dom.DocumentType;
 import org.w3c.dom.Element;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -42,29 +42,21 @@ import static org.w3c.domts.DOMTest.load;
  * @see <a href="http://www.w3.org/TR/DOM-Level-2-Core/core#node-ownerDoc">http://www.w3.org/TR/DOM-Level-2-Core/core#node-ownerDoc</a>
  * @see <a href="http://www.w3.org/Bugs/Public/show_bug.cgi?id=259">http://www.w3.org/Bugs/Public/show_bug.cgi?id=259</a>
  */
-//TODO: fix when Doctypes
 public class nodegetownerdocument02 {
     @Test
-    public void testRun() throws Throwable {
-        Document doc;
-        Document newDoc;
-        Element newElem;
-        Document ownerDocDoc;
-        Document ownerDocElem;
-        DOMImplementation domImpl;
-        DocumentType docType;
+    void testRun() throws Throwable {
         String nullNS = null;
 
-        doc = load("staff", false);
-        domImpl = doc.getImplementation();
-        docType = null;// domImpl.createDocumentType("mydoc", nullNS, nullNS);
-        newDoc = domImpl.createDocument("http://www.w3.org/DOM/Test", "mydoc", docType);
-        ownerDocDoc = newDoc.getOwnerDocument();
-        assertNull("nodegetownerdocument02_1", ownerDocDoc);
-        newElem = newDoc.createElementNS("http://www.w3.org/DOM/Test", "myelem");
-        ownerDocElem = newElem.getOwnerDocument();
-        assertNotNull("nodegetownerdocument02_2", ownerDocElem);
-
+        Document doc = load("staff", false);
+        DOMImplementation domImpl = doc.getImplementation();
+        // TODO: fix when Doctypes are available
+        DocumentType docType = null;// domImpl.createDocumentType("mydoc", nullNS, nullNS);
+        Document newDoc = domImpl.createDocument("http://www.w3.org/DOM/Test", "mydoc", docType);
+        Document ownerDocDoc = newDoc.getOwnerDocument();
+        assertNull(ownerDocDoc, "nodegetownerdocument02_1");
+        Element newElem = newDoc.createElementNS("http://www.w3.org/DOM/Test", "myelem");
+        Document ownerDocElem = newElem.getOwnerDocument();
+        assertNotNull(ownerDocElem, "nodegetownerdocument02_2");
     }
 
     /**

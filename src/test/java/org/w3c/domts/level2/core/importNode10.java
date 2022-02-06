@@ -22,14 +22,14 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.DocumentType;
 import org.w3c.dom.EntityReference;
 import org.w3c.dom.Node;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.w3c.domts.DOMTest.assertURIEquals;
 import static org.w3c.domts.DOMTest.load;
 
@@ -50,28 +50,19 @@ import static org.w3c.domts.DOMTest.load;
  */
 public class importNode10 {
     @Test
-    @Ignore
+    @Disabled
     public void testRun() throws Throwable {
-        Document doc;
-        Document aNewDoc;
-        EntityReference entRef;
-        Node aNode;
-        Document ownerDocument;
-        DocumentType docType;
-        String system;
-        String name;
-        doc = load("staffNS", true);
-        aNewDoc = load("staffNS", true);
-        entRef = aNewDoc.createEntityReference("entRef1");
+        Document doc = load("staffNS", true);
+        Document aNewDoc = load("staffNS", true);
+        EntityReference entRef = aNewDoc.createEntityReference("entRef1");
         entRef.setNodeValue("entRef1Value");
-        aNode = doc.importNode(entRef, false);
-        ownerDocument = aNode.getOwnerDocument();
-        docType = ownerDocument.getDoctype();
-        system = docType.getSystemId();
+        Node aNode = doc.importNode(entRef, false);
+        Document ownerDocument = aNode.getOwnerDocument();
+        DocumentType docType = ownerDocument.getDoctype();
+        String system = docType.getSystemId();
         assertURIEquals("systemId", "staffNS.dtd", system);
-        name = aNode.getNodeName();
-        assertEquals("nodeName", "entRef1", name);
-
+        String name = aNode.getNodeName();
+        assertEquals("entRef1", name, "nodeName");
     }
 
     /**

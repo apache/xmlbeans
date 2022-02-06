@@ -16,134 +16,137 @@
 
 package xmlcursor.checkin;
 
+import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlCursor.TokenType;
-import org.apache.xmlbeans.XmlObject;
-import org.junit.Test;
-import xmlcursor.common.BasicCursorTestCase;
+import org.junit.jupiter.api.Test;
 import xmlcursor.common.Common;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static xmlcursor.common.BasicCursorTestCase.cur;
+import static xmlcursor.common.BasicCursorTestCase.toNextTokenOfType;
 
-public class SetTextTest extends BasicCursorTestCase {
+public class SetTextTest {
     @Test
-    public void testSetTextFromCOMMENT() throws Exception {
-        m_xo = XmlObject.Factory.parse(Common.XML_FOO_COMMENT);
-        m_xc = m_xo.newCursor();
-        toNextTokenOfType(m_xc, TokenType.COMMENT);
-        m_xc.setTextValue("fred");
-        assertEquals("fred", m_xc.getTextValue());
-    }
+    void testSetTextFromCOMMENT() throws Exception {
 
-    @Test
-    public void testSetTextFromPROCINST() throws Exception {
-        m_xo = XmlObject.Factory.parse(Common.XML_FOO_PROCINST);
-        m_xc = m_xo.newCursor();
-        toNextTokenOfType(m_xc, TokenType.PROCINST);
-        m_xc.setTextValue("new procinst text");
-        assertEquals("new procinst text", m_xc.getTextValue());
+        try (XmlCursor m_xc = cur(Common.XML_FOO_COMMENT)) {
+            toNextTokenOfType(m_xc, TokenType.COMMENT);
+            m_xc.setTextValue("fred");
+            assertEquals("fred", m_xc.getTextValue());
+        }
     }
 
     @Test
-    public void testSetTextFromPROCINSTInputNull() throws Exception {
-        m_xo = XmlObject.Factory.parse(Common.XML_FOO_PROCINST);
-        m_xc = m_xo.newCursor();
-        toNextTokenOfType(m_xc, TokenType.PROCINST);
-        m_xc.setTextValue(null);
-        assertEquals("", m_xc.getTextValue());
-    }
-
-    @Test(expected = IllegalStateException.class)
-    public void testSetTextFromEND() throws Exception {
-        m_xo = XmlObject.Factory.parse(Common.XML_FOO_COMMENT);
-        m_xc = m_xo.newCursor();
-        toNextTokenOfType(m_xc, TokenType.END);
-        m_xc.setTextValue("fred");
-    }
-
-    @Test(expected = IllegalStateException.class)
-    public void testSetTextFromENDDOC() throws Exception {
-        m_xo = XmlObject.Factory.parse(Common.XML_FOO_NS);
-        m_xc = m_xo.newCursor();
-        m_xc.toEndDoc();
-        m_xc.setTextValue("fred");
-    }
-
-    @Test(expected = IllegalStateException.class)
-    public void testSetTextFromTEXTbegin() throws Exception {
-        m_xo = XmlObject.Factory.parse(Common.XML_FOO_DIGITS);
-        m_xc = m_xo.newCursor();
-        toNextTokenOfType(m_xc, TokenType.TEXT);
-        assertEquals("01234", m_xc.getChars());
-        m_xc.setTextValue("new text");
-    }
-
-    @Test(expected = IllegalStateException.class)
-    public void testSetTextFromTEXTmiddle() throws Exception {
-        m_xo = XmlObject.Factory.parse(Common.XML_FOO_DIGITS);
-        m_xc = m_xo.newCursor();
-        toNextTokenOfType(m_xc, TokenType.TEXT);
-        m_xc.toNextChar(2);
-        assertEquals("234", m_xc.getChars());
-        m_xc.setTextValue("new text");
+    void testSetTextFromPROCINST() throws Exception {
+        try (XmlCursor m_xc = cur(Common.XML_FOO_PROCINST)) {
+            toNextTokenOfType(m_xc, TokenType.PROCINST);
+            m_xc.setTextValue("new procinst text");
+            assertEquals("new procinst text", m_xc.getTextValue());
+        }
     }
 
     @Test
-    public void testSetTextFromSTARTnotNested() throws Exception {
-        m_xo = XmlObject.Factory.parse(Common.XML_FOO_DIGITS);
-        m_xc = m_xo.newCursor();
-        toNextTokenOfType(m_xc, TokenType.START);
-        assertEquals("01234", m_xc.getTextValue());
-        m_xc.setTextValue("new text");
-        assertEquals("new text", m_xc.getTextValue());
+    void testSetTextFromPROCINSTInputNull() throws Exception {
+        try (XmlCursor m_xc = cur(Common.XML_FOO_PROCINST)) {
+            toNextTokenOfType(m_xc, TokenType.PROCINST);
+            m_xc.setTextValue(null);
+            assertEquals("", m_xc.getTextValue());
+        }
     }
 
     @Test
-    public void testSetTextFromSTARTnotNestedInputNull() throws Exception {
-        m_xo = XmlObject.Factory.parse(Common.XML_FOO_DIGITS);
-        m_xc = m_xo.newCursor();
-        toNextTokenOfType(m_xc, TokenType.START);
-        assertEquals("01234", m_xc.getTextValue());
-        m_xc.setTextValue(null);
-        assertEquals("", m_xc.getTextValue());
+    void testSetTextFromEND() throws Exception {
+        try (XmlCursor m_xc = cur(Common.XML_FOO_COMMENT)) {
+            toNextTokenOfType(m_xc, TokenType.END);
+            assertThrows(IllegalStateException.class, () -> m_xc.setTextValue("fred"));
+        }
     }
 
     @Test
-    public void testSetTextFromSTARTnested() throws Exception {
-        m_xo = XmlObject.Factory.parse(Common.XML_FOO_BAR_NESTED_SIBLINGS);
-        m_xc = m_xo.newCursor();
-        toNextTokenOfType(m_xc, TokenType.START);
-        assertEquals("text0nested0text1nested1", m_xc.getTextValue());
-        m_xc.setTextValue("new text");
-        assertEquals("<foo attr0=\"val0\">new text</foo>", m_xc.xmlText());
+    void testSetTextFromENDDOC() throws Exception {
+        try (XmlCursor m_xc = cur(Common.XML_FOO_NS)) {
+            m_xc.toEndDoc();
+            assertThrows(IllegalStateException.class, () -> m_xc.setTextValue("fred"));
+        }
     }
 
     @Test
-    public void testSetTextFromSTARTnestedInputNull() throws Exception {
-        m_xo = XmlObject.Factory.parse(Common.XML_FOO_BAR_NESTED_SIBLINGS);
-        m_xc = m_xo.newCursor();
-        toNextTokenOfType(m_xc, TokenType.START);
-        assertEquals("text0nested0text1nested1", m_xc.getTextValue());
-        m_xc.setTextValue(null);
-        assertEquals("<foo attr0=\"val0\"/>", m_xc.xmlText());
+    void testSetTextFromTEXTbegin() throws Exception {
+        try (XmlCursor m_xc = cur(Common.XML_FOO_DIGITS)) {
+            toNextTokenOfType(m_xc, TokenType.TEXT);
+            assertEquals("01234", m_xc.getChars());
+            assertThrows(IllegalStateException.class, () -> m_xc.setTextValue("new text"));
+        }
     }
 
     @Test
-    public void testSetTextFromATTRnested() throws Exception {
-        m_xo = XmlObject.Factory.parse(Common.XML_FOO_BAR_NESTED_SIBLINGS);
-        m_xc = m_xo.newCursor();
-        toNextTokenOfType(m_xc, TokenType.ATTR);
-        assertEquals("val0", m_xc.getTextValue());
-        m_xc.setTextValue("new text");
-        assertEquals("new text", m_xc.getTextValue());
+    void testSetTextFromTEXTmiddle() throws Exception {
+        try (XmlCursor m_xc = cur(Common.XML_FOO_DIGITS)) {
+            toNextTokenOfType(m_xc, TokenType.TEXT);
+            m_xc.toNextChar(2);
+            assertEquals("234", m_xc.getChars());
+            assertThrows(IllegalStateException.class, () -> m_xc.setTextValue("new text"));
+        }
     }
 
     @Test
-    public void testSetTextFromSTARTDOCnested() throws Exception {
-        m_xo = XmlObject.Factory.parse(Common.XML_FOO_BAR_NESTED_SIBLINGS);
-        m_xc = m_xo.newCursor();
-        assertEquals("text0nested0text1nested1", m_xc.getTextValue());
-        m_xc.setTextValue("new text");
-        assertEquals(Common.wrapInXmlFrag("new text"), m_xc.xmlText());
+    void testSetTextFromSTARTnotNested() throws Exception {
+        try (XmlCursor m_xc = cur(Common.XML_FOO_DIGITS)) {
+            toNextTokenOfType(m_xc, TokenType.START);
+            assertEquals("01234", m_xc.getTextValue());
+            m_xc.setTextValue("new text");
+            assertEquals("new text", m_xc.getTextValue());
+        }
+    }
+
+    @Test
+    void testSetTextFromSTARTnotNestedInputNull() throws Exception {
+        try (XmlCursor m_xc = cur(Common.XML_FOO_DIGITS)) {
+            toNextTokenOfType(m_xc, TokenType.START);
+            assertEquals("01234", m_xc.getTextValue());
+            m_xc.setTextValue(null);
+            assertEquals("", m_xc.getTextValue());
+        }
+    }
+
+    @Test
+    void testSetTextFromSTARTnested() throws Exception {
+        try (XmlCursor m_xc = cur(Common.XML_FOO_BAR_NESTED_SIBLINGS)) {
+            toNextTokenOfType(m_xc, TokenType.START);
+            assertEquals("text0nested0text1nested1", m_xc.getTextValue());
+            m_xc.setTextValue("new text");
+            assertEquals("<foo attr0=\"val0\">new text</foo>", m_xc.xmlText());
+        }
+    }
+
+    @Test
+    void testSetTextFromSTARTnestedInputNull() throws Exception {
+        try (XmlCursor m_xc = cur(Common.XML_FOO_BAR_NESTED_SIBLINGS)) {
+            toNextTokenOfType(m_xc, TokenType.START);
+            assertEquals("text0nested0text1nested1", m_xc.getTextValue());
+            m_xc.setTextValue(null);
+            assertEquals("<foo attr0=\"val0\"/>", m_xc.xmlText());
+        }
+    }
+
+    @Test
+    void testSetTextFromATTRnested() throws Exception {
+        try (XmlCursor m_xc = cur(Common.XML_FOO_BAR_NESTED_SIBLINGS)) {
+            toNextTokenOfType(m_xc, TokenType.ATTR);
+            assertEquals("val0", m_xc.getTextValue());
+            m_xc.setTextValue("new text");
+            assertEquals("new text", m_xc.getTextValue());
+        }
+    }
+
+    @Test
+    void testSetTextFromSTARTDOCnested() throws Exception {
+        try (XmlCursor m_xc = cur(Common.XML_FOO_BAR_NESTED_SIBLINGS)) {
+            assertEquals("text0nested0text1nested1", m_xc.getTextValue());
+            m_xc.setTextValue("new text");
+            assertEquals(Common.wrapInXmlFrag("new text"), m_xc.xmlText());
+        }
     }
 }
 

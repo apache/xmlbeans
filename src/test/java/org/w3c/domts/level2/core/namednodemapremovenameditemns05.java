@@ -22,11 +22,15 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Ignore;
-import org.junit.Test;
-import org.w3c.dom.*;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.w3c.dom.DOMException;
+import org.w3c.dom.Document;
+import org.w3c.dom.DocumentType;
+import org.w3c.dom.NamedNodeMap;
 
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -43,50 +47,20 @@ import static org.w3c.domts.DOMTest.load;
 
 public class namednodemapremovenameditemns05 {
     @Test
-    @Ignore
+    @Disabled
     public void testRun() throws Throwable {
-        Document doc;
-        DocumentType docType;
-        NamedNodeMap entities;
-        NamedNodeMap notations;
-        Node removedNode;
         String nullNS = null;
 
-        doc = load("staffNS", true);
-        docType = doc.getDoctype();
-        entities = docType.getEntities();
-        notations = docType.getNotations();
+        Document doc = load("staffNS", true);
+        DocumentType docType = doc.getDoctype();
+        NamedNodeMap entities = docType.getEntities();
+        NamedNodeMap notations = docType.getNotations();
 
-        try {
-            removedNode = entities.removeNamedItemNS(nullNS, "ent1");
-            fail("entity_throw_DOMException");
+        DOMException ex1 = assertThrows(DOMException.class, () -> entities.removeNamedItemNS(nullNS, "ent1"));
+        assertTrue(ex1.code == 8 || ex1.code == 7, "entity_throw_DOMException");
 
-        } catch (DOMException ex) {
-            switch (ex.code) {
-                case 8:
-                    break;
-                case 7:
-                    break;
-                default:
-                    throw ex;
-            }
-        }
-
-        try {
-            removedNode = notations.removeNamedItemNS(nullNS, "notation1");
-            fail("notation_throw_DOMException");
-
-        } catch (DOMException ex) {
-            switch (ex.code) {
-                case 8:
-                    break;
-                case 7:
-                    break;
-                default:
-                    throw ex;
-            }
-        }
-
+        DOMException ex2 = assertThrows(DOMException.class, () -> notations.removeNamedItemNS(nullNS, "notation1"));
+        assertTrue(ex1.code == 8 || ex1.code == 7, "notation_throw_DOMException");
     }
 
     /**

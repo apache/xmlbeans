@@ -22,12 +22,12 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -41,30 +41,20 @@ import static org.w3c.domts.DOMTest.load;
  */
 public class nodegetlocalname03 {
     @Test
-    public void testRun() throws Throwable {
-        Document doc;
-        Element element;
-        Element qelement;
-        Attr attr;
-        Attr qattr;
-        String localElemName;
-        String localQElemName;
-        String localAttrName;
-        String localQAttrName;
-        doc = load("staff", false);
-        element = doc.createElementNS("http://www.w3.org/DOM/Test/elem", "elem");
-        qelement = doc.createElementNS("http://www.w3.org/DOM/Test/elem", "qual:qelem");
-        attr = doc.createAttributeNS("http://www.w3.org/DOM/Test/attr", "attr");
-        qattr = doc.createAttributeNS("http://www.w3.org/DOM/Test/attr", "qual:qattr");
-        localElemName = element.getLocalName();
-        localQElemName = qelement.getLocalName();
-        localAttrName = attr.getLocalName();
-        localQAttrName = qattr.getLocalName();
-        assertEquals("nodegetlocalname03_localElemName", "elem", localElemName);
-        assertEquals("nodegetlocalname03_localQElemName", "qelem", localQElemName);
-        assertEquals("nodegetlocalname03_localAttrName", "attr", localAttrName);
-        assertEquals("nodegetlocalname03_localQAttrName", "qattr", localQAttrName);
-
+    void testRun() throws Throwable {
+        Document doc = load("staff", false);
+        Element element = doc.createElementNS("http://www.w3.org/DOM/Test/elem", "elem");
+        Element qelement = doc.createElementNS("http://www.w3.org/DOM/Test/elem", "qual:qelem");
+        Attr attr = doc.createAttributeNS("http://www.w3.org/DOM/Test/attr", "attr");
+        Attr qattr = doc.createAttributeNS("http://www.w3.org/DOM/Test/attr", "qual:qattr");
+        String localElemName = element.getLocalName();
+        String localQElemName = qelement.getLocalName();
+        String localAttrName = attr.getLocalName();
+        String localQAttrName = qattr.getLocalName();
+        assertEquals("elem", localElemName, "nodegetlocalname03_localElemName");
+        assertEquals("qelem", localQElemName, "nodegetlocalname03_localQElemName");
+        assertEquals("attr", localAttrName, "nodegetlocalname03_localAttrName");
+        assertEquals("qattr", localQAttrName, "nodegetlocalname03_localQAttrName");
     }
 
     /**

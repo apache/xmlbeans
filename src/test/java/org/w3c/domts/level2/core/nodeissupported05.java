@@ -22,11 +22,11 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.ProcessingInstruction;
 
-import static org.junit.Assert.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -41,15 +41,11 @@ import static org.w3c.domts.DOMTest.load;
  */
 public class nodeissupported05 {
     @Test
-    public void testRun() throws Throwable {
-        Document doc;
-        ProcessingInstruction pi;
-        boolean success;
-        doc = load("staffNS", false);
-        pi = doc.createProcessingInstruction("PITarget", "PIData");
-        success = pi.isSupported("-", "+");
-        assertFalse("nodeissupported05", success);
-
+    void testRun() throws Throwable {
+        Document doc = load("staffNS", false);
+        ProcessingInstruction pi = doc.createProcessingInstruction("PITarget", "PIData");
+        boolean success = pi.isSupported("-", "+");
+        assertFalse(success, "nodeissupported05");
     }
 
     /**

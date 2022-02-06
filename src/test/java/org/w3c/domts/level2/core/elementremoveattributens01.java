@@ -22,12 +22,12 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import static org.junit.Assert.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -42,20 +42,14 @@ import static org.w3c.domts.DOMTest.load;
  */
 public class elementremoveattributens01 {
     @Test
-    public void testRun() throws Throwable {
-        Document doc;
-        Element element;
-        boolean state;
-        Attr attribute;
-        Attr newAttribute;
-        doc = load("staff", false);
-        element = doc.createElementNS("http://www.w3.org/DOM", "elem");
-        attribute = doc.createAttributeNS("http://www.w3.org/DOM/Test/createAttributeNS", "attr");
-        newAttribute = element.setAttributeNodeNS(attribute);
+    void testRun() throws Throwable {
+        Document doc = load("staff", false);
+        Element element = doc.createElementNS("http://www.w3.org/DOM", "elem");
+        Attr attribute = doc.createAttributeNS("http://www.w3.org/DOM/Test/createAttributeNS", "attr");
+        Attr newAttribute = element.setAttributeNodeNS(attribute);
         element.removeAttributeNS("http://www.w3.org/DOM/Test/createAttributeNS", "attr");
-        state = element.hasAttributeNS("http://www.w3.org/DOM/Test/createAttributeNS", "attr");
-        assertFalse("elementremoveattributens01", state);
-
+        boolean state = element.hasAttributeNS("http://www.w3.org/DOM/Test/createAttributeNS", "attr");
+        assertFalse(state, "elementremoveattributens01");
     }
 
     /**

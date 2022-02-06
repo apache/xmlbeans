@@ -22,11 +22,11 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -41,28 +41,21 @@ import static org.w3c.domts.DOMTest.load;
  */
 public class documentcreateelementNS01 {
     @Test
-    public void testRun() throws Throwable {
-        Document doc;
-        Element element;
+    void testRun() throws Throwable {
         String namespaceURI = "http://www.w3.org/DOM/Test/level2";
         String qualifiedName = "XML:XML";
-        String nodeName;
-        String nsURI;
-        String localName;
-        String prefix;
-        String tagName;
-        doc = load("staffNS", false);
-        element = doc.createElementNS(namespaceURI, qualifiedName);
-        nodeName = element.getNodeName();
-        nsURI = element.getNamespaceURI();
-        localName = element.getLocalName();
-        prefix = element.getPrefix();
-        tagName = element.getTagName();
-        assertEquals("documentcreateelementNS01_nodeName", "XML:XML", nodeName);
-        assertEquals("documentcreateelementNS01_namespaceURI", "http://www.w3.org/DOM/Test/level2", nsURI);
-        assertEquals("documentcreateelementNS01_localName", "XML", localName);
-        assertEquals("documentcreateelementNS01_prefix", "XML", prefix);
-        assertEquals("documentcreateelementNS01_tagName", "XML:XML", tagName);
+        Document doc = load("staffNS", false);
+        Element element = doc.createElementNS(namespaceURI, qualifiedName);
+        String nodeName = element.getNodeName();
+        String nsURI = element.getNamespaceURI();
+        String localName = element.getLocalName();
+        String prefix = element.getPrefix();
+        String tagName = element.getTagName();
+        assertEquals("XML:XML", nodeName, "documentcreateelementNS01_nodeName");
+        assertEquals("http://www.w3.org/DOM/Test/level2", nsURI, "documentcreateelementNS01_namespaceURI");
+        assertEquals("XML", localName, "documentcreateelementNS01_localName");
+        assertEquals("XML", prefix, "documentcreateelementNS01_prefix");
+        assertEquals("XML:XML", tagName, "documentcreateelementNS01_tagName");
 
     }
 

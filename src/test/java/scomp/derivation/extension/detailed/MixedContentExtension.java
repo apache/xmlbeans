@@ -17,21 +17,21 @@ package scomp.derivation.extension.detailed;
 
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlErrorCodes;
-import org.junit.Test;
-import scomp.common.BaseCase;
+import org.apache.xmlbeans.XmlOptions;
+import org.junit.jupiter.api.Test;
 import xbean.scomp.derivation.complexExtension.ExtendedMixedEltDocument;
 import xbean.scomp.derivation.complexExtension.ExtendedMixedT;
 
 import java.math.BigInteger;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
+import static scomp.common.BaseCase.createOptions;
+import static scomp.common.BaseCase.getErrorCodes;
 
-public class MixedContentExtension extends BaseCase {
+public class MixedContentExtension {
     @Test
-    public void testMixedContentInvalid() throws Throwable {
-        ExtendedMixedEltDocument doc = ExtendedMixedEltDocument.
-                Factory.newInstance();
+    void testMixedContentInvalid() throws Throwable {
+        ExtendedMixedEltDocument doc = ExtendedMixedEltDocument.Factory.newInstance();
         ExtendedMixedT elt = doc.addNewExtendedMixedElt();
         elt.setExtendedAttr("FOOBAR_val");
         elt.setChild1(new BigInteger("10"));
@@ -47,35 +47,34 @@ public class MixedContentExtension extends BaseCase {
             cur.toNextToken();
             cur.insertChars(" SOME CDATA HERE");
         }
-        String resultStr=
-                "<com:ExtendedMixedElt extendedAttr=\"FOOBAR_val\" " +
-                "xmlns:com=\"http://xbean/scomp/derivation/ComplexExtension\">" +
-                "<Child2/>" +
-                "2" +
-                "<child1>10</child1>" +
-                " SOME CDATA HERE" +
-                "<child3>1</child3>" +
-                "</com:ExtendedMixedElt>";
-        assertEquals(resultStr, doc.xmlText());
+        String expected =
+            "<com:ExtendedMixedElt extendedAttr=\"FOOBAR_val\" " +
+            "xmlns:com=\"http://xbean/scomp/derivation/ComplexExtension\">" +
+            "<Child2/>" +
+            "2" +
+            "<child1>10</child1>" +
+            " SOME CDATA HERE" +
+            "<child3>1</child3>" +
+            "</com:ExtendedMixedElt>";
+        assertEquals(expected, doc.xmlText());
 
-        assertTrue(!doc.validate(validateOptions));
-        showErrors();
+
+        XmlOptions validateOptions = createOptions();
+        assertFalse(doc.validate(validateOptions));
         //TODO: Order check: is this the right errors? last one seems redundant given second-to-last
         //need ch1, ch2
         String[] errExpected = new String[]{
             XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$EXPECTED_DIFFERENT_ELEMENT,
             XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$EXPECTED_DIFFERENT_ELEMENT,
             XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$MISSING_ELEMENT
-         };
-        assertTrue(compareErrorCodes(errExpected));
-
-
+        };
+        assertArrayEquals(errExpected, getErrorCodes(validateOptions));
     }
 
     @Test
-    public void testMixedContentValid() throws Throwable {
+    void testMixedContentValid() throws Throwable {
         ExtendedMixedEltDocument doc = ExtendedMixedEltDocument.
-                Factory.newInstance();
+            Factory.newInstance();
         ExtendedMixedT elt = doc.addNewExtendedMixedElt();
         elt.setExtendedAttr("FOOBAR_val");
         elt.setChild1(new BigInteger("10"));
@@ -91,18 +90,16 @@ public class MixedContentExtension extends BaseCase {
             cur.toEndToken();
             cur.insertChars("SOME CDATA HERE");
 
-            assertTrue( doc.validate(validateOptions) );
+            assertTrue(doc.validate(createOptions()));
         }
-        catch (Throwable t) {
-            showErrors();
-            throw t;
-        }
-        assertEquals("<com:ExtendedMixedElt " +
-                "extendedAttr=\"FOOBAR_val\" " +
-                "xmlns:com=\"http://xbean/scomp/derivation/ComplexExtension\">" +
-                "<child1>10</child1>" +
-                "<child2>2</child2><!--My comment--><child3>1</child3>" +
-                "SOME CDATA HERE</com:ExtendedMixedElt>", doc.xmlText());
-    }
 
+        String expected =
+            "<com:ExtendedMixedElt " +
+            "extendedAttr=\"FOOBAR_val\" " +
+            "xmlns:com=\"http://xbean/scomp/derivation/ComplexExtension\">" +
+            "<child1>10</child1>" +
+            "<child2>2</child2><!--My comment--><child3>1</child3>" +
+            "SOME CDATA HERE</com:ExtendedMixedElt>";
+        assertEquals(expected, doc.xmlText());
+    }
 }

@@ -16,115 +16,117 @@
 
 package xmlcursor.checkin;
 
+import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlCursor.TokenType;
-import org.apache.xmlbeans.XmlObject;
-import org.junit.Test;
-import xmlcursor.common.BasicCursorTestCase;
+import org.junit.jupiter.api.Test;
 import xmlcursor.common.Common;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static xmlcursor.common.BasicCursorTestCase.*;
 
 
-public class InsertProcInstTest extends BasicCursorTestCase {
-    @Test(expected = IllegalArgumentException.class)
-    public void testInsertProcInstWithNullTarget() throws Exception {
-        m_xo = XmlObject.Factory.parse(Common.XML_FOO_BAR_TEXT);
-        m_xc = m_xo.newCursor();
-        toNextTokenOfType(m_xc, TokenType.TEXT);
-        m_xc.insertProcInst(null, "value");
-    }
+public class InsertProcInstTest {
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testInsertProcInstWithEmptyStringTarget() throws Exception {
-        m_xo = XmlObject.Factory.parse(Common.XML_FOO_BAR_TEXT);
-        m_xc = m_xo.newCursor();
-        toNextTokenOfType(m_xc, TokenType.TEXT);
-        m_xc.insertProcInst("", "value");
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testInsertProcInstWithLTcharInTarget() throws Exception {
-        m_xo = XmlObject.Factory.parse(Common.XML_FOO_BAR_TEXT);
-        m_xc = m_xo.newCursor();
-        m_xc.selectPath("$this//bar");
-        m_xc.toNextSelection();
-        m_xc.insertProcInst("<target", " value ");
+    @Test
+    void testInsertProcInstWithNullTarget() throws Exception {
+        try (XmlCursor m_xc = cur(Common.XML_FOO_BAR_TEXT)) {
+            toNextTokenOfType(m_xc, TokenType.TEXT);
+            assertThrows(IllegalArgumentException.class, () -> m_xc.insertProcInst(null, "value"));
+        }
     }
 
     @Test
-    public void testInsertProcInstWithNullText() throws Exception {
-        m_xo = XmlObject.Factory.parse(Common.XML_FOO_BAR_TEXT);
-        m_xc = m_xo.newCursor();
-        toNextTokenOfType(m_xc, TokenType.TEXT);
-        m_xc.toNextChar(2);
-        assertEquals("xt", m_xc.getChars());
-        m_xc.insertProcInst("target", null);
-        toPrevTokenOfType(m_xc, TokenType.START);
-        assertEquals("<bar>te<?target?>xt</bar>", m_xc.xmlText());
+    void testInsertProcInstWithEmptyStringTarget() throws Exception {
+        try (XmlCursor m_xc = cur(Common.XML_FOO_BAR_TEXT)) {
+            toNextTokenOfType(m_xc, TokenType.TEXT);
+            assertThrows(IllegalArgumentException.class, () -> m_xc.insertProcInst("", "value"));
+        }
     }
 
     @Test
-    public void testInsertProcInstWithEmptyStringText() throws Exception {
-        m_xo = XmlObject.Factory.parse(Common.XML_FOO_BAR_TEXT);
-        m_xc = m_xo.newCursor();
-        toNextTokenOfType(m_xc, TokenType.TEXT);
-        m_xc.toNextChar(2);
-        assertEquals("xt", m_xc.getChars());
-        m_xc.insertProcInst("target", "");
-        toPrevTokenOfType(m_xc, TokenType.START);
-        assertEquals("<bar>te<?target?>xt</bar>", m_xc.xmlText());
+    void testInsertProcInstWithLTcharInTarget() throws Exception {
+        try (XmlCursor m_xc = cur(Common.XML_FOO_BAR_TEXT)) {
+            m_xc.selectPath("$this//bar");
+            m_xc.toNextSelection();
+            assertThrows(IllegalArgumentException.class, () -> m_xc.insertProcInst("<target", " value "));
+        }
     }
 
     @Test
-    public void testInsertProcInstWithLTcharInText() throws Exception {
-        m_xo = XmlObject.Factory.parse(Common.XML_FOO_BAR_TEXT);
-        m_xc = m_xo.newCursor();
-        m_xc.selectPath("$this//bar");
-        m_xc.toNextSelection();
-        m_xc.insertProcInst("target", "< value ");
-        toPrevTokenOfType(m_xc, TokenType.START);
-        assertEquals("<foo><?target < value ?><bar>text</bar></foo>", m_xc.xmlText());
+    void testInsertProcInstWithNullText() throws Exception {
+        try (XmlCursor m_xc = cur(Common.XML_FOO_BAR_TEXT)) {
+            toNextTokenOfType(m_xc, TokenType.TEXT);
+            m_xc.toNextChar(2);
+            assertEquals("xt", m_xc.getChars());
+            m_xc.insertProcInst("target", null);
+            toPrevTokenOfType(m_xc, TokenType.START);
+            assertEquals("<bar>te<?target?>xt</bar>", m_xc.xmlText());
+        }
     }
 
     @Test
-    public void testInsertProcInstInMiddleOfTEXT() throws Exception {
-        m_xo = XmlObject.Factory.parse(Common.XML_FOO_BAR_TEXT);
-        m_xc = m_xo.newCursor();
-        toNextTokenOfType(m_xc, TokenType.TEXT);
-        m_xc.toNextChar(2);
-        assertEquals("xt", m_xc.getChars());
-        m_xc.insertProcInst("target", " value ");
-        toPrevTokenOfType(m_xc, TokenType.START);
-        assertEquals("<bar>te<?target  value ?>xt</bar>", m_xc.xmlText());
+    void testInsertProcInstWithEmptyStringText() throws Exception {
+        try (XmlCursor m_xc = cur(Common.XML_FOO_BAR_TEXT)) {
+            toNextTokenOfType(m_xc, TokenType.TEXT);
+            m_xc.toNextChar(2);
+            assertEquals("xt", m_xc.getChars());
+            m_xc.insertProcInst("target", "");
+            toPrevTokenOfType(m_xc, TokenType.START);
+            assertEquals("<bar>te<?target?>xt</bar>", m_xc.xmlText());
+        }
     }
 
     @Test
-    public void testInsertProcInstAfterSTART() throws Exception {
-        m_xo = XmlObject.Factory.parse(Common.XML_FOO_BAR_TEXT);
-        m_xc = m_xo.newCursor();
-        m_xc.selectPath("$this//bar");
-        m_xc.toNextSelection();
-        m_xc.insertProcInst("target", " value ");
-        toPrevTokenOfType(m_xc, TokenType.START);
-        assertEquals("<foo><?target  value ?><bar>text</bar></foo>", m_xc.xmlText());
+    void testInsertProcInstWithLTcharInText() throws Exception {
+        try (XmlCursor m_xc = cur(Common.XML_FOO_BAR_TEXT)) {
+            m_xc.selectPath("$this//bar");
+            m_xc.toNextSelection();
+            m_xc.insertProcInst("target", "< value ");
+            toPrevTokenOfType(m_xc, TokenType.START);
+            assertEquals("<foo><?target < value ?><bar>text</bar></foo>", m_xc.xmlText());
+        }
     }
 
     @Test
-    public void testInsertProcInstAtEND() throws Exception {
-        m_xo = XmlObject.Factory.parse(Common.XML_FOO_NS);
-        m_xc = m_xo.newCursor();
-        toNextTokenOfType(m_xc, TokenType.END);
-        m_xc.insertProcInst("target", " value ");
-        toPrevTokenOfType(m_xc, TokenType.START);
-        assertEquals("<foo xmlns=\"http://www.foo.org\"><?target  value ?></foo>", m_xc.xmlText());
+    void testInsertProcInstInMiddleOfTEXT() throws Exception {
+        try (XmlCursor m_xc = cur(Common.XML_FOO_BAR_TEXT)) {
+            toNextTokenOfType(m_xc, TokenType.TEXT);
+            m_xc.toNextChar(2);
+            assertEquals("xt", m_xc.getChars());
+            m_xc.insertProcInst("target", " value ");
+            toPrevTokenOfType(m_xc, TokenType.START);
+            assertEquals("<bar>te<?target  value ?>xt</bar>", m_xc.xmlText());
+        }
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testInsertProcInstBeforeATTR() throws Exception {
-        m_xo = XmlObject.Factory.parse(Common.XML_FOO_1ATTR_TEXT);
-        m_xc = m_xo.newCursor();
-        toNextTokenOfType(m_xc, TokenType.ATTR);
-        m_xc.insertProcInst("target", " value ");
+    @Test
+    void testInsertProcInstAfterSTART() throws Exception {
+        try (XmlCursor m_xc = cur(Common.XML_FOO_BAR_TEXT)) {
+            m_xc.selectPath("$this//bar");
+            m_xc.toNextSelection();
+            m_xc.insertProcInst("target", " value ");
+            toPrevTokenOfType(m_xc, TokenType.START);
+            assertEquals("<foo><?target  value ?><bar>text</bar></foo>", m_xc.xmlText());
+        }
+    }
+
+    @Test
+    void testInsertProcInstAtEND() throws Exception {
+        try (XmlCursor m_xc = cur(Common.XML_FOO_NS)) {
+            toNextTokenOfType(m_xc, TokenType.END);
+            m_xc.insertProcInst("target", " value ");
+            toPrevTokenOfType(m_xc, TokenType.START);
+            assertEquals("<foo xmlns=\"http://www.foo.org\"><?target  value ?></foo>", m_xc.xmlText());
+        }
+    }
+
+    @Test
+    void testInsertProcInstBeforeATTR() throws Exception {
+        try (XmlCursor m_xc = cur(Common.XML_FOO_1ATTR_TEXT)) {
+            toNextTokenOfType(m_xc, TokenType.ATTR);
+            assertThrows(IllegalArgumentException.class, () -> m_xc.insertProcInst("target", " value "));
+        }
     }
 }
 

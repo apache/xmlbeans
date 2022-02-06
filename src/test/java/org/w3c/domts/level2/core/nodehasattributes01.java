@@ -22,13 +22,13 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -41,21 +41,16 @@ import static org.w3c.domts.DOMTest.load;
  */
 public class nodehasattributes01 {
     @Test
-    public void testRun() throws Throwable {
-        Document doc;
-        Element element;
-        NodeList elementList;
-        boolean hasAttributes;
-        doc = load("staff", false);
-        elementList = doc.getElementsByTagName("employee");
-        element = (Element) elementList.item(0);
-        hasAttributes = element.hasAttributes();
-        assertFalse("nodehasattributes01_1", hasAttributes);
+    void testRun() throws Throwable {
+        Document doc = load("staff", false);
+        NodeList elementList = doc.getElementsByTagName("employee");
+        Element element = (Element) elementList.item(0);
+        boolean hasAttributes = element.hasAttributes();
+        assertFalse(hasAttributes, "nodehasattributes01_1");
         elementList = doc.getElementsByTagName("address");
         element = (Element) elementList.item(0);
         hasAttributes = element.hasAttributes();
-        assertTrue("nodehasattributes01_2", hasAttributes);
-
+        assertTrue(hasAttributes, "nodehasattributes01_2");
     }
 
     /**

@@ -22,12 +22,13 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -44,32 +45,16 @@ import static org.w3c.domts.DOMTest.load;
  */
 public class elementsetattributens08 {
     @Test
-    public void testRun() throws Throwable {
-        Document doc;
-        Element element;
-        doc = load("staffNS", true);
-        element = doc.createElementNS("http://www.w3.org/DOMTest/level2", "dom:elem");
+    void testRun() throws Throwable {
+        Document doc = load("staffNS", true);
+        String nsURI = "http://www.w3.org/DOMTest/level2";
+        Element element = doc.createElementNS(nsURI, "dom:elem");
 
-        {
-            boolean success = false;
-            try {
-                element.setAttributeNS("http://www.w3.org/DOMTest/level2", "xmlns", "test");
-            } catch (DOMException ex) {
-                success = (ex.code == DOMException.NAMESPACE_ERR);
-            }
-            assertTrue("elementsetattributens08_Err1", success);
-        }
+        DOMException ex1 = assertThrows(DOMException.class, () -> element.setAttributeNS(nsURI, "xmlns", "test"));
+        assertEquals(DOMException.NAMESPACE_ERR, ex1.code, "elementsetattributens08_Err1");
 
-        {
-            boolean success = false;
-            try {
-                element.setAttributeNS("http://www.w3.org/DOMTest/level2", "xmlns:root", "test");
-            } catch (DOMException ex) {
-                success = (ex.code == DOMException.NAMESPACE_ERR);
-            }
-            assertTrue("elementsetattributens08_Err2", success);
-        }
-
+        DOMException ex2 = assertThrows(DOMException.class, () -> element.setAttributeNS(nsURI, "xmlns:root", "test"));
+        assertEquals(DOMException.NAMESPACE_ERR, ex2.code, "elementsetattributens08_Err2");
     }
 
     /**

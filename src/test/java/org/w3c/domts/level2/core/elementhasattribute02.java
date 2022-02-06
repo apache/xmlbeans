@@ -22,13 +22,13 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -42,18 +42,13 @@ import static org.w3c.domts.DOMTest.load;
  */
 public class elementhasattribute02 {
     @Test
-    @Ignore
+    @Disabled
     public void testRun() throws Throwable {
-        Document doc;
-        Element element;
-        boolean state;
-        NodeList elementList;
-        doc = load("staffNS", false);
-        elementList = doc.getElementsByTagName("emp:employee");
-        element = (Element) elementList.item(0);
-        state = element.hasAttribute("defaultAttr");
-        assertTrue("elementhasattribute02", state);
-
+        Document doc = load("staffNS", false);
+        NodeList elementList = doc.getElementsByTagName("emp:employee");
+        Element element = (Element) elementList.item(0);
+        boolean state = element.hasAttribute("defaultAttr");
+        assertTrue(state, "elementhasattribute02");
     }
 
     /**

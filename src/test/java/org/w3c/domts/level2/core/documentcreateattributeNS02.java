@@ -22,11 +22,11 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -41,38 +41,29 @@ import static org.w3c.domts.DOMTest.load;
 //BUG:eric's code treats QName as a localname here
 public class documentcreateattributeNS02 {
     @Test
-    public void testRun() throws Throwable {
-        Document doc;
-        Attr attribute1;
-        Attr attribute2;
-        String name;
-        String nodeName;
-        String nodeValue;
-        String prefix;
-        String namespaceURI;
-        doc = load("staffNS", false);
-        attribute1 = doc.createAttributeNS("http://www.w3.org/XML/1998/namespace", "xml:xml");
-        name = attribute1.getName();
-        nodeName = attribute1.getNodeName();
-        nodeValue = attribute1.getNodeValue();
-        prefix = attribute1.getPrefix();
-        namespaceURI = attribute1.getNamespaceURI();
-        assertEquals("documentcreateattributeNS02_att1_name", "xml:xml", name);
-        assertEquals("documentcreateattributeNS02_att1_nodeName", "xml:xml", nodeName);
-        assertEquals("documentcreateattributeNS02_att1_nodeValue", "", nodeValue);
-        assertEquals("documentcreateattributeNS02_att1_prefix", "xml", prefix);
-        assertEquals("documentcreateattributeNS02_att1_namespaceURI", "http://www.w3.org/XML/1998/namespace", namespaceURI);
-        attribute2 = doc.createAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns");
+    void testRun() throws Throwable {
+        Document doc = load("staffNS", false);
+        Attr attribute1 = doc.createAttributeNS("http://www.w3.org/XML/1998/namespace", "xml:xml");
+        String name = attribute1.getName();
+        String nodeName = attribute1.getNodeName();
+        String nodeValue = attribute1.getNodeValue();
+        String prefix = attribute1.getPrefix();
+        String namespaceURI = attribute1.getNamespaceURI();
+        assertEquals("xml:xml", name, "documentcreateattributeNS02_att1_name");
+        assertEquals("xml:xml", nodeName, "documentcreateattributeNS02_att1_nodeName");
+        assertEquals("", nodeValue, "documentcreateattributeNS02_att1_nodeValue");
+        assertEquals("xml", prefix, "documentcreateattributeNS02_att1_prefix");
+        assertEquals("http://www.w3.org/XML/1998/namespace", namespaceURI, "documentcreateattributeNS02_att1_namespaceURI");
+        Attr attribute2 = doc.createAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns");
         name = attribute2.getName();
         nodeName = attribute2.getNodeName();
         nodeValue = attribute2.getNodeValue();
         prefix = attribute2.getPrefix();
         namespaceURI = attribute2.getNamespaceURI();
-        assertEquals("documentcreateattributeNS02_att2_name", "xmlns", name);
-        assertEquals("documentcreateattributeNS02_att2_nodeName", "xmlns", nodeName);
-        assertEquals("documentcreateattributeNS02_att2_nodeValue", "", nodeValue);
-        assertEquals("documentcreateattributeNS02_att2_namespaceURI", "http://www.w3.org/2000/xmlns/", namespaceURI);
-
+        assertEquals("xmlns", name, "documentcreateattributeNS02_att2_name");
+        assertEquals("xmlns", nodeName, "documentcreateattributeNS02_att2_nodeName");
+        assertEquals("", nodeValue, "documentcreateattributeNS02_att2_nodeValue");
+        assertEquals("http://www.w3.org/2000/xmlns/", namespaceURI, "documentcreateattributeNS02_att2_namespaceURI");
     }
 
     /**

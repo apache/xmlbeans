@@ -19,95 +19,51 @@ import org.apache.xmlbeans.SystemProperties;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
-import static org.junit.Assert.assertEquals;
+import java.util.Objects;
+import java.util.stream.Stream;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
 /**
  * Test for finner CData control feature.
  */
 public class CDataTest {
-    private static final String NL = SystemProperties.getProperty("line.separator") != null ?
-        SystemProperties.getProperty("line.separator") :
-        (System.getProperty("line.separator") != null ? System.getProperty("line.separator") : "\n");
 
-    @Test
-    public void testCData1() throws Exception {
-        String xmlText = "<a><![CDATA[cdata text]]></a>";
-        checkCData(xmlText, xmlText, xmlText);
-    }
+    @ParameterizedTest
+    @CsvSource(value = {
+        "'<a><![CDATA[cdata text]]></a>'," +
+        "'<a><![CDATA[cdata text]]></a>'," +
+        "'<a><![CDATA[cdata text]]></a>'",
+        // Bookmark doesn't seem to keep the length of the CDATA
+        // "<a>NL<b><![CDATA[cdata text]]> regular text</b>NL</a>," +
+        // "<a>\n<b>cdata text regular text</b>\n</a>," +
+        // "<a>NL  <b>cdata text regular text</b>NL</a>"
+        "'<a>\n<c>text <![CDATA[cdata text]]></c>\n</a>'," +
+        "'<a>\n<c>text cdata text</c>\n</a>'," +
+        "'<a>NL  <c>text cdata text</c>NL</a>'",
+        // https://issues.apache.org/jira/browse/XMLBEANS-404
+        "'<a>\n<c>text <![CDATA[cdata text]]]]></c>\n</a>'," +
+        "'<a>\n<c>text cdata text]]</c>\n</a>'," +
+        "'<a>NL  <c>text cdata text]]</c>NL</a>'"
+    })
+    void checkCData(String xmlText, String expected1, String expected2) throws XmlException {
+        String NL = Stream.of(SystemProperties.getProperty("line.separator"),System.getProperty("line.separator"),"\n")
+            .filter(Objects::nonNull).findFirst().get();
 
-    @Test
-    @Ignore("Bookmark doesn't seem to keep the length of the CDATA")
-    public void testCData2() throws Exception {
-        String xmlText =
-            "<a>" + NL +
-            "<b><![CDATA[cdata text]]> regular text</b>" + NL +
-            "</a>";
-        String expected1 =
-            "<a>\n" +
-            "<b>cdata text regular text</b>\n" +
-            "</a>";
-        String expected2 =
-            "<a>" + NL +
-            "  <b>cdata text regular text</b>" + NL +
-            "</a>";
-
-        checkCData(xmlText, expected1, expected2);
-    }
-
-    @Test
-    public void testCData3() throws Exception {
-        String xmlText =
-            "<a>\n" +
-            "<c>text <![CDATA[cdata text]]></c>\n" +
-            "</a>";
-        String expected1 =
-            "<a>\n" +
-            "<c>text cdata text</c>\n" +
-            "</a>";
-        String expected2 =
-            "<a>" + NL +
-            "  <c>text cdata text</c>" + NL +
-            "</a>";
-
-        checkCData(xmlText, expected1, expected2);
-    }
-
-    // https://issues.apache.org/jira/browse/XMLBEANS-404
-    @Test
-    public void testXmlBeans404()
-        throws Exception {
-        String xmlText =
-            "<a>\n" +
-            "<c>text <![CDATA[cdata text]]]]></c>\n" +
-            "</a>";
-        String expected1 =
-            "<a>\n" +
-            "<c>text cdata text]]</c>\n" +
-            "</a>";
-        String expected2 =
-            "<a>" + NL +
-            "  <c>text cdata text]]</c>" + NL +
-            "</a>";
-
-        checkCData(xmlText, expected1, expected2);
-    }
-
-    private void checkCData(String xmlText, String expected1, String expected2)
-        throws XmlException {
         XmlOptions opts = new XmlOptions();
         opts.setUseCDataBookmarks();
 
-        XmlObject xo = XmlObject.Factory.parse(xmlText, opts);
+        XmlObject xo = XmlObject.Factory.parse(xmlText.replace("NL", NL), opts);
 
         String result1 = xo.xmlText(opts);
-        assertEquals("xmlText", expected1, result1);
+        assertEquals(expected1.replace("NL", NL), result1, "xmlText");
 
         opts.setSavePrettyPrint();
         String result2 = xo.xmlText(opts);
-        assertEquals("prettyPrint", expected2, result2);
+        assertEquals(expected2.replace("NL", NL), result2, "prettyPrint");
     }
 }

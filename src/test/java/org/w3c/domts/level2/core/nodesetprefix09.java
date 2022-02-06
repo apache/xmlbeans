@@ -22,12 +22,13 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -40,23 +41,13 @@ import static org.w3c.domts.DOMTest.load;
  */
 public class nodesetprefix09 {
     @Test
-    public void testRun() throws Throwable {
-        Document doc;
+    void testRun() throws Throwable {
         String value = "#$%&'()@";
-        Element element;
-        doc = load("staffNS", true);
-        element = doc.createElementNS("http://www.w3.org/DOM/Test/L2", "dom:elem");
+        Document doc = load("staffNS", true);
+        Element element = doc.createElementNS("http://www.w3.org/DOM/Test/L2", "dom:elem");
 
-        {
-            boolean success = false;
-            try {
-                element.setPrefix(value);
-            } catch (DOMException ex) {
-                success = (ex.code == DOMException.INVALID_CHARACTER_ERR);
-            }
-            assertTrue("nodesetprefix09", success);
-        }
-
+        DOMException ex = assertThrows(DOMException.class, () -> element.setPrefix(value));
+        assertEquals(DOMException.INVALID_CHARACTER_ERR, ex.code, "nodesetprefix09");
     }
 
     /**

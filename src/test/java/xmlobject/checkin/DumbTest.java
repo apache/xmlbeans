@@ -17,33 +17,17 @@ package xmlobject.checkin;
 
 import dumbNS.RootDocument;
 import dumbNS.RootDocument.Root;
-import org.apache.xmlbeans.XmlObject;
-import org.junit.Before;
-import org.junit.Test;
-import tools.util.JarUtil;
+import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
-
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static xmlcursor.common.BasicCursorTestCase.jobj;
 
 
 public class DumbTest {
-    private String instance;
-
-    @Before
-    public void setUp() throws IOException {
-        instance = JarUtil.getResourceFromJar("xbean/simple/dumb/dumb.xml");
-    }
-
     @Test
-    public void testGetB2()
-        throws Exception {
-        RootDocument rootDoc = (RootDocument) XmlObject.Factory
-            .parse(instance);
+    void testGetB2() throws Exception {
+        RootDocument rootDoc = (RootDocument) jobj("xbean/simple/dumb/dumb.xml");
         Root root = rootDoc.getRoot();
-
-        System.out.println("root.xmlText() = " + root.xmlText());
-
-        assertEquals("bar:b attribute != 4", 4, root.getB2().intValue());
+        assertEquals(4, root.getB2().intValue(), "bar:b attribute != 4");
     }
 }

@@ -16,164 +16,130 @@
 package scomp.derivation.restriction.detailed;
 
 import org.apache.xmlbeans.XmlErrorCodes;
-import org.junit.Test;
-import scomp.common.BaseCase;
+import org.apache.xmlbeans.XmlException;
+import org.apache.xmlbeans.XmlOptions;
+import org.junit.jupiter.api.Test;
 import xbean.scomp.derivation.elementWCRestriction.ConcreteEltDocument;
 import xbean.scomp.derivation.elementWCRestriction.OtherLaxDocument;
 import xbean.scomp.derivation.elementWCRestriction.UriSkipDocument;
 
-import static org.junit.Assert.assertTrue;
-
-/**
- *
- */
+import static org.junit.jupiter.api.Assertions.*;
+import static scomp.common.BaseCase.createOptions;
+import static scomp.common.BaseCase.getErrorCodes;
 
 //TODO compile time tests w/ occurence contstraints
-public class ElementWCRestriction extends BaseCase {
+public class ElementWCRestriction {
     // max occurs is now 2, not 3
     //NS restricted from any to other
     @Test
-    public void testMaxOccurs() throws Throwable {
+    void testMaxOccurs() throws XmlException {
+        XmlOptions validateOptions = createOptions();
         String input =
-                "<OtherLax " +
-                " xmlns=\"http://xbean/scomp/derivation/ElementWCRestriction\"" +
-                " xmlns:elt=\"http://xbean/scomp/element/GlobalEltDefault\">" +
-                "<elt:GlobalEltDefaultStr>foo</elt:GlobalEltDefaultStr>" +
-                "<elt:GlobalEltDefaultStr>foo</elt:GlobalEltDefaultStr>" +
-                "</OtherLax>";
-        OtherLaxDocument doc =
-                OtherLaxDocument.Factory.parse(input);
-        try {
-            assertTrue(doc.validate(validateOptions));
-        }
-        catch (Throwable t) {
-            showErrors();
-            throw t;
-        }
+            "<OtherLax " +
+            " xmlns=\"http://xbean/scomp/derivation/ElementWCRestriction\"" +
+            " xmlns:elt=\"http://xbean/scomp/element/GlobalEltDefault\">" +
+            "<elt:GlobalEltDefaultStr>foo</elt:GlobalEltDefaultStr>" +
+            "<elt:GlobalEltDefaultStr>foo</elt:GlobalEltDefaultStr>" +
+            "</OtherLax>";
+        OtherLaxDocument doc = OtherLaxDocument.Factory.parse(input);
+        assertTrue(doc.validate(validateOptions));
+
         //more than 2 elts not OK anymore
         //TODO: how do you add more than one elt here? only a
         //  setXXX method...no array
         input =
-                "<OtherLax " +
-                " xmlns=\"http://xbean/scomp/derivation/ElementWCRestriction\"" +
-                " xmlns:elt=\"http://xbean/scomp/element/GlobalEltDefault\">" +
-                "<elt:GlobalEltDefaultStr>foo</elt:GlobalEltDefaultStr>" +
-                "<elt:GlobalEltDefaultStr>foo</elt:GlobalEltDefaultStr>" +
-                "<elt:GlobalEltDefaultInt>3</elt:GlobalEltDefaultInt>" +
-                "</OtherLax>";
-        doc =
-                OtherLaxDocument.Factory.parse(input);
+            "<OtherLax " +
+            " xmlns=\"http://xbean/scomp/derivation/ElementWCRestriction\"" +
+            " xmlns:elt=\"http://xbean/scomp/element/GlobalEltDefault\">" +
+            "<elt:GlobalEltDefaultStr>foo</elt:GlobalEltDefaultStr>" +
+            "<elt:GlobalEltDefaultStr>foo</elt:GlobalEltDefaultStr>" +
+            "<elt:GlobalEltDefaultInt>3</elt:GlobalEltDefaultInt>" +
+            "</OtherLax>";
+        doc = OtherLaxDocument.Factory.parse(input);
 
-        assertTrue(!doc.validate(validateOptions));
-        showErrors();
-        String[] errExpected = new String[]{
-            XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$ELEMENT_NOT_ALLOWED
-        };
-                     assertTrue(compareErrorCodes(errExpected));
-
+        assertFalse(doc.validate(validateOptions));
+        String[] errExpected = {XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$ELEMENT_NOT_ALLOWED};
+        assertArrayEquals(errExpected, getErrorCodes(validateOptions));
 
         //Only valid NS should be Other
         input =
-                "<OtherLax " +
-                " xmlns=\"http://xbean/scomp/derivation/ElementWCRestriction\">" +
-                "<testElt>foo</testElt></OtherLax>";
-        doc =
-                OtherLaxDocument.Factory.parse(input);
-        clearErrors();
-        assertTrue(!doc.validate(validateOptions));
-        showErrors();
+            "<OtherLax " +
+            " xmlns=\"http://xbean/scomp/derivation/ElementWCRestriction\">" +
+            "<testElt>foo</testElt></OtherLax>";
+        doc = OtherLaxDocument.Factory.parse(input);
+        validateOptions.getErrorListener().clear();
+        assertFalse(doc.validate(validateOptions));
         errExpected = new String[]{
             XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$ELEMENT_NOT_ALLOWED,
             XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$EXPECTED_ELEMENT
         };
-                     assertTrue(compareErrorCodes(errExpected));
-
-
+        assertArrayEquals(errExpected, getErrorCodes(validateOptions));
     }
 
     //elt needs to occur exactly 2x
     //only URI allowed is GlobalElt
     @Test
-    public void testMinOccurs() throws Throwable {
+    void testMinOccurs() throws XmlException {
+        XmlOptions validateOptions = createOptions();
         String input =
-                "<UriSkip " +
-                " xmlns=\"http://xbean/scomp/derivation/ElementWCRestriction\"" +
-                " xmlns:elt=\"http://xbean/scomp/element/GlobalEltDefault\">" +
-                "<elt:GlobalEltDefaultStr>foo</elt:GlobalEltDefaultStr>" +
-                "<elt:GlobalEltDefaultStr>foo</elt:GlobalEltDefaultStr>" +
-                "</UriSkip>";
-        UriSkipDocument doc =
-                UriSkipDocument.Factory.parse(input);
-        try {
-            assertTrue(doc.validate(validateOptions));
-        }
-        catch (Throwable t) {
-            showErrors();
-            throw t;
-        }
+            "<UriSkip " +
+            " xmlns=\"http://xbean/scomp/derivation/ElementWCRestriction\"" +
+            " xmlns:elt=\"http://xbean/scomp/element/GlobalEltDefault\">" +
+            "<elt:GlobalEltDefaultStr>foo</elt:GlobalEltDefaultStr>" +
+            "<elt:GlobalEltDefaultStr>foo</elt:GlobalEltDefaultStr>" +
+            "</UriSkip>";
+        UriSkipDocument doc = UriSkipDocument.Factory.parse(input);
+        assertTrue(doc.validate(validateOptions));
+
         //MinOccurs is 2
         input =
-                "<UriSkip " +
-                " xmlns=\"http://xbean/scomp/derivation/ElementWCRestriction\"" +
-                " xmlns:elt=\"http://xbean/scomp/element/GlobalEltDefault\">" +
-                "<elt:GlobalEltDefaultStr>foo</elt:GlobalEltDefaultStr>" +
-                "</UriSkip>";
-        doc =
-                UriSkipDocument.Factory.parse(input);
-        assertTrue(!doc.validate(validateOptions));
-        showErrors();
-        String[] errExpected = new String[]{
-            XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$EXPECTED_ELEMENT
-        };
-                     assertTrue(compareErrorCodes(errExpected));
-
+            "<UriSkip " +
+            " xmlns=\"http://xbean/scomp/derivation/ElementWCRestriction\"" +
+            " xmlns:elt=\"http://xbean/scomp/element/GlobalEltDefault\">" +
+            "<elt:GlobalEltDefaultStr>foo</elt:GlobalEltDefaultStr>" +
+            "</UriSkip>";
+        doc = UriSkipDocument.Factory.parse(input);
+        assertFalse(doc.validate(validateOptions));
+        String[] errExpected = {XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$EXPECTED_ELEMENT};
+        assertArrayEquals(errExpected, getErrorCodes(validateOptions));
     }
 
     //WC replaced by elt
     //maxOccurs is 1
     @Test
-    public void testConcrete() throws Throwable {
+    void testConcrete() throws Throwable {
+        XmlOptions validateOptions = createOptions();
         String input =
-                "<foo:ConcreteElt " +
-                "xmlns:foo=\"http://xbean/scomp/derivation/ElementWCRestriction\">" +
-                "<concreteChild>foo</concreteChild>" +
-                "</foo:ConcreteElt>";
-        ConcreteEltDocument doc =
-                ConcreteEltDocument.Factory.parse(input);
-        try {
-            assertTrue(doc.validate(validateOptions));
-        }
-        catch (Throwable t) {
-            showErrors();
-            throw t;
-        }
+            "<foo:ConcreteElt " +
+            "xmlns:foo=\"http://xbean/scomp/derivation/ElementWCRestriction\">" +
+            "<concreteChild>foo</concreteChild>" +
+            "</foo:ConcreteElt>";
+        ConcreteEltDocument doc = ConcreteEltDocument.Factory.parse(input);
+        assertTrue(doc.validate(validateOptions));
+
         //Max Occurs is 1
         input =
-                "<foo:ConcreteElt " +
-                "xmlns:foo=\"http://xbean/scomp/derivation/ElementWCRestriction\">" +
-                "<concreteChild>foo</concreteChild>" +
-                "<concreteChild>2</concreteChild>" +
-                "</foo:ConcreteElt>";
-        doc =
-                        ConcreteEltDocument.Factory.parse(input);
-
-        assertTrue(!doc.validate(validateOptions));
-        showErrors();
+            "<foo:ConcreteElt " +
+            "xmlns:foo=\"http://xbean/scomp/derivation/ElementWCRestriction\">" +
+            "<concreteChild>foo</concreteChild>" +
+            "<concreteChild>2</concreteChild>" +
+            "</foo:ConcreteElt>";
+        doc = ConcreteEltDocument.Factory.parse(input);
+        assertFalse(doc.validate(validateOptions));
 
         //child other than that elt
         input =
-                "<ConcreteElt " +
-                "xmlns=\"http://xbean/scomp/derivation/ElementWCRestriction\"" +
-                "<testElt>foo</testElt></ConcreteElt>";
-        clearErrors();
-        assertTrue(!doc.validate(validateOptions));
-        showErrors();
-        String[] errExpected = new String[]{
-             XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$ELEMENT_NOT_ALLOWED
+            "<ConcreteElt " +
+            "xmlns=\"http://xbean/scomp/derivation/ElementWCRestriction\">" +
+            "<testElt>foo</testElt></ConcreteElt>";
+        validateOptions.getErrorListener().clear();
+        doc = ConcreteEltDocument.Factory.parse(input);
+        assertFalse(doc.validate(validateOptions));
+        String[] errExpected = {
+            XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$EXPECTED_DIFFERENT_ELEMENT,
+            XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$MISSING_ELEMENT
         };
-                     assertTrue(compareErrorCodes(errExpected));
-
+        assertArrayEquals(errExpected, getErrorCodes(validateOptions));
     }
-
 }
 

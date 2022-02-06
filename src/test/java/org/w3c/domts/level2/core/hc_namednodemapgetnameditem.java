@@ -19,10 +19,10 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.*;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -44,21 +44,14 @@ import static org.w3c.domts.DOMTest.load;
  */
 public class hc_namednodemapgetnameditem {
     @Test
-    public void testRun() throws Throwable {
-        Document doc;
-        NodeList elementList;
-        Node testEmployee;
-        NamedNodeMap attributes;
-        Attr domesticAttr;
-        String attrName;
-        doc = load("hc_staff", false);
-        elementList = doc.getElementsByTagName("acronym");
-        testEmployee = elementList.item(1);
-        attributes = testEmployee.getAttributes();
-        domesticAttr = (Attr) attributes.getNamedItem("title");
-        attrName = domesticAttr.getNodeName();
-        assertEquals("nodeName", "title", attrName);
-
+    void testRun() throws Throwable {
+        Document doc = load("hc_staff", false);
+        NodeList elementList = doc.getElementsByTagName("acronym");
+        Node testEmployee = elementList.item(1);
+        NamedNodeMap attributes = testEmployee.getAttributes();
+        Attr domesticAttr = (Attr) attributes.getNamedItem("title");
+        String attrName = domesticAttr.getNodeName();
+        assertEquals("title", attrName, "nodeName");
     }
 
     /**

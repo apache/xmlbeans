@@ -22,12 +22,12 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -41,25 +41,15 @@ import static org.w3c.domts.DOMTest.load;
  *
  * @see <a href="http://www.w3.org/TR/DOM-Level-2-Core/core#ID-1938918D">http://www.w3.org/TR/DOM-Level-2-Core/core#ID-1938918D</a>
  */
-
-
-/**
- *
- */
 public class getElementsByTagNameNS08 {
     @Test
-    public void testRun() throws Throwable {
-        Document doc;
-        Element docElem;
-        NodeList newList;
-        doc = load("staffNS", false);
-        System.out.println(doc.getImplementation());
-        docElem = doc.getDocumentElement();
-        newList = docElem.getElementsByTagNameNS("*", "*");
+    void testRun() throws Throwable {
+        Document doc = load("staffNS", false);
+        Element docElem = doc.getDocumentElement();
+        NodeList newList = docElem.getElementsByTagNameNS("*", "*");
 
         // 35, without the document element which we used to get the elements
-        System.out.println(docElem.getOwnerDocument().getImplementation());
-        assertEquals("listSize" + docElem.getOwnerDocument().getImplementation(), 35, newList.getLength());
+        assertEquals(35, newList.getLength());
     }
 
     /**

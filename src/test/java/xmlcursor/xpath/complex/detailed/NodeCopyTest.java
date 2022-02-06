@@ -17,18 +17,19 @@ package xmlcursor.xpath.complex.detailed;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlLong;
 import org.apache.xmlbeans.XmlObject;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import xbean.scomp.element.globalEltDefault.GlobalEltDefaultIntDocument;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static xmlcursor.common.BasicCursorTestCase.obj;
 
 public class NodeCopyTest {
 
     @Test
-    public void testNS() throws Exception {
-        XmlObject s = XmlObject.Factory.parse("<a xmlns:ack='abc' ack:attr='val1'>foo<b>bar</b></a>");
-        XmlObject[] res;
+    void testNS() throws Exception {
+        XmlObject s = obj("<a xmlns:ack='abc' ack:attr='val1'>foo<b>bar</b></a>");
         /*
         res=s.selectPath("./a");
         assertTrue(s.selectChildren("","a")[0] == res[0] );
@@ -40,7 +41,7 @@ public class NodeCopyTest {
             assertEquals("<a ack:attr=\"val1\" xmlns:ack=\"abc\">foo<b>bar</b></a>", s1.xmlText());
         }
 
-        res = s.execQuery("./a");
+        XmlObject[] res = s.execQuery("./a");
         XmlObject o;
         try (XmlCursor c1 = s.newCursor()) {
             c1.toFirstContentToken();
@@ -52,18 +53,17 @@ public class NodeCopyTest {
     }
 
     @Test
-    public void testText() throws Exception {
-        XmlObject s = XmlObject.Factory.parse("<a><b>bar</b><c>foo</c></a>");
-        XmlObject[] res;
-        res = s.selectPath(".//text()");
+    void testText() throws Exception {
+        XmlObject s = obj("<a><b>bar</b><c>foo</c></a>");
+        XmlObject[] res = s.selectPath(".//text()");
         assertEquals(2, res.length);
         assertEquals("<xml-fragment>bar</xml-fragment>", res[0].xmlText());
         assertEquals("<xml-fragment>foo</xml-fragment>", res[1].xmlText());
     }
 
     @Test
-    public void testCount() throws Exception {
-        XmlObject s = XmlObject.Factory.parse("<a><b>bar</b>foo</a>");
+    void testCount() throws Exception {
+        XmlObject s = obj("<a><b>bar</b>foo</a>");
         XmlObject[] res;
         res = s.selectPath("count(.//b)");
         System.out.println(res[0].xmlText());
@@ -73,7 +73,7 @@ public class NodeCopyTest {
     }
 
     @Test
-    @Ignore
+    @Disabled
     public void testInt() throws Exception {
         GlobalEltDefaultIntDocument d =
             GlobalEltDefaultIntDocument.Factory
@@ -84,15 +84,14 @@ public class NodeCopyTest {
     }
 
     @Test
-    public void testXmlObjectSelectPath() {
+    void testXmlObjectSelectPath() {
 
     }
 
     @Test
-    public void testDeleteMe() throws Exception {
-        XmlObject t = XmlObject.Factory.parse("<a><b/><b/></a>");
+    void testDeleteMe() throws Exception {
+        XmlObject t = obj("<a><b/><b/></a>");
         try (XmlCursor cursor = t.newCursor()) {
-            System.out.println(cursor.getObject());
             // use xpath to select elements
             cursor.selectPath("*/*");
 

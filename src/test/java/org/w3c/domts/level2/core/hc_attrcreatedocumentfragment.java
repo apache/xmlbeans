@@ -19,10 +19,12 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.*;
 
-import static org.junit.Assert.assertEquals;
+import java.util.stream.IntStream;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -41,33 +43,20 @@ import static org.w3c.domts.DOMTest.load;
  */
 public class hc_attrcreatedocumentfragment {
     @Test
-    public void testRun() throws Throwable {
-        Document doc;
-        DocumentFragment docFragment;
-        Element newOne;
-        Node domesticNode;
-        NamedNodeMap attributes;
-        Attr attribute;
-        String attrName;
-        Node appendedChild;
-        int langAttrCount = 0;
-        doc = load("hc_staff", true);
-        docFragment = doc.createDocumentFragment();
-        newOne = doc.createElement("html");
+    void testRun() throws Throwable {
+
+        Document doc = load("hc_staff", true);
+        DocumentFragment docFragment = doc.createDocumentFragment();
+        Element newOne = doc.createElement("html");
         newOne.setAttribute("lang", "EN");
-        appendedChild = docFragment.appendChild(newOne);
-        domesticNode = docFragment.getFirstChild();
-        attributes = domesticNode.getAttributes();
-        for (int indexd428e69 = 0; indexd428e69 < attributes.getLength(); indexd428e69++) {
-            attribute = (Attr) attributes.item(indexd428e69);
-            attrName = attribute.getNodeName();
+        Node appendedChild = docFragment.appendChild(newOne);
+        Node domesticNode = docFragment.getFirstChild();
+        NamedNodeMap attributes = domesticNode.getAttributes();
 
-            if ("lang".equals(attrName)) {
-                langAttrCount += 1;
-            }
-        }
-        assertEquals("hasLangAttr", 1, langAttrCount);
+        long langAttrCount = IntStream.range(0, attributes.getLength())
+            .mapToObj(attributes::item).map(Node::getNodeName).filter("lang"::equals).count();
 
+        assertEquals(1, langAttrCount, "hasLangAttr");
     }
 
     /**

@@ -22,11 +22,11 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.ProcessingInstruction;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -44,22 +44,15 @@ import static org.w3c.domts.DOMTest.load;
  */
 public class documentimportnode18 {
     @Test
-    public void testRun() throws Throwable {
-        Document doc;
-        Document docImp;
-        ProcessingInstruction piImport;
-        ProcessingInstruction piToImport;
-        String PIData;
-        String PITarget;
-        doc = load("staffNS", true);
-        docImp = load("staffNS", true);
-        piToImport = doc.createProcessingInstruction("Target", "Data");
-        piImport = (ProcessingInstruction) doc.importNode(piToImport, false);
-        PITarget = piImport.getTarget();
-        PIData = piImport.getData();
-        assertEquals("documentimportnode18_Target", "Target", PITarget);
-        assertEquals("documentimportnode18_Data", "Data", PIData);
-
+    void testRun() throws Throwable {
+        Document doc = load("staffNS", true);
+        load("staffNS", true);
+        ProcessingInstruction piToImport = doc.createProcessingInstruction("Target", "Data");
+        ProcessingInstruction piImport = (ProcessingInstruction) doc.importNode(piToImport, false);
+        String PITarget = piImport.getTarget();
+        String PIData = piImport.getData();
+        assertEquals("Target", PITarget, "documentimportnode18_Target");
+        assertEquals("Data", PIData, "documentimportnode18_Data");
     }
 
     /**

@@ -22,12 +22,12 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -41,21 +41,15 @@ import static org.w3c.domts.DOMTest.load;
  */
 public class elementsetattributens01 {
     @Test
-    public void testRun() throws Throwable {
-        Document doc;
-        Element element;
-        Attr attribute;
-        String attrName;
-        String attrValue;
-        doc = load("staff", true);
-        element = doc.createElementNS("http://www.w3.org/DOM", "dom:elem");
+    void testRun() throws Throwable {
+        Document doc = load("staff", true);
+        Element element = doc.createElementNS("http://www.w3.org/DOM", "dom:elem");
         element.setAttributeNS("http://www.w3.org/DOM/Test/setAttributeNS", "attr", "value");
-        attribute = element.getAttributeNodeNS("http://www.w3.org/DOM/Test/setAttributeNS", "attr");
-        attrName = attribute.getNodeName();
-        attrValue = attribute.getNodeValue();
-        assertEquals("elementsetattributens01_attrName", "attr", attrName);
-        assertEquals("elementsetattributens01_attrValue", "value", attrValue);
-
+        Attr attribute = element.getAttributeNodeNS("http://www.w3.org/DOM/Test/setAttributeNS", "attr");
+        String attrName = attribute.getNodeName();
+        String attrValue = attribute.getNodeValue();
+        assertEquals("attr", attrName, "elementsetattributens01_attrName");
+        assertEquals("value", attrValue, "elementsetattributens01_attrValue");
     }
 
     /**

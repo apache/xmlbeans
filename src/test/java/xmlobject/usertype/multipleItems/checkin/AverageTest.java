@@ -18,7 +18,7 @@ package xmlobject.usertype.multipleItems.checkin;
 
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.impl.values.XmlValueOutOfRangeException;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import usertype.xbean.multipleItems.company.CompanyDocument;
 import usertype.xbean.multipleItems.company.CompanyType;
 import usertype.xbean.multipleItems.company.ConsultantType;
@@ -27,13 +27,14 @@ import xmlobject.usertype.multipleItems.existing.Room;
 
 import java.math.BigInteger;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 
 public class AverageTest {
 
     @Test
-    public void test() {
+    void test() {
         CompanyDocument doc = CompanyDocument.Factory.newInstance();
         CompanyType company = doc.addNewCompany();
         DepartmentType dept = company.addNewDepartments();
@@ -43,17 +44,15 @@ public class AverageTest {
         cons.setName("Joe Smith");
         cons.setAge(BigInteger.valueOf(100));
 
-        int LEN=20;
+        int LEN = 20;
 
-        for (int i=0; i < LEN; i++) {
+        for (int i = 0; i < LEN; i++) {
             cons.addRoom(new Room(i, "AB"));
         }
 
-        System.out.println(doc.xmlText());
-
         Room[] rooms = cons.getRoomArray();
 
-        for (int i=0; i < LEN; i++) {
+        for (int i = 0; i < LEN; i++) {
             assertEquals(i, rooms[i].getDigits());
             assertEquals("AB", rooms[i].getLetters());
         }
@@ -61,7 +60,7 @@ public class AverageTest {
 
 
     @Test
-    public void testArrayGetSet() {
+    void testArrayGetSet() {
 
         CompanyDocument doc = CompanyDocument.Factory.newInstance();
         CompanyType company = doc.addNewCompany();
@@ -72,18 +71,18 @@ public class AverageTest {
         cons.setName("Joe Smith");
         cons.setAge(BigInteger.valueOf(100));
 
-        int LEN=20;
+        int LEN = 20;
 
         Room[] rooms = new Room[LEN];
 
-        for (int i=0; i < LEN; i++) {
+        for (int i = 0; i < LEN; i++) {
             rooms[i] = new Room(i, "AB");
         }
 
         cons.setRoomArray(rooms);
 
         rooms = cons.getRoomArray();
-        for (int i=0; i < LEN; i++) {
+        for (int i = 0; i < LEN; i++) {
             assertEquals(i, rooms[i].getDigits());
             assertEquals("AB", rooms[i].getLetters());
         }
@@ -92,7 +91,7 @@ public class AverageTest {
     }
 
     @Test
-    public void testIthGetSet() {
+    void testIthGetSet() {
 
         CompanyDocument doc = CompanyDocument.Factory.newInstance();
         CompanyType company = doc.addNewCompany();
@@ -104,18 +103,18 @@ public class AverageTest {
         cons.setAge(BigInteger.valueOf(100));
 
 
-        int LEN=20;
+        int LEN = 20;
 
-        for (int i=0; i < LEN; i++) {
+        for (int i = 0; i < LEN; i++) {
             cons.addNewRoom();
         }
 
 
-        for (int i=0; i < LEN; i++) {
+        for (int i = 0; i < LEN; i++) {
             cons.setRoomArray(i, new Room(i, "AB"));
         }
 
-        for (int i=0; i < LEN; i++) {
+        for (int i = 0; i < LEN; i++) {
             assertEquals(i, cons.getRoomArray(i).getDigits());
             assertEquals("AB", cons.getRoomArray(i).getLetters());
         }
@@ -123,27 +122,26 @@ public class AverageTest {
 
     }
 
-    @Test(expected = XmlValueOutOfRangeException.class)
-    public void testBadInput() throws XmlException{
+    @Test
+    void testBadInput() throws XmlException {
+        String sb =
+            "<com:company xmlns:com=\"http://xbean.usertype/multipleItems/company\">" +
+            "<departments><consultant name=\"Joe Smith\" age=\"100\">" +
+            "<room>000-AB</room><room>0001-AB</room><room>002-AB</room>" +
+            "</consultant></departments></com:company>";
 
-        StringBuilder sb = new StringBuilder();
-        sb.append("<com:company xmlns:com=\"http://xbean.usertype/multipleItems/company\">");
-        sb.append("<departments><consultant name=\"Joe Smith\" age=\"100\">");
-        sb.append("<room>000-AB</room><room>0001-AB</room><room>002-AB</room>");
-        sb.append("</consultant></departments></com:company>");
-
-        CompanyDocument doc = CompanyDocument.Factory.parse(sb.toString());
+        CompanyDocument doc = CompanyDocument.Factory.parse(sb);
 
         CompanyType company = doc.getCompany();
 
         ConsultantType cons = company.getDepartmentsArray(0).getConsultantArray(0);
         assertEquals(3, cons.xgetRoomArray().length);
 
-        cons.getRoomArray();
+        assertThrows(XmlValueOutOfRangeException.class, cons::getRoomArray);
     }
 
-    @Test(expected = XmlValueOutOfRangeException.class)
-    public void testBadInputGetIthBad() throws XmlException{
+    @Test
+    void testBadInputGetIthBad() throws XmlException {
 
         String sb =
             "<com:company xmlns:com=\"http://xbean.usertype/multipleItems/company\">" +
@@ -157,11 +155,11 @@ public class AverageTest {
         ConsultantType cons = company.getDepartmentsArray(0).getConsultantArray(0);
         assertEquals(3, cons.xgetRoomArray().length);
 
-        cons.getRoomArray(1);
+        assertThrows(XmlValueOutOfRangeException.class, () -> cons.getRoomArray(1));
     }
 
     @Test
-    public void testBadInputGetIthGood() throws XmlException{
+    void testBadInputGetIthGood() throws XmlException {
         String sb =
             "<com:company xmlns:com=\"http://xbean.usertype/multipleItems/company\">" +
             "<departments><consultant name=\"Joe Smith\" age=\"100\">" +

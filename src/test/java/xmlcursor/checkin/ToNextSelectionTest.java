@@ -17,72 +17,74 @@
 package xmlcursor.checkin;
 
 import org.apache.xmlbeans.XmlCursor;
-import org.apache.xmlbeans.XmlObject;
-import org.junit.Test;
-import xmlcursor.common.BasicCursorTestCase;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
+import static xmlcursor.common.BasicCursorTestCase.cur;
 
-public class ToNextSelectionTest extends BasicCursorTestCase {
+public class ToNextSelectionTest {
     @Test
-    public void testToNextSelectionMultipleReturns() throws Exception {
+    void testToNextSelectionMultipleReturns() throws Exception {
         String sXml = "<foo><b>0</b><b>1</b><b>2</b><b>3</b><b>4</b><b>5</b><b>6</b></foo>";
-        m_xc = XmlObject.Factory.parse(sXml).newCursor();
-        m_xc.selectPath("$this//b");
-        m_xc.toNextSelection();
-        for (int i = 0; i < 6; i++) {
-            assertEquals("" + i, m_xc.getTextValue());
-            assertTrue(m_xc.toNextSelection());
+        try (XmlCursor m_xc = cur(sXml)) {
+            m_xc.selectPath("$this//b");
+            m_xc.toNextSelection();
+            for (int i = 0; i < 6; i++) {
+                assertEquals("" + i, m_xc.getTextValue());
+                assertTrue(m_xc.toNextSelection());
+            }
+            assertEquals("6", m_xc.getTextValue());
+            assertFalse(m_xc.toNextSelection());
         }
-        assertEquals("6", m_xc.getTextValue());
-        assertFalse(m_xc.toNextSelection());
     }
 
     @Test
-    public void testToNextSelectionAfterClear() throws Exception {
+    void testToNextSelectionAfterClear() throws Exception {
         String sXml = "<foo><b>0</b><b>1</b><b>2</b><b>3</b><b>4</b><b>5</b><b>6</b></foo>";
-        m_xc = XmlObject.Factory.parse(sXml).newCursor();
-        m_xc.selectPath("$this//b");
-        m_xc.toNextSelection();
-        for (int i = 0; i < 3; i++) {
-            assertEquals("" + i, m_xc.getTextValue());
-            assertTrue(m_xc.toNextSelection());
+        try (XmlCursor m_xc = cur(sXml)) {
+            m_xc.selectPath("$this//b");
+            m_xc.toNextSelection();
+            for (int i = 0; i < 3; i++) {
+                assertEquals("" + i, m_xc.getTextValue());
+                assertTrue(m_xc.toNextSelection());
+            }
+            m_xc.clearSelections();
+            assertEquals("3", m_xc.getTextValue());
+            assertFalse(m_xc.toNextSelection());
         }
-        m_xc.clearSelections();
-        assertEquals("3", m_xc.getTextValue());
-        assertFalse(m_xc.toNextSelection());
     }
 
     @Test
-    public void testToNextSelectionBeforeSelect() throws Exception {
+    void testToNextSelectionBeforeSelect() throws Exception {
         String sXml = "<foo><b>0</b><b>1</b><b>2</b><b>3</b><b>4</b><b>5</b><b>6</b></foo>";
-        m_xc = XmlObject.Factory.parse(sXml).newCursor();
-        assertFalse(m_xc.toNextSelection());
-        m_xc.selectPath("$this//b");
-        m_xc.toNextSelection();
-        for (int i = 0; i < 6; i++) {
-            assertEquals("" + i, m_xc.getTextValue());
-            assertTrue(m_xc.toNextSelection());
+        try (XmlCursor m_xc = cur(sXml)) {
+            assertFalse(m_xc.toNextSelection());
+            m_xc.selectPath("$this//b");
+            m_xc.toNextSelection();
+            for (int i = 0; i < 6; i++) {
+                assertEquals("" + i, m_xc.getTextValue());
+                assertTrue(m_xc.toNextSelection());
+            }
+            assertEquals("6", m_xc.getTextValue());
+            assertFalse(m_xc.toNextSelection());
         }
-        assertEquals("6", m_xc.getTextValue());
-        assertFalse(m_xc.toNextSelection());
     }
 
     @Test
-    public void testToNextSelectionOtherCursor() throws Exception {
+    void testToNextSelectionOtherCursor() throws Exception {
         String sXml = "<foo><b>0</b><b>1</b><b>2</b><b>3</b><b>4</b><b>5</b><b>6</b></foo>";
-        m_xc = XmlObject.Factory.parse(sXml).newCursor();
-        try (XmlCursor xc0 = m_xc.newCursor()) {
+        try (XmlCursor m_xc = cur(sXml);
+             XmlCursor xc0 = m_xc.newCursor()) {
             m_xc.selectPath("$this//b");
             assertFalse(xc0.toNextSelection());
         }
     }
 
     @Test
-    public void testToNextSelectionTwoCursorsDifferentSelections() throws Exception {
+    void testToNextSelectionTwoCursorsDifferentSelections() throws Exception {
         String sXml = "<foo><a>X</a><b>0</b><a>Y</a><b>1</b><a>Z</a><b>2</b></foo>";
-        m_xc = XmlObject.Factory.parse(sXml).newCursor();
-        try (XmlCursor xc0 = m_xc.newCursor()) {
+        try (XmlCursor m_xc = cur(sXml);
+             XmlCursor xc0 = m_xc.newCursor()) {
             xc0.selectPath("$this//a");
             xc0.toNextSelection();
             assertEquals(3, xc0.getSelectionCount());
@@ -97,10 +99,10 @@ public class ToNextSelectionTest extends BasicCursorTestCase {
     }
 
     @Test
-    public void testToNextSelectionTwoCursorsSameSelections() throws Exception {
+    void testToNextSelectionTwoCursorsSameSelections() throws Exception {
         String sXml = "<foo><a>X</a><b>0</b><a>Y</a><b>1</b><a>Z</a><b>2</b></foo>";
-        m_xc = XmlObject.Factory.parse(sXml).newCursor();
-        try (XmlCursor xc0 = m_xc.newCursor()) {
+        try (XmlCursor m_xc = cur(sXml);
+             XmlCursor xc0 = m_xc.newCursor()) {
             xc0.selectPath("$this//b");
             xc0.toNextSelection();
             assertEquals(3, xc0.getSelectionCount());

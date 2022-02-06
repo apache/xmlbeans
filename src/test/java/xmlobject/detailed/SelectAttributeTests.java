@@ -15,46 +15,37 @@
 
 package xmlobject.detailed;
 
+import org.apache.xmlbeans.XmlError;
 import org.apache.xmlbeans.XmlObject;
-import org.junit.Test;
+import org.apache.xmlbeans.XmlOptions;
+import org.junit.jupiter.api.Test;
 import org.openuri.test.selectAttribute.DocDocument;
-import xmlobject.common.SelectChildrenAttribCommon;
 
 import javax.xml.namespace.QName;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
+import static xmlcursor.common.BasicCursorTestCase.jobj;
+import static xmlobject.detailed.SelectChildrenTests.validateTest;
 
-public class SelectAttributeTests extends SelectChildrenAttribCommon {
+public class SelectAttributeTests {
 
-    private static String saUri = "http://openuri.org/test/selectAttribute";
-    private static String saStartFrag = "<xm xmlns:sa=\"" + saUri + "\">";
-
-    private static String abcUri = "http://abc";
-    private static String defUri = "http://def";
-
-    static String anyStartFrag = "<xm xmlns:sa=\"" + saUri + "\"" +
-        " xmlns:abc=\"" + abcUri + "\"" +
-        " xmlns:def=\"" + defUri + "\"" + ">";
-
-    private static String endFrag = "</xm>";
-    // To speed up tests when running multiple test methods in the same run
-    private DocDocument.Doc doc = null;
+    private static final String saUri = "http://openuri.org/test/selectAttribute";
+    private static final String saStartFrag = "<xm xmlns:sa=\"" + saUri + "\">";
+    private static final String abcUri = "http://abc";
+    private static final String endFrag = "</xm>";
 
     ///////////////////////////////////////////////////////////////////
     // Tests for non-wildcard attributes
     @Test
-    public void testSelectWithQName()
-        throws Exception {
-        if (doc == null)
-            doc = (DocDocument.Doc) getTestObject();
+    void testSelectWithQName() throws Exception {
+        DocDocument.Doc doc = getTestObject();
         QName qn = new QName("", "att1");
         XmlObject x = doc.getNormal().selectAttribute(qn);
         String exp = saStartFrag + "Attribute 1" + endFrag;
 
-        validateTest("testSelectWithQName", exp, x);
+        validateTest("testSelectWithQName", new String[]{exp}, new XmlObject[]{x});
         // Check Select with QName that is not present.. should get null back.
         x = doc.getWithOther().selectAttribute(qn);
         assertNull(x);
@@ -62,55 +53,46 @@ public class SelectAttributeTests extends SelectChildrenAttribCommon {
 
 
     @Test
-    public void testSelectWithURI()
-        throws Exception {
-        if (doc == null)
-            doc = (DocDocument.Doc) getTestObject();
+    void testSelectWithURI() throws Exception {
+        DocDocument.Doc doc = getTestObject();
 
         XmlObject x = doc.getNormal().selectAttribute("", "att2");
         String exp = saStartFrag + "Attribute 2" + endFrag;
 
-        validateTest("testSelectWithURI", exp, x);
+        validateTest("testSelectWithURI", new String[]{exp}, new XmlObject[]{x});
         // Check Select with QName that is not present.. should get null back.
         x = doc.getWithAny().selectAttribute("", "att2");
         assertNull(x);
-
     }
 
     ////////////////////////////////////////////////////////////////////
     // Test for wild-card attributes
     @Test
-    public void testSelectWithQNameForAny()
-        throws Exception {
-        if (doc == null)
-            doc = (DocDocument.Doc) getTestObject();
+    void testSelectWithQNameForAny() throws Exception {
+        DocDocument.Doc doc = getTestObject();
 
         QName qn = new QName(abcUri, "att3");
         String exp = saStartFrag + "Attribute 3" + endFrag;
         XmlObject x = doc.getWithOther().selectAttribute(qn);
 
-        validateTest("testSelectWithQNameForAny", exp, x);
-
-
+        validateTest("testSelectWithQNameForAny", new String[]{exp}, new XmlObject[]{x});
         x = doc.getWithAny();
-        System.out.println(x.xmlText());
-
+        assertNotNull(x.xmlText());
     }
 
     ////////////////////////////////////////////////////////////////////
     // Helper
-    private XmlObject getTestObject()
-        throws Exception {
-        String xml = getXml("xbean/xmlobject/SelectAttribute-Doc.xml");
-        DocDocument xmlObj = DocDocument.Factory.parse(xml);
+    private DocDocument.Doc getTestObject() throws Exception {
+        DocDocument xmlObj = (DocDocument) jobj("xbean/xmlobject/SelectAttribute-Doc.xml");
         DocDocument.Doc doc = xmlObj.getDoc();
 
-        Collection errors = new ArrayList();
+        XmlOptions opts = new XmlOptions().setSavePrettyPrint().setSavePrettyPrintIndent(2);
+
+        Collection<XmlError> errors = new ArrayList<>();
         opts.setErrorListener(errors);
         boolean valid = doc.validate(opts);
-        tools.xml.Utils.printXMLErrors(errors);
 
-        assertTrue("Test Xml is not valid!!", valid);
+        assertTrue(valid, "Test Xml is not valid!!");
         return doc;
     }
 }

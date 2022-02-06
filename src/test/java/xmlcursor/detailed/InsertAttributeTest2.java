@@ -18,42 +18,48 @@ package xmlcursor.detailed;
 
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlCursor.TokenType;
-import org.apache.xmlbeans.XmlObject;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
-import xmlcursor.common.BasicCursorTestCase;
+import org.apache.xmlbeans.XmlException;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import xmlcursor.common.Common;
 
 import javax.xml.namespace.QName;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
+import static xmlcursor.common.BasicCursorTestCase.*;
 
 
-public class InsertAttributeTest2 extends BasicCursorTestCase {
+public class InsertAttributeTest2 {
+
 	@Test
-	public void testNormalCase() {
-		for (int i = 0; i < 50; i++) {
-			m_xc.insertAttribute("at" + i, "com.bea.foo");
-			//System.out.println(i);
+	void testNormalCase() throws XmlException {
+		try (XmlCursor m_xc = cur(Common.XML_FOO_TEXT)) {
+			toNextTokenOfType(m_xc, XmlCursor.TokenType.TEXT);
+
+			for (int i = 0; i < 50; i++) {
+				m_xc.insertAttribute("at" + i, "com.bea.foo");
+			}
+			toPrevTokenOfType(m_xc, TokenType.ATTR);
+
+			int i = 1;
+			while (m_xc.toPrevAttribute()) {
+				i++;
+			}
+
+			assertEquals(i, 50);
 		}
-		toPrevTokenOfType(m_xc, TokenType.ATTR);
-
-		int i = 0;
-		do {
-			i++;
-			//System.out.println(m_xc.xmlText());
-		} while (m_xc.toPrevAttribute());
-
-		assertEquals(i, 50);
 	}
 
-	@Test(expected = Exception.class)
-	public void testIllegalCursorPos() {
-		//position curor at text
-		toNextTokenOfType(m_xc, XmlCursor.TokenType.END);
-		// Shoild not be able to insert at attr here
-		m_xc.insertAttribute("at", "com.bea.foo");
+	@Test
+	void testIllegalCursorPos() throws XmlException {
+		try (XmlCursor m_xc = cur(Common.XML_FOO_TEXT)) {
+			toNextTokenOfType(m_xc, XmlCursor.TokenType.TEXT);
+
+			//position curor at text
+			toNextTokenOfType(m_xc, XmlCursor.TokenType.END);
+			// Shoild not be able to insert at attr here
+			assertThrows(Exception.class, () -> m_xc.insertAttribute("at", "com.bea.foo"));
+		}
 	}
 
     /**
@@ -65,14 +71,17 @@ public class InsertAttributeTest2 extends BasicCursorTestCase {
        * check upon serialization that only the first token with a given name is printed
        */
 	@Test
-	public void testLocalNameCollision() {
-		m_xc.insertAttributeWithValue("at", "v1");
-		m_xc.insertAttributeWithValue("at", "v2");
-		toPrevTokenOfType(m_xc, TokenType.START);
-		m_xc.toFirstAttribute();
-		assertEquals(m_xc.getName().getLocalPart(), "at");
-		assertTrue(m_xc.toNextAttribute());
-		assertEquals(m_xc.getName().getLocalPart(), "at");
+	void testLocalNameCollision() throws XmlException {
+		try (XmlCursor m_xc = cur(Common.XML_FOO_TEXT)) {
+			toNextTokenOfType(m_xc, XmlCursor.TokenType.TEXT);
+			m_xc.insertAttributeWithValue("at", "v1");
+			m_xc.insertAttributeWithValue("at", "v2");
+			toPrevTokenOfType(m_xc, TokenType.START);
+			m_xc.toFirstAttribute();
+			assertEquals(m_xc.getName().getLocalPart(), "at");
+			assertTrue(m_xc.toNextAttribute());
+			assertEquals(m_xc.getName().getLocalPart(), "at");
+		}
 	}
 
     /**
@@ -84,86 +93,107 @@ public class InsertAttributeTest2 extends BasicCursorTestCase {
      * it seems impossible to force a binding of the same URI with two
      * different prefixes
      */
-	@Test(expected = Exception.class)
-	@Ignore
-	public void testUriCollision() {
-		m_xc.insertAttribute("at0", "com.bea.foo");
-		m_xc.insertAttribute("at1", "com.bea.foo");
-		toPrevTokenOfType(m_xc, TokenType.START);
-		// Should not be able to insert at attr with colliding name
-		System.out.println(m_xc.xmlText());
+	@Test
+	@Disabled
+	public void testUriCollision() throws XmlException {
+		try (XmlCursor m_xc = cur(Common.XML_FOO_TEXT)) {
+			toNextTokenOfType(m_xc, XmlCursor.TokenType.TEXT);
+
+			m_xc.insertAttribute("at0", "com.bea.foo");
+			m_xc.insertAttribute("at1", "com.bea.foo");
+			toPrevTokenOfType(m_xc, TokenType.START);
+			// Should not be able to insert at attr with colliding name
+			assertThrows(Exception.class, m_xc::xmlText);
+		}
 	}
 
 	@Test
-	public void testUriLocalNameOK() {
-		m_xc.insertAttribute("at", "");
-		m_xc.insertAttribute("at", "com.bea.foo");
-		toPrevTokenOfType(m_xc, XmlCursor.TokenType.START);
-		m_xc.toFirstAttribute();
-		int i = 1;
-		while (m_xc.toNextAttribute()) i++;
-		assertEquals(i, 2);
+	void testUriLocalNameOK() throws XmlException {
+		try (XmlCursor m_xc = cur(Common.XML_FOO_TEXT)) {
+			toNextTokenOfType(m_xc, XmlCursor.TokenType.TEXT);
+			m_xc.insertAttribute("at", "");
+			m_xc.insertAttribute("at", "com.bea.foo");
+			toPrevTokenOfType(m_xc, XmlCursor.TokenType.START);
+			m_xc.toFirstAttribute();
+			int i = 1;
+			while (m_xc.toNextAttribute()) i++;
+			assertEquals(2, i);
+		}
 	}
 
 	@Test
-	public void testUriNull() {
-		m_xc.insertAttribute("at", null);
-		toPrevTokenOfType(m_xc, TokenType.ATTR);
-		assertEquals(m_xc.getName(), new QName("at"));
-	}
-
-	@Test(expected = Exception.class)
-	public void testLocalnameNull() {
-		m_xc.insertAttribute(null, "");
-	}
-
-	@Test
-	public void testUriEmpty() {
-		m_xc.insertAttribute("myat", "");
-		toPrevTokenOfType(m_xc, TokenType.START);
-		m_xc.toFirstAttribute();
-		assertEquals(m_xc.getName(), new QName(null, "myat"));
-	}
-
-	@Test(expected = Exception.class)
-	public void testLocalnameEmpty() {
-		m_xc.insertAttribute("", "");
+	void testUriNull() throws XmlException {
+		try (XmlCursor m_xc = cur(Common.XML_FOO_TEXT)) {
+			toNextTokenOfType(m_xc, XmlCursor.TokenType.TEXT);
+			m_xc.insertAttribute("at", null);
+			toPrevTokenOfType(m_xc, TokenType.ATTR);
+			assertEquals(m_xc.getName(), new QName("at"));
+		}
 	}
 
 	@Test
-	public void testInsertAttributeWithValue() {
+	void testLocalnameNull() throws XmlException {
+		try (XmlCursor m_xc = cur(Common.XML_FOO_TEXT)) {
+			toNextTokenOfType(m_xc, XmlCursor.TokenType.TEXT);
+			assertThrows(Exception.class, () -> m_xc.insertAttribute(null, ""));
+		}
+	}
+
+	@Test
+	void testUriEmpty() throws XmlException {
+		try (XmlCursor m_xc = cur(Common.XML_FOO_TEXT)) {
+			toNextTokenOfType(m_xc, XmlCursor.TokenType.TEXT);
+			m_xc.insertAttribute("myat", "");
+			toPrevTokenOfType(m_xc, TokenType.START);
+			m_xc.toFirstAttribute();
+			assertEquals(m_xc.getName(), new QName(null, "myat"));
+		}
+	}
+
+	@Test
+	void testLocalnameEmpty() throws XmlException {
+		try (XmlCursor m_xc = cur(Common.XML_FOO_TEXT)) {
+			toNextTokenOfType(m_xc, XmlCursor.TokenType.TEXT);
+			assertThrows(Exception.class, () -> m_xc.insertAttribute("", ""));
+		}
+	}
+
+	@Test
+	void testInsertAttributeWithValue() throws XmlException {
 		StringBuilder sb = new StringBuilder();
 		String value0 = "test" + "\n\t\r";
 		String value1 = "'QuotedText'";
 		String value2 = "\"QuotedText2\"";
 
 		int nStressBound = 20000;//Integer.MAX_VALUE
-		for (int i = 0; i < nStressBound; i++)
+		for (int i = 0; i < nStressBound; i++) {
 			sb.append('a');
-		m_xc.insertAttributeWithValue("at0", value0);
-		m_xc.insertAttributeWithValue("at1", value1);
-		m_xc.insertAttributeWithValue("at2", value2);
-		m_xc.insertAttributeWithValue("at3", sb.toString());
+		}
 
-		toPrevTokenOfType(m_xc, TokenType.START);
+		try (XmlCursor m_xc = cur(Common.XML_FOO_TEXT)) {
+			toNextTokenOfType(m_xc, XmlCursor.TokenType.TEXT);
 
-		assertEquals(m_xc.getAttributeText(new QName("at3")).length(), nStressBound);
-		assertEquals(m_xc.getAttributeText(new QName("at2")), value2);
+			m_xc.insertAttributeWithValue("at0", value0);
+			m_xc.insertAttributeWithValue("at1", value1);
+			m_xc.insertAttributeWithValue("at2", value2);
+			m_xc.insertAttributeWithValue("at3", sb.toString());
 
-		assertEquals(m_xc.getAttributeText(new QName("at1")), value1);
-		assertEquals(m_xc.getAttributeText(new QName("at0")), value0);
+			toPrevTokenOfType(m_xc, TokenType.START);
+
+			assertEquals(m_xc.getAttributeText(new QName("at3")).length(), nStressBound);
+			assertEquals(m_xc.getAttributeText(new QName("at2")), value2);
+
+			assertEquals(m_xc.getAttributeText(new QName("at1")), value1);
+			assertEquals(m_xc.getAttributeText(new QName("at0")), value0);
+		}
 	}
 
 	@Test
-	public void testInsertAttributeWithValueNull() {
-		m_xc.insertAttributeWithValue("at0", null);
-		assertNull(m_xc.getAttributeText(new QName("at0")));
+	void testInsertAttributeWithValueNull() throws XmlException {
+		try (XmlCursor m_xc = cur(Common.XML_FOO_TEXT)) {
+			toNextTokenOfType(m_xc, XmlCursor.TokenType.TEXT);
+			m_xc.insertAttributeWithValue("at0", null);
+			assertNull(m_xc.getAttributeText(new QName("at0")));
+		}
 	}
-
-	@Before
-    public void setUp()throws Exception{
-		String sDoc = Common.XML_FOO_TEXT;
-		m_xc= XmlObject.Factory.parse(sDoc).newCursor();
-		toNextTokenOfType(m_xc,XmlCursor.TokenType.TEXT);//prepare for atts
-    }
 }

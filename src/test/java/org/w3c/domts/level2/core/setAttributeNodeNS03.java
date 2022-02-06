@@ -22,10 +22,10 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.*;
 
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -45,21 +45,15 @@ import static org.w3c.domts.DOMTest.load;
  */
 public class setAttributeNodeNS03 {
     @Test
-    public void testRun() throws Throwable {
+    void testRun() throws Throwable {
         String namespaceURI = "http://www.newattr.com";
         String qualifiedName = "emp:newAttr";
-        Document doc;
-        NodeList elementList;
-        Node testAddr;
-        Attr newAttr;
-        Attr newAddrAttr;
-        doc = load("staffNS", true);
-        elementList = doc.getElementsByTagName("emp:address");
-        testAddr = elementList.item(0);
-        newAttr = doc.createAttributeNS(namespaceURI, qualifiedName);
-        newAddrAttr = ((Element) /*Node */testAddr).setAttributeNodeNS(newAttr);
-        assertNull("throw_Null", newAddrAttr);
-
+        Document doc = load("staffNS", true);
+        NodeList elementList = doc.getElementsByTagName("emp:address");
+        Node testAddr = elementList.item(0);
+        Attr newAttr = doc.createAttributeNS(namespaceURI, qualifiedName);
+        Attr newAddrAttr = ((Element) /*Node */testAddr).setAttributeNodeNS(newAttr);
+        assertNull(newAddrAttr, "throw_Null");
     }
 
     /**

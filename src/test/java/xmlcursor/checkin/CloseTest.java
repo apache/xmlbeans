@@ -16,20 +16,22 @@
 
 package xmlcursor.checkin;
 
-import org.apache.xmlbeans.XmlObject;
-import org.junit.Test;
-import xmlcursor.common.BasicCursorTestCase;
+import org.apache.xmlbeans.XmlCursor;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import xmlcursor.common.Common;
 
+import static xmlcursor.common.BasicCursorTestCase.cur;
 
-public class CloseTest extends BasicCursorTestCase {
+
+public class CloseTest {
 
     @Test
-    public void testMultipleClose() throws Exception {
-        m_xo = XmlObject.Factory.parse(Common.XML_FOO);
-        m_xc = m_xo.newCursor();
-        m_xc.close();
-        m_xc.close();
+    void testMultipleClose() throws Exception {
+        try (XmlCursor m_xc = cur(Common.XML_FOO)) {
+            Assertions.assertDoesNotThrow(m_xc::close);
+            Assertions.assertDoesNotThrow(m_xc::close);
+        }
     }
 }
 

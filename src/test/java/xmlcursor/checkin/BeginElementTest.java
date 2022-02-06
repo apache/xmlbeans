@@ -17,72 +17,73 @@ package xmlcursor.checkin;
 
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlCursor.TokenType;
-import org.apache.xmlbeans.XmlObject;
-import org.junit.Test;
-import xmlcursor.common.BasicCursorTestCase;
+import org.apache.xmlbeans.XmlException;
+import org.junit.jupiter.api.Test;
 import xmlcursor.common.Common;
 
 import javax.xml.namespace.QName;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static xmlcursor.common.BasicCursorTestCase.*;
 
 
-public class BeginElementTest extends BasicCursorTestCase {
+public class BeginElementTest {
 
-	private String sLocalName="localName";
-    private String sUri="fakeURI";
-    private String sDefaultPrefix=sUri.substring(0,3); //$BUGBUG:WHY???
-    private String sExpectedStart="<"+sDefaultPrefix+":localName xmlns:"+sDefaultPrefix+"=\"fakeURI\"/>";
-
-    private String sInputDoc=Common.XML_FOO_DIGITS;
-
+	private static final String LOCAL_NAME ="localName";
+    private static final String URI ="fakeURI";
+    private static final String DEFAULT_PREFIX = URI.substring(0,3); //$BUGBUG:WHY???
+    private static final String EXPECTED_START = "<" + DEFAULT_PREFIX + ":localName xmlns:" + DEFAULT_PREFIX + "=\"fakeURI\"/>";
 
 	@Test
-	public void testBeginElementStr() throws Exception {
+	void testBeginElementStr() throws XmlException {
 		//same for string API
-		m_xc = XmlObject.Factory.parse(sInputDoc).newCursor();
-		toNextTokenOfType(m_xc, TokenType.START);
-		m_xc.beginElement(sLocalName, sUri);
-		toPrevTokenOfType(m_xc, TokenType.START);
-		assertEquals(m_xc.xmlText(), sExpectedStart);
+		try (XmlCursor m_xc = cur(Common.XML_FOO_DIGITS)) {
+			toNextTokenOfType(m_xc, TokenType.START);
+			m_xc.beginElement(LOCAL_NAME, URI);
+			toPrevTokenOfType(m_xc, TokenType.START);
+			assertEquals(m_xc.xmlText(), EXPECTED_START);
+		}
 	}
 
 	@Test
-	public void testBeginElementQName() throws Exception {
+	void testBeginElementQName() throws Exception {
 		//Qname call
-
-		m_xc = XmlObject.Factory.parse(sInputDoc).newCursor();
-		//insert new under the first element
-		toNextTokenOfType(m_xc, TokenType.START);
-		QName qName = new QName(sUri, sLocalName);
-		m_xc.beginElement(qName);
-		checkResult(qName);
+		try (XmlCursor m_xc = cur(Common.XML_FOO_DIGITS)) {
+			//insert new under the first element
+			toNextTokenOfType(m_xc, TokenType.START);
+			QName qName = new QName(URI, LOCAL_NAME);
+			m_xc.beginElement(qName);
+			checkResult(m_xc, qName);
+		}
 	}
 
 	@Test
-	public void testBeginElementQNamePrefix() throws Exception {
+	void testBeginElementQNamePrefix() throws Exception {
 		//Qname with prefix
 		String sPrefix = "pre";
-		m_xc = XmlObject.Factory.parse(sInputDoc).newCursor();
-		toNextTokenOfType(m_xc, TokenType.START);
-		QName qName = new QName(sUri, sLocalName, sPrefix);
-		System.out.println("Java prefix Qname: " + qName);
-		m_xc.beginElement(qName);
-		checkResult(qName);
+		try (XmlCursor m_xc = cur(Common.XML_FOO_DIGITS)) {
+			toNextTokenOfType(m_xc, TokenType.START);
+			QName qName = new QName(URI, LOCAL_NAME, sPrefix);
+			m_xc.beginElement(qName);
+			checkResult(m_xc, qName);
+		}
+	}
+
+	@Test
+	void testBeginElementStartDoc() throws Exception {
+		try (XmlCursor m_xc = cur(Common.XML_FOO_DIGITS)) {
+			m_xc.toFirstContentToken();
+			m_xc.beginElement(LOCAL_NAME, URI);
+			m_xc.toPrevToken();
+			m_xc.toPrevToken();
+			assertTrue(m_xc.isStartdoc());
+		}
 	}
 
 	//pre: cursor is not moved after beginElt call
-	private void checkResult(QName qName) {
+	private static void checkResult(XmlCursor m_xc, QName qName) {
 		TokenType tok = m_xc.toPrevToken();
 		assertEquals(m_xc.getName(), qName);
-	}
-
-	public void testBeginElementStartDoc(String sLocalName, String sUri) throws Exception {
-		m_xc = XmlObject.Factory.parse(sInputDoc).newCursor();
-		m_xc.beginElement(sLocalName, sUri);
-		m_xc.toPrevToken();
-		m_xc.toPrevToken();
-		assertTrue(m_xc.isStartdoc());
 	}
 }

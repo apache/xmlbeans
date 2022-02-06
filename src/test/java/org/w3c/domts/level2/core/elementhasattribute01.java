@@ -22,11 +22,11 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import static org.junit.Assert.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -39,15 +39,11 @@ import static org.w3c.domts.DOMTest.load;
  */
 public class elementhasattribute01 {
     @Test
-    public void testRun() throws Throwable {
-        Document doc;
-        Element element;
-        boolean state;
-        doc = load("staff", false);
-        element = doc.getDocumentElement();
-        state = element.hasAttribute("");
-        assertFalse("elementhasattribute01", state);
-
+    void testRun() throws Throwable {
+        Document doc = load("staff", false);
+        Element element = doc.getDocumentElement();
+        boolean state = element.hasAttribute("");
+        assertFalse(state, "elementhasattribute01");
     }
 
     /**

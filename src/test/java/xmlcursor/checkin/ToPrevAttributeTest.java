@@ -16,63 +16,70 @@
 
 package xmlcursor.checkin;
 
+import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlCursor.TokenType;
-import org.apache.xmlbeans.XmlObject;
-import org.junit.Test;
-import xmlcursor.common.BasicCursorTestCase;
+import org.junit.jupiter.api.Test;
 import xmlcursor.common.Common;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
+import static xmlcursor.common.BasicCursorTestCase.cur;
+import static xmlcursor.common.BasicCursorTestCase.toNextTokenOfType;
 
-public class ToPrevAttributeTest extends BasicCursorTestCase {
+public class ToPrevAttributeTest {
     @Test
-    public void testtoPrevAttrFromSTART() throws Exception {
-        m_xc = XmlObject.Factory.parse(Common.XML_FOO_2ATTR_TEXT).newCursor();
-        toNextTokenOfType(m_xc, TokenType.START);
-        assertFalse(m_xc.toPrevAttribute());
+    void testtoPrevAttrFromSTART() throws Exception {
+        try (XmlCursor m_xc = cur(Common.XML_FOO_2ATTR_TEXT)) {
+            toNextTokenOfType(m_xc, TokenType.START);
+            assertFalse(m_xc.toPrevAttribute());
+        }
     }
 
     @Test
-    public void testtoPrevAttrFromSingleATTR() throws Exception {
-        m_xc = XmlObject.Factory.parse(Common.XML_FOO_1ATTR_TEXT).newCursor();
-        toNextTokenOfType(m_xc, TokenType.ATTR);
-        assertFalse(m_xc.toPrevAttribute());
-        assertEquals("val0", m_xc.getTextValue());
+    void testtoPrevAttrFromSingleATTR() throws Exception {
+        try (XmlCursor m_xc = cur(Common.XML_FOO_1ATTR_TEXT)) {
+            toNextTokenOfType(m_xc, TokenType.ATTR);
+            assertFalse(m_xc.toPrevAttribute());
+            assertEquals("val0", m_xc.getTextValue());
+        }
     }
 
     @Test
-    public void testtoPrevAttrWithSiblings() throws Exception {
-        m_xc = XmlObject.Factory.parse(Common.XML_FOO_2ATTR_TEXT).newCursor();
-        toNextTokenOfType(m_xc, TokenType.ATTR);
-        toNextTokenOfType(m_xc, TokenType.ATTR);
-        assertEquals("val1", m_xc.getTextValue());
-        assertTrue(m_xc.toPrevAttribute());
-        assertEquals("val0", m_xc.getTextValue());
+    void testtoPrevAttrWithSiblings() throws Exception {
+        try (XmlCursor m_xc = cur(Common.XML_FOO_2ATTR_TEXT)) {
+            toNextTokenOfType(m_xc, TokenType.ATTR);
+            toNextTokenOfType(m_xc, TokenType.ATTR);
+            assertEquals("val1", m_xc.getTextValue());
+            assertTrue(m_xc.toPrevAttribute());
+            assertEquals("val0", m_xc.getTextValue());
+        }
     }
 
     @Test
-    public void testtoPrevAttrFromFirstSibling() throws Exception {
-        m_xc = XmlObject.Factory.parse(Common.XML_FOO_2ATTR_TEXT).newCursor();
-        toNextTokenOfType(m_xc, TokenType.ATTR);
-        assertFalse(m_xc.toPrevAttribute());
-        assertEquals("val0", m_xc.getTextValue());
+    void testtoPrevAttrFromFirstSibling() throws Exception {
+        try (XmlCursor m_xc = cur(Common.XML_FOO_2ATTR_TEXT)) {
+            toNextTokenOfType(m_xc, TokenType.ATTR);
+            assertFalse(m_xc.toPrevAttribute());
+            assertEquals("val0", m_xc.getTextValue());
+        }
     }
 
     @Test
-    public void testtoPrevAttrWithXMLNS() throws Exception {
-        m_xc = XmlObject.Factory.parse("<foo attr0=\"val0\" xmlns=\"uri\" attr1=\"val1\">text</foo>").newCursor();
-        toNextTokenOfType(m_xc, TokenType.ATTR);
-        toNextTokenOfType(m_xc, TokenType.ATTR);
-        assertEquals("val1", m_xc.getTextValue());
-        assertTrue(m_xc.toPrevAttribute());
-        assertEquals("val0", m_xc.getTextValue());
-        assertFalse(m_xc.toPrevAttribute());
+    void testtoPrevAttrWithXMLNS() throws Exception {
+        try (XmlCursor m_xc = cur("<foo attr0=\"val0\" xmlns=\"uri\" attr1=\"val1\">text</foo>")) {
+            toNextTokenOfType(m_xc, TokenType.ATTR);
+            toNextTokenOfType(m_xc, TokenType.ATTR);
+            assertEquals("val1", m_xc.getTextValue());
+            assertTrue(m_xc.toPrevAttribute());
+            assertEquals("val0", m_xc.getTextValue());
+            assertFalse(m_xc.toPrevAttribute());
+        }
     }
 
     @Test
-    public void testtoPrevAttrFromTEXT() throws Exception {
-        m_xc = XmlObject.Factory.parse(Common.XML_FOO_2ATTR_TEXT).newCursor();
-        toNextTokenOfType(m_xc, TokenType.TEXT);
-        assertFalse(m_xc.toPrevAttribute());
+    void testtoPrevAttrFromTEXT() throws Exception {
+        try (XmlCursor m_xc = cur(Common.XML_FOO_2ATTR_TEXT)) {
+            toNextTokenOfType(m_xc, TokenType.TEXT);
+            assertFalse(m_xc.toPrevAttribute());
+        }
     }
 }

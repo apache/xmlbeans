@@ -22,11 +22,11 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.*;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -47,32 +47,23 @@ import static org.w3c.domts.DOMTest.load;
  */
 public class removeAttributeNS02 {
     @Test
-    @Ignore
+    @Disabled
     public void testRun() throws Throwable {
-        Document doc;
-        NodeList elementList;
-        Node testAddr;
-        Attr addrAttr;
-        String attr;
-        String namespaceURI;
-        String localName;
-        String prefix;
-        doc = load("staffNS", true);
-        elementList = doc.getElementsByTagName("emp:address");
-        testAddr = elementList.item(0);
+        Document doc = load("staffNS", true);
+        NodeList elementList = doc.getElementsByTagName("emp:address");
+        Node testAddr = elementList.item(0);
         ((Element) /*Node */testAddr).removeAttributeNS("http://www.nist.gov", "local1");
         elementList = doc.getElementsByTagName("emp:address");
         testAddr = elementList.item(0);
-        addrAttr = ((Element) /*Node */testAddr).getAttributeNodeNS("http://www.nist.gov", "local1");
-        attr = ((Element) /*Node */testAddr).getAttributeNS("http://www.nist.gov", "local1");
-        namespaceURI = addrAttr.getNamespaceURI();
-        localName = addrAttr.getLocalName();
-        prefix = testAddr.getPrefix();
-        assertEquals("attr", "FALSE", attr);
-        assertEquals("uri", "http://www.nist.gov", namespaceURI);
-        assertEquals("lname", "local1", localName);
-        assertEquals("prefix", "emp", prefix);
-
+        Attr addrAttr = ((Element) /*Node */testAddr).getAttributeNodeNS("http://www.nist.gov", "local1");
+        String attr = ((Element) /*Node */testAddr).getAttributeNS("http://www.nist.gov", "local1");
+        String namespaceURI = addrAttr.getNamespaceURI();
+        String localName = addrAttr.getLocalName();
+        String prefix = testAddr.getPrefix();
+        assertEquals("FALSE", attr, "attr");
+        assertEquals("http://www.nist.gov", namespaceURI, "uri");
+        assertEquals("local1", localName, "lname");
+        assertEquals("emp", prefix, "prefix");
     }
 
     /**

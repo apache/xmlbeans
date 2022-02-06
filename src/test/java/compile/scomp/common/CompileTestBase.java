@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Stream;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * TODO: modify for deprecation warnings
@@ -134,7 +134,7 @@ public class CompileTestBase extends Common {
     throws XmlException, IOException {
         SchemaTypeSystem builtin = XmlBeans.getBuiltinTypeSystem();
         SchemaTypeSystem sts = XmlBeans.compileXsd(system, schemas, builtin, options);
-        assertNotNull("Compilation failed during Incremental Compile.", sts);
+        assertNotNull(sts, "Compilation failed during Incremental Compile.");
         SchemaCodeGenerator.saveTypeSystem(sts, outDir, null, null, null);
         return sts;
 
@@ -146,7 +146,7 @@ public class CompileTestBase extends Common {
         SchemaTypeSystem system;
         SchemaTypeSystem builtin = XmlBeans.getBuiltinTypeSystem();
         system = XmlBeans.compileXsd(schemas, builtin, options);
-        assertNotNull("Compilation failed during compile.", system);
+        assertNotNull(system, "Compilation failed during compile.");
         SchemaCodeGenerator.saveTypeSystem(system, outDir, null, null, null);
         return system;
     }
@@ -162,8 +162,8 @@ public class CompileTestBase extends Common {
     }
 
     public static void findElementbyQName(SchemaTypeSystem sts, QName[] lookup) {
-        assertTrue("Element was expected but not found",
-            Stream.of(lookup).map(sts::findElement).allMatch(Objects::nonNull));
+        assertTrue(Stream.of(lookup).map(sts::findElement).allMatch(Objects::nonNull),
+            "Element was expected but not found");
     }
 
     public static String getSchemaTop(String tns) {

@@ -22,10 +22,10 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.*;
 
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -40,19 +40,13 @@ import static org.w3c.domts.DOMTest.load;
  */
 public class namednodemapgetnameditemns05 {
     @Test
-    public void testRun() throws Throwable {
-        Document doc;
-        NamedNodeMap attributes;
-        Node element;
-        Attr attribute;
-        NodeList elementList;
-        doc = load("staffNS", false);
-        elementList = doc.getElementsByTagNameNS("*", "address");
-        element = elementList.item(1);
-        attributes = element.getAttributes();
-        attribute = (Attr) attributes.getNamedItemNS("*", "street");
-        assertNull("namednodemapgetnameditemns05", attribute);
-
+    void testRun() throws Throwable {
+        Document doc = load("staffNS", false);
+        NodeList elementList = doc.getElementsByTagNameNS("*", "address");
+        Node element = elementList.item(1);
+        NamedNodeMap attributes = element.getAttributes();
+        Attr attribute = (Attr) attributes.getNamedItemNS("*", "street");
+        assertNull(attribute, "namednodemapgetnameditemns05");
     }
 
     /**

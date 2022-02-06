@@ -18,20 +18,21 @@ package xmlcursor.checkin;
 
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlCursor.TokenType;
-import org.apache.xmlbeans.XmlObject;
-import org.junit.Test;
-import xmlcursor.common.BasicCursorTestCase;
+import org.junit.jupiter.api.Test;
 import xmlcursor.common.Common;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static xmlcursor.common.BasicCursorTestCase.cur;
+import static xmlcursor.common.BasicCursorTestCase.toNextTokenOfType;
 
 
-public class IsInSameDocumentTest extends BasicCursorTestCase {
+public class IsInSameDocumentTest {
+
     @Test
-    public void testSameDocSTARTDOCandENDDOC() throws Exception {
-        m_xc = XmlObject.Factory.parse(Common.XML_FOO_1ATTR_TEXT).newCursor();
-        try (XmlCursor xc0 = m_xc.newCursor()) {
+    void testSameDocSTARTDOCandENDDOC() throws Exception {
+        try (XmlCursor m_xc = cur(Common.XML_FOO_1ATTR_TEXT);
+            XmlCursor xc0 = m_xc.newCursor()) {
             xc0.toEndDoc();
             assertTrue(m_xc.isInSameDocument(xc0));
             assertTrue(xc0.isInSameDocument(m_xc));
@@ -39,9 +40,9 @@ public class IsInSameDocumentTest extends BasicCursorTestCase {
     }
 
     @Test
-    public void testSameDocNAMESPACEandATTR() throws Exception {
-        m_xc = XmlObject.Factory.parse(Common.XML_FOO_DIGITS).newCursor();
-        try (XmlCursor xc0 = m_xc.newCursor()) {
+    void testSameDocNAMESPACEandATTR() throws Exception {
+        try (XmlCursor m_xc = cur(Common.XML_FOO_DIGITS);
+             XmlCursor xc0 = m_xc.newCursor()) {
             toNextTokenOfType(m_xc, TokenType.NAMESPACE);
             toNextTokenOfType(xc0, TokenType.ATTR);
             assertTrue(m_xc.isInSameDocument(xc0));
@@ -50,15 +51,16 @@ public class IsInSameDocumentTest extends BasicCursorTestCase {
     }
 
     @Test
-    public void testSameDocNull() throws Exception {
-        m_xc = XmlObject.Factory.parse(Common.XML_FOO_1ATTR_TEXT).newCursor();
-        assertFalse(m_xc.isInSameDocument(null));
+    void testSameDocNull() throws Exception {
+        try (XmlCursor m_xc = cur(Common.XML_FOO_1ATTR_TEXT)) {
+            assertFalse(m_xc.isInSameDocument(null));
+        }
     }
 
     @Test
-    public void testSameDocDifferentDocs() throws Exception {
-        m_xc = XmlObject.Factory.parse(Common.XML_FOO_1ATTR_TEXT).newCursor();
-        try (XmlCursor xc0 = XmlObject.Factory.parse(Common.XML_FOO_1ATTR_TEXT).newCursor()) {
+    void testSameDocDifferentDocs() throws Exception {
+        try (XmlCursor m_xc = cur(Common.XML_FOO_1ATTR_TEXT);
+             XmlCursor xc0 = cur(Common.XML_FOO_1ATTR_TEXT)) {
             toNextTokenOfType(m_xc, TokenType.TEXT);
             toNextTokenOfType(xc0, TokenType.TEXT);
 
@@ -68,9 +70,9 @@ public class IsInSameDocumentTest extends BasicCursorTestCase {
     }
 
     @Test
-    public void testSameDocTEXTpositional() throws Exception {
-        m_xc = XmlObject.Factory.parse(Common.XML_FOO_1ATTR_TEXT).newCursor();
-        try (XmlCursor xc0 = m_xc.newCursor()) {
+    void testSameDocTEXTpositional() throws Exception {
+        try (XmlCursor m_xc = cur(Common.XML_FOO_1ATTR_TEXT);
+             XmlCursor xc0 = m_xc.newCursor()) {
             toNextTokenOfType(m_xc, TokenType.TEXT);
             toNextTokenOfType(xc0, TokenType.TEXT);
             xc0.toNextChar(2);

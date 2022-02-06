@@ -14,86 +14,77 @@
  */
 package scomp.elements.detailed;
 
-import org.junit.Test;
-import scomp.common.BaseCase;
-import xbean.scomp.element.localEltMinMaxOccurs.MinMaxOccursDocDocument;
 import org.apache.xmlbeans.XmlErrorCodes;
+import org.apache.xmlbeans.XmlException;
+import org.apache.xmlbeans.XmlOptions;
+import org.junit.jupiter.api.Test;
+import xbean.scomp.element.localEltMinMaxOccurs.MinMaxOccursDocDocument;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
+import static scomp.common.BaseCase.createOptions;
+import static scomp.common.BaseCase.getErrorCodes;
 
 /**
  *
  */
-public class LocalEltMinMaxOccurs extends BaseCase {
-
-    public void testMinOccursZero() throws Throwable {
-        MinMaxOccursDocDocument testDoc = MinMaxOccursDocDocument
-                .Factory.parse("<MinMaxOccursDoc" +
-                " xmlns=\"http://xbean/scomp/element/LocalEltMinMaxOccurs\">" +
-                "<minOccursOne>1</minOccursOne>" +
-                "<maxOccursOne>1</maxOccursOne>" +
-                "<twoToFour>1</twoToFour>" +
-                "<twoToFour>1</twoToFour>" +
-                "</MinMaxOccursDoc>");
-        try {
-            assertTrue(testDoc.validate());
-        }
-        catch (Throwable t) {
-                 showErrors();
-            throw t;
-        }
-    }
-
+public class LocalEltMinMaxOccurs {
 
     @Test
-    public void testMinGTMaxOccurs() {
-        //compile time error raised correctly. Same for neg values
+    void testMinOccursZero() throws XmlException {
+        String input =
+            "<MinMaxOccursDoc" +
+            " xmlns=\"http://xbean/scomp/element/LocalEltMinMaxOccurs\">" +
+            "<minOccursOne>1</minOccursOne>" +
+            "<maxOccursOne>1</maxOccursOne>" +
+            "<twoToFour>1</twoToFour>" +
+            "<twoToFour>1</twoToFour>" +
+            "</MinMaxOccursDoc>";
+        MinMaxOccursDocDocument testDoc = MinMaxOccursDocDocument.Factory.parse(input);
+        assertTrue(testDoc.validate());
     }
+
+
+//    @Test
+//    public void testMinGTMaxOccurs() {
+//        //compile time error raised correctly. Same for neg values
+//    }
 
     // twoToFour occurs only once
     @Test
-    public void testInstanceLTMinOccurs() throws Exception {
-        MinMaxOccursDocDocument testDoc = MinMaxOccursDocDocument
-                .Factory.parse("<MinMaxOccursDoc" +
-                " xmlns=\"http://xbean/scomp/element/LocalEltMinMaxOccurs\">" +
-                "<minOccursOne>1</minOccursOne>" +
-                "<maxOccursOne>1</maxOccursOne>" +
-                "<twoToFour>1</twoToFour>" +
-                "</MinMaxOccursDoc>");
-        assertTrue(!testDoc.validate(validateOptions));
-        assertEquals(1, errorList.size());
-        showErrors();
-        String[] errExpected = new String[]{
-            XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$MISSING_ELEMENT
-        };
-        assertTrue(compareErrorCodes(errExpected));
-
+    void testInstanceLTMinOccurs() throws XmlException {
+        String input =
+            "<MinMaxOccursDoc" +
+            " xmlns=\"http://xbean/scomp/element/LocalEltMinMaxOccurs\">" +
+            "<minOccursOne>1</minOccursOne>" +
+            "<maxOccursOne>1</maxOccursOne>" +
+            "<twoToFour>1</twoToFour>" +
+            "</MinMaxOccursDoc>";
+        MinMaxOccursDocDocument testDoc = MinMaxOccursDocDocument.Factory.parse(input);
+        XmlOptions validateOptions = createOptions();
+        assertFalse(testDoc.validate(validateOptions));
+        String[] errExpected = {XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$MISSING_ELEMENT};
+        assertArrayEquals(errExpected, getErrorCodes(validateOptions));
     }
 
     // maxOccursOne occurs 2ce
     @Test
-    public void testInstanceGTMaxOccurs() throws Exception {
-        MinMaxOccursDocDocument testDoc = MinMaxOccursDocDocument
-                .Factory.parse("<MinMaxOccursDoc" +
-                " xmlns=\"http://xbean/scomp/element/LocalEltMinMaxOccurs\">" +
-                "<minOccursOne>1</minOccursOne>" +
-                "<maxOccursOne>1</maxOccursOne>" +
-                "<maxOccursOne>1</maxOccursOne>" +
-                "<twoToFour>1</twoToFour>" +
-                "<twoToFour>1</twoToFour>" +
-                "</MinMaxOccursDoc>");
-        assertEquals(0, errorList.size());
-        assertTrue(!testDoc.validate(validateOptions));
-        assertEquals(1, errorList.size());
+    void testInstanceGTMaxOccurs() throws Exception {
+        String input =
+            "<MinMaxOccursDoc" +
+            " xmlns=\"http://xbean/scomp/element/LocalEltMinMaxOccurs\">" +
+            "<minOccursOne>1</minOccursOne>" +
+            "<maxOccursOne>1</maxOccursOne>" +
+            "<maxOccursOne>1</maxOccursOne>" +
+            "<twoToFour>1</twoToFour>" +
+            "<twoToFour>1</twoToFour>" +
+            "</MinMaxOccursDoc>";
+        MinMaxOccursDocDocument testDoc = MinMaxOccursDocDocument.Factory.parse(input);
+        XmlOptions validateOptions = createOptions();
+        assertFalse(testDoc.validate(validateOptions));
         //TODO: why is this not element not allowed?
 
-        String[] errExpected = new String[]{
-            XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$EXPECTED_DIFFERENT_ELEMENT};
-        assertTrue(compareErrorCodes(errExpected));
-
-        //fail("Error is incorrect: the dev infers the cause... incorrectly");
-        showErrors();
+        String[] errExpected = {XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$EXPECTED_DIFFERENT_ELEMENT};
+        assertArrayEquals(errExpected, getErrorCodes(validateOptions));
     }
 
 }

@@ -15,9 +15,9 @@
 package misc.detailed;
 
 import org.apache.tools.ant.*;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.FilenameFilter;
@@ -33,26 +33,25 @@ public class SampleRunner {
 
     private List<File> samples;
     private String XMLBEANS_HOME;
-    private SamplesBuildFileTest runSampleTest;
+    private BuildFileTest runSampleTest;
 
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         Project proj = new Project();
         proj.setName("Samples Task Tests");
         XMLBEANS_HOME = new File(proj.getBaseDir(), "build").getAbsolutePath();
         samples = new ArrayList<>();
-        runSampleTest = new SamplesBuildFileTest();
+        runSampleTest = new BuildFileTest();
     }
 
     @Test
-    @Ignore
+    @Disabled
     public void testSamples() throws Exception {
         loadSampleDirs(new File("./samples"));
         List<Object> exceptions = new ArrayList<>();
         for (File sample : samples) {
-
-            runSampleTest.call_samples_task(sample.getAbsolutePath(), "test");
+            runSampleTest.call_samples_task(sample.getAbsolutePath(), "test", XMLBEANS_HOME);
             BuildException e;
             if ((e = runSampleTest.getAnyExceptions()) != null) {
                 exceptions.add(sample.getAbsolutePath());
@@ -89,204 +88,202 @@ public class SampleRunner {
         }
     }
 
-    private class SamplesBuildFileTest extends BuildFileTest {
-        public void call_samples_task(String projectPath, String taskName) {
+    private static class BuildFileTest {
+
+        protected Project project;
+
+        private StringBuilder logBuffer;
+        private StringBuilder fullLogBuffer;
+        private StringBuilder outBuffer;
+        private StringBuilder errBuffer;
+        private BuildException buildException;
+
+        protected String getOutput() {
+            return cleanBuffer(outBuffer);
+        }
+
+        protected String getError() {
+            return cleanBuffer(errBuffer);
+        }
+
+        protected BuildException getBuildException() {
+            return buildException;
+        }
+
+        public void call_samples_task(String projectPath, String taskName, String xmlbeansHome) {
             configureProject(projectPath);
             Project proj = getProject();
-            proj.setProperty("xmlbeans.home", XMLBEANS_HOME);
+            proj.setProperty("xmlbeans.home", xmlbeansHome);
             executeTarget(proj.getDefaultTarget());
         }
 
         public BuildException getAnyExceptions() {
             return this.getBuildException();
         }
-    }
-}
 
-abstract class BuildFileTest {
+        private String cleanBuffer(StringBuilder buffer) {
+            StringBuilder cleanedBuffer = new StringBuilder();
+            boolean cr = false;
+            for (int i = 0; i < buffer.length(); i++) {
+                char ch = buffer.charAt(i);
+                if (ch == '\r') {
+                    cr = true;
+                    continue;
+                }
 
-    protected Project project;
-
-    private StringBuilder logBuffer;
-    private StringBuilder fullLogBuffer;
-    private StringBuilder outBuffer;
-    private StringBuilder errBuffer;
-    private BuildException buildException;
-
-    protected String getOutput() {
-        return cleanBuffer(outBuffer);
-    }
-
-    protected String getError() {
-        return cleanBuffer(errBuffer);
-    }
-
-    protected BuildException getBuildException() {
-        return buildException;
-    }
-
-    private String cleanBuffer(StringBuilder buffer) {
-        StringBuilder cleanedBuffer = new StringBuilder();
-        boolean cr = false;
-        for (int i = 0; i < buffer.length(); i++) {
-            char ch = buffer.charAt(i);
-            if (ch == '\r') {
-                cr = true;
-                continue;
-            }
-
-            if (!cr) {
-                cleanedBuffer.append(ch);
-            } else {
-                if (ch == '\n') {
+                if (!cr) {
                     cleanedBuffer.append(ch);
                 } else {
-                    cleanedBuffer.append('\r').append(ch);
+                    if (ch == '\n') {
+                        cleanedBuffer.append(ch);
+                    } else {
+                        cleanedBuffer.append('\r').append(ch);
+                    }
                 }
             }
+            return cleanedBuffer.toString();
         }
-        return cleanedBuffer.toString();
-    }
 
-    /**
-     * set up to run the named project
-     *
-     * @param filename name of project file to run
-     */
-    protected void configureProject(String filename) throws BuildException {
-        logBuffer = new StringBuilder();
-        fullLogBuffer = new StringBuilder();
-        project = new Project();
-        project.init();
-        project.setUserProperty("ant.file", new File(filename).getAbsolutePath());
-        project.addBuildListener(new BuildFileTest.AntTestListener());
-        //ProjectHelper.configureProject(project, new File(filename));
-        ProjectHelper.getProjectHelper().parse(project, new File(filename));
-    }
-
-    /**
-     * execute a target we have set up.
-     * configureProject needs to be called before
-     *
-     * @param targetName target to run
-     */
-    protected void executeTarget(String targetName) {
-        PrintStream sysOut = System.out;
-        PrintStream sysErr = System.err;
-        try {
-            sysOut.flush();
-            sysErr.flush();
-            outBuffer = new StringBuilder();
-            PrintStream out = new PrintStream(new BuildFileTest.AntOutputStream());
-            System.setOut(out);
-            errBuffer = new StringBuilder();
-            PrintStream err = new PrintStream(new BuildFileTest.AntOutputStream());
-            System.setErr(err);
+        /**
+         * set up to run the named project
+         *
+         * @param filename name of project file to run
+         */
+        protected void configureProject(String filename) throws BuildException {
             logBuffer = new StringBuilder();
             fullLogBuffer = new StringBuilder();
-            buildException = null;
-            project.executeTarget(targetName);
-        } finally {
-            System.setOut(sysOut);
-            System.setErr(sysErr);
-            // rajus: 2004/04/07
-            System.out.println("STDOUT+STDERR:\n" + getOutput() + getError());
-            System.out.println("END STDOUT+STDERR:");
-        }
-
-    }
-
-    /**
-     * Get the project which has been configured for a test.
-     *
-     * @return the Project instance for this test.
-     */
-    protected Project getProject() {
-        return project;
-    }
-
-    /**
-     * an output stream which saves stuff to our buffer.
-     */
-    private class AntOutputStream extends java.io.OutputStream {
-        public void write(int b) {
-            outBuffer.append((char) b);
-        }
-    }
-
-    /**
-     * our own personal build listener
-     */
-    private class AntTestListener implements BuildListener {
-        /**
-         * Fired before any targets are started.
-         */
-        public void buildStarted(BuildEvent event) {
+            project = new Project();
+            project.init();
+            project.setUserProperty("ant.file", new File(filename).getAbsolutePath());
+            project.addBuildListener(new BuildFileTest.AntTestListener());
+            //ProjectHelper.configureProject(project, new File(filename));
+            ProjectHelper.getProjectHelper().parse(project, new File(filename));
         }
 
         /**
-         * Fired after the last target has finished. This event
-         * will still be thrown if an error occured during the build.
+         * execute a target we have set up.
+         * configureProject needs to be called before
          *
-         * @see BuildEvent#getException()
+         * @param targetName target to run
          */
-        public void buildFinished(BuildEvent event) {
-        }
-
-        /**
-         * Fired when a target is started.
-         *
-         * @see BuildEvent#getTarget()
-         */
-        public void targetStarted(BuildEvent event) {
-            //System.out.println("targetStarted " + event.getTarget().getName());
-        }
-
-        /**
-         * Fired when a target has finished. This event will
-         * still be thrown if an error occured during the build.
-         *
-         * @see BuildEvent#getException()
-         */
-        public void targetFinished(BuildEvent event) {
-            //System.out.println("targetFinished " + event.getTarget().getName());
-        }
-
-        /**
-         * Fired when a task is started.
-         *
-         * @see BuildEvent#getTask()
-         */
-        public void taskStarted(BuildEvent event) {
-            //System.out.println("taskStarted " + event.getTask().getTaskName());
-        }
-
-        /**
-         * Fired when a task has finished. This event will still
-         * be throw if an error occured during the build.
-         *
-         * @see BuildEvent#getException()
-         */
-        public void taskFinished(BuildEvent event) {
-            //System.out.println("taskFinished " + event.getTask().getTaskName());
-        }
-
-        /**
-         * Fired whenever a message is logged.
-         *
-         * @see BuildEvent#getMessage()
-         * @see BuildEvent#getPriority()
-         */
-        public void messageLogged(BuildEvent event) {
-            if (event.getPriority() == Project.MSG_INFO ||
-                event.getPriority() == Project.MSG_WARN ||
-                event.getPriority() == Project.MSG_ERR) {
-                logBuffer.append(event.getMessage());
+        protected void executeTarget(String targetName) {
+            PrintStream sysOut = System.out;
+            PrintStream sysErr = System.err;
+            try {
+                sysOut.flush();
+                sysErr.flush();
+                outBuffer = new StringBuilder();
+                PrintStream out = new PrintStream(new BuildFileTest.AntOutputStream());
+                System.setOut(out);
+                errBuffer = new StringBuilder();
+                PrintStream err = new PrintStream(new BuildFileTest.AntOutputStream());
+                System.setErr(err);
+                logBuffer = new StringBuilder();
+                fullLogBuffer = new StringBuilder();
+                buildException = null;
+                project.executeTarget(targetName);
+            } finally {
+                System.setOut(sysOut);
+                System.setErr(sysErr);
+                // rajus: 2004/04/07
+                System.out.println("STDOUT+STDERR:\n" + getOutput() + getError());
+                System.out.println("END STDOUT+STDERR:");
             }
-            fullLogBuffer.append(event.getMessage());
 
         }
+
+        /**
+         * Get the project which has been configured for a test.
+         *
+         * @return the Project instance for this test.
+         */
+        protected Project getProject() {
+            return project;
+        }
+
+        /**
+         * an output stream which saves stuff to our buffer.
+         */
+        private class AntOutputStream extends java.io.OutputStream {
+            public void write(int b) {
+                outBuffer.append((char) b);
+            }
+        }
+
+        /**
+         * our own personal build listener
+         */
+        private class AntTestListener implements BuildListener {
+            /**
+             * Fired before any targets are started.
+             */
+            public void buildStarted(BuildEvent event) {
+            }
+
+            /**
+             * Fired after the last target has finished. This event
+             * will still be thrown if an error occured during the build.
+             *
+             * @see BuildEvent#getException()
+             */
+            public void buildFinished(BuildEvent event) {
+            }
+
+            /**
+             * Fired when a target is started.
+             *
+             * @see BuildEvent#getTarget()
+             */
+            public void targetStarted(BuildEvent event) {
+                //System.out.println("targetStarted " + event.getTarget().getName());
+            }
+
+            /**
+             * Fired when a target has finished. This event will
+             * still be thrown if an error occured during the build.
+             *
+             * @see BuildEvent#getException()
+             */
+            public void targetFinished(BuildEvent event) {
+                //System.out.println("targetFinished " + event.getTarget().getName());
+            }
+
+            /**
+             * Fired when a task is started.
+             *
+             * @see BuildEvent#getTask()
+             */
+            public void taskStarted(BuildEvent event) {
+                //System.out.println("taskStarted " + event.getTask().getTaskName());
+            }
+
+            /**
+             * Fired when a task has finished. This event will still
+             * be throw if an error occured during the build.
+             *
+             * @see BuildEvent#getException()
+             */
+            public void taskFinished(BuildEvent event) {
+                //System.out.println("taskFinished " + event.getTask().getTaskName());
+            }
+
+            /**
+             * Fired whenever a message is logged.
+             *
+             * @see BuildEvent#getMessage()
+             * @see BuildEvent#getPriority()
+             */
+            public void messageLogged(BuildEvent event) {
+                if (event.getPriority() == Project.MSG_INFO ||
+                    event.getPriority() == Project.MSG_WARN ||
+                    event.getPriority() == Project.MSG_ERR) {
+                    logBuffer.append(event.getMessage());
+                }
+                fullLogBuffer.append(event.getMessage());
+
+            }
+        }
+
+
     }
-
-
 }

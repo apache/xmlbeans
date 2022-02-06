@@ -15,126 +15,131 @@
 
 package xmlcursor.checkin;
 
-import org.apache.xmlbeans.XmlObject;
-import org.junit.Test;
-import xmlcursor.common.BasicCursorTestCase;
+import org.apache.xmlbeans.XmlCursor;
+import org.junit.jupiter.api.Test;
 
 import javax.xml.namespace.QName;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
+import static xmlcursor.common.BasicCursorTestCase.cur;
 
 /**
  * checkin tests for XmlCursor toNextSibling methods
  *
  */
-public class ToNextSiblingTest extends BasicCursorTestCase {
-    private static String xml0 = "<root><a/><b/><c/></root>";
-    private static String xml1 = "<root xmlns=\"somenamespace\"><a/><b/><c/></root>";
+public class ToNextSiblingTest {
+    private static final String xml0 = "<root><a/><b/><c/></root>";
+    private static final String xml1 = "<root xmlns=\"somenamespace\"><a/><b/><c/></root>";
 
     /** test toNextSibling(String name) where there is no namespace */
     @Test
-    public void testName() throws Exception {
-        m_xc = XmlObject.Factory.parse(xml0).newCursor();
-        m_xc.toNextToken();
-        m_xc.toChild(0);
-        assertEquals("", m_xc.getName().getNamespaceURI());
-        assertEquals("a", m_xc.getName().getLocalPart());
-        m_xc.push();
+    void testName() throws Exception {
+        try (XmlCursor m_xc = cur(xml0)) {
+            m_xc.toNextToken();
+            m_xc.toChild(0);
+            assertEquals("", m_xc.getName().getNamespaceURI());
+            assertEquals("a", m_xc.getName().getLocalPart());
+            m_xc.push();
 
-        // name exists
-        assertTrue(m_xc.toNextSibling("c"));
-        assertEquals("", m_xc.getName().getNamespaceURI());
-        assertEquals("c", m_xc.getName().getLocalPart());
-        m_xc.pop();
+            // name exists
+            assertTrue(m_xc.toNextSibling("c"));
+            assertEquals("", m_xc.getName().getNamespaceURI());
+            assertEquals("c", m_xc.getName().getLocalPart());
+            m_xc.pop();
 
-        // name does not exist
-        assertFalse(m_xc.toNextSibling("d"));
-        // cursor hasn't moved
-        assertEquals("", m_xc.getName().getNamespaceURI());
-        assertEquals("a", m_xc.getName().getLocalPart());
+            // name does not exist
+            assertFalse(m_xc.toNextSibling("d"));
+            // cursor hasn't moved
+            assertEquals("", m_xc.getName().getNamespaceURI());
+            assertEquals("a", m_xc.getName().getLocalPart());
+        }
     }
 
     /** test toNextSibling(String name) where there is a namespace */
     @Test
-    public void testIncompleteName() throws Exception {
-        m_xc = XmlObject.Factory.parse(xml1).newCursor();
-        m_xc.toNextToken();
-        m_xc.toChild(0);
-        assertEquals("somenamespace", m_xc.getName().getNamespaceURI());
-        assertEquals("a", m_xc.getName().getLocalPart());
+    void testIncompleteName() throws Exception {
+        try (XmlCursor m_xc = cur(xml1)) {
+            m_xc.toNextToken();
+            m_xc.toChild(0);
+            assertEquals("somenamespace", m_xc.getName().getNamespaceURI());
+            assertEquals("a", m_xc.getName().getLocalPart());
 
-        // name exists, but is incomplete by itself without the namespace
-        assertFalse(m_xc.toNextSibling("c"));
-        assertEquals("somenamespace", m_xc.getName().getNamespaceURI());
-        assertEquals("a", m_xc.getName().getLocalPart());
+            // name exists, but is incomplete by itself without the namespace
+            assertFalse(m_xc.toNextSibling("c"));
+            assertEquals("somenamespace", m_xc.getName().getNamespaceURI());
+            assertEquals("a", m_xc.getName().getLocalPart());
+        }
     }
 
     /** test toNextSibling(String namespace, String localname) */
     @Test
-    public void testNamespaceAndLocalName0() throws Exception {
-        m_xc = XmlObject.Factory.parse(xml0).newCursor();
-        m_xc.toNextToken();
-        m_xc.toChild(0);
-        assertEquals("", m_xc.getName().getNamespaceURI());
-        assertEquals("a", m_xc.getName().getLocalPart());
-        m_xc.push();
+    void testNamespaceAndLocalName0() throws Exception {
+        try (XmlCursor m_xc = cur(xml0)) {
+            m_xc.toNextToken();
+            m_xc.toChild(0);
+            assertEquals("", m_xc.getName().getNamespaceURI());
+            assertEquals("a", m_xc.getName().getLocalPart());
+            m_xc.push();
 
-        // name exists
-        assertTrue(m_xc.toNextSibling("", "c"));
-        assertEquals("", m_xc.getName().getNamespaceURI());
-        assertEquals("c", m_xc.getName().getLocalPart());
-        m_xc.pop();
+            // name exists
+            assertTrue(m_xc.toNextSibling("", "c"));
+            assertEquals("", m_xc.getName().getNamespaceURI());
+            assertEquals("c", m_xc.getName().getLocalPart());
+            m_xc.pop();
 
-        // name does not exist
-        assertFalse(m_xc.toNextSibling("", "d"));
-        // cursor hasn't moved
-        assertEquals("", m_xc.getName().getNamespaceURI());
-        assertEquals("a", m_xc.getName().getLocalPart());
+            // name does not exist
+            assertFalse(m_xc.toNextSibling("", "d"));
+            // cursor hasn't moved
+            assertEquals("", m_xc.getName().getNamespaceURI());
+            assertEquals("a", m_xc.getName().getLocalPart());
+        }
     }
 
     /** test toNextSibling(String namespace, String localname) */
     @Test
-    public void testNamespaceAndLocalName1() throws Exception {
-        m_xc = XmlObject.Factory.parse(xml1).newCursor();
-        m_xc.toNextToken();
-        m_xc.toChild(0);
-        assertEquals("somenamespace", m_xc.getName().getNamespaceURI());
-        assertEquals("a", m_xc.getName().getLocalPart());
-        m_xc.push();
+    void testNamespaceAndLocalName1() throws Exception {
+        try (XmlCursor m_xc = cur(xml1)) {
+            m_xc.toNextToken();
+            m_xc.toChild(0);
+            assertEquals("somenamespace", m_xc.getName().getNamespaceURI());
+            assertEquals("a", m_xc.getName().getLocalPart());
+            m_xc.push();
 
-        // name exists
-        assertTrue(m_xc.toNextSibling("somenamespace", "c"));
-        assertEquals("somenamespace", m_xc.getName().getNamespaceURI());
-        assertEquals("c", m_xc.getName().getLocalPart());
-        m_xc.pop();
+            // name exists
+            assertTrue(m_xc.toNextSibling("somenamespace", "c"));
+            assertEquals("somenamespace", m_xc.getName().getNamespaceURI());
+            assertEquals("c", m_xc.getName().getLocalPart());
+            m_xc.pop();
 
-        // name does not exist
-        assertFalse(m_xc.toNextSibling("somenamespace", "d"));
-        // cursor hasn't moved
-        assertEquals("somenamespace", m_xc.getName().getNamespaceURI());
-        assertEquals("a", m_xc.getName().getLocalPart());
+            // name does not exist
+            assertFalse(m_xc.toNextSibling("somenamespace", "d"));
+            // cursor hasn't moved
+            assertEquals("somenamespace", m_xc.getName().getNamespaceURI());
+            assertEquals("a", m_xc.getName().getLocalPart());
+        }
     }
 
     /** test toNextSibling(QName qName) */
     @Test
-    public void testQName() throws Exception {
-        m_xc = XmlObject.Factory.parse(xml1).newCursor();
-        m_xc.toNextToken();
-        m_xc.toChild(0);
-        assertEquals("somenamespace", m_xc.getName().getNamespaceURI());
-        assertEquals("a", m_xc.getName().getLocalPart());
-        m_xc.push();
+    void testQName() throws Exception {
+        try (XmlCursor m_xc = cur(xml1)) {
+            m_xc.toNextToken();
+            m_xc.toChild(0);
+            assertEquals("somenamespace", m_xc.getName().getNamespaceURI());
+            assertEquals("a", m_xc.getName().getLocalPart());
+            m_xc.push();
 
-        // name exists
-        assertTrue(m_xc.toNextSibling(new QName("somenamespace", "c")));
-        assertEquals("somenamespace", m_xc.getName().getNamespaceURI());
-        assertEquals("c", m_xc.getName().getLocalPart());
-        m_xc.pop();
+            // name exists
+            assertTrue(m_xc.toNextSibling(new QName("somenamespace", "c")));
+            assertEquals("somenamespace", m_xc.getName().getNamespaceURI());
+            assertEquals("c", m_xc.getName().getLocalPart());
+            m_xc.pop();
 
-        // name does not exist
-        assertFalse(m_xc.toNextSibling(new QName("somenamespace", "d")));
-        // cursor hasn't moved
-        assertEquals("somenamespace", m_xc.getName().getNamespaceURI());
-        assertEquals("a", m_xc.getName().getLocalPart());
+            // name does not exist
+            assertFalse(m_xc.toNextSibling(new QName("somenamespace", "d")));
+            // cursor hasn't moved
+            assertEquals("somenamespace", m_xc.getName().getNamespaceURI());
+            assertEquals("a", m_xc.getName().getLocalPart());
+        }
     }
 }

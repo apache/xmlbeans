@@ -22,11 +22,11 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -42,22 +42,15 @@ import static org.w3c.domts.DOMTest.load;
  * @see <a href="http://www.w3.org/TR/DOM-Level-2-Core/core">http://www.w3.org/TR/DOM-Level-2-Core/core</a>
  * @see <a href="http://www.w3.org/TR/DOM-Level-2-Core/core#Core-Document-importNode">http://www.w3.org/TR/DOM-Level-2-Core/core#Core-Document-importNode</a>
  */
-//TODO: BUG
 public class documentimportnode15 {
     @Test
-    public void testRun() throws Throwable {
-        Document doc;
-        Document docImp;
-        Node textImport;
-        Node textToImport;
-        String nodeValue;
-        doc = load("staffNS", true);
-        docImp = load("staffNS", true);
-        textToImport = doc.createTextNode("Document.importNode test for a TEXT_NODE");
-        textImport = doc.importNode(textToImport, true);
-        nodeValue = textImport.getNodeValue();
-        assertEquals("documentimportnode15", "Document.importNode test for a TEXT_NODE", nodeValue);
-
+    void testRun() throws Throwable {
+        Document doc = load("staffNS", true);
+        load("staffNS", true);
+        Node textToImport = doc.createTextNode("Document.importNode test for a TEXT_NODE");
+        Node textImport = doc.importNode(textToImport, true);
+        String nodeValue = textImport.getNodeValue();
+        assertEquals("Document.importNode test for a TEXT_NODE", nodeValue, "documentimportnode15");
     }
 
     /**

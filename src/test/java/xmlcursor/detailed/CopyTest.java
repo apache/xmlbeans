@@ -16,31 +16,30 @@ package xmlcursor.detailed;
 
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlException;
-import org.apache.xmlbeans.XmlObject;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static xmlcursor.common.BasicCursorTestCase.cur;
 
 public class CopyTest {
 
     //this is per CR128353
     @Test
-    @Ignore("doesn't work anymore without Piccolo Parser")
+    @Disabled("doesn't work anymore without Piccolo Parser")
     public void testCopyNamespaceMigration() throws XmlException {
         String s1 = "<X xmlns=\"foo\" xmlns:xsi=\"bar\"><zzz>123</zzz></X>";
         String s2 = "<Y> ... [some content] ... </Y>";
-        try (XmlCursor xc1 = XmlObject.Factory.parse(s1).newCursor();
-            XmlCursor xc2 = XmlObject.Factory.parse(s2).newCursor()) {
+        String exp = "<Y><foo:zzz xmlns:foo=\"foo\" xmlns:xsi=\"bar\">123</foo:zzz> ... [some content] ... </Y>";
+        try (XmlCursor xc1 = cur(s1);
+            XmlCursor xc2 = cur(s2)) {
             xc1.toFirstContentToken();
             xc1.toFirstChild();
             assertEquals(XmlCursor.TokenType.START, xc2.toFirstContentToken());
             xc2.toNextToken();
             xc1.copyXml(xc2);
             xc2.toStartDoc();
-            assertEquals("<Y>" +
-                         "<foo:zzz xmlns:foo=\"foo\" xmlns:xsi=\"bar\">123</foo:zzz>" +
-                         " ... [some content] ... </Y>", xc2.xmlText());
+            assertEquals(exp, xc2.xmlText());
         }
     }
 

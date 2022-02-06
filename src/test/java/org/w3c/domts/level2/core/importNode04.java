@@ -22,10 +22,10 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.*;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -44,27 +44,18 @@ import static org.w3c.domts.DOMTest.load;
  */
 public class importNode04 {
     @Test
-    public void testRun() throws Throwable {
-        Document doc;
-        Document aNewDoc;
-        DocumentFragment docFrag;
-        Comment comment;
-        Node aNode;
-        NodeList children;
-        Node child;
-        String childValue;
-        doc = load("staff", true);
-        aNewDoc = load("staff", true);
-        docFrag = aNewDoc.createDocumentFragment();
-        comment = aNewDoc.createComment("descendant1");
-        aNode = docFrag.appendChild(comment);
+    void testRun() throws Throwable {
+        Document doc = load("staff", true);
+        Document aNewDoc = load("staff", true);
+        DocumentFragment docFrag = aNewDoc.createDocumentFragment();
+        Comment comment = aNewDoc.createComment("descendant1");
+        Node aNode = docFrag.appendChild(comment);
         aNode = doc.importNode(docFrag, true);
-        children = aNode.getChildNodes();
-        assertEquals("throw_Size", 1, children.getLength());
-        child = aNode.getFirstChild();
-        childValue = child.getNodeValue();
-        assertEquals("descendant1", "descendant1", childValue);
-
+        NodeList children = aNode.getChildNodes();
+        assertEquals(1, children.getLength(), "throw_Size");
+        Node child = aNode.getFirstChild();
+        String childValue = child.getNodeValue();
+        assertEquals("descendant1", childValue, "descendant1");
     }
 
     /**

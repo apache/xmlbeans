@@ -18,10 +18,10 @@ package ValidatingXSRTests.detailed;
 import com.foo.sample.HeadingDocument;
 import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.XmlBeans;
+import org.apache.xmlbeans.XmlError;
 import org.apache.xmlbeans.impl.validator.ValidatingXMLStreamReader;
-import org.junit.Assert;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.openuri.test.location.LocationDocument;
 import org.openuri.test.mixedContent.LetterDocument;
 import org.openuri.test.mixedContent.NoMixedDocument;
@@ -42,8 +42,7 @@ import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 // Schema Imports
 
@@ -63,131 +62,118 @@ public class ValidatingXmlStreamReaderTests {
     //       SO, any change to the xml files for these tests will not be
     //       reflected till they make it into xmlcases.jar. (ant build.xmlcases)
     @Test
-    public void testDocWithNoSchema() throws Exception {
+    void testDocWithNoSchema() throws Exception {
         checkDocIsInvalid(getCasesFile(casesLoc + "po.xml"), null);
     }
 
     @Test
-    public void testValidLocationDoc() throws Exception {
+    void testValidLocationDoc() throws Exception {
         checkDocIsValid(getCasesFile(casesLoc + "location.xml"), null);
     }
 
     @Test
-    public void testInvalidLocationDoc() throws Exception {
+    void testInvalidLocationDoc() throws Exception {
         checkDocIsInvalid(getCasesFile(casesLoc + "location-inv.xml"), LocationDocument.type);
     }
 
     @Test
-    public void testValidPersonDoc() throws Exception {
+    void testValidPersonDoc() throws Exception {
         checkDocIsValid(getCasesFile(casesLoc + "person.xml"), PersonDocument.type);
     }
 
     @Test
-    public void testInvalidPersonDoc() throws Exception {
+    void testInvalidPersonDoc() throws Exception {
         checkDocIsInvalid(getCasesFile(casesLoc + "person-inv.xml"), PersonDocument.type);
     }
 
     @Test
-    public void testValidMixedContentDoc() throws Exception {
-        checkDocIsValid(getCasesFile(casesLoc + "mixed-content.xml"),
-            LetterDocument.type);
+    void testValidMixedContentDoc() throws Exception {
+        checkDocIsValid(getCasesFile(casesLoc + "mixed-content.xml"), LetterDocument.type);
     }
 
     @Test
-    public void testInvalidNomixedContentDoc() throws Exception {
-        checkDocIsInvalid(getCasesFile(casesLoc + "nomixed-content-inv.xml"),
-            NoMixedDocument.type);
+    void testInvalidNomixedContentDoc() throws Exception {
+        checkDocIsInvalid(getCasesFile(casesLoc + "nomixed-content-inv.xml"), NoMixedDocument.type);
     }
 
     @Test
-    public void testInvalidMissingAttributeDoc() throws Exception {
-        checkDocIsInvalid(getCasesFile(casesLoc + "foo-inv.xml"),
-            HeadingDocument.type);
+    void testInvalidMissingAttributeDoc() throws Exception {
+        checkDocIsInvalid(getCasesFile(casesLoc + "foo-inv.xml"), HeadingDocument.type);
     }
 
 
     @Test
-    public void testContentName() throws Exception {
+    void testContentName() throws Exception {
         String sXml = JarUtil.getResourceFromJar(casesLoc + "person-frag.xml");
         SchemaType type = Name.type;
 
-        assertTrue("Xml-fragment is not valid:\n" + sXml,
-            checkContent(sXml, type, true));
+        assertTrue(checkContent(sXml, type, true), "Xml-fragment is not valid:\n" + sXml);
     }
 
 
     // Same as testContentName.. expect the xml has no chars before the first
     // start element
     @Test
-    public void testContentName2() throws Exception {
+    void testContentName2() throws Exception {
         String sXml = JarUtil.getResourceFromJar(casesLoc + "person-frag2.xml");
         SchemaType type = Name.type;
 
-        assertTrue("Xml-fragment is not valid:\n" + sXml,
-            checkContent(sXml, type, true));
+        assertTrue(checkContent(sXml, type, true), "Xml-fragment is not valid:\n" + sXml);
     }
 
     @Test
-    public void testContentSibling() throws Exception {
+    void testContentSibling() throws Exception {
         String sXml = JarUtil.getResourceFromJar(casesLoc + "person-sibling.xml");
         SchemaType type = PersonType.type;
-        assertTrue("Xml-fragment is not valid:\n" + sXml,
-            checkContent(sXml, type, true));
+        assertTrue(checkContent(sXml, type, true), "Xml-fragment is not valid:\n" + sXml);
     }
 
     @Test
-    public void testInvalidContentSibling() throws Exception {
+    void testInvalidContentSibling() throws Exception {
         String sXml = JarUtil.getResourceFromJar(casesLoc + "person-sibling-inv.xml");
         SchemaType type = PersonType.type;
-        assertTrue("Invalid Xml-fragment is getting validated:\n" + sXml,
-            !checkContent(sXml, type, true));
+        assertFalse(checkContent(sXml, type, true), "Invalid Xml-fragment is getting validated:\n" + sXml);
     }
 
     @Test
-    public void testValidXsiType() throws Exception {
+    void testValidXsiType() throws Exception {
         String sXml = JarUtil.getResourceFromJar(casesLoc + "person-justname.xml");
         SchemaType type = Name.type;
-        assertTrue("Xml-fragment is not valid:\n" + sXml,
-            checkContent(sXml, type, true));
+        assertTrue(checkContent(sXml, type, true), "Xml-fragment is not valid:\n" + sXml);
     }
 
     @Test
-    public void testInvalidXsiType() throws Exception {
+    void testInvalidXsiType() throws Exception {
         String sXml = JarUtil.getResourceFromJar(casesLoc + "person-justname-inv.xml");
         SchemaType type = Name.type;
-        assertTrue("Invalid Xml-fragment is getting validated:\n" + sXml,
-            !checkContent(sXml, type, true));
+        assertFalse(checkContent(sXml, type, true), "Invalid Xml-fragment is getting validated:\n" + sXml);
     }
 
     @Test
-    public void testIncompatibleXsiType() throws Exception {
+    void testIncompatibleXsiType() throws Exception {
         String sXml = JarUtil.getResourceFromJar(casesLoc + "person-xsi-inv.xml");
         SchemaType type = Name.type;
-        assertTrue("Invalid Xml-fragment is getting validated:\n" + sXml,
-            !checkContent(sXml, type, true));
+        assertFalse(checkContent(sXml, type, true), "Invalid Xml-fragment is getting validated:\n" + sXml);
     }
 
     @Test
-    public void testValidMixedContent() throws Exception {
+    void testValidMixedContent() throws Exception {
         String sXml = JarUtil.getResourceFromJar(casesLoc + "mixed-content.xml");
         SchemaType type = org.openuri.test.mixedContent.LetterType.type;
-        assertTrue("Xml-fragment is not valid:\n" + sXml,
-            checkContent(sXml, type, true));
+        assertTrue(checkContent(sXml, type, true), "Xml-fragment is not valid:\n" + sXml);
     }
 
     @Test
-    @Ignore
+    @Disabled
     public void testGlobalAttribute() throws Exception {
         String sXml = JarUtil.getResourceFromJar(casesLoc + "global-attr.xml");
-
-        assertTrue("Global Attribute test failed:\n",
-                   checkContent(sXml, null, true));
+        assertTrue(checkContent(sXml, null, true), "Global Attribute test failed:\n");
     }
 
     // Tests for increasing code-coverage metrics
     @Test
-    public void testValXsrReuse() throws Exception {
-        Collection errors = new ArrayList();
+    void testValXsrReuse() throws Exception {
+        Collection<XmlError> errors = new ArrayList<>();
         File[] xmls = new File[2];
         xmls[0] = getCasesFile(casesLoc + "person.xml");
         xmls[1] = getCasesFile(casesLoc + "person-inv.xml");
@@ -196,64 +182,23 @@ public class ValidatingXmlStreamReaderTests {
         boolean[] ret = runValidator(xmls, type, errors);
 
         String common = "Test for ValidatingXmlStreamReader reuse failed";
-        assertEquals(common + "\nReturn value has more than 2 elements", 2, ret.length);
-        assertTrue(common + "\nExpected: true & false. Actual: "
-                + ret[0] + " & " + ret[1],
-            ret[0] && !ret[1]);
+        assertEquals(2, ret.length, common + "\nReturn value has more than 2 elements");
+        assertTrue(ret[0] && !ret[1], common + "\nExpected: true & false. Actual: " + ret[0] + " & " + ret[1]);
     }
 
 
-    public void testIllegalEvent() throws Exception {
-        // Will require writing another XSR wrapper.. albeit simple
-    }
-
-    /*/
-    public void testWalk() throws Exception {
-        walkXml(getCasesFile(casesLoc + "global-attr.xml"));
-        System.out.println();
-        walkXml(getCasesFile(casesLoc + "person-sibling.xml"));
-    }
-    // */
-    //////////////////////////////////////////////////////////////////////
-    // Utility Methods
-    private void walkXml(File xml) throws Exception {
-        XMLStreamReader xr = XMLInputFactory.newInstance().
-            createXMLStreamReader(new FileInputStream(xml));
-
-        //xsr.nextTag();
-        XmlContentTestXSR xsr = new XmlContentTestXSR(xr);
-
-        while(xsr.hasNext())
-        {
-            int type = xsr.next();
-            System.out.print(type);
-            //*
-            if (type == XMLEvent.START_ELEMENT)
-            {
-                System.out.print("\n" + xsr.getLocalName() + " ");
-            }
-            if (type == XMLEvent.END_ELEMENT)
-            {
-                System.out.println("/" + xsr.getLocalName());
-            }
-            if (type == XMLEvent.CHARACTERS)
-            {
-                char[] arr = xsr.getTextCharacters();
-                String str = new String(arr);
-                System.out.print("Char:" + str + " ");
-            }
-            //*/
-        }
-    }
+    // public void testIllegalEvent() throws Exception {
+    // Will require writing another XSR wrapper.. albeit simple
+    // }
 
     private boolean runValidator(File xml,
                                  SchemaType type,
-                                 Collection errors)
-        throws IllegalArgumentException, Exception
-    {
-        if (errors == null)
+                                 Collection<XmlError> errors)
+        throws IllegalArgumentException, Exception {
+        if (errors == null) {
             throw new IllegalArgumentException(
                 "Collection object cannot be null");
+        }
 
         XMLStreamReader xsr = XMLInputFactory.newInstance().
             createXMLStreamReader(new FileInputStream(xml));
@@ -267,8 +212,9 @@ public class ValidatingXmlStreamReaderTests {
             errors);
 
         // Walk through the xml
-        while (valXsr.hasNext())
+        while (valXsr.hasNext()) {
             valXsr.next();
+        }
 
         return valXsr.isValid();
         //return true;
@@ -278,17 +224,16 @@ public class ValidatingXmlStreamReaderTests {
     // but could come in handy later..
     private boolean[] runValidator(File[] xml,
                                    SchemaType type,
-                                   Collection errors)
-        throws IllegalArgumentException, Exception
-    {
-        if (errors == null)
+                                   Collection<XmlError> errors)
+        throws IllegalArgumentException, Exception {
+        if (errors == null) {
             throw new IllegalArgumentException(
                 "Collection object cannot be null");
+        }
         ValidatingXMLStreamReader valXsr = new ValidatingXMLStreamReader();
         boolean[] retArray = new boolean[xml.length];
 
-        for (int i = 0; i < xml.length; i++)
-        {
+        for (int i = 0; i < xml.length; i++) {
             XMLStreamReader xsr = XMLInputFactory.newInstance().
                 createXMLStreamReader(new FileInputStream(xml[i]));
 
@@ -300,8 +245,9 @@ public class ValidatingXmlStreamReaderTests {
                 errors);
 
             // Walk through the xml
-            while (valXsr.hasNext())
+            while (valXsr.hasNext()) {
                 valXsr.next();
+            }
 
             retArray[i] = valXsr.isValid();
         }
@@ -310,20 +256,18 @@ public class ValidatingXmlStreamReaderTests {
     }
 
     protected void checkDocIsValid(File file, SchemaType type) throws Exception {
-        Collection errors = new ArrayList();
+        Collection<XmlError> errors = new ArrayList<>();
         boolean isValid = runValidator(file, type, errors);
 
-        tools.xml.Utils.printXMLErrors(errors);
-        Assert.assertTrue("File '" + file.getName() + "' is invalid.", isValid);
+        assertTrue(isValid, "File '" + file.getName() + "' is invalid.");
     }
 
 
     protected void checkDocIsInvalid(File file, SchemaType type) throws Exception {
-        Collection errors = new ArrayList();
+        Collection<XmlError> errors = new ArrayList<>();
 
         boolean isValid = runValidator(file, type, errors);
-        assertTrue("File '" + file.getName() + "' is valid, but was expecting invalid.",
-            !isValid);
+        assertFalse(isValid, "File '" + file.getName() + "' is valid, but was expecting invalid.");
     }
 
 
@@ -334,7 +278,7 @@ public class ValidatingXmlStreamReaderTests {
             createXMLStreamReader(new StringReader(fragment));
 
         XmlContentTestXSR cxsr = new XmlContentTestXSR(xsr);
-        Collection errors = new ArrayList();
+        Collection<XmlError> errors = new ArrayList<>();
 
         ValidatingXMLStreamReader valXsr = new ValidatingXMLStreamReader();
         valXsr.init(cxsr,
@@ -345,24 +289,19 @@ public class ValidatingXmlStreamReaderTests {
             errors);
 
         // Walk through the xml
-        while (valXsr.hasNext())
+        while (valXsr.hasNext()) {
             valXsr.next();
-
-        if (!valXsr.isValid())
-        {
-            if (printErrors)
-                tools.xml.Utils.printXMLErrors(errors);
-            return false;
         }
-        return true;
+
+        return valXsr.isValid();
     }
 
 
     private static File getCasesFile(String path)
-        throws java.io.IOException
-    {
-        if (path.length()==0)
+        throws java.io.IOException {
+        if (path.length() == 0) {
             throw new IOException("getCasesFile was called with path of len 0");
+        }
         return JarUtil.getResourceFromJarasFile(path);
         //return new File(casesRoot + path);
     }
@@ -370,14 +309,11 @@ public class ValidatingXmlStreamReaderTests {
     /////////////////////////////////////////////////////////////////////////
     // XmlStreamReader extension for content Validation
     //     will not work for Global Attribute
-    public class XmlContentTestXSR
-        extends StreamReaderDelegate
-        implements XMLStreamReader
-    {
-        private static final int TAGOPEN    = 100;
-        private static final int TAGCLOSE   = 101;
-        private static final int UNDEFINED  =  99;
-        private static final int ATTRIBUTE  = 102;
+    private static class XmlContentTestXSR extends StreamReaderDelegate implements XMLStreamReader {
+        private static final int TAGOPEN = 100;
+        private static final int TAGCLOSE = 101;
+        private static final int UNDEFINED = 99;
+        private static final int ATTRIBUTE = 102;
         private static final int ENDCONTENT = 103;
 
         int state = -1;
@@ -388,54 +324,51 @@ public class ValidatingXmlStreamReaderTests {
 
         // Constructor Wrappers
         public XmlContentTestXSR(XMLStreamReader xsr)
-            throws XMLStreamException
-        {
+            throws XMLStreamException {
             super(xsr);
         }
 
 
-        public boolean hasNext()
-        {
-            if (state == UNDEFINED || state == ENDCONTENT)
+        public boolean hasNext() {
+            if (state == UNDEFINED || state == ENDCONTENT) {
                 return false;
+            }
 
             if (!initialized)       // next() has not been called yet
+            {
                 return true;
-
+            }
 
 
             return true;
         }
 
         public int next()
-            throws XMLStreamException
-        {
+            throws XMLStreamException {
             int _next;
-            if (!initialized)
-            {
+            if (!initialized) {
                 // First time next() is called..
                 // Scan for the first XMLEvent.START_ELEMENT
                 _next = UNDEFINED;
-                while ((super.hasNext()) && (_next != XMLEvent.START_ELEMENT))
+                while ((super.hasNext()) && (_next != XMLEvent.START_ELEMENT)) {
                     _next = super.next();
+                }
 
-                if (_next != XMLEvent.START_ELEMENT)
+                if (_next != XMLEvent.START_ELEMENT) {
                     throw new XMLStreamException(
                         "Could not find a start element");
+                }
                 initialized = true;
 
                 // Now move past the first tag
                 state = TAGOPEN;
                 depth = 1;
 
-                if ((attributeCount = super.getAttributeCount()) > 0)
-                {
+                if ((attributeCount = super.getAttributeCount()) > 0) {
                     // The first element has attributes.. this is part of
                     // the content. So the first event should XMLEvent.ATTRIBUTE
                     _next = XMLEvent.ATTRIBUTE;
-                }
-                else
-                {
+                } else {
                     // return super.next();
                     /*
                     If content is <xml-fragment/> then we will have returned
@@ -444,8 +377,7 @@ public class ValidatingXmlStreamReaderTests {
                     END_DOCUMENT
                     */
                     _next = super.next();
-                    if (_next == XMLEvent.END_ELEMENT)
-                    {
+                    if (_next == XMLEvent.END_ELEMENT) {
                         _next = XMLEvent.END_DOCUMENT;
                         state = ENDCONTENT;
                     }
@@ -454,8 +386,7 @@ public class ValidatingXmlStreamReaderTests {
             }
 
             _next = super.next();
-            switch (_next)
-            {
+            switch (_next) {
                 case XMLEvent.START_ELEMENT:
                     state = TAGOPEN;
                     depth++;
@@ -463,13 +394,10 @@ public class ValidatingXmlStreamReaderTests {
 
                 case XMLEvent.END_ELEMENT:
                     --depth;
-                    if (depth < 0 && state == TAGOPEN)
-                    {
+                    if (depth < 0 && state == TAGOPEN) {
                         throw new XMLStreamException(
                             "Illegal XML Stream state");
-                    }
-                    else if (depth == 0 && state == TAGOPEN)
-                    {
+                    } else if (depth == 0 && state == TAGOPEN) {
                         state = ENDCONTENT;
                         // at this point we will return ENDDOCUMENT
                         _next = XMLEvent.END_DOCUMENT;

@@ -17,7 +17,7 @@ package xmlobject.checkin;
 
 import org.apache.xmlbeans.*;
 import org.apache.xmlbeans.impl.values.XmlValueOutOfRangeException;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import tools.util.JarUtil;
 
 import javax.xml.namespace.QName;
@@ -27,13 +27,9 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class InstanceValidationTests {
-    static String[] _args;
-    static String _test;
-
-
     private SchemaTypeLoader makeSchemaTypeLoader(String[] schemas) throws XmlException {
         XmlObject[] schemaDocs = new XmlObject[schemas.length];
 
@@ -55,14 +51,14 @@ public class InstanceValidationTests {
     }
 
 
-    private List performValidation(String[] schemas, String instances) throws XmlException {
+    private List<XmlError> performValidation(String[] schemas, String instances) throws XmlException {
         SchemaTypeLoader stl = makeSchemaTypeLoader(schemas);
 
         XmlOptions options = new XmlOptions();
 
         XmlObject x = stl.parse(instances, null, options);
 
-        List xel = new ArrayList();
+        List<XmlError> xel = new ArrayList<>();
         options.setErrorListener(xel);
 
         x.validate(options);
@@ -71,16 +67,14 @@ public class InstanceValidationTests {
     }
 
     @Test
-    public void testValidationElementError() throws XmlException {
+    void testValidationElementError() throws XmlException {
         String bobSchema = "<xs:schema\n" + "   xmlns:xs='http://www.w3.org/2001/XMLSchema'\n" + "   xmlns:bob='http://openuri.org/bobschema'\n" + "   targetNamespace='http://openuri.org/bobschema'\n" + "   elementFormDefault='qualified'>\n" + "\n" + "  <xs:complexType name='biff'>\n" + "   <xs:complexContent>\n" + "    <xs:extension base='bob:foo'>\n" + "     <xs:sequence>\n" + "       <xs:element name='a' minOccurs='0' maxOccurs='unbounded'/>\n" + "     </xs:sequence>\n" + "    </xs:extension>\n" + "   </xs:complexContent>\n" + "  </xs:complexType>\n" + "" + "  <xs:complexType name='foo'>\n" + "  </xs:complexType>\n" + "" + "  <xs:element name='foo' type='bob:foo'>\n" + "  </xs:element>\n" + "" + "</xs:schema>\n";
 
         String invalid = "<bob:foo xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xmlns:bob='http://openuri.org/bobschema' " + "xsi:type='bob:biff'><bob:q/></bob:foo>";
 
         String[] schemas = {bobSchema};
 
-        List errors = null;
-
-        errors = performValidation(schemas, invalid);
+        List<XmlError> errors = performValidation(schemas, invalid);
         assertNotNull(errors);
         assertTrue(errors.size() > 0);
 
@@ -94,7 +88,7 @@ public class InstanceValidationTests {
     }
 
     @Test
-    public void testValidationAttributeError() throws XmlException {
+    void testValidationAttributeError() throws XmlException {
 
         String empSchema =
             "<xs:schema xmlns:xs='http://www.w3.org/2001/XMLSchema'   elementFormDefault='qualified'>\n" +
@@ -131,8 +125,6 @@ public class InstanceValidationTests {
             "</xs:schema>\n";
         String[] schemas = {empSchema};
 
-        List errors = null;
-
         String xmlInstance = "<empRecords xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' >" +
                              "<person employee='past'>" +
                              "<name>joe blow</name>" +
@@ -143,7 +135,7 @@ public class InstanceValidationTests {
                              "<age>29</age>" +
                              "</person>" +
                              "</empRecords>";
-        errors = performValidation(schemas, xmlInstance);
+        List<XmlError> errors = performValidation(schemas, xmlInstance);
         assertNotNull(errors);
         assertTrue(errors.size() > 0);
 
@@ -157,7 +149,7 @@ public class InstanceValidationTests {
     }
 
     @Test
-    public void testValidationIncorrectElementError() throws XmlException {
+    void testValidationIncorrectElementError() throws XmlException {
 
         String empSchema =
             "<xs:schema xmlns:xs='http://www.w3.org/2001/XMLSchema'   elementFormDefault='qualified'>\n" +
@@ -194,8 +186,6 @@ public class InstanceValidationTests {
             "</xs:schema>\n";
         String[] schemas = {empSchema};
 
-        List errors = null;
-
         String xmlInstance =
             "<empRecords xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' >" +
             "<person employee='past'>" +
@@ -207,11 +197,11 @@ public class InstanceValidationTests {
             "</person>" +
             "</empRecords>";
 
-        errors = performValidation(schemas, xmlInstance);
+        List<XmlError> errors = performValidation(schemas, xmlInstance);
         assertNotNull(errors);
         assertTrue(errors.size() > 0);
 
-        Iterator it = errors.iterator();
+        Iterator<XmlError> it = errors.iterator();
         assertTrue(it.hasNext());
 
         XmlValidationError xmlValError = (XmlValidationError) it.next();
@@ -230,7 +220,7 @@ public class InstanceValidationTests {
     }
 
     @Test
-    public void testValidationElementNotAllowedError() throws XmlException {
+    void testValidationElementNotAllowedError() throws XmlException {
 
         String empSchema =
             "<xs:schema xmlns:xs='http://www.w3.org/2001/XMLSchema'   elementFormDefault='qualified'>\n" +
@@ -267,8 +257,6 @@ public class InstanceValidationTests {
             "</xs:schema>\n";
         String[] schemas = {empSchema};
 
-        List errors = null;
-
         String xmlInstance =
             "<empRecords xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' >" +
             "<person employee='past'>" +
@@ -280,7 +268,7 @@ public class InstanceValidationTests {
             "<age>29</age>" +
             "</person>" +
             "</empRecords>";
-        errors = performValidation(schemas, xmlInstance);
+        List<XmlError> errors = performValidation(schemas, xmlInstance);
         assertNotNull(errors);
         // todo: enable this assert Assert.assertTrue(errors.size()>0);
 
@@ -294,7 +282,7 @@ public class InstanceValidationTests {
     }
 
     @Test
-    public void testValidationAttributeTypeError() throws XmlException {
+    void testValidationAttributeTypeError() throws XmlException {
 
         String empSchema =
             "<xs:schema xmlns:xs='http://www.w3.org/2001/XMLSchema'   elementFormDefault='qualified'>\n" +
@@ -331,8 +319,6 @@ public class InstanceValidationTests {
             "</xs:schema>\n";
         String[] schemas = {empSchema};
 
-        List errors = null;
-
         String xmlInstance = "<empRecords xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' >" +
                              "<person employee='past'>" +
                              "<name>joe blow</name>" +
@@ -343,7 +329,7 @@ public class InstanceValidationTests {
                              "<age>junk</age>" +
                              "</person>" +
                              "</empRecords>";
-        errors = performValidation(schemas, xmlInstance);
+        List<XmlError> errors = performValidation(schemas, xmlInstance);
         assertNotNull(errors);
         assertTrue(errors.size() > 0);
 
@@ -355,7 +341,7 @@ public class InstanceValidationTests {
     }
 
     @Test
-    public void testElementError() throws XmlException {
+    void testElementError() throws XmlException {
         String bobSchema =
             "<xs:schema\n" +
             "   xmlns:xs='http://www.w3.org/2001/XMLSchema'\n" +
@@ -384,19 +370,18 @@ public class InstanceValidationTests {
 
         String[] schemas = {bobSchema};
 
-        List errors = performValidation(schemas, invalid);
+        List<XmlError> errors = performValidation(schemas, invalid);
         assertNotNull(errors);
         assertTrue(errors.size() > 0);
 
-        for (Object error : errors) {
-            XmlError xmlError = (XmlError) error;
-            assertEquals(xmlError.getMessage(), "Expected element 'a@http://openuri.org/bobschema' instead of 'q@http://openuri.org/bobschema' here in element foo@http://openuri.org/bobschema");
+        for (XmlError error : errors) {
+            assertEquals(error.getMessage(), "Expected element 'a@http://openuri.org/bobschema' instead of 'q@http://openuri.org/bobschema' here in element foo@http://openuri.org/bobschema");
             // todo check XmlValidationError
         }
     }
 
     @Test
-    public void testAttributeError() throws XmlException {
+    void testAttributeError() throws XmlException {
 
         String empSchema =
             "<xs:schema xmlns:xs='http://www.w3.org/2001/XMLSchema'   elementFormDefault='qualified'>\n" +
@@ -433,8 +418,6 @@ public class InstanceValidationTests {
             "</xs:schema>\n";
         String[] schemas = {empSchema};
 
-        List errors = null;
-
         String xmlInstance =
             "<empRecords xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' >" +
             "<person employee='past'>" +
@@ -446,27 +429,25 @@ public class InstanceValidationTests {
             "<age>29</age>" +
             "</person>" +
             "</empRecords>";
-        errors = performValidation(schemas, xmlInstance);
+        List<XmlError> errors = performValidation(schemas, xmlInstance);
         assertNotNull(errors);
         assertTrue(errors.size() > 0);
 
-        for (Object error : errors) {
-            XmlError xmlError = (XmlError) error;
-            assertEquals(xmlError.getMessage(), "Expected attribute: employee in element person");
+        for (XmlError error : errors) {
+            assertEquals(error.getMessage(), "Expected attribute: employee in element person");
             // todo check XmlValidationError
         }
     }
 
     @Test
-    public void testValidate0() throws Exception {
+    void testValidate0() throws Exception {
         //
         // The most basic schema
         //
 
         String schema =
             "<xs:schema xmlns:xs='http://www.w3.org/2001/XMLSchema'>\n" +
-            "</xs:schema>" +
-            "";
+            "</xs:schema>";
 
         String[] schemas = {schema};
 
@@ -483,8 +464,7 @@ public class InstanceValidationTests {
             "      <xs:any namespace='##targetNamespace'/>\n" +
             "    </xs:sequence>\n" +
             "  </xs:complexType>\n" +
-            "</xs:schema>" +
-            "";
+            "</xs:schema>";
 
         String[] schemas99 = {schema};
 
@@ -494,16 +474,14 @@ public class InstanceValidationTests {
         // A big, nasty schema :-)
         //
 
-        File schemeFile =
-            JarUtil.getResourceFromJarasFile("xbean/xmlobject/store/XMLSchema.xsd");
+        File schemeFile = JarUtil.getResourceFromJarasFile("xbean/xmlobject/store/XMLSchema.xsd");
         File xmlFile = JarUtil.getResourceFromJarasFile("xbean/xmlobject/store/XML.xsd");
 
         File[] schemasF = {schemeFile, xmlFile};
 
         stl = makeSchemaTypeLoader(schemasF);
 
-        SchemaType type =
-            stl.findDocumentType(
+        SchemaType type = stl.findDocumentType(
                 new QName("http://www.w3.org/2001/XMLSchema", "schema"));
 
         assertNotNull(type);
@@ -537,12 +515,7 @@ public class InstanceValidationTests {
         schema = "<foo/>";
 
         String[] schemas2 = {schema};
-
-        try {
-            stl = makeSchemaTypeLoader(schemas2);
-            fail();
-        } catch (Exception e) {
-        }
+        assertThrows(Exception.class, () -> makeSchemaTypeLoader(schemas2));
 
         //
         // A bad schema
@@ -550,21 +523,14 @@ public class InstanceValidationTests {
         schema =
             "<xs:schema xmlns:xs='http://www.w3.org/2001/XMLSchema'>\n" +
             "  <foo/>\n" +
-            "</xs:schema>" +
-            "";
+            "</xs:schema>";
 
         String[] schemas3 = {schema};
-
-        try {
-            makeSchemaTypeLoader(schemas3);
-
-            fail();
-        } catch (XmlException e) {
-        }
+        assertThrows(Exception.class, () -> makeSchemaTypeLoader(schemas3));
     }
 
     @Test
-    public void testValidate1() throws Exception {
+    void testValidate1() throws Exception {
         String ericSchema =
             "<xs:schema\n" +
             "   xmlns:xs='http://www.w3.org/2001/XMLSchema'\n" +
@@ -654,7 +620,7 @@ public class InstanceValidationTests {
     }
 
     @Test
-    public void testValidate2() throws Exception {
+    void testValidate2() throws Exception {
         String bobSchema =
             "<xs:schema\n" +
             "   xmlns:xs='http://www.w3.org/2001/XMLSchema'\n" +
@@ -698,7 +664,7 @@ public class InstanceValidationTests {
     }
 
     @Test
-    public void testValidate3() throws Exception {
+    void testValidate3() throws Exception {
         String schema =
             "<xs:schema xmlns:xs='http://www.w3.org/2001/XMLSchema'>\n" +
             "" +
@@ -1167,7 +1133,7 @@ public class InstanceValidationTests {
 
 
     @Test
-    public void testValidate5() throws Exception {
+    void testValidate5() throws Exception {
         String schema =
             "<xs:schema xmlns:xs='http://www.w3.org/2001/XMLSchema'>\n" +
             "\n" +
@@ -1223,13 +1189,13 @@ public class InstanceValidationTests {
                 "<hee yee='five'><haw>66</haw></hee>",
                 null, null);
 
-        assertTrue(!x.validate());
+        assertFalse(x.validate());
 
         try (XmlCursor c = x.newCursor()) {
             c.toNextToken();
             c.toNextToken();
 
-            assertTrue(!c.getObject().validate());
+            assertFalse(c.getObject().validate());
         }
 
         // No schema
@@ -1248,8 +1214,8 @@ public class InstanceValidationTests {
         }
     }
 
-    @Test(expected = XmlException.class)
-    public void testValidate6() throws Exception {
+    @Test
+    void testValidate6() throws Exception {
         String schema =
             "<xs:schema xmlns:xs='http://www.w3.org/2001/XMLSchema'>\n" +
             "  <xs:element name='hee'>\n" +
@@ -1261,11 +1227,11 @@ public class InstanceValidationTests {
 
 
         // Should get a schema compile error
-        makeSchemaTypeLoader(schemas);
+        assertThrows(XmlException.class, () -> makeSchemaTypeLoader(schemas));
     }
 
     @Test
-    public void testValidate7() throws Exception {
+    void testValidate7() throws Exception {
         String schema =
             "<xs:schema xmlns:xs='http://www.w3.org/2001/XMLSchema'>" +
             "" +
@@ -1308,7 +1274,7 @@ public class InstanceValidationTests {
             c.toEndToken();
             c.insertElement("bar");
 
-            assertTrue(!x.validate());
+            assertFalse(x.validate());
 
             c.toPrevSibling();
 
@@ -1326,7 +1292,7 @@ public class InstanceValidationTests {
 
     // Tests abstract & block attributes on ComplexType
     @Test
-    public void testValidate8() throws Exception {
+    void testValidate8() throws Exception {
         String[] schemas = {
             "<xs:schema xmlns:xs='http://www.w3.org/2001/XMLSchema'>" +
             "" +
@@ -1375,7 +1341,7 @@ public class InstanceValidationTests {
     }
 
     @Test
-    public void testValidate9() throws Exception {
+    void testValidate9() throws Exception {
 
         String[] schemas = {
             "<xs:schema xmlns:xs='http://www.w3.org/2001/XMLSchema'>" +
@@ -1664,7 +1630,7 @@ public class InstanceValidationTests {
 
     // Test validation of setting with the ValidateOnSet option
     @Test
-    public void testValidate10() throws Exception {
+    void testValidate10() throws Exception {
         String schema =
             "<xs:schema xmlns:xs='http://www.w3.org/2001/XMLSchema'>\n" +
             "  <xs:simpleType name='dec-restriction'>" +
@@ -1683,22 +1649,16 @@ public class InstanceValidationTests {
 
         SchemaType st = stl.findType(new QName("", "dec-restriction"));
 
-        XmlDecimal dec = (XmlDecimal) stl.newInstance(st, validate);
+        XmlDecimal dec1 = (XmlDecimal) stl.newInstance(st, validate);
+        assertThrows(XmlValueOutOfRangeException.class, () -> dec1.setStringValue("200"));
 
-        try {
-            dec.setStringValue("200");
-            fail("Expected XmlValueOutOfRangeException");
-        } catch (XmlValueOutOfRangeException e) {
-        }
-
-        dec = (XmlDecimal) stl.newInstance(st, noValidate);
-
-        dec.setStringValue("200");
+        XmlDecimal dec2 = (XmlDecimal) stl.newInstance(st, noValidate);
+        dec2.setStringValue("200");
     }
 
     // tests numeral validation
     @Test
-    public void testValidate11() throws Exception {
+    void testValidate11() throws Exception {
         String schema =
             "<xs:schema\n" +
             "   xmlns:xs='http://www.w3.org/2001/XMLSchema'\n" +
@@ -1760,7 +1720,7 @@ public class InstanceValidationTests {
 
     // Bugzilla bug #26105: validate derived type from base type enumeration
     @Test
-    public void testValidate12() throws Exception {
+    void testValidate12() throws Exception {
         String[] schemas = {
             "<xsd:schema xmlns:xsd='http://www.w3.org/2001/XMLSchema'>\n" +
 
@@ -1791,7 +1751,7 @@ public class InstanceValidationTests {
     }
 
     @Test
-    public void testValidateNestedGroups() throws Exception {
+    void testValidateNestedGroups() throws Exception {
         // This is a weird Schema, inspired from JIRA bug XMLBEANS-35
         // Make sure we compile it and then validate correctly
         String[] schemas = {
@@ -1903,7 +1863,7 @@ public class InstanceValidationTests {
             XmlObject x;
 
             try {
-                x = stl.parse((String) invalidInstances[i], null, options);
+                x = stl.parse(invalidInstances[i], null, options);
 
                 if (!startOnDocument) {
                     try (XmlCursor c = x.newCursor()) {
@@ -1922,7 +1882,7 @@ public class InstanceValidationTests {
                 }
 
                 assertFalse(isValid);
-            } catch (XmlException e) {
+            } catch (XmlException ignored) {
             }
         }
     }

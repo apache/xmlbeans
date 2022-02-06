@@ -15,40 +15,37 @@
 
 package xmlcursor.checkin;
 
-import org.apache.xmlbeans.XmlObject;
-import org.junit.Test;
-import tools.util.JarUtil;
-import xmlcursor.common.BasicCursorTestCase;
+import org.apache.xmlbeans.XmlCursor;
+import org.junit.jupiter.api.Test;
 import xmlcursor.common.Common;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static xmlcursor.common.BasicCursorTestCase.jcur;
 
-public class ClearSelectionTest extends BasicCursorTestCase {
+public class ClearSelectionTest {
+
     @Test
-    public void testClearSelection() throws Exception {
-        //m_xo = XmlObject.Factory.parse(Common.XML_PURCHASEORDER);
-        m_xo = XmlObject.Factory.parse(
-                JarUtil.getResourceFromJar(Common.TRANXML_FILE_XMLCURSOR_PO));
-        m_xc = m_xo.newCursor();
-        String ns="declare namespace po=\"http://xbean.test/xmlcursor/PurchaseOrder\";";
-        String exp_ns="xmlns:po=\"http://xbean.test/xmlcursor/PurchaseOrder\"";
-        m_xc.selectPath(ns+" $this//po:city");
-        m_xc.toNextSelection();
-        assertEquals("Mill Valley", m_xc.getTextValue());
-        assertEquals("<po:city "+exp_ns+">Mill Valley</po:city>", m_xc.xmlText());
-        m_xc.clearSelections();
-        assertFalse(m_xc.toNextSelection());
-        assertEquals("Mill Valley", m_xc.getTextValue());
-        assertEquals("<po:city "+exp_ns+">Mill Valley</po:city>", m_xc.xmlText());
+    void testClearSelection() throws Exception {
+        try (XmlCursor m_xc = jcur(Common.TRANXML_FILE_XMLCURSOR_PO)) {
+            String ns = "declare namespace po=\"http://xbean.test/xmlcursor/PurchaseOrder\";";
+            String exp_ns = "xmlns:po=\"http://xbean.test/xmlcursor/PurchaseOrder\"";
+            m_xc.selectPath(ns + " $this//po:city");
+            m_xc.toNextSelection();
+            assertEquals("Mill Valley", m_xc.getTextValue());
+            assertEquals("<po:city " + exp_ns + ">Mill Valley</po:city>", m_xc.xmlText());
+            m_xc.clearSelections();
+            assertFalse(m_xc.toNextSelection());
+            assertEquals("Mill Valley", m_xc.getTextValue());
+            assertEquals("<po:city " + exp_ns + ">Mill Valley</po:city>", m_xc.xmlText());
+        }
     }
 
     @Test
-    public void testClearSelectionNoSelection() throws Exception {
-        m_xo = XmlObject.Factory.parse(
-               JarUtil.getResourceFromJar(Common.TRANXML_FILE_XMLCURSOR_PO));
-        m_xc = m_xo.newCursor();
-        m_xc.clearSelections();
+    void testClearSelectionNoSelection() throws Exception {
+        try (XmlCursor m_xc = jcur(Common.TRANXML_FILE_XMLCURSOR_PO)) {
+            m_xc.clearSelections();
+        }
     }
 }
 

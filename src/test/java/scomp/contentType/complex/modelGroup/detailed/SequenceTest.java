@@ -15,37 +15,38 @@
 package scomp.contentType.complex.modelGroup.detailed;
 
 import org.apache.xmlbeans.XmlErrorCodes;
+import org.apache.xmlbeans.XmlOptions;
 import org.apache.xmlbeans.XmlString;
-import org.junit.Test;
-import scomp.common.BaseCase;
+import org.junit.jupiter.api.Test;
 import xbean.scomp.contentType.modelGroup.SequenceEltDocument;
 import xbean.scomp.contentType.modelGroup.SequenceT;
 
 import java.math.BigInteger;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
+import static scomp.common.BaseCase.createOptions;
+import static scomp.common.BaseCase.getErrorCodes;
 
-public class SequenceTest extends BaseCase {
+public class SequenceTest {
 
     @Test
-    public void testWrongOrder() throws Throwable {
-        SequenceEltDocument doc = SequenceEltDocument.Factory
-                .parse("<foo:SequenceElt xmlns:foo=\"http://xbean/scomp/contentType/ModelGroup\">" +
-                "<child1>1</child1>" +
-                "<child3>2</child3>" +
-                "<child2>Foobar</child2>" +
-                "</foo:SequenceElt>   ");
+    void testWrongOrder() throws Throwable {
+        String input =
+            "<foo:SequenceElt xmlns:foo=\"http://xbean/scomp/contentType/ModelGroup\">" +
+            "<child1>1</child1>" +
+            "<child3>2</child3>" +
+            "<child2>Foobar</child2>" +
+            "</foo:SequenceElt>   ";
+        SequenceEltDocument doc = SequenceEltDocument.Factory.parse(input);
 
-        assertTrue(!doc.validate(validateOptions));
-        showErrors();
-        String[] errExpected = new String[]{
-            XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$EXPECTED_DIFFERENT_ELEMENT};
-        assertTrue(compareErrorCodes(errExpected));
+        XmlOptions validateOptions = createOptions();
+        assertFalse(doc.validate(validateOptions));
+        String[] errExpected = {XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$EXPECTED_DIFFERENT_ELEMENT};
+        assertArrayEquals(errExpected, getErrorCodes(validateOptions));
     }
 
     @Test
-    public void testWrongCardinality() {
+    void testWrongCardinality() {
         SequenceEltDocument doc = SequenceEltDocument.Factory.newInstance();
         SequenceT elt = doc.addNewSequenceElt();
         XmlString valueStr = XmlString.Factory.newInstance();
@@ -56,17 +57,15 @@ public class SequenceTest extends BaseCase {
         elt.addChild3(valueInt);
         elt.setChild3Array(1, new BigInteger("10"));
         assertEquals("<xml-fragment><child3>-3</child3>" +
-                "<child3>10</child3></xml-fragment>", elt.xmlText());
-        assertTrue(!elt.validate(validateOptions));
-        assertEquals(3, errorList.size());
+                                "<child3>10</child3></xml-fragment>", elt.xmlText());
+        XmlOptions validateOptions = createOptions();
+        assertFalse(elt.validate(validateOptions));
 
-        showErrors();
         String[] errExpected = new String[]{
-             XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$EXPECTED_DIFFERENT_ELEMENT,
-              XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$EXPECTED_DIFFERENT_ELEMENT,
-             XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$MISSING_ELEMENT
+            XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$EXPECTED_DIFFERENT_ELEMENT,
+            XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$EXPECTED_DIFFERENT_ELEMENT,
+            XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$MISSING_ELEMENT
         };
-        assertTrue(compareErrorCodes(errExpected));
-
+        assertArrayEquals(errExpected, getErrorCodes(validateOptions));
     }
 }

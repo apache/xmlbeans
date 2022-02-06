@@ -22,12 +22,12 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -47,23 +47,12 @@ import static org.w3c.domts.DOMTest.load;
  */
 public class createElementNS01 {
     @Test
-    public void testRun() throws Throwable {
+    void testRun() throws Throwable {
         String namespaceURI = "http://www.ecommerce.org/";
         String malformedName = "prefix::local";
-        Document doc;
-        Element newElement;
-        doc = load("staffNS", false);
-
-        {
-            boolean success = false;
-            try {
-                newElement = doc.createElementNS(namespaceURI, malformedName);
-            } catch (DOMException ex) {
-                success = (ex.code == DOMException.NAMESPACE_ERR);
-            }
-            assertTrue("throw_NAMESPACE_ERR", success);
-        }
-
+        Document doc = load("staffNS", false);
+        DOMException ex = assertThrows(DOMException.class, () -> doc.createElementNS(namespaceURI, malformedName));
+        assertEquals(DOMException.NAMESPACE_ERR, ex.code, "throw_NAMESPACE_ERR");
     }
 
     /**

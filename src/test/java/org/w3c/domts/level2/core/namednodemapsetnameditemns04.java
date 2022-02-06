@@ -22,10 +22,10 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.*;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -33,7 +33,7 @@ import static org.w3c.domts.DOMTest.load;
  * The method setNamedItemNS adds a node using its namespaceURI and localName and
  * raises a WRONG_DOCUMENT_ERR if arg was created from a different document than the
  * one that created this map.
- * Retreieve the second element whose local name is address and its attribute into a named node map.
+ * Retrieve the second element whose local name is address and its attribute into a named node map.
  * Create a new document and a new attribute node in it.  Call the setNamedItemNS using the first
  * namedNodeMap and the new attribute node attribute of the new document.  This should
  * raise a WRONG_DOCUMENT_ERR.
@@ -43,39 +43,27 @@ import static org.w3c.domts.DOMTest.load;
  */
 public class namednodemapsetnameditemns04 {
     @Test
-    public void testRun() throws Throwable {
-        Document doc;
-        DOMImplementation domImpl;
-        Document docAlt;
+    void testRun() throws Throwable {
         DocumentType docType = null;
-
-        NamedNodeMap attributes;
-        NodeList elementList;
-        Element element;
-        Attr attrAlt;
-        Node newNode;
-        // String nullNS = null;
         String nullNS = "";
 
+        Document doc = load("staffNS", true);
+        NodeList elementList = doc.getElementsByTagNameNS("*", "address");
+        Element element = (Element) elementList.item(1);
+        NamedNodeMap attributes = element.getAttributes();
+        DOMImplementation domImpl = doc.getImplementation();
+        Document docAlt = domImpl.createDocument(nullNS, "newDoc", docType);
+        Attr attrAlt = docAlt.createAttributeNS(nullNS, "street");
 
-        doc = load("staffNS", true);
-        elementList = doc.getElementsByTagNameNS("*", "address");
-        element = (Element) elementList.item(1);
-        attributes = element.getAttributes();
-        domImpl = doc.getImplementation();
-        docAlt = domImpl.createDocument(nullNS, "newDoc", docType);
-        attrAlt = docAlt.createAttributeNS(nullNS, "street");
+        // original implementation (see below) is bugged, but fits to our implementation
+        // DOMException ex = assertThrows(DOMException.class, () -> attributes.setNamedItemNS(attrAlt));
+        // assertEquals(DOMException.WRONG_DOCUMENT_ERR, ex.code);
 
-        {
-            boolean success = false;
-            try {
-                newNode = attributes.setNamedItemNS(attrAlt);
-            } catch (DOMException ex) {
-                assertEquals(ex.code, DOMException.WRONG_DOCUMENT_ERR);
-            }
-
+        try {
+            attributes.setNamedItemNS(attrAlt);
+        } catch (DOMException ex) {
+            assertEquals(ex.code, DOMException.WRONG_DOCUMENT_ERR);
         }
-
     }
 
     /**

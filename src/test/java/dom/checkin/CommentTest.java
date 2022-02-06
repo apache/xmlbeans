@@ -17,13 +17,13 @@
 package dom.checkin;
 
 import dom.common.CharacterDataTest;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Node;
 import org.w3c.dom.Text;
 import xmlcursor.common.Common;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
 public class CommentTest extends CharacterDataTest {
@@ -35,24 +35,22 @@ public class CommentTest extends CharacterDataTest {
     }
 
     @Test
-    public void testNodeName() {
+    void testNodeName() {
         assertEquals("#comment", m_node.getNodeName());
     }
 
     @Test
-    public void testNodeValue() {
-        System.out.println("Comment testNodeValue");
+    void testNodeValue() {
         assertEquals(" comment text ", m_node.getNodeValue());
-        System.out.println("Comment testNodeValue DONE");
     }
 
     @Test
-    public void testNodeType() {
+    void testNodeType() {
         assertEquals(Node.COMMENT_NODE, m_node.getNodeType());
     }
 
     @Test
-    public void testNextSibling() {
+    void testNextSibling() {
         Node nxtSibling = m_node.getNextSibling();
         assertEquals("foo", nxtSibling.getLocalName());
         assertEquals(m_doc.getChildNodes().item(1), nxtSibling);
@@ -61,19 +59,19 @@ public class CommentTest extends CharacterDataTest {
     }
 
     @Test
-    public void testPreviousSibling() {
+    void testPreviousSibling() {
         Node prSibling = m_node.getPreviousSibling();
         assertEquals(null, prSibling);
     }
 
     @Test
-    public void testParent() {
+    void testParent() {
         Node parent = m_node.getParentNode();
         assertEquals(m_doc, parent);
     }
 
     @Test
-    public void testSetNodeValue() {
+    void testSetNodeValue() {
         m_node.setNodeValue("new comment");
         assertEquals("new comment", m_doc.getFirstChild().getNodeValue());
     }
@@ -84,7 +82,7 @@ public class CommentTest extends CharacterDataTest {
 
     }
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         super.setUp();
         moveToNode();

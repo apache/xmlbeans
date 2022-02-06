@@ -22,13 +22,14 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Attr;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -43,28 +44,15 @@ import static org.w3c.domts.DOMTest.load;
  */
 public class elementsetattributenodens04 {
     @Test
-    public void testRun() throws Throwable {
-        Document doc;
-        Element element1;
-        Element element2;
-        Attr attribute;
-        Attr newAttribute;
-        doc = load("staffNS", true);
-        element1 = doc.createElementNS("http://www.w3.org/DOM/Test", "elem1");
-        element2 = doc.createElementNS("http://www.w3.org/DOM/Test", "elem2");
-        attribute = doc.createAttributeNS("http://www.w3.org/DOM/Test", "attr");
-        newAttribute = element1.setAttributeNodeNS(attribute);
+    void testRun() throws Throwable {
+        Document doc = load("staffNS", true);
+        Element element1 = doc.createElementNS("http://www.w3.org/DOM/Test", "elem1");
+        Element element2 = doc.createElementNS("http://www.w3.org/DOM/Test", "elem2");
+        Attr attribute = doc.createAttributeNS("http://www.w3.org/DOM/Test", "attr");
+        Attr newAttribute = element1.setAttributeNodeNS(attribute);
 
-        {
-            boolean success = false;
-            try {
-                newAttribute = element2.setAttributeNodeNS(attribute);
-            } catch (DOMException ex) {
-                success = (ex.code == DOMException.INUSE_ATTRIBUTE_ERR);
-            }
-            assertTrue("elementsetattributenodens04", success);
-        }
-
+        DOMException ex = assertThrows(DOMException.class, () -> element2.setAttributeNodeNS(attribute));
+        assertEquals(DOMException.INUSE_ATTRIBUTE_ERR, ex.code, "elementsetattributenodens04");
     }
 
     /**

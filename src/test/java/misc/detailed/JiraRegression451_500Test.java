@@ -19,23 +19,22 @@ import misc.common.JiraTestBase;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.Reader;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class JiraRegression451_500Test extends JiraTestBase {
     /*
-    * [XMLBEANS-487]: Entity replacement in wrong place when expansion
-    * coincides with buffer growth
-    */
+     * [XMLBEANS-487]: Entity replacement in wrong place when expansion
+     * coincides with buffer growth
+     */
     @Test
-    public void test_jira_xmlbeans487() throws IOException, XmlException
-    {
-    	XmlObject dok = XmlObject.Factory.parse(new File(JIRA_CASES + "xmlbeans_487.xml"));
+    void test_jira_xmlbeans487() throws IOException, XmlException {
+        XmlObject dok = XmlObject.Factory.parse(new File(JIRA_CASES + "xmlbeans_487.xml"));
 
         XmlOptions XML_OPTIONS = new XmlOptions().setSaveOuter().setSaveNamespacesFirst().setSaveAggressiveNamespaces();
         int INITIAL_READ = 28;
@@ -48,6 +47,6 @@ public class JiraRegression451_500Test extends JiraTestBase {
 
         String totalResult = part1 + part2;
 
-        assertEquals("Should be identical", dok.xmlText(XML_OPTIONS), totalResult);
+        assertEquals(dok.xmlText(XML_OPTIONS), totalResult, "Should be identical");
     }
 }

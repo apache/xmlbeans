@@ -22,13 +22,13 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.DocumentFragment;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import static org.junit.Assert.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -46,23 +46,15 @@ import static org.w3c.domts.DOMTest.load;
  */
 public class documentimportnode09 {
     @Test
-    public void testRun() throws Throwable {
-        Document doc;
-        DocumentFragment docFragment;
-        NodeList childList;
-        boolean success;
-        Node addressNode;
-        Node appendedChild;
-        Node importedDocFrag;
-        doc = load("staffNS", true);
-        docFragment = doc.createDocumentFragment();
-        childList = doc.getElementsByTagNameNS("*", "address");
-        addressNode = childList.item(0);
-        appendedChild = docFragment.appendChild(addressNode);
-        importedDocFrag = doc.importNode(docFragment, false);
-        success = importedDocFrag.hasChildNodes();
-        assertFalse("documentimportnode09", success);
-
+    void testRun() throws Throwable {
+        Document doc = load("staffNS", true);
+        DocumentFragment docFragment = doc.createDocumentFragment();
+        NodeList childList = doc.getElementsByTagNameNS("*", "address");
+        Node addressNode = childList.item(0);
+        docFragment.appendChild(addressNode);
+        Node importedDocFrag = doc.importNode(docFragment, false);
+        boolean success = importedDocFrag.hasChildNodes();
+        assertFalse(success, "documentimportnode09");
     }
 
     /**

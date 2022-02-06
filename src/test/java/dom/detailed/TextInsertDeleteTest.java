@@ -18,11 +18,11 @@ package dom.detailed;
 
 import dom.common.Loader;
 import org.apache.xmlbeans.XmlObject;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.*;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class TextInsertDeleteTest {
     String sXml = "<foo>txt0<bar/>txt1<baz/>txt2</foo>";
@@ -32,7 +32,7 @@ public class TextInsertDeleteTest {
     Node m_node;
 
     @Test
-    public void testBuildMixedContent(){
+    void testBuildMixedContent(){
         DOMImplementation domImpl = XmlObject.Factory.newDomImplementation(null);
         m_doc = domImpl.createDocument("foobar", "val", null);
         Element root = m_doc.getDocumentElement();
@@ -47,7 +47,7 @@ public class TextInsertDeleteTest {
     }
 
     @Test
-    public void testAdjacent() {
+    void testAdjacent() {
         NodeList ch = m_node.getChildNodes();
         m_node.removeChild(ch.item(1));
         assertEquals(ch.getLength(), 4);
@@ -60,7 +60,7 @@ public class TextInsertDeleteTest {
     }
 
     @Test
-    public void testInsertDelete() {
+    void testInsertDelete() {
         //eric test
         // TODO: three children delete middle--verify length
         m_node = m_docNS.getFirstChild();
@@ -93,7 +93,7 @@ public class TextInsertDeleteTest {
     }
 
     @Test
-    public void testInsertDeleteBulk() {
+    void testInsertDeleteBulk() {
 
         int nNodeCnt = 16;
         m_node = m_docNS.getDocumentElement();
@@ -113,7 +113,7 @@ public class TextInsertDeleteTest {
                 m_node.removeChild(nodes[i]);
         }
 
-        assertEquals(nNodeCnt/2 , ch.getLength());
+        assertEquals(nNodeCnt / 2, ch.getLength());
 
         //split all remaining nodes
 
@@ -134,7 +134,7 @@ public class TextInsertDeleteTest {
 
     }
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         Loader loader = Loader.getLoader();
         if (sXml == null && sXmlNS == null) throw new IllegalArgumentException("Test bug : Initialize xml strings");

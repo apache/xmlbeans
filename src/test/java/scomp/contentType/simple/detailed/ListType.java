@@ -16,158 +16,104 @@
 package scomp.contentType.simple.detailed;
 
 import org.apache.xmlbeans.XmlErrorCodes;
+import org.apache.xmlbeans.XmlOptions;
 import org.apache.xmlbeans.XmlSimpleList;
 import org.apache.xmlbeans.impl.values.XmlValueNotSupportedException;
 import org.apache.xmlbeans.impl.values.XmlValueOutOfRangeException;
-import org.junit.Ignore;
-import org.junit.Test;
-import scomp.common.BaseCase;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import xbean.scomp.contentType.list.*;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
+import static scomp.common.BaseCase.createOptions;
+import static scomp.common.BaseCase.getErrorCodes;
 
-public class ListType extends BaseCase {
+public class ListType {
     @Test
-    public void testListTypeAnonymous() throws Throwable {
-        ListEltTokenDocument doc =
-                ListEltTokenDocument.Factory.newInstance();
+    void testListTypeAnonymous() throws Throwable {
+        ListEltTokenDocument doc = ListEltTokenDocument.Factory.newInstance();
         assertNull(doc.getListEltToken());
         List<Object> values = new LinkedList<>();
         values.add("lstsmall");
         values.add("lstmedium");
         doc.setListEltToken(values);
-        try {
-            assertTrue(doc.validate(validateOptions));
-        }
-        catch (Throwable t) {
-            showErrors();
-            throw t;
-        }
+        assertTrue(doc.validate(createOptions()));
         values.set(0, 4);
 
         // since the list has enumerations, it contains a fixed number of Java constants in the xobj
         // which are checked for types and an exception is expected irrespective of validateOnSet XmlOption
         // if the value being set is not one of them
-        boolean vneThrown = false;
-        try{
-        doc.setListEltToken(values);
-        }
-        catch(XmlValueNotSupportedException vne){
-            vneThrown = true;
-        }
-        finally{
-            if(!vneThrown)
-                fail("Expected XmlValueOutOfRangeException here");
-        }
-
+        assertThrows(XmlValueNotSupportedException.class, () -> doc.setListEltToken(values));
     }
 
     @Test
-    public void testListTypeGlobal() throws Throwable {
+    void testListTypeGlobal() throws Throwable {
         String input =
-                "<ListEltInt xmlns=\"http://xbean/scomp/contentType/List\"" +
-                " xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" >" +
-                "-1 -3" +
-                "</ListEltInt>";
-        ListEltIntDocument doc =
-                ListEltIntDocument.Factory.parse(input);
+            "<ListEltInt xmlns=\"http://xbean/scomp/contentType/List\"" +
+            " xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" >" +
+            "-1 -3" +
+            "</ListEltInt>";
+        ListEltIntDocument doc = ListEltIntDocument.Factory.parse(input);
         List result = doc.getListEltInt();
         assertEquals(-1, ((Integer) result.get(0)).intValue());
         assertEquals(-3, ((Integer) result.get(1)).intValue());
         GlobalSimpleT gst = GlobalSimpleT.Factory.newInstance();
-        try {
-            result.set(0, "foobar");
-        }
-        catch (UnsupportedOperationException e) {
-            //immutable list
-            assertTrue(result instanceof XmlSimpleList);
-        }
+        assertTrue(result instanceof XmlSimpleList);
+        // immutable list
+        assertThrows(UnsupportedOperationException.class, () -> result.set(0, "foobar"));
+
         List<String> arrayList = new ArrayList<>();
         arrayList.add("foobar");
         List<String> newList = new XmlSimpleList<>(arrayList);
         assertThrows(XmlValueOutOfRangeException.class, () -> gst.setListValue(newList));
         doc.xsetListEltInt(gst);
-         try {
-            assertTrue(doc.validate(validateOptions));
-        }
-        catch (Throwable t) {
-            showErrors();
-            throw t;
-        }
+        assertTrue(doc.validate(createOptions()));
     }
 
-    @Ignore
+    @Disabled
     public void testListofLists() {
         //also,a list of union that contains a list is not OK
-        fail("Compile Time eror");
+        Assertions.fail("Compile Time eror");
     }
 
     /**
      * values should be in [small,medium,large,1-3,-3,-2,-1]
      */
     @Test
-    public void testListofUnions() throws Throwable {
-        ListUnionDocument doc =
-                ListUnionDocument.Factory.newInstance();
-        List<Object> arrayList = new ArrayList<>();
-        arrayList.add("small");
-        arrayList.add("large");
-        arrayList.add(-1);
-        arrayList.add(2);
+    void testListofUnions() throws Throwable {
+        ListUnionDocument doc = ListUnionDocument.Factory.newInstance();
+        List<Object> arrayList = Arrays.asList("small", "large", -1, 2);
         doc.setListUnion(arrayList);
-
-        try {
-            assertTrue(doc.validate(validateOptions));
-        }
-        catch (Throwable t) {
-            showErrors();
-            throw t;
-        }
+        assertTrue(doc.validate(createOptions()));
     }
 
     @Test
-    public void testListofUnionsIllegal() throws Throwable {
+    void testListofUnionsIllegal() throws Throwable {
         String input =
-                "<ListUnion xmlns=\"http://xbean/scomp/contentType/List\"" +
-                " xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" >" +
-                "small -3 11" +
-                "</ListUnion>";
-        ListUnionDocument doc =
-                ListUnionDocument.Factory.parse(input);
+            "<ListUnion xmlns=\"http://xbean/scomp/contentType/List\"" +
+            " xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" >" +
+            "small -3 11" +
+            "</ListUnion>";
+        ListUnionDocument doc = ListUnionDocument.Factory.parse(input);
+        XmlOptions validateOptions = createOptions();
         assertFalse(doc.validate(validateOptions));
-        showErrors();
-        String[] errExpected = new String[]{
-            XmlErrorCodes.DATATYPE_VALID$UNION
-        };
-        assertTrue(compareErrorCodes(errExpected));
-
+        String[] errExpected = {XmlErrorCodes.DATATYPE_VALID$UNION};
+        assertArrayEquals(errExpected, getErrorCodes(validateOptions));
     }
 
 
     @Test
-    public void testListofUnions2() throws Throwable {
-        ListUnion2Document doc =
-                ListUnion2Document.Factory.newInstance();
-        List<Object> arrayList = new ArrayList<>();
-        arrayList.add("small");
-        arrayList.add("large");
-        arrayList.add(-1);
-        arrayList.add(2);
-        arrayList.add("addVal1");
-        arrayList.add("addVal2");
-        arrayList.add("addVal3");
-        doc.setListUnion2(arrayList);
+    void testListofUnions2() throws Throwable {
+        ListUnion2Document doc = ListUnion2Document.Factory.newInstance();
+        List<Object> arrayList = Arrays.asList("small", "large", -1, 2, "addVal1", "addVal2", "addVal3");
 
-        try {
-            assertTrue(doc.validate(validateOptions));
-        }
-        catch (Throwable t) {
-            showErrors();
-            throw t;
-        }
+        doc.setListUnion2(arrayList);
+        assertTrue(doc.validate(createOptions()));
     }
 }

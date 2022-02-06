@@ -16,9 +16,9 @@
 package dom.detailed;
 
 import dom.common.Loader;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -26,7 +26,7 @@ import org.xml.sax.InputSource;
 
 import java.io.StringReader;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 
 public class ImportUnsupportedNodesTest {
@@ -37,8 +37,20 @@ public class ImportUnsupportedNodesTest {
     String sER="<!DOCTYPE note [<!ENTITY ORG \"IICD\">] >"
         +"<foo>&ORG;</foo>";
 
+
+	//TODO: see if code coverage can help id gaps here...
+	@BeforeEach
+	public void setUp() throws Exception{
+		Loader _loader = Loader.getLoader();
+		if (sXml == null) throw new IllegalArgumentException("Test bug : Initialize xml strings");
+		m_doc = (org.w3c.dom.Document) _loader.load(sXml);
+
+		m_node = m_doc.getFirstChild();
+	}
+
+
 	@Test
-	@Ignore("not implemented")
+	@Disabled("not implemented")
     public void testImportEnitityNode()throws Exception{
 		org.apache.xerces.parsers.DOMParser parser = new org.apache.xerces.parsers.DOMParser();
 		parser.parse(new InputSource(new StringReader(sER)));
@@ -54,7 +66,7 @@ public class ImportUnsupportedNodesTest {
     }
 
 	@Test
-	@Ignore("not implemented")
+	@Disabled("not implemented")
     public void testImportERNode()throws Exception{
 		org.apache.xerces.parsers.DOMParser parser = new org.apache.xerces.parsers.DOMParser();
 		parser.parse(new InputSource(new StringReader(sER)));
@@ -74,26 +86,21 @@ public class ImportUnsupportedNodesTest {
      *   DOCUMENT_TYPE_NODE
      *   cannot be imported.
      */
-	@Test(expected = DOMException.class)
-    public void testImportDocType() throws Exception{
+	@Test
+    void testImportDocType() throws Exception{
 		org.apache.xerces.parsers.DOMParser parser = new org.apache.xerces.parsers.DOMParser();
 		parser.parse(new InputSource(new StringReader(sER)));
 		Document xercesDocument = parser.getDocument();
 		assertNotNull(xercesDocument);
 		Node toImport = xercesDocument.getDoctype();
 
-		try {
-			Node importedNode = m_doc.importNode(toImport, true);
-			fail("can't import DocType Node");
-		} catch (DOMException e) {
+		assertThrows(DOMException.class, () -> m_doc.importNode(toImport, true), "can't import DocType Node");
 
-		}
-
-		m_doc.importNode(toImport, false);
+		assertThrows(DOMException.class, () -> m_doc.importNode(toImport, false));
      }
 
 	@Test
-	public void testImportCDATAType() throws Exception{
+	void testImportCDATAType() throws Exception{
 		org.apache.xerces.parsers.DOMParser parser = new org.apache.xerces.parsers.DOMParser();
 		parser.parse(new InputSource(new StringReader(sER)));
 		Document xercesDocument = parser.getDocument();
@@ -116,16 +123,5 @@ public class ImportUnsupportedNodesTest {
 		assertEquals(importedNode, m_node.getFirstChild());
 		assertEquals(Node.CDATA_SECTION_NODE, m_node.getFirstChild().getNodeType());
      }
-
-
-    //TODO: see if code coverage can help id gaps here...
-	@Before
-  	public void setUp() throws Exception{
-		Loader _loader = Loader.getLoader();
-		if (sXml == null) throw new IllegalArgumentException("Test bug : Initialize xml strings");
-		m_doc = (org.w3c.dom.Document) _loader.load(sXml);
-
-		m_node = m_doc.getFirstChild();
-    }
 }
 

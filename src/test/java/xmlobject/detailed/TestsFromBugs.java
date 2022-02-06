@@ -20,38 +20,33 @@ import com.mytest.Foo;
 import com.mytest.Info;
 import com.mytest.TestDocument;
 import org.apache.xmlbeans.*;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import test.xmlobject.test36510.Test36510AppDocument;
 
-import java.io.File;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Test file that implements test cases that come from closing bugs.
  */
 public class TestsFromBugs {
-    File instance;
-
     /**
      * Radar Bug: 36156
      * Problem with Namespace leaking into siblings
      */
     @Test
-    public void test36156()
+    void test36156()
         throws Exception {
         String str = "<x><y xmlns=\"bar\"><z xmlns=\"foo\"/></y><a/></x>";
         XmlObject x = XmlObject.Factory.parse(str);
 
-        assertEquals("Test 36156 failed: ", x.xmlText(), str);
+        assertEquals(x.xmlText(), str, "Test 36156 failed: ");
     }
 
     /*
      * Radar Bug: 36510
      */
     @Test
-    public void test36510()
+    void test36510()
         throws Exception {
         String str =
             "<test36510-app version='1.0' " +
@@ -69,7 +64,7 @@ public class TestsFromBugs {
         Test36510AppDocument doc = Test36510AppDocument.Factory.parse(str);
         str = doc.getTest36510App().getTestConstraintArray()[0].
             getCustomConstraint().getOptions().toString();
-        assertEquals("Test 36510 failed: ", "BEST", str);
+        assertEquals("BEST", str, "Test 36510 failed: ");
     }
 
 
@@ -77,7 +72,7 @@ public class TestsFromBugs {
      * Radar Bug: 40907
      */
     @Test
-    public void test40907()
+    void test40907()
         throws Exception {
         String str =
             "<myt:Test xmlns:myt=\"http://www.mytest.com\">" +
@@ -87,7 +82,7 @@ public class TestsFromBugs {
             "</myt:Test>";
         TestDocument doc = TestDocument.Factory.parse(str);
 
-        assertTrue("XML Instance did not validate.", doc.validate());
+        assertTrue(doc.validate(), "XML Instance did not validate.");
 
         Bar bar = Bar.Factory.newInstance();
         bar.setFooMember("new foo member");
@@ -98,7 +93,7 @@ public class TestsFromBugs {
         Foo foo = info.addNewFoo();
         foo.set(bar);
 
-        assertTrue("Modified XML instance did not validate.", doc.validate());
+        assertTrue(doc.validate(), "Modified XML instance did not validate.");
         str = "<myt:Test xmlns:myt=\"http://www.mytest.com\">" +
             "<myt:foo>" +
             "<myt:fooMember>this is foo member</myt:fooMember>" +
@@ -108,7 +103,7 @@ public class TestsFromBugs {
             "<myt:barMember>new bar member</myt:barMember>" +
             "</myt:foo>" +
             "</myt:Test>";
-        assertEquals("XML instance is not as expected", doc.xmlText(), str);
+        assertEquals(doc.xmlText(), str, "XML instance is not as expected");
 
     }
 
@@ -119,7 +114,7 @@ public class TestsFromBugs {
      * can be called from SchemaGlobalElement and SchemaGlobalAttribute
      */
     @Test
-    public void test199585() throws Exception {
+    void test199585() throws Exception {
         String str =
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
             "<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"\n" +
@@ -128,7 +123,8 @@ public class TestsFromBugs {
             "    xmlns:pre=\"noResolutionNamespace\"\n" +
             "    elementFormDefault=\"qualified\"\n" +
             "    attributeFormDefault=\"unqualified\">\n" +
-            "   <xs:element name=\"QuantityElement\" type=\"tns:quantity\" />" +
+            "   <xs:attribute name=\"GlobalAtt\" type=\"xs:string\" />\n" +
+            "   <xs:element name=\"QuantityElement\" type=\"tns:quantity\" />\n" +
             "   <xs:simpleType name=\"quantity\">\n" +
             "    <xs:restriction base=\"xs:NMTOKEN\">\n" +
             "      <xs:enumeration value=\"all\"/>\n" +
@@ -140,36 +136,20 @@ public class TestsFromBugs {
             "  </xs:simpleType>" +
             "</xs:schema>";
 
-        XmlObject[] schemas = new XmlObject[]{
-            XmlObject.Factory.parse(str)};
+        XmlObject[] schemas = {XmlObject.Factory.parse(str)};
         XmlOptions xOpt = new XmlOptions().setValidateTreatLaxAsSkip();
 
         SchemaTypeSystem sts = XmlBeans.compileXmlBeans(null, null, schemas,
             null, XmlBeans.getBuiltinTypeSystem(), null, xOpt);
 
         //ensure SchemaGlobalElement has getSourceName Method
-        SchemaGlobalElement[] sge = sts.globalElements();
-        for (int i = 0; i < sge.length; i++) {
-            System.out.println("SGE SourceName: " + sge[i].getSourceName());
+        SchemaGlobalElement[] els = sts.globalElements();
+        assertEquals(1, els.length);
+        assertDoesNotThrow(els[0]::getSourceName);
 
-        }
         //ensure SchemaGlobalAttribute has getSourceName Method
-        SchemaGlobalAttribute[] sga = sts.globalAttributes();
-        for (int i = 0; i < sga.length; i++) {
-            System.out.println("SGE SourceName: " + sga[i].getSourceName());
-        }
-
-        //ensure SchemaGlobalElement is a subType of SchemaComponent
-        SchemaComponent[] sce = sts.globalElements();
-        for (int i = 0; i < sce.length; i++) {
-            System.out.println("SCE SourceName: " + sce[i].getSourceName());
-
-        }
-
-        //ensure SchemaGlobalAttribute is a subType of SchemaComponent
-        SchemaComponent[] sca = sts.globalElements();
-        for (int i = 0; i < sca.length; i++) {
-            System.out.println("SCA SourceName: " + sca[i].getSourceName());
-        }
+        SchemaGlobalAttribute[] ats = sts.globalAttributes();
+        assertEquals(1, ats.length);
+        assertDoesNotThrow(ats[0]::getSourceName);
     }
 }

@@ -17,8 +17,9 @@
 package dom.detailed;
 
 import dom.common.Loader;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -27,7 +28,7 @@ import org.xml.sax.InputSource;
 
 import java.io.StringReader;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 
 public class MoveImportNodeTest {
@@ -43,7 +44,7 @@ public class MoveImportNodeTest {
     //insert a node from a ns into a non-ns: node will move "as is"
     //even though ns is not in scope as DOM does no prefix resolution
 	@Test
-    public void testMoveNodeNStoNoNS(){
+    void testMoveNodeNStoNoNS(){
 		Node toMove = m_docNS.getFirstChild().getFirstChild().getFirstChild(); //bar
 		assertEquals("myns:bar", toMove.getNodeName());
 		Element newParent = (Element) m_docNS.getFirstChild();
@@ -52,15 +53,14 @@ public class MoveImportNodeTest {
 
 		assertEquals(2, newParent.getChildNodes().getLength());
 		assertEquals(toMove, newParent.getElementsByTagNameNS("http://foo.org", "bar").item(0));
-		assertEquals(newParent.getElementsByTagName("bar").item(0),
-			newParent.getElementsByTagNameNS(null, "bar").item(0));
+		assertEquals(newParent.getElementsByTagName("bar").item(0), newParent.getElementsByTagNameNS(null, "bar").item(0));
 
     }
 
     //move node to a different namespace
     //namespace of node should be unchanged -- DOM does not care
 	@Test
-    public void testMoveDiffNS(){
+    void testMoveDiffNS(){
 		Node toMove = m_docNS.getFirstChild().getFirstChild().getFirstChild(); //bar
 		Element newParent = (Element) m_docNS.getFirstChild();
 		newParent.insertBefore(toMove, newParent.getFirstChild());
@@ -73,18 +73,18 @@ public class MoveImportNodeTest {
 
     //import to a doc where the given ns DNE
 	@Test
-    public void testMoveDiffDoc(){
+    void testMoveDiffDoc(){
 		Node toMove=m_docNS.getFirstChild().getFirstChild().getFirstChild(); //bar
 		try{
 			m_node.insertBefore(toMove,m_node.getFirstChild());
-			fail(" Cannot move nodes across docs");
+			Assertions.fail(" Cannot move nodes across docs");
 		}catch(DOMException de){
-			assertEquals(DOMException.WRONG_DOCUMENT_ERR,de.code);
+			assertEquals(DOMException.WRONG_DOCUMENT_ERR, de.code);
 		}
     }
 
 	@Test
-    public void testMoveDiffImplementations() throws Exception{
+    void testMoveDiffImplementations() throws Exception{
 		org.apache.xerces.parsers.DOMParser parser =
 			new org.apache.xerces.parsers.DOMParser();
 
@@ -99,7 +99,7 @@ public class MoveImportNodeTest {
 
 		try {
 			m_node.insertBefore(toMove, m_node.getFirstChild());
-			fail(" Cannot move nodes across implementations");
+			Assertions.fail(" Cannot move nodes across implementations");
 		} catch (DOMException de) {
 			assertEquals(DOMException.WRONG_DOCUMENT_ERR, de.code);
 		}
@@ -117,7 +117,7 @@ public class MoveImportNodeTest {
 
     // public void
    	@Test
-    public void testImportSameDoc(){
+    void testImportSameDoc(){
 		//inspired by nist documentimportnode10?
 
 		Node toImport = m_doc.createElement("foobar");
@@ -129,7 +129,7 @@ public class MoveImportNodeTest {
 		m_doc.importNode(toImport, true);
     }
 
-	@Before
+	@BeforeEach
     public void setUp() throws Exception{
 		Loader loader = Loader.getLoader();
 		if (sXml == null && sXmlNS == null) throw new IllegalArgumentException("Test bug : Initialize xml strings");

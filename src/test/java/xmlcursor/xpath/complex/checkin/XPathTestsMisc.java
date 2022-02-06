@@ -16,16 +16,19 @@
 package xmlcursor.xpath.complex.checkin;
 
 import org.apache.xmlbeans.XmlCursor;
-import org.apache.xmlbeans.XmlObject;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
+import static xmlcursor.common.BasicCursorTestCase.cur;
 
 public class XPathTestsMisc {
 
     @Test
-    public void testDelete() throws Exception {
+    void testDelete() throws Exception {
         String query = "*";
 
-        try (XmlCursor xc = XmlObject.Factory.parse(XPathTests.XML).newCursor()) {
+        // TODO: add asserts
+
+        try (XmlCursor xc = cur(XPathTest.XML)) {
             xc.selectPath(query);
             while (xc.toNextSelection()) {
                 System.out.println(xc.xmlText());

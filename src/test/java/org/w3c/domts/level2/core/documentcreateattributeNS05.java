@@ -22,10 +22,11 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.*;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -40,31 +41,20 @@ import static org.w3c.domts.DOMTest.load;
  */
 public class documentcreateattributeNS05 {
     @Test
-    public void testRun() throws Throwable {
-        Document doc;
+    void testRun() throws Throwable {
         Document newDoc;
         DocumentType docType = null;
 
-        DOMImplementation domImpl;
         Attr attribute;
         String namespaceURI = null;
 
         String qualifiedName = "abc:def";
-        doc = load("staffNS", false);
-        domImpl = doc.getImplementation();
+        Document doc = load("staffNS", false);
+        DOMImplementation domImpl = doc.getImplementation();
         newDoc = domImpl.createDocument("http://www.w3.org/DOM/Test", "dom:doc", docType);
 
-        {
-            boolean success = false;
-            try {
-                attribute = newDoc.createAttributeNS(namespaceURI, qualifiedName);
-            } catch (DOMException ex) {
-                success = (ex.code == DOMException.NAMESPACE_ERR);
-            }
-            assertTrue("documentcreateattributeNS05,null value for \n" +
-                       "    namespaceURI, and a valid qualifiedName", success);
-        }
-
+        DOMException ex = assertThrows(DOMException.class, () -> newDoc.createAttributeNS(namespaceURI, qualifiedName));
+        assertEquals(DOMException.NAMESPACE_ERR, ex.code, "documentcreateattributeNS05,null value for namespaceURI, and a valid qualifiedName");
     }
 
     /**

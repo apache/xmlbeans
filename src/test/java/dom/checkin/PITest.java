@@ -17,13 +17,14 @@
 package dom.checkin;
 
 import dom.common.NodeTest;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
 import org.w3c.dom.ProcessingInstruction;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 
 public class PITest extends NodeTest {
@@ -34,36 +35,34 @@ public class PITest extends NodeTest {
     }
 
     @Test
-    public void testNodeName() {
+    void testNodeName() {
         assertEquals("xml-stylesheet", m_node.getNodeName());
     }
 
     @Test
-    public void testLocalName() {
+    protected void testLocalName() {
         assertEquals("xml-stylesheet", m_node.getNodeName());
     }
 
     @Test
-    public void testNodeType() {
+    void testNodeType() {
         assertEquals(Node.PROCESSING_INSTRUCTION_NODE, m_node.getNodeType());
     }
 
     @Test
-    public void testNodeValue() {
-        assertEquals(
-                "type=\"text/xsl\" xmlns=\"http://openuri.org/shipping/\"",
-                m_node.getNodeValue());
+    void testNodeValue() {
+        assertEquals("type=\"text/xsl\" xmlns=\"http://openuri.org/shipping/\"", m_node.getNodeValue());
     }
 
     @Test
-    public void testNextSibling() {
+    void testNextSibling() {
         Node nxtSibling = m_node.getNextSibling();
         assertEquals("foo", nxtSibling.getNodeName());
 
     }
 
     @Test
-    public void testSetNodeValue() {
+    void testSetNodeValue() {
         String sNewVal = "type=\"text/xsl\" xmlns=\"http://xbean.foo.org\"";
         m_node.setNodeValue(sNewVal);
         assertEquals(sNewVal, m_node.getNodeValue());
@@ -71,29 +70,26 @@ public class PITest extends NodeTest {
     }
 
     @Test
-    public void testPreviousSibling() {
+    void testPreviousSibling() {
         Node prSibling = m_node.getPreviousSibling();
         assertNull(prSibling);
     }
 
     @Test
-    public void testParent() {
+    void testParent() {
         Node parent = m_node.getParentNode();
         assertEquals(m_doc.getFirstChild(), parent);
         assertEquals("bar", parent.getLocalName());
     }
 
     @Test
-    public void testGetData() {
-        assertEquals(
-                "type=\"text/xsl\" xmlns=\"http://openuri.org/shipping/\"",
-                ((ProcessingInstruction) m_node).getData());
+    void testGetData() {
+        assertEquals("type=\"text/xsl\" xmlns=\"http://openuri.org/shipping/\"", ((ProcessingInstruction) m_node).getData());
     }
 
     @Test
-    public void testGetTarget() {
-        assertEquals("xml-stylesheet",
-                ((ProcessingInstruction) m_node).getTarget());
+    void testGetTarget() {
+        assertEquals("xml-stylesheet", ((ProcessingInstruction) m_node).getTarget());
     }
 
     public void moveToNode() {
@@ -103,7 +99,7 @@ public class PITest extends NodeTest {
 
     //TODO: Test PI with funky but legal chatacters in the name, eg. :
     @Test
-    public void testPiTargetChars() {
+    void testPiTargetChars() {
         ProcessingInstruction node = m_doc.createProcessingInstruction(
                 "foo:123-_", "some body");
         m_node.getParentNode().appendChild(node);
@@ -113,13 +109,13 @@ public class PITest extends NodeTest {
 
     //TODO: Test Illegal PI Targets: xml target, starting with a digit
     @Test
-    public void testPiTargetIllegalChars() {
+    void testPiTargetIllegalChars() {
         ProcessingInstruction node;
         try {
             node =
                     m_doc.createProcessingInstruction("7foo:?123-&",
                             "some body");
-            fail("Can't start w/ a digit");
+            Assertions.fail("Can't start w/ a digit");
         }
         catch (DOMException e) {
             assertEquals(DOMException.INVALID_CHARACTER_ERR, e.code);
@@ -127,14 +123,14 @@ public class PITest extends NodeTest {
 
         try {
             node = m_doc.createProcessingInstruction("xml", "foo");
-            fail("Can't be xml");
+            Assertions.fail("Can't be xml");
         }
         catch (DOMException e) {
             assertEquals(DOMException.INVALID_CHARACTER_ERR, e.code);
         }
     }
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         super.setUp();
         moveToNode();

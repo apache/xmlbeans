@@ -22,12 +22,16 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Test;
-import org.w3c.dom.*;
+import org.junit.jupiter.api.Test;
+import org.w3c.dom.DOMException;
+import org.w3c.dom.DOMImplementation;
+import org.w3c.dom.Document;
+import org.w3c.dom.DocumentType;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -44,27 +48,15 @@ import static org.w3c.domts.DOMTest.load;
  */
 public class documentimportnode08 {
     @Test
-    public void testRun() throws Throwable {
-        Document doc;
-        Node imported;
-        DocumentType docType;
-        DOMImplementation domImpl;
+    void testRun() throws Throwable {
         String nullNS = null;
 
-        doc = load("staffNS", true);
-        domImpl = DocumentBuilderFactory.newInstance().newDocumentBuilder().getDOMImplementation();
-        docType = domImpl.createDocumentType("test:root", nullNS, nullNS);
+        Document doc = load("staffNS", true);
+        DOMImplementation domImpl = DocumentBuilderFactory.newInstance().newDocumentBuilder().getDOMImplementation();
+        DocumentType docType = domImpl.createDocumentType("test:root", nullNS, nullNS);
 
-        {
-            boolean success = false;
-            try {
-                imported = doc.importNode(docType, true);
-            } catch (DOMException ex) {
-                success = (ex.code == DOMException.NOT_SUPPORTED_ERR);
-            }
-            assertTrue("documentimportnode08, Since DocumentType nodes cannot be imported, a NOT_SUPPORTED_ERR should be raised.", success);
-        }
-
+        DOMException ex = assertThrows(DOMException.class, () -> doc.importNode(docType, true));
+        assertEquals(DOMException.NOT_SUPPORTED_ERR, ex.code, "documentimportnode08, Since DocumentType nodes cannot be imported, a NOT_SUPPORTED_ERR should be raised.");
     }
 
     /**

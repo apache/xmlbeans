@@ -22,11 +22,11 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.*;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -45,22 +45,15 @@ import static org.w3c.domts.DOMTest.load;
  */
 public class removeNamedItemNS01 {
     @Test
-    public void testRun() throws Throwable {
-        Document doc;
-        NodeList elementList;
-        Node testAddress;
-        NamedNodeMap attributes;
-        Attr newAttr;
-        Node removedNode;
-        doc = load("staffNS", true);
-        elementList = doc.getElementsByTagName("address");
-        testAddress = elementList.item(1);
-        attributes = testAddress.getAttributes();
-        removedNode = attributes.removeNamedItemNS("http://www.usa.com", "domestic");
-        assertNotNull("retval", removedNode);
-        newAttr = (Attr) attributes.getNamedItem("dmstc:domestic");
-        assertNull("nodeRemoved", newAttr);
-
+    void testRun() throws Throwable {
+        Document doc = load("staffNS", true);
+        NodeList elementList = doc.getElementsByTagName("address");
+        Node testAddress = elementList.item(1);
+        NamedNodeMap attributes = testAddress.getAttributes();
+        Node removedNode = attributes.removeNamedItemNS("http://www.usa.com", "domestic");
+        assertNotNull(removedNode, "retval");
+        Attr newAttr = (Attr) attributes.getNamedItem("dmstc:domestic");
+        assertNull(newAttr, "nodeRemoved");
     }
 
     /**

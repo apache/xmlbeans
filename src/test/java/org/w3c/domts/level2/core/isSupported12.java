@@ -22,11 +22,12 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -48,41 +49,23 @@ import static org.w3c.domts.DOMTest.load;
  */
 public class isSupported12 {
     @Test
-    public void testRun() throws Throwable {
-        java.util.List features = new java.util.ArrayList();
-        features.add("Core");
-        features.add("XML");
-        features.add("HTML");
-        features.add("Views");
-        features.add("StyleSheets");
-        features.add("CSS");
-        features.add("CSS2");
-        features.add("Events");
-        features.add("UIEvents");
-        features.add("MouseEvents");
-        features.add("MutationEvents");
-        features.add("HTMLEvents");
-        features.add("Range");
-        features.add("Traversal");
-        //features.add(new Double("bogus.bogus.bogus"));
+    void testRun() throws Throwable {
+        String[] features = {
+            "Core", "XML", "HTML", "Views", "StyleSheets", "CSS", "CSS2", "Events", "UIEvents",
+            "MouseEvents", "MutationEvents", "HTMLEvents", "Range", "Traversal"
+            /* ,"bogus.bogus.bogus" */
+        };
 
-        Document doc;
-        Node rootNode;
-        String featureElement;
-        boolean state;
-        doc = load("staff", false);
-        rootNode = doc.getDocumentElement();
-        state = rootNode.isSupported("Core", "2.0");
-        assertTrue("Core2", state);
-        for (int indexd467e91 = 0; indexd467e91 < features.size(); indexd467e91++) {
-            featureElement = (String) features.get(indexd467e91);
-            state = rootNode.isSupported(featureElement, "1.0");
-        }
-        for (int indexd467e96 = 0; indexd467e96 < features.size(); indexd467e96++) {
-            featureElement = (String) features.get(indexd467e96);
-            state = rootNode.isSupported(featureElement, "2.0");
-        }
+        Document doc = load("staff", false);
+        Node rootNode = doc.getDocumentElement();
 
+        boolean state = rootNode.isSupported("Core", "2.0");
+        assertTrue(state, "Core2");
+
+        for (String featureElement : features) {
+            Assertions.assertDoesNotThrow(() -> rootNode.isSupported(featureElement, "1.0"));
+            Assertions.assertDoesNotThrow(() -> rootNode.isSupported(featureElement, "2.0"));
+        }
     }
 
     /**

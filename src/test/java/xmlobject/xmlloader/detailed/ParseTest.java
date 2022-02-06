@@ -15,60 +15,62 @@
 
 package xmlobject.xmlloader.detailed;
 
-import org.apache.xmlbeans.XmlException;
-import org.apache.xmlbeans.XmlObject;
-import org.apache.xmlbeans.XmlOptions;
-import org.junit.Test;
+import org.apache.xmlbeans.*;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
-import xmlcursor.common.BasicCursorTestCase;
 
 import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.StringReader;
-import java.util.Vector;
+import java.util.ArrayList;
+import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class ParseTest extends BasicCursorTestCase {
-    private final XmlOptions m_map = new XmlOptions();
+public class ParseTest {
 
     @Test
-    public void testLoadStripWhitespace() throws Exception {
+    void testLoadStripWhitespace() throws Exception {
+        String xml = "<foo>01234   <bar>text</bar>   chars \r\n</foo>  ";
+        XmlOptions m_map = new XmlOptions();
         m_map.setLoadStripWhitespace();
-        m_xo = XmlObject.Factory.parse("<foo>01234   <bar>text</bar>   chars \r\n</foo>  ",
-            m_map);
-        m_xc = m_xo.newCursor();
-        assertEquals("<foo>01234<bar>text</bar>chars</foo>", m_xc.xmlText());
+        XmlObject m_xo = XmlObject.Factory.parse(xml, m_map);
+        try (XmlCursor m_xc = m_xo.newCursor()) {
+            assertEquals("<foo>01234<bar>text</bar>chars</foo>", m_xc.xmlText());
+        }
     }
 
 
     @Test
-    public void testLoadDiscardDocumentElement() throws Exception {
+    void testLoadDiscardDocumentElement() throws Exception {
+        XmlOptions m_map = new XmlOptions();
         m_map.setLoadReplaceDocumentElement(new QName(""));
         XmlObject.Factory.parse("<foo>01234   <bar>text</bar>   chars </foo>  ", m_map);
     }
 
-    @Test(expected = XmlException.class)
-    public void testPrefixNotDefined() throws Exception {
+    @Test
+    void testPrefixNotDefined() throws Exception {
         String sXml = "<Person xmlns=\"person\"><pre1:Name>steve</pre1:Name></Person>";
-        XmlObject.Factory.parse(sXml);
-    }
-
-    @Test(expected = XmlException.class)
-    public void testErrorListener() throws Exception {
-        Vector vErrors = new Vector();
-        m_map.setErrorListener(vErrors);
-        XmlObject.Factory.parse("<foo>text<foo>", m_map);  // improper end tag
+        assertThrows(XmlException.class, () -> XmlObject.Factory.parse(sXml));
     }
 
     @Test
-    public void testParsingDOMWithDTD() throws Exception {
-        final String svgDocumentString = "<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.1//EN\"\n" +
-                                         "\"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd\">\n" +
-                                         "<svg />";
+    void testErrorListener() throws Exception {
+        XmlOptions m_map = new XmlOptions();
+        List<XmlError> vErrors = new ArrayList<>();
+        m_map.setErrorListener(vErrors);
+        // improper end tag
+        assertThrows(XmlException.class, () -> XmlObject.Factory.parse("<foo>text<foo>", m_map));
+    }
+
+    @Test
+    void testParsingDOMWithDTD() throws Exception {
+        final String svgDocumentString =
+            "<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.1//EN\"\n" +
+            "\"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd\">\n" +
+            "<svg />";
         assertNotNull(XmlObject.Factory.parse(svgDocumentString));
         final DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
         final DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();

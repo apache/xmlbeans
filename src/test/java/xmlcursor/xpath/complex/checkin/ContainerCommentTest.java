@@ -16,7 +16,7 @@ package xmlcursor.xpath.complex.checkin;
 
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlObject;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * This class tests the execution of an XQuery where the
@@ -24,7 +24,7 @@ import org.junit.Test;
  */
 public class ContainerCommentTest {
     @Test
-    public void testFunctionPathWithCursor() throws Exception {
+    void testFunctionPathWithCursor() throws Exception {
         String sXml =
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
             "<!-- My Comment -->" +
@@ -58,8 +58,7 @@ public class ContainerCommentTest {
 
                 for (int i = 0; i < cursor.getSelectionCount(); i++) {
                     try (XmlCursor nameCursor = cursor.newCursor()) {
-                        nameCursor.selectPath(m_namespaceDeclaration +
-                                              "$this/xq:name/text()");
+                        nameCursor.selectPath(m_namespaceDeclaration + "$this/xq:name/text()");
                         nameCursor.toNextSelection();
                         names[i] = nameCursor.getTextValue();
                     }

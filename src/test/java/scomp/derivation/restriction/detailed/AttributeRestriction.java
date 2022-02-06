@@ -15,97 +15,87 @@
 
 package scomp.derivation.restriction.detailed;
 
-import org.junit.Test;
+import org.apache.xmlbeans.XmlErrorCodes;
+import org.apache.xmlbeans.XmlOptions;
+import org.apache.xmlbeans.XmlString;
+import org.junit.jupiter.api.Test;
 import xbean.scomp.derivation.attributeRestriction.AttrEltDocument;
 import xbean.scomp.derivation.attributeRestriction.RestrictedAttrT;
 
 import java.math.BigInteger;
 
-import scomp.common.BaseCase;
-import org.apache.xmlbeans.XmlString;
-import org.apache.xmlbeans.XmlErrorCodes;
+import static org.junit.jupiter.api.Assertions.*;
+import static scomp.common.BaseCase.createOptions;
+import static scomp.common.BaseCase.getErrorCodes;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
-public class AttributeRestriction extends BaseCase {
+public class AttributeRestriction {
     /**
      * A should be positive
      * B should be there by default
      */
     @Test
-    public void testAttributeABC() throws Throwable {
+    void testAttributeABC() throws Throwable {
         AttrEltDocument doc = AttrEltDocument.Factory.newInstance();
         RestrictedAttrT elt = doc.addNewAttrElt();
         elt.setA(new BigInteger("-3"));
-        assertTrue(!doc.validate(validateOptions));
-        showErrors();
-       String[] errExpected = new String[]{
-           "cvc-attribute",
-           XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$MISSING_REQUIRED_ATTRIBUTE
-       };
-//                    assertTrue(compareErrorCodes(errExpected));
+        assertFalse(doc.validate(createOptions()));
+        String[] errExpected = {
+            "cvc-attribute",
+            XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$MISSING_REQUIRED_ATTRIBUTE
+        };
+        // assertTrue(compareErrorCodes(errExpected));
 
         assertEquals("b", elt.getB());
-       XmlString expected=XmlString.Factory.newInstance();
-       expected.setStringValue("c2");
-        assertTrue ( expected.valueEquals(elt.xgetC()) );
+        XmlString expected = XmlString.Factory.newInstance();
+        expected.setStringValue("c2");
+        assertTrue(expected.valueEquals(elt.xgetC()));
     }
 
     @Test
-    public void testAttributeDEF() throws Throwable {
+    void testAttributeDEF() throws Throwable {
         AttrEltDocument doc = AttrEltDocument.Factory.newInstance();
         RestrictedAttrT elt = doc.addNewAttrElt();
-        XmlString expected=XmlString.Factory.newInstance();
+        XmlString expected = XmlString.Factory.newInstance();
         expected.setStringValue("a");
         elt.xsetD(expected);
         assertEquals("a", elt.getD());
-        assertTrue(!doc.validate(validateOptions));
-       // showErrors();
+
+        XmlOptions validateOptions = createOptions();
+        assertFalse(doc.validate(validateOptions));
+        // showErrors();
         //D invalid, F missing
-        String[] errExpected = new String[]{
+        String[] errExpected = {
             XmlErrorCodes.ATTR_LOCALLY_VALID$FIXED,
-              XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$MISSING_REQUIRED_ATTRIBUTE
+            XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$MISSING_REQUIRED_ATTRIBUTE
         };
-        assertTrue(compareErrorCodes(errExpected));
+        assertArrayEquals(errExpected, getErrorCodes(validateOptions));
 
         elt.setD("d");
         elt.setE("e");
         elt.setF("foobar");
-        try {
-            assertTrue(doc.validate(validateOptions));
-        }
-        catch (Throwable t) {
-            showErrors();
-            throw t;
-        }
+        assertTrue(doc.validate(validateOptions));
     }
 
     /**
      * G is prohibited, X can appear even though not explicit in type
      */
     @Test
-    public void testAttributeGX() throws Throwable {
+    void testAttributeGX() throws Throwable {
         AttrEltDocument doc = AttrEltDocument.Factory.newInstance();
         RestrictedAttrT elt = doc.addNewAttrElt();
         elt.setG("foobar");
-        assertTrue(!doc.validate(validateOptions));
-        showErrors();
+        XmlOptions validateOptions = createOptions();
+        assertFalse(doc.validate(validateOptions));
         //g prohibited, f missing
-        String[] errExpected = new String[]{
+        String[] errExpected = {
             XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$NO_WILDCARD,
             XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$MISSING_REQUIRED_ATTRIBUTE
         };
-        assertTrue(compareErrorCodes(errExpected));
+        assertArrayEquals(errExpected, getErrorCodes(validateOptions));
 
         elt.setX("myval");
         elt.unsetG();
         elt.setF("foobar");
-        try {
-            assertTrue(doc.validate(validateOptions));
-        } catch (Throwable t) {
-            showErrors();
-            throw t;
-        }
+        assertTrue(doc.validate(validateOptions));
     }
 }

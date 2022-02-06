@@ -22,14 +22,14 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.EntityReference;
 import org.w3c.dom.Node;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -49,26 +49,18 @@ import static org.w3c.domts.DOMTest.load;
  */
 public class importNode11 {
     @Test
-    @Ignore
+    @Disabled
     public void testRun() throws Throwable {
-        Document doc;
-        Document aNewDoc;
-        EntityReference entRef;
-        Node aNode;
-        String name;
-        Node child;
-        String childValue;
-        doc = load("staff", true);
-        aNewDoc = load("staff", true);
-        entRef = aNewDoc.createEntityReference("ent3");
-        aNode = doc.importNode(entRef, true);
-        name = aNode.getNodeName();
-        assertEquals("entityName", "ent3", name);
-        child = aNode.getFirstChild();
-        assertNotNull("child", child);
-        childValue = child.getNodeValue();
-        assertEquals("childValue", "Texas", childValue);
-
+        Document doc = load("staff", true);
+        Document aNewDoc = load("staff", true);
+        EntityReference entRef = aNewDoc.createEntityReference("ent3");
+        Node aNode = doc.importNode(entRef, true);
+        String name = aNode.getNodeName();
+        assertEquals("ent3", name, "entityName");
+        Node child = aNode.getFirstChild();
+        assertNotNull(child, "child");
+        String childValue = child.getNodeValue();
+        assertEquals("Texas", childValue, "childValue");
     }
 
     /**

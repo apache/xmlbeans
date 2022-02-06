@@ -17,54 +17,56 @@ package scomp.contentType.complex.modelGroup.detailed;
 
 import org.apache.xmlbeans.XmlErrorCodes;
 import org.apache.xmlbeans.XmlException;
-import org.junit.Test;
-import scomp.common.BaseCase;
+import org.apache.xmlbeans.XmlOptions;
+import org.junit.jupiter.api.Test;
 import xbean.scomp.contentType.modelGroup.AllEltDocument;
 import xbean.scomp.contentType.modelGroup.AllT;
 
 import java.math.BigInteger;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
+import static scomp.common.BaseCase.createOptions;
+import static scomp.common.BaseCase.getErrorCodes;
 
-public class AllTest extends BaseCase {
+public class AllTest {
 
     /**
      * Instance should be valid w/ child1 missing
      */
     @Test
-    public void testChild1Optional() {
-        doc = AllEltDocument.Factory.newInstance();
+    void testChild1Optional() {
+        AllEltDocument doc = AllEltDocument.Factory.newInstance();
         AllT elt = doc.addNewAllElt();
         elt.setChild2("doo");
         elt.setChild3(BigInteger.ONE);
-        assertTrue(doc.validate(validateOptions));
+        assertTrue(doc.validate(createOptions()));
     }
 
     /**
      * All group doesn't care about field order
      */
     @Test
-    public void testOrder() throws XmlException {
+    void testOrder() throws XmlException {
         String input =
             "<pre:AllElt xmlns:pre=\"http://xbean/scomp/contentType/ModelGroup\">" +
             "<child3>5</child3><child1>2</child1><child2>bar</child2>" +
             "</pre:AllElt>";
-        doc = AllEltDocument.Factory.parse(input);
-        assertTrue(doc.validate(validateOptions));
+        AllEltDocument doc = AllEltDocument.Factory.parse(input);
+        assertTrue(doc.validate(createOptions()));
     }
 
     /**
      * maxOccurs is always 1
      */
     @Test
-    public void testIllegal() throws XmlException {
+    void testIllegal() throws XmlException {
         String input =
             "<pre:AllElt xmlns:pre=\"http://xbean/scomp/contentType/ModelGroup\">" +
             "<child3>5</child3><child3>2</child3><child2>bar</child2>" +
             "</pre:AllElt>";
-        doc = AllEltDocument.Factory.parse(input);
-        assertTrue(!doc.validate(validateOptions));
-        showErrors();
+        AllEltDocument doc = AllEltDocument.Factory.parse(input);
+        XmlOptions validateOptions = createOptions();
+        assertFalse(doc.validate(validateOptions));
         //$TODO: QUESTIONABLE ERRORS: if <child3>2</child3> is replaced by <child1>2</child1>
         //all will be good: why 2 errors?
         String[] errExpected = {
@@ -72,10 +74,6 @@ public class AllTest extends BaseCase {
 //            XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$ELEMENT_NOT_ALLOWED,
 //            XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$EXPECTED_ELEMENT
         };
-        assertTrue(compareErrorCodes(errExpected));
-
+        assertArrayEquals(errExpected, getErrorCodes(validateOptions));
     }
-
-
-    private AllEltDocument doc;
 }

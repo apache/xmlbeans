@@ -17,9 +17,9 @@ package compile.scomp.incr.schemaCompile.detailed;
 
 import org.apache.xmlbeans.*;
 import org.apache.xmlbeans.impl.util.FilerImpl;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import javax.xml.namespace.QName;
 import java.io.File;
@@ -31,7 +31,7 @@ import java.util.*;
 import static compile.scomp.common.CompileTestBase.*;
 import static java.nio.file.StandardOpenOption.CREATE;
 import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class IncrCompilationTests {
 
@@ -120,7 +120,7 @@ public class IncrCompilationTests {
         xm.setSavePrettyPrint();
     }
 
-    @Before
+    @BeforeEach
     public void setUp() throws IOException {
         clearOutputDirs();
         errors.clear();
@@ -128,7 +128,7 @@ public class IncrCompilationTests {
 
 
     @Test
-    public void test_dupetype_diffns() throws Exception {
+    void test_dupetype_diffns() throws Exception {
         XmlObject obj1 = XmlObject.Factory.parse(getBaseSchema("baz", "elName", "attrName", "string"));
         XmlObject[] schemas = {obj1};
         SchemaTypeSystem base = compileSchemas(schemas, out, xm);
@@ -137,16 +137,16 @@ public class IncrCompilationTests {
         XmlObject[] schemas2 = {obj2};
         SchemaTypeSystem incr = incrCompileXsd(base, schemas2, outincr, xm);
 
-        assertNotNull("BASE: Baz elName was not found", base.findElement(new QName("http://baz", "elName")));
+        assertNotNull(base.findElement(new QName("http://baz", "elName")), "BASE: Baz elName was not found");
         // assertNotNull("INCR: Baz elName was not found", incr.findElement(new QName("http://baz", "elName")));
-        assertNotNull("INCR: Bar elName was not found", incr.findElement(new QName("http://bar", "elName")));
+        assertNotNull(incr.findElement(new QName("http://bar", "elName")), "INCR: Bar elName was not found");
 
         // compareandPopErrors(out, outincr, errors);
         handleErrors(errors);
     }
 
     @Test
-    @Ignore("incremental build / test doesn't provide new elements")
+    @Disabled("incremental build / test doesn't provide new elements")
     public void test_dupens_difftypename() throws Exception {
         XmlObject obj1 = XmlObject.Factory.parse(getBaseSchema("baz", "elName", "attrName", "string"));
         XmlObject obj2 = XmlObject.Factory.parse(getRedefSchema("baz", "elName2", "attrName2", "string"));
@@ -168,7 +168,7 @@ public class IncrCompilationTests {
     }
 
     @Test
-    @Ignore("works in standalone, doesn't work in Jenkins")
+    @Disabled("works in standalone, doesn't work in Jenkins")
     public void test_dupens_attrnamechange() throws Exception {
         XmlObject obj1 = XmlObject.Factory.parse(getBaseSchema("baz", "elName", "attrName", "string"));
         XmlObject obj2 = XmlObject.Factory.parse(getRedefSchema("baz", "elName", "attrName2", "string"));
@@ -191,7 +191,7 @@ public class IncrCompilationTests {
     }
 
     @Test
-    @Ignore("works in standalone, doesn't work in Jenkins")
+    @Disabled("works in standalone, doesn't work in Jenkins")
     public void test_dupens_attrtypechange() throws Exception {
         //XmlObject.Factory.parse(getBaseSchema("baz","elName", "elType", "attrName","attrType"));
         XmlObject obj1 = XmlObject.Factory.parse(getBaseSchema("baz", "elName", "attrName", "string"));
@@ -215,7 +215,7 @@ public class IncrCompilationTests {
     }
 
     @Test
-    @Ignore("works in standalone, doesn't work in Jenkins")
+    @Disabled("works in standalone, doesn't work in Jenkins")
     public void test_dupens_eltypechange() throws Exception {
         //XmlObject.Factory.parse(getBaseSchema("baz","elName", "elType", "attrName","attrType"));
         XmlObject obj1 = XmlObject.Factory.parse(getBaseSchema("baz", "elName", "attrName", "string"));
@@ -240,7 +240,7 @@ public class IncrCompilationTests {
     }
 
     @Test
-    public void test_typechange() throws Exception {
+    void test_typechange() throws Exception {
         //XmlObject.Factory.parse(getBaseSchema("baz","elName", "elType", "attrName","attrType"));
         XmlObject obj1 = XmlObject.Factory.parse(getBaseSchema("baz", "elName", "attrName", "string"));
         XmlObject obj2 = XmlObject.Factory.parse(getBaseSchema("baz", "elName", "attrName2", "string"));
@@ -264,7 +264,7 @@ public class IncrCompilationTests {
 
     // test regeneration of generated java files by the Filer
     @Test
-    public void test_schemaFilesRegeneration_01() throws Exception {
+    void test_schemaFilesRegeneration_01() throws Exception {
 
         // incremental compile with the same file again. There should be no regeneration of src files
         XmlObject obj1 = XmlObject.Factory.parse(schemaFilesRegeneration_schema1);
@@ -280,7 +280,7 @@ public class IncrCompilationTests {
         // create a new filer here with the incrCompile flag value set to 'true'
         Filer filer = new FilerImpl(out, out, null, true, true);
         SchemaTypeSystem base = XmlBeans.compileXmlBeans("teststs",null,schemas,null,builtin,filer,xm);
-        assertNotNull("Compilation failed during Incremental Compile.", base);
+        assertNotNull(base, "Compilation failed during Incremental Compile.");
         base.saveToDirectory(out);
 
         // get timestamps for first compile
@@ -292,22 +292,22 @@ public class IncrCompilationTests {
         Map<String,Long> recompileTimeStamps = new HashMap<>();
         Filer filer2 = new FilerImpl(out, out, null, true, true);
         SchemaTypeSystem incr = XmlBeans.compileXmlBeans("teststs",base,schemas2,null,builtin,filer2,xm);
-        assertNotNull("Compilation failed during Incremental Compile.", incr);
+        assertNotNull(incr, "Compilation failed during Incremental Compile.");
         incr.saveToDirectory(out);
         recordTimeStamps(out, recompileTimeStamps);
 
         // compare generated source timestamps here
-        assertEquals("Number of Files not equal for Incremental Schema Compilation using Filer",initialTimeStamps.size(), recompileTimeStamps.size());
+        assertEquals(initialTimeStamps.size(), recompileTimeStamps.size(), "Number of Files not equal for Incremental Schema Compilation using Filer");
         Set<String> keyset = initialTimeStamps.keySet();
         for (String eachFile : keyset) {
-            assertEquals("Mismatch for File " + eachFile, initialTimeStamps.get(eachFile), recompileTimeStamps.get(eachFile));
+            assertEquals(initialTimeStamps.get(eachFile), recompileTimeStamps.get(eachFile), "Mismatch for File " + eachFile);
         }
 
         handleErrors(errors);
     }
 
     @Test
-    public void test_schemaFilesRegeneration_02() throws Exception {
+    void test_schemaFilesRegeneration_02() throws Exception {
         // incremental compile with the changes. Specific files should be regenerated
         XmlObject obj1 = XmlObject.Factory.parse(schemaFilesRegeneration_schema1);
         XmlObject obj2 = XmlObject.Factory.parse(schemaFilesRegeneration_schema1_modified);
@@ -322,7 +322,7 @@ public class IncrCompilationTests {
         // create a new filer here with the incrCompile flag value set to 'true'
         Filer filer = new FilerImpl(out, out, null, true, true);
         SchemaTypeSystem base = XmlBeans.compileXmlBeans("test",null,schemas,null,builtin,filer,xm);
-        assertNotNull("Compilation failed during Incremental Compile.", base);
+        assertNotNull(base, "Compilation failed during Incremental Compile.");
         base.saveToDirectory(out);
 
         // get timestamps for first compile
@@ -333,12 +333,12 @@ public class IncrCompilationTests {
         Map<String,Long> recompileTimeStamps = new HashMap<>();
         Filer filer2 = new FilerImpl(out, out, null, true, true);
         SchemaTypeSystem incr = XmlBeans.compileXmlBeans("test",base,schemas2,null,builtin,filer2,xm);
-        assertNotNull("Compilation failed during Incremental Compile.", incr);
+        assertNotNull(incr, "Compilation failed during Incremental Compile.");
         incr.saveToDirectory(out);
         recordTimeStamps(out, recompileTimeStamps);
 
         // compare generated source timestamps here
-        assertEquals("Number of Files not equal for Incremental Schema Compilation using Filer",initialTimeStamps.size(), recompileTimeStamps.size());
+        assertEquals(initialTimeStamps.size(), recompileTimeStamps.size(), "Number of Files not equal for Incremental Schema Compilation using Filer");
         Set<String> keyset = initialTimeStamps.keySet();
 
         // Atype has been modified, BType has been removed
@@ -348,14 +348,14 @@ public class IncrCompilationTests {
 
         for (String eachFile : keyset) {
             if (eachFile.equalsIgnoreCase(modifiedFileName)) {
-                assertNotSame("File Should have been regenerated by Filer but has the same timestamp", initialTimeStamps.get(eachFile), recompileTimeStamps.get(eachFile));
+                assertNotSame(initialTimeStamps.get(eachFile), recompileTimeStamps.get(eachFile), "File Should have been regenerated by Filer but has the same timestamp");
                 continue;
             }
             if (eachFile.equalsIgnoreCase(modifiedFileName2)) {
-                assertNotSame("File Should have been regenerated by Filer but has the same timestamp", initialTimeStamps.get(eachFile), recompileTimeStamps.get(eachFile));
+                assertNotSame(initialTimeStamps.get(eachFile), recompileTimeStamps.get(eachFile), "File Should have been regenerated by Filer but has the same timestamp");
                 continue;
             }
-            assertEquals("Mismatch for File " + eachFile, initialTimeStamps.get(eachFile), recompileTimeStamps.get(eachFile));
+            assertEquals(initialTimeStamps.get(eachFile), recompileTimeStamps.get(eachFile), "Mismatch for File " + eachFile);
         }
 
         handleErrors(errors);

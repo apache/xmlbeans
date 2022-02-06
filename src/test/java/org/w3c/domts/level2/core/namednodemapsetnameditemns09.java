@@ -22,11 +22,12 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.*;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -40,40 +41,19 @@ import static org.w3c.domts.DOMTest.load;
  */
 public class namednodemapsetnameditemns09 {
     @Test
-    @Ignore
+    @Disabled
     public void testRun() throws Throwable {
-        Document doc;
-        DocumentType docType;
-        NamedNodeMap entities;
-        NamedNodeMap notations;
-        Attr attr;
-        Node newNode;
-        doc = load("staffNS", true);
-        docType = doc.getDoctype();
-        entities = docType.getEntities();
-        notations = docType.getNotations();
-        attr = doc.createAttributeNS("http://www.w3.org/DOM/Test", "test");
+        Document doc = load("staffNS", true);
+        DocumentType docType = doc.getDoctype();
+        NamedNodeMap entities = docType.getEntities();
+        NamedNodeMap notations = docType.getNotations();
+        Attr attr = doc.createAttributeNS("http://www.w3.org/DOM/Test", "test");
 
-        {
-            boolean success = false;
-            try {
-                newNode = entities.setNamedItemNS(attr);
-            } catch (DOMException ex) {
-                success = (ex.code == DOMException.NO_MODIFICATION_ALLOWED_ERR);
-            }
-            assertTrue("namednodemapsetnameditemns09_entities", success);
-        }
+        DOMException ex1 = assertThrows(DOMException.class, () -> entities.setNamedItemNS(attr));
+        assertEquals(DOMException.NO_MODIFICATION_ALLOWED_ERR, ex1.code, "namednodemapsetnameditemns09_entities");
 
-        {
-            boolean success = false;
-            try {
-                newNode = notations.setNamedItemNS(attr);
-            } catch (DOMException ex) {
-                success = (ex.code == DOMException.NO_MODIFICATION_ALLOWED_ERR);
-            }
-            assertTrue("namednodemapsetnameditemns09_notations", success);
-        }
-
+        DOMException ex2 = assertThrows(DOMException.class, () -> notations.setNamedItemNS(attr));
+        assertEquals(DOMException.NO_MODIFICATION_ALLOWED_ERR, ex2.code, "namednodemapsetnameditemns09_notations");
     }
 
     /**

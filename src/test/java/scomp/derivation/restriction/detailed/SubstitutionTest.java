@@ -15,52 +15,40 @@
 
 package scomp.derivation.restriction.detailed;
 
-import org.junit.Test;
-import scomp.common.BaseCase;
+import org.junit.jupiter.api.Test;
 import xbean.scomp.contentType.modelGroup.ChoiceEltDocument;
 import xbean.scomp.contentType.simpleType.PantSizeEltDocument;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static scomp.common.BaseCase.createOptions;
 
-public class SubstitutionTest extends BaseCase {
+public class SubstitutionTest {
     @Test
-    public void testSubstitution() throws Throwable{
-         ChoiceEltDocument doc=
-                ChoiceEltDocument.Factory.parse(
-                        "<foo:ChoiceElt " +
-                 "xmlns:foo=\"http://xbean/scomp/contentType/ModelGroup\"" +
-                 " xmlns:sub=\"http://xbean/scomp/derivation/GroupRestriction\""+
-                 " xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"" +
-                 " xsi:type=\"sub:restrictedChoiceT\">" +
-                 "<child3>50</child3>" +
-                 "</foo:ChoiceElt>"
-                );
-        try {
-            assertTrue(doc.validate(validateOptions));
-        }
-        catch (Throwable t) {
-            showErrors();
-            throw t;
-        }
+    void testSubstitution() throws Throwable {
+        String input =
+            "<foo:ChoiceElt " +
+            "xmlns:foo=\"http://xbean/scomp/contentType/ModelGroup\"" +
+            " xmlns:sub=\"http://xbean/scomp/derivation/GroupRestriction\"" +
+            " xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"" +
+            " xsi:type=\"sub:restrictedChoiceT\">" +
+            "<child3>50</child3>" +
+            "</foo:ChoiceElt>";
+        ChoiceEltDocument doc = ChoiceEltDocument.Factory.parse(input);
+        assertTrue(doc.validate(createOptions()));
     }
 
     @Test
-    public void testSimpleTypeSubstitution() throws Throwable{
-        PantSizeEltDocument doc =
-            PantSizeEltDocument.Factory.parse(
-                "<foo:PantSizeElt " +
-                    "xmlns:foo=\"http://xbean/scomp/contentType/SimpleType\"" +
-                    " xmlns:sub=\"http://xbean/scomp/derivation/SimpleTypeRestriction\"" +
-                    " xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"" +
-                    " xsi:type=\"sub:SmallPantSize\">" +
-                    "8" +
-                    "</foo:PantSizeElt>"
-            );
-        try {
-            assertTrue(doc.validate(validateOptions));
-        } catch (Throwable t) {
-            showErrors();
-            throw t;
-        }
-     }
+    void testSimpleTypeSubstitution() throws Throwable {
+        String input =
+            "<foo:PantSizeElt " +
+            "xmlns:foo=\"http://xbean/scomp/contentType/SimpleType\"" +
+            " xmlns:sub=\"http://xbean/scomp/derivation/SimpleTypeRestriction\"" +
+            " xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"" +
+            " xsi:type=\"sub:SmallPantSize\">" +
+            "8" +
+            "</foo:PantSizeElt>";
+
+        PantSizeEltDocument doc = PantSizeEltDocument.Factory.parse(input);
+        assertTrue(doc.validate(createOptions()));
+    }
 }

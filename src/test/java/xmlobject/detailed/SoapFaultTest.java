@@ -15,11 +15,12 @@
 
 package xmlobject.detailed;
 
+import org.apache.xmlbeans.XmlCalendar;
 import org.apache.xmlbeans.XmlError;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.xmlsoap.schemas.soap.envelope.Detail;
 import org.xmlsoap.schemas.soap.envelope.Fault;
 import xmlobjecttest.soapfaults.FirstFaultType;
@@ -27,8 +28,8 @@ import xmlobjecttest.soapfaults.FirstFaultType;
 import javax.xml.namespace.QName;
 import java.util.ArrayList;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class SoapFaultTest {
     private static final String soapenv = "http://schemas.xmlsoap.org/soap/envelope/";
@@ -37,7 +38,7 @@ public class SoapFaultTest {
      * Regression test for Radar bug #25114
      */
     @Test
-    @Ignore
+    @Disabled
     public void testSetDetail() throws Exception {
         Fault fault = Fault.Factory.newInstance();
         fault.setDetail(Detail.Factory.parse(XmlObject.Factory.parse("<foo/>").newXMLStreamReader()));
@@ -50,7 +51,7 @@ public class SoapFaultTest {
      * Regression test for Radar bug #25119
      */
     @Test
-    public void testAddNewDetail() throws Exception {
+    void testAddNewDetail() throws Exception {
         Fault fault = Fault.Factory.newInstance();
 
         fault.setFaultcode(new QName(soapenv, "foo"));
@@ -58,11 +59,12 @@ public class SoapFaultTest {
         fault.addNewDetail().set(
             XmlObject.Factory.parse("<foo/>").changeType(Detail.type));
 
-        String expect = "<xml-fragment>" +
-                        "<faultcode xmlns:soapenv=\"" + soapenv + "\">soapenv:foo</faultcode>" +
-                        "<faultstring>Undefined</faultstring>" +
-                        "<detail><foo/></detail>" +
-                        "</xml-fragment>";
+        String expect =
+            "<xml-fragment>" +
+            "<faultcode xmlns:soapenv=\"" + soapenv + "\">soapenv:foo</faultcode>" +
+            "<faultstring>Undefined</faultstring>" +
+            "<detail><foo/></detail>" +
+            "</xml-fragment>";
         assertEquals(expect, fault.xmlText());
         assertEquals(new QName(soapenv, "foo"), fault.getFaultcode());
         assertEquals("Undefined", fault.getFaultstring());
@@ -73,7 +75,7 @@ public class SoapFaultTest {
      * Regression test for Radar bug #25409
      */
     @Test
-    @Ignore
+    @Disabled
     public void testSetFaultDetail() throws Exception {
         String soapFault =
             "<soapenv:Fault xmlns:soapenv=\"" + soapenv + "\">" +
@@ -107,7 +109,6 @@ public class SoapFaultTest {
 
         assertEquals("The First Fault", firstFault.getAString().trim());
         assertEquals(1, firstFault.getAInt());
-        assertEquals(new org.apache.xmlbeans.XmlCalendar("2003-03-28"),
-            firstFault.getADate());
+        assertEquals(new XmlCalendar("2003-03-28"), firstFault.getADate());
     }
 }

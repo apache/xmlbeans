@@ -22,11 +22,11 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Document;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -42,41 +42,25 @@ import static org.w3c.domts.DOMTest.load;
  */
 public class domimplementationhasfeature01 {
     @Test
-    public void testRun() throws Throwable {
-        Document doc;
-        DOMImplementation domImpl;
+    void testRun() throws Throwable {
         String version = "";
         String version1 = "1.0";
         String version2 = "2.0";
-        String featureCore;
-        String featureXML;
+        String[] featuresXML = { "XML", "xmL" };
+        String[] featuresCore = { "Core", "CORE" };
+
+        Document doc = load("staffNS", false);
+        DOMImplementation domImpl = doc.getImplementation();
         boolean success;
-        java.util.List featuresXML = new java.util.ArrayList();
-        featuresXML.add("XML");
-        featuresXML.add("xmL");
-
-        java.util.List featuresCore = new java.util.ArrayList();
-        featuresCore.add("Core");
-        featuresCore.add("CORE");
-
-        doc = load("staffNS", false);
-        domImpl = doc.getImplementation();
-        for (int indexd360e63 = 0; indexd360e63 < featuresXML.size(); indexd360e63++) {
-            featureXML = (String) featuresXML.get(indexd360e63);
-            success = domImpl.hasFeature(featureXML, version);
-            assertTrue("domimplementationhasfeature01_XML_1", success);
-            success = domImpl.hasFeature(featureXML, version1);
-            assertTrue("domimplementationhasfeature01_XML_2", success);
+        for (String featureXML : featuresXML) {
+            assertTrue(domImpl.hasFeature(featureXML, version), "domimplementationhasfeature01_XML_1");
+            assertTrue(domImpl.hasFeature(featureXML, version1), "domimplementationhasfeature01_XML_2");
         }
-        for (int indexd360e74 = 0; indexd360e74 < featuresCore.size(); indexd360e74++) {
-            featureCore = (String) featuresCore.get(indexd360e74);
-            success = domImpl.hasFeature(featureCore, version);
-            assertTrue("domimplementationhasfeature01_Core_1", success);
-            success = domImpl.hasFeature(featureCore, version1);
-            success = domImpl.hasFeature(featureCore, version2);
-            assertTrue("domimplementationhasfeature01_Core_3", success);
+        for (String featureCore : featuresCore) {
+            assertTrue(domImpl.hasFeature(featureCore, version), "domimplementationhasfeature01_Core_1");
+            assertTrue(domImpl.hasFeature(featureCore, version1), "domimplementationhasfeature01_Core_2");
+            assertTrue(domImpl.hasFeature(featureCore, version2), "domimplementationhasfeature01_Core_3");
         }
-
     }
 
     /**

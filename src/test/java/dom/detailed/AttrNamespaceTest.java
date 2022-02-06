@@ -17,9 +17,9 @@ package dom.detailed;
 
 import dom.common.Loader;
 import org.apache.xmlbeans.XmlObject;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -28,7 +28,7 @@ import org.xml.sax.InputSource;
 
 import java.io.StringReader;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 
 /**
@@ -44,13 +44,13 @@ public class AttrNamespaceTest {
 
 
     @Test
-    @Ignore
+    @Disabled
     public void testDefaultNamespace() {
         assertTrue(((Element) m_node).hasAttribute("xmlns"));
     }
 
     @Test
-    public void testAttr2Namespace() {
+    void testAttr2Namespace() {
         Attr at = (Attr) ((Element) m_node).getAttributeNode("at0");
         String namespaceURI = "http://foo.org";
         String qualifiedName = "xmlns:bar";
@@ -69,7 +69,7 @@ public class AttrNamespaceTest {
     }
 
     @Test
-    public void testNamespace2Attr() {
+    void testNamespace2Attr() {
         m_node = m_docNS.getFirstChild();
 
         int nAttrCount = ((Element) m_node).getAttributes().getLength();
@@ -100,7 +100,7 @@ public class AttrNamespaceTest {
      * with NULL URI?
      */
     @Test
-    public void testInsertBadAttribute() throws Exception{
+    void testInsertBadAttribute() throws Exception{
         String sER="<foo/>";
         org.apache.xerces.parsers.DOMParser parser = new org.apache.xerces.parsers.DOMParser();
         parser.parse(new InputSource(new StringReader(sER)));
@@ -118,7 +118,7 @@ public class AttrNamespaceTest {
         at_xerces.setValue("");
     }
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         if (sXml == null && sXmlNS == null) throw new IllegalArgumentException("Test bug : Initialize xml strings");
         Loader loader = Loader.getLoader();

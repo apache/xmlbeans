@@ -17,14 +17,14 @@ package compile.scomp.detailed;
 import org.apache.xmlbeans.XmlError;
 import org.apache.xmlbeans.impl.tool.Parameters;
 import org.apache.xmlbeans.impl.tool.SchemaCompiler;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
 import static common.Common.*;
-import static org.junit.Assert.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 /**
  * This class contains tests that need to invoke the SchemaCompiler class which is
@@ -45,11 +45,11 @@ public class SchemaCompilerTests {
         params.setSrcDir(new File(schemaCompOutputDirPath + outputDirName + P + "src"));
         params.setClassesDir(new File(schemaCompOutputDirPath + outputDirName + P + "classes"));
         SchemaCompiler.compile(params);
-        assertFalse(testName + "(): failure when executing scomp", printOptionErrMsgs(errors));
+        assertFalse(hasSevereError(errors), testName + "(): failure when executing scomp");
     }
 
     @Test
-    public void testUnionRedefine() {
+    void testUnionRedefine() {
         File[] xsdFiles = { new File(scompTestFilesRoot + "union_initial.xsd"),
                          new File(scompTestFilesRoot + "union_redefine.xsd") };
         String outputDirName = "unionred";
@@ -61,7 +61,7 @@ public class SchemaCompilerTests {
         involving an enumeration fails.
      */
     @Test
-    public void testEnumerationRedefine1() {
+    void testEnumerationRedefine1() {
         File[] xsdFiles = { new File(scompTestFilesRoot + "enum1.xsd_"),
                          new File(scompTestFilesRoot + "enum1_redefine.xsd_") };
         String outputDirName = "enumRedef1";
@@ -73,7 +73,7 @@ public class SchemaCompilerTests {
         involving an enumeration fails.
      */
     @Test
-    public void testEnumerationRedefine2() {
+    void testEnumerationRedefine2() {
         File[] xsdFiles ={ new File(scompTestFilesRoot + "enum2.xsd_"),
                          new File(scompTestFilesRoot + "enum2_redefine.xsd_") };
         String outputDirName = "enumRedef2";
@@ -85,7 +85,7 @@ public class SchemaCompilerTests {
         involving an enumeration fails.
      */
     @Test
-    public void testEnumerationRedefine3() {
+    void testEnumerationRedefine3() {
         File[] xsdFiles = { new File(scompTestFilesRoot + "enum1.xsd_"),
                          new File(scompTestFilesRoot + "enum3.xsd_"),
                          new File(scompTestFilesRoot + "enum3_redefine.xsd_") };
@@ -99,7 +99,7 @@ public class SchemaCompilerTests {
      * using static handlers for extension interfaces with same method names
      */
     @Test
-    public void testExtensionHandlerMethodNameCollision() {
+    void testExtensionHandlerMethodNameCollision() {
         File[] xsdFiles = { new File(scompTestFilesRoot + "methodsColide_jira205_278.xsd_") };
         File[] configFiles = { new File(scompTestFilesRoot + "methodsColide_jira205_278.xsdconfig_") };
         File[] javaFiles = { new File(scompTestFilesRoot + "ext" + P + "I1.java"),
@@ -118,7 +118,7 @@ public class SchemaCompilerTests {
         params.setClassesDir(new File(schemaCompOutputDirPath + outputDirName + P + "classes"));
 
         SchemaCompiler.compile(params);
-        assertFalse("testExtensionHandlerMethodNameCollision(): failure when executing scomp", printOptionErrMsgs(errors));
+        assertFalse(hasSevereError(errors), "testExtensionHandlerMethodNameCollision(): failure when executing scomp");
     }
 
     /**
@@ -126,7 +126,7 @@ public class SchemaCompilerTests {
      * -noext flag for compilation
      */
     @Test
-    public void testNoExt() {
+    void testNoExt() {
         File[] xsdFiles = { new File(scompTestFilesRoot + "methodsColide_jira205_278.xsd_") };
         File[] configFiles = { new File(scompTestFilesRoot + "methodsColide_jira205_278.xsdconfig_") };
         String outputDirName = "noExt";
@@ -144,6 +144,6 @@ public class SchemaCompilerTests {
         params.setNoExt(true);
 
         SchemaCompiler.compile(params);
-        assertFalse("testNoExt(): failure when executing scomp", printOptionErrMsgs(errors));
+        assertFalse(hasSevereError(errors), "testNoExt(): failure when executing scomp");
     }
 }

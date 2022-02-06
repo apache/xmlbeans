@@ -22,14 +22,14 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -46,21 +46,15 @@ import static org.w3c.domts.DOMTest.load;
 public class attrgetownerelement04 {
 
     @Test
-    @Ignore
+    @Disabled
     public void testRun() throws Throwable {
-        Document doc;
-        Document docImp;
-        Node ownerElement;
-        Element element;
-        Attr attr;
-        Attr attrImp;
-        doc = load("staffNS", false);
-        docImp = load("staff", false);
-        element = doc.getElementById("CANADA");
-        attr = element.getAttributeNodeNS("http://www.nist.gov", "zone");
-        attrImp = (Attr) docImp.importNode(attr, true);
-        ownerElement = attrImp.getOwnerElement();
-        assertNull("attrgetownerelement04", ownerElement);
+        Document doc = load("staffNS", false);
+        Document docImp = load("staff", false);
+        Element element = doc.getElementById("CANADA");
+        Attr attr = element.getAttributeNodeNS("http://www.nist.gov", "zone");
+        Attr attrImp = (Attr) docImp.importNode(attr, true);
+        Node ownerElement = attrImp.getOwnerElement();
+        assertNull(ownerElement, "attrgetownerelement04");
 
     }
 

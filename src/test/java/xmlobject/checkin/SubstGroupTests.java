@@ -17,22 +17,23 @@ package xmlobject.checkin;
 
 import org.apache.xmlbeans.*;
 import org.apache.xmlbeans.impl.xb.xsdschema.SchemaDocument;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.openuri.sgs.ADocument;
 import org.openuri.sgs.BDocument;
 import org.openuri.sgs.CDocument;
 import org.openuri.sgs.RootDocument;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class SubstGroupTests {
     @Test
-    public void test1() throws Exception {
+    void test1() throws Exception {
         String xml1 = "<root xmlns='http://openuri.org/sgs'>" +
-            "<A>\ta\ta\t</A>" +
-            "<B>\tb\tb\t</B>" +
-            "<C>\tc\tc\t</C>" +
-            "</root>";
+                      "<A>\ta\ta\t</A>" +
+                      "<B>\tb\tb\t</B>" +
+                      "<C>\tc\tc\t</C>" +
+                      "</root>";
 
 
         RootDocument doc1 = RootDocument.Factory.parse(xml1);
@@ -80,7 +81,7 @@ public class SubstGroupTests {
     }
 
     @Test
-    public void test2() throws Exception {
+    void test2() throws Exception {
         String xml1 = "<A xmlns='http://openuri.org/sgs'>\ta\ta\t</A>";
         String xml2 = "<B xmlns='http://openuri.org/sgs'>\tb\tb\t</B>";
         String xml3 = "<C xmlns='http://openuri.org/sgs'>\tc\tc\t</C>";
@@ -105,128 +106,118 @@ public class SubstGroupTests {
 
     private static final String[] invalidSchemas = {
         "<xsd:schema xmlns:xsd='http://www.w3.org/2001/XMLSchema'> " +
-            "  <xsd:element name='A' type='xsd:string'/> " +
-            "  <xsd:element name='B' type='xsd:int' substitutionGroup='A'/> " +
-            "</xsd:schema>",
+        "  <xsd:element name='A' type='xsd:string'/> " +
+        "  <xsd:element name='B' type='xsd:int' substitutionGroup='A'/> " +
+        "</xsd:schema>",
         "<xsd:schema xmlns:xsd='http://www.w3.org/2001/XMLSchema'> " +
-            "  <xsd:complexType name='foo'> " +
-            "    <xsd:sequence> " +
-            "      <xsd:element name='bar' substitutionGroup='A'/>" +
-            "    </xsd:sequence> " +
-            "  </xsd:complexType>" +
-            "</xsd:schema>",
+        "  <xsd:complexType name='foo'> " +
+        "    <xsd:sequence> " +
+        "      <xsd:element name='bar' substitutionGroup='A'/>" +
+        "    </xsd:sequence> " +
+        "  </xsd:complexType>" +
+        "</xsd:schema>",
         "<xsd:schema xmlns:xsd='http://www.w3.org/2001/XMLSchema'> " +
-            "  <xsd:element name='A' type='xsd:string' final='#all'/> " +
-            "  <xsd:element name='B' type='xsd:string' substitutionGroup='A'/> " +
-            "</xsd:schema>",
+        "  <xsd:element name='A' type='xsd:string' final='#all'/> " +
+        "  <xsd:element name='B' type='xsd:string' substitutionGroup='A'/> " +
+        "</xsd:schema>",
         "<xsd:schema xmlns:xsd='http://www.w3.org/2001/XMLSchema'> " +
-            "  <xsd:element name='A' type='xsd:string' final='restriction'/> " +
-            "  <xsd:element name='B' type='xsd:token' substitutionGroup='A'/> " +
-            "</xsd:schema>",
+        "  <xsd:element name='A' type='xsd:string' final='restriction'/> " +
+        "  <xsd:element name='B' type='xsd:token' substitutionGroup='A'/> " +
+        "</xsd:schema>",
         "<xsd:schema xmlns:xsd='http://www.w3.org/2001/XMLSchema'> " +
-            "  <xsd:element name='A' type='xsd:string' substitutionGroup='B'/> " +
-            "  <xsd:element name='B' type='xsd:string' substitutionGroup='C'/> " +
-            "  <xsd:element name='C' type='xsd:string' substitutionGroup='D'/> " +
-            "  <xsd:element name='D' type='xsd:string' substitutionGroup='E'/> " +
-            "  <xsd:element name='E' type='xsd:string' substitutionGroup='A'/> " +
-            "</xsd:schema>",
+        "  <xsd:element name='A' type='xsd:string' substitutionGroup='B'/> " +
+        "  <xsd:element name='B' type='xsd:string' substitutionGroup='C'/> " +
+        "  <xsd:element name='C' type='xsd:string' substitutionGroup='D'/> " +
+        "  <xsd:element name='D' type='xsd:string' substitutionGroup='E'/> " +
+        "  <xsd:element name='E' type='xsd:string' substitutionGroup='A'/> " +
+        "</xsd:schema>",
         "<xsd:schema xmlns:xsd='http://www.w3.org/2001/XMLSchema'> " +
-            "  <xsd:element name='A' type='xsd:token' substitutionGroup='B'/> " +
-            "</xsd:schema>",
+        "  <xsd:element name='A' type='xsd:token' substitutionGroup='B'/> " +
+        "</xsd:schema>",
         "<xsd:schema xmlns:xsd='http://www.w3.org/2001/XMLSchema'> " +
-            "  <xsd:element name='A' type='xsd:string'/> " +
-            "  <xsd:element name='B' type='xsd:string' substitutionGroup='A'/> " +
-            "  <xsd:element name='Complex'> " +
-            "    <xsd:complexType> " +
-            "      <xsd:choice> " +
-            "        <xsd:element ref='A'/>" +
-            "        <xsd:element ref='B'/>" +
-            "      </xsd:choice> " +
-            "    </xsd:complexType> " +
-            "  </xsd:element> " +
-            "</xsd:schema>",
+        "  <xsd:element name='A' type='xsd:string'/> " +
+        "  <xsd:element name='B' type='xsd:string' substitutionGroup='A'/> " +
+        "  <xsd:element name='Complex'> " +
+        "    <xsd:complexType> " +
+        "      <xsd:choice> " +
+        "        <xsd:element ref='A'/>" +
+        "        <xsd:element ref='B'/>" +
+        "      </xsd:choice> " +
+        "    </xsd:complexType> " +
+        "  </xsd:element> " +
+        "</xsd:schema>",
     };
 
     public static final String[] validSchemas = {
         "<xsd:schema xmlns:xsd='http://www.w3.org/2001/XMLSchema'>" +
-            "  <xsd:complexType name='base'>" +
-            "    <xsd:all>" +
-            "      <xsd:element ref='head'/>" +
-            "    </xsd:all>" +
-            "  </xsd:complexType>" +
-            "  <xsd:complexType name='restr'>" +
-            "    <xsd:complexContent>" +
-            "       <xsd:restriction base='base'>" +
-            "         <xsd:all>" +
-            "           <xsd:element ref='tail'/>" +
-            "         </xsd:all>" +
-            "       </xsd:restriction>" +
-            "    </xsd:complexContent>" +
-            "  </xsd:complexType>" +
-            "  <xsd:element name='head' type='xsd:string'/>" +
-            "  <xsd:element name='tail' substitutionGroup='head'/>" +
-            "</xsd:schema>",
+        "  <xsd:complexType name='base'>" +
+        "    <xsd:all>" +
+        "      <xsd:element ref='head'/>" +
+        "    </xsd:all>" +
+        "  </xsd:complexType>" +
+        "  <xsd:complexType name='restr'>" +
+        "    <xsd:complexContent>" +
+        "       <xsd:restriction base='base'>" +
+        "         <xsd:all>" +
+        "           <xsd:element ref='tail'/>" +
+        "         </xsd:all>" +
+        "       </xsd:restriction>" +
+        "    </xsd:complexContent>" +
+        "  </xsd:complexType>" +
+        "  <xsd:element name='head' type='xsd:string'/>" +
+        "  <xsd:element name='tail' substitutionGroup='head'/>" +
+        "</xsd:schema>",
     };
 
     @Test
-    public void test3() throws Exception {
-        SchemaDocument[] schemas = new SchemaDocument[invalidSchemas.length];
+    void test3() throws Exception {
+        final SchemaDocument[] invaldXSD = new SchemaDocument[invalidSchemas.length];
 
         // Parse the invalid schema files
-        for (int i = 0; i < invalidSchemas.length; i++)
-            schemas[i] = SchemaDocument.Factory.parse(invalidSchemas[i]);
-
-        // Now compile the invalid schemas, test that they fail
-        for (int i = 0; i < schemas.length; i++) {
-            try {
-                XmlBeans.loadXsd(new XmlObject[]{schemas[i]});
-                fail("Schema should have failed to compile:\n" + invalidSchemas[i]);
-            } catch (XmlException success) { /* System.out.println(success); */ }
+        for (int i = 0; i < invalidSchemas.length; i++) {
+            invaldXSD[i] = SchemaDocument.Factory.parse(invalidSchemas[i]);
         }
 
+        // Now compile the invalid schemas, test that they fail
+        for (SchemaDocument schemaDocument : invaldXSD) {
+            assertThrows(XmlException.class, () -> XmlBeans.loadXsd(schemaDocument));
+        }
 
         // Parse the valid schema files
-        schemas = new SchemaDocument[validSchemas.length];
-        for (int i = 0; i < validSchemas.length; i++)
-            schemas[i] = SchemaDocument.Factory.parse(validSchemas[i]);
+        SchemaDocument[] validXSD = new SchemaDocument[validSchemas.length];
+        for (int i = 0; i < validSchemas.length; i++) {
+            validXSD[i] = SchemaDocument.Factory.parse(validSchemas[i]);
+        }
 
         // Now compile the valid schemas, test that they succeed
-        for (int i = 0; i < schemas.length; i++) {
-            try {
-                XmlBeans.loadXsd(new XmlObject[]{schemas[i]});
-            } catch (XmlException fail) {
-                fail("Failed to compile schema: " + schemas[i] + " with error: " + fail);
-            }
+        for (SchemaDocument schema : validXSD) {
+            Assertions.assertDoesNotThrow(() -> XmlBeans.loadXsd(schema));
         }
     }
 
-    private static String[] invalidDocs =
-        {
-            "<abstractTest xmlns='http://openuri.org/sgs'>" +
-                "    <abstract>content</abstract> " +
-                "</abstractTest> ",
-        };
+    private static final String[] invalidDocs = {
+        "<abstractTest xmlns='http://openuri.org/sgs'>" +
+        "    <abstract>content</abstract> " +
+        "</abstractTest> ",
+    };
 
-    private static String[] validDocs =
-        {
-            "<abstractTest xmlns='http://openuri.org/sgs'>" +
-                "    <concrete>content</concrete> " +
-                "</abstractTest> ",
-        };
+    private static final String[] validDocs = {
+        "<abstractTest xmlns='http://openuri.org/sgs'>" +
+        "    <concrete>content</concrete> " +
+        "</abstractTest> ",
+    };
 
     @Test
-    public void test4() throws Exception {
+    void test4() throws Exception {
 
-        for (int i = 0; i < invalidDocs.length; i++) {
-            XmlObject xo = XmlObject.Factory.parse(invalidDocs[i]);
-            assertTrue("Doc was valid. Should be invalid: " + invalidDocs[i],
-                !xo.validate());
+        for (String invalidDoc : invalidDocs) {
+            XmlObject xo = XmlObject.Factory.parse(invalidDoc);
+            assertFalse(xo.validate(), "Doc was valid. Should be invalid: " + invalidDoc);
         }
 
-        for (int i = 0; i < validDocs.length; i++) {
-            XmlObject xo = XmlObject.Factory.parse(validDocs[i]);
-            assertTrue("Doc was invalid. Should be valid: " + validDocs[i],
-                xo.validate());
+        for (String validDoc : validDocs) {
+            XmlObject xo = XmlObject.Factory.parse(validDoc);
+            assertTrue(xo.validate(), "Doc was invalid. Should be valid: " + validDoc);
         }
     }
 

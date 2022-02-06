@@ -18,16 +18,16 @@ package xmlobject.extensions.interfaceFeature.readOnlyBean.checkin;
 import interfaceFeature.xbean.readOnlyBean.purchaseOrder.Items;
 import interfaceFeature.xbean.readOnlyBean.purchaseOrder.PurchaseOrderDocument;
 import interfaceFeature.xbean.readOnlyBean.purchaseOrder.PurchaseOrderType;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 public class ReadOnlyTest {
     @Test
-    public void test() {
+    void test() {
 
         PurchaseOrderDocument poDoc;
 
@@ -45,32 +45,23 @@ public class ReadOnlyTest {
         po.setItems(items);
 
         StringBuilder sb = new StringBuilder();
-        sb.append(
-                "<pur:purchaseOrder xmlns:pur=\"http://xbean.interface_feature/readOnlyBean/PurchaseOrder\">");
-
+        sb.append("<pur:purchaseOrder xmlns:pur=\"http://xbean.interface_feature/readOnlyBean/PurchaseOrder\">");
         sb.append("<pur:items>");
 
         StringBuilder sbContent = new StringBuilder();
-        for (int i = 0; i < LEN; i++)
+        for (int i = 0; i < LEN; i++) {
             sbContent.append("<pur:item><pur:USPrice>4</pur:USPrice></pur:item>");
+        }
 
         int pos = sb.length();
         sb.append("</pur:items></pur:purchaseOrder>");
 
-        String sExpected = sb.subSequence(0, pos) +
-                sbContent.toString() +
-                sb.subSequence(pos, sb.length());
+        String sExpected = sb.subSequence(0, pos) + sbContent.toString() + sb.subSequence(pos, sb.length());
 
         assertEquals(sExpected, poDoc.xmlText());
 
-        try {
-            poDoc.setPrice(10);
+        poDoc.setPrice(10);
 
-        } catch (Exception t) {
-            t.printStackTrace(System.err);
-            System.exit(-1);
-        }
-
-        assertTrue(!poDoc.validate());
+        assertFalse(poDoc.validate());
     }
 }

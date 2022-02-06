@@ -22,11 +22,11 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.*;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -43,30 +43,20 @@ import static org.w3c.domts.DOMTest.load;
  */
 public class documentimportnode14 {
     @Test
-    public void testRun() throws Throwable {
-        Document doc;
-        Document newDoc;
-        DOMImplementation domImpl;
+    void testRun() throws Throwable {
         DocumentType nullDocType = null;
-
-        NodeList childList;
-        Node imported;
-        Node employeeElem;
-        Attr attrNode;
-        String attrValue;
         String nullNS = null;
 
-        doc = load("staffNS", true);
-        childList = doc.getElementsByTagNameNS("*", "employee");
-        employeeElem = childList.item(3);
-        domImpl = doc.getImplementation();
-        newDoc = domImpl.createDocument(nullNS, "staff", nullDocType);
-        imported = newDoc.importNode(employeeElem, true);
-        attrNode = ((Element) /*Node */imported).getAttributeNodeNS(nullNS, "defaultAttr");
-        assertNull("defaultAttrNotImported", attrNode);
-        attrValue = ((Element) /*Node */imported).getAttributeNS("http://www.w3.org/2000/xmlns/", "emp");
-        assertEquals("explicitAttrImported", "http://www.nist.gov", attrValue);
-
+        Document doc = load("staffNS", true);
+        NodeList childList = doc.getElementsByTagNameNS("*", "employee");
+        Node employeeElem = childList.item(3);
+        DOMImplementation domImpl = doc.getImplementation();
+        Document newDoc = domImpl.createDocument(nullNS, "staff", nullDocType);
+        Node imported = newDoc.importNode(employeeElem, true);
+        Attr attrNode = ((Element) /*Node */imported).getAttributeNodeNS(nullNS, "defaultAttr");
+        assertNull(attrNode, "defaultAttrNotImported");
+        String attrValue = ((Element) /*Node */imported).getAttributeNS("http://www.w3.org/2000/xmlns/", "emp");
+        assertEquals("http://www.nist.gov", attrValue, "explicitAttrImported");
     }
 
     /**

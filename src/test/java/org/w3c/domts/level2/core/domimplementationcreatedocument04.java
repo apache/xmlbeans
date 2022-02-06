@@ -22,14 +22,14 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Document;
 import org.w3c.dom.DocumentType;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -46,29 +46,17 @@ import static org.w3c.domts.DOMTest.load;
  */
 public class domimplementationcreatedocument04 {
     @Test
-    public void testRun() throws Throwable {
-        Document doc;
-        DOMImplementation domImpl;
-        Document newDoc;
+    void testRun() throws Throwable {
         String namespaceURI = null;
-
         String qualifiedName = "dom:root";
         DocumentType docType = null;
 
-        doc = load("staffNS", false);
-        domImpl = doc.getImplementation();
+        Document doc = load("staffNS", false);
+        DOMImplementation domImpl = doc.getImplementation();
 
-        {
-            boolean success = false;
-            try {
-                newDoc = domImpl.createDocument(namespaceURI, qualifiedName, docType);
-                fail("qualifiedName has a prefix and the namespaceURI is null: NAMESPACE_ERR");
-            } catch (DOMException ex) {
-                assertEquals(ex.code, DOMException.NAMESPACE_ERR);
-            }
-
-        }
-
+        DOMException ex = assertThrows(DOMException.class, () -> domImpl.createDocument(namespaceURI, qualifiedName, docType),
+            "qualifiedName has a prefix and the namespaceURI is null: NAMESPACE_ERR");
+        assertEquals(ex.code, DOMException.NAMESPACE_ERR);
     }
 
     /**

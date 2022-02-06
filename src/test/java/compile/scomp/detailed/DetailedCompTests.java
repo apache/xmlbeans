@@ -17,7 +17,7 @@ package compile.scomp.detailed;
 
 import org.apache.xmlbeans.*;
 import org.apache.xmlbeans.impl.xb.xsdschema.SchemaDocument;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import javax.xml.namespace.QName;
 import java.io.File;
@@ -25,7 +25,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 import static common.Common.SCOMP_CASE_ROOT;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 
 public class DetailedCompTests {
@@ -36,7 +36,7 @@ public class DetailedCompTests {
      * @throws Exception
      */
     @Test
-    public void testLaxDocProcessing() throws Exception {
+    void testLaxDocProcessing() throws Exception {
         QName q = new QName("urn:lax.Doc.Compilation", "ItemRequest");
         ArrayList err = new ArrayList();
         XmlOptions xm_opt = new XmlOptions().setErrorListener(err);
@@ -52,7 +52,7 @@ public class DetailedCompTests {
         try{
             SchemaTypeSystem sts = XmlBeans.compileXmlBeans(null, null,
                 schemas, null, XmlBeans.getBuiltinTypeSystem(), null, xm_opt);
-            assertNotNull("STS was null", sts);
+            assertNotNull(sts, "STS was null");
         }catch(XmlException xmlEx){
             valDocEx = true;
             System.err.println("Expected Error: "+xmlEx.getMessage());
@@ -146,7 +146,7 @@ public class DetailedCompTests {
      * This tests usage of the xs:NOTATION type
      */
     @Test
-    public void testNotation() throws Exception
+    void testNotation() throws Exception
     {
         String schema;
         String xml;
@@ -164,9 +164,8 @@ public class DetailedCompTests {
         parsedSchema[0] = SchemaDocument.Factory.parse(schema);
         errors.clear();
         XmlBeans.compileXsd(parsedSchema, null, opts);
-        assertTrue("Expected error: NOTATION type cannot be used directly", errors.size() == 1);
-        assertEquals("Expected error: NOTATION type cannot be used directly",
-            XmlErrorCodes.ATTR_NOTATION_TYPE_FORBIDDEN, ((XmlError)errors.get(0)).getErrorCode());
+        assertTrue(errors.size() == 1, "Expected error: NOTATION type cannot be used directly");
+        assertEquals(XmlErrorCodes.ATTR_NOTATION_TYPE_FORBIDDEN, ((XmlError)errors.get(0)).getErrorCode(), "Expected error: NOTATION type cannot be used directly");
         assertEquals(XmlError.SEVERITY_ERROR, ((XmlError)errors.get(0)).getSeverity());
 
         // 2. Negative test - Error if xs:NOTATION restricted without enumeration
@@ -175,9 +174,8 @@ public class DetailedCompTests {
         parsedSchema[0] = SchemaDocument.Factory.parse(schema);
         errors.clear();
         XmlBeans.compileXsd(parsedSchema, null, opts);
-        assertTrue("Expected error: restriction of NOTATION must use enumeration facet", errors.size() == 1);
-        assertEquals("Expected error: restriction of NOTATION must use enumeration facet",
-            XmlErrorCodes.DATATYPE_ENUM_NOTATION, ((XmlError)errors.get(0)).getErrorCode());
+        assertTrue(errors.size() == 1, "Expected error: restriction of NOTATION must use enumeration facet");
+        assertEquals(XmlErrorCodes.DATATYPE_ENUM_NOTATION, ((XmlError)errors.get(0)).getErrorCode(), "Expected error: restriction of NOTATION must use enumeration facet");
         assertEquals(XmlError.SEVERITY_ERROR, ((XmlError)errors.get(0)).getSeverity());
 
         // 3. Warning if xs:NOTATION used as type of an element
@@ -187,9 +185,8 @@ public class DetailedCompTests {
         parsedSchema[0] = SchemaDocument.Factory.parse(schema);
         errors.clear();
         XmlBeans.compileXsd(parsedSchema, null, opts);
-        assertTrue("Expected warning: NOTATION-derived type should not be used on elements", errors.size() == 1);
-        assertEquals("Expected warning: NOTATION-derived type should not be used on elements",
-            XmlErrorCodes.ELEM_COMPATIBILITY_TYPE, ((XmlError)errors.get(0)).getErrorCode());
+        assertTrue(errors.size() == 1, "Expected warning: NOTATION-derived type should not be used on elements");
+        assertEquals(XmlErrorCodes.ELEM_COMPATIBILITY_TYPE, ((XmlError)errors.get(0)).getErrorCode(), "Expected warning: NOTATION-derived type should not be used on elements");
         assertEquals(XmlError.SEVERITY_WARNING, ((XmlError)errors.get(0)).getSeverity());
 
         // 4. Warning if xs:NOTATION is used in a Schema with target namespace
@@ -199,9 +196,8 @@ public class DetailedCompTests {
         parsedSchema[0] = SchemaDocument.Factory.parse(schema);
         errors.clear();
         XmlBeans.compileXsd(parsedSchema, null, opts);
-        assertTrue("Expected warning: NOTATION-derived type should not be used in a Schema with target namespace", errors.size() == 1);
-        assertEquals("Expected warning: NOTATION-derived type should not be used in a Schema with target namespace",
-            XmlErrorCodes.ATTR_COMPATIBILITY_TARGETNS, ((XmlError)errors.get(0)).getErrorCode());
+        assertTrue(errors.size() == 1, "Expected warning: NOTATION-derived type should not be used in a Schema with target namespace");
+        assertEquals(XmlErrorCodes.ATTR_COMPATIBILITY_TARGETNS, ((XmlError)errors.get(0)).getErrorCode(), "Expected warning: NOTATION-derived type should not be used in a Schema with target namespace");
         assertEquals(XmlError.SEVERITY_WARNING, ((XmlError)errors.get(0)).getSeverity());
 
         // 5. Warning - Deprecation of minLength, maxLength and length facets
@@ -211,9 +207,8 @@ public class DetailedCompTests {
         parsedSchema[0] = SchemaDocument.Factory.parse(schema);
         errors.clear();
         XmlBeans.compileXsd(parsedSchema, null, opts);
-        assertTrue("Expected warning: length facet cannot be used on a type derived from NOTATION", errors.size() == 1);
-        assertEquals("Expected warning: length facet cannot be used on a type derived from NOTATION",
-            XmlErrorCodes.FACETS_DEPRECATED_NOTATION, ((XmlError)errors.get(0)).getErrorCode());
+        assertTrue(errors.size() == 1, "Expected warning: length facet cannot be used on a type derived from NOTATION");
+        assertEquals(XmlErrorCodes.FACETS_DEPRECATED_NOTATION, ((XmlError)errors.get(0)).getErrorCode(), "Expected warning: length facet cannot be used on a type derived from NOTATION");
         assertEquals(XmlError.SEVERITY_WARNING, ((XmlError)errors.get(0)).getSeverity());
 
         // 6. Positive test - Test restriction via enumeration, then same as 2
@@ -222,7 +217,7 @@ public class DetailedCompTests {
         parsedSchema[0] = SchemaDocument.Factory.parse(schema);
         errors.clear();
         typeSystem = XmlBeans.compileXsd(parsedSchema, null, opts);
-        assertTrue("Expected no errors or warnings", errors.size() == 0);
+        assertTrue(errors.size() == 0, "Expected no errors or warnings");
         SchemaType docType = typeSystem.findDocumentType(new QName("", "root"));
         SchemaType type = docType.getElementProperty(new QName("", "root")).getType().
             getAttributeProperty(new QName("", "att")).getType();
@@ -234,48 +229,46 @@ public class DetailedCompTests {
         // 7. Validation negative - Test error if QName has bad prefix
         xml = doc_begin + notation7 + doc_end;
         parsedDoc = loader.parse(xml, null, opts);
-        assertEquals("Did not find the root element in the Schema", docType, parsedDoc.schemaType());
+        assertEquals(docType, parsedDoc.schemaType(), "Did not find the root element in the Schema");
         errors.clear();
         parsedDoc.validate(opts);
         // Both "prefix not found" and "pattern doesn't match" errors
-        assertTrue("Expected validation errors", errors.size() == 2);
+        assertTrue(errors.size() == 2, "Expected validation errors");
         // Unfortunately, can't get the error code because it is logged via an intermediate exception
-        assertTrue("Expected prefix not found error", ((XmlError) errors.get(0)).getMessage().
-            indexOf("Invalid QName") >= 0);
+        assertTrue(((XmlError) errors.get(0)).getMessage().
+            indexOf("Invalid QName") >= 0, "Expected prefix not found error");
         assertEquals(XmlError.SEVERITY_ERROR, ((XmlError) errors.get(0)).getSeverity());
 //        System.out.println(xml);
 
         // 8. Validation negative - Test error if QName has correct prefix but not in enumeration
         xml = doc_begin + notation8 + doc_end;
         parsedDoc = loader.parse(xml, null, opts);
-        assertEquals("Did not find the root element in the Schema", docType, parsedDoc.schemaType());
+        assertEquals(docType, parsedDoc.schemaType(), "Did not find the root element in the Schema");
         errors.clear();
         parsedDoc.validate(opts);
-        assertTrue("Expected validation errors", errors.size() == 1);
-        assertEquals("Expected prefix not found error", XmlErrorCodes.DATATYPE_ENUM_VALID,
-            ((XmlError) errors.get(0)).getErrorCode());
+        assertTrue(errors.size() == 1, "Expected validation errors");
+        assertEquals(XmlErrorCodes.DATATYPE_ENUM_VALID, ((XmlError) errors.get(0)).getErrorCode(), "Expected prefix not found error");
         assertEquals(XmlError.SEVERITY_ERROR, ((XmlError) errors.get(0)).getSeverity());
 //        System.out.println(xml);
 
         // 9. Validation negative - Test error if QName doesn't match the extra facet
         xml = doc_begin + notation9 + doc_end;
         parsedDoc = loader.parse(xml, null, opts);
-        assertEquals("Did not find the root element in the Schema", docType, parsedDoc.schemaType());
+        assertEquals(docType, parsedDoc.schemaType(), "Did not find the root element in the Schema");
         errors.clear();
         parsedDoc.validate(opts);
-        assertTrue("Expected validation errors", errors.size() == 1);
-        assertEquals("Expected prefix not found error", XmlErrorCodes.DATATYPE_VALID$PATTERN_VALID,
-            ((XmlError) errors.get(0)).getErrorCode());
+        assertTrue(errors.size() == 1, "Expected validation errors");
+        assertEquals(XmlErrorCodes.DATATYPE_VALID$PATTERN_VALID, ((XmlError) errors.get(0)).getErrorCode(), "Expected prefix not found error");
         assertEquals(XmlError.SEVERITY_ERROR, ((XmlError) errors.get(0)).getSeverity());
 //        System.out.println(xml);
 
         // 10. Validation positive - Test that validation can be performed correctly
         xml = doc_begin + notation10 + doc_end;
         parsedDoc = loader.parse(xml, null, opts);
-        assertEquals("Did not find the root element in the Schema", docType, parsedDoc.schemaType());
+        assertEquals(docType, parsedDoc.schemaType(), "Did not find the root element in the Schema");
         errors.clear();
         parsedDoc.validate(opts);
-        assertTrue("Expected no validation errors", errors.size() == 0);
+        assertTrue(errors.size() == 0, "Expected no validation errors");
 //        System.out.println(xml);
     }
 }

@@ -14,7 +14,7 @@
  */
 package tools.inst2xsd.common;
 
-import org.apache.xmlbeans.*;
+import org.apache.xmlbeans.XmlOptions;
 import org.apache.xmlbeans.impl.inst2xsd.Inst2XsdOptions;
 
 public class Inst2XsdCommon {
@@ -68,7 +68,7 @@ public class Inst2XsdCommon {
         "     See the License for the specific language governing permissions and\n" +
         "     limitations under the License. -->\n";
 
-    public static String base = asl_header + "<a xmlns=\"baseNamespace\">" +
+    public static final String base = asl_header + "<a xmlns=\"baseNamespace\">" +
             "<b>abc</b>" +
             "<c>123</c>" +
             "<d />" +

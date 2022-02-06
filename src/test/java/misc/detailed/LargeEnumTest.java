@@ -19,12 +19,13 @@ import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.XmlError;
 import org.apache.xmlbeans.XmlOptions;
 import org.apache.xmlbeans.XmlToken;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import xmlbeans307.*;
 
 import java.util.ArrayList;
+import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * This test was put together for:
@@ -36,96 +37,75 @@ public class LargeEnumTest {
      * These are tests for a enumeration type
      */
     @Test
-    public void testEnumCount_closeToMax() throws Exception {
+    void testEnumCount_closeToMax() throws Exception {
         SchemaType mType = MaxAllowedEnumType.type;
-        assertNotNull("Enumeration SchemaType was null", mType.getEnumerationValues());
-        assertEquals("EnumerationValue was not 3660 as expected was" + mType.getEnumerationValues().length, 3660, mType.getEnumerationValues().length);
+        assertNotNull(mType.getEnumerationValues(), "Enumeration SchemaType was null");
+        assertEquals(3660, mType.getEnumerationValues().length, "EnumerationValue was not 3660 as expected was" + mType.getEnumerationValues().length);
 
         SchemaType mElem = MaxAllowedElementDocument.type;
-        assertNull("Enumeration SchemaType was null", mElem.getEnumerationValues());
+        assertNull(mElem.getEnumerationValues(), "Enumeration SchemaType was null");
 
         // Test that the Java type associated to this is an enum type
-        assertNotNull("This type does not correspond to a Java enumeration", mType.getStringEnumEntries());
+        assertNotNull(mType.getStringEnumEntries(), "This type does not correspond to a Java enumeration");
     }
 
     @Test
-    public void testEnumCount_greaterThanMax() throws Exception {
+    void testEnumCount_greaterThanMax() throws Exception {
         // TODO: verify if any xpath/xquery issues
         SchemaType mType = MoreThanAllowedEnumType.type;
 
-        assertNotNull("Enumeration should be null as type should be base type " + mType.getEnumerationValues(),
-                mType.getEnumerationValues());
-        assertEquals("EnumerationValue was not 3678 as expected was " + mType.getEnumerationValues().length, 3678, mType.getEnumerationValues().length);
-        System.out.println("GET BASE TYPE: " + mType.getBaseType());
-        System.out.println("GET BASE TYPE: " + mType.getPrimitiveType());
-        assertEquals("type should have been base type, was " + mType.getBaseType(), mType.getBaseType().getBuiltinTypeCode(), XmlToken.type.getBuiltinTypeCode());
+        assertNotNull(mType.getEnumerationValues(), "Enumeration should be null as type should be base type " + mType.getEnumerationValues());
+        assertEquals(3678, mType.getEnumerationValues().length, "EnumerationValue was not 3678 as expected was " + mType.getEnumerationValues().length);
+        assertEquals(mType.getBaseType().getBuiltinTypeCode(), XmlToken.type.getBuiltinTypeCode(), "type should have been base type, was " + mType.getBaseType());
 
         SchemaType mElem = GlobalMoreThanElementDocument.type;
-        assertNull("Enumeration SchemaType was null", mElem.getBaseEnumType());
+        assertNull(mElem.getBaseEnumType(), "Enumeration SchemaType was null");
 
         // Test that the Java type associated to this is not an enum type
-        assertNull("This type corresponds to a Java enumeration, even though it has too many enumeration values",
-            mType.getStringEnumEntries());
+        assertNull(mType.getStringEnumEntries(), "This type corresponds to a Java enumeration, even though it has too many enumeration values");
     }
 
     @Test
-    public void testEnumCount_validate_invalid_enum() throws Exception {
+    void testEnumCount_validate_invalid_enum() throws Exception {
         MoreThanAllowedEnumType mType = MoreThanAllowedEnumType.Factory.newInstance();
 
         //This value dos not exist in the enumeration set
         mType.setStringValue("12345AAA");
-        ArrayList errors = new ArrayList();
+        List<XmlError> errors = new ArrayList<>();
         XmlOptions options = (new XmlOptions()).setErrorListener(errors);
         mType.validate(options);
-        XmlError[] xErr = new XmlError[errors.size()];
-        for (int i = 0; i < errors.size(); i++) {
-            System.out.println("ERROR: " + errors.get(i));
-            xErr[i] = (XmlError)errors.get(i);
-        }
 
-        assertEquals("NO Expected Errors after validating enumType after set", 1, errors.size());
-        assertEquals("Expected ERROR CODE was not as expected", 0, xErr[0].getErrorCode().compareTo("cvc-enumeration-valid"));
+        assertEquals(1, errors.size(), "NO Expected Errors after validating enumType after set");
+        assertEquals(0, errors.get(0).getErrorCode().compareTo("cvc-enumeration-valid"), "Expected ERROR CODE was not as expected");
         // string value '12345AAA' is not a valid enumeration value for MoreThanAllowedEnumType in
     }
 
     @Test
-    public void test_MoreEnum_Operations() throws Exception {
+    void test_MoreEnum_Operations() throws Exception {
         MoreThanAllowedEnumType mType = MoreThanAllowedEnumType.Factory.newInstance();
 
         mType.setStringValue("AAA");
-        ArrayList errors = new ArrayList();
+        List<XmlError> errors = new ArrayList<>();
         XmlOptions options = (new XmlOptions()).setErrorListener(errors);
         mType.validate(options);
 
-        for (int i = 0; i < errors.size(); i++) {
-            System.out.println("ERROR: " + errors.get(i));
-        }
-        assertEquals("There were errors validating enumType after set", 0, errors.size());
+        assertEquals(0, errors.size(), "There were errors validating enumType after set");
 
         GlobalMoreThanElementDocument mDoc = GlobalMoreThanElementDocument.Factory.newInstance();
         mDoc.setGlobalMoreThanElement("AAA");
-        errors = null;
-        errors = new ArrayList();
+        errors.clear();
         options = (new XmlOptions()).setErrorListener(errors);
         mDoc.validate(options);
 
-        for (int i = 0; i < errors.size(); i++) {
-            System.out.println("ERROR: " + errors.get(i));
-        }
-
-        assertEquals("There were errors validating enumDoc after set", 0, errors.size());
+        assertEquals(0, errors.size(), "There were errors validating enumDoc after set");
 
         MoreThanAllowedComplexType mcType = MoreThanAllowedComplexType.Factory.newInstance();
         mcType.setComplexTypeMoreThanEnum("AAA");
         mcType.setSimpleString("This should work");
-        errors = null;
-        errors = new ArrayList();
+        errors.clear();
         mcType.validate(options);
-        for (int i = 0; i < errors.size(); i++) {
-            System.out.println("ERROR: " + errors.get(i));
-        }
 
-        assertEquals("There were errors validating complxType after set", 0, errors.size());
+        assertEquals(0, errors.size(), "There were errors validating complxType after set");
     }
 
 

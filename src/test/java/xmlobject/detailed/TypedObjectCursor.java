@@ -17,14 +17,14 @@ package xmlobject.detailed;
 import com.easypo.XmlCustomerBean;
 import com.easypo.XmlPurchaseOrderDocumentBean;
 import org.apache.xmlbeans.XmlCursor;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class TypedObjectCursor {
 
     @Test
-    public void testObjectCursor() {
+    void testObjectCursor() {
         XmlPurchaseOrderDocumentBean.PurchaseOrder po = XmlPurchaseOrderDocumentBean.PurchaseOrder.Factory.newInstance();
         try (XmlCursor cur = po.newCursor()) {
             XmlCustomerBean cust = po.addNewCustomer();

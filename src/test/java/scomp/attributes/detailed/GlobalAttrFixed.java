@@ -18,45 +18,38 @@ package scomp.attributes.detailed;
 
 import org.apache.xmlbeans.XmlErrorCodes;
 import org.apache.xmlbeans.XmlException;
-import org.junit.Test;
-import scomp.common.BaseCase;
+import org.apache.xmlbeans.XmlOptions;
+import org.junit.jupiter.api.Test;
 import xbean.scomp.attribute.globalAttrFixed.GlobalAttrFixedDocDocument;
 import xbean.scomp.attribute.globalAttrFixed.GlobalAttrFixedT;
 
 import java.math.BigInteger;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
+import static scomp.common.BaseCase.createOptions;
+import static scomp.common.BaseCase.getErrorCodes;
 
-public class GlobalAttrFixed extends BaseCase {
+public class GlobalAttrFixed {
 
     /**
      * Missing OK
      */
     @Test
-    public void testValidMissing() throws Exception {
-        GlobalAttrFixedT testDoc =
-                GlobalAttrFixedDocDocument.Factory.parse("<pre:GlobalAttrFixedDoc" +
-                " xmlns:pre=\"http://xbean/scomp/attribute/GlobalAttrFixed\" " +
-                "/>").getGlobalAttrFixedDoc();
+    void testValidMissing() throws Exception {
+        String input = "<pre:GlobalAttrFixedDoc xmlns:pre=\"http://xbean/scomp/attribute/GlobalAttrFixed\" />";
+        GlobalAttrFixedT testDoc = GlobalAttrFixedDocDocument.Factory.parse(input).getGlobalAttrFixedDoc();
         assertTrue(testDoc.validate());
-
     }
 
     @Test
-    public void testBothValid() throws Throwable {
-        GlobalAttrFixedT testDoc =
-                GlobalAttrFixedDocDocument.Factory.parse("<pre:GlobalAttrFixedDoc" +
-                " xmlns:pre=\"http://xbean/scomp/attribute/GlobalAttrFixed\" " +
-                "pre:testattributeStr=\"XBeanAttrStr\" " +
-                "pre:testattributeInt=\" 1 \"/>").getGlobalAttrFixedDoc();
-        try {
-            assertTrue(testDoc.validate(validateOptions));
-        } catch (Throwable t) {
-            showErrors();
-            throw t;
-        }
-
+    void testBothValid() throws Throwable {
+        String input =
+            "<pre:GlobalAttrFixedDoc" +
+            " xmlns:pre=\"http://xbean/scomp/attribute/GlobalAttrFixed\" " +
+            "pre:testattributeStr=\"XBeanAttrStr\" " +
+            "pre:testattributeInt=\" 1 \"/>";
+        GlobalAttrFixedT testDoc = GlobalAttrFixedDocDocument.Factory.parse(input).getGlobalAttrFixedDoc();
+        assertTrue(testDoc.validate(createOptions()));
         assertEquals("XBeanAttrStr", testDoc.getTestattributeStr());
         assertEquals(1, testDoc.getTestattributeInt().intValue());
     }
@@ -65,102 +58,84 @@ public class GlobalAttrFixed extends BaseCase {
      * value does not match fixed
      */
     @Test
-    public void testStringInvalidSpace() throws Exception {
-        GlobalAttrFixedT testAtt =
-                GlobalAttrFixedDocDocument.Factory.parse("<pre:GlobalAttrFixedDoc" +
-                " xmlns:pre=\"http://xbean/scomp/attribute/GlobalAttrFixed\" " +
-                "pre:testattributeStr=\" XBeanAttrStr \"/>").getGlobalAttrFixedDoc();
-        String[] errExpected = new String[]{
-             XmlErrorCodes.ATTR_LOCALLY_VALID$FIXED
-        };
-        assertTrue(!testAtt.validate(validateOptions));
-        assertEquals(1, errorList.size());
-        showErrors();
-        assertTrue(compareErrorCodes(errExpected));
+    void testStringInvalidSpace() throws Exception {
+        String input =
+            "<pre:GlobalAttrFixedDoc" +
+            " xmlns:pre=\"http://xbean/scomp/attribute/GlobalAttrFixed\" " +
+            "pre:testattributeStr=\" XBeanAttrStr \"/>";
+        GlobalAttrFixedT testAtt = GlobalAttrFixedDocDocument.Factory.parse(input).getGlobalAttrFixedDoc();
+        XmlOptions validateOptions = createOptions();
+        assertFalse(testAtt.validate(validateOptions));
+        String[] errExpected = {XmlErrorCodes.ATTR_LOCALLY_VALID$FIXED};
+        assertArrayEquals(errExpected, getErrorCodes(validateOptions));
 
 
         //catch XmlExceptionHere;
     }
 
     @Test
-    public void testStringInvalidValue() throws Exception {
-        GlobalAttrFixedT testAtt =
-                GlobalAttrFixedDocDocument.Factory.parse("<pre:GlobalAttrFixedDoc" +
-                " xmlns:pre=\"http://xbean/scomp/attribute/GlobalAttrFixed\" " +
-                "pre:testattributeStr=\" foobar \" />").getGlobalAttrFixedDoc();
-        String[] errExpected = new String[]{
-            XmlErrorCodes.ATTR_LOCALLY_VALID$FIXED
-        };
-        assertTrue(!testAtt.validate(validateOptions));
-        assertEquals(1, errorList.size());
-        showErrors();
-        assertTrue(compareErrorCodes(errExpected));
+    void testStringInvalidValue() throws Exception {
+        String input =
+            "<pre:GlobalAttrFixedDoc" +
+            " xmlns:pre=\"http://xbean/scomp/attribute/GlobalAttrFixed\" " +
+            "pre:testattributeStr=\" foobar \" />";
+        GlobalAttrFixedT testAtt = GlobalAttrFixedDocDocument.Factory.parse(input).getGlobalAttrFixedDoc();
+        XmlOptions validateOptions = createOptions();
+        assertFalse(testAtt.validate(validateOptions));
+        String[] errExpected = {XmlErrorCodes.ATTR_LOCALLY_VALID$FIXED};
+        assertArrayEquals(errExpected, getErrorCodes(validateOptions));
     }
 
     /**
      * Test empty string: should be preserved
      */
     @Test
-    public void testIntInvalidType() throws XmlException {
-        GlobalAttrFixedT testAtt =
-                GlobalAttrFixedDocDocument.Factory.parse("<pre:GlobalAttrFixedDoc" +
-                " xmlns:pre=\"http://xbean/scomp/attribute/GlobalAttrFixed\" " +
-                "pre:testattributeInt=\" foo \"/>").getGlobalAttrFixedDoc();
+    void testIntInvalidType() throws XmlException {
+        String input =
+            "<pre:GlobalAttrFixedDoc" +
+            " xmlns:pre=\"http://xbean/scomp/attribute/GlobalAttrFixed\" " +
+            "pre:testattributeInt=\" foo \"/>";
+        GlobalAttrFixedT testAtt = GlobalAttrFixedDocDocument.Factory.parse(input).getGlobalAttrFixedDoc();
 
-        assertTrue(!testAtt.validate(validateOptions));
-        assertEquals(1, errorList.size());
-        showErrors();
-        String[] errExpected = new String[]{
-            XmlErrorCodes.DECIMAL
-        };
-        assertTrue(compareErrorCodes(errExpected));
+        XmlOptions validateOptions = createOptions();
+        assertFalse(testAtt.validate(validateOptions));
+        String[] errExpected = {XmlErrorCodes.DECIMAL};
+        assertArrayEquals(errExpected, getErrorCodes(validateOptions));
     }
 
     @Test
-    public void testIntInvalidValue() throws XmlException {
-        GlobalAttrFixedT testAtt =
-                GlobalAttrFixedDocDocument.Factory.parse("<pre:GlobalAttrFixedDoc" +
-                " xmlns:pre=\"http://xbean/scomp/attribute/GlobalAttrFixed\" " +
-                "pre:testattributeInt=\" 4 \"/>").getGlobalAttrFixedDoc();
-        assertTrue(!testAtt.validate(validateOptions));
-        assertEquals(1, errorList.size());
-        showErrors();
-        String[] errExpected = new String[]{
-            XmlErrorCodes.ATTR_LOCALLY_VALID$FIXED
-        };
-        assertTrue(compareErrorCodes(errExpected));
-
+    void testIntInvalidValue() throws XmlException {
+        String input =
+            "<pre:GlobalAttrFixedDoc" +
+            " xmlns:pre=\"http://xbean/scomp/attribute/GlobalAttrFixed\" " +
+            "pre:testattributeInt=\" 4 \"/>";
+        GlobalAttrFixedT testAtt = GlobalAttrFixedDocDocument.Factory.parse(input).getGlobalAttrFixedDoc();
+        XmlOptions validateOptions = createOptions();
+        assertFalse(testAtt.validate(validateOptions));
+        String[] errExpected = {XmlErrorCodes.ATTR_LOCALLY_VALID$FIXED};
+        assertArrayEquals(errExpected, getErrorCodes(validateOptions));
     }
 
     @Test
-    public void testIntValidValue() throws Throwable {
-        GlobalAttrFixedT testAtt =
-                GlobalAttrFixedDocDocument.Factory.parse("<pre:GlobalAttrFixedDoc" +
-                " xmlns:pre=\"http://xbean/scomp/attribute/GlobalAttrFixed\" " +
-                "pre:testattributeInt=\" +01 \"/>").getGlobalAttrFixedDoc();
-        try {
-            assertTrue(testAtt.validate(validateOptions));
-        } catch (Throwable t) {
-            showErrors();
-            throw t;
-        }
-
-        //catch XmlExceptionHere;
+    void testIntValidValue() throws Throwable {
+        String input =
+            "<pre:GlobalAttrFixedDoc" +
+            " xmlns:pre=\"http://xbean/scomp/attribute/GlobalAttrFixed\" " +
+            "pre:testattributeInt=\" +01 \"/>";
+        GlobalAttrFixedT testAtt = GlobalAttrFixedDocDocument.Factory.parse(input).getGlobalAttrFixedDoc();
+        assertTrue(testAtt.validate(createOptions()));
     }
 
     @Test
-    public void testSetValue() {
-        GlobalAttrFixedDocDocument testAtt =
-                GlobalAttrFixedDocDocument.Factory.newInstance();
+    void testSetValue() {
+        GlobalAttrFixedDocDocument testAtt = GlobalAttrFixedDocDocument.Factory.newInstance();
         GlobalAttrFixedT testDoc = testAtt.addNewGlobalAttrFixedDoc();
         testDoc.setTestattributeInt(new BigInteger("5"));
         //shouldn't this fail?
         assertEquals(5, testDoc.getTestattributeInt().intValue());
-        assertTrue(!testDoc.validate(validateOptions));
-        assertEquals(1, errorList.size());
-        showErrors();
-        String[] errExpected = new String[]{
-            XmlErrorCodes.ATTR_LOCALLY_VALID$FIXED};
-        assertTrue(compareErrorCodes(errExpected));
+        XmlOptions validateOptions = createOptions();
+        assertFalse(testDoc.validate(validateOptions));
+        String[] errExpected = {XmlErrorCodes.ATTR_LOCALLY_VALID$FIXED};
+        assertArrayEquals(errExpected, getErrorCodes(validateOptions));
     }
 }

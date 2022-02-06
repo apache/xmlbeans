@@ -22,11 +22,12 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.*;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -43,37 +44,20 @@ import static org.w3c.domts.DOMTest.load;
  */
 public class namednodemapsetnameditemns10 {
     @Test
-    @Ignore
+    @Disabled
     public void testRun() throws Throwable {
-        Document doc;
-        DocumentType docType;
-        NamedNodeMap entities;
-        NamedNodeMap attributes;
-        Entity entity;
-        Notation notation;
-        Element element;
-        NodeList elementList;
-        Node newNode;
-        doc = load("staffNS", true);
+        Document doc = load("staffNS", true);
 
-        docType = doc.getDoctype();
-        entities = docType.getEntities();
-        entity = (Entity) entities.getNamedItem("ent1");
+        DocumentType docType = doc.getDoctype();
+        NamedNodeMap entities = docType.getEntities();
+        Entity entity = (Entity) entities.getNamedItem("ent1");
 
-        elementList = doc.getElementsByTagNameNS("http://www.nist.gov", "address");
-        element = (Element) elementList.item(0);
-        attributes = element.getAttributes();
+        NodeList elementList = doc.getElementsByTagNameNS("http://www.nist.gov", "address");
+        Element element = (Element) elementList.item(0);
+        NamedNodeMap attributes = element.getAttributes();
 
-        {
-            boolean success = false;
-            try {
-                newNode = attributes.setNamedItemNS(entity);
-            } catch (DOMException ex) {
-                success = (ex.code == DOMException.HIERARCHY_REQUEST_ERR);
-            }
-            assertTrue("namednodemapsetnameditemns10_entity", success);
-        }
-
+        DOMException ex = assertThrows(DOMException.class, () -> attributes.setNamedItemNS(entity));
+        assertEquals(DOMException.HIERARCHY_REQUEST_ERR, ex.code, "namednodemapsetnameditemns10_entity");
     }
 
     /**

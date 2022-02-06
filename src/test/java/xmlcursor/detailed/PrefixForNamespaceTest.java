@@ -16,108 +16,104 @@
 
 package xmlcursor.detailed;
 
+import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlCursor.TokenType;
-import org.apache.xmlbeans.XmlObject;
-import org.junit.Test;
-import tools.util.JarUtil;
-import xmlcursor.common.BasicCursorTestCase;
+import org.junit.jupiter.api.Test;
 import xmlcursor.common.Common;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static xmlcursor.common.BasicCursorTestCase.*;
 
 
-public class PrefixForNamespaceTest extends BasicCursorTestCase {
+public class PrefixForNamespaceTest {
     @Test
-    public void testprefixForNamespaceFromSTARTDOC() throws Exception {
-        m_xo = XmlObject.Factory.parse("<foo xmlns=\"nsa\">text</foo>");
-        m_xc = m_xo.newCursor();
-        m_xc.toFirstChild();
-        m_xc.insertNamespace("pre1", "uri1");
-        m_xc.insertNamespace("pre2", "uri2");
-        m_xc.insertNamespace("pre3", "uri3");
-        m_xc.insertNamespace(null, "uridefault");
-        m_xc.toStartDoc();
-        assertEquals("pre1", m_xc.prefixForNamespace("uri1"));
-        assertEquals("pre2", m_xc.prefixForNamespace("uri2"));
-        assertEquals("pre3", m_xc.prefixForNamespace("uri3"));
-    }
-
-    @Test
-    public void testprefixForNamespaceFromSTARTDOCInvalid() throws Exception {
-        m_xo = XmlObject.Factory.parse("<foo xmlns=\"nsa\">text</foo>");
-        m_xc = m_xo.newCursor();
-        m_xc.toFirstChild();
-        m_xc.insertNamespace("ns1", "uri1");
-        m_xc.insertNamespace("ns2", "uri2");
-        m_xc.insertNamespace("ns3", "uri3");
-        m_xc.insertNamespace(null, "uridefault");
-        m_xc.toStartDoc();
-        assertEquals("uri4", m_xc.prefixForNamespace("uri4"));
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testprefixForNamespaceFromSTARTDOCNull() throws Exception {
-        m_xo = XmlObject.Factory.parse("<foo xmlns=\"nsa\">text</foo>");
-        m_xc = m_xo.newCursor();
-        m_xc.prefixForNamespace(null);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testprefixForNamespaceFromSTARTDOCEmptyString() throws Exception {
-        m_xo = XmlObject.Factory.parse("<foo xmlns=\"nsa\">text</foo>");
-        m_xc = m_xo.newCursor();
-        m_xc.prefixForNamespace("");
+    void testprefixForNamespaceFromSTARTDOC() throws Exception {
+        try (XmlCursor m_xc = cur("<foo xmlns=\"nsa\">text</foo>")) {
+            m_xc.toFirstChild();
+            m_xc.insertNamespace("pre1", "uri1");
+            m_xc.insertNamespace("pre2", "uri2");
+            m_xc.insertNamespace("pre3", "uri3");
+            m_xc.insertNamespace(null, "uridefault");
+            m_xc.toStartDoc();
+            assertEquals("pre1", m_xc.prefixForNamespace("uri1"));
+            assertEquals("pre2", m_xc.prefixForNamespace("uri2"));
+            assertEquals("pre3", m_xc.prefixForNamespace("uri3"));
+        }
     }
 
     @Test
-    public void testprefixForNamespaceFromSTART() throws Exception {
-        m_xo = XmlObject.Factory.parse(
-                      JarUtil.getResourceFromJar(Common.TRANXML_FILE_CLM));
-        m_xc = m_xo.newCursor();
-        m_xc.toFirstChild();
-        assertEquals("xsi",
-                     m_xc.prefixForNamespace("http://www.w3.org/2000/10/XMLSchema-instance"));
+    void testprefixForNamespaceFromSTARTDOCInvalid() throws Exception {
+        try (XmlCursor m_xc = cur("<foo xmlns=\"nsa\">text</foo>")) {
+            m_xc.toFirstChild();
+            m_xc.insertNamespace("ns1", "uri1");
+            m_xc.insertNamespace("ns2", "uri2");
+            m_xc.insertNamespace("ns3", "uri3");
+            m_xc.insertNamespace(null, "uridefault");
+            m_xc.toStartDoc();
+            assertEquals("uri4", m_xc.prefixForNamespace("uri4"));
+        }
     }
 
     @Test
-    public void testprefixForNamespaceFromSTARTdefaultNamespace() throws Exception {
-        m_xo = XmlObject.Factory.parse(
-                      JarUtil.getResourceFromJar(Common.TRANXML_FILE_CLM));
-        m_xc = m_xo.newCursor();
-        m_xc.toFirstChild();
-        assertEquals("",
-                     m_xc.prefixForNamespace("http://www.tranxml.org/TranXML/Version4.0"));
+    void testprefixForNamespaceFromSTARTDOCNull() throws Exception {
+        try (XmlCursor m_xc = cur("<foo xmlns=\"nsa\">text</foo>")) {
+            assertThrows(IllegalArgumentException.class, () -> m_xc.prefixForNamespace(null));
+        }
     }
 
     @Test
-    public void testprefixForNamespaceFromATTR() throws Exception {
-        m_xo = XmlObject.Factory.parse("<foo xmlns=\"nsa\"><bar attr0=\"val0\">text</bar></foo>");
-        m_xc = m_xo.newCursor();
-        m_xc.toFirstChild();
-        m_xc.insertNamespace("pre1", "uri1");
-        m_xc.insertNamespace("pre2", "uri2");
-        m_xc.insertNamespace("pre3", "uri3");
-        m_xc.insertNamespace(null, "uridefault");
-        m_xc.toStartDoc();
-        m_xc.selectPath("declare default element namespace \"nsa\";" + "$this//bar");
-        m_xc.toFirstAttribute();
-        assertEquals("nsa", m_xc.prefixForNamespace("nsa"));
-        assertEquals("pre1", m_xc.prefixForNamespace("uri1"));
+    void testprefixForNamespaceFromSTARTDOCEmptyString() throws Exception {
+        try (XmlCursor m_xc = cur("<foo xmlns=\"nsa\">text</foo>")) {
+            assertThrows(IllegalArgumentException.class, () -> m_xc.prefixForNamespace(""));
+        }
     }
 
     @Test
-    public void testprefixForNamespaceFromEND() throws Exception {
-        m_xo = XmlObject.Factory.parse("<foo xmlns=\"nsa\"><bar attr0=\"val0\">text</bar></foo>");
-        m_xc = m_xo.newCursor();
-        m_xc.toFirstChild();
-        m_xc.insertNamespace("pre1", "uri1");
-        m_xc.insertNamespace("pre2", "uri2");
-        m_xc.insertNamespace("pre3", "uri3");
-        m_xc.insertNamespace(null, "uridefault");
-        toNextTokenOfType(m_xc, TokenType.END);
-        //the default prefix
-         assertEquals("", m_xc.prefixForNamespace("nsa"));
-        // assertEquals("pre1", m_xc.prefixForNamespace("uri1"));
+    void testprefixForNamespaceFromSTART() throws Exception {
+        try (XmlCursor m_xc = jcur(Common.TRANXML_FILE_CLM)) {
+            m_xc.toFirstChild();
+            assertEquals("xsi", m_xc.prefixForNamespace("http://www.w3.org/2000/10/XMLSchema-instance"));
+        }
+    }
+
+    @Test
+    void testprefixForNamespaceFromSTARTdefaultNamespace() throws Exception {
+        try (XmlCursor m_xc = jcur(Common.TRANXML_FILE_CLM)) {
+            m_xc.toFirstChild();
+            assertEquals("", m_xc.prefixForNamespace("http://www.tranxml.org/TranXML/Version4.0"));
+        }
+    }
+
+    @Test
+    void testprefixForNamespaceFromATTR() throws Exception {
+        try (XmlCursor m_xc = cur("<foo xmlns=\"nsa\"><bar attr0=\"val0\">text</bar></foo>")) {
+            m_xc.toFirstChild();
+            m_xc.insertNamespace("pre1", "uri1");
+            m_xc.insertNamespace("pre2", "uri2");
+            m_xc.insertNamespace("pre3", "uri3");
+            m_xc.insertNamespace(null, "uridefault");
+            m_xc.toStartDoc();
+            m_xc.selectPath("declare default element namespace \"nsa\";" + "$this//bar");
+            m_xc.toFirstAttribute();
+            assertEquals("nsa", m_xc.prefixForNamespace("nsa"));
+            assertEquals("pre1", m_xc.prefixForNamespace("uri1"));
+        }
+    }
+
+    @Test
+    void testprefixForNamespaceFromEND() throws Exception {
+        try (XmlCursor m_xc = cur("<foo xmlns=\"nsa\"><bar attr0=\"val0\">text</bar></foo>")) {
+            m_xc.toFirstChild();
+            m_xc.insertNamespace("pre1", "uri1");
+            m_xc.insertNamespace("pre2", "uri2");
+            m_xc.insertNamespace("pre3", "uri3");
+            m_xc.insertNamespace(null, "uridefault");
+            toNextTokenOfType(m_xc, TokenType.END);
+            //the default prefix
+            assertEquals("", m_xc.prefixForNamespace("nsa"));
+            // assertEquals("pre1", m_xc.prefixForNamespace("uri1"));
+        }
     }
 }
 

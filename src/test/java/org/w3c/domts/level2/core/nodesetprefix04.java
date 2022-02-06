@@ -22,11 +22,12 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.*;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -40,29 +41,17 @@ import static org.w3c.domts.DOMTest.load;
  */
 public class nodesetprefix04 {
     @Test
-    @Ignore
+    @Disabled
     public void testRun() throws Throwable {
-        Document doc;
-        Element element;
-        Attr attribute;
-        NodeList elementList;
         String nullNS = null;
 
-        doc = load("staffNS", true);
-        elementList = doc.getElementsByTagName("emp:employee");
-        element = (Element) elementList.item(0);
-        attribute = element.getAttributeNodeNS(nullNS, "defaultAttr");
+        Document doc = load("staffNS", true);
+        NodeList elementList = doc.getElementsByTagName("emp:employee");
+        Element element = (Element) elementList.item(0);
+        Attr attribute = element.getAttributeNodeNS(nullNS, "defaultAttr");
 
-        {
-            boolean success = false;
-            try {
-                attribute.setPrefix("test");
-            } catch (DOMException ex) {
-                success = (ex.code == DOMException.NAMESPACE_ERR);
-            }
-            assertTrue("nodesetprefix04", success);
-        }
-
+        DOMException ex = assertThrows(DOMException.class, () -> attribute.setPrefix("test"));
+        assertEquals(DOMException.NAMESPACE_ERR, ex.code, "nodesetprefix04");
     }
 
     /**

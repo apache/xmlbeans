@@ -14,14 +14,14 @@
  */
 package tools.inst2xsd.checkin;
 
-import org.junit.Test;
-import tools.inst2xsd.common.Inst2XsdTestBase;
 
-public class Inst2XsdOptionsTest extends Inst2XsdTestBase {
+import org.junit.jupiter.api.Test;
+
+public class Inst2XsdOptionsTest {
 
     /** Move tests from Detailed back once cursor bug gets fixed */
     @Test
-    public void test_move() throws Exception{
+    void test_move() throws Exception{
         System.out.println("Move tests from Detailed back once cursor bug gets fixed");
     }
 }

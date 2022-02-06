@@ -22,11 +22,11 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.*;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -44,53 +44,37 @@ import static org.w3c.domts.DOMTest.load;
  */
 public class documentimportnode19 {
     @Test
-    @Ignore
+    @Disabled
     public void testRun() throws Throwable {
-        Document doc;
         DocumentType docTypeNull = null;
 
-        Document docImp;
-        DOMImplementation domImpl;
-        DocumentType docType;
-        NamedNodeMap nodeMap;
-        Entity entity2;
-        Entity entity6;
-        Entity entityImp2;
-        Entity entityImp6;
-        String nodeName;
-        String systemId;
-        String notationName;
-        String nodeNameImp;
-        String systemIdImp;
-        String notationNameImp;
-        doc = load("staffNS", true);
-        domImpl = doc.getImplementation();
-        docType = doc.getDoctype();
-        docImp = domImpl.createDocument("http://www.w3.org/DOM/Test", "a:b", docTypeNull);
-        nodeMap = docType.getEntities();
-        entity2 = (Entity) nodeMap.getNamedItem("ent2");
-        entity6 = (Entity) nodeMap.getNamedItem("ent6");
-        entityImp2 = (Entity) docImp.importNode(entity2, false);
-        entityImp6 = (Entity) docImp.importNode(entity6, true);
-        nodeName = entity2.getNodeName();
-        nodeNameImp = entityImp2.getNodeName();
-        assertEquals("documentimportnode19_Ent2NodeName", nodeName, nodeNameImp);
+        Document doc = load("staffNS", true);
+        DOMImplementation domImpl = doc.getImplementation();
+        DocumentType docType = doc.getDoctype();
+        Document docImp = domImpl.createDocument("http://www.w3.org/DOM/Test", "a:b", docTypeNull);
+        NamedNodeMap nodeMap = docType.getEntities();
+        Entity entity2 = (Entity) nodeMap.getNamedItem("ent2");
+        Entity entity6 = (Entity) nodeMap.getNamedItem("ent6");
+        Entity entityImp2 = (Entity) docImp.importNode(entity2, false);
+        Entity entityImp6 = (Entity) docImp.importNode(entity6, true);
+        String nodeName = entity2.getNodeName();
+        String nodeNameImp = entityImp2.getNodeName();
+        assertEquals(nodeName, nodeNameImp, "documentimportnode19_Ent2NodeName");
         nodeName = entity6.getNodeName();
         nodeNameImp = entityImp6.getNodeName();
-        assertEquals("documentimportnode19_Ent6NodeName", nodeName, nodeNameImp);
-        systemId = entity2.getSystemId();
-        systemIdImp = entityImp2.getSystemId();
-        assertEquals("documentimportnode19_Ent2SystemId", systemId, systemIdImp);
+        assertEquals(nodeName, nodeNameImp, "documentimportnode19_Ent6NodeName");
+        String systemId = entity2.getSystemId();
+        String systemIdImp = entityImp2.getSystemId();
+        assertEquals(systemId, systemIdImp, "documentimportnode19_Ent2SystemId");
         systemId = entity6.getSystemId();
         systemIdImp = entityImp6.getSystemId();
-        assertEquals("documentimportnode19_Ent6SystemId", systemId, systemIdImp);
-        notationName = entity2.getNotationName();
-        notationNameImp = entityImp2.getNotationName();
-        assertEquals("documentimportnode19_Ent2NotationName", notationName, notationNameImp);
+        assertEquals(systemId, systemIdImp, "documentimportnode19_Ent6SystemId");
+        String notationName = entity2.getNotationName();
+        String notationNameImp = entityImp2.getNotationName();
+        assertEquals(notationName, notationNameImp, "documentimportnode19_Ent2NotationName");
         notationName = entity6.getNotationName();
         notationNameImp = entityImp6.getNotationName();
-        assertEquals("documentimportnode19_Ent6NotationName", notationName, notationNameImp);
-
+        assertEquals(notationName, notationNameImp, "documentimportnode19_Ent6NotationName");
     }
 
     /**

@@ -18,91 +18,73 @@ package xmlobject.detailed;
 
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlObject;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.tranxml.tranXML.version40.CarLocationMessageDocument;
 import org.tranxml.tranXML.version40.CityNameDocument.CityName;
 import org.tranxml.tranXML.version40.ETADocument.ETA;
 import org.tranxml.tranXML.version40.EventStatusDocument.EventStatus;
 import org.tranxml.tranXML.version40.GeographicLocationDocument.GeographicLocation;
 import test.xbean.xmlcursor.purchaseOrder.PurchaseOrderDocument;
-import tools.util.JarUtil;
 import xmlcursor.common.Common;
 
 import java.math.BigDecimal;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
+import static xmlcursor.common.BasicCursorTestCase.jobj;
 
 public class CompareToTest {
-    @Test(expected = ClassCastException.class)
-    public void testCompareToEquals() throws Exception {
-        CarLocationMessageDocument clmDoc = (CarLocationMessageDocument) XmlObject.Factory.parse(
-            JarUtil.getResourceFromJar(Common.TRANXML_FILE_CLM));
+    @Test
+    void testCompareToEquals() throws Exception {
+        CarLocationMessageDocument clmDoc = (CarLocationMessageDocument) jobj(Common.TRANXML_FILE_CLM);
         EventStatus[] aEventStatus = clmDoc.getCarLocationMessage().getEventStatusArray();
 
-        assertTrue("Unexpected: Missing EventStatus element.  Test harness failure.", aEventStatus.length > 0);
+        assertTrue(aEventStatus.length > 0, "Unexpected: Missing EventStatus element.  Test harness failure.");
 
         GeographicLocation gl = aEventStatus[0].getGeographicLocation();
         CityName cname0 = gl.getCityName();
         ETA eta = aEventStatus[0].getETA();
         CityName cname1 = eta.getGeographicLocation().getCityName();
         assertTrue(cname0.valueEquals(cname1));
-        assertEquals(XmlObject.EQUAL, cname0.compareTo(cname1));
-    }
-
-    @Test(expected = ClassCastException.class)
-    public void testCompareToNull() throws Exception {
-        m_xo = XmlObject.Factory.parse(
-            JarUtil.getResourceFromJar(Common.TRANXML_FILE_CLM));
-        assertEquals(XmlObject.NOT_EQUAL, m_xo.compareTo(null));
+        assertThrows(ClassCastException.class, () -> cname0.compareTo(cname1));
     }
 
     @Test
-    public void testCompareToLessThan() throws Exception {
-        PurchaseOrderDocument poDoc = (PurchaseOrderDocument) XmlObject.Factory.parse(
-            JarUtil.getResourceFromJar("xbean/xmlcursor/po.xml"));
+    void testCompareToNull() throws Exception {
+        XmlObject m_xo = jobj(Common.TRANXML_FILE_CLM);
+        assertThrows(ClassCastException.class, () -> m_xo.compareTo(null));
+    }
 
-        BigDecimal bdUSPrice0 = poDoc.getPurchaseOrder().getItems()
-            .getItemArray(0)
-            .getUSPrice();
-        BigDecimal bdUSPrice1 = poDoc.getPurchaseOrder().getItems()
-            .getItemArray(1)
-            .getUSPrice();
+    @Test
+    void testCompareToLessThan() throws Exception {
+        PurchaseOrderDocument poDoc = (PurchaseOrderDocument) jobj("xbean/xmlcursor/po.xml");
+
+        BigDecimal bdUSPrice0 = poDoc.getPurchaseOrder().getItems().getItemArray(0).getUSPrice();
+        BigDecimal bdUSPrice1 = poDoc.getPurchaseOrder().getItems().getItemArray(1).getUSPrice();
         assertEquals(XmlObject.LESS_THAN, bdUSPrice1.compareTo(bdUSPrice0));
     }
 
     @Test
-    public void testCompareToGreaterThan() throws Exception {
-        PurchaseOrderDocument poDoc = (PurchaseOrderDocument)
-            XmlObject.Factory.parse(
-                JarUtil.getResourceFromJar("xbean/xmlcursor/po.xml"));
-        BigDecimal bdUSPrice0 = poDoc.getPurchaseOrder().getItems()
-            .getItemArray(0)
-            .getUSPrice();
-        BigDecimal bdUSPrice1 = poDoc.getPurchaseOrder().getItems()
-            .getItemArray(1)
-            .getUSPrice();
+    void testCompareToGreaterThan() throws Exception {
+        PurchaseOrderDocument poDoc = (PurchaseOrderDocument) jobj("xbean/xmlcursor/po.xml");
+        BigDecimal bdUSPrice0 = poDoc.getPurchaseOrder().getItems().getItemArray(0).getUSPrice();
+        BigDecimal bdUSPrice1 = poDoc.getPurchaseOrder().getItems().getItemArray(1).getUSPrice();
         assertEquals(XmlObject.GREATER_THAN, bdUSPrice0.compareTo(bdUSPrice1));
     }
 
-    @Test(expected = ClassCastException.class)
-    public void testCompareToString() throws Exception {
-        m_xo = XmlObject.Factory.parse(
-            JarUtil.getResourceFromJar(Common.TRANXML_FILE_CLM));
-        assertEquals(0, m_xo.compareTo(""));
+    @Test
+    void testCompareToString() throws Exception {
+        XmlObject m_xo = jobj(Common.TRANXML_FILE_CLM);
+        assertThrows(ClassCastException.class, () -> m_xo.compareTo(""));
     }
 
     @Test
-    public void testCompareValue() throws Exception {
-        m_xo = XmlObject.Factory.parse(
-            JarUtil.getResourceFromJar(Common.TRANXML_FILE_CLM));
+    void testCompareValue() throws Exception {
+        XmlObject m_xo = jobj(Common.TRANXML_FILE_CLM);
         try (XmlCursor m_xc = m_xo.newCursor()) {
             m_xc.toFirstChild();
             XmlObject xo = m_xc.getObject();
             assertEquals(XmlObject.NOT_EQUAL, m_xo.compareValue(xo));
         }
     }
-
-    private XmlObject m_xo;
 }
 

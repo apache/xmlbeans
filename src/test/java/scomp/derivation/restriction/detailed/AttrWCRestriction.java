@@ -15,42 +15,43 @@
 
 package scomp.derivation.restriction.detailed;
 
-import org.junit.Test;
-import scomp.common.BaseCase;
-import xbean.scomp.derivation.attributeWCRestriction.*;
 import org.apache.xmlbeans.XmlErrorCodes;
+import org.apache.xmlbeans.XmlOptions;
+import org.junit.jupiter.api.Test;
+import xbean.scomp.derivation.attributeWCRestriction.Any2ConcreteDocument;
+import xbean.scomp.derivation.attributeWCRestriction.Any2LocalDocument;
+import xbean.scomp.derivation.attributeWCRestriction.List2SubsetDocument;
+import xbean.scomp.derivation.attributeWCRestriction.Other2ListDocument;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
+import static scomp.common.BaseCase.createOptions;
+import static scomp.common.BaseCase.getErrorCodes;
 
-public class AttrWCRestriction extends BaseCase {
-    String input;
+public class AttrWCRestriction {
     /**
      * Replace a wildcard with a concrete attribute
      * No other attr should be valid here
-    */
+     */
     @Test
-    public void testAny2Instance() throws Throwable{
-         input="<foo:Any2Concrete " +
-                " xmlns:foo=\"http://xbean/scomp/derivation/AttributeWCRestriction\"" +
-                 " xmlns:at=\"http://xbean/scomp/attribute/GlobalAttrDefault\"" +
-                " at:testattribute=\"XBean\"/>";
-         Any2ConcreteDocument doc=
-                 Any2ConcreteDocument.Factory.parse(input);
-        assertTrue ( doc.validate(validateOptions));
+    void testAny2Instance() throws Throwable {
+        XmlOptions validateOptions = createOptions();
+        String input =
+            "<foo:Any2Concrete " +
+            " xmlns:foo=\"http://xbean/scomp/derivation/AttributeWCRestriction\"" +
+            " xmlns:at=\"http://xbean/scomp/attribute/GlobalAttrDefault\"" +
+            " at:testattribute=\"XBean\"/>";
+        Any2ConcreteDocument doc = Any2ConcreteDocument.Factory.parse(input);
+        assertTrue(doc.validate(validateOptions));
 
-          input="<foo:Any2Concrete " +
-                " xmlns:foo=\"http://xbean/scomp/derivation/AttributeWCRestriction\"" +
-                 " xmlns:at=\"http://xbean/scomp/attribute/GlobalAttrDefault\"" +
-                " at:testatt=\"3\"/>";
-          doc=
-                 Any2ConcreteDocument.Factory.parse(input);
-        assertTrue ( !doc.validate(validateOptions));
-        showErrors();
-        String[] errExpected = new String[]{
-            XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$NO_WILDCARD
-        };
-                     assertTrue(compareErrorCodes(errExpected));
-
+        input =
+            "<foo:Any2Concrete " +
+            " xmlns:foo=\"http://xbean/scomp/derivation/AttributeWCRestriction\"" +
+            " xmlns:at=\"http://xbean/scomp/attribute/GlobalAttrDefault\"" +
+            " at:testatt=\"3\"/>";
+        doc = Any2ConcreteDocument.Factory.parse(input);
+        assertFalse(doc.validate(validateOptions));
+        String[] errExpected = {XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$NO_WILDCARD};
+        assertArrayEquals(errExpected, getErrorCodes(validateOptions));
     }
 
     /**
@@ -60,53 +61,44 @@ public class AttrWCRestriction extends BaseCase {
      * No namespace should be OK, any other namespace should be notOK
      */
     @Test
-    public void testAny2LocalStrict() throws Throwable{
-          input="<foo:Any2Local " +
-                " xmlns:foo=\"http://xbean/scomp/derivation/AttributeWCRestriction\"" +
-                " testattribute=\"XBean\"/>";
-         Any2LocalDocument doc=
-                 Any2LocalDocument.Factory.parse(input);
-        try{
-        assertTrue ( doc.validate(validateOptions));
-        }catch(Throwable t){
-            showErrors();
-            throw t;
-        }
+    void testAny2LocalStrict() throws Throwable {
+        XmlOptions validateOptions = createOptions();
+        String input =
+            "<foo:Any2Local " +
+            " xmlns:foo=\"http://xbean/scomp/derivation/AttributeWCRestriction\"" +
+            " testattribute=\"XBean\"/>";
+        Any2LocalDocument doc = Any2LocalDocument.Factory.parse(input);
+        assertTrue(doc.validate(validateOptions));
 
         //a diff ns is not OK
-         input="<foo:Any2Local " +
-                " xmlns:foo=\"http://xbean/scomp/derivation/AttributeWCRestriction\"" +
-                 " xmlns:at=\"http://xbean/scomp/attribute/GlobalAttrDefault\"" +
-                " at:testattribute=\"XBean\"/>";
-          doc=
-                 Any2LocalDocument.Factory.parse(input);
-        assertTrue (! doc.validate(validateOptions));
-        showErrors();
-        String[] errExpected = new String[]{
-            XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$NOT_WILDCARD_VALID};
-                     assertTrue(compareErrorCodes(errExpected));
-
+        input =
+            "<foo:Any2Local " +
+            " xmlns:foo=\"http://xbean/scomp/derivation/AttributeWCRestriction\"" +
+            " xmlns:at=\"http://xbean/scomp/attribute/GlobalAttrDefault\"" +
+            " at:testattribute=\"XBean\"/>";
+        doc = Any2LocalDocument.Factory.parse(input);
+        assertFalse(doc.validate(validateOptions));
+        String[] errExpected = {XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$NOT_WILDCARD_VALID};
+        assertArrayEquals(errExpected, getErrorCodes(validateOptions));
     }
 
     /**
      * should be able to replace list of ns w/ subset
      * lax to strict
-     * @throws Throwable
      */
     @Test
-    public void testList2SubsetStrict()throws Throwable{
-          input="<foo:List2Subset " +
-                " xmlns:foo=\"http://xbean/scomp/derivation/AttributeWCRestriction\"" +
-                 " xmlns:at=\"http://ap.org\"" +
-                " at:testattribute=\"XBean\"/>";
-         List2SubsetDocument doc=
-                 List2SubsetDocument.Factory.parse(input);
+    void testList2SubsetStrict() throws Throwable {
+        XmlOptions validateOptions = createOptions();
+        String input =
+            "<foo:List2Subset " +
+            " xmlns:foo=\"http://xbean/scomp/derivation/AttributeWCRestriction\"" +
+            " xmlns:at=\"http://ap.org\"" +
+            " at:testattribute=\"XBean\"/>";
+        List2SubsetDocument doc = List2SubsetDocument.Factory.parse(input);
         //this is a non-existing NS...strict should complain
-        assertTrue ( !doc.validate(validateOptions));
-        String[] errExpected = new String[]{
-            XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$NOT_WILDCARD_VALID};
-                     assertTrue(compareErrorCodes(errExpected));
-
+        assertFalse(doc.validate(validateOptions));
+        String[] errExpected = {XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$NOT_WILDCARD_VALID};
+        assertArrayEquals(errExpected, getErrorCodes(validateOptions));
 
         //invalid case: give the attr a bad value, make sure it's being validated
     }
@@ -116,28 +108,25 @@ public class AttrWCRestriction extends BaseCase {
      * skip to lax
      */
     @Test
-    public void testOther2ListLax()throws Throwable{
-          input="<foo:Other2List" +
-                " xmlns:foo=\"http://xbean/scomp/derivation/AttributeWCRestriction\"" +
-                 " xmlns:at=\"http://xbean/scomp/attribute/GlobalAttrDefault\"" +
-                " at:testattribute=\"XBean\"/>";
-         Other2ListDocument doc=
-                 Other2ListDocument.Factory.parse(input);
-        assertTrue ( doc.validate(validateOptions));
+    void testOther2ListLax() throws Throwable {
+        XmlOptions validateOptions = createOptions();
+        String input =
+            "<foo:Other2List" +
+            " xmlns:foo=\"http://xbean/scomp/derivation/AttributeWCRestriction\"" +
+            " xmlns:at=\"http://xbean/scomp/attribute/GlobalAttrDefault\"" +
+            " at:testattribute=\"XBean\"/>";
+        Other2ListDocument doc = Other2ListDocument.Factory.parse(input);
+        assertTrue(doc.validate(validateOptions));
 
         //invalid case: a ns not in the list
-
-         input="<foo:Other2List" +
-                " xmlns:foo=\"http://xbean/scomp/derivation/AttributeWCRestriction\"" +
-                 " xmlns:at=\"http://foobar\"" +
-                " at:testattribute=\"XBean\"/>";
-          doc=
-                 Other2ListDocument.Factory.parse(input);
-        assertTrue (! doc.validate(validateOptions));
-        showErrors();
-        String[] errExpected = new String[]{
-            XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$NOT_WILDCARD_VALID};
-                     assertTrue(compareErrorCodes(errExpected));
-
+        input =
+            "<foo:Other2List" +
+            " xmlns:foo=\"http://xbean/scomp/derivation/AttributeWCRestriction\"" +
+            " xmlns:at=\"http://foobar\"" +
+            " at:testattribute=\"XBean\"/>";
+        doc = Other2ListDocument.Factory.parse(input);
+        assertFalse(doc.validate(validateOptions));
+        String[] errExpected = {XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$NOT_WILDCARD_VALID};
+        assertArrayEquals(errExpected, getErrorCodes(validateOptions));
     }
 }

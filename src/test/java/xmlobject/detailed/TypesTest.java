@@ -16,98 +16,72 @@
 
 package xmlobject.detailed;
 
-import org.apache.xmlbeans.SchemaType;
-import org.apache.xmlbeans.SimpleValue;
-import org.apache.xmlbeans.XmlObject;
-import org.junit.Test;
+import org.apache.xmlbeans.*;
+import org.junit.jupiter.api.Test;
 import test.xbean.xmlcursor.purchaseOrder.PurchaseOrderDocument;
-import tools.util.JarUtil;
-import xmlcursor.common.BasicCursorTestCase;
 import xmlcursor.common.Common;
 
 import javax.xml.namespace.QName;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
+import static xmlcursor.common.BasicCursorTestCase.*;
 
 
-public class TypesTest extends BasicCursorTestCase {
+public class TypesTest {
     @Test
-    public void testSchemaTypeFromStronglyTypedBuiltIn() throws Exception {
-        m_xo = XmlObject.Factory.parse(
-                   JarUtil.getResourceFromJar(Common.TRANXML_FILE_CLM));
-        m_xc = m_xo.newCursor();
-        m_xc.selectPath(Common.CLM_NS_XQUERY_DEFAULT +
-                "$this//EventStatus/Date");
-        m_xc.toNextSelection();
-        XmlObject xo = m_xc.getObject();
-        SchemaType st = xo.schemaType();
-        assertEquals(true, st.isBuiltinType());
-        QName q = st.getName();
-        assertEquals("{" + Common.XML_SCHEMA_TYPE_SUFFIX + "}date",
-                q.toString());
-    }
-
-    @Test
-    public void testSchemaTypeFromStronglyTyped() throws Exception {
-        m_xo = XmlObject.Factory.parse(
-                   JarUtil.getResourceFromJar(Common.TRANXML_FILE_CLM));
-        m_xc = m_xo.newCursor();
-        m_xc.selectPath(Common.CLM_NS_XQUERY_DEFAULT +
-                "$this//EventStatus");
-        m_xc.toNextSelection();
-        XmlObject xo = m_xc.getObject();
-        SchemaType st = xo.schemaType();
-        assertEquals(false, st.isBuiltinType());
-        assertEquals(
-                "E=EventStatus|D=EventStatus@" +
-                Common.TRANXML_SCHEMA_TYPE_SUFFIX,
-                st.toString());
-
-    }
-
-    @Test
-    public void testSchemaTypeFromNonTyped() throws Exception {
-        m_xo = XmlObject.Factory.parse(Common.XML_FOO_BAR_TEXT);
-        m_xc = m_xo.newCursor();
-        m_xc.selectPath("$this//bar");
-        m_xc.toNextSelection();
-        XmlObject xo = m_xc.getObject();
-        SchemaType st = xo.schemaType();
-        assertEquals(true, st.isNoType());
-        //assertEquals("TanyType@" + Common.XML_SCHEMA_TYPE_SUFFIX, st.toString());
-    }
-
-    @Test
-    public void testInstanceTypeNotNillable() throws Exception {
-        m_xo = XmlObject.Factory.parse(
-                  JarUtil.getResourceFromJar(Common.TRANXML_FILE_CLM));
-        m_xc = m_xo.newCursor();
-        m_xc.selectPath(Common.CLM_NS_XQUERY_DEFAULT +
-                "$this//EventStatus");
-        XmlObject xo = m_xc.getObject();
-        assertEquals(xo.schemaType(), ((SimpleValue) xo).instanceType());
-    }
-
-    @Test
-    public void testInstanceTypeNil() throws Exception {
-        PurchaseOrderDocument pod = (PurchaseOrderDocument) XmlObject.Factory.parse(
-                JarUtil.getResourceFromJar("xbean/xmlcursor/po.xml"));
-        m_xo = pod.getPurchaseOrder().getShipTo().xgetName();
-        m_xo.setNil();
-        assertEquals(true, m_xo.isNil());
-        if (m_xo.schemaType() == ((SimpleValue) m_xo).instanceType()) {
-            fail("Nil object's instanceType should not be equal to schemaType");
+    void testSchemaTypeFromStronglyTypedBuiltIn() throws Exception {
+        try (XmlCursor m_xc = jcur(Common.TRANXML_FILE_CLM)) {
+            m_xc.selectPath(Common.CLM_NS_XQUERY_DEFAULT + "$this//EventStatus/Date");
+            m_xc.toNextSelection();
+            XmlObject xo = m_xc.getObject();
+            SchemaType st = xo.schemaType();
+            assertTrue(st.isBuiltinType());
+            QName q = st.getName();
+            assertEquals("{" + Common.XML_SCHEMA_TYPE_SUFFIX + "}date", q.toString());
         }
-        assertTrue(true);
     }
 
-    /*
-    public void testInstanceTypeUnion() throws Exception
-    {
-        // tbd
+    @Test
+    void testSchemaTypeFromStronglyTyped() throws Exception {
+        try (XmlCursor m_xc = jcur(Common.TRANXML_FILE_CLM)) {
+            m_xc.selectPath(Common.CLM_NS_XQUERY_DEFAULT + "$this//EventStatus");
+            m_xc.toNextSelection();
+            XmlObject xo = m_xc.getObject();
+            SchemaType st = xo.schemaType();
+            assertFalse(st.isBuiltinType());
+            assertEquals("E=EventStatus|D=EventStatus@" + Common.TRANXML_SCHEMA_TYPE_SUFFIX, st.toString());
+        }
     }
-    */
 
+    @Test
+    void testSchemaTypeFromNonTyped() throws Exception {
+        try (XmlCursor m_xc = cur(Common.XML_FOO_BAR_TEXT)) {
+            m_xc.selectPath("$this//bar");
+            m_xc.toNextSelection();
+            XmlObject xo = m_xc.getObject();
+            SchemaType st = xo.schemaType();
+            assertTrue(st.isNoType());
+            //assertEquals("TanyType@" + Common.XML_SCHEMA_TYPE_SUFFIX, st.toString());
+        }
+    }
 
+    @Test
+    void testInstanceTypeNotNillable() throws Exception {
+        try (XmlCursor m_xc = jcur(Common.TRANXML_FILE_CLM)) {
+            m_xc.selectPath(Common.CLM_NS_XQUERY_DEFAULT + "$this//EventStatus");
+            XmlObject xo = m_xc.getObject();
+            assertEquals(xo.schemaType(), ((SimpleValue) xo).instanceType());
+        }
+    }
+
+    @Test
+    void testInstanceTypeNil() throws Exception {
+        PurchaseOrderDocument pod = (PurchaseOrderDocument) jobj("xbean/xmlcursor/po.xml");
+        XmlString m_xo = pod.getPurchaseOrder().getShipTo().xgetName();
+        m_xo.setNil();
+        assertTrue(m_xo.isNil());
+        assertNotEquals(m_xo.schemaType(), ((SimpleValue) m_xo).instanceType(),
+            "Nil object's instanceType should not be equal to schemaType");
+    }
 }
 

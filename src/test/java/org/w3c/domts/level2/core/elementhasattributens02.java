@@ -22,12 +22,12 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -44,19 +44,13 @@ import static org.w3c.domts.DOMTest.load;
  */
 public class elementhasattributens02 {
     @Test
-    public void testRun() throws Throwable {
-        Document doc;
-        Element element;
-        boolean state;
-        Attr attribute;
-        Attr newAttribute;
-        doc = load("staff", false);
-        element = doc.createElementNS("http://www.w3.org/DOM", "address");
-        attribute = doc.createAttributeNS("http://www.w3.org/DOM", "domestic");
-        newAttribute = element.setAttributeNode(attribute);
-        state = element.hasAttributeNS("http://www.w3.org/DOM", "domestic");
-        assertTrue("elementhasattributens02", state);
-
+    void testRun() throws Throwable {
+        Document doc = load("staff", false);
+        Element element = doc.createElementNS("http://www.w3.org/DOM", "address");
+        Attr attribute = doc.createAttributeNS("http://www.w3.org/DOM", "domestic");
+        Attr newAttribute = element.setAttributeNode(attribute);
+        boolean state = element.hasAttributeNS("http://www.w3.org/DOM", "domestic");
+        assertTrue(state, "elementhasattributens02");
     }
 
     /**

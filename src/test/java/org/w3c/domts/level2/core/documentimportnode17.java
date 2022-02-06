@@ -22,11 +22,11 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -44,19 +44,13 @@ import static org.w3c.domts.DOMTest.load;
  */
 public class documentimportnode17 {
     @Test
-    public void testRun() throws Throwable {
-        Document doc;
-        Document docImp;
-        Node commentImport;
-        Node commentToImport;
-        String nodeValue;
-        doc = load("staffNS", true);
-        docImp = load("staffNS", true);
-        commentToImport = doc.createComment("Document.importNode test for a COMMENT_NODE");
-        commentImport = doc.importNode(commentToImport, true);
-        nodeValue = commentImport.getNodeValue();
-        assertEquals("documentimportnode17", "Document.importNode test for a COMMENT_NODE", nodeValue);
-
+    void testRun() throws Throwable {
+        Document doc = load("staffNS", true);
+        load("staffNS", true);
+        Node commentToImport = doc.createComment("Document.importNode test for a COMMENT_NODE");
+        Node commentImport = doc.importNode(commentToImport, true);
+        String nodeValue = commentImport.getNodeValue();
+        assertEquals("Document.importNode test for a COMMENT_NODE", nodeValue, "documentimportnode17");
     }
 
     /**

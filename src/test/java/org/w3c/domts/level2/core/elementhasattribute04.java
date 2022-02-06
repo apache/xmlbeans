@@ -22,12 +22,12 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -41,19 +41,13 @@ import static org.w3c.domts.DOMTest.load;
  */
 public class elementhasattribute04 {
     @Test
-    public void testRun() throws Throwable {
-        Document doc;
-        Element element;
-        boolean state;
-        Attr attribute;
-        Attr newAttribute;
-        doc = load("staff", false);
-        element = doc.createElement("address");
-        attribute = doc.createAttribute("domestic");
-        newAttribute = element.setAttributeNode(attribute);
-        state = element.hasAttribute("domestic");
-        assertTrue("elementhasattribute04", state);
-
+    void testRun() throws Throwable {
+        Document doc = load("staff", false);
+        Element element = doc.createElement("address");
+        Attr attribute = doc.createAttribute("domestic");
+        Attr newAttribute = element.setAttributeNode(attribute);
+        boolean state = element.hasAttribute("domestic");
+        assertTrue(state, "elementhasattribute04");
     }
 
     /**

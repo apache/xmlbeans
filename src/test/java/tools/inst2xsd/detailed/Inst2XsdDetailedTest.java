@@ -16,67 +16,63 @@ package tools.inst2xsd.detailed;
 
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.impl.inst2xsd.Inst2XsdOptions;
-import org.junit.Ignore;
-import org.junit.Test;
-import tools.inst2xsd.common.Inst2XsdTestBase;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 
-@Ignore
-public class Inst2XsdDetailedTest extends Inst2XsdTestBase {
+import static common.Common.P;
+import static tools.inst2xsd.common.Inst2XsdCommon.*;
+import static tools.inst2xsd.common.Inst2XsdTestBase.SCHEMA_CASES_DIR;
+import static tools.inst2xsd.common.Inst2XsdTestBase.runSchemaBuild;
+
+@Disabled
+public class Inst2XsdDetailedTest {
 
     //TODO: move to checkin
     @Test
-    public void test_ns_duplicate_salami() throws Exception {
+    void test_ns_duplicate_salami() throws Exception {
         XmlObject inst = XmlObject.Factory.parse(new File(SCHEMA_CASES_DIR + "namespaces" + P + "duplicatedNS.xml"));
-        log("-= Salami =-");
-        runSchemaBuild(inst, common.getSalamiOptions(),
+        runSchemaBuild(inst, getSalamiOptions(),
                 XmlObject.Factory.parse(new File(SCHEMA_CASES_DIR + "namespaces" + P + "duplicatedNS_ss0.xsd")));
     }
 
     //TODO: move to checkin
     @Test
-    public void test_ns_duplicate_venetian() throws Exception {
+    void test_ns_duplicate_venetian() throws Exception {
         XmlObject inst = XmlObject.Factory.parse(new File(SCHEMA_CASES_DIR + "namespaces" + P + "duplicatedNS.xml"));
-        log("-= venetian =-");
-        runSchemaBuild(inst, common.getVenetianOptions(),
+        runSchemaBuild(inst, getVenetianOptions(),
                 XmlObject.Factory.parse(new File(SCHEMA_CASES_DIR + "namespaces" + P + "duplicatedNS_vb0.xsd")));
 
     }
 
     //TODO: move to checkin  QName:bug
     @Test
-    public void test_examples_xmlnews() throws Exception {
+    void test_examples_xmlnews() throws Exception {
         XmlObject inst = XmlObject.Factory.parse(new File(SCHEMA_CASES_DIR + "examples" + P + "xmlnews.xml"));
 
-        log("-= Russian Options =-");
-        runSchemaBuild(inst, common.getRussianOptions(),
+        runSchemaBuild(inst, getRussianOptions(),
                 XmlObject.Factory.parse(new File(SCHEMA_CASES_DIR + "examples" + P + "xmlnews_rd0.xsd")));
-        log("-= Venetian Options =-");
-        runSchemaBuild(inst, common.getVenetianOptions(),
+        runSchemaBuild(inst, getVenetianOptions(),
                 XmlObject.Factory.parse(new File(SCHEMA_CASES_DIR + "examples" + P + "xmlnews_vb0.xsd")));
-        log("-= Salami Options =-");
-        runSchemaBuild(inst, common.getSalamiOptions(),
+        runSchemaBuild(inst, getSalamiOptions(),
                 XmlObject.Factory.parse(new File(SCHEMA_CASES_DIR + "examples" + P + "xmlnews_ss0.xsd")));
     }
 
     //TODO: move to checkin QName:bug
     @Test
-    public void test_examples_slashdotrdf() throws Exception {
+    void test_examples_slashdotrdf() throws Exception {
         XmlObject inst = XmlObject.Factory.parse(new File(SCHEMA_CASES_DIR + "examples" + P + "slashdot.rdf.xml"));
 
-        log("-= Russian Options =-");
-        runSchemaBuild(inst, common.getRussianOptions(), new XmlObject[]{
+        runSchemaBuild(inst, getRussianOptions(), new XmlObject[]{
             XmlObject.Factory.parse(new File(SCHEMA_CASES_DIR + "examples" + P + "slashdotrdf_rd0.xsd")),
             XmlObject.Factory.parse(new File(SCHEMA_CASES_DIR + "examples" + P + "slashdotrdf_rd1.xsd")),
         });
-        log("-= Venetian Options =-");
-        runSchemaBuild(inst, common.getVenetianOptions(), new XmlObject[]{
+        runSchemaBuild(inst, getVenetianOptions(), new XmlObject[]{
             XmlObject.Factory.parse(new File(SCHEMA_CASES_DIR + "examples" + P + "slashdotrdf_vb0.xsd")),
             XmlObject.Factory.parse(new File(SCHEMA_CASES_DIR + "examples" + P + "slashdotrdf_vb1.xsd")),
         });
-        log("-= Salami Options =-");
-        runSchemaBuild(inst, common.getSalamiOptions(), new XmlObject[]{
+        runSchemaBuild(inst, getSalamiOptions(), new XmlObject[]{
             XmlObject.Factory.parse(new File(SCHEMA_CASES_DIR + "examples" + P + "slashdotrdf_ss0.xsd")),
             XmlObject.Factory.parse(new File(SCHEMA_CASES_DIR + "examples" + P + "slashdotrdf_ss1.xsd")),
         });
@@ -84,21 +80,18 @@ public class Inst2XsdDetailedTest extends Inst2XsdTestBase {
 
     //TODO: move to checkin QName:bug
     @Test
-    public void test_examples_xsl() throws Exception {
+    void test_examples_xsl() throws Exception {
         XmlObject inst = XmlObject.Factory.parse(new File(SCHEMA_CASES_DIR + "examples" + P + "xsl_example.xml"));
 
-        log("-= Russian Options =-");
-        runSchemaBuild(inst, common.getRussianOptions(), new XmlObject[]{
+        runSchemaBuild(inst, getRussianOptions(), new XmlObject[]{
             XmlObject.Factory.parse(new File(SCHEMA_CASES_DIR + "examples" + P + "xsl_rd0.xsd")),
             XmlObject.Factory.parse(new File(SCHEMA_CASES_DIR + "examples" + P + "xsl_rd1.xsd")),
         });
-        log("-= Venetian Options =-");
-        runSchemaBuild(inst, common.getVenetianOptions(), new XmlObject[]{
+        runSchemaBuild(inst, getVenetianOptions(), new XmlObject[]{
             XmlObject.Factory.parse(new File(SCHEMA_CASES_DIR + "examples" + P + "xsl_vb0.xsd")),
             XmlObject.Factory.parse(new File(SCHEMA_CASES_DIR + "examples" + P + "xsl_vb1.xsd")),
         });
-        log("-= Salami Options =-");
-        runSchemaBuild(inst, common.getSalamiOptions(), new XmlObject[]{
+        runSchemaBuild(inst, getSalamiOptions(), new XmlObject[]{
             XmlObject.Factory.parse(new File(SCHEMA_CASES_DIR + "examples" + P + "xsl_ss0.xsd")),
             XmlObject.Factory.parse(new File(SCHEMA_CASES_DIR + "examples" + P + "xsl_ss1.xsd")),
         });
@@ -106,81 +99,69 @@ public class Inst2XsdDetailedTest extends Inst2XsdTestBase {
 
     //TODO: move to checkin QName:bug
     @Test
-    public void test_examples_rss092() throws Exception {
+    void test_examples_rss092() throws Exception {
         XmlObject inst = XmlObject.Factory.parse(new File(SCHEMA_CASES_DIR + "examples" + P + "sampleRss092.xml"));
 
-        log("-= Russian Options =-");
-        runSchemaBuild(inst, common.getRussianOptions(),
+        runSchemaBuild(inst, getRussianOptions(),
                 XmlObject.Factory.parse(new File(SCHEMA_CASES_DIR + "examples" + P + "sampleRss092_rd0.xsd")));
-        log("-= Venetian Options =-");
-        runSchemaBuild(inst, common.getVenetianOptions(),
+        runSchemaBuild(inst, getVenetianOptions(),
                 XmlObject.Factory.parse(new File(SCHEMA_CASES_DIR + "examples" + P + "sampleRss092_vb0.xsd")));
-        log("-= Salami Options =-");
-        runSchemaBuild(inst, common.getSalamiOptions(),
+        runSchemaBuild(inst, getSalamiOptions(),
                 XmlObject.Factory.parse(new File(SCHEMA_CASES_DIR + "examples" + P + "sampleRss092_ss0.xsd")));
     }
 
     @Test
-    public void test_types_comments() throws Exception {
+    void test_types_comments() throws Exception {
         XmlObject inst = XmlObject.Factory.parse(new File(SCHEMA_CASES_DIR + "types" + P + "comments.xml"));
 
-        log("-= Russian Options =-");
-        runSchemaBuild(inst, common.getRussianOptions(),
+        runSchemaBuild(inst, getRussianOptions(),
             XmlObject.Factory.parse(new File(SCHEMA_CASES_DIR + "types" + P + "comments_rd0.xsd")));
-        log("-= Venetian Options =-");
-        runSchemaBuild(inst, common.getVenetianOptions(),
+        runSchemaBuild(inst, getVenetianOptions(),
             XmlObject.Factory.parse(new File(SCHEMA_CASES_DIR + "types" + P + "comments_vb0.xsd")));
-        log("-= Salami Options =-");
-        runSchemaBuild(inst, common.getSalamiOptions(),
+        runSchemaBuild(inst, getSalamiOptions(),
             XmlObject.Factory.parse(new File(SCHEMA_CASES_DIR + "types" + P + "comments_ss0.xsd")));
     }
 
     @Test
-    public void test_types_commentschoice() throws Exception {
+    void test_types_commentschoice() throws Exception {
         XmlObject inst = XmlObject.Factory.parse(new File(SCHEMA_CASES_DIR + "types" + P + "commentschoice.xml"));
-        Inst2XsdOptions opts = common.getRussianOptions();
+        Inst2XsdOptions opts = getRussianOptions();
         opts.setUseEnumerations(Inst2XsdOptions.ENUMERATION_NEVER);
 
-        log("-= Russian Options =-");
         runSchemaBuild(inst, opts,
             XmlObject.Factory.parse(new File(SCHEMA_CASES_DIR + "types" + P + "commentschoice_eNrd0.xsd")));
 
         opts.setDesign(Inst2XsdOptions.DESIGN_VENETIAN_BLIND);
-        log("-= Venetian Options =-");
         runSchemaBuild(inst, opts,
                 XmlObject.Factory.parse(new File(SCHEMA_CASES_DIR + "types" + P + "commentschoice_eNvb0.xsd")));
 
         opts.setDesign(Inst2XsdOptions.DESIGN_SALAMI_SLICE);
-        log("-= Salami Options =-");
         runSchemaBuild(inst, opts,
                 XmlObject.Factory.parse(new File(SCHEMA_CASES_DIR + "types" + P + "commentschoice_eNss0.xsd")));
     }
 
     /** This case fails validation because comment is not recognized */
     @Test
-    public void test_types_innercomment() throws Exception {
+    void test_types_innercomment() throws Exception {
         XmlObject inst = XmlObject.Factory.parse(new File(SCHEMA_CASES_DIR + "types" + P + "innercomment.xml"));
 
-        runSchemaBuild(inst, common.getVenetianOptions(),
+        runSchemaBuild(inst, getVenetianOptions(),
                 XmlObject.Factory.parse(new File(SCHEMA_CASES_DIR + "types" + P + "innercomment_vb0.xsd")));
     }
 
     @Test
-    public void test_types_nillable() throws Exception {
+    void test_types_nillable() throws Exception {
         XmlObject inst = XmlObject.Factory.parse(new File(SCHEMA_CASES_DIR + "types" + P + "xsinil.xml"));
 
-        log("-= Russian Options =-");
-        runSchemaBuild(inst, common.getRussianOptions(), new XmlObject[]{
+        runSchemaBuild(inst, getRussianOptions(), new XmlObject[]{
             XmlObject.Factory.parse(new File(SCHEMA_CASES_DIR + "types" + P + "xsinil_rd0.xsd")),
             XmlObject.Factory.parse(new File(SCHEMA_CASES_DIR + "types" + P + "xsinil_rd1.xsd"))
         });
-        log("-= Venetian Options =-");
-        runSchemaBuild(inst, common.getVenetianOptions(), new XmlObject[]{
+        runSchemaBuild(inst, getVenetianOptions(), new XmlObject[]{
             XmlObject.Factory.parse(new File(SCHEMA_CASES_DIR + "types" + P + "xsinil_vb0.xsd")),
             XmlObject.Factory.parse(new File(SCHEMA_CASES_DIR + "types" + P + "xsinil_vb1.xsd"))
         });
-        log("-= Salami Options =-");
-        runSchemaBuild(inst, common.getSalamiOptions(), new XmlObject[]{
+        runSchemaBuild(inst, getSalamiOptions(), new XmlObject[]{
             XmlObject.Factory.parse(new File(SCHEMA_CASES_DIR + "types" + P + "xsinil_ss0.xsd")),
             XmlObject.Factory.parse(new File(SCHEMA_CASES_DIR + "types" + P + "xsinil_ss1.xsd"))
         });

@@ -14,17 +14,16 @@
  */
 package scomp.xmlbeans583.detailed;
 
-import org.junit.Test;
-import scomp.common.BaseCase;
+import org.junit.jupiter.api.Test;
 import xsd.xmlToStringTest1Xsd.Ns1T1;
 import xsd.xmlToStringTest2Xsd.Ns2E1Document;
 import xsd.xmlToStringTest3Xsd.Ns3E1Document;
 
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-public class Xmlbeans583Test extends BaseCase {
+public class Xmlbeans583Test {
     @Test
-    public void testXmlToString() throws Throwable {
+    void testXmlToString() throws Throwable {
         final Ns2E1Document ns2e1Doc = Ns2E1Document.Factory.newInstance();
         ns2e1Doc.addNewNs2E1().addNewNs2T1E1().setNs1T1E1("Ns1T1E1");
 

@@ -16,135 +16,136 @@
 
 package xmlcursor.checkin;
 
+import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlCursor.TokenType;
-import org.apache.xmlbeans.XmlObject;
-import org.junit.Test;
-import xmlcursor.common.BasicCursorTestCase;
+import org.junit.jupiter.api.Test;
 import xmlcursor.common.Common;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
+import static xmlcursor.common.BasicCursorTestCase.cur;
+import static xmlcursor.common.BasicCursorTestCase.toNextTokenOfType;
 
 
-public class TokensTest extends BasicCursorTestCase {
+public class TokensTest {
 
     @Test
-    public void testHasNextToken() throws Exception {
-        m_xo = XmlObject.Factory.parse(Common.XML_FOO_1ATTR_TEXT);
-        m_xc = m_xo.newCursor();
-        toNextTokenOfType(m_xc, TokenType.TEXT);
-        assertTrue(m_xc.hasNextToken());
+    void testHasNextToken() throws Exception {
+        try (XmlCursor m_xc = cur(Common.XML_FOO_1ATTR_TEXT)) {
+            toNextTokenOfType(m_xc, TokenType.TEXT);
+            assertTrue(m_xc.hasNextToken());
+        }
     }
 
     @Test
-    public void testHasNextTokenENDDOC() throws Exception {
-        m_xo = XmlObject.Factory.parse(Common.XML_FOO_1ATTR_TEXT);
-        m_xc = m_xo.newCursor();
-        m_xc.toEndDoc();
-        assertFalse(m_xc.hasNextToken());
+    void testHasNextTokenENDDOC() throws Exception {
+        try (XmlCursor m_xc = cur(Common.XML_FOO_1ATTR_TEXT)) {
+            m_xc.toEndDoc();
+            assertFalse(m_xc.hasNextToken());
+        }
     }
 
     @Test
-    public void testHasPrevToken() throws Exception {
-        m_xo = XmlObject.Factory.parse(Common.XML_FOO_1ATTR_TEXT);
-        m_xc = m_xo.newCursor();
-        toNextTokenOfType(m_xc, TokenType.TEXT);
-        assertTrue(m_xc.hasPrevToken());
+    void testHasPrevToken() throws Exception {
+        try (XmlCursor m_xc = cur(Common.XML_FOO_1ATTR_TEXT)) {
+            toNextTokenOfType(m_xc, TokenType.TEXT);
+            assertTrue(m_xc.hasPrevToken());
+        }
     }
 
     @Test
-    public void testHasPrevTokenSTARTDOC() throws Exception {
-        m_xo = XmlObject.Factory.parse(Common.XML_FOO_1ATTR_TEXT);
-        m_xc = m_xo.newCursor();
-        assertFalse(m_xc.hasPrevToken());
+    void testHasPrevTokenSTARTDOC() throws Exception {
+        try (XmlCursor m_xc = cur(Common.XML_FOO_1ATTR_TEXT)) {
+            assertFalse(m_xc.hasPrevToken());
+        }
     }
 
     @Test
-    public void testToEndTokenFromSTARTDOC() throws Exception {
-        m_xo = XmlObject.Factory.parse(Common.XML_FOO_1ATTR_TEXT);
-        m_xc = m_xo.newCursor();
-        assertEquals(TokenType.ENDDOC, m_xc.toEndToken());
+    void testToEndTokenFromSTARTDOC() throws Exception {
+        try (XmlCursor m_xc = cur(Common.XML_FOO_1ATTR_TEXT)) {
+            assertEquals(TokenType.ENDDOC, m_xc.toEndToken());
+        }
     }
 
     @Test
-    public void testToEndTokenFromSTART() throws Exception {
-        m_xo = XmlObject.Factory.parse(Common.XML_FOO_1ATTR_TEXT);
-        m_xc = m_xo.newCursor();
-        toNextTokenOfType(m_xc, TokenType.START);
-        assertEquals(TokenType.END, m_xc.toEndToken());
+    void testToEndTokenFromSTART() throws Exception {
+        try (XmlCursor m_xc = cur(Common.XML_FOO_1ATTR_TEXT)) {
+            toNextTokenOfType(m_xc, TokenType.START);
+            assertEquals(TokenType.END, m_xc.toEndToken());
+        }
     }
 
     @Test
-    public void testToEndTokenFromTEXTmiddle() throws Exception {
-        m_xo = XmlObject.Factory.parse(Common.XML_FOO_1ATTR_TEXT);
-        m_xc = m_xo.newCursor();
-        toNextTokenOfType(m_xc, TokenType.TEXT);
-        m_xc.toNextChar(1);
-        assertEquals(TokenType.NONE, m_xc.toEndToken());
+    void testToEndTokenFromTEXTmiddle() throws Exception {
+        try (XmlCursor m_xc = cur(Common.XML_FOO_1ATTR_TEXT)) {
+            toNextTokenOfType(m_xc, TokenType.TEXT);
+            m_xc.toNextChar(1);
+            assertEquals(TokenType.NONE, m_xc.toEndToken());
+        }
     }
 
     @Test
-    public void testToFirstContentTokenFromSTARTDOC() throws Exception {
-        m_xo = XmlObject.Factory.parse(Common.XML_FOO_1ATTR_TEXT);
-        m_xc = m_xo.newCursor();
-        m_xc.toFirstContentToken();
-        assertEquals(TokenType.START, m_xc.currentTokenType());
+    void testToFirstContentTokenFromSTARTDOC() throws Exception {
+        try (XmlCursor m_xc = cur(Common.XML_FOO_1ATTR_TEXT)) {
+            m_xc.toFirstContentToken();
+            assertEquals(TokenType.START, m_xc.currentTokenType());
+        }
     }
 
     @Test
-    public void testToFirstContentTokenFromATTR() throws Exception {
-        m_xo = XmlObject.Factory.parse(Common.XML_FOO_1ATTR_TEXT);
-        m_xc = m_xo.newCursor();
-        toNextTokenOfType(m_xc, TokenType.ATTR);
-        assertEquals(TokenType.NONE, m_xc.toFirstContentToken());
-        assertEquals(TokenType.ATTR, m_xc.currentTokenType());
+    void testToFirstContentTokenFromATTR() throws Exception {
+        try (XmlCursor m_xc = cur(Common.XML_FOO_1ATTR_TEXT)) {
+            toNextTokenOfType(m_xc, TokenType.ATTR);
+            assertEquals(TokenType.NONE, m_xc.toFirstContentToken());
+            assertEquals(TokenType.ATTR, m_xc.currentTokenType());
+        }
     }
 
     @Test
-    public void testToFirstContentTokenFromSTARTwithContent() throws Exception {
-        m_xo = XmlObject.Factory.parse(Common.XML_FOO_1ATTR_TEXT);
-        m_xc = m_xo.newCursor();
-        toNextTokenOfType(m_xc, TokenType.START);
-        assertEquals(TokenType.TEXT, m_xc.toFirstContentToken());
+    void testToFirstContentTokenFromSTARTwithContent() throws Exception {
+        try (XmlCursor m_xc = cur(Common.XML_FOO_1ATTR_TEXT)) {
+            toNextTokenOfType(m_xc, TokenType.START);
+            assertEquals(TokenType.TEXT, m_xc.toFirstContentToken());
+        }
     }
 
     @Test
-    public void testToFirstContentTokenFromSTARTwithoutContent() throws Exception {
-        m_xo = XmlObject.Factory.parse(Common.XML_FOO_1ATTR);
-        m_xc = m_xo.newCursor();
-        toNextTokenOfType(m_xc, TokenType.START);
-        assertEquals(TokenType.END, m_xc.toFirstContentToken());
+    void testToFirstContentTokenFromSTARTwithoutContent() throws Exception {
+        try (XmlCursor m_xc = cur(Common.XML_FOO_1ATTR)) {
+            toNextTokenOfType(m_xc, TokenType.START);
+            assertEquals(TokenType.END, m_xc.toFirstContentToken());
+        }
     }
 
     @Test
-    public void testToNextTokenFromENDDOC() throws Exception {
-        m_xo = XmlObject.Factory.parse(Common.XML_FOO_1ATTR_TEXT);
-        m_xc = m_xo.newCursor();
-        m_xc.toEndDoc();
-        assertEquals(TokenType.NONE, m_xc.toNextToken());
+    void testToNextTokenFromENDDOC() throws Exception {
+        try (XmlCursor m_xc = cur(Common.XML_FOO_1ATTR_TEXT)) {
+            m_xc.toEndDoc();
+            assertEquals(TokenType.NONE, m_xc.toNextToken());
+        }
     }
 
     @Test
-    public void testToNextTokenNAMESPACE() throws Exception {
-        m_xo = XmlObject.Factory.parse(Common.XML_FOO_NS);
-        m_xc = m_xo.newCursor();
-        toNextTokenOfType(m_xc, TokenType.START);
-        assertEquals(TokenType.NAMESPACE, m_xc.toNextToken());
+    void testToNextTokenNAMESPACE() throws Exception {
+        try (XmlCursor m_xc = cur(Common.XML_FOO_NS)) {
+            toNextTokenOfType(m_xc, TokenType.START);
+            assertEquals(TokenType.NAMESPACE, m_xc.toNextToken());
+        }
     }
 
     @Test
-    public void testToPrevTokenSTARTDOC() throws Exception {
-        m_xo = XmlObject.Factory.parse(Common.XML_FOO_1ATTR_TEXT);
-        m_xc = m_xo.newCursor();
-        assertEquals(TokenType.NONE, m_xc.toPrevToken());
-        assertEquals(TokenType.STARTDOC, m_xc.currentTokenType());
+    void testToPrevTokenSTARTDOC() throws Exception {
+        try (XmlCursor m_xc = cur(Common.XML_FOO_1ATTR_TEXT)) {
+            assertEquals(TokenType.NONE, m_xc.toPrevToken());
+            assertEquals(TokenType.STARTDOC, m_xc.currentTokenType());
+        }
     }
 
     @Test
-    public void testToPrevTokenENDDOC() throws Exception {
-        m_xo = XmlObject.Factory.parse(Common.XML_FOO_1ATTR_TEXT);
-        m_xc = m_xo.newCursor();
-        m_xc.toEndDoc();
-        assertEquals(TokenType.END, m_xc.toPrevToken());
+    void testToPrevTokenENDDOC() throws Exception {
+        try (XmlCursor m_xc = cur(Common.XML_FOO_1ATTR_TEXT)) {
+            m_xc.toEndDoc();
+            assertEquals(TokenType.END, m_xc.toPrevToken());
+        }
     }
 }
 

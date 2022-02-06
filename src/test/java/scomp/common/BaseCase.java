@@ -16,76 +16,17 @@ package scomp.common;
 
 import org.apache.xmlbeans.XmlError;
 import org.apache.xmlbeans.XmlOptions;
-import org.junit.Before;
 
 import java.util.ArrayList;
 
-public class BaseCase {
-    protected boolean bVerbose = false;
-
-    protected XmlOptions validateOptions;
-    protected final ArrayList<XmlError> errorList = new ArrayList<>();
-
-    @Before
-    public void setUp() {
-        validateOptions = new XmlOptions();
-        errorList.clear();
-        validateOptions.setErrorListener(errorList);
+public final class BaseCase {
+    public static XmlOptions createOptions() {
+        XmlOptions op = new XmlOptions();
+        op.setErrorListener(new ArrayList<>());
+        return op;
     }
 
-    protected void clearErrors() {
-        //reset error list for next time
-        errorList.clear();
-        validateOptions.setErrorListener(errorList);
+    public static String[] getErrorCodes(XmlOptions options) {
+        return options.getErrorListener().stream().map(XmlError::getErrorCode).toArray(String[]::new);
     }
-
-    public void showErrors() {
-        if (bVerbose)
-            for (XmlError error : errorList) {
-                System.out.println("\n");
-                System.out.println("Message: " + error.getMessage() + "\n");
-                if (error.getCursorLocation() != null) {
-                    System.out.println("Location of invalid XML: " + error.getCursorLocation().xmlText() + "\n");
-                }
-            }
-
-    }
-
-    //TODO: compare regardless of order
-    public boolean compareErrorCodes(String[] expected) {
-        if (errorList.size() != expected.length) {
-            System.err.println(stringOfCodes(expected, errorList));
-
-            return false;
-        }
-        StringBuilder errMessage = new StringBuilder();
-        for (int i = 0; i < errorList.size(); i++) {
-            XmlError error = errorList.get(i);
-            if (error.getErrorCode() == null)
-                errMessage.append("Kevin needs a code here " + error.getMessage() + "\n");
-
-            if (!expected[i].equals(error.getErrorCode())) {
-                if (errMessage.length() > 0)
-                    System.err.println(errMessage);
-
-                System.err.println(stringOfCodes(expected, errorList));
-                return false;
-            }
-        }
-        return true;
-    }
-
-    public String stringOfCodes(String[] errorCodes, ArrayList<XmlError> actual_errorCodes) {
-        StringBuilder res = new StringBuilder();
-        res.append("\n Expected codes:\n");
-        int i = 0;
-        for (; i < errorCodes.length; i++)
-            res.append(errorCodes[i] + "\n");
-        res.append("\nBut Got: \n");
-        for (i = 0; i < actual_errorCodes.size(); i++)
-            res.append(actual_errorCodes.get(i) + "\n");
-
-        return res.toString();
-    }
-
 }

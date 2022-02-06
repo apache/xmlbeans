@@ -19,10 +19,10 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.*;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -42,24 +42,16 @@ import static org.w3c.domts.DOMTest.load;
  */
 public class hc_attrname {
     @Test
-    public void testRun() throws Throwable {
-        Document doc;
-        NodeList addressList;
-        Node testNode;
-        NamedNodeMap attributes;
-        Attr streetAttr;
-        String strong1;
-        String strong2;
-        doc = load("hc_staff", false);
-        addressList = doc.getElementsByTagName("acronym");
-        testNode = addressList.item(1);
-        attributes = testNode.getAttributes();
-        streetAttr = (Attr) attributes.getNamedItem("class");
-        strong1 = streetAttr.getNodeName();
-        strong2 = streetAttr.getName();
-        assertEquals("nodeName", "class", strong1);
-        assertEquals("name", "class", strong2);
-
+    void testRun() throws Throwable {
+        Document doc = load("hc_staff", false);
+        NodeList addressList = doc.getElementsByTagName("acronym");
+        Node testNode = addressList.item(1);
+        NamedNodeMap attributes = testNode.getAttributes();
+        Attr streetAttr = (Attr) attributes.getNamedItem("class");
+        String strong1 = streetAttr.getNodeName();
+        String strong2 = streetAttr.getName();
+        assertEquals("class", strong1, "nodeName");
+        assertEquals("class", strong2, "name");
     }
 
     /**

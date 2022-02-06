@@ -16,8 +16,8 @@
 package dom.detailed;
 
 import dom.common.Loader;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.*;
 
 
@@ -41,7 +41,7 @@ public class MultipleDocsTest {
     Document[] m_doc;
 
     @Test
-    public void testRunThreads() {
+    void testRunThreads() {
 
         for (int j = 0; j < nThreadCount; j++)
             threads[j].start();
@@ -57,7 +57,7 @@ public class MultipleDocsTest {
         }
     }
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         threads = new Thread[nThreadCount];
         for (int i = 0; i < nThreadCount; i++) {

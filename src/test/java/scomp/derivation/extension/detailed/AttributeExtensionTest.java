@@ -15,48 +15,38 @@
 
 package scomp.derivation.extension.detailed;
 
-import org.junit.Test;
-import scomp.common.BaseCase;
-import xbean.scomp.derivation.attributeExtension.ExtendedT;
+import org.junit.jupiter.api.Test;
 import xbean.scomp.derivation.attributeExtension.ExtendedElementDocument;
+import xbean.scomp.derivation.attributeExtension.ExtendedT;
 
 import java.math.BigInteger;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static scomp.common.BaseCase.createOptions;
 
-public class AttributeExtensionTest extends BaseCase{
+public class AttributeExtensionTest {
     /**
      * Attribute w/ same LN but diff NS in base type
      * Other scenarious are compile time errors
      */
     @Test
-    public void testAttribute()throws Throwable{
-       ExtendedElementDocument doc=ExtendedElementDocument.Factory.newInstance();
-        ExtendedT elt=doc.addNewExtendedElement();
-         try{
-            assertTrue(doc.validate(validateOptions));
-        }
-        catch (Throwable t) {
-            showErrors();
-           throw t;
-        }
+    void testAttribute() throws Throwable {
+        ExtendedElementDocument doc = ExtendedElementDocument.Factory.newInstance();
+        ExtendedT elt = doc.addNewExtendedElement();
+        assertTrue(doc.validate(createOptions()));
+
         elt.setTestattribute("foo");
         elt.setTestattribute2("bar");
         elt.setTestattributeInt(new BigInteger("10"));
-          try{
-            assertTrue(doc.validate(validateOptions));
-        }
-        catch (Throwable t) {
-            showErrors();
-           throw t;
-        }
-        //make sure attr w/ value foo is in the imported NS
-       assertEquals("<att:ExtendedElement glob:testattribute=\"foo\" " +
-               "testattribute=\"bar\" glob:testattributeInt=\"10\" " +
-               "xmlns:att=\"http://xbean/scomp/derivation/AttributeExtension\" " +
-               "xmlns:glob=\"http://xbean/scomp/attribute/GlobalAttrDefault\"/>"
-               ,doc.xmlText());
-    }
+        assertTrue(doc.validate(createOptions()));
 
+        //make sure attr w/ value foo is in the imported NS
+        String expected =
+            "<att:ExtendedElement glob:testattribute=\"foo\" " +
+            "testattribute=\"bar\" glob:testattributeInt=\"10\" " +
+            "xmlns:att=\"http://xbean/scomp/derivation/AttributeExtension\" " +
+            "xmlns:glob=\"http://xbean/scomp/attribute/GlobalAttrDefault\"/>";
+        assertEquals(expected, doc.xmlText());
+    }
 }

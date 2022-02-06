@@ -22,13 +22,14 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Attr;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -44,27 +45,14 @@ import static org.w3c.domts.DOMTest.load;
  */
 public class elementsetattributenodens05 {
     @Test
-    public void testRun() throws Throwable {
-        Document doc;
-        Document docAlt;
-        Element element;
-        Attr attribute;
-        Attr newAttribute;
-        doc = load("staffNS", true);
-        docAlt = load("staffNS", true);
-        element = doc.createElementNS("http://www.w3.org/DOM/Test", "elem1");
-        attribute = docAlt.createAttributeNS("http://www.w3.org/DOM/Test", "attr");
+    void testRun() throws Throwable {
+        Document doc = load("staffNS", true);
+        Document docAlt = load("staffNS", true);
+        Element element = doc.createElementNS("http://www.w3.org/DOM/Test", "elem1");
+        Attr attribute = docAlt.createAttributeNS("http://www.w3.org/DOM/Test", "attr");
 
-        {
-            boolean success = false;
-            try {
-                newAttribute = element.setAttributeNodeNS(attribute);
-            } catch (DOMException ex) {
-                success = (ex.code == DOMException.WRONG_DOCUMENT_ERR);
-            }
-            assertTrue("elementsetattributenodens05", success);
-        }
-
+        DOMException ex = assertThrows(DOMException.class, () -> element.setAttributeNodeNS(attribute));
+        assertEquals(DOMException.WRONG_DOCUMENT_ERR, ex.code, "elementsetattributenodens05");
     }
 
     /**

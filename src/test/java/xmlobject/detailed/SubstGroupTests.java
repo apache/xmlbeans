@@ -19,67 +19,44 @@ import org.apache.xmlbeans.XmlError;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
 import org.apache.xmlbeans.impl.values.XmlValueDisconnectedException;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import tools.xml.XmlComparator;
 import xmlobject.substgroup.*;
 
 import javax.xml.namespace.QName;
 import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class SubstGroupTests {
     /**
      * TODO: Determine what the proper Return value is
      */
     @Test
-    public void test_invalidSubstitute() {
+    void test_invalidSubstitute() {
         OrderItem order = OrderItem.Factory.newInstance();
         ItemType item = order.addNewItem();
         item.setName("ItemType");
         item.setSku(new BigInteger("42"));
 
-        //FootstoolDocument fsd;
-        try {
+        XmlObject xm = item.substitute(FootstoolDocument.type.getDocumentElementName(), FootstoolDocument.type);
+        assertFalse(xm instanceof FootstoolDocument);
 
-            //on invalid substitute orignal value is returned.
-            FootstoolDocument fsd = (FootstoolDocument) item.substitute(
-                FootstoolDocument.type.getDocumentElementName(),
-                FootstoolDocument.type);
-            fail("Class Cast Exception was thrown on invalid substitute ");
-        } catch (ClassCastException ccEx) {
-        }
-
-        XmlObject xm = item.substitute(
-            FootstoolDocument.type.getDocumentElementName(),
-            FootstoolDocument.type);
-
-        System.out.println("XM: " + xm.xmlText());
-        ArrayList err = new ArrayList();
+        List<XmlError> err = new ArrayList<>();
         XmlOptions xOpts = new XmlOptions().setErrorListener(err);
-        //no way this should happen
-        if (xm.validate(xOpts)) {
-            System.err.println("Invalid substitute validated");
-
-            for (Iterator iterator = err.iterator(); iterator.hasNext(); ) {
-                System.err.println("Error: " + iterator.next());
-            }
-        }
+        // no way this should happen ... TODO: ... but as of now it's validated ok
+        // assertFalse(xm.validate(xOpts), "Invalid substitute validated");
 
         //invalid substitute should leave good state
-        System.out.println("Item: " + item.xmlText());
-
         String exp = "<xml-fragment><sku>42</sku><name>ItemType</name></xml-fragment>";
 
-        assertEquals("text values should be the same", 0, exp.compareTo(xm.xmlText()));
+        assertEquals(exp, xm.xmlText(), "text values should be the same");
     }
 
-    @Test(expected = XmlValueDisconnectedException.class)
-    public void test_validSubstitute() {
+    @Test
+    void test_validSubstitute() {
         String URI = "http://xmlobject/substgroup";
         QName name = new QName(URI, "beanBag");
         // get an item
@@ -88,33 +65,21 @@ public class SubstGroupTests {
         item.setName("ItemForTest");
         item.setSku(new BigInteger("12"));
 
-        // types and content before substitution
-        System.out.println("Before Substitution :\nQNAme Item doc    :" + ItemDocument.type.getName());
-        System.out.println("QNAme beanBag elem:" + name);
-        System.out.println("item type:" + item.getClass().getName());
-        System.out.println("item XMLText      : " + item.xmlText());
-
-        try {
-            XmlObject xObj = item.substitute(name, BeanBagType.type);
-            System.out.println("After Substitution :\nSubstituted XObj text: " + xObj.xmlText());
-            System.out.println("Substituted XObj type: " + xObj.getClass().getName());
-            Assert.assertNotSame("Invalid Substitution. Xobj Types after substitution are the same.", xObj.getClass().getName(), item.getClass().getName());
-
-        } catch (NullPointerException npe) {
-            System.out.println("NPE Thrown: " + npe.getMessage());
-            npe.printStackTrace();
-        }
+        XmlObject xObj = item.substitute(name, BeanBagType.type);
+        assertNotSame(xObj.getClass().getName(), item.getClass().getName(),
+            "Invalid Substitution. Xobj Types after substitution are the same.");
 
         // invoke some operation on the original XmlObject, it should thrown an XmlValueDisconnectedException
-        item.xmlText();
+        assertThrows(XmlValueDisconnectedException.class, item::xmlText);
     }
 
     /**
      * Tests substition upcase, from item to Document, then ensure validation
      */
     @Test
-    public void test_valid_sub() throws Exception {
-        String expectedXML = "<sub:beanBag xmlns:sub=\"http://xmlobject/substgroup\">" +
+    void test_valid_sub() throws Exception {
+        String expectedXML =
+            "<sub:beanBag xmlns:sub=\"http://xmlobject/substgroup\">" +
             "  <sku>12</sku>" +
             "  <name>BeanBagType</name>" +
             "  <size color=\"Blue\">Blue</size>" +
@@ -128,19 +93,11 @@ public class SubstGroupTests {
         item.setName(itemName);
         item.setSku(bInt);
 
-        System.out.println("Order: " +
-            order.xmlText(new XmlOptions().setSavePrettyPrint()));
-        System.out.println("valid: " + order.validate());
+        BeanBagType b2Type = (BeanBagType) item.substitute(BeanBagDocument.type.getDocumentElementName(), BeanBagType.type);
 
-        BeanBagType b2Type = (BeanBagType) item.substitute(
-            BeanBagDocument.type.getDocumentElementName(),
-            BeanBagType.type);
-
-        assertEquals("Name Value was not as expected\nactual: " +
-            b2Type.getName() +
-            " exp: " +
-            itemName, 0, b2Type.getName().compareTo(itemName));
-        assertEquals("Integer Value was not as Excepted", 0, b2Type.getSku().compareTo(bInt));
+        assertEquals(0, b2Type.getName().compareTo(itemName),
+            "Name Value was not as expected\nactual: " + b2Type.getName() + " exp: " + itemName);
+        assertEquals(0, b2Type.getSku().compareTo(bInt), "Integer Value was not as Excepted");
 
         BeanBagSizeType bbSize = b2Type.addNewSize();
         bbSize.setColor("Blue");
@@ -148,56 +105,34 @@ public class SubstGroupTests {
         b2Type.setSize(bbSize);
         b2Type.setName("BeanBagType");
 
-        System.out.println("b2Type: " +
-            b2Type.xmlText(new XmlOptions().setSavePrettyPrint()));
-        System.out.println("b2Type: " + b2Type.validate());
-
-        System.out.println("Order: " +
-            order.xmlText(new XmlOptions().setSavePrettyPrint()));
-        System.out.println("ovalid: " + order.validate());
-
         tools.xml.XmlComparator.Diagnostic diag = new tools.xml.XmlComparator.Diagnostic();
 
-        if (!XmlComparator.lenientlyCompareTwoXmlStrings(order.xmlText(),
-            xm.xmlText(), diag))
-            throw new Exception("Compare Values Fails\n" + diag.toString());
-    }
-
-    @Test(expected = XmlValueDisconnectedException.class)
-    public void test_item_disconnect() {
-        String itemName = "item";
-        BigInteger bInt = new BigInteger("12");
-        boolean exThrown = false;
-
-        xmlobject.substgroup.OrderItem order = OrderItem.Factory.newInstance();
-        ItemType item = order.addNewItem();
-        item.setName(itemName);
-        item.setSku(bInt);
-
-        System.out.println("Order: " +
-            order.xmlText(new XmlOptions().setSavePrettyPrint()));
-        System.out.println("valid: " + order.validate());
-
-        BeanBagType b2Type = (BeanBagType) item.substitute(
-            BeanBagDocument.type.getDocumentElementName(),
-            BeanBagType.type);
-
-        item.xmlText();
+        assertTrue(XmlComparator.lenientlyCompareTwoXmlStrings(order.xmlText(), xm.xmlText(), diag));
     }
 
     @Test
-    public void test_item_downcasts_valid() throws Exception {
+    void test_item_disconnect() {
+        xmlobject.substgroup.OrderItem order = OrderItem.Factory.newInstance();
+        ItemType item = order.addNewItem();
+        item.setName("item");
+        item.setSku(BigInteger.valueOf(12));
+
+        XmlObject b2Type = item.substitute(BeanBagDocument.type.getDocumentElementName(), BeanBagType.type);
+        assertTrue(b2Type instanceof BeanBagType);
+
+        assertThrows(XmlValueDisconnectedException.class, item::xmlText);
+    }
+
+    @Test
+    void test_item_downcasts_valid() throws Exception {
         BigInteger bInt = new BigInteger("12");
-        ArrayList err = new ArrayList();
-        XmlOptions opts = new XmlOptions(
-            new XmlOptions().setErrorListener(err));
+        List<XmlError> err = new ArrayList<>();
+        XmlOptions opts = new XmlOptions(new XmlOptions().setErrorListener(err));
 
         xmlobject.substgroup.OrderItem order = OrderItem.Factory.newInstance();
         ItemType item = order.addNewItem();
 
-        BeanBagType b2Type = (BeanBagType) item.substitute(
-            BeanBagDocument.type.getDocumentElementName(),
-            BeanBagType.type);
+        BeanBagType b2Type = (BeanBagType) item.substitute(BeanBagDocument.type.getDocumentElementName(), BeanBagType.type);
 
         BeanBagSizeType bbSize = b2Type.addNewSize();
         bbSize.setColor("Blue");
@@ -207,86 +142,67 @@ public class SubstGroupTests {
         b2Type.setName("BeanBagType");
 
         ItemType nItem = order.getItem();
-
-        //nItem.validate(opts);
-        if (!nItem.validate(opts))
-            System.out.println(
-                "nItem - Downcasting Failed Validation:\n" + err);
+        assertTrue(nItem.validate(opts), "nItem - Downcasting Failed Validation");
         err.clear();
 
-        item = (ItemType) nItem.substitute(
-            ItemDocument.type.getDocumentElementName(),
-            ItemType.type);
-
-        //System.out.println("Item1: " + item.xmlText());
-
-        if (!item.validate(opts))
-            System.out.println("Item - Downcasting Failed Validation:\n" + err);
+        item = (ItemType) nItem.substitute(ItemDocument.type.getDocumentElementName(), ItemType.type);
+        // TODO: downcasting shouldn't be allowed
+        // assertTrue(item.validate(opts), "Item - Downcasting Failed Validation:\n");
+        item.validate(opts);
 
         XmlError[] xErr = getXmlErrors(err);
-        assertEquals("Length of xm_errors was greater than expected", 1, xErr.length);
-        assertEquals("Error Code was not as Expected", 0, xErr[0].getErrorCode().compareTo("cvc-complex-type.2.4b"));
+        assertEquals(1, xErr.length, "Length of xm_errors was greater than expected");
+        assertEquals("cvc-complex-type.2.4b", xErr[0].getErrorCode(), "Error Code was not as Expected");
         err.clear();
 
         String nName = "ItemType";
         item.setName(nName);
-        System.out.println("Item2: " + item.xmlText());
 
-        if (!order.validate(opts))
-            System.out.println(
-                "Order - Downcasting Failed Validation:\n" + err);
+        assertFalse(order.validate(opts), "Order - Downcasting Failed Validation");
 
         //Check value was set
-        if (!(nName.compareTo(order.getItem().getName()) == 0))
-            throw new Exception("Name Value was not changed");
+        assertEquals(nName, order.getItem().getName(), "Name Value was not changed");
 
         //Check Error message
         String expText = "Element not allowed: size in element item@http://xmlobject/substgroup";
         XmlError[] xErr2 = getXmlErrors(err);
-        assertEquals("Length of xm_errors was greater than expected", 1, xErr2.length);
-        assertEquals("Error Code was not as Expected", 0, xErr2[0].getErrorCode().compareTo("cvc-complex-type.2.4b"));
-        assertEquals("Error Message was not as expected", 0, xErr2[0].getMessage().compareTo(expText));
-
-        err.clear();
+        assertEquals(1, xErr2.length, "Length of xm_errors was greater than expected");
+        assertEquals("cvc-complex-type.2.4b", xErr2[0].getErrorCode(), "Error Code was not as Expected");
+        assertEquals(expText, xErr2[0].getMessage(), "Error Message was not as expected");
     }
 
-    private XmlError[] getXmlErrors(ArrayList c) {
-        XmlError[] errs = new XmlError[c.size()];
-        for (int i = 0; i < errs.length; i++) {
-            errs[i] = (XmlError) c.get(i);
-        }
-        return errs;
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void test_null_newName() {
-        xmlobject.substgroup.OrderItem order = OrderItem.Factory.newInstance();
-        order.substitute(null, OrderItem.type);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void test_null_newType() {
-        OrderItem order = OrderItem.Factory.newInstance();
-        order.substitute(OrderItem.type.getDocumentElementName(), null);
+    private XmlError[] getXmlErrors(List<XmlError> c) {
+        return c.toArray(new XmlError[0]);
     }
 
     @Test
-    public void test_unknownQName() {
-        QName exp = new QName("http://www.w3.org/2001/XMLSchema", "anyType");
-        OrderItem order = OrderItem.Factory.newInstance();
-        XmlObject xm = order.substitute(new QName("http://baz", "baz"),
-            OrderItem.type);
-
-        //Verify that the invalid substitution results in an anyType
-        assertEquals("Namespace URIs were not the same", 0, exp.getNamespaceURI().compareTo(
-            xm.type.getName().getNamespaceURI()));
-        assertEquals("Local Part was not as Expected", 0, xm.type.getName().getLocalPart().compareTo(
-            exp.getLocalPart()));
+    void test_null_newName() {
+        xmlobject.substgroup.OrderItem order = OrderItem.Factory.newInstance();
+        assertThrows(IllegalArgumentException.class, () -> order.substitute(null, OrderItem.type));
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void test_null_Params() {
+    @Test
+    void test_null_newType() {
+        OrderItem order = OrderItem.Factory.newInstance();
+        assertThrows(IllegalArgumentException.class, () -> order.substitute(OrderItem.type.getDocumentElementName(), null));
+    }
+
+    @Test
+    void test_unknownQName() {
+        QName exp = new QName("http://www.w3.org/2001/XMLSchema", "anyType");
+        OrderItem order = OrderItem.Factory.newInstance();
+        XmlObject xm = order.substitute(new QName("http://baz", "baz"), OrderItem.type);
+
+        //Verify that the invalid substitution results in an anyType
+        assertEquals(0, exp.getNamespaceURI().compareTo(
+            xm.type.getName().getNamespaceURI()), "Namespace URIs were not the same");
+        assertEquals(0, xm.type.getName().getLocalPart().compareTo(
+            exp.getLocalPart()), "Local Part was not as Expected");
+    }
+
+    @Test
+    void test_null_Params() {
         XmlObject xml = XmlObject.Factory.newInstance();
-        xml.substitute(null, null);
+        assertThrows(IllegalArgumentException.class, () -> xml.substitute(null, null));
     }
 }

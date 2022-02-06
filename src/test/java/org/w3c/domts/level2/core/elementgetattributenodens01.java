@@ -20,12 +20,12 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -40,37 +40,24 @@ import static org.w3c.domts.DOMTest.load;
  */
 public class elementgetattributenodens01 {
     @Test
-    public void testRun() throws Throwable {
-        Document doc;
-        Element element;
-        Attr attribute1;
-        Attr attribute2;
-        Attr newAttribute1;
-        Attr newAttribute2;
-        Attr attribute;
-        String attrValue;
-        String attrName;
-        String attNodeName;
-        String attrLocalName;
-        String attrNS;
-        doc = load("staffNS", false);
-        element = doc.createElementNS("namespaceURI", "root");
-        attribute1 = doc.createAttributeNS("http://www.w3.org/DOM/Level2", "l2:att");
-        newAttribute1 = element.setAttributeNodeNS(attribute1);
-        attribute2 = doc.createAttributeNS("http://www.w3.org/DOM/Level1", "att");
-        newAttribute2 = element.setAttributeNodeNS(attribute2);
-        attribute = element.getAttributeNodeNS("http://www.w3.org/DOM/Level2", "att");
-        attrValue = attribute.getNodeValue();
-        attrName = attribute.getName();
-        attNodeName = attribute.getNodeName();
-        attrLocalName = attribute.getLocalName();
-        attrNS = attribute.getNamespaceURI();
-        assertEquals("elementgetattributenodens01_attrValue", "", attrValue);
-        assertEquals("elementgetattributenodens01_attrName", "l2:att", attrName);
-        assertEquals("elementgetattributenodens01_attrNodeName", "l2:att", attNodeName);
-        assertEquals("elementgetattributenodens01_attrLocalName", "att", attrLocalName);
-        assertEquals("elementgetattributenodens01_attrNs", "http://www.w3.org/DOM/Level2", attrNS);
-
+    void testRun() throws Throwable {
+        Document doc = load("staffNS", false);
+        Element element = doc.createElementNS("namespaceURI", "root");
+        Attr attribute1 = doc.createAttributeNS("http://www.w3.org/DOM/Level2", "l2:att");
+        Attr newAttribute1 = element.setAttributeNodeNS(attribute1);
+        Attr attribute2 = doc.createAttributeNS("http://www.w3.org/DOM/Level1", "att");
+        Attr newAttribute2 = element.setAttributeNodeNS(attribute2);
+        Attr attribute = element.getAttributeNodeNS("http://www.w3.org/DOM/Level2", "att");
+        String attrValue = attribute.getNodeValue();
+        String attrName = attribute.getName();
+        String attNodeName = attribute.getNodeName();
+        String attrLocalName = attribute.getLocalName();
+        String attrNS = attribute.getNamespaceURI();
+        assertEquals("", attrValue, "elementgetattributenodens01_attrValue");
+        assertEquals("l2:att", attrName, "elementgetattributenodens01_attrName");
+        assertEquals("l2:att", attNodeName, "elementgetattributenodens01_attrNodeName");
+        assertEquals("att", attrLocalName, "elementgetattributenodens01_attrLocalName");
+        assertEquals("http://www.w3.org/DOM/Level2", attrNS, "elementgetattributenodens01_attrNs");
     }
 
     /**

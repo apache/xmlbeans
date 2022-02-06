@@ -22,14 +22,14 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Document;
 import org.w3c.dom.DocumentType;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -46,26 +46,20 @@ import static org.w3c.domts.DOMTest.load;
  */
 public class createDocumentType03 {
     @Test
-    @Ignore
+    @Disabled
     public void testRun() throws Throwable {
         String namespaceURI = "http://ecommerce.org/schema";
         String qualifiedName = "prefix:myDoc";
         String publicId = "http://www.localhost.com";
         String systemId = "myDoc.dtd";
-        Document doc;
-        DOMImplementation domImpl;
-        DocumentType newType = null;
 
-        String nodeName;
-        String nodeValue;
-        doc = load("staffNS", false);
-        domImpl = doc.getImplementation();
-        newType = domImpl.createDocumentType(qualifiedName, publicId, systemId);
-        nodeName = newType.getNodeName();
-        assertEquals("nodeName", "prefix:myDoc", nodeName);
-        nodeValue = newType.getNodeValue();
-        assertNull("nodeValue", nodeValue);
-
+        Document doc = load("staffNS", false);
+        DOMImplementation domImpl = doc.getImplementation();
+        DocumentType newType = domImpl.createDocumentType(qualifiedName, publicId, systemId);
+        String nodeName = newType.getNodeName();
+        assertEquals("prefix:myDoc", nodeName, "nodeName");
+        String nodeValue = newType.getNodeValue();
+        assertNull(nodeValue, "nodeValue");
     }
 
     /**

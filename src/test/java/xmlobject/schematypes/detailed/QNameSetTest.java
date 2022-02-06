@@ -16,14 +16,14 @@
 package xmlobject.schematypes.detailed;
 
 import org.apache.xmlbeans.QNameSetBuilder;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import javax.xml.namespace.QName;
 import java.util.Random;
 import java.util.Stack;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class QNameSetTest {
 
@@ -32,7 +32,7 @@ public class QNameSetTest {
     }
 
     @Test
-    public void testQNameSets() {
+    void testQNameSets() {
         int iterations = 10000;
         int seed = 0;
 
@@ -212,14 +212,14 @@ public class QNameSetTest {
             // then, verify current matches contents
             int count = 0;
             for (int k = 0; k < width * namespace.length; k++) {
-                assertTrue(format(l, "Content mismatch " + name[k], current), (current.contains(name[k]) == contents[k]));
+                assertTrue((current.contains(name[k]) == contents[k]), format(l, "Content mismatch " + name[k], current));
                 if (contents[k])
                     count++;
             }
 
-            assertTrue(format(l, "ERROR: isEmpty is wrong", current), ((count == 0) == current.isEmpty()));
+            assertTrue(((count == 0) == current.isEmpty()), format(l, "ERROR: isEmpty is wrong", current));
 
-            assertEquals(format(l, "ERROR: isAll is wrong", current), (count == width * namespace.length), current.isAll());
+            assertEquals((count == width * namespace.length), current.isAll(), format(l, "ERROR: isAll is wrong", current));
 
             // test isDisjoint and containsAll
             if (teststack.size() >= 1) {
@@ -231,7 +231,7 @@ public class QNameSetTest {
                         break;
                     }
                 }
-                assertEquals(format(l, "ERROR: disjoint is wrong", current), disjoint, current.isDisjoint(teststack.peek()));
+                assertEquals(disjoint, current.isDisjoint(teststack.peek()), format(l, "ERROR: disjoint is wrong", current));
 
                 boolean containsAll = true;
                 for (int k = 0; k < width * namespace.length; k++) {
@@ -240,7 +240,7 @@ public class QNameSetTest {
                         break;
                     }
                 }
-                assertEquals(format(l, "ERROR: containsAll is wrong", current), containsAll, current.containsAll(teststack.peek()));
+                assertEquals(containsAll, current.containsAll(teststack.peek()), format(l, "ERROR: containsAll is wrong", current));
             }
         }
     }

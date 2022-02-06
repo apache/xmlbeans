@@ -22,13 +22,13 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Attr;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -47,25 +47,16 @@ import static org.w3c.domts.DOMTest.load;
  */
 public class createAttributeNS02 {
     @Test
-    public void testRun() throws Throwable {
+    void testRun() throws Throwable {
         String namespaceURI = null;
 
         String qualifiedName = "prefix:local";
         Document doc;
         Attr newAttr;
         doc = load("staffNS", false);
-
-        {
-            boolean success = false;
-            try {
-                newAttr = doc.createAttributeNS(namespaceURI, qualifiedName);
-                fail("throw_NAMESPACE_ERR,qualifiedName has a prefix and namespaceURI is null");
-            } catch (DOMException ex) {
-                assertTrue(ex.code == DOMException.NAMESPACE_ERR);
-            }
-            //assertTrue("throw_NAMESPACE_ERR", success);
-        }
-
+        DOMException ex = assertThrows(DOMException.class, () -> doc.createAttributeNS(namespaceURI, qualifiedName),
+            "throw_NAMESPACE_ERR,qualifiedName has a prefix and namespaceURI is null");
+        assertEquals(DOMException.NAMESPACE_ERR, ex.code);
     }
 
     /**

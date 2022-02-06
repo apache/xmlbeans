@@ -16,124 +16,113 @@
 
 package xmlcursor.detailed;
 
+import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlCursor.TokenType;
-import org.apache.xmlbeans.XmlObject;
-import org.junit.Test;
-import tools.util.JarUtil;
-import xmlcursor.common.BasicCursorTestCase;
+import org.junit.jupiter.api.Test;
 import xmlcursor.common.Common;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.*;
+import static xmlcursor.common.BasicCursorTestCase.*;
 
-public class NamespaceForPrefixTest extends BasicCursorTestCase {
+public class NamespaceForPrefixTest {
     @Test
-    public void testNamespaceForPrefixFromSTARTDOC() throws Exception {
-        m_xo = XmlObject.Factory.parse("<foo xmlns=\"nsa\">text</foo>");
-        m_xc = m_xo.newCursor();
-        m_xc.toFirstChild();
-        m_xc.insertNamespace("pre1", "uri1");
-        m_xc.insertNamespace("pre2", "uri2");
-        m_xc.insertNamespace("pre3", "uri3");
-        m_xc.insertNamespace(null, "uridefault");
-        m_xc.toStartDoc();
-        assertEquals("uri1", m_xc.namespaceForPrefix("pre1"));
-        assertEquals("uri2", m_xc.namespaceForPrefix("pre2"));
-        assertEquals("uri3", m_xc.namespaceForPrefix("pre3"));
-    }
-
-    @Test
-    public void testNamespaceForPrefixFromSTARTDOCInvalid() throws Exception {
-        m_xo = XmlObject.Factory.parse("<foo xmlns=\"nsa\">text</foo>");
-        m_xc = m_xo.newCursor();
-        m_xc.toFirstChild();
-        m_xc.insertNamespace("pre1", "uri1");
-        m_xc.insertNamespace("pre2", "uri2");
-        m_xc.insertNamespace("pre3", "uri3");
-        m_xc.insertNamespace(null, "uridefault");
-        m_xc.toStartDoc();
-        assertNull(m_xc.namespaceForPrefix("pre4"));
+    void testNamespaceForPrefixFromSTARTDOC() throws Exception {
+        try (XmlCursor m_xc = cur("<foo xmlns=\"nsa\">text</foo>")) {
+            m_xc.toFirstChild();
+            m_xc.insertNamespace("pre1", "uri1");
+            m_xc.insertNamespace("pre2", "uri2");
+            m_xc.insertNamespace("pre3", "uri3");
+            m_xc.insertNamespace(null, "uridefault");
+            m_xc.toStartDoc();
+            assertEquals("uri1", m_xc.namespaceForPrefix("pre1"));
+            assertEquals("uri2", m_xc.namespaceForPrefix("pre2"));
+            assertEquals("uri3", m_xc.namespaceForPrefix("pre3"));
+        }
     }
 
     @Test
-    public void testNamespaceForPrefixFromSTARTDOCNull() throws Exception {
-        m_xo = XmlObject.Factory.parse("<foo xmlns=\"nsa\">text</foo>");
-        m_xc = m_xo.newCursor();
-        m_xc.toFirstChild();
-        m_xc.insertNamespace("pre1", "uri1");
-        m_xc.insertNamespace("pre2", "uri2");
-        m_xc.insertNamespace("pre3", "uri3");
-        m_xc.insertNamespace(null, "uridefault");
-        m_xc.toStartDoc();
-        assertEquals("uridefault", m_xc.namespaceForPrefix(null));
+    void testNamespaceForPrefixFromSTARTDOCInvalid() throws Exception {
+        try (XmlCursor m_xc = cur("<foo xmlns=\"nsa\">text</foo>")) {
+            m_xc.toFirstChild();
+            m_xc.insertNamespace("pre1", "uri1");
+            m_xc.insertNamespace("pre2", "uri2");
+            m_xc.insertNamespace("pre3", "uri3");
+            m_xc.insertNamespace(null, "uridefault");
+            m_xc.toStartDoc();
+            assertNull(m_xc.namespaceForPrefix("pre4"));
+        }
     }
 
     @Test
-    public void testNamespaceForPrefixFromSTARTDOCEmptyString() throws Exception {
-        m_xo = XmlObject.Factory.parse("<foo xmlns=\"nsa\">text</foo>");
-        m_xc = m_xo.newCursor();
-        m_xc.toFirstChild();
-        m_xc.insertNamespace("pre1", "uri1");
-        m_xc.insertNamespace("pre2", "uri2");
-        m_xc.insertNamespace("pre3", "uri3");
-        m_xc.insertNamespace(null, "uridefault");
-        m_xc.toStartDoc();
-        assertEquals("uridefault", m_xc.namespaceForPrefix(""));
+    void testNamespaceForPrefixFromSTARTDOCNull() throws Exception {
+        try (XmlCursor m_xc = cur("<foo xmlns=\"nsa\">text</foo>")) {
+            m_xc.toFirstChild();
+            m_xc.insertNamespace("pre1", "uri1");
+            m_xc.insertNamespace("pre2", "uri2");
+            m_xc.insertNamespace("pre3", "uri3");
+            m_xc.insertNamespace(null, "uridefault");
+            m_xc.toStartDoc();
+            assertEquals("uridefault", m_xc.namespaceForPrefix(null));
+        }
     }
 
     @Test
-    public void testNamespaceForPrefixFromSTART() throws Exception {
-        m_xo = XmlObject.Factory.parse(
-                  JarUtil.getResourceFromJar(Common.TRANXML_FILE_CLM));
-        m_xc = m_xo.newCursor();
-        m_xc.toFirstChild();
-        assertEquals("http://www.w3.org/2000/10/XMLSchema-instance",
-                     m_xc.namespaceForPrefix("xsi"));
+    void testNamespaceForPrefixFromSTARTDOCEmptyString() throws Exception {
+        try (XmlCursor m_xc = cur("<foo xmlns=\"nsa\">text</foo>")) {
+            m_xc.toFirstChild();
+            m_xc.insertNamespace("pre1", "uri1");
+            m_xc.insertNamespace("pre2", "uri2");
+            m_xc.insertNamespace("pre3", "uri3");
+            m_xc.insertNamespace(null, "uridefault");
+            m_xc.toStartDoc();
+            assertEquals("uridefault", m_xc.namespaceForPrefix(""));
+        }
     }
 
     @Test
-    public void testNamespaceForPrefixFromSTARTdefaultNamespace() throws Exception {
-        m_xo = XmlObject.Factory.parse(
-                  JarUtil.getResourceFromJar(Common.TRANXML_FILE_CLM));
-        m_xc = m_xo.newCursor();
-        m_xc.toFirstChild();
-        assertEquals("http://www.tranxml.org/TranXML/Version4.0",
-                     m_xc.namespaceForPrefix(""));
+    void testNamespaceForPrefixFromSTART() throws Exception {
+        try (XmlCursor m_xc = jcur(Common.TRANXML_FILE_CLM)) {
+            m_xc.toFirstChild();
+            assertEquals("http://www.w3.org/2000/10/XMLSchema-instance", m_xc.namespaceForPrefix("xsi"));
+        }
     }
 
-    @Test(expected = IllegalStateException.class)
-    public void testNamespaceForPrefixFromATTR() throws Exception {
-        m_xo = XmlObject.Factory.parse("<foo xmlns=\"nsa\"><bar attr0=\"val0\">text</bar></foo>");
-        m_xc = m_xo.newCursor();
-        m_xc.toFirstChild();
-        m_xc.insertNamespace("pre1", "uri1");
-        m_xc.insertNamespace("pre2", "uri2");
-        m_xc.insertNamespace("pre3", "uri3");
-        m_xc.insertNamespace(null, "uridefault");
-        m_xc.toStartDoc();
-        m_xc.selectPath("declare default element namespace \"nsa\";" + "$this//bar");
-        m_xc.toNextSelection();
-        m_xc.toFirstAttribute();
-
-        m_xc.namespaceForPrefix(null);
-        //assertEquals("nsa", m_xc.namespaceForPrefix(null));
-        // assertEquals("uri1", m_xc.namespaceForPrefix("pre1"));
+    @Test
+    void testNamespaceForPrefixFromSTARTdefaultNamespace() throws Exception {
+        try (XmlCursor m_xc = jcur(Common.TRANXML_FILE_CLM)) {
+            m_xc.toFirstChild();
+            assertEquals("http://www.tranxml.org/TranXML/Version4.0", m_xc.namespaceForPrefix(""));
+        }
     }
 
-    @Test(expected = IllegalStateException.class)
-    public void testNamespaceForPrefixFromEND() throws Exception {
-        m_xo = XmlObject.Factory.parse("<foo xmlns=\"nsa\"><bar attr0=\"val0\">text</bar></foo>");
-        m_xc = m_xo.newCursor();
-        m_xc.toFirstChild();
-        System.out.println("i am here " + m_xc.currentTokenType());
-        m_xc.insertNamespace("pre1", "uri1");
-        m_xc.insertNamespace("pre2", "uri2");
-        m_xc.insertNamespace("pre3", "uri3");
-        m_xc.insertNamespace(null, "uridefault");
-        toNextTokenOfType(m_xc, TokenType.END);
-        m_xc.namespaceForPrefix(null);
-        //  assertEquals("nsa", m_xc.namespaceForPrefix(null));
-        // assertEquals("uri1", m_xc.namespaceForPrefix("pre1"));
+    @Test
+    void testNamespaceForPrefixFromATTR() throws Exception {
+        try (XmlCursor m_xc = cur("<foo xmlns=\"nsa\"><bar attr0=\"val0\">text</bar></foo>")) {
+            m_xc.toFirstChild();
+            m_xc.insertNamespace("pre1", "uri1");
+            m_xc.insertNamespace("pre2", "uri2");
+            m_xc.insertNamespace("pre3", "uri3");
+            m_xc.insertNamespace(null, "uridefault");
+            m_xc.toStartDoc();
+            m_xc.selectPath("declare default element namespace \"nsa\";" + "$this//bar");
+            m_xc.toNextSelection();
+            m_xc.toFirstAttribute();
+            assertThrows(IllegalStateException.class, () -> m_xc.namespaceForPrefix(null));
+        }
+    }
+
+    @Test
+    void testNamespaceForPrefixFromEND() throws Exception {
+        try (XmlCursor m_xc = cur("<foo xmlns=\"nsa\"><bar attr0=\"val0\">text</bar></foo>")) {
+            m_xc.toFirstChild();
+            System.out.println("i am here " + m_xc.currentTokenType());
+            m_xc.insertNamespace("pre1", "uri1");
+            m_xc.insertNamespace("pre2", "uri2");
+            m_xc.insertNamespace("pre3", "uri3");
+            m_xc.insertNamespace(null, "uridefault");
+            toNextTokenOfType(m_xc, TokenType.END);
+            assertThrows(IllegalStateException.class, () -> m_xc.namespaceForPrefix(null));
+        }
     }
 }
 

@@ -17,13 +17,13 @@
 package dom.detailed;
 
 import dom.common.Loader;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class TextTest {
     String sXml="<foo at0=\"no_ns_attr\"></foo>";
@@ -33,7 +33,7 @@ public class TextTest {
     Node m_node;
 
     @Test
-    public void testTextToAttrValue(){
+    void testTextToAttrValue(){
         m_node = m_docNS.getFirstChild().getFirstChild().getFirstChild();//footext
         Attr attrib = (Attr) m_docNS.getFirstChild().getFirstChild().getAttributes().getNamedItem("xmlns:myns");
         assertEquals("http://foo.org", attrib.getNodeValue());
@@ -43,7 +43,7 @@ public class TextTest {
         //assertFalse(m_docNS.getFirstChild().getFirstChild().hasChildNodes());
     }
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
 
         Loader loader = Loader.getLoader();

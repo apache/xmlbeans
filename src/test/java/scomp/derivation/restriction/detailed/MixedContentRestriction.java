@@ -14,24 +14,25 @@
  */
 package scomp.derivation.restriction.detailed;
 
-import org.junit.Test;
+import org.apache.xmlbeans.XmlCursor;
+import org.apache.xmlbeans.XmlErrorCodes;
+import org.apache.xmlbeans.XmlOptions;
+import org.apache.xmlbeans.impl.values.XmlValueNotSupportedException;
+import org.junit.jupiter.api.Test;
 import xbean.scomp.derivation.mixedContentRestriction.*;
-import scomp.common.BaseCase;
 
 import java.math.BigInteger;
 
-import org.apache.xmlbeans.XmlCursor;
-import org.apache.xmlbeans.XmlErrorCodes;
-import org.apache.xmlbeans.impl.values.XmlValueNotSupportedException;
+import static org.junit.jupiter.api.Assertions.*;
+import static scomp.common.BaseCase.createOptions;
+import static scomp.common.BaseCase.getErrorCodes;
 
-import static org.junit.Assert.*;
-
-public class MixedContentRestriction extends BaseCase{
+public class MixedContentRestriction {
     @Test
-    public void testRestrictedMixed() throws Throwable{
-        MixedEltDocument doc=MixedEltDocument.Factory.newInstance();
-        RestrictedMixedT elt=doc.addNewMixedElt();
-        assertTrue( !elt.isSetChild1());
+    void testRestrictedMixed() {
+        MixedEltDocument doc = MixedEltDocument.Factory.newInstance();
+        RestrictedMixedT elt = doc.addNewMixedElt();
+        assertFalse(elt.isSetChild1());
         elt.setChild1(new BigInteger("10"));
         elt.setChild2(BigInteger.ZERO);
         //insert text b/n the 2 elements
@@ -39,22 +40,18 @@ public class MixedContentRestriction extends BaseCase{
             cur.toFirstContentToken();
             assertTrue(cur.toNextSibling());
             cur.insertChars("My chars");
-
-            assertTrue( doc.validate(validateOptions));
-        } catch (Throwable t) {
-            showErrors();
-            throw t;
         }
-        assertEquals("<xml-fragment>" +
-                "<child1>10</child1>My chars<child2>0</child2>" +
-                "</xml-fragment>", elt.xmlText());
+        assertTrue(doc.validate(createOptions()));
+
+        assertEquals("<xml-fragment><child1>10</child1>My chars<child2>0</child2></xml-fragment>", elt.xmlText());
     }
 
     @Test
-    public void testRestrictedEltOnly() throws Throwable{
-        ElementOnlyEltDocument doc=ElementOnlyEltDocument.Factory.newInstance();
-        RestrictedEltT elt=doc.addNewElementOnlyElt();
-        assertTrue( !elt.isSetChild1());
+    void testRestrictedEltOnly() throws Throwable {
+        XmlOptions validateOptions = createOptions();
+        ElementOnlyEltDocument doc = ElementOnlyEltDocument.Factory.newInstance();
+        RestrictedEltT elt = doc.addNewElementOnlyElt();
+        assertFalse(elt.isSetChild1());
         elt.setChild1(new BigInteger("10"));
         elt.setChild2(BigInteger.ZERO);
         //insert text b/n the 2 elements
@@ -62,57 +59,34 @@ public class MixedContentRestriction extends BaseCase{
             cur.toFirstContentToken();
             assertTrue(cur.toNextSibling());
             cur.insertChars("My chars");
-            assertTrue( !doc.validate(validateOptions));
-            showErrors();
-            String[] errExpected = new String[]{
-                XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$ELEMENT_ONLY_WITH_TEXT};
-                                assertTrue(compareErrorCodes(errExpected));
+            assertFalse(doc.validate(validateOptions));
+            String[] errExpected = {XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$ELEMENT_ONLY_WITH_TEXT};
+            assertArrayEquals(errExpected, getErrorCodes(validateOptions));
 
             //should be valid w/o the Text there
             cur.toPrevToken();
-            assertEquals("<xml-fragment>" +
-                    "<child1>10</child1>My chars<child2>0</child2>" +
-                    "</xml-fragment>", elt.xmlText());
+            assertEquals("<xml-fragment><child1>10</child1>My chars<child2>0</child2></xml-fragment>", elt.xmlText());
             assertTrue(cur.removeXml());
-            assertTrue( doc.validate(validateOptions));
-        } catch (Throwable t) {
-            showErrors();
-            throw t;
         }
-        assertEquals("<xml-fragment>" +
-                "<child1>10</child1><child2>0</child2>" +
-                "</xml-fragment>", elt.xmlText());
-
-
+        assertTrue(doc.validate(validateOptions));
+        assertEquals("<xml-fragment><child1>10</child1><child2>0</child2></xml-fragment>", elt.xmlText());
     }
 
     //seems that this is not a valid example p.329 top
     @Test
-    public void testRestrictedMixedToEmpty() throws Throwable{
-         Mixed2EmptyEltDocument doc=Mixed2EmptyEltDocument.Factory.newInstance();
-         Mixed2EmptyT elt=doc.addNewMixed2EmptyElt();
-        assertEquals(null,elt.xgetChild1());
+    void testRestrictedMixedToEmpty() throws Throwable {
+        Mixed2EmptyEltDocument doc = Mixed2EmptyEltDocument.Factory.newInstance();
+        Mixed2EmptyT elt = doc.addNewMixed2EmptyElt();
+        assertNull(elt.xgetChild1());
 
         // ok this gets a little tricky. Due to the restriction extension, the setter method is now
         // 'removed'. So the schema is actually an XmlAnyType while the method sets it to a BigInteger.
         // This will fail irrespective of the setValidateOnset XmlOption
-        boolean vneThrown = false;
-        try
-        {
-        elt.setChild1(new BigInteger("10"));
-         assertTrue( !doc.validate(validateOptions));
-        showErrors();
-        String[] errExpected = new String[]{"cvc-attribute"};
-                            assertTrue(compareErrorCodes(errExpected));
-        }
+        assertThrows(XmlValueNotSupportedException.class, () -> elt.setChild1(new BigInteger("10")));
 
-        catch (XmlValueNotSupportedException vns) {
-            vneThrown = true;
-        }
-        finally {
-            if(!vneThrown)
-                fail("Expected XmlValueNotSupportedException here");
-        }
-
+        XmlOptions validateOptions = createOptions();
+        assertFalse(doc.validate(validateOptions));
+        String[] errExpected = {XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$ELEMENT_NOT_ALLOWED};
+        assertArrayEquals(errExpected, getErrorCodes(validateOptions));
     }
 }

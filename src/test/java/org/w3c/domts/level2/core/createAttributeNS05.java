@@ -22,11 +22,11 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -43,15 +43,12 @@ import static org.w3c.domts.DOMTest.load;
  */
 public class createAttributeNS05 {
     @Test
-    public void testRun() throws Throwable {
+    void testRun() throws Throwable {
         String namespaceURI = "http://www.ecommerce.org/";
         String qualifiedName = "econm:local";
-        Document doc;
-        Attr newAttr;
-        String attrName;
-        doc = load("staffNS", false);
-        newAttr = doc.createAttributeNS(namespaceURI, qualifiedName);
-        attrName = newAttr.getName();
+        Document doc = load("staffNS", false);
+        Attr newAttr = doc.createAttributeNS(namespaceURI, qualifiedName);
+        String attrName = newAttr.getName();
         assertEquals(qualifiedName, attrName);
 
     }

@@ -22,12 +22,12 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.CharacterData;
 import org.w3c.dom.*;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -47,48 +47,30 @@ import static org.w3c.domts.DOMTest.load;
  */
 public class documentimportnode20 {
     @Test
-    @Ignore
+    @Disabled
     public void testRun() throws Throwable {
-        Document doc;
-        Document docImp;
-        DOMImplementation domImpl;
-        DocumentType docType;
         DocumentType docTypeNull = null;
-        NamedNodeMap nodeMap;
-        Entity entity4;
-        Entity entityImp4;
-        Element element;
-        CharacterData cdata;
-        ProcessingInstruction pi;
-        NodeList childList;
-        NodeList elemchildList;
-        String ent4Name;
-        String ent4ImpName;
-        String cdataVal;
-        String piTargetVal;
-        String piDataVal;
-        doc = load("staffNS", true);
-        domImpl = doc.getImplementation();
-        docType = doc.getDoctype();
-        docImp = domImpl.createDocument("http://www.w3.org/DOM/Test", "a:b", docTypeNull);
-        nodeMap = docType.getEntities();
-        entity4 = (Entity) nodeMap.getNamedItem("ent4");
-        entityImp4 = (Entity) docImp.importNode(entity4, true);
-        childList = entityImp4.getChildNodes();
-        element = (Element) childList.item(0);
-        elemchildList = element.getChildNodes();
-        cdata = (CharacterData) elemchildList.item(0);
-        pi = (ProcessingInstruction) childList.item(1);
-        ent4Name = entity4.getNodeName();
-        ent4ImpName = entityImp4.getNodeName();
-        cdataVal = cdata.getData();
-        piTargetVal = pi.getTarget();
-        piDataVal = pi.getData();
+        Document doc = load("staffNS", true);
+        DOMImplementation domImpl = doc.getImplementation();
+        DocumentType docType = doc.getDoctype();
+        Document docImp = domImpl.createDocument("http://www.w3.org/DOM/Test", "a:b", docTypeNull);
+        NamedNodeMap nodeMap = docType.getEntities();
+        Entity entity4 = (Entity) nodeMap.getNamedItem("ent4");
+        Entity entityImp4 = (Entity) docImp.importNode(entity4, true);
+        NodeList childList = entityImp4.getChildNodes();
+        Element element = (Element) childList.item(0);
+        NodeList elemchildList = element.getChildNodes();
+        CharacterData cdata = (CharacterData) elemchildList.item(0);
+        ProcessingInstruction pi = (ProcessingInstruction) childList.item(1);
+        String ent4Name = entity4.getNodeName();
+        String ent4ImpName = entityImp4.getNodeName();
+        String cdataVal = cdata.getData();
+        String piTargetVal = pi.getTarget();
+        String piDataVal = pi.getData();
         assertEquals("documentimportnode20_Ent4NodeName", ent4Name, ent4ImpName);
         assertEquals("documentimportnode20_Cdata", "Element data", cdataVal);
         assertEquals("documentimportnode20_PITarget", "PItarget", piTargetVal);
         assertEquals("documentimportnode20_PIData", "PIdata", piDataVal);
-
     }
 
     /**

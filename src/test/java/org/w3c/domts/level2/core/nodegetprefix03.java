@@ -22,12 +22,12 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -41,30 +41,20 @@ import static org.w3c.domts.DOMTest.load;
  */
 public class nodegetprefix03 {
     @Test
-    public void testRun() throws Throwable {
-        Document doc;
-        Element element;
-        Element qelement;
-        Attr attr;
-        Attr qattr;
-        String elemNoPrefix;
-        String elemPrefix;
-        String attrNoPrefix;
-        String attrPrefix;
-        doc = load("staff", false);
-        element = doc.createElementNS("http://www.w3.org/DOM/Test/elem", "elem");
-        qelement = doc.createElementNS("http://www.w3.org/DOM/Test/elem", "qual:qelem");
-        attr = doc.createAttributeNS("http://www.w3.org/DOM/Test/attr", "attr");
-        qattr = doc.createAttributeNS("http://www.w3.org/DOM/Test/attr", "qual:qattr");
-        elemNoPrefix = element.getPrefix();
-        elemPrefix = qelement.getPrefix();
-        attrNoPrefix = attr.getPrefix();
-        attrPrefix = qattr.getPrefix();
-        assertEquals("nodegetprefix03_1", "", elemNoPrefix);
-        assertEquals("nodegetprefix03_2", "qual", elemPrefix);
-        assertEquals("nodegetprefix03_3", "", attrNoPrefix);
-        assertEquals("nodegetprefix03_4", "qual", attrPrefix);
-
+    void testRun() throws Throwable {
+        Document doc = load("staff", false);
+        Element element = doc.createElementNS("http://www.w3.org/DOM/Test/elem", "elem");
+        Element qelement = doc.createElementNS("http://www.w3.org/DOM/Test/elem", "qual:qelem");
+        Attr attr = doc.createAttributeNS("http://www.w3.org/DOM/Test/attr", "attr");
+        Attr qattr = doc.createAttributeNS("http://www.w3.org/DOM/Test/attr", "qual:qattr");
+        String elemNoPrefix = element.getPrefix();
+        String elemPrefix = qelement.getPrefix();
+        String attrNoPrefix = attr.getPrefix();
+        String attrPrefix = qattr.getPrefix();
+        assertEquals("", elemNoPrefix, "nodegetprefix03_1");
+        assertEquals("qual", elemPrefix, "nodegetprefix03_2");
+        assertEquals("", attrNoPrefix, "nodegetprefix03_3");
+        assertEquals("qual", attrPrefix, "nodegetprefix03_4");
     }
 
     /**

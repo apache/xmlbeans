@@ -23,19 +23,17 @@ import com.enumtest.StatusreportDocument;
 import org.apache.xmlbeans.XmlBeans;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
-import org.junit.Test;
-import tools.util.JarUtil;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static xmlcursor.common.BasicCursorTestCase.jobj;
 
 
 public class EnumTests {
     @Test
-    public void testReport1() throws Exception {
-        StatusreportDocument doc = (StatusreportDocument)
-            XmlObject.Factory.parse(
-                JarUtil.getResourceFromJarasFile(
-                    "xbean/xmlobject/enumtest.xml"));
+    void testReport1() throws Exception {
+        StatusreportDocument doc = (StatusreportDocument) jobj("xbean/xmlobject/enumtest.xml");
 
         Quantity.Enum[] contents = {
             Quantity.ALL,
@@ -57,7 +55,7 @@ public class EnumTests {
     }
 
     @Test
-    public void testReport2() {
+    void testReport2() {
         StatusreportDocument doc = StatusreportDocument.Factory.newInstance();
         StatusreportDocument.Statusreport report = doc.addNewStatusreport();
 
@@ -97,7 +95,7 @@ public class EnumTests {
     }
 
     @Test
-    public void testReport3() {
+    void testReport3() {
         SalesreportDocument doc = SalesreportDocument.Factory.newInstance();
         SalesreportDocument.Salesreport report = doc.addNewSalesreport();
 
@@ -124,8 +122,8 @@ public class EnumTests {
         }
     }
 
-    @Test(expected = XmlException.class)
-    public void testEnumRestriction() throws Exception {
+    @Test
+    void testEnumRestriction() throws Exception {
         String schema =
             "<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"\n" +
             "    xmlns:tns=\"foo\" targetNamespace=\"foo\">\n" +
@@ -149,8 +147,7 @@ public class EnumTests {
             "</xs:schema>\n";
 
         XmlObject xobj = XmlObject.Factory.parse(schema);
-
-        XmlBeans.loadXsd(new XmlObject[]{xobj});
+        assertThrows(XmlException.class, () -> XmlBeans.loadXsd(xobj));
     }
 
 }

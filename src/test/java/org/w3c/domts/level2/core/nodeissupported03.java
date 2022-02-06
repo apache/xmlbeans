@@ -22,12 +22,12 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.DocumentType;
 
-import static org.junit.Assert.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -42,16 +42,12 @@ import static org.w3c.domts.DOMTest.load;
  */
 public class nodeissupported03 {
     @Test
-    @Ignore
+    @Disabled
     public void testRun() throws Throwable {
-        Document doc;
-        DocumentType docType;
-        boolean success;
-        doc = load("staffNS", false);
-        docType = doc.getDoctype();
-        success = docType.isSupported("", "");
-        assertFalse("nodeissupported03", success);
-
+        Document doc = load("staffNS", false);
+        DocumentType docType = doc.getDoctype();
+        boolean success = docType.isSupported("", "");
+        assertFalse(success, "nodeissupported03");
     }
 
     /**

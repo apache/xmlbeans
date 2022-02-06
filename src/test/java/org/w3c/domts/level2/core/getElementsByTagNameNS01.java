@@ -22,11 +22,11 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -48,17 +48,14 @@ import static org.w3c.domts.DOMTest.load;
 
 public class getElementsByTagNameNS01 {
     @Test
-    public void testRun() throws Throwable {
+    void testRun() throws Throwable {
         String namespaceURI = "*";
         String localName = "*";
-        Document doc;
-        NodeList newList;
-        doc = load("staffNS", false);
-        newList = doc.getElementsByTagNameNS(namespaceURI, localName);
+        Document doc = load("staffNS", false);
+        NodeList newList = doc.getElementsByTagNameNS(namespaceURI, localName);
 
         //Yana: claim is 37, I counted 36
-        assertEquals("throw_Size", 36, newList.getLength());
-
+        assertEquals(36, newList.getLength(), "throw_Size");
     }
 
     /**

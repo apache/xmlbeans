@@ -19,26 +19,19 @@ package xmlcursor.common;
 
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlCursor.TokenType;
+import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
-import org.junit.After;
+import org.apache.xmlbeans.XmlOptions;
+import tools.util.JarUtil;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import java.io.IOException;
 
-public class BasicCursorTestCase {
-     protected XmlObject m_xo;
-     protected XmlCursor m_xc;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
-    @After
-    public void tearDown() throws Exception {
-        m_xo = null;
-        if (m_xc != null) {
-            m_xc.close();
-            m_xc = null;
-        }
-    }
+public final class BasicCursorTestCase {
 
-    public void toNextTokenOfType(XmlCursor xc, TokenType tt) throws IllegalArgumentException {
+    public static void toNextTokenOfType(XmlCursor xc, TokenType tt) throws IllegalArgumentException {
         if (xc == null) {
             throw new IllegalArgumentException("Invalid argument: null XmlCursor");
         } else if (tt == null) {
@@ -52,12 +45,12 @@ public class BasicCursorTestCase {
         assertEquals(tt, xc.currentTokenType());
     }
 
-    public XmlCursor toNextTokenOfTypeCursor(XmlCursor xc, TokenType tt) throws IllegalArgumentException {
+    public static XmlCursor toNextTokenOfTypeCursor(XmlCursor xc, TokenType tt) throws IllegalArgumentException {
         toNextTokenOfType(xc, tt);
         return xc.newCursor();
     }
 
-    public void toPrevTokenOfType(XmlCursor xc, TokenType tt)
+    public static void toPrevTokenOfType(XmlCursor xc, TokenType tt)
             throws IllegalArgumentException {
         if (xc == null) {
             throw new IllegalArgumentException("Invalid argument: null XmlCursor");
@@ -82,7 +75,7 @@ public class BasicCursorTestCase {
      *
      *
      */
-    public void compareDocTokens(XmlCursor a, XmlCursor b) {
+    public static void compareDocTokens(XmlCursor a, XmlCursor b) {
         while (a.hasNextToken() && b.hasNextToken()) {
             TokenType ttOrig = a.currentTokenType();
             TokenType ttRoundTrip = b.currentTokenType();
@@ -97,5 +90,24 @@ public class BasicCursorTestCase {
         }
     }
 
+    public static XmlCursor jcur(String xml) throws XmlException, IOException {
+        return jobj(xml).newCursor();
+    }
+
+    public static XmlObject jobj(String xml) throws XmlException, IOException {
+        return obj(JarUtil.getResourceFromJar(xml));
+    }
+
+    public static XmlObject jobj(String xml, XmlOptions map) throws XmlException, IOException {
+        return XmlObject.Factory.parse(JarUtil.getResourceFromJar(xml), map);
+    }
+
+    public static XmlCursor cur(String xml) throws XmlException {
+        return obj(xml).newCursor();
+    }
+
+    public static XmlObject obj(String xml) throws XmlException {
+        return XmlObject.Factory.parse(xml);
+    }
 }
 

@@ -22,10 +22,10 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.*;
 
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -45,21 +45,15 @@ import static org.w3c.domts.DOMTest.load;
  */
 public class getNamedItemNS02 {
     @Test
-    public void testRun() throws Throwable {
+    void testRun() throws Throwable {
         String namespaceURI = "http://www.usa.com";
         String localName = "domest";
-        Document doc;
-        NodeList elementList;
-        Node testEmployee;
-        NamedNodeMap attributes;
-        Attr newAttr;
-        doc = load("staffNS", false);
-        elementList = doc.getElementsByTagName("address");
-        testEmployee = elementList.item(1);
-        attributes = testEmployee.getAttributes();
-        newAttr = (Attr) attributes.getNamedItemNS(namespaceURI, localName);
-        assertNull("throw_Null", newAttr);
-
+        Document doc = load("staffNS", false);
+        NodeList elementList = doc.getElementsByTagName("address");
+        Node testEmployee = elementList.item(1);
+        NamedNodeMap attributes = testEmployee.getAttributes();
+        Attr newAttr = (Attr) attributes.getNamedItemNS(namespaceURI, localName);
+        assertNull(newAttr, "throw_Null");
     }
 
     /**

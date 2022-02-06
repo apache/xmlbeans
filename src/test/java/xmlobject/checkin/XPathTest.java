@@ -18,14 +18,14 @@ package xmlobject.checkin;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class XPathTest {
     @Test
-    public void testPath() throws XmlException {
+    void testPath() throws XmlException {
         final XmlObject obj = XmlObject.Factory.parse(
             "<a>" +
                 "<b>" +
@@ -38,20 +38,19 @@ public class XPathTest {
             c.selectPath(".//b/c");
 
             int selCount = c.getSelectionCount();
-            assertEquals("SelectionCount", 1, selCount);
+            assertEquals(1, selCount, "SelectionCount");
 
             while (c.hasNextSelection()) {
                 c.toNextSelection();
 
-                assertTrue("OnStartElement", c.isStart());
-                assertEquals("TextValue", "val1", c.getTextValue());
-                System.out.println(" -> " + c.getObject());
+                assertTrue(c.isStart(), "OnStartElement");
+                assertEquals("val1", c.getTextValue(), "TextValue");
             }
         }
     }
 
     @Test
-    public void testPath2() throws XmlException {
+    void testPath2() throws XmlException {
         final XmlObject obj = XmlObject.Factory.parse(
             "<a>" +
                 "<b>" +
@@ -67,27 +66,25 @@ public class XPathTest {
             c.selectPath(".//b/c");
 
             int selCount = c.getSelectionCount();
-            assertEquals("SelectionCount", 2, selCount);
+            assertEquals(2, selCount, "SelectionCount");
 
-            assertTrue("hasNextSelection", c.hasNextSelection());
+            assertTrue(c.hasNextSelection(), "hasNextSelection");
             c.toNextSelection();
 
-            System.out.println(" -> " + c.getObject());
-            assertTrue("OnStartElement", c.isStart());
-            assertEquals("TextValue", "val1", c.getTextValue());
+            assertTrue(c.isStart(), "OnStartElement");
+            assertEquals("val1", c.getTextValue(), "TextValue");
 
 
-            assertTrue("hasNextSelection2", c.hasNextSelection());
+            assertTrue(c.hasNextSelection(), "hasNextSelection2");
             c.toNextSelection();
 
-            System.out.println(" -> " + c.getObject());
-            assertTrue("OnStartElement2", c.isStart());
-            assertEquals("TextValue2", "val3", c.getTextValue());
+            assertTrue(c.isStart(), "OnStartElement2");
+            assertEquals("val3", c.getTextValue(), "TextValue2");
         }
     }
 
     @Test
-    public void testPath3() throws XmlException {
+    void testPath3() throws XmlException {
         final XmlObject obj = XmlObject.Factory.parse(
             "<a>" +
                 "<b>" +
@@ -108,14 +105,14 @@ public class XPathTest {
             c.selectPath(".//b/c//c");
 
             int selCount = c.getSelectionCount();
-            assertEquals("SelectionCount", 1, selCount);
+            assertEquals(1, selCount, "SelectionCount");
 
             while (c.hasNextSelection()) {
                 c.toNextSelection();
 
                 System.out.println(" -> " + c.getObject());
-                assertTrue("OnStartElement", c.isStart());
-                assertEquals("TextValue", "val5", c.getTextValue());
+                assertTrue(c.isStart(), "OnStartElement");
+                assertEquals("val5", c.getTextValue(), "TextValue");
             }
         }
     }

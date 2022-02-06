@@ -16,21 +16,22 @@
 package scomp.attributes.detailed;
 
 import org.apache.xmlbeans.*;
-import org.junit.Test;
-import scomp.common.BaseCase;
+import org.junit.jupiter.api.Test;
 import xbean.scomp.attribute.attributeGroup.AttGroupEltDocument;
 import xbean.scomp.attribute.attributeGroup.GlobalT;
 
 import javax.xml.namespace.QName;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.Collection;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
+import static scomp.common.BaseCase.createOptions;
+import static scomp.common.BaseCase.getErrorCodes;
 
-public class AttrGroupTest extends BaseCase {
+public class AttrGroupTest {
     @Test
-    public void testAttributeGroup() throws Throwable {
+    void testAttributeGroup() throws Throwable {
         AttGroupEltDocument doc = AttGroupEltDocument.Factory.newInstance();
         GlobalT elt = doc.addNewAttGroupElt();
         XmlObject obj = elt.addNewChild2();
@@ -46,30 +47,18 @@ public class AttrGroupTest extends BaseCase {
         try (XmlCursor cur = elt.newCursor()) {
             //move to document element
             cur.toNextToken();
-            cur.insertAttribute(new QName("http://org.apache.sample", "attr",
-                    "pre"));
+            cur.insertAttribute(new QName("http://org.apache.sample", "attr", "pre"));
         }
-        String[] errExpected=new String[]{
-            XmlErrorCodes
-                .ELEM_COMPLEX_TYPE_LOCALLY_VALID$MISSING_REQUIRED_ATTRIBUTE};
-        assertTrue( !doc.validate(validateOptions) );
+        String[] errExpected={XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$MISSING_REQUIRED_ATTRIBUTE};
 
-       /*  assertTrue( compareErrorCodes(new String[]{
-            XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID
-        }) ); */
+        XmlOptions validateOptions = createOptions();
+        assertFalse(doc.validate(validateOptions));
+
+        Collection<XmlError> errorList = validateOptions.getErrorListener();
         assertEquals(1, errorList.size());
-        showErrors();
-        assertTrue(compareErrorCodes(errExpected));
+        assertArrayEquals(errExpected, getErrorCodes(validateOptions));
 
-
-        System.out.println("*******");
         elt.setID("IdAttr");
-        try {
-            assertTrue(elt.validate(validateOptions));
-        }
-        catch (Throwable t) {
-            showErrors();
-            throw t;
-        }
+        assertTrue(elt.validate(validateOptions));
     }
 }

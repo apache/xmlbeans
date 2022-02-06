@@ -17,204 +17,197 @@ package xmlcursor.detailed;
 
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlCursor.TokenType;
-import org.apache.xmlbeans.XmlObject;
-import org.junit.Before;
-import org.junit.Test;
-import xmlcursor.common.BasicCursorTestCase;
+import org.apache.xmlbeans.XmlException;
+import org.junit.jupiter.api.Test;
 import xmlcursor.common.Common;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
+import static xmlcursor.common.BasicCursorTestCase.*;
 
-/**
- *
- *
- */
-public class SetTextValueTest extends BasicCursorTestCase {
+public class SetTextValueTest {
 
     /**
      * Depth first concatenation of all text leaves
      */
     @Test
-    public void testSTARTDOC() {
-        String sExpected = Common.XMLFRAG_BEGINTAG + "&lt;newdoc/>" +
-                Common.XMLFRAG_ENDTAG;
-        char[] buffer = new String("<newdoc/>").toCharArray();
-        m_xc.setTextValue(buffer, 0, buffer.length);
-        //toPrevTokenOfType(m_xc,TokenType.STARTDOC);
-        assertEquals(sExpected, m_xc.xmlText());
+    void testSTARTDOC() throws XmlException {
+        String sExpected = Common.XMLFRAG_BEGINTAG + "&lt;newdoc/>" + Common.XMLFRAG_ENDTAG;
+        char[] buffer = "<newdoc/>".toCharArray();
+        try (XmlCursor m_xc = cur(Common.XML_FOO_NS_PREFIX)) {
+            m_xc.setTextValue(buffer, 0, buffer.length);
+            //toPrevTokenOfType(m_xc,TokenType.STARTDOC);
+            assertEquals(sExpected, m_xc.xmlText());
+        }
     }
 
     @Test
-    public void testSTART() {
+    void testSTART() throws XmlException {
         String sNewVal = "new test value ";
-        String sExpected = "<foo xmlns:edi=\"http://ecommerce.org/schema\">" +
-                sNewVal +
-                "</foo>";
-        toNextTokenOfType(m_xc, TokenType.START);
-        char[] buffer = sNewVal.toCharArray();
-        m_xc.setTextValue(buffer, 0, buffer.length);
-        toPrevTokenOfType(m_xc, TokenType.STARTDOC);
-        assertEquals(sExpected, m_xc.xmlText());
+        String sExpected = "<foo xmlns:edi=\"http://ecommerce.org/schema\">" + sNewVal + "</foo>";
+        try (XmlCursor m_xc = cur(Common.XML_FOO_NS_PREFIX)) {
+            toNextTokenOfType(m_xc, TokenType.START);
+            char[] buffer = sNewVal.toCharArray();
+            m_xc.setTextValue(buffer, 0, buffer.length);
+            toPrevTokenOfType(m_xc, TokenType.STARTDOC);
+            assertEquals(sExpected, m_xc.xmlText());
+        }
     }
 
     @Test
-    public void testAttr() {
+    void testAttr() throws XmlException {
         String sNewVal = "US\u0024 ";
         String sExpected = "<foo xmlns:edi=\"http://ecommerce.org/schema\"><!-- the 'price' element's namespace is http://ecommerce.org/schema -->  <edi:price units=\"" +
                 sNewVal +
                 "\">32.18</edi:price></foo>";
-        toNextTokenOfType(m_xc, TokenType.ATTR);
-        char[] buffer = sNewVal.toCharArray();
-        m_xc.setTextValue(buffer, 0, buffer.length);
-        toPrevTokenOfType(m_xc, TokenType.STARTDOC);
-        assertEquals(sExpected, m_xc.xmlText());
+        try (XmlCursor m_xc = cur(Common.XML_FOO_NS_PREFIX)) {
+            toNextTokenOfType(m_xc, TokenType.ATTR);
+            char[] buffer = sNewVal.toCharArray();
+            m_xc.setTextValue(buffer, 0, buffer.length);
+            toPrevTokenOfType(m_xc, TokenType.STARTDOC);
+            assertEquals(sExpected, m_xc.xmlText());
+        }
     }
 
     @Test
-    public void testComment() {
+    void testComment() throws XmlException {
         String sNewVal = "My new comment ";
         String sExpected = "<foo xmlns:edi=\"http://ecommerce.org/schema\"><!--" +
                 sNewVal +
                 "-->  <edi:price units=\"Euro\">32.18</edi:price></foo>";
-        toNextTokenOfType(m_xc, TokenType.COMMENT);
-        char[] buffer = sNewVal.toCharArray();
-        m_xc.setTextValue(buffer, 0, buffer.length);
-        toPrevTokenOfType(m_xc, TokenType.STARTDOC);
-        assertEquals(sExpected, m_xc.xmlText());
+        try (XmlCursor m_xc = cur(Common.XML_FOO_NS_PREFIX)) {
+            toNextTokenOfType(m_xc, TokenType.COMMENT);
+            char[] buffer = sNewVal.toCharArray();
+            m_xc.setTextValue(buffer, 0, buffer.length);
+            toPrevTokenOfType(m_xc, TokenType.STARTDOC);
+            assertEquals(sExpected, m_xc.xmlText());
+        }
     }
 
     @Test
-    public void testPI() throws Exception {
+    void testPI() throws Exception {
         String sTestXml = "<?xml-stylesheet type=\"text/xsl\" xmlns=\"http://openuri.org/shipping/\"?><foo at0=\"value0\">text</foo>";
-        m_xc = XmlObject.Factory.parse(sTestXml).newCursor();
-        String sNewVal = "type=\"text/html\" xmlns=\"http://newUri.org\" ";
-        String sExpected = "<?xml-stylesheet " + sNewVal +
-                "?><foo at0=\"value0\">text</foo>";
-        toNextTokenOfType(m_xc, TokenType.PROCINST);
-        char[] buffer = sNewVal.toCharArray();
-        m_xc.setTextValue(buffer, 0, buffer.length);
-        toPrevTokenOfType(m_xc, TokenType.STARTDOC);
-        assertEquals(sExpected, m_xc.xmlText());
+        try (XmlCursor m_xc = cur(sTestXml)) {
+            String sNewVal = "type=\"text/html\" xmlns=\"http://newUri.org\" ";
+            String sExpected = "<?xml-stylesheet " + sNewVal + "?><foo at0=\"value0\">text</foo>";
+            toNextTokenOfType(m_xc, TokenType.PROCINST);
+            char[] buffer = sNewVal.toCharArray();
+            m_xc.setTextValue(buffer, 0, buffer.length);
+            toPrevTokenOfType(m_xc, TokenType.STARTDOC);
+            assertEquals(sExpected, m_xc.xmlText());
+        }
     }
 
     @Test
-    public void testSetNull() {
-        toNextTokenOfType(m_xc, TokenType.START);
-        try {
-            m_xc.setTextValue(null, 0, 10);
-            fail("Buffer was Null");
-        }
-        catch (IllegalArgumentException ie) {
+    void testSetNull() throws XmlException {
+        try (XmlCursor m_xc = cur(Common.XML_FOO_NS_PREFIX)) {
+            toNextTokenOfType(m_xc, TokenType.START);
+            assertThrows(IllegalArgumentException.class, () -> m_xc.setTextValue(null, 0, 10));
         }
     }
 
-    @Test(expected = IndexOutOfBoundsException.class)
-    public void testNegativeOffset() {
+    @Test
+    void testNegativeOffset() throws XmlException {
         char[] buffer = new char[100];
-        toNextTokenOfType(m_xc, TokenType.START);
-        m_xc.setTextValue(buffer, -1, 98);
+        try (XmlCursor m_xc = cur(Common.XML_FOO_NS_PREFIX)) {
+            toNextTokenOfType(m_xc, TokenType.START);
+            assertThrows(IndexOutOfBoundsException.class, () -> m_xc.setTextValue(buffer, -1, 98));
+        }
     }
 
 
     @Test
-    public void testNonZeroOffset() {
+    void testNonZeroOffset() throws XmlException {
         char[] buffer = "Test".toCharArray();
-        toNextTokenOfType(m_xc, TokenType.START);
-        String sExpected = "st";
-        m_xc.setTextValue(buffer, 2, buffer.length - 2);
-        toNextTokenOfType(m_xc, TokenType.TEXT);
-        assertEquals(sExpected, m_xc.getChars());
+        try (XmlCursor m_xc = cur(Common.XML_FOO_NS_PREFIX)) {
+            toNextTokenOfType(m_xc, TokenType.START);
+            String sExpected = "st";
+            m_xc.setTextValue(buffer, 2, buffer.length - 2);
+            toNextTokenOfType(m_xc, TokenType.TEXT);
+            assertEquals(sExpected, m_xc.getChars());
+        }
     }
 
 
-    @Test(expected = IndexOutOfBoundsException.class)
-    public void testLargeOffset() {
+    @Test
+    void testLargeOffset() throws XmlException {
         String sNewVal = " 20";
-        toNextTokenOfType(m_xc, TokenType.START);
-        m_xc.setTextValue(sNewVal.toCharArray(), 5, 3);
+        try (XmlCursor m_xc = cur(Common.XML_FOO_NS_PREFIX)) {
+            toNextTokenOfType(m_xc, TokenType.START);
+            assertThrows(IndexOutOfBoundsException.class, () -> m_xc.setTextValue(sNewVal.toCharArray(), 5, 3));
+        }
     }
 
     //charCount<=0: should be a noop
-    @Test(expected = IndexOutOfBoundsException.class)
-    public void testNegativeCharCount() {
+    @Test
+    void testNegativeCharCount() throws XmlException {
         char[] buffer = new char[100];
-        toNextTokenOfType(m_xc, TokenType.START);
-        String sExpected = m_xc.xmlText();
-        m_xc.setTextValue(buffer, 10, -1);
-        if (!m_xc.equals(sExpected)) fail("Negative Char Cnt");
+        try (XmlCursor m_xc = cur(Common.XML_FOO_NS_PREFIX)) {
+            toNextTokenOfType(m_xc, TokenType.START);
+            String sExpected = m_xc.xmlText();
+            assertThrows(IndexOutOfBoundsException.class, () -> m_xc.setTextValue(buffer, 10, -1));
+        }
     }
 
     @Test
-    public void testZeroCharCount() {
+    void testZeroCharCount() throws XmlException {
         char[] buffer = new char[100];
         String sExpected = "<foo xmlns:edi=\"http://ecommerce.org/schema\"/>";
-        assertEquals(XmlCursor.TokenType.STARTDOC,m_xc.currentTokenType());
-        toNextTokenOfType(m_xc, TokenType.START);
-        //since the operation is delete+replace
-        //0,0 is equivalent to a delete
-        m_xc.setTextValue(buffer, 0, 0);
-        toPrevTokenOfType(m_xc, TokenType.STARTDOC);
-        assertEquals(sExpected, m_xc.xmlText());
+        try (XmlCursor m_xc = cur(Common.XML_FOO_NS_PREFIX)) {
+            assertEquals(TokenType.STARTDOC, m_xc.currentTokenType());
+            toNextTokenOfType(m_xc, TokenType.START);
+            //since the operation is delete+replace
+            //0,0 is equivalent to a delete
+            m_xc.setTextValue(buffer, 0, 0);
+            toPrevTokenOfType(m_xc, TokenType.STARTDOC);
+            assertEquals(sExpected, m_xc.xmlText());
+        }
     }
 
     @Test
-    public void testLargeCharCount() {
+    void testLargeCharCount() throws XmlException {
         String sNewVal = " 20";
         int nCharCount = 10;
         assertTrue(sNewVal.length() < nCharCount);
-        toNextTokenOfType(m_xc, TokenType.START);
-        m_xc.setTextValue(sNewVal.toCharArray(), 0, nCharCount);
+        try (XmlCursor m_xc = cur(Common.XML_FOO_NS_PREFIX)) {
+            toNextTokenOfType(m_xc, TokenType.START);
+            m_xc.setTextValue(sNewVal.toCharArray(), 0, nCharCount);
 //        toPrevTokenOfType(m_xc, TokenType.START);
-        assertEquals(sNewVal, m_xc.getTextValue());
+            assertEquals(sNewVal, m_xc.getTextValue());
+        }
     }
 
     //offset+selection>buffer
     @Test
-    public void testSelectionPastEnd() {
+    void testSelectionPastEnd() throws XmlException {
         String sNewVal = " 20";
-        toNextTokenOfType(m_xc, TokenType.START);
-        m_xc.setTextValue(sNewVal.toCharArray(), 2, 4);
+        try (XmlCursor m_xc = cur(Common.XML_FOO_NS_PREFIX)) {
+            toNextTokenOfType(m_xc, TokenType.START);
+            m_xc.setTextValue(sNewVal.toCharArray(), 2, 4);
 //        toPrevTokenOfType(m_xc, TokenType.START);
-        assertEquals("0", m_xc.getTextValue());
+            assertEquals("0", m_xc.getTextValue());
+        }
     }
 
     //spec doesn't say anything about text???
-    @Test(expected = IllegalStateException.class)
-    public void testText() {
-        String sNewVal = "5000 ";
-        char[] buff = sNewVal.toCharArray();
-        toNextTokenOfType(m_xc, TokenType.TEXT);
-        m_xc.setTextValue(buff, 0, buff.length);
+    @Test
+    void testText() throws XmlException {
+        char[] buff = "5000 ".toCharArray();
+        try (XmlCursor m_xc = cur(Common.XML_FOO_NS_PREFIX)) {
+            toNextTokenOfType(m_xc, TokenType.TEXT);
+            assertThrows(IllegalStateException.class, () -> m_xc.setTextValue(buff, 0, buff.length));
+        }
     }
 
     //$NOTE:did I forget a type
     @Test
-    public void testSetIllegalCursorPos() {
-
+    void testSetIllegalCursorPos() throws XmlException {
         char[] buffer = new char[100];
-        int i = 0;
-        toNextTokenOfType(m_xc, TokenType.END);
-        try {
-            m_xc.setTextValue(buffer, 0, 100);
-            i++;
-        }
-        catch (IllegalStateException e) {
-        }
+        try (XmlCursor m_xc = cur(Common.XML_FOO_NS_PREFIX)) {
+            toNextTokenOfType(m_xc, TokenType.END);
+            assertThrows(IllegalStateException.class, () -> m_xc.setTextValue(buffer, 0, 100));
 
-        toNextTokenOfType(m_xc, TokenType.ENDDOC);
-        try {
-            m_xc.setTextValue(buffer, 0, 100);
-            fail("SetText in ENDDOC token");
+            toNextTokenOfType(m_xc, TokenType.ENDDOC);
+            assertThrows(IllegalStateException.class, () -> m_xc.setTextValue(buffer, 0, 100), "SetText in ENDDOC token");
         }
-        catch (IllegalStateException e) {
-        }
-        if (i > 0)
-            fail("SetText in END token");
-    }
-
-    @Before
-    public void setUp() throws Exception {
-        String sDoc = Common.XML_FOO_NS_PREFIX;
-        m_xc = XmlObject.Factory.parse(sDoc).newCursor();
     }
 }

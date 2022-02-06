@@ -22,14 +22,14 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -48,28 +48,19 @@ import static org.w3c.domts.DOMTest.load;
 
 public class importNode06 {
     @Test
-    @Ignore
+    @Disabled
     public void testRun() throws Throwable {
-        Document doc;
-        Document aNewDoc;
-        Element element;
-        Node aNode;
-        boolean hasChild;
-        String name;
-        Node child;
-        String value;
-        doc = load("staffNS", true);
-        aNewDoc = load("staffNS", true);
-        element = aNewDoc.getElementById("CANADA");
-        aNode = doc.importNode(element, true);
-        hasChild = aNode.hasChildNodes();
-        assertTrue("throw_True", hasChild);
-        name = aNode.getNodeName();
-        assertEquals("nodeName", "emp:address", name);
-        child = aNode.getFirstChild();
-        value = child.getNodeValue();
-        assertEquals("nodeValue", "27 South Road. Dallas, texas 98556", value);
-
+        Document doc = load("staffNS", true);
+        Document aNewDoc = load("staffNS", true);
+        Element element = aNewDoc.getElementById("CANADA");
+        Node aNode = doc.importNode(element, true);
+        boolean hasChild = aNode.hasChildNodes();
+        assertTrue(hasChild, "throw_True");
+        String name = aNode.getNodeName();
+        assertEquals("emp:address", name, "nodeName");
+        Node child = aNode.getFirstChild();
+        String value = child.getNodeValue();
+        assertEquals("27 South Road. Dallas, texas 98556", value, "nodeValue");
     }
 
     /**

@@ -16,158 +16,152 @@
 
 package xmlcursor.detailed;
 
+import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlCursor.TokenType;
-import org.apache.xmlbeans.XmlObject;
-import org.junit.Test;
-import tools.util.JarUtil;
-import xmlcursor.common.BasicCursorTestCase;
+import org.junit.jupiter.api.Test;
 import xmlcursor.common.Common;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static xmlcursor.common.BasicCursorTestCase.*;
 
-public class GetTextTest extends BasicCursorTestCase {
-    @Test(expected = IllegalStateException.class)
-    public void testGetTextFromEND() throws Exception {
-        m_xo = XmlObject.Factory.parse(
-                 JarUtil.getResourceFromJar(Common.TRANXML_FILE_CLM));
-        m_xc = m_xo.newCursor();
-        m_xc.toEndDoc();
-        m_xc.toPrevToken();
-        assertEquals(TokenType.END, m_xc.currentTokenType());
-        //assertEquals(null, m_xc.getTextValue());
+public class GetTextTest {
+    @Test
+    void testGetTextFromEND() throws Exception {
+        try (XmlCursor m_xc = jcur(Common.TRANXML_FILE_CLM)) {
+            m_xc.toEndDoc();
+            m_xc.toPrevToken();
+            assertEquals(TokenType.END, m_xc.currentTokenType());
+            //assertEquals(null, m_xc.getTextValue());
 
-        m_xc.getTextValue();
+            assertThrows(IllegalStateException.class, m_xc::getTextValue);
+        }
     }
 
     @Test
-    public void testGetTextFromPROCINST() throws Exception {
-        m_xo = XmlObject.Factory.parse(Common.XML_FOO_PROCINST);
-        m_xc = m_xo.newCursor();
-        toNextTokenOfType(m_xc, TokenType.PROCINST);
-        assertEquals("type=\"text/xsl\" xmlns=\"http://openuri.org/shipping/\"", m_xc.getTextValue());
+    void testGetTextFromPROCINST() throws Exception {
+        try (XmlCursor m_xc = cur(Common.XML_FOO_PROCINST)) {
+            toNextTokenOfType(m_xc, TokenType.PROCINST);
+            assertEquals("type=\"text/xsl\" xmlns=\"http://openuri.org/shipping/\"", m_xc.getTextValue());
+        }
     }
 
     @Test
-    public void testGetTextFromCOMMENT() throws Exception {
-        m_xo = XmlObject.Factory.parse(Common.XML_FOO_COMMENT);
-        m_xc = m_xo.newCursor();
-        toNextTokenOfType(m_xc, TokenType.COMMENT);
-        assertEquals(" comment text ", m_xc.getTextValue());
+    void testGetTextFromCOMMENT() throws Exception {
+        try (XmlCursor m_xc = cur(Common.XML_FOO_COMMENT)) {
+            toNextTokenOfType(m_xc, TokenType.COMMENT);
+            assertEquals(" comment text ", m_xc.getTextValue());
+        }
     }
 
     @Test
-    public void testGetTextFromNAMESPACE() throws Exception {
-        m_xo = XmlObject.Factory.parse(Common.XML_FOO_NS);
-        m_xc = m_xo.newCursor();
-        toNextTokenOfType(m_xc, TokenType.NAMESPACE);
-        //assertEquals(null, m_xc.getTextValue());
+    void testGetTextFromNAMESPACE() throws Exception {
+        try (XmlCursor m_xc = cur(Common.XML_FOO_NS)) {
+            toNextTokenOfType(m_xc, TokenType.NAMESPACE);
+            //assertEquals(null, m_xc.getTextValue());
 
-       //modifying test: behavior OK as of Sept 04
-        //filed bug on API
-           String text= m_xc.getTextValue();
-        assertEquals("http://www.foo.org", text);
+            //modifying test: behavior OK as of Sept 04
+            //filed bug on API
+            String text = m_xc.getTextValue();
+            assertEquals("http://www.foo.org", text);
+        }
     }
 
-    @Test(expected = IllegalStateException.class)
-    public void testGetTextFromENDDOC() throws Exception {
-        m_xo = XmlObject.Factory.parse(Common.XML_FOO);
-        m_xc = m_xo.newCursor();
-        toNextTokenOfType(m_xc, TokenType.ENDDOC);
-        //assertEquals(null, m_xc.getTextValue());
-        m_xc.getTextValue();
+    @Test
+    void testGetTextFromENDDOC() throws Exception {
+        try (XmlCursor m_xc = cur(Common.XML_FOO)) {
+            toNextTokenOfType(m_xc, TokenType.ENDDOC);
+            //assertEquals(null, m_xc.getTextValue());
+            assertThrows(IllegalStateException.class, m_xc::getTextValue);
+        }
     }
 
 
     @Test
-    public void testGetTextFromTEXT() throws Exception {
+    void testGetTextFromTEXT() throws Exception {
         //  m_xo = XmlObject.Factory.parse(Common.XML_FOO_TEXT);
 
-        m_xo = XmlObject.Factory.parse("<foo>text</foo>");
-        m_xc = m_xo.newCursor();
-        toNextTokenOfType(m_xc, TokenType.TEXT);
-        assertEquals(TokenType.TEXT, m_xc.currentTokenType());
-        assertEquals("text", m_xc.getChars());
-        assertEquals("text", m_xc.getTextValue());
+        try (XmlCursor m_xc = cur("<foo>text</foo>")) {
+            toNextTokenOfType(m_xc, TokenType.TEXT);
+            assertEquals(TokenType.TEXT, m_xc.currentTokenType());
+            assertEquals("text", m_xc.getChars());
+            assertEquals("text", m_xc.getTextValue());
 
-        m_xc.toNextChar(2);
-        assertEquals(TokenType.TEXT, m_xc.currentTokenType());
-        assertEquals("xt", m_xc.getTextValue());
+            m_xc.toNextChar(2);
+            assertEquals(TokenType.TEXT, m_xc.currentTokenType());
+            assertEquals("xt", m_xc.getTextValue());
+        }
     }
 
     @Test
-    public void testGetTextFromSTART_NotNested() throws Exception {
-        m_xo = XmlObject.Factory.parse(
-                JarUtil.getResourceFromJar(Common.TRANXML_FILE_CLM));
-        m_xc = m_xo.newCursor();
-        m_xc.selectPath(Common.CLM_NS_XQUERY_DEFAULT + "$this//FleetID");
-
-
-        m_xc.toNextSelection();
-        assertEquals("FLEETNAME", m_xc.getTextValue());
+    void testGetTextFromSTART_NotNested() throws Exception {
+        try (XmlCursor m_xc = jcur(Common.TRANXML_FILE_CLM)) {
+            m_xc.selectPath(Common.CLM_NS_XQUERY_DEFAULT + "$this//FleetID");
+            m_xc.toNextSelection();
+            assertEquals("FLEETNAME", m_xc.getTextValue());
+        }
     }
 
     @Test
-    public void testGetTextFromSTART_Nested() throws Exception {
-        m_xo = XmlObject.Factory.parse(
-                 JarUtil.getResourceFromJar(Common.TRANXML_FILE_CLM));
-        m_xc = m_xo.newCursor();
-        m_xc.selectPath(Common.CLM_NS_XQUERY_DEFAULT + "$this//EventStatus/EquipmentStructure");
-        m_xc.toNextSelection();
-        assertEquals("\n\t\t\tGATX\n\t\t\t123456\n\t\t\tL\n\t\t", m_xc.getTextValue());
+    void testGetTextFromSTART_Nested() throws Exception {
+        try (XmlCursor m_xc = jcur(Common.TRANXML_FILE_CLM)) {
+            m_xc.selectPath(Common.CLM_NS_XQUERY_DEFAULT + "$this//EventStatus/EquipmentStructure");
+            m_xc.toNextSelection();
+            assertEquals("\n\t\t\tGATX\n\t\t\t123456\n\t\t\tL\n\t\t", m_xc.getTextValue());
+        }
     }
 
     @Test
-    public void testGetTextFromSTART_TextAferEND() throws Exception {
-        m_xo = XmlObject.Factory.parse(Common.XML_FOO_BAR_TEXT_EXT);
-        m_xc = m_xo.newCursor();
-        m_xc.selectPath("$this//bar");
-        m_xc.toNextSelection();
-        assertEquals("text", m_xc.getTextValue());
+    void testGetTextFromSTART_TextAferEND() throws Exception {
+        try (XmlCursor m_xc = cur(Common.XML_FOO_BAR_TEXT_EXT)) {
+            m_xc.selectPath("$this//bar");
+            m_xc.toNextSelection();
+            assertEquals("text", m_xc.getTextValue());
+        }
     }
 
     @Test
-    public void testGetTextFromSTART_TextAferEND_WS() throws Exception {
-        m_xo = XmlObject.Factory.parse(Common.XML_FOO_BAR_WS_TEXT);
-        m_xc = m_xo.newCursor();
-        m_xc.selectPath("$this//bar");
-        m_xc.toNextSelection();
-        assertEquals(" text ", m_xc.getTextValue());
+    void testGetTextFromSTART_TextAferEND_WS() throws Exception {
+        try (XmlCursor m_xc = cur(Common.XML_FOO_BAR_WS_TEXT)) {
+            m_xc.selectPath("$this//bar");
+            m_xc.toNextSelection();
+            assertEquals(" text ", m_xc.getTextValue());
+        }
     }
 
     @Test
-    public void testGetTextFromATTR_Nested() throws Exception {
-        m_xo = XmlObject.Factory.parse(
-                  JarUtil.getResourceFromJar(Common.TRANXML_FILE_XMLCURSOR_PO));
-        m_xc = m_xo.newCursor();
-        String preface="declare namespace po=\"http://xbean.test/xmlcursor/PurchaseOrder\"";
-        m_xc.selectPath(preface+" .//po:billTo");
-        assertEquals(1,m_xc.getSelectionCount());
-        m_xc.toNextSelection();
-        toNextTokenOfType(m_xc, TokenType.ATTR);
-        assertEquals("US", m_xc.getTextValue());
+    void testGetTextFromATTR_Nested() throws Exception {
+        String preface = "declare namespace po=\"http://xbean.test/xmlcursor/PurchaseOrder\"";
+        try (XmlCursor m_xc = jcur(Common.TRANXML_FILE_XMLCURSOR_PO)) {
+            m_xc.selectPath(preface + " .//po:billTo");
+            assertEquals(1, m_xc.getSelectionCount());
+            m_xc.toNextSelection();
+            toNextTokenOfType(m_xc, TokenType.ATTR);
+            assertEquals("US", m_xc.getTextValue());
+        }
     }
 
     @Test
-    public void testGetTextFromSTARTDOC() throws Exception {
-        m_xo = XmlObject.Factory.parse(Common.XML_FOO_BAR_TEXT_EXT);
-        m_xc = m_xo.newCursor();
-        assertEquals("textextended", m_xc.getTextValue());
+    void testGetTextFromSTARTDOC() throws Exception {
+        try (XmlCursor m_xc = cur(Common.XML_FOO_BAR_TEXT_EXT)) {
+            assertEquals("textextended", m_xc.getTextValue());
+        }
     }
 
     @Test
-    public void testGetTextEmptyElementSTART() throws Exception {
-        m_xo = XmlObject.Factory.parse(Common.XML_FOO_BAR);
-        m_xc = m_xo.newCursor();
-        m_xc.selectPath("$this//bar");
-        assertEquals("", m_xc.getTextValue());
+    void testGetTextEmptyElementSTART() throws Exception {
+        try (XmlCursor m_xc = cur(Common.XML_FOO_BAR)) {
+            m_xc.selectPath("$this//bar");
+            assertEquals("", m_xc.getTextValue());
+        }
     }
 
     @Test
-    public void testGetTextWhitespaceOnlyFromSTART() throws Exception {
-        m_xo = XmlObject.Factory.parse(Common.XML_FOO_BAR_WS_ONLY);
-        m_xc = m_xo.newCursor();
-        m_xc.toFirstChild();
-        assertEquals("   ", m_xc.getTextValue());
+    void testGetTextWhitespaceOnlyFromSTART() throws Exception {
+        try (XmlCursor m_xc = cur(Common.XML_FOO_BAR_WS_ONLY)) {
+            m_xc.toFirstChild();
+            assertEquals("   ", m_xc.getTextValue());
+        }
     }
 }
 

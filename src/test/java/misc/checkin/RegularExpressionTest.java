@@ -16,17 +16,16 @@
 package misc.checkin;
 
 import org.apache.xmlbeans.impl.regex.RegularExpression;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Random;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class RegularExpressionTest {
 
     @Test
-    public void testLongString()
-    {
+    void testLongString() {
         RegularExpression regex = new RegularExpression("[A-Z0-9]+");
         String rnd = randomString(10000);
         assertTrue(regex.matches(rnd));
@@ -38,8 +37,9 @@ public class RegularExpressionTest {
 
     private String randomString(int len) {
         StringBuilder sb = new StringBuilder(len);
-        for(int i = 0; i < len; i++)
+        for (int i = 0; i < len; i++) {
             sb.append(AB.charAt(rnd.nextInt(AB.length())));
+        }
         return sb.toString();
     }
 }

@@ -19,25 +19,23 @@ package xmltokensource.detailed;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import xmlcursor.common.BasicCursorTestCase;
 
 import javax.xml.namespace.QName;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static xmlcursor.common.BasicCursorTestCase.compareDocTokens;
 
 
-public class NewDomNodeTest extends BasicCursorTestCase {
-    public static final String DOC_FRAGMENT = "#document-fragment";
+public class NewDomNodeTest {
     private static final String DOC = "#document";
-    private XmlOptions m_map = new XmlOptions();
 
     @Test
-    public void testNewDomNode() throws Exception {
-        m_xo = XmlObject.Factory.parse("<foo>01234   <bar>text</bar>   chars </foo>");
+    void testNewDomNode() throws Exception {
+        XmlObject m_xo = XmlObject.Factory.parse("<foo>01234   <bar>text</bar>   chars </foo>");
         Node doc = m_xo.newDomNode();
         assertEquals(DOC, doc.getNodeName());
         NodeList nl = doc.getChildNodes();
@@ -65,16 +63,16 @@ public class NewDomNodeTest extends BasicCursorTestCase {
     }
 
     @Test
-    public void testNewDomNodeWithNamespace() throws Exception {
-        m_xo = XmlObject.Factory.parse("<foo xmlns=\"ns\">01234   <bar>text</bar>   chars </foo>");
+    void testNewDomNodeWithNamespace() throws Exception {
+        XmlObject m_xo = XmlObject.Factory.parse("<foo xmlns=\"ns\">01234   <bar>text</bar>   chars </foo>");
         Node doc = m_xo.newDomNode();
         assertNotNull(doc);
         assertEquals(DOC, doc.getNodeName());
     }
 
     @Test
-    public void testNewDomNodeWithOptions() throws Exception {
-        m_xo = XmlObject.Factory.parse("<foo attr=\"val\" xmlns=\"ns\">01234   <bar>text</bar>   chars </foo>");
+    void testNewDomNodeWithOptions() throws Exception {
+        XmlObject m_xo = XmlObject.Factory.parse("<foo attr=\"val\" xmlns=\"ns\">01234   <bar>text</bar>   chars </foo>");
         XmlOptions map = new XmlOptions();
         map.setLoadStripComments();
         map.setLoadReplaceDocumentElement(new QName(""));
@@ -106,13 +104,14 @@ public class NewDomNodeTest extends BasicCursorTestCase {
     }
 
     @Test
-    public void testNewDomNodeRoundTrip() throws Exception {
-        m_xo = XmlObject.Factory.parse("<foo>01234   <bar>text</bar>   chars </foo>");
+    void testNewDomNodeRoundTrip() throws Exception {
+        XmlObject m_xo = XmlObject.Factory.parse("<foo>01234   <bar>text</bar>   chars </foo>");
         Node doc = m_xo.newDomNode();
         assertNotNull(doc);
         XmlObject xo = XmlObject.Factory.parse(doc);
-        m_xc = m_xo.newCursor();
-        try (XmlCursor xc1 = xo.newCursor()) {
+
+        try (XmlCursor m_xc = m_xo.newCursor();
+            XmlCursor xc1 = xo.newCursor()) {
             compareDocTokens(m_xc, xc1);
         }
     }

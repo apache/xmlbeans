@@ -17,49 +17,36 @@ package ValidatingXSRTests.detailed;
 
 import ValidatingXSRTests.common.TestPrefixResolver;
 import org.apache.xmlbeans.SchemaType;
+import org.apache.xmlbeans.XmlError;
 import org.apache.xmlbeans.impl.validator.ValidatorUtil;
-import org.junit.Test;
-import tools.xml.Utils;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.Collection;
 
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ValidatorUtilTests {
     @Test
-    public void testValidQName()
-        throws Exception
-    {
+    void testValidQName() {
         String xml = "foo:foo";
 
         TestPrefixResolver pRes = new TestPrefixResolver("foo", "http://openuri.org/test/My");
         SchemaType type = org.openuri.test.simType.QNameType.type;
 
-        Collection errors = new ArrayList();
-        boolean success = ValidatorUtil.validateSimpleType(type, xml, errors, pRes);
-        if (!success)
-        {
-            Utils.printXMLErrors(errors);
-            fail("testValidQName failed");
-        }
+        Collection<XmlError> errors = new ArrayList<>();
+        assertTrue(ValidatorUtil.validateSimpleType(type, xml, errors, pRes));
     }
 
 
     @Test
-    public void testInvalidQName() {
+    void testInvalidQName() {
         String xml = "foo:bz";
         TestPrefixResolver pRes = new TestPrefixResolver("foo", "http://openuri.org/test/My");
         SchemaType type = org.openuri.test.simType.QNameType.type;
 
-        Collection errors = new ArrayList();
-        boolean success = ValidatorUtil.validateSimpleType(type, xml, errors, pRes);
-        System.out.println("Expected Errors:");
-        tools.xml.Utils.printXMLErrors(errors);
-        if (success)
-            fail("testInvalidQName failed: Invalid QName was validated");
+        Collection<XmlError> errors = new ArrayList<>();
+        assertFalse(ValidatorUtil.validateSimpleType(type, xml, errors, pRes));
     }
-
-    // TODO: add more simpleType tests... maybe create a generic test method
-
 }

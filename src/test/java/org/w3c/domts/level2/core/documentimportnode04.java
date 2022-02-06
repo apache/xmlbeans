@@ -22,11 +22,11 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.*;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -46,34 +46,23 @@ import static org.w3c.domts.DOMTest.load;
  */
 public class documentimportnode04 {
     @Test
-    @Ignore
+    @Disabled
     public void testRun() throws Throwable {
-        Document doc;
-        Document newDoc;
         DocumentType docType = null;
 
-        DOMImplementation domImpl;
-        Element element;
-        Attr attr;
-        NodeList childList;
-        Node importedAttr;
-        String nodeName;
-        int nodeType;
-        String nodeValue;
-        doc = load("staffNS", true);
-        domImpl = doc.getImplementation();
-        newDoc = domImpl.createDocument("http://www.w3.org/DOM/Test", "l2:root", docType);
-        childList = doc.getElementsByTagNameNS("http://www.nist.gov", "employee");
-        element = (Element) childList.item(1);
-        attr = element.getAttributeNode("defaultAttr");
-        importedAttr = newDoc.importNode(attr, true);
-        nodeName = importedAttr.getNodeName();
-        nodeValue = importedAttr.getNodeValue();
-        nodeType = importedAttr.getNodeType();
-        assertEquals("documentimportnode04_nodeName", "defaultAttr", nodeName);
-        assertEquals("documentimportnode04_nodeType", 2, nodeType);
-        assertEquals("documentimportnode04_nodeValue", "defaultVal", nodeValue);
-
+        Document doc = load("staffNS", true);
+        DOMImplementation domImpl = doc.getImplementation();
+        Document newDoc = domImpl.createDocument("http://www.w3.org/DOM/Test", "l2:root", docType);
+        NodeList childList = doc.getElementsByTagNameNS("http://www.nist.gov", "employee");
+        Element element = (Element) childList.item(1);
+        Attr attr = element.getAttributeNode("defaultAttr");
+        Node importedAttr = newDoc.importNode(attr, true);
+        String nodeName = importedAttr.getNodeName();
+        String nodeValue = importedAttr.getNodeValue();
+        int nodeType = importedAttr.getNodeType();
+        assertEquals("defaultAttr", nodeName, "documentimportnode04_nodeName");
+        assertEquals(2, nodeType, "documentimportnode04_nodeType");
+        assertEquals("defaultVal", nodeValue, "documentimportnode04_nodeValue");
     }
 
     /**

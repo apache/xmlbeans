@@ -22,11 +22,12 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.*;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -41,36 +42,20 @@ import static org.w3c.domts.DOMTest.load;
  */
 public class elementsetattributenodens06 {
     @Test
-    @Ignore
+    @Disabled
     public void testRun() throws Throwable {
-        Document doc;
-        Element element;
-        Attr attribute;
-        Attr attribute2;
-        EntityReference entRef;
-        NodeList elementList;
-        Node newAttribute;
-        Node newChild;
-        doc = load("staffNS", true);
-        element = doc.createElementNS("http://www.w3.org/DOM/Test", "elem1");
-        attribute = doc.createAttributeNS("http://www.w3.org/DOM/Test", "attr");
-        entRef = doc.createEntityReference("ent4");
-        newChild = attribute.appendChild(entRef);
-        newAttribute = element.setAttributeNodeNS(attribute);
-        elementList = entRef.getChildNodes();
-        element = (Element) elementList.item(0);
-        attribute2 = doc.createAttributeNS("http://www.w3.org/DOM/Test", "attr2");
+        Document doc = load("staffNS", true);
+        Element element = doc.createElementNS("http://www.w3.org/DOM/Test", "elem1");
+        Attr attribute = doc.createAttributeNS("http://www.w3.org/DOM/Test", "attr");
+        EntityReference entRef = doc.createEntityReference("ent4");
+        Node newChild = attribute.appendChild(entRef);
+        Node newAttribute = element.setAttributeNodeNS(attribute);
+        NodeList elementList = entRef.getChildNodes();
+        Element element2 = (Element) elementList.item(0);
+        Attr attribute2 = doc.createAttributeNS("http://www.w3.org/DOM/Test", "attr2");
 
-        {
-            boolean success = false;
-            try {
-                newAttribute = element.setAttributeNodeNS(attribute2);
-            } catch (DOMException ex) {
-                success = (ex.code == DOMException.NO_MODIFICATION_ALLOWED_ERR);
-            }
-            assertTrue("elementsetattributenodens06", success);
-        }
-
+        DOMException ex = assertThrows(DOMException.class, () -> element2.setAttributeNodeNS(attribute2));
+        assertEquals(DOMException.NO_MODIFICATION_ALLOWED_ERR, ex.code, "elementsetattributenodens06");
     }
 
     /**

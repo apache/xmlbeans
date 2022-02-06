@@ -22,11 +22,11 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.*;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -42,25 +42,16 @@ import static org.w3c.domts.DOMTest.load;
 public class attrgetownerelement01 {
 
     @Test
-    @Ignore
+    @Disabled
     public void testRun() throws Throwable {
-        Document doc;
-        Attr attr;
-        Element element;
-        Element ownerElement;
-        String ownerElementName;
-        NodeList elementList;
-        NamedNodeMap attributes;
-        String nullNS = null;
-
-        doc = load("staffNS", false);
-        elementList = doc.getElementsByTagNameNS("http://www.nist.gov", "employee");
-        element = (Element) elementList.item(1);
-        attributes = element.getAttributes();
-        attr = (Attr) attributes.getNamedItemNS(nullNS, "defaultAttr");
-        ownerElement = attr.getOwnerElement();
-        ownerElementName = ownerElement.getNodeName();
-        assertEquals("attrgetownerelement01", "emp:employee", ownerElementName);
+        Document doc = load("staffNS", false);
+        NodeList elementList = doc.getElementsByTagNameNS("http://www.nist.gov", "employee");
+        Element element = (Element) elementList.item(1);
+        NamedNodeMap attributes = element.getAttributes();
+        Attr attr = (Attr) attributes.getNamedItemNS(null, "defaultAttr");
+        Element ownerElement = attr.getOwnerElement();
+        String ownerElementName = ownerElement.getNodeName();
+        assertEquals("emp:employee", ownerElementName, "attrgetownerelement01");
     }
 
     /**

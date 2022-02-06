@@ -22,10 +22,11 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.*;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -46,34 +47,19 @@ import static org.w3c.domts.DOMTest.load;
  */
 public class setNamedItemNS02 {
     @Test
-    public void testRun() throws Throwable {
+    void testRun() throws Throwable {
         String namespaceURI = "http://www.usa.com";
         String qualifiedName = "dmstc:domestic";
-        Document doc;
-        Document anotherDoc;
-        Node arg;
-        NodeList elementList;
-        Node testAddress;
-        NamedNodeMap attributes;
-        Node setNode;
-        doc = load("staffNS", true);
-        anotherDoc = load("staffNS", true);
-        arg = anotherDoc.createAttributeNS(namespaceURI, qualifiedName);
+        Document doc = load("staffNS", true);
+        Document anotherDoc = load("staffNS", true);
+        Node arg = anotherDoc.createAttributeNS(namespaceURI, qualifiedName);
         arg.setNodeValue("Maybe");
-        elementList = doc.getElementsByTagName("address");
-        testAddress = elementList.item(0);
-        attributes = testAddress.getAttributes();
+        NodeList elementList = doc.getElementsByTagName("address");
+        Node testAddress = elementList.item(0);
+        NamedNodeMap attributes = testAddress.getAttributes();
 
-        {
-            boolean success = false;
-            try {
-                setNode = attributes.setNamedItemNS(arg);
-            } catch (DOMException ex) {
-                success = (ex.code == DOMException.WRONG_DOCUMENT_ERR);
-            }
-            assertTrue("throw_WRONG_DOCUMENT_ERR", success);
-        }
-
+        DOMException ex = assertThrows(DOMException.class, () -> attributes.setNamedItemNS(arg));
+        assertEquals(DOMException.WRONG_DOCUMENT_ERR, ex.code, "throw_WRONG_DOCUMENT_ERR");
     }
 
     /**

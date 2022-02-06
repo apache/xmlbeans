@@ -17,7 +17,7 @@ package xmlcursor.xquery.detailed;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.util.HashMap;
@@ -25,30 +25,25 @@ import java.util.Map;
 
 import static common.Common.P;
 import static common.Common.XBEAN_CASE_ROOT;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
+import static xmlcursor.common.BasicCursorTestCase.cur;
 
 /** This class tests the use of XmlOptions in binding XQuery variables */
 public class XQueryVariableBindingTest
 {
-    public static final String XQUERY_CASE_DIR = XBEAN_CASE_ROOT + P + "xmlcursor" + P + "xquery";
-    public static File dir = new File(XQUERY_CASE_DIR);
-
-    private XmlCursor _testDocCursor1() throws Exception {
-        String xml =
-            "<elem1>" +
-            "<elem11 id=\"123\">text11</elem11>" +
-            "<elem21 id=\"456\">text11</elem21>" +
-            "<elem12 idRef=\"123\"/>" +
-            "<elem13 idRef=\"456\"/>" +
-            "<elem14 idRef=\"123\"/>" +
-            "<elem15 idRef=\"456\"/>" +
-            "<elem16 idRef=\"123\"/>" +
-            "<elem17 idRef=\"789\"/>" +
-            "</elem1>";
-        XmlObject doc = XmlObject.Factory.parse(xml);
-        XmlCursor xc = doc.newCursor();
-        return xc;
-    }
+    private static final String XQUERY_CASE_DIR = XBEAN_CASE_ROOT + P + "xmlcursor" + P + "xquery";
+    private static final File DIR = new File(XQUERY_CASE_DIR);
+    private static final String XML =
+        "<elem1>" +
+        "<elem11 id=\"123\">text11</elem11>" +
+        "<elem21 id=\"456\">text11</elem21>" +
+        "<elem12 idRef=\"123\"/>" +
+        "<elem13 idRef=\"456\"/>" +
+        "<elem14 idRef=\"123\"/>" +
+        "<elem15 idRef=\"456\"/>" +
+        "<elem16 idRef=\"123\"/>" +
+        "<elem17 idRef=\"789\"/>" +
+        "</elem1>";
 
     private void _verifySelection(XmlCursor xc) {
         assertEquals(3, xc.getSelectionCount());
@@ -62,8 +57,8 @@ public class XQueryVariableBindingTest
 
     /** test the automatic binding of $this to the current node: selectPath() */
     @Test
-    public void testThisVariable1() throws Exception {
-        try (XmlCursor xc = _testDocCursor1()) {
+    void testThisVariable1() throws Exception {
+        try (XmlCursor xc = cur(XML)) {
             xc.toFirstChild(); //<elem1>
             xc.toFirstChild(); //<elem11>
             xc.selectPath("//*[@idRef=$this/@id]");
@@ -75,8 +70,8 @@ public class XQueryVariableBindingTest
     // this fails: see JIRA issue XMLBEANS-276
     /** test the binding of a variable to the current node: selectPath() */
     @Test
-    public void testCurrentNodeVariable1() throws Exception {
-        try (XmlCursor xc = _testDocCursor1()) {
+    void testCurrentNodeVariable1() throws Exception {
+        try (XmlCursor xc = cur(XML)) {
             xc.toFirstChild();
             xc.toFirstChild();
             XmlOptions opts = new XmlOptions();
@@ -90,7 +85,7 @@ public class XQueryVariableBindingTest
     }
 
     private XmlCursor _testDocCursor2() throws Exception {
-        File f = new File(dir, "employees.xml");
+        File f = new File(DIR, "employees.xml");
         XmlObject doc = XmlObject.Factory.parse(f);
         return doc.newCursor();
     }
@@ -106,7 +101,7 @@ public class XQueryVariableBindingTest
 
     /** test the automatic binding of $this to the current node: execQuery() */
     @Test
-    public void testThisVariable2() throws Exception
+    void testThisVariable2() throws Exception
     {
         String q =
             "for $e in $this/employees/employee " +
@@ -121,7 +116,7 @@ public class XQueryVariableBindingTest
 
     /** test the binding of a variable to the current node: execQuery() */
     @Test
-    public void testCurrentNodeVariable2() throws Exception {
+    void testCurrentNodeVariable2() throws Exception {
         String q =
             "for $e in $cur/employees/employee " +
             "let $s := $e/address/state " +
@@ -135,7 +130,7 @@ public class XQueryVariableBindingTest
         }
     }
 
-    private XmlObject[] _execute(XmlObject xo, Map m, String q) {
+    private XmlObject[] _execute(XmlObject xo, Map<String,Object> m, String q) {
         XmlOptions opts = new XmlOptions();
         opts.setXqueryVariables(m);
         return xo.execQuery(q, opts);
@@ -143,8 +138,8 @@ public class XQueryVariableBindingTest
 
     /** test the binding of a variable to an XmlTokenSource using a map */
     @Test
-    public void testOneVariable() throws Exception {
-        File f = new File(dir, "bookstore.xml");
+    void testOneVariable() throws Exception {
+        File f = new File(DIR, "bookstore.xml");
         XmlObject doc = XmlObject.Factory.parse(f);
         String q =
             "declare variable $rt external; " +
@@ -164,8 +159,8 @@ public class XQueryVariableBindingTest
         at the same time, test the binding of a variable to a String
      */
     @Test
-    public void testMultipleVariables() throws Exception {
-        File f = new File(dir, "bookstore.xml");
+    void testMultipleVariables() throws Exception {
+        File f = new File(DIR, "bookstore.xml");
         XmlObject doc = XmlObject.Factory.parse(f);
         String q =
             "declare variable $rt external; " +

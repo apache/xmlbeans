@@ -15,25 +15,18 @@
 
 package xmlobject.xmlloader.detailed;
 
-import org.apache.xmlbeans.XmlObject;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.tranxml.tranXML.version40.CarLocationMessageDocument;
-import tools.util.JarUtil;
-import xmlcursor.common.BasicCursorTestCase;
 import xmlcursor.common.Common;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static xmlcursor.common.BasicCursorTestCase.jobj;
 
 
-public class XmlLoaderBvtTest extends BasicCursorTestCase {
+public class XmlLoaderBvtTest {
     @Test
-    public void testCastDocument() throws Exception {
-
-        CarLocationMessageDocument clm =
-            (CarLocationMessageDocument) XmlObject.Factory.parse(
-                JarUtil.getResourceFromJar(Common.TRANXML_FILE_CLM));
-
+    void testCastDocument() throws Exception {
+        CarLocationMessageDocument clm = (CarLocationMessageDocument) jobj(Common.TRANXML_FILE_CLM);
         assertNotNull(clm);
     }
 }

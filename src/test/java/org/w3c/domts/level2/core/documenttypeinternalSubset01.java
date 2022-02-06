@@ -22,13 +22,13 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Document;
 import org.w3c.dom.DocumentType;
 
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -42,20 +42,15 @@ import static org.w3c.domts.DOMTest.load;
  */
 public class documenttypeinternalSubset01 {
     @Test
-    @Ignore
+    @Disabled
     public void testRun() throws Throwable {
-        Document doc;
-        DocumentType docType;
-        DOMImplementation domImpl;
-        String internal;
         String nullNS = null;
 
-        doc = load("staffNS", false);
-        domImpl = doc.getImplementation();
-        docType = domImpl.createDocumentType("l2:root", nullNS, nullNS);
-        internal = docType.getInternalSubset();
-        assertNull("documenttypeinternalSubset01", internal);
-
+        Document doc = load("staffNS", false);
+        DOMImplementation domImpl = doc.getImplementation();
+        DocumentType docType = domImpl.createDocumentType("l2:root", nullNS, nullNS);
+        String internal = docType.getInternalSubset();
+        assertNull(internal, "documenttypeinternalSubset01");
     }
 
     /**

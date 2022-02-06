@@ -18,25 +18,26 @@ package xmlcursor.checkin;
 
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlCursor.TokenType;
-import org.apache.xmlbeans.XmlObject;
-import org.junit.Test;
-import xmlcursor.common.BasicCursorTestCase;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
+import static xmlcursor.common.BasicCursorTestCase.cur;
+import static xmlcursor.common.BasicCursorTestCase.toNextTokenOfType;
 
 
-public class ToPrevElementTest extends BasicCursorTestCase {
+public class ToPrevElementTest {
     @Test
-    public void testToPrevElementFromSTARTDOC() throws Exception {
-        m_xc = XmlObject.Factory.parse("<foo>early<bar>text</bar></foo>").newCursor();
-        assertFalse(m_xc.toPrevSibling());
-        assertEquals(TokenType.STARTDOC, m_xc.currentTokenType());
+    void testToPrevElementFromSTARTDOC() throws Exception {
+        try (XmlCursor m_xc = cur("<foo>early<bar>text</bar></foo>")) {
+            assertFalse(m_xc.toPrevSibling());
+            assertEquals(TokenType.STARTDOC, m_xc.currentTokenType());
+        }
     }
 
     @Test
-    public void testToPrevElementFromENDDOC() throws Exception {
-        m_xc = XmlObject.Factory.parse("<foo>early<bar>text</bar></foo>").newCursor();
-        try (XmlCursor xc0 = m_xc.newCursor()) {
+    void testToPrevElementFromENDDOC() throws Exception {
+        try (XmlCursor m_xc = cur("<foo>early<bar>text</bar></foo>");
+             XmlCursor xc0 = m_xc.newCursor()) {
             xc0.toFirstChild();
             m_xc.toEndDoc();
             m_xc.toPrevSibling();
@@ -46,33 +47,36 @@ public class ToPrevElementTest extends BasicCursorTestCase {
     }
 
     @Test
-    public void testToPrevElementSiblings() throws Exception {
-        m_xc = XmlObject.Factory.parse("<foo>early<bar>text</bar><char>zap<dar>wap</dar><ear>yap</ear></char></foo>").newCursor();
-        m_xc.selectPath("$this//ear");
-        m_xc.toNextSelection();
-        assertEquals("yap", m_xc.getTextValue());
-        assertTrue(m_xc.toPrevSibling());
-        assertEquals("wap", m_xc.getTextValue());
-        assertFalse(m_xc.toPrevSibling());
+    void testToPrevElementSiblings() throws Exception {
+        try (XmlCursor m_xc = cur("<foo>early<bar>text</bar><char>zap<dar>wap</dar><ear>yap</ear></char></foo>")) {
+            m_xc.selectPath("$this//ear");
+            m_xc.toNextSelection();
+            assertEquals("yap", m_xc.getTextValue());
+            assertTrue(m_xc.toPrevSibling());
+            assertEquals("wap", m_xc.getTextValue());
+            assertFalse(m_xc.toPrevSibling());
+        }
     }
 
     @Test
-    public void testToPrevElementFromATTR() throws Exception {
-        m_xc = XmlObject.Factory.parse("<foo>early<bar>text</bar><char>zap<dar>wap</dar><ear attr0=\"val0\">yap</ear></char></foo>").newCursor();
-        toNextTokenOfType(m_xc, TokenType.ATTR);
-        assertEquals("val0", m_xc.getTextValue());
-        assertFalse(m_xc.toPrevSibling());
+    void testToPrevElementFromATTR() throws Exception {
+        try (XmlCursor m_xc = cur("<foo>early<bar>text</bar><char>zap<dar>wap</dar><ear attr0=\"val0\">yap</ear></char></foo>")) {
+            toNextTokenOfType(m_xc, TokenType.ATTR);
+            assertEquals("val0", m_xc.getTextValue());
+            assertFalse(m_xc.toPrevSibling());
+        }
     }
 
     @Test
-    public void testToPrevElementFromTEXT() throws Exception {
-        m_xc = XmlObject.Factory.parse("<foo>early<bar>text</bar><char>zap<dar>wap</dar><ear><a/>yap</ear></char></foo>").newCursor();
-        m_xc.selectPath("$this//ear");
-        m_xc.toNextSelection();
-        toNextTokenOfType(m_xc, TokenType.TEXT);
-        assertEquals("yap", m_xc.getChars());
-        assertTrue(m_xc.toPrevSibling());
-        assertEquals("", m_xc.getTextValue());
+    void testToPrevElementFromTEXT() throws Exception {
+        try (XmlCursor m_xc = cur("<foo>early<bar>text</bar><char>zap<dar>wap</dar><ear><a/>yap</ear></char></foo>")) {
+            m_xc.selectPath("$this//ear");
+            m_xc.toNextSelection();
+            toNextTokenOfType(m_xc, TokenType.TEXT);
+            assertEquals("yap", m_xc.getChars());
+            assertTrue(m_xc.toPrevSibling());
+            assertEquals("", m_xc.getTextValue());
+        }
     }
 }
 

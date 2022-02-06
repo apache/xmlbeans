@@ -16,11 +16,10 @@
 
 package dom.checkin;
 
-
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 
 public class DomImplementationSyncTest extends DomImplementationTest {
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         super.loadSync();
         super.moveToNode();

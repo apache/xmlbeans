@@ -18,8 +18,9 @@ import compile.scomp.common.mockobj.TestFiler;
 import org.apache.xmlbeans.*;
 import org.apache.xmlbeans.impl.schema.SchemaTypeSystemImpl;
 import org.hamcrest.MatcherAssert;
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -30,7 +31,7 @@ import static common.Common.OUTPUTROOT;
 import static compile.scomp.common.CompileTestBase.ERR_XSD;
 import static compile.scomp.common.CompileTestBase.FOR_XSD;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class XmlBeansCompCheckinTests {
     private final List<XmlError> xm_errors = new ArrayList<>();
@@ -63,22 +64,22 @@ public class XmlBeansCompCheckinTests {
         xm_opts.setSavePrettyPrint();
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
         if (xm_errors.size() > 0)
             xm_errors.clear();
     }
 
     @Test
-    public void test_Filer_compilation() throws Exception {
+    void test_Filer_compilation() throws Exception {
         XmlObject obj1 = XmlObject.Factory.parse(FOR_XSD);
         XmlObject[] schemas = new XmlObject[]{obj1};
 
         TestFiler f = new TestFiler();
         XmlBeans.compileXmlBeans("apiCompile", null, schemas, null, XmlBeans.getBuiltinTypeSystem(), f, xm_opts);
 
-        assertTrue("Binary File method not invoked", f.isCreateBinaryFile());
-        assertTrue("Source File method not invoked", f.isCreateSourceFile());
+        assertTrue(f.isCreateBinaryFile(), "Binary File method not invoked");
+        assertTrue(f.isCreateSourceFile(), "Source File method not invoked");
 
         assertNotNull(f.getBinFileVec());
         MatcherAssert.assertThat(f.getBinFileVec(), is(expBinType));
@@ -91,7 +92,7 @@ public class XmlBeansCompCheckinTests {
      * Verify Partial SOM cannot be saved to file system
      */
     @Test
-    public void test_sts_noSave() throws Exception
+    void test_sts_noSave() throws Exception
     {
         XmlObject obj3 = XmlObject.Factory.parse(ERR_XSD);
         XmlObject[] schemas3 = new XmlObject[]{obj3};
@@ -132,7 +133,7 @@ public class XmlBeansCompCheckinTests {
             throw e;
         }
 
-        assertTrue("Expected partial schema type system", ((SchemaTypeSystemImpl)sts).isIncomplete());
+        assertTrue(((SchemaTypeSystemImpl)sts).isIncomplete(), "Expected partial schema type system");
 
 
         // Check using saveToDirectory on Partial SOM
@@ -142,30 +143,30 @@ public class XmlBeansCompCheckinTests {
             tempDir = new File(OUTPUTROOT, "psom_save");
             tempDir.mkdirs();
             tempDir.deleteOnExit();
-            assertEquals("Output Directory Init needed to be empty", 0, tempDir.listFiles().length);
+            assertEquals(0, tempDir.listFiles().length, "Output Directory Init needed to be empty");
 
             //This should not Work
             sts.saveToDirectory(tempDir);
-            fail("Expected IllegalStateException");
+            Assertions.fail("Expected IllegalStateException");
         } catch (IllegalStateException e) {
             // ok
             System.out.println("sts.saveToDirectory() threw IllegalStateException as expected");
         }
 
         //make sure nothing was written
-        assertEquals("Partial SOM output dir needed to be empty", 0, tempDir.listFiles().length);
+        assertEquals(0, tempDir.listFiles().length, "Partial SOM output dir needed to be empty");
 
         // Check using save(Filer) on Partial SOM
         TestFiler tf1 = new TestFiler();
         assertThrows(IllegalStateException.class, () -> sts.save(tf1));
 
         //make sure nothing was written
-        assertEquals("Filer -Bin- Partial SOM output dir needed to be empty", 0, tf1.getBinFileVec().size());
-        assertEquals("Filer -SRC- Partial SOM output dir needed to be empty", 0, tf1.getSrcFileVec().size());
+        assertEquals(0, tf1.getBinFileVec().size(), "Filer -Bin- Partial SOM output dir needed to be empty");
+        assertEquals(0, tf1.getSrcFileVec().size(), "Filer -SRC- Partial SOM output dir needed to be empty");
 
-        assertFalse("Filer Create Source File method should not have been invoked", tf1.isCreateSourceFile());
+        assertFalse(tf1.isCreateSourceFile(), "Filer Create Source File method should not have been invoked");
 
-        assertFalse("Filer Create Binary File method should not have been invoked", tf1.isCreateBinaryFile());
+        assertFalse(tf1.isCreateBinaryFile(), "Filer Create Binary File method should not have been invoked");
 
         // Check using filer in partial SOM compilation
         TestFiler tf2 = new TestFiler();
@@ -176,14 +177,14 @@ public class XmlBeansCompCheckinTests {
         //filer methods on partial SOM should not be returned
         XmlBeans.compileXmlBeans(null, null, schemas3, null, XmlBeans.getBuiltinTypeSystem(), tf2, opt);
 
-        assertFalse("Errors was not empty", err.isEmpty());
+        assertFalse(err.isEmpty(), "Errors was not empty");
         //make sure nothing was written
-        assertEquals("Filer -Bin- Partial SOM output dir needed to be empty", 0, tf2.getBinFileVec().size());
-        assertEquals("Filer -SRC- Partial SOM output dir needed to be empty", 0, tf2.getSrcFileVec().size());
+        assertEquals(0, tf2.getBinFileVec().size(), "Filer -Bin- Partial SOM output dir needed to be empty");
+        assertEquals(0, tf2.getSrcFileVec().size(), "Filer -SRC- Partial SOM output dir needed to be empty");
 
-        assertFalse("Filer Create Source File method should not have been invoked", tf2.isCreateSourceFile());
+        assertFalse(tf2.isCreateSourceFile(), "Filer Create Source File method should not have been invoked");
 
-        assertFalse("Filer Create Binary File method should not have been invoked", tf2.isCreateBinaryFile());
+        assertFalse(tf2.isCreateBinaryFile(), "Filer Create Binary File method should not have been invoked");
     }
 
     /**
@@ -191,7 +192,7 @@ public class XmlBeansCompCheckinTests {
      * different configs with null values
      */
     @Test
-    public void test_entrypoint_nullVals() throws Exception {
+    void test_entrypoint_nullVals() throws Exception {
         XmlObject[] schemas = {XmlObject.Factory.parse(FOR_XSD)};
 
         XmlBeans.compileXmlBeans(null, null, schemas, null, XmlBeans.getBuiltinTypeSystem(), null, null);

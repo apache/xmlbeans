@@ -22,10 +22,10 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.*;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -40,30 +40,20 @@ import static org.w3c.domts.DOMTest.load;
  */
 public class namednodemapgetnameditemns06 {
     @Test
-    public void testRun() throws Throwable {
-        Document doc;
-        NamedNodeMap attributesMap1;
-        NamedNodeMap attributesMap2;
-        Element element;
-        Attr attribute;
-        Attr newAttr1;
-        Attr newAttribute;
-        NodeList elementList;
-        String attrName;
-        doc = load("staffNS", true);
-        elementList = doc.getElementsByTagNameNS("*", "address");
-        element = (Element) elementList.item(1);
-        attributesMap1 = element.getAttributes();
-        attributesMap2 = element.getAttributes();
-        newAttr1 = doc.createAttributeNS("http://www.w3.org/DOM/L1", "street");
-        newAttribute = element.setAttributeNodeNS(newAttr1);
-        attribute = (Attr) attributesMap1.getNamedItemNS("http://www.w3.org/DOM/L1", "street");
-        attrName = attribute.getNodeName();
-        assertEquals("namednodemapgetnameditemnsMap106", "street", attrName);
+    void testRun() throws Throwable {
+        Document doc = load("staffNS", true);
+        NodeList elementList = doc.getElementsByTagNameNS("*", "address");
+        Element element = (Element) elementList.item(1);
+        NamedNodeMap attributesMap1 = element.getAttributes();
+        NamedNodeMap attributesMap2 = element.getAttributes();
+        Attr newAttr1 = doc.createAttributeNS("http://www.w3.org/DOM/L1", "street");
+        Attr newAttribute = element.setAttributeNodeNS(newAttr1);
+        Attr attribute = (Attr) attributesMap1.getNamedItemNS("http://www.w3.org/DOM/L1", "street");
+        String attrName = attribute.getNodeName();
+        assertEquals("street", attrName, "namednodemapgetnameditemnsMap106");
         attribute = (Attr) attributesMap2.getNamedItemNS("http://www.w3.org/DOM/L1", "street");
         attrName = attribute.getNodeName();
-        assertEquals("namednodemapgetnameditemnsMap206", "street", attrName);
-
+        assertEquals("street", attrName, "namednodemapgetnameditemnsMap206");
     }
 
     /**

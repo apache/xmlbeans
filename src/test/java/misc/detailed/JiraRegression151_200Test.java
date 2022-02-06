@@ -17,19 +17,21 @@ package misc.detailed;
 
 import misc.common.JiraTestBase;
 import net.eads.space.scoexml.test.TestExponentDocument;
+import org.apache.xmlbeans.XmlError;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
 import org.apache.xmlbeans.impl.tool.Parameters;
 import org.apache.xmlbeans.impl.tool.SchemaCompiler;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  *
@@ -39,21 +41,20 @@ public class JiraRegression151_200Test extends JiraTestBase
 
     /**
      * [XMLBEANS-175]   Validation of decimal in exponential representation fails
-     * @throws Exception
      */
     @Test
-    public void test_jira_xmlbeans175() throws Exception{
+    void test_jira_xmlbeans175() {
 
         TestExponentDocument.TestExponent exponent = TestExponentDocument.TestExponent.Factory.newInstance();
         exponent.setDecimal(new BigDecimal("1E1"));
 
-        ArrayList errors = new ArrayList();
+        List<XmlError> errors = new ArrayList<>();
         XmlOptions validationOptions = new XmlOptions();
         validationOptions.setErrorListener(errors);
         exponent.validate(validationOptions);
 
-        for (Iterator iterator = errors.iterator(); iterator.hasNext();) {
-            System.out.println("Validation Error:" + iterator.next());
+        for (XmlError error : errors) {
+            System.out.println("Validation Error:" + error);
         }
 
         // fails, IMHO should not!
@@ -71,15 +72,16 @@ public class JiraRegression151_200Test extends JiraTestBase
      * [XMLBEANS-179]   Saving xml with '&' and '<' characters in attribute values throws an ArrayIndexOutOfBoundsException
      */
     @Test
-    public void test_jira_xmlbeans179() throws Exception{
+    void test_jira_xmlbeans179() throws Exception{
         String xmlWithIssues = "<Net id=\"dbid:66754220\" name=\"3&lt;.3V\" type=\"POWER\"/>";
 
         XmlObject xobj = XmlObject.Factory.parse(xmlWithIssues);
         File outFile = new File(schemaCompOutputDirPath + P + "jira_xmlbeans179.xml");
         assertNotNull(outFile);
 
-        if(outFile.exists())
+        if(outFile.exists()) {
             outFile.delete();
+        }
 
         xobj.save(outFile);
     }
@@ -88,12 +90,12 @@ public class JiraRegression151_200Test extends JiraTestBase
     * [XMLBEANS-184]: NPE when running scomp without nopvr option
     */
     @Test
-    public void test_jira_xmlbeans184() throws Exception {
-        List errors = new ArrayList();
+    void test_jira_xmlbeans184() throws Exception {
+        List<XmlError> errors = new ArrayList<>();
 
         // compile with nopvr, goes thro fine
         Parameters params = new Parameters();
-        params.setXsdFiles(new File[]{new File(scompTestFilesRoot + "xmlbeans_184_vdx_data_V1.04.xsd_")});
+        params.setXsdFiles(new File(scompTestFilesRoot + "xmlbeans_184_vdx_data_V1.04.xsd_"));
         params.setErrorListener(errors);
         params.setSrcDir(schemaCompSrcDir);
         params.setClassesDir(schemaCompClassesDir);
@@ -103,11 +105,11 @@ public class JiraRegression151_200Test extends JiraTestBase
             SchemaCompiler.compile(params);
         } catch (NullPointerException npe) {
             npe.printStackTrace();
-            fail("NPE when executing scomp");
+            Assertions.fail("NPE when executing scomp");
         }
 
-        if (printOptionErrMsgs(errors)) {
-            fail("test_jira_xmlbeans184() : Errors found when executing scomp");
+        if (hasSevereError(errors)) {
+            Assertions.fail("test_jira_xmlbeans184() : Errors found when executing scomp");
         }
 
         // now compile without the pvr option and NPE is thrown
@@ -116,11 +118,11 @@ public class JiraRegression151_200Test extends JiraTestBase
             SchemaCompiler.compile(params);
         } catch (NullPointerException npe) {
             npe.printStackTrace();
-            fail("NPE when executing scomp");
+            Assertions.fail("NPE when executing scomp");
         }
 
-        if (printOptionErrMsgs(errors)) {
-            fail("test_jira_xmlbeans184() : Errors found when executing scomp ");
+        if (hasSevereError(errors)) {
+            Assertions.fail("test_jira_xmlbeans184() : Errors found when executing scomp ");
         }
 
     }

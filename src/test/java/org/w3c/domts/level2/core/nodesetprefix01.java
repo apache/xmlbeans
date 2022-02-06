@@ -22,13 +22,13 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.DocumentFragment;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -43,23 +43,16 @@ import static org.w3c.domts.DOMTest.load;
  */
 public class nodesetprefix01 {
     @Test
-    public void testRun() throws Throwable {
-        Document doc;
-        DocumentFragment docFragment;
-        Element element;
-        String elementTagName;
-        String elementNodeName;
-        Node appendedChild;
-        doc = load("staff", true);
-        docFragment = doc.createDocumentFragment();
-        element = doc.createElementNS("http://www.w3.org/DOM/Test", "emp:address");
-        appendedChild = docFragment.appendChild(element);
+    void testRun() throws Throwable {
+        Document doc = load("staff", true);
+        DocumentFragment docFragment = doc.createDocumentFragment();
+        Element element = doc.createElementNS("http://www.w3.org/DOM/Test", "emp:address");
+        Node appendedChild = docFragment.appendChild(element);
         element.setPrefix("dmstc");
-        elementTagName = element.getTagName();
-        elementNodeName = element.getNodeName();
-        assertEquals("nodesetprefix01_tagname", "dmstc:address", elementTagName);
-        assertEquals("nodesetprefix01_nodeName", "dmstc:address", elementNodeName);
-
+        String elementTagName = element.getTagName();
+        String elementNodeName = element.getNodeName();
+        assertEquals("dmstc:address", elementTagName, "nodesetprefix01_tagname");
+        assertEquals("dmstc:address", elementNodeName, "nodesetprefix01_nodeName");
     }
 
     /**

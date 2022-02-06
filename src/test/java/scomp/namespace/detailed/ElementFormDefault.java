@@ -16,50 +16,43 @@
 
 package scomp.namespace.detailed;
 
-import org.junit.Test;
-import scomp.common.BaseCase;
-import xbean.scomp.namespace.elementFormDefault.ElementFormDefaultEltDocument;
-import xbean.scomp.namespace.elementFormDefault.ElementT;
-import org.apache.xmlbeans.XmlAnySimpleType;
-import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlErrorCodes;
+import org.apache.xmlbeans.XmlOptions;
+import org.junit.jupiter.api.Test;
+import xbean.scomp.namespace.elementFormDefault.ElementFormDefaultEltDocument;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static scomp.common.BaseCase.createOptions;
+import static scomp.common.BaseCase.getErrorCodes;
 
-public class ElementFormDefault extends BaseCase {
+public class ElementFormDefault {
 
     @Test
-    public void testValid() throws Throwable {
-        ElementFormDefaultEltDocument doc =
-                ElementFormDefaultEltDocument.Factory.parse("<ns:ElementFormDefaultElt " +
-                "xmlns:ns=\"http://xbean/scomp/namespace/ElementFormDefault\">" +
-                "<ns:childElt>foobar</ns:childElt>" +
-                " </ns:ElementFormDefaultElt>");
+    void testValid() throws Throwable {
+        ElementFormDefaultEltDocument doc = ElementFormDefaultEltDocument.Factory.parse(
+            "<ns:ElementFormDefaultElt " +
+            "xmlns:ns=\"http://xbean/scomp/namespace/ElementFormDefault\">" +
+            "<ns:childElt>foobar</ns:childElt>" +
+            " </ns:ElementFormDefaultElt>");
 
-        try {
-            doc.validate(validateOptions);
-        }
-        catch (Throwable t) {
-            showErrors();
-            throw t;
-        }
+        doc.validate(createOptions());
     }
 
     @Test
-    public void testInvalid() throws Throwable {
-        ElementFormDefaultEltDocument doc =
-                ElementFormDefaultEltDocument.Factory.parse("<ns:ElementFormDefaultElt " +
-                "xmlns:ns=\"http://xbean/scomp/namespace/ElementFormDefault\">" +
-                "<childElt>foobar</childElt>" +
-                " </ns:ElementFormDefaultElt>");
+    void testInvalid() throws Throwable {
+        ElementFormDefaultEltDocument doc = ElementFormDefaultEltDocument.Factory.parse(
+            "<ns:ElementFormDefaultElt " +
+            "xmlns:ns=\"http://xbean/scomp/namespace/ElementFormDefault\">" +
+            "<childElt>foobar</childElt>" +
+            " </ns:ElementFormDefaultElt>");
 
-        assertTrue(!doc.validate(validateOptions));
-        showErrors();
-        String[] errExpected = new String[]{
+        XmlOptions validateOptions = createOptions();
+        assertFalse(doc.validate(validateOptions));
+        String[] errExpected = {
             XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$EXPECTED_DIFFERENT_ELEMENT,
             XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$MISSING_ELEMENT
         };
-             assertTrue(compareErrorCodes(errExpected));
-                
+        assertArrayEquals(errExpected, getErrorCodes(validateOptions));
     }
 }

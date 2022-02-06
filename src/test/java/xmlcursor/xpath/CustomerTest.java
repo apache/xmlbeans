@@ -18,7 +18,7 @@ package xmlcursor.xpath;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
 
@@ -88,7 +88,7 @@ public class CustomerTest {
     }
 
     @Test
-    public void test_xpath() throws XmlException {
+    void test_xpath() throws XmlException {
         String sXml1 =
             "<report>\n" +
             "  <section>\n" +
@@ -97,16 +97,14 @@ public class CustomerTest {
             "      The patient was taken to the operating room where she was placed\n" +
             "      in supine position and\n" +
             "      </section.content> </section></report>";
-        test_xpath(2, sXml1,
-            "./report/section/section.title[text() = \"Procedure\"]");
+        test_xpath(2, sXml1, "./report/section/section.title[text() = \"Procedure\"]");
     }
 
     @Test
-    public void test_xquery() throws XmlException {
+    void test_xquery() throws XmlException {
         final String xquery1 =
             "for $b in $this/bib/book "
-            +
-            "  where $b/publisher[text() = \"Addison-Wesley\"] and $b[@year > 1992] "
+            + "  where $b/publisher[text() = \"Addison-Wesley\"] and $b[@year > 1992] "
             + "return "
             + "    <book year=\"{ $b/@year }\"> "
             + "{ $b/title }"
@@ -126,11 +124,10 @@ public class CustomerTest {
     }
 
     @Test
-    public void testXMLBeans() throws XmlException {
+    void testXMLBeans() throws XmlException {
         XmlObject doc = XmlObject.Factory.parse(" <contact xmlns=\"http://dearjohn/address-book\"/>");
         HashMap<String, String> nsMap = new HashMap<String, String>();
         nsMap.put("ns", "http://dearjohn/address-book");
-        doc.execQuery("/ns:contact", new
-            XmlOptions().setLoadAdditionalNamespaces(nsMap));
+        doc.execQuery("/ns:contact", new XmlOptions().setLoadAdditionalNamespaces(nsMap));
     }
 }

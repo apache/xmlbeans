@@ -22,12 +22,12 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -42,20 +42,14 @@ import static org.w3c.domts.DOMTest.load;
 public class attrgetownerelement02 {
 
     @Test
-    public void testRun() throws Throwable {
-        Document doc;
-        Element element;
-        Element ownerElement;
-        String ownerElementName;
-        Attr attr;
-        Attr newAttr;
-        doc = load("staffNS", false);
-        element = doc.createElement("root");
-        attr = doc.createAttributeNS("http://www.w3.org/DOM/L1", "L1:att");
-        newAttr = element.setAttributeNodeNS(attr);
-        ownerElement = attr.getOwnerElement();
-        ownerElementName = ownerElement.getNodeName();
-        assertEquals("attrgetownerelement02", "root", ownerElementName);
+    void testRun() throws Throwable {
+        Document doc = load("staffNS", false);
+        Element element = doc.createElement("root");
+        Attr attr = doc.createAttributeNS("http://www.w3.org/DOM/L1", "L1:att");
+        element.setAttributeNodeNS(attr);
+        Element ownerElement = attr.getOwnerElement();
+        String ownerElementName = ownerElement.getNodeName();
+        assertEquals("root", ownerElementName, "attrgetownerelement02");
     }
 
     /**

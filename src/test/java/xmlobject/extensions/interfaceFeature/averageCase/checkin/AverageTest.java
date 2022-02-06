@@ -18,49 +18,39 @@ package xmlobject.extensions.interfaceFeature.averageCase.checkin;
 import interfaceFeature.xbean.averageCase.purchaseOrder.Items;
 import interfaceFeature.xbean.averageCase.purchaseOrder.PurchaseOrderDocument;
 import interfaceFeature.xbean.averageCase.purchaseOrder.PurchaseOrderType;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 
 public class AverageTest {
 
     @Test
-	public void test(){
+    void test() {
 
-         PurchaseOrderDocument poDoc ;
+        PurchaseOrderDocument poDoc;
 
-         poDoc= PurchaseOrderDocument.Factory.newInstance();
-         PurchaseOrderType po=poDoc.addNewPurchaseOrder();
-         int LEN=20;
-
-         Items.Item[] it= new Items.Item[LEN];
-         for (int i=0; i< LEN; i++){
-                it[i]=Items.Item.Factory.newInstance();
-                it[i].setUSPrice(new BigDecimal(""+ 2 ));
-         }
-         Items items= Items.Factory.newInstance();
-            items.setItemArray(it);
-         po.setItems(items);
-	// System.out.println("poDoc: " + poDoc);
-
-        int i=poDoc.getTotal();
-        //20 items @ $2
-        assertEquals( 40, i );
-
-    }
-
-    public void testJiraXMLBEANS_206()
-    {
-        PurchaseOrderDocument poDoc ;
-
-        poDoc= PurchaseOrderDocument.Factory.newInstance();
+        poDoc = PurchaseOrderDocument.Factory.newInstance();
         PurchaseOrderType po = poDoc.addNewPurchaseOrder();
+        int LEN = 20;
 
-        System.out.println("Jira206 Test : = " + po.getName("String1"));
-        System.out.println("Jira206 Test : = " + po.getName("String1", 3));
+        Items.Item[] it = new Items.Item[LEN];
+        for (int i = 0; i < LEN; i++) {
+            it[i] = Items.Item.Factory.newInstance();
+            it[i].setUSPrice(new BigDecimal("" + 2));
+        }
+        Items items = Items.Factory.newInstance();
+        items.setItemArray(it);
+        po.setItems(items);
+
+        int i = poDoc.getTotal();
+        //20 items @ $2
+        assertEquals(40, i);
+
+        assertNotNull(po.getName("String1"));
+        assertNotNull(po.getName("String1", 3));
     }
-
 }

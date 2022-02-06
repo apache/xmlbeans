@@ -22,13 +22,13 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Document;
 import org.w3c.dom.DocumentType;
 
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -47,20 +47,15 @@ import static org.w3c.domts.DOMTest.load;
  */
 public class nodegetownerdocument01 {
     @Test
-    @Ignore
+    @Disabled
     public void testRun() throws Throwable {
-        Document doc;
-        Document ownerDoc;
-        DOMImplementation domImpl;
-        DocumentType docType;
         String nullID = null;
 
-        doc = load("staff", false);
-        domImpl = doc.getImplementation();
-        docType = domImpl.createDocumentType("mydoc", nullID, nullID);
-        ownerDoc = docType.getOwnerDocument();
-        assertNull("nodegetownerdocument01", ownerDoc);
-
+        Document doc = load("staff", false);
+        DOMImplementation domImpl = doc.getImplementation();
+        DocumentType docType = domImpl.createDocumentType("mydoc", nullID, nullID);
+        Document ownerDoc = docType.getOwnerDocument();
+        assertNull(ownerDoc, "nodegetownerdocument01");
     }
 
     /**

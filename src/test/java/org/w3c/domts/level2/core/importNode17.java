@@ -22,12 +22,12 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
-import org.w3c.dom.Node;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -46,23 +46,12 @@ import static org.w3c.domts.DOMTest.load;
  */
 public class importNode17 {
     @Test
-    public void testRun() throws Throwable {
-        Document doc;
-        Document anotherDoc;
-        Node node;
-        doc = load("staffNS", true);
-        anotherDoc = load("staffNS", true);
+    void testRun() throws Throwable {
+        Document doc = load("staffNS", true);
+        Document anotherDoc = load("staffNS", true);
 
-        {
-            boolean success = false;
-            try {
-                node = doc.importNode(anotherDoc, false);
-            } catch (DOMException ex) {
-                success = (ex.code == DOMException.NOT_SUPPORTED_ERR);
-            }
-            assertTrue("throw_NOT_SUPPORTED_ERR", success);
-        }
-
+        DOMException ex = assertThrows(DOMException.class, () -> doc.importNode(anotherDoc, false));
+        assertEquals(DOMException.NOT_SUPPORTED_ERR, ex.code, "throw_NOT_SUPPORTED_ERR");
     }
 
     /**

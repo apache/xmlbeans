@@ -17,8 +17,8 @@ package misc.detailed;
 
 import org.apache.xmlbeans.XmlError;
 import org.apache.xmlbeans.XmlOptions;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.lang.reflect.Method;
@@ -27,19 +27,17 @@ import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Random;
 
-@Ignore("needs to be updated to current jars")
+@Disabled("needs to be updated to current jars")
 public class ClassLoadingTest {
 
-    public static class CompilationThread extends Thread
-    {
+    public static class CompilationThread extends Thread {
         private Throwable _throwable;
         private boolean _result;
         private Random rand;
         XmlOptions xm;
         ArrayList<XmlError> errors;
 
-        public CompilationThread()
-        {
+        public CompilationThread() {
             rand = new Random();
             xm = new XmlOptions();
             ArrayList<XmlError> errors = new ArrayList<>();
@@ -47,23 +45,19 @@ public class ClassLoadingTest {
             xm.setValidateOnSet();
         }
 
-        public Throwable getException()
-        {
+        public Throwable getException() {
             return _throwable;
         }
 
-        public boolean getResult()
-        {
+        public boolean getResult() {
             return _result;
         }
 
-        public int getRandIntVal(int seed)
-        {
+        public int getRandIntVal(int seed) {
             return rand.nextInt(seed);
         }
 
-        public void run()
-        {
+        public void run() {
 
             try {
                 String xbean_home = System.getProperty("xbean.rootdir");
@@ -71,37 +65,45 @@ public class ClassLoadingTest {
                     xbean_home = new File(".").getAbsolutePath();
                 }
                 File xbeanFile = new File(xbean_home + "/build/lib/xbean.jar");
-                if (!xbeanFile.exists())
+                if (!xbeanFile.exists()) {
                     throw new Exception("File does not exist");
+                }
                 URL xbeanjar = xbeanFile.toURI().toURL();
                 File xmlpublicFile = new File(xbean_home + "/build/lib/xmlpublic.jar");
-                if (!xmlpublicFile.exists())
+                if (!xmlpublicFile.exists()) {
                     throw new Exception("File does not exist");
+                }
                 URL xmlpublicjar = xmlpublicFile.toURI().toURL();
                 File jsr173File = new File(xbean_home + "/build/lib/jsr173.jar");
-                if (!jsr173File.exists())
+                if (!jsr173File.exists()) {
                     throw new Exception("File does not exist");
+                }
                 URL jsr173jar = new URL(jsr173File.toURI().toURL().toString());
                 File jsr173_apiFile = new File(xbean_home + "/build/lib/jsr173_1.0_api.jar");
-                if (!jsr173_apiFile.exists())
+                if (!jsr173_apiFile.exists()) {
                     throw new Exception("File does not exist");
+                }
                 URL jsr173_apijar = jsr173_apiFile.toURI().toURL();
                 File jsr173_riFile = new File(xbean_home + "/build/lib/jsr173_1.0_ri.jar");
-                if (!jsr173_riFile.exists())
+                if (!jsr173_riFile.exists()) {
                     throw new Exception("File does not exist");
+                }
                 URL jsr173_rijar = jsr173_riFile.toURL();
                 File junitFile = new File(xbean_home + "/external/lib/junit.jar");
-                if (!junitFile.exists())
+                if (!junitFile.exists()) {
                     throw new Exception("File does not exist");
+                }
                 URL junitjar = junitFile.toURI().toURL();
 
                 File xmlcursorFile = new File(xbean_home + "/build/test/lib/schemajars/xmlcursor.jar");
-                if (!xmlcursorFile.exists())
+                if (!xmlcursorFile.exists()) {
                     throw new Exception("File does not exist");
+                }
                 URL xmlcursorjar = xmlcursorFile.toURI().toURL();
                 File validatingFile = new File(xbean_home + "/build/test/lib/schemajars/ValidatingStream.jar");
-                if (!validatingFile.exists())
+                if (!validatingFile.exists()) {
                     throw new Exception("File does not exist");
+                }
                 URL validating = validatingFile.toURI().toURL();
 
 
@@ -110,12 +112,12 @@ public class ClassLoadingTest {
                 //                                                        junitjar, validating, xmlcursorjar});
 
                 URLClassLoader personLoader = new URLClassLoader(new URL[]{xbeanjar, xmlpublicjar,
-                                                                      jsr173jar, jsr173_apijar, jsr173_rijar,
-                                                                      junitjar, validating});
+                    jsr173jar, jsr173_apijar, jsr173_rijar,
+                    junitjar, validating});
 
                 URLClassLoader poLoader = new URLClassLoader(new URL[]{xbeanjar, xmlpublicjar,
-                                                                      jsr173jar, jsr173_apijar, jsr173_rijar,
-                                                                      junitjar, xmlcursorjar});
+                    jsr173jar, jsr173_apijar, jsr173_rijar,
+                    junitjar, xmlcursorjar});
 
                 for (int i = 0; i < ITERATION_COUNT; i++) {
                     switch (i) {
@@ -141,50 +143,51 @@ public class ClassLoadingTest {
 
         public void testPO(ClassLoader cursorLoader) //from xmlcursor.jar
         {
+            String poInstance =
+                "<?xml version=\"1.0\"?>\n" +
+                "<po:purchaseOrder xmlns:po=\"http://xbean.test/xmlcursor/PurchaseOrder\" orderDate=\"1999-10-20\">\n" +
+                "    <po:shipTo country=\"US\">\n" +
+                "        <po:name>Alice Smith</po:name>\n" +
+                "        <po:street>123 Maple Street</po:street>\n" +
+                "        <po:city>Mill Valley</po:city>\n" +
+                "        <po:state>CA</po:state>\n" +
+                "        <po:zip>90952</po:zip>\n" +
+                "    </po:shipTo>\n" +
+                "    <po:billTo country=\"US\">\n" +
+                "        <po:name>Robert Smith</po:name>\n" +
+                "        <po:street>8 Oak Avenue</po:street>\n" +
+                "        <po:city>Old Town</po:city>\n" +
+                "        <po:state>PA</po:state>\n" +
+                "        <po:zip>95819</po:zip>\n" +
+                "    </po:billTo>\n" +
+                "    <po:comment>Hurry, my lawn is going wild!</po:comment>\n" +
+                "    <po:items>\n" +
+                "        <po:item partNum=\"872-AA\">\n" +
+                "            <po:productName>Lawnmower</po:productName>\n" +
+                "            <po:quantity>1</po:quantity>\n" +
+                "            <po:USPrice>148.95</po:USPrice>\n" +
+                "            <po:comment>Confirm this is electric</po:comment>\n" +
+                "        </po:item>\n" +
+                "        <po:item partNum=\"926-AA\">\n" +
+                "            <po:productName>Baby Monitor</po:productName>\n" +
+                "            <po:quantity>1</po:quantity>\n" +
+                "            <po:USPrice>39.98</po:USPrice>\n" +
+                "            <po:shipDate>1999-05-21</po:shipDate>\n" +
+                "        </po:item>\n" +
+                "    </po:items>\n" +
+                "</po:purchaseOrder>";
             try {
                 setContextClassLoader(cursorLoader);
                 System.out.println("Testing PO");
-                String poInstance = "<?xml version=\"1.0\"?>\n" +
-                        "<po:purchaseOrder xmlns:po=\"http://xbean.test/xmlcursor/PurchaseOrder\" orderDate=\"1999-10-20\">\n" +
-                        "    <po:shipTo country=\"US\">\n" +
-                        "        <po:name>Alice Smith</po:name>\n" +
-                        "        <po:street>123 Maple Street</po:street>\n" +
-                        "        <po:city>Mill Valley</po:city>\n" +
-                        "        <po:state>CA</po:state>\n" +
-                        "        <po:zip>90952</po:zip>\n" +
-                        "    </po:shipTo>\n" +
-                        "    <po:billTo country=\"US\">\n" +
-                        "        <po:name>Robert Smith</po:name>\n" +
-                        "        <po:street>8 Oak Avenue</po:street>\n" +
-                        "        <po:city>Old Town</po:city>\n" +
-                        "        <po:state>PA</po:state>\n" +
-                        "        <po:zip>95819</po:zip>\n" +
-                        "    </po:billTo>\n" +
-                        "    <po:comment>Hurry, my lawn is going wild!</po:comment>\n" +
-                        "    <po:items>\n" +
-                        "        <po:item partNum=\"872-AA\">\n" +
-                        "            <po:productName>Lawnmower</po:productName>\n" +
-                        "            <po:quantity>1</po:quantity>\n" +
-                        "            <po:USPrice>148.95</po:USPrice>\n" +
-                        "            <po:comment>Confirm this is electric</po:comment>\n" +
-                        "        </po:item>\n" +
-                        "        <po:item partNum=\"926-AA\">\n" +
-                        "            <po:productName>Baby Monitor</po:productName>\n" +
-                        "            <po:quantity>1</po:quantity>\n" +
-                        "            <po:USPrice>39.98</po:USPrice>\n" +
-                        "            <po:shipDate>1999-05-21</po:shipDate>\n" +
-                        "        </po:item>\n" +
-                        "    </po:items>\n" +
-                        "</po:purchaseOrder>";
 
-                Class poClass = this.getContextClassLoader().loadClass("test.xbean.xmlcursor.purchaseOrder.PurchaseOrderDocument$Factory");
+                Class<?> poClass = this.getContextClassLoader().loadClass("test.xbean.xmlcursor.purchaseOrder.PurchaseOrderDocument$Factory");
 
-                Method m = poClass.getMethod("parse", new Class[]{String.class, XmlOptions.class});
-                Object poObject = m.invoke(null, new Object[]{poInstance, xm});
+                Method m = poClass.getMethod("parse", String.class, XmlOptions.class);
+                Object poObject = m.invoke(null, poInstance, xm);
 
-                Method m2 = poObject.getClass().getMethod("validate", new Class[]{});
+                Method m2 = poObject.getClass().getMethod("validate");
                 Boolean res = (Boolean) m2.invoke(poObject, new Object[]{});
-                if (!res.booleanValue()) {
+                if (!res) {
                     System.out.println("Res failed Validation: ");
                     System.out.println("errors: " + errors.toString());
                 } else {
@@ -196,44 +199,45 @@ public class ClassLoadingTest {
             }
         }
 
-        public void testPerson(ClassLoader validateLoader)
-        { //from ValidatingStream.jar
+        public void testPerson(ClassLoader validateLoader) { //from ValidatingStream.jar
+            String poInstance =
+                "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+                "<per:Person xmlns:per=\"http://openuri.org/test/Person\"\n" +
+                "        xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
+                "    Sex=\"male\" Birthday=\"1967-08-13\">\n" +
+                "\t<per:Name>\n" +
+                "\t\t<per:First>Person</per:First>\n" +
+                "\t\t<per:Last>One</per:Last>\n" +
+                "\t</per:Name>\n" +
+                "\t<per:Sibling Sex=\"male\" Birthday=\"1967-08-13\">\n" +
+                "\t\t<per:Name>\n" +
+                "\t\t\t<per:First>Person</per:First>\n" +
+                "\t\t\t<per:Last>Two</per:Last>\n" +
+                "\t\t</per:Name>\n" +
+                "        <per:Sibling Sex=\"female\" Birthday=\"1992-12-12\">\n" +
+                "            <per:Name>\n" +
+                "                <per:First>Person</per:First>\n" +
+                "                <per:Last>Three</per:Last>\n" +
+                "            </per:Name>\n" +
+                "        </per:Sibling>\n" +
+                "\t</per:Sibling>\n" +
+                "</per:Person>";
+
             try {
 
                 setContextClassLoader(validateLoader);
                 System.out.println("Testing Person");
 
-                String poInstance = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-                        "<per:Person xmlns:per=\"http://openuri.org/test/Person\"\n" +
-                        "        xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
-                        "    Sex=\"male\" Birthday=\"1967-08-13\">\n" +
-                        "\t<per:Name>\n" +
-                        "\t\t<per:First>Person</per:First>\n" +
-                        "\t\t<per:Last>One</per:Last>\n" +
-                        "\t</per:Name>\n" +
-                        "\t<per:Sibling Sex=\"male\" Birthday=\"1967-08-13\">\n" +
-                        "\t\t<per:Name>\n" +
-                        "\t\t\t<per:First>Person</per:First>\n" +
-                        "\t\t\t<per:Last>Two</per:Last>\n" +
-                        "\t\t</per:Name>\n" +
-                        "        <per:Sibling Sex=\"female\" Birthday=\"1992-12-12\">\n" +
-                        "            <per:Name>\n" +
-                        "                <per:First>Person</per:First>\n" +
-                        "                <per:Last>Three</per:Last>\n" +
-                        "            </per:Name>\n" +
-                        "        </per:Sibling>\n" +
-                        "\t</per:Sibling>\n" +
-                        "</per:Person>";
 
                 //org.openuri.test.person.PersonDocument
-                Class poClass = this.getContextClassLoader().loadClass("org.openuri.test.person.PersonDocument$Factory");
+                Class<?> poClass = this.getContextClassLoader().loadClass("org.openuri.test.person.PersonDocument$Factory");
 
-                Method m = poClass.getMethod("parse", new Class[]{String.class, XmlOptions.class});
-                Object poObject = m.invoke(null, new Object[]{poInstance, xm});
+                Method m = poClass.getMethod("parse", String.class, XmlOptions.class);
+                Object poObject = m.invoke(null, poInstance, xm);
 
-                Method m2 = poObject.getClass().getMethod("validate", new Class[]{});
+                Method m2 = poObject.getClass().getMethod("validate");
                 Boolean res = (Boolean) m2.invoke(poObject, new Object[]{});
-                if (!res.booleanValue()) {
+                if (!res) {
                     System.out.println("Res failed Validation: ");
                     System.out.println("errors: " + errors.toString());
                 } else {
@@ -254,8 +258,7 @@ public class ClassLoadingTest {
      * OOM Error happens around thread 97 with the params listed below
      */
     @Test
-    public void testThreadedCompilation() throws Throwable
-    {
+    void testThreadedCompilation() throws Throwable {
         Runtime r = Runtime.getRuntime();
         CompilationThread[] threads = new CompilationThread[THREAD_COUNT];
 
@@ -265,19 +268,13 @@ public class ClassLoadingTest {
         }
 
         for (int i = 0; i < threads.length; i++) {
-            System.out.println("FREE MEM: "+r.freeMemory()+" TOTAL MEM: "+r.totalMemory());
-            System.out.print("Thread["+i+"]-starting ");
+            System.out.println("FREE MEM: " + r.freeMemory() + " TOTAL MEM: " + r.totalMemory());
+            System.out.print("Thread[" + i + "]-starting ");
             System.out.println("FREE MEM: " + r.freeMemory() + " TOTAL MEM: " + r.totalMemory());
             //    threads[i] = new XPathThread();
             threads[i].start();
             threads[i].join();
         }
-
-        //for (int i = 0; i < threads.length; i++) {
-        //    Assert.assertNull(threads[i].getException());
-        //    Assert.assertTrue("Thread " + i + " didn't succeed",
-        //            threads[i].getResult());
-        //}
     }
 }
 

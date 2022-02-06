@@ -16,90 +16,56 @@
 package scomp.derivation.restriction.facets.detailed;
 
 import org.apache.xmlbeans.XmlErrorCodes;
-import org.junit.Test;
-import scomp.common.BaseCase;
+import org.apache.xmlbeans.XmlOptions;
+import org.junit.jupiter.api.Test;
 import xbean.scomp.derivation.facets.union.SmallEnumUnion;
 import xbean.scomp.derivation.facets.union.SmallPatternUnion;
 import xbean.scomp.derivation.facets.union.UnionEnumEltDocument;
 import xbean.scomp.derivation.facets.union.UnionPatternEltDocument;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
+import static scomp.common.BaseCase.createOptions;
+import static scomp.common.BaseCase.getErrorCodes;
 
 /**
  * Only pattern and enumeration restrictions possible
  * Compile time tests for the rest
  */
-public class UnionRestriction extends BaseCase {
+public class UnionRestriction {
 
     @Test
-    public void testPatternRestriction() throws Throwable {
-        UnionPatternEltDocument doc =
-                UnionPatternEltDocument.Factory.newInstance();
+    void testPatternRestriction() {
+        UnionPatternEltDocument doc = UnionPatternEltDocument.Factory.newInstance();
         doc.setUnionPatternElt("small");
-        try {
-            assertTrue(doc.validate(validateOptions));
-        } catch (Throwable t) {
-            showErrors();
-            throw t;
-        }
+        XmlOptions validateOptions = createOptions();
+        assertTrue(doc.validate(validateOptions));
         doc.setUnionPatternElt(1);
-        try {
-            assertTrue(doc.validate(validateOptions));
-        } catch (Throwable t) {
-            showErrors();
-            throw t;
-        }
+        assertTrue(doc.validate(validateOptions));
         SmallPatternUnion elt = SmallPatternUnion.Factory.newInstance();
         elt.setObjectValue(2);
         doc.xsetUnionPatternElt(elt);
-        try {
-            assertTrue(doc.validate(validateOptions));
-        } catch (Throwable t) {
-            showErrors();
-            throw t;
-        }
+        assertTrue(doc.validate(validateOptions));
         doc.setUnionPatternElt(-1);
         assertFalse(doc.validate(validateOptions));
-        showErrors();
-        String[] errExpected = new String[]{
-            XmlErrorCodes.DATATYPE_VALID$PATTERN_VALID
-        };
-        assertTrue(compareErrorCodes(errExpected));
+        String[] errExpected = {XmlErrorCodes.DATATYPE_VALID$PATTERN_VALID};
+        assertArrayEquals(errExpected, getErrorCodes(validateOptions));
     }
 
     @Test
-    public void testEnumRestriction() throws Throwable {
+    void testEnumRestriction() {
         UnionEnumEltDocument doc = UnionEnumEltDocument.Factory.newInstance();
         doc.setUnionEnumElt("small");
-        try {
-            assertTrue(doc.validate(validateOptions));
-        } catch (Throwable t) {
-            showErrors();
-            throw t;
-        }
+        XmlOptions validateOptions = createOptions();
+        assertTrue(doc.validate(validateOptions));
         doc.setUnionEnumElt(1);
-        try {
-            assertTrue(doc.validate(validateOptions));
-        } catch (Throwable t) {
-            showErrors();
-            throw t;
-        }
+        assertTrue(doc.validate(validateOptions));
         SmallEnumUnion elt = SmallEnumUnion.Factory.newInstance();
         elt.setObjectValue(-1);
         doc.xsetUnionEnumElt(elt);
-        try {
-            assertTrue(doc.validate(validateOptions));
-        } catch (Throwable t) {
-            showErrors();
-            throw t;
-        }
+        assertTrue(doc.validate(validateOptions));
         doc.setUnionEnumElt(2);
         assertFalse(doc.validate(validateOptions));
-        showErrors();
-        String[] errExpected = new String[]{
-            XmlErrorCodes.DATATYPE_ENUM_VALID
-        };
-        assertTrue(compareErrorCodes(errExpected));
+        String[] errExpected = {XmlErrorCodes.DATATYPE_ENUM_VALID};
+        assertArrayEquals(errExpected, getErrorCodes(validateOptions));
     }
 }

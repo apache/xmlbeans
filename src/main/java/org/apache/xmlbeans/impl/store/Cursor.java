@@ -1624,6 +1624,10 @@ public final class Cursor implements XmlCursor, ChangeListener {
     }
 
     public void _insertAttributeWithValue(QName name, String text) {
+        if (name == null) {
+            throw new IllegalArgumentException("QName must not be null");
+        }
+
         validateLocalName(name.getLocalPart());
 
         Cur c = _cur._locale.tempCur();

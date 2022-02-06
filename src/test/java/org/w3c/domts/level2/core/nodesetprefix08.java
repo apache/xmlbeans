@@ -22,10 +22,11 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.*;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -39,26 +40,14 @@ import static org.w3c.domts.DOMTest.load;
  */
 public class nodesetprefix08 {
     @Test
-    public void testRun() throws Throwable {
-        Document doc;
-        Element element;
-        NodeList elementList;
-        Attr attribute;
-        doc = load("staffNS", true);
-        elementList = doc.getElementsByTagName("employee");
-        element = (Element) elementList.item(0);
-        attribute = element.getAttributeNode("xmlns");
+    void testRun() throws Throwable {
+        Document doc = load("staffNS", true);
+        NodeList elementList = doc.getElementsByTagName("employee");
+        Element element = (Element) elementList.item(0);
+        Attr attribute = element.getAttributeNode("xmlns");
 
-        {
-            boolean success = false;
-            try {
-                attribute.setPrefix("xml");
-            } catch (DOMException ex) {
-                success = (ex.code == DOMException.NAMESPACE_ERR);
-            }
-            assertTrue("nodesetprefix08", success);
-        }
-
+        DOMException ex = assertThrows(DOMException.class, () -> attribute.setPrefix("xml"));
+        assertEquals(DOMException.NAMESPACE_ERR, ex.code, "nodesetprefix08");
     }
 
     /**

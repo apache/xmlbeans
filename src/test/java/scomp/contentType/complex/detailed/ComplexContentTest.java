@@ -18,60 +18,43 @@ package scomp.contentType.complex.detailed;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
-import org.junit.Test;
-import scomp.common.BaseCase;
+import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static scomp.common.BaseCase.createOptions;
 
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
-public class ComplexContentTest extends BaseCase {
+public class ComplexContentTest {
 
     // complex types with simple content whose content is declared via an inline <simpleType>
     // Issue fixed with Svn revision 165352
     @Test
-    public void testSimpleContentDerivation() {
-        String sInputXsd = "<?xml version=\"1.0\"?>\n" +
-                "<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\">\n" +
-                "    <xs:complexType name=\"myType\">\n" +
-                "        <xs:simpleContent>\n" +
-                "            <xs:extension base=\"xs:string\"/>\n" +
-                "        </xs:simpleContent>\n" +
-                "    </xs:complexType>\n" +
-                "    <xs:complexType name=\"fooType\">\n" +
-                "        <xs:simpleContent>\n" +
-                "            <xs:restriction base=\"myType\">\n" +
-                "                <xs:simpleType>\n" +
-                "                    <xs:restriction base=\"xs:string\"/>\n" +
-                "                </xs:simpleType>\n" +
-                "            </xs:restriction>\n" +
-                "        </xs:simpleContent>\n" +
-                "    </xs:complexType>\n" +
-                "    <xs:element name=\"root\" type=\"fooType\"/>\n" +
-                "</xs:schema>";
+    void testSimpleContentDerivation() throws XmlException {
+        String sInputXsd =
+            "<?xml version=\"1.0\"?>\n" +
+            "<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\">\n" +
+            "    <xs:complexType name=\"myType\">\n" +
+            "        <xs:simpleContent>\n" +
+            "            <xs:extension base=\"xs:string\"/>\n" +
+            "        </xs:simpleContent>\n" +
+            "    </xs:complexType>\n" +
+            "    <xs:complexType name=\"fooType\">\n" +
+            "        <xs:simpleContent>\n" +
+            "            <xs:restriction base=\"myType\">\n" +
+            "                <xs:simpleType>\n" +
+            "                    <xs:restriction base=\"xs:string\"/>\n" +
+            "                </xs:simpleType>\n" +
+            "            </xs:restriction>\n" +
+            "        </xs:simpleContent>\n" +
+            "    </xs:complexType>\n" +
+            "    <xs:element name=\"root\" type=\"fooType\"/>\n" +
+            "</xs:schema>";
 
-        XmlOptions options = new XmlOptions();
-        List errors = new ArrayList();
-        options.setErrorListener(errors);
+        XmlOptions options = createOptions();
 
-        try {
-            XmlObject xobj = XmlObject.Factory.parse(sInputXsd);
-            assertTrue("Compiled XmlObject Validation Failed!",xobj.validate());
-        }
-        catch (XmlException xme) {
-            xme.printStackTrace();
-            fail("XmlException thrown when compiling schema");
-        }
+        XmlObject xobj = XmlObject.Factory.parse(sInputXsd);
+        assertTrue(xobj.validate(options), "Compiled XmlObject Validation Failed!");
 
         // check for errors
-        for (Iterator iterator = errors.iterator(); iterator.hasNext();) {
-            System.out.println("Xsd Compilation Errors : " + iterator.next());
-        }
-        if (!errors.isEmpty()) {
-            fail("Errors found when compiling schema");
-        }
+        assertTrue(options.getErrorListener().isEmpty(), "Errors found when compiling schema");
     }
 }

@@ -19,17 +19,17 @@ import org.apache.xmlbeans.ThreadLocalUtil;
 import org.apache.xmlbeans.impl.common.SystemCache;
 import org.apache.xmlbeans.impl.schema.StscState;
 import org.apache.xmlbeans.impl.store.CharUtil;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class ThreadLocalUtilTest {
     @Test
-    public void testClearThreadLocalsNoData() {
+    void testClearThreadLocalsNoData() {
         // simply calling it without any thread locals should work
         ThreadLocalUtil.clearAllThreadLocals();
     }
 
     @Test
-    public void testClearThreadLocalsWithData() {
+    void testClearThreadLocalsWithData() {
         // calling it with thread locals should work as well
         CharUtil.getThreadLocalCharUtil();
 

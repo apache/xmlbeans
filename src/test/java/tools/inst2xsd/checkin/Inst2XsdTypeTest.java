@@ -14,10 +14,12 @@
  */
 package tools.inst2xsd.checkin;
 
-import org.junit.Test;
-import tools.inst2xsd.common.Inst2XsdTestBase;
+import org.junit.jupiter.api.Test;
 
-public class Inst2XsdTypeTest extends Inst2XsdTestBase {
+import static tools.inst2xsd.common.Inst2XsdTestBase.getTypeXml;
+import static tools.inst2xsd.common.Inst2XsdTestBase.runTypeChecking;
+
+public class Inst2XsdTypeTest {
 
     // List of precedence for smart simple primitive type determination
     // byte, short, int, long, integer, float, double, decimal,
@@ -28,14 +30,14 @@ public class Inst2XsdTypeTest extends Inst2XsdTestBase {
     // list types ?
     // string
     @Test
-    public void test_string() throws Exception {
+    void test_string() throws Exception {
         runTypeChecking(getTypeXml("a"), "string");
         runTypeChecking(getTypeXml("a2a"), "string");
         runTypeChecking(getTypeXml("a b c\n hello\t from\n\txmlbeans"), "string");
     }
 
     @Test
-    public void test_byte() throws Exception {
+    void test_byte() throws Exception {
         runTypeChecking(getTypeXml("123"), "byte");
         runTypeChecking(getTypeXml("+100"), "byte");
         runTypeChecking(getTypeXml("-1"), "byte");
@@ -45,7 +47,7 @@ public class Inst2XsdTypeTest extends Inst2XsdTestBase {
     }
 
     @Test
-    public void test_short() throws Exception {
+    void test_short() throws Exception {
         runTypeChecking(getTypeXml("-129"), "short");
         runTypeChecking(getTypeXml("128"), "short");
         runTypeChecking(getTypeXml("3000"), "short");
@@ -55,7 +57,7 @@ public class Inst2XsdTypeTest extends Inst2XsdTestBase {
     }
 
     @Test
-    public void test_int() throws Exception {
+    void test_int() throws Exception {
         runTypeChecking(getTypeXml("39000"), "int");
         runTypeChecking(getTypeXml("32768"), "int");
         runTypeChecking(getTypeXml("-32769"), "int");
@@ -66,7 +68,7 @@ public class Inst2XsdTypeTest extends Inst2XsdTestBase {
     }
 
     @Test
-    public void test_long() throws Exception {
+    void test_long() throws Exception {
         runTypeChecking(getTypeXml("2147483648"), "long");
         runTypeChecking(getTypeXml("-2147483649"), "long");
         runTypeChecking(getTypeXml("-2150000000"), "long");
@@ -76,7 +78,7 @@ public class Inst2XsdTypeTest extends Inst2XsdTestBase {
     }
 
     @Test
-    public void test_integer() throws Exception {
+    void test_integer() throws Exception {
         runTypeChecking(getTypeXml("9300000000000000000"), "integer");
         runTypeChecking(getTypeXml("-9300000000000000000"), "integer");
         runTypeChecking(getTypeXml("-9223372036854775809"), "integer");
@@ -84,7 +86,7 @@ public class Inst2XsdTypeTest extends Inst2XsdTestBase {
     }
 
     @Test
-    public void test_float() throws Exception {
+    void test_float() throws Exception {
         runTypeChecking(getTypeXml("12.78e-2"), "float");
         runTypeChecking(getTypeXml("1267.43233E12"), "float");
         runTypeChecking(getTypeXml("-1E4"), "float");
@@ -111,26 +113,26 @@ public class Inst2XsdTypeTest extends Inst2XsdTestBase {
     //}
 
     @Test
-    public void test_date() throws Exception {
+    void test_date() throws Exception {
         runTypeChecking(getTypeXml("1999-05-31"), "date");
     }
 
     @Test
-    public void test_dateTime() throws Exception {
+    void test_dateTime() throws Exception {
         runTypeChecking(getTypeXml("1999-05-31T13:20:00-05:00"), "dateTime");
         runTypeChecking(getTypeXml("2000-03-04T20:00:00Z"), "dateTime");
         runTypeChecking(getTypeXml("2000-03-04T23:00:00+03:00"), "dateTime");
     }
 
     @Test
-    public void test_time() throws Exception {
+    void test_time() throws Exception {
         runTypeChecking(getTypeXml("13:20:00-05:00"), "time");
         runTypeChecking(getTypeXml("00:00:00"), "time");
         runTypeChecking(getTypeXml("13:20:00Z"), "time");
     }
 
     @Test
-    public void test_CDATA() throws Exception {
+    void test_CDATA() throws Exception {
         runTypeChecking(getTypeXml("<![CDATA[ " +
                                    "function matchwo(a, b) {" +
                                    "if (a < b && a < 0) " +

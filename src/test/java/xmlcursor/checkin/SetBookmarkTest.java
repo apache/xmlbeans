@@ -19,123 +19,124 @@ package xmlcursor.checkin;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlCursor.TokenType;
 import org.apache.xmlbeans.XmlObject;
-import org.junit.Test;
-import xmlcursor.common.BasicCursorTestCase;
+import org.junit.jupiter.api.Test;
 import xmlcursor.common.Common;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static xmlcursor.common.BasicCursorTestCase.*;
 
 
-public class SetBookmarkTest extends BasicCursorTestCase {
-    private SimpleBookmark _theBookmark = new SimpleBookmark("value");
-    private SimpleBookmark _theBookmark1 = new SimpleBookmark("value1");
+public class SetBookmarkTest {
+    private static final SimpleBookmark _theBookmark = new SimpleBookmark("value");
+    private static final SimpleBookmark _theBookmark1 = new SimpleBookmark("value1");
 
     @Test
-    public void testSetBookmarkAtSTARTDOC() throws Exception {
-        m_xo = XmlObject.Factory.parse(Common.XML_FOO_TEXT);
-        m_xc = m_xo.newCursor();
-        m_xc.setBookmark(_theBookmark);
-        SimpleBookmark sa = (SimpleBookmark) m_xc.getBookmark(SimpleBookmark.class);
-        assertEquals("value", sa.text);
+    void testSetBookmarkAtSTARTDOC() throws Exception {
+        try (XmlCursor m_xc = cur(Common.XML_FOO_TEXT)) {
+            m_xc.setBookmark(_theBookmark);
+            SimpleBookmark sa = (SimpleBookmark) m_xc.getBookmark(SimpleBookmark.class);
+            assertEquals("value", sa.text);
+        }
     }
 
     @Test
-    public void testSetBookmarkDuplicateKey() throws Exception {
-        m_xo = XmlObject.Factory.parse(Common.XML_FOO_TEXT);
-        m_xc = m_xo.newCursor();
-        m_xc.setBookmark(_theBookmark);
-        m_xc.setBookmark(_theBookmark1);
-        // should overwrite the Bookmark of same key analogous to hashtable
-        SimpleBookmark sa = (SimpleBookmark) m_xc.getBookmark(SimpleBookmark.class);
-        assertEquals("value1", sa.text);
+    void testSetBookmarkDuplicateKey() throws Exception {
+        try (XmlCursor m_xc = cur(Common.XML_FOO_TEXT)) {
+            m_xc.setBookmark(_theBookmark);
+            m_xc.setBookmark(_theBookmark1);
+            // should overwrite the Bookmark of same key analogous to hashtable
+            SimpleBookmark sa = (SimpleBookmark) m_xc.getBookmark(SimpleBookmark.class);
+            assertEquals("value1", sa.text);
+        }
     }
 
     @Test
-    public void testSetBookmarkDuplicateKeyDifferentLocation() throws Exception {
-        m_xo = XmlObject.Factory.parse(Common.XML_FOO_TEXT);
-        m_xc = m_xo.newCursor();
-        m_xc.setBookmark(_theBookmark);
-        toNextTokenOfType(m_xc, TokenType.TEXT);
-        m_xc.setBookmark(_theBookmark1);
-        SimpleBookmark sa = (SimpleBookmark) m_xc.getBookmark(SimpleBookmark.class);
-        assertEquals("value1", sa.text);
-        m_xc.toStartDoc();
-        sa = (SimpleBookmark) m_xc.getBookmark(SimpleBookmark.class);
-        assertEquals("value", sa.text);
+    void testSetBookmarkDuplicateKeyDifferentLocation() throws Exception {
+        try (XmlCursor m_xc = cur(Common.XML_FOO_TEXT)) {
+            m_xc.setBookmark(_theBookmark);
+            toNextTokenOfType(m_xc, TokenType.TEXT);
+            m_xc.setBookmark(_theBookmark1);
+            SimpleBookmark sa = (SimpleBookmark) m_xc.getBookmark(SimpleBookmark.class);
+            assertEquals("value1", sa.text);
+            m_xc.toStartDoc();
+            sa = (SimpleBookmark) m_xc.getBookmark(SimpleBookmark.class);
+            assertEquals("value", sa.text);
+        }
     }
 
     @Test
-    public void testSetBookmarkAtSTART() throws Exception {
-        m_xo = XmlObject.Factory.parse(Common.XML_FOO_TEXT);
-        m_xc = m_xo.newCursor();
-        toNextTokenOfType(m_xc, TokenType.START);
-        m_xc.setBookmark(_theBookmark);
-        SimpleBookmark sa = (SimpleBookmark) m_xc.getBookmark(SimpleBookmark.class);
-        assertEquals("value", sa.text);
+    void testSetBookmarkAtSTART() throws Exception {
+        try (XmlCursor m_xc = cur(Common.XML_FOO_TEXT)) {
+            toNextTokenOfType(m_xc, TokenType.START);
+            m_xc.setBookmark(_theBookmark);
+            SimpleBookmark sa = (SimpleBookmark) m_xc.getBookmark(SimpleBookmark.class);
+            assertEquals("value", sa.text);
+        }
     }
 
     @Test
-    public void testSetBookmarkAtATTR() throws Exception {
-        m_xo = XmlObject.Factory.parse(Common.XML_FOO_1ATTR);
-        m_xc = m_xo.newCursor();
-        toNextTokenOfType(m_xc, TokenType.ATTR);
-        m_xc.setBookmark(_theBookmark);
-        SimpleBookmark sa = (SimpleBookmark) m_xc.getBookmark(SimpleBookmark.class);
-        assertEquals("value", sa.text);
+    void testSetBookmarkAtATTR() throws Exception {
+        try (XmlCursor m_xc = cur(Common.XML_FOO_1ATTR)) {
+            toNextTokenOfType(m_xc, TokenType.ATTR);
+            m_xc.setBookmark(_theBookmark);
+            SimpleBookmark sa = (SimpleBookmark) m_xc.getBookmark(SimpleBookmark.class);
+            assertEquals("value", sa.text);
+        }
     }
 
     @Test
-    public void testSetBookmarkAtPROCINST() throws Exception {
-        m_xo = XmlObject.Factory.parse(Common.XML_FOO_PROCINST);
-        m_xc = m_xo.newCursor();
-        toNextTokenOfType(m_xc, TokenType.PROCINST);
-        m_xc.setBookmark(_theBookmark);
-        SimpleBookmark sa = (SimpleBookmark) m_xc.getBookmark(SimpleBookmark.class);
-        assertEquals("value", sa.text);
+    void testSetBookmarkAtPROCINST() throws Exception {
+        try (XmlCursor m_xc = cur(Common.XML_FOO_PROCINST)) {
+            toNextTokenOfType(m_xc, TokenType.PROCINST);
+            m_xc.setBookmark(_theBookmark);
+            SimpleBookmark sa = (SimpleBookmark) m_xc.getBookmark(SimpleBookmark.class);
+            assertEquals("value", sa.text);
+        }
     }
 
     @Test
-    public void testSetBookmarkInMiddleOfTEXT() throws Exception {
-        m_xo = XmlObject.Factory.parse(Common.XML_FOO_TEXT);
-        m_xc = m_xo.newCursor();
-        toNextTokenOfType(m_xc, TokenType.TEXT);
-        m_xc.toNextChar(3);
-        m_xc.setBookmark(_theBookmark);
-        SimpleBookmark sa = (SimpleBookmark) m_xc.getBookmark(SimpleBookmark.class);
-        assertEquals("value", sa.text);
+    void testSetBookmarkInMiddleOfTEXT() throws Exception {
+        try (XmlCursor m_xc = cur(Common.XML_FOO_TEXT)) {
+            toNextTokenOfType(m_xc, TokenType.TEXT);
+            m_xc.toNextChar(3);
+            m_xc.setBookmark(_theBookmark);
+            SimpleBookmark sa = (SimpleBookmark) m_xc.getBookmark(SimpleBookmark.class);
+            assertEquals("value", sa.text);
+        }
     }
 
     @Test
-    public void testSetBookmarkAtENDDOC() throws Exception {
-        m_xo = XmlObject.Factory.parse(Common.XML_FOO_1ATTR);
-        m_xc = m_xo.newCursor();
-        toNextTokenOfType(m_xc, TokenType.END);
-        m_xc.setBookmark(_theBookmark);
-        SimpleBookmark sa = (SimpleBookmark) m_xc.getBookmark(SimpleBookmark.class);
-        assertEquals("value", sa.text);
+    void testSetBookmarkAtENDDOC() throws Exception {
+        try (XmlCursor m_xc = cur(Common.XML_FOO_1ATTR)) {
+            toNextTokenOfType(m_xc, TokenType.END);
+            m_xc.setBookmark(_theBookmark);
+            SimpleBookmark sa = (SimpleBookmark) m_xc.getBookmark(SimpleBookmark.class);
+            assertEquals("value", sa.text);
+        }
     }
 
     @Test
-    public void testSetBookmarkNull() throws Exception {
-        m_xo = XmlObject.Factory.parse(Common.XML_FOO_1ATTR);
-        m_xc = m_xo.newCursor();
-        toNextTokenOfType(m_xc, TokenType.END);
-        m_xc.setBookmark(null);
-        SimpleBookmark sa = (SimpleBookmark) m_xc.getBookmark(SimpleBookmark.class);
-        assertNull(sa);
+    void testSetBookmarkNull() throws Exception {
+        try (XmlCursor m_xc = cur(Common.XML_FOO_1ATTR)) {
+            toNextTokenOfType(m_xc, TokenType.END);
+            m_xc.setBookmark(null);
+            SimpleBookmark sa = (SimpleBookmark) m_xc.getBookmark(SimpleBookmark.class);
+            assertNull(sa);
+        }
     }
 
     @Test
-    public void testXmlDocumentProperties() throws Exception {
-        m_xo = XmlObject.Factory.parse(Common.XML_FOO_1ATTR);
+    void testXmlDocumentProperties() throws Exception {
+        XmlObject m_xo = obj(Common.XML_FOO_1ATTR);
         m_xo.documentProperties().put("fredkey", "fredvalue");
-        m_xc = m_xo.newCursor();
-        assertEquals("fredvalue", m_xo.documentProperties().get("fredkey"));
+        try (XmlCursor m_xc = m_xo.newCursor()) {
+            assertEquals("fredvalue", m_xo.documentProperties().get("fredkey"));
+        }
     }
 
 
-    public class SimpleBookmark extends XmlCursor.XmlBookmark {
+    private static class SimpleBookmark extends XmlCursor.XmlBookmark {
         public String text;
 
         SimpleBookmark(String text) {

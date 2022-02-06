@@ -22,15 +22,14 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.w3c.domts.DOMTest.isExpandEntityReferences;
 import static org.w3c.domts.DOMTest.load;
 
@@ -51,39 +50,26 @@ import static org.w3c.domts.DOMTest.load;
  */
 public class prefix08 {
     @Test
-    @Ignore
+    @Disabled
     public void testRun() throws Throwable {
-        Document doc;
-        NodeList genderList;
-        Node genderNode;
-        Node entRef;
-        Node entElement;
-        Node createdNode;
-        doc = load("staff", true);
+        Document doc = load("staff", true);
 
+        Node entRef;
         if (!isExpandEntityReferences()) {
-            genderList = doc.getElementsByTagName("gender");
-            genderNode = genderList.item(2);
+            NodeList genderList = doc.getElementsByTagName("gender");
+            Node genderNode = genderList.item(2);
             entRef = genderNode.getFirstChild();
         } else {
             entRef = doc.createEntityReference("ent4");
         }
 
-        assertNotNull("entityRef", entRef);
-        entElement = entRef.getFirstChild();
-        assertNotNull("entElement", entElement);
-        createdNode = doc.createElement("text3");
+        assertNotNull(entRef, "entityRef");
+        Node entElement = entRef.getFirstChild();
+        assertNotNull(entElement, "entElement");
+        Node createdNode = doc.createElement("text3");
 
-        {
-            boolean success = false;
-            try {
-                entElement.setPrefix("newPrefix");
-            } catch (DOMException ex) {
-                success = (ex.code == DOMException.NO_MODIFICATION_ALLOWED_ERR);
-            }
-            assertTrue("throw_NO_MODIFICATION_ALLOWED_ERR", success);
-        }
-
+        DOMException ex = assertThrows(DOMException.class, () -> entElement.setPrefix("newPrefix"));
+        assertEquals(DOMException.NO_MODIFICATION_ALLOWED_ERR, ex.code, "throw_NO_MODIFICATION_ALLOWED_ERR");
     }
 
     /**

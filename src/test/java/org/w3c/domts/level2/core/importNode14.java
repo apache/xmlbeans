@@ -22,12 +22,11 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
-import org.w3c.dom.DocumentType;
 import org.w3c.dom.ProcessingInstruction;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -44,34 +43,19 @@ import static org.w3c.domts.DOMTest.load;
  */
 public class importNode14 {
     @Test
-    public void testRun() throws Throwable {
-        Document doc;
-        Document aNewDoc;
-        ProcessingInstruction pi;
-        ProcessingInstruction aNode;
-        Document ownerDocument;
-        DocumentType docType;
-        String system;
-        String target;
-        String data;
-        java.util.List result = new java.util.ArrayList();
-
-        doc = load("staffNS", true);
-        aNewDoc = load("staffNS", true);
-        pi = aNewDoc.createProcessingInstruction("target1", "data1");
-        aNode = (ProcessingInstruction) doc.importNode(pi, false);
-        ownerDocument = aNode.getOwnerDocument();
-        //$NOTE:add this if ever implemented
-      /*
-	docType = ownerDocument.getDoctype();
-	system = docType.getSystemId();
-	assertURIEquals("systemId", null, null, null, "staffNS.dtd", null, null, null, null, system);
-      */
-        target = aNode.getTarget();
-        assertEquals("piTarget", "target1", target);
-        data = aNode.getData();
-        assertEquals("piData", "data1", data);
-
+    void testRun() throws Throwable {
+        Document doc = load("staffNS", true);
+        Document aNewDoc = load("staffNS", true);
+        ProcessingInstruction pi = aNewDoc.createProcessingInstruction("target1", "data1");
+        ProcessingInstruction aNode = (ProcessingInstruction) doc.importNode(pi, false);
+        // TODO: add this if ever implemented
+        // DocumentType docType = ownerDocument.getDoctype();
+        // String system = docType.getSystemId();
+        // assertURIEquals("systemId", null, null, null, "staffNS.dtd", null, null, null, null, system);
+        String target = aNode.getTarget();
+        assertEquals("target1", target, "piTarget");
+        String data = aNode.getData();
+        assertEquals("data1", data, "piData");
     }
 
     /**

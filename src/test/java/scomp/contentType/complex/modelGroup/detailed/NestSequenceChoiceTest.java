@@ -15,38 +15,33 @@
 package scomp.contentType.complex.modelGroup.detailed;
 
 import org.apache.xmlbeans.XmlErrorCodes;
-import org.junit.Test;
-import scomp.common.BaseCase;
+import org.apache.xmlbeans.XmlOptions;
+import org.junit.jupiter.api.Test;
 import xbean.scomp.contentType.modelGroup.NestedChoiceInSequenceDocument;
 import xbean.scomp.contentType.modelGroup.NestedChoiceInSequenceT;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
+import static scomp.common.BaseCase.createOptions;
+import static scomp.common.BaseCase.getErrorCodes;
 
-public class NestSequenceChoiceTest extends BaseCase {
+public class NestSequenceChoiceTest {
     /**
      * Choice group is optional
      */
     @Test
-    public void testChoiceMissing() throws Throwable {
-        NestedChoiceInSequenceDocument doc =
-                NestedChoiceInSequenceDocument.Factory.newInstance();
+    void testChoiceMissing() {
+        NestedChoiceInSequenceDocument doc = NestedChoiceInSequenceDocument.Factory.newInstance();
         NestedChoiceInSequenceT elt = doc.addNewNestedChoiceInSequence();
         elt.setChildDouble(1.3);
         elt.setChildInt(2);
         elt.setChildStr("foo");
 
-        try {
-            assertTrue(doc.validate(validateOptions));
-        } catch (Throwable t) {
-            showErrors();
-            throw t;
-        }
+        assertTrue(doc.validate(createOptions()));
     }
 
     @Test
-    public void testAllPresent() throws Throwable {
-        NestedChoiceInSequenceDocument doc =
-                NestedChoiceInSequenceDocument.Factory.newInstance();
+    void testAllPresent() {
+        NestedChoiceInSequenceDocument doc = NestedChoiceInSequenceDocument.Factory.newInstance();
         NestedChoiceInSequenceT elt = doc.addNewNestedChoiceInSequence();
         elt.setChildDouble(1.3);
         elt.setChildInt(2);
@@ -54,40 +49,26 @@ public class NestSequenceChoiceTest extends BaseCase {
 
         elt.setOptchildDouble(1.4);
 
-        try {
-            assertTrue(doc.validate(validateOptions));
-        } catch (Throwable t) {
-            showErrors();
-            throw t;
-        }
+        XmlOptions validateOptions = createOptions();
+        assertTrue(doc.validate(validateOptions));
 
         //can't have both set
         elt.setOptchildInt(2);
         elt.setOptchildStr("boo");
-        assertTrue(!doc.validate(validateOptions));
-        showErrors();
-        String[] errExpected = new String[]{
-            XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$EXPECTED_DIFFERENT_ELEMENT
-        };
-        assertTrue(compareErrorCodes(errExpected));
+        assertFalse(doc.validate(validateOptions));
+        String[] errExpected = {XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$EXPECTED_DIFFERENT_ELEMENT};
+        assertArrayEquals(errExpected, getErrorCodes(validateOptions));
 
         elt.unsetOptchildDouble();
-        try {
-            assertTrue(doc.validate(validateOptions));
-        } catch (Throwable t) {
-            showErrors();
-            throw t;
-        }
-
+        assertTrue(doc.validate(validateOptions));
     }
 
     /**
      * Missing elt. from the sequence in the choice
      */
     @Test
-    public void testIllegal() throws Throwable {
-        NestedChoiceInSequenceDocument doc =
-                NestedChoiceInSequenceDocument.Factory.newInstance();
+    void testIllegal() throws Throwable {
+        NestedChoiceInSequenceDocument doc = NestedChoiceInSequenceDocument.Factory.newInstance();
         NestedChoiceInSequenceT elt = doc.addNewNestedChoiceInSequence();
         elt.setChildDouble(1.3);
         elt.setChildInt(2);
@@ -95,64 +76,54 @@ public class NestSequenceChoiceTest extends BaseCase {
 
         elt.setOptchildInt(2);
         //optChildStr is missing
-        assertTrue(!doc.validate(validateOptions));
-        showErrors();
-        String[] errExpected = new String[]{
-           XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$EXPECTED_DIFFERENT_ELEMENT
-        };
-        assertTrue(compareErrorCodes(errExpected));
+        XmlOptions validateOptions = createOptions();
+        assertFalse(doc.validate(validateOptions));
+        String[] errExpected = {XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$EXPECTED_DIFFERENT_ELEMENT};
+        assertArrayEquals(errExpected, getErrorCodes(validateOptions));
 
 
         elt.setOptchildStr("boo");
-        try {
-            assertTrue(doc.validate(validateOptions));
-        } catch (Throwable t) {
-            showErrors();
-            throw t;
-        }
+        assertTrue(doc.validate(validateOptions));
     }
 
     /**
      * Incorrect order in inner sequence
      */
     @Test
-    public void testIllegalOrderInner() throws Throwable {
+    void testIllegalOrderInner() throws Throwable {
         String input =
-                "<pre:NestedChoiceInSequence  " +
-                "xmlns:pre=\"http://xbean/scomp/contentType/ModelGroup\">" +
-                "<childStr>foo</childStr>" +
-                "<childInt>3</childInt>" +
-                "<optchildInt>0</optchildInt>" +
-                "<optchildStr>foo</optchildStr>" +
-                "</pre:NestedChoiceInSequence>";
-        NestedChoiceInSequenceDocument doc =
-                NestedChoiceInSequenceDocument.Factory.parse(input);
-        assertTrue(!doc.validate(validateOptions));
-        showErrors();
-       // TODO: why are there 2 different errors: just the order is swapped
-        String[] errExpected = new String[]{
+            "<pre:NestedChoiceInSequence  " +
+            "xmlns:pre=\"http://xbean/scomp/contentType/ModelGroup\">" +
+            "<childStr>foo</childStr>" +
+            "<childInt>3</childInt>" +
+            "<optchildInt>0</optchildInt>" +
+            "<optchildStr>foo</optchildStr>" +
+            "</pre:NestedChoiceInSequence>";
+        NestedChoiceInSequenceDocument doc = NestedChoiceInSequenceDocument.Factory.parse(input);
+        XmlOptions validateOptions = createOptions();
+        assertFalse(doc.validate(validateOptions));
+        // TODO: why are there 2 different errors: just the order is swapped
+        String[] errExpected = {
             XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$EXPECTED_DIFFERENT_ELEMENT,
-             XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$MISSING_ELEMENT
+            XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$MISSING_ELEMENT
         };
-        assertTrue(compareErrorCodes(errExpected));
+        assertArrayEquals(errExpected, getErrorCodes(validateOptions));
     }
 
     /**
      * Incorrect order in outer sequence
      */
     @Test
-    public void testIllegalOrderOuter() throws Throwable {
+    void testIllegalOrderOuter() throws Throwable {
         String input =
-                "<pre:NestedChoiceInSequence  " +
-                "xmlns:pre=\"http://xbean/scomp/contentType/ModelGroup\">" +
-                "<childInt>3</childInt>" +
-                "<childStr>foo</childStr>" +
-                "<optchildStr>foo</optchildStr>" +
-                "<optchildInt>0</optchildInt>" +
-                "</pre:NestedChoiceInSequence>";
-        NestedChoiceInSequenceDocument doc =
-                NestedChoiceInSequenceDocument.Factory.parse(input);
-        assertTrue(!doc.validate(validateOptions));
-        showErrors();
+            "<pre:NestedChoiceInSequence  " +
+            "xmlns:pre=\"http://xbean/scomp/contentType/ModelGroup\">" +
+            "<childInt>3</childInt>" +
+            "<childStr>foo</childStr>" +
+            "<optchildStr>foo</optchildStr>" +
+            "<optchildInt>0</optchildInt>" +
+            "</pre:NestedChoiceInSequence>";
+        NestedChoiceInSequenceDocument doc = NestedChoiceInSequenceDocument.Factory.parse(input);
+        assertFalse(doc.validate(createOptions()));
     }
 }

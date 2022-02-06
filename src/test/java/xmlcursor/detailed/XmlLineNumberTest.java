@@ -18,16 +18,16 @@ import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlLineNumber;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 
 import static common.Common.P;
 import static common.Common.XBEAN_CASE_ROOT;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class XmlLineNumberTest {
-    public static final String xml =
+    private static final String XML =
         "<people><person born=\"1912\" died=\"1954\" id=\"p342\">\n" +
         "    <name>\n" +
         "\t\t<first_name>Alan</first_name>\n" +
@@ -35,14 +35,14 @@ public class XmlLineNumberTest {
         "</name>\n" +
         "</person></people>";
 
-    public static final String xmlFile = XBEAN_CASE_ROOT + P + "xmlcursor" + P + "Employees.xml";
+    private static final String xmlFile = XBEAN_CASE_ROOT + P + "xmlcursor" + P + "Employees.xml";
 
     /**
      * test obtaining XmlLineNumber bookmark with option
      * XmlOptions.setLoadLineNumbers()
      */
     @Test
-    public void testGetBookmark1() throws Exception {
+    void testGetBookmark1() throws Exception {
         File f = new File(xmlFile);
         XmlOptions opt = new XmlOptions();
         opt.setLoadLineNumbers();
@@ -70,7 +70,7 @@ public class XmlLineNumberTest {
      * XmlOptions.setLoadLineNumbers(XmlOptions.LOAD_LINE_NUMBERS_END_ELEMENT)
      */
     @Test
-    public void testGetBookmark2() throws Exception {
+    void testGetBookmark2() throws Exception {
         File f = new File(xmlFile);
         XmlOptions opt = new XmlOptions();
         opt.setLoadLineNumbersEndElement();
@@ -99,9 +99,9 @@ public class XmlLineNumberTest {
      * - parsing xml from string
      */
     @Test
-    public void testLineNumber1() throws Exception {
+    void testLineNumber1() throws Exception {
         XmlOptions opt = new XmlOptions().setLoadLineNumbers();
-        XmlObject xo = XmlObject.Factory.parse(xml, opt);
+        XmlObject xo = XmlObject.Factory.parse(XML, opt);
 
         try (XmlCursor c = xo.newCursor()) {
             c.toFirstContentToken();
@@ -128,7 +128,7 @@ public class XmlLineNumberTest {
      * - parsing xml from file
      */
     @Test
-    public void testLineNumber2() throws Exception {
+    void testLineNumber2() throws Exception {
         File f = new File(xmlFile);
         XmlOptions opt = new XmlOptions();
         opt.setLoadLineNumbersEndElement();

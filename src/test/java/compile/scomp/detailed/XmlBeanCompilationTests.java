@@ -20,7 +20,7 @@ import compile.scomp.common.mockobj.TestBindingConfig;
 import compile.scomp.common.mockobj.TestFiler;
 import org.apache.xmlbeans.*;
 import org.apache.xmlbeans.impl.xb.xmlconfig.ConfigDocument;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import javax.xml.namespace.QName;
 import java.io.File;
@@ -30,8 +30,8 @@ import java.util.stream.Stream;
 
 import static common.Common.*;
 import static compile.scomp.common.CompileTestBase.*;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
 /**
@@ -44,7 +44,7 @@ public class XmlBeanCompilationTests {
      * Filer != null for BindingConfig to be used
      */
     @Test
-    public void test_bindingconfig_extension_compilation() throws Exception {
+    void test_bindingconfig_extension_compilation() throws Exception {
         TestFiler f = new TestFiler();
         //initialize all of the values
         String extCaseDir = XBEAN_CASE_ROOT + P + "extensions" + P;
@@ -89,14 +89,14 @@ public class XmlBeanCompilationTests {
         SchemaTypeSystem apiSts = XmlBeans.compileXmlBeans("apiCompile", null,
             schemas, bind, XmlBeans.getBuiltinTypeSystem(), f, xm_opts);
 
-        assertTrue("isIslookupPrefixForNamespace not invoked", bind.isIslookupPrefixForNamespace());
-        assertTrue("isIslookupPackageForNamespace not invoked", bind.isIslookupPackageForNamespace());
-        assertTrue("isIslookupSuffixForNamespace not invoked", bind.isIslookupSuffixForNamespace());
-        assertTrue("isIslookupJavanameForQName not invoked", bind.isIslookupJavanameForQName());
-        assertTrue("isIsgetInterfaceExtensionsString not invoked", bind.isIsgetInterfaceExtensionsString());
-        assertTrue("isIsgetInterfaceExtensions not invoked", bind.isIsgetInterfaceExtensions());
-        assertTrue("isIsgetPrePostExtensions not invoked", bind.isIsgetPrePostExtensions());
-        assertTrue("isIsgetPrePostExtensionsString not invoked", bind.isIsgetPrePostExtensionsString());
+        assertTrue(bind.isIslookupPrefixForNamespace(), "isIslookupPrefixForNamespace not invoked");
+        assertTrue(bind.isIslookupPackageForNamespace(), "isIslookupPackageForNamespace not invoked");
+        assertTrue(bind.isIslookupSuffixForNamespace(), "isIslookupSuffixForNamespace not invoked");
+        assertTrue(bind.isIslookupJavanameForQName(), "isIslookupJavanameForQName not invoked");
+        assertTrue(bind.isIsgetInterfaceExtensionsString(), "isIsgetInterfaceExtensionsString not invoked");
+        assertTrue(bind.isIsgetInterfaceExtensions(), "isIsgetInterfaceExtensions not invoked");
+        assertTrue(bind.isIsgetPrePostExtensions(), "isIsgetPrePostExtensions not invoked");
+        assertTrue(bind.isIsgetPrePostExtensionsString(), "isIsgetPrePostExtensionsString not invoked");
     }
 
     /**
@@ -104,7 +104,7 @@ public class XmlBeanCompilationTests {
      * and compilation with partial SOM usages
      */
     @Test
-    public void test_incrCompile() throws Exception {
+    void test_incrCompile() throws Exception {
         XmlObject obj1 = XmlObject.Factory.parse(FOR_XSD);
         obj1.documentProperties().setSourceName("OBJ1");
         XmlObject[] schemas = {obj1};
@@ -128,35 +128,35 @@ public class XmlBeanCompilationTests {
         //BASIC COMPILATION
         sts = XmlBeans.compileXmlBeans(null, null, schemas, null, XmlBeans.getBuiltinTypeSystem(), null, opt);
 
-        assertTrue("Errors should have been empty", err.isEmpty());
+        assertTrue(err.isEmpty(), "Errors should have been empty");
         // find element in the type System
-        assertTrue("Could Not find Type from first Type System: " + sts1, findGlobalElement(sts.globalElements(), sts1));
+        assertTrue(findGlobalElement(sts.globalElements(), sts1), "Could Not find Type from first Type System: " + sts1);
 
         //SIMPLE INCR COMPILATION
         sts = XmlBeans.compileXmlBeans(null, sts, schemas2, null, XmlBeans.getBuiltinTypeSystem(), null, opt);
-        assertTrue("Errors should have been empty", err.isEmpty());
+        assertTrue(err.isEmpty(), "Errors should have been empty");
 
         // find element in the type System
-        assertTrue("Could Not find Type from first Type System: " + sts1, findGlobalElement(sts.globalElements(), sts1));
-        assertTrue("Could Not find Type from 2nd Type System: " + sts2, findGlobalElement(sts.globalElements(), sts2));
+        assertTrue(findGlobalElement(sts.globalElements(), sts1), "Could Not find Type from first Type System: " + sts1);
+        assertTrue(findGlobalElement(sts.globalElements(), sts2), "Could Not find Type from 2nd Type System: " + sts2);
 
         //BUILDING OFF BASE SIMPLE INCR COMPILATION
         sts = XmlBeans.compileXmlBeans(null, sts, schemas2, null, sts, null, opt);
-        assertTrue("Errors should have been empty", err.isEmpty());
+        assertTrue(err.isEmpty(), "Errors should have been empty");
 
         // find element in the type System
-        assertTrue("Could Not find Type from first Type System: " + sts1, findGlobalElement(sts.globalElements(), sts1));
-        assertTrue("Could Not find Type from 2nd Type System: " + sts2, findGlobalElement(sts.globalElements(), sts2));
+        assertTrue(findGlobalElement(sts.globalElements(), sts1), "Could Not find Type from first Type System: " + sts1);
+        assertTrue(findGlobalElement(sts.globalElements(), sts2), "Could Not find Type from 2nd Type System: " + sts2);
 
         //INCR COMPILATION WITH RECOVERABLE ERROR
         err.clear();
         SchemaTypeSystem b = XmlBeans.compileXmlBeans(null, sts, schemas3, null, XmlBeans.getBuiltinTypeSystem(), null, opt);
         // find element in the type System
-        assertTrue("Could Not find Type from first Type System: " + sts1, findGlobalElement(b.globalElements(), sts1));
+        assertTrue(findGlobalElement(b.globalElements(), sts1), "Could Not find Type from first Type System: " + sts1);
 
-        assertTrue("Could Not find Type from 2nd Type System: " + sts2, findGlobalElement(b.globalElements(), sts2));
+        assertTrue(findGlobalElement(b.globalElements(), sts2), "Could Not find Type from 2nd Type System: " + sts2);
 
-        assertTrue("Could Not find Type from 3rd Type System: " + sts3, findGlobalElement(b.globalElements(), sts3));
+        assertTrue(findGlobalElement(b.globalElements(), sts3), "Could Not find Type from 3rd Type System: " + sts3);
 
         //compare to the expected xm_errors
         assertEquals(1, err.size());

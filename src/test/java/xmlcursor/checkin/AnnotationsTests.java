@@ -16,12 +16,13 @@
 package xmlcursor.checkin;
 
 import org.apache.xmlbeans.XmlCursor;
+import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import xmlcursor.common.Common;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class AnnotationsTests {
     private static class TestBookmark extends XmlCursor.XmlBookmark {
@@ -31,7 +32,7 @@ public class AnnotationsTests {
     // Basic load up a file and iterate through it
     //
     @Test
-    public void testBasicXml() throws Exception {
+    void testBasicXml() throws XmlException {
         try (XmlCursor c = XmlObject.Factory.parse(Common.XML_ATTR_TEXT, null).newCursor()) {
             TestBookmark a1 = new TestBookmark();
 

@@ -15,134 +15,96 @@
 package scomp.derivation.restriction.detailed;
 
 import org.apache.xmlbeans.XmlErrorCodes;
-import org.junit.Test;
-import scomp.common.BaseCase;
+import org.apache.xmlbeans.XmlOptions;
+import org.junit.jupiter.api.Test;
 import xbean.scomp.derivation.groupRestriction.*;
 
 import java.math.BigInteger;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
+import static scomp.common.BaseCase.createOptions;
+import static scomp.common.BaseCase.getErrorCodes;
 
 /**
  *
  */
-public class GroupRestrictionTest extends BaseCase {
+public class GroupRestrictionTest {
 
     @Test
-    public void testRestrictSequence() throws Throwable {
-        RestrictedSequenceEltDocument doc = RestrictedSequenceEltDocument.Factory
-                .newInstance();
+    void testRestrictSequence() {
+        RestrictedSequenceEltDocument doc = RestrictedSequenceEltDocument.Factory.newInstance();
         RestrictedSequenceT elt = doc.addNewRestrictedSequenceElt();
         elt.setChild1(BigInteger.ONE);
 
         elt.addChild3(new BigInteger("10"));
         elt.addChild3(new BigInteger("10"));
-        try {
-            assertTrue(doc.validate(validateOptions));
-        } catch (Throwable t) {
-            showErrors();
-            throw t;
-        }
+        XmlOptions validateOptions = createOptions();
+        assertTrue(doc.validate(validateOptions));
         elt.addChild2("foobar");
-        assertTrue(!doc.validate(validateOptions));
-        showErrors();
-        String[] errExpected = new String[]{
-            XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$EXPECTED_DIFFERENT_ELEMENT
-        };
-        assertTrue(compareErrorCodes(errExpected));
-
-
+        assertFalse(doc.validate(validateOptions));
+        String[] errExpected = {XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$EXPECTED_DIFFERENT_ELEMENT};
+        assertArrayEquals(errExpected, getErrorCodes(validateOptions));
     }
 
     @Test
-    public void testRestrictChoice() throws Throwable {
-        RestrictedChoiceEltDocument doc = RestrictedChoiceEltDocument.Factory
-                .newInstance();
+    void testRestrictChoice() {
+        RestrictedChoiceEltDocument doc = RestrictedChoiceEltDocument.Factory.newInstance();
         RestrictedChoiceT elt = doc.addNewRestrictedChoiceElt();
         elt.addChild2("foobar");
         elt.addChild3(BigInteger.ZERO);
-        assertTrue(!doc.validate(validateOptions));
-        showErrors();
-        String[] errExpected = new String[]{
-            XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$EXPECTED_DIFFERENT_ELEMENT};
-        assertTrue(compareErrorCodes(errExpected));
+        XmlOptions validateOptions = createOptions();
+        assertFalse(doc.validate(validateOptions));
+        String[] errExpected = {XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$EXPECTED_DIFFERENT_ELEMENT};
+        assertArrayEquals(errExpected, getErrorCodes(validateOptions));
 
         elt.removeChild2(0);
-        try {
-            assertTrue(doc.validate(validateOptions));
-        } catch (Throwable t) {
-            showErrors();
-            throw t;
-        }
-
+        assertTrue(doc.validate(validateOptions));
     }
 
     @Test
-    public void testRestrictAll() throws Throwable {
-        RestrictedAllEltDocument doc = RestrictedAllEltDocument.Factory
-                .newInstance();
+    void testRestrictAll() {
+        RestrictedAllEltDocument doc = RestrictedAllEltDocument.Factory.newInstance();
         RestrictedAllT elt = doc.addNewRestrictedAllElt();
         elt.setChild2("foobar");
         //child3 can't be missing
-        assertTrue(!doc.validate(validateOptions));
-        showErrors();
-        String[] errExpected = new String[]{
-            XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$MISSING_ELEMENT
-        };
-        assertTrue(compareErrorCodes(errExpected));
+        XmlOptions validateOptions = createOptions();
+        assertFalse(doc.validate(validateOptions));
+        String[] errExpected = {XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$MISSING_ELEMENT};
+        assertArrayEquals(errExpected, getErrorCodes(validateOptions));
 
         elt.setChild3(new BigInteger("10"));
-        try {
-            assertTrue(doc.validate(validateOptions));
-        } catch (Throwable t) {
-            showErrors();
-            throw t;
-        }
+        assertTrue(doc.validate(validateOptions));
     }
 
     @Test
-    public void testAllToSequence() throws Throwable {
+    void testAllToSequence() {
         All2SeqEltDocument doc = All2SeqEltDocument.Factory.newInstance();
         All2SequenceT elt = doc.addNewAll2SeqElt();
         elt.setA("foo");
         elt.setC(3);
-        try {
-            assertTrue(doc.validate(validateOptions));
-        } catch (Throwable t) {
-            showErrors();
-            throw t;
-        }
+        XmlOptions validateOptions = createOptions();
+        assertTrue(doc.validate(validateOptions));
+
         //b not part of restricted type
         elt.setB("bar");
-        assertTrue(!doc.validate(validateOptions));
-        showErrors();
-        String[] errExpected = new String[]{
-            XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$EXPECTED_DIFFERENT_ELEMENT
-        };
-        assertTrue(compareErrorCodes(errExpected));
-
+        assertFalse(doc.validate(validateOptions));
+        String[] errExpected = {XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$EXPECTED_DIFFERENT_ELEMENT};
+        assertArrayEquals(errExpected, getErrorCodes(validateOptions));
     }
 
     @Test
-    public void testChoiceToSequence() throws Throwable {
+    void testChoiceToSequence() throws Throwable {
         Choice2SeqEltDocument doc = Choice2SeqEltDocument.Factory.newInstance();
         Choice2SequenceT elt = doc.addNewChoice2SeqElt();
         elt.addA("foo");
         elt.addC(3);
-        try {
-            assertTrue(doc.validate(validateOptions));
-        } catch (Throwable t) {
-            showErrors();
-            throw t;
-        }
+        XmlOptions validateOptions = createOptions();
+        assertTrue(doc.validate(validateOptions));
+
         //b not part of restricted type
         elt.addB("bar");
-        assertTrue(!doc.validate(validateOptions));
-        showErrors();
-        String[] errExpected = new String[]{
-            XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$EXPECTED_DIFFERENT_ELEMENT
-        };
-        assertTrue(compareErrorCodes(errExpected));
-
+        assertFalse(doc.validate(validateOptions));
+        String[] errExpected = {XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$EXPECTED_DIFFERENT_ELEMENT};
+        assertArrayEquals(errExpected, getErrorCodes(validateOptions));
     }
 }

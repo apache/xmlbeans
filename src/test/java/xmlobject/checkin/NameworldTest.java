@@ -15,29 +15,26 @@
 
 package xmlobject.checkin;
 
-import org.apache.xmlbeans.XmlObject;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.openuri.nameworld.Loc;
 import org.openuri.nameworld.NameworldDocument;
-import org.openuri.nameworld.NameworldDocument.Nameworld;
-import tools.util.JarUtil;
 
 import javax.xml.namespace.QName;
+import java.util.stream.Stream;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static xmlcursor.common.BasicCursorTestCase.jobj;
 
 
 public class NameworldTest {
     @Test
-    public void testWorld1() throws Exception {
-        NameworldDocument doc = (NameworldDocument)
-            XmlObject.Factory.parse(
-                JarUtil.getResourceFromJarasFile(
-                    "xbean/xmlobject/nameworld.xml"));
+    void testWorld1() throws Exception {
+        NameworldDocument doc = (NameworldDocument) jobj("xbean/xmlobject/nameworld.xml");
+        QName expected = new QName("http://openuri.org/nameworld", "nameworld");
+        assertEquals(expected, doc.schemaType().getDocumentElementName());
 
-        assertEquals(new QName("http://openuri.org/nameworld", "nameworld"), doc.schemaType().getDocumentElementName());
-
-        QName[] contents = {
+        QName[] exp = {
             new QName("http://bar.com/", "barcity"),
             new QName("http://foo.com/", "footown"),
             new QName("http://bar.com/", "barvillage"),
@@ -51,18 +48,13 @@ public class NameworldTest {
             new QName("http://bar.com/", "barvillage"),
             new QName("http://foo.com/", "foovillage"),
         };
-        int t = 0;
 
-        Nameworld world = doc.getNameworld();
-        Nameworld.Island[] islands = world.getIslandArray();
-        for (int i = 0; i < islands.length; i++) {
-            Loc[] locs = islands[i].getLocationArray();
-            for (int j = 0; j < locs.length; j++) {
-                Loc.Reference[] refs = locs[j].getReferenceArray();
-                for (int k = 0; k < refs.length; k++) {
-                    assertEquals(contents[t++], refs[k].getTo());
-                }
-            }
-        }
+        QName[] act = Stream.of(doc.getNameworld().getIslandArray())
+            .flatMap(island -> Stream.of(island.getLocationArray()))
+            .flatMap(loc -> Stream.of(loc.getReferenceArray()))
+            .map(Loc.Reference::getTo)
+            .toArray(QName[]::new);
+
+        assertArrayEquals(exp, act);
     }
 }

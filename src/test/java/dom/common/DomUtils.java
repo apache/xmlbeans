@@ -20,6 +20,8 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import java.util.Objects;
+
 
 public class DomUtils
 {
@@ -91,10 +93,10 @@ public class DomUtils
     {
         if (pre1 == null && pre2 == null) return true;
         if (pre1 == null && pre2.equals("")) return true;
-        if (pre1.equals("") && pre2 == null)
+        if ("".equals(pre1) && pre2 == null)
             return true;
         else
-            return pre1.equals(pre2);
+            return Objects.equals(pre1,pre2);
 
 
     }
@@ -107,7 +109,7 @@ public class DomUtils
         throws IllegalStateException
     {
         if (n1 == n2 && n1 == null) return true;
-        if (n1 == null && n2 != null || n2 == null && n1 != null) return false;
+        if (n1 == null || n2 == null) return false;
         if (!(n1.getNodeName().equals(n2.getNodeName()) &&
             compareNull(n1.getNamespaceURI(), n2.getNamespaceURI()) &&
             compareNull(n1.getPrefix(), n2.getPrefix()))
@@ -140,22 +142,6 @@ public class DomUtils
             throw new IllegalStateException("One node has Children, other one not ");
 
 
-        return true;
-    }
-
-    /**
-     * the two node lists really are the same list
-     */
-    public static boolean compareNodeTreePtr(NodeList lst1, NodeList lst2)
-    {
-        if (lst1.getLength() != lst2.getLength())
-            return false;
-
-        for (int i = 0; i < lst1.getLength(); i++)
-        {
-            if (lst1.item(i) != lst2.item(i))
-                return false;
-        }
         return true;
     }
 

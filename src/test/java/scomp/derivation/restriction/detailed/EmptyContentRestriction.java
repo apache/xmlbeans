@@ -16,55 +16,46 @@ package scomp.derivation.restriction.detailed;
 
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlErrorCodes;
-import org.junit.Test;
-import scomp.common.BaseCase;
+import org.apache.xmlbeans.XmlOptions;
+import org.junit.jupiter.api.Test;
 import xbean.scomp.derivation.emtpy.RestrictedEmptyEltDocument;
 import xbean.scomp.derivation.emtpy.RestrictedEmptyT;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
+import static scomp.common.BaseCase.createOptions;
+import static scomp.common.BaseCase.getErrorCodes;
 
-public class EmptyContentRestriction extends BaseCase {
+public class EmptyContentRestriction {
 
     @Test
-    public void testRestriction() throws Throwable {
+    void testRestriction() throws Throwable {
         RestrictedEmptyEltDocument doc = RestrictedEmptyEltDocument.Factory.newInstance();
 
         RestrictedEmptyT elt = doc.addNewRestrictedEmptyElt();
         elt.setEmptyAttr("foobar");
-        assertTrue(!doc.validate(validateOptions));
-        showErrors();
-        String[] errExpected = new String[]{
-            XmlErrorCodes.ATTR_LOCALLY_VALID$FIXED
-        };
-                     assertTrue(compareErrorCodes(errExpected));
+        XmlOptions validateOptions = createOptions();
+        assertFalse(doc.validate(validateOptions));
+        String[] errExpected = {XmlErrorCodes.ATTR_LOCALLY_VALID$FIXED};
+        assertArrayEquals(errExpected, getErrorCodes(validateOptions));
 
         elt.setEmptyAttr("myval");
-        try {
-            assertTrue(doc.validate(validateOptions));
-        }
-        catch (Throwable t) {
-            showErrors();
-            throw t;
-        }
+        assertTrue(doc.validate(validateOptions));
+
         try (XmlCursor cur = elt.newCursor()) {
             cur.toFirstContentToken();
             cur.toNextToken();
             cur.beginElement("foobar");
         }
-        assertEquals("<xml-fragment>" +
-                "<emt:RestrictedEmptyElt emptyAttr=\"myval\" " +
-                "xmlns:emt=\"http://xbean/scomp/derivation/Emtpy\"/>" +
-                "<foobar/></xml-fragment>", doc.xmlText());
+        String expXml =
+            "<xml-fragment>" +
+            "<emt:RestrictedEmptyElt emptyAttr=\"myval\" " +
+            "xmlns:emt=\"http://xbean/scomp/derivation/Emtpy\"/>" +
+            "<foobar/></xml-fragment>";
+        assertEquals(expXml, doc.xmlText());
 
-        clearErrors();
-        assertTrue(!doc.validate(validateOptions));
-        showErrors();
-        errExpected = new String[]{
-            XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$ELEMENT_NOT_ALLOWED
-        };
-        assertTrue(compareErrorCodes(errExpected));
-
-
+        validateOptions.getErrorListener().clear();
+        assertFalse(doc.validate(validateOptions));
+        errExpected = new String[]{XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$ELEMENT_NOT_ALLOWED};
+        assertArrayEquals(errExpected, getErrorCodes(validateOptions));
     }
 }

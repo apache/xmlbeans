@@ -22,11 +22,11 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.*;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.w3c.domts.DOMTest.assertURIEquals;
 import static org.w3c.domts.DOMTest.load;
 
@@ -49,51 +49,30 @@ import static org.w3c.domts.DOMTest.load;
  */
 public class importNode01 {
     @Test
-    @Ignore
+    @Disabled
     public void testRun() throws Throwable {
-        Document doc;
-        Document aNewDoc;
-        Attr newAttr;
-        Text importedChild;
-        Node aNode;
-        Document ownerDocument;
-        Element attrOwnerElement;
-        DocumentType docType;
-        String system;
-        boolean specified;
-        NodeList childList;
-        String nodeName;
-        Node child;
-        String childValue;
-        java.util.List result = new java.util.ArrayList();
-
-        java.util.List expectedResult = new java.util.ArrayList();
-        expectedResult.add("elem:attr1");
-        expectedResult.add("importedText");
-
-        doc = load("staffNS", true);
-        aNewDoc = load("staffNS", true);
-        newAttr = aNewDoc.createAttribute("elem:attr1");
-        importedChild = aNewDoc.createTextNode("importedText");
-        aNode = newAttr.appendChild(importedChild);
+        Document doc = load("staffNS", true);
+        Document aNewDoc = load("staffNS", true);
+        Attr newAttr = aNewDoc.createAttribute("elem:attr1");
+        Text importedChild = aNewDoc.createTextNode("importedText");
+        Node aNode = newAttr.appendChild(importedChild);
         aNode = doc.importNode(newAttr, false);
-        ownerDocument = aNode.getOwnerDocument();
-        docType = ownerDocument.getDoctype();
-        system = docType.getSystemId();
-        assertNotNull("aNode", aNode);
+        Document ownerDocument = aNode.getOwnerDocument();
+        DocumentType docType = ownerDocument.getDoctype();
+        String system = docType.getSystemId();
+        assertNotNull(aNode, "aNode");
         assertURIEquals("systemId", "staffNS.dtd", system);
-        attrOwnerElement = ((Attr) /*Node */aNode).getOwnerElement();
-        assertNull("ownerElement", attrOwnerElement);
-        specified = ((Attr) /*Node */aNode).getSpecified();
-        assertTrue("specified", specified);
-        childList = aNode.getChildNodes();
-        assertEquals("childList", 1, childList.getLength());
-        nodeName = aNode.getNodeName();
-        assertEquals("nodeName", "elem:attr1", nodeName);
-        child = aNode.getFirstChild();
-        childValue = child.getNodeValue();
-        assertEquals("childValue", "importedText", childValue);
-
+        Element attrOwnerElement = ((Attr) /*Node */aNode).getOwnerElement();
+        assertNull(attrOwnerElement, "ownerElement");
+        boolean specified = ((Attr) /*Node */aNode).getSpecified();
+        assertTrue(specified, "specified");
+        NodeList childList = aNode.getChildNodes();
+        assertEquals(1, childList.getLength(), "childList");
+        String nodeName = aNode.getNodeName();
+        assertEquals("elem:attr1", nodeName, "nodeName");
+        Node child = aNode.getFirstChild();
+        String childValue = child.getNodeValue();
+        assertEquals("importedText", childValue, "childValue");
     }
 
     /**

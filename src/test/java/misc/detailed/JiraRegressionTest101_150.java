@@ -20,14 +20,14 @@ import org.apache.xmlbeans.XmlError;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.impl.tool.Parameters;
 import org.apache.xmlbeans.impl.tool.SchemaCompiler;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  *
@@ -38,10 +38,10 @@ public class JiraRegressionTest101_150 extends JiraTestBase
      * [XMLBEANS-103]   XMLBeans - QName thread cache, cause memory leaks
      */
     @Test
-    public void test_jira_xmlbeans102a() throws Exception{
+    void test_jira_xmlbeans102a() throws Exception{
         // set the parameters similar to those in the bug
         Parameters params = new Parameters();
-        params.setXsdFiles(new File[]{new File(JIRA_CASES + "xmlbeans_102.xsd")});
+        params.setXsdFiles(new File(JIRA_CASES + "xmlbeans_102.xsd"));
         params.setOutputJar(new File(outputroot+P+"xmlbeans_102.jar"));
         File outputDir = new File(outputroot + P + "xmlbeans_102");
         outputDir.mkdirs();
@@ -60,22 +60,22 @@ public class JiraRegressionTest101_150 extends JiraTestBase
     * [XMLBEANS-102]: scomp - infinite loop during jar for specific xsd and params for netui_config.xsd
     */
     @Test
-    public void test_jira_xmlbeans102b() {
+    void test_jira_xmlbeans102b() {
         //Assert.fail("test_jira_xmlbeans102: Infinite loop after completion of parsing" );
 
         Parameters params = new Parameters();
         params.setOutputJar(new File(schemaCompOutputDirPath + "jira102.jar"));
         params.setClassesDir(schemaCompClassesDir);
 
-        params.setXsdFiles(new File[]{new File(scompTestFilesRoot + "xmlbeans_102_netui-config.xsd_")});
-        List errors = new ArrayList();
+        params.setXsdFiles(new File(scompTestFilesRoot + "xmlbeans_102_netui-config.xsd_"));
+        List<XmlError> errors = new ArrayList<>();
         params.setErrorListener(errors);
         params.setSrcDir(schemaCompSrcDir);
         params.setClassesDir(schemaCompClassesDir);
 
         SchemaCompiler.compile(params);
-        if (printOptionErrMsgs(errors)) {
-            fail("test_jira_xmlbeans102() : Errors found when executing scomp");
+        if (hasSevereError(errors)) {
+            Assertions.fail("test_jira_xmlbeans102() : Errors found when executing scomp");
         }
 
     }
@@ -85,7 +85,7 @@ public class JiraRegressionTest101_150 extends JiraTestBase
      * an a complex type from a different type system
      */
     @Test
-    public void test_jira_xmlbeans105() throws Exception {
+    void test_jira_xmlbeans105() throws Exception {
         //run untyped parse
         XmlObject obj = XmlObject.Factory.parse(new File(JIRA_CASES + "xmlbeans_105.xml"));
 
@@ -96,8 +96,8 @@ public class JiraRegressionTest101_150 extends JiraTestBase
         // / we know the instance is invalid
         // make sure the error message is what is expected
         rud.validate(xmOpts);
-        assertEquals("More Errors than expected", 1, errorList.size());
-        assertEquals("Did not receive the expected error code: " + ((XmlError) errorList.get(0)).getErrorCode(), 0, ((XmlError) errorList.get(0)).getErrorCode().compareToIgnoreCase("cvc-complex-type.2.4a"));
+        assertEquals(1, errorList.size(), "More Errors than expected");
+        assertEquals(0, ((XmlError) errorList.get(0)).getErrorCode().compareToIgnoreCase("cvc-complex-type.2.4a"), "Did not receive the expected error code: " + ((XmlError) errorList.get(0)).getErrorCode());
 
     }
 }

@@ -19,11 +19,12 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.*;
 
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -36,33 +37,16 @@ import static org.w3c.domts.DOMTest.load;
  */
 public class hc_notationssetnameditemns1 {
     @Test
-    @Ignore
+    @Disabled
     public void testRun() throws Throwable {
-        Document doc;
-        NamedNodeMap notations;
-        DocumentType docType;
         Node retval;
-        Element elem;
-        doc = load("hc_staff", true);
-        docType = doc.getDoctype();
-        notations = docType.getNotations();
-        elem = doc.createElementNS("http://www.w3.org/1999/xhtml", "br");
+        Document doc = load("hc_staff", true);
+        DocumentType docType = doc.getDoctype();
+        NamedNodeMap notations = docType.getNotations();
+        Element elem = doc.createElementNS("http://www.w3.org/1999/xhtml", "br");
 
-        try {
-            retval = notations.setNamedItemNS(elem);
-            fail("throw_HIER_OR_NO_MOD_ERR");
-
-        } catch (DOMException ex) {
-            switch (ex.code) {
-                case 3:
-                    break;
-                case 7:
-                    break;
-                default:
-                    throw ex;
-            }
-        }
-
+        DOMException ex = assertThrows(DOMException.class, () -> notations.setNamedItemNS(elem));
+        assertTrue(ex.code == 3 || ex.code == 7, "throw_HIER_OR_NO_MOD_ERR");
     }
 
     /**

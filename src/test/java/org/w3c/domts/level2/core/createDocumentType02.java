@@ -22,14 +22,14 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Document;
-import org.w3c.dom.DocumentType;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -49,60 +49,22 @@ import static org.w3c.domts.DOMTest.load;
 
 public class createDocumentType02 {
     @Test
-    @Ignore
+    @Disabled
     public void testRun() throws Throwable {
         String publicId = "http://www.localhost.com/";
         String systemId = "myDoc.dtd";
-        String qualifiedName;
-        Document doc;
-        DocumentType docType = null;
 
-        DOMImplementation domImpl;
-        java.util.List illegalQNames = new java.util.ArrayList();
-        illegalQNames.add("edi:{");
-        illegalQNames.add("edi:}");
-        illegalQNames.add("edi:~");
-        illegalQNames.add("edi:'");
-        illegalQNames.add("edi:!");
-        illegalQNames.add("edi:@");
-        illegalQNames.add("edi:#");
-        illegalQNames.add("edi:$");
-        illegalQNames.add("edi:%");
-        illegalQNames.add("edi:^");
-        illegalQNames.add("edi:&");
-        illegalQNames.add("edi:*");
-        illegalQNames.add("edi:(");
-        illegalQNames.add("edi:)");
-        illegalQNames.add("edi:+");
-        illegalQNames.add("edi:=");
-        illegalQNames.add("edi:[");
-        illegalQNames.add("edi:]");
-        illegalQNames.add("edi:\\");
-        illegalQNames.add("edi:/");
-        illegalQNames.add("edi:;");
-        illegalQNames.add("edi:`");
-        illegalQNames.add("edi:<");
-        illegalQNames.add("edi:>");
-        illegalQNames.add("edi:,");
-        illegalQNames.add("edi:a ");
-        illegalQNames.add("edi:\"");
+        String[] illegalQNames = {
+            "{", "}", "~", "'", "!", "@", "#", "$", "%", "^", "&", "*", "(", ")",
+            "+", "=", "[", "]", "\\", "/", ";", "`", "<", ">", ",", "a ", "\""
+        };
+        Document doc = load("staffNS", false);
+        DOMImplementation domImpl = doc.getImplementation();
 
-        doc = load("staffNS", false);
-        for (int indexd303e125 = 0; indexd303e125 < illegalQNames.size(); indexd303e125++) {
-            qualifiedName = (String) illegalQNames.get(indexd303e125);
-            domImpl = doc.getImplementation();
-
-            {
-                boolean success = false;
-                try {
-                    docType = domImpl.createDocumentType(qualifiedName, publicId, systemId);
-                } catch (DOMException ex) {
-                    success = (ex.code == DOMException.INVALID_CHARACTER_ERR);
-                }
-                assertTrue("throw_INVALID_CHARACTER_ERR", success);
-            }
+        for (String qualifiedName : illegalQNames) {
+            DOMException ex = assertThrows(DOMException.class, () -> domImpl.createDocumentType("edi:" + qualifiedName, publicId, systemId));
+            assertEquals(DOMException.INVALID_CHARACTER_ERR, ex.code, "throw_INVALID_CHARACTER_ERR");
         }
-
     }
 
     /**

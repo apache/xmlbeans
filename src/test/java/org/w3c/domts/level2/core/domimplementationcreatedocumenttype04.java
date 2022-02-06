@@ -22,14 +22,15 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Document;
 import org.w3c.dom.DocumentType;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -44,46 +45,19 @@ import static org.w3c.domts.DOMTest.load;
  */
 public class domimplementationcreatedocumenttype04 {
     @Test
-    @Ignore
+    @Disabled
     public void testRun() throws Throwable {
-        Document doc;
-        DOMImplementation domImpl;
         DocumentType newDocType;
         String publicId = "http://www.w3.org/DOM/Test/dom2.dtd";
         String systemId = "dom2.dtd";
-        String qualifiedName;
-        java.util.List qualifiedNames = new java.util.ArrayList();
-        qualifiedNames.add("{");
-        qualifiedNames.add("}");
-        qualifiedNames.add("'");
-        qualifiedNames.add("~");
-        qualifiedNames.add("`");
-        qualifiedNames.add("@");
-        qualifiedNames.add("#");
-        qualifiedNames.add("$");
-        qualifiedNames.add("%");
-        qualifiedNames.add("^");
-        qualifiedNames.add("&");
-        qualifiedNames.add("*");
-        qualifiedNames.add("(");
-        qualifiedNames.add(")");
+        String[] qualifiedNames = { "{", "}", "'", "~", "`", "@", "#", "$", "%", "^", "&", "*", "(", ")" };
 
-        doc = load("staffNS", false);
-        domImpl = doc.getImplementation();
-        for (int indexd357e86 = 0; indexd357e86 < qualifiedNames.size(); indexd357e86++) {
-            qualifiedName = (String) qualifiedNames.get(indexd357e86);
-
-            {
-                boolean success = false;
-                try {
-                    newDocType = domImpl.createDocumentType(qualifiedName, publicId, systemId);
-                } catch (DOMException ex) {
-                    success = (ex.code == DOMException.INVALID_CHARACTER_ERR);
-                }
-                assertTrue("domimplementationcreatedocumenttype04", success);
-            }
+        Document doc = load("staffNS", false);
+        DOMImplementation domImpl = doc.getImplementation();
+        for (String qualifiedName : qualifiedNames) {
+            DOMException ex = assertThrows(DOMException.class, () -> domImpl.createDocumentType(qualifiedName, publicId, systemId));
+            assertEquals(DOMException.INVALID_CHARACTER_ERR, ex.code, "domimplementationcreatedocumenttype04");
         }
-
     }
 
     /**

@@ -16,18 +16,18 @@
 package scomp.simple;
 
 import common.Common;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.openuri.mytest.CustomerDocument;
 import org.openuri.mytest.Person;
 
 import java.util.Calendar;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class SimplePersonTest {
     @Test
-    public void test() throws Exception {
+    void test() throws Exception {
         CustomerDocument doc =
             CustomerDocument.Factory.parse(
                 Common.xbeanCase("xbean/simple/person/person.xml"), null);
@@ -67,43 +67,5 @@ public class SimplePersonTest {
 
         person.setBase64("base64 encoded".getBytes());
         assertEquals("base64 encoded", new String(person.getBase64(), UTF_8));
-
-        //person.setHexAtt("hex encoding in attributes".getBytes());
-        //Assert.assertEquals("hex encoding in attributes",
-        //                    new String(person.getHexAtt()));
-
-        //person.setBase64Att("base64 encoded in attributes".getBytes());
-        //Assert.assertEquals("base64 encoded in attributes",
-        //                    new String(person.getBase64Att()));
-//
-//        XmlCursor cp = person.newXmlCursor();
-//        Root.dump( cp );
-
-//        XmlCursor c = person.xgetBirthdayArray(0).newXmlCursor();
-
-//        Root.dump( c );
-
-//        person.setBirthday(0,new Date("Tue Aug 25 16:00:00 PDT 2001"));
-
-//        Root.dump( c );
-
-//        c.toNextToken();
-
-//        System.out.println( "---" + c.getText() + "---" );
-
-//        Root.dump( c );
-
-//        Assert.assertEquals(person.getBirthdayArray(0), new Date("Tue Aug 25 16:00:00 PDT 2002"));
-//
-//        person.setFirstname("George");
-//        Assert.assertEquals(person.getFirstname(), "George");
-//
-//        person.addNumber( (short) 69 );
-//        Assert.assertEquals(person.countNumber(), 5);
-//        Assert.assertEquals(person.getNumberArray(4), 69);
-//
-//
-//        while ( c.hasNextToken() )
-//            c.toNextToken();
     }
 }

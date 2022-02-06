@@ -22,13 +22,13 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -44,24 +44,17 @@ import static org.w3c.domts.DOMTest.load;
  */
 public class elementsetattributens03 {
     @Test
-    public void testRun() throws Throwable {
-        Document doc;
-        Element element;
-        Attr attribute;
-        NodeList elementList;
-        String attrName;
-        String attrValue;
-        doc = load("staffNS", true);
-        elementList = doc.getElementsByTagName("emp:employee");
-        element = (Element) elementList.item(0);
+    void testRun() throws Throwable {
+        Document doc = load("staffNS", true);
+        NodeList elementList = doc.getElementsByTagName("emp:employee");
+        Element element = (Element) elementList.item(0);
         element.setAttributeNS("http://www.w3.org/DOM/Test/1", "defaultAttr", "default1");
         element.setAttributeNS("http://www.w3.org/DOM/Test/2", "defaultAttr", "default2");
-        attribute = element.getAttributeNodeNS("http://www.w3.org/DOM/Test/1", "defaultAttr");
-        attrName = attribute.getNodeName();
-        attrValue = attribute.getNodeValue();
-        assertEquals("elementsetattributens03_attrName", "defaultAttr", attrName);
-        assertEquals("elementsetattributens03_attrValue", "default1", attrValue);
-
+        Attr attribute = element.getAttributeNodeNS("http://www.w3.org/DOM/Test/1", "defaultAttr");
+        String attrName = attribute.getNodeName();
+        String attrValue = attribute.getNodeValue();
+        assertEquals("defaultAttr", attrName, "elementsetattributens03_attrName");
+        assertEquals("default1", attrValue, "elementsetattributens03_attrValue");
     }
 
     /**

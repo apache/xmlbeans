@@ -22,13 +22,12 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
-import org.w3c.dom.DocumentType;
 import org.w3c.dom.Node;
 import org.w3c.dom.Text;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -46,29 +45,17 @@ import static org.w3c.domts.DOMTest.load;
  */
 public class importNode15 {
     @Test
-    public void testRun() throws Throwable {
-        Document doc;
-        Document aNewDoc;
-        Text text;
-        Node aNode;
-        Document ownerDocument;
-        DocumentType docType;
-        String system;
-        String value;
-        doc = load("staffNS", true);
-        aNewDoc = load("staffNS", true);
-        text = aNewDoc.createTextNode("this is text data");
-        aNode = doc.importNode(text, false);
-        ownerDocument = aNode.getOwnerDocument();
-        //$NOTE:add this if ever implemented
-   /*
-     docType = ownerDocument.getDoctype();
-      system = docType.getSystemId();
-      assertURIEquals("systemId", null, null, null, "staffNS.dtd", null, null, null, null, system);
-   */
-        value = aNode.getNodeValue();
-        assertEquals("nodeValue", "this is text data", value);
-
+    void testRun() throws Throwable {
+        Document doc = load("staffNS", true);
+        Document aNewDoc = load("staffNS", true);
+        Text text = aNewDoc.createTextNode("this is text data");
+        Node aNode = doc.importNode(text, false);
+        // TODO: add this if ever implemented
+        // DocumentType docType = ownerDocument.getDoctype();
+        // String system = docType.getSystemId();
+        // assertURIEquals("systemId", null, null, null, "staffNS.dtd", null, null, null, null, system);
+        String value = aNode.getNodeValue();
+        assertEquals("this is text data", value, "nodeValue");
     }
 
     /**

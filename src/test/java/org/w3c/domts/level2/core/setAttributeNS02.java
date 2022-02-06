@@ -22,10 +22,11 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.*;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -43,28 +44,15 @@ import static org.w3c.domts.DOMTest.load;
  */
 public class setAttributeNS02 {
     @Test
-    public void testRun() throws Throwable {
+    void testRun() throws Throwable {
         String namespaceURI = "http://www.nist.gov";
         String qualifiedName = "emp:";
-        Document doc;
-        NodeList elementList;
-        Node testAddr;
-        doc = load("staffNS", true);
-        elementList = doc.getElementsByTagName("emp:employee");
-        testAddr = elementList.item(0);
+        Document doc = load("staffNS", true);
+        NodeList elementList = doc.getElementsByTagName("emp:employee");
+        Node testAddr = elementList.item(0);
 
-        {
-            boolean success = false;
-            try {
-                ((Element) /*Node */testAddr).setAttributeNS(namespaceURI, qualifiedName, "newValue");
-            } catch (DOMException ex) {
-                success = (ex.code == DOMException.NAMESPACE_ERR);
-            }
-            assertTrue("throw_NAMESPACE_ERR,NAMESPACE_ERR DOMException if the specified\n" +
-                       "\n" +
-                       "   qualifiedName if malformed ", success);
-        }
-
+        DOMException ex = assertThrows(DOMException.class, () -> ((Element) /*Node */testAddr).setAttributeNS(namespaceURI, qualifiedName, "newValue"));
+        assertEquals(DOMException.NAMESPACE_ERR, ex.code, "throw_NAMESPACE_ERR,NAMESPACE_ERR DOMException if the specified qualifiedName is malformed ");
     }
 
     /**

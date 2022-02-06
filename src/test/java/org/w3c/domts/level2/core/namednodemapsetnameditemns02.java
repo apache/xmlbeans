@@ -22,10 +22,10 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.*;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -41,23 +41,15 @@ import static org.w3c.domts.DOMTest.load;
  */
 public class namednodemapsetnameditemns02 {
     @Test
-    public void testRun() throws Throwable {
-        Document doc;
-        NamedNodeMap attributes;
-        Element element;
-        Attr attribute;
-        Attr attribute1;
-        Node newNode;
-        String attrName;
-        doc = load("staffNS", true);
-        element = doc.createElementNS("http://www.w3.org/DOM/Test", "root");
-        attribute1 = doc.createAttributeNS("http://www.w3.org/DOM/L1", "L1:att");
-        attributes = element.getAttributes();
-        newNode = attributes.setNamedItemNS(attribute1);
-        attribute = (Attr) attributes.getNamedItemNS("http://www.w3.org/DOM/L1", "att");
-        attrName = attribute.getNodeName();
-        assertEquals("namednodemapsetnameditemns02", "L1:att", attrName);
-
+    void testRun() throws Throwable {
+        Document doc = load("staffNS", true);
+        Element element = doc.createElementNS("http://www.w3.org/DOM/Test", "root");
+        Attr attribute1 = doc.createAttributeNS("http://www.w3.org/DOM/L1", "L1:att");
+        NamedNodeMap attributes = element.getAttributes();
+        Node newNode = attributes.setNamedItemNS(attribute1);
+        Attr attribute = (Attr) attributes.getNamedItemNS("http://www.w3.org/DOM/L1", "att");
+        String attrName = attribute.getNodeName();
+        assertEquals("L1:att", attrName, "namednodemapsetnameditemns02");
     }
 
     /**

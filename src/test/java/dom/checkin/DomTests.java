@@ -18,7 +18,7 @@ package dom.checkin;
 
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlObject;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.xml.sax.InputSource;
@@ -27,7 +27,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.StringReader;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class DomTests {
 
@@ -76,7 +76,7 @@ public class DomTests {
 //    }
 
     @Test
-    public void testDom()
+    void testDom()
             throws Exception {
         doTest("<foo xmlns=\"x\"/>");
         doTest("<foo xmlns=\"x\" xmlns:e=\"v\"/>");

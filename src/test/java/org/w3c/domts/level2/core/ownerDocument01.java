@@ -22,11 +22,11 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.DocumentType;
 
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -41,13 +41,10 @@ import static org.w3c.domts.DOMTest.load;
  */
 public class ownerDocument01 {
     @Test
-    public void testRun() throws Throwable {
-        Document doc;
-        DocumentType ownerDocument;
-        doc = load("staff", false);
-        ownerDocument = (DocumentType) doc.getOwnerDocument();
-        assertNull("throw_Null", ownerDocument);
-
+    void testRun() throws Throwable {
+        Document doc = load("staff", false);
+        DocumentType ownerDocument = (DocumentType) doc.getOwnerDocument();
+        assertNull(ownerDocument, "throw_Null");
     }
 
     /**

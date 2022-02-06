@@ -17,37 +17,34 @@
 package xmlobject.detailed;
 
 import org.apache.xmlbeans.SchemaType;
+import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlObject;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.tranxml.tranXML.version40.CarLocationMessageDocument;
-import tools.util.JarUtil;
-import xmlcursor.common.BasicCursorTestCase;
 import xmlcursor.common.Common;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
+import static xmlcursor.common.BasicCursorTestCase.jcur;
+import static xmlcursor.common.BasicCursorTestCase.jobj;
 
 
-public class IsImmutableTest extends BasicCursorTestCase {
+public class IsImmutableTest {
     @Test
-    public void testIsImmutableFalse() throws Exception {
-        CarLocationMessageDocument clmDoc =
-                (CarLocationMessageDocument) XmlObject.Factory
-                .parse(   JarUtil.getResourceFromJar(Common.TRANXML_FILE_CLM));
+    void testIsImmutableFalse() throws Exception {
+        CarLocationMessageDocument clmDoc = (CarLocationMessageDocument) jobj(Common.TRANXML_FILE_CLM);
         assertFalse(clmDoc.isImmutable());
     }
 
     @Test
-    public void testIsImmutableTrue() throws Exception {
-        m_xo = XmlObject.Factory.parse(
-                   JarUtil.getResourceFromJar(Common.TRANXML_FILE_CLM));
-        m_xc = m_xo.newCursor();
-        m_xc.selectPath(Common.CLM_NS_XQUERY_DEFAULT +
-                        "$this//Initial");
-        m_xc.toNextSelection();
-        SchemaType st = m_xc.getObject().schemaType();
-        XmlObject xoNew = st.newValue("ZZZZ");
-        assertTrue(xoNew.isImmutable());
-        // verify it's not in main store
-        assertEquals("GATX", m_xc.getTextValue());
+    void testIsImmutableTrue() throws Exception {
+        try (XmlCursor m_xc = jcur(Common.TRANXML_FILE_CLM)) {
+            m_xc.selectPath(Common.CLM_NS_XQUERY_DEFAULT + "$this//Initial");
+            m_xc.toNextSelection();
+            SchemaType st = m_xc.getObject().schemaType();
+            XmlObject xoNew = st.newValue("ZZZZ");
+            assertTrue(xoNew.isImmutable());
+            // verify it's not in main store
+            assertEquals("GATX", m_xc.getTextValue());
+        }
     }
 }

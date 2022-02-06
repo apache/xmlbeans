@@ -16,75 +16,82 @@
 
 package xmlcursor.checkin;
 
+import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlCursor.TokenType;
-import org.apache.xmlbeans.XmlObject;
-import org.junit.Test;
-import xmlcursor.common.BasicCursorTestCase;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
+import static xmlcursor.common.BasicCursorTestCase.cur;
+import static xmlcursor.common.BasicCursorTestCase.toNextTokenOfType;
 
 
-public class ToParentElementTest extends BasicCursorTestCase {
+public class ToParentElementTest {
 
     @Test
-    public void testToParentElementFromSTARTDOC() throws Exception {
-        m_xc = XmlObject.Factory.parse("<foo>early<bar>text</bar></foo>").newCursor();
-        assertFalse(m_xc.toParent());
-        assertEquals(TokenType.STARTDOC, m_xc.currentTokenType());
+    void testToParentElementFromSTARTDOC() throws Exception {
+        try (XmlCursor m_xc = cur("<foo>early<bar>text</bar></foo>")) {
+            assertFalse(m_xc.toParent());
+            assertEquals(TokenType.STARTDOC, m_xc.currentTokenType());
+        }
     }
 
     @Test
-    public void testToParentElementFromFirstChildOfSTARTDOC() throws Exception {
-        m_xc = XmlObject.Factory.parse("<foo>early<bar>text</bar></foo>").newCursor();
-        m_xc.toFirstChild();
-        assertTrue(m_xc.toParent());
-        assertEquals(TokenType.STARTDOC, m_xc.currentTokenType());
+    void testToParentElementFromFirstChildOfSTARTDOC() throws Exception {
+        try (XmlCursor m_xc = cur("<foo>early<bar>text</bar></foo>")) {
+            m_xc.toFirstChild();
+            assertTrue(m_xc.toParent());
+            assertEquals(TokenType.STARTDOC, m_xc.currentTokenType());
+        }
     }
 
     @Test
-    public void testToParentElementFromPrevTokenOfENDDOC() throws Exception {
-        m_xc = XmlObject.Factory.parse("<foo>text</foo>").newCursor();
-        m_xc.toEndDoc();
-        m_xc.toPrevToken();
-        assertEquals(TokenType.END, m_xc.currentTokenType());
+    void testToParentElementFromPrevTokenOfENDDOC() throws Exception {
+        try (XmlCursor m_xc = cur("<foo>text</foo>")) {
+            m_xc.toEndDoc();
+            m_xc.toPrevToken();
+            assertEquals(TokenType.END, m_xc.currentTokenType());
 
-        assertTrue(m_xc.toParent());
-        assertEquals(TokenType.START, m_xc.currentTokenType());
+            assertTrue(m_xc.toParent());
+            assertEquals(TokenType.START, m_xc.currentTokenType());
+        }
     }
 
     @Test
-    public void testToParentElementNested() throws Exception {
-        m_xc = XmlObject.Factory.parse("<foo>early<bar>text</bar><char>zap<dar>wap</dar><ear>yap</ear></char></foo>").newCursor();
-        m_xc.selectPath("$this//ear");
-        m_xc.toNextSelection();
-        assertEquals("yap", m_xc.getTextValue());
-        assertTrue(m_xc.toParent());
-        assertEquals("zapwapyap", m_xc.getTextValue());
+    void testToParentElementNested() throws Exception {
+        try (XmlCursor m_xc = cur("<foo>early<bar>text</bar><char>zap<dar>wap</dar><ear>yap</ear></char></foo>")) {
+            m_xc.selectPath("$this//ear");
+            m_xc.toNextSelection();
+            assertEquals("yap", m_xc.getTextValue());
+            assertTrue(m_xc.toParent());
+            assertEquals("zapwapyap", m_xc.getTextValue());
+        }
     }
 
     @Test
-    public void testToParentElementFromATTR() throws Exception {
-        m_xc = XmlObject.Factory.parse("<foo>early<bar>text</bar><char>zap<dar>wap</dar><ear attr0=\"val0\">yap</ear></char></foo>").newCursor();
-        toNextTokenOfType(m_xc, TokenType.ATTR);
-        assertEquals("val0", m_xc.getTextValue());
-        assertTrue(m_xc.toParent());
-        assertEquals("yap", m_xc.getTextValue());
-        assertTrue(m_xc.toParent());
-        assertEquals("zapwapyap", m_xc.getTextValue());
+    void testToParentElementFromATTR() throws Exception {
+        try (XmlCursor m_xc = cur("<foo>early<bar>text</bar><char>zap<dar>wap</dar><ear attr0=\"val0\">yap</ear></char></foo>")) {
+            toNextTokenOfType(m_xc, TokenType.ATTR);
+            assertEquals("val0", m_xc.getTextValue());
+            assertTrue(m_xc.toParent());
+            assertEquals("yap", m_xc.getTextValue());
+            assertTrue(m_xc.toParent());
+            assertEquals("zapwapyap", m_xc.getTextValue());
+        }
     }
 
     @Test
-    public void testToParentElementFromTEXT() throws Exception {
-        m_xc = XmlObject.Factory.parse("<foo>early<bar>text</bar><char>zap<dar>wap</dar><ear>yap</ear></char></foo>").newCursor();
-        m_xc.selectPath("$this//ear");
-        m_xc.toNextSelection();
-        m_xc.toNextToken();
-        assertEquals(TokenType.TEXT, m_xc.currentTokenType());
-        assertEquals("yap", m_xc.getChars());
-        assertTrue(m_xc.toParent());
-        assertEquals("yap", m_xc.getTextValue());
-        assertTrue(m_xc.toParent());
-        assertEquals("zapwapyap", m_xc.getTextValue());
+    void testToParentElementFromTEXT() throws Exception {
+        try (XmlCursor m_xc = cur("<foo>early<bar>text</bar><char>zap<dar>wap</dar><ear>yap</ear></char></foo>")) {
+            m_xc.selectPath("$this//ear");
+            m_xc.toNextSelection();
+            m_xc.toNextToken();
+            assertEquals(TokenType.TEXT, m_xc.currentTokenType());
+            assertEquals("yap", m_xc.getChars());
+            assertTrue(m_xc.toParent());
+            assertEquals("yap", m_xc.getTextValue());
+            assertTrue(m_xc.toParent());
+            assertEquals("zapwapyap", m_xc.getTextValue());
+        }
     }
 }
 

@@ -16,63 +16,70 @@
 
 package xmlcursor.checkin;
 
+import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlCursor.TokenType;
-import org.apache.xmlbeans.XmlObject;
-import org.junit.Test;
-import xmlcursor.common.BasicCursorTestCase;
+import org.junit.jupiter.api.Test;
 import xmlcursor.common.Common;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
+import static xmlcursor.common.BasicCursorTestCase.cur;
+import static xmlcursor.common.BasicCursorTestCase.toNextTokenOfType;
 
 
-public class ToFirstAttributeTest extends BasicCursorTestCase {
+public class ToFirstAttributeTest {
     @Test
-    public void testToFirstAttrSTARTDOC() throws Exception {
-        m_xc = XmlObject.Factory.parse("<foo>text</foo>").newCursor();
-        m_xc.toFirstChild();
-        m_xc.insertAttributeWithValue("attr0", "val0");
-        m_xc.toStartDoc();
-        assertTrue(m_xc.toFirstAttribute());
-        assertEquals("val0", m_xc.getTextValue());
+    void testToFirstAttrSTARTDOC() throws Exception {
+        try (XmlCursor m_xc = cur("<foo>text</foo>")) {
+            m_xc.toFirstChild();
+            m_xc.insertAttributeWithValue("attr0", "val0");
+            m_xc.toStartDoc();
+            assertTrue(m_xc.toFirstAttribute());
+            assertEquals("val0", m_xc.getTextValue());
+        }
     }
 
     @Test
-    public void testToFirstAttrSTARTmoreThan1ATTR() throws Exception {
-        m_xc = XmlObject.Factory.parse(Common.XML_FOO_2ATTR_TEXT).newCursor();
-        toNextTokenOfType(m_xc, TokenType.START);
-        assertTrue(m_xc.toFirstAttribute());
-        assertEquals("val0", m_xc.getTextValue());
+    void testToFirstAttrSTARTmoreThan1ATTR() throws Exception {
+        try (XmlCursor m_xc = cur(Common.XML_FOO_2ATTR_TEXT)) {
+            toNextTokenOfType(m_xc, TokenType.START);
+            assertTrue(m_xc.toFirstAttribute());
+            assertEquals("val0", m_xc.getTextValue());
+        }
     }
 
     @Test
-    public void testToFirstAttrFrom2ndATTR() throws Exception {
-        m_xc = XmlObject.Factory.parse(Common.XML_FOO_2ATTR_TEXT).newCursor();
-        toNextTokenOfType(m_xc, TokenType.ATTR);
-        toNextTokenOfType(m_xc, TokenType.ATTR);
-        assertFalse(m_xc.toFirstAttribute());
+    void testToFirstAttrFrom2ndATTR() throws Exception {
+        try (XmlCursor m_xc = cur(Common.XML_FOO_2ATTR_TEXT)) {
+            toNextTokenOfType(m_xc, TokenType.ATTR);
+            toNextTokenOfType(m_xc, TokenType.ATTR);
+            assertFalse(m_xc.toFirstAttribute());
+        }
     }
 
     @Test
-    public void testToFirstAttrZeroATTR() throws Exception {
-        m_xc = XmlObject.Factory.parse(Common.XML_FOO_TEXT).newCursor();
-        toNextTokenOfType(m_xc, TokenType.START);
-        assertFalse(m_xc.toFirstAttribute());
+    void testToFirstAttrZeroATTR() throws Exception {
+        try (XmlCursor m_xc = cur(Common.XML_FOO_TEXT)) {
+            toNextTokenOfType(m_xc, TokenType.START);
+            assertFalse(m_xc.toFirstAttribute());
+        }
     }
 
     @Test
-    public void testToFirstAttrFromTEXT() throws Exception {
-        m_xc = XmlObject.Factory.parse(Common.XML_FOO_2ATTR_TEXT).newCursor();
-        toNextTokenOfType(m_xc, TokenType.TEXT);
-        assertEquals(TokenType.TEXT, m_xc.currentTokenType());
-        assertEquals("text", m_xc.getChars());
-        assertFalse(m_xc.toFirstAttribute());
+    void testToFirstAttrFromTEXT() throws Exception {
+        try (XmlCursor m_xc = cur(Common.XML_FOO_2ATTR_TEXT)) {
+            toNextTokenOfType(m_xc, TokenType.TEXT);
+            assertEquals(TokenType.TEXT, m_xc.currentTokenType());
+            assertEquals("text", m_xc.getChars());
+            assertFalse(m_xc.toFirstAttribute());
+        }
     }
 
     @Test
-    public void testToFirstAttrWithXMLNS() throws Exception {
-        m_xc = XmlObject.Factory.parse("<foo xmlns=\"http://www.foo.org\">text</foo>").newCursor();
-        toNextTokenOfType(m_xc, TokenType.START);
-        assertFalse(m_xc.toFirstAttribute());
+    void testToFirstAttrWithXMLNS() throws Exception {
+        try (XmlCursor m_xc = cur("<foo xmlns=\"http://www.foo.org\">text</foo>")) {
+            toNextTokenOfType(m_xc, TokenType.START);
+            assertFalse(m_xc.toFirstAttribute());
+        }
     }
 }
 

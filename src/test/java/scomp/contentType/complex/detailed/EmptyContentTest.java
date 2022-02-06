@@ -12,60 +12,58 @@
  *   See the License for the specific language governing permissions and
  *  limitations under the License.
  */
- package scomp.contentType.complex.detailed;
+package scomp.contentType.complex.detailed;
 
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlErrorCodes;
+import org.apache.xmlbeans.XmlOptions;
 import org.apache.xmlbeans.XmlString;
-import org.junit.Test;
-import scomp.common.BaseCase;
+import org.junit.jupiter.api.Test;
 import xbean.scomp.contentType.complexTypeTest.EmptyT;
 import xbean.scomp.contentType.complexTypeTest.EmptyTypeDocument;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
+import static scomp.common.BaseCase.createOptions;
+import static scomp.common.BaseCase.getErrorCodes;
 
-public class EmptyContentTest extends BaseCase {
+public class EmptyContentTest {
     @Test
-    public void testIllegalContent() {
+    void testIllegalContent() {
         EmptyTypeDocument doc = EmptyTypeDocument.Factory.newInstance();
         EmptyT elt = doc.addNewEmptyType();
-        assertTrue(!elt.isSetEmptyAttr());
+        assertFalse(elt.isSetEmptyAttr());
         elt.setEmptyAttr("foobar");
         assertTrue(elt.validate());
         try (XmlCursor cur = elt.newCursor()) {
             cur.toFirstContentToken();
             cur.beginElement("foobarElt");
         }
-        assertTrue(!elt.validate(validateOptions));
-        showErrors();
-        String[] errExpected = new String[]{
-            XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$ELEMENT_NOT_ALLOWED
-        };
-        assertTrue(compareErrorCodes(errExpected));
-
+        XmlOptions validateOptions = createOptions();
+        assertFalse(elt.validate(validateOptions));
+        String[] errExpected = {XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$ELEMENT_NOT_ALLOWED};
+        assertArrayEquals(errExpected, getErrorCodes(validateOptions));
     }
 
     @Test
-    public void testLegalContent() {
+    void testLegalContent() {
         EmptyTypeDocument doc = EmptyTypeDocument.Factory.newInstance();
         EmptyT elt = doc.addNewEmptyType();
-        assertTrue(!elt.isSetEmptyAttr());
+        assertFalse(elt.isSetEmptyAttr());
         elt.setEmptyAttr("foobar");
         assertTrue(elt.isSetEmptyAttr());
         assertEquals("foobar", elt.getEmptyAttr());
 
-        XmlString expected=XmlString.Factory.newInstance();
+        XmlString expected = XmlString.Factory.newInstance();
         expected.setStringValue("foobar");
 
-        XmlString expected1=XmlString.Factory.newInstance();
+        XmlString expected1 = XmlString.Factory.newInstance();
         expected1.setStringValue("foobar");
 
-        System.out.println( expected.equals(expected1));
-       assertTrue( expected.valueEquals(elt.xgetEmptyAttr()) );
+        assertEquals(expected.xmlText(), expected1.xmlText());
+        assertTrue(expected.valueEquals(elt.xgetEmptyAttr()));
 
         elt.unsetEmptyAttr();
-        assertTrue(!elt.isSetEmptyAttr());
+        assertFalse(elt.isSetEmptyAttr());
         assertTrue(elt.validate());
     }
 }

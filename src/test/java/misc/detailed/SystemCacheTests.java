@@ -17,15 +17,15 @@
 package misc.detailed;
 
 import org.apache.xmlbeans.impl.common.SystemCache;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class SystemCacheTests {
     @Test
-    @Ignore("invalid test")
+    @Disabled("invalid test")
     public void testSystemCacheImplFromAPITest() {
         // Test ignored:
         // this test is dangerous if we eventually execute tests in parallel and
@@ -49,7 +49,7 @@ public class SystemCacheTests {
     }
 
     @Test
-    public void testClearThreadLocal() {
+    void testClearThreadLocal() {
         SystemCache cache = SystemCache.get();
         String saxLoader = "object is not cast currently...";
 

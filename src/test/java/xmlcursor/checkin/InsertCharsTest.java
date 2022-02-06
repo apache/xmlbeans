@@ -16,96 +16,97 @@
 
 package xmlcursor.checkin;
 
+import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlCursor.TokenType;
-import org.apache.xmlbeans.XmlObject;
-import org.junit.Test;
-import xmlcursor.common.BasicCursorTestCase;
+import org.junit.jupiter.api.Test;
 import xmlcursor.common.Common;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static xmlcursor.common.BasicCursorTestCase.cur;
+import static xmlcursor.common.BasicCursorTestCase.toNextTokenOfType;
 
 
-public class InsertCharsTest extends BasicCursorTestCase {
+public class InsertCharsTest {
+
     @Test
-    public void testInsertCharsAtSTART() throws Exception {
-        m_xo = XmlObject.Factory.parse(Common.XML_FOO_BAR_TEXT);
-        m_xc = m_xo.newCursor();
-        m_xc.selectPath("$this//bar");
-        m_xc.toNextSelection();
-        m_xc.insertChars(" new chars ");
-        m_xc.toPrevToken();
-        System.out.println(m_xc.currentTokenType());
-        assertEquals(" new chars ", m_xc.getChars());
+    void testInsertCharsAtSTART() throws Exception {
+        try (XmlCursor m_xc = cur(Common.XML_FOO_BAR_TEXT)) {
+            m_xc.selectPath("$this//bar");
+            m_xc.toNextSelection();
+            m_xc.insertChars(" new chars ");
+            m_xc.toPrevToken();
+            assertEquals(" new chars ", m_xc.getChars());
+        }
     }
 
     @Test
-    public void testInsertCharsAtSTARTnonEmptyPriorTEXT() throws Exception {
-        m_xo = XmlObject.Factory.parse(Common.XML_FOO_BAR_WS_ONLY);
-        m_xc = m_xo.newCursor();
-        m_xc.selectPath("$this//bar");
-        m_xc.toNextSelection();
-        m_xc.insertChars("new chars ");
-        m_xc.toPrevToken();
-        System.out.println(m_xc.currentTokenType());
-        assertEquals(" new chars ", m_xc.getChars());
+    void testInsertCharsAtSTARTnonEmptyPriorTEXT() throws Exception {
+        try (XmlCursor m_xc = cur(Common.XML_FOO_BAR_WS_ONLY)) {
+            m_xc.selectPath("$this//bar");
+            m_xc.toNextSelection();
+            m_xc.insertChars("new chars ");
+            m_xc.toPrevToken();
+            assertEquals(" new chars ", m_xc.getChars());
+        }
     }
 
     @Test
-    public void testInsertCharsAtENDnonEmptyPriorTEXT() throws Exception {
-        m_xo = XmlObject.Factory.parse(Common.XML_FOO_BAR_WS_ONLY);
-        m_xc = m_xo.newCursor();
-        m_xc.selectPath("$this//bar");
-        toNextTokenOfType(m_xc, TokenType.END);
-        m_xc.insertChars("new chars ");
-        m_xc.toPrevToken();
-        assertEquals(" new chars ", m_xc.getChars());
+    void testInsertCharsAtENDnonEmptyPriorTEXT() throws Exception {
+        try (XmlCursor m_xc = cur(Common.XML_FOO_BAR_WS_ONLY)) {
+            m_xc.selectPath("$this//bar");
+            toNextTokenOfType(m_xc, TokenType.END);
+            m_xc.insertChars("new chars ");
+            m_xc.toPrevToken();
+            assertEquals(" new chars ", m_xc.getChars());
+        }
     }
 
     @Test
-    public void testInsertCharsInMiddleOfTEXT() throws Exception {
-        m_xo = XmlObject.Factory.parse(Common.XML_FOO_TEXT);
-        m_xc = m_xo.newCursor();
-        toNextTokenOfType(m_xc, TokenType.TEXT);
-        m_xc.toNextChar(2);
-        assertEquals("xt", m_xc.getChars());
-        m_xc.insertChars("new chars ");
-        assertEquals("xt", m_xc.getChars());
-        m_xc.toPrevToken();
-        assertEquals("tenew chars xt", m_xc.getTextValue());
+    void testInsertCharsInMiddleOfTEXT() throws Exception {
+        try (XmlCursor m_xc = cur(Common.XML_FOO_TEXT)) {
+            toNextTokenOfType(m_xc, TokenType.TEXT);
+            m_xc.toNextChar(2);
+            assertEquals("xt", m_xc.getChars());
+            m_xc.insertChars("new chars ");
+            assertEquals("xt", m_xc.getChars());
+            m_xc.toPrevToken();
+            assertEquals("tenew chars xt", m_xc.getTextValue());
+        }
     }
 
     @Test
-    public void testInsertCharsNullInMiddleOfTEXT() throws Exception {
-        m_xo = XmlObject.Factory.parse(Common.XML_FOO_TEXT);
-        m_xc = m_xo.newCursor();
-        toNextTokenOfType(m_xc, TokenType.TEXT);
-        m_xc.toNextChar(2);
-        assertEquals("xt", m_xc.getChars());
-        m_xc.insertChars(null);
-        assertEquals("xt", m_xc.getChars());
-        m_xc.toPrevToken();
-        assertEquals("text", m_xc.getTextValue());
+    void testInsertCharsNullInMiddleOfTEXT() throws Exception {
+        try (XmlCursor m_xc = cur(Common.XML_FOO_TEXT)) {
+            toNextTokenOfType(m_xc, TokenType.TEXT);
+            m_xc.toNextChar(2);
+            assertEquals("xt", m_xc.getChars());
+            m_xc.insertChars(null);
+            assertEquals("xt", m_xc.getChars());
+            m_xc.toPrevToken();
+            assertEquals("text", m_xc.getTextValue());
+        }
     }
 
     @Test
-    public void testInsertCharsEmptyInMiddleOfTEXT() throws Exception {
-        m_xo = XmlObject.Factory.parse(Common.XML_FOO_TEXT);
-        m_xc = m_xo.newCursor();
-        toNextTokenOfType(m_xc, TokenType.TEXT);
-        m_xc.toNextChar(2);
-        assertEquals("xt", m_xc.getChars());
-        m_xc.insertChars("");
-        assertEquals("xt", m_xc.getChars());
-        m_xc.toPrevToken();
-        assertEquals("text", m_xc.getTextValue());
+    void testInsertCharsEmptyInMiddleOfTEXT() throws Exception {
+        try (XmlCursor m_xc = cur(Common.XML_FOO_TEXT)) {
+            toNextTokenOfType(m_xc, TokenType.TEXT);
+            m_xc.toNextChar(2);
+            assertEquals("xt", m_xc.getChars());
+            m_xc.insertChars("");
+            assertEquals("xt", m_xc.getChars());
+            m_xc.toPrevToken();
+            assertEquals("text", m_xc.getTextValue());
+        }
     }
 
-    @Test(expected = IllegalStateException.class)
-    public void testInsertCharsInNAMESPACE() throws Exception {
-        m_xo = XmlObject.Factory.parse(Common.XML_FOO_NS);
-        m_xc = m_xo.newCursor();
-        toNextTokenOfType(m_xc, TokenType.NAMESPACE);
-        m_xc.insertChars("fred");
+    @Test
+    void testInsertCharsInNAMESPACE() throws Exception {
+        try (XmlCursor m_xc = cur(Common.XML_FOO_NS)) {
+            toNextTokenOfType(m_xc, TokenType.NAMESPACE);
+            assertThrows(IllegalStateException.class, () -> m_xc.insertChars("fred"));
+        }
     }
 
 }

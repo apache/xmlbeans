@@ -19,14 +19,14 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.DocumentFragment;
 import org.w3c.dom.Node;
 import org.w3c.dom.Text;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -37,31 +37,21 @@ import static org.w3c.domts.DOMTest.load;
  * @see <a href="http://www.w3.org/TR/DOM-Level-2-Core/core#ID-F68D095">http://www.w3.org/TR/DOM-Level-2-Core/core#ID-F68D095</a>
  * @see <a href="http://www.w3.org/TR/DOM-Level-2-Core/core#ID-B63ED1A3">http://www.w3.org/TR/DOM-Level-2-Core/core#ID-B63ED1A3</a>
  */
-
-/**
- * TODO: add this back
- */
 public class hc_nodedocumentfragmentnormalize1 {
     @Test
-    public void testRun() throws Throwable {
-        Document doc;
-        DocumentFragment docFragment;
-        String nodeValue;
-        Text txtNode;
-        Node retval;
-        doc = load("hc_staff", true);
-        docFragment = doc.createDocumentFragment();
-        txtNode = doc.createTextNode("foo");
-        retval = docFragment.appendChild(txtNode);
+    void testRun() throws Throwable {
+        Document doc = load("hc_staff", true);
+        DocumentFragment docFragment = doc.createDocumentFragment();
+        Text txtNode = doc.createTextNode("foo");
+        Node retval = docFragment.appendChild(txtNode);
         txtNode = doc.createTextNode("bar");
         retval = docFragment.appendChild(txtNode);
         docFragment.normalize();
         txtNode = (Text) docFragment.getFirstChild();
-        nodeValue = txtNode.getNodeValue();
-        assertEquals("normalizedNodeValue", "foobar", nodeValue);
+        String nodeValue = txtNode.getNodeValue();
+        assertEquals("foobar", nodeValue, "normalizedNodeValue");
         retval = txtNode.getNextSibling();
-        assertNull("singleChild", retval);
-
+        assertNull(retval, "singleChild");
     }
 
     /**

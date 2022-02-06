@@ -16,8 +16,7 @@ package scomp.contentType.complex.detailed;
 
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlInteger;
-import org.junit.Test;
-import scomp.common.BaseCase;
+import org.junit.jupiter.api.Test;
 import xbean.scomp.contentType.named.ElementT;
 import xbean.scomp.contentType.named.MixedT;
 import xbean.scomp.contentType.named.NamedEltDocument;
@@ -25,12 +24,13 @@ import xbean.scomp.contentType.named.NamedMixedEltDocument;
 
 import java.math.BigInteger;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
+import static scomp.common.BaseCase.createOptions;
 
-public class NamedTest extends BaseCase {
+public class NamedTest {
 
     @Test
-    public void testSimpleAnonymous() throws Throwable {
+    void testSimpleAnonymous() throws Throwable {
         NamedEltDocument doc = NamedEltDocument.Factory.newInstance();
         ElementT testElt = doc.getNamedElt();
         assertNull(testElt);
@@ -40,25 +40,17 @@ public class NamedTest extends BaseCase {
         testElt.setChild2(new BigInteger("5"));
         testElt.setChild3(new BigInteger("1"));
         assertEquals("<xml-fragment><child2>5</child2>" +
-                "<child3>1</child3></xml-fragment>",
-                testElt.xmlText());
+                                "<child3>1</child3></xml-fragment>", testElt.xmlText());
         testElt.setChild1(BigInteger.ONE);
         testElt.xsetChild2(XmlInteger.Factory.parse("<xml-fragment>3</xml-fragment>"));
         assertEquals("<xml-fragment><child1>1</child1><child2>3</child2>" +
-                "<child3>1</child3></xml-fragment>",
-                testElt.xmlText());
-        try {
-            assertTrue(testElt.validate(validateOptions));
-        } catch (Throwable t) {
-            showErrors();
-            throw t;
-        }
+                                "<child3>1</child3></xml-fragment>", testElt.xmlText());
+        assertTrue(testElt.validate(createOptions()));
     }
 
     @Test
-    public void testMixedAnonymous() throws Throwable {
-        NamedMixedEltDocument doc =
-                NamedMixedEltDocument.Factory.newInstance();
+    void testMixedAnonymous() throws Throwable {
+        NamedMixedEltDocument doc = NamedMixedEltDocument.Factory.newInstance();
 
         MixedT testElt = doc.getNamedMixedElt();
         assertNull(testElt);
@@ -77,23 +69,16 @@ public class NamedTest extends BaseCase {
         }
         testElt.setChild3(new BigInteger("1"));
         assertEquals("<xml-fragment>Random mixed content" +
-                "<child2>5</child2><child3>1</child3></xml-fragment>",
-                testElt.xmlText());
+                                "<child2>5</child2><child3>1</child3></xml-fragment>", testElt.xmlText());
 
         testElt.xsetChild2(XmlInteger.Factory.parse("<xml-fragment>3</xml-fragment>"));
         assertEquals("<xml-fragment>" +
-                "Random mixed content" +
-                "<child2>3</child2>" +
-                "<child3>1</child3>" +
-                "</xml-fragment>",
-                testElt.xmlText());
+                                "Random mixed content" +
+                                "<child2>3</child2>" +
+                                "<child3>1</child3>" +
+                                "</xml-fragment>", testElt.xmlText());
         testElt.xsetChild1(XmlInteger.Factory.parse("<xml-fragment>0</xml-fragment>"));
 
-        try {
-            assertTrue(testElt.validate(validateOptions));
-        } catch (Throwable t) {
-            showErrors();
-            throw t;
-        }
+        assertTrue(testElt.validate(createOptions()));
     }
 }

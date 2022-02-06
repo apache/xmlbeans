@@ -14,31 +14,26 @@
  */
 package scomp.derivation.extension.detailed;
 
-import org.junit.Test;
-import scomp.common.BaseCase;
+import org.junit.jupiter.api.Test;
 import xbean.scomp.derivation.emtpy.ExtendedEmptyEltDocument;
 import xbean.scomp.derivation.emtpy.ExtendedEmptyT;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static scomp.common.BaseCase.createOptions;
 
-public class EmptyContentExtension extends BaseCase{
+public class EmptyContentExtension {
     @Test
-    public void testEmptyElementContent() throws Throwable{
-       ExtendedEmptyEltDocument doc=ExtendedEmptyEltDocument.Factory.newInstance();
-       ExtendedEmptyT elt=doc.addNewExtendedEmptyElt();
-       assertTrue( !elt.isSetExtendedAttr() );
+    void testEmptyElementContent() throws Throwable {
+        ExtendedEmptyEltDocument doc = ExtendedEmptyEltDocument.Factory.newInstance();
+        ExtendedEmptyT elt = doc.addNewExtendedEmptyElt();
+        assertFalse(elt.isSetExtendedAttr());
         elt.setEmptyAttr("baseAttr");
-       
-        ExtendedEmptyT.ExtendedChild child=elt.addNewExtendedChild();
+
+        ExtendedEmptyT.ExtendedChild child = elt.addNewExtendedChild();
         child.setSubCh1("Child 1");
         child.setSubCh2(1.3f);
 
-        try{
-            assertTrue(doc.validate(validateOptions));
-        }
-        catch (Throwable t) {
-            showErrors();
-           throw t;
-        }
+        assertTrue(doc.validate(createOptions()));
     }
 }

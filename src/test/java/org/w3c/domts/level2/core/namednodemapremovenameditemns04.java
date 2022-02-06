@@ -22,10 +22,10 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.*;
 
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -38,24 +38,18 @@ import static org.w3c.domts.DOMTest.load;
  */
 public class namednodemapremovenameditemns04 {
     @Test
-    public void testRun() throws Throwable {
-        Document doc;
-        NamedNodeMap attributes;
-        Node element;
-        Attr attribute;
-        Attr attributeRemoved;
+    void testRun() throws Throwable {
         NodeList elementList;
-        doc = load("staffNS", true);
+        Document doc = load("staffNS", true);
         elementList = doc.getElementsByTagNameNS("*", "employee");
-        element = elementList.item(0);
-        attributes = element.getAttributes();
-        attributeRemoved = (Attr) attributes.removeNamedItemNS("http://www.w3.org/2000/xmlns/", "xmlns");
-        attribute = (Attr) attributes.getNamedItemNS("http://www.w3.org/2000/xmlns/", "xmlns");
-        assertNull("namednodemapremovenameditemns04_1", attribute);
+        Node element = elementList.item(0);
+        NamedNodeMap attributes = element.getAttributes();
+        Attr attributeRemoved = (Attr) attributes.removeNamedItemNS("http://www.w3.org/2000/xmlns/", "xmlns");
+        Attr attribute = (Attr) attributes.getNamedItemNS("http://www.w3.org/2000/xmlns/", "xmlns");
+        assertNull(attribute, "namednodemapremovenameditemns04_1");
         attributeRemoved = (Attr) attributes.removeNamedItemNS("http://www.w3.org/2000/xmlns/", "dmstc");
         attribute = (Attr) attributes.getNamedItemNS("http://www.w3.org/2000/xmlns/", "dmstc");
-        assertNull("namednodemapremovenameditemns04_2", attribute);
-
+        assertNull(attribute, "namednodemapremovenameditemns04_2");
     }
 
     /**

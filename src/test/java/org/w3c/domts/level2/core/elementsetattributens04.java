@@ -22,12 +22,13 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -42,35 +43,14 @@ import static org.w3c.domts.DOMTest.load;
  */
 public class elementsetattributens04 {
     @Test
-    public void testRun() throws Throwable {
-        Document doc;
-        Element element;
-        String qualifiedName;
-        java.util.List qualifiedNames = new java.util.ArrayList();
-        qualifiedNames.add("/");
-        qualifiedNames.add("//");
-        qualifiedNames.add("\\");
-        qualifiedNames.add(";");
-        qualifiedNames.add("&");
-        qualifiedNames.add("*");
-        qualifiedNames.add("]]");
-        qualifiedNames.add(">");
-        qualifiedNames.add("<");
+    void testRun() throws Throwable {
+        String[] qualifiedNames = { "/", "//", "\\", ";", "&", "*", "]]", ">", "<" };
 
-        doc = load("staffNS", true);
-        element = doc.createElementNS("http://www.w3.org/DOM/Test/L2", "dom:elem");
-        for (int indexd386e65 = 0; indexd386e65 < qualifiedNames.size(); indexd386e65++) {
-            qualifiedName = (String) qualifiedNames.get(indexd386e65);
-
-            {
-                boolean success = false;
-                try {
-                    element.setAttributeNS("http://www.w3.org/DOM/Test/L2", qualifiedName, "test");
-                } catch (DOMException ex) {
-                    success = (ex.code == DOMException.INVALID_CHARACTER_ERR);
-                }
-                assertTrue("elementsetattributens04", success);
-            }
+        Document doc = load("staffNS", true);
+        Element element = doc.createElementNS("http://www.w3.org/DOM/Test/L2", "dom:elem");
+        for (String qualifiedName : qualifiedNames) {
+            DOMException ex = assertThrows(DOMException.class, () -> element.setAttributeNS("http://www.w3.org/DOM/Test/L2", qualifiedName, "test"));
+            assertEquals(DOMException.INVALID_CHARACTER_ERR, ex.code, "elementsetattributens04");
         }
 
     }

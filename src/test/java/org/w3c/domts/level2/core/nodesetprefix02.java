@@ -22,10 +22,10 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.*;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -42,27 +42,18 @@ import static org.w3c.domts.DOMTest.load;
  */
 public class nodesetprefix02 {
     @Test
-    public void testRun() throws Throwable {
-        Document doc;
-        Element element;
-        Attr attribute;
-        Attr newAttribute;
-        Node setNode;
-        NodeList elementList;
-        String attrName;
-        String newAttrName;
-        doc = load("staffNS", true);
-        elementList = doc.getElementsByTagName("address");
-        element = (Element) elementList.item(1);
-        newAttribute = doc.createAttributeNS("http://www.w3.org/DOM/Test", "test:address");
-        setNode = element.setAttributeNodeNS(newAttribute);
+    void testRun() throws Throwable {
+        Document doc = load("staffNS", true);
+        NodeList elementList = doc.getElementsByTagName("address");
+        Element element = (Element) elementList.item(1);
+        Attr newAttribute = doc.createAttributeNS("http://www.w3.org/DOM/Test", "test:address");
+        Node setNode = element.setAttributeNodeNS(newAttribute);
         newAttribute.setPrefix("dom");
-        attribute = element.getAttributeNodeNS("http://www.usa.com", "domestic");
-        attrName = attribute.getNodeName();
-        newAttrName = newAttribute.getNodeName();
-        assertEquals("nodesetprefix02_attrName", "dmstc:domestic", attrName);
-        assertEquals("nodesetprefix02_newAttrName", "dom:address", newAttrName);
-
+        Attr attribute = element.getAttributeNodeNS("http://www.usa.com", "domestic");
+        String attrName = attribute.getNodeName();
+        String newAttrName = newAttribute.getNodeName();
+        assertEquals("dmstc:domestic", attrName, "nodesetprefix02_attrName");
+        assertEquals("dom:address", newAttrName, "nodesetprefix02_newAttrName");
     }
 
     /**

@@ -22,12 +22,12 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -42,18 +42,13 @@ import static org.w3c.domts.DOMTest.load;
  */
 public class namespaceURI04 {
     @Test
-    public void testRun() throws Throwable {
-        Document doc;
-        NodeList elementList;
-        Node testEmployee;
-        String employeeNamespace;
+    void testRun() throws Throwable {
         String sExpected = "";//TODO null;
-        doc = load("staffNS", false);
-        elementList = doc.getElementsByTagName("employee");
-        testEmployee = elementList.item(1);
-        employeeNamespace = testEmployee.getNamespaceURI();
-        assertEquals("throw_Null", sExpected, employeeNamespace);
-
+        Document doc = load("staffNS", false);
+        NodeList elementList = doc.getElementsByTagName("employee");
+        Node testEmployee = elementList.item(1);
+        String employeeNamespace = testEmployee.getNamespaceURI();
+        assertEquals(sExpected, employeeNamespace, "throw_Null");
     }
 
     /**

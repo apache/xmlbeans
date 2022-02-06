@@ -15,66 +15,57 @@
 package scomp.derivation.restriction.facets.detailed;
 
 import org.apache.xmlbeans.XmlErrorCodes;
-import org.junit.Test;
-import scomp.common.BaseCase;
+import org.apache.xmlbeans.XmlException;
+import org.apache.xmlbeans.XmlOptions;
+import org.junit.jupiter.api.Test;
 import xbean.scomp.derivation.facets.list.*;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
+import static scomp.common.BaseCase.createOptions;
+import static scomp.common.BaseCase.getErrorCodes;
 
 /**
+ *
  */
-public class ListRestriction extends BaseCase {
+public class ListRestriction {
     @Test
-    public void testLengthFacet() throws Throwable {
+    void testLengthFacet() {
         LengthEltDocument doc = LengthEltDocument.Factory.newInstance();
         List<String> vals = new ArrayList<>();
         vals.add("lstsmall");
 
         doc.setLengthElt(vals);
         //this should be too short
+        XmlOptions validateOptions = createOptions();
         assertFalse(doc.validate(validateOptions));
-        showErrors();
-        String[] errExpected = new String[]{
-            XmlErrorCodes.DATATYPE_LENGTH_VALID$LIST_LENGTH};
-        assertTrue(compareErrorCodes(errExpected));
+        String[] errExpected = {XmlErrorCodes.DATATYPE_LENGTH_VALID$LIST_LENGTH};
+        assertArrayEquals(errExpected, getErrorCodes(validateOptions));
 
         vals.add("lstsmall");
         doc.setLengthElt(vals);
-        try {
-            assertTrue(doc.validate(validateOptions));
-        } catch (Throwable t) {
-            showErrors();
-            throw t;
-        }
+        assertTrue(doc.validate(validateOptions));
         //this should be too long
         vals.add("lstsmall");
         doc.setLengthElt(vals);
-        clearErrors();
+        validateOptions.getErrorListener().clear();
         assertFalse(doc.validate(validateOptions));
-        showErrors();
-        errExpected = new String[]{
-            XmlErrorCodes.DATATYPE_LENGTH_VALID$LIST_LENGTH
-        };
-        assertTrue(compareErrorCodes(errExpected));
-
+        errExpected = new String[]{XmlErrorCodes.DATATYPE_LENGTH_VALID$LIST_LENGTH};
+        assertArrayEquals(errExpected, getErrorCodes(validateOptions));
     }
 
     @Test
-    public void testMinLengthFacet() throws Throwable {
+    void testMinLengthFacet() throws Throwable {
         String input =
-                "<MinLengthElt xmlns=\"http://xbean/scomp/derivation/facets/List\">" +
-                "lstsmall lstlarge lstsmall" +
-                "</MinLengthElt>";
+            "<MinLengthElt xmlns=\"http://xbean/scomp/derivation/facets/List\">" +
+            "lstsmall lstlarge lstsmall" +
+            "</MinLengthElt>";
         MinLengthEltDocument doc = MinLengthEltDocument.Factory.parse(input);
-        try {
-            assertTrue(doc.validate(validateOptions));
-        } catch (Throwable t) {
-            showErrors();
-            throw t;
-        }
+        XmlOptions validateOptions = createOptions();
+        assertTrue(doc.validate(validateOptions));
 
         List vals = doc.getMinLengthElt();
         assertEquals(3, vals.size());
@@ -84,34 +75,26 @@ public class ListRestriction extends BaseCase {
         assertEquals(1, newvals.size());
 
         doc.setMinLengthElt(newvals);
-        assertEquals(doc.getMinLengthElt().size(),
-                doc.xgetMinLengthElt().getListValue().size());
+        assertEquals(doc.getMinLengthElt().size(), doc.xgetMinLengthElt().getListValue().size());
         assertEquals(1, doc.xgetMinLengthElt().getListValue().size());
 
-        assertEquals("lstlarge",
-                (String) doc.xgetMinLengthElt().getListValue().get(0));
+        assertEquals("lstlarge", (String) doc.xgetMinLengthElt().getListValue().get(0));
         assertFalse(doc.validate(validateOptions));
-        showErrors();
-        String[] errExpected = new String[]{
-            XmlErrorCodes.DATATYPE_LENGTH_VALID$LIST_LENGTH
-        };
-        assertTrue(compareErrorCodes(errExpected));
-
-
+        String[] errExpected = {XmlErrorCodes.DATATYPE_LENGTH_VALID$LIST_LENGTH};
+        assertArrayEquals(errExpected, getErrorCodes(validateOptions));
     }
 
     @Test
-    public void testMaxLengthFacet() throws Throwable {
+    void testMaxLengthFacet() throws XmlException {
         String input =
-                "<MaxLengthElt xmlns=\"http://xbean/scomp/derivation/facets/List\">" +
-                "lstsmall lstlarge lstsmall" +
-                "</MaxLengthElt>";
+            "<MaxLengthElt xmlns=\"http://xbean/scomp/derivation/facets/List\">" +
+            "lstsmall lstlarge lstsmall" +
+            "</MaxLengthElt>";
         MaxLengthEltDocument doc = MaxLengthEltDocument.Factory.parse(input);
+        XmlOptions validateOptions = createOptions();
         assertFalse(doc.validate(validateOptions));
-        showErrors();
-        String[] errExpected = new String[]{
-            XmlErrorCodes.DATATYPE_LENGTH_VALID$LIST_LENGTH};
-        assertTrue(compareErrorCodes(errExpected));
+        String[] errExpected = {XmlErrorCodes.DATATYPE_LENGTH_VALID$LIST_LENGTH};
+        assertArrayEquals(errExpected, getErrorCodes(validateOptions));
 
         MaxLengthFacet elt = MaxLengthFacet.Factory.newInstance();
         List<String> vals = new ArrayList<>();
@@ -120,72 +103,43 @@ public class ListRestriction extends BaseCase {
         //why is there no xsetListValue method here?
         elt.setListValue(vals);
         doc.xsetMaxLengthElt(elt);
-        try {
-            assertTrue(doc.validate(validateOptions));
-        } catch (Throwable t) {
-            showErrors();
-            throw t;
-        }
+        assertTrue(doc.validate(validateOptions));
     }
 
     /**
      * Walmsley, p. 215...
      */
     @Test
-    public void testEnum() throws Throwable {
+    void testEnum() {
         EnumEltDocument doc = EnumEltDocument.Factory.newInstance();
-        List<Object> vals = new ArrayList<>();
-        vals.add("small");
-        vals.add("medium");
-        vals.add("large");
+        List<Object> vals = new ArrayList<>(Arrays.asList("small", "medium", "large"));
+
         doc.setEnumElt(vals);
-        try {
-            assertTrue(doc.validate(validateOptions));
-        } catch (Throwable t) {
-            showErrors();
-            throw t;
-        }
+        XmlOptions validateOptions = createOptions();
+        assertTrue(doc.validate(validateOptions));
         vals.clear();
         vals.add(2);
         vals.add(3);
         vals.add(1);
         doc.setEnumElt(vals);
-        try {
-            assertTrue(doc.validate(validateOptions));
-        } catch (Throwable t) {
-            showErrors();
-            throw t;
-        }
+        assertTrue(doc.validate(validateOptions));
 
         vals.clear();
         vals.add("small");
         vals.add(10);
         doc.setEnumElt(vals);
         assertFalse(doc.validate(validateOptions));
-        showErrors();
-        String[] errExpected = new String[]{
-            XmlErrorCodes.DATATYPE_VALID$UNION
-        };
-        assertTrue(compareErrorCodes(errExpected));
-
+        String[] errExpected = {XmlErrorCodes.DATATYPE_VALID$UNION};
+        assertArrayEquals(errExpected, getErrorCodes(validateOptions));
     }
 
     @Test
-    public void testPattern() throws Throwable {
+    void testPattern() {
         PatternEltDocument doc = PatternEltDocument.Factory.newInstance();
-        List<Integer> vals = new ArrayList<>();
-        vals.add(152);
-        vals.add(154);
-        vals.add(156);
-        vals.add(918);
+        List<Integer> vals = Arrays.asList(152, 154, 156, 918, 342);
 
-        vals.add(342);
         doc.setPatternElt(vals);
-        try {
-            assertTrue(doc.validate(validateOptions));
-        } catch (Throwable t) {
-            showErrors();
-            throw t;
-        }
+        XmlOptions validateOptions = createOptions();
+        assertTrue(doc.validate(validateOptions));
     }
 }

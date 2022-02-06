@@ -20,70 +20,52 @@ import org.apache.xmlbeans.XmlBeans;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.impl.xb.xsdschema.SchemaDocument.Schema;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import tools.util.JarUtil;
 
 import javax.xml.namespace.QName;
 import java.io.File;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
 public class RuntimeSchemaLoaderTest {
 
     @Test
-    public void testDynamicLoad() throws Throwable {
-        File inputfile1 = JarUtil
-                .getResourceFromJarasFile("xbean/misc/dyntest.xsd");
-        SchemaTypeLoader loader = XmlBeans.loadXsd(
-                new XmlObject[]{XmlObject.Factory.parse(inputfile1)});
+    void testDynamicLoad() throws Throwable {
+        File inputfile1 = JarUtil.getResourceFromJarasFile("xbean/misc/dyntest.xsd");
+        SchemaTypeLoader loader = XmlBeans.loadXsd(XmlObject.Factory.parse(inputfile1));
         XmlObject result = loader.parse(
                 JarUtil.getResourceFromJarasFile("xbean/misc/dyntest.xml"),
                 null, null);
-        assertEquals(
-                "D=wrappedinstance@http://openuri.org/test/dyntest",
-                result.schemaType().toString());
-        assertEquals(
-                loader.findDocumentType(
-                        new QName("http://openuri.org/test/dyntest",
-                                "wrappedinstance")),
-                result.schemaType());
+        assertEquals("D=wrappedinstance@http://openuri.org/test/dyntest", result.schemaType().toString());
+        assertEquals(loader.findDocumentType(
+                new QName("http://openuri.org/test/dyntest",
+                        "wrappedinstance")), result.schemaType());
     }
 
     @Test
-    public void testDynamicLoad2() throws Throwable {
-        File inputfile1 = JarUtil
-                .getResourceFromJarasFile("xbean/misc/dyntest2.xsd");
-        SchemaTypeLoader loader = XmlBeans.loadXsd(new XmlObject[]
-        {XmlObject.Factory.parse(inputfile1)});
+    void testDynamicLoad2() throws Throwable {
+        File inputfile1 = JarUtil.getResourceFromJarasFile("xbean/misc/dyntest2.xsd");
+        SchemaTypeLoader loader = XmlBeans.loadXsd(XmlObject.Factory.parse(inputfile1));
         XmlObject result = loader.parse(
                 JarUtil.getResourceFromJarasFile("xbean/misc/dyntest2.xml"),
                 null, null);
-        assertEquals(
-                "D=wrappedwildcard@http://openuri.org/test/dyntest",
-                result.schemaType().toString());
-        assertEquals(
-                loader.findDocumentType(
-                        new QName("http://openuri.org/test/dyntest",
-                                "wrappedwildcard")),
-                result.schemaType());
+        assertEquals("D=wrappedwildcard@http://openuri.org/test/dyntest", result.schemaType().toString());
+        assertEquals(loader.findDocumentType(
+                new QName("http://openuri.org/test/dyntest",
+                        "wrappedwildcard")), result.schemaType());
         try (XmlCursor cur = result.newCursor()) {
-            Assert.assertTrue("Should have a root element", cur.toFirstChild());
+            assertTrue(cur.toFirstChild(), "Should have a root element");
             result = cur.getObject();
-            assertEquals(
-                    "E=wrappedwildcard|D=wrappedwildcard@http://openuri.org/test/dyntest",
-                    result.schemaType().toString());
-            assertEquals(
-                    loader.findElement(
-                            new QName("http://openuri.org/test/dyntest",
-                                    "wrappedwildcard"))
-                    .getType(),
-                    result.schemaType());
-            Assert.assertTrue("Should have a first child", cur.toFirstChild());
-            assertEquals(
-                    new QName("http://www.w3.org/2001/XMLSchema", "schema"),
-                    cur.getName());
+            assertEquals("E=wrappedwildcard|D=wrappedwildcard@http://openuri.org/test/dyntest", result.schemaType().toString());
+            assertEquals(loader.findElement(
+                    new QName("http://openuri.org/test/dyntest",
+                            "wrappedwildcard"))
+            .getType(), result.schemaType());
+            assertTrue(cur.toFirstChild(), "Should have a first child");
+            assertEquals(new QName("http://www.w3.org/2001/XMLSchema", "schema"), cur.getName());
             XmlObject obj = cur.getObject();
             assertEquals(Schema.type, obj.schemaType());
         }

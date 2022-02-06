@@ -17,44 +17,38 @@
 package xmlcursor.checkin;
 
 import org.apache.xmlbeans.XmlCursor;
-import org.apache.xmlbeans.XmlObject;
-import org.junit.Test;
-import tools.util.JarUtil;
-import xmlcursor.common.BasicCursorTestCase;
+import org.junit.jupiter.api.Test;
 import xmlcursor.common.Common;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
+import static xmlcursor.common.BasicCursorTestCase.jcur;
 
 
-public class GetDocChangeStampTest extends BasicCursorTestCase {
+public class GetDocChangeStampTest {
     @Test
-    public void testGetDocChangeStampHasChanged() throws Exception {
-        m_xo = XmlObject.Factory.parse(
-                  JarUtil.getResourceFromJar(Common.TRANXML_FILE_XMLCURSOR_PO));
-        m_xc = m_xo.newCursor();
-        String ns="declare namespace po=\"http://xbean.test/xmlcursor/PurchaseOrder\";";
+    void testGetDocChangeStampHasChanged() throws Exception {
+        try (XmlCursor m_xc = jcur(Common.TRANXML_FILE_XMLCURSOR_PO)) {
+            String ns = "declare namespace po=\"http://xbean.test/xmlcursor/PurchaseOrder\";";
 
-        m_xc.selectPath(ns+" $this//po:city");
-        m_xc.toNextSelection();
-        assertEquals("Mill Valley", m_xc.getTextValue());
-        XmlCursor.ChangeStamp cs0 = m_xc.getDocChangeStamp();
-        m_xc.setTextValue("Mowed Valley");
-        assertEquals("Mowed Valley", m_xc.getTextValue());
-        assertEquals(true, cs0.hasChanged());
+            m_xc.selectPath(ns + " $this//po:city");
+            m_xc.toNextSelection();
+            assertEquals("Mill Valley", m_xc.getTextValue());
+            XmlCursor.ChangeStamp cs0 = m_xc.getDocChangeStamp();
+            m_xc.setTextValue("Mowed Valley");
+            assertEquals("Mowed Valley", m_xc.getTextValue());
+            assertTrue(cs0.hasChanged());
+        }
     }
 
     @Test
-    public void testGetDocChangeStampNotChanged() throws Exception {
-        m_xo = XmlObject.Factory.parse(
-                  JarUtil.getResourceFromJar(Common.TRANXML_FILE_XMLCURSOR_PO));
-        String ns="declare namespace po=\"http://xbean.test/xmlcursor/PurchaseOrder\";";
-
-        m_xc = m_xo.newCursor();
-        m_xc.selectPath(ns+" $this//po:city");
-        XmlCursor.ChangeStamp cs0 = m_xc.getDocChangeStamp();
-        m_xc.toEndDoc();
-        assertEquals(false, cs0.hasChanged());
-        System.out.println(cs0);
+    void testGetDocChangeStampNotChanged() throws Exception {
+        try (XmlCursor m_xc = jcur(Common.TRANXML_FILE_XMLCURSOR_PO)) {
+            String ns = "declare namespace po=\"http://xbean.test/xmlcursor/PurchaseOrder\";";
+            m_xc.selectPath(ns + " $this//po:city");
+            XmlCursor.ChangeStamp cs0 = m_xc.getDocChangeStamp();
+            m_xc.toEndDoc();
+            assertFalse(cs0.hasChanged());
+        }
     }
 }
 

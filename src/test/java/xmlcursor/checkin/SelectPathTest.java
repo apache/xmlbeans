@@ -17,98 +17,90 @@
 package xmlcursor.checkin;
 
 import org.apache.xmlbeans.XmlCursor;
-import org.apache.xmlbeans.XmlObject;
-import org.junit.Ignore;
-import org.junit.Test;
-import tools.util.JarUtil;
-import xmlcursor.common.BasicCursorTestCase;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import xmlcursor.common.Common;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static xmlcursor.common.BasicCursorTestCase.jcur;
+import static xmlcursor.common.BasicCursorTestCase.toNextTokenOfType;
 
 
-public class SelectPathTest extends BasicCursorTestCase {
+public class SelectPathTest {
     /**
      * $BUGBUG: Eric's engine doesn't send to Jaxen appropriately
      */
     @Test
-    @Ignore
+    @Disabled
     public void testSelectPathFromEND() throws Exception {
-        m_xo = XmlObject.Factory.parse(
-            JarUtil.getResourceFromJar(Common.TRANXML_FILE_XMLCURSOR_PO));
         String ns = "declare namespace po=\"http://xbean.test/xmlcursor/PurchaseOrder\"";
-        m_xc = m_xo.newCursor();
-        toNextTokenOfType(m_xc, XmlCursor.TokenType.END);
-        m_xc.selectPath(ns + " $this//city");
-        assertEquals(0, m_xc.getSelectionCount());
+        try (XmlCursor m_xc = jcur(Common.TRANXML_FILE_XMLCURSOR_PO)) {
+            toNextTokenOfType(m_xc, XmlCursor.TokenType.END);
+            m_xc.selectPath(ns + " $this//city");
+            assertEquals(0, m_xc.getSelectionCount());
+        }
     }
 
     @Test
-    @Ignore
+    @Disabled
     public void testSelectPathFromENDDOC() throws Exception {
-        m_xo = XmlObject.Factory.parse(
-            JarUtil.getResourceFromJar(Common.TRANXML_FILE_XMLCURSOR_PO));
-        m_xc = m_xo.newCursor();
-        String ns="declare namespace po=\"http://xbean.test/xmlcursor/PurchaseOrder\"";
-        toNextTokenOfType(m_xc, XmlCursor.TokenType.ENDDOC);
-        m_xc.selectPath(ns+" .//po:city");
-        assertEquals(0, m_xc.getSelectionCount());
+        String ns = "declare namespace po=\"http://xbean.test/xmlcursor/PurchaseOrder\"";
+        try (XmlCursor m_xc = jcur(Common.TRANXML_FILE_XMLCURSOR_PO)) {
+            toNextTokenOfType(m_xc, XmlCursor.TokenType.ENDDOC);
+            m_xc.selectPath(ns + " .//po:city");
+            assertEquals(0, m_xc.getSelectionCount());
+        }
     }
 
     @Test
-    public void testSelectPathNamespace() throws Exception {
-        m_xo = XmlObject.Factory.parse(
-                JarUtil.getResourceFromJar(Common.TRANXML_FILE_CLM));
-        m_xc = m_xo.newCursor();
-        String sLocalPath =".//FleetID";
-        m_xc.selectPath(sLocalPath);
-        assertEquals(0, m_xc.getSelectionCount());
-        m_xc.selectPath(Common.CLM_NS_XQUERY_DEFAULT +
-                        sLocalPath);
-        assertEquals(1, m_xc.getSelectionCount());
+    void testSelectPathNamespace() throws Exception {
+        String sLocalPath = ".//FleetID";
+        try (XmlCursor m_xc = jcur(Common.TRANXML_FILE_CLM)) {
+            m_xc.selectPath(sLocalPath);
+            assertEquals(0, m_xc.getSelectionCount());
+            m_xc.selectPath(Common.CLM_NS_XQUERY_DEFAULT + sLocalPath);
+            assertEquals(1, m_xc.getSelectionCount());
+        }
     }
 
     @Test
-    public void testSelectPathCaseSensitive() throws Exception {
-        m_xo = XmlObject.Factory.parse(
-                 JarUtil.getResourceFromJar(Common.TRANXML_FILE_XMLCURSOR_PO));
-        m_xc = m_xo.newCursor();
-        String ns="declare namespace po=\"http://xbean.test/xmlcursor/PurchaseOrder\";";
-        m_xc.selectPath(ns+" .//po:ciTy");
-        assertEquals(0, m_xc.getSelectionCount());
-        m_xc.selectPath(ns+" .//po:city");
-        assertEquals(2, m_xc.getSelectionCount());
+    void testSelectPathCaseSensitive() throws Exception {
+        String ns = "declare namespace po=\"http://xbean.test/xmlcursor/PurchaseOrder\";";
+        try (XmlCursor m_xc = jcur(Common.TRANXML_FILE_XMLCURSOR_PO)) {
+            m_xc.selectPath(ns + " .//po:ciTy");
+            assertEquals(0, m_xc.getSelectionCount());
+            m_xc.selectPath(ns + " .//po:city");
+            assertEquals(2, m_xc.getSelectionCount());
+        }
     }
 
     @Test
-    public void testSelectPathReservedKeyword() throws Exception {
-        m_xo = XmlObject.Factory.parse(
-                JarUtil.getResourceFromJar(Common.TRANXML_FILE_XMLCURSOR_PO));
-        m_xc = m_xo.newCursor();
-        String ns="declare namespace po=\"http://xbean.test/xmlcursor/PurchaseOrder\";";
-        m_xc.selectPath(ns+" .//po:item");
-        assertEquals(2, m_xc.getSelectionCount());
+    void testSelectPathReservedKeyword() throws Exception {
+        String ns = "declare namespace po=\"http://xbean.test/xmlcursor/PurchaseOrder\";";
+        try (XmlCursor m_xc = jcur(Common.TRANXML_FILE_XMLCURSOR_PO)) {
+            m_xc.selectPath(ns + " .//po:item");
+            assertEquals(2, m_xc.getSelectionCount());
+        }
     }
 
-    @Test(expected = RuntimeException.class)
-    public void testSelectPathNull() throws Exception {
-        m_xo = XmlObject.Factory.parse(
-                 JarUtil.getResourceFromJar(Common.TRANXML_FILE_XMLCURSOR_PO));
-        m_xc = m_xo.newCursor();
-        // TODO: surround with appropriate t-c once ericvas creates the exception type
-        // see bugs 18009 and/or 18718
-        m_xc.selectPath(null);
+    @Test
+    void testSelectPathNull() throws Exception {
+        try (XmlCursor m_xc = jcur(Common.TRANXML_FILE_XMLCURSOR_PO)) {
+            // TODO: surround with appropriate t-c once ericvas creates the exception type
+            //  see bugs 18009 and/or 18718
+            assertThrows(RuntimeException.class, () -> m_xc.selectPath(null));
+        }
     }
 
-    @Test(expected = RuntimeException.class)
-    public void testSelectPathInvalidXPath() throws Exception {
-        m_xo = XmlObject.Factory.parse(
-                 JarUtil.getResourceFromJar(Common.TRANXML_FILE_XMLCURSOR_PO));
-        m_xc = m_xo.newCursor();
-        // TODO: surround with appropriate t-c once ericvas creates the exception type
-        // see bugs 18009 and/or 18718
-        m_xc.selectPath("&GARBAGE");
-        m_xc.getSelectionCount();
+    @Test
+    void testSelectPathInvalidXPath() throws Exception {
+        try (XmlCursor m_xc = jcur(Common.TRANXML_FILE_XMLCURSOR_PO)) {
+            // TODO: surround with appropriate t-c once ericvas creates the exception type
+            // see bugs 18009 and/or 18718
+            m_xc.selectPath("&GARBAGE");
+            assertThrows(RuntimeException.class, m_xc::getSelectionCount);
+        }
     }
 }
 

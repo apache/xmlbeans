@@ -22,13 +22,13 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Document;
 import org.w3c.dom.DocumentType;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -41,21 +41,15 @@ import static org.w3c.domts.DOMTest.load;
  */
 public class documenttypesystemid01 {
     @Test
-    @Ignore
+    @Disabled
     public void testRun() throws Throwable {
-        Document doc;
-        DocumentType docType;
-        DOMImplementation domImpl;
-        String publicId;
-        String systemId;
-        doc = load("staffNS", false);
-        domImpl = doc.getImplementation();
-        docType = domImpl.createDocumentType("l2:root", "PUB", "SYS");
-        publicId = docType.getPublicId();
-        systemId = docType.getSystemId();
-        assertEquals("documenttypepublicid01", "PUB", publicId);
-        assertEquals("documenttypesystemid01", "SYS", systemId);
-
+        Document doc = load("staffNS", false);
+        DOMImplementation domImpl = doc.getImplementation();
+        DocumentType docType = domImpl.createDocumentType("l2:root", "PUB", "SYS");
+        String publicId = docType.getPublicId();
+        String systemId = docType.getSystemId();
+        assertEquals("PUB", publicId, "documenttypepublicid01");
+        assertEquals("SYS", systemId, "documenttypesystemid01");
     }
 
     /**

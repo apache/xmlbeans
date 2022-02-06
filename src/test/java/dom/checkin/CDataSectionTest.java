@@ -16,12 +16,12 @@
 package dom.checkin;
 
 import dom.common.CharacterDataTest;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.CDATASection;
 import org.w3c.dom.Node;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
 public class CDataSectionTest extends CharacterDataTest {
@@ -41,43 +41,42 @@ sXml="<script>"+
     }
 
     @Test
-    public void testNodeName() {
+    void testNodeName() {
         assertEquals("#cdata-section", m_node.getNodeName());
     }
 
     @Test
-    public void testNodeType() {
+    void testNodeType() {
         assertEquals(Node.CDATA_SECTION_NODE, m_node.getNodeType());
     }
 
     @Test
-    public void testNodeValue() {
-        assertEquals("function matchwo(a,b){\"+\n\t    \"return 0   }",
-                m_node.getNodeValue());
+    void testNodeValue() {
+        assertEquals("function matchwo(a,b){\"+\n\t    \"return 0   }", m_node.getNodeValue());
     }
 
     @Test
-    public void testNextSibling() {
+    void testNextSibling() {
         Node nxtSibling = m_node.getNextSibling();
         assertEquals("foobar", nxtSibling.getNodeValue());
 
     }
 
     @Test
-    public void testPreviousSibling() {
+    void testPreviousSibling() {
         Node prSibling = m_node.getPreviousSibling();
         assertEquals(null, prSibling);
     }
 
     @Test
-    public void testParent() {
+    void testParent() {
         Node parent = m_node.getParentNode();
         assertEquals(m_doc.getFirstChild(), parent);
         assertEquals("script", parent.getLocalName());
     }
 
     @Test
-    public void testSetNodeValue() {
+    void testSetNodeValue() {
         m_node.setNodeValue("new CDATA");
         assertEquals("new CDATA", m_node.getNodeValue());
     }
@@ -93,7 +92,7 @@ sXml="<script>"+
 
     }
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         super.setUp();
         moveToNode();

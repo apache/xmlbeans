@@ -16,67 +16,73 @@
 
 package xmlcursor.checkin;
 
+import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlCursor.TokenType;
-import org.apache.xmlbeans.XmlObject;
-import org.junit.Test;
-import xmlcursor.common.BasicCursorTestCase;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static xmlcursor.common.BasicCursorTestCase.cur;
+import static xmlcursor.common.BasicCursorTestCase.toNextTokenOfType;
 
 
-public class ToPrevCharTest extends BasicCursorTestCase {
+public class ToPrevCharTest {
     @Test
-    public void testToPrevCharNegative() throws Exception {
-        m_xc = XmlObject.Factory.parse("<foo>early<bar>text</bar></foo>").newCursor();
-        toNextTokenOfType(m_xc, TokenType.TEXT);
-        m_xc.toNextToken();
-        assertEquals("text", m_xc.getTextValue());
-        assertEquals(5, m_xc.toPrevChar(-1));
-        assertEquals(TokenType.TEXT, m_xc.currentTokenType());
-        assertEquals("early", m_xc.getChars());
+    void testToPrevCharNegative() throws Exception {
+        try (XmlCursor m_xc = cur("<foo>early<bar>text</bar></foo>")) {
+            toNextTokenOfType(m_xc, TokenType.TEXT);
+            m_xc.toNextToken();
+            assertEquals("text", m_xc.getTextValue());
+            assertEquals(5, m_xc.toPrevChar(-1));
+            assertEquals(TokenType.TEXT, m_xc.currentTokenType());
+            assertEquals("early", m_xc.getChars());
+        }
     }
 
     @Test
-    public void testToPrevCharGTLength() throws Exception {
-        m_xc = XmlObject.Factory.parse("<foo>early<bar>text</bar></foo>").newCursor();
-        toNextTokenOfType(m_xc, TokenType.TEXT);
-        m_xc.toNextToken();
-        assertEquals("text", m_xc.getTextValue());
-        assertEquals(5, m_xc.toPrevChar(999));
-        assertEquals(TokenType.TEXT, m_xc.currentTokenType());
-        assertEquals("early", m_xc.getChars());
+    void testToPrevCharGTLength() throws Exception {
+        try (XmlCursor m_xc = cur("<foo>early<bar>text</bar></foo>")) {
+            toNextTokenOfType(m_xc, TokenType.TEXT);
+            m_xc.toNextToken();
+            assertEquals("text", m_xc.getTextValue());
+            assertEquals(5, m_xc.toPrevChar(999));
+            assertEquals(TokenType.TEXT, m_xc.currentTokenType());
+            assertEquals("early", m_xc.getChars());
+        }
     }
 
     @Test
-    public void testToPrevCharLTLength() throws Exception {
-        m_xc = XmlObject.Factory.parse("<foo>early<bar>text</bar></foo>").newCursor();
-        toNextTokenOfType(m_xc, TokenType.TEXT);
-        m_xc.toNextToken();
-        assertEquals("text", m_xc.getTextValue());
-        assertEquals(3, m_xc.toPrevChar(3));
-        assertEquals(TokenType.TEXT, m_xc.currentTokenType());
-        assertEquals("rly", m_xc.getChars());
+    void testToPrevCharLTLength() throws Exception {
+        try (XmlCursor m_xc = cur("<foo>early<bar>text</bar></foo>")) {
+            toNextTokenOfType(m_xc, TokenType.TEXT);
+            m_xc.toNextToken();
+            assertEquals("text", m_xc.getTextValue());
+            assertEquals(3, m_xc.toPrevChar(3));
+            assertEquals(TokenType.TEXT, m_xc.currentTokenType());
+            assertEquals("rly", m_xc.getChars());
+        }
     }
 
     @Test
-    public void testToPrevCharZero() throws Exception {
-        m_xc = XmlObject.Factory.parse("<foo>early<bar>text</bar></foo>").newCursor();
-        toNextTokenOfType(m_xc, TokenType.TEXT);
-        m_xc.toNextToken();
-        assertEquals("text", m_xc.getTextValue());
-        assertEquals(0, m_xc.toPrevChar(0));
-        assertEquals(TokenType.START, m_xc.currentTokenType());
-        assertEquals("text", m_xc.getTextValue());
+    void testToPrevCharZero() throws Exception {
+        try (XmlCursor m_xc = cur("<foo>early<bar>text</bar></foo>")) {
+            toNextTokenOfType(m_xc, TokenType.TEXT);
+            m_xc.toNextToken();
+            assertEquals("text", m_xc.getTextValue());
+            assertEquals(0, m_xc.toPrevChar(0));
+            assertEquals(TokenType.START, m_xc.currentTokenType());
+            assertEquals("text", m_xc.getTextValue());
+        }
     }
 
     @Test
-    public void testToPrevCharFromATTR() throws Exception {
-        m_xc = XmlObject.Factory.parse("<foo attr0=\"val0\">early<bar>text</bar></foo>").newCursor();
-        toNextTokenOfType(m_xc, TokenType.ATTR);
-        assertEquals("val0", m_xc.getTextValue());
-        assertEquals(0, m_xc.toPrevChar(2));
-        assertEquals(TokenType.ATTR, m_xc.currentTokenType());
-        assertEquals("val0", m_xc.getTextValue());
+    void testToPrevCharFromATTR() throws Exception {
+        try (XmlCursor m_xc = cur("<foo attr0=\"val0\">early<bar>text</bar></foo>")) {
+            toNextTokenOfType(m_xc, TokenType.ATTR);
+            assertEquals("val0", m_xc.getTextValue());
+            assertEquals(0, m_xc.toPrevChar(2));
+            assertEquals(TokenType.ATTR, m_xc.currentTokenType());
+            assertEquals("val0", m_xc.getTextValue());
+        }
     }
 }
 

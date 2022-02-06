@@ -22,10 +22,13 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Test;
-import org.w3c.dom.*;
+import org.junit.jupiter.api.Test;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -46,22 +49,16 @@ import static org.w3c.domts.DOMTest.load;
  */
 public class setAttributeNS05 {
     @Test
-    public void testRun() throws Throwable {
+    void testRun() throws Throwable {
         String localName = "newAttr";
         String namespaceURI = "http://www.newattr.com";
         String qualifiedName = "emp:newAttr";
-        Document doc;
-        NodeList elementList;
-        Node testAddr;
-        Attr addrAttr;
-        String resultAttr;
-        doc = load("staffNS", true);
-        elementList = doc.getElementsByTagName("emp:address");
-        testAddr = elementList.item(0);
+        Document doc = load("staffNS", true);
+        NodeList elementList = doc.getElementsByTagName("emp:address");
+        Node testAddr = elementList.item(0);
         ((Element) /*Node */testAddr).setAttributeNS(namespaceURI, qualifiedName, "<newValue>");
-        resultAttr = ((Element) /*Node */testAddr).getAttributeNS(namespaceURI, localName);
-        assertEquals("throw_Equals", "<newValue>", resultAttr);
-
+        String resultAttr = ((Element) /*Node */testAddr).getAttributeNS(namespaceURI, localName);
+        assertEquals("<newValue>", resultAttr, "throw_Equals");
     }
 
     /**

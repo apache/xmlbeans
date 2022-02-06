@@ -14,34 +14,34 @@
  */
 package scomp.redefine.detailed;
 
-import org.junit.Test;
-import scomp.common.BaseCase;
+import org.junit.jupiter.api.Test;
 import xbean.scomp.redefine.attrGroupRedefine.AttrGroupEltDocument;
 
 import java.lang.reflect.Method;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
-public class AttrGroupRedefine extends BaseCase{
+public class AttrGroupRedefine {
 
     /**
      * test that fields from the old type def are not
      * visible anymore
      */
+    @SuppressWarnings("ResultOfMethodCallIgnored")
     @Test
-    public void testCodeGeneration() throws NoSuchMethodException {
+    void testCodeGeneration() throws NoSuchMethodException {
         AttrGroupEltDocument doc = AttrGroupEltDocument.Factory.newInstance();
         AttrGroupEltDocument.AttrGroupElt elt = doc.addNewAttrGroupElt();
 
-        assertThrows( "field should be redefined", NoSuchFieldException.class,
-            () -> elt.getClass().getDeclaredField("attr2"));
+        assertThrows( NoSuchFieldException.class, () -> elt.getClass().getDeclaredField("attr2"),
+            "field should be redefined");
 
 
         elt.getClass().getDeclaredMethod("getAttr1");
         elt.getClass().getDeclaredMethod("getAttr2A");
 
         Method m = elt.getClass().getDeclaredMethod("getAttr3A");
-        assertEquals(m.getReturnType(), java.lang.Integer.TYPE);
+        assertEquals(Integer.TYPE, m.getReturnType());
     }
 }

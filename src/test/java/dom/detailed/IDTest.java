@@ -20,8 +20,8 @@ import org.apache.xmlbeans.XmlError;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import xbean.dom.id.FooDocument;
@@ -29,17 +29,16 @@ import xbean.dom.id.FooDocument;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class IDTest {
     private String P = File.separator;
 
-    // Test the getElementById() DOM API with DTDs , run with jvm arg -Dcases.location 
+    // Test the getElementById() DOM API with DTDs , run with jvm arg -Dcases.location
     @Test
-    public void testGetElemById() throws Exception {
+    void testGetElemById() throws Exception {
         Document doc;
         Element element;
         String tagname;
@@ -51,13 +50,13 @@ public class IDTest {
         assertNotNull(element);
 
         tagname = element.getTagName();
-        assertEquals("throw_Equals", "emp:address", tagname);
+        assertEquals("emp:address", tagname, "throw_Equals");
         assertNull(doc.getDoctype());
     }
 
     // test getElementById() with schema containing DTD with ID definition for untyped XmlObject
     @Test
-    public void testIDSchema() throws Exception {
+    void testIDSchema() throws Exception {
         String dtdAndData =
             "<!DOCTYPE xs:schema PUBLIC \"-//W3C//DTD XMLSCHEMA 200102//EN\" \"XMLSchema.dtd\" [\n" +
             "<!ELEMENT first_name (#PCDATA)>\n" +
@@ -89,7 +88,7 @@ public class IDTest {
 
     // typed XmlObject
     @Test
-    @Ignore("doesn't work anymore - xerces 2.11 is not calling the DeclHandler and so no ID attribute is added")
+    @Disabled("doesn't work anymore - xerces 2.11 is not calling the DeclHandler and so no ID attribute is added")
     public void testSchemaWithDTD() throws Exception {
         XmlOptions opt = new XmlOptions();
         List err = new ArrayList();

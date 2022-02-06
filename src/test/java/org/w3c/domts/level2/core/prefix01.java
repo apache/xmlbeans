@@ -22,11 +22,11 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -44,15 +44,11 @@ import static org.w3c.domts.DOMTest.load;
  */
 public class prefix01 {
     @Test
-    public void testRun() throws Throwable {
-        Document doc;
-        Node createdNode;
-        String prefix;
-        doc = load("staffNS", false);
-        createdNode = doc.createElement("test:employee");
-        prefix = createdNode.getPrefix();
-        assertNull("throw_Null", prefix);
-
+    void testRun() throws Throwable {
+        Document doc = load("staffNS", false);
+        Node createdNode = doc.createElement("test:employee");
+        String prefix = createdNode.getPrefix();
+        assertNull(prefix, "throw_Null");
     }
 
     /**

@@ -22,14 +22,14 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -48,28 +48,19 @@ import static org.w3c.domts.DOMTest.load;
  */
 public class documentimportnode02 {
     @Test
-    @Ignore
+    @Disabled
     public void testRun() throws Throwable {
-        Document doc;
-        Document docImported;
-        Element element;
-        Attr attr;
-        Node importedAttr;
-        String nodeName;
-        int nodeType;
-        String nodeValue;
-        doc = load("staffNS", true);
-        docImported = load("staff", true);
-        element = doc.getElementById("CANADA");
-        attr = element.getAttributeNodeNS("http://www.nist.gov", "zone");
-        importedAttr = docImported.importNode(attr, false);
-        nodeName = importedAttr.getNodeName();
-        nodeType = importedAttr.getNodeType();
-        nodeValue = importedAttr.getNodeValue();
-        assertEquals("documentimportnode02_nodeName", "emp:zone", nodeName);
-        assertEquals("documentimportnode02_nodeType", 2, nodeType);
-        assertEquals("documentimportnode02_nodeValue", "CANADA", nodeValue);
-
+        Document doc = load("staffNS", true);
+        Document docImported = load("staff", true);
+        Element element = doc.getElementById("CANADA");
+        Attr attr = element.getAttributeNodeNS("http://www.nist.gov", "zone");
+        Node importedAttr = docImported.importNode(attr, false);
+        String nodeName = importedAttr.getNodeName();
+        int nodeType = importedAttr.getNodeType();
+        String nodeValue = importedAttr.getNodeValue();
+        assertEquals("emp:zone", nodeName, "documentimportnode02_nodeName");
+        assertEquals(2, nodeType, "documentimportnode02_nodeType");
+        assertEquals("CANADA", nodeValue, "documentimportnode02_nodeValue");
     }
 
     /**

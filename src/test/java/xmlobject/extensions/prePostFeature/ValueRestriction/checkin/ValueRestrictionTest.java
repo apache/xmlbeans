@@ -15,20 +15,20 @@
 package xmlobject.extensions.prePostFeature.ValueRestriction.checkin;
 
 import org.apache.xmlbeans.XmlString;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import prePostFeature.xbean.valueRestriction.company.CompanyDocument;
 import prePostFeature.xbean.valueRestriction.company.CompanyType;
 import prePostFeature.xbean.valueRestriction.company.ConsultantType;
 import prePostFeature.xbean.valueRestriction.company.DepartmentType;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
 public class ValueRestrictionTest {
 
     @Test
-    public void test() throws Exception {
+    void test() throws Exception {
 
         CompanyDocument poDoc;
 
@@ -68,7 +68,7 @@ public class ValueRestrictionTest {
         for (int i = 0; i < LEN; i++) {
             it[i].setEmployeeAge(150);
         }
-        assertTrue(sExpected.toString().equals(poDoc.xmlText()));
+        assertEquals(sExpected.toString(), poDoc.xmlText());
         assertTrue(poDoc.validate());
     }
 

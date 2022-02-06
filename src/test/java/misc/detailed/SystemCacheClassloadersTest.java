@@ -19,7 +19,8 @@ package misc.detailed;
 import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.SchemaTypeLoader;
 import org.apache.xmlbeans.XmlBeans;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import javax.xml.namespace.QName;
 import java.io.File;
@@ -28,50 +29,43 @@ import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /* Test class loading using XmlBeans.getContextLoader() after changes to SystemCache.java (r240333)
-*  Now a custom implementation of the SystemCache can be provided
-*/
+ *  Now a custom implementation of the SystemCache can be provided
+ */
 public class SystemCacheClassloadersTest {
 
     @Test
-    public void testSystemCacheAndThreadLocal()
-    {
+    void testSystemCacheAndThreadLocal() {
         Thread testThread = new SystemCacheThread("SchemTypeLoader Test Thread");
 
         try {
             testThread.start();
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
-        }
-
-        finally {
+        } finally {
             try {
                 testThread.join();
-            }
-            catch (InterruptedException ie) {
+            } catch (InterruptedException ie) {
                 ie.printStackTrace();
             }
         }
 
     }
 
-    public static class SystemCacheThread extends Thread
-    {
+    public static class SystemCacheThread extends Thread {
         private String name;
 
-        SystemCacheThread(String threadName)
-        {
+        SystemCacheThread(String threadName) {
             super();
             name = threadName;
         }
 
         /**
+         *
          */
-        public void run()
-        {
+        public void run() {
             System.out.println("Run Method of thread " + name);
 
             try {
@@ -79,14 +73,12 @@ public class SystemCacheClassloadersTest {
                 // test classloading from 2 different scomp jars using the default impl of SystemCache
                 testDefaultSystemCacheClassLoading();
 
-            }
-            catch (Throwable t) {
+            } catch (Throwable t) {
                 t.printStackTrace();
             }
         }
 
-        void testDefaultSystemCacheClassLoading()
-        {
+        void testDefaultSystemCacheClassLoading() {
             try {
                 // create classloaders here
                 String xbean_home = System.getProperty("xbean.rootdir");
@@ -129,7 +121,7 @@ public class SystemCacheClassloadersTest {
                 SchemaTypeLoader initialDomLoader = XmlBeans.getContextTypeLoader();
                 SchemaType domSchemaType = initialDomLoader.findType(domTypeQName);
                 assertNotNull(domSchemaType);
-                assertEquals("Invalid Type!", domSchemaType.getFullJavaImplName(), "xbean.misc.syscacheTests2.impl.ElementTImpl");
+                assertEquals(domSchemaType.getFullJavaImplName(), "xbean.misc.syscacheTests2.impl.ElementTImpl", "Invalid Type!");
 
                 // -ve test, look for the person type from cases\misc\syscachetest.xsd
                 SchemaType personTypeFromMiscTests = initialDomLoader.findType(miscPersonTypeQName);
@@ -141,7 +133,7 @@ public class SystemCacheClassloadersTest {
                 SchemaTypeLoader initialMiscSchemaLoader = XmlBeans.getContextTypeLoader();
                 SchemaType miscPersonType = initialMiscSchemaLoader.findType(miscPersonTypeQName);
                 assertNotNull(miscPersonType);
-                assertEquals("Invalid Type!", miscPersonType.getFullJavaImplName(), "xbean.misc.syscacheTests1.impl.PersonTypeImpl");
+                assertEquals(miscPersonType.getFullJavaImplName(), "xbean.misc.syscacheTests1.impl.PersonTypeImpl", "Invalid Type!");
 
                 // -ve test
                 SchemaType personTypeFromMisc = initialMiscSchemaLoader.findType(domTypeQName);
@@ -151,14 +143,13 @@ public class SystemCacheClassloadersTest {
                 setContextClassLoader(domCL);
                 SchemaTypeLoader secondDomLoader = XmlBeans.getContextTypeLoader();
                 assertNotNull(secondDomLoader.findType(domTypeQName));
-                assertSame("SchemaTypeLoaders expected to be equal", initialDomLoader, secondDomLoader);
+                Assertions.assertSame(initialDomLoader, secondDomLoader, "SchemaTypeLoaders expected to be equal");
 
                 setContextClassLoader(miscCL);
                 SchemaTypeLoader secondMiscLoader = XmlBeans.getContextTypeLoader();
-                assertSame("SchemaTypeLoaders expected to be equal", initialMiscSchemaLoader, secondMiscLoader);
+                Assertions.assertSame(initialMiscSchemaLoader, secondMiscLoader, "SchemaTypeLoaders expected to be equal");
 
-            }
-            catch (Throwable t) {
+            } catch (Throwable t) {
                 t.printStackTrace();
             }
 

@@ -19,108 +19,92 @@ package xmlcursor.detailed;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlCursor.TokenType;
 import org.apache.xmlbeans.XmlError;
-import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.tranxml.tranXML.version40.CarLocationMessageDocument;
 import org.tranxml.tranXML.version40.CodeList309;
 import org.tranxml.tranXML.version40.GeographicLocationDocument.GeographicLocation;
 import org.tranxml.tranXML.version40.LocationIdentifierDocument.LocationIdentifier;
-import tools.util.JarUtil;
 import xmlcursor.common.Common;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Stream;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
+import static xmlcursor.common.BasicCursorTestCase.jobj;
 
 
 public class MultipleCopyFromCursorTest {
 
     @Test
-    public void testMultipleCopy() throws Exception {
-        CarLocationMessageDocument clm =
-            (CarLocationMessageDocument) XmlObject.Factory.parse(
-                JarUtil.getResourceFromJar(Common.TRANXML_FILE_CLM));
+    void testMultipleCopy() throws Exception {
+        CarLocationMessageDocument clm = (CarLocationMessageDocument)jobj(Common.TRANXML_FILE_CLM);
         assertNotNull(clm);
-        XmlCursor[] aCursors = new XmlCursor[3];
         try (XmlCursor xc = clm.newCursor()) {
-            xc.selectPath(Common.CLM_NS_XQUERY_DEFAULT +
-                          "$this//GeographicLocation");
+            xc.selectPath(Common.CLM_NS_XQUERY_DEFAULT + "$this//GeographicLocation");
             xc.toNextSelection();
-            for (int i = 0; i < 3; i++) {
-                aCursors[i] = xc.newCursor();
-                xc.toNextSelection();
-            }
-            xc.toStartDoc();
-            xc.selectPath(Common.CLM_NS_XQUERY_DEFAULT +
-                          "$this//GeographicLocation");
-            assertTrue(xc.getSelectionCount() > 0);
-            assertTrue(xc.toNextSelection());
-            aCursors[0].toLastChild();
-            assertEquals("TX", aCursors[0].getTextValue());
 
-            aCursors[0].toNextToken();
-            aCursors[0].toNextToken();
-            aCursors[0].toNextToken();
-            aCursors[0].toNextToken();
-            assertEquals(TokenType.END, aCursors[0].currentTokenType());
+            try (XmlCursor x0 = nextSel(xc); XmlCursor x1 = nextSel(xc); XmlCursor x2 = nextSel(xc)) {
+                Stream.of(x0, x1, x2).forEach(XmlCursor::toNextSelection);
+                xc.toStartDoc();
+                xc.selectPath(Common.CLM_NS_XQUERY_DEFAULT + "$this//GeographicLocation");
+                assertTrue(xc.getSelectionCount() > 0);
+                assertTrue(xc.toNextSelection());
+                x0.toLastChild();
+                assertEquals("TX", x0.getTextValue());
 
-            aCursors[0].beginElement("LocationIdentifier",
-                "http://www.tranxml.org/TranXML/Version4.0");
-            aCursors[0].insertAttributeWithValue("Qualifier", "FR");
-            aCursors[0].toEndToken();
-            aCursors[0].toNextToken();//move past the end token
-            aCursors[0].insertElementWithText("CountrySubdivisionCode",
-                "http://www.tranxml.org/TranXML/Version4.0",
-                "xyz");
-            aCursors[0].toCursor(xc);
-            GeographicLocation gl = (GeographicLocation) aCursors[0].getObject();
-            XmlOptions validateOptions = new XmlOptions();
-            ArrayList errors = new ArrayList();
-            validateOptions.setErrorListener(errors);
-            try {
+                x0.toNextToken();
+                x0.toNextToken();
+                x0.toNextToken();
+                x0.toNextToken();
+                assertEquals(TokenType.END, x0.currentTokenType());
+
+                x0.beginElement("LocationIdentifier", "http://www.tranxml.org/TranXML/Version4.0");
+                x0.insertAttributeWithValue("Qualifier", "FR");
+                x0.toEndToken();
+                x0.toNextToken();//move past the end token
+                x0.insertElementWithText("CountrySubdivisionCode", "http://www.tranxml.org/TranXML/Version4.0", "xyz");
+                x0.toCursor(xc);
+                GeographicLocation gl = (GeographicLocation) x0.getObject();
+                XmlOptions validateOptions = new XmlOptions();
+                List<XmlError> errors = new ArrayList<>();
+                validateOptions.setErrorListener(errors);
                 assertTrue(gl.validate(validateOptions));
-            } catch (Throwable t) {
-                StringBuilder sb = new StringBuilder();
-                for (int i = 0; i < errors.size(); i++) {
-                    XmlError error = (XmlError) errors.get(i);
-
-                    sb.append("Message: " + error.getMessage() + "\n");
-                    if (error.getCursorLocation() != null)
-                        System.out.println("Location of invalid XML: " +
-                                           error.getCursorLocation().xmlText() + "\n");
-                }
-                throw new Exception(" Validation failed " + sb.toString());
-            }
-
-            assertEquals("DALLAS", gl.getCityName().getStringValue());
-            assertEquals("TX", gl.getStateOrProvinceCode());
-            LocationIdentifier li = gl.getLocationIdentifier();
-            assertNotNull("Cursor0: LocationIdentifier unexpectedly null", li);
-            assertEquals(CodeList309.FR, gl.getLocationIdentifier().getQualifier());
-            assertEquals("xyz", gl.getCountrySubdivisionCode());
-
-
-            for (int i = 1; i < 3; i++) {
-                aCursors[i].removeXml();
-                aCursors[0].copyXml(aCursors[i]);
-                // must move to PrevElement to get to the START of the copied section.
-                aCursors[i].toPrevSibling();
-
-                gl = (GeographicLocation) aCursors[i].getObject();
 
                 assertEquals("DALLAS", gl.getCityName().getStringValue());
                 assertEquals("TX", gl.getStateOrProvinceCode());
-                li = gl.getLocationIdentifier();
-                assertNotNull("Cursor " + i + ": LocationIdentifier unexpectedly null", li);
+                LocationIdentifier li = gl.getLocationIdentifier();
+                assertNotNull(li, "Cursor0: LocationIdentifier unexpectedly null");
                 assertEquals(CodeList309.FR, gl.getLocationIdentifier().getQualifier());
                 assertEquals("xyz", gl.getCountrySubdivisionCode());
-            }
 
-        } finally {
-            for (int i = 0; i < 3; i++) {
-                aCursors[i].close();
+
+                for (XmlCursor cur : new XmlCursor[]{x1, x2}) {
+                    cur.removeXml();
+                    x0.copyXml(cur);
+                    // must move to PrevElement to get to the START of the copied section.
+                    cur.toPrevSibling();
+
+                    gl = (GeographicLocation) cur.getObject();
+
+                    assertEquals("DALLAS", gl.getCityName().getStringValue());
+                    assertEquals("TX", gl.getStateOrProvinceCode());
+                    li = gl.getLocationIdentifier();
+                    assertNotNull(li, "Cursor: LocationIdentifier unexpectedly null");
+                    assertEquals(CodeList309.FR, gl.getLocationIdentifier().getQualifier());
+                    assertEquals("xyz", gl.getCountrySubdivisionCode());
+                }
             }
+        }
+    }
+
+
+    private static XmlCursor nextSel(XmlCursor xc) {
+        try {
+            return xc.newCursor();
+        } finally {
+            xc.toNextSelection();
         }
     }
 }

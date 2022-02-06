@@ -22,11 +22,11 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.CharacterData;
 import org.w3c.dom.*;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -48,27 +48,17 @@ import static org.w3c.domts.DOMTest.load;
 
 
 public class normalize01 {
-
-
     @Test
-    public void testRun() throws Throwable {
-        Document doc;
-        Element root;
-        NodeList elementList;
-        Node firstChild;
-        NodeList textList;
-        CharacterData textNode;
-        String data;
-        doc = load("staff", false);
-        root = doc.getDocumentElement();
+    void testRun() throws Throwable {
+        Document doc = load("staff", false);
+        Element root = doc.getDocumentElement();
         root.normalize();
-        elementList = root.getElementsByTagName("name");
-        firstChild = elementList.item(2);
-        textList = firstChild.getChildNodes();
-        textNode = (CharacterData) textList.item(0);
-        data = textNode.getData();
-        assertEquals("data", "Roger\n Jones", data);
-
+        NodeList elementList = root.getElementsByTagName("name");
+        Node firstChild = elementList.item(2);
+        NodeList textList = firstChild.getChildNodes();
+        CharacterData textNode = (CharacterData) textList.item(0);
+        String data = textNode.getData();
+        assertEquals("Roger\n Jones", data, "data");
     }
 
     /**

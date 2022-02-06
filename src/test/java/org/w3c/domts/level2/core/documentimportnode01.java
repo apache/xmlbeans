@@ -22,10 +22,10 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.*;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -44,30 +44,21 @@ import static org.w3c.domts.DOMTest.load;
  */
 public class documentimportnode01 {
     @Test
-    public void testRun() throws Throwable {
-        Document doc;
-        Element element;
-        Attr attr;
-        NodeList childList;
-        Node importedAttr;
-        String nodeName;
-        int nodeType;
-        String nodeValue;
+    void testRun() throws Throwable {
+        // TODO: "Yes" if Entities
+        String sExpected = "Y";
 
-        String sExpected = "Y";//TODO: "Yes" if Entities
-
-        doc = load("staffNS", true);
-        childList = doc.getElementsByTagNameNS("http://www.nist.gov", "address");
-        element = (Element) childList.item(1);
-        attr = element.getAttributeNode("street");
-        importedAttr = doc.importNode(attr, false);
-        nodeName = importedAttr.getNodeName();
-        nodeValue = importedAttr.getNodeValue();
-        nodeType = importedAttr.getNodeType();
-        assertEquals("documentimportnode01_nodeName", "street", nodeName);
-        assertEquals("documentimportnode01_nodeType", 2, nodeType);
-        assertEquals("documentimportnode01_nodeValue", sExpected, nodeValue);
-
+        Document doc = load("staffNS", true);
+        NodeList childList = doc.getElementsByTagNameNS("http://www.nist.gov", "address");
+        Element element = (Element) childList.item(1);
+        Attr attr = element.getAttributeNode("street");
+        Node importedAttr = doc.importNode(attr, false);
+        String nodeName = importedAttr.getNodeName();
+        String nodeValue = importedAttr.getNodeValue();
+        int nodeType = importedAttr.getNodeType();
+        assertEquals("street", nodeName, "documentimportnode01_nodeName");
+        assertEquals(2, nodeType, "documentimportnode01_nodeType");
+        assertEquals(sExpected, nodeValue, "documentimportnode01_nodeValue");
     }
 
     /**

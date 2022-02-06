@@ -22,13 +22,13 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Comment;
 import org.w3c.dom.Document;
 import org.w3c.dom.DocumentType;
 import org.w3c.dom.Node;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -46,26 +46,17 @@ import static org.w3c.domts.DOMTest.load;
  */
 public class importNode03 {
     @Test
-    public void testRun() throws Throwable {
-        Document doc;
-        Document aNewDoc;
-        Comment comment;
-        Node aNode;
-        Document ownerDocument;
-        DocumentType docType;
-        String system;
-        String value;
-        doc = load("staffNS", true);
-        aNewDoc = load("staffNS", true);
-        comment = aNewDoc.createComment("this is a comment");
-        aNode = doc.importNode(comment, false);
-        ownerDocument = aNode.getOwnerDocument();
-        docType = null;//ownerDocument.getDoctype();
-//      system = docType.getSystemId();
-        //    assertURIEquals("systemId", null, null, null, "staffNS.dtd", null, null, null, null, system);
-        value = aNode.getNodeValue();
-        assertEquals("nodeValue", "this is a comment", value);
-
+    void testRun() throws Throwable {
+        Document doc = load("staffNS", true);
+        Document aNewDoc = load("staffNS", true);
+        Comment comment = aNewDoc.createComment("this is a comment");
+        Node aNode = doc.importNode(comment, false);
+        Document ownerDocument = aNode.getOwnerDocument();
+        DocumentType docType = null;//ownerDocument.getDoctype();
+        // String system = docType.getSystemId();
+        // assertURIEquals("systemId", null, null, null, "staffNS.dtd", null, null, null, null, system);
+        String value = aNode.getNodeValue();
+        assertEquals("this is a comment", value, "nodeValue");
     }
 
     /**

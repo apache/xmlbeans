@@ -16,12 +16,12 @@
 package dom.detailed;
 
 import dom.common.Loader;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.*;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
 /**
@@ -35,7 +35,7 @@ public class InsertDeleteNodesTest {
     Node m_node;
 
 	@Test
-    public void testInsertNodes(){
+    void testInsertNodes(){
 		//insert one of each type of node:
 		Text txt0 = m_doc.createTextNode("foo");
 		Text txt1 = m_doc.createTextNode(" ");
@@ -144,14 +144,14 @@ public class InsertDeleteNodesTest {
 
 		try {
 			m_doc.insertBefore(root, doc_frag.getLastChild());
-			fail("Should except here");
+			Assertions.fail("Should except here");
 		} catch (DOMException de) {
 			assertEquals(de.code, DOMException.HIERARCHY_REQUEST_ERR);
 		}
     }
     //TODO: insert nodes at all illegal places:
 
-	@Before
+	@BeforeEach
     public void setUp() throws Exception{
 		Loader loader = Loader.getLoader();
 		if (sXml == null && sXmlNS == null) throw new IllegalArgumentException("Test bug : Initialize xml strings");

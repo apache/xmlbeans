@@ -22,12 +22,12 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -45,25 +45,16 @@ import static org.w3c.domts.DOMTest.load;
  */
 public class documentimportnode12 {
     @Test
-    public void testRun() throws Throwable {
-        Document doc;
-        NodeList childList;
-        Node imported;
-        Node addressElem;
-        NodeList addressElemChildren;
-        NodeList importedChildren;
-        int addressElemLen;
-        int importedLen;
-        doc = load("staffNS", true);
-        childList = doc.getElementsByTagNameNS("*", "address");
-        addressElem = childList.item(0);
-        imported = doc.importNode(addressElem, true);
-        addressElemChildren = addressElem.getChildNodes();
-        importedChildren = imported.getChildNodes();
-        addressElemLen = addressElemChildren.getLength();
-        importedLen = importedChildren.getLength();
-        assertEquals("documentimportnode12", importedLen, addressElemLen);
-
+    void testRun() throws Throwable {
+        Document doc = load("staffNS", true);
+        NodeList childList = doc.getElementsByTagNameNS("*", "address");
+        Node addressElem = childList.item(0);
+        Node imported = doc.importNode(addressElem, true);
+        NodeList addressElemChildren = addressElem.getChildNodes();
+        NodeList importedChildren = imported.getChildNodes();
+        int addressElemLen = addressElemChildren.getLength();
+        int importedLen = importedChildren.getLength();
+        assertEquals(importedLen, addressElemLen, "documentimportnode12");
     }
 
     /**

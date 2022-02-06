@@ -22,12 +22,12 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -46,21 +46,15 @@ import static org.w3c.domts.DOMTest.load;
  */
 public class getElementsByTagNameNS02 {
     @Test
-    public void testRun() throws Throwable {
-        Document doc;
-        NodeList newList;
-        Element newElement;
-        String prefix;
-        String lname;
-        doc = load("staffNS", false);
-        newList = doc.getElementsByTagNameNS("*", "employee");
-        assertEquals("employeeCount", 5, newList.getLength());
-        newElement = (Element) newList.item(3);
-        prefix = newElement.getPrefix();
-        assertEquals("prefix", "emp", prefix);
-        lname = newElement.getLocalName();
-        assertEquals("lname", "employee", lname);
-
+    void testRun() throws Throwable {
+        Document doc = load("staffNS", false);
+        NodeList newList = doc.getElementsByTagNameNS("*", "employee");
+        assertEquals(5, newList.getLength(), "employeeCount");
+        Element newElement = (Element) newList.item(3);
+        String prefix = newElement.getPrefix();
+        assertEquals("emp", prefix, "prefix");
+        String lname = newElement.getLocalName();
+        assertEquals("employee", lname, "lname");
     }
 
     /**

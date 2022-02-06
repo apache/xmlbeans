@@ -22,10 +22,11 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.*;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -46,33 +47,17 @@ import static org.w3c.domts.DOMTest.load;
  */
 public class setNamedItemNS01 {
     @Test
-    public void testRun() throws Throwable {
-        Document doc;
-        NodeList elementList;
-        Node anotherElement;
-        NamedNodeMap anotherMap;
-        Node arg;
-        Node testAddress;
-        NamedNodeMap map;
-        Node setNode;
-        doc = load("staffNS", true);
-        elementList = doc.getElementsByTagName("address");
-        anotherElement = elementList.item(2);
-        anotherMap = anotherElement.getAttributes();
-        arg = anotherMap.getNamedItemNS("http://www.netzero.com", "domestic");
-        testAddress = elementList.item(0);
-        map = testAddress.getAttributes();
+    void testRun() throws Throwable {
+        Document doc = load("staffNS", true);
+        NodeList elementList = doc.getElementsByTagName("address");
+        Node anotherElement = elementList.item(2);
+        NamedNodeMap anotherMap = anotherElement.getAttributes();
+        Node arg = anotherMap.getNamedItemNS("http://www.netzero.com", "domestic");
+        Node testAddress = elementList.item(0);
+        NamedNodeMap map = testAddress.getAttributes();
 
-        {
-            boolean success = false;
-            try {
-                setNode = map.setNamedItemNS(arg);
-            } catch (DOMException ex) {
-                success = (ex.code == DOMException.INUSE_ATTRIBUTE_ERR);
-            }
-            assertTrue("throw_INUSE_ATTRIBUTE_ERR", success);
-        }
-
+        DOMException ex = assertThrows(DOMException.class, () -> map.setNamedItemNS(arg));
+        assertEquals(DOMException.INUSE_ATTRIBUTE_ERR, ex.code, "throw_INUSE_ATTRIBUTE_ERR");
     }
 
     /**

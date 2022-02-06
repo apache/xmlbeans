@@ -17,25 +17,21 @@
 package xmlobject.detailed;
 
 import org.apache.xmlbeans.XmlCursor;
-import org.apache.xmlbeans.XmlObject;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.tranxml.tranXML.version40.CarLocationMessageDocument;
 import org.tranxml.tranXML.version40.CodeList309;
 import org.tranxml.tranXML.version40.GeographicLocationDocument.GeographicLocation;
 import org.tranxml.tranXML.version40.LocationIdentifierDocument.LocationIdentifier;
-import tools.util.JarUtil;
 import xmlcursor.common.Common;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static xmlcursor.common.BasicCursorTestCase.jobj;
 
 
 public class SetIdentityTest {
     @Test
-    public void testSetIdentity() throws Exception {
-        CarLocationMessageDocument clm =
-                (CarLocationMessageDocument) XmlObject.Factory.parse(
-                        JarUtil.getResourceFromJar(Common.TRANXML_FILE_CLM));
+    void testSetIdentity() throws Exception {
+        CarLocationMessageDocument clm = (CarLocationMessageDocument) jobj(Common.TRANXML_FILE_CLM);
 
         GeographicLocation gl;
         try (XmlCursor xc = clm.newCursor()) {

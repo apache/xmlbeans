@@ -16,7 +16,7 @@
 package misc.checkin;
 
 import org.apache.xmlbeans.XmlErrorCodes;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -27,32 +27,33 @@ import java.util.Set;
 
 public class ErrorCodeTest {
     @Test
-    public void testCodes() throws Exception
-    {
+    void testCodes() throws Exception {
         // throws Exception if a duplicate error code value is found.
-        Set codes = readCodes();
+        Set<String> codes = readCodes();
 
         // throws Exception if a duplicate message property key is found.
         Properties messages = readMessages();
 
         // each message key should have an error code value
-        Enumeration e = messages.keys();
+        Enumeration<Object> e = messages.keys();
         while (e.hasMoreElements()) {
             String key = (String) e.nextElement();
 
             // these properties are known not to have an error code
-            if (key.equals("message.missing.resource") || key.equals("message.pattern.invalid"))
+            if (key.equals("message.missing.resource") || key.equals("message.pattern.invalid")) {
                 continue;
+            }
 
-            if (!codes.contains(key))
+            if (!codes.contains(key)) {
                 throw new Exception("message.properties key '" + key + "' has no error code.");
+            }
         }
 
         // each error code value should have a message key
-        for (Object code1 : codes) {
-            String code = (String) code1;
-            if (messages.get(code) == null)
+        for (Object code : codes) {
+            if (messages.get(code) == null) {
                 throw new Exception("missing message.properties key for error code: " + code);
+            }
         }
 
     }
@@ -61,27 +62,28 @@ public class ErrorCodeTest {
      * Reads the field values of the public static final String fields of XmlErrorCodes.
      * Throws an Exception if a duplicate value is found.
      */
-    private Set readCodes() throws Exception
-    {
-        Set result = new LinkedHashSet();
+    private Set<String> readCodes() throws Exception {
+        Set<String> result = new LinkedHashSet<>();
 
         Field[] fields = XmlErrorCodes.class.getDeclaredFields();
-        for (int i = 0; i < fields.length; i++) {
-            Field field = fields[i];
+        for (Field field : fields) {
             int modifiers = field.getModifiers();
 
             // only look at fields that are public static final
-            if ((modifiers & (Modifier.PUBLIC | Modifier.STATIC | Modifier.FINAL)) == 0)
+            if ((modifiers & (Modifier.PUBLIC | Modifier.STATIC | Modifier.FINAL)) == 0) {
                 continue;
+            }
 
             // only look at String fields
-            if (field.getType() != String.class)
+            if (field.getType() != String.class) {
                 continue;
+            }
 
-            String value = (String)field.get(null);
+            String value = (String) field.get(null);
 
-            if (!result.add(value))
+            if (!result.add(value)) {
                 throw new Exception("duplicate error code value in XmlErrorCodes: " + value + " in field " + field.getName());
+            }
         }
 
         return result;
@@ -90,15 +92,13 @@ public class ErrorCodeTest {
     /**
      * Reads the message.properties file and throws an exception if a duplicate property key is found.
      */
-    private Properties readMessages() throws Exception
-    {
-        class UniqueProperties extends Properties
-        {
-            public Object put(Object key, Object value)
-            {
+    private Properties readMessages() throws Exception {
+        class UniqueProperties extends Properties {
+            public Object put(Object key, Object value) {
                 Object old = super.put(key, value);
-                if (old != null)
+                if (old != null) {
                     throw new RuntimeException("duplicate property key '" + key + "' with value: " + value);
+                }
                 return null;
             }
         }

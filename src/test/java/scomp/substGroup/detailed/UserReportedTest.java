@@ -16,8 +16,7 @@
 package scomp.substGroup.detailed;
 
 import org.apache.xmlbeans.XmlCursor;
-import org.junit.Test;
-import scomp.common.BaseCase;
+import org.junit.jupiter.api.Test;
 import xbean.scomp.substGroup.userReported.ADocument;
 import xbean.scomp.substGroup.userReported.BDocument;
 import xbean.scomp.substGroup.userReported.RootDocument;
@@ -25,30 +24,28 @@ import xbean.scomp.substGroup.userReported.T;
 
 import javax.xml.namespace.QName;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static scomp.common.BaseCase.createOptions;
 
-public class UserReportedTest extends BaseCase{
-       String input="<Root xmlns=\"http://xbean/scomp/substGroup/UserReported\">" +
-                "   <a/>" +
-                "   <a/>" +
-                "   <b/>" +
-                "   <a/>" +
-                "   <b/>" +
-                "</Root>";
+public class UserReportedTest {
+
     @Test
-    public void testGoal()throws Throwable{
+    void testGoal() throws Throwable {
+        String input =
+            "<Root xmlns=\"http://xbean/scomp/substGroup/UserReported\">" +
+            "   <a/>" +
+            "   <a/>" +
+            "   <b/>" +
+            "   <a/>" +
+            "   <b/>" +
+            "</Root>";
 
-        RootDocument doc=RootDocument.Factory.parse(input);
-        try{
-            assertTrue( doc.validate(validateOptions ));
-        } catch(Throwable t){
-            showErrors();
-            throw t;
-        }
+        RootDocument doc = RootDocument.Factory.parse(input);
+        assertTrue(doc.validate(createOptions()));
     }
 
     @Test
-    public void testBuild()throws Throwable{
+    void testBuild() throws Throwable {
         T[] arr = new T[5];
 
         arr[0] = ADocument.Factory.newInstance().addNewA();
@@ -62,24 +59,18 @@ public class UserReportedTest extends BaseCase{
         RootDocument mdoc = RootDocument.Factory.newInstance();
         RootDocument.Root m = mdoc.addNewRoot();
         m.setAArray(arr);
-        T[] arr1=m.getAArray();
+        T[] arr1 = m.getAArray();
         try (XmlCursor c = arr1[2].newCursor()) {
-            c.setName(new QName("http://xbean/scomp/substGroup/UserReported","b"));
+            c.setName(new QName("http://xbean/scomp/substGroup/UserReported", "b"));
         }
         try (XmlCursor c = arr1[4].newCursor()) {
-            c.setName(new QName("http://xbean/scomp/substGroup/UserReported","b"));
+            c.setName(new QName("http://xbean/scomp/substGroup/UserReported", "b"));
         }
 
-       /* if (! mdoc.toString().equals(input))
-           throw new Exception(mdoc.toString());
-        */
+        // if (! mdoc.toString().equals(input))
+        //  throw new Exception(mdoc.toString());
         //assertEquals(input, mdoc.toString() );
-         try{
-            assertTrue( mdoc.validate(validateOptions ));
-        } catch(Throwable t){
-            showErrors();
-            throw t;
-        }
 
+        assertTrue(mdoc.validate(createOptions()));
     }
 }

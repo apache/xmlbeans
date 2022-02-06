@@ -22,12 +22,11 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.*;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.w3c.domts.DOMTest.isExpandEntityReferences;
 import static org.w3c.domts.DOMTest.load;
 
@@ -49,40 +48,26 @@ import static org.w3c.domts.DOMTest.load;
  */
 public class removeAttributeNS01 {
     @Test
-    @Ignore
+    @Disabled
     public void testRun() throws Throwable {
-        Document doc;
-        NodeList genderList;
-        Node gender;
-        NodeList genList;
-        Node gen;
-        NodeList gList;
-        Element genElement;
-        doc = load("staffNS", true);
+        Document doc = load("staffNS", true);
 
+        Node gen;
         if (!isExpandEntityReferences()) {
-            genderList = doc.getElementsByTagName("gender");
-            gender = genderList.item(2);
-            genList = gender.getChildNodes();
+            NodeList genderList = doc.getElementsByTagName("gender");
+            Node gender = genderList.item(2);
+            NodeList genList = gender.getChildNodes();
             gen = genList.item(0);
         } else {
             gen = doc.createEntityReference("ent4");
         }
 
-        gList = gen.getChildNodes();
-        genElement = (Element) gList.item(0);
-        assertNotNull("notnull", genElement);
+        NodeList gList = gen.getChildNodes();
+        Element genElement = (Element) gList.item(0);
+        assertNotNull(genElement, "notnull");
 
-        {
-            boolean success = false;
-            try {
-                genElement.removeAttributeNS("www.xyz.com", "local1");
-            } catch (DOMException ex) {
-                success = (ex.code == DOMException.NO_MODIFICATION_ALLOWED_ERR);
-            }
-            assertTrue("throw_NO_MODIFICATION_ALLOWED_ERR", success);
-        }
-
+        DOMException ex = assertThrows(DOMException.class, () -> genElement.removeAttributeNS("www.xyz.com", "local1"));
+        assertEquals(DOMException.NO_MODIFICATION_ALLOWED_ERR, ex.code, "throw_NO_MODIFICATION_ALLOWED_ERR");
     }
 
     /**

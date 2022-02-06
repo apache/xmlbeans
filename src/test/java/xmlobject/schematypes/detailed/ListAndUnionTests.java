@@ -14,9 +14,8 @@
  */
 package xmlobject.schematypes.detailed;
 
-import org.junit.Assert;
 import org.apache.xmlbeans.*;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.openuri.lut.DateOrDateTime;
 import org.openuri.lut.IncidentReportsDocument;
 import org.openuri.lut.ListsDocument;
@@ -27,11 +26,12 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ListAndUnionTests {
     @Test
-    public void testListGetters() throws Exception {
+    void testListGetters() throws Exception {
         ListsDocument lists = ListsDocument.Factory.parse(
             "<lut:lists xmlns:lut='http://openuri.org/lut'><lut:int-list>2 4 8 16 32</lut:int-list><lut:nni-list>unbounded 3 unbounded 6</lut:nni-list></lut:lists>");
         List intList = lists.getLists().getIntList();
@@ -51,7 +51,7 @@ public class ListAndUnionTests {
     }
 
     @Test
-    public void testListSetters() throws Exception {
+    void testListSetters() throws Exception {
         ListsDocument doc = ListsDocument.Factory.newInstance();
         ListsDocument.Lists lists = doc.addNewLists();
         lists.setIntList(Arrays.asList(4, 18));
@@ -72,13 +72,13 @@ public class ListAndUnionTests {
     }
 
     @Test
-    public void testUnionGetters() throws Exception {
+    void testUnionGetters() throws Exception {
         UnionsDocument unions = UnionsDocument.Factory.parse(
             "<lut:unions xmlns:lut='http://openuri.org/lut'><lut:nni>unbounded</lut:nni><lut:sizes>2 3 5 7 11</lut:sizes></lut:unions>");
 
         assertEquals("unbounded", unions.getUnions().getNni());
 
-        Assert.assertTrue(unions.getUnions().getSizes() instanceof List);
+        assertTrue(unions.getUnions().getSizes() instanceof List);
         List sizes = (List) unions.getUnions().getSizes();
         assertEquals(2, sizes.get(0));
         assertEquals(3, sizes.get(1));
@@ -95,7 +95,7 @@ public class ListAndUnionTests {
     }
 
     @Test
-    public void testUnionSetters() throws Exception {
+    void testUnionSetters() throws Exception {
 
         // create a document
         UnionsDocument doc = UnionsDocument.Factory.newInstance();
@@ -128,7 +128,7 @@ public class ListAndUnionTests {
     }
 
     @Test
-    public void testUnionArray() throws Exception {
+    void testUnionArray() throws Exception {
         IncidentReportsDocument doc = IncidentReportsDocument.Factory.parse(
             "<lut:incident-reports xmlns:lut='http://openuri.org/lut'>" +
                 "<lut:when>2001-08-06T03:34:00</lut:when>" +

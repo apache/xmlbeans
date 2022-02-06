@@ -18,97 +18,73 @@ package scomp.contentType.simple.detailed;
 import org.apache.xmlbeans.XmlErrorCodes;
 import org.apache.xmlbeans.XmlOptions;
 import org.apache.xmlbeans.impl.values.XmlValueOutOfRangeException;
-import org.junit.Test;
-import scomp.common.BaseCase;
+import org.junit.jupiter.api.Test;
 import xbean.scomp.contentType.union.UnionEltDocument;
 import xbean.scomp.contentType.union.UnionOfListsDocument;
 import xbean.scomp.contentType.union.UnionOfUnionsDocument;
 import xbean.scomp.contentType.union.UnionOfUnionsT;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
+import static scomp.common.BaseCase.createOptions;
+import static scomp.common.BaseCase.getErrorCodes;
 
 
-public class UnionType extends BaseCase {
+public class UnionType {
     /**
      * should be a bunch of negative cases at compile time
      */
     @Test
-    public void testUnionType() throws Throwable {
+    void testUnionType() throws Throwable {
         UnionEltDocument doc = UnionEltDocument.Factory.newInstance();
         assertNull(doc.getUnionElt());
         doc.setUnionElt("small");
-        try {
-            assertTrue(doc.validate(validateOptions));
-        }
-        catch (Throwable t) {
-            showErrors();
-            throw t;
-        }
+
+        XmlOptions validateOptions = createOptions();
+        assertTrue(doc.validate(validateOptions));
         doc.setUnionElt(2);
-        try {
-            assertTrue(doc.validate(validateOptions));
-        }
-        catch (Throwable t) {
-            showErrors();
-            throw t;
-        }
+        assertTrue(doc.validate(validateOptions));
         doc.setUnionElt(-2);
-        try {
-            assertTrue(doc.validate(validateOptions));
-        }
-        catch (Throwable t) {
-            showErrors();
-            throw t;
-        }
+        assertTrue(doc.validate(validateOptions));
         doc.setUnionElt(5);
         assertFalse(doc.validate(validateOptions));
-        showErrors();
-        String[] errExpected = new String[]{
-            XmlErrorCodes.DATATYPE_VALID$UNION};
-                    assertTrue(compareErrorCodes(errExpected));
-
+        String[] errExpected = {XmlErrorCodes.DATATYPE_VALID$UNION};
+        assertArrayEquals(errExpected, getErrorCodes(validateOptions));
     }
 
     /**
      * valid instance w/ xsi:type hint
      */
     @Test
-    public void testParseInstanceValid() throws Throwable {
+    void testParseInstanceValid() throws Throwable {
         String input =
-                "<UnionElt xmlns=\"http://xbean/scomp/contentType/Union\"" +
-                " xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" " +
-                " xsi:type=\"GlobalSimpleT2\">" +
-                "-2" +
-                "</UnionElt>";
+            "<UnionElt xmlns=\"http://xbean/scomp/contentType/Union\"" +
+            " xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" " +
+            " xsi:type=\"GlobalSimpleT2\">" +
+            "-2" +
+            "</UnionElt>";
         UnionEltDocument doc = UnionEltDocument.Factory.parse(input);
-        try {
-            assertTrue(doc.validate(validateOptions));
-        }
-        catch (Throwable t) {
-            showErrors();
-            throw t;
-        }
+        assertTrue(doc.validate(createOptions()));
     }
 
     /**
      * invalid instance w/ xsi:type hint
      */
     @Test
-    public void testParseInstanceInvalid() throws Throwable {
+    void testParseInstanceInvalid() throws Throwable {
         String input =
-                "<UnionElt xmlns=\"http://xbean/scomp/contentType/Union\"" +
-                " xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" " +
-                " xsi:type=\"GlobalSimpleT1\">" +
-                "-2" +
-                "</UnionElt>";
+            "<UnionElt xmlns=\"http://xbean/scomp/contentType/Union\"" +
+            " xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" " +
+            " xsi:type=\"GlobalSimpleT1\">" +
+            "-2" +
+            "</UnionElt>";
         UnionEltDocument doc = UnionEltDocument.Factory.parse(input);
+        XmlOptions validateOptions = createOptions();
         assertFalse(doc.validate(validateOptions));
-        showErrors();
         String[] errExpected = {XmlErrorCodes.DATATYPE_MIN_INCLUSIVE_VALID};
-        assertTrue(compareErrorCodes(errExpected));
+        assertArrayEquals(errExpected, getErrorCodes(validateOptions));
     }
 
     /**
@@ -116,110 +92,46 @@ public class UnionType extends BaseCase {
      * are enumerations and not basic XmlSchema types and hence get translated into enum types in the XmlObjects
      */
     @Test
-    public void testUnionOfUnions() throws Throwable {
+    void testUnionOfUnions() throws Throwable {
         UnionOfUnionsDocument doc = UnionOfUnionsDocument.Factory.newInstance();
         doc.setUnionOfUnions("large");
-        try {
-            assertTrue(doc.validate(validateOptions));
-        }
-        catch (Throwable t) {
-            showErrors();
-            throw t;
-        }
+        XmlOptions validateOptions = createOptions();
+        assertTrue(doc.validate(validateOptions));
         UnionOfUnionsT elt = UnionOfUnionsT.Factory.newInstance();
         elt.setObjectValue(-3);
         doc.xsetUnionOfUnions(elt);
-        try {
-            assertTrue(doc.validate(validateOptions));
-        }
-        catch (Throwable t) {
-            showErrors();
-            throw t;
-        }
+        assertTrue(doc.validate(validateOptions));
         doc.setUnionOfUnions("addVal1");
-        try {
-            assertTrue(doc.validate(validateOptions));
-        }
-        catch (Throwable t) {
-            showErrors();
-            throw t;
-        }
+        assertTrue(doc.validate(validateOptions));
         doc.setUnionOfUnions("addVal2");
-        try {
-            assertTrue(doc.validate(validateOptions));
-        }
-        catch (Throwable t) {
-            showErrors();
-            throw t;
-        }
+        assertTrue(doc.validate(validateOptions));
         doc.setUnionOfUnions("addVal4");
-        try {
-            assertTrue(doc.validate(validateOptions));
-        }
-        catch (Throwable t) {
-            showErrors();
-            throw t;
-        }
+        assertTrue(doc.validate(validateOptions));
         // setting a value outside of the union should throw an exception as
         // type inside the Xmlobject is an enumeration and has a fixed number of constants in the type
         // This will fail irrespective of the setValidateOnSet() option
-        boolean voeThrown = false;
-        try
-        {
-            doc.setUnionOfUnions("foobar");
+        assertThrows(XmlValueOutOfRangeException.class, () -> doc.setUnionOfUnions("foobar"));
 
-            assertFalse(doc.validate(validateOptions));
-
-            showErrors();
-            String[] errExpected = new String[]{"cvc-attribute"};
-                        assertTrue(compareErrorCodes(errExpected));
-        }
-        catch (XmlValueOutOfRangeException voe)
-        {
-            voeThrown = true;
-        }
-
-        finally
-        {
-            if(!voeThrown)
-                fail("Expected XmlValueOutOfRangeException here");
-        }
-
-
+        assertTrue(doc.validate(validateOptions));
     }
 
     // for the above test (testUnionOfUnions), if the value set for the union type is AnyType (in the schema)
     // but the Java type defined as say Integer or Date then an Exception should be thrown only if
     // validateOnSet XmlOption is set and not otherwise.
     @Test
-    public void UnionOfUnions2()
-    {
+    void UnionOfUnions2() {
         UnionOfUnionsDocument doc = UnionOfUnionsDocument.Factory.newInstance();
         doc.setUnionOfUnions("4");
 
-        try {
-            assertTrue(doc.validate(validateOptions));
-        }
-        catch (Throwable t) {
-            showErrors();
-        }
+        XmlOptions validateOptions = createOptions();
+        assertFalse(doc.validate(validateOptions));
 
         // now validate with setValidateOnSetoption
         XmlOptions optWithValidateOnSet = new XmlOptions();
         optWithValidateOnSet.setValidateOnSet();
 
         UnionOfUnionsDocument doc2 = UnionOfUnionsDocument.Factory.newInstance(optWithValidateOnSet);
-        boolean voeThrown = false;
-        try {
-            doc2.setUnionOfUnions("4");
-        }
-        catch (XmlValueOutOfRangeException voe) {
-            voeThrown = true;
-        }
-        finally{
-            if(!voeThrown)
-                fail("Expected XmlValueOutOfRangeException..");
-        }
+        assertThrows(XmlValueOutOfRangeException.class, () -> doc2.setUnionOfUnions("4"));
     }
 
     /**
@@ -227,60 +139,27 @@ public class UnionType extends BaseCase {
      * or     (lstsmall, lstmed, lstlarge)
      */
     @Test
-    public void testUnionOfLists() throws Throwable {
+    void testUnionOfLists() throws Throwable {
         UnionOfListsDocument doc = UnionOfListsDocument.Factory.newInstance();
-        List<Object> vals = new ArrayList<>();
-        vals.add("small");
-        vals.add(-1);
-        vals.add(-2);
-        vals.add(-3);
-        vals.add(3);
-        vals.add("medium");
-        doc.setUnionOfLists(vals);
-        try {
-            assertTrue(doc.validate(validateOptions));
-        }
-        catch (Throwable t) {
-            showErrors();
-            throw t;
-        }
-
-        vals.clear();
-        vals.add("lstsmall");
-        vals.add("lstlarge");
+        List<Object> vals = Arrays.asList("small", -1, -2, -3, 3, "medium");
 
         doc.setUnionOfLists(vals);
-        try {
-            assertTrue(doc.validate(validateOptions));
-        }
-        catch (Throwable t) {
-            showErrors();
-            throw t;
-        }
+        XmlOptions validateOptions = createOptions();
+        assertTrue(doc.validate(validateOptions));
 
-        vals.clear();
+        vals = Arrays.asList("lstsmall","lstlarge");
+
+        doc.setUnionOfLists(vals);
+        assertTrue(doc.validate(validateOptions));
 
         //mixing and matching should not be allowed
         //the list shoudl have exactly one of the 2 union types
-        vals.add("lstsmall");
-        vals.add(-1);
+        List<Object> vals2 = Arrays.asList("lstsmall", -1);
 
         // if the type in a union and cannot be converted into any of the union types, and in this case
         // since the list have enumerations, an exception is expected irrespective of validateOnSet XmlOption
         // being set. Refer testUnionOfUnions comment also
-        boolean voeThrown = false;
-        try{
-            doc.setUnionOfLists( vals );
-        }
-        catch (XmlValueOutOfRangeException voe){
-            voeThrown = true;
-        }
-        finally{
-            if(!voeThrown)
-                fail("Expected XmlValueOutOfRangeException here");
-        }
-
+        assertThrows(XmlValueOutOfRangeException.class, () -> doc.setUnionOfLists(vals2));
     }
-
 }
 

@@ -22,11 +22,11 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.*;
 
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -42,27 +42,18 @@ import static org.w3c.domts.DOMTest.load;
  */
 public class namednodemapgetnameditemns01 {
     @Test
-    @Ignore
+    @Disabled
     public void testRun() throws Throwable {
-        Document doc;
-        DocumentType docType;
-        NamedNodeMap entities;
-        NamedNodeMap notations;
-        Entity entity;
-        Notation notation;
-        String entityName;
-        String notationName;
         String nullNS = null;
 
-        doc = load("staffNS", false);
-        docType = doc.getDoctype();
-        entities = docType.getEntities();
-        notations = docType.getNotations();
-        entity = (Entity) entities.getNamedItemNS(nullNS, "ent1");
-        assertNull("entityNull", entity);
-        notation = (Notation) notations.getNamedItemNS(nullNS, "notation1");
-        assertNull("notationNull", notation);
-
+        Document doc = load("staffNS", false);
+        DocumentType docType = doc.getDoctype();
+        NamedNodeMap entities = docType.getEntities();
+        NamedNodeMap notations = docType.getNotations();
+        Entity entity = (Entity) entities.getNamedItemNS(nullNS, "ent1");
+        assertNull(entity, "entityNull");
+        Notation notation = (Notation) notations.getNamedItemNS(nullNS, "notation1");
+        assertNull(notation, "notationNull");
     }
 
     /**

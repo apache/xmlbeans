@@ -22,11 +22,11 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -45,15 +45,12 @@ import static org.w3c.domts.DOMTest.load;
  */
 public class getElementsByTagNameNS05 {
     @Test
-    public void testRun() throws Throwable {
+    void testRun() throws Throwable {
         String namespaceURI = "http://www.nist.gov";
         String localName = "nomatch";
-        Document doc;
-        NodeList elementList;
-        doc = load("staffNS", false);
-        elementList = doc.getElementsByTagNameNS(namespaceURI, localName);
-        assertEquals("throw_Size", 0, elementList.getLength());
-
+        Document doc = load("staffNS", false);
+        NodeList elementList = doc.getElementsByTagNameNS(namespaceURI, localName);
+        assertEquals(0, elementList.getLength(), "throw_Size");
     }
 
     /**

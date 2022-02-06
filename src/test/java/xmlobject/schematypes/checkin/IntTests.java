@@ -17,14 +17,14 @@
 package xmlobject.schematypes.checkin;
 
 import org.apache.xmlbeans.XmlException;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import xint.test.PositionDocument;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class IntTests {
     @Test
-    public void testLatLong() throws XmlException {
+    void testLatLong() throws XmlException {
         PositionDocument doc = PositionDocument.Factory.parse(
             "<p:position xmlns:p='java:int.test'><p:lat>43</p:lat><p:lon>020</p:lon></p:position>");
         assertEquals(43, doc.getPosition().getLat());

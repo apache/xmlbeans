@@ -22,10 +22,10 @@ See W3C License http://www.w3.org/Consortium/Legal/ for more details.
 package org.w3c.domts.level2.core;
 
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.*;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.w3c.domts.DOMTest.load;
 
 
@@ -40,23 +40,15 @@ import static org.w3c.domts.DOMTest.load;
  */
 public class ownerElement01 {
     @Test
-    public void testRun() throws Throwable {
-        Document doc;
-        NodeList addressList;
-        Node testNode;
-        NamedNodeMap attributes;
-        Attr domesticAttr;
-        Element elementNode;
-        String name;
-        doc = load("staff", false);
-        addressList = doc.getElementsByTagName("address");
-        testNode = addressList.item(0);
-        attributes = testNode.getAttributes();
-        domesticAttr = (Attr) attributes.getNamedItem("domestic");
-        elementNode = domesticAttr.getOwnerElement();
-        name = elementNode.getNodeName();
-        assertEquals("throw_Equals", "address", name);
-
+    void testRun() throws Throwable {
+        Document doc = load("staff", false);
+        NodeList addressList = doc.getElementsByTagName("address");
+        Node testNode = addressList.item(0);
+        NamedNodeMap attributes = testNode.getAttributes();
+        Attr domesticAttr = (Attr) attributes.getNamedItem("domestic");
+        Element elementNode = domesticAttr.getOwnerElement();
+        String name = elementNode.getNodeName();
+        assertEquals("address", name, "throw_Equals");
     }
 
     /**

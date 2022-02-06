@@ -19,27 +19,27 @@ import jira.xmlbeans177A.TestListADocument;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlOptionCharEscapeMap;
 import org.apache.xmlbeans.XmlOptions;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.util.HashMap;
+import java.util.Map;
 
 import static common.Common.P;
 import static common.Common.XBEAN_CASE_ROOT;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class CharEscapeTest {
-    static final String inputFile = XBEAN_CASE_ROOT + P + "misc" + P + "jira" + P + "xmlbeans_177.xml";
-    static final String inputFile2 = XBEAN_CASE_ROOT + P + "misc" + P + "jira" + P + "xmlbeans_177a.xml";
+    private static final String inputFile = XBEAN_CASE_ROOT + P + "misc" + P + "jira" + P + "xmlbeans_177.xml";
+    private static final String inputFile2 = XBEAN_CASE_ROOT + P + "misc" + P + "jira" + P + "xmlbeans_177a.xml";
 
-    static final String start = "<jira:testList xmlns:jira=\"http://jira/xmlbeans_177\">";
-    static final String end = "</jira:testList>";
-    static final String start2 = "<jira:testListA xmlns:jira=\"http://jira/xmlbeans_177a\">";
-    static final String end2 = "</jira:testListA>";
+    private static final String start = "<jira:testList xmlns:jira=\"http://jira/xmlbeans_177\">";
+    private static final String end = "</jira:testList>";
+    private static final String start2 = "<jira:testListA xmlns:jira=\"http://jira/xmlbeans_177a\">";
+    private static final String end2 = "</jira:testListA>";
 
     @Test
-    public void testAddMapping() throws Exception
-    {
+    void testAddMapping() throws Exception {
         XmlOptionCharEscapeMap charEsc = new XmlOptionCharEscapeMap();
         // a brand new map does not contain predefined entities
         assertNull(charEsc.getEscapedString('<'));
@@ -74,49 +74,23 @@ public class CharEscapeTest {
         assertEquals("&#x42;", charEsc.getEscapedString('B'));
 
         // non-xml entities cannot be escaped as predefined entities
-        try
-        {
-            charEsc.addMapping('C', XmlOptionCharEscapeMap.PREDEF_ENTITY);
-            fail("should have thrown an exception");
-        }
-        catch (Exception e)
-        {
-            //System.out.println(e.getMessage());
-            assertTrue(e instanceof XmlException);
-            String msg = "the PREDEF_ENTITY mode can only be used for the following characters: <, >, &, \" and '";
-            assertTrue(e.getMessage().endsWith(msg));
-        }
+        XmlException e = assertThrows(XmlException.class, () -> charEsc.addMapping('C', XmlOptionCharEscapeMap.PREDEF_ENTITY));
+        String msg = "the PREDEF_ENTITY mode can only be used for the following characters: <, >, &, \" and '";
+        assertTrue(e.getMessage().endsWith(msg));
     }
 
     @Test
-    public void testAddMappings() throws Exception
-    {
+    void testAddMappings() throws Exception {
         XmlOptionCharEscapeMap charEsc = new XmlOptionCharEscapeMap();
         // non-xml entities cannot be escaped as predefined entities
-        try
-        {
-            charEsc.addMappings('A', 'Z', XmlOptionCharEscapeMap.PREDEF_ENTITY);
-            fail("should have thrown an exception");
-        }
-        catch (Exception e)
-        {
-            assertTrue(e instanceof XmlException);
-            String msg = "the PREDEF_ENTITY mode can only be used for the following characters: <, >, &, \" and '";
-            assertTrue(e.getMessage().endsWith(msg));
-        }
+        XmlException e = assertThrows(XmlException.class, () -> charEsc.addMappings('A', 'Z', XmlOptionCharEscapeMap.PREDEF_ENTITY));
+        String msg = "the PREDEF_ENTITY mode can only be used for the following characters: <, >, &, \" and '";
+        assertTrue(e.getMessage().endsWith(msg));
 
         // start char must be before end char
-        try
-        {
-            charEsc.addMappings('a', 'Z', XmlOptionCharEscapeMap.HEXADECIMAL);
-            fail("should have thrown an exception");
-        }
-        catch (Exception e)
-        {
-            assertTrue(e instanceof XmlException);
-            String msg = "ch1 must be <= ch2";
-            assertTrue(e.getMessage().endsWith(msg));
-        }
+        e = assertThrows(XmlException.class, () -> charEsc.addMappings('a', 'Z', XmlOptionCharEscapeMap.HEXADECIMAL));
+        msg = "ch1 must be <= ch2";
+        assertTrue(e.getMessage().endsWith(msg));
 
         charEsc.addMappings('A', 'Z', XmlOptionCharEscapeMap.HEXADECIMAL);
         assertEquals("&#x41;", charEsc.getEscapedString('A'));
@@ -134,14 +108,14 @@ public class CharEscapeTest {
     }
 
     @Test
-    public void testEscape1() throws Exception
-    {
+    void testEscape1() throws Exception {
         File f = new File(inputFile);
         TestListDocument doc = TestListDocument.Factory.parse(f);
 
         // default behavior: without the character replacement map,
         // only the minimal, required characters are escaped
-        String exp1 = start + "\n" +
+        String exp1 =
+            start + "\n" +
             "  <test>This is a greater than sign: ></test>\n" +
             "  <test>This is a less than sign: &lt;</test>\n" +
             "  <test>This is a single quote: '</test>\n" +
@@ -150,7 +124,7 @@ public class CharEscapeTest {
             "  <test>Character data may not contain the three-character sequence ]]&gt; with the > unescaped.</test>\n" +
             "  <test>In particular, character data in a CDATA section may not contain the three-character sequence ]]&amp;gt; with the > unescaped.</test>\n" +
             end;
-        assertEquals(exp1, doc.xmlText().replaceFirst("(?s)<!--.*-->",""));
+        assertEquals(exp1, doc.xmlText().replaceFirst("(?s)<!--.*-->", ""));
 
         XmlOptionCharEscapeMap charEsc = new XmlOptionCharEscapeMap();
         charEsc.addMapping('>', XmlOptionCharEscapeMap.PREDEF_ENTITY);
@@ -158,7 +132,8 @@ public class CharEscapeTest {
         opts.setSaveSubstituteCharacters(charEsc);
 
         // escape '>' as predefined entity as well
-        String exp2 = start + "\n" +
+        String exp2 =
+            start + "\n" +
             "  <test>This is a greater than sign: &gt;</test>\n" +
             "  <test>This is a less than sign: &lt;</test>\n" +
             "  <test>This is a single quote: '</test>\n" +
@@ -167,12 +142,13 @@ public class CharEscapeTest {
             "  <test>Character data may not contain the three-character sequence ]]&gt; with the &gt; unescaped.</test>\n" +
             "  <test>In particular, character data in a CDATA section may not contain the three-character sequence ]]&amp;gt; with the &gt; unescaped.</test>\n" +
             end;
-        assertEquals(exp2, doc.xmlText(opts).replaceFirst("(?s)<!--.*-->",""));
+        assertEquals(exp2, doc.xmlText(opts).replaceFirst("(?s)<!--.*-->", ""));
 
         // escape block of chars as hexadecimal
         charEsc.addMappings('A', 'D', XmlOptionCharEscapeMap.HEXADECIMAL);
         // opts holds a reference to charEsc, so opts is updated
-        String exp3 = start + "\n" +
+        String exp3 =
+            start + "\n" +
             "  <test>This is a greater than sign: &gt;</test>\n" +
             "  <test>This is a less than sign: &lt;</test>\n" +
             "  <test>This is a single quote: '</test>\n" +
@@ -181,20 +157,11 @@ public class CharEscapeTest {
             "  <test>&#x43;haracter data may not contain the three-character sequence ]]&gt; with the &gt; unescaped.</test>\n" +
             "  <test>In particular, character data in a &#x43;&#x44;&#x41;T&#x41; section may not contain the three-character sequence ]]&amp;gt; with the &gt; unescaped.</test>\n" +
             end;
-        assertEquals(exp3, doc.xmlText(opts).replaceFirst("(?s)<!--.*-->",""));
-        /*
-        File od = new File(outputDir);
-        od.mkdir();
-        File of1 = new File(od, outputFile1);
-        File of2 = new File(od, outputFile2);
-        doc.save(of1);
-        doc.save(of2, opts);
-        */
+        assertEquals(exp3, doc.xmlText(opts).replaceFirst("(?s)<!--.*-->", ""));
     }
 
     @Test
-    public void testEscape2() throws Exception
-    {
+    void testEscape2() throws Exception {
         TestListDocument doc = TestListDocument.Factory.newInstance();
         TestListDocument.TestList testList = doc.addNewTestList();
         XmlOptionCharEscapeMap charEsc = new XmlOptionCharEscapeMap();
@@ -207,14 +174,15 @@ public class CharEscapeTest {
         charEsc.addMapping('\u03c0', XmlOptionCharEscapeMap.HEXADECIMAL);
         XmlOptions opts = new XmlOptions();
         opts.setSaveSubstituteCharacters(charEsc);
-        HashMap prefixes = new HashMap();
+        Map<String, String> prefixes = new HashMap<>();
         prefixes.put("http://jira/xmlbeans_177", "jira");
         opts.setSaveSuggestedPrefixes(prefixes);
 
         String[] testStrings = {"e < \u03c0", "\u03c0 > 3", "abcxyz"};
         testList.setTestArray(testStrings);
 
-        String exp = start +
+        String exp =
+            start +
             "<test>&#101; &lt; &#x3c0;</test>" +
             "<test>&#x3c0; &gt; 3</test>" +
             "<test>&#97;&#98;&#99;&#x78;&#121;&#122;</test>" +
@@ -223,21 +191,21 @@ public class CharEscapeTest {
     }
 
     @Test
-    public void testEscapeAttribute() throws Exception
-    {
+    void testEscapeAttribute() throws Exception {
         File f = new File(inputFile2);
         TestListADocument doc = TestListADocument.Factory.parse(f);
 
         // default behavior: without the character replacement map,
         // only the minimal, required characters are escaped
-        String exp1 = start2 + "\n" +
+        String exp1 =
+            start2 + "\n" +
             "  <test a=\"This is a greater than sign: >\"/>\n" +
             "  <test a=\"This is a less than sign: &lt;\"/>\n" +
             "  <test a=\"This is a single quote: '\"/>\n" +
             "  <test a=\"This is a double quote: &quot;\"/>\n" +
             "  <test a=\"W.L.Gore &amp; Associates\"/>\n" +
             end2;
-        assertEquals(exp1, doc.xmlText().replaceFirst("(?s)<!--.*-->",""));
+        assertEquals(exp1, doc.xmlText().replaceFirst("(?s)<!--.*-->", ""));
 
         XmlOptionCharEscapeMap charEsc = new XmlOptionCharEscapeMap();
         charEsc.addMapping('>', XmlOptionCharEscapeMap.PREDEF_ENTITY);
@@ -245,25 +213,27 @@ public class CharEscapeTest {
         opts.setSaveSubstituteCharacters(charEsc);
 
         // escape '>' as predefined entity as well
-        String exp2 = start2 + "\n" +
+        String exp2 =
+            start2 + "\n" +
             "  <test a=\"This is a greater than sign: &gt;\"/>\n" +
             "  <test a=\"This is a less than sign: &lt;\"/>\n" +
             "  <test a=\"This is a single quote: '\"/>\n" +
             "  <test a=\"This is a double quote: &quot;\"/>\n" +
             "  <test a=\"W.L.Gore &amp; Associates\"/>\n" +
             end2;
-        assertEquals(exp2, doc.xmlText(opts).replaceFirst("(?s)<!--.*-->",""));
+        assertEquals(exp2, doc.xmlText(opts).replaceFirst("(?s)<!--.*-->", ""));
 
         // escape block of chars as hexadecimal
         charEsc.addMappings('A', 'D', XmlOptionCharEscapeMap.HEXADECIMAL);
         // opts holds a reference to charEsc, so opts is updated
-        String exp3 = start2 + "\n" +
+        String exp3 =
+            start2 + "\n" +
             "  <test a=\"This is a greater than sign: &gt;\"/>\n" +
             "  <test a=\"This is a less than sign: &lt;\"/>\n" +
             "  <test a=\"This is a single quote: '\"/>\n" +
             "  <test a=\"This is a double quote: &quot;\"/>\n" +
             "  <test a=\"W.L.Gore &amp; &#x41;ssociates\"/>\n" +
             end2;
-        assertEquals(exp3, doc.xmlText(opts).replaceFirst("(?s)<!--.*-->",""));
+        assertEquals(exp3, doc.xmlText(opts).replaceFirst("(?s)<!--.*-->", ""));
     }
 }
