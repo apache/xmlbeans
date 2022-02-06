@@ -24,6 +24,7 @@ import org.w3c.dom.Text;
 import xmlcursor.common.Common;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 
 public class CommentTest extends CharacterDataTest {
@@ -61,7 +62,7 @@ public class CommentTest extends CharacterDataTest {
     @Test
     void testPreviousSibling() {
         Node prSibling = m_node.getPreviousSibling();
-        assertEquals(null, prSibling);
+        assertNull(prSibling);
     }
 
     @Test

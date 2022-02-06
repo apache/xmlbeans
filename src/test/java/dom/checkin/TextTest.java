@@ -18,7 +18,6 @@ package dom.checkin;
 
 
 import dom.common.CharacterDataTest;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.w3c.dom.DOMException;
@@ -27,6 +26,7 @@ import org.w3c.dom.Text;
 import xmlcursor.common.Common;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 
 public class TextTest extends CharacterDataTest {
@@ -72,24 +72,14 @@ public class TextTest extends CharacterDataTest {
 
     @Test
     void testSplitTextNegative() {
-        try {
-            ((Text) m_node).splitText(-1);
-            Assertions.fail("Deleting OOB chars");
-        }
-        catch (DOMException de) {
-            assertEquals(de.code, DOMException.INDEX_SIZE_ERR);
-        }
+        DOMException de = assertThrows(DOMException.class, () -> ((Text) m_node).splitText(-1), "Deleting OOB chars");
+        assertEquals(de.code, DOMException.INDEX_SIZE_ERR);
     }
 
     @Test
     void testSplitTextLarge() {
-        try {
-            ((Text) m_node).splitText(((Text) m_node).getLength() + 1);
-            Assertions.fail("Deleting OOB chars");
-        }
-        catch (DOMException de) {
-            assertEquals(de.code, DOMException.INDEX_SIZE_ERR);
-        }
+        DOMException de = assertThrows(DOMException.class, () -> ((Text) m_node).splitText(((Text) m_node).getLength() + 1), "Deleting OOB chars");
+        assertEquals(de.code, DOMException.INDEX_SIZE_ERR);
     }
 
     @Test

@@ -19,7 +19,6 @@ package dom.checkin;
 
 import dom.common.DomUtils;
 import dom.common.NodeWithChildrenTest;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.w3c.dom.*;
@@ -30,11 +29,12 @@ import static org.junit.jupiter.api.Assertions.*;
 public class AttributeTest extends NodeWithChildrenTest {
 
     public AttributeTest() {
-        String sDTD = "<?xml version=\"1.0\"?>" +
-                      "<!DOCTYPE foodoc [" +
-                      "<!ELEMENT foo>" +
-                      "<!ATTLIST foo at_spec CDATA \"0\">" +
-                      "]>";
+        String sDTD =
+            "<?xml version=\"1.0\"?>" +
+            "<!DOCTYPE foodoc [" +
+            "<!ELEMENT foo>" +
+            "<!ATTLIST foo at_spec CDATA \"0\">" +
+            "]>";
 
         sXml = "<foo xmlns:extra=\"bea.org\" xmlns:myns=\"uri:foo\" at0=\"val0\" myns:at0=\"val01\" at2=\"val2\" at3=\"val3\" at4=\"val4\">some text</foo>";
         if (bDTD) {
@@ -101,22 +101,18 @@ public class AttributeTest extends NodeWithChildrenTest {
     }
 
     @Test
-    protected void testAppendChild() {
+    public void testAppendChild() {
         //elt
-        Node newChild = m_doc.createElement("foo");
-        try {
-            m_node.appendChild(newChild);
-            Assertions.fail("Cannot append an element children to attributes " +
-                            m_node.getChildNodes().getLength());
-        } catch (DOMException de) {
-            assertEquals(DOMException.HIERARCHY_REQUEST_ERR, de.code);
-        }
+        Node newChild1 = m_doc.createElement("foo");
+        DOMException de = assertThrows(DOMException.class, () -> m_node.appendChild(newChild1),
+            "Cannot append an element children to attributes ");
+        assertEquals(DOMException.HIERARCHY_REQUEST_ERR, de.code);
 
-        newChild = m_doc.createTextNode("foobar");
-        m_node.appendChild(newChild);
+        Node newChild2 = m_doc.createTextNode("foobar");
+        m_node.appendChild(newChild2);
         assertEquals(2, m_node.getChildNodes().getLength());
 
-//TODO
+        // TODO
         m_node.normalize();
         assertEquals(1, m_node.getChildNodes().getLength());
         assertEquals("val01foobar", ((Text) m_node.getFirstChild()).getData());
@@ -182,20 +178,16 @@ public class AttributeTest extends NodeWithChildrenTest {
     }
 
     @Test
-    protected void testInsertBefore() {
-        Node newChild = m_doc.createElement("foo");
+    public void testInsertBefore() {
+        Node newChild1 = m_doc.createElement("foo");
         assertEquals(1, m_node.getChildNodes().getLength());
 
         Node textNode = m_node.getFirstChild();
+        DOMException de = assertThrows(DOMException.class, () -> m_node.insertBefore(newChild1, textNode));
+        assertEquals(DOMException.HIERARCHY_REQUEST_ERR, de.code);
 
-        try {
-            m_node.insertBefore(newChild, textNode);
-        } catch (DOMException de) {
-            assertEquals(DOMException.HIERARCHY_REQUEST_ERR, de.code);
-        }
-
-        newChild = m_doc.createTextNode("foo");
-        m_node.insertBefore(newChild, textNode);
+        Node newChild2 = m_doc.createTextNode("foo");
+        m_node.insertBefore(newChild2, textNode);
         assertEquals("foo", m_node.getFirstChild().getNodeValue());
         assertEquals("val01", m_node.getLastChild().getNodeValue());
     }
@@ -211,23 +203,17 @@ public class AttributeTest extends NodeWithChildrenTest {
 
     @Test
     void testReplaceChild() {
-
         //assertFalse(m_node.hasChildNodes());
-        Node newChild = m_doc.createElement("foo");
+        Node newChild1 = m_doc.createElement("foo");
         assertEquals(1, m_node.getChildNodes().getLength());
-        try {
-            m_node.replaceChild(newChild, m_node.getFirstChild());
-            Assertions.fail("can not put an element under an attr");
-        } catch (DOMException de) {
-            assertEquals(DOMException.HIERARCHY_REQUEST_ERR, de.code);
-        }
-        newChild = m_doc.createTextNode("realnewval");
-        assertEquals(1, m_node.getChildNodes().getLength());
-        m_node.replaceChild(newChild, m_node.getFirstChild());
-        if (!"realnewval".equals(((Attr) m_node).getValue())) {
-            Assertions.fail(" Expected realnewval but got " + ((Attr) m_node).getValue());
-        }
+        DOMException de = assertThrows(DOMException.class, () -> m_node.replaceChild(newChild1, m_node.getFirstChild()),
+            "can not put an element under an attr");
+        assertEquals(DOMException.HIERARCHY_REQUEST_ERR, de.code);
 
+        Node newChild2 = m_doc.createTextNode("realnewval");
+        assertEquals(1, m_node.getChildNodes().getLength());
+        m_node.replaceChild(newChild2, m_node.getFirstChild());
+        assertEquals("realnewval", ((Attr) m_node).getValue());
     }
 
     @Test
@@ -274,7 +260,7 @@ public class AttributeTest extends NodeWithChildrenTest {
     }
 
     @Test
-    protected void testInsertBeforeDocFrag() {
+    public void testInsertBeforeDocFrag() {
         DocumentFragment child = m_doc.createDocumentFragment();
         child.appendChild(m_doc.createTextNode("foo1"));
         Node target = m_node.getFirstChild();
@@ -282,54 +268,41 @@ public class AttributeTest extends NodeWithChildrenTest {
     }
 
     @Test
-    protected void testAppendChildDocFrag() {
+    public void testAppendChildDocFrag() {
         DocumentFragment child = m_doc.createDocumentFragment();
         child.appendChild(m_doc.createTextNode("foo"));
         super.testAppendChild(child);
     }
 
     @Test
-    protected void testReplaceChildDocFrag() {
-
+    public void testReplaceChildDocFrag() {
         DocumentFragment child = m_doc.createDocumentFragment();
         child.appendChild(m_doc.createElement("foo"));
         child.appendChild(m_doc.createElement("foobar"));
         Node toReplace = m_node.getFirstChild();
-        try {
-            super.testReplaceChild(child, toReplace);
-            Assertions.fail("cannot insert element in attr");
-        } catch (DOMException de) {
-            assertEquals(DOMException.HIERARCHY_REQUEST_ERR, de.code);
-        }
-
+        DOMException de = assertThrows(DOMException.class, () -> super.testReplaceChild(child, toReplace), "cannot insert element in attr");
+        assertEquals(DOMException.HIERARCHY_REQUEST_ERR, de.code);
     }
 
     @Test
-    protected void testInsertBeforeNullTarget() {
-        Node child = m_doc.createElementNS("org.foo.www", "foonode");
-        try {
-            super.testInsertBefore(child, null);
-            Assertions.fail("cannot insert element in attr");
-        } catch (DOMException de) {
-            assertEquals(DOMException.HIERARCHY_REQUEST_ERR, de.code);
-        }
-        child = m_doc.createTextNode("foonode");
-        super.testInsertBefore(child, null);
+    public void testInsertBeforeNullTarget() {
+        Node child1 = m_doc.createElementNS("org.foo.www", "foonode");
+        DOMException de = assertThrows(DOMException.class, () -> super.testInsertBefore(child1, null), "cannot insert element in attr");
+        assertEquals(DOMException.HIERARCHY_REQUEST_ERR, de.code);
+        Node child2 = m_doc.createTextNode("foonode");
+        super.testInsertBefore(child2, null);
     }
 
     @Test
     void testInsertExistingNode() {
-        Node toInsert = m_doc.getFirstChild();
+        Node toInsert1 = m_doc.getFirstChild();
         //elt under attr
-        try {
-            super.testInsertExistingNode(toInsert);
-            Assertions.fail("Shouldn't work for attrs");
-        } catch (DOMException de) {
-            assertEquals(DOMException.HIERARCHY_REQUEST_ERR, de.code);
-        }
-        toInsert = m_doc.getFirstChild().getFirstChild(); //some text
+        DOMException de = assertThrows(DOMException.class, () -> super.testInsertExistingNode(toInsert1), "Shouldn't work for attrs");
+        assertEquals(DOMException.HIERARCHY_REQUEST_ERR, de.code);
 
-        super.testInsertBefore(toInsert, m_node.getFirstChild());
+        //some text
+        Node toInsert2 = m_doc.getFirstChild().getFirstChild();
+        super.testInsertBefore(toInsert2, m_node.getFirstChild());
         assertEquals("some text", m_node.getFirstChild().getNodeValue());
         assertEquals(2, m_node.getChildNodes().getLength());
     }
@@ -372,13 +345,8 @@ public class AttributeTest extends NodeWithChildrenTest {
     void testInsertBeforeInvalidRefNode() {
         Node child = m_doc.createTextNode("foonode");
         Node target = m_doc.createElement("foo");
-        try {
-            super.testInsertBefore(child, target);
-            Assertions.fail("Insert cannot happen");
-        } catch (DOMException de) {
-            System.err.println(de.getMessage() + " " + de.code);
-            assertEquals(DOMException.NOT_FOUND_ERR, de.code);
-        }
+        DOMException de = assertThrows(DOMException.class, () -> super.testInsertBefore(child, target), "Insert cannot happen");
+        assertEquals(DOMException.NOT_FOUND_ERR, de.code);
     }
 
     @Test
@@ -387,12 +355,8 @@ public class AttributeTest extends NodeWithChildrenTest {
         assertNull(at.getPrefix(), "L1 prefix null");
         assertNull(at.getLocalName(), "L1 LocalName null");
         assertNull(at.getNamespaceURI(), "L1 Uri null");
-        try {
-            at.setPrefix("foo");
-            Assertions.fail("L1 prefix null");
-        } catch (DOMException de) {
-            assertEquals(DOMException.NAMESPACE_ERR, de.code);
-        }
+        DOMException de = assertThrows(DOMException.class, () -> at.setPrefix("foo"), "L1 prefix null");
+        assertEquals(DOMException.NAMESPACE_ERR, de.code);
     }
 
     @Test

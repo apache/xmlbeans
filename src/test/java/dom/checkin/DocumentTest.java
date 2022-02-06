@@ -105,19 +105,19 @@ public class DocumentTest extends NodeWithChildrenTest {
     }
 
     @Test
-    protected void testAppendChild() {
+    public void testAppendChild() {
         DOMException de = assertThrows(DOMException.class, super::testAppendChild);
         assertEquals(DOMException.HIERARCHY_REQUEST_ERR, de.code);
     }
 
     @Test
-    protected void testInsertBefore() {
+    public void testInsertBefore() {
         DOMException de = assertThrows(DOMException.class, super::testInsertBefore);
         assertEquals(DOMException.HIERARCHY_REQUEST_ERR, de.code);
     }
 
     @Test
-    protected void testInsertBeforeNullTarget() {
+    public void testInsertBeforeNullTarget() {
         DOMException de = assertThrows(DOMException.class, super::testInsertBeforeNullTarget);
         assertEquals(DOMException.HIERARCHY_REQUEST_ERR, de.code);
     }
@@ -191,13 +191,13 @@ public class DocumentTest extends NodeWithChildrenTest {
     }
 
     @Test
-    protected void testInsertBeforeDocFrag() {
+    public void testInsertBeforeDocFrag() {
         DOMException de = assertThrows(DOMException.class, super::testInsertBeforeDocFrag);
         assertEquals(DOMException.HIERARCHY_REQUEST_ERR, de.code);
     }
 
     @Test
-    protected void testAppendChildDocFrag() {
+    public void testAppendChildDocFrag() {
         DOMException de = assertThrows(DOMException.class, super::testAppendChildDocFrag);
         assertEquals(DOMException.HIERARCHY_REQUEST_ERR, de.code);
     }
@@ -220,7 +220,7 @@ public class DocumentTest extends NodeWithChildrenTest {
     }
 
     @Test
-    protected void testReplaceChildDocFrag() {
+    public void testReplaceChildDocFrag() {
         DOMException de = assertThrows(DOMException.class, super::testReplaceChildDocFrag);
         assertEquals(DOMException.HIERARCHY_REQUEST_ERR, de.code);
     }

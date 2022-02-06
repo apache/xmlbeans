@@ -160,7 +160,7 @@ public abstract class NodeWithChildrenTest extends NodeTest  {
     }
 
     @Test
-    protected void testReplaceChildDocFrag() {
+    public void testReplaceChildDocFrag() {
         DocumentFragment child = m_doc.createDocumentFragment();
         child.appendChild(m_doc.createElement("foo"));
         child.appendChild(m_doc.createElement("foobar"));
@@ -169,7 +169,7 @@ public abstract class NodeWithChildrenTest extends NodeTest  {
     }
 
     @Test
-    protected void testInsertBefore() {
+    public void testInsertBefore() {
         Node target = m_node.getFirstChild();
         Node child = m_doc.createElementNS("org.foo.www", "foonode");
         assertNotNull(target);
@@ -177,7 +177,7 @@ public abstract class NodeWithChildrenTest extends NodeTest  {
     }
 
     @Test
-    protected void testInsertBeforeNullTarget() {
+    public void testInsertBeforeNullTarget() {
         Node child = m_doc.createElementNS("org.foo.www", "foonode");
         super.testInsertBefore(child, null);
     }
@@ -252,7 +252,7 @@ public abstract class NodeWithChildrenTest extends NodeTest  {
     }
 
     @Test
-    protected void testInsertBeforeDocFrag() {
+    public void testInsertBeforeDocFrag() {
         DocumentFragment child = m_doc.createDocumentFragment();
         child.appendChild(m_doc.createElement("foo1"));
         Node target = m_node.getFirstChild();
@@ -260,7 +260,7 @@ public abstract class NodeWithChildrenTest extends NodeTest  {
     }
 
     @Test
-    protected void testAppendChild() {
+    public void testAppendChild() {
         Node newNode = m_doc.createElement("foo");
         super.testAppendChild(newNode);
     }
@@ -284,7 +284,7 @@ public abstract class NodeWithChildrenTest extends NodeTest  {
 
     //append doc frag
     @Test
-    protected void testAppendChildDocFrag() {
+    public void testAppendChildDocFrag() {
         DocumentFragment child = m_doc.createDocumentFragment();
         child.appendChild(m_doc.createElement("foo"));
         super.testAppendChild(child);

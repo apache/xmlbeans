@@ -23,8 +23,7 @@ import org.w3c.dom.CharacterData;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.*;
 
 @Disabled
 public abstract class CharacterDataTest extends NodeTest {
@@ -125,24 +124,20 @@ public abstract class CharacterDataTest extends NodeTest {
     private void _testDeleteData(int offset, int count) {
         String sData = ((CharacterData) m_node).getData();
         int nDataLen = sData.length();
-        if (offset < 0 || offset > nDataLen || count < 0)
-            try {
-                ((CharacterData) m_node).deleteData(offset, count);
-                Assertions.fail("Deleting OOB chars");
-            } catch (DOMException de) {
-                assertEquals(de.code, DOMException.INDEX_SIZE_ERR);
-            }
-        else {
+        if (offset < 0 || offset > nDataLen || count < 0) {
+            DOMException de = assertThrows(DOMException.class, () -> ((CharacterData) m_node).deleteData(offset, count), "Deleting OOB chars");
+            assertEquals(de.code, DOMException.INDEX_SIZE_ERR);
+        } else {
             ((CharacterData) m_node).deleteData(offset, count);
-            if (count == 0)
+            if (count == 0) {
                 assertEquals(sData, ((CharacterData) m_node).getData());
-            else if (offset + count == nDataLen || (offset + count) > nDataLen)
+            } else if (offset + count == nDataLen || (offset + count) > nDataLen) {
                 assertEquals("", ((CharacterData) m_node).getData());
-            else if (offset == 0) {
+            } else if (offset == 0) {
                 assertEquals(sData.substring(count), ((CharacterData) m_node).getData());
-
-            } else
+            } else {
                 assertEquals(sData.substring(0, offset) + sData.substring(offset + count, sData.length() - (offset + count)), ((CharacterData) m_node).getData());
+            }
         }
     }
 
@@ -270,27 +265,23 @@ public abstract class CharacterDataTest extends NodeTest {
     private void _testReplaceData(int offset, int count, String newStr) {
         String sData = ((CharacterData) m_node).getData();
         int nDataLen = sData.length();
-        if (offset < 0 || offset > nDataLen || count < 0)
-            try {
-                ((CharacterData) m_node).replaceData(offset, count, newStr);
-                Assertions.fail("Deleting OOB chars");
-            } catch (DOMException de) {
-                assertEquals(de.code, DOMException.INDEX_SIZE_ERR);
-            }
-        else {
+        if (offset < 0 || offset > nDataLen || count < 0) {
+            DOMException de = assertThrows(DOMException.class, () -> ((CharacterData) m_node).replaceData(offset, count, newStr), "Deleting OOB chars");
+            assertEquals(de.code, DOMException.INDEX_SIZE_ERR);
+        } else {
             ((CharacterData) m_node).replaceData(offset, count, newStr);
-            if (count == 0)
+            if (count == 0) {
                 assertEquals(sData, ((CharacterData) m_node).getData());
-            else if (newStr == null)
+            } else if (newStr == null) {
                 assertEquals("", ((CharacterData) m_node).getData());
-            else if (offset + count == nDataLen || (offset + count) > nDataLen) {
+            } else if (offset + count == nDataLen || (offset + count) > nDataLen) {
                 String sOld = sData.substring(0, offset);
                 assertEquals(sOld + newStr, ((CharacterData) m_node).getData());
-
-            } else if (offset == 0)
+            } else if (offset == 0) {
                 assertEquals(sData.substring(count, sData.length() - count) + newStr, ((CharacterData) m_node).getData());
-            else
+            } else {
                 assertEquals(sData.substring(0, offset) + newStr + sData.substring(offset + count), ((CharacterData) m_node).getData());
+            }
         }
 
     }
@@ -356,12 +347,9 @@ public abstract class CharacterDataTest extends NodeTest {
 
     @Test
     protected void testSetPrefix() {
-        try {
-            m_node.setPrefix("foobar");
-            Assertions.fail("Can't set prefix on node other than Element or Attribute");
-        } catch (DOMException de) {
-            assertEquals(DOMException.NAMESPACE_ERR, de.code);
-        }
+        DOMException de = assertThrows(DOMException.class, () -> m_node.setPrefix("foobar"),
+            "Can't set prefix on node other than Element or Attribute");
+        assertEquals(DOMException.NAMESPACE_ERR, de.code);
     }
 }
 

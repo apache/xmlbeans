@@ -355,31 +355,21 @@ public class ElementTest extends NodeWithChildrenTest {
     @Test
     void testRemoveAttributeNode_DNE() {
         //DNE
-        Node removed;
-        Attr remove = ((Element) m_node).getAttributeNode("at3");
-        try {
-            removed = ((Element) m_node).removeAttributeNode(remove);
-            Assertions.fail("removing Non existing attr");
-        } catch (DOMException de) {
-            assertEquals(DOMException.NOT_FOUND_ERR, de.code);
-        }
+        Attr remove1 = ((Element) m_node).getAttributeNode("at3");
+        DOMException de1 = assertThrows(DOMException.class, () -> ((Element) m_node).removeAttributeNode(remove1),
+            "removing Non existing attr");
+        assertEquals(DOMException.NOT_FOUND_ERR, de1.code);
 
-        remove = null;
-        try {
-            removed = ((Element) m_node).removeAttributeNode(remove);
-            Assertions.fail("removing Non existing attr");
-        } catch (DOMException de) {
-            assertEquals(DOMException.NOT_FOUND_ERR, de.code);
-        }
+        Attr remove2 = null;
+        DOMException de2 = assertThrows(DOMException.class, () -> ((Element) m_node).removeAttributeNode(remove2),
+            "removing Non existing attr");
+        assertEquals(DOMException.NOT_FOUND_ERR, de2.code);
 
         //differentParent
-        remove = m_doc.getDocumentElement().getAttributeNode("attr0");
-        try {
-            removed = ((Element) m_node).removeAttributeNode(remove);
-            Assertions.fail("removing Non existing attr");
-        } catch (DOMException de) {
-            assertEquals(DOMException.NOT_FOUND_ERR, de.code);
-        }
+        Attr remove3 = m_doc.getDocumentElement().getAttributeNode("attr0");
+        DOMException de3 = assertThrows(DOMException.class, () -> ((Element) m_node).removeAttributeNode(remove3),
+            "removing Non existing attr");
+        assertEquals(DOMException.NOT_FOUND_ERR, de3.code);
     }
 
     @Test
