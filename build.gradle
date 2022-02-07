@@ -165,7 +165,9 @@ dependencies {
 
     // need an own configuration for Java9 builds, as the maven plugin module-config is overlapping lot
     java9 "org.apache.logging.log4j:log4j-api:${log4jVersion}"
-    java9 "net.sf.saxon:Saxon-HE:${saxonVersion}"
+    java9("net.sf.saxon:Saxon-HE:${saxonVersion}") {
+        exclude group: 'xml-apis', module: 'xml-apis'
+    }
     java9 "org.apache.ant:ant:${antVersion}"
     java9 "com.github.javaparser:javaparser-core:${javaparserVersion}"
     java9("com.github.javaparser:javaparser-symbol-solver-core:${javaparserVersion}") {
