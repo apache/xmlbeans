@@ -20,7 +20,6 @@ import dom.common.Loader;
 import dom.common.NodeTest;
 import dom.common.TestSetup;
 import org.apache.xmlbeans.XmlObject;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.w3c.dom.*;
@@ -133,24 +132,16 @@ public class NamedNodeMapTest implements TestSetup {
      */
     @Test
     void testRemoveNamedItemNull() {
-        try {
-            m_nodeMap.removeNamedItem(null);
-            Assertions.fail("removing a non-existing value");
-        }
-        catch (DOMException de) {
-            assertEquals(de.code, DOMException.NOT_FOUND_ERR);
-        }
+        DOMException de = assertThrows(DOMException.class, () -> m_nodeMap.removeNamedItem(null),
+            "removing a non-existing value");
+        assertEquals(de.code, DOMException.NOT_FOUND_ERR);
     }
 
     @Test
     void testRemoveNamedItem() {
-        try {
-            m_nodeMap.removeNamedItem("at7");
-            Assertions.fail("removing a non-existing value");
-        }
-        catch (DOMException de) {
-            assertEquals(de.code, DOMException.NOT_FOUND_ERR);
-        }
+        DOMException de = assertThrows(DOMException.class, () -> m_nodeMap.removeNamedItem("at7"),
+            "removing a non-existing value");
+        assertEquals(de.code, DOMException.NOT_FOUND_ERR);
 
         result = m_nodeMap.removeNamedItem("at3");
         assertEquals("val3", result.getNodeValue());
@@ -193,23 +184,12 @@ public class NamedNodeMapTest implements TestSetup {
     void testRemoveNamedItemNS_DNE() {
         m_nodeMap = m_docNS.getFirstChild().getAttributes();
         int nLen = m_node.getAttributes().getLength();
-        try {
-            result = m_nodeMap.removeNamedItemNS("uri:fo1", "at0");
-            if (m_node.getAttributes().getLength() != nLen)
-                Assertions.fail("removing a non-existing attr");
-        }
-        catch (DOMException de) {
-            assertEquals(de.code, DOMException.NOT_FOUND_ERR);
-        }
+        DOMException de = assertThrows(DOMException.class, () ->
+            m_nodeMap.removeNamedItemNS("uri:fo1", "at0"), "removing a non-existing attr");
+        assertEquals(de.code, DOMException.NOT_FOUND_ERR);
 
-        try {
-            result = m_nodeMap.getNamedItemNS("uri:fo1", null);
-            if (result != null)
-                Assertions.fail("removing a non-existing attr");
-        }
-        catch (DOMException de) {
-            assertEquals(de.code, DOMException.NOT_FOUND_ERR);
-        }
+        result = m_nodeMap.getNamedItemNS("uri:fo1", null);
+        assertNull(result, "removing a non-existing attr");
     }
 
     /**
@@ -220,44 +200,31 @@ public class NamedNodeMapTest implements TestSetup {
      */
     @Test
     void testSetNamedItem() {
-        Node newAt = m_doc.createAttribute("newAt");
-        ((Attr) newAt).setValue("newval");
-        m_nodeMap.setNamedItem(newAt);
+        Attr newAt1 = m_doc.createAttribute("newAt");
+        newAt1.setValue("newval");
+        m_nodeMap.setNamedItem(newAt1);
         assertEquals(nCount + 1, m_nodeMap.getLength());
         result = m_nodeMap.getNamedItem("newAt");
         assertEquals("newval", result.getNodeValue());
 
         //node cr. diff doc
-        newAt = m_docNS.createAttribute("newAt");
-        ((Attr) newAt).setValue("newval");
-        try {
-            m_nodeMap.setNamedItem(newAt);
-            Assertions.fail("Inserting node created from a different doc");
-        }
-        catch (DOMException de) {
-            assertEquals(de.code, DOMException.WRONG_DOCUMENT_ERR);
-        }
+        Attr newAt2 = m_docNS.createAttribute("newAt");
+        newAt2.setValue("newval");
+        DOMException de1 = assertThrows(DOMException.class, () -> m_nodeMap.setNamedItem(newAt2),
+            "Inserting node created from a different doc");
+        assertEquals(de1.code, DOMException.WRONG_DOCUMENT_ERR);
 
         //node in diff elt
-        newAt = m_node.getFirstChild().getAttributes().getNamedItem("bat0");
-        try {
-            m_nodeMap.setNamedItem(newAt);
-            Assertions.fail("Inserting node in use");
-        }
-        catch (DOMException de) {
-            assertEquals(de.code, DOMException.INUSE_ATTRIBUTE_ERR);
-        }
+        Node newAt3 = m_node.getFirstChild().getAttributes().getNamedItem("bat0");
+        DOMException de2 = assertThrows(DOMException.class, () -> m_nodeMap.setNamedItem(newAt3),
+            "Inserting node in use");
+        assertEquals(de2.code, DOMException.INUSE_ATTRIBUTE_ERR);
 
         //not an attr
-        newAt = m_doc.createElement("newElt");
-        try {
-            m_nodeMap.setNamedItem(newAt);
-            Assertions.fail("Inserting node  different doc");
-        }
-        catch (DOMException de) {
-            assertEquals(de.code, DOMException.HIERARCHY_REQUEST_ERR);
-        }
-
+        Node newAt4 = m_doc.createElement("newElt");
+        DOMException de3 = assertThrows(DOMException.class, () -> m_nodeMap.setNamedItem(newAt4),
+            "Inserting node different doc");
+        assertEquals(de3.code, DOMException.HIERARCHY_REQUEST_ERR);
     }
 
     @Test
@@ -268,13 +235,9 @@ public class NamedNodeMapTest implements TestSetup {
     @Test
     void testSetNamedItemDiffImpl() throws Exception {
         Node toSet = NodeTest.getApacheNode(sXml, false, 'A');
-        try {
-            m_nodeMap.setNamedItem(toSet);
-            Assertions.fail("Inserting node  different impl");
-        }
-        catch (DOMException de) {
-            assertEquals(de.code, DOMException.WRONG_DOCUMENT_ERR);
-        }
+        DOMException de = assertThrows(DOMException.class, () -> m_nodeMap.setNamedItem(toSet),
+            "Inserting node different impl");
+        assertEquals(de.code, DOMException.WRONG_DOCUMENT_ERR);
     }
 
     @Test
@@ -310,38 +273,26 @@ public class NamedNodeMapTest implements TestSetup {
     @Test
     void testSetNamedItemNSDiffImpl() throws Exception {
         Node toSet = NodeTest.getApacheNode(sXml, true, 'A');
-        try {
-            m_nodeMap.setNamedItemNS(toSet);
-            Assertions.fail("Inserting node  different impl");
-        }
-        catch (DOMException de) {
-            assertEquals(de.code, DOMException.WRONG_DOCUMENT_ERR);
-        }
+        DOMException de = assertThrows(DOMException.class, () -> m_nodeMap.setNamedItemNS(toSet),
+            "Inserting node  different impl");
+        assertEquals(de.code, DOMException.WRONG_DOCUMENT_ERR);
     }
 
     //try to set a node of a diff type than the current collection
     @Test
-    void testSetNamedItemDiffType() throws Exception {
+    void testSetNamedItemDiffType() {
         Node toSet = m_doc.createElement("foobar");
-        try {
-            m_nodeMap.setNamedItem(toSet);
-            Assertions.fail("Inserting node  different impl");
-        }
-        catch (DOMException de) {
-            assertEquals(de.code, DOMException.HIERARCHY_REQUEST_ERR);
-        }
+        DOMException de = assertThrows(DOMException.class, () -> m_nodeMap.setNamedItem(toSet),
+            "Inserting node different impl");
+        assertEquals(de.code, DOMException.HIERARCHY_REQUEST_ERR);
     }
 
     @Test
-    void testSetNamedItemNSDiffType() throws Exception {
+    void testSetNamedItemNSDiffType() {
         Node toSet = m_doc.createElementNS("foo:org", "com:foobar");
-        try {
-            m_nodeMap.setNamedItemNS(toSet);
-            Assertions.fail("Inserting node  different impl");
-        }
-        catch (DOMException de) {
-            assertEquals(de.code, DOMException.HIERARCHY_REQUEST_ERR);
-        }
+        DOMException de = assertThrows(DOMException.class, () -> m_nodeMap.setNamedItemNS(toSet),
+            "Inserting node different impl");
+        assertEquals(de.code, DOMException.HIERARCHY_REQUEST_ERR);
     }
 
 

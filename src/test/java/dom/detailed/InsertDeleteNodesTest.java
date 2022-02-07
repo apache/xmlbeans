@@ -16,12 +16,12 @@
 package dom.detailed;
 
 import dom.common.Loader;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.w3c.dom.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 
 /**
@@ -142,12 +142,8 @@ public class InsertDeleteNodesTest {
 		//m_doc.insertBefore(pi,root);
 		//m_doc.insertBefore(cdata,root);
 
-		try {
-			m_doc.insertBefore(root, doc_frag.getLastChild());
-			Assertions.fail("Should except here");
-		} catch (DOMException de) {
-			assertEquals(de.code, DOMException.HIERARCHY_REQUEST_ERR);
-		}
+		DOMException de = assertThrows(DOMException.class, () -> m_doc.insertBefore(root, doc_frag.getLastChild()));
+		assertEquals(de.code, DOMException.HIERARCHY_REQUEST_ERR);
     }
     //TODO: insert nodes at all illegal places:
 

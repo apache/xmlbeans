@@ -17,7 +17,6 @@
 package dom.detailed;
 
 import dom.common.Loader;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.w3c.dom.DOMException;
@@ -74,13 +73,11 @@ public class MoveImportNodeTest {
     //import to a doc where the given ns DNE
 	@Test
     void testMoveDiffDoc(){
-		Node toMove=m_docNS.getFirstChild().getFirstChild().getFirstChild(); //bar
-		try{
-			m_node.insertBefore(toMove,m_node.getFirstChild());
-			Assertions.fail(" Cannot move nodes across docs");
-		}catch(DOMException de){
-			assertEquals(DOMException.WRONG_DOCUMENT_ERR, de.code);
-		}
+		//bar
+		Node toMove=m_docNS.getFirstChild().getFirstChild().getFirstChild();
+		DOMException de = assertThrows(DOMException.class, () ->
+			m_node.insertBefore(toMove,m_node.getFirstChild()), " Cannot move nodes across docs");
+		assertEquals(DOMException.WRONG_DOCUMENT_ERR, de.code);
     }
 
 	@Test
@@ -94,15 +91,10 @@ public class MoveImportNodeTest {
 		Document xercesDocument = parser.getDocument();
 		assertNotNull(xercesDocument);
 		Node toMove = xercesDocument.getFirstChild().getFirstChild().getFirstChild(); //bar
-		System.out.println("=======Source Impl " + xercesDocument.getImplementation());
-		System.out.println("=======Dest Impl " + m_doc.getImplementation());
 
-		try {
-			m_node.insertBefore(toMove, m_node.getFirstChild());
-			Assertions.fail(" Cannot move nodes across implementations");
-		} catch (DOMException de) {
-			assertEquals(DOMException.WRONG_DOCUMENT_ERR, de.code);
-		}
+		DOMException de = assertThrows(DOMException.class, () -> m_node.insertBefore(toMove, m_node.getFirstChild()),
+			"Cannot move nodes across implementations");
+		assertEquals(DOMException.WRONG_DOCUMENT_ERR, de.code);
 
 		Node imported = m_doc.importNode(toMove, true);//deep would be the same here
 		m_node.appendChild(imported);

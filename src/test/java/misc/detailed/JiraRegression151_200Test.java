@@ -22,7 +22,6 @@ import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
 import org.apache.xmlbeans.impl.tool.Parameters;
 import org.apache.xmlbeans.impl.tool.SchemaCompiler;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
@@ -30,8 +29,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  *
@@ -101,30 +99,14 @@ public class JiraRegression151_200Test extends JiraTestBase
         params.setClassesDir(schemaCompClassesDir);
         params.setNoPvr(true);
 
-        try {
-            SchemaCompiler.compile(params);
-        } catch (NullPointerException npe) {
-            npe.printStackTrace();
-            Assertions.fail("NPE when executing scomp");
-        }
-
-        if (hasSevereError(errors)) {
-            Assertions.fail("test_jira_xmlbeans184() : Errors found when executing scomp");
-        }
+        SchemaCompiler.compile(params);
+        assertFalse(hasSevereError(errors));
 
         // now compile without the pvr option and NPE is thrown
         params.setNoPvr(false);
-        try {
-            SchemaCompiler.compile(params);
-        } catch (NullPointerException npe) {
-            npe.printStackTrace();
-            Assertions.fail("NPE when executing scomp");
-        }
+        SchemaCompiler.compile(params);
 
-        if (hasSevereError(errors)) {
-            Assertions.fail("test_jira_xmlbeans184() : Errors found when executing scomp ");
-        }
-
+        assertFalse(hasSevereError(errors));
     }
 
 

@@ -18,7 +18,6 @@ package dom.checkin;
 
 
 import dom.common.NodeWithChildrenTest;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.w3c.dom.*;
@@ -395,13 +394,8 @@ public class ElementTest extends NodeWithChildrenTest {
     @Test
     void testSetAttribute() {
         m_node = m_doc.getDocumentElement();
-
-        try {
-            ((Element) m_node).setAttribute("invalid<", "0");
-            Assertions.fail("Invalid attr name");
-        } catch (DOMException de) {
-            assertEquals(DOMException.INVALID_CHARACTER_ERR, de.code);
-        }
+        DOMException de = assertThrows(DOMException.class, () -> ((Element) m_node).setAttribute("invalid<", "0"), "Invalid attr name");
+        assertEquals(DOMException.INVALID_CHARACTER_ERR, de.code);
 
         ((Element) m_node).setAttribute("attr0", "newval");
         assertEquals("newval", ((Element) m_node).getAttribute("attr0"));
@@ -445,12 +439,9 @@ public class ElementTest extends NodeWithChildrenTest {
     void testSetAttributeNodeDiffDoc() {
         Attr result;
         Attr newAttr = m_docNS.createAttribute("attr0");
-        try {
-            result = ((Element) m_node).setAttributeNode(newAttr);
-            Assertions.fail("Attr Node diff doc in use");
-        } catch (DOMException de) {
-            assertEquals(DOMException.WRONG_DOCUMENT_ERR, de.code);
-        }
+        DOMException de = assertThrows(DOMException.class, () -> ((Element) m_node).setAttributeNode(newAttr),
+            "Attr Node diff doc in use");
+        assertEquals(DOMException.WRONG_DOCUMENT_ERR, de.code);
     }
 
     @Test
@@ -459,12 +450,8 @@ public class ElementTest extends NodeWithChildrenTest {
         m_node = m_node.getParentNode().getParentNode();
         Attr newAttr = ((Element) m_node).getAttributeNode("attr0");
         m_node = m_node.getFirstChild();
-        try {
-            ((Element) m_node).setAttributeNode(newAttr);
-            Assertions.fail("Attr Node in use");
-        } catch (DOMException de) {
-            assertEquals(DOMException.INUSE_ATTRIBUTE_ERR, de.code);
-        }
+        DOMException de = assertThrows(DOMException.class, () -> ((Element) m_node).setAttributeNode(newAttr));
+        assertEquals(DOMException.INUSE_ATTRIBUTE_ERR, de.code);
     }
 
     @Test
@@ -517,51 +504,35 @@ public class ElementTest extends NodeWithChildrenTest {
     @Test
     void testSetAttributeNSBadNS() {
         //qualifiedName is malformed
-        try {
-            ((Element) m_node).setAttributeNS("foo:org", "invalid<", "0");
-            Assertions.fail("Invalid attr name");
-        } catch (DOMException de) {
-            assertEquals(DOMException.INVALID_CHARACTER_ERR, de.code);
-        }
+        DOMException de1 = assertThrows(DOMException.class, () ->
+            ((Element) m_node).setAttributeNS("foo:org", "invalid<", "0"), "Invalid attr name");
+        assertEquals(DOMException.INVALID_CHARACTER_ERR, de1.code);
 
         //the qualifiedName has a prefix and the namespaceURI is null
-        try {
-            String sNull = null;
-            ((Element) m_node).setAttributeNS(sNull, "myfoo:at", "0");
-            Assertions.fail("Invalid attr name");
-        } catch (DOMException de) {
-            assertEquals(DOMException.NAMESPACE_ERR, de.code);
-        }
+        DOMException de2 = assertThrows(DOMException.class, () ->
+            ((Element) m_node).setAttributeNS(null, "myfoo:at", "0"), "Invalid attr name");
+        assertEquals(DOMException.NAMESPACE_ERR, de2.code);
     }
 
     @Test
     void testSetAttributeNSBadNS_xmlns() {
         //the qualifiedName, or its prefix, is "xmlns" and the namespaceURI is different from " http://www.w3.org/2000/xmlns/".
-        try {
-            ((Element) m_node).setAttributeNS("foo:org:uri", "xmlns", "0");
-            Assertions.fail("Invalid attr name");
-        } catch (DOMException de) {
-            assertEquals(DOMException.NAMESPACE_ERR, de.code);
-        }
+        DOMException de1 = assertThrows(DOMException.class, () ->
+            ((Element) m_node).setAttributeNS("foo:org:uri", "xmlns", "0"), "Invalid attr name");
+        assertEquals(DOMException.NAMESPACE_ERR, de1.code);
 
-        try {
-            ((Element) m_node).setAttributeNS("foo:org:uri", "xmlns:foo", "0");
-            Assertions.fail("Invalid attr name");
-        } catch (DOMException de) {
-            assertEquals(DOMException.NAMESPACE_ERR, de.code);
-        }
+        DOMException de2 = assertThrows(DOMException.class, () ->
+            ((Element) m_node).setAttributeNS("foo:org:uri", "xmlns:foo", "0"), "Invalid attr name");
+        assertEquals(DOMException.NAMESPACE_ERR, de2.code);
     }
 
     @Test
     void testSetAttributeNSBadNS_xml() {
         //if the qualifiedName has a prefix that is "xml"
         // and the namespaceURI is different from " http://www.w3.org/XML/1998/namespace"
-        try {
-            ((Element) m_node).setAttributeNS("foo:org:uri", "xml:foo", "0");
-            Assertions.fail("Invalid attr name");
-        } catch (DOMException de) {
-            assertEquals(DOMException.NAMESPACE_ERR, de.code);
-        }
+        DOMException de = assertThrows(DOMException.class, () ->
+            ((Element) m_node).setAttributeNS("foo:org:uri", "xml:foo", "0"), "Invalid attr name");
+        assertEquals(DOMException.NAMESPACE_ERR, de.code);
     }
 
     @Test
@@ -601,8 +572,7 @@ public class ElementTest extends NodeWithChildrenTest {
     @Test
     protected void testSetPrefix() {
         //set a null prefix
-        m_node =
-            m_docNS.getFirstChild().getFirstChild().getChildNodes().item(2);//<myns:yana/>
+        m_node = m_docNS.getFirstChild().getFirstChild().getChildNodes().item(2);//<myns:yana/>
         assertNotNull(m_node);
         m_node.setPrefix(null);
         assertEquals("", m_node.getPrefix());
@@ -612,16 +582,13 @@ public class ElementTest extends NodeWithChildrenTest {
         assertEquals("other:yana", m_node.getNodeName());
         assertEquals("other:yana", ((Element) m_node).getTagName());
         // assertEquals("uri:other",m_node.getNamespaceURI());--this is the URI @ creation--never changes
-        assertEquals(1, ((Element) m_docNS.getDocumentElement()).getElementsByTagName(
-            "other:yana")
-            .getLength());
+        assertEquals(1, ((Element) m_docNS.getDocumentElement()).getElementsByTagName("other:yana").getLength());
     }
 
     @Test
     void testNormalizeNode() throws Exception {
         m_node = m_node.getParentNode();
-        m_node.replaceChild(m_doc.createTextNode("txt1"),
-            m_node.getLastChild());
+        m_node.replaceChild(m_doc.createTextNode("txt1"), m_node.getLastChild());
         assertEquals(2, m_node.getChildNodes().getLength());
 
         m_node.normalize();
@@ -665,12 +632,8 @@ public class ElementTest extends NodeWithChildrenTest {
         assertNull(elt.getPrefix(), "L1 prefix null");
         assertNull(elt.getLocalName(), "L1 LocalName null");
         assertNull(elt.getNamespaceURI(), "L1 Uri null");
-        try {
-            elt.setPrefix("foo");
-            Assertions.fail("L1 prefix null");
-        } catch (DOMException de) {
-            assertEquals(DOMException.NAMESPACE_ERR, de.code);
-        }
+        DOMException de = assertThrows(DOMException.class, () -> elt.setPrefix("foo"), "L1 prefix null");
+        assertEquals(DOMException.NAMESPACE_ERR, de.code);
     }
 
     public void moveToNode() {

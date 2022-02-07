@@ -17,7 +17,6 @@
 package dom.checkin;
 
 import dom.common.NodeTest;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.w3c.dom.DOMException;
@@ -110,24 +109,13 @@ public class PITest extends NodeTest {
     //TODO: Test Illegal PI Targets: xml target, starting with a digit
     @Test
     void testPiTargetIllegalChars() {
-        ProcessingInstruction node;
-        try {
-            node =
-                    m_doc.createProcessingInstruction("7foo:?123-&",
-                            "some body");
-            Assertions.fail("Can't start w/ a digit");
-        }
-        catch (DOMException e) {
-            assertEquals(DOMException.INVALID_CHARACTER_ERR, e.code);
-        }
+        DOMException e1 = assertThrows(DOMException.class, () ->
+            m_doc.createProcessingInstruction("7foo:?123-&", "some body"), "Can't start w/ a digit");
+        assertEquals(DOMException.INVALID_CHARACTER_ERR, e1.code);
 
-        try {
-            node = m_doc.createProcessingInstruction("xml", "foo");
-            Assertions.fail("Can't be xml");
-        }
-        catch (DOMException e) {
-            assertEquals(DOMException.INVALID_CHARACTER_ERR, e.code);
-        }
+        DOMException e2 = assertThrows(DOMException.class, () ->
+            m_doc.createProcessingInstruction("xml", "foo"), "Can't be xml");
+        assertEquals(DOMException.INVALID_CHARACTER_ERR, e2.code);
     }
 
     @BeforeEach

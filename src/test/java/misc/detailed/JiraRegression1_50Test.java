@@ -19,7 +19,6 @@ import org.apache.xmlbeans.*;
 import org.apache.xmlbeans.impl.tool.Parameters;
 import org.apache.xmlbeans.impl.tool.SchemaCompiler;
 import org.apache.xmlbeans.impl.xb.xsdschema.SchemaDocument;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.w3c.dom.Element;
@@ -27,7 +26,10 @@ import org.w3c.dom.NamedNodeMap;
 import xmlbeans48.FeedInfoType;
 
 import javax.xml.namespace.QName;
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -47,11 +49,10 @@ public class JiraRegression1_50Test extends JiraTestBase {
         xmlstringbuf.append("<testchild attr=\"abcd\"> Jira02 </testchild>");
         xmlstringbuf.append("</test>");
 
-        XmlObject myxmlobj = null;
         List<XmlError> errors = new ArrayList<>();
         XmlOptions options = new XmlOptions().setErrorListener(errors);
         try {
-            myxmlobj = XmlObject.Factory.parse(xmlstringbuf.toString(), options);
+            XmlObject myxmlobj = XmlObject.Factory.parse(xmlstringbuf.toString(), options);
             try (XmlCursor cur = myxmlobj.newCursor()) {
                 XmlError xmlerr = XmlError.forObject("This is my custom error message", XmlError.SEVERITY_ERROR, myxmlobj);
 
@@ -59,8 +60,6 @@ public class JiraRegression1_50Test extends JiraTestBase {
                 System.out.println("Cursor Text Value: " + cur.getTextValue());
             }
         } catch (XmlException ignored) {
-        } catch (NullPointerException npe) {
-            Assertions.fail("test_jira_xmlbeans02() : Null Pointer Exception thrown !");
         }
 
         hasSevereError(errors);
@@ -80,9 +79,7 @@ public class JiraRegression1_50Test extends JiraTestBase {
         params.setClassesDir(schemaCompClassesDir);
 
         SchemaCompiler.compile(params);
-        if (hasSevereError(errors)) {
-            Assertions.fail("test_jira_xmlbeans04() : Errors found when executing scomp");
-        }
+        assertFalse(hasSevereError(errors));
     }
 
 
@@ -97,27 +94,16 @@ public class JiraRegression1_50Test extends JiraTestBase {
         StringBuilder sb = new StringBuilder(" ");
         sb.append(System.getProperty("xbean.rootdir") + P + "bin" + P + "validate.cmd ");
         sb.append(scompTestFilesRoot + "xmlbeans_09.xsd_" + " " + scompTestFilesRoot + "xmlbeans_09.xml");
-        Process validator_proc = null;
-        try {
-            validator_proc = Runtime.getRuntime().exec(sb.toString());
-        } catch (NullPointerException npe) {
-            Assertions.fail("test_jira_xmlbeans09() : Null Pointer Exception when running validate for schema");
-        }
+        Process validator_proc = Runtime.getRuntime().exec(sb.toString());
 
         System.out.println("cmd:" + sb);
         BufferedInputStream inbuf = new BufferedInputStream(validator_proc.getInputStream());
         BufferedReader reader = new BufferedReader(new InputStreamReader(inbuf));
         String eachline = reader.readLine();
-        try {
 
-            while (reader.readLine() != null) {
-                System.out.println("output: " + eachline);
-            }
-        } catch (IOException ioe) {
-            ioe.getMessage();
-            ioe.printStackTrace();
+        while (reader.readLine() != null) {
+            System.out.println("output: " + eachline);
         }
-
     }
 
     /*
@@ -151,15 +137,10 @@ public class JiraRegression1_50Test extends JiraTestBase {
 
         System.out.println("NUMBER OF GLOBAL TYPES: " + st.length);
 
-        try {
-            // check if it is union type
-            for (SchemaType schemaType : st) {
-                System.out.println("IS UNION TYPE: " + (schemaType.getUnionMemberTypes() != null));
-            }
-        } catch (NullPointerException npe) {
-            Assertions.fail("test_jira_xmlbeans11(): Null Pointer Exception thrown !");
+        // check if it is union type
+        for (SchemaType schemaType : st) {
+            System.out.println("IS UNION TYPE: " + (schemaType.getUnionMemberTypes() != null));
         }
-
     }
 
     /*
@@ -262,10 +243,7 @@ public class JiraRegression1_50Test extends JiraTestBase {
         params.setNoPvr(true);
 
         SchemaCompiler.compile(params);
-        if (hasSevereError(errors)) {
-            Assertions.fail("test_jira_xmlbeans34() : Errors found when executing scomp");
-        }
-
+        assertFalse(hasSevereError(errors));
     }
 
 
@@ -452,16 +430,10 @@ public class JiraRegression1_50Test extends JiraTestBase {
         // needs network downloads enabled
         params.setDownload(true);
 
-        try {
-            SchemaCompiler.compile(params);
-        } catch (Exception ex) {
-            Assertions.fail("test_jira_xmlbeans49() :Exception thrown with above errors!");
-        }
+        SchemaCompiler.compile(params);
 
         // view errors
-        if (hasSevereError(errors)) {
-            Assertions.fail("test_jira_xmlbeans49() : Errors found when executing scomp");
-        }
+        assertFalse(hasSevereError(errors));
     }
 
     /**

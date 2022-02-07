@@ -1880,13 +1880,7 @@ public class StoreTests {
     }
 
     private void dotestParserErrors(String xml) {
-        try {
-            XmlObject.Factory.parse(xml);
-        } catch (Throwable t) {
-            return;
-        }
-
-        Assertions.fail();
+        assertThrows(Throwable.class, () -> XmlObject.Factory.parse(xml));
     }
 
     @Test

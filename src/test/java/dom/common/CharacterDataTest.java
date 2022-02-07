@@ -16,7 +16,6 @@
 
 package dom.common;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.w3c.dom.CharacterData;
@@ -76,8 +75,7 @@ public abstract class CharacterDataTest extends NodeTest {
         String sNewData = "some new data";
         ((CharacterData) m_node).appendData(sNewData);
         String sExpected = sOrig + sNewData;
-        if (!(sExpected.equals(((CharacterData) m_node).getData())))
-            Assertions.fail(" Expected " + sExpected + " but got " + ((CharacterData) m_node).getData());
+        assertEquals(sExpected, ((CharacterData) m_node).getData());
     }
 
     @Test
@@ -187,23 +185,16 @@ public abstract class CharacterDataTest extends NodeTest {
     private void _testInsertData(int offset, String toInsert) {
         String sData = ((CharacterData) m_node).getData();
         int nDataLen = sData.length();
-        if (offset < 0 || offset > nDataLen)
-            try {
-                ((CharacterData) m_node).insertData(offset, toInsert);
-                Assertions.fail("Inserting OOB chars");
-            } catch (DOMException de) {
-                assertEquals(de.code, DOMException.INDEX_SIZE_ERR);
-            }
-        else {
+        if (offset < 0 || offset > nDataLen) {
+            DOMException de = assertThrows(DOMException.class, () -> ((CharacterData) m_node).insertData(offset, toInsert), "Inserting OOB chars");
+            assertEquals(de.code, DOMException.INDEX_SIZE_ERR);
+        } else {
             ((CharacterData) m_node).insertData(offset, toInsert);
-            if (toInsert == null)
+            if (toInsert == null) {
                 assertEquals(sData, ((CharacterData) m_node).getData());
-            else if (offset == nDataLen)
+            } else if (offset == nDataLen) {
                 assertEquals(sData + toInsert, ((CharacterData) m_node).getData());
-            else {
-                System.out.println(nDataLen - offset);
-                System.out.println(offset);
-                System.out.println(offset + toInsert.length());
+            } else {
                 String s1 = sData.substring(0, offset);
                 String s2 = sData.substring(offset, nDataLen);
                 assertEquals(s1 + toInsert + s2, ((CharacterData) m_node).getData());
@@ -327,21 +318,18 @@ public abstract class CharacterDataTest extends NodeTest {
         String sData = ((CharacterData) m_node).getData();
         int nDataLen = sData.length();
         String result;
-        if (offset < 0 || offset > nDataLen || count < 0)
-            try {
-                ((CharacterData) m_node).substringData(offset, count);
-                Assertions.fail("Deleting OOB chars");
-            } catch (DOMException de) {
-                assertEquals(de.code, DOMException.INDEX_SIZE_ERR);
-            }
-        else {
+        if (offset < 0 || offset > nDataLen || count < 0) {
+            DOMException de = assertThrows(DOMException.class, () -> ((CharacterData) m_node).substringData(offset, count), "Deleting OOB chars");
+            assertEquals(de.code, DOMException.INDEX_SIZE_ERR);
+        } else {
             result = ((CharacterData) m_node).substringData(offset, count);
-            if (count == 0)
+            if (count == 0) {
                 assertEquals("", result);
-            else if (offset + count == nDataLen || (offset + count) > nDataLen)
+            } else if (offset + count == nDataLen || (offset + count) > nDataLen) {
                 assertEquals(sData, result);
-            else
+            } else {
                 assertEquals(sData.substring(offset, count), result);
+            }
         }
     }
 

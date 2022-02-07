@@ -80,18 +80,6 @@ public class AttrNamespaceTest {
 
         assertEquals("reg_attr_val", at.getValue());
         assertEquals("myns:bar", m_node.getFirstChild().getNodeName());
-
-        /*
-
-        if(!(m_node instanceof DomImpl))
-            fail(m_node.getClass().toString());
-
-        org.apache.xmlbeans.XmlCursor  cur=Public2.getCursor(m_node);
-
-        assertFalse(cur.isNamespace());
-        assertTrue(cur.isAnyAttr());
-        assertTrue(cur.isAttr());
-        */
     }
 
     /**

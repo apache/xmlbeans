@@ -19,7 +19,6 @@ import org.apache.xmlbeans.*;
 import org.apache.xmlbeans.impl.schema.SchemaTypeSystemImpl;
 import org.hamcrest.MatcherAssert;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
@@ -66,8 +65,9 @@ public class XmlBeansCompCheckinTests {
 
     @AfterEach
     public void tearDown() throws Exception {
-        if (xm_errors.size() > 0)
+        if (xm_errors.size() > 0) {
             xm_errors.clear();
+        }
     }
 
     @Test
@@ -92,66 +92,33 @@ public class XmlBeansCompCheckinTests {
      * Verify Partial SOM cannot be saved to file system
      */
     @Test
-    void test_sts_noSave() throws Exception
-    {
+    void test_sts_noSave() throws Exception {
         XmlObject obj3 = XmlObject.Factory.parse(ERR_XSD);
-        XmlObject[] schemas3 = new XmlObject[]{obj3};
+        XmlObject[] schemas3 = {obj3};
 
-        SchemaTypeSystem sts;
-        ArrayList<XmlError> err = new ArrayList<>();
+        List<XmlError> err = new ArrayList<>();
         XmlOptions opt = new XmlOptions().setErrorListener(err);
         opt.setCompilePartialTypesystem();
 
-        try {
-            // since you can't save a partial SOM, don't bother passing in a Filer
-            sts = XmlBeans.compileXmlBeans(null,
-                    null, schemas3, null,
-                    XmlBeans.getBuiltinTypeSystem(), null, opt);
-            boolean psom_expError = false;
-            // print out the recovered xm_errors
-            if (!err.isEmpty()) {
-                System.out.println("Schema invalid: partial schema type system recovered");
-                for (XmlError xErr : err) {
-                    System.out.println(xErr);
-
-                    if ((xErr.getErrorCode().compareTo("src-resolve") == 0) &&
-                        (xErr.getMessage().compareTo("type 'bType@http://baz' not found.") == 0))
-                        psom_expError = true;
-                }
-            }
-            if (!psom_expError)
-                throw new Exception("Error Code was not as Expected");
-
-        } catch (XmlException e) {
-            //The above case should be recoverable so
-            // spit out debug statement and throw the error
-            System.out.println("Schema invalid: couldn't recover from xm_errors");
-            if (err.isEmpty())
-                System.err.println(e.getMessage());
-            else
-                for (Object o : err) System.err.println(o);
-            throw e;
-        }
-
-        assertTrue(((SchemaTypeSystemImpl)sts).isIncomplete(), "Expected partial schema type system");
+        // since you can't save a partial SOM, don't bother passing in a Filer
+        SchemaTypeSystem sts = XmlBeans.compileXmlBeans(null, null, schemas3, null,
+            XmlBeans.getBuiltinTypeSystem(), null, opt);
+        assertEquals(1, err.size());
+        XmlError xErr = err.get(0);
+        assertEquals(XmlErrorCodes.SCHEMA_QNAME_RESOLVE, xErr.getErrorCode());
+        assertEquals("type 'bType@http://baz' not found.", xErr.getMessage());
+        assertTrue(((SchemaTypeSystemImpl) sts).isIncomplete(), "Expected partial schema type system");
 
 
         // Check using saveToDirectory on Partial SOM
-        File tempDir = null;
-        try {
-            //setUp outputDirectory
-            tempDir = new File(OUTPUTROOT, "psom_save");
-            tempDir.mkdirs();
-            tempDir.deleteOnExit();
-            assertEquals(0, tempDir.listFiles().length, "Output Directory Init needed to be empty");
+        //setUp outputDirectory
+        File tempDir = new File(OUTPUTROOT, "psom_save");
+        tempDir.mkdirs();
+        tempDir.deleteOnExit();
+        assertEquals(0, tempDir.listFiles().length, "Output Directory Init needed to be empty");
 
-            //This should not Work
-            sts.saveToDirectory(tempDir);
-            Assertions.fail("Expected IllegalStateException");
-        } catch (IllegalStateException e) {
-            // ok
-            System.out.println("sts.saveToDirectory() threw IllegalStateException as expected");
-        }
+        //This should not Work
+        assertThrows(IllegalStateException.class, () -> sts.saveToDirectory(tempDir));
 
         //make sure nothing was written
         assertEquals(0, tempDir.listFiles().length, "Partial SOM output dir needed to be empty");

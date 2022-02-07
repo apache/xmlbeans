@@ -27,7 +27,7 @@ import tools.util.JarUtil;
 import java.io.IOException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 public final class BasicCursorTestCase {
 
@@ -39,8 +39,7 @@ public final class BasicCursorTestCase {
         }
 
         while (xc.toNextToken() != tt) {
-            if (xc.currentTokenType() == TokenType.ENDDOC)
-                fail("Expected Token not found! " + tt.toString());
+            assertNotEquals(TokenType.ENDDOC, xc.currentTokenType(), "Expected Token not found!");
         }
         assertEquals(tt, xc.currentTokenType());
     }
@@ -59,8 +58,7 @@ public final class BasicCursorTestCase {
         }
 
         while (xc.toPrevToken() != tt) {
-            if (xc.currentTokenType() == TokenType.STARTDOC)
-                fail("Expected Token not found! " + tt.toString());
+            assertNotEquals(TokenType.STARTDOC, xc.currentTokenType());
         }
         assertEquals(tt, xc.currentTokenType());
     }
@@ -79,12 +77,7 @@ public final class BasicCursorTestCase {
         while (a.hasNextToken() && b.hasNextToken()) {
             TokenType ttOrig = a.currentTokenType();
             TokenType ttRoundTrip = b.currentTokenType();
-            if (ttOrig != ttRoundTrip) {
-                fail("Round trip failed.  Original Cursor TokenType = "
-                     + ttOrig + " Roundtrip Cursor TokenType = "
-                     + ttRoundTrip);
-
-            }
+            assertEquals(ttOrig, ttRoundTrip);
             a.toNextToken();
             b.toNextToken();
         }

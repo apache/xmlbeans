@@ -20,7 +20,6 @@ import org.apache.xmlbeans.XmlOptions;
 import org.apache.xmlbeans.XmlSimpleList;
 import org.apache.xmlbeans.impl.values.XmlValueNotSupportedException;
 import org.apache.xmlbeans.impl.values.XmlValueOutOfRangeException;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import xbean.scomp.contentType.list.*;
@@ -79,7 +78,6 @@ public class ListType {
     @Disabled
     public void testListofLists() {
         //also,a list of union that contains a list is not OK
-        Assertions.fail("Compile Time eror");
     }
 
     /**

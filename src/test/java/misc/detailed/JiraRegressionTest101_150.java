@@ -20,7 +20,6 @@ import org.apache.xmlbeans.XmlError;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.impl.tool.Parameters;
 import org.apache.xmlbeans.impl.tool.SchemaCompiler;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
@@ -28,6 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 /**
  *
@@ -61,8 +61,6 @@ public class JiraRegressionTest101_150 extends JiraTestBase
     */
     @Test
     void test_jira_xmlbeans102b() {
-        //Assert.fail("test_jira_xmlbeans102: Infinite loop after completion of parsing" );
-
         Parameters params = new Parameters();
         params.setOutputJar(new File(schemaCompOutputDirPath + "jira102.jar"));
         params.setClassesDir(schemaCompClassesDir);
@@ -74,10 +72,7 @@ public class JiraRegressionTest101_150 extends JiraTestBase
         params.setClassesDir(schemaCompClassesDir);
 
         SchemaCompiler.compile(params);
-        if (hasSevereError(errors)) {
-            Assertions.fail("test_jira_xmlbeans102() : Errors found when executing scomp");
-        }
-
+        assertFalse(hasSevereError(errors));
     }
 
     /**
