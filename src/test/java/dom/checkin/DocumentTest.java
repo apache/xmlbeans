@@ -595,7 +595,7 @@ public class DocumentTest extends NodeWithChildrenTest {
 
     @Test
     void testImportNodeNull() {
-        ((Document) m_node).importNode(null, true);
-        ((Document) m_node).importNode(null, false);
+        assertDoesNotThrow(() -> ((Document) m_node).importNode(null, true));
+        assertDoesNotThrow(() -> ((Document) m_node).importNode(null, false));
     }
 }

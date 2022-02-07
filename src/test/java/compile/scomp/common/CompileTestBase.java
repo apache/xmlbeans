@@ -22,12 +22,12 @@ import org.apache.xmlbeans.impl.tool.SchemaCodeGenerator;
 import javax.xml.namespace.QName;
 import java.io.File;
 import java.io.IOException;
-import java.io.StringWriter;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Stream;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * TODO: modify for deprecation warnings
@@ -93,16 +93,6 @@ public class CompileTestBase extends Common {
         return fList;
     }
 
-    public void log(SchemaTypeSystem sts) {
-        System.out.println("SchemaTypes: " + sts);
-    }
-
-    public void log(Object[] arr) {
-        for (int i = 0; i < arr.length; i++)
-            System.out.print(arr[i].toString());
-    }
-
-
     /**
      * compares type systems and populates error list based on differences in files
      */
@@ -149,16 +139,6 @@ public class CompileTestBase extends Common {
         assertNotNull(system, "Compilation failed during compile.");
         SchemaCodeGenerator.saveTypeSystem(system, outDir, null, null, null);
         return system;
-    }
-
-    public static void handleErrors(List<XmlError> errors) {
-        if (errors.size() > 0) {
-            StringWriter message = new StringWriter();
-            for (XmlError error : errors) {
-                message.write(error + "\n");
-            }
-            fail("\nDifferences encountered:\n" + message);
-        }
     }
 
     public static void findElementbyQName(SchemaTypeSystem sts, QName[] lookup) {

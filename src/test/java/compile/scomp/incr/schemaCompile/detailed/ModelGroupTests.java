@@ -33,6 +33,7 @@ import java.util.List;
 import static compile.scomp.common.CompileTestBase.*;
 import static compile.scomp.incr.schemaCompile.detailed.IncrCompilationTests.getBaseSchema;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
 @Disabled("Currently all tests receive a duplicate schema entry exception")
@@ -116,7 +117,7 @@ public class ModelGroupTests {
         assertNotSame(base, incr);
 
         compareandPopErrors(out, outincr, errors);
-        handleErrors(errors);
+        assertTrue(errors.isEmpty());
     }
 
     @Test
@@ -151,7 +152,7 @@ public class ModelGroupTests {
         assertNotSame(base, incr);
 
         compareandPopErrors(out, outincr, errors);
-        handleErrors(errors);
+        assertTrue(errors.isEmpty());
     }
 
     @Test
@@ -180,7 +181,7 @@ public class ModelGroupTests {
         assertNotSame(base, incr);
 
         compareandPopErrors(out, outincr, errors);
-        handleErrors(errors);
+        assertTrue(errors.isEmpty());
     }
 
     @Test
@@ -216,7 +217,7 @@ public class ModelGroupTests {
         assertNotSame(base, incr);
 
         compareandPopErrors(out, outincr, errors);
-        handleErrors(errors);
+        assertTrue(errors.isEmpty());
     }
 
     @Test
@@ -252,7 +253,7 @@ public class ModelGroupTests {
         assertNotSame(base, incr);
 
         compareandPopErrors(out, outincr, errors);
-        handleErrors(errors);
+        assertTrue(errors.isEmpty());
     }
 
     @Test
@@ -288,7 +289,7 @@ public class ModelGroupTests {
         assertNotSame(base, incr);
 
         compareandPopErrors(out, outincr, errors);
-        handleErrors(errors);
+        assertTrue(errors.isEmpty());
     }
 
     @Test
@@ -324,6 +325,6 @@ public class ModelGroupTests {
         assertNotSame(base, incr);
 
         compareandPopErrors(out, outincr, errors);
-        handleErrors(errors);
+        assertTrue(errors.isEmpty());
     }
 }

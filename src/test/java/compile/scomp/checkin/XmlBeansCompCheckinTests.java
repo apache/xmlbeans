@@ -162,14 +162,19 @@ public class XmlBeansCompCheckinTests {
     void test_entrypoint_nullVals() throws Exception {
         XmlObject[] schemas = {XmlObject.Factory.parse(FOR_XSD)};
 
-        XmlBeans.compileXmlBeans(null, null, schemas, null, XmlBeans.getBuiltinTypeSystem(), null, null);
+        SchemaTypeSystem sts;
+        sts = XmlBeans.compileXmlBeans(null, null, schemas, null, XmlBeans.getBuiltinTypeSystem(), null, null);
+        assertNotNull(sts);
 
-        XmlBeans.compileXmlBeans(null, null, null, null, XmlBeans.getBuiltinTypeSystem(), null, null);
+        sts = XmlBeans.compileXmlBeans(null, null, null, null, XmlBeans.getBuiltinTypeSystem(), null, null);
+        assertNotNull(sts);
 
         // svn revision 160341. SchemaTypeLoader is not expected to non null any more. All params can be null
-        XmlBeans.compileXmlBeans(null, null, null, null, null, null, null);
+        sts = XmlBeans.compileXmlBeans(null, null, null, null, null, null, null);
+        assertNotNull(sts);
 
         // svn revision 160341. SchemaTypeLoader is not expected to non null any more
-        XmlBeans.compileXmlBeans(null, null, schemas, null, null, null, null);
+        sts = XmlBeans.compileXmlBeans(null, null, schemas, null, null, null, null);
+        assertNotNull(sts);
     }
 }

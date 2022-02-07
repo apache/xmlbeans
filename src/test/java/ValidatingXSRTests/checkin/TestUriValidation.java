@@ -20,6 +20,7 @@ import org.apache.xmlbeans.impl.util.XsTypeConverter;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
@@ -59,7 +60,7 @@ public class TestUriValidation {
         "http:\\\\example.com\\\\examples",
     })
     void testLexAnyUriValid(String urIs) {
-        XsTypeConverter.lexAnyURI(urIs);
+        assertNotNull(XsTypeConverter.lexAnyURI(urIs));
     }
 
     @ParameterizedTest

@@ -141,8 +141,7 @@ public class IncrCompilationTests {
         // assertNotNull("INCR: Baz elName was not found", incr.findElement(new QName("http://baz", "elName")));
         assertNotNull(incr.findElement(new QName("http://bar", "elName")), "INCR: Bar elName was not found");
 
-        // compareandPopErrors(out, outincr, errors);
-        handleErrors(errors);
+        assertTrue(errors.isEmpty());
     }
 
     @Test
@@ -163,8 +162,7 @@ public class IncrCompilationTests {
         findElementbyQName(base, baseTypes);
         findElementbyQName(incr, incrTypes);
 
-        // compareandPopErrors(out, outincr, errors);
-        handleErrors(errors);
+        assertTrue(errors.isEmpty());
     }
 
     @Test
@@ -185,9 +183,7 @@ public class IncrCompilationTests {
         findElementbyQName(incr, incrTypes);
 
         assertNotSame(base, incr);
-
-        // compareandPopErrors(out, outincr, errors);
-        handleErrors(errors);
+        assertTrue(errors.isEmpty());
     }
 
     @Test
@@ -209,9 +205,7 @@ public class IncrCompilationTests {
         findElementbyQName(incr, incrTypes);
 
         assertNotSame(base, incr);
-
-        // compareandPopErrors(out, outincr, errors);
-        handleErrors(errors);
+        assertTrue(errors.isEmpty());
     }
 
     @Test
@@ -234,9 +228,7 @@ public class IncrCompilationTests {
 
         //        if (incr.findElement(incrTypes[0]).getType().g
         assertNotSame(base, incr);
-
-        // compareandPopErrors(out, outincr, errors);
-        handleErrors(errors);
+        assertTrue(errors.isEmpty());
     }
 
     @Test
@@ -257,9 +249,7 @@ public class IncrCompilationTests {
         findElementbyQName(incr, incrTypes);
 
         assertNotSame(base, incr);
-
-        // compareandPopErrors(out, outincr, errors);
-        handleErrors(errors);
+        assertTrue(errors.isEmpty());
     }
 
     // test regeneration of generated java files by the Filer
@@ -303,7 +293,7 @@ public class IncrCompilationTests {
             assertEquals(initialTimeStamps.get(eachFile), recompileTimeStamps.get(eachFile), "Mismatch for File " + eachFile);
         }
 
-        handleErrors(errors);
+        assertTrue(errors.isEmpty());
     }
 
     @Test
@@ -358,7 +348,7 @@ public class IncrCompilationTests {
             assertEquals(initialTimeStamps.get(eachFile), recompileTimeStamps.get(eachFile), "Mismatch for File " + eachFile);
         }
 
-        handleErrors(errors);
+        assertTrue(errors.isEmpty());
     }
 
     static File getBaseSchema(String namespace, String elTypeName, String attrTypeName, String attrType) throws IOException {

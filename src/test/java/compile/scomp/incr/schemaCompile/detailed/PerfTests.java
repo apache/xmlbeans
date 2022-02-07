@@ -118,6 +118,6 @@ public class PerfTests {
         assertNotSame(base, incr);
 
         compareandPopErrors(out, outincr, errors);
-        handleErrors(errors);
+        assertTrue(errors.isEmpty());
     }
 }

@@ -17,6 +17,7 @@
 package dom.checkin;
 
 
+import dom.common.DomUtils;
 import dom.common.NodeWithChildrenTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -105,13 +106,13 @@ public class ElementTest extends NodeWithChildrenTest {
      */
     @Test
     void testCloneNodeAttrs() {
-        Node toClone = m_docNS.getFirstChild(); //the foo elt
-        /* Node clone1=toClone.cloneNode(false);
-
-         NamedNodeMap attrSet1=toClone.getAttributes();
-         assertEquals(true,DomUtils.compareNamedNodeMaps(attrSet1,clone1.getAttributes()));
-        */
+        //the foo elt
+        Node toClone = m_docNS.getFirstChild();
+        Node clone1=toClone.cloneNode(false);
+        NamedNodeMap attrSet1=toClone.getAttributes();
+        assertTrue(DomUtils.compareNamedNodeMaps(attrSet1, clone1.getAttributes()));
         Node clone2 = toClone.cloneNode(true);
+        assertTrue(DomUtils.compareNamedNodeMaps(attrSet1, clone2.getAttributes()));
     }
 
     @Test
