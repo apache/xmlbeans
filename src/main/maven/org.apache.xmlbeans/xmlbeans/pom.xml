@@ -85,13 +85,7 @@
         <dependency>
             <groupId>net.sf.saxon</groupId>
             <artifactId>Saxon-HE</artifactId>
-            <version>11.1</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.xmlresolver</groupId>
-            <artifactId>xmlresolver</artifactId>
-            <version>4.1.2</version>
+            <version>11.1.1</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
