@@ -2493,12 +2493,12 @@ public final class Locale
 
             try {
                 _xr.setFeature(
-                    "http://xml.org/sax/features/namespace-prefixes", true);
+                    "http://xml.org/sax/features/namespace-prefixes",
+                        // when using XMLBeans on Android, it fails when both features
+                        // namespaces and namespace-prefixes are defined although the spec
+                        // so we allow users to set this one differently as a workaround
+                        Boolean.valueOf(System.getProperty("xmlbeans.saxloader.namespace-prefixes", "true")));
                 _xr.setFeature("http://xml.org/sax/features/namespaces", true);
-            } catch (Throwable e) {
-                LOG.atWarn().withThrowable(e).log("SAX Namespoace handling is not supported");
-            }
-            try {
                 _xr.setFeature("http://xml.org/sax/features/validation", false);
                 _xr.setProperty(
                     "http://xml.org/sax/properties/lexical-handler", this);
