@@ -2495,6 +2495,10 @@ public final class Locale
                 _xr.setFeature(
                     "http://xml.org/sax/features/namespace-prefixes", true);
                 _xr.setFeature("http://xml.org/sax/features/namespaces", true);
+            } catch (Throwable e) {
+                LOG.atWarn().withThrowable(e).log("SAX Namespoace handling is not supported");
+            }
+			try {
                 _xr.setFeature("http://xml.org/sax/features/validation", false);
                 _xr.setProperty(
                     "http://xml.org/sax/properties/lexical-handler", this);
