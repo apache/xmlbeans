@@ -2887,7 +2887,7 @@ public final class Cur {
             assert parent().isContainer();
             // BUGBUG - should assert there that there is no text before this attr
 
-            // Namespace attrs are different than regular attrs -- I don't change their name,
+            // Namespace attrs are different to regular attrs -- I don't change their name,
             // I change their value!
 
             if (_substituteNamespaces != null) {
@@ -2906,11 +2906,6 @@ public final class Cur {
 
             _lastXobj = x;
             _lastPos = 0;
-        }
-
-        @Override
-        protected void removeXmlns(String prefix) {
-            
         }
 
         public void attr(QName name, String value) {

@@ -2146,8 +2146,6 @@ public final class Locale
 
         protected abstract void xmlns(String prefix, String uri);
 
-        protected abstract void removeXmlns(String prefix);
-
         protected abstract void comment(char[] buff, int off, int cch);
 
         protected abstract void comment(String comment);
