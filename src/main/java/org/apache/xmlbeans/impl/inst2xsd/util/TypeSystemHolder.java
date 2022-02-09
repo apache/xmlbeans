@@ -329,7 +329,7 @@ public class TypeSystemHolder
 
             for (int i = 0; i < type.getElements().size(); i++)
             {
-                Element child = (Element) type.getElements().get(i);
+                Element child = type.getElements().get(i);
                 assert !child.isGlobal();
                 org.apache.xmlbeans.impl.xb.xsdschema.LocalElement childLocalElement = explicitGroup.addNewElement();
                 fillUpLocalElement(child, childLocalElement, tns);

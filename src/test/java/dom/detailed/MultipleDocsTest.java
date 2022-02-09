@@ -102,20 +102,20 @@ public class MultipleDocsTest {
                                     if (nl.getLength() > 0) {
                                         Element par = (Element) nl.item(0)
                                                 .getParentNode();
-                                        par.removeChild((Element) nl.item(0));
+                                        par.removeChild(nl.item(0));
                                     }
                                 }
                                 // break;
                             }
                         case 1:
                             {
-                                ((Element) doc.getDocumentElement()).setAttributeNode(
+                                doc.getDocumentElement().setAttributeNode(
                                         doc.createAttribute("foobar"));
                                 if (i % 5 == 0) {
                                     NamedNodeMap nl = doc.getDocumentElement()
                                             .getAttributes();
                                     if (nl.getLength() > 0) {
-                                        Element par = (Element) ((Attr) nl.getNamedItem(
+                                        Element par = ((Attr) nl.getNamedItem(
                                                 "foobar")).getOwnerElement();
                                         par.removeAttribute("foobar");
                                     }
@@ -127,13 +127,13 @@ public class MultipleDocsTest {
                                 doc.getDocumentElement().appendChild(
                                         doc.createTextNode("foobar"));
                                 if (i % 5 == 0) {
-                                    NodeList nl = ((Element) doc.getDocumentElement()).getElementsByTagName(
+                                    NodeList nl = doc.getDocumentElement().getElementsByTagName(
                                             "foobar");
                                     if (nl != null && nl.getLength() > 0) {
                                         Element par = (Element) nl.item(
                                                 i % nl.getLength())
                                                 .getParentNode();
-                                        par.removeChild((Element) nl.item(0));
+                                        par.removeChild(nl.item(0));
                                     }
                                 }
                                 //  break;
@@ -158,7 +158,7 @@ public class MultipleDocsTest {
                         case 4:
                             {
                                 //  System.err.println("*** Thread "+_ID+" case 4 ");
-                                NodeList n = ((Element) doc.getDocumentElement()).getElementsByTagNameNS(
+                                NodeList n = doc.getDocumentElement().getElementsByTagNameNS(
                                         "foo:org", "myns:foo2");
                                 Attr at = doc.createAttribute("foo2_at");
                                 if (n != null && n.getLength() > 0) {

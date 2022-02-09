@@ -195,7 +195,7 @@ public class AttributeTest extends NodeWithChildrenTest {
     @Test
     void testRemoveChild() {
         //attr w/o a value
-        Element owner = (Element) ((Attr) m_node).getOwnerElement();
+        Element owner = ((Attr) m_node).getOwnerElement();
         m_node.removeChild(m_node.getFirstChild());
         assertEquals("", ((Attr) m_node).getValue());
         //  assertEquals(false,owner.hasAttributeNS("uri:foo","at0"));
@@ -247,11 +247,11 @@ public class AttributeTest extends NodeWithChildrenTest {
         ((Attr) m_node).setValue("foo");
         String newVal = "";
         ((Attr) m_node).setValue(newVal);
-        assertTrue(((Attr) m_node).hasChildNodes());
+        assertTrue(m_node.hasChildNodes());
 
         newVal = null;
         ((Attr) m_node).setValue(newVal);
-        assertTrue(((Attr) m_node).hasChildNodes());
+        assertTrue(m_node.hasChildNodes());
     }
 
     @Test

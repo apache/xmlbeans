@@ -87,7 +87,7 @@ public class InsertDeleteNodesTest {
 		attr0.setValue("Attr0Value");
 
 		//a chain of depth 100 under doc frag of elt w/ attr
-		doc_frag.appendChild((Element) childElt.cloneNode(true));
+		doc_frag.appendChild(childElt.cloneNode(true));
 
 		System.out.println("======= Overwriting same attr ===================");
 		Element last = (Element) doc_frag.getFirstChild();

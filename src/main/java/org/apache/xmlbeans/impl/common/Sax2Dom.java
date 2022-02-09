@@ -100,7 +100,7 @@ public class Sax2Dom
     public void startElement(String namespace, String localName, String qName,
                              Attributes attrs)
     {
-        final Element tmp = (Element) _document.createElementNS(namespace, qName);
+        final Element tmp = _document.createElementNS(namespace, qName);
 
         // Add namespace declarations first
         if (_namespaceDecls != null)

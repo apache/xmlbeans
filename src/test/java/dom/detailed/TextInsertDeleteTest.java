@@ -37,7 +37,7 @@ public class TextInsertDeleteTest {
         m_doc = domImpl.createDocument("foobar", "val", null);
         Element root = m_doc.getDocumentElement();
         //m_doc.appendChild(root);
-        Element n = (Element) m_doc.createElement("foo");
+        Element n = m_doc.createElement("foo");
         Text txt1 = m_doc.createTextNode("foobar");
         Text txt2 = m_doc.createTextNode("baz");
         root.appendChild(txt1);

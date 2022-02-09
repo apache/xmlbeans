@@ -51,7 +51,7 @@ public class AttrNamespaceTest {
 
     @Test
     void testAttr2Namespace() {
-        Attr at = (Attr) ((Element) m_node).getAttributeNode("at0");
+        Attr at = ((Element) m_node).getAttributeNode("at0");
         String namespaceURI = "http://foo.org";
         String qualifiedName = "xmlns:bar";
         at.setValue(namespaceURI);
@@ -76,7 +76,7 @@ public class AttrNamespaceTest {
         ((Element) m_node).removeAttribute("xmlns:myns");
         assertEquals(nAttrCount - 1, ((Element) m_node).getAttributes().getLength());//assertRemoved
         ((Element) m_node).setAttribute("myns", "reg_attr_val");
-        Attr at = (Attr) ((Element) m_node).getAttributeNode("myns");
+        Attr at = ((Element) m_node).getAttributeNode("myns");
 
         assertEquals("reg_attr_val", at.getValue());
         assertEquals("myns:bar", m_node.getFirstChild().getNodeName());
