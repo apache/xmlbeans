@@ -174,8 +174,6 @@ public class BaseSaxPerfTest
 
             try
             {
-                _xr.setFeature(
-                    "http://xml.org/sax/features/namespace-prefixes", true);
                 _xr.setFeature("http://xml.org/sax/features/namespaces", true);
                 _xr.setFeature("http://xml.org/sax/features/validation", false);
                 _xr.setProperty(
