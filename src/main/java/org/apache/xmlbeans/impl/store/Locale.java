@@ -42,6 +42,7 @@ import java.lang.ref.PhantomReference;
 import java.lang.ref.ReferenceQueue;
 import java.lang.ref.SoftReference;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
 
@@ -2265,6 +2266,7 @@ public final class Locale
         private int _entityBytesLimit = 10240;
         private int _entityBytes = 0;
         private int _insideEntity = 0;
+        private Map<String, String> delayedPrefixMappings = new LinkedHashMap<>();
 
         SaxHandler(Locator startLocator) {
             _startLocator = startLocator;
@@ -2319,48 +2321,23 @@ public final class Locale
                         _startLocator.getColumnNumber() - 1, -1));
             }
 
+            for (Map.Entry<String, String> nsEntry : delayedPrefixMappings.entrySet()) {
+                _context.xmlns(nsEntry.getKey(), nsEntry.getValue());
+            }
+            delayedPrefixMappings.clear();
+
             for (int i = 0, len = atts.getLength(); i < len; i++) {
                 String aqn = atts.getQName(i);
 
-                if (aqn.equals("xmlns")) {
-                    _context.xmlns("", atts.getValue(i));
-                } else if (aqn.startsWith("xmlns:")) {
-                    String prefix = aqn.substring(6);
+                int colon = aqn.indexOf(':');
 
-                    if (prefix.length() == 0) {
-                        XmlError err =
-                            XmlError.forMessage("Prefix not specified",
-                                XmlError.SEVERITY_ERROR);
-
-                        throw new XmlRuntimeException(err.toString(), null,
-                            err);
-                    }
-
-                    String attrUri = atts.getValue(i);
-
-                    if (attrUri.length() == 0) {
-                        XmlError err =
-                            XmlError.forMessage(
-                                "Prefix can't be mapped to no namespace: " +
-                                prefix,
-                                XmlError.SEVERITY_ERROR);
-
-                        throw new XmlRuntimeException(err.toString(), null,
-                            err);
-                    }
-
-                    _context.xmlns(prefix, attrUri);
+                if (colon < 0) {
+                    _context.attr(aqn, atts.getURI(i), null,
+                        atts.getValue(i));
                 } else {
-                    int colon = aqn.indexOf(':');
-
-                    if (colon < 0) {
-                        _context.attr(aqn, atts.getURI(i), null,
-                            atts.getValue(i));
-                    } else {
-                        _context.attr(aqn.substring(colon + 1), atts.getURI(i), aqn.substring(
-                            0, colon),
-                            atts.getValue(i));
-                    }
+                    _context.attr(aqn.substring(colon + 1), atts.getURI(i), aqn.substring(
+                        0, colon),
+                        atts.getValue(i));
                 }
             }
         }
@@ -2421,6 +2398,7 @@ public final class Locale
 
                 throw new XmlRuntimeException(err.toString(), null, err);
             }
+            delayedPrefixMappings.put(prefix, uri);
         }
 
         public void endPrefixMapping(String prefix)
@@ -2492,12 +2470,6 @@ public final class Locale
             _xr = xr;
 
             try {
-                _xr.setFeature(
-                    "http://xml.org/sax/features/namespace-prefixes",
-                        // when using XMLBeans on Android, it fails when both features
-                        // namespaces and namespace-prefixes are defined although the spec
-                        // so we allow users to set this one differently as a workaround
-                        Boolean.valueOf(System.getProperty("xmlbeans.saxloader.namespace-prefixes", "true")));
                 _xr.setFeature("http://xml.org/sax/features/namespaces", true);
                 _xr.setFeature("http://xml.org/sax/features/validation", false);
                 _xr.setProperty(
