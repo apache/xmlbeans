@@ -2289,10 +2289,12 @@ public final class Locale
             }
         }
 
+        @Override
         public void startDocument() throws SAXException {
             // Do nothing ... start of document is implicit
         }
 
+        @Override
         public void endDocument() throws SAXException {
             // Do nothing ... end of document is implicit
         }
@@ -2342,6 +2344,7 @@ public final class Locale
             }
         }
 
+        @Override
         public void endElement(String namespaceURI, String localName, String qName) throws SAXException {
             _context.endElement();
             if (_wantLineNumbersAtEndElt && _startLocator != null) {
@@ -2351,6 +2354,7 @@ public final class Locale
             }
         }
 
+        @Override
         public void characters(char[] ch, int start, int length) throws SAXException {
             _context.text(ch, start, length);
 
@@ -2368,25 +2372,31 @@ public final class Locale
             }
         }
 
+        @Override
         public void ignorableWhitespace(char[] ch, int start, int length) {
         }
 
+        @Override
         public void comment(char[] ch, int start, int length) throws SAXException {
             _context.comment(ch, start, length);
         }
 
+        @Override
         public void processingInstruction(String target, String data) throws SAXException {
             _context.procInst(target, data);
         }
 
+        @Override
         public void startDTD(String name, String publicId, String systemId) throws SAXException {
             _context.startDTD(name, publicId, systemId);
         }
 
+        @Override
         public void endDTD() {
             _context.endDTD();
         }
 
+        @Override
         public void startPrefixMapping(String prefix, String uri)
             throws SAXException {
             if (beginsWithXml(prefix) &&
@@ -2401,27 +2411,33 @@ public final class Locale
             delayedPrefixMappings.put(prefix, uri);
         }
 
+        @Override
         public void endPrefixMapping(String prefix)
             throws SAXException {
         }
 
+        @Override
         public void skippedEntity(String name) {
 //            throw new RuntimeException( "Not impl: skippedEntity" );
         }
 
+        @Override
         public void startCDATA() {
             _insideCDATA = true;
         }
 
+        @Override
         public void endCDATA() {
             _insideCDATA = false;
         }
 
+        @Override
         public void startEntity(String name)
             throws SAXException {
             _insideEntity++;
         }
 
+        @Override
         public void endEntity(String name)
             throws SAXException {
             _insideEntity--;
@@ -2432,6 +2448,7 @@ public final class Locale
             }
         }
 
+        @Override
         public void setDocumentLocator(Locator locator) {
             if (_startLocator == null) {
                 _startLocator = locator;
@@ -2439,6 +2456,7 @@ public final class Locale
         }
 
         //DeclHandler
+        @Override
         public void attributeDecl(String eName, String aName, String type, String valueDefault, String value) {
             // the DeclHandler is only called for DTD based documents
             if (type.equals("ID")) {
@@ -2446,19 +2464,24 @@ public final class Locale
             }
         }
 
+        @Override
         public void elementDecl(String name, String model) {
         }
 
+        @Override
         public void externalEntityDecl(String name, String publicId, String systemId) {
         }
 
+        @Override
         public void internalEntityDecl(String name, String value) {
         }
 
         //DTDHandler
+        @Override
         public void notationDecl(String name, String publicId, String systemId) {
         }
 
+        @Override
         public void unparsedEntityDecl(String name, String publicId, String systemId, String notationName) {
         }
     }
