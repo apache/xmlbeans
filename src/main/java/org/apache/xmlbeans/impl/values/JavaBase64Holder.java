@@ -58,7 +58,7 @@ public abstract class JavaBase64Holder extends XmlObjectBase {
 
     public static byte[] lex(String v, ValidationContext c) {
         try {
-            return Base64.getDecoder().decode(v);
+            return Base64.getMimeDecoder().decode(v);
         } catch (IllegalArgumentException e) {
             // TODO - get a decent error with line numbers and such here
             c.invalid(XmlErrorCodes.BASE64BINARY, new Object[]{"not encoded properly"});
