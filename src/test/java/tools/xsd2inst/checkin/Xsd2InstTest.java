@@ -29,6 +29,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class Xsd2InstTest {
     private static final String PRICEQ = "/xbean/compile/scomp/pricequote/PriceQuote.xsd";
+    private static final String BASE64BIN = "/xbean/compile/scomp/base64Binary/Base64BinaryElement.xsd";
 
     @Test
     void testPriceQuote() throws Exception {
@@ -41,6 +42,21 @@ public class Xsd2InstTest {
         assertTrue(result.contains("<price-quote>"), "price-quote element found?");
         assertTrue(result.contains("<stock-symbol>string</stock-symbol>"), "stock-symbol element found?");
         assertTrue(result.contains("<stock-price>string</stock-price>"), "stock-price element found?");
+        try (InputStream docStream = new ByteArrayInputStream(result.getBytes(StandardCharsets.UTF_8))) {
+            assertNotNull(DocumentHelper.readDocument(new XmlOptions(), docStream));
+        }
+    }
+
+    @Test
+    void testBase64Binary() throws Exception {
+        XmlObject xobj;
+        try (InputStream xsdStream = Xsd2InstTest.class.getResourceAsStream(BASE64BIN)) {
+            xobj = XmlObject.Factory.parse(xsdStream, (new XmlOptions()).setLoadLineNumbers().setLoadMessageDigest());
+        }
+        SchemaInstanceGenerator.Xsd2InstOptions options = new SchemaInstanceGenerator.Xsd2InstOptions();
+        String result = SchemaInstanceGenerator.xsd2inst(new XmlObject[]{xobj}, "echoBase64BinaryElement", options);
+        assertTrue(result.contains("<ns:echoBase64BinaryElement"), "echoBase64BinaryElement element found?");
+        assertTrue(result.contains("<ns:base64BinaryElement>"), "base64BinaryElement element found?");
         try (InputStream docStream = new ByteArrayInputStream(result.getBytes(StandardCharsets.UTF_8))) {
             assertNotNull(DocumentHelper.readDocument(new XmlOptions(), docStream));
         }
