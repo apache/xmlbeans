@@ -362,7 +362,7 @@ public class CompilationTests {
             params.setClassesDir(classesdir);
             params.setOutputJar(outputjar);
             assertTrue(SchemaCompiler.compile(params), "Build failed");
-            assertTrue(outputjar.exists(), "Cannout find " + outputjar);
+            assertTrue(outputjar.exists(), "Cannot find " + outputjar);
         }
     }
 
@@ -379,7 +379,23 @@ public class CompilationTests {
         params.setClassesDir(classesdir);
         params.setOutputJar(outputjar);
         assertTrue(SchemaCompiler.compile(params), "Build failed " + fwroot);
-        assertTrue(outputjar.exists(), "Cannout find " + outputjar);
+        assertTrue(outputjar.exists(), "Cannot find " + outputjar);
+    }
+
+    @Test
+    void testBase64Binary() {
+        deltree(xbeanOutput("compile/scomp/base64Binary"));
+        // First, compile schema
+        File srcdir = xbeanOutput("compile/scomp/base64Binary/src");
+        File classesdir = xbeanOutput("compile/scomp/base64Binary/classes");
+        File outputjar = xbeanOutput("compile/scomp/base64Binary/base64Binary.jar");
+        Parameters params = new Parameters();
+        params.setXsdFiles(xbeanCase("base64Binary/Base64BinaryElement.xsd"));
+        params.setSrcDir(srcdir);
+        params.setClassesDir(classesdir);
+        params.setOutputJar(outputjar);
+        assertTrue(SchemaCompiler.compile(params), "Build failed " + fwroot);
+        assertTrue(outputjar.exists(), "Cannot find " + outputjar);
     }
 
     @Test
