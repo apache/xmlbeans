@@ -18,11 +18,16 @@ package xmlobject.checkin;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
+import org.apache.xmlbeans.impl.values.JavaBase64Holder;
 import org.junit.jupiter.api.Test;
+import random.common.Random;
 import test.xbean.xmlcursor.purchaseOrder.PurchaseOrderDocument;
 import xmlcursor.common.Common;
 
 import javax.xml.namespace.QName;
+
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static xmlcursor.common.BasicCursorTestCase.jobj;
@@ -61,6 +66,19 @@ public class ValidateTest {
             assertFalse(xo.validate());
             assertFalse(m_xo.validate());
         }
+    }
+
+    @Test
+    void testValidateBase64() {
+        assertArrayEquals(new byte[0], JavaBase64Holder.lex("", null));
+        final java.util.Random rnd = new java.util.Random();
+        final byte[] bytes = new byte[1024];
+        rnd.nextBytes(bytes);
+        assertArrayEquals(bytes, JavaBase64Holder.lex(Base64.getEncoder().encodeToString(bytes), null));
+        assertArrayEquals(bytes, JavaBase64Holder.lex(Base64.getMimeEncoder().encodeToString(bytes), null));
+        assertArrayEquals(bytes, JavaBase64Holder.lex(
+                Base64.getMimeEncoder(16, "\n".getBytes(StandardCharsets.UTF_8)).encodeToString(bytes),
+                null));
     }
 }
 

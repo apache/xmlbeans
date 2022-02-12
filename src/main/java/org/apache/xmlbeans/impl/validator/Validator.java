@@ -54,7 +54,7 @@ public final class Validator
     private class ValidatorVC implements ValidationContext {
         // KHK: remove this
         public void invalid(String message) {
-            // TODO (dutta) Addtional Attributes for validation error have limited information
+            // TODO (dutta) Additional Attributes for validation error have limited information
             //at this time but will be a part of the second round of refactoring
 
             Validator.this.emitError(_event, message, null, null,
@@ -62,7 +62,7 @@ public final class Validator
         }
 
         public void invalid(String code, Object[] args) {
-            // TODO (dutta) Addtional Attributes for validation error have limited information
+            // TODO (dutta) Additional Attributes for validation error have limited information
             //at this time but will be a part of the second round of refactoring
 
             Validator.this.emitError(_event, code, args, null, null,
