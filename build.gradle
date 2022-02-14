@@ -399,6 +399,7 @@ rat {
         'samples/*/build',
         'test/perf',
         'test/docs',
+        "**/gradle-wrapper.properties",
         '**/*.iml',
         '**/XML.xsd',
         '**/XMLSchema.xsd',
