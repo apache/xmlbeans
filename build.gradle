@@ -177,8 +177,7 @@ dependencies {
 }
 
 wrapper {
-    // https://stackoverflow.com/a/54741656/2066598
-    gradleVersion = '7.3.3'
+    gradleVersion = '7.4'
 }
 
 def extCP = files(configurations.testCompileClasspath + sourceSets.main.output.files + sourceSets.main.resources.srcDirs)
