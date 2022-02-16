@@ -16,6 +16,7 @@
 package org.apache.xmlbeans.impl.tool;
 
 import org.apache.xmlbeans.SystemProperties;
+import org.apache.xmlbeans.impl.common.IOUtil;
 
 import java.io.*;
 import java.net.URI;
@@ -157,7 +158,7 @@ public class CodeGenUtil {
 
         File clFile = null;
         try {
-            clFile = File.createTempFile("javac", "");
+            clFile = Files.createTempFile(IOUtil.getTempDir(), "javac", ".tmp").toFile();
             try (Writer fw = Files.newBufferedWriter(clFile.toPath(), StandardCharsets.ISO_8859_1)) {
                 Iterator<String> i = args.iterator();
                 for (i.next(); i.hasNext(); ) {
