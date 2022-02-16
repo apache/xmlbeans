@@ -15,15 +15,11 @@
 
 package org.apache.xmlbeans.impl.common;
 
-import sun.security.action.GetPropertyAction;
-
 import java.io.*;
 import java.net.URI;
 import java.nio.channels.FileChannel;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-
-import static java.security.AccessController.doPrivileged;
 
 public class IOUtil {
 
