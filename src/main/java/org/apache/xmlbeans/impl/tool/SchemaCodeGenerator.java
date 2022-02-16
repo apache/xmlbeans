@@ -17,13 +17,14 @@ package org.apache.xmlbeans.impl.tool;
 
 import org.apache.xmlbeans.Filer;
 import org.apache.xmlbeans.SchemaTypeSystem;
-import org.apache.xmlbeans.SystemProperties;
 import org.apache.xmlbeans.XmlOptions;
+import org.apache.xmlbeans.impl.common.IOUtil;
 import org.apache.xmlbeans.impl.repackage.Repackager;
 import org.apache.xmlbeans.impl.util.FilerImpl;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.*;
 
 public class SchemaCodeGenerator {
@@ -97,13 +98,14 @@ public class SchemaCodeGenerator {
 // Some beta builds of JDK1.5 are having troubles creating temp directories
 // if the java.io.tmpdir doesn't exist.  This seems to help.
         try {
-            File tmpDirFile = new File(SystemProperties.getProperty("java.io.tmpdir"));
+            File tmpDirFile = IOUtil.getTempDir().toFile();
             tmpDirFile.mkdirs();
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        File tmpFile = File.createTempFile("xbean", null);
+        File tmpFile = Files.createTempFile(IOUtil.getTempDir(), "xbean", ".tmp").toFile();
+
         String path = tmpFile.getAbsolutePath();
         if (!path.endsWith(".tmp")) {
             throw new IOException("Error: createTempFile did not create a file ending with .tmp");

@@ -14,8 +14,11 @@
  */
 package tools.util;
 
+import org.apache.xmlbeans.impl.common.IOUtil;
+
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 
 /**
  * A utility class for getting data from jar files
@@ -23,7 +26,7 @@ import java.nio.charset.StandardCharsets;
 public class JarUtil {
 
     /**
-     * returns an File Object within the given jarFile as a String. jarFile must exist in classpath
+     * returns a File Object within the given jarFile as a String. jarFile must exist in classpath
      * pre: jar containing resource is in the classpath
      */
     public static File getResourceFromJarasFile(String pathToResource)
@@ -34,7 +37,7 @@ public class JarUtil {
         tokens = fileName.split("\\.");
         String extension = (tokens.length < 2) ? null : "." + tokens[1];
         String prefix = (tokens[0].length() < 3) ? tokens[0] + "abc" : tokens[0];
-        File temp = File.createTempFile(prefix, extension);
+        File temp = Files.createTempFile(IOUtil.getTempDir(), prefix, extension).toFile();
         temp.deleteOnExit();
         try (PrintWriter pr = new PrintWriter(new FileWriter(temp))) {
             String content = getResourceFromJar(pathToResource);
@@ -50,20 +53,17 @@ public class JarUtil {
     public static String getResourceFromJar(String pathToResource)
         throws IOException {
 
-        BufferedReader in = null;
-        try {
-            InputStream is = getResourceFromJarasStream(pathToResource);
-            in = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8));
+        try (
+                InputStream is = getResourceFromJarasStream(pathToResource);
+                BufferedReader in = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))
+        ) {
+
             StringBuilder sb = new StringBuilder();
             char[] buf = new char[1024];
             for (int readChr; (readChr = in.read(buf)) > -1; ) {
                 sb.append(buf, 0, readChr);
             }
             return sb.toString();
-        } finally {
-            if (in != null) {
-                in.close();
-            }
         }
     }
 

@@ -15,11 +15,21 @@
 
 package org.apache.xmlbeans.impl.common;
 
+import sun.security.action.GetPropertyAction;
+
 import java.io.*;
 import java.net.URI;
 import java.nio.channels.FileChannel;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
+import static java.security.AccessController.doPrivileged;
 
 public class IOUtil {
+
+    // temporary directory location
+    private static final Path tmpdir = Paths.get(System.getProperty("java.io.tmpdir"));
+
     public static void copyCompletely(InputStream input, OutputStream output)
         throws IOException {
         //if both are file streams, use channel IO
@@ -108,5 +118,9 @@ public class IOUtil {
         boolean created = (newdir.exists() && newdir.isDirectory()) || newdir.mkdirs();
         assert (created) : "Could not create " + newdir.getAbsolutePath();
         return newdir;
+    }
+
+    public static Path getTempDir() {
+        return tmpdir;
     }
 }
