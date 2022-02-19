@@ -85,13 +85,13 @@
         <dependency>
             <groupId>net.sf.saxon</groupId>
             <artifactId>Saxon-HE</artifactId>
-            <version>11.1.1</version>
+            <version>11.2</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.github.javaparser</groupId>
             <artifactId>javaparser-core</artifactId>
-            <version>3.23.1</version>
+            <version>3.24.0</version>
             <scope>provided</scope>
         </dependency>
 
