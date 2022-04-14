@@ -35,7 +35,6 @@ public class TypesTest {
 
     @Test
     void testDate() {
-        int offsetSeconds = OffsetDateTime.now().getOffset().getTotalSeconds();
         XmlObject[] res = o.selectPath("xs:date(\"2000-01-01\")");
         assertEquals(1, res.length);
         Calendar d = ((XmlDate) res[0]).getCalendarValue();
@@ -43,6 +42,7 @@ public class TypesTest {
         assertEquals(0, d.get(Calendar.MONTH));
         assertEquals(1, d.get(Calendar.DAY_OF_MONTH));
         //next assertion doesn't seem to take daylight savings into account
+        //int offsetSeconds = OffsetDateTime.now().getOffset().getTotalSeconds();
         //assertEquals((offsetSeconds * 1000), d.get(Calendar.ZONE_OFFSET));
     }
 
@@ -70,8 +70,6 @@ public class TypesTest {
 
     @Test
     void testDateTime() {
-        OffsetDateTime now = OffsetDateTime.now();
-        now.getOffset().getRules();
         XmlObject[] res = o.selectPath("xs:dateTime(\"2000-01-01T15:03:06.123\")");
         assertEquals(1, res.length);
         Calendar d = ((XmlDateTime) res[0]).getCalendarValue();
@@ -83,6 +81,7 @@ public class TypesTest {
         assertEquals(6, d.get(Calendar.SECOND));
         assertEquals(123, d.get(Calendar.MILLISECOND));
         //next assertion doesn't seem to take daylight savings into account
+        //int offsetSeconds = OffsetDateTime.now().getOffset().getTotalSeconds();
         //assertEquals((offsetSeconds * 1000), d.get(Calendar.ZONE_OFFSET));
     }
 
