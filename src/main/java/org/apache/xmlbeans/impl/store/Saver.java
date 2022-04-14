@@ -1705,6 +1705,10 @@ abstract class Saver {
 
                 assert _out == 0;
                 assert _in >= _out : "_in:" + _in + " < _out:" + _out;
+                if ((_buf.length - _in) != _free) {
+                    //https://issues.apache.org/jira/browse/XMLBEANS-604
+                    _in = _buf.length;
+                }
                 assert _free == _buf.length - _in;
 
                 try {

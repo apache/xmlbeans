@@ -17,15 +17,16 @@ package xmlobject.checkin;
 import org.apache.commons.io.IOUtils;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 public class SaverTest {
 
-    @Disabled("https://issues.apache.org/jira/browse/XMLBEANS-604")
     @Test
     void testLengthAssertion() throws IOException, XmlException {
         final String lineSeparator = System.getProperty("line.separator");
@@ -35,6 +36,11 @@ public class SaverTest {
             XmlObject object = XmlObject.Factory.parse(xml);
             try (InputStream is = object.newInputStream()) {
                 byte[] readBytes = IOUtils.toByteArray(is);
+                assertEquals(16391, readBytes.length);
+                try(ByteArrayInputStream bis = new ByteArrayInputStream(readBytes)) {
+                    XmlObject object2 = XmlObject.Factory.parse(bis);
+                    assertEquals(xml, object2.toString());
+                }
             }
         } finally {
             System.setProperty("line.separator", lineSeparator);
