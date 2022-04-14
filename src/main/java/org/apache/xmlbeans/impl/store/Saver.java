@@ -1708,7 +1708,7 @@ abstract class Saver {
                 assert _free == _buf.length - _in;
 
                 try {
-//System.out.println("-------------\nWriting in corverter: TextSaver.write():1703  " + charsAvailable + " chars\n" + new String(_buf, 0, charsAvailable));
+//System.out.println("-------------\nWriting in converter: TextSaver.write():1703  " + charsAvailable + " chars\n" + new String(_buf, 0, charsAvailable));
                     writer.write(_buf, 0, charsAvailable);
                     writer.flush();
                 } catch (IOException e) {
