@@ -44,7 +44,7 @@ public class QNameSetBuilder implements QNameSetSpecification, java.io.Serializa
     /**
      * Constructs a QNameSetBuilder whose initial contents are given by
      * another QNameSetSpecification.
-     * @param set the QNameSetSpecificaiton to copy
+     * @param set the QNameSetSpecification to copy
      */
     public QNameSetBuilder(QNameSetSpecification set)
     {

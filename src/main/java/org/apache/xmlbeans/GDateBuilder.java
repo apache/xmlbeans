@@ -74,7 +74,7 @@ public final class GDateBuilder implements GDateSpecification, java.io.Serializa
     }
 
     /**
-     * Construts a GDateBuilder by copying another GDateSpecificaiton.
+     * Constructs a GDateBuilder by copying another GDateSpecification.
      */
     public GDateBuilder(GDateSpecification gdate) {
         if (gdate.hasTimeZone()) {
