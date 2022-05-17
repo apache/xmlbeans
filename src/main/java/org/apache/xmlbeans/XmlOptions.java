@@ -156,7 +156,8 @@ public class XmlOptions implements java.io.Serializable {
         LOAD_USE_LOCALE_CHAR_UTIL,
         XPATH_USE_SAXON,
         XPATH_USE_XMLBEANS,
-        ATTTRIBUTE_VALIDATION_COMPAT_MODE
+        ATTRIBUTE_VALIDATION_COMPAT_MODE,
+
     }
 
 
@@ -1432,11 +1433,11 @@ public class XmlOptions implements java.io.Serializable {
     }
 
     public XmlOptions setAttributeValidationCompatMode(boolean attributeValidationCompatMode) {
-        return set(XmlOptionsKeys.ATTTRIBUTE_VALIDATION_COMPAT_MODE, attributeValidationCompatMode);
+        return set(XmlOptionsKeys.ATTRIBUTE_VALIDATION_COMPAT_MODE, attributeValidationCompatMode);
     }
 
     public boolean isAttributeValidationCompatMode() {
-        Boolean flag = (Boolean) get(XmlOptionsKeys.ATTTRIBUTE_VALIDATION_COMPAT_MODE);
+        Boolean flag = (Boolean) get(XmlOptionsKeys.ATTRIBUTE_VALIDATION_COMPAT_MODE);
         return flag != null && flag;
     }
 
