@@ -117,12 +117,12 @@ public final class Locale
         }
 
         options = XmlOptions.maskNull(options);
+        Object source = options.getUseSameLocale();
 
-        if (options.getUseSameLocale() == null) {
+        if (source == null) {
             return new Locale(stl, options);
         }
 
-        Object source = options.getUseSameLocale();
 
         Locale l;
 
