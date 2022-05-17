@@ -167,13 +167,19 @@ dependencies {
     java9 "org.apache.logging.log4j:log4j-api:${log4jVersion}"
     java9("net.sf.saxon:Saxon-HE:${saxonVersion}") {
         exclude group: 'xml-apis', module: 'xml-apis'
+        exclude group: 'org.apache.httpcomponents', module: 'httpclient'
+        exclude group: 'org.apache.httpcomponents', module: 'httpcore'
     }
     java9 "org.apache.ant:ant:${antVersion}"
     java9 "com.github.javaparser:javaparser-core:${javaparserVersion}"
     java9("com.github.javaparser:javaparser-symbol-solver-core:${javaparserVersion}") {
-        exclude group: 'com.google.guava', module: 'guava'
+        exclude group: 'com.google.guava', module: 'failureaccess'
+        exclude group: 'com.google.guava', module: 'listenablefuture'
+        exclude group: 'com.google.code.findbugs', module: 'jsr305'
+        exclude group: 'org.checkerframework', module: 'checker-qual'
+        exclude group: 'com.google.errorprone', module: 'error_prone_annotations'
+        exclude group: 'com.google.j2objc', module: 'j2objc-annotations'
     }
-
 }
 
 wrapper {
