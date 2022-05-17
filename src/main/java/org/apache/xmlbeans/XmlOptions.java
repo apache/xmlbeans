@@ -86,7 +86,7 @@ public class XmlOptions implements java.io.Serializable {
     // Complete set of XmlOption's
     //
 
-    // TODO - Add selectPath option to track the seletion (default is to clean selections fast).
+    // TODO - Add selectPath option to track the selection (default is to clean selections fast).
     public enum XmlOptionsKeys {
         SAVE_NAMESPACES_FIRST,
         SAVE_SYNTHETIC_DOCUMENT_ELEMENT,
