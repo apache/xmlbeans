@@ -18,9 +18,7 @@ import org.apache.xmlbeans.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.time.OffsetDateTime;
 import java.util.Calendar;
-import java.util.Date;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -114,16 +112,6 @@ public class TypesTest {
         assertEquals(6, d.get(Calendar.SECOND));
         assertEquals(123, d.get(Calendar.MILLISECOND));
         assertEquals((-8 * 60 * 60 * 1000), d.get(Calendar.ZONE_OFFSET));
-    }
-
-    @Test
-    void testGDateTime() {
-        XmlDateTime xmlDateTime = XmlDateTime.Factory.newInstance();
-        xmlDateTime.setDateValue(new Date());
-        GDate gdate = xmlDateTime.getGDateValue();
-        Date date = gdate.getDate();
-        System.out.println(gdate);
-        System.out.println(date);
     }
 
     @Test
