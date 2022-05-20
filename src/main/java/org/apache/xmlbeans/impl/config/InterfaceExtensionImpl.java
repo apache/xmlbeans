@@ -23,7 +23,6 @@ import com.github.javaparser.ast.type.ReferenceType;
 import com.github.javaparser.ast.type.Type;
 import com.github.javaparser.ast.type.TypeParameter;
 import com.github.javaparser.resolution.MethodUsage;
-import com.github.javaparser.resolution.declarations.ResolvedTypeParameterDeclaration;
 import com.github.javaparser.resolution.types.ResolvedType;
 import org.apache.xmlbeans.InterfaceExtension;
 import org.apache.xmlbeans.XmlObject;
@@ -207,25 +206,16 @@ public class InterfaceExtensionImpl implements InterfaceExtension {
             .findFirst().orElse(null);
     }
 
-
-    private static String[] paramStrings(List<ResolvedTypeParameterDeclaration> params) {
-        return params.stream().map(ResolvedTypeParameterDeclaration::getClassName).toArray(String[]::new);
-    }
-
     private static String[] paramStrings(NodeList<?> params) {
         return params.stream().map(p -> {
             if (p instanceof Parameter) {
-                return ((Parameter)p).getTypeAsString();
+                return ((Parameter)p).getType().resolve().describe();
             } else if (p instanceof TypeParameter) {
                 return ((TypeParameter)p).getNameAsString();
             } else {
                 return "unknown";
             }
         }).toArray(String[]::new);
-    }
-
-    private static String[] exceptionStrings(MethodDeclaration method) {
-        return method.getThrownExceptions().stream().map(ReferenceType::asString).toArray(String[]::new);
     }
 
     private static boolean matchParams(MethodUsage mIf, MethodDeclaration mDel) {
@@ -324,7 +314,7 @@ public class InterfaceExtensionImpl implements InterfaceExtension {
             _signature = null;
 
             _name = method.getName().asString();
-            _return = replaceInner(method.getTypeAsString());
+            _return = replaceInner(method.getType().resolve().describe());
 
             _params = method.getParameters().stream().map(p -> p.getType().resolve().describe()).
                 map(MethodSignatureImpl::replaceInner).toArray(String[]::new);
