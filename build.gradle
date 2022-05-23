@@ -23,7 +23,7 @@ buildscript {
 
     dependencies {
         classpath 'org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:3.3'
-        classpath 'de.thetaphi:forbiddenapis:3.2'
+        classpath 'de.thetaphi:forbiddenapis:3.3'
     }
 }
 
@@ -614,7 +614,7 @@ if (project.hasProperty('enableSonar')) {
 
 
 jacoco {
-    toolVersion = '0.8.7'
+    toolVersion = '0.8.8'
 }
 
 test {
