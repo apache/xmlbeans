@@ -105,7 +105,7 @@ class ChildSolverCollectionStrategy implements CollectionStrategy {
         @Override
         public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
             if (javaMatcher.matches(file)) {
-                if (roots.stream().map(Path::toAbsolutePath).noneMatch(file.toAbsolutePath()::startsWith)) {
+                if (roots.stream().map(Path::toAbsolutePath).noneMatch(file.toAbsolutePath()::startsWith)) {Sc
                     getRoot(file).ifPresent(r -> {
                         getSolver().add(new JavaParserTypeSolver(r, getParserConfiguration()));
                         roots.add(r);

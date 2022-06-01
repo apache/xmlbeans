@@ -316,11 +316,11 @@ public class InterfaceExtensionImpl implements InterfaceExtension {
             _name = method.getName().asString();
             _return = replaceInner(method.getType().resolve().describe());
 
-            _params = method.getParameters().stream().map(p -> p.getType().resolve().describe()).
-                map(MethodSignatureImpl::replaceInner).toArray(String[]::new);
+            _params = method.getParameters().stream().map(p -> p.getType().resolve().describe())
+                    .map(MethodSignatureImpl::replaceInner).toArray(String[]::new);
 
-            _exceptions = method.getThrownExceptions().stream().map(ReferenceType::asString).
-                map(MethodSignatureImpl::replaceInner).toArray(String[]::new);
+            _exceptions = method.getThrownExceptions().stream().map(e -> e.resolve().describe())
+                    .map(MethodSignatureImpl::replaceInner).toArray(String[]::new);
 
             _paramNames = method.getParameters().stream().map(p -> p.getNameAsString()).toArray(String[]::new);
         }
