@@ -31,6 +31,7 @@ import org.apache.xmlbeans.impl.xb.xmlconfig.Extensionconfig;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class InterfaceExtensionImpl implements InterfaceExtension {
@@ -314,7 +315,9 @@ public class InterfaceExtensionImpl implements InterfaceExtension {
             _signature = null;
 
             _name = method.getName().asString();
-            _return = replaceInner(method.getType().resolve().describe());
+            String typeParams = method.getTypeParameters().stream().map(TypeParameter::toString).collect(Collectors.joining(", "));
+            _return = ( typeParams.length() == 0 ? "" : ( " <" + typeParams + "> ") ) +
+                    replaceInner(method.getType().resolve().describe());
 
             _params = method.getParameters().stream().map(p -> p.getType().resolve().describe())
                     .map(MethodSignatureImpl::replaceInner).toArray(String[]::new);
