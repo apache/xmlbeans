@@ -476,7 +476,6 @@ distributions {
         distributionBaseName = "xmlbeans-src-${XMLBeansVersion}-${date}"
         contents {
             from(".") {
-                include 'gradle.properties'
                 exclude 'tmp'
                 exclude 'out'
                 exclude 'gradle'
