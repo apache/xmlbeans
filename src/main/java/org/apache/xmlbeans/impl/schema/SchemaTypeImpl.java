@@ -2253,7 +2253,6 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory {
         _elemFormDefault = elemFormDefault;
         _attFormDefault = attFormDefault;
         _redefinition = redefinition;
-        _documentation = parseDocumentation(_parseObject);
     }
 
     public XmlObject getParseObject() {
@@ -2398,12 +2397,14 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory {
         return qnsb.toQNameSet();
     }
 
-    public String getDocumentation()
-    {
+    public String getDocumentation() {
+        if (_documentation == null) {
+            _documentation = parseDocumentation(_parseObject);
+        }
         return _documentation;
     }
 
-    private static String parseDocumentation(XmlObject lcti){
+    private static String parseDocumentation(XmlObject lcti) {
         String str = lcti.toString();
         Element el;
         try {
