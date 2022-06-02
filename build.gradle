@@ -183,7 +183,7 @@ dependencies {
 }
 
 wrapper {
-    gradleVersion = '7.4'
+    gradleVersion = '7.4.2'
 }
 
 def extCP = files(configurations.testCompileClasspath + sourceSets.main.output.files + sourceSets.main.resources.srcDirs)
@@ -476,9 +476,11 @@ distributions {
         distributionBaseName = "xmlbeans-src-${XMLBeansVersion}-${date}"
         contents {
             from(".") {
+                include 'gradle.properties'
                 exclude 'tmp'
                 exclude 'out'
-                exclude 'gradle*'
+                exclude 'gradle'
+                exclude 'gradlew*'
                 exclude '.gradle'
                 exclude '.idea'
                 exclude 'build'
