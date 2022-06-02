@@ -2400,7 +2400,7 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory {
     public String getDocumentation()
     {
         if (_documentation == null) {
-            parseDocumentation(_parseObject);
+            _documentation = parseDocumentation(_parseObject);
         }
         return _documentation;
     }
