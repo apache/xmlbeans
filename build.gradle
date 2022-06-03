@@ -366,6 +366,11 @@ jar {
         into 'META-INF'
     }
 
+    from('src/main/maven') {
+        exclude '**/*.java'
+        into 'META-INF/maven'
+    }
+
     from('build/classes/java9/main')
 
     duplicatesStrategy = DuplicatesStrategy.INCLUDE
