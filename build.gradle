@@ -366,6 +366,8 @@ jar {
         into 'META-INF'
     }
 
+    from('build/classes/java9/main')
+
     duplicatesStrategy = DuplicatesStrategy.INCLUDE
 
     manifest {
