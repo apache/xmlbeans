@@ -449,9 +449,6 @@ distributions {
 
         contents {
             from('build/libs') {
-                include 'xmlbeans-*.jar'
-                include 'log4j-api*.jar'
-                include 'javaparser*.jar'
                 into 'lib'
             }
             from(sourcesJar) {
