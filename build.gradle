@@ -491,6 +491,10 @@ distributions {
                 exclude '**/build'
             }
 
+            from ('src/main/shell') {
+                into 'bin'
+            }
+
             includeEmptyDirs = false
             duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 
