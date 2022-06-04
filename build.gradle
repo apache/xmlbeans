@@ -358,17 +358,13 @@ jar {
     from(project.rootDir) {
         include 'NOTICE.txt'
         include 'LICENSE.txt'
-        into 'META-INF'
-    }
-
-    from('src/main/java9') {
-        exclude '**/*.java'
-        into 'META-INF'
+        into '.'
     }
 
     from('src/main/maven') {
         exclude '**/*.java'
         into 'META-INF/maven'
+        filter { line -> line.replaceAll('@VERSION@', XMLBeansVersion) }
     }
 
     from('build/classes/java9/main')
@@ -385,7 +381,13 @@ jar {
                 'Implementation-Title': 'Apache XmlBeans',
                 'Implementation-Version': XMLBeansVersion,
                 'Implementation-Vendor': 'org.apache.xmlbeans',
-                'Implementation-Vendor-Id': 'The Apache Software Foundation'
+                'Implementation-Vendor-Id': 'The Apache Software Foundation',
+                'Built-By': System.properties['user.name'],
+                'Build-Timestamp': new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ").format(new Date()),
+                //'Build-Revision': versioning.info.commit,
+                'Created-By': "Gradle ${gradle.gradleVersion}",
+                'Build-Jdk': "${System.properties['java.version']} (${System.properties['java.vendor']} ${System.properties['java.vm.version']})",
+                'Build-OS': "${System.properties['os.name']} ${System.properties['os.arch']} ${System.properties['os.version']}"
         ], 'org/apache/xmlbeans/'
         )
     }
