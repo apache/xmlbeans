@@ -358,7 +358,6 @@ jar {
     from(project.rootDir) {
         include 'NOTICE.txt'
         include 'LICENSE.txt'
-        into '.'
     }
 
     from('src/main/maven') {
