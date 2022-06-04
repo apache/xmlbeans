@@ -495,6 +495,10 @@ distributions {
                 into 'bin'
             }
 
+            from ('build/docs/javadoc') {
+                into 'javadocs'
+            }
+
             includeEmptyDirs = false
             duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 
