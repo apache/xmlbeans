@@ -576,6 +576,9 @@ clean {
     ant.delete(includeemptydirs:true) {
         fileset(dir:"samples", includes:"*/build/**")
     }
+    ant.delete(failonerror:false) {
+        fileset(dir:"lib")
+    }
 }
 
 forbiddenApis {
