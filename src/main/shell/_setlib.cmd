@@ -22,6 +22,7 @@ if "%XMLBEANS_HOME%" EQU "" (set XMLBEANS_HOME=%~dp0..)
 
 set XMLBEANS_LIB=
 
+if exist "%XMLBEANS_HOME%\build\libs\xmlbeans*.jar" set XMLBEANS_LIB=%XMLBEANS_HOME%\build\libs
 if exist "%XMLBEANS_HOME%\build\lib\xmlbeans*.jar" set XMLBEANS_LIB=%XMLBEANS_HOME%\build\lib
 if exist "%XMLBEANS_HOME%\lib\xmlbeans*.jar" set XMLBEANS_LIB=%XMLBEANS_HOME%\lib
 
