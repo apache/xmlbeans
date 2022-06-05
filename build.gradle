@@ -360,13 +360,20 @@ jar {
         include 'LICENSE.txt'
     }
 
+    from('build/classes/java9/main')
+
     from('src/main/maven') {
         exclude '**/*.java'
         into 'META-INF/maven'
         filter { line -> line.replaceAll('@VERSION@', XMLBeansVersion) }
     }
 
-    from('build/classes/java9/main')
+    if (JavaVersion.current() == JavaVersion.VERSION_1_8) {
+        from('src/main/java9') {
+            include '**/*.class'
+            into 'META-INF/versions/9'
+        }
+    }
 
     duplicatesStrategy = DuplicatesStrategy.INCLUDE
 
