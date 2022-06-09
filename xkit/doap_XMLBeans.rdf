@@ -30,11 +30,11 @@ limitations under the License.
 
       =======================================================================
     -->
-    <Project rdf:about="http://XMLBeans.rdf.apache.org/">
+    <Project rdf:about="https://xmlbeans.apache.org/">
         <created>2006-03-27</created>
-        <license rdf:resource="http://usefulinc.com/doap/licenses/asl20"/>
+        <license rdf:resource="https://spdx.org/licenses/Apache-2.0"/>
         <name>Apache XMLBeans</name>
-        <homepage rdf:resource="http://xmlbeans.apache.org/"/>
+        <homepage rdf:resource="https://xmlbeans.apache.org/"/>
         <asfext:pmc rdf:resource="https://poi.apache.org"/>
         <shortdesc>XMLBeans is a technology for accessing XML by binding it to Java types. XMLBeans provides several
             ways to get at the XML: strong XMLSchema typed model, cursor API, streaming (SAX, Stax) and DOM. XMLBeans
@@ -89,11 +89,11 @@ limitations under the License.
             All of this was built with performance in mind. Informal benchmarks and user feedback indicate that XMLBeans
             is extremely fast.
         </description>
-        <bug-database rdf:resource="http://issues.apache.org/jira/secure/BrowseProject.jspa?id=10436"/>
-        <mailing-list rdf:resource="http://www.mail-archive.com/user%40xmlbeans.apache.org/"/>
-        <download-page rdf:resource="http://www.apache.org/dyn/closer.cgi/xmlbeans/"/>
+        <bug-database rdf:resource="https://issues.apache.org/jira/projects/XMLBEANS/issues"/>
+        <mailing-list rdf:resource="https://www.mail-archive.com/user%40poi.apache.org/"/>
+        <download-page rdf:resource="https://xmlbeans.apache.org/download/">
         <programming-language>Java</programming-language>
-        <category rdf:resource="http://projects.apache.org/category/xml"/>
+        <category rdf:resource="https://projects.apache.org/category/xml"/>
         <release>
             <Version>
                 <name>XMLBeans v5.0.3</name>
