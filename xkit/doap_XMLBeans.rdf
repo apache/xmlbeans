@@ -91,7 +91,7 @@ limitations under the License.
         </description>
         <bug-database rdf:resource="https://issues.apache.org/jira/projects/XMLBEANS/issues"/>
         <mailing-list rdf:resource="https://www.mail-archive.com/user%40poi.apache.org/"/>
-        <download-page rdf:resource="https://xmlbeans.apache.org/download/">
+        <download-page rdf:resource="https://xmlbeans.apache.org/download/"/>
         <programming-language>Java</programming-language>
         <category rdf:resource="https://projects.apache.org/category/xml"/>
         <release>
