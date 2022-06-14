@@ -152,14 +152,13 @@ public class SchemaTypeLoaderImpl extends SchemaTypeLoaderBase {
         for (String prefix : basePackage) {
             for (String holder : baseSchemas) {
                 String clName = prefix + ".system." + holder + ".TypeSystemHolder";
-                if (cl.getResource(clName.replace(".", "/") + ".class") == null) {
-                    // if the first class isn't found in the package, continue with the next package
-                    break;
-                }
                 try {
                     @SuppressWarnings("unchecked")
                     Class<? extends SchemaTypeLoader> cls = (Class<? extends SchemaTypeLoader>) Class.forName(clName, true, cl);
                     list.add((SchemaTypeLoader) cls.getDeclaredField("typeSystem").get(null));
+                } catch (ClassNotFoundException e) {
+                    // if this class isn't found in the package, continue with the next package
+                    // this can happen and thus is ignored here
                 } catch (Exception e) {
                     throw new XmlRuntimeException(e);
                 }
