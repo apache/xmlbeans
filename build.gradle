@@ -414,6 +414,7 @@ rat {
         'tmp',
         'out',
         'build',
+        'javadoc',
         '.gradle',
         '.idea',
         'src/test/java/org/w3c/**',
