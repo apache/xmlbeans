@@ -8,6 +8,8 @@
 
    Portions of this software were originally based on the following:
      - software copyright (c) 2000-2003, BEA Systems, <http://www.bea.com/>.
+   Note: The ASF Secretary has on hand a Software Grant Agreement (SGA) from
+   BEA Systems, Inc. dated 9 Sep 2003 for XMLBeans signed by their EVP/CFO.
 
    Aside from contributions to the Apache XMLBeans project, this
    software also includes:
