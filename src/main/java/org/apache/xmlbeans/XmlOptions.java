@@ -1174,9 +1174,9 @@ public class XmlOptions implements java.io.Serializable {
 
     /**
      * This option controls whether or not operations on XmlBeans are
-     * thread safe.  When not on, all XmlBean operations will be syncronized.
+     * thread safe.  When not on, all XmlBean operations will be synchronized.
      * This provides for multiple thread the ability to access a single
-     * XmlBeans simultainously, but has a perf impact.  If set, then
+     * XmlBeans simultaneously, but has a perf impact.  If set, then
      * only one thread may access an XmlBean.
      */
     public XmlOptions setUnsynchronized() {

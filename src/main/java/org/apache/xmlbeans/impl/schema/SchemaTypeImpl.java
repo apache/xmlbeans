@@ -1584,7 +1584,7 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory {
                 _lookupStringEnumEntry = lookupStringEnumEntry;
             }
         }
-        // HACKHACK: two syncrhonized blocks force a memory barrier:
+        // HACKHACK: two synchronized blocks force a memory barrier:
         // BUGBUG: this behavior is likely to change in future VMs
         synchronized (this) {
             _stringEnumEnsured = true;
