@@ -32,7 +32,7 @@ Layout of the tree:
 
 To quickly get started run:
 "gradlew jar" to build XmlBeans or
-"gradlew" to see the most useful build targets or
+"gradlew tasks" to see the most useful build targets or
 "cd bin" and then "<tool_name> -help" for a description of what the
      tool does and what parameters it accepts
  
