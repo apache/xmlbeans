@@ -537,13 +537,13 @@ publishing {
                         name = 'POI Users List'
                         subscribe = 'user-subscribe@poi.apache.org'
                         unsubscribe = 'user-unsubscribe@poi.apache.org'
-                        archive = 'http://mail-archives.apache.org/mod_mbox/poi-user/'
+                        archive = 'https://lists.apache.org/list.html?user@poi.apache.org'
                     }
                     mailingList {
                         name = 'POI Developer List'
                         subscribe = 'dev-subscribe@poi.apache.org'
                         unsubscribe = 'dev-unsubscribe@poi.apache.org'
-                        archive = 'http://mail-archives.apache.org/mod_mbox/poi-dev/'
+                        archive = 'https://lists.apache.org/list.html?dev@poi.apache.org'
                     }
                 }
 
@@ -558,6 +558,20 @@ publishing {
                 organization {
                     name = 'Apache Software Foundation'
                     url = 'http://www.apache.org/'
+                }
+
+                issueManagement {
+                    system = 'jira'
+                    url = 'https://issues.apache.org/jira/browse/XMLBEANS'
+                }
+
+                developers {
+                    developer {
+                        name = 'POI Team'
+                        id = 'poi'
+                        email = 'user@poi.apache.org'
+                        organization = 'Apache POI'
+                    }
                 }
             }
         }
