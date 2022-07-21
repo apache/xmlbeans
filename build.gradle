@@ -573,6 +573,17 @@ publishing {
                         organization = 'Apache POI'
                     }
                 }
+
+                withXml {
+                    def r = asElement()
+                    def doc = r.getOwnerDocument()
+                    def hdr = new File('../legal/HEADER')
+                    if (!hdr.exists()) hdr = new File('legal/HEADER')
+                    def asl = doc.createComment(hdr.text)
+                    // adding ASF header before root node is ignored
+                    // doc.insertBefore(asl, doc.getDocumentElement())
+                    r.insertBefore(asl, r.getFirstChild())
+                }
             }
         }
     }
