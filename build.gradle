@@ -407,6 +407,10 @@ sourcesJar {
     archiveBaseName = "xmlbeans-${XMLBeansVersion}"
 }
 
+tasks.withType(GenerateModuleMetadata) {
+    enabled = false
+}
+
 rat {
     dependsOn 'cacheJava9'
 
