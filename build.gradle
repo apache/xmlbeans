@@ -34,10 +34,10 @@ plugins {
     id 'idea'
     id 'maven-publish'
     id 'distribution'
-    id('org.nosphere.apache.rat') version '0.7.0'
-    id('de.thetaphi.forbiddenapis') version '3.2'
+    id('org.nosphere.apache.rat') version '0.7.1'
+    id('de.thetaphi.forbiddenapis') version '3.3'
     id 'jacoco'
-    id 'com.github.spotbugs' version '4.8.0'
+    id "com.github.spotbugs" version '5.0.9'
     id 'org.cyclonedx.bom' version '1.7.0'
 }
 
