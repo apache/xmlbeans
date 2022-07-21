@@ -38,7 +38,7 @@ plugins {
     id('de.thetaphi.forbiddenapis') version '3.2'
     id 'jacoco'
     id 'com.github.spotbugs' version '4.8.0'
-    id 'org.cyclonedx.bom' version '1.4.1'
+    id 'org.cyclonedx.bom' version '1.7.0'
 }
 
 // Only add the plugin for Sonar if enabled
@@ -520,7 +520,7 @@ distributions {
 publishing {
     publications {
         POI(MavenPublication) {
-            groupId 'org.apache.poi'
+            groupId 'org.apache.xmlbeans'
             artifactId project.archivesBaseName
             version XMLBeansVersion
 
@@ -716,6 +716,25 @@ if (project.hasProperty('enableSonar')) {
             property "sonar.projectVersion", version
         }
     }
+}
+
+cyclonedxBom {
+    // includeConfigs is the list of configuration names to include when generating the BOM (leave empty to include every configuration)
+    includeConfigs = ["runtimeClasspath"]
+    // skipConfigs is a list of configuration names to exclude when generating the BOM
+    //skipConfigs = ["compileClasspath", "testCompileClasspath"]
+    // Specified the type of project being built. Defaults to 'library'
+    projectType = "library"
+    // Specified the version of the CycloneDX specification to use. Defaults to 1.4.
+    schemaVersion = "1.4"
+    // Boms destination directory (defaults to build/reports)
+    destination = file("build/reports")
+    // The file name for the generated BOMs (before the file format suffix). Defaults to 'bom'
+    outputName = "xmlbeans-${XMLBeansVersion}.bom"
+    // The file format generated, can be xml, json or all for generating both
+    outputFormat = "xml"
+    // Exclude BOM Serial Number
+    includeBomSerialNumber = true
 }
 
 Set<File> xsdDirs(File parent) {
