@@ -46,6 +46,42 @@ public class BindingConfigImpl extends BindingConfig {
     private final List<PrePostExtensionImpl> _prePostExtensions = new ArrayList<>();
     private final Map<QName, UserTypeImpl> _userTypes = new LinkedHashMap<>();
 
+    private static class JavaFilesClasspath {
+        
+        private final File[] javaFiles, classpath;
+        
+        JavaFilesClasspath(File[] javaFiles, File[] classpath) {
+            this.javaFiles = javaFiles != null ? Arrays.copyOf(javaFiles, javaFiles.length) : new File[0];
+            this.classpath = classpath != null ? Arrays.copyOf(classpath, classpath.length) : new File[0];
+        }
+        
+        @Override
+        public boolean equals(Object other) {
+            if ( other == null || ! this.getClass().isInstance(other) )
+                return false;
+            JavaFilesClasspath otherJfc = (JavaFilesClasspath) other;
+            return Arrays.equals(this.javaFiles, otherJfc.javaFiles) && Arrays.equals(this.classpath, otherJfc.classpath);
+        }
+
+        @Override
+        public int hashCode() {
+            return Arrays.hashCode(this.javaFiles) ^ Arrays.hashCode(this.classpath);
+        }
+        
+    }
+    
+    private static final Map<JavaFilesClasspath, Parser> _parserMap = new HashMap<>();
+    
+    private static Parser parserInstance(File[] javaFiles, File[] classpath) {
+        JavaFilesClasspath jfc = new JavaFilesClasspath(javaFiles, classpath);
+        Parser parser = _parserMap.get(jfc);
+        if ( parser == null ) {
+            parser = new Parser(javaFiles, classpath);
+            _parserMap.put(jfc, parser);
+        }
+        return parser;
+    }
+    
     public static BindingConfig forConfigDocuments(Config[] configs, File[] javaFiles, File[] classpath) {
         return new BindingConfigImpl(configs, javaFiles, classpath);
     }
@@ -201,7 +237,7 @@ public class BindingConfigImpl extends BindingConfig {
         Extensionconfig.Interface[] intfXO = ext.getInterfaceArray();
         Extensionconfig.PrePostSet ppXO = ext.getPrePostSet();
 
-        Parser loader = new Parser(javaFiles, classpath);
+        Parser loader = parserInstance(javaFiles, classpath);
 
         if (intfXO.length > 0 || ppXO != null) {
             for (Extensionconfig.Interface anInterface : intfXO) {
@@ -213,7 +249,7 @@ public class BindingConfigImpl extends BindingConfig {
     }
 
     private void recordUserTypeSetting(File[] javaFiles, File[] classpath, Usertypeconfig usertypeconfig) {
-        Parser loader = new Parser(javaFiles, classpath);
+        Parser loader = parserInstance(javaFiles, classpath);
         UserTypeImpl userType = UserTypeImpl.newInstance(loader, usertypeconfig);
         _userTypes.put(userType.getName(), userType);
     }
