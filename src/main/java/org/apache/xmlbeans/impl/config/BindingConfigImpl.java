@@ -46,6 +46,42 @@ public class BindingConfigImpl extends BindingConfig {
     private final List<PrePostExtensionImpl> _prePostExtensions = new ArrayList<>();
     private final Map<QName, UserTypeImpl> _userTypes = new LinkedHashMap<>();
 
+    private static class JavaFilesClasspath {
+
+        private final File[] javaFiles, classpath;
+
+        JavaFilesClasspath(File[] javaFiles, File[] classpath) {
+            this.javaFiles = javaFiles != null ? Arrays.copyOf(javaFiles, javaFiles.length) : new File[0];
+            this.classpath = classpath != null ? Arrays.copyOf(classpath, classpath.length) : new File[0];
+        }
+
+        @Override
+        public boolean equals(Object other) {
+            if ( other == null || ! this.getClass().isInstance(other) )
+                return false;
+            JavaFilesClasspath otherJfc = (JavaFilesClasspath) other;
+            return Arrays.equals(this.javaFiles, otherJfc.javaFiles) && Arrays.equals(this.classpath, otherJfc.classpath);
+        }
+
+        @Override
+        public int hashCode() {
+            return Arrays.hashCode(this.javaFiles) ^ Arrays.hashCode(this.classpath);
+        }
+
+    }
+
+    private static final Map<JavaFilesClasspath, Parser> _parserMap = new HashMap<>();
+
+    private static Parser parserInstance(File[] javaFiles, File[] classpath) {
+        JavaFilesClasspath jfc = new JavaFilesClasspath(javaFiles, classpath);
+        Parser parser = _parserMap.get(jfc);
+        if ( parser == null ) {
+            parser = new Parser(javaFiles, classpath);
+            _parserMap.put(jfc, parser);
+        }
+        return parser;
+    }
+
     public static BindingConfig forConfigDocuments(Config[] configs, File[] javaFiles, File[] classpath) {
         return new BindingConfigImpl(configs, javaFiles, classpath);
     }
@@ -130,7 +166,7 @@ public class BindingConfigImpl extends BindingConfig {
                     InterfaceExtensionImpl.MethodSignatureImpl ms2 = (InterfaceExtensionImpl.MethodSignatureImpl) methodSignatures.get(ms);
                     if (!ms.getReturnType().equals(ms2.getReturnType())) {
                         BindingConfigImpl.error("Colliding methods '" + ms.getSignature() + "' in interfaces " +
-                                                ms.getInterfaceName() + " and " + ms2.getInterfaceName() + ".", null);
+                                ms.getInterfaceName() + " and " + ms2.getInterfaceName() + ".", null);
                     }
 
                     return;
@@ -148,7 +184,7 @@ public class BindingConfigImpl extends BindingConfig {
                 PrePostExtensionImpl b = _prePostExtensions.get(j);
                 if (a.hasNameSetIntersection(b)) {
                     BindingConfigImpl.error("The applicable domain for handler '" + a.getHandlerNameForJavaSource() +
-                                            "' intersects with the one for '" + b.getHandlerNameForJavaSource() + "'.", null);
+                            "' intersects with the one for '" + b.getHandlerNameForJavaSource() + "'.", null);
                 }
             }
         }
@@ -201,7 +237,7 @@ public class BindingConfigImpl extends BindingConfig {
         Extensionconfig.Interface[] intfXO = ext.getInterfaceArray();
         Extensionconfig.PrePostSet ppXO = ext.getPrePostSet();
 
-        Parser loader = new Parser(javaFiles, classpath);
+        Parser loader = parserInstance(javaFiles, classpath);
 
         if (intfXO.length > 0 || ppXO != null) {
             for (Extensionconfig.Interface anInterface : intfXO) {
@@ -213,7 +249,7 @@ public class BindingConfigImpl extends BindingConfig {
     }
 
     private void recordUserTypeSetting(File[] javaFiles, File[] classpath, Usertypeconfig usertypeconfig) {
-        Parser loader = new Parser(javaFiles, classpath);
+        Parser loader = parserInstance(javaFiles, classpath);
         UserTypeImpl userType = UserTypeImpl.newInstance(loader, usertypeconfig);
         _userTypes.put(userType.getName(), userType);
     }
@@ -321,8 +357,8 @@ public class BindingConfigImpl extends BindingConfig {
 
     public InterfaceExtension[] getInterfaceExtensions(String fullJavaName) {
         return _interfaceExtensions.stream().
-            filter(i -> i.contains(fullJavaName)).
-            toArray(InterfaceExtension[]::new);
+                filter(i -> i.contains(fullJavaName)).
+                toArray(InterfaceExtension[]::new);
     }
 
     public PrePostExtension[] getPrePostExtensions() {
@@ -331,7 +367,7 @@ public class BindingConfigImpl extends BindingConfig {
 
     public PrePostExtension getPrePostExtension(String fullJavaName) {
         return _prePostExtensions.stream().
-            filter(p -> p.contains(fullJavaName)).
-            findFirst().orElse(null);
+                filter(p -> p.contains(fullJavaName)).
+                findFirst().orElse(null);
     }
 }
