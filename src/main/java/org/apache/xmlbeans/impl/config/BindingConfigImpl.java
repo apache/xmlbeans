@@ -23,6 +23,7 @@ import org.apache.xmlbeans.impl.xb.xmlconfig.*;
 import javax.xml.namespace.QName;
 import java.io.File;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * An implementation of BindingConfig
@@ -70,16 +71,11 @@ public class BindingConfigImpl extends BindingConfig {
 
     }
 
-    private static final Map<JavaFilesClasspath, Parser> _parserMap = new HashMap<>();
+    private static final ConcurrentHashMap<JavaFilesClasspath, Parser> _parserMap = new ConcurrentHashMap<>();
 
     private static Parser parserInstance(File[] javaFiles, File[] classpath) {
-        JavaFilesClasspath jfc = new JavaFilesClasspath(javaFiles, classpath);
-        Parser parser = _parserMap.get(jfc);
-        if ( parser == null ) {
-            parser = new Parser(javaFiles, classpath);
-            _parserMap.put(jfc, parser);
-        }
-        return parser;
+        return _parserMap.computeIfAbsent(new JavaFilesClasspath(javaFiles, classpath), jfc ->
+                new Parser(jfc.javaFiles, jfc.classpath));
     }
 
     public static BindingConfig forConfigDocuments(Config[] configs, File[] javaFiles, File[] classpath) {
