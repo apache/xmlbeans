@@ -23,7 +23,6 @@ import org.apache.xmlbeans.impl.xb.xmlconfig.*;
 import javax.xml.namespace.QName;
 import java.io.File;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * An implementation of BindingConfig
@@ -47,42 +46,18 @@ public class BindingConfigImpl extends BindingConfig {
     private final List<PrePostExtensionImpl> _prePostExtensions = new ArrayList<>();
     private final Map<QName, UserTypeImpl> _userTypes = new LinkedHashMap<>();
 
-    private static class JavaFilesClasspath {
-
-        private final File[] javaFiles, classpath;
-
-        JavaFilesClasspath(File[] javaFiles, File[] classpath) {
-            this.javaFiles = javaFiles != null ? Arrays.copyOf(javaFiles, javaFiles.length) : new File[0];
-            this.classpath = classpath != null ? Arrays.copyOf(classpath, classpath.length) : new File[0];
-        }
-
-        @Override
-        public boolean equals(Object other) {
-            if ( other == null || ! this.getClass().isInstance(other) )
-                return false;
-            JavaFilesClasspath otherJfc = (JavaFilesClasspath) other;
-            return Arrays.equals(this.javaFiles, otherJfc.javaFiles) && Arrays.equals(this.classpath, otherJfc.classpath);
-        }
-
-        @Override
-        public int hashCode() {
-            return Arrays.hashCode(this.javaFiles) ^ Arrays.hashCode(this.classpath);
-        }
-
-    }
-
-    private static final ConcurrentHashMap<JavaFilesClasspath, Parser> _parserMap = new ConcurrentHashMap<>();
-
-    private static Parser parserInstance(File[] javaFiles, File[] classpath) {
-        return _parserMap.computeIfAbsent(new JavaFilesClasspath(javaFiles, classpath), jfc ->
-                new Parser(jfc.javaFiles, jfc.classpath));
-    }
+    private final File[] _javaFiles;
+    private final File[] _classpath;
+    private Parser _parser;
 
     public static BindingConfig forConfigDocuments(Config[] configs, File[] javaFiles, File[] classpath) {
         return new BindingConfigImpl(configs, javaFiles, classpath);
     }
 
     private BindingConfigImpl(Config[] configs, File[] javaFiles, File[] classpath) {
+        _javaFiles = (javaFiles != null) ? javaFiles.clone() : new File[0];
+        _classpath = (classpath != null) ? classpath.clone() : new File[0];
+
         for (Config config : configs) {
             Nsconfig[] nsa = config.getNamespaceArray();
             for (Nsconfig nsconfig : nsa) {
@@ -120,12 +95,12 @@ public class BindingConfigImpl extends BindingConfig {
 
             Extensionconfig[] ext = config.getExtensionArray();
             for (Extensionconfig extensionconfig : ext) {
-                recordExtensionSetting(javaFiles, classpath, extensionconfig);
+                recordExtensionSetting(extensionconfig);
             }
 
             Usertypeconfig[] utypes = config.getUsertypeArray();
             for (Usertypeconfig utype : utypes) {
-                recordUserTypeSetting(javaFiles, classpath, utype);
+                recordUserTypeSetting(utype);
             }
         }
 
@@ -210,7 +185,7 @@ public class BindingConfigImpl extends BindingConfig {
         list.forEach(o -> result.put(o, value));
     }
 
-    private void recordExtensionSetting(File[] javaFiles, File[] classpath, Extensionconfig ext) {
+    private void recordExtensionSetting(Extensionconfig ext) {
         NameSet xbeanSet = null;
         Object key = ext.getFor();
 
@@ -233,7 +208,7 @@ public class BindingConfigImpl extends BindingConfig {
         Extensionconfig.Interface[] intfXO = ext.getInterfaceArray();
         Extensionconfig.PrePostSet ppXO = ext.getPrePostSet();
 
-        Parser loader = parserInstance(javaFiles, classpath);
+        Parser loader = parserInstance();
 
         if (intfXO.length > 0 || ppXO != null) {
             for (Extensionconfig.Interface anInterface : intfXO) {
@@ -244,12 +219,18 @@ public class BindingConfigImpl extends BindingConfig {
         }
     }
 
-    private void recordUserTypeSetting(File[] javaFiles, File[] classpath, Usertypeconfig usertypeconfig) {
-        Parser loader = parserInstance(javaFiles, classpath);
+    private void recordUserTypeSetting(Usertypeconfig usertypeconfig) {
+        Parser loader = parserInstance();
         UserTypeImpl userType = UserTypeImpl.newInstance(loader, usertypeconfig);
         _userTypes.put(userType.getName(), userType);
     }
 
+    private Parser parserInstance() {
+        if (_parser == null) {
+            _parser = new Parser(_javaFiles, _classpath);
+        }
+        return _parser;
+    }
 
     private String lookup(Map<Object, String> map, Map<Object, String> mapByUriPrefix, String uri) {
         if (uri == null) {
