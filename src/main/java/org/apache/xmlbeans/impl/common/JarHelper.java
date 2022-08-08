@@ -87,8 +87,7 @@ public class JarHelper {
             while ((entry = jis.getNextJarEntry()) != null) {
                 if (entry.isDirectory()) {
                     File dir = new File(destDir, entry.getName());
-                    String canonicalDestinationPath = dir.getCanonicalPath();
-                    if (!canonicalDestinationPath.startsWith(destDir.getCanonicalPath())) {
+                    if (!dir.getCanonicalFile().toPath().startsWith(destDir.getCanonicalFile().toPath())) {
                         throw new IOException("Entry is outside of the target directory " + entry.getName());
                     }
                     dir.mkdir();
@@ -100,8 +99,7 @@ public class JarHelper {
                 int count;
                 byte[] data = new byte[BUFFER_SIZE];
                 File destFile = new File(destDir, entry.getName());
-                String canonicalDestinationPath = destFile.getCanonicalPath();
-                if (!canonicalDestinationPath.startsWith(destDir.getCanonicalPath())) {
+                if (!destFile.getCanonicalFile().toPath().startsWith(destDir.getCanonicalFile().toPath())) {
                     throw new IOException("Entry is outside of the target directory: " + entry.getName());
                 }
                 if (mVerbose) {
