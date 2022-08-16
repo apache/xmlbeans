@@ -67,7 +67,7 @@ configurations {
 
 ext {
     antVersion = '1.10.12'
-    javaparserVersion = '3.24.3'
+    javaparserVersion = '3.24.2'
     log4jVersion = '2.18.0'
     saxonVersion = '11.4'
 }

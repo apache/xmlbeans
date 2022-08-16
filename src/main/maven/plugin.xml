@@ -414,7 +414,7 @@
         <dependency>
             <groupId>com.github.javaparser</groupId>
             <artifactId>javaparser-core</artifactId>
-            <version>3.24.3</version>
+            <version>3.24.2</version>
         </dependency>
     </dependencies>
 </plugin>
