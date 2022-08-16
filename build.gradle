@@ -67,7 +67,7 @@ configurations {
 
 ext {
     antVersion = '1.10.12'
-    javaparserVersion = '3.24.2'
+    javaparserVersion = '3.24.3'
     log4jVersion = '2.18.0'
     saxonVersion = '11.4'
 }
@@ -554,14 +554,14 @@ publishing {
                 licenses {
                     license {
                         name = 'Apache License, Version 2.0'
-                        url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                        url = 'https://www.apache.org/licenses/LICENSE-2.0.txt'
                         distribution = 'repo'
                     }
                 }
 
                 organization {
                     name = 'Apache Software Foundation'
-                    url = 'http://www.apache.org/'
+                    url = 'https://www.apache.org/'
                 }
 
                 issueManagement {
