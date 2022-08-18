@@ -1,8 +1,0 @@
-dist: bionic
-language: java
-jdk:
-- openjdk11
-install: /bin/true
-before_script: /bin/true
-script:
-- ./gradlew javadoc test
