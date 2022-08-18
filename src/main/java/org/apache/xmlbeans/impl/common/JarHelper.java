@@ -54,7 +54,7 @@ public class JarHelper {
      * Jars a given directory or single file into a JarOutputStream.
      */
     public void jarDir(File dirOrFile2Jar, File destJar)
-        throws IOException {
+            throws IOException {
 
         if (dirOrFile2Jar == null || destJar == null) {
             throw new IllegalArgumentException();
@@ -87,8 +87,7 @@ public class JarHelper {
             while ((entry = jis.getNextJarEntry()) != null) {
                 if (entry.isDirectory()) {
                     File dir = new File(destDir, entry.getName());
-                    String canonicalDestinationPath = dir.getCanonicalPath();
-                    if (!canonicalDestinationPath.startsWith(destDir.getCanonicalPath())) {
+                    if (!dir.getCanonicalFile().toPath().startsWith(destDir.getCanonicalFile().toPath())) {
                         throw new IOException("Entry is outside of the target directory " + entry.getName());
                     }
                     dir.mkdir();
@@ -100,13 +99,12 @@ public class JarHelper {
                 int count;
                 byte[] data = new byte[BUFFER_SIZE];
                 File destFile = new File(destDir, entry.getName());
-                String canonicalDestinationPath = destFile.getCanonicalPath();
-                if (!canonicalDestinationPath.startsWith(destDir.getCanonicalPath())) {
+                if (!destFile.getCanonicalFile().toPath().startsWith(destDir.getCanonicalFile().toPath())) {
                     throw new IOException("Entry is outside of the target directory: " + entry.getName());
                 }
                 if (mVerbose) {
                     System.out.println("unjarring " + destFile +
-                                       " from " + entry.getName());
+                            " from " + entry.getName());
                 }
 
                 try (
@@ -138,7 +136,7 @@ public class JarHelper {
      * Recursively jars up the given path under the given directory.
      */
     private void jarDir(File dirOrFile2jar, JarOutputStream jos, String path)
-        throws IOException {
+            throws IOException {
         if (mVerbose) {
             System.out.println("checking " + dirOrFile2jar);
         }
@@ -188,7 +186,7 @@ public class JarHelper {
 
     // for debugging
     public static void main(String[] args)
-        throws IOException {
+            throws IOException {
         if (args.length < 2) {
             System.err.println("Usage: JarHelper jarname.jar directory");
             return;
