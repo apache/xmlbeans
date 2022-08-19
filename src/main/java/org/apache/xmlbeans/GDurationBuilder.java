@@ -339,7 +339,7 @@ public class GDurationBuilder implements GDurationSpecification, java.io.Seriali
             temp = _M;
             long ycarry = _fQuotient(temp, 12);
             _M = _mod(temp, 12, ycarry);
-            _CY += ycarry;
+            _CY = Math.addExact(_CY, Math.toIntExact(ycarry));
         }
 
         long carry = 0;
@@ -366,7 +366,7 @@ public class GDurationBuilder implements GDurationSpecification, java.io.Seriali
             temp = _h + carry;
             carry = _fQuotient(temp, 24);
             _h = _mod(temp, 24, carry);
-            _D += carry;
+            _D = Math.addExact(_D, Math.toIntExact(carry));
         }
 
         if (_CY == 0 && _M == 0 && _D == 0 && _h == 0 && _m == 0 && _s == 0 && (_fs == null || _fs.signum() == 0)) {

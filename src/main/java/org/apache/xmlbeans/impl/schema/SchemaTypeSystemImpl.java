@@ -551,27 +551,25 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
      */
     private static synchronized void nextBytes(byte[] result) {
         if (_random == null) {
-            try {
-                ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                LongUTFDataOutputStream daos = new LongUTFDataOutputStream(baos);
-
-                // at least 10 bits of unqieueness, right?  Maybe even 50 or 60.
-                daos.writeInt(System.identityHashCode(SchemaTypeSystemImpl.class));
-                String[] props = new String[]{"user.name", "user.dir", "user.timezone", "user.country", "java.class.path", "java.home", "java.vendor", "java.version", "os.version"};
-                for (String s : props) {
-                    String prop = SystemProperties.getProperty(s);
-                    if (prop != null) {
-                        daos.writeUTF(prop);
-                        daos.writeInt(System.identityHashCode(prop));
+            try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+                try (LongUTFDataOutputStream daos = new LongUTFDataOutputStream(baos)) {
+                    // at least 10 bits of unqieueness, right?  Maybe even 50 or 60.
+                    daos.writeInt(System.identityHashCode(SchemaTypeSystemImpl.class));
+                    String[] props = new String[]{"user.name", "user.dir", "user.timezone", "user.country", "java.class.path", "java.home", "java.vendor", "java.version", "os.version"};
+                    for (String s : props) {
+                        String prop = SystemProperties.getProperty(s);
+                        if (prop != null) {
+                            daos.writeUTF(prop);
+                            daos.writeInt(System.identityHashCode(prop));
+                        }
                     }
+                    daos.writeLong(Runtime.getRuntime().freeMemory());
                 }
-                daos.writeLong(Runtime.getRuntime().freeMemory());
-                daos.close();
                 byte[] bytes = baos.toByteArray();
                 for (int i = 0; i < bytes.length; i++) {
                     int j = i % _mask.length;
-                    _mask[j] *= 21;
-                    _mask[j] += i;
+                    _mask[j] *= (byte) 21;
+                    _mask[j] += (byte) i;
                 }
             } catch (IOException e) {
                 XBeanDebug.LOG.atDebug().withThrowable(e).log(e.getMessage());

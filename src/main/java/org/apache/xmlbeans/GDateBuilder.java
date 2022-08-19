@@ -683,7 +683,7 @@ public final class GDateBuilder implements GDateSpecification, java.io.Serializa
         }
 
         if (hasDay()) {
-            _D += carry;
+            _D = Math.addExact(_D, Math.toIntExact(carry));
         }
 
         if (hasDate()) {

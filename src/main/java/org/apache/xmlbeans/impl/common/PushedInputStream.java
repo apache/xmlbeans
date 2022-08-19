@@ -152,7 +152,7 @@ public abstract class PushedInputStream extends InputStream
         }
 
         long skipped = (avail < n) ? avail : n;
-        readpos += skipped;
+        readpos = Math.addExact(readpos, Math.toIntExact(skipped));
         return skipped;
     }
 
