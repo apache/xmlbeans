@@ -904,7 +904,7 @@ public final class GDateBuilder implements GDateSpecification, java.io.Serializa
 
         if (datemath) {
             // days: may require renormalization
-            _D += (long) sign * day + carry;
+            _D = Math.addExact(_D, Math.toIntExact(Math.addExact(Math.multiplyExact(sign, day), carry)));
             _normalizeDate();
         }
     }
