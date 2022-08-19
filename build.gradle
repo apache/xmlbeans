@@ -420,7 +420,7 @@ rat {
         'build',
         'javadoc',
         '.gradle',
-        '.github',
+        '.github/**',
         '.idea',
         'src/test/java/org/w3c/**',
         'samples/*/build',
