@@ -31,6 +31,7 @@ import org.xml.sax.*;
 import org.xml.sax.ext.DeclHandler;
 import org.xml.sax.ext.LexicalHandler;
 
+import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
@@ -2502,6 +2503,11 @@ public final class Locale
                 _xr.setErrorHandler(this);
             } catch (Throwable e) {
                 throw new RuntimeException(e.getMessage(), e);
+            }
+            try {
+                _xr.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+            } catch (Throwable e) {
+                LOG.atWarn().withThrowable(e).log("Secure Processing Feature is not supported");
             }
             try {
                 _xr.setProperty("http://xml.org/sax/properties/declaration-handler", this);
