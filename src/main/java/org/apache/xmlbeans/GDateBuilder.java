@@ -25,7 +25,7 @@ import java.util.TimeZone;
 /**
  * Used to build {@link GDate GDates}.
  * <p>
- * Like GDate, a GDateBuilder represents an Gregorian Date, Time,
+ * Like GDate, a GDateBuilder represents a Gregorian Date, Time,
  * and Timezone, or subset of information (Year, Month, Day,
  * Time, Timezone, or some combination). Wherever it provides
  * guidance, the XML Schema 1.0 specification (plus published
@@ -234,7 +234,7 @@ public final class GDateBuilder implements GDateSpecification, java.io.Serializa
      * The current offset of the default timezone is used as the timezone.
      * <p>
      * For example, if eastern daylight time is in effect at the given
-     * date, the timezone on the east coast of the united states
+     * date, the timezone on the east coast of the United States
      * translates to GMT-05:00 (EST) + 1:00 (DT offset) == GMT-04:00.
      *
      * @param date the date object to copy
@@ -609,7 +609,7 @@ public final class GDateBuilder implements GDateSpecification, java.io.Serializa
 
         if (date.hasTimeZone() &&
             (!((date.getTimeZoneSign() == 0 && date.getTimeZoneHour() == 0 && date.getTimeZoneMinute() == 0) ||
-               ((date.getTimeZoneSign() == -1 || date.getTimeZoneSign() == +1) &&
+               ((date.getTimeZoneSign() == -1 || date.getTimeZoneSign() == 1) &&
                 // NB: allow +00:00 and -00:00
                 // (date.getTimeZoneHour() == 0 && date.getTimeZoneMinute() > 0 || date.getTimeZoneHour() > 0 && date.getTimeZoneMinute() >= 0) &&
                 (date.getTimeZoneHour() >= 0 && date.getTimeZoneMinute() >= 0) &&

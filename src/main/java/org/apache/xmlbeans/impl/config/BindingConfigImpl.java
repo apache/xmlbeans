@@ -74,21 +74,23 @@ public class BindingConfigImpl extends BindingConfig {
                 List<? extends XmlAnySimpleType> applyto = qnameconfig.xgetTarget().xgetListValue();
                 QName name = qnameconfig.getName();
                 String javaname = qnameconfig.getJavaname();
-                for (Object o : applyto) {
-                    Qnametargetenum a = (Qnametargetenum) o;
-                    switch (a.getEnumValue().intValue()) {
-                        case Qnametargetenum.INT_TYPE:
-                            _qnameTypeMap.put(name, javaname);
-                            break;
-                        case Qnametargetenum.INT_DOCUMENT_TYPE:
-                            _qnameDocTypeMap.put(name, javaname);
-                            break;
-                        case Qnametargetenum.INT_ACCESSOR_ELEMENT:
-                            _qnameElemMap.put(name, javaname);
-                            break;
-                        case Qnametargetenum.INT_ACCESSOR_ATTRIBUTE:
-                            _qnameAttMap.put(name, javaname);
-                            break;
+                for (XmlAnySimpleType xmlAnySimpleType : applyto) {
+                    if (xmlAnySimpleType instanceof Qnametargetenum) {
+                        Qnametargetenum a = (Qnametargetenum) xmlAnySimpleType;
+                        switch (a.getEnumValue().intValue()) {
+                            case Qnametargetenum.INT_TYPE:
+                                _qnameTypeMap.put(name, javaname);
+                                break;
+                            case Qnametargetenum.INT_DOCUMENT_TYPE:
+                                _qnameDocTypeMap.put(name, javaname);
+                                break;
+                            case Qnametargetenum.INT_ACCESSOR_ELEMENT:
+                                _qnameElemMap.put(name, javaname);
+                                break;
+                            case Qnametargetenum.INT_ACCESSOR_ATTRIBUTE:
+                                _qnameAttMap.put(name, javaname);
+                                break;
+                        }
                     }
                 }
             }
@@ -105,7 +107,6 @@ public class BindingConfigImpl extends BindingConfig {
         }
 
         secondPhaseValidation();
-        //todo normalize();
     }
 
     void addInterfaceExtension(InterfaceExtensionImpl ext) {

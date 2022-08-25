@@ -382,7 +382,7 @@ public final class GDate implements GDateSpecification, java.io.Serializable {
      * The current offset of the default timezone is used as the timezone.
      * <p>
      * For example, if eastern daylight time is in effect at the given
-     * date, the timezone on the east coast of the united states
+     * date, the timezone on the east coast of the United States
      * translates to GMT-05:00 (EST) + 1:00 (DT offset) == GMT-04:00.
      */
     public GDate(Date date) {
