@@ -228,7 +228,7 @@ def schemaGenTask(String baseName, String mainTest, FileCollection beansPath, St
                     classpath beansPath
                     mainClass = "org.apache.xmlbeans.impl.tool.SchemaCompiler"
                     jvmArgs "-ea"
-                    args = [ "-name", xmlEntry.value, "-verbose", "-srconly", "-noann", "-d", rscDir, "-src", srcDir ] + xmlEntry.key.split(' ').collect{"${xsdDir}/${it}"}
+                    args = [ "-name", xmlEntry.value, "-quiet", "-srconly", "-noann", "-d", rscDir, "-src", srcDir ] + xmlEntry.key.split(' ').collect{"${xsdDir}/${it}"}
                     if (baseName =~ /sEXT/) {
                         args += ['src/test/java/xmlobject/extensions']
                     }

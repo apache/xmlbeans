@@ -15,9 +15,11 @@
 
 package org.apache.xmlbeans.impl.common;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.jar.JarEntry;
-import java.util.jar.JarInputStream;
 import java.util.jar.JarOutputStream;
 
 /**
@@ -65,61 +67,6 @@ public class JarHelper {
              JarOutputStream jout = new JarOutputStream(fout)) {
             //jout.setLevel(0);
             jarDir(dirOrFile2Jar, jout, null);
-        }
-    }
-
-    /**
-     * Unjars a given jar file into a given directory.
-     */
-    public void unjarDir(File jarFile, File destDir) throws IOException {
-        try (FileInputStream fis = new FileInputStream(jarFile)) {
-            unjar(fis, destDir);
-        }
-    }
-
-    /**
-     * Given an InputStream on a jar file, unjars the contents into the given
-     * directory.
-     */
-    public void unjar(InputStream in, File destDir) throws IOException {
-        try (JarInputStream jis = new JarInputStream(in)) {
-            JarEntry entry;
-            while ((entry = jis.getNextJarEntry()) != null) {
-                if (entry.isDirectory()) {
-                    File dir = new File(destDir, entry.getName());
-                    if (!dir.getCanonicalFile().toPath().startsWith(destDir.getCanonicalFile().toPath())) {
-                        throw new IOException("Entry is outside of the target directory " + entry.getName());
-                    }
-                    dir.mkdir();
-                    if (entry.getTime() != -1) {
-                        dir.setLastModified(entry.getTime());
-                    }
-                    continue;
-                }
-                int count;
-                byte[] data = new byte[BUFFER_SIZE];
-                File destFile = new File(destDir, entry.getName());
-                if (!destFile.getCanonicalFile().toPath().startsWith(destDir.getCanonicalFile().toPath())) {
-                    throw new IOException("Entry is outside of the target directory: " + entry.getName());
-                }
-                if (mVerbose) {
-                    System.out.println("unjarring " + destFile +
-                            " from " + entry.getName());
-                }
-
-                try (
-                        FileOutputStream fos = new FileOutputStream(destFile);
-                        BufferedOutputStream dest = new BufferedOutputStream(fos, BUFFER_SIZE)
-                ) {
-                    while ((count = jis.read(data, 0, BUFFER_SIZE)) != -1) {
-                        dest.write(data, 0, count);
-                    }
-                    dest.flush();
-                }
-                if (entry.getTime() != -1) {
-                    destFile.setLastModified(entry.getTime());
-                }
-            }
         }
     }
 
@@ -182,22 +129,5 @@ public class JarHelper {
                 jos.closeEntry();
             }
         }
-    }
-
-    // for debugging
-    public static void main(String[] args)
-            throws IOException {
-        if (args.length < 2) {
-            System.err.println("Usage: JarHelper jarname.jar directory");
-            return;
-        }
-
-        JarHelper jarHelper = new JarHelper();
-        jarHelper.mVerbose = true;
-
-        File destJar = new File(args[0]);
-        File dirOrFile2Jar = new File(args[1]);
-
-        jarHelper.jarDir(dirOrFile2Jar, destJar);
     }
 }
