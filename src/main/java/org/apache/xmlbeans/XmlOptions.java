@@ -1311,6 +1311,12 @@ public class XmlOptions implements java.io.Serializable {
         return set(XmlOptionsKeys.LOAD_DTD_GRAMMAR, loadDTDGrammar);
     }
 
+    /**
+     * Returns whether DTD grammar is loaded during parsing.
+     * The default value is false.
+     *
+     * @return {@code true}, if DTD grammar is loaded during parsing
+     */
     public boolean isLoadDTDGrammar() {
         Boolean flag = (Boolean) get(XmlOptionsKeys.LOAD_DTD_GRAMMAR);
         return flag != null && flag;
@@ -1327,6 +1333,12 @@ public class XmlOptions implements java.io.Serializable {
         return set(XmlOptionsKeys.LOAD_EXTERNAL_DTD, loadExternalDTD);
     }
 
+    /**
+     * Returns whether external DTDs are loaded during parsing.
+     * The default value is false.
+     *
+     * @return {@code true}, if external DTDs are loaded during parsing
+     */
     public boolean isLoadExternalDTD() {
         Boolean flag = (Boolean) get(XmlOptionsKeys.LOAD_EXTERNAL_DTD);
         return flag != null && flag;
@@ -1350,7 +1362,7 @@ public class XmlOptions implements java.io.Serializable {
      * the parser will throw an exception if a DocType declaration is encountered.
      * The default value is false.
      *
-     * @return boolean
+     * @return {@code true}, if DocType declarations are to be disallowed
      * @since 5.0.2
      */
     public boolean disallowDocTypeDeclaration() {
