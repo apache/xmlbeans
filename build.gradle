@@ -37,8 +37,8 @@ plugins {
     id('org.nosphere.apache.rat') version '0.7.1'
     id('de.thetaphi.forbiddenapis') version '3.3'
     id 'jacoco'
-    id "com.github.spotbugs" version '5.0.9'
-    id 'org.cyclonedx.bom' version '1.7.0'
+    id "com.github.spotbugs" version '5.0.10'
+    id 'org.cyclonedx.bom' version '1.7.1'
 }
 
 // Only add the plugin for Sonar if enabled
@@ -749,6 +749,7 @@ if (project.hasProperty('enableSonar')) {
 }
 
 cyclonedxBom {
+    componentVersion = XMLBeansVersion
     // includeConfigs is the list of configuration names to include when generating the BOM (leave empty to include every configuration)
     includeConfigs = ["runtimeClasspath"]
     // skipConfigs is a list of configuration names to exclude when generating the BOM
