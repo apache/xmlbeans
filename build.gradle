@@ -37,7 +37,7 @@ plugins {
     id('org.nosphere.apache.rat') version '0.7.1'
     id('de.thetaphi.forbiddenapis') version '3.3'
     id 'jacoco'
-    id "com.github.spotbugs" version '5.0.10'
+    id "com.github.spotbugs" version '5.0.12'
     id 'org.cyclonedx.bom' version '1.7.1'
 }
 
