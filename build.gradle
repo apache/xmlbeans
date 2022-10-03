@@ -23,7 +23,7 @@ buildscript {
 
     dependencies {
         classpath 'org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:3.3'
-        classpath 'de.thetaphi:forbiddenapis:3.3'
+        classpath 'de.thetaphi:forbiddenapis:3.4'
     }
 }
 
@@ -34,8 +34,8 @@ plugins {
     id 'idea'
     id 'maven-publish'
     id 'distribution'
-    id('org.nosphere.apache.rat') version '0.7.1'
-    id('de.thetaphi.forbiddenapis') version '3.3'
+    id('org.nosphere.apache.rat') version '0.8.0'
+    id('de.thetaphi.forbiddenapis') version '3.4'
     id 'jacoco'
     id "com.github.spotbugs" version '5.0.12'
     id 'org.cyclonedx.bom' version '1.7.1'

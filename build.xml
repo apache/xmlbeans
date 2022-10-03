@@ -132,10 +132,10 @@
     <property name="rat.reportdir" value="build/rat"/>
     <property name="rat.report" value="${rat.reportdir}/report.txt"/>
 
-    <dependency prefix="rat" artifact="org.apache.rat:apache-rat:0.13" usage="util"/>
+    <dependency prefix="rat" artifact="org.apache.rat:apache-rat:0.15" usage="util"/>
 
     <!-- api checks -->
-    <dependency prefix="forbidden" artifact="de.thetaphi:forbiddenapis:3.0.1" usage="util"/>
+    <dependency prefix="forbidden" artifact="de.thetaphi:forbiddenapis:3.4" usage="util"/>
 
     <!-- test dependencies -->
     <dependency prefix="junit" artifact="junit:junit:4.13.2" usage="tests"/>
