@@ -38,7 +38,7 @@ plugins {
     id('de.thetaphi.forbiddenapis') version '3.4'
     id 'jacoco'
     id "com.github.spotbugs" version '5.0.12'
-    id 'org.cyclonedx.bom' version '1.7.1'
+    id 'org.cyclonedx.bom' version '1.7.2'
 }
 
 // Only add the plugin for Sonar if enabled
