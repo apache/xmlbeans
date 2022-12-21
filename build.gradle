@@ -464,6 +464,9 @@ distributions {
             from('build/libs') {
                 into 'lib'
             }
+            from ('build/reports') {
+                include '*.bom.xml'
+            }
             from(sourcesJar) {
                 into 'lib'
             }
@@ -510,6 +513,10 @@ distributions {
 
             from ('build/docs/javadoc') {
                 into 'javadocs'
+            }
+
+            from ('build/reports') {
+                include '*.bom.xml'
             }
 
             includeEmptyDirs = false
@@ -598,7 +605,9 @@ generatePomFileForPOIPublication.destination = "build/dist/maven/${project.archi
 
 [binDistTar, binDistZip]*.dependsOn 'jar'
 [binDistTar, binDistZip]*.dependsOn 'export4anttest'
+[binDistTar, binDistZip]*.dependsOn 'cyclonedxBom'
 [srcDistTar, srcDistZip]*.dependsOn 'cacheJava9'
+[srcDistTar, srcDistZip]*.dependsOn 'cyclonedxBom'
 
 tasks.withType(Tar) {
     compression = Compression.GZIP
