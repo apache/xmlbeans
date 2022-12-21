@@ -120,10 +120,10 @@
 
     <!-- dependencies -->
     <dependency prefix="xml-apis" artifact="xml-apis:xml-apis:1.4.01" usage="java8"/>
-    <dependency prefix="log4j-api" artifact="org.apache.logging.log4j:log4j-api:2.18.0" usage="main"/>
+    <dependency prefix="log4j-api" artifact="org.apache.logging.log4j:log4j-api:2.19.0" usage="main"/>
     <dependency prefix="saxon" artifact="net.sf.saxon:Saxon-HE:11.4" usage="main"/>
     <dependency prefix="ant" artifact="org.apache.ant:ant:1.10.12" usage="main"/>
-    <dependency prefix="javaparser.core" artifact="com.github.javaparser:javaparser-core:3.24.4" usage="main"/>
+    <dependency prefix="javaparser.core" artifact="com.github.javaparser:javaparser-core:3.24.9" usage="main"/>
 
     <!-- previous xmlbeans version is used to bootstrap necessary schema bindings -->
     <dependency prefix="old.xmlbeans" artifact="org.apache.xmlbeans:xmlbeans:3.1.0" usage="previous"/>
@@ -139,7 +139,7 @@
 
     <!-- test dependencies -->
     <dependency prefix="junit" artifact="junit:junit:4.13.2" usage="tests"/>
-    <dependency prefix="log4j-core" artifact="org.apache.logging.log4j:log4j-core:2.18.0" usage="tests"/>
+    <dependency prefix="log4j-core" artifact="org.apache.logging.log4j:log4j-core:2.19.0" usage="tests"/>
     <dependency prefix="xmlresolver" artifact="org.xmlresolver:xmlresolver:4.1.2" usage="main"/>
     <dependency prefix="ant-junit" artifact="org.apache.ant:ant-junit:1.10.12" usage="tests"/>
     <dependency prefix="ant-junit4" artifact="org.apache.ant:ant-junit4:1.10.12" usage="tests"/>
@@ -638,7 +638,7 @@
             <excludepackage name="org.apache.xmlbeans.impl.xb.*"/>
             <link href="https://docs.oracle.com/javase/9/docs/api/"/>
 <!--            <link href="https://javadoc.io/doc/xml-apis/xml-apis/1.4.01/"/>-->
-            <link href="https://javadoc.io/doc/com.github.javaparser/javaparser-core/3.24.4"/>
+            <link href="https://javadoc.io/doc/com.github.javaparser/javaparser-core/3.24.9"/>
             <link href="https://ant.apache.org/manual/api/"/>
         </javadoc>
     </target>
@@ -916,14 +916,14 @@
         <dependency prefix="spotbugs.dom4j" artifact="org.dom4j:dom4j:2.1.3" usage="${spotbugs.lib}"/>
         <dependency prefix="spotbugs.jaxen" artifact="jaxen:jaxen:1.2.0" usage="${spotbugs.lib}"/>
         <dependency prefix="spotbugs.bcel" artifact="org.apache.bcel:bcel:6.5.0" usage="${spotbugs.lib}"/>
-        <dependency prefix="spotbugs.slf4j-api" artifact="org.slf4j:slf4j-api:1.8.0-beta4" usage="${spotbugs.lib}"/>
+        <dependency prefix="spotbugs.slf4j-api" artifact="org.slf4j:slf4j-api:2.0.6" usage="${spotbugs.lib}"/>
         <dependency prefix="spotbugs.commons-lang3" artifact="org.apache.commons:commons-lang3:3.12.0" usage="${spotbugs.lib}"/>
         <dependency prefix="spotbugs.commons-text" artifact="org.apache.commons:commons-text:1.9" usage="${spotbugs.lib}"/>
         <dependency prefix="spotbugs.jcip-annotations" artifact="net.jcip:jcip-annotations:1.0" usage="${spotbugs.lib}"/>
         <dependency prefix="spotbugs.icu4j" artifact="com.ibm.icu:icu4j:68.2" usage="${spotbugs.lib}" target="icu4j-63.1.jar"/>
-        <dependency prefix="spotbugs.log4j-api" artifact="org.apache.logging.log4j:log4j-api:2.18.0" usage="${spotbugs.lib}"/>
-        <dependency prefix="spotbugs.log4j-core" artifact="org.apache.logging.log4j:log4j-core:2.18.0" usage="${spotbugs.lib}"/>
-        <dependency prefix="spotbugs.log4j-slf4j18-impl" artifact="org.apache.logging.log4j:log4j-slf4j18-impl:2.18.0" usage="${spotbugs.lib}"/>
+        <dependency prefix="spotbugs.log4j-api" artifact="org.apache.logging.log4j:log4j-api:2.19.0" usage="${spotbugs.lib}"/>
+        <dependency prefix="spotbugs.log4j-core" artifact="org.apache.logging.log4j:log4j-core:2.19.0" usage="${spotbugs.lib}"/>
+        <dependency prefix="spotbugs.log4j-slf4j18-impl" artifact="org.apache.logging.log4j:log4j-slf4j18-impl:2.19.0" usage="${spotbugs.lib}"/>
         <dependency prefix="spotbugs.saxon" artifact="net.sf.saxon:Saxon-HE:9.9.1-8" usage="${spotbugs.lib}"/>
 
         <mkdir dir="${basedir}${spotbugs.lib}/config"/>
