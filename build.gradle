@@ -465,7 +465,7 @@ distributions {
                 into 'lib'
             }
             from ('build/reports') {
-                include '*.bom.xml'
+                include '*.bom.*'
             }
             from(sourcesJar) {
                 into 'lib'
@@ -516,7 +516,7 @@ distributions {
             }
 
             from ('build/reports') {
-                include '*.bom.xml'
+                include '*.bom.*'
             }
 
             includeEmptyDirs = false
@@ -772,7 +772,7 @@ cyclonedxBom {
     // The file name for the generated BOMs (before the file format suffix). Defaults to 'bom'
     outputName = "xmlbeans-${XMLBeansVersion}.bom"
     // The file format generated, can be xml, json or all for generating both
-    outputFormat = "xml"
+    outputFormat = "all"
     // Exclude BOM Serial Number
     includeBomSerialNumber = true
 }
