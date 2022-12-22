@@ -515,10 +515,6 @@ distributions {
                 into 'javadocs'
             }
 
-            from ('build/reports') {
-                include '*.bom.*'
-            }
-
             includeEmptyDirs = false
             duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 
