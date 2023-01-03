@@ -41,7 +41,7 @@ public abstract class JavaIntHolderEx extends JavaIntHolder {
         try {
             v = XsTypeConverter.lexInt(s);
         } catch (Exception e) {
-            throw new XmlValueOutOfRangeException();
+            throw new XmlValueOutOfRangeException(XmlErrorCodes.INT, new Object[]{s});
         }
 
         if (_validateOnSet()) {

@@ -41,7 +41,7 @@ public abstract class JavaLongHolderEx extends JavaLongHolder {
         try {
             v = XsTypeConverter.lexLong(s);
         } catch (Exception e) {
-            throw new XmlValueOutOfRangeException();
+            throw new XmlValueOutOfRangeException(XmlErrorCodes.LONG, new Object[]{s});
         }
 
         if (_validateOnSet()) {
