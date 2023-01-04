@@ -27,7 +27,6 @@ buildscript {
     }
 }
 
-
 plugins {
     id 'java'
     id 'java-library'
@@ -39,6 +38,7 @@ plugins {
     id 'jacoco'
     id "com.github.spotbugs" version '5.0.12'
     id 'org.cyclonedx.bom' version '1.7.3'
+    id 'ru.vyarus.animalsniffer' version '1.6.0'
 }
 
 // Only add the plugin for Sonar if enabled
@@ -70,6 +70,7 @@ ext {
     javaparserVersion = '3.24.9'
     log4jVersion = '2.19.0'
     saxonVersion = '11.4'
+    androidSdkMinimum = '26'
 }
 
 def testSchemas =  [
@@ -180,6 +181,8 @@ dependencies {
         exclude group: 'com.google.errorprone', module: 'error_prone_annotations'
         exclude group: 'com.google.j2objc', module: 'j2objc-annotations'
     }
+
+    signature "com.toasttab.android:gummy-bears-api-${androidSdkMinimum}:0.3.0@signature"
 }
 
 wrapper {
@@ -779,5 +782,11 @@ Set<File> xsdDirs(File parent) {
         dirIt.eachFileMatch(groovy.io.FileType.FILES, ~/.*\.xsd.*/, { xsdDirs << parent.toPath().relativize(dirIt.toPath()).toFile() })
     }
     return xsdDirs
+}
+
+animalsniffer {
+    //sourceSets = [sourceSets.main]
+    ignore 'javax.xml.stream.*'
+    ignore 'javax.xml.namespace.*'
 }
 
