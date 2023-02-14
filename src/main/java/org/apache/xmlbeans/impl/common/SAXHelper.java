@@ -18,6 +18,7 @@ package org.apache.xmlbeans.impl.common;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.xmlbeans.XmlOptions;
+import org.apache.xmlbeans.impl.util.ExceptionUtil;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -99,6 +100,9 @@ public final class SAXHelper {
             try {
                 clazz = Class.forName(securityManagerClassName);
             } catch (Throwable e) { // NOSONAR
+                if (ExceptionUtil.isFatal(e)) {
+                    ExceptionUtil.rethrow(e);
+                }
                 // xerces is not available on class-/modulepath
                 continue;
             }
@@ -111,6 +115,9 @@ public final class SAXHelper {
                 // Stop once one can be setup without error
                 return;
             } catch (Throwable e) {     // NOSONAR - also catch things like NoClassDefError here
+                if (ExceptionUtil.isFatal(e)) {
+                    ExceptionUtil.rethrow(e);
+                }
                 // throttle the log somewhat as it can spam the log otherwise
                 if (System.currentTimeMillis() > lastLog + TimeUnit.MINUTES.toMillis(5)) {
                     LOG.atWarn().withThrowable(e).log("SAX Security Manager could not be setup [log suppressed for 5 minutes]");

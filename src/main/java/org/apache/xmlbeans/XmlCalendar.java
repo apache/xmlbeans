@@ -15,6 +15,7 @@
 
 package org.apache.xmlbeans;
 
+import org.apache.xmlbeans.impl.util.ExceptionUtil;
 import org.apache.xmlbeans.impl.util.SuppressForbidden;
 
 import java.math.BigDecimal;
@@ -278,6 +279,9 @@ public class XmlCalendar extends GregorianCalendar
             }
             catch (Throwable t)
             {
+                if (ExceptionUtil.isFatal(t)) {
+                    ExceptionUtil.rethrow(t);
+                }
                 defaultYear = DEFAULT_DEFAULT_YEAR;
             }
         }

@@ -18,6 +18,7 @@ package org.apache.xmlbeans.impl.schema;
 import org.apache.xmlbeans.*;
 import org.apache.xmlbeans.impl.common.QNameHelper;
 import org.apache.xmlbeans.impl.common.XBeanDebug;
+import org.apache.xmlbeans.impl.util.ExceptionUtil;
 import org.apache.xmlbeans.impl.values.*;
 import org.apache.xmlbeans.impl.xb.xsdschema.AnnotationDocument.Annotation;
 import org.apache.xmlbeans.impl.xb.xsdschema.DocumentationDocument.Documentation;
@@ -2409,7 +2410,10 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory {
         Element el;
         try {
             el = Element.Factory.parse(str);
-        } catch (Throwable ignore) {
+        } catch (Throwable e) {
+            if (ExceptionUtil.isFatal(e)) {
+                ExceptionUtil.rethrow(e);
+            }
             return "";
         }
 

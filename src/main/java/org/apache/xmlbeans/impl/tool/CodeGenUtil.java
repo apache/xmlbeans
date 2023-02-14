@@ -17,6 +17,7 @@ package org.apache.xmlbeans.impl.tool;
 
 import org.apache.xmlbeans.SystemProperties;
 import org.apache.xmlbeans.impl.common.IOUtil;
+import org.apache.xmlbeans.impl.util.ExceptionUtil;
 
 import java.io.*;
 import java.net.URI;
@@ -219,14 +220,17 @@ public class CodeGenUtil {
                 }
             }
         } catch (Throwable e) {
+            if (ExceptionUtil.isFatal(e)) {
+                ExceptionUtil.rethrow(e);
+            }
             System.err.println(e.toString());
             System.err.println(e.getCause());
             e.printStackTrace(System.err);
             return false;
-        }
-
-        if (clFile != null) {
-            clFile.delete();
+        } finally {
+            if (clFile != null) {
+                clFile.delete();
+            }
         }
 
         return true;

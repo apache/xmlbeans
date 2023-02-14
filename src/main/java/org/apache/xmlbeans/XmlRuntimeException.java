@@ -44,7 +44,7 @@ public class XmlRuntimeException extends RuntimeException
     /**
      * Constructs an XmlRuntimeException from a cause.
      */ 
-    public XmlRuntimeException ( Throwable t           ) { super( t );    }
+    public XmlRuntimeException ( Throwable t ) { super( t );    }
     
     /**
      * Constructs an XmlRuntimeException from a message, a cause, and a collection of XmlErrors.

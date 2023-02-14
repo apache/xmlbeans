@@ -27,6 +27,7 @@ import org.apache.tools.ant.types.Reference;
 import org.apache.xmlbeans.XmlError;
 import org.apache.xmlbeans.XmlOptions;
 import org.apache.xmlbeans.impl.common.IOUtil;
+import org.apache.xmlbeans.impl.util.ExceptionUtil;
 
 import java.io.File;
 import java.io.PrintWriter;
@@ -296,6 +297,9 @@ public class XMLBean extends MatchingTask {
             //interrupted means cancel
             if (e instanceof InterruptedException || failonerror) {
                 throw new BuildException(e);
+            }
+            if (ExceptionUtil.isFatal(e)) {
+                ExceptionUtil.rethrow(e);
             }
 
             log("Exception while building schemas: " + e.getMessage(), Project.MSG_ERR);

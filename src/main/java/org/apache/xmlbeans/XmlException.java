@@ -45,7 +45,7 @@ public class XmlException extends Exception
     /**
      * Constructs an XmlException from a cause.
      */
-    public XmlException ( Throwable t           ) { super( t );    }
+    public XmlException ( Throwable t ) { super( t );    }
 
     /**
      * Constructs an XmlException from an {@link XmlError}.

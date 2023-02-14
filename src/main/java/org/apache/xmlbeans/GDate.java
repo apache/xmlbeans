@@ -15,6 +15,8 @@
 
 package org.apache.xmlbeans;
 
+import org.apache.xmlbeans.impl.util.ExceptionUtil;
+
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.RoundingMode;
@@ -270,6 +272,9 @@ public final class GDate implements GDateSpecification, java.io.Serializable {
                     try {
                         fs = new BigDecimal(string.subSequence(start, len).toString());
                     } catch (Throwable e) {
+                        if (ExceptionUtil.isFatal(e)) {
+                            ExceptionUtil.rethrow(e);
+                        }
                         throw new IllegalArgumentException();
                     }
                 }

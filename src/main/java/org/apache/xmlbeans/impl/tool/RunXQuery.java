@@ -18,6 +18,7 @@ package org.apache.xmlbeans.impl.tool;
 import org.apache.xmlbeans.XmlBeans;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
+import org.apache.xmlbeans.impl.util.ExceptionUtil;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -138,6 +139,9 @@ public class RunXQuery {
                 query = sb.toString();
             }
         } catch (Throwable e) {
+            if (ExceptionUtil.isFatal(e)) {
+                ExceptionUtil.rethrow(e);
+            }
             System.err.println("Cannot read query file: " + e.getMessage());
             System.exit(1);
             return;

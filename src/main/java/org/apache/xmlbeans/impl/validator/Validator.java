@@ -19,6 +19,7 @@ import org.apache.xmlbeans.*;
 import org.apache.xmlbeans.impl.common.*;
 import org.apache.xmlbeans.impl.schema.SchemaTypeImpl;
 import org.apache.xmlbeans.impl.schema.SchemaTypeVisitorImpl;
+import org.apache.xmlbeans.impl.util.ExceptionUtil;
 import org.apache.xmlbeans.impl.util.XsTypeConverter;
 import org.apache.xmlbeans.impl.values.*;
 
@@ -330,6 +331,9 @@ public final class Validator
 
                 xsiType = _globalTypes.findType(XmlQNameImpl.validateLexical(value, _vc, event));
             } catch (Throwable t) {
+                if (ExceptionUtil.isFatal(t)) {
+                    ExceptionUtil.rethrow(t);
+                }
                 _errorState++;
             } finally {
                 _suspendErrors--;

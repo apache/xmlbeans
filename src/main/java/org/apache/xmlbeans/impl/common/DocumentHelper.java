@@ -18,6 +18,7 @@ package org.apache.xmlbeans.impl.common;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.xmlbeans.XmlOptions;
+import org.apache.xmlbeans.impl.util.ExceptionUtil;
 import org.w3c.dom.Document;
 import org.xml.sax.ErrorHandler;
 import org.xml.sax.InputSource;
@@ -131,6 +132,9 @@ public final class DocumentHelper {
             } catch (ClassNotFoundException e) {
                 // continue without log, this is expected in some setups
             } catch (Throwable e) {     // NOSONAR - also catch things like NoClassDefError here
+                if (ExceptionUtil.isFatal(e)) {
+                    ExceptionUtil.rethrow(e);
+                }
                 if(System.currentTimeMillis() > lastLog + TimeUnit.MINUTES.toMillis(5)) {
                     LOG.atWarn().withThrowable(e).log("DocumentBuilderFactory Security Manager could not be setup [log suppressed for 5 minutes]");
                     lastLog = System.currentTimeMillis();
@@ -142,6 +146,9 @@ public final class DocumentHelper {
         try {
             dbf.setAttribute(XMLBeansConstants.ENTITY_EXPANSION_LIMIT, options.getEntityExpansionLimit());
         } catch (Throwable e) {
+            if (ExceptionUtil.isFatal(e)) {
+                ExceptionUtil.rethrow(e);
+            }
             if(System.currentTimeMillis() > lastLog + TimeUnit.MINUTES.toMillis(5)) {
                 LOG.atWarn().withThrowable(e).log("DocumentBuilderFactory Entity Expansion Limit could not be setup [log suppressed for 5 minutes]");
                 lastLog = System.currentTimeMillis();

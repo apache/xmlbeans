@@ -26,6 +26,7 @@ import org.apache.xmlbeans.impl.common.XmlLocale;
 import org.apache.xmlbeans.impl.store.Cur.Locations;
 import org.apache.xmlbeans.impl.store.DomImpl.Dom;
 import org.apache.xmlbeans.impl.store.Saaj.SaajCallback;
+import org.apache.xmlbeans.impl.util.ExceptionUtil;
 import org.w3c.dom.*;
 import org.xml.sax.*;
 import org.xml.sax.ext.DeclHandler;
@@ -2502,16 +2503,25 @@ public final class Locale
                 _xr.setDTDHandler(this);
                 _xr.setErrorHandler(this);
             } catch (Throwable e) {
+                if (ExceptionUtil.isFatal(e)) {
+                    ExceptionUtil.rethrow(e);
+                }
                 throw new RuntimeException(e.getMessage(), e);
             }
             try {
                 _xr.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
             } catch (Throwable e) {
+                if (ExceptionUtil.isFatal(e)) {
+                    ExceptionUtil.rethrow(e);
+                }
                 LOG.atWarn().withThrowable(e).log("Secure Processing Feature is not supported");
             }
             try {
                 _xr.setProperty("http://xml.org/sax/properties/declaration-handler", this);
             } catch (Throwable e) {
+                if (ExceptionUtil.isFatal(e)) {
+                    ExceptionUtil.rethrow(e);
+                }
                 LOG.atWarn().withThrowable(e).log("SAX Declaration Handler is not supported");
             }
         }

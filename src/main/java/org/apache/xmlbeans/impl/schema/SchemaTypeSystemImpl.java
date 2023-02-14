@@ -18,6 +18,7 @@ package org.apache.xmlbeans.impl.schema;
 import org.apache.xmlbeans.*;
 import org.apache.xmlbeans.impl.common.QNameHelper;
 import org.apache.xmlbeans.impl.common.XBeanDebug;
+import org.apache.xmlbeans.impl.util.ExceptionUtil;
 import org.apache.xmlbeans.impl.util.FilerImpl;
 import org.apache.xmlbeans.impl.util.HexBin;
 import org.apache.xmlbeans.impl.util.LongUTFDataInputStream;
@@ -211,6 +212,9 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
             Class<?> c = Class.forName(name + "." + SchemaTypeCodePrinter.INDEX_CLASSNAME, true, loader);
             return (SchemaTypeSystemImpl) c.getField("typeSystem").get(null);
         } catch (Throwable e) {
+            if (ExceptionUtil.isFatal(e)) {
+                ExceptionUtil.rethrow(e);
+            }
             return null;
         }
     }
