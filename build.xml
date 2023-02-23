@@ -791,6 +791,7 @@
                  classpath="${rat.jar}" />
         <rat:report xmlns:rat="antlib:org.apache.rat.anttasks" reportFile="${rat.report}">
             <fileset dir="src/">
+                <exclude name="NOTICE-binary.txt"/>
                 <exclude name="main/resources/**/META-INF/services/**"/>
                 <exclude name="**/*.iml" />
                 <exclude name="**/XML.xsd"/>

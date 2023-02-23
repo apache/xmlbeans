@@ -445,7 +445,7 @@ rat {
         'xbeanenv.*',
         'CHANGES.txt',
         'SECURITY.md',
-        '.travis.yml',
+        'NOTICE-binary.txt',
         'build.javacheck.xml'
     ]
 
