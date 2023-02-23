@@ -485,8 +485,9 @@ distributions {
             }
             from ('.') {
                 include 'LICENSE-binary.txt'
-                include 'NOTICE.txt'
+                include 'NOTICE-binary.txt'
                 rename ('LICENSE-binary.txt', 'LICENSE.txt')
+                rename ('NOTICE-binary.txt', 'NOTICE.txt')
             }
 
             includeEmptyDirs = false

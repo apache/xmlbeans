@@ -72,10 +72,13 @@ svn pd 'svn:executable' $(find -name .svn -prune -or -type f ! -name \*.sh \
  -print0 | xargs -0 svn pg 'svn:executable' | cut -d ' ' -f 1)
 {code}
 
-   9. Before building, review any new or updated dependencies to ensure that
-      if they required LICENSE or NOTICE updates then these were done.
+  9a. Before building, review any new or updated dependencies to ensure that
+      the required LICENSE-binary.txt and NOTICE-binary.txt updates were done.
 
-  10. Ensure that CHANGES.txt is up to date
+  9b. Review if we have added new source code that is taken from any project and if this affects
+      LICENSE.txt and NOTICE.txt.
+
+  10. Ensure that the issues in JIRA have the version number set and are resolved.
 
   11. Ensure that the KEYS files in the dist areas are up-to-date with the
       latest ones in POI svn:
