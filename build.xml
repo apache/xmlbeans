@@ -739,7 +739,7 @@
         </tar>
 
         <zip destfile="build/xmlbeans-bin-${version.base}-${tstamp.dist}.zip" update="false">
-            <zipfileset dir="." includes="LICENSE.txt,NOTICE.txt" prefix="${prefix}"/>
+            <zipfileset dir="." includes="LICENSE-binary.txt,NOTICE.txt" prefix="${prefix}"/>
             <zipfileset dir="samples" includes="Any/**,DateTime/**,MixedContent/**,OrderMatters/**,SchemaEnum/**,Validation/**,XQueryXPath/**,XsdConfig/**" prefix="${prefix}/samples"/>
             <zipfileset dir="src/main/shell" prefix="${prefix}/bin"/>
             <zipfileset dir="xkit" prefix="${prefix}"/>
@@ -759,7 +759,7 @@
             </zipfileset>
         </zip>
         <tar destfile="build/xmlbeans-bin-${version.base}-${tstamp.dist}.tgz" compression="gzip" longfile="posix">
-            <tarfileset dir="." includes="LICENSE.txt,NOTICE.txt" prefix="${prefix}"/>
+            <tarfileset dir="." includes="LICENSE-binary.txt,NOTICE.txt" prefix="${prefix}"/>
             <tarfileset dir="samples" includes="Any/**,DateTime/**,MixedContent/**,OrderMatters/**,SchemaEnum/**,Validation/**,XQueryXPath/**,XsdConfig/**" prefix="${prefix}/samples"/>
             <tarfileset dir="src/main/shell" prefix="${prefix}/bin"/>
             <tarfileset dir="xkit" prefix="${prefix}"/>
