@@ -221,8 +221,8 @@ Apache Software License 2.0 and LGPL 3.0
 com.github.javaparser:javaparser-core:3.25.0
 com.github.javaparser:javaparser-symbol-solver-core:3.25.0
 
-Apache Software License 2.0 and LGPL 2.1 and Mozilla Public License 1.1
------------------------------------------------------------------------
+Apache Software License 2.0, LGPL 2.1 (or later) and Mozilla Public License 1.1
+-------------------------------------------------------------------------------
 
 org.javassist:javassist:3.29.2-GA
 
