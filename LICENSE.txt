@@ -200,3 +200,6 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 
+The XMLBeans Source Release bundles the Gradle Wrapper. (https://docs.gradle.org/current/userguide/gradle_wrapper.html)
+This is released under the Apache License, v2.0.
+Copyright © 2015-2021 the original authors.
