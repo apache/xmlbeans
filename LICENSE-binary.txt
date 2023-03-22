@@ -234,4 +234,4 @@ org.slf4j:slf4j-api:1.7.25
 Mozilla Public License 2.0
 --------------------------
 
-net.sf.saxon:Saxon-HE:12.1
+net.sf.saxon:Saxon-HE:11.5
