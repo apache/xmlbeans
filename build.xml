@@ -123,7 +123,8 @@
     <dependency prefix="log4j-api" artifact="org.apache.logging.log4j:log4j-api:2.20.0" usage="main"/>
     <dependency prefix="saxon" artifact="net.sf.saxon:Saxon-HE:11.5" usage="main"/>
     <dependency prefix="ant" artifact="org.apache.ant:ant:1.10.13" usage="main"/>
-    <dependency prefix="javaparser.core" artifact="com.github.javaparser:javaparser-core:3.25.0" usage="main"/>
+    <dependency prefix="javaparser-core" artifact="com.github.javaparser:javaparser-core:3.25.0" usage="main"/>
+    <dependency prefix="javaparser-symbol-solver-core" artifact="com.github.javaparser:javaparser-symbol-solver-core:3.25.0" usage="main"/>
 
     <!-- previous xmlbeans version is used to bootstrap necessary schema bindings -->
     <dependency prefix="old.xmlbeans" artifact="org.apache.xmlbeans:xmlbeans:3.1.0" usage="previous"/>
@@ -178,7 +179,8 @@
         <pathelement location="${hamcrest.jar}"/>
         <pathelement location="${xerces.jar}"/>
         <pathelement location="${xml-apis.jar}" if:true="${isJava8}"/>
-        <pathelement location="${javaparser.core.jar}"/>
+        <pathelement location="${javaparser-core.jar}"/>
+        <pathelement location="${javaparser-symbol-solver-core.jar}"/>
         <path refid="maven-plugin"/>
     </path>
 
@@ -210,7 +212,8 @@
             <or>
                 <and>
                     <available file="${old.xmlbeans.jar}"/>
-                    <available file="${javaparser.core.jar}"/>
+                    <available file="${javaparser-core.jar}"/>
+                    <available file="${javaparser-symbol-solver-core.jar}"/>
                     <available file="${saxon.jar}"/>
                     <available file="${xmlresolver.jar}"/>
                     <available file="${log4j-api.jar}"/>
@@ -247,7 +250,8 @@
     <target name="-fetch-jars" depends="-check-jars" unless="jars.present"
             description="Fetches needed JAR files from the Internet">
         <downloadfile dest="${old.xmlbeans.jar}" src="${old.xmlbeans.url}"/>
-        <downloadfile dest="${javaparser.core.jar}" src="${javaparser.core.url}"/>
+        <downloadfile dest="${javaparser-core.jar}" src="${javaparser-core.url}"/>
+        <downloadfile dest="${javaparser-symbol-solver-core.jar}" src="${javaparser-symbol-solver-core.url}"/>
         <downloadfile dest="${saxon.jar}" src="${saxon.url}"/>
         <downloadfile dest="${xmlresolver.jar}" src="${xmlresolver.url}"/>
         <downloadfile dest="${log4j-api.jar}" src="${log4j-api.url}"/>
@@ -389,7 +393,8 @@
                 <pathelement location="${ant-junit4.jar}"/>
                 <pathelement location="${saxon.jar}"/>
                 <pathelement location="${log4j-api.jar}"/>
-                <pathelement location="${javaparser.core.jar}"/>
+                <pathelement location="${javaparser-core.jar}"/>
+                <pathelement location="${javaparser-symbol-solver-core.jar}"/>
                 <path refid="maven-plugin"/>
             </classpath>
         </javac>
@@ -428,7 +433,8 @@
             <src refid="sources"/>
             <classpath path="${saxon.jar}"/>
             <classpath path="${log4j-api.jar}"/>
-            <classpath path="${javaparser.core.jar}"/>
+            <classpath path="${javaparser-core.jar}"/>
+            <classpath path="${javaparser-symbol-solver-core.jar}"/>
             <classpath path="${ant.jar}"/>
             <classpath refid="maven-plugin"/>
         </javac>
@@ -983,7 +989,8 @@
             <auxClasspath path="${xml-apis.jar}"/>
             <auxClasspath path="${saxon.jar}"/>
             <auxClasspath path="${ant.jar}"/>
-            <auxClasspath path="${javaparser.core.jar}"/>
+            <auxClasspath path="${javaparser-core.jar}"/>
+            <auxClasspath path="${javaparser-symbol-solver-core.jar}"/>
             <sourcePath path="src/main/java" />
         </spotbugs>
 
