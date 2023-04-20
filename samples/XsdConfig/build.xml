@@ -38,7 +38,7 @@ limitations under the License.
             <path><fileset dir="${xmlbeans.home}/libs" includes="xmlbeans-*.jar" /></path>
         </pathconvert>
 
-        <fail message="Set XMLBEANS_HOME in your enviornment." unless="xmlbeans.lib"/>
+        <fail message="Set XMLBEANS_HOME in your environment." unless="xmlbeans.lib"/>
 
         <echo message="xmlbeans.lib: ${xmlbeans.lib}"/>
         <path id="xmlbeans.path">

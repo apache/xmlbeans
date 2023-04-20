@@ -89,7 +89,7 @@
         <!-- check for xbean.jar compiled from source -->
         <available property="xmlbeans.lib" value="${xmlbeans.home}/build/lib" file="${xmlbeans.home}/build/lib/xbean.jar" />
 
-        <fail message="Set XMLBEANS_HOME in your enviornment." unless="xmlbeans.lib" />
+        <fail message="Set XMLBEANS_HOME in your environment." unless="xmlbeans.lib" />
 
         <echo message="xmlbeans.lib: ${xmlbeans.lib}" />
         <path id="xmlbeans.path">
