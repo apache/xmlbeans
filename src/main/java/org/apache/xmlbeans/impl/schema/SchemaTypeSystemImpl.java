@@ -557,7 +557,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
         if (_random == null) {
             try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
                 try (LongUTFDataOutputStream daos = new LongUTFDataOutputStream(baos)) {
-                    // at least 10 bits of unqieueness, right?  Maybe even 50 or 60.
+                    // at least 10 bits of uniqueness, right?  Maybe even 50 or 60.
                     daos.writeInt(System.identityHashCode(SchemaTypeSystemImpl.class));
                     String[] props = new String[]{"user.name", "user.dir", "user.timezone", "user.country", "java.class.path", "java.home", "java.vendor", "java.version", "os.version"};
                     for (String s : props) {
