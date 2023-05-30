@@ -208,7 +208,7 @@ public class RussianDollStrategy
                 continue;
             }
 
-            if (currentElem.getName() == child.getName()) {   // same contiguos element
+            if (currentElem.getName() != null && currentElem.getName().equals(child.getName())) {   // same contiguous element
                 combineTypes(currentElem.getType(), child.getType(), options); // unify types
                 combineElementComments(currentElem, child);
                 // minOcc=0 maxOcc=unbounded
@@ -220,7 +220,7 @@ public class RussianDollStrategy
                     checkIfElementReferenceIsNeeded(child, parentNamespace, typeSystemHolder, options);
                     elemType.addElement(child);
                     elemNamesToElements.put(child.getName(), child);
-                } else {   //same non contiguos
+                } else {   //same non contiguous
                     combineTypes(currentElem.getType(), child.getType(), options);
                     combineElementComments(currentElem, child);
                     elemType.setTopParticleForComplexOrMixedContent(Type.PARTICLE_CHOICE_UNBOUNDED);
