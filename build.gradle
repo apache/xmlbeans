@@ -186,7 +186,7 @@ dependencies {
 }
 
 wrapper {
-    gradleVersion = '8.0.2'
+    gradleVersion = '8.1.1'
 }
 
 def extCP = files(configurations.testCompileClasspath + sourceSets.main.output.files + sourceSets.main.resources.srcDirs)
@@ -412,6 +412,11 @@ sourcesJar {
 
 tasks.withType(GenerateModuleMetadata) {
     enabled = false
+}
+
+tasks.withType(AbstractArchiveTask).configureEach {
+    preserveFileTimestamps = false
+    reproducibleFileOrder = true
 }
 
 rat {
