@@ -361,6 +361,7 @@ jar {
     from(project.rootDir) {
         include 'NOTICE.txt'
         include 'LICENSE.txt'
+        into 'META-INF'
     }
 
     from('build/classes/java9/main')
@@ -404,10 +405,18 @@ jar {
 
 javadocJar {
     archiveBaseName = "xmlbeans-${XMLBeansVersion}"
+    metaInf {
+        from("$projectDir/LICENSE.txt")
+        from("$projectDir/NOTICE.txt")
+    }
 }
 
 sourcesJar {
     archiveBaseName = "xmlbeans-${XMLBeansVersion}"
+    metaInf {
+        from("$projectDir/LICENSE.txt")
+        from("$projectDir/NOTICE.txt")
+    }
 }
 
 tasks.withType(GenerateModuleMetadata) {
