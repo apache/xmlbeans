@@ -392,12 +392,6 @@ jar {
                 'Implementation-Version': XMLBeansVersion,
                 'Implementation-Vendor': 'org.apache.xmlbeans',
                 'Implementation-Vendor-Id': 'The Apache Software Foundation',
-                'Built-By': System.properties['user.name'],
-                'Build-Timestamp': new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ").format(new Date()),
-                //'Build-Revision': versioning.info.commit,
-                'Created-By': "Gradle ${gradle.gradleVersion}",
-                'Build-Jdk': "${System.properties['java.version']} (${System.properties['java.vendor']} ${System.properties['java.vm.version']})",
-                'Build-OS': "${System.properties['os.name']} ${System.properties['os.arch']} ${System.properties['os.version']}"
         ], 'org/apache/xmlbeans/'
         )
     }
@@ -426,6 +420,26 @@ tasks.withType(GenerateModuleMetadata) {
 tasks.withType(AbstractArchiveTask).configureEach {
     preserveFileTimestamps = false
     reproducibleFileOrder = true
+}
+
+def buildInfoFile = layout.buildDirectory.file("buildinfo/xmlbeans-${XMLBeansVersion}.buildinfo")
+
+task writeBuildInfo(type: WriteProperties) {
+    outputFile buildInfoFile
+    property 'Built-By', System.properties['user.name']
+    property 'Build-Timestamp', new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ").format(new Date())
+    property 'Created-By', "Gradle ${gradle.gradleVersion}"
+    property 'Build-Jdk', "${System.properties['java.version']}, (${System.properties['java.vendor']} ${System.properties['java.vm.version']})"
+    property 'Build-OS', "${System.properties['os.name']} ${System.properties['os.arch']} ${System.properties['os.version']}"
+}
+
+jar.dependsOn 'writeBuildInfo'
+project.afterEvaluate {
+    tasks.findAll { it.name.startsWith('publish') }*.dependsOn('writeBuildInfo')
+}
+
+def buildInfoArtifact = artifacts.add('archives', buildInfoFile.get().asFile) {
+    type 'buildinfo'
 }
 
 rat {
@@ -546,6 +560,10 @@ distributions {
 
 publishing {
     publications {
+        maven(MavenPublication) {
+            artifact buildInfoArtifact
+            version XMLBeansVersion
+        }
         POI(MavenPublication) {
             groupId 'org.apache.xmlbeans'
             artifactId project.archivesBaseName
