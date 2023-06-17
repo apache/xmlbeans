@@ -438,7 +438,7 @@ project.afterEvaluate {
     tasks.findAll { it.name.startsWith('publish') }*.dependsOn('writeBuildInfo')
 }
 
-def buildInfoArtifact = artifacts.add('archives', buildInfoFile.get().asFile) {
+def buildInfoArtifact = artifacts.add('genresources', buildInfoFile.get().asFile) {
     type 'buildinfo'
 }
 
