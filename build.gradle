@@ -434,9 +434,6 @@ task writeBuildInfo(type: WriteProperties) {
 }
 
 jar.dependsOn 'writeBuildInfo'
-project.afterEvaluate {
-    tasks.findAll { it.name.startsWith('publish') }*.dependsOn('writeBuildInfo')
-}
 
 def buildInfoArtifact = artifacts.add('genresources', buildInfoFile.get().asFile) {
     type 'buildinfo'
@@ -560,16 +557,13 @@ distributions {
 
 publishing {
     publications {
-        maven(MavenPublication) {
-            artifact buildInfoArtifact
-            version XMLBeansVersion
-        }
         POI(MavenPublication) {
             groupId 'org.apache.xmlbeans'
             artifactId project.archivesBaseName
             version XMLBeansVersion
 
             from components.java
+            artifact buildInfoArtifact
 
             pom {
                 packaging = 'jar'
