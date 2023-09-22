@@ -116,10 +116,7 @@ svn pd 'svn:executable' $(find -name .svn -prune -or -type f ! -name \*.sh \
 
      for f in *.zip *.tgz
      do 
-         for b in 256 512
-         do 
-             sha${b}sum $f > $f.sha$b
-         done
+         sha512sum $f > $f.sha512
      done
 
   7. Commit the *.tgz and *.zip files, their signatures, and sha256 and sha512
