@@ -51,7 +51,7 @@
         the left hand side.
 
    6c. It's a good idea to check at 
-       https://builds.apache.org/view/P/view/POI/job/POI-XMLBeans-DSL-1.8/
+       https://ci-builds.apache.org/job/POI/job/POI-XMLBeans-DSL-1.8/
        that Jenkins is in a good state (i.e. most recent build passed
        and is up to date with SVN). You probably also want to e-mail
        the dev list with a note to say you're building a release.
@@ -91,7 +91,7 @@ svn pd 'svn:executable' $(find -name .svn -prune -or -type f ! -name \*.sh \
 (II) Making release artifacts
 
   1. Grab the output from a successful Jenkins build for the desired revision:
-     https://builds.apache.org/view/P/view/POI/job/POI-XMLBeans-DSL-1.8/lastBuild/artifact/build/
+     https://ci-builds.apache.org/job/POI/job/POI-XMLBeans-DSL-1.8/
      - xmlbeans-VERSION.jar
      - xmlbeans-VERSION-javadoc.jar
      - xmlbeans-VERSION-sources.jar
