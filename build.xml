@@ -141,7 +141,7 @@
     <!-- test dependencies -->
     <dependency prefix="junit" artifact="junit:junit:4.13.2" usage="tests"/>
     <dependency prefix="log4j-core" artifact="org.apache.logging.log4j:log4j-core:2.20.0" usage="tests"/>
-    <dependency prefix="xmlresolver" artifact="org.xmlresolver:xmlresolver:4.1.2" usage="main"/>
+    <dependency prefix="xmlresolver" artifact="org.xmlresolver:xmlresolver:4.6.4" usage="main"/>
     <dependency prefix="ant-junit" artifact="org.apache.ant:ant-junit:1.10.14" usage="tests"/>
     <dependency prefix="ant-junit4" artifact="org.apache.ant:ant-junit4:1.10.14" usage="tests"/>
     <dependency prefix="hamcrest" artifact="org.hamcrest:hamcrest:2.2" usage="tests"/>

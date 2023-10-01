@@ -145,7 +145,7 @@ dependencies {
             exclude group: 'xml-apis', module: 'xml-apis'
         }
     }
-    testRuntimeOnly 'org.xmlresolver:xmlresolver:4.1.2'
+    testRuntimeOnly 'org.xmlresolver:xmlresolver:4.6.4'
 
     // maven plugin dependencies
     implementation('org.apache.maven:maven-core:3.8.4')
