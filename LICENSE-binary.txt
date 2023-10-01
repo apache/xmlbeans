@@ -218,8 +218,8 @@ org.xmlresolver:xmlresolver-data:4.4.3
 Apache Software License 2.0 and LGPL 3.0
 ----------------------------------------
 
-com.github.javaparser:javaparser-core:3.25.0
-com.github.javaparser:javaparser-symbol-solver-core:3.25.0
+com.github.javaparser:javaparser-core:3.25.5
+com.github.javaparser:javaparser-symbol-solver-core:3.25.5
 
 Apache Software License 2.0, LGPL 2.1 (or later) and Mozilla Public License 1.1
 -------------------------------------------------------------------------------

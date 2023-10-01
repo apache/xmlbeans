@@ -123,8 +123,8 @@
     <dependency prefix="log4j-api" artifact="org.apache.logging.log4j:log4j-api:2.20.0" usage="main"/>
     <dependency prefix="saxon" artifact="net.sf.saxon:Saxon-HE:11.5" usage="main"/>
     <dependency prefix="ant" artifact="org.apache.ant:ant:1.10.14" usage="main"/>
-    <dependency prefix="javaparser-core" artifact="com.github.javaparser:javaparser-core:3.25.0" usage="main"/>
-    <dependency prefix="javaparser-symbol-solver-core" artifact="com.github.javaparser:javaparser-symbol-solver-core:3.25.0" usage="main"/>
+    <dependency prefix="javaparser-core" artifact="com.github.javaparser:javaparser-core:3.25.5" usage="main"/>
+    <dependency prefix="javaparser-symbol-solver-core" artifact="com.github.javaparser:javaparser-symbol-solver-core:3.25.5" usage="main"/>
 
     <!-- previous xmlbeans version is used to bootstrap necessary schema bindings -->
     <dependency prefix="old.xmlbeans" artifact="org.apache.xmlbeans:xmlbeans:3.1.0" usage="previous"/>
@@ -644,7 +644,7 @@
             <excludepackage name="org.apache.xmlbeans.impl.xb.*"/>
             <link href="https://docs.oracle.com/javase/9/docs/api/"/>
 <!--            <link href="https://javadoc.io/doc/xml-apis/xml-apis/1.4.01/"/>-->
-            <link href="https://javadoc.io/doc/com.github.javaparser/javaparser-core/3.25.0"/>
+            <link href="https://javadoc.io/doc/com.github.javaparser/javaparser-core/3.25.5"/>
             <link href="https://ant.apache.org/manual/api/"/>
         </javadoc>
     </target>
