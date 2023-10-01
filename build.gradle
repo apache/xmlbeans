@@ -69,7 +69,7 @@ ext {
     antVersion = '1.10.14'
     javaparserVersion = '3.25.5'
     log4jVersion = '2.20.0'
-    saxonVersion = '11.5'
+    saxonVersion = '12.3'
     androidSdkMinimum = '26'
 }
 

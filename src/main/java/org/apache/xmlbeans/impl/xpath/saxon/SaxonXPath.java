@@ -18,6 +18,7 @@ package org.apache.xmlbeans.impl.xpath.saxon;
 import net.sf.saxon.Configuration;
 import net.sf.saxon.dom.DOMNodeWrapper;
 import net.sf.saxon.om.Item;
+import net.sf.saxon.om.NamespaceUri;
 import net.sf.saxon.om.NodeInfo;
 import net.sf.saxon.om.SequenceTool;
 import net.sf.saxon.sxpath.*;
@@ -94,16 +95,18 @@ public class SaxonXPath implements Path {
             // also see https://saxonica.plan.io/issues/2130
             // (XPath referencing attribute with namespace fails when using DOM)
             if (defaultNS != null) {
-                sc.setDefaultElementNamespace(defaultNS);
+                sc.setDefaultElementNamespace(NamespaceUri.of(defaultNS));
             }
 
-            namespaceMap.forEach(sc::declareNamespace);
+            for (Map.Entry<String, String> entry : namespaceMap.entrySet()) {
+                sc.declareNamespace(entry.getKey(), NamespaceUri.of(entry.getValue()));
+            }
 
             NodeInfo contextItem = config.unravel(new DOMSource(contextNode));
 
             XPathEvaluator xpe = new XPathEvaluator(config);
             xpe.setStaticContext(sc);
-            XPathVariable thisVar = sc.declareVariable("", contextVar);
+            XPathVariable thisVar = sc.declareVariable(NamespaceUri.of(""), contextVar);
             XPathExpression xpath = xpe.createExpression(path);
             XPathDynamicContext dc = xpath.createDynamicContext(null);
             dc.setContextItem(contextItem);
