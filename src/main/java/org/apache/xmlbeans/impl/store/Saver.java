@@ -1067,6 +1067,10 @@ abstract class Saver {
         private void emitName(QName name, boolean needsPrefix) {
             assert name != null;
 
+            if (name != null && (name.getLocalPart() == null || name.getLocalPart().isEmpty())) {
+                throw new IllegalArgumentException("emitName does not support names with empty local part");
+            }
+
             String uri = name.getNamespaceURI();
 
             assert uri != null;
@@ -1095,8 +1099,6 @@ abstract class Saver {
                     emit(':');
                 }
             }
-
-            assert name.getLocalPart().length() > 0;
 
             emit(name.getLocalPart());
         }
