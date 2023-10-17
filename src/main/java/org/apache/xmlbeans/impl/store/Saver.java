@@ -2234,6 +2234,10 @@ abstract class Saver {
     }
 
     static final class InputStreamSaver extends InputStream {
+
+        // this is based on what is used in the core Java classes
+        private static final int MAX_ARRAY_SIZE = Integer.MAX_VALUE - 8;
+
         InputStreamSaver(Cur c, XmlOptions options) {
             _locale = c._locale;
 
@@ -2477,14 +2481,16 @@ abstract class Saver {
             void resize(int cbyte) {
                 assert cbyte > _free : cbyte + " !> " + _free;
 
-                int newLen = _buf == null ? _initialBufSize : _buf.length * 2;
+                long newLen = _buf == null ? _initialBufSize : _buf.length * 2;
                 int used = getAvailable();
 
                 while (newLen - used < cbyte) {
                     newLen *= 2;
                 }
 
-                byte[] newBuf = new byte[newLen];
+                final int bufLen = (int) Math.min(newLen, MAX_ARRAY_SIZE);
+
+                final byte[] newBuf = new byte[bufLen];
 
                 if (used > 0) {
                     if (_in > _out) {
