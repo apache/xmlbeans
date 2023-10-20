@@ -25,6 +25,7 @@ import javax.xml.namespace.QName;
 import java.io.*;
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -66,9 +67,9 @@ public class XsbDumper {
         } else if (force || file.getName().endsWith(".xsb")) {
             try {
                 System.out.println(file.toString());
-                dump(new FileInputStream(file), "  ");
+                dump(Files.newInputStream(file.toPath()), "  ");
                 System.out.println();
-            } catch (FileNotFoundException e) {
+            } catch (IOException e) {
                 System.out.println(e.toString());
             }
         }
@@ -503,7 +504,7 @@ public class XsbDumper {
         }
 
         void readFrom(LongUTFDataInputStream input) {
-            if (intsToStrings.size() != 1 || stringsToInts.size() != 0) {
+            if (intsToStrings.size() != 1 || !stringsToInts.isEmpty()) {
                 throw new IllegalStateException();
             }
 

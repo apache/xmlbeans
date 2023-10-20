@@ -25,8 +25,10 @@ import javax.xml.namespace.QName;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -68,7 +70,7 @@ public class ModelGroupTests {
     }
 
     private XmlObject[] getSchema(File objFile, String schemaString) throws IOException, XmlException {
-        FileOutputStream fos = new FileOutputStream(objFile);
+        OutputStream fos = Files.newOutputStream(objFile.toPath());
         OutputStreamWriter osw = new OutputStreamWriter(fos, StandardCharsets.UTF_8);
         if (!schemaString.startsWith("<?xml")) {
             osw.write(getSchemaTop("baz"));

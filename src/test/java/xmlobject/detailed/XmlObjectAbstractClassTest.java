@@ -20,6 +20,7 @@ import org.junit.jupiter.api.Test;
 import tools.util.JarUtil;
 
 import java.io.*;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -71,7 +72,7 @@ public class XmlObjectAbstractClassTest {
         to.delete();
         to.createNewFile();
         // outputstream to write out the java file
-        FileOutputStream fos = new FileOutputStream(to);
+        OutputStream fos = Files.newOutputStream(to.toPath());
         int b;
 
         while ((b = in.read()) != -1) {
@@ -93,7 +94,7 @@ public class XmlObjectAbstractClassTest {
         to.delete();
         to.createNewFile();
         // outputstream to write out the java file
-        FileOutputStream fos = new FileOutputStream(to);
+        OutputStream fos = Files.newOutputStream(to.toPath());
         int b;
 
         while ((b = fis.read()) != -1) {

@@ -78,7 +78,7 @@ public class FilerImpl implements Filer {
         File source = new File(classdir, typename);
         source.getParentFile().mkdirs();
 
-        return new FileOutputStream(source);
+        return Files.newOutputStream(source.toPath());
     }
 
     /**
@@ -132,7 +132,7 @@ public class FilerImpl implements Filer {
             return Files.newBufferedWriter(f.toPath(), StandardCharsets.ISO_8859_1);
         }
 
-        FileOutputStream fileStream = new FileOutputStream(f);
+        OutputStream fileStream = Files.newOutputStream(f.toPath());
         CharsetEncoder ce = CHARSET.newEncoder();
         ce.onUnmappableCharacter(CodingErrorAction.REPORT);
         return new OutputStreamWriter(fileStream, ce);

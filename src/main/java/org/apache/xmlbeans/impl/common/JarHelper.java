@@ -16,9 +16,10 @@
 package org.apache.xmlbeans.impl.common;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.file.Files;
 import java.util.jar.JarEntry;
 import java.util.jar.JarOutputStream;
 
@@ -63,7 +64,7 @@ public class JarHelper {
         }
 
         mDestJarName = destJar.getCanonicalPath();
-        try (FileOutputStream fout = new FileOutputStream(destJar);
+        try (OutputStream fout = Files.newOutputStream(destJar.toPath());
              JarOutputStream jout = new JarOutputStream(fout)) {
             //jout.setLevel(0);
             jarDir(dirOrFile2Jar, jout, null);
@@ -114,7 +115,7 @@ public class JarHelper {
             if (mVerbose) {
                 System.out.println("adding " + dirOrFile2jar.getPath());
             }
-            try (FileInputStream fis = new FileInputStream(dirOrFile2jar)) {
+            try (InputStream fis = Files.newInputStream(dirOrFile2jar.toPath())) {
                 JarEntry entry = new JarEntry(path + dirOrFile2jar.getName());
                 entry.setTime(dirOrFile2jar.lastModified());
                 jos.putNextEntry(entry);

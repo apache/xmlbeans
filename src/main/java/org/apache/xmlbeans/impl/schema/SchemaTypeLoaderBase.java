@@ -28,6 +28,7 @@ import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
+import java.nio.file.Files;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -159,7 +160,7 @@ public abstract class SchemaTypeLoaderBase implements SchemaTypeLoader {
             options.setDocumentSourceName(fileName);
         }
 
-        try (InputStream fis = new FileInputStream(file)) {
+        try (InputStream fis = Files.newInputStream(file.toPath())) {
             return parse(fis, type, options);
         }
     }

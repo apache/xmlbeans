@@ -18,12 +18,11 @@ package org.apache.xmlbeans.impl.tool;
 import org.apache.xmlbeans.impl.common.IOUtil;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.FileFilter;
 import java.io.OutputStream;
+import java.nio.file.Files;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -238,7 +237,7 @@ public class SchemaResourceManager extends BaseSchemaResourceManager
      */
     protected InputStream inputStreamForFile(String filename) throws IOException
     {
-        return new FileInputStream(new File(_directory, filename));
+        return Files.newInputStream(new File(_directory, filename).toPath());
     }
 
     /**
@@ -252,7 +251,7 @@ public class SchemaResourceManager extends BaseSchemaResourceManager
         File parent = targetFile.getParentFile();
         if (!parent.exists())
             parent.mkdirs();
-        OutputStream output = new FileOutputStream(targetFile);
+        OutputStream output = Files.newOutputStream(targetFile.toPath());
         IOUtil.copyCompletely(input, output);
     }
 

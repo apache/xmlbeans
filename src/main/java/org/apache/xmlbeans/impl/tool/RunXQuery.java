@@ -21,10 +21,10 @@ import org.apache.xmlbeans.XmlOptions;
 import org.apache.xmlbeans.impl.util.ExceptionUtil;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
@@ -118,24 +118,21 @@ public class RunXQuery {
         try {
             if (queryfile != null) {
                 File queryFile = new File(queryfile);
-                FileInputStream is = new FileInputStream(queryFile);
-                InputStreamReader r = new InputStreamReader(is, StandardCharsets.ISO_8859_1);
-
+                InputStream is = Files.newInputStream(queryFile.toPath());
                 StringBuilder sb = new StringBuilder();
+                try (InputStreamReader r = new InputStreamReader(is, StandardCharsets.ISO_8859_1)) {
 
-                for (; ; ) {
-                    int ch = r.read();
+                    for (; ; ) {
+                        int ch = r.read();
 
-                    if (ch < 0) {
-                        break;
+                        if (ch < 0) {
+                            break;
+                        }
+
+                        sb.append((char) ch);
                     }
-
-                    sb.append((char) ch);
                 }
-
-                r.close();
                 is.close();
-
                 query = sb.toString();
             }
         } catch (Throwable e) {
@@ -172,20 +169,17 @@ public class RunXQuery {
 
             try {
                 if (verbose) {
-                    InputStream is = new FileInputStream(file);
+                    try(InputStream is = Files.newInputStream(file.toPath())) {
+                        for (; ; ) {
+                            int ch = is.read();
 
-                    for (; ; ) {
-                        int ch = is.read();
+                            if (ch < 0) {
+                                break;
+                            }
 
-                        if (ch < 0) {
-                            break;
+                            System.out.write(ch);
                         }
-
-                        System.out.write(ch);
                     }
-
-                    is.close();
-
                     System.out.println();
                 }
 

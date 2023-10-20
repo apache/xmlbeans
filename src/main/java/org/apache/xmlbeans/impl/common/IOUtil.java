@@ -18,6 +18,7 @@ package org.apache.xmlbeans.impl.common;
 import java.io.*;
 import java.net.URI;
 import java.nio.channels.FileChannel;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -28,58 +29,62 @@ public class IOUtil {
 
     public static void copyCompletely(InputStream input, OutputStream output)
         throws IOException {
-        //if both are file streams, use channel IO
-        if ((output instanceof FileOutputStream) && (input instanceof FileInputStream)) {
-            try {
-                FileChannel target = ((FileOutputStream) output).getChannel();
-                FileChannel source = ((FileInputStream) input).getChannel();
+        try {
+            //if both are file streams, use channel IO
+            if ((output instanceof FileOutputStream) && (input instanceof FileInputStream)) {
+                try {
+                    FileChannel target = ((FileOutputStream) output).getChannel();
+                    FileChannel source = ((FileInputStream) input).getChannel();
 
-                source.transferTo(0, Integer.MAX_VALUE, target);
+                    source.transferTo(0, Integer.MAX_VALUE, target);
 
-                source.close();
-                target.close();
+                    source.close();
+                    target.close();
 
-                return;
-            } catch (Exception e) { /* failover to byte stream version */ }
-        }
-
-        byte[] buf = new byte[8192];
-        while (true) {
-            int length = input.read(buf);
-            if (length < 0) {
-                break;
+                    return;
+                } catch (Exception e) { /* failover to byte stream version */ }
             }
-            output.write(buf, 0, length);
-        }
 
-        try {
-            input.close();
-        } catch (IOException ignore) {
-        }
-        try {
-            output.close();
-        } catch (IOException ignore) {
+            byte[] buf = new byte[8192];
+            while (true) {
+                int length = input.read(buf);
+                if (length < 0) {
+                    break;
+                }
+                output.write(buf, 0, length);
+            }
+        } finally {
+            try {
+                input.close();
+            } catch (IOException ignore) {
+            }
+            try {
+                output.close();
+            } catch (IOException ignore) {
+            }
         }
     }
 
     public static void copyCompletely(Reader input, Writer output)
         throws IOException {
-        char[] buf = new char[8192];
-        while (true) {
-            int length = input.read(buf);
-            if (length < 0) {
-                break;
+        try {
+            char[] buf = new char[8192];
+            while (true) {
+                int length = input.read(buf);
+                if (length < 0) {
+                    break;
+                }
+                output.write(buf, 0, length);
             }
-            output.write(buf, 0, length);
-        }
-
-        try {
-            input.close();
-        } catch (IOException ignore) {
-        }
-        try {
-            output.close();
-        } catch (IOException ignore) {
+        } finally {
+            try {
+                input.close();
+            } catch (IOException ignore) {
+            }
+            try {
+                output.close();
+            } catch (IOException ignore) {
+            }
         }
     }
 
@@ -89,7 +94,7 @@ public class IOUtil {
         dir.mkdirs();
 
         try (InputStream in = urlToStream(input);
-            OutputStream os = new FileOutputStream(out)) {
+             OutputStream os = Files.newOutputStream(out.toPath())) {
             IOUtil.copyCompletely(in, os);
         } catch (IllegalArgumentException e) {
             throw new IOException("Cannot copy to " + output);
@@ -100,7 +105,7 @@ public class IOUtil {
         try {
             File f = new File(input);
             if (f.exists()) {
-                return new FileInputStream(f);
+                return Files.newInputStream(f.toPath());
             }
         } catch (Exception ignored) {
             // notAFile

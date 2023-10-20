@@ -344,8 +344,8 @@ public class Repackage {
     public static void copyFile(File from, File to) throws IOException {
         to.getParentFile().mkdirs();
 
-        try (FileInputStream in = new FileInputStream(from);
-             FileOutputStream out = new FileOutputStream(to)) {
+        try (InputStream in = Files.newInputStream(from.toPath());
+             OutputStream out = Files.newOutputStream(to.toPath())) {
             copy(in, out);
         }
     }

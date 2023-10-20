@@ -24,7 +24,8 @@ import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import java.io.File;
-import java.io.FileInputStream;
+import java.io.InputStream;
+import java.nio.file.Files;
 import java.util.*;
 
 public class StreamInstanceValidator
@@ -163,25 +164,25 @@ public class StreamInstanceValidator
             try {
                 final XMLInputFactory xmlInputFactory = StaxHelper.newXMLInputFactory(new XmlOptions(options));
 
-                final FileInputStream fis = new FileInputStream(file);
-                final XMLStreamReader rdr =
-                        xmlInputFactory.createXMLStreamReader(path, fis);
+                try(InputStream fis = Files.newInputStream(file.toPath())) {
+                    final XMLStreamReader rdr =
+                            xmlInputFactory.createXMLStreamReader(path, fis);
 
-                //advance to first start element.
-                while(!rdr.isStartElement()) {
-                    rdr.next();
+                    //advance to first start element.
+                    while(!rdr.isStartElement()) {
+                        rdr.next();
+                    }
+
+                    time = System.currentTimeMillis();
+                    vsr.init(rdr, true, null, sLoader, options, errors);
+
+                    while (vsr.hasNext()) {
+                        vsr.next();
+                    }
+
+                    time = (System.currentTimeMillis() - time);
+                    vsr.close();
                 }
-
-                time = System.currentTimeMillis();
-                vsr.init(rdr, true, null, sLoader, options, errors);
-
-                while (vsr.hasNext()) {
-                    vsr.next();
-                }
-
-                time = (System.currentTimeMillis() - time);
-                vsr.close();
-                fis.close();
             }
             catch (XMLStreamException xse) {
                 final Location loc = xse.getLocation();

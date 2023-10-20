@@ -18,9 +18,9 @@ package org.apache.xmlbeans.impl.schema;
 import org.apache.xmlbeans.ResourceLoader;
 
 import java.io.InputStream;
-import java.io.FileInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipEntry;
 
@@ -52,7 +52,7 @@ public class FileResourceLoader implements ResourceLoader
             }
             else
             {
-                return new FileInputStream(new File(_directory, resourceName));
+                return Files.newInputStream(new File(_directory, resourceName).toPath());
             }
         }
         catch (IOException e)

@@ -33,6 +33,7 @@ import org.xml.sax.ext.LexicalHandler;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamReader;
 import java.io.*;
+import java.nio.file.Files;
 import java.util.Collection;
 import java.util.Map;
 import java.util.function.Supplier;
@@ -553,7 +554,7 @@ public final class Cursor implements XmlCursor, ChangeListener {
             throw new IllegalArgumentException("Null file specified");
         }
 
-        try (OutputStream os = new FileOutputStream(file)) {
+        try (OutputStream os = Files.newOutputStream(file.toPath())) {
             _save(os, options);
         }
     }

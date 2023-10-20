@@ -19,6 +19,7 @@ import org.apache.xmlbeans.SystemProperties;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.Properties;
 
 /**
@@ -89,7 +90,7 @@ class FactoryFinder {
             File file = new File(propertiesFileName);
             if (file.exists()) {
                 Properties properties = new Properties();
-                try (FileInputStream fileInput = new FileInputStream(file)) {
+                try (InputStream fileInput = Files.newInputStream(file.toPath())) {
                     properties.load(fileInput);
                 }
                 String factoryClassName = properties.getProperty(factoryPropertyName);

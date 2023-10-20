@@ -32,6 +32,7 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.Files;
 import java.util.*;
 
 public class StscImporter {
@@ -790,7 +791,8 @@ public class StscImporter {
 
                 CharArrayReader car = copy(reader);
                 XmlEncodingSniffer xes = new XmlEncodingSniffer(car, null);
-                try (Writer out = new OutputStreamWriter(new FileOutputStream(targetFile), xes.getXmlEncoding())) {
+                try (Writer out = new OutputStreamWriter(
+                        Files.newOutputStream(targetFile.toPath()), xes.getXmlEncoding())) {
                     IOUtil.copyCompletely(car, out);
                 }
 
@@ -820,7 +822,7 @@ public class StscImporter {
 
                 ByteArrayInputStream bais = copy(bytes);
 
-                try (FileOutputStream out = new FileOutputStream(targetFile)) {
+                try (OutputStream out = Files.newOutputStream(targetFile.toPath())) {
                     IOUtil.copyCompletely(bais, out);
                 }
 
@@ -856,7 +858,7 @@ public class StscImporter {
                             }
                         }
                         if (in != null) {
-                            FileOutputStream out = new FileOutputStream(targetFile);
+                            OutputStream out = Files.newOutputStream(targetFile.toPath());
                             IOUtil.copyCompletely(in, out);
                         }
                     } catch (IOException e) {
