@@ -1536,7 +1536,7 @@ abstract class Saver {
 
         private int ensure(int cch) {
             // Even if we're asked to ensure nothing, still try to ensure
-            // atleast one character so we can determine if we're at the
+            // at least one character so we can determine if we're at the
             // end of the stream.
 
             if (cch <= 0) {
@@ -2340,7 +2340,7 @@ abstract class Saver {
 
         private int ensure(int cbyte) {
             // Even if we're asked to ensure nothing, still try to ensure
-            // atleast one byte so we can determine if we're at the
+            // at least one byte so we can determine if we're at the
             // end of the stream.
 
             if (cbyte <= 0) {
