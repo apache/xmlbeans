@@ -21,7 +21,6 @@ import org.apache.xmlbeans.impl.schema.SchemaTypeSystemImpl;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.util.*;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
@@ -252,8 +251,8 @@ public class Diff {
     public static void filesAsXsb(File file1, File file2, List<XmlError> diffs) {
         assert file1.exists() : "File \"" + file1.getAbsolutePath() + "\" does not exist.";
         assert file2.exists() : "File \"" + file2.getAbsolutePath() + "\" does not exist.";
-        try (InputStream stream1 = Files.newInputStream(file1.toPath());
-             InputStream stream2 = Files.newInputStream(file2.toPath())) {
+        try (InputStream stream1 = new FileInputStream(file1);
+             InputStream stream2 = new FileInputStream(file2)) {
             streamsAsXsb(stream1, file1.getName(), stream2, file2.getName(), diffs);
         } catch (IOException ignored) {
         }
