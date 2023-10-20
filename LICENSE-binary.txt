@@ -205,7 +205,7 @@ This project bundles some components that are also licensed under the Apache
 License Version 2.0:
 
 commons-codec:commons-codec:1.15
-com.google.guava:guava:32.1.2-jre
+com.google.guava:guava-32.1.2-jre
 org.apache.ant:ant:1.10.14
 org.apache.ant:ant-launcher:1.10.14
 org.apache.httpcomponents.client5:httpclient5:5.1.3
