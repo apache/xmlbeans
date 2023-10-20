@@ -38,6 +38,8 @@ abstract class Saver {
     static final int PROCINST = Cur.PROCINST;
     static final int TEXT = Cur.TEXT;
 
+    // this is based on what is used in the core Java classes
+    static final int MAX_ARRAY_SIZE = Integer.MAX_VALUE - 8;
 
     private final Locale _locale;
     private final long _version;
@@ -855,12 +857,12 @@ abstract class Saver {
             _free = 0;
 
             //noinspection ConstantConditions
-            assert _buf == null ||
-                   (_out < _in && _free == _buf.length - (_in - _out)) || // data in the middle, free on the edges
-                   (_out > _in && _free == _out - _in) ||                   // data on the edges, free in the middle
-                   (_out == _in && _free == _buf.length) ||                  // no data, all buffer free
-                   (_out == _in && _free == 0)                               // buffer full
-                : "_buf.length:" + _buf.length + " _in:" + _in + " _out:" + _out + " _free:" + _free;
+            assert _cbuf == null ||
+                   (_out < _in && _free == _cbuf.length - (_in - _out)) || // data in the middle, free on the edges
+                   (_out > _in && _free == _out - _in) ||                  // data on the edges, free in the middle
+                   (_out == _in && _free == _cbuf.length) ||               // no data, all buffer free
+                   (_out == _in && _free == 0)                             // buffer full
+                : "_buf.length:" + _cbuf.length + " _in:" + _in + " _out:" + _out + " _free:" + _free;
 
             if (encoding != null && !noSaveDecl) {
                 XmlDocumentProperties props = Locale.getDocProps(c, false);
@@ -1104,24 +1106,24 @@ abstract class Saver {
         }
 
         private void emit(char ch) {
-            assert _buf == null ||
-                   (_out < _in && _free == _buf.length - (_in - _out)) || // data in the middle, free on the edges
-                   (_out > _in && _free == _out - _in) ||                   // data on the edges, free in the middle
-                   (_out == _in && _free == _buf.length) ||                  // no data, all buffer free
-                   (_out == _in && _free == 0)                               // buffer full
-                : "_buf.length:" + _buf.length + " _in:" + _in + " _out:" + _out + " _free:" + _free;
+            assert _cbuf == null ||
+                   (_out < _in && _free == _cbuf.length - (_in - _out)) || // data in the middle, free on the edges
+                   (_out > _in && _free == _out - _in) ||                  // data on the edges, free in the middle
+                   (_out == _in && _free == _cbuf.length) ||               // no data, all buffer free
+                   (_out == _in && _free == 0)                             // buffer full
+                : "_buf.length:" + _cbuf.length + " _in:" + _in + " _out:" + _out + " _free:" + _free;
 
             preEmit(1);
 
-            _buf[_in] = ch;
+            _cbuf[_in] = ch;
 
-            _in = (_in + 1) % _buf.length;
+            _in = (_in + 1) % _cbuf.length;
 
-            assert (_out < _in && _free == _buf.length - (_in - _out)) || // data in the middle, free on the edges
-                   (_out > _in && _free == _out - _in) ||                   // data on the edges, free in the middle
-                   (_out == _in && _free == _buf.length) ||                  // no data, all buffer free
-                   (_out == _in && _free == 0)                               // buffer full
-                : "_buf.length:" + _buf.length + " _in:" + _in + " _out:" + _out + " _free:" + _free;
+            assert (_out < _in && _free == _cbuf.length - (_in - _out)) || // data in the middle, free on the edges
+                   (_out > _in && _free == _out - _in) ||                  // data on the edges, free in the middle
+                   (_out == _in && _free == _cbuf.length) ||               // no data, all buffer free
+                   (_out == _in && _free == 0)                             // buffer full
+                : "_buf.length:" + _cbuf.length + " _in:" + _in + " _out:" + _out + " _free:" + _free;
         }
 
         private void emit(char ch1, char ch2) {
@@ -1129,26 +1131,26 @@ abstract class Saver {
                 return;
             }
 
-            _buf[_in] = ch1;
-            _in = (_in + 1) % _buf.length;
+            _cbuf[_in] = ch1;
+            _in = (_in + 1) % _cbuf.length;
 
-            _buf[_in] = ch2;
-            _in = (_in + 1) % _buf.length;
+            _cbuf[_in] = ch2;
+            _in = (_in + 1) % _cbuf.length;
 
-            assert (_out < _in && _free == _buf.length - (_in - _out)) || // data in the middle, free on the edges
+            assert (_out < _in && _free == _cbuf.length - (_in - _out)) || // data in the middle, free on the edges
                    (_out > _in && _free == _out - _in) ||                   // data on the edges, free in the middle
-                   (_out == _in && _free == _buf.length) ||                  // no data, all buffer free
+                   (_out == _in && _free == _cbuf.length) ||                  // no data, all buffer free
                    (_out == _in && _free == 0)                               // buffer full
-                : "_buf.length:" + _buf.length + " _in:" + _in + " _out:" + _out + " _free:" + _free;
+                : "_buf.length:" + _cbuf.length + " _in:" + _in + " _out:" + _out + " _free:" + _free;
         }
 
         private void emit(String s) {
-            assert _buf == null ||
-                   (_out < _in && _free == _buf.length - (_in - _out)) || // data in the middle, free on the edges
-                   (_out > _in && _free == _out - _in) ||                   // data on the edges, free in the middle
-                   (_out == _in && _free == _buf.length) ||                  // no data, all buffer free
-                   (_out == _in && _free == 0)                               // buffer full
-                : "_buf.length:" + _buf.length + " _in:" + _in + " _out:" + _out + " _free:" + _free;
+            assert _cbuf == null ||
+                   (_out < _in && _free == _cbuf.length - (_in - _out)) || // data in the middle, free on the edges
+                   (_out > _in && _free == _out - _in) ||                  // data on the edges, free in the middle
+                   (_out == _in && _free == _cbuf.length) ||               // no data, all buffer free
+                   (_out == _in && _free == 0)                             // buffer full
+                : "_buf.length:" + _cbuf.length + " _in:" + _in + " _out:" + _out + " _free:" + _free;
 
             int cch = s == null ? 0 : s.length();
 
@@ -1158,20 +1160,20 @@ abstract class Saver {
 
             int chunk;
 
-            if (_in <= _out || cch < (chunk = _buf.length - _in)) {
-                s.getChars(0, cch, _buf, _in);
+            if (_in <= _out || cch < (chunk = _cbuf.length - _in)) {
+                s.getChars(0, cch, _cbuf, _in);
                 _in += cch;
             } else {
-                s.getChars(0, chunk, _buf, _in);
-                s.getChars(chunk, cch, _buf, 0);
-                _in = (_in + cch) % _buf.length;
+                s.getChars(0, chunk, _cbuf, _in);
+                s.getChars(chunk, cch, _cbuf, 0);
+                _in = (_in + cch) % _cbuf.length;
             }
 
-            assert (_out < _in && _free == _buf.length - (_in - _out)) || // data in the middle, free on the edges
-                   (_out > _in && _free == _out - _in) ||                   // data on the edges, free in the middle
-                   (_out == _in && _free == _buf.length) ||                  // no data, all buffer free
-                   (_out == _in && _free == 0)                               // buffer full
-                : "_buf.length:" + _buf.length + " _in:" + _in + " _out:" + _out + " _free:" + _free;
+            assert (_out < _in && _free == _cbuf.length - (_in - _out)) || // data in the middle, free on the edges
+                   (_out > _in && _free == _out - _in) ||                  // data on the edges, free in the middle
+                   (_out == _in && _free == _cbuf.length) ||               // no data, all buffer free
+                   (_out == _in && _free == 0)                             // buffer full
+                : "_buf.length:" + _cbuf.length + " _in:" + _in + " _out:" + _out + " _free:" + _free;
         }
 
         private void emit(SaveCur c) {
@@ -1185,13 +1187,13 @@ abstract class Saver {
 
                 int chunk;
 
-                if (_in <= _out || cch < (chunk = _buf.length - _in)) {
-                    CharUtil.getChars(_buf, _in, src, c._offSrc, cch);
+                if (_in <= _out || cch < (chunk = _cbuf.length - _in)) {
+                    CharUtil.getChars(_cbuf, _in, src, c._offSrc, cch);
                     _in += cch;
                 } else {
-                    CharUtil.getChars(_buf, _in, src, c._offSrc, chunk);
-                    CharUtil.getChars(_buf, 0, src, c._offSrc + chunk, cch - chunk);
-                    _in = (_in + cch) % _buf.length;
+                    CharUtil.getChars(_cbuf, _in, src, c._offSrc, chunk);
+                    CharUtil.getChars(_cbuf, 0, src, c._offSrc + chunk, cch - chunk);
+                    _in = (_in + cch) % _cbuf.length;
                 }
             } else {
                 preEmit(0);
@@ -1200,12 +1202,12 @@ abstract class Saver {
 
         private boolean preEmit(int cch) {
             assert cch >= 0;
-            assert _buf == null ||
-                   (_out < _in && _free == _buf.length - (_in - _out)) || // data in the middle, free on the edges
+            assert _cbuf == null ||
+                   (_out < _in && _free == _cbuf.length - (_in - _out)) || // data in the middle, free on the edges
                    (_out > _in && _free == _out - _in) ||                   // data on the edges, free in the middle
-                   (_out == _in && _free == _buf.length) ||                  // no data, all buffer free
+                   (_out == _in && _free == _cbuf.length) ||                  // no data, all buffer free
                    (_out == _in && _free == 0)                               // buffer full
-                : "_buf.length:" + _buf.length + " _in:" + _in + " _out:" + _out + " _free:" + _free;
+                : "_buf.length:" + _cbuf.length + " _in:" + _in + " _out:" + _out + " _free:" + _free;
 
             _lastEmitCch = cch;
 
@@ -1227,7 +1229,7 @@ abstract class Saver {
 
             if (used == 0) {
                 assert _in == _out;
-                assert _buf == null || _free == _buf.length;
+                assert _cbuf == null || _free == _cbuf.length;
                 _in = _out = 0;
             }
 
@@ -1235,13 +1237,13 @@ abstract class Saver {
 
             _free -= cch;
 
-            assert _buf == null || _free == (_in >= _out ? _buf.length - (_in - _out) : _out - _in) - cch : "_buf.length:" + _buf.length + " _in:" + _in + " _out:" + _out + " _free:" + _free;
-            assert _buf == null ||
-                   (_out < _in && _free == _buf.length - (_in - _out) - cch) || // data in the middle, free on the edges
+            assert _cbuf == null || _free == (_in >= _out ? _cbuf.length - (_in - _out) : _out - _in) - cch : "_buf.length:" + _cbuf.length + " _in:" + _in + " _out:" + _out + " _free:" + _free;
+            assert _cbuf == null ||
+                   (_out < _in && _free == _cbuf.length - (_in - _out) - cch) || // data in the middle, free on the edges
                    (_out > _in && _free == _out - _in - cch) ||                  // data on the edges, free in the middle
-                   (_out == _in && _free == _buf.length - cch) ||                 // no data, all buffer free
+                   (_out == _in && _free == _cbuf.length - cch) ||                 // no data, all buffer free
                    (_out == _in && _free == 0)                                    // buffer full
-                : "_buf.length:" + _buf.length + " _in:" + _in + " _out:" + _out + " _free:" + _free;
+                : "_buf.length:" + _cbuf.length + " _in:" + _in + " _out:" + _out + " _free:" + _free;
 
             return false;
         }
@@ -1254,7 +1256,7 @@ abstract class Saver {
             }
 
             int i = _lastEmitIn;
-            final int n = _buf.length;
+            final int n = _cbuf.length;
 
             boolean hasCharToBeReplaced = false;
 
@@ -1262,7 +1264,7 @@ abstract class Saver {
             char prevChar = 0;
             char prevPrevChar = 0;
             for (int cch = _lastEmitCch; cch > 0; cch--) {
-                char ch = _buf[i];
+                char ch = _cbuf[i];
 
                 if (ch == '<' || ch == '&') {
                     count++;
@@ -1290,20 +1292,20 @@ abstract class Saver {
             // Heuristic for knowing when to save out stuff as a CDATA.
             //
             if (forceCData || (_lastEmitCch > _cdataLengthThreshold && count > _cdataEntityCountThreshold)) {
-                boolean lastWasBracket = _buf[i] == ']';
+                boolean lastWasBracket = _cbuf[i] == ']';
 
-                i = replace(i, "<![CDATA[" + _buf[i]);
+                i = replace(i, "<![CDATA[" + _cbuf[i]);
 
                 boolean secondToLastWasBracket = lastWasBracket;
 
-                lastWasBracket = _buf[i] == ']';
+                lastWasBracket = _cbuf[i] == ']';
 
-                if (++i == _buf.length) {
+                if (++i == _cbuf.length) {
                     i = 0;
                 }
 
                 for (int cch = _lastEmitCch - 2; cch > 0; cch--) {
-                    char ch = _buf[i];
+                    char ch = _cbuf[i];
 
                     if (ch == '>' && secondToLastWasBracket && lastWasBracket) {
                         i = replace(i, "]]>><![CDATA[");
@@ -1316,7 +1318,7 @@ abstract class Saver {
                     secondToLastWasBracket = lastWasBracket;
                     lastWasBracket = ch == ']';
 
-                    if (i == _buf.length) {
+                    if (i == _cbuf.length) {
                         i = 0;
                     }
                 }
@@ -1327,7 +1329,7 @@ abstract class Saver {
                 for (int cch = _lastEmitCch; cch > 0; cch--) {
                     ch_2 = ch_1;
                     ch_1 = ch;
-                    ch = _buf[i];
+                    ch = _cbuf[i];
 
                     if (ch == '<') {
                         i = replace(i, "&lt;");
@@ -1345,7 +1347,7 @@ abstract class Saver {
                         i++;
                     }
 
-                    if (i == _buf.length) {
+                    if (i == _cbuf.length) {
                         i = 0;
                     }
                 }
@@ -1360,7 +1362,7 @@ abstract class Saver {
             int i = _lastEmitIn;
 
             for (int cch = _lastEmitCch; cch > 0; cch--) {
-                char ch = _buf[i];
+                char ch = _cbuf[i];
 
                 if (ch == '<') {
                     i = replace(i, "&lt;");
@@ -1376,7 +1378,7 @@ abstract class Saver {
                     i++;
                 }
 
-                if (i == _buf.length) {
+                if (i == _cbuf.length) {
                     i = 0;
                 }
             }
@@ -1392,7 +1394,7 @@ abstract class Saver {
             boolean lastWasDash = false;
 
             for (int cch = _lastEmitCch; cch > 0; cch--) {
-                char ch = _buf[i];
+                char ch = _cbuf[i];
 
                 if (isBadChar(ch)) {
                     i = replace(i, "?");
@@ -1410,7 +1412,7 @@ abstract class Saver {
                     i++;
                 }
 
-                if (i == _buf.length) {
+                if (i == _cbuf.length) {
                     i = 0;
                 }
             }
@@ -1418,8 +1420,8 @@ abstract class Saver {
             // Because I have only replaced chars with single chars,
             // _lastEmitIn will still be ok
 
-            int offset = (_lastEmitIn + _lastEmitCch - 1) % _buf.length;
-            if (_buf[offset] == '-') {
+            int offset = (_lastEmitIn + _lastEmitCch - 1) % _cbuf.length;
+            if (_cbuf[offset] == '-') {
                 replace(offset, " ");
             }
         }
@@ -1434,7 +1436,7 @@ abstract class Saver {
             boolean lastWasQuestion = false;
 
             for (int cch = _lastEmitCch; cch > 0; cch--) {
-                char ch = _buf[i];
+                char ch = _cbuf[i];
 
                 if (isBadChar(ch)) {
                     i = replace(i, "?");
@@ -1454,7 +1456,7 @@ abstract class Saver {
                     i++;
                 }
 
-                if (i == _buf.length) {
+                if (i == _cbuf.length) {
                     i = 0;
                 }
             }
@@ -1473,7 +1475,7 @@ abstract class Saver {
             int dCch = replacement.length() - 1;
 
             if (dCch == 0) {
-                _buf[i] = replacement.charAt(0);
+                _cbuf[i] = replacement.charAt(0);
                 return i + 1;
             }
 
@@ -1491,44 +1493,44 @@ abstract class Saver {
             int charsToCopy = dCch + 1;
 
             if (_out > _in && i >= _out) {
-                System.arraycopy(_buf, _out, _buf, _out - dCch, i - _out);
+                System.arraycopy(_cbuf, _out, _cbuf, _out - dCch, i - _out);
                 _out -= dCch;
                 i -= dCch;
             } else {
                 assert i < _in;
-                int availableEndChunk = _buf.length - _in;
+                int availableEndChunk = _cbuf.length - _in;
                 if (dCch <= availableEndChunk) {
-                    System.arraycopy(_buf, i, _buf, i + dCch, _in - i);
-                    _in = (_in + dCch) % _buf.length;
+                    System.arraycopy(_cbuf, i, _cbuf, i + dCch, _in - i);
+                    _in = (_in + dCch) % _cbuf.length;
                 } else if (dCch <= availableEndChunk + _in - i - 1) {
                     int numToCopyToStart = dCch - availableEndChunk;
-                    System.arraycopy(_buf, _in - numToCopyToStart, _buf, 0, numToCopyToStart);
-                    System.arraycopy(_buf, i + 1, _buf, i + 1 + dCch, _in - i - 1 - numToCopyToStart);
+                    System.arraycopy(_cbuf, _in - numToCopyToStart, _cbuf, 0, numToCopyToStart);
+                    System.arraycopy(_cbuf, i + 1, _cbuf, i + 1 + dCch, _in - i - 1 - numToCopyToStart);
 
                     _in = numToCopyToStart;
                 } else {
                     int numToCopyToStart = _in - i - 1;
                     charsToCopy = availableEndChunk + _in - i;
 
-                    System.arraycopy(_buf, _in - numToCopyToStart, _buf, dCch - charsToCopy + 1, numToCopyToStart);
-                    replacement.getChars(charsToCopy, dCch + 1, _buf, 0);
+                    System.arraycopy(_cbuf, _in - numToCopyToStart, _cbuf, dCch - charsToCopy + 1, numToCopyToStart);
+                    replacement.getChars(charsToCopy, dCch + 1, _cbuf, 0);
 
                     _in = numToCopyToStart + dCch - charsToCopy + 1;
                 }
             }
 
-            replacement.getChars(0, charsToCopy, _buf, i);
+            replacement.getChars(0, charsToCopy, _cbuf, i);
 
             _free -= dCch;
 
             assert _free >= 0;
-            assert (_out < _in && _free == _buf.length - (_in - _out)) || // data in the middle, free on the edges
+            assert (_out < _in && _free == _cbuf.length - (_in - _out)) || // data in the middle, free on the edges
                    (_out > _in && _free == _out - _in) ||                   // data on the edges, free in the middle
-                   (_out == _in && _free == _buf.length) ||                  // no data, all buffer free
+                   (_out == _in && _free == _cbuf.length) ||                  // no data, all buffer free
                    (_out == _in && _free == 0)                               // buffer full
-                : "_buf.length:" + _buf.length + " _in:" + _in + " _out:" + _out + " _free:" + _free;
+                : "_buf.length:" + _cbuf.length + " _in:" + _in + " _out:" + _out + " _free:" + _free;
 
-            return (i + dCch + 1) % _buf.length;
+            return (i + dCch + 1) % _cbuf.length;
         }
         //
         //
@@ -1560,34 +1562,35 @@ abstract class Saver {
         }
 
         int getAvailable() {
-            return _buf == null ? 0 : _buf.length - _free;
+            return _cbuf == null ? 0 : _cbuf.length - _free;
         }
 
         private int resize(int cch, int i) {
             assert _free >= 0;
             assert cch > 0;
             assert cch >= _free;
-            assert _buf == null ||
-                   (_out < _in && _free == _buf.length - (_in - _out)) || // data in the middle, free on the edges
+            assert _cbuf == null ||
+                   (_out < _in && _free == _cbuf.length - (_in - _out)) || // data in the middle, free on the edges
                    (_out > _in && _free == _out - _in) ||                   // data on the edges, free in the middle
-                   (_out == _in && _free == _buf.length) ||                  // no data, all buffer free
+                   (_out == _in && _free == _cbuf.length) ||                  // no data, all buffer free
                    (_out == _in && _free == 0)                               // buffer full
-                : "_buf.length:" + _buf.length + " _in:" + _in + " _out:" + _out + " _free:" + _free;
+                : "_buf.length:" + _cbuf.length + " _in:" + _in + " _out:" + _out + " _free:" + _free;
 
-            int newLen = _buf == null ? _initialBufSize : _buf.length * 2;
+            long newLen = _cbuf == null ? _initialBufSize : _cbuf.length * 2;
             int used = getAvailable();
 
             while (newLen - used < cch) {
                 newLen *= 2;
             }
 
-            char[] newBuf = new char[newLen];
+            final int bufLen = (int) Math.min(newLen, MAX_ARRAY_SIZE);
+            char[] newBuf = new char[bufLen];
 
             if (used > 0) {
                 if (_in > _out) {
                     // Data in the middle (between _in and _out, i must be between those)
                     assert i == -1 || (i >= _out && i < _in);
-                    System.arraycopy(_buf, _out, newBuf, 0, used);
+                    System.arraycopy(_cbuf, _out, newBuf, 0, used);
                     i -= _out;
                 } else {
                     // Data is on the edges: Oldest part from _in to end,
@@ -1595,8 +1598,8 @@ abstract class Saver {
                     // it must be in either of those regions
                     assert i == -1 || (i >= _out || i < _in);
                     int oldestSize = used - _in;
-                    System.arraycopy( _buf, _out, newBuf, 0, oldestSize );
-                    System.arraycopy( _buf, 0, newBuf, oldestSize, _in );
+                    System.arraycopy(_cbuf, _out, newBuf, 0, oldestSize );
+                    System.arraycopy(_cbuf, 0, newBuf, oldestSize, _in );
                     // newBuf now contains oldest data now at [0,oldestSize) and newest at [oldestSize,oldestSize+_in)
                     // Where was i? If past _out, i was in the oldest part, so adjust back by start of the oldest part
                     // Or: i was in the newest part, and should now be adjusted forward to where the newest part is now
@@ -1605,23 +1608,23 @@ abstract class Saver {
 
                 _out = 0;
                 _in = used;
-                _free += newBuf.length - _buf.length;
+                _free += newBuf.length - _cbuf.length;
             } else {
                 _free = newBuf.length;
                 assert _in == 0 && _out == 0;
                 assert i == -1;
             }
 
-            _buf = newBuf;
+            _cbuf = newBuf;
 
             assert _free >= 0;
             //noinspection ConstantConditions
-            assert _buf == null ||
-                   (_out < _in && _free == _buf.length - (_in - _out)) || // data in the middle, free on the edges
+            assert _cbuf == null ||
+                   (_out < _in && _free == _cbuf.length - (_in - _out)) || // data in the middle, free on the edges
                    (_out > _in && _free == _out - _in) ||                   // data on the edges, free in the middle
-                   (_out == _in && _free == _buf.length) ||                  // no data, all buffer free
+                   (_out == _in && _free == _cbuf.length) ||                 // no data, all buffer free
                    (_out == _in && _free == 0)                               // buffer full
-                : "_buf.length:" + _buf.length + " _in:" + _in + " _out:" + _out + " _free:" + _free;
+                : "_cbuf.length:" + _cbuf.length + " _in:" + _in + " _out:" + _out + " _free:" + _free;
 
             return i;
         }
@@ -1633,16 +1636,16 @@ abstract class Saver {
 
             assert getAvailable() > 0;
 
-            int ch = _buf[_out];
+            int ch = _cbuf[_out];
 
-            _out = (_out + 1) % _buf.length;
+            _out = (_out + 1) % _cbuf.length;
             _free++;
 
-            assert (_out < _in && _free == _buf.length - (_in - _out)) || // data in the middle, free on the edges
+            assert (_out < _in && _free == _cbuf.length - (_in - _out)) || // data in the middle, free on the edges
                    (_out > _in && _free == _out - _in) ||                   // data on the edges, free in the middle
-                   (_out == _in && _free == _buf.length) ||                  // no data, all buffer free
+                   (_out == _in && _free == _cbuf.length) ||                  // no data, all buffer free
                    (_out == _in && _free == 0)                               // buffer full
-                : "_buf.length:" + _buf.length + " _in:" + _in + " _out:" + _out + " _free:" + _free;
+                : "_cbuf.length:" + _cbuf.length + " _in:" + _in + " _out:" + _out + " _free:" + _free;
 
             return ch;
         }
@@ -1667,26 +1670,26 @@ abstract class Saver {
             }
 
             if (_out < _in) {
-                System.arraycopy(_buf, _out, cbuf, off, len);
+                System.arraycopy(_cbuf, _out, cbuf, off, len);
             } else {
-                int chunk = _buf.length - _out;
+                int chunk = _cbuf.length - _out;
 
                 if (chunk >= len) {
-                    System.arraycopy(_buf, _out, cbuf, off, len);
+                    System.arraycopy(_cbuf, _out, cbuf, off, len);
                 } else {
-                    System.arraycopy(_buf, _out, cbuf, off, chunk);
-                    System.arraycopy(_buf, 0, cbuf, off + chunk, len - chunk);
+                    System.arraycopy(_cbuf, _out, cbuf, off, chunk);
+                    System.arraycopy(_cbuf, 0, cbuf, off + chunk, len - chunk);
                 }
             }
 
-            _out = (_out + len) % _buf.length;
+            _out = (_out + len) % _cbuf.length;
             _free += len;
 
-            assert (_out < _in && _free == _buf.length - (_in - _out)) || // data in the middle, free on the edges
+            assert (_out < _in && _free == _cbuf.length - (_in - _out)) || // data in the middle, free on the edges
                    (_out > _in && _free == _out - _in) ||                   // data on the edges, free in the middle
-                   (_out == _in && _free == _buf.length) ||                  // no data, all buffer free
+                   (_out == _in && _free == _cbuf.length) ||                  // no data, all buffer free
                    (_out == _in && _free == 0)                               // buffer full
-                : "_buf.length:" + _buf.length + " _in:" + _in + " _out:" + _out + " _free:" + _free;
+                : "_cbuf.length:" + _cbuf.length + " _in:" + _in + " _out:" + _out + " _free:" + _free;
 
             assert _free >= 0;
 
@@ -1707,15 +1710,15 @@ abstract class Saver {
 
                 assert _out == 0;
                 assert _in >= _out : "_in:" + _in + " < _out:" + _out;
-                if ((_buf.length - _in) != _free) {
+                if ((_cbuf.length - _in) != _free) {
                     //https://issues.apache.org/jira/browse/XMLBEANS-604
-                    _in = _buf.length;
+                    _in = _cbuf.length;
                 }
-                assert _free == _buf.length - _in;
+                assert _free == _cbuf.length - _in;
 
                 try {
-//System.out.println("-------------\nWriting in converter: TextSaver.write():1703  " + charsAvailable + " chars\n" + new String(_buf, 0, charsAvailable));
-                    writer.write(_buf, 0, charsAvailable);
+//System.out.println("-------------\nWriting in converter: TextSaver.write():1703  " + charsAvailable + " chars\n" + new String(_cbuf, 0, charsAvailable));
+                    writer.write(_cbuf, 0, charsAvailable);
                     writer.flush();
                 } catch (IOException e) {
                     throw new RuntimeException(e);
@@ -1727,12 +1730,12 @@ abstract class Saver {
 
                 _in = 0;
             }
-            assert _buf == null ||
-                   (_out < _in && _free == _buf.length - (_in - _out)) || // data in the middle, free on the edges
+            assert _cbuf == null ||
+                   (_out < _in && _free == _cbuf.length - (_in - _out)) || // data in the middle, free on the edges
                    (_out > _in && _free == _out - _in) ||                   // data on the edges, free in the middle
-                   (_out == _in && _free == _buf.length) ||                  // no data, all buffer free
+                   (_out == _in && _free == _cbuf.length) ||                  // no data, all buffer free
                    (_out == _in && _free == 0)                               // buffer full
-                : "_buf.length:" + _buf.length + " _in:" + _in + " _out:" + _out + " _free:" + _free;
+                : "_cbuf.length:" + _cbuf.length + " _in:" + _in + " _out:" + _out + " _free:" + _free;
 
             return charsAvailable;
         }
@@ -1750,7 +1753,7 @@ abstract class Saver {
 
             int available = getAvailable();
 
-            return available == 0 ? "" : new String(_buf, _out, available);
+            return available == 0 ? "" : new String(_cbuf, _out, available);
         }
 
         //
@@ -1769,12 +1772,12 @@ abstract class Saver {
         private int _free;
         private int _in;
         private int _out;
-        private char[] _buf;
+        private char[] _cbuf;
         /*
-        _buf is a circular buffer, useful data is before _in up to _out, there are 2 posible configurations:
+        _cbuf is a circular buffer, useful data is before _in up to _out, there are 2 possible configurations:
         1: _in<=_out  |data|_in  empty  _out|data|
         2: _out<_in   |empty _out|data|_in  empty|
-        _free is used to keep around the remaining empty space in the bufer so  assert _buf==null || _free == (_in>=_out ? _buf.length - (_in - _out) : _out - _in ) ;
+        _free is used to keep around the remaining empty space in the buffer so  assert _cbuf==null || _free == (_in>=_out ? _cbuf.length - (_in - _out) : _out - _in ) ;
          */
     }
 
@@ -2234,9 +2237,6 @@ abstract class Saver {
     }
 
     static final class InputStreamSaver extends InputStream {
-
-        // this is based on what is used in the core Java classes
-        private static final int MAX_ARRAY_SIZE = Integer.MAX_VALUE - 8;
 
         InputStreamSaver(Cur c, XmlOptions options) {
             _locale = c._locale;

@@ -79,7 +79,7 @@ def testSchemas =  [
     [dir:'src/test/resources/xbean',path:'dom',name:'sDOM'],
     [dir:'src/test/resources/xbean',path:'xmlcursor',name:'sXMLCURSOR'],
     [dir:'src/test/resources/xbean',path:'scomp',name:'sSCOMP'],
-    //[dir:'src/test/resources/xbean',path:'simple',name:'sSIMPLE'],
+    [dir:'src/test/resources/xbean',path:'simple',name:'sSIMPLE'],
     [dir:'src/test/resources/xbean',path:'ValidatingStream',name:'sVALIDATE'],
     [dir:'src/test/resources/xbean',path:'usertype',name:'sUSERTYPE'],
     [dir:'build/schemas/sTRANXML',path:'tranxml',name:'sTRANXML'],
