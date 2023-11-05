@@ -19,7 +19,7 @@ package org.apache.xmlbeans.impl.util;
 /**
  * Utility methods for dealing with exceptions/throwables
  *
- * @since 5.1.2
+ * @since 5.2.0
  */
 public class ExceptionUtil {
     private ExceptionUtil() {}
