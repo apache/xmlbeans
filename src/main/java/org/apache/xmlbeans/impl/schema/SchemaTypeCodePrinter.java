@@ -1415,16 +1415,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
         emit(em.replace("#VARNAME#", safeVarName) + ";");
     }
 
-    String getIdentifier(Map<QName, Integer> qnameMap, QName qName) {
-        return "PROPERTY_QNAME[" + qnameMap.get(qName) + "]";
-    }
-
-    String getSetIdentifier(Map<QName, Integer> qnameMap, QName qName, Map<QName, Integer> qsetMap) {
-        Integer ord = qsetMap.get(qName);
-        return ord == null ? getIdentifier(qnameMap, qName) : "PROPERTY_QSET["+ ord + "]";
-    }
-
-    void printStaticFields(SchemaProperty[] properties, Map<QName, Integer> qnameMap, Map<QName, Integer> qsetMap) throws IOException {
+    void printStaticFields(SchemaProperty[] properties, Map<SchemaProperty, Identifier> propMap) throws IOException {
         if (properties.length == 0) {
             return;
         }
@@ -1435,7 +1426,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
         indent();
         for (SchemaProperty prop : properties) {
             final QName name = prop.getName();
-            qnameMap.put(name, qnameMap.size());
+            propMap.put(prop, new Identifier(propMap.size()));
             emit("new QName(\"" + name.getNamespaceURI() + "\", \"" + name.getLocalPart() + "\"),");
             countQSet = Math.max(countQSet, (prop.acceptedNames() == null ? 0 : prop.acceptedNames().length));
         }
@@ -1446,10 +1437,10 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
         if (countQSet > 1) {
             emit("private static final QNameSet[] PROPERTY_QSET = {");
             for (SchemaProperty prop : properties) {
-                final QName name = prop.getName();
                 final QName[] qnames = prop.acceptedNames();
+                int index = 0;
                 if (qnames != null && qnames.length > 1) {
-                    qsetMap.put(name, qsetMap.size());
+                    propMap.get(prop).setSetIndex(index++);
                     emit("QNameSet.forArray( new QName[] { ");
                     indent();
                     for (QName qname : qnames) {
@@ -1638,11 +1629,11 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
         endBlock();
     }
 
-    void printGetterImpls(SchemaProperty prop, Map<QName, Integer> qnameMap, Map<QName, Integer> qsetMap)
+    void printGetterImpls(SchemaProperty prop, Map<SchemaProperty, Identifier> propMap)
     throws IOException {
         final QName qName = prop.getName();
-        final String identifier = getIdentifier(qnameMap, qName);
-        final String setIdentifier = getSetIdentifier(qnameMap, qName, qsetMap);
+        final String identifier = propMap.get(prop).getIdentifier();
+        final String setIdentifier = propMap.get(prop).getSetIdentifier();
         final boolean several = prop.extendsJavaArray();
         final boolean nillable = prop.hasNillable() != SchemaProperty.NEVER;
         final String type = javaTypeForProperty(prop);
@@ -1859,11 +1850,11 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
         }
     }
 
-    void printSetterImpls(SchemaProperty prop, Map<QName, Integer> qnameMap, Map<QName, Integer> qsetMap, SchemaType sType)
+    void printSetterImpls(SchemaProperty prop, Map<SchemaProperty, Identifier> propMap, SchemaType sType)
     throws IOException {
         final QName qName = prop.getName();
-        final String identifier = getIdentifier(qnameMap, qName);
-        final String setIdentifier = getSetIdentifier(qnameMap, qName, qsetMap);
+        final String identifier = propMap.get(prop).getIdentifier();
+        final String setIdentifier = propMap.get(prop).getSetIdentifier();
         final boolean several = prop.extendsJavaArray();
         final boolean nillable = prop.hasNillable() != SchemaProperty.NEVER;
         final String type = javaTypeForProperty(prop);
@@ -2277,15 +2268,14 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
 
         if (!sType.isSimpleType()) {
             SchemaProperty[] properties = getSchemaProperties(sType);
-            Map<QName, Integer> qnameMap = new HashMap<>();
-            Map<QName, Integer> qsetMap = new HashMap<>();
-            printStaticFields(properties, qnameMap, qsetMap);
+            Map<SchemaProperty, Identifier> propMap = new HashMap<>();
+            printStaticFields(properties, propMap);
 
             for (SchemaProperty prop : properties) {
-                printGetterImpls(prop, qnameMap, qsetMap);
+                printGetterImpls(prop, propMap);
 
                 if (!prop.isReadOnly()) {
-                    printSetterImpls(prop, qnameMap, qsetMap, sType);
+                    printSetterImpls(prop, propMap, sType);
                 }
             }
         }
@@ -2440,5 +2430,26 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
         emit("}");
         outdent();
         emit("}");
+    }
+    
+    private static class Identifier {
+        private final int getindex;
+        private Integer setindex = null;
+        
+        private Identifier(int index) {
+            this.getindex = index;
+        }
+
+        public String getIdentifier() {
+            return "PROPERTY_QNAME[" + getindex + "]";
+        }
+
+        public String getSetIdentifier() {
+            return setindex == null ? getIdentifier() : "PROPERTY_QSET["+ setindex + "]";
+        }
+
+        public void setSetIndex(int setindex) {
+            this.setindex = setindex;
+        }
     }
 }
