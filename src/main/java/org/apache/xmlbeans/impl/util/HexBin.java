@@ -55,7 +55,11 @@ public final class HexBin {
      * byte to be tested if it is Base64 alphabet
      */
     static boolean isHex(byte octect) {
-        return (hexNumberTable[octect] != -1);
+        // byte is a signed type and [] operator takes an int as an index.
+        // If use `octect` directly, negative byte will be promoted to the
+        // negative int and ArrayIndexOutOfBoundException will be thrown.
+        // `& 0xFF` will convert negative byte to positive int
+        return (hexNumberTable[octect & 0xFF] != -1);
     }
 
     /**
