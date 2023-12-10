@@ -146,4 +146,12 @@ public class SchemaCompilerTests {
         SchemaCompiler.compile(params);
         assertFalse(hasSevereError(errors), "testNoExt(): failure when executing scomp");
     }
+
+    @Test
+    void testXmlBeans644() {
+        File[] xsdFiles = { new File(scompTestFilesRoot + "xmlbeans644.xsd") };
+        String outputDirName = "xmlbeans644";
+        String testname = "testXmlBeans644";
+        _testCompile(xsdFiles, outputDirName, testname);
+    }
 }
