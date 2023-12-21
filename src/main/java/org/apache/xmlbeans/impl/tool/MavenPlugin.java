@@ -16,7 +16,12 @@
 package org.apache.xmlbeans.impl.tool;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.filefilter.AndFileFilter;
+import org.apache.commons.io.filefilter.IOFileFilter;
+import org.apache.commons.io.filefilter.NameFileFilter;
+import org.apache.commons.io.filefilter.NotFileFilter;
 import org.apache.commons.io.filefilter.RegexFileFilter;
+import org.apache.commons.io.filefilter.SuffixFileFilter;
 import org.apache.commons.io.filefilter.TrueFileFilter;
 import org.apache.maven.model.Resource;
 import org.apache.maven.plugin.AbstractMojo;
@@ -223,8 +228,11 @@ public class MavenPlugin extends AbstractMojo {
                 .replace(".", "\\.")
                 .replace("*",".*") +
             ")");
-
-        Collection<File> schemaFiles = FileUtils.listFiles(base, new RegexFileFilter(pat), sourceSubdirs ? TrueFileFilter.INSTANCE : null);
+        // Check for files that match the pattern and exclude *.xsdconfig
+        IOFileFilter fileFilter = new AndFileFilter(new RegexFileFilter(pat), new NotFileFilter(new SuffixFileFilter(".xsdconfig")));
+        // if sourceSubdirs is true check all subdirectories of sourceDir, otherwise check only sourceDir
+        IOFileFilter directoryFilter = sourceSubdirs ? TrueFileFilter.INSTANCE : null;
+        Collection<File> schemaFiles = FileUtils.listFiles(base, fileFilter, directoryFilter);
         for (File sf : schemaFiles) {
             String name = sf.getName();
             switch (name.replaceAll(".*\\.", "")) {
