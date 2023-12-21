@@ -168,6 +168,13 @@
                     <description>sourceSchemas is a comma-delimited list of all the schemas you want to compile</description>
                 </parameter>
                 <parameter>
+                    <name>sourceSubdirs</name>
+                    <type>boolean</type>
+                    <required>false</required>
+                    <editable>true</editable>
+                    <description>sourceSubdirs determines if subdirectories of sourceDir are checked for schemas</description>
+                </parameter>
+                <parameter>
                     <name>xmlConfigs</name>
                     <type>java.lang.String</type>
                     <required>false</required>
@@ -363,6 +370,7 @@
                 <buildSchemas implementation="boolean" default-value="true"/>
                 <sourceDir implementation="java.lang.String" default-value="${project.basedir}/src/main/schema"/>
                 <sourceSchemas implementation="java.lang.String" default-value="*.xsd,*.wsdl,*.java"/>
+                <sourceSubdirs implementation="boolean" default-value="false"/>
                 <xmlConfigs implementation="java.lang.String" default-value="${project.basedir}/src/schema/xmlconfig.xml"/>
                 <javaTargetDir implementation="java.lang.String" default-value="${project.basedir}/target/generated-sources"/>
                 <classTargetDir implementation="java.lang.String" default-value="${project.basedir}/target/generated-resources"/>
