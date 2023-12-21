@@ -15,13 +15,6 @@
 
 package org.apache.xmlbeans.impl.tool;
 
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.filefilter.AndFileFilter;
-import org.apache.commons.io.filefilter.IOFileFilter;
-import org.apache.commons.io.filefilter.NotFileFilter;
-import org.apache.commons.io.filefilter.RegexFileFilter;
-import org.apache.commons.io.filefilter.SuffixFileFilter;
-import org.apache.commons.io.filefilter.TrueFileFilter;
 import org.apache.maven.model.Resource;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -31,6 +24,7 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.apache.xmlbeans.XmlError;
+import org.apache.xmlbeans.impl.util.FileUtil;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -227,11 +221,7 @@ public class MavenPlugin extends AbstractMojo {
                 .replace(".", "\\.")
                 .replace("*",".*") +
             ")");
-        // Check for files that match the pattern and exclude *.xsdconfig
-        IOFileFilter fileFilter = new AndFileFilter(new RegexFileFilter(pat), new NotFileFilter(new SuffixFileFilter(".xsdconfig")));
-        // if sourceSubdirs is true check all subdirectories of sourceDir, otherwise check only sourceDir
-        IOFileFilter directoryFilter = sourceSubdirs ? TrueFileFilter.INSTANCE : null;
-        Collection<File> schemaFiles = FileUtils.listFiles(base, fileFilter, directoryFilter);
+        Collection<File> schemaFiles = FileUtil.find(base, pat, sourceSubdirs);
         for (File sf : schemaFiles) {
             String name = sf.getName();
             switch (name.replaceAll(".*\\.", "")) {
