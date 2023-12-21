@@ -123,6 +123,7 @@ dependencies {
     implementation "org.apache.ant:ant:${antVersion}"
     implementation "com.github.javaparser:javaparser-core:${javaparserVersion}"
     implementation "com.github.javaparser:javaparser-symbol-solver-core:${javaparserVersion}"
+    implementation "commons-io:commons-io:2.15.0"
 
     // only for java 8
     if (JavaVersion.current() == JavaVersion.VERSION_1_8) {
@@ -135,7 +136,6 @@ dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter-params:5.10.0'
     testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.10.0'
     testImplementation 'org.junit.platform:junit-platform-launcher:1.10.0'
-    testImplementation "commons-io:commons-io:2.15.0"
     testImplementation "org.apache.logging.log4j:log4j-core:${log4jVersion}"
 //    testImplementation "org.apache.ant:ant-junit:${antVersion}"
 //    testImplementation "org.apache.ant:ant-junit4:${antVersion}"
