@@ -1,4 +1,4 @@
-/*  Copyright 2004-2023 The Apache Software Foundation
+/*  Copyright 2004-2024 The Apache Software Foundation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -50,4 +50,4 @@ XmlBeans depends on the following external libraries:
 (O) means that the library is optional
 
 For licensing information, see LICENSE.txt
-Updated: 2 January 2023.
+Updated: 1 January 2024.
