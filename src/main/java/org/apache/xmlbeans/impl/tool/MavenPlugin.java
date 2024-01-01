@@ -59,6 +59,10 @@ public class MavenPlugin extends AbstractMojo {
     @Parameter( defaultValue = "*.xsd,*.wsdl,*.java" )
     private String sourceSchemas;
 
+    /** recurseSourceSubdirs determines if subdirectories of sourceDir are checked for schemas */
+    @Parameter( defaultValue = "false" )
+    private boolean recurseSourceSubdirs;
+
     /** xmlConfigs points to your xmlconfig.xml file */
     @Parameter( defaultValue = "${project.basedir}/src/schema/xmlconfig.xml" )
     private String xmlConfigs;
@@ -211,14 +215,12 @@ public class MavenPlugin extends AbstractMojo {
         // if sourceSchemas is not specified use all found schemas
         // otherwise convert comma-separated string to regex including glob parameter
         Pattern pat = Pattern.compile(sourceSchemas == null ? ".*" :
-            "(" + sourceSchemas
-                .replace(",","|")
-                .replace(".", "\\.")
-                .replace("*",".*") +
-            ")");
-
-        File[] schemaFiles = Objects.requireNonNull(base.listFiles((dir, name) ->
-            !name.endsWith(".xsdconfig") && pat.matcher(name).matches()));
+                "(" + sourceSchemas
+                        .replace(",","|")
+                        .replace(".", "\\.")
+                        .replace("*",".*") +
+                        ")");
+        final Collection<File> schemaFiles = FileUtil.find(base, pat, recurseSourceSubdirs);
         for (File sf : schemaFiles) {
             String name = sf.getName();
             switch (name.replaceAll(".*\\.", "")) {
@@ -239,9 +241,9 @@ public class MavenPlugin extends AbstractMojo {
 
         if (buildSchemas) {
             List<File> configs = (xmlConfigs == null || xmlConfigs.isEmpty()) ? Collections.emptyList()
-                : Stream.of(xmlConfigs.split(",")).flatMap(s ->
+                    : Stream.of(xmlConfigs.split(",")).flatMap(s ->
                     Stream.of(new File(s), new File(base, s)).filter(File::exists)
-                ).collect(Collectors.toList());
+            ).collect(Collectors.toList());
 
             List<File> classPathList = new ArrayList<>();
             List<URL> urls = new ArrayList<>();
@@ -304,7 +306,7 @@ public class MavenPlugin extends AbstractMojo {
 
             if (!result) {
                 throw new MojoFailureException("Schema compilation failed!\n"+
-                    errorList.stream().map(XmlError::toString).collect(Collectors.joining("\n"))
+                        errorList.stream().map(XmlError::toString).collect(Collectors.joining("\n"))
                 );
             }
 
