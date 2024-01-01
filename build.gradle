@@ -148,10 +148,10 @@ dependencies {
     testRuntimeOnly 'org.xmlresolver:xmlresolver:4.6.4'
 
     // maven plugin dependencies
-    implementation('org.apache.maven:maven-core:3.8.4')
-    implementation 'org.apache.maven:maven-model:3.8.4'
-    implementation('org.apache.maven:maven-plugin-api:3.8.4')
-    implementation 'org.apache.maven.plugin-tools:maven-plugin-annotations:3.6.2'
+    implementation('org.apache.maven:maven-core:3.9.6')
+    implementation 'org.apache.maven:maven-model:3.9.6'
+    implementation('org.apache.maven:maven-plugin-api:3.9.6')
+    implementation 'org.apache.maven.plugin-tools:maven-plugin-annotations:3.10.2'
 
 
     // previous xmlbeans version is used to bootstrap necessary schema bindings
