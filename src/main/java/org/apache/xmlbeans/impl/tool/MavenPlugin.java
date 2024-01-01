@@ -24,6 +24,7 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.apache.xmlbeans.XmlError;
+import org.apache.xmlbeans.impl.util.FileUtil;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -58,6 +59,10 @@ public class MavenPlugin extends AbstractMojo {
     /** sourceSchemas is a comma-delimited list of all the schemas you want to compile */
     @Parameter( defaultValue = "*.xsd,*.wsdl,*.java" )
     private String sourceSchemas;
+
+    /** sourceSubdirs determines if subdirectories of sourceDir are checked for schemas */
+    @Parameter( defaultValue = "false" )
+    private boolean sourceSubdirs;
 
     /** xmlConfigs points to your xmlconfig.xml file */
     @Parameter( defaultValue = "${project.basedir}/src/schema/xmlconfig.xml" )
@@ -216,9 +221,7 @@ public class MavenPlugin extends AbstractMojo {
                 .replace(".", "\\.")
                 .replace("*",".*") +
             ")");
-
-        File[] schemaFiles = Objects.requireNonNull(base.listFiles((dir, name) ->
-            !name.endsWith(".xsdconfig") && pat.matcher(name).matches()));
+        Collection<File> schemaFiles = FileUtil.find(base, pat, sourceSubdirs);
         for (File sf : schemaFiles) {
             String name = sf.getName();
             switch (name.replaceAll(".*\\.", "")) {
