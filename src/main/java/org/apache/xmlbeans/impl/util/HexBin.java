@@ -101,7 +101,7 @@ public final class HexBin {
     }
 
     /**
-     * @param binaryData
+     * @param binaryData input data
      * @return decoded bytes - can return null if the input is null, empty or includes bytes that are not valid Hex
      */
     static public byte[] decode(byte[] binaryData) {
