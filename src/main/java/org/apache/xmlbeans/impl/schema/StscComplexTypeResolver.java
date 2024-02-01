@@ -1002,7 +1002,7 @@ public class StscComplexTypeResolver {
     static SchemaParticle extendContentModel(SchemaParticle baseContentModel, SchemaParticle extendedContentModel, XmlObject parseTree) {
         // http://www.w3.org/TR/xmlschema-1/#element-complexContent::extension
 
-        // 2.1 If the explicit content is empty, then the {content type} of the type definition resolved to by the �actual value� of the base [attribute]
+        // 2.1 If the explicit content is empty, then the {content type} of the type definition resolved to by the actual value of the base [attribute]
         if (extendedContentModel == null) {
             return baseContentModel;
         }
