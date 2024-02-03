@@ -23,7 +23,7 @@ buildscript {
 
     dependencies {
         classpath 'org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:4.0.0.2929'
-        classpath 'de.thetaphi:forbiddenapis:3.4'
+        classpath 'de.thetaphi:forbiddenapis:3.6'
     }
 }
 
@@ -155,7 +155,7 @@ dependencies {
 
 
     // previous xmlbeans version is used to bootstrap necessary schema bindings
-    bootstrap 'org.apache.xmlbeans:xmlbeans:5.0.3'
+    bootstrap 'org.apache.xmlbeans:xmlbeans:5.2.0'
     bootstrap "org.apache.logging.log4j:log4j-core:${log4jVersion}"
 
     genresources "org.apache.logging.log4j:log4j-core:${log4jVersion}"
@@ -707,7 +707,7 @@ if (project.hasProperty('enableSonar')) {
 
 
 jacoco {
-    toolVersion = '0.8.8'
+    toolVersion = '0.8.11'
 }
 
 test {
