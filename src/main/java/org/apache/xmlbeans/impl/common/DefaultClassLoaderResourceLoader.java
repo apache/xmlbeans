@@ -30,7 +30,7 @@ public class DefaultClassLoaderResourceLoader implements ResourceLoader
             in = getResourceAsStream(DefaultClassLoaderResourceLoader.class.getClassLoader(), resourceName);
         }
         if (in == null) {
-            in = DefaultClassLoaderResourceLoader.class.getResourceAsStream(resourceName);
+            in = DefaultClassLoaderResourceLoader.class.getResourceAsStream("/" + resourceName);
         }
         return in;
     }

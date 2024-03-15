@@ -265,7 +265,7 @@ public class SchemaTypeLoaderImpl extends SchemaTypeLoaderBase {
             tsname = crackEntry(_resourceLoader, searchfor);
         }
 
-        if (_classLoader != null) {
+        if (tsname == null && _classLoader != null) {
             tsname = crackEntry(_classLoader, searchfor);
         }
 
