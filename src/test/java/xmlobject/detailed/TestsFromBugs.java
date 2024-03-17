@@ -20,9 +20,13 @@ import com.mytest.Foo;
 import com.mytest.Info;
 import com.mytest.TestDocument;
 import org.apache.xmlbeans.*;
+import org.apache.xmlbeans.impl.schema.BuiltinSchemaTypeSystem;
+import org.apache.xmlbeans.impl.schema.SchemaTypeLoaderImpl;
+
 import org.junit.jupiter.api.Test;
 import test.xmlobject.test36510.Test36510AppDocument;
 
+import static org.apache.xmlbeans.XmlBeans.compileXmlBeans;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -151,5 +155,50 @@ public class TestsFromBugs {
         SchemaGlobalAttribute[] ats = sts.globalAttributes();
         assertEquals(1, ats.length);
         assertDoesNotThrow(ats[0]::getSourceName);
+    }
+    
+    /**
+     * https://issues.apache.org/jira/browse/XMLBEANS-648
+     */
+    @Test
+    void test648() throws Exception {
+        final XmlOptions options = new XmlOptions();
+        options.setCompileNoUpaRule();
+        options.setCompileNoValidation();
+        options.setCompileDownloadUrls();
+    
+        /* Load the schema */
+        final SchemaTypeLoader contextTypeLoader =
+            SchemaTypeLoaderImpl.build(new SchemaTypeLoader[] {BuiltinSchemaTypeSystem.get()}, null,
+                                       Object.class.getClassLoader());
+    
+        String schemaString = "<schema xmlns=\"http://www.w3.org/2001/XMLSchema\" xmlns:tns=\"http://validationnamespace.raml.org\" attributeFormDefault=\"unqualified\" elementFormDefault=\"qualified\" targetNamespace=\"http://validationnamespace.raml.org\">\n"
+            + "    <element name=\"__DataType_Fragment__\">\n"
+            + "        <complexType>\n"
+            + "            <sequence>\n"
+            + "                <element name=\"firstname\">\n"
+            + "                    <simpleType>\n"
+            + "                        <restriction base=\"string\"/>\n"
+            + "                    </simpleType>\n"
+            + "                </element>\n"
+            + "                <element name=\"lastname\">\n"
+            + "                    <simpleType>\n"
+            + "                        <restriction base=\"string\"/>\n"
+            + "                    </simpleType>\n"
+            + "                </element>\n"
+            + "                <element name=\"age\">\n"
+            + "                    <simpleType>\n"
+            + "                        <restriction base=\"double\"/>\n"
+            + "                    </simpleType>\n"
+            + "                </element>\n"
+            + "                <any maxOccurs=\"unbounded\" minOccurs=\"0\" processContents=\"skip\"/>\n"
+            + "            </sequence>\n"
+            + "        </complexType>\n"
+            + "    </element>\n"
+            + "</schema>\n"
+            + "";
+        final XmlObject[] schemaRepresentation = new XmlObject[] {contextTypeLoader.parse(schemaString, null, null)};
+    
+        XmlBeans.compileXmlBeans(null, null, schemaRepresentation, null, contextTypeLoader, null, options);
     }
 }

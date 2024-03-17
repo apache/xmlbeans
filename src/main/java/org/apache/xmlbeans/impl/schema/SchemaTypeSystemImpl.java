@@ -16,6 +16,7 @@
 package org.apache.xmlbeans.impl.schema;
 
 import org.apache.xmlbeans.*;
+import org.apache.xmlbeans.impl.common.DefaultClassLoaderResourceLoader;
 import org.apache.xmlbeans.impl.common.QNameHelper;
 import org.apache.xmlbeans.impl.common.XBeanDebug;
 import org.apache.xmlbeans.impl.util.ExceptionUtil;
@@ -196,7 +197,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
         _name = fullname.substring(0, fullname.lastIndexOf('.'));
         XBeanDebug.LOG.atTrace().log("Loading type system {}", _name);
         _classloader = indexclass.getClassLoader();
-        _linker = SchemaTypeLoaderImpl.build(null, null, _classloader, getMetadataPath());
+        _linker = SchemaTypeLoaderImpl.build(null, new DefaultClassLoaderResourceLoader(), _classloader, getMetadataPath());
         _resourceLoader = new ClassLoaderResourceLoader(_classloader);
         try {
             initFromHeader();
