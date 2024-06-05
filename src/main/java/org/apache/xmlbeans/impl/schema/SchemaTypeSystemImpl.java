@@ -312,7 +312,25 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
 
     void savePointersForComponents(SchemaComponent[] components, String dir) {
         for (SchemaComponent component : components) {
-            savePointerFile(dir + QNameHelper.hexsafedir(component.getName()), _name);
+            String javaName = _localHandles.handleForComponent(component);
+            if (javaName != null && !javaName.isEmpty()) 
+            {
+                QName nameTemp = component.getName();
+                String resultName;
+                if (nameTemp.getNamespaceURI() == null || nameTemp.getNamespaceURI().length() == 0) {
+                       resultName = "_nons/" + QNameHelper.hexsafe(javaName);
+                }
+                else
+                {
+                    resultName = QNameHelper.hexsafe(nameTemp.getNamespaceURI()) + "/"
+                             + QNameHelper.hexsafe(javaName);
+                }
+                savePointerFile(dir + resultName, _name);
+            } 
+            else 
+            {
+                savePointerFile(dir + QNameHelper.hexsafedir(component.getName()), _name);
+            }
         }
     }
 

@@ -119,6 +119,9 @@ public class CodeGenUtil {
             cp = systemClasspath();
         }
 
+        args.add("-encoding");
+        args.add("utf-8");
+
         if (cp.length > 0) {
             StringBuilder classPath = new StringBuilder();
             // Add the output directory to the classpath.  We do this so that
@@ -159,7 +162,7 @@ public class CodeGenUtil {
         File clFile = null;
         try {
             clFile = Files.createTempFile(IOUtil.getTempDir(), "javac", ".tmp").toFile();
-            try (Writer fw = Files.newBufferedWriter(clFile.toPath(), StandardCharsets.ISO_8859_1)) {
+            try (Writer fw = Files.newBufferedWriter(clFile.toPath(), StandardCharsets.UTF_8)) {
                 Iterator<String> i = args.iterator();
                 for (i.next(); i.hasNext(); ) {
                     String arg = i.next();
