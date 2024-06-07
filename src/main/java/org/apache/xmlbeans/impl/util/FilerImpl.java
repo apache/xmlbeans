@@ -48,7 +48,7 @@ public class FilerImpl implements Filer {
             temp = Charset.forName(System.getProperty("file.encoding"));
         } catch (Exception ignored) {
         }
-        CHARSET = temp;
+        CHARSET = null;
     }
 
     public FilerImpl(File classdir, File srcdir, Repackager repackager, boolean verbose, boolean incrSrcGen) {
@@ -129,7 +129,7 @@ public class FilerImpl implements Filer {
 
     private static Writer writerForFile(File f) throws IOException {
         if (CHARSET == null) {
-            return Files.newBufferedWriter(f.toPath(), StandardCharsets.ISO_8859_1);
+            return Files.newBufferedWriter(f.toPath(), StandardCharsets.UTF_8);
         }
 
         FileOutputStream fileStream = new FileOutputStream(f);
