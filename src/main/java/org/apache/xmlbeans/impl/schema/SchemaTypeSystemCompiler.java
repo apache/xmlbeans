@@ -380,7 +380,7 @@ public class SchemaTypeSystemCompiler {
 
         String indexClassName = SchemaTypeCodePrinter.indexClassForSystem(system);
 
-        try (Writer out = filer.createSourceFile(indexClassName)) {
+        try (Writer out = filer.createSourceFile(indexClassName, (options == null) ? false : options.isCompileUseCustomEncoding())) {
             Repackager repackager = (filer instanceof FilerImpl) ? ((FilerImpl) filer).getRepackager() : null;
             printer.printHolder(out, system, options, repackager);
         } catch (IOException e) {
@@ -398,7 +398,7 @@ public class SchemaTypeSystemCompiler {
 
             String fjn = type.getFullJavaName();
 
-            try (Writer writer = filer.createSourceFile(fjn)) {
+            try (Writer writer = filer.createSourceFile(fjn, (options == null) ? false : options.isCompileUseCustomEncoding())) {
                 // Generate interface class
                 printer.printType(writer, type, options);
             } catch (IOException e) {
@@ -408,7 +408,7 @@ public class SchemaTypeSystemCompiler {
 
             fjn = type.getFullJavaImplName();
 
-            try (Writer writer = filer.createSourceFile(fjn)) {
+            try (Writer writer = filer.createSourceFile(fjn, (options == null) ? false : options.isCompileUseCustomEncoding())) {
                 // Generate Implementation class
                 printer.printTypeImpl(writer, type, options);
             } catch (IOException e) {

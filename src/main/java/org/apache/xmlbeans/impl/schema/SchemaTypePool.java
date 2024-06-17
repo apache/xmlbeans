@@ -89,7 +89,17 @@ class SchemaTypePool {
         }
         String handle = _componentsToHandles.get(element);
         if (handle == null) {
-            handle = addUniqueHandle(element, NameUtil.upperCamelCase(element.getName().getLocalPart()) + "Element");
+            if(typeSystem.getUseShortName()) {
+                SchemaType type = element.getType();
+                String javaName = type.getShortJavaName();
+                if (javaName != null && !javaName.isEmpty()) {
+                    handle = addUniqueHandle(element, NameUtil.upperCamelCase(javaName) + "Element");
+                } else {
+                    handle = addUniqueHandle(element, NameUtil.upperCamelCase(element.getName().getLocalPart()) + "Element");
+                }
+            } else {
+                handle = addUniqueHandle(element, NameUtil.upperCamelCase(element.getName().getLocalPart()) + "Element");
+            }
         }
         return handle;
     }
@@ -179,7 +189,15 @@ class SchemaTypePool {
             if (name == null) {
                 baseName = "Anon" + uniq + "Type";
             } else {
-                baseName = NameUtil.upperCamelCase(name.getLocalPart()) + uniq + suffix + "Type";
+                if(typeSystem.getUseShortName()) {
+                    String javaName = type.getShortJavaName();
+                    if (javaName == null || javaName.isEmpty())
+                        javaName = name.getLocalPart();
+                    baseName = NameUtil.upperCamelCase(javaName) + uniq + suffix + "Type";
+                }
+                else {
+                    baseName = NameUtil.upperCamelCase(name.getLocalPart()) + uniq + suffix + "Type";
+                }
             }
 
             handle = addUniqueHandle(type, baseName);

@@ -85,9 +85,10 @@ public class FilerImpl implements Filer {
      * Creates a new binding source file (.java) and returns a writer for it.
      *
      * @param typename fully qualified type name
+     * @param useCustomEncoding whether use CustomEncoding
      * @return a stream to write the type to
      */
-    public Writer createSourceFile(String typename) throws IOException {
+    public Writer createSourceFile(String typename, boolean useCustomEncoding) throws IOException {
         if (incrSrcGen) {
             seenTypes.add(typename);
         }
@@ -114,7 +115,7 @@ public class FilerImpl implements Filer {
             return new IncrFileWriter(sourcefile, repackager);
         } else {
             return repackager == null ?
-                writerForFile(sourcefile) :
+                writerForFile(sourcefile, useCustomEncoding) :
                 new RepackagingWriter(sourcefile, repackager);
         }
     }
@@ -127,9 +128,9 @@ public class FilerImpl implements Filer {
         return repackager;
     }
 
-    private static Writer writerForFile(File f) throws IOException {
+    private static Writer writerForFile(File f, boolean useCustomEncoding) throws IOException {
         if (CHARSET == null) {
-            return Files.newBufferedWriter(f.toPath(), StandardCharsets.ISO_8859_1);
+            return Files.newBufferedWriter(f.toPath(), useCustomEncoding ? StandardCharsets.UTF_8 : StandardCharsets.ISO_8859_1);
         }
 
         OutputStream fileStream = Files.newOutputStream(f.toPath());
@@ -164,7 +165,7 @@ public class FilerImpl implements Filer {
 
             if (!diffs.isEmpty()) {
                 // Diffs encountered, replace the file on disk with text from the buffer
-                try (Writer fw = writerForFile(_file)) {
+                try (Writer fw = writerForFile(_file, false)) {
                     fw.write(str);
                 }
             }
@@ -180,7 +181,7 @@ public class FilerImpl implements Filer {
         public void close() throws IOException {
             super.close();
 
-            try (Writer fw = writerForFile(_file)) {
+            try (Writer fw = writerForFile(_file, false)) {
                 fw.write(_repackager.repackage(getBuffer()).toString());
             }
         }

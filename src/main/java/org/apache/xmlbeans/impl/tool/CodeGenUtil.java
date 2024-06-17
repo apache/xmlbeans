@@ -88,12 +88,12 @@ public class CodeGenUtil {
      * @deprecated
      */
     public static boolean externalCompile(List<File> srcFiles, File outdir, File[] cp, boolean debug) {
-        return externalCompile(srcFiles, outdir, cp, debug, DEFAULT_COMPILER, null, DEFAULT_MEM_START, DEFAULT_MEM_MAX, false, false);
+        return externalCompile(srcFiles, outdir, cp, debug, DEFAULT_COMPILER, null, DEFAULT_MEM_START, DEFAULT_MEM_MAX, false, false, false);
     }
 
     // KHK: temporary to avoid build break
-    public static boolean externalCompile(List<File> srcFiles, File outdir, File[] cp, boolean debug, String javacPath, String memStart, String memMax, boolean quiet, boolean verbose) {
-        return externalCompile(srcFiles, outdir, cp, debug, javacPath, null, memStart, memMax, quiet, verbose);
+    public static boolean externalCompile(List<File> srcFiles, File outdir, File[] cp, boolean debug, String javacPath, String memStart, String memMax, boolean quiet, boolean verbose, boolean useCustom) {
+        return externalCompile(srcFiles, outdir, cp, debug, javacPath, null, memStart, memMax, quiet, verbose, useCustom);
     }
 
     /**
@@ -102,7 +102,7 @@ public class CodeGenUtil {
      * {@code GenFile}s for all of the classes produced or null if an
      * error occurred.
      */
-    public static boolean externalCompile(List<File> srcFiles, File outdir, File[] cp, boolean debug, String javacPath, String genver, String memStart, String memMax, boolean quiet, boolean verbose) {
+    public static boolean externalCompile(List<File> srcFiles, File outdir, File[] cp, boolean debug, String javacPath, String genver, String memStart, String memMax, boolean quiet, boolean verbose, boolean useCustom) {
         List<String> args = new ArrayList<>();
 
         File javac = findJavaTool(javacPath == null ? DEFAULT_COMPILER : javacPath);
@@ -118,6 +118,11 @@ public class CodeGenUtil {
 
         if (cp == null) {
             cp = systemClasspath();
+        }
+
+        if(useCustom) {
+            args.add("-encoding");
+            args.add("utf-8");
         }
 
         if (cp.length > 0) {
@@ -160,7 +165,7 @@ public class CodeGenUtil {
         File clFile = null;
         try {
             clFile = Files.createTempFile(IOUtil.getTempDir(), "javac", ".tmp").toFile();
-            try (Writer fw = Files.newBufferedWriter(clFile.toPath(), StandardCharsets.ISO_8859_1)) {
+            try (Writer fw = Files.newBufferedWriter(clFile.toPath(), useCustom ? StandardCharsets.UTF_8 : StandardCharsets.ISO_8859_1)) {
                 Iterator<String> i = args.iterator();
                 for (i.next(); i.hasNext(); ) {
                     String arg = i.next();

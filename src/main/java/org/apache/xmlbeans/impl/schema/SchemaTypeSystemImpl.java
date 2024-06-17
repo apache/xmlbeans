@@ -164,7 +164,9 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
     private Map<String, SchemaComponent.Ref> _typeRefsByClassname = new HashMap<>();
     private Set<String> _namespaces;
 
-
+    // the additional config option
+    private boolean _useCustom;
+    private boolean _useShortName;
 
     static String nameToPathString(String nameForSystem) {
         nameForSystem = nameForSystem.replace('.', '/');
@@ -317,7 +319,25 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
 
     void savePointersForComponents(SchemaComponent[] components, String dir) {
         for (SchemaComponent component : components) {
-            savePointerFile(dir + QNameHelper.hexsafedir(component.getName()), _name);
+            if(_useShortName) {
+                String javaName = _localHandles.handleForComponent(component);
+                if (javaName != null && !javaName.isEmpty()) 
+                {
+                    QName nameTemp = component.getName();
+                    String resultName;
+                    if (nameTemp.getNamespaceURI() == null || nameTemp.getNamespaceURI().length() == 0) {
+                        resultName = "_nons/" + QNameHelper.hexsafe(javaName);
+                    } else {
+                        resultName = QNameHelper.hexsafe(nameTemp.getNamespaceURI()) + "/"
+                                + QNameHelper.hexsafe(javaName);
+                    }
+                    savePointerFile(dir + resultName, _name);
+                } else {
+                    savePointerFile(dir + QNameHelper.hexsafedir(component.getName()), _name);
+                }
+            } else {
+                savePointerFile(dir + QNameHelper.hexsafedir(component.getName()), _name);
+            }
         }
     }
 
@@ -414,6 +434,14 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
             result = getContainer(namespace);
         }
         return result;
+    }
+
+    Boolean getUseCustomEncoding(){
+        return _useCustom;
+    }
+
+    Boolean getUseShortName(){
+        return _useShortName;
     }
 
     @SuppressWarnings("unchecked")
@@ -620,6 +648,8 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
         _annotations = state.annotations();
         _namespaces = new HashSet<>(Arrays.asList(state.getNamespaces()));
         _containers = state.getContainerMap();
+        _useShortName = state.useShortName();
+        _useCustom = state.useCustom();
         fixupContainers();
         // Checks that data in the containers matches the lookup maps
         assertContainersSynchronized();

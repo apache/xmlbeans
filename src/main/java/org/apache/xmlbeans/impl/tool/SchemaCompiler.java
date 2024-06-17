@@ -186,6 +186,8 @@ public class SchemaCompiler {
         boolean nojavac = (cl.getOpt("srconly") != null);
         boolean debug = (cl.getOpt("debug") != null);
         boolean copyAnn = (cl.getOpt("copyann") != null);
+        boolean useCustom = (cl.getOpt("usecustom") != null);
+        boolean useShortName = (cl.getOpt("useshortname") != null);
 
         String allowmdef = cl.getOpt("allowmdef");
         Set<String> mdefNamespaces = (allowmdef == null ? Collections.emptySet() :
@@ -333,6 +335,8 @@ public class SchemaCompiler {
         params.setNoVDoc(noVDoc);
         params.setNoExt(noExt);
         params.setDebug(debug);
+        params.setUseCustom(useCustom);
+        params.setUseShortName(useShortName);
         params.setErrorListener(err);
         params.setRepackage(repackage);
         params.setExtensions(extensions);
@@ -356,7 +360,7 @@ public class SchemaCompiler {
 
     private static SchemaTypeSystem loadTypeSystem(String name, File[] xsdFiles, File[] wsdlFiles, URL[] urlFiles, File[] configFiles,
                                                    File[] javaFiles, ResourceLoader cpResourceLoader,
-                                                   boolean download, boolean noUpa, boolean noPvr, boolean noAnn, boolean noVDoc, boolean noExt,
+                                                   boolean download, boolean noUpa, boolean noPvr, boolean noAnn, boolean noVDoc, boolean noExt, boolean useCustom, boolean useShortName,
                                                    Set<String> mdefNamespaces, File baseDir, Map<String, String> sourcesToCopyMap,
                                                    Collection<XmlError> outerErrorListener, File schemasDir, EntityResolver entResolver, File[] classpath) {
         XmlErrorWatcher errorListener = new XmlErrorWatcher(outerErrorListener);
@@ -521,6 +525,12 @@ public class SchemaCompiler {
             if (noAnn) {
                 opts.setCompileNoAnnotations();
             }
+            if (useCustom) {
+                opts.setCompileUseCustomEncoding();
+            }
+            if (useShortName) {
+                opts.setCompileUseShortJavaName();
+            }
             if (mdefNamespaces != null) {
                 opts.setCompileMdefNamespaces(mdefNamespaces);
             }
@@ -614,6 +624,8 @@ public class SchemaCompiler {
         boolean noExt = params.isNoExt();
         boolean incrSrcGen = params.isIncrementalSrcGen();
         boolean copyAnn = params.isCopyAnn();
+        boolean useCustom = params.isUseCustom();
+        boolean useShortName = params.isUseShortName();
         Collection<XmlError> outerErrorListener = params.getErrorListener();
         Set<BeanMethod> partialMethods = params.getPartialMethods();
 
@@ -666,7 +678,7 @@ public class SchemaCompiler {
         // build the in-memory type system
         XmlErrorWatcher errorListener = new XmlErrorWatcher(outerErrorListener);
         SchemaTypeSystem system = loadTypeSystem(name, xsdFiles, wsdlFiles, urlFiles, configFiles,
-            javaFiles, cpResourceLoader, download, noUpa, noPvr, noAnn, noVDoc, noExt, mdefNamespaces,
+            javaFiles, cpResourceLoader, download, noUpa, noPvr, noAnn, noVDoc, noExt, useCustom, useShortName, mdefNamespaces,
             baseDir, sourcesToCopyMap, errorListener, schemasDir, cmdLineEntRes, classpath);
         if (errorListener.hasError()) {
             result = false;
@@ -693,6 +705,8 @@ public class SchemaCompiler {
             options.setCompilePartialMethod(partialMethods);
             options.setCompileNoAnnotations(noAnn);
             options.setCompileAnnotationAsJavadoc(copyAnn);
+            options.setCompileUseCustomEncoding(useCustom);
+            options.setCompileUseShortJavaName(useShortName);
 
             // save .xsb files
             system.save(filer);
@@ -722,7 +736,7 @@ public class SchemaCompiler {
                 if (javaFiles != null) {
                     sourcefiles.addAll(java.util.Arrays.asList(javaFiles));
                 }
-                if (!CodeGenUtil.externalCompile(sourcefiles, classesDir, classpath, debug, compiler, memoryInitialSize, memoryMaximumSize, quiet, verbose)) {
+                if (!CodeGenUtil.externalCompile(sourcefiles, classesDir, classpath, debug, compiler, memoryInitialSize, memoryMaximumSize, quiet, verbose, useCustom)) {
                     result = false;
                 }
 

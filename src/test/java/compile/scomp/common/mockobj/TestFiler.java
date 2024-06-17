@@ -51,7 +51,13 @@ public class TestFiler implements Filer {
     public Writer createSourceFile(String typename) throws IOException {
         srcFileVec.add(typename);
         isCreateSourceFile = true;
-        return impl.createSourceFile(typename);
+        return impl.createSourceFile(typename, false);
+    }
+
+    public Writer createSourceFile(String typename, boolean useCustom) throws IOException {
+        srcFileVec.add(typename);
+        isCreateSourceFile = true;
+        return impl.createSourceFile(typename, useCustom);
     }
 
     public boolean isCreateBinaryFile() {

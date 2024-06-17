@@ -107,6 +107,7 @@ public class XmlOptions implements java.io.Serializable {
         SAVE_CDATA_LENGTH_THRESHOLD,
         SAVE_CDATA_ENTITY_COUNT_THRESHOLD,
         SAVE_SAX_NO_NSDECLS_IN_ATTRIBUTES,
+        SAVE_EXTRENAMESPACES,
         LOAD_REPLACE_DOCUMENT_ELEMENT,
         LOAD_STRIP_WHITESPACE,
         LOAD_STRIP_COMMENTS,
@@ -157,7 +158,8 @@ public class XmlOptions implements java.io.Serializable {
         XPATH_USE_SAXON,
         XPATH_USE_XMLBEANS,
         ATTRIBUTE_VALIDATION_COMPAT_MODE,
-
+        USE_CUSTOM_ENCODING,
+        USE_SHORT_JAVA_NAME
     }
 
 
@@ -212,7 +214,6 @@ public class XmlOptions implements java.io.Serializable {
     public boolean isSaveNamespacesFirst() {
         return hasOption(XmlOptionsKeys.SAVE_NAMESPACES_FIRST);
     }
-
 
     /**
      * This option will cause the saver to reformat white space for easier reading.
@@ -446,6 +447,23 @@ public class XmlOptions implements java.io.Serializable {
     @SuppressWarnings("unchecked")
     public Map<String, String> getSaveSuggestedPrefixes() {
         return (Map<String, String>) get(XmlOptionsKeys.SAVE_SUGGESTED_PREFIXES);
+    }
+
+    /**
+     * A map of hints to pass to the saver for which prefixes to use
+     * for which namespace URI.
+     *
+     * @param extraNamespaces a map from URIs to prefixes
+     * @see XmlTokenSource#save(java.io.File, XmlOptions)
+     * @see XmlTokenSource#xmlText(XmlOptions)
+     */
+    public XmlOptions setSaveExtraNamespaces(Map<String, String> extraNamespaces) {
+        return set(XmlOptionsKeys.SAVE_EXTRENAMESPACES, extraNamespaces);
+    }
+
+    @SuppressWarnings("unchecked")
+    public Map<String, String> getSaveExtraNamespaces() {
+        return (Map<String, String>) get(XmlOptionsKeys.SAVE_EXTRENAMESPACES);
     }
 
     /**
@@ -1070,6 +1088,37 @@ public class XmlOptions implements java.io.Serializable {
         return hasOption(XmlOptionsKeys.COMPILE_DOWNLOAD_URLS);
     }
 
+    /**
+     * If this option is set, then the schema compiler will use utf_8 to generate java source file
+     *
+     */
+    public XmlOptions setCompileUseCustomEncoding() {
+        return setCompileUseCustomEncoding(true);
+    }
+
+    public XmlOptions setCompileUseCustomEncoding(boolean b) {
+        return set(XmlOptionsKeys.USE_CUSTOM_ENCODING, b);
+    }
+
+    public boolean isCompileUseCustomEncoding() {
+        return hasOption(XmlOptionsKeys.USE_CUSTOM_ENCODING);
+    }
+
+    /**
+     * If this option is set, then the schema compiler will use the java_short_name to generate file name
+     *
+     */
+    public XmlOptions setCompileUseShortJavaName() {
+        return setCompileUseShortJavaName(true);
+    }
+
+    public XmlOptions setCompileUseShortJavaName(boolean b) {
+        return set(XmlOptionsKeys.USE_SHORT_JAVA_NAME, b);
+    }
+
+    public boolean isCompileUseShortJavaName() {
+        return hasOption(XmlOptionsKeys.USE_SHORT_JAVA_NAME);
+    }
     /**
      * If this option is set, then the schema compiler will permit and
      * ignore multiple definitions of the same component (element, attribute,

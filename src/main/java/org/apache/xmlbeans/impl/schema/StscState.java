@@ -103,6 +103,8 @@ public class StscState {
     private boolean _noPvr;
     private boolean _noAnn;
     private boolean _mdefAll;
+    private boolean _useShortName;
+    private boolean _useCustom;
     private final Set<String> _mdefNamespaces = buildDefaultMdefNamespaces();
     private EntityResolver _entityResolver;
     private File _schemasDir;
@@ -459,6 +461,10 @@ public class StscState {
                  !"true".equals(SystemProperties.getProperty("xmlbean.schemaannotations", "true"));
         _doingDownloads = options.isCompileDownloadUrls() ||
                           "true".equals(SystemProperties.getProperty("xmlbean.downloadurls", "false"));
+        _useCustom = options.isCompileUseCustomEncoding() ||
+                        "true".equals(SystemProperties.getProperty("xmlbean.usecustomencoding", "false"));
+        _useShortName = options.isCompileUseShortJavaName() ||
+                        "true".equals(SystemProperties.getProperty("xmlbean.useshortjavaname", "false"));
         _entityResolver = options.getEntityResolver();
 
         if (_entityResolver == null) {
@@ -521,6 +527,22 @@ public class StscState {
     // EXPERIMENTAL
     public boolean allowPartial() {
         return _allowPartial;
+    }
+
+    /**
+     * True if use customEncoding to generate the java source file
+     */
+    // EXPERIMENTAL
+    public boolean useCustom() {
+        return _useCustom;
+    }
+
+    /**
+     * True if use the java_short_name to generate file name
+     */
+    // EXPERIMENTAL
+    public boolean useShortName() {
+        return _useShortName;
     }
 
     /**
