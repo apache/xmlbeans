@@ -107,7 +107,7 @@ public class XmlOptions implements java.io.Serializable {
         SAVE_CDATA_LENGTH_THRESHOLD,
         SAVE_CDATA_ENTITY_COUNT_THRESHOLD,
         SAVE_SAX_NO_NSDECLS_IN_ATTRIBUTES,
-        SAVE_EXTRA_ENAMESPACES,
+        SAVE_EXTRA_NAMESPACES,
         LOAD_REPLACE_DOCUMENT_ELEMENT,
         LOAD_STRIP_WHITESPACE,
         LOAD_STRIP_COMMENTS,
@@ -458,12 +458,12 @@ public class XmlOptions implements java.io.Serializable {
      * @see XmlTokenSource#xmlText(XmlOptions)
      */
     public XmlOptions setSaveExtraNamespaces(Map<String, String> extraNamespaces) {
-        return set(XmlOptionsKeys.SAVE_EXTRA_ENAMESPACES, extraNamespaces);
+        return set(XmlOptionsKeys.SAVE_EXTRA_NAMESPACES, extraNamespaces);
     }
 
     @SuppressWarnings("unchecked")
     public Map<String, String> getSaveExtraNamespaces() {
-        return (Map<String, String>) get(XmlOptionsKeys.SAVE_EXTRA_ENAMESPACES);
+        return (Map<String, String>) get(XmlOptionsKeys.SAVE_EXTRA_NAMESPACES);
     }
 
     /**
