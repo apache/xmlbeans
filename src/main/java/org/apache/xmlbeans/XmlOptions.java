@@ -158,7 +158,6 @@ public class XmlOptions implements java.io.Serializable {
         XPATH_USE_SAXON,
         XPATH_USE_XMLBEANS,
         ATTRIBUTE_VALIDATION_COMPAT_MODE,
-        SOURCE_CODE_ENCODING,
         USE_SHORT_JAVA_NAME
     }
 
@@ -1086,17 +1085,6 @@ public class XmlOptions implements java.io.Serializable {
 
     public boolean isCompileDownloadUrls() {
         return hasOption(XmlOptionsKeys.COMPILE_DOWNLOAD_URLS);
-    }
-
-    /**
-     * An optional encoding to use when compiling generated source code (can be <code>null</code>).
-     */
-    public XmlOptions setCompileSourceCodeEncoding(String enc) {
-        return set(XmlOptionsKeys.SOURCE_CODE_ENCODING, enc);
-    }
-
-    public String getCompileSourceCodeEncoding() {
-        return (String) get(XmlOptionsKeys.SOURCE_CODE_ENCODING);
     }
 
     /**
