@@ -449,23 +449,6 @@ public class XmlOptions implements java.io.Serializable {
     }
 
     /**
-     * A map of hints to pass to the saver for which prefixes to use
-     * for which namespace URI.
-     *
-     * @param extraNamespaces a map from URIs to prefixes
-     * @see XmlTokenSource#save(java.io.File, XmlOptions)
-     * @see XmlTokenSource#xmlText(XmlOptions)
-     */
-    public XmlOptions setSaveExtraNamespaces(Map<String, String> extraNamespaces) {
-        return set(XmlOptionsKeys.SAVE_EXTRA_NAMESPACES, extraNamespaces);
-    }
-
-    @SuppressWarnings("unchecked")
-    public Map<String, String> getSaveExtraNamespaces() {
-        return (Map<String, String>) get(XmlOptionsKeys.SAVE_EXTRA_NAMESPACES);
-    }
-
-    /**
      * This option causes the saver to filter a Processing Instruction
      * with the given target
      *
