@@ -526,7 +526,7 @@ public class SchemaCompiler {
                 opts.setCompileNoAnnotations();
             }
             if (sourceCodeEncoding != null ) {
-                opts.setCompileSourceCodeEncoding(sourceCodeEncoding);
+                opts.setCharacterEncoding(sourceCodeEncoding);
             }
             if (useShortName) {
                 opts.setCompileUseShortJavaName();
@@ -705,7 +705,7 @@ public class SchemaCompiler {
             options.setCompilePartialMethod(partialMethods);
             options.setCompileNoAnnotations(noAnn);
             options.setCompileAnnotationAsJavadoc(copyAnn);
-            options.setCompileSourceCodeEncoding(sourceCodeEncoding);
+            options.setCharacterEncoding(sourceCodeEncoding);
             options.setCompileUseShortJavaName(useShortName);
 
             // save .xsb files
