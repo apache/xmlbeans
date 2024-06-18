@@ -54,10 +54,10 @@ public class TestFiler implements Filer {
         return impl.createSourceFile(typename, false);
     }
 
-    public Writer createSourceFile(String typename, boolean useCustom) throws IOException {
+    public Writer createSourceFile(String typename, boolean sourceCodeEncoding) throws IOException {
         srcFileVec.add(typename);
         isCreateSourceFile = true;
-        return impl.createSourceFile(typename, useCustom);
+        return impl.createSourceFile(typename, sourceCodeEncoding);
     }
 
     public boolean isCreateBinaryFile() {

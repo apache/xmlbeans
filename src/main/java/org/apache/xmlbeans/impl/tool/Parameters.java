@@ -55,7 +55,7 @@ public class Parameters {
     private boolean debug;
     private boolean copyAnn;
     private boolean useShortName;
-    private boolean useCustom;
+    private boolean sourceCodeEncoding;
     private boolean incrementalSrcGen;
     private String repackage;
     private List<Extension> extensions = Collections.emptyList();
@@ -209,8 +209,8 @@ public class Parameters {
         return useShortName;
     }
 
-    public boolean isUseCustom() {
-        return useCustom;
+    public boolean isSourceCodeEncoding() {
+        return sourceCodeEncoding;
     }
 
     public void setNoAnn(boolean noAnn) {
@@ -253,8 +253,8 @@ public class Parameters {
         this.useShortName = useShortName;
     }
 
-    public void setUseCustom(boolean useCustom) {
-        this.useCustom = useCustom;
+    public void setSourceCodeEncoding(boolean sourceCodeEncoding) {
+        this.sourceCodeEncoding = sourceCodeEncoding;
     }
 
     public String getMemoryInitialSize() {

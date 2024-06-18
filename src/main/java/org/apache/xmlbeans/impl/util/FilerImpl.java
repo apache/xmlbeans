@@ -85,10 +85,10 @@ public class FilerImpl implements Filer {
      * Creates a new binding source file (.java) and returns a writer for it.
      *
      * @param typename fully qualified type name
-     * @param useCustomEncoding whether use CustomEncoding
+     * @param sourceCodeEncoding whether use CustomEncoding
      * @return a stream to write the type to
      */
-    public Writer createSourceFile(String typename, boolean useCustomEncoding) throws IOException {
+    public Writer createSourceFile(String typename, boolean sourceCodeEncoding) throws IOException {
         if (incrSrcGen) {
             seenTypes.add(typename);
         }
@@ -115,7 +115,7 @@ public class FilerImpl implements Filer {
             return new IncrFileWriter(sourcefile, repackager);
         } else {
             return repackager == null ?
-                writerForFile(sourcefile, useCustomEncoding) :
+                writerForFile(sourcefile, sourceCodeEncoding) :
                 new RepackagingWriter(sourcefile, repackager);
         }
     }
@@ -128,9 +128,9 @@ public class FilerImpl implements Filer {
         return repackager;
     }
 
-    private static Writer writerForFile(File f, boolean useCustomEncoding) throws IOException {
+    private static Writer writerForFile(File f, boolean sourceCodeEncoding) throws IOException {
         if (CHARSET == null) {
-            return Files.newBufferedWriter(f.toPath(), useCustomEncoding ? StandardCharsets.UTF_8 : StandardCharsets.ISO_8859_1);
+            return Files.newBufferedWriter(f.toPath(), sourceCodeEncoding ? StandardCharsets.UTF_8 : StandardCharsets.ISO_8859_1);
         }
 
         OutputStream fileStream = Files.newOutputStream(f.toPath());

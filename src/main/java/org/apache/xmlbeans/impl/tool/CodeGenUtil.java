@@ -92,8 +92,8 @@ public class CodeGenUtil {
     }
 
     // KHK: temporary to avoid build break
-    public static boolean externalCompile(List<File> srcFiles, File outdir, File[] cp, boolean debug, String javacPath, String memStart, String memMax, boolean quiet, boolean verbose, boolean useCustom) {
-        return externalCompile(srcFiles, outdir, cp, debug, javacPath, null, memStart, memMax, quiet, verbose, useCustom);
+    public static boolean externalCompile(List<File> srcFiles, File outdir, File[] cp, boolean debug, String javacPath, String memStart, String memMax, boolean quiet, boolean verbose, boolean sourceCodeEncoding) {
+        return externalCompile(srcFiles, outdir, cp, debug, javacPath, null, memStart, memMax, quiet, verbose, sourceCodeEncoding);
     }
 
     /**
@@ -102,7 +102,7 @@ public class CodeGenUtil {
      * {@code GenFile}s for all of the classes produced or null if an
      * error occurred.
      */
-    public static boolean externalCompile(List<File> srcFiles, File outdir, File[] cp, boolean debug, String javacPath, String genver, String memStart, String memMax, boolean quiet, boolean verbose, boolean useCustom) {
+    public static boolean externalCompile(List<File> srcFiles, File outdir, File[] cp, boolean debug, String javacPath, String genver, String memStart, String memMax, boolean quiet, boolean verbose, boolean sourceCodeEncoding) {
         List<String> args = new ArrayList<>();
 
         File javac = findJavaTool(javacPath == null ? DEFAULT_COMPILER : javacPath);
@@ -120,7 +120,7 @@ public class CodeGenUtil {
             cp = systemClasspath();
         }
 
-        if(useCustom) {
+        if(sourceCodeEncoding) {
             args.add("-encoding");
             args.add("utf-8");
         }
@@ -165,7 +165,7 @@ public class CodeGenUtil {
         File clFile = null;
         try {
             clFile = Files.createTempFile(IOUtil.getTempDir(), "javac", ".tmp").toFile();
-            try (Writer fw = Files.newBufferedWriter(clFile.toPath(), useCustom ? StandardCharsets.UTF_8 : StandardCharsets.ISO_8859_1)) {
+            try (Writer fw = Files.newBufferedWriter(clFile.toPath(), sourceCodeEncoding ? StandardCharsets.UTF_8 : StandardCharsets.ISO_8859_1)) {
                 Iterator<String> i = args.iterator();
                 for (i.next(); i.hasNext(); ) {
                     String arg = i.next();

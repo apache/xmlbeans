@@ -165,7 +165,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
     private Set<String> _namespaces;
 
     // the additional config option
-    private boolean _useCustom;
+    private boolean _sourceCodeEncoding ;
     private boolean _useShortName;
 
     static String nameToPathString(String nameForSystem) {
@@ -436,8 +436,8 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
         return result;
     }
 
-    Boolean getUseCustomEncoding(){
-        return _useCustom;
+    Boolean getSourceCodeEncoding (){
+        return _sourceCodeEncoding ;
     }
 
     Boolean getUseShortName(){
@@ -649,7 +649,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
         _namespaces = new HashSet<>(Arrays.asList(state.getNamespaces()));
         _containers = state.getContainerMap();
         _useShortName = state.useShortName();
-        _useCustom = state.useCustom();
+        _sourceCodeEncoding  = state.sourceCodeEncoding();
         fixupContainers();
         // Checks that data in the containers matches the lookup maps
         assertContainersSynchronized();
