@@ -22,6 +22,7 @@ import org.apache.xmlbeans.impl.util.ExceptionUtil;
 import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.security.CodeSource;
@@ -88,11 +89,33 @@ public class CodeGenUtil {
      * @deprecated
      */
     public static boolean externalCompile(List<File> srcFiles, File outdir, File[] cp, boolean debug) {
-        return externalCompile(srcFiles, outdir, cp, debug, DEFAULT_COMPILER, null, DEFAULT_MEM_START, DEFAULT_MEM_MAX, false, false, false);
+        return externalCompile(srcFiles, outdir, cp, debug, DEFAULT_COMPILER, null, DEFAULT_MEM_START, DEFAULT_MEM_MAX,
+            false, false, null);
     }
 
-    // KHK: temporary to avoid build break
-    public static boolean externalCompile(List<File> srcFiles, File outdir, File[] cp, boolean debug, String javacPath, String memStart, String memMax, boolean quiet, boolean verbose, boolean sourceCodeEncoding) {
+    /**
+     * Invokes javac on the generated source files in order to turn them
+     * into binary files in the output directory.  This will return a list of
+     * {@code GenFile}s for all of the classes produced or null if an
+     * error occurred.
+     *
+     * @deprecated
+     */
+    public static boolean externalCompile(List<File> srcFiles, File outdir, File[] cp, boolean debug, String javacPath, String memStart, String memMax,
+                                          boolean quiet, boolean verbose) {
+        return externalCompile(srcFiles, outdir, cp, debug, javacPath, null, memStart, memMax, quiet, verbose, null);
+    }
+
+    /**
+     * Invokes javac on the generated source files in order to turn them
+     * into binary files in the output directory.  This will return a list of
+     * {@code GenFile}s for all of the classes produced or null if an
+     * error occurred.
+     *
+     * @deprecated
+     */
+    public static boolean externalCompile(List<File> srcFiles, File outdir, File[] cp, boolean debug, String javacPath, String memStart, String memMax,
+                                          boolean quiet, boolean verbose, String sourceCodeEncoding) {
         return externalCompile(srcFiles, outdir, cp, debug, javacPath, null, memStart, memMax, quiet, verbose, sourceCodeEncoding);
     }
 
@@ -101,8 +124,22 @@ public class CodeGenUtil {
      * into binary files in the output directory.  This will return a list of
      * {@code GenFile}s for all of the classes produced or null if an
      * error occurred.
+     *
+     * @deprecated
      */
-    public static boolean externalCompile(List<File> srcFiles, File outdir, File[] cp, boolean debug, String javacPath, String genver, String memStart, String memMax, boolean quiet, boolean verbose, boolean sourceCodeEncoding) {
+    public static boolean externalCompile(List<File> srcFiles, File outdir, File[] cp, boolean debug, String javacPath, String genver, String memStart, String memMax,
+                                          boolean quiet, boolean verbose) {
+        return externalCompile(srcFiles, outdir, cp, debug, javacPath, genver, memStart, memMax, quiet, verbose, null);
+    }
+
+    /**
+     * Invokes javac on the generated source files in order to turn them
+     * into binary files in the output directory.  This will return a list of
+     * {@code GenFile}s for all of the classes produced or null if an
+     * error occurred.
+     */
+    public static boolean externalCompile(List<File> srcFiles, File outdir, File[] cp, boolean debug, String javacPath, String genver, String memStart, String memMax,
+                                          boolean quiet, boolean verbose, String sourceCodeEncoding) {
         List<String> args = new ArrayList<>();
 
         File javac = findJavaTool(javacPath == null ? DEFAULT_COMPILER : javacPath);
@@ -120,9 +157,9 @@ public class CodeGenUtil {
             cp = systemClasspath();
         }
 
-        if(sourceCodeEncoding) {
+        if(sourceCodeEncoding != null && !sourceCodeEncoding.isEmpty()) {
             args.add("-encoding");
-            args.add("utf-8");
+            args.add(sourceCodeEncoding);
         }
 
         if (cp.length > 0) {
@@ -162,10 +199,12 @@ public class CodeGenUtil {
 
         addAllJavaFiles(srcFiles, args);
 
+        final Charset charset = sourceCodeEncoding == null || sourceCodeEncoding.isEmpty() ?
+            StandardCharsets.ISO_8859_1 : Charset.forName(sourceCodeEncoding);
         File clFile = null;
         try {
             clFile = Files.createTempFile(IOUtil.getTempDir(), "javac", ".tmp").toFile();
-            try (Writer fw = Files.newBufferedWriter(clFile.toPath(), sourceCodeEncoding ? StandardCharsets.UTF_8 : StandardCharsets.ISO_8859_1)) {
+            try (Writer fw = Files.newBufferedWriter(clFile.toPath(), charset)) {
                 Iterator<String> i = args.iterator();
                 for (i.next(); i.hasNext(); ) {
                     String arg = i.next();

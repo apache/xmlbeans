@@ -55,7 +55,7 @@ public class Parameters {
     private boolean debug;
     private boolean copyAnn;
     private boolean useShortName;
-    private boolean sourceCodeEncoding;
+    private String sourceCodeEncoding;
     private boolean incrementalSrcGen;
     private String repackage;
     private List<Extension> extensions = Collections.emptyList();
@@ -209,7 +209,7 @@ public class Parameters {
         return useShortName;
     }
 
-    public boolean isSourceCodeEncoding() {
+    public String getSourceCodeEncoding() {
         return sourceCodeEncoding;
     }
 
@@ -253,7 +253,7 @@ public class Parameters {
         this.useShortName = useShortName;
     }
 
-    public void setSourceCodeEncoding(boolean sourceCodeEncoding) {
+    public void setSourceCodeEncoding(String sourceCodeEncoding) {
         this.sourceCodeEncoding = sourceCodeEncoding;
     }
 

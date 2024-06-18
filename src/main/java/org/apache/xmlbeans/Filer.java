@@ -39,10 +39,22 @@ public interface Filer
      * Creates a new binding source file (.java) and returns a writer for it.
      *
      * @param typename fully qualified type name
-     * @param sourceCodeEncoding  whether use CustomEncoding
      * @return a stream to write the type to
      *
      * @throws IOException when the file can't be created
      */
-    public Writer createSourceFile(String typename, boolean sourceCodeEncoding ) throws IOException;
+    default Writer createSourceFile(String typename) throws IOException {
+        return createSourceFile(typename, null);
+    }
+
+    /**
+     * Creates a new binding source file (.java) and returns a writer for it.
+     *
+     * @param typename fully qualified type name
+     * @param sourceCodeEncoding an optional encoding used when compiling source code (can be <code>null</code>)
+     * @return a stream to write the type to
+     *
+     * @throws IOException when the file can't be created
+     */
+    public Writer createSourceFile(String typename, String sourceCodeEncoding) throws IOException;
 }

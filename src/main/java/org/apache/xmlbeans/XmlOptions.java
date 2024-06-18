@@ -1089,19 +1089,14 @@ public class XmlOptions implements java.io.Serializable {
     }
 
     /**
-     * If this option is set, then the schema compiler will use utf_8 to generate java source file
-     *
+     * An optional encoding to use when compiling generated source code (can be <code>null</code>).
      */
-    public XmlOptions setCompileSourceCodeEncoding () {
-        return setCompileSourceCodeEncoding (true);
+    public XmlOptions setCompileSourceCodeEncoding(String enc) {
+        return set(XmlOptionsKeys.SOURCE_CODE_ENCODING, enc);
     }
 
-    public XmlOptions setCompileSourceCodeEncoding (boolean b) {
-        return set(XmlOptionsKeys.SOURCE_CODE_ENCODING, b);
-    }
-
-    public boolean isCompileSourceCodeEncoding () {
-        return hasOption(XmlOptionsKeys.SOURCE_CODE_ENCODING);
+    public String getCompileSourceCodeEncoding() {
+        return (String) get(XmlOptionsKeys.SOURCE_CODE_ENCODING);
     }
 
     /**

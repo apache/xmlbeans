@@ -103,8 +103,8 @@ public class StscState {
     private boolean _noPvr;
     private boolean _noAnn;
     private boolean _mdefAll;
-    private boolean _useShortName;
-    private boolean _sourceCodeEncoding ;
+    private boolean _useJavaShortName;
+    private String _sourceCodeEncoding ;
     private final Set<String> _mdefNamespaces = buildDefaultMdefNamespaces();
     private EntityResolver _entityResolver;
     private File _schemasDir;
@@ -461,9 +461,11 @@ public class StscState {
                  !"true".equals(SystemProperties.getProperty("xmlbean.schemaannotations", "true"));
         _doingDownloads = options.isCompileDownloadUrls() ||
                           "true".equals(SystemProperties.getProperty("xmlbean.downloadurls", "false"));
-        _sourceCodeEncoding  = options.isCompileSourceCodeEncoding() ||
-                        "true".equals(SystemProperties.getProperty("xmlbean.sourcecodeencoding ", "false"));
-        _useShortName = options.isCompileUseShortJavaName() ||
+        _sourceCodeEncoding = options.getCharacterEncoding();
+        if (_sourceCodeEncoding == null || _sourceCodeEncoding.isEmpty()) {
+            _sourceCodeEncoding = SystemProperties.getProperty("xmlbean.sourcecodeencoding");
+        }
+        _useJavaShortName = options.isCompileUseShortJavaName() ||
                         "true".equals(SystemProperties.getProperty("xmlbean.useshortjavaname", "false"));
         _entityResolver = options.getEntityResolver();
 
@@ -530,10 +532,10 @@ public class StscState {
     }
 
     /**
-     * True if use customEncoding to generate the java source file
+     * An optional encoding to use when compiling generated java source file (can be <code>null</code>)
      */
     // EXPERIMENTAL
-    public boolean sourceCodeEncoding () {
+    public String sourceCodeEncoding() {
         return _sourceCodeEncoding ;
     }
 
@@ -542,7 +544,7 @@ public class StscState {
      */
     // EXPERIMENTAL
     public boolean useShortName() {
-        return _useShortName;
+        return _useJavaShortName;
     }
 
     /**

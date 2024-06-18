@@ -48,13 +48,7 @@ public class TestFiler implements Filer {
         return impl.createBinaryFile(typename);
     }
 
-    public Writer createSourceFile(String typename) throws IOException {
-        srcFileVec.add(typename);
-        isCreateSourceFile = true;
-        return impl.createSourceFile(typename, false);
-    }
-
-    public Writer createSourceFile(String typename, boolean sourceCodeEncoding) throws IOException {
+    public Writer createSourceFile(String typename, String sourceCodeEncoding) throws IOException {
         srcFileVec.add(typename);
         isCreateSourceFile = true;
         return impl.createSourceFile(typename, sourceCodeEncoding);
