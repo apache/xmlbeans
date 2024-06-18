@@ -187,7 +187,7 @@ public class SchemaCompiler {
         boolean debug = (cl.getOpt("debug") != null);
         boolean copyAnn = (cl.getOpt("copyann") != null);
         String sourceCodeEncoding = cl.getOpt("sourcecodeencoding");
-        boolean useShortName = (cl.getOpt("useshortname") != null);
+        boolean useJavaShortName = (cl.getOpt("useshortname") != null);
 
         String allowmdef = cl.getOpt("allowmdef");
         Set<String> mdefNamespaces = (allowmdef == null ? Collections.emptySet() :
@@ -336,7 +336,7 @@ public class SchemaCompiler {
         params.setNoExt(noExt);
         params.setDebug(debug);
         params.setSourceCodeEncoding(sourceCodeEncoding);
-        params.setUseShortName(useShortName);
+        params.setUseShortName(useJavaShortName);
         params.setErrorListener(err);
         params.setRepackage(repackage);
         params.setExtensions(extensions);
