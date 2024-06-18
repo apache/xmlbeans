@@ -187,7 +187,7 @@ public class SchemaCompiler {
         boolean debug = (cl.getOpt("debug") != null);
         boolean copyAnn = (cl.getOpt("copyann") != null);
         String sourceCodeEncoding = cl.getOpt("sourcecodeencoding");
-        boolean useJavaShortName = (cl.getOpt("useshortname") != null);
+        boolean useJavaShortName = (cl.getOpt("usejavashortname") != null);
 
         String allowmdef = cl.getOpt("allowmdef");
         Set<String> mdefNamespaces = (allowmdef == null ? Collections.emptySet() :

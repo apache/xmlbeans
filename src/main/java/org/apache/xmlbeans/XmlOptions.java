@@ -107,7 +107,6 @@ public class XmlOptions implements java.io.Serializable {
         SAVE_CDATA_LENGTH_THRESHOLD,
         SAVE_CDATA_ENTITY_COUNT_THRESHOLD,
         SAVE_SAX_NO_NSDECLS_IN_ATTRIBUTES,
-        SAVE_EXTRA_NAMESPACES,
         LOAD_REPLACE_DOCUMENT_ELEMENT,
         LOAD_STRIP_WHITESPACE,
         LOAD_STRIP_COMMENTS,
@@ -158,7 +157,7 @@ public class XmlOptions implements java.io.Serializable {
         XPATH_USE_SAXON,
         XPATH_USE_XMLBEANS,
         ATTRIBUTE_VALIDATION_COMPAT_MODE,
-        USE_SHORT_JAVA_NAME
+        USE_JAVA_SHORT_NAME
     }
 
 
@@ -1079,11 +1078,11 @@ public class XmlOptions implements java.io.Serializable {
     }
 
     public XmlOptions setCompileUseShortJavaName(boolean b) {
-        return set(XmlOptionsKeys.USE_SHORT_JAVA_NAME, b);
+        return set(XmlOptionsKeys.USE_JAVA_SHORT_NAME, b);
     }
 
     public boolean isCompileUseShortJavaName() {
-        return hasOption(XmlOptionsKeys.USE_SHORT_JAVA_NAME);
+        return hasOption(XmlOptionsKeys.USE_JAVA_SHORT_NAME);
     }
     /**
      * If this option is set, then the schema compiler will permit and
