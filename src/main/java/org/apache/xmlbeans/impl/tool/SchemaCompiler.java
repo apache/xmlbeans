@@ -67,7 +67,7 @@ public class SchemaCompiler {
         System.out.println("                              processed left-to-right, e.g. \"ALL,-GET_LIST\" exclude java.util.List getters - see XmlOptions.BeanMethod" );
         System.out.println("    -repackage - repackage specification, e.g. \"org.apache.xmlbeans.metadata:mypackage.metadata\" to change the metadata directory");
         System.out.println("    -copyann - copy schema annotations to javadoc (default false) - don't activate on untrusted schema sources!");
-        System.out.println("    -sourcecodeencoding - Generate Java source code and jar package using utf-8");
+        System.out.println("    -sourcecodeencoding [encodingName] - Generate Java source code and jar package by the encoding specified by encodingName");
         System.out.println("    -usejavashortname - Generate file name using JavaShortName");
         /* Undocumented feature - pass in one schema compiler extension and related parameters
         System.out.println("    -extension - registers a schema compiler extension");
