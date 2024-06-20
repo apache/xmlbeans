@@ -40,15 +40,15 @@ public class FilerImpl implements Filer {
     private final List<File> sourceFiles;
     private final boolean incrSrcGen;
     private Set<String> seenTypes;
-    private static final Charset CHARSET;
+    private static final Charset DEFAULT_CHARSET;
 
     static {
         Charset temp = null;
         try {
-            temp = Charset.forName(System.getProperty("file.encoding"));
+            temp = getCharset(System.getProperty("file.encoding"));
         } catch (Exception ignored) {
         }
-        CHARSET = temp;
+        DEFAULT_CHARSET = temp;
     }
 
     public FilerImpl(File classdir, File srcdir, Repackager repackager, boolean verbose, boolean incrSrcGen) {
@@ -129,16 +129,24 @@ public class FilerImpl implements Filer {
     }
 
     private static Writer writerForFile(File f, String sourceCodeEncoding) throws IOException {
-        if (sourceCodeEncoding != null) {
-            return Files.newBufferedWriter(f.toPath(), Charset.forName(sourceCodeEncoding));
-        } else if (CHARSET == null) {
+        if (sourceCodeEncoding != null && !sourceCodeEncoding.isEmpty()) {
+            return Files.newBufferedWriter(f.toPath(), getCharset(sourceCodeEncoding));
+        } else if (DEFAULT_CHARSET == null) {
             return Files.newBufferedWriter(f.toPath(), StandardCharsets.ISO_8859_1);
         }
 
         OutputStream fileStream = Files.newOutputStream(f.toPath());
-        CharsetEncoder ce = CHARSET.newEncoder();
+        CharsetEncoder ce = DEFAULT_CHARSET.newEncoder();
         ce.onUnmappableCharacter(CodingErrorAction.REPORT);
         return new OutputStreamWriter(fileStream, ce);
+    }
+
+    private static Charset getCharset(final String sourceCodeEncoding) throws IOException {
+        try {
+            return Charset.forName(sourceCodeEncoding);
+        } catch (RuntimeException e) {
+            throw new IOException("Unsupported encoding: " + sourceCodeEncoding, e);
+        }
     }
 
     static class IncrFileWriter extends StringWriter {
