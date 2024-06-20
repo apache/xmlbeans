@@ -103,7 +103,7 @@ public class StscState {
     private boolean _noPvr;
     private boolean _noAnn;
     private boolean _mdefAll;
-    private boolean _useJavaShortName;
+    private boolean _useShortJavaName;
     private String _sourceCodeEncoding ;
     private final Set<String> _mdefNamespaces = buildDefaultMdefNamespaces();
     private EntityResolver _entityResolver;
@@ -465,7 +465,7 @@ public class StscState {
         if (_sourceCodeEncoding == null || _sourceCodeEncoding.isEmpty()) {
             _sourceCodeEncoding = SystemProperties.getProperty("xmlbean.sourcecodeencoding");
         }
-        _useJavaShortName = options.isCompileUseShortJavaName() ||
+        _useShortJavaName = options.isCompileUseShortJavaName() ||
                         "true".equals(SystemProperties.getProperty("xmlbean.useshortjavaname", "false"));
         _entityResolver = options.getEntityResolver();
 
@@ -544,7 +544,7 @@ public class StscState {
      */
     // EXPERIMENTAL
     public boolean useShortName() {
-        return _useJavaShortName;
+        return _useShortJavaName;
     }
 
     /**

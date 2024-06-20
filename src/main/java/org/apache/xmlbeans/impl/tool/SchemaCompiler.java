@@ -68,7 +68,7 @@ public class SchemaCompiler {
         System.out.println("    -repackage - repackage specification, e.g. \"org.apache.xmlbeans.metadata:mypackage.metadata\" to change the metadata directory");
         System.out.println("    -copyann - copy schema annotations to javadoc (default false) - don't activate on untrusted schema sources!");
         System.out.println("    -sourcecodeencoding [encodingName] - Generate Java source code with the specified encoding (ISO-8859-1 is the legacy default)");
-        System.out.println("    -usejavashortname - Generate file name using Java Short Name");
+        System.out.println("    -useshortjavaname - Generate file name using Short Java Name");
         /* Undocumented feature - pass in one schema compiler extension and related parameters
         System.out.println("    -extension - registers a schema compiler extension");
         System.out.println("    -extensionParms - specify parameters for the compiler extension");
@@ -100,7 +100,7 @@ public class SchemaCompiler {
         flags.add("noext");
         flags.add("srconly");
         flags.add("debug");
-        flags.add("usejavashortname");
+        flags.add("useshortjavaname");
 
         Set<String> opts = new HashSet<>();
         opts.add("out");
@@ -191,7 +191,7 @@ public class SchemaCompiler {
         boolean debug = (cl.getOpt("debug") != null);
         boolean copyAnn = (cl.getOpt("copyann") != null);
         String sourceCodeEncoding = cl.getOpt("sourcecodeencoding");
-        boolean useJavaShortName = (cl.getOpt("usejavashortname") != null);
+        boolean useShortJavaName = (cl.getOpt("useshortjavaname") != null);
 
         String allowmdef = cl.getOpt("allowmdef");
         Set<String> mdefNamespaces = (allowmdef == null ? Collections.emptySet() :
@@ -340,7 +340,7 @@ public class SchemaCompiler {
         params.setNoExt(noExt);
         params.setDebug(debug);
         params.setSourceCodeEncoding(sourceCodeEncoding);
-        params.setUseShortName(useJavaShortName);
+        params.setUseShortName(useShortJavaName);
         params.setErrorListener(err);
         params.setRepackage(repackage);
         params.setExtensions(extensions);

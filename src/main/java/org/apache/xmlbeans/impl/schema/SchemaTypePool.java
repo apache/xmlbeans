@@ -89,7 +89,7 @@ class SchemaTypePool {
         }
         String handle = _componentsToHandles.get(element);
         if (handle == null) {
-            if(typeSystem.isUseJavaShortName()) {
+            if(typeSystem.isUseShortJavaName()) {
                 SchemaType type = element.getType();
                 String javaName = type.getShortJavaName();
                 if (javaName != null && !javaName.isEmpty()) {
@@ -189,7 +189,7 @@ class SchemaTypePool {
             if (name == null) {
                 baseName = "Anon" + uniq + "Type";
             } else {
-                if(typeSystem.isUseJavaShortName()) {
+                if(typeSystem.isUseShortJavaName()) {
                     String javaName = type.getShortJavaName();
                     if (javaName == null || javaName.isEmpty())
                         javaName = name.getLocalPart();
