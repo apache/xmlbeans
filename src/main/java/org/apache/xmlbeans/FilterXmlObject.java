@@ -28,6 +28,7 @@ import java.math.BigInteger;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.zip.ZipOutputStream;
 
 /**
  * A FilterXmlObject delegates to some other XmlObject, which it can use as
@@ -197,6 +198,10 @@ public abstract class FilterXmlObject implements XmlObject, SimpleValue, Delegat
 
     public void save(OutputStream os, XmlOptions options) throws IOException {
         underlyingXmlObject().save(os, options);
+    }
+
+    public void save(ZipOutputStream zos, XmlOptions options) throws IOException {
+        underlyingXmlObject().save(zos, options);
     }
 
     public void save(Writer w, XmlOptions options) throws IOException {

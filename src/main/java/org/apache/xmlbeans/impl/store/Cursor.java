@@ -36,6 +36,7 @@ import java.io.*;
 import java.util.Collection;
 import java.util.Map;
 import java.util.function.Supplier;
+import java.util.zip.ZipOutputStream;
 
 public final class Cursor implements XmlCursor, ChangeListener {
     static final int ROOT = Cur.ROOT;
@@ -509,6 +510,10 @@ public final class Cursor implements XmlCursor, ChangeListener {
         _save(os, null);
     }
 
+    public void _save(ZipOutputStream zos) throws IOException {
+        _save(zos, null);
+    }
+
     public void _save(Writer w) throws IOException {
         _save(w, null);
     }
@@ -574,6 +579,26 @@ public final class Cursor implements XmlCursor, ChangeListener {
                 }
 
                 os.write(bytes, 0, n);
+            }
+        }
+    }
+
+    public void _save(ZipOutputStream zos, XmlOptions options) throws IOException {
+        if (zos == null) {
+            throw new IllegalArgumentException("Null ZipOutputStream specified");
+        }
+
+        try (InputStream is = _newInputStream(options)) {
+            byte[] bytes = new byte[8192];
+
+            for (; ; ) {
+                int n = is.read(bytes);
+
+                if (n < 0) {
+                    break;
+                }
+
+                zos.write(bytes, 0, n);
             }
         }
     }
@@ -1974,6 +1999,10 @@ public final class Cursor implements XmlCursor, ChangeListener {
         syncWrapIOEx(() -> _save(os));
     }
 
+    public void save(ZipOutputStream zos) throws IOException {
+        syncWrapIOEx(() -> _save(zos));
+    }
+
     public void save(Writer w) throws IOException {
         syncWrapIOEx(() -> _save(w));
     }
@@ -2004,6 +2033,10 @@ public final class Cursor implements XmlCursor, ChangeListener {
 
     public void save(OutputStream os, XmlOptions options) throws IOException {
         syncWrapIOEx(() -> _save(os, options));
+    }
+
+    public void save(ZipOutputStream zos, XmlOptions options) throws IOException {
+        syncWrapIOEx(() -> _save(zos, options));
     }
 
     public void save(Writer w, XmlOptions options) throws IOException {

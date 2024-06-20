@@ -103,6 +103,8 @@ public class StscState {
     private boolean _noPvr;
     private boolean _noAnn;
     private boolean _mdefAll;
+    private boolean _useJavaShortName;
+    private String _sourceCodeEncoding ;
     private final Set<String> _mdefNamespaces = buildDefaultMdefNamespaces();
     private EntityResolver _entityResolver;
     private File _schemasDir;
@@ -459,6 +461,12 @@ public class StscState {
                  !"true".equals(SystemProperties.getProperty("xmlbean.schemaannotations", "true"));
         _doingDownloads = options.isCompileDownloadUrls() ||
                           "true".equals(SystemProperties.getProperty("xmlbean.downloadurls", "false"));
+        _sourceCodeEncoding = options.getCharacterEncoding();
+        if (_sourceCodeEncoding == null || _sourceCodeEncoding.isEmpty()) {
+            _sourceCodeEncoding = SystemProperties.getProperty("xmlbean.sourcecodeencoding");
+        }
+        _useJavaShortName = options.isCompileUseShortJavaName() ||
+                        "true".equals(SystemProperties.getProperty("xmlbean.useshortjavaname", "false"));
         _entityResolver = options.getEntityResolver();
 
         if (_entityResolver == null) {
@@ -521,6 +529,22 @@ public class StscState {
     // EXPERIMENTAL
     public boolean allowPartial() {
         return _allowPartial;
+    }
+
+    /**
+     * An optional encoding to use when compiling generated java source file (can be <code>null</code>)
+     */
+    // EXPERIMENTAL
+    public String sourceCodeEncoding () {
+        return _sourceCodeEncoding ;
+    }
+
+    /**
+     * True if use the java_short_name to generate file name
+     */
+    // EXPERIMENTAL
+    public boolean useShortName() {
+        return _useJavaShortName;
     }
 
     /**
