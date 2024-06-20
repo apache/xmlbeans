@@ -100,7 +100,6 @@ public class SchemaCompiler {
         flags.add("noext");
         flags.add("srconly");
         flags.add("debug");
-        flags.add("sourcecodeencoding");
         flags.add("usejavashortname");
 
         Set<String> opts = new HashSet<>();
@@ -121,6 +120,7 @@ public class SchemaCompiler {
         opts.add("catalog");
         opts.add("partialMethods");
         opts.add("copyann");
+        opts.add("sourcecodeencoding");
 
         CommandLine cl = new CommandLine(args, flags, opts);
 
