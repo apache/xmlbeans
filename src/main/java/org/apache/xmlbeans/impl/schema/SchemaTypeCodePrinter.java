@@ -83,7 +83,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
     }
 
     private static String makeSafe(String s) {
-        Charset charset = Charset.forName(System.getProperty("file.encoding"));
+        final Charset charset = Charset.defaultCharset();
         CharsetEncoder cEncoder = charset.newEncoder();
         StringBuilder result = new StringBuilder();
         int i;

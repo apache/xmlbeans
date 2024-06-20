@@ -199,12 +199,10 @@ public class CodeGenUtil {
 
         addAllJavaFiles(srcFiles, args);
 
-        final Charset charset = sourceCodeEncoding == null || sourceCodeEncoding.isEmpty() ?
-            StandardCharsets.ISO_8859_1 : Charset.forName(sourceCodeEncoding);
         File clFile = null;
         try {
             clFile = Files.createTempFile(IOUtil.getTempDir(), "javac", ".tmp").toFile();
-            try (Writer fw = Files.newBufferedWriter(clFile.toPath(), charset)) {
+            try (Writer fw = Files.newBufferedWriter(clFile.toPath(), Charset.defaultCharset())) {
                 Iterator<String> i = args.iterator();
                 for (i.next(); i.hasNext(); ) {
                     String arg = i.next();
@@ -272,7 +270,7 @@ public class CodeGenUtil {
             e.printStackTrace(System.err);
             return false;
         } finally {
-            if (clFile != null) {
+            if (!debug && clFile != null) {
                 clFile.delete();
             }
         }
@@ -348,7 +346,7 @@ public class CodeGenUtil {
      * nothing left to read.
      */
     private static Thread copy(InputStream stream, final StringBuilder output) {
-        final BufferedReader reader = new BufferedReader(new InputStreamReader(stream, StandardCharsets.ISO_8859_1));
+        final BufferedReader reader = new BufferedReader(new InputStreamReader(stream, Charset.defaultCharset()));
         Thread readerThread = new Thread(() ->
             reader.lines().forEach(s -> output.append(s).append("\n"))
         );

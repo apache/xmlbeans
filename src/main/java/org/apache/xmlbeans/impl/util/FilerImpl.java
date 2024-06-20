@@ -40,16 +40,7 @@ public class FilerImpl implements Filer {
     private final List<File> sourceFiles;
     private final boolean incrSrcGen;
     private Set<String> seenTypes;
-    private static final Charset CHARSET;
-
-    static {
-        Charset temp = null;
-        try {
-            temp = getCharset(System.getProperty("file.encoding"));
-        } catch (Exception ignored) {
-        }
-        CHARSET = temp;
-    }
+    private static final Charset DEFAULT_CHARSET = Charset.defaultCharset();
 
     public FilerImpl(File classdir, File srcdir, Repackager repackager, boolean verbose, boolean incrSrcGen) {
         this.classdir = classdir;
@@ -131,12 +122,10 @@ public class FilerImpl implements Filer {
     private static Writer writerForFile(File f, String sourceCodeEncoding) throws IOException {
         if (sourceCodeEncoding != null && !sourceCodeEncoding.isEmpty()) {
             return Files.newBufferedWriter(f.toPath(), getCharset(sourceCodeEncoding));
-        } else if (CHARSET == null) {
-            return Files.newBufferedWriter(f.toPath(), StandardCharsets.ISO_8859_1);
         }
 
         OutputStream fileStream = Files.newOutputStream(f.toPath());
-        CharsetEncoder ce = CHARSET.newEncoder();
+        CharsetEncoder ce = DEFAULT_CHARSET.newEncoder();
         ce.onUnmappableCharacter(CodingErrorAction.REPORT);
         return new OutputStreamWriter(fileStream, ce);
     }
