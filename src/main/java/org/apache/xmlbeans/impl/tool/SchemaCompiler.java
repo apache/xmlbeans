@@ -340,7 +340,7 @@ public class SchemaCompiler {
         params.setNoExt(noExt);
         params.setDebug(debug);
         params.setSourceCodeEncoding(sourceCodeEncoding);
-        params.setUseShortName(useShortJavaName);
+        params.setUseShortJavaName(useShortJavaName);
         params.setErrorListener(err);
         params.setRepackage(repackage);
         params.setExtensions(extensions);
@@ -629,7 +629,7 @@ public class SchemaCompiler {
         boolean incrSrcGen = params.isIncrementalSrcGen();
         boolean copyAnn = params.isCopyAnn();
         String sourceCodeEncoding = params.getSourceCodeEncoding();
-        boolean useShortName = params.isUseShortName();
+        boolean useShortName = params.isUseShortJavaName();
         Collection<XmlError> outerErrorListener = params.getErrorListener();
         Set<BeanMethod> partialMethods = params.getPartialMethods();
 
