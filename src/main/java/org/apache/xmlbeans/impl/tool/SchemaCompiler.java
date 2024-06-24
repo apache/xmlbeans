@@ -68,7 +68,6 @@ public class SchemaCompiler {
         System.out.println("    -repackage - repackage specification, e.g. \"org.apache.xmlbeans.metadata:mypackage.metadata\" to change the metadata directory");
         System.out.println("    -copyann - copy schema annotations to javadoc (default false) - don't activate on untrusted schema sources!");
         System.out.println("    -sourcecodeencoding [encodingName] - Generate Java source code with the specified encoding (ISO-8859-1 is the legacy default)");
-        System.out.println("    -useshortjavaname - Generate file name using Short Java Name");
         /* Undocumented feature - pass in one schema compiler extension and related parameters
         System.out.println("    -extension - registers a schema compiler extension");
         System.out.println("    -extensionParms - specify parameters for the compiler extension");
@@ -100,7 +99,6 @@ public class SchemaCompiler {
         flags.add("noext");
         flags.add("srconly");
         flags.add("debug");
-        flags.add("useshortjavaname");
 
         Set<String> opts = new HashSet<>();
         opts.add("out");
@@ -191,7 +189,6 @@ public class SchemaCompiler {
         boolean debug = (cl.getOpt("debug") != null);
         boolean copyAnn = (cl.getOpt("copyann") != null);
         String sourceCodeEncoding = cl.getOpt("sourcecodeencoding");
-        boolean useShortJavaName = (cl.getOpt("useshortjavaname") != null);
 
         String allowmdef = cl.getOpt("allowmdef");
         Set<String> mdefNamespaces = (allowmdef == null ? Collections.emptySet() :
@@ -340,7 +337,6 @@ public class SchemaCompiler {
         params.setNoExt(noExt);
         params.setDebug(debug);
         params.setSourceCodeEncoding(sourceCodeEncoding);
-        params.setUseShortJavaName(useShortJavaName);
         params.setErrorListener(err);
         params.setRepackage(repackage);
         params.setExtensions(extensions);
@@ -364,7 +360,7 @@ public class SchemaCompiler {
 
     private static SchemaTypeSystem loadTypeSystem(String name, File[] xsdFiles, File[] wsdlFiles, URL[] urlFiles, File[] configFiles,
                                                    File[] javaFiles, ResourceLoader cpResourceLoader,
-                                                   boolean download, boolean noUpa, boolean noPvr, boolean noAnn, boolean noVDoc, boolean noExt, String sourceCodeEncoding, boolean useShortName,
+                                                   boolean download, boolean noUpa, boolean noPvr, boolean noAnn, boolean noVDoc, boolean noExt, String sourceCodeEncoding,
                                                    Set<String> mdefNamespaces, File baseDir, Map<String, String> sourcesToCopyMap,
                                                    Collection<XmlError> outerErrorListener, File schemasDir, EntityResolver entResolver, File[] classpath) {
         XmlErrorWatcher errorListener = new XmlErrorWatcher(outerErrorListener);
@@ -532,9 +528,6 @@ public class SchemaCompiler {
             if (sourceCodeEncoding != null ) {
                 opts.setCharacterEncoding(sourceCodeEncoding);
             }
-            if (useShortName) {
-                opts.setCompileUseShortJavaName();
-            }
             if (mdefNamespaces != null) {
                 opts.setCompileMdefNamespaces(mdefNamespaces);
             }
@@ -629,7 +622,6 @@ public class SchemaCompiler {
         boolean incrSrcGen = params.isIncrementalSrcGen();
         boolean copyAnn = params.isCopyAnn();
         String sourceCodeEncoding = params.getSourceCodeEncoding();
-        boolean useShortName = params.isUseShortJavaName();
         Collection<XmlError> outerErrorListener = params.getErrorListener();
         Set<BeanMethod> partialMethods = params.getPartialMethods();
 
@@ -682,7 +674,7 @@ public class SchemaCompiler {
         // build the in-memory type system
         XmlErrorWatcher errorListener = new XmlErrorWatcher(outerErrorListener);
         SchemaTypeSystem system = loadTypeSystem(name, xsdFiles, wsdlFiles, urlFiles, configFiles,
-            javaFiles, cpResourceLoader, download, noUpa, noPvr, noAnn, noVDoc, noExt, sourceCodeEncoding, useShortName, mdefNamespaces,
+            javaFiles, cpResourceLoader, download, noUpa, noPvr, noAnn, noVDoc, noExt, sourceCodeEncoding, mdefNamespaces,
             baseDir, sourcesToCopyMap, errorListener, schemasDir, cmdLineEntRes, classpath);
         if (errorListener.hasError()) {
             result = false;
@@ -710,7 +702,6 @@ public class SchemaCompiler {
             options.setCompileNoAnnotations(noAnn);
             options.setCompileAnnotationAsJavadoc(copyAnn);
             options.setCharacterEncoding(sourceCodeEncoding);
-            options.setCompileUseShortJavaName(useShortName);
 
             // save .xsb files
             system.save(filer);

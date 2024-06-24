@@ -54,7 +54,6 @@ public class Parameters {
     private boolean noExt;
     private boolean debug;
     private boolean copyAnn;
-    private boolean useShortJavaName;
     private String sourceCodeEncoding;
     private boolean incrementalSrcGen;
     private String repackage;
@@ -205,10 +204,6 @@ public class Parameters {
         return noAnn;
     }
 
-    public boolean isUseShortJavaName() {
-        return useShortJavaName;
-    }
-
     public String getSourceCodeEncoding() {
         return sourceCodeEncoding;
     }
@@ -247,10 +242,6 @@ public class Parameters {
 
     public void setDebug(boolean debug) {
         this.debug = debug;
-    }
-
-    public void setUseShortJavaName(boolean useShortJavaName) {
-        this.useShortJavaName = useShortJavaName;
     }
 
     public void setSourceCodeEncoding(String sourceCodeEncoding) {
