@@ -156,7 +156,8 @@ public class XmlOptions implements java.io.Serializable {
         LOAD_USE_LOCALE_CHAR_UTIL,
         XPATH_USE_SAXON,
         XPATH_USE_XMLBEANS,
-        ATTRIBUTE_VALIDATION_COMPAT_MODE
+        ATTRIBUTE_VALIDATION_COMPAT_MODE,
+        USE_JAVA_SHORT_NAME
     }
 
 
