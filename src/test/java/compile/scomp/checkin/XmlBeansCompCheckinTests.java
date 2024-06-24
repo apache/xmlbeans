@@ -99,6 +99,25 @@ public class XmlBeansCompCheckinTests {
         MatcherAssert.assertThat(f.getSrcFileVec(), is(expSrcType));
     }
 
+    @Test
+    void test_Filer_shortname_compilation() throws Exception {
+        XmlObject obj1 = XmlObject.Factory.parse(FOR_XSD);
+        XmlObject[] schemas = new XmlObject[]{obj1};
+
+        TestFiler f = new TestFiler();
+        xm_opts.setCompileUseShortJavaName();
+        XmlBeans.compileXmlBeans("apiCompile", null, schemas, null, XmlBeans.getBuiltinTypeSystem(), f, xm_opts);
+
+        assertTrue(f.isCreateBinaryFile(), "Binary File method not invoked");
+        assertTrue(f.isCreateSourceFile(), "Source File method not invoked");
+
+        assertNotNull(f.getBinFileVec());
+        MatcherAssert.assertThat(f.getBinFileVec(), is(expBinShortnameType));
+
+        assertNotNull(f.getSrcFileVec());
+        MatcherAssert.assertThat(f.getSrcFileVec(), is(expSrcType));
+    }
+
     /**
      * Verify Partial SOM cannot be saved to file system
      */

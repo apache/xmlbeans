@@ -192,6 +192,14 @@ public class MavenPlugin extends AbstractMojo {
     @Parameter
     private String sourceCodeEncoding;
 
+    /**
+     * Used for File Names.
+     *
+     * @since 5.2.2
+     */
+    @Parameter( defaultValue = "false" )
+    private boolean useShortJavaName;
+
     @Parameter
     private List<Extension> extensions;
 
@@ -312,6 +320,7 @@ public class MavenPlugin extends AbstractMojo {
             if (sourceCodeEncoding != null && !sourceCodeEncoding.isEmpty()) {
                 params.setSourceCodeEncoding(sourceCodeEncoding);
             }
+            params.setUseShortJavaName(useShortJavaName);
 
             boolean result = SchemaCompiler.compile(params);
 

@@ -1070,6 +1070,21 @@ public class XmlOptions implements java.io.Serializable {
     }
 
     /**
+     * If this option is set, then the schema compiler will use the java_short_name to generate file name
+     *
+     */
+    public XmlOptions setCompileUseShortJavaName() {
+        return setCompileUseShortJavaName(true);
+    }
+
+    public XmlOptions setCompileUseShortJavaName(boolean b) {
+        return set(XmlOptionsKeys.USE_JAVA_SHORT_NAME, b);
+    }
+
+    public boolean isCompileUseShortJavaName() {
+        return hasOption(XmlOptionsKeys.USE_JAVA_SHORT_NAME);
+    }
+    /**
      * If this option is set, then the schema compiler will permit and
      * ignore multiple definitions of the same component (element, attribute,
      * type, etc) names in the given namespaces.  If multiple definitions
