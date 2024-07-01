@@ -124,10 +124,6 @@ dependencies {
     implementation "com.github.javaparser:javaparser-core:${javaparserVersion}"
     implementation "com.github.javaparser:javaparser-symbol-solver-core:${javaparserVersion}"
 
-    // only for java 8
-    if (JavaVersion.current() == JavaVersion.VERSION_1_8) {
-        implementation 'xml-apis:xml-apis:1.4.01'
-    }
     // only necessary to compile against JDK8 internals - for Java9+ there's a multimodule implementation
     implementation 'com.sun.org.apache.xml.internal:resolver:20050927'
 
@@ -141,9 +137,7 @@ dependencies {
 //    testImplementation "org.apache.ant:ant-junit4:${antVersion}"
     testImplementation 'org.hamcrest:hamcrest:2.2'
     testImplementation('xerces:xercesImpl:2.12.2') {
-        if (JavaVersion.current() != JavaVersion.VERSION_1_8) {
-            exclude group: 'xml-apis', module: 'xml-apis'
-        }
+        exclude group: 'xml-apis', module: 'xml-apis'
     }
     testRuntimeOnly 'org.xmlresolver:xmlresolver:4.6.4'
 
