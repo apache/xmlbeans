@@ -140,9 +140,9 @@ dependencies {
     testRuntimeOnly 'org.xmlresolver:xmlresolver:4.6.4'
 
     // maven plugin dependencies
-    implementation('org.apache.maven:maven-core:3.9.8')
-    implementation 'org.apache.maven:maven-model:3.9.8'
-    implementation('org.apache.maven:maven-plugin-api:3.9.8')
+    implementation('org.apache.maven:maven-core:3.9.9')
+    implementation 'org.apache.maven:maven-model:3.9.9'
+    implementation('org.apache.maven:maven-plugin-api:3.9.9')
     implementation 'org.apache.maven.plugin-tools:maven-plugin-annotations:3.13.0'
 
 
