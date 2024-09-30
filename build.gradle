@@ -36,8 +36,8 @@ plugins {
     id('org.nosphere.apache.rat') version '0.8.1'
     id('de.thetaphi.forbiddenapis') version '3.7'
     id 'jacoco'
-    id "com.github.spotbugs" version '6.0.19'
-    id 'org.cyclonedx.bom' version '1.8.2'
+    id "com.github.spotbugs" version '6.0.23'
+    id 'org.cyclonedx.bom' version '1.10.0'
     id 'ru.vyarus.animalsniffer' version '1.6.0'
 }
 
@@ -65,9 +65,9 @@ configurations {
 }
 
 ext {
-    antVersion = '1.10.14'
+    antVersion = '1.10.15'
     javaparserVersion = '3.26.1'
-    log4jVersion = '2.23.1'
+    log4jVersion = '2.24.1'
     saxonVersion = '12.5'
     androidSdkMinimum = '26'
     jdkVersion = (project.properties['jdkVersion'] ?: '8') as int
