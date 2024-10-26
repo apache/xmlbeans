@@ -15,6 +15,7 @@
 
 package org.apache.xmlbeans;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -53,14 +54,16 @@ public class XmlOptionCharEscapeMap {
     private final Map<Character, String> _charMap;
 
     // internal HashMap just for predefined entities
-    private static final Map<Character, String> _predefEntities = new HashMap<>();
+    private static final Map<Character, String> _predefEntities;
 
     static {
-        _predefEntities.put('<', "&lt;");
-        _predefEntities.put('>', "&gt;");
-        _predefEntities.put('&', "&amp;");
-        _predefEntities.put('\'', "&apos;");
-        _predefEntities.put('"', "&quot;");
+        final Map<Character, String> predefEntities = new HashMap<>();
+        predefEntities.put('<', "&lt;");
+        predefEntities.put('>', "&gt;");
+        predefEntities.put('&', "&amp;");
+        predefEntities.put('\'', "&apos;");
+        predefEntities.put('"', "&quot;");
+        _predefEntities = Collections.unmodifiableMap(predefEntities);
     }
 
     /**

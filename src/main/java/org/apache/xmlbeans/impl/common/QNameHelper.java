@@ -180,7 +180,7 @@ public class QNameHelper
 
     private static Map<String, String> buildWKP()
     {
-        Map<String, String> result = new HashMap<>();
+        final Map<String, String> result = new HashMap<>();
         result.put("http://www.w3.org/XML/1998/namespace", "xml");
         result.put("http://www.w3.org/2001/XMLSchema", "xs");
         result.put("http://www.w3.org/2001/XMLSchema-instance", "xsi");

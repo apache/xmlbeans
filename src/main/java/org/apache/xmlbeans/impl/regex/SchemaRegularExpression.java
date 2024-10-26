@@ -39,7 +39,7 @@ public class SchemaRegularExpression extends RegularExpression
 
     private static Map<String, SchemaRegularExpression> buildKnownPatternMap()
     {
-        Map<String, SchemaRegularExpression> result = new HashMap<>();
+        final Map<String, SchemaRegularExpression> result = new HashMap<>();
         result.put("\\c+", new SchemaRegularExpression("\\c+")
             { public boolean matches(String s) { return XMLChar.isValidNmtoken(s); } } );
         result.put("\\i\\c*", new SchemaRegularExpression("\\i\\c*")
