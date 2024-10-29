@@ -13,7 +13,7 @@
  *  limitations under the License.
  */
 
-XMLBeans Development Kit Version 5.2.1
+XMLBeans Development Kit Version 5.2.2
 
 
 Welcome to XMLBeans!
@@ -21,9 +21,9 @@ Welcome to XMLBeans!
 
 Kit contents:
 
-(1) One copy of xmlbeans-5.2.1.jar, which contains XMLBeans.
+(1) One copy of xmlbeans-5.2.2.jar, which contains XMLBeans.
     Should work on any JDK 1.8.x or newer.
-    ./lib/xmlbeans-5.2.1.jar
+    ./lib/xmlbeans-5.2.2.jar
 
 (2) License information for XML Beans and included libraries
     ./LICENSE.txt

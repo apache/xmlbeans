@@ -147,7 +147,7 @@ dependencies {
 
 
     // previous xmlbeans version is used to bootstrap necessary schema bindings
-    bootstrap 'org.apache.xmlbeans:xmlbeans:5.3.0'
+    bootstrap 'org.apache.xmlbeans:xmlbeans:5.2.1'
     bootstrap "org.apache.logging.log4j:log4j-core:${log4jVersion}"
 
     genresources "org.apache.logging.log4j:log4j-core:${log4jVersion}"
