@@ -38,20 +38,20 @@
             <name>POI Users List</name>
             <subscribe>user-subscribe@poi.apache.org</subscribe>
             <unsubscribe>user-unsubscribe@poi.apache.org</unsubscribe>
-            <archive>http://mail-archives.apache.org/mod_mbox/poi-user/</archive>
+            <archive>https://lists.apache.org/list.html?user@poi.apache.org</archive>
         </mailingList>
         <mailingList>
             <name>POI Developer List</name>
             <subscribe>dev-subscribe@poi.apache.org</subscribe>
             <unsubscribe>dev-unsubscribe@poi.apache.org</unsubscribe>
-            <archive>http://mail-archives.apache.org/mod_mbox/poi-dev/</archive>
+            <archive>https://lists.apache.org/list.html?dev@poi.apache.org</archive>
         </mailingList>
     </mailingLists>
 
     <licenses>
         <license>
             <name>The Apache Software License, Version 2.0</name>
-            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
             <distribution>repo</distribution>
         </license>
     </licenses>
