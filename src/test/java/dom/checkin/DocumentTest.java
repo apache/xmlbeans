@@ -167,7 +167,7 @@ public class DocumentTest extends NodeWithChildrenTest {
     }
 
     @Test
-    void testInsertExisitingNode() {
+    void testInsertExistingNode2() {
         Node child = m_doc.getFirstChild().getFirstChild();
         if (child == m_node) {
             child = m_doc.getLastChild();
