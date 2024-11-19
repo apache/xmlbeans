@@ -15,10 +15,10 @@
 
 package org.apache.xmlbeans.impl.schema;
 
-import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.xmlbeans.*;
 import org.apache.xmlbeans.impl.common.NameUtil;
+import org.apache.xmlbeans.impl.logging.XmlBeansLogManager;
 
 import javax.xml.namespace.QName;
 import java.math.BigInteger;
@@ -26,7 +26,7 @@ import java.util.*;
 
 public class StscJavaizer {
 
-    private static final Logger LOG = LogManager.getLogger(StscJavaizer.class);
+    private static final Logger LOG = XmlBeansLogManager.getLogger(StscJavaizer.class);
 
     /**
      * XMLBEANS-307

@@ -15,9 +15,9 @@
 
 package org.apache.xmlbeans.impl.common;
 
-import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.xmlbeans.impl.logging.XmlBeansLogManager;
 
 public class XBeanDebug {
-    public static final Logger LOG = LogManager.getLogger(XBeanDebug.class);
+    public static final Logger LOG = XmlBeansLogManager.getLogger(XBeanDebug.class);
 }

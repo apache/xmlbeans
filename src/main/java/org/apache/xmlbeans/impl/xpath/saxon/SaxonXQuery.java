@@ -29,9 +29,9 @@ import net.sf.saxon.query.XQueryExpression;
 import net.sf.saxon.str.StringView;
 import net.sf.saxon.type.BuiltInAtomicType;
 import net.sf.saxon.value.*;
-import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.xmlbeans.*;
+import org.apache.xmlbeans.impl.logging.XmlBeansLogManager;
 import org.apache.xmlbeans.impl.store.Cur;
 import org.apache.xmlbeans.impl.store.Cursor;
 import org.apache.xmlbeans.impl.store.Locale;
@@ -54,7 +54,7 @@ import java.util.ListIterator;
 import java.util.Map;
 
 public class SaxonXQuery implements XQuery {
-    private static final Logger LOG = LogManager.getLogger(SaxonXQuery.class);
+    private static final Logger LOG = XmlBeansLogManager.getLogger(SaxonXQuery.class);
 
     private final XQueryExpression xquery;
     private final String contextVar;

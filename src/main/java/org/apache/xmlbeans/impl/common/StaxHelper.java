@@ -15,9 +15,9 @@
 
 package org.apache.xmlbeans.impl.common;
 
-import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.xmlbeans.XmlOptions;
+import org.apache.xmlbeans.impl.logging.XmlBeansLogManager;
 
 import javax.xml.stream.XMLEventFactory;
 import javax.xml.stream.XMLInputFactory;
@@ -27,7 +27,7 @@ import javax.xml.stream.XMLOutputFactory;
  * Provides handy methods for working with StAX parsers and readers
  */
 public final class StaxHelper {
-    private static final Logger LOG = LogManager.getLogger(StaxHelper.class);
+    private static final Logger LOG = XmlBeansLogManager.getLogger(StaxHelper.class);
 
     private StaxHelper() {}
 

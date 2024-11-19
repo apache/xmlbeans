@@ -15,7 +15,6 @@
 
 package org.apache.xmlbeans.impl.store;
 
-import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.xmlbeans.*;
 import org.apache.xmlbeans.XmlCursor.XmlBookmark;
@@ -23,6 +22,7 @@ import org.apache.xmlbeans.impl.common.QNameHelper;
 import org.apache.xmlbeans.impl.common.ResolverUtil;
 import org.apache.xmlbeans.impl.common.SAXHelper;
 import org.apache.xmlbeans.impl.common.XmlLocale;
+import org.apache.xmlbeans.impl.logging.XmlBeansLogManager;
 import org.apache.xmlbeans.impl.store.Cur.Locations;
 import org.apache.xmlbeans.impl.store.DomImpl.Dom;
 import org.apache.xmlbeans.impl.store.Saaj.SaajCallback;
@@ -53,7 +53,7 @@ import static org.apache.xmlbeans.impl.values.TypeStore.*;
 @SuppressWarnings("SynchronizationOnLocalVariableOrMethodParameter")
 public final class Locale
     implements DOMImplementation, SaajCallback, XmlLocale {
-    private static final Logger LOG = LogManager.getLogger(Locale.class);
+    private static final Logger LOG = XmlBeansLogManager.getLogger(Locale.class);
 
     static final int ROOT = Cur.ROOT;
     static final int ELEM = Cur.ELEM;

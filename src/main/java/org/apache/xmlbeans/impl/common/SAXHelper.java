@@ -15,9 +15,9 @@
 
 package org.apache.xmlbeans.impl.common;
 
-import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.xmlbeans.XmlOptions;
+import org.apache.xmlbeans.impl.logging.XmlBeansLogManager;
 import org.apache.xmlbeans.impl.util.ExceptionUtil;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
@@ -35,7 +35,7 @@ import java.util.concurrent.TimeUnit;
  * Provides handy methods for working with SAX parsers and readers
  */
 public final class SAXHelper {
-    private static final Logger LOG = LogManager.getLogger(SAXHelper.class);
+    private static final Logger LOG = XmlBeansLogManager.getLogger(SAXHelper.class);
     private static long lastLog;
 
     private SAXHelper() {
