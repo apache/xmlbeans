@@ -30,7 +30,7 @@ public final class XmlBeansLogManager {
 
     // Sleep time in milliseconds (10 minutes)
     private static final long SLEEP_TIME = 10 * 60 * 1000;
-    private static long LAST_TIME = System.currentTimeMillis();
+    private static long LAST_TIME = 0;
 
     private XmlBeansLogManager() {
     }
