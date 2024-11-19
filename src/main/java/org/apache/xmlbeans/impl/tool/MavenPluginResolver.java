@@ -29,7 +29,7 @@ public class MavenPluginResolver {
         if (catalogLocation == null) {
             return null;
         }
-        CatalogManager catalogManager = CataXmlBeansLogManager.getStaticManager();
+        CatalogManager catalogManager = CatalogManager.getStaticManager();
         catalogManager.setCatalogFiles(catalogLocation);
         return new CatalogResolver(catalogManager);
     }
