@@ -36,11 +36,19 @@ public final class XmlBeansLogManager {
     }
 
     public static Logger getLogger(Class<?> clz) {
+        final long time = System.currentTimeMillis();
         try {
-            return LogManager.getLogger(clz);
+            final Logger logger = LogManager.getLogger(clz);
+            if (logger == null) {
+                if (time > LAST_TIME + SLEEP_TIME) {
+                    LAST_TIME = time;
+                    System.err.println("Log4J returned null logger. Falling back to No-Op logger.");
+                }
+                return NoOpLogger.INSTANCE;
+            }
+            return logger;
         } catch (Throwable t) {
             if (!ExceptionUtil.isFatal(t)) {
-                final long time = System.currentTimeMillis();
                 if (time > LAST_TIME + SLEEP_TIME) {
                     LAST_TIME = time;
                     System.err.println("Issue loading Log4J. Falling back to No-Op logger.");
