@@ -42,7 +42,7 @@ public final class XmlBeansLogManager {
             if (logger == null) {
                 if (time > LAST_TIME + SLEEP_TIME) {
                     LAST_TIME = time;
-                    System.err.println("Log4J returned null logger. Falling back to No-Op logger.");
+                    System.err.println("[XmlBeansLogManager] Log4J returned null logger. Falling back to No-Op logger.");
                 }
                 return NoOpLogger.INSTANCE;
             }
@@ -51,7 +51,7 @@ public final class XmlBeansLogManager {
             if (!ExceptionUtil.isFatal(t)) {
                 if (time > LAST_TIME + SLEEP_TIME) {
                     LAST_TIME = time;
-                    System.err.println("Issue loading Log4J. Falling back to No-Op logger.");
+                    System.err.println("[XmlBeansLogManager] Issue loading Log4J. Falling back to No-Op logger.");
                     t.printStackTrace();
                 }
             }
