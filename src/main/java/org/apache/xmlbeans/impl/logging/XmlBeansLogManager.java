@@ -36,12 +36,10 @@ public final class XmlBeansLogManager {
     }
 
     public static Logger getLogger(Class<?> clz) {
-        final long time = System.currentTimeMillis();
         try {
             final Logger logger = LogManager.getLogger(clz);
             if (logger == null) {
-                if (time > LAST_TIME + SLEEP_TIME) {
-                    LAST_TIME = time;
+                if (shouldLog()) {
                     System.err.println("[XmlBeansLogManager] Log4J returned null logger. Falling back to No-Op logger.");
                 }
                 return NoOpLogger.INSTANCE;
@@ -49,14 +47,22 @@ public final class XmlBeansLogManager {
             return logger;
         } catch (Throwable t) {
             if (!ExceptionUtil.isFatal(t)) {
-                if (time > LAST_TIME + SLEEP_TIME) {
-                    LAST_TIME = time;
+                if (shouldLog()) {
                     System.err.println("[XmlBeansLogManager] Issue loading Log4J. Falling back to No-Op logger.");
                     t.printStackTrace();
                 }
             }
             return NoOpLogger.INSTANCE;
         }
+    }
+
+    private static synchronized boolean shouldLog() {
+        final long time = System.currentTimeMillis();
+        if (time > LAST_TIME + SLEEP_TIME) {
+            LAST_TIME = time;
+            return true;
+        }
+        return false;
     }
 
 }
