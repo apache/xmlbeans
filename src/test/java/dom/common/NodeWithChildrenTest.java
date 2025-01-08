@@ -44,7 +44,7 @@ public abstract class NodeWithChildrenTest extends NodeTest  {
         Node toRemove = NodeTest.getApacheNode(sXml,true,'E');
         DOMException de = assertThrows(DOMException.class, () -> super.testRemoveChild(toRemove),
             "Removing node from a different impl");
-        assertEquals(de.code, DOMException.WRONG_DOCUMENT_ERR);
+        assertEquals(DOMException.WRONG_DOCUMENT_ERR, de.code);
     }
 
     @Test
@@ -52,7 +52,7 @@ public abstract class NodeWithChildrenTest extends NodeTest  {
         Node toRemove = m_docNS.getDocumentElement();
         DOMException de = assertThrows(DOMException.class,
             () -> super.testRemoveChild(toRemove), "Removing node from a different doc");
-        assertEquals(de.code, DOMException.WRONG_DOCUMENT_ERR);
+        assertEquals(DOMException.WRONG_DOCUMENT_ERR, de.code);
     }
 
     @Test
@@ -95,18 +95,16 @@ public abstract class NodeWithChildrenTest extends NodeTest  {
     @Test
     void testReplaceChildNullChild() {
         Node node = m_node.getChildNodes().item(0);
-        Node newNode = null;
         assertNotNull(node);
-        super.testReplaceChild(newNode, node);
+        super.testReplaceChild(null, node);
     }
 
     @Test
     void testReplaceChildNull() {
-        Node node = null;
         Node newNode = (m_node instanceof Document)
             ? ((Document) m_node).createElement("fooBAR")
             : m_node.getOwnerDocument().createElement("fooBAR");
-        super.testReplaceChild(newNode, node);
+        super.testReplaceChild(newNode, null);
     }
 
     @Test
@@ -147,7 +145,7 @@ public abstract class NodeWithChildrenTest extends NodeTest  {
         Node node = m_node.getFirstChild();
         Node newnode=NodeTest.getApacheNode(sXml,true,'T');
         DOMException de = assertThrows(DOMException.class, () -> super.testReplaceChild(newnode, node), "Inserting node created from a different impl");
-        assertEquals(de.code, DOMException.WRONG_DOCUMENT_ERR);
+        assertEquals(DOMException.WRONG_DOCUMENT_ERR, de.code);
     }
 
     //ref child is diff impl
@@ -156,7 +154,7 @@ public abstract class NodeWithChildrenTest extends NodeTest  {
         Node node =NodeTest.getApacheNode(sXml,true,'E');
         Node newnode=m_node.getFirstChild();
         DOMException de = assertThrows(DOMException.class, () -> super.testReplaceChild(newnode, node), "Inserting node created from a different impl");
-        assertEquals(de.code, DOMException.WRONG_DOCUMENT_ERR);
+        assertEquals(DOMException.WRONG_DOCUMENT_ERR, de.code);
     }
 
     @Test
@@ -196,7 +194,7 @@ public abstract class NodeWithChildrenTest extends NodeTest  {
         Node target = m_node.getFirstChild();
         Node toInsert=m_docNS.getDocumentElement();
         DOMException de = assertThrows(DOMException.class, () -> super.testInsertBefore(toInsert, target), "Inserting node created from a different doc");
-        assertEquals(de.code, DOMException.WRONG_DOCUMENT_ERR);
+        assertEquals(DOMException.WRONG_DOCUMENT_ERR, de.code);
     }
 
     @Test
@@ -204,7 +202,7 @@ public abstract class NodeWithChildrenTest extends NodeTest  {
         Node target = m_node.getFirstChild();
         Node toInsert=NodeTest.getApacheNode(sXml,true,'T');
         DOMException de = assertThrows(DOMException.class, () -> super.testInsertBefore(toInsert, target), "Inserting node created from a different impl");
-        assertEquals(de.code, DOMException.WRONG_DOCUMENT_ERR);
+        assertEquals(DOMException.WRONG_DOCUMENT_ERR, de.code);
     }
 
     @Test
@@ -212,7 +210,7 @@ public abstract class NodeWithChildrenTest extends NodeTest  {
         Node target = m_docNS.getDocumentElement();
         Node toInsert = m_node.getFirstChild();
         DOMException de = assertThrows(DOMException.class, () -> super.testInsertBefore(toInsert, target), "Ref Child from a different doc");
-        assertEquals(de.code, DOMException.WRONG_DOCUMENT_ERR);
+        assertEquals(DOMException.WRONG_DOCUMENT_ERR, de.code);
     }
 
     @Test
@@ -220,7 +218,7 @@ public abstract class NodeWithChildrenTest extends NodeTest  {
         Node target = NodeTest.getApacheNode(sXml, true, 'T');
         Node toInsert = m_node.getFirstChild();
         DOMException de = assertThrows(DOMException.class, () -> super.testInsertBefore(toInsert, target));
-        assertEquals(de.code, DOMException.WRONG_DOCUMENT_ERR);
+        assertEquals(DOMException.WRONG_DOCUMENT_ERR, de.code);
     }
 
 
@@ -348,9 +346,20 @@ public abstract class NodeWithChildrenTest extends NodeTest  {
     @Test
     void testSetNodeValue() {
         int nCount = m_node.getChildNodes().getLength();
+
+		// verify before setting value
+		for (int i = 0; i < nCount; i++) {
+			assertNotEquals("blah", m_node.getChildNodes().item(i).getNodeValue(),
+					"Failed check before change at " + i + " of " + nCount);
+		}
+
         m_node.setNodeValue("blah");
+
+		// verify after setting value
         assertEquals(nCount, m_node.getChildNodes().getLength());
-        for (int i = 0; i < nCount; i++)
-            assertNotEquals("blah", m_node.getChildNodes().item(i).getNodeValue());
+        for (int i = 0; i < nCount; i++) {
+			assertNotEquals("blah", m_node.getChildNodes().item(i).getNodeValue(),
+					"Failed at " + i + " of " + nCount);
+		}
     }
 }
