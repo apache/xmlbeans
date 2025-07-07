@@ -417,17 +417,17 @@
         <dependency>
             <groupId>net.sf.saxon</groupId>
             <artifactId>Saxon-HE</artifactId>
-            <version>12.7</version>
+            <version>12.8</version>
         </dependency>
         <dependency>
             <groupId>com.github.javaparser</groupId>
             <artifactId>javaparser-core</artifactId>
-            <version>3.26.4</version>
+            <version>3.27.0</version>
         </dependency>
         <dependency>
             <groupId>com.github.javaparser</groupId>
             <artifactId>javaparser-symbol-solver-core</artifactId>
-            <version>3.26.4</version>
+            <version>3.27.0</version>
         </dependency>
     </dependencies>
 </plugin>

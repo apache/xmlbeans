@@ -66,9 +66,9 @@ configurations {
 
 ext {
     antVersion = '1.10.15'
-    javaparserVersion = '3.26.4'
+    javaparserVersion = '3.27.0'
     log4jVersion = '2.24.3'
-    saxonVersion = '12.7'
+    saxonVersion = '12.8'
     androidSdkMinimum = '26'
     jdkVersion = (project.properties['jdkVersion'] ?: '8') as int
 }
@@ -180,7 +180,7 @@ dependencies {
 }
 
 wrapper {
-    gradleVersion = '8.14.2'
+    gradleVersion = '8.14.3'
 }
 
 def extCP = files(configurations.testCompileClasspath + sourceSets.main.output.files + sourceSets.main.resources.srcDirs)
