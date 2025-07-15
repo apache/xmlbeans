@@ -1976,7 +1976,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
 
             if (bmList == null || bmList.contains(BeanMethod.SET_ARRAY)) {
                 if (xmltype) {
-                    printJavaDoc("Sets array of all " + propdesc + "  WARNING: This method is not atomicaly synchronized.");
+                    printJavaDoc("Sets array of all " + propdesc + "  WARNING: This method is not atomically synchronized.");
                     if (!opt.isCompileNoAnnotations()) {
                         emit("@Override");
                     }

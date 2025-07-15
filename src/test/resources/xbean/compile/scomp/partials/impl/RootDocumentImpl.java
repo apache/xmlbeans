@@ -694,7 +694,7 @@ public class RootDocumentImpl extends org.apache.xmlbeans.impl.values.XmlComplex
 // <SET_ARRAY>
 
         /**
-         * Sets array of all "complexList" element  WARNING: This method is not atomicaly synchronized.
+         * Sets array of all "complexList" element  WARNING: This method is not atomically synchronized.
          */
         @Override
         public void setComplexListArray(partials.XmlBeanchen[] complexListArray) {
