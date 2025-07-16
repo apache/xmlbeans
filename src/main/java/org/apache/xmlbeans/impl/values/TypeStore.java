@@ -276,16 +276,30 @@ public interface TypeStore extends NamespaceManager
     void remove_element(QNameSet names, int i);
 
     /**
-     * Removes all elements after the i-th element with the given name.
+     * Removes all elements from the i-th element with the given name.
      * @since 5.4.0
      */
     void remove_elements_after(QName name, int i);
 
     /**
-     * Removes all elements after the i-th element with the given name.
+     * Removes all elements from the i-th element with the given names.
      * @since 5.4.0
      */
-    void remove_elements_after(QNameSet name, int i);
+    void remove_elements_after(QNameSet names, int i);
+
+    /**
+     * Removes all elements from the m-th element with the given name up to the n-th
+     * element with the given name but not including the n-th element.
+     * @since 5.4.0
+     */
+    void remove_elements_between(QName name, int m, int n);
+
+    /**
+     * Removes all elements from the m-th element with the given name up to the n-th
+     * element with the given name but not including the n-th element.
+     * @since 5.4.0
+     */
+    void remove_elements_between(QNameSet names, int m, int n);
 
     /**
      * Returns the TypeStoreUser underneath the attribute with the given
