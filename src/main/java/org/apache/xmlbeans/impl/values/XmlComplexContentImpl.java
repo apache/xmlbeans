@@ -397,12 +397,15 @@ public class XmlComplexContentImpl extends XmlObjectBase {
         // up to i from the sources array into the current array, starting with
         // startDest
         final int n = i;
-        if (set == null) {
-            store.remove_elements_between(elemName, n - startSrc + startDest, m);
-        } else {
-            store.remove_elements_between(set, n - startSrc + startDest, m);
+        final int startPos = n - startSrc + startDest;
+        if (m > startPos) {
+            if (set == null) {
+                store.remove_elements_between(elemName, startPos, m);
+            } else {
+                store.remove_elements_between(set, startPos, m);
+            }
+            m = startPos;
         }
-        m = n - startSrc + startDest;
 
         int j;
         for (i = startSrc, j = startDest; i < n; i++, j++) {
