@@ -407,19 +407,20 @@ public class XmlComplexContentImpl extends XmlObjectBase {
             m = startPos;
         }
 
-        int j;
-        for (i = startSrc, j = startDest; i < n; i++, j++) {
-            TypeStoreUser user;
+        final int size = Math.min(m - startDest, sources.length - startSrc);
+        ArrayList<XmlObjectBase> users = new ArrayList<>(size);
+        if (set == null) {
+            store.find_multiple_element_users(elemName, users, size);
+        } else {
+            store.find_multiple_element_users(set, users, size);
+        }
+        i = startSrc;
+        for (XmlObjectBase user : users) {
+            user.set(sources[i++]);
+        }
 
-            if (j >= m) {
-                user = store.add_element_user(elemName);
-            } else if (set == null) {
-                user = store.find_element_user(elemName, j);
-            } else {
-                user = store.find_element_user(set, j);
-            }
-
-            ((XmlObjectBase) user).set(sources[i]);
+        for (TypeStoreUser u : store.add_elements_users(elemName, n - i)) {
+            ((XmlObjectBase) u).set(sources[i++]);
         }
 
         // We can't just delegate to array_setter because we need
