@@ -1994,10 +1994,36 @@ abstract class Xobj implements TypeStore {
 
     @SuppressWarnings("unchecked")
     @Override
+    public <T extends XmlObject> void find_multiple_element_users(final QName name, final List<T> fillMeUp,
+                                                                  final int maxCount) {
+        int count = 0;
+        for (Xobj x = _firstChild; x != null && count < maxCount; x = x._nextSibling) {
+            if (x.isElem() && x._name.equals(name)) {
+                fillMeUp.add((T) x.getUser());
+                count++;
+            }
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
     public <T extends XmlObject> void find_all_element_users(QNameSet names, List<T> fillMeUp) {
         for (Xobj x = _firstChild; x != null; x = x._nextSibling) {
             if (x.isElem() && names.contains(x._name)) {
                 fillMeUp.add((T) x.getUser());
+            }
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public <T extends XmlObject> void find_multiple_element_users(final QNameSet names, final List<T> fillMeUp,
+                                                                  final int maxCount) {
+        int count = 0;
+        for (Xobj x = _firstChild; x != null && count < maxCount; x = x._nextSibling) {
+            if (x.isElem() && names.contains(x._name)) {
+                fillMeUp.add((T) x.getUser());
+                count++;
             }
         }
     }
@@ -2017,6 +2043,26 @@ abstract class Xobj implements TypeStore {
         }
     }
 
+    private static TypeStoreUser[] insertElements(final QName name, final Xobj x,
+                                                  final int pos, final int count) {
+        x._locale.enter();
+
+        TypeStoreUser[] users = new TypeStoreUser[count];
+        try {
+            Cur c = x._locale.tempCur();
+            c.moveTo(x, pos);
+            for (int i = count - 1; i >= 0; i--) {
+                c.createElement(name);
+                users[i] = c.getUser();
+            }
+            c.release();
+        } finally {
+            x._locale.exit();
+        }
+        return users;
+    }
+
+    @Override
     public TypeStoreUser insert_element_user(QName name, int i) {
         if (i < 0) {
             throw new IndexOutOfBoundsException();
@@ -2039,6 +2085,35 @@ abstract class Xobj implements TypeStore {
         return insertElement(name, x, 0);
     }
 
+    @Override
+    public TypeStoreUser[] insert_elements_users(final QName name, final int i,
+                                                 final int count) {
+        if (i < 0) {
+            throw new IndexOutOfBoundsException();
+        }
+
+        if (!isContainer()) {
+            throw new IllegalStateException();
+        }
+
+        if (count <= 0) {
+            return new TypeStoreUser[0];
+        }
+
+        Xobj x = _locale.findNthChildElem(this, name, null, i);
+
+        if (x == null) {
+            if (i > _locale.count(this, name, null) + 1) {
+                throw new IndexOutOfBoundsException();
+            }
+
+            return add_elements_users(name, count);
+        }
+
+        return insertElements(name, x, 0, count);
+    }
+
+    @Override
     public TypeStoreUser insert_element_user(QNameSet names, QName name, int i) {
         if (i < 0) {
             throw new IndexOutOfBoundsException();
@@ -2061,6 +2136,35 @@ abstract class Xobj implements TypeStore {
         return insertElement(name, x, 0);
     }
 
+    @Override
+    public TypeStoreUser[] insert_elements_users(final QNameSet names, final QName name,
+                                                 final int i, final int count) {
+        if (i < 0) {
+            throw new IndexOutOfBoundsException();
+        }
+
+        if (!isContainer()) {
+            throw new IllegalStateException();
+        }
+
+        if (count <= 0) {
+            return new TypeStoreUser[0];
+        }
+
+        Xobj x = _locale.findNthChildElem(this, null, names, i);
+
+        if (x == null) {
+            if (i > _locale.count(this, null, names) + 1) {
+                throw new IndexOutOfBoundsException();
+            }
+
+            return add_elements_users(name, count);
+        }
+
+        return insertElements(name, x, 0, count);
+    }
+
+    @Override
     public TypeStoreUser add_element_user(QName name) {
         if (!isContainer()) {
             throw new IllegalStateException();
@@ -2094,6 +2198,51 @@ abstract class Xobj implements TypeStore {
                 : insertElement(name, candidate, 0);
     }
 
+    @Override
+    public TypeStoreUser[] add_elements_users(final QName name, final int count) {
+        if (!isContainer()) {
+            throw new IllegalStateException();
+        }
+
+        if (count <= 0) {
+            return new TypeStoreUser[0];
+        }
+
+        QNameSet endSet = null;
+        boolean gotEndSet = false;
+
+        Xobj candidate = null;
+
+        for (Xobj x = _lastChild; x != null; x = x._prevSibling) {
+            if (x.isContainer()) {
+                if (x._name.equals(name)) {
+                    break;
+                }
+
+                if (!gotEndSet) {
+                    endSet = _user.get_element_ending_delimiters(name);
+                    gotEndSet = true;
+                }
+
+                if (endSet == null || endSet.contains(x._name)) {
+                    candidate = x;
+                }
+            }
+        }
+
+        final TypeStoreUser[] users;
+        if (candidate == null) {
+            // If there is no candidate, then I need to insert at the end of this container
+            // and create a new element for each of the count
+            users = insertElements(name, this, END_POS, count);
+        } else {
+            // If I have a candidate, then I need to insert at the candidate and create
+            // a new element for each of the count
+            users = insertElements(name, candidate, 0, count);
+        }
+        return users;
+    }
+
     private static void removeElement(Xobj x) {
         if (x == null) {
             throw new IndexOutOfBoundsException();
@@ -2110,6 +2259,7 @@ abstract class Xobj implements TypeStore {
         }
     }
 
+    @Override
     public void remove_element(QName name, int i) {
         if (i < 0) {
             throw new IndexOutOfBoundsException();
@@ -2130,6 +2280,30 @@ abstract class Xobj implements TypeStore {
         removeElement(x);
     }
 
+    @Override
+    public void remove_elements_after(QName name, int i) {
+        if (i < 0) {
+            throw new IndexOutOfBoundsException();
+        }
+
+        if (!isContainer()) {
+            throw new IllegalStateException();
+        }
+
+        ArrayList<Xobj> toRemove = new ArrayList<>();
+        Xobj x;
+        for (x = _firstChild; x != null; x = x._nextSibling) {
+            if (x.isElem() && x._name.equals(name) && --i < 0) {
+                toRemove.add(x);
+            }
+        }
+        final int size = toRemove.size();
+        for (int j = size - 1; j >= 0; j--) {
+            removeElement(toRemove.get(j));
+        }
+    }
+
+    @Override
     public void remove_element(QNameSet names, int i) {
         if (i < 0) {
             throw new IndexOutOfBoundsException();
@@ -2148,6 +2322,25 @@ abstract class Xobj implements TypeStore {
         }
 
         removeElement(x);
+    }
+
+    @Override
+    public void remove_elements_after(QNameSet names, int i) {
+        if (i < 0) {
+            throw new IndexOutOfBoundsException();
+        }
+
+        if (!isContainer()) {
+            throw new IllegalStateException();
+        }
+
+        Xobj x;
+
+        for (x = _firstChild; x != null; x = x._nextSibling) {
+            if (x.isElem() && names.contains(x._name) && --i < 0) {
+                removeElement(x);
+            }
+        }
     }
 
     public TypeStoreUser find_attribute_user(QName name) {
@@ -2294,7 +2487,7 @@ abstract class Xobj implements TypeStore {
         try {
             // TODO - this is the quick and dirty implementation, make this faster
 
-            int m = sources.length;
+            final int m = sources.length;
 
             List<Xobj> copies = new ArrayList<>();
             List<SchemaType> types = new ArrayList<>();
@@ -2326,17 +2519,13 @@ abstract class Xobj implements TypeStore {
                 }
             }
 
-            int n = count_elements(elementName);
+            final int n = count_elements(elementName);
 
-            for (; n > m; n--) {
-                remove_element(elementName, m);
+            if (n > m) {
+                remove_elements_after(elementName, m);
+            } else if (n < m) {
+                add_elements_users(elementName, m - n);
             }
-
-            for (; m > n; n++) {
-                add_element_user(elementName);
-            }
-
-            assert m == n;
 
             List<XmlObject> elementsUser = new ArrayList<>();
 
@@ -2347,8 +2536,6 @@ abstract class Xobj implements TypeStore {
                 .map(TypeStoreUser::get_store)
                 .map(x -> (Xobj) x)
                 .collect(Collectors.toList());
-
-            assert elements.size() == n;
 
             Cur c = tempCur();
 

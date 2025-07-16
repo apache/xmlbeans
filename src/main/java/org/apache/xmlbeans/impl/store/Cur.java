@@ -343,7 +343,7 @@ public final class Cur {
     private void createHelper(Xobj x) {
         assert x._locale == _locale;
 
-        // insert the new Xobj into an exisiting tree.
+        // insert the new Xobj into an existing tree.
 
         if (isPositioned()) {
             Cur from = tempCur(x, 0);
