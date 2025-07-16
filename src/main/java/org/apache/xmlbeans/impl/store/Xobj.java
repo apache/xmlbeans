@@ -2304,6 +2304,39 @@ abstract class Xobj implements TypeStore {
     }
 
     @Override
+    public void remove_elements_between(final QName name, final int m, final int n) {
+        if (m < 0 || n < 0) {
+            throw new IndexOutOfBoundsException();
+        }
+
+        if (!isContainer()) {
+            throw new IllegalStateException();
+        }
+
+        if (m >= n) {
+            return;
+        }
+
+        ArrayList<Xobj> toRemove = new ArrayList<>();
+        Xobj x;
+        int i = m;
+        int count = 0;
+        for (x = _firstChild; x != null; x = x._nextSibling) {
+            if (x.isElem() && x._name.equals(name) && --i < 0) {
+                toRemove.add(x);
+                count++;
+                if (count >= n - m) {
+                    break; // no need to continue if we've removed enough
+                }
+            }
+        }
+        final int size = toRemove.size();
+        for (int j = size - 1; j >= 0; j--) {
+            removeElement(toRemove.get(j));
+        }
+    }
+
+    @Override
     public void remove_element(QNameSet names, int i) {
         if (i < 0) {
             throw new IndexOutOfBoundsException();
@@ -2340,6 +2373,39 @@ abstract class Xobj implements TypeStore {
             if (x.isElem() && names.contains(x._name) && --i < 0) {
                 removeElement(x);
             }
+        }
+    }
+
+    @Override
+    public void remove_elements_between(final QNameSet names, final int m, final int n) {
+        if (m < 0 || n < 0) {
+            throw new IndexOutOfBoundsException();
+        }
+
+        if (!isContainer()) {
+            throw new IllegalStateException();
+        }
+
+        if (m >= n) {
+            return;
+        }
+
+        ArrayList<Xobj> toRemove = new ArrayList<>();
+        Xobj x;
+        int i = m;
+        int count = 0;
+        for (x = _firstChild; x != null; x = x._nextSibling) {
+            if (x.isElem() && names.contains(x._name) && --i < 0) {
+                toRemove.add(x);
+                count++;
+                if (count >= n - m) {
+                    break; // no need to continue if we've removed enough
+                }
+            }
+        }
+        final int size = toRemove.size();
+        for (int j = size - 1; j >= 0; j--) {
+            removeElement(toRemove.get(j));
         }
     }
 

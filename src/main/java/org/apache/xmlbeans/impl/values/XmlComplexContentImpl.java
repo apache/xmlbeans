@@ -396,12 +396,13 @@ public class XmlComplexContentImpl extends XmlObjectBase {
         // ... then come back and insert the elements starting with startSource
         // up to i from the sources array into the current array, starting with
         // startDest
-        int n = i;
+        final int n = i;
         if (set == null) {
-            store.remove_elements_after(elemName, n - startSrc + startDest);
+            store.remove_elements_between(elemName, n - startSrc + startDest, m);
         } else {
-            store.remove_elements_after(set, n - startSrc + startDest);
+            store.remove_elements_between(set, n - startSrc + startDest, m);
         }
+        m = n - startSrc + startDest;
 
         int j;
         for (i = startSrc, j = startDest; i < n; i++, j++) {
@@ -530,10 +531,11 @@ public class XmlComplexContentImpl extends XmlObjectBase {
         // startDest
         final int n = i;
         if (set == null) {
-            store.remove_elements_after(elemName, n - startSrc + startDest);
+            store.remove_elements_between(elemName, n - startSrc + startDest, m);
         } else {
-            store.remove_elements_after(set, n - startSrc + startDest);
+            store.remove_elements_between(set, n - startSrc + startDest, m);
         }
+        m = n - startSrc + startDest;
 
         final int size = Math.min(m - startDest, sources.length - startSrc);
         ArrayList<XmlObjectBase> users = new ArrayList<>(size);
