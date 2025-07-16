@@ -397,12 +397,10 @@ public class XmlComplexContentImpl extends XmlObjectBase {
         // up to i from the sources array into the current array, starting with
         // startDest
         int n = i;
-        for (; m > n - startSrc + startDest; m--) {
-            if (set == null) {
-                store.remove_element(elemName, m - 1);
-            } else {
-                store.remove_element(set, m - 1);
-            }
+        if (set == null) {
+            store.remove_elements_after(elemName, n - startSrc + startDest);
+        } else {
+            store.remove_elements_after(set, n - startSrc + startDest);
         }
 
         int j;
@@ -531,13 +529,11 @@ public class XmlComplexContentImpl extends XmlObjectBase {
         // up to i from the sources array into the current array, starting with
         // startDest
         final int n = i;
-
         if (set == null) {
             store.remove_elements_after(elemName, n - startSrc + startDest);
         } else {
             store.remove_elements_after(set, n - startSrc + startDest);
         }
-
 
         final int size = Math.min(m - startDest, sources.length - startSrc);
         ArrayList<XmlObjectBase> users = new ArrayList<>(size);
