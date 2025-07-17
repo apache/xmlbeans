@@ -183,19 +183,7 @@ public interface TypeStore extends NamespaceManager
      * Returns all TypeStoreUsers corresponding to elements with one
      * of the names is the QNameSet.
      */
-    <T extends XmlObject> void find_all_element_users(QNameSet names, List<T> fillMeUp);
-
-    /**
-     * @since 5.4.0
-     */
-    <T extends XmlObject> void find_multiple_element_users(QName name, List<T> fillMeUp,
-                                                           int maxCount);
-
-    /**
-     * @since 5.4.0
-     */
-    <T extends XmlObject> void find_multiple_element_users(QNameSet names, List<T> fillMeUp,
-                                                           int maxCount);
+    <T extends XmlObject> void find_all_element_users(QNameSet name, List<T> fillMeUp);
 
     /**
      * Inserts a new element at the position that will make it
@@ -214,34 +202,10 @@ public interface TypeStore extends NamespaceManager
     TypeStoreUser insert_element_user(QName name, int i);
 
     /**
-     * Inserts new elements at the position that will make the first one
-     * the ith element with the given name owned by this textstore,
-     * and returns a TypeStoreUser array with all new elements.
-     *
-     * Note that if there are no existing elements of the given
-     * name, you may need to call back to discover the proper
-     * ordering to use to insert the first one. Otherwise,
-     * it should be inserted adjacent to existing elements with
-     * the same name.
-     *
-     * Should throw an IndexOutOfBoundsException if i &lt; 0
-     * or if i &gt; # of elts
-     * @since 5.4.0
-     */
-    TypeStoreUser[] insert_elements_users(QName name, int i, int count);
-
-    /**
-     * Like the {@link #insert_element_user(QName, int)} method, except that it inserts an element named
+     * Like the above method, except that it inserts an element named
      * name, after the ith member of set.
      */
     TypeStoreUser insert_element_user(QNameSet set, QName name, int i);
-
-    /**
-     * Like the {@link #insert_elements_users(QName, int, int)} method, except that it inserts elements named
-     * name, after the ith member of set.
-     * @since 5.4.0
-     */
-    TypeStoreUser[] insert_elements_users(QNameSet set, QName name, int i, int count);
 
     /**
      * Adds a new element at the last position adjacent to existing
@@ -251,16 +215,6 @@ public interface TypeStore extends NamespaceManager
      * name, the same comment applies as with insert_element_user.
      */
     TypeStoreUser add_element_user(QName name);
-
-    /**
-     * Adds elements at the last position adjacent to existing
-     * elements of the same name.
-     *
-     * Note that if there are no existing elements of the given
-     * name, the same comment applies as with insert_element_user.
-     * @since 5.4.0
-     */
-    TypeStoreUser[] add_elements_users(QName name, int count);
 
     /**
      * Removes the ith element with the given name.
@@ -275,31 +229,6 @@ public interface TypeStore extends NamespaceManager
      */
     void remove_element(QNameSet names, int i);
 
-    /**
-     * Removes all elements from the i-th element with the given name.
-     * @since 5.4.0
-     */
-    void remove_elements_after(QName name, int i);
-
-    /**
-     * Removes all elements from the i-th element with the given names.
-     * @since 5.4.0
-     */
-    void remove_elements_after(QNameSet names, int i);
-
-    /**
-     * Removes all elements from the m-th element with the given name up to the n-th
-     * element with the given name but not including the n-th element.
-     * @since 5.4.0
-     */
-    void remove_elements_between(QName name, int m, int n);
-
-    /**
-     * Removes all elements from the m-th element with the given name up to the n-th
-     * element with the given name but not including the n-th element.
-     * @since 5.4.0
-     */
-    void remove_elements_between(QNameSet names, int m, int n);
 
     /**
      * Returns the TypeStoreUser underneath the attribute with the given

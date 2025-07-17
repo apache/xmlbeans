@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static common.Common.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
 /**
@@ -145,7 +144,7 @@ public class SchemaCompilerTests {
         params.setNoExt(true);
 
         SchemaCompiler.compile(params);
-        assertEquals("", collateSevereErrors(errors));
+        assertFalse(hasSevereError(errors), "testNoExt(): failure when executing scomp");
     }
 
     @Test

@@ -119,22 +119,6 @@ public class Common {
         return errFound;
     }
 
-    public static String collateSevereErrors(List<XmlError> errors) {
-        boolean errFound = errors.stream().anyMatch(e -> e.getSeverity() == XmlError.SEVERITY_ERROR);
-        String errorTxt = "";
-        if (errFound) {
-            StringBuilder errorBuilder = new StringBuilder("Errors found:\n");
-            for (XmlError xmlError : errors) {
-                if (xmlError.getSeverity() == XmlError.SEVERITY_ERROR) {
-                    errorBuilder.append(xmlError).append("\n");
-                }
-            }
-            errorTxt = errorBuilder.toString();
-        }
-        errors.clear();
-        return errorTxt;
-    }
-
     /**
      * Validate schemas to instance based on the docType
      */
