@@ -21,7 +21,6 @@ import org.junit.jupiter.api.Test;
 import xbean.scomp.substGroup.deep.*;
 
 import java.math.BigInteger;
-import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static scomp.common.BaseCase.createOptions;
