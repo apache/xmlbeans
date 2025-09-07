@@ -119,7 +119,8 @@ sourceSets {
 
 dependencies {
 
-    implementation "org.apache.logging.log4j:log4j-api:${log4jVersion}"
+    implementation platform("org.apache.logging.log4j:log4j-bom:${log4jVersion}")
+    implementation "org.apache.logging.log4j:log4j-api"
     implementation "net.sf.saxon:Saxon-HE:${saxonVersion}"
     implementation "org.apache.ant:ant:${antVersion}"
     implementation "com.github.javaparser:javaparser-core:${javaparserVersion}"
