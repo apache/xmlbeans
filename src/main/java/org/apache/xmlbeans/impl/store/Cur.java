@@ -2923,10 +2923,12 @@ public final class Cur {
             text(value, 0, value.length());
             end();
             if (isId) {
+                _locale.enter();
                 Cur c1 = x.tempCur();
                 c1.toRoot();
                 Xobj doc = c1._xobj;
                 c1.release();
+                _locale.exit();
                 if (doc instanceof DocumentXobj) {
                     ((DocumentXobj) doc).addIdElement(value,
                         x._parent.getDom());
