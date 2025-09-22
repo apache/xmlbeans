@@ -15,7 +15,6 @@
 
 package xmlcursor.checkin;
 
-import com.sun.org.apache.xml.internal.serializer.AttributesImplSerializer;
 import org.apache.xmlbeans.*;
 import org.apache.xmlbeans.XmlCursor.TokenType;
 import org.apache.xmlbeans.XmlCursor.XmlBookmark;
@@ -28,6 +27,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.xml.sax.*;
 import org.xml.sax.ext.LexicalHandler;
+import org.xml.sax.helpers.AttributesImpl;
 import xmlcursor.common.Common;
 
 import javax.xml.namespace.QName;
@@ -1958,7 +1958,7 @@ public class StoreTests {
         final String schemaUri = "http://example.com/schema";
 
         final Locale loc = Locale.getLocale(null, null);
-        final AttributesImplSerializer attrs = new AttributesImplSerializer();
+        final AttributesImpl attrs = new AttributesImpl();
 
         // The QName must be "id" as that's now enough for an attribute to be treated as an ID
         attrs.addAttribute(
