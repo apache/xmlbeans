@@ -18,6 +18,7 @@ package xmlcursor.checkin;
 import org.apache.xmlbeans.*;
 import org.apache.xmlbeans.XmlCursor.TokenType;
 import org.apache.xmlbeans.XmlCursor.XmlBookmark;
+import org.apache.xmlbeans.impl.store.Locale;
 import org.apache.xmlbeans.impl.xb.xsdschema.SchemaDocument;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Disabled;
@@ -26,6 +27,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.xml.sax.*;
 import org.xml.sax.ext.LexicalHandler;
+import org.xml.sax.helpers.AttributesImpl;
 import xmlcursor.common.Common;
 
 import javax.xml.namespace.QName;
@@ -1948,6 +1950,38 @@ public class StoreTests {
         XmlObject x2 = XmlObject.Factory.parse(xml);
 
         assertEquals(x1.xmlText(), x2.xmlText());
+    }
+
+    @Test
+    void testSaxHandlerIdDetection() throws SAXException{
+        final XmlOptions emptyXmlOptions = new XmlOptions();
+        final String schemaUri = "http://example.com/schema";
+
+        final Locale loc = Locale.getLocale(null, null);
+        final AttributesImpl attrs = new AttributesImpl();
+
+        // The QName must be "id" as that's now enough for an attribute to be treated as an ID
+        attrs.addAttribute(
+                schemaUri,
+                "localIgnored",
+                "id",
+                "CDATA",
+                "anId"
+        );
+
+        loc.getSchemaTypeLoader().newXmlSaxHandler(null, emptyXmlOptions);
+        ContentHandler xmlSaxHandler = Locale.newSaxHandler(
+                loc.getSchemaTypeLoader(),
+                null,
+                emptyXmlOptions
+        ).getContentHandler();
+
+        xmlSaxHandler.startElement(
+                schemaUri,
+                "localIgnored",
+                "sa:someName",
+                attrs
+        );
     }
 
     @Test
