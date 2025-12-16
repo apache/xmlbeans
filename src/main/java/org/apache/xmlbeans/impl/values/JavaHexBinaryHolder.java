@@ -25,16 +25,12 @@ import org.apache.xmlbeans.impl.schema.BuiltinSchemaTypeSystem;
 import org.apache.xmlbeans.impl.util.HexBin;
 
 import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 
-public abstract class JavaHexBinaryHolder extends XmlObjectBase {
+public abstract class JavaHexBinaryHolder extends JavaDigestableHolder {
     public SchemaType schemaType() {
         return BuiltinSchemaTypeSystem.ST_HEX_BINARY;
     }
-
-    protected byte[] _value;
 
     // SIMPLE VALUE ACCESSORS BELOW -------------------------------------------
 
@@ -107,33 +103,4 @@ public abstract class JavaHexBinaryHolder extends XmlObjectBase {
         byte[] ival = ((XmlHexBinary) i).getByteArrayValue();
         return Arrays.equals(_value, ival);
     }
-
-    //because computing hashcode is expensive we'll cache it
-    protected boolean _hashcached = false;
-    protected int hashcode = 0;
-    protected static final MessageDigest md5;
-
-    static {
-        try {
-            md5 = MessageDigest.getInstance("MD5");
-        } catch (NoSuchAlgorithmException e) {
-            throw new IllegalStateException("Cannot find MD5 hash Algorithm");
-        }
-    }
-
-    protected int value_hash_code() {
-        if (_hashcached) {
-            return hashcode;
-        }
-
-        _hashcached = true;
-
-        if (_value == null) {
-            return hashcode = 0;
-        }
-
-        byte[] res = md5.digest(_value);
-        return hashcode = (res[0] << 24) | (res[1] << 16) | (res[2] << 8) | res[3];
-    }
-
 }
