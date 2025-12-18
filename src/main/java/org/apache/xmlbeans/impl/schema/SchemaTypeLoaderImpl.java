@@ -314,7 +314,8 @@ public class SchemaTypeLoaderImpl extends SchemaTypeLoaderBase {
     }
 
     SchemaTypeSystemImpl getTypeSystemOnClasspath(String name) {
-        return _classpathTypeSystems.computeIfAbsent(name, n -> new SchemaTypeSystemImpl(_resourceLoader, n, this));
+        return _classpathTypeSystems.computeIfAbsent(name,
+                n -> new SchemaTypeSystemImpl(_resourceLoader, _classLoader, n, this));
     }
 
     SchemaTypeSystemImpl getTypeSystemOnClassloader(String name) {

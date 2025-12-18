@@ -222,9 +222,18 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
     }
 
     public SchemaTypeSystemImpl(ResourceLoader resourceLoader, String name, SchemaTypeLoader linker) {
+        this(resourceLoader, null, name, linker);
+    }
+
+    /**
+     * @since 5.4.0
+     */
+    public SchemaTypeSystemImpl(ResourceLoader resourceLoader, ClassLoader classLoader,
+                                String name, SchemaTypeLoader linker) {
         _name = name;
         _linker = linker;
         _resourceLoader = resourceLoader;
+        _classloader = classLoader;
         try {
             initFromHeader();
         } catch (RuntimeException | Error e) {
