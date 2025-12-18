@@ -23,17 +23,13 @@ import org.apache.xmlbeans.impl.common.QNameHelper;
 import org.apache.xmlbeans.impl.common.ValidationContext;
 import org.apache.xmlbeans.impl.schema.BuiltinSchemaTypeSystem;
 
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.Base64;
 
-public abstract class JavaBase64Holder extends XmlObjectBase {
+public abstract class JavaBase64Holder extends JavaDigestableHolder {
     public SchemaType schemaType() {
         return BuiltinSchemaTypeSystem.ST_BASE_64_BINARY;
     }
-
-    protected byte[] _value;
 
     // SIMPLE VALUE ACCESSORS BELOW -------------------------------------------
 
@@ -103,33 +99,5 @@ public abstract class JavaBase64Holder extends XmlObjectBase {
     protected boolean equal_to(XmlObject i) {
         byte[] ival = ((XmlBase64Binary) i).getByteArrayValue();
         return Arrays.equals(_value, ival);
-    }
-
-    //because computing hashcode is expensive we'll cache it
-    protected boolean _hashcached = false;
-    protected int hashcode = 0;
-    protected static final MessageDigest md5;
-
-    static {
-        try {
-            md5 = MessageDigest.getInstance("MD5");
-        } catch (NoSuchAlgorithmException e) {
-            throw new IllegalStateException("Cannot find MD5 hash Algorithm");
-        }
-    }
-
-    protected int value_hash_code() {
-        if (_hashcached) {
-            return hashcode;
-        }
-
-        _hashcached = true;
-
-        if (_value == null) {
-            return hashcode = 0;
-        }
-
-        byte[] res = md5.digest(_value);
-        return hashcode = (res[0] << 24) | (res[1] << 16) | (res[2] << 8) | res[3];
     }
 }
