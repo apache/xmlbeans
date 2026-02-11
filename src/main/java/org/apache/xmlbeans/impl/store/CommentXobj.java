@@ -54,6 +54,10 @@ class CommentXobj extends NodeXobj implements Comment {
         return null;
     }
 
+    public boolean hasChildNodes() {
+        return false;
+    }
+
     public void insertData(int offset, String arg) {
         DomImpl._characterData_insertData(this, offset, arg);
     }
