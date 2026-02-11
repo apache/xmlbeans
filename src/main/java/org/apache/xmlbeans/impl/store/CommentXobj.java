@@ -54,6 +54,10 @@ class CommentXobj extends NodeXobj implements Comment {
         return null;
     }
 
+    public Node getLastChild() {
+        return null;
+    }
+
     public boolean hasChildNodes() {
         return false;
     }
