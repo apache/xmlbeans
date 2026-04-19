@@ -211,7 +211,7 @@ org.apache.ant:ant-launcher:1.10.15
 org.apache.httpcomponents.client5:httpclient5:5.1.3
 org.apache.httpcomponents.client5:httpcore5:5.1.3
 org.apache.httpcomponents.client5:httpcore5-h2:5.1.3
-org.apache.logging.log4j:log4j-api:2.25.3
+org.apache.logging.log4j:log4j-api:2.25.4
 org.xmlresolver:xmlresolver:5.2.2
 org.xmlresolver:xmlresolver-data:5.2.2
 
