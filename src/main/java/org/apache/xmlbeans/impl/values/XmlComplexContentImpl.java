@@ -22,6 +22,7 @@ import org.apache.xmlbeans.impl.schema.SchemaTypeVisitorImpl;
 import javax.xml.namespace.QName;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -342,7 +343,14 @@ public class XmlComplexContentImpl extends XmlObjectBase {
             }
         }
         if (i < sources.length) {
-            TypeStoreUser current = (set == null) ? store.find_element_user(elemName, 0) : store.find_element_user(set, 0);
+            // Get all existing elements upfront to avoid O(n^2) from repeated find_element_user calls
+            List<XmlObject> existingList = new ArrayList<>(m);
+            if (set == null) {
+                store.find_all_element_users(elemName, existingList);
+            } else {
+                store.find_all_element_users(set, existingList);
+            }
+            TypeStoreUser current = existingList.isEmpty() ? null : (TypeStoreUser) existingList.get(0);
             if (current == sources[i]) {
                 // The new object matches what already exists in the array
                 // Heuristic: we optimize for the case where the new elements
@@ -351,16 +359,26 @@ public class XmlComplexContentImpl extends XmlObjectBase {
 
                 // First insert the new element in the array at position 0
                 int j;
+                int originalI = i; // capture for index arithmetic in the inner loop
                 for (j = 0; j < i; j++) {
                     TypeStoreUser user = (set == null) ? store.insert_element_user(elemName, j) : store.insert_element_user(set, elemName, j);
                     ((XmlObjectBase) user).set(sources[j]);
                 }
+                // Track inserts made inside this loop so we can compute the correct
+                // index into existingList without calling find_element_user each time.
+                int insertCount = 0;
                 for (i++, j++; i < sources.length; i++, j++) {
                     // Cursor is implicitly closed
                     XmlCursor c = sources[i].isImmutable() ? null : sources[i].newCursor();
                     if (c != null && c.toParent() && c.getObject() == this) {
                         c.close();
-                        current = (set == null) ? store.find_element_user(elemName, j) : store.find_element_user(set, j);
+                        // Each of the originalI pre-inserts shifted existing elements right by
+                        // originalI positions; each subsequent insert in this loop shifts them
+                        // one more. So j (the current store position) maps to
+                        // existingList[j - originalI - insertCount], where originalI accounts
+                        // for pre-loop inserts and insertCount for in-loop inserts so far.
+                        int existingIdx = j - originalI - insertCount;
+                        current = (existingIdx < existingList.size()) ? (TypeStoreUser) existingList.get(existingIdx) : null;
                         if (current != sources[i]) {
                             // Fall back to the general case
                             break;
@@ -372,11 +390,12 @@ public class XmlComplexContentImpl extends XmlObjectBase {
                         // Insert before the current element
                         TypeStoreUser user = (set == null) ? store.insert_element_user(elemName, j) : store.insert_element_user(set, elemName, j);
                         ((XmlObjectBase) user).set(sources[i]);
+                        insertCount++;
                     }
                 }
                 startDest = j;
                 startSrc = i;
-                m = store.count_elements(elemName);
+                m = (set == null) ? store.count_elements(elemName) : store.count_elements(set);
             }
             // Fall through
         } else {
@@ -407,19 +426,28 @@ public class XmlComplexContentImpl extends XmlObjectBase {
             }
         }
 
+        // Get existing elements upfront to avoid O(n^2) from repeated find_element_user calls.
+        // The list is built lazily since it may not be needed when all remaining elements are new.
+        List<XmlObject> finalList = null;
         int j;
         for (i = startSrc, j = startDest; i < n; i++, j++) {
-            TypeStoreUser user;
+            XmlObjectBase user;
 
             if (j >= m) {
-                user = store.add_element_user(elemName);
-            } else if (set == null) {
-                user = store.find_element_user(elemName, j);
+                user = (XmlObjectBase) store.add_element_user(elemName);
             } else {
-                user = store.find_element_user(set, j);
+                if (finalList == null) {
+                    finalList = new ArrayList<>(m);
+                    if (set == null) {
+                        store.find_all_element_users(elemName, finalList);
+                    } else {
+                        store.find_all_element_users(set, finalList);
+                    }
+                }
+                user = (XmlObjectBase) finalList.get(j);
             }
 
-            ((XmlObjectBase) user).set(sources[i]);
+            user.set(sources[i]);
         }
 
         // We can't just delegate to array_setter because we need
@@ -446,17 +474,26 @@ public class XmlComplexContentImpl extends XmlObjectBase {
             }
         }
 
+        // Get existing elements upfront to avoid O(n^2) from repeated find_element_user calls
+        List<XmlObject> existing = new ArrayList<>(m);
+        if (m > 0) {
+            if (set == null) {
+                store.find_all_element_users(elemName, existing);
+            } else {
+                store.find_all_element_users(set, existing);
+            }
+        }
+
         for (int i = 0; i < n; i++) {
-            TypeStoreUser user;
+            XmlObjectBase user;
 
             if (i >= m) {
-                user = store.add_element_user(elemName);
-            } else if (set == null) {
-                user = store.find_element_user(elemName, i);
+                user = (XmlObjectBase) store.add_element_user(elemName);
             } else {
-                user = store.find_element_user(set, i);
+                user = (XmlObjectBase) existing.get(i);
             }
-            fun.accept((XmlObjectBase) user, i);
+
+            fun.accept(user, i);
         }
     }
 
@@ -475,17 +512,26 @@ public class XmlComplexContentImpl extends XmlObjectBase {
             }
         }
 
+        // Get existing elements upfront to avoid O(n^2) from repeated find_element_user calls
+        List<XmlObject> existing = new ArrayList<>(m);
+        if (m > 0) {
+            if (set == null) {
+                store.find_all_element_users(elemName, existing);
+            } else {
+                store.find_all_element_users(set, existing);
+            }
+        }
+
         for (int i = 0; i < n; i++) {
-            TypeStoreUser user;
+            XmlObjectBase user;
 
             if (i >= m) {
-                user = store.add_element_user(elemName);
-            } else if (set == null) {
-                user = store.find_element_user(elemName, i);
+                user = (XmlObjectBase) store.add_element_user(elemName);
             } else {
-                user = store.find_element_user(set, i);
+                user = (XmlObjectBase) existing.get(i);
             }
-            c.accept((XmlObjectBase) user, sources[i]);
+
+            c.accept(user, sources[i]);
         }
     }
 }
