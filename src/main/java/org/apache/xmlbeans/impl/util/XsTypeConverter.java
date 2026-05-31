@@ -619,7 +619,7 @@ public final class XsTypeConverter {
 
         for (int i = 0; i < length - start; i++) {
             c = ch.charAt(i + start);
-            int v = Character.digit(c, 10);
+            int v = (c >= '0' && c <= '9') ? c - '0' : -1;
 
             if (v < 0) {
                 throw new NumberFormatException("For input string: \"" + ch.toString() + "\"");
