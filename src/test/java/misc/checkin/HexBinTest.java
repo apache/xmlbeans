@@ -25,6 +25,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Locale;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class HexBinTest {
 
@@ -34,6 +35,15 @@ public class HexBinTest {
         String enc = HexBin.encode(exp);
         String dec = HexBin.decode(enc);
         assertEquals(exp, dec);
+    }
+
+    @Test
+    void testInvalidHighByte() {
+        // 0xFF is not a hex digit; decode must report it like any other invalid
+        // input (null) instead of indexing past the lookup table.
+        assertNull(HexBin.decode(new byte[]{(byte) 0xFF, (byte) 0xFF}));
+        assertNull(HexBin.decode(new String(new byte[]{(byte) 0xFF, (byte) 0xFF},
+                StandardCharsets.ISO_8859_1)));
     }
 
     @Test
