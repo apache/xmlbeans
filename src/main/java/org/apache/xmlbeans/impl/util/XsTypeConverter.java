@@ -619,7 +619,7 @@ public final class XsTypeConverter {
 
         for (int i = 0; i < length - start; i++) {
             c = ch.charAt(i + start);
-            int v = Character.digit(c, 10);
+            int v = (c >= '0' && c <= '9') ? c - '0' : -1;
 
             if (v < 0) {
                 throw new NumberFormatException("For input string: \"" + ch.toString() + "\"");
@@ -638,7 +638,7 @@ public final class XsTypeConverter {
     // ======================== anyURI ========================
 
     /**
-     * Checkes the regular expression of URI, defined by RFC2369 http://www.ietf.org/rfc/rfc2396.txt Appendix B.
+     * Checks the regular expression of URI, defined by RFC2369 http://www.ietf.org/rfc/rfc2396.txt Appendix B.
      * Note: The whitespace normalization rule collapse must be applied priot to calling this method.
      *
      * @param lexical_value the lexical value
