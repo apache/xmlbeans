@@ -55,4 +55,20 @@ public class XsTypeConverterTest {
         assertThrows(NumberFormatException.class, () -> XsTypeConverter.lexByte(FULLWIDTH_123));
         assertThrows(NumberFormatException.class, () -> XsTypeConverter.lexByte(ARABIC_123));
     }
+
+    @Test
+    void lexFloatRejectsLoneTrailingF() {
+        // a single "f"/"F" used to read charAt(length - 2) and throw
+        // StringIndexOutOfBoundsException instead of NumberFormatException
+        assertThrows(NumberFormatException.class, () -> XsTypeConverter.lexFloat("f"));
+        assertThrows(NumberFormatException.class, () -> XsTypeConverter.lexFloat("F"));
+        assertThrows(NumberFormatException.class, () -> XsTypeConverter.lexFloat("1.0f"));
+    }
+
+    @Test
+    void lexFloatAcceptsValidValues() {
+        assertEquals(1.5f, XsTypeConverter.lexFloat("1.5"));
+        assertEquals(Float.POSITIVE_INFINITY, XsTypeConverter.lexFloat("INF"));
+        assertEquals(Float.NEGATIVE_INFINITY, XsTypeConverter.lexFloat("-INF"));
+    }
 }

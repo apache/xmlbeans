@@ -51,7 +51,7 @@ public final class XsTypeConverter {
             if (cs.length() > 0) {
                 char ch = cs.charAt(cs.length() - 1);
                 if (ch == 'f' || ch == 'F') {
-                    if (cs.charAt(cs.length() - 2) != 'N') {
+                    if (cs.length() < 2 || cs.charAt(cs.length() - 2) != 'N') {
                         throw new NumberFormatException("Invalid char '" + ch + "' in float.");
                     }
                 }
