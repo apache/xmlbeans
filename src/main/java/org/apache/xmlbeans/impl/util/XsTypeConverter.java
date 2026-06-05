@@ -48,12 +48,10 @@ public final class XsTypeConverter {
             //current jdk impl of parseFloat calls trim() on the string.
             //Any other space is illegal anyway, whether there are one or more spaces.
             //so no need to do a collapse pass through the string.
-            if (cs.length() > 0) {
+            if (cs.length() > 1) {
                 char ch = cs.charAt(cs.length() - 1);
-                if (ch == 'f' || ch == 'F') {
-                    if (cs.charAt(cs.length() - 2) != 'N') {
-                        throw new NumberFormatException("Invalid char '" + ch + "' in float.");
-                    }
+                if ((ch == 'f' || ch == 'F') && cs.charAt(cs.length() - 2) != 'N') {
+                    throw new NumberFormatException("Invalid char '" + ch + "' in float.");
                 }
             }
             return Float.parseFloat(v);
