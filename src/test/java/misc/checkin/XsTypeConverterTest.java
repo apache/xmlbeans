@@ -55,4 +55,25 @@ public class XsTypeConverterTest {
         assertThrows(NumberFormatException.class, () -> XsTypeConverter.lexByte(FULLWIDTH_123));
         assertThrows(NumberFormatException.class, () -> XsTypeConverter.lexByte(ARABIC_123));
     }
+
+    @Test
+    void lexFloatRejectsSingleCharSuffix() {
+        // a lone "f"/"F" used to read charAt(-1) and throw
+        // StringIndexOutOfBoundsException instead of NumberFormatException.
+        assertThrows(NumberFormatException.class, () -> XsTypeConverter.lexFloat("f"));
+        assertThrows(NumberFormatException.class, () -> XsTypeConverter.lexFloat("F"));
+    }
+
+    @Test
+    void lexFloatRejectsJavaFloatSuffix() {
+        assertThrows(NumberFormatException.class, () -> XsTypeConverter.lexFloat("1.0f"));
+        assertThrows(NumberFormatException.class, () -> XsTypeConverter.lexFloat("1.0F"));
+    }
+
+    @Test
+    void lexFloatAcceptsValidValues() {
+        assertEquals(1.0f, XsTypeConverter.lexFloat("1.0"));
+        assertEquals(Float.POSITIVE_INFINITY, XsTypeConverter.lexFloat("INF"));
+        assertEquals(Float.NEGATIVE_INFINITY, XsTypeConverter.lexFloat("-INF"));
+    }
 }
