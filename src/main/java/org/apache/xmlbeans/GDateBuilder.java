@@ -1120,7 +1120,6 @@ public final class GDateBuilder implements GDateSpecification, java.io.Serializa
      * True for leap years.
      */
     private static boolean _isLeapYear(int year) {
-        // BUGBUG: Julian calendar?
         return ((year % 4 == 0) && ((year % 100 != 0) || (year % 400 == 0)));
     }
 
