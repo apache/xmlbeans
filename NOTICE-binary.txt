@@ -40,21 +40,23 @@
     Graphics Corp that has been kindly donated to the Apache Software
     Foundation.
 
-    Apache Commons Codec
-    Copyright 2002-2020 The Apache Software Foundation
+    Apache Log4j
+    Copyright 1999-2024 Apache Software Foundation
 
     This product includes software developed at
     The Apache Software Foundation (http://www.apache.org/).
 
-    src/test/org/apache/commons/codec/language/DoubleMetaphoneTest.java
-    contains test data from http://aspell.net/test/orig/batch0.tab.
-    Copyright (C) 2002 Kevin Atkinson (kevina@gnu.org)
+    ResolverUtil.java
+    Copyright 2005-2006 Tim Fennell
 
-    ===============================================================================
+    Dumbster SMTP test server
+    Copyright 2004 Jason Paul Kitchen
 
-    The content of package org.apache.commons.codec.language.bm has been translated
-    from the original php source code available at http://stevemorse.org/phoneticinfo.htm
-    with permission from the original authors.
-    Original source copyright:
-    Copyright (c) 2008 Alexander Beider & Stephen P. Morse.
+    TypeUtil.java
+    Copyright 2002-2012 Ramnivas Laddad, Juergen Hoeller, Chris Beams
 
+picocli (http://picocli.info)
+Copyright 2017 Remko Popma
+
+TimeoutBlockingWaitStrategy.java and parts of Util.java
+Copyright 2011 LMAX Ltd.
