@@ -67,7 +67,7 @@ configurations {
 
 ext {
     antVersion = '1.10.15'
-    javaparserVersion = '3.28.0'
+    javaparserVersion = '3.28.2'
     log4jVersion = '2.26.0'
     saxonVersion = '12.9'
     androidSdkMinimum = '26'
