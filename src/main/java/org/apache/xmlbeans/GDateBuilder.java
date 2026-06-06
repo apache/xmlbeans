@@ -695,7 +695,7 @@ public final class GDateBuilder implements GDateSpecification, java.io.Serializa
                 int temp = _M;
                 _M = _modulo(temp, 1, 13);
                 if (hasYear()) {
-                    _CY = _CY + (int) _fQuotient(temp, 1, 13);
+                    _CY = Math.toIntExact(_CY + _fQuotient(temp, 1, 13));
                 }
             }
         }
@@ -787,7 +787,7 @@ public final class GDateBuilder implements GDateSpecification, java.io.Serializa
             // fix months first
             int temp = _M;
             _M = _modulo(temp, 1, 13);
-            _CY = _CY + (int) _fQuotient(temp, 1, 13);
+            _CY = Math.toIntExact(_CY + _fQuotient(temp, 1, 13));
 
             // then pull days out
             int extradays = _D - 1;
@@ -867,9 +867,10 @@ public final class GDateBuilder implements GDateSpecification, java.io.Serializa
             }
 
             // Add months and years
-            temp = _M + sign * month;
+            temp = Math.addExact(_M, Math.multiplyExact(sign, month));
             _M = _modulo(temp, 1, 13);
-            _CY = _CY + sign * year + (int) _fQuotient(temp, 1, 13);
+            _CY = Math.addExact(_CY, Math.multiplyExact(
+                    sign, Math.toIntExact(year + _fQuotient(temp, 1, 13))));
 
             // In new month, day may need to be pegged before proceeding
             if (hasDay()) {
@@ -1136,7 +1137,7 @@ public final class GDateBuilder implements GDateSpecification, java.io.Serializa
      * modulo(a, b) = a - fQuotient(a,b)*b
      */
     private static int _mod(long a, int b, long quotient) {
-        return (int) (a - quotient * b);
+        return Math.toIntExact(a - quotient * b);
     }
 
     /**

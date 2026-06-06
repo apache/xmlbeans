@@ -154,7 +154,7 @@ public abstract class JavaIntHolderEx extends JavaIntHolder {
             case SchemaType.SIZE_BIG_INTEGER:
                 return ((XmlObjectBase) o).getBigIntegerValue().intValue();
             case SchemaType.SIZE_LONG:
-                return (int) ((XmlObjectBase) o).getLongValue();
+                return Math.toIntExact(((XmlObjectBase) o).getLongValue());
             default:
                 return ((XmlObjectBase) o).getIntValue();
         }

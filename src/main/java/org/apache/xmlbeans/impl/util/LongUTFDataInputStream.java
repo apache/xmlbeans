@@ -68,7 +68,7 @@ public class LongUTFDataInputStream extends DataInputStream {
 
         final int[] readLen = { 0 }, readBuf = { 0 }, fillBuf = { 0 };
         while (readLen[0] < utfLen) {
-            int c = (int)give.onebyte(readBuf, fillBuf, readLen) & 0xff;
+            int c = Math.toIntExact(give.onebyte(readBuf, fillBuf, readLen) & 0xff);
             switch (c >> 4) {
                 case 0: case 1: case 2: case 3: case 4: case 5: case 6: case 7:
                     /* 0xxxxxxx*/

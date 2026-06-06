@@ -15,6 +15,8 @@
 
 package org.apache.xmlbeans;
 
+import org.apache.xmlbeans.impl.util.MathUtil;
+
 import javax.xml.namespace.QName;
 
 /**
@@ -47,7 +49,7 @@ public final class QNameCache
     
         this.loadFactor = loadFactor;
         this.hashmask = capacity - 1;
-        threshold = (int)(capacity * loadFactor);
+        threshold = MathUtil.safeFloatToInt(capacity * loadFactor);
         table = new QName[capacity];
     }
 
@@ -126,7 +128,7 @@ public final class QNameCache
 
         table = newTable;
         hashmask = newHashmask;
-        threshold = (int) (newLength * loadFactor);
+        threshold = MathUtil.safeFloatToInt(newLength * loadFactor);
     }
     
     private static int hash(String uri, String localName, String prefix)

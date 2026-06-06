@@ -322,7 +322,7 @@ public class GDurationBuilder implements GDurationSpecification, java.io.Seriali
      * modulo(a, b) = a - fQuotient(a,b)*b
      */
     private static int _mod(long a, int b, long quotient) {
-        return (int) (a - quotient * b);
+        return Math.toIntExact(a - quotient * b);
     }
 
 

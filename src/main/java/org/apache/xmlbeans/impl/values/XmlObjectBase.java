@@ -15,6 +15,7 @@
 
 package org.apache.xmlbeans.impl.values;
 
+import net.sf.saxon.expr.Component;
 import org.apache.xmlbeans.*;
 import org.apache.xmlbeans.impl.common.*;
 import org.apache.xmlbeans.impl.schema.SchemaTypeImpl;
@@ -1379,7 +1380,7 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
         if (l < Integer.MIN_VALUE) {
             throw new XmlValueOutOfRangeException();
         }
-        return (int) l;
+        return Math.toIntExact(l);
     }
 
     private static final BigInteger _max = BigInteger.valueOf(Long.MAX_VALUE);
