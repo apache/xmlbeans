@@ -76,4 +76,17 @@ public class XsTypeConverterTest {
         assertEquals(Float.POSITIVE_INFINITY, XsTypeConverter.lexFloat("INF"));
         assertEquals(Float.NEGATIVE_INFINITY, XsTypeConverter.lexFloat("-INF"));
     }
+
+    @Test
+    void lexDecimalRejectsEmptyString() {
+        // an empty value used to read charAt(-1) in trimTrailingZeros and
+        // throw StringIndexOutOfBoundsException instead of NumberFormatException.
+        assertThrows(NumberFormatException.class, () -> XsTypeConverter.lexDecimal(""));
+    }
+
+    @Test
+    void lexDecimalTrimsTrailingZeros() {
+        assertEquals(0, new java.math.BigDecimal("1.5").compareTo(XsTypeConverter.lexDecimal("1.500")));
+        assertEquals(0, new java.math.BigDecimal("12").compareTo(XsTypeConverter.lexDecimal("12.000")));
+    }
 }
