@@ -869,7 +869,7 @@ public final class GDateBuilder implements GDateSpecification, java.io.Serializa
             // Add months and years
             temp = Math.addExact(_M, Math.multiplyExact(sign, month));
             _M = _modulo(temp, 1, 13);
-            _CY = _CY + sign * Math.toIntExact(year +  _fQuotient(temp, 1, 13));
+            _CY = _CY + sign * year + (int) _fQuotient(temp, 1, 13);
 
             // In new month, day may need to be pegged before proceeding
             if (hasDay()) {
