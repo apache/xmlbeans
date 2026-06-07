@@ -17,7 +17,7 @@
 
 buildscript {
     repositories {
-        maven { url 'https://plugins.gradle.org/m2/' }
+        maven { url = 'https://plugins.gradle.org/m2/' }
         mavenCentral()
     }
 
@@ -182,7 +182,7 @@ dependencies {
 }
 
 wrapper {
-    gradleVersion = '8.14.3'
+    gradleVersion = '8.14.4'
 }
 
 def extCP = files(configurations.testCompileClasspath + sourceSets.main.output.files + sourceSets.main.resources.srcDirs)
@@ -398,7 +398,7 @@ tasks.withType(AbstractArchiveTask).configureEach {
 def buildInfoFile = layout.buildDirectory.file("buildinfo/xmlbeans-${XMLBeansVersion}.buildinfo")
 
 task writeBuildInfo(type: WriteProperties) {
-    outputFile buildInfoFile
+    outputFile = buildInfoFile
     property 'Built-By', System.properties['user.name']
     property 'Build-Timestamp', new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ").format(new Date())
     property 'Created-By', "Gradle ${gradle.gradleVersion}"
@@ -409,7 +409,7 @@ task writeBuildInfo(type: WriteProperties) {
 jar.dependsOn 'writeBuildInfo'
 
 def buildInfoArtifact = artifacts.add('genresources', buildInfoFile.get().asFile) {
-    type 'buildinfo'
+    type = 'buildinfo'
 }
 
 rat {
@@ -529,9 +529,9 @@ distributions {
 publishing {
     publications {
         POI(MavenPublication) {
-            groupId 'org.apache.xmlbeans'
-            artifactId project.archivesBaseName
-            version XMLBeansVersion
+            groupId = 'org.apache.xmlbeans'
+            artifactId = project.archivesBaseName
+            version = XMLBeansVersion
 
             from components.java
             artifact buildInfoArtifact
@@ -676,7 +676,7 @@ if (project.hasProperty('enableSonar')) {
 
 
 jacoco {
-    toolVersion = '0.8.13'
+    toolVersion = '0.8.14'
 }
 
 test {
