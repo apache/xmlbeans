@@ -46,6 +46,9 @@ abstract class Saver {
 
     private SaveCur _cur;
 
+    protected boolean _isTopLevelElement = true;
+    protected final Map<String, String> _extraNamespaces;
+
     private List<String> _ancestorNamespaces;
     private final Map<String, String> _suggestedPrefixes;
     protected XmlOptionCharEscapeMap _replaceChar;
@@ -135,6 +138,8 @@ abstract class Saver {
         _suggestedPrefixes = options.getSaveSuggestedPrefixes();
 
         _ancestorNamespaces = _cur.getAncestorNamespaces();
+
+        _extraNamespaces = options.getSaveExtraNamespaces();
     }
 
     private static SaveCur createSaveCur(Cur c, XmlOptions options) {
@@ -287,10 +292,12 @@ abstract class Saver {
         switch (_cur.kind()) {
             case ROOT: {
                 processRoot();
+                _isTopLevelElement = true;
                 break;
             }
             case ELEM: {
                 processElement();
+                _isTopLevelElement = false;
                 break;
             }
             case -ELEM: {
@@ -899,6 +906,8 @@ abstract class Saver {
                 emitNamespacesHelper();
             }
 
+            emitExtraNamespacesHelper();
+
             for (int i = 0; i < attrNames.size(); i++) {
                 emitAttrHelper(attrNames.get(i), attrValues.get(i));
             }
@@ -941,6 +950,17 @@ abstract class Saver {
             entitizeAttrValue(false);
 
             emit('"');
+        }
+
+        private void emitExtraNamespacesHelper() {
+            if (!_isTopLevelElement || null == _extraNamespaces)
+                return;
+            
+            for (Map.Entry<String, String> nsEntry : _extraNamespaces.entrySet()) {
+                emit(' ');
+                emitXmlns(nsEntry.getKey(), nsEntry.getValue());
+            }
+            
         }
 
         private void emitNamespacesHelper() {
@@ -1853,6 +1873,8 @@ abstract class Saver {
             emit('<');
             emitName(c.getName(), false);
 
+            emitExtraNamespacesHelper();
+
             for (int i = 0; i < attrNames.size(); i++) {
                 emitAttrHelper(attrNames.get(i), attrValues.get(i));
             }
@@ -1899,6 +1921,15 @@ abstract class Saver {
             for (iterateMappings(); hasMapping(); nextMapping()) {
                 emit(' ');
                 emitXmlns(mappingPrefix(), mappingUri());
+            }
+        }
+
+        private void emitExtraNamespacesHelper() {
+            if (!_isTopLevelElement || null == _extraNamespaces)
+                return;
+            for (Map.Entry<String, String> nsEntry : _extraNamespaces.entrySet()) {
+                emit(' ');
+                emitXmlns(nsEntry.getKey(), nsEntry.getValue());
             }
         }
 
@@ -2578,6 +2609,15 @@ abstract class Saver {
             return prefix + ":" + local;
         }
 
+        private void emitExtraNamespacesHelper() {
+            if (!_isTopLevelElement || null == _extraNamespaces|| !_nsAsAttrs)
+                return;
+            for (Map.Entry<String, String> nsEntry : _extraNamespaces.entrySet()) {
+                String prefix = nsEntry.getKey();
+                _attributes.addAttribute("http://www.w3.org/2000/xmlns/", prefix, "xmlns:" + prefix , "CDATA", nsEntry.getValue());
+            }
+        }
+
         private void emitNamespacesHelper() {
             for (iterateMappings(); hasMapping(); nextMapping()) {
                 String prefix = mappingPrefix();
@@ -2606,6 +2646,8 @@ abstract class Saver {
             if (saveNamespacesFirst()) {
                 emitNamespacesHelper();
             }
+
+            emitExtraNamespacesHelper();
 
             for (int i = 0; i < attrNames.size(); i++) {
                 QName name = attrNames.get(i);
