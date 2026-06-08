@@ -182,11 +182,11 @@ public class XMLStreamReaderExtImpl
         throws XMLStreamException, InvalidLexicalValueException {
         _charSeq.reload(CharSeqTrimWS.XMLWHITESPACE_TRIM);
         String text = _charSeq.toString();
-        byte[] buf = Base64.getMimeDecoder().decode(text.getBytes(StandardCharsets.ISO_8859_1));
-        if (buf != null) {
+        try {
+            byte[] buf = Base64.getMimeDecoder().decode(text.getBytes(StandardCharsets.ISO_8859_1));
             return new ByteArrayInputStream(buf);
-        } else {
-            throw new InvalidLexicalValueException("invalid base64Binary value", _charSeq.getLocation());
+        } catch (IllegalArgumentException e) {
+            throw new InvalidLexicalValueException("invalid base64Binary value", e, _charSeq.getLocation());
         }
     }
 
@@ -332,11 +332,11 @@ public class XMLStreamReaderExtImpl
 
     public InputStream getAttributeBase64Value(int index) throws XMLStreamException {
         String text = _charSeq.reloadAtt(index, CharSeqTrimWS.XMLWHITESPACE_TRIM).toString();
-        byte[] buf = Base64.getMimeDecoder().decode(text.getBytes(StandardCharsets.ISO_8859_1));
-        if (buf != null) {
+        try {
+            byte[] buf = Base64.getMimeDecoder().decode(text.getBytes(StandardCharsets.ISO_8859_1));
             return new ByteArrayInputStream(buf);
-        } else {
-            throw new InvalidLexicalValueException("invalid base64Binary value", _charSeq.getLocation());
+        } catch (IllegalArgumentException e) {
+            throw new InvalidLexicalValueException("invalid base64Binary value", e, _charSeq.getLocation());
         }
     }
 
@@ -486,11 +486,11 @@ public class XMLStreamReaderExtImpl
     public InputStream getAttributeBase64Value(String uri, String local) throws XMLStreamException {
         CharSequence cs = _charSeq.reloadAtt(uri, local, CharSeqTrimWS.XMLWHITESPACE_TRIM);
         String text = cs.toString();
-        byte[] buf = Base64.getMimeDecoder().decode(text.getBytes(StandardCharsets.ISO_8859_1));
-        if (buf != null) {
+        try {
+            byte[] buf = Base64.getMimeDecoder().decode(text.getBytes(StandardCharsets.ISO_8859_1));
             return new ByteArrayInputStream(buf);
-        } else {
-            throw new InvalidLexicalValueException("invalid base64Binary value", _charSeq.getLocation());
+        } catch (IllegalArgumentException e) {
+            throw new InvalidLexicalValueException("invalid base64Binary value", e, _charSeq.getLocation());
         }
     }
 
