@@ -16,6 +16,7 @@
 package misc.checkin;
 
 import org.apache.xmlbeans.*;
+import org.apache.xmlbeans.impl.common.InvalidLexicalValueException;
 import org.apache.xmlbeans.impl.richParser.XMLStreamReaderExt;
 import org.apache.xmlbeans.impl.richParser.XMLStreamReaderExtImpl;
 import org.junit.jupiter.api.Test;
@@ -36,6 +37,7 @@ import java.util.Calendar;
 import java.util.Date;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 
 /**
@@ -64,6 +66,34 @@ public class RichParserTests {
                     break;
             }
         }
+    }
+
+    @Test
+    void testInvalidBase64ThrowsInvalidLexicalValue() throws Exception {
+        // "A" is a single base64 char, the MIME decoder rejects it with
+        // IllegalArgumentException. The rich parser must surface that as the
+        // documented InvalidLexicalValueException, like the other getters.
+        XMLStreamReaderExt elem = atFirstStartElement("<a>A</a>");
+        assertThrows(InvalidLexicalValueException.class, elem::getBase64Value);
+
+        XMLStreamReaderExt attByIndex = atFirstStartElement("<a b=\"A\"/>");
+        assertThrows(InvalidLexicalValueException.class, () -> attByIndex.getAttributeBase64Value(0));
+
+        XMLStreamReaderExt attByName = atFirstStartElement("<a b=\"A\"/>");
+        assertThrows(InvalidLexicalValueException.class, () -> attByName.getAttributeBase64Value("", "b"));
+    }
+
+    private static XMLStreamReaderExt atFirstStartElement(String xml) throws Exception {
+        XMLStreamReader xsr = XmlObject.Factory.parse(xml).newXMLStreamReader();
+        XMLStreamReaderExt ext = new XMLStreamReaderExtImpl(xsr);
+        int evt = ext.getEventType();
+        while (evt != XMLEvent.START_ELEMENT && ext.hasNext()) {
+            evt = ext.next();
+        }
+        if (evt != XMLEvent.START_ELEMENT) {
+            throw new IllegalStateException("no start element in: " + xml);
+        }
+        return ext;
     }
 
     private static final String[] strings = {
