@@ -1098,7 +1098,7 @@ public final class GDateBuilder implements GDateSpecification, java.io.Serializa
     static Date dateForGDate(GDateSpecification date) {
         long jDate = julianDateForGDate(date);
         long to1970Date = jDate - 2440588;
-        long to1970Ms = 1000 * 60 * 60 * 24 * to1970Date;
+        long to1970Ms = Math.multiplyExact(1000 * 60 * 60 * 24, to1970Date);
 
         to1970Ms += date.getMillisecond();
         to1970Ms += date.getSecond() * 1000L;
