@@ -399,7 +399,7 @@ public final class XsTypeConverter {
             prefix = charSeq.subSequence(0, firstcolon).toString();
             localname = charSeq.subSequence(firstcolon + 1, charSeq.length()).toString();
             if (firstcolon == 0) {
-                throw new InvalidLexicalValueException("invalid xsd:QName '" + charSeq.toString() + "'");
+                throw new InvalidLexicalValueException("invalid xsd:QName '" + charSeq + "'");
             }
         } else {
             prefix = EMPTY_PREFIX;
@@ -590,7 +590,7 @@ public final class XsTypeConverter {
         // int parser on a CharSequence
         int length = ch.length();
         if (length < 1) {
-            throw new NumberFormatException("For input string: \"" + ch.toString() + "\"");
+            throw new NumberFormatException("For input string: \"" + ch + "\"");
         }
 
         int sign = 1;
@@ -620,17 +620,17 @@ public final class XsTypeConverter {
             int v = (c >= '0' && c <= '9') ? c - '0' : -1;
 
             if (v < 0) {
-                throw new NumberFormatException("For input string: \"" + ch.toString() + "\"");
+                throw new NumberFormatException("For input string: \"" + ch + "\"");
             }
 
             if (result < limit || (result == limit && v > limit2)) {
-                throw new NumberFormatException("For input string: \"" + ch.toString() + "\"");
+                throw new NumberFormatException("For input string: \"" + ch + "\"");
             }
 
-            result = result * 10 - v;
+            result = Math.toIntExact(result * 10L - v);
         }
 
-        return sign * result;
+        return Math.multiplyExact(sign, result);
     }
 
     // ======================== anyURI ========================

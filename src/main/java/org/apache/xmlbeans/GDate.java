@@ -151,7 +151,11 @@ public final class GDate implements GDateSpecification, java.io.Serializable {
                         throw new IllegalArgumentException("year value starting with zero must be 4 or less digits: " + string);
                     }
 
-                    value = value * 10 + digitVal(ch);
+                    long newValue = value * 10L + digitVal(ch);
+                    if (newValue > Integer.MAX_VALUE) {
+                        throw new IllegalArgumentException("date value causes overflow: " + string);
+                    }
+                    value = Math.toIntExact(newValue);
                     start += 1;
                 }
                 digits += start;
