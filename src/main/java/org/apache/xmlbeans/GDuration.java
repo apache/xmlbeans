@@ -120,7 +120,10 @@ public final class GDuration implements GDurationSpecification, java.io.Serializ
                 ch = (start < len) ? str.charAt(start) : '\0';
                 if (!GDate.isDigit(ch))
                     break;
-                value = value * 10 + GDate.digitVal(ch);
+                int digit = GDate.digitVal(ch);
+                if (value > (Integer.MAX_VALUE - digit) / 10)
+                    throw new IllegalArgumentException("duration field value out of range: " + str);
+                value = value * 10 + digit;
             }
             if (ch == '.')
             {

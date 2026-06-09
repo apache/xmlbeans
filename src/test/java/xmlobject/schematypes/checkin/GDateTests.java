@@ -108,6 +108,11 @@ public class GDateTests {
         "-P1Y1M1DT1H-1M1.1S",
         "-PT-0.1S",
         "-PT-0.1415926S",
+
+        "PT2147483648S", // overflow: Integer.MAX_VALUE + 1
+        "PT4294967296S", // overflow
+        "P4294967296Y", // overflow
+        "PT10000000000S", // overflow
     };
 
     private static final String[] invalidDates = {
