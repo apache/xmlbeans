@@ -118,6 +118,7 @@ public final class SOAPArrayType {
             _ranks = EMPTY_INT_ARRAY;
             dimensions = XmlWhitespace.collapse(dimensions, XmlWhitespace.WS_COLLAPSE);
             String[] dimStrings = dimensions.split(" ");
+            _dimensions = new int[dimStrings.length];
             for (int i = 0; i < dimStrings.length; i++) {
                 String dimString = dimStrings[i];
                 if (dimString.equals("*")) {
