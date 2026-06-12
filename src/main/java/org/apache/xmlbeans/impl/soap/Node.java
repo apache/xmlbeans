@@ -24,7 +24,7 @@ package org.apache.xmlbeans.impl.soap;
 public interface Node extends org.w3c.dom.Node {
 
     /**
-     * Returns the the value of the immediate child of this {@code Node}
+     * Returns the value of the immediate child of this {@code Node}
      * object if a child exists and its value is text.
      * @return  a {@code String} with the text of the immediate child of
      *    this {@code Node} object if (1) there is a child and

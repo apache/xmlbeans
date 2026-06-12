@@ -95,7 +95,7 @@ public interface SOAPHeader extends SOAPElement {
     /**
      * Returns a list of all the {@code SOAPHeaderElement}
      *   objects in this {@code SOAPHeader} object that have
-     *   the the specified actor and detaches them from this {@code
+     *   the specified actor and detaches them from this {@code
      *   SOAPHeader} object.
      *
      *   <P>This method allows an actor to process only the parts of

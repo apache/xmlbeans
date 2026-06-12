@@ -545,7 +545,7 @@ public class XMLBean extends MatchingTask {
     }
 
     /**
-     * Sets the the name of the javac executable.
+     * Sets the name of the javac executable.
      *
      * <p>Ignored unless fork is true or extJavac has been specified
      * as the compiler.</p>

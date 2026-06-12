@@ -6,7 +6,7 @@ Requirements:
 * Ensure  JAVA_HOME and ANT_HOME (Requires Ant 1.6 or higher) are set up in your environment
 
 
-BUILING AND RUNNING CHECKIN TESTS:
+BUILDING AND RUNNING CHECKIN TESTS:
 (NOTE: does not perform a checkin, just runs tests)
 It is recommended that you call at least clean.tests before a checkintest run.
 

@@ -15,6 +15,8 @@
 
 package org.apache.xmlbeans;
 
+import static org.apache.xmlbeans.impl.util.StringUtil.equalsIgnoreCase;
+
 /**
  * This class is used to attach arbitrary information to an XML
  * document.  It also defines several well-known types of
@@ -81,7 +83,7 @@ public abstract class XmlDocumentProperties
      */
     public boolean getStandalone ( ) {
         Object flag = get( STANDALONE );
-        return flag != null && flag.toString().equalsIgnoreCase("true");
+        return flag != null && equalsIgnoreCase(flag.toString(), "true");
     }
 
     /**
