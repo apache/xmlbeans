@@ -31,7 +31,7 @@ import java.io.File;
  * <p>
  * Since every component is defined in a single SchemaTypeSystem, no
  * SchemaTypeSystem other than {@link XmlBeans#getBuiltinTypeSystem()}
- * includes any of the the built-in types.  That means
+ * includes any of the built-in types.  That means
  * you cannot ordinarily load instances using a single
  * SchemaTypeSystem by itself. Instead, you will want to combine a path of
  * SchemaTypeSystems together using {@link XmlBeans#typeLoaderUnion}

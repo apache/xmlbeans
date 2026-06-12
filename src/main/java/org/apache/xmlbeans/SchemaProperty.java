@@ -27,7 +27,7 @@ import java.math.BigInteger;
  * can only be defined once, so each attribute obviously is a coherent
  * group on its own.
  * <p>
- * A SchemaProperty represents a summary of the the elements with a
+ * A SchemaProperty represents a summary of the elements with a
  * given name or the attribute with a given name.  It represents the
  * summary cardinality of the fields, the summary default and fixed
  * values, and so on.  When inferring information about an element

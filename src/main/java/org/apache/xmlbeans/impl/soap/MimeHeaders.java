@@ -18,6 +18,8 @@ package org.apache.xmlbeans.impl.soap;
 import java.util.Iterator;
 import java.util.Vector;
 
+import static org.apache.xmlbeans.impl.util.StringUtil.equalsIgnoreCase;
+
 /**
  * A container for {@code MimeHeader} objects, which
  *   represent the MIME headers present in a MIME part of a
@@ -48,7 +50,7 @@ public class MimeHeaders {
                 }
 
                 for (String name : names) {
-                    if (!mimeheader.getName().equalsIgnoreCase(name)) {
+                    if (!equalsIgnoreCase(mimeheader.getName(), name)) {
                         continue;
                     }
 
@@ -133,13 +135,13 @@ public class MimeHeaders {
      */
     public String[] getHeader(String name) {
 
-        Vector vector = new Vector<>();
+        Vector<String> vector = new Vector<>();
 
         for (int i = 0; i < headers.size(); i++) {
             MimeHeader mimeheader = headers.elementAt(i);
 
-            if (mimeheader.getName().equalsIgnoreCase(name)
-                    && (mimeheader.getValue() != null)) {
+            if (equalsIgnoreCase(mimeheader.getName(), name)
+                    && mimeheader.getValue() != null) {
                 vector.addElement(mimeheader.getValue());
             }
         }
@@ -184,7 +186,7 @@ public class MimeHeaders {
         for (int i = 0; i < headers.size(); i++) {
             MimeHeader mimeheader = headers.elementAt(i);
 
-            if (mimeheader.getName().equalsIgnoreCase(name)) {
+            if (equalsIgnoreCase(mimeheader.getName(), name)) {
                 if (!flag) {
                     headers.setElementAt(new MimeHeader(mimeheader
                         .getName(), value), i);
@@ -228,7 +230,7 @@ public class MimeHeaders {
         for (int j = i - 1; j >= 0; j--) {
             MimeHeader mimeheader = headers.elementAt(j);
 
-            if (mimeheader.getName().equalsIgnoreCase(name)) {
+            if (equalsIgnoreCase(mimeheader.getName(), name)) {
                 headers.insertElementAt(new MimeHeader(name, value), j + 1);
 
                 return;
@@ -240,16 +242,16 @@ public class MimeHeaders {
 
     /**
      * Remove all {@code MimeHeader} objects whose name
-     * matches the the given name.
+     * matches the given name.
      * @param  name  a {@code String} with the
      *     name of the header for which to search
      */
     public void removeHeader(String name) {
 
         for (int i = 0; i < headers.size(); i++) {
-            MimeHeader mimeheader = (MimeHeader) headers.elementAt(i);
+            MimeHeader mimeheader = headers.elementAt(i);
 
-            if (mimeheader.getName().equalsIgnoreCase(name)) {
+            if (equalsIgnoreCase(mimeheader.getName(), name)) {
                 headers.removeElementAt(i--);
             }
         }

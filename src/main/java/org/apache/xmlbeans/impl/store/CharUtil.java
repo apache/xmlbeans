@@ -455,7 +455,7 @@ public final class CharUtil {
         int cchMore = cchSave - cchAlloc;
 
         if (cchMore > 0) {
-            // If we're here the the buffer got consumed.  So, this time it must allocate a new
+            // If we're here the buffer got consumed.  So, this time it must allocate a new
             // buffer capable of containing all of the remaining text (no matter how large) and
             // return the beginning part of it.
 

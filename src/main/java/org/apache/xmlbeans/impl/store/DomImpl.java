@@ -34,6 +34,8 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
+import static org.apache.xmlbeans.impl.util.StringUtil.equalsIgnoreCase;
+
 // DOM Level 3
 
 public final class DomImpl {
@@ -598,16 +600,16 @@ public final class DomImpl {
             return false;
         }
 
-        if (version != null && version.length() > 0 &&
+        if (version != null && !version.isEmpty() &&
             !version.equals("1.0") && !version.equals("2.0")) {
             return false;
         }
 
-        if (feature.equalsIgnoreCase("core")) {
+        if (equalsIgnoreCase(feature, "core")) {
             return true;
         }
 
-        return feature.equalsIgnoreCase("xml");
+        return equalsIgnoreCase(feature, "xml");
     }
 
     //////////////////////////////////////////////////////////////////////////////////////

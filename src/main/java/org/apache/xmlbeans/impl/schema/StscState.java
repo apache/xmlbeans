@@ -33,6 +33,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.function.Consumer;
 
+import static org.apache.xmlbeans.impl.util.StringUtil.equalsIgnoreCase;
+
 /**
  * This class represents the state of the SchemaTypeSystemCompiler as it's
  * going.
@@ -428,14 +430,14 @@ public class StscState {
 
         try {
             URI uri = new URI(uriString);
-            if (uri.getScheme().equalsIgnoreCase("jar") ||
-                uri.getScheme().equalsIgnoreCase("zip")) {
+            if (equalsIgnoreCase(uri.getScheme(), "jar") ||
+                    equalsIgnoreCase(uri.getScheme(), "zip")) {
                 // It may be local or not, depending on the embedded URI
                 String s = uri.getSchemeSpecificPart();
                 int i = s.lastIndexOf('!');
                 return shouldDownloadURI(i > 0 ? s.substring(0, i) : s);
             }
-            return uri.getScheme().equalsIgnoreCase("file");
+            return equalsIgnoreCase(uri.getScheme(), "file");
         } catch (Exception e) {
             return false;
         }

@@ -33,7 +33,7 @@ import static org.w3c.domts.DOMTest.load;
 /**
  * The "getOwnerElement()" will return the Element node this attribute is attached to or
  * null if this attribute is not in use.
- * Retreive the default attribute defaultAttr and check its owner element.  Verify if the name
+ * Retrieve the default attribute defaultAttr and check its owner element.  Verify if the name
  * the nodeName of the returned ownerElement is emp:employee.
  *
  * @see <a href="http://www.w3.org/TR/DOM-Level-2-Core/core#Attr-ownerElement">http://www.w3.org/TR/DOM-Level-2-Core/core#Attr-ownerElement</a>

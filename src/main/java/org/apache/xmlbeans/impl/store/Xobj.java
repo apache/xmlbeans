@@ -1382,7 +1382,7 @@ abstract class Xobj implements TypeStore {
      * with a return value of null, which indicates an illegal
      * state, where there is no mapping for the given prefix.
      * <p>
-     * If the the default namespace is not explicitly mapped in the xml,
+     * If the default namespace is not explicitly mapped in the xml,
      * the xml spec says that it should be mapped to the no-namespace.
      * When the 'defaultAlwaysMapped' parameter is true, the default namepsace
      * will return the no-namespace even if it is not explicity

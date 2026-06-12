@@ -48,6 +48,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
 
+import static org.apache.xmlbeans.impl.util.StringUtil.equalsIgnoreCase;
 import static org.apache.xmlbeans.impl.values.TypeStore.*;
 
 @SuppressWarnings("SynchronizationOnLocalVariableOrMethodParameter")
@@ -2183,7 +2184,7 @@ public final class Locale
                 // as most documents are either without schema or based on xml schema
                 // which ID attributes aren't promoted by the SAXParser, the workaround
                 // is to simply accept all "id" attributes
-                return "id".equalsIgnoreCase(aqn.getLocalPart());
+                return equalsIgnoreCase("id", aqn.getLocalPart());
             }
             String pre = aqn.getPrefix();
             String lName = aqn.getLocalPart();

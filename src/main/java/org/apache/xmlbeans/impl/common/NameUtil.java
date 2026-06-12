@@ -18,6 +18,8 @@ package org.apache.xmlbeans.impl.common;
 import javax.xml.namespace.QName;
 import java.util.*;
 
+import static org.apache.xmlbeans.impl.util.StringUtil.equalsIgnoreCase;
+
 public class NameUtil {
     // punctuation characters
     public final static char HYPHEN = '\u002D';
@@ -436,7 +438,7 @@ public class NameUtil {
 
         // JAXB draft example implies removal of www
         if (result.size() >= 3 &&
-            result.get(result.size() - 1).toLowerCase(Locale.ROOT).equals("www")) {
+            equalsIgnoreCase(result.get(result.size() - 1), "www")) {
             result.remove(result.size() - 1);
         }
 
@@ -450,7 +452,7 @@ public class NameUtil {
         if (i > 0 && (
             i + 1 + 2 == filename.length() ||
             i + 1 + 3 == filename.length() ||
-            "html".equals(filename.substring(i + 1).toLowerCase(Locale.ROOT)))) {
+            equalsIgnoreCase("html", filename.substring(i + 1)))) {
             return filename.substring(0, i);
         }
 
