@@ -43,25 +43,25 @@ public final class XsTypeConverter {
     public static float lexFloat(CharSequence cs)
         throws NumberFormatException {
         final String v = cs.toString();
-        if (v.equals(POS_INF_LEX)) {
-            return Float.POSITIVE_INFINITY;
+        switch (v) {
+            case POS_INF_LEX:
+                return Float.POSITIVE_INFINITY;
+            case NEG_INF_LEX:
+                return Float.NEGATIVE_INFINITY;
+            case NAN_LEX:
+                return Float.NaN;
+            default:
+                //current jdk impl of parseFloat calls trim() on the string.
+                //Any other space is illegal anyway, whether there are one or more spaces.
+                //so no need to do a collapse pass through the string.
+                if (cs.length() > 1) {
+                    char ch = cs.charAt(cs.length() - 1);
+                    if ((ch == 'f' || ch == 'F') && cs.charAt(cs.length() - 2) != 'N') {
+                        throw new NumberFormatException("Invalid char '" + ch + "' in float.");
+                    }
+                }
+                return Float.parseFloat(v);
         }
-        if (v.equals(NEG_INF_LEX)) {
-            return Float.NEGATIVE_INFINITY;
-        }
-        if (v.equals(NAN_LEX)) {
-            return Float.NaN;
-        }
-        //current jdk impl of parseFloat calls trim() on the string.
-        //Any other space is illegal anyway, whether there are one or more spaces.
-        //so no need to do a collapse pass through the string.
-        if (cs.length() > 1) {
-            char ch = cs.charAt(cs.length() - 1);
-            if ((ch == 'f' || ch == 'F') && cs.charAt(cs.length() - 2) != 'N') {
-                throw new NumberFormatException("Invalid char '" + ch + "' in float.");
-            }
-        }
-        return Float.parseFloat(v);
     }
 
     public static float lexFloat(CharSequence cs, Collection<XmlError> errors) {
@@ -92,25 +92,25 @@ public final class XsTypeConverter {
     public static double lexDouble(CharSequence cs)
         throws NumberFormatException {
         final String v = cs.toString();
-        if (v.equals(POS_INF_LEX)) {
-            return Double.POSITIVE_INFINITY;
+        switch (v) {
+            case POS_INF_LEX:
+                return Double.POSITIVE_INFINITY;
+            case NEG_INF_LEX:
+                return Double.NEGATIVE_INFINITY;
+            case NAN_LEX:
+                return Double.NaN;
+            default:
+                //current jdk impl of parseDouble calls trim() on the string.
+                //Any other space is illegal anyway, whether there are one or more spaces.
+                //so no need to do a collapse pass through the string.
+                if (cs.length() > 0) {
+                    char ch = cs.charAt(cs.length() - 1);
+                    if (ch == 'd' || ch == 'D') {
+                        throw new NumberFormatException("Invalid char '" + ch + "' in double.");
+                    }
+                }
+                return Double.parseDouble(v);
         }
-        if (v.equals(NEG_INF_LEX)) {
-            return Double.NEGATIVE_INFINITY;
-        }
-        if (v.equals(NAN_LEX)) {
-            return Double.NaN;
-        }
-        //current jdk impl of parseDouble calls trim() on the string.
-        //Any other space is illegal anyway, whether there are one or more spaces.
-        //so no need to do a collapse pass through the string.
-        if (cs.length() > 0) {
-            char ch = cs.charAt(cs.length() - 1);
-            if (ch == 'd' || ch == 'D') {
-                throw new NumberFormatException("Invalid char '" + ch + "' in double.");
-            }
-        }
-        return Double.parseDouble(v);
     }
 
     public static double lexDouble(CharSequence cs, Collection<XmlError> errors) {
