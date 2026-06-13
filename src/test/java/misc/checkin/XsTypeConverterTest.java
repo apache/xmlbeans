@@ -75,6 +75,37 @@ public class XsTypeConverterTest {
         assertEquals(1.0f, XsTypeConverter.lexFloat("1.0"));
         assertEquals(Float.POSITIVE_INFINITY, XsTypeConverter.lexFloat("INF"));
         assertEquals(Float.NEGATIVE_INFINITY, XsTypeConverter.lexFloat("-INF"));
+        assertEquals(1500.0f, XsTypeConverter.lexFloat("1.5e3"));
+    }
+
+    @Test
+    void lexFloatRejectsNonXsdLexicalForms() {
+        // hex floats, the java "Infinity" spelling and the double suffix are
+        // accepted by Float.parseFloat but are outside the xsd:float lexical space
+        assertThrows(NumberFormatException.class, () -> XsTypeConverter.lexFloat("0x1p4"));
+        assertThrows(NumberFormatException.class, () -> XsTypeConverter.lexFloat("Infinity"));
+        assertThrows(NumberFormatException.class, () -> XsTypeConverter.lexFloat("-Infinity"));
+        assertThrows(NumberFormatException.class, () -> XsTypeConverter.lexFloat("1.0d"));
+        assertThrows(NumberFormatException.class, () -> XsTypeConverter.lexFloat("1D"));
+    }
+
+    @Test
+    void lexDoubleAcceptsValidValues() {
+        assertEquals(1.0, XsTypeConverter.lexDouble("1.0"));
+        assertEquals(Double.POSITIVE_INFINITY, XsTypeConverter.lexDouble("INF"));
+        assertEquals(Double.NEGATIVE_INFINITY, XsTypeConverter.lexDouble("-INF"));
+        assertEquals(1500.0, XsTypeConverter.lexDouble("1.5e3"));
+    }
+
+    @Test
+    void lexDoubleRejectsNonXsdLexicalForms() {
+        // hex floats, the java "Infinity" spelling and the float suffix are
+        // accepted by Double.parseDouble but are outside the xsd:double lexical space
+        assertThrows(NumberFormatException.class, () -> XsTypeConverter.lexDouble("0x1p4"));
+        assertThrows(NumberFormatException.class, () -> XsTypeConverter.lexDouble("Infinity"));
+        assertThrows(NumberFormatException.class, () -> XsTypeConverter.lexDouble("-Infinity"));
+        assertThrows(NumberFormatException.class, () -> XsTypeConverter.lexDouble("1.0f"));
+        assertThrows(NumberFormatException.class, () -> XsTypeConverter.lexDouble("1F"));
     }
 
     @Test
