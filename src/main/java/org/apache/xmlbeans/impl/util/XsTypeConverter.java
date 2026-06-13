@@ -34,7 +34,6 @@ public final class XsTypeConverter {
 
     private static final char NAMESPACE_SEP = ':';
     private static final String EMPTY_PREFIX = "";
-    private static final BigDecimal DECIMAL__ZERO = new BigDecimal(0.0);
 
     // See Section 2.4.3 of FRC2396  http://www.ietf.org/rfc/rfc2396.txt
     private static final String[] URI_CHARS_TO_BE_REPLACED = {" ", "{", "}", "|", "\\", "^", "[", "]", "`"};
