@@ -34,33 +34,66 @@ public final class XsTypeConverter {
 
     private static final char NAMESPACE_SEP = ':';
     private static final String EMPTY_PREFIX = "";
+    private static final BigDecimal DECIMAL__ZERO = new BigDecimal(0.0);
 
     // See Section 2.4.3 of FRC2396  http://www.ietf.org/rfc/rfc2396.txt
     private static final String[] URI_CHARS_TO_BE_REPLACED = {" ", "{", "}", "|", "\\", "^", "[", "]", "`"};
     private static final String[] URI_CHARS_REPLACED_WITH = {"%20", "%7b", "%7d", "%7c", "%5c", "%5e", "%5b", "%5d", "%60"};
 
+    // Float.parseFloat / Double.parseDouble accept lexical forms that are not
+    // in the XSD float/double value space: hexadecimal floats (0x1p4), the Java
+    // "Infinity" token, and a trailing type suffix (f/F/d/D). XSD only allows a
+    // decimal number with an optional exponent, or the special values INF, -INF
+    // and NaN. Reject the Java-only forms so they surface as invalid rather than
+    // being silently parsed.
+    private static void checkFloatingPointLexical(CharSequence cs) {
+        final int len = cs.length();
+        for (int i = 0; i < len; i++) {
+            switch (cs.charAt(i)) {
+                case 'x':
+                case 'X':
+                case 'p':
+                case 'P':
+                case 'i':
+                case 't':
+                case 'y':
+                    throw new NumberFormatException("invalid char '" + cs.charAt(i) + "' in floating point value");
+                default:
+                    break;
+            }
+        }
+        if (len > 0) {
+            final char last = cs.charAt(len - 1);
+            // a trailing 'F' is only valid as the last char of "INF"
+            if (last == 'd' || last == 'D' ||
+                ((last == 'f' || last == 'F') && (len < 2 || cs.charAt(len - 2) != 'N'))) {
+                throw new NumberFormatException("invalid trailing char '" + last + "' in floating point value");
+            }
+        }
+    }
+
     // ======================== float ========================
     public static float lexFloat(CharSequence cs)
         throws NumberFormatException {
         final String v = cs.toString();
-        switch (v) {
-            case POS_INF_LEX:
+        try {
+            //current jdk impl of parseFloat calls trim() on the string.
+            //Any other space is illegal anyway, whether there are one or more spaces.
+            //so no need to do a collapse pass through the string.
+            checkFloatingPointLexical(cs);
+            return Float.parseFloat(v);
+        } catch (NumberFormatException e) {
+            if (v.equals(POS_INF_LEX)) {
                 return Float.POSITIVE_INFINITY;
-            case NEG_INF_LEX:
+            }
+            if (v.equals(NEG_INF_LEX)) {
                 return Float.NEGATIVE_INFINITY;
-            case NAN_LEX:
+            }
+            if (v.equals(NAN_LEX)) {
                 return Float.NaN;
-            default:
-                //current jdk impl of parseFloat calls trim() on the string.
-                //Any other space is illegal anyway, whether there are one or more spaces.
-                //so no need to do a collapse pass through the string.
-                if (cs.length() > 1) {
-                    char ch = cs.charAt(cs.length() - 1);
-                    if ((ch == 'f' || ch == 'F') && cs.charAt(cs.length() - 2) != 'N') {
-                        throw new NumberFormatException("Invalid char '" + ch + "' in float.");
-                    }
-                }
-                return Float.parseFloat(v);
+            }
+
+            throw e;
         }
     }
 
@@ -92,24 +125,25 @@ public final class XsTypeConverter {
     public static double lexDouble(CharSequence cs)
         throws NumberFormatException {
         final String v = cs.toString();
-        switch (v) {
-            case POS_INF_LEX:
+
+        try {
+            //current jdk impl of parseDouble calls trim() on the string.
+            //Any other space is illegal anyway, whether there are one or more spaces.
+            //so no need to do a collapse pass through the string.
+            checkFloatingPointLexical(cs);
+            return Double.parseDouble(v);
+        } catch (NumberFormatException e) {
+            if (v.equals(POS_INF_LEX)) {
                 return Double.POSITIVE_INFINITY;
-            case NEG_INF_LEX:
+            }
+            if (v.equals(NEG_INF_LEX)) {
                 return Double.NEGATIVE_INFINITY;
-            case NAN_LEX:
+            }
+            if (v.equals(NAN_LEX)) {
                 return Double.NaN;
-            default:
-                //current jdk impl of parseDouble calls trim() on the string.
-                //Any other space is illegal anyway, whether there are one or more spaces.
-                //so no need to do a collapse pass through the string.
-                if (cs.length() > 0) {
-                    char ch = cs.charAt(cs.length() - 1);
-                    if (ch == 'd' || ch == 'D') {
-                        throw new NumberFormatException("Invalid char '" + ch + "' in double.");
-                    }
-                }
-                return Double.parseDouble(v);
+            }
+
+            throw e;
         }
     }
 
