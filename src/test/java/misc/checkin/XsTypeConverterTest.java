@@ -14,7 +14,11 @@
  */
 package misc.checkin;
 
+import org.apache.xmlbeans.XmlDouble;
+import org.apache.xmlbeans.XmlFloat;
+import org.apache.xmlbeans.XmlOptions;
 import org.apache.xmlbeans.impl.util.XsTypeConverter;
+import org.apache.xmlbeans.impl.values.XmlValueOutOfRangeException;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -75,6 +79,91 @@ public class XsTypeConverterTest {
         assertEquals(1.0f, XsTypeConverter.lexFloat("1.0"));
         assertEquals(Float.POSITIVE_INFINITY, XsTypeConverter.lexFloat("INF"));
         assertEquals(Float.NEGATIVE_INFINITY, XsTypeConverter.lexFloat("-INF"));
+        assertEquals(1500.0f, XsTypeConverter.lexFloat("1.5e3"));
+    }
+
+    @Test
+    void lexFloatLenientAcceptsJavaForms() {
+        // the default stays lenient: hex floats and the java "Infinity" spelling
+        // are accepted by Float.parseFloat, so lexFloat keeps accepting them
+        assertEquals(16.0f, XsTypeConverter.lexFloat("0x1p4"));
+        assertEquals(Float.POSITIVE_INFINITY, XsTypeConverter.lexFloat("Infinity"));
+    }
+
+    @Test
+    void lexFloatStrictRejectsNonXsdLexicalForms() {
+        // hex floats, the java "Infinity" spelling and the f/F/d/D suffix are
+        // accepted by Float.parseFloat but are outside the xsd:float lexical space
+        assertThrows(NumberFormatException.class, () -> XsTypeConverter.lexFloat("0x1p4", true));
+        assertThrows(NumberFormatException.class, () -> XsTypeConverter.lexFloat("Infinity", true));
+        assertThrows(NumberFormatException.class, () -> XsTypeConverter.lexFloat("-Infinity", true));
+        assertThrows(NumberFormatException.class, () -> XsTypeConverter.lexFloat("1.0d", true));
+        assertThrows(NumberFormatException.class, () -> XsTypeConverter.lexFloat("1D", true));
+        assertThrows(NumberFormatException.class, () -> XsTypeConverter.lexFloat("1.0f", true));
+    }
+
+    @Test
+    void lexFloatStrictAcceptsValidValues() {
+        assertEquals(1.0f, XsTypeConverter.lexFloat("1.0", true));
+        assertEquals(1500.0f, XsTypeConverter.lexFloat("1.5e3", true));
+        assertEquals(Float.POSITIVE_INFINITY, XsTypeConverter.lexFloat("INF", true));
+        assertEquals(Float.NEGATIVE_INFINITY, XsTypeConverter.lexFloat("-INF", true));
+        assertEquals(Float.NaN, XsTypeConverter.lexFloat("NaN", true));
+    }
+
+    @Test
+    void lexDoubleAcceptsValidValues() {
+        assertEquals(1.0, XsTypeConverter.lexDouble("1.0"));
+        assertEquals(Double.POSITIVE_INFINITY, XsTypeConverter.lexDouble("INF"));
+        assertEquals(Double.NEGATIVE_INFINITY, XsTypeConverter.lexDouble("-INF"));
+        assertEquals(1500.0, XsTypeConverter.lexDouble("1.5e3"));
+    }
+
+    @Test
+    void lexDoubleLenientAcceptsJavaForms() {
+        assertEquals(16.0, XsTypeConverter.lexDouble("0x1p4"));
+        assertEquals(Double.POSITIVE_INFINITY, XsTypeConverter.lexDouble("Infinity"));
+    }
+
+    @Test
+    void lexDoubleStrictRejectsNonXsdLexicalForms() {
+        // hex floats, the java "Infinity" spelling and the f/F/d/D suffix are
+        // accepted by Double.parseDouble but are outside the xsd:double lexical space
+        assertThrows(NumberFormatException.class, () -> XsTypeConverter.lexDouble("0x1p4", true));
+        assertThrows(NumberFormatException.class, () -> XsTypeConverter.lexDouble("Infinity", true));
+        assertThrows(NumberFormatException.class, () -> XsTypeConverter.lexDouble("-Infinity", true));
+        assertThrows(NumberFormatException.class, () -> XsTypeConverter.lexDouble("1.0f", true));
+        assertThrows(NumberFormatException.class, () -> XsTypeConverter.lexDouble("1F", true));
+        assertThrows(NumberFormatException.class, () -> XsTypeConverter.lexDouble("1.0d", true));
+    }
+
+    @Test
+    void lexDoubleStrictAcceptsValidValues() {
+        assertEquals(1.0, XsTypeConverter.lexDouble("1.0", true));
+        assertEquals(1500.0, XsTypeConverter.lexDouble("1.5e3", true));
+        assertEquals(Double.POSITIVE_INFINITY, XsTypeConverter.lexDouble("INF", true));
+        assertEquals(Double.NEGATIVE_INFINITY, XsTypeConverter.lexDouble("-INF", true));
+        assertEquals(Double.NaN, XsTypeConverter.lexDouble("NaN", true));
+    }
+
+    @Test
+    void loadStrictFloatingPointOptionGatesFloatParsing() throws Exception {
+        // default load is lenient: the hex float parses as it always has
+        assertEquals(16.0f, XmlFloat.Factory.parse("<xml-fragment>0x1p4</xml-fragment>").getFloatValue());
+
+        // with the option set, the value is out of the xsd:float lexical space
+        XmlOptions strict = new XmlOptions().setLoadStrictFloatingPoint();
+        assertThrows(XmlValueOutOfRangeException.class, () ->
+            XmlFloat.Factory.parse("<xml-fragment>0x1p4</xml-fragment>", strict).getFloatValue());
+    }
+
+    @Test
+    void loadStrictFloatingPointOptionGatesDoubleParsing() throws Exception {
+        assertEquals(16.0, XmlDouble.Factory.parse("<xml-fragment>0x1p4</xml-fragment>").getDoubleValue());
+
+        XmlOptions strict = new XmlOptions().setLoadStrictFloatingPoint();
+        assertThrows(XmlValueOutOfRangeException.class, () ->
+            XmlDouble.Factory.parse("<xml-fragment>0x1p4</xml-fragment>", strict).getDoubleValue());
     }
 
     @Test

@@ -21,7 +21,12 @@ public interface XmlLocale
 {
     boolean sync   ( );
     boolean noSync ( );
-    
+
     void enter ( );
     void exit  ( );
+
+    // whether lexFloat/lexDouble should reject lexical forms that are outside
+    // the xsd:float/xsd:double space (hex floats, the java "Infinity" token and
+    // the f/F/d/D suffix). Driven by XmlOptions.setLoadStrictFloatingPoint.
+    default boolean isLoadStrictFloatingPoint ( ) { return false; }
 }

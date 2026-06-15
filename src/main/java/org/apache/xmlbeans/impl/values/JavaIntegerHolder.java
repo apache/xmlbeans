@@ -44,7 +44,7 @@ public abstract class JavaIntegerHolder extends XmlObjectBase {
     }
 
     public static BigInteger lex(String s, ValidationContext vc) {
-        if (s.length() > 0 && s.charAt(0) == '+') {
+        if (!s.isEmpty() && s.charAt(0) == '+') {
             s = s.substring(1);
         }
 
