@@ -909,7 +909,7 @@ public final class Locale
     // high speed parser.  Otherwise, use a thread local on
 
     QName makeQName(String uri, String localPart) {
-        assert localPart != null && localPart.length() > 0;
+        assert localPart != null && !localPart.isEmpty();
         // TODO - make sure name is a well formed name?
 
         return _qnameFactory.getQName(uri, localPart);
@@ -2269,7 +2269,7 @@ public final class Locale
         private int _entityBytesLimit = 10240;
         private int _entityBytes = 0;
         private int _insideEntity = 0;
-        private Map<String, String> delayedPrefixMappings = new LinkedHashMap<>();
+        private final Map<String, String> delayedPrefixMappings = new LinkedHashMap<>();
 
         SaxHandler(Locator startLocator) {
             _startLocator = startLocator;
