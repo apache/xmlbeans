@@ -30,4 +30,14 @@ public class XmlOptionsTest {
         xmlOptions.setUnsynchronized(false);
         assertFalse(xmlOptions.isUnsynchronized());
     }
+
+    @Test
+    void testLoadStrictFloatingPointFlag() {
+        XmlOptions xmlOptions = new XmlOptions();
+        assertFalse(xmlOptions.isLoadStrictFloatingPoint());
+        xmlOptions.setLoadStrictFloatingPoint();
+        assertTrue(xmlOptions.isLoadStrictFloatingPoint());
+        xmlOptions.setLoadStrictFloatingPoint(false);
+        assertFalse(xmlOptions.isLoadStrictFloatingPoint());
+    }
 }

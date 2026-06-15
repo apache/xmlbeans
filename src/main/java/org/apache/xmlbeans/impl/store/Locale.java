@@ -103,6 +103,8 @@ public final class Locale
 
         _validateOnSet = options.isValidateOnSet();
 
+        _loadStrictFloatingPoint = options.isLoadStrictFloatingPoint();
+
         //
         // Check for Saaj implementation request
         //
@@ -2071,6 +2073,10 @@ public final class Locale
         return !_noSync;
     }
 
+    public boolean isLoadStrictFloatingPoint() {
+        return _loadStrictFloatingPoint;
+    }
+
     static boolean isWhiteSpace(String s) {
         int l = s.length();
 
@@ -2788,6 +2794,8 @@ public final class Locale
     QNameFactory _qnameFactory;
 
     boolean _validateOnSet;
+
+    boolean _loadStrictFloatingPoint;
 
     int _posTemp;
 

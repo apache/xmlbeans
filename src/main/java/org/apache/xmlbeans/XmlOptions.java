@@ -156,7 +156,8 @@ public class XmlOptions implements java.io.Serializable {
         LOAD_USE_LOCALE_CHAR_UTIL,
         XPATH_USE_SAXON,
         XPATH_USE_XMLBEANS,
-        ATTRIBUTE_VALIDATION_COMPAT_MODE
+        ATTRIBUTE_VALIDATION_COMPAT_MODE,
+        LOAD_STRICT_FLOATING_POINT
     }
 
 
@@ -1121,6 +1122,47 @@ public class XmlOptions implements java.io.Serializable {
 
     public boolean isValidateOnSet() {
         return hasOption(XmlOptionsKeys.VALIDATE_ON_SET);
+    }
+
+    /**
+     * If this option is set, xsd:float and xsd:double values are held to the XSD
+     * lexical space when parsing. {@link Float#parseFloat}/{@link Double#parseDouble}
+     * also accept lexical forms that XSD does not allow: hexadecimal floats
+     * ({@code 0x1p4}), the Java {@code Infinity} token, and a trailing type suffix
+     * ({@code f}/{@code F}/{@code d}/{@code D}). With this option set those forms are
+     * rejected as invalid; XSD only permits a decimal number with an optional
+     * exponent, or the special values {@code INF}, {@code -INF} and {@code NaN}.
+     * The default value is false, so the long-standing lenient behaviour is
+     * unchanged unless this is set.
+     *
+     * @return this
+     * @since 5.4.0
+     */
+    public XmlOptions setLoadStrictFloatingPoint() {
+        return setLoadStrictFloatingPoint(true);
+    }
+
+    /**
+     * Sets whether xsd:float and xsd:double values are held to the XSD lexical
+     * space when parsing. See {@link #setLoadStrictFloatingPoint()}.
+     *
+     * @param b {@code true} to reject lexical forms outside the XSD float/double space
+     * @return this
+     * @since 5.4.0
+     */
+    public XmlOptions setLoadStrictFloatingPoint(boolean b) {
+        return set(XmlOptionsKeys.LOAD_STRICT_FLOATING_POINT, b);
+    }
+
+    /**
+     * Returns whether xsd:float and xsd:double values are held to the XSD lexical
+     * space when parsing. See {@link #setLoadStrictFloatingPoint()}.
+     *
+     * @return {@code true} if strict XSD float/double parsing is enabled
+     * @since 5.4.0
+     */
+    public boolean isLoadStrictFloatingPoint() {
+        return hasOption(XmlOptionsKeys.LOAD_STRICT_FLOATING_POINT);
     }
 
     /**

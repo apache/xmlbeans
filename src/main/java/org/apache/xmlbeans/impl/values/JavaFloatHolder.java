@@ -52,12 +52,17 @@ public abstract class JavaFloatHolder extends XmlObjectBase {
     }
 
     protected void set_text(String s) {
-        set_float(validateLexical(s, _voorVc));
+        boolean strict = has_store() && get_store().get_locale().isLoadStrictFloatingPoint();
+        set_float(validateLexical(s, _voorVc, strict));
     }
 
     public static float validateLexical(String v, ValidationContext context) {
+        return validateLexical(v, context, false);
+    }
+
+    public static float validateLexical(String v, ValidationContext context, boolean strict) {
         try {
-            return XsTypeConverter.lexFloat(v);
+            return XsTypeConverter.lexFloat(v, strict);
         } catch (NumberFormatException e) {
             context.invalid(XmlErrorCodes.FLOAT, new Object[]{v});
 
