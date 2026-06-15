@@ -123,7 +123,7 @@ public class JavaUriHolderEx extends JavaUriHolder {
         XmlObject len = sType.getFacet(SchemaType.FACET_LENGTH);
         if (len != null) {
             int m = ((SimpleValue) len).getBigIntegerValue().intValue();
-            if (length == m) {
+            if (length != m) {
                 return false;
             }
         }
