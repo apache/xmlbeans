@@ -101,7 +101,7 @@ public abstract class JavaNotationHolderEx extends JavaNotationHolder
         if (len != null)
         {
             int m = ((XmlObjectBase)len).getBigIntegerValue().intValue();
-            if (!(v.length() != m))
+            if (v.length() != m)
                 return false;
         }
 
