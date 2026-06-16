@@ -107,6 +107,7 @@ public class XmlOptions implements java.io.Serializable {
         SAVE_CDATA_LENGTH_THRESHOLD,
         SAVE_CDATA_ENTITY_COUNT_THRESHOLD,
         SAVE_SAX_NO_NSDECLS_IN_ATTRIBUTES,
+        SAVE_NO_ATTRIBUTE_WHITESPACE_ESCAPE,
         LOAD_REPLACE_DOCUMENT_ELEMENT,
         LOAD_STRIP_WHITESPACE,
         LOAD_STRIP_COMMENTS,
@@ -556,6 +557,47 @@ public class XmlOptions implements java.io.Serializable {
 
     public boolean isSaveNoXmlDecl() {
         return hasOption(XmlOptionsKeys.SAVE_NO_XML_DECL);
+    }
+
+    /**
+     * By default the saver now escapes a tab ({@code #x9}), newline ({@code #xA})
+     * and carriage return ({@code #xD}) inside an attribute value as a character
+     * reference ({@code &#9;}, {@code &#10;}, {@code &#13;}). Without that, the
+     * literal characters are normalised to spaces when the document is read back
+     * in, so a save followed by a load silently rewrites the value. Set this
+     * option to restore the long-standing behaviour of writing those characters
+     * literally.
+     *
+     * @return this
+     * @since 5.4.0
+     */
+    public XmlOptions setSaveNoAttributeWhitespaceEscape() {
+        return setSaveNoAttributeWhitespaceEscape(true);
+    }
+
+    /**
+     * Sets whether tab, newline and carriage return are written literally in
+     * attribute values instead of being escaped as character references. See
+     * {@link #setSaveNoAttributeWhitespaceEscape()}.
+     *
+     * @param b {@code true} to write those characters literally (pre-5.4.0 behaviour)
+     * @return this
+     * @since 5.4.0
+     */
+    public XmlOptions setSaveNoAttributeWhitespaceEscape(boolean b) {
+        return set(XmlOptionsKeys.SAVE_NO_ATTRIBUTE_WHITESPACE_ESCAPE, b);
+    }
+
+    /**
+     * Returns whether tab, newline and carriage return are written literally in
+     * attribute values instead of being escaped. See
+     * {@link #setSaveNoAttributeWhitespaceEscape()}.
+     *
+     * @return {@code true} if those characters are written literally
+     * @since 5.4.0
+     */
+    public boolean isSaveNoAttributeWhitespaceEscape() {
+        return hasOption(XmlOptionsKeys.SAVE_NO_ATTRIBUTE_WHITESPACE_ESCAPE);
     }
 
 

@@ -40,4 +40,14 @@ public class XmlOptionsTest {
         xmlOptions.setLoadStrictFloatingPoint(false);
         assertFalse(xmlOptions.isLoadStrictFloatingPoint());
     }
+
+    @Test
+    void testSaveNoAttributeWhitespaceEscapeFlag() {
+        XmlOptions xmlOptions = new XmlOptions();
+        assertFalse(xmlOptions.isSaveNoAttributeWhitespaceEscape());
+        xmlOptions.setSaveNoAttributeWhitespaceEscape();
+        assertTrue(xmlOptions.isSaveNoAttributeWhitespaceEscape());
+        xmlOptions.setSaveNoAttributeWhitespaceEscape(false);
+        assertFalse(xmlOptions.isSaveNoAttributeWhitespaceEscape());
+    }
 }

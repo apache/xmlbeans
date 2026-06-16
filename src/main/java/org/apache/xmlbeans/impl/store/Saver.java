@@ -52,6 +52,7 @@ abstract class Saver {
     private final boolean _useDefaultNamespace;
     private Map<String, String> _preComputedNamespaces;
     private final boolean _saveNamespacesFirst;
+    private final boolean _escapeAttrWhitespace;
 
     private final ArrayList<QName> _attrNames = new ArrayList<>();
     private final ArrayList<String> _attrValues = new ArrayList<>();
@@ -130,6 +131,8 @@ abstract class Saver {
         _useDefaultNamespace = options.isUseDefaultNamespace();
 
         _saveNamespacesFirst = options.isSaveNamespacesFirst();
+
+        _escapeAttrWhitespace = !options.isSaveNoAttributeWhitespaceEscape();
 
 
         _suggestedPrefixes = options.getSaveSuggestedPrefixes();
@@ -271,6 +274,10 @@ abstract class Saver {
 
     protected boolean saveNamespacesFirst() {
         return _saveNamespacesFirst;
+    }
+
+    protected boolean escapeAttrWhitespace() {
+        return _escapeAttrWhitespace;
     }
 
     protected final boolean process() {
@@ -1370,11 +1377,11 @@ abstract class Saver {
                     i = replace(i, "&amp;");
                 } else if (ch == '"') {
                     i = replace(i, "&quot;");
-                } else if (ch == '\t') {
+                } else if (ch == '\t' && escapeAttrWhitespace()) {
                     i = replace(i, "&#9;");
-                } else if (ch == '\n') {
+                } else if (ch == '\n' && escapeAttrWhitespace()) {
                     i = replace(i, "&#10;");
-                } else if (ch == '\r') {
+                } else if (ch == '\r' && escapeAttrWhitespace()) {
                     i = replace(i, "&#13;");
                 } else if (isEscapedChar(ch)) {
                     if (replaceEscapedChar) {
@@ -1801,15 +1808,15 @@ abstract class Saver {
         }
 
 
-        OptimizedForSpeedSaver(Cur cur, Writer writer) {
-            super(cur, XmlOptions.maskNull(null));
+        OptimizedForSpeedSaver(Cur cur, Writer writer, XmlOptions options) {
+            super(cur, XmlOptions.maskNull(options));
             _w = writer;
         }
 
-        static void save(Cur cur, Writer writer)
+        static void save(Cur cur, Writer writer, XmlOptions options)
             throws IOException {
             try {
-                Saver saver = new OptimizedForSpeedSaver(cur, writer);
+                Saver saver = new OptimizedForSpeedSaver(cur, writer, options);
                 //noinspection StatementWithEmptyBody
                 while (saver.process()) {
                 }
@@ -2033,11 +2040,11 @@ abstract class Saver {
                     emit("&amp;");
                 } else if (ch == '"') {
                     emit("&quot;");
-                } else if (ch == '\t') {
+                } else if (ch == '\t' && escapeAttrWhitespace()) {
                     emit("&#9;");
-                } else if (ch == '\n') {
+                } else if (ch == '\n' && escapeAttrWhitespace()) {
                     emit("&#10;");
-                } else if (ch == '\r') {
+                } else if (ch == '\r' && escapeAttrWhitespace()) {
                     emit("&#13;");
                 } else {
                     emit(ch);

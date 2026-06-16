@@ -585,7 +585,7 @@ public final class Cursor implements XmlCursor, ChangeListener {
         }
 
         if (options != null && options.isSaveOptimizeForSpeed()) {
-            Saver.OptimizedForSpeedSaver.save(_cur, w); //ignore all other options
+            Saver.OptimizedForSpeedSaver.save(_cur, w, options); //ignore all other options bar attribute whitespace escaping
             return;
         }
 

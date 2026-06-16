@@ -259,4 +259,24 @@ public class CharEscapeTest {
         assertEquals("x\ty\nz\rw", c.getAttributeText(new javax.xml.namespace.QName("a")));
         c.dispose();
     }
+
+    @Test
+    void testEscapeAttributeWhitespaceOptOut() throws Exception {
+        // setSaveNoAttributeWhitespaceEscape restores the pre-5.4.0 behaviour of
+        // writing tab, newline and carriage return literally
+        XmlObject doc = XmlObject.Factory.parse("<r a=\"x&#9;y&#10;z&#13;w\"/>");
+
+        XmlOptions opts = new XmlOptions().setSaveNoAttributeWhitespaceEscape();
+        String expected = "<r a=\"x\ty\nz\rw\"/>";
+        assertEquals(expected, doc.xmlText(opts));
+
+        StringWriter sw = new StringWriter();
+        doc.save(sw, opts);
+        assertEquals(expected, sw.toString());
+
+        // the optimize-for-speed writer honours the option too
+        StringWriter sw2 = new StringWriter();
+        doc.save(sw2, new XmlOptions(opts).setSaveOptimizeForSpeed(true));
+        assertEquals(expected, sw2.toString());
+    }
 }
