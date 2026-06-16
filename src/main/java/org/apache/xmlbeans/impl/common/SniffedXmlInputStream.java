@@ -86,7 +86,6 @@ public class SniffedXmlInputStream extends BufferedInputStream {
 
     private String sniffFourBytes() throws IOException {
         mark(4);
-        int skip = 0;
         try {
             byte[] buf = new byte[4];
             if (readAsMuchAsPossible(buf, 0, 4) < 4) {
@@ -124,37 +123,25 @@ public class SniffedXmlInputStream extends BufferedInputStream {
         }
     }
 
-    // BUGBUG in JDK: Charset.forName is not threadsafe, so we'll prime it
-    // with the common charsets.
-
-    private static Charset dummy1 = Charset.forName("UTF-8");
-    private static Charset dummy2 = Charset.forName("UTF-16");
-    private static Charset dummy3 = Charset.forName("UTF-16BE");
-    private static Charset dummy4 = Charset.forName("UTF-16LE");
-    private static Charset dummy5 = Charset.forName("ISO-8859-1");
-    private static Charset dummy6 = Charset.forName("US-ASCII");
-    private static Charset dummy7 = Charset.forName("Cp1252");
-
-
     private String sniffForXmlDecl(String encoding) throws IOException {
         mark(MAX_SNIFFED_BYTES);
         try {
             byte[] bytebuf = new byte[MAX_SNIFFED_BYTES];
             int bytelimit = readAsMuchAsPossible(bytebuf, 0, MAX_SNIFFED_BYTES);
 
-            // BUGBUG in JDK: Charset.forName is not threadsafe.
             Charset charset = Charset.forName(encoding);
-            Reader reader = new InputStreamReader(new ByteArrayInputStream(bytebuf, 0, bytelimit), charset);
-            char[] buf = new char[bytelimit];
             int limit = 0;
-            while (limit < bytelimit) {
-                int count = reader.read(buf, limit, bytelimit - limit);
-                if (count < 0) {
-                    break;
+            char[] buf = new char[bytelimit];
+            try (Reader reader = new InputStreamReader(
+                    new ByteArrayInputStream(bytebuf, 0, bytelimit), charset)) {
+                while (limit < bytelimit) {
+                    int count = reader.read(buf, limit, bytelimit - limit);
+                    if (count < 0) {
+                        break;
+                    }
+                    limit += count;
                 }
-                limit += count;
             }
-
             return extractXmlDeclEncoding(buf, 0, limit);
         } finally {
             reset();
@@ -222,7 +209,6 @@ public class SniffedXmlInputStream extends BufferedInputStream {
     }
 
     private static int nextMatchingByte(char[] lookFor, char[] buf, int startAt, int limit) {
-        searching:
         for (; startAt < limit; startAt++) {
             int thischar = buf[startAt];
             for (int i = 0; i < lookFor.length; i++) {
@@ -235,7 +221,6 @@ public class SniffedXmlInputStream extends BufferedInputStream {
     }
 
     private static int nextMatchingByte(char lookFor, char[] buf, int startAt, int limit) {
-        searching:
         for (; startAt < limit; startAt++) {
             if (buf[startAt] == lookFor) {
                 return startAt;
@@ -244,8 +229,8 @@ public class SniffedXmlInputStream extends BufferedInputStream {
         return -1;
     }
 
-    private static char[] WHITESPACE = new char[]{' ', '\r', '\t', '\n'};
-    private static char[] NOTNAME = new char[]{'=', ' ', '\r', '\t', '\n', '?', '>', '<', '\'', '\"'};
+    private static final char[] WHITESPACE = new char[]{' ', '\r', '\t', '\n'};
+    private static final char[] NOTNAME = new char[]{'=', ' ', '\r', '\t', '\n', '?', '>', '<', '\'', '\"'};
 
     private static class ScannedAttribute {
         public String name;
