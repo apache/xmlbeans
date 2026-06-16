@@ -269,6 +269,9 @@ public class SniffedXmlInputStream extends BufferedInputStream {
             return -1;
         }
         int valQuote = nextNonmatchingByte(WHITESPACE, buf, equals + 1, limit);
+        if (valQuote < 0) {
+            return -1;
+        }
         if (buf[valQuote] != '\'' && buf[valQuote] != '\"') {
             return -1;
         }
