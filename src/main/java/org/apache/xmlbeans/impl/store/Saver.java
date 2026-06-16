@@ -2070,8 +2070,8 @@ abstract class Saver {
             int off = c._offSrc;
             int index = 0;
             while (index < cch) {
-                int indexLimit = index + 512 > cch ? cch : 512;
-                CharUtil.getChars(_buf, 0, src, off + index, indexLimit);
+                int indexLimit = Math.min(index + 512, cch);
+                CharUtil.getChars(_buf, 0, src, off + index, indexLimit - index);
                 entitizeAndWritePIText(indexLimit - index);
                 index = indexLimit;
             }
@@ -2085,8 +2085,8 @@ abstract class Saver {
             int off = c._offSrc;
             int index = 0;
             while (index < cch) {
-                int indexLimit = index + 512 > cch ? cch : 512;
-                CharUtil.getChars(_buf, 0, src, off + index, indexLimit);
+                int indexLimit = Math.min(index + 512, cch);
+                CharUtil.getChars(_buf, 0, src, off + index, indexLimit - index);
                 entitizeAndWriteCommentText(indexLimit - index);
                 index = indexLimit;
             }
