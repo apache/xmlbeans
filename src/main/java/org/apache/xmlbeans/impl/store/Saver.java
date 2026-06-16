@@ -1589,7 +1589,7 @@ abstract class Saver {
                    (_out == _in && _free == 0)                               // buffer full
                 : "_buf.length:" + _cbuf.length + " _in:" + _in + " _out:" + _out + " _free:" + _free;
 
-            long newLen = _cbuf == null ? _initialBufSize : _cbuf.length * 2;
+            long newLen = _cbuf == null ? _initialBufSize : _cbuf.length * 2L;
             int used = getAvailable();
 
             while (newLen - used < cch) {
@@ -2500,7 +2500,7 @@ abstract class Saver {
             void resize(int cbyte) {
                 assert cbyte > _free : cbyte + " !> " + _free;
 
-                long newLen = _buf == null ? _initialBufSize : _buf.length * 2;
+                long newLen = _buf == null ? _initialBufSize : _buf.length * 2L;
                 int used = getAvailable();
 
                 while (newLen - used < cbyte) {

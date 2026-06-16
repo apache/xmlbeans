@@ -179,7 +179,7 @@ public final class Cursor implements XmlCursor, ChangeListener {
         assert isValid(that);
         assert isValid();
 
-        if (text != null && text.length() > 0) {
+        if (text != null && !text.isEmpty()) {
             that.next();
             that.insertString(text);
             that.toParent();
@@ -247,11 +247,11 @@ public final class Cursor implements XmlCursor, ChangeListener {
             case PROCINST: {
                 validatePrefix(name.getLocalPart());
 
-                if (name.getNamespaceURI().length() > 0) {
+                if (!name.getNamespaceURI().isEmpty()) {
                     throw new IllegalArgumentException("Procinst name must have no URI");
                 }
 
-                if (name.getPrefix().length() > 0) {
+                if (!name.getPrefix().isEmpty()) {
                     throw new IllegalArgumentException("Procinst name must have no prefix");
                 }
 
