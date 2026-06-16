@@ -1370,6 +1370,12 @@ abstract class Saver {
                     i = replace(i, "&amp;");
                 } else if (ch == '"') {
                     i = replace(i, "&quot;");
+                } else if (ch == '\t') {
+                    i = replace(i, "&#9;");
+                } else if (ch == '\n') {
+                    i = replace(i, "&#10;");
+                } else if (ch == '\r') {
+                    i = replace(i, "&#13;");
                 } else if (isEscapedChar(ch)) {
                     if (replaceEscapedChar) {
                         i = replace(i, _replaceChar.getEscapedString(ch));
@@ -2027,6 +2033,12 @@ abstract class Saver {
                     emit("&amp;");
                 } else if (ch == '"') {
                     emit("&quot;");
+                } else if (ch == '\t') {
+                    emit("&#9;");
+                } else if (ch == '\n') {
+                    emit("&#10;");
+                } else if (ch == '\r') {
+                    emit("&#13;");
                 } else {
                     emit(ch);
                 }
