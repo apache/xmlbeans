@@ -17,11 +17,13 @@ package misc.detailed;
 import jira.xmlbeans177.TestListDocument;
 import jira.xmlbeans177A.TestListADocument;
 import org.apache.xmlbeans.XmlException;
+import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptionCharEscapeMap;
 import org.apache.xmlbeans.XmlOptions;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
+import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -235,5 +237,46 @@ public class CharEscapeTest {
             "  <test a=\"W.L.Gore &amp; &#x41;ssociates\"/>\n" +
             end2;
         assertEquals(exp3, doc.xmlText(opts).replaceFirst("(?s)<!--.*-->", ""));
+    }
+
+    @Test
+    void testEscapeAttributeWhitespace() throws Exception {
+        // tab, newline and carriage return survive attribute-value normalisation
+        // only when written as character references; a literal char would be
+        // turned into a space when the document is read back in
+        XmlObject doc = XmlObject.Factory.parse("<r a=\"x&#9;y&#10;z&#13;w\"/>");
+
+        String expected = "<r a=\"x&#9;y&#10;z&#13;w\"/>";
+        assertEquals(expected, doc.xmlText());
+
+        StringWriter sw = new StringWriter();
+        doc.save(sw);
+        assertEquals(expected, sw.toString());
+
+        // round-trips with the value intact
+        org.apache.xmlbeans.XmlCursor c = XmlObject.Factory.parse(doc.xmlText()).newCursor();
+        c.toFirstChild();
+        assertEquals("x\ty\nz\rw", c.getAttributeText(new javax.xml.namespace.QName("a")));
+        c.dispose();
+    }
+
+    @Test
+    void testEscapeAttributeWhitespaceOptOut() throws Exception {
+        // setSaveNoAttributeWhitespaceEscape restores the pre-5.4.0 behaviour of
+        // writing tab, newline and carriage return literally
+        XmlObject doc = XmlObject.Factory.parse("<r a=\"x&#9;y&#10;z&#13;w\"/>");
+
+        XmlOptions opts = new XmlOptions().setSaveNoAttributeWhitespaceEscape();
+        String expected = "<r a=\"x\ty\nz\rw\"/>";
+        assertEquals(expected, doc.xmlText(opts));
+
+        StringWriter sw = new StringWriter();
+        doc.save(sw, opts);
+        assertEquals(expected, sw.toString());
+
+        // the optimize-for-speed writer honours the option too
+        StringWriter sw2 = new StringWriter();
+        doc.save(sw2, new XmlOptions(opts).setSaveOptimizeForSpeed(true));
+        assertEquals(expected, sw2.toString());
     }
 }
