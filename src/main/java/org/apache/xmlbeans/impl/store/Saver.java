@@ -1452,7 +1452,8 @@ abstract class Saver {
                 char ch = _cbuf[i];
 
                 if (isBadChar(ch)) {
-                    i = replace(i, "?");
+                    replace(i, "?");
+                    ch = '?';
                 }
 
                 if (ch == '>') {
