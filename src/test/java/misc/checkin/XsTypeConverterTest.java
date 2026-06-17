@@ -167,6 +167,25 @@ public class XsTypeConverterTest {
     }
 
     @Test
+    void lexLongRejectsDoubleSign() {
+        // trimInitialPlus drops the leading '+', then Long.parseLong accepts its
+        // own sign, so "++5"/"+-5" used to parse as 5/-5 instead of being rejected.
+        assertEquals(5L, XsTypeConverter.lexLong("+5"));
+        assertEquals(-5L, XsTypeConverter.lexLong("-5"));
+        assertThrows(NumberFormatException.class, () -> XsTypeConverter.lexLong("++5"));
+        assertThrows(NumberFormatException.class, () -> XsTypeConverter.lexLong("+-5"));
+    }
+
+    @Test
+    void lexIntegerRejectsDoubleSign() {
+        // "+-5" was already caught; "++5" leaked through as 5.
+        assertEquals(java.math.BigInteger.valueOf(5), XsTypeConverter.lexInteger("+5"));
+        assertEquals(java.math.BigInteger.valueOf(-5), XsTypeConverter.lexInteger("-5"));
+        assertThrows(NumberFormatException.class, () -> XsTypeConverter.lexInteger("++5"));
+        assertThrows(NumberFormatException.class, () -> XsTypeConverter.lexInteger("+-5"));
+    }
+
+    @Test
     void lexDecimalRejectsEmptyString() {
         // an empty value used to read charAt(-1) in trimTrailingZeros and
         // throw StringIndexOutOfBoundsException instead of NumberFormatException.

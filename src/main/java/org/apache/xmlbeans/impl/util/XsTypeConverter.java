@@ -275,11 +275,7 @@ public final class XsTypeConverter {
     // ======================== integer ========================
     public static BigInteger lexInteger(CharSequence cs)
         throws NumberFormatException {
-        if (cs.length() > 1) {
-            if (cs.charAt(0) == '+' && cs.charAt(1) == '-') {
-                throw new NumberFormatException("Illegal char sequence '+-'");
-            }
-        }
+        rejectSignAfterPlus(cs);
         final String v = cs.toString();
 
         //TODO: consider special casing zero and one to return static values
@@ -304,8 +300,23 @@ public final class XsTypeConverter {
     // ======================== long ========================
     public static long lexLong(CharSequence cs)
         throws NumberFormatException {
+        rejectSignAfterPlus(cs);
         final String v = cs.toString();
         return Long.parseLong(trimInitialPlus(v));
+    }
+
+    // trimInitialPlus drops a single leading '+', then Long.parseLong /
+    // new BigInteger accept their own leading sign, so "++5" and "+-5" slip
+    // through as 5 and -5. Neither is in the xsd integer lexical space
+    // ([\-+]?[0-9]+ allows one sign). lexInt/lexShort/lexByte already reject
+    // the second sign in parseIntXsdNumber.
+    private static void rejectSignAfterPlus(CharSequence cs) {
+        if (cs.length() > 1 && cs.charAt(0) == '+') {
+            final char c = cs.charAt(1);
+            if (c == '+' || c == '-') {
+                throw new NumberFormatException("Illegal char sequence '+" + c + "'");
+            }
+        }
     }
 
     public static long lexLong(CharSequence cs, Collection<XmlError> errors) {
