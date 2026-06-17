@@ -275,11 +275,7 @@ public final class XsTypeConverter {
     // ======================== integer ========================
     public static BigInteger lexInteger(CharSequence cs)
         throws NumberFormatException {
-        if (cs.length() > 1) {
-            if (cs.charAt(0) == '+' && cs.charAt(1) == '-') {
-                throw new NumberFormatException("Illegal char sequence '+-'");
-            }
-        }
+        rejectSignAfterPlus(cs);
         final String v = cs.toString();
 
         //TODO: consider special casing zero and one to return static values
@@ -304,8 +300,23 @@ public final class XsTypeConverter {
     // ======================== long ========================
     public static long lexLong(CharSequence cs)
         throws NumberFormatException {
+        rejectSignAfterPlus(cs);
         final String v = cs.toString();
         return Long.parseLong(trimInitialPlus(v));
+    }
+
+    // trimInitialPlus drops a single leading '+', then Long.parseLong /
+    // new BigInteger accept their own leading sign, so "++5" and "+-5" slip
+    // through as 5 and -5. Neither is in the xsd integer lexical space
+    // ([\-+]?[0-9]+ allows one sign). lexInt/lexShort/lexByte already reject
+    // the second sign in parseIntXsdNumber.
+    private static void rejectSignAfterPlus(CharSequence cs) {
+        if (cs.length() > 1 && cs.charAt(0) == '+') {
+            final char c = cs.charAt(1);
+            if (c == '+' || c == '-') {
+                throw new NumberFormatException("Illegal char sequence '+" + c + "'");
+            }
+        }
     }
 
     public static long lexLong(CharSequence cs, Collection<XmlError> errors) {
@@ -432,7 +443,7 @@ public final class XsTypeConverter {
     }
 
     public static String printBoolean(boolean value) {
-        return (value ? "true" : "false");
+        return Boolean.toString(value);
     }
 
 
@@ -469,7 +480,7 @@ public final class XsTypeConverter {
         String uri = nscontext.getNamespaceURI(prefix);
 
         if (uri == null) {
-            if (prefix != null && prefix.length() > 0) {
+            if (prefix != null && !prefix.isEmpty()) {
                 throw new InvalidLexicalValueException("Can't resolve prefix: " + prefix);
             }
 
@@ -495,7 +506,7 @@ public final class XsTypeConverter {
         final String uri = qname.getNamespaceURI();
         assert uri != null; //qname is not allowed to have null uri values
         final String prefix;
-        if (uri.length() > 0) {
+        if (!uri.isEmpty()) {
             prefix = nsContext.getPrefix(uri);
             if (prefix == null) {
                 String msg = "NamespaceContext does not provide" +
@@ -513,9 +524,9 @@ public final class XsTypeConverter {
                                         String localpart,
                                         String prefix) {
         if (prefix != null &&
-            uri != null &&
-            uri.length() > 0 &&
-            prefix.length() > 0) {
+                uri != null &&
+                !uri.isEmpty() &&
+                !prefix.isEmpty()) {
             return (prefix + NAMESPACE_SEP + localpart);
         } else {
             return localpart;
@@ -587,8 +598,7 @@ public final class XsTypeConverter {
                                                    int builtin_type_code) {
         GDateBuilder gDateBuilder = new GDateBuilder(d);
         gDateBuilder.setBuiltinTypeCode(builtin_type_code);
-        GDate value = gDateBuilder.toGDate();
-        return value;
+        return gDateBuilder.toGDate();
     }
 
 
@@ -596,20 +606,18 @@ public final class XsTypeConverter {
                                                    int builtin_type_code) {
         GDateBuilder gDateBuilder = new GDateBuilder(c);
         gDateBuilder.setBuiltinTypeCode(builtin_type_code);
-        GDate value = gDateBuilder.toGDate();
-        return value;
+        return gDateBuilder.toGDate();
     }
 
     public static GDateSpecification getGDateValue(CharSequence v,
                                                    int builtin_type_code) {
         GDateBuilder gDateBuilder = new GDateBuilder(v);
         gDateBuilder.setBuiltinTypeCode(builtin_type_code);
-        GDate value = gDateBuilder.toGDate();
-        return value;
+        return gDateBuilder.toGDate();
     }
 
     private static String trimInitialPlus(String xml) {
-        if (xml.length() > 0 && xml.charAt(0) == '+') {
+        if (!xml.isEmpty() && xml.charAt(0) == '+') {
             return xml.substring(1);
         } else {
             return xml;
