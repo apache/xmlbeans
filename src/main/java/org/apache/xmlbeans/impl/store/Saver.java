@@ -547,7 +547,7 @@ abstract class Saver {
     }
 
     private void addNewFrameMapping(String prefix, String uri, boolean ensureDefaultEmpty) {
-        // If the prefix maps to "", then don't include this mapping 'cause it's not well formed.
+        // If the prefix maps to "", then don't include this mapping 'cause it's not well-formed.
         // Also, if we want to make sure that the default namespace is always "", then check that
         // here as well.
 
@@ -562,7 +562,7 @@ abstract class Saver {
             }
 
             // Also make sure that the prefix declaration is not redundant
-            // This has the side-effect of making it impossible to set a
+            // This has the side effect of making it impossible to set a
             // redundant prefix declaration, but seems that it's better
             // to just never issue a duplicate prefix declaration.
             if (uri.equals(getNamespaceForPrefix(prefix))) {
@@ -1413,7 +1413,7 @@ abstract class Saver {
                     i = replace(i, "?");
                 } else if (ch == '-') {
                     if (lastWasDash) {
-                        // Replace "--" with "- " to make well formed
+                        // Replace "--" with "- " to make well-formed
                         i = replace(i, " ");
                         lastWasDash = false;
                     } else {
@@ -1452,11 +1452,12 @@ abstract class Saver {
                 char ch = _cbuf[i];
 
                 if (isBadChar(ch)) {
-                    i = replace(i, "?");
+                    replace(i, "?");
+                    ch = '?';
                 }
 
                 if (ch == '>') {
-                    // TODO - Had to convert to a space here ... imples not well formed XML
+                    // TODO - Had to convert to a space here ... implies not well-formed XML
                     if (lastWasQuestion) {
                         i = replace(i, " ");
                     } else {
@@ -2141,7 +2142,7 @@ abstract class Saver {
                     _buf[i] = '?';
                 } else if (ch == '-') {
                     if (lastWasDash) {
-                        // Replace "--" with "- " to make well formed
+                        // Replace "--" with "- " to make well-formed
                         _buf[i] = ' ';
                         lastWasDash = false;
                     } else {
@@ -2175,7 +2176,7 @@ abstract class Saver {
                 }
 
                 if (ch == '>') {
-                    // Had to convert to a space here ... imples not well formed XML
+                    // Had to convert to a space here ... implies not well-formed XML
                     if (lastWasQuestion) {
                         _buf[i] = ' ';
                     }
