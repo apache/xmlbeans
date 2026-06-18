@@ -647,7 +647,7 @@ public class RegularExpression implements java.io.Serializable {
      * @return true if the target is matched to this regular expression.
      */
     public boolean matches(char[]  target) {
-        return this.matches(target, 0,  target .length , (Match)null);
+        return this.matches(target, 0,  target .length , null);
     }
 
     /**
@@ -659,7 +659,7 @@ public class RegularExpression implements java.io.Serializable {
      * @return true if the target is matched to this regular expression.
      */
     public boolean matches(char[]  target, int start, int end) {
-        return this.matches(target, start, end, (Match)null);
+        return this.matches(target, start, end, null);
     }
 
     /**
@@ -833,7 +833,7 @@ public class RegularExpression implements java.io.Serializable {
      * @return true if the target is matched to this regular expression.
      */
     public boolean matches(String  target) {
-        return this.matches(target, 0,  target .length() , (Match)null);
+        return this.matches(target, 0,  target .length() , null);
     }
 
     /**
@@ -845,7 +845,7 @@ public class RegularExpression implements java.io.Serializable {
      * @return true if the target is matched to this regular expression.
      */
     public boolean matches(String  target, int start, int end) {
-        return this.matches(target, start, end, (Match)null);
+        return this.matches(target, start, end, null);
     }
 
     /**
@@ -1023,7 +1023,7 @@ public class RegularExpression implements java.io.Serializable {
      */
     private int match(Context con, Op op, int offset, int dx, int opts) {
         final ExpressionTarget target = con.target;
-        final Stack opStack = new Stack();
+        final Stack<Op> opStack = new Stack<>();
         final IntStack dataStack = new IntStack();
         final boolean isSetIgnoreCase = isSet(opts, IGNORE_CASE);
         int retValue = -1;
@@ -1091,7 +1091,7 @@ public class RegularExpression implements java.io.Serializable {
                             returned = true;
                             break;
                         }
-                        int ch = target.charAt(offset);
+                        int ch = target.charAt(o1);
                         if (REUtil.isHighSurrogate(ch) && o1+dx < con.limit && o1+dx >=0) {
                             o1 += dx;
                             ch = REUtil.composeFromSurrogates(ch, target.charAt(o1));
@@ -1304,7 +1304,7 @@ public class RegularExpression implements java.io.Serializable {
                     return retValue;
                 }
 
-                op = (Op) opStack.pop();
+                op = opStack.pop();
                 offset = dataStack.pop();
 
                 switch (op.type) {
@@ -1534,7 +1534,7 @@ public class RegularExpression implements java.io.Serializable {
      * @return true if the target is matched to this regular expression.
      */
     public boolean matches(CharacterIterator target) {
-        return this.matches(target, (Match)null);
+        return this.matches(target, null);
     }
 
 
@@ -2401,8 +2401,7 @@ public class RegularExpression implements java.io.Serializable {
         if (ch <= '9')  return true;
         if (ch < 'A')  return false;
         if (ch <= 'Z')  return true;
-        if (ch < 'a')  return false;
-        return true;
+        return ch >= 'a';
     }
 
     private static boolean matchIgnoreCase(int chardata, int ch) {

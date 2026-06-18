@@ -20,6 +20,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Random;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class RegularExpressionTest {
@@ -29,6 +30,18 @@ public class RegularExpressionTest {
         RegularExpression regex = new RegularExpression("[A-Z0-9]+");
         String rnd = randomString(10000);
         assertTrue(regex.matches(rnd));
+    }
+
+    @Test
+    void testLookbehindRangeAtInputEnd() {
+        // a lookbehind containing a character class, evaluated at the end of the
+        // input, used to read one character past the string in the RANGE op and
+        // throw StringIndexOutOfBoundsException
+        assertTrue(new RegularExpression("(?<=[a-c])$").matches("abc"));
+        assertTrue(new RegularExpression(".*(?<=[0-9])").matches("ab9"));
+        // the same off-by-one read also returned the wrong match result: the char
+        // before the lookbehind is 'x', not in [a-c], so this must not match
+        assertFalse(new RegularExpression("x(?<=[a-c])").matches("xc"));
     }
 
 
