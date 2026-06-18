@@ -15,6 +15,7 @@
 
 package misc.checkin;
 
+import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
 import org.junit.jupiter.api.Test;
@@ -23,6 +24,7 @@ import java.io.StringWriter;
 import java.time.Duration;
 import java.util.Arrays;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -62,5 +64,24 @@ public class SaveOptimizeForSpeedTest {
         });
         XmlObject.Factory.parse(out);
         assertTrue(out.contains(LONG));
+    }
+
+    @Test
+    void testProcInstTerminatorAcrossChunkBoundary() throws Exception {
+        // a '?>' that straddles the 512-char chunk boundary: '?' is the last char
+        // of the first chunk, '>' the first char of the second. The per-chunk
+        // question-mark state used to reset between chunks, so the '>' escaped the
+        // processing instruction and the trailing text broke out of the pi.
+        String data = repeat('x', 511) + "?>" + repeat('y', 600);
+        XmlObject o = XmlObject.Factory.parse("<root>z</root>");
+        try (XmlCursor cur = o.newCursor()) {
+            cur.toFirstChild();
+            cur.toFirstContentToken();
+            cur.insertProcInst("tgt", data);
+        }
+        String out = saveForSpeed(o);
+        assertFalse(out.contains("?>" + repeat('y', 600)));
+        // breakout produced text that is not allowed where the pi sat, so this throws before the fix
+        XmlObject.Factory.parse(out);
     }
 }

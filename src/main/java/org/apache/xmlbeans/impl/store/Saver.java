@@ -2089,10 +2089,11 @@ abstract class Saver {
             int cch = c._cchSrc;
             int off = c._offSrc;
             int index = 0;
+            boolean lastWasQuestion = false;
             while (index < cch) {
                 int indexLimit = Math.min(index + 512, cch);
                 CharUtil.getChars(_buf, 0, src, off + index, indexLimit - index);
-                entitizeAndWritePIText(indexLimit - index);
+                lastWasQuestion = entitizeAndWritePIText(indexLimit - index, lastWasQuestion);
                 index = indexLimit;
             }
         }
@@ -2164,9 +2165,7 @@ abstract class Saver {
             emit(_buf, 0, bufLimit);
         }
 
-        private void entitizeAndWritePIText(int bufLimit) {
-            boolean lastWasQuestion = false;
-
+        private boolean entitizeAndWritePIText(int bufLimit, boolean lastWasQuestion) {
             for (int i = 0; i < bufLimit; i++) {
                 char ch = _buf[i];
 
@@ -2187,6 +2186,7 @@ abstract class Saver {
                 }
             }
             emit(_buf, 0, bufLimit);
+            return lastWasQuestion;
         }
     }
 
