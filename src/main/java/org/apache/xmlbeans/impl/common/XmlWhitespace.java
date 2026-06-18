@@ -109,14 +109,12 @@ public class XmlWhitespace
                     break examine;
                 return v;
             }
-            /* j is pointing at the first ws to be removed, or past end */
+            // j is pointing at the first ws to be removed, or past end
             i = j;
         }
         else
         {
-            /**
-             * j is pointing at the last whitespace in the initial run
-             */
+            // j is pointing at the last whitespace in the initial run
             while (j + 1 < v.length() && v.charAt(j + 1) == ' ')
                 j += 1;
             i = 0;

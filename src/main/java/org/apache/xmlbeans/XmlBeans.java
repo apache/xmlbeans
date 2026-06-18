@@ -80,12 +80,8 @@ public final class XmlBeans {
     /**
      * Thread local QName cache for general use
      */
-    private static final ThreadLocal _threadLocalLoaderQNameCache =
-        new ThreadLocal() {
-            protected Object initialValue() {
-                return new SoftReference(new QNameCache(32));
-            }
-        };
+    private static final ThreadLocal<SoftReference<QNameCache>> _threadLocalLoaderQNameCache =
+        ThreadLocal.withInitial(() -> new SoftReference<>(new QNameCache(32)));
 
     public static void clearThreadLocals() {
         // clear thread local here
@@ -96,11 +92,11 @@ public final class XmlBeans {
      * Returns a thread local QNameCache
      */
     public static QNameCache getQNameCache() {
-        SoftReference softRef = (SoftReference) _threadLocalLoaderQNameCache.get();
-        QNameCache qnameCache = (QNameCache) (softRef).get();
+        SoftReference<QNameCache> softRef = _threadLocalLoaderQNameCache.get();
+        QNameCache qnameCache = softRef.get();
         if (qnameCache == null) {
             qnameCache = new QNameCache(32);
-            _threadLocalLoaderQNameCache.set(new SoftReference(qnameCache));
+            _threadLocalLoaderQNameCache.set(new SoftReference<>(qnameCache));
         }
         return qnameCache;
     }
@@ -445,7 +441,7 @@ public final class XmlBeans {
     public static SchemaTypeSystem typeSystemForClassLoader(ClassLoader loader, String stsName) {
         try {
             ClassLoader cl = loader == null ? Thread.currentThread().getContextClassLoader() : loader;
-            Class clazz = cl.loadClass(stsName + "." + HOLDER_CLASS_NAME);
+            Class<?> clazz = cl.loadClass(stsName + "." + HOLDER_CLASS_NAME);
             SchemaTypeSystem sts = (SchemaTypeSystem)
                 (clazz.getDeclaredField(TYPE_SYSTEM_FIELD).get(null));
             if (sts == null) {
@@ -482,7 +478,7 @@ public final class XmlBeans {
      * Returns the SchemaType from a corresponding XmlObject subclass,
      * or null if none.
      */
-    public static SchemaType typeForClass(Class c) {
+    public static SchemaType typeForClass(Class<?> c) {
         if (c == null || !XmlObject.class.isAssignableFrom(c)) {
             return null;
         }

@@ -25,8 +25,7 @@ public final class XmlStreamUtils
   public static String printEvent(XMLStreamReader xmlr)
   {
     StringBuilder b = new StringBuilder();
-    b.append("EVENT:[" + xmlr.getLocation().getLineNumber() + "][" +
-             xmlr.getLocation().getColumnNumber() + "] ");
+    b.append("EVENT:[").append(xmlr.getLocation().getLineNumber()).append("][").append(xmlr.getLocation().getColumnNumber()).append("] ");
     b.append(getName(xmlr.getEventType()));
     b.append(" [");
     switch (xmlr.getEventType()) {
@@ -37,9 +36,9 @@ public final class XmlStreamUtils
           b.append(" ");
           String n = xmlr.getNamespacePrefix(i);
           if ("xmlns".equals(n)) {
-            b.append("xmlns=\"" + xmlr.getNamespaceURI(i) + "\"");
+            b.append("xmlns=\"").append(xmlr.getNamespaceURI(i)).append("\"");
           } else {
-            b.append("xmlns:" + n);
+            b.append("xmlns:").append(n);
             b.append("=\"");
             b.append(xmlr.getNamespaceURI(i));
             b.append("\"");
@@ -66,9 +65,9 @@ public final class XmlStreamUtils
           b.append(" ");
           String n = xmlr.getNamespacePrefix(i);
           if ("xmlns".equals(n)) {
-            b.append("xmlns=\"" + xmlr.getNamespaceURI(i) + "\"");
+            b.append("xmlns=\"").append(xmlr.getNamespaceURI(i)).append("\"");
           } else {
-            b.append("xmlns:" + n);
+            b.append("xmlns:").append(n);
             b.append("=\"");
             b.append(xmlr.getNamespaceURI(i));
             b.append("\"");
@@ -91,7 +90,7 @@ public final class XmlStreamUtils
         String data = xmlr.getPIData();
         if (data == null) data = "";
         b.append("<?");
-        b.append(target + " " + data);
+        b.append(target).append(" ").append(data);
         b.append("?>");
         break;
       case XMLStreamReader.CDATA:
@@ -108,14 +107,14 @@ public final class XmlStreamUtils
         b.append("-->");
         break;
       case XMLStreamReader.ENTITY_REFERENCE:
-        b.append(xmlr.getLocalName() + "=");
+        b.append(xmlr.getLocalName()).append("=");
         if (xmlr.hasText())
-          b.append("[" + xmlr.getText() + "]");
+          b.append("[").append(xmlr.getText()).append("]");
         break;
       case XMLStreamReader.START_DOCUMENT:
         b.append("<?xml");
-        b.append(" version='" + xmlr.getVersion() + "'");
-        b.append(" encoding='" + xmlr.getCharacterEncodingScheme() + "'");
+        b.append(" version='").append(xmlr.getVersion()).append('\'');
+        b.append(" encoding='").append(xmlr.getCharacterEncodingScheme()).append('\'');
         if (xmlr.isStandalone())
           b.append(" standalone='yes'");
         else
@@ -134,8 +133,8 @@ public final class XmlStreamUtils
                                 String localName,
                                 StringBuilder b)
   {
-    if (uri != null && !("".equals(uri))) b.append("['" + uri + "']:");
-    if (prefix != null && !("".equals(prefix))) b.append(prefix + ":");
+    if (uri != null && !(uri.isEmpty())) b.append("['").append(uri).append("']:");
+    if (prefix != null && !(prefix.isEmpty())) b.append(prefix).append(':');
     if (localName != null) b.append(localName);
   }
 
@@ -184,31 +183,33 @@ public final class XmlStreamUtils
 
   public static int getType(String val)
   {
-    if (val.equals("START_ELEMENT"))
-      return XMLStreamReader.START_ELEMENT;
-    if (val.equals("SPACE"))
-      return XMLStreamReader.SPACE;
-    if (val.equals("END_ELEMENT"))
-      return XMLStreamReader.END_ELEMENT;
-    if (val.equals("PROCESSING_INSTRUCTION"))
-      return XMLStreamReader.PROCESSING_INSTRUCTION;
-    if (val.equals("CHARACTERS"))
-      return XMLStreamReader.CHARACTERS;
-    if (val.equals("COMMENT"))
-      return XMLStreamReader.COMMENT;
-    if (val.equals("START_DOCUMENT"))
-      return XMLStreamReader.START_DOCUMENT;
-    if (val.equals("END_DOCUMENT"))
-      return XMLStreamReader.END_DOCUMENT;
-    if (val.equals("ATTRIBUTE"))
-      return XMLStreamReader.ATTRIBUTE;
-    if (val.equals("DTD"))
-      return XMLStreamReader.DTD;
-    if (val.equals("CDATA"))
-      return XMLStreamReader.CDATA;
-    if (val.equals("NAMESPACE"))
-      return XMLStreamReader.NAMESPACE;
-    return -1;
+      switch (val) {
+          case "START_ELEMENT":
+              return XMLStreamReader.START_ELEMENT;
+          case "SPACE":
+              return XMLStreamReader.SPACE;
+          case "END_ELEMENT":
+              return XMLStreamReader.END_ELEMENT;
+          case "PROCESSING_INSTRUCTION":
+              return XMLStreamReader.PROCESSING_INSTRUCTION;
+          case "CHARACTERS":
+              return XMLStreamReader.CHARACTERS;
+          case "COMMENT":
+              return XMLStreamReader.COMMENT;
+          case "START_DOCUMENT":
+              return XMLStreamReader.START_DOCUMENT;
+          case "END_DOCUMENT":
+              return XMLStreamReader.END_DOCUMENT;
+          case "ATTRIBUTE":
+              return XMLStreamReader.ATTRIBUTE;
+          case "DTD":
+              return XMLStreamReader.DTD;
+          case "CDATA":
+              return XMLStreamReader.CDATA;
+          case "NAMESPACE":
+              return XMLStreamReader.NAMESPACE;
+      }
+      return -1;
   }
 
 

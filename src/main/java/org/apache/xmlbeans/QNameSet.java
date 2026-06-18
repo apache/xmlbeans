@@ -198,7 +198,7 @@ public final class QNameSet implements QNameSetSpecification, java.io.Serializab
      * <p>
      * This constuctor is PRIVATE because it uses the given
      * sets directly, and it trusts its callers to set only immutable values.
-     * This constructor is is only called by the static builder methods on
+     * This constructor is only called by the static builder methods on
      * QNameSet: those methods are all careful assign only unchanging sets.
      */
     private QNameSet(Set<String> excludedURIs, Set<String> includedURIs, Set<QName> excludedQNamesInIncludedURIs, Set<QName> includedQNamesInExcludedURIs) {
@@ -218,7 +218,7 @@ public final class QNameSet implements QNameSetSpecification, java.io.Serializab
     }
 
     /**
-     * Local xml names are hased using "" as the namespace.
+     * Local xml names are hashed using "" as the namespace.
      */
     private static String nsFromName(QName xmlName) {
         String ns = xmlName.getNamespaceURI();
@@ -343,11 +343,7 @@ public final class QNameSet implements QNameSetSpecification, java.io.Serializab
             return false;
         }
 
-        if (set2.includedQNamesInExcludedURIs().stream().anyMatch(set1::contains)) {
-            return false;
-        }
-
-        return true;
+        return set2.includedQNamesInExcludedURIs().stream().noneMatch(set1::contains);
     }
 
 
