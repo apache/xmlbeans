@@ -1091,7 +1091,7 @@ public class RegularExpression implements java.io.Serializable {
                             returned = true;
                             break;
                         }
-                        int ch = target.charAt(offset);
+                        int ch = target.charAt(o1);
                         if (REUtil.isHighSurrogate(ch) && o1+dx < con.limit && o1+dx >=0) {
                             o1 += dx;
                             ch = REUtil.composeFromSurrogates(ch, target.charAt(o1));
