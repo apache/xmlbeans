@@ -20,7 +20,7 @@ import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.xml.stream.XMLName;
 
 import javax.xml.namespace.QName;
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Collections;
@@ -80,9 +80,7 @@ public class QNameHelper
             return true;
         if (c >= 'A' && c <= 'Z')
             return true;
-        if (c >= '0' && c <= '9')
-            return true;
-        return false;
+        return c >= '0' && c <= '9';
     }
 
     // This produces a string which is a safe filename from the given string s.
@@ -118,21 +116,12 @@ public class QNameHelper
             }
             else
             {
-                byte[] utf8 = null;
-                try
+                byte[] utf8 = s.substring(i, i + 1).getBytes(StandardCharsets.UTF_8);
+                for (int j = 0; j < utf8.length; j++)
                 {
-                    utf8 = s.substring(i, i + 1).getBytes("UTF-8");
-                    for (int j = 0; j < utf8.length; j++)
-                    {
-                        result.append('_');
-                        result.append(hexdigits[(utf8[j] >> 4) & 0xF]);
-                        result.append(hexdigits[utf8[j] & 0xF]);
-                    }
-                }
-                catch(UnsupportedEncodingException uee)
-                {
-                    // should never happen - UTF-8 i always supported
-                    result.append("_BAD_UTF8_CHAR");
+                    result.append('_');
+                    result.append(hexdigits[(utf8[j] >> 4) & 0xF]);
+                    result.append(hexdigits[utf8[j] & 0xF]);
                 }
             }
         }
@@ -145,16 +134,7 @@ public class QNameHelper
         try
         {
             MessageDigest md = MessageDigest.getInstance("SHA");
-            byte[] inputBytes = null;
-            try
-            {
-                inputBytes = s.getBytes("UTF-8");
-            }
-            catch(UnsupportedEncodingException uee)
-            {
-                // should never happen - UTF-8 is always supported
-                inputBytes = new byte[0];
-            }
+            byte[] inputBytes = s.getBytes(StandardCharsets.UTF_8);
             byte[] digest = md.digest(inputBytes);
             assert(digest.length == 20); // SHA1 160 bits == 20 bytes
             result = new StringBuilder(URI_SHA1_PREFIX);
@@ -268,7 +248,7 @@ public class QNameHelper
 
     public static String suggestPrefix(String namespace)
     {
-        String result = (String)WELL_KNOWN_PREFIXES.get(namespace);
+        String result = WELL_KNOWN_PREFIXES.get(namespace);
         if (result != null)
             return result;
 
@@ -334,10 +314,7 @@ public class QNameHelper
             return false;
         if (s.charAt(i + 1) != 'M' && s.charAt(i + 1) != 'm')
             return false;
-        if (s.charAt(i + 2) != 'L' && s.charAt(i + 2) != 'l')
-            return false;
-
-        return true;
+        return s.charAt(i + 2) == 'L' || s.charAt(i + 2) == 'l';
     }
 
     private static boolean isVowel(char ch)

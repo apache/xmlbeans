@@ -22,8 +22,8 @@ import java.io.InputStream;
 
 public abstract class PushedInputStream extends InputStream
 {
-    private static int defaultBufferSize = 2048;
-    protected byte buf[];
+    private static final int defaultBufferSize = 2048;
+    protected byte[] buf;
     protected int writepos;
     protected int readpos;
     protected int markpos = -1;
@@ -88,7 +88,7 @@ public abstract class PushedInputStream extends InputStream
         else
         {
             int newcount = size + cb;
-            byte newbuf[] = new byte[Math.max(buf.length << 1, newcount)];
+            byte[] newbuf = new byte[Math.max(buf.length << 1, newcount)];
             System.arraycopy(buf, savepos, newbuf, 0, size);
             buf = newbuf;
         }
@@ -126,7 +126,7 @@ public abstract class PushedInputStream extends InputStream
             avail = writepos - readpos;
             if (avail <= 0) return -1;
         }
-        int cnt = (avail < len) ? avail : len;
+        int cnt = Math.min(avail, len);
         System.arraycopy(buf, readpos, b, off, cnt);
         readpos += cnt;
         return cnt;
@@ -151,7 +151,7 @@ public abstract class PushedInputStream extends InputStream
                 return 0;
         }
 
-        long skipped = (avail < n) ? avail : n;
+        long skipped = Math.min(avail, n);
         readpos = Math.addExact(readpos, Math.toIntExact(skipped));
         return skipped;
     }
@@ -191,7 +191,7 @@ public abstract class PushedInputStream extends InputStream
             writepos += 1;
         }
 
-        public synchronized void write(byte b[], int off, int len)
+        public synchronized void write(byte[] b, int off, int len)
         {
             if ((off < 0) || (off > b.length) || (len < 0) ||
                 ((off + len) > b.length) || ((off + len) < 0))
