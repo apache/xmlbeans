@@ -72,7 +72,7 @@ public class XPathCommon {
         StringBuilder sb = new StringBuilder();
         int i = 0;
         while (rObj.toNextSelection()) {
-            sb.append("[cursor-").append(i).append("] -- ").append(rObj.xmlText(xm)).append("\n");
+            sb.append("[cursor-").append(i).append("] -- ").append(rObj.xmlText(xm)).append('\n');
             i++;
         }
         return sb.toString();
