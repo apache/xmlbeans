@@ -591,7 +591,7 @@ public class XmlError implements java.io.Serializable {
                 sb.append(getColumn());
                 sb.append(':');
             }
-            sb.append(" ");
+            sb.append(' ');
         }
 
         switch (getSeverity()) {

@@ -567,7 +567,7 @@ final class RangeToken extends Token implements java.io.Serializable {
                 ret = "\\s";
             } else {
                 StringBuilder sb = new StringBuilder();
-                sb.append("[");
+                sb.append('[');
                 for (int i = 0; i < this.ranges.length; i += 2) {
                     if ((options & RegularExpression.SPECIAL_COMMA) != 0 && i > 0) {
                         sb.append(",");

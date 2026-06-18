@@ -283,9 +283,9 @@ public final class Locale
         if (name.getNamespaceURI() == null) {
             sb.append("<no namespace>");
         } else {
-            sb.append("\"");
+            sb.append('\"');
             sb.append(name.getNamespaceURI());
-            sb.append("\"");
+            sb.append('\"');
         }
     }
 

@@ -283,12 +283,12 @@ public class InterfaceExtensionImpl implements InterfaceExtension {
 
     public String toString() {
         StringBuilder buf = new StringBuilder();
-        buf.append("  static handler: ").append(_delegateToClassName).append("\n");
-        buf.append("  interface: ").append(_interfaceClassName).append("\n");
-        buf.append("  name set: ").append(_xbeanSet).append("\n");
+        buf.append("  static handler: ").append(_delegateToClassName).append('\n');
+        buf.append("  interface: ").append(_interfaceClassName).append('\n');
+        buf.append("  name set: ").append(_xbeanSet).append('\n');
 
         for (int i = 0; i < _methods.length; i++)
-            buf.append("  method[").append(i).append("]=").append(_methods[i]).append("\n");
+            buf.append("  method[").append(i).append("]=").append(_methods[i]).append('\n');
 
         return buf.toString();
     }

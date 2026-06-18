@@ -186,7 +186,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
         }
 
         emit("/**");
-        if (opt.isCompileAnnotationAsJavadoc() && sType.getDocumentation() != null && sType.getDocumentation().length() > 0){
+        if (opt.isCompileAnnotationAsJavadoc() && sType.getDocumentation() != null && !sType.getDocumentation().isEmpty()){
             emit(" *");
             printJavaDocBody(sType.getDocumentation());
             emit(" *");
@@ -533,9 +533,6 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
         for (int i = 0; i < str.length(); i++) {
             char ch = str.charAt(i);
             switch (ch) {
-                default:
-                    sb.append(ch);
-                    break;
                 case '\n':
                     sb.append("\\n");
                     break;
@@ -547,6 +544,9 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
                     break;
                 case '\\':
                     sb.append("\\\\");
+                    break;
+                default:
+                    sb.append(ch);
                     break;
             }
         }
@@ -797,7 +797,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
         boolean xmltype = (javaType == SchemaProperty.XML_OBJECT);
 
         if (prop.extendsJavaSingleton()) {
-            if (opt.isCompileAnnotationAsJavadoc() && propertyDocumentation != null && propertyDocumentation.length() > 0){
+            if (opt.isCompileAnnotationAsJavadoc() && propertyDocumentation != null && !propertyDocumentation.isEmpty()){
                 printJavaDocParagraph(propertyDocumentation);
             }else {
                 printJavaDoc((several ? "Gets first " : "Gets the ") + propdesc, BeanMethod.GET);
@@ -816,7 +816,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
         }
 
         if (prop.extendsJavaOption()) {
-            if (opt.isCompileAnnotationAsJavadoc() && propertyDocumentation != null && propertyDocumentation.length() > 0){
+            if (opt.isCompileAnnotationAsJavadoc() && propertyDocumentation != null && !propertyDocumentation.isEmpty()){
                 printJavaDocParagraph(propertyDocumentation);
             }else {
                 printJavaDoc((several ? "True if has at least one " : "True if has ") + propdesc, BeanMethod.IS_SET);
@@ -825,7 +825,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
         }
 
         if (several) {
-            if (opt.isCompileAnnotationAsJavadoc() && propertyDocumentation != null && propertyDocumentation.length() > 0){
+            if (opt.isCompileAnnotationAsJavadoc() && propertyDocumentation != null && !propertyDocumentation.isEmpty()){
                 printJavaDocParagraph(propertyDocumentation);
             }
 
@@ -836,14 +836,14 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
                 wrappedType = javaWrappedType(javaType);
             }
 
-            if (opt.isCompileAnnotationAsJavadoc() && propertyDocumentation != null && propertyDocumentation.length() > 0){
+            if (opt.isCompileAnnotationAsJavadoc() && propertyDocumentation != null && !propertyDocumentation.isEmpty()){
                 printJavaDocParagraph(propertyDocumentation);
             }else{
                 printJavaDoc("Gets a List of " + propdesc + "s", BeanMethod.GET_LIST);
             }
             emit("java.util.List<" + wrappedType + "> get" + propertyName + "List();", BeanMethod.GET_LIST);
 
-            if (opt.isCompileAnnotationAsJavadoc() && propertyDocumentation != null && propertyDocumentation.length() > 0){
+            if (opt.isCompileAnnotationAsJavadoc() && propertyDocumentation != null && !propertyDocumentation.isEmpty()){
                 printJavaDocParagraph(propertyDocumentation);
             }else{
                 printJavaDoc("Gets array of all " + propdesc + "s", BeanMethod.GET_ARRAY);
@@ -896,7 +896,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
         String propdesc = "\"" + qName.getLocalPart() + "\"" + (isAttr ? " attribute" : " element");
 
         if (singleton) {
-            if (opt.isCompileAnnotationAsJavadoc() && propertyDocumentation != null && propertyDocumentation.length() > 0) {
+            if (opt.isCompileAnnotationAsJavadoc() && propertyDocumentation != null && !propertyDocumentation.isEmpty()) {
                 printJavaDocParagraph(propertyDocumentation);
             } else {
                 printJavaDoc((several ? "Sets first " : "Sets the ") + propdesc, BeanMethod.SET);
@@ -920,7 +920,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
         }
 
         if (optional) {
-            if (opt.isCompileAnnotationAsJavadoc() && propertyDocumentation != null && propertyDocumentation.length() > 0) {
+            if (opt.isCompileAnnotationAsJavadoc() && propertyDocumentation != null && !propertyDocumentation.isEmpty()) {
                 printJavaDocParagraph(propertyDocumentation);
             } else {
                 printJavaDoc((several ? "Removes first " : "Unsets the ") + propdesc, BeanMethod.UNSET);
@@ -931,14 +931,14 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
         if (several) {
             String arrayName = propertyName + "Array";
 
-            if(opt.isCompileAnnotationAsJavadoc() && propertyDocumentation != null && propertyDocumentation.length() > 0) {
+            if(opt.isCompileAnnotationAsJavadoc() && propertyDocumentation != null && !propertyDocumentation.isEmpty()) {
                 printJavaDocParagraph(propertyDocumentation);
             } else {
                 printJavaDoc("Sets array of all " + propdesc, BeanMethod.SET_ARRAY);
             }
             emit("void set" + arrayName + "(" + type + "[] " + safeVarName + "Array);", BeanMethod.SET_ARRAY);
 
-            if (opt.isCompileAnnotationAsJavadoc() && propertyDocumentation != null && propertyDocumentation.length() > 0) {
+            if (opt.isCompileAnnotationAsJavadoc() && propertyDocumentation != null && !propertyDocumentation.isEmpty()) {
                 printJavaDocParagraph(propertyDocumentation);
             } else {
                 printJavaDoc("Sets ith " + propdesc, BeanMethod.SET_IDX);
@@ -1000,8 +1000,6 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
                 return "org.apache.xmlbeans.impl.values.JavaDoubleHolderEx";
             case SchemaType.BTC_DECIMAL:
                 switch (sType.getDecimalSize()) {
-                    default:
-                        assert (false);
                     case SchemaType.SIZE_BIG_DECIMAL:
                         return "org.apache.xmlbeans.impl.values.JavaDecimalHolderEx";
                     case SchemaType.SIZE_BIG_INTEGER:
@@ -1012,6 +1010,8 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
                     case SchemaType.SIZE_SHORT:
                     case SchemaType.SIZE_BYTE:
                         return "org.apache.xmlbeans.impl.values.JavaIntHolderEx";
+                    default:
+                        assert (false);
                 }
             case SchemaType.BTC_STRING:
                 if (sType.hasStringEnumValues()) {
@@ -1140,7 +1140,6 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
             case SchemaProperty.JAVA_LONG:
                 return "0L";
 
-            default:
             case SchemaProperty.XML_OBJECT:
             case SchemaProperty.JAVA_BIG_DECIMAL:
             case SchemaProperty.JAVA_BIG_INTEGER:
@@ -1154,6 +1153,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
             case SchemaProperty.JAVA_CALENDAR:
             case SchemaProperty.JAVA_ENUM:
             case SchemaProperty.JAVA_OBJECT:
+            default:
                 return "null";
         }
     }
@@ -1517,9 +1517,6 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
 
     String prePostOpString(int opType) {
         switch (opType) {
-            default:
-                assert false;
-
             case PrePostExtension.OPERATION_SET:
                 return "org.apache.xmlbeans.PrePostExtension.OPERATION_SET";
 
@@ -1528,6 +1525,9 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
 
             case PrePostExtension.OPERATION_REMOVE:
                 return "org.apache.xmlbeans.PrePostExtension.OPERATION_REMOVE";
+
+            default:
+                throw new IllegalArgumentException("Invalid opType: " + opType);
         }
     }
 
@@ -1653,7 +1653,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
         if (prop.extendsJavaSingleton()) {
             if (bmList == null || bmList.contains(BeanMethod.GET)) {
                 // Value getProp()
-                if(opt.isCompileAnnotationAsJavadoc() && propertyDocumentation != null && propertyDocumentation.length() > 0){
+                if(opt.isCompileAnnotationAsJavadoc() && propertyDocumentation != null && !propertyDocumentation.isEmpty()){
                     printJavaDocParagraph(propertyDocumentation);
                 } else {
                     printJavaDoc((several ? "Gets first " : "Gets the ") + propdesc);
@@ -2341,7 +2341,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
         StringBuilder decl = new StringBuilder(60);
 
         decl.append("public ").append(method.getReturnType());
-        decl.append(" ").append(method.getName()).append("(");
+        decl.append(' ').append(method.getName()).append('(');
 
         // first parameter is always XmlObject, i.e. which is "this" and therefore doesn't need
         // to be in the method declaration of the type implementation
@@ -2351,10 +2351,10 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
             if (i > 1) {
                 decl.append(", ");
             }
-            decl.append(paramTypes[i]).append(" ").append(paramNames[i]);
+            decl.append(paramTypes[i]).append(' ').append(paramNames[i]);
         }
 
-        decl.append(")");
+        decl.append(')');
 
         String[] exceptions = method.getExceptionTypes();
         for (int i = 0; i < exceptions.length; i++) {

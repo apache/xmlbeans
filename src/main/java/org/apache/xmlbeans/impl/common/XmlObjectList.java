@@ -124,7 +124,7 @@ public class XmlObjectList
 
         for (int i = 0 ; i < _objects.length ; i++)
         {
-            if (i != 0) b.append(" ");
+            if (i != 0) b.append(' ');
             b.append(prettytrim(((SimpleValue)_objects[i]).getStringValue()));
         }
 

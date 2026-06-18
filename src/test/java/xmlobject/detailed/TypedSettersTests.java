@@ -23,6 +23,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
@@ -70,8 +71,8 @@ public class TypedSettersTests {
                     sb.append(instanceNs);
                     break;
                 case "type":
-                    assertTrue(arg.length() > 0);
-                    sb.append("xsi:type=\"").append(arg).append("\"");
+                    assertFalse(arg.isEmpty());
+                    sb.append("xsi:type=\"").append(arg).append('\"');
                     break;
                 default:
                     Assertions.fail();

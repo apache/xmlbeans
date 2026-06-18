@@ -348,7 +348,7 @@ public class CodeGenUtil {
     private static Thread copy(InputStream stream, final StringBuilder output) {
         final BufferedReader reader = new BufferedReader(new InputStreamReader(stream, Charset.defaultCharset()));
         Thread readerThread = new Thread(() ->
-            reader.lines().forEach(s -> output.append(s).append("\n"))
+            reader.lines().forEach(s -> output.append(s).append('\n'))
         );
         readerThread.start();
         return readerThread;

@@ -25,35 +25,39 @@ public final class XmlStreamUtils
   public static String printEvent(XMLStreamReader xmlr)
   {
     StringBuilder b = new StringBuilder();
-    b.append("EVENT:[").append(xmlr.getLocation().getLineNumber()).append("][").append(xmlr.getLocation().getColumnNumber()).append("] ");
-    b.append(getName(xmlr.getEventType()));
-    b.append(" [");
+    b.append("EVENT:[")
+            .append(xmlr.getLocation().getLineNumber())
+            .append("][")
+            .append(xmlr.getLocation().getColumnNumber())
+            .append("] ")
+            .append(getName(xmlr.getEventType()))
+            .append(" [");
     switch (xmlr.getEventType()) {
       case XMLStreamReader.START_ELEMENT:
-        b.append("<");
+        b.append('<');
         printName(xmlr, b);
         for (int i = 0; i < xmlr.getNamespaceCount(); i++) {
-          b.append(" ");
+          b.append(' ');
           String n = xmlr.getNamespacePrefix(i);
           if ("xmlns".equals(n)) {
-            b.append("xmlns=\"").append(xmlr.getNamespaceURI(i)).append("\"");
+            b.append("xmlns=\"").append(xmlr.getNamespaceURI(i)).append('\"');
           } else {
             b.append("xmlns:").append(n);
             b.append("=\"");
             b.append(xmlr.getNamespaceURI(i));
-            b.append("\"");
+            b.append('\"');
           }
         }
 
         for (int i = 0; i < xmlr.getAttributeCount(); i++) {
-          b.append(" ");
+          b.append(' ');
           printName(xmlr.getAttributePrefix(i),
                     xmlr.getAttributeNamespace(i),
                     xmlr.getAttributeLocalName(i),
                     b);
           b.append("=\"");
           b.append(xmlr.getAttributeValue(i));
-          b.append("\"");
+          b.append('\"');
         }
 
         b.append(">");
@@ -62,18 +66,18 @@ public final class XmlStreamUtils
         b.append("</");
         printName(xmlr, b);
         for (int i = 0; i < xmlr.getNamespaceCount(); i++) {
-          b.append(" ");
+          b.append(' ');
           String n = xmlr.getNamespacePrefix(i);
           if ("xmlns".equals(n)) {
-            b.append("xmlns=\"").append(xmlr.getNamespaceURI(i)).append("\"");
+            b.append("xmlns=\"").append(xmlr.getNamespaceURI(i)).append('\"');
           } else {
             b.append("xmlns:").append(n);
             b.append("=\"");
             b.append(xmlr.getNamespaceURI(i));
-            b.append("\"");
+            b.append('\"');
           }
         }
-        b.append(">");
+        b.append('>');
         break;
       case XMLStreamReader.SPACE:
       case XMLStreamReader.CHARACTERS:
@@ -90,7 +94,7 @@ public final class XmlStreamUtils
         String data = xmlr.getPIData();
         if (data == null) data = "";
         b.append("<?");
-        b.append(target).append(" ").append(data);
+        b.append(target).append(' ').append(data);
         b.append("?>");
         break;
       case XMLStreamReader.CDATA:
@@ -107,9 +111,9 @@ public final class XmlStreamUtils
         b.append("-->");
         break;
       case XMLStreamReader.ENTITY_REFERENCE:
-        b.append(xmlr.getLocalName()).append("=");
+        b.append(xmlr.getLocalName()).append('=');
         if (xmlr.hasText())
-          b.append("[").append(xmlr.getText()).append("]");
+          b.append('[').append(xmlr.getText()).append(']');
         break;
       case XMLStreamReader.START_DOCUMENT:
         b.append("<?xml");
@@ -123,7 +127,7 @@ public final class XmlStreamUtils
         break;
 
     }
-    b.append("]");
+    b.append(']');
     return b.toString();
   }
 

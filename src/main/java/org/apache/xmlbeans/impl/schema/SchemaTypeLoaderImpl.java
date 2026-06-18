@@ -285,10 +285,7 @@ public class SchemaTypeLoaderImpl extends SchemaTypeLoaderBase {
         }
 
         if (_classLoader != null) {
-            SchemaTypeSystem result = getTypeSystemOnClassloader(name);
-            if (result != null) {
-                return result;
-            }
+            return getTypeSystemOnClassloader(name);
         }
         return null;
     }
