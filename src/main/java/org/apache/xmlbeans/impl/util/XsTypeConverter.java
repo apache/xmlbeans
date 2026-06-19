@@ -709,7 +709,7 @@ public final class XsTypeConverter {
 
     /**
      * Checks the regular expression of URI, defined by RFC2369 http://www.ietf.org/rfc/rfc2396.txt Appendix B.
-     * Note: The whitespace normalization rule collapse must be applied priot to calling this method.
+     * Note: The whitespace normalization rule collapse must be applied prior to calling this method.
      *
      * @param lexical_value the lexical value
      * @return same input value if input value is in the lexical space

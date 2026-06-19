@@ -70,6 +70,12 @@ public class XsTypeConverterTest {
     }
 
     @Test
+    void lexIntRejectsEmptyOrNull() {
+        assertThrows(NumberFormatException.class, () -> XsTypeConverter.lexInt(null));
+        assertThrows(NumberFormatException.class, () -> XsTypeConverter.lexInt(""));
+    }
+
+    @Test
     void lexShortRejectsNonAsciiDigits() {
         assertThrows(NumberFormatException.class, () -> XsTypeConverter.lexShort(FULLWIDTH_123));
         assertThrows(NumberFormatException.class, () -> XsTypeConverter.lexShort(ARABIC_123));
