@@ -26,6 +26,7 @@ import java.net.URI;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
+import java.util.Locale;
 
 public final class XsTypeConverter {
     private static final String POS_INF_LEX = "INF";
@@ -696,6 +697,7 @@ public final class XsTypeConverter {
 
         if (result < min_value || result > max_value) {
             throw new NumberFormatException(String.format(
+                    Locale.ROOT,
                     "For input string: \"%s\"; min-allowed=%d, max-allowed=%d",
                     ch, min_value, max_value));
         }
