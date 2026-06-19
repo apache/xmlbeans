@@ -93,6 +93,7 @@ public final class XsTypeConverter {
      */
     public static float lexFloat(CharSequence cs, boolean strict)
         throws NumberFormatException {
+        rejectInvalidNumber(cs);
         final String v = cs.toString();
         switch (v) {
             case POS_INF_LEX:
@@ -162,6 +163,7 @@ public final class XsTypeConverter {
      */
     public static double lexDouble(CharSequence cs, boolean strict)
         throws NumberFormatException {
+        rejectInvalidNumber(cs);
         final String v = cs.toString();
         switch (v) {
             case POS_INF_LEX:
@@ -212,6 +214,7 @@ public final class XsTypeConverter {
     // ======================== decimal ========================
     public static BigDecimal lexDecimal(CharSequence cs)
         throws NumberFormatException {
+        rejectInvalidNumber(cs);
         final String v = cs.toString();
 
         //TODO: review this
@@ -300,6 +303,7 @@ public final class XsTypeConverter {
     // ======================== long ========================
     public static long lexLong(CharSequence cs)
         throws NumberFormatException {
+        rejectInvalidNumber(cs);
         rejectSignAfterPlus(cs);
         final String v = cs.toString();
         return Long.parseLong(trimInitialPlus(v));
@@ -358,7 +362,7 @@ public final class XsTypeConverter {
     // ======================== int ========================
     public static int lexInt(CharSequence cs)
         throws NumberFormatException {
-        return parseInt(cs);
+        return parseIntXsdNumber(cs, Integer.MIN_VALUE, Integer.MAX_VALUE);
     }
 
     public static int lexInt(CharSequence cs, Collection<XmlError> errors) {
@@ -642,10 +646,6 @@ public final class XsTypeConverter {
         return xsd_decimal;
     }
 
-    private static int parseInt(CharSequence cs) {
-        return parseIntXsdNumber(cs, Integer.MIN_VALUE, Integer.MAX_VALUE);
-    }
-
     private static short parseShort(CharSequence cs) {
         return (short) parseIntXsdNumber(cs, Short.MIN_VALUE, Short.MAX_VALUE);
     }
@@ -655,57 +655,59 @@ public final class XsTypeConverter {
     }
 
     private static int parseIntXsdNumber(CharSequence ch, int min_value, int max_value) {
-        // int parser on a CharSequence
-        int length = ch.length();
-        if (length < 1) {
-            throw new NumberFormatException("For input string: \"" + ch + "\"");
+        rejectInvalidNumber(ch);
+
+        final int len = ch.length();
+        int i = 0;
+        boolean negative = false;
+
+        // Sign
+        char first = ch.charAt(0);
+        if (first == '-') {
+            negative = true;
+            i = 1;
+        } else if (first == '+') {
+            i = 1;
         }
 
-        int sign = 1;
-        int result = 0;
-        int start = 0;
-        int limit;
-        int limit2;
-
-        char c = ch.charAt(0);
-        if (c == '-') {
-            start++;
-            limit = (min_value / 10);
-            limit2 = -(min_value % 10);
-        } else if (c == '+') {
-            start++;
-            sign = -1;
-            limit = -(max_value / 10);
-            limit2 = (max_value % 10);
-        } else {
-            sign = -1;
-            limit = -(max_value / 10);
-            limit2 = (max_value % 10);
+        if (i == len) {
+            throw new NumberFormatException("For input string: \"" + ch + "\""); // just "+" or "-"
         }
 
-        for (int i = 0; i < length - start; i++) {
-            c = ch.charAt(i + start);
-            int v = (c >= '0' && c <= '9') ? c - '0' : -1;
+        long result = 0;           // Use long to avoid intermediate overflow
 
-            if (v < 0) {
+        while (i < len) {
+            char c = ch.charAt(i++);
+            int digit = c - '0';
+            if (digit < 0 || digit > 9) {
                 throw new NumberFormatException("For input string: \"" + ch + "\"");
             }
 
-            if (result < limit || (result == limit && v > limit2)) {
+            // Early overflow detection
+            if (result > (Long.MAX_VALUE / 10)) {
                 throw new NumberFormatException("For input string: \"" + ch + "\"");
             }
-
-            result = Math.toIntExact(result * 10L - v);
+            result = result * 10 + digit;
         }
 
-        return Math.multiplyExact(sign, result);
+        if (negative) {
+            result = -result;
+        }
+
+        if (result < min_value || result > max_value) {
+            throw new NumberFormatException(String.format(
+                    "For input string: \"%s\"; min-allowed=%d, max-allowed=%d",
+                    ch, min_value, max_value));
+        }
+
+        return Math.toIntExact(result);
     }
 
     // ======================== anyURI ========================
 
     /**
      * Checks the regular expression of URI, defined by RFC2369 http://www.ietf.org/rfc/rfc2396.txt Appendix B.
-     * Note: The whitespace normalization rule collapse must be applied priot to calling this method.
+     * Note: The whitespace normalization rule collapse must be applied prior to calling this method.
      *
      * @param lexical_value the lexical value
      * @return same input value if input value is in the lexical space
@@ -743,5 +745,11 @@ public final class XsTypeConverter {
         }
 
         return lexical_value;
+    }
+
+    private static void rejectInvalidNumber(CharSequence cs) {
+        if (cs == null || cs.length() == 0) {
+            throw new NumberFormatException("For input string: \"" + cs + "\"");
+        }
     }
 }
