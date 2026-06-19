@@ -37,6 +37,26 @@ public class XsTypeConverterTest {
         assertEquals(123, XsTypeConverter.lexInt("123"));
         assertEquals(-123, XsTypeConverter.lexInt("-123"));
         assertEquals(123, XsTypeConverter.lexInt("+123"));
+        assertEquals(Integer.MAX_VALUE, XsTypeConverter.lexInt(Integer.toString(Integer.MAX_VALUE)));
+        assertEquals(Integer.MIN_VALUE, XsTypeConverter.lexInt(Integer.toString(Integer.MIN_VALUE)));
+    }
+
+    @Test
+    void lexLongAcceptsAscii() {
+        assertEquals(123L, XsTypeConverter.lexLong("123"));
+        assertEquals(-123L, XsTypeConverter.lexLong("-123"));
+        assertEquals(123L, XsTypeConverter.lexLong("+123"));
+        assertEquals(Long.MAX_VALUE, XsTypeConverter.lexInt(Long.toString(Long.MAX_VALUE)));
+        assertEquals(Long.MIN_VALUE, XsTypeConverter.lexInt(Long.toString(Long.MIN_VALUE)));
+    }
+
+    @Test
+    void lexShortAcceptsAscii() {
+        assertEquals(123L, XsTypeConverter.lexShort("123"));
+        assertEquals(-123L, XsTypeConverter.lexShort("-123"));
+        assertEquals(123L, XsTypeConverter.lexShort("+123"));
+        assertEquals(Short.MAX_VALUE, XsTypeConverter.lexShort(Short.toString(Short.MAX_VALUE)));
+        assertEquals(Short.MIN_VALUE, XsTypeConverter.lexShort(Short.toString(Short.MIN_VALUE)));
     }
 
     @Test
