@@ -208,6 +208,12 @@ public class XsTypeConverterTest {
     }
 
     @Test
+    void lexLongRejectsEmptyOrNull() {
+        assertThrows(NumberFormatException.class, () -> XsTypeConverter.lexLong(null));
+        assertThrows(NumberFormatException.class, () -> XsTypeConverter.lexLong(""));
+    }
+
+    @Test
     void lexIntegerRejectsDoubleSign() {
         // "+-5" was already caught; "++5" leaked through as 5.
         assertEquals(java.math.BigInteger.valueOf(5), XsTypeConverter.lexInteger("+5"));
@@ -221,6 +227,7 @@ public class XsTypeConverterTest {
         // an empty value used to read charAt(-1) in trimTrailingZeros and
         // throw StringIndexOutOfBoundsException instead of NumberFormatException.
         assertThrows(NumberFormatException.class, () -> XsTypeConverter.lexDecimal(""));
+        assertThrows(NumberFormatException.class, () -> XsTypeConverter.lexDecimal(null));
     }
 
     @Test
