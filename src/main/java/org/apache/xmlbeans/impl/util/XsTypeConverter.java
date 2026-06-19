@@ -214,6 +214,7 @@ public final class XsTypeConverter {
     // ======================== decimal ========================
     public static BigDecimal lexDecimal(CharSequence cs)
         throws NumberFormatException {
+        rejectInvalidNumber(cs);
         final String v = cs.toString();
 
         //TODO: review this
