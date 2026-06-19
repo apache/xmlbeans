@@ -17,6 +17,7 @@ package org.apache.xmlbeans.impl.util;
 
 import org.apache.xmlbeans.*;
 import org.apache.xmlbeans.impl.common.InvalidLexicalValueException;
+import org.apache.xmlbeans.impl.common.XMLChar;
 
 import javax.xml.namespace.NamespaceContext;
 import javax.xml.namespace.QName;
@@ -480,6 +481,13 @@ public final class XsTypeConverter {
         } else {
             prefix = EMPTY_PREFIX;
             localname = charSeq.toString();
+        }
+
+        if (!prefix.isEmpty() && !XMLChar.isValidNCName(prefix)) {
+            throw new InvalidLexicalValueException("invalid xsd:QName '" + charSeq + "'");
+        }
+        if (!XMLChar.isValidNCName(localname)) {
+            throw new InvalidLexicalValueException("invalid xsd:QName '" + charSeq + "'");
         }
 
         String uri = nscontext.getNamespaceURI(prefix);

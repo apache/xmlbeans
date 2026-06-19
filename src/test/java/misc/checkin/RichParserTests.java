@@ -83,6 +83,30 @@ public class RichParserTests {
         assertThrows(InvalidLexicalValueException.class, () -> attByName.getAttributeBase64Value("", "b"));
     }
 
+    @Test
+    void testInvalidQNameThrowsInvalidLexicalValue() throws Exception {
+        // The localname of an xsd:QName must be an NCName, so a value whose
+        // local part still contains a ':' (or any other non-NCName char) is
+        // outside the lexical space. lexQName resolved the prefix but never
+        // checked the parts, so "p:b:c" came back as QName{uri}b:c instead of
+        // being rejected like the holder validate path does.
+        XMLStreamReaderExt colonInLocal = atFirstStartElement("<a xmlns:p='urn:x'>p:b:c</a>");
+        assertThrows(InvalidLexicalValueException.class, colonInLocal::getQNameValue);
+
+        XMLStreamReaderExt spaceInLocal = atFirstStartElement("<a>b c</a>");
+        assertThrows(InvalidLexicalValueException.class, spaceInLocal::getQNameValue);
+
+        XMLStreamReaderExt emptyLocal = atFirstStartElement("<a xmlns:p='urn:x'>p:</a>");
+        assertThrows(InvalidLexicalValueException.class, emptyLocal::getQNameValue);
+
+        XMLStreamReaderExt attColon = atFirstStartElement("<a xmlns:p='urn:x' b='p:b:c'/>");
+        assertThrows(InvalidLexicalValueException.class, () -> attColon.getAttributeQNameValue(0));
+
+        // a well-formed prefixed QName still resolves
+        XMLStreamReaderExt good = atFirstStartElement("<a xmlns:p='urn:x'>p:good</a>");
+        assertEquals(new QName("urn:x", "good"), good.getQNameValue());
+    }
+
     private static XMLStreamReaderExt atFirstStartElement(String xml) throws Exception {
         XMLStreamReader xsr = XmlObject.Factory.parse(xml).newXMLStreamReader();
         XMLStreamReaderExt ext = new XMLStreamReaderExtImpl(xsr);
