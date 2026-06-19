@@ -655,50 +655,60 @@ public final class XsTypeConverter {
     }
 
     private static int parseIntXsdNumber(CharSequence ch, int min_value, int max_value) {
-        // int parser on a CharSequence
-        int length = ch.length();
-        if (length < 1) {
+        if (ch == null || ch.length() == 0) {
             throw new NumberFormatException("For input string: \"" + ch + "\"");
         }
 
-        int sign = 1;
-        int result = 0;
-        int start = 0;
-        int limit;
-        int limit2;
+        int len = ch.length();
+        int i = 0;
+        boolean negative = false;
 
-        char c = ch.charAt(0);
-        if (c == '-') {
-            start++;
-            limit = (min_value / 10);
-            limit2 = -(min_value % 10);
-        } else if (c == '+') {
-            start++;
-            sign = -1;
-            limit = -(max_value / 10);
-            limit2 = (max_value % 10);
-        } else {
-            sign = -1;
-            limit = -(max_value / 10);
-            limit2 = (max_value % 10);
+        // Sign
+        char first = ch.charAt(0);
+        if (first == '-') {
+            negative = true;
+            i = 1;
+        } else if (first == '+') {
+            i = 1;
         }
 
-        for (int i = 0; i < length - start; i++) {
-            c = ch.charAt(i + start);
-            int v = (c >= '0' && c <= '9') ? c - '0' : -1;
+        if (i == len) {
+            throw new NumberFormatException("For input string: \"" + ch + "\""); // just "+" or "-"
+        }
 
-            if (v < 0) {
+        long result = 0;           // Use long to avoid intermediate overflow
+        int digitCount = 0;
+
+        while (i < len) {
+            char c = ch.charAt(i++);
+            int digit = c - '0';
+            if (digit < 0 || digit > 9) {
                 throw new NumberFormatException("For input string: \"" + ch + "\"");
             }
 
-            if (result < limit || (result == limit && v > limit2)) {
+            digitCount++;
+
+            // Early overflow detection
+            if (result > (Long.MAX_VALUE / 10)) {
                 throw new NumberFormatException("For input string: \"" + ch + "\"");
             }
-
-            result = Math.toIntExact(result * 10L - v);
+            result = result * 10 + digit;
         }
 
-        return Math.multiplyExact(sign, result);
+        if (negative) {
+            result = -result;
+        }
+
+        if (result < min_value || result > max_value) {
+            throw new NumberFormatException(String.format(
+                    "For input string: \"%s\"; min-allowed=%d, max-allowed=%d",
+                    ch, min_value, max_value));
+        }
+
+        // Optional: reject leading zeros (strict XSD canonical lexical)
+        // if (digitCount > 1 && ch.charAt(negative || first== '+' ? 1 : 0) == '0') { ... }
+
+        return Math.toIntExact(result);
     }
 
     // ======================== anyURI ========================
