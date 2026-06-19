@@ -46,8 +46,8 @@ public class XsTypeConverterTest {
         assertEquals(123L, XsTypeConverter.lexLong("123"));
         assertEquals(-123L, XsTypeConverter.lexLong("-123"));
         assertEquals(123L, XsTypeConverter.lexLong("+123"));
-        assertEquals(Long.MAX_VALUE, XsTypeConverter.lexInt(Long.toString(Long.MAX_VALUE)));
-        assertEquals(Long.MIN_VALUE, XsTypeConverter.lexInt(Long.toString(Long.MIN_VALUE)));
+        assertEquals(Long.MAX_VALUE, XsTypeConverter.lexLong(Long.toString(Long.MAX_VALUE)));
+        assertEquals(Long.MIN_VALUE, XsTypeConverter.lexLong(Long.toString(Long.MIN_VALUE)));
     }
 
     @Test
