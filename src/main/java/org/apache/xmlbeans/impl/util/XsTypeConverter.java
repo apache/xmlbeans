@@ -93,6 +93,7 @@ public final class XsTypeConverter {
      */
     public static float lexFloat(CharSequence cs, boolean strict)
         throws NumberFormatException {
+        rejectInvalidNumber(cs);
         final String v = cs.toString();
         switch (v) {
             case POS_INF_LEX:
@@ -162,6 +163,7 @@ public final class XsTypeConverter {
      */
     public static double lexDouble(CharSequence cs, boolean strict)
         throws NumberFormatException {
+        rejectInvalidNumber(cs);
         final String v = cs.toString();
         switch (v) {
             case POS_INF_LEX:
@@ -300,6 +302,7 @@ public final class XsTypeConverter {
     // ======================== long ========================
     public static long lexLong(CharSequence cs)
         throws NumberFormatException {
+        rejectInvalidNumber(cs);
         rejectSignAfterPlus(cs);
         final String v = cs.toString();
         return Long.parseLong(trimInitialPlus(v));
@@ -358,7 +361,7 @@ public final class XsTypeConverter {
     // ======================== int ========================
     public static int lexInt(CharSequence cs)
         throws NumberFormatException {
-        return parseInt(cs);
+        return parseIntXsdNumber(cs, Integer.MIN_VALUE, Integer.MAX_VALUE);
     }
 
     public static int lexInt(CharSequence cs, Collection<XmlError> errors) {
@@ -642,10 +645,6 @@ public final class XsTypeConverter {
         return xsd_decimal;
     }
 
-    private static int parseInt(CharSequence cs) {
-        return parseIntXsdNumber(cs, Integer.MIN_VALUE, Integer.MAX_VALUE);
-    }
-
     private static short parseShort(CharSequence cs) {
         return (short) parseIntXsdNumber(cs, Short.MIN_VALUE, Short.MAX_VALUE);
     }
@@ -655,11 +654,9 @@ public final class XsTypeConverter {
     }
 
     private static int parseIntXsdNumber(CharSequence ch, int min_value, int max_value) {
-        if (ch == null || ch.length() == 0) {
-            throw new NumberFormatException("For input string: \"" + ch + "\"");
-        }
+        rejectInvalidNumber(ch);
 
-        int len = ch.length();
+        final int len = ch.length();
         int i = 0;
         boolean negative = false;
 
@@ -747,5 +744,11 @@ public final class XsTypeConverter {
         }
 
         return lexical_value;
+    }
+
+    private static void rejectInvalidNumber(CharSequence cs) {
+        if (cs == null || cs.length() == 0) {
+            throw new NumberFormatException("For input string: \"" + cs + "\"");
+        }
     }
 }
