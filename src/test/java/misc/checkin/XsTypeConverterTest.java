@@ -35,6 +35,7 @@ public class XsTypeConverterTest {
     @Test
     void lexIntAcceptsAscii() {
         assertEquals(123, XsTypeConverter.lexInt("123"));
+        assertEquals(123, XsTypeConverter.lexInt("00123"));
         assertEquals(-123, XsTypeConverter.lexInt("-123"));
         assertEquals(123, XsTypeConverter.lexInt("+123"));
         assertEquals(Integer.MAX_VALUE, XsTypeConverter.lexInt(Integer.toString(Integer.MAX_VALUE)));
@@ -44,6 +45,7 @@ public class XsTypeConverterTest {
     @Test
     void lexLongAcceptsAscii() {
         assertEquals(123L, XsTypeConverter.lexLong("123"));
+        assertEquals(123L, XsTypeConverter.lexLong("00123"));
         assertEquals(-123L, XsTypeConverter.lexLong("-123"));
         assertEquals(123L, XsTypeConverter.lexLong("+123"));
         assertEquals(Long.MAX_VALUE, XsTypeConverter.lexLong(Long.toString(Long.MAX_VALUE)));
@@ -52,9 +54,10 @@ public class XsTypeConverterTest {
 
     @Test
     void lexShortAcceptsAscii() {
-        assertEquals(123L, XsTypeConverter.lexShort("123"));
-        assertEquals(-123L, XsTypeConverter.lexShort("-123"));
-        assertEquals(123L, XsTypeConverter.lexShort("+123"));
+        assertEquals(123, XsTypeConverter.lexShort("123"));
+        assertEquals(123, XsTypeConverter.lexShort("00123"));
+        assertEquals(-123, XsTypeConverter.lexShort("-123"));
+        assertEquals(123, XsTypeConverter.lexShort("+123"));
         assertEquals(Short.MAX_VALUE, XsTypeConverter.lexShort(Short.toString(Short.MAX_VALUE)));
         assertEquals(Short.MIN_VALUE, XsTypeConverter.lexShort(Short.toString(Short.MIN_VALUE)));
     }
@@ -68,7 +71,6 @@ public class XsTypeConverterTest {
 
     @Test
     void lexShortRejectsNonAsciiDigits() {
-        assertEquals(123, XsTypeConverter.lexShort("123"));
         assertThrows(NumberFormatException.class, () -> XsTypeConverter.lexShort(FULLWIDTH_123));
         assertThrows(NumberFormatException.class, () -> XsTypeConverter.lexShort(ARABIC_123));
     }
@@ -125,6 +127,7 @@ public class XsTypeConverterTest {
     @Test
     void lexFloatStrictAcceptsValidValues() {
         assertEquals(1.0f, XsTypeConverter.lexFloat("1.0", true));
+        assertEquals(1.0f, XsTypeConverter.lexFloat("01.0", true));
         assertEquals(1500.0f, XsTypeConverter.lexFloat("1.5e3", true));
         assertEquals(Float.POSITIVE_INFINITY, XsTypeConverter.lexFloat("INF", true));
         assertEquals(Float.NEGATIVE_INFINITY, XsTypeConverter.lexFloat("-INF", true));
@@ -134,6 +137,7 @@ public class XsTypeConverterTest {
     @Test
     void lexDoubleAcceptsValidValues() {
         assertEquals(1.0, XsTypeConverter.lexDouble("1.0"));
+        assertEquals(1.0, XsTypeConverter.lexDouble("01.0"));
         assertEquals(Double.POSITIVE_INFINITY, XsTypeConverter.lexDouble("INF"));
         assertEquals(Double.NEGATIVE_INFINITY, XsTypeConverter.lexDouble("-INF"));
         assertEquals(1500.0, XsTypeConverter.lexDouble("1.5e3"));
@@ -160,6 +164,7 @@ public class XsTypeConverterTest {
     @Test
     void lexDoubleStrictAcceptsValidValues() {
         assertEquals(1.0, XsTypeConverter.lexDouble("1.0", true));
+        assertEquals(1.0, XsTypeConverter.lexDouble("01.0", true));
         assertEquals(1500.0, XsTypeConverter.lexDouble("1.5e3", true));
         assertEquals(Double.POSITIVE_INFINITY, XsTypeConverter.lexDouble("INF", true));
         assertEquals(Double.NEGATIVE_INFINITY, XsTypeConverter.lexDouble("-INF", true));
