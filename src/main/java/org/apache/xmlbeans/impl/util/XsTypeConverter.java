@@ -677,7 +677,6 @@ public final class XsTypeConverter {
         }
 
         long result = 0;           // Use long to avoid intermediate overflow
-        int digitCount = 0;
 
         while (i < len) {
             char c = ch.charAt(i++);
@@ -685,8 +684,6 @@ public final class XsTypeConverter {
             if (digit < 0 || digit > 9) {
                 throw new NumberFormatException("For input string: \"" + ch + "\"");
             }
-
-            digitCount++;
 
             // Early overflow detection
             if (result > (Long.MAX_VALUE / 10)) {
@@ -704,9 +701,6 @@ public final class XsTypeConverter {
                     "For input string: \"%s\"; min-allowed=%d, max-allowed=%d",
                     ch, min_value, max_value));
         }
-
-        // Optional: reject leading zeros (strict XSD canonical lexical)
-        // if (digitCount > 1 && ch.charAt(negative || first== '+' ? 1 : 0) == '0') { ... }
 
         return Math.toIntExact(result);
     }
