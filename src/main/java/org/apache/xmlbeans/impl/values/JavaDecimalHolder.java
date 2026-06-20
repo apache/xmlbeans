@@ -41,8 +41,9 @@ public class JavaDecimalHolder extends XmlObjectBase {
     }
 
     protected void set_text(String s) {
+        boolean allowExponent = has_store() && get_store().get_locale().isLoadAllowDecimalExponent();
         if (_validateOnSet()) {
-            validateLexical(s, _voorVc);
+            validateLexical(s, _voorVc, allowExponent);
         }
 
         try {
@@ -61,6 +62,21 @@ public class JavaDecimalHolder extends XmlObjectBase {
      */
 
     public static void validateLexical(String v, ValidationContext context) {
+        validateLexical(v, context, false);
+    }
+
+    public static void validateLexical(String v, ValidationContext context, boolean allowExponent) {
+        if (allowExponent) {
+            // long-standing lenient behaviour: accept whatever BigDecimal accepts,
+            // which includes scientific/exponent notation such as "1E5".
+            try {
+                new BigDecimal(v);
+            } catch (NumberFormatException e) {
+                context.invalid(XmlErrorCodes.DECIMAL, new Object[]{v});
+            }
+            return;
+        }
+
         // TODO - will want to validate Chars with built in white space handling
         //        However, this fcn sometimes takes a value with wsr applied
         //        already

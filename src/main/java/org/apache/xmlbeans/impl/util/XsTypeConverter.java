@@ -215,8 +215,30 @@ public final class XsTypeConverter {
     // ======================== decimal ========================
     public static BigDecimal lexDecimal(CharSequence cs)
         throws NumberFormatException {
+        return lexDecimal(cs, false);
+    }
+
+    /**
+     * Parses an xsd:decimal lexical value.
+     *
+     * @param cs            the lexical value
+     * @param allowExponent when {@code false} (the default) scientific/exponent notation
+     *                      such as {@code 1E5} is rejected: it is outside the xsd:decimal
+     *                      lexical space (that form belongs to xsd:double/xsd:float) and
+     *                      {@link BigDecimal} would otherwise parse it to a wrong value
+     *                      ({@code 1E5 -> 100000}). When {@code true} the long-standing
+     *                      lenient behaviour applies and an exponent is accepted. Driven by
+     *                      {@link org.apache.xmlbeans.XmlOptions#setLoadAllowDecimalExponent()}.
+     * @return the parsed decimal
+     * @throws NumberFormatException if the value is not a valid xsd:decimal
+     * @since 5.4.0
+     */
+    public static BigDecimal lexDecimal(CharSequence cs, boolean allowExponent)
+        throws NumberFormatException {
         rejectInvalidNumber(cs);
-        rejectExponent(cs);
+        if (!allowExponent) {
+            rejectExponent(cs);
+        }
         final String v = cs.toString();
 
         //TODO: review this

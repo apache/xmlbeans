@@ -14,6 +14,7 @@
  */
 package misc.checkin;
 
+import org.apache.xmlbeans.XmlDecimal;
 import org.apache.xmlbeans.XmlDouble;
 import org.apache.xmlbeans.XmlFloat;
 import org.apache.xmlbeans.XmlOptions;
@@ -198,6 +199,20 @@ public class XsTypeConverterTest {
     }
 
     @Test
+    void loadAllowDecimalExponentOptionGatesDecimalParsing() throws Exception {
+        // an exponent is outside the xsd:decimal lexical space, so validation
+        // rejects "1E5" by default
+        XmlOptions validate = new XmlOptions().setValidateOnSet();
+        assertThrows(XmlValueOutOfRangeException.class, () ->
+            XmlDecimal.Factory.parse("<xml-fragment>1E5</xml-fragment>", validate).getBigDecimalValue());
+
+        // setLoadAllowDecimalExponent restores the lenient behaviour
+        XmlOptions lenient = new XmlOptions().setValidateOnSet().setLoadAllowDecimalExponent();
+        assertEquals(0, new java.math.BigDecimal("100000").compareTo(
+            XmlDecimal.Factory.parse("<xml-fragment>1E5</xml-fragment>", lenient).getBigDecimalValue()));
+    }
+
+    @Test
     void lexLongRejectsDoubleSign() {
         // trimInitialPlus drops the leading '+', then Long.parseLong accepts its
         // own sign, so "++5"/"+-5" used to parse as 5/-5 instead of being rejected.
@@ -240,11 +255,30 @@ public class XsTypeConverterTest {
     void lexDecimalRejectsExponent() {
         // BigDecimal accepts scientific notation, but the xsd:decimal lexical
         // space has no exponent - "1E5" used to parse to 100000 instead of
-        // being rejected as invalid.
+        // being rejected as invalid. This is the default (allowExponent = false).
         assertThrows(NumberFormatException.class, () -> XsTypeConverter.lexDecimal("1E5"));
         assertThrows(NumberFormatException.class, () -> XsTypeConverter.lexDecimal("1.5e3"));
         assertThrows(NumberFormatException.class, () -> XsTypeConverter.lexDecimal("-2E-3"));
+        assertThrows(NumberFormatException.class, () -> XsTypeConverter.lexDecimal("1E5", false));
         // plain decimals stay valid
         assertEquals(0, new java.math.BigDecimal("1.5").compareTo(XsTypeConverter.lexDecimal("1.5")));
+    }
+
+    @Test
+    void lexDecimalAllowsExponentWhenRequested() {
+        // XmlOptions.setLoadAllowDecimalExponent restores the lenient behaviour:
+        // the exponent form is accepted again (e.g. "1E5" -> 100000).
+        assertEquals(0, new java.math.BigDecimal("100000").compareTo(XsTypeConverter.lexDecimal("1E5", true)));
+        assertEquals(0, new java.math.BigDecimal("1500").compareTo(XsTypeConverter.lexDecimal("1.5e3", true)));
+        // plain decimals are unaffected by the flag
+        assertEquals(0, new java.math.BigDecimal("1.5").compareTo(XsTypeConverter.lexDecimal("1.5", true)));
+    }
+
+    @Test
+    void lexIntegerRejectsExponent() {
+        // xs:integer is parsed with BigInteger, which never accepts an exponent,
+        // so the exponent form is already rejected for integer types.
+        assertThrows(NumberFormatException.class, () -> XsTypeConverter.lexInteger("1E5"));
+        assertThrows(NumberFormatException.class, () -> XsTypeConverter.lexInteger("1e5"));
     }
 }

@@ -105,6 +105,8 @@ public final class Locale
 
         _loadStrictFloatingPoint = options.isLoadStrictFloatingPoint();
 
+        _loadAllowDecimalExponent = options.isLoadAllowDecimalExponent();
+
         //
         // Check for Saaj implementation request
         //
@@ -2077,6 +2079,10 @@ public final class Locale
         return _loadStrictFloatingPoint;
     }
 
+    public boolean isLoadAllowDecimalExponent() {
+        return _loadAllowDecimalExponent;
+    }
+
     static boolean isWhiteSpace(String s) {
         int l = s.length();
 
@@ -2796,6 +2802,8 @@ public final class Locale
     boolean _validateOnSet;
 
     boolean _loadStrictFloatingPoint;
+
+    boolean _loadAllowDecimalExponent;
 
     int _posTemp;
 
