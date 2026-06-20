@@ -604,9 +604,9 @@ class RegexParser {
                     min = ch -'0';
                     while (off < this.regexlen
                            && (ch = this.regex.charAt(off++)) >= '0' && ch <= '9') {
-                        min = min*10 +ch-'0';
-                        if (min < 0)
+                        if (min > (Integer.MAX_VALUE - (ch-'0')) / 10)
                             throw ex("parser.quantifier.5", this.offset);
+                        min = min*10 +ch-'0';
                     }
                 }
                 else {
@@ -625,9 +625,9 @@ class RegexParser {
                         while (off < this.regexlen
                                && (ch = this.regex.charAt(off++)) >= '0'
                                && ch <= '9') {
-                            max = max*10 +ch-'0';
-                            if (max < 0)
+                            if (max > (Integer.MAX_VALUE - (ch-'0')) / 10)
                                 throw ex("parser.quantifier.5", this.offset);
+                            max = max*10 +ch-'0';
                         }
 
                         if (min > max)
