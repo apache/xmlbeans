@@ -235,4 +235,16 @@ public class XsTypeConverterTest {
         assertEquals(0, new java.math.BigDecimal("1.5").compareTo(XsTypeConverter.lexDecimal("1.500")));
         assertEquals(0, new java.math.BigDecimal("12").compareTo(XsTypeConverter.lexDecimal("12.000")));
     }
+
+    @Test
+    void lexDecimalRejectsExponent() {
+        // BigDecimal accepts scientific notation, but the xsd:decimal lexical
+        // space has no exponent - "1E5" used to parse to 100000 instead of
+        // being rejected as invalid.
+        assertThrows(NumberFormatException.class, () -> XsTypeConverter.lexDecimal("1E5"));
+        assertThrows(NumberFormatException.class, () -> XsTypeConverter.lexDecimal("1.5e3"));
+        assertThrows(NumberFormatException.class, () -> XsTypeConverter.lexDecimal("-2E-3"));
+        // plain decimals stay valid
+        assertEquals(0, new java.math.BigDecimal("1.5").compareTo(XsTypeConverter.lexDecimal("1.5")));
+    }
 }

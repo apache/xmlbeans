@@ -216,6 +216,7 @@ public final class XsTypeConverter {
     public static BigDecimal lexDecimal(CharSequence cs)
         throws NumberFormatException {
         rejectInvalidNumber(cs);
+        rejectExponent(cs);
         final String v = cs.toString();
 
         //TODO: review this
@@ -752,6 +753,20 @@ public final class XsTypeConverter {
     private static void rejectInvalidNumber(CharSequence cs) {
         if (cs == null || cs.length() == 0) {
             throw new NumberFormatException("For input string: \"" + cs + "\"");
+        }
+    }
+
+    // BigDecimal accepts scientific notation such as "1E5", but the xsd:decimal
+    // lexical space does not allow an exponent - that form belongs to xsd:double
+    // and xsd:float. Without this check an exponent value reaching lexDecimal via
+    // the rich parser parses to a wrong value (e.g. "1E5" -> 100000) instead of
+    // being reported as invalid.
+    private static void rejectExponent(CharSequence cs) {
+        for (int i = 0, len = cs.length(); i < len; i++) {
+            final char c = cs.charAt(i);
+            if (c == 'e' || c == 'E') {
+                throw new NumberFormatException("invalid char '" + c + "' in decimal value");
+            }
         }
     }
 }
