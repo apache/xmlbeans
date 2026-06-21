@@ -15,12 +15,14 @@
 
 package misc.checkin;
 
+import org.apache.xmlbeans.impl.regex.ParseException;
 import org.apache.xmlbeans.impl.regex.RegularExpression;
 import org.junit.jupiter.api.Test;
 
 import java.util.Random;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class RegularExpressionTest {
@@ -42,6 +44,23 @@ public class RegularExpressionTest {
         // the same off-by-one read also returned the wrong match result: the char
         // before the lookbehind is 'x', not in [a-c], so this must not match
         assertFalse(new RegularExpression("x(?<=[a-c])").matches("xc"));
+    }
+
+    @Test
+    void testQuantifierOverflow() {
+        // a {min,max} count larger than Integer.MAX_VALUE overflowed the int
+        // accumulator. the only guard was a post-multiply min<0/max<0 check, so
+        // counts that wrapped to a non-negative value slipped through: "a{4294967296}"
+        // parsed as "a{0}" (matched the empty string) and "a{1,4294967298}" as "a{1,2}",
+        // while bigger ones such as "a{99999999999}" blew the heap at match time.
+        assertThrows(ParseException.class, () -> new RegularExpression("a{4294967296}"));
+        assertThrows(ParseException.class, () -> new RegularExpression("a{4294967297}"));
+        assertThrows(ParseException.class, () -> new RegularExpression("a{99999999999}"));
+        assertThrows(ParseException.class, () -> new RegularExpression("a{1,4294967298}"));
+        // counts up to Integer.MAX_VALUE are representable and must still parse
+        new RegularExpression("a{2147483647}");
+        new RegularExpression("a{0,2147483647}");
+        assertTrue(new RegularExpression("a{2,4}").matches("aaa"));
     }
 
 

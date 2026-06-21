@@ -73,7 +73,7 @@ class RegexParser {
     int context = S_NORMAL;
     int parennumber = 1;
     boolean hasBackReferences;
-    Vector references = null;
+    Vector<ReferencePosition> references = null;
 
     public RegexParser() {
         this.setLocale(Locale.getDefault());
@@ -112,7 +112,7 @@ class RegexParser {
             throw ex("parser.parse.1", this.offset);
         if (this.references != null) {
             for (int i = 0;  i < this.references.size();  i ++) {
-                ReferencePosition position = (ReferencePosition)this.references.elementAt(i);
+                ReferencePosition position = this.references.elementAt(i);
                 if (this.parennumber <= position.refNumber)
                     throw ex("parser.parse.2", position.position);
             }
@@ -431,7 +431,7 @@ class RegexParser {
         if ('1' <= ch && ch <= '9') {
             refno = ch-'0';
             this.hasBackReferences = true;
-            if (this.references == null)  this.references = new Vector();
+            if (this.references == null)  this.references = new Vector<>();
             this.references.addElement(new ReferencePosition(refno, this.offset));
             this.offset ++;
             if (this.regex.charAt(this.offset) != ')')  throw ex("parser.factor.1", this.offset);
@@ -543,7 +543,7 @@ class RegexParser {
         int refnum = this.chardata-'0';
         Token tok = Token.createBackReference(refnum);
         this.hasBackReferences = true;
-        if (this.references == null)  this.references = new Vector();
+        if (this.references == null)  this.references = new Vector<>();
         this.references.addElement(new ReferencePosition(refnum, this.offset-2));
         this.next();
         return tok;
@@ -604,9 +604,9 @@ class RegexParser {
                     min = ch -'0';
                     while (off < this.regexlen
                            && (ch = this.regex.charAt(off++)) >= '0' && ch <= '9') {
-                        min = min*10 +ch-'0';
-                        if (min < 0)
+                        if (min > (Integer.MAX_VALUE - (ch-'0')) / 10)
                             throw ex("parser.quantifier.5", this.offset);
+                        min = min*10 +ch-'0';
                     }
                 }
                 else {
@@ -625,9 +625,9 @@ class RegexParser {
                         while (off < this.regexlen
                                && (ch = this.regex.charAt(off++)) >= '0'
                                && ch <= '9') {
-                            max = max*10 +ch-'0';
-                            if (max < 0)
+                            if (max > (Integer.MAX_VALUE - (ch-'0')) / 10)
                                 throw ex("parser.quantifier.5", this.offset);
+                            max = max*10 +ch-'0';
                         }
 
                         if (min > max)
@@ -976,89 +976,92 @@ class RegexParser {
           case 'r':  c = '\r';  break; // CRRIAGE RETURN U+000D
           case 't':  c = '\t';  break; // HORIZONTAL TABULATION U+0009
           //case 'v':  c = 0x0b;  break; // VERTICAL TABULATION U+000B
-          case 'x':
-            this.next();
-            if (this.read() != T_CHAR)  throw ex("parser.descape.1", this.offset-1);
-            if (this.chardata == '{') {
-                int v1 = 0;
-                int uv = 0;
-                do {
-                    this.next();
-                    if (this.read() != T_CHAR)  throw ex("parser.descape.1", this.offset-1);
-                    if ((v1 = hexChar(this.chardata)) < 0)
-                        break;
-                    if (uv > uv*16) throw ex("parser.descape.2", this.offset-1);
-                    uv = uv*16+v1;
-                } while (true);
-                if (this.chardata != '}')  throw ex("parser.descape.3", this.offset-1);
-                if (uv > Token.UTF16_MAX)  throw ex("parser.descape.4", this.offset-1);
-                c = uv;
-            } else {
-                int v1 = 0;
-                if (this.read() != T_CHAR || (v1 = hexChar(this.chardata)) < 0)
-                    throw ex("parser.descape.1", this.offset-1);
-                int uv = v1;
-                this.next();
-                if (this.read() != T_CHAR || (v1 = hexChar(this.chardata)) < 0)
-                    throw ex("parser.descape.1", this.offset-1);
-                uv = uv*16+v1;
-                c = uv;
-            }
-            break;
-
-          case 'u':
-            int v1 = 0;
-            this.next();
-            if (this.read() != T_CHAR || (v1 = hexChar(this.chardata)) < 0)
-                throw ex("parser.descape.1", this.offset-1);
-            int uv = v1;
-            this.next();
-            if (this.read() != T_CHAR || (v1 = hexChar(this.chardata)) < 0)
-                throw ex("parser.descape.1", this.offset-1);
-            uv = uv*16+v1;
-            this.next();
-            if (this.read() != T_CHAR || (v1 = hexChar(this.chardata)) < 0)
-                throw ex("parser.descape.1", this.offset-1);
-            uv = uv*16+v1;
-            this.next();
-            if (this.read() != T_CHAR || (v1 = hexChar(this.chardata)) < 0)
-                throw ex("parser.descape.1", this.offset-1);
-            uv = uv*16+v1;
-            c = uv;
-            break;
-
-          case 'v':
-            this.next();
-            if (this.read() != T_CHAR || (v1 = hexChar(this.chardata)) < 0)
-                throw ex("parser.descape.1", this.offset-1);
-            uv = v1;
-            this.next();
-            if (this.read() != T_CHAR || (v1 = hexChar(this.chardata)) < 0)
-                throw ex("parser.descape.1", this.offset-1);
-            uv = uv*16+v1;
-            this.next();
-            if (this.read() != T_CHAR || (v1 = hexChar(this.chardata)) < 0)
-                throw ex("parser.descape.1", this.offset-1);
-            uv = uv*16+v1;
-            this.next();
-            if (this.read() != T_CHAR || (v1 = hexChar(this.chardata)) < 0)
-                throw ex("parser.descape.1", this.offset-1);
-            uv = uv*16+v1;
-            this.next();
-            if (this.read() != T_CHAR || (v1 = hexChar(this.chardata)) < 0)
-                throw ex("parser.descape.1", this.offset-1);
-            uv = uv*16+v1;
-            this.next();
-            if (this.read() != T_CHAR || (v1 = hexChar(this.chardata)) < 0)
-                throw ex("parser.descape.1", this.offset-1);
-            uv = uv*16+v1;
-            if (uv > Token.UTF16_MAX)  throw ex("parser.descappe.4", this.offset-1);
-            c = uv;
-            break;
+          case 'x': {
+              this.next();
+              if (this.read() != T_CHAR) throw ex("parser.descape.1", this.offset - 1);
+              if (this.chardata == '{') {
+                  int v1 = 0;
+                  int uv = 0;
+                  do {
+                      this.next();
+                      if (this.read() != T_CHAR) throw ex("parser.descape.1", this.offset - 1);
+                      if ((v1 = hexChar(this.chardata)) < 0)
+                          break;
+                      if (uv > uv * 16) throw ex("parser.descape.2", this.offset - 1);
+                      uv = uv * 16 + v1;
+                  } while (true);
+                  if (this.chardata != '}') throw ex("parser.descape.3", this.offset - 1);
+                  if (uv > Token.UTF16_MAX) throw ex("parser.descape.4", this.offset - 1);
+                  c = uv;
+              } else {
+                  int v1 = 0;
+                  if (this.read() != T_CHAR || (v1 = hexChar(this.chardata)) < 0)
+                      throw ex("parser.descape.1", this.offset - 1);
+                  int uv = v1;
+                  this.next();
+                  if (this.read() != T_CHAR || (v1 = hexChar(this.chardata)) < 0)
+                      throw ex("parser.descape.1", this.offset - 1);
+                  uv = uv * 16 + v1;
+                  c = uv;
+              }
+              break;
+          }
+          case 'u': {
+              int v1 = 0;
+              this.next();
+              if (this.read() != T_CHAR || (v1 = hexChar(this.chardata)) < 0)
+                  throw ex("parser.descape.1", this.offset - 1);
+              int uv1 = v1;
+              this.next();
+              if (this.read() != T_CHAR || (v1 = hexChar(this.chardata)) < 0)
+                  throw ex("parser.descape.1", this.offset - 1);
+              uv1 = uv1 * 16 + v1;
+              this.next();
+              if (this.read() != T_CHAR || (v1 = hexChar(this.chardata)) < 0)
+                  throw ex("parser.descape.1", this.offset - 1);
+              uv1 = uv1 * 16 + v1;
+              this.next();
+              if (this.read() != T_CHAR || (v1 = hexChar(this.chardata)) < 0)
+                  throw ex("parser.descape.1", this.offset - 1);
+              uv1 = uv1 * 16 + v1;
+              c = uv1;
+              break;
+          }
+          case 'v': {
+              int v2 = 0;
+              int uv2 = 0;
+              this.next();
+              if (this.read() != T_CHAR || (v2 = hexChar(this.chardata)) < 0)
+                  throw ex("parser.descape.1", this.offset - 1);
+              uv2 = v2;
+              this.next();
+              if (this.read() != T_CHAR || (v2 = hexChar(this.chardata)) < 0)
+                  throw ex("parser.descape.1", this.offset - 1);
+              uv2 = uv2 * 16 + v2;
+              this.next();
+              if (this.read() != T_CHAR || (v2 = hexChar(this.chardata)) < 0)
+                  throw ex("parser.descape.1", this.offset - 1);
+              uv2 = uv2 * 16 + v2;
+              this.next();
+              if (this.read() != T_CHAR || (v2 = hexChar(this.chardata)) < 0)
+                  throw ex("parser.descape.1", this.offset - 1);
+              uv2 = uv2 * 16 + v2;
+              this.next();
+              if (this.read() != T_CHAR || (v2 = hexChar(this.chardata)) < 0)
+                  throw ex("parser.descape.1", this.offset - 1);
+              uv2 = uv2 * 16 + v2;
+              this.next();
+              if (this.read() != T_CHAR || (v2 = hexChar(this.chardata)) < 0)
+                  throw ex("parser.descape.1", this.offset - 1);
+              uv2 = uv2 * 16 + v2;
+              if (uv2 > Token.UTF16_MAX) throw ex("parser.descappe.4", this.offset - 1);
+              c = uv2;
+              break;
+          }
           case 'A':
           case 'Z':
           case 'z':
-            throw ex("parser.descape.5", this.offset-2);
+              throw ex("parser.descape.5", this.offset-2);
           default:
         }
         return c;
