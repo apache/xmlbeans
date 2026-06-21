@@ -38,7 +38,8 @@ public abstract class JavaDecimalHolderEx extends JavaDecimalHolder {
 
     protected void set_text(String s) {
         if (_validateOnSet()) {
-            validateLexical(s, _schemaType, _voorVc);
+            boolean allowExponent = has_store() && get_store().get_locale().isLoadAllowDecimalExponent();
+            validateLexical(s, _schemaType, _voorVc, allowExponent);
         }
 
         BigDecimal v = null;
@@ -63,7 +64,11 @@ public abstract class JavaDecimalHolderEx extends JavaDecimalHolder {
     }
 
     public static void validateLexical(String v, SchemaType sType, ValidationContext context) {
-        JavaDecimalHolder.validateLexical(v, context);
+        validateLexical(v, sType, context, false);
+    }
+
+    public static void validateLexical(String v, SchemaType sType, ValidationContext context, boolean allowExponent) {
+        JavaDecimalHolder.validateLexical(v, context, allowExponent);
 
         // check pattern
         if (sType.hasPatternFacet()) {
@@ -189,7 +194,8 @@ public abstract class JavaDecimalHolderEx extends JavaDecimalHolder {
     }
 
     protected void validate_simpleval(String lexical, ValidationContext ctx) {
-        validateLexical(lexical, schemaType(), ctx);
+        boolean allowExponent = has_store() && get_store().get_locale().isLoadAllowDecimalExponent();
+        validateLexical(lexical, schemaType(), ctx, allowExponent);
         validateValue(getBigDecimalValue(), schemaType(), ctx);
     }
 

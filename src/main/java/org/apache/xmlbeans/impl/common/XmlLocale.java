@@ -29,4 +29,9 @@ public interface XmlLocale
     // the xsd:float/xsd:double space (hex floats, the java "Infinity" token and
     // the f/F/d/D suffix). Driven by XmlOptions.setLoadStrictFloatingPoint.
     default boolean isLoadStrictFloatingPoint ( ) { return false; }
+
+    // whether xsd:decimal lexing should accept scientific/exponent notation
+    // (e.g. "1E5"), which is outside the xsd:decimal lexical space. Defaults to
+    // false (reject). Driven by XmlOptions.setLoadAllowDecimalExponent.
+    default boolean isLoadAllowDecimalExponent ( ) { return false; }
 }

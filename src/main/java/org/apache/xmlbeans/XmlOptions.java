@@ -158,7 +158,8 @@ public class XmlOptions implements java.io.Serializable {
         XPATH_USE_SAXON,
         XPATH_USE_XMLBEANS,
         ATTRIBUTE_VALIDATION_COMPAT_MODE,
-        LOAD_STRICT_FLOATING_POINT
+        LOAD_STRICT_FLOATING_POINT,
+        LOAD_ALLOW_DECIMAL_EXPONENT
     }
 
 
@@ -1205,6 +1206,45 @@ public class XmlOptions implements java.io.Serializable {
      */
     public boolean isLoadStrictFloatingPoint() {
         return hasOption(XmlOptionsKeys.LOAD_STRICT_FLOATING_POINT);
+    }
+
+    /**
+     * If this option is set, xsd:decimal values are allowed to use scientific/exponent
+     * notation (e.g. {@code 1E5}) when parsing. That form is outside the xsd:decimal
+     * lexical space - it belongs to xsd:double/xsd:float - and {@link java.math.BigDecimal}
+     * would otherwise parse it to a wrong value ({@code 1E5 -> 100000}). The default is to
+     * disallow it: an exponent in a decimal is reported as invalid. Such values can also be
+     * expensive to parse when the exponent is very large. Set this only to restore the
+     * long-standing lenient behaviour.
+     *
+     * @return this
+     * @since 5.4.0
+     */
+    public XmlOptions setLoadAllowDecimalExponent() {
+        return setLoadAllowDecimalExponent(true);
+    }
+
+    /**
+     * Sets whether xsd:decimal values may use scientific/exponent notation when parsing.
+     * See {@link #setLoadAllowDecimalExponent()}.
+     *
+     * @param b {@code true} to accept an exponent in a decimal lexical value
+     * @return this
+     * @since 5.4.0
+     */
+    public XmlOptions setLoadAllowDecimalExponent(boolean b) {
+        return set(XmlOptionsKeys.LOAD_ALLOW_DECIMAL_EXPONENT, b);
+    }
+
+    /**
+     * Returns whether xsd:decimal values may use scientific/exponent notation when parsing.
+     * See {@link #setLoadAllowDecimalExponent()}.
+     *
+     * @return {@code true} if an exponent is accepted in a decimal lexical value
+     * @since 5.4.0
+     */
+    public boolean isLoadAllowDecimalExponent() {
+        return hasOption(XmlOptionsKeys.LOAD_ALLOW_DECIMAL_EXPONENT);
     }
 
     /**

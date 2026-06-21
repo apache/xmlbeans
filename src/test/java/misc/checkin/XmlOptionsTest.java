@@ -42,6 +42,16 @@ public class XmlOptionsTest {
     }
 
     @Test
+    void testLoadAllowDecimalExponentFlag() {
+        XmlOptions xmlOptions = new XmlOptions();
+        assertFalse(xmlOptions.isLoadAllowDecimalExponent());
+        xmlOptions.setLoadAllowDecimalExponent();
+        assertTrue(xmlOptions.isLoadAllowDecimalExponent());
+        xmlOptions.setLoadAllowDecimalExponent(false);
+        assertFalse(xmlOptions.isLoadAllowDecimalExponent());
+    }
+
+    @Test
     void testSaveNoAttributeWhitespaceEscapeFlag() {
         XmlOptions xmlOptions = new XmlOptions();
         assertFalse(xmlOptions.isSaveNoAttributeWhitespaceEscape());
