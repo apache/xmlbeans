@@ -533,7 +533,7 @@ public final class XsTypeConverter {
         } catch (InvalidLexicalValueException e) {
             errors.add(XmlError.forMessage(e.getMessage()));
             final int idx = xsd_qname.indexOf(NAMESPACE_SEP);
-            return new QName(null, xsd_qname.substring(idx));
+            return idx < 0 ? new QName(xsd_qname) : new QName(null, xsd_qname.substring(idx));
         }
     }
 

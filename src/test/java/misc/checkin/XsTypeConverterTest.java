@@ -281,4 +281,28 @@ public class XsTypeConverterTest {
         assertThrows(NumberFormatException.class, () -> XsTypeConverter.lexInteger("1E5"));
         assertThrows(NumberFormatException.class, () -> XsTypeConverter.lexInteger("1e5"));
     }
+
+    @Test
+    void lexQNameCollectsErrorForColonlessInvalidValue() {
+        // The error-collecting overload must record a lexical error and return a
+        // best-effort QName, never throw. A colon-less value that is not a valid
+        // NCName ("a b", "") has no ':' so the recovery indexOf returns -1.
+        javax.xml.namespace.NamespaceContext ctx = new javax.xml.namespace.NamespaceContext() {
+            public String getNamespaceURI(String prefix) { return ""; }
+            public String getPrefix(String uri) { return ""; }
+            public java.util.Iterator<String> getPrefixes(String uri) {
+                return java.util.Collections.<String>emptyList().iterator();
+            }
+        };
+
+        java.util.List<org.apache.xmlbeans.XmlError> errors = new java.util.ArrayList<>();
+        javax.xml.namespace.QName q = XsTypeConverter.lexQName("a b", errors, ctx);
+        assertEquals("a b", q.getLocalPart());
+        assertEquals(1, errors.size());
+
+        errors.clear();
+        javax.xml.namespace.QName empty = XsTypeConverter.lexQName("", errors, ctx);
+        assertEquals("", empty.getLocalPart());
+        assertEquals(1, errors.size());
+    }
 }
