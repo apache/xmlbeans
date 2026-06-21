@@ -591,8 +591,8 @@ class Token implements java.io.Serializable {
     }
 
     // ------------------------------------------------------
-    private final static Hashtable categories = new Hashtable();
-    private final static Hashtable categories2 = new Hashtable();
+    private final static Hashtable<String, Token> categories = new Hashtable<>();
+    private final static Hashtable<String, Token> categories2 = new Hashtable<>();
     private static final String[] categoryNames = {
         "Cn", "Lu", "Ll", "Lt", "Lm", "Lo", "Mn", "Me", "Mc", "Nd",
         "Nl", "No", "Zs", "Zl", "Zp", "Cc", "Cf", null, "Co", "Cs",
@@ -968,10 +968,8 @@ class Token implements java.io.Serializable {
                 Token.registerNonXS("xdigit");
             } // synchronized
         } // if null
-        RangeToken tok = positive ? (RangeToken)Token.categories.get(name)
+        return positive ? (RangeToken)Token.categories.get(name)
             : (RangeToken)Token.categories2.get(name);
-        //if (tok == null) System.out.println(name);
-        return tok;
     }
     static protected RangeToken getRange(String name, boolean positive, boolean xs) {
         RangeToken range = Token.getRange(name, positive);
@@ -980,14 +978,14 @@ class Token implements java.io.Serializable {
         return range;
     }
 
-    static Hashtable nonxs = null;
+    static Hashtable<String, String> nonxs = null;
     /**
      * This method is called by only getRange().
      * So this method need not MT-safe.
      */
     static protected void registerNonXS(String name) {
         if (Token.nonxs == null)
-            Token.nonxs = new Hashtable();
+            Token.nonxs = new Hashtable<>();
         Token.nonxs.put(name, name);
     }
     static protected boolean isRegisterNonXS(String name) {
@@ -999,8 +997,8 @@ class Token implements java.io.Serializable {
     }
 
     private static void setAlias(String newName, String name, boolean positive) {
-        Token t1 = (Token)Token.categories.get(name);
-        Token t2 = (Token)Token.categories2.get(name);
+        Token t1 = Token.categories.get(name);
+        Token t2 = Token.categories2.get(name);
         if (positive) {
             Token.categories.put(newName, t1);
             Token.categories2.put(newName, t2);
@@ -1408,7 +1406,7 @@ class Token implements java.io.Serializable {
      * for UNION or CONCAT.
      */
     static class UnionToken extends Token implements java.io.Serializable {
-        Vector children;
+        Vector<Token> children;
 
         UnionToken(int type) {
             super(type);
@@ -1416,7 +1414,7 @@ class Token implements java.io.Serializable {
 
         void addChild(Token tok) {
             if (tok == null)  return;
-            if (this.children == null)  this.children = new Vector();
+            if (this.children == null)  this.children = new Vector<>();
             if (this.type == UNION) {
                 this.children.addElement(tok);
                 return;
@@ -1432,7 +1430,7 @@ class Token implements java.io.Serializable {
                 this.children.addElement(tok);
                 return;
             }
-            Token previous = (Token)this.children.elementAt(size-1);
+            Token previous = this.children.elementAt(size-1);
             if (!((previous.type == CHAR || previous.type == STRING)
                   && (tok.type == CHAR || tok.type == STRING))) {
                 this.children.addElement(tok);
@@ -1474,7 +1472,7 @@ class Token implements java.io.Serializable {
             return this.children == null ? 0 : this.children.size();
         }
         Token getChild(int index) {
-            return (Token)this.children.elementAt(index);
+            return this.children.elementAt(index);
         }
 
         public String toString(int options) {
@@ -1492,7 +1490,7 @@ class Token implements java.io.Serializable {
                 } else {
                     StringBuilder sb = new StringBuilder();
                     for (int i = 0;  i < this.children.size();  i ++) {
-                        sb.append(((Token)this.children.elementAt(i)).toString(options));
+                        sb.append(this.children.elementAt(i).toString(options));
                     }
                     ret = new String(sb);
                 }
@@ -1505,10 +1503,10 @@ class Token implements java.io.Serializable {
                 ret = this.getChild(1).toString(options)+"??";
             } else {
                 StringBuilder sb = new StringBuilder();
-                sb.append(((Token)this.children.elementAt(0)).toString(options));
+                sb.append(this.children.elementAt(0).toString(options));
                 for (int i = 1;  i < this.children.size();  i ++) {
-                    sb.append((char)'|');
-                    sb.append(((Token)this.children.elementAt(i)).toString(options));
+                    sb.append('|');
+                    sb.append(this.children.elementAt(i).toString(options));
                 }
                 ret = new String(sb);
             }

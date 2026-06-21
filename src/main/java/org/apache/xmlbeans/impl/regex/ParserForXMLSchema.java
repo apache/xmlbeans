@@ -156,7 +156,7 @@ class ParserForXMLSchema extends RegexParser {
      * cc-normal-c      ::= <any character except [, ], \>
      * from-to-range    ::= cc-normal-c '-' cc-normal-c
      *
-     * @param useNrage Ignored.
+     * @param useNrange Ignored.
      * @return This returns no NrangeToken.
      */
     protected RangeToken parseCharacterClass(boolean useNrange) throws ParseException {
@@ -341,12 +341,12 @@ class ParserForXMLSchema extends RegexParser {
         return c;
     }
 
-    static private Hashtable ranges = null;
-    static private Hashtable ranges2 = null;
+    static private Hashtable<String, Token> ranges = null;
+    static private Hashtable<String, Token> ranges2 = null;
     static synchronized protected RangeToken getRange(String name, boolean positive) {
         if (ranges == null) {
-            ranges = new Hashtable();
-            ranges2 = new Hashtable();
+            ranges = new Hashtable<>();
+            ranges2 = new Hashtable<>();
 
             Token tok = Token.createRange();
             setupRange(tok, SPACES);
@@ -365,7 +365,7 @@ class ParserForXMLSchema extends RegexParser {
 
             tok = Token.createRange();
             setupRange(tok, LETTERS);
-            tok.mergeRanges((Token)ranges.get("xml:isDigit"));
+            tok.mergeRanges(ranges.get("xml:isDigit"));
             ranges.put("xml:isWord", tok);
             ranges2.put("xml:isWord", Token.complementRanges(tok));
 
