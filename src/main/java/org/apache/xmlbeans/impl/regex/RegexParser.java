@@ -73,7 +73,7 @@ class RegexParser {
     int context = S_NORMAL;
     int parennumber = 1;
     boolean hasBackReferences;
-    Vector references = null;
+    Vector<ReferencePosition> references = null;
 
     public RegexParser() {
         this.setLocale(Locale.getDefault());
@@ -112,7 +112,7 @@ class RegexParser {
             throw ex("parser.parse.1", this.offset);
         if (this.references != null) {
             for (int i = 0;  i < this.references.size();  i ++) {
-                ReferencePosition position = (ReferencePosition)this.references.elementAt(i);
+                ReferencePosition position = this.references.elementAt(i);
                 if (this.parennumber <= position.refNumber)
                     throw ex("parser.parse.2", position.position);
             }
@@ -431,7 +431,7 @@ class RegexParser {
         if ('1' <= ch && ch <= '9') {
             refno = ch-'0';
             this.hasBackReferences = true;
-            if (this.references == null)  this.references = new Vector();
+            if (this.references == null)  this.references = new Vector<>();
             this.references.addElement(new ReferencePosition(refno, this.offset));
             this.offset ++;
             if (this.regex.charAt(this.offset) != ')')  throw ex("parser.factor.1", this.offset);
@@ -543,7 +543,7 @@ class RegexParser {
         int refnum = this.chardata-'0';
         Token tok = Token.createBackReference(refnum);
         this.hasBackReferences = true;
-        if (this.references == null)  this.references = new Vector();
+        if (this.references == null)  this.references = new Vector<>();
         this.references.addElement(new ReferencePosition(refnum, this.offset-2));
         this.next();
         return tok;
