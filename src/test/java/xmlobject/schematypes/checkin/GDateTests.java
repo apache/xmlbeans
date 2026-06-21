@@ -184,6 +184,9 @@ public class GDateTests {
         "00:00:00-14:01", // tz
         "00:00:00+15:00", // tz
         "00:00:00-15:00", // tz
+        "1996-02-29T00:00:00.", // trailing '.' with no fractional digits
+        "00:00:00.", // trailing '.' with no fractional digits
+        "2001-12-31T07:00:59.Z", // '.' followed by timezone, no fractional digits
     };
 
     private static final String[] validDates = {

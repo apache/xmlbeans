@@ -281,6 +281,9 @@ public final class GDate implements GDateSpecification, java.io.Serializable {
                         }
                         throw new IllegalArgumentException();
                     }
+                } else {
+                    // a '.' must be followed by at least one fractional digit
+                    throw new IllegalArgumentException("fractional seconds must contain at least one digit");
                 }
             }
 
