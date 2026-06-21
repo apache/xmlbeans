@@ -43,7 +43,7 @@ public class Sax2Dom
 
     private Node _root = null;
     private Document _document = null;
-    private Stack<Node> _nodeStk = new Stack<>();
+    private final Stack<Node> _nodeStk = new Stack<>();
     private Vector<String> _namespaceDecls = null;
 
     public Sax2Dom() throws ParserConfigurationException
@@ -155,7 +155,7 @@ public class Sax2Dom
     {
         if (_namespaceDecls == null)
         {
-            _namespaceDecls = new Vector(2);
+            _namespaceDecls = new Vector<>(2);
         }
         _namespaceDecls.addElement(prefix);
         _namespaceDecls.addElement(uri);

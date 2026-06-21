@@ -163,10 +163,10 @@ class Op {
 
     // ================================================================
     static class UnionOp extends Op {
-        Vector branches;
+        Vector<Op> branches;
         UnionOp(int type, int size) {
             super(type);
-            this.branches = new Vector(size);
+            this.branches = new Vector<>(size);
         }
         void addElement(Op op) {
             this.branches.addElement(op);
@@ -175,7 +175,7 @@ class Op {
             return this.branches.size();
         }
         Op elementAt(int index) {
-            return (Op)this.branches.elementAt(index);
+            return this.branches.elementAt(index);
         }
     }
 
