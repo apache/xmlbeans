@@ -47,6 +47,20 @@ public class RegularExpressionTest {
     }
 
     @Test
+    void testHexEscapeOverflowErrorKey() {
+        // a \v escape (6 hex digits) whose value is above U+10FFFF was reported with
+        // the error key "parser.descappe.4", which is not in the message bundle, so
+        // ResourceBundle.getString threw MissingResourceException instead of the
+        // ParseException callers expect. The sibling \x{...} path already reports the
+        // same condition cleanly via "parser.descape.4".
+        assertThrows(ParseException.class, () -> new RegularExpression("\\v110000"));
+        assertThrows(ParseException.class, () -> new RegularExpression("\\vFFFFFF"));
+        assertThrows(ParseException.class, () -> new RegularExpression("\\x{110000}"));
+        // the top of the Unicode range is still valid and must parse
+        new RegularExpression("\\v10FFFF");
+    }
+
+    @Test
     void testQuantifierOverflow() {
         // a {min,max} count larger than Integer.MAX_VALUE overflowed the int
         // accumulator. the only guard was a post-multiply min<0/max<0 check, so

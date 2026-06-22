@@ -1054,7 +1054,7 @@ class RegexParser {
               if (this.read() != T_CHAR || (v2 = hexChar(this.chardata)) < 0)
                   throw ex("parser.descape.1", this.offset - 1);
               uv2 = uv2 * 16 + v2;
-              if (uv2 > Token.UTF16_MAX) throw ex("parser.descappe.4", this.offset - 1);
+              if (uv2 > Token.UTF16_MAX) throw ex("parser.descape.4", this.offset - 1);
               c = uv2;
               break;
           }
