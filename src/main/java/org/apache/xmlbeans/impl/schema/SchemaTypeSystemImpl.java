@@ -692,6 +692,9 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
         }
 
         String stringForCode(int code) {
+            if (code < 0 || code >= intsToStrings.size()) {
+                throw new SchemaTypeLoaderException("String code " + code + " out of range", _name, _handle, SchemaTypeLoaderException.UNRECOGNIZED_INDEX_ENTRY);
+            }
             return code == 0 ? null : intsToStrings.get(code);
         }
 
