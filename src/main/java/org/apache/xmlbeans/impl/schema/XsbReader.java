@@ -1755,7 +1755,7 @@ class XsbReader {
 
     byte[] readByteArray() {
         try {
-            int len = _input.readShort();
+            int len = _input.readUnsignedShort();
             byte[] result = new byte[len];
             _input.readFully(result);
             return result;
