@@ -55,7 +55,7 @@ public class StreamInstanceValidator
         flags.add("noupr");
         flags.add("noupa");
 
-        CommandLine cl = new CommandLine(args, flags, Collections.EMPTY_SET);
+        CommandLine cl = new CommandLine(args, flags, Collections.emptySet());
         if (cl.getOpt("h") != null || cl.getOpt("help") != null || cl.getOpt("usage") != null || args.length < 1)
         {
             printUsage();

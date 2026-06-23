@@ -50,7 +50,7 @@ public class SystemCache {
     public void addToTypeLoaderCache(SchemaTypeLoader stl, ClassLoader cl) {
     }
 
-    private ThreadLocal<SoftReference> tl_saxLoaders = new ThreadLocal<>();
+    private final ThreadLocal<SoftReference<Object>> tl_saxLoaders = new ThreadLocal<>();
 
 
     public void clearThreadLocals() {
@@ -58,12 +58,12 @@ public class SystemCache {
     }
 
     public Object getSaxLoader() {
-        SoftReference s = tl_saxLoaders.get();
+        SoftReference<Object> s = tl_saxLoaders.get();
         return s == null ? null : s.get();
     }
 
     public void setSaxLoader(Object saxLoader) {
-        tl_saxLoaders.set(new SoftReference(saxLoader));
+        tl_saxLoaders.set(new SoftReference<>(saxLoader));
     }
 
 

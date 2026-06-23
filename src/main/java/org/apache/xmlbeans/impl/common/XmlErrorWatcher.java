@@ -30,6 +30,7 @@ public class XmlErrorWatcher extends AbstractCollection<XmlError> {
         _underlying = underlying;
     }
 
+    @Override
     public boolean add(XmlError o) {
         if (_firstError == null && o != null && o.getSeverity() == XmlError.SEVERITY_ERROR) {
             _firstError = o;
@@ -40,6 +41,7 @@ public class XmlErrorWatcher extends AbstractCollection<XmlError> {
         return _underlying.add(o);
     }
 
+    @Override
     public Iterator<XmlError> iterator() {
         if (_underlying == null) {
             return Collections.emptyIterator();
@@ -48,6 +50,7 @@ public class XmlErrorWatcher extends AbstractCollection<XmlError> {
         return _underlying.iterator();
     }
 
+    @Override
     public int size() {
         if (_underlying == null) {
             return 0;

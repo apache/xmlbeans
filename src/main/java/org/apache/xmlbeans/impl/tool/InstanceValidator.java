@@ -57,7 +57,7 @@ public class InstanceValidator {
         flags.add("strict");
         flags.add("partial");
 
-        CommandLine cl = new CommandLine(args, flags, Collections.EMPTY_SET);
+        CommandLine cl = new CommandLine(args, flags, Collections.emptySet());
 
         if (cl.getOpt("h") != null || cl.getOpt("help") != null || cl.getOpt("usage") != null || args.length < 1) {
             printUsage();

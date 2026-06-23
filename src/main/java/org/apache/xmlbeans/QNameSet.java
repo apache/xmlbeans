@@ -29,7 +29,7 @@ import java.util.Set;
  * <ul>
  * <li>A QNameSet can cover a finite set of namespaces, additionally including a finite
  *     set of QNames outside those namespaces, and with the exception of
- *     a finite set of QNames excluded from those namespaes:
+ *     a finite set of QNames excluded from those namespaces:
  *   <ul>
  *   <li>excludedQNamesInIncludedURIs == the set of excluded QNames from coveredURIs namespaces
  *   <li>excludedURIs == null
@@ -196,7 +196,7 @@ public final class QNameSet implements QNameSetSpecification, java.io.Serializab
      * Constructs a QNameSetBuilder whose contents are given by
      * the four sets.
      * <p>
-     * This constuctor is PRIVATE because it uses the given
+     * This constructor is PRIVATE because it uses the given
      * sets directly, and it trusts its callers to set only immutable values.
      * This constructor is only called by the static builder methods on
      * QNameSet: those methods are all careful assign only unchanging sets.
@@ -252,7 +252,7 @@ public final class QNameSet implements QNameSetSpecification, java.io.Serializab
     /**
      * Returns a new QNameSet that is the intersection of this one and another.
      *
-     * @param set the set to insersect with
+     * @param set the set to intersect with
      * @return the intersection
      */
     public QNameSet intersect(QNameSetSpecification set) {

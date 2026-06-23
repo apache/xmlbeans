@@ -28,7 +28,6 @@ import javax.xml.stream.XMLStreamWriter;
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamException;
-import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.InputStream;

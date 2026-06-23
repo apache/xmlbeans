@@ -194,7 +194,7 @@ public class StscResolver {
 
         sImpl.setContentModel(
             contentModel, new SchemaAttributeModelImpl(),
-            elementPropertyModel, Collections.EMPTY_MAP, false);
+            elementPropertyModel, Collections.emptyMap(), false);
 
         sImpl.setWildcardSummary(
             QNameSet.EMPTY, false, QNameSet.EMPTY, false);
@@ -236,7 +236,7 @@ public class StscResolver {
                 attributeModel, sImpl);
 
         sImpl.setContentModel(
-            null, attributeModel, Collections.EMPTY_MAP, attributePropertyModel, false);
+            null, attributeModel, Collections.emptyMap(), attributePropertyModel, false);
 
         sImpl.setWildcardSummary(
             QNameSet.EMPTY, false, QNameSet.EMPTY, false);

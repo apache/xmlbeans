@@ -20,6 +20,7 @@ package org.apache.xmlbeans.impl.config;
 
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 
 /**
@@ -31,19 +32,19 @@ public class NameSet {
     /**
      * An empty NameSet, it doesn't contain any name
      */
-    public static final NameSet EMPTY = new NameSet(true, Collections.EMPTY_SET);
+    public static final NameSet EMPTY = new NameSet(true, Collections.emptySet());
     /**
      * The NameSet that contains any name
      */
-    public static final NameSet EVERYTHING = new NameSet(false, Collections.EMPTY_SET);
+    public static final NameSet EVERYTHING = new NameSet(false, Collections.emptySet());
 
     /*
     There are two big cases:
     1) - it represents "*", ie all except a finite set of names: _isFinite==false
     2) - if represents only a finite set of names: _isFinite==true
     */
-    private boolean _isFinite;
-    private Set<String> _finiteSet;
+    private final boolean _isFinite;
+    private final Set<String> _finiteSet;
 
     private NameSet(boolean isFinite, Set<String> finiteSet) {
         _isFinite = isFinite;
@@ -67,8 +68,9 @@ public class NameSet {
     private static Set<String> intersectFiniteSets(Set<String> a, Set<String> b) {
         Set<String> intersection = new HashSet<>();
         //compute the intersection of _finiteSet with withSet
-        while (a.iterator().hasNext()) {
-            String name = (String) a.iterator().next();
+        Iterator<String> it = a.iterator();
+        while (it.hasNext()) {
+            String name = it.next();
             if (b.contains(name)) {
                 intersection.add(name);
             }

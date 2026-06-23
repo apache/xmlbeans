@@ -67,7 +67,7 @@ public class TypeHierarchyPrinter
         flags.add("noupa");
         flags.add("partial");
 
-        CommandLine cl = new CommandLine(args, flags, Collections.EMPTY_SET);
+        CommandLine cl = new CommandLine(args, flags, Collections.emptySet());
         if (cl.getOpt("h") != null || cl.getOpt("help") != null || cl.getOpt("usage") != null)
         {
             printUsage();
@@ -216,12 +216,12 @@ public class TypeHierarchyPrinter
         }
 
         // step 4: print the tree, starting from xs:anyType (i.e., XmlObject.type)
-        List typesToPrint = new ArrayList<>();
+        List<SchemaType> typesToPrint = new ArrayList<>();
         typesToPrint.add(XmlObject.type);
         StringBuilder spaces = new StringBuilder();
         while (!typesToPrint.isEmpty())
         {
-            SchemaType sType = (SchemaType)typesToPrint.remove(typesToPrint.size() - 1);
+            SchemaType sType = typesToPrint.remove(typesToPrint.size() - 1);
             if (sType == null)
                 spaces.setLength(Math.max(0, spaces.length() - 2));
             else
@@ -269,10 +269,10 @@ public class TypeHierarchyPrinter
         }
     }
 
-    private static void noteNamespace(Map prefixes, SchemaType sType)
+    private static void noteNamespace(Map<String, String> prefixes, SchemaType sType)
     {
         String namespace = QNameHelper.namespace(sType);
-        if (namespace.equals("") || prefixes.containsKey(namespace))
+        if (namespace.isEmpty() || prefixes.containsKey(namespace))
             return;
 
         String base = QNameHelper.suggestPrefix(namespace);

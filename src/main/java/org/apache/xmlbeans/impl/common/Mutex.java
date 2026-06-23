@@ -28,7 +28,7 @@ public class Mutex
      */
     public synchronized void acquire() throws InterruptedException
     {
-        while (tryToAcquire() == false)
+        while (!tryToAcquire())
         {
             wait();
         }

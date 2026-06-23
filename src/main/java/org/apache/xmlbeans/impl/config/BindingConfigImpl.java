@@ -176,7 +176,7 @@ public class BindingConfigImpl extends BindingConfig {
         }
     }
 
-    private static void recordNamespacePrefixSetting(List list, String value, Map<Object, String> result) {
+    private static void recordNamespacePrefixSetting(List<Object> list, String value, Map<Object, String> result) {
         if (value == null) {
             return;
         }
@@ -193,11 +193,10 @@ public class BindingConfigImpl extends BindingConfig {
 
         if (key instanceof String && "*".equals(key)) {
             xbeanSet = NameSet.EVERYTHING;
-        } else if (key instanceof List) {
+        } else if (key instanceof List<?>) {
             NameSetBuilder xbeanSetBuilder = new NameSetBuilder();
-            for (Object o : (List) key) {
-                String xbeanName = (String) o;
-                xbeanSetBuilder.add(xbeanName);
+            for (Object o : (List<?>) key) {
+                xbeanSetBuilder.add(o.toString());
             }
             xbeanSet = xbeanSetBuilder.toNameSet();
         }

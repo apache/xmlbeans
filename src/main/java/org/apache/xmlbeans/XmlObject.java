@@ -465,7 +465,7 @@ public interface XmlObject extends XmlTokenSource {
      * course have equal values (valueEquals(obj) == true).
      * <p>
      * Usually this method can be treated as an ordinary equivalence
-     * relation, but actually it is not is not transitive.
+     * relation, but actually it is not transitive.
      * Here is a precise specification:
      * <p>
      * There are two categories of XML object: objects with a known

@@ -18,7 +18,7 @@ package org.apache.xmlbeans.impl.common;
 public interface PrefixResolver
 {
     /**
-     * Caled when the user has a prefix and needs to look up the corresponding
+     * Called when the user has a prefix and needs to look up the corresponding
      * namespace URI. If the prefix is not defined in this context, then this
      * method may return null.  The no-namespace is represented by the empty
      * string return result.
