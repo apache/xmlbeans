@@ -578,7 +578,7 @@ public class BuiltinSchemaTypeSystem extends SchemaTypeLoaderBase implements Sch
     public void fillInType(int btc)
     {
         SchemaTypeImpl result = getBuiltinType(btc);
-        SchemaType base;
+        SchemaType base = null;
         SchemaType item = null;
         int variety = SchemaType.ATOMIC;
         int derivationType = SchemaType.DT_RESTRICTION;
@@ -723,8 +723,8 @@ public class BuiltinSchemaTypeSystem extends SchemaTypeLoaderBase implements Sch
             result.setPrimitiveTypeRef(base.getPrimitiveType().getRef());
         }
 
-        XmlValueRef[] facets;
-        boolean[] fixedf;
+        XmlValueRef[] facets = null;
+        boolean[] fixedf = null;
         int wsr = SchemaType.WS_COLLAPSE;
         int decimalSize = SchemaType.NOT_DECIMAL;
 
