@@ -2074,10 +2074,11 @@ abstract class Saver {
             int cch = c._cchSrc;
             int off = c._offSrc;
             int index = 0;
+            int trailingBrackets = 0;
             while (index < cch) {
                 int indexLimit = Math.min(index + 512, cch);
                 CharUtil.getChars(_buf, 0, src, off + index, indexLimit - index);
-                entitizeAndWriteText(indexLimit - index);
+                trailingBrackets = entitizeAndWriteText(indexLimit - index, trailingBrackets);
                 index = indexLimit;
             }
         }
@@ -2113,7 +2114,7 @@ abstract class Saver {
             }
         }
 
-        private void entitizeAndWriteText(int bufLimit) {
+        private int entitizeAndWriteText(int bufLimit, int trailingBrackets) {
             int index = 0;
             for (int i = 0; i < bufLimit; i++) {
                 char c = _buf[i];
@@ -2122,15 +2123,33 @@ abstract class Saver {
                         emit(_buf, index, i - index);
                         emit("&lt;");
                         index = i + 1;
+                        trailingBrackets = 0;
                         break;
                     case '&':
                         emit(_buf, index, i - index);
                         emit("&amp;");
                         index = i + 1;
+                        trailingBrackets = 0;
+                        break;
+                    case '>':
+                        // ']]>' is not allowed in content, so escape the '>' that closes it
+                        if (trailingBrackets >= 2) {
+                            emit(_buf, index, i - index);
+                            emit("&gt;");
+                            index = i + 1;
+                        }
+                        trailingBrackets = 0;
+                        break;
+                    case ']':
+                        trailingBrackets++;
+                        break;
+                    default:
+                        trailingBrackets = 0;
                         break;
                 }
             }
             emit(_buf, index, bufLimit - index);
+            return trailingBrackets;
         }
 
         private void entitizeAndWriteCommentText(int bufLimit) {

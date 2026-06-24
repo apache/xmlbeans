@@ -67,6 +67,38 @@ public class SaveOptimizeForSpeedTest {
     }
 
     @Test
+    void testCDataEndInText() throws Exception {
+        XmlObject o = XmlObject.Factory.parse("<root/>");
+        try (XmlCursor cur = o.newCursor()) {
+            cur.toFirstChild();
+            cur.toFirstContentToken();
+            cur.insertChars("a]]>b");
+        }
+        String out = saveForSpeed(o);
+        // ']]>' is forbidden in element content and must be escaped to ']]&gt;'
+        assertFalse(out.contains("]]>"));
+        // before the fix the literal ']]>' makes this a fatal parse error
+        XmlObject.Factory.parse(out);
+    }
+
+    @Test
+    void testCDataEndAcrossChunkBoundary() throws Exception {
+        // a ']]>' that straddles the 512-char chunk boundary: ']]' end the first
+        // chunk, '>' is the first char of the second. The trailing-bracket state
+        // has to carry across chunks or the '>' is emitted unescaped.
+        String data = repeat('x', 510) + "]]>" + repeat('y', 600);
+        XmlObject o = XmlObject.Factory.parse("<root/>");
+        try (XmlCursor cur = o.newCursor()) {
+            cur.toFirstChild();
+            cur.toFirstContentToken();
+            cur.insertChars(data);
+        }
+        String out = saveForSpeed(o);
+        assertFalse(out.contains("]]>"));
+        XmlObject.Factory.parse(out);
+    }
+
+    @Test
     void testProcInstTerminatorAcrossChunkBoundary() throws Exception {
         // a '?>' that straddles the 512-char chunk boundary: '?' is the last char
         // of the first chunk, '>' the first char of the second. The per-chunk
