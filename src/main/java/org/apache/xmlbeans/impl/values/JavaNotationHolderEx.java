@@ -89,7 +89,35 @@ public abstract class JavaNotationHolderEx extends JavaNotationHolder
             }
         }
 
-        check(v, sType);
+        // check against length
+        XmlObject len = sType.getFacet(SchemaType.FACET_LENGTH);
+        if (len != null)
+        {
+            int m = ((XmlObjectBase)len).getBigIntegerValue().intValue();
+            if (v.length() != m)
+                context.invalid(XmlErrorCodes.DATATYPE_LENGTH_VALID$STRING,
+                    new Object[] { "NOTATION", v.length(), m, QNameHelper.readable(sType) });
+        }
+
+        // check against min length
+        XmlObject min = sType.getFacet(SchemaType.FACET_MIN_LENGTH);
+        if (min != null)
+        {
+            int m = ((XmlObjectBase)min).getBigIntegerValue().intValue();
+            if (v.length() < m)
+                context.invalid(XmlErrorCodes.DATATYPE_MIN_LENGTH_VALID$STRING,
+                    new Object[] { "NOTATION", v.length(), m, QNameHelper.readable(sType) });
+        }
+
+        // check against max length
+        XmlObject max = sType.getFacet(SchemaType.FACET_MAX_LENGTH);
+        if (max != null)
+        {
+            int m = ((XmlObjectBase)max).getBigIntegerValue().intValue();
+            if (v.length() > m)
+                context.invalid(XmlErrorCodes.DATATYPE_MAX_LENGTH_VALID$STRING,
+                    new Object[] { "NOTATION", v.length(), m, QNameHelper.readable(sType) });
+        }
 
         return name;
     }
