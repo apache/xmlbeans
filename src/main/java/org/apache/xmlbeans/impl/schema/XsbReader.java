@@ -437,8 +437,18 @@ class XsbReader {
             return null;
         }
 
+        if (handle.isEmpty()) {
+            throw new SchemaTypeLoaderException("Cannot resolve handle " + handle, typeSystem.getName(), _handle, SchemaTypeLoaderException.BAD_HANDLE);
+        }
+
         if (handle.charAt(0) != '_') {
             return typeSystem.getTypePool().refForHandle(handle);
+        }
+
+        // every '_'-prefixed handle is a 4-char tag ("_BI_", "_XT_", ...) plus a
+        // payload; charAt(2) and forPretty(handle, 4) below read past a shorter one
+        if (handle.length() < 4) {
+            throw new SchemaTypeLoaderException("Cannot resolve handle " + handle, typeSystem.getName(), _handle, SchemaTypeLoaderException.BAD_HANDLE);
         }
 
         switch (handle.charAt(2)) {
