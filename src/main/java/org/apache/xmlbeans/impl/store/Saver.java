@@ -2118,6 +2118,10 @@ abstract class Saver {
             int index = 0;
             for (int i = 0; i < bufLimit; i++) {
                 char c = _buf[i];
+                if (isBadChar(c)) {
+                    _buf[i] = '?';
+                    c = '?';
+                }
                 switch (c) {
                     case '<':
                         emit(_buf, index, i - index);
