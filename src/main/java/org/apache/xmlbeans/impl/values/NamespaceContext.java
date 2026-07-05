@@ -23,7 +23,6 @@ import org.apache.xmlbeans.XmlCursor;
 import java.util.ArrayList;
 import java.util.Map;
 import java.lang.reflect.Proxy;
-import java.lang.ref.SoftReference;
 
 import org.apache.xmlbeans.xml.stream.StartElement;
 
@@ -35,8 +34,8 @@ public class NamespaceContext implements PrefixResolver
     private static final int START_ELEMENT = 4;
     private static final int RESOLVER      = 5;
 
-    private Object _obj;
-    private int _code;
+    private final Object _obj;
+    private final int _code;
 
     public NamespaceContext(Map prefixToUriMap)
     {
@@ -88,7 +87,8 @@ public class NamespaceContext implements PrefixResolver
         }
     }
 
-    private static ThreadLocal tl_namespaceContextStack = new ThreadLocal();
+    private static final ThreadLocal<NamespaceContextStack> tl_namespaceContextStack =
+            new ThreadLocal<>();
 
     public static void clearThreadLocals() {
         tl_namespaceContextStack.remove();
@@ -96,7 +96,7 @@ public class NamespaceContext implements PrefixResolver
 
     private static NamespaceContextStack getNamespaceContextStack()
     {
-        NamespaceContextStack namespaceContextStack = (NamespaceContextStack) tl_namespaceContextStack.get();
+        NamespaceContextStack namespaceContextStack = tl_namespaceContextStack.get();
         if (namespaceContextStack==null)
         {
             namespaceContextStack = new NamespaceContextStack();
@@ -115,7 +115,7 @@ public class NamespaceContext implements PrefixResolver
         NamespaceContextStack nsContextStack = getNamespaceContextStack();
         nsContextStack.pop();
 
-        if (nsContextStack.stack.size()==0)
+        if (nsContextStack.stack.isEmpty())
             tl_namespaceContextStack.set(null);
     }
 

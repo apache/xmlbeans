@@ -67,7 +67,7 @@ public class XmlAnySimpleTypeImpl extends XmlObjectBase implements XmlAnySimpleT
     }
 
     protected int value_hash_code() {
-        // matches JavaStringHolder's value_hash_code, so we can be hased against strings
+        // matches JavaStringHolder's value_hash_code, so we can be hashed against strings
         return (_textvalue == null ? 0 : _textvalue.hashCode());
     }
 }

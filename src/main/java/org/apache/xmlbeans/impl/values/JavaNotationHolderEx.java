@@ -27,7 +27,7 @@ import javax.xml.namespace.QName;
 
 public abstract class JavaNotationHolderEx extends JavaNotationHolder
 {
-    private SchemaType _schemaType;
+    private final SchemaType _schemaType;
 
 
     public SchemaType schemaType()
@@ -147,8 +147,7 @@ public abstract class JavaNotationHolderEx extends JavaNotationHolder
         if (max != null)
         {
             int m = ((XmlObjectBase)max).getBigIntegerValue().intValue();
-            if (!(v.length() <= m))
-                return false;
+            return v.length() <= m;
         }
 
         return true;

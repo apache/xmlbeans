@@ -15,7 +15,6 @@
 
 package org.apache.xmlbeans.impl.values;
 
-import net.sf.saxon.expr.Component;
 import org.apache.xmlbeans.*;
 import org.apache.xmlbeans.impl.common.*;
 import org.apache.xmlbeans.impl.schema.SchemaTypeImpl;
@@ -1098,7 +1097,7 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
         if ((_flags & FLAG_HASDEFAULT) != 0 && (_flags & FLAG_SETTINGDEFAULT) == 0) {
             // This isn't quite correct since the .equals("") test should be
             // done on the actual text, not the wscanon text
-            if ((_flags & FLAG_ATTRIBUTE) == 0 && v.equals("")) {
+            if ((_flags & FLAG_ATTRIBUTE) == 0 && v.isEmpty()) {
                 String def = get_store().compute_default_text();
                 if (def == null) {
                     throw new XmlValueOutOfRangeException();
@@ -1817,13 +1816,6 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
             synchronized (monitor()) {
                 assert (instanceType.getSimpleVariety() == SchemaType.ATOMIC);
                 switch (instanceType.getPrimitiveType().getBuiltinTypeCode()) {
-                    default:
-                        assert (false) : "encountered nonprimitive type.";
-                        // case SchemaType.BTC_ANY_SIMPLE:  This is handled below...
-                        // but we eventually want to handle it with a treecopy, so
-                        // eventually we should break here.
-                        break primitive;
-
                     case SchemaType.BTC_BOOLEAN: {
                         boolean bool = ((SimpleValue) v).getBooleanValue();
                         set_prepare();
@@ -1892,15 +1884,15 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
                                 set_BigInteger(bi);
                                 break;
                             }
-                            default: {
-                                assert (false) : "invalid numeric bit count";
-                                // fallthrough
-                            }
                             case SchemaType.SIZE_BIG_DECIMAL: {
                                 BigDecimal bd = ((SimpleValue) v).getBigDecimalValue();
                                 set_prepare();
                                 set_BigDecimal(bd);
                                 break;
+                            }
+                            default: {
+                                assert (false) : "invalid numeric bit count";
+                                // fallthrough
                             }
                         }
                         break;
@@ -1958,6 +1950,12 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
                         }
                         break;
                     }
+                    default:
+                        assert (false) : "encountered nonprimitive type.";
+                        // case SchemaType.BTC_ANY_SIMPLE:  This is handled below...
+                        // but we eventually want to handle it with a treecopy, so
+                        // eventually we should break here.
+                        break primitive;
                 }
                 set_commit();
                 return; // primitive node tree copy handled.
@@ -2986,8 +2984,7 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
                         // System.out.println("Count: " + count + " " + cur.currentTokenType().toString() + " " + QName.pretty(cur.getName()));
                     }
                 }
-                XmlObject result = cur.getObject();
-                return result;
+                return cur.getObject();
             }
         }
     }
@@ -3045,11 +3042,11 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
                     case SchemaType.SIZE_BIG_INTEGER:
                         return base.getBigIntegerValue();
 
+                    case SchemaType.SIZE_BIG_DECIMAL:
+                        return base.getBigDecimalValue();
                     default:
                         assert (false) : "invalid numeric bit count";
                         // fallthrough
-                    case SchemaType.SIZE_BIG_DECIMAL:
-                        return base.getBigDecimalValue();
                 }
             }
             case SchemaType.BTC_ANY_URI:
@@ -3067,19 +3064,19 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
             case SchemaType.BTC_G_DAY:
             case SchemaType.BTC_G_MONTH:
                 return base.getCalendarValue();
-
+                case SchemaType.BTC_NOTATION:
+            case SchemaType.BTC_STRING:
+            case SchemaType.BTC_ANY_SIMPLE:
+                // return base.getStringValue();
+                return base.getStringValue();
             default:
                 assert (false) : "encountered nonprimitive type.";
                 // fallthrough
 
                 // NB: for string enums we just do java.lang.String
                 // when in the context of unions. It's easier on users.
-            case SchemaType.BTC_NOTATION:
-            case SchemaType.BTC_STRING:
-            case SchemaType.BTC_ANY_SIMPLE:
-                // return base.getStringValue();
-                return base.getStringValue();
         }
+        return null;
     }
 
     /**

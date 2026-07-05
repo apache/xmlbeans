@@ -69,12 +69,9 @@ public class XmlComplexContentImpl extends XmlObjectBase {
 
     // LEFT
     public boolean equal_to(XmlObject complexObject) {
-        if (!_schemaType.equals(complexObject.schemaType())) {
-            return false;
-        }
+        return _schemaType.equals(complexObject.schemaType());
 
         // BUGBUG: by-value structure comparison undone
-        return true;
     }
 
     // LEFT
