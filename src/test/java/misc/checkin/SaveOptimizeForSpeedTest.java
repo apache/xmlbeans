@@ -99,6 +99,23 @@ public class SaveOptimizeForSpeedTest {
     }
 
     @Test
+    void testBadCharInText() throws Exception {
+        // an invalid XML 1.0 character (a C0 control) in element content. The
+        // default saver replaces it with '?'; the speed path emitted it raw,
+        // producing output that is not well-formed.
+        XmlObject o = XmlObject.Factory.parse("<root/>");
+        try (XmlCursor cur = o.newCursor()) {
+            cur.toFirstChild();
+            cur.toFirstContentToken();
+            cur.insertChars("a\u0001b");
+        }
+        String out = saveForSpeed(o);
+        assertFalse(out.indexOf('\u0001') >= 0);
+        // before the fix the raw control char makes this a fatal parse error
+        XmlObject.Factory.parse(out);
+    }
+
+    @Test
     void testProcInstTerminatorAcrossChunkBoundary() throws Exception {
         // a '?>' that straddles the 512-char chunk boundary: '?' is the last char
         // of the first chunk, '>' the first char of the second. The per-chunk
