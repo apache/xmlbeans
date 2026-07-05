@@ -19,11 +19,15 @@ import org.apache.xmlbeans.SchemaType;
 
 public class XmlAnySimpleTypeRestriction extends XmlAnySimpleTypeImpl
 {
-    public XmlAnySimpleTypeRestriction(SchemaType type, boolean complex)
-        { _schemaType = type; initComplexType(complex, false); }
+    private final SchemaType _schemaType;
 
-    private SchemaType _schemaType;
+    public XmlAnySimpleTypeRestriction(SchemaType type, boolean complex) {
+        _schemaType = type;
+        initComplexType(complex, false);
+    }
 
-    public SchemaType schemaType()
-        { return _schemaType; }
+
+    public SchemaType schemaType() {
+        return _schemaType;
+    }
 }
