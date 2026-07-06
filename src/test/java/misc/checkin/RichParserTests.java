@@ -107,6 +107,35 @@ public class RichParserTests {
         assertEquals(new QName("urn:x", "good"), good.getQNameValue());
     }
 
+    @Test
+    void testInvalidDateThrowsInvalidLexicalValue() throws Exception {
+        // getDateValue converts the parsed GDate to a java.util.Date via
+        // GDateBuilder.getDate(), which throws IllegalStateException - not
+        // IllegalArgumentException - when the value is not a complete date
+        // (a time/gYear/gYearMonth reaching a dateTime field) or its year is
+        // before the Julian epoch. The getter only caught IllegalArgumentException
+        // so the IllegalStateException escaped instead of the documented
+        // InvalidLexicalValueException the other getters surface.
+        XMLStreamReaderExt timeOnly = atFirstStartElement("<a>12:00:00</a>");
+        assertThrows(InvalidLexicalValueException.class, timeOnly::getDateValue);
+
+        XMLStreamReaderExt yearOnly = atFirstStartElement("<a>2001</a>");
+        assertThrows(InvalidLexicalValueException.class, yearOnly::getDateValue);
+
+        XMLStreamReaderExt ancient = atFirstStartElement("<a>-5000-01-01T00:00:00Z</a>");
+        assertThrows(InvalidLexicalValueException.class, ancient::getDateValue);
+
+        XMLStreamReaderExt attByIndex = atFirstStartElement("<a b='12:00:00'/>");
+        assertThrows(InvalidLexicalValueException.class, () -> attByIndex.getAttributeDateValue(0));
+
+        XMLStreamReaderExt attByName = atFirstStartElement("<a b='12:00:00'/>");
+        assertThrows(InvalidLexicalValueException.class, () -> attByName.getAttributeDateValue("", "b"));
+
+        // a well-formed dateTime still converts
+        XMLStreamReaderExt good = atFirstStartElement("<a>2001-11-26T21:32:52Z</a>");
+        assertEquals(new XmlCalendar("2001-11-26T21:32:52Z").getTime(), good.getDateValue());
+    }
+
     private static XMLStreamReaderExt atFirstStartElement(String xml) throws Exception {
         XMLStreamReader xsr = XmlObject.Factory.parse(xml).newXMLStreamReader();
         XMLStreamReaderExt ext = new XMLStreamReaderExtImpl(xsr);
