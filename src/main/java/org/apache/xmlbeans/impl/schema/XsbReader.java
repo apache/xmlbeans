@@ -751,12 +751,11 @@ class XsbReader {
     }
 
     SchemaModelGroup finishLoadingModelGroup() {
-        QName name = readQName();
-        SchemaContainer container = typeSystem.getContainer(name.getNamespaceURI());
-        checkContainerNotNull(container, name);
-        SchemaModelGroupImpl impl = new SchemaModelGroupImpl(container);
-
         try {
+            QName name = readQName();
+            SchemaContainer container = typeSystem.getContainer(name.getNamespaceURI());
+            checkContainerNotNull(container, name);
+            SchemaModelGroupImpl impl = new SchemaModelGroupImpl(container);
             impl.init(name, readString(), readShort() == 1,
                 atLeast(2, 22, 0) ? readString() : null,
                 atLeast(2, 22, 0) ? readString() : null,
@@ -820,12 +819,11 @@ class XsbReader {
     }
 
     SchemaAttributeGroup finishLoadingAttributeGroup() {
-        QName name = readQName();
-        SchemaContainer container = typeSystem.getContainer(name.getNamespaceURI());
-        checkContainerNotNull(container, name);
-        SchemaAttributeGroupImpl impl = new SchemaAttributeGroupImpl(container);
-
         try {
+            QName name = readQName();
+            SchemaContainer container = typeSystem.getContainer(name.getNamespaceURI());
+            checkContainerNotNull(container, name);
+            SchemaAttributeGroupImpl impl = new SchemaAttributeGroupImpl(container);
             impl.init(name, readString(), readShort() == 1,
                 atLeast(2, 22, 0) ? readString() : null,
                 atLeast(2, 15, 0) && readShort() == 1,
