@@ -2106,10 +2106,11 @@ abstract class Saver {
             int cch = c._cchSrc;
             int off = c._offSrc;
             int index = 0;
+            boolean lastWasDash = false;
             while (index < cch) {
                 int indexLimit = Math.min(index + 512, cch);
                 CharUtil.getChars(_buf, 0, src, off + index, indexLimit - index);
-                entitizeAndWriteCommentText(indexLimit - index);
+                lastWasDash = entitizeAndWriteCommentText(indexLimit - index, lastWasDash, indexLimit == cch);
                 index = indexLimit;
             }
         }
@@ -2156,9 +2157,7 @@ abstract class Saver {
             return trailingBrackets;
         }
 
-        private void entitizeAndWriteCommentText(int bufLimit) {
-            boolean lastWasDash = false;
-
+        private boolean entitizeAndWriteCommentText(int bufLimit, boolean lastWasDash, boolean lastChunk) {
             for (int i = 0; i < bufLimit; i++) {
                 char ch = _buf[i];
 
@@ -2181,11 +2180,15 @@ abstract class Saver {
                 }
             }
 
-            if (_buf[bufLimit - 1] == '-') {
+            // A trailing '-' would form "--->" with the closing delimiter, so it
+            // is escaped only at the real end of the comment, not on every chunk.
+            if (lastChunk && _buf[bufLimit - 1] == '-') {
                 _buf[bufLimit - 1] = ' ';
+                lastWasDash = false;
             }
 
             emit(_buf, 0, bufLimit);
+            return lastWasDash;
         }
 
         private boolean entitizeAndWritePIText(int bufLimit, boolean lastWasQuestion) {
