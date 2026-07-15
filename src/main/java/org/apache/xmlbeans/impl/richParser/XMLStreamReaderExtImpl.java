@@ -205,7 +205,7 @@ public class XMLStreamReaderExtImpl
         _charSeq.reload(CharSeqTrimWS.XMLWHITESPACE_TRIM);
         try {
             return new GDateBuilder(_charSeq).getDate();
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException | IllegalStateException e) {
             throw new InvalidLexicalValueException(e, _charSeq.getLocation());
         }
     }
@@ -353,7 +353,7 @@ public class XMLStreamReaderExtImpl
         try {
             return new GDateBuilder(_charSeq.reloadAtt(index, CharSeqTrimWS.XMLWHITESPACE_TRIM))
                 .getDate();
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException | IllegalStateException e) {
             throw new InvalidLexicalValueException(e, _charSeq.getLocation());
         }
     }
@@ -507,7 +507,7 @@ public class XMLStreamReaderExtImpl
         try {
             CharSequence cs = _charSeq.reloadAtt(uri, local, CharSeqTrimWS.XMLWHITESPACE_TRIM);
             return new GDateBuilder(cs).getDate();
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException | IllegalStateException e) {
             throw new InvalidLexicalValueException(e, _charSeq.getLocation());
         }
     }
