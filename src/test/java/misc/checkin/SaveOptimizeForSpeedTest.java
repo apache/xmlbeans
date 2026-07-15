@@ -116,6 +116,19 @@ public class SaveOptimizeForSpeedTest {
     }
 
     @Test
+    void testCommentDashAtChunkBoundary() throws Exception {
+        // a lone '-' sitting on the 512-char chunk boundary. It is legal in
+        // comment content, but the speed path applied its trailing-dash fixup
+        // at the end of every chunk, so the boundary '-' was silently rewritten
+        // to a space and the saved comment no longer matched the source.
+        String data = repeat('a', 511) + "-" + repeat('b', 600);
+        XmlObject o = XmlObject.Factory.parse("<root><!--" + data + "--></root>");
+        String out = saveForSpeed(o);
+        XmlObject.Factory.parse(out);
+        assertTrue(out.contains(repeat('a', 511) + "-"));
+    }
+
+    @Test
     void testProcInstTerminatorAcrossChunkBoundary() throws Exception {
         // a '?>' that straddles the 512-char chunk boundary: '?' is the last char
         // of the first chunk, '>' the first char of the second. The per-chunk
