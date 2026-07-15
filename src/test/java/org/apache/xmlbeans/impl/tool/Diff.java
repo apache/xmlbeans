@@ -64,7 +64,7 @@ public class Diff {
                 ioe.printStackTrace();
             }
         }
-        if (result.size() < 1) {
+        if (result.isEmpty()) {
             System.out.println("No differences encountered.");
         } else {
             System.out.println("Differences:");
