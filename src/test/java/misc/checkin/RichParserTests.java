@@ -28,11 +28,11 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.events.XMLEvent;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.nio.file.Files;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -47,8 +47,8 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 public class RichParserTests {
     @Test
     void testPrimitiveTypes() throws Exception {
-        XMLStreamReader xsr = XmlObject.Factory.parse(new FileInputStream(
-                JarUtil.getResourceFromJarasFile("xbean/misc/primitiveTypes.xml"))).
+        XMLStreamReader xsr = XmlObject.Factory.parse(Files.newInputStream(
+                JarUtil.getResourceFromJarasFile("xbean/misc/primitiveTypes.xml").toPath())).
             newXMLStreamReader();
         XMLStreamReaderExt xsrext = new XMLStreamReaderExtImpl(xsr);
 
@@ -283,21 +283,18 @@ public class RichParserTests {
 
     public static String readIS(InputStream is)
         throws IOException {
-        String res = "";
+        StringBuilder res = new StringBuilder();
         byte[] buf = new byte[20];
-        while (true) {
-            int l = is.read(buf);
-            if (l < 0) {
-                break;
-            }
-            res += new String(buf, 0, l);
+        int l;
+        while ((l = is.read(buf)) != -1) {
+            res.append(new String(buf, 0, l));
         }
-        return res;
+        return res.toString();
     }
 
     public static void main(String[] args) throws IOException, XMLStreamException {
         XMLInputFactory factory = XMLInputFactory.newInstance();
-        XMLStreamReader xsr = factory.createXMLStreamReader(new FileInputStream(new File(args[0])));
+        XMLStreamReader xsr = factory.createXMLStreamReader(Files.newInputStream(new File(args[0]).toPath()));
         XMLStreamReaderExt xsrext = new XMLStreamReaderExtImpl(xsr);
 
         while (xsrext.hasNext()) {
