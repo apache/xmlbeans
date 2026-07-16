@@ -95,22 +95,26 @@ public class JavaUriHolderEx extends JavaUriHolder {
         XmlObject x;
         int i;
 
+        // xsd length facets count characters (code points), not Java UTF-16
+        // code units, so a supplementary character counts as one
+        int cch = v.codePointCount(0, v.length());
+
         if ((x = sType.getFacet(SchemaType.FACET_LENGTH)) != null) {
-            if ((i = ((SimpleValue) x).getBigIntegerValue().intValue()) != v.length()) {
+            if ((i = ((SimpleValue) x).getBigIntegerValue().intValue()) != cch) {
                 context.invalid(XmlErrorCodes.DATATYPE_LENGTH_VALID$STRING,
                     new Object[]{"anyURI", v, i, QNameHelper.readable(sType)});
             }
         }
 
         if ((x = sType.getFacet(SchemaType.FACET_MIN_LENGTH)) != null) {
-            if ((i = ((SimpleValue) x).getBigIntegerValue().intValue()) > v.length()) {
+            if ((i = ((SimpleValue) x).getBigIntegerValue().intValue()) > cch) {
                 context.invalid(XmlErrorCodes.DATATYPE_MIN_LENGTH_VALID$STRING,
                     new Object[]{"anyURI", v, i, QNameHelper.readable(sType)});
             }
         }
 
         if ((x = sType.getFacet(SchemaType.FACET_MAX_LENGTH)) != null) {
-            if ((i = ((SimpleValue) x).getBigIntegerValue().intValue()) < v.length()) {
+            if ((i = ((SimpleValue) x).getBigIntegerValue().intValue()) < cch) {
                 context.invalid(XmlErrorCodes.DATATYPE_MAX_LENGTH_VALID$STRING,
                     new Object[]{"anyURI", v, i, QNameHelper.readable(sType)});
             }
