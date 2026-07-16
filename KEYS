@@ -2759,11 +2759,11 @@ OzQuaMAqRP8viuuA29GAsy59x92LWEhm6RRSyU6rMGqfhbHQEs6FZ0x6zuBq8Ru7
 T9wf/cc6uGGG6BqnjxFbWL/g9XJeU8gDxQ+ElJbYDXHT255g8kb92mHbJziPbxM=
 =WUaV
 -----END PGP PUBLIC KEY BLOCK-----
-sec   ed25519 2026-07-16 [SC] [expires: 2028-07-15]
+pub   ed25519 2026-07-16 [SC] [expires: 2028-07-15]
       6FFE44D6F720907EDBD75D84258E7A9DC3490481
 uid           [ultimate] PJ Fanning <fanningpj@apache.org>
 uid           [ultimate] PJ Fanning <fanningpj@yahoo.com>
-ssb   cv25519 2026-07-16 [E] [expires: 2028-07-15]
+sub   cv25519 2026-07-16 [E] [expires: 2028-07-15]
 
 -----BEGIN PGP PUBLIC KEY BLOCK-----
 
