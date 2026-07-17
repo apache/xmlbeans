@@ -193,7 +193,7 @@ public class TypeSystemHolder
         }
         if (element.getMinOccurs()!=1)
         {
-            localSElement.setMinOccurs(new BigInteger("" + element.getMinOccurs()));
+            localSElement.setMinOccurs(BigInteger.valueOf(element.getMinOccurs()));
         }
 
         if (element.isNillable())
@@ -323,7 +323,7 @@ public class TypeSystemHolder
             {
                 explicitGroup = sComplexType.addNewChoice();
                 explicitGroup.setMaxOccurs("unbounded");
-                explicitGroup.setMinOccurs(new BigInteger("0"));
+                explicitGroup.setMinOccurs(BigInteger.ZERO);
             }
             else { throw new IllegalStateException("Unknown particle type in complex and mixed content"); }
 
