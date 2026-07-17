@@ -1122,7 +1122,7 @@ public final class Validator
             }
             case SchemaType.BTC_FLOAT: {
                 float f =
-                    JavaFloatHolderEx.validateLexical(value, type, _vc);
+                    JavaFloatHolderEx.validateLexical(value, type, _vc, _options.getMaxNumberOfCharsForNumbers());
 
                 if (errorState == _errorState) {
                     JavaFloatHolderEx.validateValue(f, type, _vc);
@@ -1133,7 +1133,7 @@ public final class Validator
             }
             case SchemaType.BTC_DOUBLE: {
                 double d =
-                    JavaDoubleHolderEx.validateLexical(value, type, _vc);
+                    JavaDoubleHolderEx.validateLexical(value, type, _vc, _options.getMaxNumberOfCharsForNumbers());
 
                 if (errorState == _errorState) {
                     JavaDoubleHolderEx.validateValue(d, type, _vc);

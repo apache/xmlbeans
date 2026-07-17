@@ -76,7 +76,7 @@ public final class XsTypeConverter {
     // ======================== float ========================
     public static float lexFloat(CharSequence cs)
         throws NumberFormatException {
-        return lexFloat(cs, false);
+        return lexFloat(cs, false, XmlOptions.DEFAULT_MAX_NUMBER_CHARS);
     }
 
     /**
@@ -89,11 +89,13 @@ public final class XsTypeConverter {
      *               ({@code f}/{@code F}/{@code d}/{@code D}). When {@code false} the
      *               long-standing lenient behaviour applies. Driven by
      *               {@link org.apache.xmlbeans.XmlOptions#setLoadStrictFloatingPoint()}.
+     * @param maxNumberOfChars the maximum number of characters allowed in the string
      * @return the parsed float
      * @throws NumberFormatException if the value is not a valid xsd:float
      * @since 5.4.0
      */
-    public static float lexFloat(CharSequence cs, boolean strict)
+    public static float lexFloat(CharSequence cs, boolean strict,
+                                 int maxNumberOfChars)
         throws NumberFormatException {
         rejectInvalidNumber(cs);
         final String v = cs.toString();
@@ -116,12 +118,12 @@ public final class XsTypeConverter {
                 throw new NumberFormatException("Invalid char '" + ch + "' in float.");
             }
         }
-        return MathUtil.parseAsFloat(v);
+        return MathUtil.parseAsFloat(v, maxNumberOfChars);
     }
 
     public static float lexFloat(CharSequence cs, Collection<XmlError> errors) {
         try {
-            return lexFloat(cs);
+            return lexFloat(cs, false, XmlOptions.DEFAULT_MAX_NUMBER_CHARS);
         } catch (NumberFormatException e) {
             String msg = "invalid float: " + cs;
             errors.add(XmlError.forMessage(msg));
@@ -146,7 +148,7 @@ public final class XsTypeConverter {
     // ======================== double ========================
     public static double lexDouble(CharSequence cs)
         throws NumberFormatException {
-        return lexDouble(cs, false);
+        return lexDouble(cs, false,  XmlOptions.DEFAULT_MAX_NUMBER_CHARS);
     }
 
     /**
@@ -159,11 +161,13 @@ public final class XsTypeConverter {
      *               ({@code f}/{@code F}/{@code d}/{@code D}). When {@code false} the
      *               long-standing lenient behaviour applies. Driven by
      *               {@link org.apache.xmlbeans.XmlOptions#setLoadStrictFloatingPoint()}.
+     * @param maxNumberOfChars the maximum number of characters allowed in the string
      * @return the parsed double
      * @throws NumberFormatException if the value is not a valid xsd:double
      * @since 5.4.0
      */
-    public static double lexDouble(CharSequence cs, boolean strict)
+    public static double lexDouble(CharSequence cs, boolean strict,
+                                   int maxNumberOfChars)
         throws NumberFormatException {
         rejectInvalidNumber(cs);
         final String v = cs.toString();
@@ -186,12 +190,12 @@ public final class XsTypeConverter {
                 throw new NumberFormatException("Invalid char '" + ch + "' in double.");
             }
         }
-        return MathUtil.parseAsDouble(v);
+        return MathUtil.parseAsDouble(v, maxNumberOfChars);
     }
 
     public static double lexDouble(CharSequence cs, Collection<XmlError> errors) {
         try {
-            return lexDouble(cs);
+            return lexDouble(cs, false, XmlOptions.DEFAULT_MAX_NUMBER_CHARS);
         } catch (NumberFormatException e) {
             String msg = "invalid double: " + cs;
             errors.add(XmlError.forMessage(msg));

@@ -93,7 +93,7 @@ public class PrettyPrinter
         if (indentStr == null)
             indent = DEFAULT_INDENT;
         else
-            indent = MathUtil.parseAsInteger(indentStr);
+            indent = MathUtil.parseAsInt(indentStr);
         
         File[] files = cl.getFiles();
         

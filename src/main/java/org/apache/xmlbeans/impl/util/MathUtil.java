@@ -106,41 +106,65 @@ public class MathUtil {
      * @throws IllegalArgumentException if string is too long
      * @throws NullPointerException if string is null
      */
-    public static Float parseAsFloat(String s) {
+    public static float parseAsFloat(String s) {
+        return parseAsFloat(s, DEFAULT_MAX_NUMBER_CHARS);
+    }
+
+    /**
+     * @param s string to parse
+     * @param maxNumberOfChars maximum number of characters allowed in the string
+     * @return valid float
+     * @throws NumberFormatException if parse fails
+     * @throws IllegalArgumentException if string is too long
+     * @throws NullPointerException if string is null
+     */
+    public static float parseAsFloat(String s, int maxNumberOfChars) {
         if (s == null) {
             throw new NullPointerException("Cannot parse null as Float");
         }
-        if (s.length() > DEFAULT_MAX_NUMBER_CHARS) {
-            throw new IllegalArgumentException("Number has more than " + DEFAULT_MAX_NUMBER_CHARS + " characters");
+        if (s.length() > maxNumberOfChars) {
+            throw new IllegalArgumentException("Number has more than " + maxNumberOfChars + " characters");
         }
         return Float.parseFloat(s);
     }
 
     /**
      * @param s string to parse
-     * @return valid Float
+     * @return valid float
      * @throws NumberFormatException if parse fails
      * @throws IllegalArgumentException if string is too long
      * @throws NullPointerException if string is null
      */
-    public static Double parseAsDouble(String s) {
+    public static double parseAsDouble(String s) {
+        return parseAsDouble(s, DEFAULT_MAX_NUMBER_CHARS);
+    }
+
+    /**
+     * @param s string to parse
+     * @param maxNumberOfChars maximum number of characters allowed in the string
+     * @return valid float
+     * @throws NumberFormatException if parse fails
+     * @throws IllegalArgumentException if string is too long
+     * @throws NullPointerException if string is null
+     */
+    public static double parseAsDouble(String s, int maxNumberOfChars) {
         if (s == null) {
             throw new NullPointerException("Cannot parse null as Double");
         }
-        if (s.length() > DEFAULT_MAX_NUMBER_CHARS) {
-            throw new IllegalArgumentException("Number has more than " + DEFAULT_MAX_NUMBER_CHARS + " characters");
+        if (s.length() > maxNumberOfChars) {
+            throw new IllegalArgumentException("Number has more than " + maxNumberOfChars + " characters");
         }
         return Double.parseDouble(s);
     }
 
     /**
      * @param s string to parse
-     * @return valid Long
+     * @return valid long
      * @throws NumberFormatException if parse fails
      * @throws IllegalArgumentException if string is too long
      * @throws NullPointerException if string is null
      */
-    public static Long parseAsLong(String s) {
+    public static long parseAsLong(String s) {
         if (s == null) {
             throw new NullPointerException("Cannot parse null as Long");
         }
@@ -152,12 +176,12 @@ public class MathUtil {
 
     /**
      * @param s string to parse
-     * @return valid Integer
+     * @return valid int
      * @throws NumberFormatException if parse fails
      * @throws IllegalArgumentException if string is too long
      * @throws NullPointerException if string is null
      */
-    public static Integer parseAsInteger(String s) {
+    public static int parseAsInt(String s) {
         if (s == null) {
             throw new NullPointerException("Cannot parse null as Integer");
         }

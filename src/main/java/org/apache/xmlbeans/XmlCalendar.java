@@ -274,7 +274,7 @@ public class XmlCalendar extends GregorianCalendar
             {
                 String yearstring = SystemProperties.getProperty("user.defaultyear");
                 if (yearstring != null)
-                    defaultYear = MathUtil.parseAsInteger(yearstring);
+                    defaultYear = MathUtil.parseAsInt(yearstring);
                 else
                     defaultYear = DEFAULT_DEFAULT_YEAR;
             }

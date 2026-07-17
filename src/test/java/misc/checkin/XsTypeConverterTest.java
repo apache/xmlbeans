@@ -121,24 +121,26 @@ public class XsTypeConverterTest {
 
     @Test
     void lexFloatStrictRejectsNonXsdLexicalForms() {
+        final int maxNums = XmlOptions.DEFAULT_MAX_NUMBER_CHARS;
         // hex floats, the java "Infinity" spelling and the f/F/d/D suffix are
         // accepted by Float.parseFloat but are outside the xsd:float lexical space
-        assertThrows(NumberFormatException.class, () -> XsTypeConverter.lexFloat("0x1p4", true));
-        assertThrows(NumberFormatException.class, () -> XsTypeConverter.lexFloat("Infinity", true));
-        assertThrows(NumberFormatException.class, () -> XsTypeConverter.lexFloat("-Infinity", true));
-        assertThrows(NumberFormatException.class, () -> XsTypeConverter.lexFloat("1.0d", true));
-        assertThrows(NumberFormatException.class, () -> XsTypeConverter.lexFloat("1D", true));
-        assertThrows(NumberFormatException.class, () -> XsTypeConverter.lexFloat("1.0f", true));
+        assertThrows(NumberFormatException.class, () -> XsTypeConverter.lexFloat("0x1p4", true, maxNums));
+        assertThrows(NumberFormatException.class, () -> XsTypeConverter.lexFloat("Infinity", true, maxNums));
+        assertThrows(NumberFormatException.class, () -> XsTypeConverter.lexFloat("-Infinity", true, maxNums));
+        assertThrows(NumberFormatException.class, () -> XsTypeConverter.lexFloat("1.0d", true, maxNums));
+        assertThrows(NumberFormatException.class, () -> XsTypeConverter.lexFloat("1D", true, maxNums));
+        assertThrows(NumberFormatException.class, () -> XsTypeConverter.lexFloat("1.0f", true, maxNums));
     }
 
     @Test
     void lexFloatStrictAcceptsValidValues() {
-        assertEquals(1.0f, XsTypeConverter.lexFloat("1.0", true));
-        assertEquals(1.0f, XsTypeConverter.lexFloat("01.0", true));
-        assertEquals(1500.0f, XsTypeConverter.lexFloat("1.5e3", true));
-        assertEquals(Float.POSITIVE_INFINITY, XsTypeConverter.lexFloat("INF", true));
-        assertEquals(Float.NEGATIVE_INFINITY, XsTypeConverter.lexFloat("-INF", true));
-        assertEquals(Float.NaN, XsTypeConverter.lexFloat("NaN", true));
+        final int maxNums = XmlOptions.DEFAULT_MAX_NUMBER_CHARS;
+        assertEquals(1.0f, XsTypeConverter.lexFloat("1.0", true, maxNums));
+        assertEquals(1.0f, XsTypeConverter.lexFloat("01.0", true, maxNums));
+        assertEquals(1500.0f, XsTypeConverter.lexFloat("1.5e3", true, maxNums));
+        assertEquals(Float.POSITIVE_INFINITY, XsTypeConverter.lexFloat("INF", true, maxNums));
+        assertEquals(Float.NEGATIVE_INFINITY, XsTypeConverter.lexFloat("-INF", true, maxNums));
+        assertEquals(Float.NaN, XsTypeConverter.lexFloat("NaN", true, maxNums));
     }
 
     @Test
@@ -158,24 +160,26 @@ public class XsTypeConverterTest {
 
     @Test
     void lexDoubleStrictRejectsNonXsdLexicalForms() {
+        final int maxNums = XmlOptions.DEFAULT_MAX_NUMBER_CHARS;
         // hex floats, the java "Infinity" spelling and the f/F/d/D suffix are
         // accepted by Double.parseDouble but are outside the xsd:double lexical space
-        assertThrows(NumberFormatException.class, () -> XsTypeConverter.lexDouble("0x1p4", true));
-        assertThrows(NumberFormatException.class, () -> XsTypeConverter.lexDouble("Infinity", true));
-        assertThrows(NumberFormatException.class, () -> XsTypeConverter.lexDouble("-Infinity", true));
-        assertThrows(NumberFormatException.class, () -> XsTypeConverter.lexDouble("1.0f", true));
-        assertThrows(NumberFormatException.class, () -> XsTypeConverter.lexDouble("1F", true));
-        assertThrows(NumberFormatException.class, () -> XsTypeConverter.lexDouble("1.0d", true));
+        assertThrows(NumberFormatException.class, () -> XsTypeConverter.lexDouble("0x1p4", true, maxNums));
+        assertThrows(NumberFormatException.class, () -> XsTypeConverter.lexDouble("Infinity", true, maxNums));
+        assertThrows(NumberFormatException.class, () -> XsTypeConverter.lexDouble("-Infinity", true, maxNums));
+        assertThrows(NumberFormatException.class, () -> XsTypeConverter.lexDouble("1.0f", true, maxNums));
+        assertThrows(NumberFormatException.class, () -> XsTypeConverter.lexDouble("1F", true, maxNums));
+        assertThrows(NumberFormatException.class, () -> XsTypeConverter.lexDouble("1.0d", true, maxNums));
     }
 
     @Test
     void lexDoubleStrictAcceptsValidValues() {
-        assertEquals(1.0, XsTypeConverter.lexDouble("1.0", true));
-        assertEquals(1.0, XsTypeConverter.lexDouble("01.0", true));
-        assertEquals(1500.0, XsTypeConverter.lexDouble("1.5e3", true));
-        assertEquals(Double.POSITIVE_INFINITY, XsTypeConverter.lexDouble("INF", true));
-        assertEquals(Double.NEGATIVE_INFINITY, XsTypeConverter.lexDouble("-INF", true));
-        assertEquals(Double.NaN, XsTypeConverter.lexDouble("NaN", true));
+        final int maxNums = XmlOptions.DEFAULT_MAX_NUMBER_CHARS;
+        assertEquals(1.0, XsTypeConverter.lexDouble("1.0", true, maxNums));
+        assertEquals(1.0, XsTypeConverter.lexDouble("01.0", true, maxNums));
+        assertEquals(1500.0, XsTypeConverter.lexDouble("1.5e3", true, maxNums));
+        assertEquals(Double.POSITIVE_INFINITY, XsTypeConverter.lexDouble("INF", true, maxNums));
+        assertEquals(Double.NEGATIVE_INFINITY, XsTypeConverter.lexDouble("-INF", true, maxNums));
+        assertEquals(Double.NaN, XsTypeConverter.lexDouble("NaN", true, maxNums));
     }
 
     @Test
