@@ -19,6 +19,7 @@ import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
 import org.apache.xmlbeans.impl.store.Cur;
+import org.apache.xmlbeans.impl.util.MathUtil;
 import org.apache.xmlbeans.impl.xpath.saxon.SaxonXPath;
 import org.apache.xmlbeans.impl.xpath.saxon.SaxonXQuery;
 import org.apache.xmlbeans.impl.xpath.xmlbeans.XmlbeansXPath;
@@ -135,7 +136,7 @@ public class XPathFactory {
         }
 
 
-        int offset = Integer.parseInt(namespaces.getOrDefault(XPath._NS_BOUNDARY, "0"));
+        int offset = MathUtil.parseAsInteger(namespaces.getOrDefault(XPath._NS_BOUNDARY, "0"));
         namespaces.remove(XPath._NS_BOUNDARY);
 
         return new SaxonXPath(pathExpr.substring(offset), currentVar, namespaces);
@@ -176,7 +177,7 @@ public class XPathFactory {
         } catch (XPath.XPathCompileException e) {
             //don't care if it fails, just care about boundary
         } finally {
-            boundaryVal = Integer.parseInt(boundary.getOrDefault(XPath._NS_BOUNDARY, "0"));
+            boundaryVal = MathUtil.parseAsInteger(boundary.getOrDefault(XPath._NS_BOUNDARY, "0"));
         }
 
         return new SaxonXQuery(queryExpr, currentVar, boundaryVal, options);

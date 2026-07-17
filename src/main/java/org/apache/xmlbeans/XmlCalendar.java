@@ -16,6 +16,7 @@
 package org.apache.xmlbeans;
 
 import org.apache.xmlbeans.impl.util.ExceptionUtil;
+import org.apache.xmlbeans.impl.util.MathUtil;
 import org.apache.xmlbeans.impl.util.SuppressForbidden;
 
 import java.math.BigDecimal;
@@ -273,7 +274,7 @@ public class XmlCalendar extends GregorianCalendar
             {
                 String yearstring = SystemProperties.getProperty("user.defaultyear");
                 if (yearstring != null)
-                    defaultYear = Integer.parseInt(yearstring);
+                    defaultYear = MathUtil.parseAsInteger(yearstring);
                 else
                     defaultYear = DEFAULT_DEFAULT_YEAR;
             }

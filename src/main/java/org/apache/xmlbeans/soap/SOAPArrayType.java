@@ -18,6 +18,7 @@ package org.apache.xmlbeans.soap;
 import org.apache.xmlbeans.impl.common.PrefixResolver;
 import org.apache.xmlbeans.impl.common.QNameHelper;
 import org.apache.xmlbeans.impl.common.XmlWhitespace;
+import org.apache.xmlbeans.impl.util.MathUtil;
 import org.apache.xmlbeans.impl.values.XmlValueOutOfRangeException;
 
 import javax.xml.namespace.QName;
@@ -66,7 +67,7 @@ public final class SOAPArrayType {
     private static int collapseDimString(String dimString2) {
         String dimString = XmlWhitespace.collapse(dimString2, XmlWhitespace.WS_COLLAPSE);
         try {
-            return ("*".equals(dimString) || dimString.isEmpty()) ? -1 : Integer.parseInt(dimString);
+            return ("*".equals(dimString) || dimString.isEmpty()) ? -1 : MathUtil.parseAsInteger(dimString);
         } catch (Exception e) {
             throw new XmlValueOutOfRangeException("Malformed integer in SOAP array index");
         }
@@ -126,7 +127,7 @@ public final class SOAPArrayType {
                     // _hasIndeterminateDimensions = true;
                 } else {
                     try {
-                        _dimensions[i] = Integer.parseInt(dimStrings[i]);
+                        _dimensions[i] = MathUtil.parseAsInteger(dimStrings[i]);
                     } catch (Exception e) {
                         throw new XmlValueOutOfRangeException();
                     }
@@ -292,7 +293,7 @@ public final class SOAPArrayType {
                 // _hasIndeterminateDimensions = true;
             } else {
                 try {
-                    dimensions[i] = Integer.parseInt(dimStrings[i]);
+                    dimensions[i] = MathUtil.parseAsInteger(dimStrings[i]);
                 } catch (Exception e) {
                     throw new XmlValueOutOfRangeException();
                 }
