@@ -87,4 +87,72 @@ public class MathUtil {
         }
         return new BigInteger(s);
     }
+
+    /**
+     * @param s string to parse
+     * @return valid Float
+     * @throws NumberFormatException if parse fails
+     * @throws IllegalArgumentException if string is too long
+     * @throws NullPointerException if string is null
+     */
+    public static Float parseAsFloat(String s) {
+        if (s == null) {
+            throw new NullPointerException("Cannot parse null as Float");
+        }
+        if (s.length() > MAX_NUMBER_LENGTH) {
+            throw new IllegalArgumentException("Number has more than " + MAX_NUMBER_LENGTH + " characters");
+        }
+        return Float.parseFloat(s);
+    }
+
+    /**
+     * @param s string to parse
+     * @return valid Float
+     * @throws NumberFormatException if parse fails
+     * @throws IllegalArgumentException if string is too long
+     * @throws NullPointerException if string is null
+     */
+    public static Double parseAsDouble(String s) {
+        if (s == null) {
+            throw new NullPointerException("Cannot parse null as Double");
+        }
+        if (s.length() > MAX_NUMBER_LENGTH) {
+            throw new IllegalArgumentException("Number has more than " + MAX_NUMBER_LENGTH + " characters");
+        }
+        return Double.parseDouble(s);
+    }
+
+    /**
+     * @param s string to parse
+     * @return valid Long
+     * @throws NumberFormatException if parse fails
+     * @throws IllegalArgumentException if string is too long
+     * @throws NullPointerException if string is null
+     */
+    public static Long parseAsLong(String s) {
+        if (s == null) {
+            throw new NullPointerException("Cannot parse null as Long");
+        }
+        if (s.length() > MAX_NUMBER_LENGTH) {
+            throw new IllegalArgumentException("Number has more than " + MAX_NUMBER_LENGTH + " characters");
+        }
+        return Long.parseLong(s);
+    }
+
+    /**
+     * @param s string to parse
+     * @return valid Integer
+     * @throws NumberFormatException if parse fails
+     * @throws IllegalArgumentException if string is too long
+     * @throws NullPointerException if string is null
+     */
+    public static Integer parseAsInteger(String s) {
+        if (s == null) {
+            throw new NullPointerException("Cannot parse null as Integer");
+        }
+        if (s.length() > MAX_NUMBER_LENGTH) {
+            throw new IllegalArgumentException("Number has more than " + MAX_NUMBER_LENGTH + " characters");
+        }
+        return Integer.parseInt(s);
+    }
 }

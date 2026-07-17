@@ -17,6 +17,7 @@ package org.apache.xmlbeans.impl.inst2xsd;
 import org.apache.xmlbeans.*;
 import org.apache.xmlbeans.impl.inst2xsd.util.TypeSystemHolder;
 import org.apache.xmlbeans.impl.tool.CommandLine;
+import org.apache.xmlbeans.impl.util.MathUtil;
 import org.apache.xmlbeans.impl.xb.xsdschema.SchemaDocument;
 
 import java.io.File;
@@ -149,7 +150,7 @@ public class Inst2Xsd
         {
             try
             {
-                int intVal = Integer.parseInt(enumerations);
+                int intVal = MathUtil.parseAsInteger(enumerations);
                 inst2XsdOptions.setUseEnumerations(intVal);
             }
             catch (NumberFormatException e)

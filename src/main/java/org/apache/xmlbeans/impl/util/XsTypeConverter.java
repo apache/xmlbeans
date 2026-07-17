@@ -116,7 +116,7 @@ public final class XsTypeConverter {
                 throw new NumberFormatException("Invalid char '" + ch + "' in float.");
             }
         }
-        return Float.parseFloat(v);
+        return MathUtil.parseAsFloat(v);
     }
 
     public static float lexFloat(CharSequence cs, Collection<XmlError> errors) {
@@ -186,7 +186,7 @@ public final class XsTypeConverter {
                 throw new NumberFormatException("Invalid char '" + ch + "' in double.");
             }
         }
-        return Double.parseDouble(v);
+        return MathUtil.parseAsDouble(v);
     }
 
     public static double lexDouble(CharSequence cs, Collection<XmlError> errors) {
@@ -331,7 +331,7 @@ public final class XsTypeConverter {
         rejectInvalidNumber(cs);
         rejectSignAfterPlus(cs);
         final String v = cs.toString();
-        return Long.parseLong(trimInitialPlus(v));
+        return MathUtil.parseAsLong(trimInitialPlus(v));
     }
 
     // trimInitialPlus drops a single leading '+', then Long.parseLong /

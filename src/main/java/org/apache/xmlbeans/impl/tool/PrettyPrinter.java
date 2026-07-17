@@ -18,6 +18,7 @@ package org.apache.xmlbeans.impl.tool;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
 import org.apache.xmlbeans.XmlException;
+import org.apache.xmlbeans.impl.util.MathUtil;
 
 import java.util.Set;
 import java.util.HashSet;
@@ -92,7 +93,7 @@ public class PrettyPrinter
         if (indentStr == null)
             indent = DEFAULT_INDENT;
         else
-            indent = Integer.parseInt(indentStr);
+            indent = MathUtil.parseAsInteger(indentStr);
         
         File[] files = cl.getFiles();
         
