@@ -19,6 +19,8 @@ package org.apache.xmlbeans.impl.util;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
+import static org.apache.xmlbeans.XmlOptions.DEFAULT_MAX_NUMBER_CHARS;
+
 /**
  * Internal Use Only. Utility methods for dealing with conversions
  */
@@ -51,9 +53,6 @@ public class MathUtil {
         return (int) d;
     }
 
-    // TODO try to make this configurable
-    private static final int MAX_NUMBER_LENGTH = 1024;
-
     /**
      * @param s string to parse
      * @return valid BigDecimal
@@ -62,11 +61,23 @@ public class MathUtil {
      * @throws NullPointerException if string is null
      */
     public static BigDecimal parseAsBigDecimal(String s) {
+        return parseAsBigDecimal(s, DEFAULT_MAX_NUMBER_CHARS);
+    }
+
+    /**
+     * @param s string to parse
+     * @param maxNumberOfChars maximum number of characters allowed in the string
+     * @return valid BigDecimal
+     * @throws NumberFormatException if parse fails
+     * @throws IllegalArgumentException if string is too long
+     * @throws NullPointerException if string is null
+     */
+    public static BigDecimal parseAsBigDecimal(String s, int maxNumberOfChars) {
         if (s == null) {
             throw new NullPointerException("Cannot parse null as BigDecimal");
         }
-        if (s.length() > MAX_NUMBER_LENGTH) {
-            throw new IllegalArgumentException("Number has more than " + MAX_NUMBER_LENGTH + " characters");
+        if (s.length() > maxNumberOfChars) {
+            throw new IllegalArgumentException("Number has more than " + maxNumberOfChars + " characters");
         }
         return new BigDecimal(s);
     }
@@ -82,8 +93,8 @@ public class MathUtil {
         if (s == null) {
             throw new NullPointerException("Cannot parse null as BigInteger");
         }
-        if (s.length() > MAX_NUMBER_LENGTH) {
-            throw new IllegalArgumentException("Number has more than " + MAX_NUMBER_LENGTH + " characters");
+        if (s.length() > DEFAULT_MAX_NUMBER_CHARS) {
+            throw new IllegalArgumentException("Number has more than " + DEFAULT_MAX_NUMBER_CHARS + " characters");
         }
         return new BigInteger(s);
     }
@@ -99,8 +110,8 @@ public class MathUtil {
         if (s == null) {
             throw new NullPointerException("Cannot parse null as Float");
         }
-        if (s.length() > MAX_NUMBER_LENGTH) {
-            throw new IllegalArgumentException("Number has more than " + MAX_NUMBER_LENGTH + " characters");
+        if (s.length() > DEFAULT_MAX_NUMBER_CHARS) {
+            throw new IllegalArgumentException("Number has more than " + DEFAULT_MAX_NUMBER_CHARS + " characters");
         }
         return Float.parseFloat(s);
     }
@@ -116,8 +127,8 @@ public class MathUtil {
         if (s == null) {
             throw new NullPointerException("Cannot parse null as Double");
         }
-        if (s.length() > MAX_NUMBER_LENGTH) {
-            throw new IllegalArgumentException("Number has more than " + MAX_NUMBER_LENGTH + " characters");
+        if (s.length() > DEFAULT_MAX_NUMBER_CHARS) {
+            throw new IllegalArgumentException("Number has more than " + DEFAULT_MAX_NUMBER_CHARS + " characters");
         }
         return Double.parseDouble(s);
     }
@@ -133,8 +144,8 @@ public class MathUtil {
         if (s == null) {
             throw new NullPointerException("Cannot parse null as Long");
         }
-        if (s.length() > MAX_NUMBER_LENGTH) {
-            throw new IllegalArgumentException("Number has more than " + MAX_NUMBER_LENGTH + " characters");
+        if (s.length() > DEFAULT_MAX_NUMBER_CHARS) {
+            throw new IllegalArgumentException("Number has more than " + DEFAULT_MAX_NUMBER_CHARS + " characters");
         }
         return Long.parseLong(s);
     }
@@ -150,8 +161,8 @@ public class MathUtil {
         if (s == null) {
             throw new NullPointerException("Cannot parse null as Integer");
         }
-        if (s.length() > MAX_NUMBER_LENGTH) {
-            throw new IllegalArgumentException("Number has more than " + MAX_NUMBER_LENGTH + " characters");
+        if (s.length() > DEFAULT_MAX_NUMBER_CHARS) {
+            throw new IllegalArgumentException("Number has more than " + DEFAULT_MAX_NUMBER_CHARS + " characters");
         }
         return Integer.parseInt(s);
     }
@@ -165,10 +176,10 @@ public class MathUtil {
     public static BigInteger toBigInteger(BigDecimal value) {
         BigDecimal normalized = value.stripTrailingZeros();
         int integerDigits = normalized.precision() - normalized.scale();
-        if (integerDigits > MAX_NUMBER_LENGTH || normalized.scale() < -MAX_NUMBER_LENGTH) {
+        if (integerDigits > DEFAULT_MAX_NUMBER_CHARS || normalized.scale() < -DEFAULT_MAX_NUMBER_CHARS) {
             throw new IllegalArgumentException(
                     "BigDecimal magnitude too large to convert safely: approx "
-                            + integerDigits + " integer digits (limit " + MAX_NUMBER_LENGTH + ")");
+                            + integerDigits + " integer digits (limit " + DEFAULT_MAX_NUMBER_CHARS + ")");
         }
         return normalized.toBigInteger();
     }

@@ -18,6 +18,7 @@ package org.apache.xmlbeans.impl.values;
 import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.XmlErrorCodes;
 import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.XmlOptions;
 import org.apache.xmlbeans.impl.common.QNameHelper;
 import org.apache.xmlbeans.impl.common.ValidationContext;
 import org.apache.xmlbeans.impl.util.MathUtil;
@@ -69,7 +70,12 @@ public abstract class JavaDecimalHolderEx extends JavaDecimalHolder {
     }
 
     public static void validateLexical(String v, SchemaType sType, ValidationContext context, boolean allowExponent) {
-        JavaDecimalHolder.validateLexical(v, context, allowExponent);
+        validateLexical(v, sType, context, allowExponent, XmlOptions.DEFAULT_MAX_NUMBER_CHARS);
+    }
+
+    public static void validateLexical(String v, SchemaType sType, ValidationContext context,
+                                       boolean allowExponent, int maxNumberOfChars) {
+        JavaDecimalHolder.validateLexical(v, context, allowExponent, maxNumberOfChars);
 
         // check pattern
         if (sType.hasPatternFacet()) {

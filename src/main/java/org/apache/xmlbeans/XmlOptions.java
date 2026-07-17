@@ -159,11 +159,13 @@ public class XmlOptions implements java.io.Serializable {
         XPATH_USE_XMLBEANS,
         ATTRIBUTE_VALIDATION_COMPAT_MODE,
         LOAD_STRICT_FLOATING_POINT,
-        LOAD_ALLOW_DECIMAL_EXPONENT
+        LOAD_ALLOW_DECIMAL_EXPONENT,
+        MAX_NUMBER_CHARS
     }
 
 
     public static final int DEFAULT_ENTITY_EXPANSION_LIMIT = 2048;
+    public static final int DEFAULT_MAX_NUMBER_CHARS = 1024;
 
     private static final XmlOptions EMPTY_OPTIONS;
 
@@ -1601,6 +1603,39 @@ public class XmlOptions implements java.io.Serializable {
         }
     }
 
+    /**
+     * @return the maximum number of characters allowed for a number
+     * @since 5.4.0
+     */
+    public int getMaxNumberOfCharsForNumbers() {
+        Object value = get(XmlOptionsKeys.MAX_NUMBER_CHARS);
+        if (value instanceof Number) {
+            return ((Number) value).intValue();
+        }
+        return DEFAULT_MAX_NUMBER_CHARS;
+    }
+
+    /**
+     * Sets the maximum number of characters allowed for a number
+     * @param max the maximum number of characters
+     * @since 5.4.0
+     */
+    public void setMaxNumberOfCharsForNumbers(int max) {
+        set(XmlOptionsKeys.MAX_NUMBER_CHARS, max);
+    }
+
+    /**
+     * Sets the maximum number of characters allowed for a number
+     * @param max the maximum number of characters, null means apply the default of 1024
+     * @since 5.4.0
+     */
+    public void setMaxNumberOfCharsForNumbers(Integer max) {
+        if (max == null) {
+            remove(XmlOptionsKeys.MAX_NUMBER_CHARS);
+        } else {
+            set(XmlOptionsKeys.MAX_NUMBER_CHARS, max);
+        }
+    }
 
     /**
      * If passed null, returns an empty options object.  Otherwise, returns its argument.
