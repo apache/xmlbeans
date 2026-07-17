@@ -19,9 +19,12 @@ import org.apache.xmlbeans.*;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.List;
+import java.util.Locale;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -648,5 +651,58 @@ public class GDateTests {
 
         assertThrows(IllegalArgumentException.class, () -> new GDate("00004-08-01"));
         assertThrows(IllegalArgumentException.class, () -> new GDate("-012340-08-01"));
+    }
+
+    @Test
+    void testBigGDurations() throws Exception {
+        // Service schema: a timeout that must not exceed 1 day.
+        String xsd =
+                "<xs:schema xmlns:xs='http://www.w3.org/2001/XMLSchema' targetNamespace='urn:t' " +
+                        "xmlns:t='urn:t' elementFormDefault='qualified'>" +
+                        "<xs:element name='timeout'><xs:simpleType><xs:restriction base='xs:duration'>" +
+                        "<xs:maxInclusive value='P1D'/></xs:restriction></xs:simpleType>" +
+                        "</xs:element></xs:schema>";
+        SchemaTypeSystem sts = XmlBeans.compileXsd(
+                new XmlObject[]{XmlObject.Factory.parse(xsd)},
+                XmlBeans.getBuiltinTypeSystem(), null);
+
+        SchemaTypeLoader loader = XmlBeans.typeLoaderUnion(
+                sts, XmlBeans.getBuiltinTypeSystem());
+
+        check(loader, "PT1S", true, "1 second (<= P1D)");
+        check(loader, "PT86400S", true, "exactly 1 day == P1D");
+        check(loader, "PT86401S", false,
+                "1 day + 1 second (> P1D, must be rejected)");
+        check(loader, "PT90000S", false, "25 hours (> P1D)");
+        check(loader, "P2D", false, "2 days (> P1D)");
+
+        check(loader, "PT4294967297S", false,
+                "2^32+1 s (~136 years) -> seconds wraps to 1");
+        check(loader, "PT4294967296S", false,
+                "2^32 s -> seconds wraps to 0");
+        check(loader, "PT3000000000S", false,
+                "3e9 s -> seconds wraps NEGATIVE (-1294967296)");
+    }
+
+    @Test
+    void testInvalidGDurations() {
+        assertThrows(IllegalArgumentException.class, () -> new GDuration("PT4294967297S"));
+        assertThrows(IllegalArgumentException.class, () -> new GDuration("PT3000000000S"));
+    }
+
+    // Assert-style check that prints PASS/FAIL against the expected validity.
+    static void check(SchemaTypeLoader loader, String durationLiteral,
+                      boolean expectedValid, String note) throws Exception {
+        List<XmlError> errs = new ArrayList<>();
+        boolean valid = validate(loader, durationLiteral, errs);
+        assertEquals(expectedValid, valid,
+                String.format(Locale.ROOT, "duration=%s note=%s", durationLiteral, note));
+    }
+
+    static boolean validate(SchemaTypeLoader loader, String durationLiteral, List<XmlError> errs)
+            throws Exception {
+        XmlObject o = loader.parse("<t:timeout xmlns:t='urn:t'>" + durationLiteral +
+                "</t:timeout>", null, null);
+        return o.validate(new XmlOptions().setErrorListener(errs));
     }
 }
