@@ -16,6 +16,8 @@
 ==================================================================== */
 package org.apache.xmlbeans.impl.util;
 
+import java.math.BigDecimal;
+
 /**
  * Internal Use Only. Utility methods for dealing with conversions
  */
@@ -46,5 +48,22 @@ public class MathUtil {
             throw new IllegalArgumentException("Value out of range: " + d);
         }
         return (int) d;
+    }
+
+    // TODO try to make this configurable
+    private static final int MAX_NUMBER_LENGTH = 1024;
+
+    public static BigDecimal parseAsBigDecimal(String s) {
+        if (s == null) {
+            throw new NullPointerException("Cannot parse null as BigDecimal");
+        }
+        if (s.length() > MAX_NUMBER_LENGTH) {
+            throw new IllegalArgumentException("Number has more than " + MAX_NUMBER_LENGTH + " characters");
+        }
+        try {
+            return new BigDecimal(s);
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("Invalid BigDecimal value: " + s, e);
+        }
     }
 }

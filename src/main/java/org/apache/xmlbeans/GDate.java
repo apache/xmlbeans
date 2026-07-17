@@ -16,6 +16,7 @@
 package org.apache.xmlbeans;
 
 import org.apache.xmlbeans.impl.util.ExceptionUtil;
+import org.apache.xmlbeans.impl.util.MathUtil;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -274,7 +275,7 @@ public final class GDate implements GDateSpecification, java.io.Serializable {
                         }
                     }
                     try {
-                        fs = new BigDecimal(string.subSequence(start, len).toString());
+                        fs = MathUtil.parseAsBigDecimal(string.subSequence(start, len).toString());
                     } catch (Throwable e) {
                         if (ExceptionUtil.isFatal(e)) {
                             ExceptionUtil.rethrow(e);

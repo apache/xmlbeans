@@ -20,6 +20,7 @@ import org.apache.xmlbeans.impl.common.*;
 import org.apache.xmlbeans.impl.schema.SchemaTypeImpl;
 import org.apache.xmlbeans.impl.schema.SchemaTypeVisitorImpl;
 import org.apache.xmlbeans.impl.util.ExceptionUtil;
+import org.apache.xmlbeans.impl.util.MathUtil;
 import org.apache.xmlbeans.impl.util.XsTypeConverter;
 import org.apache.xmlbeans.impl.values.*;
 
@@ -1108,7 +1109,7 @@ public final class Validator
                 }
 
                 if (errorState == _errorState) {
-                    _decimalValue = new BigDecimal(value);
+                    _decimalValue = MathUtil.parseAsBigDecimal(value);
                     JavaDecimalHolderEx.validateValue(_decimalValue, type, _vc);
                 }
 

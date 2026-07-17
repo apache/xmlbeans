@@ -20,6 +20,7 @@ import org.apache.xmlbeans.XmlErrorCodes;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.impl.common.ValidationContext;
 import org.apache.xmlbeans.impl.schema.BuiltinSchemaTypeSystem;
+import org.apache.xmlbeans.impl.util.MathUtil;
 import org.apache.xmlbeans.impl.util.XsTypeConverter;
 
 import java.math.BigDecimal;
@@ -47,8 +48,8 @@ public class JavaDecimalHolder extends XmlObjectBase {
         }
 
         try {
-            set_BigDecimal(new BigDecimal(s));
-        } catch (NumberFormatException e) {
+            set_BigDecimal(MathUtil.parseAsBigDecimal(s));
+        } catch (Exception e) {
             _voorVc.invalid(XmlErrorCodes.DECIMAL, new Object[]{s});
         }
     }
@@ -70,8 +71,8 @@ public class JavaDecimalHolder extends XmlObjectBase {
             // long-standing lenient behaviour: accept whatever BigDecimal accepts,
             // which includes scientific/exponent notation such as "1E5".
             try {
-                new BigDecimal(v);
-            } catch (NumberFormatException e) {
+                MathUtil.parseAsBigDecimal(v);
+            } catch (Exception e) {
                 context.invalid(XmlErrorCodes.DECIMAL, new Object[]{v});
             }
             return;

@@ -15,6 +15,8 @@
 
 package org.apache.xmlbeans;
 
+import org.apache.xmlbeans.impl.util.MathUtil;
+
 import java.math.BigDecimal;
 
 /**
@@ -131,7 +133,7 @@ public final class GDuration implements GDurationSpecification, java.io.Serializ
                 int i = start;
                 do i += 1;
                 while (i < len && GDate.isDigit(ch = str.charAt(i)));
-                _fs = new BigDecimal(str.subSequence(start, i).toString());
+                _fs = MathUtil.parseAsBigDecimal(str.subSequence(start, i).toString());
                 if (i >= len || ch != 'S')
                     throw new IllegalArgumentException("illegal duration");
                 start = i;
