@@ -156,7 +156,7 @@ public class JavaDecimalHolder extends XmlObjectBase {
             }
         }
 
-        BigInteger intval = _value.toBigInteger();
+        BigInteger intval = MathUtil.toBigInteger(_value);
 
         if (intval.compareTo(_maxlong) > 0 ||
             intval.compareTo(_minlong) < 0) {

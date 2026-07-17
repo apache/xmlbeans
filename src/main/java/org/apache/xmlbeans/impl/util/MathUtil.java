@@ -155,4 +155,21 @@ public class MathUtil {
         }
         return Integer.parseInt(s);
     }
+
+    /**
+     * @param value BigDecimal to convert
+     * @return valid BigInteger
+     * @throws IllegalArgumentException if the input has an absolute exponent that is too large to safely convert
+     * @throws NullPointerException if string is null
+     */
+    public static BigInteger toBigInteger(BigDecimal value) {
+        BigDecimal normalized = value.stripTrailingZeros();
+        int integerDigits = normalized.precision() - normalized.scale();
+        if (integerDigits > MAX_NUMBER_LENGTH || normalized.scale() < -MAX_NUMBER_LENGTH) {
+            throw new IllegalArgumentException(
+                    "BigDecimal magnitude too large to convert safely: approx "
+                            + integerDigits + " integer digits (limit " + MAX_NUMBER_LENGTH + ")");
+        }
+        return normalized.toBigInteger();
+    }
 }
