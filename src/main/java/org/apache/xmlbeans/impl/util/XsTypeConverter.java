@@ -248,7 +248,7 @@ public final class XsTypeConverter {
         //equals() method, but the xml value
         //space does not consider them significant.
         //See http://www.w3.org/2001/05/xmlschema-errata#e2-44
-        return new BigDecimal(trimTrailingZeros(v));
+        return MathUtil.parseAsBigDecimal(trimTrailingZeros(v));
     }
 
     private static final char[] CH_ZEROS = new char[]{'0', '0', '0', '0', '0', '0', '0', '0',
@@ -308,7 +308,7 @@ public final class XsTypeConverter {
 
         //TODO: consider special casing zero and one to return static values
         //from BigInteger to avoid object creation.
-        return new BigInteger(trimInitialPlus(v));
+        return MathUtil.parseAsBigInteger(trimInitialPlus(v));
     }
 
     public static BigInteger lexInteger(CharSequence cs, Collection<XmlError> errors) {

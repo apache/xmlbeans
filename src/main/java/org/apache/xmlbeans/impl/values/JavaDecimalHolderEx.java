@@ -20,6 +20,7 @@ import org.apache.xmlbeans.XmlErrorCodes;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.impl.common.QNameHelper;
 import org.apache.xmlbeans.impl.common.ValidationContext;
+import org.apache.xmlbeans.impl.util.MathUtil;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -44,8 +45,8 @@ public abstract class JavaDecimalHolderEx extends JavaDecimalHolder {
 
         BigDecimal v = null;
         try {
-            v = new BigDecimal(s);
-        } catch (NumberFormatException e) {
+            v = MathUtil.parseAsBigDecimal(s);
+        } catch (Exception e) {
             _voorVc.invalid(XmlErrorCodes.DECIMAL, new Object[]{s});
         }
 
@@ -83,7 +84,6 @@ public abstract class JavaDecimalHolderEx extends JavaDecimalHolder {
     /**
      * Performs facet validation only.
      */
-
     public static void validateValue(BigDecimal v, SchemaType sType, ValidationContext context) {
         // fractional digits
         XmlObject fd = sType.getFacet(SchemaType.FACET_FRACTION_DIGITS);

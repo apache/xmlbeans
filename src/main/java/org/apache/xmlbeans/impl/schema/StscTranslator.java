@@ -19,6 +19,7 @@ import org.apache.xmlbeans.*;
 import org.apache.xmlbeans.impl.common.QNameHelper;
 import org.apache.xmlbeans.impl.common.XMLChar;
 import org.apache.xmlbeans.impl.schema.StscImporter.SchemaToProcess;
+import org.apache.xmlbeans.impl.util.MathUtil;
 import org.apache.xmlbeans.impl.values.NamespaceContext;
 import org.apache.xmlbeans.impl.values.XmlNonNegativeIntegerImpl;
 import org.apache.xmlbeans.impl.values.XmlPositiveIntegerImpl;
@@ -1511,8 +1512,8 @@ public class StscTranslator {
         String text = value.getStringValue();
         BigInteger bigInt;
         try {
-            bigInt = new BigInteger(text);
-        } catch (NumberFormatException e) {
+            bigInt = MathUtil.parseAsBigInteger(text);
+        } catch (Exception e) {
             StscState.get().error(XmlErrorCodes.INVALID_VALUE_DETAIL, new Object[]{text, "nonNegativeInteger", e.getMessage()}, value);
             return null;
         }
