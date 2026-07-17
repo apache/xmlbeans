@@ -17,6 +17,7 @@ package org.apache.xmlbeans.impl.schema;
 
 import org.apache.xmlbeans.*;
 import org.apache.xmlbeans.impl.common.QNameHelper;
+import org.apache.xmlbeans.impl.util.MathUtil;
 import org.apache.xmlbeans.impl.values.XmlIntegerImpl;
 import org.apache.xmlbeans.impl.values.XmlStringImpl;
 import org.apache.xmlbeans.impl.values.XmlValueOutOfRangeException;
@@ -185,7 +186,7 @@ public class XQuerySchemaTypeSystem extends SchemaTypeLoaderBase implements
             build_wsstring(SchemaType.WS_COLLAPSE), null, null};
 
     private final static XmlValueRef[] FACETS_UNSIGNED_LONG = new XmlValueRef[]
-        {null, null, null, null, buildInteger(BigInteger.ZERO), buildInteger(new BigInteger("18446744073709551615")), null, null, buildNnInteger(BigInteger.ZERO),
+        {null, null, null, null, buildInteger(BigInteger.ZERO), buildInteger(MathUtil.parseAsBigInteger("18446744073709551615")), null, null, buildNnInteger(BigInteger.ZERO),
             build_wsstring(SchemaType.WS_COLLAPSE), null, null};
 
     private final static XmlValueRef[] FACETS_UNSIGNED_INT = new XmlValueRef[]

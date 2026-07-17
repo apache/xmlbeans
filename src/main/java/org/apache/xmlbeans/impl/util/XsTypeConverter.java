@@ -308,7 +308,7 @@ public final class XsTypeConverter {
 
         //TODO: consider special casing zero and one to return static values
         //from BigInteger to avoid object creation.
-        return new BigInteger(trimInitialPlus(v));
+        return MathUtil.parseAsBigInteger(trimInitialPlus(v));
     }
 
     public static BigInteger lexInteger(CharSequence cs, Collection<XmlError> errors) {

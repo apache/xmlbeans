@@ -17,6 +17,7 @@
 package org.apache.xmlbeans.impl.util;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 
 /**
  * Internal Use Only. Utility methods for dealing with conversions
@@ -53,6 +54,13 @@ public class MathUtil {
     // TODO try to make this configurable
     private static final int MAX_NUMBER_LENGTH = 1024;
 
+    /**
+     * @param s string to parse
+     * @return valid BigDecimal
+     * @throws NumberFormatException if parse fails
+     * @throws IllegalArgumentException if string is too long
+     * @throws NullPointerException if string is null
+     */
     public static BigDecimal parseAsBigDecimal(String s) {
         if (s == null) {
             throw new NullPointerException("Cannot parse null as BigDecimal");
@@ -60,10 +68,23 @@ public class MathUtil {
         if (s.length() > MAX_NUMBER_LENGTH) {
             throw new IllegalArgumentException("Number has more than " + MAX_NUMBER_LENGTH + " characters");
         }
-        try {
-            return new BigDecimal(s);
-        } catch (NumberFormatException e) {
-            throw new IllegalArgumentException("Invalid BigDecimal value: " + s, e);
+        return new BigDecimal(s);
+    }
+
+    /**
+     * @param s string to parse
+     * @return valid BigInteger
+     * @throws NumberFormatException if parse fails
+     * @throws IllegalArgumentException if string is too long
+     * @throws NullPointerException if string is null
+     */
+    public static BigInteger parseAsBigInteger(String s) {
+        if (s == null) {
+            throw new NullPointerException("Cannot parse null as BigInteger");
         }
+        if (s.length() > MAX_NUMBER_LENGTH) {
+            throw new IllegalArgumentException("Number has more than " + MAX_NUMBER_LENGTH + " characters");
+        }
+        return new BigInteger(s);
     }
 }

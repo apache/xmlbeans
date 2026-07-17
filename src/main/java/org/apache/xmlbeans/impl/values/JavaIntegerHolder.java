@@ -21,6 +21,7 @@ import org.apache.xmlbeans.XmlErrorCodes;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.impl.common.ValidationContext;
 import org.apache.xmlbeans.impl.schema.BuiltinSchemaTypeSystem;
+import org.apache.xmlbeans.impl.util.MathUtil;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -49,7 +50,7 @@ public abstract class JavaIntegerHolder extends XmlObjectBase {
         }
 
         try {
-            return new BigInteger(s);
+            return MathUtil.parseAsBigInteger(s);
         } catch (Exception e) {
             vc.invalid(XmlErrorCodes.INTEGER, new Object[]{s});
             return null;
