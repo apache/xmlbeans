@@ -35,10 +35,10 @@ public final class Validator
     public Validator(
         SchemaType type, SchemaField field, SchemaTypeLoader globalLoader,
         XmlOptions options, Collection<XmlError> defaultErrorListener) {
-        options = XmlOptions.maskNull(options);
-        _errorListener = options.getErrorListener();
-        _treatLaxAsSkip = options.isValidateTreatLaxAsSkip();
-        _strict = options.isValidateStrict();
+        _options = XmlOptions.maskNull(options);
+        _errorListener = _options.getErrorListener();
+        _treatLaxAsSkip = _options.isValidateTreatLaxAsSkip();
+        _strict = _options.isValidateStrict();
 
         if (_errorListener == null) {
             _errorListener = defaultErrorListener;
@@ -1099,7 +1099,8 @@ public final class Validator
                 break;
             }
             case SchemaType.BTC_DECIMAL: {
-                JavaDecimalHolderEx.validateLexical(value, type, _vc);
+                JavaDecimalHolderEx.validateLexical(value, type, _vc,
+                        false, _options.getMaxNumberOfCharsForNumbers());
 
                 // An additional rule states that if the type is xs:integer or derived from it,
                 // then the decimal dot is not allowed.
@@ -1109,7 +1110,7 @@ public final class Validator
                 }
 
                 if (errorState == _errorState) {
-                    _decimalValue = MathUtil.parseAsBigDecimal(value);
+                    _decimalValue = MathUtil.parseAsBigDecimal(value, _options.getMaxNumberOfCharsForNumbers());
                     JavaDecimalHolderEx.validateValue(_decimalValue, type, _vc);
                 }
 
@@ -1498,6 +1499,7 @@ public final class Validator
     // Members of the validator class
     //
 
+    private final XmlOptions _options;
     private boolean _invalid;
     private final SchemaType _rootType;
     private final SchemaField _rootField;

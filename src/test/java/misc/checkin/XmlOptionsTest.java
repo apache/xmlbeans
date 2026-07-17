@@ -17,6 +17,7 @@ package misc.checkin;
 import org.apache.xmlbeans.XmlOptions;
 import org.junit.jupiter.api.Test;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -60,4 +61,18 @@ public class XmlOptionsTest {
         xmlOptions.setSaveNoAttributeWhitespaceEscape(false);
         assertFalse(xmlOptions.isSaveNoAttributeWhitespaceEscape());
     }
+
+    @Test
+    void testMaxNumberOfCharsForNumbers() {
+        XmlOptions xmlOptions = new XmlOptions();
+        assertEquals(XmlOptions.DEFAULT_MAX_NUMBER_CHARS,
+                xmlOptions.getMaxNumberOfCharsForNumbers());
+        xmlOptions.setMaxNumberOfCharsForNumbers(2);
+        assertEquals(2, xmlOptions.getMaxNumberOfCharsForNumbers());
+        xmlOptions.setMaxNumberOfCharsForNumbers(Integer.valueOf(3));
+        assertEquals(3, xmlOptions.getMaxNumberOfCharsForNumbers());
+        xmlOptions.setMaxNumberOfCharsForNumbers(null);
+        assertEquals(XmlOptions.DEFAULT_MAX_NUMBER_CHARS, xmlOptions.getMaxNumberOfCharsForNumbers());
+    }
+
 }

@@ -18,6 +18,7 @@ package org.apache.xmlbeans.impl.values;
 import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.XmlErrorCodes;
 import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.XmlOptions;
 import org.apache.xmlbeans.impl.common.ValidationContext;
 import org.apache.xmlbeans.impl.schema.BuiltinSchemaTypeSystem;
 import org.apache.xmlbeans.impl.util.MathUtil;
@@ -67,11 +68,16 @@ public class JavaDecimalHolder extends XmlObjectBase {
     }
 
     public static void validateLexical(String v, ValidationContext context, boolean allowExponent) {
+        validateLexical(v, context, allowExponent, XmlOptions.DEFAULT_MAX_NUMBER_CHARS);
+    }
+
+    public static void validateLexical(String v, ValidationContext context, boolean allowExponent,
+                                       int maxNumberOfChars) {
         if (allowExponent) {
             // long-standing lenient behaviour: accept whatever BigDecimal accepts,
             // which includes scientific/exponent notation such as "1E5".
             try {
-                MathUtil.parseAsBigDecimal(v);
+                MathUtil.parseAsBigDecimal(v, maxNumberOfChars);
             } catch (Exception e) {
                 context.invalid(XmlErrorCodes.DECIMAL, new Object[]{v});
             }
