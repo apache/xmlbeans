@@ -20,6 +20,7 @@ import org.apache.xmlbeans.impl.common.*;
 import org.apache.xmlbeans.impl.schema.SchemaTypeImpl;
 import org.apache.xmlbeans.impl.schema.SchemaTypeVisitorImpl;
 import org.apache.xmlbeans.impl.util.LongUTFDataInputStream;
+import org.apache.xmlbeans.impl.util.MathUtil;
 import org.apache.xmlbeans.impl.validator.Validator;
 import org.w3c.dom.Node;
 import org.xml.sax.ContentHandler;
@@ -1346,7 +1347,7 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
     // numerics: integral
     public BigInteger getBigIntegerValue() {
         BigDecimal bd = getBigDecimalValue();
-        return bd == null ? null : bd.toBigInteger();
+        return bd == null ? null : MathUtil.toBigInteger(bd);
     }
 
     public byte getByteValue() {

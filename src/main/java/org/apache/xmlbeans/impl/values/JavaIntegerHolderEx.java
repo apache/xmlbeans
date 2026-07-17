@@ -21,6 +21,7 @@ import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlPositiveInteger;
 import org.apache.xmlbeans.impl.common.QNameHelper;
 import org.apache.xmlbeans.impl.common.ValidationContext;
+import org.apache.xmlbeans.impl.util.MathUtil;
 
 import java.math.BigInteger;
 
@@ -152,7 +153,7 @@ public class JavaIntegerHolderEx extends JavaIntegerHolder {
         SchemaType s = o.schemaType();
         switch (s.getDecimalSize()) {
             case SchemaType.SIZE_BIG_DECIMAL:
-                return ((XmlObjectBase) o).getBigDecimalValue().toBigInteger();
+                return MathUtil.toBigInteger(((XmlObjectBase) o).getBigDecimalValue());
             case SchemaType.SIZE_BIG_INTEGER:
                 return ((XmlObjectBase) o).getBigIntegerValue();
             default:
