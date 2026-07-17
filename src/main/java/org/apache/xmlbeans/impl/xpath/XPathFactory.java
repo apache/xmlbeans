@@ -136,7 +136,7 @@ public class XPathFactory {
         }
 
 
-        int offset = MathUtil.parseAsInteger(namespaces.getOrDefault(XPath._NS_BOUNDARY, "0"));
+        int offset = MathUtil.parseAsInt(namespaces.getOrDefault(XPath._NS_BOUNDARY, "0"));
         namespaces.remove(XPath._NS_BOUNDARY);
 
         return new SaxonXPath(pathExpr.substring(offset), currentVar, namespaces);
@@ -177,7 +177,7 @@ public class XPathFactory {
         } catch (XPath.XPathCompileException e) {
             //don't care if it fails, just care about boundary
         } finally {
-            boundaryVal = MathUtil.parseAsInteger(boundary.getOrDefault(XPath._NS_BOUNDARY, "0"));
+            boundaryVal = MathUtil.parseAsInt(boundary.getOrDefault(XPath._NS_BOUNDARY, "0"));
         }
 
         return new SaxonXQuery(queryExpr, currentVar, boundaryVal, options);

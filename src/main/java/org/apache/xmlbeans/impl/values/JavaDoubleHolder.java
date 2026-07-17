@@ -18,6 +18,7 @@ package org.apache.xmlbeans.impl.values;
 import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.XmlErrorCodes;
 import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.XmlOptions;
 import org.apache.xmlbeans.impl.common.ValidationContext;
 import org.apache.xmlbeans.impl.schema.BuiltinSchemaTypeSystem;
 import org.apache.xmlbeans.impl.util.XsTypeConverter;
@@ -61,8 +62,13 @@ public abstract class JavaDoubleHolder extends XmlObjectBase {
     }
 
     public static double validateLexical(String v, ValidationContext context, boolean strict) {
+        return validateLexical(v, context, strict, XmlOptions.DEFAULT_MAX_NUMBER_CHARS);
+    }
+
+    public static double validateLexical(String v, ValidationContext context, boolean strict,
+                                         int maxNumberOfCharsForNumbers) {
         try {
-            return XsTypeConverter.lexDouble(v, strict);
+            return XsTypeConverter.lexDouble(v, strict, maxNumberOfCharsForNumbers);
         } catch (NumberFormatException e) {
             context.invalid(XmlErrorCodes.DOUBLE, new Object[]{v});
 

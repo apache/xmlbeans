@@ -150,7 +150,7 @@ public class Inst2Xsd
         {
             try
             {
-                int intVal = MathUtil.parseAsInteger(enumerations);
+                int intVal = MathUtil.parseAsInt(enumerations);
                 inst2XsdOptions.setUseEnumerations(intVal);
             }
             catch (NumberFormatException e)

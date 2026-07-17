@@ -18,6 +18,7 @@ package org.apache.xmlbeans.impl.values;
 import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.XmlErrorCodes;
 import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.XmlOptions;
 import org.apache.xmlbeans.impl.common.QNameHelper;
 import org.apache.xmlbeans.impl.common.ValidationContext;
 
@@ -42,7 +43,12 @@ public abstract class JavaDoubleHolderEx extends JavaDoubleHolder {
     }
 
     public static double validateLexical(String v, SchemaType sType, ValidationContext context) {
-        double d = JavaDoubleHolder.validateLexical(v, context);
+        return validateLexical(v, sType, context, XmlOptions.DEFAULT_MAX_NUMBER_CHARS);
+    }
+
+    public static double validateLexical(String v, SchemaType sType, ValidationContext context,
+                                         int maxNumberOfChars) {
+        double d = JavaDoubleHolder.validateLexical(v, context, false, maxNumberOfChars);
 
         if (!sType.matchPatternFacet(v)) {
             context.invalid(XmlErrorCodes.DATATYPE_VALID$PATTERN_VALID,

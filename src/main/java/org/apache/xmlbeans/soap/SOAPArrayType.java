@@ -67,7 +67,7 @@ public final class SOAPArrayType {
     private static int collapseDimString(String dimString2) {
         String dimString = XmlWhitespace.collapse(dimString2, XmlWhitespace.WS_COLLAPSE);
         try {
-            return ("*".equals(dimString) || dimString.isEmpty()) ? -1 : MathUtil.parseAsInteger(dimString);
+            return ("*".equals(dimString) || dimString.isEmpty()) ? -1 : MathUtil.parseAsInt(dimString);
         } catch (Exception e) {
             throw new XmlValueOutOfRangeException("Malformed integer in SOAP array index");
         }
@@ -127,7 +127,7 @@ public final class SOAPArrayType {
                     // _hasIndeterminateDimensions = true;
                 } else {
                     try {
-                        _dimensions[i] = MathUtil.parseAsInteger(dimStrings[i]);
+                        _dimensions[i] = MathUtil.parseAsInt(dimStrings[i]);
                     } catch (Exception e) {
                         throw new XmlValueOutOfRangeException();
                     }
@@ -293,7 +293,7 @@ public final class SOAPArrayType {
                 // _hasIndeterminateDimensions = true;
             } else {
                 try {
-                    dimensions[i] = MathUtil.parseAsInteger(dimStrings[i]);
+                    dimensions[i] = MathUtil.parseAsInt(dimStrings[i]);
                 } catch (Exception e) {
                     throw new XmlValueOutOfRangeException();
                 }

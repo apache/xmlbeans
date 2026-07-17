@@ -450,7 +450,7 @@ public abstract class SchemaTypeLoaderBase implements SchemaTypeLoader {
                     if (curType == null) {
                         throw new IllegalArgumentException();
                     } else {
-                        int index = MathUtil.parseAsInteger(part.substring(offset));
+                        int index = MathUtil.parseAsInt(part.substring(offset));
 
                         if (curType.getSimpleVariety() != SchemaType.UNION) {
                             return null;
