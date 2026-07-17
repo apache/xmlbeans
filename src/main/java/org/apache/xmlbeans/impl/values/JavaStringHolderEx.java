@@ -62,13 +62,17 @@ public abstract class JavaStringHolderEx extends JavaStringHolder {
             return;
         }
 
+        // xsd length facets count characters (code points), not Java UTF-16
+        // code units, so a supplementary character counts as one
+        int cch = v.codePointCount(0, v.length());
+
         // check against length
         XmlObject len = sType.getFacet(SchemaType.FACET_LENGTH);
         if (len != null) {
             int m = ((XmlObjectBase) len).getBigIntegerValue().intValue();
-            if (v.length() != m) {
+            if (cch != m) {
                 context.invalid(XmlErrorCodes.DATATYPE_LENGTH_VALID$STRING,
-                    new Object[]{"string", v.length(), m, QNameHelper.readable(sType)});
+                    new Object[]{"string", cch, m, QNameHelper.readable(sType)});
                 return;
             }
         }
@@ -77,9 +81,9 @@ public abstract class JavaStringHolderEx extends JavaStringHolder {
         XmlObject min = sType.getFacet(SchemaType.FACET_MIN_LENGTH);
         if (min != null) {
             int m = ((XmlObjectBase) min).getBigIntegerValue().intValue();
-            if (v.length() < m) {
+            if (cch < m) {
                 context.invalid(XmlErrorCodes.DATATYPE_MIN_LENGTH_VALID$STRING,
-                    new Object[]{"string", v.length(), m, QNameHelper.readable(sType)});
+                    new Object[]{"string", cch, m, QNameHelper.readable(sType)});
                 return;
             }
         }
@@ -88,9 +92,9 @@ public abstract class JavaStringHolderEx extends JavaStringHolder {
         XmlObject max = sType.getFacet(SchemaType.FACET_MAX_LENGTH);
         if (max != null) {
             int m = ((XmlObjectBase) max).getBigIntegerValue().intValue();
-            if (v.length() > m) {
+            if (cch > m) {
                 context.invalid(XmlErrorCodes.DATATYPE_MAX_LENGTH_VALID$STRING,
-                    new Object[]{"string", v.length(), m, QNameHelper.readable(sType)});
+                    new Object[]{"string", cch, m, QNameHelper.readable(sType)});
                 return;
             }
         }
