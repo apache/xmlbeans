@@ -409,7 +409,7 @@ public class SampleXmlUtil {
         xmlD = (XmlDecimal) sType.getFacet(SchemaType.FACET_TOTAL_DIGITS);
         int totalDigits = -1;
         if (xmlD != null) {
-            totalDigits = xmlD.getBigDecimalValue().intValue();
+            totalDigits = MathUtil.toInt(xmlD.getBigDecimalValue());
 
             StringBuilder sb = new StringBuilder(totalDigits);
             for (int i = 0; i < totalDigits; i++) {
@@ -439,7 +439,7 @@ public class SampleXmlUtil {
         if (xmlD == null) {
             increment = new BigDecimal(1);
         } else {
-            fractionDigits = xmlD.getBigDecimalValue().intValue();
+            fractionDigits = MathUtil.toInt(xmlD.getBigDecimalValue());
             if (fractionDigits > 0) {
                 StringBuilder sb = new StringBuilder("0.");
                 for (int i = 1; i < fractionDigits; i++) {

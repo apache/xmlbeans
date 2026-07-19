@@ -20,6 +20,7 @@ import org.apache.xmlbeans.XmlErrorCodes;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.impl.common.QNameHelper;
 import org.apache.xmlbeans.impl.common.ValidationContext;
+import org.apache.xmlbeans.impl.util.MathUtil;
 import org.apache.xmlbeans.impl.util.XsTypeConverter;
 
 public abstract class JavaIntHolderEx extends JavaIntHolder {
@@ -150,7 +151,7 @@ public abstract class JavaIntHolderEx extends JavaIntHolder {
         SchemaType s = o.schemaType();
         switch (s.getDecimalSize()) {
             case SchemaType.SIZE_BIG_DECIMAL:
-                return ((XmlObjectBase) o).getBigDecimalValue().intValue();
+                return MathUtil.toInt(((XmlObjectBase) o).getBigDecimalValue());
             case SchemaType.SIZE_BIG_INTEGER:
                 return ((XmlObjectBase) o).getBigIntegerValue().intValue();
             case SchemaType.SIZE_LONG:

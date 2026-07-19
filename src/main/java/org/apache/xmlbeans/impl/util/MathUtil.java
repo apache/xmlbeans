@@ -195,7 +195,7 @@ public class MathUtil {
      * @param value BigDecimal to convert
      * @return valid BigInteger
      * @throws IllegalArgumentException if the input has an absolute exponent that is too large to safely convert
-     * @throws NullPointerException if string is null
+     * @throws NullPointerException if value is null
      */
     public static BigInteger toBigInteger(BigDecimal value) {
         BigDecimal normalized = value.stripTrailingZeros();
@@ -207,4 +207,29 @@ public class MathUtil {
         }
         return normalized.toBigInteger();
     }
+
+    /**
+     * @param value BigDecimal to convert
+     * @return valid long
+     * @throws IllegalArgumentException if the input has an absolute exponent that is too large to safely convert
+     * @throws ArithmeticException if the value cannot be represented as a long
+     * @throws NullPointerException if value is null
+     */
+    public static long toLong(BigDecimal value) {
+        BigInteger bigInt = toBigInteger(value);
+        return bigInt.longValueExact();
+    }
+
+    /**
+     * @param value BigDecimal to convert
+     * @return valid int
+     * @throws IllegalArgumentException if the input has an absolute exponent that is too large to safely convert
+     * @throws ArithmeticException if the value cannot be represented as an int
+     * @throws NullPointerException if value is null
+     */
+    public static int toInt(BigDecimal value) {
+        BigInteger bigInt = toBigInteger(value);
+        return bigInt.intValueExact();
+    }
+
 }

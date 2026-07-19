@@ -264,7 +264,7 @@ public final class XsTypeConverter {
         // The following code comes from Apache Harmony
         String intStr = value.unscaledValue().toString();
         int scale = value.scale();
-        if ((scale == 0) || ((value.longValue() == 0) && (scale < 0))) {
+        if (scale == 0 || (MathUtil.toLong(value) == 0 && scale < 0)) {
             return intStr;
         }
 
