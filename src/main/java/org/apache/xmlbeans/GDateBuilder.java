@@ -22,6 +22,8 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 
+import org.apache.xmlbeans.impl.util.MathUtil;
+
 /**
  * Used to build {@link GDate GDates}.
  * <p>
