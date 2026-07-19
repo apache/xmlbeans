@@ -36,4 +36,20 @@ public class TestMathUtil {
         BigDecimal expected = new BigDecimal("1E+2000");
         assertThrows(IllegalArgumentException.class, () -> MathUtil.toBigInteger(expected));
     }
+
+    @Test
+    public void testToIntWithValueOutOfRange() {
+        BigDecimal expected = BigDecimal.valueOf(Long.MAX_VALUE);
+        assertThrows(IllegalArgumentException.class, () -> MathUtil.toInt(expected));
+        BigDecimal expected2 = BigDecimal.valueOf(Long.MIN_VALUE);
+        assertThrows(IllegalArgumentException.class, () -> MathUtil.toInt(expected2));
+    }
+
+    @Test
+    public void testToLongWithValueOutOfRange() {
+        BigDecimal expected = BigDecimal.valueOf(Long.MAX_VALUE).add(BigDecimal.ONE);
+        assertThrows(IllegalArgumentException.class, () -> MathUtil.toLong(expected));
+        BigDecimal expected2 = BigDecimal.valueOf(Long.MIN_VALUE).subtract(BigDecimal.ONE);
+        assertThrows(IllegalArgumentException.class, () -> MathUtil.toLong(expected2));
+    }
 }
