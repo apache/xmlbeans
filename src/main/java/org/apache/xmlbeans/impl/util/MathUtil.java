@@ -212,24 +212,34 @@ public class MathUtil {
      * @param value BigDecimal to convert
      * @return valid long
      * @throws IllegalArgumentException if the input has an absolute exponent that is too large to safely convert
-     * @throws ArithmeticException if the value cannot be represented as a long
+     * or if the value is out of long range
      * @throws NullPointerException if value is null
      */
     public static long toLong(BigDecimal value) {
-        BigInteger bigInt = toBigInteger(value);
-        return bigInt.longValueExact();
+        final BigInteger bigInt = toBigInteger(value);
+        final long lv = bigInt.longValue();
+        if (BigInteger.valueOf(lv).equals(bigInt)) {
+            return lv;
+        } else {
+            throw new IllegalArgumentException("Value can't be converted to long");
+        }
     }
 
     /**
      * @param value BigDecimal to convert
      * @return valid int
      * @throws IllegalArgumentException if the input has an absolute exponent that is too large to safely convert
-     * @throws ArithmeticException if the value cannot be represented as an int
+     * or if the value is out of int range
      * @throws NullPointerException if value is null
      */
     public static int toInt(BigDecimal value) {
         BigInteger bigInt = toBigInteger(value);
-        return bigInt.intValueExact();
+        final int iv = bigInt.intValue();
+        if (BigInteger.valueOf(iv).equals(bigInt)) {
+            return iv;
+        } else {
+            throw new IllegalArgumentException("Value can't be converted to int");
+        }
     }
 
 }
