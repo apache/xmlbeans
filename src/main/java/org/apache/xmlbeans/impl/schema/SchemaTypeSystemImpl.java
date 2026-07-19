@@ -725,7 +725,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
                     String str = input.readLongUTF().intern();
                     int code = codeForString(str);
                     if (code != i) {
-                        throw new IllegalStateException();
+                        throw new SchemaTypeLoaderException("Repeated string pool entry", _name, _handle, SchemaTypeLoaderException.UNRECOGNIZED_INDEX_ENTRY);
                     }
                 }
             } catch (IOException e) {
