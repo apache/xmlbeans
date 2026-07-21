@@ -15,7 +15,13 @@
 package org.apache.xmlbeans.impl.schema;
 
 import org.apache.xmlbeans.SchemaTypeLoaderException;
+import org.apache.xmlbeans.impl.util.LongUTFDataInputStream;
+import org.apache.xmlbeans.impl.util.LongUTFDataOutputStream;
 import org.junit.jupiter.api.Test;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -42,5 +48,23 @@ public class StringPoolCodeTest {
         // readUnsignedShortOrInt() falls back to a signed readInt() for the 0xffff
         // marker, so a negative code can reach stringForCode
         assertThrows(SchemaTypeLoaderException.class, () -> pool.stringForCode(-1));
+    }
+
+    @Test
+    void readFromRejectsRepeatedEntry() throws IOException {
+        // craft a string pool section that declares three entries but repeats a
+        // string; codeForString hands back the earlier code, so code != i in the
+        // populate loop, which must surface as the documented loader exception
+        // rather than a bare IllegalStateException
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        LongUTFDataOutputStream out = new LongUTFDataOutputStream(bos);
+        out.writeShortOrInt(3);
+        out.writeLongUTF("dup");
+        out.writeLongUTF("dup");
+        out.flush();
+
+        SchemaTypeSystemImpl.StringPool pool = new SchemaTypeSystemImpl.StringPool("handle", "name");
+        LongUTFDataInputStream in = new LongUTFDataInputStream(new ByteArrayInputStream(bos.toByteArray()));
+        assertThrows(SchemaTypeLoaderException.class, () -> pool.readFrom(in));
     }
 }
