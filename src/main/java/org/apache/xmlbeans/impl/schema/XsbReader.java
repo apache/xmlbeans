@@ -383,6 +383,7 @@ class XsbReader {
         if (n == -1) {
             return null;
         }
+        checkAnnotationCount(n);
         SchemaAnnotation.Attribute[] attributes =
             new SchemaAnnotation.Attribute[n];
         for (int i = 0; i < n; i++) {
@@ -397,6 +398,7 @@ class XsbReader {
 
         // Read documentation items
         n = readInt();
+        checkAnnotationCount(n);
         String[] docStrings = new String[n];
         for (int i = 0; i < n; i++) {
             docStrings[i] = readString();
@@ -404,6 +406,7 @@ class XsbReader {
 
         // Read application info items
         n = readInt();
+        checkAnnotationCount(n);
         String[] appInfoStrings = new String[n];
         for (int i = 0; i < n; i++) {
             appInfoStrings[i] = readString();
@@ -422,6 +425,7 @@ class XsbReader {
 
     List<SchemaAnnotation> readAnnotations() {
         int n = readInt();
+        checkAnnotationCount(n);
         List<SchemaAnnotation> result = new ArrayList<>(n);
         // BUGBUG(radup)
         SchemaContainer container = typeSystem.getContainerNonNull("");
@@ -429,6 +433,13 @@ class XsbReader {
             result.add(readAnnotation(container));
         }
         return result;
+    }
+
+    private void checkAnnotationCount(int n) {
+        if (n < 0) {
+            throw new SchemaTypeLoaderException("Invalid annotation count " + n,
+                typeSystem.getName(), _handle, SchemaTypeLoaderException.UNRECOGNIZED_INDEX_ENTRY);
+        }
     }
 
     SchemaComponent.Ref readHandle() {
