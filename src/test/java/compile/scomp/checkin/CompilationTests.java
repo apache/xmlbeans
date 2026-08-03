@@ -420,6 +420,31 @@ public class CompilationTests {
         assertTrue(act.contains("* / heck, I'm smart"));
     }
 
+    @Test
+    void schemaTextIsNotCompiledAsCode() throws Exception {
+        deltree(xbeanOutput("compile/scomp/codeinject"));
+        File srcdir = xbeanOutput("compile/scomp/codeinject/src");
+        File classesdir = xbeanOutput("compile/scomp/codeinject/classes");
+        Parameters params = new Parameters();
+        params.setXsdFiles(xbeanCase("schemacompiler/codeinject.xsd"));
+        params.setSrcDir(srcdir);
+        params.setClassesDir(classesdir);
+        params.setName("codeinject");
+        params.setCopyAnn(true);
+        assertTrue(SchemaCompiler.compile(params), "generated sources didn't compile");
+
+        // the quote in the target namespace has to stay inside the string literal
+        Path p = new File(srcdir, "codeinjectQ/impl/TImpl.java").toPath();
+        String act = new String(Files.readAllBytes(p), StandardCharsets.UTF_8);
+        assertTrue(act.contains("new QName(\"codeinject\\\"q\", \"single\")"), "namespace not escaped");
+
+        // the unicode escape in the documentation must not close the javadoc comment
+        try (Stream<Path> s = Files.walk(classesdir.toPath())) {
+            assertFalse(s.anyMatch(f -> "Pwned.class".equals(f.getFileName().toString())),
+                "class injected through the schema documentation");
+        }
+    }
+
     //TESTENV:
 
     private static void dumpErrors(List<XmlError> errors, PrintWriter out) {
