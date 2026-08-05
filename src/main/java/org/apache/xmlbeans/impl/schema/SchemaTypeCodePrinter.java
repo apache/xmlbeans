@@ -168,7 +168,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
         }
         String result = qname.getLocalPart();
         if (qname.getNamespaceURI() != null) {
-            result += "(@" + qname.getNamespaceURI() + ")";
+            result += "(@" + javaCommentEscape(qname.getNamespaceURI()) + ")";
         }
         return result;
     }
@@ -345,7 +345,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
         emit("/*");
         if (sType.getName() != null) {
             emit(" * XML Type:  " + sType.getName().getLocalPart());
-            emit(" * Namespace: " + sType.getName().getNamespaceURI());
+            emit(" * Namespace: " + javaCommentEscape(sType.getName().getNamespaceURI()));
         } else {
             QName thename = null;
 
@@ -362,7 +362,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
             assert (thename != null);
 
             emit(" * Localname: " + thename.getLocalPart());
-            emit(" * Namespace: " + thename.getNamespaceURI());
+            emit(" * Namespace: " + javaCommentEscape(thename.getNamespaceURI()));
         }
         emit(" * Java type: " + sType.getFullJavaName());
         emit(" *");
@@ -504,13 +504,19 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
     void printJavaDocBody(String doc) throws IOException{
         // add some poor mans code injection protection
         // this is not protecting against annotation based RCEs like CVE-2018-16621
-        String docClean = doc.trim()
-                .replace("\t", "")
-                .replace("*/", "* /");
+        String docClean = javaCommentEscape(doc.trim().replace("\t", ""));
 
         for (String s : docClean.split("[\\n\\r]+")) {
             emit(" * " + s);
         }
+    }
+
+    public static String javaCommentEscape(String str)
+    {
+        // forbidden: */, and the backslash of a unicode escape - those are decoded
+        // before comments are recognized (JLS 3.3), so an escaped */ ends the
+        // comment too and the rest of the schema text is compiled as code
+        return str.replace("\\", "\\\\").replace("*/", "* /");
     }
 
     public static String javaStringEscape(String str)
@@ -1427,7 +1433,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
         for (SchemaProperty prop : properties) {
             final QName name = prop.getName();
             propMap.put(prop, new Identifier(propMap.size()));
-            emit("new QName(\"" + name.getNamespaceURI() + "\", \"" + name.getLocalPart() + "\"),");
+            emit("new QName(\"" + javaStringEscape(name.getNamespaceURI()) + "\", \"" + javaStringEscape(name.getLocalPart()) + "\"),");
             countQSet = Math.max(countQSet, (prop.acceptedNames() == null ? 0 : prop.acceptedNames().length));
         }
         outdent();
@@ -1444,7 +1450,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter {
                     emit("QNameSet.forArray( new QName[] { ");
                     indent();
                     for (QName qname : qnames) {
-                        emit("new QName(\"" + qname.getNamespaceURI() + "\", \"" + qname.getLocalPart() + "\"),");
+                        emit("new QName(\"" + javaStringEscape(qname.getNamespaceURI()) + "\", \"" + javaStringEscape(qname.getLocalPart()) + "\"),");
                     }
                     outdent();
                     emit("}),");
