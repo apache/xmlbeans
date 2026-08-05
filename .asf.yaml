@@ -1,0 +1,42 @@
+# https://github.com/apache/infrastructure-asfyaml/blob/main/README.md
+
+github:
+  description: "Mirror of Apache XMLBeans gitbox."
+  homepage: https://xmlbeans.apache.org/
+  labels:
+    - apache
+    - xmlbeans
+    - poi
+
+  dependabot_alerts:  true
+  dependabot_updates: false
+
+  features:
+    # Enable wiki for documentation
+    wiki: false
+    # Enable issue management
+    issues: true
+    # Enable projects for project management boards
+    projects: false
+    # Enable github discussions
+    discussions: true
+
+  enabled_merge_buttons:
+    squash:  true
+    squash_commit_message: PR_TITLE_AND_COMMIT_DETAILS
+    merge:   false
+    rebase:  true
+
+  protected_branches:
+    trunk: {}
+
+  pull_requests:
+    del_branch_on_merge: true
+    allow_update_branch: true
+
+notifications:
+  commits:              commits@poi.apache.org
+  issues:               dev@poi.apache.org
+  pullrequests:         dev@poi.apache.org
+  discussions:          dev@poi.apache.org
+  jobs:                 dev@poi.apache.org
