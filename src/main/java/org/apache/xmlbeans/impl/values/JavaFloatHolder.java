@@ -69,7 +69,7 @@ public abstract class JavaFloatHolder extends XmlObjectBase {
                                         int maxNumberOfChars) {
         try {
             return XsTypeConverter.lexFloat(v, strict, maxNumberOfChars);
-        } catch (IllegalArgumentException e) {
+        } catch (RuntimeException e) {
             context.invalid(XmlErrorCodes.FLOAT, new Object[]{v});
 
             return Float.NaN;

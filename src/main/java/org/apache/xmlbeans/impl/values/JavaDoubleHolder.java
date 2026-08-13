@@ -69,7 +69,7 @@ public abstract class JavaDoubleHolder extends XmlObjectBase {
                                          int maxNumberOfCharsForNumbers) {
         try {
             return XsTypeConverter.lexDouble(v, strict, maxNumberOfCharsForNumbers);
-        } catch (IllegalArgumentException e) {
+        } catch (RuntimeException e) {
             context.invalid(XmlErrorCodes.DOUBLE, new Object[]{v});
 
             return Double.NaN;
