@@ -49,6 +49,9 @@ public class LongUTFDataInputStream extends DataInputStream {
 
     public String readLongUTF() throws IOException {
         final int utfLen = readUnsignedShortOrInt();
+        if (utfLen < 0) {
+            throw new UTFDataFormatException("invalid UTF length: " + utfLen);
+        }
         StringBuilder sb = new StringBuilder(utfLen/2);
         final byte[] bytearr = new byte[4096];
 
