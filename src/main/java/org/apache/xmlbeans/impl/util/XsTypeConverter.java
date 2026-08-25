@@ -240,6 +240,21 @@ public final class XsTypeConverter {
      */
     public static BigDecimal lexDecimal(CharSequence cs, boolean allowExponent)
         throws NumberFormatException {
+        return lexDecimal(cs, allowExponent, XmlOptions.DEFAULT_MAX_NUMBER_CHARS);
+    }
+
+    /**
+     * Parses an xsd:decimal lexical value.
+     *
+     * @param cs               the lexical value
+     * @param allowExponent    see {@link #lexDecimal(CharSequence, boolean)}
+     * @param maxNumberOfChars maximum number of characters allowed in the lexical value
+     * @return the parsed decimal
+     * @throws NumberFormatException if the value is not a valid xsd:decimal
+     * @since 5.4.1
+     */
+    public static BigDecimal lexDecimal(CharSequence cs, boolean allowExponent, int maxNumberOfChars)
+        throws NumberFormatException {
         rejectInvalidNumber(cs);
         if (!allowExponent) {
             rejectExponent(cs);
@@ -252,7 +267,7 @@ public final class XsTypeConverter {
         //equals() method, but the xml value
         //space does not consider them significant.
         //See http://www.w3.org/2001/05/xmlschema-errata#e2-44
-        return MathUtil.parseAsBigDecimal(trimTrailingZeros(v));
+        return MathUtil.parseAsBigDecimal(trimTrailingZeros(v), maxNumberOfChars);
     }
 
     private static final char[] CH_ZEROS = new char[]{'0', '0', '0', '0', '0', '0', '0', '0',
@@ -307,12 +322,24 @@ public final class XsTypeConverter {
     // ======================== integer ========================
     public static BigInteger lexInteger(CharSequence cs)
         throws NumberFormatException {
+        return lexInteger(cs, XmlOptions.DEFAULT_MAX_NUMBER_CHARS);
+    }
+
+    /**
+     * @param cs               the lexical value
+     * @param maxNumberOfChars maximum number of characters allowed in the lexical value
+     * @return the parsed integer
+     * @throws NumberFormatException if the value is not a valid xsd:integer
+     * @since 5.4.1
+     */
+    public static BigInteger lexInteger(CharSequence cs, int maxNumberOfChars)
+        throws NumberFormatException {
         rejectSignAfterPlus(cs);
         final String v = cs.toString();
 
         //TODO: consider special casing zero and one to return static values
         //from BigInteger to avoid object creation.
-        return MathUtil.parseAsBigInteger(trimInitialPlus(v));
+        return MathUtil.parseAsBigInteger(trimInitialPlus(v), maxNumberOfChars);
     }
 
     public static BigInteger lexInteger(CharSequence cs, Collection<XmlError> errors) {
@@ -332,10 +359,22 @@ public final class XsTypeConverter {
     // ======================== long ========================
     public static long lexLong(CharSequence cs)
         throws NumberFormatException {
+        return lexLong(cs, XmlOptions.DEFAULT_MAX_NUMBER_CHARS);
+    }
+
+    /**
+     * @param cs               the lexical value
+     * @param maxNumberOfChars maximum number of characters allowed in the lexical value
+     * @return the parsed long
+     * @throws NumberFormatException if the value is not a valid xsd:long
+     * @since 5.4.1
+     */
+    public static long lexLong(CharSequence cs, int maxNumberOfChars)
+        throws NumberFormatException {
         rejectInvalidNumber(cs);
         rejectSignAfterPlus(cs);
         final String v = cs.toString();
-        return MathUtil.parseAsLong(trimInitialPlus(v));
+        return MathUtil.parseAsLong(trimInitialPlus(v), maxNumberOfChars);
     }
 
     // trimInitialPlus drops a single leading '+', then Long.parseLong /

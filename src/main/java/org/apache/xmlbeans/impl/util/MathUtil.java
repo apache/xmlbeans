@@ -91,11 +91,23 @@ public class MathUtil {
      * @throws NullPointerException if string is null
      */
     public static BigInteger parseAsBigInteger(String s) {
+        return parseAsBigInteger(s, DEFAULT_MAX_NUMBER_CHARS);
+    }
+
+    /**
+     * @param s string to parse
+     * @param maxNumberOfChars maximum number of characters allowed in the string
+     * @return valid BigInteger
+     * @throws NumberFormatException if parse fails
+     * @throws IllegalArgumentException if string is too long
+     * @throws NullPointerException if string is null
+     */
+    public static BigInteger parseAsBigInteger(String s, int maxNumberOfChars) {
         if (s == null) {
             throw new NullPointerException("Cannot parse null as BigInteger");
         }
-        if (s.length() > DEFAULT_MAX_NUMBER_CHARS) {
-            throw new IllegalArgumentException("Number has more than " + DEFAULT_MAX_NUMBER_CHARS + " characters");
+        if (s.length() > maxNumberOfChars) {
+            throw new IllegalArgumentException("Number has more than " + maxNumberOfChars + " characters");
         }
         return new BigInteger(s);
     }
@@ -166,11 +178,23 @@ public class MathUtil {
      * @throws NullPointerException if string is null
      */
     public static long parseAsLong(String s) {
+        return parseAsLong(s, DEFAULT_MAX_NUMBER_CHARS);
+    }
+
+    /**
+     * @param s string to parse
+     * @param maxNumberOfChars maximum number of characters allowed in the string
+     * @return valid long
+     * @throws NumberFormatException if parse fails
+     * @throws IllegalArgumentException if string is too long
+     * @throws NullPointerException if string is null
+     */
+    public static long parseAsLong(String s, int maxNumberOfChars) {
         if (s == null) {
             throw new NullPointerException("Cannot parse null as Long");
         }
-        if (s.length() > DEFAULT_MAX_NUMBER_CHARS) {
-            throw new IllegalArgumentException("Number has more than " + DEFAULT_MAX_NUMBER_CHARS + " characters");
+        if (s.length() > maxNumberOfChars) {
+            throw new IllegalArgumentException("Number has more than " + maxNumberOfChars + " characters");
         }
         return Long.parseLong(s);
     }
@@ -199,6 +223,17 @@ public class MathUtil {
      * @throws NullPointerException if value is null
      */
     public static BigInteger toBigInteger(BigDecimal value) {
+        return toBigInteger(value, DEFAULT_MAX_NUMBER_CHARS);
+    }
+
+    /**
+     * @param value BigDecimal to convert
+     * @param maxNumberOfChars maximum number of integer digits allowed in the value
+     * @return valid BigInteger
+     * @throws IllegalArgumentException if the input has an absolute exponent that is too large to safely convert
+     * @throws NullPointerException if value is null
+     */
+    public static BigInteger toBigInteger(BigDecimal value, int maxNumberOfChars) {
         if (value == null) {
             throw new NullPointerException("Cannot convert null to BigInteger");
         }
@@ -206,10 +241,10 @@ public class MathUtil {
         int integerDigits = normalized.precision() - normalized.scale();
         // the scale check is not redundant: for a very negative scale (eg 1E+2147483647) the
         // subtraction above overflows and integerDigits comes out negative
-        if (integerDigits > DEFAULT_MAX_NUMBER_CHARS || normalized.scale() < -DEFAULT_MAX_NUMBER_CHARS) {
+        if (integerDigits > maxNumberOfChars || normalized.scale() < -maxNumberOfChars) {
             throw new IllegalArgumentException(
                     "BigDecimal magnitude too large to convert safely: approx "
-                            + integerDigits + " integer digits (limit " + DEFAULT_MAX_NUMBER_CHARS + ")");
+                            + integerDigits + " integer digits (limit " + maxNumberOfChars + ")");
         }
         if (integerDigits <= 0) {
             // abs(value) is less than 1, so it truncates to zero - avoid BigDecimal.toBigInteger()

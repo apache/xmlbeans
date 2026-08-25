@@ -18,6 +18,7 @@ package org.apache.xmlbeans.impl.values;
 import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.XmlErrorCodes;
 import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.XmlOptions;
 import org.apache.xmlbeans.XmlPositiveInteger;
 import org.apache.xmlbeans.impl.common.QNameHelper;
 import org.apache.xmlbeans.impl.common.ValidationContext;
@@ -39,14 +40,15 @@ public class JavaIntegerHolderEx extends JavaIntegerHolder {
     }
 
     protected void set_text(String s) {
-        BigInteger v = lex(s, _voorVc);
+        int maxNumberOfChars = get_max_number_chars();
+        BigInteger v = lex(s, _voorVc, maxNumberOfChars);
 
         if (_validateOnSet()) {
             validateValue(v, _schemaType, _voorVc);
         }
 
         if (_validateOnSet()) {
-            validateLexical(s, _schemaType, _voorVc);
+            validateLexical(s, _schemaType, _voorVc, maxNumberOfChars);
         }
 
         super.set_BigInteger(v);
@@ -61,7 +63,12 @@ public class JavaIntegerHolderEx extends JavaIntegerHolder {
     }
 
     public static void validateLexical(String v, SchemaType sType, ValidationContext context) {
-        JavaDecimalHolder.validateLexical(v, context);
+        validateLexical(v, sType, context, XmlOptions.DEFAULT_MAX_NUMBER_CHARS);
+    }
+
+    public static void validateLexical(String v, SchemaType sType, ValidationContext context,
+                                       int maxNumberOfChars) {
+        JavaDecimalHolder.validateLexical(v, context, false, maxNumberOfChars);
         if (v.lastIndexOf('.') >= 0) {
             context.invalid(XmlErrorCodes.INTEGER,
                 new Object[]{v});

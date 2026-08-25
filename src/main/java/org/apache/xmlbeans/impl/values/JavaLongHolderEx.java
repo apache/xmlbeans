@@ -18,6 +18,7 @@ package org.apache.xmlbeans.impl.values;
 import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.XmlErrorCodes;
 import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.XmlOptions;
 import org.apache.xmlbeans.impl.common.QNameHelper;
 import org.apache.xmlbeans.impl.common.ValidationContext;
 import org.apache.xmlbeans.impl.util.MathUtil;
@@ -47,7 +48,7 @@ public abstract class JavaLongHolderEx extends JavaLongHolder {
 
         if (_validateOnSet()) {
             validateValue(v, _schemaType, _voorVc);
-            validateLexical(s, _schemaType, _voorVc);
+            validateLexical(s, _schemaType, _voorVc, get_max_number_chars());
         }
 
         super.set_long(v);
@@ -62,7 +63,12 @@ public abstract class JavaLongHolderEx extends JavaLongHolder {
     }
 
     public static void validateLexical(String v, SchemaType sType, ValidationContext context) {
-        JavaDecimalHolder.validateLexical(v, context);
+        validateLexical(v, sType, context, XmlOptions.DEFAULT_MAX_NUMBER_CHARS);
+    }
+
+    public static void validateLexical(String v, SchemaType sType, ValidationContext context,
+                                       int maxNumberOfChars) {
+        JavaDecimalHolder.validateLexical(v, context, false, maxNumberOfChars);
 
         // check pattern
         if (sType.hasPatternFacet()) {

@@ -816,6 +816,16 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
     }
 
     /**
+     * The maximum number of characters a lexical number may have, as configured by
+     * XmlOptions.setMaxNumberOfCharsForNumbers on the options the document was loaded with.
+     */
+    protected final int get_max_number_chars() {
+        return has_store()
+            ? get_store().get_locale().getMaxNumberOfCharsForNumbers()
+            : XmlOptions.DEFAULT_MAX_NUMBER_CHARS;
+    }
+
+    /**
      * Called by a TypeStore to pull out the most reasonable
      * text value from us. This is done after we have invalidated
      * the store (typically when our value has been set).
@@ -1347,7 +1357,7 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
     // numerics: integral
     public BigInteger getBigIntegerValue() {
         BigDecimal bd = getBigDecimalValue();
-        return bd == null ? null : MathUtil.toBigInteger(bd);
+        return bd == null ? null : MathUtil.toBigInteger(bd, get_max_number_chars());
     }
 
     public byte getByteValue() {

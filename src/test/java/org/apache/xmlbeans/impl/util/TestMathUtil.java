@@ -18,6 +18,8 @@ package org.apache.xmlbeans.impl.util;
 
 import org.junit.jupiter.api.Test;
 
+import org.apache.xmlbeans.XmlOptions;
+
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.time.Duration;
@@ -53,6 +55,37 @@ public class TestMathUtil {
         assertThrows(IllegalArgumentException.class, () -> MathUtil.toLong(expected));
         BigDecimal expected2 = BigDecimal.valueOf(Long.MIN_VALUE).subtract(BigDecimal.ONE);
         assertThrows(IllegalArgumentException.class, () -> MathUtil.toLong(expected2));
+    }
+
+    @Test
+    public void testParseAsBigIntegerWithMaxNumberOfChars() {
+        assertEquals(new BigInteger("12345"), MathUtil.parseAsBigInteger("12345", 5));
+        assertThrows(IllegalArgumentException.class, () -> MathUtil.parseAsBigInteger("12345", 4));
+        // the default overload still applies DEFAULT_MAX_NUMBER_CHARS
+        String tooLong = repeat('1', XmlOptions.DEFAULT_MAX_NUMBER_CHARS + 1);
+        assertThrows(IllegalArgumentException.class, () -> MathUtil.parseAsBigInteger(tooLong));
+        assertEquals(new BigInteger(tooLong), MathUtil.parseAsBigInteger(tooLong, tooLong.length()));
+    }
+
+    @Test
+    public void testParseAsLongWithMaxNumberOfChars() {
+        assertEquals(12345L, MathUtil.parseAsLong("12345", 5));
+        assertThrows(IllegalArgumentException.class, () -> MathUtil.parseAsLong("12345", 4));
+    }
+
+    @Test
+    public void testToBigIntegerWithMaxNumberOfChars() {
+        BigDecimal value = new BigDecimal("1E+2000");
+        assertThrows(IllegalArgumentException.class, () -> MathUtil.toBigInteger(value));
+        assertEquals(new BigDecimal("1E+2000").toBigInteger(), MathUtil.toBigInteger(value, 4096));
+    }
+
+    private static String repeat(char c, int n) {
+        StringBuilder sb = new StringBuilder(n);
+        for (int i = 0; i < n; i++) {
+            sb.append(c);
+        }
+        return sb.toString();
     }
 
     @Test

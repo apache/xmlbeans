@@ -39,14 +39,15 @@ public abstract class JavaDecimalHolderEx extends JavaDecimalHolder {
     }
 
     protected void set_text(String s) {
+        int maxNumberOfChars = get_max_number_chars();
         if (_validateOnSet()) {
             boolean allowExponent = has_store() && get_store().get_locale().isLoadAllowDecimalExponent();
-            validateLexical(s, _schemaType, _voorVc, allowExponent);
+            validateLexical(s, _schemaType, _voorVc, allowExponent, maxNumberOfChars);
         }
 
         BigDecimal v = null;
         try {
-            v = MathUtil.parseAsBigDecimal(s);
+            v = MathUtil.parseAsBigDecimal(s, maxNumberOfChars);
         } catch (Exception e) {
             _voorVc.invalid(XmlErrorCodes.DECIMAL, new Object[]{s});
         }
