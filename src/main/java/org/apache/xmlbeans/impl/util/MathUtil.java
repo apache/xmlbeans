@@ -34,7 +34,8 @@ public class MathUtil {
         if (Float.isInfinite(f)) {
             throw new IllegalArgumentException("Cannot convert infinity to int");
         }
-        if (f > Integer.MAX_VALUE || f < Integer.MIN_VALUE) {
+        // compare as double: widening Integer.MAX_VALUE to float rounds it up to 2^31
+        if ((double) f > Integer.MAX_VALUE || (double) f < Integer.MIN_VALUE) {
             throw new IllegalArgumentException("Value out of range: " + f);
         }
         return (int) f;
@@ -101,7 +102,7 @@ public class MathUtil {
 
     /**
      * @param s string to parse
-     * @return valid Float
+     * @return valid float
      * @throws NumberFormatException if parse fails
      * @throws IllegalArgumentException if string is too long
      * @throws NullPointerException if string is null
@@ -130,7 +131,7 @@ public class MathUtil {
 
     /**
      * @param s string to parse
-     * @return valid float
+     * @return valid double
      * @throws NumberFormatException if parse fails
      * @throws IllegalArgumentException if string is too long
      * @throws NullPointerException if string is null
@@ -142,7 +143,7 @@ public class MathUtil {
     /**
      * @param s string to parse
      * @param maxNumberOfChars maximum number of characters allowed in the string
-     * @return valid float
+     * @return valid double
      * @throws NumberFormatException if parse fails
      * @throws IllegalArgumentException if string is too long
      * @throws NullPointerException if string is null
@@ -198,12 +199,22 @@ public class MathUtil {
      * @throws NullPointerException if value is null
      */
     public static BigInteger toBigInteger(BigDecimal value) {
+        if (value == null) {
+            throw new NullPointerException("Cannot convert null to BigInteger");
+        }
         BigDecimal normalized = value.stripTrailingZeros();
         int integerDigits = normalized.precision() - normalized.scale();
+        // the scale check is not redundant: for a very negative scale (eg 1E+2147483647) the
+        // subtraction above overflows and integerDigits comes out negative
         if (integerDigits > DEFAULT_MAX_NUMBER_CHARS || normalized.scale() < -DEFAULT_MAX_NUMBER_CHARS) {
             throw new IllegalArgumentException(
                     "BigDecimal magnitude too large to convert safely: approx "
                             + integerDigits + " integer digits (limit " + DEFAULT_MAX_NUMBER_CHARS + ")");
+        }
+        if (integerDigits <= 0) {
+            // abs(value) is less than 1, so it truncates to zero - avoid BigDecimal.toBigInteger()
+            // computing 10^scale, which is very expensive for a large scale (eg 1E-10000000)
+            return BigInteger.ZERO;
         }
         return normalized.toBigInteger();
     }
