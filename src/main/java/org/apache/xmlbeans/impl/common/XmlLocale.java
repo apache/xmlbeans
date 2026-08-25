@@ -17,6 +17,8 @@
 
 package org.apache.xmlbeans.impl.common;
 
+import org.apache.xmlbeans.XmlOptions;
+
 public interface XmlLocale
 {
     boolean sync   ( );
@@ -34,4 +36,9 @@ public interface XmlLocale
     // (e.g. "1E5"), which is outside the xsd:decimal lexical space. Defaults to
     // false (reject). Driven by XmlOptions.setLoadAllowDecimalExponent.
     default boolean isLoadAllowDecimalExponent ( ) { return false; }
+
+    // the maximum number of characters a lexical number may have before it is
+    // rejected, applied when values are materialised from the store. Driven by
+    // XmlOptions.setMaxNumberOfCharsForNumbers.
+    default int getMaxNumberOfCharsForNumbers ( ) { return XmlOptions.DEFAULT_MAX_NUMBER_CHARS; }
 }

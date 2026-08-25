@@ -107,6 +107,8 @@ public final class Locale
 
         _loadAllowDecimalExponent = options.isLoadAllowDecimalExponent();
 
+        _maxNumberOfChars = options.getMaxNumberOfCharsForNumbers();
+
         //
         // Check for Saaj implementation request
         //
@@ -2083,6 +2085,10 @@ public final class Locale
         return _loadAllowDecimalExponent;
     }
 
+    public int getMaxNumberOfCharsForNumbers() {
+        return _maxNumberOfChars;
+    }
+
     static boolean isWhiteSpace(String s) {
         int l = s.length();
 
@@ -2804,6 +2810,8 @@ public final class Locale
     boolean _loadStrictFloatingPoint;
 
     boolean _loadAllowDecimalExponent;
+
+    int _maxNumberOfChars;
 
     int _posTemp;
 

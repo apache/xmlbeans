@@ -42,7 +42,7 @@ public abstract class JavaLongHolder extends XmlObjectBase {
 
     protected void set_text(String s) {
         try {
-            set_long(XsTypeConverter.lexLong(s));
+            set_long(XsTypeConverter.lexLong(s, get_max_number_chars()));
         } catch (Exception e) {
             throw new XmlValueOutOfRangeException(XmlErrorCodes.LONG, new Object[]{s});
         }
@@ -73,7 +73,7 @@ public abstract class JavaLongHolder extends XmlObjectBase {
 
     // setters
     protected void set_BigDecimal(BigDecimal v) {
-        set_BigInteger(MathUtil.toBigInteger(v));
+        set_BigInteger(MathUtil.toBigInteger(v, get_max_number_chars()));
     }
 
     protected void set_BigInteger(BigInteger v) {

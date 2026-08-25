@@ -78,7 +78,7 @@ public abstract class JavaIntHolder extends XmlObjectBase {
 
     // setters
     protected void set_BigDecimal(BigDecimal v) {
-        set_BigInteger(MathUtil.toBigInteger(v));
+        set_BigInteger(MathUtil.toBigInteger(v, get_max_number_chars()));
     }
 
     protected void set_BigInteger(BigInteger v) {

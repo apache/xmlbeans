@@ -19,6 +19,7 @@ import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.SimpleValue;
 import org.apache.xmlbeans.XmlErrorCodes;
 import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.XmlOptions;
 import org.apache.xmlbeans.impl.common.ValidationContext;
 import org.apache.xmlbeans.impl.schema.BuiltinSchemaTypeSystem;
 import org.apache.xmlbeans.impl.util.MathUtil;
@@ -41,16 +42,20 @@ public abstract class JavaIntegerHolder extends XmlObjectBase {
     }
 
     protected void set_text(String s) {
-        set_BigInteger(lex(s, _voorVc));
+        set_BigInteger(lex(s, _voorVc, get_max_number_chars()));
     }
 
     public static BigInteger lex(String s, ValidationContext vc) {
+        return lex(s, vc, XmlOptions.DEFAULT_MAX_NUMBER_CHARS);
+    }
+
+    public static BigInteger lex(String s, ValidationContext vc, int maxNumberOfChars) {
         if (!s.isEmpty() && s.charAt(0) == '+') {
             s = s.substring(1);
         }
 
         try {
-            return MathUtil.parseAsBigInteger(s);
+            return MathUtil.parseAsBigInteger(s, maxNumberOfChars);
         } catch (Exception e) {
             vc.invalid(XmlErrorCodes.INTEGER, new Object[]{s});
             return null;
@@ -74,7 +79,7 @@ public abstract class JavaIntegerHolder extends XmlObjectBase {
 
     // setters
     protected void set_BigDecimal(BigDecimal v) {
-        _value = MathUtil.toBigInteger(v);
+        _value = MathUtil.toBigInteger(v, get_max_number_chars());
     }
 
     protected void set_BigInteger(BigInteger v) {

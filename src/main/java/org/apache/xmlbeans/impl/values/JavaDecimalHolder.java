@@ -44,12 +44,13 @@ public class JavaDecimalHolder extends XmlObjectBase {
 
     protected void set_text(String s) {
         boolean allowExponent = has_store() && get_store().get_locale().isLoadAllowDecimalExponent();
+        int maxNumberOfChars = get_max_number_chars();
         if (_validateOnSet()) {
-            validateLexical(s, _voorVc, allowExponent);
+            validateLexical(s, _voorVc, allowExponent, maxNumberOfChars);
         }
 
         try {
-            set_BigDecimal(MathUtil.parseAsBigDecimal(s));
+            set_BigDecimal(MathUtil.parseAsBigDecimal(s, maxNumberOfChars));
         } catch (Exception e) {
             _voorVc.invalid(XmlErrorCodes.DECIMAL, new Object[]{s});
         }
@@ -162,7 +163,7 @@ public class JavaDecimalHolder extends XmlObjectBase {
             }
         }
 
-        BigInteger intval = MathUtil.toBigInteger(_value);
+        BigInteger intval = MathUtil.toBigInteger(_value, get_max_number_chars());
 
         if (intval.compareTo(_maxlong) > 0 ||
             intval.compareTo(_minlong) < 0) {
