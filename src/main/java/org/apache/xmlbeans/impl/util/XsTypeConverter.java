@@ -279,7 +279,8 @@ public final class XsTypeConverter {
         // The following code comes from Apache Harmony
         String intStr = value.unscaledValue().toString();
         int scale = value.scale();
-        if (scale == 0 || (MathUtil.toLong(value) == 0 && scale < 0)) {
+        // the second branch only needs a zero check, as in the original Harmony code
+        if (scale == 0 || (value.signum() == 0 && scale < 0)) {
             return intStr;
         }
 

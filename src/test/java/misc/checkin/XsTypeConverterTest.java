@@ -22,6 +22,8 @@ import org.apache.xmlbeans.impl.util.XsTypeConverter;
 import org.apache.xmlbeans.impl.values.XmlValueOutOfRangeException;
 import org.junit.jupiter.api.Test;
 
+import java.math.BigDecimal;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -308,5 +310,28 @@ public class XsTypeConverterTest {
         javax.xml.namespace.QName empty = XsTypeConverter.lexQName("", errors, ctx);
         assertEquals("", empty.getLocalPart());
         assertEquals(1, errors.size());
+    }
+
+    @Test
+    void printDecimalHandlesValuesWiderThanLong() {
+        assertEquals("123456789012345678901234567890.5",
+            XsTypeConverter.printDecimal(new BigDecimal("123456789012345678901234567890.5")));
+        assertEquals("-123456789012345678901234567890.5",
+            XsTypeConverter.printDecimal(new BigDecimal("-123456789012345678901234567890.5")));
+    }
+
+    @Test
+    void printDecimalHandlesNegativeScaleWiderThanLong() {
+        // stripTrailingZeros() and BigDecimal.valueOf(unscaled, negativeScale) both
+        // produce negative-scale values, which reach printDecimal via setBigDecimalValue.
+        assertEquals("100000000000000000000", XsTypeConverter.printDecimal(new BigDecimal("1E+20")));
+        assertEquals("-100000000000000000000", XsTypeConverter.printDecimal(new BigDecimal("-1E+20")));
+        assertEquals("100", XsTypeConverter.printDecimal(new BigDecimal("1E+2")));
+    }
+
+    @Test
+    void printDecimalHandlesZeroWithScale() {
+        assertEquals("0", XsTypeConverter.printDecimal(new BigDecimal("0E+5")));
+        assertEquals("0.00000", XsTypeConverter.printDecimal(new BigDecimal("0E-5")));
     }
 }
