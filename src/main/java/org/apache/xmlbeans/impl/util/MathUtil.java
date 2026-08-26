@@ -70,7 +70,8 @@ public class MathUtil {
      * @param maxNumberOfChars maximum number of characters allowed in the string
      * @return valid BigDecimal
      * @throws NumberFormatException if parse fails
-     * @throws IllegalArgumentException if string is too long
+     * @throws IllegalArgumentException if the string is too long, or denotes more digits
+     * than it has characters to spare
      * @throws NullPointerException if string is null
      */
     public static BigDecimal parseAsBigDecimal(String s, int maxNumberOfChars) {
@@ -80,7 +81,30 @@ public class MathUtil {
         if (s.length() > maxNumberOfChars) {
             throw new IllegalArgumentException("Number has more than " + maxNumberOfChars + " characters");
         }
-        return new BigDecimal(s);
+        final BigDecimal value = new BigDecimal(s);
+        final long digits = plainLength(value);
+        if (digits > maxNumberOfChars) {
+            throw new IllegalArgumentException("Number denotes " + digits + " digits, more than the "
+                + maxNumberOfChars + " characters allowed");
+        }
+        return value;
+    }
+
+    /**
+     * The number of characters it takes to write the value out without an exponent, which
+     * is the form xsd:decimal allows and so the form the maximum number of characters is
+     * meant to bound. Only an exponent can make this exceed the length of the lexical
+     * value it was parsed from, and an exponent is a handful of characters: the 13
+     * characters of "1E+2000000000" denote two billion digits.
+     */
+    private static long plainLength(BigDecimal value) {
+        final int scale = value.scale();
+        final int precision = value.precision();
+        return scale <= 0
+            // integer digits, ie the significant digits plus the trailing zeros
+            ? (long) precision - scale
+            // the digits either side of the decimal point, plus the point itself
+            : Math.max(precision, (long) scale + 1) + 1;
     }
 
     /**
