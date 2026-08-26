@@ -62,6 +62,50 @@ public class Xsd2InstTest {
         }
     }
 
+    private static String decimalSchema(String facets) {
+        return "<xs:schema xmlns:xs='http://www.w3.org/2001/XMLSchema'>" +
+            "<xs:element name='value' type='constrainedDecimal'/>" +
+            "<xs:simpleType name='constrainedDecimal'>" +
+            "<xs:restriction base='xs:decimal'>" + facets + "</xs:restriction>" +
+            "</xs:simpleType></xs:schema>";
+    }
+
+    private static String sampleFor(String facets) throws Exception {
+        XmlObject xsd = XmlObject.Factory.parse(decimalSchema(facets));
+        SchemaTypeSystem sts = XmlBeans.compileXsd(new XmlObject[]{xsd},
+            XmlBeans.getBuiltinTypeSystem(), new XmlOptions());
+        return SampleXmlUtil.createSampleForType(sts.globalElements()[0]);
+    }
+
+    @Test
+    void testDigitFacetsWiderThanTheNumberLengthLimit() throws Exception {
+        // xsd:totalDigits and xsd:fractionDigits are positiveInteger and so have no
+        // ceiling of their own; building the bounds they imply as strings of digits ran
+        // them into the maximum number of characters allowed for a number
+        String result = sampleFor("<xs:totalDigits value='2000'/>");
+        assertTrue(result.contains("<value>"), result);
+        try (InputStream docStream = new ByteArrayInputStream(result.getBytes(StandardCharsets.UTF_8))) {
+            assertNotNull(DocumentHelper.readDocument(new XmlOptions(), docStream));
+        }
+
+        result = sampleFor("<xs:fractionDigits value='1500'/>");
+        assertTrue(result.contains("<value>"), result);
+        try (InputStream docStream = new ByteArrayInputStream(result.getBytes(StandardCharsets.UTF_8))) {
+            assertNotNull(DocumentHelper.readDocument(new XmlOptions(), docStream));
+        }
+    }
+
+    @Test
+    void testTotalDigitsStillNarrowsTheBounds() throws Exception {
+        // the sample seed for a decimal is 1000.00, which xsd:totalDigits has to pull
+        // down to the widest value the facet allows
+        String result = sampleFor("<xs:maxInclusive value='999999'/><xs:totalDigits value='3'/>");
+        assertTrue(result.contains("<value>999</value>"), result);
+
+        String unconstrained = sampleFor("<xs:maxInclusive value='999999'/>");
+        assertTrue(unconstrained.contains("<value>1000.00</value>"), unconstrained);
+    }
+
     @Test
     void testSampleXmlUtil() throws Exception {
         XmlObject xobj;

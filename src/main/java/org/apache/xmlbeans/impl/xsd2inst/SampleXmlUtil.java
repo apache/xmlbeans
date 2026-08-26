@@ -382,6 +382,24 @@ public class SampleXmlUtil {
         return result;
     }
 
+    /**
+     * The number of digits before the decimal point, which is the same for every
+     * representation of a value.
+     */
+    private static long integerDigits(BigDecimal value) {
+        return (long) value.precision() - value.scale();
+    }
+
+    /**
+     * The largest value that fits in the given number of digits, ie 999...9. Computed as
+     * 10^digits - 1 rather than built as a string of nines, which the maximum number of
+     * characters allowed for a number rejects once the schema asks for more digits than
+     * that - xsd:totalDigits is a positiveInteger and has no such ceiling.
+     */
+    private static BigDecimal widestValue(int digits) {
+        return BigDecimal.TEN.pow(digits).subtract(BigDecimal.ONE);
+    }
+
     private String formatDecimal(String start, SchemaType sType) {
         BigDecimal result = MathUtil.parseAsBigDecimal(start);
         XmlDecimal xmlD;
@@ -411,19 +429,22 @@ public class SampleXmlUtil {
         if (xmlD != null) {
             totalDigits = MathUtil.toInt(xmlD.getBigDecimalValue());
 
-            StringBuilder sb = new StringBuilder(totalDigits);
-            for (int i = 0; i < totalDigits; i++) {
-                sb.append('9');
+            // the widest value the facet allows can only narrow a bound that is at least
+            // as wide, so it is computed only when it can bind - which also keeps it away
+            // from a totalDigits far larger than any bound the schema declares
+            if (max != null && integerDigits(max) >= totalDigits) {
+                BigDecimal digitsLimit = widestValue(totalDigits);
+                if (max.compareTo(digitsLimit) > 0) {
+                    max = digitsLimit;
+                    maxInclusive = true;
+                }
             }
-            BigDecimal digitsLimit = MathUtil.parseAsBigDecimal(sb.toString());
-            if (max != null && max.compareTo(digitsLimit) > 0) {
-                max = digitsLimit;
-                maxInclusive = true;
-            }
-            digitsLimit = digitsLimit.negate();
-            if (min != null && min.compareTo(digitsLimit) < 0) {
-                min = digitsLimit;
-                minInclusive = true;
+            if (min != null && integerDigits(min) >= totalDigits) {
+                BigDecimal digitsLimit = widestValue(totalDigits).negate();
+                if (min.compareTo(digitsLimit) < 0) {
+                    min = digitsLimit;
+                    minInclusive = true;
+                }
             }
         }
 
@@ -441,12 +462,8 @@ public class SampleXmlUtil {
         } else {
             fractionDigits = MathUtil.toInt(xmlD.getBigDecimalValue());
             if (fractionDigits > 0) {
-                StringBuilder sb = new StringBuilder("0.");
-                for (int i = 1; i < fractionDigits; i++) {
-                    sb.append('0');
-                }
-                sb.append('1');
-                increment = MathUtil.parseAsBigDecimal(sb.toString());
+                // 1 shifted fractionDigits places right, ie 0.00...1
+                increment = BigDecimal.ONE.scaleByPowerOfTen(-fractionDigits);
             } else {
                 increment = BigDecimal.ONE;
             }
