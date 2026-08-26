@@ -106,6 +106,7 @@ public class StscState {
     private boolean _noAnn;
     private boolean _mdefAll;
     private String _sourceCodeEncoding ;
+    private int _maxNumberOfCharsForNumbers = XmlOptions.DEFAULT_MAX_NUMBER_CHARS;
     private final Set<String> _mdefNamespaces = buildDefaultMdefNamespaces();
     private EntityResolver _entityResolver;
     private File _schemasDir;
@@ -462,6 +463,7 @@ public class StscState {
                  !"true".equals(SystemProperties.getProperty("xmlbean.schemaannotations", "true"));
         _doingDownloads = options.isCompileDownloadUrls() ||
                           "true".equals(SystemProperties.getProperty("xmlbean.downloadurls", "false"));
+        _maxNumberOfCharsForNumbers = options.getMaxNumberOfCharsForNumbers();
         _sourceCodeEncoding = options.getCharacterEncoding();
         if (_sourceCodeEncoding == null || _sourceCodeEncoding.isEmpty()) {
             _sourceCodeEncoding = SystemProperties.getProperty("xmlbean.sourcecodeencoding");
@@ -536,6 +538,14 @@ public class StscState {
     // EXPERIMENTAL
     public String sourceCodeEncoding() {
         return _sourceCodeEncoding ;
+    }
+
+    /**
+     * The maximum number of characters a number in the schema being compiled may have,
+     * as configured by XmlOptions.setMaxNumberOfCharsForNumbers.
+     */
+    public int maxNumberOfCharsForNumbers() {
+        return _maxNumberOfCharsForNumbers;
     }
 
     /**

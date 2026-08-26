@@ -14,22 +14,30 @@
  */
 package misc.checkin;
 
+import org.apache.xmlbeans.SchemaTypeSystem;
 import org.apache.xmlbeans.SimpleValue;
+import org.apache.xmlbeans.XmlBeans;
 import org.apache.xmlbeans.XmlDecimal;
+import org.apache.xmlbeans.XmlError;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlInt;
 import org.apache.xmlbeans.XmlInteger;
 import org.apache.xmlbeans.XmlLong;
+import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
 import org.apache.xmlbeans.impl.values.XmlValueOutOfRangeException;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * XmlOptions.setMaxNumberOfCharsForNumbers has to apply to values materialised from the
@@ -212,6 +220,46 @@ public class MaxNumberOfCharsTest {
         raised.setLoadAllowDecimalExponent(true);
         XmlDecimal wide = XmlDecimal.Factory.parse(frag("1E+2000"), raised);
         assertEquals(2001, wide.getBigDecimalValue().precision() - wide.getBigDecimalValue().scale());
+    }
+
+    @Test
+    public void testValidateReportsAnOverLongNumber() throws XmlException {
+        // validate() reports what is wrong with a document; a number past the limit is
+        // bad input like any other and must not come back as an exception
+        List<XmlError> errors = new ArrayList<>();
+        XmlInteger integer = XmlInteger.Factory.parse(frag(digits(2000)));
+        assertFalse(integer.validate(new XmlOptions().setErrorListener(errors)));
+        assertFalse(errors.isEmpty());
+
+        errors.clear();
+        XmlDecimal decimal = XmlDecimal.Factory.parse(frag(digits(2000) + ".5"));
+        assertFalse(decimal.validate(new XmlOptions().setErrorListener(errors)));
+        assertFalse(errors.isEmpty());
+    }
+
+    @Test
+    public void testSchemaCompileHonoursLimit() throws XmlException {
+        // the facet value is a number in the schema document, so the limit has to reach
+        // the validation and the facet handling that compilation does
+        String xsd = "<xs:schema xmlns:xs='http://www.w3.org/2001/XMLSchema'>" +
+            "<xs:element name='value' type='boundedString'/>" +
+            "<xs:simpleType name='boundedString'><xs:restriction base='xs:string'>" +
+            "<xs:maxLength value='" + digits(2000) + "'/>" +
+            "</xs:restriction></xs:simpleType></xs:schema>";
+
+        XmlOptions raised = maxChars(4096);
+        SchemaTypeSystem sts = XmlBeans.compileXsd(
+            new XmlObject[]{XmlObject.Factory.parse(xsd, raised)}, XmlBeans.getBuiltinTypeSystem(), raised);
+        assertEquals(1, sts.globalElements().length);
+
+        // at the default limit the same schema is reported as invalid, not thrown out of
+        List<XmlError> errors = new ArrayList<>();
+        XmlOptions dflt = new XmlOptions().setErrorListener(errors);
+        XmlObject parsed = XmlObject.Factory.parse(xsd);
+        assertThrows(XmlException.class,
+            () -> XmlBeans.compileXsd(new XmlObject[]{parsed}, XmlBeans.getBuiltinTypeSystem(), dflt));
+        assertTrue(errors.stream().anyMatch(e -> e.getMessage().contains("Invalid integer value")),
+            errors.toString());
     }
 
     @Test
