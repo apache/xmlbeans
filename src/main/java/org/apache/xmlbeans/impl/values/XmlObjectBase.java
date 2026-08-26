@@ -1357,7 +1357,33 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
     // numerics: integral
     public BigInteger getBigIntegerValue() {
         BigDecimal bd = getBigDecimalValue();
-        return bd == null ? null : MathUtil.toBigInteger(bd, get_max_number_chars());
+        return bd == null ? null : to_BigInteger(bd);
+    }
+
+    /**
+     * Converts to BigInteger, applying the maximum number of characters configured by
+     * XmlOptions.setMaxNumberOfCharsForNumbers.
+     */
+    protected final BigInteger to_BigInteger(BigDecimal v) {
+        return to_BigInteger(v, get_max_number_chars());
+    }
+
+    /**
+     * Converts to BigInteger, rejecting anything wider than maxIntegerDigits. Types with
+     * a bound of their own pass that bound rather than the configured maximum number of
+     * characters, which limits the size of numbers read out of a document and so has no
+     * business rejecting a value handed to a setter directly.
+     * <p>
+     * MathUtil reports an over-large magnitude as a plain IllegalArgumentException, but
+     * the XmlObject API reports out-of-range values as XmlValueOutOfRangeException, so
+     * translate it here rather than let it escape to callers.
+     */
+    protected final BigInteger to_BigInteger(BigDecimal v, int maxIntegerDigits) {
+        try {
+            return MathUtil.toBigInteger(v, maxIntegerDigits);
+        } catch (IllegalArgumentException e) {
+            throw new XmlValueOutOfRangeException(e.getMessage());
+        }
     }
 
     public byte getByteValue() {

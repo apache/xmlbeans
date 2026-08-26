@@ -350,7 +350,7 @@ public class GDurationBuilder implements GDurationSpecification, java.io.Seriali
         if (_fs != null && (_fs.signum() < 0 || _fs.compareTo(GDate._one) >= 0)) {
             BigDecimal bdcarry = _fs.setScale(0, RoundingMode.FLOOR);
             _fs = _fs.subtract(bdcarry);
-            carry = MathUtil.toInt(bdcarry);
+            carry = MathUtil.toLong(bdcarry);
         }
 
         if (carry != 0 || _s < 0 || _s > 59 || _m < 0 || _m > 50 || _h < 0 || _h > 23) {
