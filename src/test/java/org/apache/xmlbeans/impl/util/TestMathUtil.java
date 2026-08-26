@@ -134,6 +134,37 @@ public class TestMathUtil {
     }
 
     @Test
+    public void testParseAsBigDecimalBoundsDigitsNotJustCharacters() {
+        // an exponent is a handful of characters denoting arbitrarily many digits, so the
+        // limit has to apply to what the value denotes, not only to what was written
+        assertThrows(IllegalArgumentException.class, () -> MathUtil.parseAsBigDecimal("1E+2000000000"));
+        assertThrows(IllegalArgumentException.class, () -> MathUtil.parseAsBigDecimal("1E-2000000000"));
+        assertThrows(IllegalArgumentException.class, () -> MathUtil.parseAsBigDecimal("1E+2000"));
+        assertThrows(IllegalArgumentException.class, () -> MathUtil.parseAsBigDecimal("1E+9", 4));
+
+        // within the limit an exponent is still accepted, and a raised limit still raises it
+        assertEquals(new BigDecimal("1E+20"), MathUtil.parseAsBigDecimal("1E+20"));
+        assertEquals(new BigDecimal("1E+2000"), MathUtil.parseAsBigDecimal("1E+2000", 4096));
+    }
+
+    @Test
+    public void testParseAsBigDecimalAcceptsPlainValues() {
+        // without an exponent the digit count cannot exceed the length of the lexical
+        // value, so the new bound never rejects what the length check accepts
+        assertEquals(new BigDecimal("123.45"), MathUtil.parseAsBigDecimal("123.45"));
+        assertEquals(new BigDecimal("-0.001"), MathUtil.parseAsBigDecimal("-0.001"));
+        assertEquals(new BigDecimal("0.10"), MathUtil.parseAsBigDecimal("0.10"));
+        assertEquals(BigDecimal.ZERO, MathUtil.parseAsBigDecimal("0"));
+
+        StringBuilder sb = new StringBuilder("1");
+        for (int i = 1; i < XmlOptions.DEFAULT_MAX_NUMBER_CHARS; i++) {
+            sb.append('0');
+        }
+        assertEquals(XmlOptions.DEFAULT_MAX_NUMBER_CHARS,
+            MathUtil.parseAsBigDecimal(sb.toString()).precision());
+    }
+
+    @Test
     public void testSafeDoubleToInt() {
         assertEquals(1, MathUtil.safeDoubleToInt(1.75));
         assertEquals(Integer.MAX_VALUE, MathUtil.safeDoubleToInt(Integer.MAX_VALUE));

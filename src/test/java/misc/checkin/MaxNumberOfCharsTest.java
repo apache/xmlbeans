@@ -184,6 +184,37 @@ public class MaxNumberOfCharsTest {
     }
 
     @Test
+    public void testDecimalRejectsExponentDenotingTooManyDigits() throws XmlException {
+        // "1E+2000000000" is 13 characters, well under any limit, but denotes two billion
+        // digits. It is not a valid xsd:decimal lexical value in the first place, and the
+        // limit has to catch it whether or not the value is validated on set.
+        XmlDecimal value = XmlDecimal.Factory.parse(frag("1E+2000000000"));
+        assertThrows(XmlValueOutOfRangeException.class, value::getBigDecimalValue);
+
+        XmlOptions exponent = maxChars(XmlOptions.DEFAULT_MAX_NUMBER_CHARS);
+        exponent.setLoadAllowDecimalExponent(true);
+        XmlDecimal allowed = XmlDecimal.Factory.parse(frag("1E+2000000000"), exponent);
+        assertThrows(XmlValueOutOfRangeException.class, allowed::getBigDecimalValue);
+
+        XmlDecimal negative = XmlDecimal.Factory.parse(frag("1E-2000000000"), exponent);
+        assertThrows(XmlValueOutOfRangeException.class, negative::getBigDecimalValue);
+    }
+
+    @Test
+    public void testDecimalStillAcceptsExponentWithinLimit() throws XmlException {
+        XmlOptions exponent = maxChars(XmlOptions.DEFAULT_MAX_NUMBER_CHARS);
+        exponent.setLoadAllowDecimalExponent(true);
+
+        XmlDecimal value = XmlDecimal.Factory.parse(frag("1E+20"), exponent);
+        assertEquals(new BigDecimal("1E+20"), value.getBigDecimalValue());
+
+        XmlOptions raised = maxChars(4096);
+        raised.setLoadAllowDecimalExponent(true);
+        XmlDecimal wide = XmlDecimal.Factory.parse(frag("1E+2000"), raised);
+        assertEquals(2001, wide.getBigDecimalValue().precision() - wide.getBigDecimalValue().scale());
+    }
+
+    @Test
     public void testDecimalHashCodeIgnoresLimit() {
         // hashCode() must not throw, whatever the limit is, and must stay aligned with
         // the hash of the same value held as an xsd:integer
