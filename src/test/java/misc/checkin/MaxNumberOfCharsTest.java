@@ -129,6 +129,61 @@ public class MaxNumberOfCharsTest {
     }
 
     @Test
+    public void testIntegralSettersUseTheirOwnBoundNotTheCharLimit() throws XmlException {
+        // maxNumberOfCharsForNumbers bounds numbers read out of a document; it must not
+        // reject a valid value handed to a setter directly, or setBigDecimalValue would
+        // disagree with the other setters for the same value
+        XmlLong value = (XmlLong) XmlLong.Factory.parse(frag("1"), maxChars(8));
+
+        value.setBigDecimalValue(new BigDecimal("123456789012"));
+        assertEquals(123456789012L, value.getLongValue());
+        value.setBigIntegerValue(new BigInteger("123456789012"));
+        assertEquals(123456789012L, value.getLongValue());
+        value.setLongValue(123456789012L);
+        assertEquals(123456789012L, value.getLongValue());
+
+        XmlInt intValue = (XmlInt) XmlInt.Factory.parse(frag("1"), maxChars(4));
+        intValue.setBigDecimalValue(new BigDecimal("123456789"));
+        assertEquals(123456789, intValue.getIntValue());
+    }
+
+    @Test
+    public void testIntegralSettersStillRejectOutOfRange() {
+        // the type's own bound still applies, and reaching it does not need the value
+        // to be expanded first
+        assertThrows(XmlValueOutOfRangeException.class,
+            () -> XmlLong.Factory.newInstance().setBigDecimalValue(new BigDecimal("1E+2000000000")));
+        assertThrows(XmlValueOutOfRangeException.class,
+            () -> XmlInt.Factory.newInstance().setBigDecimalValue(new BigDecimal("1E+2000000000")));
+
+        // 19 digits is the widest a long can be at either end - precision() counts the
+        // digits of the unscaled value, so the sign does not consume one - and the bound
+        // is on width, so a 19-digit value out of range is still caught by set_BigInteger
+        XmlLong value = XmlLong.Factory.newInstance();
+        value.setBigDecimalValue(new BigDecimal("9223372036854775807"));
+        assertEquals(Long.MAX_VALUE, value.getLongValue());
+        value.setBigDecimalValue(new BigDecimal("-9223372036854775808"));
+        assertEquals(Long.MIN_VALUE, value.getLongValue());
+        assertThrows(XmlValueOutOfRangeException.class,
+            () -> XmlLong.Factory.newInstance().setBigDecimalValue(new BigDecimal("9999999999999999999")));
+        assertThrows(XmlValueOutOfRangeException.class,
+            () -> XmlLong.Factory.newInstance().setBigDecimalValue(new BigDecimal("-9999999999999999999")));
+
+        XmlInt intValue = XmlInt.Factory.newInstance();
+        intValue.setBigDecimalValue(new BigDecimal("2147483647"));
+        assertEquals(Integer.MAX_VALUE, intValue.getIntValue());
+        intValue.setBigDecimalValue(new BigDecimal("-2147483648"));
+        assertEquals(Integer.MIN_VALUE, intValue.getIntValue());
+        assertThrows(XmlValueOutOfRangeException.class,
+            () -> XmlInt.Factory.newInstance().setBigDecimalValue(new BigDecimal("-9999999999")));
+
+        // a value below 1 truncates to zero, as it always has
+        XmlLong truncated = XmlLong.Factory.newInstance();
+        truncated.setBigDecimalValue(new BigDecimal("1E-10000000"));
+        assertEquals(0L, truncated.getLongValue());
+    }
+
+    @Test
     public void testDecimalHashCodeIgnoresLimit() {
         // hashCode() must not throw, whatever the limit is, and must stay aligned with
         // the hash of the same value held as an xsd:integer
@@ -142,8 +197,9 @@ public class MaxNumberOfCharsTest {
 
     @Test
     public void testDecimalHashCodeIsIndependentOfScale() {
-        // 1E+200000 and the same value written out in full are equal, and are on either
-        // side of the threshold at which hashing stops expanding the value
+        // 1E+200000 and the same value written out in full are equal, and are both past
+        // the threshold at which hashing stops expanding the value - so the two have to
+        // reach the same hash without either being expanded
         XmlDecimal exponent = XmlDecimal.Factory.newInstance();
         exponent.setBigDecimalValue(new BigDecimal("1E+200000"));
         XmlDecimal expanded = XmlDecimal.Factory.newInstance();

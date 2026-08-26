@@ -175,9 +175,12 @@ public class JavaDecimalHolder extends XmlObjectBase {
         // precision() - scale() is the number of integer digits, and is the same for
         // every representation of a given value, so this branches consistently for
         // values that compare equal
-        if ((long) _value.precision() - _value.scale() > MAX_HASH_INTEGER_DIGITS) {
-            BigDecimal canonical = _value.stripTrailingZeros();
-            return canonical.unscaledValue().hashCode() * 31 + canonical.scale();
+        long integerDigits = (long) _value.precision() - _value.scale();
+        if (integerDigits > MAX_HASH_INTEGER_DIGITS) {
+            // hash on the digit count and sign: both are cheap and, like the branch
+            // above, the same for every representation of the value. Values this wide
+            // collide with each other, which is allowed - expanding them is not.
+            return (int) integerDigits * 31 + _value.signum();
         }
 
         // deliberately BigDecimal.toBigInteger() and not MathUtil.toBigInteger():

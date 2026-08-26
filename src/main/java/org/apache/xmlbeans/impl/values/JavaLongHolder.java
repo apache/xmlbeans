@@ -70,9 +70,12 @@ public abstract class JavaLongHolder extends XmlObjectBase {
     private static final BigInteger _max = BigInteger.valueOf(Long.MAX_VALUE);
     private static final BigInteger _min = BigInteger.valueOf(Long.MIN_VALUE);
 
+    /** both ends of the long range are 19 digits, so anything wider is out of range */
+    private static final int MAX_LONG_DIGITS = 19;
+
     // setters
     protected void set_BigDecimal(BigDecimal v) {
-        set_BigInteger(to_BigInteger(v));
+        set_BigInteger(to_BigInteger(v, MAX_LONG_DIGITS));
     }
 
     protected void set_BigInteger(BigInteger v) {

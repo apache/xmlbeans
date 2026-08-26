@@ -75,9 +75,12 @@ public abstract class JavaIntHolder extends XmlObjectBase {
     static final BigInteger _max = BigInteger.valueOf(Integer.MAX_VALUE);
     static final BigInteger _min = BigInteger.valueOf(Integer.MIN_VALUE);
 
+    /** both ends of the int range are 10 digits, so anything wider is out of range */
+    private static final int MAX_INT_DIGITS = 10;
+
     // setters
     protected void set_BigDecimal(BigDecimal v) {
-        set_BigInteger(to_BigInteger(v));
+        set_BigInteger(to_BigInteger(v, MAX_INT_DIGITS));
     }
 
     protected void set_BigInteger(BigInteger v) {
