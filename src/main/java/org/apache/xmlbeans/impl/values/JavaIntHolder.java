@@ -20,7 +20,6 @@ import org.apache.xmlbeans.SimpleValue;
 import org.apache.xmlbeans.XmlErrorCodes;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.impl.schema.BuiltinSchemaTypeSystem;
-import org.apache.xmlbeans.impl.util.MathUtil;
 import org.apache.xmlbeans.impl.util.XsTypeConverter;
 
 import java.math.BigDecimal;
@@ -78,7 +77,7 @@ public abstract class JavaIntHolder extends XmlObjectBase {
 
     // setters
     protected void set_BigDecimal(BigDecimal v) {
-        set_BigInteger(MathUtil.toBigInteger(v, get_max_number_chars()));
+        set_BigInteger(to_BigInteger(v));
     }
 
     protected void set_BigInteger(BigInteger v) {

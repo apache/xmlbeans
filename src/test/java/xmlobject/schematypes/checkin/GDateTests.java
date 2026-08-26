@@ -690,6 +690,21 @@ public class GDateTests {
         assertThrows(IllegalArgumentException.class, () -> new GDuration("PT3000000000S"));
     }
 
+    @Test
+    void testDurationFractionCarryBeyondIntRange() {
+        // setFraction() is unvalidated, so the whole-second carry can exceed int range.
+        // GDateBuilder handles the same quantity as a long, so GDurationBuilder must too.
+        GDurationBuilder gdb = new GDurationBuilder();
+        gdb.setFraction(new BigDecimal("1E+10"));
+        gdb.normalize();
+        assertEquals("P115740DT17H46M40S", gdb.toString());
+
+        GDurationBuilder small = new GDurationBuilder();
+        small.setFraction(new BigDecimal("1.5"));
+        small.normalize();
+        assertEquals("PT1.5S", small.toString());
+    }
+
     // Assert-style check that prints PASS/FAIL against the expected validity.
     static void check(SchemaTypeLoader loader, String durationLiteral,
                       boolean expectedValid, String note) throws Exception {

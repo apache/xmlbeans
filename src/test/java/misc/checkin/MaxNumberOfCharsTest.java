@@ -17,13 +17,19 @@ package misc.checkin;
 import org.apache.xmlbeans.SimpleValue;
 import org.apache.xmlbeans.XmlDecimal;
 import org.apache.xmlbeans.XmlException;
+import org.apache.xmlbeans.XmlInt;
 import org.apache.xmlbeans.XmlInteger;
+import org.apache.xmlbeans.XmlLong;
 import org.apache.xmlbeans.XmlOptions;
 import org.apache.xmlbeans.impl.values.XmlValueOutOfRangeException;
 import org.junit.jupiter.api.Test;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
 
 /**
  * XmlOptions.setMaxNumberOfCharsForNumbers has to apply to values materialised from the
@@ -94,5 +100,64 @@ public class MaxNumberOfCharsTest {
     public void testDecimalToBigIntegerUsesDefaultLimitWhenUnset() throws XmlException {
         SimpleValue value = (SimpleValue) XmlDecimal.Factory.parse(frag(digits(2000)));
         assertThrows(XmlValueOutOfRangeException.class, value::getBigIntegerValue);
+    }
+
+    @Test
+    public void testDecimalToBigIntegerReportsOutOfRangeWhenSetProgrammatically() {
+        // setBigDecimalValue() bypasses the lexical path, so the limit is only applied
+        // on the way out - and has to be reported the same way it is on the way in
+        XmlDecimal value = XmlDecimal.Factory.newInstance();
+        value.setBigDecimalValue(new BigDecimal(digits(2000)));
+        assertThrows(XmlValueOutOfRangeException.class,
+            () -> ((SimpleValue) value).getBigIntegerValue());
+    }
+
+    @Test
+    public void testIntegralSettersReportOutOfRange() {
+        BigDecimal oversized = new BigDecimal(digits(2000));
+
+        assertThrows(XmlValueOutOfRangeException.class,
+            () -> XmlInt.Factory.newInstance().setBigDecimalValue(oversized));
+        assertThrows(XmlValueOutOfRangeException.class,
+            () -> XmlLong.Factory.newInstance().setBigDecimalValue(oversized));
+        assertThrows(XmlValueOutOfRangeException.class,
+            () -> XmlInteger.Factory.newInstance().setBigDecimalValue(oversized));
+
+        // a value that merely overflows the java type is unaffected
+        assertThrows(XmlValueOutOfRangeException.class,
+            () -> XmlInt.Factory.newInstance().setBigDecimalValue(new BigDecimal("1E+20")));
+    }
+
+    @Test
+    public void testDecimalHashCodeIgnoresLimit() {
+        // hashCode() must not throw, whatever the limit is, and must stay aligned with
+        // the hash of the same value held as an xsd:integer
+        XmlDecimal decimal = XmlDecimal.Factory.newInstance();
+        decimal.setBigDecimalValue(new BigDecimal(digits(2000)));
+        XmlInteger integer = XmlInteger.Factory.newInstance();
+        integer.setBigIntegerValue(new BigInteger(digits(2000)));
+
+        assertEquals(integer.valueHashCode(), decimal.valueHashCode());
+    }
+
+    @Test
+    public void testDecimalHashCodeIsIndependentOfScale() {
+        // 1E+200000 and the same value written out in full are equal, and are on either
+        // side of the threshold at which hashing stops expanding the value
+        XmlDecimal exponent = XmlDecimal.Factory.newInstance();
+        exponent.setBigDecimalValue(new BigDecimal("1E+200000"));
+        XmlDecimal expanded = XmlDecimal.Factory.newInstance();
+        expanded.setBigDecimalValue(new BigDecimal(digits(200001)));
+
+        assertEquals(true, exponent.valueEquals(expanded));
+        assertEquals(expanded.valueHashCode(), exponent.valueHashCode());
+    }
+
+    @Test
+    public void testDecimalHashCodeDoesNotExpandHugeExponent() {
+        // expanding 1E+2000000000 would need gigabytes; hashing must not attempt it
+        XmlDecimal value = XmlDecimal.Factory.newInstance();
+        value.setBigDecimalValue(new BigDecimal("1E+2000000000"));
+        assertTimeoutPreemptively(java.time.Duration.ofSeconds(10), value::valueHashCode);
     }
 }

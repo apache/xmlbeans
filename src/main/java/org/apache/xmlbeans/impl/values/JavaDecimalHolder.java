@@ -153,6 +153,15 @@ public class JavaDecimalHolder extends XmlObjectBase {
     private static final BigInteger _minlong = BigInteger.valueOf(Long.MIN_VALUE);
 
     /**
+     * The number of integer digits we are prepared to materialise when hashing.
+     * A value with a large negative scale (eg 1E+2000000000) expands to billions of
+     * digits, so it is hashed from its canonical form instead. hashCode() must not
+     * throw, so this is a fallback rather than the max-number-chars limit applied
+     * elsewhere.
+     */
+    private static final long MAX_HASH_INTEGER_DIGITS = 100000;
+
+    /**
      * Note, this is carefully aligned with hash codes for all xsd:decimal
      * primitives.
      */
@@ -163,7 +172,17 @@ public class JavaDecimalHolder extends XmlObjectBase {
             }
         }
 
-        BigInteger intval = MathUtil.toBigInteger(_value, get_max_number_chars());
+        // precision() - scale() is the number of integer digits, and is the same for
+        // every representation of a given value, so this branches consistently for
+        // values that compare equal
+        if ((long) _value.precision() - _value.scale() > MAX_HASH_INTEGER_DIGITS) {
+            BigDecimal canonical = _value.stripTrailingZeros();
+            return canonical.unscaledValue().hashCode() * 31 + canonical.scale();
+        }
+
+        // deliberately BigDecimal.toBigInteger() and not MathUtil.toBigInteger():
+        // hashCode() must not throw, and the expansion is bounded by the check above
+        BigInteger intval = _value.toBigInteger();
 
         if (intval.compareTo(_maxlong) > 0 ||
             intval.compareTo(_minlong) < 0) {
