@@ -1509,10 +1509,13 @@ public class StscTranslator {
         if (value == null) {
             return null;
         }
-        String text = value.getStringValue();
+        // materialising the facet's text can fail in its own right, if the schema was
+        // loaded with a lower limit than the number it declares, so it is inside the try
+        String text = null;
         BigInteger bigInt;
         try {
-            bigInt = MathUtil.parseAsBigInteger(text);
+            text = value.getStringValue();
+            bigInt = MathUtil.parseAsBigInteger(text, StscState.get().maxNumberOfCharsForNumbers());
         } catch (Exception e) {
             StscState.get().error(XmlErrorCodes.INVALID_VALUE_DETAIL, new Object[]{text, "nonNegativeInteger", e.getMessage()}, value);
             return null;

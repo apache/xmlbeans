@@ -1110,8 +1110,20 @@ public final class Validator
                 }
 
                 if (errorState == _errorState) {
-                    _decimalValue = MathUtil.parseAsBigDecimal(value, _options.getMaxNumberOfCharsForNumbers());
-                    JavaDecimalHolderEx.validateValue(_decimalValue, type, _vc);
+                    BigDecimal parsed = null;
+                    try {
+                        parsed = MathUtil.parseAsBigDecimal(value, _options.getMaxNumberOfCharsForNumbers());
+                    } catch (IllegalArgumentException e) {
+                        // a number longer than the configured maximum is invalid input,
+                        // not a programming error - report it like any other bad value
+                        // rather than throwing out of validate()
+                        _vc.invalid(derivedFromInteger(type) ? XmlErrorCodes.INTEGER : XmlErrorCodes.DECIMAL,
+                            new Object[]{value});
+                    }
+                    if (parsed != null) {
+                        _decimalValue = parsed;
+                        JavaDecimalHolderEx.validateValue(_decimalValue, type, _vc);
+                    }
                 }
 
                 break;

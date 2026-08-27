@@ -226,8 +226,11 @@ public class SchemaTypeSystemCompiler {
             // load all the xsd files into it
             if (validate) {
                 XmlOptions validateOptions = new XmlOptions().setErrorListener(errorWatcher);
-                if (options != null && options.isValidateTreatLaxAsSkip()) {
-                    validateOptions.setValidateTreatLaxAsSkip();
+                if (options != null) {
+                    if (options.isValidateTreatLaxAsSkip()) {
+                        validateOptions.setValidateTreatLaxAsSkip();
+                    }
+                    validateOptions.setMaxNumberOfCharsForNumbers(options.getMaxNumberOfCharsForNumbers());
                 }
                 for (Schema schema : schemas) {
                     if (schema.validate(validateOptions)) {
