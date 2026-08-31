@@ -3081,9 +3081,10 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
 
                     case SchemaType.SIZE_BIG_DECIMAL:
                         return base.getBigDecimalValue();
+
                     default:
                         assert (false) : "invalid numeric bit count";
-                        // fallthrough
+                        return base.getBigDecimalValue();
                 }
             }
             case SchemaType.BTC_ANY_URI:
@@ -3101,19 +3102,18 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
             case SchemaType.BTC_G_DAY:
             case SchemaType.BTC_G_MONTH:
                 return base.getCalendarValue();
-                case SchemaType.BTC_NOTATION:
+
+            // NB: for string enums we just do java.lang.String
+            // when in the context of unions. It's easier on users.
+            case SchemaType.BTC_NOTATION:
             case SchemaType.BTC_STRING:
             case SchemaType.BTC_ANY_SIMPLE:
-                // return base.getStringValue();
                 return base.getStringValue();
+
             default:
                 assert (false) : "encountered nonprimitive type.";
-                // fallthrough
-
-                // NB: for string enums we just do java.lang.String
-                // when in the context of unions. It's easier on users.
+                return base.getStringValue();
         }
-        return null;
     }
 
     /**
