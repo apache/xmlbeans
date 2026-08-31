@@ -52,12 +52,34 @@ public class FileResourceLoader implements ResourceLoader
             }
             else
             {
-                return Files.newInputStream(new File(_directory, resourceName).toPath());
+                File file = new File(_directory, resourceName);
+                // A resource name is built from an attacker-controllable handle read out of a
+                // compiled .xsb; a handle containing "../" would otherwise let the resolved path
+                // escape the resource directory and read arbitrary .xsb-suffixed files on disk.
+                if (!isContainedIn(file, _directory))
+                {
+                    return null;
+                }
+                return Files.newInputStream(file.toPath());
             }
         }
         catch (IOException e)
         {
             return null;
+        }
+    }
+
+    private static boolean isContainedIn(File file, File directory)
+    {
+        try
+        {
+            String dirPath = directory.getCanonicalPath() + File.separator;
+            String filePath = file.getCanonicalPath();
+            return filePath.startsWith(dirPath);
+        }
+        catch (IOException e)
+        {
+            return false;
         }
     }
 
