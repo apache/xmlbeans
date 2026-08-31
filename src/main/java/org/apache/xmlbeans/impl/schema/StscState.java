@@ -438,10 +438,22 @@ public class StscState {
                 int i = s.lastIndexOf('!');
                 return shouldDownloadURI(i > 0 ? s.substring(0, i) : s);
             }
-            return equalsIgnoreCase(uri.getScheme(), "file");
+            return equalsIgnoreCase(uri.getScheme(), "file") && isLocalFileAuthority(uri);
         } catch (Exception e) {
             return false;
         }
+    }
+
+    /**
+     * True if a file: URI has no remote authority. A file: URI with a non-local
+     * host (e.g. a Windows UNC path file://server/share/schema.xsd) would otherwise
+     * be fetched even when network downloads are disabled, letting an untrusted
+     * schema's import/include reach an attacker-controlled host over SMB.
+     */
+    private static boolean isLocalFileAuthority(URI uri) {
+        String authority = uri.getAuthority();
+        return authority == null || authority.isEmpty() ||
+               authority.equalsIgnoreCase("localhost");
     }
 
     /**
