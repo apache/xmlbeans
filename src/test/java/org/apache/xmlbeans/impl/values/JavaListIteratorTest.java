@@ -167,4 +167,115 @@ class JavaListIteratorTest {
         assertEquals(Arrays.asList("a", "b", "c"), list);
         assertEquals(Arrays.asList("a", "b", "c").hashCode(), list.hashCode());
     }
+
+    @Test
+    void walkingBackwardsNeverAsksForTheSize() {
+        fill("a", "b", "c");
+
+        ListIterator<String> it = list().listIterator(3);
+        sizeCalls = 0;
+
+        assertEquals("c", it.previous());
+        assertEquals("b", it.previous());
+        assertEquals("a", it.previous());
+        assertFalse(it.hasPrevious());
+        assertEquals(0, sizeCalls);
+    }
+
+    @Test
+    void anEmptyListHasNothingToIterate() {
+        Iterator<String> it = list().iterator();
+        assertFalse(it.hasNext());
+        assertThrows(NoSuchElementException.class, it::next);
+
+        ListIterator<String> listIt = list().listIterator();
+        assertFalse(listIt.hasNext());
+        assertFalse(listIt.hasPrevious());
+        assertEquals(0, listIt.nextIndex());
+        assertEquals(-1, listIt.previousIndex());
+    }
+
+    @Test
+    void aListIteratorAtTheEndHasAPreviousButNoNext() {
+        fill("a", "b");
+
+        ListIterator<String> it = list().listIterator(2);
+        assertFalse(it.hasNext());
+        assertTrue(it.hasPrevious());
+        assertEquals(2, it.nextIndex());
+        assertEquals(1, it.previousIndex());
+        assertThrows(NoSuchElementException.class, it::next);
+        assertEquals("b", it.previous());
+    }
+
+    @Test
+    void removeBeforeAnythingHasBeenReturnedIsRejected() {
+        fill("a", "b");
+
+        ListIterator<String> it = list().listIterator();
+        assertThrows(IllegalStateException.class, it::remove);
+        assertThrows(IllegalStateException.class, () -> it.set("z"));
+    }
+
+    @Test
+    void removeTwiceInARowIsRejected() {
+        fill("a", "b");
+
+        Iterator<String> it = list().iterator();
+        it.next();
+        it.remove();
+        assertThrows(IllegalStateException.class, it::remove);
+        assertEquals(Arrays.asList("b"), backing);
+    }
+
+    @Test
+    void setAfterRemoveIsRejected() {
+        fill("a", "b");
+
+        ListIterator<String> it = list().listIterator();
+        it.next();
+        it.remove();
+        assertThrows(IllegalStateException.class, () -> it.set("z"));
+    }
+
+    @Test
+    void setAfterAddIsRejected() {
+        fill("a", "b");
+
+        ListIterator<String> it = list().listIterator();
+        it.next();
+        it.add("inserted");
+        assertThrows(IllegalStateException.class, () -> it.set("z"));
+        assertEquals(Arrays.asList("a", "inserted", "b"), backing);
+    }
+
+    @Test
+    void removeAfterPreviousDropsThatElement() {
+        fill("a", "b", "c");
+
+        ListIterator<String> it = list().listIterator(3);
+        assertEquals("c", it.previous());
+        it.remove();
+        assertEquals(Arrays.asList("a", "b"), backing);
+        assertEquals("b", it.previous());
+        assertEquals(1, it.nextIndex());
+    }
+
+    @Test
+    void aListBuiltWithoutASizerCannotBeIterated() {
+        fill("a");
+
+        JavaListObject<String> list = new JavaListObject<>(backing::get, null, null, null, null);
+        assertThrows(IllegalStateException.class, () -> list.iterator().hasNext());
+    }
+
+    @Test
+    void aListBuiltWithoutAGetterCannotBeIterated() {
+        fill("a");
+
+        JavaListObject<String> list = new JavaListObject<>(null, null, null, null, backing::size);
+        Iterator<String> it = list.iterator();
+        assertTrue(it.hasNext());
+        assertThrows(IllegalStateException.class, it::next);
+    }
 }
