@@ -1963,23 +1963,16 @@ abstract class Xobj implements TypeStore {
     }
 
     public TypeStoreUser find_element_user(QName name, int i) {
-        for (Xobj x = _firstChild; x != null; x = x._nextSibling) {
-            if (x.isElem() && x._name.equals(name) && --i < 0) {
-                return x.getUser();
-            }
-        }
+        // a negative index has always resolved to the first matching element
+        Xobj x = _locale.findNthChildElem(this, name, null, Math.max(i, 0));
 
-        return null;
+        return x == null ? null : x.getUser();
     }
 
     public TypeStoreUser find_element_user(QNameSet names, int i) {
-        for (Xobj x = _firstChild; x != null; x = x._nextSibling) {
-            if (x.isElem() && names.contains(x._name) && --i < 0) {
-                return x.getUser();
-            }
-        }
+        Xobj x = _locale.findNthChildElem(this, null, names, Math.max(i, 0));
 
-        return null;
+        return x == null ? null : x.getUser();
     }
 
     @SuppressWarnings("unchecked")
