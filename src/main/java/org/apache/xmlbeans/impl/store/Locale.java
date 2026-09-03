@@ -1630,6 +1630,9 @@ public final class Locale
                 _version = Locale.this.version();
                 _parent = parent;
                 _name = name;
+                // both keys have to be kept in step, or a lookup by set can match a
+                // cached position that was seeded by a lookup by name
+                _set = set;
                 _child = null;
                 _n = -1;
 

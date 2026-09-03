@@ -16,6 +16,8 @@
 package org.apache.xmlbeans.impl.values;
 
 import java.util.AbstractList;
+import java.util.Iterator;
+import java.util.ListIterator;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -85,5 +87,19 @@ public class JavaListObject<T> extends AbstractList<T> {
             throw new IllegalStateException("XmlBean generated using partial methods - no size-of method available");
         }
         return sizer.get();
+    }
+
+    @Override
+    public Iterator<T> iterator() {
+        return new JavaListIterator<>(this, 0);
+    }
+
+    @Override
+    public ListIterator<T> listIterator(int index) {
+        if (index < 0 || index > size()) {
+            throw new IndexOutOfBoundsException("Index: " + index);
+        }
+
+        return new JavaListIterator<>(this, index);
     }
 }
