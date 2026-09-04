@@ -21,6 +21,9 @@ import com.easypo.XmlPurchaseOrderDocumentBean.PurchaseOrder;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlException;
 import org.junit.jupiter.api.Test;
+import org.openuri.nameworld.Loc;
+import org.openuri.nameworld.NameworldDocument;
+import org.openuri.nameworld.NameworldDocument.Nameworld;
 import org.openuri.sgs.RootDocument;
 
 import javax.xml.namespace.QName;
@@ -56,7 +59,8 @@ class IndexedElementAccessTest {
     /** A root whose children cycle through the A/B/C substitution group, so the accessor matches on a QNameSet. */
     private static RootDocument.Root substitutionGroupRoot(int children) throws XmlException {
         String[] names = {"A", "B", "C"};
-        StringBuilder xml = new StringBuilder("<root xmlns='" + SGS + "'>");
+        StringBuilder xml = new StringBuilder();
+        xml.append("<root xmlns='").append(SGS).append("'>");
         for (int i = 0; i < children; i++) {
             String name = names[i % names.length];
             xml.append('<').append(name).append('>').append("v").append(i).append("</").append(name).append('>');
@@ -81,6 +85,28 @@ class IndexedElementAccessTest {
         }
 
         return order;
+    }
+
+    private static final String NW = "http://openuri.org/nameworld";
+
+    /** Three levels of repeated elements, so that a pass over it walks nested parents. */
+    private static Nameworld nameworld(int islands, int locations, int references) throws XmlException {
+        StringBuilder xml = new StringBuilder();
+        xml.append("<nameworld xmlns='").append(NW).append("' xmlns:nw='").append(NW).append("'>");
+        for (int i = 0; i < islands; i++) {
+            xml.append("<island targetNamespace='is").append(i).append("'>");
+            for (int l = 0; l < locations; l++) {
+                xml.append("<location name='is").append(i).append("-loc").append(l).append("'>");
+                for (int r = 0; r < references; r++) {
+                    xml.append("<reference to='nw:r").append(r).append("'/>");
+                }
+                xml.append("</location>");
+            }
+            xml.append("</island>");
+        }
+        xml.append("</nameworld>");
+
+        return NameworldDocument.Factory.parse(xml.toString()).getNameworld();
     }
 
     @Test
@@ -214,5 +240,72 @@ class IndexedElementAccessTest {
 
         assertEquals(3, po.sizeOfLineItemArray());
         assertEquals("item2", po.getLineItemArray(1).getDescription());
+    }
+
+    @Test
+    void nestedIndexedAccessKeepsEachLevelOnItsOwnParent() throws Exception {
+        // The store caches the last child it returned per parent. An inner level must not be able
+        // to take the entry the level above it is resting on, or the outer walk restarts every time.
+        Nameworld world = nameworld(12, 6, 4);
+        assertEquals(12, world.sizeOfIslandArray());
+
+        for (int i = 0; i < 12; i++) {
+            Nameworld.Island island = world.getIslandArray(i);
+            assertEquals("is" + i, island.getTargetNamespace());
+            assertEquals(6, island.sizeOfLocationArray());
+
+            for (int l = 0; l < 6; l++) {
+                Loc location = island.getLocationArray(l);
+                assertEquals("is" + i + "-loc" + l, location.getName());
+                assertEquals(4, location.sizeOfReferenceArray());
+
+                for (int r = 0; r < 4; r++) {
+                    assertEquals("r" + r, location.getReferenceArray(r).getTo().getLocalPart());
+                }
+            }
+        }
+    }
+
+    @Test
+    void nestedListIterationKeepsEachLevelOnItsOwnParent() throws Exception {
+        Nameworld world = nameworld(12, 6, 4);
+
+        int islands = 0;
+        for (Nameworld.Island island : world.getIslandList()) {
+            assertEquals("is" + islands, island.getTargetNamespace());
+
+            int locations = 0;
+            for (Loc location : island.getLocationList()) {
+                assertEquals("is" + islands + "-loc" + locations, location.getName());
+
+                int references = 0;
+                for (Loc.Reference reference : location.getReferenceList()) {
+                    assertEquals("r" + references++, reference.getTo().getLocalPart());
+                }
+                assertEquals(4, references);
+
+                locations++;
+            }
+            assertEquals(6, locations);
+
+            islands++;
+        }
+        assertEquals(12, islands);
+    }
+
+    @Test
+    void aNestedWalkLeavesTheOuterLevelResumable() throws Exception {
+        // walk the outer level forwards, dipping into the inner level between steps, then read the
+        // outer level again out of order - a cache the inner walk corrupted would answer wrongly
+        Nameworld world = nameworld(16, 4, 2);
+
+        for (int i = 0; i < 16; i++) {
+            assertEquals("is" + i, world.getIslandArray(i).getTargetNamespace());
+            assertEquals("is" + i + "-loc3", world.getIslandArray(i).getLocationArray(3).getName());
+        }
+
+        for (int i : shuffled(16)) {
+            assertEquals("is" + i, world.getIslandArray(i).getTargetNamespace());
+        }
     }
 }

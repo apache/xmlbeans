@@ -1320,19 +1320,32 @@ public final class Locale
             return null;
         }
 
-        int da = _nthCache_A.distance(parent, name, set, n);
-        int db = _nthCache_B.distance(parent, name, set, n);
+        // Take the cache that is closest to the wanted position. Scanning from the back means
+        // that a tie is settled in favour of the least recently used entry, which is what makes
+        // a nested pass work: when neither entry matches the parent, the one re-seeded is the
+        // one the outer level is not sitting on.
+        int best = _nthCaches.length - 1;
+        int bestDistance = _nthCaches[best].distance(parent, name, set, n);
 
-        Xobj x =
-            da <= db
-                ? _nthCache_A.fetch(parent, name, set, n)
-                : _nthCache_B.fetch(parent, name, set, n);
+        for (int i = _nthCaches.length - 2; i >= 0; i--) {
+            int distance = _nthCaches[i].distance(parent, name, set, n);
 
-        if (da == db) {
-            nthCache temp = _nthCache_A;
-            _nthCache_A = _nthCache_B;
-            _nthCache_B = temp;
+            if (distance < bestDistance) {
+                bestDistance = distance;
+                best = i;
+            }
         }
+
+        nthCache cache = _nthCaches[best];
+
+        Xobj x = cache.fetch(parent, name, set, n);
+
+        // move it to the front, so that the entry at the back is always the one to evict next
+        for (int i = best; i > 0; i--) {
+            _nthCaches[i] = _nthCaches[i - 1];
+        }
+
+        _nthCaches[0] = cache;
 
         return x;
     }
@@ -1637,6 +1650,8 @@ public final class Locale
                 _n = -1;
 
                 for (Xobj x = parent._firstChild; x != null; x = x._nextSibling) {
+                    Locale.this._nthCacheSteps++;
+
                     if (x.isElem() && nameHit(name, set, x._name)) {
                         _child = x;
                         _n = 0;
@@ -1656,6 +1671,8 @@ public final class Locale
                             return null;
                         }
 
+                        Locale.this._nthCacheSteps++;
+
                         if (x.isElem() && nameHit(name, set, x._name)) {
                             _child = x;
                             _n++;
@@ -1670,6 +1687,8 @@ public final class Locale
                         if (x == null) {
                             return null;
                         }
+
+                        Locale.this._nthCacheSteps++;
 
                         if (x.isElem() && nameHit(name, set, x._name)) {
                             _child = x;
@@ -2818,8 +2837,24 @@ public final class Locale
 
     int _posTemp;
 
-    nthCache _nthCache_A = new nthCache();
-    nthCache _nthCache_B = new nthCache();
+    // One entry per level of element nesting that a pass can be walking at once. Two was enough
+    // for a flat pass but not for a nested one, where the inner level would evict the outer.
+    private static final int NTH_CACHE_COUNT = 4;
+
+    final nthCache[] _nthCaches = newNthCaches();
+
+    /** How many children the nth-child caches have stepped over, summed across all lookups. */
+    long _nthCacheSteps;
+
+    private nthCache[] newNthCaches() {
+        nthCache[] caches = new nthCache[NTH_CACHE_COUNT];
+
+        for (int i = 0; i < caches.length; i++) {
+            caches[i] = new nthCache();
+        }
+
+        return caches;
+    }
 
     domNthCache _domNthCache_A = new domNthCache();
     domNthCache _domNthCache_B = new domNthCache();
