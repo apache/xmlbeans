@@ -66,6 +66,20 @@ class XsbReader {
         _input = new LongUTFDataInputStream(rawinput);
         _handle = handle;
 
+        // A rejected header leaves the caller without a reference to close, so the
+        // resource stream has to be released here on the way out.
+        boolean headerRead = false;
+        try {
+            readHeader(handle, filetype);
+            headerRead = true;
+        } finally {
+            if (!headerRead) {
+                readEnd();
+            }
+        }
+    }
+
+    private void readHeader(String handle, int filetype) {
         int magic = readInt();
         if (magic != DATA_BABE) {
             throw new SchemaTypeLoaderException("XML-BEANS compiled schema: Wrong magic cookie", typeSystem.getName(), handle, SchemaTypeLoaderException.WRONG_MAGIC_COOKIE);
