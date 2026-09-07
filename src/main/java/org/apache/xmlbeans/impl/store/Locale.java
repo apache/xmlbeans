@@ -2573,11 +2573,26 @@ public final class Locale
             _context = null;
         }
 
+        /**
+         * Drops a partly built document. The XMLReader holds this handler, and a
+         * caller-supplied one (XmlOptions.setLoadUseXMLReader) outlives the parse, so
+         * an abandoned load must let go of the Locale for the same reason postLoad does.
+         */
+        private void abortLoad() {
+            if (_context != null) {
+                _context.abort();
+            }
+            _locale = null;
+            _context = null;
+        }
+
         public Cur load(Locale l, InputSource is, XmlOptions options)
             throws XmlException, IOException {
             is.setSystemId("file://");
 
             initSaxHandler(l, options);
+
+            boolean loaded = false;
 
             try {
                 _xr.parse(is);
@@ -2587,15 +2602,12 @@ public final class Locale
                 associateSourceName(c, options);
 
                 postLoad(c);
+                loaded = true;
 
                 return c;
             } catch (XmlRuntimeException e) {
-                _context.abort();
-
                 throw new XmlException(e);
             } catch (SAXParseException e) {
-                _context.abort();
-
                 XmlError err =
                     XmlError.forLocation(e.getMessage(),
                         options == null ? null : options.getDocumentSourceName(),
@@ -2603,15 +2615,13 @@ public final class Locale
 
                 throw new XmlException(err.toString(), e, err);
             } catch (SAXException e) {
-                _context.abort();
-
                 XmlError err = XmlError.forMessage(e.getMessage());
 
                 throw new XmlException(err.toString(), e, err);
-            } catch (RuntimeException e) {
-                _context.abort();
-
-                throw e;
+            } finally {
+                if (!loaded) {
+                    abortLoad();
+                }
             }
         }
 
