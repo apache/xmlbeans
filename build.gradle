@@ -789,3 +789,10 @@ animalsniffer {
     ignore 'javax.xml.namespace.*'
 }
 
+// The Android API signature only makes sense for code we ship. ParseUrlRedirectTest
+// runs a loopback com.sun.net.httpserver server, which is JDK-only and never leaves
+// the test source set.
+animalsnifferTest {
+    exclude '**/ParseUrlRedirectTest*'
+}
+
