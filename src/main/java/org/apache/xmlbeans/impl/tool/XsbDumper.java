@@ -353,31 +353,36 @@ public class XsbDumper {
     }
 
     void dumpAll() {
-        int filetype = dumpHeader();
-        switch (filetype) {
-            case FILETYPE_SCHEMAINDEX:
-                dumpIndexData();
-                return;
-            case FILETYPE_SCHEMATYPE:
-                dumpTypeFileData();
-                break;
-            case FILETYPE_SCHEMAELEMENT:
-                dumpParticleData(true);
-                break;
-            case FILETYPE_SCHEMAATTRIBUTE:
-                dumpAttributeData(true);
-                break;
-            case FILETYPE_SCHEMAPOINTER:
-                dumpPointerData();
-                break;
-            case FILETYPE_SCHEMAMODELGROUP:
-                dumpModelGroupData();
-                break;
-            case FILETYPE_SCHEMAATTRIBUTEGROUP:
-                dumpAttributeGroupData();
-                break;
+        try {
+            int filetype = dumpHeader();
+            switch (filetype) {
+                case FILETYPE_SCHEMAINDEX:
+                    dumpIndexData();
+                    break;
+                case FILETYPE_SCHEMATYPE:
+                    dumpTypeFileData();
+                    break;
+                case FILETYPE_SCHEMAELEMENT:
+                    dumpParticleData(true);
+                    break;
+                case FILETYPE_SCHEMAATTRIBUTE:
+                    dumpAttributeData(true);
+                    break;
+                case FILETYPE_SCHEMAPOINTER:
+                    dumpPointerData();
+                    break;
+                case FILETYPE_SCHEMAMODELGROUP:
+                    dumpModelGroupData();
+                    break;
+                case FILETYPE_SCHEMAATTRIBUTEGROUP:
+                    dumpAttributeGroupData();
+                    break;
+            }
+        } finally {
+            // the dumper owns the stream it was handed, and error() throws part-way
+            // through a truncated file
+            readEnd();
         }
-        readEnd();
     }
 
     static String hex32String(int i) {
@@ -627,7 +632,9 @@ public class XsbDumper {
 
     void readEnd() {
         try {
-            _input.close();
+            if (_input != null) {
+                _input.close();
+            }
         } catch (IOException e) {
             // oh, well.
         }
