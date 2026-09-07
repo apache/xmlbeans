@@ -669,103 +669,107 @@ public class SchemaCompiler {
 
         boolean result = true;
 
-        File schemasDir = IOUtil.createDir(classesDir, SchemaTypeSystemImpl.METADATA_PACKAGE_GEN + "/src");
+        // the loader holds an open ZipFile per classpath jar - it has to be released
+        // even when code generation or compilation throws
+        try {
+            File schemasDir = IOUtil.createDir(classesDir, SchemaTypeSystemImpl.METADATA_PACKAGE_GEN + "/src");
 
-        // build the in-memory type system
-        XmlErrorWatcher errorListener = new XmlErrorWatcher(outerErrorListener);
-        SchemaTypeSystem system = loadTypeSystem(name, xsdFiles, wsdlFiles, urlFiles, configFiles,
-            javaFiles, cpResourceLoader, download, noUpa, noPvr, noAnn, noVDoc, noExt, sourceCodeEncoding, mdefNamespaces,
-            baseDir, sourcesToCopyMap, errorListener, schemasDir, cmdLineEntRes, classpath);
-        if (errorListener.hasError()) {
-            result = false;
-        }
-        long finish = System.currentTimeMillis();
-        if (!quiet) {
-            System.out.println("Time to build schema type system: " + ((double) (finish - start) / 1000.0) + " seconds");
-        }
-
-        // now code generate and compile the JAR
-        if (result && system != null) // todo: don't check "result" here if we want to compile anyway, ignoring invalid schemas
-        {
-            start = System.currentTimeMillis();
-
-            // filer implementation writes binary .xsd and generated source to disk
-            Repackager repackager = (repackage == null ? null : new Repackager(repackage));
-            FilerImpl filer = new FilerImpl(classesDir, srcDir, repackager, verbose, incrSrcGen);
-
-            // currently just for schemaCodePrinter
-            XmlOptions options = new XmlOptions();
-            if (codePrinter != null) {
-                options.setSchemaCodePrinter(codePrinter);
+            // build the in-memory type system
+            XmlErrorWatcher errorListener = new XmlErrorWatcher(outerErrorListener);
+            SchemaTypeSystem system = loadTypeSystem(name, xsdFiles, wsdlFiles, urlFiles, configFiles,
+                javaFiles, cpResourceLoader, download, noUpa, noPvr, noAnn, noVDoc, noExt, sourceCodeEncoding, mdefNamespaces,
+                baseDir, sourcesToCopyMap, errorListener, schemasDir, cmdLineEntRes, classpath);
+            if (errorListener.hasError()) {
+                result = false;
             }
-            options.setCompilePartialMethod(partialMethods);
-            options.setCompileNoAnnotations(noAnn);
-            options.setCompileAnnotationAsJavadoc(copyAnn);
-            options.setCharacterEncoding(sourceCodeEncoding);
-
-            // save .xsb files
-            system.save(filer);
-
-            // gen source files
-            result = SchemaTypeSystemCompiler.generateTypes(system, filer, options);
-
-            if (incrSrcGen) {
-                // We have to delete extra source files that may be out of date
-                SchemaCodeGenerator.deleteObsoleteFiles(srcDir, srcDir,
-                    new HashSet<>(filer.getSourceFiles()));
+            long finish = System.currentTimeMillis();
+            if (!quiet) {
+                System.out.println("Time to build schema type system: " + ((double) (finish - start) / 1000.0) + " seconds");
             }
 
-            if (result) {
-                finish = System.currentTimeMillis();
-                if (!quiet) {
-                    System.out.println("Time to generate code: " + ((double) (finish - start) / 1000.0) + " seconds");
-                }
-            }
-
-            // compile source
-            if (result && !nojavac) {
+            // now code generate and compile the JAR
+            if (result && system != null) // todo: don't check "result" here if we want to compile anyway, ignoring invalid schemas
+            {
                 start = System.currentTimeMillis();
 
-                List<File> sourcefiles = filer.getSourceFiles();
+                // filer implementation writes binary .xsd and generated source to disk
+                Repackager repackager = (repackage == null ? null : new Repackager(repackage));
+                FilerImpl filer = new FilerImpl(classesDir, srcDir, repackager, verbose, incrSrcGen);
 
-                if (javaFiles != null) {
-                    sourcefiles.addAll(java.util.Arrays.asList(javaFiles));
+                // currently just for schemaCodePrinter
+                XmlOptions options = new XmlOptions();
+                if (codePrinter != null) {
+                    options.setSchemaCodePrinter(codePrinter);
                 }
-                if (!CodeGenUtil.externalCompile(sourcefiles, classesDir, classpath, debug, compiler, null,
-                    memoryInitialSize, memoryMaximumSize, quiet, verbose, sourceCodeEncoding)) {
-                    result = false;
+                options.setCompilePartialMethod(partialMethods);
+                options.setCompileNoAnnotations(noAnn);
+                options.setCompileAnnotationAsJavadoc(copyAnn);
+                options.setCharacterEncoding(sourceCodeEncoding);
+
+                // save .xsb files
+                system.save(filer);
+
+                // gen source files
+                result = SchemaTypeSystemCompiler.generateTypes(system, filer, options);
+
+                if (incrSrcGen) {
+                    // We have to delete extra source files that may be out of date
+                    SchemaCodeGenerator.deleteObsoleteFiles(srcDir, srcDir,
+                        new HashSet<>(filer.getSourceFiles()));
                 }
 
-                finish = System.currentTimeMillis();
-                if (result && !params.isQuiet()) {
-                    System.out.println("Time to compile code: " + ((double) (finish - start) / 1000.0) + " seconds");
+                if (result) {
+                    finish = System.currentTimeMillis();
+                    if (!quiet) {
+                        System.out.println("Time to generate code: " + ((double) (finish - start) / 1000.0) + " seconds");
+                    }
                 }
 
-                // jar classes and .xsb
-                if (result && outputJar != null) {
-                    try {
-                        new JarHelper().jarDir(classesDir, outputJar);
-                    } catch (IOException e) {
-                        System.err.println("IO Error " + e);
+                // compile source
+                if (result && !nojavac) {
+                    start = System.currentTimeMillis();
+
+                    List<File> sourcefiles = filer.getSourceFiles();
+
+                    if (javaFiles != null) {
+                        sourcefiles.addAll(java.util.Arrays.asList(javaFiles));
+                    }
+                    if (!CodeGenUtil.externalCompile(sourcefiles, classesDir, classpath, debug, compiler, null,
+                        memoryInitialSize, memoryMaximumSize, quiet, verbose, sourceCodeEncoding)) {
                         result = false;
                     }
 
+                    finish = System.currentTimeMillis();
                     if (result && !params.isQuiet()) {
-                        System.out.println("Compiled types to: " + outputJar);
+                        System.out.println("Time to compile code: " + ((double) (finish - start) / 1000.0) + " seconds");
+                    }
+
+                    // jar classes and .xsb
+                    if (result && outputJar != null) {
+                        try {
+                            new JarHelper().jarDir(classesDir, outputJar);
+                        } catch (IOException e) {
+                            System.err.println("IO Error " + e);
+                            result = false;
+                        }
+
+                        if (result && !params.isQuiet()) {
+                            System.out.println("Compiled types to: " + outputJar);
+                        }
                     }
                 }
             }
-        }
 
-        if (!result && !quiet) {
-            System.out.println("BUILD FAILED");
-        } else {
-            // call schema compiler extension if registered
-            runExtensions(extensions, system, classesDir);
-        }
-
-        if (cpResourceLoader != null) {
-            cpResourceLoader.close();
+            if (!result && !quiet) {
+                System.out.println("BUILD FAILED");
+            } else {
+                // call schema compiler extension if registered
+                runExtensions(extensions, system, classesDir);
+            }
+        } finally {
+            if (cpResourceLoader != null) {
+                cpResourceLoader.close();
+            }
         }
         return result;
     }
