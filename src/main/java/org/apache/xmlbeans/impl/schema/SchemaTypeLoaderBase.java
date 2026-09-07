@@ -199,6 +199,9 @@ public abstract class SchemaTypeLoaderBase implements SchemaTypeLoader {
                     } else {
                         url = new URL(newLocation);
                         count++;
+                        // the redirect body is never read, so hand the socket back
+                        // instead of leaving it for the keep-alive cache to reap
+                        httpcon.disconnect();
                     }
                 }
             }
