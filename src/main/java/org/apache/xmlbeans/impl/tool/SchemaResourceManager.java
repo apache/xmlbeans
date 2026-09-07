@@ -251,8 +251,13 @@ public class SchemaResourceManager extends BaseSchemaResourceManager
         File parent = targetFile.getParentFile();
         if (!parent.exists())
             parent.mkdirs();
-        OutputStream output = Files.newOutputStream(targetFile.toPath());
-        IOUtil.copyCompletely(input, output);
+        // copyCompletely() closes both streams, but it never runs if the target
+        // cannot be opened - and callers hand us a live download to close
+        try (InputStream in = input;
+             OutputStream output = Files.newOutputStream(targetFile.toPath()))
+        {
+            IOUtil.copyCompletely(in, output);
+        }
     }
 
     /**
