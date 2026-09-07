@@ -18,13 +18,12 @@ package org.apache.xmlbeans.impl.store;
 abstract class NamedNodeXobj extends NodeXobj {
     NamedNodeXobj(Locale l, int kind, int domType) {
         super(l, kind, domType);
-        _canHavePrefixUri = true;
+        setBit(CAN_HAVE_PREFIX_URI);
     }
 
     public boolean nodeCanHavePrefixUri() {
-        return _canHavePrefixUri;
+        return bitIsSet(CAN_HAVE_PREFIX_URI);
     }
 
-    boolean _canHavePrefixUri;
 }
 

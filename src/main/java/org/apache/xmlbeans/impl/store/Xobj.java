@@ -567,8 +567,7 @@ abstract class Xobj implements TypeStore {
 
             _name = newName;
             if (this instanceof NamedNodeXobj) {
-                NamedNodeXobj me = (NamedNodeXobj) this;
-                me._canHavePrefixUri = true;
+                setBit(CAN_HAVE_PREFIX_URI);
             }
 
             if (!isProcinst()) {
@@ -1298,6 +1297,9 @@ abstract class Xobj implements TypeStore {
     static final int VACANT = 0x100;
     static final int STABLE_USER = 0x200;
     static final int INHIBIT_DISCONNECT = 0x400;
+    // only NamedNodeXobj reads this one - it lives here so that NamedNodeXobj
+    // needs no field of its own, which would cost 8 bytes per AttrXobj in padding
+    static final int CAN_HAVE_PREFIX_URI = 0x800;
 
     final boolean isVacant() {
         return bitIsSet(VACANT);
