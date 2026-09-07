@@ -593,17 +593,15 @@ public abstract class BaseSchemaResourceManager extends SchemaImportResolver {
     }
 
     private String shaDigestForFile(String filename) throws IOException {
-        DigestInputStream str = digestInputStream(inputStreamForFile(filename));
+        try (DigestInputStream str = digestInputStream(inputStreamForFile(filename))) {
+            byte[] dummy = new byte[4096];
+            int i = 1;
+            while (i > 0) {
+                i = str.read(dummy);
+            }
 
-        byte[] dummy = new byte[4096];
-        int i = 1;
-        while (i > 0) {
-            i = str.read(dummy);
+            return HexBin.bytesToString(str.getMessageDigest().digest());
         }
-
-        str.close();
-
-        return HexBin.bytesToString(str.getMessageDigest().digest());
     }
 
     // SOME METHODS TO OVERRIDE ============================
