@@ -661,7 +661,7 @@ public final class DomImpl {
         c.createElement(l.makeQualifiedQName("", name));
         ElementXobj e = (ElementXobj) c.getDom();
         c.release();
-        e._canHavePrefixUri = false;
+        e.clearBit(Xobj.CAN_HAVE_PREFIX_URI);
         return e;
     }
 
@@ -698,7 +698,7 @@ public final class DomImpl {
         c.createAttr(l.makeQualifiedQName("", name));
         AttrXobj e = (AttrXobj) c.getDom();
         c.release();
-        e._canHavePrefixUri = false;
+        e.clearBit(Xobj.CAN_HAVE_PREFIX_URI);
         return e;
     }
 
