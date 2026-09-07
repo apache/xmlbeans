@@ -305,10 +305,14 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
     void saveIndex() {
         String handle = "index";
         XsbReader saver = new XsbReader(getTypeSystem(), handle);
-        saver.writeIndexData();
-        saver.writeRealHeader(handle, FILETYPE_SCHEMAINDEX);
-        saver.writeIndexData();
-        saver.writeEnd();
+        try {
+            saver.writeIndexData();
+            saver.writeRealHeader(handle, FILETYPE_SCHEMAINDEX);
+            saver.writeIndexData();
+            saver.writeEnd();
+        } finally {
+            saver.closeOutputQuietly();
+        }
     }
 
     void savePointers() {
@@ -345,10 +349,14 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
 
     void savePointerFile(String filename, String name) {
         XsbReader saver = new XsbReader(getTypeSystem(), filename);
-        saver.writeString(name);
-        saver.writeRealHeader(filename, FILETYPE_SCHEMAPOINTER);
-        saver.writeString(name);
-        saver.writeEnd();
+        try {
+            saver.writeString(name);
+            saver.writeRealHeader(filename, FILETYPE_SCHEMAPOINTER);
+            saver.writeString(name);
+            saver.writeEnd();
+        } finally {
+            saver.closeOutputQuietly();
+        }
     }
 
     private Map<String, SchemaComponent.Ref> buildTypeRefsByClassname(Map<String, SchemaType> typesByClassname) {
@@ -827,12 +835,16 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
         }
         String handle = _localHandles.handleForElement(elt);
         XsbReader saver = new XsbReader(getTypeSystem(), handle);
-        saver.writeParticleData((SchemaParticle) elt);
-        saver.writeString(elt.getSourceName());
-        saver.writeRealHeader(handle, FILETYPE_SCHEMAELEMENT);
-        saver.writeParticleData((SchemaParticle) elt);
-        saver.writeString(elt.getSourceName());
-        saver.writeEnd();
+        try {
+            saver.writeParticleData((SchemaParticle) elt);
+            saver.writeString(elt.getSourceName());
+            saver.writeRealHeader(handle, FILETYPE_SCHEMAELEMENT);
+            saver.writeParticleData((SchemaParticle) elt);
+            saver.writeString(elt.getSourceName());
+            saver.writeEnd();
+        } finally {
+            saver.closeOutputQuietly();
+        }
     }
 
     public void saveGlobalAttribute(SchemaGlobalAttribute attr) {
@@ -841,12 +853,16 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
         }
         String handle = _localHandles.handleForAttribute(attr);
         XsbReader saver = new XsbReader(getTypeSystem(), handle);
-        saver.writeAttributeData(attr);
-        saver.writeString(attr.getSourceName());
-        saver.writeRealHeader(handle, FILETYPE_SCHEMAATTRIBUTE);
-        saver.writeAttributeData(attr);
-        saver.writeString(attr.getSourceName());
-        saver.writeEnd();
+        try {
+            saver.writeAttributeData(attr);
+            saver.writeString(attr.getSourceName());
+            saver.writeRealHeader(handle, FILETYPE_SCHEMAATTRIBUTE);
+            saver.writeAttributeData(attr);
+            saver.writeString(attr.getSourceName());
+            saver.writeEnd();
+        } finally {
+            saver.closeOutputQuietly();
+        }
     }
 
     public void saveModelGroup(SchemaModelGroup grp) {
@@ -855,10 +871,14 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
         }
         String handle = _localHandles.handleForModelGroup(grp);
         XsbReader saver = new XsbReader(getTypeSystem(), handle);
-        saver.writeModelGroupData(grp);
-        saver.writeRealHeader(handle, FILETYPE_SCHEMAMODELGROUP);
-        saver.writeModelGroupData(grp);
-        saver.writeEnd();
+        try {
+            saver.writeModelGroupData(grp);
+            saver.writeRealHeader(handle, FILETYPE_SCHEMAMODELGROUP);
+            saver.writeModelGroupData(grp);
+            saver.writeEnd();
+        } finally {
+            saver.closeOutputQuietly();
+        }
     }
 
     public void saveAttributeGroup(SchemaAttributeGroup grp) {
@@ -867,10 +887,14 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
         }
         String handle = _localHandles.handleForAttributeGroup(grp);
         XsbReader saver = new XsbReader(getTypeSystem(), handle);
-        saver.writeAttributeGroupData(grp);
-        saver.writeRealHeader(handle, FILETYPE_SCHEMAATTRIBUTEGROUP);
-        saver.writeAttributeGroupData(grp);
-        saver.writeEnd();
+        try {
+            saver.writeAttributeGroupData(grp);
+            saver.writeRealHeader(handle, FILETYPE_SCHEMAATTRIBUTEGROUP);
+            saver.writeAttributeGroupData(grp);
+            saver.writeEnd();
+        } finally {
+            saver.closeOutputQuietly();
+        }
     }
 
     public void saveIdentityConstraint(SchemaIdentityConstraint idc) {
@@ -879,19 +903,27 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
         }
         String handle = _localHandles.handleForIdentityConstraint(idc);
         XsbReader saver = new XsbReader(getTypeSystem(), handle);
-        saver.writeIdConstraintData(idc);
-        saver.writeRealHeader(handle, FILETYPE_SCHEMAIDENTITYCONSTRAINT);
-        saver.writeIdConstraintData(idc);
-        saver.writeEnd();
+        try {
+            saver.writeIdConstraintData(idc);
+            saver.writeRealHeader(handle, FILETYPE_SCHEMAIDENTITYCONSTRAINT);
+            saver.writeIdConstraintData(idc);
+            saver.writeEnd();
+        } finally {
+            saver.closeOutputQuietly();
+        }
     }
 
     void saveType(SchemaType type) {
         String handle = _localHandles.handleForType(type);
         XsbReader saver = new XsbReader(getTypeSystem(), handle);
-        saver.writeTypeData(type);
-        saver.writeRealHeader(handle, FILETYPE_SCHEMATYPE);
-        saver.writeTypeData(type);
-        saver.writeEnd();
+        try {
+            saver.writeTypeData(type);
+            saver.writeRealHeader(handle, FILETYPE_SCHEMATYPE);
+            saver.writeTypeData(type);
+            saver.writeEnd();
+        } finally {
+            saver.closeOutputQuietly();
+        }
     }
 
     public static String crackPointer(InputStream stream) {

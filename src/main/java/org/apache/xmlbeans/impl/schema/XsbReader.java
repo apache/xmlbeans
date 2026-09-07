@@ -195,6 +195,23 @@ class XsbReader {
         _handle = null;
     }
 
+    /**
+     * Releases an output stream left open by a write that was abandoned part-way
+     * through. A completed writeEnd() has already cleared it, so this does nothing.
+     */
+    void closeOutputQuietly() {
+        if (_output != null) {
+            try {
+                _output.close();
+            } catch (IOException e) {
+                // the caller is already unwinding - don't mask the real failure
+            }
+            _output = null;
+            _stringPool = null;
+            _handle = null;
+        }
+    }
+
     void writeEnd() {
         try {
             if (_output != null) {
