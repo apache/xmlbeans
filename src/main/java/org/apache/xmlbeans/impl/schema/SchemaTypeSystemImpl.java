@@ -979,6 +979,9 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
                     result = reader.finishLoadingIdentityConstraint();
                     break;
                 default:
+                    // every finishLoadingXxx() above closes the reader in a finally;
+                    // this arm has to release it before unwinding
+                    reader.readEnd();
                     throw new IllegalStateException("Illegal handle type");
             }
 
