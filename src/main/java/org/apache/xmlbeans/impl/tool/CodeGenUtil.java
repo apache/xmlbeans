@@ -242,10 +242,23 @@ public class CodeGenUtil {
             StringBuilder errorBuffer = new StringBuilder();
             StringBuilder outputBuffer = new StringBuilder();
 
-            Thread out = copy(proc.getInputStream(), outputBuffer);
-            Thread err = copy(proc.getErrorStream(), errorBuffer);
+            try {
+                // the compiler reads nothing from stdin - leaving the pipe open just
+                // holds a file descriptor until the Process is collected
+                proc.getOutputStream().close();
 
-            proc.waitFor();
+                Thread out = copy(proc.getInputStream(), outputBuffer);
+                Thread err = copy(proc.getErrorStream(), errorBuffer);
+
+                proc.waitFor();
+
+                // the readers can still be draining the pipes after the process exits,
+                // so join before reporting what they collected
+                out.join();
+                err.join();
+            } finally {
+                proc.destroy();
+            }
 
             if (verbose || proc.exitValue() != 0) {
                 if (outputBuffer.length() > 0) {
@@ -347,9 +360,13 @@ public class CodeGenUtil {
      */
     private static Thread copy(InputStream stream, final StringBuilder output) {
         final BufferedReader reader = new BufferedReader(new InputStreamReader(stream, Charset.defaultCharset()));
-        Thread readerThread = new Thread(() ->
-            reader.lines().forEach(s -> output.append(s).append('\n'))
-        );
+        Thread readerThread = new Thread(() -> {
+            try (BufferedReader r = reader) {
+                r.lines().forEach(s -> output.append(s).append('\n'));
+            } catch (IOException e) {
+                // nothing useful to do with a failure to drain the pipe
+            }
+        });
         readerThread.start();
         return readerThread;
     }
